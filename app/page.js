@@ -1,198 +1,245 @@
+"use client";
+
 import React from 'react';
+import { motion } from 'framer-motion';
 import { 
-  Play, Video, Zap, Smartphone, ArrowRight, Star, 
-  CheckCircle2, MessageSquare, ShieldCheck, Sparkles, PlusCircle 
+  Mic, Video, Zap, Sparkles, Layout, 
+  ArrowRight, CheckCircle2, Play, 
+  Layers, BarChart3, Globe
 } from 'lucide-react';
+
+// --- COMPONENTS ---
+
+const Navbar = () => (
+  <nav className="fixed top-0 w-full z-[100] border-b border-white/5 bg-[#050816]/80 backdrop-blur-md">
+    <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <div className="w-8 h-8 bg-gradient-to-br from-violet-600 to-fuchsia-600 rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(139,92,246,0.5)]">
+          <Play size={18} fill="white" className="text-white ml-0.5" />
+        </div>
+        <span className="text-xl font-bold tracking-tighter text-white">ITNA<span className="text-violet-500">VIDEO</span></span>
+      </div>
+      
+      <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
+        {['Features', 'Pipeline', 'Pricing', 'FAQ'].map((item) => (
+          <a key={item} href={`#${item.toLowerCase()}`} className="hover:text-white transition-colors">{item}</a>
+        ))}
+      </div>
+
+      <div className="flex items-center gap-4">
+        <button className="text-sm font-medium text-gray-300 hover:text-white transition-colors">Sign In</button>
+        <button className="bg-white text-black px-5 py-2.5 rounded-full text-sm font-bold shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:scale-105 transition-all">
+          Get Started
+        </button>
+      </div>
+    </div>
+  </nav>
+);
+
+const Hero = () => (
+  <section className="relative pt-32 pb-20 overflow-hidden">
+    {/* Animated Background Gradients */}
+    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10">
+      <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-violet-600/20 rounded-full blur-[120px] animate-pulse"></div>
+      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px]"></div>
+    </div>
+
+    <div className="max-w-7xl mx-auto px-6 text-center">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-violet-500/30 bg-violet-500/10 text-violet-400 text-xs font-bold mb-8"
+      >
+        <Sparkles size={14} />
+        <span>2026 AI Generation Engine Live</span>
+      </motion.div>
+
+      <motion.h1 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="text-6xl md:text-8xl font-extrabold tracking-tight mb-8 leading-[1.05] text-white"
+      >
+        Upload voice. <br />
+        <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent">
+          Get viral video.
+        </span>
+      </motion.h1>
+
+      <motion.p 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="text-gray-400 text-xl md:text-2xl max-w-3xl mx-auto mb-12 leading-relaxed"
+      >
+        The first AI pipeline that handles everything from scene planning to 4K rendering. Stop editing, start creating.
+      </motion.p>
+
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="flex flex-col sm:flex-row items-center justify-center gap-6"
+      >
+        <button className="group relative bg-violet-600 text-white px-10 py-5 rounded-2xl font-bold text-xl shadow-[0_0_30px_rgba(139,92,246,0.4)] hover:bg-violet-500 transition-all flex items-center gap-3">
+          Start Creating Free
+          <ArrowRight className="group-hover:translate-x-1 transition-transform" />
+        </button>
+        <div className="flex -space-x-3 items-center">
+          {[1,2,3,4].map(i => (
+            <div key={i} className="w-10 h-10 rounded-full border-2 border-[#050816] bg-gray-800" />
+          ))}
+          <span className="pl-6 text-sm text-gray-500 font-medium">Joined by 2,000+ creators</span>
+        </div>
+      </motion.div>
+    </div>
+  </section>
+);
+
+const FeatureCard = ({ icon: Icon, title, desc }: any) => (
+  <motion.div 
+    whileHover={{ y: -10 }}
+    className="p-8 rounded-3xl border border-white/5 bg-white/[0.02] backdrop-blur-sm hover:border-violet-500/50 transition-all group"
+  >
+    <div className="w-12 h-12 rounded-xl bg-violet-500/10 flex items-center justify-center mb-6 text-violet-400 group-hover:scale-110 transition-transform">
+      <Icon size={24} />
+    </div>
+    <h3 className="text-xl font-bold mb-3 text-white">{title}</h3>
+    <p className="text-gray-500 leading-relaxed">{desc}</p>
+  </motion.div>
+);
+
+// --- MAIN PAGE ---
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#030303] text-white font-sans selection:bg-blue-500/30">
-      {/* Background Glows */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-blue-600/10 blur-[120px] pointer-events-none rounded-full" />
-      <div className="fixed bottom-0 right-0 w-[500px] h-[500px] bg-purple-600/5 blur-[120px] pointer-events-none rounded-full" />
+    <div className="bg-[#050816] text-white selection:bg-violet-500/30">
+      <Navbar />
+      
+      <main>
+        <Hero />
 
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 backdrop-blur-xl border-b border-white/5 px-6 py-4 md:px-12 flex items-center justify-between">
-        <div className="text-2xl font-black tracking-tighter italic bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">
-          ITNA<span className="text-blue-500">VIDEO</span>.AI
-        </div>
-        <div className="hidden md:flex space-x-8 text-sm font-medium text-gray-400">
-          <a href="#how-it-works" className="hover:text-white transition">How it Works</a>
-          <a href="#showcase" className="hover:text-white transition">Showcase</a>
-          <a href="#pricing" className="hover:text-white transition">Pricing</a>
-        </div>
-        <button className="bg-white text-black px-6 py-2.5 rounded-full text-sm font-bold hover:bg-blue-500 hover:text-white transition-all">
-          Get Started
-        </button>
-      </nav>
+        {/* Pipeline Section */}
+        <section id="pipeline" className="py-32 px-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-20">
+              <h2 className="text-4xl md:text-5xl font-bold mb-6">The 1-Click Pipeline</h2>
+              <p className="text-gray-400 text-lg">We integrated the best of AI so you don't have to.</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              {[
+                { name: 'Whisper', tech: 'Audio-to-Text', icon: Mic },
+                { name: 'GPT-4o', tech: 'Scene Planning', icon: Sparkles },
+                { name: 'Canva', tech: 'Motion Assets', icon: Layout },
+                { name: 'FFmpeg', tech: 'Pro Rendering', icon: Layers },
+                { name: 'Cloudinary', tech: 'Fast Delivery', icon: Globe },
+              ].map((step, i) => (
+                <div key={i} className="relative p-6 rounded-2xl bg-gradient-to-b from-white/10 to-transparent border border-white/5 text-center">
+                  <step.icon className="mx-auto mb-4 text-violet-400" size={32} />
+                  <h4 className="font-bold text-lg">{step.name}</h4>
+                  <p className="text-xs text-gray-500 uppercase tracking-widest mt-1">{step.tech}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
 
-      {/* 1. HERO SECTION */}
-      <main className="relative flex flex-col items-center justify-center text-center px-4 pt-24 pb-20">
-        <div className="animate-bounce inline-flex items-center space-x-2 bg-blue-500/10 border border-blue-500/20 px-4 py-1.5 rounded-full mb-8">
-          <Sparkles size={14} className="text-blue-400" />
-          <span className="text-[10px] md:text-xs font-bold tracking-widest text-blue-400 uppercase">New: Text-to-Video 2.0</span>
-        </div>
-        
-        <h1 className="text-6xl md:text-[110px] font-black tracking-tighter mb-8 leading-[0.85]">
-          STOP EDITING.<br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-gray-600">
-            START CREATING.
-          </span>
-        </h1>
+        {/* Features Grid */}
+        <section id="features" className="py-32 px-6 bg-white/[0.01]">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+            <FeatureCard 
+              icon={Zap} 
+              title="90s Render Speed" 
+              desc="Our serverless architecture renders 4K videos faster than you can write a tweet."
+            />
+            <FeatureCard 
+              icon={BarChart3} 
+              title="Retention Focused" 
+              desc="AI-driven zooms and caption timing designed to maximize 'Watch Time' metrics."
+            />
+            <FeatureCard 
+              icon={CheckCircle2} 
+              title="Brand Kits" 
+              desc="Save your colors, fonts, and logos once. Apply them to every AI generation."
+            />
+          </div>
+        </section>
 
-        <p className="max-w-2xl text-gray-400 text-lg md:text-xl mb-12 leading-relaxed">
-          The world's first AI video engine designed for creators. Turn your wildest ideas into viral shorts, reels, and cinematic videos in seconds.
-        </p>
+        {/* Pricing */}
+        <section id="pricing" className="py-32 px-6">
+          <div className="max-w-4xl mx-auto text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4">Simple, transparent pricing</h2>
+            <p className="text-gray-400 text-lg">Scale your content without scaling your costs.</p>
+          </div>
+          
+          <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-8">
+            {/* Basic Card Example */}
+            <div className="p-8 rounded-3xl border border-white/5 bg-white/5">
+              <h3 className="text-xl font-bold mb-2">Basic</h3>
+              <div className="text-4xl font-bold mb-6">$19<span className="text-lg text-gray-500">/mo</span></div>
+              <ul className="space-y-4 mb-8 text-sm text-gray-400">
+                <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-green-500"/> 10 Videos / mo</li>
+                <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-green-500"/> 1080p Export</li>
+              </ul>
+              <button className="w-full py-3 rounded-xl bg-white/10 hover:bg-white/20 transition-all font-bold">Choose Basic</button>
+            </div>
 
-        <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6 w-full sm:w-auto px-6">
-          <button className="group bg-blue-600 text-white px-10 py-5 rounded-2xl font-black flex items-center justify-center space-x-3 hover:bg-blue-500 hover:shadow-[0_0_30px_rgba(37,99,235,0.4)] transition-all">
-            <span>START FOR FREE</span>
-            <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-          </button>
-        </div>
+            {/* Pro Card - Highlighted */}
+            <div className="p-8 rounded-3xl border-2 border-violet-600 bg-violet-600/10 relative scale-105 shadow-[0_0_40px_rgba(139,92,246,0.2)]">
+              <div className="absolute top-0 right-8 -translate-y-1/2 bg-violet-600 text-white text-[10px] font-black uppercase px-3 py-1 rounded-full">Most Popular</div>
+              <h3 className="text-xl font-bold mb-2">Pro</h3>
+              <div className="text-4xl font-bold mb-6">$49<span className="text-lg text-gray-500">/mo</span></div>
+              <ul className="space-y-4 mb-8 text-sm text-gray-300">
+                <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-violet-400"/> Unlimited Videos</li>
+                <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-violet-400"/> 4K Ultra HD</li>
+                <li className="flex items-center gap-2"><CheckCircle2 size={16} className="text-violet-400"/> Custom AI Voice</li>
+              </ul>
+              <button className="w-full py-3 rounded-xl bg-violet-600 hover:bg-violet-500 transition-all font-bold">Get Pro Access</button>
+            </div>
+
+            {/* Business */}
+            <div className="p-8 rounded-3xl border border-white/5 bg-white/5 text-gray-500">
+              <h3 className="text-xl font-bold mb-2">Enterprise</h3>
+              <div className="text-4xl font-bold mb-6">Custom</div>
+              <p className="text-sm mb-8">For agencies managing 50+ clients.</p>
+              <button className="w-full py-3 rounded-xl bg-white/5 border border-white/10 font-bold">Contact Sales</button>
+            </div>
+          </div>
+        </section>
       </main>
 
-      {/* 2. REELS/SHORTS SHOWCASE */}
-      <section id="showcase" className="py-24 px-6">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-6xl font-black mb-4">MADE WITH ITNAVIDEO</h2>
-          <p className="text-gray-500 uppercase tracking-widest text-sm font-bold">Scroll to explore viral formats</p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="aspect-[9/16] rounded-[32px] bg-white/5 border border-white/10 overflow-hidden relative group">
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-60" />
-              <div className="absolute bottom-6 left-6">
-                <div className="flex items-center space-x-2 mb-2">
-                  <div className="w-8 h-8 rounded-full bg-blue-500" />
-                  <span className="text-xs font-bold tracking-tighter">AI Creator #{i}</span>
-                </div>
-                <p className="text-xs text-gray-400">"Generated from: A futuristic city in rain..."</p>
+      <footer className="py-20 border-t border-white/5 px-6">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between gap-12">
+           <div className="max-w-sm">
+             <div className="text-xl font-bold mb-6">ITNA<span className="text-violet-500">VIDEO</span></div>
+             <p className="text-gray-500 text-sm leading-relaxed">Building the future of automated video creation. Founded in 2026 for the creator economy.</p>
+           </div>
+           <div className="grid grid-cols-2 md:grid-cols-3 gap-16">
+              <div>
+                <h4 className="font-bold mb-6 text-sm uppercase tracking-widest">Product</h4>
+                <ul className="space-y-4 text-sm text-gray-500">
+                  <li><a href="#">Features</a></li>
+                  <li><a href="#">API</a></li>
+                </ul>
               </div>
-              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
-                 <Play fill="white" size={48} />
+              <div>
+                <h4 className="font-bold mb-6 text-sm uppercase tracking-widest">Company</h4>
+                <ul className="space-y-4 text-sm text-gray-500">
+                  <li><a href="#">About</a></li>
+                  <li><a href="#">Blog</a></li>
+                </ul>
               </div>
-            </div>
-          ))}
+              <div>
+                <h4 className="font-bold mb-6 text-sm uppercase tracking-widest">Legal</h4>
+                <ul className="space-y-4 text-sm text-gray-500">
+                  <li><a href="#">Privacy</a></li>
+                  <li><a href="#">Terms</a></li>
+                </ul>
+              </div>
+           </div>
         </div>
-      </section>
-
-      {/* 3. HOW IT WORKS (INSTRUCTIONS) */}
-      <section id="how-it-works" className="py-24 bg-white/[0.02] border-y border-white/5">
-        <div className="max-w-6xl mx-auto px-6 text-center">
-          <h2 className="text-4xl md:text-5xl font-black mb-20 italic">HOW IT WORKS</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-16 relative">
-            <InstructionStep 
-              number="01" 
-              title="Write Prompt" 
-              desc="Just type what you want to see. Our AI understands emotion and cinematic styles." 
-            />
-            <InstructionStep 
-              number="02" 
-              title="Choose Style" 
-              desc="Select from Realistic, Anime, 3D, or Cinematic 4K presets." 
-            />
-            <InstructionStep 
-              number="03" 
-              title="Export & Go" 
-              desc="Your video is ready in 60 seconds. One-click export to Reels, Shorts, or YouTube." 
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* 4. REVIEWS SECTION */}
-      <section className="py-24 px-6 overflow-hidden">
-        <h2 className="text-center text-4xl font-black mb-16">LOVED BY CREATORS</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          <ReviewCard name="Rahul Verma" role="YouTuber" text="ItnaVideo changed my content game. I don't need a cameraman anymore." />
-          <ReviewCard name="Sarah J." role="Insta Creator" text="The quality is better than any other AI I've used. Worth every penny." />
-          <ReviewCard name="Amit Shah" role="Marketing Head" text="We saved 90% on our ad production costs. This is insane." />
-        </div>
-      </section>
-
-      {/* 5. PRICING (CONVERSION) */}
-      <section id="pricing" className="py-24 px-6 bg-blue-600/5">
-        <div className="max-w-4xl mx-auto border border-blue-500/30 rounded-[40px] p-8 md:p-16 bg-gradient-to-b from-blue-500/10 to-transparent">
-          <div className="text-center mb-10">
-            <h2 className="text-5xl font-black mb-4">CHOOSE YOUR PLAN</h2>
-            <p className="text-gray-400">Join the future of video production today.</p>
-          </div>
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="p-8 rounded-3xl bg-white/5 border border-white/10">
-              <h3 className="text-xl font-bold mb-2">Free Starter</h3>
-              <div className="text-4xl font-black mb-6">$0 <span className="text-sm text-gray-500">/mo</span></div>
-              <ul className="space-y-4 mb-8 text-gray-400 text-sm">
-                <li className="flex items-center"><CheckCircle2 size={16} className="mr-2 text-green-500"/> 5 AI Videos / Month</li>
-                <li className="flex items-center"><CheckCircle2 size={16} className="mr-2 text-green-500"/> 720p Quality</li>
-                <li className="flex items-center"><CheckCircle2 size={16} className="mr-2 text-green-500"/> Watermark</li>
-              </ul>
-              <button className="w-full py-3 rounded-xl border border-white/20 font-bold hover:bg-white/10 transition">Start Free</button>
-            </div>
-            <div className="p-8 rounded-3xl bg-blue-600 border border-blue-400 shadow-[0_0_40px_rgba(37,99,235,0.2)]">
-              <h3 className="text-xl font-bold mb-2 text-white">Pro Creator</h3>
-              <div className="text-4xl font-black mb-6 text-white">$29 <span className="text-sm text-blue-200">/mo</span></div>
-              <ul className="space-y-4 mb-8 text-blue-100 text-sm">
-                <li className="flex items-center"><CheckCircle2 size={16} className="mr-2"/> Unlimited AI Videos</li>
-                <li className="flex items-center"><CheckCircle2 size={16} className="mr-2"/> 4K Ultra HD Quality</li>
-                <li className="flex items-center"><CheckCircle2 size={16} className="mr-2"/> Commercial License</li>
-              </ul>
-              <button className="w-full py-3 rounded-xl bg-white text-blue-600 font-black hover:bg-gray-100 transition">Go Pro Now</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 6. FAQ SECTION */}
-      <section className="py-24 max-w-3xl mx-auto px-6">
-        <h2 className="text-4xl font-black text-center mb-16 italic">FAQS</h2>
-        <div className="space-y-6">
-          <FAQItem q="Do I need technical skills?" a="Not at all! If you can type a text message, you can create a video on ItnaVideo.AI." />
-          <FAQItem q="Can I use videos for YouTube?" a="Yes! Pro plan users get a full commercial license for YouTube, Instagram, and TikTok." />
-          <FAQItem q="Is it better than Sora or Runway?" a="We focus specifically on social media formats (Reels/Shorts) with 10x faster rendering." />
-        </div>
-      </section>
-
-      {/* FOOTER */}
-      <footer className="py-12 border-t border-white/5 text-center px-6">
-        <div className="text-xl font-black mb-4">ITNAVIDEO.AI</div>
-        <p className="text-gray-500 text-sm">© 2024 itnavideo. All rights reserved. Made for the dreamers.</p>
       </footer>
-    </div>
-  );
-}
-
-function InstructionStep({ number, title, desc }) {
-  return (
-    <div className="flex flex-col items-center">
-      <div className="text-6xl font-black text-white/5 mb-[-30px] z-0">{number}</div>
-      <h3 className="text-2xl font-bold mb-4 z-10">{title}</h3>
-      <p className="text-gray-500 text-sm leading-relaxed">{desc}</p>
-    </div>
-  );
-}
-
-function ReviewCard({ name, role, text }) {
-  return (
-    <div className="p-8 rounded-[32px] bg-white/5 border border-white/10 hover:border-blue-500/50 transition-all">
-      <div className="flex text-yellow-500 mb-4">
-        {[1,2,3,4,5].map(s => <Star key={s} size={14} fill="currentColor" />)}
-      </div>
-      <p className="text-gray-300 italic mb-6">"{text}"</p>
-      <div>
-        <div className="font-bold">{name}</div>
-        <div className="text-blue-500 text-xs font-bold uppercase tracking-tighter">{role}</div>
-      </div>
-    </div>
-  );
-}
-
-function FAQItem({ q, a }) {
-  return (
-    <div className="border-b border-white/5 pb-6">
-      <h3 className="text-lg font-bold mb-3">{q}</h3>
-      <p className="text-gray-400 text-sm">{a}</p>
     </div>
   );
 }
