@@ -1,3 +1,4 @@
+import { ClerkProvider } from '@clerk/nextjs'; // 1. Clerk ko import kiya
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
@@ -19,11 +20,13 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-      <body className="bg-black text-white min-h-screen">
-        <Navbar />
-        <main>{children}</main>
-      </body>
-    </html>
+    <ClerkProvider> {/* 2. Pura app iske andar hona chahiye */}
+      <html lang="en" className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <body className="bg-black text-white min-h-screen">
+          <Navbar />
+          <main>{children}</main>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
