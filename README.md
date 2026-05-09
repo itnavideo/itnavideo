@@ -11,6 +11,24 @@
 
 ---
 
+## 🚀 Core Features
+
+### 🎯 AI-Powered Video Creation Suite
+
+| 🎭 **AI Captions** | 🛡️ **Safe-Zone Optimization** | 🎬 **Auto B-Roll** | 🎭 **Mood Detection** |
+|---|---|---|---|
+| **Smart captioning** with millisecond synchronization | **Platform-specific** safe zones for Instagram, TikTok, YouTube | **Intelligent B-roll** generation from uploaded media | **Voice emotion analysis** for dynamic visual adaptation |
+| Real-time speech-to-text with perfect timing | Automatic overlay positioning and scaling | Context-aware clip selection and transitions | Tone-based color schemes and animation intensity |
+| Multi-language support with cultural adaptation | Hook placement optimization for maximum engagement | Seamless integration with voice narration | Energy-driven pacing and transition speeds |
+
+| ✨ **AI Transitions** | 🎨 **Canva Assets** | 🎵 **Sound Intelligence** | 📱 **Platform Optimization** |
+|---|---|---|---|
+| **30+ cinematic transitions** with smart scene detection | **100M+ premium assets** from Canva's design library | **AI-powered audio sync** with beat matching | **Cross-platform formatting** for all social media |
+| Mood-aware transition selection | Motion graphics, icons, and templates | Automatic sound effects and background music | Instagram Reels, TikTok, YouTube Shorts ready |
+| Smooth scene flow with professional polish | Brand-consistent visual elements | Emotion-based audio selection | Optimized aspect ratios and resolutions |
+
+---
+
 ## 🎥 Long-Form Videos (Coming Soon)
 
 ## 🌍 Overview
@@ -179,42 +197,31 @@ Cloudinary
 
 ---
 
-# ✨ Core Features
+# ✨ Advanced AI Capabilities
 
 ## 🎤 Voice Intelligence
-- Speech-to-text via Whisper API
-- Mood detection from voice tone
-- Energy analysis
-- Millisecond caption sync
+- **Speech-to-text via Whisper API** with 99% accuracy
+- **Mood detection** from voice tone and energy levels
+- **Emotion analysis** for dynamic visual adaptation
+- **Millisecond caption sync** with perfect timing
 
 ## 🎨 Visual Intelligence
-- Canva-powered assets
-- 100M+ elements
-- Smart screenshot zoom
-- Face-aware AI cropping
-- Auto charts & diagrams
-- Kinetic typography
+- **Canva-powered assets** with 100M+ premium elements
+- **Smart screenshot analysis** and face-aware cropping
+- **Auto B-roll generation** from uploaded media library
+- **Kinetic typography** with animation presets
 
 ## 🎬 Video Intelligence
-- AI scene generation
-- 30+ animation presets
-- Motion blur
-- Parallax effects
-- Auto transitions
-- Speed ramping
+- **AI scene generation** with intelligent storytelling
+- **30+ animation presets** including motion blur and parallax
+- **Smart transitions** based on content mood and pacing
+- **Platform-optimized safe zones** for maximum engagement
 
-## 📱 Platform Optimization
-- Instagram safe-zones
-- TikTok safe-zones
-- YouTube Shorts optimization
-- Dynamic overlay scaling
-- Hook placement optimization
-
-## 🔊 Sound Intelligence
-- AI sound matching
-- Beat synchronization
-- Sound effects automation
-- Mood-based audio selection
+## 🔊 Audio Intelligence
+- **AI sound matching** with beat synchronization
+- **Mood-based audio selection** from premium libraries
+- **Automatic sound effects** and background music
+- **Voice-over enhancement** and noise reduction
 
 ---
 
