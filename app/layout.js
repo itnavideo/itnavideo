@@ -2,6 +2,9 @@
 
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import { Inter } from 'next/font/google';
+
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
   title: "Itnavideo",
@@ -12,7 +15,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className="bg-black text-white antialiased">
+      <body className={`${inter.className} bg-black text-white antialiased`}>
         
         {/* Navbar */}
         <Navbar />

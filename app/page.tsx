@@ -41,7 +41,7 @@ export default function HomePage() {
           </h1>
 
           {/* Subheading */}
-          <p className="text-zinc-400 text-lg md:text-xl max-w-3xl mx-auto leading-8 mb-10">
+          <p className="text-zinc-300 text-lg md:text-xl max-w-3xl mx-auto leading-8 mb-10 font-medium">
             Itnavideo transforms voice recordings into professional
             short-form videos using AI — complete with captions,
             animations, transitions, and cinematic storytelling.
@@ -88,7 +88,7 @@ export default function HomePage() {
               Everything Needed To Create Viral Videos
             </h2>
 
-            <p className="text-zinc-400 max-w-3xl mx-auto text-lg leading-8">
+            <p className="text-zinc-400 max-w-3xl mx-auto text-lg leading-8 font-medium">
               AI handles captions, animations, storytelling, sound syncing,
               safe-zones, and rendering automatically.
             </p>
@@ -183,7 +183,7 @@ export default function HomePage() {
             Start Creating With AI Today
           </h2>
 
-          <p className="text-zinc-300 text-lg leading-8 mb-10 max-w-3xl mx-auto">
+          <p className="text-zinc-300 text-lg leading-8 mb-10 max-w-3xl mx-auto font-medium">
             Join the next generation of creators using AI to automate
             cinematic short-form video production.
           </p>
@@ -224,7 +224,7 @@ function FeatureCard({ icon, title, desc }) {
         {title}
       </h3>
 
-      <p className="text-zinc-400 leading-7">
+      <p className="text-zinc-400 leading-7 font-medium">
         {desc}
       </p>
     </div>
@@ -244,7 +244,7 @@ function StepCard({ step, title, desc }) {
         {title}
       </h3>
 
-      <p className="text-zinc-400 leading-7">
+      <p className="text-zinc-400 leading-7 font-medium">
         {desc}
       </p>
     </div>
