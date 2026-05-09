@@ -7,12 +7,12 @@ export default function Navbar() {
   const { user, logout } = useAuth();
 
   return (
-    <nav className="w-full p-6 border-b border-zinc-800 bg-black">
+    <nav className="w-full p-6 border-b border-zinc-800 bg-black sticky top-0 z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
 
         {/* Logo */}
-        <Link href="/" className="text-2xl font-bold">
-          Itna<span className="text-purple-500">video</span>
+        <Link href="/" className="text-3xl font-bold text-white hover:opacity-90 transition flex items-center gap-1">
+          <span>Itna</span><span className="text-purple-500 font-bold">video</span>
         </Link>
 
         {/* Navigation Links */}
@@ -61,6 +61,12 @@ export default function Navbar() {
               </Link>
             </>
           )}
+          <Link
+            href="/admin/login"
+            className="text-xs text-zinc-500 hover:text-zinc-300 transition ml-2"
+          >
+            Admin
+          </Link>
         </div>
       </div>
     </nav>

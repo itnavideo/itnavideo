@@ -2,13 +2,23 @@
 
 import Link from "next/link";
 import { Check } from "lucide-react";
+import { Metadata } from "next";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Pricing | Itnavideo",
   description: "Simple and transparent pricing for AI video generation.",
 };
 
-const plans = [
+interface Plan {
+  name: string;
+  price: string;
+  description: string;
+  features: string[];
+  button: string;
+  popular: boolean;
+}
+
+const plans: Plan[] = [
   {
     name: "Free",
     price: "$0",

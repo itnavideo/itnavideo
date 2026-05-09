@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from '@/components/AuthContext';
 import { AdminProvider } from '@/components/AdminContext';
+import { Metadata } from "next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,7 +18,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Itnavideo",
   description:
     "AI-powered video creation platform for creators, educators, and businesses.",
@@ -26,9 +27,9 @@ export const metadata = {
   },
 };
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} font-sans bg-black text-white antialiased`}
       >

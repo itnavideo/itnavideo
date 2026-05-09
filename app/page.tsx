@@ -9,6 +9,14 @@ import {
   PlayCircle,
   CheckCircle2,
 } from "lucide-react";
+import { motion } from 'framer-motion';
+import BrandWall from "@/components/BrandWall";
+import HowItWorks from "@/components/HowItWorks"; // Assuming you have this component
+import ComparisonSection from "@/components/ComparisonSection"; // Assuming you have this component
+import LongFormComingSoon from "@/components/LongFormComingSoon";
+import FAQSection from "@/components/FAQSection";
+import TestimonialSection from "@/components/TestimonialSection";
+import EngagementHook from "@/components/EngagementHook";
 
 export default function HomePage() {
   return (
@@ -23,16 +31,15 @@ export default function HomePage() {
         <div className="relative z-10 max-w-7xl mx-auto text-center">
           
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 border border-purple-500/30 bg-purple-500/10 px-5 py-2 rounded-full mb-8">
+          <div className="inline-flex items-center gap-2 border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 rounded-full mb-8 backdrop-blur-sm">
             <Sparkles size={18} className="text-purple-400" />
-
-            <span className="text-sm text-purple-300">
+            <span className="text-xs font-semibold tracking-wider uppercase text-purple-300">
               AI-Powered Video Creation Platform
             </span>
           </div>
 
           {/* Heading */}
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-tight mb-8">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[0.9] tracking-tighter mb-8 text-white">
             Upload Voice.
             <br />
             Get Cinematic Videos.
@@ -41,7 +48,7 @@ export default function HomePage() {
           </h1>
 
           {/* Subheading */}
-          <p className="text-zinc-300 text-lg md:text-xl max-w-3xl mx-auto leading-8 mb-10 font-medium">
+          <p className="text-zinc-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-12 font-normal tracking-tight">
             Itnavideo transforms voice recordings into professional
             short-form videos using AI — complete with captions,
             animations, transitions, and cinematic storytelling.
@@ -52,15 +59,14 @@ export default function HomePage() {
             
             <Link
               href="/dashboard"
-              className="bg-purple-600 hover:bg-purple-500 transition px-8 py-4 rounded-2xl text-lg font-semibold"
+              className="group w-full sm:w-auto bg-white text-black px-10 py-5 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 hover:bg-zinc-200 transition-all shadow-[0_20px_50px_rgba(255,255,255,0.1)]"
             >
-              Start Creating
+              Start Creating Free <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
             </Link>
 
-            <button className="flex items-center gap-3 border border-zinc-700 hover:border-zinc-500 transition px-8 py-4 rounded-2xl text-lg">
+            <Link href="/pricing" className="w-full sm:w-auto px-10 py-5 rounded-2xl font-bold text-lg text-white border border-white/10 hover:bg-white/5 transition-all backdrop-blur-sm">
               <PlayCircle size={22} />
               Watch Demo
-            </button>
           </div>
 
           {/* Stats */}
@@ -73,6 +79,12 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* BRAND LOGO WALL - Assuming BrandWall is already integrated */}
+      <BrandWall />
+
+      {/* ENGAGEMENT PHILOSOPHY HOOK */}
+      <EngagementHook />
 
       {/* FEATURES */}
       <section className="px-6 py-24">
@@ -136,45 +148,22 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* HOW IT WORKS */}
-      <section className="px-6 py-24 border-t border-zinc-900">
-        
-        <div className="max-w-7xl mx-auto">
-          
-          <div className="text-center mb-20">
-            <p className="text-purple-400 uppercase tracking-[0.3em] text-sm mb-5">
-              Process
-            </p>
+      {/* HOW IT WORKS - Using the improved HowItWorks component */}
+      <HowItWorks />
 
-            <h2 className="text-5xl font-bold mb-6">
-              Create Videos In 3 Simple Steps
-            </h2>
-          </div>
+      {/* COMPARISON SECTION - Using the improved ComparisonSection component */}
+      <ComparisonSection />
 
-          <div className="grid md:grid-cols-3 gap-8">
-            
-            <StepCard
-              step="01"
-              title="Upload"
-              desc="Upload voiceovers, screenshots, clips, or media assets."
-            />
+      {/* LONG-FORM VIDEOS COMING SOON */}
+      <LongFormComingSoon />
 
-            <StepCard
-              step="02"
-              title="AI Processing"
-              desc="AI generates captions, animations, scenes, and transitions."
-            />
+      {/* TESTIMONIALS SECTION */}
+      <TestimonialSection />
 
-            <StepCard
-              step="03"
-              title="Export"
-              desc="Download professional videos ready for publishing."
-            />
-          </div>
-        </div>
-      </section>
+      {/* FAQ SECTION */}
+      <FAQSection />
 
-      {/* CTA */}
+      {/* CTA - This section is already present, just ensuring it's at the bottom */}
       <section className="px-6 py-28">
         
         <div className="max-w-5xl mx-auto rounded-[40px] border border-purple-500/20 bg-gradient-to-br from-purple-600/20 to-pink-600/10 p-12 text-center">
