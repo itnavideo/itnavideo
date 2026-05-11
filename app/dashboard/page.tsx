@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, ReactNode } from 'react';
+import React, { useState, useEffect, ReactNode, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/components/AuthContext';
@@ -28,7 +28,13 @@ import {
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/lib/firebase';
 
-export default function DashboardPage() {
+export default function DashboardPage(props: {
+  params: Promise<any>;
+  searchParams: Promise<any>;
+}) {
+  const params = use(props.params);
+  const searchParams = use(props.searchParams);
+
   const { user, loading } = useAuth();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
@@ -171,7 +177,7 @@ export default function DashboardPage() {
       </aside>
 
       <AnimatePresence>
-        {isModalOpen && <CreateVideoModal onClose={() => setIsModalOpen(false)} />}
+        {isModalOpen && <CreateVideoModal user={user} onClose={() => setIsModalOpen(false)} />}
       </AnimatePresence>
     </main>
   );
@@ -238,18 +244,18 @@ function RenderProgressItem({ name, status, progress, isProcessing }: { name: st
   );
 }
 
-function CreateVideoModal({ onClose }: { onClose: () => void }) {
+function CreateVideoModal({ onClose, user }: { onClose: () => void; user: any }) {
   const [step, setStep] = useState(1);
   const [voiceover, setVoiceover] = useState<{ file: File | null, preview: string | null }>({ file: null, preview: null });
   const [visual, setVisual] = useState<{ file: File | null, preview: string | null }>({ file: null, preview: null });
   const [isGenerating, setIsGenerating] = useState(false);
+  
   const [config, setConfig] = useState({
     aspectRatio: 'Portrait (9:16) - Reels/TikTok',
     mood: 'Cinematic & Epic',
     captionStyle: 'Modern'
   });
 
-  // Memory cleanup for object URLs
   useEffect(() => {
     return () => {
       if (voiceover.preview) URL.revokeObjectURL(voiceover.preview);
@@ -274,20 +280,26 @@ function CreateVideoModal({ onClose }: { onClose: () => void }) {
   };
 
   const handleGenerateVideo = async () => {
-    if (!voiceover.file) return;
+    if (!voiceover.file || !user) return;
     setIsGenerating(true);
     try {
       const voiceRef = ref(storage, `uploads/${Date.now()}_${voiceover.file.name}`);
       await uploadBytes(voiceRef, voiceover.file);
       const voiceUrl = await getDownloadURL(voiceRef);
       
-      // API call to backend would go here
-      console.log("Generating with:", { voiceUrl, config });
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ voiceUrl, config, userId: user.uid }),
+      });
+
+      if (!response.ok) throw new Error('Failed to start video generation');
       
-      setTimeout(() => {
-        setIsGenerating(false);
-        onClose();
-      }, 2000);
+      const data = await response.json();
+      console.log("Generation started:", data);
+      
+      setIsGenerating(false);
+      onClose();
     } catch (error) {
       console.error(error);
       setIsGenerating(false);

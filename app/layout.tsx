@@ -1,12 +1,10 @@
-// app/layout.js
-
 import "./globals.css";
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from '@/components/AuthContext';
 import { AdminProvider } from '@/components/AdminContext';
-import { Metadata } from "next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,31 +17,42 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Itnavideo",
+  title: "Itnavideo | AI-Powered Video Engine",
   description:
-    "AI-powered video creation platform for creators, educators, and businesses.",
+    "Transform voiceovers into viral cinematic videos in seconds with Itnavideo.",
   verification: {
     google: "fUpspvl0Zqhd0nPIDewDuDrP4DKNztIOINBz_5lSa4c",
   },
+  // OpenGraph standard for YC-level startups
+  openGraph: {
+    title: "Itnavideo",
+    description: "The better way to create viral content.",
+    type: "website",
+  }
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="scroll-smooth">
       <body
         className={`${geistSans.variable} ${geistMono.variable} font-sans bg-black text-white antialiased`}
       >
+        {/* AuthProvider must wrap AdminProvider because Admin depends on Auth */}
         <AuthProvider>
           <AdminProvider>
-            {/* Navbar */}
-            <Navbar />
+            <div className="relative flex flex-col min-h-screen">
+              <Navbar />
+              
+              <main className="flex-grow">
+                {children}
+              </main>
 
-            {/* Main Content */}
-            <main>
-              {children}
-            </main>
-
-            <Footer />
+              <Footer />
+            </div>
           </AdminProvider>
         </AuthProvider>
       </body>

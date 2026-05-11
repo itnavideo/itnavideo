@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import {
   Search,
   Filter,
@@ -70,18 +71,18 @@ export default function AdminHomePage() {
             <p className="mt-3 text-zinc-400">Manage users, monitor analytics, and inspect system status from here.</p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <a
+            <Link
               href="/admin/dashboard"
               className="rounded-2xl border border-zinc-800 bg-zinc-950 px-5 py-3 text-sm font-medium text-white transition hover:border-purple-500 hover:text-purple-300"
             >
               Dashboard
-            </a>
-            <a
+            </Link>
+            <Link
               href="/admin/settings"
               className="rounded-2xl border border-zinc-800 bg-zinc-950 px-5 py-3 text-sm font-medium text-white transition hover:border-purple-500 hover:text-purple-300"
             >
               Settings
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -103,7 +104,7 @@ export default function AdminHomePage() {
             Vercel Dashboard <ExternalLink size={12} />
           </a>
           <a
-            href="https://dashboard.render.com"
+            href={process.env.NEXT_PUBLIC_RENDER_DASHBOARD_URL || "https://dashboard.render.com"}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 text-xs bg-zinc-900 hover:bg-zinc-800 px-3 py-1.5 rounded-lg border border-zinc-700 transition-colors"
