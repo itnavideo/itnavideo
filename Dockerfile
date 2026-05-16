@@ -13,7 +13,7 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV NODE_OPTIONS="--optimize_for_size --max-old-space-size=256"
+ENV NODE_OPTIONS="--max-old-space-size=256"
 ENV FFMPEG_PATH=/usr/bin/ffmpeg
 ENV FFPROBE_PATH=/usr/bin/ffprobe
 ENV FFMPEG_THREADS=1
@@ -25,4 +25,4 @@ COPY . .
 
 EXPOSE 10000
 
-CMD ["node", "render-worker/server.mjs"]
+CMD ["node", "--optimize_for_size", "--max-old-space-size=256", "render-worker/server.mjs"]
