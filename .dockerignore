@@ -1,0 +1,12 @@
+.git
+.next
+.vercel
+node_modules
+npm-debug.log*
+firebase-debug.log
+final_output
+processed_assets
+raw_assets
+.env
+.env.*
+!.env.example
