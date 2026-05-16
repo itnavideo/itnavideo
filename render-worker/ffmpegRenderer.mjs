@@ -26,12 +26,15 @@ const safeFrames = {
 
 ensureRenderWorkspace();
 
+let drawtextSupportPromise = null;
+
 export async function renderVideoWithFFmpeg(data, outputPath, options = {}) {
   const { timeline, voiceoverUrl } = data;
   const totalDuration = Math.max(...timeline.scenes.map((scene) => scene.end || 0));
   const assets = await resolveTimelineAssets(timeline, voiceoverUrl);
+  const supportsDrawtext = await getFfmpegSupportsDrawtext();
 
-  if (shouldUsePythonFullRenderer()) {
+  if (supportsDrawtext && shouldUsePythonFullRenderer()) {
     try {
       await renderPythonVideo({
         timeline,
@@ -50,7 +53,7 @@ export async function renderVideoWithFFmpeg(data, outputPath, options = {}) {
     }
   }
 
-  const renderPlan = await buildRenderPlan({ timeline, assets, totalDuration });
+  const renderPlan = await buildRenderPlan({ timeline, assets, totalDuration, supportsDrawtext });
   const args = buildFfmpegArgs(assets, renderPlan, outputPath);
 
   await runFfmpeg(args, {
@@ -62,11 +65,11 @@ export async function renderVideoWithFFmpeg(data, outputPath, options = {}) {
   return outputPath;
 }
 
-async function buildRenderPlan({ timeline, assets, totalDuration }) {
-  if (!shouldUsePythonRenderer()) {
+async function buildRenderPlan({ timeline, assets, totalDuration, supportsDrawtext }) {
+  if (!supportsDrawtext || !shouldUsePythonRenderer()) {
     return {
       engine: 'node',
-      filterGraph: buildComplexFilters(timeline, assets, totalDuration),
+      filterGraph: buildComplexFilters(timeline, assets, totalDuration, { supportsDrawtext }),
       videoMap: '[v_base]',
       audioMap: '[a_final]',
     };
@@ -79,7 +82,7 @@ async function buildRenderPlan({ timeline, assets, totalDuration }) {
     console.warn('Python renderer unavailable; falling back to Node filter builder:', error.message);
     return {
       engine: 'node-fallback',
-      filterGraph: buildComplexFilters(timeline, assets, totalDuration),
+      filterGraph: buildComplexFilters(timeline, assets, totalDuration, { supportsDrawtext }),
       videoMap: '[v_base]',
       audioMap: '[a_final]',
     };
@@ -228,9 +231,10 @@ function withTimeout(promise, timeoutMs, message) {
   ]).finally(() => clearTimeout(timeout));
 }
 
-function buildComplexFilters(timeline, assets, totalDuration) {
+function buildComplexFilters(timeline, assets, totalDuration, options = {}) {
   const filters = [];
   const sceneLabels = [];
+  const supportsDrawtext = options.supportsDrawtext !== false;
 
   timeline.scenes.forEach((scene, index) => {
     const input = assets.sceneInputs[index];
@@ -239,13 +243,13 @@ function buildComplexFilters(timeline, assets, totalDuration) {
 
     const frame = input.safeFrame;
     const baseFilter = `[${input.inputIndex}:v]scale=${frame.width}:${frame.height}:force_original_aspect_ratio=decrease,pad=${frame.width}:${frame.height}:(ow-iw)/2:(oh-ih)/2:color=black,setsar=1,trim=duration=${duration},setpts=PTS-STARTPTS,format=yuv420p[${label}_safe];color=c=black:s=${profile.width}x${profile.height}:r=30:d=${duration}[${label}_canvas];[${label}_canvas][${label}_safe]overlay=x=${frame.x}:y=${frame.y}:shortest=1`;
-    const textFilter = buildTextCardFilter(input.textCard, label);
+    const textFilter = buildTextCardFilter(input.textCard, label, { supportsDrawtext });
     filters.push(`${baseFilter}${textFilter}`);
     sceneLabels.push(`[${label}]`);
   });
 
   filters.push(`${sceneLabels.join('')}concat=n=${sceneLabels.length}:v=1:a=0[v_concat]`);
-  filters.push(buildCaptionFilter(timeline.captions || [], 'v_concat', 'v_base'));
+  filters.push(buildCaptionFilter(timeline.captions || [], 'v_concat', 'v_base', { supportsDrawtext }));
 
   if (assets.voiceover) {
     filters.push(`[${assets.voiceover.index}:a]volume=1.0,atrim=duration=${totalDuration}[a_final]`);
@@ -358,6 +362,52 @@ function getFfmpegPath() {
   return process.env.FFMPEG_PATH || 'ffmpeg';
 }
 
+async function getFfmpegSupportsDrawtext() {
+  if (!drawtextSupportPromise) {
+    drawtextSupportPromise = runCommand(getFfmpegPath(), ['-hide_banner', '-filters'], 5000)
+      .then((output) => output.includes(' drawtext '))
+      .catch((error) => {
+        console.warn('Could not inspect FFmpeg filters; disabling drawtext overlays:', error.message);
+        return false;
+      });
+  }
+
+  return drawtextSupportPromise;
+}
+
+function runCommand(command, args, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, { windowsHide: true });
+    let output = '';
+    let timedOut = false;
+
+    const timeout = setTimeout(() => {
+      timedOut = true;
+      child.kill('SIGKILL');
+    }, timeoutMs);
+
+    child.stdout.on('data', (chunk) => {
+      output += chunk.toString();
+    });
+
+    child.stderr.on('data', (chunk) => {
+      output += chunk.toString();
+    });
+
+    child.on('error', (error) => {
+      clearTimeout(timeout);
+      reject(error);
+    });
+
+    child.on('close', (code) => {
+      clearTimeout(timeout);
+      if (timedOut) reject(new Error(`${path.basename(command)} filter check timed out.`));
+      else if (code === 0) resolve(output);
+      else reject(new Error(`${path.basename(command)} filter check exited with code ${code}: ${output.slice(-1000)}`));
+    });
+  });
+}
+
 function getUrlExtension(url) {
   try {
     return path.extname(new URL(url).pathname);
@@ -388,12 +438,16 @@ function getSafeFrame(value) {
   return safeFrames[value] || safeFrames['4:5'];
 }
 
-function buildTextCardFilter(textCard, outputLabel) {
+function buildTextCardFilter(textCard, outputLabel, options = {}) {
   if (!textCard) return `[${outputLabel}]`;
+
+  const accent = normalizeFfmpegColor(textCard.accentColor || '0x5eead4');
+  if (options.supportsDrawtext === false) {
+    return `,drawbox=x=72:y=230:w=936:h=10:color=${accent}:t=fill[${outputLabel}]`;
+  }
 
   const headline = splitText(textCard.headline || 'Your idea becomes a video', 22).slice(0, 3);
   const body = splitText(textCard.body || '', 34).slice(0, 2);
-  const accent = normalizeFfmpegColor(textCard.accentColor || '0x5eead4');
   const design = getReadableTextDesign(textCard);
 
   const filters = [
@@ -447,7 +501,9 @@ function hexToRgb(color) {
   ];
 }
 
-function buildCaptionFilter(captions, inputLabel, outputLabel) {
+function buildCaptionFilter(captions, inputLabel, outputLabel, options = {}) {
+  if (options.supportsDrawtext === false) return `[${inputLabel}]null[${outputLabel}]`;
+
   const cues = normalizeCaptions(captions);
   if (!cues.length) return `[${inputLabel}]null[${outputLabel}]`;
 
