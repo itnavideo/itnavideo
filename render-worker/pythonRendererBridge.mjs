@@ -1,4 +1,4 @@
-import { spawn } from 'child_process';
+import { spawn, spawnSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -137,7 +137,8 @@ function runProcess(command, args, timeoutMs) {
 }
 
 function getPythonPath() {
-  if (process.env.PYTHON_PATH && fs.existsSync(process.env.PYTHON_PATH)) return process.env.PYTHON_PATH;
+  const configuredPythonPath = process.env.PYTHON_PATH?.trim();
+  if (configuredPythonPath && commandExists(configuredPythonPath)) return configuredPythonPath;
 
   const localAppData = process.env.LOCALAPPDATA;
   const candidates = [
@@ -147,5 +148,15 @@ function getPythonPath() {
     'python',
   ].filter(Boolean);
 
-  return candidates.find((candidate) => path.isAbsolute(candidate) && fs.existsSync(candidate)) || candidates[0];
+  return candidates.find(commandExists) || 'python';
+}
+
+function commandExists(command) {
+  if (!command) return false;
+  if (path.isAbsolute(command) || command.includes(path.sep) || command.includes('/')) {
+    return fs.existsSync(command);
+  }
+
+  const result = spawnSync(command, ['--version'], { stdio: 'ignore', windowsHide: true });
+  return !result.error && result.status === 0;
 }

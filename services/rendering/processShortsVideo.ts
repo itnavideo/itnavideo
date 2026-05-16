@@ -1,4 +1,4 @@
-import { spawn } from 'child_process';
+import { spawn, spawnSync } from 'child_process';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -90,7 +90,13 @@ export async function processShortsVideo(
 
   if (options.autoJumpCuts) {
     jumpCutPath = getJumpCutOutputPath(options);
-    jumpCutResult = await createJumpCutInput(inputPath, jumpCutPath, options);
+    try {
+      jumpCutResult = await createJumpCutInput(inputPath, jumpCutPath, options);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Python jump cut failed.';
+      console.warn(`Skipping face-camera jump cuts: ${message}`);
+      jumpCutResult = { success: false, reason: 'python_jump_cut_unavailable', error: message };
+    }
     if (jumpCutResult.success && jumpCutResult.outputPath && fs.existsSync(jumpCutResult.outputPath)) {
       renderInputPath = jumpCutResult.outputPath;
       options.onJumpCut?.(jumpCutResult);
@@ -866,7 +872,8 @@ function getJumpCutScriptPath() {
 }
 
 function getPythonPath() {
-  if (process.env.PYTHON_PATH && fs.existsSync(process.env.PYTHON_PATH)) return process.env.PYTHON_PATH;
+  const configuredPythonPath = process.env.PYTHON_PATH?.trim();
+  if (configuredPythonPath && commandExists(configuredPythonPath)) return configuredPythonPath;
 
   const localAppData = process.env.LOCALAPPDATA;
   const candidates = [
@@ -876,7 +883,17 @@ function getPythonPath() {
     'python',
   ].filter(Boolean);
 
-  return candidates.find((candidate) => path.isAbsolute(candidate) && fs.existsSync(candidate)) || candidates[0];
+  return candidates.find(commandExists) || 'python';
+}
+
+function commandExists(command: string) {
+  if (!command) return false;
+  if (path.isAbsolute(command) || command.includes(path.sep) || command.includes('/')) {
+    return fs.existsSync(command);
+  }
+
+  const result = spawnSync(command, ['--version'], { stdio: 'ignore', windowsHide: true });
+  return !result.error && result.status === 0;
 }
 
 function getFfmpegPath() {
