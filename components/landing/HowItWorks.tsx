@@ -18,7 +18,7 @@ const steps = [
     number: '03',
     icon: Sparkles,
     title: 'Itnavideo creates the draft',
-    desc: 'Python and FFmpeg prepare jump cuts, zooms, big captions, icons, SFX, audio polish, and a clean mobile layout.',
+    desc: 'The media engine prepares jump cuts, zooms, big captions, icons, sound effects, audio polish, and a clean mobile layout.',
   },
   {
     number: '04',

@@ -21,28 +21,28 @@ const sections = [
 
 const deploymentItems = [
   {
-    title: 'Vercel',
-    description: 'Deploys the Next.js website, dashboard, auth pages, upload APIs, timeline planning, and Render dispatch route.',
+    title: 'Product app',
+    description: 'Runs the website, dashboard, account screens, upload flows, and lightweight orchestration.',
     icon: Cloud,
   },
   {
-    title: 'Render',
-    description: 'Runs the long-lived worker for FFmpeg rendering, Cloudinary upload, and Supabase job status updates.',
+    title: 'Media system',
+    description: 'Handles long video jobs, final export, media delivery, and progress updates away from the main app.',
     icon: Server,
   },
   {
-    title: 'Python',
-    description: 'Provides backend video tooling for render planning, talking-head jump cuts, zooms, captions, icons, and SFX logic.',
+    title: 'Media intelligence',
+    description: 'Plans talking-head cuts, zooms, captions, overlays, sound timing, and export-safe layouts.',
     icon: TerminalSquare,
   },
   {
-    title: 'Supabase',
-    description: 'Stores auth, projects, FFmpeg job status, waitlist/newsletter leads, and dashboard video metadata.',
+    title: 'Project data',
+    description: 'Keeps account state, project records, progress, leads, and dashboard video metadata synced.',
     icon: Database,
   },
   {
-    title: 'GitHub',
-    description: 'Keeps the deployable monorepo source for both the Vercel app and Render worker.',
+    title: 'Release flow',
+    description: 'Keeps product and media-system updates coordinated from one controlled release process.',
     icon: GitBranch,
   },
 ];
@@ -57,7 +57,7 @@ export default function DocsPage() {
         </div>
         <h1 className="max-w-4xl text-5xl font-black leading-tight md:text-7xl">Create videos with Itnavideo.</h1>
         <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-400">
-          A simple guide for using the two creation modes and understanding the current production deployment stack.
+          A simple guide for using the two creation modes and understanding the current production workflow.
         </p>
 
         <div className="mt-14 grid gap-4 md:grid-cols-3">
@@ -77,9 +77,9 @@ export default function DocsPage() {
         </div>
 
         <div className="mt-14">
-          <h2 className="text-3xl font-black">Deployment stack</h2>
+          <h2 className="text-3xl font-black">Production workflow</h2>
           <p className="mt-4 max-w-3xl text-sm leading-6 text-zinc-400">
-            The app is split so video generation does not block the website. Vercel handles the product experience, Render handles long FFmpeg work, Python helps build stronger edits, and Supabase keeps status synced.
+            The app is split so video generation does not block the website. The product experience stays responsive while a dedicated media system handles long processing work and keeps progress synced.
           </p>
           <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
             {deploymentItems.map((item) => {

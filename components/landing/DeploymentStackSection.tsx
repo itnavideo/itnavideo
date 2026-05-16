@@ -2,33 +2,33 @@ import { Cloud, Code2, Database, GitBranch, Server, TerminalSquare } from 'lucid
 
 const stackItems = [
   {
-    title: 'Next.js on Vercel',
-    description: 'The website, dashboard, auth screens, upload flows, and lightweight API orchestration run on Vercel.',
+    title: 'Product app',
+    description: 'The website, dashboard, account screens, upload flows, and lightweight orchestration run in a managed cloud app.',
     icon: Cloud,
   },
   {
-    title: 'Render worker',
-    description: 'Long FFmpeg jobs run on the dedicated Render backend so Vercel does not get stuck on video rendering.',
+    title: 'Dedicated render system',
+    description: 'Heavy video jobs run away from the user-facing app so uploads, progress, and page loads stay responsive.',
     icon: Server,
   },
   {
-    title: 'Python video engine',
-    description: 'Python assists with timeline planning, jump cuts, zooms, captions, icon overlays, and FFmpeg filter generation.',
+    title: 'Video automation engine',
+    description: 'Backend media tooling plans cuts, zooms, captions, overlays, audio polish, and export-safe layouts.',
     icon: TerminalSquare,
   },
   {
-    title: 'Supabase data',
-    description: 'Auth, project metadata, render status, leads, and video library state are stored in Supabase.',
+    title: 'Secure project data',
+    description: 'Account state, project metadata, progress, leads, and video library records stay synced in a managed data layer.',
     icon: Database,
   },
   {
-    title: 'GitHub source',
-    description: 'The deployable codebase is organized for separate Vercel app and Render worker deployments from the same repo.',
+    title: 'Release workflow',
+    description: 'The product and render systems ship from one organized release flow, keeping updates consistent.',
     icon: GitBranch,
   },
   {
-    title: 'Cloudinary media',
-    description: 'User uploads and final MP4 renders are uploaded to Cloudinary for reliable playback and delivery.',
+    title: 'Media delivery layer',
+    description: 'Uploads and final MP4 exports are stored in a delivery-optimized media layer for smooth playback.',
     icon: Code2,
   },
 ];
@@ -39,13 +39,13 @@ export default function DeploymentStackSection() {
       <div className="mx-auto max-w-7xl">
         <div className="mb-12 grid gap-6 lg:grid-cols-[0.7fr_1fr] lg:items-end">
           <div>
-            <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-cyan-300">Production stack</p>
+            <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-cyan-300">Production workflow</p>
             <h2 className="text-4xl font-black leading-tight tracking-normal text-white md:text-6xl">
-              Deployed as a web app plus a render worker.
+              Built to keep creation fast while video work runs safely.
             </h2>
           </div>
           <p className="text-lg leading-8 text-zinc-400">
-            Itnavideo now separates the user experience from heavy video work: Next.js handles the product, Render handles FFmpeg, Python handles editing logic, and Supabase keeps status in sync.
+            Itnavideo separates the user experience from heavy video work: creators see a responsive dashboard while the media system processes, exports, and syncs progress in the background.
           </p>
         </div>
 

@@ -29,7 +29,7 @@ const comparisons = [
   {
     feature: 'Production cost',
     manual: 'Editors, plugins, stock assets',
-    ai: 'One automated Python + FFmpeg render workflow',
+    ai: 'One automated media workflow from upload to export',
     manualIcon: Coins,
     aiIcon: Check,
   },

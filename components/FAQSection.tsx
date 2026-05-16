@@ -33,7 +33,7 @@ const faqs: FAQItem[] = [
   },
   {
     question: "Is my data secure?",
-    answer: "Your account and project status are handled through Supabase, while media uploads and final MP4 files are stored in Cloudinary. Your uploaded content is used to create and manage your videos."
+    answer: "Your account, project status, uploads, and final MP4 files are handled through secure managed systems. Your uploaded content is used only to create and manage your videos."
   },
   {
     question: "How accurate are the AI captions?",

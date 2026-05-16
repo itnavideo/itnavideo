@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Itnavideo",
-    description: "Faceless videos and face-camera Shorts, rendered with AI planning and FFmpeg.",
+    description: "Faceless videos and face-camera Shorts, rendered with AI planning and a private media engine.",
     type: "website",
   }
 };

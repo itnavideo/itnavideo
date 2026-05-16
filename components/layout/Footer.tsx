@@ -127,7 +127,7 @@ export default function Footer() {
             <BrandLogo size="md" showTagline />
           </div>
           <p className="text-zinc-500 text-sm max-w-xs leading-relaxed">
-            AI short-form video creation for faceless voiceovers and face-camera edits, powered by Next.js, Python, FFmpeg, Supabase, and Cloudinary.
+            AI short-form video creation for faceless voiceovers and face-camera edits, powered by a private cloud media engine.
           </p>
           <div className="flex gap-5 mt-8">
             <a
@@ -142,7 +142,7 @@ export default function Footer() {
             <a href="#" aria-label="Itnavideo on X" className="text-zinc-500 hover:text-white transition-colors">
               <Twitter size={18} />
             </a>
-            <a href="#" aria-label="Itnavideo on GitHub" className="text-zinc-500 hover:text-white transition-colors">
+            <a href="#" aria-label="Itnavideo community" className="text-zinc-500 hover:text-white transition-colors">
               <Github size={18} />
             </a>
             <a href="#" aria-label="Itnavideo on LinkedIn" className="text-zinc-500 hover:text-white transition-colors">

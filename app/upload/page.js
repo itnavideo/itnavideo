@@ -12,7 +12,7 @@ export default function UploadPage() {
           <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-brand-mint">Upload source</p>
           <h1 className="text-5xl font-black leading-tight md:text-6xl">Upload audio for faceless videos or camera footage for edits.</h1>
           <p className="mt-5 text-lg leading-8 text-zinc-300">
-            Faceless mode starts with required audio and optional visuals. Face camera mode starts with one uploaded video, then Groq, AI planning, and FFmpeg add cuts, zooms, captions, icons, and polish.
+            Faceless mode starts with required audio and optional visuals. Face camera mode starts with one uploaded video, then Itnavideo adds cuts, zooms, captions, icons, and polish.
           </p>
         </div>
         <UploadBox />
@@ -20,7 +20,7 @@ export default function UploadPage() {
           {[
             { title: "Faceless audio", icon: AudioLines },
             { title: "Face camera video", icon: Camera },
-            { title: "Groq + FFmpeg edit", icon: Gauge },
+            { title: "AI-powered edit", icon: Gauge },
             { title: "Download MP4", icon: Download },
           ].map((item, index) => {
             const Icon = item.icon;

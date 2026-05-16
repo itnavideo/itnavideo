@@ -5,9 +5,9 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const ALLOWED_ROLES = new Map([
-  ['ffmpeg-video-pipeline-expert', 'FFmpeg Video Pipeline Expert'],
+  ['video-pipeline-engineer', 'Video Pipeline Engineer'],
   ['backend-developer-video-systems', 'Backend Developer, Video Systems'],
-  ['full-stack-nextjs-react', 'Full-Stack Developer, Next.js / React'],
+  ['full-stack-product-developer', 'Full-Stack Product Developer'],
   ['graphic-designer-video-templates', 'Graphic Designer, Video Templates'],
   ['marketing-manager-ai-saas', 'Marketing Manager, AI/SaaS'],
   ['finance-operations-manager', 'Finance & Operations Manager'],

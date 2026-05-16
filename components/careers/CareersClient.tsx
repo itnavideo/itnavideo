@@ -19,14 +19,14 @@ type SubmitState = 'idle' | 'loading' | 'success' | 'error';
 
 const roles: Role[] = [
   {
-    slug: 'ffmpeg-video-pipeline-expert',
-    title: 'FFmpeg Video Pipeline Expert',
+    slug: 'video-pipeline-engineer',
+    title: 'Video Pipeline Engineer',
     team: 'Media Infrastructure',
     location: 'Remote',
     type: 'Future role',
     icon: Film,
-    summary: 'Own the hard parts of automated video generation: filtergraphs, safe fallbacks, subtitles, audio polish, render speed, and final MP4 validation.',
-    focus: ['FFmpeg filtergraphs', 'Subtitle and overlay safety', 'Render debugging and optimization'],
+    summary: 'Own the hard parts of automated video generation: safe fallbacks, subtitles, audio polish, render speed, and final MP4 validation.',
+    focus: ['Media workflow design', 'Subtitle and overlay safety', 'Render debugging and optimization'],
   },
   {
     slug: 'backend-developer-video-systems',
@@ -35,18 +35,18 @@ const roles: Role[] = [
     location: 'Remote',
     type: 'Future role',
     icon: DatabaseZap,
-    summary: 'Build the render worker, queue controls, Supabase job sync, telemetry, storage cleanup, and API reliability layer behind Itnavideo.',
-    focus: ['Node.js worker systems', 'Queues, retries, and observability', 'Supabase and Cloudinary APIs'],
+    summary: 'Build the render system, queue controls, status sync, telemetry, storage cleanup, and API reliability layer behind Itnavideo.',
+    focus: ['Backend worker systems', 'Queues, retries, and observability', 'Data and media APIs'],
   },
   {
-    slug: 'full-stack-nextjs-react',
-    title: 'Full-Stack Developer, Next.js / React',
+    slug: 'full-stack-product-developer',
+    title: 'Full-Stack Product Developer',
     team: 'Product Engineering',
     location: 'Remote',
     type: 'Future role',
     icon: Code2,
-    summary: 'Ship creator-facing workflows across dashboard, uploads, status, billing, admin tools, and Supabase-backed product data.',
-    focus: ['Next.js App Router', 'React product interfaces', 'Supabase and API routes'],
+    summary: 'Ship creator-facing workflows across dashboard, uploads, status, billing, admin tools, and product data.',
+    focus: ['Modern web app architecture', 'Creator-facing interfaces', 'Secure backend APIs'],
   },
   {
     slug: 'graphic-designer-video-templates',
@@ -148,7 +148,7 @@ export default function CareersClient() {
               Build the video engine creators wish existed.
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-zinc-300">
-              Itnavideo is building AI-assisted short-form video workflows across transcription, planning, assets, FFmpeg rendering, and creator delivery. We keep a small talent network for upcoming product, engineering, design, and growth needs.
+              Itnavideo is building AI-assisted short-form video workflows across transcription, planning, assets, media rendering, and creator delivery. We keep a small talent network for upcoming product, engineering, design, and growth needs.
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <a href="#open-roles" className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-mint px-6 py-4 font-black text-black transition hover:bg-white">
@@ -310,7 +310,7 @@ export default function CareersClient() {
                 <Field label="Email" name="email" type="email" placeholder="you@example.com" required />
                 <Field label="LinkedIn profile" name="linkedinUrl" type="url" placeholder="https://linkedin.com/in/..." />
                 <Field label="Resume link" name="resumeUrl" type="url" placeholder="Google Drive, Notion, personal site, or PDF link" />
-                <Field label="Portfolio / GitHub" name="portfolioUrl" type="url" placeholder="https://..." />
+                <Field label="Portfolio or work link" name="portfolioUrl" type="url" placeholder="https://..." />
                 <label className="block">
                   <span className="mb-2 block text-sm font-semibold text-zinc-300">Short note</span>
                   <textarea

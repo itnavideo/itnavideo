@@ -31,8 +31,8 @@ const features = [
     icon: Captions,
   },
   {
-    title: 'Python-assisted rendering',
-    description: 'Backend Python tooling helps with jump cuts, zooms, captions, icon overlays, and FFmpeg planning.',
+    title: 'Assisted media rendering',
+    description: 'Backend media tooling helps with jump cuts, zooms, captions, icon overlays, and export planning.',
     icon: Crop,
   },
   {

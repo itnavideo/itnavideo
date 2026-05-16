@@ -80,7 +80,7 @@ const DEFAULT_TARGET_DURATION_SECONDS = FREE_MAX_DURATION_SECONDS;
 const pipelineCards = [
   { title: 'Upload audio', desc: 'Add one clear voiceover file.', icon: AudioLines, tone: 'text-emerald-200' },
   { title: 'AI timeline', desc: 'Scenes, captions, and pacing are planned automatically.', icon: Clapperboard, tone: 'text-cyan-200' },
-  { title: `${PIPELINE_QUALITY} render`, desc: 'FFmpeg exports a stable portrait MP4 for Reels and Shorts.', icon: Film, tone: 'text-violet-200' },
+  { title: `${PIPELINE_QUALITY} export`, desc: 'Itnavideo exports a stable portrait MP4 for Reels and Shorts.', icon: Film, tone: 'text-violet-200' },
   { title: 'Video ready', desc: 'Open or download the finished video from your library.', icon: Download, tone: 'text-amber-200' },
 ];
 
@@ -710,7 +710,7 @@ function CreateVideoModal({
       });
 
       onJobUpdate(jobId, { status: 'Worker is preparing video', progress: 64, voiceUrl, visualUrl: userAssets[0]?.url });
-      toast.success('Video queued on the render worker. Check Your videos for progress.');
+      toast.success('Video queued. Check Your videos for progress.');
       onClose();
     } catch (error: any) {
       const rawMessage = error.message || 'Generation failed.';
@@ -1035,7 +1035,7 @@ function ProcessingPanel({
     reading: 'Reading voiceover duration',
     uploading: 'Uploading voiceover securely',
     planning: 'AI director is building your timeline',
-    rendering: 'FFmpeg is rendering your MP4',
+    rendering: 'Itnavideo is rendering your MP4',
     ready: 'Video ready',
     error: 'Needs retry',
   }[status];
@@ -1071,7 +1071,7 @@ function ProcessingPanel({
         <div className="mt-5 grid gap-2 text-xs text-zinc-400 sm:grid-cols-3">
           <div className="rounded-md border border-white/10 bg-black/20 p-3">Upload: {formatDuration(etaBreakdown.uploadSeconds)}</div>
           <div className="rounded-md border border-white/10 bg-black/20 p-3">AI plan: {formatDuration(etaBreakdown.planningSeconds)}</div>
-          <div className="rounded-md border border-white/10 bg-black/20 p-3">FFmpeg render: {formatDuration(etaBreakdown.renderSeconds)}</div>
+          <div className="rounded-md border border-white/10 bg-black/20 p-3">Video render: {formatDuration(etaBreakdown.renderSeconds)}</div>
         </div>
       )}
 
@@ -1468,7 +1468,7 @@ function markStaleRenderJob(job: Job) {
 
   return {
     ...job,
-    status: 'Render worker needs retry',
+    status: 'Video needs retry',
     progress: Math.min(Number(job.progress || 0), 76),
   };
 }
@@ -1672,7 +1672,7 @@ async function uploadMediaFile(path: string, file: File, onProgress?: (percent: 
   const signature = await withClientTimeout(
     getCloudinaryUploadSignature(folder),
     getUploadSignatureTimeoutMs(),
-    'Upload could not get a secure Cloudinary signature. Please retry.',
+    'Upload could not get a secure media signature. Please retry.',
   );
   onProgress?.(3);
 
