@@ -5,9 +5,13 @@ import fs from 'fs';
 import path from 'path';
 import ffmpegStaticPath from 'ffmpeg-static';
 import ffprobeStatic from 'ffprobe-static';
-import { renderVideoWithFFmpeg } from './ffmpegRenderer.mjs';
+import { isAssetBlacklisted } from './assetBlacklist.mjs';
+import { prefetchTimelineAssets, renderVideoWithFFmpeg } from './ffmpegRenderer.mjs';
 import { getPythonRendererHealth } from './pythonRendererBridge.mjs';
-import { ensureRenderWorkspace } from './renderWorkspace.mjs';
+import { cleanupOldRenderWorkspaceFiles, ensureRenderWorkspace } from './renderWorkspace.mjs';
+import { createRenderReport, normalizeRenderTimeline, sanitizeDisplayText } from './pipelineGuards.mjs';
+import { notifyTelemetry } from './telemetry.mjs';
+import { getVideoPipelineConfig } from './videoPipelineConfig.mjs';
 import { upsertFfmpegJob } from '../services/rendering/ffmpegJobStore.mjs';
 import { canWriteSupabaseFromServer, upsertUserProjectFromServer } from '../services/supabase/projectStore.mjs';
 import { isGoogleDriveConfigured, listGoogleDriveChildren } from '../services/assets/googleDriveClient.mjs';
@@ -15,9 +19,15 @@ import { isGoogleDriveConfigured, listGoogleDriveChildren } from '../services/as
 const app = express();
 const port = Number(process.env.PORT || 10000);
 const workspace = ensureRenderWorkspace();
+const pipelineConfig = getVideoPipelineConfig();
 const FOLDER_MIME = 'application/vnd.google-apps.folder';
 const DRIVE_VISUAL_CACHE_TTL_MS = 5 * 60 * 1000;
+const MAX_PARALLEL_RENDERS = pipelineConfig.maxConcurrentRenders;
+const WORKSPACE_CLEANUP_INTERVAL_MS = Math.max(60 * 60 * 1000, Number(process.env.WORKSPACE_CLEANUP_INTERVAL_MS || 6 * 60 * 60 * 1000));
+const WORKSPACE_RETENTION_MS = Math.max(60 * 60 * 1000, pipelineConfig.tempRetentionHours * 60 * 60 * 1000);
 let cachedDriveVisuals = { expiresAt: 0, assets: [] };
+let activeRenderTasks = 0;
+const pendingRenderTasks = [];
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', process.env.RENDER_WORKER_CORS_ORIGIN || '*');
@@ -37,7 +47,32 @@ app.get('/health', async (_req, res) => {
   const ffmpeg = await getFfmpegHealth();
   const pythonRenderer = await getPythonRendererHealth();
   const config = getWorkerConfigHealth();
-  res.json({ ok: ffmpeg.ok && config.ok, service: 'itnavideo-render-worker', ffmpeg, pythonRenderer, config, workspace });
+  res.json({
+    ok: ffmpeg.ok && config.ok,
+    service: 'itnavideo-render-worker',
+    ffmpeg,
+    pythonRenderer,
+    config,
+    queue: {
+      active: activeRenderTasks,
+      pending: pendingRenderTasks.length,
+      maxParallel: MAX_PARALLEL_RENDERS,
+    },
+    video: {
+      qualityPreset: pipelineConfig.qualityPreset,
+      targetWidth: pipelineConfig.targetWidth,
+      targetHeight: pipelineConfig.targetHeight,
+      premiumQualityPreset: pipelineConfig.premiumQualityPreset,
+      premiumTargetWidth: pipelineConfig.premiumTargetWidth,
+      premiumTargetHeight: pipelineConfig.premiumTargetHeight,
+      maxDurationSec: pipelineConfig.maxDurationSec,
+      maxUploadSizeMb: pipelineConfig.maxUploadSizeMb,
+      renderTimeoutMs: pipelineConfig.renderTimeoutMs,
+      primaryRenderTimeoutMs: pipelineConfig.primaryRenderTimeoutMs,
+      tempRetentionHours: pipelineConfig.tempRetentionHours,
+    },
+    workspace,
+  });
 });
 
 app.post('/api/process-video', (req, res) => {
@@ -66,7 +101,7 @@ app.post('/api/process-video', (req, res) => {
     jobId,
   });
 
-  void processVideoInBackground({
+  enqueueRenderTask({
     timeline,
     voiceoverUrl,
     jobId,
@@ -112,6 +147,7 @@ app.post('/api/pipeline/start', (req, res) => {
 
 app.listen(port, () => {
   ensureRenderWorkspace();
+  scheduleWorkspaceCleanup();
   console.log(`Itnavideo render worker listening on :${port}`);
 });
 
@@ -140,12 +176,42 @@ async function processPipelineInBackground(payload) {
       },
     });
 
-    const timeline = await buildWorkerTimeline({
+    const plannedTimeline = await buildWorkerTimeline({
       title,
       config,
       userAssets,
       targetDurationSeconds,
     });
+    const assetPrefetchPromise = prefetchTimelineAssets(plannedTimeline, { jobId })
+      .catch((error) => {
+        console.warn(`Asset prefetch failed for ${jobId}; render will resolve assets normally:`, error);
+        void notifyTelemetry({
+          type: 'asset_prefetch_failed',
+          jobId,
+          reason: error?.message || 'asset prefetch failed',
+          recovered: true,
+        });
+        return { total: 0, cached: 0, failed: 0, durationMs: 0 };
+      });
+    const timeline = normalizeRenderTimeline(plannedTimeline, {
+      duration: targetDurationSeconds || config.targetDurationSeconds || config.durationSeconds,
+      title,
+    });
+
+    await updateRenderStatusBestEffort(userId, jobId, {
+      project: {
+        status: 'Assembling visuals',
+        progress: 58,
+        renderProvider: 'render',
+      },
+      job: {
+        status: 'processing',
+        progress: 58,
+        message: 'Pre-fetching visual assets so FFmpeg can start faster...',
+      },
+    });
+
+    const prefetchSummary = await assetPrefetchPromise;
 
     await updateRenderStatusBestEffort(userId, jobId, {
       project: {
@@ -154,16 +220,17 @@ async function processPipelineInBackground(payload) {
         timelineScenes: timeline.scenes.length,
         captions: timeline.captions.length,
         durationSeconds: timeline.metadata.duration,
+        assetPrefetch: prefetchSummary,
         timeline,
       },
       job: {
         status: 'rendering',
         progress: 68,
-        message: 'Timeline is ready. FFmpeg render is starting...',
+        message: `Timeline is ready. Prefetched ${prefetchSummary.cached}/${prefetchSummary.total} visual assets. FFmpeg render is starting...`,
       },
     });
 
-    await processVideoInBackground({
+    enqueueRenderTask({
       timeline,
       voiceoverUrl,
       jobId,
@@ -171,6 +238,12 @@ async function processPipelineInBackground(payload) {
     });
   } catch (error) {
     console.error(`Pipeline job ${jobId} failed:`, error);
+    void notifyTelemetry({
+      type: 'pipeline_failed_before_render',
+      jobId,
+      reason: error instanceof Error ? error.message : 'Video pipeline failed',
+      recovered: false,
+    });
     const errorMessage = error instanceof Error ? error.message : 'Video pipeline failed';
     await updateRenderStatusBestEffort(userId, jobId, {
       project: {
@@ -188,12 +261,60 @@ async function processPipelineInBackground(payload) {
   }
 }
 
+function enqueueRenderTask(task) {
+  pendingRenderTasks.push(task);
+  const queuePosition = pendingRenderTasks.length + activeRenderTasks;
+
+  if (queuePosition > MAX_PARALLEL_RENDERS) {
+    void updateRenderStatusBestEffort(task.userId, task.jobId, {
+      project: {
+        status: 'Waiting for render slot',
+        progress: 70,
+        renderProvider: 'render',
+      },
+      job: {
+        status: 'queued',
+        progress: 70,
+        message: `Your video is queued. Render position ${queuePosition - activeRenderTasks}.`,
+      },
+    });
+  }
+
+  drainRenderQueue();
+}
+
+function drainRenderQueue() {
+  while (activeRenderTasks < MAX_PARALLEL_RENDERS && pendingRenderTasks.length) {
+    const task = pendingRenderTasks.shift();
+    activeRenderTasks += 1;
+    void processVideoInBackground(task)
+      .catch((error) => {
+        console.error(`Render queue task ${task?.jobId || 'unknown'} crashed:`, error);
+      })
+      .finally(() => {
+        activeRenderTasks = Math.max(0, activeRenderTasks - 1);
+        drainRenderQueue();
+      });
+  }
+}
+
 async function processVideoInBackground({ timeline, voiceoverUrl, jobId, userId }) {
   const outputPath = path.join(workspace.finalOutput, `${safeFileName(jobId)}.mp4`);
   const reportRenderProgress = createProgressReporter(userId, jobId);
+  const report = createRenderReport({ userId, jobId });
+  const safeTimeline = normalizeRenderTimeline(timeline, {
+    duration: timeline?.metadata?.duration,
+    title: timeline?.scenes?.[0]?.textCard?.headline || jobId,
+  });
 
   try {
     console.log(`Starting render for Job: ${jobId}`);
+    report.stage('render_start', {
+      scenes: safeTimeline.scenes.length,
+      captions: safeTimeline.captions.length,
+      duration: safeTimeline.metadata.duration,
+      hasVoiceover: Boolean(voiceoverUrl),
+    });
     await updateRenderStatusBestEffort(userId, jobId, {
       project: {
         status: 'Rendering MP4',
@@ -208,16 +329,17 @@ async function processVideoInBackground({ timeline, voiceoverUrl, jobId, userId 
     });
 
     await renderVideoWithFFmpeg(
-      { timeline, voiceoverUrl, quality: '1080p' },
+      { timeline: safeTimeline, voiceoverUrl, quality: pipelineConfig.qualityPreset },
       outputPath,
       {
-        quality: '1080p',
-        onProgress: ({ percent }) => {
-          void reportRenderProgress(percent);
+        quality: pipelineConfig.qualityPreset,
+        onProgress: (progress) => {
+          void reportRenderProgress(progress);
         },
       },
     );
-    await assertRenderableVideoOutput(outputPath);
+    const outputProbe = await assertRenderableVideoOutput(outputPath);
+    report.stage('render_output_validated', outputProbe);
 
     await updateRenderStatusBestEffort(userId, jobId, {
       project: {
@@ -231,7 +353,9 @@ async function processVideoInBackground({ timeline, voiceoverUrl, jobId, userId 
       },
     });
 
+    report.stage('final_upload_start', { sizeBytes: fs.statSync(outputPath).size });
     const cloudinaryUrl = await uploadToCloudinary(outputPath, jobId);
+    report.stage('final_upload_complete', { hasVideoUrl: Boolean(cloudinaryUrl) });
 
     await updateRenderStatusBestEffort(userId, jobId, {
       project: {
@@ -250,9 +374,18 @@ async function processVideoInBackground({ timeline, voiceoverUrl, jobId, userId 
     }, { attempts: 4, delayMs: 1500 });
 
     console.log(`Job ${jobId} finished successfully.`);
+    report.finish('ready', { videoUrl: cloudinaryUrl });
+    cleanupRenderWorkspaceBestEffort('render_complete');
   } catch (error) {
     console.error(`Job ${jobId} failed:`, error);
     const errorMessage = error instanceof Error ? error.message : 'Render failed';
+    void notifyTelemetry({
+      type: 'render_job_failed',
+      jobId,
+      reason: errorMessage,
+      recovered: false,
+    });
+    report.finish('error', { error: errorMessage });
     await updateRenderStatusBestEffort(userId, jobId, {
       project: {
         status: 'Needs retry',
@@ -271,11 +404,33 @@ async function processVideoInBackground({ timeline, voiceoverUrl, jobId, userId 
   }
 }
 
+function scheduleWorkspaceCleanup() {
+  cleanupRenderWorkspaceBestEffort('startup');
+  setInterval(() => {
+    cleanupRenderWorkspaceBestEffort('scheduled');
+  }, WORKSPACE_CLEANUP_INTERVAL_MS).unref?.();
+}
+
+function cleanupRenderWorkspaceBestEffort(reason) {
+  try {
+    const result = cleanupOldRenderWorkspaceFiles({ maxAgeMs: WORKSPACE_RETENTION_MS });
+    if (result.deleted > 0) {
+      console.log(`Render workspace cleanup ${reason}: deleted ${result.deleted} files, freed ${result.bytesFreed} bytes.`);
+    }
+  } catch (error) {
+    console.warn(`Render workspace cleanup ${reason} failed:`, error);
+  }
+}
+
 async function buildWorkerTimeline({ title, config = {}, userAssets = [], targetDurationSeconds }) {
-  const duration = clampNumber(Number(targetDurationSeconds || config.targetDurationSeconds || config.durationSeconds || 45), 8, 60);
+  const duration = clampNumber(
+    Number(targetDurationSeconds || config.targetDurationSeconds || config.durationSeconds || 45),
+    8,
+    pipelineConfig.maxDurationSec,
+  );
   const sceneCount = Math.max(3, Math.min(8, Math.ceil(duration / 8)));
   const segment = duration / sceneCount;
-  const cleanTitle = String(title || 'Your video').replace(/\.[^.]+$/, '').trim() || 'Your video';
+  const cleanTitle = sanitizeDisplayText(String(title || 'Your video').replace(/\.[^.]+$/, ''), 'Your video');
   const uploadedAssets = Array.isArray(userAssets) ? userAssets.filter((asset) => typeof asset?.url === 'string') : [];
   const driveAssets = await pickWorkerDriveVisuals({
     query: `${cleanTitle} ${config.editingStyle || ''} ${config.mood || ''}`,
@@ -316,7 +471,10 @@ async function buildWorkerTimeline({ title, config = {}, userAssets = [], target
       fps: 30,
       aspectRatio: config.aspectRatio || 'Portrait (9:16)',
       editingStyle: config.editingStyle || 'reels_pacing',
-      quality: config.quality || '1080p',
+      quality: config.quality || pipelineConfig.qualityPreset,
+      targetWidth: Number(config.targetWidth || pipelineConfig.targetWidth),
+      targetHeight: Number(config.targetHeight || pipelineConfig.targetHeight),
+      userTier: sanitizeDisplayText(config.userTier, 'free'),
     },
     scenes,
     captions,
@@ -362,8 +520,22 @@ async function pickWorkerDriveVisuals({ query, limit }) {
     const assets = await getWorkerDriveVisuals();
     if (!assets.length) return [];
 
-    const primaryAssets = assets.filter((asset) => !isWorkerBackgroundAsset(asset));
-    const candidates = primaryAssets.length ? primaryAssets : assets;
+    const usableAssets = [];
+    for (const asset of assets) {
+      if (await isAssetBlacklisted(asset)) continue;
+      usableAssets.push(asset);
+    }
+
+    if (assets.length && !usableAssets.length) {
+      void notifyTelemetry({
+        type: 'all_candidate_assets_blacklisted',
+        reason: 'Drive visual candidates were skipped by blacklist',
+        recovered: true,
+      });
+    }
+
+    const primaryAssets = usableAssets.filter((asset) => !isWorkerBackgroundAsset(asset));
+    const candidates = primaryAssets.length ? primaryAssets : usableAssets;
 
     return candidates
       .map((asset) => ({
@@ -509,7 +681,7 @@ function getWorkerSceneBody(index, config = {}) {
     `Edited in ${style} style with clean mobile pacing.`,
     'Built as a portrait video with readable captions.',
     'Designed for quick scrolling viewers.',
-    'Exported as a 1080p social video.',
+    `Exported as a ${pipelineConfig.qualityPreset} social video.`,
   ];
   return bodies[index % bodies.length];
 }
@@ -548,7 +720,8 @@ function createProgressReporter(userId, jobId) {
   let lastWriteAt = 0;
   let pending = Promise.resolve();
 
-  return async (percent) => {
+  return async (progressEvent) => {
+    const percent = typeof progressEvent === 'number' ? progressEvent : Number(progressEvent?.percent || 0);
     const progress = Math.max(75, Math.min(96, Math.round(75 + percent * 0.21)));
     const now = Date.now();
     const shouldWrite = progress >= 96 || progress - lastProgress >= 3 || now - lastWriteAt >= 10_000;
@@ -557,7 +730,10 @@ function createProgressReporter(userId, jobId) {
 
     lastProgress = progress;
     lastWriteAt = now;
-    const message = progress >= 92 ? 'Finalizing MP4...' : 'Rendering MP4...';
+    const details = typeof progressEvent === 'object' && progressEvent?.seconds
+      ? ` (${Math.round(progressEvent.seconds)}s rendered${progressEvent.fps ? `, ${Math.round(progressEvent.fps)} fps` : ''})`
+      : '';
+    const message = progress >= 92 ? 'Finalizing MP4...' : `Rendering MP4: ${progress}%${details}`;
     pending = pending.catch(() => undefined).then(() => updateRenderStatusBestEffort(userId, jobId, {
       project: {
         status: progress >= 92 ? 'Finalizing MP4' : 'Rendering MP4',
@@ -641,6 +817,13 @@ async function assertRenderableVideoOutput(filePath) {
   if (stream?.codec_type !== 'video' || Number(stream.width) <= 0 || Number(stream.height) <= 0) {
     throw new Error('FFmpeg output does not contain a valid video stream. Refusing to upload audio-only MP4.');
   }
+
+  return {
+    sizeBytes: fs.statSync(filePath).size,
+    width: Number(stream.width),
+    height: Number(stream.height),
+    duration: Number(stream.duration || 0),
+  };
 }
 
 async function updateProject(userId, jobId, data) {

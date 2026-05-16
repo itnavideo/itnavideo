@@ -26,7 +26,7 @@ Owned by:
 
 Minimum FFmpeg work:
 
-- Make a 1080p portrait video.
+- Make a 720p portrait video.
 - Use voiceover as primary audio.
 - Use timeline scenes.
 - Use text-card fallback when visuals are missing.
@@ -65,7 +65,7 @@ Owned by:
 Minimum FFmpeg work:
 
 - Preserve camera audio.
-- Fit video into 1080p portrait.
+- Fit video into 720p portrait.
 - Apply a stable default style.
 - Show progress.
 - Produce MP4 even if captions fail.

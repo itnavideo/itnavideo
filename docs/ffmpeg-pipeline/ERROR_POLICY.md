@@ -68,7 +68,7 @@ Do not fail the whole job only because a visual style filter is too heavy.
 
 ## Timeout Rules
 
-- Audio-to-video render timeout: keep current 1080p timeout unless real workloads prove it needs tuning.
+- Audio-to-video render timeout: keep the 720p primary timeout short, then fall back to the safe base render.
 - Face video render timeout: prefer progress polling and fallback retries over long silent waits.
 - If a job times out, delete incomplete output if possible.
 - Status should move to `error` only after all safe fallback paths fail.

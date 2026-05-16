@@ -2,9 +2,12 @@ import {
   canWriteSupabaseFromServer,
   deleteUserProjectFromServer as deleteProject,
   deleteExpiredProjectRecordsFromServer as deleteExpiredProjectRecords,
+  insertJobApplicationFromServer as insertJobApplication,
   insertLeadFromServer as insertLead,
   listExpiredRenderedProjectsFromServer as listExpiredRenderedProjects,
   listUserProjectsFromServer as listProjects,
+  getAppSettingFromServer as getAppSetting,
+  setAppSettingFromServer as setAppSetting,
   upsertUserProjectFromServer as upsertProject,
 } from './projectStore.mjs';
 
@@ -67,4 +70,20 @@ export async function deleteExpiredProjectRecordsFromServer(
 
 export async function insertLeadFromServer(tableName: 'waitlist' | 'newsletter', data: Record<string, unknown>): Promise<void> {
   await insertLead(tableName, data);
+}
+
+export async function insertJobApplicationFromServer(data: Record<string, unknown>): Promise<unknown> {
+  return insertJobApplication(data);
+}
+
+export async function getAppSettingFromServer<T = unknown>(key: string, fallbackValue: T): Promise<T> {
+  return (getAppSetting as (settingKey: string, fallback: unknown) => Promise<unknown>)(key, fallbackValue) as Promise<T>;
+}
+
+export async function setAppSettingFromServer(
+  key: string,
+  value: unknown,
+  updatedBy = 'system',
+): Promise<unknown> {
+  return (setAppSetting as (settingKey: string, settingValue: unknown, updatedBy: string) => Promise<unknown>)(key, value, updatedBy);
 }

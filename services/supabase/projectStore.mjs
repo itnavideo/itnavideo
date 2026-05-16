@@ -227,6 +227,76 @@ export async function insertLeadFromServer(tableName, data) {
   if (error) throw new Error(`Supabase ${tableName} insert failed: ${error.message}`);
 }
 
+export async function insertJobApplicationFromServer(data) {
+  const supabase = getSupabaseServerClient();
+  const { data: result, error } = await supabase
+    .from('job_applications')
+    .insert({
+      name: data.name,
+      email: data.email,
+      role_slug: data.roleSlug,
+      role_title: data.roleTitle,
+      linkedin_url: data.linkedinUrl || null,
+      resume_url: data.resumeUrl || null,
+      portfolio_url: data.portfolioUrl || null,
+      note: data.note || null,
+      source: data.source || 'careers_page',
+      status: 'received',
+      created_at: new Date().toISOString(),
+    })
+    .select()
+    .single();
+
+  if (isMissingTableError(error)) {
+    throw new Error(`Supabase job_applications table is missing. Apply supabase/schema.sql before collecting applications: ${error.message}`);
+  }
+
+  if (error) throw new Error(`Supabase job application insert failed: ${error.message}`);
+  return result;
+}
+
+export async function getAppSettingFromServer(key, fallbackValue = null) {
+  if (!key) return fallbackValue;
+
+  const supabase = getSupabaseServerClient();
+  const { data, error } = await supabase
+    .from('app_settings')
+    .select('value')
+    .eq('key', key)
+    .maybeSingle();
+
+  if (isMissingTableError(error)) {
+    console.warn(`Supabase app_settings table is missing. Using fallback for ${key}: ${error.message}`);
+    return fallbackValue;
+  }
+
+  if (error) throw new Error(`Supabase app setting read failed: ${error.message}`);
+  return data?.value ?? fallbackValue;
+}
+
+export async function setAppSettingFromServer(key, value, updatedBy = 'system') {
+  if (!key) throw new Error('Setting key is required.');
+
+  const supabase = getSupabaseServerClient();
+  const { data, error } = await supabase
+    .from('app_settings')
+    .upsert({
+      key,
+      value,
+      updated_by: updatedBy,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'key' })
+    .select()
+    .single();
+
+  if (isMissingTableError(error)) {
+    throw new Error(`Supabase app_settings table is missing. Apply supabase/schema.sql before using admin toggles: ${error.message}`);
+  }
+
+  if (error) throw new Error(`Supabase app setting write failed: ${error.message}`);
+  return data;
+}
+
 function getSupabaseServerClient() {
   if (serverClient) return serverClient;
 

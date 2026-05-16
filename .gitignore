@@ -22,17 +22,22 @@
 /public/renders/
 /public/cache/
 /public/uploads/
+/logs/
+/.sandbox/
 
 # Runtime render pipeline workspaces
 /raw_assets/**
 /processed_assets/**
 /final_output/**
+/render_logs/**
 !/raw_assets/**/
 !/processed_assets/**/
 !/final_output/**/
+!/render_logs/**/
 !/raw_assets/**/.gitkeep
 !/processed_assets/**/.gitkeep
 !/final_output/**/.gitkeep
+!/render_logs/**/.gitkeep
 
 # Misc
 .DS_Store

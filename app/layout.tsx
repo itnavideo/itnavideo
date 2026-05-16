@@ -24,7 +24,7 @@ const spaceGrotesk = Space_Grotesk({
 
 export const metadata: Metadata = {
   title: "Itnavideo | AI-Powered Video Engine",
-  description: "Create faceless videos from voiceovers or turn face-camera footage into polished 1080p Shorts with Itnavideo.",
+  description: "Create faceless videos from voiceovers or turn face-camera footage into polished 720p Shorts with Itnavideo.",
   verification: {
     google: "fUpspvl0Zqhd0nPIDewDuDrP4DKNztIOINBz_5lSa4c",
   },

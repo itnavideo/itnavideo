@@ -7,10 +7,16 @@
   },
   "scripts": {
     "dev": "next dev --turbopack",
+    "prebuild": "node scripts/validate-video-env.mjs",
     "build": "next build",
+    "test:smoke": "node scripts/validate-video-env.mjs && node scripts/smoke-video-pipeline.mjs",
+    "smoke:video": "npm run test:smoke",
     "render-worker": "node render-worker/server.mjs",
     "web-start": "next start",
     "start": "node render-worker/server.mjs",
+    "pm2:start": "pm2 start ecosystem.config.cjs --env production",
+    "pm2:reload": "pm2 reload ecosystem.config.cjs --env production",
+    "pm2:stop": "pm2 stop ecosystem.config.cjs",
     "lint": "next lint"
   },
   "dependencies": {

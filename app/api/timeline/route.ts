@@ -76,7 +76,7 @@ function getRenderWorkerUrl() {
   return String(process.env.RENDER_BACKEND_URL || process.env.RENDER_WORKER_URL || process.env.NEXT_PUBLIC_RENDER_BACKEND_URL || '').replace(/\/$/, '');
 }
 
-function getWorkerAuthHeaders() {
+function getWorkerAuthHeaders(): Record<string, string> {
   const secret = process.env.RENDER_WORKER_SECRET;
   return secret ? { Authorization: `Bearer ${secret}` } : {};
 }

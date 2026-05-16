@@ -75,3 +75,81 @@ export function getWorkspaceAssetDir(extension) {
 
   return workspace.processedAssets.cache;
 }
+
+export function cleanupOldRenderWorkspaceFiles({ maxAgeMs = 24 * 60 * 60 * 1000, now = Date.now() } = {}) {
+  const workspace = ensureRenderWorkspace();
+  const roots = [
+    workspace.rawAssets.root,
+    workspace.processedAssets.root,
+    workspace.finalOutput,
+  ];
+  const result = {
+    deleted: 0,
+    skipped: 0,
+    bytesFreed: 0,
+  };
+
+  for (const root of roots) {
+    cleanupDir(root, { root, maxAgeMs, now, result });
+  }
+
+  return result;
+}
+
+function cleanupDir(dir, context) {
+  const entries = fs.existsSync(dir) ? fs.readdirSync(dir, { withFileTypes: true }) : [];
+
+  for (const entry of entries) {
+    const filePath = path.join(dir, entry.name);
+
+    if (entry.isDirectory()) {
+      cleanupDir(filePath, context);
+      removeEmptyDir(filePath, context.root);
+      continue;
+    }
+
+    if (!entry.isFile()) {
+      context.result.skipped += 1;
+      continue;
+    }
+
+    cleanupFileIfExpired(filePath, context);
+  }
+}
+
+function cleanupFileIfExpired(filePath, { root, maxAgeMs, now, result }) {
+  const resolvedRoot = path.resolve(root);
+  const resolvedPath = path.resolve(filePath);
+
+  if (!resolvedPath.startsWith(resolvedRoot)) {
+    result.skipped += 1;
+    return;
+  }
+
+  try {
+    const stat = fs.statSync(resolvedPath);
+    if (now - stat.mtimeMs < maxAgeMs) {
+      result.skipped += 1;
+      return;
+    }
+
+    fs.unlinkSync(resolvedPath);
+    result.deleted += 1;
+    result.bytesFreed += stat.size;
+  } catch {
+    result.skipped += 1;
+  }
+}
+
+function removeEmptyDir(dir, root) {
+  const resolvedRoot = path.resolve(root);
+  const resolvedDir = path.resolve(dir);
+
+  if (resolvedDir === resolvedRoot || !resolvedDir.startsWith(resolvedRoot)) return;
+
+  try {
+    if (!fs.readdirSync(resolvedDir).length) fs.rmdirSync(resolvedDir);
+  } catch {
+    // Best-effort cleanup only.
+  }
+}

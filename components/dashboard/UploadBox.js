@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 import { FileAudio, UploadCloud, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/components/auth/AuthContext";
+import { getMaxUploadBytes, getPipelineQualityLabel } from "@/lib/videoPipelineConfig";
+
+const FREE_MAX_UPLOAD_BYTES = getMaxUploadBytes();
+const PIPELINE_QUALITY = getPipelineQualityLabel();
 
 export default function UploadBox({ onUploadStart }) {
   const fileInputRef = useRef(null);
@@ -27,6 +31,11 @@ export default function UploadBox({ onUploadStart }) {
 
     if (!audioFile) {
       toast.error("Voiceover audio is required.");
+      return;
+    }
+
+    if (audioFile.size > FREE_MAX_UPLOAD_BYTES) {
+      toast.error(`Free plan supports audio up to ${Math.round(FREE_MAX_UPLOAD_BYTES / (1024 * 1024))}MB for fast ${PIPELINE_QUALITY} exports. Use a shorter file now; Premium can unlock larger uploads later.`);
       return;
     }
 
@@ -55,7 +64,7 @@ export default function UploadBox({ onUploadStart }) {
         title,
         status: "Queued",
         progress: 12,
-        quality: "1080p",
+        quality: PIPELINE_QUALITY,
         style: "reels_pacing",
         voiceUrl,
         timelineScenes: 0,
@@ -121,7 +130,7 @@ export default function UploadBox({ onUploadStart }) {
       <div className="mt-8 grid gap-3 sm:grid-cols-3">
         {[
           { label: "Faceless mode", icon: FileAudio },
-          { label: "1080p output", icon: UploadCloud },
+          { label: `${PIPELINE_QUALITY} output`, icon: UploadCloud },
           { label: "About 1 minute", icon: Loader2 },
         ].map((item) => {
           const Icon = item.icon;
@@ -176,7 +185,7 @@ async function startBackendJob({ userId, voiceoverUrl, title }) {
         aspectRatio: "Portrait (9:16)",
         editingStyle: "reels_pacing",
         captionStyle: "Reels",
-        quality: "1080p",
+        quality: PIPELINE_QUALITY,
       },
     }),
   });

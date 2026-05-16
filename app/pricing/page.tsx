@@ -12,9 +12,10 @@ const plans = [
     name: "Starter",
     price: "$0",
     description: "For testing faceless and face-camera Shorts.",
-    features: ["2 free videos", "1080p previews", "Basic captions", "Faceless mode", "Face camera mode"],
+    features: ["2 free videos", "720p previews", "Basic captions", "Faceless mode", "Face camera mode"],
     button: "Start free",
     href: "/signup",
+    locked: false,
     popular: false,
   },
   {
@@ -22,8 +23,9 @@ const plans = [
     price: "$9",
     description: "For new creators who want an affordable monthly plan.",
     features: ["20 videos per month", "1080p exports", "English subtitles", "Faceless + face camera", "No watermark"],
-    button: "Choose Launch",
-    href: "/signup",
+    button: "Locked until Stripe approval",
+    href: "/billing",
+    locked: true,
     popular: false,
   },
   {
@@ -31,8 +33,9 @@ const plans = [
     price: "$19",
     description: "For creators posting consistently across platforms.",
     features: ["50 videos per month", "1080p exports", "Karaoke subtitles", "Private asset library", "SFX suggestions", "No watermark"],
-    button: "Choose Creator",
-    href: "/signup",
+    button: "Locked until Stripe approval",
+    href: "/billing",
+    locked: true,
     popular: true,
   },
   {
@@ -40,8 +43,9 @@ const plans = [
     price: "$49",
     description: "For agencies, brands, and teams.",
     features: ["150 videos per month", "1080p exports", "Priority rendering", "Advanced director logic", "Team-ready workflows", "Long-form beta access"],
-    button: "Go Studio",
-    href: "/signup",
+    button: "Locked until Stripe approval",
+    href: "/billing",
+    locked: true,
     popular: false,
   },
 ];
@@ -66,7 +70,7 @@ export default function PricingPage() {
             Pricing for creators who publish more.
           </h1>
           <p className="mx-auto mt-7 max-w-3xl text-lg leading-8 text-zinc-300">
-            Start with your voice for faceless videos or upload camera footage for talking-head edits. Itnavideo prepares the short without a traditional editor.
+            Start with your voice for faceless videos or upload camera footage for talking-head edits. Paid upgrades are staged behind approval while the working 720p demo stays live.
           </p>
 
           <div className="mx-auto mt-10 grid max-w-4xl gap-3 sm:grid-cols-4">
@@ -117,7 +121,11 @@ export default function PricingPage() {
               <Link
                 href={plan.href}
                 className={`mt-9 inline-flex w-full items-center justify-center gap-2 rounded-lg px-5 py-4 font-black transition ${
-                  plan.popular ? "bg-brand-mint text-black hover:bg-white" : "bg-white text-black hover:bg-brand-mint"
+                  plan.locked
+                    ? "border border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10"
+                    : plan.popular
+                      ? "bg-brand-mint text-black hover:bg-white"
+                      : "bg-white text-black hover:bg-brand-mint"
                 }`}
               >
                 {plan.button}

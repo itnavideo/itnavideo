@@ -531,7 +531,7 @@ function normalizeIconEvents(events: IconOverlayEvent[], duration: number) {
     .map((event) => ({
       ...event,
       keyword: normalizeWord(event.keyword),
-      iconPath: event.iconPath || getKeywordIconPath(event.keyword),
+      iconPath: event.iconPath || getKeywordIconPath(event.keyword) || undefined,
       start: roundSeconds(Number(event.start)),
       end: roundSeconds(Number(event.end || Number(event.start) + 0.9)),
       position: event.position || 'above',

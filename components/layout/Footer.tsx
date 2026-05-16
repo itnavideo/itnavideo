@@ -29,6 +29,7 @@ const footerGroups = [
     title: 'Company',
     links: [
       { label: 'Our Story', href: '/about' },
+      { label: 'Careers', href: '/careers', badge: 'Hiring' },
       { label: 'Privacy Policy', href: '/privacy' },
       { label: 'Terms of Service', href: '/terms' },
     ],
@@ -157,8 +158,13 @@ export default function Footer() {
             <ul className="space-y-4 text-zinc-500 text-sm">
               {group.links.map((link) => (
                 <li key={link.label}>
-                  <Link href={link.href} className="hover:text-white transition-colors">
-                    {link.label}
+                  <Link href={link.href} className="inline-flex items-center gap-2 transition-colors hover:text-white">
+                    <span>{link.label}</span>
+                    {'badge' in link && link.badge ? (
+                      <span className="rounded-md bg-brand-mint px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wide text-black">
+                        {link.badge}
+                      </span>
+                    ) : null}
                   </Link>
                 </li>
               ))}

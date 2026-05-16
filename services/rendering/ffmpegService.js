@@ -9,16 +9,23 @@ import ffmpegStaticPath from 'ffmpeg-static';
 import { enrichTimelineWithProfessionalTemplate } from './proVideoTemplates.js';
 import { ensureDriveFontsForTimeline, getCachedDriveFontPath } from './googleDriveFonts.js';
 
+const QUALITY_PRESET = process.env.VIDEO_QUALITY_PRESET || process.env.NEXT_PUBLIC_VIDEO_QUALITY_PRESET || '720p';
+const TARGET_WIDTH = Number(process.env.TARGET_WIDTH || process.env.RENDER_WIDTH || 720);
+const TARGET_HEIGHT = Number(process.env.TARGET_HEIGHT || process.env.RENDER_HEIGHT || 1280);
+const RENDER_TIMEOUT_MS = Number(process.env.RENDER_PRIMARY_TIMEOUT_SEC || 0) > 0
+  ? Number(process.env.RENDER_PRIMARY_TIMEOUT_SEC) * 1000
+  : Number(process.env.RENDER_PRIMARY_TIMEOUT_MS || process.env.RENDER_TIMEOUT_SEC || 120000);
+
 // Config & Paths
 const PUBLIC_DIR = path.join(process.cwd(), 'public');
 const CACHE_DIR = path.join(os.tmpdir(), 'itnavideo-cache'); // Vercel support ke liye /tmp use karein
 if (!fs.existsSync(CACHE_DIR)) fs.mkdirSync(CACHE_DIR, { recursive: true });
 
 const QUALITY_PROFILES = {
-  '1080p': { 
-    width: 1080, height: 1920, fps: 30, 
-    videoBitrate: '4000k', maxrate: '5000k', bufsize: '8000k', 
-    audioBitrate: '128k', crf: 26, preset: 'superfast' // Preset 'superfast' render speed badhayega
+  [QUALITY_PRESET]: { 
+    width: TARGET_WIDTH, height: TARGET_HEIGHT, fps: 30, 
+    videoBitrate: '2200k', maxrate: '2800k', bufsize: '4200k', 
+    audioBitrate: '128k', crf: 26, preset: 'ultrafast'
   },
 };
 
@@ -61,7 +68,7 @@ async function getCachedAsset(url, fallbackExt = '.mp4') {
  */
 export async function renderVideoWithFFmpeg(data, outputPath, options = {}) {
   const { timeline, voiceoverUrl } = data;
-  const profile = QUALITY_PROFILES['1080p'];
+  const profile = QUALITY_PROFILES[QUALITY_PRESET];
   
   if (!timeline || !timeline.scenes || timeline.scenes.length === 0) {
     throw new Error("Cannot render video: Timeline is empty or invalid.");
@@ -83,8 +90,8 @@ export async function renderVideoWithFFmpeg(data, outputPath, options = {}) {
     let stderr = '';
     const timeout = setTimeout(() => {
       child.kill('SIGKILL');
-      reject(new Error('FFmpeg Render Timed Out (Max 15 mins)'));
-    }, 900000); // 15 mins
+      reject(new Error('FFmpeg Render Timed Out (Max 120 seconds)'));
+    }, RENDER_TIMEOUT_MS);
 
     child.stderr.on('data', (chunk) => {
       const line = chunk.toString();
@@ -481,17 +488,30 @@ function splitText(value, maxChars) {
   let line = '';
 
   for (const word of words) {
-    const next = line ? `${line} ${word}` : word;
-    if (next.length > maxChars && line) {
-      lines.push(line);
-      line = word;
-    } else {
-      line = next;
+    for (const chunk of chunkLongWord(word, maxChars)) {
+      const next = line ? `${line} ${chunk}` : chunk;
+      if (next.length > maxChars && line) {
+        lines.push(line);
+        line = chunk;
+      } else {
+        line = next;
+      }
     }
   }
 
   if (line) lines.push(line);
   return lines.length ? lines : ['Your idea becomes a video'];
+}
+
+function chunkLongWord(word, maxChars) {
+  const safeWord = String(word || '');
+  if (safeWord.length <= maxChars) return [safeWord];
+
+  const chunks = [];
+  for (let index = 0; index < safeWord.length; index += maxChars) {
+    chunks.push(safeWord.slice(index, index + maxChars));
+  }
+  return chunks;
 }
 
 function pickTemplateColor(template, index) {

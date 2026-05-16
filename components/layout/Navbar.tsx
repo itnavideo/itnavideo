@@ -15,6 +15,7 @@ const productLinks = [
 const pageLinks = [
   { label: 'Pricing', href: '/pricing' },
   { label: 'About', href: '/about' },
+  { label: 'Careers', href: '/careers', badge: 'Hiring' },
   { label: 'Contact', href: '/contact' },
 ];
 
@@ -43,8 +44,13 @@ export default function Navbar() {
             </Link>
           ))}
           {pageLinks.map((item) => (
-            <Link key={item.label} href={item.href} className="text-sm font-medium text-zinc-500 hover:text-white transition-colors">
+            <Link key={item.label} href={item.href} className="inline-flex items-center gap-2 text-sm font-medium text-zinc-500 transition-colors hover:text-white">
               {item.label}
+              {'badge' in item && item.badge ? (
+                <span className="rounded-md bg-brand-mint px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wide text-black">
+                  {item.badge}
+                </span>
+              ) : null}
             </Link>
           ))}
           
@@ -93,9 +99,14 @@ export default function Navbar() {
                 key={item.label}
                 href={item.href}
                 onClick={() => setIsOpen(false)}
-                className="rounded-md px-3 py-3 text-base font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white"
+                className="flex items-center justify-between rounded-md px-3 py-3 text-base font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white"
               >
-                {item.label}
+                <span>{item.label}</span>
+                {'badge' in item && item.badge ? (
+                  <span className="rounded-md bg-brand-mint px-2 py-1 text-[10px] font-black uppercase tracking-wide text-black">
+                    {item.badge}
+                  </span>
+                ) : null}
               </Link>
             ))}
           </div>

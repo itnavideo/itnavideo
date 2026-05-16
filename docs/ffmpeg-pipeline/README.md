@@ -21,7 +21,7 @@ Dashboard
 -> Upload voice/audio
 -> Optional visual upload
 -> AI creates script, captions, scenes, SFX plan
--> FFmpeg renders 1080p portrait MP4
+-> FFmpeg renders 720p portrait MP4
 -> User gets video link
 ```
 
@@ -104,8 +104,8 @@ Every FFmpeg feature should follow this ladder:
 
 ## Non-Negotiables
 
-- 1080p portrait only for now.
-- Only 1080p appears in the active user flow.
+- 720p portrait is the active stability-first profile.
+- 1080p should be unlocked later as a premium profile.
 - No user-facing raw FFmpeg errors.
 - No render should fail only because a visual asset is missing.
 - No render should fail only because captions are unavailable.

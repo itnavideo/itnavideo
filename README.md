@@ -1,6 +1,6 @@
 # Itnavideo
 
-> Create a 1080p short from either a voiceover or a face-camera video.
+> Create a stable 720p short from either a voiceover or a face-camera video.
 
 Itnavideo is a focused AI video platform for Reels, TikTok, and YouTube Shorts. The current product has two creator flows:
 
@@ -16,7 +16,22 @@ The AI planning layer keeps **separate instructions** for the two modes:
 - Faceless video mode focuses on voiceover timing, images, video clips, screenshots, text cards, b-roll, icons, captions, and SFX.
 - Face camera mode keeps the speaker video as the main anchor and focuses on mistake cuts, reframing, captions, icons, callouts, subtle SFX, and audio polish.
 
-Canva, 4K exports, long-form videos, teams, and advanced asset workflows remain future work. The current product should stay simple until short-form 1080p delivery is reliable.
+Canva, 1080p premium exports, long-form videos, teams, and advanced asset workflows remain future work. The current product should stay simple until short-form 720p delivery is reliable.
+
+---
+
+## Quick Study Map
+
+Start here when reading the repo:
+
+- [docs/README.md](docs/README.md): docs index and implementation map.
+- [docs/ffmpeg-pipeline/PRODUCTION_GUARDRAILS.md](docs/ffmpeg-pipeline/PRODUCTION_GUARDRAILS.md): 720p fail-safe pipeline contract.
+- [lib/videoPipelineConfig.ts](lib/videoPipelineConfig.ts): Next/API env-driven pipeline config.
+- [render-worker/videoPipelineConfig.mjs](render-worker/videoPipelineConfig.mjs): worker env-driven pipeline config.
+- [render-worker/pipelineGuards.mjs](render-worker/pipelineGuards.mjs): timeline QA gates, sanitization, render reports.
+- [scripts/validate-video-env.mjs](scripts/validate-video-env.mjs): prebuild env validator.
+- [scripts/smoke-video-pipeline.mjs](scripts/smoke-video-pipeline.mjs): local render smoke test.
+- [app/careers/page.tsx](app/careers/page.tsx): careers/talent network page and application capture flow.
 
 ---
 
@@ -49,7 +64,8 @@ Dashboard/Videos page show live status
 Supported output today:
 
 - 9:16 portrait video
-- 1080p MP4 only
+- 720p MP4 standard pipeline
+- Audio/video duration follows the shared env contract, currently up to 5 minutes for the free pipeline
 - Reels, TikTok, and YouTube Shorts ready
 - Faceless workflow with required voiceover and optional media
 - Face camera workflow with required video upload
@@ -62,6 +78,7 @@ Not active today:
 - Firebase
 - Local Vercel FFmpeg rendering
 - AWS S3 storage
+- 1080p free/default exports
 
 ---
 
@@ -199,14 +216,31 @@ Google Drive/internal reusable assets and `public/asset-library` are fallback as
 | Render worker | In Process | Express worker exists with Python-assisted FFmpeg planner; production runtime testing required on Render. |
 | Python render planner | Completed | Generates advanced FFmpeg filters for text animation, captions, grading, and voice polish. |
 | Separate AI mode instructions | Completed | Faceless and face-camera planning use different instruction sets. |
-| 1080p FFmpeg output | In Process | Active output target for both workflows. |
+| 720p FFmpeg output | In Process | Active stability target for both workflows. |
 | Cloudinary render delivery | In Process | Render worker and face-video route upload final MP4 to Cloudinary. |
 | Admin panel | In Process | Founder operations pages exist. |
 | Billing | Pending | Pricing exists; Stripe production billing is not active. |
 | Face camera video | In Process | Upload route processes talking-head/camera clips into Shorts-ready MP4. |
 | Canva | Paused | Legacy integration only; not part of the active product. |
 | Long-form video | Pending | Waitlist/roadmap item. |
-| 4K export | Not planned for MVP | Keep 1080p only until core flow is stable. |
+| 1080p/4K export | Pending | Keep 720p standard until core flow is stable; 1080p can become a premium profile later. |
+
+---
+
+## Payment Provider Demo Proof
+
+Stripe is invite-only for the current country setup, so checkout should stay locked until a reviewer can see the working product proof.
+
+Reviewer flow to demonstrate:
+
+1. Sign up or log in.
+2. Open the dashboard.
+3. Upload a short audio file.
+4. Watch status move from upload to planning to visual prefetch to render/export. The dashboard uses an SSE live pulse, with polling fallback, for visible render progress.
+5. Open or download the final playable 720p MP4.
+6. Show pricing/billing pages where 1080p upgrades are visible but locked until payment approval.
+
+Do not enable a live 1080p paywall until the 720p proof flow is reliable on production and the payment provider approves checkout access.
 
 ---
 
@@ -239,10 +273,15 @@ Google Drive/internal reusable assets and `public/asset-library` are fallback as
 - Vercel route: [app/api/render/route.ts](app/api/render/route.ts)
 - Render worker: [render-worker/server.mjs](render-worker/server.mjs)
 - Render FFmpeg module: [render-worker/ffmpegRenderer.mjs](render-worker/ffmpegRenderer.mjs)
+- Worker config: [render-worker/videoPipelineConfig.mjs](render-worker/videoPipelineConfig.mjs)
+- Pipeline guards: [render-worker/pipelineGuards.mjs](render-worker/pipelineGuards.mjs)
 - Python render bridge: [render-worker/pythonRendererBridge.mjs](render-worker/pythonRendererBridge.mjs)
 - Python render planner: [render-worker/python_renderer.py](render-worker/python_renderer.py)
 - Python talking-head engine blueprint: [render-worker/python_talking_head_engine.py](render-worker/python_talking_head_engine.py)
 - Job metadata helper: [services/supabase/projectStore.ts](services/supabase/projectStore.ts)
+- Next/API pipeline config: [lib/videoPipelineConfig.ts](lib/videoPipelineConfig.ts)
+- Env validator: [scripts/validate-video-env.mjs](scripts/validate-video-env.mjs)
+- Smoke test: [scripts/smoke-video-pipeline.mjs](scripts/smoke-video-pipeline.mjs)
 
 Older rendering service files under `services/rendering/` may still exist for compatibility and future refactor work, but Vercel should not execute FFmpeg in production.
 
@@ -281,9 +320,46 @@ CLOUDINARY_UPLOAD_TIMEOUT_MS=
 # Render worker dispatch
 RENDER_BACKEND_URL=https://your-render-service.onrender.com
 RENDER_WORKER_SECRET=
+ADMIN_API_SECRET=
+CAREERS_AUTORESPONDER_WEBHOOK_URL=
+
+# Emergency free-tier valve
+FREE_TIER_RENDER_ENABLED=1
+FREE_TIER_QUEUE_LIMIT=50
 
 # Optional public alias used by dashboard polling/links
 NEXT_PUBLIC_RENDER_BACKEND_URL=
+
+# Video processing contract
+VIDEO_QUALITY_PRESET=720p
+TARGET_WIDTH=720
+TARGET_HEIGHT=1280
+PREMIUM_VIDEO_QUALITY_PRESET=1080p
+PREMIUM_TARGET_WIDTH=1080
+PREMIUM_TARGET_HEIGHT=1920
+MAX_AUDIO_SIZE_MB=50
+MAX_AUDIO_DURATION_SEC=300
+MAX_CONCURRENT_RENDERS=1
+RENDER_TIMEOUT_SEC=240
+RENDER_PRIMARY_TIMEOUT_SEC=120
+AUDIO_NORMALIZE_TIMEOUT_MS=60000
+TEMP_ASSET_RETENTION_HOURS=24
+RENDER_TELEMETRY_WEBHOOK_URL=
+DISABLE_RENDER_TELEMETRY=0
+BLACKLIST_ASSET_TTL_HOURS=168
+BLACKLIST_STORE_RAW_URL=0
+FREE_TIER_RENDER_ENABLED=1
+FREE_TIER_QUEUE_LIMIT=50
+
+# Browser-visible mirrors for client-side preflight and UI labels
+NEXT_PUBLIC_VIDEO_QUALITY_PRESET=720p
+NEXT_PUBLIC_TARGET_WIDTH=720
+NEXT_PUBLIC_TARGET_HEIGHT=1280
+NEXT_PUBLIC_PREMIUM_VIDEO_QUALITY_PRESET=1080p
+NEXT_PUBLIC_PREMIUM_TARGET_WIDTH=1080
+NEXT_PUBLIC_PREMIUM_TARGET_HEIGHT=1920
+NEXT_PUBLIC_MAX_AUDIO_SIZE_MB=50
+NEXT_PUBLIC_MAX_AUDIO_DURATION_SEC=300
 ```
 
 ### Render Backend
@@ -305,8 +381,31 @@ CLOUDINARY_RENDERS_FOLDER=itnavideo/renders
 # Optional. Leave blank to use the bundled ffmpeg-static binary.
 FFMPEG_PATH=
 FFMPEG_PRESET=superfast
-RENDER_TIMEOUT_MS=900000
 ASSET_FETCH_TIMEOUT_MS=60000
+
+# Video processing contract
+VIDEO_QUALITY_PRESET=720p
+TARGET_WIDTH=720
+TARGET_HEIGHT=1280
+PREMIUM_VIDEO_QUALITY_PRESET=1080p
+PREMIUM_TARGET_WIDTH=1080
+PREMIUM_TARGET_HEIGHT=1920
+MAX_AUDIO_SIZE_MB=50
+MAX_AUDIO_DURATION_SEC=300
+MAX_CONCURRENT_RENDERS=1
+RENDER_TIMEOUT_SEC=240
+RENDER_PRIMARY_TIMEOUT_SEC=120
+AUDIO_NORMALIZE_TIMEOUT_MS=60000
+TEMP_ASSET_RETENTION_HOURS=24
+DISABLE_SAFE_RENDER_FALLBACK=0
+FFMPEG_DEFAULT_CRF=26
+FFMPEG_STATIC_CRF=30
+FFMPEG_MIXED_CRF=28
+FFMPEG_MOTION_CRF=23
+RENDER_TELEMETRY_WEBHOOK_URL=
+DISABLE_RENDER_TELEMETRY=0
+BLACKLIST_ASSET_TTL_HOURS=168
+BLACKLIST_STORE_RAW_URL=0
 
 # Python-assisted render planning
 # Optional. Leave blank to auto-detect Python 3.12/user install.
@@ -383,11 +482,89 @@ Build check:
 npm run build
 ```
 
+Video pipeline smoke check:
+
+```bash
+npm run test:smoke
+```
+
+`npm run test:smoke` is sandbox-only. It writes to `.sandbox/smoke/`, disables telemetry, and does not touch production queues or active render jobs.
+
+`npm run build` automatically runs [scripts/validate-video-env.mjs](scripts/validate-video-env.mjs) first, so missing or mismatched video pipeline env keys fail fast.
+
 Windows verification command used in this workspace:
 
 ```bash
 npm.cmd run build
+npm.cmd run test:smoke
 ```
+
+---
+
+## Emergency Free-Tier Valve
+
+Free renders are protected by a queue-size gate before `/api/jobs/start` writes a render job. If the worker reports more than `FREE_TIER_QUEUE_LIMIT` active plus pending jobs, free users get a friendly busy response and paid tiers continue normally.
+
+Admin endpoint:
+
+```bash
+GET /api/admin/free-tier
+POST /api/admin/free-tier
+```
+
+`POST` body:
+
+```json
+{ "enabled": false }
+```
+
+Auth uses the existing admin session cookie or `Authorization: Bearer ADMIN_API_SECRET`. If `ADMIN_API_SECRET` is blank, `RENDER_WORKER_SECRET` is accepted as the fallback server token.
+
+---
+
+## PM2 Production Runbook
+
+For a VPS-style deployment, PM2 can keep the web app and render worker alive after crashes and server reboots.
+
+Install PM2 and log rotation:
+
+```bash
+npm install -g pm2
+pm2 install pm2-logrotate
+pm2 set pm2-logrotate:max_size 10M
+pm2 set pm2-logrotate:retain 7
+pm2 set pm2-logrotate:compress true
+```
+
+Build, start, save, and enable startup:
+
+```bash
+npm install
+npm run build
+npm run pm2:start
+pm2 save
+pm2 startup
+```
+
+Use the command printed by `pm2 startup` once with sudo/admin rights on the server. After that, PM2 restores both processes on reboot.
+
+Operational commands:
+
+```bash
+npm run pm2:reload
+pm2 status
+pm2 logs itnavideo-render-worker
+pm2 logs itnavideo-web
+```
+
+PM2 app config lives in [ecosystem.config.cjs](ecosystem.config.cjs). The web app can cluster, but the render worker intentionally runs as one process so the in-memory queue is not duplicated.
+
+Production isolation rules:
+
+- Keep `NODE_ENV=production` in PM2 and cloud hosts.
+- Use `npm run test:smoke` for local/sandbox verification only.
+- Do not run smoke tests against production queues, production workspaces, or live user jobs.
+- Keep `logs/` and `.sandbox/` out of git.
 
 ---
 
@@ -508,6 +685,8 @@ itnavideo/
 ├── render-worker/
 │   ├── server.mjs
 │   ├── ffmpegRenderer.mjs
+│   ├── videoPipelineConfig.mjs
+│   ├── pipelineGuards.mjs
 │   ├── pythonRendererBridge.mjs
 │   ├── python_renderer.py
 │   ├── python_talking_head_engine.py
@@ -520,6 +699,11 @@ itnavideo/
 ├── public/
 │   ├── asset-library/
 │   └── mode-cards/
+├── lib/
+│   └── videoPipelineConfig.ts
+├── scripts/
+│   ├── validate-video-env.mjs
+│   └── smoke-video-pipeline.mjs
 ├── supabase/
 ├── next.config.mjs
 └── README.md
@@ -546,15 +730,16 @@ Folder responsibilities:
 
 ## Product Rules
 
-- Keep the MVP centered on short-form 1080p delivery.
+- Keep the MVP centered on short-form 720p delivery.
 - Keep two simple creation paths: faceless voiceover videos and face-camera edits.
-- Keep output at 1080p until the core render path is reliable.
+- Keep output at the env-driven standard profile (`VIDEO_QUALITY_PRESET=720p`) until the core render path is reliable.
 - Keep Supabase for auth, project metadata, job status, and lightweight leads.
 - Keep user media and rendered videos in Cloudinary.
 - Keep FFmpeg on Render, not Vercel.
 - Use Python only on backend/render-worker paths for render planning and video tooling.
 - Do not reintroduce Canva, 4K, or long-form flows into the main UI until the short-form workflow is stable.
 - Prefer a completed playable MP4 over a complex render that fails.
+- Keep video pipeline limits in env, not scattered through app code.
 
 ---
 

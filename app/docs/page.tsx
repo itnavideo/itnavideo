@@ -14,7 +14,7 @@ const sections = [
   },
   {
     title: 'Review the render',
-    description: 'Check jump cuts, zooms, captions, icons, audio polish, and the final 1080p vertical MP4.',
+    description: 'Check jump cuts, zooms, captions, icons, audio polish, and the final 720p vertical MP4.',
     icon: Captions,
   },
 ];

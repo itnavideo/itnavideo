@@ -32,6 +32,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/components/auth/AuthContext';
 import BrandLogo from '@/components/brand/BrandLogo';
 import VideoUploadStatus from '@/components/dashboard/VideoUploadStatus';
+import { getMaxUploadBytes, getPipelineQualityLabel, videoPipelineConfig } from '@/lib/videoPipelineConfig';
 
 type Job = {
   id: string;
@@ -71,10 +72,15 @@ type PreviewOption = {
   preview: 'reels' | 'fast' | 'cinematic' | 'luxury' | 'meme' | 'documentary' | 'caption-reels' | 'caption-hormozi' | 'caption-iman' | 'caption-cinematic';
 };
 
+const PIPELINE_QUALITY = getPipelineQualityLabel();
+const FREE_MAX_UPLOAD_BYTES = getMaxUploadBytes();
+const FREE_MAX_DURATION_SECONDS = videoPipelineConfig.maxDurationSec;
+const DEFAULT_TARGET_DURATION_SECONDS = FREE_MAX_DURATION_SECONDS;
+
 const pipelineCards = [
   { title: 'Upload audio', desc: 'Add one clear voiceover file.', icon: AudioLines, tone: 'text-emerald-200' },
   { title: 'AI timeline', desc: 'Scenes, captions, and pacing are planned automatically.', icon: Clapperboard, tone: 'text-cyan-200' },
-  { title: '1080p render', desc: 'FFmpeg exports a portrait MP4 for Reels and Shorts.', icon: Film, tone: 'text-violet-200' },
+  { title: `${PIPELINE_QUALITY} render`, desc: 'FFmpeg exports a stable portrait MP4 for Reels and Shorts.', icon: Film, tone: 'text-violet-200' },
   { title: 'Video ready', desc: 'Open or download the finished video from your library.', icon: Download, tone: 'text-amber-200' },
 ];
 
@@ -263,7 +269,7 @@ export default function DashboardPage() {
           <div className="mt-auto rounded-lg border border-emerald-300/15 bg-emerald-300/8 p-5">
             <BadgeCheck className="mb-4 text-emerald-200" size={24} />
             <h3 className="font-bold">MVP Pipeline Active</h3>
-            <p className="mt-2 text-sm leading-6 text-zinc-400">One focused workflow: audio to 1080p video.</p>
+            <p className="mt-2 text-sm leading-6 text-zinc-400">One focused workflow: audio to stable {PIPELINE_QUALITY} video.</p>
           </div>
 
           <button onClick={handleLogout} className="mt-4 flex items-center gap-2 rounded-lg border border-white/10 px-4 py-3 text-sm font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white">
@@ -289,7 +295,7 @@ export default function DashboardPage() {
             <div className="grid gap-4 md:grid-cols-4">
               <Metric title="Credits" value="12" icon={<Gauge size={19} />} />
               <Metric title="Saved videos" value={projectsLoading ? '...' : String(jobs.length)} icon={<Film size={19} />} />
-              <Metric title="Exports" value="1080p Shorts" icon={<Download size={19} />} />
+              <Metric title="Exports" value={`${PIPELINE_QUALITY} Shorts`} icon={<Download size={19} />} />
               <Metric title="Pipeline" value="Ready" icon={<CheckCircle2 size={19} />} />
             </div>
 
@@ -307,7 +313,7 @@ export default function DashboardPage() {
 
                 <div className="mb-5 grid gap-4 md:grid-cols-2">
                   <DashboardModeCard
-                    imageSrc="/mode-cards/faceless-video.svg"
+                    imageSrc="/visuals/faceless-mode-guide.png"
                     icon={<AudioLines size={22} />}
                     title="Faceless video"
                     body="Audio is required. Screenshots, images, or clips are optional."
@@ -315,7 +321,7 @@ export default function DashboardPage() {
                     onClick={() => openCreateModal('voice')}
                   />
                   <DashboardModeCard
-                    imageSrc="/mode-cards/face-camera-video.svg"
+                    imageSrc="/visuals/face-camera-mode-guide.png"
                     icon={<Film size={22} />}
                     title="Face camera video"
                     body="Upload one camera video. We crop, polish audio, add effects, and export."
@@ -407,9 +413,21 @@ export default function DashboardPage() {
                     })}
                   </div>
                 ) : (
-                  <div className="rounded-lg border border-dashed border-white/10 bg-black/25 p-8 text-center">
-                    <Wand2 className="mx-auto text-zinc-600" size={34} />
-                    <h3 className="mt-5 font-bold">No videos yet</h3>
+                  <div className="rounded-lg border border-dashed border-white/10 bg-black/25 p-5 text-center">
+                    <div className="overflow-hidden rounded-lg border border-white/10 bg-zinc-950">
+                      <div className="relative aspect-[4/3] w-full">
+                        <img
+                          src="/visuals/dashboard-empty-state.png"
+                          alt="Empty Itnavideo dashboard ready for a new video"
+                          className="absolute inset-0 h-full w-full object-cover"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
+                      </div>
+                    </div>
+                    <Wand2 className="mx-auto mt-6 text-emerald-200" size={34} />
+                    <h3 className="mt-4 font-bold">No videos yet</h3>
                     <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-zinc-500">Start with a voiceover or face camera video. The dashboard will show render status here.</p>
                   </div>
                 )}
@@ -587,14 +605,14 @@ function CreateVideoModal({
   const [generationProgress, setGenerationProgress] = useState(0);
   const [estimatedSeconds, setEstimatedSeconds] = useState(30);
   const [remainingSeconds, setRemainingSeconds] = useState(30);
-  const [targetDurationSeconds, setTargetDurationSeconds] = useState(60);
+  const [targetDurationSeconds, setTargetDurationSeconds] = useState(DEFAULT_TARGET_DURATION_SECONDS);
   const [uploadPercent, setUploadPercent] = useState(0);
   const [etaBreakdown, setEtaBreakdown] = useState<GenerationEta | null>(null);
   const [config, setConfig] = useState({
     aspectRatio: 'Portrait (9:16)',
     editingStyle: 'reels_pacing',
     captionStyle: 'Reels',
-    quality: '1080p',
+    quality: PIPELINE_QUALITY,
   });
 
   useEffect(() => {
@@ -615,6 +633,14 @@ function CreateVideoModal({
     const jobId = Math.random().toString(36).substring(2, 9);
     setRenderJobId(jobId);
     const audioDurationSeconds = await getAudioDuration(voiceover).catch(() => undefined);
+    const preflightError = getUploadPreflightError(voiceover, audioDurationSeconds);
+    if (preflightError) {
+      setGenerationStatus('error');
+      setGenerationProgress(0);
+      setIsGenerating(false);
+      toast.error(preflightError);
+      return;
+    }
     const videoDurationSeconds = getTargetVideoDuration(audioDurationSeconds, config);
     const eta = getGenerationEta({ fileSizeBytes: voiceover.size, targetDurationSeconds: videoDurationSeconds });
     const title = voiceover.name.replace(/\.[^.]+$/, '') || `Project ${jobId.toUpperCase()}`;
@@ -714,7 +740,7 @@ function CreateVideoModal({
     setGenerationProgress(12);
     setEstimatedSeconds(90);
     setRemainingSeconds(90);
-    setTargetDurationSeconds(60);
+    setTargetDurationSeconds(DEFAULT_TARGET_DURATION_SECONDS);
     setEtaBreakdown(null);
 
     onCreated({
@@ -725,7 +751,7 @@ function CreateVideoModal({
       style: `face_${faceStyle}`,
       timelineScenes: 1,
       captions: 0,
-      quality: '1080p',
+      quality: PIPELINE_QUALITY,
       durationSeconds: 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -734,53 +760,49 @@ function CreateVideoModal({
     toast.success('Face video processing started. Keep this window open.');
 
     try {
-      const formData = new FormData();
-      formData.append('video', faceVideo);
-      formData.append('userId', user.uid);
-      formData.append('jobId', jobId);
-      formData.append('style', faceStyle);
+      const preflightError = getUploadPreflightError(faceVideo);
+      if (preflightError) throw new Error(preflightError);
 
-      const response = await fetch('/api/process-talking-head', {
-        method: 'POST',
-        body: formData,
+      // 1. Secure Upload to Cloudinary (Handles large files better)
+      setGenerationStatus('uploading');
+      const videoPath = `uploads/${user.uid}/face/${Date.now()}_${sanitizeFileName(faceVideo.name)}`;
+      const faceVideoUrl = await uploadMediaFile(videoPath, faceVideo, (percent) => {
+        setUploadPercent(percent);
+        setGenerationProgress(Math.min(50, 12 + Math.round(percent * 0.38)));
       });
-      const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.details || data.error || 'Face video processing failed.');
-      }
+      onJobUpdate(jobId, { 
+        status: 'Uploaded', 
+        progress: 50, 
+        visualUrl: faceVideoUrl 
+      });
 
-      if (data.accepted) {
-        onJobUpdate(jobId, {
-          status: 'Rendering face video',
-          progress: 18,
-          style: `face_${faceStyle}`,
-          renderUrl: data.videoUrl,
-          videoUrl: normalizeRenderUrl(data.videoUrl),
-          renderProvider: 'local-ffmpeg',
-        });
-        setGenerationProgress(18);
-        toast.success('Upload complete. FFmpeg render started in background.');
-        return;
-      }
+      // 2. Trigger Background Job (Returns immediately, preventing timeout)
+      setGenerationStatus('rendering');
+      await startBackendVideoJob({
+        jobId,
+        userId: user.uid,
+        voiceoverUrl: faceVideoUrl, // Face video acts as its own voiceover source
+        title: faceVideo.name.replace(/\.[^.]+$/, ''),
+        config: { 
+          ...config, 
+          creationMode: 'face', 
+          faceStyle,
+          aspectRatio: config.aspectRatio // Ensure selected aspect ratio is passed
+        },
+        runPipeline: true,
+        targetDurationSeconds: DEFAULT_TARGET_DURATION_SECONDS,
+      });
 
-      const videoUrl = normalizeRenderUrl(data.videoUrl);
       onJobUpdate(jobId, {
-        status: 'Video ready',
-        progress: 100,
-        style: `face_${faceStyle}`,
-        timelineScenes: 1,
-        captions: 1,
-        quality: '1080p',
-        durationSeconds: data.duration || 0,
-        renderUrl: data.videoUrl,
-        videoUrl,
+        status: 'Worker is processing face video',
+        progress: 60,
+        visualUrl: faceVideoUrl,
         renderProvider: 'local-ffmpeg',
       });
-      setGenerationStatus('ready');
-      setGenerationProgress(100);
-      setRemainingSeconds(0);
-      toast.success('Face video ready. You can open it from Your videos.');
+
+      toast.success('Video queued. You can track progress in "Your videos".');
+      onClose();
     } catch (error: any) {
       const message = getCreatorFacingGenerationError(error, 'Face video processing failed.');
       onJobUpdate(jobId, {
@@ -856,7 +878,7 @@ function CreateVideoModal({
               <div className="grid gap-3 md:grid-cols-2">
                 <ModeCard
                   selected={creationMode === 'voice'}
-                  imageSrc="/mode-cards/faceless-video.svg"
+                  imageSrc="/visuals/faceless-mode-guide.png"
                   icon={<AudioLines size={24} />}
                   title="Faceless video"
                   body="Audio is mandatory. Add screenshots, images, or video clips if you have them."
@@ -865,7 +887,7 @@ function CreateVideoModal({
                 />
                 <ModeCard
                   selected={creationMode === 'face'}
-                  imageSrc="/mode-cards/face-camera-video.svg"
+                  imageSrc="/visuals/face-camera-mode-guide.png"
                   icon={<Film size={24} />}
                   title="Face camera video"
                   body="Upload one talking-head or camera video. Itnavideo edits it into a short."
@@ -906,7 +928,7 @@ function CreateVideoModal({
                     ['Portrait (9:16)', 'Portrait (9:16)'],
                   ]} />
                   <Select label="Export quality" value={config.quality} onChange={(quality) => setConfig({ ...config, quality })} options={[
-                    ['1080p', '1080p'],
+                    [PIPELINE_QUALITY, PIPELINE_QUALITY],
                   ]} />
                 </div>
               </div>
@@ -947,8 +969,8 @@ function CreateVideoModal({
               <h4 className="mt-5 text-2xl font-black">Ready to create your {creationMode === 'voice' ? 'faceless video' : 'face camera edit'}</h4>
               <p className="mt-3 max-w-xl text-sm leading-6 text-zinc-400">
                 {creationMode === 'voice'
-                  ? 'We will analyze the voiceover, create the timeline, generate captions, and export a 1080p short-form MP4.'
-                  : 'We will crop the camera video for Shorts, polish audio, add motion/effects, and export a 1080p MP4.'}
+                  ? `We will analyze the voiceover, create the timeline, generate captions, and export a stable ${PIPELINE_QUALITY} short-form MP4.`
+                  : `We will crop the camera video for Shorts, polish audio, add motion/effects, and export a stable ${PIPELINE_QUALITY} MP4.`}
               </p>
               <div className="mt-5 grid gap-3 text-sm text-zinc-300 md:grid-cols-2">
                   {creationMode === 'voice' ? (
@@ -956,14 +978,14 @@ function CreateVideoModal({
                     <Summary label="Voice" value={voiceover?.name || 'Required'} />
                     <Summary label="Style" value={getPreviewOption(editingStyleOptions, config.editingStyle).title} />
                     <Summary label="Captions" value={getPreviewOption(captionStyleOptions, config.captionStyle).title} />
-                    <Summary label="Export" value="1080p portrait MP4" />
+                    <Summary label="Export" value={`${PIPELINE_QUALITY} portrait MP4`} />
                     </>
                   ) : (
                     <>
                       <Summary label="Camera video" value={faceVideo?.name || 'Required'} />
                       <Summary label="Edit style" value={faceStyle} />
                       <Summary label="Effects" value="Crop, motion, audio polish" />
-                      <Summary label="Export" value="1080p portrait MP4" />
+                      <Summary label="Export" value={`${PIPELINE_QUALITY} portrait MP4`} />
                     </>
                   )}
               </div>
@@ -1410,7 +1432,9 @@ function mergeJobs(...groups: Job[][]) {
     byId.set(job.id, mergeJobData(previous, job));
   });
 
-  return Array.from(byId.values()).sort((a, b) => getJobTimestamp(b) - getJobTimestamp(a));
+  return Array.from(byId.values())
+    .map(markStaleRenderJob)
+    .sort((a, b) => getJobTimestamp(b) - getJobTimestamp(a));
 }
 
 function mergeJobData(previous: Job | undefined, next: Job): Job {
@@ -1437,6 +1461,39 @@ function getJobTimestamp(job: Job) {
 function isCompletedStatus(status: string) {
   const normalized = status.toLowerCase();
   return normalized.includes('ready') || normalized.includes('completed');
+}
+
+function markStaleRenderJob(job: Job) {
+  if (!isStaleInProgressJob(job)) return job;
+
+  return {
+    ...job,
+    status: 'Render worker needs retry',
+    progress: Math.min(Number(job.progress || 0), 76),
+  };
+}
+
+function isStaleInProgressJob(job: Job) {
+  if (getJobVideoUrl(job)) return false;
+  const normalized = String(job.status || '').toLowerCase();
+  if (!normalized || normalized.includes('retry') || normalized.includes('error') || normalized.includes('ready') || normalized.includes('completed')) {
+    return false;
+  }
+
+  const isActiveRenderStatus = ['queued', 'upload', 'planning', 'preparing', 'processing', 'rendering', 'worker', 'export'].some((token) => normalized.includes(token));
+  if (!isActiveRenderStatus) return false;
+
+  const updatedAtMs = getJobUpdatedAt(job);
+  if (!updatedAtMs) return false;
+
+  return Date.now() - updatedAtMs > getRenderStaleTimeoutMs();
+}
+
+function getJobUpdatedAt(job: Job) {
+  const value = job.updatedAt || job.createdAt;
+  if (typeof value === 'string') return new Date(value).getTime() || 0;
+  if (value && typeof (value as any).toDate === 'function') return (value as any).toDate().getTime();
+  return 0;
 }
 
 async function persistProject(userId: string, job: Job) {
@@ -1577,6 +1634,18 @@ function getPreviewOption(options: PreviewOption[], value: string) {
 function formatFileSize(bytes: number) {
   if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function getUploadPreflightError(file: File, durationSeconds?: number) {
+  if (file.size > FREE_MAX_UPLOAD_BYTES) {
+    return `Free plan supports files up to ${formatFileSize(FREE_MAX_UPLOAD_BYTES)} for fast ${PIPELINE_QUALITY} exports. Use a shorter file now, and Premium can unlock larger uploads later.`;
+  }
+
+  if (Number.isFinite(durationSeconds) && Number(durationSeconds) > FREE_MAX_DURATION_SECONDS) {
+    return `Free plan supports up to ${formatDuration(FREE_MAX_DURATION_SECONDS)} of audio or video. Trim this ${formatDuration(Number(durationSeconds))} file, or use Premium later for longer videos.`;
+  }
+
+  return '';
 }
 
 function getAudioDuration(file: File): Promise<number> {
@@ -1912,6 +1981,10 @@ function getRenderTimeoutMs() {
   return Number(process.env.NEXT_PUBLIC_RENDER_TIMEOUT_MS || 10 * 60 * 1000); // Increased to 10 mins
 }
 
+function getRenderStaleTimeoutMs() {
+  return Number(process.env.NEXT_PUBLIC_RENDER_STALE_TIMEOUT_MS || 12 * 60 * 1000);
+}
+
 function getPlanningTimeoutMs() {
   return Number(process.env.NEXT_PUBLIC_GENERATION_PLAN_TIMEOUT_MS || 180_000);
 }
@@ -1936,10 +2009,10 @@ function normalizeRenderUrl(renderUrl: string) {
   return `${baseUrl}/${renderUrl}`;
 }
 
-function getTargetVideoDuration(audioDurationSeconds: number | undefined, config: { aspectRatio: string; editingStyle: string }) {
+function getTargetVideoDuration(audioDurationSeconds: number | undefined, _config: { aspectRatio: string; editingStyle: string }) {
   const sourceDuration = Number.isFinite(audioDurationSeconds) ? Number(audioDurationSeconds) : 60;
-  const isShortForm = config.aspectRatio.includes('9:16') || config.editingStyle.includes('reels') || config.editingStyle.includes('fast');
-  return Math.max(8, Math.min(isShortForm ? 60 : 120, sourceDuration));
+  const maxAllowed = FREE_MAX_DURATION_SECONDS;
+  return Math.max(8, Math.min(maxAllowed, sourceDuration));
 }
 
 function getGenerationEta({

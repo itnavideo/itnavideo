@@ -12,7 +12,7 @@ Last updated: 2026-05-14
 
 Users can now create videos on Itnavideo through the dashboard MVP flows. Current work should improve reliability and quality without blocking the basic creator path.
 
-Pipeline principle: FFmpeg should do the least risky work needed to produce a playable 1080p MP4 first, then add captions, SFX, overlays, and styling only when they have fallback paths.
+Pipeline principle: FFmpeg should do the least risky work needed to produce a playable 720p MP4 first, then add captions, SFX, overlays, and styling only when they have fallback paths. 1080p should stay a later premium profile until the 720p pipeline is consistently reliable.
 
 | Mode | Status | User Visible | Main Files |
 |---|---|---:|---|
@@ -35,8 +35,8 @@ Files:
 
 Done:
 
-- 1080p portrait is the only active render profile.
-- 1080p is the current startup export focus.
+- 720p portrait is the active stability-first render profile.
+- 720p is the current startup export focus; 1080p is a later premium profile.
 - Uses `ffmpeg-static` fallback path resolution.
 - Downloads/caches remote assets.
 - Uses atomic cache writes for fetched assets.
@@ -214,7 +214,7 @@ Still needed:
 - Add Google Drive folder ID config and Drive API indexing helper.
 - Keep Cloudinary for user uploads and generated videos.
 - Keep the existing Cloudinary visual helper only as a compatibility bridge while Drive indexing is added.
-- Prefer 1080p-compatible assets in the render planner.
+- Prefer assets that can conform cleanly to the env-driven target resolution.
 
 ---
 
@@ -241,7 +241,7 @@ Done:
   - `animation_style`
   - `text_content`
 - FFmpeg voice renderer applies:
-  - 1080p template-safe solid-color fallback backgrounds
+- target-resolution-safe solid-color fallback backgrounds
   - 20-24% dark readability overlay
   - optional vignette
   - safe-zone text positioning

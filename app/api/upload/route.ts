@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const runtime = 'nodejs';
-export const maxDuration = 60; // 1 min limit
+export const maxDuration = 300; // 5 min limit for larger video uploads
 
 export async function POST(request: NextRequest) {
   try {

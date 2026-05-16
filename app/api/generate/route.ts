@@ -8,6 +8,7 @@ import { createVideoDirectorPlan } from '@/services/ai/videoDirector';
 import { generateMasterTimeline, type AvailableFontDatabaseItem } from '@/services/ai/timelineGenerator';
 import { getAvailableFontsDatabase, mergeAvailableFontsDatabases } from '@/services/assets/fontDatabase';
 import { getAvailableIconsDatabase, mergeAvailableIconsDatabases, type AvailableIconDatabaseItem } from '@/services/assets/iconDatabase';
+import { videoPipelineConfig } from '@/lib/videoPipelineConfig';
 import { normalizeCreationMode } from '@/services/ai/videoModeInstructions';
 
 export const runtime = 'nodejs';
@@ -165,7 +166,7 @@ function createFastVideoPlan(data: Record<string, any>) {
         mode: 'express',
         duration,
         aspectRatio: data.config?.aspectRatio || 'Portrait (9:16)',
-        quality: data.config?.quality || '1080p',
+        quality: data.config?.quality || videoPipelineConfig.qualityPreset,
       },
       scenes: scenes.map((scene) => ({
         id: scene.id,
@@ -243,7 +244,7 @@ function getFastVisualPrompt(phase: string, index: number) {
 }
 
 function clampDuration(value: number) {
-  return Math.max(8, Math.min(60, value));
+  return Math.max(8, Math.min(videoPipelineConfig.maxDurationSec, value));
 }
 
 function roundTime(value: number) {

@@ -13,7 +13,7 @@ Use this checklist before changing render behavior.
   - `processShortsVideo.ts` for face-video/talking-head shorts.
   - `videoStyles.ts` for visual styles.
   - `ffmpegJobStore.ts` and `/api/ffmpeg/status` for status/progress.
-- [ ] Confirm the change keeps 1080p portrait as the active target.
+- [ ] Confirm the change keeps 720p portrait as the active stability target.
 
 ---
 
@@ -58,6 +58,6 @@ Use this checklist before changing render behavior.
 
 - [ ] A second render endpoint for the same flow.
 - [ ] A second status polling endpoint.
-- [ ] Non-1080p active UI options.
+- [ ] Premium-only resolution options in the free active UI.
 - [ ] Complex filters without fallback.
 - [ ] User-facing FFmpeg stderr.

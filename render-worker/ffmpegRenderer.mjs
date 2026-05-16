@@ -2,20 +2,29 @@ import crypto from 'crypto';
 import { spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { Readable } from 'stream';
 import { finished } from 'stream/promises';
 import ffmpegStaticPath from 'ffmpeg-static';
 import { downloadGoogleDriveFile, isGoogleDriveConfigured } from '../services/assets/googleDriveClient.mjs';
+import { blacklistAsset, isAssetBlacklisted } from './assetBlacklist.mjs';
 import { buildPythonRenderPlan, renderPythonVideo } from './pythonRendererBridge.mjs';
 import { ensureRenderWorkspace, getWorkspaceAssetDir } from './renderWorkspace.mjs';
+import { normalizeRenderTimeline } from './pipelineGuards.mjs';
+import { notifyTelemetry } from './telemetry.mjs';
+import { getVideoPipelineConfig } from './videoPipelineConfig.mjs';
 
 const workspace = ensureRenderWorkspace();
 const cacheDir = workspace.processedAssets.cache;
+const pipelineConfig = getVideoPipelineConfig();
 const profile = {
-  width: getRenderDimension('RENDER_WIDTH', 720),
-  height: getRenderDimension('RENDER_HEIGHT', 1280),
+  width: pipelineConfig.targetWidth,
+  height: pipelineConfig.targetHeight,
   audioBitrate: '128k',
-  crf: 26,
+  crf: getNumberEnv('FFMPEG_DEFAULT_CRF', 26),
+  staticCrf: getNumberEnv('FFMPEG_STATIC_CRF', 30),
+  mixedCrf: getNumberEnv('FFMPEG_MIXED_CRF', 28),
+  motionCrf: getNumberEnv('FFMPEG_MOTION_CRF', 23),
   preset: process.env.FFMPEG_PRESET || 'ultrafast',
 };
 const renderScale = profile.width / 1080;
@@ -25,11 +34,18 @@ ensureRenderWorkspace();
 
 let drawtextSupportPromise = null;
 
-export async function renderVideoWithFFmpeg(data, outputPath, options = {}) {
-  const { timeline, voiceoverUrl } = data;
-  const totalDuration = Math.max(...timeline.scenes.map((scene) => scene.end || 0));
+export async function renderVideoWithFFmpeg(dataOrRequest, outputPathArg, optionsArg = {}) {
+  const { data, outputPath, options } = normalizeRenderRequest(dataOrRequest, outputPathArg, optionsArg);
+  const { voiceoverUrl } = data;
+  const timeline = normalizeRenderTimeline(data.timeline, {
+    duration: data.timeline?.metadata?.duration,
+    title: data.timeline?.scenes?.[0]?.textCard?.headline,
+  });
+  const totalDuration = Math.max(1, Math.max(...timeline.scenes.map((scene) => scene.end || 0)));
   const assets = await resolveTimelineAssets(timeline, voiceoverUrl);
   const supportsDrawtext = await getFfmpegSupportsDrawtext();
+  const totalTimeoutMs = getRenderTimeoutMs();
+  const primaryTimeoutMs = getPrimaryRenderTimeoutMs(totalTimeoutMs);
 
   if (supportsDrawtext && shouldUsePythonFullRenderer()) {
     try {
@@ -40,7 +56,7 @@ export async function renderVideoWithFFmpeg(data, outputPath, options = {}) {
         ffmpegPath: getFfmpegPath(),
         profile,
       }, outputPath, {
-        timeoutMs: Number(process.env.RENDER_TIMEOUT_MS || 15 * 60 * 1000),
+        timeoutMs: primaryTimeoutMs,
       });
       options.onProgress?.({ percent: 100 });
       return outputPath;
@@ -51,15 +67,177 @@ export async function renderVideoWithFFmpeg(data, outputPath, options = {}) {
   }
 
   const renderPlan = await buildRenderPlan({ timeline, assets, totalDuration, supportsDrawtext });
-  const args = buildFfmpegArgs(assets, renderPlan, outputPath);
+  const encodingProfile = getDynamicEncodingProfile(assets);
+  const args = buildFfmpegArgs(assets, renderPlan, outputPath, encodingProfile);
 
-  await runFfmpeg(args, {
-    totalDuration,
-    timeoutMs: Number(process.env.RENDER_TIMEOUT_MS || 15 * 60 * 1000),
-    onProgress: options.onProgress,
-  });
+  try {
+    if (options.forceSafeFallback) {
+      throw new Error('Forced fallback smoke test: ffmpeg failed intentionally');
+    }
+    await runFfmpeg(args, {
+      totalDuration,
+      timeoutMs: primaryTimeoutMs,
+      onProgress: options.onProgress,
+    });
+  } catch (error) {
+    if (!shouldUseSafeFallback(error)) throw error;
+    console.warn('Primary FFmpeg render failed; retrying safe base MP4 fallback:', error.message);
+    void notifyTelemetry({
+      type: 'safe_render_fallback',
+      reason: error.message,
+      recovered: true,
+      details: { durationSeconds: totalDuration },
+    });
+    options.onProgress?.({ percent: 5 });
+    await renderSafeBaseVideo({ assets, totalDuration, outputPath, timeoutMs: totalTimeoutMs, onProgress: options.onProgress, encodingProfile });
+  }
 
   return outputPath;
+}
+
+export async function prefetchTimelineAssets(timelineInput, options = {}) {
+  const timeline = normalizeRenderTimeline(timelineInput, {
+    duration: timelineInput?.metadata?.duration,
+    title: timelineInput?.scenes?.[0]?.textCard?.headline,
+  });
+  const sources = timeline.scenes
+    .map((scene) => scene.source || {})
+    .filter((source) => isRenderableSceneSource(source));
+  const uniqueSources = dedupeSources(sources);
+  const startedAt = Date.now();
+  const results = await Promise.allSettled(uniqueSources.map(async (source) => {
+    const assetPath = await resolveSceneAssetPath(source, true);
+    return {
+      source: source.driveFileId || source.assetId || source.url || source.query || 'unknown',
+      cached: Boolean(assetPath),
+      assetPath,
+    };
+  }));
+  const cached = results.filter((result) => result.status === 'fulfilled' && result.value.cached).length;
+  const failed = results.length - cached;
+
+  if (failed > 0) {
+    void notifyTelemetry({
+      type: 'asset_prefetch_partial',
+      jobId: options.jobId,
+      reason: `${failed} assets were not prefetched`,
+      recovered: true,
+      details: { total: results.length, cached, failed },
+    });
+  }
+
+  return {
+    total: results.length,
+    cached,
+    failed,
+    durationMs: Date.now() - startedAt,
+  };
+}
+
+function normalizeRenderRequest(dataOrRequest, outputPathArg, optionsArg = {}) {
+  const isObjectContract = isPlainObject(dataOrRequest)
+    && typeof dataOrRequest.outputPath === 'string'
+    && isPlainObject(dataOrRequest.timeline);
+  const data = isObjectContract
+    ? { timeline: dataOrRequest.timeline, voiceoverUrl: dataOrRequest.voiceoverUrl, quality: dataOrRequest.quality }
+    : dataOrRequest;
+  const outputPath = isObjectContract ? dataOrRequest.outputPath : outputPathArg;
+  const options = {
+    ...(isObjectContract && isPlainObject(dataOrRequest.options) ? dataOrRequest.options : {}),
+    ...(isPlainObject(optionsArg) ? optionsArg : {}),
+  };
+
+  if (!isPlainObject(data) || !isPlainObject(data.timeline)) {
+    throw new Error('renderVideoWithFFmpeg requires a timeline object.');
+  }
+
+  if (!outputPath || typeof outputPath !== 'string') {
+    throw new Error('renderVideoWithFFmpeg requires an outputPath string.');
+  }
+
+  return { data, outputPath, options };
+}
+
+function dedupeSources(sources) {
+  const seen = new Set();
+  return sources.filter((source) => {
+    const key = source.driveFileId || source.assetId || source.url || JSON.stringify(source);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function isPlainObject(value) {
+  return Boolean(value && typeof value === 'object' && !Array.isArray(value));
+}
+
+function getRenderTimeoutMs() {
+  return pipelineConfig.renderTimeoutMs;
+}
+
+function getPrimaryRenderTimeoutMs(totalTimeoutMs) {
+  const configured = pipelineConfig.primaryRenderTimeoutMs;
+  return Math.max(45_000, Math.min(totalTimeoutMs, configured));
+}
+
+function shouldUseSafeFallback(error) {
+  if (process.env.DISABLE_SAFE_RENDER_FALLBACK === '1') return false;
+  const message = String(error?.message || '').toLowerCase();
+  return message.includes('timed out') || message.includes('ffmpeg failed') || message.includes('python full renderer failed');
+}
+
+async function renderSafeBaseVideo({ assets, totalDuration, outputPath, timeoutMs, onProgress, encodingProfile = getDynamicEncodingProfile(assets) }) {
+  const duration = Math.max(1, Number(totalDuration || 0));
+  const args = [
+    '-y',
+    '-hide_banner',
+    '-f',
+    'lavfi',
+    '-t',
+    String(duration),
+    '-i',
+    `color=c=0x101014:s=${profile.width}x${profile.height}:r=30`,
+  ];
+
+  if (assets.voiceover?.path) {
+    args.push('-i', assets.voiceover.path);
+  } else {
+    args.push('-f', 'lavfi', '-t', String(duration), '-i', `anullsrc=r=44100:cl=stereo`);
+  }
+
+  args.push(
+    '-map',
+    '0:v:0',
+    '-map',
+    '1:a:0',
+    '-t',
+    String(duration),
+    '-c:v',
+    'libx264',
+    '-preset',
+    'ultrafast',
+    '-threads',
+    getFfmpegThreadCount(),
+    '-crf',
+    String(Math.max(encodingProfile.crf, profile.mixedCrf)),
+    '-pix_fmt',
+    'yuv420p',
+    '-c:a',
+    'aac',
+    '-b:a',
+    profile.audioBitrate,
+    '-shortest',
+    '-movflags',
+    '+faststart',
+    outputPath,
+  );
+
+  await runFfmpeg(args, {
+    totalDuration: duration,
+    timeoutMs: Math.max(60_000, timeoutMs),
+    onProgress,
+  });
 }
 
 async function buildRenderPlan({ timeline, assets, totalDuration, supportsDrawtext }) {
@@ -130,17 +308,64 @@ async function resolveTimelineAssets(timeline, voiceoverUrl) {
   if (voiceoverUrl) {
     const voiceoverPath = await getCachedAsset(voiceoverUrl, '.mp3');
     if (!voiceoverPath) throw new Error('Could not download voiceover asset.');
-    voiceover = { path: voiceoverPath, index: allInputs.length };
+    const normalizedVoiceoverPath = await normalizeVoiceoverAudio(voiceoverPath);
+    voiceover = { path: normalizedVoiceoverPath, index: allInputs.length };
     allInputs.push(voiceover);
   }
 
   return { allInputs, sceneInputs, voiceover };
 }
 
+async function normalizeVoiceoverAudio(inputPath) {
+  const stat = fs.statSync(inputPath);
+  const hash = crypto
+    .createHash('md5')
+    .update(`${inputPath}:${stat.size}:${stat.mtimeMs}`)
+    .digest('hex');
+  const outputPath = path.join(cacheDir, `voice_${hash}_16k_mono.wav`);
+
+  if (fs.existsSync(outputPath) && fs.statSync(outputPath).size > 0) return outputPath;
+
+  try {
+    await runFfmpeg([
+      '-y',
+      '-hide_banner',
+      '-i',
+      inputPath,
+      '-vn',
+      '-ac',
+      '1',
+      '-ar',
+      '16000',
+      '-c:a',
+      'pcm_s16le',
+      outputPath,
+    ], {
+      totalDuration: 0,
+      timeoutMs: Number(process.env.AUDIO_NORMALIZE_TIMEOUT_MS || 60_000),
+    });
+
+    return outputPath;
+  } catch (error) {
+    console.warn('Audio normalization failed; continuing with original source audio:', error.message);
+    return inputPath;
+  }
+}
+
 async function resolveSceneAssetPath(source, canRenderSource) {
   if (!canRenderSource) return null;
 
   try {
+    if (await isAssetBlacklisted(source)) {
+      void notifyTelemetry({
+        type: 'blacklisted_asset_skipped',
+        assetId: source.driveFileId || source.assetId || source.url,
+        reason: 'asset is blacklisted from previous render failure',
+        recovered: true,
+      });
+      return null;
+    }
+
     if (source.driveFileId) {
       return await getCachedDriveAsset(
         source.driveFileId,
@@ -153,6 +378,17 @@ async function resolveSceneAssetPath(source, canRenderSource) {
     }
   } catch (error) {
     console.warn('Scene asset unavailable; using generated text card fallback:', error);
+    await blacklistAsset(source, error?.message || 'scene_asset_unavailable', {
+      type: source?.type,
+      mimeType: source?.mimeType,
+      query: source?.query,
+    });
+    void notifyTelemetry({
+      type: 'asset_fallback',
+      assetId: source?.driveFileId || source?.assetId || source?.url,
+      reason: error?.message || 'scene asset unavailable',
+      recovered: true,
+    });
   }
 
   return null;
@@ -178,10 +414,26 @@ async function getCachedAsset(url, fallbackExt = '.mp4') {
   if (!url) return null;
 
   const hash = crypto.createHash('md5').update(url).digest('hex');
-  const ext = getUrlExtension(url) || fallbackExt;
+  const ext = getUrlExtension(url) || getDataUrlExtension(url) || fallbackExt;
   const cachePath = path.join(getWorkspaceAssetDir(ext), `${hash}${ext}`);
 
   if (fs.existsSync(cachePath) && fs.statSync(cachePath).size > 0) return cachePath;
+
+  if (String(url).startsWith('file://')) {
+    const sourcePath = fileURLToPath(url);
+    if (!fs.existsSync(sourcePath) || fs.statSync(sourcePath).size <= 0) {
+      void notifyTelemetry({
+        type: 'local_file_asset_missing',
+        assetId: url,
+        reason: 'file asset missing or empty',
+        recovered: true,
+      });
+      throw new Error(`Local asset does not exist: ${sourcePath}`);
+    }
+
+    fs.copyFileSync(sourcePath, cachePath);
+    return cachePath;
+  }
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), Number(process.env.ASSET_FETCH_TIMEOUT_MS || 60_000));
@@ -260,7 +512,7 @@ function buildComplexFilters(timeline, assets, totalDuration, options = {}) {
   return filters.join(';');
 }
 
-function buildFfmpegArgs(assets, renderPlan, outputPath) {
+function buildFfmpegArgs(assets, renderPlan, outputPath, encodingProfile = getDynamicEncodingProfile(assets)) {
   const args = ['-y', '-hide_banner'];
   const filterGraph = typeof renderPlan === 'string' ? renderPlan : renderPlan.filterGraph;
   const videoMap = typeof renderPlan === 'string' ? '[v_base]' : renderPlan.videoMap || '[v_base]';
@@ -295,7 +547,7 @@ function buildFfmpegArgs(assets, renderPlan, outputPath) {
     '-threads',
     ffmpegThreads,
     '-crf',
-    String(profile.crf),
+    String(encodingProfile.crf),
     '-pix_fmt',
     'yuv420p',
     '-c:a',
@@ -310,6 +562,42 @@ function buildFfmpegArgs(assets, renderPlan, outputPath) {
   return args;
 }
 
+function getDynamicEncodingProfile(assets) {
+  const sceneInputs = Array.isArray(assets?.sceneInputs) ? assets.sceneInputs : [];
+  const sceneCount = Math.max(1, sceneInputs.length);
+  const videoScenes = sceneInputs.filter((input) => input.path && !input.isImage && !input.generatedColor).length;
+  const imageScenes = sceneInputs.filter((input) => input.path && input.isImage).length;
+  const generatedScenes = sceneInputs.filter((input) => input.generatedColor).length;
+  const videoRatio = videoScenes / sceneCount;
+  const staticRatio = (imageScenes + generatedScenes) / sceneCount;
+  const transitionPressure = sceneCount >= 10 ? 0.08 : 0;
+  const complexity = Math.min(1, videoRatio + transitionPressure);
+  const crf = pickDynamicCrf({ complexity, staticRatio, videoRatio });
+
+  return {
+    crf,
+    complexity,
+    videoScenes,
+    imageScenes,
+    generatedScenes,
+  };
+}
+
+function pickDynamicCrf({ complexity, staticRatio, videoRatio }) {
+  if (videoRatio >= 0.65 || complexity >= 0.72) return clampCrf(profile.motionCrf);
+  if (staticRatio >= 0.85) return clampCrf(profile.staticCrf);
+  return clampCrf(profile.mixedCrf);
+}
+
+function clampCrf(value) {
+  return Math.max(18, Math.min(35, Math.round(Number(value) || profile.crf)));
+}
+
+function getNumberEnv(name, fallback) {
+  const value = Number(process.env[name]);
+  return Number.isFinite(value) && value > 0 ? value : fallback;
+}
+
 function getFfmpegThreadCount() {
   const value = Number(process.env.FFMPEG_THREADS || 1);
   if (!Number.isFinite(value) || value < 1) return '1';
@@ -318,22 +606,31 @@ function getFfmpegThreadCount() {
 
 function runFfmpeg(args, { totalDuration, timeoutMs, onProgress }) {
   return new Promise((resolve, reject) => {
-    const child = spawn(getFfmpegPath(), args, { windowsHide: true });
+    const child = spawn(getFfmpegPath(), args, {
+      detached: process.platform !== 'win32',
+      windowsHide: true,
+    });
     let stderr = '';
     let timedOut = false;
 
     const timeout = setTimeout(() => {
       timedOut = true;
-      child.kill('SIGKILL');
+      killProcessTree(child);
     }, timeoutMs);
 
     child.stderr.on('data', (chunk) => {
       const raw = chunk.toString();
       stderr += raw;
 
-      const seconds = parseFfmpegSeconds(raw);
-      if (seconds !== null && totalDuration > 0) {
-        onProgress?.({ percent: Math.min(99, Math.round((seconds / totalDuration) * 100)) });
+      const progress = parseFfmpegProgress(raw);
+      if (progress.seconds !== null && totalDuration > 0) {
+        onProgress?.({
+          percent: Math.min(99, Math.round((progress.seconds / totalDuration) * 100)),
+          seconds: progress.seconds,
+          frame: progress.frame,
+          fps: progress.fps,
+          speed: progress.speed,
+        });
       }
     });
 
@@ -361,22 +658,43 @@ function runFfmpeg(args, { totalDuration, timeoutMs, onProgress }) {
   });
 }
 
-function parseFfmpegSeconds(value) {
+function killProcessTree(child) {
+  if (!child?.pid) return;
+
+  try {
+    if (process.platform === 'win32') {
+      spawn('taskkill', ['/pid', String(child.pid), '/f', '/t'], { windowsHide: true, stdio: 'ignore' });
+      return;
+    }
+
+    process.kill(-child.pid, 'SIGKILL');
+  } catch (error) {
+    try {
+      child.kill('SIGKILL');
+    } catch {
+      // Ignore cleanup failures; the original timeout error is more useful.
+    }
+  }
+}
+
+function parseFfmpegProgress(value) {
   const match = value.match(/time=(\d{2}):(\d{2}):(\d{2}(?:\.\d+)?)/);
-  if (!match) return null;
-  return Number(match[1]) * 3600 + Number(match[2]) * 60 + Number(match[3]);
+  const frame = value.match(/frame=\s*(\d+)/);
+  const fps = value.match(/fps=\s*([\d.]+)/);
+  const speed = value.match(/speed=\s*([^\s]+)/);
+
+  return {
+    seconds: match ? Number(match[1]) * 3600 + Number(match[2]) * 60 + Number(match[3]) : null,
+    frame: frame ? Number(frame[1]) : undefined,
+    fps: fps ? Number(fps[1]) : undefined,
+    speed: speed ? speed[1] : undefined,
+  };
 }
 
 function getFfmpegPath() {
   if (process.env.FFMPEG_PATH && fs.existsSync(process.env.FFMPEG_PATH)) return process.env.FFMPEG_PATH;
   if (ffmpegStaticPath && fs.existsSync(ffmpegStaticPath)) return ffmpegStaticPath;
   return process.env.FFMPEG_PATH || 'ffmpeg';
-}
-
-function getRenderDimension(name, fallback) {
-  const value = Number(process.env[name]);
-  if (!Number.isFinite(value) || value < 240) return fallback;
-  return Math.round(value / 2) * 2;
 }
 
 function buildSafeFrames(renderProfile) {
@@ -455,6 +773,20 @@ function getUrlExtension(url) {
   } catch {
     return '';
   }
+}
+
+function getDataUrlExtension(value) {
+  const match = String(value || '').match(/^data:([^;,]+)/i);
+  const mimeType = String(match?.[1] || '').toLowerCase();
+  if (mimeType.includes('wav')) return '.wav';
+  if (mimeType.includes('mpeg') || mimeType.includes('mp3')) return '.mp3';
+  if (mimeType.includes('mp4')) return '.mp4';
+  if (mimeType.includes('quicktime')) return '.mov';
+  if (mimeType.includes('webm')) return '.webm';
+  if (mimeType.includes('png')) return '.png';
+  if (mimeType.includes('jpeg') || mimeType.includes('jpg')) return '.jpg';
+  if (mimeType.includes('webp')) return '.webp';
+  return '';
 }
 
 function extensionFromHint(value) {
@@ -622,17 +954,30 @@ function splitText(value, maxChars) {
   let line = '';
 
   for (const word of words) {
-    const next = line ? `${line} ${word}` : word;
-    if (next.length > maxChars && line) {
-      lines.push(line);
-      line = word;
-    } else {
-      line = next;
+    for (const chunk of chunkLongWord(word, maxChars)) {
+      const next = line ? `${line} ${chunk}` : chunk;
+      if (next.length > maxChars && line) {
+        lines.push(line);
+        line = chunk;
+      } else {
+        line = next;
+      }
     }
   }
 
   if (line) lines.push(line);
   return lines.length ? lines : ['Your idea becomes a video'];
+}
+
+function chunkLongWord(word, maxChars) {
+  const safeWord = String(word || '');
+  if (safeWord.length <= maxChars) return [safeWord];
+
+  const chunks = [];
+  for (let index = 0; index < safeWord.length; index += maxChars) {
+    chunks.push(safeWord.slice(index, index + maxChars));
+  }
+  return chunks;
 }
 
 function escapeDrawtext(value) {
