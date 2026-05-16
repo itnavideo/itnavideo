@@ -1,7 +1,9 @@
 import {
   canWriteSupabaseFromServer,
   deleteUserProjectFromServer as deleteProject,
+  deleteExpiredProjectRecordsFromServer as deleteExpiredProjectRecords,
   insertLeadFromServer as insertLead,
+  listExpiredRenderedProjectsFromServer as listExpiredRenderedProjects,
   listUserProjectsFromServer as listProjects,
   upsertUserProjectFromServer as upsertProject,
 } from './projectStore.mjs';
@@ -31,6 +33,7 @@ export type UserProjectRecord = {
   createdAt?: string;
   updatedAt?: string;
   completedAt?: string;
+  expiresAt?: string;
 };
 
 export async function listUserProjectsFromServer(userId: string): Promise<UserProjectRecord[]> {
@@ -47,6 +50,19 @@ export async function upsertUserProjectFromServer(
 
 export async function deleteUserProjectFromServer(userId: string, projectId: string): Promise<void> {
   await deleteProject(userId, projectId);
+}
+
+export async function listExpiredRenderedProjectsFromServer(
+  maxAgeMs?: number,
+  limit?: number,
+): Promise<UserProjectRecord[]> {
+  return listExpiredRenderedProjects(maxAgeMs, limit) as Promise<UserProjectRecord[]>;
+}
+
+export async function deleteExpiredProjectRecordsFromServer(
+  projectIds: string[],
+): Promise<{ projectsDeleted: number; jobsDeleted: number }> {
+  return deleteExpiredProjectRecords(projectIds) as Promise<{ projectsDeleted: number; jobsDeleted: number }>;
 }
 
 export async function insertLeadFromServer(tableName: 'waitlist' | 'newsletter', data: Record<string, unknown>): Promise<void> {

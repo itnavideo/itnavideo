@@ -25,6 +25,8 @@ const PROJECT_COLUMNS = {
   completedAt: 'completed_at',
 };
 
+const DEFAULT_RENDER_RETENTION_MS = 2 * 60 * 60 * 1000;
+
 let serverClient = null;
 
 export function canWriteSupabaseFromServer() {
@@ -45,7 +47,7 @@ export async function listUserProjectsFromServer(userId) {
   }
 
   if (error) throw new Error(`Supabase project list failed: ${error.message}`);
-  return (data || []).map(fromProjectRow);
+  return (data || []).map(fromProjectRow).filter((project) => !isExpiredRenderedProject(project));
 }
 
 export async function upsertUserProjectFromServer(userId, projectId, data = {}) {
@@ -162,6 +164,56 @@ export async function cleanupOldFfmpegJobsFromServer(maxAgeMs) {
   return { deleted: data?.length || 0 };
 }
 
+export async function listExpiredRenderedProjectsFromServer(maxAgeMs = DEFAULT_RENDER_RETENTION_MS, limit = 50) {
+  const cutoff = new Date(Date.now() - Math.max(0, Number(maxAgeMs) || DEFAULT_RENDER_RETENTION_MS)).toISOString();
+  const supabase = getSupabaseServerClient();
+  const { data, error } = await supabase
+    .from('projects')
+    .select('id, owner_id, title, video_url, render_url, created_at, completed_at')
+    .not('completed_at', 'is', null)
+    .lt('completed_at', cutoff)
+    .limit(Math.max(1, Math.min(200, Number(limit) || 50)));
+
+  if (isMissingTableError(error)) {
+    console.warn(`Supabase projects table is missing. Skipping expired render lookup: ${error.message}`);
+    return [];
+  }
+
+  if (error) throw new Error(`Supabase expired project lookup failed: ${error.message}`);
+  return (data || []).map(fromProjectRow);
+}
+
+export async function deleteExpiredProjectRecordsFromServer(projectIds = []) {
+  const ids = [...new Set((projectIds || []).map((id) => String(id || '').trim()).filter(Boolean))];
+  if (!ids.length) return { projectsDeleted: 0, jobsDeleted: 0 };
+
+  const supabase = getSupabaseServerClient();
+  const jobs = await supabase
+    .from('ffmpeg_jobs')
+    .delete()
+    .in('job_id', ids)
+    .select('id');
+
+  if (jobs.error && !isMissingTableError(jobs.error)) {
+    throw new Error(`Supabase expired job cleanup failed: ${jobs.error.message}`);
+  }
+
+  const projects = await supabase
+    .from('projects')
+    .delete()
+    .in('id', ids)
+    .select('id');
+
+  if (projects.error && !isMissingTableError(projects.error)) {
+    throw new Error(`Supabase expired project cleanup failed: ${projects.error.message}`);
+  }
+
+  return {
+    projectsDeleted: projects.data?.length || 0,
+    jobsDeleted: jobs.data?.length || 0,
+  };
+}
+
 export async function insertLeadFromServer(tableName, data) {
   const allowedTables = new Set(['waitlist', 'newsletter']);
   if (!allowedTables.has(tableName)) throw new Error('Unsupported lead table.');
@@ -231,6 +283,7 @@ function fromProjectRow(row = {}) {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     completedAt: row.completed_at,
+    expiresAt: getRenderExpiresAt(row),
   };
 }
 
@@ -289,4 +342,18 @@ function isTimestampColumn(column) {
 
 function clampProgress(progress) {
   return Math.max(0, Math.min(100, Math.round(Number(progress) || 0)));
+}
+
+function getRenderExpiresAt(row = {}, maxAgeMs = DEFAULT_RENDER_RETENTION_MS) {
+  if (!row.video_url && !row.render_url) return undefined;
+  const base = row.completed_at || row.created_at;
+  const baseMs = Date.parse(base || '');
+  if (!Number.isFinite(baseMs)) return undefined;
+  return new Date(baseMs + maxAgeMs).toISOString();
+}
+
+function isExpiredRenderedProject(project) {
+  if (!project?.videoUrl && !project?.renderUrl) return false;
+  const expiresAtMs = Date.parse(project.expiresAt || '');
+  return Number.isFinite(expiresAtMs) && expiresAtMs <= Date.now();
 }
