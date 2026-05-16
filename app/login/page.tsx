@@ -19,6 +19,7 @@ export default function LoginPage() {
   const [showResetHelp, setShowResetHelp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
   const router = useRouter();
 
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -99,6 +100,38 @@ export default function LoginPage() {
       toast.error(getPasswordResetMessage(error));
     } finally {
       setResetLoading(false);
+    }
+  };
+
+  const handleResendConfirmation = async () => {
+    const targetEmail = email.trim();
+
+    if (!targetEmail) {
+      const message = 'Please enter your email address first.';
+      setAuthError(message);
+      return;
+    }
+
+    setResendLoading(true);
+
+    try {
+      const result = await withTimeout(
+        supabase.auth.resend({
+          type: 'signup',
+          email: targetEmail,
+          options: {
+            emailRedirectTo: getAuthRedirectUrl('/dashboard'),
+          },
+        }),
+        'auth/timeout'
+      );
+
+      if (result.error) throw result.error;
+      toast.success('Verification email sent again. Check inbox and spam folder.');
+    } catch (error: any) {
+      toast.error(getResendErrorMessage(error));
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -184,6 +217,16 @@ export default function LoginPage() {
                   {resetLoading ? 'Sending reset link...' : 'Send password reset link'}
                 </button>
               )}
+              {isUnconfirmedEmailMessage(authError) && (
+                <button
+                  type="button"
+                  onClick={handleResendConfirmation}
+                  disabled={loading || resendLoading}
+                  className="mt-3 block font-bold text-emerald-200 transition hover:text-emerald-100 disabled:opacity-60"
+                >
+                  {resendLoading ? 'Sending verification...' : 'Resend verification email'}
+                </button>
+              )}
             </div>
           )}
 
@@ -230,15 +273,40 @@ function getErrorMessage(error: any) {
   if (message.includes('invalid login') || message.includes('invalid credentials')) {
     return 'Email or password did not match. Use your saved password, choose Google account, or reset the password.';
   }
+  if (message.includes('not confirmed') || message.includes('confirm')) {
+    return 'This email is not verified yet. Please open the verification link or resend it below.';
+  }
   if (message.includes('email')) return 'Enter a valid email address.';
   if (message.includes('rate') || message.includes('too many')) return 'Too many attempts. Please try again later.';
 
   return error?.message || 'Login failed. Please try again.';
 }
 
+function isUnconfirmedEmailMessage(message: string) {
+  const normalized = String(message || '').toLowerCase();
+  return normalized.includes('not verified') || normalized.includes('verification');
+}
+
 function isCredentialError(error: any) {
   const message = String(error?.message || '').toLowerCase();
   return message.includes('invalid login') || message.includes('invalid credentials');
+}
+
+function getResendErrorMessage(error: any) {
+  const code = String(error?.code || error?.name || '');
+  const message = String(error?.message || '').toLowerCase();
+
+  switch (code) {
+    case 'auth/timeout':
+      return 'Verification email is taking too long. Check your connection and try again.';
+  }
+
+  if (message.includes('rate') || message.includes('too many')) {
+    return 'Too many verification emails requested. Please wait a minute and try again.';
+  }
+  if (message.includes('email')) return 'Enter a valid email address.';
+
+  return error?.message || 'Could not resend verification email. Please try again.';
 }
 
 function getPasswordResetMessage(error: any) {

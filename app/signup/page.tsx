@@ -16,7 +16,9 @@ export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [confirmationEmail, setConfirmationEmail] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
   const router = useRouter();
 
   const handleSignup = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -47,13 +49,45 @@ export default function SignupPage() {
         toast.success('Account created. Welcome to Itnavideo.');
         router.push('/dashboard');
       } else {
-        toast.success('Account created. Check your email to confirm sign in.');
-        router.push('/login');
+        const targetEmail = email.trim();
+        setConfirmationEmail(targetEmail);
+        toast.success('Account created. Check your inbox for the verification link.');
       }
     } catch (error: any) {
       toast.error(getErrorMessage(error));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResendConfirmation = async () => {
+    const targetEmail = confirmationEmail || email.trim();
+
+    if (!targetEmail) {
+      toast.error('Enter your email address first.');
+      return;
+    }
+
+    setResendLoading(true);
+
+    try {
+      const result = await withTimeout(
+        supabase.auth.resend({
+          type: 'signup',
+          email: targetEmail,
+          options: {
+            emailRedirectTo: getAuthRedirectUrl('/dashboard'),
+          },
+        }),
+        'auth/timeout'
+      );
+
+      if (result.error) throw result.error;
+      toast.success('Verification email sent again. Check inbox and spam folder.');
+    } catch (error: any) {
+      toast.error(getResendErrorMessage(error));
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -91,6 +125,40 @@ export default function SignupPage() {
       subtitle="Create an account to access our automated AI video pipeline."
     >
       <div className="rounded-xl border border-white/5 bg-zinc-950/50 p-8 shadow-2xl backdrop-blur-md">
+        {confirmationEmail ? (
+          <div>
+            <div className="mb-8">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-lg border border-emerald-300/20 bg-emerald-300/10 text-emerald-200">
+                <Mail size={22} />
+              </div>
+              <h2 className="text-2xl font-bold tracking-tight text-white">Verify your email</h2>
+              <p className="mt-3 text-sm leading-6 text-zinc-400">
+                We sent a verification link to <span className="font-bold text-zinc-200">{confirmationEmail}</span>. Open that link to activate your workspace.
+              </p>
+              <p className="mt-3 text-sm leading-6 text-zinc-500">
+                If it does not arrive in a minute, check Spam/Promotions or send the link again.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={handleResendConfirmation}
+                disabled={resendLoading}
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-white py-3 text-sm font-bold text-black transition hover:bg-zinc-200 disabled:opacity-50"
+              >
+                {resendLoading ? <Loader2 className="animate-spin" size={18} /> : 'Resend verification email'}
+              </button>
+              <Link
+                href="/login"
+                className="flex w-full items-center justify-center rounded-lg border border-white/10 bg-white/5 py-3 text-sm font-bold text-zinc-200 transition hover:bg-white/10"
+              >
+                Go to login
+              </Link>
+            </div>
+          </div>
+        ) : (
+        <>
         <div className="mb-8">
           <h2 className="text-2xl font-bold tracking-tight text-white">Create workspace</h2>
           <p className="mt-1 text-sm text-zinc-400">Your AI video journey starts here.</p>
@@ -174,6 +242,8 @@ export default function SignupPage() {
         <p className="mt-8 text-center text-sm text-zinc-500">
           Already have an account? <Link href="/login" className="font-bold text-emerald-400 hover:text-emerald-300">Sign in</Link>
         </p>
+        </>
+        )}
       </div>
     </AuthShell>
   );
@@ -234,12 +304,29 @@ function getErrorMessage(error: any) {
   }
 
   if (message.includes('already registered') || message.includes('already exists')) {
-    return 'An account with this email already exists. Sign in, choose Google account, or use Forgot password on the login page.';
+    return 'An account with this email already exists. Sign in, use Google, or resend verification if the email was not confirmed.';
   }
   if (message.includes('email')) return 'Enter a valid email address.';
   if (message.includes('password')) return 'Password should be at least 6 characters.';
 
   return error?.message || 'Signup failed. Please try again.';
+}
+
+function getResendErrorMessage(error: any) {
+  const code = String(error?.code || error?.name || '');
+  const message = String(error?.message || '').toLowerCase();
+
+  switch (code) {
+    case 'auth/timeout':
+      return 'Verification email is taking too long. Check your connection and try again.';
+  }
+
+  if (message.includes('rate') || message.includes('too many')) {
+    return 'Too many verification emails requested. Please wait a minute and try again.';
+  }
+  if (message.includes('email')) return 'Enter a valid email address.';
+
+  return error?.message || 'Could not resend verification email. Please try again.';
 }
 
 function withTimeout<T>(promise: Promise<T>, code: string): Promise<T> {
