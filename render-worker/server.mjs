@@ -10,10 +10,14 @@ import { getPythonRendererHealth } from './pythonRendererBridge.mjs';
 import { ensureRenderWorkspace } from './renderWorkspace.mjs';
 import { upsertFfmpegJob } from '../services/rendering/ffmpegJobStore.mjs';
 import { canWriteSupabaseFromServer, upsertUserProjectFromServer } from '../services/supabase/projectStore.mjs';
+import { isGoogleDriveConfigured, listGoogleDriveChildren } from '../services/assets/googleDriveClient.mjs';
 
 const app = express();
 const port = Number(process.env.PORT || 10000);
 const workspace = ensureRenderWorkspace();
+const FOLDER_MIME = 'application/vnd.google-apps.folder';
+const DRIVE_VISUAL_CACHE_TTL_MS = 5 * 60 * 1000;
+let cachedDriveVisuals = { expiresAt: 0, assets: [] };
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', process.env.RENDER_WORKER_CORS_ORIGIN || '*');
@@ -136,7 +140,7 @@ async function processPipelineInBackground(payload) {
       },
     });
 
-    const timeline = buildWorkerTimeline({
+    const timeline = await buildWorkerTimeline({
       title,
       config,
       userAssets,
@@ -267,12 +271,17 @@ async function processVideoInBackground({ timeline, voiceoverUrl, jobId, userId 
   }
 }
 
-function buildWorkerTimeline({ title, config = {}, userAssets = [], targetDurationSeconds }) {
+async function buildWorkerTimeline({ title, config = {}, userAssets = [], targetDurationSeconds }) {
   const duration = clampNumber(Number(targetDurationSeconds || config.targetDurationSeconds || config.durationSeconds || 45), 8, 60);
   const sceneCount = Math.max(3, Math.min(8, Math.ceil(duration / 8)));
   const segment = duration / sceneCount;
   const cleanTitle = String(title || 'Your video').replace(/\.[^.]+$/, '').trim() || 'Your video';
-  const assets = Array.isArray(userAssets) ? userAssets.filter((asset) => typeof asset?.url === 'string') : [];
+  const uploadedAssets = Array.isArray(userAssets) ? userAssets.filter((asset) => typeof asset?.url === 'string') : [];
+  const driveAssets = await pickWorkerDriveVisuals({
+    query: `${cleanTitle} ${config.editingStyle || ''} ${config.mood || ''}`,
+    limit: Math.max(sceneCount, 6),
+  });
+  const assets = uploadedAssets.length ? uploadedAssets : driveAssets;
   const palette = pickWorkerPalette(config.editingStyle || config.mood);
   const captions = buildWorkerCaptions(cleanTitle, duration, sceneCount);
 
@@ -286,17 +295,7 @@ function buildWorkerTimeline({ title, config = {}, userAssets = [], targetDurati
       start,
       end,
       role: getWorkerSceneRole(index, sceneCount),
-      source: asset
-        ? {
-            type: asset.type === 'video' ? 'uploaded_video' : 'uploaded_image',
-            url: asset.url,
-            query: asset.filename || cleanTitle,
-          }
-        : {
-            type: 'text_card',
-            url: null,
-            query: cleanTitle,
-          },
+      source: buildWorkerSceneSource(asset, cleanTitle),
       crop: {
         safeFrame: '4:5',
       },
@@ -328,6 +327,128 @@ function buildWorkerTimeline({ title, config = {}, userAssets = [], targetDurati
       type: 'cut',
     })),
   };
+}
+
+function buildWorkerSceneSource(asset, fallbackQuery) {
+  if (!asset) {
+    return {
+      type: 'text_card',
+      url: null,
+      query: fallbackQuery,
+    };
+  }
+
+  if (asset.driveFileId) {
+    return {
+      type: asset.type === 'video' ? 'drive_video' : 'drive_image',
+      url: asset.url || null,
+      driveFileId: asset.driveFileId,
+      mimeType: asset.mimeType,
+      assetId: asset.title || asset.driveFileId,
+      query: asset.title || fallbackQuery,
+    };
+  }
+
+  return {
+    type: asset.type === 'video' ? 'uploaded_video' : 'uploaded_image',
+    url: asset.url,
+    query: asset.filename || asset.title || fallbackQuery,
+  };
+}
+
+async function pickWorkerDriveVisuals({ query, limit }) {
+  try {
+    const assets = await getWorkerDriveVisuals();
+    if (!assets.length) return [];
+
+    return assets
+      .map((asset) => ({
+        asset,
+        score: scoreWorkerAsset(asset, query),
+      }))
+      .sort((a, b) => b.score - a.score || a.asset.title.localeCompare(b.asset.title))
+      .slice(0, limit)
+      .map(({ asset }) => asset);
+  } catch (error) {
+    console.warn('Drive visual lookup failed; falling back to text-card scenes:', error);
+    return [];
+  }
+}
+
+async function getWorkerDriveVisuals() {
+  if (cachedDriveVisuals.expiresAt > Date.now()) return cachedDriveVisuals.assets;
+  if (!isGoogleDriveConfigured() || !process.env.GOOGLE_DRIVE_ASSET_LIBRARY_FOLDER_ID) {
+    cachedDriveVisuals = { expiresAt: Date.now() + DRIVE_VISUAL_CACHE_TTL_MS, assets: [] };
+    return cachedDriveVisuals.assets;
+  }
+
+  const assets = await walkWorkerDriveFolder(process.env.GOOGLE_DRIVE_ASSET_LIBRARY_FOLDER_ID, [], 0);
+  cachedDriveVisuals = {
+    expiresAt: Date.now() + DRIVE_VISUAL_CACHE_TTL_MS,
+    assets,
+  };
+  return assets;
+}
+
+async function walkWorkerDriveFolder(folderId, folderPath, depth) {
+  if (depth > 5) return [];
+
+  const items = await listGoogleDriveChildren(folderId);
+  const results = [];
+
+  for (const item of items || []) {
+    if (item.mimeType === FOLDER_MIME) {
+      results.push(...await walkWorkerDriveFolder(item.id, [...folderPath, item.name], depth + 1));
+      continue;
+    }
+
+    const asset = toWorkerDriveVisual(item, folderPath);
+    if (asset) results.push(asset);
+  }
+
+  return results;
+}
+
+function toWorkerDriveVisual(item, folderPath) {
+  const name = String(item?.name || '');
+  const mimeType = String(item?.mimeType || '');
+  const ext = path.extname(name).toLowerCase();
+  const folderText = folderPath.join(' ').toLowerCase();
+
+  const isVideo = ['.mp4', '.mov', '.webm', '.m4v'].includes(ext) || mimeType.startsWith('video/');
+  const isImage = ['.jpg', '.jpeg', '.png', '.webp', '.avif'].includes(ext) || mimeType.startsWith('image/');
+  if (!isVideo && !isImage) return null;
+
+  if (folderText.includes('font') || folderText.includes('sound') || folderText.includes('sfx') || folderText.includes('music')) {
+    return null;
+  }
+
+  const title = path.basename(name, ext).replace(/[-_]+/g, ' ').trim() || name;
+  return {
+    type: isVideo ? 'video' : 'image',
+    title,
+    driveFileId: item.id,
+    mimeType,
+    tags: tokenizeWorkerAsset(`${title} ${name} ${folderPath.join(' ')}`),
+  };
+}
+
+function scoreWorkerAsset(asset, query) {
+  const queryTokens = tokenizeWorkerAsset(query);
+  if (!queryTokens.length) return 1;
+
+  const tagSet = new Set(asset.tags || []);
+  const matches = queryTokens.filter((token) => tagSet.has(token)).length;
+  const titleMatch = queryTokens.some((token) => String(asset.title || '').toLowerCase().includes(token)) ? 1 : 0;
+  return matches * 3 + titleMatch + (asset.type === 'video' ? 1 : 0);
+}
+
+function tokenizeWorkerAsset(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .split(/\s+/)
+    .filter((token) => token.length > 2);
 }
 
 function buildWorkerCaptions(title, duration, sceneCount) {
