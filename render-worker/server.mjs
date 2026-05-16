@@ -344,6 +344,7 @@ function buildWorkerSceneSource(asset, fallbackQuery) {
       url: asset.url || null,
       driveFileId: asset.driveFileId,
       mimeType: asset.mimeType,
+      filename: asset.fileName,
       assetId: asset.title || asset.driveFileId,
       query: asset.title || fallbackQuery,
     };
@@ -361,7 +362,10 @@ async function pickWorkerDriveVisuals({ query, limit }) {
     const assets = await getWorkerDriveVisuals();
     if (!assets.length) return [];
 
-    return assets
+    const primaryAssets = assets.filter((asset) => !isWorkerBackgroundAsset(asset));
+    const candidates = primaryAssets.length ? primaryAssets : assets;
+
+    return candidates
       .map((asset) => ({
         asset,
         score: scoreWorkerAsset(asset, query),
@@ -427,6 +431,8 @@ function toWorkerDriveVisual(item, folderPath) {
   return {
     type: isVideo ? 'video' : 'image',
     title,
+    fileName: name,
+    folderPath: [...folderPath],
     driveFileId: item.id,
     mimeType,
     tags: tokenizeWorkerAsset(`${title} ${name} ${folderPath.join(' ')}`),
@@ -435,12 +441,26 @@ function toWorkerDriveVisual(item, folderPath) {
 
 function scoreWorkerAsset(asset, query) {
   const queryTokens = tokenizeWorkerAsset(query);
-  if (!queryTokens.length) return 1;
+  const backgroundPenalty = isWorkerBackgroundAsset(asset) ? -100 : 0;
+  const imageBonus = asset.type === 'image' ? 2 : 0;
+  const screenshotBonus = (asset.tags || []).includes('screenshot') ? 2 : 0;
+  if (!queryTokens.length) return 1 + imageBonus + screenshotBonus + backgroundPenalty;
 
   const tagSet = new Set(asset.tags || []);
   const matches = queryTokens.filter((token) => tagSet.has(token)).length;
   const titleMatch = queryTokens.some((token) => String(asset.title || '').toLowerCase().includes(token)) ? 1 : 0;
-  return matches * 3 + titleMatch + (asset.type === 'video' ? 1 : 0);
+  return matches * 3 + titleMatch + imageBonus + screenshotBonus + backgroundPenalty;
+}
+
+function isWorkerBackgroundAsset(asset) {
+  const haystack = `${asset?.title || ''} ${asset?.fileName || ''} ${(asset?.folderPath || []).join(' ')}`.toLowerCase();
+  return (
+    haystack.includes('background_videos') ||
+    haystack.includes('solid-colors') ||
+    haystack.includes('linear_gradients') ||
+    haystack.includes('linear gradient') ||
+    /\bbg[_\s-]/.test(haystack)
+  );
 }
 
 function tokenizeWorkerAsset(value) {

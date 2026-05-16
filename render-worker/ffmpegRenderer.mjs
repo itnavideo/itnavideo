@@ -145,7 +145,10 @@ async function resolveSceneAssetPath(source, canRenderSource) {
 
   try {
     if (source.driveFileId) {
-      return await getCachedDriveAsset(source.driveFileId, source.url || source.assetId || source.mimeType || source.type);
+      return await getCachedDriveAsset(
+        source.driveFileId,
+        `${source.url || ''} ${source.filename || ''} ${source.mimeType || ''} ${source.assetId || ''} ${source.type || ''}`,
+      );
     }
 
     if (source.url) {
