@@ -50,6 +50,7 @@ type Job = {
   renderUrl?: string;
   videoUrl?: string;
   renderProvider?: string;
+  error?: string;
   createdAt?: unknown;
   updatedAt?: unknown;
   keepLocal?: boolean;
@@ -709,7 +710,7 @@ function CreateVideoModal({
         targetDurationSeconds: videoDurationSeconds,
       });
 
-      onJobUpdate(jobId, { status: 'Worker is preparing video', progress: 64, voiceUrl, visualUrl: userAssets[0]?.url });
+      onJobUpdate(jobId, { status: 'Queued for video generation', progress: 64, voiceUrl, visualUrl: userAssets[0]?.url });
       toast.success('Video queued. Check Your videos for progress.');
       onClose();
     } catch (error: any) {
@@ -763,7 +764,7 @@ function CreateVideoModal({
       const preflightError = getUploadPreflightError(faceVideo);
       if (preflightError) throw new Error(preflightError);
 
-      // 1. Secure Upload to Cloudinary (Handles large files better)
+      // 1. Secure upload to managed media storage.
       setGenerationStatus('uploading');
       const videoPath = `uploads/${user.uid}/face/${Date.now()}_${sanitizeFileName(faceVideo.name)}`;
       const faceVideoUrl = await uploadMediaFile(videoPath, faceVideo, (percent) => {
@@ -777,7 +778,7 @@ function CreateVideoModal({
         visualUrl: faceVideoUrl 
       });
 
-      // 2. Trigger Background Job (Returns immediately, preventing timeout)
+      // 2. Trigger background job and return immediately.
       setGenerationStatus('rendering');
       await startBackendVideoJob({
         jobId,
@@ -795,10 +796,10 @@ function CreateVideoModal({
       });
 
       onJobUpdate(jobId, {
-        status: 'Worker is processing face video',
+        status: 'Queued for video generation',
         progress: 60,
         visualUrl: faceVideoUrl,
-        renderProvider: 'local-ffmpeg',
+        renderProvider: 'media-engine',
       });
 
       toast.success('Video queued. You can track progress in "Your videos".');
@@ -1440,15 +1441,57 @@ function mergeJobs(...groups: Job[][]) {
 function mergeJobData(previous: Job | undefined, next: Job): Job {
   if (!previous) return next;
 
+  const previousHasVideo = Boolean(getJobVideoUrl(previous));
+  const nextHasVideo = Boolean(getJobVideoUrl(next));
+  const previousCompleted = previousHasVideo || isCompletedStatus(String(previous.status || ''));
+  const nextCompleted = nextHasVideo || isCompletedStatus(String(next.status || ''));
+  const previousUpdatedAt = getJobUpdatedAt(previous);
+  const nextUpdatedAt = getJobUpdatedAt(next);
+  const nextIsNewer = !previousUpdatedAt || nextUpdatedAt >= previousUpdatedAt;
+  const status = getMergedJobStatus({
+    previous,
+    next,
+    previousCompleted,
+    nextCompleted,
+    nextIsNewer,
+  });
+  const videoUrl = next.videoUrl || previous.videoUrl;
+  const renderUrl = next.renderUrl || previous.renderUrl;
+  const mergedProgress = Math.max(Number(previous.progress || 0), Number(next.progress || 0));
+
   return {
     ...previous,
     ...next,
     title: next.title || previous.title,
-    status: next.status || previous.status,
-    progress: Math.max(Number(previous.progress || 0), Number(next.progress || 0)),
+    status,
+    progress: nextCompleted || previousCompleted ? Math.max(100, mergedProgress) : mergedProgress,
+    videoUrl,
+    renderUrl,
+    error: next.error || previous.error,
     createdAt: next.createdAt || previous.createdAt,
+    updatedAt: nextUpdatedAt >= previousUpdatedAt ? next.updatedAt || previous.updatedAt : previous.updatedAt || next.updatedAt,
     keepLocal: Boolean(previous.keepLocal || next.keepLocal),
   };
+}
+
+function getMergedJobStatus({
+  previous,
+  next,
+  previousCompleted,
+  nextCompleted,
+  nextIsNewer,
+}: {
+  previous: Job;
+  next: Job;
+  previousCompleted: boolean;
+  nextCompleted: boolean;
+  nextIsNewer: boolean;
+}) {
+  if (nextCompleted) return next.status || 'Video ready';
+  if (previousCompleted) return previous.status || 'Video ready';
+  if (next.error && !previous.error) return next.status || 'Needs retry';
+  if (previous.error && !next.error) return previous.status || 'Needs retry';
+  return nextIsNewer ? next.status || previous.status : previous.status || next.status;
 }
 
 function getJobTimestamp(job: Job) {

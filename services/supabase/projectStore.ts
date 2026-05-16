@@ -4,6 +4,7 @@ import {
   deleteExpiredProjectRecordsFromServer as deleteExpiredProjectRecords,
   insertJobApplicationFromServer as insertJobApplication,
   insertLeadFromServer as insertLead,
+  listFfmpegJobsForUserFromServer as listFfmpegJobs,
   listExpiredRenderedProjectsFromServer as listExpiredRenderedProjects,
   listUserProjectsFromServer as listProjects,
   getAppSettingFromServer as getAppSetting,
@@ -39,8 +40,24 @@ export type UserProjectRecord = {
   expiresAt?: string;
 };
 
+export type FfmpegJobRecord = {
+  jobId: string;
+  userId: string;
+  status?: string;
+  progress?: number;
+  message?: string;
+  videoUrl?: string;
+  error?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 export async function listUserProjectsFromServer(userId: string): Promise<UserProjectRecord[]> {
   return listProjects(userId) as Promise<UserProjectRecord[]>;
+}
+
+export async function listFfmpegJobsForUserFromServer(userId: string): Promise<FfmpegJobRecord[]> {
+  return listFfmpegJobs(userId) as Promise<FfmpegJobRecord[]>;
 }
 
 export async function upsertUserProjectFromServer(

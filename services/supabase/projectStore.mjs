@@ -115,6 +115,26 @@ export async function getFfmpegJobFromServer(userId, jobId) {
   return data ? fromFfmpegJobRow(data) : null;
 }
 
+export async function listFfmpegJobsForUserFromServer(userId) {
+  if (!userId) return [];
+
+  const supabase = getSupabaseServerClient();
+  const { data, error } = await supabase
+    .from('ffmpeg_jobs')
+    .select('*')
+    .eq('user_id', userId)
+    .order('updated_at', { ascending: false })
+    .limit(200);
+
+  if (isMissingTableError(error)) {
+    console.warn(`Supabase ffmpeg_jobs table is missing. Returning projects without live render status: ${error.message}`);
+    return [];
+  }
+
+  if (error) throw new Error(`Supabase FFmpeg job list failed: ${error.message}`);
+  return (data || []).map(fromFfmpegJobRow);
+}
+
 export async function upsertFfmpegJobFromServer(input) {
   const existing = await getFfmpegJobFromServer(input.userId, input.jobId).catch(() => null);
   const now = new Date().toISOString();
