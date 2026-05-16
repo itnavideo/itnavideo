@@ -5,7 +5,7 @@ import path from 'path';
 import { Readable } from 'stream';
 import { finished } from 'stream/promises';
 import ffmpegStaticPath from 'ffmpeg-static';
-import { downloadGoogleDriveFile, isGoogleDriveConfigured } from '../services/assets/googleDriveClient.js';
+import { downloadGoogleDriveFile, isGoogleDriveConfigured } from '../services/assets/googleDriveClient.mjs';
 import { buildPythonRenderPlan, renderPythonVideo } from './pythonRendererBridge.mjs';
 import { ensureRenderWorkspace, getWorkspaceAssetDir } from './renderWorkspace.mjs';
 

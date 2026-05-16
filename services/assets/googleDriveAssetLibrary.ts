@@ -1,5 +1,5 @@
 import path from 'path';
-import { isGoogleDriveConfigured, listGoogleDriveChildren } from './googleDriveClient.js';
+import { isGoogleDriveConfigured, listGoogleDriveChildren } from './googleDriveClient.mjs';
 import type { VisualAsset, VisualAssetType } from './visualAssets';
 
 type DriveFile = {

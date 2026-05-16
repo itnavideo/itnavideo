@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAvailableFontsDatabase } from '@/services/assets/fontDatabase';
-import { isGoogleDriveConfigured } from '@/services/assets/googleDriveClient.js';
+import { isGoogleDriveConfigured } from '@/services/assets/googleDriveClient.mjs';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

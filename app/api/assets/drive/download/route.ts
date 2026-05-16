@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { downloadGoogleDriveFile } from '@/services/assets/googleDriveClient.js';
+import { downloadGoogleDriveFile } from '@/services/assets/googleDriveClient.mjs';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

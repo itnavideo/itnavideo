@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { Readable } from 'stream';
 import { finished } from 'stream/promises';
-import { downloadGoogleDriveFile, isGoogleDriveConfigured, listGoogleDriveChildren } from '../assets/googleDriveClient.js';
+import { downloadGoogleDriveFile, isGoogleDriveConfigured, listGoogleDriveChildren } from '../assets/googleDriveClient.mjs';
 
 const PUBLIC_DIR = path.join(process.cwd(), 'public');
 const CACHE_DIR = path.join(PUBLIC_DIR, 'cache');

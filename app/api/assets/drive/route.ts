@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { listGoogleDriveAssets } from '@/services/assets/googleDriveAssetLibrary';
-import { isGoogleDriveConfigured } from '@/services/assets/googleDriveClient.js';
+import { isGoogleDriveConfigured } from '@/services/assets/googleDriveClient.mjs';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
