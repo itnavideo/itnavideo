@@ -585,8 +585,8 @@ async function uploadToCloudinary(filePath, jobId) {
   const signature = signCloudinaryParams({ folder, public_id: publicId, timestamp }, config.apiSecret);
 
   const formData = new FormData();
-  const fileBuffer = fs.readFileSync(filePath);
-  formData.append('file', new Blob([fileBuffer]), `${publicId}.mp4`);
+  const fileBlob = await createFileBackedBlob(filePath, 'video/mp4');
+  formData.append('file', fileBlob, `${publicId}.mp4`);
   formData.append('api_key', config.apiKey);
   formData.append('timestamp', String(timestamp));
   formData.append('folder', folder);
@@ -608,6 +608,15 @@ async function uploadToCloudinary(filePath, jobId) {
   }
 
   return result.secure_url;
+}
+
+async function createFileBackedBlob(filePath, type) {
+  if (typeof fs.openAsBlob === 'function') {
+    return await fs.openAsBlob(filePath, { type });
+  }
+
+  console.warn('fs.openAsBlob is unavailable; Cloudinary upload will buffer the file in memory.');
+  return new Blob([fs.readFileSync(filePath)], { type });
 }
 
 async function assertRenderableVideoOutput(filePath) {
