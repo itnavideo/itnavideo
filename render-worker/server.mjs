@@ -9,7 +9,7 @@ import { renderVideoWithFFmpeg } from './ffmpegRenderer.mjs';
 import { getPythonRendererHealth } from './pythonRendererBridge.mjs';
 import { ensureRenderWorkspace } from './renderWorkspace.mjs';
 import { upsertFfmpegJob } from '../services/rendering/ffmpegJobStore.mjs';
-import { upsertUserProjectFromServer } from '../services/supabase/projectStore.mjs';
+import { canWriteSupabaseFromServer, upsertUserProjectFromServer } from '../services/supabase/projectStore.mjs';
 
 const app = express();
 const port = Number(process.env.PORT || 10000);
@@ -32,7 +32,8 @@ app.use(express.json({ limit: process.env.RENDER_WORKER_BODY_LIMIT || '25mb' }))
 app.get('/health', async (_req, res) => {
   const ffmpeg = await getFfmpegHealth();
   const pythonRenderer = await getPythonRendererHealth();
-  res.json({ ok: ffmpeg.ok, service: 'itnavideo-render-worker', ffmpeg, pythonRenderer, workspace });
+  const config = getWorkerConfigHealth();
+  res.json({ ok: ffmpeg.ok && config.ok, service: 'itnavideo-render-worker', ffmpeg, pythonRenderer, config, workspace });
 });
 
 app.post('/api/process-video', (req, res) => {
@@ -48,6 +49,11 @@ app.post('/api/process-video', (req, res) => {
 
   if (!jobId || !userId) {
     return res.status(400).json({ error: 'jobId and userId are required' });
+  }
+
+  const configHealth = getWorkerConfigHealth();
+  if (!configHealth.ok) {
+    return res.status(500).json({ error: 'Render worker is missing required environment variables.', config: configHealth });
   }
 
   res.status(202).json({
@@ -78,6 +84,11 @@ app.post('/api/pipeline/start', (req, res) => {
 
   if (!jobId || !userId) {
     return res.status(400).json({ error: 'jobId and userId are required' });
+  }
+
+  const configHealth = getWorkerConfigHealth();
+  if (!configHealth.ok) {
+    return res.status(500).json({ error: 'Render worker is missing required environment variables.', config: configHealth });
   }
 
   res.status(202).json({
@@ -583,6 +594,18 @@ function getCloudinaryConfig() {
     cloudName: process.env.CLOUDINARY_CLOUD_NAME,
     apiKey: process.env.CLOUDINARY_API_KEY,
     apiSecret: process.env.CLOUDINARY_API_SECRET,
+  };
+}
+
+function getWorkerConfigHealth() {
+  const cloudinary = Boolean(getCloudinaryConfig());
+  const supabase = canWriteSupabaseFromServer();
+
+  return {
+    ok: cloudinary && supabase,
+    supabase,
+    cloudinary,
+    workerSecret: Boolean(process.env.RENDER_WORKER_SECRET),
   };
 }
 
