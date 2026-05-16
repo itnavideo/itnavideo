@@ -1,15 +1,21 @@
-// API endpoint for secure admin login
-// This validates credentials against environment variables instead of hardcoding them
+import { cookies } from 'next/headers';
+
 export async function POST(request) {
   try {
     const { username, password } = await request.json();
-
-    // Get credentials from environment variables
-    const adminUsername = process.env.NEXT_PUBLIC_ADMIN_USERNAME || 'admin';
+    const cookieStore = await cookies();
+    const adminUsername = process.env.ADMIN_USERNAME || 'admin';
     const adminPassword = process.env.ADMIN_PASSWORD || 'changeme';
 
-    // Validate credentials
     if (username === adminUsername && password === adminPassword) {
+      cookieStore.set('admin_session', 'authenticated', {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+        maxAge: 60 * 60 * 8,
+      });
+
       return Response.json({ success: true, message: 'Admin login successful' });
     }
 
@@ -25,3 +31,5 @@ export async function POST(request) {
     );
   }
 }
+
+

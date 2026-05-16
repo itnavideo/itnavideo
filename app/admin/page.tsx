@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import BrandLogo from '@/components/brand/BrandLogo';
 import {
   Search,
   Filter,
@@ -35,7 +36,7 @@ const MOCK_LOGS: LogEntry[] = Array.from({ length: 40 }, (_, i) => ({
     i % 8 === 0
       ? 'OpenAI API Timeout: Request timed out after 30s'
       : i % 4 === 0
-      ? 'Canva API: Rate limit reached for asset fetching'
+      ? 'Asset library: rate limit reached for media fetching'
       : i % 5 === 0
       ? 'FFmpeg Error: Failed to stitch scene 4 (Memory overflow)'
       : 'System health check passed',
@@ -66,20 +67,21 @@ export default function AdminHomePage() {
       <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-10">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="text-sm uppercase tracking-[0.3em] text-purple-400">Admin Portal</p>
-            <h1 className="mt-4 text-4xl font-bold text-white">itnavideo Admin</h1>
+            <BrandLogo size="md" showTagline />
+            <p className="mt-6 text-sm uppercase tracking-[0.3em] text-brand-mint">Admin Portal</p>
+            <h1 className="mt-4 text-4xl font-bold text-white">Control room</h1>
             <p className="mt-3 text-zinc-400">Manage users, monitor analytics, and inspect system status from here.</p>
           </div>
           <div className="flex flex-wrap gap-3">
             <Link
               href="/admin/dashboard"
-              className="rounded-2xl border border-zinc-800 bg-zinc-950 px-5 py-3 text-sm font-medium text-white transition hover:border-purple-500 hover:text-purple-300"
+              className="rounded-2xl border border-zinc-800 bg-zinc-950 px-5 py-3 text-sm font-medium text-white transition hover:border-brand-mint hover:text-brand-mint"
             >
               Dashboard
             </Link>
             <Link
               href="/admin/settings"
-              className="rounded-2xl border border-zinc-800 bg-zinc-950 px-5 py-3 text-sm font-medium text-white transition hover:border-purple-500 hover:text-purple-300"
+              className="rounded-2xl border border-zinc-800 bg-zinc-950 px-5 py-3 text-sm font-medium text-white transition hover:border-brand-mint hover:text-brand-mint"
             >
               Settings
             </Link>
@@ -87,9 +89,9 @@ export default function AdminHomePage() {
         </div>
       </div>
 
-      <div className="bg-purple-600/10 border border-purple-500/20 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-brand-mint/10 border border-brand-mint/20 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <Server className="text-purple-400" size={20} />
+          <Server className="text-brand-mint" size={20} />
           <p className="text-sm font-medium">
             <span className="text-white">In-app admin tools:</span> this page is the /admin landing route for authenticated admins.
           </p>
@@ -116,7 +118,7 @@ export default function AdminHomePage() {
 
       <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
-          <div className="flex items-center gap-3 mb-4 text-purple-500">
+          <div className="flex items-center gap-3 mb-4 text-brand-mint">
             <Cpu size={20} />
             <h3 className="font-semibold">Pipeline Health</h3>
           </div>
@@ -165,13 +167,13 @@ export default function AdminHomePage() {
                 setSearch(e.target.value);
                 setCurrentPage(1);
               }}
-              className="bg-zinc-900 border border-zinc-800 rounded-xl pl-10 pr-4 py-2 text-sm focus:border-purple-500 outline-none w-full md:w-64"
+              className="bg-zinc-900 border border-zinc-800 rounded-xl pl-10 pr-4 py-2 text-sm focus:border-brand-mint outline-none w-full md:w-64"
             />
           </div>
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2 text-sm focus:border-purple-500 outline-none cursor-pointer"
+            className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2 text-sm focus:border-brand-mint outline-none cursor-pointer"
           >
             <option value="All">All Categories</option>
             <option value="API">API Errors</option>
@@ -182,7 +184,7 @@ export default function AdminHomePage() {
           <select
             value={levelFilter}
             onChange={(e) => setLevelFilter(e.target.value)}
-            className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2 text-sm focus:border-purple-500 outline-none cursor-pointer"
+            className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2 text-sm focus:border-brand-mint outline-none cursor-pointer"
           >
             <option value="All">All Levels</option>
             <option value="Info">Info</option>
@@ -249,3 +251,4 @@ export default function AdminHomePage() {
     </div>
   );
 }
+

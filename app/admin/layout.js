@@ -1,7 +1,7 @@
 'use client';
 
-import AdminSidebar from "@/components/AdminSidebar";
-import { useAdmin } from "@/components/AdminContext";
+import AdminSidebar from "@/components/admin/AdminSidebar";
+import { useAdmin } from "@/components/admin/AdminContext";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 
@@ -48,3 +48,4 @@ export default function AdminLayout({ children }) {
     </div>
   );
 }
+

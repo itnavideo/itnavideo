@@ -1,194 +1,148 @@
-// app/pricing/page.js
-
 import Link from "next/link";
-import { Check } from "lucide-react";
-import { Metadata } from "next";
+import { ArrowRight, BadgeCheck, Check, Cpu, Film, ShieldCheck, Sparkles, Zap } from "lucide-react";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Pricing | Itnavideo",
-  description: "Simple and transparent pricing for AI video generation.",
+  description: "Simple pricing for AI faceless videos, face-camera edits, captions, SFX, and exports.",
 };
 
-interface Plan {
-  name: string;
-  price: string;
-  description: string;
-  features: string[];
-  button: string;
-  popular: boolean;
-}
-
-const plans: Plan[] = [
+const plans = [
   {
-    name: "Free",
+    name: "Starter",
     price: "$0",
-    description: "Perfect for testing the platform",
-    features: [
-      "1 video per month",
-      "720p exports",
-      "Basic AI captions",
-      "Limited rendering speed",
-      "Watermarked videos",
-    ],
-    button: "Get Started",
+    description: "For testing faceless and face-camera Shorts.",
+    features: ["2 free videos", "1080p previews", "Basic captions", "Faceless mode", "Face camera mode"],
+    button: "Start free",
+    href: "/signup",
     popular: false,
   },
-
   {
-    name: "Basic",
+    name: "Launch",
     price: "$9",
-    description: "For creators growing consistently",
-    features: [
-      "20 videos per month",
-      "1080p exports",
-      "AI captions & animations",
-      "Faster rendering",
-      "No watermark",
-      "Instagram & TikTok optimization",
-    ],
-    button: "Start Basic",
+    description: "For new creators who want an affordable monthly plan.",
+    features: ["20 videos per month", "1080p exports", "English subtitles", "Faceless + face camera", "No watermark"],
+    button: "Choose Launch",
+    href: "/signup",
     popular: false,
   },
-
   {
-    name: "Pro",
-    price: "$29",
-    description: "Best for serious creators & businesses",
-    features: [
-      "100 videos per month",
-      "4K exports",
-      "Premium AI scene generation",
-      "Priority rendering",
-      "Advanced motion graphics",
-      "AI sound synchronization",
-      "Long-form waitlist access",
-    ],
-    button: "Go Pro",
+    name: "Creator",
+    price: "$19",
+    description: "For creators posting consistently across platforms.",
+    features: ["50 videos per month", "1080p exports", "Karaoke subtitles", "Private asset library", "SFX suggestions", "No watermark"],
+    button: "Choose Creator",
+    href: "/signup",
     popular: true,
   },
+  {
+    name: "Studio",
+    price: "$49",
+    description: "For agencies, brands, and teams.",
+    features: ["150 videos per month", "1080p exports", "Priority rendering", "Advanced director logic", "Team-ready workflows", "Long-form beta access"],
+    button: "Go Studio",
+    href: "/signup",
+    popular: false,
+  },
+];
+
+const proof = [
+  { label: "Voice analysis", icon: Cpu },
+  { label: "Timeline JSON", icon: Film },
+  { label: "Fast rendering", icon: Zap },
+  { label: "Secure workspace", icon: ShieldCheck },
 ];
 
 export default function PricingPage() {
   return (
-    <main className="min-h-screen bg-black text-white px-6 py-20">
-      
-      <div className="max-w-7xl mx-auto">
-        
-        {/* Header */}
-        <div className="text-center mb-20">
-          
-          <p className="text-purple-400 uppercase tracking-[0.3em] text-sm mb-5">
+    <main className="bg-[#050506] text-white">
+      <section className="brand-surface px-6 pb-20 pt-32">
+        <div className="mx-auto max-w-7xl text-center">
+          <div className="mb-7 inline-flex items-center gap-2 rounded-lg border border-brand-mint/20 bg-brand-mint/10 px-3 py-2 text-sm font-bold text-brand-mint">
+            <Sparkles size={16} />
             Pricing
-          </p>
-
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-            Simple Pricing
-            <br />
-            For Modern Creators
+          </div>
+          <h1 className="mx-auto max-w-4xl text-5xl font-black leading-tight md:text-7xl">
+            Pricing for creators who publish more.
           </h1>
-
-          <p className="text-zinc-400 text-lg max-w-3xl mx-auto leading-8">
-            Generate cinematic AI-powered videos without expensive editors,
-            complicated timelines, or massive production teams.
+          <p className="mx-auto mt-7 max-w-3xl text-lg leading-8 text-zinc-300">
+            Start with your voice for faceless videos or upload camera footage for talking-head edits. Itnavideo prepares the short without a traditional editor.
           </p>
-        </div>
 
-        {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-8">
-          
-          {plans.map((plan, index) => (
+          <div className="mx-auto mt-10 grid max-w-4xl gap-3 sm:grid-cols-4">
+            {proof.map((item) => {
+              const Icon = item.icon;
+              return (
+                <div key={item.label} className="rounded-lg border border-white/10 bg-zinc-950/70 px-4 py-3 text-sm font-bold text-zinc-300">
+                  <Icon className="mx-auto mb-2 text-brand-mint" size={18} />
+                  {item.label}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section className="px-6 py-20">
+        <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-2 xl:grid-cols-4">
+          {plans.map((plan) => (
             <div
-              key={index}
-              className={`relative rounded-3xl border p-8 transition duration-300 hover:scale-[1.02]
-              ${
+              key={plan.name}
+              className={`relative rounded-lg border p-7 ${
                 plan.popular
-                  ? "border-purple-500 bg-gradient-to-b from-purple-600/20 to-pink-600/10"
-                  : "border-zinc-800 bg-zinc-900"
+                  ? "border-brand-mint/50 bg-brand-mint/10 shadow-2xl shadow-emerald-950/30"
+                  : "border-white/10 bg-zinc-950"
               }`}
             >
-              
-              {/* Popular Badge */}
               {plan.popular && (
-                <div className="absolute top-5 right-5 bg-purple-600 px-4 py-1 rounded-full text-sm font-medium">
-                  Most Popular
+                <div className="absolute right-5 top-5 inline-flex items-center gap-1 rounded-md bg-brand-mint px-3 py-1 text-xs font-black text-black">
+                  <BadgeCheck size={14} />
+                  Best fit
                 </div>
               )}
-
-              {/* Plan */}
-              <h2 className="text-3xl font-bold mb-3">
-                {plan.name}
-              </h2>
-
-              <p className="text-zinc-400 mb-8">
-                {plan.description}
-              </p>
-
-              {/* Price */}
-              <div className="mb-8">
-                <span className="text-6xl font-bold">
-                  {plan.price}
-                </span>
-
-                <span className="text-zinc-400 text-lg">
-                  /month
-                </span>
+              <h2 className="text-3xl font-black">{plan.name}</h2>
+              <p className="mt-3 min-h-12 text-sm leading-6 text-zinc-400">{plan.description}</p>
+              <div className="mt-8">
+                <span className="text-6xl font-black">{plan.price}</span>
+                <span className="text-zinc-500"> / month</span>
               </div>
-
-              {/* Features */}
-              <ul className="space-y-4 mb-10">
-                
-                {plan.features.map((feature, i) => (
-                  <li
-                    key={i}
-                    className="flex items-start gap-3 text-zinc-300"
-                  >
-                    <Check
-                      size={20}
-                      className="text-purple-400 mt-1"
-                    />
-
+              <ul className="mt-8 space-y-4">
+                {plan.features.map((feature) => (
+                  <li key={feature} className="flex gap-3 text-sm leading-6 text-zinc-300">
+                    <Check className="mt-1 shrink-0 text-brand-mint" size={17} />
                     <span>{feature}</span>
                   </li>
                 ))}
               </ul>
-
-              {/* Button */}
               <Link
-                href="/dashboard"
-                className={`w-full py-4 rounded-2xl font-semibold transition inline-block text-center
-                ${
-                  plan.popular
-                    ? "bg-purple-600 hover:bg-purple-500"
-                    : "bg-zinc-800 hover:bg-zinc-700"
+                href={plan.href}
+                className={`mt-9 inline-flex w-full items-center justify-center gap-2 rounded-lg px-5 py-4 font-black transition ${
+                  plan.popular ? "bg-brand-mint text-black hover:bg-white" : "bg-white text-black hover:bg-brand-mint"
                 }`}
               >
                 {plan.button}
+                <ArrowRight size={17} />
               </Link>
             </div>
           ))}
         </div>
+      </section>
 
-        {/* Bottom Section */}
-        <div className="mt-24 text-center">
-          
-          <h2 className="text-4xl font-bold mb-6">
-            Need Enterprise Features?
-          </h2>
-
-          <p className="text-zinc-400 max-w-2xl mx-auto leading-8 mb-8">
-            Custom AI workflows, dedicated GPU rendering, team collaboration,
-            API access, and enterprise-grade infrastructure for agencies and
-            large creator teams.
-          </p>
-
-          <Link 
-            href="mailto:sales@itnavideo.com"
-            className="bg-white text-black px-8 py-4 rounded-2xl font-semibold hover:opacity-90 transition inline-block"
-          >
-            Contact Sales
+      <section className="px-6 pb-24">
+        <div className="mx-auto grid max-w-7xl gap-6 rounded-lg border border-white/10 bg-zinc-950 p-8 lg:grid-cols-[1fr_auto] lg:items-center">
+          <div>
+            <p className="mb-3 text-sm font-bold uppercase tracking-[0.24em] text-brand-mint">Enterprise</p>
+            <h2 className="text-3xl font-black">Need custom AI video workflows?</h2>
+            <p className="mt-4 max-w-3xl text-sm leading-6 text-zinc-400">
+              For agencies, media teams, and high-volume creators: custom rendering pipelines, API access, team workflows, private asset libraries, and priority support.
+            </p>
+          </div>
+          <Link href="mailto:sales@itnavideo.com" className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white px-6 py-4 font-black text-black transition hover:bg-brand-mint">
+            Contact sales
+            <ArrowRight size={17} />
           </Link>
         </div>
-      </div>
+      </section>
     </main>
   );
 }

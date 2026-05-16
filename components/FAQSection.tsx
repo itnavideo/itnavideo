@@ -13,11 +13,11 @@ interface FAQItem {
 const faqs: FAQItem[] = [
   {
     question: "What is Itnavideo?",
-    answer: "Itnavideo is an AI-powered SaaS platform that transforms your voiceovers into professional, cinematic short-form videos automatically. Just upload your audio, and our AI handles captions, B-roll, transitions, and more."
+    answer: "Itnavideo is an AI Shorts platform for creators. You can make faceless videos from a voiceover, or upload face-camera footage for automatic talking-head edits."
   },
   {
     question: "How does Itnavideo save me time?",
-    answer: "Traditional video editing can take hours. Itnavideo's AI automates the entire process, from script generation to visual synchronization and rendering, reducing creation time to minutes instead of hours."
+    answer: "It handles the repetitive setup behind short-form videos, so you can focus on recording ideas, adding any useful media, and publishing more consistently."
   },
   {
     question: "Do I need any editing skills?",
@@ -25,15 +25,19 @@ const faqs: FAQItem[] = [
   },
   {
     question: "What kind of videos can I create?",
-    answer: "Currently, Itnavideo specializes in short-form videos (9:16) optimized for Instagram Reels, TikTok, and YouTube Shorts. We are actively developing support for long-form educational and business content."
+    answer: "Currently, Itnavideo specializes in 9:16 short-form videos optimized for Instagram Reels, TikTok, and YouTube Shorts. The two active paths are faceless voiceover videos and face-camera video edits."
+  },
+  {
+    question: "What do I need to upload?",
+    answer: "For faceless videos, audio is required and images, screenshots, or clips are optional. For face-camera videos, upload one camera video and Itnavideo handles the edit."
   },
   {
     question: "Is my data secure?",
-    answer: "Yes, we prioritize security. All media and data are stored using industry-standard encryption via Firebase. We use secure authentication protocols to ensure your content remains yours."
+    answer: "Your account and project status are handled through Supabase, while media uploads and final MP4 files are stored in Cloudinary. Your uploaded content is used to create and manage your videos."
   },
   {
     question: "How accurate are the AI captions?",
-    answer: "We leverage state-of-the-art models like OpenAI's Whisper for transcription, achieving up to 99% accuracy with millisecond-level synchronization."
+    answer: "Caption quality depends on audio clarity, language, background noise, and pacing. Clear voiceovers produce the best results."
   }
 ];
 
@@ -46,24 +50,20 @@ export default function FAQSection() {
   };
 
   return (
-    <section className="py-32 px-6 bg-black relative overflow-hidden">
-      {/* Dynamic Background Accents */}
-      <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-purple-600/5 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-pink-600/5 blur-[120px] rounded-full pointer-events-none" />
-
+    <section className="relative overflow-hidden bg-[#070707] px-6 py-28">
       <div className="max-w-4xl mx-auto relative z-10">
-        <div className="text-center mb-20">
+        <div className="text-center mb-16">
+          <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-brand-mint">FAQ</p>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-6xl font-extrabold tracking-tighter text-white mb-6"
+            className="text-4xl font-black leading-tight tracking-normal text-white md:text-6xl"
           >
-            Got <span className="text-purple-500">Questions?</span> <br />
-            We’ve Got Answers.
+            Common questions.
           </motion.h2>
           <p className="text-zinc-500 text-lg max-w-xl mx-auto font-medium">
-            Everything you need to know about scaling your content with Itnavideo.
+            Everything you need to know before creating your first Itnavideo short.
           </p>
         </div>
 
@@ -77,9 +77,9 @@ export default function FAQSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.05 }}
-                className={`group border rounded-3xl transition-all duration-300 ${
+                className={`group rounded-lg border transition-all duration-300 ${
                   isOpen 
-                  ? 'bg-white/[0.03] border-purple-500/30' 
+                  ? 'bg-brand-mint/10 border-brand-mint/30' 
                   : 'bg-zinc-900/40 border-white/5 hover:border-white/10'
                 }`}
               >
@@ -93,8 +93,8 @@ export default function FAQSection() {
                   }`}>
                     {faq.question}
                   </span>
-                  <div className={`p-2 rounded-full transition-all duration-300 ${
-                    isOpen ? 'bg-purple-500/20 text-purple-400' : 'bg-white/5 text-zinc-500'
+                  <div className={`p-2 rounded-md transition-all duration-300 ${
+                    isOpen ? 'bg-brand-mint/20 text-brand-mint' : 'bg-white/5 text-zinc-500'
                   }`}>
                     {isOpen ? <Minus size={18} /> : <Plus size={18} />}
                   </div>
@@ -125,7 +125,7 @@ export default function FAQSection() {
           whileInView={{ opacity: 1 }}
           className="text-center mt-12 text-zinc-500 text-sm"
         >
-          Still have questions? <a href="/contact" className="text-purple-400 hover:underline">Contact our support team</a>
+          Still have questions? <a href="/contact" className="text-brand-mint hover:underline">Contact our support team</a>
         </motion.p>
       </div>
     </section>

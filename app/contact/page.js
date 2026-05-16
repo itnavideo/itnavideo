@@ -1,123 +1,124 @@
-// app/contact/page.js
+import { ArrowRight, Building2, Instagram, Mail, MessageSquare, Send, Sparkles } from "lucide-react";
 
 export const metadata = {
   title: "Contact | Itnavideo",
-  description: "Get in touch with the Itnavideo team.",
+  description: "Contact Itnavideo for support, partnerships, early access, and business inquiries.",
 };
+
+const contactCards = [
+  {
+    title: "Founder and product",
+    desc: "Questions about the roadmap, early access, or the AI video pipeline.",
+    href: "mailto:hello@itnavideo.com",
+    label: "hello@itnavideo.com",
+    icon: Mail,
+  },
+  {
+    title: "Partnerships",
+    desc: "For creator teams, agencies, and platform integrations.",
+    href: "mailto:sales@itnavideo.com",
+    label: "sales@itnavideo.com",
+    icon: Building2,
+  },
+  {
+    title: "Instagram",
+    desc: "Follow the official Itnavideo page for updates and launch clips.",
+    href: "https://www.instagram.com/itnavideo?igsh=dWY3OWVyeDRzbDVh",
+    label: "@itnavideo",
+    icon: Instagram,
+  },
+];
 
 export default function ContactPage() {
   return (
-    <main className="min-h-screen bg-black text-white px-6 py-20">
-      <div className="max-w-4xl mx-auto">
-        
-        {/* Heading */}
-        <div className="text-center mb-16">
-          <p className="text-sm uppercase tracking-[0.3em] text-purple-400 mb-4">
-            Contact
-          </p>
-
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">
-            Let’s Build The Future Of AI Video
-          </h1>
-
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Have questions, partnership ideas, or want early access?
-            Reach out to the Itnavideo team.
-          </p>
-        </div>
-
-        {/* Contact Cards */}
-        <div className="grid md:grid-cols-2 gap-8 mb-16">
-          
-          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
-            <h2 className="text-2xl font-semibold mb-4">
-              📩 Email
-            </h2>
-
-            <p className="text-gray-400 mb-3">
-              For support, partnerships, or business inquiries:
+    <main className="brand-surface min-h-screen px-6 py-32 text-white">
+      <div className="mx-auto max-w-7xl">
+        <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+          <section>
+            <div className="mb-7 inline-flex items-center gap-2 rounded-lg border border-brand-mint/20 bg-brand-mint/10 px-3 py-2 text-sm font-bold text-brand-mint">
+              <Sparkles size={16} />
+              Contact
+            </div>
+            <h1 className="max-w-4xl text-5xl font-black leading-tight md:text-7xl">
+              Let’s talk about the future of AI video.
+            </h1>
+            <p className="mt-7 max-w-2xl text-lg leading-8 text-zinc-300">
+              Reach out for support, creator access, partnerships, or feedback. If it helps creators move from voice to finished video faster, we want to hear it.
             </p>
 
-            <a
-              href="mailto:hello@itnavideo.com"
-              className="text-purple-400 text-lg hover:text-purple-300 transition"
-            >
-              hello@itnavideo.com
-            </a>
-          </div>
+            <div className="mt-10 grid gap-4">
+              {contactCards.map((card) => {
+                const Icon = card.icon;
+                return (
+                  <a
+                    key={card.title}
+                    href={card.href}
+                    target={card.href.startsWith("http") ? "_blank" : undefined}
+                    rel={card.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                    className="group rounded-lg border border-white/10 bg-zinc-950/75 p-5 transition hover:border-brand-mint/40"
+                  >
+                    <div className="flex gap-4">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-brand-mint/10 text-brand-mint">
+                        <Icon size={20} />
+                      </div>
+                      <div>
+                        <h2 className="font-bold">{card.title}</h2>
+                        <p className="mt-1 text-sm leading-6 text-zinc-400">{card.desc}</p>
+                        <p className="mt-3 inline-flex items-center gap-2 text-sm font-bold text-brand-mint">
+                          {card.label}
+                          <ArrowRight size={15} className="transition group-hover:translate-x-1" />
+                        </p>
+                      </div>
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+          </section>
 
-          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
-            <h2 className="text-2xl font-semibold mb-4">
-              🌍 Website
-            </h2>
+          <section className="rounded-lg border border-white/10 bg-zinc-950/90 p-6 shadow-2xl shadow-black/30">
+            <div className="mb-8">
+              <MessageSquare className="mb-5 text-brand-mint" size={28} />
+              <h2 className="text-3xl font-black">Send a message</h2>
+              <p className="mt-3 text-sm leading-6 text-zinc-400">
+                The form is ready for your contact integration. For now it opens an email draft with your message.
+              </p>
+            </div>
 
-            <p className="text-gray-400 mb-3">
-              Visit our official website:
-            </p>
-
-            <a
-              href="https://itnavideo.com"
-              target="_blank"
-              className="text-purple-400 text-lg hover:text-purple-300 transition"
-            >
-              itnavideo.com
-            </a>
-          </div>
+            <form action="mailto:hello@itnavideo.com" method="post" encType="text/plain" className="space-y-5">
+              <Field label="Full name" name="name" placeholder="Your name" />
+              <Field label="Email address" name="email" type="email" placeholder="you@example.com" />
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-zinc-300">Message</span>
+                <textarea
+                  name="message"
+                  rows="7"
+                  placeholder="Tell us what you are building, creating, or trying to automate..."
+                  className="w-full resize-none rounded-lg border border-white/10 bg-black px-4 py-4 outline-none transition focus:border-brand-mint"
+                />
+              </label>
+              <button type="submit" className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand-mint px-6 py-4 font-black text-black transition hover:bg-white sm:w-auto">
+                <Send size={18} />
+                Send message
+              </button>
+            </form>
+          </section>
         </div>
-
-        {/* Contact Form */}
-        <section className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
-          <h2 className="text-3xl font-bold mb-8">
-            Send a Message
-          </h2>
-
-          <form className="space-y-6">
-            
-            <div>
-              <label className="block mb-2 text-gray-300">
-                Full Name
-              </label>
-
-              <input
-                type="text"
-                placeholder="Enter your name"
-                className="w-full bg-black border border-zinc-700 rounded-xl px-4 py-4 outline-none focus:border-purple-500"
-              />
-            </div>
-
-            <div>
-              <label className="block mb-2 text-gray-300">
-                Email Address
-              </label>
-
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="w-full bg-black border border-zinc-700 rounded-xl px-4 py-4 outline-none focus:border-purple-500"
-              />
-            </div>
-
-            <div>
-              <label className="block mb-2 text-gray-300">
-                Message
-              </label>
-
-              <textarea
-                rows="6"
-                placeholder="Write your message..."
-                className="w-full bg-black border border-zinc-700 rounded-xl px-4 py-4 outline-none focus:border-purple-500"
-              ></textarea>
-            </div>
-
-            <button
-              type="submit"
-              className="bg-purple-600 hover:bg-purple-500 transition px-8 py-4 rounded-xl font-semibold"
-            >
-              Send Message
-            </button>
-          </form>
-        </section>
       </div>
     </main>
+  );
+}
+
+function Field({ label, name, placeholder, type = "text" }) {
+  return (
+    <label className="block">
+      <span className="mb-2 block text-sm font-semibold text-zinc-300">{label}</span>
+      <input
+        name={name}
+        type={type}
+        placeholder={placeholder}
+        className="w-full rounded-lg border border-white/10 bg-black px-4 py-4 outline-none transition focus:border-brand-mint"
+      />
+    </label>
   );
 }

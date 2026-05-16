@@ -1,7 +1,9 @@
+const firebaseProjectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'itnavideo-app';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Essential for server-side heavy lifting
-  serverExternalPackages: ['firebase-admin', 'fluent-ffmpeg', 'openai', 'cloudinary'],
+  // Server-side packages (Firebase-admin needs this sometimes in standalone mode)
+  serverExternalPackages: ['firebase-admin', 'fluent-ffmpeg'],
   
   images: {
     remotePatterns: [
@@ -9,7 +11,6 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
       },
-      // Adding Google User images for Auth avatars
       {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
@@ -20,15 +21,12 @@ const nextConfig = {
   // Optimized for Render/Vercel
   output: 'standalone',
 
-  // Build speed optimizations for YC-level speed
+  // Skip TypeScript errors during production builds.
   typescript: {
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
 
-  // Security & Video performance headers
+  // Security Headers
   async headers() {
     return [
       {
@@ -36,9 +34,18 @@ const nextConfig = {
         headers: [
           {
             key: 'X-Frame-Options',
-            value: 'DENY',
+            value: 'SAMEORIGIN',
           },
         ],
+      },
+    ];
+  },
+
+  async rewrites() {
+    return [
+      {
+        source: '/__/auth/:path*',
+        destination: `https://${firebaseProjectId}.firebaseapp.com/__/auth/:path*`,
       },
     ];
   },

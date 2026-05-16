@@ -15,3 +15,4 @@ export async function GET() {
 export async function POST() {
   return NextResponse.json({ message: 'Use GET for admin status checks' }, { status: 405 });
 }
+
