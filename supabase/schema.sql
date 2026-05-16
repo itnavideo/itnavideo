@@ -1,6 +1,6 @@
 create table if not exists public.projects (
   id text primary key,
-  owner_id uuid not null,
+  owner_id text not null,
   title text,
   status text not null default 'Queued',
   progress integer not null default 0 check (progress >= 0 and progress <= 100),
@@ -28,7 +28,7 @@ create index if not exists projects_owner_created_idx on public.projects (owner_
 create table if not exists public.ffmpeg_jobs (
   id text primary key,
   job_id text not null,
-  user_id uuid not null,
+  user_id text not null,
   status text not null,
   progress integer not null default 0 check (progress >= 0 and progress <= 100),
   message text not null,

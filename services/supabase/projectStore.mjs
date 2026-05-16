@@ -72,8 +72,7 @@ export async function upsertUserProjectFromServer(userId, projectId, data = {}) 
     .single();
 
   if (isMissingTableError(error)) {
-    console.warn(`Supabase projects table is missing. Using local project fallback until schema.sql is applied: ${error.message}`);
-    return fromProjectRow(row);
+    throw new Error(`Supabase projects table is missing. Apply supabase/schema.sql before starting render jobs: ${error.message}`);
   }
 
   if (error) throw new Error(`Supabase project upsert failed: ${error.message}`);
@@ -107,8 +106,7 @@ export async function getFfmpegJobFromServer(userId, jobId) {
     .maybeSingle();
 
   if (isMissingTableError(error)) {
-    console.warn(`Supabase ffmpeg_jobs table is missing. Returning null job until schema.sql is applied: ${error.message}`);
-    return null;
+    throw new Error(`Supabase ffmpeg_jobs table is missing. Apply supabase/schema.sql before checking render status: ${error.message}`);
   }
 
   if (error) throw new Error(`Supabase FFmpeg job read failed: ${error.message}`);
@@ -139,8 +137,7 @@ export async function upsertFfmpegJobFromServer(input) {
     .single();
 
   if (isMissingTableError(error)) {
-    console.warn(`Supabase ffmpeg_jobs table is missing. Using local FFmpeg job fallback until schema.sql is applied: ${error.message}`);
-    return fromFfmpegJobRow(row);
+    throw new Error(`Supabase ffmpeg_jobs table is missing. Apply supabase/schema.sql before starting render jobs: ${error.message}`);
   }
 
   if (error) throw new Error(`Supabase FFmpeg job upsert failed: ${error.message}`);
