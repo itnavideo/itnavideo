@@ -265,6 +265,7 @@ function buildFfmpegArgs(assets, renderPlan, outputPath) {
   const filterGraph = typeof renderPlan === 'string' ? renderPlan : renderPlan.filterGraph;
   const videoMap = typeof renderPlan === 'string' ? '[v_base]' : renderPlan.videoMap || '[v_base]';
   const audioMap = typeof renderPlan === 'string' ? '[a_final]' : renderPlan.audioMap || '[a_final]';
+  const ffmpegThreads = getFfmpegThreadCount();
 
   assets.allInputs.forEach((input) => {
     if (input.generatedColor) {
@@ -277,6 +278,10 @@ function buildFfmpegArgs(assets, renderPlan, outputPath) {
   });
 
   args.push(
+    '-filter_threads',
+    '1',
+    '-filter_complex_threads',
+    '1',
     '-filter_complex',
     filterGraph,
     '-map',
@@ -288,7 +293,7 @@ function buildFfmpegArgs(assets, renderPlan, outputPath) {
     '-preset',
     profile.preset,
     '-threads',
-    '0',
+    ffmpegThreads,
     '-crf',
     String(profile.crf),
     '-pix_fmt',
@@ -303,6 +308,12 @@ function buildFfmpegArgs(assets, renderPlan, outputPath) {
   );
 
   return args;
+}
+
+function getFfmpegThreadCount() {
+  const value = Number(process.env.FFMPEG_THREADS || 1);
+  if (!Number.isFinite(value) || value < 1) return '1';
+  return String(Math.min(2, Math.floor(value)));
 }
 
 function runFfmpeg(args, { totalDuration, timeoutMs, onProgress }) {
