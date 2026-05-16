@@ -12,17 +12,14 @@ import { ensureRenderWorkspace, getWorkspaceAssetDir } from './renderWorkspace.m
 const workspace = ensureRenderWorkspace();
 const cacheDir = workspace.processedAssets.cache;
 const profile = {
-  width: 1080,
-  height: 1920,
+  width: getRenderDimension('RENDER_WIDTH', 720),
+  height: getRenderDimension('RENDER_HEIGHT', 1280),
   audioBitrate: '128k',
   crf: 26,
   preset: process.env.FFMPEG_PRESET || 'ultrafast',
 };
-
-const safeFrames = {
-  '4:5': { width: 1080, height: 1350, x: 0, y: 285 },
-  '1:1': { width: 1080, height: 1080, x: 0, y: 420 },
-};
+const renderScale = profile.width / 1080;
+const safeFrames = buildSafeFrames(profile);
 
 ensureRenderWorkspace();
 
@@ -376,6 +373,36 @@ function getFfmpegPath() {
   return process.env.FFMPEG_PATH || 'ffmpeg';
 }
 
+function getRenderDimension(name, fallback) {
+  const value = Number(process.env[name]);
+  if (!Number.isFinite(value) || value < 240) return fallback;
+  return Math.round(value / 2) * 2;
+}
+
+function buildSafeFrames(renderProfile) {
+  const square = Math.min(renderProfile.width, renderProfile.height);
+  const fourByFiveHeight = Math.min(renderProfile.height, Math.round((renderProfile.width * 5) / 4));
+
+  return {
+    '4:5': {
+      width: renderProfile.width,
+      height: fourByFiveHeight,
+      x: 0,
+      y: Math.round((renderProfile.height - fourByFiveHeight) / 2),
+    },
+    '1:1': {
+      width: square,
+      height: square,
+      x: Math.round((renderProfile.width - square) / 2),
+      y: Math.round((renderProfile.height - square) / 2),
+    },
+  };
+}
+
+function px(value) {
+  return Math.max(1, Math.round(Number(value) * renderScale));
+}
+
 async function getFfmpegSupportsDrawtext() {
   if (!drawtextSupportPromise) {
     drawtextSupportPromise = runCommand(getFfmpegPath(), ['-hide_banner', '-filters'], 5000)
@@ -457,7 +484,7 @@ function buildTextCardFilter(textCard, outputLabel, options = {}) {
 
   const accent = normalizeFfmpegColor(textCard.accentColor || '0x5eead4');
   if (options.supportsDrawtext === false) {
-    return `,drawbox=x=72:y=230:w=936:h=10:color=${accent}:t=fill[${outputLabel}]`;
+    return `,drawbox=x=${px(72)}:y=${px(230)}:w=${px(936)}:h=${px(10)}:color=${accent}:t=fill[${outputLabel}]`;
   }
 
   const headline = splitText(textCard.headline || 'Your idea becomes a video', 22).slice(0, 3);
@@ -465,12 +492,12 @@ function buildTextCardFilter(textCard, outputLabel, options = {}) {
   const design = getReadableTextDesign(textCard);
 
   const filters = [
-    `drawbox=x=72:y=230:w=936:h=10:color=${accent}:t=fill`,
+    `drawbox=x=${px(72)}:y=${px(230)}:w=${px(936)}:h=${px(10)}:color=${accent}:t=fill`,
     ...headline.map((line, index) => (
-      `drawtext=text='${escapeDrawtext(line)}':fontcolor=${design.headlineColor}:fontsize=78:x=72:y=${310 + index * 92}:borderw=3:bordercolor=${design.strokeColor}:box=1:boxcolor=${design.panelColor}:boxborderw=18`
+      `drawtext=text='${escapeDrawtext(line)}':fontcolor=${design.headlineColor}:fontsize=${px(78)}:x=${px(72)}:y=${px(310 + index * 92)}:borderw=${px(3)}:bordercolor=${design.strokeColor}:box=1:boxcolor=${design.panelColor}:boxborderw=${px(18)}`
     )),
     ...body.map((line, index) => (
-      `drawtext=text='${escapeDrawtext(line)}':fontcolor=${design.bodyColor}:fontsize=42:x=72:y=${640 + index * 58}:borderw=2:bordercolor=${design.strokeColor}`
+      `drawtext=text='${escapeDrawtext(line)}':fontcolor=${design.bodyColor}:fontsize=${px(42)}:x=${px(72)}:y=${px(640 + index * 58)}:borderw=${px(2)}:bordercolor=${design.strokeColor}`
     )),
   ];
 
@@ -523,10 +550,10 @@ function buildCaptionFilter(captions, inputLabel, outputLabel, options = {}) {
 
   const drawFilters = cues.flatMap((cue) => {
     const lines = splitText(cue.text, 28).slice(0, 2);
-    const baseY = lines.length > 1 ? 1390 : 1438;
+    const baseY = px(lines.length > 1 ? 1390 : 1438);
 
     return lines.map((line, lineIndex) => (
-      `drawtext=text='${escapeDrawtext(line)}':fontcolor=white:fontsize=62:x=(w-text_w)/2:y=${baseY + lineIndex * 74}:box=1:boxcolor=black@0.58:boxborderw=24:enable='between(t,${cue.start},${cue.end})'`
+      `drawtext=text='${escapeDrawtext(line)}':fontcolor=white:fontsize=${px(62)}:x=(w-text_w)/2:y=${baseY + lineIndex * px(74)}:box=1:boxcolor=black@0.58:boxborderw=${px(24)}:enable='between(t,${cue.start},${cue.end})'`
     ));
   });
 
