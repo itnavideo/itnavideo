@@ -13,11 +13,11 @@ interface FAQItem {
 const faqs: FAQItem[] = [
   {
     question: "What is Itnavideo?",
-    answer: "Itnavideo is an AI Shorts platform for creators. You can make faceless videos from a voiceover, or upload face-camera footage for automatic talking-head edits."
+    answer: "Itnavideo is an AI Shorts platform for creators. The current MVP creates typography-first videos from one voiceover audio file."
   },
   {
     question: "How does Itnavideo save me time?",
-    answer: "It handles the repetitive setup behind short-form videos, so you can focus on recording ideas, adding any useful media, and publishing more consistently."
+    answer: "It handles the repetitive setup behind short-form videos, so you can focus on recording clear ideas and publishing more consistently."
   },
   {
     question: "Do I need any editing skills?",
@@ -25,11 +25,11 @@ const faqs: FAQItem[] = [
   },
   {
     question: "What kind of videos can I create?",
-    answer: "Currently, Itnavideo specializes in 9:16 short-form videos optimized for Instagram Reels, TikTok, and YouTube Shorts. The two active paths are faceless voiceover videos and face-camera video edits."
+    answer: "Currently, Itnavideo specializes in 9:16 short-form videos optimized for Instagram Reels, TikTok, and YouTube Shorts. The active MVP path is voiceover audio to typography video."
   },
   {
     question: "What do I need to upload?",
-    answer: "For faceless videos, audio is required and images, screenshots, or clips are optional. For face-camera videos, upload one camera video and Itnavideo handles the edit."
+    answer: "Upload one clear MP3, WAV, or M4A voiceover. Images, screenshots, clips, and face-camera videos are temporarily paused."
   },
   {
     question: "Is my data secure?",

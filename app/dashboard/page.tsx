@@ -77,6 +77,7 @@ const PIPELINE_QUALITY = getPipelineQualityLabel();
 const FREE_MAX_UPLOAD_BYTES = getMaxUploadBytes();
 const FREE_MAX_DURATION_SECONDS = videoPipelineConfig.maxDurationSec;
 const DEFAULT_TARGET_DURATION_SECONDS = FREE_MAX_DURATION_SECONDS;
+const AUDIO_ONLY_MVP = true;
 
 const pipelineCards = [
   { title: 'Upload audio', desc: 'Add one clear voiceover file.', icon: AudioLines, tone: 'text-emerald-200' },
@@ -190,7 +191,12 @@ export default function DashboardPage() {
   const displayName = useMemo(() => user?.displayName || user?.email?.split('@')[0] || 'Creator', [user]);
 
   const openCreateModal = (mode: 'voice' | 'face' = 'voice') => {
-    setInitialCreationMode(mode);
+    if (AUDIO_ONLY_MVP && mode === 'face') {
+      toast.info('Face camera uploads are paused for the MVP. Please create with audio for now.');
+      setInitialCreationMode('voice');
+    } else {
+      setInitialCreationMode(mode);
+    }
     setIsModalOpen(true);
   };
 
@@ -285,7 +291,7 @@ export default function DashboardPage() {
               <div>
                 <p className="mb-3 text-sm font-bold uppercase tracking-[0.24em] text-emerald-300">Dashboard</p>
                 <h1 className="text-4xl font-black leading-tight tracking-normal md:text-5xl">Welcome back, {displayName}</h1>
-                <p className="mt-3 max-w-2xl text-zinc-400">Choose faceless voiceover videos or upload face camera footage for automatic Shorts editing.</p>
+                <p className="mt-3 max-w-2xl text-zinc-400">Upload one clear voiceover audio file. For the MVP, Itnavideo creates typography-first Shorts without extra media uploads.</p>
               </div>
               <button onClick={() => openCreateModal('voice')} className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-6 py-4 font-black text-black transition hover:bg-zinc-200">
                 <Plus size={19} />
@@ -305,7 +311,7 @@ export default function DashboardPage() {
                 <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                   <div>
                     <h2 className="text-2xl font-black">Create with Itnavideo</h2>
-                    <p className="mt-1 text-sm text-zinc-500">Two production flows: faceless videos or face camera edits.</p>
+                    <p className="mt-1 text-sm text-zinc-500">MVP workflow: audio in, typography video out. Media uploads are paused for stability.</p>
                   </div>
                   <button onClick={() => openCreateModal('voice')} className="rounded-lg border border-emerald-300/20 bg-emerald-300/10 px-4 py-2 text-sm font-bold text-emerald-100 transition hover:bg-emerald-300/15">
                     Start creating
@@ -316,18 +322,18 @@ export default function DashboardPage() {
                   <DashboardModeCard
                     imageSrc="/visuals/faceless-mode-guide.png"
                     icon={<AudioLines size={22} />}
-                    title="Faceless video"
-                    body="Audio is required. Screenshots, images, or clips are optional."
+                    title="Audio to video"
+                    body="Upload one MP3, WAV, or M4A. Itnavideo turns it into a clean typography short."
                     tone="emerald"
                     onClick={() => openCreateModal('voice')}
                   />
                   <DashboardModeCard
                     imageSrc="/visuals/face-camera-mode-guide.png"
                     icon={<Film size={22} />}
-                    title="Face camera video"
-                    body="Upload one camera video. We crop, polish audio, add effects, and export."
+                    title="Face camera paused"
+                    body="Camera videos, screenshots, images, and clips will return after the MVP demo is stable."
                     tone="cyan"
-                    onClick={() => openCreateModal('face')}
+                    onClick={() => toast.info('Face camera uploads are paused for the MVP. Please create with audio for now.')}
                   />
                 </div>
 
@@ -429,7 +435,7 @@ export default function DashboardPage() {
                     </div>
                     <Wand2 className="mx-auto mt-6 text-emerald-200" size={34} />
                     <h3 className="mt-4 font-bold">No videos yet</h3>
-                    <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-zinc-500">Start with a voiceover or face camera video. The dashboard will show render status here.</p>
+                    <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-zinc-500">Start with one voiceover audio file. The dashboard will show render status here.</p>
                   </div>
                 )}
               </div>
@@ -595,9 +601,8 @@ function CreateVideoModal({
   initialMode: 'voice' | 'face';
 }) {
   const [step, setStep] = useState(1);
-  const [creationMode, setCreationMode] = useState<'voice' | 'face'>(initialMode);
+  const [creationMode, setCreationMode] = useState<'voice' | 'face'>(AUDIO_ONLY_MVP ? 'voice' : initialMode);
   const [voiceover, setVoiceover] = useState<File | null>(null);
-  const [visual, setVisual] = useState<File | null>(null);
   const [faceVideo, setFaceVideo] = useState<File | null>(null);
   const [faceStyle, setFaceStyle] = useState<'classic' | 'cinematic' | 'clean'>('classic');
   const [renderJobId, setRenderJobId] = useState('');
@@ -625,6 +630,12 @@ function CreateVideoModal({
 
     return () => window.clearInterval(timer);
   }, [generationStatus, isGenerating]);
+
+  useEffect(() => {
+    if (AUDIO_ONLY_MVP && creationMode !== 'voice') {
+      setCreationMode('voice');
+    }
+  }, [creationMode]);
 
   const handleGenerateVideo = async () => {
     if (!voiceover || !user) return;
@@ -675,25 +686,9 @@ function CreateVideoModal({
         setUploadPercent(percent);
         setGenerationProgress(Math.min(46, 18 + Math.round(percent * 0.28)));
       });
-      const userAssets = [];
-
-      if (visual) {
-        onJobUpdate(jobId, { status: 'Uploading visual', progress: 46, voiceUrl });
-        const visualPath = `uploads/${user.uid}/visuals/${Date.now()}_${sanitizeFileName(visual.name)}`;
-        const visualUrl = await uploadMediaFile(visualPath, visual, (percent) => {
-          setUploadPercent(percent);
-          setGenerationProgress(Math.min(54, 46 + Math.round(percent * 0.08)));
-        });
-        userAssets.push({
-          url: visualUrl,
-          type: visual.type.startsWith('video/') ? 'video' as const : 'image' as const,
-          filename: visual.name,
-        });
-        onJobUpdate(jobId, { status: 'Uploaded', progress: 54, voiceUrl, visualUrl });
-      } else {
-        onJobUpdate(jobId, { status: 'Uploaded', progress: 48, voiceUrl });
-      }
-      setGenerationProgress(userAssets.length ? 54 : 48);
+      const userAssets: Array<{ url: string; type: 'video' | 'image'; filename: string }> = [];
+      onJobUpdate(jobId, { status: 'Uploaded', progress: 48, voiceUrl });
+      setGenerationProgress(48);
 
       setGenerationStatus('planning');
       setGenerationProgress(62);
@@ -710,7 +705,7 @@ function CreateVideoModal({
         targetDurationSeconds: videoDurationSeconds,
       });
 
-      onJobUpdate(jobId, { status: 'Queued for video generation', progress: 64, voiceUrl, visualUrl: userAssets[0]?.url });
+      onJobUpdate(jobId, { status: 'Queued for video generation', progress: 64, voiceUrl });
       toast.success('Video queued. Check Your videos for progress.');
       onClose();
     } catch (error: any) {
@@ -732,6 +727,11 @@ function CreateVideoModal({
   };
 
   const handleGenerateFaceVideo = async () => {
+    if (AUDIO_ONLY_MVP) {
+      toast.info('Face camera uploads are paused for the MVP. Please create with audio for now.');
+      return;
+    }
+
     if (!faceVideo || !user) return;
 
     const jobId = `face_${Date.now()}`;
@@ -836,7 +836,7 @@ function CreateVideoModal({
                 <p className="text-sm font-black uppercase tracking-[0.18em] text-emerald-200">Please wait</p>
                 <h4 className="mt-2 text-2xl font-black tracking-normal text-white">Your video is being prepared</h4>
                 <p className="mt-2 text-sm leading-6 text-zinc-400">
-                  We are adding captions, graphics, and exporting your MP4. You can keep this open or check Your videos in a moment.
+                  We are creating a typography-first MP4 from your audio. You can keep this open or check Your videos in a moment.
                 </p>
               </div>
               <VideoUploadStatus
@@ -881,30 +881,23 @@ function CreateVideoModal({
                   selected={creationMode === 'voice'}
                   imageSrc="/visuals/faceless-mode-guide.png"
                   icon={<AudioLines size={24} />}
-                  title="Faceless video"
-                  body="Audio is mandatory. Add screenshots, images, or video clips if you have them."
+                  title="Audio-only MVP"
+                  body="Upload one voiceover file. Images, screenshots, clips, and camera video are paused for now."
                   tone="emerald"
                   onClick={() => setCreationMode('voice')}
                 />
                 <ModeCard
-                  selected={creationMode === 'face'}
+                  selected={false}
                   imageSrc="/visuals/face-camera-mode-guide.png"
                   icon={<Film size={24} />}
-                  title="Face camera video"
-                  body="Upload one talking-head or camera video. Itnavideo edits it into a short."
+                  title="Media uploads paused"
+                  body="Face camera, screenshots, images, and video clips will return after the MVP demo is stable."
                   tone="cyan"
-                  onClick={() => setCreationMode('face')}
+                  onClick={() => toast.info('For now, please upload audio only. Media upload features are paused.')}
                 />
               </div>
 
-              {creationMode === 'voice' ? (
-                <>
-                  <FileDrop title="Voiceover" emptyCta="Select voiceover audio" desc="Required MP3, WAV, M4A" file={voiceover} accept="audio/*" required onChange={setVoiceover} icon={<AudioLines size={26} />} />
-                  <FileDrop title="Visual asset" emptyCta="Select optional visual" desc="Optional MP4, MOV, JPG, PNG" file={visual} accept="video/*,image/*" onChange={setVisual} icon={<Film size={26} />} />
-                </>
-              ) : (
-                <FileDrop title="Face camera video" emptyCta="Select camera video" desc="Required MP4, MOV, or WebM" file={faceVideo} accept="video/*" required onChange={setFaceVideo} icon={<Film size={26} />} />
-              )}
+              <FileDrop title="Voiceover" emptyCta="Select voiceover audio" desc="Required MP3, WAV, M4A only" file={voiceover} accept="audio/*" required onChange={setVoiceover} icon={<AudioLines size={26} />} />
             </div>
           )}
 
@@ -967,11 +960,11 @@ function CreateVideoModal({
           {generationStatus === 'idle' && step === 3 && (
             <div className={`rounded-lg border p-6 ${creationMode === 'voice' ? 'border-emerald-300/15 bg-emerald-300/8' : 'border-cyan-300/15 bg-cyan-300/8'}`}>
               <Sparkles className={creationMode === 'voice' ? 'text-emerald-200' : 'text-cyan-200'} size={30} />
-              <h4 className="mt-5 text-2xl font-black">Ready to create your {creationMode === 'voice' ? 'faceless video' : 'face camera edit'}</h4>
+              <h4 className="mt-5 text-2xl font-black">Ready to create your audio-first video</h4>
               <p className="mt-3 max-w-xl text-sm leading-6 text-zinc-400">
                 {creationMode === 'voice'
-                  ? `We will analyze the voiceover, create the timeline, generate captions, and export a stable ${PIPELINE_QUALITY} short-form MP4.`
-                  : `We will crop the camera video for Shorts, polish audio, add motion/effects, and export a stable ${PIPELINE_QUALITY} MP4.`}
+                  ? `We will analyze the voiceover, create a typography timeline, generate captions, and export a stable ${PIPELINE_QUALITY} short-form MP4.`
+                  : `This media upload route is paused for the MVP. Please create with voiceover audio for now.`}
               </p>
               <div className="mt-5 grid gap-3 text-sm text-zinc-300 md:grid-cols-2">
                   {creationMode === 'voice' ? (
@@ -983,7 +976,7 @@ function CreateVideoModal({
                     </>
                   ) : (
                     <>
-                      <Summary label="Camera video" value={faceVideo?.name || 'Required'} />
+                      <Summary label="Paused route" value="Use audio-only MVP" />
                       <Summary label="Edit style" value={faceStyle} />
                       <Summary label="Effects" value="Crop, motion, audio polish" />
                       <Summary label="Export" value={`${PIPELINE_QUALITY} portrait MP4`} />
@@ -999,12 +992,12 @@ function CreateVideoModal({
             {generationStatus !== 'idle' ? 'Close' : step === 1 ? 'Cancel' : 'Back'}
           </button>
           <button
-            disabled={isGenerating || generationStatus !== 'idle' || (step === 1 && ((creationMode === 'voice' && !voiceover) || (creationMode === 'face' && !faceVideo)))}
+            disabled={isGenerating || generationStatus !== 'idle' || (step === 1 && !voiceover)}
             onClick={step === 3 ? (creationMode === 'voice' ? handleGenerateVideo : handleGenerateFaceVideo) : () => setStep(step + 1)}
             className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 font-black text-black transition hover:bg-zinc-200 disabled:opacity-50"
           >
             {isGenerating ? <Loader2 className="animate-spin" size={18} /> : step === 3 ? <Scissors size={18} /> : <ChevronRight size={18} />}
-            {generationStatus === 'ready' ? 'Ready' : step === 3 ? (creationMode === 'voice' ? 'Generate faceless video' : 'Edit face camera video') : 'Next'}
+            {generationStatus === 'ready' ? 'Ready' : step === 3 ? 'Generate audio video' : 'Next'}
           </button>
         </div>
       </motion.div>

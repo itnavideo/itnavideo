@@ -5,20 +5,20 @@ const steps = [
   {
     number: '01',
     icon: Upload,
-    title: 'Choose a workflow',
-    desc: 'Pick faceless video for audio-first creation, or face camera video for talking-head footage.',
+    title: 'Upload voiceover',
+    desc: 'Start with one clear MP3, WAV, or M4A file. This MVP flow is audio-only.',
   },
   {
     number: '02',
     icon: SlidersHorizontal,
-    title: 'Upload the source',
-    desc: 'Faceless needs one audio file. Face camera needs one video. Extra screenshots, images, and clips stay optional.',
+    title: 'Choose the style',
+    desc: 'Pick pacing, captions, and portrait export quality. Extra media uploads are paused for now.',
   },
   {
     number: '03',
     icon: Sparkles,
     title: 'Itnavideo creates the draft',
-    desc: 'The media engine prepares jump cuts, zooms, big captions, icons, sound effects, audio polish, and a clean mobile layout.',
+    desc: 'The media engine prepares typography scenes, big captions, audio polish, and a clean mobile layout.',
   },
   {
     number: '04',
@@ -36,12 +36,12 @@ export default function HowItWorks() {
           <div className="max-w-3xl">
             <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-cyan-300">How it works</p>
             <h2 className="text-4xl font-black leading-tight tracking-normal text-white md:text-6xl">
-              Pick the path. Get the short back.
+              Upload audio. Get the short back.
             </h2>
           </div>
           <div className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-zinc-300">
             <Clapperboard size={18} className="text-cyan-300" />
-            Built for faceless and face-camera Shorts
+            Built for audio-first MVP Shorts
           </div>
         </div>
 

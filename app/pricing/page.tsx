@@ -4,15 +4,15 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Pricing | Itnavideo",
-  description: "Simple pricing for AI faceless videos, face-camera edits, captions, SFX, and exports.",
+  description: "Simple pricing for AI audio-first videos, captions, and exports.",
 };
 
 const plans = [
   {
     name: "Starter",
     price: "$0",
-    description: "For testing faceless and face-camera Shorts.",
-    features: ["2 free videos", "720p previews", "Basic captions", "Faceless mode", "Face camera mode"],
+    description: "For testing audio-first Shorts.",
+    features: ["2 free videos", "720p previews", "Basic captions", "Audio-only MVP", "Media uploads paused"],
     button: "Start free",
     href: "/signup",
     locked: false,
@@ -22,7 +22,7 @@ const plans = [
     name: "Launch",
     price: "$9",
     description: "For new creators who want an affordable monthly plan.",
-    features: ["20 videos per month", "1080p exports", "English subtitles", "Faceless + face camera", "No watermark"],
+    features: ["20 videos per month", "1080p exports", "English subtitles", "Audio-first workflow", "No watermark"],
     button: "Locked until Stripe approval",
     href: "/billing",
     locked: true,
@@ -70,7 +70,7 @@ export default function PricingPage() {
             Pricing for creators who publish more.
           </h1>
           <p className="mx-auto mt-7 max-w-3xl text-lg leading-8 text-zinc-300">
-            Start with your voice for faceless videos or upload camera footage for talking-head edits. Paid upgrades are staged behind approval while the working 720p demo stays live.
+            Start with your voice and generate a typography-first Short. Paid upgrades are staged behind approval while the working 720p demo stays live.
           </p>
 
           <div className="mx-auto mt-10 grid max-w-4xl gap-3 sm:grid-cols-4">

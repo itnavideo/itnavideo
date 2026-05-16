@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import type React from 'react';
 import {
   ArrowRight,
-  Camera,
   Check,
   FileAudio,
   Sparkles,
@@ -55,7 +54,7 @@ export default function Hero() {
             className="mb-7 inline-flex items-center gap-2 rounded-lg border border-brand-mint/20 bg-brand-mint/10 px-3 py-2 text-sm font-semibold text-brand-mint"
           >
             <Sparkles size={15} />
-            AI Shorts maker for faceless and face-camera videos
+            AI Shorts maker for audio-first MVP videos
           </motion.div>
 
           <motion.h1
@@ -64,7 +63,7 @@ export default function Hero() {
             transition={{ delay: 0.08 }}
             className="max-w-4xl text-5xl font-black leading-[1.02] tracking-normal text-white md:text-7xl"
           >
-            Upload audio or camera footage.
+            Upload voiceover audio.
             <span className="brand-text-gradient block">Get a ready-to-post short.</span>
           </motion.h1>
 
@@ -74,8 +73,7 @@ export default function Hero() {
             transition={{ delay: 0.16 }}
             className="mt-7 max-w-2xl text-lg leading-8 text-zinc-300 md:text-xl"
           >
-            Make faceless videos from a required voiceover, or upload a face-camera clip and let Itnavideo cut,
-            polish, caption, style, and export the final short.
+            Make typography-first Shorts from one required voiceover. Extra media uploads are paused while the MVP demo stays fast and stable.
           </motion.p>
 
           <motion.div
@@ -88,15 +86,14 @@ export default function Hero() {
               href="/dashboard"
               className="group inline-flex items-center justify-center gap-2 rounded-lg bg-brand-mint px-6 py-4 text-base font-black text-black transition hover:bg-white"
             >
-              Create faceless video
+              Create audio video
               <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
               href="/dashboard"
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-cyan-300/25 bg-cyan-300/10 px-6 py-4 text-base font-black text-cyan-100 transition hover:bg-cyan-300/15"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-6 py-4 text-base font-black text-zinc-300 transition hover:bg-white/[0.08]"
             >
-              <Camera size={18} />
-              Edit face camera video
+              Media uploads paused
             </Link>
           </motion.div>
 
@@ -108,14 +105,14 @@ export default function Hero() {
           >
             <WorkflowMiniCard
               icon={<FileAudio size={20} />}
-              title="Faceless videos"
-              body="Upload voiceover audio. Add images or clips only if you want."
+              title="Audio-only videos"
+              body="Upload voiceover audio and generate a clean typography short."
               tone="emerald"
             />
             <WorkflowMiniCard
-              icon={<Camera size={20} />}
-              title="Face camera videos"
-              body="Upload one talking-head clip for automatic Shorts editing."
+              icon={<Sparkles size={20} />}
+              title="Stable MVP mode"
+              body="Screenshots, images, clips, and camera uploads return after demo stabilization."
               tone="cyan"
             />
           </motion.div>
@@ -126,7 +123,7 @@ export default function Hero() {
             transition={{ delay: 0.4 }}
             className="mt-9 grid max-w-2xl grid-cols-1 gap-3 text-sm text-zinc-400 sm:grid-cols-3"
           >
-            {['Faceless audio workflow', 'Face camera upload workflow', '720p Shorts exports'].map((item) => (
+            {['Audio-only workflow', 'Typography-first visuals', '720p Shorts exports'].map((item) => (
               <div key={item} className="flex items-center gap-2">
                 <Check size={16} className="text-brand-mint" />
                 <span>{item}</span>
@@ -162,7 +159,7 @@ export default function Hero() {
               <div className="absolute bottom-4 left-4 right-4 rounded-lg border border-white/10 bg-black/62 p-4 backdrop-blur">
                 <p className="text-sm font-black text-white">Upload, caption, render, export.</p>
                 <p className="mt-1 text-xs leading-5 text-zinc-300">
-                  One workflow for faceless audio and face-camera Shorts.
+                  One focused workflow for audio-first Shorts.
                 </p>
               </div>
             </div>

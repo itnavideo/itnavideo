@@ -3,13 +3,13 @@ import { ArrowRight, BookOpen, Captions, Cloud, Database, FolderOpen, GitBranch,
 
 const sections = [
   {
-    title: 'Choose a video mode',
-    description: 'Use faceless mode for required audio and optional visuals, or face-camera mode for one uploaded talking-head video.',
+    title: 'Use the active MVP mode',
+    description: 'The current workflow accepts one required voiceover audio file and creates a typography-first short.',
     icon: Mic,
   },
   {
     title: 'Upload your source',
-    description: 'Faceless accepts audio plus optional images, screenshots, and clips. Face camera accepts a video file for editing.',
+    description: 'Upload MP3, WAV, or M4A audio. Images, screenshots, clips, and camera video are paused for now.',
     icon: FolderOpen,
   },
   {
@@ -32,7 +32,7 @@ const deploymentItems = [
   },
   {
     title: 'Media intelligence',
-    description: 'Plans talking-head cuts, zooms, captions, overlays, sound timing, and export-safe layouts.',
+    description: 'Plans captions, typography scenes, sound timing, and export-safe layouts.',
     icon: TerminalSquare,
   },
   {
@@ -57,7 +57,7 @@ export default function DocsPage() {
         </div>
         <h1 className="max-w-4xl text-5xl font-black leading-tight md:text-7xl">Create videos with Itnavideo.</h1>
         <p className="mt-6 max-w-3xl text-lg leading-8 text-zinc-400">
-          A simple guide for using the two creation modes and understanding the current production workflow.
+          A simple guide for using the audio-only MVP workflow and understanding the current production setup.
         </p>
 
         <div className="mt-14 grid gap-4 md:grid-cols-3">
@@ -100,13 +100,13 @@ export default function DocsPage() {
         <div className="mt-14 rounded-lg border border-white/10 bg-zinc-950 p-8">
           <h2 className="text-3xl font-black">Tips for better videos</h2>
           <p className="mt-4 text-sm leading-6 text-zinc-400">
-            Keep the voiceover or camera audio clean, use vertical visuals when possible, and name reusable media clearly so captions, icons, and overlays are easier to match.
+            Keep the voiceover clean and record in a quiet room. The current MVP keeps visuals typography-first for stable demo renders.
           </p>
           <ul className="mt-6 grid gap-3 text-sm leading-6 text-zinc-300 md:grid-cols-2">
             <li className="rounded-lg border border-white/10 bg-black/40 p-4">Use MP3 or WAV voiceovers with low background noise.</li>
-            <li className="rounded-lg border border-white/10 bg-black/40 p-4">For face-camera videos, leave a little space around the speaker for captions and icons.</li>
-            <li className="rounded-lg border border-white/10 bg-black/40 p-4">Choose 9:16 clips and images for Reels, TikTok, and Shorts.</li>
-            <li className="rounded-lg border border-white/10 bg-black/40 p-4">Add reusable icons with names like money.png, warning.png, idea.png, or clock.png.</li>
+            <li className="rounded-lg border border-white/10 bg-black/40 p-4">Use one complete voiceover per video.</li>
+            <li className="rounded-lg border border-white/10 bg-black/40 p-4">Avoid loud music under speech during the MVP demo.</li>
+            <li className="rounded-lg border border-white/10 bg-black/40 p-4">Media uploads will return after the core audio render flow is stable.</li>
           </ul>
         </div>
 

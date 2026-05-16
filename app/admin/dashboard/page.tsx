@@ -50,9 +50,9 @@ export default function AdminDashboardPage() {
             <h2 className="text-2xl font-black text-white">Founder checklist</h2>
           </div>
           <div className="space-y-3 text-sm text-zinc-300">
-            <ChecklistItem label="Add reusable videos/images/SFX to asset library before heavy creator testing." />
+            <ChecklistItem label="Keep media uploads paused until the audio-only MVP render is stable." />
             <ChecklistItem label="Keep Supabase for auth, project metadata, job status, waitlist, and newsletter leads." />
-            <ChecklistItem label="Test both creation paths: faceless audio videos and face-camera uploads." />
+            <ChecklistItem label="Test the active path: one voiceover audio file to typography video." />
             <ChecklistItem label="Keep long FFmpeg jobs on the Render worker with Python-assisted filter planning." />
           </div>
         </div>

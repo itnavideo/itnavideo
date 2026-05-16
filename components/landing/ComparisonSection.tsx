@@ -8,14 +8,14 @@ const comparisons = [
   {
     feature: 'Editing time',
     manual: '4-6 hours of timeline work',
-    ai: 'Minutes from audio or camera upload to draft',
+    ai: 'Minutes from voiceover audio to draft',
     manualIcon: Clock,
     aiIcon: Zap,
   },
   {
     feature: 'Visual planning',
     manual: 'Search clips, place overlays, keep rebuilding',
-    ai: 'Faceless visuals or face-camera polish handled for you',
+    ai: 'Typography visuals and captions handled for you',
     manualIcon: Layers,
     aiIcon: Check,
   },
@@ -51,8 +51,8 @@ export default function ComparisonSection() {
             Creators have ideas. Editing keeps stealing the schedule.
           </motion.h2>
           <p className="mt-5 text-lg leading-8 text-zinc-400">
-            Itnavideo is designed for repeat publishing: upload a voiceover for faceless videos, or upload
-            camera footage for automatic talking-head Shorts edits.
+            Itnavideo is designed for repeat publishing: upload a voiceover, choose a style, and get a clean
+            typography-first Short without opening an editor.
           </p>
         </div>
 
@@ -99,7 +99,7 @@ export default function ComparisonSection() {
         <div className="mt-8 flex flex-col gap-3 rounded-lg border border-cyan-300/15 bg-cyan-300/[0.04] p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="font-bold text-white">MVP focus</p>
-            <p className="mt-1 text-sm text-zinc-400">Short-form generation first: faceless audio videos and face-camera edits. Long-form YouTube workflow is in private waitlist mode.</p>
+            <p className="mt-1 text-sm text-zinc-400">Short-form generation first: audio-only typography videos. Camera and asset upload modes are paused during MVP stabilization.</p>
           </div>
           <div className="flex items-center gap-2 text-sm font-bold text-cyan-200">
             <X size={16} className="text-zinc-500" />

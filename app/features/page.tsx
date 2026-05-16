@@ -15,11 +15,10 @@ export default function FeaturesPage() {
               Product features
             </div>
             <h1 className="text-5xl font-black leading-tight tracking-normal text-white md:text-7xl">
-              Faceless videos and face-camera edits, handled end to end.
+              Audio-first Shorts, handled end to end.
             </h1>
             <p className="mt-6 text-lg leading-8 text-zinc-400 md:text-xl">
-              Itnavideo analyzes voiceovers for faceless videos, processes uploaded camera clips for talking-head edits,
-              creates captions and text effects, then renders a vertical short ready for Reels, TikTok, and Shorts.
+              Itnavideo analyzes one voiceover, creates captions and typography scenes, then renders a vertical short ready for Reels, TikTok, and Shorts. Media upload modes are temporarily paused for MVP stability.
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <Link

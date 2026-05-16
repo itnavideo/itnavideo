@@ -29,6 +29,11 @@ const smokeCases = [
     outputPath: path.join(outputDir, 'video_pipeline_smoke_fallback.mp4'),
     run: (data, outputPath) => renderVideoWithFFmpeg(data, outputPath, { forceSafeFallback: true }),
   },
+  {
+    label: 'low-memory contract',
+    outputPath: path.join(outputDir, 'video_pipeline_smoke_low_memory.mp4'),
+    run: (data, outputPath) => renderVideoWithFFmpeg(data, outputPath, { lowMemoryRender: true }),
+  },
 ];
 
 for (const smokeCase of smokeCases) {

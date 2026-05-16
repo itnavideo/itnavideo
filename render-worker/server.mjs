@@ -3,6 +3,7 @@ import { spawn } from 'child_process';
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
+import { pathToFileURL } from 'url';
 import ffmpegStaticPath from 'ffmpeg-static';
 import ffprobeStatic from 'ffprobe-static';
 import { isAssetBlacklisted } from './assetBlacklist.mjs';
@@ -431,6 +432,60 @@ async function buildWorkerTimeline({ title, config = {}, userAssets = [], target
   const sceneCount = Math.max(3, Math.min(8, Math.ceil(duration / 8)));
   const segment = duration / sceneCount;
   const cleanTitle = sanitizeDisplayText(String(title || 'Your video').replace(/\.[^.]+$/, ''), 'Your video');
+  const typographyTheme = pickTypographyMvpTheme(cleanTitle, config);
+
+  if (shouldUseTypographyMvp(config)) {
+    const captions = buildWorkerCaptions(cleanTitle, duration, sceneCount);
+    const scenes = Array.from({ length: sceneCount }, (_, index) => {
+      const start = roundTime(index * segment);
+      const end = roundTime(index === sceneCount - 1 ? duration : (index + 1) * segment);
+
+      return {
+        id: `scene_${index + 1}`,
+        start,
+        end,
+        role: getWorkerSceneRole(index, sceneCount),
+        source: buildTypographyMvpSceneSource(typographyTheme, cleanTitle),
+        crop: {
+          safeFrame: '4:5',
+        },
+        textCard: buildTypographyMvpTextCard({
+          title: cleanTitle,
+          index,
+          sceneCount,
+          config,
+          theme: typographyTheme,
+        }),
+      };
+    });
+
+    return {
+      version: '1.0',
+      metadata: {
+        mode: 'typography_mvp',
+        duration,
+        fps: Number(process.env.LOW_MEMORY_FPS || 24),
+        aspectRatio: config.aspectRatio || 'Portrait (9:16)',
+        editingStyle: config.editingStyle || 'reels_pacing',
+        quality: config.quality || pipelineConfig.qualityPreset,
+        targetWidth: Number(config.targetWidth || pipelineConfig.targetWidth),
+        targetHeight: Number(config.targetHeight || pipelineConfig.targetHeight),
+        userTier: sanitizeDisplayText(config.userTier, 'free'),
+        backgroundTheme: typographyTheme.name,
+        typographyPreset: typographyTheme.font.name,
+        visualPolicy: 'single_background_typography_only',
+      },
+      scenes,
+      captions,
+      music: [],
+      effects: [],
+      transitions: scenes.slice(1).map((scene) => ({
+        at: scene.start,
+        type: 'cut',
+      })),
+    };
+  }
+
   const uploadedAssets = Array.isArray(userAssets) ? userAssets.filter((asset) => typeof asset?.url === 'string') : [];
   const driveAssets = await pickWorkerDriveVisuals({
     query: `${cleanTitle} ${config.editingStyle || ''} ${config.mood || ''}`,
@@ -485,6 +540,128 @@ async function buildWorkerTimeline({ title, config = {}, userAssets = [], target
       type: 'cut',
     })),
   };
+}
+
+function shouldUseTypographyMvp(config = {}) {
+  const explicit = config.typographyOnly ?? config.textOnly ?? config.mvpTypography;
+  if (explicit !== undefined) return isTruthyFlag(explicit);
+  return process.env.MVP_TYPOGRAPHY_RENDER !== '0';
+}
+
+function buildTypographyMvpSceneSource(theme, fallbackQuery) {
+  return {
+    type: 'uploaded_image',
+    url: theme.backgroundUrl,
+    filename: theme.backgroundFile,
+    query: fallbackQuery,
+    assetId: theme.name,
+  };
+}
+
+function buildTypographyMvpTextCard({ title, index, sceneCount, config = {}, theme }) {
+  const accent = theme.accents[index % theme.accents.length];
+  const role = getWorkerSceneRole(index, sceneCount);
+
+  return {
+    eyebrow: index === 0 ? 'ITNAVIDEO MVP' : role.toUpperCase(),
+    headline: index === 0 ? title : getTypographyMvpHeadline(index, title),
+    body: getTypographyMvpBody(index, config),
+    backgroundColor: theme.color,
+    accentColor: accent,
+    headlineColor: '0xffffff',
+    bodyColor: '0xe5e7eb',
+    strokeColor: '0x000000',
+    panelColor: 'black@0.34',
+    fontFamily: theme.font.name,
+    fontFile: theme.font.path,
+    layout: index % 3 === 0 ? 'hero' : index % 3 === 1 ? 'split' : 'statement',
+  };
+}
+
+function pickTypographyMvpTheme(title, config = {}) {
+  const backgrounds = getTypographyBackgrounds();
+  const fonts = getTypographyFontPresets();
+  const requestedBackground = String(config.backgroundTheme || process.env.MVP_BACKGROUND_THEME || '').toLowerCase();
+  const requestedFont = String(config.fontPreset || process.env.MVP_FONT_PRESET || '').toLowerCase();
+  const seed = stableHash(`${title} ${config.editingStyle || ''}`);
+  const background = backgrounds.find((item) => item.key === requestedBackground) || backgrounds[seed % backgrounds.length];
+  const font = fonts.find((item) => item.key === requestedFont) || fonts[seed % fonts.length];
+
+  return {
+    ...background,
+    font,
+  };
+}
+
+function getTypographyBackgrounds() {
+  const items = [
+    { key: 'amoled_black', name: 'Amoled Black', color: '0x000000', file: 'bg_#000000_amoled_black.png', accents: ['0x5eead4', '0x38bdf8', '0xf8fafc'] },
+    { key: 'deep_charcoal', name: 'Deep Charcoal', color: '0x121212', file: 'bg_#121212_deep_charcoal.png', accents: ['0x22c55e', '0x5eead4', '0xfacc15'] },
+    { key: 'midnight_blue', name: 'Midnight Blue', color: '0x0B132B', file: 'bg_#0B132B_midnight_blue.png', accents: ['0x38bdf8', '0x818cf8', '0x5eead4'] },
+    { key: 'nordic_slate', name: 'Nordic Slate', color: '0x1E293B', file: 'bg_#1E293B_nordic_slate.png', accents: ['0x93c5fd', '0x5eead4', '0xf8fafc'] },
+    { key: 'rich_espresso', name: 'Rich Espresso', color: '0x1A1110', file: 'bg_#1A1110_rich_espresso.png', accents: ['0xf59e0b', '0xfbbf24', '0xf8fafc'] },
+  ];
+
+  return items.map((item) => {
+    const filePath = path.join(process.cwd(), 'public', 'visuals', item.file);
+    return {
+      ...item,
+      backgroundFile: item.file,
+      backgroundUrl: fs.existsSync(filePath) ? pathToFileURL(filePath).toString() : null,
+    };
+  });
+}
+
+function getTypographyFontPresets() {
+  return [
+    { key: 'geometric_bold', name: 'Geometric Bold', path: findFontFile(['geometric_bold.ttf', 'Montserrat-ExtraBold.ttf', 'DejaVuSans-Bold.ttf', 'Arial Bold.ttf']) },
+    { key: 'condensed_impact', name: 'Condensed Impact', path: findFontFile(['condensed_impact.ttf', 'BebasNeue-Regular.otf', 'DejaVuSansCondensed-Bold.ttf', 'Impact.ttf']) },
+    { key: 'editorial_serif', name: 'Editorial Serif', path: findFontFile(['editorial_serif.ttf', 'Cinzel-SemiBold.ttf', 'DejaVuSerif-Bold.ttf', 'Georgia Bold.ttf']) },
+    { key: 'clean_ui', name: 'Clean UI', path: findFontFile(['clean_ui.ttf', 'Inter_18pt-SemiBold.ttf', 'DejaVuSans.ttf', 'Arial.ttf']) },
+    { key: 'rounded_caption', name: 'Rounded Caption', path: findFontFile(['rounded_caption.ttf', 'Barlow-ExtraBold.ttf', 'DejaVuSans-Bold.ttf', 'Arial Bold.ttf']) },
+    { key: 'mono_tech', name: 'Mono Tech', path: findFontFile(['mono_tech.ttf', 'DejaVuSansMono-Bold.ttf', 'Consola.ttf', 'clean_ui.ttf']) },
+  ];
+}
+
+function findFontFile(candidates) {
+  const roots = [
+    path.join(process.cwd(), 'public', 'visuals', 'fonts'),
+    '/usr/share/fonts/truetype/dejavu',
+    '/usr/share/fonts/truetype/msttcorefonts',
+    'C:/Windows/Fonts',
+    path.join(process.cwd(), 'assets_library', 'fonts'),
+  ];
+
+  for (const root of roots) {
+    for (const candidate of candidates) {
+      const filePath = path.join(root, candidate);
+      if (fs.existsSync(filePath)) return filePath;
+    }
+  }
+
+  return '';
+}
+
+function getTypographyMvpHeadline(index, title) {
+  const phrases = [
+    'Clear idea. Strong hook.',
+    'Your words become motion.',
+    'Clean captions. Sharp pacing.',
+    'Built for short attention.',
+    'Ready for Reels and Shorts.',
+  ];
+  return phrases[index % phrases.length] || title;
+}
+
+function getTypographyMvpBody(index, config = {}) {
+  const style = String(config.editingStyle || 'short-form').replace(/_/g, ' ');
+  const bodies = [
+    `A focused ${style} edit with bold typography and clean visual beats.`,
+    'One background, one visual system, no random asset mismatch.',
+    'Large readable text designed for mobile viewing.',
+    'Consistent colors and spacing for a polished MVP demo.',
+  ];
+  return bodies[index % bodies.length];
 }
 
 function buildWorkerSceneSource(asset, fallbackQuery) {

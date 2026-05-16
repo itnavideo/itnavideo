@@ -2,7 +2,7 @@
 
 import UploadBox from "@/components/dashboard/UploadBox";
 import { motion } from "framer-motion";
-import { AudioLines, Camera, Download, Gauge } from "lucide-react";
+import { AudioLines, Download, Gauge, PauseCircle } from "lucide-react";
 
 export default function UploadPage() {
   return (
@@ -10,16 +10,16 @@ export default function UploadPage() {
       <div className="mx-auto max-w-6xl">
         <div className="mb-10 max-w-3xl">
           <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-brand-mint">Upload source</p>
-          <h1 className="text-5xl font-black leading-tight md:text-6xl">Upload audio for faceless videos or camera footage for edits.</h1>
+          <h1 className="text-5xl font-black leading-tight md:text-6xl">Upload audio for typography-first Shorts.</h1>
           <p className="mt-5 text-lg leading-8 text-zinc-300">
-            Faceless mode starts with required audio and optional visuals. Face camera mode starts with one uploaded video, then Itnavideo adds cuts, zooms, captions, icons, and polish.
+            MVP mode currently accepts one voiceover audio file only. Images, screenshots, clips, and camera videos are paused for a few days while the render demo stays stable.
           </p>
         </div>
         <UploadBox />
         <div className="mt-8 grid gap-4 md:grid-cols-4">
           {[
-            { title: "Faceless audio", icon: AudioLines },
-            { title: "Face camera video", icon: Camera },
+            { title: "Voiceover audio", icon: AudioLines },
+            { title: "Media paused", icon: PauseCircle },
             { title: "AI-powered edit", icon: Gauge },
             { title: "Download MP4", icon: Download },
           ].map((item, index) => {

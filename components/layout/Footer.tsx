@@ -127,7 +127,7 @@ export default function Footer() {
             <BrandLogo size="md" showTagline />
           </div>
           <p className="text-zinc-500 text-sm max-w-xs leading-relaxed">
-            AI short-form video creation for faceless voiceovers and face-camera edits, powered by a private cloud media engine.
+            AI short-form video creation from voiceover audio, powered by a private media engine.
           </p>
           <div className="flex gap-5 mt-8">
             <a

@@ -119,7 +119,7 @@ export default function UploadBox({ onUploadStart }) {
       </h2>
       
       <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-zinc-400">
-        Add one clear MP3, WAV, or M4A file for the faceless workflow. For face-camera edits, use the dashboard create modal.
+        Add one clear MP3, WAV, or M4A file. For the MVP, images, screenshots, clips, and camera videos are paused.
       </p>
 
       <div className="mx-auto mt-6 max-w-lg rounded-lg border border-dashed border-brand-mint/35 bg-brand-mint/5 px-5 py-4">
@@ -129,7 +129,7 @@ export default function UploadBox({ onUploadStart }) {
 
       <div className="mt-8 grid gap-3 sm:grid-cols-3">
         {[
-          { label: "Faceless mode", icon: FileAudio },
+          { label: "Audio-only MVP", icon: FileAudio },
           { label: `${PIPELINE_QUALITY} output`, icon: UploadCloud },
           { label: "About 1 minute", icon: Loader2 },
         ].map((item) => {

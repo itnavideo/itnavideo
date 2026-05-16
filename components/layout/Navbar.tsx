@@ -2,13 +2,13 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { AudioLines, Camera, LayoutDashboard, LogIn, Menu, Sparkles, X } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { AudioLines, LayoutDashboard, LogIn, Menu, Sparkles, X } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthContext';
 import BrandLogo from '@/components/brand/BrandLogo';
 
 const productLinks = [
-  { label: 'Faceless Video', href: '/dashboard', icon: AudioLines },
-  { label: 'Face Camera', href: '/dashboard', icon: Camera },
+  { label: 'Audio Video', href: '/dashboard', icon: AudioLines },
   { label: 'Features', href: '/features', icon: Sparkles },
 ];
 
@@ -23,6 +23,7 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { user, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -31,58 +32,65 @@ export default function Navbar() {
   }, []);
 
   return (
-    <nav className={`fixed top-0 w-full z-[100] px-6 py-4 transition-all duration-300 ${
-      scrolled ? 'bg-black/80 backdrop-blur-md border-b border-white/5' : 'bg-transparent'
+    <nav className={`fixed top-0 z-[100] w-full px-4 py-3 transition-all duration-300 md:px-6 ${
+      scrolled ? 'border-b border-white/10 bg-black/88 shadow-[0_18px_60px_rgba(0,0,0,0.35)] backdrop-blur-xl' : 'bg-black/20 backdrop-blur-sm'
     }`}>
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <BrandLogo size="sm" />
 
-        <div className="hidden md:flex items-center gap-6">
+        <div className="hidden items-center gap-1 rounded-full border border-white/8 bg-white/[0.035] p-1 md:flex">
           {productLinks.map((item) => (
-            <Link key={item.label} href={item.href} className="text-sm font-bold text-zinc-300 hover:text-white transition-colors">
-              {item.label}
-            </Link>
+            <NavPill key={item.label} href={item.href} label={item.label} active={false} strong />
           ))}
           {pageLinks.map((item) => (
-            <Link key={item.label} href={item.href} className="inline-flex items-center gap-2 text-sm font-medium text-zinc-500 transition-colors hover:text-white">
-              {item.label}
-              {'badge' in item && item.badge ? (
-                <span className="rounded-md bg-brand-mint px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wide text-black">
-                  {item.badge}
-                </span>
-              ) : null}
-            </Link>
+            <NavPill key={item.label} href={item.href} label={item.label} badge={'badge' in item ? item.badge : undefined} active={isActivePath(pathname, item.href)} />
           ))}
-          
+        </div>
+
+        <div className="hidden items-center gap-3 md:flex">
           {user ? (
-            <div className="flex items-center gap-4">
-              <Link href="/dashboard" className="bg-white text-black px-5 py-2 rounded-lg text-sm font-black hover:bg-zinc-200 transition-all">Dashboard</Link>
-              <button onClick={logout} className="text-sm font-medium text-zinc-400 hover:text-red-400 transition-colors">Logout</button>
-            </div>
+            <>
+              <Link href="/dashboard" className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-2.5 text-sm font-black text-black shadow-[0_0_24px_rgba(255,255,255,0.12)] transition hover:bg-zinc-200">
+                <LayoutDashboard size={16} />
+                Dashboard
+              </Link>
+              <button onClick={logout} className="rounded-lg px-3 py-2 text-sm font-bold text-zinc-400 transition-colors hover:bg-red-500/10 hover:text-red-300">Logout</button>
+            </>
           ) : (
-            <div className="flex items-center gap-4">
-              <Link href="/login" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Login</Link>
-              <Link href="/signup" className="bg-brand-mint text-black px-5 py-2 rounded-lg text-sm font-black hover:bg-white transition-all">Sign Up</Link>
-            </div>
+            <>
+              <Link href="/login" className="rounded-lg px-3 py-2 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/8 hover:text-white">Login</Link>
+              <Link href="/signup" className="inline-flex items-center gap-2 rounded-lg bg-brand-mint px-5 py-2.5 text-sm font-black text-black shadow-[0_0_26px_rgba(79,255,213,0.18)] transition hover:bg-white">
+                <Sparkles size={16} />
+                Sign Up
+              </Link>
+            </>
           )}
         </div>
 
-        <button className="md:hidden text-white" onClick={() => setIsOpen(!isOpen)}>
-          {isOpen ? <X /> : <Menu />}
+        <button
+          className="flex h-11 w-11 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white transition hover:bg-white/10 md:hidden"
+          onClick={() => setIsOpen(!isOpen)}
+          aria-label={isOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={isOpen}
+        >
+          {isOpen ? <X size={21} /> : <Menu size={21} />}
         </button>
       </div>
 
       {isOpen && (
-        <div className="absolute left-0 top-full w-full border-b border-white/10 bg-zinc-950/98 p-5 shadow-2xl md:hidden animate-in fade-in zoom-in duration-200">
+        <div className="absolute left-0 top-full w-full border-b border-white/10 bg-zinc-950/98 p-5 shadow-2xl backdrop-blur-xl md:hidden animate-in fade-in zoom-in duration-200">
           <div className="grid gap-3">
             {productLinks.map((item) => {
               const Icon = item.icon;
+              const active = false;
               return (
                 <Link
                   key={item.label}
                   href={item.href}
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.035] px-4 py-4 font-black text-white transition hover:bg-white/8"
+                  className={`flex items-center gap-3 rounded-lg border px-4 py-4 font-black text-white transition hover:bg-white/8 ${
+                    active ? 'border-brand-mint/40 bg-brand-mint/10' : 'border-white/10 bg-white/[0.035]'
+                  }`}
                 >
                   <span className="flex h-10 w-10 items-center justify-center rounded-md bg-brand-mint/10 text-brand-mint">
                     <Icon size={19} />
@@ -94,21 +102,26 @@ export default function Navbar() {
           </div>
 
           <div className="mt-4 grid gap-1 border-t border-white/10 pt-4">
-            {pageLinks.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                onClick={() => setIsOpen(false)}
-                className="flex items-center justify-between rounded-md px-3 py-3 text-base font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white"
-              >
-                <span>{item.label}</span>
-                {'badge' in item && item.badge ? (
-                  <span className="rounded-md bg-brand-mint px-2 py-1 text-[10px] font-black uppercase tracking-wide text-black">
-                    {item.badge}
-                  </span>
-                ) : null}
-              </Link>
-            ))}
+            {pageLinks.map((item) => {
+              const active = isActivePath(pathname, item.href);
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  onClick={() => setIsOpen(false)}
+                  className={`flex items-center justify-between rounded-md px-3 py-3 text-base font-bold transition hover:bg-white/5 hover:text-white ${
+                    active ? 'bg-white/8 text-white' : 'text-zinc-400'
+                  }`}
+                >
+                  <span>{item.label}</span>
+                  {'badge' in item && item.badge ? (
+                    <span className="rounded-md bg-brand-mint px-2 py-1 text-[10px] font-black uppercase tracking-wide text-black">
+                      {item.badge}
+                    </span>
+                  ) : null}
+                </Link>
+              );
+            })}
           </div>
 
           <div className="mt-5 grid gap-3">
@@ -145,5 +158,47 @@ export default function Navbar() {
       )}
     </nav>
   );
+}
+
+function NavPill({
+  href,
+  label,
+  badge,
+  active,
+  strong = false,
+}: {
+  href: string;
+  label: string;
+  badge?: string;
+  active: boolean;
+  strong?: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      className={`inline-flex h-10 items-center gap-2 rounded-full px-4 text-sm transition ${
+        active
+          ? 'bg-white text-black shadow-[0_8px_26px_rgba(255,255,255,0.12)]'
+          : strong
+            ? 'font-black text-zinc-200 hover:bg-white/8 hover:text-white'
+            : 'font-bold text-zinc-400 hover:bg-white/8 hover:text-white'
+      }`}
+    >
+      <span>{label}</span>
+      {badge ? (
+        <span className={`rounded-md px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wide ${
+          active ? 'bg-black text-brand-mint' : 'bg-brand-mint text-black'
+        }`}>
+          {badge}
+        </span>
+      ) : null}
+    </Link>
+  );
+}
+
+function isActivePath(pathname: string | null, href: string) {
+  if (!pathname) return false;
+  if (href === '/dashboard') return pathname === '/dashboard';
+  return pathname === href || pathname.startsWith(`${href}/`);
 }
 

@@ -47,6 +47,21 @@ export async function renderVideoWithFFmpeg(dataOrRequest, outputPathArg, option
   const totalTimeoutMs = getRenderTimeoutMs();
   const primaryTimeoutMs = getPrimaryRenderTimeoutMs(totalTimeoutMs);
 
+  if (shouldUseLowMemoryRenderer(options)) {
+    await renderLowMemoryVideo({
+      timeline,
+      assets,
+      totalDuration,
+      outputPath,
+      timeoutMs: totalTimeoutMs,
+      primaryTimeoutMs,
+      supportsDrawtext,
+      onProgress: options.onProgress,
+    });
+    options.onProgress?.({ percent: 100 });
+    return outputPath;
+  }
+
   if (supportsDrawtext && shouldUsePythonFullRenderer()) {
     try {
       await renderPythonVideo({
@@ -270,6 +285,11 @@ function shouldUsePythonRenderer() {
 
 function shouldUsePythonFullRenderer() {
   return process.env.PYTHON_FULL_RENDER === '1';
+}
+
+function shouldUseLowMemoryRenderer(options = {}) {
+  if (options.lowMemoryRender === true) return true;
+  return ['1', 'true', 'yes', 'on'].includes(String(process.env.LOW_MEMORY_RENDER || '').toLowerCase());
 }
 
 async function resolveTimelineAssets(timeline, voiceoverUrl) {
@@ -562,6 +582,254 @@ function buildFfmpegArgs(assets, renderPlan, outputPath, encodingProfile = getDy
   return args;
 }
 
+async function renderLowMemoryVideo({
+  timeline,
+  assets,
+  totalDuration,
+  outputPath,
+  timeoutMs,
+  primaryTimeoutMs,
+  supportsDrawtext,
+  onProgress,
+}) {
+  const tempDir = path.join(cacheDir, `lowmem_${safeCacheName(path.basename(outputPath, path.extname(outputPath)))}_${Date.now()}`);
+  const scenePaths = [];
+  const joinedPath = path.join(tempDir, 'joined_video.mp4');
+  const concatFilePath = path.join(tempDir, 'inputs.txt');
+
+  fs.mkdirSync(tempDir, { recursive: true });
+
+  try {
+    for (let index = 0; index < assets.sceneInputs.length; index += 1) {
+      const scene = timeline.scenes[index] || {};
+      const input = assets.sceneInputs[index];
+      const scenePath = path.join(tempDir, `scene_${String(index + 1).padStart(3, '0')}.mp4`);
+      const sceneStart = Number(scene.start || 0);
+      const sceneEnd = Number(scene.end || sceneStart + input.duration || 1);
+      const sceneDuration = Math.max(0.5, sceneEnd - sceneStart, Number(input.duration || 0));
+      const sceneCaptions = getLocalSceneCaptions(timeline.captions || [], sceneStart, sceneEnd);
+      const sceneCrf = getLowMemorySceneCrf(input);
+
+      await renderLowMemoryScene({
+        scene,
+        input,
+        index,
+        outputPath: scenePath,
+        duration: sceneDuration,
+        captions: sceneCaptions,
+        supportsDrawtext,
+        crf: sceneCrf,
+        timeoutMs: Math.max(45_000, Math.min(primaryTimeoutMs, timeoutMs)),
+      });
+
+      scenePaths.push(scenePath);
+      onProgress?.({ percent: Math.min(84, Math.round(((index + 1) / Math.max(1, assets.sceneInputs.length)) * 84)) });
+    }
+
+    writeConcatFile(concatFilePath, scenePaths);
+    await runFfmpeg([
+      '-y',
+      '-hide_banner',
+      '-f',
+      'concat',
+      '-safe',
+      '0',
+      '-i',
+      concatFilePath,
+      '-c',
+      'copy',
+      joinedPath,
+    ], {
+      totalDuration: 0,
+      timeoutMs: Math.max(45_000, Math.min(timeoutMs, primaryTimeoutMs)),
+    });
+    onProgress?.({ percent: 90 });
+
+    await muxLowMemoryAudio({
+      joinedPath,
+      outputPath,
+      audioPath: assets.voiceover?.path,
+      totalDuration,
+      timeoutMs: Math.max(60_000, Math.min(timeoutMs, primaryTimeoutMs)),
+    });
+    onProgress?.({ percent: 100 });
+  } catch (error) {
+    if (!shouldUseSafeFallback(error)) throw error;
+    console.warn('Low-memory render failed; retrying safe base MP4 fallback:', error.message);
+    void notifyTelemetry({
+      type: 'low_memory_render_fallback',
+      reason: error.message,
+      recovered: true,
+      details: { durationSeconds: totalDuration },
+    });
+    await renderSafeBaseVideo({
+      assets,
+      totalDuration,
+      outputPath,
+      timeoutMs,
+      onProgress,
+      encodingProfile: getDynamicEncodingProfile(assets),
+    });
+  } finally {
+    cleanupTempDir(tempDir);
+  }
+}
+
+async function renderLowMemoryScene({
+  scene,
+  input,
+  index,
+  outputPath,
+  duration,
+  captions,
+  supportsDrawtext,
+  crf,
+  timeoutMs,
+}) {
+  const args = ['-y', '-hide_banner'];
+  const fps = getLowMemoryFps();
+
+  if (input.generatedColor) {
+    args.push('-f', 'lavfi', '-t', String(duration), '-i', `color=c=${input.generatedColor}:s=${profile.width}x${profile.height}:r=${fps}`);
+  } else {
+    if (input.isImage) args.push('-loop', '1', '-t', String(duration));
+    args.push('-i', input.path);
+  }
+
+  const filterGraph = buildLowMemorySceneFilter({
+    scene,
+    input,
+    index,
+    duration,
+    captions,
+    supportsDrawtext,
+  });
+
+  args.push(
+    '-filter_threads',
+    '1',
+    '-filter_complex_threads',
+    '1',
+    '-filter_complex',
+    filterGraph,
+    '-map',
+    '[v_out]',
+    '-an',
+    '-c:v',
+    'libx264',
+    '-preset',
+    process.env.LOW_MEMORY_FFMPEG_PRESET || profile.preset,
+    '-threads',
+    '1',
+    '-crf',
+    String(crf),
+    '-pix_fmt',
+    'yuv420p',
+    '-r',
+    String(fps),
+    '-movflags',
+    '+faststart',
+    outputPath,
+  );
+
+  await runFfmpeg(args, {
+    totalDuration: duration,
+    timeoutMs,
+  });
+}
+
+function buildLowMemorySceneFilter({ scene, input, index, duration, captions, supportsDrawtext }) {
+  const label = `lm${index}`;
+  const frame = input.safeFrame || safeFrames['4:5'];
+  const sourceLabel = input.generatedColor ? '0:v' : '0:v';
+  const baseFilter = `[${sourceLabel}]scale=${frame.width}:${frame.height}:force_original_aspect_ratio=decrease,pad=${frame.width}:${frame.height}:(ow-iw)/2:(oh-ih)/2:color=black,setsar=1,trim=duration=${duration},setpts=PTS-STARTPTS,format=yuv420p[${label}_safe];color=c=black:s=${profile.width}x${profile.height}:r=${getLowMemoryFps()}:d=${duration}[${label}_canvas];[${label}_canvas][${label}_safe]overlay=x=${frame.x}:y=${frame.y}:shortest=1`;
+  const textFilter = buildTextCardFilter(input.textCard || buildFallbackTextCard(scene, index), label, { supportsDrawtext });
+  const captionFilter = buildCaptionFilter(captions, label, `${label}_captioned`, { supportsDrawtext });
+
+  return `${baseFilter}${textFilter};${captionFilter};[${label}_captioned]fps=${getLowMemoryFps()},format=yuv420p[v_out]`;
+}
+
+async function muxLowMemoryAudio({ joinedPath, outputPath, audioPath, totalDuration, timeoutMs }) {
+  const args = ['-y', '-hide_banner', '-i', joinedPath];
+
+  if (audioPath) {
+    args.push('-i', audioPath);
+  } else {
+    args.push('-f', 'lavfi', '-t', String(totalDuration), '-i', 'anullsrc=r=44100:cl=stereo');
+  }
+
+  args.push(
+    '-map',
+    '0:v:0',
+    '-map',
+    '1:a:0',
+    '-t',
+    String(totalDuration),
+    '-c:v',
+    'copy',
+    '-c:a',
+    'aac',
+    '-b:a',
+    getLowMemoryAudioBitrate(),
+    '-shortest',
+    '-movflags',
+    '+faststart',
+    outputPath,
+  );
+
+  await runFfmpeg(args, {
+    totalDuration,
+    timeoutMs,
+  });
+}
+
+function getLocalSceneCaptions(captions, sceneStart, sceneEnd) {
+  return normalizeCaptions(captions)
+    .map((caption) => ({
+      ...caption,
+      start: Math.max(0, caption.start - sceneStart),
+      end: Math.min(sceneEnd - sceneStart, caption.end - sceneStart),
+    }))
+    .filter((caption) => caption.text && caption.end > caption.start);
+}
+
+function getLowMemorySceneCrf(input) {
+  if (input.generatedColor || input.isImage) {
+    return clampCrf(getNumberEnv('LOW_MEMORY_STATIC_CRF', profile.staticCrf));
+  }
+
+  return clampCrf(getNumberEnv('LOW_MEMORY_MOTION_CRF', 26));
+}
+
+function getLowMemoryFps() {
+  const value = Number(process.env.LOW_MEMORY_FPS || 24);
+  if (!Number.isFinite(value) || value < 12) return 24;
+  return Math.max(12, Math.min(30, Math.round(value)));
+}
+
+function getLowMemoryAudioBitrate() {
+  return String(process.env.LOW_MEMORY_AUDIO_BITRATE || '96k');
+}
+
+function writeConcatFile(filePath, scenePaths) {
+  const lines = scenePaths.map((scenePath) => `file '${escapeConcatFilePath(scenePath)}'`);
+  fs.writeFileSync(filePath, `${lines.join('\n')}\n`, 'utf8');
+}
+
+function escapeConcatFilePath(filePath) {
+  return path.resolve(filePath).replace(/\\/g, '/').replace(/'/g, "'\\''");
+}
+
+function cleanupTempDir(tempDir) {
+  try {
+    if (tempDir && fs.existsSync(tempDir)) {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    }
+  } catch (error) {
+    console.warn(`Low-memory temp cleanup failed for ${tempDir}:`, error.message);
+  }
+}
+
 function getDynamicEncodingProfile(assets) {
   const sceneInputs = Array.isArray(assets?.sceneInputs) ? assets.sceneInputs : [];
   const sceneCount = Math.max(1, sceneInputs.length);
@@ -815,6 +1083,8 @@ function buildTextCardFilter(textCard, outputLabel, options = {}) {
   if (!textCard) return `[${outputLabel}]`;
 
   const accent = normalizeFfmpegColor(textCard.accentColor || '0x5eead4');
+  const fontOption = getDrawtextFontOption(textCard);
+  const eyebrow = splitText(textCard.eyebrow || '', 28).slice(0, 1);
   if (options.supportsDrawtext === false) {
     return `,drawbox=x=${px(72)}:y=${px(230)}:w=${px(936)}:h=${px(10)}:color=${accent}:t=fill[${outputLabel}]`;
   }
@@ -824,16 +1094,32 @@ function buildTextCardFilter(textCard, outputLabel, options = {}) {
   const design = getReadableTextDesign(textCard);
 
   const filters = [
-    `drawbox=x=${px(72)}:y=${px(230)}:w=${px(936)}:h=${px(10)}:color=${accent}:t=fill`,
+    `drawbox=x=${px(72)}:y=${px(220)}:w=${px(936)}:h=${px(10)}:color=${accent}:t=fill`,
+    ...(eyebrow.length ? [
+      `drawtext=text='${escapeDrawtext(eyebrow[0].toUpperCase())}'${fontOption}:fontcolor=${accent}:fontsize=${px(32)}:x=${px(72)}:y=${px(250)}:box=1:boxcolor=black@0.30:boxborderw=${px(14)}`,
+    ] : []),
     ...headline.map((line, index) => (
-      `drawtext=text='${escapeDrawtext(line)}':fontcolor=${design.headlineColor}:fontsize=${px(78)}:x=${px(72)}:y=${px(310 + index * 92)}:borderw=${px(3)}:bordercolor=${design.strokeColor}:box=1:boxcolor=${design.panelColor}:boxborderw=${px(18)}`
+      `drawtext=text='${escapeDrawtext(line)}'${fontOption}:fontcolor=${design.headlineColor}:fontsize=${px(78)}:x=${px(72)}:y=${px(320 + index * 92)}:borderw=${px(3)}:bordercolor=${design.strokeColor}:box=1:boxcolor=${design.panelColor}:boxborderw=${px(18)}`
     )),
     ...body.map((line, index) => (
-      `drawtext=text='${escapeDrawtext(line)}':fontcolor=${design.bodyColor}:fontsize=${px(42)}:x=${px(72)}:y=${px(640 + index * 58)}:borderw=${px(2)}:bordercolor=${design.strokeColor}`
+      `drawtext=text='${escapeDrawtext(line)}'${fontOption}:fontcolor=${design.bodyColor}:fontsize=${px(42)}:x=${px(72)}:y=${px(650 + index * 58)}:borderw=${px(2)}:bordercolor=${design.strokeColor}`
     )),
   ];
 
   return `,${filters.join(',')}[${outputLabel}]`;
+}
+
+function getDrawtextFontOption(textCard = {}) {
+  const fontFile = String(textCard.fontFile || '').trim();
+  if (!fontFile || !fs.existsSync(fontFile)) return '';
+  return `:fontfile='${escapeFontFilePath(fontFile)}'`;
+}
+
+function escapeFontFilePath(filePath) {
+  return String(filePath || '')
+    .replace(/\\/g, '/')
+    .replace(/:/g, '\\:')
+    .replace(/'/g, "\\'");
 }
 
 function getReadableTextDesign(textCard) {

@@ -4,26 +4,25 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import {
   AudioLines,
-  Camera,
   Captions,
   Crop,
-  Images,
   Languages,
   Music,
   Palette,
+  PauseCircle,
   Smartphone,
 } from 'lucide-react';
 
 const features = [
   {
-    title: 'Faceless video mode',
-    description: 'Start with mandatory audio and add screenshots, images, or clips only when you need them.',
+    title: 'Audio-only MVP mode',
+    description: 'Start with one mandatory voiceover file for the most stable demo flow.',
     icon: AudioLines,
   },
   {
-    title: 'Face camera mode',
-    description: 'Upload one talking-head clip for automatic crop, motion, audio polish, effects, and export.',
-    icon: Camera,
+    title: 'Media uploads paused',
+    description: 'Screenshots, images, clips, and camera uploads are temporarily paused while the MVP is stabilized.',
+    icon: PauseCircle,
   },
   {
     title: 'Dynamic captions',
@@ -32,13 +31,13 @@ const features = [
   },
   {
     title: 'Assisted media rendering',
-    description: 'Backend media tooling helps with jump cuts, zooms, captions, icon overlays, and export planning.',
+    description: 'Backend media tooling helps with captions, typography motion, audio polish, and export planning.',
     icon: Crop,
   },
   {
-    title: 'Built-in visual library',
-    description: 'Use your uploads or let Itnavideo choose fitting backgrounds and graphics.',
-    icon: Images,
+    title: 'Consistent visual system',
+    description: 'One background style, selected fonts, and clean text hierarchy keep each video professional.',
+    icon: Palette,
   },
   {
     title: 'AI transitions',
@@ -79,8 +78,8 @@ export default function FeaturesSection() {
             </motion.h2>
           </div>
           <p className="text-lg leading-8 text-zinc-400">
-            Itnavideo brings captions, visuals, fonts, colors, motion, sound, and exports into two simple
-            short-form workflows: faceless videos and face-camera edits.
+            Itnavideo brings captions, typography, fonts, colors, audio polish, and exports into one focused
+            short-form MVP workflow.
           </p>
         </div>
 
