@@ -7,29 +7,29 @@ import { Check, Clock, Coins, Layers, Scissors, X, Zap } from 'lucide-react';
 const comparisons = [
   {
     feature: 'Editing time',
-    manual: '4-6 hours of timeline work',
-    ai: 'Minutes from voiceover audio to draft',
+    manual: '4-6 hours of editing work',
+    ai: 'Upload source, review a rendered draft',
     manualIcon: Clock,
     aiIcon: Zap,
   },
   {
     feature: 'Visual planning',
     manual: 'Search clips, place overlays, keep rebuilding',
-    ai: 'Typography visuals and captions handled for you',
+    ai: 'Script-driven scene plan and asset matching',
     manualIcon: Layers,
     aiIcon: Check,
   },
   {
     feature: 'Captions',
     manual: 'Manual timing and keyframes',
-    ai: 'Dynamic synced captions and text effects',
+    ai: 'Large typography moments with clean safe zones',
     manualIcon: Scissors,
     aiIcon: Check,
   },
   {
     feature: 'Production cost',
     manual: 'Editors, plugins, stock assets',
-    ai: 'One automated media workflow from upload to export',
+    ai: 'One focused video explainer workflow',
     manualIcon: Coins,
     aiIcon: Check,
   },
@@ -51,8 +51,7 @@ export default function ComparisonSection() {
             Creators have ideas. Editing keeps stealing the schedule.
           </motion.h2>
           <p className="mt-5 text-lg leading-8 text-zinc-400">
-            Itnavideo is designed for repeat publishing: upload a voiceover, choose a style, and get a clean
-            typography-first Short without opening an editor.
+            ItnaVideo removes the first blank-page problem: transcript, scene plan, visual direction, and render are handled before you open an editor.
           </p>
         </div>
 
@@ -98,12 +97,12 @@ export default function ComparisonSection() {
 
         <div className="mt-8 flex flex-col gap-3 rounded-lg border border-cyan-300/15 bg-cyan-300/[0.04] p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="font-bold text-white">MVP focus</p>
-            <p className="mt-1 text-sm text-zinc-400">Short-form generation first: audio-only typography videos. Camera and asset upload modes are paused during MVP stabilization.</p>
+            <p className="font-bold text-white">Production focus</p>
+            <p className="mt-1 text-sm text-zinc-400">One premium short-form template first, then more formats after the core flow feels reliable.</p>
           </div>
           <div className="flex items-center gap-2 text-sm font-bold text-cyan-200">
             <X size={16} className="text-zinc-500" />
-            No timeline learning curve
+            No overloaded scenes
           </div>
         </div>
       </div>

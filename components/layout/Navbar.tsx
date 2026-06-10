@@ -8,7 +8,7 @@ import { useAuth } from '@/components/auth/AuthContext';
 import BrandLogo from '@/components/brand/BrandLogo';
 
 const productLinks = [
-  { label: 'Audio Video', href: '/dashboard', icon: AudioLines },
+  { label: 'Create', href: '/create', icon: AudioLines },
   { label: 'Features', href: '/features', icon: Sparkles },
 ];
 
@@ -40,7 +40,7 @@ export default function Navbar() {
 
         <div className="hidden items-center gap-1 rounded-full border border-white/8 bg-white/[0.035] p-1 md:flex">
           {productLinks.map((item) => (
-            <NavPill key={item.label} href={item.href} label={item.label} active={false} strong />
+            <NavPill key={item.label} href={item.href} label={item.label} active={isActivePath(pathname, item.href)} strong />
           ))}
           {pageLinks.map((item) => (
             <NavPill key={item.label} href={item.href} label={item.label} badge={'badge' in item ? item.badge : undefined} active={isActivePath(pathname, item.href)} />
@@ -50,10 +50,10 @@ export default function Navbar() {
         <div className="hidden items-center gap-3 md:flex">
           {user ? (
             <>
-              <Link href="/dashboard" className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-2.5 text-sm font-black text-black shadow-[0_0_24px_rgba(255,255,255,0.12)] transition hover:bg-zinc-200">
+              <a href="/dashboard" className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-2.5 text-sm font-black text-black shadow-[0_0_24px_rgba(255,255,255,0.12)] transition hover:bg-zinc-200">
                 <LayoutDashboard size={16} />
                 Dashboard
-              </Link>
+              </a>
               <button onClick={logout} className="rounded-lg px-3 py-2 text-sm font-bold text-zinc-400 transition-colors hover:bg-red-500/10 hover:text-red-300">Logout</button>
             </>
           ) : (
@@ -82,7 +82,7 @@ export default function Navbar() {
           <div className="grid gap-3">
             {productLinks.map((item) => {
               const Icon = item.icon;
-              const active = false;
+              const active = isActivePath(pathname, item.href);
               return (
                 <Link
                   key={item.label}
@@ -127,10 +127,10 @@ export default function Navbar() {
           <div className="mt-5 grid gap-3">
           {user ? (
             <>
-              <Link href="/dashboard" onClick={() => setIsOpen(false)} className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-5 py-4 text-center font-black text-black">
+              <a href="/dashboard" onClick={() => setIsOpen(false)} className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-5 py-4 text-center font-black text-black">
                 <LayoutDashboard size={18} />
                 Open Dashboard
-              </Link>
+              </a>
               <button
                 onClick={() => {
                   setIsOpen(false);

@@ -1,25 +1,24 @@
-const firebaseProjectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'itnavideo-app';
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Server-side packages (Firebase-admin needs this sometimes in standalone mode)
-  serverExternalPackages: ['firebase-admin', 'fluent-ffmpeg'],
+  serverExternalPackages: [],
   
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'res.cloudinary.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'lh3.googleusercontent.com',
-      },
-    ],
+  // Standalone output for self-hosting.
+  output: 'standalone',
+
+  outputFileTracingExcludes: {
+    '/*': buildTraceExcludes(),
+    '/api/*': buildTraceExcludes(),
   },
 
-  // Optimized for Render/Vercel
-  output: 'standalone',
+  outputFileTracingIncludes: {
+    '/*': [
+      './node_modules/next/dist/server/dev/browser-logs/file-logger.js',
+      './node_modules/next/dist/server/dev/browser-logs/file-logger.js.map',
+    ],
+    '/api/reels/jobs': [
+      './node_modules/@remotion/compositor-*/*',
+    ],
+  },
 
   // Skip TypeScript errors during production builds.
   typescript: {
@@ -41,14 +40,42 @@ const nextConfig = {
     ];
   },
 
-  async rewrites() {
-    return [
-      {
-        source: '/__/auth/:path*',
-        destination: `https://${firebaseProjectId}.firebaseapp.com/__/auth/:path*`,
-      },
-    ];
-  },
 };
+
+function buildTraceExcludes() {
+  return [
+      '.git/**/*',
+      './.git/**/*',
+      '.vercel/**/*',
+      './.vercel/**/*',
+      'workspace/**/*',
+      './workspace/**/*',
+      'logs/**/*',
+      './logs/**/*',
+      'models/**/*',
+      './models/**/*',
+      'deploy-artifacts/**/*',
+      './deploy-artifacts/**/*',
+      'public/renders/**/*',
+      './public/renders/**/*',
+      'public/cache/**/*',
+      './public/cache/**/*',
+      'public/uploads/**/*',
+      './public/uploads/**/*',
+      '.next/standalone/public/uploads/**/*',
+      './.next/standalone/public/uploads/**/*',
+      'C:/**/*',
+      './C:/**/*',
+      '**/C:/**/*',
+      '**/AppData/Local/Temp/**/*',
+      './**/AppData/Local/Temp/**/*',
+      '**/itnavideo_*.wav',
+      './**/itnavideo_*.wav',
+      '**/itnavideo_*.mp4',
+      './**/itnavideo_*.mp4',
+      '*.log',
+      './*.log',
+  ];
+}
 
 export default nextConfig;

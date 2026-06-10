@@ -8,16 +8,16 @@ export const metadata = {
 const contactCards = [
   {
     title: "Founder and product",
-    desc: "Questions about the roadmap, early access, or the AI video pipeline.",
-    href: "mailto:hello@itnavideo.com",
-    label: "hello@itnavideo.com",
+    desc: "For users, investors, roadmap questions, early access, or product updates.",
+    href: "mailto:rohi@itnavideo.com",
+    label: "rohi@itnavideo.com",
     icon: Mail,
   },
   {
     title: "Partnerships",
     desc: "For creator teams, agencies, and platform integrations.",
-    href: "mailto:sales@itnavideo.com",
-    label: "sales@itnavideo.com",
+    href: "mailto:rohi@itnavideo.com",
+    label: "rohi@itnavideo.com",
     icon: Building2,
   },
   {
@@ -43,7 +43,7 @@ export default function ContactPage() {
               Let’s talk about the future of AI video.
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-zinc-300">
-              Reach out for support, creator access, partnerships, or feedback. If it helps creators move from voice to finished video faster, we want to hear it.
+              Reach out for support, creator access, partnerships, investor conversations, or feedback. If it helps creators move from voice to finished video faster, we want to hear it.
             </p>
 
             <div className="mt-10 grid gap-4">
@@ -85,7 +85,7 @@ export default function ContactPage() {
               </p>
             </div>
 
-            <form action="mailto:hello@itnavideo.com" method="post" encType="text/plain" className="space-y-5">
+            <form action="mailto:rohi@itnavideo.com" method="post" encType="text/plain" className="space-y-5">
               <Field label="Full name" name="name" placeholder="Your name" />
               <Field label="Email address" name="email" type="email" placeholder="you@example.com" />
               <label className="block">

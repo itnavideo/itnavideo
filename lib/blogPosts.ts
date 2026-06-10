@@ -14,6 +14,201 @@ export type BlogPost = {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: 'best-ai-reel-generators',
+    title: 'Best AI Reel Generators for Creators in 2026',
+    excerpt: 'A practical guide to choosing an AI reel generator for Reels, YouTube Shorts, voiceovers, subtitles, and explainer videos.',
+    date: 'Jun 8, 2026',
+    readTime: '6 min read',
+    category: 'AI Tools',
+    intro: 'The best AI reel generator is not only the tool that makes a video from a prompt. For serious creators, the better workflow is speech-first: upload a real video or voiceover, keep the message accurate, add readable subtitles, and use visuals that support the exact scene.',
+    sections: [
+      {
+        heading: 'What to look for in an AI reel generator',
+        body: [
+          'A useful AI reel generator should handle real speech, clean subtitles, vertical formatting, and scene visuals without forcing you to rebuild the timeline manually.',
+          'Look for tools that keep the source message intact. Random stock visuals may look polished for a few seconds, but they can hurt trust when the image does not match the spoken point.',
+        ],
+      },
+      {
+        heading: 'Where Itnavideo fits',
+        body: [
+          'Itnavideo is built around one focused Explainer Video template: top uploaded media, middle timed subtitles, and bottom scene visuals.',
+          'This makes it a strong fit for educators, finance creators, founders, coaches, and short-form creators who want clarity over noisy effects.',
+        ],
+      },
+      {
+        heading: 'Best use cases',
+        body: [
+          'Use Itnavideo for talking-head explainers, video-to-reel clips, voice-to-video posts, faceless educational content, and YouTube Shorts from existing source material.',
+          'The current workflow is especially useful when the creator wants a 1-minute vertical MP4 that feels edited but still preserves the original message.',
+        ],
+      },
+      {
+        heading: 'Final recommendation',
+        body: [
+          'If you need a broad manual editor, use a traditional editing app. If you want a focused AI reel generator for transcript-led explainers, Itnavideo is designed for that job.',
+          'Start with a short clear upload, test one output, and judge the result by subtitle timing, visual relevance, and final watchability.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'itnavideo-vs-capcut-ai-reel-workflow',
+    title: 'Itnavideo vs CapCut: Which Workflow Is Better for AI Reels?',
+    excerpt: 'CapCut is a flexible editor, while Itnavideo is a focused AI explainer reel generator. Here is how to choose the right workflow.',
+    date: 'Jun 8, 2026',
+    readTime: '5 min read',
+    category: 'Comparison',
+    intro: 'CapCut and Itnavideo solve different parts of the short-form video workflow. CapCut is a broad video editor with many manual controls. Itnavideo is focused on turning uploaded speech into a polished explainer reel with a structured three-layer template.',
+    sections: [
+      {
+        heading: 'Use CapCut when you want manual editing',
+        body: [
+          'CapCut is useful when you want timeline control, manual cuts, effects, overlays, transitions, and detailed creative editing.',
+          'It is a strong choice if you already know how the final video should look and you want to adjust clips by hand.',
+        ],
+      },
+      {
+        heading: 'Use Itnavideo when you want AI-assisted structure',
+        body: [
+          'Itnavideo is better when you want to upload audio or video and let the system create the reel structure for you.',
+          'The Explainer Video template keeps the original media at the top, subtitles in the middle, and scene-matched visuals at the bottom.',
+        ],
+      },
+      {
+        heading: 'The real difference',
+        body: [
+          'The difference is not simply editor versus AI. It is manual timeline work versus a repeatable speech-first render workflow.',
+          'For creators publishing educational reels, finance explainers, career clips, or founder videos, a repeatable template can save time and keep output consistent.',
+        ],
+      },
+      {
+        heading: 'Which one should you choose?',
+        body: [
+          'Choose CapCut if you enjoy editing and need full creative control. Choose Itnavideo if you want a fast explainer reel from a real transcript.',
+          'Many creators can use both: Itnavideo for fast structured drafts and CapCut for extra manual polish when needed.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'voice-to-video-ai-tools',
+    title: 'Voice to Video AI Tools: What Creators Should Look For',
+    excerpt: 'Voice-to-video AI works best when it turns real speech into accurate subtitles, scene visuals, and a watchable vertical video.',
+    date: 'Jun 8, 2026',
+    readTime: '5 min read',
+    category: 'Voice to Video',
+    intro: 'Voice-to-video AI is becoming one of the fastest ways to create short-form content. But the quality depends on how well the tool understands the spoken message and turns it into a visual structure.',
+    sections: [
+      {
+        heading: 'Voice alone is not enough',
+        body: [
+          'A good voiceover can carry the message, but social video also needs pacing, subtitles, supporting visuals, and a format that works on mobile.',
+          'The strongest voice-to-video workflow starts with clear audio and uses the transcript as the timeline.',
+        ],
+      },
+      {
+        heading: 'What a good tool should do',
+        body: [
+          'It should create readable subtitle chunks, select visuals based on scene meaning, add music at a low level, and export a clean vertical MP4.',
+          'It should avoid unrelated random images because wrong visuals can make the video feel generic or misleading.',
+        ],
+      },
+      {
+        heading: 'How Itnavideo handles voice-to-video',
+        body: [
+          'Itnavideo uses a speech-first Explainer Video workflow. The audio or video transcript becomes the base for subtitles and scene planning.',
+          'The output is designed for Reels and YouTube Shorts, with top media, premium subtitles, and bottom image scenes.',
+        ],
+      },
+      {
+        heading: 'Best creators for this workflow',
+        body: [
+          'Voice-to-video AI is useful for educators, coaches, faceless channels, business creators, and anyone who can explain ideas clearly through speech.',
+          'If you already record voice notes, short lessons, or talking-head clips, Itnavideo can help turn them into publishable reels faster.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'best-ai-video-generator-for-youtube-shorts',
+    title: 'Best AI Video Generator for YouTube Shorts: A Practical Checklist',
+    excerpt: 'Before choosing an AI video generator for YouTube Shorts, check transcript accuracy, subtitle readability, visual relevance, and export quality.',
+    date: 'Jun 8, 2026',
+    readTime: '5 min read',
+    category: 'YouTube Shorts',
+    intro: 'YouTube Shorts need fast clarity. A viewer should understand the topic quickly, follow the captions without effort, and feel that the visuals match the narration. That is why the best AI video generator for Shorts should be judged by workflow, not just flashy demos.',
+    sections: [
+      {
+        heading: 'Checklist for Shorts creators',
+        body: [
+          'Check whether the tool accepts your own video or audio, creates accurate subtitles, supports vertical export, and keeps visuals aligned with the spoken topic.',
+          'A good Shorts workflow should reduce editing time without making the final video feel disconnected from the original message.',
+        ],
+      },
+      {
+        heading: 'Why transcript timing matters',
+        body: [
+          'Shorts are often watched with captions. If subtitles appear too early, too late, or in unreadable chunks, the video loses attention quickly.',
+          'Itnavideo uses the uploaded speech timing to build the caption layer, so the reel follows the source rather than a generic script.',
+        ],
+      },
+      {
+        heading: 'Why visual structure matters',
+        body: [
+          'Many AI video tools generate a slideshow. For explainers, a stronger format is to keep the speaker or original video visible while adding context below.',
+          'Itnavideo’s Explainer Video template uses top video, middle subtitles, and bottom scene visuals so the layout stays predictable.',
+        ],
+      },
+      {
+        heading: 'Best fit',
+        body: [
+          'Itnavideo is a strong fit for YouTube creators who want to turn talking-head clips, lessons, podcast moments, or voiceovers into short explainers.',
+          'For the best result, start with a clear one-minute source and a topic that can be explained in a simple sequence.',
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'how-to-make-explainer-videos-for-reels',
+    title: 'How to Make Explainer Videos for Reels Without Manual Editing',
+    excerpt: 'A simple workflow for turning audio or video into Reels-style explainer videos with subtitles and matching visuals.',
+    date: 'Jun 8, 2026',
+    readTime: '5 min read',
+    category: 'Explainer Videos',
+    intro: 'Explainer videos work well on Reels when they make one idea easy to understand. The challenge is not only recording the message. The challenge is adding timing, subtitles, and visuals without spending too long inside an editor.',
+    sections: [
+      {
+        heading: 'Start with one clear idea',
+        body: [
+          'Do not try to explain everything in one reel. Choose one problem, one answer, or one story beat.',
+          'A clear source makes the AI planning step easier and helps the final video feel focused.',
+        ],
+      },
+      {
+        heading: 'Use speech as the timeline',
+        body: [
+          'Record a short video or voiceover. Speak naturally, pause between key points, and avoid background noise where possible.',
+          'Itnavideo uses that speech to build the subtitle timing and scene structure.',
+        ],
+      },
+      {
+        heading: 'Add visual support',
+        body: [
+          'A good explainer reel should not hide the speaker or overload the screen with text. It should support the idea visually.',
+          'The Itnavideo template keeps the top video visible, places subtitles in the middle, and changes the bottom image layer by scene.',
+        ],
+      },
+      {
+        heading: 'Export and review',
+        body: [
+          'After rendering, watch the video once for subtitle timing, image relevance, and sound balance.',
+          'If the message is clear and the visuals match the spoken content, the reel is ready to post or test with your audience.',
+        ],
+      },
+    ],
+  },
+  {
     slug: 'convert-any-text-to-realistic-video-with-ai',
     title: 'How to Convert Any Text to Realistic Video with AI (Step-by-Step)',
     excerpt: 'The easiest way to turn text or a voice idea into a realistic short video is to use Itnavideo, an AI voice-to-video tool built for creators.',

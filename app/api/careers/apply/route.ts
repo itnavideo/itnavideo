@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { insertJobApplicationFromServer } from '@/services/supabase/projectStore';
+import { insertJobApplicationFromServer } from '@/services/supabase/siteStore';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const ALLOWED_ROLES = new Map([
-  ['video-pipeline-engineer', 'Video Pipeline Engineer'],
+  ['video-product-engineer', 'Video Product Engineer'],
   ['backend-developer-video-systems', 'Backend Developer, Video Systems'],
   ['full-stack-product-developer', 'Full-Stack Product Developer'],
   ['graphic-designer-video-templates', 'Graphic Designer, Video Templates'],
@@ -74,10 +74,10 @@ export async function POST(request: NextRequest) {
       applicationId: getApplicationId(application),
       message: 'Application received. Our team will review profiles for upcoming roles and reply if there is a match.',
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Job application insert failed:', error);
     return NextResponse.json(
-      { error: 'Application could not be submitted.', details: error.message || 'Unknown error' },
+      { error: 'Application could not be submitted.', details: getErrorMessage(error) },
       { status: 500 },
     );
   }
@@ -106,6 +106,10 @@ function getApplicationId(value: unknown) {
   if (!value || typeof value !== 'object') return undefined;
   const row = value as Record<string, unknown>;
   return row.id;
+}
+
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : 'Unknown error';
 }
 
 function sanitizeEmail(value: unknown) {

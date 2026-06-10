@@ -1,63 +1,3 @@
-create table if not exists public.projects (
-  id text primary key,
-  owner_id text not null,
-  title text,
-  status text not null default 'Queued',
-  progress integer not null default 0 check (progress >= 0 and progress <= 100),
-  style text,
-  quality text,
-  voice_url text,
-  voiceover_url text,
-  visual_url text,
-  video_url text,
-  render_url text,
-  render_provider text,
-  timeline_scenes integer default 0,
-  captions integer default 0,
-  duration_seconds numeric,
-  user_assets jsonb,
-  timeline jsonb,
-  error text,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  completed_at timestamptz
-);
-
-create index if not exists projects_owner_created_idx on public.projects (owner_id, created_at desc);
-
-create table if not exists public.ffmpeg_jobs (
-  id text primary key,
-  job_id text not null,
-  user_id text not null,
-  status text not null,
-  progress integer not null default 0 check (progress >= 0 and progress <= 100),
-  message text not null,
-  video_url text,
-  error text,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
-
-create index if not exists ffmpeg_jobs_user_job_idx on public.ffmpeg_jobs (user_id, job_id);
-create index if not exists ffmpeg_jobs_updated_idx on public.ffmpeg_jobs (updated_at);
-
-create table if not exists public.blacklisted_assets (
-  asset_key text primary key,
-  asset_id text,
-  url_hash text,
-  url text,
-  provider text,
-  reason text not null,
-  metadata jsonb,
-  hit_count integer not null default 1,
-  expires_at timestamptz,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
-
-create index if not exists blacklisted_assets_expires_idx on public.blacklisted_assets (expires_at);
-create index if not exists blacklisted_assets_provider_idx on public.blacklisted_assets (provider);
-
 create table if not exists public.app_settings (
   key text primary key,
   value jsonb not null,
@@ -91,6 +31,7 @@ create table if not exists public.waitlist (
   source text,
   created_at timestamptz not null default now()
 );
+create unique index if not exists waitlist_email_unique_idx on public.waitlist (lower(email));
 
 create table if not exists public.newsletter (
   id bigint generated always as identity primary key,
@@ -99,3 +40,31 @@ create table if not exists public.newsletter (
   active boolean not null default true,
   created_at timestamptz not null default now()
 );
+create unique index if not exists newsletter_email_unique_idx on public.newsletter (lower(email));
+
+create table if not exists public.render_history (
+  id bigint generated always as identity primary key,
+  user_id text not null,
+  render_id text not null,
+  bucket_name text,
+  mode text not null check (mode in ('videoExplainer', 'notes', 'facecam', 'handwriting')),
+  design text,
+  title text not null,
+  output_file text not null,
+  output_size_in_bytes bigint,
+  costs jsonb,
+  created_at timestamptz not null default now(),
+  expires_at timestamptz not null default (now() + interval '48 hours')
+);
+create unique index if not exists render_history_user_render_unique_idx on public.render_history (user_id, render_id);
+create index if not exists render_history_user_expires_idx on public.render_history (user_id, expires_at desc);
+
+-- Security hardening:
+-- All app database writes/reads go through server-side Supabase service-role
+-- helpers in services/supabase/projectStore.mjs. Keep these public-schema
+-- tables protected from direct anon/authenticated browser access.
+alter table public.app_settings enable row level security;
+alter table public.job_applications enable row level security;
+alter table public.waitlist enable row level security;
+alter table public.newsletter enable row level security;
+alter table public.render_history enable row level security;

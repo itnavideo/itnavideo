@@ -1,0 +1,418 @@
+{
+  "version": 1,
+  "generatedAt": "2026-06-02T16:54:10.020Z",
+  "root": "/visuals",
+  "rules": {
+    "needsLabel": "true means filename is too random/generic for reliable AI asset picking.",
+    "safeToUse": "false means planner should avoid this asset until metadata is manually labeled."
+  },
+  "counts": {
+    "total": 14,
+    "images": 12,
+    "videos": 2,
+    "needsLabel": 0
+  },
+  "assets": [
+    {
+      "id": "ai-engineer-night-work-cinematic",
+      "file": "site-scenes/ai-engineer-night-work.png",
+      "src": "/visuals/site-scenes/ai-engineer-night-work.png",
+      "type": "image",
+      "category": "technology",
+      "title": "AI engineer night work cinematic",
+      "semanticSlug": "ai-engineer-night-work-cinematic",
+      "tags": [
+        "ai engineer",
+        "software",
+        "night work",
+        "startup",
+        "technology",
+        "site",
+        "scenes",
+        "engineer",
+        "night",
+        "work",
+        "png",
+        "cinematic"
+      ],
+      "emotion": "focused",
+      "useFor": [
+        "AI startup page",
+        "technology explainer scenes"
+      ],
+      "avoidFor": [],
+      "orientation": "unknown",
+      "qualityScore": 90,
+      "usageCount": 0,
+      "needsLabel": false,
+      "safeToUse": true
+    },
+    {
+      "id": "careers-team-visual",
+      "file": "careers-team-visual.png",
+      "src": "/visuals/careers-team-visual.png",
+      "type": "image",
+      "category": "general",
+      "title": "Careers Team Visual",
+      "semanticSlug": "careers-team-visual",
+      "tags": [
+        "careers",
+        "team",
+        "visual"
+      ],
+      "emotion": "neutral",
+      "useFor": [
+        "general explainer scenes"
+      ],
+      "avoidFor": [],
+      "orientation": "unknown",
+      "qualityScore": 82,
+      "usageCount": 0,
+      "needsLabel": false,
+      "safeToUse": true
+    },
+    {
+      "id": "creator-recording-reel-studio-scene",
+      "file": "site-scenes/creator-recording-reel.png",
+      "src": "/visuals/site-scenes/creator-recording-reel.png",
+      "type": "image",
+      "category": "creator",
+      "title": "Creator recording reel studio scene",
+      "semanticSlug": "creator-recording-reel-studio-scene",
+      "tags": [
+        "creator",
+        "recording",
+        "camera",
+        "studio",
+        "reel",
+        "site",
+        "scenes",
+        "png",
+        "scene"
+      ],
+      "emotion": "creative",
+      "useFor": [
+        "creator workflow",
+        "video creation explainer scenes"
+      ],
+      "avoidFor": [],
+      "orientation": "unknown",
+      "qualityScore": 90,
+      "usageCount": 0,
+      "needsLabel": false,
+      "safeToUse": true
+    },
+    {
+      "id": "creator-remix-video-clip-preview",
+      "file": "creator-remix-preview.png",
+      "src": "/visuals/creator-remix-preview.png",
+      "type": "image",
+      "category": "creator",
+      "title": "Creator remix video clip preview",
+      "semanticSlug": "creator-remix-video-clip-preview",
+      "tags": [
+        "creator remix",
+        "viral clip",
+        "video",
+        "shorts",
+        "reel",
+        "creator",
+        "remix",
+        "png",
+        "clip",
+        "viral"
+      ],
+      "emotion": "energetic",
+      "useFor": [
+        "Creator Remix template preview"
+      ],
+      "avoidFor": [],
+      "orientation": "portrait",
+      "qualityScore": 86,
+      "usageCount": 0,
+      "needsLabel": false,
+      "safeToUse": true
+    },
+    {
+      "id": "doctor-career-portrait-professional",
+      "file": "site-scenes/doctor-career-portrait.png",
+      "src": "/visuals/site-scenes/doctor-career-portrait.png",
+      "type": "image",
+      "category": "medical",
+      "title": "Doctor career portrait professional",
+      "semanticSlug": "doctor-career-portrait-professional",
+      "tags": [
+        "doctor",
+        "career",
+        "medical",
+        "professional",
+        "portrait",
+        "site",
+        "scenes",
+        "png"
+      ],
+      "emotion": "trust",
+      "useFor": [
+        "medical career reels",
+        "professional profile scenes"
+      ],
+      "avoidFor": [],
+      "orientation": "unknown",
+      "qualityScore": 88,
+      "usageCount": 0,
+      "needsLabel": false,
+      "safeToUse": true
+    },
+    {
+      "id": "facecam-workflow-preview",
+      "file": "facecam-workflow-preview.png",
+      "src": "/visuals/facecam-workflow-preview.png",
+      "type": "image",
+      "category": "general",
+      "title": "Facecam Workflow Preview",
+      "semanticSlug": "facecam-workflow-preview",
+      "tags": [
+        "facecam",
+        "workflow"
+      ],
+      "emotion": "neutral",
+      "useFor": [
+        "general explainer scenes"
+      ],
+      "avoidFor": [],
+      "orientation": "portrait",
+      "qualityScore": 82,
+      "usageCount": 0,
+      "needsLabel": false,
+      "safeToUse": true
+    },
+    {
+      "id": "full-screen-cinematic-reel-preview",
+      "file": "full-screen-reel-preview.png",
+      "src": "/visuals/full-screen-reel-preview.png",
+      "type": "image",
+      "category": "creator",
+      "title": "Full screen cinematic reel preview",
+      "semanticSlug": "full-screen-cinematic-reel-preview",
+      "tags": [
+        "full screen",
+        "cinematic",
+        "reel",
+        "creator",
+        "vertical",
+        "full",
+        "screen",
+        "png"
+      ],
+      "emotion": "aspirational",
+      "useFor": [
+        "Full screen reel template preview"
+      ],
+      "avoidFor": [],
+      "orientation": "portrait",
+      "qualityScore": 88,
+      "usageCount": 0,
+      "needsLabel": false,
+      "safeToUse": true
+    },
+    {
+      "id": "notes-demo",
+      "file": "demos/notes-demo.mp4",
+      "src": "/visuals/demos/notes-demo.mp4",
+      "type": "video",
+      "category": "education",
+      "title": "Notes Demo",
+      "semanticSlug": "notes-demo",
+      "tags": [
+        "demos",
+        "notes"
+      ],
+      "emotion": "educational",
+      "useFor": [
+        "education explainer scenes",
+        "notes template preview"
+      ],
+      "avoidFor": [],
+      "orientation": "portrait",
+      "qualityScore": 82,
+      "usageCount": 0,
+      "needsLabel": false,
+      "safeToUse": true
+    },
+    {
+      "id": "notes-demo-thumb",
+      "file": "demos/notes-demo-thumb.jpg",
+      "src": "/visuals/demos/notes-demo-thumb.jpg",
+      "type": "image",
+      "category": "education",
+      "title": "Notes Demo Thumb",
+      "semanticSlug": "notes-demo-thumb",
+      "tags": [
+        "demos",
+        "notes"
+      ],
+      "emotion": "educational",
+      "useFor": [
+        "education explainer scenes",
+        "notes template preview"
+      ],
+      "avoidFor": [],
+      "orientation": "portrait",
+      "qualityScore": 82,
+      "usageCount": 0,
+      "needsLabel": false,
+      "safeToUse": true
+    },
+    {
+      "id": "notes-educational-notebook-finance-preview",
+      "file": "notes-preview.png",
+      "src": "/visuals/notes-preview.png",
+      "type": "image",
+      "category": "education",
+      "title": "Notes educational notebook finance preview",
+      "semanticSlug": "notes-educational-notebook-finance-preview",
+      "tags": [
+        "notes",
+        "notebook",
+        "finance education",
+        "handwritten",
+        "study reel",
+        "png",
+        "educational",
+        "finance",
+        "education",
+        "study",
+        "reel"
+      ],
+      "emotion": "educational",
+      "useFor": [
+        "Notes template preview",
+        "education and finance reels"
+      ],
+      "avoidFor": [],
+      "orientation": "portrait",
+      "qualityScore": 92,
+      "usageCount": 0,
+      "needsLabel": false,
+      "safeToUse": true
+    },
+    {
+      "id": "students-campus-career-education-scene",
+      "file": "site-scenes/students-campus-walk.png",
+      "src": "/visuals/site-scenes/students-campus-walk.png",
+      "type": "image",
+      "category": "education",
+      "title": "Students campus career education scene",
+      "semanticSlug": "students-campus-career-education-scene",
+      "tags": [
+        "students",
+        "campus",
+        "education",
+        "career",
+        "college",
+        "site",
+        "scenes",
+        "walk",
+        "png",
+        "scene"
+      ],
+      "emotion": "aspirational",
+      "useFor": [
+        "career content",
+        "education reels",
+        "student explainer scenes"
+      ],
+      "avoidFor": [],
+      "orientation": "unknown",
+      "qualityScore": 88,
+      "usageCount": 0,
+      "needsLabel": false,
+      "safeToUse": true
+    },
+    {
+      "id": "video-explainer-dark-top-video-smart-text-preview",
+      "file": "video-explainer-preview.png",
+      "src": "/visuals/video-explainer-preview.png",
+      "type": "image",
+      "category": "creator",
+      "title": "Video Explainer dark top video smart text preview",
+      "semanticSlug": "video-explainer-dark-top-video-smart-text-preview",
+      "tags": [
+        "video explainer",
+        "top video",
+        "smart text",
+        "dark theme",
+        "creator reel",
+        "video",
+        "explainer",
+        "png",
+        "dark",
+        "top",
+        "smart",
+        "text",
+        "theme",
+        "creator",
+        "reel"
+      ],
+      "emotion": "professional",
+      "useFor": [
+        "Video Explainer template preview",
+        "homepage template showcase"
+      ],
+      "avoidFor": [],
+      "orientation": "portrait",
+      "qualityScore": 92,
+      "usageCount": 0,
+      "needsLabel": false,
+      "safeToUse": true
+    },
+    {
+      "id": "video-explainer-demo",
+      "file": "demos/video-explainer-demo.mp4",
+      "src": "/visuals/demos/video-explainer-demo.mp4",
+      "type": "video",
+      "category": "creator",
+      "title": "Video Explainer Demo",
+      "semanticSlug": "video-explainer-demo",
+      "tags": [
+        "demos",
+        "video",
+        "explainer"
+      ],
+      "emotion": "educational",
+      "useFor": [
+        "creator explainer scenes"
+      ],
+      "avoidFor": [],
+      "orientation": "portrait",
+      "qualityScore": 82,
+      "usageCount": 0,
+      "needsLabel": false,
+      "safeToUse": true
+    },
+    {
+      "id": "video-explainer-demo-thumb",
+      "file": "demos/video-explainer-demo-thumb.jpg",
+      "src": "/visuals/demos/video-explainer-demo-thumb.jpg",
+      "type": "image",
+      "category": "creator",
+      "title": "Video Explainer Demo Thumb",
+      "semanticSlug": "video-explainer-demo-thumb",
+      "tags": [
+        "demos",
+        "video",
+        "explainer"
+      ],
+      "emotion": "educational",
+      "useFor": [
+        "creator explainer scenes"
+      ],
+      "avoidFor": [],
+      "orientation": "portrait",
+      "qualityScore": 82,
+      "usageCount": 0,
+      "needsLabel": false,
+      "safeToUse": true
+    }
+  ]
+}

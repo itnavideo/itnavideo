@@ -5,12 +5,11 @@ import { useRouter } from 'next/navigation';
 import { useAdmin } from '@/components/admin/AdminContext';
 import BrandLogo from '@/components/brand/BrandLogo';
 import Link from 'next/link';
-import { Loader2, ShieldCheck, Lock, User, ArrowLeft } from 'lucide-react';
+import { Loader2, ShieldCheck, User, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function AdminLoginPage() {
   const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAdmin();
   const router = useRouter();
@@ -20,7 +19,7 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      const success = await login(username, password);
+      const success = await login(username);
 
       if (success) {
         toast.success("Identity verified. Welcome back, Founder.");
@@ -28,7 +27,7 @@ export default function AdminLoginPage() {
       } else {
         toast.error("Invalid credentials. Access denied.");
       }
-    } catch (error) {
+    } catch {
       toast.error("Security system error. Try again.");
     } finally {
       setLoading(false);
@@ -62,22 +61,10 @@ export default function AdminLoginPage() {
             <div className="relative group">
               <User className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-brand-mint transition-colors" size={18} />
               <input
-                type="text"
-                placeholder="Founder ID"
+                type="password"
+                placeholder="Admin API key"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full bg-black/50 border border-zinc-800 rounded-lg px-12 py-4 focus:border-brand-mint focus:outline-none transition-all placeholder:text-zinc-700 font-medium"
-                required
-              />
-            </div>
-
-            <div className="relative group">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-brand-mint transition-colors" size={18} />
-              <input
-                type="password"
-                placeholder="Private password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-black/50 border border-zinc-800 rounded-lg px-12 py-4 focus:border-brand-mint focus:outline-none transition-all placeholder:text-zinc-700 font-medium"
                 required
               />

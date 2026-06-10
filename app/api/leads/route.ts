@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { insertLeadFromServer } from '@/services/supabase/projectStore';
+import { insertLeadFromServer } from '@/services/supabase/siteStore';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -28,10 +28,10 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Lead insert failed:', error);
     return NextResponse.json(
-      { error: 'Lead insert failed', details: error.message || 'Unknown error' },
+      { error: 'Lead insert failed', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 },
     );
   }

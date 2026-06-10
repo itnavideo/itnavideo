@@ -7,6 +7,11 @@ import { AdminProvider } from '@/components/admin/AdminContext'; // Pehle se hai
 import { Toaster } from 'sonner';
 import AppChrome from '@/components/layout/AppChrome';
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.itnavideo.com";
+const siteName = "Itnavideo";
+const siteDescription =
+  "Use Itnavideo as an AI Explainer Video generator for polished reels, YouTube Shorts, and video-to-reel workflows.";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -23,16 +28,68 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Itnavideo | AI-Powered Video Engine",
-  description: "Create typography-first 720p Shorts from voiceover audio with Itnavideo.",
+  metadataBase: new URL(siteUrl),
+  applicationName: siteName,
+  title: {
+    default: "Itnavideo | AI Explainer Video Generator for Reels and Shorts",
+    template: "%s | Itnavideo",
+  },
+  description: siteDescription,
+  keywords: [
+    "AI video generator",
+    "AI reel generator",
+    "AI reel maker",
+    "YouTube Shorts generator",
+    "Instagram Reels maker",
+    "script to video",
+    "voice to video AI",
+    "video to reel",
+    "video to reel maker",
+    "AI subtitles for reels",
+    "explainer video maker",
+    "short form video generator",
+  ],
+  authors: [{ name: "Itnavideo" }],
+  creator: "Itnavideo",
+  publisher: "Itnavideo",
+  alternates: {
+    canonical: "/",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   verification: {
     google: "fUpspvl0Zqhd0nPIDewDuDrP4DKNztIOINBz_5lSa4c",
   },
   openGraph: {
-    title: "Itnavideo",
-    description: "Audio-first Shorts rendered with AI planning and a private media engine.",
+    title: "Itnavideo | AI Video Generator for Reels and Shorts",
+    description: siteDescription,
+    url: siteUrl,
+    siteName,
     type: "website",
-  }
+    images: [
+      {
+        url: "/visuals/template-video-explainer.png",
+        width: 1080,
+        height: 1920,
+        alt: "Itnavideo AI reel maker template preview",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Itnavideo | AI Video Generator",
+    description: siteDescription,
+    images: ["/visuals/template-video-explainer.png"],
+  },
 };
 
 export default function RootLayout({

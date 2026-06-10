@@ -1,47 +1,47 @@
 import React from 'react';
-import { Clapperboard, Download, SlidersHorizontal, Sparkles, Upload } from 'lucide-react';
+import { Captions, Download, LayoutTemplate, Sparkles, Upload } from 'lucide-react';
 
 const steps = [
   {
     number: '01',
     icon: Upload,
-    title: 'Upload voiceover',
-    desc: 'Start with one clear MP3, WAV, or M4A file. This MVP flow is audio-only.',
+    title: 'Upload',
+    desc: 'Add audio, video, or a voiceover with clear speech.',
   },
   {
     number: '02',
-    icon: SlidersHorizontal,
-    title: 'Choose the style',
-    desc: 'Pick pacing, captions, and portrait export quality. Extra media uploads are paused for now.',
+    icon: LayoutTemplate,
+    title: 'Use Explainer Video',
+    desc: 'One focused template keeps the source media visible and the story easy to follow.',
   },
   {
     number: '03',
     icon: Sparkles,
-    title: 'Itnavideo creates the draft',
-    desc: 'The media engine prepares typography scenes, big captions, audio polish, and a clean mobile layout.',
+    title: 'Generate',
+    desc: 'AI builds timing, scenes, captions, motion, and safe-zone layouts.',
   },
   {
     number: '04',
     icon: Download,
-    title: 'Export for every platform',
-    desc: 'Download ready-to-upload MP4s for Reels, TikTok, and Shorts.',
+    title: 'Download',
+    desc: 'Export a vertical MP4 ready for Instagram Reels, Shorts, and TikTok.',
   },
 ];
 
 export default function HowItWorks() {
   return (
-    <section className="relative overflow-hidden bg-[#070707] px-6 py-28">
+    <section className="relative overflow-hidden bg-[#070707] px-4 py-16 sm:px-6 md:py-24">
       <div className="mx-auto max-w-7xl">
         <div className="mb-14 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div className="max-w-3xl">
             <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-cyan-300">How it works</p>
-            <h2 className="text-4xl font-black leading-tight tracking-normal text-white md:text-6xl">
-              Upload audio. Get the short back.
+            <h2 className="text-3xl font-black leading-tight tracking-normal text-white sm:text-4xl md:text-6xl">
+              Upload once. Get a reel back.
             </h2>
           </div>
           <div className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-zinc-300">
-            <Clapperboard size={18} className="text-cyan-300" />
-            Built for audio-first MVP Shorts
+            <Captions size={18} className="text-cyan-300" />
+            One focused template
           </div>
         </div>
 

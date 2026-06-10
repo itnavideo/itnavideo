@@ -6,8 +6,8 @@ import BrandLogo from '@/components/brand/BrandLogo';
 
 const highlights = [
   { icon: AudioLines, label: 'Voice analysis' },
-  { icon: Captions, label: 'Karaoke captions' },
-  { icon: Clapperboard, label: 'AI director timeline' },
+  { icon: Captions, label: 'Clean title moments' },
+  { icon: Clapperboard, label: 'Facecam reels' },
 ];
 
 export default function AuthShell({

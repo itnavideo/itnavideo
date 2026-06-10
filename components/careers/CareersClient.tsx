@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useMemo, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, BriefcaseBusiness, Calculator, CheckCircle2, Clock3, Code2, DatabaseZap, Film, Loader2, MapPin, Megaphone, Palette, ShieldCheck, Sparkles, X } from 'lucide-react';
 
@@ -19,7 +20,7 @@ type SubmitState = 'idle' | 'loading' | 'success' | 'error';
 
 const roles: Role[] = [
   {
-    slug: 'video-pipeline-engineer',
+    slug: 'video-product-engineer',
     title: 'Video Pipeline Engineer',
     team: 'Media Infrastructure',
     location: 'Remote',
@@ -122,8 +123,8 @@ export default function CareersClient() {
       }
       setState('success');
       event.currentTarget.reset();
-    } catch (submitError: any) {
-      setError(submitError?.message || 'Application failed.');
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : 'Application failed.');
       setState('error');
     }
   };
@@ -148,7 +149,7 @@ export default function CareersClient() {
               Build the video engine creators wish existed.
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-zinc-300">
-              Itnavideo is building AI-assisted short-form video workflows across transcription, planning, assets, media rendering, and creator delivery. We keep a small talent network for upcoming product, engineering, design, and growth needs.
+              Itnavideo is building practical AI video workflows for creators: planning, rendering, asset systems, templates, growth, and operations.
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <a href="#open-roles" className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-mint px-6 py-4 font-black text-black transition hover:bg-white">
@@ -163,12 +164,12 @@ export default function CareersClient() {
 
           <div className="overflow-hidden rounded-lg border border-white/10 bg-zinc-950/85 p-3 shadow-2xl shadow-black/30">
             <div className="relative aspect-[3/2] overflow-hidden rounded-md bg-black/35">
-              <img
+              <Image
                 src="/visuals/careers-team-visual.png"
                 alt="Remote AI video team working across engineering, design, growth, and operations"
+                fill
                 className="absolute inset-0 h-full w-full object-cover"
-                loading="eager"
-                decoding="async"
+                priority
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/78 via-black/10 to-transparent" />
               <div className="absolute bottom-4 left-4 right-4">

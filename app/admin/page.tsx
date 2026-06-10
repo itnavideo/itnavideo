@@ -5,8 +5,6 @@ import Link from 'next/link';
 import BrandLogo from '@/components/brand/BrandLogo';
 import {
   Search,
-  Filter,
-  Activity,
   AlertTriangle,
   Server,
   Cpu,
@@ -30,15 +28,15 @@ interface LogEntry {
 const MOCK_LOGS: LogEntry[] = Array.from({ length: 40 }, (_, i) => ({
   id: `log-${5000 + i}`,
   timestamp: new Date(Date.now() - i * 1000 * 60 * 15).toISOString(),
-  category: i % 4 === 0 ? 'API' : i % 5 === 0 ? 'Render' : i % 7 === 0 ? 'Auth' : 'System',
+  category: i % 4 === 0 ? 'API' : i % 5 === 0 ? 'Video' : i % 7 === 0 ? 'Auth' : 'System',
   level: i % 8 === 0 ? 'Error' : i % 12 === 0 ? 'Warning' : 'Info',
   message:
     i % 8 === 0
-      ? 'OpenAI API Timeout: Request timed out after 30s'
+      ? 'Render job exceeded configured wait window'
       : i % 4 === 0
-      ? 'Asset library: rate limit reached for media fetching'
+      ? 'Media preprocessing pending'
       : i % 5 === 0
-      ? 'FFmpeg Error: Failed to stitch scene 4 (Memory overflow)'
+      ? 'Video render status synced'
       : 'System health check passed',
   metadata: { ip: '192.168.1.1', duration: '240ms' },
 }));
@@ -120,10 +118,10 @@ export default function AdminHomePage() {
         <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
           <div className="flex items-center gap-3 mb-4 text-brand-mint">
             <Cpu size={20} />
-            <h3 className="font-semibold">Pipeline Health</h3>
+            <h3 className="font-semibold">Product Health</h3>
           </div>
           <p className="text-3xl font-bold">94.2%</p>
-          <p className="text-sm text-zinc-500 mt-1">Render success rate (Last 24h)</p>
+          <p className="text-sm text-zinc-500 mt-1">Last synthetic check passed</p>
         </div>
         <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
           <div className="flex items-center gap-3 mb-4 text-orange-500">
@@ -131,7 +129,7 @@ export default function AdminHomePage() {
             <h3 className="font-semibold">API Latency</h3>
           </div>
           <p className="text-3xl font-bold">320ms</p>
-          <p className="text-sm text-zinc-500 mt-1">Average OpenAI response time</p>
+          <p className="text-sm text-zinc-500 mt-1">Average app response time</p>
         </div>
         <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
           <div className="flex items-center gap-3 mb-4 text-red-500">
@@ -177,7 +175,7 @@ export default function AdminHomePage() {
           >
             <option value="All">All Categories</option>
             <option value="API">API Errors</option>
-            <option value="Render">Render Fails</option>
+            <option value="Video">Video Updates</option>
             <option value="Auth">Security/Auth</option>
             <option value="System">System</option>
           </select>

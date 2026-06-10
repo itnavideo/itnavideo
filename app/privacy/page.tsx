@@ -15,7 +15,7 @@ export default function PrivacyPage() {
           <p>
             Itnavideo collects the information needed to provide AI video generation, account access, billing,
             support, and product improvements. This may include your account details, uploaded media, voiceovers,
-            generated timelines, render outputs, and basic usage data.
+            project records, account settings, uploaded media metadata, and basic usage data.
           </p>
           <p>
             Uploaded content is used to process your requested videos, generate captions, match assets, render

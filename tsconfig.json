@@ -19,6 +19,12 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
+      "remotion": [
+        "./node_modules/remotion"
+      ],
+      "remotion/*": [
+        "./node_modules/remotion/*"
+      ],
       "@/*": [
         "./*"
       ]
@@ -39,6 +45,7 @@
   ],
   "exclude": [
     "node_modules",
-    ".next/dev"
+    ".next/dev",
+    "outputs"
   ]
 }

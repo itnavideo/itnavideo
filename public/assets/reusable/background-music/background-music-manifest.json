@@ -1,0 +1,1107 @@
+{
+  "version": 2,
+  "generatedAt": "2026-06-06T20:49:12.598Z",
+  "purpose": "Downloaded reusable background music library for Itnavideo reels.",
+  "sourcePolicy": "Use low-volume reusable MP3 music beds. AI should pick one of the eight reusable moods and loop it under voiceover.",
+  "reusableMoods": {
+    "corporate": "Business, startup, career, and professional explainers.",
+    "study": "Education, government exam, study, SSC, UPSC, RBI, and IBPS reels.",
+    "finance": "Salary, investing, banking, money, and finance explainers.",
+    "motivation": "Life lessons, comeback stories, and personal growth reels.",
+    "news": "Current affairs, government updates, warnings, and serious analysis.",
+    "ai": "AI, coding, software, tools, startup tech, and automation reels.",
+    "documentary": "Storytelling, career journeys, real-life narratives, and reflective reels.",
+    "viral": "Hooks, fast-paced reels, high-energy shorts, and CTA-heavy edits."
+  },
+  "volumeRules": {
+    "voiceover": "100%",
+    "bgmDefault": "8-15%",
+    "hook": "15-20%",
+    "mainExplanation": "8-12%",
+    "cta": "12-15%"
+  },
+  "requestedCount": 40,
+  "count": 40,
+  "items": [
+    {
+      "id": "corporate-inspire",
+      "order": 1,
+      "title": "Corporate Inspire",
+      "category": "business",
+      "style": "downloaded-background-music",
+      "mood": "corporate",
+      "use_case": "Business, startup, career, SaaS, corporate, and professional explainer reels.",
+      "file": "reusable/background-music/corporate-inspire.mp3",
+      "src": "/assets/reusable/background-music/corporate-inspire.mp3",
+      "tags": [
+        "business",
+        "corporate",
+        "inspire",
+        "uplifting",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "It&#39;s Love",
+        "id": "834",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "startup-growth",
+      "order": 2,
+      "title": "Startup Growth",
+      "category": "business",
+      "style": "downloaded-background-music",
+      "mood": "corporate",
+      "use_case": "Business, startup, career, SaaS, corporate, and professional explainer reels.",
+      "file": "reusable/background-music/startup-growth.mp3",
+      "src": "/assets/reusable/background-music/startup-growth.mp3",
+      "tags": [
+        "business",
+        "corporate",
+        "startup",
+        "growth",
+        "positive",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Digital Clouds",
+        "id": "175",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "success-journey",
+      "order": 3,
+      "title": "Success Journey",
+      "category": "business",
+      "style": "downloaded-background-music",
+      "mood": "corporate",
+      "use_case": "Business, startup, career, SaaS, corporate, and professional explainer reels.",
+      "file": "reusable/background-music/success-journey.mp3",
+      "src": "/assets/reusable/background-music/success-journey.mp3",
+      "tags": [
+        "business",
+        "corporate",
+        "success",
+        "journey",
+        "inspiring",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Curiosity",
+        "id": "480",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "business-presentation",
+      "order": 4,
+      "title": "Business Presentation",
+      "category": "business",
+      "style": "downloaded-background-music",
+      "mood": "corporate",
+      "use_case": "Business, startup, career, SaaS, corporate, and professional explainer reels.",
+      "file": "reusable/background-music/business-presentation.mp3",
+      "src": "/assets/reusable/background-music/business-presentation.mp3",
+      "tags": [
+        "business",
+        "corporate",
+        "presentation",
+        "clean",
+        "professional",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "See Line Funk",
+        "id": "105",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "executive-focus",
+      "order": 5,
+      "title": "Executive Focus",
+      "category": "business",
+      "style": "downloaded-background-music",
+      "mood": "corporate",
+      "use_case": "Business, startup, career, SaaS, corporate, and professional explainer reels.",
+      "file": "reusable/background-music/executive-focus.mp3",
+      "src": "/assets/reusable/background-music/executive-focus.mp3",
+      "tags": [
+        "business",
+        "corporate",
+        "executive",
+        "focus",
+        "calm",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Romantic 05",
+        "id": "759",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "study-motivation",
+      "order": 6,
+      "title": "Study Motivation",
+      "category": "education",
+      "style": "downloaded-background-music",
+      "mood": "study",
+      "use_case": "Government job, SSC, UPSC, RBI, IBPS, study, exam, notes, and learning reels.",
+      "file": "reusable/background-music/study-motivation.mp3",
+      "src": "/assets/reusable/background-music/study-motivation.mp3",
+      "tags": [
+        "education",
+        "study",
+        "motivation",
+        "inspiring",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Driving Ambition",
+        "id": "32",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "exam-preparation",
+      "order": 7,
+      "title": "Exam Preparation",
+      "category": "education",
+      "style": "downloaded-background-music",
+      "mood": "study",
+      "use_case": "Government job, SSC, UPSC, RBI, IBPS, study, exam, notes, and learning reels.",
+      "file": "reusable/background-music/exam-preparation.mp3",
+      "src": "/assets/reusable/background-music/exam-preparation.mp3",
+      "tags": [
+        "education",
+        "study",
+        "exam",
+        "preparation",
+        "focus",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Focus on Yourself",
+        "id": "568",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "knowledge-journey",
+      "order": 8,
+      "title": "Knowledge Journey",
+      "category": "education",
+      "style": "downloaded-background-music",
+      "mood": "study",
+      "use_case": "Government job, SSC, UPSC, RBI, IBPS, study, exam, notes, and learning reels.",
+      "file": "reusable/background-music/knowledge-journey.mp3",
+      "src": "/assets/reusable/background-music/knowledge-journey.mp3",
+      "tags": [
+        "education",
+        "study",
+        "knowledge",
+        "journey",
+        "learning",
+        "calm",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "The Journey",
+        "id": "79",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "academic-focus",
+      "order": 9,
+      "title": "Academic Focus",
+      "category": "education",
+      "style": "downloaded-background-music",
+      "mood": "study",
+      "use_case": "Government job, SSC, UPSC, RBI, IBPS, study, exam, notes, and learning reels.",
+      "file": "reusable/background-music/academic-focus.mp3",
+      "src": "/assets/reusable/background-music/academic-focus.mp3",
+      "tags": [
+        "education",
+        "study",
+        "academic",
+        "focus",
+        "lo-fi",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Lo-Fi 03",
+        "id": "765",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "future-success",
+      "order": 10,
+      "title": "Future Success",
+      "category": "education",
+      "style": "downloaded-background-music",
+      "mood": "study",
+      "use_case": "Government job, SSC, UPSC, RBI, IBPS, study, exam, notes, and learning reels.",
+      "file": "reusable/background-music/future-success.mp3",
+      "src": "/assets/reusable/background-music/future-success.mp3",
+      "tags": [
+        "education",
+        "study",
+        "future",
+        "success",
+        "uplifting",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Uplifting Bass",
+        "id": "726",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "wealth-building",
+      "order": 11,
+      "title": "Wealth Building",
+      "category": "finance",
+      "style": "downloaded-background-music",
+      "mood": "finance",
+      "use_case": "Salary, investing, market, banking, money, and financial education reels.",
+      "file": "reusable/background-music/wealth-building.mp3",
+      "src": "/assets/reusable/background-music/wealth-building.mp3",
+      "tags": [
+        "finance",
+        "wealth",
+        "building",
+        "business",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Comical",
+        "id": "2",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "market-insights",
+      "order": 12,
+      "title": "Market Insights",
+      "category": "finance",
+      "style": "downloaded-background-music",
+      "mood": "finance",
+      "use_case": "Salary, investing, market, banking, money, and financial education reels.",
+      "file": "reusable/background-music/market-insights.mp3",
+      "src": "/assets/reusable/background-music/market-insights.mp3",
+      "tags": [
+        "finance",
+        "market",
+        "insights",
+        "corporate",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Pop Track 03",
+        "id": "729",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "financial-growth",
+      "order": 13,
+      "title": "Financial Growth",
+      "category": "finance",
+      "style": "downloaded-background-music",
+      "mood": "finance",
+      "use_case": "Salary, investing, market, banking, money, and financial education reels.",
+      "file": "reusable/background-music/financial-growth.mp3",
+      "src": "/assets/reusable/background-music/financial-growth.mp3",
+      "tags": [
+        "finance",
+        "financial",
+        "growth",
+        "business",
+        "positive",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Romantic Getaway",
+        "id": "88",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "investment-mindset",
+      "order": 14,
+      "title": "Investment Mindset",
+      "category": "finance",
+      "style": "downloaded-background-music",
+      "mood": "finance",
+      "use_case": "Salary, investing, market, banking, money, and financial education reels.",
+      "file": "reusable/background-music/investment-mindset.mp3",
+      "src": "/assets/reusable/background-music/investment-mindset.mp3",
+      "tags": [
+        "finance",
+        "investment",
+        "mindset",
+        "money",
+        "focus",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Dance with Me",
+        "id": "3",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "economic-pulse",
+      "order": 15,
+      "title": "Economic Pulse",
+      "category": "finance",
+      "style": "downloaded-background-music",
+      "mood": "finance",
+      "use_case": "Salary, investing, market, banking, money, and financial education reels.",
+      "file": "reusable/background-music/economic-pulse.mp3",
+      "src": "/assets/reusable/background-music/economic-pulse.mp3",
+      "tags": [
+        "finance",
+        "economic",
+        "pulse",
+        "business",
+        "technology",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Techno Fest Feel",
+        "id": "125",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "never-give-up",
+      "order": 16,
+      "title": "Never Give Up",
+      "category": "motivation",
+      "style": "downloaded-background-music",
+      "mood": "motivation",
+      "use_case": "Motivation, success stories, career growth, life lessons, and CTA lift moments.",
+      "file": "reusable/background-music/never-give-up.mp3",
+      "src": "/assets/reusable/background-music/never-give-up.mp3",
+      "tags": [
+        "motivation",
+        "never",
+        "give",
+        "up",
+        "motivational",
+        "inspiring",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Dreaming Big",
+        "id": "31",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "dream-big",
+      "order": 17,
+      "title": "Dream Big",
+      "category": "motivation",
+      "style": "downloaded-background-music",
+      "mood": "motivation",
+      "use_case": "Motivation, success stories, career growth, life lessons, and CTA lift moments.",
+      "file": "reusable/background-music/dream-big.mp3",
+      "src": "/assets/reusable/background-music/dream-big.mp3",
+      "tags": [
+        "motivation",
+        "dream",
+        "big",
+        "uplifting",
+        "hope",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Dreaming Big",
+        "id": "31",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "rise-again",
+      "order": 18,
+      "title": "Rise Again",
+      "category": "motivation",
+      "style": "downloaded-background-music",
+      "mood": "motivation",
+      "use_case": "Motivation, success stories, career growth, life lessons, and CTA lift moments.",
+      "file": "reusable/background-music/rise-again.mp3",
+      "src": "/assets/reusable/background-music/rise-again.mp3",
+      "tags": [
+        "motivation",
+        "rise",
+        "again",
+        "inspiring",
+        "emotional",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Feeling Happy",
+        "id": "5",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "emotional-success",
+      "order": 19,
+      "title": "Emotional Success",
+      "category": "motivation",
+      "style": "downloaded-background-music",
+      "mood": "motivation",
+      "use_case": "Motivation, success stories, career growth, life lessons, and CTA lift moments.",
+      "file": "reusable/background-music/emotional-success.mp3",
+      "src": "/assets/reusable/background-music/emotional-success.mp3",
+      "tags": [
+        "motivation",
+        "emotional",
+        "success",
+        "piano",
+        "hope",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Wedding 01",
+        "id": "657",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "victory-path",
+      "order": 20,
+      "title": "Victory Path",
+      "category": "motivation",
+      "style": "downloaded-background-music",
+      "mood": "motivation",
+      "use_case": "Motivation, success stories, career growth, life lessons, and CTA lift moments.",
+      "file": "reusable/background-music/victory-path.mp3",
+      "src": "/assets/reusable/background-music/victory-path.mp3",
+      "tags": [
+        "motivation",
+        "victory",
+        "path",
+        "uplifting",
+        "inspiring",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Raising Me Higher",
+        "id": "34",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "breaking-update",
+      "order": 21,
+      "title": "Breaking Update",
+      "category": "news",
+      "style": "downloaded-background-music",
+      "mood": "news",
+      "use_case": "News reels, government updates, current affairs, warnings, and fast information briefs.",
+      "file": "reusable/background-music/breaking-update.mp3",
+      "src": "/assets/reusable/background-music/breaking-update.mp3",
+      "tags": [
+        "news",
+        "breaking",
+        "update",
+        "urgent",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Welcome to The Games",
+        "id": "54",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "serious-analysis",
+      "order": 22,
+      "title": "Serious Analysis",
+      "category": "news",
+      "style": "downloaded-background-music",
+      "mood": "news",
+      "use_case": "News reels, government updates, current affairs, warnings, and fast information briefs.",
+      "file": "reusable/background-music/serious-analysis.mp3",
+      "src": "/assets/reusable/background-music/serious-analysis.mp3",
+      "tags": [
+        "news",
+        "serious",
+        "analysis",
+        "documentary",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Pop 09",
+        "id": "702",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "global-news",
+      "order": 23,
+      "title": "Global News",
+      "category": "news",
+      "style": "downloaded-background-music",
+      "mood": "news",
+      "use_case": "News reels, government updates, current affairs, warnings, and fast information briefs.",
+      "file": "reusable/background-music/global-news.mp3",
+      "src": "/assets/reusable/background-music/global-news.mp3",
+      "tags": [
+        "news",
+        "global",
+        "information",
+        "brief",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Delayed Flight",
+        "id": "1024",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "information-brief",
+      "order": 24,
+      "title": "Information Brief",
+      "category": "news",
+      "style": "downloaded-background-music",
+      "mood": "news",
+      "use_case": "News reels, government updates, current affairs, warnings, and fast information briefs.",
+      "file": "reusable/background-music/information-brief.mp3",
+      "src": "/assets/reusable/background-music/information-brief.mp3",
+      "tags": [
+        "news",
+        "information",
+        "brief",
+        "clean",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Welcome to The Games",
+        "id": "54",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "fast-update",
+      "order": 25,
+      "title": "Fast Update",
+      "category": "news",
+      "style": "downloaded-background-music",
+      "mood": "news",
+      "use_case": "News reels, government updates, current affairs, warnings, and fast information briefs.",
+      "file": "reusable/background-music/fast-update.mp3",
+      "src": "/assets/reusable/background-music/fast-update.mp3",
+      "tags": [
+        "news",
+        "fast",
+        "update",
+        "urgent",
+        "pulse",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Welcome to The Games",
+        "id": "54",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "digital-future",
+      "order": 26,
+      "title": "Digital Future",
+      "category": "technology",
+      "style": "downloaded-background-music",
+      "mood": "ai",
+      "use_case": "AI, coding, software, startup tech, tools, automation, and digital product reels.",
+      "file": "reusable/background-music/digital-future.mp3",
+      "src": "/assets/reusable/background-music/digital-future.mp3",
+      "tags": [
+        "technology",
+        "ai",
+        "digital",
+        "future",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Baten Kaitos",
+        "id": "618",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "ai-evolution",
+      "order": 27,
+      "title": "AI Evolution",
+      "category": "technology",
+      "style": "downloaded-background-music",
+      "mood": "ai",
+      "use_case": "AI, coding, software, startup tech, tools, automation, and digital product reels.",
+      "file": "reusable/background-music/ai-evolution.mp3",
+      "src": "/assets/reusable/background-music/ai-evolution.mp3",
+      "tags": [
+        "technology",
+        "ai",
+        "evolution",
+        "future",
+        "digital",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Slow Rain",
+        "id": "122",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "data-flow",
+      "order": 28,
+      "title": "Data Flow",
+      "category": "technology",
+      "style": "downloaded-background-music",
+      "mood": "ai",
+      "use_case": "AI, coding, software, startup tech, tools, automation, and digital product reels.",
+      "file": "reusable/background-music/data-flow.mp3",
+      "src": "/assets/reusable/background-music/data-flow.mp3",
+      "tags": [
+        "technology",
+        "ai",
+        "data",
+        "flow",
+        "pulse",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "River Flow",
+        "id": "594",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "tech-innovation",
+      "order": 29,
+      "title": "Tech Innovation",
+      "category": "technology",
+      "style": "downloaded-background-music",
+      "mood": "ai",
+      "use_case": "AI, coding, software, startup tech, tools, automation, and digital product reels.",
+      "file": "reusable/background-music/tech-innovation.mp3",
+      "src": "/assets/reusable/background-music/tech-innovation.mp3",
+      "tags": [
+        "technology",
+        "ai",
+        "tech",
+        "innovation",
+        "startup",
+        "digital",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Deep Techno Ambience",
+        "id": "134",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "futuristic-pulse",
+      "order": 30,
+      "title": "Futuristic Pulse",
+      "category": "technology",
+      "style": "downloaded-background-music",
+      "mood": "ai",
+      "use_case": "AI, coding, software, startup tech, tools, automation, and digital product reels.",
+      "file": "reusable/background-music/futuristic-pulse.mp3",
+      "src": "/assets/reusable/background-music/futuristic-pulse.mp3",
+      "tags": [
+        "technology",
+        "ai",
+        "futuristic",
+        "pulse",
+        "electronic",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Infected Mushroom Vibes",
+        "id": "136",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "documentary-light",
+      "order": 31,
+      "title": "Documentary Light",
+      "category": "storytelling",
+      "style": "downloaded-background-music",
+      "mood": "documentary",
+      "use_case": "Documentary, human story, career journey, real-life narrative, and reflective reels.",
+      "file": "reusable/background-music/documentary-light.mp3",
+      "src": "/assets/reusable/background-music/documentary-light.mp3",
+      "tags": [
+        "storytelling",
+        "documentary",
+        "light",
+        "story",
+        "cinematic",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Singing Bowl Meditation",
+        "id": "18",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "human-story",
+      "order": 32,
+      "title": "Human Story",
+      "category": "storytelling",
+      "style": "downloaded-background-music",
+      "mood": "documentary",
+      "use_case": "Documentary, human story, career journey, real-life narrative, and reflective reels.",
+      "file": "reusable/background-music/human-story.mp3",
+      "src": "/assets/reusable/background-music/human-story.mp3",
+      "tags": [
+        "storytelling",
+        "documentary",
+        "human",
+        "story",
+        "emotional",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "The Long Road",
+        "id": "52",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "real-life-journey",
+      "order": 33,
+      "title": "Real Life Journey",
+      "category": "storytelling",
+      "style": "downloaded-background-music",
+      "mood": "documentary",
+      "use_case": "Documentary, human story, career journey, real-life narrative, and reflective reels.",
+      "file": "reusable/background-music/real-life-journey.mp3",
+      "src": "/assets/reusable/background-music/real-life-journey.mp3",
+      "tags": [
+        "storytelling",
+        "documentary",
+        "real",
+        "life",
+        "journey",
+        "story",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Life is a Dream",
+        "id": "837",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "deep-reflection",
+      "order": 34,
+      "title": "Deep Reflection",
+      "category": "storytelling",
+      "style": "downloaded-background-music",
+      "mood": "documentary",
+      "use_case": "Documentary, human story, career journey, real-life narrative, and reflective reels.",
+      "file": "reusable/background-music/deep-reflection.mp3",
+      "src": "/assets/reusable/background-music/deep-reflection.mp3",
+      "tags": [
+        "storytelling",
+        "documentary",
+        "deep",
+        "reflection",
+        "piano",
+        "cinematic",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Piano Reflections",
+        "id": "22",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "inspiring-story",
+      "order": 35,
+      "title": "Inspiring Story",
+      "category": "storytelling",
+      "style": "downloaded-background-music",
+      "mood": "documentary",
+      "use_case": "Documentary, human story, career journey, real-life narrative, and reflective reels.",
+      "file": "reusable/background-music/inspiring-story.mp3",
+      "src": "/assets/reusable/background-music/inspiring-story.mp3",
+      "tags": [
+        "storytelling",
+        "documentary",
+        "inspiring",
+        "story",
+        "hope",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Sonor 07",
+        "id": "585",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "fast-motivation",
+      "order": 36,
+      "title": "Fast Motivation",
+      "category": "shorts",
+      "style": "downloaded-background-music",
+      "mood": "viral",
+      "use_case": "Hooks, fast-paced reels, viral edits, action beats, and energetic short-form videos.",
+      "file": "reusable/background-music/fast-motivation.mp3",
+      "src": "/assets/reusable/background-music/fast-motivation.mp3",
+      "tags": [
+        "shorts",
+        "viral",
+        "fast",
+        "motivation",
+        "upbeat",
+        "energy",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Upbeat Jazz",
+        "id": "644",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "high-energy-beat",
+      "order": 37,
+      "title": "High Energy Beat",
+      "category": "shorts",
+      "style": "downloaded-background-music",
+      "mood": "viral",
+      "use_case": "Hooks, fast-paced reels, viral edits, action beats, and energetic short-form videos.",
+      "file": "reusable/background-music/high-energy-beat.mp3",
+      "src": "/assets/reusable/background-music/high-energy-beat.mp3",
+      "tags": [
+        "shorts",
+        "viral",
+        "high",
+        "energy",
+        "beat",
+        "hip-hop",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Molly Hip Hop Beat",
+        "id": "260",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "viral-momentum",
+      "order": 38,
+      "title": "Viral Momentum",
+      "category": "shorts",
+      "style": "downloaded-background-music",
+      "mood": "viral",
+      "use_case": "Hooks, fast-paced reels, viral edits, action beats, and energetic short-form videos.",
+      "file": "reusable/background-music/viral-momentum.mp3",
+      "src": "/assets/reusable/background-music/viral-momentum.mp3",
+      "tags": [
+        "shorts",
+        "viral",
+        "momentum",
+        "upbeat",
+        "drive",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Summer Fun",
+        "id": "13",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "action-pulse",
+      "order": 39,
+      "title": "Action Pulse",
+      "category": "shorts",
+      "style": "downloaded-background-music",
+      "mood": "viral",
+      "use_case": "Hooks, fast-paced reels, viral edits, action beats, and energetic short-form videos.",
+      "file": "reusable/background-music/action-pulse.mp3",
+      "src": "/assets/reusable/background-music/action-pulse.mp3",
+      "tags": [
+        "shorts",
+        "viral",
+        "action",
+        "pulse",
+        "energetic",
+        "fast",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "What About Action?",
+        "id": "474",
+        "license": "Downloaded background music license"
+      }
+    },
+    {
+      "id": "dynamic-drive",
+      "order": 40,
+      "title": "Dynamic Drive",
+      "category": "shorts",
+      "style": "downloaded-background-music",
+      "mood": "viral",
+      "use_case": "Hooks, fast-paced reels, viral edits, action beats, and energetic short-form videos.",
+      "file": "reusable/background-music/dynamic-drive.mp3",
+      "src": "/assets/reusable/background-music/dynamic-drive.mp3",
+      "tags": [
+        "shorts",
+        "viral",
+        "dynamic",
+        "drive",
+        "energy",
+        "upbeat",
+        "background-music",
+        "music-bed",
+        "reusable"
+      ],
+      "source": {
+        "provider": "Downloaded Music Library",
+        "title": "Love",
+        "id": "787",
+        "license": "Downloaded background music license"
+      }
+    }
+  ]
+}

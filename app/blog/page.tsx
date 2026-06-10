@@ -1,6 +1,15 @@
 import Link from 'next/link';
 import { ArrowRight, Newspaper } from 'lucide-react';
+import type { Metadata } from 'next';
 import { blogPosts } from '@/lib/blogPosts';
+
+export const metadata: Metadata = {
+  title: "AI Video Blog",
+  description: "Guides for AI video generator tools, AI reel generator workflows, YouTube Shorts generator ideas, script to video, video to reel, faceless videos, and AI captions/subtitles.",
+  alternates: {
+    canonical: "/blog",
+  },
+};
 
 export default function BlogPage() {
   return (

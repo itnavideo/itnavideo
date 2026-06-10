@@ -1,19 +1,18 @@
 'use client';
 
 import Link from 'next/link';
-import { Activity, Database, Film, FolderOpen, KeyRound, Server, ShieldCheck, Sparkles } from 'lucide-react';
+import { Activity, Database, KeyRound, Server, ShieldCheck, Sparkles } from 'lucide-react';
 
 const statusCards = [
   { title: 'Auth', value: 'Protected', note: 'HttpOnly admin session cookie', icon: ShieldCheck, tone: 'text-emerald-300' },
-  { title: 'AI model', value: 'Gemini', note: 'OpenAI kept as future upgrade path', icon: Sparkles, tone: 'text-cyan-300' },
-  { title: 'Rendering', value: 'Render + Python + FFmpeg', note: 'Final stitching, captions, audio sync', icon: Server, tone: 'text-amber-300' },
-  { title: 'Assets', value: 'Local first', note: 'Owned library and uploaded creator media', icon: FolderOpen, tone: 'text-violet-300' },
+  { title: 'AI model', value: 'Reset', note: 'New structure pending', icon: Sparkles, tone: 'text-cyan-300' },
+  { title: 'Rendering', value: 'Reset', note: 'New renderer pending', icon: Server, tone: 'text-amber-300' },
 ];
 
 const actionCards = [
-  { title: 'Check asset library', href: '/admin/settings', note: 'Review internal assets, styles, and upload defaults.' },
+  { title: 'Review product setup', href: '/admin/settings', note: 'Review auth, database, and launch defaults.' },
   { title: 'Open public dashboard', href: '/dashboard', note: 'Test the creator upload flow as a user.' },
-  { title: 'Review pricing', href: '/pricing', note: 'Confirm live plans and free video limits.' },
+  { title: 'Review pricing', href: '/pricing', note: 'Confirm live plans and the ₹9 first-video gate.' },
   { title: 'Read blog SEO pages', href: '/blog', note: 'Review public product-led content.' },
 ];
 
@@ -24,7 +23,7 @@ export default function AdminDashboardPage() {
         <p className="text-brand-mint text-xs uppercase tracking-[0.3em] font-bold">Founder overview</p>
         <h1 className="mt-3 text-4xl font-black text-white">Itnavideo control dashboard</h1>
         <p className="mt-3 max-w-3xl text-zinc-400">
-          Quick status for the current MVP: creator auth, Supabase metadata, Gemini planning, owned asset library, uploaded media, and Render/Python/FFmpeg export path.
+          Quick status for the current reset: creator auth, Supabase metadata, and launch configuration.
         </p>
       </section>
 
@@ -50,10 +49,9 @@ export default function AdminDashboardPage() {
             <h2 className="text-2xl font-black text-white">Founder checklist</h2>
           </div>
           <div className="space-y-3 text-sm text-zinc-300">
-            <ChecklistItem label="Keep media uploads paused until the audio-only MVP render is stable." />
             <ChecklistItem label="Keep Supabase for auth, project metadata, job status, waitlist, and newsletter leads." />
-            <ChecklistItem label="Test the active path: one voiceover audio file to typography video." />
-            <ChecklistItem label="Keep long FFmpeg jobs on the Render worker with Python-assisted filter planning." />
+            <ChecklistItem label="Design the new video path before adding code." />
+            <ChecklistItem label="Keep the future video structure to 5 to 7 clear steps." />
           </div>
         </div>
 

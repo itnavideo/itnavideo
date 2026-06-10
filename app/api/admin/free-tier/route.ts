@@ -1,13 +1,12 @@
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
-import { getAppSettingFromServer, setAppSettingFromServer } from '@/services/supabase/projectStore';
+import { getAppSettingFromServer, setAppSettingFromServer } from '@/services/supabase/siteStore';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const FREE_TIER_SETTING_KEY = 'free_tier_render_enabled';
 const FREE_TIER_QUEUE_LIMIT = getPositiveNumber(process.env.FREE_TIER_QUEUE_LIMIT, 50);
-const WORKER_HEALTH_TIMEOUT_MS = 5_000;
 
 export async function GET(request: NextRequest) {
   if (!(await isAuthorized(request))) {
@@ -44,7 +43,7 @@ async function getFreeTierStatus() {
     process.env.FREE_TIER_RENDER_ENABLED ?? true,
   );
   const enabled = parseBooleanSetting(rawSetting, true);
-  const queue = await getWorkerQueueHealth();
+  const queue = { active: 0, pending: 0, maxParallel: 0, available: false };
   const queueSize = queue.active + queue.pending;
   const autoBlocked = queue.available && queueSize > FREE_TIER_QUEUE_LIMIT;
 
@@ -59,54 +58,17 @@ async function getFreeTierStatus() {
   };
 }
 
-async function getWorkerQueueHealth() {
-  const workerUrl = getRenderWorkerUrl();
-  const emptyQueue = { active: 0, pending: 0, maxParallel: 0, available: false };
-  if (!workerUrl) return emptyQueue;
-
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), WORKER_HEALTH_TIMEOUT_MS);
-
-  try {
-    const response = await fetch(`${workerUrl}/health`, {
-      headers: getWorkerAuthHeaders(),
-      cache: 'no-store',
-      signal: controller.signal,
-    });
-    const data = await response.json().catch(() => ({}));
-    return {
-      active: getNonNegativeNumber(data?.queue?.active, 0),
-      pending: getNonNegativeNumber(data?.queue?.pending, 0),
-      maxParallel: getNonNegativeNumber(data?.queue?.maxParallel, 0),
-      available: response.ok,
-    };
-  } catch {
-    return emptyQueue;
-  } finally {
-    clearTimeout(timeout);
-  }
-}
-
 async function isAuthorized(request: NextRequest) {
   const cookieStore = await cookies();
   if (cookieStore.get('admin_session')?.value === 'authenticated') return true;
 
   const token = request.headers.get('authorization')?.replace(/^Bearer\s+/i, '').trim();
-  const adminSecret = process.env.ADMIN_API_SECRET || process.env.RENDER_WORKER_SECRET;
+  const adminSecret = process.env.ADMIN_API_KEY;
   return Boolean(token && adminSecret && token === adminSecret);
 }
 
 function getUpdatedBy(request: NextRequest) {
   return request.headers.get('x-admin-user') || 'admin';
-}
-
-function getRenderWorkerUrl() {
-  return String(process.env.RENDER_BACKEND_URL || process.env.RENDER_WORKER_URL || process.env.NEXT_PUBLIC_RENDER_BACKEND_URL || '').replace(/\/$/, '');
-}
-
-function getWorkerAuthHeaders(): Record<string, string> {
-  const secret = process.env.RENDER_WORKER_SECRET;
-  return secret ? { Authorization: `Bearer ${secret}` } : {};
 }
 
 function parseBooleanSetting(value: unknown, fallback: boolean) {
@@ -128,9 +90,4 @@ function parseBooleanSetting(value: unknown, fallback: boolean) {
 function getPositiveNumber(value: unknown, fallback: number) {
   const number = Number(value);
   return Number.isFinite(number) && number > 0 ? number : fallback;
-}
-
-function getNonNegativeNumber(value: unknown, fallback: number) {
-  const number = Number(value);
-  return Number.isFinite(number) && number >= 0 ? number : fallback;
 }

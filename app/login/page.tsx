@@ -42,7 +42,7 @@ export default function LoginPage() {
 
       toast.success('Authenticated successfully.');
       router.push('/dashboard');
-    } catch (error: any) {
+    } catch (error) {
       const message = getErrorMessage(error);
       setAuthError(message);
       setShowResetHelp(isCredentialError(error));
@@ -70,9 +70,13 @@ export default function LoginPage() {
       );
 
       if (result.error) throw result.error;
+      if (result.data?.url) {
+        window.location.assign(result.data.url);
+        return;
+      }
 
       toast.success('Opening Google sign-in.');
-    } catch (error: any) {
+    } catch (error) {
       toast.error(getErrorMessage(error));
     } finally {
       setLoading(false);
@@ -96,7 +100,7 @@ export default function LoginPage() {
       });
       if (result.error) throw result.error;
       toast.success('Reset link sent to your inbox.');
-    } catch (error: any) {
+    } catch (error) {
       toast.error(getPasswordResetMessage(error));
     } finally {
       setResetLoading(false);
@@ -128,7 +132,7 @@ export default function LoginPage() {
 
       if (result.error) throw result.error;
       toast.success('Verification email sent again. Check inbox and spam folder.');
-    } catch (error: any) {
+    } catch (error) {
       toast.error(getResendErrorMessage(error));
     } finally {
       setResendLoading(false);
@@ -138,13 +142,13 @@ export default function LoginPage() {
   return (
     <AuthShell
       eyebrow="Engine Access"
-      title="Continue building your AI video engine."
-      subtitle="Sign in to manage your automated video pipeline."
+      title="Continue building with Itnavideo."
+      subtitle="Sign in to manage uploads, render status, and completed reel links."
     >
       <div className="rounded-xl border border-white/5 bg-zinc-950/50 p-8 shadow-2xl backdrop-blur-md">
         <div className="mb-8">
           <h2 className="text-2xl font-bold tracking-tight text-white">Welcome back</h2>
-          <p className="mt-1 text-sm text-zinc-400">Access your rendering pipeline and projects.</p>
+          <p className="mt-1 text-sm text-zinc-400">Open your creator dashboard and continue from your latest render.</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-5">
@@ -261,9 +265,9 @@ export default function LoginPage() {
   );
 }
 
-function getErrorMessage(error: any) {
-  const code = String(error?.code || error?.name || '');
-  const message = String(error?.message || '').toLowerCase();
+function getErrorMessage(error: unknown) {
+  const code = getErrorCode(error);
+  const message = getRawErrorMessage(error).toLowerCase();
 
   switch (code) {
     case 'auth/timeout':
@@ -276,10 +280,16 @@ function getErrorMessage(error: any) {
   if (message.includes('not confirmed') || message.includes('confirm')) {
     return 'This email is not verified yet. Please open the verification link or resend it below.';
   }
+  if (message.includes('provider') || message.includes('oauth')) {
+    return 'Google sign-in is not connected yet. Please enable Google provider in the auth dashboard and try again.';
+  }
+  if (message.includes('redirect') || message.includes('url not allowed')) {
+    return 'Google sign-in redirect URL is not allowed yet. Add this site URL in the auth dashboard redirect settings.';
+  }
   if (message.includes('email')) return 'Enter a valid email address.';
   if (message.includes('rate') || message.includes('too many')) return 'Too many attempts. Please try again later.';
 
-  return error?.message || 'Login failed. Please try again.';
+  return getRawErrorMessage(error) || 'Login failed. Please try again.';
 }
 
 function isUnconfirmedEmailMessage(message: string) {
@@ -287,14 +297,14 @@ function isUnconfirmedEmailMessage(message: string) {
   return normalized.includes('not verified') || normalized.includes('verification');
 }
 
-function isCredentialError(error: any) {
-  const message = String(error?.message || '').toLowerCase();
+function isCredentialError(error: unknown) {
+  const message = getRawErrorMessage(error).toLowerCase();
   return message.includes('invalid login') || message.includes('invalid credentials');
 }
 
-function getResendErrorMessage(error: any) {
-  const code = String(error?.code || error?.name || '');
-  const message = String(error?.message || '').toLowerCase();
+function getResendErrorMessage(error: unknown) {
+  const code = getErrorCode(error);
+  const message = getRawErrorMessage(error).toLowerCase();
 
   switch (code) {
     case 'auth/timeout':
@@ -306,12 +316,12 @@ function getResendErrorMessage(error: any) {
   }
   if (message.includes('email')) return 'Enter a valid email address.';
 
-  return error?.message || 'Could not resend verification email. Please try again.';
+  return getRawErrorMessage(error) || 'Could not resend verification email. Please try again.';
 }
 
-function getPasswordResetMessage(error: any) {
-  const code = String(error?.code || error?.name || '');
-  const message = String(error?.message || '').toLowerCase();
+function getPasswordResetMessage(error: unknown) {
+  const code = getErrorCode(error);
+  const message = getRawErrorMessage(error).toLowerCase();
 
   switch (code) {
     case 'auth/timeout':
@@ -321,6 +331,16 @@ function getPasswordResetMessage(error: any) {
   if (message.includes('email')) return 'Enter a valid email address.';
   if (message.includes('rate') || message.includes('too many')) return 'Too many reset attempts. Please try again later.';
   return 'If this email has an account, a reset link will arrive shortly.';
+}
+
+function getErrorCode(error: unknown) {
+  if (!error || typeof error !== 'object') return '';
+  const value = (error as { code?: unknown; name?: unknown }).code || (error as { name?: unknown }).name;
+  return typeof value === 'string' ? value : '';
+}
+
+function getRawErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : '';
 }
 
 function withTimeout<T>(promise: Promise<T>, code: string): Promise<T> {

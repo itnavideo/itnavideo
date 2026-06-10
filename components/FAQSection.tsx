@@ -13,31 +13,31 @@ interface FAQItem {
 const faqs: FAQItem[] = [
   {
     question: "What is Itnavideo?",
-    answer: "Itnavideo is an AI Shorts platform for creators. The current MVP creates typography-first videos from one voiceover audio file."
+    answer: "Itnavideo is an AI reel maker that turns audio, video, images, and voiceovers into short vertical MP4 reels."
   },
   {
-    question: "How does Itnavideo save me time?",
-    answer: "It handles the repetitive setup behind short-form videos, so you can focus on recording clear ideas and publishing more consistently."
+    question: "What templates are available?",
+    answer: "Right now Itnavideo is focused on one polished template: Explainer Video."
   },
   {
-    question: "Do I need any editing skills?",
-    answer: "No! Itnavideo is designed for creators of all skill levels. Our intuitive platform and powerful AI mean you don't need any prior video editing experience to create stunning videos."
+    question: "Can I test Itnavideo before subscribing?",
+    answer: "Yes. The ₹9 Test Itnavideo plan gives you one first video without starting a subscription."
   },
   {
-    question: "What kind of videos can I create?",
-    answer: "Currently, Itnavideo specializes in 9:16 short-form videos optimized for Instagram Reels, TikTok, and YouTube Shorts. The active MVP path is voiceover audio to typography video."
+    question: "Do I need editing skills?",
+    answer: "No. Choose a template, upload the matching source file, and review the generated reel output."
   },
   {
     question: "What do I need to upload?",
-    answer: "Upload one clear MP3, WAV, or M4A voiceover. Images, screenshots, clips, and face-camera videos are temporarily paused."
+    answer: "Upload audio or video with clear speech. The Explainer Video template uses the transcript to plan subtitles, timing, and scene visuals."
   },
   {
     question: "Is my data secure?",
-    answer: "Your account, project status, uploads, and final MP4 files are handled through secure managed systems. Your uploaded content is used only to create and manage your videos."
+    answer: "Your uploaded content is used to create and manage your video render. Uploads are treated as private and temporary, not public gallery content."
   },
   {
-    question: "How accurate are the AI captions?",
-    answer: "Caption quality depends on audio clarity, language, background noise, and pacing. Clear voiceovers produce the best results."
+    question: "How accurate are the subtitles?",
+    answer: "Subtitle quality depends on speech clarity, language, background noise, and pacing. Clear audio or video produces the best results."
   }
 ];
 

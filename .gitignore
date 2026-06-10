@@ -22,8 +22,17 @@
 /public/renders/
 /public/cache/
 /public/uploads/
+/public/local-uploads/
+/public/assets/asset-embeddings.json
 /logs/
 /.sandbox/
+/.deploy/
+/local-private/
+/models/
+/outputs/
+
+# Local Codex/dev session logs
+.codex-*.log
 
 # Runtime render pipeline workspaces
 /raw_assets/**

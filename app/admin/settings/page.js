@@ -4,7 +4,7 @@ export default function AdminSettingsPage() {
       <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-8">
         <h1 className="text-4xl font-black text-white">Founder settings</h1>
         <p className="mt-3 text-zinc-400">
-          Operational reminders for the private founder admin panel. Environment values stay in Vercel, Render, and local env files.
+          Operational reminders for the private founder admin panel. Keep secrets server-only.
         </p>
       </div>
 
@@ -12,19 +12,17 @@ export default function AdminSettingsPage() {
         <SettingCard
           title="Required production env"
           items={[
-            'GEMINI_API_KEY',
-            'NEXT_PUBLIC_FIREBASE_*',
-            'FIREBASE_PROJECT_ID / CLIENT_EMAIL / PRIVATE_KEY',
-            'NEXT_PUBLIC_RENDER_BACKEND_URL',
+            'SUPABASE_SERVICE_ROLE_KEY',
+            'ADMIN_API_KEY',
           ]}
         />
         <SettingCard
           title="Founder-only notes"
           items={[
             'Do not expose /admin links in public footer.',
-            'Keep admin username/password server-only.',
-            'Use local asset library and creator uploads before any external media source.',
-            'Move render jobs to backend queue before paid launch.',
+            'Keep ADMIN_API_KEY server-only and rotate it if it is shared.',
+            'Keep the next video structure small: 5 to 7 steps maximum.',
+            'Do not add extra media libraries or AI rulebooks until the new structure is defined.',
           ]}
         />
       </div>

@@ -53,7 +53,7 @@ export default function SignupPage() {
         setConfirmationEmail(targetEmail);
         toast.success('Account created. Check your inbox for the verification link.');
       }
-    } catch (error: any) {
+    } catch (error) {
       toast.error(getErrorMessage(error));
     } finally {
       setLoading(false);
@@ -84,7 +84,7 @@ export default function SignupPage() {
 
       if (result.error) throw result.error;
       toast.success('Verification email sent again. Check inbox and spam folder.');
-    } catch (error: any) {
+    } catch (error) {
       toast.error(getResendErrorMessage(error));
     } finally {
       setResendLoading(false);
@@ -109,9 +109,13 @@ export default function SignupPage() {
       );
 
       if (result.error) throw result.error;
+      if (result.data?.url) {
+        window.location.assign(result.data.url);
+        return;
+      }
 
       toast.success('Opening Google sign-in.');
-    } catch (error: any) {
+    } catch (error) {
       toast.error(getErrorMessage(error));
     } finally {
       setLoading(false);
@@ -121,8 +125,8 @@ export default function SignupPage() {
   return (
     <AuthShell
       eyebrow="Start Building"
-      title="Turn your voice into publish-ready videos."
-      subtitle="Create an account to access our automated AI video pipeline."
+      title="Create your Itnavideo workspace."
+      subtitle="Start generating Video Explainer reels from one creator dashboard."
     >
       <div className="rounded-xl border border-white/5 bg-zinc-950/50 p-8 shadow-2xl backdrop-blur-md">
         {confirmationEmail ? (
@@ -161,7 +165,7 @@ export default function SignupPage() {
         <>
         <div className="mb-8">
           <h2 className="text-2xl font-bold tracking-tight text-white">Create workspace</h2>
-          <p className="mt-1 text-sm text-zinc-400">Your AI video journey starts here.</p>
+          <p className="mt-1 text-sm text-zinc-400">Use your workspace to upload source media, render reels, and review outputs.</p>
         </div>
 
         <form onSubmit={handleSignup} className="space-y-5">
@@ -294,9 +298,9 @@ function AuthInput({
   );
 }
 
-function getErrorMessage(error: any) {
-  const code = String(error?.code || error?.name || '');
-  const message = String(error?.message || '').toLowerCase();
+function getErrorMessage(error: unknown) {
+  const code = getErrorCode(error);
+  const message = getRawErrorMessage(error).toLowerCase();
 
   switch (code) {
     case 'auth/timeout':
@@ -306,15 +310,21 @@ function getErrorMessage(error: any) {
   if (message.includes('already registered') || message.includes('already exists')) {
     return 'An account with this email already exists. Sign in, use Google, or resend verification if the email was not confirmed.';
   }
+  if (message.includes('provider') || message.includes('oauth')) {
+    return 'Google sign-in is not connected yet. Please enable Google provider in the auth dashboard and try again.';
+  }
+  if (message.includes('redirect') || message.includes('url not allowed')) {
+    return 'Google sign-in redirect URL is not allowed yet. Add this site URL in the auth dashboard redirect settings.';
+  }
   if (message.includes('email')) return 'Enter a valid email address.';
   if (message.includes('password')) return 'Password should be at least 6 characters.';
 
-  return error?.message || 'Signup failed. Please try again.';
+  return getRawErrorMessage(error) || 'Signup failed. Please try again.';
 }
 
-function getResendErrorMessage(error: any) {
-  const code = String(error?.code || error?.name || '');
-  const message = String(error?.message || '').toLowerCase();
+function getResendErrorMessage(error: unknown) {
+  const code = getErrorCode(error);
+  const message = getRawErrorMessage(error).toLowerCase();
 
   switch (code) {
     case 'auth/timeout':
@@ -326,7 +336,17 @@ function getResendErrorMessage(error: any) {
   }
   if (message.includes('email')) return 'Enter a valid email address.';
 
-  return error?.message || 'Could not resend verification email. Please try again.';
+  return getRawErrorMessage(error) || 'Could not resend verification email. Please try again.';
+}
+
+function getErrorCode(error: unknown) {
+  if (!error || typeof error !== 'object') return '';
+  const value = (error as { code?: unknown; name?: unknown }).code || (error as { name?: unknown }).name;
+  return typeof value === 'string' ? value : '';
+}
+
+function getRawErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : '';
 }
 
 function withTimeout<T>(promise: Promise<T>, code: string): Promise<T> {

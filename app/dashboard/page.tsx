@@ -1,2080 +1,1825 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { AnimatePresence, motion } from 'framer-motion';
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
-  Activity,
-  AudioLines,
+  AlertTriangle,
   BadgeCheck,
-  Captions,
   CheckCircle2,
-  ChevronRight,
   Clapperboard,
-  Coffee,
+  Clock3,
   Download,
+  Eye,
   Film,
-  Gauge,
-  LayoutDashboard,
+  FolderOpen,
+  ImageIcon,
+  Layers3,
   Loader2,
   LogOut,
-  Music,
-  Plus,
-  Scissors,
+  Lock,
+  PenLine,
+  Captions,
+  ShieldCheck,
   Sparkles,
   Trash2,
   Upload,
-  Wand2,
-  Waves,
   X,
-} from 'lucide-react';
-import { toast } from 'sonner';
-import { useAuth } from '@/components/auth/AuthContext';
-import BrandLogo from '@/components/brand/BrandLogo';
-import VideoUploadStatus from '@/components/dashboard/VideoUploadStatus';
-import { getMaxUploadBytes, getPipelineQualityLabel, videoPipelineConfig } from '@/lib/videoPipelineConfig';
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import BrandLogo from "@/components/brand/BrandLogo";
+import { useAuth } from "@/components/auth/AuthContext";
 
-type Job = {
+type Mode = "videoExplainer" | "notes" | "videoCaption" | "imageStory" | "compare";
+type JobStatusState = "idle" | "uploading" | "starting" | "rendering" | "ready" | "error";
+type JobStatus = {
+  state: JobStatusState;
+  message: string;
+  progress?: number;
+  failureStage?: "upload" | "transcript" | "planning" | "render";
+  reasonCode?: string;
+  outputFile?: string;
+  renderId?: string;
+  bucketName?: string;
+  title?: string;
+  design?: string;
+};
+
+type RecentRender = {
   id: string;
-  ownerId?: string;
   title: string;
-  status: string;
-  progress: number;
-  style?: string;
-  timelineScenes?: number;
-  captions?: number;
-  quality?: string;
-  voiceUrl?: string;
-  visualUrl?: string;
-  durationSeconds?: number;
-  renderUrl?: string;
-  videoUrl?: string;
-  renderProvider?: string;
-  error?: string;
-  createdAt?: unknown;
-  updatedAt?: unknown;
-  keepLocal?: boolean;
+  mode: Mode;
+  design: string;
+  outputFile: string;
+  createdAt: number;
+  expiresAt: number;
 };
 
-type GenerationEta = {
-  uploadSeconds: number;
-  planningSeconds: number;
-  renderSeconds: number;
-  totalSeconds: number;
+type BillingEntitlement = {
+  active: boolean;
+  planId: string;
+  planName: string;
+  monthlyVideoLimit: number;
+  expiresAt: string;
+  usage?: {
+    used: number;
+    limit: number;
+    remaining: number;
+  };
 };
 
-type GenerationStatus = 'idle' | 'reading' | 'uploading' | 'planning' | 'rendering' | 'ready' | 'error';
+const RECENT_RENDER_RETENTION_MS = 48 * 60 * 60 * 1000;
+const RENDER_POLL_INTERVAL_MS = 3000;
+const RENDER_POLL_ATTEMPTS = 360;
 
-type PreviewOption = {
-  value: string;
-  title: string;
-  hint: string;
-  description: string;
-  preview: 'reels' | 'fast' | 'cinematic' | 'luxury' | 'meme' | 'documentary' | 'caption-reels' | 'caption-hormozi' | 'caption-iman' | 'caption-cinematic';
-};
+const templateCards = [
+  {
+    id: "video-explainer",
+    title: "Video Explainer",
+    description: "Audio/video explainer with real transcript scenes.",
+    image: "/visuals/template-video-explainer.png",
+    badges: ["Audio", "Video", "Needs speech"],
+    active: true,
+    mode: "videoExplainer" as const,
+  },
+  {
+    id: "compare",
+    title: "Compare",
+    description: "Audio-led comparison with left/right image panels.",
+    image: "/visuals/template-image-story.png",
+    badges: ["Audio", "2-4 images", "Left vs Right"],
+    active: true,
+    mode: "compare" as const,
+  },
+] as const;
 
-const PIPELINE_QUALITY = getPipelineQualityLabel();
-const FREE_MAX_UPLOAD_BYTES = getMaxUploadBytes();
-const FREE_MAX_DURATION_SECONDS = videoPipelineConfig.maxDurationSec;
-const DEFAULT_TARGET_DURATION_SECONDS = FREE_MAX_DURATION_SECONDS;
-const AUDIO_ONLY_MVP = true;
+const modeConfig = {
+  videoExplainer: {
+    label: "Video Explainer",
+    title: "Video Explainer",
+    description: "Upload audio or video with clear speech. AI creates explainer scenes from the real transcript.",
+    accept: "audio/*,video/*",
+    supported: "Supported: MP3, WAV, MP4, MOV, WEBM",
+    bestResult: "Best result: clear voice, one topic, around 1 minute.",
+    uploadCta: "Choose File",
+    icon: Film,
+    color: "text-cyan-200",
+    border: "border-cyan-300/35",
+    surface: "bg-cyan-300/[0.08]",
+  },
+  notes: {
+    label: "Handwritten Notes",
+    title: "Handwritten Notes",
+    description: "Upload voiceover or video with clear speech. AI writes live note sections.",
+    accept: "audio/*,video/*",
+    supported: "Supported: MP3, WAV, MP4, MOV, WEBM",
+    bestResult: "Best result: one teaching topic, clean explanation, around 1 minute.",
+    uploadCta: "Choose File",
+    icon: PenLine,
+    color: "text-amber-100",
+    border: "border-amber-200/35",
+    surface: "bg-amber-200/[0.08]",
+  },
+  videoCaption: {
+    label: "Video Caption",
+    title: "Video Caption",
+    description: "Upload a video with speech. Captions come from the real transcript only.",
+    accept: "video/*",
+    supported: "Supported: MP4, MOV, WEBM",
+    bestResult: "Best result: clear speech, minimal background noise, around 1 minute.",
+    uploadCta: "Choose video for captions",
+    icon: Captions,
+    color: "text-violet-100",
+    border: "border-violet-200/35",
+    surface: "bg-violet-200/[0.08]",
+  },
+  imageStory: {
+    label: "Image Story",
+    title: "Image Story",
+    description: "Upload an image. Image-only reels do not need a transcript.",
+    accept: "image/*",
+    supported: "Supported: JPG, PNG, WEBP",
+    bestResult: "Best result: strong image and short topic/title.",
+    uploadCta: "Choose image",
+    icon: ImageIcon,
+    color: "text-fuchsia-200",
+    border: "border-fuchsia-300/35",
+    surface: "bg-fuchsia-300/[0.08]",
+  },
+  compare: {
+    label: "Compare",
+    title: "Compare",
+    description: "Upload audio plus 2 photos for left/right. Use 4 photos when the explanation has more beats.",
+    accept: "audio/*",
+    supported: "Supported audio: MP3, WAV, M4A, AAC, OGG",
+    bestResult: "Best result: short comparison voiceover with clear left and right examples.",
+    uploadCta: "Choose audio",
+    icon: Layers3,
+    color: "text-emerald-100",
+    border: "border-emerald-200/35",
+    surface: "bg-emerald-200/[0.08]",
+  },
+} as const;
 
-const pipelineCards = [
-  { title: 'Upload audio', desc: 'Add one clear voiceover file.', icon: AudioLines, tone: 'text-emerald-200' },
-  { title: 'AI timeline', desc: 'Scenes, captions, and pacing are planned automatically.', icon: Clapperboard, tone: 'text-cyan-200' },
-  { title: `${PIPELINE_QUALITY} export`, desc: 'Itnavideo exports a stable portrait MP4 for Reels and Shorts.', icon: Film, tone: 'text-violet-200' },
-  { title: 'Video ready', desc: 'Open or download the finished video from your library.', icon: Download, tone: 'text-amber-200' },
-];
-
-const editingStyleOptions: PreviewOption[] = [
-  { value: 'reels_pacing', title: 'Reels pacing', hint: 'Fast social video', description: 'Bright cuts, kinetic movement, strong hook energy.', preview: 'reels' },
-  { value: 'fast_cuts', title: 'Fast cuts', hint: 'Quick jumps + zooms', description: 'More speed, punchy transitions, high retention feel.', preview: 'fast' },
-  { value: 'slow_cinematic', title: 'Slow cinematic', hint: 'Calm movie look', description: 'Moody colors, slower camera motion, emotional pacing.', preview: 'cinematic' },
-  { value: 'luxury_edit', title: 'Luxury edit', hint: 'Premium dark/gold', description: 'Minimal movement, premium tones, clean visual rhythm.', preview: 'luxury' },
-  { value: 'meme_style', title: 'Meme style', hint: 'Bold reaction edit', description: 'Louder framing, reaction energy, punchline timing.', preview: 'meme' },
-  { value: 'youtube_documentary', title: 'Documentary', hint: 'Story + b-roll', description: 'Narrative pacing, b-roll moments, calmer transitions.', preview: 'documentary' },
-];
-
-const captionStyleOptions: PreviewOption[] = [
-  { value: 'Reels', title: 'Reels', hint: 'Big karaoke words', description: 'Large mobile-first captions with energetic emphasis.', preview: 'caption-reels' },
-  { value: 'Alex Hormozi', title: 'Alex Hormozi', hint: 'Bold boxed captions', description: 'High contrast blocks for punchy talking-head shorts.', preview: 'caption-hormozi' },
-  { value: 'Iman Gadzhi', title: 'Iman Gadzhi', hint: 'Clean keyword pop', description: 'Clean subtitles with selective highlighted words.', preview: 'caption-iman' },
-  { value: 'Cinematic', title: 'Cinematic', hint: 'Subtle center text', description: 'Soft subtitle treatment for slower emotional videos.', preview: 'caption-cinematic' },
+const renderPreviewBars = [42, 76, 48, 92, 58, 82, 38, 68, 96, 54, 74, 44, 88, 52, 72, 62];
+const renderParticles = [
+  {left: "8%", top: "18%", delay: "0s"},
+  {left: "22%", top: "72%", delay: "0.4s"},
+  {left: "38%", top: "28%", delay: "0.9s"},
+  {left: "56%", top: "82%", delay: "0.2s"},
+  {left: "74%", top: "20%", delay: "0.7s"},
+  {left: "88%", top: "62%", delay: "1.1s"},
 ];
 
 export default function DashboardPage() {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [initialCreationMode, setInitialCreationMode] = useState<'voice' | 'face'>('voice');
-  const [deleteCandidate, setDeleteCandidate] = useState<Job | null>(null);
-  const [deleteBusy, setDeleteBusy] = useState(false);
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [projectsLoading, setProjectsLoading] = useState(true);
-  const videoListRef = useRef<HTMLDivElement | null>(null);
-  const previousJobStatusesRef = useRef<Record<string, string>>({});
-  const jobsRef = useRef<Job[]>([]);
+  const [mode, setMode] = useState<Mode>("videoExplainer");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [comparisonFiles, setComparisonFiles] = useState<File[]>([]);
+  const [topicTitle, setTopicTitle] = useState("");
+  const [recentRenders, setRecentRenders] = useState<RecentRender[]>([]);
+  const [previewRender, setPreviewRender] = useState<RecentRender | null>(null);
+  const [deleteCandidate, setDeleteCandidate] = useState<RecentRender | null>(null);
+  const [deletingRenderId, setDeletingRenderId] = useState<string | null>(null);
+  const [jobStatus, setJobStatus] = useState<JobStatus>({state: "idle", message: ""});
+  const [billingEntitlement, setBillingEntitlement] = useState<BillingEntitlement | null>(null);
+  const [paymentBanner, setPaymentBanner] = useState("");
 
   useEffect(() => {
-    setMounted(true);
-    if (!loading && !user) router.push('/login');
+    if (!loading && !user) router.push("/login");
   }, [loading, router, user]);
 
   useEffect(() => {
-    jobsRef.current = jobs;
-  }, [jobs]);
-
-  useEffect(() => {
-    if (!user) {
-      setJobs([]);
-      setProjectsLoading(false);
-      return;
-    }
-
-    const localJobs = loadLocalJobs(user.uid);
-    setJobs(localJobs);
-    setProjectsLoading(true);
-
-    let cancelled = false;
-    const syncProjects = async () => {
-      try {
-        const savedJobs = await fetchUserProjects(user.uid);
-        if (cancelled) return;
-        const mergedJobs = filterDeletedJobs(user.uid, mergeJobs(savedJobs, loadLocalJobs(user.uid), jobsRef.current));
-        setJobs(mergedJobs);
-        saveLocalJobs(user.uid, mergedJobs);
-        setProjectsLoading(false);
-      } catch (error) {
-        if (cancelled) return;
-        console.error('Project sync failed:', error);
-        setJobs((items) => saveAndReturnJobs(user.uid, filterDeletedJobs(user.uid, mergeJobs(items, loadLocalJobs(user.uid), jobsRef.current))));
-        setProjectsLoading(false);
-      }
-    };
-
-    void syncProjects();
-    const interval = window.setInterval(syncProjects, 5000);
-
-    return () => {
-      cancelled = true;
-      window.clearInterval(interval);
-    };
+    if (!user) return;
+    const localRenders = loadRecentRenders(user.id);
+    const timer = window.setTimeout(() => setRecentRenders(localRenders), 0);
+    loadServerRecentRenders(user.id, localRenders).then(setRecentRenders).catch((error) => {
+      console.warn("Could not load Supabase render history:", error);
+    });
+    return () => window.clearTimeout(timer);
   }, [user]);
 
   useEffect(() => {
-    let completedNow = false;
-    const nextStatuses: Record<string, string> = {};
-
-    jobs.forEach((job) => {
-      const currentStatus = String(job.status || '');
-      const previousStatus = previousJobStatusesRef.current[job.id];
-      nextStatuses[job.id] = currentStatus;
-
-      if (previousStatus && !isCompletedStatus(previousStatus) && isCompletedStatus(currentStatus)) {
-        completedNow = true;
-      }
+    if (!user) return;
+    loadBillingEntitlement(user.id).then(setBillingEntitlement).catch((error) => {
+      console.warn("Could not load billing status:", error);
     });
+  }, [user]);
 
-    previousJobStatusesRef.current = nextStatuses;
-
-    if (completedNow) {
-      window.setTimeout(() => {
-        videoListRef.current?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
-        });
-      }, 250);
-    }
-  }, [jobs]);
-
-  const displayName = useMemo(() => user?.displayName || user?.email?.split('@')[0] || 'Creator', [user]);
-
-  const openCreateModal = (mode: 'voice' | 'face' = 'voice') => {
-    if (AUDIO_ONLY_MVP && mode === 'face') {
-      toast.info('Face camera uploads are paused for the MVP. Please create with audio for now.');
-      setInitialCreationMode('voice');
-    } else {
-      setInitialCreationMode(mode);
-    }
-    setIsModalOpen(true);
-  };
-
-  const handleLogout = async () => {
-    await logout();
-    router.push('/');
-  };
-
-  const handleProjectCreate = (job: Job) => {
-    if (!user) return;
-    rememberActiveJob(user.uid, job.id);
-    setJobs((items) => saveAndReturnJobs(user.uid, upsertJobAtTop(items, markStickyJob(job))));
-    persistProject(user.uid, job).catch((error) => console.error('Project create sync failed:', error));
-  };
-
-  const handleProjectUpdate = (jobId: string, patch: Partial<Job>) => {
-    if (!user) return;
-    const updatedAt = new Date().toISOString();
-    rememberActiveJob(user.uid, jobId);
-    setJobs((items) => saveAndReturnJobs(user.uid, updateJobById(items, jobId, { ...patch, updatedAt, keepLocal: true })));
-    persistProjectPatch(user.uid, jobId, { ...patch, updatedAt }).catch((error) => console.error('Project update sync failed:', error));
-  };
-
-  const requestProjectDelete = (job: Job) => {
-    if (!job?.id) return;
-    setDeleteCandidate(job);
-  };
-
-  const confirmProjectDelete = async () => {
-    if (!user || !deleteCandidate?.id) return;
-    const job = deleteCandidate;
-    setDeleteBusy(true);
+  useEffect(() => {
     try {
-      await deleteProject(user.uid, job.id);
-      rememberDeletedJob(user.uid, job.id);
-      setJobs((items) => saveAndReturnJobs(user.uid, items.filter((item) => item.id !== job.id)));
-      forgetActiveJob(user.uid, job.id);
-      removeLocalJob(user.uid, job.id);
-      setDeleteCandidate(null);
-      toast.success('Video removed from your library.');
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("payment") === "success") {
+        window.setTimeout(() => {
+          setPaymentBanner("Payment verified. Your paid plan is active on this account.");
+        }, 0);
+        window.history.replaceState(null, "", "/dashboard");
+      }
+      const requestedMode = params.get("mode");
+      const requestedTemplate = params.get("template");
+      const nextMode = readDashboardMode(requestedMode || requestedTemplate);
+
+      if (nextMode) {
+        const timer = window.setTimeout(() => {
+          setMode(nextMode);
+          setSelectedFile(null);
+          setComparisonFiles([]);
+        }, 0);
+        return () => window.clearTimeout(timer);
+      }
     } catch (error) {
-      console.error('Project delete failed:', error);
-      toast.error('Could not delete this video. Please retry.');
-    } finally {
-      setDeleteBusy(false);
+      console.warn("Could not read dashboard template params:", error);
     }
+    return undefined;
+  }, []);
+
+  const activeMode = modeConfig[mode];
+  const ActiveModeIcon = activeMode.icon;
+  const firstName = user?.displayName || user?.email?.split("@")[0] || "Creator";
+  const fileMeta = useMemo(() => {
+    if (!selectedFile) return null;
+    return `${formatBytes(selectedFile.size)} | ${selectedFile.type || "media file"}`;
+  }, [selectedFile]);
+  const renderInProgress = ["uploading", "starting", "rendering"].includes(jobStatus.state);
+  const paidRemaining = billingEntitlement?.usage?.remaining ?? billingEntitlement?.monthlyVideoLimit;
+  const paidLimitComplete = Boolean(billingEntitlement?.active && typeof paidRemaining === "number" && paidRemaining <= 0);
+  const canPrepareReel = Boolean(
+    selectedFile &&
+    (mode !== "compare" || comparisonFiles.length >= 2) &&
+    !renderInProgress &&
+    !paidLimitComplete,
+  );
+
+  const chooseTemplateMode = (nextMode: Mode) => {
+    setMode(nextMode);
+    setSelectedFile(null);
+    setComparisonFiles([]);
+    setJobStatus({state: "idle", message: ""});
+    const nextTemplate = nextMode === "notes" ? "notes" : nextMode === "videoCaption" ? "video-caption" : nextMode === "imageStory" ? "image-story" : nextMode === "compare" ? "compare" : "video-explainer";
+    window.history.replaceState(null, "", `/dashboard?template=${nextTemplate}`);
   };
 
-  if (!mounted || loading) {
+  const chooseFile = (file: File | null) => {
+    if (!file) {
+      setSelectedFile(null);
+      return;
+    }
+    const validation = validateFileForMode(file, mode);
+    if (validation) {
+      setSelectedFile(null);
+      setJobStatus({state: "error", message: validation});
+      return;
+    }
+    setSelectedFile(file);
+    setJobStatus({state: "idle", message: ""});
+  };
+
+  const chooseComparisonFiles = (files: FileList | null) => {
+    const nextFiles = Array.from(files || []).slice(0, 4);
+    const invalid = nextFiles.find((file) => validateComparisonImage(file));
+    if (invalid) {
+      setComparisonFiles([]);
+      setJobStatus({state: "error", message: validateComparisonImage(invalid)});
+      return;
+    }
+    setComparisonFiles(nextFiles);
+    setJobStatus({state: "idle", message: ""});
+  };
+
+  if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black text-white">
-        <div className="text-center">
-          <Loader2 className="mx-auto mb-4 animate-spin text-emerald-300" size={34} />
-          <p className="text-sm font-semibold text-zinc-500">Loading your studio...</p>
-        </div>
-      </div>
+      <main className="flex min-h-screen items-center justify-center bg-black text-white">
+        <p className="text-sm font-bold text-zinc-500">Loading dashboard...</p>
+      </main>
     );
   }
 
   if (!user) return null;
 
+  const requestDeleteRender = (render: RecentRender) => {
+    if (deletingRenderId) return;
+    setDeleteCandidate(render);
+  };
+
+  const deleteRender = async (render: RecentRender) => {
+    if (!user || deletingRenderId) return;
+
+    setDeletingRenderId(render.id);
+    setDeleteCandidate(null);
+    const nextRenders = recentRenders.filter((item) => item.id !== render.id && item.outputFile !== render.outputFile);
+    setRecentRenders(nextRenders);
+    saveRecentRenders(user.id, nextRenders);
+    if (previewRender?.id === render.id || previewRender?.outputFile === render.outputFile) {
+      setPreviewRender(null);
+    }
+    if (jobStatus.outputFile === render.outputFile) {
+      setJobStatus({state: "idle", message: ""});
+    }
+
+    try {
+      if (render.id !== "current-render") {
+        await deleteServerRecentRender(user.id, render.id);
+      }
+    } catch (error) {
+      console.warn("Could not delete Supabase render history:", error);
+    } finally {
+      setDeletingRenderId(null);
+    }
+  };
+
   return (
-    <main className="min-h-screen bg-[#050506] text-white">
-      <div className="absolute inset-x-0 top-0 h-96 bg-[radial-gradient(circle_at_20%_0%,rgba(16,185,129,0.18),transparent_35%),radial-gradient(circle_at_80%_0%,rgba(99,102,241,0.18),transparent_32%)]" />
-      <div className="relative z-10 flex min-h-screen">
-        <aside className="hidden w-72 shrink-0 border-r border-white/10 bg-black/35 p-6 backdrop-blur-xl lg:flex lg:flex-col">
-          <div className="mb-10">
+    <main className="min-h-screen overflow-x-hidden bg-[#050506] px-4 pb-12 pt-24 text-white sm:px-5 md:px-8 md:py-24">
+      <div className="mx-auto max-w-6xl">
+        <header className="mb-5 flex flex-col gap-4 border-b border-white/10 pb-5 md:mb-7 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0">
             <BrandLogo size="md" showTagline />
+            <p className="mt-4 text-xs font-bold uppercase tracking-[0.18em] text-brand-mint sm:text-sm">Create workspace</p>
+            <h1 className="mt-2 text-3xl font-black tracking-normal text-white sm:text-4xl">
+              Welcome, {firstName}
+            </h1>
           </div>
-
-          <nav className="space-y-2">
-            <SidebarItem active icon={<LayoutDashboard size={18} />} label="Dashboard" />
-            <SidebarItem icon={<Upload size={18} />} label="Create" onClick={() => openCreateModal('voice')} />
-            <SidebarItem icon={<Film size={18} />} label="Projects" />
-          </nav>
-
-          <div className="mt-auto rounded-lg border border-emerald-300/15 bg-emerald-300/8 p-5">
-            <BadgeCheck className="mb-4 text-emerald-200" size={24} />
-            <h3 className="font-bold">MVP Pipeline Active</h3>
-            <p className="mt-2 text-sm leading-6 text-zinc-400">One focused workflow: audio to stable {PIPELINE_QUALITY} video.</p>
-          </div>
-
-          <button onClick={handleLogout} className="mt-4 flex items-center gap-2 rounded-lg border border-white/10 px-4 py-3 text-sm font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white">
-            <LogOut size={16} />
-            Logout
-          </button>
-        </aside>
-
-        <section className="flex-1 overflow-hidden">
-          <div className="mx-auto max-w-7xl px-5 py-8 md:px-8 lg:px-10">
-            <header className="mb-8 flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-              <div>
-                <p className="mb-3 text-sm font-bold uppercase tracking-[0.24em] text-emerald-300">Dashboard</p>
-                <h1 className="text-4xl font-black leading-tight tracking-normal md:text-5xl">Welcome back, {displayName}</h1>
-                <p className="mt-3 max-w-2xl text-zinc-400">Upload one clear voiceover audio file. For the MVP, Itnavideo creates typography-first Shorts without extra media uploads.</p>
-              </div>
-              <button onClick={() => openCreateModal('voice')} className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-6 py-4 font-black text-black transition hover:bg-zinc-200">
-                <Plus size={19} />
-                Create video
-              </button>
-            </header>
-
-            <div className="grid gap-4 md:grid-cols-4">
-              <Metric title="Credits" value="12" icon={<Gauge size={19} />} />
-              <Metric title="Saved videos" value={projectsLoading ? '...' : String(jobs.length)} icon={<Film size={19} />} />
-              <Metric title="Exports" value={`${PIPELINE_QUALITY} Shorts`} icon={<Download size={19} />} />
-              <Metric title="Pipeline" value="Ready" icon={<CheckCircle2 size={19} />} />
-            </div>
-
-            <section className="mt-6 grid gap-6 xl:grid-cols-[1fr_380px]">
-              <div ref={videoListRef} className="rounded-lg border border-white/10 bg-zinc-950/80 p-6 scroll-mt-8">
-                <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <h2 className="text-2xl font-black">Create with Itnavideo</h2>
-                    <p className="mt-1 text-sm text-zinc-500">MVP workflow: audio in, typography video out. Media uploads are paused for stability.</p>
-                  </div>
-                  <button onClick={() => openCreateModal('voice')} className="rounded-lg border border-emerald-300/20 bg-emerald-300/10 px-4 py-2 text-sm font-bold text-emerald-100 transition hover:bg-emerald-300/15">
-                    Start creating
-                  </button>
-                </div>
-
-                <div className="mb-5 grid gap-4 md:grid-cols-2">
-                  <DashboardModeCard
-                    imageSrc="/visuals/faceless-mode-guide.png"
-                    icon={<AudioLines size={22} />}
-                    title="Audio to video"
-                    body="Upload one MP3, WAV, or M4A. Itnavideo turns it into a clean typography short."
-                    tone="emerald"
-                    onClick={() => openCreateModal('voice')}
-                  />
-                  <DashboardModeCard
-                    imageSrc="/visuals/face-camera-mode-guide.png"
-                    icon={<Film size={22} />}
-                    title="Face camera paused"
-                    body="Camera videos, screenshots, images, and clips will return after the MVP demo is stable."
-                    tone="cyan"
-                    onClick={() => toast.info('Face camera uploads are paused for the MVP. Please create with audio for now.')}
-                  />
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2">
-                  {pipelineCards.map((card, index) => {
-                    const Icon = card.icon;
-                    return (
-                      <motion.div
-                        key={card.title}
-                        initial={{ opacity: 0, y: 14 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        className="rounded-lg border border-white/10 bg-white/[0.035] p-5"
-                      >
-                        <Icon className={card.tone} size={24} />
-                        <h3 className="mt-5 font-bold">{card.title}</h3>
-                        <p className="mt-2 text-sm leading-6 text-zinc-500">{card.desc}</p>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="rounded-lg border border-white/10 bg-zinc-950/80 p-6">
-                <div className="mb-6 flex items-center justify-between">
-                  <h2 className="text-xl font-black">Your videos</h2>
-                  <Activity className="text-zinc-600" size={20} />
-                </div>
-
-                {jobs.length ? (
-                  <div className="space-y-3">
-                    {jobs.map((job) => {
-                      const videoUrl = getJobVideoUrl(job);
-                      return (
-                      <div key={job.id} className="rounded-lg border border-white/10 bg-black/35 p-4">
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <p className="font-bold">{job.title}</p>
-                            <p className="mt-1 text-xs text-zinc-500">{job.style || 'AI directed'} • {job.quality}</p>
-                          </div>
-                          <span className="rounded-md bg-emerald-300/10 px-2 py-1 text-xs font-bold text-emerald-200">{job.status}</span>
-                        </div>
-                        <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/8">
-                          <div className="h-full rounded-full bg-emerald-300" style={{ width: `${job.progress}%` }} />
-                        </div>
-                        <p className="mt-3 text-xs text-zinc-500">{job.timelineScenes || 0} scenes • {job.captions || 0} captions • {job.durationSeconds ? formatDuration(job.durationSeconds) : 'reels timeline'}</p>
-                        <div className="mt-4 flex gap-2">
-                          <button
-                            type="button"
-                            onClick={() => openJobVideo(job)}
-                            disabled={!videoUrl}
-                            className={`inline-flex flex-1 items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-black transition ${
-                              videoUrl
-                                ? 'bg-white text-black hover:bg-zinc-200'
-                                : 'cursor-not-allowed bg-white/10 text-zinc-500'
-                            }`}
-                          >
-                            <Download size={15} />
-                            {videoUrl ? 'Play video' : 'Waiting'}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => downloadJobVideo(job)}
-                            disabled={!videoUrl}
-                            className={`inline-flex items-center justify-center rounded-md border border-white/10 bg-white/5 px-3 py-2 text-white transition hover:bg-white/10 ${
-                              videoUrl ? '' : 'cursor-not-allowed opacity-45'
-                            }`}
-                            title="Save or download video"
-                          >
-                            <Download size={15} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => requestProjectDelete(job)}
-                            className="inline-flex items-center justify-center gap-2 rounded-md border border-red-400/20 bg-red-500/10 px-3 py-2 text-sm font-bold text-red-200 transition hover:bg-red-500/20"
-                            title="Delete video"
-                          >
-                            <Trash2 size={15} />
-                            Delete
-                          </button>
-                        </div>
-                      </div>
-                    );
-                    })}
-                  </div>
-                ) : (
-                  <div className="rounded-lg border border-dashed border-white/10 bg-black/25 p-5 text-center">
-                    <div className="overflow-hidden rounded-lg border border-white/10 bg-zinc-950">
-                      <div className="relative aspect-[4/3] w-full">
-                        <img
-                          src="/visuals/dashboard-empty-state.png"
-                          alt="Empty Itnavideo dashboard ready for a new video"
-                          className="absolute inset-0 h-full w-full object-cover"
-                          loading="lazy"
-                          decoding="async"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
-                      </div>
-                    </div>
-                    <Wand2 className="mx-auto mt-6 text-emerald-200" size={34} />
-                    <h3 className="mt-4 font-bold">No videos yet</h3>
-                    <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-zinc-500">Start with one voiceover audio file. The dashboard will show render status here.</p>
-                  </div>
-                )}
-              </div>
-            </section>
-          </div>
-        </section>
-      </div>
-
-      <AnimatePresence>
-        {isModalOpen && (
-          <CreateVideoModal
-            user={user}
-            onClose={() => setIsModalOpen(false)}
-            onCreated={handleProjectCreate}
-            onJobUpdate={handleProjectUpdate}
-            initialMode={initialCreationMode}
-          />
-        )}
-        {deleteCandidate && (
-          <DeleteProjectModal
-            job={deleteCandidate}
-            busy={deleteBusy}
-            onCancel={() => {
-              if (!deleteBusy) setDeleteCandidate(null);
-            }}
-            onConfirm={confirmProjectDelete}
-          />
-        )}
-      </AnimatePresence>
-    </main>
-  );
-}
-
-function SidebarItem({ icon, label, active, onClick }: { icon: React.ReactNode; label: string; active?: boolean; onClick?: () => void }) {
-  return (
-    <button onClick={onClick} className={`flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold transition ${active ? 'bg-white text-black' : 'text-zinc-500 hover:bg-white/5 hover:text-white'}`}>
-      {icon}
-      {label}
-    </button>
-  );
-}
-
-function Metric({ title, value, icon }: { title: string; value: string; icon: React.ReactNode }) {
-  return (
-    <div className="rounded-lg border border-white/10 bg-zinc-950/70 p-5">
-      <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-md bg-white/8 text-emerald-200">{icon}</div>
-      <p className="text-sm font-semibold text-zinc-500">{title}</p>
-      <p className="mt-1 text-2xl font-black">{value}</p>
-    </div>
-  );
-}
-
-function DashboardModeCard({
-  imageSrc,
-  icon,
-  title,
-  body,
-  tone,
-  onClick,
-}: {
-  imageSrc: string;
-  icon: React.ReactNode;
-  title: string;
-  body: string;
-  tone: 'emerald' | 'cyan';
-  onClick: () => void;
-}) {
-  const toneClasses = tone === 'emerald'
-    ? 'border-emerald-300/20 bg-emerald-300/8 hover:bg-emerald-300/12 text-emerald-200'
-    : 'border-cyan-300/20 bg-cyan-300/8 hover:bg-cyan-300/12 text-cyan-200';
-
-  return (
-    <button onClick={onClick} className={`overflow-hidden rounded-lg border text-left transition ${toneClasses}`}>
-      <img src={imageSrc} alt="" className="aspect-[5/3] w-full bg-black/30 object-cover" />
-      <div className="p-5">
-        <div className="flex h-10 w-10 items-center justify-center rounded-md bg-black/30">{icon}</div>
-        <h3 className="mt-4 font-black text-white">{title}</h3>
-        <p className="mt-2 text-sm leading-6 text-zinc-500">{body}</p>
-      </div>
-    </button>
-  );
-}
-
-function DeleteProjectModal({
-  job,
-  busy,
-  onCancel,
-  onConfirm,
-}: {
-  job: Job;
-  busy: boolean;
-  onCancel: () => void;
-  onConfirm: () => void;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[240] flex items-center justify-center bg-black/80 p-4 backdrop-blur"
-    >
-      <motion.div
-        initial={{ y: 16, scale: 0.98 }}
-        animate={{ y: 0, scale: 1 }}
-        exit={{ y: 16, scale: 0.98 }}
-        className="w-full max-w-md overflow-hidden rounded-lg border border-white/10 bg-zinc-950 shadow-2xl"
-      >
-        <div className="border-b border-white/10 p-6">
-          <div className="flex items-start gap-4">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-red-400/20 bg-red-500/10 text-red-200">
-              <Trash2 size={20} />
-            </div>
-            <div>
-              <p className="text-sm font-black uppercase tracking-[0.18em] text-red-200">Remove video</p>
-              <h3 className="mt-2 text-2xl font-black tracking-normal text-white">Delete this video?</h3>
-              <p className="mt-2 text-sm leading-6 text-zinc-400">
-                <span className="font-semibold text-zinc-200">{job.title || 'Untitled Project'}</span> will be removed from your Itnavideo library.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="p-6">
-          <div className="rounded-lg border border-white/10 bg-white/[0.035] p-4 text-sm leading-6 text-zinc-400">
-            This only cleans up the video from your dashboard. Any file already saved on your device will stay there.
-          </div>
-          <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-            <button
-              type="button"
-              onClick={onCancel}
-              disabled={busy}
-              className="rounded-lg border border-white/10 px-5 py-3 text-sm font-black text-zinc-300 transition hover:bg-white/8 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+          <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-center">
+            <Link
+              href="/videos"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-black text-zinc-200 transition hover:border-white/25 hover:bg-white/[0.08]"
             >
-              Keep video
-            </button>
+              <FolderOpen size={16} />
+              Projects
+            </Link>
             <button
+              onClick={async () => {
+                await logout();
+                router.push("/");
+              }}
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 px-4 py-3 text-sm font-bold text-zinc-300 transition hover:bg-white/5 hover:text-white"
               type="button"
-              onClick={onConfirm}
-              disabled={busy}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-red-500 px-5 py-3 text-sm font-black text-white transition hover:bg-red-400 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {busy ? <Loader2 className="animate-spin" size={16} /> : <Trash2 size={16} />}
-              Delete video
+              <LogOut size={16} />
+              Logout
             </button>
           </div>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
+        </header>
 
-function CreateVideoModal({
-  onClose,
-  onCreated,
-  onJobUpdate,
-  user,
-  initialMode,
-}: {
-  onClose: () => void;
-  onCreated: (job: Job) => void;
-  onJobUpdate: (jobId: string, patch: Partial<Job>) => void;
-  user: any;
-  initialMode: 'voice' | 'face';
-}) {
-  const [step, setStep] = useState(1);
-  const [creationMode, setCreationMode] = useState<'voice' | 'face'>(AUDIO_ONLY_MVP ? 'voice' : initialMode);
-  const [voiceover, setVoiceover] = useState<File | null>(null);
-  const [faceVideo, setFaceVideo] = useState<File | null>(null);
-  const [faceStyle, setFaceStyle] = useState<'classic' | 'cinematic' | 'clean'>('classic');
-  const [renderJobId, setRenderJobId] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generationStatus, setGenerationStatus] = useState<GenerationStatus>('idle');
-  const [generationProgress, setGenerationProgress] = useState(0);
-  const [estimatedSeconds, setEstimatedSeconds] = useState(30);
-  const [remainingSeconds, setRemainingSeconds] = useState(30);
-  const [targetDurationSeconds, setTargetDurationSeconds] = useState(DEFAULT_TARGET_DURATION_SECONDS);
-  const [uploadPercent, setUploadPercent] = useState(0);
-  const [etaBreakdown, setEtaBreakdown] = useState<GenerationEta | null>(null);
-  const [config, setConfig] = useState({
-    aspectRatio: 'Portrait (9:16)',
-    editingStyle: 'reels_pacing',
-    captionStyle: 'Reels',
-    quality: PIPELINE_QUALITY,
-  });
+        {paymentBanner || billingEntitlement?.active ? (
+          <section className="mb-5 rounded-lg border border-brand-mint/25 bg-brand-mint/10 p-4 text-sm font-bold leading-6 text-zinc-100">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="mt-0.5 shrink-0 text-brand-mint" size={20} />
+                <div>
+                  <p className="text-brand-mint">
+                    {paymentBanner || `Congratulations. You are on the ${billingEntitlement?.planName || "paid"} plan.`}
+                  </p>
+                  {billingEntitlement?.active ? (
+                    <>
+                      <p className="mt-1 text-xs font-bold uppercase tracking-[0.16em] text-zinc-400">
+                        {billingEntitlement.planName} active until {formatDate(billingEntitlement.expiresAt)}
+                      </p>
+                      <p className="mt-2 text-sm font-black text-white">
+                        You can still make {billingEntitlement.usage?.remaining ?? billingEntitlement.monthlyVideoLimit} videos this billing period.
+                      </p>
+                    </>
+                  ) : null}
+                </div>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-4 lg:min-w-[460px]">
+                <PlanStat label="Plan" value={billingEntitlement?.planName || "Paid"} />
+                <PlanStat label="Limit" value={String(billingEntitlement?.usage?.limit || billingEntitlement?.monthlyVideoLimit || "-")} />
+                <PlanStat label="Used" value={String(billingEntitlement?.usage?.used ?? 0)} />
+                <PlanStat label="Left" value={String(billingEntitlement?.usage?.remaining ?? billingEntitlement?.monthlyVideoLimit ?? "-")} accent />
+              </div>
+            </div>
+          </section>
+        ) : null}
 
-  useEffect(() => {
-    if (!isGenerating || generationStatus === 'ready' || generationStatus === 'error') return;
-
-    const timer = window.setInterval(() => {
-      setRemainingSeconds((seconds) => Math.max(0, seconds - 1));
-    }, 1000);
-
-    return () => window.clearInterval(timer);
-  }, [generationStatus, isGenerating]);
-
-  useEffect(() => {
-    if (AUDIO_ONLY_MVP && creationMode !== 'voice') {
-      setCreationMode('voice');
-    }
-  }, [creationMode]);
-
-  const handleGenerateVideo = async () => {
-    if (!voiceover || !user) return;
-    setIsGenerating(true);
-    setGenerationStatus('reading');
-    setGenerationProgress(8);
-    const jobId = Math.random().toString(36).substring(2, 9);
-    setRenderJobId(jobId);
-    const audioDurationSeconds = await getAudioDuration(voiceover).catch(() => undefined);
-    const preflightError = getUploadPreflightError(voiceover, audioDurationSeconds);
-    if (preflightError) {
-      setGenerationStatus('error');
-      setGenerationProgress(0);
-      setIsGenerating(false);
-      toast.error(preflightError);
-      return;
-    }
-    const videoDurationSeconds = getTargetVideoDuration(audioDurationSeconds, config);
-    const eta = getGenerationEta({ fileSizeBytes: voiceover.size, targetDurationSeconds: videoDurationSeconds });
-    const title = voiceover.name.replace(/\.[^.]+$/, '') || `Project ${jobId.toUpperCase()}`;
-
-    setTargetDurationSeconds(videoDurationSeconds);
-    setEstimatedSeconds(eta.totalSeconds);
-    setRemainingSeconds(eta.totalSeconds);
-    setEtaBreakdown(eta);
-    setUploadPercent(0);
-    setGenerationStatus('uploading');
-    setGenerationProgress(18);
-
-    onCreated({
-      id: jobId,
-      title,
-      status: 'Uploading',
-      progress: 10,
-      style: config.editingStyle,
-      timelineScenes: 0,
-      captions: 0,
-      quality: config.quality,
-      durationSeconds: videoDurationSeconds,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
-    toast.success('Video process started. Keep this window open.');
-
-    try {
-      const voicePath = `uploads/${user.uid}/${Date.now()}_${sanitizeFileName(voiceover.name)}`;
-      const voiceUrl = await uploadMediaFile(voicePath, voiceover, (percent) => {
-        setUploadPercent(percent);
-        setGenerationProgress(Math.min(46, 18 + Math.round(percent * 0.28)));
-      });
-      const userAssets: Array<{ url: string; type: 'video' | 'image'; filename: string }> = [];
-      onJobUpdate(jobId, { status: 'Uploaded', progress: 48, voiceUrl });
-      setGenerationProgress(48);
-
-      setGenerationStatus('planning');
-      setGenerationProgress(62);
-      onJobUpdate(jobId, { status: 'Queued for AI planning', progress: 62 });
-
-      await startBackendVideoJob({
-        jobId,
-        userId: user.uid,
-        voiceoverUrl: voiceUrl,
-        title,
-        config: { ...config, creationMode: 'faceless' },
-        userAssets,
-        runPipeline: true,
-        targetDurationSeconds: videoDurationSeconds,
-      });
-
-      onJobUpdate(jobId, { status: 'Queued for video generation', progress: 64, voiceUrl });
-      toast.success('Video queued. Check Your videos for progress.');
-      onClose();
-    } catch (error: any) {
-      const rawMessage = error.message || 'Generation failed.';
-      const message = getCreatorFacingGenerationError(error);
-      const normalizedError = `${error?.code || ''} ${rawMessage}`.toLowerCase();
-      const timedOut = rawMessage.toLowerCase().includes('timed out') || error.name === 'AbortError';
-      const finalSaveFailed = normalizedError.includes('storage/retry-limit-exceeded') || normalizedError.includes('final save') || normalizedError.includes('render upload');
-      onJobUpdate(jobId, {
-        status: timedOut || finalSaveFailed ? 'Final save needs retry' : 'Needs retry',
-        progress: timedOut || finalSaveFailed ? 76 : 18,
-      });
-      setGenerationStatus('error');
-      setGenerationProgress(timedOut || finalSaveFailed ? 76 : 18);
-      toast.error(message);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const handleGenerateFaceVideo = async () => {
-    if (AUDIO_ONLY_MVP) {
-      toast.info('Face camera uploads are paused for the MVP. Please create with audio for now.');
-      return;
-    }
-
-    if (!faceVideo || !user) return;
-
-    const jobId = `face_${Date.now()}`;
-    setRenderJobId(jobId);
-    setIsGenerating(true);
-    setGenerationStatus('rendering');
-    setGenerationProgress(12);
-    setEstimatedSeconds(90);
-    setRemainingSeconds(90);
-    setTargetDurationSeconds(DEFAULT_TARGET_DURATION_SECONDS);
-    setEtaBreakdown(null);
-
-    onCreated({
-      id: jobId,
-      title: faceVideo.name.replace(/\.[^.]+$/, ''),
-      status: 'Processing face video',
-      progress: 12,
-      style: `face_${faceStyle}`,
-      timelineScenes: 1,
-      captions: 0,
-      quality: PIPELINE_QUALITY,
-      durationSeconds: 0,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
-
-    toast.success('Face video processing started. Keep this window open.');
-
-    try {
-      const preflightError = getUploadPreflightError(faceVideo);
-      if (preflightError) throw new Error(preflightError);
-
-      // 1. Secure upload to managed media storage.
-      setGenerationStatus('uploading');
-      const videoPath = `uploads/${user.uid}/face/${Date.now()}_${sanitizeFileName(faceVideo.name)}`;
-      const faceVideoUrl = await uploadMediaFile(videoPath, faceVideo, (percent) => {
-        setUploadPercent(percent);
-        setGenerationProgress(Math.min(50, 12 + Math.round(percent * 0.38)));
-      });
-
-      onJobUpdate(jobId, { 
-        status: 'Uploaded', 
-        progress: 50, 
-        visualUrl: faceVideoUrl 
-      });
-
-      // 2. Trigger background job and return immediately.
-      setGenerationStatus('rendering');
-      await startBackendVideoJob({
-        jobId,
-        userId: user.uid,
-        voiceoverUrl: faceVideoUrl, // Face video acts as its own voiceover source
-        title: faceVideo.name.replace(/\.[^.]+$/, ''),
-        config: { 
-          ...config, 
-          creationMode: 'face', 
-          faceStyle,
-          aspectRatio: config.aspectRatio // Ensure selected aspect ratio is passed
-        },
-        runPipeline: true,
-        targetDurationSeconds: DEFAULT_TARGET_DURATION_SECONDS,
-      });
-
-      onJobUpdate(jobId, {
-        status: 'Queued for video generation',
-        progress: 60,
-        visualUrl: faceVideoUrl,
-        renderProvider: 'media-engine',
-      });
-
-      toast.success('Video queued. You can track progress in "Your videos".');
-      onClose();
-    } catch (error: any) {
-      const message = getCreatorFacingGenerationError(error, 'Face video processing failed.');
-      onJobUpdate(jobId, {
-        status: 'Needs retry',
-        progress: 12,
-      });
-      setGenerationStatus('error');
-      setGenerationProgress(12);
-      toast.error(message);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 p-4 backdrop-blur">
-      <motion.div initial={{ y: 18, scale: 0.98 }} animate={{ y: 0, scale: 1 }} exit={{ y: 18, scale: 0.98 }} className="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-lg border border-white/10 bg-zinc-950 shadow-2xl">
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-zinc-950/95 px-6 py-5 backdrop-blur">
-          <div>
-            <h3 className="text-xl font-black">Create video</h3>
-            <p className="mt-1 text-xs font-bold uppercase tracking-[0.18em] text-zinc-600">Step {step} of 3</p>
-          </div>
-          <button onClick={onClose} className="rounded-md p-2 text-zinc-500 transition hover:bg-white/8 hover:text-white"><X size={20} /></button>
-        </div>
-
-        <div className="p-6">
-          {renderJobId && (generationStatus === 'rendering' || generationStatus === 'ready' || generationStatus === 'error') && (
-            <div className="rounded-lg border border-white/10 bg-white/[0.025] p-5">
-              <div className="mb-4">
-                <p className="text-sm font-black uppercase tracking-[0.18em] text-emerald-200">Please wait</p>
-                <h4 className="mt-2 text-2xl font-black tracking-normal text-white">Your video is being prepared</h4>
-                <p className="mt-2 text-sm leading-6 text-zinc-400">
-                  We are creating a typography-first MP4 from your audio. You can keep this open or check Your videos in a moment.
+        <div className="grid gap-5 lg:grid-cols-[1.08fr_0.92fr]">
+          <section className="rounded-lg border border-white/10 bg-zinc-950 p-4 md:p-6">
+            <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+              <div className="min-w-0">
+                <p className="text-sm font-black uppercase tracking-[0.2em] text-brand-mint">Create reel</p>
+                <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">Upload for {activeMode.label}.</h2>
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-400">
+                  Choose a template, upload the required media, and we will render a polished 9:16 reel.
                 </p>
               </div>
-              <VideoUploadStatus
-                userId={user.uid}
-                jobId={renderJobId}
-                onReady={(videoUrl) => {
-                  const finalUrl = normalizeRenderUrl(videoUrl);
-                  onJobUpdate(renderJobId, { status: 'Video ready', progress: 100, videoUrl: finalUrl, renderUrl: videoUrl });
-                  setGenerationStatus('ready');
-                  setGenerationProgress(100);
-                  setRemainingSeconds(0);
-                  setIsGenerating(false);
-                  toast.success('Video ready. Watch Video is available now.');
-                }}
-                onError={(message) => {
-                  setGenerationStatus('error');
-                  setGenerationProgress(12);
-                  setIsGenerating(false);
-                  toast.error(message);
-                }}
-              />
-            </div>
-          )}
-
-          {creationMode === 'voice' && (generationStatus === 'reading' || generationStatus === 'uploading' || generationStatus === 'planning') && (
-            <ProcessingPanel
-              status={generationStatus}
-              progress={generationProgress}
-              remainingSeconds={remainingSeconds}
-              estimatedSeconds={estimatedSeconds}
-              targetDurationSeconds={targetDurationSeconds}
-              uploadPercent={uploadPercent}
-              etaBreakdown={etaBreakdown}
-              voiceName={voiceover?.name || 'Voiceover'}
-            />
-          )}
-
-          {generationStatus === 'idle' && step === 1 && (
-            <div className="space-y-5">
-              <div className="grid gap-3 md:grid-cols-2">
-                <ModeCard
-                  selected={creationMode === 'voice'}
-                  imageSrc="/visuals/faceless-mode-guide.png"
-                  icon={<AudioLines size={24} />}
-                  title="Audio-only MVP"
-                  body="Upload one voiceover file. Images, screenshots, clips, and camera video are paused for now."
-                  tone="emerald"
-                  onClick={() => setCreationMode('voice')}
-                />
-                <ModeCard
-                  selected={false}
-                  imageSrc="/visuals/face-camera-mode-guide.png"
-                  icon={<Film size={24} />}
-                  title="Media uploads paused"
-                  body="Face camera, screenshots, images, and video clips will return after the MVP demo is stable."
-                  tone="cyan"
-                  onClick={() => toast.info('For now, please upload audio only. Media upload features are paused.')}
-                />
-              </div>
-
-              <FileDrop title="Voiceover" emptyCta="Select voiceover audio" desc="Required MP3, WAV, M4A only" file={voiceover} accept="audio/*" required onChange={setVoiceover} icon={<AudioLines size={26} />} />
-            </div>
-          )}
-
-          {generationStatus === 'idle' && step === 2 && (
-            creationMode === 'voice' ? (
-              <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
-              <div className="space-y-6">
-                <PreviewChoiceGrid
-                  label="Editing style"
-                  value={config.editingStyle}
-                  onChange={(editingStyle) => setConfig({ ...config, editingStyle })}
-                  options={editingStyleOptions}
-                />
-                <PreviewChoiceGrid
-                  label="Caption style"
-                  value={config.captionStyle}
-                  onChange={(captionStyle) => setConfig({ ...config, captionStyle })}
-                  options={captionStyleOptions}
-                />
-                <div className="grid gap-5 md:grid-cols-2">
-                  <Select label="Aspect ratio" value={config.aspectRatio} onChange={(aspectRatio) => setConfig({ ...config, aspectRatio })} options={[
-                    ['Portrait (9:16)', 'Portrait (9:16)'],
-                  ]} />
-                  <Select label="Export quality" value={config.quality} onChange={(quality) => setConfig({ ...config, quality })} options={[
-                    [PIPELINE_QUALITY, PIPELINE_QUALITY],
-                  ]} />
-                </div>
-              </div>
-
-              <div className="lg:sticky lg:top-24">
-                <LiveVideoPreview
-                  editingStyle={getPreviewOption(editingStyleOptions, config.editingStyle)}
-                  captionStyle={getPreviewOption(captionStyleOptions, config.captionStyle)}
-                  quality={config.quality}
-                />
+              <div className={`inline-flex items-center justify-center gap-2 rounded-lg border ${activeMode.border} ${activeMode.surface} px-4 py-3 text-sm font-black ${activeMode.color}`}>
+                <ActiveModeIcon size={16} />
+                {activeMode.label}
               </div>
             </div>
-            ) : (
-              <div className="grid gap-4 md:grid-cols-3">
-                {[
-                  ['classic', 'Classic', 'Blurred fill, centered subject, clean Shorts polish.'],
-                  ['cinematic', 'Cinematic', 'Higher contrast, subtle film tone, premium feel.'],
-                  ['clean', 'Clean', 'Black canvas, sharp subject, minimal distractions.'],
-                ].map(([value, title, desc]) => (
+
+            <div className="grid gap-4">
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {templateCards.map((template) => (
                   <button
-                    key={value}
+                    aria-disabled={!template.active}
+                    aria-pressed={template.active && template.mode === mode}
+                    className={`group overflow-hidden rounded-lg border text-left transition ${
+                      template.active
+                        ? template.mode === mode
+                          ? "border-brand-mint/55 bg-brand-mint/[0.075] hover:border-brand-mint"
+                          : "border-white/12 bg-white/[0.035] hover:border-white/25"
+                        : "cursor-not-allowed border-white/10 bg-white/[0.025] opacity-72"
+                    }`}
+                    key={template.id}
+                    onClick={() => {
+                      if (!template.active) return;
+                      if (!template.mode) return;
+                      chooseTemplateMode(template.mode);
+                    }}
                     type="button"
-                    onClick={() => setFaceStyle(value as 'classic' | 'cinematic' | 'clean')}
-                    className={`rounded-lg border p-5 text-left transition ${faceStyle === value ? 'border-cyan-300 bg-cyan-300/10' : 'border-white/10 bg-white/[0.035] hover:border-white/25'}`}
                   >
-                    <Film className="text-cyan-200" size={23} />
-                    <p className="mt-4 font-black">{title}</p>
-                    <p className="mt-2 text-sm leading-6 text-zinc-500">{desc}</p>
+                    <div className="relative aspect-[4/3] overflow-hidden bg-black">
+                      <Image
+                        alt=""
+                        className={`object-cover transition duration-500 ${template.active ? "group-hover:scale-[1.025]" : "grayscale-[0.2]"}`}
+                        fill
+                        priority={template.active && template.mode === mode}
+                        sizes="(min-width: 1024px) 210px, (min-width: 640px) 30vw, 100vw"
+                        src={template.image}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent" />
+                      <div
+                        className={`absolute left-3 top-3 rounded-md px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.14em] ${
+                          template.active && template.mode === mode ? "bg-brand-mint text-black" : "border border-white/12 bg-black/62 text-zinc-300"
+                        }`}
+                      >
+                        {template.active ? template.mode === mode ? "Selected" : "Active" : "Unavailable"}
+                      </div>
+                      {!template.active ? (
+                        <div className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-md border border-white/12 bg-black/62 text-zinc-300">
+                          <Lock size={14} />
+                        </div>
+                      ) : null}
+                    </div>
+                    <div className="p-3">
+                      <p className="text-sm font-black text-white">{template.title}</p>
+                      <p className="mt-1 line-clamp-2 text-xs leading-5 text-zinc-500">{template.description}</p>
+                      <div className="mt-3 flex flex-wrap gap-1.5">
+                        {template.badges.map((badge) => (
+                          <span
+                            className={`rounded-md border px-2 py-1 text-[10px] font-black uppercase tracking-[0.1em] ${
+                              template.active && template.mode === mode
+                                ? "border-brand-mint/30 bg-brand-mint/10 text-brand-mint"
+                                : "border-white/10 bg-black/25 text-zinc-400"
+                            }`}
+                            key={`${template.id}-${badge}`}
+                          >
+                            {badge}
+                          </span>
+                        ))}
+                      </div>
+                      <div
+                        className={`mt-3 inline-flex w-full items-center justify-center rounded-md px-3 py-2 text-xs font-black transition ${
+                          template.active
+                            ? template.mode === mode
+                              ? "bg-brand-mint text-black"
+                              : "border border-brand-mint/25 bg-brand-mint/10 text-brand-mint group-hover:bg-brand-mint group-hover:text-black"
+                            : "border border-white/10 bg-white/[0.035] text-zinc-500"
+                        }`}
+                      >
+                        {template.active ? template.mode === mode ? "Using this template" : "Use template" : "Unavailable"}
+                      </div>
+                    </div>
                   </button>
                 ))}
               </div>
-            )
-          )}
 
-          {generationStatus === 'idle' && step === 3 && (
-            <div className={`rounded-lg border p-6 ${creationMode === 'voice' ? 'border-emerald-300/15 bg-emerald-300/8' : 'border-cyan-300/15 bg-cyan-300/8'}`}>
-              <Sparkles className={creationMode === 'voice' ? 'text-emerald-200' : 'text-cyan-200'} size={30} />
-              <h4 className="mt-5 text-2xl font-black">Ready to create your audio-first video</h4>
-              <p className="mt-3 max-w-xl text-sm leading-6 text-zinc-400">
-                {creationMode === 'voice'
-                  ? `We will analyze the voiceover, create a typography timeline, generate captions, and export a stable ${PIPELINE_QUALITY} short-form MP4.`
-                  : `This media upload route is paused for the MVP. Please create with voiceover audio for now.`}
+              <label
+                className={`flex min-h-56 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed ${activeMode.border} ${activeMode.surface} p-4 text-center transition hover:bg-white/[0.055] sm:min-h-64 sm:p-6`}
+              >
+                <input
+                  accept={activeMode.accept}
+                  className="hidden"
+                  onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                    chooseFile(event.target.files?.[0] || null);
+                    event.currentTarget.value = "";
+                  }}
+                  type="file"
+                />
+                <div className={`mb-5 flex h-16 w-16 items-center justify-center rounded-lg border ${activeMode.border} bg-black/25 ${activeMode.color}`}>
+                  <ActiveModeIcon size={30} />
+                </div>
+                <p className="text-xl font-black text-white sm:text-2xl">{activeMode.title}</p>
+                <p className="mt-3 max-w-sm text-sm leading-6 text-zinc-400">{activeMode.description}</p>
+                <p className="mt-3 text-xs font-bold text-zinc-500">{activeMode.supported}</p>
+                <p className="mt-1 text-xs font-bold text-zinc-500">{activeMode.bestResult}</p>
+                <span className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-white px-4 py-3 text-sm font-black text-black sm:w-auto">
+                  <Upload size={16} />
+                  {activeMode.uploadCta}
+                </span>
+                {selectedFile ? (
+                  <div className="mt-5 w-full rounded-md border border-white/10 bg-black/35 px-4 py-3 text-left">
+                    <p className="truncate text-sm font-black text-white">{selectedFile.name}</p>
+                    <p className="mt-1 text-xs font-bold text-zinc-500">{fileMeta}</p>
+                  </div>
+                ) : null}
+                {selectedFile ? (
+                  <SelectedMediaPreview file={selectedFile} mode={mode} />
+                ) : null}
+              </label>
+
+              {mode === "compare" ? (
+                <div className="rounded-lg border border-emerald-200/20 bg-emerald-200/[0.055] p-4">
+                  <label className="text-sm font-black text-white" htmlFor="compare-images">
+                    Compare images
+                  </label>
+                  <p className="mt-2 text-xs font-bold leading-5 text-zinc-500">
+                    Upload 2 photos for left/right. Upload 4 photos when the audio is longer and needs a second pair.
+                  </p>
+                  <input
+                    accept="image/*"
+                    className="mt-4 block w-full cursor-pointer rounded-lg border border-white/10 bg-black/35 px-4 py-3 text-sm font-bold text-zinc-300 file:mr-4 file:rounded-md file:border-0 file:bg-white file:px-3 file:py-2 file:text-xs file:font-black file:text-black"
+                    id="compare-images"
+                    multiple
+                    onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                      chooseComparisonFiles(event.target.files);
+                      event.currentTarget.value = "";
+                    }}
+                    type="file"
+                  />
+                  {comparisonFiles.length ? (
+                    <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                      {comparisonFiles.map((file, index) => (
+                        <div className="rounded-md border border-white/10 bg-black/30 px-3 py-2" key={`${file.name}-${index}`}>
+                          <p className="truncate text-xs font-black text-white">
+                            {index % 2 === 0 ? "Left" : "Right"} {index > 1 ? "2" : "1"} · {file.name}
+                          </p>
+                          <p className="mt-1 text-[11px] font-bold text-zinc-500">{formatBytes(file.size)}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+                  {comparisonFiles.length > 0 && comparisonFiles.length < 2 ? (
+                    <p className="mt-3 text-xs font-bold text-amber-100">Add one more image before creating the reel.</p>
+                  ) : null}
+                </div>
+              ) : null}
+
+              <div className="rounded-lg border border-white/10 bg-white/[0.035] p-4">
+                <label className="text-sm font-black text-white" htmlFor="reel-topic">
+                  Optional reel topic/title
+                </label>
+                <input
+                  className="mt-3 w-full rounded-lg border border-white/10 bg-black/35 px-4 py-3 text-sm font-bold text-white outline-none transition placeholder:text-zinc-600 focus:border-brand-mint/55"
+                  id="reel-topic"
+                  maxLength={120}
+                  onChange={(event) => setTopicTitle(event.target.value)}
+                  placeholder={mode === "imageStory" ? "Example: RBI Grade B training process" : mode === "compare" ? "Example: Website vs Web App" : "Example: PAN Card apply process"}
+                  type="text"
+                  value={topicTitle}
+                />
+                <p className="mt-2 text-xs leading-5 text-zinc-500">
+                  Optional when speech exists. Helpful for topic-specific explainer titles.
+                </p>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <PolicyPill icon={Clock3} title="First minute" body="Long uploads are trimmed automatically." />
+                <PolicyPill
+                  icon={Sparkles}
+                  title={mode === "notes" ? "Voice to handwritten notes" : mode === "videoCaption" ? "Auto captions" : mode === "imageStory" ? "Image story beats" : mode === "compare" ? "Audio to comparison" : "Transcript to explainer"}
+                  body={mode === "notes" ? "Speech becomes neat note sections." : mode === "videoCaption" ? "Speech becomes synced captions only." : mode === "imageStory" ? "Images can render without fake transcript." : mode === "compare" ? "Speech becomes timed compare captions." : "Clear speech becomes scenes and text."}
+                />
+                <PolicyPill
+                  icon={BadgeCheck}
+                  title="Clean layout"
+                  body={mode === "notes" ? "Blank page notes, no prewritten image." : mode === "videoCaption" ? "Video stays full screen with safe captions." : mode === "imageStory" ? "One strong image per scene." : mode === "compare" ? "Two image panels stay visible." : "One primary visual per scene."}
+                />
+                <PolicyPill
+                  icon={ShieldCheck}
+                  title="Private upload"
+                  body="Your file is temporary and only used to create your reel."
+                />
+              </div>
+
+              <button
+                className={`inline-flex w-full items-center justify-center gap-2 rounded-lg px-5 py-4 text-sm font-black transition ${
+                  canPrepareReel
+                    ? "bg-brand-mint text-black hover:bg-white"
+                    : "cursor-not-allowed border border-white/10 bg-white/[0.04] text-zinc-500"
+                }`}
+                disabled={!canPrepareReel}
+                onClick={startRenderJob}
+                type="button"
+              >
+                <Sparkles size={17} />
+                {jobStatus.state === "uploading"
+                  ? "Uploading..."
+                  : jobStatus.state === "rendering"
+                    ? "Rendering..."
+                    : paidLimitComplete
+                      ? "Plan limit complete"
+                      : "Create My Reel"}
+              </button>
+              <p className="text-center text-xs font-bold leading-5 text-zinc-500">
+                {!selectedFile ? "Upload a file to continue. " : mode === "compare" && comparisonFiles.length < 2 ? "Add at least two compare images. " : ""}
+                First video starts at ₹9. Most reels finish in a few minutes.
               </p>
-              <div className="mt-5 grid gap-3 text-sm text-zinc-300 md:grid-cols-2">
-                  {creationMode === 'voice' ? (
-                    <>
-                    <Summary label="Voice" value={voiceover?.name || 'Required'} />
-                    <Summary label="Style" value={getPreviewOption(editingStyleOptions, config.editingStyle).title} />
-                    <Summary label="Captions" value={getPreviewOption(captionStyleOptions, config.captionStyle).title} />
-                    <Summary label="Export" value={`${PIPELINE_QUALITY} portrait MP4`} />
-                    </>
-                  ) : (
-                    <>
-                      <Summary label="Paused route" value="Use audio-only MVP" />
-                      <Summary label="Edit style" value={faceStyle} />
-                      <Summary label="Effects" value="Crop, motion, audio polish" />
-                      <Summary label="Export" value={`${PIPELINE_QUALITY} portrait MP4`} />
-                    </>
-                  )}
+              <ProgressPreview mode={mode} />
+              {paidLimitComplete ? (
+                <div className="rounded-lg border border-amber-200/20 bg-amber-200/[0.075] p-4 text-sm font-bold leading-6 text-amber-50">
+                  Your {billingEntitlement?.planName || "paid"} plan videos are complete for this billing period. Upgrade or wait for renewal to create more reels.
+                  <Link className="ml-2 text-brand-mint underline-offset-4 hover:underline" href="/pricing">
+                    View plans
+                  </Link>
+                </div>
+              ) : null}
+              {jobStatus.state !== "idle" ? (
+                <RenderStatusStage
+                  mode={mode}
+                  onPreview={() => setPreviewRender(makeCurrentPreviewRender(
+                    jobStatus.outputFile || "",
+                    mode,
+                    jobStatus.title || selectedFile?.name?.replace(/\.[^.]+$/, "") || "Current reel",
+                    jobStatus.design || "Auto from script",
+                  ))}
+                  status={jobStatus}
+                  title={jobStatus.title || selectedFile?.name || activeMode.title}
+                />
+              ) : null}
+            </div>
+          </section>
+
+          <aside className="space-y-6">
+            <section className="rounded-lg border border-white/10 bg-zinc-950 p-4 md:p-6">
+              <div className="mb-5 flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm font-black uppercase tracking-[0.2em] text-brand-mint">Recent renders</p>
+                  <h2 className="mt-2 text-xl font-black text-white sm:text-2xl">Available for 48 hours</h2>
+                </div>
+                <FolderOpen className="text-brand-mint" size={22} />
+              </div>
+              {recentRenders.length ? (
+                <div className="space-y-3">
+                  {recentRenders.map((render) => (
+                    <article key={render.id} className="rounded-lg border border-white/10 bg-black/25 p-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-black text-white">{render.title}</p>
+                          <p className="mt-1 text-xs font-bold uppercase tracking-[0.14em] text-zinc-500">
+                            {getModeLabel(render.mode)} | {formatTimeLeft(render.expiresAt)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                        <button
+                          className="inline-flex items-center justify-center gap-2 rounded-md border border-white/10 bg-white/[0.04] px-3 py-2.5 text-xs font-black text-zinc-200 transition hover:border-brand-mint/40 hover:text-brand-mint"
+                          onClick={() => setPreviewRender(render)}
+                          type="button"
+                        >
+                          <Eye size={14} />
+                          Preview
+                        </button>
+                        <a
+                          className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-3 py-2.5 text-xs font-black text-black transition hover:bg-brand-mint"
+                          href={render.outputFile}
+                          rel="noreferrer"
+                          target="_blank"
+                        >
+                          <Download size={14} />
+                          Download
+                        </a>
+                        <button
+                          className="inline-flex items-center justify-center gap-2 rounded-md border border-red-400/20 bg-red-500/10 px-3 py-2.5 text-xs font-black text-red-200 transition hover:bg-red-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                          disabled={deletingRenderId === render.id}
+                          onClick={() => requestDeleteRender(render)}
+                          type="button"
+                        >
+                          <Trash2 size={14} />
+                          Delete
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-lg border border-dashed border-white/10 bg-black/20 px-4 py-6 text-sm font-bold leading-6 text-zinc-500">
+                  Finished reels will appear here on this device until their temporary links expire.
+                </div>
+              )}
+            </section>
+
+            <section className="rounded-lg border border-amber-200/18 bg-amber-200/[0.055] p-4 md:p-6">
+              <p className="text-sm font-black uppercase tracking-[0.2em] text-amber-100">Upload privacy</p>
+              <div className="mt-5 space-y-3">
+                {[
+                  "Your uploads are private and temporary.",
+                  "Final MP4 links are removed after about 48 hours.",
+                  "Your reel is created in the background. You can wait here or come back later.",
+                  "We only use your file to create your reel.",
+                ].map((item) => (
+                  <div key={item} className="flex items-start gap-3 text-sm font-bold leading-6 text-zinc-200">
+                    <ShieldCheck className="mt-0.5 shrink-0 text-amber-100" size={16} />
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </aside>
+        </div>
+      </div>
+      {previewRender ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/82 px-4 py-6 backdrop-blur-sm">
+          <div className="max-h-full w-full max-w-sm overflow-hidden rounded-lg border border-white/10 bg-zinc-950 shadow-2xl sm:max-w-md">
+            <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-black text-white">{previewRender.title}</p>
+                <p className="mt-0.5 text-xs font-bold text-zinc-500">{formatTimeLeft(previewRender.expiresAt)}</p>
+              </div>
+              <button
+                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-white/10 text-zinc-300 transition hover:bg-white/10 hover:text-white"
+                onClick={() => setPreviewRender(null)}
+                type="button"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <video
+              className="aspect-[9/16] w-full bg-black object-contain"
+              controls
+              playsInline
+              preload="metadata"
+              src={previewRender.outputFile}
+            />
+            <div className="grid gap-3 border-t border-white/10 p-4 sm:grid-cols-3">
+              <button
+                className="inline-flex items-center justify-center rounded-lg border border-white/10 px-4 py-3 text-sm font-black text-zinc-200 transition hover:bg-white/10"
+                onClick={() => setPreviewRender(null)}
+                type="button"
+              >
+                Close
+              </button>
+              <a
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-4 py-3 text-sm font-black text-black transition hover:bg-brand-mint"
+                href={previewRender.outputFile}
+                rel="noreferrer"
+                target="_blank"
+              >
+                <Download size={16} />
+                Download
+              </a>
+              <button
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm font-black text-red-200 transition hover:bg-red-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={deletingRenderId === previewRender.id}
+                onClick={() => requestDeleteRender(previewRender)}
+                type="button"
+              >
+                <Trash2 size={16} />
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+      {deleteCandidate ? (
+        <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/80 px-3 pb-4 pt-10 backdrop-blur-md sm:items-center sm:px-5 sm:pb-10">
+          <div
+            aria-modal="true"
+            className="w-full max-w-md overflow-hidden rounded-lg border border-red-300/20 bg-[#09090b] shadow-[0_26px_90px_rgba(0,0,0,0.65)]"
+            role="dialog"
+          >
+            <div className="relative border-b border-white/10 bg-[radial-gradient(circle_at_20%_0%,rgba(45,212,191,0.16),transparent_32%),radial-gradient(circle_at_92%_8%,rgba(248,113,113,0.18),transparent_34%)] px-5 pb-5 pt-5">
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-red-300/25 bg-red-500/10 text-red-200">
+                  <AlertTriangle size={22} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-black uppercase tracking-[0.2em] text-red-200">Delete render</p>
+                  <h2 className="mt-2 text-2xl font-black tracking-normal text-white">Remove this video?</h2>
+                  <p className="mt-2 text-sm font-bold leading-6 text-zinc-400">
+                    This only removes the render from your dashboard history on this device/account. Temporary MP4 links still expire automatically.
+                  </p>
+                </div>
               </div>
             </div>
-          )}
+            <div className="px-5 py-5">
+              <div className="rounded-lg border border-white/10 bg-white/[0.035] p-4">
+                <p className="truncate text-sm font-black text-white">{deleteCandidate.title}</p>
+                <p className="mt-1 text-xs font-bold uppercase tracking-[0.14em] text-zinc-500">
+                  {getModeLabel(deleteCandidate.mode)} | {formatTimeLeft(deleteCandidate.expiresAt)}
+                </p>
+              </div>
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                <button
+                  className="inline-flex items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3.5 text-sm font-black text-zinc-200 transition hover:border-white/25 hover:bg-white/[0.08] hover:text-white"
+                  onClick={() => setDeleteCandidate(null)}
+                  type="button"
+                >
+                  Keep video
+                </button>
+                <button
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-red-400 px-4 py-3.5 text-sm font-black text-black transition hover:bg-red-300 disabled:cursor-not-allowed disabled:opacity-60"
+                  disabled={deletingRenderId === deleteCandidate.id}
+                  onClick={() => void deleteRender(deleteCandidate)}
+                  type="button"
+                >
+                  <Trash2 size={16} />
+                  Delete video
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-
-        <div className="flex items-center justify-between border-t border-white/10 px-6 py-5">
-          <button disabled={isGenerating} onClick={step === 1 || generationStatus !== 'idle' ? onClose : () => setStep(step - 1)} className="font-bold text-zinc-500 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-40">
-            {generationStatus !== 'idle' ? 'Close' : step === 1 ? 'Cancel' : 'Back'}
-          </button>
-          <button
-            disabled={isGenerating || generationStatus !== 'idle' || (step === 1 && !voiceover)}
-            onClick={step === 3 ? (creationMode === 'voice' ? handleGenerateVideo : handleGenerateFaceVideo) : () => setStep(step + 1)}
-            className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 font-black text-black transition hover:bg-zinc-200 disabled:opacity-50"
-          >
-            {isGenerating ? <Loader2 className="animate-spin" size={18} /> : step === 3 ? <Scissors size={18} /> : <ChevronRight size={18} />}
-            {generationStatus === 'ready' ? 'Ready' : step === 3 ? 'Generate audio video' : 'Next'}
-          </button>
-        </div>
-      </motion.div>
-    </motion.div>
+      ) : null}
+    </main>
   );
+
+  async function startRenderJob() {
+    if (!selectedFile || !user) return;
+    const validation = validateFileForMode(selectedFile, mode);
+    if (validation) {
+      setJobStatus({state: "error", message: validation});
+      return;
+    }
+    if (mode === "compare" && comparisonFiles.length < 2) {
+      setJobStatus({state: "error", message: "Compare needs at least two images: one left and one right."});
+      return;
+    }
+    const userId = user.id;
+    const uploadContentType = getUploadContentType(selectedFile);
+    setJobStatus({state: "uploading", message: "Preparing your private upload..."});
+
+    try {
+      const presignResponse = await fetch("/api/media/presign", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          fileName: selectedFile.name,
+          contentType: uploadContentType,
+          fileSize: selectedFile.size,
+          mode,
+          userId,
+        }),
+      });
+      const presign = await readJsonPayload(presignResponse);
+      if (!presignResponse.ok || !presign.ok) throw new Error(presign.error || "Could not prepare upload.");
+
+      setJobStatus({state: "uploading", message: "Uploading your file. Please keep this page open..."});
+      const uploadResponse = await fetch(presign.uploadUrl, {
+        method: "PUT",
+        headers: {"Content-Type": uploadContentType},
+        body: selectedFile,
+      }).catch((error) => {
+        throw new Error(formatNetworkError(error, "Media upload failed. Please retry on a stable connection."));
+      });
+      if (!uploadResponse.ok) throw new Error("Media upload failed.");
+
+      const comparisonImageKeys = mode === "compare"
+        ? await uploadComparisonImages({files: comparisonFiles, userId})
+        : [];
+
+      setJobStatus({state: "starting", message: planningMessageForMode(mode)});
+      const jobResponse = await fetch("/api/reels/jobs", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          mediaKey: presign.key,
+          fileName: selectedFile.name,
+          contentType: uploadContentType,
+          mediaType: getFileMediaType(selectedFile),
+          mode,
+          topicTitle: topicTitle.trim(),
+          userId,
+          comparisonImageKeys,
+        }),
+      });
+      const job = await readJsonPayload(jobResponse);
+      if (!jobResponse.ok || !job.ok) {
+        const reasonCode = typeof job.reasonCode === "string" ? job.reasonCode : "";
+        setJobStatus({
+          state: "error",
+          message: sanitizeUserFacingStatus(job.error || "Could not start render."),
+          progress: getFailureProgress(reasonCode),
+          failureStage: getFailureStage(reasonCode),
+          reasonCode,
+        });
+        return;
+      }
+      const plannedTitle = typeof job.reelTitle === "string" && job.reelTitle.trim()
+        ? job.reelTitle.trim()
+        : selectedFile.name.replace(/\.[^.]+$/, "") || "Itnavideo reel";
+      const plannedDesign = typeof job.design === "string" && job.design.trim()
+        ? job.design.trim()
+        : "Auto from script";
+
+      setJobStatus({
+        state: "rendering",
+        message: job.transcriptSource === "primary"
+          ? "Rendering your reel. This may take a few minutes..."
+          : `Rendering with backup planning. ${sanitizeUserFacingStatus(job.transcriptWarning || "")}`.trim(),
+        progress: 0,
+        renderId: job.renderId,
+        bucketName: job.bucketName,
+        title: plannedTitle,
+        design: plannedDesign,
+      });
+      pollRender(job.renderId, job.bucketName, userId, {title: plannedTitle, design: plannedDesign});
+    } catch (error) {
+      setJobStatus({
+        state: "error",
+        message: formatNetworkError(error, "We could not generate this reel."),
+        failureStage: "upload",
+      });
+    }
+  }
+
+  async function pollRender(renderId: string, bucketName: string, userId: string, meta: {title: string; design: string}) {
+    let consecutivePollErrors = 0;
+    for (let attempt = 0; attempt < RENDER_POLL_ATTEMPTS; attempt += 1) {
+      await wait(RENDER_POLL_INTERVAL_MS);
+      let response: Response;
+      let status: Awaited<ReturnType<typeof readJsonPayload>>;
+      try {
+        const statusParams = new URLSearchParams({
+          renderId,
+          bucketName,
+          userId,
+          mode,
+          title: meta.title,
+        });
+        response = await fetch(`/api/reels/jobs/status?${statusParams.toString()}`);
+        status = await readJsonPayload(response);
+        consecutivePollErrors = 0;
+      } catch (error) {
+        consecutivePollErrors += 1;
+        if (consecutivePollErrors >= 3) {
+          setJobStatus({state: "error", message: formatNetworkError(error, "Could not read render progress."), renderId, bucketName, ...meta});
+          return;
+        }
+        setJobStatus((current) => ({
+          state: "rendering",
+          message: "Render is still running. Rechecking connection...",
+          progress: current.progress || 0,
+          renderId,
+          bucketName,
+          ...meta,
+        }));
+        continue;
+      }
+      if (!response.ok || !status.ok) {
+        setJobStatus({state: "error", message: status.error || "Could not read render progress.", renderId, bucketName, ...meta});
+        return;
+      }
+      if (status.errors?.length) {
+        setJobStatus({state: "error", message: sanitizeUserFacingStatus(status.errors[0]?.message || "Render failed."), renderId, bucketName, ...meta});
+        return;
+      }
+      if (status.done) {
+        const finishedRender: RecentRender = {
+          id: renderId,
+          title: meta.title,
+          mode,
+          design: meta.design,
+          outputFile: status.outputFile,
+          createdAt: Date.now(),
+          expiresAt: Date.now() + RECENT_RENDER_RETENTION_MS,
+        };
+        const localRenders = saveRecentRender(userId, finishedRender);
+        setRecentRenders(localRenders);
+        saveServerRecentRender(userId, finishedRender, bucketName).then((serverRender) => {
+          if (!serverRender) return;
+          setRecentRenders((current) => mergeRecentRenders([serverRender, ...current]));
+          saveRecentRenders(userId, mergeRecentRenders([serverRender, ...localRenders]));
+          loadBillingEntitlement(userId).then(setBillingEntitlement).catch((error) => {
+            console.warn("Could not refresh billing status:", error);
+          });
+        }).catch((error) => {
+          console.warn("Could not save Supabase render history:", error);
+        });
+        setJobStatus({
+          state: "ready",
+          message: "Final MP4 is ready.",
+          progress: 1,
+          outputFile: status.outputFile,
+          renderId,
+          bucketName,
+          ...meta,
+        });
+        return;
+      }
+      setJobStatus((current) => ({
+        state: "rendering",
+        message: status.message || "Rendering your reel...",
+        progress: getOptimisticRenderProgress(attempt, status.progress, current.progress),
+        renderId,
+        bucketName,
+        ...meta,
+      }));
+    }
+    setJobStatus({
+      state: "error",
+      message: "Render is still processing longer than expected. Your upload is still selected, so you can retry without uploading again.",
+      renderId,
+      bucketName,
+      ...meta,
+    });
+  }
 }
 
-function ProcessingPanel({
+function makeCurrentPreviewRender(outputFile: string, mode: Mode, title: string, design: string): RecentRender {
+  return {
+    id: "current-render",
+    title: title || "Current reel",
+    mode,
+    design,
+    outputFile,
+    createdAt: Date.now(),
+    expiresAt: Date.now() + RECENT_RENDER_RETENTION_MS,
+  };
+}
+
+function validateFileForMode(file: File, mode: Mode) {
+  const type = file.type || "";
+  const name = file.name.toLowerCase();
+  const isVideo = type.startsWith("video/") || /\.(mp4|mov|webm|m4v)$/i.test(name);
+  const isAudio = type.startsWith("audio/") || /\.(mp3|wav|m4a|aac|ogg)$/i.test(name);
+  const isImage = type.startsWith("image/") || /\.(jpg|jpeg|png|webp)$/i.test(name);
+  const maxBytes = 100 * 1024 * 1024;
+
+  if (file.size > maxBytes) {
+    return "This file is too large. Please upload a shorter file or compress it under 100MB.";
+  }
+  if (mode === "videoCaption" && !isVideo) {
+    return "Video Caption needs a video file. Please upload an MP4/MOV video or choose another template.";
+  }
+  if (mode === "notes" && !isAudio && !isVideo) {
+    return "Handwritten Notes needs audio or video with clear speech.";
+  }
+  if (mode === "imageStory" && !isImage) {
+    return "Image Story needs an image file. Supported formats include JPG, PNG, and WEBP.";
+  }
+  if (mode === "compare" && !isAudio) {
+    return "Compare needs an audio voiceover plus 2 to 4 comparison photos.";
+  }
+  if (mode === "videoExplainer" && !isAudio && !isVideo) {
+    return "Video Explainer needs audio or video with clear speech.";
+  }
+  return "";
+}
+
+function validateComparisonImage(file: File) {
+  const type = file.type || "";
+  const name = file.name.toLowerCase();
+  const isImage = type.startsWith("image/") || /\.(jpg|jpeg|png|webp)$/i.test(name);
+  const maxBytes = 25 * 1024 * 1024;
+  if (!isImage) return "Compare images must be JPG, PNG, or WEBP files.";
+  if (file.size > maxBytes) return "Each Compare image must be under 25MB.";
+  return "";
+}
+
+function getFileMediaType(file: File): "audio" | "video" | "image" {
+  const contentType = getUploadContentType(file);
+  if (contentType.startsWith("audio/")) return "audio";
+  if (contentType.startsWith("image/")) return "image";
+  return "video";
+}
+
+function getUploadContentType(file: File) {
+  if (file.type) return file.type;
+  const name = file.name.toLowerCase();
+  if (name.endsWith(".mp3")) return "audio/mpeg";
+  if (name.endsWith(".wav")) return "audio/wav";
+  if (name.endsWith(".m4a")) return "audio/mp4";
+  if (name.endsWith(".jpg") || name.endsWith(".jpeg")) return "image/jpeg";
+  if (name.endsWith(".png")) return "image/png";
+  if (name.endsWith(".webp")) return "image/webp";
+  if (name.endsWith(".mov")) return "video/quicktime";
+  if (name.endsWith(".webm")) return "video/webm";
+  return "video/mp4";
+}
+
+async function uploadComparisonImages({files, userId}: {files: File[]; userId: string}) {
+  const keys: string[] = [];
+  for (const file of files.slice(0, 4)) {
+    const contentType = getUploadContentType(file);
+    const presignResponse = await fetch("/api/media/presign", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        fileName: file.name,
+        contentType,
+        fileSize: file.size,
+        mode: "compare",
+        userId,
+      }),
+    });
+    const presign = await readJsonPayload(presignResponse);
+    if (!presignResponse.ok || !presign.ok) throw new Error(presign.error || "Could not prepare compare image upload.");
+
+    const uploadResponse = await fetch(presign.uploadUrl, {
+      method: "PUT",
+      headers: {"Content-Type": contentType},
+      body: file,
+    }).catch((error) => {
+      throw new Error(formatNetworkError(error, "Compare image upload failed. Please retry on a stable connection."));
+    });
+    if (!uploadResponse.ok) throw new Error("Compare image upload failed.");
+    if (typeof presign.key === "string") keys.push(presign.key);
+  }
+  return keys;
+}
+
+function planningMessageForMode(mode: Mode) {
+  if (mode === "notes") return "Creating note sections and writing animations...";
+  if (mode === "videoCaption") return "Preparing timed captions from your real transcript...";
+  if (mode === "imageStory") return "Creating image story beats and motion...";
+  if (mode === "compare") return "Preparing left/right comparison scenes...";
+  return "Choosing scenes, text, and visuals...";
+}
+
+function RenderStatusStage({
+  mode,
+  onPreview,
   status,
-  progress,
-  remainingSeconds,
-  estimatedSeconds,
-  targetDurationSeconds,
-  uploadPercent,
-  etaBreakdown,
-  voiceName,
-}: {
-  status: GenerationStatus;
-  progress: number;
-  remainingSeconds: number;
-  estimatedSeconds: number;
-  targetDurationSeconds: number;
-  uploadPercent: number;
-  etaBreakdown: GenerationEta | null;
-  voiceName: string;
-}) {
-  const statusCopy = {
-    idle: 'Preparing',
-    reading: 'Reading voiceover duration',
-    uploading: 'Uploading voiceover securely',
-    planning: 'AI director is building your timeline',
-    rendering: 'Itnavideo is rendering your MP4',
-    ready: 'Video ready',
-    error: 'Needs retry',
-  }[status];
-
-  return (
-    <div className="overflow-hidden rounded-lg border border-emerald-300/15 bg-emerald-300/8 p-4 sm:p-6">
-      <div className="flex min-w-0 flex-col gap-5 md:flex-row md:items-center md:justify-between">
-        <div className="min-w-0">
-          <p className="text-sm font-bold uppercase tracking-[0.18em] text-emerald-200">Generating video</p>
-          <h4 className="mt-3 break-words text-2xl font-black sm:text-3xl">{statusCopy}</h4>
-          <p className="mt-3 max-w-xl break-words text-sm leading-6 text-zinc-400">
-            Estimated complete MP4 time: {formatDuration(estimatedSeconds)}. Reels output is capped at {formatDuration(targetDurationSeconds)}.
-          </p>
-        </div>
-        <div className="w-full rounded-lg border border-white/10 bg-black/30 p-4 text-center md:w-auto md:min-w-44">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-zinc-500">ETA left</p>
-          <p className="mt-2 text-5xl font-black text-white">{remainingSeconds}s</p>
-          <p className="mt-1 text-xs text-zinc-500">total about {formatDuration(estimatedSeconds)}</p>
-        </div>
-      </div>
-
-      <div className="mt-6 h-2 overflow-hidden rounded-full bg-black/40">
-        <div className="h-full rounded-full bg-emerald-300 transition-all duration-500" style={{ width: `${progress}%` }} />
-      </div>
-
-      <div className="mt-5 grid gap-3 md:grid-cols-3">
-        <ProcessStep active={status === 'reading' || status === 'uploading' || status === 'planning' || status === 'rendering' || status === 'ready'} done={status === 'uploading' || status === 'planning' || status === 'rendering' || status === 'ready'} label="Voice scan" />
-        <ProcessStep active={status === 'uploading' || status === 'planning' || status === 'rendering' || status === 'ready'} done={status === 'planning' || status === 'rendering' || status === 'ready'} label={status === 'uploading' ? `Upload ${uploadPercent}%` : 'Secure upload'} />
-        <ProcessStep active={status === 'planning' || status === 'rendering' || status === 'ready'} done={status === 'rendering' || status === 'ready'} label={status === 'rendering' ? 'Rendering MP4' : 'Timeline + render'} />
-      </div>
-
-      {etaBreakdown && (
-        <div className="mt-5 grid gap-2 text-xs text-zinc-400 sm:grid-cols-3">
-          <div className="rounded-md border border-white/10 bg-black/20 p-3">Upload: {formatDuration(etaBreakdown.uploadSeconds)}</div>
-          <div className="rounded-md border border-white/10 bg-black/20 p-3">AI plan: {formatDuration(etaBreakdown.planningSeconds)}</div>
-          <div className="rounded-md border border-white/10 bg-black/20 p-3">Video render: {formatDuration(etaBreakdown.renderSeconds)}</div>
-        </div>
-      )}
-
-      <div className="mt-5 grid gap-3 md:grid-cols-2">
-        <div className="min-w-0 rounded-md border border-white/10 bg-black/25 p-4">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-zinc-600">Voiceover</p>
-          <p className="mt-1 max-w-full break-all text-sm font-semibold text-zinc-200">{voiceName}</p>
-        </div>
-        <div className="min-w-0 rounded-md border border-white/10 bg-black/25 p-4">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-zinc-600">Healthy pause</p>
-          <p className="mt-1 flex min-w-0 items-start gap-2 break-words text-sm font-semibold leading-6 text-zinc-200">
-            {remainingSeconds > 20 ? <Waves size={16} className="mt-1 shrink-0 text-cyan-200" /> : <Coffee size={16} className="mt-1 shrink-0 text-amber-200" />}
-            <span className="min-w-0">{remainingSeconds > 20 ? 'Tab tak thoda paani peelo. Health ke liye acha hai.' : 'Chai ka sip lo. Timeline bas ready hone wali hai.'}</span>
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ProcessStep({ active, done, label }: { active: boolean; done: boolean; label: string }) {
-  return (
-    <div className={`rounded-md border p-3 text-sm font-bold ${active ? 'border-emerald-300/25 bg-emerald-300/10 text-emerald-100' : 'border-white/10 bg-black/20 text-zinc-600'}`}>
-      <span className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-black/35 align-middle">
-        {done ? <CheckCircle2 size={14} /> : active ? <Loader2 className="animate-spin" size={14} /> : <span className="h-1.5 w-1.5 rounded-full bg-current" />}
-      </span>
-      {label}
-    </div>
-  );
-}
-
-function ModeCard({
-  selected,
-  imageSrc,
-  icon,
   title,
-  body,
-  tone,
-  onClick,
 }: {
-  selected: boolean;
-  imageSrc: string;
-  icon: React.ReactNode;
+  mode: Mode;
+  onPreview: () => void;
+  status: JobStatus;
   title: string;
-  body: string;
-  tone: 'emerald' | 'cyan';
-  onClick: () => void;
 }) {
-  const selectedClass = tone === 'emerald'
-    ? 'border-emerald-300 bg-emerald-300/10 text-emerald-100'
-    : 'border-cyan-300 bg-cyan-300/10 text-cyan-100';
+  const progress = getRenderDisplayProgress(status);
+  const percentage = Math.round(progress * 100);
+  const meta = getRenderStageMeta(status, mode);
+  const StageIcon = meta.icon;
+  const working = status.state === "uploading" || status.state === "starting" || status.state === "rendering";
+  const failed = status.state === "error";
+  const ready = status.state === "ready";
+  const steps = getRenderSteps(progress, status, mode);
 
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={selected}
-      className={`rounded-lg border p-5 text-left transition ${selected ? selectedClass : 'border-white/10 bg-white/[0.035] text-zinc-200 hover:border-white/25'}`}
-    >
-      <img src={imageSrc} alt="" className="mb-4 aspect-[5/3] w-full rounded-md border border-white/10 bg-black/30 object-cover" />
-      <div className={tone === 'emerald' ? 'text-emerald-200' : 'text-cyan-200'}>{icon}</div>
-      <p className="mt-4 font-black">{title}</p>
-      <p className="mt-2 text-sm leading-6 text-zinc-500">{body}</p>
-    </button>
-  );
-}
-
-function FileDrop({ title, emptyCta, desc, file, accept, required, onChange, icon }: { title: string; emptyCta?: string; desc: string; file: File | null; accept: string; required?: boolean; onChange: (file: File | null) => void; icon: React.ReactNode }) {
-  const isMissingRequired = required && !file;
-
-  return (
-    <label
-      onDragOver={(event) => event.preventDefault()}
-      onDrop={(event) => {
-        event.preventDefault();
-        onChange(event.dataTransfer.files?.[0] || null);
-      }}
-      className={`block cursor-pointer rounded-lg border-2 border-dashed p-6 text-center transition ${
-        file
-          ? 'border-emerald-300/45 bg-emerald-300/8'
-          : isMissingRequired
-            ? 'animate-pulse border-emerald-300/50 bg-emerald-300/10 shadow-[0_0_28px_rgba(110,231,183,0.16)] hover:border-emerald-200'
-            : 'border-white/15 bg-white/[0.03] hover:border-emerald-300/40'
+    <div
+      className={`relative overflow-hidden rounded-xl border p-4 shadow-[0_24px_90px_rgba(0,0,0,0.34)] sm:p-5 ${
+        failed
+          ? "border-red-300/24 bg-red-500/[0.055]"
+          : ready
+            ? "border-brand-mint/35 bg-brand-mint/[0.07]"
+            : "border-brand-mint/24 bg-[#061011]"
       }`}
     >
-      <input type="file" accept={accept} className="hidden" required={required} onChange={(event) => onChange(event.target.files?.[0] || null)} />
-      <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-md bg-white/8 text-emerald-200">{icon}</div>
-      <p className="font-bold">{file ? title : `Drag ${title.toLowerCase()} here or click to browse`}</p>
-      <p className="mt-1 text-sm text-zinc-500">{file ? file.name : desc}</p>
-      {!file && (
-        <span className="mx-auto mt-5 inline-flex items-center justify-center gap-2 rounded-md bg-emerald-300 px-5 py-3 text-sm font-black text-black">
-          {icon}
-          {emptyCta || `Select ${title.toLowerCase()}`}
-        </span>
-      )}
-      {file && <p className="mt-2 text-xs font-bold text-emerald-200">{formatFileSize(file.size)} selected</p>}
-      {file && <button type="button" onClick={(event) => { event.preventDefault(); onChange(null); }} className="mt-4 text-sm font-bold text-red-300">Remove</button>}
-    </label>
-  );
-}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_8%,rgba(94,234,212,0.22),transparent_30%),radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.09),transparent_26%),linear-gradient(135deg,rgba(255,255,255,0.07),transparent_48%)]" />
+      <div className="pointer-events-none absolute inset-0 opacity-[0.18] [background-image:linear-gradient(rgba(255,255,255,0.14)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.12)_1px,transparent_1px)] [background-size:34px_34px]" />
+      {renderParticles.map((particle) => (
+        <span
+          aria-hidden="true"
+          className="absolute h-1.5 w-1.5 rounded-full bg-brand-mint/70 shadow-[0_0_18px_rgba(94,234,212,0.75)] motion-safe:animate-pulse"
+          key={`${particle.left}-${particle.top}`}
+          style={{left: particle.left, top: particle.top, animationDelay: particle.delay}}
+        />
+      ))}
 
-function PreviewChoiceGrid({
-  label,
-  value,
-  onChange,
-  options,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  options: PreviewOption[];
-}) {
-  return (
-    <fieldset>
-      <legend className="mb-3 text-sm font-bold text-zinc-300">{label}</legend>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {options.map((option) => {
-          const selected = option.value === value;
-          return (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => onChange(option.value)}
-              aria-pressed={selected}
-              className={`overflow-hidden rounded-lg border text-left transition ${
-                selected ? 'border-emerald-300 bg-emerald-300/10 shadow-[0_0_0_1px_rgba(110,231,183,0.4)]' : 'border-white/10 bg-white/[0.035] hover:border-white/25'
-              }`}
-            >
-              <StylePreview kind={option.preview} selected={selected} />
-              <div className="flex min-h-20 items-start justify-between gap-3 p-3">
-                <div className="min-w-0">
-                  <p className="truncate font-bold text-white">{option.title}</p>
-                  <p className="mt-1 text-xs leading-5 text-zinc-500">{option.hint}</p>
-                </div>
-                <span className={`mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${selected ? 'border-emerald-200 bg-emerald-200 text-black' : 'border-white/20 text-transparent'}`}>
-                  <CheckCircle2 size={14} />
-                </span>
+      <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex min-w-0 items-start gap-3">
+          <div className={`grid h-12 w-12 shrink-0 place-items-center rounded-lg border ${meta.iconFrame}`}>
+            <StageIcon className={working ? "motion-safe:animate-pulse" : ""} size={22} />
+          </div>
+          <div className="min-w-0">
+            <p className={`text-xs font-black uppercase tracking-[0.2em] ${meta.kickerClass}`}>{meta.kicker}</p>
+            <h3 className="mt-1 text-xl font-black tracking-normal text-white sm:text-2xl">{meta.title}</h3>
+            <p className="mt-2 max-w-xl text-sm font-bold leading-6 text-zinc-400">{status.message || meta.body}</p>
+          </div>
+        </div>
+        <div className={`inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border px-3 py-2 text-xs font-black uppercase tracking-[0.14em] ${meta.badgeClass}`}>
+          {working ? <Loader2 className="motion-safe:animate-spin" size={14} /> : null}
+          {failed ? "Needs retry" : ready ? "Ready" : `${percentage}%`}
+        </div>
+      </div>
+
+      <div className="relative mt-5 grid gap-5 lg:grid-cols-[0.96fr_1.04fr]">
+        <div className="relative min-h-52 overflow-hidden rounded-lg border border-white/10 bg-black/35 p-4">
+          <div className="absolute inset-x-4 top-5 h-px bg-gradient-to-r from-transparent via-brand-mint/70 to-transparent" />
+          <div className="absolute inset-y-6 left-1/2 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent" />
+          <div className="relative mx-auto flex aspect-[9/16] h-56 max-h-full flex-col overflow-hidden rounded-xl border border-white/15 bg-[#06090d] p-2 shadow-[0_20px_70px_rgba(0,0,0,0.55)]">
+            <div className="relative h-[36%] overflow-hidden rounded-lg border border-white/10 bg-[radial-gradient(circle_at_50%_40%,rgba(94,234,212,0.26),transparent_38%),linear-gradient(135deg,rgba(255,255,255,0.12),rgba(255,255,255,0.035))]">
+              <div className="absolute inset-x-4 top-1/2 flex -translate-y-1/2 items-center justify-center gap-1.5">
+                {renderPreviewBars.map((height, index) => (
+                  <span
+                    className="w-1.5 rounded-full bg-brand-mint/85 shadow-[0_0_14px_rgba(94,234,212,0.55)] motion-safe:animate-pulse"
+                    key={`render-bar-${index}`}
+                    style={{
+                      animationDelay: `${index * 0.08}s`,
+                      height: `${Math.max(14, height * 0.42)}px`,
+                    }}
+                  />
+                ))}
               </div>
-            </button>
-          );
-        })}
-      </div>
-    </fieldset>
-  );
-}
+              <div className="absolute bottom-3 left-3 right-3 h-8 rounded-md border border-white/10 bg-white/10" />
+            </div>
+            <div className="mt-2 grid flex-1 grid-rows-[1fr_0.74fr_0.92fr] gap-2">
+              <div className="rounded-lg border border-brand-mint/20 bg-brand-mint/[0.12] p-2">
+                <div className="h-2 w-2/3 rounded-full bg-white/70" />
+                <div className="mt-2 h-1.5 w-1/2 rounded-full bg-brand-mint/70" />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="rounded-md bg-white/[0.08]" />
+                <div className="rounded-md bg-white/[0.055]" />
+              </div>
+              <div className="rounded-lg border border-white/10 bg-white/[0.055] p-2">
+                <div className="h-1.5 w-3/4 rounded-full bg-white/50" />
+                <div className="mt-2 h-1.5 w-1/3 rounded-full bg-brand-mint/60" />
+              </div>
+            </div>
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-brand-mint via-white to-cyan-200 transition-all duration-700"
+                style={{width: `${Math.max(8, percentage)}%`}}
+              />
+            </div>
+          </div>
+          <div className="pointer-events-none absolute inset-x-4 bottom-4 flex items-center justify-between text-[10px] font-black uppercase tracking-[0.18em] text-zinc-500">
+            <span>{modeConfig[mode].label}</span>
+            <span>{title.replace(/\.[^.]+$/, "").slice(0, 18) || "Reel"}</span>
+          </div>
+        </div>
 
-function StylePreview({ kind, selected }: { kind: PreviewOption['preview']; selected: boolean }) {
-  const isCaption = kind.startsWith('caption');
-  const sceneClass = {
-    reels: 'bg-[linear-gradient(135deg,#08140f_0%,#146b4d_48%,#e5f7c8_100%)]',
-    fast: 'bg-[linear-gradient(135deg,#0c0c10_0%,#e11d48_48%,#f8fafc_100%)]',
-    cinematic: 'bg-[linear-gradient(135deg,#050607_0%,#2f3b38_56%,#b6c6c0_100%)]',
-    luxury: 'bg-[linear-gradient(135deg,#050505_0%,#3a2d11_52%,#e2c36b_100%)]',
-    meme: 'bg-[linear-gradient(135deg,#15110b_0%,#f59e0b_48%,#38bdf8_100%)]',
-    documentary: 'bg-[linear-gradient(135deg,#071018_0%,#31556a_50%,#d8dee0_100%)]',
-    'caption-reels': 'bg-[linear-gradient(135deg,#06120f_0%,#0f766e_55%,#f8fafc_100%)]',
-    'caption-hormozi': 'bg-[linear-gradient(135deg,#12080a_0%,#b91c1c_50%,#facc15_100%)]',
-    'caption-iman': 'bg-[linear-gradient(135deg,#060914_0%,#1d4ed8_55%,#e0f2fe_100%)]',
-    'caption-cinematic': 'bg-[linear-gradient(135deg,#060606_0%,#374151_56%,#e5e7eb_100%)]',
-  }[kind];
+        <div className="flex min-w-0 flex-col justify-between gap-5">
+          <div>
+            <div className="flex items-center justify-between gap-3 text-xs font-black uppercase tracking-[0.16em] text-zinc-500">
+              <span>Live render timeline</span>
+              <span className="text-brand-mint">{failed ? "Paused" : ready ? "Complete" : "Active"}</span>
+            </div>
+            <div className="mt-3 h-3 overflow-hidden rounded-full border border-white/10 bg-black/45">
+              <div
+                className={`h-full rounded-full transition-all duration-700 ${
+                  failed ? "bg-red-300" : "bg-gradient-to-r from-brand-mint via-cyan-100 to-white"
+                }`}
+                style={{width: `${Math.max(6, percentage)}%`}}
+              />
+            </div>
+          </div>
 
-  return (
-    <div className={`relative h-36 overflow-hidden border-b border-white/10 ${sceneClass}`}>
-      <div className="absolute inset-0 bg-[linear-gradient(160deg,rgba(255,255,255,0.14),transparent_34%),linear-gradient(180deg,transparent,rgba(0,0,0,0.5))]" />
-      <div className="absolute left-4 top-4 h-16 w-10 rounded-md bg-white/20 ring-1 ring-white/25" />
-      <div className="absolute right-4 top-5 h-20 w-14 rounded-md bg-black/35 ring-1 ring-white/15" />
-      <div className="absolute bottom-4 left-4 right-4">
-        {isCaption ? <CaptionPreview kind={kind} /> : <EditPreview kind={kind} />}
+          <div className="grid gap-2 sm:grid-cols-2">
+            {steps.map((step) => {
+              const StepIcon = step.icon;
+              return (
+                <div
+                  className={`rounded-lg border px-3 py-3 ${
+                    step.done
+                      ? "border-brand-mint/30 bg-brand-mint/[0.09] text-white"
+                      : step.active
+                        ? "border-white/20 bg-white/[0.06] text-white"
+                        : "border-white/10 bg-black/20 text-zinc-500"
+                  }`}
+                  key={step.label}
+                >
+                  <div className="flex items-center gap-2">
+                    <StepIcon className={step.active && working ? "text-brand-mint motion-safe:animate-pulse" : step.done ? "text-brand-mint" : ""} size={15} />
+                    <p className="text-xs font-black uppercase tracking-[0.13em]">{step.label}</p>
+                  </div>
+                  <p className="mt-2 text-xs font-bold leading-5 text-zinc-500">{step.detail}</p>
+                </div>
+              );
+            })}
+          </div>
+
+          {status.outputFile ? (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <button
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-brand-mint/35 bg-brand-mint/[0.13] px-4 py-3 text-sm font-black text-brand-mint transition hover:bg-brand-mint hover:text-black"
+                onClick={onPreview}
+                type="button"
+              >
+                <Eye size={16} />
+                Preview
+              </button>
+              <a
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-white px-4 py-3 text-sm font-black text-black transition hover:bg-brand-mint"
+                href={status.outputFile}
+                rel="noreferrer"
+                target="_blank"
+              >
+                <Download size={16} />
+                Download
+              </a>
+            </div>
+          ) : failed ? (
+            <p className="rounded-lg border border-red-300/20 bg-red-500/10 px-4 py-3 text-sm font-bold leading-6 text-red-100">
+              Your upload is still selected. Tap Create My Reel again to retry without uploading the file again.
+            </p>
+          ) : (
+            <p className="rounded-lg border border-white/10 bg-white/[0.035] px-4 py-3 text-sm font-bold leading-6 text-zinc-400">
+              Keep this tab open. Your finished MP4 will appear here and in Recent renders.
+            </p>
+          )}
+        </div>
       </div>
-      {selected && <div className="absolute inset-0 ring-2 ring-inset ring-emerald-300" />}
     </div>
   );
 }
 
-function LiveVideoPreview({
-  editingStyle,
-  captionStyle,
-  quality,
-}: {
-  editingStyle: PreviewOption;
-  captionStyle: PreviewOption;
-  quality: string;
-}) {
+function getRenderDisplayProgress(status: JobStatus) {
+  if (status.state === "ready") return 1;
+  if (status.state === "error") return Math.max(0.08, Math.min(0.96, status.progress || getFailureProgress(status.reasonCode)));
+  if (typeof status.progress === "number") return Math.max(status.state === "rendering" ? 0.18 : 0.08, Math.min(0.98, status.progress));
+  if (status.state === "uploading") return 0.1;
+  if (status.state === "starting") return 0.28;
+  return 0;
+}
+
+function getOptimisticRenderProgress(attempt: number, serverProgress: unknown, currentProgress?: number) {
+  const reported = typeof serverProgress === "number" && Number.isFinite(serverProgress)
+    ? Math.max(0, Math.min(0.98, serverProgress))
+    : 0;
+  const elapsedProgress = Math.min(0.82, 0.24 + attempt * 0.006);
+  return Math.max(currentProgress || 0, reported, elapsedProgress);
+}
+
+function getRenderStageMeta(status: JobStatus, mode: Mode): {
+  body: string;
+  badgeClass: string;
+  icon: LucideIcon;
+  iconFrame: string;
+  kicker: string;
+  kickerClass: string;
+  title: string;
+} {
+  if (status.state === "ready") {
+    return {
+      body: "Your final MP4 is ready to preview or download.",
+      badgeClass: "border-brand-mint/35 bg-brand-mint/[0.12] text-brand-mint",
+      icon: CheckCircle2,
+      iconFrame: "border-brand-mint/35 bg-brand-mint/[0.13] text-brand-mint",
+      kicker: "Render complete",
+      kickerClass: "text-brand-mint",
+      title: "Your reel is ready",
+    };
+  }
+  if (status.state === "error") {
+    return {
+      body: "We could not generate this reel. You can retry with the same file or choose a better matching template.",
+      badgeClass: "border-red-300/25 bg-red-500/10 text-red-100",
+      icon: AlertTriangle,
+      iconFrame: "border-red-300/25 bg-red-500/10 text-red-100",
+      kicker: "Needs attention",
+      kickerClass: "text-red-100",
+      title: "We could not generate this reel",
+    };
+  }
+  if (status.state === "uploading") {
+    return {
+      body: "Uploading your file. Please keep this page open.",
+      badgeClass: "border-cyan-200/25 bg-cyan-300/10 text-cyan-100",
+      icon: Upload,
+      iconFrame: "border-cyan-200/25 bg-cyan-300/10 text-cyan-100",
+      kicker: "Media upload",
+      kickerClass: "text-cyan-100",
+      title: "Uploading your file",
+    };
+  }
+  if (status.state === "starting") {
+    return {
+      body: mode === "videoCaption"
+        ? "Listening to your video and preparing timed captions."
+        : mode === "notes"
+          ? "Listening to your audio and creating note sections."
+          : mode === "imageStory"
+            ? "Creating image story beats and motion."
+            : mode === "compare"
+              ? "Listening to your audio and preparing image comparison timing."
+            : "Listening to your audio and building the reel structure.",
+      badgeClass: "border-brand-mint/30 bg-brand-mint/[0.12] text-brand-mint",
+      icon: Layers3,
+      iconFrame: "border-brand-mint/35 bg-brand-mint/[0.13] text-brand-mint",
+      kicker: mode === "imageStory" ? "Story planning" : mode === "compare" ? "Compare planning" : "Transcribing",
+      kickerClass: "text-brand-mint",
+      title: mode === "imageStory" ? "Building your image story" : mode === "compare" ? "Building your comparison" : "Listening to your audio",
+    };
+  }
+  return {
+    body: "Rendering your reel. This may take a few minutes.",
+    badgeClass: "border-brand-mint/30 bg-brand-mint/[0.12] text-brand-mint",
+    icon: Clapperboard,
+    iconFrame: "border-brand-mint/35 bg-brand-mint/[0.13] text-brand-mint",
+    kicker: "Live render",
+    kickerClass: "text-brand-mint",
+    title: "Rendering your reel",
+  };
+}
+
+function getRenderSteps(progress: number, status: JobStatus, mode: Mode) {
+  const definitions = [
+    {label: "Upload", detail: "Uploading your file.", threshold: 0.08, icon: Upload},
+    {
+      label: mode === "imageStory" ? "Story beats" : mode === "compare" ? "Compare beats" : "Transcript",
+      detail: mode === "imageStory" ? "Creating visual story timing." : mode === "compare" ? "Timing left/right image captions." : "Using real speech timing.",
+      threshold: 0.24,
+      icon: Layers3,
+    },
+    {
+      label: "Planning",
+      detail: mode === "videoCaption" ? "Preparing safe captions." : mode === "notes" ? "Creating note sections." : mode === "imageStory" ? "Adding image motion." : mode === "compare" ? "Pairing images with speech beats." : "Choosing scenes and visuals.",
+      threshold: 0.58,
+      icon: Sparkles,
+    },
+    {label: "Done", detail: "Final MP4 is ready.", threshold: 0.92, icon: Clapperboard},
+  ];
+  const failedIndex = status.state === "error" ? getFailureStepIndex(status.failureStage || getFailureStage(status.reasonCode)) : -1;
+  const activeIndex = status.state === "ready"
+    ? definitions.length - 1
+    : Math.max(0, definitions.findIndex((step) => progress < step.threshold));
+
+  return definitions.map((step, index) => ({
+    ...step,
+    active: status.state === "error"
+      ? index === failedIndex
+      : status.state !== "ready" && index === (activeIndex === -1 ? definitions.length - 1 : activeIndex),
+    done: status.state === "ready" || (status.state === "error" ? index < failedIndex : progress >= step.threshold),
+  }));
+}
+
+function getFailureStage(reasonCode?: string): JobStatus["failureStage"] {
+  const normalized = String(reasonCode || "").toUpperCase();
+  if (normalized.includes("TRANSCRIPTION") || normalized.includes("TRANSCRIPT")) return "transcript";
+  if (normalized.includes("PLAN") || normalized.includes("VALIDATION") || normalized.includes("MEDIA_SOURCE")) return "planning";
+  if (normalized.includes("RENDER")) return "render";
+  return "upload";
+}
+
+function getFailureProgress(reasonCode?: string) {
+  const stage = getFailureStage(reasonCode);
+  if (stage === "transcript") return 0.24;
+  if (stage === "planning") return 0.58;
+  if (stage === "render") return 0.82;
+  return 0.12;
+}
+
+function getFailureStepIndex(stage?: JobStatus["failureStage"]) {
+  if (stage === "transcript") return 1;
+  if (stage === "planning") return 2;
+  if (stage === "render") return 3;
+  return 0;
+}
+
+function getRecentRenderStorageKey(userId: string) {
+  return `itnavideo.recent-renders.${userId}`;
+}
+
+function loadRecentRenders(userId: string) {
+  if (typeof window === "undefined") return [];
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(getRecentRenderStorageKey(userId)) || "[]");
+    const now = Date.now();
+    const renders = Array.isArray(parsed)
+      ? parsed.map(normalizeRecentRender).filter(isRecentRender).filter((item) => item.expiresAt > now)
+      : [];
+    saveRecentRenders(userId, renders);
+    return renders;
+  } catch {
+    return [];
+  }
+}
+
+function saveRecentRenders(userId: string, renders: RecentRender[]) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(getRecentRenderStorageKey(userId), JSON.stringify(renders));
+  } catch {
+    // Storage can be disabled or full in some browser sessions; rendering should still work.
+  }
+}
+
+function saveRecentRender(userId: string, render: RecentRender) {
+  if (typeof window === "undefined") return [render];
+  const existing = loadRecentRenders(userId);
+  const next = mergeRecentRenders([render, ...existing]);
+  saveRecentRenders(userId, next);
+  return next;
+}
+
+async function loadServerRecentRenders(userId: string, localRenders: RecentRender[]) {
+  const response = await fetch(`/api/reels/history?userId=${encodeURIComponent(userId)}`);
+  const payload = await response.json();
+  if (!response.ok || !payload.ok) return localRenders;
+
+  const serverRenders = Array.isArray(payload.renders)
+    ? payload.renders.map(normalizeServerRender).filter(isRecentRender)
+    : [];
+  const merged = mergeRecentRenders([...serverRenders, ...localRenders]);
+  saveRecentRenders(userId, merged);
+  return merged;
+}
+
+async function saveServerRecentRender(userId: string, render: RecentRender, bucketName: string) {
+  const response = await fetch("/api/reels/history", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      userId,
+      renderId: render.id,
+      bucketName,
+      mode: render.mode,
+      design: render.design,
+      title: render.title,
+      outputFile: render.outputFile,
+      createdAt: new Date(render.createdAt).toISOString(),
+      expiresAt: new Date(render.expiresAt).toISOString(),
+    }),
+  });
+  const payload = await response.json();
+  if (!response.ok || !payload.ok) return null;
+  return normalizeServerRender(payload.render);
+}
+
+async function deleteServerRecentRender(userId: string, renderId: string) {
+  const response = await fetch("/api/reels/history", {
+    method: "DELETE",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({userId, renderId}),
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok || !payload.ok) {
+    throw new Error(payload.error || "Render history delete failed.");
+  }
+}
+
+async function loadBillingEntitlement(userId: string): Promise<BillingEntitlement | null> {
+  const cached = loadCachedBillingEntitlement(userId);
+  const response = await fetch(`/api/billing/entitlement?userId=${encodeURIComponent(userId)}`);
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok || !payload.ok || !payload.active || !payload.entitlement) return cached;
+
+  const entitlement = normalizeBillingEntitlement(payload.entitlement);
+  if (entitlement) {
+    const withUsage = {
+      ...entitlement,
+      usage: normalizeBillingUsage(payload.usage, entitlement.monthlyVideoLimit),
+    };
+    try {
+      window.localStorage.setItem(`itnavideo.billing.entitlement.${userId}`, JSON.stringify(withUsage));
+    } catch {
+      // Server state is the source of truth.
+    }
+    return withUsage;
+  }
+  return cached;
+}
+
+function loadCachedBillingEntitlement(userId: string): BillingEntitlement | null {
+  try {
+    const value = window.localStorage.getItem(`itnavideo.billing.entitlement.${userId}`);
+    return normalizeBillingEntitlement(value ? JSON.parse(value) : null);
+  } catch {
+    return null;
+  }
+}
+
+function normalizeBillingEntitlement(value: unknown): BillingEntitlement | null {
+  if (!value || typeof value !== "object") return null;
+  const item = value as Record<string, unknown>;
+  const expiresAt = typeof item.expiresAt === "string" ? item.expiresAt : "";
+  if (!expiresAt || Date.parse(expiresAt) <= Date.now()) return null;
+  const planName = typeof item.planName === "string" && item.planName ? item.planName : "Paid plan";
+  const planId = typeof item.planId === "string" && item.planId ? item.planId : "paid";
+  const monthlyVideoLimit = Math.max(0, Math.round(Number(item.monthlyVideoLimit) || 0));
+  return {
+    active: true,
+    planId,
+    planName,
+    monthlyVideoLimit,
+    expiresAt,
+    usage: normalizeBillingUsage(item.usage, monthlyVideoLimit),
+  };
+}
+
+function normalizeBillingUsage(value: unknown, fallbackLimit: number) {
+  const item = value && typeof value === "object" ? value as Record<string, unknown> : {};
+  const limit = Math.max(0, Math.round(Number(item.limit) || fallbackLimit || 0));
+  const used = Math.max(0, Math.round(Number(item.used) || 0));
+  const remaining = Math.max(0, Math.round(Number(item.remaining) || limit - used));
+  return {used, limit, remaining};
+}
+
+function mergeRecentRenders(renders: RecentRender[]) {
+  const now = Date.now();
+  const byKey = new Map<string, RecentRender>();
+  renders.map(normalizeRecentRender).filter(isRecentRender).filter((item) => item.expiresAt > now).forEach((item) => {
+    const key = item.outputFile || item.id;
+    const existing = byKey.get(key);
+    if (!existing || item.createdAt > existing.createdAt) byKey.set(key, item);
+  });
+  return Array.from(byKey.values()).sort((a, b) => b.createdAt - a.createdAt).slice(0, 12);
+}
+
+function normalizeServerRender(value: unknown): RecentRender | null {
+  return normalizeRecentRender(value);
+}
+
+function normalizeRecentRender(value: unknown): RecentRender | null {
+  if (!value || typeof value !== "object") return null;
+  const item = value as Record<string, unknown>;
+  const createdAt = parseServerTime(item.createdAt);
+  const expiresAt = parseServerTime(item.expiresAt);
+  const mode = item.mode === "facecam" || item.mode === "notes" || item.mode === "handwriting" || item.mode === "videoCaption" || item.mode === "caption" || item.mode === "imageStory" || item.mode === "image-story"
+    ? item.mode === "handwriting"
+      ? "notes"
+      : item.mode === "facecam"
+        ? "videoExplainer"
+        : item.mode === "caption"
+          ? "videoCaption"
+          : item.mode === "image-story"
+            ? "imageStory"
+            : item.mode
+    : item.mode === "videoExplainer"
+      ? item.mode
+      : null;
+  const id = typeof item.renderId === "string" && item.renderId ? item.renderId : typeof item.id === "string" ? item.id : "";
+  const outputFile = typeof item.outputFile === "string" ? item.outputFile : "";
+
+  if (!id || !mode || !outputFile || !createdAt || !expiresAt) return null;
+  return {
+    id,
+    title: typeof item.title === "string" && item.title ? item.title : "Itnavideo reel",
+    mode,
+    design: typeof item.design === "string" && item.design ? item.design : "Auto from script",
+    outputFile,
+    createdAt,
+    expiresAt,
+  };
+}
+
+function parseServerTime(value: unknown) {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value !== "string" || !value.trim()) return 0;
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function isRecentRender(value: unknown): value is RecentRender {
+  if (!value || typeof value !== "object") return false;
+  const item = value as Partial<RecentRender>;
+  const itemMode = String(item.mode || "");
   return (
-    <div className="rounded-lg border border-white/10 bg-black/35 p-4">
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <p className="text-sm font-black text-white">Live preview</p>
-          <p className="mt-1 text-xs text-zinc-500">Style + captions together</p>
-        </div>
-        <span className="rounded-md bg-white/8 px-2 py-1 text-xs font-bold text-zinc-300">{quality}</span>
-      </div>
+    typeof item.id === "string" &&
+    typeof item.title === "string" &&
+    (itemMode === "videoExplainer" || itemMode === "notes" || itemMode === "videoCaption" || itemMode === "imageStory" || itemMode === "compare") &&
+    typeof item.outputFile === "string" &&
+    typeof item.createdAt === "number" &&
+    typeof item.expiresAt === "number"
+  );
+}
 
-      <div className="mx-auto w-full max-w-56 rounded-[28px] border border-white/15 bg-zinc-950 p-2 shadow-2xl shadow-black/60">
-        <div className="relative aspect-[9/16] overflow-hidden rounded-[22px] bg-black">
-          <StylePreview kind={editingStyle.preview} selected={false} />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_25%,rgba(255,255,255,0.18),transparent_22%),linear-gradient(180deg,transparent_0%,rgba(0,0,0,0.78)_100%)]" />
-          <div className="absolute left-4 right-4 top-5 flex items-center justify-between">
-            <span className="rounded bg-black/55 px-2 py-1 text-[10px] font-black uppercase tracking-wide text-white">Preview</span>
-            <span className="h-7 w-7 rounded-full bg-white/90" />
-          </div>
-          <div className="absolute inset-x-5 top-28 space-y-3">
-            <div className="h-16 rounded-lg border border-white/10 bg-white/10" />
-            <div className="ml-8 h-20 rounded-lg border border-white/10 bg-white/15" />
-            <div className="mr-6 h-12 rounded-lg border border-white/10 bg-white/10" />
-          </div>
-          <div className="absolute bottom-20 left-4 right-4">
-            <CaptionPreview kind={captionStyle.preview} />
-          </div>
-          <div className="absolute bottom-5 left-5 right-5 flex gap-1">
-            <span className="h-1 flex-1 rounded bg-emerald-300" />
-            <span className="h-1 flex-1 rounded bg-white/30" />
-            <span className="h-1 flex-1 rounded bg-white/30" />
-          </div>
-        </div>
-      </div>
+function getModeLabel(mode: Mode) {
+  return modeConfig[mode]?.label || "Video Explainer";
+}
 
-      <div className="mt-5 space-y-3">
-        <PreviewSummary title={editingStyle.title} body={editingStyle.description} />
-        <PreviewSummary title={captionStyle.title} body={captionStyle.description} />
-      </div>
+function readDashboardMode(value: string | null): Mode | null {
+  const normalized = String(value || "").toLowerCase();
+  if (!normalized) return null;
+  if (normalized.includes("compare") || normalized.includes("comparison") || normalized === "vs") return "compare";
+  if (normalized.includes("notes") || normalized.includes("handwriting")) return "notes";
+  if (normalized.includes("caption") || normalized.includes("subtitle")) return "videoCaption";
+  if (normalized.includes("image") || normalized.includes("story")) return "imageStory";
+  if (normalized.includes("explainer") || normalized.includes("video")) return "videoExplainer";
+  return null;
+}
+
+function formatTimeLeft(expiresAt: number) {
+  const hours = Math.max(0, Math.ceil((expiresAt - Date.now()) / (60 * 60 * 1000)));
+  if (hours <= 1) return "expires soon";
+  return `${hours}h left`;
+}
+
+function formatDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "this billing period";
+  return date.toLocaleDateString(undefined, {month: "short", day: "numeric", year: "numeric"});
+}
+
+function PlanStat({label, value, accent = false}: {label: string; value: string; accent?: boolean}) {
+  return (
+    <div className={`rounded-md border px-3 py-2 ${accent ? "border-brand-mint/35 bg-brand-mint/15" : "border-white/10 bg-black/20"}`}>
+      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-500">{label}</p>
+      <p className={`mt-1 truncate text-sm font-black ${accent ? "text-brand-mint" : "text-white"}`}>{value}</p>
     </div>
   );
 }
 
-function PreviewSummary({ title, body }: { title: string; body: string }) {
+function PolicyPill({ icon: Icon, title, body }: { icon: LucideIcon; title: string; body: string }) {
   return (
-    <div className="rounded-md border border-white/10 bg-white/[0.03] p-3">
-      <p className="text-sm font-bold text-white">{title}</p>
+    <div className="rounded-lg border border-white/10 bg-white/[0.035] p-4">
+      <Icon className="mb-3 text-brand-mint" size={18} />
+      <p className="text-sm font-black text-white">{title}</p>
       <p className="mt-1 text-xs leading-5 text-zinc-500">{body}</p>
     </div>
   );
 }
 
-function EditPreview({ kind }: { kind: PreviewOption['preview'] }) {
-  if (kind === 'fast' || kind === 'reels') {
-    return (
-      <div className="space-y-2">
-        <div className="h-2 w-20 rounded-full bg-white" />
-        <div className="grid grid-cols-4 gap-1">
-          {[0, 1, 2, 3].map((item) => <span key={item} className="h-6 rounded bg-white/45" />)}
-        </div>
-      </div>
-    );
-  }
-
-  if (kind === 'meme') {
-    return <div className="rounded bg-white px-2 py-1 text-center text-xs font-black text-black">WAIT FOR IT</div>;
-  }
-
-  if (kind === 'documentary') {
-    return (
-      <div className="space-y-1">
-        <div className="h-2 w-24 rounded-full bg-white/85" />
-        <div className="h-1.5 w-16 rounded-full bg-white/55" />
-        <div className="mt-2 h-5 w-28 rounded border border-white/30 bg-black/35" />
-      </div>
-    );
-  }
+function ProgressPreview({mode}: {mode: Mode}) {
+  const steps = mode === "imageStory"
+    ? ["Upload", "Story beats", "Plan", "Render", "Download"]
+    : mode === "compare"
+      ? ["Audio", "Images", "Compare", "Render", "Download"]
+    : ["Upload", "Transcribe", "Plan", "Render", "Download"];
 
   return (
-    <div className="space-y-2">
-      <div className="h-1.5 w-24 rounded-full bg-white/80" />
-      <div className="h-8 rounded border border-white/20 bg-black/30" />
+    <div className="rounded-lg border border-white/10 bg-black/25 p-4">
+      <p className="text-xs font-black uppercase tracking-[0.18em] text-zinc-500">What happens next</p>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        {steps.map((step, index) => (
+          <div className="flex items-center gap-2" key={step}>
+            <span className="rounded-md border border-white/10 bg-white/[0.04] px-2.5 py-1.5 text-xs font-black text-zinc-300">
+              {step}
+            </span>
+            {index < steps.length - 1 ? <span className="text-xs font-black text-zinc-600">&gt;</span> : null}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
-function CaptionPreview({ kind }: { kind: PreviewOption['preview'] }) {
-  if (kind === 'caption-hormozi') {
-    return <div className="rounded bg-black/75 px-2 py-2 text-center text-sm font-black text-yellow-300">BIG IDEA</div>;
-  }
+function SelectedMediaPreview({ file, mode }: { file: File; mode: Mode }) {
+  const previewUrl = useMemo(() => URL.createObjectURL(file), [file]);
 
-  if (kind === 'caption-iman') {
-    return <div className="text-center text-sm font-black text-white drop-shadow-[0_2px_0_rgba(0,0,0,0.8)]">clean <span className="text-sky-300">keyword</span> pop</div>;
-  }
+  useEffect(() => {
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [previewUrl]);
 
-  if (kind === 'caption-cinematic') {
-    return <div className="text-center text-xs font-semibold text-white/90">A calm cinematic line</div>;
-  }
-
-  return <div className="rounded bg-black/65 px-2 py-2 text-center text-sm font-black text-white">KARAOKE WORDS</div>;
-}
-
-function Select({ label, value, onChange, options }: { label: string; value: string; onChange: (value: string) => void; options: string[][] }) {
   return (
-    <label className="block">
-      <span className="mb-2 block text-sm font-bold text-zinc-300">{label}</span>
-      <select value={value} onChange={(event) => onChange(event.target.value)} className="w-full rounded-lg border border-white/10 bg-black px-4 py-4 font-semibold text-white outline-none transition focus:border-emerald-300/60">
-        {options.map(([optionValue, optionLabel]) => <option key={optionValue} value={optionValue}>{optionLabel}</option>)}
-      </select>
-    </label>
-  );
-}
-
-function Summary({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-md border border-white/10 bg-black/25 p-3">
-      <p className="text-xs font-bold uppercase tracking-[0.18em] text-zinc-600">{label}</p>
-      <p className="mt-1 truncate font-semibold">{value}</p>
+    <div className="mt-4 w-full rounded-lg border border-white/10 bg-black/40 p-3">
+      {getFileMediaType(file) === "image" ? (
+        <Image
+          alt="Selected image preview"
+          className="max-h-72 w-full rounded-md bg-black object-contain"
+          height={540}
+          src={previewUrl}
+          width={960}
+          unoptimized
+        />
+      ) : getFileMediaType(file) === "audio" ? (
+        <audio className="w-full" controls preload="metadata" src={previewUrl} />
+      ) : (
+        <video
+          className="aspect-video w-full rounded-md bg-black object-contain"
+          controls
+          playsInline
+          preload="metadata"
+          src={previewUrl}
+        />
+      )}
     </div>
   );
 }
 
-function loadLocalJobs(userId: string): Job[] {
-  if (typeof window === 'undefined') return [];
+function formatBytes(bytes: number) {
+  if (!bytes) return "0 B";
+  const units = ["B", "KB", "MB", "GB"];
+  const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+  return `${(bytes / 1024 ** index).toFixed(index === 0 ? 0 : 1)} ${units[index]}`;
+}
 
+async function readJsonPayload(response: Response) {
   try {
-    const raw = window.localStorage.getItem(getProjectStorageKey(userId));
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (error) {
-    console.error('Local project load failed:', error);
-    return [];
-  }
-}
-
-function saveLocalJobs(userId: string, jobs: Job[]) {
-  if (typeof window === 'undefined') return;
-
-  try {
-    window.localStorage.setItem(getProjectStorageKey(userId), JSON.stringify(jobs.slice(0, 50)));
-  } catch (error) {
-    console.error('Local project save failed:', error);
-  }
-}
-
-function removeLocalJob(userId: string, jobId: string) {
-  saveLocalJobs(userId, loadLocalJobs(userId).filter((job) => job.id !== jobId));
-}
-
-function saveAndReturnJobs(userId: string, jobs: Job[]) {
-  saveLocalJobs(userId, jobs);
-  return jobs;
-}
-
-function upsertJobAtTop(jobs: Job[], nextJob: Job) {
-  const existing = jobs.find((job) => job.id === nextJob.id);
-  const merged = existing ? { ...existing, ...nextJob } : nextJob;
-  return [merged, ...jobs.filter((job) => job.id !== nextJob.id)];
-}
-
-function updateJobById(jobs: Job[], jobId: string, patch: Partial<Job>) {
-  const existing = jobs.find((job) => job.id === jobId);
-  if (!existing) {
-    return [{ id: jobId, title: 'Untitled Project', status: 'Processing', progress: 0, ...patch } as Job, ...jobs];
-  }
-
-  return jobs.map((job) => (job.id === jobId ? { ...job, ...patch } : job));
-}
-
-function mergeJobs(...groups: Job[][]) {
-  const byId = new Map<string, Job>();
-  groups.flat().forEach((job) => {
-    if (!job?.id) return;
-    const previous = byId.get(job.id);
-    byId.set(job.id, mergeJobData(previous, job));
-  });
-
-  return Array.from(byId.values())
-    .map(markStaleRenderJob)
-    .sort((a, b) => getJobTimestamp(b) - getJobTimestamp(a));
-}
-
-function mergeJobData(previous: Job | undefined, next: Job): Job {
-  if (!previous) return next;
-
-  const previousHasVideo = Boolean(getJobVideoUrl(previous));
-  const nextHasVideo = Boolean(getJobVideoUrl(next));
-  const previousCompleted = previousHasVideo || isCompletedStatus(String(previous.status || ''));
-  const nextCompleted = nextHasVideo || isCompletedStatus(String(next.status || ''));
-  const previousUpdatedAt = getJobUpdatedAt(previous);
-  const nextUpdatedAt = getJobUpdatedAt(next);
-  const nextIsNewer = !previousUpdatedAt || nextUpdatedAt >= previousUpdatedAt;
-  const status = getMergedJobStatus({
-    previous,
-    next,
-    previousCompleted,
-    nextCompleted,
-    nextIsNewer,
-  });
-  const videoUrl = next.videoUrl || previous.videoUrl;
-  const renderUrl = next.renderUrl || previous.renderUrl;
-  const mergedProgress = Math.max(Number(previous.progress || 0), Number(next.progress || 0));
-
-  return {
-    ...previous,
-    ...next,
-    title: next.title || previous.title,
-    status,
-    progress: nextCompleted || previousCompleted ? Math.max(100, mergedProgress) : mergedProgress,
-    videoUrl,
-    renderUrl,
-    error: next.error || previous.error,
-    createdAt: next.createdAt || previous.createdAt,
-    updatedAt: nextUpdatedAt >= previousUpdatedAt ? next.updatedAt || previous.updatedAt : previous.updatedAt || next.updatedAt,
-    keepLocal: Boolean(previous.keepLocal || next.keepLocal),
-  };
-}
-
-function getMergedJobStatus({
-  previous,
-  next,
-  previousCompleted,
-  nextCompleted,
-  nextIsNewer,
-}: {
-  previous: Job;
-  next: Job;
-  previousCompleted: boolean;
-  nextCompleted: boolean;
-  nextIsNewer: boolean;
-}) {
-  if (nextCompleted) return next.status || 'Video ready';
-  if (previousCompleted) return previous.status || 'Video ready';
-  if (next.error && !previous.error) return next.status || 'Needs retry';
-  if (previous.error && !next.error) return previous.status || 'Needs retry';
-  return nextIsNewer ? next.status || previous.status : previous.status || next.status;
-}
-
-function getJobTimestamp(job: Job) {
-  const value = job.createdAt;
-  if (typeof value === 'string') return new Date(value).getTime() || 0;
-  if (value && typeof (value as any).toDate === 'function') return (value as any).toDate().getTime();
-  return 0;
-}
-
-function isCompletedStatus(status: string) {
-  const normalized = status.toLowerCase();
-  return normalized.includes('ready') || normalized.includes('completed');
-}
-
-function markStaleRenderJob(job: Job) {
-  if (!isStaleInProgressJob(job)) return job;
-
-  return {
-    ...job,
-    status: 'Video needs retry',
-    progress: Math.min(Number(job.progress || 0), 76),
-  };
-}
-
-function isStaleInProgressJob(job: Job) {
-  if (getJobVideoUrl(job)) return false;
-  const normalized = String(job.status || '').toLowerCase();
-  if (!normalized || normalized.includes('retry') || normalized.includes('error') || normalized.includes('ready') || normalized.includes('completed')) {
-    return false;
-  }
-
-  const isActiveRenderStatus = ['queued', 'upload', 'planning', 'preparing', 'processing', 'rendering', 'worker', 'export'].some((token) => normalized.includes(token));
-  if (!isActiveRenderStatus) return false;
-
-  const updatedAtMs = getJobUpdatedAt(job);
-  if (!updatedAtMs) return false;
-
-  return Date.now() - updatedAtMs > getRenderStaleTimeoutMs();
-}
-
-function getJobUpdatedAt(job: Job) {
-  const value = job.updatedAt || job.createdAt;
-  if (typeof value === 'string') return new Date(value).getTime() || 0;
-  if (value && typeof (value as any).toDate === 'function') return (value as any).toDate().getTime();
-  return 0;
-}
-
-async function persistProject(userId: string, job: Job) {
-  await upsertProject(userId, job.id, {
-    ...cleanProjectData(job),
-    ownerId: userId,
-    createdAt: job.createdAt || new Date().toISOString(),
-    updatedAt: job.updatedAt || new Date().toISOString(),
-  });
-}
-
-async function persistProjectPatch(userId: string, jobId: string, patch: Partial<Job>) {
-  await upsertProject(userId, jobId, {
-    ...cleanProjectData(patch),
-    ownerId: userId,
-    updatedAt: patch.updatedAt || new Date().toISOString(),
-  });
-}
-
-async function fetchUserProjects(userId: string): Promise<Job[]> {
-  const response = await fetch(`/api/projects/list?userId=${encodeURIComponent(userId)}`, { cache: 'no-store' });
-  const data = await response.json().catch(() => ({}));
-
-  if (!response.ok) {
-    throw new Error(data.details || data.error || 'Project list failed.');
-  }
-
-  return Array.isArray(data.projects) ? data.projects : [];
-}
-
-async function upsertProject(userId: string, projectId: string, project: Partial<Job>) {
-  const response = await fetch('/api/projects/upsert', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ userId, projectId, project }),
-  });
-  const data = await response.json().catch(() => ({}));
-
-  if (!response.ok || !data.success) {
-    throw new Error(data.details || data.error || 'Project sync failed.');
-  }
-}
-
-async function deleteProject(userId: string, projectId: string) {
-  const response = await fetch('/api/projects/delete', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ userId, projectId }),
-  });
-  const data = await response.json().catch(() => ({}));
-
-  if (!response.ok || !data.success) {
-    throw new Error(data.details || data.error || 'Delete failed.');
-  }
-}
-
-function cleanProjectData(project: Partial<Job>) {
-  return Object.fromEntries(Object.entries(project).filter(([key, value]) => key !== 'keepLocal' && value !== undefined));
-}
-
-function getProjectStorageKey(userId: string) {
-  return `itnavideo.projects.${userId}`;
-}
-
-function getActiveProjectStorageKey(userId: string) {
-  return `itnavideo.active-projects.${userId}`;
-}
-
-function getDeletedProjectStorageKey(userId: string) {
-  return `itnavideo.deleted-projects.${userId}`;
-}
-
-function filterDeletedJobs(userId: string, jobs: Job[]) {
-  const deletedIds = loadDeletedJobIds(userId);
-  if (!deletedIds.size) return jobs;
-  return jobs.filter((job) => !deletedIds.has(job.id));
-}
-
-function loadDeletedJobIds(userId: string) {
-  if (typeof window === 'undefined') return new Set<string>();
-
-  try {
-    const raw = window.localStorage.getItem(getDeletedProjectStorageKey(userId));
-    const parsed = JSON.parse(raw || '[]');
-    return new Set<string>(Array.isArray(parsed) ? parsed.filter((id) => typeof id === 'string') : []);
+    return await response.json();
   } catch {
-    return new Set<string>();
+    return {};
   }
 }
 
-function markStickyJob(job: Job): Job {
-  return { ...job, keepLocal: true };
+function wait(ms: number) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
-function rememberActiveJob(userId: string, jobId: string) {
-  if (typeof window === 'undefined' || !jobId) return;
-
-  try {
-    const key = getActiveProjectStorageKey(userId);
-    const existing = JSON.parse(window.localStorage.getItem(key) || '[]');
-    const ids = Array.isArray(existing) ? existing.filter((id) => typeof id === 'string') : [];
-    window.localStorage.setItem(key, JSON.stringify([jobId, ...ids.filter((id) => id !== jobId)].slice(0, 25)));
-  } catch (error) {
-    console.error('Active project cache failed:', error);
+function formatNetworkError(error: unknown, fallback: string) {
+  if (!(error instanceof Error)) return fallback;
+  if (error.message === "Failed to fetch") {
+    return `${fallback} Browser blocked or could not reach the request. Please retry after checking the connection.`;
   }
+  return sanitizeUserFacingStatus(error.message || fallback);
 }
 
-function rememberDeletedJob(userId: string, jobId: string) {
-  if (typeof window === 'undefined' || !jobId) return;
-
-  try {
-    const key = getDeletedProjectStorageKey(userId);
-    const existing = JSON.parse(window.localStorage.getItem(key) || '[]');
-    const ids = Array.isArray(existing) ? existing.filter((id) => typeof id === 'string') : [];
-    window.localStorage.setItem(key, JSON.stringify([jobId, ...ids.filter((id) => id !== jobId)].slice(0, 50)));
-  } catch (error) {
-    console.error('Deleted project cache failed:', error);
+function sanitizeUserFacingStatus(value: string) {
+  const source = String(value || "");
+  const normalized = source.toLowerCase();
+  if (/rate exceeded|too many requests|toomanyrequests|concurr|limit exceeded|throttl/.test(normalized)) {
+    return "Render traffic is high right now. Your upload stays selected, so please retry in a minute.";
   }
-}
-
-function forgetActiveJob(userId: string, jobId: string) {
-  if (typeof window === 'undefined' || !jobId) return;
-
-  try {
-    const key = getActiveProjectStorageKey(userId);
-    const existing = JSON.parse(window.localStorage.getItem(key) || '[]');
-    const ids = Array.isArray(existing) ? existing.filter((id) => typeof id === 'string' && id !== jobId) : [];
-    window.localStorage.setItem(key, JSON.stringify(ids));
-  } catch (error) {
-    console.error('Active project delete failed:', error);
-  }
-}
-
-function getPreviewOption(options: PreviewOption[], value: string) {
-  return options.find((option) => option.value === value) || options[0];
-}
-
-function formatFileSize(bytes: number) {
-  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-function getUploadPreflightError(file: File, durationSeconds?: number) {
-  if (file.size > FREE_MAX_UPLOAD_BYTES) {
-    return `Free plan supports files up to ${formatFileSize(FREE_MAX_UPLOAD_BYTES)} for fast ${PIPELINE_QUALITY} exports. Use a shorter file now, and Premium can unlock larger uploads later.`;
+  if (/timed out|timeout|chunks are missing|missing chunks|main function/i.test(source)) {
+    return "Render took too long with the current workload. Please retry in a minute; the render system has split the job into smaller parts.";
   }
 
-  if (Number.isFinite(durationSeconds) && Number(durationSeconds) > FREE_MAX_DURATION_SECONDS) {
-    return `Free plan supports up to ${formatDuration(FREE_MAX_DURATION_SECONDS)} of audio or video. Trim this ${formatDuration(Number(durationSeconds))} file, or use Premium later for longer videos.`;
-  }
-
-  return '';
-}
-
-function getAudioDuration(file: File): Promise<number> {
-  return new Promise((resolve, reject) => {
-    const audio = document.createElement('audio');
-    const objectUrl = URL.createObjectURL(file);
-
-    audio.preload = 'metadata';
-    audio.onloadedmetadata = () => {
-      URL.revokeObjectURL(objectUrl);
-      resolve(Number.isFinite(audio.duration) ? audio.duration : 30);
-    };
-    audio.onerror = () => {
-      URL.revokeObjectURL(objectUrl);
-      reject(new Error('Unable to read audio duration'));
-    };
-    audio.src = objectUrl;
-  });
-}
-
-async function uploadMediaFile(path: string, file: File, onProgress?: (percent: number) => void) {
-  const folder = path.split('/').slice(0, -1).join('/') || 'itnavideo/uploads';
-  onProgress?.(1);
-  const signature = await withClientTimeout(
-    getCloudinaryUploadSignature(folder),
-    getUploadSignatureTimeoutMs(),
-    'Upload could not get a secure media signature. Please retry.',
-  );
-  onProgress?.(3);
-
-  return new Promise<string>((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    const formData = new FormData();
-    let settled = false;
-    let progressStarted = false;
-    let lastProgressAt = Date.now();
-
-    formData.append('file', file);
-    formData.append('api_key', signature.apiKey);
-    formData.append('timestamp', String(signature.timestamp));
-    formData.append('folder', signature.folder);
-    formData.append('signature', signature.signature);
-
-    const finish = (callback: () => void) => {
-      if (settled) return;
-      settled = true;
-      window.clearTimeout(timeout);
-      window.clearInterval(stallWatcher);
-      callback();
-    };
-
-    const timeout = window.setTimeout(() => {
-      finish(() => reject(new Error(progressStarted ? 'Upload timed out. Please try again.' : 'Upload could not start. Check your connection and try again.')));
-      xhr.abort();
-    }, getUploadTimeoutMs());
-
-    const stallWatcher = window.setInterval(() => {
-      if (settled) return;
-      const idleMs = Date.now() - lastProgressAt;
-      if (idleMs < getUploadStallTimeoutMs()) return;
-      finish(() => reject(new Error('Upload is stuck at the server. Please retry in a moment.')));
-      xhr.abort();
-    }, 5000);
-
-    xhr.upload.onprogress = (event) => {
-      lastProgressAt = Date.now();
-      if (!event.lengthComputable) return;
-      progressStarted = true;
-      const percent = Math.max(1, Math.min(95, Math.round((event.loaded / Math.max(event.total, 1)) * 95)));
-      onProgress?.(percent);
-    };
-
-    xhr.onload = () => {
-      finish(() => {
-        try {
-        const data = JSON.parse(xhr.responseText || '{}');
-        const uploadedUrl = data.secure_url || data.url;
-        if (xhr.status < 200 || xhr.status >= 300 || !uploadedUrl) {
-          reject(new Error(data.details || data.error?.message || data.error || 'Upload failed.'));
-          return;
-        }
-        onProgress?.(100);
-        resolve(uploadedUrl);
-        } catch {
-          reject(new Error('Upload response was invalid.'));
-        }
-      });
-    };
-
-    xhr.onerror = () => {
-      finish(() => reject(new Error('Upload failed. Please check your connection and try again.')));
-    };
-
-    xhr.onabort = () => {
-      finish(() => reject(new Error('Upload was cancelled.')));
-    };
-
-    xhr.ontimeout = () => {
-      finish(() => reject(new Error('Upload timed out. Please try again.')));
-    };
-
-    xhr.timeout = getUploadTimeoutMs();
-    xhr.open('POST', `https://api.cloudinary.com/v1_1/${signature.cloudName}/auto/upload`);
-    xhr.send(formData);
-  });
-}
-
-function getCreatorFacingGenerationError(error: any, fallback = 'Generation failed.') {
-  const code = String(error?.code || '');
-  const rawMessage = String(error?.message || fallback);
-  const normalized = `${code} ${rawMessage}`.toLowerCase();
-
-  if (normalized.includes('storage/retry-limit-exceeded')) {
-    return 'Upload or final save took too long. Please retry on a stable connection; the render may have completed but the file could not be saved.';
-  }
-
-  if (normalized.includes('cloudinary') && normalized.includes('timed out')) {
-    return 'Final video save took too long. Please retry in a moment.';
-  }
-
-  if (error?.name === 'AbortError' || normalized.includes('timed out')) {
-    return 'This step took too long. Please retry; shorter uploads are more reliable on mobile networks.';
-  }
-
-  return rawMessage;
-}
-
-async function getCloudinaryUploadSignature(folder: string) {
-  const data = await postJsonWithTimeout('/api/upload/signature', { folder }, getUploadSignatureTimeoutMs());
-
-  if (!data.cloudName || !data.apiKey || !data.timestamp || !data.signature) {
-    throw new Error('Upload signature response was invalid.');
-  }
-
-  return data as {
-    cloudName: string;
-    apiKey: string;
-    timestamp: number;
-    folder: string;
-    signature: string;
-  };
-}
-
-function withClientTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> {
-  return new Promise((resolve, reject) => {
-    const timeout = window.setTimeout(() => reject(new Error(message)), timeoutMs);
-    promise
-      .then(resolve)
-      .catch(reject)
-      .finally(() => window.clearTimeout(timeout));
-  });
-}
-
-function sanitizeFileName(value: string) {
-  return value
-    .trim()
-    .replace(/[^a-zA-Z0-9._-]+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '') || 'upload';
-}
-
-function getJobVideoUrl(job: Job) {
-  return normalizeRenderUrl(job.videoUrl || job.renderUrl || '');
-}
-
-function openJobVideo(job: Job) {
-  const videoUrl = getJobVideoUrl(job);
-  if (!videoUrl) {
-    toast.info('Your video is still being prepared.');
-    return;
-  }
-
-  window.open(videoUrl, '_blank', 'noopener,noreferrer');
-}
-
-async function downloadJobVideo(job: Job) {
-  const videoUrl = getJobVideoUrl(job);
-  if (!videoUrl) {
-    toast.info('Your video is still being prepared.');
-    return;
-  }
-
-  const filename = `${sanitizeFileName(job.title || job.id || 'itnavideo')}.mp4`;
-
-  try {
-    const response = await fetch(videoUrl, { mode: 'cors' });
-    if (!response.ok) throw new Error(`Download failed with ${response.status}`);
-
-    const blob = await response.blob();
-    const blobUrl = URL.createObjectURL(blob);
-    triggerDownload(blobUrl, filename);
-    window.setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
-    toast.success('Download started.');
-  } catch (error) {
-    console.warn('Direct video download failed, falling back to browser open:', error);
-    triggerDownload(videoUrl, filename);
-    toast.info('Opening video. If it does not download automatically, use the browser save option.');
-  }
-}
-
-function triggerDownload(href: string, filename: string) {
-  const anchor = document.createElement('a');
-  anchor.href = href;
-  anchor.download = filename;
-  anchor.target = '_blank';
-  anchor.rel = 'noreferrer';
-  document.body.appendChild(anchor);
-  anchor.click();
-  anchor.remove();
-}
-
-async function startBackendVideoJob({
-  jobId,
-  userId,
-  voiceoverUrl,
-  title,
-  config,
-  userAssets,
-  runPipeline,
-  targetDurationSeconds,
-}: {
-  jobId: string;
-  userId: string;
-  voiceoverUrl: string;
-  title: string;
-  config: Record<string, string>;
-  userAssets?: Array<{ url: string; type: 'image' | 'video'; filename: string }>;
-  runPipeline?: boolean;
-  targetDurationSeconds?: number;
-}) {
-  await postJsonWithTimeout('/api/jobs/start', {
-    jobId,
-    userId,
-    voiceoverUrl,
-    title,
-    config,
-    userAssets: userAssets || [],
-    runPipeline,
-    targetDurationSeconds,
-  }, getPlanningTimeoutMs());
-}
-
-async function startBackgroundVideoPipeline({
-  jobId,
-  userId,
-  voiceUrl,
-  config,
-  userAssets,
-  visualUrl,
-  videoDurationSeconds,
-  onJobUpdate,
-}: {
-  jobId: string;
-  userId: string;
-  voiceUrl: string;
-  config: Record<string, string>;
-  userAssets: Array<{ url: string; type: 'image' | 'video'; filename: string }>;
-  visualUrl?: string;
-  videoDurationSeconds: number;
-  onJobUpdate: (jobId: string, patch: Partial<Job>) => void;
-}) {
-  try {
-    onJobUpdate(jobId, { status: 'AI Director starting...', progress: 64 });
-    
-    // Call the trigger API (Vercel) which forwards to Render
-    const response = await postJsonWithTimeout('/api/timeline', {
-      voiceoverUrl: voiceUrl,
-      jobId,
-      userId,
-      config,
-      userAssets,
-    }, getPlanningTimeoutMs());
-
-    // Since it's decoupled, we don't call /api/render here.
-    // The worker will do AI -> Render -> Update DB.
-    // Dashboard sync interval will pick up status: 'Video ready' automatically.
-    onJobUpdate(jobId, { 
-      status: 'AI Planning + Rendering', 
-      progress: 68,
-      renderProvider: getRenderBackendLabel() 
-    });
-    
-    toast.success('Your video is being crafted in the background.');
-  } catch (error: any) {
-    console.error('Background Pipeline Failure:', error);
-    const message = String(error?.message || 'Video generation needs retry.');
-    onJobUpdate(jobId, {
-      status: message.toLowerCase().includes('timeline') ? 'Timeline needs retry' : 'Render needs retry',
-      progress: 62,
-    });
-    toast.error(message);
-  }
-}
-
-async function postJsonWithTimeout(url: string, payload: Record<string, unknown>, timeoutMs: number) {
-  const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-      signal: controller.signal,
-    });
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      throw new Error(data.details || data.error || 'Video generation failed.');
-    }
-
-    return data;
-  } catch (error: any) {
-    if (error?.name === 'AbortError') {
-      throw new Error(`Request timed out after ${Math.round(timeoutMs / 1000)} seconds.`);
-    }
-    throw error;
-  } finally {
-    window.clearTimeout(timeout);
-  }
-}
-
-function getRenderBackendUrl() {
-  const backendUrl = process.env.NEXT_PUBLIC_RENDER_BACKEND_URL || '';
-  return backendUrl.replace(/\/$/, '');
-}
-
-function getRenderBackendLabel() {
-  return getRenderBackendUrl() ? 'render' : 'local';
-}
-
-function getRenderTimeoutMs() {
-  return Number(process.env.NEXT_PUBLIC_RENDER_TIMEOUT_MS || 10 * 60 * 1000); // Increased to 10 mins
-}
-
-function getRenderStaleTimeoutMs() {
-  return Number(process.env.NEXT_PUBLIC_RENDER_STALE_TIMEOUT_MS || 12 * 60 * 1000);
-}
-
-function getPlanningTimeoutMs() {
-  return Number(process.env.NEXT_PUBLIC_GENERATION_PLAN_TIMEOUT_MS || 180_000);
-}
-
-function getUploadTimeoutMs() {
-  return Number(process.env.NEXT_PUBLIC_UPLOAD_TIMEOUT_MS || 300_000); // Increased to 5 mins
-}
-
-function getUploadStallTimeoutMs() {
-  return Number(process.env.NEXT_PUBLIC_UPLOAD_STALL_TIMEOUT_MS || 60_000); // Increased to 60s
-}
-
-function getUploadSignatureTimeoutMs() {
-  return Number(process.env.NEXT_PUBLIC_UPLOAD_SIGNATURE_TIMEOUT_MS || 10_000);
-}
-
-function normalizeRenderUrl(renderUrl: string) {
-  if (!renderUrl) return '';
-  if (/^https?:\/\//i.test(renderUrl)) return renderUrl;
-  if (renderUrl.startsWith('/')) return `${window.location.origin}${renderUrl}`;
-  const baseUrl = getRenderBackendUrl() || window.location.origin;
-  return `${baseUrl}/${renderUrl}`;
-}
-
-function getTargetVideoDuration(audioDurationSeconds: number | undefined, _config: { aspectRatio: string; editingStyle: string }) {
-  const sourceDuration = Number.isFinite(audioDurationSeconds) ? Number(audioDurationSeconds) : 60;
-  const maxAllowed = FREE_MAX_DURATION_SECONDS;
-  return Math.max(8, Math.min(maxAllowed, sourceDuration));
-}
-
-function getGenerationEta({
-  fileSizeBytes,
-  targetDurationSeconds,
-}: {
-  fileSizeBytes: number;
-  targetDurationSeconds: number;
-}): GenerationEta {
-  const fileSizeMb = fileSizeBytes / (1024 * 1024);
-  const uploadSeconds = Math.ceil(Math.max(6, fileSizeMb / 0.75));
-  const planningSeconds = Math.ceil(Math.max(8, Math.min(22, targetDurationSeconds * 0.22)));
-  const renderMultiplier = 1.35;
-  const renderSeconds = Math.ceil(Math.max(18, targetDurationSeconds * renderMultiplier));
-
-  return {
-    uploadSeconds,
-    planningSeconds,
-    renderSeconds,
-    totalSeconds: uploadSeconds + planningSeconds + renderSeconds,
-  };
-}
-
-function formatDuration(seconds: number) {
-  if (seconds < 60) return `${Math.round(seconds)}s`;
-  const minutes = Math.floor(seconds / 60);
-  const rest = Math.round(seconds % 60);
-  return rest ? `${minutes}m ${rest}s` : `${minutes}m`;
+  return source
+    .replace(/\s+at\s+[\s\S]*$/i, "")
+    .replace(/https?:\/\/\S+/gi, "")
+    .replace(/\b(?:HANDWRITING_NOTES_REEL|HANDWRITTEN_NOTES|NOTES)\b/g, "Handwritten Notes")
+    .replace(/\bVIDEO[-_]EXPLAINER\b/gi, "Video Explainer")
+    .replace(/\bVIDEO[-_]CAPTION\b/gi, "Video Caption")
+    .replace(/\bIMAGE[-_]STORY\b/gi, "Image Story")
+    .replace(/\bTRANSCRIPTION_FAILED\b/gi, "We could not detect clear speech in your upload.")
+    .replace(/\bTRANSCRIPT_REQUIRED\b/gi, "We could not detect clear speech in your upload.")
+    .replace(/\bUNSUPPORTED_MEDIA_FOR_TEMPLATE\b/gi, "This file type does not match the selected template.")
+    .replace(/\bMISSING_IMAGE_SOURCE\b/gi, "Image Story needs at least one usable image.")
+    .replace(/\bMISSING_MEDIA_SOURCE\b/gi, "Please upload a supported file before creating your reel.")
+    .replace(/\b(?:REMOTION|GROQ|OPENAI|AWS|S3|FFMPEG)[A-Z0-9_]*\b/g, "render system")
+    .replace(/\bGroq\b/gi, "transcription service")
+    .replace(/\bAWS Lambda\b/gi, "render system")
+    .replace(/\bAWS\b/gi, "render")
+    .replace(/\bLambda\b/gi, "render system")
+    .replace(/\bRemotion\b/gi, "video renderer")
+    .replace(/\bS3\b/gi, "secure storage")
+    .replace(/\bffmpeg\b/gi, "media processor")
+    .replace(/\bOpenAI\b/gi, "AI planner")
+    .trim() || "Something went wrong. Please try again.";
 }

@@ -138,6 +138,23 @@
   body {
     font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1;
     text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+  html,
+  body {
+    max-width: 100%;
+  }
+  img,
+  video,
+  canvas,
+  svg {
+    max-width: 100%;
+  }
+  svg:not([width]) {
+    width: 1em;
+  }
+  svg:not([height]) {
+    height: 1em;
   }
   h1,
   h2,

@@ -3,60 +3,54 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import {
-  AudioLines,
   Captions,
-  Crop,
+  Film,
   Languages,
   Music,
   Palette,
-  PauseCircle,
   Smartphone,
+  Zap,
 } from 'lucide-react';
 
 const features = [
   {
-    title: 'Audio-only MVP mode',
-    description: 'Start with one mandatory voiceover file for the most stable demo flow.',
-    icon: AudioLines,
+    title: 'Explainer-first flow',
+    description: 'One focused template for audio/video explainers, tuned for quality and speed.',
+    icon: Film,
   },
   {
-    title: 'Media uploads paused',
-    description: 'Screenshots, images, clips, and camera uploads are temporarily paused while the MVP is stabilized.',
-    icon: PauseCircle,
-  },
-  {
-    title: 'Dynamic captions',
-    description: 'Large colorful word-pop subtitles with black borders, shadows, safe zones, and mobile readability.',
+    title: 'Real transcript timing',
+    description: 'Speech-based templates use real audio/video transcript timing.',
     icon: Captions,
   },
   {
-    title: 'Assisted media rendering',
-    description: 'Backend media tooling helps with captions, typography motion, audio polish, and export planning.',
-    icon: Crop,
+    title: 'Three-layer layout',
+    description: 'Top media, premium subtitles, and scene visuals stay cleanly separated.',
+    icon: Film,
   },
   {
     title: 'Consistent visual system',
-    description: 'One background style, selected fonts, and clean text hierarchy keep each video professional.',
+    description: 'Safe zones, spacing, and motion stay consistent across reels.',
     icon: Palette,
   },
   {
     title: 'AI transitions',
-    description: 'Scene changes selected to fit the story instead of random template effects.',
-    icon: Palette,
+    description: 'Scene changes are paced around the source content.',
+    icon: Zap,
   },
   {
     title: 'Sound intelligence',
-    description: 'Swooshes, pops, music beds, and audio polish can follow timing, motion, and narration flow.',
+    description: 'Optional SFX and music cues support important moments.',
     icon: Music,
   },
   {
     title: 'Multi-language ready',
-    description: 'A foundation for creators who publish across regional and global audiences.',
+    description: 'English stays English; Hindi/Urdu becomes Roman Hinglish.',
     icon: Languages,
   },
   {
     title: 'Platform exports',
-    description: 'Vertical MP4 output tuned for Instagram Reels, TikTok, and Shorts.',
+    description: 'Vertical MP4 output for Reels, TikTok, and Shorts.',
     icon: Smartphone,
   },
 ];
@@ -74,12 +68,11 @@ export default function FeaturesSection() {
               viewport={{ once: true }}
               className="text-4xl font-black leading-tight tracking-normal text-white md:text-6xl"
             >
-              More than captions. A complete short, ready to refine.
+            The practical controls creators expect.
             </motion.h2>
           </div>
           <p className="text-lg leading-8 text-zinc-400">
-            Itnavideo brings captions, typography, fonts, colors, audio polish, and exports into one focused
-            short-form MVP workflow.
+            The homepage now keeps the feature list focused: Explainer Video, transcript timing, scene visuals, safe zones, motion, language, and export.
           </p>
         </div>
 

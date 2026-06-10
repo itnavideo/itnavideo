@@ -5,7 +5,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 interface AdminContextType {
   isAdminLoggedIn: boolean;
   loading: boolean;
-  login: (u: string, p: string) => Promise<boolean>;
+  login: (apiKey: string) => Promise<boolean>;
   logout: () => Promise<void>;
 }
 
@@ -26,11 +26,11 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
       .finally(() => setLoading(false));
   }, []);
 
-  const login = async (u: string, p: string) => {
+  const login = async (apiKey: string) => {
     const response = await fetch('/api/admin/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: u, password: p }),
+      body: JSON.stringify({ apiKey }),
     });
 
     if (response.ok) {

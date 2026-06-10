@@ -2,8 +2,9 @@
 
 import React, { useState, useCallback } from 'react';
 import Link from 'next/link';
-import { Twitter, Github, Linkedin, Instagram, Loader2 } from 'lucide-react';
+import { Linkedin, Instagram, Loader2, Youtube, UserRound } from 'lucide-react';
 import BrandLogo from '@/components/brand/BrandLogo';
+import { seoLandingPages } from '@/lib/seoLandingPages';
 
 // Types for better maintainability
 type SubscriptionStatus = 'idle' | 'loading' | 'success' | 'error';
@@ -21,6 +22,7 @@ const footerGroups = [
     title: 'Resources',
     links: [
       { label: 'Documentation', href: '/docs' },
+      { label: 'AI Platform Facts', href: '/ai-platform-facts' },
       { label: 'AI Blog', href: '/blog' },
       { label: 'Discord', href: '/contact' },
     ],
@@ -33,6 +35,45 @@ const footerGroups = [
       { label: 'Privacy Policy', href: '/privacy' },
       { label: 'Terms of Service', href: '/terms' },
     ],
+  },
+];
+
+const seoFooterLinks = seoLandingPages
+  .filter((page) => [
+    'ai-explainer-video-generator',
+    'ai-reel-generator',
+    'voice-to-video-ai',
+    'video-to-reel-maker',
+    'youtube-shorts-generator',
+    'ai-subtitle-generator',
+    'faceless-video-generator',
+    'ai-video-generator-india',
+  ].includes(page.slug))
+  .map((page) => ({
+    label: page.keyword.replace(/\b\w/g, (letter) => letter.toUpperCase()),
+    href: `/${page.slug}`,
+  }));
+
+const socialLinks = [
+  {
+    label: 'Itnavideo on Instagram',
+    href: 'https://www.instagram.com/itnavideo/',
+    icon: Instagram,
+  },
+  {
+    label: 'Itnavideo on YouTube',
+    href: 'https://www.youtube.com/@Itnavideo',
+    icon: Youtube,
+  },
+  {
+    label: 'Itnavideo on LinkedIn',
+    href: 'https://www.linkedin.com/company/itnavideo-ai/',
+    icon: Linkedin,
+  },
+  {
+    label: 'Founder Syed Rohi on LinkedIn',
+    href: 'https://www.linkedin.com/in/syedrohi/',
+    icon: UserRound,
   },
 ];
 
@@ -120,34 +161,34 @@ export default function Footer() {
         </form>
       </div>
 
-      <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-12 mb-16">
+      <div className="max-w-7xl mx-auto grid grid-cols-2 gap-10 mb-16 md:grid-cols-6 md:gap-12">
         {/* Brand Section */}
-        <div className="col-span-2">
+        <div className="col-span-2 md:col-span-2">
           <div className="mb-6">
             <BrandLogo size="md" showTagline />
           </div>
           <p className="text-zinc-500 text-sm max-w-xs leading-relaxed">
-            AI short-form video creation from voiceover audio, powered by a private media engine.
+            AI short-form video creation from talking-head video, powered by a private media engine.
           </p>
+          <a href="mailto:rohi@itnavideo.com" className="mt-4 inline-flex text-sm font-semibold text-brand-mint transition-colors hover:text-white">
+            rohi@itnavideo.com
+          </a>
           <div className="flex gap-5 mt-8">
-            <a
-              href="https://www.instagram.com/itnavideo?igsh=dWY3OWVyeDRzbDVh"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Itnavideo on Instagram"
-              className="text-zinc-500 hover:text-white transition-colors"
-            >
-              <Instagram size={18} />
-            </a>
-            <a href="#" aria-label="Itnavideo on X" className="text-zinc-500 hover:text-white transition-colors">
-              <Twitter size={18} />
-            </a>
-            <a href="#" aria-label="Itnavideo community" className="text-zinc-500 hover:text-white transition-colors">
-              <Github size={18} />
-            </a>
-            <a href="#" aria-label="Itnavideo on LinkedIn" className="text-zinc-500 hover:text-white transition-colors">
-              <Linkedin size={18} />
-            </a>
+            {socialLinks.map((item) => {
+              const Icon = item.icon;
+              return (
+                <a
+                  href={item.href}
+                  key={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={item.label}
+                  className="text-zinc-500 hover:text-white transition-colors"
+                >
+                  <Icon size={18} />
+                </a>
+              );
+            })}
           </div>
         </div>
 
@@ -171,6 +212,19 @@ export default function Footer() {
             </ul>
           </div>
         ))}
+
+        <div className="col-span-2 md:col-span-1">
+          <h4 className="text-white font-semibold mb-6 text-[11px] uppercase tracking-[0.2em]">AI Tools</h4>
+          <ul className="space-y-4 text-zinc-500 text-sm">
+            {seoFooterLinks.map((link) => (
+              <li key={link.href}>
+                <Link href={link.href} className="inline-flex items-center gap-2 transition-colors hover:text-white">
+                  <span>{link.label}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
 
       {/* Bottom Bar */}

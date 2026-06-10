@@ -1,8 +1,17 @@
 import { ArrowRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import FeaturesSection from '@/components/landing/FeaturesSection';
 import HowItWorks from '@/components/landing/HowItWorks';
 import ComparisonSection from '@/components/landing/ComparisonSection';
+
+export const metadata: Metadata = {
+  title: "AI Video Generator and AI Reel Generator Features",
+  description: "Explore Itnavideo features for AI video generation, AI reels, YouTube Shorts, script to video, video to reel, faceless videos, and AI captions/subtitles.",
+  alternates: {
+    canonical: "/features",
+  },
+};
 
 export default function FeaturesPage() {
   return (
@@ -15,10 +24,10 @@ export default function FeaturesPage() {
               Product features
             </div>
             <h1 className="text-5xl font-black leading-tight tracking-normal text-white md:text-7xl">
-              Audio-first Shorts, handled end to end.
+              A focused AI reel workflow, not a random generator.
             </h1>
             <p className="mt-6 text-lg leading-8 text-zinc-400 md:text-xl">
-              Itnavideo analyzes one voiceover, creates captions and typography scenes, then renders a vertical short ready for Reels, TikTok, and Shorts. Media upload modes are temporarily paused for MVP stability.
+              Upload a video, let the planner turn speech into clean story text, then render a 9:16 Video Explainer reel.
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <Link
