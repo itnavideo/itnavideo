@@ -280,7 +280,12 @@ function selectFrameType(
   if (visualType === 'stat') return /\b(growth|profit|revenue|income|roi|stock|market|investment)\b/.test(value) ? 'MoneyGrowthGraph' : 'BigNumberReveal';
   if (visualType === 'quote') return 'QuoteCard';
   if (visualType === 'question') return 'QuestionFrame';
-  if (index === total - 1) return 'CTAFrame';
+  if (
+    index === total - 1 &&
+    /\b(follow|subscribe|share|comment|save|download|try now|start now|visit|sign up|signup|join|click|learn more|call now|book now)\b/.test(value)
+  ) {
+    return 'CTAFrame';
+  }
 
   return 'InfoCard';
 }
@@ -342,7 +347,7 @@ function buildFrameLabel(visualType: VisualPlanScene['visualType'], frameType: V
   if (visualType === 'stat') return 'KEY NUMBER';
   if (visualType === 'timeline') return 'ROADMAP';
   if (visualType === 'comparison') return 'comparisonImages';
-  if (visualType === 'warning') return 'ALERT';
+  if (visualType === 'warning') return 'RISK CHECK';
   if (visualType === 'cta') return 'NEXT STEP';
   return 'EXPLAINER';
 }
@@ -368,10 +373,11 @@ function buildShowWhat(
   value?: string,
 ) {
   if (value) return `Show ${value} as the hero number with ${frameText} context.`;
-  if (visualType === 'timeline') return `Show a ${items.length}-step frame: ${items.join(' -> ')}.`;
-  if (visualType === 'checklist') return `Show a checklist frame with ${items.join(', ')}.`;
-  if (visualType === 'comparison') return `Show a comparison frame for ${items.slice(0, 2).join(' vs ')}.`;
-  return `Show a ${frameType} focused on ${frameText}.`;
+  if (visualType === 'timeline') return items.slice(0, 4).join(' → ');
+  if (visualType === 'checklist') return items.slice(0, 4).join(' • ');
+  if (visualType === 'comparison') return items.slice(0, 2).join(' vs ');
+  if (visualType === 'cta') return trimPlannerWords(frameText, 6);
+  return trimPlannerWords(frameText, 7);
 }
 
 function buildWhyMatchesScript(visualType: VisualPlanScene['visualType'], scriptText: string) {
@@ -420,7 +426,8 @@ function selectAnimation(
 }
 
 function selectEmotion(visualType: VisualPlanScene['visualType'], index: number): NonNullable<VisualPlanScene['emotion']> {
-  if (visualType === 'warning' || index === 0) return 'urgent';
+  if (visualType === 'warning') return 'urgent';
+  if (index === 0) return 'informative';
   if (visualType === 'cta') return 'motivational';
   if (visualType === 'stat' || visualType === 'comparison') return 'serious';
   return 'informative';
