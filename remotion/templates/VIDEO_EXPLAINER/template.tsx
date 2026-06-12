@@ -4761,7 +4761,9 @@ const VideoExplainer = (props: ReelProps) => {
           left: 0,
           bottom: 40,
           width: 1080,
-          height: 720,`n          zIndex: 30,`n          pointerEvents: "none",
+          height: 720,
+          zIndex: 30,
+          pointerEvents: "none",
         }}
       >
         <SimpleInfographicRenderer overlay={activeOverlay} visualPlan={props.visualPlan} time={time} />
@@ -4802,7 +4804,9 @@ const VideoExplainer = (props: ReelProps) => {
           left: 0,
           bottom: 40,
           width: 1080,
-          height: 720,`n          zIndex: 30,`n          pointerEvents: "none",
+          height: 720,
+          zIndex: 30,
+          pointerEvents: "none",
         }}
       >
         <SimpleInfographicRenderer overlay={activeOverlay} visualPlan={props.visualPlan} time={time} />
@@ -4858,7 +4862,9 @@ const VideoExplainer = (props: ReelProps) => {
           left: 0,
           bottom: 40,
           width: 1080,
-          height: 720,`n          zIndex: 30,`n          pointerEvents: "none",
+          height: 720,
+          zIndex: 30,
+          pointerEvents: "none",
         }}
       >
         <SimpleInfographicRenderer overlay={activeOverlay} visualPlan={props.visualPlan} time={time} />
@@ -4916,6 +4922,7 @@ export const VideoExplainerComposition = () => (
     })}
   />
 );
+
 
 
 
