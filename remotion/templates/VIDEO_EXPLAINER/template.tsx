@@ -1,4 +1,4 @@
-import {
+﻿import {
   AbsoluteFill,
   Audio,
   Composition,
@@ -4761,8 +4761,7 @@ const VideoExplainer = (props: ReelProps) => {
           left: 0,
           bottom: 0,
           width: 1080,
-          height: 1120,
-          zIndex: 999,
+          height: 980,`n          zIndex: 40,`n          pointerEvents: "none",
         }}
       >
         <AccumulativeFlowchart overlay={activeOverlay} visualPlan={props.visualPlan} time={time} />
@@ -4803,8 +4802,7 @@ const VideoExplainer = (props: ReelProps) => {
           left: 0,
           bottom: 0,
           width: 1080,
-          height: 1120,
-          zIndex: 999,
+          height: 980,`n          zIndex: 40,`n          pointerEvents: "none",
         }}
       >
         <AccumulativeFlowchart overlay={activeOverlay} visualPlan={props.visualPlan} time={time} />
@@ -4860,8 +4858,7 @@ const VideoExplainer = (props: ReelProps) => {
           left: 0,
           bottom: 0,
           width: 1080,
-          height: 1120,
-          zIndex: 999,
+          height: 980,`n          zIndex: 40,`n          pointerEvents: "none",
         }}
       >
         <AccumulativeFlowchart overlay={activeOverlay} visualPlan={props.visualPlan} time={time} />
@@ -4919,6 +4916,7 @@ export const VideoExplainerComposition = () => (
     })}
   />
 );
+
 
 
 
