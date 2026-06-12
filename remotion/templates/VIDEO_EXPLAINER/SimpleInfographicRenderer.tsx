@@ -122,29 +122,27 @@ const looksLikeDomainHosting = (overlay?: OverlayLike, visualPlan?: unknown) => 
   return hits.length >= 2;
 };
 
-const buildDomainHostingNodes = (overlay?: OverlayLike): SimpleNode[] => {
-  const start = typeof overlay?.start === "number" ? overlay.start : 0;
-
+const buildDomainHostingNodes = (_overlay?: OverlayLike): SimpleNode[] => {
   return [
     {
       id: "domain-name",
       label: "Domain Name",
-      start,
+      start: 0,
     },
     {
       id: "website-address",
       label: "Website Address",
-      start: start + 1.1,
+      start: 1.4,
     },
     {
       id: "hosting-server",
       label: "Hosting Server",
-      start: start + 2.2,
+      start: 2.8,
     },
     {
       id: "stores-files",
       label: "Stores Website Files",
-      start: start + 3.3,
+      start: 4.2,
     },
   ];
 };
@@ -216,10 +214,6 @@ const normalizeVisualPlanNodes = (
   visualPlan: unknown,
   overlay?: OverlayLike
 ): SimpleNode[] => {
-  if (looksLikeDomainHosting(overlay, visualPlan)) {
-    return buildDomainHostingNodes(overlay);
-  }
-
   const plan = visualPlan as any;
 
   if (plan?.nodes && Array.isArray(plan.nodes) && plan.nodes.length > 0) {
@@ -454,10 +448,6 @@ const Connector: React.FC<{
 };
 
 const getTitle = (overlay?: OverlayLike, visualPlan?: unknown) => {
-  if (looksLikeDomainHosting(overlay, visualPlan)) {
-    return "Domain vs Hosting";
-  }
-
   const plan = visualPlan as any;
   const rawTitle = plan?.title || overlay?.frameLabel || overlay?.text || "Visual Explanation";
   const title = shortText(rawTitle, 5);
@@ -473,17 +463,37 @@ const getTitle = (overlay?: OverlayLike, visualPlan?: unknown) => {
   return title;
 };
 
+
+const applyGenericRevealTiming = (nodes: SimpleNode[], overlay?: OverlayLike): SimpleNode[] => {
+  const overlayStart = typeof overlay?.start === "number" ? Math.max(0, overlay.start) : 0;
+  const overlayEnd = typeof overlay?.end === "number" && overlay.end > overlayStart
+    ? overlay.end
+    : overlayStart + 7;
+
+  const duration = Math.max(3.5, overlayEnd - overlayStart);
+  const maxNodes = Math.min(4, Math.max(2, nodes.length));
+  const revealGap = Math.min(1.35, Math.max(0.85, duration / (maxNodes + 1)));
+
+  return nodes.slice(0, 4).map((node, index) => ({
+    ...node,
+    start: overlayStart + index * revealGap,
+  }));
+};
+
 export const SimpleInfographicRenderer: React.FC<{
   overlay?: OverlayLike;
   visualPlan?: unknown;
   time: number;
 }> = ({ overlay, visualPlan, time }) => {
-  const nodes = dedupeNodes(
-    forceFirstNodeVisibleEarly(
-      normalizeVisualPlanNodes(visualPlan, overlay),
-      overlay
-    )
-  ).slice(0, 4);
+  const nodes = applyGenericRevealTiming(
+    dedupeNodes(
+      forceFirstNodeVisibleEarly(
+        normalizeVisualPlanNodes(visualPlan, overlay),
+        overlay
+      )
+    ).slice(0, 4),
+    overlay
+  );
 
   const safeNodes =
     nodes.length >= 2
