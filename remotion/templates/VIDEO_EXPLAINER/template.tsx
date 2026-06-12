@@ -2488,6 +2488,45 @@ const normalizeCaption = (item: ContinuousCaptionItem): ContinuousCaptionItem =>
   };
 };
 
+
+const expandCaptionChunks = (item: ContinuousCaptionItem): ContinuousCaptionItem[] => {
+  const caption = normalizeCaption(item);
+  const duration = Math.max(0, caption.end - caption.start);
+  const words = cleanText(caption.text).split(/\s+/).filter(Boolean);
+
+  if (words.length <= 6 && duration <= 3.2) {
+    return [caption];
+  }
+
+  const chunkSize = words.length > 18 ? 4 : 5;
+  const chunks: string[] = [];
+
+  for (let index = 0; index < words.length; index += chunkSize) {
+    const chunk = words.slice(index, index + chunkSize).join(' ').trim();
+    if (chunk) chunks.push(chunk);
+  }
+
+  if (chunks.length <= 1) {
+    return [caption];
+  }
+
+  const step = duration > 0 ? duration / chunks.length : 1.2;
+
+  return chunks.map((chunk, index) => {
+    const start = caption.start + index * step;
+    const end = index === chunks.length - 1 ? caption.end : caption.start + (index + 1) * step;
+
+    return {
+      ...caption,
+      id: `${caption.id || 'caption'}-chunk-${index + 1}`,
+      start,
+      end: Math.max(start + 0.45, end),
+      text: limitWords(chunk, 6, 54),
+      lines: breakSubtitleLines(chunk),
+    };
+  });
+};
+
 function breakSubtitleLines(text: string) {
   const words = cleanText(text).split(/\s+/).filter(Boolean);
   if (words.length <= 6) return [words.join(' ')];
@@ -4730,7 +4769,7 @@ const VideoExplainer = (props: ReelProps) => {
   // Safety: if all overlays start at same time (bad planning), space them evenly
   const overlays = repairOverlayTiming(rawOverlays, durationInFrames / fps);
   const captions = (props.captions || [])
-    .map(normalizeCaption)
+    .flatMap(expandCaptionChunks)
     .filter((item) => item.end > item.start && item.text);
   const activeOverlay = getActiveItem(overlays, time) || overlays[0];
   const captionsEnabled = captions.length > 0;
