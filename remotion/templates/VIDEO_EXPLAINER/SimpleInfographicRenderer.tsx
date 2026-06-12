@@ -51,15 +51,6 @@ const BAD_TEXT_PATTERNS = [
   /prompt/i,
 ];
 
-const DOMAIN_HOSTING_PATTERNS = [
-  /domain/i,
-  /hosting/i,
-  /website address/i,
-  /server/i,
-  /www\./i,
-  /\.com/i,
-];
-
 const clamp = (value: number, min: number, max: number) => {
   return Math.min(max, Math.max(min, value));
 };
@@ -114,37 +105,6 @@ const getOverlayTextPool = (overlay?: OverlayLike, visualPlan?: unknown) => {
   ]
     .filter(Boolean)
     .join(" ");
-};
-
-const looksLikeDomainHosting = (overlay?: OverlayLike, visualPlan?: unknown) => {
-  const pool = getOverlayTextPool(overlay, visualPlan);
-  const hits = DOMAIN_HOSTING_PATTERNS.filter((pattern) => pattern.test(pool));
-  return hits.length >= 2;
-};
-
-const buildDomainHostingNodes = (_overlay?: OverlayLike): SimpleNode[] => {
-  return [
-    {
-      id: "domain-name",
-      label: "Domain Name",
-      start: 0,
-    },
-    {
-      id: "website-address",
-      label: "Website Address",
-      start: 1.4,
-    },
-    {
-      id: "hosting-server",
-      label: "Hosting Server",
-      start: 2.8,
-    },
-    {
-      id: "stores-files",
-      label: "Stores Website Files",
-      start: 4.2,
-    },
-  ];
 };
 
 const splitOverlayToNodes = (overlay?: OverlayLike): SimpleNode[] => {
@@ -271,6 +231,78 @@ const dedupeNodes = (nodes: SimpleNode[]) => {
   });
 };
 
+type ProfessionalVisualType =
+  | "CONCEPT_CARD"
+  | "STEP_FLOW"
+  | "COMPARISON_SPLIT"
+  | "RISK_MAP"
+  | "STAT_CARD"
+  | "CHECKLIST";
+
+const getProfessionalVisualType = (
+  overlay?: OverlayLike,
+  visualPlan?: unknown
+): ProfessionalVisualType => {
+  const plan = visualPlan as any;
+  const explicit = String(
+    plan?.visualType ||
+      plan?.frameType ||
+      overlay?.frameType ||
+      overlay?.layoutType ||
+      overlay?.layout ||
+      overlay?.visual ||
+      ""
+  ).toLowerCase();
+
+  const pool = getOverlayTextPool(overlay, visualPlan).toLowerCase();
+
+  if (/comparison|compare|versus| vs |beforeafter|before after|split/.test(explicit + " " + pool)) {
+    return "COMPARISON_SPLIT";
+  }
+
+  if (/warning|risk|scam|fraud|danger|mistake|avoid|alert|fake|loss|reject|problem/.test(explicit + " " + pool)) {
+    return "RISK_MAP";
+  }
+
+  if (/stat|number|salary|income|money|price|cost|revenue|profit|growth|percent|%|₹|\$/.test(explicit + " " + pool)) {
+    return "STAT_CARD";
+  }
+
+  if (/checklist|document|requirement|required|tips|list|points/.test(explicit + " " + pool)) {
+    return "CHECKLIST";
+  }
+
+  if (/step|process|timeline|roadmap|flow|application|apply|register|submit/.test(explicit + " " + pool)) {
+    return "STEP_FLOW";
+  }
+
+  return "CONCEPT_CARD";
+};
+
+const getNodeIcon = (visualType: ProfessionalVisualType, index: number) => {
+  if (visualType === "RISK_MAP") return ["!", "⚠", "✕", "!"][index] || "!";
+  if (visualType === "STAT_CARD") return ["₹", "%", "+", "↗"][index] || "#";
+  if (visualType === "CHECKLIST") return "✓";
+  if (visualType === "COMPARISON_SPLIT") return index === 0 ? "A" : "B";
+  return String(index + 1);
+};
+
+const getProfessionalTitle = (
+  title: string,
+  visualType: ProfessionalVisualType
+) => {
+  if (title !== "Visual Explanation" && title !== "Key Explanation") return title;
+
+  if (visualType === "COMPARISON_SPLIT") return "Quick Comparison";
+  if (visualType === "RISK_MAP") return "Risk Check";
+  if (visualType === "STAT_CARD") return "Key Number";
+  if (visualType === "CHECKLIST") return "Important Points";
+  if (visualType === "STEP_FLOW") return "Step By Step";
+
+  return title;
+};
+
+
 const layoutFor = (count: number) => {
   if (count <= 3) {
     return [
@@ -294,7 +326,8 @@ const AnimatedNode: React.FC<{
   startSecond: number;
   x: number;
   y: number;
-}> = ({ label, index, startSecond, x, y }) => {
+  visualType?: ProfessionalVisualType;
+}> = ({ label, index, startSecond, x, y, visualType = "STEP_FLOW" }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -334,9 +367,17 @@ const AnimatedNode: React.FC<{
         borderRadius: 32,
         padding: "22px 24px",
         background:
-          index === 0
-            ? "linear-gradient(135deg, #ffdf5d, #ff9f1c)"
-            : "linear-gradient(135deg, #ffffff, #eaf0ff)",
+          visualType === "RISK_MAP"
+            ? index === 0
+              ? "linear-gradient(135deg, #ff5d5d, #ff9f1c)"
+              : "linear-gradient(135deg, #fff1f2, #ffe4e6)"
+            : visualType === "STAT_CARD"
+              ? index === 0
+                ? "linear-gradient(135deg, #34d399, #facc15)"
+                : "linear-gradient(135deg, #ecfdf5, #fefce8)"
+              : index === 0
+                ? "linear-gradient(135deg, #ffdf5d, #ff9f1c)"
+                : "linear-gradient(135deg, #ffffff, #eaf0ff)",
         border: "5px solid rgba(255,255,255,0.92)",
         boxShadow:
           index === 0
@@ -366,7 +407,7 @@ const AnimatedNode: React.FC<{
           fontWeight: 950,
         }}
       >
-        {index + 1}
+        {getNodeIcon(visualType, index)}
       </div>
 
       <div
@@ -507,8 +548,11 @@ export const SimpleInfographicRenderer: React.FC<{
           overlay
         );
 
-  const positions = layoutFor(safeNodes.length);
-  const title = getTitle(overlay, visualPlan);
+  const visualType = getProfessionalVisualType(overlay, visualPlan);
+  const positions = layoutFor(
+    visualType === "COMPARISON_SPLIT" ? Math.min(2, safeNodes.length) : safeNodes.length
+  );
+  const title = getProfessionalTitle(getTitle(overlay, visualPlan), visualType);
 
   return (
     <AbsoluteFill
@@ -547,6 +591,23 @@ export const SimpleInfographicRenderer: React.FC<{
         >
           {title}
         </div>
+      </div>
+
+      <div
+        style={{
+          position: "absolute",
+          top: 96,
+          left: 0,
+          right: 0,
+          textAlign: "center",
+          color: "rgba(255,255,255,0.72)",
+          fontSize: 18,
+          fontWeight: 800,
+          letterSpacing: "0.12em",
+          textTransform: "uppercase",
+        }}
+      >
+        {visualType.replace(/_/g, " ")}
       </div>
 
       {safeNodes.slice(0, -1).map((node, index) => {
