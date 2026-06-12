@@ -11,7 +11,7 @@
 } from 'remotion';
 import {Fragment} from 'react';
 import {AssetSequenceLayer, assetSequenceLayerStyles, type AssetSequenceItem} from '../../layers/AssetSequenceLayer';
-import {AccumulativeFlowchart} from './AccumulativeFlowchart';
+import {SimpleInfographicRenderer} from './SimpleInfographicRenderer';
 
 export const TEMPLATE_NAME = 'VIDEO_EXPLAINER';
 export const COMPOSITION_ID = 'VIDEO-EXPLAINER';
@@ -4759,12 +4759,12 @@ const VideoExplainer = (props: ReelProps) => {
         style={{
           position: "absolute",
           left: 0,
-          bottom: 0,
+          bottom: 40,
           width: 1080,
-          height: 980,`n          zIndex: 40,`n          pointerEvents: "none",
+          height: 720,`n          zIndex: 30,`n          pointerEvents: "none",
         }}
       >
-        <AccumulativeFlowchart overlay={activeOverlay} visualPlan={props.visualPlan} time={time} />
+        <SimpleInfographicRenderer overlay={activeOverlay} visualPlan={props.visualPlan} time={time} />
       </div>
         <LayoutV2Reel
           captions={captions}
@@ -4800,12 +4800,12 @@ const VideoExplainer = (props: ReelProps) => {
         style={{
           position: "absolute",
           left: 0,
-          bottom: 0,
+          bottom: 40,
           width: 1080,
-          height: 980,`n          zIndex: 40,`n          pointerEvents: "none",
+          height: 720,`n          zIndex: 30,`n          pointerEvents: "none",
         }}
       >
-        <AccumulativeFlowchart overlay={activeOverlay} visualPlan={props.visualPlan} time={time} />
+        <SimpleInfographicRenderer overlay={activeOverlay} visualPlan={props.visualPlan} time={time} />
       </div>
         <ImageCollageReel
           captions={captions}
@@ -4856,12 +4856,12 @@ const VideoExplainer = (props: ReelProps) => {
         style={{
           position: "absolute",
           left: 0,
-          bottom: 0,
+          bottom: 40,
           width: 1080,
-          height: 980,`n          zIndex: 40,`n          pointerEvents: "none",
+          height: 720,`n          zIndex: 30,`n          pointerEvents: "none",
         }}
       >
-        <AccumulativeFlowchart overlay={activeOverlay} visualPlan={props.visualPlan} time={time} />
+        <SimpleInfographicRenderer overlay={activeOverlay} visualPlan={props.visualPlan} time={time} />
       </div>
       <div className="divider" style={{display: 'none'}} />
       <div className="content" style={{display: 'none'}}>
@@ -4916,6 +4916,8 @@ export const VideoExplainerComposition = () => (
     })}
   />
 );
+
+
 
 
 
