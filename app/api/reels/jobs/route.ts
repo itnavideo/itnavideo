@@ -15,12 +15,13 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 type LambdaRenderRequest = Parameters<typeof renderMediaOnLambda>[0];
-type ReelMode = 'videoExplainer' | 'notes' | 'videoCaption' | 'imageStory';
+type ReelMode = 'videoExplainer' | 'notes' | 'videoCaption' | 'imageStory' | 'compare';
 const MODE_TO_TEMPLATE: Record<ReelMode, ReelTemplateName> = {
   videoExplainer: 'VIDEO_EXPLAINER',
   notes: 'HANDWRITTEN_NOTES',
   videoCaption: 'VIDEO_CAPTION',
   imageStory: 'IMAGE_STORY',
+  compare: 'comparisonImages',
 };
 
 const MAX_RENDER_WINDOW_SECONDS = 60;
@@ -40,22 +41,25 @@ export async function POST(request: Request) {
   const mediaKey = readString(body.mediaKey);
   const fileName = readString(body.fileName);
   const contentType = readString(body.contentType);
+  const comparisonImageKeys = Array.isArray(body.comparisonImageKeys)
+    ? body.comparisonImageKeys.map((value: unknown) => readString(value)).filter(Boolean).slice(0, 2)
+    : [];
   const topicTitle = readString(body.topicTitle);
   const design = toDesign(readString(body.design));
   const languageHint = toLanguageHint(readString(body.language || body.displayLanguage || body.typographyLanguage));
   const requestedMode = readString(body.mode || body.template);
-  if (requestedMode && !isVideoExplainerMode(requestedMode)) {
+  if (requestedMode && !isAllowedRenderMode(requestedMode)) {
     return NextResponse.json(
       {
         ok: false,
         status: 'failed',
         reasonCode: 'TEMPLATE_UNAVAILABLE',
-        error: 'Only Explainer Video is available right now.',
+        error: 'Only Explainer Video and Compare are available right now.',
       },
       {status: 422},
     );
   }
-  const mode: ReelMode = 'videoExplainer';
+  const mode = toMode(requestedMode || 'videoExplainer');
   const mediaType = getUploadedMediaType({mode, contentType});
   const templateName = MODE_TO_TEMPLATE[mode];
   const templateConfig = REEL_TEMPLATE_REGISTRY[templateName];
@@ -93,6 +97,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ok: false, error: 'Video Explainer requires a video or voiceover file.'}, {status: 400});
   }
 
+  if (mode === 'compare') {
+    if (contentType && !contentType.startsWith('audio/')) {
+      return NextResponse.json({ok: false, error: 'Compare requires one audio voiceover file.'}, {status: 400});
+    }
+    if (comparisonImageKeys.length !== 2) {
+      return NextResponse.json({ok: false, error: 'Compare requires exactly 2 visuals: one left and one right.'}, {status: 400});
+    }
+  }
+
   const config = readLambdaConfig();
   if (!config.ok) return NextResponse.json({ok: false, error: config.error}, {status: 503});
 
@@ -111,6 +124,18 @@ export async function POST(request: Request) {
     }
 
     const mediaUrl = await createReadUrl(mediaKey);
+    const comparisonImageUrls = mode === 'compare'
+      ? (await Promise.all(
+          comparisonImageKeys.map(async (key: string) => readString(await createReadUrl(key))),
+        )).filter(Boolean).slice(0, 2)
+      : [];
+
+    if (mode === 'compare' && comparisonImageUrls.length !== 2) {
+      return NextResponse.json(
+        {ok: false, error: 'Compare visual URLs could not be prepared. Please re-upload both visuals.'},
+        {status: 422},
+      );
+    }
     if (mode === 'videoCaption' && !mediaUrl) {
       return NextResponse.json(
         {
@@ -343,6 +368,9 @@ export async function POST(request: Request) {
       );
     }
 
+    const compareLeftTitleValue = readString(body.compareLeftTitle || body.leftTitle || body.leftLabel) || 'Left';
+    const compareRightTitleValue = readString(body.compareRightTitle || body.rightTitle || body.rightLabel) || 'Right';
+
     const music = selectBackgroundMusic({
       topicTitle: topicTitle || titleFromTranscript(transcription.transcript) || titleFromFile(fileName),
       transcript: renderWindow.transcript,
@@ -350,6 +378,22 @@ export async function POST(request: Request) {
     const inputProps: Record<string, unknown> = {
       ...(plan.renderProps || {}),
       mediaSrc: planningMedia.mediaUrl,
+      ...(mode === 'compare'
+        ? {
+            audioUrl: planningMedia.mediaUrl,
+            mediaUrl: planningMedia.mediaUrl,
+            sourceAudioUrl: planningMedia.mediaUrl,
+            comparisonImageUrls,
+            comparisonImages: comparisonImageUrls,
+            stickerStyle: ['cartoon', 'explainer'].includes(readString(body.stickerStyle)) ? readString(body.stickerStyle) : '2d',
+            creatorHandle: readString(body.creatorHandle || body.handle || body.channelName) || '@itnavideo',
+            compareLeftTitle: readString(body.compareLeftTitle || body.leftTitle || body.leftLabel) || 'Left',
+            compareRightTitle: readString(body.compareRightTitle || body.rightTitle || body.rightLabel) || 'Right',
+            leftTitle: readString(body.compareLeftTitle || body.leftTitle || body.leftLabel) || 'Left',
+            rightTitle: readString(body.compareRightTitle || body.rightTitle || body.rightLabel) || 'Right',
+            imageSources: comparisonImageUrls,
+          }
+        : {}),
       mediaType,
       mediaFit: templateConfig.mediaFit,
       mediaTrimStartSeconds: renderWindow.trimStartSeconds,
@@ -368,6 +412,15 @@ export async function POST(request: Request) {
         : music.volume,
       sourceAudioVolume: 1.35,
       backgroundMusicCategory: readString(plan.renderProps?.backgroundMusicCategory) || music.category,
+
+      ...(mode === 'compare'
+        ? {
+            captions: buildCompareCaptionsFromGroq(renderWindow),
+            transcriptSegments: renderWindow.segments || [],
+            transcript: renderWindow.transcript,
+            sourceScript: renderWindow.transcript,
+          }
+        : {}),
     };
     const imagePreflight = await repairRenderImageSources(inputProps, {
       templateName,
@@ -1129,6 +1182,85 @@ function mergeRepairedSegments(original: ReelTranscriptSegment[] | undefined, re
   }));
 }
 
+
+function buildCompareCaptionsFromGroq(renderWindow: {
+  transcript: string;
+  words?: ReelWord[];
+  segments?: ReelTranscriptSegment[];
+  durationSeconds: number;
+}) {
+  const words = (renderWindow.words || [])
+    .filter((word) => readString(word.word) && Number.isFinite(word.start) && Number.isFinite(word.end))
+    .map((word) => ({
+      start: Math.max(0, Number(word.start)),
+      end: Math.max(Number(word.start) + 0.12, Number(word.end)),
+      word: readString(word.word),
+    }));
+
+  if (words.length) {
+    const captions: Array<{start: number; end: number; text: string}> = [];
+    let group: typeof words = [];
+
+    const flush = () => {
+      if (!group.length) return;
+      captions.push({
+        start: roundSeconds(group[0].start),
+        end: roundSeconds(Math.max(group[group.length - 1].end, group[0].start + 0.65)),
+        text: group.map((item) => item.word).join(' '),
+      });
+      group = [];
+    };
+
+    for (const word of words) {
+      const groupStart = group[0]?.start ?? word.start;
+      const tooManyWords = group.length >= 5;
+      const tooLong = word.end - groupStart > 1.55;
+      if (group.length && (tooManyWords || tooLong)) flush();
+      group.push(word);
+    }
+
+    flush();
+    return captions.filter((caption) => caption.text.trim());
+  }
+
+  const segments = (renderWindow.segments || [])
+    .filter((segment) => readString(segment.text) && Number.isFinite(segment.start) && Number.isFinite(segment.end));
+
+  if (segments.length) {
+    return segments.flatMap((segment) => {
+      const parts = readString(segment.text).split(/\s+/).filter(Boolean);
+      const chunks: Array<{start: number; end: number; text: string}> = [];
+      const chunkSize = 5;
+      const duration = Math.max(0.8, Number(segment.end) - Number(segment.start));
+      const totalChunks = Math.max(1, Math.ceil(parts.length / chunkSize));
+
+      for (let index = 0; index < totalChunks; index += 1) {
+        const chunkWords = parts.slice(index * chunkSize, index * chunkSize + chunkSize);
+        const start = Number(segment.start) + (duration / totalChunks) * index;
+        const end = Number(segment.start) + (duration / totalChunks) * (index + 1);
+        chunks.push({
+          start: roundSeconds(start),
+          end: roundSeconds(end),
+          text: chunkWords.join(' '),
+        });
+      }
+
+      return chunks;
+    });
+  }
+
+  const fallbackWords = readString(renderWindow.transcript).split(/\s+/).filter(Boolean);
+  const fallbackDuration = Math.max(1, renderWindow.durationSeconds || 30);
+  const chunkSize = 5;
+  const totalChunks = Math.max(1, Math.ceil(fallbackWords.length / chunkSize));
+
+  return Array.from({length: totalChunks}).map((_, index) => ({
+    start: roundSeconds((fallbackDuration / totalChunks) * index),
+    end: roundSeconds((fallbackDuration / totalChunks) * (index + 1)),
+    text: fallbackWords.slice(index * chunkSize, index * chunkSize + chunkSize).join(' '),
+  })).filter((caption) => caption.text.trim());
+}
+
 function selectBackgroundMusic({
   topicTitle,
   transcript,
@@ -1309,19 +1441,23 @@ function toDesign(value: string) {
   return 'educationCreator';
 }
 
-function isVideoExplainerMode(value: string) {
+function isAllowedRenderMode(value: string) {
   const normalized = value.toLowerCase().replace(/[_\s]+/g, '-');
   return (
     normalized === 'videoexplainer' ||
     normalized === 'video-explainer' ||
     normalized === 'explainer' ||
     normalized === 'explainer-video' ||
-    normalized === 'facecam'
+    normalized === 'facecam' ||
+    normalized === 'compare' ||
+    normalized === 'comparison' ||
+    normalized === 'vs'
   );
 }
 
 function toMode(value: string): ReelMode {
   const normalized = value.toLowerCase();
+  if (normalized.includes('compare') || normalized.includes('comparison') || normalized === 'vs') return 'compare';
   if (normalized.includes('handwriting') || normalized.includes('notes')) return 'notes';
   if (normalized.includes('caption') || normalized.includes('subtitle')) return 'videoCaption';
   if (normalized.includes('image') || normalized.includes('photo') || normalized.includes('story')) return 'imageStory';
@@ -1329,7 +1465,7 @@ function toMode(value: string): ReelMode {
 }
 
 function getUploadedMediaType({mode, contentType}: {mode: ReelMode; contentType: string}): 'audio' | 'video' | 'image' {
-  if (mode === 'notes') return 'audio';
+  if (mode === 'notes' || mode === 'compare') return 'audio';
   if (mode === 'imageStory' && contentType.startsWith('image/')) return 'image';
   return contentType.startsWith('audio/') ? 'audio' : 'video';
 }
@@ -1603,3 +1739,22 @@ function uniqueStrings(values: string[]) {
 function slugify(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 64) || 'reel';
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

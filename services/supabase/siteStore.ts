@@ -55,3 +55,4 @@ export async function upsertRenderHistoryFromServer(data: Record<string, unknown
 export async function deleteRenderHistoryFromServer(data: Record<string, unknown>): Promise<unknown> {
   return (deleteRenderHistory as (data: Record<string, unknown>) => Promise<unknown>)(data);
 }
+

@@ -95,7 +95,7 @@ function isAllowedUploadForTemplate(templateMode: string, contentType: string) {
 }
 
 function uploadErrorForTemplate(templateMode: string) {
-  if (templateMode === 'compare') return 'Compare needs one audio file plus 2 to 4 images.';
+  if (templateMode === 'compare') return 'Compare needs one audio file plus exactly 2 visuals.';
   return 'Video Explainer needs audio or video with clear speech.';
 }
 
@@ -134,3 +134,5 @@ function sanitizeUserFacingStatus(value: string) {
     .replace(/\bOpenAI\b/gi, 'AI planner')
     .trim() || 'Could not create upload URL.';
 }
+
+

@@ -11,6 +11,7 @@ import {
 } from 'remotion';
 import {Fragment} from 'react';
 import {AssetSequenceLayer, assetSequenceLayerStyles, type AssetSequenceItem} from '../../layers/AssetSequenceLayer';
+import {AccumulativeFlowchart} from './AccumulativeFlowchart';
 
 export const TEMPLATE_NAME = 'VIDEO_EXPLAINER';
 export const COMPOSITION_ID = 'VIDEO-EXPLAINER';
@@ -290,7 +291,7 @@ const stylesheet = `
   width: 1032px;
   height: 580.5px;
   overflow: hidden;
-  border-radius: 28px;
+  border-radius: 24px;
   background: #05070a;
   border: 1px solid rgba(255, 255, 255, 0.13);
   box-shadow:
@@ -943,15 +944,16 @@ const stylesheet = `
 .material-tile {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.11);
-  border-radius: 20px;
+  border: 1.5px solid rgba(255,255,255,0.10);
+  border-radius: 22px;
   background:
-    radial-gradient(circle at 20% 0%, rgba(92,232,213,0.12), transparent 42%),
-    rgba(255,255,255,0.055);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
-  min-height: 96px;
-  padding: 18px;
+    radial-gradient(circle at 20% 0%, rgba(92,232,213,0.14), transparent 50%),
+    rgba(255,255,255,0.045);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08);
+  min-height: 100px;
+  padding: 20px;
   will-change: opacity, transform;
+  backdrop-filter: blur(4px);
 }
 .material-sheen {
   position: absolute;
@@ -1007,7 +1009,7 @@ const stylesheet = `
   margin: 22px auto 0;
   padding: 18px 22px;
   border: 1px solid rgba(92,232,213,0.16);
-  border-radius: 20px;
+  border-radius: 18px;
   background: rgba(92,232,213,0.055);
   position: relative;
   overflow: hidden;
@@ -1036,35 +1038,40 @@ const stylesheet = `
   max-width: 850px;
 }
 .flow-node {
-  min-height: 92px;
-  border: 1px solid rgba(92,232,213,0.18);
-  border-radius: 20px;
-  background: rgba(92,232,213,0.065);
-  color: rgba(255,255,255,0.90);
-  font-size: 23px;
+  min-height: 96px;
+  border: 1.5px solid rgba(92,232,213,0.20);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(92,232,213,0.10) 0%, transparent 50%),
+    rgba(92,232,213,0.04);
+  color: rgba(255,255,255,0.92);
+  font-size: 22px;
   font-weight: 900;
-  line-height: 1.08;
-  padding: 18px;
+  line-height: 1.1;
+  padding: 20px;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.04);
 }
 .flow-node span {
   display: block;
   margin-bottom: 10px;
   color: var(--cyan);
-  font-size: 16px;
-  letter-spacing: 0.12em;
+  font-size: 15px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
+  opacity: 0.9;
 }
 .flow-arrow {
   color: var(--accent);
   font-size: 38px;
   font-weight: 900;
   text-align: center;
+  text-shadow: 0 0 16px rgba(247,216,74,0.3);
 }
 .warning-meter {
   margin-top: 24px;
   max-width: 820px;
   border: 1px solid rgba(255,117,107,0.18);
-  border-radius: 20px;
+  border-radius: 18px;
   background: rgba(255,117,107,0.075);
   padding: 18px 20px;
 }
@@ -1100,7 +1107,7 @@ const stylesheet = `
 }
 .cta-action {
   border: 1px solid rgba(255,216,77,0.18);
-  border-radius: 20px;
+  border-radius: 18px;
   background: rgba(255,216,77,0.075);
   color: rgba(255,255,255,0.90);
   font-size: 22px;
@@ -1261,29 +1268,32 @@ const stylesheet = `
   box-sizing: border-box;
   height: 608px;
   overflow: hidden;
-  border: 7px solid #f7d84a;
+  border-radius: 24px;
+  border: 2px solid rgba(56,189,248,0.88);
   background:
-    linear-gradient(135deg, rgba(247,216,74,0.08), transparent 32%),
-    linear-gradient(180deg, #111517, #050606);
+    linear-gradient(135deg, rgba(34,211,238,0.16), transparent 34%),
+    linear-gradient(180deg, #07111f, #020617);
   box-shadow:
     0 24px 64px rgba(0,0,0,0.52),
     0 0 0 2px rgba(255,255,255,0.16),
-    0 0 34px rgba(247,216,74,0.18),
+    0 0 26px rgba(56,189,248,0.24),
+    0 0 42px rgba(250,204,21,0.10),
     inset 0 0 0 1px rgba(0,0,0,0.38);
   z-index: 3;
 }
 .collage-top-frame::before {
   content: "";
   position: absolute;
-  inset: 0;
+  inset: 10px;
+  border-radius: 18px;
   z-index: 5;
   pointer-events: none;
-  border: 4px solid #f7d84a;
+  border: 1.5px solid rgba(250,204,21,0.62);
   box-shadow:
     inset 0 0 0 2px rgba(255,255,255,0.24),
-    inset 0 10px 0 rgba(247,216,74,0.38),
+    inset 0 8px 0 rgba(34,211,238,0.22),
     inset 0 -1px 0 rgba(0,0,0,0.42),
-    0 0 20px rgba(247,216,74,0.28);
+    0 0 22px rgba(34,211,238,0.30);
 }
 .collage-top-frame::after {
   content: "";
@@ -1336,8 +1346,8 @@ const stylesheet = `
 .collage-video-progress-fill {
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #f7d84a, #ffffff 62%, #f7d84a);
-  box-shadow: 0 0 18px rgba(247,216,74,0.44);
+  background: linear-gradient(90deg, #22d3ee, #ffffff 55%, #facc15);
+  box-shadow: 0 0 18px rgba(34,211,238,0.48);
 }
 .collage-main {
   position: absolute;
@@ -1446,7 +1456,7 @@ const stylesheet = `
   min-width: 290px;
   justify-items: center;
   border: 3px solid rgba(247,216,74,0.36);
-  border-radius: 28px;
+  border-radius: 24px;
   background: rgba(5,8,8,0.76);
   color: #fff;
   padding: 22px 28px;
@@ -1506,7 +1516,7 @@ const stylesheet = `
   min-height: 89px;
   display: grid;
   place-items: center;
-  border: 4px solid #f7d84a;
+  border: 1.5px solid rgba(250,204,21,0.62);
   background:
     linear-gradient(180deg, rgba(55,76,84,0.98), rgba(21,35,42,0.99)),
     radial-gradient(circle at 50% 0%, rgba(247,216,74,0.15), transparent 56%);
@@ -1569,9 +1579,9 @@ const stylesheet = `
   min-height: 89px;
   display: grid;
   place-items: center;
-  border: 4px solid #f7d84a;
+  border: 1.5px solid rgba(250,204,21,0.62);
   background:
-    linear-gradient(180deg, rgba(48,65,72,0.99), rgba(24,38,45,0.99));
+    linear-gradient(180deg, rgba(8,22,38,0.99), rgba(2,8,20,0.99));
   color: #fff;
   font-family: SPLIT_Barlow, SPLIT_Bebas_Neue, SPLIT_Montserrat, Arial, sans-serif;
   font-size: 56px;
@@ -1617,24 +1627,42 @@ const stylesheet = `
   display: grid;
   place-items: center;
   overflow: hidden;
-  background: #0c1011;
+  background:
+    radial-gradient(ellipse 120% 80% at 50% 110%, rgba(92,232,213,0.08) 0%, transparent 60%),
+    radial-gradient(circle at 80% 20%, rgba(247,216,74,0.05) 0%, transparent 40%),
+    linear-gradient(180deg, #080a0c 0%, #0c1216 50%, #0a0f12 100%);
   font-family: SPLIT_Barlow, SPLIT_Montserrat, Arial, sans-serif;
 }
 .collage-keyword-frame.finance {
-  background: #0c1011;
+  background:
+    radial-gradient(ellipse 100% 70% at 50% 100%, rgba(45,212,129,0.10) 0%, transparent 55%),
+    radial-gradient(circle at 75% 15%, rgba(247,216,74,0.07) 0%, transparent 38%),
+    linear-gradient(180deg, #060a08 0%, #0a1210 50%, #080d0b 100%);
 }
 .collage-keyword-frame.education,
 .collage-keyword-frame.government_exam {
-  background: #0c1011;
+  background:
+    radial-gradient(ellipse 110% 75% at 50% 105%, rgba(99,102,241,0.09) 0%, transparent 55%),
+    radial-gradient(circle at 20% 20%, rgba(168,85,247,0.06) 0%, transparent 40%),
+    linear-gradient(180deg, #080810 0%, #0c0e18 50%, #0a0b14 100%);
 }
 .collage-keyword-frame.career_business {
-  background: #0c1011;
+  background:
+    radial-gradient(ellipse 110% 75% at 50% 105%, rgba(251,146,60,0.08) 0%, transparent 55%),
+    radial-gradient(circle at 80% 25%, rgba(247,216,74,0.06) 0%, transparent 38%),
+    linear-gradient(180deg, #0a0806 0%, #10100a 50%, #0c0a08 100%);
 }
 .collage-keyword-frame.tech_ai {
-  background: #0c1011;
+  background:
+    radial-gradient(ellipse 110% 75% at 50% 105%, rgba(56,189,248,0.09) 0%, transparent 55%),
+    radial-gradient(circle at 25% 20%, rgba(99,102,241,0.06) 0%, transparent 40%),
+    linear-gradient(180deg, #06080c 0%, #0a1018 50%, #080c14 100%);
 }
 .collage-keyword-frame.news_document {
-  background: #0c1011;
+  background:
+    radial-gradient(ellipse 110% 75% at 50% 105%, rgba(244,63,94,0.07) 0%, transparent 55%),
+    radial-gradient(circle at 70% 20%, rgba(251,146,60,0.05) 0%, transparent 38%),
+    linear-gradient(180deg, #0a0608 0%, #120a0c 50%, #0e080a 100%);
 }
 .keyword-frame-grid {
   display: none;
@@ -1679,34 +1707,42 @@ const stylesheet = `
 }
 .keyword-frame-kicker {
   display: inline-grid;
-  min-height: 42px;
+  min-height: 46px;
   place-items: center;
-  border: 2px solid rgba(247,216,74,0.46);
+  border: 2px solid rgba(247,216,74,0.50);
   border-radius: 999px;
-  background: rgba(0,0,0,0.26);
+  background: linear-gradient(135deg, rgba(247,216,74,0.12) 0%, rgba(92,232,213,0.08) 100%);
   color: #f7d84a;
   font-size: 24px;
   font-weight: 950;
   letter-spacing: 0.16em;
   line-height: 1;
-  padding: 10px 22px;
+  padding: 12px 26px;
+  box-shadow: 0 8px 24px rgba(247,216,74,0.08), inset 0 1px 0 rgba(255,255,255,0.06);
+  backdrop-filter: blur(8px);
 }
 .keyword-frame-words {
   display: grid;
-  gap: 6px;
+  gap: 8px;
   margin-top: 28px;
   color: #ffffff;
   font-size: clamp(96px, 15vw, 162px);
   font-weight: 950;
-  letter-spacing: 0;
+  letter-spacing: -0.02em;
   line-height: 0.88;
   text-transform: uppercase;
   text-shadow:
-    0 0 28px rgba(247,216,74,0.28),
-    0 16px 38px rgba(0,0,0,0.62);
+    0 0 36px rgba(247,216,74,0.30),
+    0 0 72px rgba(92,232,213,0.10),
+    0 18px 42px rgba(0,0,0,0.65);
 }
 .keyword-frame-words span:nth-child(2) {
-  color: #f7d84a;
+  background: linear-gradient(135deg, #f7d84a 20%, #5ce8d5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+  filter: drop-shadow(0 8px 24px rgba(247,216,74,0.25));
 }
 .keyword-frame-words span {
   display: inline-block;
@@ -1723,27 +1759,33 @@ const stylesheet = `
 .remotion-cta-frame {
   display: grid;
   justify-items: center;
-  gap: 18px;
-  margin-top: 30px;
+  gap: 22px;
+  margin-top: 34px;
 }
 .stat-value,
 .growth-value {
   color: #ffffff;
   font-size: clamp(112px, 17vw, 190px);
   font-weight: 950;
-  letter-spacing: 0;
-  line-height: 0.9;
+  letter-spacing: -0.02em;
+  line-height: 0.88;
   text-shadow:
-    0 0 30px rgba(247,216,74,0.34),
-    0 18px 42px rgba(0,0,0,0.62);
+    0 0 40px rgba(247,216,74,0.38),
+    0 0 80px rgba(92,232,213,0.14),
+    0 20px 48px rgba(0,0,0,0.65);
+  background: linear-gradient(180deg, #ffffff 30%, rgba(247,216,74,0.85) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 .stat-label {
   max-width: 760px;
-  color: rgba(255,255,255,0.82);
+  color: rgba(255,255,255,0.78);
   font-size: 42px;
   font-weight: 900;
-  line-height: 1.04;
+  line-height: 1.06;
   text-transform: uppercase;
+  text-shadow: 0 8px 22px rgba(0,0,0,0.4);
 }
 .growth-chart {
   position: relative;
@@ -1752,15 +1794,19 @@ const stylesheet = `
   justify-content: center;
   gap: 22px;
   width: min(760px, 86vw);
-  height: 210px;
-  margin-top: 8px;
+  height: 220px;
+  margin-top: 12px;
+  padding: 16px 24px;
+  border: 1.5px solid rgba(247,216,74,0.18);
+  border-radius: 24px;
   border-bottom: 4px solid rgba(247,216,74,0.42);
+  background: rgba(247,216,74,0.03);
 }
 .growth-chart i {
   width: 76px;
-  border-radius: 18px 18px 0 0;
-  background: linear-gradient(180deg, #f7d84a, #2dd481);
-  box-shadow: 0 0 28px rgba(45,212,129,0.20);
+  border-radius: 16px 16px 0 0;
+  background: linear-gradient(180deg, #f7d84a 0%, #2dd481 60%, rgba(45,212,129,0.6) 100%);
+  box-shadow: 0 0 32px rgba(45,212,129,0.22), inset 0 2px 0 rgba(255,255,255,0.2);
 }
 .growth-line {
   position: absolute;
@@ -1772,8 +1818,8 @@ const stylesheet = `
   transform: rotate(-15deg);
   transform-origin: left center;
   border-radius: 999px;
-  background: #ffffff;
-  box-shadow: 0 0 22px rgba(255,255,255,0.35);
+  background: linear-gradient(90deg, #ffffff, rgba(247,216,74,0.8));
+  box-shadow: 0 0 28px rgba(255,255,255,0.4), 0 0 56px rgba(247,216,74,0.2);
 }
 .remotion-compare-frame {
   display: grid;
@@ -1786,26 +1832,36 @@ const stylesheet = `
   display: grid;
   min-height: 220px;
   place-items: center;
-  border: 3px solid rgba(255,255,255,0.13);
-  border-radius: 28px;
-  background: rgba(255,255,255,0.075);
+  border: 2px solid rgba(255,255,255,0.10);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(92,232,213,0.08) 0%, transparent 50%),
+    rgba(255,255,255,0.055);
   color: #fff;
-  font-size: 46px;
+  font-size: 44px;
   font-weight: 950;
-  line-height: 1;
-  padding: 24px;
+  line-height: 1.05;
+  padding: 28px;
   text-transform: uppercase;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06);
+  backdrop-filter: blur(6px);
 }
 .remotion-compare-frame strong {
   display: grid;
   place-items: center;
+  width: 82px;
+  height: 82px;
+  border-radius: 999px;
+  border: 3px solid rgba(247,216,74,0.5);
+  background: rgba(247,216,74,0.12);
   color: #f7d84a;
-  font-size: 42px;
+  font-size: 38px;
   font-weight: 950;
+  box-shadow: 0 0 32px rgba(247,216,74,0.18);
 }
 .remotion-timeline-frame {
   display: grid;
-  gap: 16px;
+  gap: 18px;
   margin-top: 34px;
 }
 .timeline-step {
@@ -1813,9 +1869,14 @@ const stylesheet = `
   grid-template-columns: 72px 1fr;
   gap: 18px;
   align-items: center;
-  min-height: 88px;
+  min-height: 92px;
+  padding: 8px 18px 8px 8px;
+  border: 1.5px solid rgba(92,232,213,0.12);
+  border-radius: 22px;
+  background: rgba(92,232,213,0.035);
   transform: translate3d(0, var(--step-y, 0px), 0);
   opacity: var(--step-opacity, 1);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
 }
 .timeline-step span,
 .check-row span {
@@ -1823,19 +1884,20 @@ const stylesheet = `
   width: 60px;
   height: 60px;
   place-items: center;
-  border-radius: 999px;
-  background: #f7d84a;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #f7d84a, #e6c030);
   color: #111;
   font-size: 28px;
   font-weight: 950;
+  box-shadow: 0 8px 20px rgba(247,216,74,0.2);
 }
 .timeline-step p,
 .check-row p {
   margin: 0;
   color: #fff;
-  font-size: 42px;
+  font-size: 40px;
   font-weight: 920;
-  line-height: 1.03;
+  line-height: 1.06;
   text-align: left;
   text-transform: uppercase;
 }
@@ -1849,26 +1911,32 @@ const stylesheet = `
   grid-template-columns: 70px 1fr;
   gap: 16px;
   align-items: center;
-  min-height: 78px;
-  border: 2px solid rgba(255,255,255,0.10);
+  min-height: 82px;
+  border: 1.5px solid rgba(92,232,213,0.14);
   border-radius: 22px;
-  background: rgba(255,255,255,0.06);
-  padding: 12px 18px;
+  background:
+    radial-gradient(circle at 0% 50%, rgba(92,232,213,0.06) 0%, transparent 40%),
+    rgba(255,255,255,0.04);
+  padding: 14px 20px;
   transform: translate3d(0, var(--check-y, 0px), 0);
   opacity: var(--check-opacity, 1);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.04);
 }
 .alert-symbol {
   display: grid;
   width: 116px;
   height: 116px;
   place-items: center;
-  border: 4px solid rgba(255,128,112,0.48);
-  border-radius: 28px;
-  background: rgba(255,128,112,0.14);
+  border: 3px solid rgba(255,128,112,0.50);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 50% 30%, rgba(255,128,112,0.22) 0%, transparent 60%),
+    rgba(255,128,112,0.10);
   color: #ffb4aa;
   font-size: 78px;
   font-weight: 950;
   line-height: 1;
+  box-shadow: 0 16px 48px rgba(255,128,112,0.15), inset 0 1px 0 rgba(255,255,255,0.06);
 }
 .remotion-quote-frame,
 .remotion-question-frame {
@@ -1880,10 +1948,15 @@ const stylesheet = `
   line-height: 0.94;
   text-align: center;
   text-transform: uppercase;
-  text-shadow: 0 18px 42px rgba(0,0,0,0.58);
+  text-shadow: 0 18px 42px rgba(0,0,0,0.58), 0 0 60px rgba(255,255,255,0.06);
 }
 .remotion-question-frame {
-  color: #f7d84a;
+  background: linear-gradient(180deg, #f7d84a 20%, #ffa726 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+  filter: drop-shadow(0 12px 32px rgba(247,216,74,0.3));
 }
 .cta-pill {
   display: inline-grid;
@@ -1918,19 +1991,58 @@ const stylesheet = `
 }
 .v2-top {
   position: absolute;
-  left: 38px;
-  right: 38px;
-  top: 48px;
-  height: 548px;
+  left: 24px;
+  right: 24px;
+  top: 28px;
+  height: 584px;
   overflow: hidden;
-  background: #fff;
-  box-shadow: 0 24px 68px rgba(0,0,0,0.12);
+  border-radius: 34px;
+  background:
+    linear-gradient(180deg, rgba(15,23,42,0.98), rgba(2,6,23,0.98));
+  border: 3px solid rgba(247,216,74,0.78);
+  box-shadow:
+    0 30px 90px rgba(0,0,0,0.42),
+    0 0 0 1px rgba(255,255,255,0.10) inset,
+    0 0 45px rgba(247,216,74,0.18);
+  padding: 12px;
 }
+
+.v2-top::before {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border-radius: 26px;
+  border: 1.5px solid rgba(255,255,255,0.16);
+  box-shadow:
+    inset 0 0 0 1px rgba(247,216,74,0.25),
+    inset 0 18px 45px rgba(255,255,255,0.05);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.v2-top::after {
+  content: "";
+  position: absolute;
+  left: 26px;
+  right: 26px;
+  top: 22px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), rgba(247,216,74,0.70), transparent);
+  z-index: 3;
+  pointer-events: none;
+}
+
 .v2-top img,
 .v2-top video {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 24px;
+  background: #020617;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.10),
+    0 18px 50px rgba(0,0,0,0.35);
 }
 .v2-stage {
   position: absolute;
@@ -2089,7 +2201,7 @@ const stylesheet = `
   gap: 9px;
   min-height: 250px;
   border: 1px solid rgba(255,255,255,0.10);
-  border-radius: 28px;
+  border-radius: 24px;
   background:
     linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.025)),
     rgba(0,0,0,0.20);
@@ -2186,15 +2298,17 @@ const stylesheet = `
 .primary-card {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.11);
-  border-radius: 26px;
+  border: 1.5px solid rgba(255,255,255,0.10);
+  border-radius: 24px;
   background:
-    radial-gradient(circle at 20% 0%, rgba(92,232,213,0.13), transparent 42%),
-    rgba(255,255,255,0.055);
+    radial-gradient(circle at 30% 0%, rgba(92,232,213,0.14), transparent 45%),
+    radial-gradient(circle at 80% 100%, rgba(247,216,74,0.06), transparent 40%),
+    rgba(255,255,255,0.04);
   box-shadow:
-    0 22px 72px rgba(0,0,0,0.26),
+    0 24px 72px rgba(0,0,0,0.28),
     inset 0 1px 0 rgba(255,255,255,0.08);
-  padding: 24px;
+  padding: 26px;
+  backdrop-filter: blur(6px);
 }
 .visual-icon-orb {
   display: grid;
@@ -2283,6 +2397,7 @@ const stylesheet = `
   text-transform: uppercase;
 }
 `;
+
 
 const defaultProps: ReelProps = {
   brand: '',
@@ -3669,10 +3784,14 @@ const KeywordFrame = ({
   const sceneDuration = Math.max(0.1, sceneEnd - sceneStart);
   const sceneProgress = clamp((time - sceneStart) / Math.max(0.1, sceneEnd - sceneStart), 0, 1);
   const beat = getSceneBeat(sceneStart, sceneEnd, time);
-  const enter = easeOutBack(clamp(sceneProgress * 1.45, 0, 1));
+  // Stronger enter/exit so scene transitions are clearly visible
+  const enterProgress = clamp(sceneProgress * sceneDuration * 3, 0, 1); // reaches 1 after ~0.33s
+  const exitProgress = clamp((1 - sceneProgress) * sceneDuration * 3, 0, 1); // fades in last ~0.33s
+  const visibility = Math.min(enterProgress, exitProgress);
+  const enter = easeOutBack(enterProgress);
   const text = buildKeywordFrameText(asset, overlay);
   const category = cleanText(asset?.category || detectFrameCategory(overlay));
-  const words = text.split(/\s+/).filter(Boolean).slice(0, 2);
+  const words = text.split(/\s+/).filter(Boolean).slice(0, 3);
   const frameType = cleanText(asset?.frameType || overlay?.frameType || selectLocalFrameType(category, overlay));
   const frameValue = cleanText(asset?.frameValue || overlay?.frameValue || extractLocalFrameValue(`${overlay?.text || ''} ${overlay?.body || ''}`));
   const frameLabel = cleanText(asset?.frameLabel || overlay?.frameLabel || labelForFrameCategory(category));
@@ -3683,8 +3802,8 @@ const KeywordFrame = ({
       <div
         className="keyword-frame-inner"
         style={{
-          opacity: clamp(enter, 0, 1),
-          transform: `translateY(${(1 - enter) * 34}px) scale(${0.92 + enter * 0.08})`,
+          opacity: clamp(visibility, 0, 1),
+          transform: `translateY(${(1 - enter) * 40}px) scale(${0.90 + enter * 0.10})`,
         }}
       >
         <div className="keyword-frame-kicker">{frameLabel || labelForFrameCategory(category)}</div>
@@ -3957,14 +4076,35 @@ const RemotionFrameBody = ({
 
   return (
     <div className="keyword-frame-words">
-      {words.map((word, index) => (
-        <span
-          key={`${word}-${index}`}
-          style={kineticWordStyle(index, beatIndex, beatProgress, frame, sceneDuration)}
-        >
-          {word}
-        </span>
-      ))}
+      {frameItems.length > 1 ? (
+        // Cycle through frameItems per beat for reel-like content rotation
+        frameItems.slice(0, 4).map((item, index) => {
+          const isActive = beatIndex % frameItems.length === index;
+          const itemEnter = isActive ? easeOutBack(clamp(beatProgress * 1.6, 0, 1)) : 0;
+          const itemStyle = {
+            '--word-y': `${isActive ? (1 - itemEnter) * 60 : -20}px`,
+            '--word-scale': `${isActive ? 0.80 + itemEnter * 0.20 : 0.7}`,
+            '--word-blur': `${isActive ? (1 - itemEnter) * 10 : 6}px`,
+            '--word-opacity': `${isActive ? clamp(itemEnter, 0, 1) : 0}`,
+            position: isActive ? 'relative' as const : 'absolute' as const,
+          } as Record<string, string>;
+          const displayWords = item.split(/\s+/).filter(Boolean).slice(0, 3);
+          return displayWords.map((word, wIndex) => (
+            <span key={`${word}-${index}-${wIndex}`} style={itemStyle}>
+              {word}
+            </span>
+          ));
+        }).flat()
+      ) : (
+        words.map((word, index) => (
+          <span
+            key={`${word}-${index}`}
+            style={kineticWordStyle(index, beatIndex, beatProgress, frame, sceneDuration)}
+          >
+            {word}
+          </span>
+        ))
+      )}
     </div>
   );
 };
@@ -4494,13 +4634,101 @@ function splitIntoCompactItems(text?: string, body?: string) {
     .slice(0, 5);
 }
 
+function repairOverlayTiming(overlays: ContinuousOverlayItem[], totalDuration: number): ContinuousOverlayItem[] {
+  if (overlays.length <= 1 && totalDuration > 8) {
+    // Single overlay covering entire duration — split into chunks
+    return splitLongOverlays(overlays, totalDuration);
+  }
+  if (overlays.length < 2) return overlays;
+
+  // Check if most overlays share the same start time (bad planning)
+  const startsAtZero = overlays.filter((item) => item.start < 0.1).length;
+  const allSameStart = startsAtZero >= Math.ceil(overlays.length * 0.7);
+  if (allSameStart) {
+    // Space overlays evenly across total duration
+    const sliceDuration = totalDuration / overlays.length;
+    return overlays.map((item, index) => ({
+      ...item,
+      start: index * sliceDuration,
+      end: (index + 1) * sliceDuration,
+    }));
+  }
+
+  // Check for overlapping
+  let hasOverlap = false;
+  for (let i = 1; i < overlays.length; i++) {
+    if (overlays[i].start < overlays[i - 1].end - 0.1) {
+      hasOverlap = true;
+      break;
+    }
+  }
+  if (hasOverlap) {
+    const sliceDuration = totalDuration / overlays.length;
+    return overlays.map((item, index) => ({
+      ...item,
+      start: index * sliceDuration,
+      end: (index + 1) * sliceDuration,
+    }));
+  }
+
+  // Even if timing is OK, split any overlay longer than 8s into sub-scenes
+  return splitLongOverlays(overlays, totalDuration);
+}
+
+function splitLongOverlays(overlays: ContinuousOverlayItem[], totalDuration: number): ContinuousOverlayItem[] {
+  const MAX_SCENE_SECONDS = 7;
+  const result: ContinuousOverlayItem[] = [];
+
+  for (const overlay of overlays) {
+    const duration = overlay.end - overlay.start;
+    if (duration <= MAX_SCENE_SECONDS) {
+      result.push(overlay);
+      continue;
+    }
+    // Split into sub-scenes of ~5-7 seconds
+    const chunks = Math.ceil(duration / MAX_SCENE_SECONDS);
+    const chunkDuration = duration / chunks;
+    const bodyParts = (overlay.body || '').split(/[.|,;]+/).map((s) => s.trim()).filter(Boolean);
+    const textParts = (overlay.text || '').split(/\s+/).filter(Boolean);
+
+    for (let i = 0; i < chunks; i++) {
+      const start = overlay.start + i * chunkDuration;
+      const end = overlay.start + (i + 1) * chunkDuration;
+      // Rotate text content across sub-scenes for visual variety
+      const subText = i === 0
+        ? overlay.text
+        : bodyParts[i - 1]
+          ? bodyParts[i - 1].slice(0, 70)
+          : textParts.slice(i, i + 3).join(' ') || overlay.text;
+      const subBody = bodyParts.slice(i * 2, i * 2 + 2).join(' | ') || overlay.body;
+      const types: Array<ContinuousOverlayItem['type']> = ['hook', 'point', 'stat', 'point', 'cta'];
+
+      result.push({
+        ...overlay,
+        id: `${overlay.id || 'overlay'}-${i}`,
+        start,
+        end,
+        text: subText || overlay.text,
+        body: subBody || overlay.body,
+        type: i === 0 ? overlay.type : types[i % types.length],
+        label: i === 0 ? overlay.label : `Point ${i + 1}`,
+        animation: i % 2 === 0 ? 'slideUp' as ContinuousOverlayItem['animation'] : 'popIn' as ContinuousOverlayItem['animation'],
+      });
+    }
+  }
+
+  return result;
+}
+
 const VideoExplainer = (props: ReelProps) => {
   const frame = useCurrentFrame();
   const {durationInFrames} = useVideoConfig();
   const time = frame / fps;
-  const overlays = (props.overlayTimeline?.length ? props.overlayTimeline : defaultProps.overlayTimeline || [])
+  const rawOverlays = (props.overlayTimeline?.length ? props.overlayTimeline : defaultProps.overlayTimeline || [])
     .map(normalizeOverlay)
     .filter((item) => item.end > item.start && item.text);
+  // Safety: if all overlays start at same time (bad planning), space them evenly
+  const overlays = repairOverlayTiming(rawOverlays, durationInFrames / fps);
   const captions = (props.captions || [])
     .map(normalizeCaption)
     .filter((item) => item.end > item.start && item.text);
@@ -4526,6 +4754,19 @@ const VideoExplainer = (props: ReelProps) => {
           volume={props.sourceAudioVolume}
         />
         <SoundCueLayer items={overlays} />
+      <div
+        className="video-explainer-flowchart-layer"
+        style={{
+          position: "absolute",
+          left: 0,
+          bottom: 0,
+          width: 1080,
+          height: 1120,
+          zIndex: 999,
+        }}
+      >
+        <AccumulativeFlowchart overlay={activeOverlay} visualPlan={props.visualPlan} time={time} />
+      </div>
         <LayoutV2Reel
           captions={captions}
           overlays={overlays}
@@ -4555,6 +4796,19 @@ const VideoExplainer = (props: ReelProps) => {
           volume={props.sourceAudioVolume}
         />
         <SoundCueLayer items={overlays} />
+      <div
+        className="video-explainer-flowchart-layer"
+        style={{
+          position: "absolute",
+          left: 0,
+          bottom: 0,
+          width: 1080,
+          height: 1120,
+          zIndex: 999,
+        }}
+      >
+        <AccumulativeFlowchart overlay={activeOverlay} visualPlan={props.visualPlan} time={time} />
+      </div>
         <ImageCollageReel
           captions={captions}
           frame={frame}
@@ -4599,8 +4853,21 @@ const VideoExplainer = (props: ReelProps) => {
       <MidSubtitleLayer captions={captions} time={time} />
       <AssetSequenceLayer fps={fps} items={props.assetTimeline} />
       <SoundCueLayer items={overlays} />
-      <div className="divider" />
-      <div className="content">
+      <div
+        className="video-explainer-flowchart-layer"
+        style={{
+          position: "absolute",
+          left: 0,
+          bottom: 0,
+          width: 1080,
+          height: 1120,
+          zIndex: 999,
+        }}
+      >
+        <AccumulativeFlowchart overlay={activeOverlay} visualPlan={props.visualPlan} time={time} />
+      </div>
+      <div className="divider" style={{display: 'none'}} />
+      <div className="content" style={{display: 'none'}}>
         <div className="content-inner">
           {overlays.map((item) => {
             const from = Math.max(0, Math.round(item.start * fps));
@@ -4652,3 +4919,14 @@ export const VideoExplainerComposition = () => (
     })}
   />
 );
+
+
+
+
+
+
+
+
+
+
+

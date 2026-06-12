@@ -79,10 +79,19 @@ export async function GET(request: Request) {
       });
     }
 
-    return NextResponse.json(
-      {ok: false, error: message},
-      {status: 500},
-    );
+    console.error('Render progress read failed:', error);
+    return NextResponse.json({
+      ok: true,
+      state: 'rendering',
+      renderId,
+      bucketName,
+      done: false,
+      progress: 0,
+      outputFile: null,
+      errors: [],
+      message: 'Render is still processing. Checking again shortly.',
+      transient: true,
+    });
   }
 }
 
@@ -124,3 +133,4 @@ function sanitizeUserFacingStatus(value: string) {
 function isTemporaryRenderCapacityMessage(value: string) {
   return value === 'Render traffic is high right now. Your upload stays selected, so please retry in a minute.';
 }
+

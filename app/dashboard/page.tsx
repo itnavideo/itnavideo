@@ -1,5 +1,9 @@
 "use client";
 
+
+import {StickerStylePicker} from '@/components/compare/StickerStylePicker';
+import {CompareTextFields} from '@/components/compare/CompareTextFields';
+import {CompareImageSlots} from '@/components/compare/CompareImageSlots';
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -140,6 +144,7 @@ const modeConfig = {
     description: "Upload an image. Image-only reels do not need a transcript.",
     accept: "image/*",
     supported: "Supported: JPG, PNG, WEBP",
+
     bestResult: "Best result: strong image and short topic/title.",
     uploadCta: "Choose image",
     icon: ImageIcon,
@@ -179,6 +184,10 @@ export default function DashboardPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [comparisonFiles, setComparisonFiles] = useState<File[]>([]);
   const [topicTitle, setTopicTitle] = useState("");
+  const [compareLeftTitle, setCompareLeftTitle] = useState("");
+  const [compareRightTitle, setCompareRightTitle] = useState("");
+  const [compareHandle, setCompareHandle] = useState("@itnavideo");
+  const [stickerStyle, setStickerStyle] = useState<"2d" | "cartoon" | "explainer">("2d");
   const [recentRenders, setRecentRenders] = useState<RecentRender[]>([]);
   const [previewRender, setPreviewRender] = useState<RecentRender | null>(null);
   const [deleteCandidate, setDeleteCandidate] = useState<RecentRender | null>(null);
@@ -247,7 +256,7 @@ export default function DashboardPage() {
   const paidLimitComplete = Boolean(billingEntitlement?.active && typeof paidRemaining === "number" && paidRemaining <= 0);
   const canPrepareReel = Boolean(
     selectedFile &&
-    (mode !== "compare" || comparisonFiles.length >= 2) &&
+    (mode !== "compare" || comparisonFiles.length === 2) &&
     !renderInProgress &&
     !paidLimitComplete,
   );
@@ -277,7 +286,7 @@ export default function DashboardPage() {
   };
 
   const chooseComparisonFiles = (files: FileList | null) => {
-    const nextFiles = Array.from(files || []).slice(0, 4);
+    const nextFiles = Array.from(files || []).slice(0, 2);
     const invalid = nextFiles.find((file) => validateComparisonImage(file));
     if (invalid) {
       setComparisonFiles([]);
@@ -521,40 +530,29 @@ export default function DashboardPage() {
               </label>
 
               {mode === "compare" ? (
-                <div className="rounded-lg border border-emerald-200/20 bg-emerald-200/[0.055] p-4">
-                  <label className="text-sm font-black text-white" htmlFor="compare-images">
-                    Compare images
-                  </label>
-                  <p className="mt-2 text-xs font-bold leading-5 text-zinc-500">
-                    Upload 2 photos for left/right. Upload 4 photos when the audio is longer and needs a second pair.
-                  </p>
-                  <input
-                    accept="image/*"
-                    className="mt-4 block w-full cursor-pointer rounded-lg border border-white/10 bg-black/35 px-4 py-3 text-sm font-bold text-zinc-300 file:mr-4 file:rounded-md file:border-0 file:bg-white file:px-3 file:py-2 file:text-xs file:font-black file:text-black"
-                    id="compare-images"
-                    multiple
-                    onChange={(event: ChangeEvent<HTMLInputElement>) => {
-                      chooseComparisonFiles(event.target.files);
-                      event.currentTarget.value = "";
-                    }}
-                    type="file"
+                <CompareImageSlots
+                  files={comparisonFiles}
+                  onChange={(files) => {
+                    setComparisonFiles(files);
+                    setJobStatus({state: "idle", message: ""});
+                  }}
+                  onError={(message) => setJobStatus({state: "error", message})}
+                />
+              ) : null}
+
+              {mode === "compare" ? (
+                  <>
+                  <CompareTextFields
+                    leftTitle={compareLeftTitle}
+                    rightTitle={compareRightTitle}
+                    handle={compareHandle}
+                    onLeftTitleChange={setCompareLeftTitle}
+                    onRightTitleChange={setCompareRightTitle}
+                    onHandleChange={setCompareHandle}
                   />
-                  {comparisonFiles.length ? (
-                    <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                      {comparisonFiles.map((file, index) => (
-                        <div className="rounded-md border border-white/10 bg-black/30 px-3 py-2" key={`${file.name}-${index}`}>
-                          <p className="truncate text-xs font-black text-white">
-                            {index % 2 === 0 ? "Left" : "Right"} {index > 1 ? "2" : "1"} · {file.name}
-                          </p>
-                          <p className="mt-1 text-[11px] font-bold text-zinc-500">{formatBytes(file.size)}</p>
-                        </div>
-                      ))}
-                    </div>
-                  ) : null}
-                  {comparisonFiles.length > 0 && comparisonFiles.length < 2 ? (
-                    <p className="mt-3 text-xs font-bold text-amber-100">Add one more image before creating the reel.</p>
-                  ) : null}
-                </div>
+
+                <StickerStylePicker value={stickerStyle} onChange={setStickerStyle} />
+                  </>
               ) : null}
 
               <div className="rounded-lg border border-white/10 bg-white/[0.035] p-4">
@@ -614,7 +612,7 @@ export default function DashboardPage() {
                       : "Create My Reel"}
               </button>
               <p className="text-center text-xs font-bold leading-5 text-zinc-500">
-                {!selectedFile ? "Upload a file to continue. " : mode === "compare" && comparisonFiles.length < 2 ? "Add at least two compare images. " : ""}
+                {!selectedFile ? "Upload a file to continue. " : mode === "compare" && comparisonFiles.length !== 2 ? "Add at least two compare images. " : ""}
                 First video starts at ₹9. Most reels finish in a few minutes.
               </p>
               <ProgressPreview mode={mode} />
@@ -833,8 +831,8 @@ export default function DashboardPage() {
       setJobStatus({state: "error", message: validation});
       return;
     }
-    if (mode === "compare" && comparisonFiles.length < 2) {
-      setJobStatus({state: "error", message: "Compare needs at least two images: one left and one right."});
+    if (mode === "compare" && comparisonFiles.length !== 2) {
+      setJobStatus({state: "error", message: "Compare needs exactly two images: one left and one right."});
       return;
     }
     const userId = user.id;
@@ -883,6 +881,10 @@ export default function DashboardPage() {
           topicTitle: topicTitle.trim(),
           userId,
           comparisonImageKeys,
+          compareLeftTitle: compareLeftTitle.trim(),
+          compareRightTitle: compareRightTitle.trim(),
+          creatorHandle: compareHandle.trim() || "@itnavideo",
+          stickerStyle,
         }),
       });
       const job = await readJsonPayload(jobResponse);
@@ -1823,3 +1825,13 @@ function sanitizeUserFacingStatus(value: string) {
     .replace(/\bOpenAI\b/gi, "AI planner")
     .trim() || "Something went wrong. Please try again.";
 }
+
+
+
+
+
+
+
+
+
+

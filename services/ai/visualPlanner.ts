@@ -29,7 +29,7 @@ export type VisualPlanScene = {
   spokenMeaning: string;
   showWhat: string;
   whyMatchesScript: string;
-  visualType: 'question' | 'stat' | 'checklist' | 'timeline' | 'comparison' | 'warning' | 'quote' | 'cta' | 'concept';
+  visualType: 'question' | 'stat' | 'checklist' | 'timeline' | 'comparison' | 'warning' | 'quote' | 'cta' | 'concept' | 'ACCUMULATIVE_FLOWCHART' | 'STEP_BY_STEP_LIST' | 'COMPARISON_SPLIT' | 'WARNING_RISK_MAP' | 'SIMPLE_STAT_CARD';
   frameType: VisualPlannerFrameType;
   frameText: string;
   frameLabel: string;
@@ -180,14 +180,67 @@ function detectVisualType(
   total: number,
 ): VisualPlanScene['visualType'] {
   const value = text.toLowerCase();
-  if (index === total - 1 || seed.purpose === 'cta' || /\b(follow|save|comment|share|subscribe|download|try now|start now|call to action)\b/.test(value)) return 'cta';
-  if (seed.purpose === 'warning' || /\b(warning|alert|risk|avoid|mistake|galti|danger|reject|problem|deadline|last date|careful)\b/.test(value)) return 'warning';
-  if (seed.purpose === 'proof' || /[₹$]|\b\d[\d,]*(?:\.\d+)?\s?(?:%|percent|crore|lakh|k|m|million|billion)?\b|\b(salary|profit|revenue|growth|income|roi|score|rank)\b/.test(value)) return 'stat';
-  if (/\b(vs|versus|compare|comparison|before|after|pros|cons|myth|fact)\b/.test(value)) return 'comparison';
-  if (/\b(step|process|timeline|roadmap|flow|apply|register|login|submit|upload|verify|first|second|third|then|next)\b/.test(value)) return 'timeline';
-  if (seed.detailType === 'documentList' || /\b(document|documents|papers|certificate|id proof|requirements|eligibility|checklist|points|tips|reasons|need|required)\b/.test(value)) return 'checklist';
-  if (seed.purpose === 'hook' || index === 0 || /\?|\b(why|how|what|kaise|kya)\b/.test(value)) return 'question';
+
+  const hasMoneyOrNumbers =
+    /[₹$]|\b\d[\d,]*(?:\.\d+)?\s?(?:%|percent|crore|lakh|k|m|million|billion|rs|rupees)?\b/.test(value);
+
+  const hasFinanceFlow =
+    /\b(loan|emi|interest|investment|invest|sip|fd|mutual fund|return|profit|salary|income|revenue|roi|score|rank|down payment|payment|amount|price|cost)\b/.test(value);
+
+  const hasBranchLogic =
+    /\b(split|branch|remaining|left|right|option|path|if|then|else|because|cause|effect|result|total|minus|plus|compare|vs|versus)\b/.test(value);
+
+  const hasProcess =
+    /\b(step|process|timeline|roadmap|flow|apply|register|login|submit|upload|verify|first|second|third|then|next|after that|finally)\b/.test(value);
+
+  const hasComparison =
+    /\b(vs|versus|compare|comparison|difference|before|after|pros|cons|myth|fact|better|which one)\b/.test(value);
+
+  const hasWarning =
+    /\b(warning|alert|risk|avoid|mistake|galti|danger|reject|rejection|problem|deadline|last date|careful|fraud|scam|loss|fake)\b/.test(value);
+
+  const hasChecklist =
+    seed.detailType === 'documentList' ||
+    /\b(document|documents|papers|certificate|id proof|requirements|eligibility|checklist|points|tips|reasons|need|required)\b/.test(value);
+
+  if (
+    index === total - 1 ||
+    seed.purpose === 'cta' ||
+    /\b(follow|save|comment|share|subscribe|download|try now|start now|call to action)\b/.test(value)
+  ) {
+    return 'cta';
+  }
+
+  if (seed.purpose === 'warning' || hasWarning) {
+    return 'WARNING_RISK_MAP';
+  }
+
+  if (hasComparison) {
+    return 'COMPARISON_SPLIT';
+  }
+
+  if ((hasMoneyOrNumbers && hasFinanceFlow && hasBranchLogic) || (hasMoneyOrNumbers && hasProcess && hasFinanceFlow)) {
+    return 'ACCUMULATIVE_FLOWCHART';
+  }
+
+  if (hasProcess) {
+    return 'STEP_BY_STEP_LIST';
+  }
+
+  if (hasChecklist) {
+    return 'checklist';
+  }
+
+  if (seed.purpose === 'proof' || hasMoneyOrNumbers || hasFinanceFlow) {
+    return 'SIMPLE_STAT_CARD';
+  }
+
+  if (seed.purpose === 'hook' || index === 0 || /\?|\b(why|how|what|kaise|kya)\b/.test(value)) {
+    return 'question';
+  }
+
   if (/["“”]/.test(text)) return 'quote';
+
   return 'concept';
 }
 
@@ -199,25 +252,36 @@ function selectFrameType(
   total: number,
 ): VisualPlannerFrameType {
   const value = text.toLowerCase();
+
+  if (visualType === 'ACCUMULATIVE_FLOWCHART') return 'ProcessFlow';
+  if (visualType === 'STEP_BY_STEP_LIST') return /\b(apply|application|form|submit|upload|register)\b/.test(value) ? 'ApplicationFlow' : 'ProcessFlow';
+  if (visualType === 'COMPARISON_SPLIT') return /\bbefore|after\b/.test(value) ? 'BeforeAfter' : 'ComparisonCard';
+  if (visualType === 'WARNING_RISK_MAP') return 'AlertCard';
+  if (visualType === 'SIMPLE_STAT_CARD') return /\b(growth|profit|revenue|income|roi|stock|market|investment|return)\b/.test(value) ? 'MoneyGrowthGraph' : 'BigNumberReveal';
+
   if (visualType === 'cta') {
     if (/\bfollow\b/.test(value)) return 'FollowCTA';
     if (/\bcomment|reply\b/.test(value)) return 'CommentCTA';
     if (/\bsave|bookmark\b/.test(value)) return 'SaveCTA';
     return 'CTAFrame';
   }
+
   if (visualType === 'warning') return 'AlertCard';
   if (visualType === 'comparison') return /\bbefore|after\b/.test(value) ? 'BeforeAfter' : 'ComparisonCard';
   if (visualType === 'timeline') return /\b(apply|application|form|submit|upload|register)\b/.test(value) ? 'ApplicationFlow' : 'ProcessFlow';
+
   if (visualType === 'checklist') {
     if (seed.detailType === 'documentList' || /\bdocument|papers|certificate|id proof\b/.test(value)) return 'DocumentList';
     if (/\brequirements|eligibility|required\b/.test(value)) return 'RequirementsList';
     if (/\btips|hacks|ways\b/.test(value)) return 'TipsList';
     return 'ChecklistFrame';
   }
+
   if (visualType === 'stat') return /\b(growth|profit|revenue|income|roi|stock|market|investment)\b/.test(value) ? 'MoneyGrowthGraph' : 'BigNumberReveal';
   if (visualType === 'quote') return 'QuoteCard';
   if (visualType === 'question') return 'QuestionFrame';
   if (index === total - 1) return 'CTAFrame';
+
   return 'InfoCard';
 }
 
@@ -429,4 +493,7 @@ const STOP_WORDS = new Set([
   'people',
   'person',
 ]);
+
+
+
 

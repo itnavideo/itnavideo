@@ -135,7 +135,7 @@ export async function upsertRenderHistoryFromServer(data) {
   if (!userId) throw new Error('User id is required.');
   if (!renderId) throw new Error('Render id is required.');
   if (!outputFile) throw new Error('Output file is required.');
-  if (!['videoExplainer', 'notes', 'videoCaption'].includes(mode)) throw new Error('Render mode is invalid.');
+  if (!['videoExplainer', 'notes', 'videoCaption', 'compare'].includes(mode)) throw new Error('Render mode is invalid.');
 
   const now = new Date();
   const createdAt = parseDate(data?.createdAt) || now;
@@ -237,3 +237,4 @@ function parseDate(value) {
 function isDuplicateError(error) {
   return String(error?.code || '') === '23505';
 }
+

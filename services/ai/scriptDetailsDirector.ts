@@ -207,18 +207,26 @@ function videoExplainerRequiredPlanningOrder() {
 
 function videoExplainerSystemPromptRules() {
   return [
-    'For Video Explainer, top uploaded video is layer 1, middle active-word subtitles are layer 2, and one selected bottom image is layer 3.',
-    'Remotion rule: subtitles are rendered as the separate middle subtitle layer. Do not create a second transcript paragraph anywhere else.',
-    'Do not plan shadcn cards, stat cards, badges, alert cards, comparison pills, benefits lists, CTA cards, icons, or UI panels for this template.',
-    'Use timestampSegments as the source of truth. Only show the point that is being spoken at that time.',
+    'For Video Explainer, top uploaded video is layer 1, middle active-word subtitles are layer 2, and bottom visual explanation is layer 3.',
+    'The bottom visual explanation must be flexible and must come from the actual script. Do not repeat the same demo infographic for every reel.',
+    'Analyze the script, transcript, numbers, branches, process steps, comparison logic, risks, benefits, and timeline scenes before choosing the bottom visual format.',
+    'Choose one bottom visual format per scene based on the script: ACCUMULATIVE_FLOWCHART, STEP_BY_STEP_LIST, COMPARISON_SPLIT, WARNING_RISK_MAP, or SIMPLE_STAT_CARD.',
+    'Use ACCUMULATIVE_FLOWCHART when the script contains numbers, loans, investments, math, split paths, branches, process steps, decision trees, or cause-effect explanation.',
+    'Use STEP_BY_STEP_LIST when the script explains a sequence, checklist, tutorial, exam process, job process, application process, or instructions.',
+    'Use COMPARISON_SPLIT when the script compares two things such as debit vs credit, job vs business, SIP vs FD, website vs web app.',
+    'Use WARNING_RISK_MAP when the script explains fraud, mistakes, scams, rejection reasons, danger signs, or risks.',
+    'Use SIMPLE_STAT_CARD when the script focuses on one big number, salary, amount, percentage, EMI, interest rate, score, or result.',
+    'Persistent state execution: when a node, label, arrow, amount, icon, or text appears, it must remain visible until the end of that visual scene unless the scene explicitly changes topic.',
+    'Do not remove earlier nodes when the next node appears. Beat 1 shows the first/main node, Beat 2 adds the second node while the first stays, Beat 3 adds the third node while earlier nodes stay, and the final beat shows the full infographic.',
+    'Bottom visual plans should include readable text, arrows, borders, branch lines, result boxes, sound cue hints, and animation hints when useful.',
+    'Use timestampSegments as the source of truth. Do not show future facts or future steps before they are spoken unless they are part of an accumulating visual already introduced.',
     'Do not make text faster than audio. If a segment is short, shorten text instead of squeezing many words.',
-    'Never show future facts, future steps, future dates, or future examples early.',
-    'For every videoUsePlan item, renderText should match the current subtitle meaning and image needs should describe the bottom image only.',
+    'Final visible Video Explainer text must be English only. Translate Hindi/Urdu/Hinglish meaning into English before planning captions, infographic text, labels, or asset needs.',
     'Standard names must stay official English: RBI, RBI Grade B, Admit Card, Hall Ticket, PAN Card, Aadhaar, Salary, Benefits, Documents, Apply, Download.',
     'Never write phonetic spellings such as aar bee ai, edmit kaard, hall tikit, pan kaard, dokumaints, apalaaee, naheen.',
-    'Avoid subtitle repeat in body. Bad: renderText and renderBody both restate the spoken sentence. Good: renderText carries the phrase; imageNeed describes the bottom visual.',
-    'Each overlay must have one purpose only: hook, date, fee, document, action, warning, proof, or CTA.',
-    'Final visible Video Explainer text must be English only. Translate Hindi/Urdu/Hinglish meaning into English before planning captions or image needs.',
+    'Each overlay must have one purpose only: hook, amount, date, fee, document, action, warning, proof, comparison, process, or CTA.',
+    'For every videoUsePlan item, renderText should match the current spoken subtitle meaning. Visual explanation content must support the spoken point, not duplicate the subtitle word-for-word.',
+    'Never repeat fixed demo examples like Loan Process, 75 Lakh, EMI 54000, or SWP unless those exact ideas are present in the actual script.',
   ];
 }
 
@@ -697,3 +705,4 @@ function clamp(value: number, min: number, max: number) {
   if (!Number.isFinite(value)) return min;
   return Math.min(max, Math.max(min, value));
 }
+
