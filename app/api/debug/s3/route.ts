@@ -18,7 +18,6 @@ export async function GET() {
 
   try {
     await client.send(new HeadBucketCommand({Bucket: bucket}));
-
     return NextResponse.json({
       ok: true,
       region,
