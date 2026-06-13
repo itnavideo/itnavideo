@@ -29,7 +29,7 @@ export type VisualPlanScene = {
   spokenMeaning: string;
   showWhat: string;
   whyMatchesScript: string;
-  visualType: 'question' | 'stat' | 'checklist' | 'timeline' | 'comparison' | 'warning' | 'quote' | 'cta' | 'concept' | 'ACCUMULATIVE_FLOWCHART' | 'STEP_BY_STEP_LIST' | 'COMPARISON_SPLIT' | 'WARNING_RISK_MAP' | 'SIMPLE_STAT_CARD';
+  visualType: 'question' | 'stat' | 'checklist' | 'timeline' | 'comparison' | 'warning' | 'quote' | 'cta' | 'concept' | 'ACCUMULATIVE_FLOWCHART' | 'STEP_BY_STEP_LIST' | 'COMPARISON_SPLIT' | 'WARNING_RISK_MAP' | 'SIMPLE_STAT_CARD' | 'CONCEPT_CARD' | 'STEP_FLOW' | 'RISK_MAP' | 'STAT_CARD' | 'CHECKLIST' | 'CAUSE_EFFECT';
   frameType: VisualPlannerFrameType;
   frameText: string;
   frameLabel: string;
@@ -204,7 +204,6 @@ function detectVisualType(
     /\b(document|documents|papers|certificate|id proof|requirements|eligibility|checklist|points|tips|reasons|need|required)\b/.test(value);
 
   if (
-    index === total - 1 ||
     seed.purpose === 'cta' ||
     /\b(follow|save|comment|share|subscribe|download|try now|start now|call to action)\b/.test(value)
   ) {
@@ -212,7 +211,7 @@ function detectVisualType(
   }
 
   if (seed.purpose === 'warning' || hasWarning) {
-    return 'WARNING_RISK_MAP';
+    return 'RISK_MAP';
   }
 
   if (hasComparison) {
@@ -220,28 +219,28 @@ function detectVisualType(
   }
 
   if ((hasMoneyOrNumbers && hasFinanceFlow && hasBranchLogic) || (hasMoneyOrNumbers && hasProcess && hasFinanceFlow)) {
-    return 'ACCUMULATIVE_FLOWCHART';
+    return 'STEP_FLOW';
   }
 
   if (hasProcess) {
-    return 'STEP_BY_STEP_LIST';
+    return 'STEP_FLOW';
   }
 
   if (hasChecklist) {
-    return 'checklist';
+    return 'CHECKLIST';
   }
 
   if (seed.purpose === 'proof' || hasMoneyOrNumbers || hasFinanceFlow) {
-    return 'SIMPLE_STAT_CARD';
+    return 'STAT_CARD';
   }
 
   if (seed.purpose === 'hook' || index === 0 || /\?|\b(why|how|what|kaise|kya)\b/.test(value)) {
-    return 'question';
+    return 'CONCEPT_CARD';
   }
 
   if (/["“”]/.test(text)) return 'quote';
 
-  return 'concept';
+  return 'CONCEPT_CARD';
 }
 
 function selectFrameType(
@@ -266,20 +265,20 @@ function selectFrameType(
     return 'CTAFrame';
   }
 
-  if (visualType === 'warning') return 'AlertCard';
-  if (visualType === 'comparison') return /\bbefore|after\b/.test(value) ? 'BeforeAfter' : 'ComparisonCard';
-  if (visualType === 'timeline') return /\b(apply|application|form|submit|upload|register)\b/.test(value) ? 'ApplicationFlow' : 'ProcessFlow';
+  if (visualType === 'warning' || visualType === 'RISK_MAP' || visualType === 'WARNING_RISK_MAP') return 'AlertCard';
+  if (visualType === 'comparison' || visualType === 'COMPARISON_SPLIT') return /\bbefore|after\b/.test(value) ? 'BeforeAfter' : 'ComparisonCard';
+  if (visualType === 'timeline' || visualType === 'STEP_FLOW' || visualType === 'STEP_BY_STEP_LIST' || visualType === 'ACCUMULATIVE_FLOWCHART') return /\b(apply|application|form|submit|upload|register)\b/.test(value) ? 'ApplicationFlow' : 'ProcessFlow';
 
-  if (visualType === 'checklist') {
+  if (visualType === 'checklist' || visualType === 'CHECKLIST') {
     if (seed.detailType === 'documentList' || /\bdocument|papers|certificate|id proof\b/.test(value)) return 'DocumentList';
     if (/\brequirements|eligibility|required\b/.test(value)) return 'RequirementsList';
     if (/\btips|hacks|ways\b/.test(value)) return 'TipsList';
     return 'ChecklistFrame';
   }
 
-  if (visualType === 'stat') return /\b(growth|profit|revenue|income|roi|stock|market|investment)\b/.test(value) ? 'MoneyGrowthGraph' : 'BigNumberReveal';
+  if (visualType === 'stat' || visualType === 'STAT_CARD' || visualType === 'SIMPLE_STAT_CARD') return /\b(growth|profit|revenue|income|roi|stock|market|investment)\b/.test(value) ? 'MoneyGrowthGraph' : 'BigNumberReveal';
   if (visualType === 'quote') return 'QuoteCard';
-  if (visualType === 'question') return 'QuestionFrame';
+  if (visualType === 'question' || visualType === 'CONCEPT_CARD') return 'QuestionFrame';
   if (
     index === total - 1 &&
     /\b(follow|subscribe|share|comment|save|download|try now|start now|visit|sign up|signup|join|click|learn more|call now|book now)\b/.test(value)
@@ -306,7 +305,11 @@ function buildFrameItems({
   const source = cleanPlannerText([seed.body, seed.title, scriptText].filter(Boolean).join(' '));
   const raw = splitPlannerItems(source);
   const limit = frameType === 'ComparisonCard' || frameType === 'BeforeAfter' ? 2 : frameType === 'TimelineFrame' || frameType === 'ProcessFlow' || frameType === 'ApplicationFlow' ? 4 : 5;
-  const items = raw.slice(0, limit);
+  const items = raw
+    .map((item) => trimPlannerWords(item, 4))
+    .filter((item) => item.length > 1)
+    .filter((item) => !/\b(show|frame|visual|asset|template|component|focused|cta|prompt|json)\b/i.test(item))
+    .slice(0, limit);
   if ((frameType === 'ComparisonCard' || frameType === 'BeforeAfter') && items.length < 2) return ['Before', 'After'];
   if (frameType === 'ProcessFlow' || frameType === 'TimelineFrame' || frameType === 'ApplicationFlow') {
     if (items.length >= 3) return items;
@@ -343,23 +346,23 @@ function buildFrameText(value: string, frameValue: string) {
 function buildFrameLabel(visualType: VisualPlanScene['visualType'], frameType: VisualPlannerFrameType) {
   if (frameType === 'DocumentList') return 'DOCUMENTS';
   if (frameType === 'RequirementsList') return 'REQUIRED';
-  if (visualType === 'question') return 'QUESTION';
-  if (visualType === 'stat') return 'KEY NUMBER';
-  if (visualType === 'timeline') return 'ROADMAP';
-  if (visualType === 'comparison') return 'comparisonImages';
-  if (visualType === 'warning') return 'RISK CHECK';
+  if (visualType === 'question' || visualType === 'CONCEPT_CARD') return 'QUESTION';
+  if (visualType === 'stat' || visualType === 'STAT_CARD' || visualType === 'SIMPLE_STAT_CARD') return 'KEY NUMBER';
+  if (visualType === 'timeline' || visualType === 'STEP_FLOW' || visualType === 'STEP_BY_STEP_LIST' || visualType === 'ACCUMULATIVE_FLOWCHART') return 'ROADMAP';
+  if (visualType === 'comparison' || visualType === 'COMPARISON_SPLIT') return 'comparisonImages';
+  if (visualType === 'warning' || visualType === 'RISK_MAP' || visualType === 'WARNING_RISK_MAP') return 'RISK CHECK';
   if (visualType === 'cta') return 'NEXT STEP';
   return 'EXPLAINER';
 }
 
 function buildSpokenMeaning(scriptText: string, visualType: VisualPlanScene['visualType']) {
-  const prefix = visualType === 'stat'
+  const prefix = visualType === 'stat' || visualType === 'STAT_CARD' || visualType === 'SIMPLE_STAT_CARD'
     ? 'This line is explaining a measurable number'
-    : visualType === 'timeline'
+    : visualType === 'timeline' || visualType === 'STEP_FLOW' || visualType === 'STEP_BY_STEP_LIST' || visualType === 'ACCUMULATIVE_FLOWCHART'
       ? 'This line is explaining a sequence'
-      : visualType === 'checklist'
+      : visualType === 'checklist' || visualType === 'CHECKLIST'
         ? 'This line is listing what matters'
-        : visualType === 'warning'
+        : visualType === 'warning' || visualType === 'RISK_MAP' || visualType === 'WARNING_RISK_MAP'
           ? 'This line warns the viewer'
           : 'This line introduces the key idea';
   return `${prefix}: ${trimPlannerWords(scriptText, 14)}`;
@@ -372,16 +375,16 @@ function buildShowWhat(
   items: string[],
   value?: string,
 ) {
-  if (value) return `Show ${value} as the hero number with ${frameText} context.`;
-  if (visualType === 'timeline') return items.slice(0, 4).join(' → ');
-  if (visualType === 'checklist') return items.slice(0, 4).join(' • ');
-  if (visualType === 'comparison') return items.slice(0, 2).join(' vs ');
+  if (value) return [value, frameText].filter(Boolean).join(' • ');
+  if (visualType === 'timeline' || visualType === 'STEP_FLOW' || visualType === 'STEP_BY_STEP_LIST' || visualType === 'ACCUMULATIVE_FLOWCHART') return items.slice(0, 4).join(' → ');
+  if (visualType === 'checklist' || visualType === 'CHECKLIST') return items.slice(0, 4).join(' • ');
+  if (visualType === 'comparison' || visualType === 'COMPARISON_SPLIT') return items.slice(0, 2).join(' vs ');
   if (visualType === 'cta') return trimPlannerWords(frameText, 6);
   return trimPlannerWords(frameText, 7);
 }
 
 function buildWhyMatchesScript(visualType: VisualPlanScene['visualType'], scriptText: string) {
-  return `${visualType} frame matches this script window because the spoken line says: ${trimPlannerWords(scriptText, 12)}.`;
+  return `${visualType} matches spoken idea: ${trimPlannerWords(scriptText, 10)}.`;
 }
 
 function buildAssetSearchText(
@@ -408,10 +411,10 @@ function selectSfx(
   text: string,
 ): NonNullable<VisualPlanScene['sfx']> {
   if (index === 0) return 'boom';
-  if (index === total - 1 || visualType === 'cta') return 'bell';
-  if (visualType === 'warning') return 'warning';
-  if (visualType === 'stat' && /[₹$]|\b(cash|money|salary|profit|revenue)\b/i.test(text)) return 'cash';
-  if (visualType === 'timeline' || visualType === 'checklist') return 'softTick';
+  if (visualType === 'cta') return 'bell';
+  if (visualType === 'warning' || visualType === 'RISK_MAP' || visualType === 'WARNING_RISK_MAP') return 'warning';
+  if (visualType === 'stat' || visualType === 'STAT_CARD' || visualType === 'SIMPLE_STAT_CARD' && /[₹$]|\b(cash|money|salary|profit|revenue)\b/i.test(text)) return 'cash';
+  if (visualType === 'timeline' || visualType === 'STEP_FLOW' || visualType === 'STEP_BY_STEP_LIST' || visualType === 'ACCUMULATIVE_FLOWCHART' || visualType === 'checklist' || visualType === 'CHECKLIST') return 'softTick';
   return 'whoosh';
 }
 
@@ -419,17 +422,17 @@ function selectAnimation(
   visualType: VisualPlanScene['visualType'],
   frameType: VisualPlannerFrameType,
 ): NonNullable<VisualPlanScene['animation']> {
-  if (visualType === 'stat' || frameType === 'BigNumberReveal') return 'countUp';
-  if (visualType === 'warning') return 'warningPulse';
-  if (visualType === 'question') return 'popIn';
+  if (visualType === 'stat' || visualType === 'STAT_CARD' || visualType === 'SIMPLE_STAT_CARD' || frameType === 'BigNumberReveal') return 'countUp';
+  if (visualType === 'warning' || visualType === 'RISK_MAP' || visualType === 'WARNING_RISK_MAP') return 'warningPulse';
+  if (visualType === 'question' || visualType === 'CONCEPT_CARD') return 'popIn';
   return 'fadeUp';
 }
 
 function selectEmotion(visualType: VisualPlanScene['visualType'], index: number): NonNullable<VisualPlanScene['emotion']> {
-  if (visualType === 'warning') return 'urgent';
+  if (visualType === 'warning' || visualType === 'RISK_MAP' || visualType === 'WARNING_RISK_MAP') return 'urgent';
   if (index === 0) return 'informative';
   if (visualType === 'cta') return 'motivational';
-  if (visualType === 'stat' || visualType === 'comparison') return 'serious';
+  if (visualType === 'stat' || visualType === 'STAT_CARD' || visualType === 'SIMPLE_STAT_CARD' || visualType === 'comparison' || visualType === 'COMPARISON_SPLIT') return 'serious';
   return 'informative';
 }
 
