@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 
 import {StickerStylePicker} from '@/components/compare/StickerStylePicker';
@@ -82,7 +82,7 @@ const templateCards = [
     id: "video-explainer",
     title: "Video Explainer",
     description: "Audio/video explainer with real transcript scenes.",
-    image: "/visuals/template-video-explainer.png",
+    image: "/visuals/previews/video-explainer-homepage.png",
     badges: ["Audio", "Video", "Needs speech"],
     active: true,
     mode: "videoExplainer" as const,
@@ -91,7 +91,7 @@ const templateCards = [
     id: "compare",
     title: "Compare",
     description: "Audio-led comparison with left/right image panels.",
-    image: "/visuals/template-image-story.png",
+    image: "/visuals/previews/homepage to show the COMPARE template preview.png",
     badges: ["Audio", "2-4 images", "Left vs Right"],
     active: true,
     mode: "compare" as const,
@@ -183,6 +183,7 @@ export default function DashboardPage() {
   const [mode, setMode] = useState<Mode>("videoExplainer");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [comparisonFiles, setComparisonFiles] = useState<File[]>([]);
+  const [videoExplainerImageFile, setVideoExplainerImageFile] = useState<File | null>(null);
   const [topicTitle, setTopicTitle] = useState("");
   const [compareLeftTitle, setCompareLeftTitle] = useState("");
   const [compareRightTitle, setCompareRightTitle] = useState("");
@@ -442,7 +443,7 @@ export default function DashboardPage() {
                     <div className="relative aspect-[4/3] overflow-hidden bg-black">
                       <Image
                         alt=""
-                        className={`object-cover transition duration-500 ${template.active ? "group-hover:scale-[1.025]" : "grayscale-[0.2]"}`}
+                        className={`object-cover object-top transition duration-500 ${template.active ? "group-hover:scale-[1.025]" : "grayscale-[0.2]"}`}
                         fill
                         priority={template.active && template.mode === mode}
                         sizes="(min-width: 1024px) 210px, (min-width: 640px) 30vw, 100vw"
@@ -496,7 +497,7 @@ export default function DashboardPage() {
               </div>
 
               <label
-                className={`flex min-h-56 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed ${activeMode.border} ${activeMode.surface} p-4 text-center transition hover:bg-white/[0.055] sm:min-h-64 sm:p-6`}
+                className={`flex min-h-56 min-w-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border border-dashed ${activeMode.border} ${activeMode.surface} p-4 text-center transition hover:bg-white/[0.055] sm:min-h-64 sm:p-6`}
               >
                 <input
                   accept={activeMode.accept}
@@ -526,8 +527,83 @@ export default function DashboardPage() {
                 ) : null}
                 {selectedFile ? (
                   <SelectedMediaPreview file={selectedFile} mode={mode} />
-                ) : null}
-              </label>
+                ) : null}</label>
+
+              {mode === "videoExplainer" ? (
+                <div className="rounded-lg border border-amber-300/20 bg-amber-300/[0.06] p-4">
+                  <label className="text-sm font-black text-white" htmlFor="video-explainer-image">
+                    Bottom explanation image
+                  </label>
+                  <p className="mt-1 text-xs font-bold leading-5 text-zinc-400">
+                    Upload one image. It will fit below subtitles using contain mode, no crop.
+                  </p>
+
+                  <label className="mt-4 flex min-h-32 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-amber-300/35 bg-black/25 p-4 text-center transition hover:bg-white/[0.05]">
+                    <input
+                      accept="image/png,image/jpeg,image/jpg,image/webp"
+                      className="hidden"
+                      id="video-explainer-image"
+                      onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                        const file = event.target.files?.[0] || null;
+                        if (file && !file.type.startsWith("image/")) {
+                          setJobStatus({state: "error", message: "Bottom explanation image must be PNG, JPG, or WebP."});
+                          event.currentTarget.value = "";
+                          return;
+                        }
+                        setVideoExplainerImageFile(file);
+                        setJobStatus({state: "idle", message: ""});
+                        event.currentTarget.value = "";
+                      }}
+                      type="file"
+                    />
+                    <Upload size={18} className="mb-2 text-amber-200" />
+                    <span className="text-sm font-black text-white">
+                      {videoExplainerImageFile ? "Change bottom image" : "Upload bottom image"}
+                    </span>
+                    {videoExplainerImageFile ? (
+                      <span className="mt-2 max-w-full truncate text-xs font-bold text-zinc-400">
+                        {videoExplainerImageFile.name}
+                      </span>
+                    ) : null}
+                  </label>
+
+                  {videoExplainerImageFile ? (
+                    <div className="mt-4 rounded-lg border border-white/10 bg-black/30 p-3">
+                      <p className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-amber-100">
+                        Bottom image preview
+                      </p>
+                      <div className="flex items-center gap-3">
+                        <div className="h-24 w-24 overflow-hidden rounded-lg border border-amber-300/25 bg-white">
+                          <img
+                            alt="Bottom explanation preview"
+                            className="h-full w-full object-contain"
+                            src={URL.createObjectURL(videoExplainerImageFile)}
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-black text-white">{videoExplainerImageFile.name}</p>
+                          <p className="mt-1 text-xs font-bold text-zinc-500">
+                            This image will appear below subtitles in the final reel.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {videoExplainerImageFile ? (
+                    <button
+                      className="mt-3 rounded-md border border-white/10 px-3 py-2 text-xs font-black text-zinc-300 transition hover:bg-white/10"
+                      onClick={() => {
+                        setVideoExplainerImageFile(null);
+                        setJobStatus({state: "idle", message: ""});
+                      }}
+                      type="button"
+                    >
+                      Remove image
+                    </button>
+                  ) : null}
+                </div>
+              ) : null}
 
               {mode === "compare" ? (
                 <CompareImageSlots
@@ -557,7 +633,7 @@ export default function DashboardPage() {
 
               <div className="rounded-lg border border-white/10 bg-white/[0.035] p-4">
                 <label className="text-sm font-black text-white" htmlFor="reel-topic">
-                  Optional reel topic/title
+                  {mode === "videoExplainer" ? "Reel title (shows at top of video)" : "Optional reel topic/title"}
                 </label>
                 <input
                   className="mt-3 w-full rounded-lg border border-white/10 bg-black/35 px-4 py-3 text-sm font-bold text-white outline-none transition placeholder:text-zinc-600 focus:border-brand-mint/55"
@@ -569,7 +645,7 @@ export default function DashboardPage() {
                   value={topicTitle}
                 />
                 <p className="mt-2 text-xs leading-5 text-zinc-500">
-                  Optional when speech exists. Helpful for topic-specific explainer titles.
+                  {mode === "videoExplainer" ? "This title will display at the top of your video reel." : "Optional when speech exists. Helpful for topic-specific explainer titles."}
                 </p>
               </div>
 
@@ -663,7 +739,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="mt-3 grid gap-2 sm:grid-cols-3">
                         <button
-                          className="inline-flex items-center justify-center gap-2 rounded-md border border-white/10 bg-white/[0.04] px-3 py-2.5 text-xs font-black text-zinc-200 transition hover:border-brand-mint/40 hover:text-brand-mint"
+                          className="inline-flex items-center justify-center gap-2 rounded-md border border-white/10 bg-white/[0.04] px-3 py-3 text-xs font-black text-zinc-200 transition hover:border-brand-mint/40 hover:text-brand-mint"
                           onClick={() => setPreviewRender(render)}
                           type="button"
                         >
@@ -671,7 +747,7 @@ export default function DashboardPage() {
                           Preview
                         </button>
                         <a
-                          className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-3 py-2.5 text-xs font-black text-black transition hover:bg-brand-mint"
+                          className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-3 py-3 text-xs font-black text-black transition hover:bg-brand-mint"
                           href={render.outputFile}
                           rel="noreferrer"
                           target="_blank"
@@ -680,7 +756,7 @@ export default function DashboardPage() {
                           Download
                         </a>
                         <button
-                          className="inline-flex items-center justify-center gap-2 rounded-md border border-red-400/20 bg-red-500/10 px-3 py-2.5 text-xs font-black text-red-200 transition hover:bg-red-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                          className="inline-flex items-center justify-center gap-2 rounded-md border border-red-400/20 bg-red-500/10 px-3 py-3 text-xs font-black text-red-200 transition hover:bg-red-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
                           disabled={deletingRenderId === render.id}
                           onClick={() => requestDeleteRender(render)}
                           type="button"
@@ -868,6 +944,10 @@ export default function DashboardPage() {
         ? await uploadComparisonImages({files: comparisonFiles, userId})
         : [];
 
+      const videoExplainerImageKey = mode === "videoExplainer" && videoExplainerImageFile
+        ? await uploadVideoExplainerImage({file: videoExplainerImageFile, userId})
+        : "";
+
       setJobStatus({state: "starting", message: planningMessageForMode(mode)});
       const jobResponse = await fetch("/api/reels/jobs", {
         method: "POST",
@@ -879,8 +959,10 @@ export default function DashboardPage() {
           mediaType: getFileMediaType(selectedFile),
           mode,
           topicTitle: topicTitle.trim(),
+          design: mode === "videoExplainer" && videoExplainerImageKey ? "simpleManual" : undefined,
           userId,
           comparisonImageKeys,
+          explanationImageKey: videoExplainerImageKey,
           compareLeftTitle: compareLeftTitle.trim(),
           compareRightTitle: compareRightTitle.trim(),
           creatorHandle: compareHandle.trim() || "@itnavideo",
@@ -1056,7 +1138,7 @@ function validateFileForMode(file: File, mode: Mode) {
     return "Compare needs an audio voiceover plus 2 to 4 comparison photos.";
   }
   if (mode === "videoExplainer" && !isAudio && !isVideo) {
-    return "Video Explainer needs audio or video with clear speech.";
+    return "Video Explainer main upload needs audio or video with clear speech. Upload the bottom explanation image in the separate Bottom explanation image field.";
   }
   return "";
 }
@@ -1131,6 +1213,37 @@ function planningMessageForMode(mode: Mode) {
   return "Choosing scenes, text, and visuals...";
 }
 
+
+async function uploadVideoExplainerImage({file, userId}: {file: File; userId: string}) {
+  const contentType = getUploadContentType(file);
+
+  const presignResponse = await fetch("/api/media/presign", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      fileName: file.name,
+      contentType,
+      fileSize: file.size,
+      mode: "videoExplainer",
+      userId,
+    }),
+  });
+
+  const presign = await readJsonPayload(presignResponse);
+  if (!presignResponse.ok || !presign.ok) throw new Error(presign.error || "Could not prepare bottom image upload.");
+
+  const uploadResponse = await fetch(presign.uploadUrl, {
+    method: "PUT",
+    headers: {"Content-Type": contentType},
+    body: file,
+  }).catch((error) => {
+    throw new Error(formatNetworkError(error, "Bottom image upload failed. Please retry on a stable connection."));
+  });
+
+  if (!uploadResponse.ok) throw new Error("Bottom image upload failed.");
+
+  return presign.key as string;
+}
 function RenderStatusStage({
   mode,
   onPreview,
@@ -1740,7 +1853,7 @@ function SelectedMediaPreview({ file, mode }: { file: File; mode: Mode }) {
   }, [previewUrl]);
 
   return (
-    <div className="mt-4 w-full rounded-lg border border-white/10 bg-black/40 p-3">
+    <div className="mt-4 w-full max-w-full overflow-hidden rounded-lg border border-white/10 bg-black/40 p-3">
       {getFileMediaType(file) === "image" ? (
         <Image
           alt="Selected image preview"
@@ -1751,7 +1864,7 @@ function SelectedMediaPreview({ file, mode }: { file: File; mode: Mode }) {
           unoptimized
         />
       ) : getFileMediaType(file) === "audio" ? (
-        <audio className="w-full" controls preload="metadata" src={previewUrl} />
+        <audio className="w-full max-w-full" controls preload="metadata" src={previewUrl} />
       ) : (
         <video
           className="aspect-video w-full rounded-md bg-black object-contain"
@@ -1825,6 +1938,10 @@ function sanitizeUserFacingStatus(value: string) {
     .replace(/\bOpenAI\b/gi, "AI planner")
     .trim() || "Something went wrong. Please try again.";
 }
+
+
+
+
 
 
 

@@ -97,3 +97,11 @@ next-env.d.ts
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# Local Vercel env pulls - never commit
+.env.production.check
+.env.production.check2
+.env.production.fix
+.env.production.verify
+.env.vercel-check
+.env*.local
