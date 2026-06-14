@@ -1,4 +1,5 @@
 import React from 'react';
+import {VideoSimpleExplainerSfx} from './VideoSimpleExplainerSfx';
 import {
   AbsoluteFill,
   Audio,
@@ -105,6 +106,7 @@ export function VideoSimpleExplainer({
 
   return (
     <AbsoluteFill style={{backgroundColor: '#08080c', fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif"}}>
+      <VideoSimpleExplainerSfx />
       {/* Ambient top glow */}
       <div
         style={{
@@ -370,3 +372,4 @@ export function VideoSimpleExplainer({
 }
 
 export default VideoSimpleExplainer;
+
