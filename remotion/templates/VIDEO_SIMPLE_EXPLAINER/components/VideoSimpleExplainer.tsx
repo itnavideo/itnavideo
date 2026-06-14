@@ -140,7 +140,7 @@ export function VideoSimpleExplainer({
           <OffthreadVideo
             src={mediaSrc}
             startFrom={Math.max(0, Math.round(mediaTrimStartSeconds * fps))}
-            style={{width: '100%', height: '100%', objectFit: 'cover'}}
+            style={{width: '100%', height: '100%', objectFit: 'contain'}}
             volume={sourceAudioVolume}
           />
         ) : null}
@@ -336,7 +336,7 @@ export function VideoSimpleExplainer({
             style={{
               width: '100%',
               height: '100%',
-              objectFit: 'cover',
+              objectFit: 'contain',
             }}
           />
         ) : (
@@ -372,4 +372,5 @@ export function VideoSimpleExplainer({
 }
 
 export default VideoSimpleExplainer;
+
 
