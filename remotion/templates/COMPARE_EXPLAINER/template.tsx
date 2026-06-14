@@ -255,8 +255,6 @@ const VisualBox = ({
             width: '100%',
             height: '100%',
             objectFit: 'contain',
-              transform: 'scale(1.55)',
-              transformOrigin: 'bottom center',
             objectPosition: 'center center',
           }}
         />
@@ -528,10 +526,8 @@ const StickerPresenter = ({
           maxHeight: STICKER_MAX_HEIGHT,
           height: 'auto',
           objectFit: 'contain',
-              transform: 'scale(1.55)',
-              transformOrigin: 'bottom center',
           opacity: enterOpacity,
-          transform: `translateY(${idleY}px) rotate(${rotate}deg) scale(${pop})`,
+          transform: `translateY(${idleY}px) rotate(${rotate}deg) scale(${pop * 1.85})`,
           transformOrigin: 'center bottom',
           filter: 'drop-shadow(0 20px 22px rgba(0,0,0,0.26))',
         }}
@@ -833,6 +829,8 @@ export const CompareExplainerComposition = () => (
     height={1920}
   />
 );
+
+
 
 
 
