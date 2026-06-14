@@ -130,13 +130,30 @@ const makeShortSubtitle = (value: string) => {
   return second ? `${first}\n${second}` : first;
 };
 
+
+function cleanHinglishSubtitle(value: string) {
+  return String(value || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\bkaaphee\b/gi, "kaafi")
+    .replace(/\bkyaa\b/gi, "kya")
+    .replace(/\bsavaal\b/gi, "sawaal")
+    .replace(/\brahataa\b/gi, "rehta")
+    .replace(/\brahata\b/gi, "rehta")
+    .replace(/\bmen\b/gi, "mein")
+    .replace(/\bmein mein\b/gi, "mein")
+    .replace(/\blogon ke man mein\b/gi, "logon ke mann mein")
+    .replace(/\bSir\b/g, "sir")
+    .replace(/[\u0900-\u097F]/g, "");
+}
+
 const getCaptionText = (
   overlay: CompareOverlay | undefined,
   caption: CompareCaption | undefined,
   fallback: string,
 ) => {
   const captionText = caption?.text || caption?.lines?.join(' ');
-  return makeShortSubtitle(captionText || overlay?.text || overlay?.body || overlay?.title || fallback || 'Simple difference samjho.');
+  return cleanHinglishSubtitle(makeShortSubtitle(captionText || overlay?.text || overlay?.body || overlay?.title || fallback || 'Simple difference samjho.'));
 };
 
 const findSfx = (pattern: RegExp) => COMPARE_SFX.find((src) => pattern.test(src)) || '';
@@ -812,6 +829,7 @@ export const CompareExplainerComposition = () => (
     height={1920}
   />
 );
+
 
 
 
