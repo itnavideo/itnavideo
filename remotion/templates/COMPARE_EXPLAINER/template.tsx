@@ -440,7 +440,7 @@ const getActiveStickerPose = ({
   if (containsAny(text, leftWords)) return 'left';
 
   // Time-based cycling when no strong text match — keeps sticker dynamic
-  const cycleSeconds = 2.8;
+  const cycleSeconds = 1.15;
   const cycleIndex = Math.floor(currentTime / cycleSeconds) % 4;
   const cyclePoses: StickerPoseKey[] = ['left', 'right', 'thinking', 'welcome'];
   return cyclePoses[cycleIndex];
@@ -486,8 +486,8 @@ const StickerPresenter = ({
   const STICKER_ZONE_BOTTOM = 24;
   const STICKER_ZONE_LEFT = 60;
   const STICKER_ZONE_RIGHT = 60;
-  const STICKER_WIDTH = 340;
-  const STICKER_MAX_HEIGHT = 540;
+  const STICKER_WIDTH = 520;
+  const STICKER_MAX_HEIGHT = 760;
 
   const enterOpacity = interpolate(frame, [0, 6], [1, 1], {
     extrapolateLeft: 'clamp',
@@ -522,7 +522,7 @@ const StickerPresenter = ({
         src={staticFile(src)}
         style={{
           width: STICKER_WIDTH,
-          maxWidth: '64%',
+          maxWidth: '82%',
           maxHeight: STICKER_MAX_HEIGHT,
           height: 'auto',
           objectFit: 'contain',
@@ -829,6 +829,7 @@ export const CompareExplainerComposition = () => (
     height={1920}
   />
 );
+
 
 
 
