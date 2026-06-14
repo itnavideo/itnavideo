@@ -1,7 +1,8 @@
 import React from 'react';
-import {Audio, Sequence, staticFile} from 'remotion';
+import {Audio, Loop, Sequence, staticFile} from 'remotion';
 
 const SFX = {
+  bgm: 'assets/sfx/bgm-upbeat.mp3',
   whoosh: 'assets/sfx/compare/compare-whoosh.mp3',
   click: 'assets/sfx/compare/compare-click.mp3',
   ding: 'assets/sfx/compare/compare-ding.mp3',
@@ -11,6 +12,11 @@ const SFX = {
 export function VideoSimpleExplainerSfx() {
   return (
     <>
+      {/* Background music - low volume so voice stays clear */}
+      <Loop>
+        <Audio src={staticFile(SFX.bgm)} volume={0.045} />
+      </Loop>
+
       {/* Intro whoosh */}
       <Sequence from={0} durationInFrames={24}>
         <Audio src={staticFile(SFX.whoosh)} volume={0.88} />
@@ -43,3 +49,4 @@ export function VideoSimpleExplainerSfx() {
     </>
   );
 }
+
