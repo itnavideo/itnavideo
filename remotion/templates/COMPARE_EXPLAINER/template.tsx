@@ -150,37 +150,37 @@ const CompareSfxLayer = () => {
     <>
       {whoosh ? (
         <Sequence from={0} durationInFrames={26}>
-          <Audio src={staticFile(whoosh)} volume={0.38} />
+          <Audio src={staticFile(whoosh)} volume={0.95} />
         </Sequence>
       ) : null}
 
       {pop ? (
         <Sequence from={12} durationInFrames={18}>
-          <Audio src={staticFile(pop)} volume={0.32} />
+          <Audio src={staticFile(pop)} volume={0.90} />
         </Sequence>
       ) : null}
 
       {whoosh ? (
         <Sequence from={58} durationInFrames={24}>
-          <Audio src={staticFile(whoosh)} volume={0.30} />
+          <Audio src={staticFile(whoosh)} volume={0.88} />
         </Sequence>
       ) : null}
 
       {pop ? (
         <Sequence from={96} durationInFrames={18}>
-          <Audio src={staticFile(pop)} volume={0.28} />
+          <Audio src={staticFile(pop)} volume={0.85} />
         </Sequence>
       ) : null}
 
       {whoosh ? (
         <Sequence from={150} durationInFrames={24}>
-          <Audio src={staticFile(whoosh)} volume={0.28} />
+          <Audio src={staticFile(whoosh)} volume={0.85} />
         </Sequence>
       ) : null}
 
       {ding ? (
         <Sequence from={220} durationInFrames={28}>
-          <Audio src={staticFile(ding)} volume={0.30} />
+          <Audio src={staticFile(ding)} volume={0.88} />
         </Sequence>
       ) : null}
     </>
@@ -812,6 +812,8 @@ export const CompareExplainerComposition = () => (
     height={1920}
   />
 );
+
+
 
 
 
