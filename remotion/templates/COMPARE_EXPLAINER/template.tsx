@@ -255,6 +255,8 @@ const VisualBox = ({
             width: '100%',
             height: '100%',
             objectFit: 'contain',
+              transform: 'scale(1.55)',
+              transformOrigin: 'bottom center',
             objectPosition: 'center center',
           }}
         />
@@ -482,12 +484,12 @@ const StickerPresenter = ({
   const src = set[poseKey] || set.welcome;
 
   // Strict sticker zone. Never allow sticker into subtitle area.
-  const STICKER_ZONE_TOP = 910;
-  const STICKER_ZONE_BOTTOM = 24;
+  const STICKER_ZONE_TOP = 820;
+  const STICKER_ZONE_BOTTOM = 10;
   const STICKER_ZONE_LEFT = 60;
   const STICKER_ZONE_RIGHT = 60;
-  const STICKER_WIDTH = 520;
-  const STICKER_MAX_HEIGHT = 760;
+  const STICKER_WIDTH = 680;
+  const STICKER_MAX_HEIGHT = 900;
 
   const enterOpacity = interpolate(frame, [0, 6], [1, 1], {
     extrapolateLeft: 'clamp',
@@ -522,10 +524,12 @@ const StickerPresenter = ({
         src={staticFile(src)}
         style={{
           width: STICKER_WIDTH,
-          maxWidth: '82%',
+          maxWidth: '96%',
           maxHeight: STICKER_MAX_HEIGHT,
           height: 'auto',
           objectFit: 'contain',
+              transform: 'scale(1.55)',
+              transformOrigin: 'bottom center',
           opacity: enterOpacity,
           transform: `translateY(${idleY}px) rotate(${rotate}deg) scale(${pop})`,
           transformOrigin: 'center bottom',
@@ -829,6 +833,7 @@ export const CompareExplainerComposition = () => (
     height={1920}
   />
 );
+
 
 
 
