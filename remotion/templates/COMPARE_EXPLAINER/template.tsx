@@ -482,7 +482,7 @@ const StickerPresenter = ({
   const src = set[poseKey] || set.welcome;
 
   // Strict sticker zone. Never allow sticker into subtitle area.
-  const STICKER_ZONE_TOP = 820;
+  const STICKER_ZONE_TOP = 790;
   const STICKER_ZONE_BOTTOM = 10;
   const STICKER_ZONE_LEFT = 60;
   const STICKER_ZONE_RIGHT = 60;
@@ -527,7 +527,7 @@ const StickerPresenter = ({
           height: 'auto',
           objectFit: 'contain',
           opacity: enterOpacity,
-          transform: `translateY(${idleY}px) rotate(${rotate}deg) scale(${pop * 1.85})`,
+          transform: `translateY(${idleY}px) rotate(${rotate}deg) scale(${pop * 2.15})`,
           transformOrigin: 'center bottom',
           filter: 'drop-shadow(0 20px 22px rgba(0,0,0,0.26))',
         }}
@@ -829,6 +829,7 @@ export const CompareExplainerComposition = () => (
     height={1920}
   />
 );
+
 
 
 
