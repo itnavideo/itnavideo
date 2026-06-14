@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import {
   AbsoluteFill,
   Audio,
@@ -423,7 +423,7 @@ const getActiveStickerPose = ({
   if (containsAny(text, leftWords)) return 'left';
 
   // Time-based cycling when no strong text match — keeps sticker dynamic
-  const cycleSeconds = 4;
+  const cycleSeconds = 2.8;
   const cycleIndex = Math.floor(currentTime / cycleSeconds) % 4;
   const cyclePoses: StickerPoseKey[] = ['left', 'right', 'thinking', 'welcome'];
   return cyclePoses[cycleIndex];
@@ -446,7 +446,7 @@ const StickerPresenter = ({
   const {fps, durationInFrames} = useVideoConfig();
 
   const selectedStickerStyle =
-    stickerStyle === 'cartoon' ? 'cartoon' : stickerStyle === 'explainer' ? 'explainer' : 'cartoon';
+    stickerStyle === '2d' ? '2d' : stickerStyle === 'cartoon' ? 'cartoon' : 'explainer';
 
   const set: StickerSet = STICKER_SETS[selectedStickerStyle];
 
@@ -811,6 +811,7 @@ export const CompareExplainerComposition = () => (
     height={1920}
   />
 );
+
 
 
 

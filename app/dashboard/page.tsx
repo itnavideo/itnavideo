@@ -81,18 +81,18 @@ const templateCards = [
   {
     id: "video-explainer",
     title: "Video Simple Explainer",
-    description: "User video with real subtitles, title, and one bottom image.",
+    description: "Your video + subtitles + title + one bottom explanation image.",
     image: "/visuals/previews/video-explainer-homepage.png",
-    badges: ["Video", "Subtitles", "1 Image"],
+    badges: ["Video/Audio", "Title", "1 Image"],
     active: true,
     mode: "videoExplainer" as const,
   },
   {
     id: "compare",
-    title: "Compare",
-    description: "Audio-led comparison with left/right image panels.",
+    title: "Compare Explainer",
+    description: "Audio voiceover + 2-4 images for left vs right comparison.",
     image: "/visuals/previews/homepage to show the COMPARE template preview.png",
-    badges: ["Audio", "2-4 images", "Left vs Right"],
+    badges: ["Audio", "2-4 images", "VS Layout"],
     active: true,
     mode: "compare" as const,
   },
@@ -102,11 +102,11 @@ const modeConfig = {
   videoExplainer: {
     label: "Video Simple",
     title: "Video Simple Explainer",
-    description: "Upload audio or video with clear speech. AI creates explainer scenes from the real transcript.",
+    description: "Upload video with speech, add a title and one image. Get a reel with your video on top, subtitles, and explanation image below.",
     accept: "audio/*,video/*",
     supported: "Supported: MP3, WAV, MP4, MOV, WEBM",
-    bestResult: "Best result: clear voice, one topic, around 1 minute.",
-    uploadCta: "Choose File",
+    bestResult: "Best result: clear voice, one topic, around 1 minute. Add a title and bottom image.",
+    uploadCta: "Choose Video/Audio",
     icon: Film,
     color: "text-cyan-200",
     border: "border-cyan-300/35",
@@ -188,7 +188,7 @@ export default function DashboardPage() {
   const [compareLeftTitle, setCompareLeftTitle] = useState("");
   const [compareRightTitle, setCompareRightTitle] = useState("");
   const [compareHandle, setCompareHandle] = useState("@itnavideo");
-  const [stickerStyle, setStickerStyle] = useState<"2d" | "cartoon" | "explainer">("2d");
+  const [stickerStyle, setStickerStyle] = useState<"2d" | "cartoon" | "explainer">("explainer");
   const [recentRenders, setRecentRenders] = useState<RecentRender[]>([]);
   const [previewRender, setPreviewRender] = useState<RecentRender | null>(null);
   const [deleteCandidate, setDeleteCandidate] = useState<RecentRender | null>(null);
@@ -421,7 +421,7 @@ export default function DashboardPage() {
 
             <div className="grid gap-4">
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                {templateCards.filter((template) => template.mode !== "videoExplainer").map((template) => (
+                {templateCards.map((template) => (
                   <button
                     aria-disabled={!template.active}
                     aria-pressed={template.active && template.mode === mode}
@@ -1954,6 +1954,7 @@ function sanitizeUserFacingStatus(value: string) {
     .replace(/\bOpenAI\b/gi, "AI planner")
     .trim() || "Something went wrong. Please try again.";
 }
+
 
 
 
