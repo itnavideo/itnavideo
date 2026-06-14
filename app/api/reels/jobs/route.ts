@@ -22,6 +22,9 @@ const MODE_TO_TEMPLATE: Record<ReelMode, ReelTemplateName> = {
 };
 
 const MAX_RENDER_WINDOW_SECONDS = 60;
+
+const SUBTITLE_LANGUAGE_POLICY =
+  "Subtitle language policy: If the uploaded speech is Hindi/Hinglish, generate clean Hinglish subtitles in Latin/Roman script. If the speech is English, generate English subtitles. Never use Devanagari/Hindi script. Never use over-literal romanization such as kaaphee, kyaa, rahataa, men, savaal. Prefer natural Hinglish spellings such as kaafi, kya, rehta, mein, sawaal.";
 const DEFAULT_PLANNING_MEDIA_SECONDS = 60;
 const SPEECH_LEAD_SECONDS = 0.65;
 const MIN_SPEECH_TOKEN_LENGTH = 2;
@@ -175,6 +178,7 @@ export async function POST(request: Request) {
         },
         dryRun: !process.env.OPENAI_API_KEY,
         constraints: [
+        SUBTITLE_LANGUAGE_POLICY,
           'Image Story image-only mode: use topic/prompt for visual story beats, but do not create fake transcript captions.',
           'One primary image per scene with subtle cinematic motion.',
           'Use minimal safe-zone text only; no subtitles, notes, or explainer cards.',
@@ -328,6 +332,7 @@ export async function POST(request: Request) {
         : undefined,
       dryRun: !process.env.OPENAI_API_KEY,
       constraints: [
+        SUBTITLE_LANGUAGE_POLICY,
         mode === 'notes'
           ? 'Use uploaded voiceover as the audio source for Handwritten Notes.'
           : mode === 'videoCaption'
@@ -420,6 +425,7 @@ export async function POST(request: Request) {
         ? Math.min(0.04, Math.max(0.012, Number(plan.renderProps?.backgroundMusicVolume)))
         : music.volume,
       sourceAudioVolume: 1.35,
+      subtitleLanguagePolicy: SUBTITLE_LANGUAGE_POLICY,
       backgroundMusicCategory: readString(plan.renderProps?.backgroundMusicCategory) || music.category,
 
       ...(mode === 'compare'
@@ -1749,6 +1755,7 @@ function uniqueStrings(values: string[]) {
 function slugify(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 64) || 'reel';
 }
+
 
 
 
