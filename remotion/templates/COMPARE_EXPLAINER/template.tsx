@@ -469,7 +469,8 @@ const StickerPresenter = ({
   const STICKER_ZONE_BOTTOM = 24;
   const STICKER_ZONE_LEFT = 60;
   const STICKER_ZONE_RIGHT = 60;
-  const STICKER_MAX_HEIGHT = 650;
+  const STICKER_WIDTH = 340;
+  const STICKER_MAX_HEIGHT = 540;
 
   const enterOpacity = interpolate(frame, [0, 6], [1, 1], {
     extrapolateLeft: 'clamp',
@@ -503,8 +504,8 @@ const StickerPresenter = ({
       <img
         src={staticFile(src)}
         style={{
-          width: selectedStickerStyle === 'cartoon' ? 420 : selectedStickerStyle === 'explainer' ? 440 : 430,
-          maxWidth: '72%',
+          width: STICKER_WIDTH,
+          maxWidth: '64%',
           maxHeight: STICKER_MAX_HEIGHT,
           height: 'auto',
           objectFit: 'contain',
@@ -811,6 +812,7 @@ export const CompareExplainerComposition = () => (
     height={1920}
   />
 );
+
 
 
 
