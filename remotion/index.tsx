@@ -1,9 +1,9 @@
 import {registerRoot} from 'remotion';
-import {VideoExplainerComposition} from './templates/VIDEO_EXPLAINER/template';
 import {CompareExplainerComposition} from './templates/COMPARE_EXPLAINER/template';
+import {VideoSimpleExplainerComposition} from './templates/VIDEO_SIMPLE_EXPLAINER/template';
 
 const compositions = [
-  VideoExplainerComposition,
+  VideoSimpleExplainerComposition,
   CompareExplainerComposition,
 ];
 

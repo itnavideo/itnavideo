@@ -6,7 +6,7 @@ import {getRenderAccessForUser} from '@/services/billing/renderAccess';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const MAX_FILE_SIZE_BYTES = 1024 * 1024 * 300;
+const MAX_FILE_SIZE_BYTES = 1024 * 1024 * 500;
 
 export async function POST(request: Request) {
   const ip = getClientIp(request.headers);
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ok: false, error: 'This template is not available right now.'}, {status: 422});
   }
   if (fileSize > MAX_FILE_SIZE_BYTES) {
-    return NextResponse.json({ok: false, error: 'File is too large for beta uploads.'}, {status: 400});
+    return NextResponse.json({ok: false, error: 'File is too large. Please upload a video under 500MB.'}, {status: 400});
   }
   if (!isAllowedUploadForTemplate(templateMode, contentType)) {
     return NextResponse.json({ok: false, error: uploadErrorForTemplate(templateMode)}, {status: 400});
@@ -91,12 +91,12 @@ function readString(value: unknown) {
 
 function isAllowedUploadForTemplate(templateMode: string, contentType: string) {
   if (templateMode === 'compare') return contentType.startsWith('audio/') || contentType.startsWith('image/');
-  return contentType.startsWith('audio/') || contentType.startsWith('video/');
+  return contentType.startsWith('audio/') || contentType.startsWith('video/') || contentType.startsWith('image/');
 }
 
 function uploadErrorForTemplate(templateMode: string) {
   if (templateMode === 'compare') return 'Compare needs one audio file plus exactly 2 visuals.';
-  return 'Video Explainer needs audio or video with clear speech.';
+  return 'Video Explainer needs audio, video, or bottom image.';
 }
 
 function isVideoExplainerWorkflow(value: string) {
@@ -134,5 +134,8 @@ function sanitizeUserFacingStatus(value: string) {
     .replace(/\bOpenAI\b/gi, 'AI planner')
     .trim() || 'Could not create upload URL.';
 }
+
+
+
 
 

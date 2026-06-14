@@ -10,7 +10,7 @@ import AppChrome from '@/components/layout/AppChrome';
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.itnavideo.com";
 const siteName = "Itnavideo";
 const siteDescription =
-  "Use Itnavideo as an AI Explainer Video generator for polished reels, YouTube Shorts, and video-to-reel workflows.";
+  "Create AI explainer videos from audio or video. Itnavideo turns real speech into short vertical reels with creator video, subtitles, title, and support visuals.";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,7 +37,11 @@ export const metadata: Metadata = {
   description: siteDescription,
   keywords: [
     "AI video generator",
-    "AI reel generator",
+    "AI explainer video generator",
+    "audio to reels generator",
+    "finance reel generator",
+    "Hinglish explainer video maker",
+    "faceless explainer video maker",
     "AI reel maker",
     "YouTube Shorts generator",
     "Instagram Reels maker",
@@ -77,7 +81,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/visuals/template-video-explainer.png",
+        url: "/visuals/previews/video-explainer-homepage.png",
         width: 1080,
         height: 1920,
         alt: "Itnavideo AI reel maker template preview",
@@ -88,7 +92,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Itnavideo | AI Video Generator",
     description: siteDescription,
-    images: ["/visuals/template-video-explainer.png"],
+    images: ["/visuals/previews/video-explainer-homepage.png"],
   },
 };
 
@@ -127,4 +131,5 @@ export default function RootLayout({
     </html>
   );
 }
+
 

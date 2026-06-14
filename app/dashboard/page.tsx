@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 
 import {StickerStylePicker} from '@/components/compare/StickerStylePicker';
@@ -80,10 +80,10 @@ const RENDER_POLL_ATTEMPTS = 360;
 const templateCards = [
   {
     id: "video-explainer",
-    title: "Video Explainer",
-    description: "Audio/video explainer with real transcript scenes.",
+    title: "Video Simple Explainer",
+    description: "User video with real subtitles, title, and one bottom image.",
     image: "/visuals/previews/video-explainer-homepage.png",
-    badges: ["Audio", "Video", "Needs speech"],
+    badges: ["Video", "Subtitles", "1 Image"],
     active: true,
     mode: "videoExplainer" as const,
   },
@@ -100,8 +100,8 @@ const templateCards = [
 
 const modeConfig = {
   videoExplainer: {
-    label: "Video Explainer",
-    title: "Video Explainer",
+    label: "Video Simple",
+    title: "Video Simple Explainer",
     description: "Upload audio or video with clear speech. AI creates explainer scenes from the real transcript.",
     accept: "audio/*,video/*",
     supported: "Supported: MP3, WAV, MP4, MOV, WEBM",
@@ -180,7 +180,7 @@ const renderParticles = [
 export default function DashboardPage() {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
-  const [mode, setMode] = useState<Mode>("videoExplainer");
+  const [mode, setMode] = useState<Mode>("compare");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [comparisonFiles, setComparisonFiles] = useState<File[]>([]);
   const [videoExplainerImageFile, setVideoExplainerImageFile] = useState<File | null>(null);
@@ -421,7 +421,7 @@ export default function DashboardPage() {
 
             <div className="grid gap-4">
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                {templateCards.map((template) => (
+                {templateCards.filter((template) => template.mode !== "videoExplainer").map((template) => (
                   <button
                     aria-disabled={!template.active}
                     aria-pressed={template.active && template.mode === mode}
@@ -907,6 +907,11 @@ export default function DashboardPage() {
       setJobStatus({state: "error", message: validation});
       return;
     }
+
+    if (mode === "videoExplainer" && !videoExplainerImageFile) {
+      setJobStatus({state: "error", message: "Video Simple Explainer needs one bottom explanation image."});
+      return;
+    }
     if (mode === "compare" && comparisonFiles.length !== 2) {
       setJobStatus({state: "error", message: "Compare needs exactly two images: one left and one right."});
       return;
@@ -1120,10 +1125,10 @@ function validateFileForMode(file: File, mode: Mode) {
   const isVideo = type.startsWith("video/") || /\.(mp4|mov|webm|m4v)$/i.test(name);
   const isAudio = type.startsWith("audio/") || /\.(mp3|wav|m4a|aac|ogg)$/i.test(name);
   const isImage = type.startsWith("image/") || /\.(jpg|jpeg|png|webp)$/i.test(name);
-  const maxBytes = 100 * 1024 * 1024;
+  const maxBytes = 500 * 1024 * 1024;
 
   if (file.size > maxBytes) {
-    return "This file is too large. Please upload a shorter file or compress it under 100MB.";
+    return "This file is too large. Please upload a shorter file or compress it under 500MB.";
   }
   if (mode === "videoCaption" && !isVideo) {
     return "Video Caption needs a video file. Please upload an MP4/MOV video or choose another template.";
@@ -1137,9 +1142,7 @@ function validateFileForMode(file: File, mode: Mode) {
   if (mode === "compare" && !isAudio) {
     return "Compare needs an audio voiceover plus 2 to 4 comparison photos.";
   }
-  if (mode === "videoExplainer" && !isAudio && !isVideo) {
-    return "Video Explainer main upload needs audio or video with clear speech. Upload the bottom explanation image in the separate Bottom explanation image field.";
-  }
+  // Video Explainer media validation is handled by the backend so browser File.type quirks do not block valid uploads.
   return "";
 }
 
@@ -1154,23 +1157,36 @@ function validateComparisonImage(file: File) {
 }
 
 function getFileMediaType(file: File): "audio" | "video" | "image" {
-  const contentType = getUploadContentType(file);
-  if (contentType.startsWith("audio/")) return "audio";
-  if (contentType.startsWith("image/")) return "image";
+  const type = file.type || "";
+  const name = file.name.toLowerCase();
+
+  if (type.startsWith("image/") || /\.(jpg|jpeg|png|webp)$/i.test(name)) return "image";
+  if (type.startsWith("audio/") || /\.(mp3|wav|m4a|aac|ogg|flac)$/i.test(name)) return "audio";
   return "video";
 }
 
 function getUploadContentType(file: File) {
-  if (file.type) return file.type;
   const name = file.name.toLowerCase();
+  const browserType = file.type || "";
+
+  if (name.endsWith(".mp4") || name.endsWith(".m4v")) return "video/mp4";
+  if (name.endsWith(".mov")) return "video/quicktime";
+  if (name.endsWith(".webm")) return "video/webm";
+  if (name.endsWith(".mkv")) return "video/x-matroska";
+  if (name.endsWith(".avi")) return "video/x-msvideo";
+
   if (name.endsWith(".mp3")) return "audio/mpeg";
   if (name.endsWith(".wav")) return "audio/wav";
   if (name.endsWith(".m4a")) return "audio/mp4";
+  if (name.endsWith(".aac")) return "audio/aac";
+  if (name.endsWith(".ogg")) return "audio/ogg";
+  if (name.endsWith(".flac")) return "audio/flac";
+
   if (name.endsWith(".jpg") || name.endsWith(".jpeg")) return "image/jpeg";
   if (name.endsWith(".png")) return "image/png";
   if (name.endsWith(".webp")) return "image/webp";
-  if (name.endsWith(".mov")) return "video/quicktime";
-  if (name.endsWith(".webm")) return "video/webm";
+
+  if (browserType && browserType !== "application/octet-stream") return browserType;
   return "video/mp4";
 }
 
@@ -1776,7 +1792,7 @@ function isRecentRender(value: unknown): value is RecentRender {
 }
 
 function getModeLabel(mode: Mode) {
-  return modeConfig[mode]?.label || "Video Explainer";
+  return modeConfig[mode]?.label || "Video Simple";
 }
 
 function readDashboardMode(value: string | null): Mode | null {
@@ -1919,7 +1935,7 @@ function sanitizeUserFacingStatus(value: string) {
     .replace(/\s+at\s+[\s\S]*$/i, "")
     .replace(/https?:\/\/\S+/gi, "")
     .replace(/\b(?:HANDWRITING_NOTES_REEL|HANDWRITTEN_NOTES|NOTES)\b/g, "Handwritten Notes")
-    .replace(/\bVIDEO[-_]EXPLAINER\b/gi, "Video Explainer")
+    .replace(/\bVIDEO[-_]EXPLAINER\b/gi, "Video Simple")
     .replace(/\bVIDEO[-_]CAPTION\b/gi, "Video Caption")
     .replace(/\bIMAGE[-_]STORY\b/gi, "Image Story")
     .replace(/\bTRANSCRIPTION_FAILED\b/gi, "We could not detect clear speech in your upload.")
@@ -1938,6 +1954,19 @@ function sanitizeUserFacingStatus(value: string) {
     .replace(/\bOpenAI\b/gi, "AI planner")
     .trim() || "Something went wrong. Please try again.";
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

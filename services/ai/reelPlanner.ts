@@ -56,39 +56,15 @@ export type ReelTimelineScene = {
   secondarySupport?: Array<'titleCard'>;
 };
 
-export type ReelTemplateName = 'VIDEO_EXPLAINER' | 'HANDWRITTEN_NOTES' | 'VIDEO_CAPTION' | 'IMAGE_STORY' | 'comparisonImages';
+export type ReelTemplateName = 'VIDEO_SIMPLE_EXPLAINER' | 'comparisonImages';
 export const REEL_TEMPLATE_REGISTRY = {
-  VIDEO_EXPLAINER: {
-    templateName: 'VIDEO_EXPLAINER',
-    compositionId: 'VIDEO-EXPLAINER',
+  VIDEO_SIMPLE_EXPLAINER: {
+    templateName: 'VIDEO_SIMPLE_EXPLAINER',
+    compositionId: 'VIDEO-SIMPLE-EXPLAINER',
     allowedMedia: ['audio', 'video'],
     transcriptRequirement: 'required',
     plannerMode: 'videoExplainer',
     mediaFit: 'videoExplainer',
-  },
-  HANDWRITTEN_NOTES: {
-    templateName: 'HANDWRITTEN_NOTES',
-    compositionId: 'HANDWRITTEN-NOTES',
-    allowedMedia: ['audio', 'video'],
-    transcriptRequirement: 'required',
-    plannerMode: 'notes',
-    mediaFit: 'notes',
-  },
-  VIDEO_CAPTION: {
-    templateName: 'VIDEO_CAPTION',
-    compositionId: 'VIDEO-CAPTION',
-    allowedMedia: ['video'],
-    transcriptRequirement: 'required',
-    plannerMode: 'videoCaption',
-    mediaFit: 'videoCaption',
-  },
-  IMAGE_STORY: {
-    templateName: 'IMAGE_STORY',
-    compositionId: 'IMAGE-STORY',
-    allowedMedia: ['image', 'audio', 'video'],
-    transcriptRequirement: 'audio-or-video',
-    plannerMode: 'imageStory',
-    mediaFit: 'imageStory',
   },
   comparisonImages: {
     templateName: 'comparisonImages',
@@ -475,7 +451,7 @@ export function validateAndRepairReelPlan(plan: ReelPlanResult): ReelPlanResult 
   const renderProps = {
     ...plan.renderProps,
     ...(plan.templateName === 'VIDEO_EXPLAINER'
-      ? {design: plan.renderProps.design || 'imageCollage'}
+      ? {design: plan.renderProps.design || (plan.renderProps.explanationImageUrl || plan.renderProps.uploadedImageUrl || plan.renderProps.bottomImageUrl ? 'simpleManual' : 'imageCollage')}
       : {}),
     durationSeconds,
     overlayTimeline,
@@ -1731,6 +1707,7 @@ function applyVisualPlanToOverlays<T extends ReelPlanResult['renderProps']['over
       frameValue: visualScene.frameValue,
       frameItems: visualScene.frameItems,
       visualPlanReason: visualScene.whyMatchesScript,
+      activeNodeId: visualScene.activeNodeId,
     };
   });
 }
@@ -2722,4 +2699,7 @@ function uniqueStrings(values: string[]) {
 function roundTime(value: number) {
   return Math.round(value * 100) / 100;
 }
+
+
+
 

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, AudioLines, BadgeCheck, CheckCircle2, Clock3, Film, ShieldCheck, Sparkles, Upload } from "lucide-react";
+import { ArrowRight, AudioLines, BadgeCheck, CheckCircle2, Clock3, Film, Layers3, ShieldCheck, Sparkles, Upload } from "lucide-react";
 
 export const metadata = {
   title: "Create AI Reels From Audio, Video, or Images",
@@ -13,7 +13,7 @@ export const metadata = {
 const templates = [
   {
     href: "/dashboard?template=video-explainer",
-    image: "/visuals/template-video-explainer.png",
+    image: "/visuals/previews/video-explainer-homepage.png",
     icon: Film,
     title: "Video Explainer",
     bestFor: "Educational, finance, career, and news-style explainers.",
@@ -24,6 +24,20 @@ const templates = [
     accent: "text-cyan-200",
     border: "border-cyan-300/25",
     surface: "bg-cyan-300/[0.07]",
+  },
+  {
+    href: "/dashboard?template=compare",
+    image: "/visuals/previews/homepage to show the COMPARE template preview.png",
+    icon: Layers3,
+    title: "Compare Explainer",
+    bestFor: "Left vs right comparisons, before/after, product matchups.",
+    upload: "Audio voiceover + 2-4 images",
+    needs: "Clear comparison audio",
+    cta: "Use Compare Explainer",
+    badges: ["Audio", "2-4 images", "Left vs Right"],
+    accent: "text-emerald-200",
+    border: "border-emerald-300/25",
+    surface: "bg-emerald-300/[0.07]",
   },
 ];
 

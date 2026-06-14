@@ -147,7 +147,13 @@ async function prepareTranscriptionMedia({
   try {
     const clipped = await extractTranscriptionAudioClip({mediaUrl, fileName, maxSeconds});
     if (clipped.blob.size > 0) return clipped;
-  } catch {
+  } catch (error) {
+    console.error('FFmpeg transcription preparation failed', {
+      message: error instanceof Error ? error.message : String(error),
+      fileName,
+      contentType,
+      mediaUrlPreview: mediaUrl.slice(0, 160),
+    });
     // If FFmpeg is unavailable in the runtime, keep the render path working.
   }
 
@@ -327,6 +333,10 @@ function findFfmpegPath() {
   if (system) return system;
 
   const extension = process.platform === 'win32' ? '.exe' : '';
+
+  const ffmpegStaticCandidate = path.join(process.cwd(), 'node_modules', 'ffmpeg-static', `ffmpeg${extension}`);
+  if (existsSync(ffmpegStaticCandidate)) return ffmpegStaticCandidate;
+
   const packages = [
     'compositor-win32-x64-msvc',
     'compositor-linux-x64-gnu',
@@ -395,3 +405,6 @@ function cleanEnvValue(value?: string) {
     .replace(/^['"]|['"]$/g, '')
     .replace(/^\uFEFF/, '');
 }
+
+
+

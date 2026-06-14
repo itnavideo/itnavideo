@@ -1,4 +1,4 @@
-import type {ScriptDetails, ScriptVideoUsePlanItem} from './scriptDetails';
+﻿import type { ScriptDetails } from './scriptDetails';
 
 export type VisualPlannerFrameType =
   | 'InfoCard'
@@ -16,10 +16,18 @@ export type VisualPlannerFrameType =
   | 'ApplicationFlow'
   | 'ProcessFlow'
   | 'BeforeAfter'
-  | 'TipsList'
-  | 'SaveCTA'
-  | 'FollowCTA'
-  | 'CommentCTA';
+  | 'TipsList';
+
+export type InfographicNode = {
+  id: string;
+  stepNumber: number;
+  title: string;
+  shortLabel: string;
+  icon: string;
+  startSecond: number;
+  endSecond: number;
+  role: 'hook' | 'problem' | 'reason' | 'example' | 'solution' | 'cta';
+};
 
 export type VisualPlanScene = {
   id: string;
@@ -28,46 +36,72 @@ export type VisualPlanScene = {
   scriptText: string;
   spokenMeaning: string;
   showWhat: string;
-  whyMatchesScript: string;
-  visualType: 'question' | 'stat' | 'checklist' | 'timeline' | 'comparison' | 'warning' | 'quote' | 'cta' | 'concept' | 'ACCUMULATIVE_FLOWCHART' | 'STEP_BY_STEP_LIST' | 'COMPARISON_SPLIT' | 'WARNING_RISK_MAP' | 'SIMPLE_STAT_CARD' | 'CONCEPT_CARD' | 'STEP_FLOW' | 'RISK_MAP' | 'STAT_CARD' | 'CHECKLIST' | 'CAUSE_EFFECT';
+  whyMatchesScript?: string;
+  visualType:
+    | 'ACCUMULATIVE_FLOWCHART'
+    | 'STEP_BY_STEP_LIST'
+    | 'COMPARISON_SPLIT'
+    | 'WARNING_RISK_MAP'
+    | 'SIMPLE_STAT_CARD'
+    | 'CONCEPT_CARD'
+    | 'CHECKLIST';
   frameType: VisualPlannerFrameType;
   frameText: string;
   frameLabel: string;
   frameItems: string[];
   frameValue?: string;
   assetSearchText: string;
-  sfx?: 'softPop' | 'softTick' | 'softChime' | 'boom' | 'whoosh' | 'stamp' | 'bell' | 'warning' | 'cash' | 'typing' | 'bassDrop';
+  sfx?: 'softPop' | 'softTick' | 'softChime' | 'boom' | 'whoosh' | 'stamp' | 'warning' | 'cash';
   animation?: 'fadeUp' | 'popIn' | 'slideUp' | 'countUp' | 'warningPulse';
   emotion?: 'urgent' | 'informative' | 'serious' | 'motivational';
+  activeNodeId?: string;
 };
 
 export type VisualPlan = {
   source: 'visual-planner';
-  version: 1;
+  version: 2;
   durationSeconds: number;
+
+  /**
+   * Global bottom infographic structure.
+   * Renderer should keep previous nodes visible and glow activeNodeId.
+   */
+  infographicNodes: InfographicNode[];
+
+  /**
+   * Timeline scenes mapped to infographicNodes.
+   */
   scenes: VisualPlanScene[];
+
   notes: string[];
 };
 
 type VisualPlanInput = {
   scriptDetails: ScriptDetails;
-  segments: Array<{start: number; end: number; text: string}>;
+  segments: Array<{ start: number; end: number; text: string }>;
   durationSeconds: number;
   topicTitle?: string;
 };
 
-type SceneSeed = {
-  id: string;
-  start: number;
-  end: number;
-  purpose?: ScriptVideoUsePlanItem['purpose'];
-  detailType?: ScriptVideoUsePlanItem['detailType'];
-  title?: string;
-  body?: string;
-  visual?: string;
-  assetSearchText?: string;
-  sourceText: string;
-};
+const round2 = (value: number) => Math.round(value * 100) / 100;
+
+const cleanText = (value: unknown, fallback = '') =>
+  String(value || fallback)
+    .replace(/[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\u0900-\u097F]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim() || fallback;
+
+const limitWords = (value: string, maxWords: number, maxChars: number) =>
+  cleanText(value)
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, maxWords)
+    .join(' ')
+    .slice(0, maxChars)
+    .trim();
+
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, value));
 
 export function buildVisualPlan({
   durationSeconds,
@@ -75,435 +109,437 @@ export function buildVisualPlan({
   segments,
   topicTitle,
 }: VisualPlanInput): VisualPlan {
-  const topic = cleanPlannerText(topicTitle || scriptDetails.topic || 'Video Explainer');
-  const seeds = buildSceneSeeds(scriptDetails, segments, durationSeconds);
-  const scenes = seeds.map((seed, index) => {
-    const scriptText = cleanPlannerText(seed.sourceText || [seed.title, seed.body].filter(Boolean).join(' '));
-    const fullText = cleanPlannerText([
-      seed.title,
-      seed.body,
-      seed.visual,
-      seed.assetSearchText,
-      scriptText,
+  const safeDuration = Math.max(1, Number(durationSeconds) || 30);
+  const topic = cleanText(topicTitle || scriptDetails.topic || 'Video Explainer');
+
+  const safeSegments = repairSegments(segments, safeDuration);
+
+  /**
+   * PASS 1:
+   * Full script analysis.
+   * Pehle poori kahani ko samjho, phir bottom tree nodes banao.
+   */
+  const fullScript = cleanText(
+    [
       topic,
-    ].filter(Boolean).join(' '));
-    const visualType = detectVisualType(fullText, seed, index, seeds.length);
-    const frameType = selectFrameType(visualType, fullText, seed, index, seeds.length);
-    const frameValue = extractValue(fullText);
-    const frameText = buildFrameText(seed.title || scriptText || topic, frameValue);
-    const frameItems = buildFrameItems({
-      frameType,
-      scriptText,
-      seed,
-      topic,
-      frameText,
-    });
+      scriptDetails.summary,
+      scriptDetails.sourceScript,
+      safeSegments.map((segment) => segment.text).join(' '),
+    ]
+      .filter(Boolean)
+      .join(' '),
+  );
+
+  const storyBlueprint = analyzeFullScriptBlueprint(fullScript, safeDuration, safeSegments);
+
+  /**
+   * PASS 2:
+   * Har timeline segment ko correct node se link karo.
+   */
+  const scenes = safeSegments.map((segment, index) => {
+    const scriptText = cleanText(segment.text);
+    const activeNode = getActiveNode(storyBlueprint, segment.start, index);
+
+    const visualType = determineVisualTypeFromText(scriptText, index, activeNode.role);
+    const frameType = determineFrameType(visualType, scriptText, activeNode.role);
+    const items = buildFrameItems(scriptText, activeNode);
 
     return {
-      id: seed.id || `visual-scene-${String(index + 1).padStart(2, '0')}`,
-      start: roundPlannerTime(seed.start),
-      end: roundPlannerTime(Math.max(seed.start + 1.2, seed.end)),
+      id: `scene-${String(index + 1).padStart(2, '0')}`,
+      start: round2(segment.start),
+      end: round2(segment.end),
       scriptText,
-      spokenMeaning: buildSpokenMeaning(scriptText, visualType),
-      showWhat: buildShowWhat(visualType, frameType, frameText, frameItems, frameValue),
-      whyMatchesScript: buildWhyMatchesScript(visualType, scriptText),
+      spokenMeaning: buildSpokenMeaning(scriptText, activeNode),
+      showWhat: buildShowWhat(scriptText, activeNode),
+      whyMatchesScript: buildWhyMatchesScript(scriptText, activeNode, visualType),
       visualType,
       frameType,
-      frameText,
-      frameLabel: buildFrameLabel(visualType, frameType),
-      frameItems,
-      ...(frameValue ? {frameValue} : {}),
-      assetSearchText: buildAssetSearchText(topic, visualType, frameType, scriptText, seed),
-      sfx: selectSfx(visualType, index, seeds.length, fullText),
-      animation: selectAnimation(visualType, frameType),
-      emotion: selectEmotion(visualType, index),
+      frameText: activeNode.title.toUpperCase(),
+      frameLabel: activeNode.shortLabel,
+      frameItems: items,
+      frameValue: extractStatValue(scriptText),
+      assetSearchText: buildAssetSearchText(topic, scriptText, activeNode),
+      sfx: pickSfx(index, visualType, activeNode.role),
+      animation: pickAnimation(visualType, activeNode.role),
+      emotion: pickEmotion(scriptText, activeNode.role),
+      activeNodeId: activeNode.id,
     } satisfies VisualPlanScene;
   });
 
   return {
     source: 'visual-planner',
-    version: 1,
-    durationSeconds: roundPlannerTime(durationSeconds),
+    version: 2,
+    durationSeconds: round2(safeDuration),
+    infographicNodes: storyBlueprint,
     scenes,
     notes: [
-      `Visual Planner converted ${scenes.length} transcript windows into scene-matched frame decisions.`,
-      'Planner output is deterministic and follows transcript timing instead of fixed visual delays.',
+      'Two-pass visual planning enabled.',
+      'Pass 1 analyzes full script and creates global infographicNodes.',
+      'Pass 2 maps every timeline scene to activeNodeId.',
+      'Bottom visual renderer should keep previous nodes visible and glow the active node.',
+      'Visible text cleaned to English/Roman Hinglish only.',
     ],
   };
 }
 
-function buildSceneSeeds(
-  scriptDetails: ScriptDetails,
-  segments: Array<{start: number; end: number; text: string}>,
+function repairSegments(
+  segments: Array<{ start: number; end: number; text: string }>,
   durationSeconds: number,
-): SceneSeed[] {
-  const plan = scriptDetails.videoUsePlan || [];
-  if (plan.length) {
-    return plan
-      .filter((item) => item.end > item.start)
-      .map((item, index) => ({
-        id: item.id || `scene-${String(index + 1).padStart(2, '0')}`,
-        start: item.start,
-        end: item.end,
-        purpose: item.purpose,
-        detailType: item.detailType,
-        title: item.renderText || item.displayText || item.title,
-        body: item.renderBody || item.body,
-        visual: item.visual,
-        assetSearchText: item.assetSearchText,
-        sourceText: item.sourceText || [item.title, item.body].filter(Boolean).join(' '),
-      }));
-  }
+): Array<{ start: number; end: number; text: string }> {
+  const cleaned = (segments || [])
+    .map((segment, index) => {
+      const start = clamp(Number(segment.start) || 0, 0, durationSeconds);
+      const end = clamp(Number(segment.end) || start + 2, start + 0.2, durationSeconds);
 
-  const cleaned = segments
-    .filter((segment) => segment.end > segment.start && cleanPlannerText(segment.text))
-    .map((segment, index) => ({
-      id: `scene-${String(index + 1).padStart(2, '0')}`,
-      start: segment.start,
-      end: segment.end,
-      sourceText: cleanPlannerText(segment.text),
-    }));
+      return {
+        start,
+        end,
+        text: cleanText(segment.text, `Point ${index + 1}`),
+      };
+    })
+    .filter((segment) => segment.end > segment.start && segment.text);
+
   if (cleaned.length) return cleaned;
 
-  return [{
-    id: 'scene-01',
-    start: 0,
-    end: Math.max(3, durationSeconds || 6),
-    sourceText: cleanPlannerText(scriptDetails.sourceScript || scriptDetails.summary || scriptDetails.topic || 'Key point'),
-  }];
+  return [
+    {
+      start: 0,
+      end: durationSeconds,
+      text: 'Upload your video and Itnavideo creates a clean visual explainer reel.',
+    },
+  ];
 }
 
-function detectVisualType(
+/**
+ * PASS 1: Full script to global node structure.
+ * This is not just sentence timeline.
+ * It first decides the full story structure.
+ */
+function analyzeFullScriptBlueprint(
+  fullScript: string,
+  durationSeconds: number,
+  segments: Array<{ start: number; end: number; text: string }>,
+): InfographicNode[] {
+  const lower = fullScript.toLowerCase();
+
+  const hasWarning = /\b(warning|risk|danger|alert|fraud|scam|galti|mistake|problem|issue)\b/i.test(lower);
+  const hasMoney = /\b(money|salary|income|loan|emi|bank|rbi|price|profit|loss|cash|payment)\b/i.test(lower);
+  const hasCareer = /\b(job|career|exam|student|course|apply|interview|salary|skills)\b/i.test(lower);
+  const hasCompare = /\b(vs|compare|comparison|difference|better|instead|whereas|jabki)\b/i.test(lower);
+  const hasSteps = /\b(step|process|first|second|third|kaise|how to|apply|start)\b/i.test(lower);
+
+  const nodeCount = decideNodeCount(durationSeconds, segments.length, {
+    hasWarning,
+    hasCompare,
+    hasSteps,
+  });
+
+  const roles = decideRoles(nodeCount, {
+    hasWarning,
+    hasCompare,
+    hasSteps,
+  });
+
+  const boundaries = buildSmartBoundaries(durationSeconds, nodeCount, segments);
+
+  return roles.map((role, index) => {
+    const startSecond = boundaries[index]?.start ?? (durationSeconds / nodeCount) * index;
+    const endSecond = boundaries[index]?.end ?? durationSeconds;
+
+    const textBlock = segments
+      .filter((segment) => segment.start >= startSecond - 0.5 && segment.start <= endSecond + 0.5)
+      .map((segment) => segment.text)
+      .join(' ');
+
+    const title = buildSmartTitle(textBlock || fullScript, role, index, {
+      hasMoney,
+      hasCareer,
+      hasCompare,
+      hasWarning,
+    });
+
+    return {
+      id: `node_step_${index + 1}`,
+      stepNumber: index + 1,
+      title,
+      shortLabel: buildShortLabel(title, role),
+      icon: pickIcon(role, {
+        hasMoney,
+        hasCareer,
+        hasCompare,
+        hasWarning,
+        hasSteps,
+      }),
+      startSecond: round2(startSecond),
+      endSecond: round2(index === roles.length - 1 ? durationSeconds : endSecond),
+      role,
+    };
+  });
+}
+
+function decideNodeCount(
+  durationSeconds: number,
+  segmentCount: number,
+  flags: { hasWarning: boolean; hasCompare: boolean; hasSteps: boolean },
+) {
+  if (durationSeconds <= 18) return 3;
+  // VIDEO_EXPLAINER should not become COMPARE template
+  // if (flags.hasCompare) return 3;
+  if (flags.hasWarning || flags.hasSteps) return 4;
+  if (durationSeconds >= 45 && segmentCount >= 8) return 5;
+  return 4;
+}
+
+function decideRoles(
+  nodeCount: number,
+  flags: { hasWarning: boolean; hasCompare: boolean; hasSteps: boolean },
+): InfographicNode['role'][] {
+  if (false && flags.hasCompare) {
+    return ['hook', 'problem', 'reason', 'solution'].slice(0, nodeCount) as InfographicNode['role'][];
+  }
+
+  if (flags.hasWarning) {
+    return ['hook', 'problem', 'warning', 'solution', 'cta']
+      .filter((role): role is InfographicNode['role'] =>
+        ['hook', 'problem', 'warning', 'solution', 'cta'].includes(role),
+      )
+      .slice(0, nodeCount);
+  }
+
+  if (flags.hasSteps) {
+    return ['hook', 'reason', 'example', 'solution', 'cta'].slice(0, nodeCount) as InfographicNode['role'][];
+  }
+
+  return ['hook', 'problem', 'reason', 'solution', 'cta'].slice(0, nodeCount) as InfographicNode['role'][];
+}
+
+function buildSmartBoundaries(
+  durationSeconds: number,
+  nodeCount: number,
+  segments: Array<{ start: number; end: number; text: string }>,
+) {
+  if (!segments.length) {
+    return Array.from({ length: nodeCount }).map((_, index) => ({
+      start: (durationSeconds / nodeCount) * index,
+      end: (durationSeconds / nodeCount) * (index + 1),
+    }));
+  }
+
+  const boundaries: Array<{ start: number; end: number }> = [];
+  const segmentsPerNode = Math.max(1, Math.ceil(segments.length / nodeCount));
+
+  for (let i = 0; i < nodeCount; i++) {
+    const firstSegment = segments[i * segmentsPerNode];
+    const nextSegment = segments[(i + 1) * segmentsPerNode];
+
+    const start = i === 0 ? 0 : firstSegment?.start ?? (durationSeconds / nodeCount) * i;
+    const end =
+      i === nodeCount - 1
+        ? durationSeconds
+        : nextSegment?.start ?? (durationSeconds / nodeCount) * (i + 1);
+
+    boundaries.push({
+      start: clamp(start, 0, durationSeconds),
+      end: clamp(end, start + 0.5, durationSeconds),
+    });
+  }
+
+  return boundaries;
+}
+
+function getActiveNode(nodes: InfographicNode[], second: number, sceneIndex: number) {
+  const match =
+    [...nodes]
+      .reverse()
+      .find((node) => second >= node.startSecond && second <= node.endSecond) || nodes[sceneIndex % nodes.length];
+
+  return match || nodes[0];
+}
+
+function buildSmartTitle(
   text: string,
-  seed: SceneSeed,
+  role: InfographicNode['role'],
   index: number,
-  total: number,
-): VisualPlanScene['visualType'] {
-  const value = text.toLowerCase();
+  flags: {
+    hasMoney: boolean;
+    hasCareer: boolean;
+    hasCompare: boolean;
+    hasWarning: boolean;
+  },
+) {
+  const lower = text.toLowerCase();
 
-  const hasMoneyOrNumbers =
-    /[₹$]|\b\d[\d,]*(?:\.\d+)?\s?(?:%|percent|crore|lakh|k|m|million|billion|rs|rupees)?\b/.test(value);
-
-  const hasFinanceFlow =
-    /\b(loan|emi|interest|investment|invest|sip|fd|mutual fund|return|profit|salary|income|revenue|roi|score|rank|down payment|payment|amount|price|cost)\b/.test(value);
-
-  const hasBranchLogic =
-    /\b(split|branch|remaining|left|right|option|path|if|then|else|because|cause|effect|result|total|minus|plus|compare|vs|versus)\b/.test(value);
-
-  const hasProcess =
-    /\b(step|process|timeline|roadmap|flow|apply|register|login|submit|upload|verify|first|second|third|then|next|after that|finally)\b/.test(value);
-
-  const hasComparison =
-    /\b(vs|versus|compare|comparison|difference|before|after|pros|cons|myth|fact|better|which one)\b/.test(value);
-
-  const hasWarning =
-    /\b(warning|alert|risk|avoid|mistake|galti|danger|reject|rejection|problem|deadline|last date|careful|fraud|scam|loss|fake)\b/.test(value);
-
-  const hasChecklist =
-    seed.detailType === 'documentList' ||
-    /\b(document|documents|papers|certificate|id proof|requirements|eligibility|checklist|points|tips|reasons|need|required)\b/.test(value);
-
-  if (
-    seed.purpose === 'cta' ||
-    /\b(follow|save|comment|share|subscribe|download|try now|start now|call to action)\b/.test(value)
-  ) {
-    return 'cta';
+  if (role === 'hook') {
+    if (false && flags.hasCompare) return 'Difference';
+    if (flags.hasMoney) return 'Money Point';
+    if (flags.hasCareer) return 'Career Point';
+    return 'Main Idea';
   }
 
-  if (seed.purpose === 'warning' || hasWarning) {
-    return 'RISK_MAP';
+  if (role === 'problem') {
+    if (flags.hasWarning) return 'Main Risk';
+    if (/\b(problem|issue|mistake|galti)\b/i.test(lower)) return 'Problem';
+    return 'Core Issue';
   }
 
-  if (hasComparison) {
-    return 'COMPARISON_SPLIT';
+  if (role === 'reason') {
+    if (/\b(why|because|reason|kyun)\b/i.test(lower)) return 'Reason';
+    return 'Why It Matters';
   }
 
-  if ((hasMoneyOrNumbers && hasFinanceFlow && hasBranchLogic) || (hasMoneyOrNumbers && hasProcess && hasFinanceFlow)) {
-    return 'STEP_FLOW';
-  }
+  if (role === 'example') return 'Example';
+  if (role === 'solution') return 'Solution';
+  if (role === 'cta') return 'Next Step';
 
-  if (hasProcess) {
-    return 'STEP_FLOW';
-  }
-
-  if (hasChecklist) {
-    return 'CHECKLIST';
-  }
-
-  if (seed.purpose === 'proof' || hasMoneyOrNumbers || hasFinanceFlow) {
-    return 'STAT_CARD';
-  }
-
-  if (seed.purpose === 'hook' || index === 0 || /\?|\b(why|how|what|kaise|kya)\b/.test(value)) {
-    return 'CONCEPT_CARD';
-  }
-
-  if (/["“”]/.test(text)) return 'quote';
-
-  return 'CONCEPT_CARD';
-}
-
-function selectFrameType(
-  visualType: VisualPlanScene['visualType'],
-  text: string,
-  seed: SceneSeed,
-  index: number,
-  total: number,
-): VisualPlannerFrameType {
-  const value = text.toLowerCase();
-
-  if (visualType === 'ACCUMULATIVE_FLOWCHART') return 'ProcessFlow';
-  if (visualType === 'STEP_BY_STEP_LIST') return /\b(apply|application|form|submit|upload|register)\b/.test(value) ? 'ApplicationFlow' : 'ProcessFlow';
-  if (visualType === 'COMPARISON_SPLIT') return /\bbefore|after\b/.test(value) ? 'BeforeAfter' : 'ComparisonCard';
-  if (visualType === 'WARNING_RISK_MAP') return 'AlertCard';
-  if (visualType === 'SIMPLE_STAT_CARD') return /\b(growth|profit|revenue|income|roi|stock|market|investment|return)\b/.test(value) ? 'MoneyGrowthGraph' : 'BigNumberReveal';
-
-  if (visualType === 'cta') {
-    if (/\bfollow\b/.test(value)) return 'FollowCTA';
-    if (/\bcomment|reply\b/.test(value)) return 'CommentCTA';
-    if (/\bsave|bookmark\b/.test(value)) return 'SaveCTA';
-    return 'CTAFrame';
-  }
-
-  if (visualType === 'warning' || visualType === 'RISK_MAP' || visualType === 'WARNING_RISK_MAP') return 'AlertCard';
-  if (visualType === 'comparison' || visualType === 'COMPARISON_SPLIT') return /\bbefore|after\b/.test(value) ? 'BeforeAfter' : 'ComparisonCard';
-  if (visualType === 'timeline' || visualType === 'STEP_FLOW' || visualType === 'STEP_BY_STEP_LIST' || visualType === 'ACCUMULATIVE_FLOWCHART') return /\b(apply|application|form|submit|upload|register)\b/.test(value) ? 'ApplicationFlow' : 'ProcessFlow';
-
-  if (visualType === 'checklist' || visualType === 'CHECKLIST') {
-    if (seed.detailType === 'documentList' || /\bdocument|papers|certificate|id proof\b/.test(value)) return 'DocumentList';
-    if (/\brequirements|eligibility|required\b/.test(value)) return 'RequirementsList';
-    if (/\btips|hacks|ways\b/.test(value)) return 'TipsList';
-    return 'ChecklistFrame';
-  }
-
-  if (visualType === 'stat' || visualType === 'STAT_CARD' || visualType === 'SIMPLE_STAT_CARD') return /\b(growth|profit|revenue|income|roi|stock|market|investment)\b/.test(value) ? 'MoneyGrowthGraph' : 'BigNumberReveal';
-  if (visualType === 'quote') return 'QuoteCard';
-  if (visualType === 'question' || visualType === 'CONCEPT_CARD') return 'QuestionFrame';
-  if (
-    index === total - 1 &&
-    /\b(follow|subscribe|share|comment|save|download|try now|start now|visit|sign up|signup|join|click|learn more|call now|book now)\b/.test(value)
-  ) {
-    return 'CTAFrame';
-  }
-
-  return 'InfoCard';
-}
-
-function buildFrameItems({
-  frameText,
-  frameType,
-  scriptText,
-  seed,
-  topic,
-}: {
-  frameText: string;
-  frameType: VisualPlannerFrameType;
-  scriptText: string;
-  seed: SceneSeed;
-  topic: string;
-}) {
-  const source = cleanPlannerText([seed.body, seed.title, scriptText].filter(Boolean).join(' '));
-  const raw = splitPlannerItems(source);
-  const limit = frameType === 'ComparisonCard' || frameType === 'BeforeAfter' ? 2 : frameType === 'TimelineFrame' || frameType === 'ProcessFlow' || frameType === 'ApplicationFlow' ? 4 : 5;
-  const items = raw
-    .map((item) => trimPlannerWords(item, 4))
-    .filter((item) => item.length > 1)
-    .filter((item) => !/\b(show|frame|visual|asset|template|component|focused|cta|prompt|json)\b/i.test(item))
-    .slice(0, limit);
-  if ((frameType === 'ComparisonCard' || frameType === 'BeforeAfter') && items.length < 2) return ['Before', 'After'];
-  if (frameType === 'ProcessFlow' || frameType === 'TimelineFrame' || frameType === 'ApplicationFlow') {
-    if (items.length >= 3) return items;
-    return uniquePlannerItems(['Start', frameText, 'Result']).slice(0, 4);
-  }
-  if (isListFrame(frameType) && items.length < 3) {
-    return uniquePlannerItems([frameText, topic, 'Next action']).slice(0, 5);
-  }
-  return items.length ? items : [frameText];
-}
-
-function splitPlannerItems(value: string) {
-  const cleaned = cleanPlannerText(value)
-    .replace(/\b(create|vertical|portrait|image|scene|show|with|modern|indian|premium|explainer|bottom|layer)\b/gi, ' ');
-  const parts = cleaned
-    .split(/(?:\n|,|;|->|=>|\||\bthen\b|\bnext\b|\bvs\b|\bversus\b|(?<=[.!?])\s+)/i)
-    .map((item) => item.replace(/^\d+[\).\s-]*/, '').trim())
-    .filter((item) => item.split(/\s+/).length <= 7)
-    .filter((item) => item.length > 2);
-  return uniquePlannerItems(parts).slice(0, 6);
-}
-
-function buildFrameText(value: string, frameValue: string) {
-  if (frameValue) return frameValue;
-  const words = cleanPlannerText(value)
-    .replace(/[^a-zA-Z0-9₹$% ]+/g, ' ')
+  const meaningfulWords = cleanText(text)
+    .replace(/[^a-zA-Z0-9 ]/g, '')
     .split(/\s+/)
-    .filter((word) => word.length > 2 || /^[₹$%]?\d/.test(word))
-    .filter((word) => !STOP_WORDS.has(word.toLowerCase()));
-  const preferred = words.filter((word) => word.length > 5 || /[A-Z0-9₹$%]/.test(word[0] || ''));
-  return ((preferred.length ? preferred : words).slice(0, 2).join(' ') || 'KEY POINT').toUpperCase();
+    .filter((word) => word.length > 3)
+    .filter((word) => !['this', 'that', 'with', 'from', 'your', 'have', 'will', 'they', 'about'].includes(word.toLowerCase()));
+
+  return (meaningfulWords.slice(0, 2).join(' ') || `Step ${index + 1}`).slice(0, 20);
 }
 
-function buildFrameLabel(visualType: VisualPlanScene['visualType'], frameType: VisualPlannerFrameType) {
-  if (frameType === 'DocumentList') return 'DOCUMENTS';
-  if (frameType === 'RequirementsList') return 'REQUIRED';
-  if (visualType === 'question' || visualType === 'CONCEPT_CARD') return 'QUESTION';
-  if (visualType === 'stat' || visualType === 'STAT_CARD' || visualType === 'SIMPLE_STAT_CARD') return 'KEY NUMBER';
-  if (visualType === 'timeline' || visualType === 'STEP_FLOW' || visualType === 'STEP_BY_STEP_LIST' || visualType === 'ACCUMULATIVE_FLOWCHART') return 'ROADMAP';
-  if (visualType === 'comparison' || visualType === 'COMPARISON_SPLIT') return 'comparisonImages';
-  if (visualType === 'warning' || visualType === 'RISK_MAP' || visualType === 'WARNING_RISK_MAP') return 'RISK CHECK';
-  if (visualType === 'cta') return 'NEXT STEP';
-  return 'EXPLAINER';
+function buildShortLabel(title: string, role: InfographicNode['role']) {
+  const fallback: Record<InfographicNode['role'], string> = {
+    hook: 'Start here',
+    problem: 'Problem area',
+    reason: 'Why it matters',
+    example: 'Simple example',
+    solution: 'Best action',
+    cta: 'Final step',
+  };
+
+  return limitWords(title || fallback[role], 4, 28);
 }
 
-function buildSpokenMeaning(scriptText: string, visualType: VisualPlanScene['visualType']) {
-  const prefix = visualType === 'stat' || visualType === 'STAT_CARD' || visualType === 'SIMPLE_STAT_CARD'
-    ? 'This line is explaining a measurable number'
-    : visualType === 'timeline' || visualType === 'STEP_FLOW' || visualType === 'STEP_BY_STEP_LIST' || visualType === 'ACCUMULATIVE_FLOWCHART'
-      ? 'This line is explaining a sequence'
-      : visualType === 'checklist' || visualType === 'CHECKLIST'
-        ? 'This line is listing what matters'
-        : visualType === 'warning' || visualType === 'RISK_MAP' || visualType === 'WARNING_RISK_MAP'
-          ? 'This line warns the viewer'
-          : 'This line introduces the key idea';
-  return `${prefix}: ${trimPlannerWords(scriptText, 14)}`;
-}
-
-function buildShowWhat(
-  visualType: VisualPlanScene['visualType'],
-  frameType: VisualPlannerFrameType,
-  frameText: string,
-  items: string[],
-  value?: string,
+function pickIcon(
+  role: InfographicNode['role'],
+  flags: {
+    hasMoney: boolean;
+    hasCareer: boolean;
+    hasCompare: boolean;
+    hasWarning: boolean;
+    hasSteps: boolean;
+  },
 ) {
-  if (value) return [value, frameText].filter(Boolean).join(' • ');
-  if (visualType === 'timeline' || visualType === 'STEP_FLOW' || visualType === 'STEP_BY_STEP_LIST' || visualType === 'ACCUMULATIVE_FLOWCHART') return items.slice(0, 4).join(' → ');
-  if (visualType === 'checklist' || visualType === 'CHECKLIST') return items.slice(0, 4).join(' • ');
-  if (visualType === 'comparison' || visualType === 'COMPARISON_SPLIT') return items.slice(0, 2).join(' vs ');
-  if (visualType === 'cta') return trimPlannerWords(frameText, 6);
-  return trimPlannerWords(frameText, 7);
+  if (role === 'hook') return 'Sparkles';
+  if (role === 'problem') return flags.hasWarning ? 'AlertTriangle' : 'CircleHelp';
+  if (role === 'reason') return 'Brain';
+  if (role === 'example') return flags.hasMoney ? 'Banknote' : 'FileText';
+  if (role === 'solution') return flags.hasCareer ? 'BriefcaseBusiness' : 'CheckCircle';
+  if (role === 'cta') return 'MousePointerClick';
+  return 'CircleDot';
 }
 
-function buildWhyMatchesScript(visualType: VisualPlanScene['visualType'], scriptText: string) {
-  return `${visualType} matches spoken idea: ${trimPlannerWords(scriptText, 10)}.`;
-}
-
-function buildAssetSearchText(
-  topic: string,
-  visualType: VisualPlanScene['visualType'],
-  frameType: VisualPlannerFrameType,
-  scriptText: string,
-  seed: SceneSeed,
-) {
-  return cleanPlannerText([
-    topic,
-    `${visualType} ${frameType}`,
-    seed.assetSearchText,
-    seed.visual,
-    trimPlannerWords(scriptText, 18),
-    'clear explanatory frame, no decorative background animation',
-  ].filter(Boolean).join(', ')).slice(0, 260);
-}
-
-function selectSfx(
-  visualType: VisualPlanScene['visualType'],
-  index: number,
-  total: number,
+function determineVisualTypeFromText(
   text: string,
-): NonNullable<VisualPlanScene['sfx']> {
-  if (index === 0) return 'boom';
-  if (visualType === 'cta') return 'bell';
-  if (visualType === 'warning' || visualType === 'RISK_MAP' || visualType === 'WARNING_RISK_MAP') return 'warning';
-  if (visualType === 'stat' || visualType === 'STAT_CARD' || visualType === 'SIMPLE_STAT_CARD' && /[₹$]|\b(cash|money|salary|profit|revenue)\b/i.test(text)) return 'cash';
-  if (visualType === 'timeline' || visualType === 'STEP_FLOW' || visualType === 'STEP_BY_STEP_LIST' || visualType === 'ACCUMULATIVE_FLOWCHART' || visualType === 'checklist' || visualType === 'CHECKLIST') return 'softTick';
-  return 'whoosh';
+  index: number,
+  role: InfographicNode['role'],
+): VisualPlanScene['visualType'] {
+  const low = text.toLowerCase();
+
+  if (index === 0 || role === 'hook') return 'CONCEPT_CARD';
+  if (role === 'cta' || role === 'solution') return 'CHECKLIST';
+  if (/\b(warning|risk|alert|danger|fraud|scam|galti|mistake)\b/.test(low)) return 'WARNING_RISK_MAP';
+  if (/\\b(vs|compare|comparison|difference|better|jabki)\\b/.test(low)) return 'ACCUMULATIVE_FLOWCHART';
+  if (/\b(percent|%|₹|\$|lakh|crore|salary|emi|profit|loss|number)\b/.test(low)) return 'SIMPLE_STAT_CARD';
+  if (/\b(step|process|first|second|third|apply|start|kaise|how)\b/.test(low)) return 'STEP_BY_STEP_LIST';
+
+  return 'ACCUMULATIVE_FLOWCHART';
 }
 
-function selectAnimation(
+function determineFrameType(
   visualType: VisualPlanScene['visualType'],
-  frameType: VisualPlannerFrameType,
-): NonNullable<VisualPlanScene['animation']> {
-  if (visualType === 'stat' || visualType === 'STAT_CARD' || visualType === 'SIMPLE_STAT_CARD' || frameType === 'BigNumberReveal') return 'countUp';
-  if (visualType === 'warning' || visualType === 'RISK_MAP' || visualType === 'WARNING_RISK_MAP') return 'warningPulse';
-  if (visualType === 'question' || visualType === 'CONCEPT_CARD') return 'popIn';
+  text: string,
+  role: InfographicNode['role'],
+): VisualPlannerFrameType {
+  if (visualType === 'WARNING_RISK_MAP') return 'AlertCard';
+  if (visualType === 'COMPARISON_SPLIT') return 'ProcessFlow';
+  if (visualType === 'SIMPLE_STAT_CARD') return 'BigNumberReveal';
+  if (visualType === 'STEP_BY_STEP_LIST') return 'ProcessFlow';
+  if (role === 'solution' || role === 'cta') return 'ChecklistFrame';
+
+  const low = text.toLowerCase();
+  if (/\b(document|form|apply|application|requirement)\b/.test(low)) return 'ApplicationFlow';
+  if (/\b(tips|tip|remember)\b/.test(low)) return 'TipsList';
+
+  return 'ProcessFlow';
+}
+
+function buildFrameItems(text: string, node: InfographicNode) {
+  const parts = cleanText(text)
+    .split(/[,.|;]+/)
+    .map((item) => limitWords(item, 5, 44))
+    .filter(Boolean)
+    .slice(0, 3);
+
+  if (parts.length) return parts;
+
+  return [node.shortLabel, node.title].filter(Boolean).slice(0, 2);
+}
+
+function buildSpokenMeaning(text: string, node: InfographicNode) {
+  return limitWords(`This part explains ${node.title}: ${text}`, 14, 120);
+}
+
+function buildShowWhat(text: string, node: InfographicNode) {
+  return limitWords(`${node.title} visual: ${text}`, 10, 90);
+}
+
+
+function buildWhyMatchesScript(
+  text: string,
+  node: InfographicNode,
+  visualType: VisualPlanScene['visualType'],
+) {
+  return limitWords(
+    `Full-script planner mapped this spoken part to ${node.title} using ${visualType}.`,
+    16,
+    140,
+  );
+}
+function buildAssetSearchText(topic: string, text: string, node: InfographicNode) {
+  return cleanText(
+    `${topic}, ${node.role}, ${node.title}, ${limitWords(text, 8, 80)}, clean educational infographic icon, no clutter`,
+  ).slice(0, 180);
+}
+
+function pickSfx(
+  index: number,
+  visualType: VisualPlanScene['visualType'],
+  role: InfographicNode['role'],
+): VisualPlanScene['sfx'] {
+  if (index === 0) return 'boom';
+  if (visualType === 'WARNING_RISK_MAP') return 'warning';
+  if (visualType === 'SIMPLE_STAT_CARD') return 'cash';
+  if (role === 'solution' || role === 'cta') return 'softChime';
+  return 'softTick';
+}
+
+function pickAnimation(
+  visualType: VisualPlanScene['visualType'],
+  role: InfographicNode['role'],
+): VisualPlanScene['animation'] {
+  if (visualType === 'SIMPLE_STAT_CARD') return 'countUp';
+  if (visualType === 'WARNING_RISK_MAP') return 'warningPulse';
+  if (role === 'solution' || role === 'cta') return 'popIn';
   return 'fadeUp';
 }
 
-function selectEmotion(visualType: VisualPlanScene['visualType'], index: number): NonNullable<VisualPlanScene['emotion']> {
-  if (visualType === 'warning' || visualType === 'RISK_MAP' || visualType === 'WARNING_RISK_MAP') return 'urgent';
-  if (index === 0) return 'informative';
-  if (visualType === 'cta') return 'motivational';
-  if (visualType === 'stat' || visualType === 'STAT_CARD' || visualType === 'SIMPLE_STAT_CARD' || visualType === 'comparison' || visualType === 'COMPARISON_SPLIT') return 'serious';
+function pickEmotion(text: string, role: InfographicNode['role']): VisualPlanScene['emotion'] {
+  const low = text.toLowerCase();
+
+  if (role === 'solution' || role === 'cta') return 'motivational';
+  if (/\b(warning|risk|danger|alert|fraud|scam|loss)\b/.test(low)) return 'urgent';
+  if (role === 'problem') return 'serious';
+
   return 'informative';
 }
 
-function extractValue(value: string) {
-  const match = value.match(/(?:₹|rs\.?|inr|\$)?\s?\d[\d,]*(?:\.\d+)?\s?(?:%|percent|crore|lakh|k|m|million|billion)?/i);
-  return match?.[0]?.replace(/\s+/g, ' ').trim().toUpperCase() || '';
+function extractStatValue(text: string) {
+  const match = cleanText(text).match(/(₹\s?\d+[\d,.]*|\$\s?\d+[\d,.]*|\d+%|\d+\s?(lakh|crore|k|m|million|billion))/i);
+  return match?.[0];
 }
-
-function isListFrame(frameType: VisualPlannerFrameType) {
-  return ['ChecklistFrame', 'DocumentList', 'RequirementsList', 'TipsList'].includes(frameType);
-}
-
-function uniquePlannerItems(items: string[]) {
-  const seen = new Set<string>();
-  const output: string[] = [];
-  for (const item of items.map((value) => trimPlannerWords(value, 5)).filter(Boolean)) {
-    const key = item.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
-    if (!key || seen.has(key)) continue;
-    seen.add(key);
-    output.push(item);
-  }
-  return output;
-}
-
-function trimPlannerWords(value: string, maxWords: number) {
-  return cleanPlannerText(value).split(/\s+/).filter(Boolean).slice(0, maxWords).join(' ');
-}
-
-function cleanPlannerText(value: unknown) {
-  return String(value || '')
-    .replace(/\s+/g, ' ')
-    .replace(/[“”]/g, '"')
-    .replace(/[‘’]/g, "'")
-    .trim();
-}
-
-function roundPlannerTime(value: number) {
-  return Math.round((Number(value) || 0) * 100) / 100;
-}
-
-const STOP_WORDS = new Set([
-  'the',
-  'and',
-  'for',
-  'with',
-  'this',
-  'that',
-  'from',
-  'into',
-  'your',
-  'video',
-  'reel',
-  'scene',
-  'visual',
-  'image',
-  'show',
-  'shows',
-  'should',
-  'must',
-  'bottom',
-  'layer',
-  'indian',
-  'modern',
-  'clean',
-  'context',
-  'topic',
-  'about',
-  'people',
-  'person',
-]);
-
-
 
 

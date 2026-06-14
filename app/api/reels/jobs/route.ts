@@ -15,12 +15,9 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 type LambdaRenderRequest = Parameters<typeof renderMediaOnLambda>[0];
-type ReelMode = 'videoExplainer' | 'notes' | 'videoCaption' | 'imageStory' | 'compare';
+type ReelMode = 'videoExplainer' | 'compare';
 const MODE_TO_TEMPLATE: Record<ReelMode, ReelTemplateName> = {
-  videoExplainer: 'VIDEO_EXPLAINER',
-  notes: 'HANDWRITTEN_NOTES',
-  videoCaption: 'VIDEO_CAPTION',
-  imageStory: 'IMAGE_STORY',
+  videoExplainer: 'VIDEO_SIMPLE_EXPLAINER',
   compare: 'comparisonImages',
 };
 
@@ -44,6 +41,7 @@ export async function POST(request: Request) {
   const comparisonImageKeys = Array.isArray(body.comparisonImageKeys)
     ? body.comparisonImageKeys.map((value: unknown) => readString(value)).filter(Boolean).slice(0, 2)
     : [];
+  const explanationImageKey = readString(body.explanationImageKey);
   const topicTitle = readString(body.topicTitle);
   const design = toDesign(readString(body.design));
   const languageHint = toLanguageHint(readString(body.language || body.displayLanguage || body.typographyLanguage));
@@ -124,6 +122,9 @@ export async function POST(request: Request) {
     }
 
     const mediaUrl = await createReadUrl(mediaKey);
+    const explanationImageUrl = explanationImageKey
+      ? readString(await createReadUrl(explanationImageKey))
+      : "";
     const comparisonImageUrls = mode === 'compare'
       ? (await Promise.all(
           comparisonImageKeys.map(async (key: string) => readString(await createReadUrl(key))),
@@ -201,8 +202,13 @@ export async function POST(request: Request) {
         sourceDurationSeconds: imageDurationSeconds,
         renderWindowSource: 'image-only',
         topicTitle: plan.renderProps?.topicTitle || topicTitle || titleFromFile(fileName),
-        templateName,
-        template: templateName,
+        explanationImageUrl: typeof explanationImageUrl !== "undefined" ? explanationImageUrl || undefined : undefined,
+        bottomImageUrl: typeof explanationImageUrl !== "undefined" ? explanationImageUrl || undefined : undefined,
+        visualImageUrl: typeof explanationImageUrl !== "undefined" ? explanationImageUrl || undefined : undefined,
+        uploadedImageUrl: typeof explanationImageUrl !== "undefined" ? explanationImageUrl || undefined : undefined,
+        design: mode === 'videoExplainer' ? 'simpleManual' : plan.renderProps?.design,
+      templateName,
+      template: templateName,
         compositionId: composition,
       };
       const imagePreflight = await repairRenderImageSources(inputProps, {
@@ -276,7 +282,7 @@ export async function POST(request: Request) {
       mediaType: mediaType === 'image' ? 'video' : mediaType,
       userId,
     });
-    if (planningMedia.error) {
+    if (planningMedia.error && !planningMedia.transcriptionMediaUrl) {
       return NextResponse.json(
         {
           ok: false,
@@ -287,20 +293,18 @@ export async function POST(request: Request) {
         },
         {status: 422},
       );
-    }
-    const transcription = await transcribeForPlanning({
+    }    const transcription = await transcribeForPlanning({
       mediaUrl: planningMedia.transcriptionMediaUrl,
       fileName: planningMedia.transcriptionFileName,
       contentType: planningMedia.transcriptionContentType,
       mediaType: mediaType === 'image' ? 'video' : mediaType,
-    });
-    if (!transcription.transcript) {
+    });    if (!transcription.transcript) {
       return NextResponse.json(
         {
           ok: false,
           status: 'failed',
           reasonCode: 'TRANSCRIPTION_FAILED',
-          error: 'Transcription failed. Please upload clearer audio or try again.',
+          error: 'No clear speech detected. Please upload a new video or audio with clear speaking voice. Background music or silent videos cannot be used.',
           detail: transcription.warning,
         },
         {status: 422},
@@ -401,6 +405,11 @@ export async function POST(request: Request) {
       renderWindowSource: renderWindow.source,
       planningMediaSource: planningMedia.clipped ? 'first-60s-clip' : 'original-upload',
       topicTitle: plan.renderProps?.topicTitle || topicTitle || titleFromTranscript(transcription.transcript) || titleFromFile(fileName),
+      explanationImageUrl: explanationImageUrl || undefined,
+      bottomImageUrl: explanationImageUrl || undefined,
+      visualImageUrl: explanationImageUrl || undefined,
+      uploadedImageUrl: explanationImageUrl || undefined,
+      design: mode === 'videoExplainer' ? 'simpleManual' : plan.renderProps?.design,
       templateName,
       template: templateName,
       compositionId: composition,
@@ -922,14 +931,14 @@ async function preparePlanningMediaForRender({
         mediaUrl,
         fileName,
         contentType,
-        transcriptionMediaUrl: '',
-        transcriptionFileName: '',
-        transcriptionContentType: '',
+        transcriptionMediaUrl: mediaUrl,
+        transcriptionFileName: fileName,
+        transcriptionContentType: contentType,
         mediaKey: undefined,
         transcriptionMediaKey: undefined,
         clipped: false,
         maxSeconds,
-        error: sanitizeUserFacingStatus(message),
+        error: undefined,
       };
     }
     return {
@@ -966,7 +975,7 @@ async function transcribeForPlanning({
 }) {
   let primaryWarning = '';
   try {
-    const result = await transcribeMediaUrlWithGroq({mediaUrl, fileName, contentType, skipMediaPreparation: true});
+    const result = await transcribeMediaUrlWithGroq({mediaUrl, fileName, contentType});
     if (result.transcript) {
       return await repairTranscriptionEnglishIfNeeded({
         ...result,
@@ -984,7 +993,7 @@ async function transcribeForPlanning({
   }
 
   try {
-    const fallback = await transcribeMediaUrlWithOpenAI({mediaUrl, fileName, contentType, skipMediaPreparation: true});
+    const fallback = await transcribeMediaUrlWithOpenAI({mediaUrl, fileName, contentType});
     if (fallback.transcript) {
       return await repairTranscriptionEnglishIfNeeded({
         ...fallback,
@@ -1434,6 +1443,7 @@ function isSpeechLikeText(value: string) {
 function toDesign(value: string) {
   const normalized = value.toLowerCase();
   if (!normalized || normalized.includes('auto')) return undefined;
+  if (normalized.includes('simple') || normalized.includes('manual')) return 'simpleManual';
   if (normalized.includes('corporate')) return 'corporateVc';
   if (normalized.includes('story')) return 'storyMotivation';
   if (normalized.includes('pink')) return 'pinkWomen';
@@ -1739,6 +1749,14 @@ function uniqueStrings(values: string[]) {
 function slugify(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 64) || 'reel';
 }
+
+
+
+
+
+
+
+
 
 
 

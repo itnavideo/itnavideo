@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import Hero from "@/components/landing/Hero";
 import OutputProofSection from "@/components/landing/OutputProofSection";
 import HowItWorks from "@/components/landing/HowItWorks";
@@ -38,11 +38,11 @@ const jsonLd = [
     applicationCategory: "MultimediaApplication",
     operatingSystem: "Web",
     url: siteUrl,
-    description: "AI reel maker focused on polished Explainer Video reels for YouTube Shorts and Instagram Reels.",
+    description: "AI explainer video generator that turns audio or video into vertical reels with creator video, transcript subtitles, title, and support visuals.",
     offers: {
       "@type": "Offer",
       priceCurrency: "INR",
-      price: "799",
+      price: "9",
       availability: "https://schema.org/InStock",
     },
   },
@@ -68,4 +68,5 @@ export default function LandingPage() {
     </div>
   );
 }
+
 

@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import {
   AbsoluteFill,
   Audio,
@@ -6,6 +6,7 @@ import {
   Sequence,
   staticFile,
   useCurrentFrame,
+  useVideoConfig,
   interpolate,
 } from 'remotion';
 import {COMPARE_SFX} from './sfxManifest';
@@ -54,28 +55,28 @@ type CompareProps = {
 
 const STICKER_SETS = {
   '2d': {
-    welcome: 'assets/stickman-transparent/2d-teacher/teacher-welcome.png',
-    left: 'assets/stickman-transparent/2d-teacher/teacher-left.png',
-    right: 'assets/stickman-transparent/2d-teacher/teacher-right.png',
-    thinking: 'assets/stickman-transparent/2d-teacher/teacher-thinking.png',
-    warning: 'assets/stickman-transparent/2d-teacher/teacher-warning.png',
-    success: 'assets/stickman-transparent/2d-teacher/teacher-success.png',
+    welcome: 'assets/stickman/2d-teacher/teacher-welcome.png',
+    left: 'assets/stickman/2d-teacher/teacher-left.png',
+    right: 'assets/stickman/2d-teacher/teacher-right.png',
+    thinking: 'assets/stickman/2d-teacher/teacher-thinking.png',
+    warning: 'assets/stickman/2d-teacher/teacher-warning.png',
+    success: 'assets/stickman/2d-teacher/teacher-success.png',
   },
   cartoon: {
-    welcome: 'assets/stickman-transparent/cartoon-teacher/teacher-answering.png',
-    left: 'assets/stickman-transparent/cartoon-teacher/teacher-left.png',
-    right: 'assets/stickman-transparent/cartoon-teacher/teacher-right.png',
-    thinking: 'assets/stickman-transparent/cartoon-teacher/teacher-questioning.png',
-    warning: 'assets/stickman-transparent/cartoon-teacher/teacher-questioning.png',
-    success: 'assets/stickman-transparent/cartoon-teacher/teacher-success.png',
+    welcome: 'assets/stickman/cartoon-teacher/teacher-answering.png',
+    left: 'assets/stickman/cartoon-teacher/teacher-left.png',
+    right: 'assets/stickman/cartoon-teacher/teacher-right.png',
+    thinking: 'assets/stickman/cartoon-teacher/teacher-questioning.png',
+    warning: 'assets/stickman/cartoon-teacher/teacher-questioning.png',
+    success: 'assets/stickman/cartoon-teacher/teacher-success.png',
   },
   explainer: {
-    welcome: "assets/stickman-transparent/stickman-explainer/follow.png",
-    left: "assets/stickman-transparent/stickman-explainer/teacher-left.png",
-    right: "assets/stickman-transparent/stickman-explainer/teacher-right.png",
-    thinking: "assets/stickman-transparent/stickman-explainer/thinking-expression.png",
-    warning: "assets/stickman-transparent/stickman-explainer/confused-expression.png",
-    success: "assets/stickman-transparent/stickman-explainer/explaining-comparison.png",
+    welcome: 'assets/stickman/stickman-explainer/follow.png',
+    left: 'assets/stickman/stickman-explainer/teacher-left.png',
+    right: 'assets/stickman/stickman-explainer/teacher-right.png',
+    thinking: 'assets/stickman/stickman-explainer/thinking-expression.png',
+    warning: 'assets/stickman/stickman-explainer/confused-expression.png',
+    success: 'assets/stickman/stickman-explainer/explaining-comparison.png',
   },
 } as const;
 
@@ -266,59 +267,166 @@ const VisualBox = ({
 };
 
 
-const getStickyPresenterPose = ({
+type StickerPoseKey = 'welcome' | 'left' | 'right' | 'thinking' | 'warning' | 'success';
+
+const normalizeForMatch = (value: string) =>
+  String(value || '')
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s?]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const containsAny = (text: string, words: string[]) =>
+  words.some((word) => {
+    const clean = normalizeForMatch(word);
+    return clean.length > 1 && text.includes(clean);
+  });
+
+const getActiveStickerPose = ({
+  currentTime,
+  durationSeconds,
   overlay,
   caption,
   leftTitle,
   rightTitle,
 }: {
+  currentTime: number;
+  durationSeconds: number;
   overlay?: CompareOverlay;
   caption?: CompareCaption;
   leftTitle: string;
   rightTitle: string;
-}) => {
-  const text = [
-    overlay?.text,
-    overlay?.body,
-    overlay?.title,
-    caption?.text,
-    caption?.lines?.join(' '),
-  ]
-    .filter(Boolean)
-    .join(' ')
-    .toLowerCase();
+}): StickerPoseKey => {
+  // Frame 0 / intro: always deterministic welcome pose.
+  if (currentTime < 1.15) return 'welcome';
 
-  const left = leftTitle.toLowerCase();
-  const right = rightTitle.toLowerCase();
+  // Final answer / outro: success pose near end.
+  if (durationSeconds > 0 && currentTime >= Math.max(0, durationSeconds - 2.4)) {
+    return 'success';
+  }
+
+  const text = normalizeForMatch(
+    [
+      overlay?.title,
+      overlay?.text,
+      overlay?.body,
+      caption?.text,
+      caption?.lines?.join(' '),
+    ]
+      .filter(Boolean)
+      .join(' '),
+  );
+
+  const left = normalizeForMatch(leftTitle);
+  const right = normalizeForMatch(rightTitle);
+
+  const questionWords = [
+    '?',
+    'what is the difference',
+    'difference kya hai',
+    'kya difference',
+    'kya farq',
+    'farq kya',
+    'kya zyada behtar',
+    'which is better',
+    'kaunsa better',
+    'kaunsa behtar',
+    'vs',
+    'compare',
+    'comparison',
+    'difference',
+    'better',
+    'confused',
+    'question',
+    'kya',
+    'kyun',
+    'kaise',
+  ];
 
   const leftWords = [
     left,
-    'left',
-    'before',
-    'old',
+    'first concept',
+    'first option',
+    'left topic',
+    'left side',
+    'option a',
+    'a option',
+    'pehla',
     'pehle',
-    'domain',
+    'ye hai',
+    'yeh hai',
+    'this is',
     'website',
+    'old',
+    'before',
     'problem',
     'without',
-  ].filter(Boolean);
+  ];
 
   const rightWords = [
     right,
-    'right',
-    'after',
+    'second concept',
+    'second option',
+    'right topic',
+    'right side',
+    'option b',
+    'b option',
+    'dusra',
+    'doosra',
+    'aur ye',
+    'aur yeh',
+    'jabki',
+    'whereas',
+    'while',
+    'but',
+    'web app',
     'new',
-    'baad',
-    'hosting',
-    'server',
+    'after',
     'solution',
     'with',
-  ].filter(Boolean);
+  ];
 
-  if (leftWords.some((word) => word && text.includes(word))) return 'left';
-  if (rightWords.some((word) => word && text.includes(word))) return 'right';
+  const warningWords = [
+    'wrong',
+    'risk',
+    'danger',
+    'scam',
+    'fraud',
+    'loss',
+    'problem',
+    'warning',
+    'avoid',
+    'galat',
+    'nuksan',
+    'dhoka',
+  ];
 
-  return 'welcome';
+  const successWords = [
+    'success',
+    'correct',
+    'best',
+    'winner',
+    'done',
+    'profit',
+    'benefit',
+    'final answer',
+    'conclusion',
+    'result',
+    'sahi',
+    'behtar',
+  ];
+
+  if (containsAny(text, successWords)) return 'success';
+  if (containsAny(text, warningWords)) return 'warning';
+  if (text.includes('?') || containsAny(text, questionWords)) return 'thinking';
+  if (containsAny(text, rightWords)) return 'right';
+  if (containsAny(text, leftWords)) return 'left';
+
+  // Time-based cycling when no strong text match — keeps sticker dynamic
+  const cycleSeconds = 4;
+  const cycleIndex = Math.floor(currentTime / cycleSeconds) % 4;
+  const cyclePoses: StickerPoseKey[] = ['left', 'right', 'thinking', 'welcome'];
+  return cyclePoses[cycleIndex];
 };
 
 const StickerPresenter = ({
@@ -335,51 +443,80 @@ const StickerPresenter = ({
   stickerStyle?: string;
 }) => {
   const frame = useCurrentFrame();
+  const {fps, durationInFrames} = useVideoConfig();
 
-  const selectedStickerStyle = stickerStyle === 'cartoon' ? 'cartoon' : stickerStyle === 'explainer' ? 'explainer' : '2d';
+  const selectedStickerStyle =
+    stickerStyle === 'cartoon' ? 'cartoon' : stickerStyle === 'explainer' ? 'explainer' : 'cartoon';
+
   const set: StickerSet = STICKER_SETS[selectedStickerStyle];
 
-  const cycle = [set.welcome, set.thinking, set.left, set.right, set.warning, set.success];
-  const text = `${overlay?.title || ''} ${overlay?.text || ''} ${overlay?.body || ''}`.toLowerCase();
+  const currentTime = frame / fps;
+  const durationSeconds = durationInFrames / fps;
 
-  const poseKey = getStickyPresenterPose({overlay, caption, leftTitle, rightTitle});
-  let src = set[poseKey] || set.welcome;
-  if (/wrong|risk|danger|scam|fraud|loss|problem|warning|avoid/.test(text)) src = set.warning;
-  if (/success|correct|best|winner|done|profit|benefit/.test(text)) src = set.success;
+  const poseKey = getActiveStickerPose({
+    currentTime,
+    durationSeconds,
+    overlay,
+    caption,
+    leftTitle,
+    rightTitle,
+  });
 
-  const enterOpacity = interpolate(frame, [0, 14], [0, 1], {
+  const src = set[poseKey] || set.welcome;
+
+  // Strict sticker zone. Never allow sticker into subtitle area.
+  const STICKER_ZONE_TOP = 910;
+  const STICKER_ZONE_BOTTOM = 24;
+  const STICKER_ZONE_LEFT = 60;
+  const STICKER_ZONE_RIGHT = 60;
+  const STICKER_MAX_HEIGHT = 650;
+
+  const enterOpacity = interpolate(frame, [0, 6], [1, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
-  const enterY = interpolate(frame, [0, 18], [24, 0], {
+
+  const pop = interpolate(frame, [0, 10, 22], [0.94, 1.018, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
-  const idleY = Math.sin(frame / 52) * 1.2;
-  const rotate = Math.sin(frame / 80) * 0.18;
-  const pop = interpolate(frame, [0, 16, 30], [0.98, 1.005, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
+
+  const idleY = Math.sin(frame / 60) * 1.1;
+  const rotate = Math.sin(frame / 100) * 0.12;
 
   return (
-    <img
-      src={staticFile(src)}
+    <div
       style={{
         position: 'absolute',
-        left: '50%',
-        bottom: 135,
-        width: stickerStyle === 'cartoon' ? 540 : stickerStyle === 'explainer' ? 590 : 600,
-        height: 'auto',
-        opacity: enterOpacity,
-        transform: `translateX(-50%) translateY(${enterY + idleY}px) rotate(${rotate}deg) scale(${pop})`,
-        transformOrigin: 'center bottom',
-        filter: 'drop-shadow(0 20px 22px rgba(0,0,0,0.20))',
+        left: STICKER_ZONE_LEFT,
+        right: STICKER_ZONE_RIGHT,
+        top: STICKER_ZONE_TOP,
+        bottom: STICKER_ZONE_BOTTOM,
+        overflow: 'hidden',
+        zIndex: 7,
+        display: 'flex',
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+        pointerEvents: 'none',
       }}
-    />
+    >
+      <img
+        src={staticFile(src)}
+        style={{
+          width: selectedStickerStyle === 'cartoon' ? 420 : selectedStickerStyle === 'explainer' ? 440 : 430,
+          maxWidth: '72%',
+          maxHeight: STICKER_MAX_HEIGHT,
+          height: 'auto',
+          objectFit: 'contain',
+          opacity: enterOpacity,
+          transform: `translateY(${idleY}px) rotate(${rotate}deg) scale(${pop})`,
+          transformOrigin: 'center bottom',
+          filter: 'drop-shadow(0 20px 22px rgba(0,0,0,0.26))',
+        }}
+      />
+    </div>
   );
 };
-
 const CompareExplainer = (props: CompareProps) => {
   const frame = useCurrentFrame();
   const fps = 30;
@@ -674,6 +811,7 @@ export const CompareExplainerComposition = () => (
     height={1920}
   />
 );
+
 
 
 

@@ -91,6 +91,16 @@ export async function GET(request: Request) {
       errors: [],
       message: 'Render is still processing. Checking again shortly.',
       transient: true,
+      debug:
+        process.env.NODE_ENV === 'production'
+          ? undefined
+          : {
+              errorMessage: error instanceof Error ? error.message : String(error),
+              region,
+              functionName,
+              hasRenderId: Boolean(renderId),
+              hasBucketName: Boolean(bucketName),
+            },
     });
   }
 }

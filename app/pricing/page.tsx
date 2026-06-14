@@ -25,14 +25,14 @@ export default function PricingPage() {
             <Sparkles size={16} />
             Pricing
           </div>
-          <h1 className="mx-auto max-w-4xl text-5xl font-black leading-tight md:text-7xl">
+          <h1 className="mx-auto max-w-4xl text-3xl font-black leading-tight sm:text-5xl md:text-7xl">
             Pricing for creators who publish more.
           </h1>
           <p className="mx-auto mt-7 max-w-3xl text-lg leading-8 text-zinc-300">
             Start with ₹9 for one real first video, then upgrade when you are ready to publish more. Plans are sized around real AI, secure rendering, storage, retries, and maintenance costs.
           </p>
 
-          <div className="mx-auto mt-10 grid max-w-4xl gap-3 sm:grid-cols-4">
+          <div className="mx-auto mt-10 grid max-w-4xl gap-3 grid-cols-2 sm:grid-cols-4">
             {proof.map((item) => {
               const Icon = item.icon;
               return (
