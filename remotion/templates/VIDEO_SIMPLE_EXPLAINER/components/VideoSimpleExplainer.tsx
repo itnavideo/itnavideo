@@ -1,216 +1,308 @@
-import React from "react";
+import React from 'react';
 import {
   AbsoluteFill,
   Audio,
   Img,
   OffthreadVideo,
-  Sequence,
+  interpolate,
   useCurrentFrame,
   useVideoConfig,
-} from "remotion";
+} from 'remotion';
 
-type Caption = {
-  start: number;
-  end: number;
-  text: string;
+type CaptionWord = {
+  word?: string;
+  text?: string;
+  start?: number;
+  end?: number;
+};
+
+type CaptionItem = {
+  text?: string;
+  start?: number;
+  end?: number;
+  words?: CaptionWord[];
 };
 
 type Props = {
   title?: string;
   topicTitle?: string;
   mediaSrc?: string;
-  mediaType?: "video" | "audio" | "image";
+  mediaType?: 'audio' | 'video' | string;
+  sourceAudioUrl?: string;
+  audioSrc?: string;
   mediaTrimStartSeconds?: number;
   sourceAudioVolume?: number;
   explanationImageUrl?: string;
   bottomImageUrl?: string;
-  captions?: Caption[];
+  captions?: CaptionItem[];
 };
 
 const W = 1080;
 const H = 1920;
-const SIDE = 54;
 
-const VIDEO_TOP = 54;
+const SIDE = 26;
+const TOP = 58;
 const VIDEO_W = W - SIDE * 2;
-const VIDEO_H = Math.round(VIDEO_W * 9 / 16);
+const VIDEO_H = Math.round((VIDEO_W * 9) / 16);
 
-const SUBTITLE_TOP = VIDEO_TOP + VIDEO_H + 24;
+const GAP_AFTER_VIDEO = 58;
 const SUBTITLE_H = 116;
+const TITLE_H = 118;
 
-const TITLE_TOP = SUBTITLE_TOP + SUBTITLE_H + 22;
-const TITLE_H = 120;
+const VIDEO_Y = TOP;
+const SUBTITLE_Y = VIDEO_Y + VIDEO_H + GAP_AFTER_VIDEO;
+const TITLE_Y = SUBTITLE_Y + SUBTITLE_H;
+const IMAGE_Y = TITLE_Y + TITLE_H;
+const IMAGE_H = H - IMAGE_Y;
 
-const IMAGE_TOP = TITLE_TOP + TITLE_H + 28;
-const IMAGE_H = H - IMAGE_TOP - 70;
+const cleanText = (value?: string) =>
+  String(value || '')
+    .replace(/\s+/g, ' ')
+    .trim();
 
-function cleanText(value?: string, fallback = "") {
-  return String(value || fallback).replace(/\s+/g, " ").trim();
-}
+const getCaptionText = (captions: CaptionItem[] | undefined, time: number) => {
+  const list = Array.isArray(captions) ? captions : [];
+  const active =
+    list.find((item) => {
+      const start = Number(item.start ?? 0);
+      const end = Number(item.end ?? start + 2.5);
+      return time >= start && time <= end;
+    }) || list[0];
 
-function activeCaption(captions: Caption[], time: number) {
-  return captions.find((item) => time >= item.start && time <= item.end) || captions[0];
-}
+  const textFromWords = active?.words
+    ?.map((word) => cleanText(word.word || word.text))
+    .filter(Boolean)
+    .join(' ');
 
-export const VideoSimpleExplainer: React.FC<Props> = ({
+  return cleanText(active?.text || textFromWords || 'Subtitles apply here...');
+};
+
+const splitSubtitle = (text: string) => {
+  const words = cleanText(text).split(' ').filter(Boolean);
+  if (words.length <= 6) return text.toUpperCase();
+  return words.slice(0, 7).join(' ').toUpperCase();
+};
+
+export function VideoSimpleExplainer({
   title,
   topicTitle,
   mediaSrc,
-  mediaType = "video",
+  mediaType,
+  sourceAudioUrl,
+  audioSrc,
   mediaTrimStartSeconds = 0,
   sourceAudioVolume = 1,
   explanationImageUrl,
   bottomImageUrl,
-  captions = [],
-}) => {
+  captions,
+}: Props) {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const time = frame / fps;
-  const caption = activeCaption(captions, time);
-  const safeTitle = cleanText(title || topicTitle, "VIDEO EXPLAINED").toUpperCase();
-  const bottomSrc = explanationImageUrl || bottomImageUrl;
+
+  const displayTitle = cleanText(title || topicTitle || 'Video Title Here').toUpperCase();
+  const subtitle = splitSubtitle(getCaptionText(captions, time));
+  const imageUrl = explanationImageUrl || bottomImageUrl;
+  const isVideo = mediaType === 'video' || Boolean(mediaSrc);
+
+  const videoOpacity = interpolate(frame, [0, 12], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
+  const subtitleScale = interpolate(frame % 45, [0, 7, 45], [0.985, 1, 0.985], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
 
   return (
-    <AbsoluteFill style={{backgroundColor: "#05070b", fontFamily: "Inter, Arial, sans-serif", color: "white"}}>
-      <AbsoluteFill
-        style={{
-          background:
-            "radial-gradient(circle at 50% 0%, rgba(45,212,191,0.18), transparent 34%), linear-gradient(180deg,#071014 0%,#05070b 48%,#030406 100%)",
-        }}
-      />
-
+    <AbsoluteFill style={{backgroundColor: '#000', fontFamily: 'Inter, Arial, sans-serif'}}>
+      {/* TOP USER VIDEO */}
       <div
         style={{
-          position: "absolute",
+          position: 'absolute',
           left: SIDE,
-          top: VIDEO_TOP,
+          top: VIDEO_Y,
           width: VIDEO_W,
           height: VIDEO_H,
-          borderRadius: 34,
-          overflow: "hidden",
-          backgroundColor: "#020617",
-          border: "2px solid rgba(255,255,255,0.16)",
-          boxShadow: "0 28px 80px rgba(0,0,0,0.55), 0 0 45px rgba(45,212,191,0.12)",
+          overflow: 'hidden',
+          backgroundColor: '#050505',
+          border: '4px solid rgba(255,255,255,0.96)',
+          opacity: videoOpacity,
         }}
       >
-        {mediaSrc && mediaType === "video" ? (
+        {isVideo && mediaSrc ? (
           <OffthreadVideo
             src={mediaSrc}
             startFrom={Math.max(0, Math.round(mediaTrimStartSeconds * fps))}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            }}
             volume={sourceAudioVolume}
-            style={{width: "100%", height: "100%", objectFit: "contain", backgroundColor: "#000"}}
           />
-        ) : mediaSrc && mediaType === "audio" ? (
-          <Audio src={mediaSrc} startFrom={Math.max(0, Math.round(mediaTrimStartSeconds * fps))} volume={sourceAudioVolume} />
+        ) : mediaSrc ? (
+          <Audio src={mediaSrc} volume={sourceAudioVolume} />
         ) : null}
 
+        {!isVideo && (sourceAudioUrl || audioSrc) ? (
+          <Audio src={sourceAudioUrl || audioSrc || ''} volume={sourceAudioVolume} />
+        ) : null}
+
+        {!mediaSrc ? (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontSize: 42,
+              fontWeight: 900,
+              letterSpacing: 2,
+              background: 'linear-gradient(135deg,#1f2937,#020617)',
+            }}
+          >
+            USER VIDEO
+          </div>
+        ) : null}
+      </div>
+
+      {/* GRADIENT SUBTITLE STRIP */}
+      <div
+        style={{
+          position: 'absolute',
+          left: 0,
+          top: SUBTITLE_Y,
+          width: W,
+          height: SUBTITLE_H,
+          background: 'linear-gradient(90deg,#5967ff 0%, #8a63ff 42%, #ff62bf 100%)',
+          borderTop: '4px solid #fff24a',
+          borderBottom: '4px solid #fff24a',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '0 70px',
+          transform: `scale(${subtitleScale})`,
+          transformOrigin: 'center center',
+        }}
+      >
         <div
           style={{
-            position: "absolute",
+            position: 'absolute',
             inset: 0,
-            borderRadius: 34,
-            boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.12)",
-            pointerEvents: "none",
+            background:
+              'linear-gradient(90deg, rgba(255,255,255,0.18), transparent 36%, rgba(255,255,255,0.12))',
           }}
         />
+        <div
+          style={{
+            position: 'relative',
+            color: '#fff',
+            fontSize: subtitle.length > 34 ? 50 : 62,
+            lineHeight: 1,
+            fontWeight: 1000,
+            letterSpacing: 2,
+            textAlign: 'center',
+            textTransform: 'uppercase',
+            textShadow: '0 6px 0 rgba(0,0,0,0.25), 0 14px 28px rgba(0,0,0,0.35)',
+            maxWidth: 950,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}
+        >
+          {subtitle}
+        </div>
       </div>
 
+      {/* BLACK TITLE STRIP */}
       <div
         style={{
-          position: "absolute",
-          left: SIDE,
-          top: SUBTITLE_TOP,
-          width: VIDEO_W,
-          height: SUBTITLE_H,
-          borderRadius: 28,
-          background: "linear-gradient(90deg, rgba(37,99,235,0.95), rgba(168,85,247,0.95), rgba(236,72,153,0.95))",
-          boxShadow: "0 20px 50px rgba(0,0,0,0.35)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "0 42px",
-          textAlign: "center",
+          position: 'absolute',
+          left: 0,
+          top: TITLE_Y,
+          width: W,
+          height: TITLE_H,
+          backgroundColor: '#000',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '0 80px',
         }}
       >
         <div
           style={{
-            fontSize: 42,
-            lineHeight: 1.14,
-            fontWeight: 950,
-            letterSpacing: "-0.02em",
-            textShadow: "0 3px 18px rgba(0,0,0,0.35)",
+            color: '#fff',
+            fontSize: displayTitle.length > 24 ? 52 : 64,
+            lineHeight: 1,
+            fontWeight: 1000,
+            letterSpacing: 4,
+            textAlign: 'center',
+            textTransform: 'uppercase',
+            textShadow: '0 5px 0 rgba(255,255,255,0.08)',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            maxWidth: 940,
           }}
         >
-          {cleanText(caption?.text, "Real speech captions appear here")}
+          {displayTitle}
         </div>
       </div>
 
+      {/* BOTTOM USER EXPLANATION IMAGE - NO BACKGROUND DESIGN */}
       <div
         style={{
-          position: "absolute",
-          left: SIDE,
-          top: TITLE_TOP,
-          width: VIDEO_W,
-          height: TITLE_H,
-          borderRadius: 30,
-          background: "rgba(255,255,255,0.075)",
-          border: "1px solid rgba(255,255,255,0.13)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "0 44px",
-          textAlign: "center",
-          boxShadow: "0 22px 55px rgba(0,0,0,0.32)",
-        }}
-      >
-        <div style={{fontSize: 48, lineHeight: 1.04, fontWeight: 1000, letterSpacing: "-0.035em"}}>
-          {safeTitle}
-        </div>
-      </div>
-
-      <div
-        style={{
-          position: "absolute",
-          left: SIDE,
-          top: IMAGE_TOP,
-          width: VIDEO_W,
+          position: 'absolute',
+          left: 0,
+          top: IMAGE_Y,
+          width: W,
           height: IMAGE_H,
-          borderRadius: 36,
-          overflow: "hidden",
-          background: "linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.035))",
-          border: "2px solid rgba(255,255,255,0.14)",
-          boxShadow: "0 30px 90px rgba(0,0,0,0.52)",
+          backgroundColor: '#000',
+          overflow: 'hidden',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
       >
-        {bottomSrc ? (
+        {imageUrl ? (
           <Img
-            src={bottomSrc}
+            src={imageUrl}
             style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "contain",
-              backgroundColor: "#071014",
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              objectPosition: 'center center',
+              backgroundColor: '#000',
             }}
           />
         ) : (
           <div
             style={{
-              width: "100%",
-              height: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              width: '100%',
+              height: '100%',
+              background: '#111',
+              color: '#fff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              textAlign: 'center',
               padding: 60,
-              textAlign: "center",
-              fontSize: 42,
+              fontSize: 44,
               fontWeight: 900,
-              color: "rgba(255,255,255,0.65)",
+              letterSpacing: 2,
+              textTransform: 'uppercase',
             }}
           >
-            Upload one bottom explanation image
+            Bottom explanation image
           </div>
         )}
       </div>
     </AbsoluteFill>
   );
-};
+}
+
+export default VideoSimpleExplainer;
