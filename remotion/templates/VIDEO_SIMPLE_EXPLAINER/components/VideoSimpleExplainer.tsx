@@ -77,6 +77,23 @@ const breakSubtitle = (text: string): string[] => {
   return [words.slice(0, 6).join(' '), words.slice(6, 12).join(' ')];
 };
 
+
+function cleanHinglishSubtitle(value: string) {
+  return String(value || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\bkaaphee\b/gi, "kaafi")
+    .replace(/\bkaafi\b/gi, "kaafi")
+    .replace(/\bkyaa\b/gi, "kya")
+    .replace(/\bsavaal\b/gi, "sawaal")
+    .replace(/\brahataa\b/gi, "rehta")
+    .replace(/\brahata\b/gi, "rehta")
+    .replace(/\bmen\b/gi, "mein")
+    .replace(/\bmein mein\b/gi, "mein")
+    .replace(/\blogon ke man mein\b/gi, "logon ke mann mein")
+    .replace(/\bSir\b/g, "sir");
+}
+
 export function VideoSimpleExplainer({
   title,
   topicTitle,
@@ -95,7 +112,7 @@ export function VideoSimpleExplainer({
   const time = frame / fps;
 
   const displayTitle = cleanText(title || topicTitle || 'Video Explainer').toUpperCase().slice(0, 50);
-  const subtitleText = getCaptionText(captions, time);
+  const subtitleText = cleanHinglishSubtitle(getCaptionText(captions, time));
   const imageUrl = explanationImageUrl || bottomImageUrl;
   const isVideo = mediaType === 'video' || Boolean(mediaSrc);
 
@@ -372,5 +389,6 @@ export function VideoSimpleExplainer({
 }
 
 export default VideoSimpleExplainer;
+
 
 
