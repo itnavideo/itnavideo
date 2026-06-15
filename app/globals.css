@@ -181,3 +181,27 @@
     color: transparent;
   }
 }
+
+/* Mobile overflow fix for dashboard upload/audio preview */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+audio {
+  width: 100%;
+  max-width: 100%;
+}
+
+.dashboard-safe-wrap,
+.dashboard-safe-wrap * {
+  box-sizing: border-box;
+}
+
+.audio-file-name-fix {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
