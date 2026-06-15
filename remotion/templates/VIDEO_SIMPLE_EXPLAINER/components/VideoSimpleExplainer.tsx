@@ -7,6 +7,7 @@ import {
   interpolate,
   useCurrentFrame,
   useVideoConfig,
+  staticFile,
 } from "remotion";
 
 type AnyCaption = {
@@ -96,6 +97,20 @@ const getKeyword = (subtitle: string) => {
   return words.slice(0, 3).join(" ") || "Key Point";
 };
 
+const resolveAssetSrc = (src?: string) => {
+  if (!src) return "";
+  if (
+    src.startsWith("http://") ||
+    src.startsWith("https://") ||
+    src.startsWith("data:") ||
+    src.startsWith("blob:") ||
+    src.startsWith("file:")
+  ) {
+    return src;
+  }
+
+  return staticFile(src.replace(/^\/+/, ""));
+};
 export function VideoSimpleExplainer(props: VideoSimpleExplainerProps) {
   const frame = useCurrentFrame();
   const {fps, durationInFrames} = useVideoConfig();
@@ -105,11 +120,11 @@ export function VideoSimpleExplainer(props: VideoSimpleExplainerProps) {
   const subtitle = getActiveSubtitle(words, currentTime);
   const title = getShortTitle(props.title);
 
-  const bottomImage = props.explanationImageUrl || props.bottomImageUrl;
+  const bottomImage = resolveAssetSrc(props.explanationImageUrl || props.bottomImageUrl);
   const mediaSrc = props.mediaSrc;
   const audioSrc = props.audioSrc;
 
-  const isVideo = props.mediaType === "video" || Boolean(mediaSrc);
+  const isVideo = props.mediaType === "video";
 
   const bottomProgress = interpolate(
     frame,
@@ -314,3 +329,6 @@ export function VideoSimpleExplainer(props: VideoSimpleExplainerProps) {
 }
 
 export default VideoSimpleExplainer;
+
+
+
