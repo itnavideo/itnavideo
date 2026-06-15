@@ -441,8 +441,8 @@ const getActiveStickerPose = ({
 
   // Time-based cycling when no strong text match — keeps sticker dynamic
   const cycleSeconds = 1.15;
-  const cycleIndex = Math.floor(currentTime / cycleSeconds) % 4;
-  const cyclePoses: StickerPoseKey[] = ['left', 'right', 'thinking', 'welcome'];
+  const cyclePoses: StickerPoseKey[] = ['welcome', 'left', 'right', 'thinking', 'warning', 'success'];
+  const cycleIndex = Math.floor(currentTime / cycleSeconds) % cyclePoses.length;
   return cyclePoses[cycleIndex];
 };
 
@@ -871,6 +871,7 @@ export const CompareExplainerPreviewComposition = () => (
     }}
   />
 );
+
 
 
 
