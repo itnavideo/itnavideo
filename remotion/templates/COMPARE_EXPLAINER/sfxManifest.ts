@@ -19,3 +19,4 @@ export const COMPARE_SFX = [
   "assets/sfx/whoosh-blow-flutter-shortwav-14678.mp3",
   "assets/sfx/wrong answer.mp3",
 ] as const;
+

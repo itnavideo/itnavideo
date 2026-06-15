@@ -13,7 +13,7 @@ export function VideoSimpleExplainerSfx() {
   return (
     <>
       {/* Background music - low volume so voice stays clear */}
-      <Loop>
+      <Loop durationInFrames={90}>
         <Audio src={staticFile(SFX.bgm)} volume={0.045} />
       </Loop>
 
@@ -49,4 +49,5 @@ export function VideoSimpleExplainerSfx() {
     </>
   );
 }
+
 
