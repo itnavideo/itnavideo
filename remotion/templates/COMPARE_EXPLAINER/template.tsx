@@ -830,33 +830,46 @@ export const CompareExplainerComposition = () => (
   />
 );
 
+export const Compare2DPreviewComposition = () => (
+  <Composition
+    id="COMPARE-2D-PREVIEW"
+    component={CompareExplainer}
+    durationInFrames={900}
+    fps={30}
+    width={1080}
+    height={1920}
+    defaultProps={{
+      stickerStyle: '2d',
+    }}
+  />
+);
 
+export const CompareCartoonPreviewComposition = () => (
+  <Composition
+    id="COMPARE-CARTOON-PREVIEW"
+    component={CompareExplainer}
+    durationInFrames={900}
+    fps={30}
+    width={1080}
+    height={1920}
+    defaultProps={{
+      stickerStyle: 'cartoon',
+    }}
+  />
+);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export const CompareExplainerPreviewComposition = () => (
+  <Composition
+    id="COMPARE-EXPLAINER-PREVIEW"
+    component={CompareExplainer}
+    durationInFrames={900}
+    fps={30}
+    width={1080}
+    height={1920}
+    defaultProps={{
+      stickerStyle: 'explainer',
+    }}
+  />
+);
 
 
