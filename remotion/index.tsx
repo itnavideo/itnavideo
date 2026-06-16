@@ -1,13 +1,12 @@
 import {registerRoot} from 'remotion';
-import {CompareExplainerComposition,
-  VoiceSyncedNotesComposition, Compare2DPreviewComposition, CompareCartoonPreviewComposition, CompareExplainerPreviewComposition} from './templates/COMPARE_EXPLAINER/template';
+import {AutoCaptionReelComposition} from './templates/AUTO_CAPTION_REEL/template';
+import {CompareExplainerComposition} from './templates/COMPARE_EXPLAINER/template';
 import {VideoSimpleExplainerComposition} from './templates/VIDEO_SIMPLE_EXPLAINER/template';
-import {VoiceSyncedNotesComposition} from './templates/VOICE_SYNCED_NOTES/template';
 
 const compositions = [
+  AutoCaptionReelComposition,
   VideoSimpleExplainerComposition,
   CompareExplainerComposition,
-  VoiceSyncedNotesComposition,
 ];
 
 const RemotionRoot = () => (
@@ -19,6 +18,3 @@ const RemotionRoot = () => (
 );
 
 registerRoot(RemotionRoot);
-
-
-

@@ -56,7 +56,7 @@ export type ReelTimelineScene = {
   secondarySupport?: Array<'titleCard'>;
 };
 
-export type ReelTemplateName = 'VIDEO_SIMPLE_EXPLAINER' | 'comparisonImages';
+export type ReelTemplateName = 'VIDEO_SIMPLE_EXPLAINER' | 'comparisonImages' | 'AUTO_CAPTION_REEL';
 export const REEL_TEMPLATE_REGISTRY = {
   VIDEO_SIMPLE_EXPLAINER: {
     templateName: 'VIDEO_SIMPLE_EXPLAINER',
@@ -65,6 +65,13 @@ export const REEL_TEMPLATE_REGISTRY = {
     transcriptRequirement: 'required',
     plannerMode: 'videoExplainer',
     mediaFit: 'videoExplainer',
+  },  AUTO_CAPTION_REEL: {
+    templateName: 'AUTO_CAPTION_REEL',
+    compositionId: 'AUTO-CAPTION-REEL',
+    allowedMedia: ['video'],
+    transcriptRequirement: 'required',
+    plannerMode: 'videoCaption',
+    mediaFit: 'videoCaption',
   },
   comparisonImages: {
     templateName: 'comparisonImages',
@@ -786,7 +793,7 @@ async function createLocalReelPlan(
       qualityScore: 92,
       qualityBand: 'professional',
       qualityChecks: [
-        templateName === 'HANDWRITTEN_NOTES' ? 'One continuous handwritten notes canvas.' : templateName === 'VIDEO_CAPTION' ? 'One continuous captioned video.' : templateName === 'IMAGE_STORY' ? 'One continuous image-led cinematic story.' : templateName === 'comparisonImages' ? 'One continuous side-by-side comparison reel.' : 'One continuous video scene.',
+        templateName === 'HANDWRITTEN_NOTES' ? 'One continuous handwritten notes canvas.' : (templateName === 'VIDEO_CAPTION' || templateName === 'AUTO_CAPTION_REEL') ? 'One continuous captioned video.' : templateName === 'IMAGE_STORY' ? 'One continuous image-led cinematic story.' : templateName === 'comparisonImages' ? 'One continuous side-by-side comparison reel.' : 'One continuous video scene.',
         templateName === 'HANDWRITTEN_NOTES'
           ? 'Uploaded voiceover drives full-screen handwritten notes.'
           : templateName === 'VIDEO_CAPTION'
@@ -1533,13 +1540,15 @@ function getTemplateName(value?: string): ReelTemplateName {
   const normalized = String(value || '').toLowerCase();
   if (normalized.includes('compare') || normalized.includes('comparison') || /\bvs\b/.test(normalized)) return 'comparisonImages';
   if (normalized.includes('handwriting') || normalized.includes('notes')) return 'HANDWRITTEN_NOTES';
-  if (normalized.includes('caption') || normalized.includes('subtitle')) return 'VIDEO_CAPTION';
+  if (normalized.includes('auto-caption') || normalized.includes('autocaption')) return 'AUTO_CAPTION_REEL';
+  if (normalized.includes('caption') || normalized.includes('subtitle')) return 'AUTO_CAPTION_REEL';
   if (normalized.includes('image') || normalized.includes('photo') || normalized.includes('story')) return 'IMAGE_STORY';
   return 'VIDEO_EXPLAINER';
 }
 
 function getTimelineVisualMode(templateName: ReelTemplateName): ReelTimelineScene['visualMode'] {
   if (templateName === 'HANDWRITTEN_NOTES') return 'notes';
+  if (templateName === 'AUTO_CAPTION_REEL') return 'videoCaption';
   if (templateName === 'VIDEO_CAPTION') return 'videoCaption';
   if (templateName === 'IMAGE_STORY') return 'imageStory';
   if (templateName === 'comparisonImages') return 'compare';
@@ -1548,6 +1557,7 @@ function getTimelineVisualMode(templateName: ReelTemplateName): ReelTimelineScen
 
 function getTimelinePrimaryFocus(templateName: ReelTemplateName): ReelTimelineScene['primaryFocus'] {
   if (templateName === 'HANDWRITTEN_NOTES') return 'notesCanvas';
+  if (templateName === 'AUTO_CAPTION_REEL') return 'captions';
   if (templateName === 'VIDEO_CAPTION') return 'captions';
   if (templateName === 'IMAGE_STORY') return 'images';
   if (templateName === 'comparisonImages') return 'comparison';
@@ -2169,6 +2179,7 @@ function getOverlayVisualRole(
   type: 'hook' | 'point' | 'stat' | 'warning' | 'quote' | 'cta',
 ): ReelOverlayVisualRole {
   if (templateName === 'HANDWRITTEN_NOTES') return type === 'hook' ? 'background' : 'assetInsert';
+  if (templateName === 'AUTO_CAPTION_REEL') return 'topVideo';
   if (templateName === 'VIDEO_CAPTION') return 'topVideo';
   if (templateName === 'IMAGE_STORY') return 'background';
   if (templateName === 'comparisonImages') return 'bottomOverlay';
@@ -2699,6 +2710,8 @@ function uniqueStrings(values: string[]) {
 function roundTime(value: number) {
   return Math.round(value * 100) / 100;
 }
+
+
 
 
 

@@ -15,10 +15,11 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 type LambdaRenderRequest = Parameters<typeof renderMediaOnLambda>[0];
-type ReelMode = 'videoExplainer' | 'compare';
+type ReelMode = 'videoExplainer' | 'compare' | 'autoCaption';
 const MODE_TO_TEMPLATE: Record<ReelMode, ReelTemplateName> = {
   videoExplainer: 'VIDEO_SIMPLE_EXPLAINER',
   compare: 'comparisonImages',
+  autoCaption: 'AUTO_CAPTION_REEL',
 };
 
 const MAX_RENDER_WINDOW_SECONDS = 60;
@@ -203,6 +204,11 @@ export async function POST(request: Request) {
         ...(plan.renderProps || {}),
         mediaType: 'image',
         mediaFit: templateConfig.mediaFit,
+      captionStyle: readString(body.captionStyle) || 'yellowPop',
+      captionPosition: readString(body.captionPosition) || 'bottom',
+      subtitleOutputLanguage: readString(body.subtitleOutputLanguage) || 'hinglish',
+      textColor: readString(body.captionTextColor) || '#ffffff',
+      highlightColor: readString(body.captionHighlightColor) || '#facc15',
         sourceDurationSeconds: imageDurationSeconds,
         renderWindowSource: 'image-only',
         topicTitle: plan.renderProps?.topicTitle || topicTitle || titleFromFile(fileName),
@@ -401,10 +407,24 @@ export async function POST(request: Request) {
             leftTitle: readString(body.compareLeftTitle || body.leftTitle || body.leftLabel) || 'Left',
             rightTitle: readString(body.compareRightTitle || body.rightTitle || body.rightLabel) || 'Right',
             imageSources: comparisonImageUrls,
+          }        : {}),
+      ...(mode === 'autoCaption'
+        ? {
+            captions: buildCompareCaptionsFromGroq(renderWindow),
+            subtitleChunks: buildCompareCaptionsFromGroq(renderWindow),
+            transcriptSegments: renderWindow.segments || [],
+            transcript: renderWindow.transcript,
+            sourceScript: renderWindow.transcript,
+            backgroundMusic: false,
           }
         : {}),
       mediaType,
       mediaFit: templateConfig.mediaFit,
+      captionStyle: readString(body.captionStyle) || 'yellowPop',
+      captionPosition: readString(body.captionPosition) || 'bottom',
+      subtitleOutputLanguage: readString(body.subtitleOutputLanguage) || 'hinglish',
+      textColor: readString(body.captionTextColor) || '#ffffff',
+      highlightColor: readString(body.captionHighlightColor) || '#facc15',
       mediaTrimStartSeconds: renderWindow.trimStartSeconds,
       sourceDurationSeconds: transcription.durationSeconds,
       renderWindowSource: renderWindow.source,
@@ -476,8 +496,7 @@ export async function POST(request: Request) {
         type: 'download',
         fileName: mode === 'notes'
           ? 'itnavideo-handwritten-notes.mp4'
-          : mode === 'videoCaption'
-            ? 'itnavideo-captioned-video.mp4'
+          : mode === 'autoCaption' ? 'itnavideo-auto-caption-reel.mp4' : mode === 'videoCaption' ? 'itnavideo-captioned-video.mp4'
             : mode === 'imageStory'
               ? 'itnavideo-image-story.mp4'
             : 'itnavideo-reel.mp4',
@@ -1475,12 +1494,14 @@ function toMode(value: string): ReelMode {
   const normalized = value.toLowerCase();
   if (normalized.includes('compare') || normalized.includes('comparison') || normalized === 'vs') return 'compare';
   if (normalized.includes('handwriting') || normalized.includes('notes')) return 'notes';
-  if (normalized.includes('caption') || normalized.includes('subtitle')) return 'videoCaption';
+  if (normalized.includes('auto-caption') || normalized.includes('autocaption')) return 'autoCaption';
+  if (normalized.includes('caption') || normalized.includes('subtitle')) return 'autoCaption';
   if (normalized.includes('image') || normalized.includes('photo') || normalized.includes('story')) return 'imageStory';
   return 'videoExplainer';
 }
 
 function getUploadedMediaType({mode, contentType}: {mode: ReelMode; contentType: string}): 'audio' | 'video' | 'image' {
+  if (mode === 'autoCaption') return 'video';
   if (mode === 'notes' || mode === 'compare') return 'audio';
   if (mode === 'imageStory' && contentType.startsWith('image/')) return 'image';
   return contentType.startsWith('audio/') ? 'audio' : 'video';
@@ -1613,7 +1634,7 @@ function validateBeforeRender({
     };
   }
 
-  if (templateName === 'VIDEO_CAPTION' && mediaType !== 'video') {
+  if ((templateName === 'VIDEO_CAPTION' || templateName === 'AUTO_CAPTION_REEL') && mediaType !== 'video') {
     return {
       reasonCode: 'VIDEO_CAPTION_REQUIRES_VIDEO',
       message: 'Video Caption needs a video upload before render.',
@@ -1639,6 +1660,7 @@ function validateBeforeRender({
 
 function humanTemplateName(templateName: ReelTemplateName) {
   if (templateName === 'HANDWRITTEN_NOTES') return 'Handwritten Notes';
+  if (templateName === 'AUTO_CAPTION_REEL') return 'Auto Caption Reel';
   if (templateName === 'VIDEO_CAPTION') return 'Video Caption';
   if (templateName === 'IMAGE_STORY') return 'Image Story';
   return 'Video Explainer';
@@ -1755,6 +1777,9 @@ function uniqueStrings(values: string[]) {
 function slugify(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 64) || 'reel';
 }
+
+
+
 
 
 

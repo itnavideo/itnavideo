@@ -35,7 +35,7 @@ import type { LucideIcon } from "lucide-react";
 import BrandLogo from "@/components/brand/BrandLogo";
 import { useAuth } from "@/components/auth/AuthContext";
 
-type Mode = "videoExplainer" | "notes" | "videoCaption" | "imageStory" | "compare";
+type Mode = "videoExplainer" | "notes" | "videoCaption" | "imageStory" | "compare" | "autoCaption";
 type JobStatusState = "idle" | "uploading" | "starting" | "rendering" | "ready" | "error";
 type JobStatus = {
   state: JobStatusState;
@@ -79,10 +79,19 @@ const RENDER_POLL_ATTEMPTS = 360;
 
 const templateCards = [
   {
+    id: "auto-caption-reel",
+    title: "Auto Caption Reel",
+    description: "Upload your reel and add stylish subtitles only. No extra images, no layout changes.",
+    image: "/visuals/previews/Auto Caption Reel Card.svg",
+    badges: ["Video", "Subtitles", "Styles"],
+    active: true,
+    mode: "autoCaption" as const,
+  },
+  {
     id: "video-explainer",
     title: "Video Simple Explainer",
     description: "Your video + subtitles + title + one bottom explanation image.",
-    image: "/visuals/previews/video-explainer-homepage.png",
+    image: "/visuals/previews/Simple Explainer Card.png",
     badges: ["Video/Audio", "Title", "1 Image"],
     active: true,
     mode: "videoExplainer" as const,
@@ -91,7 +100,7 @@ const templateCards = [
     id: "compare",
     title: "Compare Explainer",
     description: "Audio voiceover + 2-4 images for left vs right comparison.",
-    image: "/visuals/previews/homepage to show the COMPARE template preview.png",
+    image: "/visuals/previews/Compare Explainer Card.png",
     badges: ["Audio", "2-4 images", "VS Layout"],
     active: true,
     mode: "compare" as const,
@@ -124,6 +133,19 @@ const modeConfig = {
     color: "text-amber-100",
     border: "border-amber-200/35",
     surface: "bg-amber-200/[0.08]",
+  },
+  autoCaption: {
+    label: "Auto Caption",
+    title: "Auto Caption Reel",
+    description: "Upload an existing reel. We keep your video full-screen and add styled subtitles only.",
+    accept: "video/*",
+    supported: "Supported: MP4, MOV, WEBM",
+    bestResult: "Best result: clear voice, 9:16 reel, minimal background noise.",
+    uploadCta: "Choose reel for subtitles",
+    icon: Captions,
+    color: "text-emerald-100",
+    border: "border-emerald-200/35",
+    surface: "bg-emerald-200/[0.08]",
   },
   videoCaption: {
     label: "Video Caption",
@@ -189,6 +211,11 @@ export default function DashboardPage() {
   const [compareRightTitle, setCompareRightTitle] = useState("");
   const [compareHandle, setCompareHandle] = useState("@itnavideo");
   const [stickerStyle, setStickerStyle] = useState<"2d" | "cartoon" | "explainer">("explainer");
+  const [captionStyle, setCaptionStyle] = useState<"yellowPop" | "clean" | "blackBox">("yellowPop");
+  const [captionPosition, setCaptionPosition] = useState<"bottom" | "center" | "top">("bottom");
+  const [subtitleOutputLanguage, setSubtitleOutputLanguage] = useState<"hinglish" | "english" | "hindi" | "spanish" | "arabic" | "french" | "german" | "portuguese" | "indonesian" | "tamil">("hinglish");
+  const [captionTextColor, setCaptionTextColor] = useState("#ffffff");
+  const [captionHighlightColor, setCaptionHighlightColor] = useState("#facc15");
   const [recentRenders, setRecentRenders] = useState<RecentRender[]>([]);
   const [previewRender, setPreviewRender] = useState<RecentRender | null>(null);
   const [deleteCandidate, setDeleteCandidate] = useState<RecentRender | null>(null);
@@ -267,7 +294,7 @@ export default function DashboardPage() {
     setSelectedFile(null);
     setComparisonFiles([]);
     setJobStatus({state: "idle", message: ""});
-    const nextTemplate = nextMode === "notes" ? "notes" : nextMode === "videoCaption" ? "video-caption" : nextMode === "imageStory" ? "image-story" : nextMode === "compare" ? "compare" : "video-explainer";
+    const nextTemplate = nextMode === "autoCaption" ? "auto-caption-reel" : nextMode === "notes" ? "notes" : nextMode === "videoCaption" ? "video-caption" : nextMode === "imageStory" ? "image-story" : nextMode === "compare" ? "compare" : "video-explainer";
     window.history.replaceState(null, "", `/dashboard?template=${nextTemplate}`);
   };
 
@@ -342,20 +369,26 @@ export default function DashboardPage() {
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#050506] px-4 pb-12 pt-24 text-white sm:px-5 md:px-8 md:py-24">
       <div className="mx-auto max-w-6xl">
-        <header className="mb-5 flex flex-col gap-4 border-b border-white/10 pb-5 md:mb-7 lg:flex-row lg:items-center lg:justify-between">
+        <header className="mb-6 flex flex-col gap-4 border-b border-white/8 pb-6 md:mb-8 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
             <BrandLogo size="md" showTagline />
-            <p className="mt-4 text-xs font-bold uppercase tracking-[0.18em] text-brand-mint sm:text-sm">Create workspace</p>
-            <h1 className="mt-2 text-3xl font-black tracking-normal text-white sm:text-4xl">
-              Welcome, {firstName}
+            <h1 className="mt-4 text-2xl font-black tracking-normal text-white sm:text-3xl">
+              Welcome back, {firstName} 👋
             </h1>
           </div>
-          <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-center">
+          <div className="flex items-center gap-2">
+            <Link
+              href="/pricing"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-brand-mint/25 bg-brand-mint/10 px-4 py-2.5 text-xs font-black text-brand-mint transition hover:bg-brand-mint/20"
+            >
+              <Sparkles size={14} />
+              Upgrade
+            </Link>
             <Link
               href="/videos"
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3 text-sm font-black text-zinc-200 transition hover:border-white/25 hover:bg-white/[0.08]"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-xs font-black text-zinc-300 transition hover:bg-white/[0.06]"
             >
-              <FolderOpen size={16} />
+              <FolderOpen size={14} />
               Projects
             </Link>
             <button
@@ -363,11 +396,10 @@ export default function DashboardPage() {
                 await logout();
                 router.push("/");
               }}
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 px-4 py-3 text-sm font-bold text-zinc-300 transition hover:bg-white/5 hover:text-white"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-3 py-2.5 text-xs font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white"
               type="button"
             >
-              <LogOut size={16} />
-              Logout
+              <LogOut size={14} />
             </button>
           </div>
         </header>
@@ -404,17 +436,16 @@ export default function DashboardPage() {
         ) : null}
 
         <div className="grid gap-5 lg:grid-cols-[1.08fr_0.92fr]">
-          <section className="rounded-lg border border-white/10 bg-zinc-950 p-4 md:p-6">
+          <section className="rounded-2xl border border-white/8 bg-zinc-950/80 p-4 md:p-6">
             <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div className="min-w-0">
-                <p className="text-sm font-black uppercase tracking-[0.2em] text-brand-mint">Create reel</p>
-                <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">Upload for {activeMode.label}.</h2>
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-400">
-                  Choose a template, upload the required media, and we will render a polished 9:16 reel.
+                <h2 className="text-xl font-black text-white sm:text-2xl">Create a {activeMode.label} Reel</h2>
+                <p className="mt-2 max-w-lg text-sm leading-6 text-zinc-500">
+                  Pick template → upload media → add title & image → generate.
                 </p>
               </div>
-              <div className={`inline-flex items-center justify-center gap-2 rounded-lg border ${activeMode.border} ${activeMode.surface} px-4 py-3 text-sm font-black ${activeMode.color}`}>
-                <ActiveModeIcon size={16} />
+              <div className={`inline-flex items-center gap-2 rounded-xl border ${activeMode.border} ${activeMode.surface} px-3 py-2 text-xs font-black ${activeMode.color}`}>
+                <ActiveModeIcon size={14} />
                 {activeMode.label}
               </div>
             </div>
@@ -631,7 +662,100 @@ export default function DashboardPage() {
                   </>
               ) : null}
 
-              <div className="rounded-lg border border-white/10 bg-white/[0.035] p-4">
+              {mode === "autoCaption" ? (
+                <div className="rounded-lg border border-emerald-300/20 bg-emerald-300/[0.06] p-4">
+                  <div>
+                    <p className="text-sm font-black text-white">Caption controls</p>
+                    <p className="mt-1 text-xs font-bold leading-5 text-zinc-400">
+                      Choose subtitle language, style, position, and colors. Your video stays full-screen.
+                    </p>
+                  </div>
+
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <label className="grid gap-2">
+                      <span className="text-xs font-black uppercase tracking-[0.16em] text-zinc-500">Subtitle language</span>
+                      <select
+                        className="rounded-lg border border-white/10 bg-black/35 px-3 py-3 text-sm font-bold text-white outline-none focus:border-brand-mint/55"
+                        onChange={(event) => setSubtitleOutputLanguage(event.target.value as "hinglish" | "english" | "hindi" | "spanish" | "arabic" | "french" | "german" | "portuguese" | "indonesian" | "tamil")}
+                        value={subtitleOutputLanguage}
+                      >
+                        <option value="hinglish">Clean Hinglish</option>
+                        <option value="english">English</option>
+                        <option value="hindi">Hindi</option>
+                        <option value="spanish">Spanish</option>
+                        <option value="arabic">Arabic</option>
+                        <option value="french">French</option>
+                        <option value="german">German</option>
+                        <option value="portuguese">Portuguese</option>
+                        <option value="indonesian">Indonesian</option>
+                        <option value="tamil">Tamil</option>
+                      </select>
+                    </label>
+
+                    <label className="grid gap-2">
+                      <span className="text-xs font-black uppercase tracking-[0.16em] text-zinc-500">Caption style</span>
+                      <select
+                        className="rounded-lg border border-white/10 bg-black/35 px-3 py-3 text-sm font-bold text-white outline-none focus:border-brand-mint/55"
+                        onChange={(event) => setCaptionStyle(event.target.value as "yellowPop" | "clean" | "blackBox")}
+                        value={captionStyle}
+                      >
+                        <option value="yellowPop">Yellow Pop</option>
+                        <option value="clean">Clean White</option>
+                        <option value="blackBox">Black Box</option>
+                      </select>
+                    </label>
+
+                    <label className="grid gap-2">
+                      <span className="text-xs font-black uppercase tracking-[0.16em] text-zinc-500">Position</span>
+                      <select
+                        className="rounded-lg border border-white/10 bg-black/35 px-3 py-3 text-sm font-bold text-white outline-none focus:border-brand-mint/55"
+                        onChange={(event) => setCaptionPosition(event.target.value as "bottom" | "center" | "top")}
+                        value={captionPosition}
+                      >
+                        <option value="bottom">Bottom safe area</option>
+                        <option value="center">Center</option>
+                        <option value="top">Top</option>
+                      </select>
+                    </label>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] text-zinc-500">Text</span>
+                        <select
+                          className="h-12 rounded-lg border border-white/10 bg-black/35 px-3 text-sm font-bold text-white outline-none focus:border-brand-mint/55"
+                          onChange={(event) => setCaptionTextColor(event.target.value)}
+                          value={captionTextColor}
+                        >
+                          <option value="#ffffff">White</option>
+                          <option value="#facc15">Yellow</option>
+                          <option value="#22c55e">Green</option>
+                          <option value="#38bdf8">Blue</option>
+                          <option value="#fb7185">Pink</option>
+                          <option value="#ef4444">Red</option>
+                          <option value="#000000">Black</option>
+                        </select>
+                      </label>
+
+                      <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] text-zinc-500">Highlight</span>
+                        <select
+                          className="h-12 rounded-lg border border-white/10 bg-black/35 px-3 text-sm font-bold text-white outline-none focus:border-brand-mint/55"
+                          onChange={(event) => setCaptionHighlightColor(event.target.value)}
+                          value={captionHighlightColor}
+                        >
+                          <option value="#facc15">Yellow</option>
+                          <option value="#22c55e">Green</option>
+                          <option value="#38bdf8">Blue</option>
+                          <option value="#fb7185">Pink</option>
+                          <option value="#ef4444">Red</option>
+                          <option value="#ffffff">White</option>
+                        </select>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+              <div className={mode === "autoCaption" ? "hidden" : "rounded-lg border border-white/10 bg-white/[0.035] p-4"}>
                 <label className="text-sm font-black text-white" htmlFor="reel-topic">
                   {mode === "videoExplainer" ? "Reel title (shows at top of video)" : "Optional reel topic/title"}
                 </label>
@@ -650,29 +774,19 @@ export default function DashboardPage() {
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
-                <PolicyPill icon={Clock3} title="First minute" body="Long uploads are trimmed automatically." />
-                <PolicyPill
-                  icon={Sparkles}
-                  title={mode === "notes" ? "Voice to handwritten notes" : mode === "videoCaption" ? "Auto captions" : mode === "imageStory" ? "Image story beats" : mode === "compare" ? "Audio to comparison" : "Transcript to explainer"}
-                  body={mode === "notes" ? "Speech becomes neat note sections." : mode === "videoCaption" ? "Speech becomes synced captions only." : mode === "imageStory" ? "Images can render without fake transcript." : mode === "compare" ? "Speech becomes timed compare captions." : "Clear speech becomes scenes and text."}
-                />
-                <PolicyPill
-                  icon={BadgeCheck}
-                  title="Clean layout"
-                  body={mode === "notes" ? "Blank page notes, no prewritten image." : mode === "videoCaption" ? "Video stays full screen with safe captions." : mode === "imageStory" ? "One strong image per scene." : mode === "compare" ? "Two image panels stay visible." : "One primary visual per scene."}
-                />
+                <PolicyPill icon={Clock3} title="Max 1 minute" body="Longer uploads are trimmed to the first 60 seconds." />
                 <PolicyPill
                   icon={ShieldCheck}
-                  title="Private upload"
-                  body="Your file is temporary and only used to create your reel."
+                  title="Private & temporary"
+                  body="Your file is only used to create your reel. Not shared."
                 />
               </div>
 
               <button
-                className={`inline-flex w-full items-center justify-center gap-2 rounded-lg px-5 py-4 text-sm font-black transition ${
+                className={`inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-4.5 text-sm font-black transition ${
                   canPrepareReel
-                    ? "bg-brand-mint text-black hover:bg-white"
-                    : "cursor-not-allowed border border-white/10 bg-white/[0.04] text-zinc-500"
+                    ? "bg-brand-mint text-black shadow-lg shadow-brand-mint/15 hover:bg-white hover:shadow-white/15"
+                    : "cursor-not-allowed border border-white/8 bg-white/[0.03] text-zinc-500"
                 }`}
                 disabled={!canPrepareReel}
                 onClick={startRenderJob}
@@ -869,6 +983,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="px-5 py-5">
+
               <div className="rounded-lg border border-white/10 bg-white/[0.035] p-4">
                 <p className="truncate text-sm font-black text-white">{deleteCandidate.title}</p>
                 <p className="mt-1 text-xs font-bold uppercase tracking-[0.14em] text-zinc-500">
@@ -972,6 +1087,11 @@ export default function DashboardPage() {
           compareRightTitle: compareRightTitle.trim(),
           creatorHandle: compareHandle.trim() || "@itnavideo",
           stickerStyle,
+          captionStyle,
+          captionPosition,
+          subtitleOutputLanguage,
+          captionTextColor,
+          captionHighlightColor,
         }),
       });
       const job = await readJsonPayload(jobResponse);
@@ -1130,8 +1250,8 @@ function validateFileForMode(file: File, mode: Mode) {
   if (file.size > maxBytes) {
     return "This file is too large. Please upload a shorter file or compress it under 500MB.";
   }
-  if (mode === "videoCaption" && !isVideo) {
-    return "Video Caption needs a video file. Please upload an MP4/MOV video or choose another template.";
+  if ((mode === "videoCaption" || mode === "autoCaption") && !isVideo) {
+    return mode === "autoCaption" ? "Auto Caption Reel needs a video file. Please upload an MP4/MOV video." : "Video Caption needs a video file. Please upload an MP4/MOV video or choose another template.";
   }
   if (mode === "notes" && !isAudio && !isVideo) {
     return "Handwritten Notes needs audio or video with clear speech.";
@@ -1223,6 +1343,7 @@ async function uploadComparisonImages({files, userId}: {files: File[]; userId: s
 
 function planningMessageForMode(mode: Mode) {
   if (mode === "notes") return "Creating note sections and writing animations...";
+  if (mode === "autoCaption") return "Preparing styled subtitles for your reel...";
   if (mode === "videoCaption") return "Preparing timed captions from your real transcript...";
   if (mode === "imageStory") return "Creating image story beats and motion...";
   if (mode === "compare") return "Preparing left/right comparison scenes...";
@@ -1784,7 +1905,7 @@ function isRecentRender(value: unknown): value is RecentRender {
   return (
     typeof item.id === "string" &&
     typeof item.title === "string" &&
-    (itemMode === "videoExplainer" || itemMode === "notes" || itemMode === "videoCaption" || itemMode === "imageStory" || itemMode === "compare") &&
+    (itemMode === "videoExplainer" || itemMode === "notes" || itemMode === "videoCaption" || itemMode === "imageStory" || itemMode === "compare" || itemMode === "autoCaption") &&
     typeof item.outputFile === "string" &&
     typeof item.createdAt === "number" &&
     typeof item.expiresAt === "number"
@@ -1800,7 +1921,8 @@ function readDashboardMode(value: string | null): Mode | null {
   if (!normalized) return null;
   if (normalized.includes("compare") || normalized.includes("comparison") || normalized === "vs") return "compare";
   if (normalized.includes("notes") || normalized.includes("handwriting")) return "notes";
-  if (normalized.includes("caption") || normalized.includes("subtitle")) return "videoCaption";
+  if (normalized.includes("auto-caption") || normalized.includes("autocaption")) return "autoCaption";
+  if (normalized.includes("caption") || normalized.includes("subtitle")) return "autoCaption";
   if (normalized.includes("image") || normalized.includes("story")) return "imageStory";
   if (normalized.includes("explainer") || normalized.includes("video")) return "videoExplainer";
   return null;
@@ -1954,6 +2076,11 @@ function sanitizeUserFacingStatus(value: string) {
     .replace(/\bOpenAI\b/gi, "AI planner")
     .trim() || "Something went wrong. Please try again.";
 }
+
+
+
+
+
 
 
 
