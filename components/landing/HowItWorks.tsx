@@ -12,7 +12,7 @@ const steps = [
     number: '02',
     icon: LayoutTemplate,
     title: 'Use Explainer Video',
-    desc: 'One focused template keeps the source media visible and the story easy to follow.',
+    desc: 'Pick Auto Caption, Video Explainer, or Compare — each template keeps your content visible and easy to follow.',
   },
   {
     number: '03',
@@ -41,7 +41,7 @@ export default function HowItWorks() {
           </div>
           <div className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-zinc-300">
             <Captions size={18} className="text-cyan-300" />
-            One focused template
+            Three templates available
           </div>
         </div>
 
@@ -67,4 +67,5 @@ export default function HowItWorks() {
     </section>
   );
 }
+
 

@@ -1,238 +1,218 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ArrowRight, Captions, Check, Film, Mic2, ShieldCheck, Sparkles, UploadCloud, Video, Wand2 } from 'lucide-react';
+import { ArrowRight, Check, Film, Layers3, Play, Sparkles, Star, Users, Video, Zap , Captions} from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-const proofPoints = ['Audio, video, image inputs', 'First video for ₹9', 'Private 9:16 MP4 output'];
-
-const previewItems = [
+const templates = [
   {
-    image: '/visuals/template-video-explainer.png',
-    label: 'Video template',
+    image: '/visuals/previews/Auto Caption Reel Card.svg',
+    label: 'Caption only',
+    title: 'Auto Caption Reel',
+    description: 'Upload your reel and add stylish subtitles only',
+    icon: Captions,
+    href: '/dashboard?template=auto-caption-reel',
+    gradient: 'from-brand-mint to-emerald-500',
+    glow: 'rgba(94,234,212,0.18)',
+  },{
+    image: '/visuals/previews/Video Simple Explainer Homepage Hero.png',
+    label: 'Most popular',
     title: 'Video Explainer',
+    description: 'Creator video + subtitles + explanation image',
     icon: Video,
-  },
-];
-
-const workflowSteps = [
-  {
-    title: 'Upload source',
-    body: 'Audio, video, or voiceover',
-    icon: UploadCloud,
-    accent: 'text-cyan-200',
+    href: '/dashboard?template=video-explainer',
+    gradient: 'from-cyan-500 to-blue-600',
+    glow: 'rgba(6,182,212,0.15)',
   },
   {
-    title: 'AI processing',
-    body: 'Transcript, timing, subtitles, visuals',
-    icon: Wand2,
-    accent: 'text-brand-mint',
+    image: '/visuals/previews/Compare Explainer Homepage Hero.png',
+    label: 'New',
+    title: 'Compare Explainer',
+    description: 'Audio + left vs right comparison panels',
+    icon: Layers3,
+    href: '/dashboard?template=compare',
+    gradient: 'from-emerald-500 to-teal-600',
+    glow: 'rgba(16,185,129,0.15)',
   },
-  {
-    title: 'Generated explainer',
-    body: 'Top video, subtitles, and scene visuals',
-    icon: Film,
-    accent: 'text-amber-100',
-  },
-];
-
-const inputTypes = [
-  {label: 'Audio', icon: Mic2},
-  {label: 'Video', icon: Video},
-  {label: 'Subtitles', icon: Captions},
 ];
 
 export default function Hero() {
   return (
-    <section className="brand-surface relative overflow-hidden px-4 pt-24 sm:px-6 md:pt-32">
-      <div className="absolute inset-0">
-        <Image
-          src="/visuals/site-scenes/creator-recording-reel.png"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-center opacity-60"
-        />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.94)_0%,rgba(0,0,0,0.78)_42%,rgba(0,0,0,0.44)_100%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:linear-gradient(to_bottom,black,transparent_86%)]" />
-        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-[#050506]" />
+    <section className="relative overflow-hidden bg-[#030304] px-4 pt-28 sm:px-6 md:pt-36">
+      {/* Background effects */}
+      <div className="pointer-events-none absolute inset-0">
+        {/* Central glow */}
+        <div className="absolute left-1/2 top-0 h-[800px] w-[1000px] -translate-x-1/2 -translate-y-1/4 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.08)_0%,transparent_65%)]" />
+        {/* Side accents */}
+        <div className="absolute -left-40 top-1/3 h-[500px] w-[500px] rounded-full bg-[radial-gradient(circle,rgba(6,182,212,0.05)_0%,transparent_60%)]" />
+        <div className="absolute -right-40 top-1/2 h-[500px] w-[500px] rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.04)_0%,transparent_60%)]" />
+        {/* Grid pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:80px_80px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_30%,black_40%,transparent_100%)]" />
+        {/* Bottom fade */}
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-[#030304]" />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-7xl pb-12 md:pb-16">
-        <div className="max-w-4xl pt-8 sm:pt-14 md:pt-20">
+      <div className="relative z-10 mx-auto max-w-7xl pb-24 md:pb-32">
+        {/* Top bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-10 flex flex-wrap items-center justify-center gap-4 text-[11px] font-bold uppercase tracking-widest text-zinc-500 sm:gap-6"
+        >
+          <span className="flex items-center gap-1.5"><Users size={12} className="text-brand-mint" />Built for creators</span>
+          <span className="hidden h-3 w-px bg-zinc-800 sm:block" />
+          <span className="flex items-center gap-1.5"><Zap size={12} className="text-amber-400" />2–3 min renders</span>
+          <span className="hidden h-3 w-px bg-zinc-800 sm:block" />
+          <span className="flex items-center gap-1.5"><Star size={12} className="text-cyan-400" />No editing skills</span>
+        </motion.div>
+
+        {/* Headline */}
+        <div className="mx-auto max-w-4xl text-center">
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6 inline-flex max-w-full items-center gap-2 rounded-lg border border-brand-mint/25 bg-brand-mint/10 px-3 py-2 text-xs font-bold text-brand-mint backdrop-blur-md sm:text-sm"
+            transition={{ delay: 0.04 }}
+            className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-mint/20 bg-brand-mint/[0.06] px-5 py-2.5 text-xs font-bold text-brand-mint"
           >
-            <Sparkles size={15} />
-            <span className="truncate">AI reel maker for real uploads</span>
+            <Sparkles size={13} />
+            3 Templates Live — One credit works on any template
           </motion.div>
 
           <motion.h1
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.08 }}
-            className="max-w-4xl text-4xl font-black leading-[1.03] tracking-normal text-white sm:text-5xl md:text-7xl"
+            className="text-[2.6rem] font-black leading-[1.02] tracking-tight text-white sm:text-6xl md:text-[5.2rem]"
           >
-            Turn Audio or Video Into Explainer Reels
+            Upload Once.<br />
+            <span className="bg-gradient-to-r from-brand-mint via-cyan-300 to-emerald-400 bg-clip-text text-transparent">
+              Get a Published Reel.
+            </span>
           </motion.h1>
 
           <motion.p
-            initial={{ opacity: 0, y: 18 }}
+            initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.16 }}
-            className="mt-5 max-w-2xl text-base leading-7 text-zinc-200 sm:mt-7 sm:text-lg md:text-xl md:leading-8"
+            transition={{ delay: 0.14 }}
+            className="mx-auto mt-7 max-w-xl text-base leading-relaxed text-zinc-400 sm:text-lg"
           >
-            Generate polished Explainer Videos with top media, premium subtitles, and scene visuals automatically for Shorts, Reels, and mobile-first creators.
+            Drop your video or audio. AI adds subtitles, title, and visuals. Download a vertical reel — ready to post.
           </motion.p>
 
+          {/* CTA */}
           <motion.div
-            initial={{ opacity: 0, y: 18 }}
+            initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.24 }}
-            className="mt-7 flex flex-col gap-3 sm:mt-9 sm:flex-row"
+            transition={{ delay: 0.2 }}
+            className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:justify-center"
           >
             <Link
-              href="/create"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-mint px-6 py-4 text-sm font-black text-black transition hover:bg-white"
+              href="/dashboard"
+              className="group inline-flex items-center gap-2.5 rounded-2xl bg-brand-mint px-8 py-4.5 text-[15px] font-black text-black shadow-xl shadow-brand-mint/15 transition hover:bg-white hover:shadow-white/15"
             >
-              Create First Reel
-              <ArrowRight size={17} />
+              <Play size={17} className="transition group-hover:scale-110" />
+              Create My Reel
+              <ArrowRight size={15} />
             </Link>
             <Link
-              href="#template-proof"
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/15 bg-white/[0.06] px-6 py-4 text-sm font-black text-white backdrop-blur-md transition hover:border-white/30 hover:bg-white/[0.1]"
+              href="/pricing"
+              className="inline-flex items-center gap-2 rounded-2xl border border-zinc-700/80 bg-zinc-900/40 px-7 py-4.5 text-sm font-black text-zinc-300 backdrop-blur transition hover:border-zinc-500 hover:text-white"
             >
-              Watch Demo Reels
-              <Film size={17} />
+              View Pricing
             </Link>
           </motion.div>
 
+          {/* Trust */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.36 }}
-            className="mt-7 grid max-w-2xl gap-3 text-sm text-zinc-300 sm:mt-9 sm:grid-cols-3"
+            transition={{ delay: 0.3 }}
+            className="mx-auto mt-7 flex flex-wrap items-center justify-center gap-5 text-xs text-zinc-600"
           >
-            {proofPoints.map((item) => (
-              <div key={item} className="flex items-center gap-2 rounded-md border border-white/10 bg-black/35 px-3 py-2 backdrop-blur-md">
-                <Check size={16} className="shrink-0 text-brand-mint" />
-                <span>{item}</span>
-              </div>
+            {['Private uploads', 'No watermark', 'MP4 download', 'Cancel anytime'].map((t) => (
+              <span key={t} className="flex items-center gap-1.5"><Check size={12} className="text-brand-mint/60" />{t}</span>
             ))}
           </motion.div>
         </div>
 
+        {/* ─── Template Cards ─── */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 36 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.42, duration: 0.55 }}
-          className="mt-10 grid gap-4 lg:grid-cols-[1.2fr_0.8fr] lg:items-stretch"
+          transition={{ delay: 0.36, duration: 0.65 }}
+          className="mx-auto mt-20 grid max-w-6xl gap-6 md:grid-cols-3"
         >
-          <div className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
-            <article className="rounded-lg border border-white/12 bg-black/45 p-4 shadow-2xl shadow-black/35 backdrop-blur-xl sm:p-5">
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-mint">Live workflow</p>
-                  <h2 className="mt-1 text-xl font-black leading-tight text-white">From source file to finished reel</h2>
+          {templates.map((t) => {
+            const Icon = t.icon;
+            return (
+              <Link
+                key={t.title}
+                href={t.href}
+                className="group relative overflow-hidden rounded-3xl border border-zinc-800/80 bg-zinc-900/50 backdrop-blur transition duration-300 hover:border-zinc-600 hover:shadow-2xl"
+                style={{ boxShadow: `0 40px 80px -20px ${t.glow}` }}
+              >
+                {/* Hover gradient overlay */}
+                <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${t.gradient} opacity-0 transition duration-500 group-hover:opacity-[0.06]`} />
+
+                {/* Image */}
+                <div className="relative aspect-[4/5] overflow-hidden sm:aspect-[3/4]">
+                  <Image
+                    src={t.image}
+                    alt={`${t.title} template preview`}
+                    fill
+                    sizes="(min-width: 768px) 450px, 100vw"
+                    className="object-cover object-top transition duration-700 group-hover:scale-[1.03]"
+                    priority
+                  />
+                  {/* Bottom gradient */}
+                  <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-zinc-900 via-zinc-900/80 to-transparent" />
+
+                  {/* Badge */}
+                  <span className={`absolute left-4 top-4 rounded-full bg-gradient-to-r ${t.gradient} px-3.5 py-1.5 text-[10px] font-black uppercase tracking-wider text-white shadow-lg`}>
+                    {t.label}
+                  </span>
+
+                  {/* Icon */}
+                  <span className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-black/40 text-white/70 ring-1 ring-white/10 backdrop-blur-md transition group-hover:bg-brand-mint/20 group-hover:text-brand-mint group-hover:ring-brand-mint/30">
+                    <Icon size={20} />
+                  </span>
                 </div>
-                <span className="rounded-md border border-brand-mint/20 bg-brand-mint/10 px-3 py-2 text-xs font-black text-brand-mint">1 minute</span>
-              </div>
 
-              <div className="grid gap-3">
-                {workflowSteps.map((step, index) => {
-                  const Icon = step.icon;
-                  return (
-                    <div key={step.title} className="relative rounded-md border border-white/10 bg-white/[0.045] p-4">
-                      <div className="flex items-center gap-3">
-                        <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-black/35 ${step.accent}`}>
-                          <Icon size={18} />
-                        </span>
-                        <div>
-                          <p className="text-sm font-black text-white">{step.title}</p>
-                          <p className="mt-1 text-xs font-bold leading-5 text-zinc-400">{step.body}</p>
-                        </div>
-                      </div>
-                      {index < workflowSteps.length - 1 ? (
-                        <div className="absolute -bottom-3 left-9 z-10 h-3 w-px bg-brand-mint/45" />
-                      ) : null}
-                    </div>
-                  );
-                })}
-              </div>
+                {/* Content */}
+                <div className="relative p-6">
+                  <h3 className="text-xl font-black text-white sm:text-2xl">{t.title}</h3>
+                  <p className="mt-2 text-sm text-zinc-400">{t.description}</p>
+                  <div className="mt-5 inline-flex items-center gap-2 rounded-xl bg-white/[0.05] px-5 py-3 text-xs font-black text-zinc-300 ring-1 ring-white/10 transition group-hover:bg-brand-mint group-hover:text-black group-hover:ring-brand-mint">
+                    Use Template
+                    <ArrowRight size={13} className="transition group-hover:translate-x-0.5" />
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
+        </motion.div>
 
-              <div className="mt-4 grid grid-cols-2 gap-2">
-                {inputTypes.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <span key={item.label} className="inline-flex items-center gap-2 rounded-md border border-white/10 bg-black/25 px-3 py-2 text-xs font-black text-zinc-200">
-                      <Icon size={14} className="text-brand-mint" />
-                      {item.label}
-                    </span>
-                  );
-                })}
-              </div>
-            </article>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              {previewItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <article key={item.title} className="overflow-hidden rounded-lg border border-white/12 bg-black/45 shadow-2xl shadow-black/35 backdrop-blur-xl">
-                    <div className="relative aspect-[9/16] bg-zinc-950">
-                      <Image
-                        src={item.image}
-                        alt=""
-                        fill
-                        sizes="(min-width: 1024px) 260px, (min-width: 640px) 50vw, 100vw"
-                        className="object-cover object-top"
-                      />
-                      <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/85 to-transparent" />
-                      <div className="absolute bottom-4 left-4 right-4">
-                        <p className="text-[11px] font-black uppercase tracking-[0.16em] text-brand-mint">{item.label}</p>
-                        <h2 className="mt-1 text-lg font-black leading-tight text-white">{item.title}</h2>
-                      </div>
-                      <span className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-md bg-black/55 text-brand-mint backdrop-blur-md">
-                        <Icon size={19} />
-                      </span>
-                    </div>
-                  </article>
-                );
-              })}
+        {/* Bottom stats */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="mx-auto mt-16 flex max-w-md items-center justify-center divide-x divide-zinc-800 rounded-2xl border border-zinc-800/60 bg-zinc-900/30 px-2 py-5 backdrop-blur"
+        >
+          {[
+            { value: '$19', sub: 'Starter plan' },
+            { value: '60s', sub: 'Max input' },
+            { value: '9:16', sub: 'Output' },
+          ].map((s) => (
+            <div key={s.sub} className="flex-1 text-center">
+              <p className="text-2xl font-black text-white sm:text-3xl">{s.value}</p>
+              <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-zinc-500">{s.sub}</p>
             </div>
-          </div>
-
-          <article className="rounded-lg border border-amber-200/18 bg-black/45 p-5 shadow-2xl shadow-black/30 backdrop-blur-xl">
-            <div className="flex items-start gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-amber-200/12 text-amber-100">
-                <ShieldCheck size={19} />
-              </div>
-              <div>
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-100">Launch promise</p>
-                <h2 className="mt-2 text-2xl font-black leading-tight text-white">Create your first reel for ₹9.</h2>
-              </div>
-            </div>
-
-            <div className="mt-5 grid gap-2 text-sm font-bold text-zinc-300">
-              <span className="inline-flex items-center gap-2 rounded-md bg-black/25 px-3 py-2">
-                <Mic2 size={14} className="text-brand-mint" />
-                Upload audio, video, or voiceover
-              </span>
-              <span className="inline-flex items-center gap-2 rounded-md bg-black/25 px-3 py-2">
-                <ShieldCheck size={14} className="text-cyan-200" />
-                Uploads stay private and temporary
-              </span>
-              <span className="inline-flex items-center gap-2 rounded-md bg-black/25 px-3 py-2">
-                <Film size={14} className="text-amber-100" />
-                Download a Shorts/Reels-ready MP4
-              </span>
-            </div>
-          </article>
+          ))}
         </motion.div>
       </div>
     </section>
   );
 }
+
