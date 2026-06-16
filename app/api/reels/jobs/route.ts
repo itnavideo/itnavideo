@@ -1477,16 +1477,22 @@ function toDesign(value: string) {
 }
 
 function isAllowedRenderMode(value: string) {
-  const normalized = value.toLowerCase().replace(/[_\s]+/g, '-');
+  const normalized = value.toLowerCase().trim();
   return (
-    normalized === 'videoexplainer' ||
-    normalized === 'video-explainer' ||
-    normalized === 'explainer' ||
-    normalized === 'explainer-video' ||
-    normalized === 'facecam' ||
-    normalized === 'compare' ||
-    normalized === 'comparison' ||
-    normalized === 'vs'
+    normalized === "videoexplainer" ||
+    normalized === "video-explainer" ||
+    normalized === "video_simple_explainer" ||
+    normalized === "compare" ||
+    normalized === "comparison" ||
+    normalized === "comparisonimages" ||
+    normalized === "autoCaption".toLowerCase() ||
+    normalized === "autocaption" ||
+    normalized === "auto-caption" ||
+    normalized === "auto-caption-reel" ||
+    normalized === "auto_caption_reel" ||
+    normalized === "auto caption reel" ||
+    normalized.includes("caption") ||
+    normalized.includes("subtitle")
   );
 }
 
@@ -1777,6 +1783,7 @@ function uniqueStrings(values: string[]) {
 function slugify(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 64) || 'reel';
 }
+
 
 
 
