@@ -49,22 +49,21 @@ export async function POST(request: Request) {
   const topicTitle = readString(body.topicTitle);
   const design = toDesign(readString(body.design));
   const languageHint = toLanguageHint(readString(body.language || body.displayLanguage || body.typographyLanguage));
-  const requestedMode = readString(body.mode || body.template);
-  if (requestedMode && !isAllowedRenderMode(requestedMode)) {
+  const requestedMode = readString(body.mode || body.templateName || body.template || body.compositionId);
+  const mode = toMode(requestedMode || 'videoExplainer');
+  const templateName = resolveTemplateNameFromRequest(readString(body.templateName || body.template || requestedMode)) || MODE_TO_TEMPLATE[mode];
+  const templateConfig = templateName ? REEL_TEMPLATE_REGISTRY[templateName] : null;
+  if (!templateConfig) {
     return NextResponse.json(
       {
         ok: false,
         status: 'failed',
-        reasonCode: 'TEMPLATE_UNAVAILABLE',
-        error: 'Only Explainer Video and Compare are available right now.',
+        reasonCode: 'UNKNOWN_TEMPLATE',
+        error: 'This template is not registered for rendering yet.',
       },
       {status: 422},
     );
   }
-  const mode = toMode(requestedMode || 'videoExplainer');
-  const mediaType = getUploadedMediaType({mode, contentType});
-  const templateName = MODE_TO_TEMPLATE[mode];
-  const templateConfig = REEL_TEMPLATE_REGISTRY[templateName];
   const composition = templateConfig.compositionId;
   const userId = readString(body.userId);
   const rateLimit = checkRateLimit({
@@ -1477,35 +1476,21 @@ function toDesign(value: string) {
 }
 
 function isAllowedRenderMode(value: string) {
-  const normalized = value.toLowerCase().trim().replace(/[_\s]+/g, '-');
-  return (
-    normalized === 'videoexplainer' ||
-    normalized === 'video-explainer' ||
-    normalized === 'explainer' ||
-    normalized === 'explainer-video' ||
-    normalized === 'facecam' ||
-    normalized === 'compare' ||
-    normalized === 'comparison' ||
-    normalized === 'comparisonimages' ||
-    normalized === 'comparison-images' ||
-    normalized === 'autocaption' ||
-    normalized === 'auto-caption' ||
-    normalized === 'auto-caption-reel' ||
-    normalized === 'auto-caption-reels' ||
-    normalized === 'auto-caption-video' ||
-    normalized === 'auto-captioned-video' ||
-    normalized === 'auto-caption-reel-template' ||
-    normalized === 'auto-caption-template' ||
-    normalized === 'caption' ||
-    normalized === 'captions' ||
-    normalized === 'subtitle' ||
-    normalized === 'subtitles' ||
-    normalized === 'video-caption' ||
-    normalized === 'video-caption-template' ||
-    normalized === 'auto_caption_reel' ||
-    normalized.includes('caption') ||
-    normalized.includes('subtitle')
-  );
+  return Boolean(resolveTemplateNameFromRequest(value));
+}
+
+function resolveTemplateNameFromRequest(value: string): ReelTemplateName | null {
+  const normalized = value.toLowerCase().trim();
+  if (!normalized) return null;
+  const lookup = normalized.replace(/[-_\s]+/g, '');
+
+  const registryMatch = Object.keys(REEL_TEMPLATE_REGISTRY).find((templateKey) => (
+    templateKey.toLowerCase().replace(/[-_\s]+/g, '') === lookup
+  ));
+  if (registryMatch) return registryMatch as ReelTemplateName;
+
+  const mode = toMode(value);
+  return MODE_TO_TEMPLATE[mode] || null;
 }
 
 function toMode(value: string): ReelMode {
@@ -1795,6 +1780,7 @@ function uniqueStrings(values: string[]) {
 function slugify(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 64) || 'reel';
 }
+
 
 
 
