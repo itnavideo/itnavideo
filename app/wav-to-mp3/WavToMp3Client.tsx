@@ -86,9 +86,9 @@ export default function WavToMp3Client() {
       setMessage("Your MP3 is ready.");
       await audioContext.close?.();
     } catch (error) {
-      console.error(error);
+      console.error("WAV to MP3 conversion failed:", error);
       setState("error");
-      setMessage("Could not convert this WAV file. Please try another WAV file.");
+      setMessage(error instanceof Error ? `Conversion failed: ${error.message}` : "Could not convert this WAV file. Please try another WAV file.");
     }
   }
 
@@ -188,10 +188,13 @@ export default function WavToMp3Client() {
 
 async function encodeMp3(audioBuffer: AudioBuffer, bitrate: number) {
   const lameModule = await import("lamejs");
-  const lame = (lameModule as any).default || lameModule;
+  const Mp3Encoder = (lameModule as any).Mp3Encoder || (lameModule as any).default?.Mp3Encoder;
+  if (!Mp3Encoder) {
+    throw new Error("MP3 encoder could not load in this browser.");
+  }
   const channels = Math.min(2, audioBuffer.numberOfChannels);
   const sampleRate = audioBuffer.sampleRate;
-  const encoder = new lame.Mp3Encoder(channels, sampleRate, bitrate);
+  const encoder = new Mp3Encoder(channels, sampleRate, bitrate);
   const blockSize = 1152;
   const mp3Data: Uint8Array[] = [];
 
@@ -223,9 +226,10 @@ function floatTo16BitPcm(input: Float32Array) {
   const output = new Int16Array(input.length);
 
   for (let i = 0; i < input.length; i += 1) {
-    const sample = Math.max(-1, Math.min(1, input[i]));
-    output[i] = sample < 0 ? sample * 0x8000 : sample * 0x7fff;
+    const sample = Math.max(-1, Math.min(1, input[i] || 0));
+    output[i] = Math.round(sample < 0 ? sample * 0x8000 : sample * 0x7fff);
   }
 
   return output;
 }
+
