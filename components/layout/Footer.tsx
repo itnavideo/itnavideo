@@ -4,7 +4,7 @@ import React, { useState, useCallback } from 'react';
 import Link from 'next/link';
 import { Linkedin, Instagram, Loader2, Youtube, UserRound } from 'lucide-react';
 import BrandLogo from '@/components/brand/BrandLogo';
-import { seoLandingPages } from '@/lib/seoLandingPages';
+import { seoLandingPages } from '@/lib/seo-pages';
 
 // Types for better maintainability
 type SubscriptionStatus = 'idle' | 'loading' | 'success' | 'error';
@@ -16,6 +16,7 @@ const footerGroups = [
       { label: 'Features', href: '/features' },
       { label: 'AI Voice', href: '/features#features' },
       { label: 'Pricing', href: '/pricing' },
+      { label: 'WAV to MP3', href: '/wav-to-mp3' },
     ],
   },
   {
@@ -38,21 +39,10 @@ const footerGroups = [
   },
 ];
 
-const seoFooterLinks = seoLandingPages
-  .filter((page) => [
-    'ai-explainer-video-generator',
-    'ai-reel-generator',
-    'voice-to-video-ai',
-    'video-to-reel-maker',
-    'youtube-shorts-generator',
-    'ai-subtitle-generator',
-    'faceless-video-generator',
-    'ai-video-generator-india',
-  ].includes(page.slug))
-  .map((page) => ({
-    label: page.keyword.replace(/\b\w/g, (letter) => letter.toUpperCase()),
-    href: `/${page.slug}`,
-  }));
+const seoFooterLinks = seoLandingPages.map((page) => ({
+  label: page.primaryKeyword.replace(/\b\w/g, (letter) => letter.toUpperCase()),
+  href: `/${page.slug}`,
+}));
 
 const socialLinks = [
   {
@@ -168,7 +158,7 @@ export default function Footer() {
             <BrandLogo size="md" showTagline />
           </div>
           <p className="text-zinc-500 text-sm max-w-xs leading-relaxed">
-            AI short-form video creation from talking-head video, powered by a private media engine.
+            AI explainer video creation from audio or video, built for short-form Reels, Shorts, finance explainers, and creator workflows.
           </p>
           <a href="mailto:rohi@itnavideo.com" className="mt-4 inline-flex text-sm font-semibold text-brand-mint transition-colors hover:text-white">
             rohi@itnavideo.com
@@ -254,3 +244,6 @@ async function submitLead(input: { kind: 'newsletter'; email: string; source: st
     throw new Error(data.details || data.error || 'Newsletter signup failed.');
   }
 }
+
+
+
