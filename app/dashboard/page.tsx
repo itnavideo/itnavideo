@@ -82,7 +82,7 @@ const templateCards = [
     id: "auto-caption-reel",
     title: "Auto Caption Reel",
     description: "Upload your reel and add stylish subtitles only. No extra images, no layout changes.",
-    image: "/visuals/previews/Auto Caption Reel Card.svg",
+    image: "/assets/previews/Auto Caption Reel Dashboard.png",
     badges: ["Video", "Subtitles", "Styles"],
     active: true,
     mode: "autoCaption" as const,
@@ -2079,6 +2079,7 @@ function sanitizeUserFacingStatus(value: string) {
     .replace(/\bOpenAI\b/gi, "AI planner")
     .trim() || "Something went wrong. Please try again.";
 }
+
 
 
 

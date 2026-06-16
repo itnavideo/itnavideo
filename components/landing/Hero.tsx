@@ -7,7 +7,7 @@ import Link from 'next/link';
 
 const templates = [
   {
-    image: '/visuals/previews/Auto Caption Reel Card.svg',
+    image: '/assets/previews/Auto Caption Reel Home.png',
     label: 'Caption only',
     title: 'Auto Caption Reel',
     description: 'Upload your reel and add stylish subtitles only',
@@ -215,4 +215,5 @@ export default function Hero() {
     </section>
   );
 }
+
 
