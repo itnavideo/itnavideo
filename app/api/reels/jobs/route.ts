@@ -1477,22 +1477,34 @@ function toDesign(value: string) {
 }
 
 function isAllowedRenderMode(value: string) {
-  const normalized = value.toLowerCase().trim();
+  const normalized = value.toLowerCase().trim().replace(/[_\s]+/g, '-');
   return (
-    normalized === "videoexplainer" ||
-    normalized === "video-explainer" ||
-    normalized === "video_simple_explainer" ||
-    normalized === "compare" ||
-    normalized === "comparison" ||
-    normalized === "comparisonimages" ||
-    normalized === "autoCaption".toLowerCase() ||
-    normalized === "autocaption" ||
-    normalized === "auto-caption" ||
-    normalized === "auto-caption-reel" ||
-    normalized === "auto_caption_reel" ||
-    normalized === "auto caption reel" ||
-    normalized.includes("caption") ||
-    normalized.includes("subtitle")
+    normalized === 'videoexplainer' ||
+    normalized === 'video-explainer' ||
+    normalized === 'explainer' ||
+    normalized === 'explainer-video' ||
+    normalized === 'facecam' ||
+    normalized === 'compare' ||
+    normalized === 'comparison' ||
+    normalized === 'comparisonimages' ||
+    normalized === 'comparison-images' ||
+    normalized === 'autocaption' ||
+    normalized === 'auto-caption' ||
+    normalized === 'auto-caption-reel' ||
+    normalized === 'auto-caption-reels' ||
+    normalized === 'auto-caption-video' ||
+    normalized === 'auto-captioned-video' ||
+    normalized === 'auto-caption-reel-template' ||
+    normalized === 'auto-caption-template' ||
+    normalized === 'caption' ||
+    normalized === 'captions' ||
+    normalized === 'subtitle' ||
+    normalized === 'subtitles' ||
+    normalized === 'video-caption' ||
+    normalized === 'video-caption-template' ||
+    normalized === 'auto_caption_reel' ||
+    normalized.includes('caption') ||
+    normalized.includes('subtitle')
   );
 }
 
@@ -1783,6 +1795,7 @@ function uniqueStrings(values: string[]) {
 function slugify(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 64) || 'reel';
 }
+
 
 
 
