@@ -457,7 +457,7 @@ export function validateAndRepairReelPlan(plan: ReelPlanResult): ReelPlanResult 
 
   const renderProps = {
     ...plan.renderProps,
-    ...(plan.templateName === 'VIDEO_EXPLAINER'
+    ...((plan.templateName === 'VIDEO_EXPLAINER' || plan.templateName === 'VIDEO_SIMPLE_EXPLAINER')
       ? {design: plan.renderProps.design || (plan.renderProps.explanationImageUrl || plan.renderProps.uploadedImageUrl || plan.renderProps.bottomImageUrl ? 'simpleManual' : 'imageCollage')}
       : {}),
     durationSeconds,
@@ -480,15 +480,24 @@ export function validateAndRepairReelPlan(plan: ReelPlanResult): ReelPlanResult 
   if (plan.templateName === 'VIDEO_CAPTION' && renderProps.mediaType !== 'video') {
     warnings.push('VIDEO_CAPTION render blocked because uploaded media is not video.');
   }
-  if (plan.templateName === 'VIDEO_CAPTION' && !captions.length) {
+  if ((plan.templateName === 'VIDEO_CAPTION' || plan.templateName === 'AUTO_CAPTION_REEL') && !captions.length) {
     warnings.push('VIDEO_CAPTION render blocked because transcript-timed captions are missing.');
   }
   const imageStoryAllowed = plan.templateName !== 'IMAGE_STORY' || Boolean(imageStoryProps?.images?.length && imageStoryProps?.storyPlan?.scenes?.length);
   if (plan.templateName === 'IMAGE_STORY' && !imageStoryAllowed) {
     warnings.push('IMAGE_STORY render blocked because no usable image story scenes were available.');
   }
-  const renderAllowed = (plan.templateName === 'IMAGE_STORY' ? imageStoryAllowed : overlayTimeline.length > 0) &&
+  const autoCaptionAllowed = plan.templateName === 'AUTO_CAPTION_REEL'
+    ? input.mediaType === 'video' && captions.length > 0
+    : true;
+  const transcriptSceneAllowed = plan.templateName === 'AUTO_CAPTION_REEL'
+    ? autoCaptionAllowed
+    : plan.templateName === 'IMAGE_STORY'
+      ? imageStoryAllowed
+      : overlayTimeline.length > 0;
+  const renderAllowed = transcriptSceneAllowed &&
     videoCaptionAllowed &&
+    autoCaptionAllowed &&
     plan.validation.renderAllowed !== false;
   const validationWarnings = uniqueStrings([
     ...plan.validation.warnings,
@@ -532,7 +541,7 @@ export function validateAndRepairReelPlan(plan: ReelPlanResult): ReelPlanResult 
       renderAllowed,
       renderBlockReason: renderAllowed
         ? plan.validation.renderBlockReason
-        : plan.templateName === 'VIDEO_CAPTION' && !videoCaptionAllowed
+        : (plan.templateName === 'VIDEO_CAPTION' && !videoCaptionAllowed) || (plan.templateName === 'AUTO_CAPTION_REEL' && !autoCaptionAllowed)
           ? 'Caption render blocked because transcript is missing or invalid.'
           : plan.templateName === 'IMAGE_STORY' && !imageStoryAllowed
             ? 'Image Story render blocked because no usable image exists.'
@@ -563,7 +572,8 @@ async function createLocalReelPlan(
     segments: input.timestampSegments,
   });
   const templateName = getTemplateName(input.template);
-  const language = templateName === 'VIDEO_EXPLAINER'
+  const isExplainerLike = templateName === 'VIDEO_SIMPLE_EXPLAINER';
+  const language = isExplainerLike
     ? 'english'
     : input.languageHint === 'english' && !normalized.sourceHadHindiUrduScript && !normalized.sourceHadRomanHinglish ? 'english' : normalized.languageHint || input.languageHint || detectLanguage(normalized.transcript);
   const durationSeconds = getSafeDuration(input.durationSeconds, normalized.words, normalized.segments, normalized.transcript);
@@ -1537,13 +1547,11 @@ function attachOverlayWords<T extends {start: number; end: number}>(
 }
 
 function getTemplateName(value?: string): ReelTemplateName {
-  const normalized = String(value || '').toLowerCase();
+  const normalized = String(value || '').toLowerCase().replace(/[_\s]+/g, '-');
   if (normalized.includes('compare') || normalized.includes('comparison') || /\bvs\b/.test(normalized)) return 'comparisonImages';
-  if (normalized.includes('handwriting') || normalized.includes('notes')) return 'HANDWRITTEN_NOTES';
   if (normalized.includes('auto-caption') || normalized.includes('autocaption')) return 'AUTO_CAPTION_REEL';
   if (normalized.includes('caption') || normalized.includes('subtitle')) return 'AUTO_CAPTION_REEL';
-  if (normalized.includes('image') || normalized.includes('photo') || normalized.includes('story')) return 'IMAGE_STORY';
-  return 'VIDEO_EXPLAINER';
+  return 'VIDEO_SIMPLE_EXPLAINER';
 }
 
 function getTimelineVisualMode(templateName: ReelTemplateName): ReelTimelineScene['visualMode'] {
@@ -2710,6 +2718,7 @@ function uniqueStrings(values: string[]) {
 function roundTime(value: number) {
   return Math.round(value * 100) / 100;
 }
+
 
 
 
