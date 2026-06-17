@@ -82,7 +82,7 @@ const templateCards = [
     id: "auto-caption-reel",
     title: "Auto Caption Reel",
     description: "Upload your reel and add stylish subtitles only. No extra images, no layout changes.",
-    image: "/assets/previews/Auto Caption Reel Dashboard.png",
+    image: "/visuals/previews/Auto Caption Reel Card.svg",
     badges: ["Video", "Subtitles", "Styles"],
     active: true,
     mode: "autoCaption" as const,
@@ -776,6 +776,35 @@ export default function DashboardPage() {
                 </p>
               </div>
 
+              {/* Subtitle language selector — all templates */}
+              {mode !== "autoCaption" ? (
+                <div className="rounded-lg border border-white/10 bg-white/[0.035] p-4">
+                  <label className="grid gap-2">
+                    <span className="text-sm font-black text-white">Subtitle language</span>
+                    <p className="text-xs font-bold leading-5 text-zinc-500">Choose what language your subtitles will be in.</p>
+                    <select
+                      className="mt-1 rounded-lg border border-white/10 bg-black/35 px-3 py-3 text-sm font-bold text-white outline-none focus:border-brand-mint/55"
+                      onChange={(event) => setSubtitleOutputLanguage(event.target.value as typeof subtitleOutputLanguage)}
+                      value={subtitleOutputLanguage}
+                    >
+                      <option value="hinglish">Hinglish (Roman Hindi + English)</option>
+                      <option value="english">English</option>
+                      <option value="hindi">Hindi (Devanagari)</option>
+                      <option value="urdu">Urdu</option>
+                      <option value="kannada">Kannada</option>
+                      <option value="tamil">Tamil</option>
+                      <option value="farsi">Farsi / Persian</option>
+                      <option value="arabic">Arabic</option>
+                      <option value="spanish">Spanish</option>
+                      <option value="french">French</option>
+                      <option value="german">German</option>
+                      <option value="portuguese">Portuguese</option>
+                      <option value="indonesian">Indonesian</option>
+                    </select>
+                  </label>
+                </div>
+              ) : null}
+
               <div className="grid gap-3 sm:grid-cols-2">
                 <PolicyPill icon={Clock3} title="Max 1 minute" body="Longer uploads are trimmed to the first 60 seconds." />
                 <PolicyPill
@@ -1102,7 +1131,7 @@ export default function DashboardPage() {
         const reasonCode = typeof job.reasonCode === "string" ? job.reasonCode : "";
         setJobStatus({
           state: "error",
-          message: sanitizeUserFacingStatus(job.error || "Could not start render."),
+          message: sanitizeUserFacingStatus(job.error || "Could not start render.") + (job.detail ? ` [${job.detail}]` : ""),
           progress: getFailureProgress(reasonCode),
           failureStage: getFailureStage(reasonCode),
           reasonCode,
@@ -2079,6 +2108,7 @@ function sanitizeUserFacingStatus(value: string) {
     .replace(/\bOpenAI\b/gi, "AI planner")
     .trim() || "Something went wrong. Please try again.";
 }
+
 
 
 
