@@ -1170,7 +1170,7 @@ async function repairTranscriptionEnglishIfNeeded<T extends GroqLikeTranscriptio
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), Number(process.env.TRANSCRIPT_ENGLISH_REPAIR_TIMEOUT_MS || 18_000));
   try {
-    const response = await fetch(OPENAI_RESPONSES_URL, {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -1178,81 +1178,48 @@ async function repairTranscriptionEnglishIfNeeded<T extends GroqLikeTranscriptio
       },
       body: JSON.stringify({
         model: process.env.TRANSCRIPT_ENGLISH_REPAIR_MODEL || DEFAULT_TRANSCRIPT_REPAIR_MODEL,
-        input: [
+        messages: [
           {
             role: 'system',
             content: [
-              {
-                type: 'input_text',
-                text: [
-                  'Translate short-form video transcription text into clean natural English only.',
-                  'Preserve exact meaning, names, numbers, official terms, and factual claims.',
-                  'Do not add scene notes, summaries, headings, timestamps, or extra facts.',
-                  'Return strict JSON with transcript and segments. Segment count must match the input segment count.',
-                  '',
-                  'CORRECTION DICTIONARY — Always apply these domain-specific fixes:',
-                  'sip → SIP, emi → EMI, rbi → RBI, nps → NPS, ppf → PPF, pan → PAN, gst → GST',
-                  'nifty fifty → Nifty 50, sensex → Sensex, demat → Demat, kyc → KYC',
-                  'sbi → SBI, hdfc → HDFC, icici → ICICI, lic → LIC, epfo → EPFO, pf → PF',
-                  'ipo → IPO, etf → ETF, nav → NAV, amc → AMC, cagr → CAGR, fd → FD, rd → RD',
-                  'upsc → UPSC, ssc → SSC, ibps → IBPS, neet → NEET, jee → JEE, cat → CAT',
-                  'rbi grade bee → RBI Grade B, grade bee → Grade B',
-                  'lakh → lakh, crore → crore, rupees → rupees, paisa → paisa',
-                  'mutual fund → mutual fund (not "mutual fun"), elss → ELSS',
-                  'tds → TDS, itr → ITR, form sixteen → Form 16, form twenty six → Form 26AS',
-                  'aadhaar → Aadhaar, upi → UPI, bhim → BHIM, neft → NEFT, rtgs → RTGS, imps → IMPS',
-                ].join('\n'),
-              },
-            ],
+              'Translate short-form video transcription text into clean natural English only.',
+              'Preserve exact meaning, names, numbers, official terms, and factual claims.',
+              'Do not add scene notes, summaries, headings, timestamps, or extra facts.',
+              'Return strict JSON with keys "transcript" and "segments". Segment count must match the input segment count.',
+              '',
+              'CORRECTION DICTIONARY — Always apply these domain-specific fixes:',
+              'sip → SIP, emi → EMI, rbi → RBI, nps → NPS, ppf → PPF, pan → PAN, gst → GST',
+              'nifty fifty → Nifty 50, sensex → Sensex, demat → Demat, kyc → KYC',
+              'sbi → SBI, hdfc → HDFC, icici → ICICI, lic → LIC, epfo → EPFO, pf → PF',
+              'ipo → IPO, etf → ETF, nav → NAV, amc → AMC, cagr → CAGR, fd → FD, rd → RD',
+              'upsc → UPSC, ssc → SSC, ibps → IBPS, neet → NEET, jee → JEE, cat → CAT',
+              'rbi grade bee → RBI Grade B, grade bee → Grade B',
+              'lakh → lakh, crore → crore, rupees → rupees, paisa → paisa',
+              'mutual fund → mutual fund (not "mutual fun"), elss → ELSS',
+              'tds → TDS, itr → ITR, form sixteen → Form 16, form twenty six → Form 26AS',
+              'aadhaar → Aadhaar, upi → UPI, bhim → BHIM, neft → NEFT, rtgs → RTGS, imps → IMPS',
+            ].join('\n'),
           },
           {
             role: 'user',
-            content: [
-              {
-                type: 'input_text',
-                text: JSON.stringify({
-                  transcript: transcription.transcript,
-                  segments: (transcription.segments || []).map((segment, index) => ({
-                    index,
-                    text: segment.text,
-                  })),
-                }),
-              },
-            ],
+            content: JSON.stringify({
+              transcript: transcription.transcript,
+              segments: (transcription.segments || []).map((segment, index) => ({
+                index,
+                text: segment.text,
+              })),
+            }),
           },
         ],
-        text: {
-          format: {
-            type: 'json_schema',
-            name: 'itnavideo_english_transcript_repair',
-            strict: true,
-            schema: {
-              type: 'object',
-              additionalProperties: false,
-              properties: {
-                transcript: {type: 'string'},
-                segments: {
-                  type: 'array',
-                  items: {
-                    type: 'object',
-                    additionalProperties: false,
-                    properties: {
-                      index: {type: 'number'},
-                      text: {type: 'string'},
-                    },
-                    required: ['index', 'text'],
-                  },
-                },
-              },
-              required: ['transcript', 'segments'],
-            },
-          },
-        },
+        response_format: { type: 'json_object' },
+        temperature: 0.2,
       }),
       signal: controller.signal,
     });
     if (!response.ok) throw new Error(`Transcript repair issue: ${response.status}`);
-    const repaired = parseEnglishRepairResponse(await response.json());
+    const json = await response.json();
+    const content = json?.choices?.[0]?.message?.content || '';
+    const repaired = parseTranslationResponse(content);
     if (!repaired?.transcript) throw new Error('English transcript repair returned an empty transcript.');
     const repairedSegments = mergeRepairedSegments(transcription.segments, repaired.segments);
     return {
@@ -1317,7 +1284,7 @@ async function repairTranscriptionToLanguage<T extends GroqLikeTranscription>(tr
   const timeout = setTimeout(() => controller.abort(), 20000);
 
   try {
-    const response = await fetch(OPENAI_RESPONSES_URL, {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -1325,61 +1292,35 @@ async function repairTranscriptionToLanguage<T extends GroqLikeTranscription>(tr
       },
       body: JSON.stringify({
         model: process.env.TRANSCRIPT_ENGLISH_REPAIR_MODEL || DEFAULT_TRANSCRIPT_REPAIR_MODEL,
-        input: [
+        messages: [
           {
             role: 'system',
-            content: [{
-              type: 'input_text',
-              text: `Translate this video transcription into ${targetLang}. Preserve meaning, names, numbers, and factual claims. Keep it natural and readable for short-form video subtitles. Return strict JSON with transcript and segments. Segment count must match input.`,
-            }],
+            content: `Translate this video transcription into ${targetLang}. Preserve meaning, names, numbers, and factual claims. Keep it natural and readable for short-form video subtitles. Return strict JSON with keys "transcript" (full translated text) and "segments" (array of {index, text}). Segment count must match input. Output ONLY valid JSON, nothing else.`,
           },
           {
             role: 'user',
-            content: [{
-              type: 'input_text',
-              text: JSON.stringify({
-                transcript: transcription.transcript,
-                segments: (transcription.segments || []).map((seg, i) => ({ index: i, text: seg.text })),
-              }),
-            }],
+            content: JSON.stringify({
+              transcript: transcription.transcript,
+              segments: (transcription.segments || []).map((seg, i) => ({ index: i, text: seg.text })),
+            }),
           },
         ],
-        text: {
-          format: {
-            type: 'json_schema',
-            name: 'itnavideo_transcript_translation',
-            strict: true,
-            schema: {
-              type: 'object',
-              additionalProperties: false,
-              properties: {
-                transcript: { type: 'string' },
-                segments: {
-                  type: 'array',
-                  items: {
-                    type: 'object',
-                    additionalProperties: false,
-                    properties: { index: { type: 'number' }, text: { type: 'string' } },
-                    required: ['index', 'text'],
-                  },
-                },
-              },
-              required: ['transcript', 'segments'],
-            },
-          },
-        },
+        response_format: { type: 'json_object' },
+        temperature: 0.3,
       }),
       signal: controller.signal,
     });
 
     if (!response.ok) {
       console.error('Translation API failed:', response.status, 'for language:', outputLanguage);
-      return transcription; // Return original — don't fallback to English repair
+      return transcription;
     }
-    const parsed = parseEnglishRepairResponse(await response.json());
+    const json = await response.json();
+    const content = json?.choices?.[0]?.message?.content || '';
+    const parsed = parseTranslationResponse(content);
     if (!parsed?.transcript) {
       console.error('Translation returned empty for language:', outputLanguage);
-      return transcription; // Return original
+      return transcription;
     }
 
     const translatedSegments = mergeRepairedSegments(transcription.segments, parsed.segments);
@@ -1392,11 +1333,29 @@ async function repairTranscriptionToLanguage<T extends GroqLikeTranscription>(tr
       rawTranscript: transcription.rawTranscript || transcription.transcript,
     };
   } catch (err) {
-    // Log but don't silently convert to English
     console.error('Translation failed for language:', outputLanguage, err instanceof Error ? err.message : '');
-    return transcription; // Return original transcript
+    return transcription;
   } finally {
     clearTimeout(timeout);
+  }
+}
+
+function parseTranslationResponse(content: string): {transcript: string; segments: Array<{index: number; text: string}>} | null {
+  if (!content) return null;
+  try {
+    const parsed = JSON.parse(content);
+    if (!isRecord(parsed)) return null;
+    const transcript = readString(parsed.transcript);
+    const segments = Array.isArray(parsed.segments)
+      ? parsed.segments
+          .map((segment) => isRecord(segment)
+            ? {index: Number(segment.index), text: readString(segment.text)}
+            : null)
+          .filter((segment): segment is {index: number; text: string} => Boolean(segment && Number.isFinite(segment.index) && segment.text))
+      : [];
+    return transcript ? {transcript, segments} : null;
+  } catch {
+    return null;
   }
 }
 
