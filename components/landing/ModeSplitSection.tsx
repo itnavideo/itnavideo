@@ -34,10 +34,10 @@ export default function ModeSplitSection() {
         <div className="mb-10 max-w-3xl sm:mb-12">
           <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-brand-mint">Workflow</p>
           <h2 className="text-3xl font-black leading-tight tracking-normal text-white sm:text-4xl md:text-6xl">
-            One focused reel style before upload.
+            Two templates. Pick and upload.
           </h2>
           <p className="mt-5 text-base leading-7 text-zinc-400 sm:text-lg sm:leading-8">
-            We are shipping one polished Explainer Video flow first: fewer choices, better quality, faster renders.
+            Choose your template first, then upload. Each template has a focused workflow for clean, fast renders.
           </p>
         </div>
 

@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import {
   AlertTriangle,
   BadgeCheck,
+  Check,
   CheckCircle2,
   Clapperboard,
   Clock3,
@@ -35,7 +36,7 @@ import type { LucideIcon } from "lucide-react";
 import BrandLogo from "@/components/brand/BrandLogo";
 import { useAuth } from "@/components/auth/AuthContext";
 
-type Mode = "videoExplainer" | "notes" | "videoCaption" | "imageStory" | "compare" | "autoCaption";
+type Mode = "videoExplainer" | "notes" | "videoCaption" | "imageStory" | "compare" | "autoCaption" | "imageStoryCollage" | "autoDraw";
 type JobStatusState = "idle" | "uploading" | "starting" | "rendering" | "ready" | "error";
 type JobStatus = {
   state: JobStatusState;
@@ -82,28 +83,46 @@ const templateCards = [
     id: "auto-caption-reel",
     title: "Auto Caption Reel",
     description: "Upload your reel and add stylish subtitles only. No extra images, no layout changes.",
-    image: "/visuals/previews/Auto Caption Reel Card.svg",
+    image: "/visuals/previews/auto-caption-template.png",
     badges: ["Video", "Subtitles", "Styles"],
     active: true,
     mode: "autoCaption" as const,
   },
   {
-    id: "video-explainer",
+    id: "video-simple-explainer",
     title: "Video Simple Explainer",
     description: "Your video + subtitles + title + one bottom explanation image.",
-    image: "/visuals/previews/Simple Explainer Card.png",
+    image: "/visuals/previews/simple-explainer-template.png",
     badges: ["Video/Audio", "Title", "1 Image"],
     active: true,
     mode: "videoExplainer" as const,
   },
   {
-    id: "compare",
+    id: "compare-explainer",
     title: "Compare Explainer",
     description: "Audio voiceover + 2-4 images for left vs right comparison.",
     image: "/visuals/previews/Compare Explainer Card.png",
     badges: ["Audio", "2-4 images", "VS Layout"],
     active: true,
     mode: "compare" as const,
+  },
+  {
+    id: "cinematic-collage",
+    title: "Cinematic Collage",
+    description: "Audio voiceover + AI generates cinematic image scenes with text.",
+    image: "/visuals/previews/Compare Explainer Card.png",
+    badges: ["Audio/Video", "AI Images", "Cinematic"],
+    active: true,
+    mode: "imageStoryCollage" as const,
+  },
+  {
+    id: "auto-draw",
+    title: "Auto Draw Explainer",
+    description: "Whiteboard-style scenes drawn from your voiceover. No images needed.",
+    image: "/visuals/previews/auto-draw-template.png",
+    badges: ["Audio/Video", "Whiteboard", "Auto Draw"],
+    active: true,
+    mode: "autoDraw" as const,
   },
 ] as const;
 
@@ -146,6 +165,32 @@ const modeConfig = {
     color: "text-emerald-100",
     border: "border-emerald-200/35",
     surface: "bg-emerald-200/[0.08]",
+  },
+  imageStoryCollage: {
+    label: "Cinematic Collage",
+    title: "Cinematic Collage",
+    description: "Upload audio/video with speech. AI creates cinematic image scenes with Ken Burns motion and text overlays.",
+    accept: "audio/*,video/*",
+    supported: "Supported: MP3, WAV, MP4, MOV, WEBM",
+    bestResult: "Best result: clear voiceover, 1 minute max, descriptive speech.",
+    uploadCta: "Choose audio/video",
+    icon: Film,
+    color: "text-violet-200",
+    border: "border-violet-300/35",
+    surface: "bg-violet-300/[0.08]",
+  },
+  autoDraw: {
+    label: "Auto Draw",
+    title: "Auto Draw Explainer",
+    description: "Upload audio/video with speech. AI creates whiteboard-style scenes with hand-drawn text, bullets, and highlights.",
+    accept: "audio/*,video/*",
+    supported: "Supported: MP3, WAV, MP4, MOV, WEBM",
+    bestResult: "Best result: clear explanation voice, step-by-step content.",
+    uploadCta: "Choose audio/video",
+    icon: Film,
+    color: "text-amber-200",
+    border: "border-amber-300/35",
+    surface: "bg-amber-300/[0.08]",
   },
   videoCaption: {
     label: "Video Caption",
@@ -273,7 +318,7 @@ export default function DashboardPage() {
   }, []);
 
   const activeMode = modeConfig[mode];
-  const isFounderDebugUser = user?.email?.toLowerCase() === "itnavideo@gmail.com";
+  const isFounderDebugUser = user?.email?.toLowerCase() === "itnavideo@gmail.com" || user?.email?.toLowerCase() === "rohi@itnavideo.com";
   const ActiveModeIcon = activeMode.icon;
   const firstName = user?.displayName || user?.email?.split("@")[0] || "Creator";
   const fileMeta = useMemo(() => {
@@ -295,7 +340,7 @@ export default function DashboardPage() {
     setSelectedFile(null);
     setComparisonFiles([]);
     setJobStatus({state: "idle", message: ""});
-    const nextTemplate = nextMode === "autoCaption" ? "auto-caption-reel" : nextMode === "notes" ? "notes" : nextMode === "videoCaption" ? "video-caption" : nextMode === "imageStory" ? "image-story" : nextMode === "compare" ? "compare" : "video-explainer";
+    const nextTemplate = nextMode === "autoCaption" ? "auto-caption-reel" : nextMode === "autoDraw" ? "auto-draw-explainer" : nextMode === "imageStoryCollage" ? "cinematic-collage" : nextMode === "compare" ? "compare-explainer" : nextMode === "videoExplainer" ? "video-simple-explainer" : nextMode === "notes" ? "notes" : nextMode === "videoCaption" ? "video-caption" : "video-simple-explainer";
     window.history.replaceState(null, "", `/dashboard?template=${nextTemplate}`);
   };
 
@@ -438,11 +483,22 @@ export default function DashboardPage() {
 
         <div className="grid gap-5 lg:grid-cols-[1.08fr_0.92fr]">
           <section className="rounded-2xl border border-white/8 bg-zinc-950/80 p-4 md:p-6">
+            {/* Step indicator */}
+            <div className="mb-6 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">
+              <span className={mode ? "text-brand-mint" : "text-zinc-600"}>① Template</span>
+              <span className="text-zinc-800">→</span>
+              <span className={selectedFile ? "text-brand-mint" : "text-zinc-600"}>② Upload</span>
+              <span className="text-zinc-800">→</span>
+              <span className="text-zinc-600">③ Settings</span>
+              <span className="text-zinc-800">→</span>
+              <span className="text-zinc-600">④ Generate</span>
+            </div>
+
             <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div className="min-w-0">
                 <h2 className="text-xl font-black text-white sm:text-2xl">Create a {activeMode.label} Reel</h2>
                 <p className="mt-2 max-w-lg text-sm leading-6 text-zinc-500">
-                  Pick template → upload media → add title & image → generate.
+                  Select a template below, then upload your content.
                 </p>
               </div>
               <div className={`inline-flex items-center gap-2 rounded-xl border ${activeMode.border} ${activeMode.surface} px-3 py-2 text-xs font-black ${activeMode.color}`}>
@@ -457,12 +513,12 @@ export default function DashboardPage() {
                   <button
                     aria-disabled={!template.active}
                     aria-pressed={template.active && template.mode === mode}
-                    className={`group overflow-hidden rounded-lg border text-left transition ${
+                    className={`group relative overflow-hidden rounded-xl border text-left transition-all duration-200 ${
                       template.active
                         ? template.mode === mode
-                          ? "border-brand-mint/55 bg-brand-mint/[0.075] hover:border-brand-mint"
-                          : "border-white/12 bg-white/[0.035] hover:border-white/25"
-                        : "cursor-not-allowed border-white/10 bg-white/[0.025] opacity-72"
+                          ? "border-brand-mint/60 bg-brand-mint/[0.08] shadow-lg shadow-brand-mint/5 scale-[1.02]"
+                          : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05]"
+                        : "cursor-not-allowed border-white/8 bg-white/[0.02] opacity-60"
                     }`}
                     key={template.id}
                     onClick={() => {
@@ -472,6 +528,12 @@ export default function DashboardPage() {
                     }}
                     type="button"
                   >
+                    {/* Selected indicator */}
+                    {template.active && template.mode === mode ? (
+                      <div className="absolute right-2 top-2 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-brand-mint text-black">
+                        <Check size={12} />
+                      </div>
+                    ) : null}
                     <div className="relative aspect-[4/3] overflow-hidden bg-black">
                       <Image
                         alt=""
@@ -943,8 +1005,8 @@ export default function DashboardPage() {
       </div>
       {previewRender ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/82 px-4 py-6 backdrop-blur-sm">
-          <div className="max-h-full w-full max-w-sm overflow-hidden rounded-lg border border-white/10 bg-zinc-950 shadow-2xl sm:max-w-md">
-            <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
+          <div className="flex max-h-[90vh] w-full max-w-sm flex-col overflow-hidden rounded-lg border border-white/10 bg-zinc-950 shadow-2xl sm:max-w-md">
+            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
               <div className="min-w-0">
                 <p className="truncate text-sm font-black text-white">{previewRender.title}</p>
                 <p className="mt-0.5 text-xs font-bold text-zinc-500">{formatTimeLeft(previewRender.expiresAt)}</p>
@@ -957,14 +1019,16 @@ export default function DashboardPage() {
                 <X size={16} />
               </button>
             </div>
-            <video
-              className="aspect-[9/16] w-full bg-black object-contain"
-              controls
-              playsInline
-              preload="metadata"
-              src={previewRender.outputFile}
-            />
-            <div className="grid gap-3 border-t border-white/10 p-4 sm:grid-cols-3">
+            <div className="min-h-0 flex-1 overflow-y-auto">
+              <video
+                className="aspect-[9/16] w-full bg-black object-contain"
+                controls
+                playsInline
+                preload="metadata"
+                src={previewRender.outputFile}
+              />
+            </div>
+            <div className="grid shrink-0 gap-3 border-t border-white/10 p-4 sm:grid-cols-3">
               <button
                 className="inline-flex items-center justify-center rounded-lg border border-white/10 px-4 py-3 text-sm font-black text-zinc-200 transition hover:bg-white/10"
                 onClick={() => setPreviewRender(null)}
@@ -1130,15 +1194,16 @@ export default function DashboardPage() {
       const job = await readJsonPayload(jobResponse);
       if (!jobResponse.ok || !job.ok) {
         const reasonCode = typeof job.reasonCode === "string" ? job.reasonCode : "";
+        const fd = job._founderDiagnostics || {};
         const diagnosticParts = [
-          job.step ? `Step: ${job.step}` : "",
-          reasonCode ? `Reason: ${reasonCode}` : "",
-          job.debugMode ? `Mode: ${job.debugMode}` : "",
-          job.debugTemplate ? `Template: ${job.debugTemplate}` : "",
-          job.debugComposition ? `Composition: ${job.debugComposition}` : "",
-          job.httpStatus ? `HTTP: ${job.httpStatus}` : "",
-          job.detail ? `Detail: ${job.detail}` : "",
-          job.rawText ? `Raw: ${String(job.rawText).slice(0, 240)}` : "",
+          fd.step ? `Step: ${fd.step}` : (job.step ? `Step: ${job.step}` : ""),
+          fd.reason ? `Reason: ${fd.reason}` : (reasonCode ? `Reason: ${reasonCode}` : ""),
+          fd.mode ? `Mode: ${fd.mode}` : (job.debugMode ? `Mode: ${job.debugMode}` : ""),
+          fd.templateName ? `Template: ${fd.templateName}` : (job.debugTemplate ? `Template: ${job.debugTemplate}` : ""),
+          fd.compositionId ? `Composition: ${fd.compositionId}` : (job.debugComposition ? `Composition: ${job.debugComposition}` : ""),
+          fd.httpStatus ? `HTTP: ${fd.httpStatus}` : (job.httpStatus ? `HTTP: ${job.httpStatus}` : ""),
+          fd.detail ? `Detail: ${fd.detail}` : (job.detail ? `Detail: ${job.detail}` : ""),
+          fd.raw ? `Raw: ${String(fd.raw).slice(0, 240)}` : (job.rawText ? `Raw: ${String(job.rawText).slice(0, 240)}` : ""),
         ].filter(Boolean);
 
         setJobStatus({
@@ -1961,13 +2026,17 @@ function getModeLabel(mode: Mode) {
 }
 
 function readDashboardMode(value: string | null): Mode | null {
-  const normalized = String(value || "").toLowerCase();
+  const normalized = String(value || "").toLowerCase().replace(/[-_\s]+/g, "");
   if (!normalized) return null;
-  if (normalized.includes("compare") || normalized.includes("comparison") || normalized === "vs") return "compare";
-  if (normalized.includes("notes") || normalized.includes("handwriting")) return "notes";
-  if (normalized.includes("auto-caption") || normalized.includes("autocaption")) return "autoCaption";
+  if (normalized === "autocaptionreel" || normalized === "autocaption") return "autoCaption";
+  if (normalized === "videosimpleexplainer" || normalized === "videoexplainer") return "videoExplainer";
+  if (normalized === "compareexplainer" || normalized === "compare" || normalized === "comparison") return "compare";
+  if (normalized === "cinematiccollage" || normalized === "imagestorycollage") return "imageStoryCollage";
+  if (normalized === "autodrawexplainer" || normalized === "autodraw" || normalized === "whiteboard") return "autoDraw";
   if (normalized.includes("caption") || normalized.includes("subtitle")) return "autoCaption";
-  if (normalized.includes("image") || normalized.includes("story")) return "imageStory";
+  if (normalized.includes("compare")) return "compare";
+  if (normalized.includes("draw") || normalized.includes("whiteboard")) return "autoDraw";
+  if (normalized.includes("cinematic") || normalized.includes("collage")) return "imageStoryCollage";
   if (normalized.includes("explainer") || normalized.includes("video")) return "videoExplainer";
   return null;
 }

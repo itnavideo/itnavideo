@@ -157,7 +157,7 @@ export async function upsertRenderHistoryFromServer(data) {
 
   const { data: result, error } = await supabase
     .from('render_history')
-    .upsert(row, { onConflict: 'user_id,render_id' })
+    .upsert(row, { onConflict: 'render_id' })
     .select()
     .single();
 

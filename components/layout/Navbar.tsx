@@ -8,7 +8,7 @@ import { useAuth } from '@/components/auth/AuthContext';
 import BrandLogo from '@/components/brand/BrandLogo';
 
 const productLinks = [
-  { label: 'Create', href: '/create', icon: AudioLines },
+  { label: 'Templates', href: '/#templates', icon: AudioLines },
   { label: 'Features', href: '/features', icon: Sparkles },
 ];
 

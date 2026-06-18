@@ -1,9 +1,7 @@
 ﻿import React from 'react';
 import Hero from "@/components/landing/Hero";
-import OutputProofSection from "@/components/landing/OutputProofSection";
 import HowItWorks from "@/components/landing/HowItWorks";
 import UseCaseGallerySection from "@/components/landing/UseCaseGallerySection";
-import ModeSplitSection from "@/components/landing/ModeSplitSection";
 import SearchIntentSection from "@/components/landing/SearchIntentSection";
 import FeaturesSection from "@/components/landing/FeaturesSection";
 import FAQSection from "@/components/FAQSection";
@@ -58,13 +56,11 @@ export default function LandingPage() {
         }}
       />
       <Hero />
-      <OutputProofSection />
       <HowItWorks />
-      <ModeSplitSection />
       <UseCaseGallerySection />
-      <SearchIntentSection />
       <FeaturesSection />
       <FAQSection />
+      <SearchIntentSection />
     </div>
   );
 }

@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Itnavideo - Complete Technical Documentation</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:900px;margin:0 auto;padding:40px 24px;color:#1a1a2e;line-height:1.7;background:#fff}
+h1{color:#0f172a;border-bottom:3px solid #06b6d4;padding-bottom:12px;font-size:2.2em}
+h2{color:#0f172a;border-bottom:2px solid #e2e8f0;padding-bottom:8px;margin-top:48px;font-size:1.6em}
+h3{color:#334155;margin-top:32px;font-size:1.2em}
+code{background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:0.88em;color:#7c3aed}
+pre{background:#0f172a;color:#e2e8f0;padding:20px;border-radius:12px;overflow-x:auto;font-size:0.85em;line-height:1.5}
+pre code{background:none;color:inherit;padding:0}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:0.9em}
+th{background:#0f172a;color:#fff;padding:10px 14px;text-align:left}
+td{padding:10px 14px;border:1px solid #e2e8f0}
+tr:nth-child(even){background:#f8fafc}
+blockquote{border-left:4px solid #06b6d4;margin:16px 0;padding:12px 20px;background:#f0fdfa}
+strong{color:#0f172a}
+a{color:#06b6d4;text-decoration:none}
+hr{border:none;border-top:1px solid #e2e8f0;margin:32px 0}
+ul,ol{padding-left:24px}
+li{margin:6px 0}
+@media print{body{max-width:100%;padding:20px}pre{white-space:pre-wrap}}
+</style>
+</head>
+<body>
+<h1>Itnavideo — Complete Technical Documentation</h1>
+<h2>For Investors &amp; Technical Team Onboarding</h2>
+<p><strong>Version:</strong> 1.0 | <strong>Date:</strong> June 17, 2026 | <strong>Author:</strong> Founder + AI Engineering Team</p>
+<hr>
+<h2>Table of Contents</h2>
+<ol>
+<li><a href="#1-product-overview">Product Overview</a></li>
+<li><a href="#2-architecture--tech-stack">Architecture &amp; Tech Stack</a></li>
+<li><a href="#3-project-structure">Project Structure</a></li>
+<li><a href="#4-remotion-video-engine">Remotion Video Engine</a></li>
+<li><a href="#5-template-system">Template System</a></li>
+<li><a href="#6-render-pipeline-end-to-end">Render Pipeline (End-to-End)</a></li>
+<li><a href="#7-ai--transcription">AI &amp; Transcription</a></li>
+<li><a href="#8-multi-language-subtitles">Multi-Language Subtitles</a></li>
+<li><a href="#9-aws-infrastructure">AWS Infrastructure</a></li>
+<li><a href="#10-payment--billing">Payment &amp; Billing</a></li>
+<li><a href="#11-seo--marketing-pages">SEO &amp; Marketing Pages</a></li>
+<li><a href="#12-how-to-add-a-new-template">How to Add a New Template</a></li>
+<li><a href="#13-common-errors--solutions">Common Errors &amp; Solutions</a></li>
+<li><a href="#14-environment-variables">Environment Variables</a></li>
+<li><a href="#15-deployment-guide">Deployment Guide</a></li>
+<li><a href="#16-future-roadmap">Future Roadmap</a></li>
+</ol>
+<hr>
+<h2>1. Product Overview</h2>
+<p><strong>Itnavideo</strong> is an AI-powered reel/short-video generator that turns audio/video uploads into polished 9:16 vertical videos with subtitles, titles, and visual elements.</p>
+<p><strong>Core Value Proposition:</strong></p>
+<ul>
+<li>Upload video/audio with speech</li>
+<li>AI transcribes, generates timed subtitles</li>
+<li>Renders a polished vertical reel using Remotion on AWS Lambda</li>
+<li>User downloads MP4 — ready to post on Instagram, YouTube, TikTok</li>
+</ul>
+<p><strong>Business Model:</strong></p>
+<ul>
+<li>Credit-based: 1 credit = 1 rendered reel</li>
+<li>Plans: Starter ($19/20 credits), Creator ($39/60 credits), Business ($99/180 credits)</li>
+<li>Payment: Razorpay (USD, International enabled)</li>
+</ul>
+<p><strong>Current Templates (3 Live):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Template</th>
+<th>Input</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Auto Caption Reel</td>
+<td>Video</td>
+<td>Same video + styled subtitles overlay</td>
+</tr>
+<tr>
+<td>Video Simple Explainer</td>
+<td>Video + Title + Image</td>
+<td>Video on top + title + subtitles + bottom image</td>
+</tr>
+<tr>
+<td>Compare Explainer</td>
+<td>Audio + 2-4 Images</td>
+<td>Left vs Right comparison + sticker + subtitles</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>2. Architecture &amp; Tech Stack</h2>
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│                     FRONTEND (Vercel)                         │
+│  Next.js 16 + React 19 + Tailwind CSS 4 + Framer Motion     │
+│  Pages: Homepage, Dashboard, Templates, Pricing, SEO pages   │
+└─────────────┬───────────────────────────────────┬───────────┘
+              │                                   │
+              ▼                                   ▼
+┌─────────────────────────┐     ┌─────────────────────────────┐
+│   VERCEL API ROUTES     │     │     SUPABASE                 │
+│  /api/reels/jobs        │     │  Auth (Google + Email)       │
+│  /api/media/presign     │     │  Billing entitlements        │
+│  /api/create-order      │     │  Render history              │
+│  /api/verify-payment    │     │  Job applications            │
+└─────────┬───────────────┘     └──────────────────────────────┘
+          │
+          ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    AWS SERVICES                               │
+│                                                              │
+│  S3: Media upload (presigned URLs) + Render output          │
+│  Lambda: Remotion render (3GB RAM, 10min timeout)           │
+│  Region: ap-south-1 (Mumbai)                                │
+└─────────────────────────────────────────────────────────────┘
+          │
+          ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  AI SERVICES                                  │
+│                                                              │
+│  Groq: Primary transcription (whisper-large-v3-turbo)       │
+│  OpenAI: Fallback transcription + Planning + Translation     │
+│  Model: gpt-5-mini for planning/translation                 │
+└─────────────────────────────────────────────────────────────┘
+</code></pre>
+<p><strong>Key Technologies:</strong></p>
+<ul>
+<li><strong>Frontend:</strong> Next.js 16, React 19, Tailwind CSS 4, Framer Motion</li>
+<li><strong>Video Rendering:</strong> Remotion 4.0.467, AWS Lambda</li>
+<li><strong>AI:</strong> Groq Whisper, OpenAI GPT-5-mini</li>
+<li><strong>Auth:</strong> Supabase (Google OAuth + Email/Password)</li>
+<li><strong>Payments:</strong> Razorpay (USD international)</li>
+<li><strong>Storage:</strong> AWS S3</li>
+<li><strong>Deployment:</strong> Vercel (website) + AWS Lambda (rendering)</li>
+<li><strong>Database:</strong> Supabase PostgreSQL</li>
+</ul>
+<hr>
+<h2>3. Project Structure</h2>
+<pre><code>itnavideo/
+├── app/                          # Next.js App Router pages
+│   ├── page.tsx                  # Homepage
+│   ├── layout.tsx                # Root layout (auth, fonts, analytics)
+│   ├── dashboard/page.tsx        # Main creation dashboard
+│   ├── pricing/page.tsx          # Pricing page
+│   ├── templates/                # Dedicated template pages
+│   │   ├── auto-caption-reel/    # Auto Caption template page
+│   │   ├── video-explainer/      # Video Explainer template page
+│   │   └── compare-explainer/    # Compare template page
+│   ├── api/                      # API routes
+│   │   ├── reels/jobs/route.ts   # Main render orchestration (CRITICAL)
+│   │   ├── media/presign/route.ts # S3 upload presign
+│   │   ├── create-order/route.ts  # Razorpay order creation
+│   │   ├── verify-payment/route.ts # Payment verification
+│   │   └── cron/seo/route.ts      # SEO ping cron
+│   ├── (seo)/[slug]/page.tsx     # Dynamic SEO landing pages
+│   ├── wav-to-mp3/               # Free WAV to MP3 tool
+│   └── ...                       # Other pages (about, contact, etc.)
+├── remotion/                     # VIDEO RENDERING ENGINE
+│   ├── index.tsx                 # Remotion root (registers compositions)
+│   ├── templates/
+│   │   ├── AUTO_CAPTION_REEL/    # Auto Caption template
+│   │   │   └── template.tsx      # Composition + component
+│   │   ├── VIDEO_SIMPLE_EXPLAINER/
+│   │   │   ├── template.tsx      # Composition definition
+│   │   │   └── components/
+│   │   │       └── VideoSimpleExplainer.tsx  # Render component
+│   │   └── COMPARE_EXPLAINER/
+│   │       ├── template.tsx      # Composition + all components
+│   │       └── sfxManifest.ts    # Sound effects list
+│   └── layers/                   # Shared render layers
+├── services/
+│   ├── ai/
+│   │   ├── reelPlanner.ts        # CORE: Plan generation from transcript
+│   │   ├── openaiReelDirector.ts # OpenAI structured planning call
+│   │   ├── groqTranscription.ts  # Groq + OpenAI transcription
+│   │   ├── assetPicker.ts        # Asset matching for scenes
+│   │   ├── visualPlanner.ts      # Visual scene planning
+│   │   └── hinglishTranscript.ts # Hindi/Urdu detection
+│   ├── billing/                  # Render access &amp; entitlements
+│   ├── media/
+│   │   └── mediaClipper.ts       # FFmpeg media clipping
+│   └── rateLimit/                # In-memory rate limiter
+├── components/
+│   ├── landing/                  # Homepage sections
+│   ├── layout/                   # Navbar, Footer, AppChrome
+│   ├── billing/                  # Pricing cards + checkout
+│   ├── compare/                  # Compare-specific UI components
+│   ├── auth/                     # Auth context + components
+│   └── brand/                    # Logo component
+├── lib/
+│   ├── aws/mediaStorage.ts       # S3 upload/download helpers
+│   ├── billing/plans.ts          # Pricing plan definitions
+│   ├── payments/razorpay.ts      # Razorpay client
+│   ├── seo/public-url-collector.ts # Sitemap URL generator
+│   └── seo-pages.ts             # SEO landing page content
+├── public/
+│   ├── visuals/                  # Deployed images (NOT in .vercelignore)
+│   │   ├── previews/            # Template preview images
+│   │   ├── stickers/            # Sticker preview images (dashboard)
+│   │   └── site-scenes/         # Homepage lifestyle images
+│   └── assets/                   # Render assets (IN .vercelignore, NOT deployed)
+│       ├── stickman/            # Sticker PNGs for Remotion
+│       ├── reusable/            # Fonts, SFX, background music
+│       └── compare/             # Default compare images
+├── scripts/                      # Build &amp; deploy scripts
+│   ├── remotion-lambda-deploy.mjs # Lambda site deploy
+│   └── ...
+├── .vercelignore                 # Excludes public/assets from Vercel
+├── vercel.json                   # Cron config
+├── next.config.mjs               # Next.js config
+└── package.json                  # Dependencies
+</code></pre>
+<hr>
+<h2>4. Remotion Video Engine</h2>
+<h3>What is Remotion?</h3>
+<p>Remotion is a React-based video rendering framework. You write video compositions as React components, and Remotion renders them frame-by-frame into MP4 files.</p>
+<h3>How We Use It:</h3>
+<ol>
+<li><strong>Compositions</strong> defined in <code>remotion/index.tsx</code> — registers all available templates</li>
+<li><strong>Each template</strong> is a React component that receives props (mediaSrc, captions, title, etc.)</li>
+<li><strong>AWS Lambda</strong> renders the composition with user&#39;s specific props</li>
+<li><strong>Output:</strong> 1080x1920 MP4 at 30fps</li>
+</ol>
+<h3>Remotion Files:</h3>
+<pre><code>remotion/
+├── index.tsx                     # Root — imports all compositions
+├── templates/
+│   ├── AUTO_CAPTION_REEL/
+│   │   └── template.tsx          # Full-screen video + caption overlay
+│   ├── VIDEO_SIMPLE_EXPLAINER/
+│   │   ├── template.tsx          # Composition wrapper + calculateMetadata
+│   │   └── components/
+│   │       └── VideoSimpleExplainer.tsx  # 4-layer reel component
+│   └── COMPARE_EXPLAINER/
+│       ├── template.tsx          # Full compare reel (stickers, VS badge, etc.)
+│       └── sfxManifest.ts        # SFX file paths
+</code></pre>
+<h3>Key Remotion Concepts Used:</h3>
+<ul>
+<li><code>&lt;Composition&gt;</code> — defines a renderable video template</li>
+<li><code>&lt;Sequence&gt;</code> — shows content at specific frame ranges</li>
+<li><code>&lt;OffthreadVideo&gt;</code> — embeds user&#39;s video</li>
+<li><code>&lt;Audio&gt;</code> — plays audio track</li>
+<li><code>&lt;Img&gt;</code> — renders images</li>
+<li><code>useCurrentFrame()</code> — current render frame</li>
+<li><code>useVideoConfig()</code> — fps, duration info</li>
+<li><code>interpolate()</code> — frame-based animations</li>
+<li><code>staticFile()</code> — references files from public/assets/</li>
+<li><code>calculateMetadata</code> — dynamic duration based on props</li>
+</ul>
+<h3>Render Specs:</h3>
+<ul>
+<li><strong>Resolution:</strong> 1080 × 1920 (9:16 portrait)</li>
+<li><strong>FPS:</strong> 30</li>
+<li><strong>Max Duration:</strong> 60 seconds (1800 frames)</li>
+<li><strong>Codec:</strong> H.264 + AAC audio</li>
+<li><strong>Output:</strong> MP4</li>
+</ul>
+<hr>
+<h2>5. Template System</h2>
+<h3>Template Registration:</h3>
+<p>Every template needs:</p>
+<ol>
+<li><strong>Remotion composition</strong> in <code>remotion/templates/TEMPLATE_NAME/template.tsx</code></li>
+<li><strong>Registry entry</strong> in <code>services/ai/reelPlanner.ts</code> → <code>REEL_TEMPLATE_REGISTRY</code></li>
+<li><strong>Mode mapping</strong> in <code>app/api/reels/jobs/route.ts</code> → <code>MODE_TO_TEMPLATE</code></li>
+<li><strong>Presign allowlist</strong> in <code>app/api/media/presign/route.ts</code></li>
+<li><strong>Dashboard card</strong> in <code>app/dashboard/page.tsx</code> → <code>templateCards</code></li>
+</ol>
+<h3>Template: AUTO_CAPTION_REEL</h3>
+<ul>
+<li><strong>Composition ID:</strong> <code>AUTO-CAPTION-REEL</code></li>
+<li><strong>Input:</strong> Video file with speech</li>
+<li><strong>Output:</strong> Same video full-screen + styled subtitle overlay at bottom</li>
+<li><strong>Caption Styles:</strong> bold, neon, minimal, classic</li>
+<li><strong>Props:</strong> mediaSrc, captions, captionStyle, sourceAudioVolume</li>
+</ul>
+<h3>Template: VIDEO_SIMPLE_EXPLAINER</h3>
+<ul>
+<li><strong>Composition ID:</strong> <code>VIDEO-SIMPLE-EXPLAINER</code></li>
+<li><strong>Input:</strong> Video/Audio + Title + One image</li>
+<li><strong>Output:</strong> 4-layer reel (video → title with brush highlight → subtitles → image)</li>
+<li><strong>Props:</strong> mediaSrc, title, captions, explanationImageUrl, sourceAudioVolume</li>
+</ul>
+<h3>Template: COMPARE_EXPLAINER (comparisonImages)</h3>
+<ul>
+<li><strong>Composition ID:</strong> <code>comparisonImages</code></li>
+<li><strong>Input:</strong> Audio + 2-4 comparison images</li>
+<li><strong>Output:</strong> Left vs Right panels + VS badge + captions + animated sticker</li>
+<li><strong>Sticker Styles:</strong> 2d, cartoon, explainer (6 poses each)</li>
+<li><strong>Sticker Pose Logic:</strong> Changes every 3 seconds based on script content (left, right, thinking, welcome, warning, success)</li>
+<li><strong>Props:</strong> audioUrl, comparisonImageUrls, compareLeftTitle, compareRightTitle, captions, stickerStyle</li>
+</ul>
+<hr>
+<h2>6. Render Pipeline (End-to-End)</h2>
+<h3>Full Flow: User clicks &quot;Create My Reel&quot;</h3>
+<pre><code>STEP 1: PRESIGN &amp; UPLOAD
+─────────────────────────
+Dashboard → POST /api/media/presign
+  → Validates mode, file type, user auth, rate limit
+  → Creates S3 presigned upload URL
+  → Returns { uploadUrl, key }
+Dashboard → PUT to S3 presigned URL (direct browser upload)
+
+STEP 2: START RENDER JOB
+─────────────────────────
+Dashboard → POST /api/reels/jobs
+  Body: { mediaKey, mode, topicTitle, userId, explanationImageKey, subtitleOutputLanguage, ... }
+  
+  API Route does:
+  1. Resolve template (MODE_TO_TEMPLATE mapping)
+  2. Check billing access (getRenderAccessForUser)
+  3. Create read URL from S3 key
+  4. Prepare planning media (clip to 60s if FFmpeg available, else use original)
+  5. Transcribe via Groq (primary) → OpenAI (fallback)
+  6. Translate transcript to user&#39;s chosen language
+  7. Create reel plan (createReelPlan → validateAndRepairReelPlan)
+  8. Build inputProps for Remotion
+  9. Validate props (preflight checks)
+  10. Call renderMediaOnLambda (AWS Lambda)
+  11. Return { renderId, bucketName, status: &#39;rendering&#39; }
+
+STEP 3: RENDER ON LAMBDA
+─────────────────────────
+AWS Lambda:
+  → Downloads media from S3 URL
+  → Loads Remotion site (bundled compositions)
+  → Renders composition frame-by-frame
+  → Encodes to H.264 MP4
+  → Uploads output to S3
+  → Duration: 1-4 minutes typically
+
+STEP 4: POLL STATUS
+─────────────────────────
+Dashboard polls GET /api/reels/jobs/status?renderId=...
+  → Checks Lambda render progress
+  → Returns progress %, status, outputFile URL when done
+
+STEP 5: DOWNLOAD
+─────────────────────────
+User downloads MP4 from S3 signed URL (expires in 48 hours)
+</code></pre>
+<hr>
+<h2>7. AI &amp; Transcription</h2>
+<h3>Transcription Service: <code>services/ai/groqTranscription.ts</code></h3>
+<p><strong>Primary: Groq Whisper</strong></p>
+<ul>
+<li>Model: <code>whisper-large-v3-turbo</code></li>
+<li>Response: verbose_json (word-level timestamps)</li>
+<li>Sends audio as multipart form to Groq API</li>
+<li>Returns: transcript text + word timings + segment timings</li>
+</ul>
+<p><strong>Fallback: OpenAI Whisper</strong></p>
+<ul>
+<li>Model: <code>whisper-1</code></li>
+<li>Same API pattern but to OpenAI endpoint</li>
+<li>Used only if Groq fails</li>
+</ul>
+<h3>Transcript Repair: <code>repairTranscriptionToLanguage()</code></h3>
+<p>After transcription, OpenAI GPT-5-mini:</p>
+<ol>
+<li>If output language is English/Hinglish → cleans and fixes finance terms (SIP, RBI, PAN, etc.)</li>
+<li>If other language (Hindi, Spanish, etc.) → translates entire transcript while preserving timing</li>
+</ol>
+<h3>Reel Planning: <code>services/ai/reelPlanner.ts</code></h3>
+<p>Creates the overlay timeline (scene text, timing, visual directions):</p>
+<ol>
+<li><code>getTimedSegments()</code> — groups words into time-aligned chunks</li>
+<li><code>buildOverlayTimeline()</code> — creates overlay scenes from segments</li>
+<li><code>validateAndRepairReelPlan()</code> — fixes timing, removes invalid scenes</li>
+<li><code>createManagedReelPlan()</code> via OpenAI — optional AI-enhanced planning</li>
+</ol>
+<h3>Finance Glossary (Built-in):</h3>
+<p>Auto-corrects: sip→SIP, rbi→RBI, pan→PAN, emi→EMI, nifty fifty→Nifty 50, etc.</p>
+<hr>
+<h2>8. Multi-Language Subtitles</h2>
+<p><strong>Supported Languages:</strong>
+English, Hinglish, Hindi (Devanagari), Urdu, Kannada, Tamil, Farsi, Arabic, Spanish, French, German, Portuguese, Indonesian</p>
+<p><strong>Flow:</strong></p>
+<ol>
+<li>User selects language in dashboard</li>
+<li><code>subtitleOutputLanguage</code> sent to API</li>
+<li>After Groq transcribes (raw), <code>repairTranscriptionToLanguage()</code> calls OpenAI</li>
+<li>OpenAI translates transcript + segments to target language</li>
+<li>Segment timing preserved (only text changes)</li>
+<li>Translated text becomes subtitle content in rendered video</li>
+</ol>
+<hr>
+<h2>9. AWS Infrastructure</h2>
+<h3>S3 Bucket: <code>remotionlambda-apsouth1-m59wp9dklj</code></h3>
+<ul>
+<li>Media uploads (presigned, temporary)</li>
+<li>Render outputs (private, 3-day auto-delete)</li>
+<li>Remotion site bundle</li>
+</ul>
+<h3>Lambda Function: <code>remotion-render-4-0-467-mem3008mb-disk2048mb-900sec</code></h3>
+<ul>
+<li>Memory: 3008 MB</li>
+<li>Timeout: 900 seconds (15 min)</li>
+<li>Disk: 2048 MB</li>
+<li>Region: ap-south-1 (Mumbai)</li>
+<li>Runtime: Node.js (Remotion bundled)</li>
+<li>Concurrency: 6-8 per render</li>
+</ul>
+<h3>Remotion Lambda Site:</h3>
+<ul>
+<li>Bundled JS + public assets uploaded to S3</li>
+<li>Serve URL: <code>https://remotionlambda-apsouth1-m59wp9dklj.s3.ap-south-1.amazonaws.com/sites/itnavideo-video-explainer/index.html</code></li>
+<li>Must re-deploy when templates change: <code>npm run reel:lambda:deploy</code></li>
+</ul>
+<hr>
+<h2>10. Payment &amp; Billing</h2>
+<h3>Razorpay Integration:</h3>
+<ul>
+<li>International payments enabled (USD)</li>
+<li>Order creation: <code>/api/create-order</code></li>
+<li>Payment verification: <code>/api/verify-payment</code></li>
+<li>Webhook backup: <code>/api/razorpay/webhook</code></li>
+</ul>
+<h3>Plans:</h3>
+<table>
+<thead>
+<tr>
+<th>Plan</th>
+<th>Price</th>
+<th>Credits</th>
+<th>Features</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Starter</td>
+<td>$19</td>
+<td>20 reels</td>
+<td>All basic templates, HD, no watermark</td>
+</tr>
+<tr>
+<td>Creator</td>
+<td>$39</td>
+<td>60 reels</td>
+<td>All templates, priority render, brand kit</td>
+</tr>
+<tr>
+<td>Business</td>
+<td>$99</td>
+<td>180 reels</td>
+<td>Priority queue, commercial use, agency</td>
+</tr>
+</tbody></table>
+<h3>Billing Storage:</h3>
+<ul>
+<li>Supabase <code>app_settings</code> table stores entitlements</li>
+<li>Key format: <code>entitlement:{userId}</code></li>
+<li>Server-side check before every render</li>
+</ul>
+<hr>
+<h2>11. SEO &amp; Marketing Pages</h2>
+<h3>Sitemap: Auto-generated from <code>lib/seo/public-url-collector.ts</code></h3>
+<ul>
+<li>38+ pages indexed</li>
+<li>Submitted to Google Search Console</li>
+</ul>
+<h3>SEO Landing Pages: <code>lib/seo-pages.ts</code></h3>
+<p>7 programmatic SEO pages targeting specific keywords:</p>
+<ul>
+<li>/ai-explainer-video-generator</li>
+<li>/audio-to-reels</li>
+<li>/finance-reel-generator</li>
+<li>/hinglish-explainer-video-maker</li>
+<li>/faceless-explainer-video-maker</li>
+<li>/video-to-reel-maker</li>
+<li>/compare-explainer-video-maker</li>
+</ul>
+<h3>Template Pages: <code>/templates/*</code></h3>
+<ul>
+<li>/templates/auto-caption-reel (interactive caption style picker)</li>
+<li>/templates/video-explainer</li>
+<li>/templates/compare-explainer</li>
+</ul>
+<h3>Daily SEO Cron: <code>/api/cron/seo</code></h3>
+<ul>
+<li>Pings Google, Bing, IndexNow with sitemap</li>
+<li>Runs at 3 AM daily via Vercel cron</li>
+</ul>
+<hr>
+<h2>12. How to Add a New Template</h2>
+<h3>Step-by-Step:</h3>
+<p><strong>1. Create Remotion Template:</strong></p>
+<pre><code>remotion/templates/NEW_TEMPLATE/
+├── template.tsx          # Composition + component
+└── components/           # (optional) sub-components
+</code></pre>
+<p>In <code>template.tsx</code>:</p>
+<pre><code class="language-tsx">import { Composition } from &#39;remotion&#39;;
+import { NewTemplate } from &#39;./components/NewTemplate&#39;;
+
+export const NewTemplateComposition = () =&gt; (
+  &lt;Composition
+    id=&quot;NEW-TEMPLATE-ID&quot;
+    component={NewTemplate}
+    width={1080}
+    height={1920}
+    fps={30}
+    durationInFrames={1800}
+    defaultProps={{...}}
+    calculateMetadata={({props}) =&gt; ({
+      durationInFrames: Math.ceil((props.sourceDurationSeconds || 60) * 30),
+    })}
+  /&gt;
+);
+</code></pre>
+<p><strong>2. Register in <code>remotion/index.tsx</code>:</strong></p>
+<pre><code class="language-tsx">import { NewTemplateComposition } from &#39;./templates/NEW_TEMPLATE/template&#39;;
+const compositions = [..., NewTemplateComposition];
+</code></pre>
+<p><strong>3. Add to <code>services/ai/reelPlanner.ts</code>:</strong></p>
+<pre><code class="language-tsx">export type ReelTemplateName = &#39;...&#39; | &#39;NEW_TEMPLATE&#39;;
+export const REEL_TEMPLATE_REGISTRY = {
+  NEW_TEMPLATE: {
+    templateName: &#39;NEW_TEMPLATE&#39;,
+    compositionId: &#39;NEW-TEMPLATE-ID&#39;,
+    allowedMedia: [&#39;video&#39;],
+    transcriptRequirement: &#39;required&#39;,
+    plannerMode: &#39;videoExplainer&#39;,
+    mediaFit: &#39;videoExplainer&#39;,
+  },
+};
+</code></pre>
+<p><strong>4. Add mode mapping in <code>app/api/reels/jobs/route.ts</code>:</strong></p>
+<pre><code class="language-tsx">type ReelMode = &#39;...&#39; | &#39;newMode&#39;;
+const MODE_TO_TEMPLATE = { newMode: &#39;NEW_TEMPLATE&#39; };
+</code></pre>
+<p><strong>5. Allow in presign route <code>app/api/media/presign/route.ts</code>:</strong>
+Add check function: <code>isNewModeWorkflow(workflowMode)</code></p>
+<p><strong>6. Add dashboard card in <code>app/dashboard/page.tsx</code>:</strong>
+Add to <code>templateCards</code> array and <code>modeConfig</code> object.</p>
+<p><strong>7. Deploy:</strong></p>
+<pre><code class="language-bash">npx vercel --prod           # Website
+npm run reel:lambda:deploy  # Render engine
+</code></pre>
+<hr>
+<h2>13. Common Errors &amp; Solutions</h2>
+<table>
+<thead>
+<tr>
+<th>Error</th>
+<th>Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>&quot;Could not find composition X&quot;</td>
+<td>Lambda has old site</td>
+<td><code>npm run reel:lambda:deploy</code></td>
+</tr>
+<tr>
+<td>&quot;Could not start render&quot;</td>
+<td>Lambda invocation failed (payload too large, props invalid)</td>
+<td>Strip heavy props for template, check Lambda logs</td>
+</tr>
+<tr>
+<td>&quot;This template is not available right now&quot;</td>
+<td>Presign route blocks the mode</td>
+<td>Add mode to <code>isAllowedRenderMode()</code> in presign</td>
+</tr>
+<tr>
+<td>&quot;No clear speech detected&quot;</td>
+<td>Video has no voice (only music)</td>
+<td>Upload video with clear speaking voice</td>
+</tr>
+<tr>
+<td>&quot;durationInFrames of Loop is missing&quot;</td>
+<td>Old Loop component on Lambda</td>
+<td>Remove Loop, re-deploy Lambda</td>
+</tr>
+<tr>
+<td>&quot;Lame is not defined&quot; (WAV to MP3)</td>
+<td>lamejs npm broken with bundlers</td>
+<td>Load via CDN script tag instead</td>
+</tr>
+<tr>
+<td>&quot;MPEGMode is not defined&quot;</td>
+<td>Same lamejs bundler issue</td>
+<td>CDN script approach</td>
+</tr>
+<tr>
+<td>Sticker images not showing</td>
+<td>Path references <code>/assets/</code> (vercelignored)</td>
+<td>Move to <code>/visuals/stickers/</code></td>
+</tr>
+<tr>
+<td>Template preview images broken</td>
+<td>Same <code>/assets/</code> issue</td>
+<td>Use <code>/visuals/previews/</code> path</td>
+</tr>
+<tr>
+<td>RLS security warning (Supabase)</td>
+<td>Row Level Security not enabled</td>
+<td>Run <code>fix-rls-security.sql</code></td>
+</tr>
+<tr>
+<td>Transcription fails for all users</td>
+<td>FFmpeg not on Vercel, returns empty URL</td>
+<td>Fallback uses original S3 URL directly</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>14. Environment Variables</h2>
+<h3>Required for Production:</h3>
+<pre><code class="language-env"># App
+NEXT_PUBLIC_SITE_URL=https://www.itnavideo.com
+
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+
+# AI
+OPENAI_API_KEY=
+GROQ_API_KEY=
+GROQ_TRANSCRIPTION_MODEL=whisper-large-v3-turbo
+
+# AWS
+AWS_REGION=ap-south-1
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+REMOTION_LAMBDA_FUNCTION_NAME=remotion-render-4-0-467-mem3008mb-disk2048mb-900sec
+REMOTION_LAMBDA_SERVE_URL=https://remotionlambda-apsouth1-m59wp9dklj.s3.ap-south-1.amazonaws.com/sites/itnavideo-video-explainer/index.html
+REMOTION_LAMBDA_BUCKET_NAME=remotionlambda-apsouth1-m59wp9dklj
+
+# Payments
+RAZORPAY_KEY_ID=
+RAZORPAY_KEY_SECRET=
+
+# SEO
+SEO_CRON_SECRET=
+</code></pre>
+<hr>
+<h2>15. Deployment Guide</h2>
+<h3>Website (Vercel):</h3>
+<pre><code class="language-bash">npx vercel --prod
+</code></pre>
+<ul>
+<li>Deploys Next.js app</li>
+<li>Excludes <code>public/assets/</code> (render assets stay on S3/Lambda)</li>
+<li>Auto-builds, generates static pages</li>
+</ul>
+<h3>Render Engine (AWS Lambda):</h3>
+<pre><code class="language-bash">npm run reel:lambda:deploy
+</code></pre>
+<ul>
+<li>Bundles Remotion compositions + public/assets</li>
+<li>Uploads to S3 as &quot;site&quot;</li>
+<li>Lambda uses this site for rendering</li>
+<li><strong>MUST run after any template code change</strong></li>
+</ul>
+<h3>Both (after template changes):</h3>
+<pre><code class="language-bash">npx vercel --prod &amp;&amp; npm run reel:lambda:deploy
+</code></pre>
+<hr>
+<h2>16. Future Roadmap</h2>
+<h3>Immediate (Next 30 Days):</h3>
+<ul>
+<li><input disabled="" type="checkbox"> Fix Auto Caption Reel render error (Lambda payload issue)</li>
+<li><input disabled="" type="checkbox"> Add more caption styles (word-highlight, karaoke)</li>
+<li><input disabled="" type="checkbox"> Transcript editor (TipTap) for user corrections before render</li>
+<li><input disabled="" type="checkbox"> Video preview before render (Remotion Player)</li>
+</ul>
+<h3>Medium Term (60-90 Days):</h3>
+<ul>
+<li><input disabled="" type="checkbox"> New templates: Talking Head, News Update, Product Showcase</li>
+<li><input disabled="" type="checkbox"> Background music library (user picks mood)</li>
+<li><input disabled="" type="checkbox"> Custom brand kit (colors, fonts, logo watermark)</li>
+<li><input disabled="" type="checkbox"> Bulk render (queue multiple videos)</li>
+<li><input disabled="" type="checkbox"> API access for business plan</li>
+</ul>
+<h3>Long Term (6 Months):</h3>
+<ul>
+<li><input disabled="" type="checkbox"> Mobile app (React Native)</li>
+<li><input disabled="" type="checkbox"> AI script writer (topic → script → reel)</li>
+<li><input disabled="" type="checkbox"> Team/agency dashboard with roles</li>
+<li><input disabled="" type="checkbox"> Custom template builder (drag-drop)</li>
+<li><input disabled="" type="checkbox"> Multi-platform auto-posting (Instagram, YouTube, TikTok APIs)</li>
+<li><input disabled="" type="checkbox"> Analytics dashboard (views, engagement)</li>
+</ul>
+<hr>
+<h2>Summary</h2>
+<p>Itnavideo is a <strong>template-driven, AI-powered short-form video generator</strong> built on:</p>
+<ul>
+<li><strong>Next.js 16</strong> (frontend + API)</li>
+<li><strong>Remotion 4</strong> (video rendering)</li>
+<li><strong>AWS Lambda</strong> (serverless rendering at scale)</li>
+<li><strong>Groq + OpenAI</strong> (transcription + planning + translation)</li>
+<li><strong>Razorpay</strong> (payments)</li>
+<li><strong>Supabase</strong> (auth + data)</li>
+</ul>
+<p>The system is designed for <strong>predictable, structured output</strong> (not random AI generation). Each template has a defined layout, and user inputs are restricted to what that template supports.</p>
+<p><strong>Key differentiator:</strong> Template-first approach where the visual structure is guaranteed, and AI only handles text (subtitles, timing, translation) — not visual design decisions.</p>
+<hr>
+<p><em>Document prepared for investor technical due diligence. All code is proprietary. © 2026 Itnavideo Inc.</em></p>
+
+</body>
+</html>

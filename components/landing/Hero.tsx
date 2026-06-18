@@ -7,33 +7,54 @@ import Link from 'next/link';
 
 const templates = [
   {
-    image: '/assets/previews/Auto Caption Reel Home.png',
+    image: '/visuals/previews/auto-caption-template.png',
     label: 'Caption only',
     title: 'Auto Caption Reel',
-    description: 'Upload your reel and add stylish subtitles only',
+    description: 'Best for existing reels that need subtitles',
     icon: Captions,
-    href: '/dashboard?template=auto-caption-reel',
+    href: '/templates/auto-caption-reel',
     gradient: 'from-brand-mint to-emerald-500',
     glow: 'rgba(94,234,212,0.18)',
-  },{
-    image: '/visuals/previews/Video Simple Explainer Homepage Hero.png',
+  },
+  {
+    image: '/visuals/previews/simple-explainer-template.png',
     label: 'Most popular',
-    title: 'Video Explainer',
-    description: 'Creator video + subtitles + explanation image',
+    title: 'Video Simple Explainer',
+    description: 'Best for teaching & talking-head clips',
     icon: Video,
-    href: '/dashboard?template=video-explainer',
+    href: '/templates/video-simple-explainer',
     gradient: 'from-cyan-500 to-blue-600',
     glow: 'rgba(6,182,212,0.15)',
   },
   {
     image: '/visuals/previews/Compare Explainer Homepage Hero.png',
-    label: 'New',
+    label: 'Comparison',
     title: 'Compare Explainer',
-    description: 'Audio + left vs right comparison panels',
+    description: 'Best for vs / difference videos',
     icon: Layers3,
-    href: '/dashboard?template=compare',
+    href: '/templates/compare-explainer',
     gradient: 'from-emerald-500 to-teal-600',
     glow: 'rgba(16,185,129,0.15)',
+  },
+  {
+    image: '/visuals/previews/Simple Explainer Card.png',
+    label: 'Cinematic',
+    title: 'Cinematic Collage',
+    description: 'Best for story-driven narration reels',
+    icon: Film,
+    href: '/templates/cinematic-collage',
+    gradient: 'from-violet-500 to-purple-600',
+    glow: 'rgba(139,92,246,0.15)',
+  },
+  {
+    image: '/visuals/previews/auto-draw-template.png',
+    label: 'Whiteboard',
+    title: 'Auto Draw Explainer',
+    description: 'Best for tips, steps & educational content',
+    icon: Film,
+    href: '/templates/auto-draw-explainer',
+    gradient: 'from-amber-500 to-orange-600',
+    glow: 'rgba(245,158,11,0.15)',
   },
 ];
 
@@ -76,7 +97,7 @@ export default function Hero() {
             className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-mint/20 bg-brand-mint/[0.06] px-5 py-2.5 text-xs font-bold text-brand-mint"
           >
             <Sparkles size={13} />
-            3 Templates Live — One credit works on any template
+            5 Templates Live — One payment, any template
           </motion.div>
 
           <motion.h1
@@ -85,9 +106,9 @@ export default function Hero() {
             transition={{ delay: 0.08 }}
             className="text-[2.6rem] font-black leading-[1.02] tracking-tight text-white sm:text-6xl md:text-[5.2rem]"
           >
-            Upload Once.<br />
+            Turn Video, Audio or Images<br />
             <span className="bg-gradient-to-r from-brand-mint via-cyan-300 to-emerald-400 bg-clip-text text-transparent">
-              Get a Published Reel.
+              into Ready-to-Post Reels
             </span>
           </motion.h1>
 
@@ -95,9 +116,9 @@ export default function Hero() {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.14 }}
-            className="mx-auto mt-7 max-w-xl text-base leading-relaxed text-zinc-400 sm:text-lg"
+            className="mx-auto mt-7 max-w-2xl text-base leading-relaxed text-zinc-400 sm:text-lg"
           >
-            Drop your video or audio. AI adds subtitles, title, and visuals. Download a vertical reel — ready to post.
+            Choose a template, upload your content, and get a 9:16 reel with captions, visuals, and clean layouts in minutes. One payment unlocks all templates.
           </motion.p>
 
           {/* CTA */}
@@ -136,12 +157,42 @@ export default function Hero() {
           </motion.div>
         </div>
 
+        {/* Hero showcase images */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.32, duration: 0.6 }}
+          className="mx-auto mt-14 grid max-w-5xl gap-4 sm:grid-cols-2"
+        >
+          <div className="overflow-hidden rounded-2xl border border-zinc-800 shadow-2xl shadow-black/40">
+            <Image
+              src="/visuals/ChatGPT Image Jun 18, 2026, 02_57_41 PM.png"
+              alt="Itnavideo AI reel creation"
+              width={800}
+              height={500}
+              className="w-full object-cover"
+              priority
+            />
+          </div>
+          <div className="overflow-hidden rounded-2xl border border-zinc-800 shadow-2xl shadow-black/40">
+            <Image
+              src="/visuals/ChatGPT Image Jun 18, 2026, 03_01_08 PM.png"
+              alt="Itnavideo template output preview"
+              width={800}
+              height={500}
+              className="w-full object-cover"
+              priority
+            />
+          </div>
+        </motion.div>
+
         {/* ─── Template Cards ─── */}
         <motion.div
           initial={{ opacity: 0, y: 36 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.36, duration: 0.65 }}
-          className="mx-auto mt-20 grid max-w-6xl gap-6 md:grid-cols-3"
+          transition={{ delay: 0.44, duration: 0.65 }}
+          className="mx-auto mt-20 grid max-w-7xl gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5"
+          id="templates"
         >
           {templates.map((t) => {
             const Icon = t.icon;
@@ -156,12 +207,12 @@ export default function Hero() {
                 <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${t.gradient} opacity-0 transition duration-500 group-hover:opacity-[0.06]`} />
 
                 {/* Image */}
-                <div className="relative aspect-[4/5] overflow-hidden sm:aspect-[3/4]">
+                <div className="relative aspect-[3/4] overflow-hidden lg:aspect-[2/3]">
                   <Image
                     src={t.image}
                     alt={`${t.title} template preview`}
                     fill
-                    sizes="(min-width: 768px) 450px, 100vw"
+                    sizes="(min-width: 768px) 340px, 100vw"
                     className="object-cover object-top transition duration-700 group-hover:scale-[1.03]"
                     priority
                   />
@@ -201,9 +252,9 @@ export default function Hero() {
           className="mx-auto mt-16 flex max-w-md items-center justify-center divide-x divide-zinc-800 rounded-2xl border border-zinc-800/60 bg-zinc-900/30 px-2 py-5 backdrop-blur"
         >
           {[
-            { value: '$19', sub: 'Starter plan' },
-            { value: '60s', sub: 'Max input' },
-            { value: '9:16', sub: 'Output' },
+            { value: '$19', sub: 'Starter pack' },
+            { value: '60s', sub: 'Max reel' },
+            { value: '5', sub: 'Templates' },
           ].map((s) => (
             <div key={s.sub} className="flex-1 text-center">
               <p className="text-2xl font-black text-white sm:text-3xl">{s.value}</p>

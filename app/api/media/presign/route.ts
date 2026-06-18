@@ -26,7 +26,15 @@ export async function POST(request: Request) {
   const fileName = readString(body.fileName);
   const contentType = readString(body.contentType);
   const workflowMode = readString(body.mode || body.template).toLowerCase();
-  const templateMode = isCompareWorkflow(workflowMode) ? 'compare' : 'videoExplainer';
+  const templateMode = isCompareWorkflow(workflowMode) 
+    ? 'compare' 
+    : isAutoCaptionWorkflow(workflowMode) 
+    ? 'autoCaption' 
+    : isImageStoryCollageWorkflow(workflowMode)
+    ? 'imageStoryCollage'
+    : isAutoDrawWorkflow(workflowMode)
+    ? 'autoDraw'
+    : 'videoExplainer';
   const uploadMode = contentType.startsWith('audio/') ? 'audio' : contentType.startsWith('image/') ? 'image' : 'video';
   const fileSize = Number(body.fileSize || 0);
   const userId = readString(body.userId);
@@ -37,7 +45,7 @@ export async function POST(request: Request) {
   if (!userId) {
     return NextResponse.json({ok: false, error: 'Please log in before uploading media.'}, {status: 401});
   }
-  if (workflowMode && !isVideoExplainerWorkflow(workflowMode) && !isCompareWorkflow(workflowMode)) {
+  if (workflowMode && !isVideoExplainerWorkflow(workflowMode) && !isCompareWorkflow(workflowMode) && !isAutoCaptionWorkflow(workflowMode) && !isImageStoryCollageWorkflow(workflowMode) && !isAutoDrawWorkflow(workflowMode)) {
     return NextResponse.json({ok: false, error: 'This template is not available right now.'}, {status: 422});
   }
   if (fileSize > MAX_FILE_SIZE_BYTES) {
@@ -91,11 +99,14 @@ function readString(value: unknown) {
 
 function isAllowedUploadForTemplate(templateMode: string, contentType: string) {
   if (templateMode === 'compare') return contentType.startsWith('audio/') || contentType.startsWith('image/');
+  if (templateMode === 'autoCaption') return contentType.startsWith('video/');
+  if (templateMode === 'imageStoryCollage') return contentType.startsWith('audio/') || contentType.startsWith('video/');
   return contentType.startsWith('audio/') || contentType.startsWith('video/') || contentType.startsWith('image/');
 }
 
 function uploadErrorForTemplate(templateMode: string) {
   if (templateMode === 'compare') return 'Compare needs one audio file plus exactly 2 visuals.';
+  if (templateMode === 'imageStoryCollage') return 'Cinematic Collage needs audio voiceover or video with clear speech.';
   return 'Video Explainer needs audio, video, or bottom image.';
 }
 
@@ -111,6 +122,20 @@ function isVideoExplainerWorkflow(value: string) {
 
 function isCompareWorkflow(value: string) {
   return value === 'compare' || value === 'comparison' || value === 'vs';
+}
+
+function isAutoCaptionWorkflow(value: string) {
+  return value === 'autocaption' || value === 'auto-caption' || value === 'auto-caption-reel' || value === 'caption' || value === 'subtitle';
+}
+
+function isImageStoryCollageWorkflow(value: string) {
+  const normalized = value.toLowerCase().replace(/[-_\s]+/g, '');
+  return normalized === 'imagestorycollage' || normalized === 'cinematiccollage';
+}
+
+function isAutoDrawWorkflow(value: string) {
+  const normalized = value.toLowerCase().replace(/[-_\s]+/g, '');
+  return normalized === 'autodraw' || normalized === 'autodrawexplainer' || normalized === 'whiteboard';
 }
 
 function sanitizeUserFacingStatus(value: string) {
@@ -134,8 +159,3 @@ function sanitizeUserFacingStatus(value: string) {
     .replace(/\bOpenAI\b/gi, 'AI planner')
     .trim() || 'Could not create upload URL.';
 }
-
-
-
-
-

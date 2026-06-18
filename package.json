@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-ec2": "^3.986.0",
+    "@fontsource/kalam": "^5.2.8",
     "@remotion/bundler": "^4.0.467",
     "@remotion/lambda": "^4.0.467",
     "@remotion/renderer": "^4.0.467",
@@ -55,6 +56,7 @@
     "lamejs": "^1.2.1",
     "lucide-react": "^0.511.0",
     "next": "^16.2.6",
+    "openai": "^6.44.0",
     "radix-ui": "^1.4.3",
     "razorpay": "^2.9.6",
     "react": "^19.0.0",

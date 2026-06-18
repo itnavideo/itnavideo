@@ -68,11 +68,23 @@ export default function WavToMp3Client() {
       setMessage("Reading WAV file...");
 
       const arrayBuffer = await file.arrayBuffer();
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-      const audioContext = new AudioContextClass();
 
-      setMessage("Decoding audio...");
-      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer.slice(0));
+      let audioBuffer: AudioBuffer;
+      try {
+        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+        const audioContext = new AudioContextClass();
+        setMessage("Decoding audio...");
+        audioBuffer = await audioContext.decodeAudioData(arrayBuffer.slice(0));
+        await audioContext.close?.();
+      } catch (decodeError) {
+        // Fallback: try parsing raw PCM WAV manually
+        setMessage("Standard decode failed. Trying raw WAV parser...");
+        const parsed = parseWavManually(arrayBuffer);
+        if (!parsed) {
+          throw new Error("This WAV format is not supported. Try re-exporting it as 16-bit PCM WAV.");
+        }
+        audioBuffer = parsed;
+      }
 
       setMessage("Encoding high-quality MP3...");
       const mp3Blob = await encodeMp3(audioBuffer, BITRATE);
@@ -84,11 +96,14 @@ export default function WavToMp3Client() {
       setOutputName(name);
       setState("done");
       setMessage("Your MP3 is ready.");
-      await audioContext.close?.();
     } catch (error) {
       console.error("WAV to MP3 conversion failed:", error);
       setState("error");
-      setMessage(error instanceof Error ? `Conversion failed: ${error.message}` : "Could not convert this WAV file. Please try another WAV file.");
+      setMessage(
+        error instanceof Error
+          ? `Could not convert this WAV file. ${error.message}`
+          : "Could not convert this WAV file. Please try another WAV file.",
+      );
     }
   }
 
@@ -187,11 +202,14 @@ export default function WavToMp3Client() {
 }
 
 async function encodeMp3(audioBuffer: AudioBuffer, bitrate: number) {
-  const lameModule = await import("lamejs");
-  const Mp3Encoder = (lameModule as any).Mp3Encoder || (lameModule as any).default?.Mp3Encoder;
+  // Load lamejs via script tag — the npm package breaks with modern bundlers
+  await loadLameScript();
+
+  const Mp3Encoder = (window as any).lamejs?.Mp3Encoder;
   if (!Mp3Encoder) {
-    throw new Error("MP3 encoder could not load in this browser.");
+    throw new Error("MP3 encoder could not load. Please refresh and try again.");
   }
+
   const channels = Math.min(2, audioBuffer.numberOfChannels);
   const sampleRate = audioBuffer.sampleRate;
   const encoder = new Mp3Encoder(channels, sampleRate, bitrate);
@@ -222,6 +240,27 @@ async function encodeMp3(audioBuffer: AudioBuffer, bitrate: number) {
   return new Blob(mp3Data, { type: "audio/mpeg" });
 }
 
+function loadLameScript(): Promise<void> {
+  if ((window as any).lamejs?.Mp3Encoder) return Promise.resolve();
+
+  return new Promise((resolve, reject) => {
+    const existing = document.querySelector('script[data-lamejs]');
+    if (existing) {
+      existing.addEventListener('load', () => resolve(), {once: true});
+      existing.addEventListener('error', () => reject(new Error('Failed to load MP3 encoder')), {once: true});
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js';
+    script.setAttribute('data-lamejs', 'true');
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('Failed to load MP3 encoder from CDN'));
+    document.head.appendChild(script);
+  });
+}
+
 function floatTo16BitPcm(input: Float32Array) {
   const output = new Int16Array(input.length);
 
@@ -231,5 +270,95 @@ function floatTo16BitPcm(input: Float32Array) {
   }
 
   return output;
+}
+
+function parseWavManually(buffer: ArrayBuffer): AudioBuffer | null {
+  try {
+    const view = new DataView(buffer);
+
+    // Check RIFF header
+    const riff = String.fromCharCode(view.getUint8(0), view.getUint8(1), view.getUint8(2), view.getUint8(3));
+    if (riff !== 'RIFF') return null;
+
+    const wave = String.fromCharCode(view.getUint8(8), view.getUint8(9), view.getUint8(10), view.getUint8(11));
+    if (wave !== 'WAVE') return null;
+
+    // Find fmt chunk
+    let offset = 12;
+    let channels = 1;
+    let sampleRate = 44100;
+    let bitsPerSample = 16;
+    let dataOffset = 0;
+    let dataSize = 0;
+
+    while (offset < view.byteLength - 8) {
+      const chunkId = String.fromCharCode(view.getUint8(offset), view.getUint8(offset + 1), view.getUint8(offset + 2), view.getUint8(offset + 3));
+      const chunkSize = view.getUint32(offset + 4, true);
+
+      if (chunkId === 'fmt ') {
+        const audioFormat = view.getUint16(offset + 8, true);
+        if (audioFormat !== 1 && audioFormat !== 3) return null; // Only PCM (1) or IEEE float (3)
+        channels = view.getUint16(offset + 10, true);
+        sampleRate = view.getUint32(offset + 12, true);
+        bitsPerSample = view.getUint16(offset + 22, true);
+      }
+
+      if (chunkId === 'data') {
+        dataOffset = offset + 8;
+        dataSize = chunkSize;
+        break;
+      }
+
+      offset += 8 + chunkSize;
+      if (chunkSize % 2 !== 0) offset += 1; // padding byte
+    }
+
+    if (!dataOffset || !dataSize) return null;
+
+    const bytesPerSample = bitsPerSample / 8;
+    const numSamples = Math.floor(dataSize / (bytesPerSample * channels));
+
+    // Create offline AudioBuffer-like object
+    const channelData: Float32Array[] = [];
+    for (let ch = 0; ch < channels; ch++) {
+      channelData.push(new Float32Array(numSamples));
+    }
+
+    for (let i = 0; i < numSamples; i++) {
+      for (let ch = 0; ch < channels; ch++) {
+        const byteOffset = dataOffset + (i * channels + ch) * bytesPerSample;
+        let sample = 0;
+
+        if (bitsPerSample === 16) {
+          sample = view.getInt16(byteOffset, true) / 32768;
+        } else if (bitsPerSample === 24) {
+          const b0 = view.getUint8(byteOffset);
+          const b1 = view.getUint8(byteOffset + 1);
+          const b2 = view.getUint8(byteOffset + 2);
+          const int24 = (b2 << 24 | b1 << 16 | b0 << 8) >> 8;
+          sample = int24 / 8388608;
+        } else if (bitsPerSample === 32) {
+          sample = view.getFloat32(byteOffset, true);
+        } else if (bitsPerSample === 8) {
+          sample = (view.getUint8(byteOffset) - 128) / 128;
+        }
+
+        channelData[ch][i] = Math.max(-1, Math.min(1, sample));
+      }
+    }
+
+    // Create a mock AudioBuffer interface
+    const mockBuffer = {
+      numberOfChannels: channels,
+      sampleRate,
+      length: numSamples,
+      duration: numSamples / sampleRate,
+      getChannelData: (channel: number) => channelData[channel] || channelData[0],
+    } as unknown as AudioBuffer;
+
+    return mockBuffer;
+  } catch {
+    return null;
+  }
 }
 

@@ -14,9 +14,16 @@ const footerGroups = [
     title: 'Product',
     links: [
       { label: 'Features', href: '/features' },
-      { label: 'AI Voice', href: '/features#features' },
       { label: 'Pricing', href: '/pricing' },
       { label: 'WAV to MP3', href: '/wav-to-mp3' },
+    ],
+  },
+  {
+    title: 'Templates',
+    links: [
+      { label: 'Auto Caption Reel', href: '/templates/auto-caption-reel' },
+      { label: 'Video Simple Explainer', href: '/templates/video-simple-explainer' },
+      { label: 'Compare Explainer', href: '/templates/compare-explainer' },
     ],
   },
   {

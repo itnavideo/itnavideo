@@ -15,17 +15,17 @@ const STICKERS: Array<{
   {
     id: "2d",
     name: "2D Teacher",
-    image: "/assets/stickman-transparent/2d-teacher/teacher-right.png",
+    image: "/visuals/stickers/2d-teacher.png",
   },
   {
     id: "cartoon",
     name: "Cartoon Teacher",
-    image: "/assets/stickman-transparent/cartoon-teacher/teacher-right.png",
+    image: "/visuals/stickers/cartoon-teacher.png",
   },
   {
     id: "explainer",
     name: "Stickman Explainer",
-    image: "/assets/stickman-transparent/stickman-explainer/teacher-right.png",
+    image: "/visuals/stickers/stickman-explainer.png",
   },
 ];
 

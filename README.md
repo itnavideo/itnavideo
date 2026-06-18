@@ -196,7 +196,10 @@ Current baseline:
 - `remotion/templates/SPLIT_TOP_MEDIA/motion-assets/chatgpt-transparent-*.png` - Extra ChatGPT-generated transparent PNG overlays/motion graphics were merged into the existing template-local motion asset folder. Exact duplicates of existing semantic motion assets were skipped by SHA-256 hash. Added for: SPLIT_TOP_MEDIA asset expansion.
 - `remotion/templates/SPLIT_TOP_MEDIA/images/reel-image-*.png` - ChatGPT-generated 9:16/static reel image assets were merged into the existing template-local image folder and renamed with index + semantic keywords. Local duplicate hash check against existing `images`, `motion-assets`, and related template asset folders found no exact matches before merge. Added for: SPLIT_TOP_MEDIA asset expansion.
 
-Template registry:
+New Additions Log:
+- `components/ui/LanguageSelector.tsx` - Radix-UI based dropdown for selecting render output language. Added for: Multi-language dashboard support.
+- `app/templates/image-story-collage/page.tsx` - SEO page for Cinematic Collage template. Added for: Marketing.
+- `template.tsx` - Core Remotion logic for Cinematic Collage. Added for: High-retention storytelling.
 
 - `SPLIT_TOP_MEDIA` - First reel template. Fixed 9:16 layout with a 16:9 user video or audio waveform frame at the top and dynamic typography, icons, and explainer assets at the bottom. This template must always keep media on top and text/assets on bottom. Remotion composition id is `SPLIT-TOP-MEDIA` because Remotion ids do not allow underscores.
 
@@ -355,6 +358,15 @@ Asset planning rule:
 - Caption/text output must be English or clean Roman Hinglish only; Urdu, Arabic, and Devanagari characters are stripped before render.
 - If no usable image exists, block render instead of showing generic fallback graphics.
 - Final render props must pass the server-side Image Story Zod schema before Remotion render starts.
+
+`IMAGE_STORY_COLLAGE` template contract:
+- Full 9:16 canvas utilization. No fixed splits.
+- Each scene must include a high-quality 9:16 background image.
+- Kinetic Typography: Large, bold, uppercase text (Montserrat Black or Inter Tight).
+- Animations: Slow zoom-in (Ken Burns) for images, spring-scale for text.
+- Audio/Visual Lead: Visual changes must lead the spoken word by 0.3-0.5 seconds.
+- Color Palette: Dark cinematic overlays with brand-mint accents.
+- Mandatory SFX: Use 'whoosh' on every scene transition and 'hit' on key text reveals.
 
 Provider policy:
 

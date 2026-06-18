@@ -10,7 +10,7 @@ type ManagedDirectorResponse = {
 };
 
 const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses';
-const DEFAULT_MODEL = 'gpt-5-mini';
+const DEFAULT_MODEL = 'gpt-4o-mini';
 const CANONICAL_REFERENCE_STYLE = [
   'Fresh canonical reference style: image-first collage reel, not dashboard/card UI.',
   'Top composition: keep a clean 16:9 source/reference image or video frame at the top.',

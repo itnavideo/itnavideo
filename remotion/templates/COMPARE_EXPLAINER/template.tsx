@@ -439,11 +439,10 @@ const getActiveStickerPose = ({
   if (containsAny(text, rightWords)) return 'right';
   if (containsAny(text, leftWords)) return 'left';
 
-  // Time-based cycling when no strong text match — keeps sticker dynamic
-  const cycleSeconds = 1.15;
-  const cyclePoses: StickerPoseKey[] = ['welcome', 'left', 'right', 'thinking', 'warning', 'success'];
-  const cycleIndex = Math.floor(currentTime / cycleSeconds) % cyclePoses.length;
-  return cyclePoses[cycleIndex];
+  // Compare template: force left/right alternation every 3 seconds
+  const segment = Math.floor(currentTime / 3);
+  const poses: StickerPoseKey[] = ['left', 'right', 'left', 'thinking', 'right', 'left', 'right', 'success'];
+  return poses[segment % poses.length];
 };
 
 const StickerPresenter = ({

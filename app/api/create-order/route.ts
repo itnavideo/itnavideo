@@ -60,12 +60,12 @@ export async function POST(request: Request) {
       );
     }
 
-    if (currency !== "INR") {
+    if (currency !== "INR" && currency !== "USD") {
       return NextResponse.json(
         {
           ok: false,
           error:
-            "Razorpay checkout currently creates INR orders. International card payments can use INR checkout; foreign-currency checkout will be added later.",
+            "Only INR and USD payments are supported right now.",
         },
         { status: 400 },
       );

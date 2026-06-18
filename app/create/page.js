@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, AudioLines, BadgeCheck, CheckCircle2, Clock3, Film, Layers3, ShieldCheck, Sparkles, Upload } from "lucide-react";
+import { ArrowRight, AudioLines, BadgeCheck, CheckCircle2, Clock3, Film, Globe, Layers3, ShieldCheck, Sparkles, Upload } from "lucide-react";
 
 export const metadata = {
   title: "Create AI Reels From Audio, Video, or Images",
@@ -20,7 +20,7 @@ const templates = [
     upload: "Audio or video with clear speech",
     needs: "Real transcript",
     cta: "Use Video Explainer",
-    badges: ["Audio", "Video", "Needs speech"],
+    badges: ["Audio", "Video", "13+ Languages"],
     accent: "text-cyan-200",
     border: "border-cyan-300/25",
     surface: "bg-cyan-300/[0.07]",
@@ -34,10 +34,24 @@ const templates = [
     upload: "Audio voiceover + 2-4 images",
     needs: "Clear comparison audio",
     cta: "Use Compare Explainer",
-    badges: ["Audio", "2-4 images", "Left vs Right"],
+    badges: ["Audio", "Left vs Right", "13+ Languages"],
     accent: "text-emerald-200",
     border: "border-emerald-300/25",
     surface: "bg-emerald-300/[0.07]",
+  },
+  {
+    href: "/dashboard?template=image-story-collage",
+    image: "/visuals/previews/image-story-preview.png",
+    icon: Sparkles,
+    title: "Cinematic Collage",
+    bestFor: "High-retention storytelling, 10M+ style reels.",
+    upload: "Audio Voiceover + AI Image Pool",
+    needs: "Emotional/Strong script",
+    cta: "Use Collage Style",
+    badges: ["Full Screen", "Cinematic", "13+ Languages"],
+    accent: "text-brand-mint",
+    border: "border-brand-mint/25",
+    surface: "bg-brand-mint/[0.07]",
   },
 ];
 
@@ -155,6 +169,7 @@ function TemplateCard({template}) {
         <div className="mt-5 space-y-2 text-sm">
           <InfoRow icon={AudioLines} label="Upload" value={template.upload} />
           <InfoRow icon={Clock3} label="Needs" value={template.needs} />
+          <InfoRow icon={Globe} label="Support" value="13+ Languages including Hinglish" />
         </div>
 
         <div className="mt-5 flex flex-wrap gap-2">

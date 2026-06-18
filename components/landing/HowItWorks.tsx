@@ -4,27 +4,27 @@ import { Captions, Download, LayoutTemplate, Sparkles, Upload } from 'lucide-rea
 const steps = [
   {
     number: '01',
-    icon: Upload,
-    title: 'Upload',
-    desc: 'Add audio, video, or a voiceover with clear speech.',
+    icon: LayoutTemplate,
+    title: 'Pick a template',
+    desc: 'Choose Auto Caption, Video Explainer, or Compare — each has a focused workflow.',
   },
   {
     number: '02',
-    icon: LayoutTemplate,
-    title: 'Use Explainer Video',
-    desc: 'Pick Auto Caption, Video Explainer, or Compare — each template keeps your content visible and easy to follow.',
+    icon: Upload,
+    title: 'Upload your content',
+    desc: 'Video, audio, or images. The upload area adapts to your chosen template.',
   },
   {
     number: '03',
     icon: Sparkles,
-    title: 'Generate',
-    desc: 'AI builds timing, scenes, captions, motion, and safe-zone layouts.',
+    title: 'AI transcribes & plans',
+    desc: 'Speech becomes timed subtitles. AI builds the layout, captions, and visuals.',
   },
   {
     number: '04',
     icon: Download,
-    title: 'Download',
-    desc: 'Export a vertical MP4 ready for Instagram Reels, Shorts, and TikTok.',
+    title: 'Download your reel',
+    desc: 'Get a 9:16 MP4 ready for Instagram Reels, YouTube Shorts, and TikTok.',
   },
 ];
 
@@ -41,7 +41,7 @@ export default function HowItWorks() {
           </div>
           <div className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-zinc-300">
             <Captions size={18} className="text-cyan-300" />
-            Three templates available
+            One payment unlocks all templates
           </div>
         </div>
 

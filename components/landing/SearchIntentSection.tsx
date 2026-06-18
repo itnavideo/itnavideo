@@ -1,56 +1,56 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { ArrowRight, Captions, CheckCircle2, Clapperboard, Film, Mic2, Search, ShieldCheck, Video } from "lucide-react";
 
 const searchIntents = [
   {
-    query: "AI reel generator",
-    href: "/ai-reel-generator",
-    title: "AI reel generator for creators",
-    body: "Turn a short idea, video, or voiceover into a mobile-first reel without opening a complex editor.",
+    query: "AI explainer video generator",
+    href: "/ai-explainer-video-generator",
+    title: "AI explainer video generator",
+    body: "Turn audio or video into a clean explainer reel with creator video, subtitles, title, and support visuals.",
     icon: Film,
   },
   {
-    query: "YouTube Shorts generator",
-    href: "/youtube-shorts-generator",
-    title: "Create Shorts from one source file",
-    body: "Upload a video or voiceover and generate a vertical MP4 designed for Shorts, Reels, and social feeds.",
-    icon: Video,
-  },
-  {
-    query: "script to video",
-    href: "/script-to-video",
-    title: "Turn scripts into short videos",
-    body: "Use a script or voiceover to plan title text, scene timing, captions, and a clean vertical video structure.",
-    icon: Mic2,
-  },
-  {
-    query: "video to reel",
-    href: "/video-to-reel-maker",
-    title: "Repurpose existing videos",
-    body: "Keep the original video visible while AI creates short-form title, text, timing, and export structure.",
+    query: "Compare explainer video maker",
+    href: "/compare-explainer-video-maker",
+    title: "Compare two ideas in one reel",
+    body: "Create comparison reels with title, two visual panels, subtitles, and a teacher-style explainer layout.",
     icon: Clapperboard,
   },
   {
-    query: "faceless video generator",
-    href: "/faceless-video-generator",
-    title: "Create faceless explainer videos",
-    body: "Use voiceover, smart subtitles, and scene visuals when you want to publish without showing your face.",
+    query: "Audio to reels generator",
+    href: "/audio-to-reels",
+    title: "Create reels from voiceover",
+    body: "Upload clear speech audio and create a vertical reel with subtitle timing and explainer structure.",
+    icon: Mic2,
+  },
+  {
+    query: "Finance reel generator",
+    href: "/finance-reel-generator",
+    title: "Finance explainers for reels",
+    body: "Create finance, banking, salary, career, and exam explainer reels from your source file.",
+    icon: Video,
+  },
+  {
+    query: "Hinglish explainer video maker",
+    href: "/hinglish-explainer-video-maker",
+    title: "Hinglish explainer reels",
+    body: "Make English and Roman Hinglish explainer videos for Indian education, finance, and career audiences.",
     icon: Captions,
   },
   {
-    query: "AI captions/subtitles",
-    href: "/ai-subtitle-generator",
-    title: "Subtitles inside explainers",
-    body: "The Explainer Video template uses transcript timing for readable subtitles and active word emphasis.",
-    icon: Captions,
+    query: "Video to reel maker",
+    href: "/video-to-reel-maker",
+    title: "Repurpose existing videos",
+    body: "Keep your original video visible while the reel adds subtitles, title, and a visual explanation area.",
+    icon: Clapperboard,
   },
 ];
 
 const trustItems = [
-  'Audio, video, and voiceovers supported',
-  'Uploads are private and temporary',
-  'First video test starts at ₹9',
-  'Vertical MP4 output for Shorts and Reels',
+  "Audio, video, and voiceovers supported",
+  "Uploads are private and temporary",
+  "First video test starts at ₹9",
+  "Vertical MP4 output for Shorts and Reels",
 ];
 
 export default function SearchIntentSection() {
@@ -61,14 +61,14 @@ export default function SearchIntentSection() {
           <div>
             <div className="mb-5 inline-flex items-center gap-2 rounded-lg border border-brand-mint/20 bg-brand-mint/10 px-3 py-2 text-sm font-bold text-brand-mint">
               <Search size={16} />
-              Creator workflows
+              Low-competition creator workflows
             </div>
             <h2 className="max-w-3xl text-3xl font-black leading-tight tracking-normal sm:text-4xl md:text-6xl">
               Create reels from the content you already have.
             </h2>
           </div>
           <p className="text-base leading-7 text-zinc-400 sm:text-lg sm:leading-8">
-            Itnavideo is built for creators, educators, and businesses who already have a clip, voice note, image, or idea and need a clean short-form output quickly.
+            Instead of chasing broad AI video keywords, Itnavideo is built around specific creator use cases: audio to reels, finance explainers, Hinglish explainers, faceless videos, and video-to-reel workflows.
           </p>
         </div>
 
@@ -96,7 +96,7 @@ export default function SearchIntentSection() {
           <div>
             <p className="text-sm font-black uppercase tracking-[0.2em] text-brand-mint">Trust basics</p>
             <h2 className="mt-3 text-3xl font-black leading-tight">Simple enough to try today.</h2>
-            <Link href="/create" className="mt-6 inline-flex items-center gap-2 rounded-lg bg-brand-mint px-5 py-3 text-sm font-black text-black transition hover:bg-white">
+            <Link href="/dashboard" className="mt-6 inline-flex items-center gap-2 rounded-lg bg-brand-mint px-5 py-3 text-sm font-black text-black transition hover:bg-white">
               Start creating
               <ArrowRight size={16} />
             </Link>
@@ -116,3 +116,4 @@ export default function SearchIntentSection() {
     </section>
   );
 }
+

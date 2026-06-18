@@ -147,7 +147,7 @@ export function PricingCheckoutCards({ plans }: { plans: PricingPlan[] }) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             amount: plan.amountPaise,
-            currency: "INR",
+            currency: "USD",
             receipt: formatReceipt(plan),
             planId: plan.id,
             planName: plan.name,
