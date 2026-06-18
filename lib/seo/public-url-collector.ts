@@ -107,11 +107,13 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
     lastModified: now,
     changeFrequency: "weekly",
     priority:
-      slug === "ai-explainer-video-generator"
-        ? 0.9
-        : slug === "compare-explainer-video-maker"
-          ? 0.88
-          : 0.82,
+      slug === "ai-reel-generator" || slug === "youtube-shorts-generator" || slug === "instagram-reels-maker"
+        ? 0.95
+        : slug === "ai-explainer-video-generator" || slug === "ai-subtitle-generator" || slug === "add-subtitles-to-video"
+          ? 0.9
+          : slug === "compare-explainer-video-maker" || slug === "auto-caption-video-generator" || slug === "ai-shorts-generator"
+            ? 0.88
+            : 0.82,
   }));
 
   const templateRoutes: PublicSitemapUrl[] = [

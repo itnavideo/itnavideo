@@ -284,6 +284,215 @@ export const seoLandingPages: SeoLandingPage[] = [
           "Website vs web app, product comparisons, plan comparisons, finance comparisons, and educational explainers work well."
       }
     ]
+  },
+  {
+    slug: "ai-reel-generator",
+    title: "AI Reel Generator — Create Reels from Video or Audio | Itnavideo",
+    description: "Upload video or audio and get a ready-to-post 9:16 reel with captions, title, and professional layout. No editing skills needed.",
+    h1: "AI reel generator for Instagram and YouTube Shorts",
+    eyebrow: "AI Reel Generator",
+    primaryKeyword: "ai reel generator",
+    audience: "content creators, educators, coaches, and social media marketers",
+    useCases: [
+      "Turn a talking-head video into a captioned reel in minutes",
+      "Convert podcast clips into short vertical videos",
+      "Create educational explainer reels from voiceover",
+      "Add styled subtitles to any video automatically"
+    ],
+    benefits: [
+      "Upload once, get a finished reel",
+      "5 templates for different content styles",
+      "Real speech-based subtitles with word timing",
+      "Export 1080x1920 MP4 for Reels, Shorts, TikTok"
+    ],
+    faqs: [
+      { question: "How does the AI reel generator work?", answer: "Upload your video or audio. The AI transcribes speech, generates timed subtitles, and renders a professional 9:16 reel with your chosen template style." },
+      { question: "What formats can I upload?", answer: "MP4, MOV, M4V video files and MP3, WAV, M4A audio files. Maximum 60 seconds per reel." },
+      { question: "Do I need editing experience?", answer: "No. Choose a template, upload your file, and the AI handles layout, subtitles, and timing automatically." },
+      { question: "Can I customize the subtitle style?", answer: "Yes. Choose from Yellow Pop, Clean White, or Black Box styles with custom colors and position." }
+    ]
+  },
+  {
+    slug: "instagram-reels-maker",
+    title: "Instagram Reels Maker — AI-Powered Reel Creator | Itnavideo",
+    description: "Create Instagram Reels from video or audio with AI subtitles, templates, and professional layouts. No editing app needed.",
+    h1: "Instagram Reels maker with AI subtitles",
+    eyebrow: "Instagram Reels",
+    primaryKeyword: "instagram reels maker",
+    audience: "Instagram creators, influencers, brand pages, and small business owners",
+    useCases: [
+      "Post daily reels without spending hours editing",
+      "Add trending subtitle styles to your videos",
+      "Create educational content reels with explainer layouts",
+      "Repurpose long videos into short Instagram Reels"
+    ],
+    benefits: [
+      "9:16 vertical format ready for Instagram",
+      "AI generates captions from real speech",
+      "Multiple template styles to match your brand",
+      "Download MP4 and post directly to Instagram"
+    ],
+    faqs: [
+      { question: "Can I create Instagram Reels with this tool?", answer: "Yes. Itnavideo creates 1080x1920 vertical MP4 videos ready to upload directly to Instagram Reels." },
+      { question: "Does it add captions automatically?", answer: "Yes. The AI transcribes your speech and adds word-timed subtitles in your chosen style and language." },
+      { question: "How long can my reel be?", answer: "Up to 60 seconds. Upload any length video and the AI uses the best 60-second speech window." }
+    ]
+  },
+  {
+    slug: "youtube-shorts-generator",
+    title: "YouTube Shorts Generator — AI Video to Shorts Converter | Itnavideo",
+    description: "Convert videos into YouTube Shorts with AI captions, explainer layouts, and professional templates. Upload and download in minutes.",
+    h1: "YouTube Shorts generator with AI captions",
+    eyebrow: "YouTube Shorts",
+    primaryKeyword: "youtube shorts generator",
+    audience: "YouTubers, educators, podcast creators, and content repurposing teams",
+    useCases: [
+      "Turn long YouTube videos into short clips with captions",
+      "Create Shorts from podcast audio clips",
+      "Make educational explainer Shorts with visuals",
+      "Add subtitles to existing video clips for Shorts"
+    ],
+    benefits: [
+      "Vertical 9:16 format for YouTube Shorts",
+      "AI transcription with accurate word timing",
+      "Professional templates without editing",
+      "Download and upload directly to YouTube"
+    ],
+    faqs: [
+      { question: "Can I make YouTube Shorts with Itnavideo?", answer: "Yes. Upload a video or audio clip, choose a template, and get a 9:16 MP4 ready for YouTube Shorts." },
+      { question: "What is the maximum length?", answer: "YouTube Shorts supports up to 60 seconds. Itnavideo creates reels up to 60 seconds from your content." },
+      { question: "Does it work for educational content?", answer: "Yes. The Video Explainer and Auto Draw templates are built specifically for educational and explainer content." }
+    ]
+  },
+  {
+    slug: "ai-subtitle-generator",
+    title: "AI Subtitle Generator for Reels — Auto Captions | Itnavideo",
+    description: "Generate accurate subtitles for short videos automatically. AI transcribes speech and adds styled captions synced to your video.",
+    h1: "AI subtitle generator for short-form video",
+    eyebrow: "Auto Subtitles",
+    primaryKeyword: "ai subtitle generator for reels",
+    audience: "video creators, social media managers, podcast editors, and content teams",
+    useCases: [
+      "Add accurate subtitles to reels without manual typing",
+      "Generate captions in multiple languages including Hindi and Kannada",
+      "Style subtitles with colors, positions, and highlight effects",
+      "Sync captions perfectly with speech timing"
+    ],
+    benefits: [
+      "Word-level timing accuracy from AI transcription",
+      "13 languages supported including Hindi, Tamil, Spanish",
+      "3 caption styles with custom colors",
+      "Position captions at top, center, or bottom"
+    ],
+    faqs: [
+      { question: "How accurate are the AI subtitles?", answer: "Very accurate. Itnavideo uses Groq Whisper for transcription with word-level timing and domain-specific corrections." },
+      { question: "Can I get subtitles in Hindi or other languages?", answer: "Yes. Supported languages include Hindi, Kannada, Tamil, Urdu, Spanish, French, German, Arabic, and more." },
+      { question: "Can I customize how subtitles look?", answer: "Yes. Choose Yellow Pop, Clean White, or Black Box style. Pick text color, highlight color, and position." }
+    ]
+  },
+  {
+    slug: "ai-shorts-generator",
+    title: "AI Shorts Generator — Video to Shorts with Captions | Itnavideo",
+    description: "Create vertical short videos with AI captions and professional templates. Turn any video or audio into ready-to-post Shorts.",
+    h1: "AI Shorts generator for creators",
+    eyebrow: "AI Shorts",
+    primaryKeyword: "ai shorts generator",
+    audience: "creators, marketers, educators, and social media teams",
+    useCases: [
+      "Create short videos from existing content without editing",
+      "Add captions to talking-head clips for better engagement",
+      "Make explainer shorts from voiceover recordings",
+      "Create professional shorts for multiple platforms at once"
+    ],
+    benefits: [
+      "Works with video, audio, or images",
+      "AI handles transcription and timing",
+      "5 professional templates included",
+      "One upload works for Instagram, YouTube, and TikTok"
+    ],
+    faqs: [
+      { question: "What makes this different from other AI video tools?", answer: "Itnavideo is built specifically for short-form vertical videos. Templates are designed for 9:16 with proper safe zones." },
+      { question: "Can I use it for TikTok?", answer: "Yes. The output is standard 1080x1920 MP4 which works on TikTok, Instagram Reels, YouTube Shorts, and any platform." },
+      { question: "How fast is it?", answer: "Most reels are ready in 1-3 minutes after upload. The AI transcribes, plans, and renders in the cloud." }
+    ]
+  },
+  {
+    slug: "add-subtitles-to-video",
+    title: "Add Subtitles to Video Online — AI Caption Generator | Itnavideo",
+    description: "Add subtitles to any video automatically with AI. Upload your video, get word-timed captions in your chosen language and style.",
+    h1: "Add subtitles to video online with AI",
+    eyebrow: "Add Subtitles",
+    primaryKeyword: "add subtitles to video online",
+    audience: "video editors, content creators, social media managers, and accessibility teams",
+    useCases: [
+      "Add subtitles to Instagram Reels and YouTube Shorts",
+      "Generate multilingual captions for global audiences",
+      "Improve video accessibility with accurate captions",
+      "Style subtitles to match your brand colors"
+    ],
+    benefits: [
+      "No manual typing — AI generates from speech",
+      "Accurate word-level timing",
+      "Multiple languages and styles",
+      "Burned-in captions in final MP4"
+    ],
+    faqs: [
+      { question: "How do I add subtitles to my video?", answer: "Upload your video, select Auto Caption template, choose language and style, click Create. AI adds captions automatically." },
+      { question: "Are subtitles burned into the video?", answer: "Yes. Subtitles are rendered directly into the MP4 so they display on any platform without SRT files." },
+      { question: "What languages are supported?", answer: "English, Hinglish, Hindi, Kannada, Tamil, Urdu, Spanish, French, German, Portuguese, Arabic, Indonesian, and Farsi." }
+    ]
+  },
+  {
+    slug: "auto-caption-video-generator",
+    title: "Auto Caption Video Generator — AI Subtitles for Reels | Itnavideo",
+    description: "Add auto captions to any video. Upload your reel and get styled subtitles generated from speech. No manual typing needed.",
+    h1: "Auto caption video generator for social media",
+    eyebrow: "Auto Captions",
+    primaryKeyword: "auto caption video generator",
+    audience: "social media creators, influencers, brands, and content teams",
+    useCases: [
+      "Add captions to Instagram Reels automatically",
+      "Create subtitled TikTok videos from raw footage",
+      "Improve video engagement with readable captions",
+      "Generate multilingual subtitles for global reach"
+    ],
+    benefits: [
+      "AI transcribes speech with word-level accuracy",
+      "Choose from multiple caption styles and colors",
+      "Captions are burned into the video file",
+      "Supports 13 languages including Hindi and Spanish"
+    ],
+    faqs: [
+      { question: "How do auto captions work?", answer: "Upload your video. AI transcribes speech, generates word-timed captions, and renders them onto your video in your chosen style." },
+      { question: "Is this better than Instagram's built-in captions?", answer: "Yes. More style control, better accuracy for non-English speech, language translation, and permanent captions in your video." },
+      { question: "Can I choose the caption style?", answer: "Yes. Pick Yellow Pop, Clean White, or Black Box. Customize text color, highlight color, and position." }
+    ]
+  },
+  {
+    slug: "whiteboard-video-maker",
+    title: "Whiteboard Video Maker — AI Draws Your Explanation | Itnavideo",
+    description: "Create whiteboard-style explainer videos from audio. AI generates drawn scenes with titles, bullet points, and highlights.",
+    h1: "Whiteboard video maker powered by AI",
+    eyebrow: "Whiteboard Videos",
+    primaryKeyword: "whiteboard video maker",
+    audience: "educators, course creators, corporate trainers, and marketing teams",
+    useCases: [
+      "Create whiteboard explainer reels from voiceover",
+      "Make educational content without drawing skills",
+      "Turn bullet points into animated whiteboard scenes",
+      "Create training content in a clean, focused format"
+    ],
+    benefits: [
+      "No drawing or animation skills needed",
+      "Clean whiteboard aesthetic with numbered scenes",
+      "Spring physics animations for professional feel",
+      "Perfect for educational and corporate content"
+    ],
+    faqs: [
+      { question: "Do I need to draw anything?", answer: "No. Upload your voiceover and AI generates whiteboard-style scenes with titles, bullet points, checkmarks, and highlight boxes." },
+      { question: "What does the output look like?", answer: "Clean white background with numbered circles, bold titles, checkmark bullets, and highlight boxes with spring animations." },
+      { question: "Can I use this for course content?", answer: "Yes. The Auto Draw template is built for educational explainers, course previews, and topic breakdowns." }
+    ]
   }
 ];
 
