@@ -56,7 +56,7 @@ export type ReelTimelineScene = {
   secondarySupport?: Array<'titleCard'>;
 };
 
-export type ReelTemplateName = 'VIDEO_SIMPLE_EXPLAINER' | 'comparisonImages' | 'AUTO_CAPTION_REEL' | 'IMAGE_STORY' | 'IMAGE_STORY_COLLAGE';
+export type ReelTemplateName = 'VIDEO_SIMPLE_EXPLAINER' | 'comparisonImages' | 'AUTO_CAPTION_REEL' | 'IMAGE_STORY' | 'IMAGE_STORY_COLLAGE' | 'AUTO_DRAW_EXPLAINER';
 export const REEL_TEMPLATE_REGISTRY = {
   VIDEO_SIMPLE_EXPLAINER: {
     templateName: 'VIDEO_SIMPLE_EXPLAINER',
@@ -96,6 +96,14 @@ export const REEL_TEMPLATE_REGISTRY = {
     transcriptRequirement: 'required',
     plannerMode: 'imageStory',
     mediaFit: 'imageStory',
+  },
+  AUTO_DRAW_EXPLAINER: {
+    templateName: 'AUTO_DRAW_EXPLAINER',
+    compositionId: 'AUTO-DRAW-EXPLAINER',
+    allowedMedia: ['audio', 'video'],
+    transcriptRequirement: 'required',
+    plannerMode: 'videoExplainer',
+    mediaFit: 'videoExplainer',
   },
 } as const satisfies Record<string, {
   templateName: ReelTemplateName;
@@ -509,7 +517,7 @@ export function validateAndRepairReelPlan(plan: ReelPlanResult): ReelPlanResult 
     warnings.push('IMAGE_STORY render blocked because no usable image story scenes were available.');
   }
   const autoCaptionAllowed = plan.templateName === 'AUTO_CAPTION_REEL'
-    ? input.mediaType === 'video' && captions.length > 0
+    ? renderProps.mediaType === 'video' && captions.length > 0
     : true;
   const transcriptSceneAllowed = plan.templateName === 'AUTO_CAPTION_REEL'
     ? autoCaptionAllowed
@@ -1225,6 +1233,7 @@ function buildImageStoryProps({
   language,
   topicTitle,
   scriptDetails,
+  isCollage,
 }: {
   input: ReelPlanRequest;
   segments: Array<{start: number; end: number; text: string}>;
@@ -1312,8 +1321,6 @@ function buildImageStoryProps({
         in: index === 0 ? 'fade' : 'blurReveal',
         out: index === beatSource.length - 1 ? 'fade' : 'cut',
       },
-      overlayImageUrl, // Add to scene
-      overlayPosition, // Add to scene
     };
   }).filter((scene) => scene.end > scene.start);
   const repairedScenes = repairImageStorySceneList(scenes, images);
@@ -1615,7 +1622,7 @@ function getTemplateName(value?: string): ReelTemplateName {
   if (normalized.includes('compare') || normalized.includes('comparison') || /\bvs\b/.test(normalized)) return 'comparisonImages';
   if (normalized.includes('auto-caption') || normalized.includes('autocaption')) return 'AUTO_CAPTION_REEL';
   if (normalized.includes('caption') || normalized.includes('subtitle')) return 'AUTO_CAPTION_REEL'; // Default to auto-caption for generic caption/subtitle
-  if (normalized.includes('image-story-collage') || normalized.includes('cinematic-collage')) return 'IMAGE_STORY_COLLAGE'; // New template
+  if (normalized.includes('image-story-collage') || normalized.includes('cinematic-collage') || normalized.includes('imagestorycollage')) return 'IMAGE_STORY_COLLAGE'; // Improved matching
   return 'VIDEO_SIMPLE_EXPLAINER';
 }
 
@@ -2794,4 +2801,3 @@ function uniqueStrings(values: string[]) {
 function roundTime(value: number) {
   return Math.round(value * 100) / 100;
 }
-

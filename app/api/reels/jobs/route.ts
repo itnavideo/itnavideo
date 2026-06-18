@@ -15,24 +15,27 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 type LambdaRenderRequest = Parameters<typeof renderMediaOnLambda>[0];
-type ReelMode = 'videoExplainer' | 'compare' | 'autoCaption';
+type ReelMode = 'videoExplainer' | 'compare' | 'autoCaption' | 'imageStory' | 'imageStoryCollage' | 'autoDraw';
 const MODE_TO_TEMPLATE: Record<ReelMode, ReelTemplateName> = {
   videoExplainer: 'VIDEO_SIMPLE_EXPLAINER',
   compare: 'comparisonImages',
   autoCaption: 'AUTO_CAPTION_REEL',
+  imageStory: 'IMAGE_STORY',
+  imageStoryCollage: 'IMAGE_STORY_COLLAGE',
+  autoDraw: 'AUTO_DRAW_EXPLAINER',
 };
 
 const MAX_RENDER_WINDOW_SECONDS = 60;
 
-const SUBTITLE_LANGUAGE_POLICY =
-  "Subtitle language policy: If the uploaded speech is Hindi/Hinglish, generate clean Hinglish subtitles in Latin/Roman script. If the speech is English, generate English subtitles. Never use Devanagari/Hindi script. Never use over-literal romanization such as kaaphee, kyaa, rahataa, men, savaal. Prefer natural Hinglish spellings such as kaafi, kya, rehta, mein, sawaal.";
+const SUBTITLE_LANGUAGE_POLICY = 'General translation policy';
+const getSubtitlePolicy = (lang) => `Subtitle language policy: Generate subtitles strictly in ${lang}. If the script is non-Latin (like Kannada, Telugu, Urdu), use the native script. If it's a Latin-script language, use the appropriate alphabet. Ensure accurate synchronization with the audio timing.`;
 const DEFAULT_PLANNING_MEDIA_SECONDS = 60;
 const SPEECH_LEAD_SECONDS = 0.65;
 const MIN_SPEECH_TOKEN_LENGTH = 2;
 const RENDER_IMAGE_URL_TIMEOUT_MS = 7000;
 const REQUIRED_RENDER_SITE_PATH = '/sites/itnavideo-video-explainer/';
 const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses';
-const DEFAULT_TRANSCRIPT_REPAIR_MODEL = 'gpt-5-mini';
+const DEFAULT_TRANSCRIPT_REPAIR_MODEL = 'gpt-4o-mini';
 
 export async function POST(request: Request) {
   const ip = getClientIp(request.headers);
@@ -75,6 +78,7 @@ export async function POST(request: Request) {
   if (!rateLimit.allowed) {
     return NextResponse.json({ok: false, error: 'Too many render jobs. Please wait a minute and try again.'}, {status: 429});
   }
+  const mediaType = readString(body.mediaType) || 'video';
 
   if (!(templateConfig.allowedMedia as readonly string[]).includes(mediaType)) {
     return NextResponse.json(
@@ -94,8 +98,8 @@ export async function POST(request: Request) {
   if (!userId) {
     return NextResponse.json({ok: false, error: 'Please log in before creating a reel.'}, {status: 401});
   }
-  if (mode === 'videoExplainer' && contentType && !contentType.startsWith('video/') && !contentType.startsWith('audio/')) {
-    return NextResponse.json({ok: false, error: 'Video Explainer requires a video or voiceover file.'}, {status: 400});
+  if ((mode === 'videoExplainer' || mode === 'imageStoryCollage') && contentType && !contentType.startsWith('video/') && !contentType.startsWith('audio/')) {
+    return NextResponse.json({ok: false, error: `${humanTemplateName(templateName)} requires a video or voiceover file.`}, {status: 400});
   }
 
   if (mode === 'compare') {
@@ -302,12 +306,33 @@ export async function POST(request: Request) {
         },
         {status: 422},
       );
-    }    const transcription = await transcribeForPlanning({
-      mediaUrl: planningMedia.transcriptionMediaUrl,
-      fileName: planningMedia.transcriptionFileName,
-      contentType: planningMedia.transcriptionContentType,
-      mediaType: mediaType === 'image' ? 'video' : mediaType,
-    });    if (!transcription.transcript) {
+    }
+
+    const subtitleLang = readString(body.subtitleOutputLanguage) || 'english';
+    let transcription: PlanningTranscription;
+    try {
+      transcription = await transcribeForPlanning({
+        mediaUrl: planningMedia.transcriptionMediaUrl,
+        fileName: planningMedia.transcriptionFileName,
+        contentType: planningMedia.transcriptionContentType,
+        mediaType: mediaType === 'image' ? 'video' : mediaType,
+        outputLanguage: subtitleLang,
+      });
+    } catch (transcribeError) {
+      const errMsg = transcribeError instanceof Error ? transcribeError.message : 'Transcription crashed';
+      console.error('Transcription error:', errMsg);
+      const userEmail = readString(body.userEmail || body.email);
+      const isFounder = isFounderEmail(userEmail) || isFounderUser(userId);
+      return NextResponse.json({
+        ok: false,
+        status: 'failed',
+        reasonCode: 'TRANSCRIPTION_CRASHED',
+        error: isFounder ? `Transcription crashed: ${errMsg}` : 'Could not process audio. Please try again.',
+        ...(isFounder ? { _founderDiagnostics: { step: 'transcription', reason: errMsg, mode, templateName, compositionId: composition, httpStatus: 500, raw: transcribeError instanceof Error ? transcribeError.stack?.split('\n').slice(0, 5).join(' | ') : '' } } : {}),
+      }, {status: 500});
+    }
+
+    if (!transcription.transcript) {
       return NextResponse.json(
         {
           ok: false,
@@ -320,24 +345,26 @@ export async function POST(request: Request) {
       );
     }
     const renderWindow = selectRenderWindow(transcription);
-    const plan = validateAndRepairReelPlan(await createReelPlan({
-      transcript: renderWindow.transcript,
-      words: renderWindow.words,
-      timestampSegments: renderWindow.segments,
-      topicTitle: topicTitle || undefined,
-      topic: topicTitle || undefined,
-      durationSeconds: renderWindow.durationSeconds,
-      mediaType,
-      languageHint: languageHint || transcription.languageHint,
-      design,
-      template: templateName,
-      visualMode: templateConfig.plannerMode,
-      selectedAssets: mode === 'imageStory'
-        ? {uploadedImages: collectImageStorySources(body, mediaUrl, contentType)}
-        : undefined,
-      dryRun: !process.env.OPENAI_API_KEY,
-      constraints: [
-        SUBTITLE_LANGUAGE_POLICY,
+    let plan: ReturnType<typeof validateAndRepairReelPlan> extends Promise<infer T> ? T : never;
+    try {
+      plan = validateAndRepairReelPlan(await createReelPlan({
+        transcript: renderWindow.transcript,
+        words: renderWindow.words,
+        timestampSegments: renderWindow.segments,
+        topicTitle: topicTitle || undefined,
+        topic: topicTitle || undefined,
+        durationSeconds: renderWindow.durationSeconds,
+        mediaType,
+        languageHint: languageHint || transcription.languageHint,
+        design,
+        template: templateName,
+        visualMode: templateConfig.plannerMode,
+        selectedAssets: mode === 'imageStory'
+          ? {uploadedImages: collectImageStorySources(body, mediaUrl, contentType)}
+          : undefined,
+        dryRun: !process.env.OPENAI_API_KEY,
+        constraints: [
+          SUBTITLE_LANGUAGE_POLICY,
         mode === 'notes'
           ? 'Use uploaded voiceover as the audio source for Handwritten Notes.'
           : mode === 'videoCaption'
@@ -367,6 +394,19 @@ export async function POST(request: Request) {
           : 'Transcript source: OpenAI Whisper fallback after primary transcription failed.',
       ],
     }));
+    } catch (planError) {
+      const errMsg = planError instanceof Error ? planError.message : 'Planning crashed';
+      console.error('Plan creation error:', errMsg, planError instanceof Error ? planError.stack : '');
+      const userEmail = readString(body.userEmail || body.email);
+      const isFounder = isFounderEmail(userEmail) || isFounderUser(userId);
+      return NextResponse.json({
+        ok: false,
+        status: 'failed',
+        reasonCode: 'PLANNING_CRASHED',
+        error: isFounder ? `Planning crashed: ${errMsg}` : 'Could not plan your reel. Please try again.',
+        ...(isFounder ? { _founderDiagnostics: { step: 'planning', reason: errMsg, mode, templateName, compositionId: composition, httpStatus: 500, raw: planError instanceof Error ? planError.stack?.split('\n').slice(0, 6).join(' | ') : '' } } : {}),
+      }, {status: 500});
+    }
 
     if (plan.validation.renderAllowed === false) {
       const detail = sanitizeUserFacingStatus(plan.validation.renderBlockReason || 'The reel needs repair before render.');
@@ -390,7 +430,9 @@ export async function POST(request: Request) {
       transcript: renderWindow.transcript,
     });
     const inputProps: Record<string, unknown> = {
-      ...(plan.renderProps || {}),
+      ...(mode === 'autoCaption'
+        ? { topicTitle: plan.renderProps?.topicTitle, captions: plan.renderProps?.captions }
+        : (plan.renderProps || {})),
       mediaSrc: planningMedia.mediaUrl,
       ...(mode === 'compare'
         ? {
@@ -415,6 +457,10 @@ export async function POST(request: Request) {
             transcript: renderWindow.transcript,
             sourceScript: renderWindow.transcript,
             backgroundMusic: false,
+            backgroundMusicSrc: '',
+            durationSeconds: renderWindow.durationSeconds || transcription.durationSeconds || 30,
+            overlayTimeline: [],
+            assetTimeline: [],
           }
         : {}),
       mediaType,
@@ -425,7 +471,9 @@ export async function POST(request: Request) {
       textColor: readString(body.captionTextColor) || '#ffffff',
       highlightColor: readString(body.captionHighlightColor) || '#facc15',
       mediaTrimStartSeconds: renderWindow.trimStartSeconds,
-      sourceDurationSeconds: transcription.durationSeconds,
+      sourceDurationSeconds: transcription.durationSeconds || renderWindow.durationSeconds || 30,
+      durationSeconds: renderWindow.durationSeconds || transcription.durationSeconds || 30,
+      renderWindowSeconds: renderWindow.durationSeconds || transcription.durationSeconds || 30,
       renderWindowSource: renderWindow.source,
       planningMediaSource: planningMedia.clipped ? 'first-60s-clip' : 'original-upload',
       topicTitle: plan.renderProps?.topicTitle || topicTitle || titleFromTranscript(transcription.transcript) || titleFromFile(fileName),
@@ -437,7 +485,7 @@ export async function POST(request: Request) {
       templateName,
       template: templateName,
       compositionId: composition,
-      backgroundMusic: plan.renderProps?.backgroundMusic !== false,
+      backgroundMusic: mode === 'autoCaption' ? false : plan.renderProps?.backgroundMusic !== false,
       backgroundMusicMood: readString(plan.renderProps?.backgroundMusicMood) || music.mood,
       backgroundMusicSrc: readString(plan.renderProps?.backgroundMusicSrc) || music.src,
       backgroundMusicVolume: Number.isFinite(Number(plan.renderProps?.backgroundMusicVolume))
@@ -464,12 +512,25 @@ export async function POST(request: Request) {
     });
     const preflight = validateBeforeRender({inputProps: imagePreflight.inputProps, templateName, composition, mediaType});
     if (preflight) {
+      const userEmail = readString(body.userEmail || body.email);
+      const isFounder = isFounderEmail(userEmail) || isFounderUser(userId);
       return NextResponse.json(
         {
           ok: false,
           status: 'failed',
           reasonCode: preflight.reasonCode,
-          error: preflight.message,
+          error: isFounder ? preflight.message : sanitizeUserFacingStatus(preflight.message),
+          ...(isFounder ? {
+            _founderDiagnostics: {
+              step: 'preflight_validation',
+              reason: preflight.message,
+              reasonCode: preflight.reasonCode,
+              mode,
+              templateName,
+              compositionId: composition,
+              httpStatus: 422,
+            },
+          } : {}),
         },
         {status: 422},
       );
@@ -539,8 +600,31 @@ export async function POST(request: Request) {
         : {}),
     });
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Could not start render job.';
+    const errorName = error instanceof Error ? error.name : 'UnknownError';
+    console.error('Render job failed:', { mode, templateName, composition, error: errorMessage });
+
+    const userEmail = readString(body.userEmail || body.email);
+    const isFounder = isFounderEmail(userEmail) || isFounderUser(userId);
+
     return NextResponse.json(
-      {ok: false, error: sanitizeUserFacingStatus(error instanceof Error ? error.message : 'Could not start render job.')},
+      {
+        ok: false,
+        error: isFounder ? errorMessage : sanitizeUserFacingStatus(errorMessage),
+        ...(isFounder ? {
+          _founderDiagnostics: {
+            step: 'render_start',
+            reason: errorMessage,
+            errorName,
+            mode,
+            templateName,
+            compositionId: composition,
+            httpStatus: 500,
+            detail: errorMessage,
+            raw: error instanceof Error ? error.stack?.split('\n').slice(0, 4).join(' | ') : String(error),
+          },
+        } : {}),
+      },
       {status: 500},
     );
   }
@@ -991,20 +1075,22 @@ async function transcribeForPlanning({
   fileName,
   contentType,
   mediaType,
+  outputLanguage = 'hinglish',
 }: {
   mediaUrl: string;
   fileName: string;
   contentType?: string;
   mediaType: 'audio' | 'video';
+  outputLanguage?: string;
 }) {
   let primaryWarning = '';
   try {
     const result = await transcribeMediaUrlWithGroq({mediaUrl, fileName, contentType});
     if (result.transcript) {
-      return await repairTranscriptionEnglishIfNeeded({
+      return await repairTranscriptionToLanguage({
         ...result,
         source: 'groq' as const,
-      });
+      }, outputLanguage);
     }
     primaryWarning = result.warning || 'Primary transcription returned an empty result.';
   } catch (error) {
@@ -1019,11 +1105,11 @@ async function transcribeForPlanning({
   try {
     const fallback = await transcribeMediaUrlWithOpenAI({mediaUrl, fileName, contentType});
     if (fallback.transcript) {
-      return await repairTranscriptionEnglishIfNeeded({
+      return await repairTranscriptionToLanguage({
         ...fallback,
         source: 'openai' as const,
         warning: sanitizeUserFacingStatus(primaryWarning),
-      });
+      }, outputLanguage);
     }
     throw new Error(fallback.warning || 'OpenAI transcription returned an empty result.');
   } catch (error) {
@@ -1085,7 +1171,19 @@ async function repairTranscriptionEnglishIfNeeded<T extends GroqLikeTranscriptio
                   'Preserve exact meaning, names, numbers, official terms, and factual claims.',
                   'Do not add scene notes, summaries, headings, timestamps, or extra facts.',
                   'Return strict JSON with transcript and segments. Segment count must match the input segment count.',
-                ].join(' '),
+                  '',
+                  'CORRECTION DICTIONARY — Always apply these domain-specific fixes:',
+                  'sip → SIP, emi → EMI, rbi → RBI, nps → NPS, ppf → PPF, pan → PAN, gst → GST',
+                  'nifty fifty → Nifty 50, sensex → Sensex, demat → Demat, kyc → KYC',
+                  'sbi → SBI, hdfc → HDFC, icici → ICICI, lic → LIC, epfo → EPFO, pf → PF',
+                  'ipo → IPO, etf → ETF, nav → NAV, amc → AMC, cagr → CAGR, fd → FD, rd → RD',
+                  'upsc → UPSC, ssc → SSC, ibps → IBPS, neet → NEET, jee → JEE, cat → CAT',
+                  'rbi grade bee → RBI Grade B, grade bee → Grade B',
+                  'lakh → lakh, crore → crore, rupees → rupees, paisa → paisa',
+                  'mutual fund → mutual fund (not "mutual fun"), elss → ELSS',
+                  'tds → TDS, itr → ITR, form sixteen → Form 16, form twenty six → Form 26AS',
+                  'aadhaar → Aadhaar, upi → UPI, bhim → BHIM, neft → NEFT, rtgs → RTGS, imps → IMPS',
+                ].join('\n'),
               },
             ],
           },
@@ -1135,7 +1233,7 @@ async function repairTranscriptionEnglishIfNeeded<T extends GroqLikeTranscriptio
       }),
       signal: controller.signal,
     });
-    if (!response.ok) throw new Error(`English transcript repair failed: ${response.status}`);
+    if (!response.ok) throw new Error(`Transcript repair issue: ${response.status}`);
     const repaired = parseEnglishRepairResponse(await response.json());
     if (!repaired?.transcript) throw new Error('English transcript repair returned an empty transcript.');
     const repairedSegments = mergeRepairedSegments(transcription.segments, repaired.segments);
@@ -1169,6 +1267,120 @@ type GroqLikeTranscription = {
   rawTranscript?: string;
   source: 'groq' | 'openai';
 };
+
+const LANGUAGE_NAMES: Record<string, string> = {
+  english: 'English',
+  hinglish: 'clean Roman Hinglish (Hindi words in Latin script mixed with English)',
+  hindi: 'Hindi in Devanagari script',
+  urdu: 'Urdu in Urdu/Arabic script',
+  kannada: 'Kannada in Kannada script',
+  tamil: 'Tamil in Tamil script',
+  farsi: 'Farsi/Persian in Persian script',
+  arabic: 'Arabic in Arabic script',
+  spanish: 'Spanish',
+  french: 'French',
+  german: 'German',
+  portuguese: 'Portuguese',
+  indonesian: 'Indonesian',
+};
+
+async function repairTranscriptionToLanguage<T extends GroqLikeTranscription>(transcription: T, outputLanguage: string): Promise<T> {
+  // If output is English or Hinglish, use the existing English repair
+  if (outputLanguage === 'english' || outputLanguage === 'hinglish') {
+    return repairTranscriptionEnglishIfNeeded(transcription);
+  }
+
+  // For other languages, translate the transcript
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) return transcription;
+
+  const targetLang = LANGUAGE_NAMES[outputLanguage] || outputLanguage;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 20000);
+
+  try {
+    const response = await fetch(OPENAI_RESPONSES_URL, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: process.env.TRANSCRIPT_ENGLISH_REPAIR_MODEL || DEFAULT_TRANSCRIPT_REPAIR_MODEL,
+        input: [
+          {
+            role: 'system',
+            content: [{
+              type: 'input_text',
+              text: `Translate this video transcription into ${targetLang}. Preserve meaning, names, numbers, and factual claims. Keep it natural and readable for short-form video subtitles. Return strict JSON with transcript and segments. Segment count must match input.`,
+            }],
+          },
+          {
+            role: 'user',
+            content: [{
+              type: 'input_text',
+              text: JSON.stringify({
+                transcript: transcription.transcript,
+                segments: (transcription.segments || []).map((seg, i) => ({ index: i, text: seg.text })),
+              }),
+            }],
+          },
+        ],
+        text: {
+          format: {
+            type: 'json_schema',
+            name: 'itnavideo_transcript_translation',
+            strict: true,
+            schema: {
+              type: 'object',
+              additionalProperties: false,
+              properties: {
+                transcript: { type: 'string' },
+                segments: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    additionalProperties: false,
+                    properties: { index: { type: 'number' }, text: { type: 'string' } },
+                    required: ['index', 'text'],
+                  },
+                },
+              },
+              required: ['transcript', 'segments'],
+            },
+          },
+        },
+      }),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      console.error('Translation API failed:', response.status, 'for language:', outputLanguage);
+      return transcription; // Return original — don't fallback to English repair
+    }
+    const parsed = parseEnglishRepairResponse(await response.json());
+    if (!parsed?.transcript) {
+      console.error('Translation returned empty for language:', outputLanguage);
+      return transcription; // Return original
+    }
+
+    const translatedSegments = mergeRepairedSegments(transcription.segments, parsed.segments);
+    return {
+      ...transcription,
+      transcript: parsed.transcript,
+      segments: translatedSegments,
+      words: undefined,
+      languageHint: outputLanguage as any,
+      rawTranscript: transcription.rawTranscript || transcription.transcript,
+    };
+  } catch (err) {
+    // Log but don't silently convert to English
+    console.error('Translation failed for language:', outputLanguage, err instanceof Error ? err.message : '');
+    return transcription; // Return original transcript
+  } finally {
+    clearTimeout(timeout);
+  }
+}
 
 function parseEnglishRepairResponse(payload: unknown): {transcript: string; segments: Array<{index: number; text: string}>} | null {
   const text = extractResponsesText(payload);
@@ -1499,6 +1711,8 @@ function toMode(value: string): ReelMode {
   if (normalized.includes('handwriting') || normalized.includes('notes')) return 'notes';
   if (normalized.includes('auto-caption') || normalized.includes('autocaption')) return 'autoCaption';
   if (normalized.includes('caption') || normalized.includes('subtitle')) return 'autoCaption';
+  if (normalized.includes('auto-draw') || normalized.includes('autodraw') || normalized.includes('whiteboard')) return 'autoDraw';
+  if (normalized.includes('image-story-collage') || normalized.includes('cinematic-collage')) return 'imageStoryCollage';
   if (normalized.includes('image') || normalized.includes('photo') || normalized.includes('story')) return 'imageStory';
   return 'videoExplainer';
 }
@@ -1666,6 +1880,7 @@ function humanTemplateName(templateName: ReelTemplateName) {
   if (templateName === 'AUTO_CAPTION_REEL') return 'Auto Caption Reel';
   if (templateName === 'VIDEO_CAPTION') return 'Video Caption';
   if (templateName === 'IMAGE_STORY') return 'Image Story';
+  if (templateName === 'IMAGE_STORY_COLLAGE') return 'Cinematic Collage';
   return 'Video Explainer';
 }
 
@@ -1757,6 +1972,7 @@ function sanitizeUserFacingStatus(value: string) {
     .replace(/\bVIDEO[-_]EXPLAINER\b/gi, 'Video Explainer')
     .replace(/\bVIDEO[-_]CAPTION\b/gi, 'Video Caption')
     .replace(/\bIMAGE[-_]STORY\b/gi, 'Image Story')
+    .replace(/\bIMAGE[-_]STORY[-_]COLLAGE\b/gi, 'Cinematic Collage')
     .replace(/\b(?:REMOTION|GROQ|OPENAI|AWS|S3|FFMPEG)[A-Z0-9_]*\b/g, 'render system')
     .replace(/\bGroq\b/gi, 'transcription service')
     .replace(/\bAWS Lambda\b/gi, 'render system')
@@ -1781,37 +1997,15 @@ function slugify(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 64) || 'reel';
 }
 
+const FOUNDER_EMAILS = ['itnavideo@gmail.com', 'rohi@itnavideo.com'];
+const FOUNDER_USER_IDS = (process.env.FOUNDER_TEST_EMAILS || '').split(',').map(s => s.trim()).filter(Boolean);
 
+function isFounderEmail(email: string) {
+  if (!email) return false;
+  return FOUNDER_EMAILS.includes(email.toLowerCase().trim());
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+function isFounderUser(userId: string) {
+  if (!userId) return false;
+  return FOUNDER_USER_IDS.includes(userId);
+}
