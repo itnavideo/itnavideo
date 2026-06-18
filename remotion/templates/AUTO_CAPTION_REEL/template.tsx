@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   AbsoluteFill,
   Composition,
@@ -6,301 +6,360 @@ import {
   interpolate,
   useCurrentFrame,
   useVideoConfig,
-} from "remotion";
+} from 'remotion';
 
-type SubtitleChunk = {
-  start: number;
-  end: number;
-  text: string;
-  highlight?: string;
-};
-
-type WordTimestamp = {
+type CaptionWord = {
   word?: string;
   text?: string;
   start?: number;
   end?: number;
 };
 
-type AutoCaptionReelProps = {
-  videoSrc?: string;
+type CaptionItem = {
+  text?: string;
+  start?: number;
+  end?: number;
+  words?: CaptionWord[];
+  stylePreset?: string;
+};
+
+type AutoCaptionProps = {
   mediaSrc?: string;
-  mediaUrl?: string;
-  captionStyle?: "clean" | "yellowPop" | "blackBox";
-  captionPosition?: "bottom" | "center" | "top";
+  mediaType?: 'video' | 'audio';
+  mediaTrimStartSeconds?: number;
+  sourceAudioVolume?: number;
+  captions?: CaptionItem[];
+  subtitleChunks?: CaptionItem[];
+  captionStyle?: string;
+  captionPosition?: 'bottom' | 'center' | 'top';
   textColor?: string;
   highlightColor?: string;
-  fontSize?: "small" | "medium" | "large";
-  subtitleChunks?: SubtitleChunk[];
-  captions?: SubtitleChunk[];
-  wordTimestamps?: WordTimestamp[];
-  words?: WordTimestamp[];
+  topicTitle?: string;
+  durationSeconds?: number;
+  sourceDurationSeconds?: number;
+  renderWindowSeconds?: number;
 };
 
-const cleanText = (value: string) =>
-  value
-    .replace(/\s+/g, " ")
-    .replace(/\b(uh|um|er|ah|hmm|matlab|dekho|basically|actually)\b/gi, "")
-    .replace(/\s+/g, " ")
-    .trim();
+const cleanText = (value?: string) =>
+  String(value || '').replace(/\s+/g, ' ').trim();
 
-const wordsToChunks = (words: WordTimestamp[]): SubtitleChunk[] => {
-  const usable = words
-    .map((item) => ({
-      word: cleanText(String(item.word || item.text || "")),
-      start: Number(item.start || 0),
-      end: Number(item.end || item.start || 0),
-    }))
-    .filter((item) => item.word && Number.isFinite(item.start));
+const getActiveCaption = (captions: CaptionItem[] = [], time: number) =>
+  captions.find((c) => {
+    const start = Number(c.start ?? 0);
+    const end = Number(c.end ?? start + 2.5);
+    return time >= start && time <= end;
+  });
 
-  const chunks: SubtitleChunk[] = [];
-  for (let i = 0; i < usable.length; i += 6) {
-    const group = usable.slice(i, i + 6);
-    if (!group.length) continue;
-
-    chunks.push({
-      start: group[0].start,
-      end: group[group.length - 1].end || group[0].start + 2,
-      text: cleanText(group.map((item) => item.word).join(" ")),
-    });
-  }
-
-  return chunks;
+const breakLines = (text: string): string[] => {
+  const words = text.split(' ').filter(Boolean).slice(0, 14);
+  if (words.length <= 5) return [words.join(' ')];
+  if (words.length <= 10) return [words.slice(0, 5).join(' '), words.slice(5).join(' ')];
+  return [words.slice(0, 5).join(' '), words.slice(5, 10).join(' '), words.slice(10).join(' ')];
 };
 
-const getSubtitleChunks = (props: AutoCaptionReelProps): SubtitleChunk[] => {
-  const direct = props.subtitleChunks?.length ? props.subtitleChunks : props.captions;
-  if (direct?.length) {
-    return direct
-      .map((item) => ({
-        start: Number(item.start || 0),
-        end: Number(item.end || item.start || 0),
-        text: cleanText(String(item.text || "")),
-        highlight: item.highlight,
-      }))
-      .filter((item) => item.text);
-  }
-
-  return wordsToChunks(props.wordTimestamps?.length ? props.wordTimestamps : props.words || []);
-};
-
-const getActiveSubtitle = (chunks: SubtitleChunk[], currentTime: number) => {
-  return chunks.find((item) => currentTime >= item.start && currentTime <= item.end);
-};
-
-const getPositionStyle = (position?: string) => {
-  if (position === "top") return {top: 170};
-  if (position === "center") return {top: 820};
-  return {bottom: 230};
-};
-
-const getFontSize = (size?: string) => {
-  if (size === "small") return 48;
-  if (size === "large") return 72;
-  return 60;
-};
-
-function CaptionBox({
-  chunk,
-  styleName,
-  position,
-  textColor,
-  highlightColor,
-  fontSize,
-}: {
-  chunk?: SubtitleChunk;
-  styleName?: string;
-  position?: string;
-  textColor?: string;
-  highlightColor?: string;
-  fontSize?: string;
-}) {
+function AutoCaptionReel({
+  mediaSrc,
+  mediaType = 'video',
+  mediaTrimStartSeconds = 0,
+  sourceAudioVolume = 1,
+  captions = [],
+  subtitleChunks,
+  captionStyle = 'yellowPop',
+  captionPosition = 'bottom',
+  textColor = '#ffffff',
+  highlightColor = '#facc15',
+  topicTitle,
+}: AutoCaptionProps) {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
+  const time = frame / fps;
 
-  if (!chunk?.text) return null;
+  // Use captions or subtitleChunks (fallback prop name)
+  const captionData = captions.length > 0 ? captions : (subtitleChunks || []);
 
-  const currentTime = frame / fps;
-  const localProgress = Math.max(0, Math.min(1, (currentTime - chunk.start) / Math.max(0.1, chunk.end - chunk.start)));
-  const scale = interpolate(localProgress, [0, 0.14, 1], [0.92, 1, 1], {extrapolateRight: "clamp"});
-  const opacity = interpolate(localProgress, [0, 0.08, 1], [0, 1, 1], {extrapolateRight: "clamp"});
-
-  const baseFontSize = getFontSize(fontSize);
-  const resolvedTextColor = textColor || "#ffffff";
-  const resolvedHighlightColor = highlightColor || "#facc15";
-  const positionStyle = getPositionStyle(position);
-
-  if (styleName === "blackBox") {
-    return (
-      <div
-        style={{
-          position: "absolute",
-          left: 84,
-          right: 84,
-          ...positionStyle,
-          display: "flex",
-          justifyContent: "center",
-          opacity,
-          transform: `scale(${scale})`,
-        }}
-      >
-        <div
-          style={{
-            maxWidth: 920,
-            borderRadius: 28,
-            background: "rgba(0,0,0,0.78)",
-            border: "2px solid rgba(255,255,255,0.16)",
-            padding: "22px 34px",
-            color: resolvedTextColor,
-            fontSize: baseFontSize,
-            lineHeight: 1.08,
-            fontWeight: 950,
-            textAlign: "center",
-            letterSpacing: "-1px",
-            textShadow: "0 4px 16px rgba(0,0,0,0.8)",
-          }}
-        >
-          {chunk.text}
-        </div>
-      </div>
-    );
-  }
-
-  if (styleName === "clean") {
-    return (
-      <div
-        style={{
-          position: "absolute",
-          left: 80,
-          right: 80,
-          ...positionStyle,
-          color: resolvedTextColor,
-          fontSize: baseFontSize,
-          lineHeight: 1.06,
-          fontWeight: 950,
-          textAlign: "center",
-          letterSpacing: "-1px",
-          WebkitTextStroke: "8px rgba(0,0,0,0.62)",
-          paintOrder: "stroke fill",
-          textShadow: "0 5px 18px rgba(0,0,0,0.85)",
-          opacity,
-          transform: `scale(${scale})`,
-        }}
-      >
-        {chunk.text}
-      </div>
-    );
-  }
-
-  return (
-    <div
-      style={{
-        position: "absolute",
-        left: 70,
-        right: 70,
-        ...positionStyle,
-        display: "flex",
-        justifyContent: "center",
-        opacity,
-        transform: `scale(${scale})`,
-      }}
-    >
-      <div
-        style={{
-          maxWidth: 940,
-          color: resolvedTextColor,
-          fontSize: baseFontSize,
-          lineHeight: 1.06,
-          fontWeight: 1000,
-          textAlign: "center",
-          letterSpacing: "-1.2px",
-          textShadow: "0 5px 18px rgba(0,0,0,0.85)",
-          WebkitTextStroke: "7px rgba(0,0,0,0.62)",
-          paintOrder: "stroke fill",
-        }}
-      >
-        <span
-          style={{
-            color: resolvedHighlightColor,
-          }}
-        >
-          {chunk.text.split(" ").slice(0, 2).join(" ")}
-        </span>
-        {chunk.text.split(" ").length > 2 ? ` ${chunk.text.split(" ").slice(2).join(" ")}` : ""}
-      </div>
-    </div>
+  const activeCaption = getActiveCaption(captionData, time);
+  const subtitleText = cleanText(
+    activeCaption?.text ||
+    activeCaption?.words?.map((w) => cleanText(w.word || w.text)).filter(Boolean).join(' ') ||
+    '',
   );
-}
 
-export function AutoCaptionReel(props: AutoCaptionReelProps) {
-  const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
-  const currentTime = frame / fps;
+  const captionEnter = subtitleText
+    ? interpolate(frame % (fps * 5), [0, 4], [0.92, 1], {extrapolateRight: 'clamp'})
+    : 0;
 
-  const videoSrc = props.videoSrc || props.mediaSrc || props.mediaUrl || "";
-  const chunks = getSubtitleChunks(props);
-  const activeSubtitle = getActiveSubtitle(chunks, currentTime);
+  // Caption position mapping
+  const positionStyle: React.CSSProperties = captionPosition === 'top'
+    ? {top: 180, bottom: 'auto'}
+    : captionPosition === 'center'
+      ? {top: '50%', bottom: 'auto', transform: `translateY(-50%) scale(${captionEnter})`}
+      : {bottom: 220, top: 'auto'};
 
   return (
-    <AbsoluteFill style={{backgroundColor: "#000000"}}>
-      {videoSrc ? (
+    <AbsoluteFill style={{backgroundColor: '#000'}}>
+      {/* Full-screen video */}
+      {mediaSrc && mediaType === 'video' ? (
         <OffthreadVideo
-          src={videoSrc}
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            objectPosition: "center",
-          }}
+          src={mediaSrc}
+          startFrom={Math.max(0, Math.round(mediaTrimStartSeconds * fps))}
+          style={{width: '100%', height: '100%', objectFit: 'cover'}}
+          volume={sourceAudioVolume}
         />
       ) : (
-        <AbsoluteFill
+        <div
           style={{
-            alignItems: "center",
-            justifyContent: "center",
-            color: "white",
-            fontFamily: "Inter, Arial, sans-serif",
-            fontSize: 44,
-            fontWeight: 900,
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'linear-gradient(180deg, #111 0%, #000 100%)',
+            color: 'rgba(255,255,255,0.2)',
+            fontSize: 36,
+            fontWeight: 800,
           }}
         >
-          Upload a reel to add captions
-        </AbsoluteFill>
+          YOUR REEL VIDEO
+        </div>
       )}
 
-      <CaptionBox
-        chunk={activeSubtitle}
-        fontSize={props.fontSize}
-        highlightColor={props.highlightColor}
-        position={props.captionPosition}
-        styleName={props.captionStyle || "yellowPop"}
-        textColor={props.textColor}
+      {/* Subtitle overlay */}
+      {subtitleText ? (
+        <div
+          style={{
+            position: 'absolute',
+            left: 48,
+            right: 48,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transform: captionPosition !== 'center' ? `scale(${captionEnter})` : undefined,
+            zIndex: 10,
+            ...positionStyle,
+          }}
+        >
+          <CaptionCard
+            text={subtitleText}
+            style={captionStyle}
+            textColor={textColor}
+            highlightColor={highlightColor}
+          />
+        </div>
+      ) : null}
+
+      {/* Subtle vignette for readability */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(0deg, rgba(0,0,0,0.45) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.2) 100%)',
+          pointerEvents: 'none',
+          zIndex: 5,
+        }}
       />
     </AbsoluteFill>
   );
 }
 
+function CaptionCard({
+  text,
+  style,
+  textColor,
+  highlightColor,
+}: {
+  text: string;
+  style: string;
+  textColor: string;
+  highlightColor: string;
+}) {
+  const lines = breakLines(text);
+
+  // Style: yellowPop — bold text with colored highlight on first word of each line
+  if (style === 'yellowPop') {
+    return (
+      <div
+        style={{
+          padding: '20px 36px',
+          borderRadius: 18,
+          background: 'rgba(0,0,0,0.75)',
+          boxShadow: '0 12px 40px rgba(0,0,0,0.5)',
+          textAlign: 'center',
+          backdropFilter: 'blur(8px)',
+        }}
+      >
+        {lines.map((line, i) => {
+          const words = line.split(' ');
+          const firstWord = words[0] || '';
+          const rest = words.slice(1).join(' ');
+          return (
+            <div key={`${line}-${i}`} style={{fontSize: 48, fontWeight: 900, lineHeight: 1.25, letterSpacing: -0.5}}>
+              <span style={{color: highlightColor, textShadow: `0 2px 12px ${highlightColor}44`}}>{firstWord}</span>
+              {rest ? <span style={{color: textColor}}>{' '}{rest}</span> : null}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  // Style: clean — minimal white text with shadow
+  if (style === 'clean') {
+    return (
+      <div style={{textAlign: 'center'}}>
+        {lines.map((line, i) => (
+          <div
+            key={`${line}-${i}`}
+            style={{
+              color: textColor,
+              fontSize: 48,
+              fontWeight: 700,
+              lineHeight: 1.3,
+              textShadow: '0 3px 12px rgba(0,0,0,0.9), 0 1px 3px rgba(0,0,0,0.8)',
+            }}
+          >
+            {line}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // Style: blackBox — dark background box
+  if (style === 'blackBox') {
+    return (
+      <div
+        style={{
+          padding: '16px 28px',
+          borderRadius: 10,
+          background: 'rgba(0,0,0,0.85)',
+          textAlign: 'center',
+        }}
+      >
+        {lines.map((line, i) => (
+          <div key={`${line}-${i}`} style={{color: textColor, fontSize: 44, fontWeight: 800, lineHeight: 1.3}}>
+            {line}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // Style: neon — glowing border
+  if (style === 'neon') {
+    return (
+      <div
+        style={{
+          padding: '18px 32px',
+          borderRadius: 16,
+          background: 'rgba(0,0,0,0.7)',
+          border: `2px solid ${highlightColor}99`,
+          boxShadow: `0 0 30px ${highlightColor}33, inset 0 0 20px ${highlightColor}11`,
+          textAlign: 'center',
+          backdropFilter: 'blur(8px)',
+        }}
+      >
+        {lines.map((line, i) => (
+          <div key={`${line}-${i}`} style={{color: textColor, fontSize: 46, fontWeight: 800, lineHeight: 1.25, textShadow: `0 0 20px ${highlightColor}88, 0 2px 4px rgba(0,0,0,0.5)`}}>
+            {line}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // Style: bold / minimal / classic — fallback
+  if (style === 'minimal') {
+    return (
+      <div style={{textAlign: 'center'}}>
+        {lines.map((line, i) => (
+          <div key={`${line}-${i}`} style={{color: textColor, fontSize: 48, fontWeight: 700, lineHeight: 1.3, textShadow: '0 3px 12px rgba(0,0,0,0.9), 0 1px 3px rgba(0,0,0,0.8)'}}>
+            {line}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (style === 'classic') {
+    return (
+      <div
+        style={{
+          padding: '16px 28px',
+          borderRadius: 8,
+          background: 'rgba(0,0,0,0.75)',
+          textAlign: 'center',
+          backdropFilter: 'blur(4px)',
+        }}
+      >
+        {lines.map((line, i) => (
+          <div key={`${line}-${i}`} style={{color: textColor, fontSize: 42, fontWeight: 700, lineHeight: 1.3}}>
+            {line}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // Default: bold style (same as yellowPop but without highlight split)
+  return (
+    <div
+      style={{
+        padding: '20px 36px',
+        borderRadius: 18,
+        background: 'linear-gradient(135deg, rgba(0,0,0,0.85) 0%, rgba(20,20,30,0.9) 100%)',
+        border: '2px solid rgba(255,255,255,0.1)',
+        boxShadow: '0 12px 40px rgba(0,0,0,0.5)',
+        textAlign: 'center',
+        backdropFilter: 'blur(10px)',
+      }}
+    >
+      {lines.map((line, i) => (
+        <div key={`${line}-${i}`} style={{color: textColor, fontSize: 48, fontWeight: 900, lineHeight: 1.2, letterSpacing: -0.5, textShadow: '0 2px 8px rgba(0,0,0,0.4)'}}>
+          {line}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const defaultProps: AutoCaptionProps = {
+  mediaType: 'video',
+  mediaSrc: '',
+  mediaTrimStartSeconds: 0,
+  sourceAudioVolume: 1,
+  captionStyle: 'yellowPop',
+  captionPosition: 'bottom',
+  textColor: '#ffffff',
+  highlightColor: '#facc15',
+  durationSeconds: 30,
+  sourceDurationSeconds: 30,
+  captions: [
+    {start: 0, end: 3, text: 'Upload your reel video here'},
+    {start: 3, end: 6, text: 'Subtitles will appear like this'},
+    {start: 6, end: 9, text: 'Auto captions sync with speech'},
+  ],
+};
+
 export const AutoCaptionReelComposition = () => (
   <Composition
-    component={AutoCaptionReel}
-    defaultProps={{
-      captionPosition: "bottom",
-      captionStyle: "yellowPop",
-      fontSize: "medium",
-      highlightColor: "#facc15",
-      subtitleChunks: [
-        {start: 0.2, end: 2.4, text: "Fresh graduates apply kar sakte hain"},
-        {start: 2.4, end: 4.8, text: "Isme forms process karne hote hain"},
-        {start: 4.8, end: 7.2, text: "Salary aur growth stable hoti hai"},
-      ],
-      textColor: "#ffffff",
-      videoSrc: "",
-    }}
-    durationInFrames={1800}
-    fps={30}
-    height={1920}
     id="AUTO-CAPTION-REEL"
+    component={AutoCaptionReel}
+    durationInFrames={900}
+    fps={30}
     width={1080}
+    height={1920}
+    defaultProps={defaultProps}
+    calculateMetadata={({props}) => {
+      const p = props as AutoCaptionProps;
+      const durationSeconds = Math.max(8, Math.min(60,
+        Number(p.durationSeconds) || Number(p.sourceDurationSeconds) || Number(p.renderWindowSeconds) || 30
+      ));
+      return {
+        durationInFrames: Math.ceil(durationSeconds * 30),
+        fps: 30,
+        width: 1080,
+        height: 1920,
+      };
+    }}
   />
 );
-

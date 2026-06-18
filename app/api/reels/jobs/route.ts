@@ -450,18 +450,25 @@ export async function POST(request: Request) {
             imageSources: comparisonImageUrls,
           }        : {}),
       ...(mode === 'autoCaption'
-        ? {
-            captions: buildCompareCaptionsFromGroq(renderWindow),
-            subtitleChunks: buildCompareCaptionsFromGroq(renderWindow),
-            transcriptSegments: renderWindow.segments || [],
-            transcript: renderWindow.transcript,
-            sourceScript: renderWindow.transcript,
-            backgroundMusic: false,
-            backgroundMusicSrc: '',
-            durationSeconds: renderWindow.durationSeconds || transcription.durationSeconds || 30,
-            overlayTimeline: [],
-            assetTimeline: [],
-          }
+        ? (() => {
+            const autoCaptions = buildCompareCaptionsFromGroq(renderWindow);
+            // Safety: if no word/segment captions available, build from plan
+            const finalCaptions = autoCaptions.length > 0
+              ? autoCaptions
+              : (plan.renderProps?.captions || []).map((c: any) => ({start: c.start, end: c.end, text: c.text})).filter((c: any) => c.text);
+            return {
+              captions: finalCaptions,
+              subtitleChunks: finalCaptions,
+              transcriptSegments: renderWindow.segments || [],
+              transcript: renderWindow.transcript,
+              sourceScript: renderWindow.transcript,
+              backgroundMusic: false,
+              backgroundMusicSrc: '',
+              durationSeconds: renderWindow.durationSeconds || transcription.durationSeconds || 30,
+              overlayTimeline: [],
+              assetTimeline: [],
+            };
+          })()
         : {}),
       mediaType,
       mediaFit: templateConfig.mediaFit,
@@ -588,6 +595,17 @@ export async function POST(request: Request) {
       access,
       retentionHours: 48,
       note: 'Render started. Poll /api/reels/jobs/status for progress.',
+      ...(isFounderEmail(readString(body.userEmail || body.email)) || isFounderUser(userId) ? {
+        _founderDebug: {
+          captionCount: Array.isArray(imagePreflight.inputProps.captions) ? (imagePreflight.inputProps.captions as any[]).length : 0,
+          captionSample: Array.isArray(imagePreflight.inputProps.captions) ? (imagePreflight.inputProps.captions as any[]).slice(0, 3) : [],
+          mediaSrc: typeof imagePreflight.inputProps.mediaSrc === 'string' ? imagePreflight.inputProps.mediaSrc.slice(0, 80) + '...' : 'missing',
+          mediaTrimStartSeconds: imagePreflight.inputProps.mediaTrimStartSeconds,
+          durationSeconds: imagePreflight.inputProps.durationSeconds,
+          sourceDurationSeconds: imagePreflight.inputProps.sourceDurationSeconds,
+          compositionId: composition,
+        },
+      } : {}),
       ...(process.env.NODE_ENV !== 'production'
         ? {
             planner: {
@@ -1916,7 +1934,7 @@ function hasVisibleTextIssue(value: unknown, predicate: (text: string) => boolea
 }
 
 function shouldSkipVisibleTextKey(keyPath: string) {
-  return /(?:scriptDetails|mediaSrc|imageSources|selectedAssets|uploadedImages|assetTimeline|assetBrief|primaryVisual\.prompt|prompt|visual|searchText|assetSearchText|detailedDescription|visualDifference|useCase|use_case|tags|category|orientation|style|motion|file|suggestedFilename|embeddingRef|storage|source|src|url|key|id|model|provider|debug|constraints|qualityChecks|warnings|repairNotes|renderNotes)/i.test(keyPath);
+  return /(?:scriptDetails|mediaSrc|imageSources|selectedAssets|uploadedImages|assetTimeline|assetBrief|primaryVisual\.prompt|prompt|visual|searchText|assetSearchText|detailedDescription|visualDifference|useCase|use_case|tags|category|orientation|style|motion|file|suggestedFilename|embeddingRef|storage|source|src|url|key|id|model|provider|debug|constraints|qualityChecks|warnings|repairNotes|renderNotes|captions|subtitleChunks|transcriptSegments|transcript|sourceScript|subtitleLanguagePolicy|subtitleOutputLanguage)/i.test(keyPath);
 }
 
 function hasForbiddenScriptText(value: string) {
