@@ -56,11 +56,11 @@ export type ReelTimelineScene = {
   secondarySupport?: Array<'titleCard'>;
 };
 
-export type ReelTemplateName = 'VIDEO_SIMPLE_EXPLAINER' | 'comparisonImages' | 'AUTO_CAPTION_REEL';
+export type ReelTemplateName = 'VIDEO_SIMPLE_EXPLAINER' | 'comparisonImages' | 'AUTO_CAPTION_REEL' | 'IMAGE_STORY' | 'IMAGE_STORY_COLLAGE';
 export const REEL_TEMPLATE_REGISTRY = {
   VIDEO_SIMPLE_EXPLAINER: {
     templateName: 'VIDEO_SIMPLE_EXPLAINER',
-    compositionId: 'VIDEO-SIMPLE-EXPLAINER',
+    compositionId: 'VIDEO_SIMPLE_EXPLAINER',
     allowedMedia: ['audio', 'video'],
     transcriptRequirement: 'required',
     plannerMode: 'videoExplainer',
@@ -80,6 +80,22 @@ export const REEL_TEMPLATE_REGISTRY = {
     transcriptRequirement: 'required',
     plannerMode: 'compare',
     mediaFit: 'compare',
+  },
+  IMAGE_STORY: {
+    templateName: 'IMAGE_STORY',
+    compositionId: 'IMAGE-STORY',
+    allowedMedia: ['image', 'audio'],
+    transcriptRequirement: 'audio-or-video',
+    plannerMode: 'imageStory',
+    mediaFit: 'imageStory',
+  },
+  IMAGE_STORY_COLLAGE: {
+    templateName: 'IMAGE_STORY_COLLAGE',
+    compositionId: 'IMAGE-STORY-COLLAGE',
+    allowedMedia: ['audio', 'video'],
+    transcriptRequirement: 'required',
+    plannerMode: 'imageStory',
+    mediaFit: 'imageStory',
   },
 } as const satisfies Record<string, {
   templateName: ReelTemplateName;
@@ -140,7 +156,7 @@ type ReelImageStoryImage = {
     avoidTextZone?: 'top' | 'bottom' | 'center' | 'none';
   };
 };
-type ReelImageStoryScene = {
+export type ReelImageStoryScene = { // Exported for potential external use
   id: string;
   start: number;
   end: number;
@@ -166,6 +182,8 @@ type ReelImageStoryScene = {
     in: 'fade' | 'cut' | 'slide' | 'blurReveal';
     out: 'fade' | 'cut' | 'blur';
   };
+  overlayImageUrl?: string; // New: for decorative overlays like tape, paper scraps
+  overlayPosition?: { top?: string; left?: string; right?: string; bottom?: string; rotate?: string; width?: string }; // New: position and size for overlay
 };
 
 export type ReelPlanResult = {
@@ -271,6 +289,9 @@ export type ReelPlanResult = {
       imageFit?: 'cover' | 'contain' | 'smart';
       title: string;
       body?: string;
+      animation?: ReelImageStoryMotionType | 'fade'; // New: for cinematic collage
+      overlayImageUrl?: string; // New: for cinematic collage
+      overlayPosition?: { top?: string; left?: string; right?: string; bottom?: string; rotate?: string; width?: string }; // New: for cinematic collage
       accentWord?: string;
       label?: string;
       tone?: 'hook' | 'proof' | 'warning' | 'action' | 'cta' | 'point';
@@ -638,7 +659,7 @@ async function createLocalReelPlan(
       : 'videoExplainer' as const;
   const primaryFocus = templateName === 'HANDWRITTEN_NOTES'
     ? 'notesCanvas' as const
-    : templateName === 'VIDEO_CAPTION'
+    : templateName === 'VIDEO_CAPTION' || templateName === 'AUTO_CAPTION_REEL'
       ? 'captions' as const
       : templateName === 'IMAGE_STORY'
         ? 'images' as const
@@ -655,7 +676,7 @@ async function createLocalReelPlan(
     : segments.map((segment) => ({
         start: roundTime(segment.start),
         end: roundTime(Math.min(durationSeconds, segment.end)),
-        text: trimWords(segment.text, 18),
+        text: cleanCaptionText(trimWords(segment.text, 18)), // Ensure captions are clean
       }));
   const timeline = overlayTimeline.map((item, index) => ({
     id: item.id,
@@ -671,7 +692,7 @@ async function createLocalReelPlan(
     primaryFocus,
     secondarySupport: ['titleCard'] as Array<'titleCard'>,
   }));
-  const imageStoryProps = templateName === 'IMAGE_STORY'
+  const imageStoryProps = templateName === 'IMAGE_STORY' || templateName === 'IMAGE_STORY_COLLAGE' // Include IMAGE_STORY_COLLAGE
     ? buildImageStoryProps({
         input,
         segments,
@@ -679,6 +700,7 @@ async function createLocalReelPlan(
         language,
         topicTitle,
         scriptDetails,
+        isCollage: templateName === 'IMAGE_STORY_COLLAGE', // Pass flag for collage
       })
     : undefined;
 
@@ -698,7 +720,7 @@ async function createLocalReelPlan(
     analysis: {
       durationSeconds,
       speechDensity: estimateSpeechDensity(normalized.transcript, durationSeconds),
-      hookStrength: estimateHookStrength(segments[0]?.text || normalized.transcript),
+      hookStrength: estimateHookStrength(segments[0]?.text || normalized.transcript || ''),
       language,
     },
     timeline,
@@ -706,7 +728,7 @@ async function createLocalReelPlan(
       suggested: buildSuggestedAssets(scriptDetails, templateName, externalVisualAssets),
       required: templateName === 'HANDWRITTEN_NOTES'
         ? ['uploaded voiceover']
-        : templateName === 'IMAGE_STORY'
+        : templateName === 'IMAGE_STORY' || templateName === 'IMAGE_STORY_COLLAGE'
           ? ['at least one uploaded or selected image']
           : templateName === 'comparisonImages'
             ? ['uploaded voiceover or primary video']
@@ -714,7 +736,7 @@ async function createLocalReelPlan(
       avoid: templateName === 'HANDWRITTEN_NOTES'
         ? ['prewritten notebook poster', 'watermark/logo overlays', 'repeated same text blocks']
         : templateName === 'IMAGE_STORY'
-          ? ['static slideshow', 'full subtitles', 'explainer cards', 'placeholder labels', 'stretched images']
+          ? ['static slideshow', 'full subtitles', 'explainer cards', 'placeholder labels', 'stretched images', 'generic stock photos']
           : templateName === 'comparisonImages'
             ? ['unclear sides', 'more than two competing ideas per scene', 'tiny comparison text']
           : ['watermark/logo overlays', 'extra overlay text layers', 'background-image-only designs', 'icons instead of the bottom image layer'],
@@ -733,7 +755,7 @@ async function createLocalReelPlan(
         ? 'notes'
         : templateName === 'VIDEO_CAPTION'
           ? 'videoCaption'
-          : templateName === 'IMAGE_STORY'
+          : templateName === 'IMAGE_STORY' || templateName === 'IMAGE_STORY_COLLAGE'
             ? 'imageStory'
             : templateName === 'comparisonImages'
               ? 'compare'
@@ -795,7 +817,7 @@ async function createLocalReelPlan(
             : 'Word-level sync unavailable; renderer will use duration-based pacing.',
         templateName === 'VIDEO_EXPLAINER'
           ? 'VIDEO_EXPLAINER uses exactly three visual layers: top uploaded video, middle timed subtitles, bottom planned explainer frame.'
-          : templateName === 'comparisonImages'
+          : templateName === 'comparisonImages' || templateName === 'IMAGE_STORY_COLLAGE'
             ? 'COMPARE renders each beat as a two-column tradeoff with a verdict strip.'
           : 'Template uses lightweight visual direction without forcing fixed asset rules.',
       ],
@@ -806,7 +828,7 @@ async function createLocalReelPlan(
         templateName === 'HANDWRITTEN_NOTES' ? 'One continuous handwritten notes canvas.' : (templateName === 'VIDEO_CAPTION' || templateName === 'AUTO_CAPTION_REEL') ? 'One continuous captioned video.' : templateName === 'IMAGE_STORY' ? 'One continuous image-led cinematic story.' : templateName === 'comparisonImages' ? 'One continuous side-by-side comparison reel.' : 'One continuous video scene.',
         templateName === 'HANDWRITTEN_NOTES'
           ? 'Uploaded voiceover drives full-screen handwritten notes.'
-          : templateName === 'VIDEO_CAPTION'
+          : templateName === 'VIDEO_CAPTION' || templateName === 'AUTO_CAPTION_REEL'
             ? 'Uploaded video stays full-screen while timed captions are rendered above safe zones.'
             : templateName === 'IMAGE_STORY'
               ? 'One primary image drives each scene with subtle cinematic motion.'
@@ -816,7 +838,7 @@ async function createLocalReelPlan(
         templateName === 'HANDWRITTEN_NOTES'
           ? 'Handwritten Notes layout uses short written points without prewritten background text.'
           : templateName === 'VIDEO_CAPTION'
-            ? 'Captions use short lines with word-level highlighting when transcript timings are available.'
+            ? 'Captions use short lines with word-level highlighting when transcript timings are available, or phrase reveal.'
             : templateName === 'IMAGE_STORY'
               ? 'Text is minimal and never becomes full subtitles or explainer cards.'
               : templateName === 'comparisonImages'
@@ -1210,6 +1232,7 @@ function buildImageStoryProps({
   language: 'english' | 'hinglish';
   topicTitle?: string;
   scriptDetails: ScriptDetails;
+  isCollage?: boolean; // New parameter for IMAGE_STORY_COLLAGE
 }): Pick<ReelPlanResult['renderProps'], 'source' | 'images' | 'storyPlan' | 'safeZones' | 'imageSources' | 'imageScenes'> {
   const imageSources = collectImageSources(input);
   const images = imageSources.map<ReelImageStoryImage>((src, index) => ({
@@ -1221,8 +1244,39 @@ function buildImageStoryProps({
       focusX: 0.5,
       focusY: 0.45,
       avoidTextZone: 'bottom',
-    },
-  }));
+      }
+    }));
+
+
+  if (isCollage && images.length === 0) {
+    // For Cinematic Collage, if no images are explicitly selected, generate some AI-like placeholders
+    // In a real scenario, this would involve calling an AI image generation service
+    // For now, using generic placeholders
+    for (let i = 0; i < Math.min(12, segments.length || 4); i++) {
+      images.push({
+        id: `ai-image-${i + 1}`,
+        src: `/visuals/ai-generated/cinematic-scene-${(i % 5) + 1}.png`, // Assuming 5 generic AI images
+        source: 'generated',
+        alt: sanitizeStoryText(topicTitle || input.topic || `AI Generated Scene ${i + 1}`),
+        safeCrop: { focusX: 0.5, focusY: 0.45, avoidTextZone: 'bottom' },
+      });
+    }
+  }
+
+  // Ensure there's at least one image if collage mode is active and none were generated/selected
+  if (isCollage && images.length === 0) {
+    images.push({
+      id: 'ai-image-fallback',
+      src: '/visuals/ai-generated/cinematic-scene-fallback.png',
+      source: 'fallback',
+      alt: 'AI Generated Fallback Scene',
+      safeCrop: {
+        focusX: 0.5,
+        focusY: 0.45,
+      avoidTextZone: 'bottom',
+    }
+        });
+        }
   const mode = input.mediaType === 'audio'
     ? 'audioImageStory'
     : images.length > 1
@@ -1258,6 +1312,8 @@ function buildImageStoryProps({
         in: index === 0 ? 'fade' : 'blurReveal',
         out: index === beatSource.length - 1 ? 'fade' : 'cut',
       },
+      overlayImageUrl, // Add to scene
+      overlayPosition, // Add to scene
     };
   }).filter((scene) => scene.end > scene.start);
   const repairedScenes = repairImageStorySceneList(scenes, images);
@@ -1283,6 +1339,9 @@ function buildImageStoryProps({
       imageSrc: images.find((image) => image.id === scene.imageId)?.src,
       imageFit: getImageFitForStyle(input.design),
       title: scene.textOverlay?.text || scene.title || scene.beatText || 'Story beat',
+      animation: scene.motion.type, // Map motion.type to animation
+      overlayImageUrl: scene.overlayImageUrl,
+      overlayPosition: scene.overlayPosition,
       body: '',
       accentWord: pickAccentWord(scene.textOverlay?.text || scene.title || '', topicTitle),
       label: scene.label,
@@ -1331,6 +1390,8 @@ function repairImageStoryProps(
     motion: normalizeImageMotion(scene.motion, index, props.storyPlan?.scenes.length || 1),
     textOverlay: normalizeImageTextOverlay(scene.textOverlay, scene.title || scene.beatText),
     transition: {
+      // Ensure these are valid ReelImageStoryScene transition types
+      // Assuming 'fade', 'cut', 'slide', 'blurReveal' are the only valid ones
       in: (scene.transition?.in === 'cut' || scene.transition?.in === 'slide' || scene.transition?.in === 'blurReveal' ? scene.transition.in : 'fade') as NonNullable<ReelImageStoryScene['transition']>['in'],
       out: (scene.transition?.out === 'cut' || scene.transition?.out === 'blur' ? scene.transition.out : 'fade') as NonNullable<ReelImageStoryScene['transition']>['out'],
     },
@@ -1357,6 +1418,9 @@ function repairImageStoryProps(
       imageSrc: images.find((image) => image.id === scene.imageId)?.src,
       imageFit: 'smart' as const,
       title: scene.textOverlay?.text || scene.title || scene.beatText || 'Story beat',
+      animation: scene.motion.type, // Map motion.type to animation
+      overlayImageUrl: scene.overlayImageUrl,
+      overlayPosition: scene.overlayPosition,
       body: '',
       accentWord: pickAccentWord(scene.textOverlay?.text || scene.title || '', props.topicTitle),
       label: scene.label,
@@ -1550,7 +1614,8 @@ function getTemplateName(value?: string): ReelTemplateName {
   const normalized = String(value || '').toLowerCase().replace(/[_\s]+/g, '-');
   if (normalized.includes('compare') || normalized.includes('comparison') || /\bvs\b/.test(normalized)) return 'comparisonImages';
   if (normalized.includes('auto-caption') || normalized.includes('autocaption')) return 'AUTO_CAPTION_REEL';
-  if (normalized.includes('caption') || normalized.includes('subtitle')) return 'AUTO_CAPTION_REEL';
+  if (normalized.includes('caption') || normalized.includes('subtitle')) return 'AUTO_CAPTION_REEL'; // Default to auto-caption for generic caption/subtitle
+  if (normalized.includes('image-story-collage') || normalized.includes('cinematic-collage')) return 'IMAGE_STORY_COLLAGE'; // New template
   return 'VIDEO_SIMPLE_EXPLAINER';
 }
 
@@ -1558,7 +1623,7 @@ function getTimelineVisualMode(templateName: ReelTemplateName): ReelTimelineScen
   if (templateName === 'HANDWRITTEN_NOTES') return 'notes';
   if (templateName === 'AUTO_CAPTION_REEL') return 'videoCaption';
   if (templateName === 'VIDEO_CAPTION') return 'videoCaption';
-  if (templateName === 'IMAGE_STORY') return 'imageStory';
+  if (templateName === 'IMAGE_STORY' || templateName === 'IMAGE_STORY_COLLAGE') return 'imageStory'; // Both image-led templates use imageStory mode
   if (templateName === 'comparisonImages') return 'compare';
   return 'videoExplainer';
 }
@@ -1567,7 +1632,7 @@ function getTimelinePrimaryFocus(templateName: ReelTemplateName): ReelTimelineSc
   if (templateName === 'HANDWRITTEN_NOTES') return 'notesCanvas';
   if (templateName === 'AUTO_CAPTION_REEL') return 'captions';
   if (templateName === 'VIDEO_CAPTION') return 'captions';
-  if (templateName === 'IMAGE_STORY') return 'images';
+  if (templateName === 'IMAGE_STORY' || templateName === 'IMAGE_STORY_COLLAGE') return 'images'; // Both image-led templates focus on images
   if (templateName === 'comparisonImages') return 'comparison';
   return 'topVisual';
 }
@@ -2315,7 +2380,7 @@ function buildSuggestedAssets(scriptDetails: ScriptDetails, templateName: ReelTe
       'editorial cards',
       'small checklist markers',
       ...matchAssetsForScript(scriptDetails, 4),
-    ].slice(0, 12);
+    ].slice(0, 12); // Limit suggestions
   }
   if (templateName === 'IMAGE_STORY') {
     return [
@@ -2326,6 +2391,17 @@ function buildSuggestedAssets(scriptDetails: ScriptDetails, templateName: ReelTe
       ...(scriptDetails.imageSelectionPlan || []).map((item) => `image need: ${item.bestMatchDescription}`),
       ...externalSuggestions,
       ...matchAssetsForScript(scriptDetails, 4),
+    ].slice(0, 12); // Limit suggestions
+  }
+  if (templateName === 'IMAGE_STORY_COLLAGE') { // New suggestions for collage
+    return [
+      'AI-generated cinematic images as primary visual',
+      'subtle Ken Burns effect on images',
+      'kinetic typography for text reveals',
+      'decorative overlays (tape, paper scraps) for collage effect',
+      'dark cinematic overlays with brand-mint accents',
+      'whoosh and hit sound effects for transitions',
+      'emotional/strong script for image generation',
     ].slice(0, 12);
   }
   const suggestions = [
@@ -2527,7 +2603,7 @@ function cleanTitle(value?: string) {
   const source = cleanDisplayText(value || '');
   return source ? titleCase(trimWords(removeWeakIntroPhrases(source), 5)) : undefined;
 }
-
+// Removed TITLE_FILLER_WORDS as it's not used in the current context.
 const TITLE_FILLER_WORDS = new Set([
   'aaj',
   'ab',
@@ -2670,7 +2746,7 @@ function normalizePrimaryVisual(
   const allowedTypes = new Set<ReelPrimaryVisualType>(['uploadedMedia', 'image', 'chart', 'document', 'waveform', 'mockup', 'none']);
   const type = value?.type && allowedTypes.has(value.type)
     ? value.type
-    : mediaType === 'audio'
+    : mediaType === 'audio' || mediaType === 'video' // If audio/video is primary, it's uploadedMedia
       ? overlay.type === 'stat'
         ? 'chart'
         : overlay.type === 'warning'
@@ -2718,10 +2794,4 @@ function uniqueStrings(values: string[]) {
 function roundTime(value: number) {
   return Math.round(value * 100) / 100;
 }
-
-
-
-
-
-
 

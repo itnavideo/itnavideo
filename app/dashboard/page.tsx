@@ -273,6 +273,7 @@ export default function DashboardPage() {
   }, []);
 
   const activeMode = modeConfig[mode];
+  const isFounderDebugUser = user?.email?.toLowerCase() === "itnavideo@gmail.com";
   const ActiveModeIcon = activeMode.icon;
   const firstName = user?.displayName || user?.email?.split("@")[0] || "Creator";
   const fileMeta = useMemo(() => {
@@ -1129,9 +1130,20 @@ export default function DashboardPage() {
       const job = await readJsonPayload(jobResponse);
       if (!jobResponse.ok || !job.ok) {
         const reasonCode = typeof job.reasonCode === "string" ? job.reasonCode : "";
+        const diagnosticParts = [
+          job.step ? `Step: ${job.step}` : "",
+          reasonCode ? `Reason: ${reasonCode}` : "",
+          job.debugMode ? `Mode: ${job.debugMode}` : "",
+          job.debugTemplate ? `Template: ${job.debugTemplate}` : "",
+          job.debugComposition ? `Composition: ${job.debugComposition}` : "",
+          job.httpStatus ? `HTTP: ${job.httpStatus}` : "",
+          job.detail ? `Detail: ${job.detail}` : "",
+          job.rawText ? `Raw: ${String(job.rawText).slice(0, 240)}` : "",
+        ].filter(Boolean);
+
         setJobStatus({
           state: "error",
-          message: sanitizeUserFacingStatus(job.error || "Could not start render.") + (job.detail ? ` [${job.detail}]` : ""),
+          message: sanitizeUserFacingStatus(job.error || job.message || "Could not start render.") + (isFounderDebugUser && diagnosticParts.length ? ` — ${diagnosticParts.join(" | ")}` : ""),
           progress: getFailureProgress(reasonCode),
           failureStage: getFailureStage(reasonCode),
           reasonCode,
@@ -2056,10 +2068,34 @@ function formatBytes(bytes: number) {
 }
 
 async function readJsonPayload(response: Response) {
+  const httpStatus = response.status;
+  const contentType = response.headers.get("content-type") || "";
+
   try {
-    return await response.json();
-  } catch {
-    return {};
+    const rawText = await response.text();
+
+    if (!rawText) {
+      return {httpStatus, rawText: ""};
+    }
+
+    if (contentType.includes("application/json")) {
+      try {
+        return {...JSON.parse(rawText), httpStatus};
+      } catch {
+        return {httpStatus, rawText};
+      }
+    }
+
+    try {
+      return {...JSON.parse(rawText), httpStatus};
+    } catch {
+      return {httpStatus, rawText};
+    }
+  } catch (error) {
+    return {
+      httpStatus,
+      error: error instanceof Error ? error.message : "Could not read server response.",
+    };
   }
 }
 
@@ -2108,6 +2144,9 @@ function sanitizeUserFacingStatus(value: string) {
     .replace(/\bOpenAI\b/gi, "AI planner")
     .trim() || "Something went wrong. Please try again.";
 }
+
+
+
 
 
 
