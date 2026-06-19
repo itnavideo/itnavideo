@@ -482,6 +482,22 @@ export async function POST(request: Request) {
             lines: buildVoiceSyncedNoteLines(renderWindow),
           }
         : {}),
+      ...(mode === 'imageStoryCollage'
+        ? {
+            audioUrl: planningMedia.mediaUrl,
+            // Map imageScenes (planner output) to scenes (Remotion template input)
+            scenes: (plan.renderProps?.imageScenes || []).map((s: any) => ({
+              start: Number(s.start ?? 0),
+              end: Number(s.end ?? (s.start ?? 0) + 5),
+              text: String(s.title || s.body || s.label || ''),
+              imageUrl: String(s.imageSrc || s.imageUrl || ''),
+              animation: s.animation || 'slowZoomIn',
+              overlayImageUrl: s.overlayImageUrl || undefined,
+              overlayPosition: s.overlayPosition || undefined,
+            })),
+            language: subtitleLang === 'hinglish' ? 'hi' : subtitleLang === 'english' ? 'en' : subtitleLang,
+          }
+        : {}),
       ...(mode === 'compare'
         ? {
             audioUrl: planningMedia.mediaUrl,

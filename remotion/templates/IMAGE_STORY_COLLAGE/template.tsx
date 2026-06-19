@@ -151,7 +151,7 @@ export const ImageStoryCollageComposition: React.FC = () => {
     <Composition
       id="IMAGE-STORY-COLLAGE"
       component={ImageStoryCollage}
-      durationInFrames={1800} // Default 60s @ 30fps
+      durationInFrames={1800}
       fps={30}
       width={1080}
       height={1920}
@@ -159,6 +159,15 @@ export const ImageStoryCollageComposition: React.FC = () => {
         scenes: [],
         audioUrl: '',
         language: 'en',
+      }}
+      calculateMetadata={({props}) => {
+        const p = props as any;
+        const scenes = p.scenes || [];
+        const lastEnd = scenes.length > 0 ? Math.max(...scenes.map((s: any) => Number(s.end || 0))) : 0;
+        const dur = Math.max(8, Math.min(60,
+          lastEnd || Number(p.durationSeconds) || Number(p.sourceDurationSeconds) || 30
+        ));
+        return {durationInFrames: Math.ceil(dur * 30), fps: 30, width: 1080, height: 1920};
       }}
     />
   );
