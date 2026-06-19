@@ -15,6 +15,7 @@ import {
   distributeWordTimings,
   getFontSize,
 } from '../utils/subtitleUtils';
+import {resolveFont, getFontForLanguage} from '../utils/fonts';
 
 interface SubtitleRendererProps {
   captions: CaptionSegment[];
@@ -35,12 +36,16 @@ export const SubtitleRenderer: React.FC<SubtitleRendererProps> = ({
   const activeCaption = getActiveCaption(captions, currentTimeSec);
   if (!activeCaption) return null;
 
+  // Resolve font — use loaded Google Font for Lambda render
+  const resolvedFont = resolveFont(config.fontFamily) || getFontForLanguage(config.language);
+  const resolvedConfig = {...config, fontFamily: resolvedFont};
+
   const captionWithWords: CaptionSegment = {
     ...activeCaption,
     words: distributeWordTimings(activeCaption),
   };
   const activeWord = getActiveWord(captionWithWords, currentTimeSec);
-  const fontSize = getFontSize(config.fontSize);
+  const fontSize = getFontSize(resolvedConfig.fontSize);
 
   const positionStyle: React.CSSProperties = {
     position: 'absolute',
@@ -48,43 +53,43 @@ export const SubtitleRenderer: React.FC<SubtitleRendererProps> = ({
     display: 'flex', justifyContent: 'center', alignItems: 'center',
     paddingLeft: 40, paddingRight: 40,
     zIndex: 20,
-    ...(config.position === 'top' && {top: 120}),
-    ...(config.position === 'center' && {top: '50%', transform: 'translateY(-50%)'}),
-    ...(config.position === 'bottom' && {bottom: 180}),
+    ...(resolvedConfig.position === 'top' && {top: 120}),
+    ...(resolvedConfig.position === 'center' && {top: '50%', transform: 'translateY(-50%)'}),
+    ...(resolvedConfig.position === 'bottom' && {bottom: 180}),
   };
 
   const renderStyle = () => {
-    switch (config.style) {
+    switch (resolvedConfig.style) {
       case 'normal':
-        return <NormalStyle caption={captionWithWords} config={config} fontSize={fontSize} />;
+        return <NormalStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} />;
       case 'highlight':
-        return <HighlightStyle caption={captionWithWords} config={config} fontSize={fontSize} activeWord={activeWord} />;
+        return <HighlightStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} activeWord={activeWord} />;
       case 'big-bold':
-        return <BigBoldStyle caption={captionWithWords} config={config} fontSize={fontSize} frame={frame} fps={fps} />;
+        return <BigBoldStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} frame={frame} fps={fps} />;
       case 'word-pop':
-        return <WordPopStyle caption={captionWithWords} config={config} fontSize={fontSize} activeWord={activeWord} />;
+        return <WordPopStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} activeWord={activeWord} />;
       case 'neon':
-        return <NeonStyle caption={captionWithWords} config={config} fontSize={fontSize} activeWord={activeWord} />;
+        return <NeonStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} activeWord={activeWord} />;
       case 'box':
-        return <BoxStyle caption={captionWithWords} config={config} fontSize={fontSize} activeWord={activeWord} />;
+        return <BoxStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} activeWord={activeWord} />;
       case 'split-color':
-        return <SplitColorStyle caption={captionWithWords} config={config} fontSize={fontSize} activeWord={activeWord} />;
+        return <SplitColorStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} activeWord={activeWord} />;
       case 'typewriter':
-        return <TypewriterStyle caption={captionWithWords} config={config} fontSize={fontSize} currentTimeSec={currentTimeSec} />;
+        return <TypewriterStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} currentTimeSec={currentTimeSec} />;
       case 'bold-outline':
-        return <BoldOutlineStyle caption={captionWithWords} config={config} fontSize={fontSize} activeWord={activeWord} />;
+        return <BoldOutlineStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} activeWord={activeWord} />;
       case 'one-word':
-        return <OneWordStyle caption={captionWithWords} config={config} fontSize={fontSize} activeWord={activeWord} />;
+        return <OneWordStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} activeWord={activeWord} />;
       case 'gold-pill':
-        return <GoldPillStyle caption={captionWithWords} config={config} fontSize={fontSize} />;
+        return <GoldPillStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} />;
       case 'stacked':
-        return <StackedStyle caption={captionWithWords} config={config} fontSize={fontSize} activeWord={activeWord} />;
+        return <StackedStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} activeWord={activeWord} />;
       case 'inline-bg':
-        return <InlineBgStyle caption={captionWithWords} config={config} fontSize={fontSize} activeWord={activeWord} />;
+        return <InlineBgStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} activeWord={activeWord} />;
       case 'vollkorn':
-        return <VollkornStyle caption={captionWithWords} config={config} fontSize={fontSize} activeWord={activeWord} />;
+        return <VollkornStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} activeWord={activeWord} />;
       default:
-        return <NormalStyle caption={captionWithWords} config={config} fontSize={fontSize} />;
+        return <NormalStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} />;
     }
   };
 

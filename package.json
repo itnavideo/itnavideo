@@ -41,6 +41,7 @@
     "@aws-sdk/client-ec2": "^3.986.0",
     "@fontsource/kalam": "^5.2.8",
     "@remotion/bundler": "^4.0.467",
+    "@remotion/google-fonts": "4.0.467",
     "@remotion/lambda": "^4.0.467",
     "@remotion/renderer": "^4.0.467",
     "@supabase/ssr": "^0.10.3",
