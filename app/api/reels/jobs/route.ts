@@ -310,7 +310,10 @@ export async function POST(request: Request) {
     }
 
     const subtitleLang = readString(body.subtitleOutputLanguage) || 'english';
+    console.log('[PIPELINE] subtitleLang:', subtitleLang, '| mode:', mode, '| template:', templateName);
+
     let transcription: PlanningTranscription;
+    const transcribeStart = Date.now();
     try {
       transcription = await transcribeForPlanning({
         mediaUrl: planningMedia.transcriptionMediaUrl,
@@ -319,6 +322,7 @@ export async function POST(request: Request) {
         mediaType: mediaType === 'image' ? 'video' : mediaType,
         outputLanguage: subtitleLang,
       });
+      console.log('[PIPELINE] transcription+translation done in', Date.now() - transcribeStart, 'ms | languageHint:', transcription.languageHint, '| hasSegments:', Boolean(transcription.segments?.length));
     } catch (transcribeError) {
       const errMsg = transcribeError instanceof Error ? transcribeError.message : 'Transcription crashed';
       console.error('Transcription error:', errMsg);
@@ -344,6 +348,13 @@ export async function POST(request: Request) {
         },
         {status: 422},
       );
+    }
+
+    // Verify translation actually happened for non-English languages
+    const translationExpected = subtitleLang !== 'english' && subtitleLang !== 'hinglish';
+    const translationApplied = transcription.languageHint === subtitleLang;
+    if (translationExpected && !translationApplied) {
+      console.warn('[PIPELINE] Translation NOT applied! Expected:', subtitleLang, '| Got:', transcription.languageHint || 'english/hinglish fallback');
     }
     const renderWindow = selectRenderWindow(transcription);
     let plan: ReturnType<typeof validateAndRepairReelPlan> extends Promise<infer T> ? T : never;
@@ -624,6 +635,7 @@ export async function POST(request: Request) {
           compositionId: composition,
           selectedLanguage: subtitleLang,
           transcriptLanguageHint: transcription.languageHint,
+          translationApplied: translationExpected ? translationApplied : 'not-needed',
           captionFirstText: Array.isArray(imagePreflight.inputProps.captions) ? (imagePreflight.inputProps.captions as any[])[0]?.text?.slice(0, 50) : 'none',
         },
       } : {}),
@@ -1124,12 +1136,17 @@ async function transcribeForPlanning({
 }) {
   let primaryWarning = '';
   try {
+    const groqStart = Date.now();
     const result = await transcribeMediaUrlWithGroq({mediaUrl, fileName, contentType});
+    console.log('[TIMING] Groq transcription:', Date.now() - groqStart, 'ms | hasTranscript:', Boolean(result.transcript));
     if (result.transcript) {
-      return await repairTranscriptionToLanguage({
+      const translateStart = Date.now();
+      const translated = await repairTranscriptionToLanguage({
         ...result,
         source: 'groq' as const,
       }, outputLanguage);
+      console.log('[TIMING] Translation to', outputLanguage, ':', Date.now() - translateStart, 'ms | applied:', translated.languageHint === outputLanguage);
+      return translated;
     }
     primaryWarning = result.warning || 'Primary transcription returned an empty result.';
   } catch (error) {
