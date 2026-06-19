@@ -9,6 +9,8 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from 'remotion';
+import {SubtitleRenderer} from '../../components/SubtitleRenderer';
+import type {CaptionSegment} from '../../types/subtitles';
 
 type CaptionItem = {
   text?: string;
@@ -49,7 +51,6 @@ function LongVideoPromo({
 }: LongVideoPromoProps) {
   const frame = useCurrentFrame();
   const {fps, width, height} = useVideoConfig();
-  const time = frame / fps;
 
   // Animations
   const introScale = spring({frame, fps, config: {damping: 12, mass: 0.8}});
@@ -59,14 +60,6 @@ function LongVideoPromo({
   const glowPulse = interpolate(Math.sin(frame * 0.05), [-1, 1], [0.4, 0.8]);
   const thumbZoom = interpolate(frame, [0, fps * 3], [1, 1.06], {extrapolateRight: 'clamp'});
   const particleOffset = (frame * 0.3) % 100;
-
-  // Active caption
-  const activeCaption = captions.find((c) => {
-    const s = Number(c.start ?? 0);
-    const e = Number(c.end ?? s + 2.5);
-    return time >= s && time <= e;
-  });
-  const captionText = activeCaption?.text || '';
 
   return (
     <AbsoluteFill style={{backgroundColor: '#000'}}>
@@ -235,23 +228,23 @@ function LongVideoPromo({
         </div>
       ) : null}
 
-      {/* Caption overlay */}
-      {captionText ? (
-        <div style={{
-          position: 'absolute', bottom: mediaSrc ? 200 : 350,
-          left: 48, right: 48, textAlign: 'center', zIndex: 10,
-        }}>
-          <div style={{
-            display: 'inline-block', padding: '14px 28px',
-            borderRadius: 14, background: 'rgba(0,0,0,0.75)',
-            backdropFilter: 'blur(8px)',
-          }}>
-            <span style={{fontSize: 32, fontWeight: 700, color: '#fff', lineHeight: 1.3}}>
-              {captionText}
-            </span>
-          </div>
-        </div>
-      ) : null}
+      {/* Caption overlay — uses shared SubtitleRenderer */}
+      <SubtitleRenderer
+        captions={captions.map((c) => ({
+          start: Number(c.start ?? 0),
+          end: Number(c.end ?? (c.start ?? 0) + 2.5),
+          text: String(c.text || ''),
+        }))}
+        config={{
+          style: 'normal',
+          position: mediaSrc ? 'bottom' : 'center',
+          language: 'en',
+          textColor: '#ffffff',
+          highlightColor: accentColor,
+          fontSize: 'medium',
+          showBackground: true,
+        }}
+      />
 
       {/* === CTA Button === */}
       <div style={{

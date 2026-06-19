@@ -19,6 +19,33 @@ export type GroqTranscriptionResult = {
 
 const GROQ_TRANSCRIPTION_URL = 'https://api.groq.com/openai/v1/audio/transcriptions';
 const GROQ_TRANSLATION_URL = 'https://api.groq.com/openai/v1/audio/translations';
+
+/** Convert user language selection to Groq Whisper language code */
+export function toGroqLanguageCode(lang: string): string | undefined {
+  const map: Record<string, string> = {
+    kn: 'kn', kannada: 'kn',
+    hi: 'hi', hindi: 'hi', hinglish: 'hi',
+    te: 'te', telugu: 'te',
+    ta: 'ta', tamil: 'ta',
+    mr: 'mr', marathi: 'mr',
+    gu: 'gu', gujarati: 'gu',
+    bn: 'bn', bengali: 'bn',
+    pa: 'pa', punjabi: 'pa',
+    ml: 'ml', malayalam: 'ml',
+    en: 'en', english: 'en',
+    es: 'es', spanish: 'es',
+    fr: 'fr', french: 'fr',
+    de: 'de', german: 'de',
+    ar: 'ar', arabic: 'ar',
+    ur: 'ur', urdu: 'ur',
+    fa: 'fa', farsi: 'fa',
+    pt: 'pt', portuguese: 'pt',
+    id: 'id', indonesian: 'id',
+    ja: 'ja', zh: 'zh',
+  };
+  const normalized = lang?.toLowerCase().trim();
+  return map[normalized] ?? (normalized?.length === 2 ? normalized : undefined);
+}
 const OPENAI_TRANSCRIPTION_URL = 'https://api.openai.com/v1/audio/transcriptions';
 const OPENAI_TRANSLATION_URL = 'https://api.openai.com/v1/audio/translations';
 const DEFAULT_GROQ_TRANSCRIPTION_MODEL = 'whisper-large-v3-turbo';
@@ -50,11 +77,13 @@ export async function transcribeMediaUrlWithGroq({
   fileName,
   contentType,
   skipMediaPreparation,
+  language,
 }: {
   mediaUrl: string;
   fileName: string;
   contentType?: string;
   skipMediaPreparation?: boolean;
+  language?: string;
 }): Promise<GroqTranscriptionResult> {
   const apiKey = cleanEnvValue(process.env.GROQ_API_KEY);
   if (!apiKey) throw new Error('Missing GROQ_API_KEY.');
@@ -72,6 +101,12 @@ export async function transcribeMediaUrlWithGroq({
   form.append('response_format', responseFormat);
   form.append('temperature', '0');
   appendTranscriptionGuidance(form, 'GROQ', translateToEnglish);
+
+  // Pass language hint to Whisper for better accuracy on non-English content
+  const groqLang = language ? toGroqLanguageCode(language) : undefined;
+  if (groqLang && !translateToEnglish) {
+    form.append('language', groqLang);
+  }
 
   if (responseFormat === 'verbose_json') {
     form.append('timestamp_granularities[]', 'segment');

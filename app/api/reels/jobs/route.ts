@@ -1104,7 +1104,7 @@ async function transcribeForPlanning({
 }) {
   let primaryWarning = '';
   try {
-    const result = await transcribeMediaUrlWithGroq({mediaUrl, fileName, contentType});
+    const result = await transcribeMediaUrlWithGroq({mediaUrl, fileName, contentType, language: outputLanguage});
     if (result.transcript) {
       return await repairTranscriptionToLanguage({
         ...result,
@@ -1276,7 +1276,22 @@ async function repairTranscriptionToLanguage<T extends GroqLikeTranscription>(tr
     return repairTranscriptionEnglishIfNeeded(transcription);
   }
 
-  // For other languages, translate the transcript
+  // Check if Groq already produced the correct non-Latin script (e.g. Kannada, Hindi, Tamil)
+  // If transcript contains non-ASCII/non-Latin characters, Groq likely already output the right language
+  const nonLatinScriptLanguages = ['kannada', 'hindi', 'tamil', 'telugu', 'marathi', 'gujarati', 'bengali', 'punjabi', 'malayalam', 'arabic', 'urdu', 'farsi'];
+  if (nonLatinScriptLanguages.includes(outputLanguage)) {
+    const hasNonLatin = /[^\u0000-\u024F\s]/.test(transcription.transcript);
+    if (hasNonLatin) {
+      // Groq already output in the correct script — skip translation
+      return {
+        ...transcription,
+        languageHint: outputLanguage as any,
+        rawTranscript: transcription.rawTranscript || transcription.transcript,
+      };
+    }
+  }
+
+  // For other languages, translate the transcript via OpenAI
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) return transcription;
 
