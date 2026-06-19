@@ -117,7 +117,7 @@ export default function Hero() {
             className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-mint/20 bg-brand-mint/[0.06] px-5 py-2.5 text-xs font-bold text-brand-mint"
           >
             <Sparkles size={13} />
-            5 Templates Live — One payment, any template
+            7 Templates Live — One payment, all templates
           </motion.div>
 
           <motion.h1
@@ -176,35 +176,6 @@ export default function Hero() {
             ))}
           </motion.div>
         </div>
-
-        {/* Hero showcase images */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.32, duration: 0.6 }}
-          className="mx-auto mt-14 grid max-w-5xl gap-4 sm:grid-cols-2"
-        >
-          <div className="overflow-hidden rounded-2xl border border-zinc-800 shadow-2xl shadow-black/40">
-            <Image
-              src="/visuals/ChatGPT Image Jun 18, 2026, 02_57_41 PM.png"
-              alt="Itnavideo AI reel creation"
-              width={800}
-              height={500}
-              className="w-full object-cover"
-              priority
-            />
-          </div>
-          <div className="overflow-hidden rounded-2xl border border-zinc-800 shadow-2xl shadow-black/40">
-            <Image
-              src="/visuals/ChatGPT Image Jun 18, 2026, 03_01_08 PM.png"
-              alt="Itnavideo template output preview"
-              width={800}
-              height={500}
-              className="w-full object-cover"
-              priority
-            />
-          </div>
-        </motion.div>
 
         {/* ─── Template Cards ─── */}
         <motion.div
@@ -269,12 +240,13 @@ export default function Hero() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="mx-auto mt-16 flex max-w-md items-center justify-center divide-x divide-zinc-800 rounded-2xl border border-zinc-800/60 bg-zinc-900/30 px-2 py-5 backdrop-blur"
+          className="mx-auto mt-16 flex max-w-lg items-center justify-center divide-x divide-zinc-800 rounded-2xl border border-zinc-800/60 bg-zinc-900/30 px-2 py-5 backdrop-blur"
         >
           {[
             { value: '$19', sub: 'Starter pack' },
-            { value: '60s', sub: 'Max reel' },
-            { value: '5', sub: 'Templates' },
+            { value: '1 min', sub: 'Max reel length' },
+            { value: '7', sub: 'Templates' },
+            { value: '16', sub: 'Sticker characters' },
           ].map((s) => (
             <div key={s.sub} className="flex-1 text-center">
               <p className="text-2xl font-black text-white sm:text-3xl">{s.value}</p>
@@ -282,9 +254,35 @@ export default function Hero() {
             </div>
           ))}
         </motion.div>
+
+        {/* What you get */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="mx-auto mt-16 max-w-4xl"
+        >
+          <p className="text-center text-xs font-black uppercase tracking-widest text-zinc-600 mb-6">What you get with every reel</p>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {[
+              { icon: '🎬', text: 'HD 1080×1920 MP4' },
+              { icon: '📝', text: 'AI subtitles synced' },
+              { icon: '🌍', text: '13 languages' },
+              { icon: '🎨', text: '15 caption styles' },
+              { icon: '🔊', text: 'Original audio kept' },
+              { icon: '📱', text: 'Reels / Shorts / TikTok' },
+              { icon: '⚡', text: '2-4 min render' },
+              { icon: '🔒', text: 'Private & secure' },
+            ].map((item) => (
+              <div key={item.text} className="flex items-center gap-2.5 rounded-xl border border-zinc-800/50 bg-zinc-900/30 px-3 py-3">
+                <span className="text-lg">{item.icon}</span>
+                <span className="text-xs font-bold text-zinc-300">{item.text}</span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
       </div>
     </section>
   );
 }
-
 
