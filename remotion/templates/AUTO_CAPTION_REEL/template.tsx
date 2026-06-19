@@ -75,11 +75,6 @@ function AutoCaptionReel({
     }))
     .filter((c) => c.text);
 
-  // DEBUG SAFETY: if captions are empty after processing, show a diagnostic message
-  const finalCaptions: CaptionSegment[] = captionData.length > 0
-    ? captionData
-    : [{start: 0, end: 999, text: `[NO CAPTIONS RECEIVED - props.captions: ${captions?.length ?? 'undefined'}, subtitleChunks: ${subtitleChunks?.length ?? 'undefined'}]`}];
-
   const subtitleConfig: SubtitleConfig = {
     style: mapCaptionStyle(captionStyle),
     position: captionPosition,
@@ -112,8 +107,8 @@ function AutoCaptionReel({
         </div>
       )}
 
-      {/* Shared SubtitleRenderer — replaces old CaptionCard */}
-      <SubtitleRenderer captions={finalCaptions} config={subtitleConfig} />
+      {/* Shared SubtitleRenderer */}
+      <SubtitleRenderer captions={captionData} config={subtitleConfig} />
 
       {/* Vignette for readability */}
       <div style={{
