@@ -35,6 +35,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import BrandLogo from "@/components/brand/BrandLogo";
 import { useAuth } from "@/components/auth/AuthContext";
+import { SubtitleStylePicker } from "@/components/ui/SubtitleStylePicker";
 
 type Mode = "videoExplainer" | "notes" | "videoCaption" | "imageStory" | "compare" | "autoCaption" | "imageStoryCollage" | "autoDraw" | "longVideoPromo";
 type JobStatusState = "idle" | "uploading" | "starting" | "rendering" | "ready" | "error";
@@ -278,7 +279,7 @@ export default function DashboardPage() {
   const [compareRightTitle, setCompareRightTitle] = useState("");
   const [compareHandle, setCompareHandle] = useState("@itnavideo");
   const [stickerStyle, setStickerStyle] = useState<"2d" | "cartoon" | "explainer">("explainer");
-  const [captionStyle, setCaptionStyle] = useState<"yellowPop" | "clean" | "blackBox">("yellowPop");
+  const [captionStyle, setCaptionStyle] = useState<string>("highlight");
   const [captionPosition, setCaptionPosition] = useState<"bottom" | "center" | "top">("bottom");
   const [subtitleOutputLanguage, setSubtitleOutputLanguage] = useState<"hinglish" | "english" | "hindi" | "kannada" | "urdu" | "farsi" | "spanish" | "arabic" | "french" | "german" | "portuguese" | "indonesian" | "tamil">("hinglish");
   const [captionTextColor, setCaptionTextColor] = useState("#ffffff");
@@ -782,16 +783,10 @@ export default function DashboardPage() {
 
                     <label className="grid gap-2">
                       <span className="text-xs font-black uppercase tracking-[0.16em] text-zinc-500">Caption style</span>
-                      <select
-                        className="rounded-lg border border-white/10 bg-black/35 px-3 py-3 text-sm font-bold text-white outline-none focus:border-brand-mint/55"
-                        onChange={(event) => setCaptionStyle(event.target.value as "yellowPop" | "clean" | "blackBox")}
-                        value={captionStyle}
-                      >
-                        <option value="yellowPop">Yellow Pop</option>
-                        <option value="clean">Clean White</option>
-                        <option value="blackBox">Black Box</option>
-                      </select>
                     </label>
+                    <div className="sm:col-span-2">
+                      <SubtitleStylePicker value={captionStyle as any} onChange={(v) => setCaptionStyle(v)} />
+                    </div>
 
                     <label className="grid gap-2">
                       <span className="text-xs font-black uppercase tracking-[0.16em] text-zinc-500">Position</span>
