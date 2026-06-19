@@ -56,7 +56,7 @@ export type ReelTimelineScene = {
   secondarySupport?: Array<'titleCard'>;
 };
 
-export type ReelTemplateName = 'VIDEO_SIMPLE_EXPLAINER' | 'comparisonImages' | 'AUTO_CAPTION_REEL' | 'IMAGE_STORY' | 'IMAGE_STORY_COLLAGE' | 'AUTO_DRAW_EXPLAINER' | 'LONG_VIDEO_PROMO';
+export type ReelTemplateName = 'VIDEO_SIMPLE_EXPLAINER' | 'comparisonImages' | 'AUTO_CAPTION_REEL' | 'IMAGE_STORY' | 'IMAGE_STORY_COLLAGE' | 'AUTO_DRAW_EXPLAINER' | 'LONG_VIDEO_PROMO' | 'VOICE_SYNCED_NOTES';
 export const REEL_TEMPLATE_REGISTRY = {
   VIDEO_SIMPLE_EXPLAINER: {
     templateName: 'VIDEO_SIMPLE_EXPLAINER',
@@ -112,6 +112,14 @@ export const REEL_TEMPLATE_REGISTRY = {
     transcriptRequirement: 'required',
     plannerMode: 'videoCaption',
     mediaFit: 'videoCaption',
+  },
+  VOICE_SYNCED_NOTES: {
+    templateName: 'VOICE_SYNCED_NOTES',
+    compositionId: 'VOICE-SYNCED-NOTES',
+    allowedMedia: ['audio', 'video'],
+    transcriptRequirement: 'required',
+    plannerMode: 'videoExplainer',
+    mediaFit: 'videoExplainer',
   },
 } as const satisfies Record<string, {
   templateName: ReelTemplateName;
@@ -341,7 +349,7 @@ export async function createReelPlan(input: ReelPlanRequest): Promise<ReelPlanRe
   const localPlan = await createLocalReelPlan(input);
 
   // Skip OpenAI managed planner for templates that only need captions/simple layout
-  const skipManagedPlanner = ['AUTO_CAPTION_REEL', 'AUTO_DRAW_EXPLAINER', 'LONG_VIDEO_PROMO'].includes(localPlan.templateName);
+  const skipManagedPlanner = ['AUTO_CAPTION_REEL', 'AUTO_DRAW_EXPLAINER', 'LONG_VIDEO_PROMO', 'VOICE_SYNCED_NOTES'].includes(localPlan.templateName);
 
   if (input.dryRun || !process.env.OPENAI_API_KEY || getMaxOpenAiCallsPerRender() < 1 || skipManagedPlanner) {
     return validateAndRepairReelPlan(localPlan);

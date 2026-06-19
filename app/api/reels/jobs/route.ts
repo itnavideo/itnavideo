@@ -16,7 +16,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 type LambdaRenderRequest = Parameters<typeof renderMediaOnLambda>[0];
-type ReelMode = 'videoExplainer' | 'compare' | 'autoCaption' | 'imageStory' | 'imageStoryCollage' | 'autoDraw' | 'longVideoPromo';
+type ReelMode = 'videoExplainer' | 'compare' | 'autoCaption' | 'imageStory' | 'imageStoryCollage' | 'autoDraw' | 'longVideoPromo' | 'voiceSyncedNotes';
 const MODE_TO_TEMPLATE: Record<ReelMode, ReelTemplateName> = {
   videoExplainer: 'VIDEO_SIMPLE_EXPLAINER',
   compare: 'comparisonImages',
@@ -25,6 +25,7 @@ const MODE_TO_TEMPLATE: Record<ReelMode, ReelTemplateName> = {
   imageStoryCollage: 'IMAGE_STORY_COLLAGE',
   autoDraw: 'AUTO_DRAW_EXPLAINER',
   longVideoPromo: 'LONG_VIDEO_PROMO',
+  voiceSyncedNotes: 'VOICE_SYNCED_NOTES',
 };
 
 const MAX_RENDER_WINDOW_SECONDS = 60;
@@ -473,6 +474,12 @@ export async function POST(request: Request) {
               });
               return result.scenes;
             })(),
+          }
+        : {}),
+      ...(mode === 'voiceSyncedNotes'
+        ? {
+            audioUrl: planningMedia.mediaUrl,
+            lines: buildVoiceSyncedNoteLines(renderWindow),
           }
         : {}),
       ...(mode === 'compare'
@@ -1557,6 +1564,72 @@ function buildCompareCaptionsFromGroq(renderWindow: {
   })).filter((caption) => caption.text.trim());
 }
 
+function buildVoiceSyncedNoteLines(renderWindow: {
+  transcript: string;
+  words?: ReelWord[];
+  segments?: ReelTranscriptSegment[];
+  durationSeconds: number;
+}): Array<{text: string; start: number; end?: number; highlight?: string; type: string}> {
+  const segments = renderWindow.segments || [];
+  const words = renderWindow.words || [];
+
+  // Preferred: use segments (sentence-level timing)
+  if (segments.length >= 2) {
+    console.log('[VOICE_SYNCED_NOTES] TIMING_SOURCE=segments | count:', segments.length);
+    return segments.slice(0, 7).map((seg) => {
+      const text = readString(seg.text).slice(0, 100);
+      const segWords = text.split(' ').filter(Boolean);
+      const highlight = segWords.reduce((a, b) => b.length > a.length ? b : a, '');
+      return {
+        text,
+        start: roundSeconds(seg.start),
+        end: roundSeconds(seg.end),
+        highlight: highlight.length >= 4 ? highlight : undefined,
+        type: 'bullet',
+      };
+    });
+  }
+
+  // Fallback: use word timestamps to build lines
+  if (words.length >= 3) {
+    console.log('[VOICE_SYNCED_NOTES] TIMING_SOURCE=word_timestamps | count:', words.length);
+    const lines: Array<{text: string; start: number; end?: number; highlight?: string; type: string}> = [];
+    let group: typeof words = [];
+    for (const word of words) {
+      group.push(word);
+      if (group.length >= 8 || (group.length > 0 && word.end - group[0].start > 4)) {
+        const text = group.map(w => w.word).join(' ');
+        const longest = group.reduce((a, b) => b.word.length > a.word.length ? b : a);
+        lines.push({text, start: roundSeconds(group[0].start), end: roundSeconds(group[group.length - 1].end), highlight: longest.word.length >= 4 ? longest.word : undefined, type: 'bullet'});
+        group = [];
+      }
+    }
+    if (group.length) {
+      const text = group.map(w => w.word).join(' ');
+      lines.push({text, start: roundSeconds(group[0].start), end: roundSeconds(group[group.length - 1].end), type: 'bullet'});
+    }
+    return lines.slice(0, 7);
+  }
+
+  // Last fallback: proportional split
+  console.log('[VOICE_SYNCED_NOTES] TIMING_SOURCE=proportional_fallback');
+  const allWords = readString(renderWindow.transcript).split(/\s+/).filter(Boolean);
+  const linesPerPage = Math.min(7, Math.max(3, Math.ceil(allWords.length / 8)));
+  const wordsPerLine = Math.ceil(allWords.length / linesPerPage);
+  const dur = renderWindow.durationSeconds || 30;
+
+  return Array.from({length: linesPerPage}).map((_, i) => {
+    const lineWords = allWords.slice(i * wordsPerLine, (i + 1) * wordsPerLine);
+    const text = lineWords.join(' ');
+    const longest = lineWords.reduce((a, b) => b.length > a.length ? b : a, '');
+    return {
+      text, start: roundSeconds((dur / linesPerPage) * i),
+      end: roundSeconds((dur / linesPerPage) * (i + 1)),
+      highlight: longest.length >= 4 ? longest : undefined, type: 'bullet',
+    };
+  });
+}
+
 function selectBackgroundMusic({
   topicTitle,
   transcript,
@@ -1760,6 +1833,7 @@ function toMode(value: string): ReelMode {
   const normalized = value.toLowerCase();
   if (normalized.includes('compare') || normalized.includes('comparison') || normalized === 'vs') return 'compare';
   if (normalized.includes('long-video') || normalized.includes('longvideo') || normalized.includes('promo')) return 'longVideoPromo';
+  if (normalized.includes('voice-synced') || normalized.includes('voicesynced') || normalized.includes('synced-notes') || normalized.includes('study-notes')) return 'voiceSyncedNotes';
   if (normalized.includes('auto-caption') || normalized.includes('autocaption')) return 'autoCaption';
   if (normalized.includes('caption') || normalized.includes('subtitle')) return 'autoCaption';
   if (normalized.includes('auto-draw') || normalized.includes('autodraw') || normalized.includes('whiteboard')) return 'autoDraw';

@@ -5,6 +5,7 @@ import {VideoSimpleExplainerComposition} from './templates/VIDEO_SIMPLE_EXPLAINE
 import {ImageStoryCollageComposition} from './templates/IMAGE_STORY_COLLAGE/template';
 import {AutoDrawExplainerComposition} from './templates/AUTO_DRAW_EXPLAINER/template';
 import {LongVideoPromoComposition} from './templates/LONG_VIDEO_PROMO/template';
+import {VoiceSyncedNotesComposition} from './templates/VOICE_SYNCED_NOTES/template';
 
 const compositions = [
   AutoCaptionReelComposition,
@@ -13,6 +14,7 @@ const compositions = [
   ImageStoryCollageComposition,
   AutoDrawExplainerComposition,
   LongVideoPromoComposition,
+  VoiceSyncedNotesComposition,
 ];
 
 const RemotionRoot = () => (

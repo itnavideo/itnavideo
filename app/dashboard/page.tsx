@@ -37,7 +37,7 @@ import BrandLogo from "@/components/brand/BrandLogo";
 import { useAuth } from "@/components/auth/AuthContext";
 import { SubtitleStylePicker } from "@/components/ui/SubtitleStylePicker";
 
-type Mode = "videoExplainer" | "notes" | "videoCaption" | "imageStory" | "compare" | "autoCaption" | "imageStoryCollage" | "autoDraw" | "longVideoPromo";
+type Mode = "videoExplainer" | "notes" | "videoCaption" | "imageStory" | "compare" | "autoCaption" | "imageStoryCollage" | "autoDraw" | "longVideoPromo" | "voiceSyncedNotes";
 type JobStatusState = "idle" | "uploading" | "starting" | "rendering" | "ready" | "error";
 type JobStatus = {
   state: JobStatusState;
@@ -134,6 +134,15 @@ const templateCards = [
     active: true,
     mode: "longVideoPromo" as const,
   },
+  {
+    id: "voice-synced-notes",
+    title: "Voice Synced Notes",
+    description: "Upload audio/video. AI creates study notes that reveal in sync with your voice.",
+    image: "/visuals/previews/auto-draw-template.png",
+    badges: ["Audio/Video", "Notes", "Study"],
+    active: true,
+    mode: "voiceSyncedNotes" as const,
+  },
 ] as const;
 
 const modeConfig = {
@@ -214,6 +223,19 @@ const modeConfig = {
     color: "text-emerald-200",
     border: "border-emerald-300/35",
     surface: "bg-emerald-300/[0.08]",
+  },
+  voiceSyncedNotes: {
+    label: "Voice Notes",
+    title: "Voice Synced Notes",
+    description: "Upload audio/video with speech. AI creates study notes that reveal one by one synced with your voice.",
+    accept: "audio/*,video/*",
+    supported: "Supported: MP3, WAV, MP4, MOV, WEBM",
+    bestResult: "Best result: clear explanation, teaching content, 30-60 seconds.",
+    uploadCta: "Choose audio/video",
+    icon: Film,
+    color: "text-amber-200",
+    border: "border-amber-200/35",
+    surface: "bg-amber-200/[0.08]",
   },
   videoCaption: {
     label: "Video Caption",
@@ -363,7 +385,7 @@ export default function DashboardPage() {
     setSelectedFile(null);
     setComparisonFiles([]);
     setJobStatus({state: "idle", message: ""});
-    const nextTemplate = nextMode === "autoCaption" ? "auto-caption-reel" : nextMode === "autoDraw" ? "auto-draw-explainer" : nextMode === "longVideoPromo" ? "long-video-promo" : nextMode === "imageStoryCollage" ? "cinematic-collage" : nextMode === "compare" ? "compare-explainer" : nextMode === "videoExplainer" ? "video-simple-explainer" : nextMode === "notes" ? "notes" : nextMode === "videoCaption" ? "video-caption" : "video-simple-explainer";
+    const nextTemplate = nextMode === "autoCaption" ? "auto-caption-reel" : nextMode === "autoDraw" ? "auto-draw-explainer" : nextMode === "longVideoPromo" ? "long-video-promo" : nextMode === "voiceSyncedNotes" ? "voice-synced-notes" : nextMode === "imageStoryCollage" ? "cinematic-collage" : nextMode === "compare" ? "compare-explainer" : nextMode === "videoExplainer" ? "video-simple-explainer" : nextMode === "notes" ? "notes" : nextMode === "videoCaption" ? "video-caption" : "video-simple-explainer";
     window.history.replaceState(null, "", `/dashboard?template=${nextTemplate}`);
   };
 
@@ -2051,6 +2073,7 @@ function readDashboardMode(value: string | null): Mode | null {
   if (normalized === "cinematiccollage" || normalized === "imagestorycollage") return "imageStoryCollage";
   if (normalized === "autodrawexplainer" || normalized === "autodraw" || normalized === "whiteboard") return "autoDraw";
   if (normalized === "longvideopromo" || normalized === "longvideopromotion" || normalized === "promo") return "longVideoPromo";
+  if (normalized === "voicesyncednotes" || normalized === "studynotes" || normalized === "syncednotes") return "voiceSyncedNotes";
   if (normalized.includes("caption") || normalized.includes("subtitle")) return "autoCaption";
   if (normalized.includes("compare")) return "compare";
   if (normalized.includes("draw") || normalized.includes("whiteboard")) return "autoDraw";
