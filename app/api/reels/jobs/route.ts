@@ -354,7 +354,19 @@ export async function POST(request: Request) {
     const translationExpected = subtitleLang !== 'english' && subtitleLang !== 'hinglish';
     const translationApplied = transcription.languageHint === subtitleLang;
     if (translationExpected && !translationApplied) {
-      console.warn('[PIPELINE] Translation NOT applied! Expected:', subtitleLang, '| Got:', transcription.languageHint || 'english/hinglish fallback');
+      console.error('[PIPELINE] TRANSLATION FAILED! Expected:', subtitleLang, '| Got:', transcription.languageHint || 'english/hinglish fallback', '| transcript sample:', transcription.transcript?.slice(0, 80));
+      const userEmail = readString(body.userEmail || body.email);
+      const isFounder = isFounderEmail(userEmail) || isFounderUser(userId);
+      // Return error — do NOT silently render English when user selected another language
+      return NextResponse.json({
+        ok: false,
+        status: 'failed',
+        reasonCode: 'TRANSLATION_FAILED',
+        error: isFounder
+          ? `Caption translation to ${subtitleLang} failed. Transcription returned: "${transcription.transcript?.slice(0, 60)}..." (languageHint: ${transcription.languageHint || 'none'}). Check OPENAI_API_KEY and model.`
+          : `Caption translation to ${subtitleLang} failed. Please try again or select English/Hinglish.`,
+        ...(isFounder ? {_founderDiagnostics: {step: 'translation', reason: 'OpenAI translation did not apply', selectedLanguage: subtitleLang, gotLanguage: transcription.languageHint, mode, templateName, compositionId: composition}} : {}),
+      }, {status: 422});
     }
     const renderWindow = selectRenderWindow(transcription);
     let plan: ReturnType<typeof validateAndRepairReelPlan> extends Promise<infer T> ? T : never;
