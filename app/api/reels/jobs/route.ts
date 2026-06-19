@@ -1249,12 +1249,44 @@ async function repairTranscriptionEnglishIfNeeded<T extends GroqLikeTranscriptio
   ].join(' ');
   if (!combined || (!hasHindiUrduScript(combined) && !hasRomanHinglish(combined))) return transcription;
 
+  // Try Gemini first (free), fallback to OpenAI
+  const geminiKey = process.env.GEMINI_API_KEY;
+  if (geminiKey) {
+    try {
+      const {GoogleGenAI} = await import('@google/genai');
+      const ai = new GoogleGenAI({apiKey: geminiKey});
+      const prompt = [
+        'Translate this short-form video transcription into clean natural English only.',
+        'Preserve exact meaning, names, numbers, official terms, and factual claims.',
+        'Do not add scene notes, summaries, headings, timestamps, or extra facts.',
+        'Return ONLY valid JSON with keys "transcript" and "segments" (array of {index, text}). Segment count must match input. No markdown.',
+        '',
+        'CORRECTION DICTIONARY: sip→SIP, emi→EMI, rbi→RBI, nps→NPS, ppf→PPF, pan→PAN, gst→GST, nifty fifty→Nifty 50, demat→Demat, kyc→KYC, ipo→IPO, etf→ETF, upsc→UPSC, ssc→SSC',
+        '',
+        'INPUT:',
+        JSON.stringify({transcript: transcription.transcript, segments: (transcription.segments || []).map((seg, i) => ({index: i, text: seg.text}))}),
+      ].join('\n');
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: [{role: 'user', parts: [{text: prompt}]}],
+        config: {temperature: 0.2, maxOutputTokens: 3000},
+      });
+      const text = (response.text || '').replace(/```json\s*/gi, '').replace(/```\s*/gi, '').trim();
+      const repaired = parseTranslationResponse(text);
+      if (repaired?.transcript) {
+        const repairedSegments = mergeRepairedSegments(transcription.segments, repaired.segments);
+        return {...transcription, transcript: repaired.transcript, segments: repairedSegments, words: undefined, languageHint: 'english', rawTranscript: transcription.rawTranscript || transcription.transcript};
+      }
+    } catch (err) {
+      console.error('[ENGLISH_REPAIR] Gemini failed, trying OpenAI:', err instanceof Error ? err.message : '');
+    }
+  }
+
+  // Fallback: OpenAI
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
-    return {
-      ...transcription,
-      warning: [transcription.warning, 'Transcript may contain non-English text because English repair is not configured.'].filter(Boolean).join(' '),
-    };
+    return {...transcription, warning: [transcription.warning, 'Transcript may contain non-English text.'].filter(Boolean).join(' ')};
   }
 
   const controller = new AbortController();
@@ -1365,60 +1397,36 @@ async function repairTranscriptionToLanguage<T extends GroqLikeTranscription>(tr
     return repairTranscriptionEnglishIfNeeded(transcription);
   }
 
-  // For ALL other languages (Kannada, Urdu, Hindi, Tamil, etc.) — always translate via OpenAI
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    console.error('[TRANSLATION] OPENAI_API_KEY missing — cannot translate to:', outputLanguage);
+  // For ALL other languages — translate via Gemini (free) or OpenAI (fallback)
+  const geminiKey = process.env.GEMINI_API_KEY;
+  if (!geminiKey) {
+    console.error('[TRANSLATION] GEMINI_API_KEY missing — cannot translate to:', outputLanguage);
     return transcription;
   }
 
   const targetLang = LANGUAGE_NAMES[outputLanguage] || outputLanguage;
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 25000);
 
   try {
-    console.log('[TRANSLATION] Starting translation to:', targetLang, '| segments:', transcription.segments?.length || 0);
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: process.env.TRANSCRIPT_ENGLISH_REPAIR_MODEL || DEFAULT_TRANSCRIPT_REPAIR_MODEL,
-        messages: [
-          {
-            role: 'system',
-            content: `Translate this video transcription into ${targetLang}. Preserve meaning, names, numbers, and factual claims. Keep it natural and readable for short-form video subtitles. Return strict JSON with keys "transcript" (full translated text) and "segments" (array of {index, text}). Segment count must match input. Output ONLY valid JSON, nothing else.`,
-          },
-          {
-            role: 'user',
-            content: JSON.stringify({
-              transcript: transcription.transcript,
-              segments: (transcription.segments || []).map((seg, i) => ({ index: i, text: seg.text })),
-            }),
-          },
-        ],
-        response_format: { type: 'json_object' },
-        temperature: 0.3,
-      }),
-      signal: controller.signal,
+    console.log('[TRANSLATION] Gemini translating to:', targetLang, '| segments:', transcription.segments?.length || 0);
+    const {GoogleGenAI} = await import('@google/genai');
+    const ai = new GoogleGenAI({apiKey: geminiKey});
+
+    const prompt = `Translate this video transcription into ${targetLang}. Preserve meaning, names, numbers, and factual claims. Keep it natural and readable for short-form video subtitles. Return ONLY valid JSON with keys "transcript" (full translated text) and "segments" (array of {index, text}). Segment count must match input. No markdown, no explanation.\n\nINPUT:\n${JSON.stringify({transcript: transcription.transcript, segments: (transcription.segments || []).map((seg, i) => ({index: i, text: seg.text}))})}`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.0-flash',
+      contents: [{role: 'user', parts: [{text: prompt}]}],
+      config: {temperature: 0.3, maxOutputTokens: 3000},
     });
 
-    if (!response.ok) {
-      const errorBody = await response.text().catch(() => '');
-      console.error('[TRANSLATION] API failed:', response.status, outputLanguage, errorBody.slice(0, 200));
-      return transcription;
-    }
-    const json = await response.json();
-    const content = json?.choices?.[0]?.message?.content || '';
-    const parsed = parseTranslationResponse(content);
+    const text = (response.text || '').replace(/```json\s*/gi, '').replace(/```\s*/gi, '').trim();
+    const parsed = parseTranslationResponse(text);
     if (!parsed?.transcript) {
-      console.error('[TRANSLATION] Empty result for:', outputLanguage, '| raw:', content.slice(0, 100));
+      console.error('[TRANSLATION] Gemini empty result for:', outputLanguage, '| raw:', text.slice(0, 100));
       return transcription;
     }
 
-    console.log('[TRANSLATION] Success:', outputLanguage, '| translated segments:', parsed.segments.length);
+    console.log('[TRANSLATION] Gemini success:', outputLanguage, '| segments:', parsed.segments.length);
     const translatedSegments = mergeRepairedSegments(transcription.segments, parsed.segments);
     return {
       ...transcription,
@@ -1429,10 +1437,44 @@ async function repairTranscriptionToLanguage<T extends GroqLikeTranscription>(tr
       rawTranscript: transcription.rawTranscript || transcription.transcript,
     };
   } catch (err) {
-    console.error('[TRANSLATION] Exception for:', outputLanguage, err instanceof Error ? err.message : String(err));
+    console.error('[TRANSLATION] Gemini exception for:', outputLanguage, err instanceof Error ? err.message : String(err));
+    // Fallback to OpenAI if Gemini fails and OpenAI key exists
+    const openaiKey = process.env.OPENAI_API_KEY;
+    if (openaiKey) {
+      try {
+        console.log('[TRANSLATION] Trying OpenAI fallback for:', outputLanguage);
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 20000);
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {Authorization: `Bearer ${openaiKey}`, 'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            model: process.env.TRANSCRIPT_ENGLISH_REPAIR_MODEL || DEFAULT_TRANSCRIPT_REPAIR_MODEL,
+            messages: [
+              {role: 'system', content: `Translate this video transcription into ${targetLang}. Preserve meaning, names, numbers. Return ONLY valid JSON with keys "transcript" and "segments" (array of {index, text}). Segment count must match input.`},
+              {role: 'user', content: JSON.stringify({transcript: transcription.transcript, segments: (transcription.segments || []).map((seg, i) => ({index: i, text: seg.text}))})},
+            ],
+            response_format: {type: 'json_object'},
+            temperature: 0.3,
+          }),
+          signal: controller.signal,
+        });
+        clearTimeout(timeout);
+        if (response.ok) {
+          const json = await response.json();
+          const content = json?.choices?.[0]?.message?.content || '';
+          const parsed = parseTranslationResponse(content);
+          if (parsed?.transcript) {
+            console.log('[TRANSLATION] OpenAI fallback success:', outputLanguage);
+            const translatedSegments = mergeRepairedSegments(transcription.segments, parsed.segments);
+            return {...transcription, transcript: parsed.transcript, segments: translatedSegments, words: undefined, languageHint: outputLanguage as any, rawTranscript: transcription.rawTranscript || transcription.transcript};
+          }
+        }
+      } catch (oaiErr) {
+        console.error('[TRANSLATION] OpenAI fallback also failed:', oaiErr instanceof Error ? oaiErr.message : '');
+      }
+    }
     return transcription;
-  } finally {
-    clearTimeout(timeout);
   }
 }
 
