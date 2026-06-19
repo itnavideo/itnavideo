@@ -926,9 +926,9 @@ function readLambdaConfig():
   const configuredConcurrency = Number(process.env.REMOTION_LAMBDA_CONCURRENCY || 6);
   const concurrency = Math.min(8, Math.max(2, Number.isFinite(configuredConcurrency) ? configuredConcurrency : 6));
   const useFramesPerLambda = clean(process.env.REMOTION_LAMBDA_USE_FRAMES_PER_LAMBDA).toLowerCase() !== 'false';
-  const configuredFramesPerLambda = Number(process.env.REMOTION_LAMBDA_FRAMES_PER_LAMBDA || 300);
+  const configuredFramesPerLambda = Number(process.env.REMOTION_LAMBDA_FRAMES_PER_LAMBDA || 120);
   const framesPerLambda = useFramesPerLambda && Number.isFinite(configuredFramesPerLambda)
-    ? Math.min(420, Math.max(180, configuredFramesPerLambda))
+    ? Math.min(200, Math.max(60, configuredFramesPerLambda))
     : undefined;
   if (!functionName || !serveUrl) {
     return {ok: false, error: 'The render system is not deployed yet.'};
@@ -944,7 +944,7 @@ function normalizeServeUrl(value: string) {
 }
 
 async function startRenderWithCapacityRetry(request: LambdaRenderRequest) {
-  const retryFramesPerLambda = Math.max(Number(request.framesPerLambda || 300), 420);
+  const retryFramesPerLambda = Math.max(Number(request.framesPerLambda || 120), 200);
   const attempts: LambdaRenderRequest[] = [
     request,
     {...request, concurrency: undefined, framesPerLambda: retryFramesPerLambda, maxRetries: 1},
