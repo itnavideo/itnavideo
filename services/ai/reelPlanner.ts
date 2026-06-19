@@ -339,7 +339,11 @@ const MAX_OVERLAY_SECONDS = 8.5;
 
 export async function createReelPlan(input: ReelPlanRequest): Promise<ReelPlanResult> {
   const localPlan = await createLocalReelPlan(input);
-  if (input.dryRun || !process.env.OPENAI_API_KEY || getMaxOpenAiCallsPerRender() < 1) {
+
+  // Skip OpenAI managed planner for templates that only need captions/simple layout
+  const skipManagedPlanner = ['AUTO_CAPTION_REEL', 'AUTO_DRAW_EXPLAINER', 'LONG_VIDEO_PROMO'].includes(localPlan.templateName);
+
+  if (input.dryRun || !process.env.OPENAI_API_KEY || getMaxOpenAiCallsPerRender() < 1 || skipManagedPlanner) {
     return validateAndRepairReelPlan(localPlan);
   }
 
