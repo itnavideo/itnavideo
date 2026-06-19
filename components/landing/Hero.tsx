@@ -7,7 +7,7 @@ import Link from 'next/link';
 
 const templates = [
   {
-    image: '/visuals/previews/auto-caption-template.png',
+    image: '/preview/Auto Caption Reel.png',
     label: 'Caption only',
     title: 'Auto Caption Reel',
     description: 'Best for existing reels that need subtitles',
@@ -17,7 +17,7 @@ const templates = [
     glow: 'rgba(94,234,212,0.18)',
   },
   {
-    image: '/visuals/previews/simple-explainer-template.png',
+    image: '/preview/Video Simple Explainer.png',
     label: 'Most popular',
     title: 'Video Simple Explainer',
     description: 'Best for teaching & talking-head clips',
@@ -27,7 +27,7 @@ const templates = [
     glow: 'rgba(6,182,212,0.15)',
   },
   {
-    image: '/visuals/previews/Compare Explainer Homepage Hero.png',
+    image: '/preview/Compare Explainer.png',
     label: 'Comparison',
     title: 'Compare Explainer',
     description: 'Best for vs / difference videos',
@@ -37,7 +37,7 @@ const templates = [
     glow: 'rgba(16,185,129,0.15)',
   },
   {
-    image: '/visuals/previews/Simple Explainer Card.png',
+    image: '/preview/Cinematic Collage (Image Story).png',
     label: 'Cinematic',
     title: 'Cinematic Collage',
     description: 'Best for story-driven narration reels',
@@ -47,13 +47,33 @@ const templates = [
     glow: 'rgba(139,92,246,0.15)',
   },
   {
-    image: '/visuals/previews/auto-draw-template.png',
+    image: '/preview/Auto Draw Explainer.png',
     label: 'Whiteboard',
     title: 'Auto Draw Explainer',
     description: 'Best for tips, steps & educational content',
     icon: Film,
     href: '/templates/auto-draw-explainer',
     gradient: 'from-amber-500 to-orange-600',
+    glow: 'rgba(245,158,11,0.15)',
+  },
+  {
+    image: '/preview/Long Video Promo.png',
+    label: 'Promo',
+    title: 'Long Video Promo',
+    description: 'Promote your YouTube videos with short reels',
+    icon: Film,
+    href: '/templates/long-video-promo',
+    gradient: 'from-emerald-400 to-green-600',
+    glow: 'rgba(16,185,129,0.15)',
+  },
+  {
+    image: '/preview/Voice Synced Notes.png',
+    label: 'Study Notes',
+    title: 'Voice Synced Notes',
+    description: 'Best for educational & revision reels',
+    icon: Film,
+    href: '/templates/voice-synced-notes',
+    gradient: 'from-yellow-500 to-amber-600',
     glow: 'rgba(245,158,11,0.15)',
   },
 ];
