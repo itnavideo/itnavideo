@@ -1436,7 +1436,7 @@ function buildCompareCaptionsFromGroq(renderWindow: {
     }));
 
   if (words.length) {
-    const captions: Array<{start: number; end: number; text: string}> = [];
+    const captions: Array<{start: number; end: number; text: string; words?: Array<{word: string; start: number; end: number}>}> = [];
     let group: typeof words = [];
 
     const flush = () => {
@@ -1445,6 +1445,7 @@ function buildCompareCaptionsFromGroq(renderWindow: {
         start: roundSeconds(group[0].start),
         end: roundSeconds(Math.max(group[group.length - 1].end, group[0].start + 0.65)),
         text: group.map((item) => item.word).join(' '),
+        words: group.map((item) => ({word: item.word, start: roundSeconds(item.start), end: roundSeconds(item.end)})),
       });
       group = [];
     };
