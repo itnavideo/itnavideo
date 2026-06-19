@@ -102,14 +102,6 @@ const STICKER_SETS = {
     warning: 'assets/stickman/grandpa-teacher-3d/teacher-warning.png',
     success: 'assets/stickman/grandpa-teacher-3d/teacher-success.png',
   },
-  'senior-teacher-3d': {
-    welcome: 'assets/stickman/senior-teacher-3d/teacher-welcome.png',
-    left: 'assets/stickman/senior-teacher-3d/teacher-left.png',
-    right: 'assets/stickman/senior-teacher-3d/teacher-right.png',
-    thinking: 'assets/stickman/senior-teacher-3d/teacher-thinking.png',
-    warning: 'assets/stickman/senior-teacher-3d/teacher-warning.png',
-    success: 'assets/stickman/senior-teacher-3d/teacher-success.png',
-  },
 } as const;
 
 type StickerSet = Record<'welcome' | 'left' | 'right' | 'thinking' | 'warning' | 'success', string>;
@@ -494,7 +486,7 @@ const StickerPresenter = ({
   const {fps, durationInFrames} = useVideoConfig();
 
   const selectedStickerStyle =
-    stickerStyle === '2d' ? '2d' : stickerStyle === 'cartoon' ? 'cartoon' : stickerStyle === 'girl-teacher' ? 'girl-teacher' : stickerStyle === 'girl-teacher-3d' ? 'girl-teacher-3d' : stickerStyle === 'grandpa-teacher-3d' ? 'grandpa-teacher-3d' : stickerStyle === 'senior-teacher-3d' ? 'senior-teacher-3d' : 'explainer';
+    stickerStyle === '2d' ? '2d' : stickerStyle === 'cartoon' ? 'cartoon' : stickerStyle === 'girl-teacher' ? 'girl-teacher' : stickerStyle === 'girl-teacher-3d' ? 'girl-teacher-3d' : stickerStyle === 'grandpa-teacher-3d' ? 'grandpa-teacher-3d' : 'explainer';
 
   const set: StickerSet = STICKER_SETS[selectedStickerStyle];
 
