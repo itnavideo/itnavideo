@@ -7,6 +7,8 @@ import {
 } from 'remotion';
 import {SubtitleRenderer} from '../../components/SubtitleRenderer';
 import type {CaptionSegment, SubtitleConfig} from '../../types/subtitles';
+import {SUBTITLE_PRESETS} from '../../types/subtitles';
+import {resolveFont, getFontForLanguage} from '../../utils/fonts';
 
 type AutoCaptionProps = {
   mediaSrc?: string;
@@ -24,6 +26,7 @@ type AutoCaptionProps = {
   sourceDurationSeconds?: number;
   renderWindowSeconds?: number;
   language?: string;
+  subtitleOutputLanguage?: string;
   fontSize?: SubtitleConfig['fontSize'];
   showBackground?: boolean;
 };
@@ -71,6 +74,14 @@ function mapCaptionStyle(style?: string): SubtitleConfig['style'] {
   return map[style || ''] || 'highlight';
 }
 
+// Get font family from preset name or style key
+function getPresetFont(styleOrPreset?: string): string {
+  if (!styleOrPreset) return resolveFont('Inter');
+  const preset = SUBTITLE_PRESETS[styleOrPreset];
+  if (preset) return resolveFont(preset.fontFamily);
+  return resolveFont('Inter');
+}
+
 function AutoCaptionReel({
   mediaSrc,
   mediaType = 'video',
@@ -82,11 +93,15 @@ function AutoCaptionReel({
   captionPosition = 'bottom',
   textColor = '#ffffff',
   highlightColor = '#facc15',
-  language = 'en',
+  language,
+  subtitleOutputLanguage,
   fontSize = 'medium',
   showBackground = true,
 }: AutoCaptionProps) {
   const {fps} = useVideoConfig();
+
+  // Language: use 'language' prop OR 'subtitleOutputLanguage' (what route actually sends)
+  const captionLanguage = language || subtitleOutputLanguage || 'en';
 
   // Merge captions + subtitleChunks (fallback prop name from route)
   const captionData: CaptionSegment[] = (captions.length > 0 ? captions : (subtitleChunks || []))
@@ -101,11 +116,11 @@ function AutoCaptionReel({
   const subtitleConfig: SubtitleConfig = {
     style: mapCaptionStyle(captionStyle),
     position: captionPosition,
-    language,
+    language: captionLanguage,
     textColor,
     highlightColor,
     fontSize,
-    fontFamily: 'sans-serif',
+    fontFamily: getPresetFont(captionStyle),
     showBackground,
   };
 
