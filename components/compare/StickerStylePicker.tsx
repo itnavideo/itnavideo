@@ -1,6 +1,6 @@
 "use client";
 
-type StickerStyle = "2d" | "cartoon" | "explainer";
+type StickerStyle = "2d" | "cartoon" | "explainer" | "girl-teacher";
 
 type StickerStylePickerProps = {
   value: StickerStyle;
@@ -27,6 +27,11 @@ const STICKERS: Array<{
     name: "Stickman Explainer",
     image: "/visuals/stickers/stickman-explainer.png",
   },
+  {
+    id: "girl-teacher",
+    name: "Girl Teacher",
+    image: "/assets/stickman/girl-teacher/teacher-welcome.png",
+  },
 ];
 
 export function StickerStylePicker({value, onChange}: StickerStylePickerProps) {
@@ -43,7 +48,7 @@ export function StickerStylePicker({value, onChange}: StickerStylePickerProps) {
         </div>
 
         <span className="rounded-full border border-emerald-300/30 bg-emerald-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-emerald-100">
-          {value === "cartoon" ? "Cartoon" : value === "explainer" ? "Explainer" : "2D"}
+          {value === "cartoon" ? "Cartoon" : value === "explainer" ? "Explainer" : value === "girl-teacher" ? "Girl" : "2D"}
         </span>
       </div>
 

@@ -78,6 +78,14 @@ const STICKER_SETS = {
     warning: 'assets/stickman/stickman-explainer/confused-expression.png',
     success: 'assets/stickman/stickman-explainer/explaining-comparison.png',
   },
+  'girl-teacher': {
+    welcome: 'assets/stickman/girl-teacher/teacher-welcome.png',
+    left: 'assets/stickman/girl-teacher/teacher-left.png',
+    right: 'assets/stickman/girl-teacher/teacher-right.png',
+    thinking: 'assets/stickman/girl-teacher/teacher-thinking.png',
+    warning: 'assets/stickman/girl-teacher/teacher-warning.png',
+    success: 'assets/stickman/girl-teacher/teacher-success.png',
+  },
 } as const;
 
 type StickerSet = Record<'welcome' | 'left' | 'right' | 'thinking' | 'warning' | 'success', string>;
@@ -462,7 +470,7 @@ const StickerPresenter = ({
   const {fps, durationInFrames} = useVideoConfig();
 
   const selectedStickerStyle =
-    stickerStyle === '2d' ? '2d' : stickerStyle === 'cartoon' ? 'cartoon' : 'explainer';
+    stickerStyle === '2d' ? '2d' : stickerStyle === 'cartoon' ? 'cartoon' : stickerStyle === 'girl-teacher' ? 'girl-teacher' : 'explainer';
 
   const set: StickerSet = STICKER_SETS[selectedStickerStyle];
 
