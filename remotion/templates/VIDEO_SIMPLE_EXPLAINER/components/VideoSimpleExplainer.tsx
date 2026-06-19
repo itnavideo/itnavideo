@@ -12,7 +12,20 @@ import {
 
 type CaptionWord = { word?: string; text?: string; start?: number; end?: number; };
 type CaptionItem = { text?: string; start?: number; end?: number; words?: CaptionWord[]; };
-type Props = { title?: string; topicTitle?: string; mediaSrc?: string; mediaType?: 'audio' | 'video' | string; sourceAudioUrl?: string; audioSrc?: string; mediaTrimStartSeconds?: number; sourceAudioVolume?: number; explanationImageUrl?: string; bottomImageUrl?: string; captions?: CaptionItem[]; };
+type Props = { 
+  title?: string; 
+  topicTitle?: string; 
+  mediaSrc?: string; 
+  mediaType?: 'audio' | 'video' | string; 
+  sourceAudioUrl?: string; 
+  audioSrc?: string; 
+  mediaTrimStartSeconds?: number; 
+  sourceAudioVolume?: number; 
+  explanationImageUrl?: string; 
+  bottomImageUrl?: string; 
+  bottomImages?: string[]; // NEW: Array of images
+  captions?: CaptionItem[]; 
+};
 
 const W = 1080;
 const H = 1920;
@@ -28,14 +41,8 @@ const getCaptionAtTime = (captions: CaptionItem[] | undefined, time: number) => 
   }) || list[0];
 };
 
-const breakSubtitle = (text: string): string[] => {
-  const words = text.split(' ').filter(Boolean).slice(0, 12);
-  if (words.length <= 5) return [words.join(' ')];
-  return [words.slice(0, 6).join(' '), words.slice(6, 12).join(' ')];
-};
-
 export function VideoSimpleExplainer({
-  title, topicTitle, mediaSrc, mediaType, sourceAudioUrl, audioSrc, mediaTrimStartSeconds = 0, sourceAudioVolume = 1, explanationImageUrl, bottomImageUrl, captions,
+  title, topicTitle, mediaSrc, mediaType, sourceAudioUrl, audioSrc, mediaTrimStartSeconds = 0, sourceAudioVolume = 1, explanationImageUrl, bottomImageUrl, bottomImages, captions,
 }: Props) {
   const frame = useCurrentFrame();
   const {fps, durationInFrames} = useVideoConfig();
@@ -44,21 +51,15 @@ export function VideoSimpleExplainer({
 
   const displayTitle = cleanText(title || topicTitle || 'Video Explainer').toUpperCase().slice(0, 45);
   const activeCaption = getCaptionAtTime(captions, time);
-  const subtitleText = cleanText(
-    activeCaption?.text ||
-    activeCaption?.words?.map((w) => cleanText(w.word || w.text)).filter(Boolean).join(' ') ||
-    ''
-  );
-  const imageUrl = explanationImageUrl || bottomImageUrl;
   const isVideo = mediaType === 'video' || Boolean(mediaSrc);
 
-  // 🎬 --- NEW ENGAGING ANIMATIONS --- 🎬
-  
+  // Fallback if user only provided 1 old image vs multiple new ones
+  const imagesList = bottomImages && bottomImages.length > 0 
+    ? bottomImages 
+    : [explanationImageUrl || bottomImageUrl].filter(Boolean) as string[];
+
   // 1. Smooth video scale-in
   const videoScale = spring({ fps, frame, config: { damping: 14, mass: 0.8 } });
-  
-  // 2. Cinematic Ken Burns slow zoom for the bottom image
-  const imageZoom = interpolate(frame, [0, durationInFrames], [1, 1.15]);
   
   // 3. Title pop and dynamic marker draw effect
   const titlePop = spring({ fps, frame: frame - 10, config: { damping: 12 } });
@@ -87,12 +88,10 @@ export function VideoSimpleExplainer({
         ) : null}
         {!isVideo && mediaSrc ? <Audio src={mediaSrc} volume={sourceAudioVolume} /> : null}
         {!isVideo && (sourceAudioUrl || audioSrc) ? <Audio src={sourceAudioUrl || audioSrc || ''} volume={sourceAudioVolume} /> : null}
-        
-        {/* Subtle vignette for depth */}
         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle, transparent 50%, rgba(0,0,0,0.4) 150%)', pointerEvents: 'none' }} />
       </div>
 
-      {/* ═══ BOTTOM: EXPLANATION IMAGE (Ken Burns) ═══ */}
+      {/* ═══ BOTTOM: DYNAMIC B-ROLL CAROUSEL ═══ */}
       <div
         style={{
           position: 'absolute', top: 620, left: 0, width: W, bottom: 0,
@@ -101,102 +100,100 @@ export function VideoSimpleExplainer({
           zIndex: 1,
         }}
       >
-        {imageUrl ? (
-          <Img
-            src={imageUrl}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', transform: `scale(${imageZoom})`, transformOrigin: 'center center' }}
-          />
+        {imagesList.length > 0 ? (
+          imagesList.map((img, index) => {
+            // Auto-calculate timing for each image
+            const durationPerImage = durationInFrames / imagesList.length;
+            const startFrame = index * durationPerImage;
+            const endFrame = startFrame + durationPerImage;
+            
+            // Crossfade logic: fade in for 15 frames, fade out for 15 frames
+            const opacity = interpolate(
+              frame,
+              [startFrame - 15, startFrame, endFrame - 15, endFrame],
+              [0, 1, 1, 0],
+              { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+            );
+
+            // Independent Ken Burns for EACH image so it starts moving exactly when it appears
+            const localFrame = Math.max(0, frame - startFrame);
+            const imageZoom = interpolate(localFrame, [0, durationPerImage], [1, 1.15], { extrapolateRight: 'clamp' });
+            const imagePanX = index % 2 === 0 
+              ? interpolate(localFrame, [0, durationPerImage], [0, -40], { extrapolateRight: 'clamp' }) // Pan left
+              : interpolate(localFrame, [0, durationPerImage], [-40, 0], { extrapolateRight: 'clamp' }); // Pan right
+
+            return (
+              <Img
+                key={`${img}-${index}`}
+                src={img}
+                style={{ 
+                  position: 'absolute',
+                  width: '100%', height: '100%', objectFit: 'cover', 
+                  opacity,
+                  transform: `scale(${imageZoom}) translateX(${imagePanX}px)`, 
+                  transformOrigin: 'center center' 
+                }}
+              />
+            );
+          })
         ) : (
-          <div style={{ color: '#555', fontSize: 32, fontWeight: 700 }}>IMAGE GOES HERE</div>
+          <div style={{ color: '#555', fontSize: 32, fontWeight: 700 }}>IMAGES GO HERE</div>
         )}
         
         {/* Cinematic dark gradients for text readability */}
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 350, background: 'linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%)' }} />
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 200, background: 'linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%)' }} />
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 350, background: 'linear-gradient(180deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0) 100%)' }} />
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 300, background: 'linear-gradient(0deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%)' }} />
       </div>
 
       {/* ═══ MIDDLE: TITLE BAR ═══ */}
       <div
         style={{
           position: 'absolute', top: 560, left: 0, width: W, height: 120,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: '0 48px',
-          transform: `scale(${titlePop})`,
-          zIndex: 10,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 48px',
+          transform: `scale(${titlePop})`, zIndex: 10,
         }}
       >
         <div style={{ position: 'relative', display: 'inline-block' }}>
-          {/* Animated Highlight Marker */}
-          <div
-            style={{
-              position: 'absolute', top: '50%', left: '50%',
-              transform: 'translate(-50%, -50%) rotate(-1deg)',
-              width: `${markerDraw * 105}%`,
-              height: 56,
-              background: 'linear-gradient(90deg, #facc15 0%, #fde047 50%, #eab308 100%)',
-              borderRadius: '8px 16px 10px 12px',
-              opacity: 0.95,
-              boxShadow: '0 4px 15px rgba(250, 204, 21, 0.4)',
-            }}
-          />
-          <span
-            style={{
-              position: 'relative', zIndex: 2,
-              fontSize: displayTitle.length > 28 ? 36 : 42,
-              fontWeight: 900, letterSpacing: 1.5, color: '#000000',
-              textAlign: 'center', textTransform: 'uppercase',
-              whiteSpace: 'nowrap', padding: '0 15px',
-            }}
-          >
+          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%) rotate(-1deg)', width: `${markerDraw * 105}%`, height: 56, background: 'linear-gradient(90deg, #facc15 0%, #fde047 50%, #eab308 100%)', borderRadius: '8px 16px 10px 12px', opacity: 0.95, boxShadow: '0 4px 20px rgba(250, 204, 21, 0.5)' }} />
+          <span style={{ position: 'relative', zIndex: 2, fontSize: displayTitle.length > 28 ? 36 : 42, fontWeight: 900, letterSpacing: 1.5, color: '#000000', textAlign: 'center', textTransform: 'uppercase', whiteSpace: 'nowrap', padding: '0 15px' }}>
             {displayTitle}
           </span>
         </div>
       </div>
 
-      {/* ═══ OVERLAY: SUBTITLES (Glassmorphism & Float) ═══ */}
+      {/* ═══ OVERLAY: VIRAL SUBTITLES ═══ */}
       <div
         style={{
-          position: 'absolute', top: 730, left: 0, width: W,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: '0 50px',
-          transform: `translateY(${floatY}px)`,
-          zIndex: 15,
+          position: 'absolute', top: 760, left: 0, width: W,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 50px',
+          transform: `translateY(${floatY}px)`, zIndex: 15,
         }}
       >
-        {subtitleText ? (
-          <div
-            style={{
-              width: '100%', padding: '24px 40px', borderRadius: 24,
-              background: 'rgba(20, 20, 20, 0.65)',
-              backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              boxShadow: '0 20px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
-              textAlign: 'center',
-            }}
-          >
-            {breakSubtitle(subtitleText).map((line, i) => (
-              <div
-                key={`${line}-${i}`}
-                style={{
-                  color: '#ffffff',
-                  fontSize: line.length > 28 ? 40 : 48,
-                  fontWeight: 800, lineHeight: 1.25,
-                  textShadow: '0 4px 12px rgba(0,0,0,0.8)',
-                  background: 'linear-gradient(180deg, #ffffff 0%, #e2e8f0 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                }}
-              >
-                {line}
-              </div>
-            ))}
+        {activeCaption ? (
+          <div style={{ width: '100%', padding: '30px 40px', borderRadius: 24, background: 'rgba(10, 10, 10, 0.75)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.15)', boxShadow: '0 25px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2)', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '12px' }}>
+            {activeCaption.words && activeCaption.words.length > 0 ? (
+              activeCaption.words.map((w, i) => {
+                const wordText = cleanText(w.word || w.text);
+                if (!wordText) return null;
+                const isActive = time >= (w.start || 0) && time <= (w.end || 0);
+                return (
+                  <span key={`${wordText}-${i}`} style={{ fontSize: 48, fontWeight: 900, textTransform: 'uppercase', color: isActive ? '#fde047' : '#ffffff', transform: isActive ? 'scale(1.15) translateY(-4px)' : 'scale(1)', transition: 'all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275)', textShadow: isActive ? '0 0 20px rgba(253, 224, 71, 0.6)' : '0 4px 12px rgba(0,0,0,0.8)' }}>
+                    {wordText}
+                  </span>
+                );
+              })
+            ) : (
+               <span style={{ fontSize: 48, fontWeight: 900, color: '#fff', textShadow: '0 4px 12px rgba(0,0,0,0.8)' }}>
+                 {cleanText(activeCaption.text)}
+               </span>
+            )}
           </div>
         ) : null}
       </div>
 
       {/* ═══ PROGRESS BAR ═══ */}
-      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 8, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 20 }}>
-        <div style={{ height: '100%', width: `${Math.min(100, progress * 100)}%`, background: 'linear-gradient(90deg, #facc15, #ff007a)', borderRadius: '0 4px 4px 0', boxShadow: '0 0 10px rgba(250,204,21,0.5)' }} />
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 10, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 20 }}>
+        <div style={{ height: '100%', width: `${Math.min(100, progress * 100)}%`, background: 'linear-gradient(90deg, #fde047, #f59e0b, #ef4444)', borderRadius: '0 4px 4px 0', boxShadow: '0 0 15px rgba(245,158,11,0.6)' }} />
       </div>
     </AbsoluteFill>
   );

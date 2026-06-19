@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import {Composition} from "remotion";
 import {VideoSimpleExplainer} from "./components/VideoSimpleExplainer";
 
@@ -12,11 +12,14 @@ const defaultProps = {
   mediaSrc: "",
   mediaTrimStartSeconds: 0,
   sourceAudioVolume: 1,
-  explanationImageUrl: "",
-  bottomImageUrl: "",
+  bottomImages: [
+    "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=1000&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1000&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1000&auto=format&fit=crop"
+  ],
   captions: [
     {start: 0, end: 3, text: "Real speech captions appear here"},
-    {start: 3, end: 6, text: "Upload video, title, and one image"},
+    {start: 3, end: 6, text: "Upload video, title, and multiple images"},
   ],
 };
 
@@ -40,4 +43,3 @@ export const VideoSimpleExplainerComposition = () => (
     }}
   />
 );
-
