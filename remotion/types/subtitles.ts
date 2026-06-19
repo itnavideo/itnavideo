@@ -11,7 +11,12 @@ export type SubtitleStyle =
   | "box"
   | "split-color"
   | "typewriter"
-  | "bold-outline";
+  | "bold-outline"
+  | "one-word"
+  | "gold-pill"
+  | "stacked"
+  | "inline-bg"
+  | "vollkorn";
 
 export type SubtitlePosition = "top" | "center" | "bottom";
 
@@ -50,4 +55,29 @@ export const DEFAULT_SUBTITLE_CONFIG: SubtitleConfig = {
   fontSize: "medium",
   fontFamily: "sans-serif",
   showBackground: true,
+};
+
+export interface SubtitlePreset {
+  name: string;
+  style: SubtitleStyle;
+  fontFamily: string;
+  textColor: string;
+  highlightColor: string;
+  backgroundColor?: string;
+  fontSize?: "small" | "medium" | "large" | "xlarge";
+}
+
+export const SUBTITLE_PRESETS: Record<string, SubtitlePreset> = {
+  Eclipse: { name: "Eclipse", style: "highlight", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#7C3AED", fontSize: "large" },
+  Hustle: { name: "Hustle", style: "bold-outline", fontFamily: "Impact, sans-serif", textColor: "#FFFFFF", highlightColor: "#EF4444", fontSize: "large" },
+  Marigold: { name: "Marigold", style: "normal", fontFamily: "Georgia, serif", textColor: "#F59E0B", highlightColor: "#F59E0B", fontSize: "medium" },
+  "Gold Pill": { name: "Gold Pill", style: "gold-pill", fontFamily: "Arial Black, sans-serif", textColor: "#FFD700", highlightColor: "#FFD700", backgroundColor: "#000000", fontSize: "large" },
+  Midnight: { name: "Midnight", style: "inline-bg", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#3B82F6", fontSize: "medium" },
+  "Arctic Glow": { name: "Arctic Glow", style: "neon", fontFamily: "sans-serif", textColor: "#E0F2FE", highlightColor: "#38BDF8", fontSize: "large" },
+  "Studio Clean": { name: "Studio Clean", style: "stacked", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#FACC15", backgroundColor: "#18181B", fontSize: "large" },
+  "One Word": { name: "One Word", style: "one-word", fontFamily: "Impact, sans-serif", textColor: "#FFFFFF", highlightColor: "#FACC15", fontSize: "xlarge" },
+  Vollkorn: { name: "Vollkorn", style: "vollkorn", fontFamily: "Georgia, serif", textColor: "#FFFFFF", highlightColor: "#22D3EE", backgroundColor: "#000000", fontSize: "large" },
+  "Pop Candy": { name: "Pop Candy", style: "box", fontFamily: "sans-serif", textColor: "#000000", highlightColor: "#F472B6", fontSize: "large" },
+  Typewriter: { name: "Typewriter", style: "typewriter", fontFamily: "Courier New, monospace", textColor: "#10B981", highlightColor: "#10B981", fontSize: "medium" },
+  "Bold Fire": { name: "Bold Fire", style: "big-bold", fontFamily: "Impact, sans-serif", textColor: "#FFFFFF", highlightColor: "#F97316", fontSize: "xlarge" },
 };

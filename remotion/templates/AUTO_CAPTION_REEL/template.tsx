@@ -28,22 +28,45 @@ type AutoCaptionProps = {
   showBackground?: boolean;
 };
 
-// Map dashboard style names to SubtitleRenderer styles
+// Map dashboard style/preset names to SubtitleRenderer styles
 function mapCaptionStyle(style?: string): SubtitleConfig['style'] {
   const map: Record<string, SubtitleConfig['style']> = {
+    // Legacy names
     yellowPop: 'highlight',
     clean: 'normal',
     blackBox: 'box',
     bold: 'big-bold',
     minimal: 'normal',
-    neon: 'neon',
     classic: 'box',
+    // Direct style keys
     highlight: 'highlight',
+    normal: 'normal',
+    neon: 'neon',
+    box: 'box',
     'big-bold': 'big-bold',
     'word-pop': 'word-pop',
     'split-color': 'split-color',
     typewriter: 'typewriter',
     'bold-outline': 'bold-outline',
+    'one-word': 'one-word',
+    'gold-pill': 'gold-pill',
+    stacked: 'stacked',
+    'inline-bg': 'inline-bg',
+    vollkorn: 'vollkorn',
+    none: 'none',
+    // Named presets → style
+    Eclipse: 'highlight',
+    Hustle: 'bold-outline',
+    Marigold: 'normal',
+    'Gold Pill': 'gold-pill',
+    Midnight: 'inline-bg',
+    'Arctic Glow': 'neon',
+    'Studio Clean': 'stacked',
+    'One Word': 'one-word',
+    Vollkorn: 'vollkorn',
+    'Pop Candy': 'box',
+    Typewriter: 'typewriter',
+    'Bold Fire': 'big-bold',
   };
   return map[style || ''] || 'highlight';
 }
