@@ -150,6 +150,30 @@ const STICKER_SETS = {
     warning: 'assets/stickman/doctor-3d-half/teacher-warning.png',
     success: 'assets/stickman/doctor-3d-half/teacher-success.png',
   },
+  'banker-3d-half': {
+    welcome: 'assets/stickman/banker-3d-half/teacher-welcome.png',
+    left: 'assets/stickman/banker-3d-half/teacher-left.png',
+    right: 'assets/stickman/banker-3d-half/teacher-right.png',
+    thinking: 'assets/stickman/banker-3d-half/teacher-thinking.png',
+    warning: 'assets/stickman/banker-3d-half/teacher-warning.png',
+    success: 'assets/stickman/banker-3d-half/teacher-success.png',
+  },
+  'news-anchor-3d-half': {
+    welcome: 'assets/stickman/news-anchor-3d-half/teacher-welcome.png',
+    left: 'assets/stickman/news-anchor-3d-half/teacher-left.png',
+    right: 'assets/stickman/news-anchor-3d-half/teacher-right.png',
+    thinking: 'assets/stickman/news-anchor-3d-half/teacher-thinking.png',
+    warning: 'assets/stickman/news-anchor-3d-half/teacher-warning.png',
+    success: 'assets/stickman/news-anchor-3d-half/teacher-success.png',
+  },
+  'lawyer-girl-3d': {
+    welcome: 'assets/stickman/lawyer-girl-3d/teacher-welcome.png',
+    left: 'assets/stickman/lawyer-girl-3d/teacher-left.png',
+    right: 'assets/stickman/lawyer-girl-3d/teacher-right.png',
+    thinking: 'assets/stickman/lawyer-girl-3d/teacher-thinking.png',
+    warning: 'assets/stickman/lawyer-girl-3d/teacher-warning.png',
+    success: 'assets/stickman/lawyer-girl-3d/teacher-success.png',
+  },
 } as const;
 
 type StickerSet = Record<'welcome' | 'left' | 'right' | 'thinking' | 'warning' | 'success', string>;
@@ -534,7 +558,7 @@ const StickerPresenter = ({
   const {fps, durationInFrames} = useVideoConfig();
 
   const selectedStickerStyle =
-    stickerStyle === '2d' ? '2d' : stickerStyle === 'cartoon' ? 'cartoon' : stickerStyle === 'girl-teacher' ? 'girl-teacher' : stickerStyle === 'girl-teacher-3d' ? 'girl-teacher-3d' : stickerStyle === 'grandpa-teacher-3d' ? 'grandpa-teacher-3d' : stickerStyle === 'young-presenter-3d' ? 'young-presenter-3d' : stickerStyle === 'teacher-2d-pro' ? 'teacher-2d-pro' : stickerStyle === 'chibi-boy-3d' ? 'chibi-boy-3d' : stickerStyle === 'corporate-woman-3d' ? 'corporate-woman-3d' : stickerStyle === 'indian-teacher-woman' ? 'indian-teacher-woman' : stickerStyle === 'doctor-3d-half' ? 'doctor-3d-half' : 'explainer';
+    (stickerStyle && stickerStyle in STICKER_SETS) ? stickerStyle as keyof typeof STICKER_SETS : 'explainer';
 
   const set: StickerSet = STICKER_SETS[selectedStickerStyle];
 

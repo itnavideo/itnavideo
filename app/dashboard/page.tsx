@@ -300,7 +300,7 @@ export default function DashboardPage() {
   const [compareLeftTitle, setCompareLeftTitle] = useState("");
   const [compareRightTitle, setCompareRightTitle] = useState("");
   const [compareHandle, setCompareHandle] = useState("@itnavideo");
-  const [stickerStyle, setStickerStyle] = useState<"2d" | "cartoon" | "explainer" | "girl-teacher" | "girl-teacher-3d" | "grandpa-teacher-3d" | "young-presenter-3d" | "teacher-2d-pro" | "chibi-boy-3d" | "corporate-woman-3d" | "indian-teacher-woman" | "doctor-3d-half">("explainer");
+  const [stickerStyle, setStickerStyle] = useState<string>("explainer");
   const [captionStyle, setCaptionStyle] = useState<string>("highlight");
   const [captionPosition, setCaptionPosition] = useState<"bottom" | "center" | "top">("bottom");
   const [subtitleOutputLanguage, setSubtitleOutputLanguage] = useState<"hinglish" | "english" | "hindi" | "kannada" | "urdu" | "farsi" | "spanish" | "arabic" | "french" | "german" | "portuguese" | "indonesian" | "tamil">("hinglish");

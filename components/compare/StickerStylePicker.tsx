@@ -1,6 +1,6 @@
 "use client";
 
-type StickerStyle = "2d" | "cartoon" | "explainer" | "girl-teacher" | "girl-teacher-3d" | "grandpa-teacher-3d" | "young-presenter-3d" | "teacher-2d-pro" | "chibi-boy-3d" | "corporate-woman-3d" | "indian-teacher-woman" | "doctor-3d-half";
+type StickerStyle = "2d" | "cartoon" | "explainer" | "girl-teacher" | "girl-teacher-3d" | "grandpa-teacher-3d" | "young-presenter-3d" | "teacher-2d-pro" | "chibi-boy-3d" | "corporate-woman-3d" | "indian-teacher-woman" | "doctor-3d-half" | "banker-3d-half" | "news-anchor-3d-half" | "lawyer-girl-3d";
 
 type StickerStylePickerProps = {
   value: StickerStyle;
@@ -72,6 +72,21 @@ const STICKERS: Array<{
     name: "Doctor 3D",
     image: "/assets/stickman/doctor-3d-half/teacher-welcome.png",
   },
+  {
+    id: "banker-3d-half",
+    name: "Banker 3D",
+    image: "/assets/stickman/banker-3d-half/teacher-welcome.png",
+  },
+  {
+    id: "news-anchor-3d-half",
+    name: "News Anchor",
+    image: "/assets/stickman/news-anchor-3d-half/teacher-welcome.png",
+  },
+  {
+    id: "lawyer-girl-3d",
+    name: "Lawyer Girl",
+    image: "/assets/stickman/lawyer-girl-3d/teacher-welcome.png",
+  },
 ];
 
 export function StickerStylePicker({value, onChange}: StickerStylePickerProps) {
@@ -88,7 +103,7 @@ export function StickerStylePicker({value, onChange}: StickerStylePickerProps) {
         </div>
 
         <span className="rounded-full border border-emerald-300/30 bg-emerald-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-emerald-100">
-          {value === "cartoon" ? "Cartoon" : value === "explainer" ? "Explainer" : value === "girl-teacher" ? "Girl" : value === "girl-teacher-3d" ? "3D Girl" : value === "grandpa-teacher-3d" ? "Grandpa" : value === "young-presenter-3d" ? "Young" : value === "teacher-2d-pro" ? "2D Pro" : value === "chibi-boy-3d" ? "Chibi" : value === "corporate-woman-3d" ? "Corporate" : value === "indian-teacher-woman" ? "Indian" : value === "doctor-3d-half" ? "Doctor" : "2D"}
+          {STICKERS.find(s => s.id === value)?.name || value}
         </span>
       </div>
 
