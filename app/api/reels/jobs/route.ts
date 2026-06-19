@@ -15,7 +15,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 type LambdaRenderRequest = Parameters<typeof renderMediaOnLambda>[0];
-type ReelMode = 'videoExplainer' | 'compare' | 'autoCaption' | 'imageStory' | 'imageStoryCollage' | 'autoDraw';
+type ReelMode = 'videoExplainer' | 'compare' | 'autoCaption' | 'imageStory' | 'imageStoryCollage' | 'autoDraw' | 'longVideoPromo';
 const MODE_TO_TEMPLATE: Record<ReelMode, ReelTemplateName> = {
   videoExplainer: 'VIDEO_SIMPLE_EXPLAINER',
   compare: 'comparisonImages',
@@ -23,6 +23,7 @@ const MODE_TO_TEMPLATE: Record<ReelMode, ReelTemplateName> = {
   imageStory: 'IMAGE_STORY',
   imageStoryCollage: 'IMAGE_STORY_COLLAGE',
   autoDraw: 'AUTO_DRAW_EXPLAINER',
+  longVideoPromo: 'LONG_VIDEO_PROMO',
 };
 
 const MAX_RENDER_WINDOW_SECONDS = 60;
@@ -1685,7 +1686,7 @@ function resolveTemplateNameFromRequest(value: string): ReelTemplateName | null 
 function toMode(value: string): ReelMode {
   const normalized = value.toLowerCase();
   if (normalized.includes('compare') || normalized.includes('comparison') || normalized === 'vs') return 'compare';
-  if (normalized.includes('handwriting') || normalized.includes('notes')) return 'notes';
+  if (normalized.includes('long-video') || normalized.includes('longvideo') || normalized.includes('promo')) return 'longVideoPromo';
   if (normalized.includes('auto-caption') || normalized.includes('autocaption')) return 'autoCaption';
   if (normalized.includes('caption') || normalized.includes('subtitle')) return 'autoCaption';
   if (normalized.includes('auto-draw') || normalized.includes('autodraw') || normalized.includes('whiteboard')) return 'autoDraw';

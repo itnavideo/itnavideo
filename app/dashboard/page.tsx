@@ -36,7 +36,7 @@ import type { LucideIcon } from "lucide-react";
 import BrandLogo from "@/components/brand/BrandLogo";
 import { useAuth } from "@/components/auth/AuthContext";
 
-type Mode = "videoExplainer" | "notes" | "videoCaption" | "imageStory" | "compare" | "autoCaption" | "imageStoryCollage" | "autoDraw";
+type Mode = "videoExplainer" | "notes" | "videoCaption" | "imageStory" | "compare" | "autoCaption" | "imageStoryCollage" | "autoDraw" | "longVideoPromo";
 type JobStatusState = "idle" | "uploading" | "starting" | "rendering" | "ready" | "error";
 type JobStatus = {
   state: JobStatusState;
@@ -124,6 +124,15 @@ const templateCards = [
     active: true,
     mode: "autoDraw" as const,
   },
+  {
+    id: "long-video-promo",
+    title: "Long Video Promo",
+    description: "Promote your long YouTube videos with a premium promo reel. Thumbnail + title + CTA.",
+    image: "/visuals/previews/auto-draw-template.png",
+    badges: ["Video/Audio", "Thumbnail", "Promo"],
+    active: true,
+    mode: "longVideoPromo" as const,
+  },
 ] as const;
 
 const modeConfig = {
@@ -191,6 +200,19 @@ const modeConfig = {
     color: "text-amber-200",
     border: "border-amber-300/35",
     surface: "bg-amber-300/[0.08]",
+  },
+  longVideoPromo: {
+    label: "Long Video Promo",
+    title: "Long Video Promo",
+    description: "Promote your long YouTube video with a premium promo reel. Add thumbnail, title, and short promo clip.",
+    accept: "audio/*,video/*",
+    supported: "Supported: MP3, WAV, MP4, MOV",
+    bestResult: "Best result: short promo voiceover or video clip (10-30s) promoting your long video.",
+    uploadCta: "Choose promo audio/video",
+    icon: Film,
+    color: "text-emerald-200",
+    border: "border-emerald-300/35",
+    surface: "bg-emerald-300/[0.08]",
   },
   videoCaption: {
     label: "Video Caption",
@@ -340,7 +362,7 @@ export default function DashboardPage() {
     setSelectedFile(null);
     setComparisonFiles([]);
     setJobStatus({state: "idle", message: ""});
-    const nextTemplate = nextMode === "autoCaption" ? "auto-caption-reel" : nextMode === "autoDraw" ? "auto-draw-explainer" : nextMode === "imageStoryCollage" ? "cinematic-collage" : nextMode === "compare" ? "compare-explainer" : nextMode === "videoExplainer" ? "video-simple-explainer" : nextMode === "notes" ? "notes" : nextMode === "videoCaption" ? "video-caption" : "video-simple-explainer";
+    const nextTemplate = nextMode === "autoCaption" ? "auto-caption-reel" : nextMode === "autoDraw" ? "auto-draw-explainer" : nextMode === "longVideoPromo" ? "long-video-promo" : nextMode === "imageStoryCollage" ? "cinematic-collage" : nextMode === "compare" ? "compare-explainer" : nextMode === "videoExplainer" ? "video-simple-explainer" : nextMode === "notes" ? "notes" : nextMode === "videoCaption" ? "video-caption" : "video-simple-explainer";
     window.history.replaceState(null, "", `/dashboard?template=${nextTemplate}`);
   };
 
@@ -2033,6 +2055,7 @@ function readDashboardMode(value: string | null): Mode | null {
   if (normalized === "compareexplainer" || normalized === "compare" || normalized === "comparison") return "compare";
   if (normalized === "cinematiccollage" || normalized === "imagestorycollage") return "imageStoryCollage";
   if (normalized === "autodrawexplainer" || normalized === "autodraw" || normalized === "whiteboard") return "autoDraw";
+  if (normalized === "longvideopromo" || normalized === "longvideopromotion" || normalized === "promo") return "longVideoPromo";
   if (normalized.includes("caption") || normalized.includes("subtitle")) return "autoCaption";
   if (normalized.includes("compare")) return "compare";
   if (normalized.includes("draw") || normalized.includes("whiteboard")) return "autoDraw";

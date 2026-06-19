@@ -56,7 +56,7 @@ export type ReelTimelineScene = {
   secondarySupport?: Array<'titleCard'>;
 };
 
-export type ReelTemplateName = 'VIDEO_SIMPLE_EXPLAINER' | 'comparisonImages' | 'AUTO_CAPTION_REEL' | 'IMAGE_STORY' | 'IMAGE_STORY_COLLAGE' | 'AUTO_DRAW_EXPLAINER';
+export type ReelTemplateName = 'VIDEO_SIMPLE_EXPLAINER' | 'comparisonImages' | 'AUTO_CAPTION_REEL' | 'IMAGE_STORY' | 'IMAGE_STORY_COLLAGE' | 'AUTO_DRAW_EXPLAINER' | 'LONG_VIDEO_PROMO';
 export const REEL_TEMPLATE_REGISTRY = {
   VIDEO_SIMPLE_EXPLAINER: {
     templateName: 'VIDEO_SIMPLE_EXPLAINER',
@@ -104,6 +104,14 @@ export const REEL_TEMPLATE_REGISTRY = {
     transcriptRequirement: 'required',
     plannerMode: 'videoExplainer',
     mediaFit: 'videoExplainer',
+  },
+  LONG_VIDEO_PROMO: {
+    templateName: 'LONG_VIDEO_PROMO',
+    compositionId: 'LONG-VIDEO-PROMO',
+    allowedMedia: ['audio', 'video'],
+    transcriptRequirement: 'required',
+    plannerMode: 'videoCaption',
+    mediaFit: 'videoCaption',
   },
 } as const satisfies Record<string, {
   templateName: ReelTemplateName;
