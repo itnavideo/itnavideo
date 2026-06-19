@@ -1,6 +1,6 @@
 "use client";
 
-type StickerStyle = "2d" | "cartoon" | "explainer" | "girl-teacher" | "girl-teacher-3d" | "grandpa-teacher-3d" | "young-presenter-3d" | "teacher-2d-pro" | "chibi-boy-3d";
+type StickerStyle = "2d" | "cartoon" | "explainer" | "girl-teacher" | "girl-teacher-3d" | "grandpa-teacher-3d" | "young-presenter-3d" | "teacher-2d-pro" | "chibi-boy-3d" | "corporate-woman-3d";
 
 type StickerStylePickerProps = {
   value: StickerStyle;
@@ -57,6 +57,11 @@ const STICKERS: Array<{
     name: "Chibi Boy",
     image: "/assets/stickman/chibi-boy-3d/teacher-welcome.png",
   },
+  {
+    id: "corporate-woman-3d",
+    name: "Corporate Woman",
+    image: "/assets/stickman/corporate-woman-3d/teacher-welcome.png",
+  },
 ];
 
 export function StickerStylePicker({value, onChange}: StickerStylePickerProps) {
@@ -73,7 +78,7 @@ export function StickerStylePicker({value, onChange}: StickerStylePickerProps) {
         </div>
 
         <span className="rounded-full border border-emerald-300/30 bg-emerald-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-emerald-100">
-          {value === "cartoon" ? "Cartoon" : value === "explainer" ? "Explainer" : value === "girl-teacher" ? "Girl" : value === "girl-teacher-3d" ? "3D Girl" : value === "grandpa-teacher-3d" ? "Grandpa" : value === "young-presenter-3d" ? "Young" : value === "teacher-2d-pro" ? "2D Pro" : value === "chibi-boy-3d" ? "Chibi" : "2D"}
+          {value === "cartoon" ? "Cartoon" : value === "explainer" ? "Explainer" : value === "girl-teacher" ? "Girl" : value === "girl-teacher-3d" ? "3D Girl" : value === "grandpa-teacher-3d" ? "Grandpa" : value === "young-presenter-3d" ? "Young" : value === "teacher-2d-pro" ? "2D Pro" : value === "chibi-boy-3d" ? "Chibi" : value === "corporate-woman-3d" ? "Corporate" : "2D"}
         </span>
       </div>
 
