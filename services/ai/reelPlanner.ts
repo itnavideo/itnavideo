@@ -60,7 +60,7 @@ export type ReelTemplateName = 'VIDEO_SIMPLE_EXPLAINER' | 'comparisonImages' | '
 export const REEL_TEMPLATE_REGISTRY = {
   VIDEO_SIMPLE_EXPLAINER: {
     templateName: 'VIDEO_SIMPLE_EXPLAINER',
-    compositionId: 'VIDEO_SIMPLE_EXPLAINER',
+    compositionId: 'VIDEO-SIMPLE-EXPLAINER',
     allowedMedia: ['audio', 'video'],
     transcriptRequirement: 'required',
     plannerMode: 'videoExplainer',
