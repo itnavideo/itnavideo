@@ -505,7 +505,7 @@ export async function POST(request: Request) {
             sourceAudioUrl: planningMedia.mediaUrl,
             comparisonImageUrls,
             comparisonImages: comparisonImageUrls,
-            stickerStyle: ['2d', 'cartoon', 'explainer', 'girl-teacher', 'girl-teacher-3d', 'grandpa-teacher-3d'].includes(readString(body.stickerStyle)) ? readString(body.stickerStyle) : 'explainer',
+            stickerStyle: ['2d', 'cartoon', 'explainer', 'girl-teacher', 'girl-teacher-3d', 'grandpa-teacher-3d', 'senior-teacher-3d'].includes(readString(body.stickerStyle)) ? readString(body.stickerStyle) : 'explainer',
             creatorHandle: readString(body.creatorHandle || body.handle || body.channelName) || '@itnavideo',
             compareLeftTitle: readString(body.compareLeftTitle || body.leftTitle || body.leftLabel) || 'Left',
             compareRightTitle: readString(body.compareRightTitle || body.rightTitle || body.rightLabel) || 'Right',
