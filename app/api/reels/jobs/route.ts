@@ -622,6 +622,9 @@ export async function POST(request: Request) {
           durationSeconds: imagePreflight.inputProps.durationSeconds,
           sourceDurationSeconds: imagePreflight.inputProps.sourceDurationSeconds,
           compositionId: composition,
+          selectedLanguage: subtitleLang,
+          transcriptLanguageHint: transcription.languageHint,
+          captionFirstText: Array.isArray(imagePreflight.inputProps.captions) ? (imagePreflight.inputProps.captions as any[])[0]?.text?.slice(0, 50) : 'none',
         },
       } : {}),
       ...(process.env.NODE_ENV !== 'production'
@@ -1294,15 +1297,18 @@ async function repairTranscriptionToLanguage<T extends GroqLikeTranscription>(tr
   }
 
   // For ALL other languages (Kannada, Urdu, Hindi, Tamil, etc.) — always translate via OpenAI
-  // Groq Whisper only transcribes in the detected language, it does NOT translate to the target language
   const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) return transcription;
+  if (!apiKey) {
+    console.error('[TRANSLATION] OPENAI_API_KEY missing — cannot translate to:', outputLanguage);
+    return transcription;
+  }
 
   const targetLang = LANGUAGE_NAMES[outputLanguage] || outputLanguage;
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 20000);
+  const timeout = setTimeout(() => controller.abort(), 25000);
 
   try {
+    console.log('[TRANSLATION] Starting translation to:', targetLang, '| segments:', transcription.segments?.length || 0);
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -1331,17 +1337,19 @@ async function repairTranscriptionToLanguage<T extends GroqLikeTranscription>(tr
     });
 
     if (!response.ok) {
-      console.error('Translation API failed:', response.status, 'for language:', outputLanguage);
+      const errorBody = await response.text().catch(() => '');
+      console.error('[TRANSLATION] API failed:', response.status, outputLanguage, errorBody.slice(0, 200));
       return transcription;
     }
     const json = await response.json();
     const content = json?.choices?.[0]?.message?.content || '';
     const parsed = parseTranslationResponse(content);
     if (!parsed?.transcript) {
-      console.error('Translation returned empty for language:', outputLanguage);
+      console.error('[TRANSLATION] Empty result for:', outputLanguage, '| raw:', content.slice(0, 100));
       return transcription;
     }
 
+    console.log('[TRANSLATION] Success:', outputLanguage, '| translated segments:', parsed.segments.length);
     const translatedSegments = mergeRepairedSegments(transcription.segments, parsed.segments);
     return {
       ...transcription,
@@ -1352,7 +1360,7 @@ async function repairTranscriptionToLanguage<T extends GroqLikeTranscription>(tr
       rawTranscript: transcription.rawTranscript || transcription.transcript,
     };
   } catch (err) {
-    console.error('Translation failed for language:', outputLanguage, err instanceof Error ? err.message : '');
+    console.error('[TRANSLATION] Exception for:', outputLanguage, err instanceof Error ? err.message : String(err));
     return transcription;
   } finally {
     clearTimeout(timeout);
