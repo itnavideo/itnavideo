@@ -71,9 +71,14 @@ function AutoCaptionReel({
       start: Number(c.start ?? 0),
       end: Number(c.end ?? (c.start ?? 0) + 2.5),
       text: String(c.text || ''),
-      words: c.words?.map((w) => ({word: String(w.word || ''), start: Number(w.start ?? 0), end: Number(w.end ?? 0)})),
+      words: Array.isArray(c.words) ? c.words.map((w) => ({word: String(w.word || ''), start: Number(w.start ?? 0), end: Number(w.end ?? 0)})) : undefined,
     }))
     .filter((c) => c.text);
+
+  // DEBUG SAFETY: if captions are empty after processing, show a diagnostic message
+  const finalCaptions: CaptionSegment[] = captionData.length > 0
+    ? captionData
+    : [{start: 0, end: 999, text: `[NO CAPTIONS RECEIVED - props.captions: ${captions?.length ?? 'undefined'}, subtitleChunks: ${subtitleChunks?.length ?? 'undefined'}]`}];
 
   const subtitleConfig: SubtitleConfig = {
     style: mapCaptionStyle(captionStyle),
@@ -108,7 +113,7 @@ function AutoCaptionReel({
       )}
 
       {/* Shared SubtitleRenderer — replaces old CaptionCard */}
-      <SubtitleRenderer captions={captionData} config={subtitleConfig} />
+      <SubtitleRenderer captions={finalCaptions} config={subtitleConfig} />
 
       {/* Vignette for readability */}
       <div style={{

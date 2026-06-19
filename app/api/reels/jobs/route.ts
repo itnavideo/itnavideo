@@ -545,6 +545,22 @@ export async function POST(request: Request) {
     }
 
     const outName = `${TEMP_MEDIA_RENDER_PREFIX}${sanitizeSegment(userId)}/${Date.now()}-${slugify(readString(imagePreflight.inputProps.topicTitle) || fileName || 'reel')}.mp4`;
+
+    // Debug: log caption data being sent to Lambda
+    if (mode === 'autoCaption') {
+      const captionsArr = Array.isArray(imagePreflight.inputProps.captions) ? imagePreflight.inputProps.captions as any[] : [];
+      console.log('[AUTO_CAPTION_REEL] Render props debug:', {
+        captionCount: captionsArr.length,
+        firstCaption: captionsArr[0] || 'EMPTY',
+        lastCaption: captionsArr[captionsArr.length - 1] || 'EMPTY',
+        hasSubtitleChunks: Array.isArray(imagePreflight.inputProps.subtitleChunks),
+        mediaSrc: typeof imagePreflight.inputProps.mediaSrc === 'string' ? imagePreflight.inputProps.mediaSrc.slice(0, 60) : 'MISSING',
+        captionStyle: imagePreflight.inputProps.captionStyle,
+        durationSeconds: imagePreflight.inputProps.durationSeconds,
+        mediaTrimStartSeconds: imagePreflight.inputProps.mediaTrimStartSeconds,
+      });
+    }
+
     const renderRequest: LambdaRenderRequest = {
       region: config.region,
       functionName: config.functionName,
