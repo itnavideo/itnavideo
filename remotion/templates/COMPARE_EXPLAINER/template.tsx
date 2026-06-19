@@ -142,6 +142,14 @@ const STICKER_SETS = {
     warning: 'assets/stickman/indian-teacher-woman/teacher-warning.png',
     success: 'assets/stickman/indian-teacher-woman/teacher-success.png',
   },
+  'doctor-3d-half': {
+    welcome: 'assets/stickman/doctor-3d-half/teacher-welcome.png',
+    left: 'assets/stickman/doctor-3d-half/teacher-left.png',
+    right: 'assets/stickman/doctor-3d-half/teacher-right.png',
+    thinking: 'assets/stickman/doctor-3d-half/teacher-thinking.png',
+    warning: 'assets/stickman/doctor-3d-half/teacher-warning.png',
+    success: 'assets/stickman/doctor-3d-half/teacher-success.png',
+  },
 } as const;
 
 type StickerSet = Record<'welcome' | 'left' | 'right' | 'thinking' | 'warning' | 'success', string>;
@@ -526,7 +534,7 @@ const StickerPresenter = ({
   const {fps, durationInFrames} = useVideoConfig();
 
   const selectedStickerStyle =
-    stickerStyle === '2d' ? '2d' : stickerStyle === 'cartoon' ? 'cartoon' : stickerStyle === 'girl-teacher' ? 'girl-teacher' : stickerStyle === 'girl-teacher-3d' ? 'girl-teacher-3d' : stickerStyle === 'grandpa-teacher-3d' ? 'grandpa-teacher-3d' : stickerStyle === 'young-presenter-3d' ? 'young-presenter-3d' : stickerStyle === 'teacher-2d-pro' ? 'teacher-2d-pro' : stickerStyle === 'chibi-boy-3d' ? 'chibi-boy-3d' : stickerStyle === 'corporate-woman-3d' ? 'corporate-woman-3d' : stickerStyle === 'indian-teacher-woman' ? 'indian-teacher-woman' : 'explainer';
+    stickerStyle === '2d' ? '2d' : stickerStyle === 'cartoon' ? 'cartoon' : stickerStyle === 'girl-teacher' ? 'girl-teacher' : stickerStyle === 'girl-teacher-3d' ? 'girl-teacher-3d' : stickerStyle === 'grandpa-teacher-3d' ? 'grandpa-teacher-3d' : stickerStyle === 'young-presenter-3d' ? 'young-presenter-3d' : stickerStyle === 'teacher-2d-pro' ? 'teacher-2d-pro' : stickerStyle === 'chibi-boy-3d' ? 'chibi-boy-3d' : stickerStyle === 'corporate-woman-3d' ? 'corporate-woman-3d' : stickerStyle === 'indian-teacher-woman' ? 'indian-teacher-woman' : stickerStyle === 'doctor-3d-half' ? 'doctor-3d-half' : 'explainer';
 
   const set: StickerSet = STICKER_SETS[selectedStickerStyle];
 
