@@ -261,7 +261,7 @@ export async function POST(request: Request) {
         overwrite: true,
         concurrency: config.framesPerLambda ? undefined : config.concurrency,
         framesPerLambda: config.framesPerLambda,
-        maxRetries: 2,
+        maxRetries: 1,
         downloadBehavior: {
           type: 'download',
           fileName: 'itnavideo-image-story.mp4',
@@ -638,7 +638,7 @@ export async function POST(request: Request) {
       overwrite: true,
       concurrency: config.framesPerLambda ? undefined : config.concurrency,
       framesPerLambda: config.framesPerLambda,
-      maxRetries: 2,
+      maxRetries: 1,
       downloadBehavior: {
         type: 'download',
         fileName: mode === 'notes'
