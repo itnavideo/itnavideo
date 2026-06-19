@@ -24,7 +24,7 @@ const reelElements = [
 
 const features = [
   { icon: Layers3, title: 'Left vs Right Layout', body: 'Two clear image panels show each option side by side. No confusion.' },
-  { icon: Users, title: '3 Sticker Styles', body: '2D Teacher, Cartoon Teacher, or Stickman Explainer. User picks.' },
+  { icon: Users, title: '16 Sticker Styles', body: 'Teacher, Girl, Grandpa, Doctor, Banker, Lawyer, Islamic Scholar & more. User picks.' },
   { icon: Sparkles, title: 'Smart Pose Changes', body: 'Sticker points left/right, thinks, celebrates — based on your script timing.' },
   { icon: Mic2, title: 'Audio Voiceover', body: 'Upload MP3/WAV voiceover. AI transcribes and syncs to the comparison.' },
   { icon: ImageIcon, title: '2 or 4 Images', body: '2 images = 1 scene. 4 images = 2 comparison scenes in one reel.' },
@@ -193,14 +193,27 @@ export default function CompareExplainerPage() {
 
       {/* Sticker styles */}
       <section className="bg-zinc-50 px-4 py-16 sm:px-6 md:py-20">
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-2xl font-black sm:text-3xl">Choose Your Teacher Sticker</h2>
-          <p className="mt-3 text-zinc-500">Three unique character styles. Each reacts to your script with 6 different poses.</p>
-          <div className="mt-8 grid grid-cols-3 gap-4">
+        <div className="mx-auto max-w-5xl text-center">
+          <h2 className="text-2xl font-black sm:text-3xl">16 Character Stickers to Choose</h2>
+          <p className="mt-3 text-zinc-500">Each character reacts to your script with 6 poses: welcome, pointing left, pointing right, thinking, warning, and success.</p>
+          <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-4">
             {[
-              { name: '2D Teacher', image: '/visuals/stickers/2d-teacher.png' },
-              { name: 'Cartoon Teacher', image: '/visuals/stickers/cartoon-teacher.png' },
-              { name: 'Stickman Explainer', image: '/visuals/stickers/stickman-explainer.png' },
+              { name: '2D Teacher', image: '/assets/stickman/2d-teacher/teacher-welcome.png' },
+              { name: 'Cartoon Teacher', image: '/assets/stickman/cartoon-teacher/teacher-answering.png' },
+              { name: 'Stickman Explainer', image: '/assets/stickman/stickman-explainer/follow.png' },
+              { name: 'Girl Teacher', image: '/assets/stickman/girl-teacher/teacher-welcome.png' },
+              { name: 'Girl 3D', image: '/assets/stickman/girl-teacher-3d/teacher-welcome.png' },
+              { name: 'Grandpa 3D', image: '/assets/stickman/grandpa-teacher-3d/teacher-welcome.png' },
+              { name: 'Young Presenter', image: '/assets/stickman/young-presenter-3d/teacher-welcome.png' },
+              { name: '2D Pro', image: '/assets/stickman/teacher-2d-pro/teacher-welcome.png' },
+              { name: 'Chibi Boy', image: '/assets/stickman/chibi-boy-3d/teacher-welcome.png' },
+              { name: 'Corporate Woman', image: '/assets/stickman/corporate-woman-3d/teacher-welcome.png' },
+              { name: 'Indian Teacher', image: '/assets/stickman/indian-teacher-woman/teacher-welcome.png' },
+              { name: 'Doctor 3D', image: '/assets/stickman/doctor-3d-half/teacher-welcome.png' },
+              { name: 'Banker 3D', image: '/assets/stickman/banker-3d-half/teacher-welcome.png' },
+              { name: 'News Anchor', image: '/assets/stickman/news-anchor-3d-half/teacher-welcome.png' },
+              { name: 'Lawyer Girl', image: '/assets/stickman/lawyer-girl-3d/teacher-welcome.png' },
+              { name: 'Islamic Scholar', image: '/assets/stickman/shia-moulana-3d/teacher-welcome.png' },
             ].map((sticker) => (
               <div key={sticker.name} className="rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm">
                 <div className="mx-auto h-24 w-24 overflow-hidden rounded-full bg-zinc-50">
