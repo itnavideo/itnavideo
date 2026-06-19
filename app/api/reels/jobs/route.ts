@@ -612,6 +612,7 @@ export async function POST(request: Request) {
       access,
       retentionHours: 48,
       note: 'Render started. Poll /api/reels/jobs/status for progress.',
+      _renderVersion: 'v2026-06-19-subtitleRenderer',
       ...(isFounderEmail(readString(body.userEmail || body.email)) || isFounderUser(userId) ? {
         _founderDebug: {
           captionCount: Array.isArray(imagePreflight.inputProps.captions) ? (imagePreflight.inputProps.captions as any[]).length : 0,
