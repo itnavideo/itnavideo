@@ -174,6 +174,14 @@ const STICKER_SETS = {
     warning: 'assets/stickman/lawyer-girl-3d/teacher-warning.png',
     success: 'assets/stickman/lawyer-girl-3d/teacher-success.png',
   },
+  'shia-moulana-3d': {
+    welcome: 'assets/stickman/shia-moulana-3d/teacher-welcome.png',
+    left: 'assets/stickman/shia-moulana-3d/teacher-left.png',
+    right: 'assets/stickman/shia-moulana-3d/teacher-right.png',
+    thinking: 'assets/stickman/shia-moulana-3d/teacher-thinking.png',
+    warning: 'assets/stickman/shia-moulana-3d/teacher-warning.png',
+    success: 'assets/stickman/shia-moulana-3d/teacher-success.png',
+  },
 } as const;
 
 type StickerSet = Record<'welcome' | 'left' | 'right' | 'thinking' | 'warning' | 'success', string>;

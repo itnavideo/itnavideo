@@ -87,6 +87,11 @@ const STICKERS: Array<{
     name: "Lawyer Girl",
     image: "/assets/stickman/lawyer-girl-3d/teacher-welcome.png",
   },
+  {
+    id: "shia-moulana-3d",
+    name: "Islamic Scholar",
+    image: "/assets/stickman/shia-moulana-3d/teacher-welcome.png",
+  },
 ];
 
 export function StickerStylePicker({value, onChange}: StickerStylePickerProps) {
