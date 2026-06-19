@@ -10,6 +10,7 @@ import {hasHindiUrduScript, hasRomanHinglish} from '@/services/ai/hinglishTransc
 import {checkRateLimit, getClientIp} from '@/services/rateLimit/inMemoryRateLimiter';
 import {getRenderAccessForUser} from '@/services/billing/renderAccess';
 import {createPlanningMediaClip} from '@/services/media/mediaClipper';
+import {generateAutoDrawScenes} from '@/lib/ai/geminiAutoDrawPlanner';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -458,6 +459,22 @@ export async function POST(request: Request) {
         ? { topicTitle: plan.renderProps?.topicTitle, captions: plan.renderProps?.captions }
         : (plan.renderProps || {})),
       mediaSrc: planningMedia.mediaUrl,
+      ...(mode === 'autoDraw'
+        ? {
+            // Build scenes from overlayTimeline/captions for whiteboard template
+            audioUrl: planningMedia.mediaUrl,
+            scenes: await (async () => {
+              const result = await generateAutoDrawScenes({
+                transcript: renderWindow.transcript,
+                captions: buildCompareCaptionsFromGroq(renderWindow),
+                overlayTimeline: (plan.renderProps?.overlayTimeline || []).map((o: any) => ({start: o.start, end: o.end, text: o.text, body: o.body, type: o.type})),
+                topicTitle: plan.renderProps?.topicTitle || topicTitle || '',
+                durationSeconds: renderWindow.durationSeconds,
+              });
+              return result.scenes;
+            })(),
+          }
+        : {}),
       ...(mode === 'compare'
         ? {
             audioUrl: planningMedia.mediaUrl,
