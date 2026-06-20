@@ -126,33 +126,49 @@ function AutoCaptionReel({
 
   return (
     <AbsoluteFill style={{backgroundColor: '#000'}}>
-      {/* Full-screen video */}
-      {mediaSrc && mediaType === 'video' ? (
-        <OffthreadVideo
-          src={mediaSrc}
-          startFrom={Math.max(0, Math.round(mediaTrimStartSeconds * fps))}
-          style={{width: '100%', height: '100%', objectFit: 'cover'}}
-          volume={sourceAudioVolume}
-        />
-      ) : (
-        <div style={{
-          width: '100%', height: '100%', display: 'flex',
-          alignItems: 'center', justifyContent: 'center',
-          background: 'linear-gradient(180deg, #111 0%, #000 100%)',
-          color: 'rgba(255,255,255,0.2)', fontSize: 36, fontWeight: 800,
-        }}>
-          YOUR REEL VIDEO
-        </div>
-      )}
-
-      {/* Shared SubtitleRenderer */}
-      <SubtitleRenderer captions={captionData} config={subtitleConfig} />
-
-      {/* Vignette for readability */}
+      {/* Premium video frame with padding */}
       <div style={{
-        position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 5,
-        background: 'linear-gradient(0deg, rgba(0,0,0,0.45) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.2) 100%)',
-      }} />
+        position: 'absolute', inset: 12,
+        borderRadius: 24,
+        overflow: 'hidden',
+        border: '3px solid rgba(255,255,255,0.08)',
+        boxShadow: 'inset 0 0 60px rgba(0,0,0,0.3)',
+      }}>
+        {/* Full-screen video */}
+        {mediaSrc && mediaType === 'video' ? (
+          <OffthreadVideo
+            src={mediaSrc}
+            startFrom={Math.max(0, Math.round(mediaTrimStartSeconds * fps))}
+            style={{width: '100%', height: '100%', objectFit: 'cover'}}
+            volume={sourceAudioVolume}
+          />
+        ) : (
+          <div style={{
+            width: '100%', height: '100%', display: 'flex',
+            alignItems: 'center', justifyContent: 'center',
+            background: 'linear-gradient(180deg, #111 0%, #000 100%)',
+            color: 'rgba(255,255,255,0.2)', fontSize: 36, fontWeight: 800,
+          }}>
+            YOUR REEL VIDEO
+          </div>
+        )}
+
+        {/* Premium vignette — stronger at bottom for caption readability */}
+        <div style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 5,
+          background: 'linear-gradient(0deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.15) 20%, transparent 40%, transparent 80%, rgba(0,0,0,0.15) 100%)',
+        }} />
+
+        {/* Subtle top accent line */}
+        <div style={{
+          position: 'absolute', top: 0, left: '20%', right: '20%', height: 3,
+          background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)',
+          borderRadius: 2, zIndex: 6,
+        }} />
+      </div>
+
+      {/* Shared SubtitleRenderer — positioned over the frame */}
+      <SubtitleRenderer captions={captionData} config={subtitleConfig} />
     </AbsoluteFill>
   );
 }
