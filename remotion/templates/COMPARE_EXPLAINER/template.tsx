@@ -589,8 +589,8 @@ const StickerPresenter = ({
   const STICKER_ZONE_BOTTOM = 10;
   const STICKER_ZONE_LEFT = 60;
   const STICKER_ZONE_RIGHT = 60;
-  const STICKER_WIDTH = 680;
-  const STICKER_MAX_HEIGHT = 900;
+  const STICKER_WIDTH = 480;
+  const STICKER_MAX_HEIGHT = 700;
 
   const enterOpacity = interpolate(frame, [0, 6], [1, 1], {
     extrapolateLeft: 'clamp',
@@ -630,9 +630,9 @@ const StickerPresenter = ({
           height: 'auto',
           objectFit: 'contain',
           opacity: enterOpacity,
-          transform: `translateY(${idleY}px) rotate(${rotate}deg) scale(${pop * 1.45})`,
+          transform: `translateY(${idleY}px) rotate(${rotate}deg) scale(${pop})`,
           transformOrigin: 'center bottom',
-          filter: 'drop-shadow(0 20px 22px rgba(0,0,0,0.26))',
+          filter: 'drop-shadow(0 16px 18px rgba(0,0,0,0.2))',
         }}
       />
     </div>

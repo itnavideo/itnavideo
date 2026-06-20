@@ -384,6 +384,7 @@ export default function DashboardPage() {
     setMode(nextMode);
     setSelectedFile(null);
     setComparisonFiles([]);
+    setTopicTitle("");
     setJobStatus({state: "idle", message: ""});
     const nextTemplate = nextMode === "autoCaption" ? "auto-caption-reel" : nextMode === "autoDraw" ? "auto-draw-explainer" : nextMode === "longVideoPromo" ? "long-video-promo" : nextMode === "voiceSyncedNotes" ? "voice-synced-notes" : nextMode === "imageStoryCollage" ? "cinematic-collage" : nextMode === "compare" ? "compare-explainer" : nextMode === "videoExplainer" ? "video-simple-explainer" : nextMode === "notes" ? "notes" : nextMode === "videoCaption" ? "video-caption" : "video-simple-explainer";
     window.history.replaceState(null, "", `/dashboard?template=${nextTemplate}`);
@@ -1695,9 +1696,20 @@ function RenderStatusStage({
               </a>
             </div>
           ) : failed ? (
-            <p className="rounded-lg border border-red-300/20 bg-red-500/10 px-4 py-3 text-sm font-bold leading-6 text-red-100">
-              Your upload is still selected. Tap Create My Reel again to retry without uploading the file again.
-            </p>
+            <div className="space-y-3">
+              <p className="rounded-lg border border-red-300/20 bg-red-500/10 px-4 py-3 text-sm font-bold leading-6 text-red-100">
+                Your upload is still selected. Tap Retry below to try again without uploading the file again.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setJobStatus({state: "idle", message: ""});
+                }}
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-mint px-5 py-3 text-sm font-black text-black transition hover:bg-white"
+              >
+                ↻ Retry — Create My Reel
+              </button>
+            </div>
           ) : (
             <p className="rounded-lg border border-white/10 bg-white/[0.035] px-4 py-3 text-sm font-bold leading-6 text-zinc-400">
               Keep this tab open. Your finished MP4 will appear here and in Recent renders.
