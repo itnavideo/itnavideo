@@ -552,6 +552,11 @@ export async function POST(request: Request) {
       bottomImageUrl: explanationImageUrl || undefined,
       visualImageUrl: explanationImageUrl || undefined,
       uploadedImageUrl: explanationImageUrl || undefined,
+      // For Video Simple Explainer: only show user-uploaded image, not random planner images
+      ...(mode === 'videoExplainer' ? {
+        bottomImages: explanationImageUrl ? [explanationImageUrl] : [],
+        externalVisualAssets: [],
+      } : {}),
       design: mode === 'videoExplainer' ? 'simpleManual' : plan.renderProps?.design,
       templateName,
       template: templateName,
