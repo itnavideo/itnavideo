@@ -554,6 +554,8 @@ export async function POST(request: Request) {
       ...(mode === 'videoExplainer' ? {
         bottomImages: explanationImageUrl ? [explanationImageUrl] : [],
         externalVisualAssets: [],
+        // Override planner captions with word-grouped captions for better sync
+        captions: buildCompareCaptionsFromGroq(renderWindow),
       } : {}),
       design: mode === 'videoExplainer' ? 'simpleManual' : plan.renderProps?.design,
       templateName,

@@ -128,10 +128,11 @@ export function VideoSimpleExplainer({
                 src={img}
                 style={{ 
                   position: 'absolute',
-                  width: '100%', height: '100%', objectFit: 'cover', 
+                  width: '100%', height: '100%', objectFit: 'contain', 
                   opacity,
                   transform: `scale(${imageZoom}) translateX(${imagePanX}px)`, 
-                  transformOrigin: 'center center' 
+                  transformOrigin: 'center center',
+                  filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.4))',
                 }}
               />
             );
