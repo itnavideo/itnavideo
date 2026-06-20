@@ -15,82 +15,82 @@ const STICKERS: Array<{
   {
     id: "2d",
     name: "2D Teacher",
-    image: "/visuals/stickers/2d-teacher.png",
+    image: "/visuals/stickers/previews/2d-teacher.png",
   },
   {
     id: "cartoon",
     name: "Cartoon Teacher",
-    image: "/visuals/stickers/cartoon-teacher.png",
+    image: "/visuals/stickers/previews/cartoon-teacher.png",
   },
   {
     id: "explainer",
     name: "Stickman Explainer",
-    image: "/visuals/stickers/stickman-explainer.png",
+    image: "/visuals/stickers/previews/stickman-explainer.png",
   },
   {
     id: "girl-teacher",
     name: "Girl Teacher",
-    image: "/assets/stickman/girl-teacher/teacher-welcome.png",
+    image: "/visuals/stickers/previews/girl-teacher.png",
   },
   {
     id: "girl-teacher-3d",
     name: "Girl 3D",
-    image: "/assets/stickman/girl-teacher-3d/teacher-welcome.png",
+    image: "/visuals/stickers/previews/girl-teacher-3d.png",
   },
   {
     id: "grandpa-teacher-3d",
     name: "Grandpa 3D",
-    image: "/assets/stickman/grandpa-teacher-3d/teacher-welcome.png",
+    image: "/visuals/stickers/previews/grandpa-teacher-3d.png",
   },
   {
     id: "young-presenter-3d",
     name: "Young Presenter",
-    image: "/assets/stickman/young-presenter-3d/teacher-welcome.png",
+    image: "/visuals/stickers/previews/young-presenter-3d.png",
   },
   {
     id: "teacher-2d-pro",
     name: "2D Pro",
-    image: "/assets/stickman/teacher-2d-pro/teacher-welcome.png",
+    image: "/visuals/stickers/previews/teacher-2d-pro.png",
   },
   {
     id: "chibi-boy-3d",
     name: "Chibi Boy",
-    image: "/assets/stickman/chibi-boy-3d/teacher-welcome.png",
+    image: "/visuals/stickers/previews/chibi-boy-3d.png",
   },
   {
     id: "corporate-woman-3d",
     name: "Corporate Woman",
-    image: "/assets/stickman/corporate-woman-3d/teacher-welcome.png",
+    image: "/visuals/stickers/previews/corporate-woman-3d.png",
   },
   {
     id: "indian-teacher-woman",
     name: "Indian Teacher",
-    image: "/assets/stickman/indian-teacher-woman/teacher-welcome.png",
+    image: "/visuals/stickers/previews/indian-teacher-woman.png",
   },
   {
     id: "doctor-3d-half",
     name: "Doctor 3D",
-    image: "/assets/stickman/doctor-3d-half/teacher-welcome.png",
+    image: "/visuals/stickers/previews/doctor-3d-half.png",
   },
   {
     id: "banker-3d-half",
     name: "Banker 3D",
-    image: "/assets/stickman/banker-3d-half/teacher-welcome.png",
+    image: "/visuals/stickers/previews/banker-3d-half.png",
   },
   {
     id: "news-anchor-3d-half",
     name: "News Anchor",
-    image: "/assets/stickman/news-anchor-3d-half/teacher-welcome.png",
+    image: "/visuals/stickers/previews/news-anchor-3d-half.png",
   },
   {
     id: "lawyer-girl-3d",
     name: "Lawyer Girl",
-    image: "/assets/stickman/lawyer-girl-3d/teacher-welcome.png",
+    image: "/visuals/stickers/previews/lawyer-girl-3d.png",
   },
   {
     id: "shia-moulana-3d",
     name: "Islamic Scholar",
-    image: "/assets/stickman/shia-moulana-3d/teacher-welcome.png",
+    image: "/visuals/stickers/previews/shia-moulana-3d.png",
   },
 ];
 
