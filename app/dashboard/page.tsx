@@ -908,15 +908,19 @@ export default function DashboardPage() {
                 <Sparkles size={17} />
                 {jobStatus.state === "uploading"
                   ? "Uploading..."
-                  : jobStatus.state === "rendering"
-                    ? "Rendering..."
-                    : paidLimitComplete
-                      ? "Plan limit complete"
-                      : "Create My Reel"}
+                  : jobStatus.state === "starting"
+                    ? "Preparing..."
+                    : jobStatus.state === "rendering"
+                      ? "Rendering HD video... please wait"
+                      : paidLimitComplete
+                        ? "Plan limit complete"
+                        : "Create My Reel"}
               </button>
               <p className="text-center text-xs font-bold leading-5 text-zinc-500">
-                {!selectedFile ? "Upload a file to continue. " : mode === "compare" && comparisonFiles.length !== 2 ? "Add at least two compare images. " : ""}
-                First video starts at ₹9. Most reels finish in a few minutes.
+                {renderInProgress
+                  ? "Please do not close this tab. Your video is being generated."
+                  : !selectedFile ? "Upload a file to continue. " : mode === "compare" && comparisonFiles.length !== 2 ? "Add at least two compare images. " : ""}
+                {!renderInProgress ? "First video starts at ₹9. Most reels finish in 3–5 minutes." : ""}
               </p>
               <ProgressPreview mode={mode} />
               {paidLimitComplete ? (
@@ -1778,13 +1782,13 @@ function getRenderStageMeta(status: JobStatus, mode: Mode): {
     };
   }
   return {
-    body: "Rendering your reel. This may take a few minutes.",
+    body: "Rendering your reel. Most videos complete in 3–5 minutes. In some cases, it may take up to 10 minutes. Please wait while we prepare your final HD video.",
     badgeClass: "border-brand-mint/30 bg-brand-mint/[0.12] text-brand-mint",
     icon: Clapperboard,
     iconFrame: "border-brand-mint/35 bg-brand-mint/[0.13] text-brand-mint",
-    kicker: "Live render",
+    kicker: "Rendering in progress",
     kickerClass: "text-brand-mint",
-    title: "Rendering your reel",
+    title: "Creating your HD video",
   };
 }
 
@@ -1793,17 +1797,23 @@ function getRenderSteps(progress: number, status: JobStatus, mode: Mode) {
     {label: "Upload", detail: "Uploading your file.", threshold: 0.08, icon: Upload},
     {
       label: mode === "imageStory" ? "Story beats" : mode === "compare" ? "Compare beats" : "Transcript",
-      detail: mode === "imageStory" ? "Creating visual story timing." : mode === "compare" ? "Timing left/right image captions." : "Using real speech timing.",
+      detail: mode === "imageStory" ? "Creating visual story timing." : mode === "compare" ? "Timing left/right comparison." : "Using real speech timing.",
       threshold: 0.24,
       icon: Layers3,
     },
     {
       label: "Planning",
-      detail: mode === "videoCaption" ? "Preparing safe captions." : mode === "notes" ? "Creating note sections." : mode === "imageStory" ? "Adding image motion." : mode === "compare" ? "Pairing images with speech beats." : "Choosing scenes and visuals.",
-      threshold: 0.58,
+      detail: mode === "videoCaption" ? "Preparing safe captions." : mode === "notes" ? "Creating note sections." : mode === "imageStory" ? "Adding image motion." : mode === "compare" ? "Building comparison scenes." : mode === "autoDraw" ? "Creating whiteboard scenes." : "Choosing scenes and visuals.",
+      threshold: 0.45,
       icon: Sparkles,
     },
-    {label: "Done", detail: "Final MP4 is ready.", threshold: 0.92, icon: Clapperboard},
+    {
+      label: "Rendering",
+      detail: "Creating HD frames. This step takes the most time (2–8 min).",
+      threshold: 0.85,
+      icon: Film,
+    },
+    {label: "Done", detail: "Final MP4 is ready.", threshold: 0.96, icon: Clapperboard},
   ];
   const failedIndex = status.state === "error" ? getFailureStepIndex(status.failureStage || getFailureStage(status.reasonCode)) : -1;
   const activeIndex = status.state === "ready"
