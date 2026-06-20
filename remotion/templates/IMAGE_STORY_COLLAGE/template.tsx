@@ -1,15 +1,13 @@
-import React from 'react';
-import { 
-  AbsoluteFill, 
+import {
+  AbsoluteFill,
   Audio,
-  staticFile,
-  Sequence, 
-  interpolate, 
-  useCurrentFrame, 
-  useVideoConfig, 
+  Sequence,
+  interpolate,
+  useCurrentFrame,
+  useVideoConfig,
   Img,
   spring,
-  Composition
+  Composition,
 } from 'remotion';
 
 interface Scene {
@@ -17,7 +15,6 @@ interface Scene {
   end: number;
   text: string;
   imageUrl: string;
-  // Mapping with ReelImageStoryMotionType from reelPlanner.ts
   animation: 'slowZoomIn' | 'slowZoomOut' | 'panLeft' | 'panRight' | 'panUp' | 'panDown' | 'parallax' | 'pushIn' | 'reveal' | 'fade';
   overlayImageUrl?: string;
   overlayPosition?: { top?: string; left?: string; right?: string; bottom?: string; rotate?: string; width?: string };
@@ -27,31 +24,18 @@ export const ImageStoryCollage: React.FC<{
   scenes: Scene[];
   audioUrl: string;
   language?: string;
-}> = ({ scenes, audioUrl, language = 'en' }) => {
-  const { fps } = useVideoConfig();
+}> = ({scenes, audioUrl, language = 'en'}) => {
+  const {fps} = useVideoConfig();
 
   return (
-    <AbsoluteFill className="bg-[#0a0a0a]">
-      {/* Main Narrative Voiceover */}
+    <AbsoluteFill style={{backgroundColor: '#0a0a0a'}}>
       {audioUrl ? <Audio src={audioUrl} /> : null}
 
-      {/* Cinematic Background Texture */}
-      <div className="absolute inset-0 opacity-20 grayscale bg-[url('/visuals/textures/paper-grain.png')]" />
-
       {scenes.map((scene, i) => {
-        const sceneStartFrame = scene.start * fps;
-        const sceneEndFrame = scene.end * fps;
-        const duration = sceneEndFrame - sceneStartFrame;
-        
+        const from = Math.round(scene.start * fps);
+        const duration = Math.max(1, Math.round((scene.end - scene.start) * fps));
         return (
-          <Sequence 
-            key={i} 
-            from={sceneStartFrame} 
-            durationInFrames={duration}
-          >
-            {/* SFX: Transition sounds */}
-            {/* Only render if files exist */}
-
+          <Sequence key={i} from={from} durationInFrames={duration}>
             <SceneLayer scene={scene} language={language} durationInFrames={duration} />
           </Sequence>
         );
@@ -60,122 +44,84 @@ export const ImageStoryCollage: React.FC<{
   );
 };
 
-const SceneLayer: React.FC<{ scene: Scene; language: string; durationInFrames: number }> = ({ scene, language, durationInFrames }) => {
+const SceneLayer: React.FC<{scene: Scene; language: string; durationInFrames: number}> = ({scene, language, durationInFrames}) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-
+  const {fps} = useVideoConfig();
   const isRtl = ['ur', 'ar', 'fa'].includes(language);
-  
-  let scale = 1;
-  let panX = 0;
-  let panY = 0;
 
-  // Dynamic Ken Burns Effect based on scene.animation
-  if (scene.animation === 'slowZoomIn') {
-    scale = interpolate(frame, [0, durationInFrames], [1, 1.15], { extrapolateRight: 'clamp' });
-  } else if (scene.animation === 'slowZoomOut') {
-    scale = interpolate(frame, [0, durationInFrames], [1.15, 1], { extrapolateRight: 'clamp' });
-  } else if (scene.animation === 'panLeft') {
-    panX = interpolate(frame, [0, durationInFrames], [0, -10], { extrapolateRight: 'clamp' });
-  } else if (scene.animation === 'panRight') {
-    panX = interpolate(frame, [0, durationInFrames], [0, 10], { extrapolateRight: 'clamp' });
-  } else if (scene.animation === 'panUp') {
-    panY = interpolate(frame, [0, durationInFrames], [0, -10], { extrapolateRight: 'clamp' });
-  } else if (scene.animation === 'panDown') {
-    panY = interpolate(frame, [0, durationInFrames], [0, 10], { extrapolateRight: 'clamp' });
-  }
-  // For 'parallax', 'pushIn', 'reveal', 'fade', default scale/pan (no motion) is used unless specific logic is added.
+  let scale = 1, panX = 0, panY = 0;
+  if (scene.animation === 'slowZoomIn') scale = interpolate(frame, [0, durationInFrames], [1, 1.15], {extrapolateRight: 'clamp'});
+  else if (scene.animation === 'slowZoomOut') scale = interpolate(frame, [0, durationInFrames], [1.15, 1], {extrapolateRight: 'clamp'});
+  else if (scene.animation === 'panLeft') panX = interpolate(frame, [0, durationInFrames], [0, -10], {extrapolateRight: 'clamp'});
+  else if (scene.animation === 'panRight') panX = interpolate(frame, [0, durationInFrames], [0, 10], {extrapolateRight: 'clamp'});
+  else if (scene.animation === 'panUp') panY = interpolate(frame, [0, durationInFrames], [0, -10], {extrapolateRight: 'clamp'});
+  else if (scene.animation === 'panDown') panY = interpolate(frame, [0, durationInFrames], [0, 10], {extrapolateRight: 'clamp'});
 
-  // Entrance Animation
-  const textEntrance = spring({
-    frame,
-    fps,
-    config: { damping: 15, mass: 0.5 }, // Snappier text entrance
-  });
-  const textTranslateY = interpolate(frame, [0, 10], [20, 0], { // Text slides up slightly
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
+  const textEntrance = spring({frame, fps, config: {damping: 15, mass: 0.5}});
+  const textY = interpolate(frame, [0, 10], [20, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
 
   return (
-    <AbsoluteFill className="flex items-center justify-center p-10">
-      {/* Image/Visual with Cinematic Motion */}
-      <div 
-        className="absolute inset-0 overflow-hidden"
-        style={{ transform: `scale(${scale}) translateX(${panX}%) translateY(${panY}%)` }}
-      >
+    <AbsoluteFill style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+      {/* Background visual */}
+      <div style={{position: 'absolute', inset: 0, overflow: 'hidden', transform: `scale(${scale}) translateX(${panX}%) translateY(${panY}%)`}}>
         {scene.imageUrl ? (
-          <Img 
-            src={scene.imageUrl} 
-            className="w-full h-full object-cover"
-          />
+          <Img src={scene.imageUrl} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
         ) : (
-          <div style={{
-            width: '100%', height: '100%',
-            background: `linear-gradient(${135 + (frame * 0.1)}deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)`,
-          }} />
+          <div style={{width: '100%', height: '100%', background: `linear-gradient(${135 + (frame * 0.1)}deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)`}} />
         )}
-        <div className="absolute inset-0 bg-black/40" />
+        {/* Dark overlay for text readability */}
+        <div style={{position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.45)'}} />
       </div>
 
-      {/* Kinetic Typography */}
-      <div className={`relative z-10 text-center ${isRtl ? 'rtl' : 'ltr'}`}>
-        <h2 
-          className={`text-6xl font-black ${language === 'en' ? 'uppercase' : ''} tracking-tighter text-white drop-shadow-2xl`}
-          style={{
-            transform: `scale(${textEntrance}) translateY(${textTranslateY}px)`,
+      {/* Text */}
+      {scene.text ? (
+        <div style={{position: 'relative', zIndex: 10, textAlign: 'center', padding: '0 60px', direction: isRtl ? 'rtl' : 'ltr'}}>
+          <h2 style={{
+            fontSize: scene.text.length > 30 ? 52 : 68,
+            fontWeight: 900, color: '#ffffff',
+            textTransform: language === 'en' ? 'uppercase' : 'none',
+            letterSpacing: -2, lineHeight: 1.1,
+            textShadow: '0 4px 20px rgba(0,0,0,0.8), 0 0 40px rgba(0,0,0,0.4)',
+            fontFamily: 'system-ui, -apple-system, sans-serif',
+            transform: `scale(${textEntrance}) translateY(${textY}px)`,
             opacity: textEntrance,
-          }}
-          dir={isRtl ? 'rtl' : 'ltr'}
-        >
-          {scene.text}
-        </h2>
-      </div>
-
-      {/* Decorative Overlay (e.g., tape, paper scrap, marker stroke) */}
-      {scene.overlayImageUrl && (
-        <div
-          className="absolute z-20" // Higher z-index for overlays
-          style={{
-            top: scene.overlayPosition?.top,
-            left: scene.overlayPosition?.left,
-            right: scene.overlayPosition?.right,
-            bottom: scene.overlayPosition?.bottom,
-            transform: `rotate(${scene.overlayPosition?.rotate || '0deg'})`,
-            opacity: textEntrance, // Animate with text entrance for consistency
-            width: scene.overlayPosition?.width || 'auto',
-          }}
-        >
-          <Img src={scene.overlayImageUrl} className="h-auto w-full" />
+          }}>
+            {scene.text}
+          </h2>
         </div>
-      )}
+      ) : null}
+
+      {/* Overlay image */}
+      {scene.overlayImageUrl ? (
+        <div style={{
+          position: 'absolute', zIndex: 20,
+          top: scene.overlayPosition?.top, left: scene.overlayPosition?.left,
+          right: scene.overlayPosition?.right, bottom: scene.overlayPosition?.bottom,
+          transform: `rotate(${scene.overlayPosition?.rotate || '0deg'})`,
+          opacity: textEntrance, width: scene.overlayPosition?.width || 'auto',
+        }}>
+          <Img src={scene.overlayImageUrl} style={{height: 'auto', width: '100%'}} />
+        </div>
+      ) : null}
     </AbsoluteFill>
   );
 };
 
-export const ImageStoryCollageComposition: React.FC = () => {
-  return (
-    <Composition
-      id="IMAGE-STORY-COLLAGE"
-      component={ImageStoryCollage}
-      durationInFrames={1800}
-      fps={30}
-      width={1080}
-      height={1920}
-      defaultProps={{
-        scenes: [],
-        audioUrl: '',
-        language: 'en',
-      }}
-      calculateMetadata={({props}) => {
-        const p = props as any;
-        const scenes = p.scenes || [];
-        const lastEnd = scenes.length > 0 ? Math.max(...scenes.map((s: any) => Number(s.end || 0))) : 0;
-        const dur = Math.max(8, Math.min(60,
-          lastEnd || Number(p.durationSeconds) || Number(p.sourceDurationSeconds) || 30
-        ));
-        return {durationInFrames: Math.ceil(dur * 30), fps: 30, width: 1080, height: 1920};
-      }}
-    />
-  );
-};
+export const ImageStoryCollageComposition: React.FC = () => (
+  <Composition
+    id="IMAGE-STORY-COLLAGE"
+    component={ImageStoryCollage}
+    durationInFrames={900}
+    fps={30}
+    width={1080}
+    height={1920}
+    defaultProps={{scenes: [], audioUrl: '', language: 'en'}}
+    calculateMetadata={({props}) => {
+      const p = props as any;
+      const scenes = p.scenes || [];
+      const lastEnd = scenes.length > 0 ? Math.max(...scenes.map((s: any) => Number(s.end || 0))) : 0;
+      const dur = Math.max(8, Math.min(60, lastEnd || Number(p.durationSeconds) || Number(p.sourceDurationSeconds) || 30));
+      return {durationInFrames: Math.ceil(dur * 30), fps: 30, width: 1080, height: 1920};
+    }}
+  />
+);
