@@ -210,9 +210,9 @@ const STICKER_BODY_TYPE: Record<string, StickerBodyType> = {
 
 // Size config per body type
 const STICKER_SIZE_CONFIG: Record<StickerBodyType, {width: number; maxHeight: number; scale: number}> = {
-  full_body: {width: 420, maxHeight: 620, scale: 1.0},
-  half_body: {width: 520, maxHeight: 550, scale: 1.05},
-  upper_body: {width: 560, maxHeight: 480, scale: 1.1},
+  full_body: {width: 520, maxHeight: 780, scale: 1.0},
+  half_body: {width: 600, maxHeight: 680, scale: 1.05},
+  upper_body: {width: 640, maxHeight: 580, scale: 1.1},
 };
 
 const resolveAsset = (value: string) => {
@@ -611,6 +611,11 @@ const StickerPresenter = ({
     rightTitle,
   });
 
+  // Track pose change for bounce effect
+  const poseSegment = Math.floor(currentTime / 3);
+  const poseChangeFrame = frame - Math.round(poseSegment * 3 * fps);
+  const poseBounce = poseChangeFrame < 12 ? spring({frame: poseChangeFrame, fps, config: {damping: 8, mass: 0.5}}) : 1;
+
   const src = set[poseKey] || set.welcome;
 
   // Size based on sticker body type
@@ -663,7 +668,7 @@ const StickerPresenter = ({
           height: 'auto',
           objectFit: 'contain',
           opacity: enterOpacity,
-          transform: `translateY(${idleY}px) rotate(${rotate}deg) scale(${pop * sizeConfig.scale})`,
+          transform: `translateY(${idleY}px) rotate(${rotate}deg) scale(${pop * sizeConfig.scale * poseBounce})`,
           transformOrigin: 'center bottom',
           filter: 'drop-shadow(0 16px 18px rgba(0,0,0,0.2))',
         }}
