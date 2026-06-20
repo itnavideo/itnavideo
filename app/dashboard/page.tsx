@@ -388,6 +388,10 @@ export default function DashboardPage() {
     setJobStatus({state: "idle", message: ""});
     const nextTemplate = nextMode === "autoCaption" ? "auto-caption-reel" : nextMode === "autoDraw" ? "auto-draw-explainer" : nextMode === "longVideoPromo" ? "long-video-promo" : nextMode === "voiceSyncedNotes" ? "voice-synced-notes" : nextMode === "imageStoryCollage" ? "cinematic-collage" : nextMode === "compare" ? "compare-explainer" : nextMode === "videoExplainer" ? "video-simple-explainer" : nextMode === "notes" ? "notes" : nextMode === "videoCaption" ? "video-caption" : "video-simple-explainer";
     window.history.replaceState(null, "", `/dashboard?template=${nextTemplate}`);
+    // Auto-scroll to upload section on mobile
+    setTimeout(() => {
+      document.getElementById("upload-section")?.scrollIntoView({behavior: "smooth", block: "start"});
+    }, 150);
   };
 
   const chooseFile = (file: File | null) => {
@@ -637,6 +641,7 @@ export default function DashboardPage() {
               </div>
 
               <label
+                id="upload-section"
                 className={`flex min-h-56 min-w-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border border-dashed ${activeMode.border} ${activeMode.surface} p-4 text-center transition hover:bg-white/[0.055] sm:min-h-64 sm:p-6`}
               >
                 <input
