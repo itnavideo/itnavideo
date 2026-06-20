@@ -303,7 +303,7 @@ export default function DashboardPage() {
   const [stickerStyle, setStickerStyle] = useState<string>("explainer");
   const [captionStyle, setCaptionStyle] = useState<string>("highlight");
   const [captionPosition, setCaptionPosition] = useState<"bottom" | "center" | "top">("bottom");
-  const [subtitleOutputLanguage, setSubtitleOutputLanguage] = useState<"hinglish" | "english" | "hindi" | "kannada" | "urdu" | "farsi" | "spanish" | "arabic" | "french" | "german" | "portuguese" | "indonesian" | "tamil">("hinglish");
+  const [subtitleOutputLanguage, setSubtitleOutputLanguage] = useState<"hinglish" | "english">("hinglish");
   const [captionTextColor, setCaptionTextColor] = useState("#ffffff");
   const [captionHighlightColor, setCaptionHighlightColor] = useState("#facc15");
   const [recentRenders, setRecentRenders] = useState<RecentRender[]>([]);
@@ -785,22 +785,11 @@ export default function DashboardPage() {
                       <span className="text-xs font-black uppercase tracking-[0.16em] text-zinc-500">Subtitle language</span>
                       <select
                         className="rounded-lg border border-white/10 bg-black/35 px-3 py-3 text-sm font-bold text-white outline-none focus:border-brand-mint/55"
-                        onChange={(event) => setSubtitleOutputLanguage(event.target.value as "hinglish" | "english" | "hindi" | "kannada" | "urdu" | "farsi" | "spanish" | "arabic" | "french" | "german" | "portuguese" | "indonesian" | "tamil")}
+                        onChange={(event) => setSubtitleOutputLanguage(event.target.value as "hinglish" | "english")}
                         value={subtitleOutputLanguage}
                       >
-                        <option value="hinglish">Clean Hinglish</option>
-                        <option value="english">English</option>
-                        <option value="hindi">Hindi</option>
-                        <option value="kannada">Kannada</option>
-                        <option value="urdu">Urdu</option>
-                        <option value="farsi">Farsi / Persian</option>
-                        <option value="spanish">Spanish</option>
-                        <option value="arabic">Arabic</option>
-                        <option value="french">French</option>
-                        <option value="german">German</option>
-                        <option value="portuguese">Portuguese</option>
-                        <option value="indonesian">Indonesian</option>
-                        <option value="tamil">Tamil</option>
+                        <option value="hinglish">Hinglish (Hindi + English)</option>
+                        <option value="english">English Only</option>
                       </select>
                     </label>
 
@@ -890,19 +879,8 @@ export default function DashboardPage() {
                       onChange={(event) => setSubtitleOutputLanguage(event.target.value as typeof subtitleOutputLanguage)}
                       value={subtitleOutputLanguage}
                     >
-                      <option value="hinglish">Hinglish (Roman Hindi + English)</option>
-                      <option value="english">English</option>
-                      <option value="hindi">Hindi (Devanagari)</option>
-                      <option value="urdu">Urdu</option>
-                      <option value="kannada">Kannada</option>
-                      <option value="tamil">Tamil</option>
-                      <option value="farsi">Farsi / Persian</option>
-                      <option value="arabic">Arabic</option>
-                      <option value="spanish">Spanish</option>
-                      <option value="french">French</option>
-                      <option value="german">German</option>
-                      <option value="portuguese">Portuguese</option>
-                      <option value="indonesian">Indonesian</option>
+                      <option value="hinglish">Hinglish (Hindi + English mix)</option>
+                      <option value="english">English Only</option>
                     </select>
                   </label>
                 </div>
