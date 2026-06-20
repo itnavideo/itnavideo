@@ -1641,8 +1641,11 @@ function getTemplateName(value?: string): ReelTemplateName {
   const normalized = String(value || '').toLowerCase().replace(/[_\s]+/g, '-');
   if (normalized.includes('compare') || normalized.includes('comparison') || /\bvs\b/.test(normalized)) return 'comparisonImages';
   if (normalized.includes('auto-caption') || normalized.includes('autocaption')) return 'AUTO_CAPTION_REEL';
-  if (normalized.includes('caption') || normalized.includes('subtitle')) return 'AUTO_CAPTION_REEL'; // Default to auto-caption for generic caption/subtitle
-  if (normalized.includes('image-story-collage') || normalized.includes('cinematic-collage') || normalized.includes('imagestorycollage')) return 'IMAGE_STORY_COLLAGE'; // Improved matching
+  if (normalized.includes('auto-draw') || normalized.includes('autodraw') || normalized.includes('whiteboard')) return 'AUTO_DRAW_EXPLAINER';
+  if (normalized.includes('long-video') || normalized.includes('longvideo') || normalized.includes('promo')) return 'LONG_VIDEO_PROMO';
+  if (normalized.includes('voice-synced') || normalized.includes('voicesynced') || normalized.includes('synced-notes')) return 'VOICE_SYNCED_NOTES';
+  if (normalized.includes('image-story-collage') || normalized.includes('cinematic-collage') || normalized.includes('imagestorycollage')) return 'IMAGE_STORY_COLLAGE';
+  if (normalized.includes('caption') || normalized.includes('subtitle')) return 'AUTO_CAPTION_REEL';
   return 'VIDEO_SIMPLE_EXPLAINER';
 }
 
