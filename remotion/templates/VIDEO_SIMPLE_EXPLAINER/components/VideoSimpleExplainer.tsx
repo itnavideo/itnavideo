@@ -38,7 +38,7 @@ const getCaptionAtTime = (captions: CaptionItem[] | undefined, time: number) => 
     const start = Number(item.start ?? 0);
     const end = Number(item.end ?? start + 2.5);
     return time >= start && time <= end;
-  }) || list[0];
+  }) || null;
 };
 
 export function VideoSimpleExplainer({
@@ -161,7 +161,7 @@ export function VideoSimpleExplainer({
         </div>
       </div>
 
-      {/* ═══ OVERLAY: VIRAL SUBTITLES ═══ */}
+      {/* ═══ OVERLAY: CLEAN SUBTITLES (Compare-style) ═══ */}
       <div
         style={{
           position: 'absolute', top: 760, left: 0, width: W,
@@ -170,23 +170,17 @@ export function VideoSimpleExplainer({
         }}
       >
         {activeCaption ? (
-          <div style={{ width: '100%', padding: '30px 40px', borderRadius: 24, background: 'rgba(10, 10, 10, 0.75)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.15)', boxShadow: '0 25px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2)', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '12px' }}>
-            {activeCaption.words && activeCaption.words.length > 0 ? (
-              activeCaption.words.map((w, i) => {
-                const wordText = cleanText(w.word || w.text);
-                if (!wordText) return null;
-                const isActive = time >= (w.start || 0) && time <= (w.end || 0);
-                return (
-                  <span key={`${wordText}-${i}`} style={{ fontSize: 48, fontWeight: 900, textTransform: 'uppercase', color: isActive ? '#fde047' : '#ffffff', transform: isActive ? 'scale(1.15) translateY(-4px)' : 'scale(1)', transition: 'all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275)', textShadow: isActive ? '0 0 20px rgba(253, 224, 71, 0.6)' : '0 4px 12px rgba(0,0,0,0.8)' }}>
-                    {wordText}
-                  </span>
-                );
-              })
-            ) : (
-               <span style={{ fontSize: 48, fontWeight: 900, color: '#fff', textShadow: '0 4px 12px rgba(0,0,0,0.8)' }}>
-                 {cleanText(activeCaption.text)}
-               </span>
-            )}
+          <div style={{
+            width: '100%', minHeight: 104,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center',
+            color: '#050505', fontSize: 46, lineHeight: 1.1, fontWeight: 750,
+            letterSpacing: -0.8, textTransform: 'uppercase',
+            textShadow: '0 2px 0 rgba(255,255,255,0.65)',
+            background: 'linear-gradient(135deg, #fff8cf 0%, #ffffff 48%, #c7f9e7 100%)',
+            border: '4px solid #050505', borderRadius: 26, padding: '14px 28px',
+            boxShadow: '0 8px 0 rgba(0,0,0,0.16), 0 16px 26px rgba(0,0,0,0.10)',
+          }}>
+            {cleanText(activeCaption.text).split(' ').slice(0, 10).join(' ')}
           </div>
         ) : null}
       </div>
