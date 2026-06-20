@@ -980,8 +980,8 @@ export default function DashboardPage() {
                         <a
                           className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-3 py-3 text-xs font-black text-black transition hover:bg-brand-mint"
                           href={render.outputFile}
+                          download={`itnavideo-${render.mode || 'reel'}.mp4`}
                           rel="noreferrer"
-                          target="_blank"
                         >
                           <Download size={14} />
                           Download
@@ -1061,11 +1061,11 @@ export default function DashboardPage() {
               <a
                 className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-4 py-3 text-sm font-black text-black transition hover:bg-brand-mint"
                 href={previewRender.outputFile}
+                download={`itnavideo-${previewRender.mode || 'reel'}.mp4`}
                 rel="noreferrer"
-                target="_blank"
               >
                 <Download size={16} />
-                Download
+                Download MP4
               </a>
               <button
                 className="inline-flex items-center justify-center gap-2 rounded-lg border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm font-black text-red-200 transition hover:bg-red-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
@@ -1670,11 +1670,11 @@ function RenderStatusStage({
               <a
                 className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-white px-4 py-3 text-sm font-black text-black transition hover:bg-brand-mint"
                 href={status.outputFile}
+                download={`itnavideo-${mode || 'reel'}.mp4`}
                 rel="noreferrer"
-                target="_blank"
               >
                 <Download size={16} />
-                Download
+                Download MP4
               </a>
             </div>
           ) : failed ? (
