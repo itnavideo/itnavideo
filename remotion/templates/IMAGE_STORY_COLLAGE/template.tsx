@@ -99,15 +99,22 @@ const SceneLayer: React.FC<{ scene: Scene; language: string; durationInFrames: n
 
   return (
     <AbsoluteFill className="flex items-center justify-center p-10">
-      {/* Image with Cinematic Motion */}
+      {/* Image/Visual with Cinematic Motion */}
       <div 
         className="absolute inset-0 overflow-hidden"
         style={{ transform: `scale(${scale}) translateX(${panX}%) translateY(${panY}%)` }}
       >
-        <Img 
-          src={scene.imageUrl} 
-          className="w-full h-full object-cover"
-        />
+        {scene.imageUrl ? (
+          <Img 
+            src={scene.imageUrl} 
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div style={{
+            width: '100%', height: '100%',
+            background: `linear-gradient(${135 + (frame * 0.1)}deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)`,
+          }} />
+        )}
         <div className="absolute inset-0 bg-black/40" />
       </div>
 

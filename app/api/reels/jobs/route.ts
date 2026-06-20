@@ -470,15 +470,29 @@ export async function POST(request: Request) {
         ? {
             audioUrl: planningMedia.mediaUrl,
             // Map imageScenes (planner output) to scenes (Remotion template input)
-            scenes: (plan.renderProps?.imageScenes || []).map((s: any) => ({
-              start: Number(s.start ?? 0),
-              end: Number(s.end ?? (s.start ?? 0) + 5),
-              text: String(s.title || s.body || s.label || ''),
-              imageUrl: String(s.imageSrc || s.imageUrl || ''),
-              animation: s.animation || 'slowZoomIn',
-              overlayImageUrl: s.overlayImageUrl || undefined,
-              overlayPosition: s.overlayPosition || undefined,
-            })),
+            scenes: (() => {
+              const planScenes = (plan.renderProps?.imageScenes || []).map((s: any) => ({
+                start: Number(s.start ?? 0),
+                end: Number(s.end ?? (s.start ?? 0) + 5),
+                text: String(s.title || s.body || s.label || ''),
+                imageUrl: String(s.imageSrc || s.imageUrl || ''),
+                animation: s.animation || 'slowZoomIn',
+                overlayImageUrl: s.overlayImageUrl || undefined,
+                overlayPosition: s.overlayPosition || undefined,
+              }));
+              // If no scenes from planner, build from captions
+              if (!planScenes.length || planScenes.every((s: any) => !s.imageUrl && !s.text)) {
+                const caps = buildCompareCaptionsFromGroq(renderWindow);
+                return caps.slice(0, 8).map((c: any, i: number) => ({
+                  start: Number(c.start ?? 0),
+                  end: Number(c.end ?? (c.start ?? 0) + 4),
+                  text: String(c.text || ''),
+                  imageUrl: '',
+                  animation: ['slowZoomIn', 'panLeft', 'panRight', 'slowZoomOut'][i % 4],
+                }));
+              }
+              return planScenes;
+            })(),
             language: subtitleLang === 'hinglish' ? 'hi' : subtitleLang === 'english' ? 'en' : subtitleLang,
           }
         : {}),
