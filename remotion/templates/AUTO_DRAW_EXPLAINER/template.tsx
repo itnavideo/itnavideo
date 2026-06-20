@@ -86,74 +86,59 @@ function DrawScenePanel({scene, index, totalScenes}: {scene: DrawScene; index: n
   const contentDelay = 10;
   const isIntro = index === 0 && !scene.sceneNumber;
   const isSummary = scene.isSummary || index === totalScenes - 1;
-
-  // Pick scene icon based on content
   const sceneEmoji = isSummary ? '🎯' : scene.highlight ? '⚠️' : scene.points?.length ? '📋' : isIntro ? '💡' : '📌';
+  const hasPoints = scene.points && scene.points.length > 0;
 
   return (
-    <AbsoluteFill style={{padding: 54, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start'}}>
+    <AbsoluteFill style={{padding: '80px 48px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 32}}>
       {/* Progress indicator */}
-      <div style={{position: 'absolute', top: 36, left: 54, right: 54, display: 'flex', gap: 6}}>
+      <div style={{position: 'absolute', top: 36, left: 48, right: 48, display: 'flex', gap: 6}}>
         {Array.from({length: totalScenes}).map((_, i) => (
-          <div key={i} style={{flex: 1, height: 5, borderRadius: 3, background: i <= index ? COLORS.accent : COLORS.border}} />
+          <div key={i} style={{flex: 1, height: 6, borderRadius: 3, background: i <= index ? COLORS.accent : COLORS.border, transition: 'background 0.3s'}} />
         ))}
       </div>
 
-      {/* Scene header card */}
-      <div style={{
-        marginTop: 56,
-        opacity: titleReveal, transform: `translateY(${(1 - titleReveal) * 24}px)`,
-        display: 'flex', alignItems: 'center', gap: 20,
-        padding: '24px 32px', borderRadius: 20,
-        background: isIntro ? 'linear-gradient(135deg, #eff6ff, #f0fdf4)' : isSummary ? 'linear-gradient(135deg, #fefce8, #fff7ed)' : '#f8fafc',
-        border: `2px solid ${isIntro ? COLORS.accent + '33' : isSummary ? '#f59e0b33' : COLORS.border}`,
-        boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
-      }}>
-        {scene.sceneNumber ? (
-          <div style={{
-            width: 60, height: 60, borderRadius: 14, background: COLORS.accent,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 28, fontWeight: 900, color: '#fff', flexShrink: 0,
-            boxShadow: '0 4px 12px rgba(37,99,235,0.25)',
-          }}>
-            {scene.sceneNumber}
-          </div>
-        ) : (
-          <span style={{fontSize: 42, flexShrink: 0}}>{sceneEmoji}</span>
-        )}
-        <h1 style={{
-          fontSize: scene.title.length > 20 ? 48 : 56,
-          fontWeight: 900, color: COLORS.text, fontFamily: 'system-ui',
-          letterSpacing: -1.5, lineHeight: 1.1,
-        }}>
-          {scene.title}
-        </h1>
-      </div>
-
-      {/* Points as cards */}
-      {scene.points?.length ? (
+      {/* Scene number badge */}
+      {scene.sceneNumber ? (
         <div style={{
-          marginTop: 36,
-          display: scene.points.length === 2 ? 'grid' : 'flex',
-          gridTemplateColumns: scene.points.length === 2 ? '1fr 1fr' : undefined,
-          flexDirection: scene.points.length !== 2 ? 'column' : undefined,
-          gap: 16,
+          opacity: titleReveal,
+          width: 64, height: 64, borderRadius: 16, background: COLORS.accent,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 30, fontWeight: 900, color: '#fff',
+          boxShadow: '0 6px 20px rgba(37,99,235,0.3)',
         }}>
-          {scene.points.map((point, i) => {
-            const pointProgress = spring({frame: Math.max(0, frame - contentDelay - i * 8), fps, config: {damping: 12}});
-            const pointEmoji = i === 0 ? '✅' : i === 1 ? '📍' : i === 2 ? '⭐' : '→';
+          {scene.sceneNumber}
+        </div>
+      ) : (
+        <span style={{fontSize: 52, opacity: titleReveal}}>{sceneEmoji}</span>
+      )}
+
+      {/* Title */}
+      <h1 style={{
+        fontSize: scene.title.length > 20 ? 56 : 68,
+        fontWeight: 900, color: COLORS.text, fontFamily: 'system-ui',
+        letterSpacing: -2, lineHeight: 1.05,
+        opacity: titleReveal, transform: `translateY(${(1 - titleReveal) * 20}px)`,
+      }}>
+        {scene.title}
+      </h1>
+
+      {/* Points */}
+      {hasPoints ? (
+        <div style={{display: 'flex', flexDirection: 'column', gap: 20}}>
+          {scene.points!.map((point, i) => {
+            const pointProgress = spring({frame: Math.max(0, frame - contentDelay - i * 10), fps, config: {damping: 12}});
+            const emojis = ['✅', '📍', '⭐', '💡', '🔑', '→'];
             return (
               <div key={`point-${i}`} style={{
-                opacity: pointProgress,
-                transform: `translateY(${(1 - pointProgress) * 20}px)`,
-                display: 'flex', alignItems: 'center', gap: 14,
-                padding: '18px 24px', borderRadius: 16,
-                background: '#ffffff',
-                border: `2px solid ${COLORS.border}`,
-                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                opacity: pointProgress, transform: `translateX(${(1 - pointProgress) * 30}px)`,
+                display: 'flex', alignItems: 'flex-start', gap: 16,
+                padding: '20px 28px', borderRadius: 18,
+                background: i === 0 ? '#f0f9ff' : i === 1 ? '#fefce8' : '#f0fdf4',
+                border: `2px solid ${i === 0 ? '#bae6fd' : i === 1 ? '#fde68a' : '#bbf7d0'}`,
               }}>
-                <span style={{fontSize: 26, flexShrink: 0}}>{pointEmoji}</span>
-                <span style={{fontSize: 32, fontWeight: 700, color: COLORS.text, fontFamily: 'system-ui', lineHeight: 1.2}}>
+                <span style={{fontSize: 28, flexShrink: 0, marginTop: 2}}>{emojis[i % emojis.length]}</span>
+                <span style={{fontSize: 34, fontWeight: 700, color: COLORS.text, fontFamily: 'system-ui', lineHeight: 1.3}}>
                   {point}
                 </span>
               </div>
@@ -162,37 +147,34 @@ function DrawScenePanel({scene, index, totalScenes}: {scene: DrawScene; index: n
         </div>
       ) : null}
 
-      {/* Highlight card */}
+      {/* Highlight / Warning card */}
       {scene.highlight ? (
         <div style={{
-          marginTop: 32,
-          padding: '22px 32px', borderRadius: 18,
-          background: 'linear-gradient(135deg, #fef2f2, #fff7ed)',
-          border: `3px solid ${COLORS.red}44`,
+          padding: '24px 32px', borderRadius: 20,
+          background: 'linear-gradient(135deg, #fef2f2, #fff1f2)',
+          border: `3px solid ${COLORS.red}55`,
           opacity: spring({frame: Math.max(0, frame - contentDelay - 16), fps, config: {damping: 14}}),
-          transform: `scale(${spring({frame: Math.max(0, frame - contentDelay - 16), fps, config: {damping: 14}})})`,
           display: 'flex', alignItems: 'center', gap: 16,
         }}>
-          <span style={{fontSize: 36}}>⚡</span>
-          <span style={{fontSize: 30, fontWeight: 800, color: COLORS.red, fontFamily: 'system-ui', lineHeight: 1.3}}>
+          <span style={{fontSize: 38}}>⚡</span>
+          <span style={{fontSize: 32, fontWeight: 800, color: COLORS.red, fontFamily: 'system-ui', lineHeight: 1.3}}>
             {scene.highlight}
           </span>
         </div>
       ) : null}
 
-      {/* Subtitle speech bubble */}
+      {/* Subtitle — larger, centered, visible */}
       {scene.subtitle ? (
         <div style={{
-          position: 'absolute', bottom: 60, left: 54, right: 54,
-          opacity: spring({frame: Math.max(0, frame - 14), fps, config: {damping: 16}}),
+          marginTop: 'auto', paddingTop: 24,
+          opacity: spring({frame: Math.max(0, frame - 12), fps, config: {damping: 16}}),
         }}>
           <div style={{
-            padding: '18px 28px', borderRadius: 20,
-            background: '#f1f5f9', border: `2px solid ${COLORS.border}`,
-            boxShadow: '0 4px 12px rgba(0,0,0,0.04)',
+            padding: '22px 32px', borderRadius: 20,
+            background: COLORS.accent + '0a', border: `2px solid ${COLORS.accent}22`,
           }}>
             <p style={{
-              fontSize: 28, fontWeight: 600, color: COLORS.muted,
+              fontSize: 32, fontWeight: 700, color: COLORS.text,
               fontFamily: 'system-ui', lineHeight: 1.4, textAlign: 'center',
             }}>
               {scene.subtitle}
@@ -201,12 +183,8 @@ function DrawScenePanel({scene, index, totalScenes}: {scene: DrawScene; index: n
         </div>
       ) : null}
 
-      {/* Decorative corner accent */}
-      <div style={{
-        position: 'absolute', top: 0, right: 0, width: 200, height: 200,
-        background: `radial-gradient(circle at top right, ${COLORS.accent}08, transparent 70%)`,
-        pointerEvents: 'none',
-      }} />
+      {/* Background accent */}
+      <div style={{position: 'absolute', bottom: 0, left: 0, right: 0, height: 300, background: 'linear-gradient(0deg, #f8fafc, transparent)', pointerEvents: 'none', zIndex: -1}} />
     </AbsoluteFill>
   );
 }
