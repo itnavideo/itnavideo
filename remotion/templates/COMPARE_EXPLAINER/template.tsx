@@ -186,6 +186,35 @@ const STICKER_SETS = {
 
 type StickerSet = Record<'welcome' | 'left' | 'right' | 'thinking' | 'warning' | 'success', string>;
 
+// Sticker body type determines sizing in the render
+type StickerBodyType = 'full_body' | 'half_body' | 'upper_body';
+
+const STICKER_BODY_TYPE: Record<string, StickerBodyType> = {
+  '2d': 'full_body',
+  'cartoon': 'full_body',
+  'explainer': 'full_body',
+  'girl-teacher': 'full_body',
+  'girl-teacher-3d': 'full_body',
+  'grandpa-teacher-3d': 'half_body',
+  'young-presenter-3d': 'full_body',
+  'teacher-2d-pro': 'full_body',
+  'chibi-boy-3d': 'full_body',
+  'corporate-woman-3d': 'full_body',
+  'indian-teacher-woman': 'full_body',
+  'doctor-3d-half': 'half_body',
+  'banker-3d-half': 'half_body',
+  'news-anchor-3d-half': 'half_body',
+  'lawyer-girl-3d': 'full_body',
+  'shia-moulana-3d': 'full_body',
+};
+
+// Size config per body type
+const STICKER_SIZE_CONFIG: Record<StickerBodyType, {width: number; maxHeight: number; scale: number}> = {
+  full_body: {width: 420, maxHeight: 620, scale: 1.0},
+  half_body: {width: 520, maxHeight: 550, scale: 1.05},
+  upper_body: {width: 560, maxHeight: 480, scale: 1.1},
+};
+
 const resolveAsset = (value: string) => {
   if (!value) return '';
   if (/^(https?:|data:|blob:)/i.test(value)) return value;
@@ -584,13 +613,17 @@ const StickerPresenter = ({
 
   const src = set[poseKey] || set.welcome;
 
+  // Size based on sticker body type
+  const bodyType = STICKER_BODY_TYPE[selectedStickerStyle] || 'full_body';
+  const sizeConfig = STICKER_SIZE_CONFIG[bodyType];
+
   // Strict sticker zone. Never allow sticker into subtitle area.
   const STICKER_ZONE_TOP = 910;
   const STICKER_ZONE_BOTTOM = 10;
   const STICKER_ZONE_LEFT = 60;
   const STICKER_ZONE_RIGHT = 60;
-  const STICKER_WIDTH = 480;
-  const STICKER_MAX_HEIGHT = 700;
+  const STICKER_WIDTH = sizeConfig.width;
+  const STICKER_MAX_HEIGHT = sizeConfig.maxHeight;
 
   const enterOpacity = interpolate(frame, [0, 6], [1, 1], {
     extrapolateLeft: 'clamp',
@@ -630,7 +663,7 @@ const StickerPresenter = ({
           height: 'auto',
           objectFit: 'contain',
           opacity: enterOpacity,
-          transform: `translateY(${idleY}px) rotate(${rotate}deg) scale(${pop})`,
+          transform: `translateY(${idleY}px) rotate(${rotate}deg) scale(${pop * sizeConfig.scale})`,
           transformOrigin: 'center bottom',
           filter: 'drop-shadow(0 16px 18px rgba(0,0,0,0.2))',
         }}
