@@ -95,8 +95,7 @@ async function readInputProps() {
       return {
         ...renderProps,
         brand: renderProps.brand || 'itnavideo',
-        templateName: 'VIDEO_EXPLAINER',
-        design: renderProps.design || 'imageCollage',
+        templateName: renderProps.templateName || 'VIDEO_SIMPLE_EXPLAINER',
       };
     }
   } catch {
@@ -104,7 +103,7 @@ async function readInputProps() {
   }
 
   throw new Error(
-    `No Video Explainer render plan found at ${path.relative(rootDir, planInputPath)}. Set REEL_PLAN to a JSON file with renderProps.overlayTimeline.`,
+    `No render plan found at ${path.relative(rootDir, planInputPath)}. Set REEL_PLAN to a JSON file with renderProps.overlayTimeline.`,
   );
 }
 

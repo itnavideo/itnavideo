@@ -168,7 +168,7 @@ export function PricingCheckoutCards({ plans }: { plans: PricingPlan[] }) {
         name: "Itnavideo",
         description: `${plan.name} ${plan.billingLabel || "monthly plan"}`,
         order_id: order.order_id,
-        theme: { color: "#58e6d0" },
+        theme: { color: "#2563EB" },
         notes: {
           planId: plan.id,
           planName: plan.name,
@@ -265,16 +265,17 @@ export function PricingCheckoutCards({ plans }: { plans: PricingPlan[] }) {
           return (
             <div
               key={plan.name}
-              className={`relative rounded-lg border p-7 ${
-                plan.popular
-                  ? "border-brand-mint/50 bg-brand-mint/10 shadow-2xl shadow-emerald-950/30"
-                  : "border-white/10 bg-zinc-950"
-              }`}
+              className="relative rounded-lg p-7"
+              style={{
+                border: plan.popular ? '2px solid var(--color-primary)' : '1px solid var(--border-dark)',
+                background: plan.popular ? 'rgba(37, 99, 235, 0.06)' : 'var(--bg-card)',
+                boxShadow: plan.popular ? '0 12px 40px rgba(37, 99, 235, 0.12)' : 'none',
+              }}
             >
               {plan.popular && (
-                <div className="absolute right-5 top-5 inline-flex items-center gap-1 rounded-md bg-brand-mint px-3 py-1 text-xs font-black text-black">
+                <div className="absolute right-5 top-5 inline-flex items-center gap-1 rounded-md px-3 py-1 text-xs font-black text-white" style={{ background: 'var(--color-primary)' }}>
                   <BadgeCheck size={14} />
-                  Best fit
+                  Recommended
                 </div>
               )}
               <h2 className="text-3xl font-black">{plan.name}</h2>
@@ -286,18 +287,18 @@ export function PricingCheckoutCards({ plans }: { plans: PricingPlan[] }) {
               <ul className="mt-8 space-y-4">
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex gap-3 text-sm leading-6 text-zinc-300">
-                    <Check className="mt-1 shrink-0 text-brand-mint" size={17} />
+                    <Check className="mt-1 shrink-0" size={17} style={{ color: plan.popular ? 'var(--color-primary-hover)' : 'var(--text-dark-muted)' }} />
                     <span>{feature}</span>
                   </li>
                 ))}
               </ul>
 
               <button
-                className={`mt-9 inline-flex w-full items-center justify-center gap-2 rounded-lg px-5 py-4 font-black transition ${
-                  plan.popular
-                    ? "bg-brand-mint text-black hover:bg-white"
-                    : "border border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
-                } disabled:cursor-not-allowed disabled:opacity-70`}
+                className="mt-9 inline-flex w-full items-center justify-center gap-2 rounded-lg px-5 py-4 font-black transition disabled:cursor-not-allowed disabled:opacity-70"
+                style={plan.popular
+                  ? { background: 'var(--color-primary-hover)', color: '#FFFFFF', border: 'none' }
+                  : { background: 'transparent', border: '1px solid var(--border-dark)', color: 'var(--text-dark-secondary)' }
+                }
                 disabled={Boolean(loadingPlan) || authLoading}
                 onClick={() => startCheckout(plan)}
                 type="button"

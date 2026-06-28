@@ -24,9 +24,6 @@ const renderVariants = (process.env.REEL_VARIANTS || '')
 await mkdir(outputDir, {recursive: true});
 
 const inputProps = await readInputProps();
-if ((inputProps.templateName || 'VIDEO_EXPLAINER') === 'VIDEO_EXPLAINER' && !inputProps.design) {
-  inputProps.design = 'imageCollage';
-}
 if (process.env.REEL_MEDIA_SRC) {
   inputProps.mediaSrc = process.env.REEL_MEDIA_SRC;
   inputProps.mediaType = process.env.REEL_MEDIA_TYPE || 'video';
@@ -115,8 +112,7 @@ async function readInputProps() {
       return {
         ...renderProps,
         brand: renderProps.brand || 'itnavideo',
-        templateName: renderProps.templateName || 'VIDEO_EXPLAINER',
-        design: renderProps.design || (renderProps.templateName === 'VIDEO_EXPLAINER' || !renderProps.templateName ? 'imageCollage' : renderProps.design),
+        templateName: renderProps.templateName || 'VIDEO_SIMPLE_EXPLAINER',
       };
     }
   } catch {

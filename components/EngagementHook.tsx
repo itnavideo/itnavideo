@@ -26,8 +26,8 @@ const zones = [
 const themes = [
   {
     name: 'Finance',
-    accent: 'from-emerald-300 to-teal-500',
-    ring: 'border-emerald-300/35 bg-emerald-300/10 text-emerald-100',
+    accent: 'from-blue-400 to-teal-500',
+    ring: 'border-blue-400/35 bg-blue-400/10 text-blue-200',
     icon: BadgeIndianRupee,
     headline: 'SHOULD WE TAKE A LOAN',
     keyword: 'LOAN',

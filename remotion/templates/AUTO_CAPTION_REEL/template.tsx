@@ -2,13 +2,13 @@ import {
   AbsoluteFill,
   Composition,
   OffthreadVideo,
-  useCurrentFrame,
+  staticFile,
   useVideoConfig,
 } from 'remotion';
 import {SubtitleRenderer} from '../../components/SubtitleRenderer';
 import type {CaptionSegment, SubtitleConfig} from '../../types/subtitles';
 import {SUBTITLE_PRESETS} from '../../types/subtitles';
-import {resolveFont, getFontForLanguage} from '../../utils/fonts';
+import {resolveFont} from '../../utils/fonts';
 
 type AutoCaptionProps = {
   mediaSrc?: string;
@@ -21,27 +21,32 @@ type AutoCaptionProps = {
   captionPosition?: 'bottom' | 'center' | 'top';
   textColor?: string;
   highlightColor?: string;
-  topicTitle?: string;
+  backgroundColor?: string;
   durationSeconds?: number;
   sourceDurationSeconds?: number;
   renderWindowSeconds?: number;
   language?: string;
   subtitleOutputLanguage?: string;
   fontSize?: SubtitleConfig['fontSize'];
+  fontFamily?: string;
   showBackground?: boolean;
 };
 
-// Map dashboard style/preset names to SubtitleRenderer styles
+const resolveMediaSrc = (src?: string) => {
+  if (!src) return '';
+  if (/^(https?:|data:|blob:)/i.test(src)) return src;
+  return staticFile(src.replace(/^\/+/, ''));
+};
+
 function mapCaptionStyle(style?: string): SubtitleConfig['style'] {
   const map: Record<string, SubtitleConfig['style']> = {
-    // Legacy names
     yellowPop: 'highlight',
     clean: 'normal',
+    cleanSubtitle: 'normal',
     blackBox: 'box',
     bold: 'big-bold',
     minimal: 'normal',
     classic: 'box',
-    // Direct style keys
     highlight: 'highlight',
     normal: 'normal',
     neon: 'neon',
@@ -56,8 +61,6 @@ function mapCaptionStyle(style?: string): SubtitleConfig['style'] {
     stacked: 'stacked',
     'inline-bg': 'inline-bg',
     vollkorn: 'vollkorn',
-    none: 'none',
-    // Named presets → style
     Eclipse: 'highlight',
     Hustle: 'bold-outline',
     Marigold: 'normal',
@@ -70,16 +73,41 @@ function mapCaptionStyle(style?: string): SubtitleConfig['style'] {
     'Pop Candy': 'box',
     Typewriter: 'typewriter',
     'Bold Fire': 'big-bold',
+    'Karaoke Fill': 'karaoke',
+    'Shatter Drop': 'shatter',
+    'Pill Bounce': 'pill-bounce',
+    Cinematic: 'cinematic',
+    'Hacker Type': 'typewriter-code',
+    karaoke: 'karaoke',
+    shatter: 'shatter',
+    'pill-bounce': 'pill-bounce',
+    cinematic: 'cinematic',
+    'typewriter-code': 'typewriter-code',
   };
-  return map[style || ''] || 'highlight';
+  return map[style || ''] || 'stacked';
 }
 
-// Get font family from preset name or style key
-function getPresetFont(styleOrPreset?: string): string {
-  if (!styleOrPreset) return resolveFont('Inter');
-  const preset = SUBTITLE_PRESETS[styleOrPreset];
-  if (preset) return resolveFont(preset.fontFamily);
-  return resolveFont('Inter');
+function getCaptionFont(styleOrPreset?: string, selectedFont?: string): string {
+  if (selectedFont) return resolveFont(selectedFont);
+  const preset = styleOrPreset ? SUBTITLE_PRESETS[styleOrPreset] : undefined;
+  return resolveFont(preset?.fontFamily || 'Inter, sans-serif');
+}
+
+function normalizeCaptions(captions: CaptionSegment[], subtitleChunks?: CaptionSegment[]) {
+  return (captions.length > 0 ? captions : subtitleChunks || [])
+    .map((caption) => ({
+      start: Number(caption.start ?? 0),
+      end: Number(caption.end ?? (caption.start ?? 0) + 2.5),
+      text: String(caption.text || ''),
+      words: Array.isArray(caption.words)
+        ? caption.words.map((word) => ({
+            word: String(word.word || ''),
+            start: Number(word.start ?? 0),
+            end: Number(word.end ?? 0),
+          }))
+        : undefined,
+    }))
+    .filter((caption) => caption.text.trim());
 }
 
 function AutoCaptionReel({
@@ -89,29 +117,22 @@ function AutoCaptionReel({
   sourceAudioVolume = 1,
   captions = [],
   subtitleChunks,
-  captionStyle = 'yellowPop',
+  captionStyle = 'Studio Clean',
   captionPosition = 'bottom',
   textColor = '#ffffff',
   highlightColor = '#facc15',
+  backgroundColor = '#18181B',
   language,
   subtitleOutputLanguage,
   fontSize = 'medium',
+  fontFamily,
   showBackground = true,
 }: AutoCaptionProps) {
   const {fps} = useVideoConfig();
-
-  // Language: use 'language' prop OR 'subtitleOutputLanguage' (what route actually sends)
+  const captionData = normalizeCaptions(captions, subtitleChunks);
   const captionLanguage = language || subtitleOutputLanguage || 'en';
-
-  // Merge captions + subtitleChunks (fallback prop name from route)
-  const captionData: CaptionSegment[] = (captions.length > 0 ? captions : (subtitleChunks || []))
-    .map((c) => ({
-      start: Number(c.start ?? 0),
-      end: Number(c.end ?? (c.start ?? 0) + 2.5),
-      text: String(c.text || ''),
-      words: Array.isArray(c.words) ? c.words.map((w) => ({word: String(w.word || ''), start: Number(w.start ?? 0), end: Number(w.end ?? 0)})) : undefined,
-    }))
-    .filter((c) => c.text);
+  const videoStartFrom = Math.max(0, Math.round(mediaTrimStartSeconds * fps));
+  const resolvedMediaSrc = resolveMediaSrc(mediaSrc);
 
   const subtitleConfig: SubtitleConfig = {
     style: mapCaptionStyle(captionStyle),
@@ -119,55 +140,41 @@ function AutoCaptionReel({
     language: captionLanguage,
     textColor,
     highlightColor,
+    backgroundColor,
     fontSize,
-    fontFamily: getPresetFont(captionStyle),
+    fontFamily: getCaptionFont(captionStyle, fontFamily),
     showBackground,
   };
 
   return (
-    <AbsoluteFill style={{backgroundColor: '#000'}}>
-      {/* Premium video frame with padding */}
-      <div style={{
-        position: 'absolute', inset: 12,
-        borderRadius: 24,
-        overflow: 'hidden',
-        border: '3px solid rgba(255,255,255,0.08)',
-        boxShadow: 'inset 0 0 60px rgba(0,0,0,0.3)',
-      }}>
-        {/* Full-screen video */}
-        {mediaSrc && mediaType === 'video' ? (
-          <OffthreadVideo
-            src={mediaSrc}
-            startFrom={Math.max(0, Math.round(mediaTrimStartSeconds * fps))}
-            style={{width: '100%', height: '100%', objectFit: 'cover'}}
-            volume={sourceAudioVolume}
-          />
-        ) : (
-          <div style={{
-            width: '100%', height: '100%', display: 'flex',
-            alignItems: 'center', justifyContent: 'center',
-            background: 'linear-gradient(180deg, #111 0%, #000 100%)',
-            color: 'rgba(255,255,255,0.2)', fontSize: 36, fontWeight: 800,
-          }}>
-            YOUR REEL VIDEO
-          </div>
-        )}
+    <AbsoluteFill style={{backgroundColor: '#000', overflow: 'hidden'}}>
+      {resolvedMediaSrc && mediaType === 'video' ? (
+        <OffthreadVideo
+          src={resolvedMediaSrc}
+          startFrom={videoStartFrom}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+          }}
+          volume={sourceAudioVolume}
+        />
+      ) : (
+        <AbsoluteFill
+          style={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: '#000',
+            color: 'rgba(255,255,255,0.25)',
+            fontFamily: 'Inter, system-ui, sans-serif',
+            fontSize: 36,
+            fontWeight: 800,
+          }}
+        >
+          Upload a video to add captions
+        </AbsoluteFill>
+      )}
 
-        {/* Premium vignette — stronger at bottom for caption readability */}
-        <div style={{
-          position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 5,
-          background: 'linear-gradient(0deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.15) 20%, transparent 40%, transparent 80%, rgba(0,0,0,0.15) 100%)',
-        }} />
-
-        {/* Subtle top accent line */}
-        <div style={{
-          position: 'absolute', top: 0, left: '20%', right: '20%', height: 3,
-          background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)',
-          borderRadius: 2, zIndex: 6,
-        }} />
-      </div>
-
-      {/* Shared SubtitleRenderer — positioned over the frame */}
       <SubtitleRenderer captions={captionData} config={subtitleConfig} />
     </AbsoluteFill>
   );
@@ -178,14 +185,16 @@ const defaultProps: AutoCaptionProps = {
   mediaSrc: '',
   mediaTrimStartSeconds: 0,
   sourceAudioVolume: 1,
-  captionStyle: 'yellowPop',
+  captionStyle: 'Studio Clean',
   captionPosition: 'bottom',
   textColor: '#ffffff',
   highlightColor: '#facc15',
+  backgroundColor: '#18181B',
   durationSeconds: 30,
   sourceDurationSeconds: 30,
   language: 'en',
   fontSize: 'medium',
+  fontFamily: 'Inter, sans-serif',
   showBackground: true,
   captions: [
     {start: 0, end: 3, text: 'Upload your reel video here'},
@@ -193,6 +202,8 @@ const defaultProps: AutoCaptionProps = {
     {start: 6, end: 9, text: 'Auto captions sync with speech'},
   ],
 };
+
+export {AutoCaptionReel};
 
 export const AutoCaptionReelComposition = () => (
   <Composition
@@ -205,7 +216,7 @@ export const AutoCaptionReelComposition = () => (
     defaultProps={defaultProps}
     calculateMetadata={({props}) => {
       const p = props as AutoCaptionProps;
-      const durationSeconds = Math.max(8, Math.min(60,
+      const durationSeconds = Math.max(5, Math.min(60,
         Number(p.durationSeconds) || Number(p.sourceDurationSeconds) || Number(p.renderWindowSeconds) || 30
       ));
       return {durationInFrames: Math.ceil(durationSeconds * 30), fps: 30, width: 1080, height: 1920};

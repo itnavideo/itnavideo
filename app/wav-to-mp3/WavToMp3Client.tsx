@@ -108,7 +108,7 @@ export default function WavToMp3Client() {
   }
 
   return (
-    <section className="rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(94,234,212,0.18),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.025))] p-4 shadow-2xl shadow-brand-mint/10 sm:p-6">
+    <section className="rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top,rgba(124,58,237,0.18),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.025))] p-4 shadow-2xl shadow-brand-mint/10 sm:p-6">
       <div className="rounded-[1.55rem] border border-white/10 bg-black/45 p-4 sm:p-5">
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -237,7 +237,8 @@ async function encodeMp3(audioBuffer: AudioBuffer, bitrate: number) {
     mp3Data.push(new Uint8Array(end));
   }
 
-  return new Blob(mp3Data, { type: "audio/mpeg" });
+  const blobParts = mp3Data.map((chunk) => chunk.buffer.slice(chunk.byteOffset, chunk.byteOffset + chunk.byteLength) as ArrayBuffer);
+  return new Blob(blobParts, { type: "audio/mpeg" });
 }
 
 function loadLameScript(): Promise<void> {
@@ -361,4 +362,3 @@ function parseWavManually(buffer: ArrayBuffer): AudioBuffer | null {
     return null;
   }
 }
-

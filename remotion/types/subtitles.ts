@@ -16,7 +16,12 @@ export type SubtitleStyle =
   | "gold-pill"
   | "stacked"
   | "inline-bg"
-  | "vollkorn";
+  | "vollkorn"
+  | "karaoke"
+  | "shatter"
+  | "pill-bounce"
+  | "cinematic"
+  | "typewriter-code";
 
 export type SubtitlePosition = "top" | "center" | "bottom";
 
@@ -80,4 +85,9 @@ export const SUBTITLE_PRESETS: Record<string, SubtitlePreset> = {
   "Pop Candy": { name: "Pop Candy", style: "box", fontFamily: "sans-serif", textColor: "#000000", highlightColor: "#F472B6", fontSize: "large" },
   Typewriter: { name: "Typewriter", style: "typewriter", fontFamily: "Courier New, monospace", textColor: "#10B981", highlightColor: "#10B981", fontSize: "medium" },
   "Bold Fire": { name: "Bold Fire", style: "big-bold", fontFamily: "Impact, sans-serif", textColor: "#FFFFFF", highlightColor: "#F97316", fontSize: "xlarge" },
+  "Karaoke Fill": { name: "Karaoke Fill", style: "karaoke", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#FFE500", fontSize: "large" },
+  "Shatter Drop": { name: "Shatter Drop", style: "shatter", fontFamily: "Impact, sans-serif", textColor: "#FFFFFF", highlightColor: "#FF3D3D", fontSize: "large" },
+  "Pill Bounce": { name: "Pill Bounce", style: "pill-bounce", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#FF6B35", fontSize: "large" },
+  "Cinematic": { name: "Cinematic", style: "cinematic", fontFamily: "Georgia, serif", textColor: "#FFFFFF", highlightColor: "#FFFFFF", fontSize: "medium" },
+  "Hacker Type": { name: "Hacker Type", style: "typewriter-code", fontFamily: "Courier New, monospace", textColor: "#00FF88", highlightColor: "#00FF88", fontSize: "medium" },
 };

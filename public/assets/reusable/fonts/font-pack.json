@@ -30,9 +30,8 @@
     ]
   },
   "usage": {
-    "video_explainer": "Use Inter/Montserrat for UI text, Bebas Neue/Anton/Oswald for big headline words, Barlow Condensed for badges and compact labels.",
-    "video_caption": "Use Inter for clean captions, Montserrat for support labels, Bebas Neue/Anton for bold creator-style emphasis.",
-    "handwritten_notes": "Use Poppins for readable body, Kalam/Caveat/Patrick Hand for handwritten notes and marker-like headings.",
-    "coding_templates": "Use JetBrains Mono, Fira Code, or IBM Plex Mono for code, terminal, database, API, and HTML/CSS lessons."
+    "compare_explainer": "Use Inter/Montserrat for UI text, Bebas Neue/Anton/Oswald for big headline words, Barlow Condensed for badges and compact labels.",
+    "auto_caption": "Use Inter for clean captions, Montserrat for support labels, Bebas Neue/Anton for bold creator-style emphasis.",
+    "voice_synced_notes": "Use Poppins for readable body, Kalam/Caveat/Patrick Hand for handwritten notes and marker-like headings."
   }
 }

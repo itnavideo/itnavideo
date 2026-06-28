@@ -31,7 +31,7 @@ export default function TestimonialSection() {
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
           <div>
-            <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-emerald-300">Testimonials</p>
+            <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-blue-400">Testimonials</p>
             <motion.h2
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -60,7 +60,7 @@ export default function TestimonialSection() {
                     className="rounded-lg border border-white/10 bg-zinc-950 p-6"
                   >
                     <div className="mb-6 flex items-center justify-between">
-                      <Icon size={22} className="text-emerald-200" />
+                      <Icon size={22} className="text-blue-300" />
                       <Quote size={20} className="text-zinc-700" />
                     </div>
                     <p className="text-sm leading-7 text-zinc-300">“{testimonial.quote}”</p>

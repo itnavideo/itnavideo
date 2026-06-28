@@ -126,8 +126,6 @@ function sanitizeUserFacingStatus(value: string) {
   return source
     .replace(/\s+at\s+[\s\S]*$/i, '')
     .replace(/https?:\/\/\S+/gi, '')
-    .replace(/\b(?:HANDWRITING_NOTES_REEL|HANDWRITTEN_NOTES|NOTES)\b/g, 'Handwritten Notes')
-    .replace(/\bVIDEO[-_]EXPLAINER\b/gi, 'Video Explainer')
     .replace(/\b(?:REMOTION|GROQ|OPENAI|AWS|S3|FFMPEG)[A-Z0-9_]*\b/g, 'render system')
     .replace(/\bGroq\b/gi, 'transcription service')
     .replace(/\bAWS Lambda\b/gi, 'render system')

@@ -1,124 +1,220 @@
-import { ArrowRight, Building2, Instagram, Mail, MessageSquare, Send, Sparkles } from "lucide-react";
+"use client";
 
-export const metadata = {
-  title: "Contact | Itnavideo",
-  description: "Contact Itnavideo for support, partnerships, early access, and business inquiries.",
-};
-
-const contactCards = [
-  {
-    title: "Founder and product",
-    desc: "For users, investors, roadmap questions, early access, or product updates.",
-    href: "mailto:rohi@itnavideo.com",
-    label: "rohi@itnavideo.com",
-    icon: Mail,
-  },
-  {
-    title: "Partnerships",
-    desc: "For creator teams, agencies, and platform integrations.",
-    href: "mailto:rohi@itnavideo.com",
-    label: "rohi@itnavideo.com",
-    icon: Building2,
-  },
-  {
-    title: "Instagram",
-    desc: "Follow the official Itnavideo page for updates and launch clips.",
-    href: "https://www.instagram.com/itnavideo?igsh=dWY3OWVyeDRzbDVh",
-    label: "@itnavideo",
-    icon: Instagram,
-  },
-];
+import { useState } from "react";
+import Link from "next/link";
+import { ArrowRight, Building2, CheckCircle2, Clock, Instagram, Loader2, Mail, MessageSquare, Send, Sparkles, Users, XCircle } from "lucide-react";
 
 export default function ContactPage() {
-  return (
-    <main className="brand-surface min-h-screen px-6 py-32 text-white">
-      <div className="mx-auto max-w-7xl">
-        <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-          <section>
-            <div className="mb-7 inline-flex items-center gap-2 rounded-lg border border-brand-mint/20 bg-brand-mint/10 px-3 py-2 text-sm font-bold text-brand-mint">
-              <Sparkles size={16} />
-              Contact
-            </div>
-            <h1 className="max-w-4xl text-5xl font-black leading-tight md:text-7xl">
-              Let’s talk about the future of AI video.
-            </h1>
-            <p className="mt-7 max-w-2xl text-lg leading-8 text-zinc-300">
-              Reach out for support, creator access, partnerships, investor conversations, or feedback. If it helps creators move from voice to finished video faster, we want to hear it.
-            </p>
+  const [formState, setFormState] = useState("idle"); // idle | loading | success | error
+  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
 
-            <div className="mt-10 grid gap-4">
-              {contactCards.map((card) => {
-                const Icon = card.icon;
-                return (
-                  <a
-                    key={card.title}
-                    href={card.href}
-                    target={card.href.startsWith("http") ? "_blank" : undefined}
-                    rel={card.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                    className="group rounded-lg border border-white/10 bg-zinc-950/75 p-5 transition hover:border-brand-mint/40"
-                  >
-                    <div className="flex gap-4">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-brand-mint/10 text-brand-mint">
-                        <Icon size={20} />
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) return;
+
+    setFormState("loading");
+    try {
+      const response = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          kind: "contact",
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          message: formData.message.trim(),
+          source: "contact_page",
+        }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (response.ok && data.success !== false) {
+        setFormState("success");
+        setFormData({ name: "", email: "", message: "" });
+      } else {
+        setFormState("error");
+      }
+    } catch {
+      setFormState("error");
+    }
+  };
+
+  return (
+    <main className="bg-[#050506] min-h-screen text-white">
+      <div className="px-4 py-24 sm:px-6 sm:py-32">
+        <div className="mx-auto max-w-6xl">
+          <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+            {/* Left: Contact options */}
+            <section>
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-mint/20 bg-brand-mint/[0.06] px-4 py-2 text-xs font-bold text-brand-mint">
+                <Sparkles size={13} />
+                Contact
+              </div>
+              <h1 className="text-4xl font-black leading-tight sm:text-5xl">
+                Let's talk about your video needs.
+              </h1>
+              <p className="mt-5 max-w-lg text-base leading-relaxed text-zinc-300">
+                Whether you're a creator, business, agency, or partner — tell us what you need help with. We're here to support your video creation journey.
+              </p>
+
+              <div className="mt-10 grid gap-4">
+                {[
+                  {
+                    title: "Support",
+                    desc: "For account, payment, rendering, or video generation issues.",
+                    href: "mailto:rohi@itnavideo.com",
+                    label: "rohi@itnavideo.com",
+                    icon: Mail,
+                  },
+                  {
+                    title: "Creator Access",
+                    desc: "For creators who want to test or use Itnavideo.",
+                    href: "mailto:rohi@itnavideo.com",
+                    label: "rohi@itnavideo.com",
+                    icon: Users,
+                  },
+                  {
+                    title: "Partnerships & Business",
+                    desc: "For agencies, platforms, and business collaborations.",
+                    href: "mailto:rohi@itnavideo.com",
+                    label: "rohi@itnavideo.com",
+                    icon: Building2,
+                  },
+                  {
+                    title: "Founder / Product",
+                    desc: "For roadmap, investor conversations, and product feedback.",
+                    href: "mailto:rohi@itnavideo.com",
+                    label: "rohi@itnavideo.com",
+                    icon: Sparkles,
+                  },
+                  {
+                    title: "Instagram",
+                    desc: "Follow or DM the official Itnavideo page.",
+                    href: "https://www.instagram.com/itnavideo",
+                    label: "@itnavideo",
+                    icon: Instagram,
+                  },
+                ].map((card) => {
+                  const Icon = card.icon;
+                  return (
+                    <a
+                      key={card.title}
+                      href={card.href}
+                      target={card.href.startsWith("http") ? "_blank" : undefined}
+                      rel={card.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                      className="group flex items-start gap-4 rounded-xl border border-white/8 bg-zinc-900/30 p-4 transition hover:border-brand-mint/30 hover:bg-zinc-900/50"
+                    >
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-mint/10 text-brand-mint">
+                        <Icon size={18} />
                       </div>
-                      <div>
-                        <h2 className="font-bold">{card.title}</h2>
-                        <p className="mt-1 text-sm leading-6 text-zinc-400">{card.desc}</p>
-                        <p className="mt-3 inline-flex items-center gap-2 text-sm font-bold text-brand-mint">
+                      <div className="min-w-0">
+                        <h2 className="text-sm font-black text-white">{card.title}</h2>
+                        <p className="mt-0.5 text-xs leading-5 text-zinc-400">{card.desc}</p>
+                        <p className="mt-2 inline-flex items-center gap-1.5 text-xs font-bold text-brand-mint">
                           {card.label}
-                          <ArrowRight size={15} className="transition group-hover:translate-x-1" />
+                          <ArrowRight size={12} className="transition group-hover:translate-x-0.5" />
                         </p>
                       </div>
+                    </a>
+                  );
+                })}
+              </div>
+
+              {/* Response time */}
+              <div className="mt-8 flex items-center gap-2 text-xs text-zinc-500">
+                <Clock size={13} className="text-brand-mint/60" />
+                We usually reply within 24–48 hours.
+              </div>
+            </section>
+
+            {/* Right: Contact form */}
+            <section className="rounded-xl border border-white/10 bg-zinc-900/50 p-6 sm:p-8">
+              <div className="mb-6">
+                <MessageSquare className="mb-4 text-brand-mint" size={24} />
+                <h2 className="text-2xl font-black">Send a message</h2>
+                <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+                  Tell us what you're building or where you need help. We'll get back to you soon.
+                </p>
+              </div>
+
+              {formState === "success" ? (
+                <div className="rounded-xl border border-brand-mint/20 bg-brand-mint/[0.06] p-6 text-center">
+                  <CheckCircle2 className="mx-auto mb-3 text-brand-mint" size={32} />
+                  <p className="font-black text-white">Message received!</p>
+                  <p className="mt-2 text-sm text-zinc-400">We'll reply within 24–48 hours.</p>
+                  <button onClick={() => setFormState("idle")} className="mt-4 text-xs font-bold text-brand-mint hover:underline">
+                    Send another message
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <label className="block">
+                    <span className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-zinc-400">Full name</span>
+                    <input
+                      type="text"
+                      placeholder="Your name"
+                      value={formData.name}
+                      onChange={(e) => setFormData((d) => ({ ...d, name: e.target.value }))}
+                      required
+                      className="w-full rounded-lg border border-white/15 bg-zinc-950/80 px-4 py-3.5 text-sm font-medium text-white outline-none placeholder:text-zinc-600 transition focus:border-brand-mint/60 focus:ring-1 focus:ring-brand-mint/30"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-zinc-400">Email address</span>
+                    <input
+                      type="email"
+                      placeholder="you@example.com"
+                      value={formData.email}
+                      onChange={(e) => setFormData((d) => ({ ...d, email: e.target.value }))}
+                      required
+                      className="w-full rounded-lg border border-white/15 bg-zinc-950/80 px-4 py-3.5 text-sm font-medium text-white outline-none placeholder:text-zinc-600 transition focus:border-brand-mint/60 focus:ring-1 focus:ring-brand-mint/30"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-zinc-400">Message</span>
+                    <textarea
+                      rows={5}
+                      placeholder="Tell us what you're building, creating, or need help with..."
+                      value={formData.message}
+                      onChange={(e) => setFormData((d) => ({ ...d, message: e.target.value }))}
+                      required
+                      className="w-full resize-none rounded-lg border border-white/15 bg-zinc-950/80 px-4 py-3.5 text-sm font-medium text-white outline-none placeholder:text-zinc-600 transition focus:border-brand-mint/60 focus:ring-1 focus:ring-brand-mint/30"
+                    />
+                  </label>
+
+                  {formState === "error" ? (
+                    <div className="flex items-center gap-2 rounded-lg border border-rose-500/20 bg-rose-500/[0.06] px-4 py-3 text-xs text-rose-300">
+                      <XCircle size={14} />
+                      Something went wrong. Please try again or email us directly at rohi@itnavideo.com
                     </div>
-                  </a>
-                );
-              })}
-            </div>
-          </section>
+                  ) : null}
 
-          <section className="rounded-lg border border-white/10 bg-zinc-950/90 p-6 shadow-2xl shadow-black/30">
-            <div className="mb-8">
-              <MessageSquare className="mb-5 text-brand-mint" size={28} />
-              <h2 className="text-3xl font-black">Send a message</h2>
-              <p className="mt-3 text-sm leading-6 text-zinc-400">
-                The form is ready for your contact integration. For now it opens an email draft with your message.
-              </p>
-            </div>
+                  <button
+                    type="submit"
+                    disabled={formState === "loading"}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-mint px-6 py-4 text-sm font-black text-black transition hover:bg-white disabled:opacity-70 sm:w-auto"
+                  >
+                    {formState === "loading" ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                    {formState === "loading" ? "Sending..." : "Send Message"}
+                  </button>
 
-            <form action="mailto:rohi@itnavideo.com" method="post" encType="text/plain" className="space-y-5">
-              <Field label="Full name" name="name" placeholder="Your name" />
-              <Field label="Email address" name="email" type="email" placeholder="you@example.com" />
-              <label className="block">
-                <span className="mb-2 block text-sm font-semibold text-zinc-300">Message</span>
-                <textarea
-                  name="message"
-                  rows="7"
-                  placeholder="Tell us what you are building, creating, or trying to automate..."
-                  className="w-full resize-none rounded-lg border border-white/10 bg-black px-4 py-4 outline-none transition focus:border-brand-mint"
-                />
-              </label>
-              <button type="submit" className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand-mint px-6 py-4 font-black text-black transition hover:bg-white sm:w-auto">
-                <Send size={18} />
-                Send message
-              </button>
-            </form>
-          </section>
+                  <p className="text-[11px] text-zinc-600">
+                    Or email directly: <a href="mailto:rohi@itnavideo.com" className="text-brand-mint/70 hover:text-brand-mint">rohi@itnavideo.com</a>
+                  </p>
+                </form>
+              )}
+            </section>
+          </div>
         </div>
       </div>
-    </main>
-  );
-}
 
-function Field({ label, name, placeholder, type = "text" }) {
-  return (
-    <label className="block">
-      <span className="mb-2 block text-sm font-semibold text-zinc-300">{label}</span>
-      <input
-        name={name}
-        type={type}
-        placeholder={placeholder}
-        className="w-full rounded-lg border border-white/10 bg-black px-4 py-4 outline-none transition focus:border-brand-mint"
-      />
-    </label>
+      {/* Minimal footer */}
+      <footer className="border-t border-white/5 px-4 py-8">
+        <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-6 text-xs text-zinc-600">
+          <Link href="/terms" className="hover:text-white transition">Terms</Link>
+          <Link href="/privacy" className="hover:text-white transition">Privacy</Link>
+          <Link href="/about" className="hover:text-white transition">About</Link>
+          <span>© 2026 Itnavideo Inc.</span>
+        </div>
+      </footer>
+    </main>
   );
 }

@@ -1,0 +1,7 @@
+{
+  "folderId": null,
+  "folderName": "Itnavideo Startup Docs",
+  "docs": [],
+  "lastSynced": null,
+  "notes": "Run 'node scripts/sync-docs-to-gdrive.mjs' to sync. Set GOOGLE_SERVICE_ACCOUNT_KEY in .env.local first."
+}

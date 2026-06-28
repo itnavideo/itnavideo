@@ -1,20 +1,18 @@
 import {registerRoot} from 'remotion';
 import {AutoCaptionReelComposition} from './templates/AUTO_CAPTION_REEL/template';
 import {CompareExplainerComposition} from './templates/COMPARE_EXPLAINER/template';
-import {VideoSimpleExplainerComposition} from './templates/VIDEO_SIMPLE_EXPLAINER/template';
-import {ImageStoryCollageComposition} from './templates/IMAGE_STORY_COLLAGE/template';
 import {AutoDrawExplainerComposition} from './templates/AUTO_DRAW_EXPLAINER/template';
 import {LongVideoPromoComposition} from './templates/LONG_VIDEO_PROMO/template';
-import {VoiceSyncedNotesComposition} from './templates/VOICE_SYNCED_NOTES/template';
+import {DynamicCreatorReelComposition} from './templates/DYNAMIC_CREATOR_REEL/template';
+import {CreatorBackgroundReplaceComposition} from './templates/CREATOR_BACKGROUND_REPLACE/template';
 
 const compositions = [
   AutoCaptionReelComposition,
-  VideoSimpleExplainerComposition,
   CompareExplainerComposition,
-  ImageStoryCollageComposition,
   AutoDrawExplainerComposition,
   LongVideoPromoComposition,
-  VoiceSyncedNotesComposition,
+  DynamicCreatorReelComposition,
+  CreatorBackgroundReplaceComposition,
 ];
 
 const RemotionRoot = () => (

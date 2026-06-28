@@ -1,317 +1,180 @@
 import Link from "next/link";
 import Image from "next/image";
-import {
-  ArrowRight,
-  BadgeCheck,
-  BrainCircuit,
-  Clapperboard,
-  GraduationCap,
-  Layers3,
-  Mic2,
-  PlaySquare,
-  Sparkles,
-  UploadCloud,
-  Users,
-  Wand2,
-} from "lucide-react";
-import BrandLogo from "@/components/brand/BrandLogo";
+import { ArrowRight, Heart, Lightbulb, Sparkles, Target, Users, Zap } from "lucide-react";
 
 export const metadata = {
-  title: "About Itnavideo | AI Video Explainer Platform",
-  description:
-    "Itnavideo kya karta hai, users ko kya faida milta hai, kaise kaam karta hai, aur creators, students, educators, businesses, aur AI engineers ke liye kyu useful hai.",
+  title: "About Itnavideo — Our Story | AI Video Platform",
+  description: "Itnavideo helps creators, businesses, and educators turn raw content into ready-to-post reels. Built from a real creator pain.",
 };
-
-const answers = [
-  {
-    eyebrow: "Karta kya hai?",
-    title: "Itnavideo long idea ko short, polished AI video mein convert karta hai.",
-    desc: "User apna video, voice, ya script deta hai. Platform us content ko samajh kar 9:16 explainer reel, captions, scenes, visuals, music cues, aur final render workflow mein organize karta hai.",
-    icon: PlaySquare,
-  },
-  {
-    eyebrow: "Faida kya hai?",
-    title: "Editing time kam, output zyada clear, aur posting faster.",
-    desc: "Creators ko blank timeline se start nahi karna padta. Itnavideo speech ko clean story mein badalta hai, important points highlight karta hai, aur publish-ready vertical video draft banata hai.",
-    icon: BadgeCheck,
-  },
-  {
-    eyebrow: "Kaise kaam karta hai?",
-    title: "AI planner pehle content samajhta hai, phir video direction deta hai.",
-    desc: "Transcript, hook, scene structure, caption text, visual assets, timing, music, sound effects, and render instructions ek planned pipeline se guzarte hain.",
-    icon: BrainCircuit,
-  },
-  {
-    eyebrow: "Kaun use karta hai?",
-    title: "Creators, students, educators, founders, marketers, and teams.",
-    desc: "Jo bhi knowledge, product demo, lecture, explainer, ya social content ko short-form video mein present karna chahta hai, uske liye Itnavideo useful hai.",
-    icon: Users,
-  },
-];
-
-const workflow = [
-  {
-    title: "Upload or write",
-    desc: "Video, audio, ya script se start karo.",
-    icon: UploadCloud,
-  },
-  {
-    title: "AI understands",
-    desc: "Speech, topic, tone, and key points detect hote hain.",
-    icon: Mic2,
-  },
-  {
-    title: "Director plan",
-    desc: "Hook, captions, scenes, visuals, and pacing decide hota hai.",
-    icon: Clapperboard,
-  },
-  {
-    title: "Render ready",
-    desc: "Vertical reel/export workflow final output ke liye prepare hota hai.",
-    icon: Layers3,
-  },
-];
-
-const audiences = [
-  "Content creators: fast reels, explainers, captions, and social posts.",
-  "Students: notes, concepts, and study content ko visual video mein convert karna.",
-  "Educators: lecture clips and learning material ko short explainers banana.",
-  "Businesses: product demos, tutorials, ads, and customer education content.",
-  "AI engineers: real content pipeline, prompt logic, rendering, and automation ka practical example.",
-];
 
 export default function AboutPage() {
   return (
     <main className="bg-[#050506] text-white">
-      <section className="brand-surface relative overflow-hidden px-6 pb-20 pt-32">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:56px_56px] [mask-image:linear-gradient(to_bottom,black,transparent_82%)]" />
-        <div className="relative z-10 mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1fr_460px] lg:items-center">
-          <div>
-            <div className="mb-8">
-              <BrandLogo size="lg" showTagline />
-            </div>
-            <p className="mb-5 text-sm font-bold uppercase tracking-[0.24em] text-brand-mint">
-              About Itnavideo
-            </p>
-            <h1 className="max-w-4xl text-5xl font-black leading-tight tracking-normal md:text-7xl">
-              AI video banana ab editing nahi, direction dena hai.
-            </h1>
-            <p className="mt-7 max-w-2xl text-lg leading-8 text-zinc-300">
-              Itnavideo ek AI video platform hai jo creators aur teams ko raw
-              idea, script, ya video se clean explainer reels banane mein help
-              karta hai. Simple words mein: content do, AI usko short, clear,
-              and publish-ready video structure mein convert karta hai.
-            </p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <Link
-                href="/create"
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-mint px-6 py-4 text-base font-black text-black transition hover:bg-white"
-              >
-                Try the workflow
-                <ArrowRight size={18} />
-              </Link>
-              <Link
-                href="/features"
-                className="inline-flex items-center justify-center rounded-lg border border-white/12 bg-white/5 px-6 py-4 text-base font-bold text-white transition hover:bg-white/10"
-              >
-                See features
-              </Link>
-            </div>
+      {/* Hero */}
+      <section className="relative overflow-hidden px-4 pb-20 pt-28 sm:px-6 sm:pt-32">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_20%,rgba(124,58,237,0.04)_0%,transparent_60%)]" />
+        <div className="relative z-10 mx-auto max-w-4xl text-center">
+          <p className="mb-6 text-sm font-bold uppercase tracking-[0.24em] text-brand-mint">About Itnavideo</p>
+          <h1 className="text-4xl font-black leading-tight sm:text-5xl md:text-7xl">
+            AI video banana ab editing nahi,<br />
+            <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-400 bg-clip-text text-transparent">direction dena hai.</span>
+          </h1>
+          <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-zinc-300">
+            Itnavideo helps creators, businesses, and educators turn raw audio, video, or ideas into polished reels — without spending hours on timeline editing. Upload your content. AI handles the rest.
+          </p>
+          <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <Link href="/dashboard" className="inline-flex items-center gap-2 rounded-2xl bg-brand-mint px-8 py-4 text-base font-black text-black transition hover:bg-white">
+              Start Creating <ArrowRight size={16} />
+            </Link>
+            <Link href="/pricing" className="inline-flex items-center gap-2 rounded-2xl border border-zinc-700 bg-zinc-900/40 px-7 py-4 text-sm font-bold text-zinc-300 transition hover:text-white">
+              View Pricing
+            </Link>
           </div>
+        </div>
+      </section>
 
-          <div className="overflow-hidden rounded-lg border border-white/10 bg-zinc-950/85 shadow-2xl shadow-black/30">
-            <div className="relative aspect-[4/5] bg-black">
-              <Image
-                src="/visuals/site-scenes/ai-engineer-night-work.png"
-                alt="AI engineer working on an automated video creation system"
-                fill
-                className="object-cover"
-                sizes="(min-width: 1024px) 460px, 100vw"
-                priority
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/12 to-transparent" />
-              <div className="absolute bottom-5 left-5 right-5">
-                <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-mint">
-                  AI Engineer View
-                </p>
-                <h2 className="mt-2 text-3xl font-black">Prompt to production</h2>
-                <p className="mt-2 text-sm font-semibold leading-6 text-zinc-300">
-                  Transcript, planning, asset selection, rendering, and export
-                  tied into one practical workflow.
-                </p>
+      {/* Mission */}
+      <section className="px-4 py-20 sm:px-6">
+        <div className="mx-auto max-w-4xl text-center">
+          <Target className="mx-auto mb-6 text-brand-mint" size={32} />
+          <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-brand-mint">Our Mission</p>
+          <h2 className="text-3xl font-black leading-tight sm:text-4xl md:text-5xl">
+            Help creators and businesses turn raw content into ready-to-post reels — without hours of editing.
+          </h2>
+          <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-zinc-400">
+            Every day, millions of creators have good ideas, strong messages, and valuable knowledge. But turning that into polished short-form video still takes too much time. Itnavideo reduces that gap.
+          </p>
+        </div>
+      </section>
+
+      {/* The Problem */}
+      <section className="border-y border-white/8 bg-zinc-950/50 px-4 py-20 sm:px-6">
+        <div className="mx-auto max-w-5xl">
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+            <div>
+              <Sparkles className="mb-5 text-brand-mint" size={28} />
+              <p className="mb-3 text-sm font-bold uppercase tracking-[0.24em] text-brand-mint">The Problem We Solve</p>
+              <h2 className="text-3xl font-black leading-tight sm:text-4xl">
+                Good content gets stuck because editing is hard.
+              </h2>
+              <p className="mt-6 text-base leading-relaxed text-zinc-300">
+                Creators, educators, small businesses, and startup teams often have great raw content — a teaching video, a product showcase, a voice note, a podcast episode. But converting that into a polished Instagram Reel or YouTube Short requires:
+              </p>
+              <ul className="mt-5 space-y-3 text-sm text-zinc-400">
+                <li className="flex items-start gap-3"><span className="mt-1 text-rose-400">✗</span> Hours of timeline editing</li>
+                <li className="flex items-start gap-3"><span className="mt-1 text-rose-400">✗</span> Learning complex software (Premiere, CapCut, DaVinci)</li>
+                <li className="flex items-start gap-3"><span className="mt-1 text-rose-400">✗</span> Manual subtitle timing and styling</li>
+                <li className="flex items-start gap-3"><span className="mt-1 text-rose-400">✗</span> Finding the right visual layout for each format</li>
+                <li className="flex items-start gap-3"><span className="mt-1 text-rose-400">✗</span> Repeating the same process for every single reel</li>
+              </ul>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-zinc-900/50 p-8">
+              <Zap className="mb-5 text-brand-mint" size={28} />
+              <h3 className="text-2xl font-black">Itnavideo&apos;s Answer</h3>
+              <p className="mt-4 text-base leading-relaxed text-zinc-300">
+                Upload once. Choose a template. Get a reel back in 2-3 minutes. AI handles transcription, captions, layout, timing, visuals, and export. You direct, AI edits.
+              </p>
+              <div className="mt-6 grid gap-3">
+                {["6 production templates for focused reel formats", "AI captions synced to speech", "9:16 vertical MP4 ready to post", "No editing skills required", "Works for English and Hinglish"].map((item) => (
+                  <div key={item} className="flex items-center gap-2.5 text-sm font-bold text-zinc-200">
+                    <span className="text-brand-mint">✓</span> {item}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="px-6 py-24">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-12 max-w-3xl">
-            <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-brand-mint">
-              Clear explanation
-            </p>
-            <h2 className="text-4xl font-black leading-tight tracking-normal md:text-6xl">
-              Itnavideo ko samajhne ka simple breakdown.
-            </h2>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            {answers.map((item) => {
-              const Icon = item.icon;
-              return (
-                <article
-                  key={item.eyebrow}
-                  className="rounded-lg border border-white/10 bg-zinc-950 p-6"
-                >
-                  <div className="mb-6 flex h-11 w-11 items-center justify-center rounded-md bg-brand-mint/10 text-brand-mint">
-                    <Icon size={20} />
-                  </div>
-                  <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-mint">
-                    {item.eyebrow}
-                  </p>
-                  <h3 className="mt-3 text-2xl font-black leading-snug">
-                    {item.title}
-                  </h3>
-                  <p className="mt-4 text-sm leading-6 text-zinc-400">
-                    {item.desc}
-                  </p>
-                </article>
-              );
-            })}
+      {/* What We Believe */}
+      <section className="px-4 py-20 sm:px-6">
+        <div className="mx-auto max-w-4xl">
+          <Heart className="mx-auto mb-6 text-brand-mint" size={28} />
+          <p className="mb-4 text-center text-sm font-bold uppercase tracking-[0.24em] text-brand-mint">What We Believe</p>
+          <h2 className="text-center text-3xl font-black sm:text-4xl">Our principles</h2>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2">
+            {[
+              { title: "Good content should not stay stuck", desc: "If you have knowledge or a message, editing should not be the bottleneck." },
+              { title: "Creators should direct, not edit", desc: "Spend time on ideas and decisions, not on timeline dragging and subtitle timing." },
+              { title: "AI should handle the repetitive work", desc: "Transcription, layout, captions, timing, export — these should be automated." },
+              { title: "Small creators deserve pro output", desc: "Premium-looking reels should not require expensive tools or dedicated editors." },
+            ].map((item) => (
+              <div key={item.title} className="rounded-xl border border-white/8 bg-zinc-900/30 p-6">
+                <Lightbulb className="mb-3 text-brand-mint/70" size={20} />
+                <h3 className="text-lg font-black text-white">{item.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-zinc-400">{item.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="border-y border-white/8 bg-zinc-950/60 px-6 py-24">
-        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:items-start">
-          <div>
-            <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-brand-mint">
-              How it works
-            </p>
-            <h2 className="text-4xl font-black leading-tight tracking-normal">
-              Raw content se AI-directed reel tak.
-            </h2>
-            <p className="mt-5 text-sm leading-6 text-zinc-400">
-              Itnavideo ka goal random generator banana nahi hai. Goal hai ek
-              repeatable production pipeline: content samjho, story plan karo,
-              video compose karo, phir render-ready output do.
-            </p>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            {workflow.map((item, index) => {
-              const Icon = item.icon;
-              return (
-                <div
-                  key={item.title}
-                  className="rounded-lg border border-white/10 bg-black/25 p-5"
-                >
-                  <div className="mb-5 flex items-center justify-between">
-                    <span className="font-mono text-sm font-black text-brand-mint">
-                      0{index + 1}
-                    </span>
-                    <Icon className="text-brand-gold" size={22} />
-                  </div>
-                  <h3 className="text-xl font-black">{item.title}</h3>
-                  <p className="mt-3 text-sm leading-6 text-zinc-400">
-                    {item.desc}
-                  </p>
-                </div>
-              );
-            })}
+      {/* Who Uses It */}
+      <section className="border-y border-white/8 bg-zinc-950/50 px-4 py-20 sm:px-6">
+        <div className="mx-auto max-w-4xl">
+          <Users className="mx-auto mb-6 text-brand-mint" size={28} />
+          <p className="mb-4 text-center text-sm font-bold uppercase tracking-[0.24em] text-brand-mint">Built For</p>
+          <h2 className="text-center text-3xl font-black sm:text-4xl">Creators, businesses, and educators</h2>
+          <div className="mt-10 grid gap-3 sm:grid-cols-2">
+            {[
+              "Content creators - fast reels, captions, and social posts",
+              "YouTube creators - short promos for long-form videos",
+              "Educators - comparison and whiteboard explainer reels",
+              "Small businesses - simple promo videos without manual editing",
+              "Coaches and consultants - educational creator videos",
+              "Agencies - repeatable client reels with consistent quality",
+              "Personal brands - talking videos with stronger typography",
+              "Career creators - Hinglish and English short-form explainers",
+            ].map((item) => (
+              <div key={item} className="rounded-lg border border-white/8 bg-white/[0.03] px-5 py-4 text-sm font-semibold text-zinc-200">
+                {item}
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="px-6 py-24">
-        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.95fr_1.05fr]">
-          <div className="overflow-hidden rounded-lg border border-white/10 bg-zinc-950">
-            <div className="relative aspect-[16/11] bg-black">
-              <Image
-                src="/founder/syed-mohammed-rohi.webp"
-                alt="Syed Mohammed Rohi, founder of Itnavideo"
-                fill
-                className="object-cover object-[50%_32%]"
-                sizes="(min-width: 1024px) 540px, 100vw"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/82 via-black/8 to-transparent" />
+      {/* Founder Note */}
+      <section className="px-4 py-20 sm:px-6">
+        <div className="mx-auto max-w-3xl rounded-xl border border-white/10 bg-zinc-900/40 p-8 sm:p-10">
+          <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-brand-mint">From the Founder</p>
+          <h2 className="text-2xl font-black sm:text-3xl">A note from the builder</h2>
+          <blockquote className="mt-6 text-base leading-relaxed text-zinc-300 italic border-l-4 border-brand-mint/40 pl-5">
+            &quot;Itnavideo started from a simple frustration: making short videos should not require hours of editing. I wanted a tool where users can upload raw content and get a polished reel back without learning Premiere Pro or spending on editors. That&apos;s what we&apos;re building.&quot;
+          </blockquote>
+          <div className="mt-6 flex items-center gap-4">
+            <div className="h-12 w-12 overflow-hidden rounded-full border-2 border-brand-mint/30">
+              <Image src="/founder/syed-mohammed-rohi.webp" alt="Syed Mohammed Rohi" width={48} height={48} className="h-full w-full object-cover" />
             </div>
-            <div className="p-8">
-              <Sparkles className="mb-6 text-brand-mint" size={28} />
-              <p className="mb-3 text-sm font-bold uppercase tracking-[0.24em] text-brand-mint">
-                Background
-              </p>
-              <h2 className="text-3xl font-black">Built from a real creator pain.</h2>
-              <p className="mt-5 text-lg leading-8 text-zinc-300">
-                Itnavideo is founded by Syed Mohammed Rohi. The idea is simple:
-                a creator may have good knowledge or a strong message, but
-                turning it into a clean video still takes too much editing time.
-                Itnavideo brings AI planning and video rendering together so
-                that creation becomes faster and more repeatable.
-              </p>
-            </div>
-          </div>
-
-          <div className="rounded-lg border border-white/10 bg-zinc-950 p-8">
-            <GraduationCap className="mb-6 text-brand-gold" size={30} />
-            <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-brand-mint">
-              Who uses it
-            </p>
-            <h2 className="text-3xl font-black leading-tight">
-              Made for people who need video output without becoming full-time editors.
-            </h2>
-            <div className="mt-7 grid gap-3">
-              {audiences.map((item) => (
-                <div
-                  key={item}
-                  className="rounded-md border border-white/10 bg-white/[0.035] px-4 py-4 text-sm font-semibold leading-6 text-zinc-200"
-                >
-                  {item}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="px-6 pb-24">
-        <div className="mx-auto max-w-7xl overflow-hidden rounded-lg border border-brand-mint/20 bg-brand-mint/10 p-8 md:p-10">
-          <div className="grid gap-8 lg:grid-cols-[1fr_0.75fr] lg:items-center">
             <div>
-              <Wand2 className="mb-6 text-brand-mint" size={30} />
-              <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-brand-mint">
-                For AI engineers
-              </p>
-              <h2 className="text-3xl font-black leading-tight md:text-5xl">
-                Itnavideo shows an end-to-end AI product, not just a demo prompt.
-              </h2>
-              <p className="mt-5 text-lg leading-8 text-zinc-300">
-                AI engineer ke liye yeh project useful hai because it connects
-                prompt design, transcription, content planning, asset selection,
-                template logic, rendering, storage, billing, and user workflow.
-                Matlab AI idea ko real product pipeline mein kaise convert karte
-                hain, woh clearly visible hota hai.
-              </p>
-            </div>
-            <div className="grid gap-3">
-              {[
-                "Input: video, audio, script, or user prompt",
-                "AI layer: transcript, hook, scenes, captions, visuals",
-                "System layer: render job, media storage, history, and billing",
-                "Output: short-form video workflow users can repeat",
-              ].map((item) => (
-                <div
-                  key={item}
-                  className="rounded-md border border-brand-mint/20 bg-black/35 px-4 py-4 text-sm font-black leading-6 text-white"
-                >
-                  {item}
-                </div>
-              ))}
+              <p className="font-black text-white">Syed Mohammed Rohi</p>
+              <p className="text-xs text-zinc-500">Founder, Itnavideo</p>
             </div>
           </div>
         </div>
       </section>
+
+      {/* CTA */}
+      <section className="px-4 pb-24 sm:px-6">
+        <div className="mx-auto max-w-3xl text-center">
+          <h2 className="text-3xl font-black">Ready to create your first reel?</h2>
+          <p className="mt-4 text-base text-zinc-400">No editing skills needed. Upload content, choose a template, get a video.</p>
+          <Link href="/dashboard" className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-brand-mint px-8 py-4 text-base font-black text-black transition hover:bg-white">
+            Start Creating Free <ArrowRight size={16} />
+          </Link>
+        </div>
+      </section>
+
+      {/* Minimal footer */}
+      <footer className="border-t border-white/5 px-4 py-8">
+        <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-6 text-xs text-zinc-600">
+          <Link href="/terms" className="hover:text-white transition">Terms</Link>
+          <Link href="/privacy" className="hover:text-white transition">Privacy</Link>
+          <Link href="/contact" className="hover:text-white transition">Contact</Link>
+          <Link href="/careers" className="hover:text-white transition">Careers</Link>
+          <span>© 2026 Itnavideo Inc.</span>
+        </div>
+      </footer>
     </main>
   );
 }

@@ -21,8 +21,8 @@ const outputs = [
     title: 'Compare Explainer',
     label: 'Audio + images',
     image: '/visuals/previews/Compare Explainer Homepage Hero.png',
-    accent: 'text-emerald-200',
-    border: 'border-emerald-300/25',
+    accent: 'text-blue-300',
+    border: 'border-blue-400/25',
     surface: 'bg-[linear-gradient(180deg,rgba(6,78,59,0.35),rgba(9,9,11,1))]',
     icon: Layers3,
     status: 'Available now',
@@ -42,7 +42,7 @@ const contract = [
 
 export default function OutputProofSection() {
   return (
-    <section id="template-proof" className="relative overflow-hidden bg-[#050506] px-4 py-16 sm:px-6 md:py-24">
+    <section id="template-proof" className="relative overflow-hidden bg-[#0B1120] px-4 py-16 sm:px-6 md:py-24">
       <div className="mx-auto max-w-7xl">
         {/* Section header */}
         <div className="mb-12 max-w-3xl">

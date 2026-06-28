@@ -1,62 +1,89 @@
 import Image from 'next/image';
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 
-const useCases = [
+const outputShowcase = [
   {
-    title: 'Career explainers',
-    body: 'Job updates, interview tips, salary choices, and professional stories.',
-    src: '/visuals/site-scenes/ai-engineer-night-work.png',
+    title: 'Dynamic Creator Reel',
+    body: 'Best for talking-head creators who need strong hooks, typography, and a polished short-form edit.',
+    src: '/preview/Dynamic Creator Reel.png',
+    href: '/templates/dynamic-creator-reel',
   },
   {
-    title: 'Education reels',
-    body: 'College, exams, MBA, BCom, admissions, and learning content.',
-    src: '/visuals/site-scenes/students-campus-walk.png',
+    title: 'Auto Caption Reel',
+    body: 'Best for existing reels that need clean, readable, social-ready captions without changing the original video.',
+    src: '/preview/Auto Caption Reel.png',
+    href: '/templates/auto-caption-reel',
   },
   {
-    title: 'Health careers',
-    body: 'Doctor, nursing, medical education, and healthcare career videos.',
-    src: '/visuals/site-scenes/doctor-career-portrait.png',
+    title: 'Creator Background Replace',
+    body: 'Best for creator videos that need a cleaner scene or branded background image.',
+    src: '/preview/Dynamic Creator Reel.png',
+    href: '/templates/creator-background-replace',
   },
   {
-    title: 'Creator videos',
-    body: 'Voiceovers, creator clips, founder updates, and social explainers.',
-    src: '/visuals/site-scenes/creator-recording-reel.png',
+    title: 'Compare Explainer',
+    body: 'Best for education and product comparisons where two options must be understood quickly.',
+    src: '/preview/Compare Explainer.png',
+    href: '/templates/compare-explainer',
+  },
+  {
+    title: 'Auto Draw Explainer',
+    body: 'Best for voiceovers that need simple whiteboard-style visual explanation.',
+    src: '/preview/Auto Draw Explainer.png',
+    href: '/templates/auto-draw-explainer',
+  },
+  {
+    title: 'Long Video Promo',
+    body: 'Best for turning a longer video into a short vertical teaser with a clear reason to watch.',
+    src: '/preview/Long Video Promo.png',
+    href: '/templates/long-video-promo',
   },
 ];
 
 export default function UseCaseGallerySection() {
   return (
-    <section className="bg-[#07080a] px-4 py-16 text-white sm:px-6 md:py-24">
+    <section className="bg-[#0B1120] px-4 py-16 text-white sm:px-6 md:py-24">
       <div className="mx-auto max-w-7xl">
         <div className="mb-10 grid gap-5 sm:mb-12 lg:grid-cols-[0.72fr_1fr] lg:items-end">
           <div>
-            <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-brand-mint">Real reel topics</p>
+            <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-brand-mint">Output proof</p>
             <h2 className="text-3xl font-black leading-tight tracking-normal sm:text-4xl md:text-6xl">
-              Built for videos people actually watch.
+              The template preview is the product pitch.
             </h2>
           </div>
-          <p className="text-base leading-7 text-zinc-400 sm:text-lg sm:leading-8">
-            ItnaVideo works best when the source idea maps to a clear human situation: a student studying, a creator recording, a professional deciding, or a career story unfolding.
+          <p className="text-base leading-7 text-slate-400 sm:text-lg sm:leading-8">
+            Instead of asking users to read long explanations, Itnavideo now leads with six focused outputs. Each card shows the kind of reel the template is designed to create.
           </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {useCases.map((item) => (
-            <article key={item.title} className="overflow-hidden rounded-lg border border-white/10 bg-zinc-950">
-              <div className="relative aspect-[5/4] bg-black sm:aspect-[4/5]">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
+          {outputShowcase.map((item) => (
+            <Link
+              key={item.title}
+              href={item.href}
+              className="group overflow-hidden rounded-lg border border-white/10 bg-slate-950 transition duration-300 hover:-translate-y-1 hover:border-white/20"
+            >
+              <div className="relative aspect-[9/16] bg-black">
                 <Image
                   src={item.src}
-                  alt={item.title}
+                  alt={`${item.title} output preview`}
                   fill
-                  className="object-cover"
-                  sizes="(min-width: 1280px) 25vw, (min-width: 640px) 50vw, 100vw"
+                  className="object-cover transition duration-500 group-hover:scale-[1.035]"
+                  sizes="(min-width: 1280px) 20vw, (min-width: 640px) 50vw, 100vw"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/78 via-black/5 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                <div className="absolute bottom-4 left-4 right-4">
+                  <h3 className="text-base font-black text-white">{item.title}</h3>
+                  <span className="mt-2 inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-wide text-brand-mint transition group-hover:gap-2">
+                    View output <ArrowRight size={12} />
+                  </span>
+                </div>
               </div>
-              <div className="p-4 sm:p-5">
-                <h3 className="text-xl font-black">{item.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-zinc-400">{item.body}</p>
+              <div className="p-4">
+                <p className="text-sm leading-6 text-slate-400">{item.body}</p>
               </div>
-            </article>
+            </Link>
           ))}
         </div>
       </div>

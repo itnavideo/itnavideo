@@ -1,10 +1,11 @@
 ﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CheckCircle2, Clapperboard, FileText, Sparkles } from "lucide-react";
+import { CheckCircle2, Clapperboard, FileText, PlayCircle } from "lucide-react";
 import { getSeoLandingPage, seoLandingPages } from "@/lib/seo-pages";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://itnavideo.com";
+const seoPreviewImage = "/preview/Dynamic Creator Reel.png";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -38,7 +39,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       type: "website",
       images: [
         {
-          url: `${siteUrl}/visuals/previews/video-explainer-homepage.png`,
+          url: `${siteUrl}${seoPreviewImage}`,
           width: 1080,
           height: 1920,
           alt: page.h1,
@@ -49,7 +50,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       card: "summary_large_image",
       title: page.title,
       description: page.description,
-      images: [`${siteUrl}/visuals/previews/video-explainer-homepage.png`],
+      images: [`${siteUrl}${seoPreviewImage}`],
     },
   };
 }
@@ -91,7 +92,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
   };
 
   return (
-    <main className="min-h-screen bg-black text-white">
+    <main className="min-h-screen bg-[#0B1120] text-white">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
@@ -102,7 +103,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
       />
 
       <section className="relative overflow-hidden px-6 py-24">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(45,212,191,0.18),transparent_35%),linear-gradient(180deg,#020617,#000)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.18),transparent_35%),linear-gradient(180deg,#0B1120,#0F172A)]" />
         <div className="relative mx-auto grid max-w-6xl gap-12 lg:grid-cols-[1fr_360px] lg:items-center">
           <div>
             <p className="mb-4 text-sm font-black uppercase tracking-[0.28em] text-brand-mint">
@@ -117,7 +118,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
 
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                href="/dashboard"
+                href={`/dashboard?template=${page.slug.includes("caption") || page.slug.includes("subtitle") ? "auto-caption-reel" : page.slug.includes("compare") ? "compare-explainer" : page.slug.includes("whiteboard") ? "auto-draw-explainer" : page.slug.includes("promo") ? "long-video-promo" : page.slug.includes("background") ? "creator-background-replace" : "dynamic-creator-reel"}`}
                 className="rounded-xl bg-brand-mint px-6 py-4 text-sm font-black text-black transition hover:bg-white"
               >
                 Create your reel
@@ -135,10 +136,10 @@ export default async function SeoLandingPage({ params }: PageProps) {
             </p>
           </div>
 
-          <div className="rounded-[2rem] border border-brand-mint/30 bg-white/5 p-3 shadow-2xl shadow-cyan-500/10">
+          <div className="rounded-[2rem] border border-blue-400/30 bg-white/5 p-3 shadow-2xl shadow-blue-500/10">
             <div className="aspect-[9/16] overflow-hidden rounded-[1.5rem] bg-slate-950">
               <img
-                src="/visuals/previews/video-explainer-homepage.png"
+                src={seoPreviewImage}
                 alt={page.h1}
                 className="h-full w-full object-cover object-top"
               />
@@ -150,23 +151,23 @@ export default async function SeoLandingPage({ params }: PageProps) {
       <section className="mx-auto grid max-w-6xl gap-6 px-6 py-16 md:grid-cols-3">
         <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
           <Clapperboard className="mb-4 h-7 w-7 text-brand-mint" />
-          <h2 className="text-xl font-black">Creator video first</h2>
+          <h2 className="text-xl font-black">Focused templates</h2>
           <p className="mt-3 text-sm leading-6 text-slate-300">
-            Keep the original speaking video visible while subtitles and a support image explain the topic.
+            Choose a production workflow built for one clear output instead of a crowded template library.
           </p>
         </div>
         <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
           <FileText className="mb-4 h-7 w-7 text-brand-mint" />
-          <h2 className="text-xl font-black">Transcript subtitles</h2>
+          <h2 className="text-xl font-black">Speech timing</h2>
           <p className="mt-3 text-sm leading-6 text-slate-300">
-            Speech-based reels use the transcript to make the output easier to follow.
+            Speech-based templates use transcripts for captions, scene timing, and text overlays.
           </p>
         </div>
         <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
-          <Sparkles className="mb-4 h-7 w-7 text-brand-mint" />
-          <h2 className="text-xl font-black">Short-form layout</h2>
+          <PlayCircle className="mb-4 h-7 w-7 text-brand-mint" />
+          <h2 className="text-xl font-black">Preview to export</h2>
           <p className="mt-3 text-sm leading-6 text-slate-300">
-            Designed for mobile-first platforms like Instagram Reels, YouTube Shorts, and TikTok.
+            Review supported previews before spending credits on the final rendered MP4.
           </p>
         </div>
       </section>

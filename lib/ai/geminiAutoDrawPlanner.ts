@@ -118,12 +118,23 @@ function buildScenesFromOverlayTimeline(
 ): DrawScene[] {
   if (!overlays.length) return [];
 
-  return overlays.slice(0, 10).map((overlay, i) => {
+  const scenes: DrawScene[] = [];
+
+  // Always inject intro scene with user's topic title
+  scenes.push({
+    start: 0,
+    end: Math.min(3, overlays[0]?.start || 3),
+    title: topicTitle || 'EXPLAINER',
+    subtitle: undefined,
+    sceneNumber: undefined,
+    isSummary: false,
+  });
+
+  overlays.slice(0, 9).forEach((overlay, i) => {
     const text = overlay.text || '';
     const body = overlay.body || '';
     const type = overlay.type || 'point';
 
-    // Smart title extraction
     let title = '';
     if (type === 'hook') title = text.split(' ').slice(0, 4).join(' ').toUpperCase();
     else if (type === 'cta') title = 'TAKE ACTION';
@@ -131,28 +142,33 @@ function buildScenesFromOverlayTimeline(
     else if (type === 'stat') title = text.split(' ').slice(0, 3).join(' ').toUpperCase();
     else title = text.split(' ').slice(0, 4).join(' ').toUpperCase();
 
-    // Build bullet points from body or comma-separated text
     let points: string[] | undefined;
     const bodyParts = body.split(/[,;.]/).map(s => s.trim()).filter(s => s.length > 2 && s.length < 60);
     if (bodyParts.length >= 2) points = bodyParts.slice(0, 4);
     else if (text.includes(',')) points = text.split(',').map(s => s.trim()).filter(Boolean).slice(0, 4);
 
-    // Highlight for warnings/stats
     const highlight = type === 'warning' || type === 'stat'
       ? (body || text).slice(0, 80)
       : undefined;
 
-    return {
+    scenes.push({
       start: overlay.start,
       end: overlay.end,
       title: title || `POINT ${i + 1}`,
       subtitle: text.slice(0, 120),
-      sceneNumber: i === 0 ? undefined : i,
+      sceneNumber: i + 1,
       points,
       highlight,
       isSummary: type === 'cta',
-    };
+    });
   });
+
+  // Ensure last scene covers full duration
+  if (scenes.length > 0) {
+    scenes[scenes.length - 1].end = durationSeconds;
+  }
+
+  return scenes;
 }
 
 function buildScenesFromCaptionsFallback(
@@ -160,54 +176,69 @@ function buildScenesFromCaptionsFallback(
   topicTitle: string,
 ): DrawScene[] {
   if (!captions.length) {
-    return [{start: 0, end: 10, title: topicTitle || 'EXPLAINER', sceneNumber: 1, subtitle: 'Upload audio to generate scenes'}];
+    return [{start: 0, end: 10, title: topicTitle || 'EXPLAINER', sceneNumber: undefined, subtitle: 'Upload audio to generate scenes'}];
   }
 
-  // Group captions into ~5s scenes
+  const totalDuration = captions[captions.length - 1]?.end || 30;
   const scenes: DrawScene[] = [];
+
+  // Intro scene with user's topic title
+  scenes.push({
+    start: 0,
+    end: Math.min(3, captions[0]?.start || 3),
+    title: topicTitle || 'EXPLAINER',
+    subtitle: undefined,
+    sceneNumber: undefined,
+    isSummary: false,
+  });
+
+  // Group captions into ~5-7s scenes
   let group: typeof captions = [];
   let groupStart = captions[0]?.start || 0;
 
   for (const cap of captions) {
-    if (group.length > 0 && (cap.start - groupStart > 5 || group.length >= 3)) {
+    if (group.length > 0 && (cap.start - groupStart > 6 || group.length >= 4)) {
       scenes.push({
         start: groupStart,
         end: group[group.length - 1].end,
         title: group[0].text.split(' ').slice(0, 4).join(' ').toUpperCase(),
         subtitle: group.map(c => c.text).join(' ').slice(0, 120),
-        sceneNumber: scenes.length + 1,
-        points: group.length > 1 ? group.map(c => c.text.slice(0, 50)) : undefined,
+        sceneNumber: scenes.length,
+        points: group.length > 1 ? group.slice(0, 4).map(c => c.text.slice(0, 50)) : undefined,
       });
       group = [];
       groupStart = cap.start;
     }
     group.push(cap);
   }
+
+  // Last group — always extends to totalDuration
   if (group.length) {
     scenes.push({
       start: groupStart,
-      end: group[group.length - 1].end,
+      end: totalDuration,
       title: group[0].text.split(' ').slice(0, 4).join(' ').toUpperCase(),
       subtitle: group.map(c => c.text).join(' ').slice(0, 120),
-      sceneNumber: scenes.length + 1,
+      sceneNumber: scenes.length,
+      points: group.length > 1 ? group.slice(0, 4).map(c => c.text.slice(0, 50)) : undefined,
+      isSummary: true,
     });
   }
 
-  return scenes.slice(0, 10);
+  return scenes.slice(0, 12);
 }
 
 function validateScenes(raw: unknown[], durationSeconds: number): DrawScene[] {
-  return raw
-    .map((item: any, i) => {
+  const scenes = raw
+    .map((item: any, i): DrawScene | null => {
       const start = Number(item?.start ?? 0);
       const end = Number(item?.end ?? start + 4);
       if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) return null;
-      if (start > durationSeconds || end > durationSeconds + 1) return null;
       const title = String(item?.title || `POINT ${i + 1}`).slice(0, 50);
       if (!title) return null;
       return {
         start: Math.max(0, start),
-        end: Math.min(durationSeconds, end),
+        end: Math.min(durationSeconds + 1, end),
         title,
         subtitle: item?.subtitle ? String(item.subtitle).slice(0, 150) : undefined,
         sceneNumber: item?.sceneNumber != null ? Number(item.sceneNumber) : (i > 0 ? i : undefined),
@@ -217,4 +248,11 @@ function validateScenes(raw: unknown[], durationSeconds: number): DrawScene[] {
       } satisfies DrawScene;
     })
     .filter((scene): scene is DrawScene => scene !== null);
+
+  // Always extend the last scene to cover full duration (prevents freeze)
+  if (scenes.length > 0) {
+    scenes[scenes.length - 1].end = durationSeconds;
+  }
+
+  return scenes;
 }

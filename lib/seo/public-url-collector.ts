@@ -23,7 +23,7 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
       priority: 1,
     },
     {
-      path: "/create",
+      path: "/templates",
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.9,
@@ -35,25 +35,7 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
       priority: 0.9,
     },
     {
-      path: "/templates/video-simple-explainer",
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.9,
-    },
-    {
       path: "/templates/compare-explainer",
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.9,
-    },
-    {
-      path: "/templates/cinematic-collage",
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.9,
-    },
-    {
-      path: "/templates/auto-draw-explainer",
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.9,
@@ -65,10 +47,34 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
       priority: 0.9,
     },
     {
+      path: "/templates/dynamic-creator-reel",
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      path: "/templates/auto-draw-explainer",
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      path: "/templates/creator-background-replace",
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      path: "/create",
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
       path: "/pricing",
       lastModified: now,
       changeFrequency: "monthly",
-      priority: 0.7,
+      priority: 0.8,
     },
     {
       path: "/features",
@@ -77,22 +83,28 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
       priority: 0.7,
     },
     {
+      path: "/blog",
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    {
       path: "/about",
       lastModified: now,
       changeFrequency: "monthly",
-      priority: 0.5,
-    },
-    {
-      path: "/contact",
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.5,
+      priority: 0.7,
     },
     {
       path: "/careers",
       lastModified: now,
       changeFrequency: "monthly",
-      priority: 0.4,
+      priority: 0.7,
+    },
+    {
+      path: "/contact",
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.7,
     },
     {
       path: "/privacy",
@@ -122,21 +134,6 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
             : 0.82,
   }));
 
-  const templateRoutes: PublicSitemapUrl[] = [
-    {
-      path: "/ai-explainer-video-generator",
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.9,
-    },
-    {
-      path: "/compare-explainer-video-maker",
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.88,
-    },
-  ];
-
   /*
     Future dynamic DB URLs yahan add karna:
 
@@ -153,7 +150,7 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
     }));
   */
 
-  const allRoutes = [...staticRoutes, ...seoRoutes, ...templateRoutes];
+  const allRoutes = [...staticRoutes, ...seoRoutes];
 
   const unique = new Map<string, PublicSitemapUrl>();
 

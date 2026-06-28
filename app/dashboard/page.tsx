@@ -20,6 +20,7 @@ import {
   Film,
   FolderOpen,
   ImageIcon,
+  ImagePlus,
   Layers3,
   Loader2,
   LogOut,
@@ -35,9 +36,31 @@ import {
 import type { LucideIcon } from "lucide-react";
 import BrandLogo from "@/components/brand/BrandLogo";
 import { useAuth } from "@/components/auth/AuthContext";
-import { SubtitleStylePicker } from "@/components/ui/SubtitleStylePicker";
+import { SubtitleStylePicker, SUBTITLE_PRESETS } from "@/components/ui/SubtitleStylePicker";
+import dynamic from "next/dynamic";
 
-type Mode = "videoExplainer" | "notes" | "videoCaption" | "imageStory" | "compare" | "autoCaption" | "imageStoryCollage" | "autoDraw" | "longVideoPromo" | "voiceSyncedNotes";
+// Lazy-load PreviewEditor — only loaded when user triggers preview
+const PreviewEditor = dynamic(
+  () => import("@/components/preview/PreviewEditor").then((m) => m.PreviewEditor),
+  { ssr: false }
+);
+
+type Mode =
+  | "compare"
+  | "autoCaption"
+  | "autoDraw"
+  | "longVideoPromo"
+  | "dynamicCreator"
+  | "creatorBackgroundReplace";
+type CreatorBackgroundSettings = {
+  backgroundFit: "cover" | "contain";
+  backgroundScale: number;
+  backgroundX: number;
+  backgroundY: number;
+  creatorScale: number;
+  creatorX: number;
+  creatorY: number;
+};
 type JobStatusState = "idle" | "uploading" | "starting" | "rendering" | "ready" | "error";
 type JobStatus = {
   state: JobStatusState;
@@ -80,98 +103,31 @@ const RENDER_POLL_INTERVAL_MS = 3000;
 const RENDER_POLL_ATTEMPTS = 360;
 
 const templateCards = [
-  {
-    id: "auto-caption-reel",
-    title: "Auto Caption Reel",
-    description: "Upload your reel and add stylish subtitles only. No extra images, no layout changes.",
-    image: "/preview/Auto Caption Reel.png",
-    badges: ["Video", "Subtitles", "Styles"],
-    active: true,
-    mode: "autoCaption" as const,
-  },
-  {
-    id: "video-simple-explainer",
-    title: "Video Simple Explainer",
-    description: "Your video + subtitles + title + one bottom explanation image.",
-    image: "/preview/Video Simple Explainer.png",
-    badges: ["Video/Audio", "Title", "1 Image"],
-    active: true,
-    mode: "videoExplainer" as const,
-  },
-  {
-    id: "compare-explainer",
-    title: "Compare Explainer",
-    description: "Audio voiceover + 2-4 images for left vs right comparison.",
-    image: "/preview/Compare Explainer.png",
-    badges: ["Audio", "2-4 images", "VS Layout"],
-    active: true,
-    mode: "compare" as const,
-  },
-  {
-    id: "cinematic-collage",
-    title: "Cinematic Collage",
-    description: "Audio voiceover + AI generates cinematic image scenes with text.",
-    image: "/preview/Cinematic Collage (Image Story).png",
-    badges: ["Audio/Video", "AI Images", "Cinematic"],
-    active: true,
-    mode: "imageStoryCollage" as const,
-  },
-  {
-    id: "auto-draw",
-    title: "Auto Draw Explainer",
-    description: "Whiteboard-style scenes drawn from your voiceover. No images needed.",
-    image: "/preview/Auto Draw Explainer.png",
-    badges: ["Audio/Video", "Whiteboard", "Auto Draw"],
-    active: true,
-    mode: "autoDraw" as const,
-  },
-  {
-    id: "long-video-promo",
-    title: "Long Video Promo",
-    description: "Promote your long YouTube videos with a premium promo reel. Thumbnail + title + CTA.",
-    image: "/preview/Long Video Promo.png",
-    badges: ["Video/Audio", "Thumbnail", "Promo"],
-    active: true,
-    mode: "longVideoPromo" as const,
-  },
-  {
-    id: "voice-synced-notes",
-    title: "Voice Synced Notes",
-    description: "Upload audio/video. AI creates study notes that reveal in sync with your voice.",
-    image: "/preview/Voice Synced Notes.png",
-    badges: ["Audio/Video", "Notes", "Study"],
-    active: true,
-    mode: "voiceSyncedNotes" as const,
-  },
+  { id: "dynamic-creator-reel", title: "Dynamic Creator Reel", tag: "Creator edit", description: "Talking video with premium typography and short-form pacing.", image: "/preview/Dynamic Creator Reel.png", badges: ["Video", "Typography"], proof: "Best first impression", accent: "#38BDF8", mode: "dynamicCreator" as const, category: "creator" },
+  { id: "auto-caption-reel", title: "Auto Caption Reel", tag: "Captions", description: "Clean word-level subtitles for existing reels.", image: "/preview/Auto Caption Reel.png", badges: ["Video", "Subtitles"], proof: "Most used", accent: "#22C55E", mode: "autoCaption" as const, category: "creator" },
+  { id: "creator-background-replace", title: "Creator Background Replace", tag: "Background", description: "Upload a creator video and replace the background with your image.", image: "/preview/Dynamic Creator Reel.png", badges: ["Video", "Image"], proof: "New utility", accent: "#F97316", mode: "creatorBackgroundReplace" as const, category: "creator" },
+  { id: "compare-explainer", title: "Compare Explainer", tag: "Comparison", description: "Left vs right comparison with narration and sticker presenter.", image: "/preview/Compare Explainer.png", badges: ["Audio", "2 Images"], proof: "Decision format", accent: "#F59E0B", mode: "compare" as const, category: "education" },
+  { id: "auto-draw", title: "Auto Draw Explainer", tag: "Whiteboard", description: "Voiceover converted into simple drawn explainer scenes.", image: "/preview/Auto Draw Explainer.png", badges: ["Audio", "Whiteboard"], proof: "Explainer format", accent: "#06B6D4", mode: "autoDraw" as const, category: "education" },
+  { id: "long-video-promo", title: "Long Video Promo", tag: "Promo", description: "Short vertical teaser for a long-form video.", image: "/preview/Long Video Promo.png", badges: ["Video", "Thumbnail"], proof: "Promo ready", accent: "#A3E635", mode: "longVideoPromo" as const, category: "creator" },
 ] as const;
 
+const TEMPLATE_CATEGORIES = [
+  {id: "all", label: "All"},
+  {id: "creator", label: "Creator"},
+  {id: "education", label: "Education"},
+] as const;
+
+const DEFAULT_CREATOR_BACKGROUND_SETTINGS: CreatorBackgroundSettings = {
+  backgroundFit: "cover",
+  backgroundScale: 1,
+  backgroundX: 0,
+  backgroundY: 0,
+  creatorScale: 1,
+  creatorX: 0,
+  creatorY: 0,
+};
+
 const modeConfig = {
-  videoExplainer: {
-    label: "Video Simple",
-    title: "Video Simple Explainer",
-    description: "📹 Upload: Video or audio with speech\n🖼️ Optional: One explanation image",
-    accept: "audio/*,video/*",
-    supported: "MP3, WAV, MP4, MOV",
-    bestResult: "Clear voice + one topic + optional image",
-    uploadCta: "📹 Upload video/audio",
-    icon: Film,
-    color: "text-cyan-200",
-    border: "border-cyan-300/35",
-    surface: "bg-cyan-300/[0.08]",
-  },
-  notes: {
-    label: "Handwritten Notes",
-    title: "Handwritten Notes",
-    description: "Upload voiceover or video with clear speech. AI writes live note sections.",
-    accept: "audio/*,video/*",
-    supported: "Supported: MP3, WAV, MP4, MOV, WEBM",
-    bestResult: "Best result: one teaching topic, clean explanation, around 1 minute.",
-    uploadCta: "Choose File",
-    icon: PenLine,
-    color: "text-amber-100",
-    border: "border-amber-200/35",
-    surface: "bg-amber-200/[0.08]",
-  },
   autoCaption: {
     label: "Auto Caption",
     title: "Auto Caption Reel",
@@ -181,22 +137,61 @@ const modeConfig = {
     bestResult: "9:16 video with clear voice",
     uploadCta: "📹 Upload your video",
     icon: Captions,
-    color: "text-emerald-100",
-    border: "border-emerald-200/35",
-    surface: "bg-emerald-200/[0.08]",
+    color: "text-blue-200",
+    border: "border-blue-400/30",
+    surface: "bg-blue-400/[0.08]",
   },
-  imageStoryCollage: {
-    label: "Cinematic Collage",
-    title: "Cinematic Collage",
-    description: "🎙️ Upload: Audio or video with speech\nAI creates cinematic text scenes",
+  compare: {
+    label: "Compare",
+    title: "Compare Explainer",
+    description: "🎙️ Upload: Audio voiceover\n🖼️ Required: 2 images (left vs right)",
+    accept: "audio/*",
+    supported: "MP3, WAV, M4A, AAC",
+    bestResult: "Short comparison voiceover + 2 clear images",
+    uploadCta: "🎙️ Upload audio",
+    icon: Layers3,
+    color: "text-blue-200",
+    border: "border-blue-400/30",
+    surface: "bg-blue-400/[0.08]",
+  },
+  longVideoPromo: {
+    label: "Long Video Promo",
+    title: "Long Video Promo",
+    description: "📹 Upload: Short promo clip (10-60s)\n🖼️ Required: Thumbnail image",
     accept: "audio/*,video/*",
     supported: "MP3, WAV, MP4, MOV",
-    bestResult: "Clear voiceover, 30-60 seconds",
-    uploadCta: "🎙️ Upload audio/video",
+    bestResult: "Short promo voiceover or talking-head clip",
+    uploadCta: "📹 Upload promo clip",
     icon: Film,
-    color: "text-violet-200",
-    border: "border-violet-300/35",
-    surface: "bg-violet-300/[0.08]",
+    color: "text-blue-300",
+    border: "border-blue-400/30",
+    surface: "bg-blue-400/[0.08]",
+  },
+  dynamicCreator: {
+    label: "Dynamic Edit",
+    title: "Dynamic Creator Reel",
+    description: "📹 Upload: One vertical talking video\nAI adds dynamic edits and typography",
+    accept: "video/*",
+    supported: "MP4, MOV, WEBM",
+    bestResult: "Vertical talking video with clear speech, 30-60 seconds",
+    uploadCta: "📹 Upload your talking video",
+    icon: Film,
+    color: "text-blue-200",
+    border: "border-blue-300/35",
+    surface: "bg-blue-300/[0.08]",
+  },
+  creatorBackgroundReplace: {
+    label: "Background Replace",
+    title: "Creator Background Replace",
+    description: "📹 Upload: Creator video\n🖼️ Required: Background image",
+    accept: "video/*",
+    supported: "MP4, MOV, WEBM + JPG/PNG/WEBP background",
+    bestResult: "Creator talking video with a clear subject and one background image",
+    uploadCta: "📹 Upload creator video",
+    icon: ImagePlus,
+    color: "text-orange-200",
+    border: "border-orange-300/35",
+    surface: "bg-orange-300/[0.08]",
   },
   autoDraw: {
     label: "Auto Draw",
@@ -207,77 +202,17 @@ const modeConfig = {
     bestResult: "Step-by-step explanation, clear voice",
     uploadCta: "🎙️ Upload audio/video",
     icon: Film,
-    color: "text-amber-200",
-    border: "border-amber-300/35",
-    surface: "bg-amber-300/[0.08]",
-  },
-  longVideoPromo: {
-    label: "Long Video Promo",
-    title: "Long Video Promo",
-    description: "📹 Upload: Short promo clip (10-30s)\n🖼️ Optional: YouTube thumbnail image",
-    accept: "audio/*,video/*",
-    supported: "MP3, WAV, MP4, MOV",
-    bestResult: "Short promo voiceover or talking-head clip",
-    uploadCta: "📹 Upload promo clip",
-    icon: Film,
-    color: "text-emerald-200",
-    border: "border-emerald-300/35",
-    surface: "bg-emerald-300/[0.08]",
-  },
-  voiceSyncedNotes: {
-    label: "Voice Notes",
-    title: "Voice Synced Notes",
-    description: "🎙️ Upload: Audio or video with speech\nNotes appear synced with your voice",
-    accept: "audio/*,video/*",
-    supported: "MP3, WAV, MP4, MOV",
-    bestResult: "Teaching/explanation content, 30-60 seconds",
-    uploadCta: "🎙️ Upload audio/video",
-    icon: Film,
-    color: "text-amber-200",
-    border: "border-amber-200/35",
-    surface: "bg-amber-200/[0.08]",
-  },
-  videoCaption: {
-    label: "Video Caption",
-    title: "Video Caption",
-    description: "Upload a video with speech. Captions come from the real transcript only.",
-    accept: "video/*",
-    supported: "Supported: MP4, MOV, WEBM",
-    bestResult: "Best result: clear speech, minimal background noise, around 1 minute.",
-    uploadCta: "Choose video for captions",
-    icon: Captions,
-    color: "text-violet-100",
-    border: "border-violet-200/35",
-    surface: "bg-violet-200/[0.08]",
-  },
-  imageStory: {
-    label: "Image Story",
-    title: "Image Story",
-    description: "Upload an image. Image-only reels do not need a transcript.",
-    accept: "image/*",
-    supported: "Supported: JPG, PNG, WEBP",
-
-    bestResult: "Best result: strong image and short topic/title.",
-    uploadCta: "Choose image",
-    icon: ImageIcon,
-    color: "text-fuchsia-200",
-    border: "border-fuchsia-300/35",
-    surface: "bg-fuchsia-300/[0.08]",
-  },
-  compare: {
-    label: "Compare",
-    title: "Compare",
-    description: "🎙️ Upload: Audio voiceover\n🖼️ Required: 2 images (left vs right)",
-    accept: "audio/*",
-    supported: "MP3, WAV, M4A, AAC",
-    bestResult: "Short comparison voiceover + 2 clear images",
-    uploadCta: "🎙️ Upload audio",
-    icon: Layers3,
-    color: "text-emerald-100",
-    border: "border-emerald-200/35",
-    surface: "bg-emerald-200/[0.08]",
+    color: "text-cyan-200",
+    border: "border-cyan-300/35",
+    surface: "bg-cyan-300/[0.08]",
   },
 } as const;
+
+type ActiveDashboardMode = keyof typeof modeConfig;
+
+function toActiveDashboardMode(mode: Mode): ActiveDashboardMode {
+  return Object.prototype.hasOwnProperty.call(modeConfig, mode) ? mode as ActiveDashboardMode : "autoCaption";
+}
 
 const renderPreviewBars = [42, 76, 48, 92, 58, 82, 38, 68, 96, 54, 74, 44, 88, 52, 72, 62];
 const renderParticles = [
@@ -289,23 +224,49 @@ const renderParticles = [
   {left: "88%", top: "62%", delay: "1.1s"},
 ];
 
+const normalizeCaptionFont = (font: string) => {
+  const key = font.split(",")[0]?.trim().toLowerCase();
+  if (key === "impact") return "Impact, sans-serif";
+  if (key === "arial black") return "Arial Black, sans-serif";
+  if (key === "georgia") return "Georgia, serif";
+  if (key === "courier new") return "Courier New, monospace";
+  if (key === "sans-serif") return "sans-serif";
+  return "Inter, sans-serif";
+};
+
 export default function DashboardPage() {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
-  const [mode, setMode] = useState<Mode>("compare");
+  const [mode, setMode] = useState<Mode>("dynamicCreator");
+  const [templateCategory, setTemplateCategory] = useState<string>("all");
+  const [hasUserSelected, setHasUserSelected] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [comparisonFiles, setComparisonFiles] = useState<File[]>([]);
-  const [videoExplainerImageFile, setVideoExplainerImageFile] = useState<File | null>(null);
   const [topicTitle, setTopicTitle] = useState("");
   const [compareLeftTitle, setCompareLeftTitle] = useState("");
   const [compareRightTitle, setCompareRightTitle] = useState("");
   const [compareHandle, setCompareHandle] = useState("@itnavideo");
   const [stickerStyle, setStickerStyle] = useState<string>("explainer");
-  const [captionStyle, setCaptionStyle] = useState<string>("highlight");
+  const [captionStyle, setCaptionStyle] = useState<string>("Studio Clean");
   const [captionPosition, setCaptionPosition] = useState<"bottom" | "center" | "top">("bottom");
+  const [captionFontFamily, setCaptionFontFamily] = useState("Inter, sans-serif");
+  const [captionFontSize, setCaptionFontSize] = useState<"small" | "medium" | "large" | "xlarge">("large");
   const [subtitleOutputLanguage, setSubtitleOutputLanguage] = useState<"hinglish" | "english">("hinglish");
   const [captionTextColor, setCaptionTextColor] = useState("#ffffff");
   const [captionHighlightColor, setCaptionHighlightColor] = useState("#facc15");
+  const [captionBackgroundColor, setCaptionBackgroundColor] = useState("#18181B");
+  const [videoLayout] = useState<"fullscreen" | "blur-bg" | "split">("fullscreen");
+  const [progressStyle] = useState<"glow" | "line" | "none">("glow");
+  const [wordClickSound] = useState(true);
+  const [promoThumbnailFile, setPromoThumbnailFile] = useState<File | null>(null);
+  const [promoTitle, setPromoTitle] = useState("");
+  const [promoChannelName, setPromoChannelName] = useState("");
+  const [promoSubscriberCount, setPromoSubscriberCount] = useState("");
+  const [promoCtaText, setPromoCtaText] = useState("Watch full video →");
+  const [promoBgMusic, setPromoBgMusic] = useState(false);
+  const [promoVideoDuration, setPromoVideoDuration] = useState("");
+  const [creatorBackgroundImageFile, setCreatorBackgroundImageFile] = useState<File | null>(null);
+  const [creatorBackgroundSettings, setCreatorBackgroundSettings] = useState<CreatorBackgroundSettings>(DEFAULT_CREATOR_BACKGROUND_SETTINGS);
   const [recentRenders, setRecentRenders] = useState<RecentRender[]>([]);
   const [previewRender, setPreviewRender] = useState<RecentRender | null>(null);
   const [deleteCandidate, setDeleteCandidate] = useState<RecentRender | null>(null);
@@ -313,6 +274,17 @@ export default function DashboardPage() {
   const [jobStatus, setJobStatus] = useState<JobStatus>({state: "idle", message: ""});
   const [billingEntitlement, setBillingEntitlement] = useState<BillingEntitlement | null>(null);
   const [paymentBanner, setPaymentBanner] = useState("");
+  const [previewTemplateId, setPreviewTemplateId] = useState<string | null>(null);
+
+  // ── Preview Editor state ────────────────────────────────────────────────────
+  // Stores pending upload keys + preview plan between "Generate Preview" and final render
+  const [previewPlan, setPreviewPlan] = useState<import("@/components/preview/types").PreviewPlan | null>(null);
+  const [pendingRenderKeys, setPendingRenderKeys] = useState<{
+    mediaKey: string;
+    comparisonImageKeys: string[];
+    promoThumbnailKey: string;
+    creatorBackgroundImageKey: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!loading && !user) router.push("/login");
@@ -351,6 +323,7 @@ export default function DashboardPage() {
       if (nextMode) {
         const timer = window.setTimeout(() => {
           setMode(nextMode);
+          setHasUserSelected(true);
           setSelectedFile(null);
           setComparisonFiles([]);
         }, 0);
@@ -362,7 +335,8 @@ export default function DashboardPage() {
     return undefined;
   }, []);
 
-  const activeMode = modeConfig[mode];
+  const activeModeKey = toActiveDashboardMode(mode);
+  const activeMode = modeConfig[activeModeKey];
   const isFounderDebugUser = user?.email?.toLowerCase() === "itnavideo@gmail.com" || user?.email?.toLowerCase() === "rohi@itnavideo.com";
   const ActiveModeIcon = activeMode.icon;
   const firstName = user?.displayName || user?.email?.split("@")[0] || "Creator";
@@ -376,17 +350,32 @@ export default function DashboardPage() {
   const canPrepareReel = Boolean(
     selectedFile &&
     (mode !== "compare" || comparisonFiles.length === 2) &&
+    (mode !== "creatorBackgroundReplace" || Boolean(creatorBackgroundImageFile)) &&
     !renderInProgress &&
     !paidLimitComplete,
   );
 
+  const chooseCaptionStyle = (nextStyle: string) => {
+    setCaptionStyle(nextStyle);
+    const preset = SUBTITLE_PRESETS.find((item) => item.key === nextStyle || item.style === nextStyle);
+    if (!preset) return;
+    setCaptionTextColor(preset.textColor);
+    setCaptionHighlightColor(preset.highlightColor);
+    setCaptionBackgroundColor(preset.bgColor || "");
+    setCaptionFontFamily(normalizeCaptionFont(preset.font));
+    setCaptionFontSize(nextStyle === "One Word" || nextStyle === "Bold Fire" ? "xlarge" : nextStyle === "Studio Clean" || nextStyle === "Karaoke Fill" ? "large" : "medium");
+  };
+
   const chooseTemplateMode = (nextMode: Mode) => {
     setMode(nextMode);
+    setHasUserSelected(true);
     setSelectedFile(null);
     setComparisonFiles([]);
+    setCreatorBackgroundImageFile(null);
+    setCreatorBackgroundSettings(DEFAULT_CREATOR_BACKGROUND_SETTINGS);
     setTopicTitle("");
     setJobStatus({state: "idle", message: ""});
-    const nextTemplate = nextMode === "autoCaption" ? "auto-caption-reel" : nextMode === "autoDraw" ? "auto-draw-explainer" : nextMode === "longVideoPromo" ? "long-video-promo" : nextMode === "voiceSyncedNotes" ? "voice-synced-notes" : nextMode === "imageStoryCollage" ? "cinematic-collage" : nextMode === "compare" ? "compare-explainer" : nextMode === "videoExplainer" ? "video-simple-explainer" : nextMode === "notes" ? "notes" : nextMode === "videoCaption" ? "video-caption" : "video-simple-explainer";
+    const nextTemplate = nextMode === "autoCaption" ? "auto-caption-reel" : nextMode === "autoDraw" ? "auto-draw-explainer" : nextMode === "longVideoPromo" ? "long-video-promo" : nextMode === "dynamicCreator" ? "dynamic-creator-reel" : nextMode === "creatorBackgroundReplace" ? "creator-background-replace" : "compare-explainer";
     window.history.replaceState(null, "", `/dashboard?template=${nextTemplate}`);
     // Auto-scroll to upload section on mobile
     setTimeout(() => {
@@ -409,6 +398,22 @@ export default function DashboardPage() {
     setJobStatus({state: "idle", message: ""});
   };
 
+  const removeSelectedFile = () => {
+    setSelectedFile(null);
+    setJobStatus({state: "idle", message: ""});
+  };
+
+  const removeCreatorBackgroundImage = () => {
+    setCreatorBackgroundImageFile(null);
+    setCreatorBackgroundSettings(DEFAULT_CREATOR_BACKGROUND_SETTINGS);
+    setJobStatus({state: "idle", message: ""});
+  };
+
+  const removePromoThumbnail = () => {
+    setPromoThumbnailFile(null);
+    setJobStatus({state: "idle", message: ""});
+  };
+
   const chooseComparisonFiles = (files: FileList | null) => {
     const nextFiles = Array.from(files || []).slice(0, 2);
     const invalid = nextFiles.find((file) => validateComparisonImage(file));
@@ -423,7 +428,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-black text-white">
+      <main className="flex min-h-screen items-center justify-center bg-[#0B1120] text-white">
         <p className="text-sm font-bold text-zinc-500">Loading dashboard...</p>
       </main>
     );
@@ -463,29 +468,66 @@ export default function DashboardPage() {
   };
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#050506] px-4 pb-12 pt-24 text-white sm:px-5 md:px-8 md:py-24">
+    <>
+    {/* ── Universal Preview Editor overlay ─────────────────────────── */}
+    {previewPlan && pendingRenderKeys && (
+      <PreviewEditor
+        plan={previewPlan}
+        isRendering={jobStatus.state === "starting" || jobStatus.state === "rendering"}
+        onCancel={() => {
+          setPreviewPlan(null);
+          setPendingRenderKeys(null);
+          setJobStatus({state: "idle", message: ""});
+        }}
+        onConfirmRender={async (finalInputProps) => {
+          if (!user || !pendingRenderKeys || !selectedFile) return;
+          setPreviewPlan(null); // close overlay
+          await submitFinalRender({
+            mediaKey: pendingRenderKeys.mediaKey,
+            fileName: selectedFile.name,
+            contentType: getUploadContentType(selectedFile),
+            userId: user.id,
+            comparisonImageKeys: pendingRenderKeys.comparisonImageKeys,
+            promoThumbnailKey: pendingRenderKeys.promoThumbnailKey,
+            creatorBackgroundImageKey: pendingRenderKeys.creatorBackgroundImageKey,
+            overrideInputProps: finalInputProps,
+          });
+          setPendingRenderKeys(null);
+        }}
+      />
+    )}
+    <main className="min-h-screen overflow-x-hidden bg-[#0B1120] px-4 pb-12 pt-24 text-white sm:px-5 md:px-8 md:py-24">
       <div className="mx-auto max-w-6xl">
         <header className="mb-6 flex flex-col gap-4 border-b border-white/8 pb-6 md:mb-8 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
             <BrandLogo size="md" showTagline />
-            <h1 className="mt-4 text-2xl font-black tracking-normal text-white sm:text-3xl">
+            <h1 className="mt-4 tracking-normal" style={{ fontSize: '28px', fontWeight: 600, color: '#FFFFFF' }}>
               Welcome back, {firstName} 👋
             </h1>
           </div>
           <div className="flex items-center gap-2">
             <Link
               href="/pricing"
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-brand-mint/25 bg-brand-mint/10 px-4 py-2.5 text-xs font-black text-brand-mint transition hover:bg-brand-mint/20"
+              className="inline-flex items-center justify-center gap-2 transition hover:opacity-90"
+              style={{
+                background: 'var(--color-amber-dark)',
+                color: 'var(--color-amber)',
+                border: '1px solid rgba(245, 197, 66, 0.3)',
+                fontSize: '12px',
+                fontWeight: 500,
+                borderRadius: '8px',
+                padding: '6px 14px',
+              }}
             >
               <Sparkles size={14} />
               Upgrade
             </Link>
             <Link
-              href="/videos"
+              href="#your-videos"
               className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-xs font-black text-zinc-300 transition hover:bg-white/[0.06]"
             >
               <FolderOpen size={14} />
-              Projects
+              Your Videos
             </Link>
             <button
               onClick={async () => {
@@ -501,148 +543,247 @@ export default function DashboardPage() {
         </header>
 
         {paymentBanner || billingEntitlement?.active ? (
-          <section className="mb-5 rounded-lg border border-brand-mint/25 bg-brand-mint/10 p-4 text-sm font-bold leading-6 text-zinc-100">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="mt-0.5 shrink-0 text-brand-mint" size={20} />
-                <div>
-                  <p className="text-brand-mint">
-                    {paymentBanner || `Congratulations. You are on the ${billingEntitlement?.planName || "paid"} plan.`}
-                  </p>
-                  {billingEntitlement?.active ? (
-                    <>
-                      <p className="mt-1 text-xs font-bold uppercase tracking-[0.16em] text-zinc-400">
-                        {billingEntitlement.planName} active until {formatDate(billingEntitlement.expiresAt)}
-                      </p>
-                      <p className="mt-2 text-sm font-black text-white">
-                        You can still make {billingEntitlement.usage?.remaining ?? billingEntitlement.monthlyVideoLimit} videos this billing period.
-                      </p>
-                    </>
-                  ) : null}
-                </div>
-              </div>
-              <div className="grid gap-2 sm:grid-cols-4 lg:min-w-[460px]">
-                <PlanStat label="Plan" value={billingEntitlement?.planName || "Paid"} />
-                <PlanStat label="Limit" value={String(billingEntitlement?.usage?.limit || billingEntitlement?.monthlyVideoLimit || "-")} />
-                <PlanStat label="Used" value={String(billingEntitlement?.usage?.used ?? 0)} />
-                <PlanStat label="Left" value={String(billingEntitlement?.usage?.remaining ?? billingEntitlement?.monthlyVideoLimit ?? "-")} accent />
-              </div>
-            </div>
+          <section className="mb-5 rounded-lg px-4 py-3" style={{ borderColor: 'var(--border-dark)', background: 'var(--bg-card)', border: '1px solid var(--border-dark)', borderRadius: '12px' }}>
+            {/* Credit progress bar */}
+            {(() => {
+              const total = billingEntitlement?.usage?.limit || billingEntitlement?.monthlyVideoLimit || 0;
+              const used = billingEntitlement?.usage?.used ?? 0;
+              const remaining = billingEntitlement?.usage?.remaining ?? total;
+              const pct = total > 0 ? Math.round((remaining / total) * 100) : 100;
+              const fillColor = pct <= 10 ? 'var(--color-error)' : pct <= 20 ? 'var(--color-warning)' : 'var(--color-primary-hover)';
+              return (
+                <>
+                  <div className="flex items-center justify-between mb-2">
+                    <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-secondary-light)' }}>
+                      Credits this month
+                    </span>
+                    <span className="hidden sm:inline" style={{ fontSize: '11px', color: 'var(--text-dark-muted)' }}>
+                      {billingEntitlement?.expiresAt ? `Resets ${formatDate(billingEntitlement.expiresAt)}` : ''}
+                    </span>
+                    <span className="sm:hidden" style={{ fontSize: '11px', color: 'var(--text-dark-muted)' }}>
+                      {billingEntitlement?.planName || 'Paid'}
+                    </span>
+                  </div>
+                  <div className="flex items-baseline gap-2 mb-3">
+                    <span style={{ fontSize: '22px', fontWeight: 600, color: fillColor }}>{remaining}</span>
+                    <span style={{ fontSize: '13px', color: 'var(--text-dark-muted)' }}>/ {total} remaining</span>
+                  </div>
+                  <div style={{ background: 'var(--border-dark)', height: '6px', borderRadius: '100px', overflow: 'hidden' }}>
+                    <div style={{ background: fillColor, height: '100%', borderRadius: '100px', width: `${pct}%`, transition: 'width 0.3s ease' }} />
+                  </div>
+                  <div className="flex items-center justify-between mt-2">
+                    <span style={{ fontSize: '11px', color: 'var(--text-dark-muted)' }}>{used} used</span>
+                    <span style={{ fontSize: '11px', color: 'var(--text-dark-muted)' }}>{pct}% left</span>
+                  </div>
+                </>
+              );
+            })()}
           </section>
         ) : null}
 
-        <div className="grid gap-5 lg:grid-cols-[1.08fr_0.92fr]">
+        {/* Low credits warning */}
+        {billingEntitlement?.active && typeof paidRemaining === "number" && paidRemaining <= 10 && paidRemaining > 0 ? (
+          <section className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between" style={{ background: 'var(--bg-raised)', border: '1px solid rgba(245, 197, 66, 0.25)', borderRadius: '10px', padding: '12px 16px' }}>
+            <div className="flex items-start gap-3">
+              <span className="mt-1 h-2 w-2 shrink-0 rounded-full" style={{ background: 'var(--color-amber)' }} />
+              <div>
+                <p style={{ fontSize: '12px', fontWeight: 500, color: 'var(--color-amber)' }}>Running low on credits</p>
+                <p style={{ fontSize: '12px', color: 'var(--text-dark-secondary)' }}>You have {paidRemaining} credits left this month.</p>
+              </div>
+            </div>
+            <Link
+              href="/pricing"
+              className="inline-flex shrink-0 items-center gap-1 transition hover:opacity-90"
+              style={{ background: 'var(--color-amber-dark)', color: 'var(--color-amber)', border: '1px solid rgba(245, 197, 66, 0.3)', fontSize: '12px', fontWeight: 500, borderRadius: '8px', padding: '6px 14px' }}
+            >
+              Upgrade plan →
+            </Link>
+          </section>
+        ) : null}
+
+        <div className="grid gap-5 lg:grid-cols-[1.08fr_0.92fr] lg:items-start">
           <section className="rounded-2xl border border-white/8 bg-zinc-950/80 p-4 md:p-6">
-            {/* Step indicator */}
-            <div className="mb-6 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">
-              <span className={mode ? "text-brand-mint" : "text-zinc-600"}>① Template</span>
-              <span className="text-zinc-800">→</span>
-              <span className={selectedFile ? "text-brand-mint" : "text-zinc-600"}>② Upload</span>
-              <span className="text-zinc-800">→</span>
-              <span className="text-zinc-600">③ Settings</span>
-              <span className="text-zinc-800">→</span>
-              <span className="text-zinc-600">④ Generate</span>
+            {/* Step indicator — full on md+, active step only on mobile */}
+            <div className="mb-6 hidden md:flex items-center text-[11px] uppercase tracking-widest">
+              <span className="flex items-center gap-1" style={{ color: mode && hasUserSelected ? 'var(--color-success)' : mode ? 'var(--color-primary-hover)' : 'var(--text-dark-muted)', fontWeight: mode ? 500 : 400 }}>
+                {mode && hasUserSelected ? <Check size={10} strokeWidth={3} /> : null}
+                Template
+              </span>
+              <span className="mx-2 flex-1 h-px" style={{ background: 'var(--border-dark)' }} />
+              <span className="flex items-center gap-1" style={{ color: selectedFile ? 'var(--color-success)' : (mode && hasUserSelected) ? 'var(--color-primary-hover)' : 'var(--text-dark-muted)', fontWeight: (mode && hasUserSelected) ? 500 : 400 }}>
+                {selectedFile ? <Check size={10} strokeWidth={3} /> : null}
+                Upload
+              </span>
+              <span className="mx-2 flex-1 h-px" style={{ background: 'var(--border-dark)' }} />
+              <span className="flex items-center gap-1" style={{ color: selectedFile ? 'var(--color-primary-hover)' : 'var(--text-dark-muted)', fontWeight: selectedFile ? 500 : 400 }}>
+                Settings
+              </span>
+              <span className="mx-2 flex-1 h-px" style={{ background: 'var(--border-dark)' }} />
+              <span style={{ color: 'var(--text-dark-muted)', fontWeight: 400 }}>
+                Generate
+              </span>
+            </div>
+            {/* Mobile: show only current step */}
+            <div className="mb-6 flex md:hidden items-center gap-2 text-[11px] uppercase tracking-widest">
+              <span className="flex items-center gap-1.5" style={{ color: 'var(--color-primary-hover)', fontWeight: 500 }}>
+                <span className="flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-black text-white" style={{ background: 'var(--color-primary-hover)' }}>
+                  {selectedFile ? '3' : (mode && hasUserSelected) ? '2' : '1'}
+                </span>
+                {selectedFile ? 'Settings' : (mode && hasUserSelected) ? 'Upload' : 'Template'}
+              </span>
+              <span style={{ color: 'var(--text-dark-muted)' }}>
+                — Step {selectedFile ? '3' : (mode && hasUserSelected) ? '2' : '1'} of 4
+              </span>
             </div>
 
             <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div className="min-w-0">
-                <h2 className="text-xl font-black text-white sm:text-2xl">Create a {activeMode.label} Reel</h2>
+                <h2 className="text-xl font-black text-white sm:text-2xl">{hasUserSelected ? `Create a ${activeMode.label} Reel` : 'Choose a Template'}</h2>
                 <p className="mt-2 max-w-lg text-sm leading-6 text-zinc-500">
-                  Select a template below, then upload your content.
+                  {hasUserSelected ? `Upload your content for ${activeMode.label}.` : 'Select a template below, then upload your content.'}
                 </p>
               </div>
+              {hasUserSelected && (
               <div className={`inline-flex items-center gap-2 rounded-xl border ${activeMode.border} ${activeMode.surface} px-3 py-2 text-xs font-black ${activeMode.color}`}>
                 <ActiveModeIcon size={14} />
                 {activeMode.label}
               </div>
+              )}
             </div>
 
-            <div className="grid gap-4">
-              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                {templateCards.map((template) => (
+            <div className="grid gap-3">
+              {/* Category filter bar */}
+              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+                {TEMPLATE_CATEGORIES.map((cat) => (
                   <button
-                    aria-disabled={!template.active}
-                    aria-pressed={template.active && template.mode === mode}
-                    className={`group relative overflow-hidden rounded-xl border text-left transition-all duration-200 ${
-                      template.active
-                        ? template.mode === mode
-                          ? "border-brand-mint/60 bg-brand-mint/[0.08] shadow-lg shadow-brand-mint/5 scale-[1.02]"
-                          : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.05]"
-                        : "cursor-not-allowed border-white/8 bg-white/[0.02] opacity-60"
-                    }`}
-                    key={template.id}
-                    onClick={() => {
-                      if (!template.active) return;
-                      if (!template.mode) return;
-                      chooseTemplateMode(template.mode);
+                    key={cat.id}
+                    className="shrink-0 transition"
+                    style={{
+                      borderRadius: '20px',
+                      padding: '4px 12px',
+                      fontSize: '12px',
+                      fontWeight: 500,
+                      border: templateCategory === cat.id ? '1px solid var(--color-primary-tint)' : '1px solid transparent',
+                      background: templateCategory === cat.id ? 'var(--color-primary-subtle)' : 'var(--bg-raised)',
+                      color: templateCategory === cat.id ? 'var(--color-primary)' : 'var(--text-dark-muted)',
                     }}
+                    onClick={() => setTemplateCategory(cat.id)}
                     type="button"
                   >
-                    {/* Selected indicator */}
-                    {template.active && template.mode === mode ? (
-                      <div className="absolute right-2 top-2 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-brand-mint text-black">
-                        <Check size={12} />
-                      </div>
-                    ) : null}
-                    <div className="relative aspect-[4/3] overflow-hidden bg-black">
-                      <Image
-                        alt=""
-                        className={`object-cover object-top transition duration-500 ${template.active ? "group-hover:scale-[1.025]" : "grayscale-[0.2]"}`}
-                        fill
-                        priority={template.active && template.mode === mode}
-                        sizes="(min-width: 1024px) 210px, (min-width: 640px) 30vw, 100vw"
-                        src={template.image}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent" />
-                      <div
-                        className={`absolute left-3 top-3 rounded-md px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.14em] ${
-                          template.active && template.mode === mode ? "bg-brand-mint text-black" : "border border-white/12 bg-black/62 text-zinc-300"
-                        }`}
-                      >
-                        {template.active ? template.mode === mode ? "Selected" : "Active" : "Unavailable"}
-                      </div>
-                      {!template.active ? (
-                        <div className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-md border border-white/12 bg-black/62 text-zinc-300">
-                          <Lock size={14} />
-                        </div>
-                      ) : null}
-                    </div>
-                    <div className="p-3">
-                      <p className="text-sm font-black text-white">{template.title}</p>
-                      <p className="mt-1 line-clamp-2 text-xs leading-5 text-zinc-500">{template.description}</p>
-                      <div className="mt-3 flex flex-wrap gap-1.5">
-                        {template.badges.map((badge) => (
-                          <span
-                            className={`rounded-md border px-2 py-1 text-[10px] font-black uppercase tracking-[0.1em] ${
-                              template.active && template.mode === mode
-                                ? "border-brand-mint/30 bg-brand-mint/10 text-brand-mint"
-                                : "border-white/10 bg-black/25 text-zinc-400"
-                            }`}
-                            key={`${template.id}-${badge}`}
-                          >
-                            {badge}
-                          </span>
-                        ))}
-                      </div>
-                      <div
-                        className={`mt-3 inline-flex w-full items-center justify-center rounded-md px-3 py-2 text-xs font-black transition ${
-                          template.active
-                            ? template.mode === mode
-                              ? "bg-brand-mint text-black"
-                              : "border border-brand-mint/25 bg-brand-mint/10 text-brand-mint group-hover:bg-brand-mint group-hover:text-black"
-                            : "border border-white/10 bg-white/[0.035] text-zinc-500"
-                        }`}
-                      >
-                        {template.active ? template.mode === mode ? "Using this template" : "Use template" : "Unavailable"}
-                      </div>
-                    </div>
+                    {cat.label}
                   </button>
                 ))}
               </div>
 
+              {/* Template cards - visual output selector */}
+              <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 xl:grid-cols-6">
+                {templateCards
+                  .filter((t) => templateCategory === "all" || t.category === templateCategory)
+                  .map((template) => {
+                  const isSelected = hasUserSelected && template.mode === mode;
+                  return (
+                  <button
+                    aria-pressed={isSelected}
+                    className="group relative flex flex-col items-center text-center"
+                    style={{
+                      transition: 'all 0.15s ease',
+                      transform: isSelected ? 'scale(1.02)' : undefined,
+                    }}
+                    key={template.id}
+                    onClick={() => chooseTemplateMode(template.mode)}
+                    type="button"
+                    onMouseEnter={(e) => { if (!isSelected) e.currentTarget.style.transform = 'scale(1.02)'; }}
+                    onMouseLeave={(e) => { if (!isSelected) e.currentTarget.style.transform = ''; }}
+                  >
+                    {/* Phone frame with interaction states */}
+                    <div
+                      className={`relative w-full aspect-[9/16] overflow-hidden rounded-lg ${!isSelected ? 'template-card-frame' : ''}`}
+                      style={{
+                        transition: 'all 0.15s ease',
+                        border: isSelected ? `2px solid ${template.accent}` : '1px solid rgba(255,255,255,0.1)',
+                        boxShadow: isSelected
+                          ? `0 12px 34px ${template.accent}30`
+                          : '0 10px 28px rgba(0,0,0,0.25)',
+                        background: isSelected ? `${template.accent}16` : '#0F172A',
+                        padding: '4px',
+                      }}
+                    >
+                      {/* Inner screen */}
+                      <div className="relative w-full h-full overflow-hidden rounded-md bg-black">
+                        {/* Preview image */}
+                        <Image
+                          alt={template.title}
+                          className="object-cover object-center transition duration-300 group-hover:scale-[1.02]"
+                          fill
+                          sizes="(min-width: 1280px) 180px, (min-width: 1024px) 160px, (min-width: 640px) 150px, 30vw"
+                          src={template.image}
+                        />
+
+                        {/* Bottom gradient */}
+                        <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/88 via-black/35 to-transparent" />
+
+                        <span
+                          className="absolute left-2 top-2 z-20 rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-wide text-slate-950"
+                          style={{ backgroundColor: template.accent }}
+                        >
+                          {template.proof}
+                        </span>
+
+                        {/* Selected checkmark */}
+                        {isSelected && (
+                          <div className="absolute right-2 top-2 z-20 flex h-5 w-5 items-center justify-center rounded-full text-slate-950 shadow-md" style={{ background: template.accent }}>
+                            <Check size={11} strokeWidth={3} />
+                          </div>
+                        )}
+
+                        {/* Expand preview on hover */}
+                        <div
+                          className="absolute right-2 bottom-6 z-20 flex h-5 w-5 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm border border-white/15 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:bg-black/70"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPreviewTemplateId(template.id);
+                          }}
+                          role="button"
+                          aria-label={`Preview ${template.title}`}
+                        >
+                          <Eye size={9} />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Category tag + template name below */}
+                    <span className="mt-2.5 text-[10px] font-bold uppercase tracking-[0.08em]" style={{ color: 'var(--text-dark-muted)' }}>
+                      {template.tag}
+                    </span>
+                    <p className="mt-0.5 leading-tight line-clamp-2" style={{ fontSize: '13px', fontWeight: 500, color: isSelected ? 'var(--color-primary-hover)' : 'var(--text-dark-secondary)' }}>
+                      {template.title}
+                    </p>
+                  </button>
+                  );
+                })}
+              </div>
+
+              {/* Selected template summary + upload form — only shown after user clicks a template */}
+              {hasUserSelected && (<>
+              <div className={`rounded-xl border-2 ${activeMode.border} ${activeMode.surface} p-3 flex items-center gap-3 shadow-sm`}>
+                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${activeMode.border} bg-black/30 ${activeMode.color}`}>
+                  <ActiveModeIcon size={20} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold text-white truncate">{activeMode.title}</p>
+                  <p className="text-[11px] text-zinc-400 truncate mt-0.5">{activeMode.bestResult}</p>
+                </div>
+                <div className="shrink-0 flex flex-col items-end gap-1">
+                  <div className="rounded-md bg-brand-mint/10 border border-brand-mint/25 px-2 py-0.5 text-[10px] font-bold text-brand-mint">
+                    1 credit
+                  </div>
+                  <span className="text-[9px] text-zinc-500">per video</span>
+                </div>
+              </div>
+
               <label
                 id="upload-section"
-                className={`flex min-h-56 min-w-0 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border border-dashed ${activeMode.border} ${activeMode.surface} p-4 text-center transition hover:bg-white/[0.055] sm:min-h-64 sm:p-6`}
+                className="upload-zone flex min-h-56 min-w-0 cursor-pointer flex-col items-center justify-center overflow-hidden sm:min-h-64"
               >
                 <input
                   accept={activeMode.accept}
@@ -653,102 +794,35 @@ export default function DashboardPage() {
                   }}
                   type="file"
                 />
-                <div className={`mb-5 flex h-16 w-16 items-center justify-center rounded-lg border ${activeMode.border} bg-black/25 ${activeMode.color}`}>
-                  <ActiveModeIcon size={30} />
+                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl" style={{ background: 'rgba(37, 99, 235, 0.1)' }}>
+                  <Upload size={28} style={{ color: 'var(--color-primary-hover)' }} />
                 </div>
-                <p className="text-xl font-black text-white sm:text-2xl">{activeMode.title}</p>
-                <p className="mt-3 max-w-sm text-sm leading-6 text-zinc-400">{activeMode.description}</p>
-                <p className="mt-3 text-xs font-bold text-zinc-500">{activeMode.supported}</p>
-                <p className="mt-1 text-xs font-bold text-zinc-500">{activeMode.bestResult}</p>
-                <span className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-white px-4 py-3 text-sm font-black text-black sm:w-auto">
-                  <Upload size={16} />
-                  {activeMode.uploadCta}
-                </span>
+                <p className="text-sm font-medium text-white">{activeMode.uploadCta || 'Click to upload or drag & drop'}</p>
+                <p className="mt-2 text-xs" style={{ color: 'var(--text-dark-muted)' }}>{activeMode.supported} • Max 1 minute</p>
                 {selectedFile ? (
                   <div className="mt-5 w-full rounded-md border border-white/10 bg-black/35 px-4 py-3 text-left">
-                    <p className="truncate text-sm font-black text-white">{selectedFile.name}</p>
-                    <p className="mt-1 text-xs font-bold text-zinc-500">{fileMeta}</p>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-black text-white">{selectedFile.name}</p>
+                        <p className="mt-1 text-xs font-bold text-zinc-500">{fileMeta}</p>
+                      </div>
+                      <button
+                        className="shrink-0 rounded-md border border-red-400/25 bg-red-500/10 px-2.5 py-1.5 text-[11px] font-black text-red-100 transition hover:bg-red-500 hover:text-white"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          removeSelectedFile();
+                        }}
+                        type="button"
+                      >
+                        Remove
+                      </button>
+                    </div>
                   </div>
                 ) : null}
                 {selectedFile ? (
                   <SelectedMediaPreview file={selectedFile} mode={mode} />
                 ) : null}</label>
-
-              {mode === "videoExplainer" ? (
-                <div className="rounded-lg border border-amber-300/20 bg-amber-300/[0.06] p-4">
-                  <label className="text-sm font-black text-white" htmlFor="video-explainer-image">
-                    Bottom explanation image
-                  </label>
-                  <p className="mt-1 text-xs font-bold leading-5 text-zinc-400">
-                    Upload one image. It will fit below subtitles using contain mode, no crop.
-                  </p>
-
-                  <label className="mt-4 flex min-h-32 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-amber-300/35 bg-black/25 p-4 text-center transition hover:bg-white/[0.05]">
-                    <input
-                      accept="image/png,image/jpeg,image/jpg,image/webp"
-                      className="hidden"
-                      id="video-explainer-image"
-                      onChange={(event: ChangeEvent<HTMLInputElement>) => {
-                        const file = event.target.files?.[0] || null;
-                        if (file && !file.type.startsWith("image/")) {
-                          setJobStatus({state: "error", message: "Bottom explanation image must be PNG, JPG, or WebP."});
-                          event.currentTarget.value = "";
-                          return;
-                        }
-                        setVideoExplainerImageFile(file);
-                        setJobStatus({state: "idle", message: ""});
-                        event.currentTarget.value = "";
-                      }}
-                      type="file"
-                    />
-                    <Upload size={18} className="mb-2 text-amber-200" />
-                    <span className="text-sm font-black text-white">
-                      {videoExplainerImageFile ? "Change bottom image" : "Upload bottom image"}
-                    </span>
-                    {videoExplainerImageFile ? (
-                      <span className="mt-2 max-w-full truncate text-xs font-bold text-zinc-400">
-                        {videoExplainerImageFile.name}
-                      </span>
-                    ) : null}
-                  </label>
-
-                  {videoExplainerImageFile ? (
-                    <div className="mt-4 rounded-lg border border-white/10 bg-black/30 p-3">
-                      <p className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-amber-100">
-                        Bottom image preview
-                      </p>
-                      <div className="flex items-center gap-3">
-                        <div className="h-24 w-24 overflow-hidden rounded-lg border border-amber-300/25 bg-white">
-                          <img
-                            alt="Bottom explanation preview"
-                            className="h-full w-full object-contain"
-                            src={URL.createObjectURL(videoExplainerImageFile)}
-                          />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-black text-white">{videoExplainerImageFile.name}</p>
-                          <p className="mt-1 text-xs font-bold text-zinc-500">
-                            This image will appear below subtitles in the final reel.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ) : null}
-
-                  {videoExplainerImageFile ? (
-                    <button
-                      className="mt-3 rounded-md border border-white/10 px-3 py-2 text-xs font-black text-zinc-300 transition hover:bg-white/10"
-                      onClick={() => {
-                        setVideoExplainerImageFile(null);
-                        setJobStatus({state: "idle", message: ""});
-                      }}
-                      type="button"
-                    >
-                      Remove image
-                    </button>
-                  ) : null}
-                </div>
-              ) : null}
 
               {mode === "compare" ? (
                 <CompareImageSlots
@@ -776,8 +850,197 @@ export default function DashboardPage() {
                   </>
               ) : null}
 
+              {mode === "creatorBackgroundReplace" ? (
+                <div className="rounded-lg border border-orange-300/20 bg-orange-300/[0.06] p-4">
+                  <p className="text-sm font-black text-white">Background image</p>
+                  <p className="mt-1 text-xs font-bold leading-5 text-zinc-400">
+                    Upload one image. We auto-fit it first, then you can adjust background and creator placement.
+                  </p>
+
+                  <label className="upload-zone mt-4 flex min-h-28 cursor-pointer flex-col items-center justify-center">
+                    <input
+                      accept="image/png,image/jpeg,image/jpg,image/webp"
+                      className="hidden"
+                      onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                        const file = event.target.files?.[0] || null;
+                        if (file && !file.type.startsWith("image/")) {
+                          setJobStatus({state: "error", message: "Background must be PNG, JPG, or WEBP."});
+                          event.currentTarget.value = "";
+                          return;
+                        }
+                        setCreatorBackgroundImageFile(file);
+                        setJobStatus({state: "idle", message: ""});
+                        event.currentTarget.value = "";
+                      }}
+                      type="file"
+                    />
+                    <Upload size={18} className="mb-2 text-orange-200" />
+                    <span className="text-sm font-black text-white">
+                      {creatorBackgroundImageFile ? "Change background image" : "Upload background image"}
+                    </span>
+                    {creatorBackgroundImageFile ? (
+                      <span className="mt-2 max-w-full truncate text-xs font-bold text-zinc-400">{creatorBackgroundImageFile.name}</span>
+                    ) : (
+                      <span className="mt-1 text-xs text-zinc-500">JPG, PNG, WEBP</span>
+                    )}
+                  </label>
+
+                  {selectedFile && creatorBackgroundImageFile ? (
+                    <CreatorBackgroundLivePreview
+                      backgroundFile={creatorBackgroundImageFile}
+                      creatorFile={selectedFile}
+                      settings={creatorBackgroundSettings}
+                    />
+                  ) : null}
+
+                  {creatorBackgroundImageFile ? (
+                    <div className="mt-3 flex items-center justify-between gap-3 rounded-md border border-orange-300/20 bg-black/25 px-3 py-2">
+                      <div className="min-w-0">
+                        <p className="truncate text-xs font-black text-white">{creatorBackgroundImageFile.name}</p>
+                        <p className="mt-0.5 text-[10px] font-bold text-zinc-500">{formatBytes(creatorBackgroundImageFile.size)}</p>
+                      </div>
+                      <button
+                        className="shrink-0 rounded-md border border-red-400/25 bg-red-500/10 px-2.5 py-1.5 text-[11px] font-black text-red-100 transition hover:bg-red-500 hover:text-white"
+                        onClick={removeCreatorBackgroundImage}
+                        type="button"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ) : null}
+
+                  {creatorBackgroundImageFile ? (
+                    <div className="mt-4 grid gap-4">
+                      <div className="grid gap-2">
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs font-black uppercase tracking-[0.16em] text-zinc-500">Background</p>
+                          <div className="inline-flex overflow-hidden rounded-lg border border-white/10 bg-black/20">
+                            {(["cover", "contain"] as const).map((fit) => (
+                              <button
+                                key={fit}
+                                className={`px-3 py-1.5 text-[11px] font-black uppercase ${creatorBackgroundSettings.backgroundFit === fit ? "bg-orange-300 text-slate-950" : "text-zinc-400"}`}
+                                onClick={() => setCreatorBackgroundSettings((current) => ({...current, backgroundFit: fit}))}
+                                type="button"
+                              >
+                                {fit}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <RangeControl label="Zoom" max={1.8} min={0.8} step={0.01} value={creatorBackgroundSettings.backgroundScale} onChange={(value) => setCreatorBackgroundSettings((current) => ({...current, backgroundScale: value}))} />
+                        <RangeControl label="Position X" max={100} min={-100} step={1} value={creatorBackgroundSettings.backgroundX} onChange={(value) => setCreatorBackgroundSettings((current) => ({...current, backgroundX: value}))} />
+                        <RangeControl label="Position Y" max={100} min={-100} step={1} value={creatorBackgroundSettings.backgroundY} onChange={(value) => setCreatorBackgroundSettings((current) => ({...current, backgroundY: value}))} />
+                      </div>
+
+                      <div className="grid gap-2 border-t border-white/10 pt-4">
+                        <p className="text-xs font-black uppercase tracking-[0.16em] text-zinc-500">Creator</p>
+                        <RangeControl label="Scale" max={1.6} min={0.55} step={0.01} value={creatorBackgroundSettings.creatorScale} onChange={(value) => setCreatorBackgroundSettings((current) => ({...current, creatorScale: value}))} />
+                        <RangeControl label="Position X" max={160} min={-160} step={1} value={creatorBackgroundSettings.creatorX} onChange={(value) => setCreatorBackgroundSettings((current) => ({...current, creatorX: value}))} />
+                        <RangeControl label="Position Y" max={220} min={-220} step={1} value={creatorBackgroundSettings.creatorY} onChange={(value) => setCreatorBackgroundSettings((current) => ({...current, creatorY: value}))} />
+                      </div>
+
+                      <button
+                        className="w-fit rounded-lg border border-white/10 px-3 py-2 text-xs font-black text-zinc-300 transition hover:bg-white/10"
+                        onClick={() => setCreatorBackgroundSettings(DEFAULT_CREATOR_BACKGROUND_SETTINGS)}
+                        type="button"
+                      >
+                        Reset adjustments
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+
+              {mode === "longVideoPromo" ? (
+                <div className="rounded-lg border border-blue-400/20 bg-blue-400/[0.06] p-4">
+                  <p className="text-sm font-black text-white">Promo details</p>
+                  <p className="mt-1 text-xs font-bold leading-5 text-zinc-400">
+                    Add your video thumbnail and title. Upload a promo clip below.
+                  </p>
+
+                  {/* Thumbnail upload */}
+                  <label className="upload-zone mt-4 flex min-h-28 cursor-pointer flex-col items-center justify-center">
+                    <input
+                      accept="image/png,image/jpeg,image/jpg,image/webp"
+                      className="hidden"
+                      onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                        const file = event.target.files?.[0] || null;
+                        if (file && !file.type.startsWith("image/")) {
+                          setJobStatus({state: "error", message: "Thumbnail must be PNG, JPG, or WebP."});
+                          event.currentTarget.value = "";
+                          return;
+                        }
+                        setPromoThumbnailFile(file);
+                        setJobStatus({state: "idle", message: ""});
+                        event.currentTarget.value = "";
+                      }}
+                      type="file"
+                    />
+                    <Upload size={18} className="mb-2 text-blue-300" />
+                    <span className="text-sm font-black text-white">
+                      {promoThumbnailFile ? "Change thumbnail" : "🖼️ Upload thumbnail"}
+                    </span>
+                    {promoThumbnailFile ? (
+                      <span className="mt-2 max-w-full truncate text-xs font-bold text-zinc-400">{promoThumbnailFile.name}</span>
+                    ) : (
+                      <span className="mt-1 text-xs text-zinc-500">Recommended: 1280×720 or similar</span>
+                    )}
+                  </label>
+
+                  {promoThumbnailFile ? (
+                    <div className="mt-3 flex items-center gap-3">
+                      <div className="h-16 w-28 overflow-hidden rounded-lg border border-blue-400/25 bg-black">
+                        <UploadedImagePreview alt="Thumbnail preview" className="h-full w-full object-cover" file={promoThumbnailFile} />
+                      </div>
+                      <button className="text-xs font-black text-zinc-400 hover:text-white" onClick={removePromoThumbnail} type="button">Remove</button>
+                    </div>
+                  ) : null}
+
+                  {/* Text fields — only title and duration (channel/CTA/subs removed from template) */}
+                  <div className="mt-4 grid gap-3">
+                    <label className="grid gap-1.5">
+                      <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Video title</span>
+                      <input
+                        className="form-input"
+                        maxLength={80}
+                        onChange={(e) => setPromoTitle(e.target.value)}
+                        placeholder="My YouTube video title"
+                        type="text"
+                        value={promoTitle}
+                      />
+                      <span className="text-right" style={{ fontSize: '11px', color: promoTitle.length >= 75 ? 'var(--color-error)' : promoTitle.length >= 65 ? 'var(--color-amber)' : 'var(--text-dark-muted)' }}>{promoTitle.length}/80</span>
+                    </label>
+                    <label className="grid gap-1.5">
+                      <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Video duration (optional)</span>
+                      <input
+                        className="form-input"
+                        onChange={(e) => setPromoVideoDuration(e.target.value)}
+                        placeholder="12:34 (MM:SS format)"
+                        type="text"
+                        value={promoVideoDuration}
+                      />
+                      <span className="text-[10px] text-zinc-600">Shows on thumbnail — viewers see video length</span>
+                    </label>
+
+                    {/* Background music toggle */}
+                    <label className="flex items-center gap-3 rounded-lg border border-white/8 bg-black/20 px-3 py-3 cursor-pointer hover:bg-white/[0.03] transition">
+                      <input
+                        type="checkbox"
+                        checked={promoBgMusic}
+                        onChange={(e) => setPromoBgMusic(e.target.checked)}
+                        className="h-4 w-4 rounded border-white/20 bg-black accent-blue-500"
+                      />
+                      <div>
+                        <p className="text-xs font-bold text-white">Add background music</p>
+                        <p className="text-[10px] text-zinc-500">OFF by default — your clip already has audio</p>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              ) : null}
+
               {mode === "autoCaption" ? (
-                <div className="rounded-lg border border-emerald-300/20 bg-emerald-300/[0.06] p-4">
+                <div className="rounded-lg border border-blue-400/20 bg-blue-400/[0.06] p-4">
                   <div>
                     <p className="text-sm font-black text-white">Caption controls</p>
                     <p className="mt-1 text-xs font-bold leading-5 text-zinc-400">
@@ -787,9 +1050,9 @@ export default function DashboardPage() {
 
                   <div className="mt-4 grid gap-3 sm:grid-cols-2">
                     <label className="grid gap-2">
-                      <span className="text-xs font-black uppercase tracking-[0.16em] text-zinc-500">Subtitle language</span>
+                      <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Subtitle language</span>
                       <select
-                        className="rounded-lg border border-white/10 bg-black/35 px-3 py-3 text-sm font-bold text-white outline-none focus:border-brand-mint/55"
+                        className="form-input"
                         onChange={(event) => setSubtitleOutputLanguage(event.target.value as "hinglish" | "english")}
                         value={subtitleOutputLanguage}
                       >
@@ -799,16 +1062,16 @@ export default function DashboardPage() {
                     </label>
 
                     <label className="grid gap-2">
-                      <span className="text-xs font-black uppercase tracking-[0.16em] text-zinc-500">Caption style</span>
+                      <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Caption style</span>
                     </label>
                     <div className="sm:col-span-2">
-                      <SubtitleStylePicker value={captionStyle as any} onChange={(v) => setCaptionStyle(v)} />
+                      <SubtitleStylePicker value={captionStyle} onChange={chooseCaptionStyle} />
                     </div>
 
                     <label className="grid gap-2">
-                      <span className="text-xs font-black uppercase tracking-[0.16em] text-zinc-500">Position</span>
+                      <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Position</span>
                       <select
-                        className="rounded-lg border border-white/10 bg-black/35 px-3 py-3 text-sm font-bold text-white outline-none focus:border-brand-mint/55"
+                        className="form-input"
                         onChange={(event) => setCaptionPosition(event.target.value as "bottom" | "center" | "top")}
                         value={captionPosition}
                       >
@@ -818,9 +1081,39 @@ export default function DashboardPage() {
                       </select>
                     </label>
 
+                    <label className="grid gap-2">
+                      <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Font</span>
+                      <select
+                        className="form-input"
+                        onChange={(event) => setCaptionFontFamily(event.target.value)}
+                        value={captionFontFamily}
+                      >
+                        <option value="Inter, sans-serif">Inter</option>
+                        <option value="Impact, sans-serif">Impact</option>
+                        <option value="Arial Black, sans-serif">Arial Black</option>
+                        <option value="Georgia, serif">Georgia</option>
+                        <option value="Courier New, monospace">Courier New</option>
+                        <option value="sans-serif">Sans Serif</option>
+                      </select>
+                    </label>
+
+                    <label className="grid gap-2">
+                      <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Size</span>
+                      <select
+                        className="form-input"
+                        onChange={(event) => setCaptionFontSize(event.target.value as "small" | "medium" | "large" | "xlarge")}
+                        value={captionFontSize}
+                      >
+                        <option value="small">Small</option>
+                        <option value="medium">Medium</option>
+                        <option value="large">Large</option>
+                        <option value="xlarge">Extra large</option>
+                      </select>
+                    </label>
+
                     <div className="grid grid-cols-2 gap-3">
                       <label className="grid gap-2">
-                        <span className="text-xs font-black uppercase tracking-[0.16em] text-zinc-500">Text</span>
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Text</span>
                         <select
                           className="h-12 rounded-lg border border-white/10 bg-black/35 px-3 text-sm font-bold text-white outline-none focus:border-brand-mint/55"
                           onChange={(event) => setCaptionTextColor(event.target.value)}
@@ -837,7 +1130,7 @@ export default function DashboardPage() {
                       </label>
 
                       <label className="grid gap-2">
-                        <span className="text-xs font-black uppercase tracking-[0.16em] text-zinc-500">Highlight</span>
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Highlight</span>
                         <select
                           className="h-12 rounded-lg border border-white/10 bg-black/35 px-3 text-sm font-bold text-white outline-none focus:border-brand-mint/55"
                           onChange={(event) => setCaptionHighlightColor(event.target.value)}
@@ -851,26 +1144,49 @@ export default function DashboardPage() {
                           <option value="#ffffff">White</option>
                         </select>
                       </label>
+
+                      <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Background</span>
+                        <select
+                          className="h-12 rounded-lg border border-white/10 bg-black/35 px-3 text-sm font-bold text-white outline-none focus:border-brand-mint/55"
+                          onChange={(event) => setCaptionBackgroundColor(event.target.value)}
+                          value={captionBackgroundColor}
+                        >
+                          <option value="#18181B">Soft black</option>
+                          <option value="#000000">Black</option>
+                          <option value="rgba(0,0,0,0.55)">Transparent black</option>
+                          <option value="#ffffff">White</option>
+                          <option value="#2563eb">Blue</option>
+                          <option value="#facc15">Yellow</option>
+                          <option value="">No background</option>
+                        </select>
+                      </label>
                     </div>
+
                   </div>
                 </div>
               ) : null}
               <div className={mode === "autoCaption" ? "hidden" : "rounded-lg border border-white/10 bg-white/[0.035] p-4"}>
-                <label className="text-sm font-black text-white" htmlFor="reel-topic">
-                  {mode === "videoExplainer" ? "Reel title (shows at top of video)" : "Optional reel topic/title"}
+                <label className="form-label-muted" htmlFor="reel-topic">
+                  Reel topic/title
                 </label>
                 <input
-                  className="mt-3 w-full rounded-lg border border-white/10 bg-black/35 px-4 py-3 text-sm font-bold text-white outline-none transition placeholder:text-zinc-600 focus:border-brand-mint/55"
+                  className="form-input mt-3 w-full"
                   id="reel-topic"
-                  maxLength={120}
+                  maxLength={60}
                   onChange={(event) => setTopicTitle(event.target.value)}
-                  placeholder={mode === "imageStory" ? "Example: RBI Grade B training process" : mode === "compare" ? "Example: Website vs Web App" : "Example: PAN Card apply process"}
+                  placeholder={mode === "compare" ? "Example: Website vs Web App" : "Example: PAN Card apply process"}
                   type="text"
                   value={topicTitle}
                 />
-                <p className="mt-2 text-xs leading-5 text-zinc-500">
-                  {mode === "videoExplainer" ? "This title will display at the top of your video reel." : "Optional when speech exists. Helpful for topic-specific explainer titles."}
-                </p>
+                <div className="mt-1.5 flex items-center justify-between">
+                  <p className="text-xs leading-5" style={{ color: 'var(--text-dark-muted)' }}>
+                    Optional. Helpful for topic-specific explainer titles.
+                  </p>
+                  <span style={{ fontSize: '11px', color: topicTitle.length >= 55 ? 'var(--color-error)' : topicTitle.length >= 48 ? 'var(--color-amber)' : 'var(--text-dark-muted)' }}>
+                    {topicTitle.length}/60
+                  </span>
+                </div>
               </div>
 
               {/* Subtitle language selector — all templates */}
@@ -880,7 +1196,7 @@ export default function DashboardPage() {
                     <span className="text-sm font-black text-white">Subtitle language</span>
                     <p className="text-xs font-bold leading-5 text-zinc-500">Choose what language your subtitles will be in.</p>
                     <select
-                      className="mt-1 rounded-lg border border-white/10 bg-black/35 px-3 py-3 text-sm font-bold text-white outline-none focus:border-brand-mint/55"
+                      className="mt-1 form-input"
                       onChange={(event) => setSubtitleOutputLanguage(event.target.value as typeof subtitleOutputLanguage)}
                       value={subtitleOutputLanguage}
                     >
@@ -900,14 +1216,34 @@ export default function DashboardPage() {
                 />
               </div>
 
+              {/* Pre-generation credit notice */}
+              <div className="flex items-center gap-2" style={{ background: 'var(--bg-raised)', border: '0.5px solid var(--border-dark)', borderRadius: '8px', padding: '6px 12px' }}>
+                <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: 'var(--color-primary-hover)' }} />
+                <p style={{ fontSize: '12px', color: 'var(--text-dark-secondary)' }}>
+                  This will use <span style={{ fontWeight: 600, color: 'var(--color-primary-hover)' }}>1 credit</span> — {billingEntitlement?.usage?.remaining ?? billingEntitlement?.monthlyVideoLimit ?? '—'} remaining
+                </p>
+              </div>
+
               <button
-                className={`inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-4.5 text-sm font-black transition ${
+                className={`inline-flex w-full items-center justify-center gap-2 transition ${
                   canPrepareReel
-                    ? "bg-brand-mint text-black shadow-lg shadow-brand-mint/15 hover:bg-white hover:shadow-white/15"
-                    : "cursor-not-allowed border border-white/8 bg-white/[0.03] text-zinc-500"
+                    ? ""
+                    : "cursor-not-allowed opacity-50"
                 }`}
+                style={{
+                  background: canPrepareReel ? 'var(--color-primary-hover)' : 'rgba(255,255,255,0.03)',
+                  color: canPrepareReel ? '#FFFFFF' : 'var(--text-dark-muted)',
+                  fontSize: '15px',
+                  fontWeight: 600,
+                  padding: '14px 32px',
+                  borderRadius: '10px',
+                  width: '100%',
+                  border: canPrepareReel ? 'none' : '1px solid rgba(255,255,255,0.08)',
+                }}
                 disabled={!canPrepareReel}
                 onClick={startRenderJob}
+                onMouseEnter={(e) => { if (canPrepareReel) e.currentTarget.style.background = 'var(--color-primary)'; }}
+                onMouseLeave={(e) => { if (canPrepareReel) e.currentTarget.style.background = 'var(--color-primary-hover)'; }}
                 type="button"
               >
                 <Sparkles size={17} />
@@ -924,7 +1260,7 @@ export default function DashboardPage() {
               <p className="text-center text-xs font-bold leading-5 text-zinc-500">
                 {renderInProgress
                   ? "Please do not close this tab. Your video is being generated."
-                  : !selectedFile ? "Upload a file to continue. " : mode === "compare" && comparisonFiles.length !== 2 ? "Add at least two compare images. " : ""}
+                  : !selectedFile ? "Upload a file to continue. " : mode === "compare" && comparisonFiles.length !== 2 ? "Add at least two compare images. " : mode === "creatorBackgroundReplace" && !creatorBackgroundImageFile ? "Upload one background image. " : ""}
                 {!renderInProgress ? "First video starts at ₹9. Most reels finish in 3–5 minutes." : ""}
               </p>
               <ProgressPreview mode={mode} />
@@ -945,21 +1281,24 @@ export default function DashboardPage() {
                     jobStatus.title || selectedFile?.name?.replace(/\.[^.]+$/, "") || "Current reel",
                     jobStatus.design || "Auto from script",
                   ))}
+                  onReset={() => setJobStatus({state: "idle", message: ""})}
                   status={jobStatus}
                   title={jobStatus.title || selectedFile?.name || activeMode.title}
                 />
               ) : null}
+              </>)}
             </div>
           </section>
 
-          <aside className="space-y-6">
-            <section className="rounded-lg border border-white/10 bg-zinc-950 p-4 md:p-6">
+          <aside className="space-y-6 lg:sticky lg:top-20">
+            <section id="your-videos" className="scroll-mt-24 p-4 md:p-6" style={{ background: 'var(--bg-raised)', border: '0.5px solid var(--border-dark)', borderRadius: '12px' }}>
               <div className="mb-5 flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-sm font-black uppercase tracking-[0.2em] text-brand-mint">Recent renders</p>
-                  <h2 className="mt-2 text-xl font-black text-white sm:text-2xl">Available for 48 hours</h2>
+                  <p style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-secondary-light)' }}>Your Videos</p>
+                  <h2 className="mt-2 text-xl font-black text-white sm:text-2xl">Exports from every template</h2>
+                  <p className="mt-2 text-xs font-bold leading-5 text-zinc-500">Finished videos stay here for 48 hours, no matter which template created them.</p>
                 </div>
-                <FolderOpen className="text-brand-mint" size={22} />
+                <FolderOpen size={22} style={{ color: 'var(--color-secondary-light)' }} />
               </div>
               {recentRenders.length ? (
                 <div className="space-y-3">
@@ -968,10 +1307,17 @@ export default function DashboardPage() {
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <p className="truncate text-sm font-black text-white">{render.title}</p>
-                          <p className="mt-1 text-xs font-bold uppercase tracking-[0.14em] text-zinc-500">
-                            {getModeLabel(render.mode)} | {formatTimeLeft(render.expiresAt)}
+                          <p className="mt-1 text-xs font-bold text-zinc-500">
+                            {getModeLabel(render.mode)} · {formatCreatedTime(render.createdAt)}
                           </p>
                         </div>
+                        <span className="shrink-0 rounded-md border border-brand-mint/25 bg-brand-mint/10 px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-brand-mint">
+                          {getVideoStatusLabel(render.expiresAt)}
+                        </span>
+                      </div>
+                      <div className="mt-3 flex items-center justify-between gap-3 rounded-md border border-white/10 bg-white/[0.035] px-3 py-2">
+                        <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-zinc-500">Available</span>
+                        <span className="text-xs font-black text-zinc-200">{formatTimeLeft(render.expiresAt)}</span>
                       </div>
                       <div className="mt-3 grid gap-2 sm:grid-cols-3">
                         <button
@@ -1006,13 +1352,13 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 <div className="rounded-lg border border-dashed border-white/10 bg-black/20 px-4 py-6 text-sm font-bold leading-6 text-zinc-500">
-                  Finished reels will appear here on this device until their temporary links expire.
+                  Your exported videos will appear here after final render. You will not need to remember which template created them.
                 </div>
               )}
             </section>
 
-            <section className="rounded-lg border border-amber-200/18 bg-amber-200/[0.055] p-4 md:p-6">
-              <p className="text-sm font-black uppercase tracking-[0.2em] text-amber-100">Upload privacy</p>
+            <section className="p-4 md:p-6" style={{ background: 'var(--bg-raised)', border: '0.5px solid var(--border-dark)', borderRadius: '12px' }}>
+              <p style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-success)' }}>Upload privacy</p>
               <div className="mt-5 space-y-3">
                 {[
                   "Your uploads are private and temporary.",
@@ -1021,7 +1367,7 @@ export default function DashboardPage() {
                   "We only use your file to create your reel.",
                 ].map((item) => (
                   <div key={item} className="flex items-start gap-3 text-sm font-bold leading-6 text-zinc-200">
-                    <ShieldCheck className="mt-0.5 shrink-0 text-amber-100" size={16} />
+                    <ShieldCheck className="mt-0.5 shrink-0" size={16} style={{ color: 'var(--color-success)' }} />
                     <span>{item}</span>
                   </div>
                 ))}
@@ -1136,7 +1482,89 @@ export default function DashboardPage() {
           </div>
         </div>
       ) : null}
+
+      {/* Template Preview Modal */}
+      {previewTemplateId && (() => {
+        const previewTemplate = templateCards.find((t) => t.id === previewTemplateId);
+        if (!previewTemplate) return null;
+        const previewMode = modeConfig[previewTemplate.mode];
+        return (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4"
+            onClick={() => setPreviewTemplateId(null)}
+            role="dialog"
+            aria-label={`Preview ${previewTemplate.title}`}
+          >
+            <div
+              className="relative flex max-h-[90vh] w-full max-w-sm flex-col overflow-hidden rounded-2xl border border-white/10 bg-zinc-900 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close button */}
+              <button
+                className="absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 border border-white/10 text-white hover:bg-black/80 transition"
+                onClick={() => setPreviewTemplateId(null)}
+                type="button"
+                aria-label="Close preview"
+              >
+                <X size={16} />
+              </button>
+
+              {/* Full reel preview image - 9:16 */}
+              <div className="relative aspect-[9/16] w-full overflow-hidden bg-black">
+                <Image
+                  alt={previewTemplate.title}
+                  className="object-cover object-center"
+                  fill
+                  sizes="380px"
+                  src={previewTemplate.image}
+                  priority
+                />
+                {/* Bottom gradient */}
+                <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-zinc-900 to-transparent" />
+              </div>
+
+              {/* Info panel */}
+              <div className="p-4 border-t border-white/5 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className="text-sm font-black text-white">{previewTemplate.title}</h3>
+                    <p className="text-[11px] text-zinc-400 mt-0.5">{previewTemplate.description}</p>
+                  </div>
+                  <div className="shrink-0 rounded-md bg-brand-mint/10 border border-brand-mint/25 px-2 py-0.5 text-[10px] font-bold text-brand-mint">
+                    1 credit
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5">
+                  {previewTemplate.badges.map((badge) => (
+                    <span key={badge} className="rounded-md bg-white/[0.06] border border-white/5 px-2 py-0.5 text-[10px] font-semibold text-zinc-300">
+                      {badge}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="rounded-lg bg-white/[0.03] border border-white/5 p-2.5">
+                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1">Best for</p>
+                  <p className="text-xs text-zinc-300">{previewMode?.bestResult || previewTemplate.description}</p>
+                </div>
+
+                <button
+                  className="w-full rounded-xl bg-brand-mint px-4 py-2.5 text-xs font-black text-black transition hover:bg-brand-mint/90"
+                  onClick={() => {
+                    chooseTemplateMode(previewTemplate.mode);
+                    setPreviewTemplateId(null);
+                  }}
+                  type="button"
+                >
+                  {previewTemplate.mode === mode ? '✓ Already Selected' : 'Use This Template'}
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </main>
+    </>
   );
 
   async function startRenderJob() {
@@ -1147,12 +1575,12 @@ export default function DashboardPage() {
       return;
     }
 
-    if (mode === "videoExplainer" && !videoExplainerImageFile) {
-      setJobStatus({state: "error", message: "Video Simple Explainer needs one bottom explanation image."});
-      return;
-    }
     if (mode === "compare" && comparisonFiles.length !== 2) {
       setJobStatus({state: "error", message: "Compare needs exactly two images: one left and one right."});
+      return;
+    }
+    if (mode === "creatorBackgroundReplace" && !creatorBackgroundImageFile) {
+      setJobStatus({state: "error", message: "Creator Background Replace needs one background image."});
       return;
     }
     const userId = user.id;
@@ -1188,34 +1616,176 @@ export default function DashboardPage() {
         ? await uploadComparisonImages({files: comparisonFiles, userId})
         : [];
 
-      const videoExplainerImageKey = mode === "videoExplainer" && videoExplainerImageFile
-        ? await uploadVideoExplainerImage({file: videoExplainerImageFile, userId})
+      const promoThumbnailKey = mode === "longVideoPromo" && promoThumbnailFile
+        ? await uploadTemplateImage({file: promoThumbnailFile, userId})
         : "";
 
-      setJobStatus({state: "starting", message: planningMessageForMode(mode)});
+      const creatorBackgroundImageKey = mode === "creatorBackgroundReplace" && creatorBackgroundImageFile
+        ? await uploadTemplateImage({file: creatorBackgroundImageFile, userId})
+        : "";
+
+      // ── PREVIEW STEP: templates that support it show preview before render ──
+      // Templates with in-browser preview: autoCaption, compare, dynamicCreator
+      // All other templates go straight to render (existing behavior)
+      const PREVIEW_SUPPORTED_MODES: Mode[] = ["autoCaption", "compare", "dynamicCreator"];
+      if (PREVIEW_SUPPORTED_MODES.includes(mode)) {
+        setJobStatus({state: "starting", message: "Generating your preview…"});
+        try {
+          const previewTemplateName = mode === "autoCaption"
+            ? "AUTO_CAPTION_REEL"
+            : mode === "compare"
+              ? "comparisonImages"
+              : "DYNAMIC_CREATOR_REEL";
+          const previewResponse = await fetch("/api/reels/preview", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+              mediaKey: presign.key,
+              fileName: selectedFile.name,
+              contentType: uploadContentType,
+              templateName: previewTemplateName,
+              userId,
+              comparisonImageKeys,
+              compareLeftTitle: compareLeftTitle.trim(),
+              compareRightTitle: compareRightTitle.trim(),
+              creatorHandle: compareHandle.trim() || "@itnavideo",
+              stickerStyle,
+              subtitleOutputLanguage,
+              captionStyle,
+              captionPosition,
+              captionFontFamily,
+              captionFontSize,
+              captionTextColor,
+              captionHighlightColor,
+              captionBackgroundColor,
+              captionShowBackground: captionBackgroundColor !== "",
+              videoLayout: mode === "autoCaption" ? "fullscreen" : videoLayout,
+              progressStyle: mode === "autoCaption" ? "none" : progressStyle,
+              wordClickSound: mode === "autoCaption" ? false : wordClickSound,
+              topicTitle: topicTitle.trim(),
+            }),
+          });
+          const previewData = await readJsonPayload(previewResponse);
+          if (previewResponse.ok && previewData.ok && previewData.preview) {
+            // Save upload keys for final render after user confirms preview
+            setPendingRenderKeys({
+              mediaKey: presign.key,
+              comparisonImageKeys,
+              promoThumbnailKey,
+              creatorBackgroundImageKey,
+            });
+            setPreviewPlan(previewData.preview);
+            setJobStatus({state: "idle", message: ""});
+            return; // Stop here — wait for user to confirm in PreviewEditor
+          }
+          // Preview failed — fall through to direct render
+          console.warn("[PREVIEW] Could not generate preview, falling back to direct render:", previewData.error);
+        } catch (previewErr) {
+          console.warn("[PREVIEW] Preview request failed, falling back to direct render:", previewErr);
+        }
+      }
+
+      // Direct render path (no preview) — used for all other templates
+      // and as fallback when preview fails
+      await submitFinalRender({
+        mediaKey: presign.key,
+        fileName: selectedFile.name,
+        contentType: uploadContentType,
+        userId,
+        comparisonImageKeys,
+        promoThumbnailKey,
+        creatorBackgroundImageKey,
+        overrideInputProps: {},
+      });
+    } catch (error) {
+      setJobStatus({
+        state: "error",
+        message: formatNetworkError(error, "We could not generate this reel."),
+        failureStage: "upload",
+      });
+    }
+  }
+
+  // Called either directly (non-preview templates) or from PreviewEditor confirm
+  async function submitFinalRender({
+    mediaKey,
+    fileName: renderFileName,
+    contentType: renderContentType,
+    userId,
+    comparisonImageKeys,
+    promoThumbnailKey,
+    creatorBackgroundImageKey,
+    overrideInputProps,
+  }: {
+    mediaKey: string;
+    fileName: string;
+    contentType: string;
+    userId: string;
+    comparisonImageKeys: string[];
+    promoThumbnailKey: string;
+    creatorBackgroundImageKey: string;
+    overrideInputProps: Record<string, unknown>;
+  }) {
+    setJobStatus({state: "starting", message: planningMessageForMode(mode)});
+    try {
       const jobResponse = await fetch("/api/reels/jobs", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
-          mediaKey: presign.key,
-          fileName: selectedFile.name,
-          contentType: uploadContentType,
-          mediaType: getFileMediaType(selectedFile),
+          mediaKey,
+          fileName: renderFileName,
+          contentType: renderContentType,
+          mediaType: getFileMediaType(selectedFile!),
           mode,
           topicTitle: topicTitle.trim(),
-          design: mode === "videoExplainer" && videoExplainerImageKey ? "simpleManual" : undefined,
           userId,
           comparisonImageKeys,
-          explanationImageKey: videoExplainerImageKey,
           compareLeftTitle: compareLeftTitle.trim(),
           compareRightTitle: compareRightTitle.trim(),
           creatorHandle: compareHandle.trim() || "@itnavideo",
-          stickerStyle,
-          captionStyle,
-          captionPosition,
+          stickerStyle: String(overrideInputProps.stickerStyle || stickerStyle),
+          // Use edited values from preview if available, else dashboard form values
+          captionStyle: String(overrideInputProps.captionStyle || captionStyle),
+          captionPosition: String(overrideInputProps.captionPosition || captionPosition),
+          captionFontFamily: String(overrideInputProps.fontFamily || captionFontFamily),
+          captionFontSize: String(overrideInputProps.fontSize || captionFontSize),
           subtitleOutputLanguage,
-          captionTextColor,
-          captionHighlightColor,
+          captionTextColor: String(overrideInputProps.textColor || captionTextColor),
+          captionHighlightColor: String(overrideInputProps.highlightColor || captionHighlightColor),
+          captionBackgroundColor: String(overrideInputProps.backgroundColor || captionBackgroundColor),
+          captionShowBackground: typeof overrideInputProps.showBackground === "boolean" ? overrideInputProps.showBackground : captionBackgroundColor !== "",
+          videoLayout: mode === "autoCaption" ? "fullscreen" : String(overrideInputProps.videoLayout || videoLayout),
+          progressStyle: mode === "autoCaption" ? "none" : String(overrideInputProps.progressStyle || progressStyle),
+          wordClickSound: mode === "autoCaption" ? false : wordClickSound,
+          accentColor: overrideInputProps.accentColor || undefined,
+          stickerScale: overrideInputProps.stickerScale || undefined,
+          stickerOffsetX: overrideInputProps.stickerOffsetX || undefined,
+          stickerOffsetY: overrideInputProps.stickerOffsetY || undefined,
+          // Pass edited captions from preview directly so jobs route uses them
+          ...(overrideInputProps.captions ? { previewCaptions: overrideInputProps.captions } : {}),
+          ...(overrideInputProps.scenes ? { previewScenes: overrideInputProps.scenes } : {}),
+          ...(overrideInputProps.overlayTimeline ? { previewOverlayTimeline: overrideInputProps.overlayTimeline } : {}),
+          ...(overrideInputProps.stickers ? { previewStickers: overrideInputProps.stickers } : {}),
+          // Long Video Promo fields
+          ...(mode === "longVideoPromo" ? {
+            promoTitle: promoTitle.trim(),
+            channelName: promoChannelName.trim(),
+            subscriberCount: promoSubscriberCount.trim(),
+            ctaText: promoCtaText.trim() || "Watch full video →",
+            thumbnailKey: promoThumbnailKey || undefined,
+            backgroundMusic: promoBgMusic,
+            videoDuration: promoVideoDuration.trim() || undefined,
+          } : {}),
+          ...(mode === "creatorBackgroundReplace" ? {
+            backgroundImageKey: creatorBackgroundImageKey || undefined,
+            backgroundFit: creatorBackgroundSettings.backgroundFit,
+            backgroundScale: creatorBackgroundSettings.backgroundScale,
+            backgroundX: creatorBackgroundSettings.backgroundX,
+            backgroundY: creatorBackgroundSettings.backgroundY,
+            creatorScale: creatorBackgroundSettings.creatorScale,
+            creatorX: creatorBackgroundSettings.creatorX,
+            creatorY: creatorBackgroundSettings.creatorY,
+          } : {}),
         }),
       });
       const job = await readJsonPayload(jobResponse);
@@ -1244,10 +1814,58 @@ export default function DashboardPage() {
       }
       const plannedTitle = typeof job.reelTitle === "string" && job.reelTitle.trim()
         ? job.reelTitle.trim()
-        : selectedFile.name.replace(/\.[^.]+$/, "") || "Itnavideo reel";
+        : renderFileName.replace(/\.[^.]+$/, "") || "Itnavideo reel";
       const plannedDesign = typeof job.design === "string" && job.design.trim()
         ? job.design.trim()
         : "Auto from script";
+
+      if (job.status === "ready" && typeof job.outputFile === "string" && job.outputFile) {
+        const renderId = typeof job.renderId === "string" && job.renderId ? job.renderId : `direct-${Date.now()}`;
+        const bucketName = typeof job.bucketName === "string" ? job.bucketName : "";
+        const finishedRender: RecentRender = {
+          id: renderId,
+          title: plannedTitle,
+          mode,
+          design: plannedDesign,
+          outputFile: job.outputFile,
+          createdAt: Date.now(),
+          expiresAt: Date.now() + RECENT_RENDER_RETENTION_MS,
+        };
+        const localRenders = saveRecentRender(userId, finishedRender);
+        setRecentRenders(localRenders);
+        if (bucketName) {
+          saveServerRecentRender(userId, finishedRender, bucketName).then((serverRender) => {
+            if (!serverRender) return;
+            setRecentRenders((current) => mergeRecentRenders([serverRender, ...current]));
+            saveRecentRenders(userId, mergeRecentRenders([serverRender, ...localRenders]));
+            loadBillingEntitlement(userId).then(setBillingEntitlement).catch((error) => {
+              console.warn("Could not refresh billing status:", error);
+            });
+          }).catch((error) => {
+            console.warn("Could not save Supabase render history:", error);
+          });
+        }
+        setJobStatus({
+          state: "ready",
+          message: job.message || "Final MP4 is ready.",
+          progress: 1,
+          outputFile: job.outputFile,
+          renderId,
+          bucketName,
+          title: plannedTitle,
+          design: plannedDesign,
+        });
+        return;
+      }
+
+      if (typeof job.renderId !== "string" || !job.renderId || typeof job.bucketName !== "string" || !job.bucketName) {
+        setJobStatus({
+          state: "error",
+          message: "Render started but did not return a valid render id. Please try again.",
+          failureStage: "render",
+        });
+        return;
+      }
 
       setJobStatus({
         state: "rendering",
@@ -1380,25 +1998,22 @@ function validateFileForMode(file: File, mode: Mode) {
   const name = file.name.toLowerCase();
   const isVideo = type.startsWith("video/") || /\.(mp4|mov|webm|m4v)$/i.test(name);
   const isAudio = type.startsWith("audio/") || /\.(mp3|wav|m4a|aac|ogg)$/i.test(name);
-  const isImage = type.startsWith("image/") || /\.(jpg|jpeg|png|webp)$/i.test(name);
   const maxBytes = 500 * 1024 * 1024;
 
   if (file.size > maxBytes) {
     return "This file is too large. Please upload a shorter file or compress it under 500MB.";
   }
-  if ((mode === "videoCaption" || mode === "autoCaption") && !isVideo) {
-    return mode === "autoCaption" ? "Auto Caption Reel needs a video file. Please upload an MP4/MOV video." : "Video Caption needs a video file. Please upload an MP4/MOV video or choose another template.";
-  }
-  if (mode === "notes" && !isAudio && !isVideo) {
-    return "Handwritten Notes needs audio or video with clear speech.";
-  }
-  if (mode === "imageStory" && !isImage) {
-    return "Image Story needs an image file. Supported formats include JPG, PNG, and WEBP.";
+  if ((mode === "creatorBackgroundReplace" || mode === "autoCaption" || mode === "dynamicCreator") && !isVideo) {
+    if (mode === "creatorBackgroundReplace") return "Creator Background Replace needs a video file. Please upload an MP4/MOV video.";
+    if (mode === "dynamicCreator") return "Dynamic Creator Reel needs a video file. Please upload an MP4/MOV video.";
+    return "Auto Caption Reel needs a video file. Please upload an MP4/MOV video.";
   }
   if (mode === "compare" && !isAudio) {
-    return "Compare needs an audio voiceover plus 2 to 4 comparison photos.";
+    return "Compare needs an audio voiceover plus 2 comparison photos.";
   }
-  // Video Explainer media validation is handled by the backend so browser File.type quirks do not block valid uploads.
+  if ((mode === "autoDraw" || mode === "longVideoPromo") && !isAudio && !isVideo) {
+    return `${modeConfig[mode].title} needs an audio or video file with clear speech.`;
+  }
   return "";
 }
 
@@ -1478,16 +2093,17 @@ async function uploadComparisonImages({files, userId}: {files: File[]; userId: s
 }
 
 function planningMessageForMode(mode: Mode) {
-  if (mode === "notes") return "Creating note sections and writing animations...";
   if (mode === "autoCaption") return "Preparing styled subtitles for your reel...";
-  if (mode === "videoCaption") return "Preparing timed captions from your real transcript...";
-  if (mode === "imageStory") return "Creating image story beats and motion...";
   if (mode === "compare") return "Preparing left/right comparison scenes...";
+  if (mode === "creatorBackgroundReplace") return "Preparing your background replacement render...";
+  if (mode === "autoDraw") return "Creating whiteboard scenes from your voiceover...";
+  if (mode === "longVideoPromo") return "Preparing your promo reel...";
+  if (mode === "dynamicCreator") return "Preparing dynamic text and pacing...";
   return "Choosing scenes, text, and visuals...";
 }
 
 
-async function uploadVideoExplainerImage({file, userId}: {file: File; userId: string}) {
+async function uploadTemplateImage({file, userId}: {file: File; userId: string}) {
   const contentType = getUploadContentType(file);
 
   const presignResponse = await fetch("/api/media/presign", {
@@ -1497,34 +2113,36 @@ async function uploadVideoExplainerImage({file, userId}: {file: File; userId: st
       fileName: file.name,
       contentType,
       fileSize: file.size,
-      mode: "videoExplainer",
+      mode: "longVideoPromo",
       userId,
     }),
   });
 
   const presign = await readJsonPayload(presignResponse);
-  if (!presignResponse.ok || !presign.ok) throw new Error(presign.error || "Could not prepare bottom image upload.");
+  if (!presignResponse.ok || !presign.ok) throw new Error(presign.error || "Could not prepare image upload.");
 
   const uploadResponse = await fetch(presign.uploadUrl, {
     method: "PUT",
     headers: {"Content-Type": contentType},
     body: file,
   }).catch((error) => {
-    throw new Error(formatNetworkError(error, "Bottom image upload failed. Please retry on a stable connection."));
+    throw new Error(formatNetworkError(error, "Image upload failed. Please retry on a stable connection."));
   });
 
-  if (!uploadResponse.ok) throw new Error("Bottom image upload failed.");
+  if (!uploadResponse.ok) throw new Error("Image upload failed.");
 
   return presign.key as string;
 }
 function RenderStatusStage({
   mode,
   onPreview,
+  onReset,
   status,
   title,
 }: {
   mode: Mode;
   onPreview: () => void;
+  onReset: () => void;
   status: JobStatus;
   title: string;
 }) {
@@ -1547,12 +2165,12 @@ function RenderStatusStage({
             : "border-brand-mint/24 bg-[#061011]"
       }`}
     >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_8%,rgba(94,234,212,0.22),transparent_30%),radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.09),transparent_26%),linear-gradient(135deg,rgba(255,255,255,0.07),transparent_48%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_8%,rgba(124,58,237,0.22),transparent_30%),radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.09),transparent_26%),linear-gradient(135deg,rgba(255,255,255,0.07),transparent_48%)]" />
       <div className="pointer-events-none absolute inset-0 opacity-[0.18] [background-image:linear-gradient(rgba(255,255,255,0.14)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.12)_1px,transparent_1px)] [background-size:34px_34px]" />
       {renderParticles.map((particle) => (
         <span
           aria-hidden="true"
-          className="absolute h-1.5 w-1.5 rounded-full bg-brand-mint/70 shadow-[0_0_18px_rgba(94,234,212,0.75)] motion-safe:animate-pulse"
+          className="absolute h-1.5 w-1.5 rounded-full bg-brand-mint/70 shadow-[0_0_18px_rgba(124,58,237,0.75)] motion-safe:animate-pulse"
           key={`${particle.left}-${particle.top}`}
           style={{left: particle.left, top: particle.top, animationDelay: particle.delay}}
         />
@@ -1580,11 +2198,11 @@ function RenderStatusStage({
           <div className="absolute inset-x-4 top-5 h-px bg-gradient-to-r from-transparent via-brand-mint/70 to-transparent" />
           <div className="absolute inset-y-6 left-1/2 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent" />
           <div className="relative mx-auto flex aspect-[9/16] h-56 max-h-full flex-col overflow-hidden rounded-xl border border-white/15 bg-[#06090d] p-2 shadow-[0_20px_70px_rgba(0,0,0,0.55)]">
-            <div className="relative h-[36%] overflow-hidden rounded-lg border border-white/10 bg-[radial-gradient(circle_at_50%_40%,rgba(94,234,212,0.26),transparent_38%),linear-gradient(135deg,rgba(255,255,255,0.12),rgba(255,255,255,0.035))]">
+            <div className="relative h-[36%] overflow-hidden rounded-lg border border-white/10 bg-[radial-gradient(circle_at_50%_40%,rgba(124,58,237,0.26),transparent_38%),linear-gradient(135deg,rgba(255,255,255,0.12),rgba(255,255,255,0.035))]">
               <div className="absolute inset-x-4 top-1/2 flex -translate-y-1/2 items-center justify-center gap-1.5">
                 {renderPreviewBars.map((height, index) => (
                   <span
-                    className="w-1.5 rounded-full bg-brand-mint/85 shadow-[0_0_14px_rgba(94,234,212,0.55)] motion-safe:animate-pulse"
+                    className="w-1.5 rounded-full bg-brand-mint/85 shadow-[0_0_14px_rgba(124,58,237,0.55)] motion-safe:animate-pulse"
                     key={`render-bar-${index}`}
                     style={{
                       animationDelay: `${index * 0.08}s`,
@@ -1617,14 +2235,14 @@ function RenderStatusStage({
             </div>
           </div>
           <div className="pointer-events-none absolute inset-x-4 bottom-4 flex items-center justify-between text-[10px] font-black uppercase tracking-[0.18em] text-zinc-500">
-            <span>{modeConfig[mode].label}</span>
+            <span>{modeConfig[toActiveDashboardMode(mode)].label}</span>
             <span>{title.replace(/\.[^.]+$/, "").slice(0, 18) || "Reel"}</span>
           </div>
         </div>
 
         <div className="flex min-w-0 flex-col justify-between gap-5">
           <div>
-            <div className="flex items-center justify-between gap-3 text-xs font-black uppercase tracking-[0.16em] text-zinc-500">
+            <div className="flex items-center justify-between gap-3 text-xs font-black uppercase tracking-[0.16em] form-label-muted">
               <span>Live render timeline</span>
               <span className="text-brand-mint">{failed ? "Paused" : ready ? "Complete" : "Active"}</span>
             </div>
@@ -1689,17 +2307,15 @@ function RenderStatusStage({
               </p>
               <button
                 type="button"
-                onClick={() => {
-                  setJobStatus({state: "idle", message: ""});
-                }}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-mint px-5 py-3 text-sm font-black text-black transition hover:bg-white"
+                onClick={onReset}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-[10px] px-8 py-3.5 text-[15px] font-semibold text-white transition brand-btn-primary-dark"
               >
                 ↻ Retry — Create My Reel
               </button>
             </div>
           ) : (
             <p className="rounded-lg border border-white/10 bg-white/[0.035] px-4 py-3 text-sm font-bold leading-6 text-zinc-400">
-              Keep this tab open. Your finished MP4 will appear here and in Recent renders.
+              Keep this tab open. Your finished MP4 will appear here and in Your Videos.
             </p>
           )}
         </div>
@@ -1769,21 +2385,17 @@ function getRenderStageMeta(status: JobStatus, mode: Mode): {
   }
   if (status.state === "starting") {
     return {
-      body: mode === "videoCaption"
-        ? "Listening to your video and preparing timed captions."
-        : mode === "notes"
-          ? "Listening to your audio and creating note sections."
-          : mode === "imageStory"
-            ? "Creating image story beats and motion."
-            : mode === "compare"
-              ? "Listening to your audio and preparing image comparison timing."
-            : "Listening to your audio and building the reel structure.",
+      body: mode === "compare"
+        ? "Listening to your audio and preparing image comparison timing."
+        : mode === "creatorBackgroundReplace"
+          ? "Preparing the creator cutout and uploaded background."
+          : "Listening to your audio and building the reel structure.",
       badgeClass: "border-brand-mint/30 bg-brand-mint/[0.12] text-brand-mint",
       icon: Layers3,
       iconFrame: "border-brand-mint/35 bg-brand-mint/[0.13] text-brand-mint",
-      kicker: mode === "imageStory" ? "Story planning" : mode === "compare" ? "Compare planning" : "Transcribing",
+      kicker: mode === "compare" ? "Compare planning" : mode === "creatorBackgroundReplace" ? "Background prep" : "Transcribing",
       kickerClass: "text-brand-mint",
-      title: mode === "imageStory" ? "Building your image story" : mode === "compare" ? "Building your comparison" : "Listening to your audio",
+      title: mode === "compare" ? "Building your comparison" : mode === "creatorBackgroundReplace" ? "Preparing background replace" : "Listening to your audio",
     };
   }
   return {
@@ -1801,14 +2413,14 @@ function getRenderSteps(progress: number, status: JobStatus, mode: Mode) {
   const definitions = [
     {label: "Upload", detail: "Uploading your file.", threshold: 0.08, icon: Upload},
     {
-      label: mode === "imageStory" ? "Story beats" : mode === "compare" ? "Compare beats" : "Transcript",
-      detail: mode === "imageStory" ? "Creating visual story timing." : mode === "compare" ? "Timing left/right comparison." : "Using real speech timing.",
+      label: mode === "compare" ? "Compare beats" : mode === "creatorBackgroundReplace" ? "Background" : "Transcript",
+      detail: mode === "compare" ? "Timing left/right comparison." : mode === "creatorBackgroundReplace" ? "Preparing the uploaded image and creator layer." : "Using real speech timing.",
       threshold: 0.24,
       icon: Layers3,
     },
     {
       label: "Planning",
-      detail: mode === "videoCaption" ? "Preparing safe captions." : mode === "notes" ? "Creating note sections." : mode === "imageStory" ? "Adding image motion." : mode === "compare" ? "Building comparison scenes." : mode === "autoDraw" ? "Creating whiteboard scenes." : "Choosing scenes and visuals.",
+      detail: mode === "compare" ? "Building comparison scenes." : mode === "autoDraw" ? "Creating whiteboard scenes." : mode === "creatorBackgroundReplace" ? "Applying saved preview settings." : "Choosing scenes and visuals.",
       threshold: 0.45,
       icon: Sparkles,
     },
@@ -2016,19 +2628,7 @@ function normalizeRecentRender(value: unknown): RecentRender | null {
   const item = value as Record<string, unknown>;
   const createdAt = parseServerTime(item.createdAt);
   const expiresAt = parseServerTime(item.expiresAt);
-  const mode = item.mode === "facecam" || item.mode === "notes" || item.mode === "handwriting" || item.mode === "videoCaption" || item.mode === "caption" || item.mode === "imageStory" || item.mode === "image-story"
-    ? item.mode === "handwriting"
-      ? "notes"
-      : item.mode === "facecam"
-        ? "videoExplainer"
-        : item.mode === "caption"
-          ? "videoCaption"
-          : item.mode === "image-story"
-            ? "imageStory"
-            : item.mode
-    : item.mode === "videoExplainer"
-      ? item.mode
-      : null;
+  const mode = normalizeRenderMode(item.mode);
   const id = typeof item.renderId === "string" && item.renderId ? item.renderId : typeof item.id === "string" ? item.id : "";
   const outputFile = typeof item.outputFile === "string" ? item.outputFile : "";
 
@@ -2054,36 +2654,47 @@ function parseServerTime(value: unknown) {
 function isRecentRender(value: unknown): value is RecentRender {
   if (!value || typeof value !== "object") return false;
   const item = value as Partial<RecentRender>;
-  const itemMode = String(item.mode || "");
   return (
     typeof item.id === "string" &&
     typeof item.title === "string" &&
-    (itemMode === "videoExplainer" || itemMode === "notes" || itemMode === "videoCaption" || itemMode === "imageStory" || itemMode === "compare" || itemMode === "autoCaption") &&
+    Boolean(normalizeRenderMode(item.mode)) &&
     typeof item.outputFile === "string" &&
     typeof item.createdAt === "number" &&
     typeof item.expiresAt === "number"
   );
 }
 
+function normalizeRenderMode(value: unknown): Mode | null {
+  const normalized = String(value || "").toLowerCase().replace(/[-_\s]+/g, "");
+  if (!normalized) return null;
+  if (normalized === "autocaption" || normalized === "autocaptionreel" || normalized === "caption" || normalized === "captions" || normalized === "subtitle" || normalized === "videocaption") return "autoCaption";
+  if (normalized === "compare" || normalized === "comparison" || normalized === "compareexplainer" || normalized === "vs") return "compare";
+  if (normalized === "autodraw" || normalized === "autodrawexplainer" || normalized === "whiteboard") return "autoDraw";
+  if (normalized === "longvideopromo" || normalized === "longvideopromotion" || normalized === "promo") return "longVideoPromo";
+  if (normalized === "dynamiccreator" || normalized === "dynamiccreatorreel" || normalized === "dynamicedit") return "dynamicCreator";
+  if (normalized === "creatorbackgroundreplace" || normalized === "backgroundreplace" || normalized === "videobackgroundimage") return "creatorBackgroundReplace";
+  return null;
+}
+
 function getModeLabel(mode: Mode) {
-  return modeConfig[mode]?.label || "Video Simple";
+  return modeConfig[toActiveDashboardMode(mode)]?.label || "Auto Caption";
 }
 
 function readDashboardMode(value: string | null): Mode | null {
   const normalized = String(value || "").toLowerCase().replace(/[-_\s]+/g, "");
   if (!normalized) return null;
   if (normalized === "autocaptionreel" || normalized === "autocaption") return "autoCaption";
-  if (normalized === "videosimpleexplainer" || normalized === "videoexplainer") return "videoExplainer";
   if (normalized === "compareexplainer" || normalized === "compare" || normalized === "comparison") return "compare";
-  if (normalized === "cinematiccollage" || normalized === "imagestorycollage") return "imageStoryCollage";
   if (normalized === "autodrawexplainer" || normalized === "autodraw" || normalized === "whiteboard") return "autoDraw";
   if (normalized === "longvideopromo" || normalized === "longvideopromotion" || normalized === "promo") return "longVideoPromo";
-  if (normalized === "voicesyncednotes" || normalized === "studynotes" || normalized === "syncednotes") return "voiceSyncedNotes";
+  if (normalized === "dynamiccreatorreel" || normalized === "dynamiccreator" || normalized === "dynamicedit") return "dynamicCreator";
+  if (normalized === "creatorbackgroundreplace" || normalized === "backgroundreplace" || normalized === "videobackgroundimage") return "creatorBackgroundReplace";
   if (normalized.includes("caption") || normalized.includes("subtitle")) return "autoCaption";
   if (normalized.includes("compare")) return "compare";
   if (normalized.includes("draw") || normalized.includes("whiteboard")) return "autoDraw";
-  if (normalized.includes("cinematic") || normalized.includes("collage")) return "imageStoryCollage";
-  if (normalized.includes("explainer") || normalized.includes("video")) return "videoExplainer";
+  if (normalized.includes("promo")) return "longVideoPromo";
+  if (normalized.includes("dynamic") || normalized.includes("creator")) return "dynamicCreator";
+  if (normalized.includes("background")) return "creatorBackgroundReplace";
   return null;
 }
 
@@ -2091,6 +2702,20 @@ function formatTimeLeft(expiresAt: number) {
   const hours = Math.max(0, Math.ceil((expiresAt - Date.now()) / (60 * 60 * 1000)));
   if (hours <= 1) return "expires soon";
   return `${hours}h left`;
+}
+
+function formatCreatedTime(createdAt: number) {
+  if (!createdAt) return "Created recently";
+  return new Intl.DateTimeFormat(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(createdAt));
+}
+
+function getVideoStatusLabel(expiresAt: number) {
+  return expiresAt > Date.now() ? "Ready" : "Expired";
 }
 
 function formatDate(value: string) {
@@ -2101,9 +2726,97 @@ function formatDate(value: string) {
 
 function PlanStat({label, value, accent = false}: {label: string; value: string; accent?: boolean}) {
   return (
-    <div className={`rounded-md border px-3 py-2 ${accent ? "border-brand-mint/35 bg-brand-mint/15" : "border-white/10 bg-black/20"}`}>
-      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-500">{label}</p>
-      <p className={`mt-1 truncate text-sm font-black ${accent ? "text-brand-mint" : "text-white"}`}>{value}</p>
+    <div className="rounded-md px-3 py-2" style={{ border: accent ? 'none' : '1px solid var(--border-dark)', background: accent ? 'transparent' : 'rgba(0,0,0,0.2)' }}>
+      <p style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'var(--text-dark-muted)' }}>{label}</p>
+      <p className="mt-0.5 truncate" style={{ fontSize: accent ? '24px' : '14px', fontWeight: accent ? 600 : 500, color: accent ? 'var(--color-primary-hover)' : 'var(--text-dark-secondary)' }}>{value}</p>
+    </div>
+  );
+}
+
+function RangeControl({
+  label,
+  value,
+  min,
+  max,
+  step,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <label className="grid gap-1.5">
+      <span className="flex items-center justify-between text-[11px] font-bold text-zinc-400">
+        <span>{label}</span>
+        <span className="font-mono text-zinc-500">{Number(value).toFixed(step < 1 ? 2 : 0)}</span>
+      </span>
+      <input
+        className="w-full accent-orange-300"
+        max={max}
+        min={min}
+        onChange={(event) => onChange(Number(event.target.value))}
+        step={step}
+        type="range"
+        value={value}
+      />
+    </label>
+  );
+}
+
+function CreatorBackgroundLivePreview({
+  creatorFile,
+  backgroundFile,
+  settings,
+}: {
+  creatorFile: File;
+  backgroundFile: File;
+  settings: CreatorBackgroundSettings;
+}) {
+  const creatorUrl = useMemo(() => URL.createObjectURL(creatorFile), [creatorFile]);
+  const backgroundUrl = useMemo(() => URL.createObjectURL(backgroundFile), [backgroundFile]);
+
+  useEffect(() => {
+    return () => {
+      URL.revokeObjectURL(creatorUrl);
+      URL.revokeObjectURL(backgroundUrl);
+    };
+  }, [creatorUrl, backgroundUrl]);
+
+  return (
+    <div className="mt-4">
+      <p className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-orange-100">Live preview</p>
+      <div className="relative mx-auto aspect-[9/16] w-full max-w-[240px] overflow-hidden rounded-lg border border-orange-300/20 bg-black">
+        <img
+          alt="Uploaded background preview"
+          className="absolute inset-0 h-full w-full"
+          src={backgroundUrl}
+          style={{
+            objectFit: settings.backgroundFit,
+            transform: `translate(${settings.backgroundX}px, ${settings.backgroundY}px) scale(${settings.backgroundScale})`,
+            transformOrigin: "center",
+          }}
+        />
+        <video
+          autoPlay
+          className="absolute inset-0 h-full w-full object-contain"
+          loop
+          muted
+          playsInline
+          src={creatorUrl}
+          style={{
+            transform: `translate(${settings.creatorX}px, ${settings.creatorY}px) scale(${settings.creatorScale})`,
+            transformOrigin: "center bottom",
+          }}
+        />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/35 to-transparent" />
+      </div>
+      <p className="mt-2 text-center text-[11px] text-zinc-500">
+        Preview updates instantly. Final export uses these exact values.
+      </p>
     </div>
   );
 }
@@ -2111,7 +2824,7 @@ function PlanStat({label, value, accent = false}: {label: string; value: string;
 function PolicyPill({ icon: Icon, title, body }: { icon: LucideIcon; title: string; body: string }) {
   return (
     <div className="rounded-lg border border-white/10 bg-white/[0.035] p-4">
-      <Icon className="mb-3 text-brand-mint" size={18} />
+      <Icon className="mb-3" size={18} style={{ color: 'var(--color-primary-hover)' }} />
       <p className="text-sm font-black text-white">{title}</p>
       <p className="mt-1 text-xs leading-5 text-zinc-500">{body}</p>
     </div>
@@ -2119,10 +2832,10 @@ function PolicyPill({ icon: Icon, title, body }: { icon: LucideIcon; title: stri
 }
 
 function ProgressPreview({mode}: {mode: Mode}) {
-  const steps = mode === "imageStory"
-    ? ["Upload", "Story beats", "Plan", "Render", "Download"]
-    : mode === "compare"
+  const steps = mode === "compare"
       ? ["Audio", "Images", "Compare", "Render", "Download"]
+      : mode === "creatorBackgroundReplace"
+        ? ["Video", "Image", "Adjust", "Render", "Download"]
     : ["Upload", "Transcribe", "Plan", "Render", "Download"];
 
   return (
@@ -2131,7 +2844,7 @@ function ProgressPreview({mode}: {mode: Mode}) {
       <div className="mt-3 flex flex-wrap items-center gap-2">
         {steps.map((step, index) => (
           <div className="flex items-center gap-2" key={step}>
-            <span className="rounded-md border border-white/10 bg-white/[0.04] px-2.5 py-1.5 text-xs font-black text-zinc-300">
+            <span className="rounded-md border border-white/10 bg-white/[0.04]" style={{ padding: '5px 12px', fontSize: '12px', fontWeight: 600, color: 'var(--text-dark-secondary)' }}>
               {step}
             </span>
             {index < steps.length - 1 ? <span className="text-xs font-black text-zinc-600">&gt;</span> : null}
@@ -2173,6 +2886,16 @@ function SelectedMediaPreview({ file, mode }: { file: File; mode: Mode }) {
       )}
     </div>
   );
+}
+
+function UploadedImagePreview({alt, className, file}: {alt: string; className?: string; file: File}) {
+  const previewUrl = useMemo(() => URL.createObjectURL(file), [file]);
+
+  useEffect(() => {
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [previewUrl]);
+
+  return <img alt={alt} className={className} src={previewUrl} />;
 }
 
 function formatBytes(bytes: number) {
@@ -2239,14 +2962,9 @@ function sanitizeUserFacingStatus(value: string) {
   return source
     .replace(/\s+at\s+[\s\S]*$/i, "")
     .replace(/https?:\/\/\S+/gi, "")
-    .replace(/\b(?:HANDWRITING_NOTES_REEL|HANDWRITTEN_NOTES|NOTES)\b/g, "Handwritten Notes")
-    .replace(/\bVIDEO[-_]EXPLAINER\b/gi, "Video Simple")
-    .replace(/\bVIDEO[-_]CAPTION\b/gi, "Video Caption")
-    .replace(/\bIMAGE[-_]STORY\b/gi, "Image Story")
     .replace(/\bTRANSCRIPTION_FAILED\b/gi, "We could not detect clear speech in your upload.")
     .replace(/\bTRANSCRIPT_REQUIRED\b/gi, "We could not detect clear speech in your upload.")
     .replace(/\bUNSUPPORTED_MEDIA_FOR_TEMPLATE\b/gi, "This file type does not match the selected template.")
-    .replace(/\bMISSING_IMAGE_SOURCE\b/gi, "Image Story needs at least one usable image.")
     .replace(/\bMISSING_MEDIA_SOURCE\b/gi, "Please upload a supported file before creating your reel.")
     .replace(/\b(?:REMOTION|GROQ|OPENAI|AWS|S3|FFMPEG)[A-Z0-9_]*\b/g, "render system")
     .replace(/\bGroq\b/gi, "transcription service")

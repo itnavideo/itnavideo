@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Activity, Database, KeyRound, Server, ShieldCheck, Sparkles } from 'lucide-react';
 
 const statusCards = [
-  { title: 'Auth', value: 'Protected', note: 'HttpOnly admin session cookie', icon: ShieldCheck, tone: 'text-emerald-300' },
+  { title: 'Auth', value: 'Protected', note: 'HttpOnly admin session cookie', icon: ShieldCheck, tone: 'text-blue-400' },
   { title: 'AI model', value: 'Reset', note: 'New structure pending', icon: Sparkles, tone: 'text-cyan-300' },
   { title: 'Rendering', value: 'Reset', note: 'New renderer pending', icon: Server, tone: 'text-amber-300' },
 ];

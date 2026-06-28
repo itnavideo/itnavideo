@@ -162,7 +162,7 @@ export default function LoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-lg border border-white/10 bg-black/40 py-3 pl-10 pr-4 text-sm outline-none transition focus:border-emerald-500/50"
+                className="w-full rounded-lg border border-white/10 bg-black/40 py-3 pl-10 pr-4 text-sm outline-none transition focus:border-blue-500/50"
                 placeholder="name@company.com"
                 required
                 autoComplete="email"
@@ -182,7 +182,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={handleForgotPassword}
                 disabled={resetLoading}
-                className="text-xs font-bold text-emerald-400 hover:text-emerald-300 disabled:opacity-60"
+                className="text-xs font-bold text-blue-500 hover:text-blue-400 disabled:opacity-60"
               >
                 {resetLoading ? 'Sending...' : 'Forgot?'}
               </button>
@@ -193,7 +193,7 @@ export default function LoginPage() {
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg border border-white/10 bg-black/40 py-3 pl-10 pr-10 text-sm outline-none transition focus:border-emerald-500/50"
+                className="w-full rounded-lg border border-white/10 bg-black/40 py-3 pl-10 pr-10 text-sm outline-none transition focus:border-blue-500/50"
                 placeholder="••••••••"
                 required
                 autoComplete="current-password"
@@ -216,7 +216,7 @@ export default function LoginPage() {
                   type="button"
                   onClick={handleForgotPassword}
                   disabled={loading || resetLoading}
-                  className="mt-3 font-bold text-emerald-200 transition hover:text-emerald-100 disabled:opacity-60"
+                  className="mt-3 font-bold text-blue-300 transition hover:text-blue-200 disabled:opacity-60"
                 >
                   {resetLoading ? 'Sending reset link...' : 'Send password reset link'}
                 </button>
@@ -226,7 +226,7 @@ export default function LoginPage() {
                   type="button"
                   onClick={handleResendConfirmation}
                   disabled={loading || resendLoading}
-                  className="mt-3 block font-bold text-emerald-200 transition hover:text-emerald-100 disabled:opacity-60"
+                  className="mt-3 block font-bold text-blue-300 transition hover:text-blue-200 disabled:opacity-60"
                 >
                   {resendLoading ? 'Sending verification...' : 'Resend verification email'}
                 </button>
@@ -258,7 +258,7 @@ export default function LoginPage() {
         </button>
 
         <p className="mt-8 text-center text-sm text-zinc-500">
-          Don&apos;t have an account? <Link href="/signup" className="font-bold text-emerald-400 hover:text-emerald-300">Create one</Link>
+          Don&apos;t have an account? <Link href="/signup" className="font-bold text-blue-500 hover:text-blue-400">Create one</Link>
         </p>
       </div>
     </AuthShell>

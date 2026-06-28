@@ -89,14 +89,12 @@ function normalizeBody(body: unknown): ReelPlanRequest | null {
   if (!isRecord(body)) return null;
 
   const template = normalizeTemplate(body.template);
-  if (body.template && template !== 'VIDEO_EXPLAINER' && template !== 'comparisonImages') {
-    return null;
-  }
   const transcript = typeof body.transcript === 'string' ? body.transcript.trim() : '';
   const prompt = readOptionalString(body.prompt) || readOptionalString(body.topic) || readOptionalString(body.topicTitle);
-  const transcriptRequirement = REEL_TEMPLATE_REGISTRY[template].transcriptRequirement;
+  const templateConfig = REEL_TEMPLATE_REGISTRY[template];
+  if (!templateConfig) return null;
+  const transcriptRequirement = templateConfig.transcriptRequirement;
   if (!transcript && transcriptRequirement === 'required') return null;
-  if (!transcript && template === 'IMAGE_STORY' && !prompt) return null;
 
   return {
     transcript: transcript || prompt || '',
@@ -110,7 +108,7 @@ function normalizeBody(body: unknown): ReelPlanRequest | null {
     languageHint: readLanguageHint(body.language || body.displayLanguage || body.typographyLanguage),
     template,
     design: readOptionalString(body.design),
-    visualMode: readOptionalString(body.visualMode) || REEL_TEMPLATE_REGISTRY[template].plannerMode,
+    visualMode: readOptionalString(body.visualMode) || templateConfig.plannerMode,
     selectedAssets: normalizeSelectedAssets(body.selectedAssets),
     constraints: normalizeStringArray(body.constraints),
     dryRun: body.dryRun === true || !process.env.OPENAI_API_KEY,
@@ -178,8 +176,6 @@ function normalizeStringArray(value: unknown) {
 
 function readMediaType(value: unknown, template: unknown): ReelPlanRequest['mediaType'] {
   const normalizedTemplate = (readOptionalString(template) || '').toLowerCase();
-  if (normalizedTemplate.includes('handwriting') || normalizedTemplate.includes('notes')) return 'audio';
-  if (normalizedTemplate.includes('image') || normalizedTemplate.includes('photo') || normalizedTemplate.includes('story')) return 'image';
   if (normalizedTemplate.includes('comparisonImages')) return 'audio';
   const normalized = (readOptionalString(value) || '').toLowerCase();
   if (normalized.includes('image')) return 'image';
@@ -189,11 +185,13 @@ function readMediaType(value: unknown, template: unknown): ReelPlanRequest['medi
 
 function normalizeTemplate(value: unknown): ReelTemplateName {
   const normalized = (readOptionalString(value) || '').toLowerCase();
-  if (normalized.includes('comparisonImages') || normalized.includes('comparison') || /\bvs\b/.test(normalized)) return 'comparisonImages';
-  if (normalized.includes('handwriting') || normalized.includes('notes')) return 'HANDWRITTEN_NOTES';
-  if (normalized.includes('caption') || normalized.includes('subtitle')) return 'VIDEO_CAPTION';
-  if (normalized.includes('image') || normalized.includes('photo') || normalized.includes('story')) return 'IMAGE_STORY';
-  return 'VIDEO_EXPLAINER';
+  if (normalized.includes('comparisonimages') || normalized.includes('comparison') || /\bvs\b/.test(normalized)) return 'comparisonImages';
+  if (normalized.includes('caption') || normalized.includes('subtitle')) return 'AUTO_CAPTION_REEL';
+  if (normalized.includes('draw') || normalized.includes('whiteboard')) return 'AUTO_DRAW_EXPLAINER';
+  if (normalized.includes('promo') || normalized.includes('long')) return 'LONG_VIDEO_PROMO';
+  if (normalized.includes('background')) return 'CREATOR_BACKGROUND_REPLACE';
+  if (normalized.includes('dynamic') || normalized.includes('creator')) return 'DYNAMIC_CREATOR_REEL';
+  return 'AUTO_CAPTION_REEL';
 }
 
 function readOptionalString(value: unknown) {
@@ -289,8 +287,6 @@ function sanitizeUserFacingStatus(value: string) {
   return source
     .replace(/\s+at\s+[\s\S]*$/i, '')
     .replace(/https?:\/\/\S+/gi, '')
-    .replace(/\b(?:HANDWRITING_NOTES_REEL|HANDWRITTEN_NOTES|NOTES)\b/g, 'Handwritten Notes')
-    .replace(/\bVIDEO[-_]EXPLAINER\b/gi, 'Video Explainer')
     .replace(/\b(?:REMOTION|GROQ|OPENAI|AWS|S3|FFMPEG)[A-Z0-9_]*\b/g, 'render system')
     .replace(/\bGroq\b/gi, 'transcription service')
     .replace(/\bAWS Lambda\b/gi, 'render system')
@@ -302,4 +298,3 @@ function sanitizeUserFacingStatus(value: string) {
     .replace(/\bOpenAI\b/gi, 'AI planner')
     .trim() || 'Could not create reel plan.';
 }
-

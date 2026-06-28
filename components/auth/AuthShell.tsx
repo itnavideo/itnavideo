@@ -22,9 +22,9 @@ export default function AuthShell({
   children: React.ReactNode;
 }) {
   return (
-    <main className="min-h-screen bg-[#050506] px-6 py-24 text-white">
+    <main className="min-h-screen bg-[#0B1120] px-6 py-24 text-white">
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute inset-x-0 top-0 h-96 bg-[radial-gradient(circle_at_20%_10%,rgba(16,185,129,0.20),transparent_34%),radial-gradient(circle_at_80%_0%,rgba(59,130,246,0.16),transparent_34%)]" />
+        <div className="absolute inset-x-0 top-0 h-96 bg-[radial-gradient(circle_at_20%_10%,rgba(37,99,235,0.18),transparent_34%),radial-gradient(circle_at_80%_0%,rgba(6,182,212,0.14),transparent_34%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:56px_56px] [mask-image:linear-gradient(to_bottom,black,transparent_80%)]" />
       </div>
 
@@ -37,7 +37,7 @@ export default function AuthShell({
             <ArrowLeft size={17} />
             Back to home
           </Link>
-          <div className="mb-8 inline-flex items-center gap-2 rounded-lg border border-emerald-300/20 bg-emerald-300/10 px-3 py-2 text-sm font-bold text-emerald-100">
+          <div className="mb-8 inline-flex items-center gap-2 rounded-lg border border-blue-400/20 bg-blue-400/10 px-3 py-2 text-sm font-bold text-blue-200">
             <Sparkles size={15} />
             {eyebrow}
           </div>
@@ -51,7 +51,7 @@ export default function AuthShell({
               const Icon = item.icon;
               return (
                 <div key={item.label} className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3">
-                  <Icon size={18} className="text-emerald-200" />
+                  <Icon size={18} className="text-blue-300" />
                   <span className="font-semibold text-zinc-200">{item.label}</span>
                 </div>
               );

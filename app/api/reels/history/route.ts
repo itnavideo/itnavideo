@@ -198,11 +198,15 @@ function sanitizeString(value: unknown) {
 }
 
 function normalizeMode(value: unknown) {
-  const mode = sanitizeString(value);
+  const mode = sanitizeString(value).toLowerCase().replace(/[-_\s]+/g, '');
+  if (mode === 'autocaption' || mode === 'autocaptionreel' || mode === 'videocaption' || mode === 'caption' || mode === 'captions' || mode === 'subtitle') return 'autoCaption';
+  if (mode === 'compare' || mode === 'comparison' || mode === 'compareexplainer' || mode === 'vs') return 'compare';
+  if (mode === 'autodraw' || mode === 'autodrawexplainer' || mode === 'whiteboard') return 'autoDraw';
+  if (mode === 'longvideopromo' || mode === 'longvideopromotion' || mode === 'promo') return 'longVideoPromo';
+  if (mode === 'dynamiccreator' || mode === 'dynamiccreatorreel' || mode === 'dynamicedit') return 'dynamicCreator';
+  if (mode === 'creatorbackgroundreplace' || mode === 'backgroundreplace' || mode === 'videobackgroundimage') return 'creatorBackgroundReplace';
   if (mode === 'notes' || mode === 'handwriting') return 'notes';
-  if (mode === 'videoCaption' || mode === 'videocaption' || mode === 'caption' || mode === 'captions' || mode === 'subtitle') return 'videoCaption';
-  if (mode === 'compare' || mode === 'comparison' || mode === 'vs') return 'compare';
-  if (mode === 'imageStory' || mode === 'imagestory' || mode === 'image' || mode === 'photo') return 'imageStory';
+  if (mode === 'imagestory' || mode === 'imagestorycollage' || mode === 'image' || mode === 'photo') return 'imageStory';
   return 'videoExplainer';
 }
 

@@ -51,21 +51,37 @@ export type ReelTimelineScene = {
   visualEnergy: number;
   speechImportance: number;
   sceneComplexity: number;
-  visualMode: 'videoExplainer' | 'notes' | 'videoCaption' | 'imageStory' | 'compare';
-  primaryFocus: 'topVisual' | 'notesCanvas' | 'captions' | 'images' | 'comparison';
+  visualMode: 'notes' | 'videoExplainer' | 'videoCaption' | 'imageStory' | 'compare';
+  primaryFocus: 'notesCanvas' | 'topVisual' | 'captions' | 'images' | 'comparison';
   secondarySupport?: Array<'titleCard'>;
 };
 
-export type ReelTemplateName = 'VIDEO_SIMPLE_EXPLAINER' | 'comparisonImages' | 'AUTO_CAPTION_REEL' | 'IMAGE_STORY' | 'IMAGE_STORY_COLLAGE' | 'AUTO_DRAW_EXPLAINER' | 'LONG_VIDEO_PROMO' | 'VOICE_SYNCED_NOTES';
-export const REEL_TEMPLATE_REGISTRY = {
-  VIDEO_SIMPLE_EXPLAINER: {
-    templateName: 'VIDEO_SIMPLE_EXPLAINER',
-    compositionId: 'VIDEO-SIMPLE-EXPLAINER',
-    allowedMedia: ['audio', 'video'],
-    transcriptRequirement: 'required',
-    plannerMode: 'videoExplainer',
-    mediaFit: 'videoExplainer',
-  },  AUTO_CAPTION_REEL: {
+export type ReelTemplateName =
+  | 'AUTO_CAPTION_REEL'
+  | 'comparisonImages'
+  | 'AUTO_DRAW_EXPLAINER'
+  | 'LONG_VIDEO_PROMO'
+  | 'DYNAMIC_CREATOR_REEL'
+  | 'CREATOR_BACKGROUND_REPLACE'
+  | 'VIDEO_EXPLAINER'
+  | 'VIDEO_SIMPLE_EXPLAINER'
+  | 'VIDEO_CAPTION'
+  | 'IMAGE_STORY'
+  | 'IMAGE_STORY_COLLAGE'
+  | 'HANDWRITTEN_NOTES'
+  | 'VOICE_SYNCED_NOTES';
+
+export type ReelTemplateConfig = {
+  templateName: ReelTemplateName;
+  compositionId: string;
+  allowedMedia: readonly ('audio' | 'video' | 'image')[];
+  transcriptRequirement: 'required' | 'not-required';
+  plannerMode: string;
+  mediaFit: string;
+};
+
+export const REEL_TEMPLATE_REGISTRY: Partial<Record<ReelTemplateName, ReelTemplateConfig>> = {
+  AUTO_CAPTION_REEL: {
     templateName: 'AUTO_CAPTION_REEL',
     compositionId: 'AUTO-CAPTION-REEL',
     allowedMedia: ['video'],
@@ -80,22 +96,6 @@ export const REEL_TEMPLATE_REGISTRY = {
     transcriptRequirement: 'required',
     plannerMode: 'compare',
     mediaFit: 'compare',
-  },
-  IMAGE_STORY: {
-    templateName: 'IMAGE_STORY',
-    compositionId: 'IMAGE-STORY',
-    allowedMedia: ['image', 'audio'],
-    transcriptRequirement: 'audio-or-video',
-    plannerMode: 'imageStory',
-    mediaFit: 'imageStory',
-  },
-  IMAGE_STORY_COLLAGE: {
-    templateName: 'IMAGE_STORY_COLLAGE',
-    compositionId: 'IMAGE-STORY-COLLAGE',
-    allowedMedia: ['audio', 'video'],
-    transcriptRequirement: 'required',
-    plannerMode: 'imageStory',
-    mediaFit: 'imageStory',
   },
   AUTO_DRAW_EXPLAINER: {
     templateName: 'AUTO_DRAW_EXPLAINER',
@@ -113,19 +113,27 @@ export const REEL_TEMPLATE_REGISTRY = {
     plannerMode: 'videoCaption',
     mediaFit: 'videoCaption',
   },
-  VOICE_SYNCED_NOTES: {
-    templateName: 'VOICE_SYNCED_NOTES',
-    compositionId: 'VOICE-SYNCED-NOTES',
-    allowedMedia: ['audio', 'video'],
+  DYNAMIC_CREATOR_REEL: {
+    templateName: 'DYNAMIC_CREATOR_REEL',
+    compositionId: 'DYNAMIC-CREATOR-REEL',
+    allowedMedia: ['video'],
     transcriptRequirement: 'required',
-    plannerMode: 'videoExplainer',
-    mediaFit: 'videoExplainer',
+    plannerMode: 'videoCaption',
+    mediaFit: 'videoCaption',
+  },
+  CREATOR_BACKGROUND_REPLACE: {
+    templateName: 'CREATOR_BACKGROUND_REPLACE',
+    compositionId: 'CREATOR-BACKGROUND-REPLACE',
+    allowedMedia: ['video'],
+    transcriptRequirement: 'not-required',
+    plannerMode: 'videoCaption',
+    mediaFit: 'videoCaption',
   },
 } as const satisfies Record<string, {
   templateName: ReelTemplateName;
   compositionId: string;
   allowedMedia: ReadonlyArray<'audio' | 'video' | 'image'>;
-  transcriptRequirement: 'required' | 'audio-or-video';
+  transcriptRequirement: 'required' | 'audio-or-video' | 'not-required';
   plannerMode: 'videoExplainer' | 'notes' | 'videoCaption' | 'imageStory' | 'compare';
   mediaFit: 'videoExplainer' | 'notes' | 'videoCaption' | 'imageStory' | 'compare';
 }>;
@@ -234,6 +242,9 @@ export type ReelPlanResult = {
     visualPlan?: VisualPlan;
     mediaType: 'video' | 'audio' | 'image';
     mediaFit?: 'videoExplainer' | 'notes' | 'videoCaption' | 'imageStory' | 'compare';
+    explanationImageUrl?: string;
+    uploadedImageUrl?: string;
+    bottomImageUrl?: string;
     durationSeconds: number;
     backgroundMusic?: boolean;
     backgroundMusicMood?: string;
@@ -272,6 +283,7 @@ export type ReelPlanResult = {
       frameValue?: string;
       frameItems?: string[];
       visualPlanReason?: string;
+      stickerPose?: string;
     }>;
     captions: ReelCaptionItem[];
     captionPlan?: {
@@ -349,7 +361,7 @@ export async function createReelPlan(input: ReelPlanRequest): Promise<ReelPlanRe
   const localPlan = await createLocalReelPlan(input);
 
   // Skip OpenAI managed planner for templates that only need captions/simple layout
-  const skipManagedPlanner = ['AUTO_CAPTION_REEL', 'AUTO_DRAW_EXPLAINER', 'LONG_VIDEO_PROMO', 'VOICE_SYNCED_NOTES'].includes(localPlan.templateName);
+  const skipManagedPlanner = ['AUTO_CAPTION_REEL', 'AUTO_DRAW_EXPLAINER', 'LONG_VIDEO_PROMO', 'DYNAMIC_CREATOR_REEL'].includes(localPlan.templateName);
 
   if (input.dryRun || !process.env.OPENAI_API_KEY || getMaxOpenAiCallsPerRender() < 1 || skipManagedPlanner) {
     return validateAndRepairReelPlan(localPlan);
@@ -543,7 +555,9 @@ export function validateAndRepairReelPlan(plan: ReelPlanResult): ReelPlanResult 
     ? autoCaptionAllowed
     : plan.templateName === 'IMAGE_STORY'
       ? imageStoryAllowed
-      : overlayTimeline.length > 0;
+      : plan.templateName === 'LONG_VIDEO_PROMO' || plan.templateName === 'DYNAMIC_CREATOR_REEL' || plan.templateName === 'AUTO_DRAW_EXPLAINER'
+        ? true
+        : overlayTimeline.length > 0;
   const renderAllowed = transcriptSceneAllowed &&
     videoCaptionAllowed &&
     autoCaptionAllowed &&
@@ -621,7 +635,14 @@ async function createLocalReelPlan(
     segments: input.timestampSegments,
   });
   const templateName = getTemplateName(input.template);
-  const isExplainerLike = templateName === 'VIDEO_SIMPLE_EXPLAINER';
+  if (!templateName) {
+    // Template not recognized — do NOT silently default to Video Explainer.
+    // Use the template value from input directly since it was already validated by the jobs route.
+    // If it's truly unknown, the jobs route would have rejected it before reaching here.
+    console.error(`[PLANNER] getTemplateName could not resolve: "${input.template}". Using VIDEO_SIMPLE_EXPLAINER as validated fallback.`);
+  }
+  const resolvedTemplate: ReelTemplateName = templateName || (input.template as ReelTemplateName) || 'VIDEO_SIMPLE_EXPLAINER';
+  const isExplainerLike = resolvedTemplate === 'VIDEO_SIMPLE_EXPLAINER';
   const language = isExplainerLike
     ? 'english'
     : input.languageHint === 'english' && !normalized.sourceHadHindiUrduScript && !normalized.sourceHadRomanHinglish ? 'english' : normalized.languageHint || input.languageHint || detectLanguage(normalized.transcript);
@@ -632,7 +653,7 @@ async function createLocalReelPlan(
     segments: normalized.segments,
     durationSeconds,
   });
-  const scriptDetails = templateName === 'VIDEO_EXPLAINER'
+  const scriptDetails = resolvedTemplate === 'VIDEO_SIMPLE_EXPLAINER'
     ? buildVideoExplainerAssetContext({
         transcript: normalized.transcript,
         topicTitle: input.topicTitle || input.topic,
@@ -644,7 +665,7 @@ async function createLocalReelPlan(
         segments,
       });
   const topicTitle = cleanTitle(input.topicTitle || input.topic || deriveTopicTitle(segments, normalized.transcript));
-  const visualPlan = templateName === 'VIDEO_EXPLAINER'
+  const visualPlan = resolvedTemplate === 'VIDEO_SIMPLE_EXPLAINER'
     ? buildVisualPlan({
         scriptDetails,
         segments,
@@ -655,13 +676,16 @@ async function createLocalReelPlan(
   if (visualPlan) {
     scriptDetails.visualPlan = visualPlan;
   }
-  const externalVisualAssets = templateName === 'VIDEO_EXPLAINER'
+  const externalVisualAssets = resolvedTemplate === 'VIDEO_SIMPLE_EXPLAINER'
     ? input.externalVisualAssets || []
     : [];
-  const mediaType = input.mediaType || (templateName === 'HANDWRITTEN_NOTES' ? 'audio' : 'video');
+  const mediaType = input.mediaType || (resolvedTemplate === 'HANDWRITTEN_NOTES' ? 'audio' : 'video');
   const plannedOverlayTimeline = applyVisualPlanToOverlays(
     attachOverlayWords(
-      buildOverlayTimeline(segments, input, language, scriptDetails, templateName),
+      attachCompareStickerPoses(
+        buildOverlayTimeline(segments, input, language, scriptDetails, resolvedTemplate),
+        resolvedTemplate,
+      ),
       normalized.words,
     ),
     visualPlan,
@@ -669,32 +693,32 @@ async function createLocalReelPlan(
   const overlayTimeline = applyExternalVisualAssetsToOverlays(
     plannedOverlayTimeline,
     externalVisualAssets,
-    templateName,
+    resolvedTemplate,
     mediaType,
     getExternalAssetImageLimit(),
   );
-  const assetTimeline = templateName === 'VIDEO_EXPLAINER'
+  const assetTimeline = resolvedTemplate === 'VIDEO_SIMPLE_EXPLAINER'
     ? await buildAssetTimelineForOverlays(scriptDetails, overlayTimeline, 10)
     : [];
-  const visualMode = templateName === 'HANDWRITTEN_NOTES'
+  const visualMode = resolvedTemplate === 'HANDWRITTEN_NOTES'
     ? 'notes' as const
-    : templateName === 'VIDEO_CAPTION'
+    : resolvedTemplate === 'VIDEO_CAPTION'
       ? 'videoCaption' as const
-      : templateName === 'IMAGE_STORY'
+      : resolvedTemplate === 'IMAGE_STORY'
         ? 'imageStory' as const
-        : templateName === 'comparisonImages'
+        : resolvedTemplate === 'comparisonImages'
           ? 'compare' as const
       : 'videoExplainer' as const;
-  const primaryFocus = templateName === 'HANDWRITTEN_NOTES'
+  const primaryFocus = resolvedTemplate === 'HANDWRITTEN_NOTES'
     ? 'notesCanvas' as const
-    : templateName === 'VIDEO_CAPTION' || templateName === 'AUTO_CAPTION_REEL'
+    : resolvedTemplate === 'VIDEO_CAPTION' || resolvedTemplate === 'AUTO_CAPTION_REEL'
       ? 'captions' as const
-      : templateName === 'IMAGE_STORY'
+      : resolvedTemplate === 'IMAGE_STORY'
         ? 'images' as const
-        : templateName === 'comparisonImages'
+        : resolvedTemplate === 'comparisonImages'
           ? 'comparison' as const
       : 'topVisual' as const;
-  const captions = templateName === 'VIDEO_CAPTION'
+  const captions = resolvedTemplate === 'VIDEO_CAPTION'
     ? buildVideoCaptionPlan({
         words: normalized.words,
         segments: normalized.segments,
@@ -720,7 +744,7 @@ async function createLocalReelPlan(
     primaryFocus,
     secondarySupport: ['titleCard'] as Array<'titleCard'>,
   }));
-  const imageStoryProps = templateName === 'IMAGE_STORY' || templateName === 'IMAGE_STORY_COLLAGE' // Include IMAGE_STORY_COLLAGE
+  const imageStoryProps = resolvedTemplate === 'IMAGE_STORY' || resolvedTemplate === 'IMAGE_STORY_COLLAGE' // Include IMAGE_STORY_COLLAGE
     ? buildImageStoryProps({
         input,
         segments,
@@ -728,23 +752,23 @@ async function createLocalReelPlan(
         language,
         topicTitle,
         scriptDetails,
-        isCollage: templateName === 'IMAGE_STORY_COLLAGE', // Pass flag for collage
+        isCollage: resolvedTemplate === 'IMAGE_STORY_COLLAGE', // Pass flag for collage
       })
     : undefined;
 
   return {
     provider: 'local',
-    model: templateName === 'HANDWRITTEN_NOTES'
+    model: resolvedTemplate === 'HANDWRITTEN_NOTES'
       ? 'handwritten-notes-planner'
-      : templateName === 'VIDEO_CAPTION'
+      : resolvedTemplate === 'VIDEO_CAPTION'
         ? 'video-caption-planner'
-        : templateName === 'IMAGE_STORY'
+        : resolvedTemplate === 'IMAGE_STORY'
           ? 'image-story-planner'
-          : templateName === 'comparisonImages'
+          : resolvedTemplate === 'comparisonImages'
             ? 'compare-planner'
           : 'video-explainer-planner',
-    template: templateName,
-    templateName,
+    template: resolvedTemplate,
+    templateName: resolvedTemplate,
     analysis: {
       durationSeconds,
       speechDensity: estimateSpeechDensity(normalized.transcript, durationSeconds),
@@ -753,19 +777,19 @@ async function createLocalReelPlan(
     },
     timeline,
     assets: {
-      suggested: buildSuggestedAssets(scriptDetails, templateName, externalVisualAssets),
-      required: templateName === 'HANDWRITTEN_NOTES'
+      suggested: buildSuggestedAssets(scriptDetails, resolvedTemplate, externalVisualAssets),
+      required: resolvedTemplate === 'HANDWRITTEN_NOTES'
         ? ['uploaded voiceover']
-        : templateName === 'IMAGE_STORY' || templateName === 'IMAGE_STORY_COLLAGE'
+        : resolvedTemplate === 'IMAGE_STORY' || resolvedTemplate === 'IMAGE_STORY_COLLAGE'
           ? ['at least one uploaded or selected image']
-          : templateName === 'comparisonImages'
+          : resolvedTemplate === 'comparisonImages'
             ? ['uploaded voiceover or primary video']
           : ['uploaded primary video'],
-      avoid: templateName === 'HANDWRITTEN_NOTES'
+      avoid: resolvedTemplate === 'HANDWRITTEN_NOTES'
         ? ['prewritten notebook poster', 'watermark/logo overlays', 'repeated same text blocks']
-        : templateName === 'IMAGE_STORY'
+        : resolvedTemplate === 'IMAGE_STORY'
           ? ['static slideshow', 'full subtitles', 'explainer cards', 'placeholder labels', 'stretched images', 'generic stock photos']
-          : templateName === 'comparisonImages'
+          : resolvedTemplate === 'comparisonImages'
             ? ['unclear sides', 'more than two competing ideas per scene', 'tiny comparison text']
           : ['watermark/logo overlays', 'extra overlay text layers', 'background-image-only designs', 'icons instead of the bottom image layer'],
     },
@@ -775,17 +799,17 @@ async function createLocalReelPlan(
       brand: 'itnavideo',
       topicTitle,
       design: input.design,
-      templateName,
-      ...(templateName === 'VIDEO_EXPLAINER' ? {} : {scriptDetails}),
+      templateName: resolvedTemplate,
+      ...(resolvedTemplate === 'VIDEO_SIMPLE_EXPLAINER' ? {} : {scriptDetails}),
       ...(visualPlan ? {visualPlan} : {}),
       mediaType,
-      mediaFit: templateName === 'HANDWRITTEN_NOTES'
+      mediaFit: resolvedTemplate === 'HANDWRITTEN_NOTES'
         ? 'notes'
-        : templateName === 'VIDEO_CAPTION'
+        : resolvedTemplate === 'VIDEO_CAPTION'
           ? 'videoCaption'
-          : templateName === 'IMAGE_STORY' || templateName === 'IMAGE_STORY_COLLAGE'
+          : resolvedTemplate === 'IMAGE_STORY' || resolvedTemplate === 'IMAGE_STORY_COLLAGE'
             ? 'imageStory'
-            : templateName === 'comparisonImages'
+            : resolvedTemplate === 'comparisonImages'
               ? 'compare'
             : 'videoExplainer',
       durationSeconds,
@@ -793,7 +817,7 @@ async function createLocalReelPlan(
       captions,
       externalVisualAssets,
       assetTimeline,
-      ...(templateName === 'VIDEO_CAPTION'
+      ...(resolvedTemplate === 'VIDEO_CAPTION'
         ? {
             captionPlan: buildCaptionPlan(captions),
             videoStyle: normalizeVideoCaptionStyle(undefined),
@@ -807,90 +831,96 @@ async function createLocalReelPlan(
       repairable: true,
       warnings: [],
       notes: [
-        templateName === 'HANDWRITTEN_NOTES'
+        resolvedTemplate === 'HANDWRITTEN_NOTES'
           ? 'Handwritten Notes plan created from timestamp segments.'
-          : templateName === 'VIDEO_CAPTION'
+          : resolvedTemplate === 'VIDEO_CAPTION'
             ? 'Video Caption plan created from timestamp segments and word timings.'
-            : templateName === 'IMAGE_STORY'
+            : resolvedTemplate === 'IMAGE_STORY'
               ? 'Image Story plan created as image-led cinematic story beats.'
-              : templateName === 'comparisonImages'
+              : resolvedTemplate === 'comparisonImages'
                 ? 'Compare plan created as timed side-by-side decision beats.'
           : 'Video Explainer plan created from timestamp segments.',
-        templateName === 'VIDEO_EXPLAINER'
+        resolvedTemplate === 'VIDEO_SIMPLE_EXPLAINER'
           ? `AssetBrief layer created ${scriptDetails.videoUsePlan?.length || 0} scene search instructions.`
           : scriptDetails.planningSource === 'ai'
           ? `AI Script Details read the full ${scriptDetails.wordCount || 0}-word script before JSON planning.`
           : `Rule-based Script Details read the full ${scriptDetails.wordCount || 0}-word script before JSON planning.`,
-        templateName === 'VIDEO_EXPLAINER'
+        resolvedTemplate === 'VIDEO_SIMPLE_EXPLAINER'
           ? `Visual Planner selected ${visualPlan?.scenes.length || 0} scene-matched frame decisions from the script.`
           : scriptDetails.imageUsagePolicy
           ? `Image policy: use ${scriptDetails.imageUsagePolicy.minImages}-${scriptDetails.imageUsagePolicy.maxImages} images, recommended ${scriptDetails.imageUsagePolicy.recommendedImages}.`
           : 'Image policy was not provided.',
-        templateName === 'VIDEO_EXPLAINER'
+        resolvedTemplate === 'VIDEO_SIMPLE_EXPLAINER'
           ? 'Asset picker reads per-scene assetBrief in English before caption text.'
           : scriptDetails.imageSelectionPlan?.length
           ? `AI selected ${scriptDetails.imageSelectionPlan.length} semantic image needs before render planning.`
           : 'No semantic image selection plan was provided.',
         language === 'hinglish'
-          ? templateName === 'HANDWRITTEN_NOTES'
+          ? resolvedTemplate === 'HANDWRITTEN_NOTES'
             ? 'Timestamp segments were normalized to clean English plus Roman Hinglish; Handwritten Notes final text uses official English keywords with simple Hinglish support lines.'
-            : templateName === 'VIDEO_EXPLAINER'
+            : resolvedTemplate === 'VIDEO_SIMPLE_EXPLAINER'
               ? 'Timestamp segments were normalized to clean English plus Roman Hinglish; Video Explainer final text uses official English keywords with simple Hinglish support lines.'
               : 'Timestamp segments were normalized to Clean Hinglish roman text.'
           : 'Timestamp segments were kept in clean English text.',
         normalized.words?.length
           ? `Word-level sync enabled with ${normalized.words.length} timed transcript words.`
-          : templateName === 'VIDEO_CAPTION'
+          : resolvedTemplate === 'VIDEO_CAPTION'
             ? 'Word timings unavailable; VIDEO_CAPTION requires timestamp segments for phrase reveal.'
             : 'Word-level sync unavailable; renderer will use duration-based pacing.',
-        templateName === 'VIDEO_EXPLAINER'
-          ? 'VIDEO_EXPLAINER uses exactly three visual layers: top uploaded video, middle timed subtitles, bottom planned explainer frame.'
-          : templateName === 'comparisonImages' || templateName === 'IMAGE_STORY_COLLAGE'
+        resolvedTemplate === 'VIDEO_SIMPLE_EXPLAINER'
+          ? 'VIDEO_SIMPLE_EXPLAINER uses exactly three visual layers: top uploaded video, middle timed subtitles, bottom planned explainer frame.'
+          : resolvedTemplate === 'comparisonImages' || resolvedTemplate === 'IMAGE_STORY_COLLAGE'
             ? 'COMPARE renders each beat as a two-column tradeoff with a verdict strip.'
           : 'Template uses lightweight visual direction without forcing fixed asset rules.',
+        resolvedTemplate === 'comparisonImages'
+          ? 'Compare planner assigns sticker_pointing_left_side_explainer for left-side beats and sticker_pointing_right_side_explainer for right-side beats; legacy left/right aliases remain render-compatible.'
+          : 'Sticker pose mapping is not required for this template.',
       ],
       renderAllowed: true,
       qualityScore: 92,
       qualityBand: 'professional',
       qualityChecks: [
-        templateName === 'HANDWRITTEN_NOTES' ? 'One continuous handwritten notes canvas.' : (templateName === 'VIDEO_CAPTION' || templateName === 'AUTO_CAPTION_REEL') ? 'One continuous captioned video.' : templateName === 'IMAGE_STORY' ? 'One continuous image-led cinematic story.' : templateName === 'comparisonImages' ? 'One continuous side-by-side comparison reel.' : 'One continuous video scene.',
-        templateName === 'HANDWRITTEN_NOTES'
+        resolvedTemplate === 'HANDWRITTEN_NOTES' ? 'One continuous handwritten notes canvas.' : (resolvedTemplate === 'VIDEO_CAPTION' || resolvedTemplate === 'AUTO_CAPTION_REEL') ? 'One continuous captioned video.' : resolvedTemplate === 'IMAGE_STORY' ? 'One continuous image-led cinematic story.' : resolvedTemplate === 'comparisonImages' ? 'One continuous side-by-side comparison reel.' : 'One continuous video scene.',
+        resolvedTemplate === 'HANDWRITTEN_NOTES'
           ? 'Uploaded voiceover drives full-screen handwritten notes.'
-          : templateName === 'VIDEO_CAPTION' || templateName === 'AUTO_CAPTION_REEL'
+          : resolvedTemplate === 'VIDEO_CAPTION' || resolvedTemplate === 'AUTO_CAPTION_REEL'
             ? 'Uploaded video stays full-screen while timed captions are rendered above safe zones.'
-            : templateName === 'IMAGE_STORY'
+            : resolvedTemplate === 'IMAGE_STORY'
               ? 'One primary image drives each scene with subtle cinematic motion.'
-              : templateName === 'comparisonImages'
+              : resolvedTemplate === 'comparisonImages'
                 ? 'Transcript beats become two stable comparison panels plus a verdict.'
           : 'Uploaded video remains full-width in the top 16:9 visual container as layer 1.',
-        templateName === 'HANDWRITTEN_NOTES'
+        resolvedTemplate === 'HANDWRITTEN_NOTES'
           ? 'Handwritten Notes layout uses short written points without prewritten background text.'
-          : templateName === 'VIDEO_CAPTION'
+          : resolvedTemplate === 'VIDEO_CAPTION'
             ? 'Captions use short lines with word-level highlighting when transcript timings are available, or phrase reveal.'
-            : templateName === 'IMAGE_STORY'
+            : resolvedTemplate === 'IMAGE_STORY'
               ? 'Text is minimal and never becomes full subtitles or explainer cards.'
-              : templateName === 'comparisonImages'
+              : resolvedTemplate === 'comparisonImages'
                 ? 'Comparison text stays short, scannable, and split into clear option points.'
           : 'Middle subtitle bar is layer 2; no duplicate transcript text should be planned elsewhere.',
-        templateName === 'VIDEO_EXPLAINER'
+        resolvedTemplate === 'VIDEO_SIMPLE_EXPLAINER'
           ? 'Asset picker supplies layer 3 only: one bottom image per active timing window, never top video or extra background UI.'
           : 'Template-specific supporting visuals are kept within the approved renderer structure.',
+        resolvedTemplate === 'comparisonImages'
+          ? 'Sticker pose IDs use descriptive left-side/right-side explainer names for automatic presenter direction.'
+          : 'No compare sticker direction check required.',
       ],
       qualityFindings: [],
       pipeline: [
         {
           step: 'Transcript',
           status: 'complete',
-          detail: templateName === 'HANDWRITTEN_NOTES'
+          detail: resolvedTemplate === 'HANDWRITTEN_NOTES'
             ? 'Audio/video transcript preserved for source accuracy before visible-note language conversion.'
             : 'Audio/video transcript cleaned for display.',
         },
         {
-          step: templateName === 'HANDWRITTEN_NOTES' ? 'CreativeDirector' : templateName === 'VIDEO_EXPLAINER' ? 'Visual Planner' : 'Script Details',
+          step: resolvedTemplate === 'HANDWRITTEN_NOTES' ? 'CreativeDirector' : resolvedTemplate === 'VIDEO_SIMPLE_EXPLAINER' ? 'Visual Planner' : 'Script Details',
           status: 'complete',
-          detail: templateName === 'VIDEO_EXPLAINER'
+          detail: resolvedTemplate === 'VIDEO_SIMPLE_EXPLAINER'
             ? `Planned ${visualPlan?.scenes.length || 0} scene-specific bottom frames from script meaning and timing.`
-            : templateName === 'HANDWRITTEN_NOTES'
+            : resolvedTemplate === 'HANDWRITTEN_NOTES'
             ? scriptDetails.planningSource === 'ai'
               ? `AI directed ${scriptDetails.videoUsePlan?.length || 0} timed note actions from the ${scriptDetails.wordCount || 0}-word script.`
               : `Rule-based director extracted ${scriptDetails.detailBlocks.length} note blocks from ${scriptDetails.wordCount || 0} words.`
@@ -899,21 +929,21 @@ async function createLocalReelPlan(
               : `Extracted ${scriptDetails.detailBlocks.length} structured detail blocks from ${scriptDetails.wordCount || 0} words.`,
         },
         {
-          step: templateName === 'HANDWRITTEN_NOTES' ? 'ManagerChecklist' : 'Timing',
+          step: resolvedTemplate === 'HANDWRITTEN_NOTES' ? 'ManagerChecklist' : 'Timing',
           status: 'complete',
-          detail: templateName === 'HANDWRITTEN_NOTES'
+          detail: resolvedTemplate === 'HANDWRITTEN_NOTES'
             ? `Checked audio-matched note timing before the ${durationSeconds}s render.`
             : `Planned ${durationSeconds}s render window.`,
         },
         {
-          step: templateName === 'HANDWRITTEN_NOTES' ? 'Remotion Props' : 'JSON',
+          step: resolvedTemplate === 'HANDWRITTEN_NOTES' ? 'Remotion Props' : 'JSON',
           status: 'complete',
           detail: normalized.words?.length
             ? 'Created overlayTimeline with word-level timing metadata.'
             : 'Created overlayTimeline and captions render props.',
         },
       ],
-      openAiCallsUsed: templateName !== 'VIDEO_EXPLAINER' && scriptDetails.planningSource === 'ai' ? 1 : 0,
+      openAiCallsUsed: resolvedTemplate !== 'VIDEO_SIMPLE_EXPLAINER' && scriptDetails.planningSource === 'ai' ? 1 : 0,
     },
   };
 }
@@ -1637,32 +1667,40 @@ function attachOverlayWords<T extends {start: number; end: number}>(
   });
 }
 
-function getTemplateName(value?: string): ReelTemplateName {
-  const normalized = String(value || '').toLowerCase().replace(/[_\s]+/g, '-');
+function getTemplateName(value?: string): ReelTemplateName | null {
+  const normalized = String(value || '').toLowerCase().replace(/[_\s]+/g, '');
+
+  // Direct registry lookup first — covers all templates without needing individual checks
+  const registryMatch = Object.keys(REEL_TEMPLATE_REGISTRY).find((key) =>
+    key.toLowerCase().replace(/[_\s]+/g, '') === normalized
+  );
+  if (registryMatch) return registryMatch as ReelTemplateName;
+
+  // Keyword fallbacks for common short names
   if (normalized.includes('compare') || normalized.includes('comparison') || /\bvs\b/.test(normalized)) return 'comparisonImages';
-  if (normalized.includes('auto-caption') || normalized.includes('autocaption')) return 'AUTO_CAPTION_REEL';
-  if (normalized.includes('auto-draw') || normalized.includes('autodraw') || normalized.includes('whiteboard')) return 'AUTO_DRAW_EXPLAINER';
-  if (normalized.includes('long-video') || normalized.includes('longvideo') || normalized.includes('promo')) return 'LONG_VIDEO_PROMO';
-  if (normalized.includes('voice-synced') || normalized.includes('voicesynced') || normalized.includes('synced-notes')) return 'VOICE_SYNCED_NOTES';
-  if (normalized.includes('image-story-collage') || normalized.includes('cinematic-collage') || normalized.includes('imagestorycollage')) return 'IMAGE_STORY_COLLAGE';
+  if (normalized.includes('autocaption') || normalized.includes('auto-caption')) return 'AUTO_CAPTION_REEL';
+  if (normalized.includes('autodraw') || normalized.includes('whiteboard')) return 'AUTO_DRAW_EXPLAINER';
+  if (normalized.includes('longvideo') || normalized.includes('promo')) return 'LONG_VIDEO_PROMO';
+  if (normalized.includes('dynamiccreator') || normalized.includes('dynamicreel')) return 'DYNAMIC_CREATOR_REEL';
+  if (normalized.includes('creatorbackground') || normalized.includes('backgroundreplace') || normalized.includes('videobackgroundimage')) return 'CREATOR_BACKGROUND_REPLACE';
   if (normalized.includes('caption') || normalized.includes('subtitle')) return 'AUTO_CAPTION_REEL';
-  return 'VIDEO_SIMPLE_EXPLAINER';
+
+  // SAFETY: Do NOT silently fallback to Video Explainer.
+  // If we reach here, the template ID is genuinely unrecognized.
+  // Return null so the caller can show a proper error instead of rendering the wrong template.
+  return null;
 }
 
 function getTimelineVisualMode(templateName: ReelTemplateName): ReelTimelineScene['visualMode'] {
-  if (templateName === 'HANDWRITTEN_NOTES') return 'notes';
   if (templateName === 'AUTO_CAPTION_REEL') return 'videoCaption';
-  if (templateName === 'VIDEO_CAPTION') return 'videoCaption';
-  if (templateName === 'IMAGE_STORY' || templateName === 'IMAGE_STORY_COLLAGE') return 'imageStory'; // Both image-led templates use imageStory mode
+  if (templateName === 'IMAGE_STORY_COLLAGE') return 'imageStory';
   if (templateName === 'comparisonImages') return 'compare';
   return 'videoExplainer';
 }
 
 function getTimelinePrimaryFocus(templateName: ReelTemplateName): ReelTimelineScene['primaryFocus'] {
-  if (templateName === 'HANDWRITTEN_NOTES') return 'notesCanvas';
   if (templateName === 'AUTO_CAPTION_REEL') return 'captions';
-  if (templateName === 'VIDEO_CAPTION') return 'captions';
-  if (templateName === 'IMAGE_STORY' || templateName === 'IMAGE_STORY_COLLAGE') return 'images'; // Both image-led templates focus on images
+  if (templateName === 'IMAGE_STORY_COLLAGE') return 'images';
   if (templateName === 'comparisonImages') return 'comparison';
   return 'topVisual';
 }
@@ -1787,6 +1825,105 @@ function buildOverlayTimeline(
       sfx: isFirst ? 'softPop' as const : isLast ? 'softChime' as const : 'softTick' as const,
     }, detailBlock?.type, undefined, templateName);
   });
+}
+
+function attachCompareStickerPoses<T extends {text: string; body?: string; type: string; stickerPose?: string}>(
+  overlays: T[],
+  templateName: ReelTemplateName,
+): T[] {
+  if (templateName !== 'comparisonImages' || overlays.length === 0) return overlays;
+
+  let previousPose = '';
+  return overlays.map((overlay, index) => {
+    const inferredPose = inferCompareStickerPose({
+      text: [overlay.text, overlay.body].filter(Boolean).join(' '),
+      type: overlay.type,
+      index,
+      total: overlays.length,
+    });
+    const stickerPose = inferredPose === previousPose
+      ? getAlternateCompareStickerPose(inferredPose, index, overlays.length)
+      : inferredPose;
+    previousPose = stickerPose;
+    return {
+      ...overlay,
+      stickerPose,
+    };
+  });
+}
+
+function inferCompareStickerPose({
+  text,
+  type,
+  index,
+  total,
+}: {
+  text: string;
+  type: string;
+  index: number;
+  total: number;
+}) {
+  const normalized = normalizeForPlannerMatch(text);
+  if (index === 0 || type === 'hook') return 'sticker_welcome_intro_explainer';
+  if (index === total - 1 || type === 'cta') return 'sticker_happy_celebrating_outro';
+  if (/\b(warning|risk|mistake|galti|avoid|danger|problem|issue|downside|con|cons)\b/.test(normalized)) return 'warning';
+  if (/[?]/.test(text) || /\b(question|confused|doubt|which one|which is|kaunsa better|konsa better|kya difference|kya farq|why|how)\b/.test(normalized)) {
+    return 'sticker_questioning_surprised_explainer';
+  }
+  if (/\b(vs|versus|compare|comparison|difference|both|dono|between|side by side|on one hand|on the other hand)\b/.test(normalized)) {
+    return 'sticker_comparing_both_sides_explainer';
+  }
+  if (/\b(right side|option b|second option|second item|doosra|dusra|right item|item b)\b/.test(normalized)) return 'sticker_pointing_right_side_explainer';
+  if (/\b(left side|option a|first option|first item|pehla|pehle|left item|item a)\b/.test(normalized)) return 'sticker_pointing_left_side_explainer';
+  if (/\b(final|conclusion|winner|best choice|recommended|clear|success|sahi answer|yaad rakho|remember)\b/.test(normalized)) {
+    return 'sticker_success_conclusion_explainer';
+  }
+  if (/\b(explain|explaining|matlab|means|reason|because|feature|benefit|advantage|key point|important|rule)\b/.test(normalized)) {
+    return 'sticker_general_explaining_key_point';
+  }
+  if (/\b(think|thinking|analysis|analyze|samjho|socho|consider|neutral)\b/.test(normalized)) {
+    return 'sticker_thinking_analysis_explainer';
+  }
+
+  const progress = total > 1 ? index / (total - 1) : 0;
+  const naturalArc = [
+    'sticker_pointing_left_side_explainer',
+    'sticker_general_explaining_key_point',
+    'sticker_comparing_both_sides_explainer',
+    'sticker_pointing_right_side_explainer',
+    'sticker_thinking_analysis_explainer',
+    'sticker_pointing_left_side_explainer',
+    'sticker_pointing_right_side_explainer',
+    'sticker_success_conclusion_explainer',
+  ];
+  if (progress < 0.18) return 'sticker_pointing_left_side_explainer';
+  if (progress > 0.82) return 'sticker_success_conclusion_explainer';
+  return naturalArc[index % naturalArc.length];
+}
+
+function getAlternateCompareStickerPose(pose: string, index: number, total: number) {
+  if (index === 0) return pose;
+  if (index === total - 1) return pose === 'sticker_happy_celebrating_outro' ? 'sticker_success_conclusion_explainer' : pose;
+  const alternates: Record<string, string[]> = {
+    sticker_pointing_left_side_explainer: ['sticker_general_explaining_key_point', 'sticker_comparing_both_sides_explainer'],
+    sticker_pointing_right_side_explainer: ['sticker_comparing_both_sides_explainer', 'sticker_general_explaining_key_point'],
+    sticker_comparing_both_sides_explainer: ['sticker_pointing_left_side_explainer', 'sticker_pointing_right_side_explainer'],
+    sticker_general_explaining_key_point: ['sticker_thinking_analysis_explainer', 'sticker_comparing_both_sides_explainer'],
+    sticker_questioning_surprised_explainer: ['sticker_thinking_analysis_explainer', 'sticker_general_explaining_key_point'],
+    sticker_thinking_analysis_explainer: ['sticker_questioning_surprised_explainer', 'sticker_general_explaining_key_point'],
+    warning: ['sticker_thinking_analysis_explainer', 'warning'],
+    sticker_success_conclusion_explainer: ['sticker_general_explaining_key_point', 'sticker_happy_celebrating_outro'],
+  };
+  const options = alternates[pose];
+  return options?.length ? options[index % options.length] : pose;
+}
+
+function normalizeForPlannerMatch(value: string) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 function applyVisualPlanToOverlays<T extends ReelPlanResult['renderProps']['overlayTimeline'][number]>(

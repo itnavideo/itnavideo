@@ -1,10 +1,28 @@
-﻿import React from 'react';
+import React from 'react';
+import type { Metadata } from "next";
 import Hero from "@/components/landing/Hero";
 import HowItWorks from "@/components/landing/HowItWorks";
 import UseCaseGallerySection from "@/components/landing/UseCaseGallerySection";
 import SearchIntentSection from "@/components/landing/SearchIntentSection";
 import FeaturesSection from "@/components/landing/FeaturesSection";
+import CreatorRewardsSection from "@/components/landing/CreatorRewardsSection";
 import FAQSection from "@/components/FAQSection";
+
+export const metadata: Metadata = {
+  title: "Itnavideo - Six Premium AI Reel Templates",
+  description: "Create polished 9:16 reels with six focused AI templates: Dynamic Creator, Auto Captions, Creator Background Replace, Compare Explainer, Auto Draw, and Long Video Promo.",
+  openGraph: {
+    title: "Itnavideo - Six Premium AI Reel Templates",
+    description: "Create polished 9:16 reels with six focused AI templates: Dynamic Creator, Auto Captions, Creator Background Replace, Compare Explainer, Auto Draw, and Long Video Promo.",
+    images: ["/og-image.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Itnavideo - Six Premium AI Reel Templates",
+    description: "Create polished 9:16 reels with six focused AI templates: Dynamic Creator, Auto Captions, Creator Background Replace, Compare Explainer, Auto Draw, and Long Video Promo.",
+    images: ["/og-image.png"],
+  },
+};
 
 const siteUrl = "https://www.itnavideo.com";
 const socialProfiles = [
@@ -36,7 +54,7 @@ const jsonLd = [
     applicationCategory: "MultimediaApplication",
     operatingSystem: "Web",
     url: siteUrl,
-    description: "AI explainer video generator that turns audio or video into vertical reels with creator video, transcript subtitles, title, and support visuals.",
+    description: "AI reel generator with six focused templates for creator edits, background replacement, captions, comparison explainers, whiteboard explainers, and long video promos.",
     offers: {
       "@type": "Offer",
       priceCurrency: "INR",
@@ -48,7 +66,7 @@ const jsonLd = [
 
 export default function LandingPage() {
   return (
-    <div className="relative flex flex-col overflow-x-hidden bg-black">
+    <div className="relative flex flex-col overflow-x-hidden bg-[#0F172A]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -59,10 +77,9 @@ export default function LandingPage() {
       <HowItWorks />
       <UseCaseGallerySection />
       <FeaturesSection />
+      <CreatorRewardsSection />
       <FAQSection />
       <SearchIntentSection />
     </div>
   );
 }
-
-

@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { ArrowRight, Captions, CheckCircle2, Clapperboard, Film, Mic2, Search, ShieldCheck, Video } from "lucide-react";
 
 const searchIntents = [
@@ -55,7 +55,7 @@ const trustItems = [
 
 export default function SearchIntentSection() {
   return (
-    <section className="bg-[#050506] px-4 py-16 text-white sm:px-6 md:py-24">
+    <section className="px-4 py-16 text-white sm:px-6 md:py-24" style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 100%, rgba(37, 99, 235, 0.07) 0%, transparent 60%), #0F172A' }}>
       <div className="mx-auto max-w-7xl">
         <div className="mb-10 grid gap-6 lg:grid-cols-[0.78fr_1fr] lg:items-end">
           <div>
@@ -96,7 +96,7 @@ export default function SearchIntentSection() {
           <div>
             <p className="text-sm font-black uppercase tracking-[0.2em] text-brand-mint">Trust basics</p>
             <h2 className="mt-3 text-3xl font-black leading-tight">Simple enough to try today.</h2>
-            <Link href="/dashboard" className="mt-6 inline-flex items-center gap-2 rounded-lg bg-brand-mint px-5 py-3 text-sm font-black text-black transition hover:bg-white">
+            <Link href="/dashboard" className="mt-6 inline-flex items-center gap-2 rounded-lg px-5 py-3 text-sm font-black text-white transition hover:-translate-y-[1px] brand-btn-primary-dark">
               Start creating
               <ArrowRight size={16} />
             </Link>
@@ -116,4 +116,3 @@ export default function SearchIntentSection() {
     </section>
   );
 }
-

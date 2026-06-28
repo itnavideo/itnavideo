@@ -45,3 +45,12 @@ build
 *.tsbuildinfo
 outputs
 *.zip
+
+docs/references
+__samples
+public/test-videos
+visual-audit
+sticker-previews
+.tmp
+nul
+*.bak

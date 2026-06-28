@@ -26,15 +26,7 @@ export async function POST(request: Request) {
   const fileName = readString(body.fileName);
   const contentType = readString(body.contentType);
   const workflowMode = readString(body.mode || body.template).toLowerCase();
-  const templateMode = isCompareWorkflow(workflowMode) 
-    ? 'compare' 
-    : isAutoCaptionWorkflow(workflowMode) 
-    ? 'autoCaption' 
-    : isImageStoryCollageWorkflow(workflowMode)
-    ? 'imageStoryCollage'
-    : isAutoDrawWorkflow(workflowMode)
-    ? 'autoDraw'
-    : 'videoExplainer';
+  const templateMode = resolvePresignTemplateMode(workflowMode);
   const uploadMode = contentType.startsWith('audio/') ? 'audio' : contentType.startsWith('image/') ? 'image' : 'video';
   const fileSize = Number(body.fileSize || 0);
   const userId = readString(body.userId);
@@ -45,7 +37,7 @@ export async function POST(request: Request) {
   if (!userId) {
     return NextResponse.json({ok: false, error: 'Please log in before uploading media.'}, {status: 401});
   }
-  if (workflowMode && !isVideoExplainerWorkflow(workflowMode) && !isCompareWorkflow(workflowMode) && !isAutoCaptionWorkflow(workflowMode) && !isImageStoryCollageWorkflow(workflowMode) && !isAutoDrawWorkflow(workflowMode)) {
+  if (workflowMode && !isRecognizedWorkflowMode(workflowMode)) {
     return NextResponse.json({ok: false, error: 'This template is not available right now.'}, {status: 422});
   }
   if (fileSize > MAX_FILE_SIZE_BYTES) {
@@ -99,25 +91,15 @@ function readString(value: unknown) {
 
 function isAllowedUploadForTemplate(templateMode: string, contentType: string) {
   if (templateMode === 'compare') return contentType.startsWith('audio/') || contentType.startsWith('image/');
-  if (templateMode === 'autoCaption') return contentType.startsWith('video/');
-  if (templateMode === 'imageStoryCollage') return contentType.startsWith('audio/') || contentType.startsWith('video/');
+  if (templateMode === 'autoCaption' || templateMode === 'creatorBackgroundReplace') return contentType.startsWith('video/');
   return contentType.startsWith('audio/') || contentType.startsWith('video/') || contentType.startsWith('image/');
 }
 
 function uploadErrorForTemplate(templateMode: string) {
   if (templateMode === 'compare') return 'Compare needs one audio file plus exactly 2 visuals.';
-  if (templateMode === 'imageStoryCollage') return 'Cinematic Collage needs audio voiceover or video with clear speech.';
-  return 'Video Explainer needs audio, video, or bottom image.';
-}
-
-function isVideoExplainerWorkflow(value: string) {
-  return (
-    value === 'videoexplainer' ||
-    value === 'video-explainer' ||
-    value === 'explainer' ||
-    value === 'explainer-video' ||
-    value === 'facecam'
-  );
+  if (templateMode === 'autoCaption') return 'Auto Caption needs a video file with speech.';
+  if (templateMode === 'creatorBackgroundReplace') return 'Creator Background Replace needs a video file.';
+  return 'This template needs audio, video, or image upload.';
 }
 
 function isCompareWorkflow(value: string) {
@@ -128,14 +110,24 @@ function isAutoCaptionWorkflow(value: string) {
   return value === 'autocaption' || value === 'auto-caption' || value === 'auto-caption-reel' || value === 'caption' || value === 'subtitle';
 }
 
-function isImageStoryCollageWorkflow(value: string) {
-  const normalized = value.toLowerCase().replace(/[-_\s]+/g, '');
-  return normalized === 'imagestorycollage' || normalized === 'cinematiccollage';
-}
-
 function isAutoDrawWorkflow(value: string) {
   const normalized = value.toLowerCase().replace(/[-_\s]+/g, '');
   return normalized === 'autodraw' || normalized === 'autodrawexplainer' || normalized === 'whiteboard';
+}
+
+function isLongVideoPromoWorkflow(value: string) {
+  const normalized = value.toLowerCase().replace(/[-_\s]+/g, '');
+  return normalized === 'longvideopromo' || normalized === 'longvideopromotion' || normalized === 'promo';
+}
+
+function isDynamicCreatorWorkflow(value: string) {
+  const normalized = value.toLowerCase().replace(/[-_\s]+/g, '');
+  return normalized === 'dynamiccreatorreel' || normalized === 'dynamiccreator' || normalized === 'dynamicreel' || normalized === 'creatordynamic';
+}
+
+function isCreatorBackgroundReplaceWorkflow(value: string) {
+  const normalized = value.toLowerCase().replace(/[-_\s]+/g, '');
+  return normalized === 'creatorbackgroundreplace' || normalized === 'backgroundreplace' || normalized === 'videobackgroundimage' || normalized === 'backgroundimage';
 }
 
 function sanitizeUserFacingStatus(value: string) {
@@ -158,4 +150,25 @@ function sanitizeUserFacingStatus(value: string) {
     .replace(/\bffmpeg\b/gi, 'media processor')
     .replace(/\bOpenAI\b/gi, 'AI planner')
     .trim() || 'Could not create upload URL.';
+}
+
+/**
+ * SAFETY: Registry-based template mode resolution.
+ * Instead of hardcoded if/else that silently accepts removed templates,
+ * this function checks all known workflow patterns and returns null for unknown templates.
+ * The null case triggers a proper "template not available" error instead of corrupting Video Explainer.
+ */
+function resolvePresignTemplateMode(value: string): string {
+  if (!value) return 'generic';
+  if (isCompareWorkflow(value)) return 'compare';
+  if (isAutoCaptionWorkflow(value)) return 'autoCaption';
+  if (isAutoDrawWorkflow(value)) return 'autoDraw';
+  if (isLongVideoPromoWorkflow(value)) return 'longVideoPromo';
+  if (isDynamicCreatorWorkflow(value)) return 'dynamicCreator';
+  if (isCreatorBackgroundReplaceWorkflow(value)) return 'creatorBackgroundReplace';
+  return 'generic';
+}
+
+function isRecognizedWorkflowMode(value: string) {
+  return isCompareWorkflow(value) || isAutoCaptionWorkflow(value) || isAutoDrawWorkflow(value) || isLongVideoPromoWorkflow(value) || isDynamicCreatorWorkflow(value) || isCreatorBackgroundReplaceWorkflow(value);
 }

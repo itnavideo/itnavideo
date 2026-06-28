@@ -73,7 +73,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-brand-mint text-black hover:bg-white disabled:bg-zinc-800 disabled:text-zinc-500 py-4 rounded-lg font-black transition-all flex items-center justify-center gap-2 mt-4 shadow-xl shadow-emerald-500/10 active:scale-[0.98]"
+              className="w-full bg-brand-mint text-black hover:bg-white disabled:bg-zinc-800 disabled:text-zinc-500 py-4 rounded-lg font-black transition-all flex items-center justify-center gap-2 mt-4 shadow-xl shadow-blue-500/10 active:scale-[0.98]"
             >
               {loading ? <Loader2 className="animate-spin" size={20} /> : 'AUTHENTICATE'}
             </button>

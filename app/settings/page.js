@@ -5,7 +5,7 @@ export const metadata = {
 
 export default function SettingsPage() {
   return (
-    <main className="min-h-screen bg-black text-white px-6 py-20">
+    <main className="min-h-screen bg-[#0B1120] text-white px-6 py-20">
       
       <div className="max-w-5xl mx-auto">
         
@@ -40,7 +40,7 @@ export default function SettingsPage() {
                 <input
                   type="text"
                   placeholder="Syed Mohammed Rohi"
-                  className="w-full bg-black border border-zinc-700 rounded-xl px-4 py-4 outline-none focus:border-purple-500"
+                  className="w-full bg-[#172033] border border-white/10 rounded-xl px-4 py-4 outline-none focus:border-brand-mint"
                 />
               </div>
 
@@ -52,12 +52,12 @@ export default function SettingsPage() {
                 <input
                   type="email"
                   placeholder="hello@itnavideo.com"
-                  className="w-full bg-black border border-zinc-700 rounded-xl px-4 py-4 outline-none focus:border-purple-500"
+                  className="w-full bg-[#172033] border border-white/10 rounded-xl px-4 py-4 outline-none focus:border-brand-mint"
                 />
               </div>
             </div>
 
-            <button className="mt-8 bg-purple-600 hover:bg-purple-500 transition px-8 py-4 rounded-2xl font-semibold">
+            <button className="mt-8 bg-brand-mint hover:bg-blue-500 transition px-8 py-4 rounded-2xl font-semibold">
               Save Changes
             </button>
           </section>
@@ -74,23 +74,23 @@ export default function SettingsPage() {
               <input
                 type="password"
                 placeholder="Current Password"
-                className="w-full bg-black border border-zinc-700 rounded-xl px-4 py-4 outline-none focus:border-purple-500"
+                className="w-full bg-[#172033] border border-white/10 rounded-xl px-4 py-4 outline-none focus:border-brand-mint"
               />
 
               <input
                 type="password"
                 placeholder="New Password"
-                className="w-full bg-black border border-zinc-700 rounded-xl px-4 py-4 outline-none focus:border-purple-500"
+                className="w-full bg-[#172033] border border-white/10 rounded-xl px-4 py-4 outline-none focus:border-brand-mint"
               />
 
               <input
                 type="password"
                 placeholder="Confirm New Password"
-                className="w-full bg-black border border-zinc-700 rounded-xl px-4 py-4 outline-none focus:border-purple-500"
+                className="w-full bg-[#172033] border border-white/10 rounded-xl px-4 py-4 outline-none focus:border-brand-mint"
               />
             </div>
 
-            <button className="mt-8 bg-purple-600 hover:bg-purple-500 transition px-8 py-4 rounded-2xl font-semibold">
+            <button className="mt-8 bg-brand-mint hover:bg-blue-500 transition px-8 py-4 rounded-2xl font-semibold">
               Update Password
             </button>
           </section>

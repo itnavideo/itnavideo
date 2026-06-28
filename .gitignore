@@ -33,6 +33,13 @@
 
 # Local Codex/dev session logs
 .codex-*.log
+.tmp/
+visual-audit/
+sticker-previews/
+public/test-videos/
+itnavideo-indexing-tracker.xlsx
+nul
+*.bak
 
 # Runtime render pipeline workspaces
 /raw_assets/**
@@ -105,3 +112,11 @@ Desktop.ini
 .env.production.verify
 .env.vercel-check
 .env*.local
+
+# Reference videos (large files, internal only)
+docs/references/shorts/
+docs/references/long-form/
+docs/references/keyframes/
+
+# Sample videos for review (not for deployment)
+__samples/

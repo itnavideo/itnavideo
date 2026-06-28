@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Minus } from 'lucide-react';
+import Link from 'next/link';
 
 // Strict typing for FAQs
 interface FAQItem {
@@ -17,11 +18,11 @@ const faqs: FAQItem[] = [
   },
   {
     question: "What templates are available?",
-    answer: "Right now Itnavideo is focused on one polished template: Explainer Video."
+    answer: "Itnavideo now focuses on six production templates: Dynamic Creator Reel, Auto Caption Reel, Creator Background Replace, Compare Explainer, Auto Draw Explainer, and Long Video Promo. All six are available on every paid plan."
   },
   {
     question: "Can I test Itnavideo before subscribing?",
-    answer: "Yes. The ₹9 Test Itnavideo plan gives you one first video without starting a subscription."
+    answer: "Yes. The Starter plan at $9/month gives you 25 video credits to explore all templates."
   },
   {
     question: "Do I need editing skills?",
@@ -29,7 +30,7 @@ const faqs: FAQItem[] = [
   },
   {
     question: "What do I need to upload?",
-    answer: "Upload audio or video with clear speech. The Explainer Video template uses the transcript to plan subtitles, timing, and scene visuals."
+    answer: "Each template clearly shows its required input. Most need a clear video or voiceover; Compare Explainer also needs two images, and Long Video Promo needs a thumbnail."
   },
   {
     question: "Is my data secure?",
@@ -50,19 +51,20 @@ export default function FAQSection() {
   };
 
   return (
-    <section className="relative overflow-hidden bg-[#070707] px-6 py-28">
+    <section className="relative overflow-hidden px-6 py-28" style={{ background: 'var(--bg-light)' }}>
       <div className="max-w-4xl mx-auto relative z-10">
         <div className="text-center mb-16">
-          <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-brand-mint">FAQ</p>
+          <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em]" style={{ color: 'var(--color-primary)' }}>FAQ</p>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl font-black leading-tight tracking-normal text-white md:text-6xl"
+            className="text-4xl font-black leading-tight tracking-normal md:text-6xl"
+            style={{ color: 'var(--text-light-primary)' }}
           >
             Common questions.
           </motion.h2>
-          <p className="text-zinc-500 text-lg max-w-xl mx-auto font-medium">
+          <p className="text-lg max-w-xl mx-auto font-medium" style={{ color: 'var(--text-light-secondary)' }}>
             Everything you need to know before creating your first Itnavideo short.
           </p>
         </div>
@@ -77,25 +79,23 @@ export default function FAQSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.05 }}
-                className={`group rounded-lg border transition-all duration-300 ${
-                  isOpen 
-                  ? 'bg-brand-mint/10 border-brand-mint/30' 
-                  : 'bg-zinc-900/40 border-white/5 hover:border-white/10'
-                }`}
+                className="group transition-all duration-300"
+                style={{
+                  borderRadius: 'var(--card-radius)',
+                  border: isOpen ? '0.5px solid var(--border-light)' : '0.5px solid var(--border-light)',
+                  background: isOpen ? 'var(--color-primary-subtle)' : 'var(--bg-white)',
+                  boxShadow: isOpen ? 'none' : 'var(--card-shadow-light)',
+                }}
               >
                 <button
                   className="flex justify-between items-center w-full p-6 text-left focus:outline-none"
                   onClick={() => toggleFAQ(index)}
                   aria-expanded={isOpen}
                 >
-                  <span className={`text-lg font-semibold transition-colors duration-300 ${
-                    isOpen ? 'text-white' : 'text-zinc-300 group-hover:text-white'
-                  }`}>
+                  <span className="text-lg font-semibold transition-colors duration-300" style={{ color: isOpen ? 'var(--text-light-primary)' : 'var(--text-light-secondary)' }}>
                     {faq.question}
                   </span>
-                  <div className={`p-2 rounded-md transition-all duration-300 ${
-                    isOpen ? 'bg-brand-mint/20 text-brand-mint' : 'bg-white/5 text-zinc-500'
-                  }`}>
+                  <div className="p-2 rounded-md transition-all duration-300" style={{ background: isOpen ? 'var(--color-primary-tint)' : 'var(--bg-light)', color: isOpen ? 'var(--color-primary)' : 'var(--text-light-muted)' }}>
                     {isOpen ? <Minus size={18} /> : <Plus size={18} />}
                   </div>
                 </button>
@@ -108,7 +108,7 @@ export default function FAQSection() {
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
                     >
-                      <div className="px-6 pb-6 text-zinc-400 leading-relaxed text-[15px]">
+                      <div className="px-6 pb-6 leading-relaxed text-[15px]" style={{ color: 'var(--text-light-secondary)' }}>
                         {faq.answer}
                       </div>
                     </motion.div>
@@ -123,9 +123,10 @@ export default function FAQSection() {
         <motion.p 
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          className="text-center mt-12 text-zinc-500 text-sm"
+          className="text-center mt-12 text-sm"
+          style={{ color: 'var(--text-light-muted)' }}
         >
-          Still have questions? <a href="/contact" className="text-brand-mint hover:underline">Contact our support team</a>
+          Still have questions? <Link href="/contact" className="hover:underline" style={{ color: 'var(--color-primary)' }}>Contact our support team</Link>
         </motion.p>
       </div>
     </section>

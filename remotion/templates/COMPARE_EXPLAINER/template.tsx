@@ -5,6 +5,7 @@ import {
   Composition,
   Sequence,
   staticFile,
+  spring,
   useCurrentFrame,
   useVideoConfig,
   interpolate,
@@ -19,6 +20,8 @@ type CompareOverlay = {
   text?: string;
   body?: string;
   title?: string;
+  stickerPose?: string;
+  pose?: string;
 };
 
 type CompareCaption = {
@@ -43,6 +46,9 @@ type CompareProps = {
 
   creatorHandle?: string;
   stickerStyle?: '2d' | 'cartoon' | 'explainer' | string;
+  stickerScale?: number;
+  stickerOffsetX?: number;
+  stickerOffsetY?: number;
 
   overlayTimeline?: CompareOverlay[];
   captions?: CompareCaption[];
@@ -77,6 +83,10 @@ const STICKER_SETS = {
     thinking: 'assets/stickman/stickman-explainer/thinking-expression.png',
     warning: 'assets/stickman/stickman-explainer/confused-expression.png',
     success: 'assets/stickman/stickman-explainer/explaining-comparison.png',
+    surprised: 'assets/stickman/stickman-explainer/surprised-expression.png',
+    explaining: 'assets/stickman/stickman-explainer/explaining-point.png',
+    celebrating: 'assets/stickman/stickman-explainer/celebrating-victory.png',
+    comparing: 'assets/stickman/stickman-explainer/comparing-options.png',
   },
   'girl-teacher': {
     welcome: 'assets/stickman/girl-teacher/teacher-welcome.png',
@@ -93,6 +103,10 @@ const STICKER_SETS = {
     thinking: 'assets/stickman/girl-teacher-3d/teacher-thinking.png',
     warning: 'assets/stickman/girl-teacher-3d/teacher-warning.png',
     success: 'assets/stickman/girl-teacher-3d/teacher-success.png',
+    surprised: 'assets/stickman/girl-teacher-3d/teacher-surprised.png',
+    explaining: 'assets/stickman/girl-teacher-3d/teacher-explaining.png',
+    celebrating: 'assets/stickman/girl-teacher-3d/teacher-celebrating.png',
+    comparing: 'assets/stickman/girl-teacher-3d/teacher-thinking.png',
   },
   'grandpa-teacher-3d': {
     welcome: 'assets/stickman/grandpa-teacher-3d/teacher-welcome.png',
@@ -184,7 +198,7 @@ const STICKER_SETS = {
   },
 } as const;
 
-type StickerSet = Record<'welcome' | 'left' | 'right' | 'thinking' | 'warning' | 'success', string>;
+type StickerSet = Record<'welcome' | 'left' | 'right' | 'thinking' | 'warning' | 'success', string> & Partial<Record<'surprised' | 'explaining' | 'celebrating' | 'comparing', string>>;
 
 // Sticker body type determines sizing in the render
 type StickerBodyType = 'full_body' | 'half_body' | 'upper_body';
@@ -208,11 +222,11 @@ const STICKER_BODY_TYPE: Record<string, StickerBodyType> = {
   'shia-moulana-3d': 'full_body',
 };
 
-// Size config per body type
+// Size config per body type — sized for strong mobile visibility in 1080x1920 reels
 const STICKER_SIZE_CONFIG: Record<StickerBodyType, {width: number; maxHeight: number; scale: number}> = {
-  full_body: {width: 520, maxHeight: 780, scale: 1.0},
-  half_body: {width: 600, maxHeight: 680, scale: 1.05},
-  upper_body: {width: 640, maxHeight: 580, scale: 1.1},
+  full_body: {width: 720, maxHeight: 980, scale: 1.0},
+  half_body: {width: 780, maxHeight: 860, scale: 1.08},
+  upper_body: {width: 800, maxHeight: 720, scale: 1.12},
 };
 
 const resolveAsset = (value: string) => {
@@ -236,12 +250,6 @@ const cleanText = (value: string, max = 70) => {
 const getActiveOverlay = (items: CompareOverlay[] = [], frame: number, fps: number) => {
   const time = frame / fps;
   return items.find((item) => time >= Number(item.start || 0) && time <= Number(item.end || 999)) || items[0];
-};
-
-const getActiveOverlayIndex = (items: CompareOverlay[] = [], frame: number, fps: number) => {
-  const time = frame / fps;
-  const index = items.findIndex((item) => time >= Number(item.start || 0) && time <= Number(item.end || 999));
-  return index >= 0 ? index : 0;
 };
 
 const getActiveCaption = (items: CompareCaption[] = [], frame: number, fps: number) => {
@@ -345,19 +353,27 @@ const VisualBox = ({
   side: 'left' | 'right';
 }) => {
   const src = resolveAsset(image);
+  const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
+  // Subtle Ken Burns on images
+  const imgZoom = 1 + Math.sin(frame / 120 + (side === 'right' ? 1.5 : 0)) * 0.015;
 
   return (
     <div
       style={{
         position: 'relative',
-        width: 492,
-        height: 438,
-        border: '6px solid #ef233c',
+        width: 488,
+        height: 430,
+        borderRadius: 20,
+        border: `4px solid ${side === 'left' ? '#3D52FF' : '#7C5CFC'}`,
         background: '#ffffff',
         overflow: 'hidden',
-        boxShadow: '0 16px 30px rgba(0,0,0,0.12)',
+        boxShadow: side === 'left'
+          ? '0 12px 32px rgba(61,82,255,0.15), 0 4px 12px rgba(0,0,0,0.08)'
+          : '0 12px 32px rgba(124,92,252,0.15), 0 4px 12px rgba(0,0,0,0.08)',
       }}
     >
+      {/* Blurred background fill */}
       <img
         src={src}
         style={{
@@ -366,20 +382,23 @@ const VisualBox = ({
           width: '100%',
           height: '100%',
           objectFit: 'cover',
-          filter: 'blur(18px)',
-          opacity: 0.08,
-          transform: 'scale(1.18)',
+          filter: 'blur(16px)',
+          opacity: 0.06,
+          transform: 'scale(1.2)',
         }}
       />
 
+      {/* Main image with Ken Burns */}
       <div
         style={{
           position: 'absolute',
-          inset: 10,
+          inset: 8,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           background: '#ffffff',
+          borderRadius: 14,
+          overflow: 'hidden',
         }}
       >
         <img
@@ -389,35 +408,125 @@ const VisualBox = ({
             height: '100%',
             objectFit: 'contain',
             objectPosition: 'center center',
+            transform: `scale(${imgZoom})`,
           }}
         />
       </div>
 
+      {/* Corner badge */}
       <div
         style={{
           position: 'absolute',
-          top: 10,
-          [side]: 10,
-          width: 34,
-          height: 34,
-          borderRadius: 999,
-          background: side === 'left' ? '#2563eb' : '#7c3aed',
+          top: 12,
+          [side]: 12,
+          width: 36,
+          height: 36,
+          borderRadius: 10,
+          background: side === 'left' ? '#3D52FF' : '#7C5CFC',
           color: '#ffffff',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: 20,
-          fontWeight: 750,
+          fontSize: 18,
+          fontWeight: 800,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
         }}
       >
         {side === 'left' ? 'A' : 'B'}
       </div>
+
+      {/* Bottom gradient accent */}
+      <div style={{
+        position: 'absolute', bottom: 0, left: 0, right: 0, height: 60,
+        borderRadius: '0 0 16px 16px',
+        background: `linear-gradient(0deg, ${side === 'left' ? 'rgba(61,82,255,0.08)' : 'rgba(124,92,252,0.08)'} 0%, transparent 100%)`,
+      }} />
     </div>
   );
 };
 
 
-type StickerPoseKey = 'welcome' | 'left' | 'right' | 'thinking' | 'warning' | 'success';
+const STICKER_POSES = {
+  welcome: 'sticker_welcome_intro_explainer',
+  leftSideExplainer: 'sticker_pointing_left_side_explainer',
+  rightSideExplainer: 'sticker_pointing_right_side_explainer',
+  thinking: 'sticker_thinking_analysis_explainer',
+  warning: 'sticker_warning_issue_explainer',
+  success: 'sticker_success_conclusion_explainer',
+  surprised: 'sticker_questioning_surprised_explainer',
+  explaining: 'sticker_general_explaining_key_point',
+  celebrating: 'sticker_happy_celebrating_outro',
+  comparing: 'sticker_comparing_both_sides_explainer',
+} as const;
+
+type StickerPoseKey = typeof STICKER_POSES[keyof typeof STICKER_POSES];
+
+const STICKER_POSE_ASSET_ALIASES: Record<string, keyof StickerSet> = {
+  sticker_welcome: 'welcome',
+  sticker_welcome_intro_explainer: 'welcome',
+  sticker_left: 'left',
+  sticker_right: 'right',
+  left: 'left',
+  right: 'right',
+  sticker_pointing_left_side_explainer: 'left',
+  sticker_pointing_right_side_explainer: 'right',
+  welcome: 'welcome',
+  sticker_thinking_analysis_explainer: 'thinking',
+  thinking: 'thinking',
+  sticker_warning_issue_explainer: 'warning',
+  warning: 'warning',
+  sticker_success_conclusion_explainer: 'success',
+  success: 'success',
+  sticker_questioning_surprised_explainer: 'surprised',
+  surprised: 'thinking',
+  sticker_general_explaining_key_point: 'explaining',
+  explaining: 'success',
+  sticker_happy_celebrating_outro: 'celebrating',
+  celebrating: 'success',
+  sticker_comparing_both_sides_explainer: 'comparing',
+  comparing: 'thinking',
+};
+
+const CANONICAL_POSE_ALIASES: Record<string, StickerPoseKey> = {
+  welcome: STICKER_POSES.welcome,
+  sticker_welcome: STICKER_POSES.welcome,
+  sticker_welcome_intro_explainer: STICKER_POSES.welcome,
+  sticker_left: STICKER_POSES.leftSideExplainer,
+  left: STICKER_POSES.leftSideExplainer,
+  sticker_pointing_left_side_explainer: STICKER_POSES.leftSideExplainer,
+  sticker_right: STICKER_POSES.rightSideExplainer,
+  right: STICKER_POSES.rightSideExplainer,
+  sticker_pointing_right_side_explainer: STICKER_POSES.rightSideExplainer,
+  thinking: STICKER_POSES.thinking,
+  sticker_thinking_analysis_explainer: STICKER_POSES.thinking,
+  warning: STICKER_POSES.warning,
+  sticker_warning_issue_explainer: STICKER_POSES.warning,
+  success: STICKER_POSES.success,
+  sticker_success_conclusion_explainer: STICKER_POSES.success,
+  surprised: STICKER_POSES.surprised,
+  sticker_questioning_surprised_explainer: STICKER_POSES.surprised,
+  explaining: STICKER_POSES.explaining,
+  sticker_general_explaining_key_point: STICKER_POSES.explaining,
+  celebrating: STICKER_POSES.celebrating,
+  sticker_happy_celebrating_outro: STICKER_POSES.celebrating,
+  comparing: STICKER_POSES.comparing,
+  sticker_comparing_both_sides_explainer: STICKER_POSES.comparing,
+};
+
+const normalizeStickerPoseId = (value?: string): StickerPoseKey | undefined => {
+  const pose = String(value || '').trim().toLowerCase();
+  if (!pose) return undefined;
+  return CANONICAL_POSE_ALIASES[pose];
+};
+
+const resolveStickerAssetPose = (set: StickerSet, poseKey: StickerPoseKey): keyof StickerSet => {
+  const setByKey = set as Record<string, string>;
+  const exactAssetKey = STICKER_POSE_ASSET_ALIASES[poseKey];
+  if (exactAssetKey && setByKey[exactAssetKey]) return exactAssetKey;
+  const legacyPose = Object.entries(CANONICAL_POSE_ALIASES).find(([, canonical]) => canonical === poseKey)?.[0];
+  if (legacyPose && setByKey[legacyPose]) return legacyPose as keyof StickerSet;
+  return 'welcome';
+};
 
 const normalizeForMatch = (value: string) =>
   String(value || '')
@@ -432,6 +541,24 @@ const containsAny = (text: string, words: string[]) =>
     return clean.length > 1 && text.includes(clean);
   });
 
+/**
+ * Intent-based sticker pose selection.
+ *
+ * The sticker acts as an active presenter who reacts to the script context.
+ * Priority order (first match wins):
+ *   1. Intro (first ~1.5s) → sticker_welcome_intro_explainer
+ *   2. Outro (last ~2.8s) → sticker_happy_celebrating_outro
+ *   3. Important rule / confidence keywords → sticker_general_explaining_key_point
+ *   4. Warning / mistake keywords → sticker_warning_issue_explainer
+ *   5. Question / confusion keywords → sticker_questioning_surprised_explainer or sticker_thinking_analysis_explainer
+ *   6. Right-topic keywords → sticker_pointing_right_side_explainer
+ *   7. Left-topic keywords → sticker_pointing_left_side_explainer
+ *   8. Contextual fallback: alternate based on video progress (not rigid 3s)
+ *
+ * IMPORTANT: Keywords are chosen to be SPECIFIC enough that they don't trigger
+ * on every caption. Common words like "kya", "difference", "compare" are avoided
+ * as standalone triggers because they appear in nearly every Hinglish comparison.
+ */
 const getActiveStickerPose = ({
   currentTime,
   durationSeconds,
@@ -447,13 +574,16 @@ const getActiveStickerPose = ({
   leftTitle: string;
   rightTitle: string;
 }): StickerPoseKey => {
-  // Frame 0 / intro: always deterministic welcome pose.
-  if (currentTime < 1.15) return 'welcome';
+  // Frame 0 / intro: welcome pose — presenter greets the viewer.
+  if (currentTime < 1.5) return STICKER_POSES.welcome;
 
-  // Final answer / outro: success pose near end.
-  if (durationSeconds > 0 && currentTime >= Math.max(0, durationSeconds - 2.4)) {
-    return 'success';
+  // Final conclusion / outro: celebrating pose — presenter wraps up with energy.
+  if (durationSeconds > 0 && currentTime >= Math.max(0, durationSeconds - 2.8)) {
+    return STICKER_POSES.celebrating;
   }
+
+  const explicitPose = normalizeStickerPoseId(overlay?.stickerPose || overlay?.pose);
+  if (explicitPose) return explicitPose;
 
   const text = normalizeForMatch(
     [
@@ -470,112 +600,218 @@ const getActiveStickerPose = ({
   const left = normalizeForMatch(leftTitle);
   const right = normalizeForMatch(rightTitle);
 
-  const questionWords = [
-    '?',
+  // --- Intent keyword groups ---
+  // RULE: Only use phrases/words that are SPECIFIC enough to indicate intent.
+  // Avoid single common words that appear in every Hinglish comparison sentence.
+
+  // Question/confusion: ONLY trigger on actual question patterns, not generic compare words
+  const questionPhrases = [
     'what is the difference',
     'difference kya hai',
-    'kya difference',
-    'kya farq',
-    'farq kya',
-    'kya zyada behtar',
+    'kya difference hai',
+    'kya farq hai',
+    'farq kya hai',
     'which is better',
-    'kaunsa better',
+    'kaunsa better hai',
     'kaunsa behtar',
-    'vs',
-    'compare',
-    'comparison',
-    'difference',
-    'better',
-    'confused',
-    'question',
-    'kya',
-    'kyun',
-    'kaise',
+    'konsa sahi hai',
+    'which one should',
+    'confused about',
+    'socho zara',
+    'think about it',
+    'let me ask',
+    'sawaal ye hai',
+    'doubt hai',
+    'samajh nahi aata',
+    'confusing hai',
+    'pata nahi',
+    'how do we know',
+    'kaise pata kare',
   ];
 
-  const leftWords = [
+  // Left-side topic: the actual left title + contextual "first/pehla" phrases
+  const leftPhrases = [
     left,
-    'first concept',
+    `${left} ka matlab`,
+    `${left} means`,
+    `${left} hai`,
+    'pehla option',
+    'pehle wala',
     'first option',
-    'left topic',
+    'first word',
+    'first meaning',
+    'iska matlab',
+    'ye word',
+    'yeh word',
+    'this word means',
     'left side',
     'option a',
-    'a option',
-    'pehla',
-    'pehle',
-    'ye hai',
-    'yeh hai',
-    'this is',
-    'website',
-    'old',
-    'before',
-    'problem',
-    'without',
   ];
 
-  const rightWords = [
+  // Right-side topic: the actual right title + contextual "second/dusra" phrases
+  const rightPhrases = [
     right,
-    'second concept',
+    `${right} ka matlab`,
+    `${right} means`,
+    `${right} hai`,
+    'dusra option',
+    'doosra wala',
     'second option',
-    'right topic',
+    'second word',
+    'second meaning',
+    'uska matlab',
+    'wo word',
+    'woh word',
+    'that word means',
     'right side',
     'option b',
-    'b option',
-    'dusra',
-    'doosra',
-    'aur ye',
-    'aur yeh',
-    'jabki',
-    'whereas',
-    'while',
-    'but',
-    'web app',
-    'new',
-    'after',
-    'solution',
-    'with',
+    'on the other hand',
+    'jabki ye',
+    'lekin ye',
+    'whereas this',
   ];
 
-  const warningWords = [
-    'wrong',
-    'risk',
+  // Warning/mistake: only specific warning language
+  const warningPhrases = [
+    'galat hai',
+    'wrong answer',
+    'wrong use',
+    'mat karo',
+    'avoid karo',
+    'kabhi mat',
+    'never use',
+    'common mistake',
+    'log galti',
+    'ye galti',
+    'careful here',
+    'savdhan',
+    'khabardar',
+    'beware of',
+    'warning',
     'danger',
     'scam',
     'fraud',
-    'loss',
-    'problem',
-    'warning',
-    'avoid',
-    'galat',
     'nuksan',
     'dhoka',
+    'trap hai',
   ];
 
-  const successWords = [
-    'success',
-    'correct',
-    'best',
-    'winner',
-    'done',
-    'profit',
-    'benefit',
+  // Success/conclusion: specific conclusion language
+  const successPhrases = [
     'final answer',
+    'sahi answer',
+    'correct answer',
     'conclusion',
-    'result',
-    'sahi',
-    'behtar',
+    'to sum up',
+    'in short',
+    'so basically',
+    'toh basically',
+    'yaad rakho',
+    'remember this',
+    'important rule',
+    'rule hai ki',
+    'simple rule',
+    'easy trick',
+    'asaan tarika',
+    'shortcut hai',
+    'ab samjh gaye',
+    'clear hai na',
+    'got it',
+    'samajh gaye',
+    'that is the answer',
+    'yahi answer hai',
+    'benefit hai',
+    'profit hai',
+    'winner hai',
+    'best hai',
+    'done',
+    'thumbs up',
   ];
 
-  if (containsAny(text, successWords)) return 'success';
-  if (containsAny(text, warningWords)) return 'warning';
-  if (text.includes('?') || containsAny(text, questionWords)) return 'thinking';
-  if (containsAny(text, rightWords)) return 'right';
-  if (containsAny(text, leftWords)) return 'left';
+  // --- Priority-based intent matching ---
 
-  // Compare template: force left/right alternation every 3 seconds
-  const segment = Math.floor(currentTime / 3);
-  const poses: StickerPoseKey[] = ['left', 'right', 'left', 'thinking', 'right', 'left', 'right', 'success'];
-  return poses[segment % poses.length];
+  // Has a question mark? Strong signal for surprised or thinking
+  if (text.includes('?')) return STICKER_POSES.surprised;
+
+  // Important rule / confident explanation → explaining (sticker points up with authority)
+  if (containsAny(text, successPhrases)) return STICKER_POSES.explaining;
+
+  // Warning / mistake → alert pose
+  if (containsAny(text, warningPhrases)) return STICKER_POSES.warning;
+
+  // Question / confusion → thinking pose (only specific question phrases)
+  if (containsAny(text, questionPhrases)) return STICKER_POSES.thinking;
+
+  // If BOTH titles appear in the same caption, it's likely an intro/comparison statement
+  // → use comparing (hands weighing both options)
+  const hasLeft = left.length > 1 && text.includes(left);
+  const hasRight = right.length > 1 && text.includes(right);
+  if (hasLeft && hasRight) return STICKER_POSES.comparing;
+
+  // Talking about right-side topic → sticker points to the right-side comparison item.
+  if (right.length > 1 && containsAny(text, rightPhrases)) return STICKER_POSES.rightSideExplainer;
+
+  // Talking about left-side topic → sticker points to the left-side comparison item.
+  if (left.length > 1 && containsAny(text, leftPhrases)) return STICKER_POSES.leftSideExplainer;
+
+  // --- Smart contextual fallback ---
+  // When no keywords match, use video progress zones to create a natural
+  // presenter arc that follows the typical compare video structure:
+  //   intro → explain left → compare → explain right → conclusion
+  const progress = durationSeconds > 0 ? currentTime / durationSeconds : 0.5;
+
+  if (progress < 0.12) {
+    // Early section: intro zone → welcome
+    return STICKER_POSES.welcome;
+  } else if (progress < 0.28) {
+    // First topic explanation zone → left with explaining/thinking breaks
+    const segment = Math.floor((currentTime - durationSeconds * 0.12) / 4);
+    const earlyPoses: StickerPoseKey[] = [
+      STICKER_POSES.leftSideExplainer,
+      STICKER_POSES.explaining,
+      STICKER_POSES.leftSideExplainer,
+      STICKER_POSES.comparing,
+      STICKER_POSES.thinking,
+      STICKER_POSES.leftSideExplainer,
+    ];
+    return earlyPoses[segment % earlyPoses.length];
+  } else if (progress < 0.55) {
+    // Middle: comparison zone — use ALL poses for maximum dynamism
+    const segment = Math.floor((currentTime - durationSeconds * 0.28) / 3.5);
+    const midPoses: StickerPoseKey[] = [
+      STICKER_POSES.comparing,
+      STICKER_POSES.rightSideExplainer,
+      STICKER_POSES.surprised,
+      STICKER_POSES.leftSideExplainer,
+      STICKER_POSES.explaining,
+      STICKER_POSES.rightSideExplainer,
+      STICKER_POSES.thinking,
+      STICKER_POSES.leftSideExplainer,
+    ];
+    return midPoses[segment % midPoses.length];
+  } else if (progress < 0.78) {
+    // Second topic / deeper comparison → right + warning + surprised
+    const segment = Math.floor((currentTime - durationSeconds * 0.55) / 4);
+    const latePoses: StickerPoseKey[] = [
+      STICKER_POSES.rightSideExplainer,
+      STICKER_POSES.warning,
+      STICKER_POSES.surprised,
+      STICKER_POSES.explaining,
+      STICKER_POSES.rightSideExplainer,
+      STICKER_POSES.comparing,
+    ];
+    return latePoses[segment % latePoses.length];
+  } else {
+    // Approaching conclusion — build toward celebrating
+    const segment = Math.floor((currentTime - durationSeconds * 0.78) / 3.5);
+    const endPoses: StickerPoseKey[] = [
+      STICKER_POSES.explaining,
+      STICKER_POSES.success,
+      STICKER_POSES.celebrating,
+      STICKER_POSES.success,
+    ];
+    return endPoses[segment % endPoses.length];
+  }
 };
 
 const StickerPresenter = ({
@@ -584,12 +820,18 @@ const StickerPresenter = ({
   leftTitle,
   rightTitle,
   stickerStyle,
+  stickerScale = 1,
+  stickerOffsetX = 0,
+  stickerOffsetY = 0,
 }: {
   overlay?: CompareOverlay;
   caption?: CompareCaption;
   leftTitle: string;
   rightTitle: string;
   stickerStyle?: string;
+  stickerScale?: number;
+  stickerOffsetX?: number;
+  stickerOffsetY?: number;
 }) => {
   const frame = useCurrentFrame();
   const {fps, durationInFrames} = useVideoConfig();
@@ -611,22 +853,53 @@ const StickerPresenter = ({
     rightTitle,
   });
 
-  // Track pose change for bounce effect
-  const poseSegment = Math.floor(currentTime / 3);
-  const poseChangeFrame = frame - Math.round(poseSegment * 3 * fps);
-  const poseBounce = poseChangeFrame < 12 ? spring({frame: poseChangeFrame, fps, config: {damping: 8, mass: 0.5}}) : 1;
+  // Bounce animation: detect pose transitions using time-based sampling.
+  // Check the pose at a slightly earlier time to see if it differs from current.
+  const checkBehindTime = Math.max(0, currentTime - 0.4);
+  const prevPoseKey = getActiveStickerPose({
+    currentTime: checkBehindTime,
+    durationSeconds,
+    overlay,
+    caption,
+    leftTitle,
+    rightTitle,
+  });
 
-  const src = set[poseKey] || set.welcome;
+  // If pose just changed (current differs from 0.4s ago), trigger bounce
+  const poseJustChanged = poseKey !== prevPoseKey;
+  // Calculate how many frames into this pose segment we are
+  // Use a simple spring from frame 0 when pose changes
+  const poseDurationFrames = poseJustChanged ? Math.min(frame, 12) : 99;
+  const poseBounce = poseDurationFrames < 12
+    ? spring({frame: poseDurationFrames, fps, config: {damping: 7, mass: 0.4, stiffness: 180}})
+    : 1;
+
+  const resolvedPoseKey = resolveStickerAssetPose(set, poseKey);
+  const src = (set as Record<string, string>)[resolvedPoseKey] || set.welcome;
 
   // Size based on sticker body type
   const bodyType = STICKER_BODY_TYPE[selectedStickerStyle] || 'full_body';
   const sizeConfig = STICKER_SIZE_CONFIG[bodyType];
 
-  // Strict sticker zone. Never allow sticker into subtitle area.
-  const STICKER_ZONE_TOP = 910;
-  const STICKER_ZONE_BOTTOM = 10;
-  const STICKER_ZONE_LEFT = 60;
-  const STICKER_ZONE_RIGHT = 60;
+  // Position logic: sticker pose matches the side being discussed
+  // When talking about LEFT topic → sticker uses the left-side pointing explainer pose.
+  // When talking about RIGHT topic → sticker uses the right-side pointing explainer pose.
+  // Other poses → center
+  type StickerPosition = 'left' | 'right' | 'center';
+  let stickerPosition: StickerPosition = 'center';
+  if (poseKey === STICKER_POSES.leftSideExplainer) {
+    // Explaining left image → sticker on LEFT side pointing at left image
+    stickerPosition = 'left';
+  } else if (poseKey === STICKER_POSES.rightSideExplainer) {
+    // Explaining right image → sticker on RIGHT side pointing at right image
+    stickerPosition = 'right';
+  } else {
+    stickerPosition = 'center';
+  }
+
+  // Sticker zone: below the caption box with proper spacing
+  const STICKER_ZONE_TOP = 870; // leave space after caption box ends (~860)
+  const STICKER_ZONE_BOTTOM = 40; // bottom padding so sticker doesn't touch edge
   const STICKER_WIDTH = sizeConfig.width;
   const STICKER_MAX_HEIGHT = sizeConfig.maxHeight;
 
@@ -640,43 +913,55 @@ const StickerPresenter = ({
     extrapolateRight: 'clamp',
   });
 
-  const idleY = Math.sin(frame / 60) * 1.1;
-  const rotate = Math.sin(frame / 100) * 0.12;
+  const idleY = Math.sin(frame / 60) * 2.5;
+  const rotate = Math.sin(frame / 100) * 0.15;
+
+  // Horizontal positioning based on scene context
+  const getHorizontalAlign = (): React.CSSProperties => {
+    if (stickerPosition === 'left') {
+      return {justifyContent: 'flex-start', paddingLeft: 20, paddingRight: 0};
+    }
+    if (stickerPosition === 'right') {
+      return {justifyContent: 'flex-end', paddingLeft: 0, paddingRight: 20};
+    }
+    return {justifyContent: 'center', paddingLeft: 0, paddingRight: 0};
+  };
 
   return (
     <div
       style={{
         position: 'absolute',
-        left: STICKER_ZONE_LEFT,
-        right: STICKER_ZONE_RIGHT,
+        left: 0,
+        right: 0,
         top: STICKER_ZONE_TOP,
         bottom: STICKER_ZONE_BOTTOM,
         overflow: 'hidden',
         zIndex: 7,
         display: 'flex',
-        alignItems: 'flex-end',
-        justifyContent: 'center',
+        alignItems: 'flex-start',
+        paddingTop: 10,
         pointerEvents: 'none',
+        ...getHorizontalAlign(),
       }}
     >
       <img
         src={staticFile(src)}
         style={{
           width: STICKER_WIDTH,
-          maxWidth: '96%',
+          maxWidth: '80%',
           maxHeight: STICKER_MAX_HEIGHT,
           height: 'auto',
           objectFit: 'contain',
           opacity: enterOpacity,
-          transform: `translateY(${idleY}px) rotate(${rotate}deg) scale(${pop * sizeConfig.scale * poseBounce})`,
-          transformOrigin: 'center bottom',
-          filter: 'drop-shadow(0 16px 18px rgba(0,0,0,0.2))',
+          transform: `translate(${stickerOffsetX}px, ${stickerOffsetY + idleY}px) rotate(${rotate}deg) scale(${pop * sizeConfig.scale * poseBounce * stickerScale})`,
+          transformOrigin: 'center top',
+          filter: 'drop-shadow(0 20px 24px rgba(0,0,0,0.22))',
         }}
       />
     </div>
   );
 };
-const CompareExplainer = (props: CompareProps) => {
+export const CompareExplainer = (props: CompareProps) => {
   const frame = useCurrentFrame();
   const fps = 30;
 
@@ -692,7 +977,6 @@ const CompareExplainer = (props: CompareProps) => {
 
   const audioUrl = props.audioUrl || props.mediaUrl || props.sourceAudioUrl || '';
   const activeOverlay = getActiveOverlay(props.overlayTimeline || [], frame, fps);
-  const activeOverlayIndex = getActiveOverlayIndex(props.overlayTimeline || [], frame, fps);
   const activeCaption = getActiveCaption(props.captions || props.transcriptSegments || props.segments || [], frame, fps);
 
   const caption = getCaptionText(
@@ -701,50 +985,63 @@ const CompareExplainer = (props: CompareProps) => {
     props.transcript || props.sourceScript || props.topicTitle || `${leftTitle} vs ${rightTitle}`,
   );
 
-  const captionScale = interpolate(frame, [0, 10], [0.98, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
+  const captionScale = spring({
+    frame: frame % 90, // reset spring every ~3s for each new caption
+    fps: 30,
+    config: {damping: 12, mass: 0.35, stiffness: 140},
+    from: 0.92,
+    to: 1,
   });
 
-  const activeStartSeconds = Number(activeCaption?.start ?? activeOverlay?.start ?? 0);
-  const localSceneFrame = Math.max(0, frame - Math.round(activeStartSeconds * fps));
+  // Entry animations for title labels
+  const leftLabelEntry = spring({frame, fps: 30, config: {damping: 13, mass: 0.4, stiffness: 130}, from: -1, to: 0});
+  const rightLabelEntry = spring({frame: Math.max(0, frame - 4), fps: 30, config: {damping: 13, mass: 0.4, stiffness: 130}, from: 1, to: 0});
 
-  const sceneOpacity = interpolate(localSceneFrame, [0, 10, 22], [0, 1, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
+  // Image box slide-in
+  const leftImageEntry = spring({frame: Math.max(0, frame - 8), fps: 30, config: {damping: 14, mass: 0.4, stiffness: 120}});
+  const rightImageEntry = spring({frame: Math.max(0, frame - 12), fps: 30, config: {damping: 14, mass: 0.4, stiffness: 120}});
 
-  const sceneLift = interpolate(localSceneFrame, [0, 14, 28], [26, 0, 0], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
-
-  const scenePop = interpolate(localSceneFrame, [0, 10, 22], [0.96, 1.03, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
+  // VS badge pop
+  const vsBadgePop = spring({frame: Math.max(0, frame - 16), fps: 30, config: {damping: 8, mass: 0.3, stiffness: 200}});
+  const vsPulse = 1 + Math.sin(frame / 40) * 0.03; // subtle periodic pulse
 
   return (
     <AbsoluteFill
       style={{
-        background: '#ffffff',
+        background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 30%, #f0f4ff 70%, #e8eeff 100%)',
         fontFamily: 'Arial Black, Impact, Arial, Helvetica, sans-serif',
         overflow: 'hidden',
       }}
     >
+      {/* Subtle background pattern */}
+      <div style={{
+        position: 'absolute', inset: 0, opacity: 0.03,
+        background: 'radial-gradient(circle at 20% 20%, #5B6FFF 1px, transparent 1px), radial-gradient(circle at 80% 80%, #9B82FF 1px, transparent 1px)',
+        backgroundSize: '60px 60px',
+      }} />
+      {/* Top accent glow */}
+      <div style={{
+        position: 'absolute', top: -100, left: '50%', transform: 'translateX(-50%)',
+        width: 600, height: 300, borderRadius: '50%',
+        background: 'radial-gradient(ellipse, rgba(91,111,255,0.08) 0%, transparent 70%)',
+        filter: 'blur(40px)',
+      }} />
+
       {audioUrl ? <Audio src={audioUrl} volume={1} /> : null}
       <CompareSfxLayer />
 
+      {/* Creator handle */}
       <div
         style={{
           position: 'absolute',
-          top: 70,
+          top: 50,
           left: 0,
           right: 0,
           textAlign: 'center',
-          fontSize: 40,
-          fontWeight: 900,
-          color: '#6b7280',
+          fontSize: 32,
+          fontWeight: 800,
+          color: '#94a3b8',
+          letterSpacing: 0.5,
         }}
       >
         {props.creatorHandle || '@itnavideo'}
@@ -753,7 +1050,7 @@ const CompareExplainer = (props: CompareProps) => {
       <div
         style={{
           position: 'absolute',
-          top: 132,
+          top: 112,
           left: 44,
           right: 44,
           display: 'flex',
@@ -764,37 +1061,37 @@ const CompareExplainer = (props: CompareProps) => {
       >
         <div
           style={{
-            width: 492,
-            minHeight: 82,
-            borderRadius: 26,
-            background: 'linear-gradient(135deg, #2563eb 0%, #06b6d4 100%)',
-            border: '4px solid #050505',
-            boxShadow: '0 12px 0 rgba(0,0,0,0.22), 0 20px 32px rgba(37,99,235,0.24)',
+            width: 488,
+            minHeight: 78,
+            borderRadius: 16,
+            background: 'linear-gradient(135deg, #3D52FF 0%, #5B6FFF 100%)',
+            border: 'none',
+            boxShadow: '0 8px 24px rgba(61,82,255,0.25), 0 2px 6px rgba(0,0,0,0.08)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             padding: '10px 24px',
             position: 'relative',
-            transform: `translateY(${Math.sin(frame / 18) * 2}px)`,
+            transform: `translateX(${leftLabelEntry * 80}px) translateY(${Math.sin(frame / 18) * 2}px)`,
           }}
         >
           <div
             style={{
               position: 'absolute',
               left: 14,
-              top: -18,
-              width: 42,
-              height: 42,
-              borderRadius: 999,
+              top: -16,
+              width: 38,
+              height: 38,
+              borderRadius: 10,
               background: '#ffffff',
-              border: '4px solid #050505',
-              color: '#2563eb',
-              fontSize: 22,
-              fontWeight: 750,
+              border: 'none',
+              color: '#3D52FF',
+              fontSize: 20,
+              fontWeight: 800,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 6px 0 rgba(0,0,0,0.18)',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
             }}
           >
             A
@@ -817,37 +1114,37 @@ const CompareExplainer = (props: CompareProps) => {
 
         <div
           style={{
-            width: 492,
-            minHeight: 82,
-            borderRadius: 26,
-            background: 'linear-gradient(135deg, #7c3aed 0%, #ec4899 100%)',
-            border: '4px solid #050505',
-            boxShadow: '0 12px 0 rgba(0,0,0,0.22), 0 20px 32px rgba(124,58,237,0.24)',
+            width: 488,
+            minHeight: 78,
+            borderRadius: 16,
+            background: 'linear-gradient(135deg, #7C5CFC 0%, #9B82FF 100%)',
+            border: 'none',
+            boxShadow: '0 8px 24px rgba(124,92,252,0.25), 0 2px 6px rgba(0,0,0,0.08)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             padding: '10px 24px',
             position: 'relative',
-            transform: `translateY(${Math.cos(frame / 18) * 2}px)`,
+            transform: `translateX(${rightLabelEntry * 80}px) translateY(${Math.cos(frame / 18) * 2}px)`,
           }}
         >
           <div
             style={{
               position: 'absolute',
               right: 14,
-              top: -18,
-              width: 42,
-              height: 42,
-              borderRadius: 999,
+              top: -16,
+              width: 38,
+              height: 38,
+              borderRadius: 10,
               background: '#ffffff',
-              border: '4px solid #050505',
-              color: '#7c3aed',
-              fontSize: 22,
-              fontWeight: 750,
+              border: 'none',
+              color: '#7C5CFC',
+              fontSize: 20,
+              fontWeight: 800,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 6px 0 rgba(0,0,0,0.18)',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
             }}
           >
             B
@@ -872,7 +1169,7 @@ const CompareExplainer = (props: CompareProps) => {
       <div
         style={{
           position: 'absolute',
-          top: 245,
+          top: 225,
           left: 44,
           right: 44,
           display: 'flex',
@@ -880,28 +1177,34 @@ const CompareExplainer = (props: CompareProps) => {
           alignItems: 'center',
         }}
       >
-        <VisualBox image={leftImage} side="left" />
-        <VisualBox image={rightImage} side="right" />
+        <div style={{opacity: leftImageEntry, transform: `translateX(${(1 - leftImageEntry) * -40}px)`}}>
+          <VisualBox image={leftImage} side="left" />
+        </div>
+        <div style={{opacity: rightImageEntry, transform: `translateX(${(1 - rightImageEntry) * 40}px)`}}>
+          <VisualBox image={rightImage} side="right" />
+        </div>
       </div>
 
       <div
         style={{
           position: 'absolute',
-          top: 415,
+          top: 395,
           left: '50%',
-          width: 82,
-          height: 82,
-          borderRadius: 999,
-          background: '#ffffff',
-          border: '5px solid #fb8500',
-          transform: 'translateX(-50%)',
+          width: 78,
+          height: 78,
+          borderRadius: 18,
+          background: 'linear-gradient(135deg, #FF6B35 0%, #FF8F00 100%)',
+          border: '3px solid #ffffff',
+          transform: `translateX(-50%) scale(${vsBadgePop * vsPulse})`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: 30,
-          fontWeight: 750,
+          fontSize: 26,
+          fontWeight: 900,
+          color: '#ffffff',
           zIndex: 5,
-          boxShadow: '0 10px 18px rgba(0,0,0,0.16)',
+          boxShadow: '0 8px 24px rgba(255,107,53,0.3), 0 2px 6px rgba(0,0,0,0.1)',
+          letterSpacing: 1,
         }}
       >
         VS
@@ -910,26 +1213,25 @@ const CompareExplainer = (props: CompareProps) => {
       <div
         style={{
           position: 'absolute',
-          top: 735,
-          left: 88,
-          right: 88,
+          top: 720,
+          left: 72,
+          right: 72,
           minHeight: 104,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           textAlign: 'center',
-          color: '#050505',
-          fontSize: 48,
-          lineHeight: 1.06,
-          fontWeight: 750,
+          color: '#0f172a',
+          fontSize: 44,
+          lineHeight: 1.1,
+          fontWeight: 800,
           letterSpacing: -0.8,
-          textTransform: 'uppercase',
-          textShadow: '0 2px 0 rgba(255,255,255,0.65)',
-          background: 'linear-gradient(135deg, #fff8cf 0%, #ffffff 48%, #c7f9e7 100%)',
-          border: '4px solid #050505',
-          borderRadius: 26,
-          padding: '14px 24px',
-          boxShadow: '0 8px 0 rgba(0,0,0,0.16), 0 16px 26px rgba(0,0,0,0.10)',
+          background: 'rgba(255,255,255,0.92)',
+          backdropFilter: 'blur(12px)',
+          border: '2px solid rgba(61,82,255,0.15)',
+          borderRadius: 20,
+          padding: '18px 28px',
+          boxShadow: '0 8px 32px rgba(61,82,255,0.08), 0 2px 8px rgba(0,0,0,0.06)',
           transform: `scale(${captionScale})`,
           zIndex: 4,
         }}
@@ -943,6 +1245,9 @@ const CompareExplainer = (props: CompareProps) => {
         leftTitle={leftTitle}
         rightTitle={rightTitle}
         stickerStyle={props.stickerStyle}
+        stickerScale={Number(props.stickerScale) || 1}
+        stickerOffsetX={Number(props.stickerOffsetX) || 0}
+        stickerOffsetY={Number(props.stickerOffsetY) || 0}
       />
 
       <div
@@ -951,8 +1256,8 @@ const CompareExplainer = (props: CompareProps) => {
           left: 0,
           right: 0,
           bottom: 0,
-          height: 105,
-          background: 'linear-gradient(0deg, rgba(255,255,255,0.92), rgba(255,255,255,0))',
+          height: 100,
+          background: 'linear-gradient(0deg, rgba(232,238,255,0.95), transparent)',
           pointerEvents: 'none',
         }}
       />

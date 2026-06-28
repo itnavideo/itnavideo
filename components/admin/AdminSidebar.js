@@ -38,8 +38,8 @@ export default function AdminSidebar() {
               key={item.href}
               href={item.href}
               className={`block rounded-lg px-4 py-3 text-sm font-bold transition ${
-                isActive 
-                  ? "bg-brand-mint text-black shadow-lg shadow-emerald-500/10" 
+                isActive
+                  ? "bg-brand-mint text-black shadow-lg shadow-blue-500/10"
                   : "hover:bg-zinc-900 hover:text-white text-zinc-400"
               }`}
             >

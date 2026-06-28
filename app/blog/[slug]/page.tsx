@@ -38,7 +38,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const related = blogPosts.filter((item) => item.slug !== post.slug).slice(0, 2);
 
   return (
-    <main className="min-h-screen bg-[#050506] px-6 pb-24 pt-32 text-white">
+    <main className="min-h-screen bg-[#0B1120] px-6 pb-24 pt-32 text-white">
       <article className="mx-auto max-w-4xl">
         <Link href="/blog" className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-zinc-400 transition hover:text-white">
           <ArrowLeft size={16} />
@@ -83,16 +83,17 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           ))}
         </div>
 
-        <div className="mt-14 rounded-lg border border-brand-mint/20 bg-brand-mint/10 p-7">
+        <div className="mt-14 rounded-lg border p-7" style={{ borderColor: 'rgba(37, 99, 235, 0.2)', background: 'rgba(37, 99, 235, 0.06)' }}>
           <h2 className="text-2xl font-black">Ready to create your next short?</h2>
           <p className="mt-3 text-sm leading-6 text-zinc-300">
             Upload a voiceover, add your media, choose a style, and generate a ready-to-post video. You can also
-            compare plans on the <Link href="/pricing" className="font-bold text-brand-mint underline-offset-4 hover:underline">pricing page</Link> or
-            read the <Link href="/docs" className="font-bold text-brand-mint underline-offset-4 hover:underline">quick docs</Link>.
+            compare plans on the <Link href="/pricing" className="font-bold underline-offset-4 hover:underline" style={{ color: 'var(--color-primary-hover)' }}>pricing page</Link> or
+            read the <Link href="/docs" className="font-bold underline-offset-4 hover:underline" style={{ color: 'var(--color-primary-hover)' }}>quick docs</Link>.
           </p>
           <Link
             href="/signup"
-            className="mt-6 inline-flex items-center gap-2 rounded-lg bg-brand-mint px-5 py-3 font-black text-black transition hover:bg-white"
+            className="mt-6 inline-flex items-center gap-2 rounded-lg px-5 py-3 font-black text-white transition hover:-translate-y-[1px]"
+            style={{ background: 'var(--color-primary-hover)' }}
           >
             Start creating
             <ArrowRight size={16} />

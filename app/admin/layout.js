@@ -21,7 +21,7 @@ export default function AdminLayout({ children }) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-mint mx-auto mb-4"></div>
           <p className="text-zinc-400">Loading admin panel...</p>
         </div>
       </div>

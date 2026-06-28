@@ -4,7 +4,7 @@ import React from "react";
 
 type SubtitleStyleKey = string;
 
-type PresetOption = {
+export type PresetOption = {
   key: string;
   label: string;
   style: string;
@@ -21,14 +21,18 @@ const PRESETS: PresetOption[] = [
   { key: "Studio Clean", label: "Studio Clean", style: "stacked", font: "Inter", textColor: "#FFFFFF", highlightColor: "#FACC15", bgColor: "#18181B" },
   { key: "One Word", label: "One Word", style: "one-word", font: "Impact", textColor: "#FFFFFF", highlightColor: "#FACC15" },
   { key: "Arctic Glow", label: "Arctic Glow", style: "neon", font: "sans-serif", textColor: "#E0F2FE", highlightColor: "#38BDF8" },
+  { key: "Karaoke Fill", label: "Karaoke Fill", style: "karaoke", font: "Inter", textColor: "#FFFFFF", highlightColor: "#FFE500" },
+  { key: "Shatter Drop", label: "Shatter Drop", style: "shatter", font: "Impact", textColor: "#FFFFFF", highlightColor: "#FF3D3D" },
+  { key: "Pill Bounce", label: "Pill Bounce", style: "pill-bounce", font: "Inter", textColor: "#FFFFFF", highlightColor: "#FF6B35" },
+  { key: "Cinematic", label: "Cinematic", style: "cinematic", font: "Georgia", textColor: "#FFFFFF", highlightColor: "#FFFFFF" },
+  { key: "Hacker Type", label: "Hacker Type", style: "typewriter-code", font: "Courier New", textColor: "#00FF88", highlightColor: "#00FF88", bgColor: "#000" },
   { key: "Vollkorn", label: "Vollkorn", style: "vollkorn", font: "Georgia", textColor: "#FFFFFF", highlightColor: "#22D3EE", bgColor: "#000" },
   { key: "Midnight", label: "Midnight", style: "inline-bg", font: "Inter", textColor: "#FFFFFF", highlightColor: "#3B82F6" },
   { key: "Marigold", label: "Marigold", style: "normal", font: "Georgia", textColor: "#F59E0B", highlightColor: "#F59E0B" },
   { key: "Pop Candy", label: "Pop Candy", style: "box", font: "sans-serif", textColor: "#000", highlightColor: "#F472B6" },
   { key: "Bold Fire", label: "Bold Fire", style: "big-bold", font: "Impact", textColor: "#FFFFFF", highlightColor: "#F97316" },
-  { key: "Typewriter", label: "Typewriter", style: "typewriter", font: "Courier New", textColor: "#10B981", highlightColor: "#10B981" },
+  { key: "Typewriter", label: "Typewriter", style: "typewriter", font: "Courier New", textColor: "#22D3EE", highlightColor: "#22D3EE" },
   { key: "split-color", label: "Split Color", style: "split-color", font: "sans-serif", textColor: "#FFFFFF", highlightColor: "#FACC15" },
-  { key: "none", label: "No Subtitles", style: "none", font: "sans-serif", textColor: "#666", highlightColor: "#666" },
 ];
 
 interface SubtitleStylePickerProps {

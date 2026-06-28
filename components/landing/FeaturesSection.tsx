@@ -14,8 +14,8 @@ import {
 
 const features = [
   {
-    title: 'Explainer-first flow',
-    description: 'One focused template for audio/video explainers, tuned for quality and speed.',
+    title: 'Template-first flow',
+    description: '6 specialized templates for different content types — each with a focused workflow.',
     icon: Film,
   },
   {
@@ -44,8 +44,8 @@ const features = [
     icon: Music,
   },
   {
-    title: 'Multi-language ready',
-    description: 'English stays English; Hindi/Urdu becomes Roman Hinglish.',
+    title: 'English & Hinglish captions',
+    description: 'English stays English; Hindi/Urdu audio becomes clean Roman Hinglish.',
     icon: Languages,
   },
   {
@@ -57,7 +57,7 @@ const features = [
 
 export default function FeaturesSection() {
   return (
-    <section id="features" className="relative overflow-hidden bg-black px-6 py-28">
+    <section id="features" className="relative overflow-hidden px-6 py-28" style={{ background: 'linear-gradient(180deg, rgba(37, 99, 235, 0.05) 0%, transparent 100%), var(--bg-hero)' }}>
       <div className="mx-auto max-w-7xl">
         <div className="mb-14 grid gap-8 lg:grid-cols-[0.75fr_1fr] lg:items-end">
           <div>
@@ -102,4 +102,3 @@ export default function FeaturesSection() {
     </section>
   );
 }
-

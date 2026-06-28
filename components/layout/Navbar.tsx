@@ -8,7 +8,7 @@ import { useAuth } from '@/components/auth/AuthContext';
 import BrandLogo from '@/components/brand/BrandLogo';
 
 const productLinks = [
-  { label: 'Templates', href: '/#templates', icon: AudioLines },
+  { label: 'Templates', href: '/templates', icon: AudioLines },
   { label: 'Features', href: '/features', icon: Sparkles },
 ];
 
@@ -59,7 +59,7 @@ export default function Navbar() {
           ) : (
             <>
               <Link href="/login" className="rounded-lg px-3 py-2 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/8 hover:text-white">Login</Link>
-              <Link href="/signup" className="inline-flex items-center gap-2 rounded-lg bg-brand-mint px-5 py-2.5 text-sm font-black text-black shadow-[0_0_26px_rgba(79,255,213,0.18)] transition hover:bg-white">
+              <Link href="/signup" className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-black text-white shadow-[0_0_26px_rgba(37,99,235,0.18)] transition hover:shadow-[0_0_32px_rgba(37,99,235,0.28)] brand-btn-primary-dark">
                 <Sparkles size={16} />
                 Sign Up
               </Link>
@@ -143,7 +143,7 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <Link href="/signup" onClick={() => setIsOpen(false)} className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-mint px-5 py-4 text-center font-black text-black">
+              <Link href="/signup" onClick={() => setIsOpen(false)} className="inline-flex items-center justify-center gap-2 rounded-lg px-5 py-4 text-center font-black text-white" style={{ background: 'var(--color-primary-hover)' }}>
                 <Sparkles size={18} />
                 Start Creating
               </Link>
@@ -201,4 +201,3 @@ function isActivePath(pathname: string | null, href: string) {
   if (href === '/dashboard') return pathname === '/dashboard';
   return pathname === href || pathname.startsWith(`${href}/`);
 }
-

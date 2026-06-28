@@ -1,165 +1,94 @@
-import { ArrowRight, Check, Film, Image, Mic2, Play, Sparkles, Zap } from 'lucide-react';
-import Link from 'next/link';
-import type { Metadata } from 'next';
+import Link from "next/link";
+import type { Metadata } from "next";
+import { ArrowRight, Check, Sparkles } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: 'Long Video Promo Reel — Promote YouTube Videos with AI | Itnavideo',
-  description: 'Create premium promo reels for your long YouTube videos. Thumbnail hero card, animated title, CTA, and optional voiceover with captions.',
-  alternates: { canonical: '/templates/long-video-promo' },
+  title: "Long Video Promo Maker — YouTube Video to Short Clip | Itnavideo",
+  description: "Turn any YouTube video into a promotional short reel with thumbnail, title overlay, and highlight clip. Drive views to your long-form content.",
   openGraph: {
-    title: 'Long Video Promo — Turn Thumbnails into Promo Reels',
-    description: 'Premium promo reels to drive views to your long-form YouTube content.',
+    title: "Long Video Promo Maker — YouTube Video to Short Clip | Itnavideo",
+    description: "Turn any YouTube video into a promotional short reel with thumbnail, title overlay, and highlight clip. Drive views to your long-form content.",
+    images: ["/og-image.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Long Video Promo Maker — YouTube Video to Short Clip | Itnavideo",
+    description: "Turn any YouTube video into a promotional short reel with thumbnail, title overlay, and highlight clip. Drive views to your long-form content.",
   },
 };
 
-const steps = [
-  { icon: Image, title: 'Add thumbnail', body: 'Upload your YouTube video thumbnail (16:9).' },
-  { icon: Mic2, title: 'Add promo clip', body: 'Short voiceover or video promoting the long video.' },
-  { icon: Sparkles, title: 'AI renders promo', body: 'Premium effects, glow borders, animated title, CTA.' },
-  { icon: Play, title: 'Post & get views', body: '9:16 promo reel drives traffic to your full video.' },
-];
-
-const features = [
-  '16:9 thumbnail hero card with glow border',
-  'Animated title with blur-to-sharp reveal',
-  'Pulsing CTA button (Watch Now)',
-  'Key-point chips (Full Guide, Must Watch, etc.)',
-  'Blurred thumbnail background with cinematic overlay',
-  'Floating light particles + accent glow',
-  'Optional promo video/audio section with captions',
-  'Premium motion: zoom, pulse, spring physics',
-];
-
-const useCases = [
-  'YouTube video promotion reels',
-  'Course launch announcements',
-  'Podcast episode previews',
-  'Blog post promotion',
-  'Product launch teasers',
-  'Webinar registration promos',
-];
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "Long Video Promo — Itnavideo",
+  applicationCategory: "VideoEditor",
+  operatingSystem: "Web",
+  url: "https://www.itnavideo.com/templates/long-video-promo",
+  description: "Turn any YouTube video into a promotional short reel with thumbnail, title overlay, and highlight clip. Drive views to your long-form content.",
+  offers: {
+    "@type": "Offer",
+    priceCurrency: "USD",
+    price: "9",
+    availability: "https://schema.org/InStock",
+  },
+};
 
 export default function LongVideoPromoPage() {
   return (
-    <main className="min-h-screen bg-white text-zinc-900">
+    <main className="min-h-screen text-white" style={{ background: '#0F172A' }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
+      />
+
       {/* Hero */}
-      <section className="relative overflow-hidden px-4 pt-28 pb-12 sm:px-6 md:pt-36 md:pb-16">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(16,185,129,0.06)_0%,transparent_60%)]" />
-        <div className="relative z-10 mx-auto max-w-5xl text-center">
-          <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-bold text-emerald-700">
-            <Film size={14} />
-            Long Video Promo Template
-          </span>
-          <h1 className="text-4xl font-black leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
-            Promote Your Long Videos<br />
-            <span className="text-emerald-600">With Premium Promo Reels</span>
+      <section className="px-4 pb-16 pt-28 sm:px-6 sm:pt-32">
+        <div className="mx-auto max-w-4xl text-center">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold" style={{ border: '1px solid rgba(91, 111, 255, 0.2)', background: 'rgba(91, 111, 255, 0.06)', color: 'var(--color-primary-hover)' }}>
+            <Sparkles size={14} />
+            AI Template
+          </div>
+          <h1 className="text-3xl font-black leading-tight sm:text-5xl md:text-6xl">
+            Long Video Promo
           </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-zinc-500 sm:text-lg">
-            Turn your YouTube thumbnail into a cinematic promo reel. Animated title, glow effects, CTA button, and optional voiceover — all designed to drive viewers to your full video.
+          <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed sm:text-lg" style={{ color: 'var(--text-dark-secondary)' }}>
+            Promote your YouTube video with a thumbnail-driven promo reel.
           </p>
-          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-            <Link href="/dashboard?template=long-video-promo" className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-7 py-4 text-sm font-black text-white shadow-lg shadow-emerald-500/15 transition hover:bg-emerald-600">
-              Create Promo Reel <ArrowRight size={16} />
-            </Link>
-            <Link href="/pricing" className="inline-flex items-center gap-2 rounded-xl border border-zinc-200 px-6 py-4 text-sm font-black text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50">
-              View Pricing
-            </Link>
-          </div>
-          <p className="mt-5 text-xs text-zinc-400">One credit = one reel. Works with any plan.</p>
         </div>
       </section>
 
-      {/* Preview */}
-      <section className="bg-zinc-50 px-4 py-16 sm:px-6 md:py-24">
+      {/* What you get */}
+      <section className="px-4 pb-16 sm:px-6">
         <div className="mx-auto max-w-3xl">
-          <div className="text-center">
-            <p className="text-xs font-black uppercase tracking-wider text-emerald-600">Output Style</p>
-            <h2 className="mt-2 text-3xl font-black sm:text-4xl">Premium Promo Reel Layout</h2>
-            <p className="mt-3 text-zinc-500">Thumbnail hero + animated title + CTA — designed to get clicks.</p>
-          </div>
-          <div className="mt-10 overflow-hidden rounded-2xl border-2 border-zinc-200 bg-zinc-900 p-6 shadow-lg">
-            <div className="space-y-5">
-              {/* Thumbnail mock */}
-              <div className="relative aspect-video overflow-hidden rounded-xl border-2 border-emerald-500/40 bg-gradient-to-br from-zinc-800 to-zinc-900">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-emerald-400/60 bg-black/50">
-                    <div className="ml-1 h-0 w-0 border-y-[8px] border-y-transparent border-l-[14px] border-l-emerald-400" />
-                  </div>
-                </div>
-                <div className="absolute bottom-2 left-2 right-2 text-center text-xs font-bold text-zinc-500">YOUR THUMBNAIL (16:9)</div>
-              </div>
-              {/* Title mock */}
-              <h3 className="text-center text-2xl font-black text-white">Complete Guide to Domain & Hosting</h3>
-              {/* Chips */}
-              <div className="flex flex-wrap justify-center gap-2">
-                {['Full Guide', 'Step-by-Step', 'Real Example', 'Must Watch'].map((chip) => (
-                  <span key={chip} className="rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1.5 text-xs font-bold text-emerald-400">{chip}</span>
-                ))}
-              </div>
-              {/* CTA */}
-              <div className="text-center">
-                <span className="inline-block rounded-full bg-emerald-500 px-6 py-3 text-sm font-black text-black">Watch Full Video →</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section className="px-4 py-16 sm:px-6 md:py-24">
-        <div className="mx-auto max-w-4xl">
-          <div className="text-center">
-            <p className="text-xs font-black uppercase tracking-wider text-emerald-600">Process</p>
-            <h2 className="mt-2 text-3xl font-black sm:text-4xl">Thumbnail In. Promo Reel Out.</h2>
-          </div>
-          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {steps.map((step, i) => {
-              const Icon = step.icon;
-              return (
-                <div key={step.title} className="rounded-2xl border border-zinc-100 bg-white p-5 shadow-sm">
-                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
-                    <Icon size={18} />
-                  </div>
-                  <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">Step {i + 1}</p>
-                  <h3 className="mt-1 text-sm font-black">{step.title}</h3>
-                  <p className="mt-2 text-xs leading-5 text-zinc-500">{step.body}</p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Features */}
-      <section className="bg-zinc-50 px-4 py-16 sm:px-6 md:py-24">
-        <div className="mx-auto max-w-4xl">
-          <div className="text-center">
-            <p className="text-xs font-black uppercase tracking-wider text-emerald-600">Features</p>
-            <h2 className="mt-2 text-3xl font-black sm:text-4xl">Premium Promo Effects</h2>
-          </div>
-          <div className="mt-10 grid gap-3 sm:grid-cols-2">
-            {features.map((f) => (
-              <div key={f} className="flex items-center gap-3 rounded-xl border border-zinc-100 bg-white p-4">
-                <Check size={16} className="shrink-0 text-emerald-500" />
-                <span className="text-sm font-bold">{f}</span>
+          <h2 className="mb-8 text-center text-2xl font-black">What you get</h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {[
+              "Thumbnail + title overlay",
+              "Highlight clip extraction",
+              "Subscribe CTA built-in",
+              "Channel branding support",
+            ].map((item) => (
+              <div key={item} className="flex items-start gap-3 rounded-lg p-4" style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border-dark)', borderRadius: '12px' }}>
+                <Check size={18} className="mt-0.5 shrink-0" style={{ color: 'var(--color-primary-hover)' }} />
+                <span className="text-sm leading-6" style={{ color: 'var(--text-dark-secondary)' }}>{item}</span>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Use cases */}
-      <section className="px-4 py-16 sm:px-6 md:py-24">
-        <div className="mx-auto max-w-4xl">
-          <div className="text-center">
-            <p className="text-xs font-black uppercase tracking-wider text-emerald-600">Use Cases</p>
-            <h2 className="mt-2 text-3xl font-black sm:text-4xl">Perfect For</h2>
-          </div>
-          <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {useCases.map((uc) => (
-              <div key={uc} className="flex items-center gap-3 rounded-xl border border-zinc-100 bg-white p-4">
-                <Zap size={14} className="shrink-0 text-emerald-500" />
-                <span className="text-sm font-bold">{uc}</span>
+      {/* Who this is for */}
+      <section className="px-4 pb-16 sm:px-6">
+        <div className="mx-auto max-w-3xl">
+          <h2 className="mb-8 text-center text-2xl font-black">Who this is for</h2>
+          <div className="grid gap-4 sm:grid-cols-3">
+            {[
+              "YouTubers promoting new uploads",
+              "Podcasters driving listeners to full episodes",
+              "Course creators previewing lesson content",
+            ].map((item) => (
+              <div key={item} className="rounded-lg p-4 text-center" style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border-dark)', borderRadius: '12px' }}>
+                <p className="text-sm font-semibold leading-6" style={{ color: 'var(--text-dark-secondary)' }}>{item}</p>
               </div>
             ))}
           </div>
@@ -167,14 +96,29 @@ export default function LongVideoPromoPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-emerald-50 px-4 py-16 sm:px-6 md:py-20">
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-3xl font-black sm:text-4xl">Drive Views to Your Long Videos</h2>
-          <p className="mx-auto mt-4 max-w-xl text-zinc-600">
-            Stop losing views because nobody scrolls to your video. Create a 30-second promo reel that grabs attention on Instagram, YouTube Shorts, and TikTok.
+      <section className="px-4 pb-16 sm:px-6">
+        <div className="mx-auto max-w-md text-center">
+          <Link
+            href="/dashboard?template=long-video-promo"
+            className="inline-flex items-center gap-2 rounded-[10px] px-8 py-4 text-[15px] font-semibold text-white transition hover:-translate-y-[1px] brand-btn-primary-dark"
+          >
+            Try this template free
+            <ArrowRight size={16} />
+          </Link>
+          <p className="mt-4 text-sm" style={{ color: 'var(--text-dark-muted)' }}>
+            No credit card needed • First video free • 1080p MP4 export
           </p>
-          <Link href="/dashboard?template=long-video-promo" className="mt-8 inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-8 py-4 text-sm font-black text-white shadow-lg shadow-emerald-500/15 transition hover:bg-emerald-600">
-            Create Your Promo Reel <ArrowRight size={16} />
+        </div>
+      </section>
+
+      {/* Pricing note */}
+      <section className="px-4 pb-20 sm:px-6">
+        <div className="mx-auto max-w-3xl rounded-lg p-6 text-center" style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border-dark)', borderRadius: '12px' }}>
+          <p className="text-sm leading-6" style={{ color: 'var(--text-dark-secondary)' }}>
+            All plans include all 6 production templates. No templates locked behind higher tiers. Plans start at $9/month.
+          </p>
+          <Link href="/pricing" className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold transition hover:opacity-80" style={{ color: 'var(--color-primary-hover)' }}>
+            View pricing <ArrowRight size={14} />
           </Link>
         </div>
       </section>

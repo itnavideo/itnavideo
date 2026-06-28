@@ -1,6 +1,12 @@
-import { LANGUAGES } from '@/constants/languages';
+import { LANGUAGES, type LanguageValue } from '@/constants/languages';
 
-export const LanguageSelector = ({ value, onChange }) => {
+export const LanguageSelector = ({
+  value,
+  onChange,
+}: {
+  value: LanguageValue | string;
+  onChange: (value: LanguageValue | string) => void;
+}) => {
   return (
     <select 
       value={value} 

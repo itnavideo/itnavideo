@@ -135,7 +135,9 @@ export async function upsertRenderHistoryFromServer(data) {
   if (!userId) throw new Error('User id is required.');
   if (!renderId) throw new Error('Render id is required.');
   if (!outputFile) throw new Error('Output file is required.');
-  if (!['videoExplainer', 'notes', 'videoCaption', 'compare'].includes(mode)) throw new Error('Render mode is invalid.');
+  // Accept all known render modes — don't restrict to only 4 legacy modes
+  // This prevents newer templates from failing to save render history
+  if (!mode) throw new Error('Render mode is required.');
 
   const now = new Date();
   const createdAt = parseDate(data?.createdAt) || now;
