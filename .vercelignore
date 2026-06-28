@@ -54,3 +54,20 @@ sticker-previews
 .tmp
 nul
 *.bak
+.kiro
+test-sticker-props.json
+update_css.ps1
+public/preview/. Job Posting  Hiring Reel.png
+public/preview/Before  After Reel.png
+public/preview/Countdown  Coming Soon Reel.png
+public/preview/Creator Reaction.png
+public/preview/Ecommerce Reel.png
+public/preview/Event  Invite Reel.png
+public/preview/Flashcard  Quick Fact Reel.png
+public/preview/Listicle Reel.png
+public/preview/Local Business Promo.png
+public/preview/NEWS-REEL.png
+public/preview/Personal Brand Intro Reel.png
+public/preview/Poll  This or That Reel.png
+public/preview/Testimonial  Review Reel.png
+public/preview/Tutorial Steps Reel.png
