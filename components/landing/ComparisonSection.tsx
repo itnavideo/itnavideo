@@ -29,7 +29,7 @@ const comparisons = [
   {
     feature: 'Production cost',
     manual: 'Editors, plugins, stock assets',
-    ai: 'Template-based workflow with 6 focused formats',
+    ai: 'Video Type-based workflow with 7 focused formats',
     manualIcon: Coins,
     aiIcon: Check,
   },
@@ -98,7 +98,7 @@ export default function ComparisonSection() {
         <div className="mt-8 flex flex-col gap-3 rounded-lg border border-cyan-300/15 bg-cyan-300/[0.04] p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="font-bold text-white">Production focus</p>
-            <p className="mt-1 text-sm text-zinc-400">6 focused templates live. Upload content, choose a polished output style, get a ready-to-post reel.</p>
+            <p className="mt-1 text-sm text-zinc-400">7 focused video types live. Upload content, choose a polished output style, get a ready-to-post reel.</p>
           </div>
           <div className="flex items-center gap-2 text-sm font-bold text-cyan-200">
             <X size={16} className="text-zinc-500" />

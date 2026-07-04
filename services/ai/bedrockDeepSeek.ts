@@ -95,7 +95,7 @@ Respond in JSON format only. No explanation text outside JSON.`;
 
 Topic: ${request.topicTitle || 'General'}
 Template: ${request.templateType || 'dynamic'}
-Target duration: ${request.durationSeconds || 30} seconds
+Target duration: ${request.durationSeconds || 60} seconds
 Language: ${request.language || 'hinglish'}
 
 Transcript:

@@ -4,7 +4,7 @@
 import {StickerStylePicker} from '@/components/compare/StickerStylePicker';
 import {CompareTextFields} from '@/components/compare/CompareTextFields';
 import {CompareImageSlots} from '@/components/compare/CompareImageSlots';
-import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -19,13 +19,12 @@ import {
   Eye,
   Film,
   FolderOpen,
-  ImageIcon,
+  Gift,
   ImagePlus,
   Layers3,
   Loader2,
   LogOut,
-  Lock,
-  PenLine,
+  Mic,
   Captions,
   ShieldCheck,
   Sparkles,
@@ -51,7 +50,8 @@ type Mode =
   | "autoDraw"
   | "longVideoPromo"
   | "dynamicCreator"
-  | "creatorBackgroundReplace";
+  | "creatorBackgroundReplace"
+  | "customAiReel";
 type CreatorBackgroundSettings = {
   backgroundFit: "cover" | "contain";
   backgroundScale: number;
@@ -68,6 +68,7 @@ type JobStatus = {
   progress?: number;
   failureStage?: "upload" | "transcript" | "planning" | "render";
   reasonCode?: string;
+  diagnostics?: string[];
   outputFile?: string;
   renderId?: string;
   bucketName?: string;
@@ -102,16 +103,17 @@ const RECENT_RENDER_RETENTION_MS = 48 * 60 * 60 * 1000;
 const RENDER_POLL_INTERVAL_MS = 3000;
 const RENDER_POLL_ATTEMPTS = 360;
 
-const templateCards = [
-  { id: "dynamic-creator-reel", title: "Dynamic Creator Reel", tag: "Creator edit", description: "Talking video with premium typography and short-form pacing.", image: "/preview/Dynamic Creator Reel.png", badges: ["Video", "Typography"], proof: "Best first impression", accent: "#38BDF8", mode: "dynamicCreator" as const, category: "creator" },
-  { id: "auto-caption-reel", title: "Auto Caption Reel", tag: "Captions", description: "Clean word-level subtitles for existing reels.", image: "/preview/Auto Caption Reel.png", badges: ["Video", "Subtitles"], proof: "Most used", accent: "#22C55E", mode: "autoCaption" as const, category: "creator" },
-  { id: "creator-background-replace", title: "Creator Background Replace", tag: "Background", description: "Upload a creator video and replace the background with your image.", image: "/preview/Dynamic Creator Reel.png", badges: ["Video", "Image"], proof: "New utility", accent: "#F97316", mode: "creatorBackgroundReplace" as const, category: "creator" },
-  { id: "compare-explainer", title: "Compare Explainer", tag: "Comparison", description: "Left vs right comparison with narration and sticker presenter.", image: "/preview/Compare Explainer.png", badges: ["Audio", "2 Images"], proof: "Decision format", accent: "#F59E0B", mode: "compare" as const, category: "education" },
-  { id: "auto-draw", title: "Auto Draw Explainer", tag: "Whiteboard", description: "Voiceover converted into simple drawn explainer scenes.", image: "/preview/Auto Draw Explainer.png", badges: ["Audio", "Whiteboard"], proof: "Explainer format", accent: "#06B6D4", mode: "autoDraw" as const, category: "education" },
+const videoTypeCards = [
+  { id: "custom-ai-reel", title: "Custom AI Reel", tag: "Custom", description: "Describe your video, upload your media, and let AI build your reel.", image: "/preview/Custom AI Reel.png", badges: ["Prompt", "Images"], proof: "Most Flexible", accent: "#60A5FA", mode: "customAiReel" as const, category: "creator" },
+  { id: "dynamic-creator-reel", title: "Creator Reel Video", tag: "Creator edit", description: "Talking video with premium typography and short-form pacing.", image: "/preview/Dynamic Creator Reel.png", badges: ["Video", "Typography"], proof: "Best first impression", accent: "#38BDF8", mode: "dynamicCreator" as const, category: "creator" },
+  { id: "auto-caption-reel", title: "Auto Caption Video", tag: "Captions", description: "Clean word-level captions for existing reels.", image: "/preview/Auto Caption Reel.png", badges: ["Video", "Captions"], proof: "Most used", accent: "#22C55E", mode: "autoCaption" as const, category: "creator" },
+  { id: "creator-background-replace", title: "Background Replace Video", tag: "Background", description: "Upload a creator video and replace the background with your image.", image: "/preview/Background Replace Video.png", badges: ["Video", "Image"], proof: "Coming soon", accent: "#F97316", mode: "creatorBackgroundReplace" as const, category: "creator", comingSoon: true },
+  { id: "compare-explainer", title: "Compare Explainer Video", tag: "Comparison", description: "Left vs right comparison with narration and sticker presenter.", image: "/preview/Compare Explainer.png", badges: ["Audio", "2 Images"], proof: "Decision format", accent: "#F59E0B", mode: "compare" as const, category: "education" },
+  { id: "auto-draw", title: "Auto Draw Explainer Video", tag: "Whiteboard", description: "Voiceover converted into simple drawn explainer scenes.", image: "/preview/Auto Draw Explainer.png", badges: ["Audio", "Whiteboard"], proof: "Explainer format", accent: "#06B6D4", mode: "autoDraw" as const, category: "education" },
   { id: "long-video-promo", title: "Long Video Promo", tag: "Promo", description: "Short vertical teaser for a long-form video.", image: "/preview/Long Video Promo.png", badges: ["Video", "Thumbnail"], proof: "Promo ready", accent: "#A3E635", mode: "longVideoPromo" as const, category: "creator" },
 ] as const;
 
-const TEMPLATE_CATEGORIES = [
+const VIDEO_TYPE_CATEGORIES = [
   {id: "all", label: "All"},
   {id: "creator", label: "Creator"},
   {id: "education", label: "Education"},
@@ -129,9 +131,9 @@ const DEFAULT_CREATOR_BACKGROUND_SETTINGS: CreatorBackgroundSettings = {
 
 const modeConfig = {
   autoCaption: {
-    label: "Auto Caption",
-    title: "Auto Caption Reel",
-    description: "📹 Upload: Video with speech\nSubtitles added automatically",
+    label: "Auto Caption Video",
+    title: "Auto Caption Video",
+    description: "📹 Upload: Video with speech\nCaptions added automatically",
     accept: "video/*",
     supported: "MP4, MOV, WEBM",
     bestResult: "9:16 video with clear voice",
@@ -142,8 +144,8 @@ const modeConfig = {
     surface: "bg-blue-400/[0.08]",
   },
   compare: {
-    label: "Compare",
-    title: "Compare Explainer",
+    label: "Compare Explainer Video",
+    title: "Compare Explainer Video",
     description: "🎙️ Upload: Audio voiceover\n🖼️ Required: 2 images (left vs right)",
     accept: "audio/*",
     supported: "MP3, WAV, M4A, AAC",
@@ -158,9 +160,9 @@ const modeConfig = {
     label: "Long Video Promo",
     title: "Long Video Promo",
     description: "📹 Upload: Short promo clip (10-60s)\n🖼️ Required: Thumbnail image",
-    accept: "audio/*,video/*",
-    supported: "MP3, WAV, MP4, MOV",
-    bestResult: "Short promo voiceover or talking-head clip",
+    accept: "video/*",
+    supported: "MP4, MOV, WEBM",
+    bestResult: "Short promo video clip with thumbnail and title",
     uploadCta: "📹 Upload promo clip",
     icon: Film,
     color: "text-blue-300",
@@ -168,12 +170,12 @@ const modeConfig = {
     surface: "bg-blue-400/[0.08]",
   },
   dynamicCreator: {
-    label: "Dynamic Edit",
-    title: "Dynamic Creator Reel",
+    label: "Creator Reel Video",
+    title: "Creator Reel Video",
     description: "📹 Upload: One vertical talking video\nAI adds dynamic edits and typography",
     accept: "video/*",
     supported: "MP4, MOV, WEBM",
-    bestResult: "Vertical talking video with clear speech, 30-60 seconds",
+    bestResult: "Vertical talking video with clear speech, up to 60 seconds",
     uploadCta: "📹 Upload your talking video",
     icon: Film,
     color: "text-blue-200",
@@ -181,8 +183,8 @@ const modeConfig = {
     surface: "bg-blue-300/[0.08]",
   },
   creatorBackgroundReplace: {
-    label: "Background Replace",
-    title: "Creator Background Replace",
+    label: "Background Replace Video",
+    title: "Background Replace Video",
     description: "📹 Upload: Creator video\n🖼️ Required: Background image",
     accept: "video/*",
     supported: "MP4, MOV, WEBM + JPG/PNG/WEBP background",
@@ -193,9 +195,22 @@ const modeConfig = {
     border: "border-orange-300/35",
     surface: "bg-orange-300/[0.08]",
   },
+  customAiReel: {
+    label: "Custom AI Reel",
+    title: "Custom AI Reel",
+    description: "✍️ Describe your reel\n🖼️ Optional: images, screenshots, logo",
+    accept: "image/*",
+    supported: "Prompt + JPG, PNG, WEBP images",
+    bestResult: "Simple English prompt with clear images/screenshots",
+    uploadCta: "🖼️ Add images or screenshots",
+    icon: Sparkles,
+    color: "text-sky-200",
+    border: "border-sky-300/35",
+    surface: "bg-sky-300/[0.08]",
+  },
   autoDraw: {
-    label: "Auto Draw",
-    title: "Auto Draw Explainer",
+    label: "Auto Draw Explainer Video",
+    title: "Auto Draw Explainer Video",
     description: "🎙️ Upload: Audio or video with speech\nAI creates whiteboard scenes",
     accept: "audio/*,video/*",
     supported: "MP3, WAV, MP4, MOV",
@@ -230,6 +245,7 @@ const normalizeCaptionFont = (font: string) => {
   if (key === "arial black") return "Arial Black, sans-serif";
   if (key === "georgia") return "Georgia, serif";
   if (key === "courier new") return "Courier New, monospace";
+  if (key === "fredoka") return "Fredoka";
   if (key === "sans-serif") return "sans-serif";
   return "Inter, sans-serif";
 };
@@ -238,7 +254,7 @@ export default function DashboardPage() {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
   const [mode, setMode] = useState<Mode>("dynamicCreator");
-  const [templateCategory, setTemplateCategory] = useState<string>("all");
+  const [videoTypeCategory, setVideoTypeCategory] = useState<string>("all");
   const [hasUserSelected, setHasUserSelected] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [comparisonFiles, setComparisonFiles] = useState<File[]>([]);
@@ -251,7 +267,6 @@ export default function DashboardPage() {
   const [captionPosition, setCaptionPosition] = useState<"bottom" | "center" | "top">("bottom");
   const [captionFontFamily, setCaptionFontFamily] = useState("Inter, sans-serif");
   const [captionFontSize, setCaptionFontSize] = useState<"small" | "medium" | "large" | "xlarge">("large");
-  const [subtitleOutputLanguage, setSubtitleOutputLanguage] = useState<"hinglish" | "english">("hinglish");
   const [captionTextColor, setCaptionTextColor] = useState("#ffffff");
   const [captionHighlightColor, setCaptionHighlightColor] = useState("#facc15");
   const [captionBackgroundColor, setCaptionBackgroundColor] = useState("#18181B");
@@ -260,21 +275,24 @@ export default function DashboardPage() {
   const [wordClickSound] = useState(true);
   const [promoThumbnailFile, setPromoThumbnailFile] = useState<File | null>(null);
   const [promoTitle, setPromoTitle] = useState("");
-  const [promoChannelName, setPromoChannelName] = useState("");
-  const [promoSubscriberCount, setPromoSubscriberCount] = useState("");
-  const [promoCtaText, setPromoCtaText] = useState("Watch full video →");
-  const [promoBgMusic, setPromoBgMusic] = useState(false);
-  const [promoVideoDuration, setPromoVideoDuration] = useState("");
+  const [promoClipMeta, setPromoClipMeta] = useState<{durationSeconds?: number; mediaAspect?: string}>({});
   const [creatorBackgroundImageFile, setCreatorBackgroundImageFile] = useState<File | null>(null);
   const [creatorBackgroundSettings, setCreatorBackgroundSettings] = useState<CreatorBackgroundSettings>(DEFAULT_CREATOR_BACKGROUND_SETTINGS);
+  const [customAiPrompt, setCustomAiPrompt] = useState("");
+  const [customAiImageFiles, setCustomAiImageFiles] = useState<File[]>([]);
+  const [customAiLogoFile, setCustomAiLogoFile] = useState<File | null>(null);
+  const [customAiVideoFile, setCustomAiVideoFile] = useState<File | null>(null);
+  const [customAiAudioFile, setCustomAiAudioFile] = useState<File | null>(null);
+  const [customAiVideoMeta, setCustomAiVideoMeta] = useState<{durationSeconds?: number}>({});
+  const [customAiAudioMeta, setCustomAiAudioMeta] = useState<{durationSeconds?: number}>({});
   const [recentRenders, setRecentRenders] = useState<RecentRender[]>([]);
-  const [previewRender, setPreviewRender] = useState<RecentRender | null>(null);
   const [deleteCandidate, setDeleteCandidate] = useState<RecentRender | null>(null);
   const [deletingRenderId, setDeletingRenderId] = useState<string | null>(null);
   const [jobStatus, setJobStatus] = useState<JobStatus>({state: "idle", message: ""});
+  const renderRequestInFlightRef = useRef(false);
   const [billingEntitlement, setBillingEntitlement] = useState<BillingEntitlement | null>(null);
   const [paymentBanner, setPaymentBanner] = useState("");
-  const [previewTemplateId, setPreviewTemplateId] = useState<string | null>(null);
+  const [previewVideoTypeId, setPreviewVideoTypeId] = useState<string | null>(null);
 
   // ── Preview Editor state ────────────────────────────────────────────────────
   // Stores pending upload keys + preview plan between "Generate Preview" and final render
@@ -317,10 +335,10 @@ export default function DashboardPage() {
         window.history.replaceState(null, "", "/dashboard");
       }
       const requestedMode = params.get("mode");
-      const requestedTemplate = params.get("template");
-      const nextMode = readDashboardMode(requestedMode || requestedTemplate);
+      const requestedVideoType = params.get("videoType") || params.get("template");
+      const nextMode = readDashboardMode(requestedMode || requestedVideoType);
 
-      if (nextMode) {
+      if (nextMode && nextMode !== "creatorBackgroundReplace") {
         const timer = window.setTimeout(() => {
           setMode(nextMode);
           setHasUserSelected(true);
@@ -330,7 +348,7 @@ export default function DashboardPage() {
         return () => window.clearTimeout(timer);
       }
     } catch (error) {
-      console.warn("Could not read dashboard template params:", error);
+      console.warn("Could not read dashboard video type params:", error);
     }
     return undefined;
   }, []);
@@ -347,13 +365,23 @@ export default function DashboardPage() {
   const renderInProgress = ["uploading", "starting", "rendering"].includes(jobStatus.state);
   const paidRemaining = billingEntitlement?.usage?.remaining ?? billingEntitlement?.monthlyVideoLimit;
   const paidLimitComplete = Boolean(billingEntitlement?.active && typeof paidRemaining === "number" && paidRemaining <= 0);
+  const isFreeSignupCredit = billingEntitlement?.planId === "free-signup-credit";
+  const creditLabel = isFreeSignupCredit ? "1 Free AI Video Credit" : "Credits this month";
+  const creditResetLabel = isFreeSignupCredit ? "No card needed. Use it for your first AI video." : billingEntitlement?.expiresAt ? `Resets ${formatDate(billingEntitlement.expiresAt)}` : "";
   const canPrepareReel = Boolean(
-    selectedFile &&
+    (mode === "customAiReel" ? customAiPrompt.trim().length >= 12 : selectedFile) &&
     (mode !== "compare" || comparisonFiles.length === 2) &&
+    (mode !== "longVideoPromo" || (Boolean(promoThumbnailFile) && Boolean(promoTitle.trim()))) &&
     (mode !== "creatorBackgroundReplace" || Boolean(creatorBackgroundImageFile)) &&
     !renderInProgress &&
     !paidLimitComplete,
   );
+
+  useEffect(() => {
+    if (!renderInProgress) {
+      renderRequestInFlightRef.current = false;
+    }
+  }, [renderInProgress]);
 
   const chooseCaptionStyle = (nextStyle: string) => {
     setCaptionStyle(nextStyle);
@@ -363,20 +391,34 @@ export default function DashboardPage() {
     setCaptionHighlightColor(preset.highlightColor);
     setCaptionBackgroundColor(preset.bgColor || "");
     setCaptionFontFamily(normalizeCaptionFont(preset.font));
-    setCaptionFontSize(nextStyle === "One Word" || nextStyle === "Bold Fire" ? "xlarge" : nextStyle === "Studio Clean" || nextStyle === "Karaoke Fill" ? "large" : "medium");
+    setCaptionFontSize(nextStyle === "One Word" || nextStyle === "Bold Fire" || nextStyle === "Bold Highlight Strip" ? "xlarge" : nextStyle === "Studio Clean" || nextStyle === "Karaoke Fill" || nextStyle === "Shorts Karaoke" ? "large" : "medium");
   };
 
-  const chooseTemplateMode = (nextMode: Mode) => {
+  const chooseVideoTypeMode = (nextMode: Mode) => {
+    if (nextMode === "creatorBackgroundReplace") {
+      setJobStatus({state: "idle", message: ""});
+      return;
+    }
     setMode(nextMode);
     setHasUserSelected(true);
     setSelectedFile(null);
     setComparisonFiles([]);
+    setPromoThumbnailFile(null);
+    setPromoTitle("");
+    setPromoClipMeta({});
     setCreatorBackgroundImageFile(null);
     setCreatorBackgroundSettings(DEFAULT_CREATOR_BACKGROUND_SETTINGS);
+    setCustomAiPrompt("");
+    setCustomAiImageFiles([]);
+    setCustomAiLogoFile(null);
+    setCustomAiVideoFile(null);
+    setCustomAiAudioFile(null);
+    setCustomAiVideoMeta({});
+    setCustomAiAudioMeta({});
     setTopicTitle("");
     setJobStatus({state: "idle", message: ""});
-    const nextTemplate = nextMode === "autoCaption" ? "auto-caption-reel" : nextMode === "autoDraw" ? "auto-draw-explainer" : nextMode === "longVideoPromo" ? "long-video-promo" : nextMode === "dynamicCreator" ? "dynamic-creator-reel" : nextMode === "creatorBackgroundReplace" ? "creator-background-replace" : "compare-explainer";
-    window.history.replaceState(null, "", `/dashboard?template=${nextTemplate}`);
+    const nextVideoType = nextMode === "autoCaption" ? "auto-caption-reel" : nextMode === "autoDraw" ? "auto-draw-explainer" : nextMode === "longVideoPromo" ? "long-video-promo" : nextMode === "dynamicCreator" ? "dynamic-creator-reel" : nextMode === "customAiReel" ? "custom-ai-reel" : "compare-explainer";
+    window.history.replaceState(null, "", `/dashboard?videoType=${nextVideoType}`);
     // Auto-scroll to upload section on mobile
     setTimeout(() => {
       document.getElementById("upload-section")?.scrollIntoView({behavior: "smooth", block: "start"});
@@ -386,22 +428,62 @@ export default function DashboardPage() {
   const chooseFile = (file: File | null) => {
     if (!file) {
       setSelectedFile(null);
+      setPromoClipMeta({});
       return;
     }
     const validation = validateFileForMode(file, mode);
     if (validation) {
       setSelectedFile(null);
+      setPromoClipMeta({});
       setJobStatus({state: "error", message: validation});
       return;
     }
     setSelectedFile(file);
+    setPromoClipMeta({});
     setJobStatus({state: "idle", message: ""});
   };
 
   const removeSelectedFile = () => {
     setSelectedFile(null);
+    setPromoClipMeta({});
     setJobStatus({state: "idle", message: ""});
   };
+
+  useEffect(() => {
+    if (mode !== "longVideoPromo" || !selectedFile || !selectedFile.type.startsWith("video/")) {
+      return;
+    }
+
+    const url = URL.createObjectURL(selectedFile);
+    const video = document.createElement("video");
+    video.preload = "metadata";
+    video.src = url;
+
+    const onLoadedMetadata = () => {
+      const width = video.videoWidth || 0;
+      const height = video.videoHeight || 0;
+      const ratio = width && height ? width / height : 16 / 9;
+      const mediaAspect = ratio < 0.8 ? "portrait" : ratio > 1.35 ? "landscape" : "1:1";
+      const durationSeconds = Number.isFinite(video.duration)
+        ? Math.max(8, Math.min(60, video.duration))
+        : undefined;
+      setPromoClipMeta({durationSeconds, mediaAspect});
+      URL.revokeObjectURL(url);
+    };
+
+    const onError = () => {
+      setPromoClipMeta({});
+      URL.revokeObjectURL(url);
+    };
+
+    video.addEventListener("loadedmetadata", onLoadedMetadata);
+    video.addEventListener("error", onError);
+    return () => {
+      video.removeEventListener("loadedmetadata", onLoadedMetadata);
+      video.removeEventListener("error", onError);
+      URL.revokeObjectURL(url);
+    };
+  }, [mode, selectedFile]);
 
   const removeCreatorBackgroundImage = () => {
     setCreatorBackgroundImageFile(null);
@@ -414,15 +496,27 @@ export default function DashboardPage() {
     setJobStatus({state: "idle", message: ""});
   };
 
-  const chooseComparisonFiles = (files: FileList | null) => {
-    const nextFiles = Array.from(files || []).slice(0, 2);
-    const invalid = nextFiles.find((file) => validateComparisonImage(file));
-    if (invalid) {
-      setComparisonFiles([]);
-      setJobStatus({state: "error", message: validateComparisonImage(invalid)});
+  const addCustomAiImages = (files: FileList | null) => {
+    const nextFiles = Array.from(files || []).filter((file) => file.type.startsWith("image/")).slice(0, 8);
+    if (!nextFiles.length) {
+      setJobStatus({state: "error", message: "Please upload JPG, PNG, or WEBP images for Custom AI Reel."});
       return;
     }
-    setComparisonFiles(nextFiles);
+    setCustomAiImageFiles((current) => [...current, ...nextFiles].slice(0, 8));
+    setJobStatus({state: "idle", message: ""});
+  };
+
+  const removeCustomAiImage = (indexToRemove: number) => {
+    setCustomAiImageFiles((current) => current.filter((_, index) => index !== indexToRemove));
+    setJobStatus({state: "idle", message: ""});
+  };
+
+  const chooseCustomAiLogo = (file: File | null) => {
+    if (file && !file.type.startsWith("image/")) {
+      setJobStatus({state: "error", message: "Logo must be a JPG, PNG, or WEBP image."});
+      return;
+    }
+    setCustomAiLogoFile(file);
     setJobStatus({state: "idle", message: ""});
   };
 
@@ -449,9 +543,6 @@ export default function DashboardPage() {
     const nextRenders = recentRenders.filter((item) => item.id !== render.id && item.outputFile !== render.outputFile);
     setRecentRenders(nextRenders);
     saveRecentRenders(user.id, nextRenders);
-    if (previewRender?.id === render.id || previewRender?.outputFile === render.outputFile) {
-      setPreviewRender(null);
-    }
     if (jobStatus.outputFile === render.outputFile) {
       setJobStatus({state: "idle", message: ""});
     }
@@ -490,14 +581,16 @@ export default function DashboardPage() {
             comparisonImageKeys: pendingRenderKeys.comparisonImageKeys,
             promoThumbnailKey: pendingRenderKeys.promoThumbnailKey,
             creatorBackgroundImageKey: pendingRenderKeys.creatorBackgroundImageKey,
+            customAiImageKeys: [],
+            customAiLogoKey: "",
             overrideInputProps: finalInputProps,
           });
           setPendingRenderKeys(null);
         }}
       />
     )}
-    <main className="min-h-screen overflow-x-hidden bg-[#0B1120] px-4 pb-12 pt-24 text-white sm:px-5 md:px-8 md:py-24">
-      <div className="mx-auto max-w-6xl">
+    <main className="dashboard-safe-wrap min-h-screen max-w-full overflow-x-hidden bg-[#0B1120] px-4 pb-12 pt-20 text-white sm:px-5 md:px-8 md:py-24">
+      <div className="mx-auto w-full max-w-6xl overflow-x-hidden">
         <header className="mb-6 flex flex-col gap-4 border-b border-white/8 pb-6 md:mb-8 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
             <BrandLogo size="md" showTagline />
@@ -544,6 +637,29 @@ export default function DashboardPage() {
 
         {paymentBanner || billingEntitlement?.active ? (
           <section className="mb-5 rounded-lg px-4 py-3" style={{ borderColor: 'var(--border-dark)', background: 'var(--bg-card)', border: '1px solid var(--border-dark)', borderRadius: '12px' }}>
+            {isFreeSignupCredit ? (
+              <div className="mb-4 flex flex-col gap-3 rounded-lg border border-pink-300/25 bg-pink-500/[0.08] p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex min-w-0 items-start gap-3">
+                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-pink-300/25 bg-pink-400/10 text-pink-200">
+                    <Gift size={18} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-black text-white">1 Free AI Video Credit</p>
+                    <p className="mt-1 text-xs font-bold leading-5 text-zinc-400">
+                      Create your first AI video free. Failed renders are not charged, so your credit stays safe.
+                    </p>
+                  </div>
+                </div>
+                {paidLimitComplete ? (
+                  <Link
+                    href="/pricing"
+                    className="inline-flex shrink-0 items-center justify-center rounded-lg bg-pink-500 px-4 py-2.5 text-xs font-black text-white transition hover:bg-pink-400"
+                  >
+                    Buy Credits to Create More
+                  </Link>
+                ) : null}
+              </div>
+            ) : null}
             {/* Credit progress bar */}
             {(() => {
               const total = billingEntitlement?.usage?.limit || billingEntitlement?.monthlyVideoLimit || 0;
@@ -555,10 +671,10 @@ export default function DashboardPage() {
                 <>
                   <div className="flex items-center justify-between mb-2">
                     <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-secondary-light)' }}>
-                      Credits this month
+                      {creditLabel}
                     </span>
                     <span className="hidden sm:inline" style={{ fontSize: '11px', color: 'var(--text-dark-muted)' }}>
-                      {billingEntitlement?.expiresAt ? `Resets ${formatDate(billingEntitlement.expiresAt)}` : ''}
+                      {creditResetLabel}
                     </span>
                     <span className="sm:hidden" style={{ fontSize: '11px', color: 'var(--text-dark-muted)' }}>
                       {billingEntitlement?.planName || 'Paid'}
@@ -588,7 +704,7 @@ export default function DashboardPage() {
               <span className="mt-1 h-2 w-2 shrink-0 rounded-full" style={{ background: 'var(--color-amber)' }} />
               <div>
                 <p style={{ fontSize: '12px', fontWeight: 500, color: 'var(--color-amber)' }}>Running low on credits</p>
-                <p style={{ fontSize: '12px', color: 'var(--text-dark-secondary)' }}>You have {paidRemaining} credits left this month.</p>
+                <p style={{ fontSize: '12px', color: 'var(--text-dark-secondary)' }}>You have {paidRemaining} credit{paidRemaining === 1 ? "" : "s"} left.</p>
               </div>
             </div>
             <Link
@@ -601,26 +717,26 @@ export default function DashboardPage() {
           </section>
         ) : null}
 
-        <div className="grid gap-5 lg:grid-cols-[1.08fr_0.92fr] lg:items-start">
-          <section className="rounded-2xl border border-white/8 bg-zinc-950/80 p-4 md:p-6">
+        <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] lg:items-start">
+          <section className="min-w-0 overflow-hidden rounded-2xl border border-white/8 bg-zinc-950/80 p-4 md:p-6">
             {/* Step indicator — full on md+, active step only on mobile */}
             <div className="mb-6 hidden md:flex items-center text-[11px] uppercase tracking-widest">
               <span className="flex items-center gap-1" style={{ color: mode && hasUserSelected ? 'var(--color-success)' : mode ? 'var(--color-primary-hover)' : 'var(--text-dark-muted)', fontWeight: mode ? 500 : 400 }}>
                 {mode && hasUserSelected ? <Check size={10} strokeWidth={3} /> : null}
-                Template
+                Choose Video Type
               </span>
               <span className="mx-2 flex-1 h-px" style={{ background: 'var(--border-dark)' }} />
               <span className="flex items-center gap-1" style={{ color: selectedFile ? 'var(--color-success)' : (mode && hasUserSelected) ? 'var(--color-primary-hover)' : 'var(--text-dark-muted)', fontWeight: (mode && hasUserSelected) ? 500 : 400 }}>
                 {selectedFile ? <Check size={10} strokeWidth={3} /> : null}
-                Upload
+                Style/Layout
               </span>
               <span className="mx-2 flex-1 h-px" style={{ background: 'var(--border-dark)' }} />
               <span className="flex items-center gap-1" style={{ color: selectedFile ? 'var(--color-primary-hover)' : 'var(--text-dark-muted)', fontWeight: selectedFile ? 500 : 400 }}>
-                Settings
+                Upload Content
               </span>
               <span className="mx-2 flex-1 h-px" style={{ background: 'var(--border-dark)' }} />
               <span style={{ color: 'var(--text-dark-muted)', fontWeight: 400 }}>
-                Generate
+                Generate Video
               </span>
             </div>
             {/* Mobile: show only current step */}
@@ -629,24 +745,24 @@ export default function DashboardPage() {
                 <span className="flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-black text-white" style={{ background: 'var(--color-primary-hover)' }}>
                   {selectedFile ? '3' : (mode && hasUserSelected) ? '2' : '1'}
                 </span>
-                {selectedFile ? 'Settings' : (mode && hasUserSelected) ? 'Upload' : 'Template'}
+                {selectedFile ? 'Upload Content' : (mode && hasUserSelected) ? 'Style/Layout' : 'Choose Video Type'}
               </span>
               <span style={{ color: 'var(--text-dark-muted)' }}>
                 — Step {selectedFile ? '3' : (mode && hasUserSelected) ? '2' : '1'} of 4
               </span>
             </div>
 
-            <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div className="mb-6 flex min-w-0 flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div className="min-w-0">
-                <h2 className="text-xl font-black text-white sm:text-2xl">{hasUserSelected ? `Create a ${activeMode.label} Reel` : 'Choose a Template'}</h2>
+                <h2 className="text-xl font-black text-white sm:text-2xl">{hasUserSelected ? `Create a ${activeMode.label}` : 'Choose a Video Type'}</h2>
                 <p className="mt-2 max-w-lg text-sm leading-6 text-zinc-500">
-                  {hasUserSelected ? `Upload your content for ${activeMode.label}.` : 'Select a template below, then upload your content.'}
+                  {hasUserSelected ? `Upload your content for ${activeMode.label}.` : 'Select a video type below, then upload your content.'}
                 </p>
               </div>
               {hasUserSelected && (
-              <div className={`inline-flex items-center gap-2 rounded-xl border ${activeMode.border} ${activeMode.surface} px-3 py-2 text-xs font-black ${activeMode.color}`}>
+              <div className={`inline-flex max-w-full items-center gap-2 rounded-xl border ${activeMode.border} ${activeMode.surface} px-3 py-2 text-xs font-black ${activeMode.color}`}>
                 <ActiveModeIcon size={14} />
-                {activeMode.label}
+                <span className="min-w-0 truncate">{activeMode.label}</span>
               </div>
               )}
             </div>
@@ -654,7 +770,7 @@ export default function DashboardPage() {
             <div className="grid gap-3">
               {/* Category filter bar */}
               <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-                {TEMPLATE_CATEGORIES.map((cat) => (
+                {VIDEO_TYPE_CATEGORIES.map((cat) => (
                   <button
                     key={cat.id}
                     className="shrink-0 transition"
@@ -663,11 +779,11 @@ export default function DashboardPage() {
                       padding: '4px 12px',
                       fontSize: '12px',
                       fontWeight: 500,
-                      border: templateCategory === cat.id ? '1px solid var(--color-primary-tint)' : '1px solid transparent',
-                      background: templateCategory === cat.id ? 'var(--color-primary-subtle)' : 'var(--bg-raised)',
-                      color: templateCategory === cat.id ? 'var(--color-primary)' : 'var(--text-dark-muted)',
+                      border: videoTypeCategory === cat.id ? '1px solid var(--color-primary-tint)' : '1px solid transparent',
+                      background: videoTypeCategory === cat.id ? 'var(--color-primary-subtle)' : 'var(--bg-raised)',
+                      color: videoTypeCategory === cat.id ? 'var(--color-primary)' : 'var(--text-dark-muted)',
                     }}
-                    onClick={() => setTemplateCategory(cat.id)}
+                    onClick={() => setVideoTypeCategory(cat.id)}
                     type="button"
                   >
                     {cat.label}
@@ -675,36 +791,39 @@ export default function DashboardPage() {
                 ))}
               </div>
 
-              {/* Template cards - visual output selector */}
-              <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 xl:grid-cols-6">
-                {templateCards
-                  .filter((t) => templateCategory === "all" || t.category === templateCategory)
-                  .map((template) => {
-                  const isSelected = hasUserSelected && template.mode === mode;
+              {/* Video Type cards - visual output selector */}
+              <div className="grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+                {videoTypeCards
+                  .filter((t) => videoTypeCategory === "all" || t.category === videoTypeCategory)
+                  .map((videoType) => {
+                  const isSelected = hasUserSelected && videoType.mode === mode;
+                  const isComingSoon = Boolean("comingSoon" in videoType && videoType.comingSoon);
                   return (
                   <button
+                    aria-disabled={isComingSoon}
                     aria-pressed={isSelected}
-                    className="group relative flex flex-col items-center text-center"
+                    className={`group relative flex min-w-0 flex-col items-center text-center ${isComingSoon ? "cursor-not-allowed" : ""}`}
                     style={{
                       transition: 'all 0.15s ease',
+                      opacity: isComingSoon ? 0.68 : 1,
                       transform: isSelected ? 'scale(1.02)' : undefined,
                     }}
-                    key={template.id}
-                    onClick={() => chooseTemplateMode(template.mode)}
+                    key={videoType.id}
+                    onClick={() => chooseVideoTypeMode(videoType.mode)}
                     type="button"
-                    onMouseEnter={(e) => { if (!isSelected) e.currentTarget.style.transform = 'scale(1.02)'; }}
-                    onMouseLeave={(e) => { if (!isSelected) e.currentTarget.style.transform = ''; }}
+                    onMouseEnter={(e) => { if (!isSelected && !isComingSoon) e.currentTarget.style.transform = 'scale(1.02)'; }}
+                    onMouseLeave={(e) => { if (!isSelected && !isComingSoon) e.currentTarget.style.transform = ''; }}
                   >
                     {/* Phone frame with interaction states */}
                     <div
-                      className={`relative w-full aspect-[9/16] overflow-hidden rounded-lg ${!isSelected ? 'template-card-frame' : ''}`}
+                      className={`relative w-full aspect-[9/16] overflow-hidden rounded-lg ${!isSelected ? 'video-type-card-frame' : ''}`}
                       style={{
                         transition: 'all 0.15s ease',
-                        border: isSelected ? `2px solid ${template.accent}` : '1px solid rgba(255,255,255,0.1)',
+                        border: isSelected ? `2px solid ${videoType.accent}` : '1px solid rgba(255,255,255,0.1)',
                         boxShadow: isSelected
-                          ? `0 12px 34px ${template.accent}30`
+                          ? `0 12px 34px ${videoType.accent}30`
                           : '0 10px 28px rgba(0,0,0,0.25)',
-                        background: isSelected ? `${template.accent}16` : '#0F172A',
+                        background: isSelected ? `${videoType.accent}16` : '#0F172A',
                         padding: '4px',
                       }}
                     >
@@ -712,60 +831,69 @@ export default function DashboardPage() {
                       <div className="relative w-full h-full overflow-hidden rounded-md bg-black">
                         {/* Preview image */}
                         <Image
-                          alt={template.title}
+                          alt={videoType.title}
                           className="object-cover object-center transition duration-300 group-hover:scale-[1.02]"
                           fill
-                          sizes="(min-width: 1280px) 180px, (min-width: 1024px) 160px, (min-width: 640px) 150px, 30vw"
-                          src={template.image}
+                          sizes="(min-width: 640px) 25vw, 50vw"
+                          src={videoType.image}
                         />
 
                         {/* Bottom gradient */}
                         <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/88 via-black/35 to-transparent" />
+                        {isComingSoon ? (
+                          <div className="absolute inset-0 z-10 bg-slate-950/50 backdrop-blur-[1px]" />
+                        ) : null}
 
                         <span
                           className="absolute left-2 top-2 z-20 rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-wide text-slate-950"
-                          style={{ backgroundColor: template.accent }}
+                          style={{ backgroundColor: videoType.accent }}
                         >
-                          {template.proof}
+                          {videoType.proof}
                         </span>
+                        {isComingSoon ? (
+                          <div className="absolute inset-x-2 bottom-2 z-20 rounded-md border border-orange-200/25 bg-orange-950/80 px-2 py-1.5 text-center text-[10px] font-black uppercase tracking-[0.08em] text-orange-100">
+                            Coming soon
+                          </div>
+                        ) : null}
 
                         {/* Selected checkmark */}
                         {isSelected && (
-                          <div className="absolute right-2 top-2 z-20 flex h-5 w-5 items-center justify-center rounded-full text-slate-950 shadow-md" style={{ background: template.accent }}>
+                          <div className="absolute right-2 top-2 z-20 flex h-5 w-5 items-center justify-center rounded-full text-slate-950 shadow-md" style={{ background: videoType.accent }}>
                             <Check size={11} strokeWidth={3} />
                           </div>
                         )}
 
                         {/* Expand preview on hover */}
                         <div
-                          className="absolute right-2 bottom-6 z-20 flex h-5 w-5 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm border border-white/15 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:bg-black/70"
+                          className={`absolute right-2 bottom-6 z-20 flex h-5 w-5 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm border border-white/15 text-white opacity-100 transition-opacity hover:bg-black/70 md:opacity-0 md:group-hover:opacity-100 ${isComingSoon ? "cursor-not-allowed" : "cursor-pointer"}`}
                           onClick={(e) => {
                             e.stopPropagation();
-                            setPreviewTemplateId(template.id);
+                            if (isComingSoon) return;
+                            setPreviewVideoTypeId(videoType.id);
                           }}
                           role="button"
-                          aria-label={`Preview ${template.title}`}
+                          aria-label={`Preview ${videoType.title}`}
                         >
                           <Eye size={9} />
                         </div>
                       </div>
                     </div>
 
-                    {/* Category tag + template name below */}
+                    {/* Category tag + video type name below */}
                     <span className="mt-2.5 text-[10px] font-bold uppercase tracking-[0.08em]" style={{ color: 'var(--text-dark-muted)' }}>
-                      {template.tag}
+                      {videoType.tag}
                     </span>
-                    <p className="mt-0.5 leading-tight line-clamp-2" style={{ fontSize: '13px', fontWeight: 500, color: isSelected ? 'var(--color-primary-hover)' : 'var(--text-dark-secondary)' }}>
-                      {template.title}
+                    <p className="mt-0.5 w-full leading-tight line-clamp-2" style={{ fontSize: '13px', fontWeight: 500, color: isSelected ? 'var(--color-primary-hover)' : 'var(--text-dark-secondary)' }}>
+                      {videoType.title}
                     </p>
                   </button>
                   );
                 })}
               </div>
 
-              {/* Selected template summary + upload form — only shown after user clicks a template */}
+              {/* Selected video type summary + upload form — only shown after user clicks a video type */}
               {hasUserSelected && (<>
-              <div className={`rounded-xl border-2 ${activeMode.border} ${activeMode.surface} p-3 flex items-center gap-3 shadow-sm`}>
+              <div className={`min-w-0 rounded-xl border-2 ${activeMode.border} ${activeMode.surface} p-3 flex flex-wrap items-center gap-3 shadow-sm`}>
                 <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${activeMode.border} bg-black/30 ${activeMode.color}`}>
                   <ActiveModeIcon size={20} />
                 </div>
@@ -773,7 +901,7 @@ export default function DashboardPage() {
                   <p className="text-sm font-bold text-white truncate">{activeMode.title}</p>
                   <p className="text-[11px] text-zinc-400 truncate mt-0.5">{activeMode.bestResult}</p>
                 </div>
-                <div className="shrink-0 flex flex-col items-end gap-1">
+                <div className="ml-auto shrink-0 flex flex-col items-end gap-1">
                   <div className="rounded-md bg-brand-mint/10 border border-brand-mint/25 px-2 py-0.5 text-[10px] font-bold text-brand-mint">
                     1 credit
                   </div>
@@ -781,9 +909,156 @@ export default function DashboardPage() {
                 </div>
               </div>
 
+              {mode === "customAiReel" ? (
+                <div id="upload-section" className="scroll-mt-20 space-y-4">
+                  <div className="min-w-0 overflow-hidden rounded-xl border border-sky-300/20 bg-sky-300/[0.065] p-3 sm:p-4">
+                    <label className="grid gap-2" htmlFor="custom-ai-prompt">
+                      <span className="text-sm font-black text-white">What do you want in your video?</span>
+                      <textarea
+                        className="min-h-52 w-full resize-y rounded-xl border border-white/10 bg-black/35 px-4 py-3 text-sm font-bold leading-6 text-white outline-none transition placeholder:text-zinc-600 focus:border-sky-300/60"
+                        id="custom-ai-prompt"
+                        maxLength={1200}
+                        onChange={(event) => {
+                          setCustomAiPrompt(event.target.value);
+                          setJobStatus({state: "idle", message: ""});
+                        }}
+                        placeholder={'Example:\nCreate a 45-second reel. Start with big bold text: "Create Better Videos Faster".\nFrom 5 to 15 seconds, show my video clip.\nFrom 20 to 35 seconds, show my website screenshot.\nAt the end, show my logo and website: itnavideo.com.'}
+                        value={customAiPrompt}
+                      />
+                    </label>
+                    <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+                      <p className="text-xs font-bold leading-5 text-zinc-400">Describe your video in English. Mention timings, clips, images, and logo.</p>
+                      <span className="text-[11px] font-bold text-zinc-500">{customAiPrompt.length}/1200</span>
+                    </div>
+                  </div>
+
+                  {/* Upload grid: images, video, audio, logo */}
+                  <div className="grid min-w-0 grid-cols-1 gap-3 min-[430px]:grid-cols-2">
+                    <label className="upload-zone flex min-h-28 min-w-0 cursor-pointer flex-col items-center justify-center overflow-hidden px-3">
+                      <input
+                        accept="image/png,image/jpeg,image/jpg,image/webp"
+                        className="hidden"
+                        multiple
+                        onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                          addCustomAiImages(event.target.files);
+                          event.currentTarget.value = "";
+                        }}
+                        type="file"
+                      />
+                      <ImagePlus size={20} className="mb-1.5 text-sky-200" />
+                      <span className="text-center text-xs font-black text-white">Images / Screenshots</span>
+                      <span className="mt-0.5 text-center text-[10px] font-bold text-zinc-500">Up to 8 images</span>
+                    </label>
+
+                    <label className="upload-zone flex min-h-28 min-w-0 cursor-pointer flex-col items-center justify-center overflow-hidden px-3">
+                      <input
+                        accept="video/mp4,video/mov,video/webm,video/quicktime"
+                        className="hidden"
+                        onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                          const file = event.target.files?.[0] || null;
+                          if (!file) return;
+                          if (!file.type.startsWith("video/")) {
+                            setJobStatus({state: "error", message: "Video clip must be MP4, MOV, or WEBM."});
+                            event.currentTarget.value = "";
+                            return;
+                          }
+                          setCustomAiVideoFile(file);
+                          setCustomAiVideoMeta({});
+                          setJobStatus({state: "idle", message: ""});
+                          // Read duration
+                          const url = URL.createObjectURL(file);
+                          const vid = document.createElement("video");
+                          vid.preload = "metadata";
+                          vid.src = url;
+                          vid.onloadedmetadata = () => {
+                            setCustomAiVideoMeta({durationSeconds: Number.isFinite(vid.duration) ? Math.min(60, vid.duration) : undefined});
+                            URL.revokeObjectURL(url);
+                          };
+                          vid.onerror = () => URL.revokeObjectURL(url);
+                          event.currentTarget.value = "";
+                        }}
+                        type="file"
+                      />
+                      <Film size={20} className="mb-1.5 text-sky-200" />
+                      <span className="max-w-full truncate text-center text-xs font-black text-white">{customAiVideoFile ? customAiVideoFile.name : "Video clip"}</span>
+                      <span className="mt-0.5 text-center text-[10px] font-bold text-zinc-500">{customAiVideoFile ? `${customAiVideoMeta.durationSeconds ? `${Math.round(customAiVideoMeta.durationSeconds)}s` : "loaded"}` : "Optional MP4/MOV"}</span>
+                    </label>
+
+                    <label className="upload-zone flex min-h-28 min-w-0 cursor-pointer flex-col items-center justify-center overflow-hidden px-3">
+                      <input
+                        accept="audio/mpeg,audio/mp3,audio/wav,audio/aac,audio/m4a,audio/ogg,audio/*"
+                        className="hidden"
+                        onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                          const file = event.target.files?.[0] || null;
+                          if (!file) return;
+                          if (!file.type.startsWith("audio/")) {
+                            setJobStatus({state: "error", message: "Audio must be MP3, WAV, M4A, or AAC."});
+                            event.currentTarget.value = "";
+                            return;
+                          }
+                          setCustomAiAudioFile(file);
+                          setCustomAiAudioMeta({});
+                          setJobStatus({state: "idle", message: ""});
+                          // Read duration via Audio element
+                          const url = URL.createObjectURL(file);
+                          const aud = document.createElement("audio");
+                          aud.preload = "metadata";
+                          aud.src = url;
+                          aud.onloadedmetadata = () => {
+                            setCustomAiAudioMeta({durationSeconds: Number.isFinite(aud.duration) ? Math.min(60, aud.duration) : undefined});
+                            URL.revokeObjectURL(url);
+                          };
+                          aud.onerror = () => URL.revokeObjectURL(url);
+                          event.currentTarget.value = "";
+                        }}
+                        type="file"
+                      />
+                      <Mic size={20} className="mb-1.5 text-sky-200" />
+                      <span className="max-w-full truncate text-center text-xs font-black text-white">{customAiAudioFile ? customAiAudioFile.name : "Voiceover / audio"}</span>
+                      <span className="mt-0.5 text-center text-[10px] font-bold text-zinc-500">{customAiAudioFile ? `${customAiAudioMeta.durationSeconds ? `${Math.round(customAiAudioMeta.durationSeconds)}s` : "loaded"}` : "Optional MP3/WAV"}</span>
+                    </label>
+
+                    <label className="upload-zone flex min-h-28 min-w-0 cursor-pointer flex-col items-center justify-center overflow-hidden px-3">
+                      <input
+                        accept="image/png,image/jpeg,image/jpg,image/webp"
+                        className="hidden"
+                        onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                          chooseCustomAiLogo(event.target.files?.[0] || null);
+                          event.currentTarget.value = "";
+                        }}
+                        type="file"
+                      />
+                      <BadgeCheck size={20} className="mb-1.5 text-sky-200" />
+                      <span className="text-center text-xs font-black text-white">{customAiLogoFile ? "Change logo" : "Logo"}</span>
+                      <span className="mt-0.5 max-w-full truncate text-center text-[10px] font-bold text-zinc-500">{customAiLogoFile ? customAiLogoFile.name.slice(0, 18) : "Optional end screen"}</span>
+                    </label>
+                  </div>
+
+                  {/* Uploaded media list */}
+                  {(customAiImageFiles.length || customAiLogoFile || customAiVideoFile || customAiAudioFile) ? (
+                    <div className="grid min-w-0 gap-2 rounded-xl border border-white/10 bg-black/25 p-3">
+                      <p className="text-xs font-black uppercase tracking-[0.12em] text-zinc-500">Uploaded media</p>
+                      <div className="grid min-w-0 grid-cols-1 gap-2 min-[430px]:grid-cols-2 sm:grid-cols-3">
+                        {customAiVideoFile ? (
+                          <UploadMiniCard file={customAiVideoFile} label="Video clip" onRemove={() => { setCustomAiVideoFile(null); setCustomAiVideoMeta({}); }} />
+                        ) : null}
+                        {customAiAudioFile ? (
+                          <UploadMiniCard file={customAiAudioFile} label="Voiceover" onRemove={() => { setCustomAiAudioFile(null); setCustomAiAudioMeta({}); }} />
+                        ) : null}
+                        {customAiImageFiles.map((file, index) => (
+                          <UploadMiniCard file={file} key={`${file.name}-${index}`} label={`Image ${index + 1}`} onRemove={() => removeCustomAiImage(index)} />
+                        ))}
+                        {customAiLogoFile ? (
+                          <UploadMiniCard file={customAiLogoFile} label="Logo" onRemove={() => chooseCustomAiLogo(null)} />
+                        ) : null}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              ) : (
+              <div id="upload-section" className="scroll-mt-20">
               <label
-                id="upload-section"
-                className="upload-zone flex min-h-56 min-w-0 cursor-pointer flex-col items-center justify-center overflow-hidden sm:min-h-64"
+                className="upload-zone flex min-h-40 min-w-0 max-w-full cursor-pointer flex-col items-center justify-center overflow-hidden sm:min-h-64"
               >
                 <input
                   accept={activeMode.accept}
@@ -797,32 +1072,29 @@ export default function DashboardPage() {
                 <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl" style={{ background: 'rgba(37, 99, 235, 0.1)' }}>
                   <Upload size={28} style={{ color: 'var(--color-primary-hover)' }} />
                 </div>
-                <p className="text-sm font-medium text-white">{activeMode.uploadCta || 'Click to upload or drag & drop'}</p>
-                <p className="mt-2 text-xs" style={{ color: 'var(--text-dark-muted)' }}>{activeMode.supported} • Max 1 minute</p>
-                {selectedFile ? (
-                  <div className="mt-5 w-full rounded-md border border-white/10 bg-black/35 px-4 py-3 text-left">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-black text-white">{selectedFile.name}</p>
-                        <p className="mt-1 text-xs font-bold text-zinc-500">{fileMeta}</p>
-                      </div>
-                      <button
-                        className="shrink-0 rounded-md border border-red-400/25 bg-red-500/10 px-2.5 py-1.5 text-[11px] font-black text-red-100 transition hover:bg-red-500 hover:text-white"
-                        onClick={(event) => {
-                          event.preventDefault();
-                          event.stopPropagation();
-                          removeSelectedFile();
-                        }}
-                        type="button"
-                      >
-                        Remove
-                      </button>
+                <p className="max-w-full px-2 text-center text-sm font-medium leading-5 text-white">{selectedFile ? "Change selected file" : activeMode.uploadCta || 'Click to upload or drag & drop'}</p>
+                <p className="mt-2 max-w-full px-2 text-center text-xs leading-5" style={{ color: 'var(--text-dark-muted)' }}>{activeMode.supported} • Max 1 minute</p>
+              </label>
+              {selectedFile ? (
+                <div className="mt-3 w-full min-w-0 overflow-hidden rounded-lg border border-white/10 bg-black/35 p-3 text-left sm:p-4">
+                  <div className="grid min-w-0 gap-3 sm:flex sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-black text-white">{selectedFile.name}</p>
+                      <p className="mt-1 break-words text-xs font-bold leading-5 text-zinc-500">{fileMeta}</p>
                     </div>
+                    <button
+                      className="inline-flex w-full items-center justify-center rounded-md border border-red-400/25 bg-red-500/10 px-3 py-2 text-[11px] font-black text-red-100 transition hover:bg-red-500 hover:text-white sm:w-auto sm:shrink-0"
+                      onClick={removeSelectedFile}
+                      type="button"
+                    >
+                      Remove
+                    </button>
                   </div>
-                ) : null}
-                {selectedFile ? (
                   <SelectedMediaPreview file={selectedFile} mode={mode} />
-                ) : null}</label>
+                </div>
+              ) : null}
+              </div>
+              )}
 
               {mode === "compare" ? (
                 <CompareImageSlots
@@ -851,13 +1123,13 @@ export default function DashboardPage() {
               ) : null}
 
               {mode === "creatorBackgroundReplace" ? (
-                <div className="rounded-lg border border-orange-300/20 bg-orange-300/[0.06] p-4">
+                <div className="min-w-0 overflow-hidden rounded-lg border border-orange-300/20 bg-orange-300/[0.06] p-3 sm:p-4">
                   <p className="text-sm font-black text-white">Background image</p>
                   <p className="mt-1 text-xs font-bold leading-5 text-zinc-400">
                     Upload one image. We auto-fit it first, then you can adjust background and creator placement.
                   </p>
 
-                  <label className="upload-zone mt-4 flex min-h-28 cursor-pointer flex-col items-center justify-center">
+                  <label className="upload-zone mt-4 flex min-h-28 min-w-0 max-w-full cursor-pointer flex-col items-center justify-center overflow-hidden px-3">
                     <input
                       accept="image/png,image/jpeg,image/jpg,image/webp"
                       className="hidden"
@@ -875,7 +1147,7 @@ export default function DashboardPage() {
                       type="file"
                     />
                     <Upload size={18} className="mb-2 text-orange-200" />
-                    <span className="text-sm font-black text-white">
+                    <span className="max-w-full text-center text-sm font-black leading-5 text-white">
                       {creatorBackgroundImageFile ? "Change background image" : "Upload background image"}
                     </span>
                     {creatorBackgroundImageFile ? (
@@ -894,13 +1166,13 @@ export default function DashboardPage() {
                   ) : null}
 
                   {creatorBackgroundImageFile ? (
-                    <div className="mt-3 flex items-center justify-between gap-3 rounded-md border border-orange-300/20 bg-black/25 px-3 py-2">
+                    <div className="mt-3 grid min-w-0 max-w-full gap-3 overflow-hidden rounded-md border border-orange-300/20 bg-black/25 px-3 py-2 sm:flex sm:items-center sm:justify-between">
                       <div className="min-w-0">
                         <p className="truncate text-xs font-black text-white">{creatorBackgroundImageFile.name}</p>
                         <p className="mt-0.5 text-[10px] font-bold text-zinc-500">{formatBytes(creatorBackgroundImageFile.size)}</p>
                       </div>
                       <button
-                        className="shrink-0 rounded-md border border-red-400/25 bg-red-500/10 px-2.5 py-1.5 text-[11px] font-black text-red-100 transition hover:bg-red-500 hover:text-white"
+                        className="inline-flex w-full items-center justify-center rounded-md border border-red-400/25 bg-red-500/10 px-2.5 py-2 text-[11px] font-black text-red-100 transition hover:bg-red-500 hover:text-white sm:w-auto sm:shrink-0"
                         onClick={removeCreatorBackgroundImage}
                         type="button"
                       >
@@ -910,15 +1182,15 @@ export default function DashboardPage() {
                   ) : null}
 
                   {creatorBackgroundImageFile ? (
-                    <div className="mt-4 grid gap-4">
-                      <div className="grid gap-2">
-                        <div className="flex items-center justify-between">
-                          <p className="text-xs font-black uppercase tracking-[0.16em] text-zinc-500">Background</p>
-                          <div className="inline-flex overflow-hidden rounded-lg border border-white/10 bg-black/20">
+                    <div className="mt-4 grid min-w-0 gap-4 overflow-hidden">
+                      <div className="grid min-w-0 gap-2">
+                        <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
+                          <p className="min-w-0 text-xs font-black uppercase tracking-[0.12em] text-zinc-500">Background</p>
+                          <div className="inline-flex max-w-full shrink-0 overflow-hidden rounded-lg border border-white/10 bg-black/20">
                             {(["cover", "contain"] as const).map((fit) => (
                               <button
                                 key={fit}
-                                className={`px-3 py-1.5 text-[11px] font-black uppercase ${creatorBackgroundSettings.backgroundFit === fit ? "bg-orange-300 text-slate-950" : "text-zinc-400"}`}
+                                className={`px-2.5 py-1.5 text-[11px] font-black uppercase sm:px-3 ${creatorBackgroundSettings.backgroundFit === fit ? "bg-orange-300 text-slate-950" : "text-zinc-400"}`}
                                 onClick={() => setCreatorBackgroundSettings((current) => ({...current, backgroundFit: fit}))}
                                 type="button"
                               >
@@ -932,15 +1204,15 @@ export default function DashboardPage() {
                         <RangeControl label="Position Y" max={100} min={-100} step={1} value={creatorBackgroundSettings.backgroundY} onChange={(value) => setCreatorBackgroundSettings((current) => ({...current, backgroundY: value}))} />
                       </div>
 
-                      <div className="grid gap-2 border-t border-white/10 pt-4">
-                        <p className="text-xs font-black uppercase tracking-[0.16em] text-zinc-500">Creator</p>
+                      <div className="grid min-w-0 gap-2 border-t border-white/10 pt-4">
+                        <p className="text-xs font-black uppercase tracking-[0.12em] text-zinc-500">Creator</p>
                         <RangeControl label="Scale" max={1.6} min={0.55} step={0.01} value={creatorBackgroundSettings.creatorScale} onChange={(value) => setCreatorBackgroundSettings((current) => ({...current, creatorScale: value}))} />
                         <RangeControl label="Position X" max={160} min={-160} step={1} value={creatorBackgroundSettings.creatorX} onChange={(value) => setCreatorBackgroundSettings((current) => ({...current, creatorX: value}))} />
                         <RangeControl label="Position Y" max={220} min={-220} step={1} value={creatorBackgroundSettings.creatorY} onChange={(value) => setCreatorBackgroundSettings((current) => ({...current, creatorY: value}))} />
                       </div>
 
                       <button
-                        className="w-fit rounded-lg border border-white/10 px-3 py-2 text-xs font-black text-zinc-300 transition hover:bg-white/10"
+                        className="w-full rounded-lg border border-white/10 px-3 py-2 text-xs font-black text-zinc-300 transition hover:bg-white/10 sm:w-fit"
                         onClick={() => setCreatorBackgroundSettings(DEFAULT_CREATOR_BACKGROUND_SETTINGS)}
                         type="button"
                       >
@@ -955,11 +1227,10 @@ export default function DashboardPage() {
                 <div className="rounded-lg border border-blue-400/20 bg-blue-400/[0.06] p-4">
                   <p className="text-sm font-black text-white">Promo details</p>
                   <p className="mt-1 text-xs font-bold leading-5 text-zinc-400">
-                    Add your video thumbnail and title. Upload a promo clip below.
+                    Upload a promo clip above, then add the thumbnail and title.
                   </p>
 
-                  {/* Thumbnail upload */}
-                  <label className="upload-zone mt-4 flex min-h-28 cursor-pointer flex-col items-center justify-center">
+                  <label className="upload-zone mt-4 flex min-h-28 min-w-0 max-w-full cursor-pointer flex-col items-center justify-center overflow-hidden px-3">
                     <input
                       accept="image/png,image/jpeg,image/jpg,image/webp"
                       className="hidden"
@@ -977,8 +1248,8 @@ export default function DashboardPage() {
                       type="file"
                     />
                     <Upload size={18} className="mb-2 text-blue-300" />
-                    <span className="text-sm font-black text-white">
-                      {promoThumbnailFile ? "Change thumbnail" : "🖼️ Upload thumbnail"}
+                    <span className="max-w-full text-center text-sm font-black leading-5 text-white">
+                      {promoThumbnailFile ? "Change thumbnail" : "Upload thumbnail"}
                     </span>
                     {promoThumbnailFile ? (
                       <span className="mt-2 max-w-full truncate text-xs font-bold text-zinc-400">{promoThumbnailFile.name}</span>
@@ -988,15 +1259,14 @@ export default function DashboardPage() {
                   </label>
 
                   {promoThumbnailFile ? (
-                    <div className="mt-3 flex items-center gap-3">
-                      <div className="h-16 w-28 overflow-hidden rounded-lg border border-blue-400/25 bg-black">
+                    <div className="mt-3 grid min-w-0 gap-3 sm:flex sm:items-center">
+                      <div className="h-24 w-full min-w-0 overflow-hidden rounded-lg border border-blue-400/25 bg-black sm:h-16 sm:w-28">
                         <UploadedImagePreview alt="Thumbnail preview" className="h-full w-full object-cover" file={promoThumbnailFile} />
                       </div>
-                      <button className="text-xs font-black text-zinc-400 hover:text-white" onClick={removePromoThumbnail} type="button">Remove</button>
+                      <button className="inline-flex w-full items-center justify-center rounded-md border border-white/10 px-3 py-2 text-xs font-black text-zinc-300 hover:bg-white/10 hover:text-white sm:w-auto" onClick={removePromoThumbnail} type="button">Remove</button>
                     </div>
                   ) : null}
 
-                  {/* Text fields — only title and duration (channel/CTA/subs removed from template) */}
                   <div className="mt-4 grid gap-3">
                     <label className="grid gap-1.5">
                       <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Video title</span>
@@ -1010,31 +1280,6 @@ export default function DashboardPage() {
                       />
                       <span className="text-right" style={{ fontSize: '11px', color: promoTitle.length >= 75 ? 'var(--color-error)' : promoTitle.length >= 65 ? 'var(--color-amber)' : 'var(--text-dark-muted)' }}>{promoTitle.length}/80</span>
                     </label>
-                    <label className="grid gap-1.5">
-                      <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Video duration (optional)</span>
-                      <input
-                        className="form-input"
-                        onChange={(e) => setPromoVideoDuration(e.target.value)}
-                        placeholder="12:34 (MM:SS format)"
-                        type="text"
-                        value={promoVideoDuration}
-                      />
-                      <span className="text-[10px] text-zinc-600">Shows on thumbnail — viewers see video length</span>
-                    </label>
-
-                    {/* Background music toggle */}
-                    <label className="flex items-center gap-3 rounded-lg border border-white/8 bg-black/20 px-3 py-3 cursor-pointer hover:bg-white/[0.03] transition">
-                      <input
-                        type="checkbox"
-                        checked={promoBgMusic}
-                        onChange={(e) => setPromoBgMusic(e.target.checked)}
-                        className="h-4 w-4 rounded border-white/20 bg-black accent-blue-500"
-                      />
-                      <div>
-                        <p className="text-xs font-bold text-white">Add background music</p>
-                        <p className="text-[10px] text-zinc-500">OFF by default — your clip already has audio</p>
-                      </div>
-                    </label>
                   </div>
                 </div>
               ) : null}
@@ -1044,23 +1289,11 @@ export default function DashboardPage() {
                   <div>
                     <p className="text-sm font-black text-white">Caption controls</p>
                     <p className="mt-1 text-xs font-bold leading-5 text-zinc-400">
-                      Choose subtitle language, style, position, and colors. Your video stays full-screen.
+                      Choose caption style, position, and colors. Your video stays full-screen.
                     </p>
                   </div>
 
                   <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                    <label className="grid gap-2">
-                      <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Subtitle language</span>
-                      <select
-                        className="form-input"
-                        onChange={(event) => setSubtitleOutputLanguage(event.target.value as "hinglish" | "english")}
-                        value={subtitleOutputLanguage}
-                      >
-                        <option value="hinglish">Hinglish (Hindi + English)</option>
-                        <option value="english">English Only</option>
-                      </select>
-                    </label>
-
                     <label className="grid gap-2">
                       <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Caption style</span>
                     </label>
@@ -1111,7 +1344,7 @@ export default function DashboardPage() {
                       </select>
                     </label>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-3 min-[430px]:grid-cols-2">
                       <label className="grid gap-2">
                         <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Text</span>
                         <select
@@ -1166,7 +1399,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
               ) : null}
-              <div className={mode === "autoCaption" ? "hidden" : "rounded-lg border border-white/10 bg-white/[0.035] p-4"}>
+              <div className={mode === "autoCaption" || mode === "creatorBackgroundReplace" || mode === "customAiReel" ? "hidden" : "rounded-lg border border-white/10 bg-white/[0.035] p-4"}>
                 <label className="form-label-muted" htmlFor="reel-topic">
                   Reel topic/title
                 </label>
@@ -1189,24 +1422,6 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Subtitle language selector — all templates */}
-              {mode !== "autoCaption" ? (
-                <div className="rounded-lg border border-white/10 bg-white/[0.035] p-4">
-                  <label className="grid gap-2">
-                    <span className="text-sm font-black text-white">Subtitle language</span>
-                    <p className="text-xs font-bold leading-5 text-zinc-500">Choose what language your subtitles will be in.</p>
-                    <select
-                      className="mt-1 form-input"
-                      onChange={(event) => setSubtitleOutputLanguage(event.target.value as typeof subtitleOutputLanguage)}
-                      value={subtitleOutputLanguage}
-                    >
-                      <option value="hinglish">Hinglish (Hindi + English mix)</option>
-                      <option value="english">English Only</option>
-                    </select>
-                  </label>
-                </div>
-              ) : null}
-
               <div className="grid gap-3 sm:grid-cols-2">
                 <PolicyPill icon={Clock3} title="Max 1 minute" body="Longer uploads are trimmed to the first 60 seconds." />
                 <PolicyPill
@@ -1217,10 +1432,18 @@ export default function DashboardPage() {
               </div>
 
               {/* Pre-generation credit notice */}
-              <div className="flex items-center gap-2" style={{ background: 'var(--bg-raised)', border: '0.5px solid var(--border-dark)', borderRadius: '8px', padding: '6px 12px' }}>
+              <div className="flex min-w-0 items-start gap-2" style={{ background: 'var(--bg-raised)', border: '0.5px solid var(--border-dark)', borderRadius: '8px', padding: '8px 12px' }}>
                 <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: 'var(--color-primary-hover)' }} />
-                <p style={{ fontSize: '12px', color: 'var(--text-dark-secondary)' }}>
-                  This will use <span style={{ fontWeight: 600, color: 'var(--color-primary-hover)' }}>1 credit</span> — {billingEntitlement?.usage?.remaining ?? billingEntitlement?.monthlyVideoLimit ?? '—'} remaining
+                <p className="min-w-0 break-words leading-5" style={{ fontSize: '12px', color: 'var(--text-dark-secondary)' }}>
+                  {isFreeSignupCredit && !paidLimitComplete ? (
+                    <>
+                      Your <span style={{ fontWeight: 700, color: '#f9a8d4' }}>1 Free AI Video Credit</span> will be used only after the final MP4 succeeds.
+                    </>
+                  ) : (
+                    <>
+                      This will use <span style={{ fontWeight: 600, color: 'var(--color-primary-hover)' }}>1 credit</span> — {billingEntitlement?.usage?.remaining ?? billingEntitlement?.monthlyVideoLimit ?? '—'} remaining
+                    </>
+                  )}
                 </p>
               </div>
 
@@ -1235,7 +1458,7 @@ export default function DashboardPage() {
                   color: canPrepareReel ? '#FFFFFF' : 'var(--text-dark-muted)',
                   fontSize: '15px',
                   fontWeight: 600,
-                  padding: '14px 32px',
+                  padding: '14px 18px',
                   borderRadius: '10px',
                   width: '100%',
                   border: canPrepareReel ? 'none' : '1px solid rgba(255,255,255,0.08)',
@@ -1254,19 +1477,21 @@ export default function DashboardPage() {
                     : jobStatus.state === "rendering"
                       ? "Rendering HD video... please wait"
                       : paidLimitComplete
-                        ? "Plan limit complete"
-                        : "Create My Reel"}
+                        ? isFreeSignupCredit ? "Buy Credits to Create More" : "Plan limit complete"
+                        : isFreeSignupCredit ? "Create My Free Video" : "Create My Reel"}
               </button>
               <p className="text-center text-xs font-bold leading-5 text-zinc-500">
                 {renderInProgress
-                  ? "Please do not close this tab. Your video is being generated."
-                  : !selectedFile ? "Upload a file to continue. " : mode === "compare" && comparisonFiles.length !== 2 ? "Add at least two compare images. " : mode === "creatorBackgroundReplace" && !creatorBackgroundImageFile ? "Upload one background image. " : ""}
-                {!renderInProgress ? "First video starts at ₹9. Most reels finish in 3–5 minutes." : ""}
+                  ? "Please do not close this tab. Usually 2-10 minutes."
+                  : mode === "customAiReel" && customAiPrompt.trim().length < 12 ? "Describe your video to continue. " : mode !== "customAiReel" && !selectedFile ? "Upload a file to continue. " : mode === "compare" && comparisonFiles.length !== 2 ? "Add at least two compare images. " : mode === "creatorBackgroundReplace" && !creatorBackgroundImageFile ? "Upload one background image. " : ""}
+                {!renderInProgress ? isFreeSignupCredit && !paidLimitComplete ? "Your first AI video is free. Failed renders are not charged." : "Usually 2-10 minutes depending on video type and load." : ""}
               </p>
               <ProgressPreview mode={mode} />
               {paidLimitComplete ? (
                 <div className="rounded-lg border border-amber-200/20 bg-amber-200/[0.075] p-4 text-sm font-bold leading-6 text-amber-50">
-                  Your {billingEntitlement?.planName || "paid"} plan videos are complete for this billing period. Upgrade or wait for renewal to create more reels.
+                  {isFreeSignupCredit
+                    ? "Your free signup credit is used. Buy Credits to Create More."
+                    : `Your ${billingEntitlement?.planName || "paid"} plan videos are complete for this billing period. Upgrade or wait for renewal to create more reels.`}
                   <Link className="ml-2 text-brand-mint underline-offset-4 hover:underline" href="/pricing">
                     View plans
                   </Link>
@@ -1275,12 +1500,7 @@ export default function DashboardPage() {
               {jobStatus.state !== "idle" ? (
                 <RenderStatusStage
                   mode={mode}
-                  onPreview={() => setPreviewRender(makeCurrentPreviewRender(
-                    jobStatus.outputFile || "",
-                    mode,
-                    jobStatus.title || selectedFile?.name?.replace(/\.[^.]+$/, "") || "Current reel",
-                    jobStatus.design || "Auto from script",
-                  ))}
+                  onRetry={startRenderJob}
                   onReset={() => setJobStatus({state: "idle", message: ""})}
                   status={jobStatus}
                   title={jobStatus.title || selectedFile?.name || activeMode.title}
@@ -1290,21 +1510,21 @@ export default function DashboardPage() {
             </div>
           </section>
 
-          <aside className="space-y-6 lg:sticky lg:top-20">
+          <aside className="min-w-0 max-w-full space-y-6 overflow-hidden lg:sticky lg:top-20">
             <section id="your-videos" className="scroll-mt-24 p-4 md:p-6" style={{ background: 'var(--bg-raised)', border: '0.5px solid var(--border-dark)', borderRadius: '12px' }}>
-              <div className="mb-5 flex items-center justify-between gap-4">
-                <div>
+              <div className="mb-5 flex min-w-0 items-start justify-between gap-4">
+                <div className="min-w-0">
                   <p style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-secondary-light)' }}>Your Videos</p>
-                  <h2 className="mt-2 text-xl font-black text-white sm:text-2xl">Exports from every template</h2>
-                  <p className="mt-2 text-xs font-bold leading-5 text-zinc-500">Finished videos stay here for 48 hours, no matter which template created them.</p>
+                  <h2 className="mt-2 text-xl font-black text-white sm:text-2xl">Exports from every video type</h2>
+                  <p className="mt-2 text-xs font-bold leading-5 text-zinc-500">Finished videos stay here for 48 hours, no matter which video type created them.</p>
                 </div>
-                <FolderOpen size={22} style={{ color: 'var(--color-secondary-light)' }} />
+                <FolderOpen className="shrink-0" size={22} style={{ color: 'var(--color-secondary-light)' }} />
               </div>
               {recentRenders.length ? (
                 <div className="space-y-3">
                   {recentRenders.map((render) => (
-                    <article key={render.id} className="rounded-lg border border-white/10 bg-black/25 p-3">
-                      <div className="flex items-start justify-between gap-3">
+                    <article key={render.id} className="min-w-0 overflow-hidden rounded-lg border border-white/10 bg-black/25 p-3">
+                      <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
                         <div className="min-w-0">
                           <p className="truncate text-sm font-black text-white">{render.title}</p>
                           <p className="mt-1 text-xs font-bold text-zinc-500">
@@ -1315,19 +1535,11 @@ export default function DashboardPage() {
                           {getVideoStatusLabel(render.expiresAt)}
                         </span>
                       </div>
-                      <div className="mt-3 flex items-center justify-between gap-3 rounded-md border border-white/10 bg-white/[0.035] px-3 py-2">
+                      <div className="mt-3 flex min-w-0 flex-wrap items-center justify-between gap-2 rounded-md border border-white/10 bg-white/[0.035] px-3 py-2">
                         <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-zinc-500">Available</span>
                         <span className="text-xs font-black text-zinc-200">{formatTimeLeft(render.expiresAt)}</span>
                       </div>
-                      <div className="mt-3 grid gap-2 sm:grid-cols-3">
-                        <button
-                          className="inline-flex items-center justify-center gap-2 rounded-md border border-white/10 bg-white/[0.04] px-3 py-3 text-xs font-black text-zinc-200 transition hover:border-brand-mint/40 hover:text-brand-mint"
-                          onClick={() => setPreviewRender(render)}
-                          type="button"
-                        >
-                          <Eye size={14} />
-                          Preview
-                        </button>
+                      <div className="mt-3 grid gap-2 sm:grid-cols-2">
                         <a
                           className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-3 py-3 text-xs font-black text-black transition hover:bg-brand-mint"
                           href={render.outputFile}
@@ -1352,7 +1564,7 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 <div className="rounded-lg border border-dashed border-white/10 bg-black/20 px-4 py-6 text-sm font-bold leading-6 text-zinc-500">
-                  Your exported videos will appear here after final render. You will not need to remember which template created them.
+                  Your exported videos will appear here after final render. You will not need to remember which video type created them.
                 </div>
               )}
             </section>
@@ -1376,61 +1588,6 @@ export default function DashboardPage() {
           </aside>
         </div>
       </div>
-      {previewRender ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/82 px-4 py-6 backdrop-blur-sm">
-          <div className="flex max-h-[90vh] w-full max-w-sm flex-col overflow-hidden rounded-lg border border-white/10 bg-zinc-950 shadow-2xl sm:max-w-md">
-            <div className="flex shrink-0 items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
-              <div className="min-w-0">
-                <p className="truncate text-sm font-black text-white">{previewRender.title}</p>
-                <p className="mt-0.5 text-xs font-bold text-zinc-500">{formatTimeLeft(previewRender.expiresAt)}</p>
-              </div>
-              <button
-                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-white/10 text-zinc-300 transition hover:bg-white/10 hover:text-white"
-                onClick={() => setPreviewRender(null)}
-                type="button"
-              >
-                <X size={16} />
-              </button>
-            </div>
-            <div className="min-h-0 flex-1 overflow-y-auto">
-              <video
-                className="aspect-[9/16] w-full bg-black object-contain"
-                controls
-                playsInline
-                preload="metadata"
-                src={previewRender.outputFile}
-              />
-            </div>
-            <div className="grid shrink-0 gap-3 border-t border-white/10 p-4 sm:grid-cols-3">
-              <button
-                className="inline-flex items-center justify-center rounded-lg border border-white/10 px-4 py-3 text-sm font-black text-zinc-200 transition hover:bg-white/10"
-                onClick={() => setPreviewRender(null)}
-                type="button"
-              >
-                Close
-              </button>
-              <a
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-4 py-3 text-sm font-black text-black transition hover:bg-brand-mint"
-                href={previewRender.outputFile}
-                download={`itnavideo-${previewRender.mode || 'reel'}.mp4`}
-                rel="noreferrer"
-              >
-                <Download size={16} />
-                Download MP4
-              </a>
-              <button
-                className="inline-flex items-center justify-center gap-2 rounded-lg border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm font-black text-red-200 transition hover:bg-red-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
-                disabled={deletingRenderId === previewRender.id}
-                onClick={() => requestDeleteRender(previewRender)}
-                type="button"
-              >
-                <Trash2 size={16} />
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
       {deleteCandidate ? (
         <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/80 px-3 pb-4 pt-10 backdrop-blur-md sm:items-center sm:px-5 sm:pb-10">
           <div
@@ -1439,13 +1596,13 @@ export default function DashboardPage() {
             role="dialog"
           >
             <div className="relative border-b border-white/10 bg-[radial-gradient(circle_at_20%_0%,rgba(45,212,191,0.16),transparent_32%),radial-gradient(circle_at_92%_8%,rgba(248,113,113,0.18),transparent_34%)] px-5 pb-5 pt-5">
-              <div className="flex items-start gap-4">
+              <div className="flex min-w-0 items-start gap-3 sm:gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-red-300/25 bg-red-500/10 text-red-200">
                   <AlertTriangle size={22} />
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs font-black uppercase tracking-[0.2em] text-red-200">Delete render</p>
-                  <h2 className="mt-2 text-2xl font-black tracking-normal text-white">Remove this video?</h2>
+                  <h2 className="mt-2 text-xl font-black tracking-normal text-white sm:text-2xl">Remove this video?</h2>
                   <p className="mt-2 text-sm font-bold leading-6 text-zinc-400">
                     This only removes the render from your dashboard history on this device/account. Temporary MP4 links still expire automatically.
                   </p>
@@ -1483,17 +1640,17 @@ export default function DashboardPage() {
         </div>
       ) : null}
 
-      {/* Template Preview Modal */}
-      {previewTemplateId && (() => {
-        const previewTemplate = templateCards.find((t) => t.id === previewTemplateId);
-        if (!previewTemplate) return null;
-        const previewMode = modeConfig[previewTemplate.mode];
+      {/* Video Type Preview Modal */}
+      {previewVideoTypeId && (() => {
+        const previewVideoType = videoTypeCards.find((t) => t.id === previewVideoTypeId);
+        if (!previewVideoType) return null;
+        const previewMode = modeConfig[previewVideoType.mode];
         return (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4"
-            onClick={() => setPreviewTemplateId(null)}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-3 backdrop-blur-sm sm:p-4"
+            onClick={() => setPreviewVideoTypeId(null)}
             role="dialog"
-            aria-label={`Preview ${previewTemplate.title}`}
+            aria-label={`Preview ${previewVideoType.title}`}
           >
             <div
               className="relative flex max-h-[90vh] w-full max-w-sm flex-col overflow-hidden rounded-2xl border border-white/10 bg-zinc-900 shadow-2xl"
@@ -1502,7 +1659,7 @@ export default function DashboardPage() {
               {/* Close button */}
               <button
                 className="absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 border border-white/10 text-white hover:bg-black/80 transition"
-                onClick={() => setPreviewTemplateId(null)}
+                onClick={() => setPreviewVideoTypeId(null)}
                 type="button"
                 aria-label="Close preview"
               >
@@ -1510,25 +1667,27 @@ export default function DashboardPage() {
               </button>
 
               {/* Full reel preview image - 9:16 */}
-              <div className="relative aspect-[9/16] w-full overflow-hidden bg-black">
+              <div className="relative min-h-0 flex-1 overflow-hidden bg-black">
+                <div className="relative mx-auto aspect-[9/16] max-h-[56vh] w-full">
                 <Image
-                  alt={previewTemplate.title}
+                  alt={previewVideoType.title}
                   className="object-cover object-center"
                   fill
                   sizes="380px"
-                  src={previewTemplate.image}
+                  src={previewVideoType.image}
                   priority
                 />
+                </div>
                 {/* Bottom gradient */}
                 <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-zinc-900 to-transparent" />
               </div>
 
               {/* Info panel */}
-              <div className="p-4 border-t border-white/5 space-y-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 className="text-sm font-black text-white">{previewTemplate.title}</h3>
-                    <p className="text-[11px] text-zinc-400 mt-0.5">{previewTemplate.description}</p>
+              <div className="shrink-0 space-y-3 border-t border-white/5 p-3 sm:p-4">
+                <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-black text-white">{previewVideoType.title}</h3>
+                    <p className="text-[11px] text-zinc-400 mt-0.5">{previewVideoType.description}</p>
                   </div>
                   <div className="shrink-0 rounded-md bg-brand-mint/10 border border-brand-mint/25 px-2 py-0.5 text-[10px] font-bold text-brand-mint">
                     1 credit
@@ -1536,7 +1695,7 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-1.5">
-                  {previewTemplate.badges.map((badge) => (
+                  {previewVideoType.badges.map((badge) => (
                     <span key={badge} className="rounded-md bg-white/[0.06] border border-white/5 px-2 py-0.5 text-[10px] font-semibold text-zinc-300">
                       {badge}
                     </span>
@@ -1545,18 +1704,18 @@ export default function DashboardPage() {
 
                 <div className="rounded-lg bg-white/[0.03] border border-white/5 p-2.5">
                   <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1">Best for</p>
-                  <p className="text-xs text-zinc-300">{previewMode?.bestResult || previewTemplate.description}</p>
+                  <p className="text-xs text-zinc-300">{previewMode?.bestResult || previewVideoType.description}</p>
                 </div>
 
                 <button
                   className="w-full rounded-xl bg-brand-mint px-4 py-2.5 text-xs font-black text-black transition hover:bg-brand-mint/90"
                   onClick={() => {
-                    chooseTemplateMode(previewTemplate.mode);
-                    setPreviewTemplateId(null);
+                    chooseVideoTypeMode(previewVideoType.mode);
+                    setPreviewVideoTypeId(null);
                   }}
                   type="button"
                 >
-                  {previewTemplate.mode === mode ? '✓ Already Selected' : 'Use This Template'}
+                  {previewVideoType.mode === mode ? '✓ Already Selected' : 'Use This Video Type'}
                 </button>
               </div>
             </div>
@@ -1568,18 +1727,74 @@ export default function DashboardPage() {
   );
 
   async function startRenderJob() {
-    if (!selectedFile || !user) return;
+    if (!user) return;
+    if (renderRequestInFlightRef.current || renderInProgress) return;
+    renderRequestInFlightRef.current = true;
+    if (mode === "customAiReel") {
+      if (customAiPrompt.trim().length < 12) {
+        renderRequestInFlightRef.current = false;
+        setJobStatus({state: "error", message: "Please describe your video in simple English for best results."});
+        return;
+      }
+      const userId = user.id;
+      const hasMedia = customAiImageFiles.length || customAiLogoFile || customAiVideoFile || customAiAudioFile;
+      setJobStatus({state: "uploading", message: hasMedia ? "Uploading your custom reel media..." : "Preparing your text-only reel..."});
+      try {
+        const customAiImageKeys = await uploadVideoTypeImages({files: customAiImageFiles, mode: "customAiReel", userId});
+        const customAiLogoKey = customAiLogoFile
+          ? await uploadVideoTypeImage({file: customAiLogoFile, userId, mode: "customAiReel"})
+          : "";
+        const customAiVideoKey = customAiVideoFile
+          ? await uploadVideoTypeImage({file: customAiVideoFile, userId, mode: "customAiReel"})
+          : "";
+        const customAiAudioKey = customAiAudioFile
+          ? await uploadVideoTypeImage({file: customAiAudioFile, userId, mode: "customAiReel"})
+          : "";
+        await submitFinalRender({
+          mediaKey: "",
+          fileName: "custom-ai-reel",
+          contentType: "application/json",
+          userId,
+          comparisonImageKeys: [],
+          promoThumbnailKey: "",
+          creatorBackgroundImageKey: "",
+          customAiImageKeys,
+          customAiLogoKey,
+          customAiVideoKey,
+          customAiAudioKey,
+          customAiVideoDurationSeconds: customAiVideoMeta.durationSeconds,
+          customAiAudioDurationSeconds: customAiAudioMeta.durationSeconds,
+          overrideInputProps: {},
+        });
+      } catch (error) {
+        renderRequestInFlightRef.current = false;
+        setJobStatus({
+          state: "error",
+          message: formatNetworkError(error, "We could not generate this custom reel."),
+          failureStage: "upload",
+        });
+      }
+      return;
+    }
+
+    if (!selectedFile) {
+      renderRequestInFlightRef.current = false;
+      return;
+    }
     const validation = validateFileForMode(selectedFile, mode);
     if (validation) {
+      renderRequestInFlightRef.current = false;
       setJobStatus({state: "error", message: validation});
       return;
     }
 
     if (mode === "compare" && comparisonFiles.length !== 2) {
+      renderRequestInFlightRef.current = false;
       setJobStatus({state: "error", message: "Compare needs exactly two images: one left and one right."});
       return;
     }
     if (mode === "creatorBackgroundReplace" && !creatorBackgroundImageFile) {
+      renderRequestInFlightRef.current = false;
       setJobStatus({state: "error", message: "Creator Background Replace needs one background image."});
       return;
     }
@@ -1588,6 +1803,7 @@ export default function DashboardPage() {
     setJobStatus({state: "uploading", message: "Preparing your private upload..."});
 
     try {
+      const uploadStartedAt = performance.now();
       const presignResponse = await fetch("/api/media/presign", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
@@ -1601,8 +1817,10 @@ export default function DashboardPage() {
       });
       const presign = await readJsonPayload(presignResponse);
       if (!presignResponse.ok || !presign.ok) throw new Error(presign.error || "Could not prepare upload.");
+      const presignMs = Math.round(performance.now() - uploadStartedAt);
 
       setJobStatus({state: "uploading", message: "Uploading your file. Please keep this page open..."});
+      const mediaUploadStartedAt = performance.now();
       const uploadResponse = await fetch(presign.uploadUrl, {
         method: "PUT",
         headers: {"Content-Type": uploadContentType},
@@ -1611,27 +1829,41 @@ export default function DashboardPage() {
         throw new Error(formatNetworkError(error, "Media upload failed. Please retry on a stable connection."));
       });
       if (!uploadResponse.ok) throw new Error("Media upload failed.");
+      const mediaUploadMs = Math.round(performance.now() - mediaUploadStartedAt);
 
       const comparisonImageKeys = mode === "compare"
         ? await uploadComparisonImages({files: comparisonFiles, userId})
         : [];
 
+      const thumbnailUploadStartedAt = performance.now();
       const promoThumbnailKey = mode === "longVideoPromo" && promoThumbnailFile
-        ? await uploadTemplateImage({file: promoThumbnailFile, userId})
+        ? await uploadVideoTypeImage({file: promoThumbnailFile, userId, mode: "longVideoPromo"})
         : "";
+      const thumbnailUploadMs = mode === "longVideoPromo" ? Math.round(performance.now() - thumbnailUploadStartedAt) : 0;
+      if (mode === "longVideoPromo") {
+        console.log("[LONG_VIDEO_PROMO_CLIENT_UPLOAD]", {
+          presignMs,
+          mediaUploadMs,
+          thumbnailUploadMs,
+          mediaSizeBytes: selectedFile.size,
+          thumbnailSizeBytes: promoThumbnailFile?.size || 0,
+          durationSeconds: promoClipMeta.durationSeconds || null,
+          mediaAspect: promoClipMeta.mediaAspect || "unknown",
+        });
+      }
 
       const creatorBackgroundImageKey = mode === "creatorBackgroundReplace" && creatorBackgroundImageFile
-        ? await uploadTemplateImage({file: creatorBackgroundImageFile, userId})
+        ? await uploadVideoTypeImage({file: creatorBackgroundImageFile, userId, mode: "creatorBackgroundReplace"})
         : "";
 
-      // ── PREVIEW STEP: templates that support it show preview before render ──
-      // Templates with in-browser preview: autoCaption, compare, dynamicCreator
-      // All other templates go straight to render (existing behavior)
+      // ── PREVIEW STEP: video types that support it show preview before render ──
+      // Video types with in-browser preview: autoCaption, compare, dynamicCreator
+      // All other video types go straight to render (existing behavior)
       const PREVIEW_SUPPORTED_MODES: Mode[] = ["autoCaption", "compare", "dynamicCreator"];
       if (PREVIEW_SUPPORTED_MODES.includes(mode)) {
         setJobStatus({state: "starting", message: "Generating your preview…"});
         try {
-          const previewTemplateName = mode === "autoCaption"
+          const previewVideoTypeName = mode === "autoCaption"
             ? "AUTO_CAPTION_REEL"
             : mode === "compare"
               ? "comparisonImages"
@@ -1643,14 +1875,14 @@ export default function DashboardPage() {
               mediaKey: presign.key,
               fileName: selectedFile.name,
               contentType: uploadContentType,
-              templateName: previewTemplateName,
+              videoTypeName: previewVideoTypeName,
+              templateName: previewVideoTypeName,
               userId,
               comparisonImageKeys,
               compareLeftTitle: compareLeftTitle.trim(),
               compareRightTitle: compareRightTitle.trim(),
               creatorHandle: compareHandle.trim() || "@itnavideo",
               stickerStyle,
-              subtitleOutputLanguage,
               captionStyle,
               captionPosition,
               captionFontFamily,
@@ -1676,6 +1908,7 @@ export default function DashboardPage() {
             });
             setPreviewPlan(previewData.preview);
             setJobStatus({state: "idle", message: ""});
+            renderRequestInFlightRef.current = false;
             return; // Stop here — wait for user to confirm in PreviewEditor
           }
           // Preview failed — fall through to direct render
@@ -1685,7 +1918,7 @@ export default function DashboardPage() {
         }
       }
 
-      // Direct render path (no preview) — used for all other templates
+      // Direct render path (no preview) — used for all other video types
       // and as fallback when preview fails
       await submitFinalRender({
         mediaKey: presign.key,
@@ -1695,9 +1928,12 @@ export default function DashboardPage() {
         comparisonImageKeys,
         promoThumbnailKey,
         creatorBackgroundImageKey,
+        customAiImageKeys: [],
+        customAiLogoKey: "",
         overrideInputProps: {},
       });
     } catch (error) {
+      renderRequestInFlightRef.current = false;
       setJobStatus({
         state: "error",
         message: formatNetworkError(error, "We could not generate this reel."),
@@ -1706,7 +1942,7 @@ export default function DashboardPage() {
     }
   }
 
-  // Called either directly (non-preview templates) or from PreviewEditor confirm
+  // Called either directly (non-preview video types) or from PreviewEditor confirm
   async function submitFinalRender({
     mediaKey,
     fileName: renderFileName,
@@ -1715,6 +1951,12 @@ export default function DashboardPage() {
     comparisonImageKeys,
     promoThumbnailKey,
     creatorBackgroundImageKey,
+    customAiImageKeys,
+    customAiLogoKey,
+    customAiVideoKey = "",
+    customAiAudioKey = "",
+    customAiVideoDurationSeconds,
+    customAiAudioDurationSeconds,
     overrideInputProps,
   }: {
     mediaKey: string;
@@ -1724,10 +1966,17 @@ export default function DashboardPage() {
     comparisonImageKeys: string[];
     promoThumbnailKey: string;
     creatorBackgroundImageKey: string;
+    customAiImageKeys: string[];
+    customAiLogoKey: string;
+    customAiVideoKey?: string;
+    customAiAudioKey?: string;
+    customAiVideoDurationSeconds?: number;
+    customAiAudioDurationSeconds?: number;
     overrideInputProps: Record<string, unknown>;
   }) {
     setJobStatus({state: "starting", message: planningMessageForMode(mode)});
     try {
+      const jobStartMs = performance.now();
       const jobResponse = await fetch("/api/reels/jobs", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
@@ -1735,7 +1984,7 @@ export default function DashboardPage() {
           mediaKey,
           fileName: renderFileName,
           contentType: renderContentType,
-          mediaType: getFileMediaType(selectedFile!),
+          mediaType: mode === "customAiReel" ? (customAiVideoKey ? "video" : customAiAudioKey ? "audio" : "image") : getFileMediaType(selectedFile!),
           mode,
           topicTitle: topicTitle.trim(),
           userId,
@@ -1744,16 +1993,18 @@ export default function DashboardPage() {
           compareRightTitle: compareRightTitle.trim(),
           creatorHandle: compareHandle.trim() || "@itnavideo",
           stickerStyle: String(overrideInputProps.stickerStyle || stickerStyle),
-          // Use edited values from preview if available, else dashboard form values
-          captionStyle: String(overrideInputProps.captionStyle || captionStyle),
-          captionPosition: String(overrideInputProps.captionPosition || captionPosition),
-          captionFontFamily: String(overrideInputProps.fontFamily || captionFontFamily),
-          captionFontSize: String(overrideInputProps.fontSize || captionFontSize),
-          subtitleOutputLanguage,
-          captionTextColor: String(overrideInputProps.textColor || captionTextColor),
-          captionHighlightColor: String(overrideInputProps.highlightColor || captionHighlightColor),
-          captionBackgroundColor: String(overrideInputProps.backgroundColor || captionBackgroundColor),
-          captionShowBackground: typeof overrideInputProps.showBackground === "boolean" ? overrideInputProps.showBackground : captionBackgroundColor !== "",
+          // Use edited values from preview if available, else dashboard form values.
+          // Long Video Promo is intentionally thumbnail + title + promo media only.
+          ...(mode !== "longVideoPromo" ? {
+            captionStyle: String(overrideInputProps.captionStyle || captionStyle),
+            captionPosition: String(overrideInputProps.captionPosition || captionPosition),
+            captionFontFamily: String(overrideInputProps.fontFamily || captionFontFamily),
+            captionFontSize: String(overrideInputProps.fontSize || captionFontSize),
+            captionTextColor: String(overrideInputProps.textColor || captionTextColor),
+            captionHighlightColor: String(overrideInputProps.highlightColor || captionHighlightColor),
+            captionBackgroundColor: String(overrideInputProps.backgroundColor || captionBackgroundColor),
+            captionShowBackground: typeof overrideInputProps.showBackground === "boolean" ? overrideInputProps.showBackground : captionBackgroundColor !== "",
+          } : {}),
           videoLayout: mode === "autoCaption" ? "fullscreen" : String(overrideInputProps.videoLayout || videoLayout),
           progressStyle: mode === "autoCaption" ? "none" : String(overrideInputProps.progressStyle || progressStyle),
           wordClickSound: mode === "autoCaption" ? false : wordClickSound,
@@ -1761,20 +2012,18 @@ export default function DashboardPage() {
           stickerScale: overrideInputProps.stickerScale || undefined,
           stickerOffsetX: overrideInputProps.stickerOffsetX || undefined,
           stickerOffsetY: overrideInputProps.stickerOffsetY || undefined,
-          // Pass edited captions from preview directly so jobs route uses them
-          ...(overrideInputProps.captions ? { previewCaptions: overrideInputProps.captions } : {}),
+          // Pass edited captions from preview directly so jobs route uses them.
+          ...(mode !== "longVideoPromo" && overrideInputProps.captions ? { previewCaptions: overrideInputProps.captions } : {}),
           ...(overrideInputProps.scenes ? { previewScenes: overrideInputProps.scenes } : {}),
           ...(overrideInputProps.overlayTimeline ? { previewOverlayTimeline: overrideInputProps.overlayTimeline } : {}),
           ...(overrideInputProps.stickers ? { previewStickers: overrideInputProps.stickers } : {}),
           // Long Video Promo fields
           ...(mode === "longVideoPromo" ? {
             promoTitle: promoTitle.trim(),
-            channelName: promoChannelName.trim(),
-            subscriberCount: promoSubscriberCount.trim(),
-            ctaText: promoCtaText.trim() || "Watch full video →",
             thumbnailKey: promoThumbnailKey || undefined,
-            backgroundMusic: promoBgMusic,
-            videoDuration: promoVideoDuration.trim() || undefined,
+            durationSeconds: promoClipMeta.durationSeconds || undefined,
+            sourceDurationSeconds: promoClipMeta.durationSeconds || undefined,
+            mediaAspect: promoClipMeta.mediaAspect || undefined,
           } : {}),
           ...(mode === "creatorBackgroundReplace" ? {
             backgroundImageKey: creatorBackgroundImageKey || undefined,
@@ -1786,29 +2035,48 @@ export default function DashboardPage() {
             creatorX: creatorBackgroundSettings.creatorX,
             creatorY: creatorBackgroundSettings.creatorY,
           } : {}),
+          ...(mode === "customAiReel" ? {
+            customAiPrompt: customAiPrompt.trim(),
+            customAiImageKeys,
+            customAiLogoKey: customAiLogoKey || undefined,
+            customAiVideoKey: customAiVideoKey || undefined,
+            customAiAudioKey: customAiAudioKey || undefined,
+            customAiVideoDurationSeconds: customAiVideoDurationSeconds || undefined,
+            customAiAudioDurationSeconds: customAiAudioDurationSeconds || undefined,
+          } : {}),
         }),
       });
       const job = await readJsonPayload(jobResponse);
+      if (mode === "longVideoPromo") {
+        console.log("[LONG_VIDEO_PROMO_JOB_START]", {
+          httpStatus: job.httpStatus,
+          ok: Boolean(job.ok),
+          elapsedMs: Math.round(performance.now() - jobStartMs),
+          diagnostics: job.diagnostics || null,
+        });
+      }
       if (!jobResponse.ok || !job.ok) {
         const reasonCode = typeof job.reasonCode === "string" ? job.reasonCode : "";
         const fd = job._founderDiagnostics || {};
         const diagnosticParts = [
           fd.step ? `Step: ${fd.step}` : (job.step ? `Step: ${job.step}` : ""),
-          fd.reason ? `Reason: ${fd.reason}` : (reasonCode ? `Reason: ${reasonCode}` : ""),
+          reasonCode ? `Code: ${reasonCode}` : "",
           fd.mode ? `Mode: ${fd.mode}` : (job.debugMode ? `Mode: ${job.debugMode}` : ""),
-          fd.templateName ? `Template: ${fd.templateName}` : (job.debugTemplate ? `Template: ${job.debugTemplate}` : ""),
+          fd.videoTypeName ? `Video Type: ${fd.videoTypeName}` : fd.templateName ? `Video Type: ${fd.templateName}` : (job.debugVideoType ? `Video Type: ${job.debugVideoType}` : job.debugTemplate ? `Video Type: ${job.debugTemplate}` : ""),
           fd.compositionId ? `Composition: ${fd.compositionId}` : (job.debugComposition ? `Composition: ${job.debugComposition}` : ""),
           fd.httpStatus ? `HTTP: ${fd.httpStatus}` : (job.httpStatus ? `HTTP: ${job.httpStatus}` : ""),
           fd.detail ? `Detail: ${fd.detail}` : (job.detail ? `Detail: ${job.detail}` : ""),
           fd.raw ? `Raw: ${String(fd.raw).slice(0, 240)}` : (job.rawText ? `Raw: ${String(job.rawText).slice(0, 240)}` : ""),
         ].filter(Boolean);
 
+        const diagnostics = formatFounderDiagnostics(diagnosticParts);
         setJobStatus({
           state: "error",
-          message: sanitizeUserFacingStatus(job.error || job.message || "Could not start render.") + (isFounderDebugUser && diagnosticParts.length ? ` — ${diagnosticParts.join(" | ")}` : ""),
+          message: sanitizeUserFacingStatus(job.error || job.message || "Could not start render."),
           progress: getFailureProgress(reasonCode),
           failureStage: getFailureStage(reasonCode),
           reasonCode,
+          diagnostics: isFounderDebugUser ? diagnostics : undefined,
         });
         return;
       }
@@ -1867,11 +2135,16 @@ export default function DashboardPage() {
         return;
       }
 
+      const renderingMessage = mode === "longVideoPromo"
+        ? "Rendering your promo MP4. No transcription or caption planning is running."
+        : job.transcriptSource === "not-required"
+          ? "Rendering your MP4..."
+          : job.transcriptSource === "primary"
+            ? "Rendering your reel. This may take a few minutes..."
+            : `Rendering with backup planning. ${sanitizeUserFacingStatus(job.transcriptWarning || "")}`.trim();
       setJobStatus({
         state: "rendering",
-        message: job.transcriptSource === "primary"
-          ? "Rendering your reel. This may take a few minutes..."
-          : `Rendering with backup planning. ${sanitizeUserFacingStatus(job.transcriptWarning || "")}`.trim(),
+        message: renderingMessage,
         progress: 0,
         renderId: job.renderId,
         bucketName: job.bucketName,
@@ -1922,11 +2195,27 @@ export default function DashboardPage() {
         continue;
       }
       if (!response.ok || !status.ok) {
-        setJobStatus({state: "error", message: status.error || "Could not read render progress.", renderId, bucketName, ...meta});
+        setJobStatus({
+          state: "error",
+          message: status.error || "Could not read render progress.",
+          failureStage: "render",
+          diagnostics: isFounderDebugUser ? formatFounderDiagnostics(status.diagnostics || []) : undefined,
+          renderId,
+          bucketName,
+          ...meta,
+        });
         return;
       }
       if (status.errors?.length) {
-        setJobStatus({state: "error", message: sanitizeUserFacingStatus(status.errors[0]?.message || "Render failed."), renderId, bucketName, ...meta});
+        setJobStatus({
+          state: "error",
+          message: sanitizeUserFacingStatus(status.errors[0]?.message || "Render failed."),
+          failureStage: "render",
+          diagnostics: isFounderDebugUser ? formatFounderDiagnostics(status.diagnostics || []) : undefined,
+          renderId,
+          bucketName,
+          ...meta,
+        });
         return;
       }
       if (status.done) {
@@ -1981,18 +2270,6 @@ export default function DashboardPage() {
   }
 }
 
-function makeCurrentPreviewRender(outputFile: string, mode: Mode, title: string, design: string): RecentRender {
-  return {
-    id: "current-render",
-    title: title || "Current reel",
-    mode,
-    design,
-    outputFile,
-    createdAt: Date.now(),
-    expiresAt: Date.now() + RECENT_RENDER_RETENTION_MS,
-  };
-}
-
 function validateFileForMode(file: File, mode: Mode) {
   const type = file.type || "";
   const name = file.name.toLowerCase();
@@ -2005,25 +2282,18 @@ function validateFileForMode(file: File, mode: Mode) {
   }
   if ((mode === "creatorBackgroundReplace" || mode === "autoCaption" || mode === "dynamicCreator") && !isVideo) {
     if (mode === "creatorBackgroundReplace") return "Creator Background Replace needs a video file. Please upload an MP4/MOV video.";
-    if (mode === "dynamicCreator") return "Dynamic Creator Reel needs a video file. Please upload an MP4/MOV video.";
-    return "Auto Caption Reel needs a video file. Please upload an MP4/MOV video.";
+    if (mode === "dynamicCreator") return "Creator Reel Video needs a video file. Please upload an MP4/MOV video.";
+    return "Auto Caption Video needs a video file. Please upload an MP4/MOV video.";
   }
   if (mode === "compare" && !isAudio) {
     return "Compare needs an audio voiceover plus 2 comparison photos.";
   }
-  if ((mode === "autoDraw" || mode === "longVideoPromo") && !isAudio && !isVideo) {
+  if (mode === "longVideoPromo" && !isVideo) {
+    return "Long Video Promo needs a short MP4/MOV/WEBM video clip.";
+  }
+  if (mode === "autoDraw" && !isAudio && !isVideo) {
     return `${modeConfig[mode].title} needs an audio or video file with clear speech.`;
   }
-  return "";
-}
-
-function validateComparisonImage(file: File) {
-  const type = file.type || "";
-  const name = file.name.toLowerCase();
-  const isImage = type.startsWith("image/") || /\.(jpg|jpeg|png|webp)$/i.test(name);
-  const maxBytes = 25 * 1024 * 1024;
-  if (!isImage) return "Compare images must be JPG, PNG, or WEBP files.";
-  if (file.size > maxBytes) return "Each Compare image must be under 25MB.";
   return "";
 }
 
@@ -2093,17 +2363,18 @@ async function uploadComparisonImages({files, userId}: {files: File[]; userId: s
 }
 
 function planningMessageForMode(mode: Mode) {
-  if (mode === "autoCaption") return "Preparing styled subtitles for your reel...";
+  if (mode === "autoCaption") return "Preparing styled captions for your reel...";
   if (mode === "compare") return "Preparing left/right comparison scenes...";
   if (mode === "creatorBackgroundReplace") return "Preparing your background replacement render...";
   if (mode === "autoDraw") return "Creating whiteboard scenes from your voiceover...";
   if (mode === "longVideoPromo") return "Preparing your promo reel...";
   if (mode === "dynamicCreator") return "Preparing dynamic text and pacing...";
+  if (mode === "customAiReel") return "Planning your custom reel timeline...";
   return "Choosing scenes, text, and visuals...";
 }
 
 
-async function uploadTemplateImage({file, userId}: {file: File; userId: string}) {
+async function uploadVideoTypeImage({file, mode, userId}: {file: File; mode: Mode; userId: string}) {
   const contentType = getUploadContentType(file);
 
   const presignResponse = await fetch("/api/media/presign", {
@@ -2113,7 +2384,7 @@ async function uploadTemplateImage({file, userId}: {file: File; userId: string})
       fileName: file.name,
       contentType,
       fileSize: file.size,
-      mode: "longVideoPromo",
+      mode,
       userId,
     }),
   });
@@ -2133,15 +2404,23 @@ async function uploadTemplateImage({file, userId}: {file: File; userId: string})
 
   return presign.key as string;
 }
+
+async function uploadVideoTypeImages({files, mode, userId}: {files: File[]; mode: Mode; userId: string}) {
+  const keys: string[] = [];
+  for (const file of files) {
+    keys.push(await uploadVideoTypeImage({file, mode, userId}));
+  }
+  return keys;
+}
 function RenderStatusStage({
   mode,
-  onPreview,
+  onRetry,
   onReset,
   status,
   title,
 }: {
   mode: Mode;
-  onPreview: () => void;
+  onRetry: () => void;
   onReset: () => void;
   status: JobStatus;
   title: string;
@@ -2157,7 +2436,7 @@ function RenderStatusStage({
 
   return (
     <div
-      className={`relative overflow-hidden rounded-xl border p-4 shadow-[0_24px_90px_rgba(0,0,0,0.34)] sm:p-5 ${
+      className={`relative min-w-0 max-w-full overflow-hidden rounded-xl border p-3 shadow-[0_24px_90px_rgba(0,0,0,0.34)] sm:p-5 ${
         failed
           ? "border-red-300/24 bg-red-500/[0.055]"
           : ready
@@ -2165,44 +2444,68 @@ function RenderStatusStage({
             : "border-brand-mint/24 bg-[#061011]"
       }`}
     >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_8%,rgba(124,58,237,0.22),transparent_30%),radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.09),transparent_26%),linear-gradient(135deg,rgba(255,255,255,0.07),transparent_48%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_8%,rgba(37,99,235,0.22),transparent_30%),radial-gradient(circle_at_82%_18%,rgba(6,182,212,0.13),transparent_28%),radial-gradient(circle_at_76%_78%,rgba(255,61,154,0.10),transparent_26%),linear-gradient(135deg,rgba(255,255,255,0.07),transparent_48%)]" />
       <div className="pointer-events-none absolute inset-0 opacity-[0.18] [background-image:linear-gradient(rgba(255,255,255,0.14)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.12)_1px,transparent_1px)] [background-size:34px_34px]" />
+      {working ? (
+        <>
+          <div className="render-sweep pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+          <div className="render-orbit pointer-events-none absolute right-6 top-6 hidden h-24 w-24 rounded-full border border-cyan-200/10 sm:block">
+            <span className="absolute left-1/2 top-0 h-2 w-2 -translate-x-1/2 rounded-full bg-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.8)]" />
+          </div>
+        </>
+      ) : null}
       {renderParticles.map((particle) => (
         <span
           aria-hidden="true"
-          className="absolute h-1.5 w-1.5 rounded-full bg-brand-mint/70 shadow-[0_0_18px_rgba(124,58,237,0.75)] motion-safe:animate-pulse"
+          className="render-float absolute h-1.5 w-1.5 rounded-full bg-cyan-200/80 shadow-[0_0_18px_rgba(34,211,238,0.75)] motion-safe:animate-pulse"
           key={`${particle.left}-${particle.top}`}
           style={{left: particle.left, top: particle.top, animationDelay: particle.delay}}
         />
       ))}
 
-      <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="relative flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex min-w-0 items-start gap-3">
-          <div className={`grid h-12 w-12 shrink-0 place-items-center rounded-lg border ${meta.iconFrame}`}>
+          <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg border sm:h-12 sm:w-12 ${meta.iconFrame}`}>
             <StageIcon className={working ? "motion-safe:animate-pulse" : ""} size={22} />
           </div>
           <div className="min-w-0">
-            <p className={`text-xs font-black uppercase tracking-[0.2em] ${meta.kickerClass}`}>{meta.kicker}</p>
-            <h3 className="mt-1 text-xl font-black tracking-normal text-white sm:text-2xl">{meta.title}</h3>
-            <p className="mt-2 max-w-xl text-sm font-bold leading-6 text-zinc-400">{status.message || meta.body}</p>
+            <p className={`text-[11px] font-black uppercase tracking-[0.14em] sm:text-xs sm:tracking-[0.2em] ${meta.kickerClass}`}>{meta.kicker}</p>
+            <h3 className="mt-1 max-w-full truncate text-lg font-black tracking-normal text-white sm:text-2xl">{meta.title}</h3>
+            <p className="mt-2 max-w-full whitespace-normal break-words text-sm font-bold leading-6 text-zinc-400">{status.message || meta.body}</p>
+            {failed && status.diagnostics?.length ? (
+              <details className="mt-3 max-w-full overflow-hidden rounded-lg border border-red-300/20 bg-black/25 text-red-50">
+                <summary className="cursor-pointer px-3 py-2 text-xs font-black uppercase tracking-[0.1em] text-red-100">
+                  View details
+                </summary>
+                <div className="max-w-full overflow-x-auto border-t border-red-300/15 px-3 py-2">
+                  {status.diagnostics.map((item, index) => (
+                    <code className="block whitespace-pre-wrap break-words py-1 text-[11px] leading-5 text-red-100/80" key={`${item}-${index}`}>
+                      {item}
+                    </code>
+                  ))}
+                </div>
+              </details>
+            ) : null}
           </div>
         </div>
-        <div className={`inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border px-3 py-2 text-xs font-black uppercase tracking-[0.14em] ${meta.badgeClass}`}>
+        <div className={`inline-flex w-fit max-w-full shrink-0 items-center justify-center gap-2 rounded-lg border px-3 py-2 text-xs font-black uppercase tracking-[0.12em] ${meta.badgeClass}`}>
           {working ? <Loader2 className="motion-safe:animate-spin" size={14} /> : null}
           {failed ? "Needs retry" : ready ? "Ready" : `${percentage}%`}
         </div>
       </div>
 
-      <div className="relative mt-5 grid gap-5 lg:grid-cols-[0.96fr_1.04fr]">
-        <div className="relative min-h-52 overflow-hidden rounded-lg border border-white/10 bg-black/35 p-4">
+      <div className="relative mt-5 grid min-w-0 max-w-full gap-4 sm:gap-5 lg:grid-cols-[minmax(0,0.96fr)_minmax(0,1.04fr)]">
+        <div className="relative min-h-52 min-w-0 max-w-full overflow-hidden rounded-lg border border-white/10 bg-black/35 p-3 sm:p-4">
           <div className="absolute inset-x-4 top-5 h-px bg-gradient-to-r from-transparent via-brand-mint/70 to-transparent" />
           <div className="absolute inset-y-6 left-1/2 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent" />
-          <div className="relative mx-auto flex aspect-[9/16] h-56 max-h-full flex-col overflow-hidden rounded-xl border border-white/15 bg-[#06090d] p-2 shadow-[0_20px_70px_rgba(0,0,0,0.55)]">
+          <div className="relative mx-auto flex aspect-[9/16] h-48 max-h-full flex-col overflow-hidden rounded-xl border border-white/15 bg-[#06090d] p-2 shadow-[0_20px_70px_rgba(0,0,0,0.55)] min-[390px]:h-56">
+            {working ? <div className="render-scanline pointer-events-none absolute inset-x-0 z-20 h-12 bg-gradient-to-b from-transparent via-cyan-200/18 to-transparent" /> : null}
             <div className="relative h-[36%] overflow-hidden rounded-lg border border-white/10 bg-[radial-gradient(circle_at_50%_40%,rgba(124,58,237,0.26),transparent_38%),linear-gradient(135deg,rgba(255,255,255,0.12),rgba(255,255,255,0.035))]">
+              <div className="render-shimmer pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/12 to-transparent" />
               <div className="absolute inset-x-4 top-1/2 flex -translate-y-1/2 items-center justify-center gap-1.5">
                 {renderPreviewBars.map((height, index) => (
                   <span
-                    className="w-1.5 rounded-full bg-brand-mint/85 shadow-[0_0_14px_rgba(124,58,237,0.55)] motion-safe:animate-pulse"
+                    className="w-1.5 rounded-full bg-cyan-200/85 shadow-[0_0_14px_rgba(34,211,238,0.55)] motion-safe:animate-pulse"
                     key={`render-bar-${index}`}
                     style={{
                       animationDelay: `${index * 0.08}s`,
@@ -2218,13 +2521,13 @@ function RenderStatusStage({
                 <div className="h-2 w-2/3 rounded-full bg-white/70" />
                 <div className="mt-2 h-1.5 w-1/2 rounded-full bg-brand-mint/70" />
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid min-w-0 grid-cols-2 gap-2">
                 <div className="rounded-md bg-white/[0.08]" />
                 <div className="rounded-md bg-white/[0.055]" />
               </div>
               <div className="rounded-lg border border-white/10 bg-white/[0.055] p-2">
-                <div className="h-1.5 w-3/4 rounded-full bg-white/50" />
-                <div className="mt-2 h-1.5 w-1/3 rounded-full bg-brand-mint/60" />
+                <div className="render-caption-rise h-1.5 w-3/4 rounded-full bg-white/50" />
+                <div className="render-caption-rise mt-2 h-1.5 w-1/3 rounded-full bg-brand-mint/60 [animation-delay:0.18s]" />
               </div>
             </div>
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
@@ -2234,16 +2537,16 @@ function RenderStatusStage({
               />
             </div>
           </div>
-          <div className="pointer-events-none absolute inset-x-4 bottom-4 flex items-center justify-between text-[10px] font-black uppercase tracking-[0.18em] text-zinc-500">
-            <span>{modeConfig[toActiveDashboardMode(mode)].label}</span>
-            <span>{title.replace(/\.[^.]+$/, "").slice(0, 18) || "Reel"}</span>
+          <div className="pointer-events-none absolute inset-x-3 bottom-4 flex min-w-0 items-center justify-between gap-2 text-[10px] font-black uppercase tracking-[0.12em] text-zinc-500 sm:inset-x-4">
+            <span className="min-w-0 truncate">{modeConfig[toActiveDashboardMode(mode)].label}</span>
+            <span className="min-w-0 truncate text-right">{title.replace(/\.[^.]+$/, "").slice(0, 18) || "Reel"}</span>
           </div>
         </div>
 
         <div className="flex min-w-0 flex-col justify-between gap-5">
           <div>
-            <div className="flex items-center justify-between gap-3 text-xs font-black uppercase tracking-[0.16em] form-label-muted">
-              <span>Live render timeline</span>
+            <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 text-xs font-black uppercase tracking-[0.12em] form-label-muted">
+              <span className="min-w-0">Live render timeline</span>
               <span className="text-brand-mint">{failed ? "Paused" : ready ? "Complete" : "Active"}</span>
             </div>
             <div className="mt-3 h-3 overflow-hidden rounded-full border border-white/10 bg-black/45">
@@ -2256,7 +2559,7 @@ function RenderStatusStage({
             </div>
           </div>
 
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div className="grid min-w-0 gap-2 sm:grid-cols-2">
             {steps.map((step) => {
               const StepIcon = step.icon;
               return (
@@ -2270,9 +2573,9 @@ function RenderStatusStage({
                   }`}
                   key={step.label}
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex min-w-0 items-center gap-2">
                     <StepIcon className={step.active && working ? "text-brand-mint motion-safe:animate-pulse" : step.done ? "text-brand-mint" : ""} size={15} />
-                    <p className="text-xs font-black uppercase tracking-[0.13em]">{step.label}</p>
+                    <p className="min-w-0 break-words text-xs font-black uppercase tracking-[0.1em]">{step.label}</p>
                   </div>
                   <p className="mt-2 text-xs font-bold leading-5 text-zinc-500">{step.detail}</p>
                 </div>
@@ -2281,15 +2584,7 @@ function RenderStatusStage({
           </div>
 
           {status.outputFile ? (
-            <div className="grid gap-3 sm:grid-cols-2">
-              <button
-                className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-brand-mint/35 bg-brand-mint/[0.13] px-4 py-3 text-sm font-black text-brand-mint transition hover:bg-brand-mint hover:text-black"
-                onClick={onPreview}
-                type="button"
-              >
-                <Eye size={16} />
-                Preview
-              </button>
+            <div className="grid gap-3">
               <a
                 className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-white px-4 py-3 text-sm font-black text-black transition hover:bg-brand-mint"
                 href={status.outputFile}
@@ -2302,15 +2597,22 @@ function RenderStatusStage({
             </div>
           ) : failed ? (
             <div className="space-y-3">
-              <p className="rounded-lg border border-red-300/20 bg-red-500/10 px-4 py-3 text-sm font-bold leading-6 text-red-100">
-                Your upload is still selected. Tap Retry below to try again without uploading the file again.
+              <p className="max-w-full whitespace-normal break-words rounded-lg border border-red-300/20 bg-red-500/10 px-3 py-3 text-sm font-bold leading-6 text-red-100 sm:px-4">
+                Your upload is still selected. Failed renders are not charged, so your credit stays safe. Close this message, then retry after fixing the issue.
               </p>
               <button
                 type="button"
-                onClick={onReset}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-[10px] px-8 py-3.5 text-[15px] font-semibold text-white transition brand-btn-primary-dark"
+                onClick={onRetry}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-[10px] bg-white px-4 py-3.5 text-[15px] font-black text-black transition hover:bg-brand-mint"
               >
-                ↻ Retry — Create My Reel
+                Retry
+              </button>
+              <button
+                type="button"
+                onClick={onReset}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-[10px] border border-white/10 px-4 py-3.5 text-[15px] font-semibold text-white transition hover:bg-white/10 sm:px-8"
+              >
+                ↻ Close error
               </button>
             </div>
           ) : (
@@ -2352,7 +2654,7 @@ function getRenderStageMeta(status: JobStatus, mode: Mode): {
 } {
   if (status.state === "ready") {
     return {
-      body: "Your final MP4 is ready to preview or download.",
+      body: "Your final MP4 is ready to download. The credit is counted only because the render succeeded.",
       badgeClass: "border-brand-mint/35 bg-brand-mint/[0.12] text-brand-mint",
       icon: CheckCircle2,
       iconFrame: "border-brand-mint/35 bg-brand-mint/[0.13] text-brand-mint",
@@ -2363,7 +2665,7 @@ function getRenderStageMeta(status: JobStatus, mode: Mode): {
   }
   if (status.state === "error") {
     return {
-      body: "We could not generate this reel. You can retry with the same file or choose a better matching template.",
+      body: "We could not generate this reel. Failed renders are not charged, so your credit stays safe.",
       badgeClass: "border-red-300/25 bg-red-500/10 text-red-100",
       icon: AlertTriangle,
       iconFrame: "border-red-300/25 bg-red-500/10 text-red-100",
@@ -2386,52 +2688,37 @@ function getRenderStageMeta(status: JobStatus, mode: Mode): {
   if (status.state === "starting") {
     return {
       body: mode === "compare"
-        ? "Listening to your audio and preparing image comparison timing."
+        ? "AI is transcribing your audio and preparing image comparison timing."
         : mode === "creatorBackgroundReplace"
           ? "Preparing the creator cutout and uploaded background."
-          : "Listening to your audio and building the reel structure.",
+          : mode === "longVideoPromo"
+            ? "Preparing your thumbnail, title, and promo clip layout."
+          : mode === "customAiReel"
+            ? "Turning your instructions into a structured visual timeline."
+            : "AI is transcribing and building the reel structure.",
       badgeClass: "border-brand-mint/30 bg-brand-mint/[0.12] text-brand-mint",
       icon: Layers3,
       iconFrame: "border-brand-mint/35 bg-brand-mint/[0.13] text-brand-mint",
-      kicker: mode === "compare" ? "Compare planning" : mode === "creatorBackgroundReplace" ? "Background prep" : "Transcribing",
+      kicker: mode === "compare" ? "AI is transcribing" : mode === "creatorBackgroundReplace" ? "Background prep" : mode === "longVideoPromo" ? "Promo setup" : mode === "customAiReel" ? "Timeline planning" : "AI is transcribing",
       kickerClass: "text-brand-mint",
-      title: mode === "compare" ? "Building your comparison" : mode === "creatorBackgroundReplace" ? "Preparing background replace" : "Listening to your audio",
+      title: mode === "compare" ? "Building your comparison" : mode === "creatorBackgroundReplace" ? "Preparing background replace" : mode === "longVideoPromo" ? "Preparing your promo reel" : mode === "customAiReel" ? "Planning your custom reel" : "AI is transcribing",
     };
   }
   return {
-    body: "Rendering your reel. Most videos complete in 3–5 minutes. In some cases, it may take up to 10 minutes. Please wait while we prepare your final HD video.",
+    body: mode === "longVideoPromo"
+      ? "Exporting your thumbnail, title, and promo clip. No transcription or captions are running."
+      : "Rendering your final MP4. Usually 2-10 minutes depending on video length, captions, and current render load.",
     badgeClass: "border-brand-mint/30 bg-brand-mint/[0.12] text-brand-mint",
     icon: Clapperboard,
     iconFrame: "border-brand-mint/35 bg-brand-mint/[0.13] text-brand-mint",
-    kicker: "Rendering in progress",
+    kicker: "Rendering final MP4",
     kickerClass: "text-brand-mint",
-    title: "Creating your HD video",
+    title: "Rendering final MP4",
   };
 }
 
 function getRenderSteps(progress: number, status: JobStatus, mode: Mode) {
-  const definitions = [
-    {label: "Upload", detail: "Uploading your file.", threshold: 0.08, icon: Upload},
-    {
-      label: mode === "compare" ? "Compare beats" : mode === "creatorBackgroundReplace" ? "Background" : "Transcript",
-      detail: mode === "compare" ? "Timing left/right comparison." : mode === "creatorBackgroundReplace" ? "Preparing the uploaded image and creator layer." : "Using real speech timing.",
-      threshold: 0.24,
-      icon: Layers3,
-    },
-    {
-      label: "Planning",
-      detail: mode === "compare" ? "Building comparison scenes." : mode === "autoDraw" ? "Creating whiteboard scenes." : mode === "creatorBackgroundReplace" ? "Applying saved preview settings." : "Choosing scenes and visuals.",
-      threshold: 0.45,
-      icon: Sparkles,
-    },
-    {
-      label: "Rendering",
-      detail: "Creating HD frames. This step takes the most time (2–8 min).",
-      threshold: 0.85,
-      icon: Film,
-    },
-    {label: "Done", detail: "Final MP4 is ready.", threshold: 0.96, icon: Clapperboard},
-  ];
+  const definitions = getRenderStepDefinitions(mode);
   const failedIndex = status.state === "error" ? getFailureStepIndex(status.failureStage || getFailureStage(status.reasonCode)) : -1;
   const activeIndex = status.state === "ready"
     ? definitions.length - 1
@@ -2446,11 +2733,66 @@ function getRenderSteps(progress: number, status: JobStatus, mode: Mode) {
   }));
 }
 
+function getRenderStepDefinitions(mode: Mode) {
+  if (mode === "longVideoPromo") {
+    return [
+      {label: "Upload received", detail: "Promo clip and thumbnail are safely uploaded.", threshold: 0.08, icon: Upload},
+      {label: "Thumbnail ready", detail: "Title, thumbnail, and duration badge are prepared.", threshold: 0.24, icon: ImagePlus},
+      {label: "Promo layout", detail: "Thumbnail, title, and clip are balanced for 9:16.", threshold: 0.45, icon: Sparkles},
+      {label: "Rendering final MP4", detail: "Exporting the predefined promo layout.", threshold: 0.85, icon: Film},
+      {label: "Ready to download", detail: "Your promo MP4 appears here when ready.", threshold: 0.96, icon: Clapperboard},
+    ];
+  }
+  if (mode === "compare") {
+    return [
+      {label: "Upload received", detail: "Voiceover and both comparison images are uploaded.", threshold: 0.08, icon: Upload},
+      {label: "AI is transcribing", detail: "Audio timing is mapped to left and right moments.", threshold: 0.24, icon: Layers3},
+      {label: "Building comparison", detail: "Captions, presenter poses, and comparison beats are arranged.", threshold: 0.45, icon: Sparkles},
+      {label: "Rendering final MP4", detail: "Creating HD frames. Usually 2-10 minutes.", threshold: 0.85, icon: Film},
+      {label: "Ready to download", detail: "Your comparison MP4 appears here when ready.", threshold: 0.96, icon: Clapperboard},
+    ];
+  }
+  if (mode === "autoDraw") {
+    return [
+      {label: "Upload received", detail: "Your audio or video is safely uploaded.", threshold: 0.08, icon: Upload},
+      {label: "AI is transcribing", detail: "The explanation is being split into note moments.", threshold: 0.24, icon: Layers3},
+      {label: "Building notes", detail: "Whiteboard scenes, arrows, and highlights are being built.", threshold: 0.45, icon: Sparkles},
+      {label: "Rendering final MP4", detail: "Creating HD frames. Complex scenes can take longer.", threshold: 0.85, icon: Film},
+      {label: "Ready to download", detail: "Your explainer MP4 appears here when ready.", threshold: 0.96, icon: Clapperboard},
+    ];
+  }
+  if (mode === "dynamicCreator") {
+    return [
+      {label: "Upload received", detail: "Your creator video is safely uploaded.", threshold: 0.08, icon: Upload},
+      {label: "AI is transcribing", detail: "Speech timing is being converted into edit moments.", threshold: 0.24, icon: Layers3},
+      {label: "Building typography", detail: "Dynamic text, pacing, and creator-safe overlays are prepared.", threshold: 0.45, icon: Sparkles},
+      {label: "Rendering final MP4", detail: "Creating HD frames. Usually 2-10 minutes.", threshold: 0.85, icon: Film},
+      {label: "Ready to download", detail: "Your creator reel appears here when ready.", threshold: 0.96, icon: Clapperboard},
+    ];
+  }
+  if (mode === "customAiReel") {
+    return [
+      {label: "Prompt received", detail: "Your instructions and uploaded media are ready.", threshold: 0.08, icon: Upload},
+      {label: "Planning timeline", detail: "Your prompt and uploaded media are becoming scenes.", threshold: 0.24, icon: Layers3},
+      {label: "Building scenes", detail: "Text, images, and timing are being checked.", threshold: 0.45, icon: Sparkles},
+      {label: "Rendering final MP4", detail: "Creating HD frames. Usually 2-10 minutes.", threshold: 0.85, icon: Film},
+      {label: "Ready to download", detail: "Your custom reel appears here when ready.", threshold: 0.96, icon: Clapperboard},
+    ];
+  }
+  return [
+    {label: "Upload received", detail: "Your file is safely uploaded.", threshold: 0.08, icon: Upload},
+    {label: "AI is transcribing", detail: "Using real speech timing from your upload.", threshold: 0.24, icon: Layers3},
+    {label: "Building captions", detail: "Aligning captions and scene timing.", threshold: 0.45, icon: Sparkles},
+    {label: "Rendering final MP4", detail: "Creating HD frames. Usually 2-10 minutes.", threshold: 0.85, icon: Film},
+    {label: "Ready to download", detail: "Your final MP4 appears here when ready.", threshold: 0.96, icon: Clapperboard},
+  ];
+}
+
 function getFailureStage(reasonCode?: string): JobStatus["failureStage"] {
   const normalized = String(reasonCode || "").toUpperCase();
   if (normalized.includes("TRANSCRIPTION") || normalized.includes("TRANSCRIPT")) return "transcript";
   if (normalized.includes("PLAN") || normalized.includes("VALIDATION") || normalized.includes("MEDIA_SOURCE")) return "planning";
-  if (normalized.includes("RENDER")) return "render";
+  if (normalized.includes("RENDER") || normalized.includes("BACKGROUND_REPLACE") || normalized.includes("WORKER")) return "render";
   return "upload";
 }
 
@@ -2673,6 +3015,7 @@ function normalizeRenderMode(value: unknown): Mode | null {
   if (normalized === "longvideopromo" || normalized === "longvideopromotion" || normalized === "promo") return "longVideoPromo";
   if (normalized === "dynamiccreator" || normalized === "dynamiccreatorreel" || normalized === "dynamicedit") return "dynamicCreator";
   if (normalized === "creatorbackgroundreplace" || normalized === "backgroundreplace" || normalized === "videobackgroundimage") return "creatorBackgroundReplace";
+  if (normalized === "customaireel" || normalized === "customai" || normalized === "customreel") return "customAiReel";
   return null;
 }
 
@@ -2689,10 +3032,12 @@ function readDashboardMode(value: string | null): Mode | null {
   if (normalized === "longvideopromo" || normalized === "longvideopromotion" || normalized === "promo") return "longVideoPromo";
   if (normalized === "dynamiccreatorreel" || normalized === "dynamiccreator" || normalized === "dynamicedit") return "dynamicCreator";
   if (normalized === "creatorbackgroundreplace" || normalized === "backgroundreplace" || normalized === "videobackgroundimage") return "creatorBackgroundReplace";
+  if (normalized === "customaireel" || normalized === "customai" || normalized === "customreel") return "customAiReel";
   if (normalized.includes("caption") || normalized.includes("subtitle")) return "autoCaption";
   if (normalized.includes("compare")) return "compare";
   if (normalized.includes("draw") || normalized.includes("whiteboard")) return "autoDraw";
   if (normalized.includes("promo")) return "longVideoPromo";
+  if (normalized.includes("custom")) return "customAiReel";
   if (normalized.includes("dynamic") || normalized.includes("creator")) return "dynamicCreator";
   if (normalized.includes("background")) return "creatorBackgroundReplace";
   return null;
@@ -2724,15 +3069,6 @@ function formatDate(value: string) {
   return date.toLocaleDateString(undefined, {month: "short", day: "numeric", year: "numeric"});
 }
 
-function PlanStat({label, value, accent = false}: {label: string; value: string; accent?: boolean}) {
-  return (
-    <div className="rounded-md px-3 py-2" style={{ border: accent ? 'none' : '1px solid var(--border-dark)', background: accent ? 'transparent' : 'rgba(0,0,0,0.2)' }}>
-      <p style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'var(--text-dark-muted)' }}>{label}</p>
-      <p className="mt-0.5 truncate" style={{ fontSize: accent ? '24px' : '14px', fontWeight: accent ? 600 : 500, color: accent ? 'var(--color-primary-hover)' : 'var(--text-dark-secondary)' }}>{value}</p>
-    </div>
-  );
-}
-
 function RangeControl({
   label,
   value,
@@ -2749,13 +3085,13 @@ function RangeControl({
   onChange: (value: number) => void;
 }) {
   return (
-    <label className="grid gap-1.5">
-      <span className="flex items-center justify-between text-[11px] font-bold text-zinc-400">
+    <label className="grid min-w-0 max-w-full gap-1.5 overflow-hidden">
+      <span className="flex min-w-0 items-center justify-between gap-3 text-[11px] font-bold text-zinc-400">
         <span>{label}</span>
-        <span className="font-mono text-zinc-500">{Number(value).toFixed(step < 1 ? 2 : 0)}</span>
+        <span className="shrink-0 font-mono text-zinc-500">{Number(value).toFixed(step < 1 ? 2 : 0)}</span>
       </span>
       <input
-        className="w-full accent-orange-300"
+        className="block w-full min-w-0 max-w-full accent-orange-300"
         max={max}
         min={min}
         onChange={(event) => onChange(Number(event.target.value))}
@@ -2787,18 +3123,21 @@ function CreatorBackgroundLivePreview({
   }, [creatorUrl, backgroundUrl]);
 
   return (
-    <div className="mt-4">
-      <p className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-orange-100">Live preview</p>
-      <div className="relative mx-auto aspect-[9/16] w-full max-w-[240px] overflow-hidden rounded-lg border border-orange-300/20 bg-black">
-        <img
+    <div className="mt-4 min-w-0 max-w-full overflow-hidden">
+      <p className="mb-2 text-xs font-black uppercase tracking-[0.12em] text-orange-100">Live preview</p>
+      <div className="relative mx-auto aspect-[9/16] w-full max-w-[190px] overflow-hidden rounded-lg border border-orange-300/20 bg-black sm:max-w-[240px]">
+        <Image
           alt="Uploaded background preview"
           className="absolute inset-0 h-full w-full"
+          fill
+          sizes="240px"
           src={backgroundUrl}
           style={{
             objectFit: settings.backgroundFit,
             transform: `translate(${settings.backgroundX}px, ${settings.backgroundY}px) scale(${settings.backgroundScale})`,
             transformOrigin: "center",
           }}
+          unoptimized
         />
         <video
           autoPlay
@@ -2814,7 +3153,7 @@ function CreatorBackgroundLivePreview({
         />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/35 to-transparent" />
       </div>
-      <p className="mt-2 text-center text-[11px] text-zinc-500">
+      <p className="mx-auto mt-2 max-w-[240px] text-center text-[11px] leading-5 text-zinc-500">
         Preview updates instantly. Final export uses these exact values.
       </p>
     </div>
@@ -2836,6 +3175,10 @@ function ProgressPreview({mode}: {mode: Mode}) {
       ? ["Audio", "Images", "Compare", "Render", "Download"]
       : mode === "creatorBackgroundReplace"
         ? ["Video", "Image", "Adjust", "Render", "Download"]
+        : mode === "customAiReel"
+          ? ["Prompt", "Media", "Timeline", "Render", "Download"]
+        : mode === "longVideoPromo"
+          ? ["Clip", "Thumbnail", "Title", "Render", "Download"]
     : ["Upload", "Transcribe", "Plan", "Render", "Download"];
 
   return (
@@ -2863,7 +3206,7 @@ function SelectedMediaPreview({ file, mode }: { file: File; mode: Mode }) {
   }, [previewUrl]);
 
   return (
-    <div className="mt-4 w-full max-w-full overflow-hidden rounded-lg border border-white/10 bg-black/40 p-3">
+    <div className="mt-4 w-full max-w-full overflow-hidden rounded-lg border border-white/10 bg-black/40 p-2 sm:p-3">
       {getFileMediaType(file) === "image" ? (
         <Image
           alt="Selected image preview"
@@ -2875,9 +3218,19 @@ function SelectedMediaPreview({ file, mode }: { file: File; mode: Mode }) {
         />
       ) : getFileMediaType(file) === "audio" ? (
         <audio className="w-full max-w-full" controls preload="metadata" src={previewUrl} />
+      ) : mode === "creatorBackgroundReplace" ? (
+        <div className="mx-auto aspect-[9/16] max-h-56 w-full max-w-[170px] overflow-hidden rounded-md bg-black sm:max-h-72 sm:max-w-[210px]">
+          <video
+            className="h-full w-full object-contain"
+            controls
+            playsInline
+            preload="metadata"
+            src={previewUrl}
+          />
+        </div>
       ) : (
         <video
-          className="aspect-video w-full rounded-md bg-black object-contain"
+          className="max-h-64 w-full rounded-md bg-black object-contain"
           controls
           playsInline
           preload="metadata"
@@ -2895,7 +3248,39 @@ function UploadedImagePreview({alt, className, file}: {alt: string; className?: 
     return () => URL.revokeObjectURL(previewUrl);
   }, [previewUrl]);
 
-  return <img alt={alt} className={className} src={previewUrl} />;
+  return <Image alt={alt} className={className} height={360} src={previewUrl} unoptimized width={480} />;
+}
+
+function UploadMiniCard({file, label, onRemove}: {file: File; label: string; onRemove: () => void}) {
+  const mediaType = getFileMediaType(file);
+  const MediaIcon = mediaType === "video" ? Film : mediaType === "audio" ? Mic : ImagePlus;
+  return (
+    <div className="min-w-0 overflow-hidden rounded-lg border border-white/10 bg-white/[0.035] p-2">
+      <div className="aspect-[4/3] overflow-hidden rounded-md bg-black/45">
+        {mediaType === "image" ? (
+          <UploadedImagePreview alt={label} className="h-full w-full object-cover" file={file} />
+        ) : (
+          <div className="grid h-full w-full place-items-center bg-sky-300/[0.08] text-sky-100">
+            <MediaIcon size={22} />
+          </div>
+        )}
+      </div>
+      <div className="mt-2 flex min-w-0 items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="truncate text-[11px] font-black text-white">{label}</p>
+          <p className="mt-0.5 truncate text-[10px] font-bold text-zinc-500">{file.name}</p>
+        </div>
+        <button
+          aria-label={`Remove ${label}`}
+          className="grid h-7 w-7 shrink-0 place-items-center rounded-md border border-red-300/20 bg-red-500/10 text-red-100 transition hover:bg-red-500 hover:text-white"
+          onClick={onRemove}
+          type="button"
+        >
+          <Trash2 size={13} />
+        </button>
+      </div>
+    </div>
+  );
 }
 
 function formatBytes(bytes: number) {
@@ -2949,9 +3334,21 @@ function formatNetworkError(error: unknown, fallback: string) {
   return sanitizeUserFacingStatus(error.message || fallback);
 }
 
+function formatFounderDiagnostics(parts: string[]) {
+  if (!parts.length) return [];
+  return parts
+    .map((part) => part.replace(/\s+/g, " ").trim())
+    .filter(Boolean)
+    .slice(0, 6)
+    .map((part) => part.slice(0, 220));
+}
+
 function sanitizeUserFacingStatus(value: string) {
   const source = String(value || "");
   const normalized = source.toLowerCase();
+  if (/background replace video is temporarily unavailable|background replace worker is not configured|background_replace_worker_not_configured|background_replace_worker_not_ready|creator_bg_replace_worker_url|background_replace_worker_url|background processor is not ready|creator-background-replace-preflight/.test(normalized)) {
+    return "Background Replace Video is temporarily unavailable. Please try again later or choose another video type.";
+  }
   if (/rate exceeded|too many requests|toomanyrequests|concurr|limit exceeded|throttl/.test(normalized)) {
     return "Render traffic is high right now. Your upload stays selected, so please retry in a minute.";
   }
@@ -2964,7 +3361,7 @@ function sanitizeUserFacingStatus(value: string) {
     .replace(/https?:\/\/\S+/gi, "")
     .replace(/\bTRANSCRIPTION_FAILED\b/gi, "We could not detect clear speech in your upload.")
     .replace(/\bTRANSCRIPT_REQUIRED\b/gi, "We could not detect clear speech in your upload.")
-    .replace(/\bUNSUPPORTED_MEDIA_FOR_TEMPLATE\b/gi, "This file type does not match the selected template.")
+    .replace(/\bUNSUPPORTED_MEDIA_FOR_TEMPLATE\b/gi, "This file type does not match the selected video type.")
     .replace(/\bMISSING_MEDIA_SOURCE\b/gi, "Please upload a supported file before creating your reel.")
     .replace(/\b(?:REMOTION|GROQ|OPENAI|AWS|S3|FFMPEG)[A-Z0-9_]*\b/g, "render system")
     .replace(/\bGroq\b/gi, "transcription service")

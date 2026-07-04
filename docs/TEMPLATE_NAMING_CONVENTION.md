@@ -1,3 +1,7 @@
+# Reference Note
+
+This document is naming reference material. Please use `docs/ITNAVIDEO_MASTER_DOC.md` as the latest source of truth for current Itnavideo product documentation.
+
 # Template Naming Convention
 
 ## Rule: ONE name, used EVERYWHERE consistently

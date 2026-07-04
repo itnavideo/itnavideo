@@ -406,7 +406,7 @@ export default function PromoteAndEarnPage() {
               },
               {
                 q: "What are video credits?",
-                a: "1 video credit = 1 exported video on Itnavideo. If you earn 20 credits, you can create 20 videos using any template.",
+                a: "1 video credit = 1 exported video on Itnavideo. If you earn 20 credits, you can create 20 videos using any video type.",
               },
               {
                 q: "Can I withdraw credits as money?",

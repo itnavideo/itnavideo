@@ -25,6 +25,56 @@ export type CreatorBackgroundReplaceResult = {
   durationSeconds: number;
 };
 
+type CreatorBackgroundReplaceWorkerStatus = {
+  ok: boolean;
+  mode: 'remote' | 'local' | 'missing-remote-worker' | 'remote-worker-not-ready';
+  reasonCode?: 'BACKGROUND_REPLACE_WORKER_NOT_CONFIGURED' | 'BACKGROUND_REPLACE_WORKER_NOT_READY';
+  message?: string;
+  detail?: string;
+  retryable?: boolean;
+};
+
+export function getCreatorBackgroundReplaceWorkerStatus() {
+  const remoteWorkerUrl = cleanEnvValue(process.env.CREATOR_BG_REPLACE_WORKER_URL || process.env.BACKGROUND_REPLACE_WORKER_URL);
+  if (remoteWorkerUrl) return {ok: true, mode: 'remote' as const};
+  if (isVercelRuntime()) {
+    return {
+      ok: false,
+      mode: 'missing-remote-worker' as const,
+      reasonCode: 'BACKGROUND_REPLACE_WORKER_NOT_CONFIGURED' as const,
+      message: 'Creator Background Replace worker is not configured. Set CREATOR_BG_REPLACE_WORKER_URL before enabling this template in production.',
+      retryable: false,
+    };
+  }
+  return {ok: true, mode: 'local' as const};
+}
+
+export async function verifyCreatorBackgroundReplaceWorkerReady(): Promise<CreatorBackgroundReplaceWorkerStatus> {
+  const baseStatus = getCreatorBackgroundReplaceWorkerStatus();
+  if (!baseStatus.ok || baseStatus.mode !== 'remote') return baseStatus;
+
+  const healthUrl = cleanEnvValue(process.env.CREATOR_BG_REPLACE_WORKER_HEALTH_URL || process.env.BACKGROUND_REPLACE_WORKER_HEALTH_URL);
+  if (!healthUrl) return baseStatus;
+
+  const attempts = Math.max(1, Math.min(3, Number(process.env.CREATOR_BG_REPLACE_HEALTH_RETRIES || 2) || 2));
+  let lastDetail = '';
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    const result = await probeWorkerHealth(healthUrl);
+    if (result.ok) return baseStatus;
+    lastDetail = `attempt ${attempt}/${attempts}: ${result.detail}`;
+    if (attempt < attempts) await wait(350 * attempt);
+  }
+
+  return {
+    ok: false,
+    mode: 'remote-worker-not-ready',
+    reasonCode: 'BACKGROUND_REPLACE_WORKER_NOT_READY',
+    message: 'Creator Background Replace worker health check failed.',
+    detail: lastDetail,
+    retryable: true,
+  };
+}
+
 export async function processCreatorBackgroundReplace({
   backgroundImageUrl,
   creatorVideoUrl,
@@ -43,7 +93,7 @@ export async function processCreatorBackgroundReplace({
   const remoteWorkerUrl = cleanEnvValue(process.env.CREATOR_BG_REPLACE_WORKER_URL || process.env.BACKGROUND_REPLACE_WORKER_URL);
   const configuredMaxSeconds = Number(process.env.CREATOR_BG_REPLACE_MAX_SECONDS || 60);
   const maxSeconds = Number.isFinite(configuredMaxSeconds) ? Math.max(1, Math.min(60, Math.round(configuredMaxSeconds))) : 60;
-  const safeSeconds = Math.max(1, Math.min(maxSeconds, Math.round(Number(durationSeconds) || 30)));
+  const safeSeconds = Math.max(1, Math.min(maxSeconds, Math.round(Number(durationSeconds) || 60)));
 
   if (remoteWorkerUrl) {
     return processRemoteCreatorBackgroundReplace({
@@ -262,4 +312,28 @@ async function readJsonPayload(response: Response): Promise<Record<string, unkno
 
 function readPayloadString(value: unknown) {
   return typeof value === 'string' ? value.trim() : '';
+}
+
+async function probeWorkerHealth(url: string) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 4500);
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {Accept: 'application/json'},
+      signal: controller.signal,
+    });
+    const payload = await readJsonPayload(response);
+    if (response.ok && payload.ok !== false) return {ok: true, detail: `HTTP ${response.status}`};
+    const detail = readPayloadString(payload.error || payload.message || payload.status) || response.statusText || 'health check failed';
+    return {ok: false, detail: `HTTP ${response.status} ${detail}`.trim()};
+  } catch (error) {
+    return {ok: false, detail: error instanceof Error ? error.message : 'health check request failed'};
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

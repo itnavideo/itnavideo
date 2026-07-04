@@ -9,17 +9,17 @@ import CreatorRewardsSection from "@/components/landing/CreatorRewardsSection";
 import FAQSection from "@/components/FAQSection";
 
 export const metadata: Metadata = {
-  title: "Itnavideo - Six Premium AI Reel Templates",
-  description: "Create polished 9:16 reels with six focused AI templates: Dynamic Creator, Auto Captions, Creator Background Replace, Compare Explainer, Auto Draw, and Long Video Promo.",
+  title: "Itnavideo - Seven Premium AI Video Types",
+  description: "Create polished 9:16 reels with seven focused AI video types: Custom AI Reel, Creator Reel, Auto Caption, Background Replace, Compare Explainer, Auto Draw, and Long Video Promo.",
   openGraph: {
-    title: "Itnavideo - Six Premium AI Reel Templates",
-    description: "Create polished 9:16 reels with six focused AI templates: Dynamic Creator, Auto Captions, Creator Background Replace, Compare Explainer, Auto Draw, and Long Video Promo.",
+    title: "Itnavideo - Seven Premium AI Video Types",
+    description: "Create polished 9:16 reels with seven focused AI video types: Custom AI Reel, Creator Reel, Auto Caption, Background Replace, Compare Explainer, Auto Draw, and Long Video Promo.",
     images: ["/og-image.png"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Itnavideo - Six Premium AI Reel Templates",
-    description: "Create polished 9:16 reels with six focused AI templates: Dynamic Creator, Auto Captions, Creator Background Replace, Compare Explainer, Auto Draw, and Long Video Promo.",
+    title: "Itnavideo - Seven Premium AI Video Types",
+    description: "Create polished 9:16 reels with seven focused AI video types: Custom AI Reel, Creator Reel, Auto Caption, Background Replace, Compare Explainer, Auto Draw, and Long Video Promo.",
     images: ["/og-image.png"],
   },
 };
@@ -54,7 +54,7 @@ const jsonLd = [
     applicationCategory: "MultimediaApplication",
     operatingSystem: "Web",
     url: siteUrl,
-    description: "AI reel generator with six focused templates for creator edits, background replacement, captions, comparison explainers, whiteboard explainers, and long video promos.",
+    description: "AI reel generator with seven focused video types for custom prompts, creator edits, background replacement, captions, comparison explainers, whiteboard explainers, and long video promos.",
     offers: {
       "@type": "Offer",
       priceCurrency: "INR",

@@ -1,3 +1,7 @@
+# Reference Note
+
+This document is deep Auto Caption reference material. Please use `docs/ITNAVIDEO_MASTER_DOC.md` as the latest source of truth for overall Itnavideo documentation.
+
 # Auto Caption Reel — Full Technical Context for Improvement Discussion
 
 ## What is ItnaVideo?

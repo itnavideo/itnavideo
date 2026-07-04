@@ -25,8 +25,8 @@ export async function POST(request: Request) {
 
   const fileName = readString(body.fileName);
   const contentType = readString(body.contentType);
-  const workflowMode = readString(body.mode || body.template).toLowerCase();
-  const templateMode = resolvePresignTemplateMode(workflowMode);
+  const workflowMode = readString(body.mode || body.videoType || body.template).toLowerCase();
+  const videoTypeMode = resolvePresignVideoTypeMode(workflowMode);
   const uploadMode = contentType.startsWith('audio/') ? 'audio' : contentType.startsWith('image/') ? 'image' : 'video';
   const fileSize = Number(body.fileSize || 0);
   const userId = readString(body.userId);
@@ -38,13 +38,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ok: false, error: 'Please log in before uploading media.'}, {status: 401});
   }
   if (workflowMode && !isRecognizedWorkflowMode(workflowMode)) {
-    return NextResponse.json({ok: false, error: 'This template is not available right now.'}, {status: 422});
+    return NextResponse.json({ok: false, error: 'This video type is not available right now.'}, {status: 422});
   }
   if (fileSize > MAX_FILE_SIZE_BYTES) {
     return NextResponse.json({ok: false, error: 'File is too large. Please upload a video under 500MB.'}, {status: 400});
   }
-  if (!isAllowedUploadForTemplate(templateMode, contentType)) {
-    return NextResponse.json({ok: false, error: uploadErrorForTemplate(templateMode)}, {status: 400});
+  if (!isAllowedUploadForVideoType(videoTypeMode, contentType)) {
+    return NextResponse.json({ok: false, error: uploadErrorForVideoType(videoTypeMode)}, {status: 400});
   }
 
   try {
@@ -89,17 +89,19 @@ function readString(value: unknown) {
   return typeof value === 'string' ? value.trim() : '';
 }
 
-function isAllowedUploadForTemplate(templateMode: string, contentType: string) {
-  if (templateMode === 'compare') return contentType.startsWith('audio/') || contentType.startsWith('image/');
-  if (templateMode === 'autoCaption' || templateMode === 'creatorBackgroundReplace') return contentType.startsWith('video/');
+function isAllowedUploadForVideoType(videoTypeMode: string, contentType: string) {
+  if (videoTypeMode === 'compare') return contentType.startsWith('audio/') || contentType.startsWith('image/');
+  if (videoTypeMode === 'creatorBackgroundReplace') return contentType.startsWith('video/') || contentType.startsWith('image/');
+  if (videoTypeMode === 'autoCaption') return contentType.startsWith('video/');
   return contentType.startsWith('audio/') || contentType.startsWith('video/') || contentType.startsWith('image/');
 }
 
-function uploadErrorForTemplate(templateMode: string) {
-  if (templateMode === 'compare') return 'Compare needs one audio file plus exactly 2 visuals.';
-  if (templateMode === 'autoCaption') return 'Auto Caption needs a video file with speech.';
-  if (templateMode === 'creatorBackgroundReplace') return 'Creator Background Replace needs a video file.';
-  return 'This template needs audio, video, or image upload.';
+function uploadErrorForVideoType(videoTypeMode: string) {
+  if (videoTypeMode === 'compare') return 'Compare needs one audio file plus exactly 2 visuals.';
+  if (videoTypeMode === 'autoCaption') return 'Auto Caption needs a video file with speech.';
+  if (videoTypeMode === 'creatorBackgroundReplace') return 'Creator Background Replace needs one video plus one background image.';
+  if (videoTypeMode === 'customAiReel') return 'Custom AI Reel accepts images, logos, audio, or video uploads.';
+  return 'This video type needs audio, video, or image upload.';
 }
 
 function isCompareWorkflow(value: string) {
@@ -130,6 +132,11 @@ function isCreatorBackgroundReplaceWorkflow(value: string) {
   return normalized === 'creatorbackgroundreplace' || normalized === 'backgroundreplace' || normalized === 'videobackgroundimage' || normalized === 'backgroundimage';
 }
 
+function isCustomAiReelWorkflow(value: string) {
+  const normalized = value.toLowerCase().replace(/[-_\s]+/g, '');
+  return normalized === 'customaireel' || normalized === 'customai' || normalized === 'customreel';
+}
+
 function sanitizeUserFacingStatus(value: string) {
   const source = String(value || '');
   const normalized = source.toLowerCase();
@@ -153,12 +160,12 @@ function sanitizeUserFacingStatus(value: string) {
 }
 
 /**
- * SAFETY: Registry-based template mode resolution.
- * Instead of hardcoded if/else that silently accepts removed templates,
- * this function checks all known workflow patterns and returns null for unknown templates.
- * The null case triggers a proper "template not available" error instead of corrupting Video Explainer.
+ * SAFETY: Registry-based video type mode resolution.
+ * Instead of hardcoded if/else that silently accepts removed video types,
+ * this function checks all known workflow patterns and returns null for unknown video types.
+ * The null case triggers a proper "video type not available" error instead of corrupting Video Explainer.
  */
-function resolvePresignTemplateMode(value: string): string {
+function resolvePresignVideoTypeMode(value: string): string {
   if (!value) return 'generic';
   if (isCompareWorkflow(value)) return 'compare';
   if (isAutoCaptionWorkflow(value)) return 'autoCaption';
@@ -166,9 +173,10 @@ function resolvePresignTemplateMode(value: string): string {
   if (isLongVideoPromoWorkflow(value)) return 'longVideoPromo';
   if (isDynamicCreatorWorkflow(value)) return 'dynamicCreator';
   if (isCreatorBackgroundReplaceWorkflow(value)) return 'creatorBackgroundReplace';
+  if (isCustomAiReelWorkflow(value)) return 'customAiReel';
   return 'generic';
 }
 
 function isRecognizedWorkflowMode(value: string) {
-  return isCompareWorkflow(value) || isAutoCaptionWorkflow(value) || isAutoDrawWorkflow(value) || isLongVideoPromoWorkflow(value) || isDynamicCreatorWorkflow(value) || isCreatorBackgroundReplaceWorkflow(value);
+  return isCompareWorkflow(value) || isAutoCaptionWorkflow(value) || isAutoDrawWorkflow(value) || isLongVideoPromoWorkflow(value) || isDynamicCreatorWorkflow(value) || isCreatorBackgroundReplaceWorkflow(value) || isCustomAiReelWorkflow(value);
 }

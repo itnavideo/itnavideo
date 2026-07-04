@@ -1,16 +1,25 @@
+/**
+ * AUTO DRAW EXPLAINER — Premium Visual Explainer
+ *
+ * Identity: Bloomberg / Visualize Value / Ali Abdaal educational motion graphics.
+ * One scene fills the full 9:16 canvas. No subtitles. No notebook. No white canvas.
+ * Every element draws in sync with the voiceover.
+ */
 import React from 'react';
 import {
   AbsoluteFill,
   Audio,
   Composition,
-  Sequence,
   interpolate,
   spring,
+  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from 'remotion';
-import { CanvasGraphicsLayer } from '../../layers/CanvasGraphicsLayer';
-import type { CanvasEffect } from '../../layers/CanvasGraphicsLayer';
+import {PremiumAudioLayer, type PremiumSoundCue, type PremiumStyleLock} from '../../components/PremiumAudioLayer';
+import {PremiumVisualTreatment, type PremiumVisualStyleLock} from '../../components/PremiumVisualTreatment';
+
+// ─── Types (must match autoDrawPlanner.ts exports) ────────────────────────────
 
 type DrawScene = {
   start: number;
@@ -23,501 +32,804 @@ type DrawScene = {
   isSummary?: boolean;
 };
 
+type NoteElementType =
+  | 'heading' | 'bullet' | 'label' | 'highlight'
+  | 'sketch' | 'arrow' | 'circle' | 'underline';
+
+type NoteElement = {
+  id: string;
+  type: NoteElementType;
+  text?: string;
+  x: number; y: number;
+  width: number; height: number;
+  start: number; end: number;
+  revealStart: number; revealEnd: number;
+  pageIndex: number;
+  sourceSceneIndex: number;
+  sourceCaptionIndex?: number;
+  accent?: string;
+  variant?: string;
+};
+
+type NotePage = {
+  id: string; index: number; title: string;
+  start: number; end: number;
+  elements: NoteElement[];
+};
+
+type RevealItem = {
+  elementId: string; pageIndex: number;
+  start: number; end: number;
+  effect: 'mask-wipe' | 'fade-slide' | 'stroke-reveal' | 'highlight-sweep' | 'circle-burst' | 'arrow-draw' | 'pop';
+  sourceSceneIndex: number;
+  sourceCaptionIndex?: number;
+  transcriptText?: string;
+};
+
+type NotesPlan = {
+  pages: NotePage[];
+  elements: NoteElement[];
+  revealTimeline: RevealItem[];
+  transcriptSegmentMapping?: Array<{
+    segmentIndex: number; start: number; end: number;
+    text: string; elementIds: string[]; pageIndex: number;
+  }>;
+};
+
 type AutoDrawProps = {
   scenes?: DrawScene[];
+  notesPlan?: NotesPlan;
   audioUrl?: string;
   mediaSrc?: string;
   sourceAudioVolume?: number;
   topicTitle?: string;
   captions?: Array<{start: number; end: number; text: string}>;
   sourceDurationSeconds?: number;
+  durationSeconds?: number;
+  showDebugPanel?: boolean;
+  showDebugControls?: boolean;
+  debugPlaybackSpeed?: 0.5 | 1 | 1.5 | 2;
+  premiumEditing?: boolean;
+  styleLock?: PremiumStyleLock & PremiumVisualStyleLock;
+  soundCues?: PremiumSoundCue[];
 };
 
-// Dark premium palette
-const C = {
-  bg: '#07080f',
-  bgCard: 'rgba(255,255,255,0.04)',
-  bgCardHover: 'rgba(255,255,255,0.07)',
+// ─── Design tokens ────────────────────────────────────────────────────────────
+
+const D = {
+  bg: '#080C14',
+  bgCard: '#0E1420',
+  bgCardBright: '#121A2A',
   border: 'rgba(255,255,255,0.08)',
-  borderAccent: 'rgba(255,255,255,0.14)',
-  text: '#f0f0f5',
-  textMuted: 'rgba(255,255,255,0.5)',
-  blue: '#5B6FFF',
-  violet: '#7C5CFC',
-  amber: '#F5C542',
-  green: '#34D399',
-  red: '#F87171',
-  pink: '#F472B6',
+  borderAccent: 'rgba(255,255,255,0.18)',
+  text: '#F1F5F9',
+  textMuted: '#64748B',
+  textDim: '#94A3B8',
+  blue: '#3B82F6',
+  cyan: '#06B6D4',
+  amber: '#F59E0B',
+  emerald: '#10B981',
+  rose: '#F43F5E',
+  violet: '#8B5CF6',
+  // scene accent palette — each scene gets one
+  accents: ['#3B82F6', '#06B6D4', '#F59E0B', '#10B981', '#8B5CF6', '#F43F5E'],
 };
 
-// Point card colors — rotate per index
-const POINT_COLORS = [
-  { border: C.blue, bg: 'rgba(91,111,255,0.08)', icon: '→' },
-  { border: C.amber, bg: 'rgba(245,197,66,0.07)', icon: '★' },
-  { border: C.green, bg: 'rgba(52,211,153,0.07)', icon: '✓' },
-  { border: C.pink, bg: 'rgba(244,114,182,0.07)', icon: '◆' },
-  { border: C.violet, bg: 'rgba(124,92,252,0.07)', icon: '•' },
-];
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
-// ─── SCENE TRANSITION WRAPPER ────────────────────────────────────────────────
-// Each scene slides in from right, slides out to left
-function SceneTransition({ children }: { children: React.ReactNode }) {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
+const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 
-  // Slide in from right on entry (frames 0-10)
-  const enterX = interpolate(frame, [0, 10], [120, 0], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-    easing: (t) => 1 - Math.pow(1 - t, 3),
-  });
-  const enterOpacity = interpolate(frame, [0, 8], [0, 1], {
-    extrapolateLeft: 'clamp', extrapolateRight: 'clamp'
-  });
+function resolveRemotionMediaSrc(src: string) {
+  if (!src) return '';
+  if (/^https?:\/\//i.test(src)) return src;
+  if (src.startsWith('/')) return staticFile(src.slice(1));
+  return src;
+}
 
+function useEntrance(localFrame: number, config = {damping: 16, stiffness: 140, mass: 0.7}) {
+  const {fps} = useVideoConfig();
+  return spring({frame: localFrame, fps, config});
+}
+
+function sceneAccent(sceneIndex: number) {
+  return D.accents[sceneIndex % D.accents.length];
+}
+
+// ─── Scene-level utilities ────────────────────────────────────────────────────
+
+function getActiveScene(scenes: DrawScene[], currentTime: number): {scene: DrawScene; index: number} | null {
+  for (let i = 0; i < scenes.length; i++) {
+    if (currentTime >= scenes[i].start && currentTime < scenes[i].end) {
+      return {scene: scenes[i], index: i};
+    }
+  }
+  // clamp to last scene after end
+  if (scenes.length > 0 && currentTime >= scenes[scenes.length - 1].end) {
+    return {scene: scenes[scenes.length - 1], index: scenes.length - 1};
+  }
+  return null;
+}
+
+function sceneDuration(scene: DrawScene) {
+  return Math.max(0.1, scene.end - scene.start);
+}
+
+function sceneLocalTime(scene: DrawScene, currentTime: number) {
+  return Math.max(0, currentTime - scene.start);
+}
+
+// ─── Background ───────────────────────────────────────────────────────────────
+
+function PremiumBackground({accent}: {accent: string}) {
+  return (
+    <AbsoluteFill style={{background: D.bg, overflow: 'hidden'}}>
+      {/* Subtle dot-grid */}
+      <AbsoluteFill style={{
+        backgroundImage: `radial-gradient(rgba(255,255,255,0.035) 1px, transparent 1px)`,
+        backgroundSize: '48px 48px',
+      }} />
+      {/* Top accent glow */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, height: 4,
+        background: accent,
+        boxShadow: `0 0 40px ${accent}99`,
+      }} />
+      {/* Ambient radial from top */}
+      <AbsoluteFill style={{
+        background: `radial-gradient(ellipse 900px 500px at 50% 0%, ${accent}18 0%, transparent 65%)`,
+      }} />
+    </AbsoluteFill>
+  );
+}
+
+// ─── Top bar ──────────────────────────────────────────────────────────────────
+
+function TopBar({topicTitle, sceneIndex, totalScenes, accent}: {topicTitle: string; sceneIndex: number; totalScenes: number; accent: string}) {
   return (
     <div style={{
-      transform: `translateX(${enterX}px)`,
-      opacity: enterOpacity,
-      width: '100%', height: '100%',
+      position: 'absolute', top: 0, left: 0, right: 0,
+      height: 120, padding: '0 64px',
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      zIndex: 30,
     }}>
-      {children}
+      <div style={{display: 'flex', alignItems: 'center', gap: 20}}>
+        <div style={{
+          width: 8, height: 8, borderRadius: 999,
+          background: accent, boxShadow: `0 0 12px ${accent}`,
+        }} />
+        <span style={{
+          fontSize: 22, fontWeight: 700, letterSpacing: '0.12em',
+          textTransform: 'uppercase', color: D.textMuted,
+          fontFamily: 'Inter, system-ui, sans-serif',
+        }}>
+          {topicTitle}
+        </span>
+      </div>
+      <span style={{
+        fontSize: 22, fontWeight: 800, color: D.textMuted,
+        fontFamily: 'Inter, system-ui, sans-serif',
+      }}>
+        {sceneIndex + 1} / {totalScenes}
+      </span>
     </div>
   );
 }
 
-// ─── INTRO SCENE ─────────────────────────────────────────────────────────────
-function IntroScene({ title }: { title: string }) {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+// ─── Progress bar ─────────────────────────────────────────────────────────────
 
-  const titleScale = spring({ frame, fps, config: { damping: 12, stiffness: 120, mass: 0.8 }, from: 0.7, to: 1 });
-  const titleOpacity = interpolate(frame, [0, 12], [0, 1], { extrapolateRight: 'clamp' });
-  const lineProgress = interpolate(frame, [10, 28], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: (t) => 1 - Math.pow(1 - t, 3) });
-  const subtextOpacity = interpolate(frame, [20, 35], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-
-  // Canvas underline draw effect
-  const introEffects: CanvasEffect[] = [{
-    type: 'underline', startFrame: 10, endFrame: 28,
-    config: { x: 80, y: 1010, width: 920, color: C.violet, thickness: 4 }
-  }, {
-    type: 'sparkle', startFrame: 0, endFrame: 50,
-    config: { count: 8, color: C.amber }
-  }, {
-    type: 'glow-pulse', startFrame: 0, endFrame: 45,
-    config: { x: 540, y: 960, radius: 350, color: 'rgba(124,92,252,0.12)' }
-  }];
-
+function ProgressBar({currentTime, durationSeconds, accent}: {currentTime: number; durationSeconds: number; accent: string}) {
+  const pct = clamp(currentTime / Math.max(1, durationSeconds), 0, 1);
   return (
-    <AbsoluteFill style={{ background: C.bg }}>
-      {/* Dot pattern bg */}
-      <CanvasGraphicsLayer effects={[{
-        type: 'dot-pattern', startFrame: 0, endFrame: 999,
-        config: { spacing: 44, dotSize: 1.5, color: 'rgba(255,255,255,0.7)' }
-      }]} zIndex={1} />
-
+    <div style={{
+      position: 'absolute', bottom: 0, left: 0, right: 0, height: 5, zIndex: 30,
+      background: 'rgba(255,255,255,0.07)',
+    }}>
       <div style={{
-        position: 'absolute', inset: 0,
-        display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center',
-        padding: '0 60px', gap: 24,
-      }}>
-        {/* Pill label */}
-        <div style={{
-          opacity: subtextOpacity,
-          padding: '8px 20px', borderRadius: 100,
-          background: 'rgba(124,92,252,0.12)',
-          border: `1px solid rgba(124,92,252,0.3)`,
-          fontSize: 22, fontWeight: 600, color: C.violet,
-          letterSpacing: '0.08em', textTransform: 'uppercase',
-        }}>
-          Explainer
-        </div>
-
-        {/* Main title */}
-        <h1 style={{
-          fontSize: title.length > 24 ? 72 : title.length > 16 ? 84 : 96,
-          fontWeight: 900, color: C.text, textAlign: 'center',
-          lineHeight: 1.1, letterSpacing: -1.5,
-          fontFamily: 'system-ui, -apple-system, sans-serif',
-          opacity: titleOpacity,
-          transform: `scale(${titleScale})`,
-        }}>
-          {title}
-        </h1>
-
-        {/* Canvas underline */}
-        <CanvasGraphicsLayer effects={introEffects} zIndex={5} />
-      </div>
-    </AbsoluteFill>
+        height: '100%', width: `${pct * 100}%`,
+        background: `linear-gradient(90deg, ${accent}, ${accent}cc)`,
+        borderRadius: '0 3px 3px 0',
+        boxShadow: `0 0 14px ${accent}88`,
+      }} />
+    </div>
   );
 }
 
-// ─── DRAW SCENE PANEL ────────────────────────────────────────────────────────
-function DrawScenePanel({
-  scene, index, totalScenes,
-}: { scene: DrawScene; index: number; totalScenes: number }) {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const sceneDuration = Math.round((scene.end - scene.start) * fps);
+// ─── Animated line ────────────────────────────────────────────────────────────
 
-  const isIntro = !scene.sceneNumber && index === 0;
-  const isSummary = scene.isSummary;
-  const hasPoints = scene.points && scene.points.length > 0;
+function DrawLine({progress, color, width = 900, thickness = 3, y = 0}: {
+  progress: number; color: string; width?: number; thickness?: number; y?: number;
+}) {
+  const dash = width;
+  return (
+    <svg width={width} height={thickness + 2} style={{display: 'block', overflow: 'visible'}}>
+      <line
+        x1={0} y1={y + thickness / 2} x2={width} y2={y + thickness / 2}
+        stroke={color} strokeWidth={thickness}
+        strokeLinecap="round"
+        strokeDasharray={dash}
+        strokeDashoffset={dash * (1 - easeOut(progress))}
+      />
+    </svg>
+  );
+}
 
-  // Title animation
-  const titleSpring = spring({ frame, fps, config: { damping: 14, mass: 0.6, stiffness: 160 } });
-  const titleY = interpolate(frame, [0, 14], [32, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+// ─── Heading with mask-wipe ────────────────────────────────────────────────────
 
-  // Scene number badge spring
-  const badgeSpring = spring({ frame, fps, config: { damping: 10, stiffness: 200, mass: 0.5 }, from: 0.4, to: 1 });
+function WipeHeading({text, localFrame, accent, fontSize, color = D.text}: {
+  text: string; localFrame: number; accent: string; fontSize: number; color?: string;
+}) {
+  const {fps} = useVideoConfig();
+  const progress = spring({frame: localFrame, fps, config: {damping: 14, stiffness: 100, mass: 0.6}});
+  const wipe = easeOut(clamp(progress, 0, 1));
+  return (
+    <div style={{overflow: 'hidden', position: 'relative'}}>
+      <div style={{
+        clipPath: `inset(0 ${Math.round((1 - wipe) * 100)}% 0 0)`,
+        fontSize, fontWeight: 900, lineHeight: 1.0,
+        color,
+        fontFamily: 'Inter, system-ui, sans-serif',
+        letterSpacing: '-0.02em',
+      }}>
+        {text}
+      </div>
+    </div>
+  );
+}
 
-  // Highlight card
-  const highlightSpring = spring({ frame: Math.max(0, frame - 14), fps, config: { damping: 14 } });
+// ─── Staggered bullets ────────────────────────────────────────────────────────
 
-  // Subtitle strip
-  const subOpacity = interpolate(frame, [16, 28], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-  const subY = interpolate(frame, [16, 28], [20, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-
-  // Canvas effects for this scene
-  const sceneEffects: CanvasEffect[] = [];
-
-  // Underline under title
-  sceneEffects.push({
-    type: 'underline', startFrame: 8, endFrame: 22,
-    config: { x: 80, y: 520, width: 920, color: C.blue, thickness: 3 }
-  });
-
-  // Glow pulse near scene number
-  if (scene.sceneNumber) {
-    sceneEffects.push({
-      type: 'glow-pulse', startFrame: 0, endFrame: 30,
-      config: { x: 120, y: 230, radius: 80, color: `${C.blue}33` }
-    });
-  }
-
-  // Summary sparkle
-  if (isSummary) {
-    sceneEffects.push({
-      type: 'sparkle', startFrame: 0, endFrame: 60,
-      config: { count: 10, color: C.amber }
-    });
-  }
+function StaggerBullet({text, localFrame, delay, accent, index}: {
+  text: string; localFrame: number; delay: number; accent: string; index: number;
+}) {
+  const {fps} = useVideoConfig();
+  const f = Math.max(0, localFrame - delay);
+  const enter = spring({frame: f, fps, config: {damping: 18, stiffness: 130, mass: 0.65}});
+  const opacity = clamp(interpolate(f, [0, 8], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}), 0, 1);
+  const y = interpolate(enter, [0, 1], [28, 0]);
+  const colors = [D.blue, D.cyan, D.amber, D.emerald, D.violet];
+  const dotColor = colors[index % colors.length];
 
   return (
-    <AbsoluteFill style={{ background: C.bg }}>
-      {/* Subtle dot pattern */}
-      <CanvasGraphicsLayer effects={[{
-        type: 'dot-pattern', startFrame: 0, endFrame: 9999,
-        config: { spacing: 44, dotSize: 1.2, color: 'rgba(255,255,255,0.6)' }
-      }]} zIndex={1} />
+    <div style={{
+      display: 'flex', alignItems: 'flex-start', gap: 28,
+      transform: `translateY(${y}px)`, opacity,
+    }}>
+      <div style={{
+        width: 12, height: 12, borderRadius: 999,
+        background: dotColor, flexShrink: 0,
+        marginTop: 16,
+        boxShadow: `0 0 10px ${dotColor}88`,
+      }} />
+      <span style={{
+        fontSize: 40, fontWeight: 700, lineHeight: 1.25,
+        color: D.text, fontFamily: 'Inter, system-ui, sans-serif',
+        flex: 1,
+      }}>
+        {text}
+      </span>
+    </div>
+  );
+}
 
-      <SceneTransition>
-        {/* ── TOP ZONE (0–200px): progress + scene badge ── */}
-        <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0, height: 180,
-          display: 'flex', flexDirection: 'column',
-          justifyContent: 'flex-end', padding: '0 60px 20px',
-          gap: 14,
+// ─── Highlight callout ────────────────────────────────────────────────────────
+
+function HighlightCallout({text, localFrame, accent}: {text: string; localFrame: number; accent: string}) {
+  const enter = useEntrance(localFrame, {damping: 14, stiffness: 110, mass: 0.75});
+  const opacity = clamp(interpolate(localFrame, [0, 10], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}), 0, 1);
+  const scale = interpolate(enter, [0, 1], [0.94, 1]);
+  return (
+    <div style={{
+      transform: `scale(${scale})`, opacity,
+      padding: '36px 44px',
+      borderRadius: 20,
+      background: `${accent}14`,
+      border: `2px solid ${accent}55`,
+      boxShadow: `0 0 60px ${accent}22, inset 0 1px 0 ${accent}33`,
+    }}>
+      <div style={{
+        display: 'flex', alignItems: 'flex-start', gap: 24,
+      }}>
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" style={{flexShrink: 0, marginTop: 4}}>
+          <path d="M18 4L4 28h28L18 4z" fill={`${accent}22`} stroke={accent} strokeWidth="2.5" strokeLinejoin="round"/>
+          <path d="M18 15v7" stroke={accent} strokeWidth="2.5" strokeLinecap="round"/>
+          <circle cx="18" cy="25" r="1.5" fill={accent}/>
+        </svg>
+        <span style={{
+          fontSize: 40, fontWeight: 800, lineHeight: 1.25, color: accent,
+          fontFamily: 'Inter, system-ui, sans-serif',
         }}>
-          {/* Progress dots */}
-          <div style={{ display: 'flex', gap: 7 }}>
-            {Array.from({ length: totalScenes }).map((_, i) => (
-              <div key={i} style={{
-                height: 5, flex: 1, borderRadius: 3,
-                background: i <= index ? C.blue : 'rgba(255,255,255,0.1)',
-              }} />
-            ))}
-          </div>
+          {text}
+        </span>
+      </div>
+    </div>
+  );
+}
 
-          {/* Scene badge or emoji */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            {scene.sceneNumber ? (
+// ─── Large stat / number badge ────────────────────────────────────────────────
+
+function SceneNumberBadge({num, accent, localFrame}: {num: number; accent: string; localFrame: number}) {
+  const enter = useEntrance(localFrame, {damping: 12, stiffness: 160, mass: 0.5});
+  const scale = interpolate(enter, [0, 1], [0.5, 1]);
+  const opacity = clamp(interpolate(localFrame, [0, 6], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}), 0, 1);
+  return (
+    <div style={{
+      transform: `scale(${scale})`, opacity,
+      fontSize: 160, fontWeight: 950, lineHeight: 0.85,
+      color: `${accent}1A`,
+      fontFamily: 'Inter, system-ui, sans-serif',
+      letterSpacing: '-0.05em',
+      position: 'absolute', right: 52, top: 130,
+      userSelect: 'none', pointerEvents: 'none',
+    }}>
+      {String(num).padStart(2, '0')}
+    </div>
+  );
+}
+
+// ─── Scene renderers ──────────────────────────────────────────────────────────
+
+/**
+ * INTRO scene — big hook title, full screen centered
+ */
+function IntroScene({scene, localFrame, accent}: {scene: DrawScene; localFrame: number; accent: string}) {
+  const {fps} = useVideoConfig();
+  const lineProgress = clamp(interpolate(localFrame, [8, 28], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}), 0, 1);
+  const subtitleEnter = spring({frame: Math.max(0, localFrame - 22), fps, config: {damping: 18, stiffness: 100, mass: 0.8}});
+  const subtitleOpacity = clamp(interpolate(localFrame, [22, 36], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}), 0, 1);
+
+  return (
+    <div style={{
+      position: 'absolute', inset: 0,
+      display: 'flex', flexDirection: 'column',
+      justifyContent: 'center', padding: '160px 72px',
+    }}>
+      {/* Eyebrow label */}
+      <div style={{
+        fontSize: 22, fontWeight: 700, letterSpacing: '0.18em',
+        textTransform: 'uppercase', color: accent,
+        marginBottom: 28,
+        fontFamily: 'Inter, system-ui, sans-serif',
+        opacity: clamp(interpolate(localFrame, [0, 10], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}), 0, 1),
+      }}>
+        Explainer
+      </div>
+
+      <WipeHeading
+        text={scene.title}
+        localFrame={localFrame}
+        accent={accent}
+        fontSize={scene.title.length > 28 ? 84 : scene.title.length > 20 ? 100 : 116}
+      />
+
+      {/* Animated underline */}
+      <div style={{marginTop: 32, marginBottom: 36}}>
+        <DrawLine progress={lineProgress} color={accent} width={480} thickness={5} />
+      </div>
+
+      {scene.subtitle ? (
+        <div style={{
+          transform: `translateY(${interpolate(subtitleEnter, [0, 1], [24, 0])}px)`,
+          opacity: subtitleOpacity,
+          fontSize: 40, fontWeight: 500, lineHeight: 1.45, color: D.textDim,
+          fontFamily: 'Inter, system-ui, sans-serif',
+          maxWidth: 860,
+        }}>
+          {scene.subtitle}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/**
+ * POINT scene — numbered, large title + subtitle + optional bullets
+ */
+function PointScene({scene, sceneIndex, localFrame, accent}: {scene: DrawScene; sceneIndex: number; localFrame: number; accent: string}) {
+  const {fps} = useVideoConfig();
+  const lineProgress = clamp(interpolate(localFrame, [10, 28], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}), 0, 1);
+  const hasBullets = (scene.points?.length ?? 0) > 0;
+
+  return (
+    <div style={{
+      position: 'absolute', inset: 0,
+      display: 'flex', flexDirection: 'column',
+      padding: '140px 72px 160px', justifyContent: 'center',
+    }}>
+      {/* Ghost number */}
+      {scene.sceneNumber != null ? (
+        <SceneNumberBadge num={scene.sceneNumber} accent={accent} localFrame={localFrame} />
+      ) : null}
+
+      {/* Accent label */}
+      <div style={{
+        display: 'inline-flex', alignItems: 'center', gap: 14, marginBottom: 32,
+        opacity: clamp(interpolate(localFrame, [0, 8], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}), 0, 1),
+      }}>
+        <div style={{width: 36, height: 5, background: accent, borderRadius: 99, boxShadow: `0 0 12px ${accent}88`}} />
+        <span style={{
+          fontSize: 22, fontWeight: 700, letterSpacing: '0.14em',
+          textTransform: 'uppercase', color: accent,
+          fontFamily: 'Inter, system-ui, sans-serif',
+        }}>
+          {scene.sceneNumber != null ? `Point ${scene.sceneNumber}` : 'Key idea'}
+        </span>
+      </div>
+
+      <WipeHeading
+        text={scene.title}
+        localFrame={localFrame}
+        accent={accent}
+        fontSize={scene.title.length > 30 ? 74 : scene.title.length > 22 ? 88 : 100}
+      />
+
+      <div style={{marginTop: 24, marginBottom: hasBullets ? 48 : 0}}>
+        <DrawLine progress={lineProgress} color={accent} width={560} thickness={4} />
+      </div>
+
+      {hasBullets ? (
+        <div style={{display: 'flex', flexDirection: 'column', gap: 22}}>
+          {(scene.points ?? []).map((pt, i) => (
+            <StaggerBullet
+              key={i} text={pt}
+              localFrame={localFrame}
+              delay={28 + i * 14}
+              accent={accent} index={i}
+            />
+          ))}
+        </div>
+      ) : scene.subtitle ? (
+        <div style={{
+          fontSize: 42, fontWeight: 500, lineHeight: 1.45, color: D.textDim,
+          fontFamily: 'Inter, system-ui, sans-serif',
+          opacity: clamp(interpolate(localFrame, [20, 34], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}), 0, 1),
+          transform: `translateY(${interpolate(
+            spring({frame: Math.max(0, localFrame - 20), fps, config: {damping: 18, stiffness: 110, mass: 0.7}}),
+            [0, 1], [22, 0],
+          )}px)`,
+        }}>
+          {scene.subtitle}
+        </div>
+      ) : null}
+
+      {scene.highlight ? (
+        <div style={{marginTop: 44}}>
+          <HighlightCallout text={scene.highlight} localFrame={Math.max(0, localFrame - (hasBullets ? 28 + (scene.points?.length ?? 0) * 14 + 8 : 32))} accent={accent} />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/**
+ * STEPS scene — numbered checklist, each step draws in
+ */
+function StepsScene({scene, localFrame, accent}: {scene: DrawScene; localFrame: number; accent: string}) {
+  const {fps} = useVideoConfig();
+  const points = scene.points ?? (scene.subtitle ? [scene.subtitle] : []);
+  const lineProgress = clamp(interpolate(localFrame, [6, 20], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}), 0, 1);
+
+  return (
+    <div style={{
+      position: 'absolute', inset: 0,
+      display: 'flex', flexDirection: 'column',
+      padding: '140px 72px 160px', justifyContent: 'center',
+    }}>
+      <div style={{
+        fontSize: 22, fontWeight: 700, letterSpacing: '0.14em',
+        textTransform: 'uppercase', color: accent, marginBottom: 28,
+        fontFamily: 'Inter, system-ui, sans-serif',
+        opacity: clamp(interpolate(localFrame, [0, 8], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}), 0, 1),
+      }}>
+        Steps
+      </div>
+
+      <WipeHeading text={scene.title} localFrame={localFrame} accent={accent} fontSize={scene.title.length > 28 ? 74 : 90} />
+
+      <div style={{marginTop: 24, marginBottom: 44}}>
+        <DrawLine progress={lineProgress} color={accent} width={420} thickness={4} />
+      </div>
+
+      <div style={{display: 'flex', flexDirection: 'column', gap: 28}}>
+        {points.map((pt, i) => {
+          const f = Math.max(0, localFrame - 20 - i * 16);
+          const enter = spring({frame: f, fps, config: {damping: 18, stiffness: 120, mass: 0.7}});
+          const opacity = clamp(interpolate(f, [0, 10], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}), 0, 1);
+          const y = interpolate(enter, [0, 1], [28, 0]);
+          return (
+            <div key={i} style={{
+              display: 'flex', alignItems: 'flex-start', gap: 28,
+              transform: `translateY(${y}px)`, opacity,
+            }}>
+              {/* Step number */}
               <div style={{
-                width: 52, height: 52, borderRadius: 14,
-                background: `linear-gradient(135deg, ${C.blue}, ${C.violet})`,
+                width: 56, height: 56, borderRadius: 14, flexShrink: 0,
+                background: `${accent}22`,
+                border: `2px solid ${accent}55`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 26, fontWeight: 900, color: '#fff',
-                boxShadow: `0 4px 16px rgba(91,111,255,0.35)`,
-                transform: `scale(${badgeSpring})`,
+                fontSize: 28, fontWeight: 900, color: accent,
+                fontFamily: 'Inter, system-ui, sans-serif',
               }}>
-                {scene.sceneNumber}
+                {i + 1}
               </div>
-            ) : (
-              <div style={{
-                fontSize: 44,
-                opacity: titleSpring,
-                transform: `scale(${badgeSpring})`,
-              }}>
-                {isSummary ? '🎯' : '💡'}
-              </div>
-            )}
-            <span style={{
-              fontSize: 20, fontWeight: 600, color: C.textMuted,
-              letterSpacing: '0.1em', textTransform: 'uppercase',
-            }}>
-              {isSummary ? 'Summary' : scene.sceneNumber ? `Step ${scene.sceneNumber}` : 'Key Point'}
-            </span>
-          </div>
-        </div>
-
-        {/* ── MAIN ZONE (180–1700px): title + content ── */}
-        <div style={{
-          position: 'absolute', top: 180, left: 0, right: 0, bottom: 220,
-          padding: '40px 60px',
-          display: 'flex', flexDirection: 'column', gap: 28,
-          overflowY: 'hidden',
-        }}>
-          {/* Title */}
-          <h1 style={{
-            fontSize: scene.title.length > 22 ? 62 : scene.title.length > 14 ? 74 : 86,
-            fontWeight: 900, color: C.text,
-            letterSpacing: -1.5, lineHeight: 1.08,
-            fontFamily: 'system-ui, -apple-system, sans-serif',
-            opacity: titleSpring,
-            transform: `translateY(${titleY}px)`,
-          }}>
-            {scene.title}
-          </h1>
-
-          {/* Points — each staggered by transcript-aware delay */}
-          {hasPoints && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {scene.points!.map((point, i) => {
-                // Spread points across scene duration instead of all at start
-                const totalPoints = scene.points!.length;
-                const spreadDelay = Math.round((sceneDuration * 0.15) + (sceneDuration * 0.5 / totalPoints) * i);
-                const pointProgress = spring({
-                  frame: Math.max(0, frame - spreadDelay), fps,
-                  config: { damping: 14, stiffness: 160, mass: 0.5 }
-                });
-                const col = POINT_COLORS[i % POINT_COLORS.length];
-
-                return (
-                  <div key={i} style={{
-                    display: 'flex', alignItems: 'flex-start', gap: 16,
-                    padding: '20px 24px', borderRadius: 20,
-                    background: col.bg,
-                    border: `1px solid ${col.border}`,
-                    borderLeft: `4px solid ${col.border}`,
-                    opacity: pointProgress,
-                    transform: `translateX(${(1 - pointProgress) * 40}px)`,
-                  }}>
-                    <span style={{
-                      fontSize: 22, color: col.border,
-                      fontWeight: 900, flexShrink: 0, marginTop: 3,
-                      width: 32, textAlign: 'center',
-                    }}>
-                      {col.icon}
-                    </span>
-                    <span style={{
-                      fontSize: 32, fontWeight: 700, color: C.text,
-                      fontFamily: 'system-ui', lineHeight: 1.35,
-                    }}>
-                      {point}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Highlight / Warning card */}
-          {scene.highlight && (
-            <div style={{
-              padding: '22px 28px', borderRadius: 20,
-              background: 'rgba(248,113,113,0.06)',
-              border: `1px solid rgba(248,113,113,0.25)`,
-              borderLeft: `4px solid ${C.red}`,
-              display: 'flex', alignItems: 'flex-start', gap: 16,
-              opacity: highlightSpring,
-              transform: `translateX(${(1 - highlightSpring) * 30}px)`,
-            }}>
-              <span style={{ fontSize: 34, flexShrink: 0 }}>⚡</span>
               <span style={{
-                fontSize: 30, fontWeight: 800, color: C.red,
-                fontFamily: 'system-ui', lineHeight: 1.3,
+                fontSize: 40, fontWeight: 650, lineHeight: 1.3,
+                color: D.text,
+                fontFamily: 'Inter, system-ui, sans-serif',
+                paddingTop: 8,
               }}>
-                {scene.highlight}
+                {pt}
               </span>
             </div>
-          )}
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
-          {/* Summary checklist */}
-          {isSummary && !hasPoints && (
-            <div style={{
-              padding: '24px 28px', borderRadius: 20,
-              background: `rgba(52,211,153,0.06)`,
-              border: `1px solid rgba(52,211,153,0.2)`,
-              borderLeft: `4px solid ${C.green}`,
-              opacity: highlightSpring,
-            }}>
-              <span style={{ fontSize: 30, fontWeight: 700, color: C.green, lineHeight: 1.4 }}>
-                ✅ Now you know the key points!
-              </span>
-            </div>
-          )}
+/**
+ * HIGHLIGHT scene — big callout, used when scene.highlight is the main content
+ */
+function HighlightScene({scene, localFrame, accent}: {scene: DrawScene; localFrame: number; accent: string}) {
+  const {fps} = useVideoConfig();
+  const lineProgress = clamp(interpolate(localFrame, [8, 24], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}), 0, 1);
+
+  return (
+    <div style={{
+      position: 'absolute', inset: 0,
+      display: 'flex', flexDirection: 'column',
+      padding: '140px 72px', justifyContent: 'center',
+    }}>
+      <WipeHeading text={scene.title} localFrame={localFrame} accent={accent} fontSize={scene.title.length > 28 ? 72 : 90} />
+      <div style={{marginTop: 24, marginBottom: 48}}>
+        <DrawLine progress={lineProgress} color={accent} width={520} thickness={4} />
+      </div>
+      <HighlightCallout text={scene.highlight ?? scene.subtitle ?? ''} localFrame={Math.max(0, localFrame - 20)} accent={accent} />
+      {(scene.points?.length ?? 0) > 0 ? (
+        <div style={{marginTop: 44, display: 'flex', flexDirection: 'column', gap: 22}}>
+          {(scene.points ?? []).map((pt, i) => (
+            <StaggerBullet key={i} text={pt} localFrame={localFrame} delay={36 + i * 14} accent={accent} index={i} />
+          ))}
         </div>
+      ) : null}
+    </div>
+  );
+}
 
-        {/* ── BOTTOM ZONE (1700–1920px): subtitle quote strip ── */}
-        {scene.subtitle && (
-          <div style={{
-            position: 'absolute', bottom: 0, left: 0, right: 0, height: 220,
-            display: 'flex', alignItems: 'center',
-            padding: '0 60px',
-            borderTop: `1px solid ${C.border}`,
-            background: 'linear-gradient(0deg, rgba(0,0,0,0.4) 0%, transparent 100%)',
-            opacity: subOpacity,
-            transform: `translateY(${subY}px)`,
-          }}>
-            <div style={{
-              padding: '18px 24px', borderRadius: 16,
-              background: 'rgba(255,255,255,0.04)',
-              border: `1px solid ${C.border}`,
-              borderLeft: `3px solid ${C.violet}`,
-            }}>
-              <p style={{
-                fontSize: 28, fontWeight: 600, color: C.textMuted,
-                fontFamily: 'system-ui', lineHeight: 1.4,
-              }}>
-                {scene.subtitle.length > 100
-                  ? scene.subtitle.slice(0, 97) + '...'
-                  : scene.subtitle}
-              </p>
+/**
+ * SUMMARY scene — checklist with circled checkmarks
+ */
+function SummaryScene({scene, localFrame, accent}: {scene: DrawScene; localFrame: number; accent: string}) {
+  const {fps} = useVideoConfig();
+  const points = scene.points ?? (scene.subtitle ? scene.subtitle.split(/[,;.]/).map(s => s.trim()).filter(Boolean) : []);
+  const lineProgress = clamp(interpolate(localFrame, [6, 22], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}), 0, 1);
+
+  return (
+    <div style={{
+      position: 'absolute', inset: 0,
+      display: 'flex', flexDirection: 'column',
+      padding: '140px 72px', justifyContent: 'center',
+    }}>
+      <div style={{
+        fontSize: 22, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase',
+        color: D.emerald, marginBottom: 28,
+        fontFamily: 'Inter, system-ui, sans-serif',
+        opacity: clamp(interpolate(localFrame, [0, 8], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}), 0, 1),
+      }}>Summary</div>
+
+      <WipeHeading text={scene.title} localFrame={localFrame} accent={D.emerald} fontSize={scene.title.length > 28 ? 74 : 90} />
+
+      <div style={{marginTop: 24, marginBottom: 44}}>
+        <DrawLine progress={lineProgress} color={D.emerald} width={420} thickness={4} />
+      </div>
+
+      <div style={{display: 'flex', flexDirection: 'column', gap: 28}}>
+        {points.map((pt, i) => {
+          const f = Math.max(0, localFrame - 24 - i * 14);
+          const enter = spring({frame: f, fps, config: {damping: 18, stiffness: 120, mass: 0.7}});
+          const opacity = clamp(interpolate(f, [0, 10], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}), 0, 1);
+          const y = interpolate(enter, [0, 1], [24, 0]);
+          const dash = 120;
+          const checkProgress = clamp(interpolate(f, [4, 18], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}), 0, 1);
+          return (
+            <div key={i} style={{display: 'flex', alignItems: 'flex-start', gap: 28, transform: `translateY(${y}px)`, opacity}}>
+              <svg width="52" height="52" viewBox="0 0 52 52" fill="none" style={{flexShrink: 0, marginTop: 4}}>
+                <circle cx="26" cy="26" r="22" stroke={D.emerald} strokeWidth="3" strokeDasharray="138" strokeDashoffset={138 * (1 - checkProgress)} strokeLinecap="round"/>
+                <path d="M16 27 L23 34 L36 19" stroke={D.emerald} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" strokeDasharray={dash} strokeDashoffset={dash * (1 - Math.max(0, checkProgress - 0.4) / 0.6)} />
+              </svg>
+              <span style={{fontSize: 40, fontWeight: 650, lineHeight: 1.3, color: D.text, fontFamily: 'Inter, system-ui, sans-serif', paddingTop: 6}}>
+                {pt}
+              </span>
             </div>
-          </div>
-        )}
-      </SceneTransition>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
-      {/* Canvas effects */}
-      <CanvasGraphicsLayer effects={sceneEffects} zIndex={6} />
+// ─── Scene transition wrapper ─────────────────────────────────────────────────
+
+function SceneTransition({scene, sceneIndex, scenes, localFrame, accent}: {
+  scene: DrawScene; sceneIndex: number; scenes: DrawScene[]; localFrame: number; accent: string;
+}) {
+  const {fps} = useVideoConfig();
+  // Fade in at start of scene
+  const fadeIn = clamp(interpolate(localFrame, [0, 8], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}), 0, 1);
+
+  const isIntro = sceneIndex === 0;
+  const isSummary = scene.isSummary === true;
+  const isHighlight = !isSummary && !isIntro && Boolean(scene.highlight) && !scene.points?.length;
+  const isSteps = !isSummary && !isIntro && !isHighlight && (scene.points?.length ?? 0) >= 3;
+
+  return (
+    <AbsoluteFill style={{opacity: fadeIn}}>
+      {isIntro ? (
+        <IntroScene scene={scene} localFrame={localFrame} accent={accent} />
+      ) : isSummary ? (
+        <SummaryScene scene={scene} localFrame={localFrame} accent={accent} />
+      ) : isHighlight ? (
+        <HighlightScene scene={scene} localFrame={localFrame} accent={accent} />
+      ) : isSteps ? (
+        <StepsScene scene={scene} localFrame={localFrame} accent={accent} />
+      ) : (
+        <PointScene scene={scene} sceneIndex={sceneIndex} localFrame={localFrame} accent={accent} />
+      )}
     </AbsoluteFill>
   );
 }
 
-// ─── MAIN COMPONENT ──────────────────────────────────────────────────────────
+// ─── Main component ───────────────────────────────────────────────────────────
+
 function AutoDrawExplainer({
-  scenes = [],
+  scenes: rawScenes = [],
+  notesPlan,
   audioUrl,
   mediaSrc,
   sourceAudioVolume = 1,
   topicTitle = 'Explainer',
-  captions = [],
+  captions = [],      // received but NOT rendered — Auto Draw is visual, not caption-based
+  premiumEditing = true,
+  styleLock,
+  soundCues = [],
 }: AutoDrawProps) {
-  const { fps, durationInFrames } = useVideoConfig();
-  const audioSrc = audioUrl || mediaSrc || '';
+  const frame = useCurrentFrame();
+  const {fps, durationInFrames} = useVideoConfig();
+  const audioSrc = resolveRemotionMediaSrc(audioUrl || mediaSrc || '');
   const durationSeconds = durationInFrames / fps;
+  const currentTime = frame / fps;
 
-  // Use provided scenes or build from captions
-  const rawScenes = scenes.length > 0 ? scenes : buildScenesFromCaptions(captions, topicTitle);
+  // Build scene list — prefer notesPlan scenes (already transcript-aligned),
+  // fallback to rawScenes prop, then caption-derived scenes
+  const scenes: DrawScene[] = (() => {
+    if (notesPlan?.pages?.length && notesPlan.elements?.length) {
+      // Extract scenes from notesPlan pages — use page start/end as scene boundaries
+      // with title from page elements
+      const planScenes: DrawScene[] = notesPlan.pages.map((page) => {
+        const headings = page.elements.filter(e => e.type === 'heading');
+        const bullets = page.elements.filter(e => e.type === 'bullet');
+        const highlights = page.elements.filter(e => e.type === 'highlight');
+        // Rehydrate from element data — group elements back into scenes by sourceSceneIndex
+        return {
+          start: page.start,
+          end: page.end,
+          title: headings[0]?.text || page.title || 'Key Point',
+          points: bullets.map(b => b.text).filter(Boolean) as string[],
+          highlight: highlights[0]?.text,
+          isSummary: page.index === notesPlan.pages.length - 1,
+        };
+      });
+      return planScenes.filter(s => s.end > s.start);
+    }
+    if (rawScenes.length > 0) return rawScenes;
+    // Derive from captions as last resort
+    return deriveScenesFromCaptions(captions, topicTitle, durationSeconds);
+  })();
 
-  // Ensure scenes cover full duration — last scene always extends to end
-  const displayScenes: DrawScene[] = rawScenes.map((s, i) => ({
-    ...s,
-    // Last scene extends to full duration
-    end: i === rawScenes.length - 1 ? Math.max(s.end, durationSeconds) : s.end,
-  }));
-
-  // Check if first scene is already an intro (no sceneNumber, title matches topicTitle)
-  const firstIsIntro = displayScenes.length > 0 && !displayScenes[0].sceneNumber && displayScenes[0].start < 1;
+  const active = getActiveScene(scenes, currentTime);
+  const activeScene = active?.scene ?? scenes[scenes.length - 1];
+  const activeIndex = active?.index ?? Math.max(0, scenes.length - 1);
+  const accent = sceneAccent(activeIndex);
+  const localTime = activeScene ? sceneLocalTime(activeScene, currentTime) : 0;
+  const localFrame = Math.round(localTime * fps);
 
   return (
-    <AbsoluteFill style={{ backgroundColor: C.bg }}>
-      {/* Audio */}
+    <AbsoluteFill style={{
+      background: D.bg,
+      overflow: 'hidden',
+      fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+    }}>
       {audioSrc ? <Audio src={audioSrc} volume={sourceAudioVolume} /> : null}
+      <PremiumAudioLayer enabled={premiumEditing} styleLock={styleLock} soundCues={soundCues} />
 
-      {/* Scenes */}
-      {displayScenes.map((scene, i) => {
-        const from = Math.round(scene.start * fps);
-        const duration = Math.max(1, Math.round((scene.end - scene.start) * fps));
-        const isIntroScene = i === 0 && firstIsIntro;
+      {/* Background with per-scene accent color */}
+      <PremiumBackground accent={accent} />
 
-        return (
-          <Sequence key={`scene-${i}-${scene.start}`} from={from} durationInFrames={duration}>
-            {isIntroScene ? (
-              <IntroScene title={topicTitle || scene.title} />
-            ) : (
-              <DrawScenePanel
-                scene={scene}
-                index={i}
-                totalScenes={displayScenes.length}
-              />
-            )}
-          </Sequence>
-        );
-      })}
+      {/* Active scene content */}
+      {activeScene ? (
+        <SceneTransition
+          scene={activeScene}
+          sceneIndex={activeIndex}
+          scenes={scenes}
+          localFrame={localFrame}
+          accent={accent}
+        />
+      ) : null}
+
+      {/* Top bar */}
+      <TopBar
+        topicTitle={topicTitle}
+        sceneIndex={activeIndex}
+        totalScenes={scenes.length}
+        accent={accent}
+      />
+
+      {/* Progress bar */}
+      <ProgressBar currentTime={currentTime} durationSeconds={durationSeconds} accent={accent} />
+      <PremiumVisualTreatment enabled={premiumEditing} styleLock={styleLock} />
     </AbsoluteFill>
   );
 }
 
-// ─── CAPTION FALLBACK SCENE BUILDER ──────────────────────────────────────────
-function buildScenesFromCaptions(
+// ─── Fallback scene builder from captions ─────────────────────────────────────
+
+function deriveScenesFromCaptions(
   captions: Array<{start: number; end: number; text: string}>,
   topicTitle: string,
+  durationSeconds: number,
 ): DrawScene[] {
   if (!captions.length) {
     return [
-      { start: 0, end: 3, title: topicTitle || 'EXPLAINER', subtitle: undefined },
-      { start: 3, end: 10, title: 'UPLOAD AUDIO', subtitle: 'Upload audio to generate scenes automatically', sceneNumber: 1 },
+      {start: 0, end: Math.min(durationSeconds, 8), title: topicTitle || 'Explainer', subtitle: 'Upload audio to generate content'},
+      {start: Math.min(durationSeconds, 8), end: durationSeconds, title: 'Key Ideas', isSummary: true},
     ];
   }
-
-  const totalDuration = captions[captions.length - 1]?.end || 30;
   const scenes: DrawScene[] = [];
-
-  // Intro scene
-  scenes.push({
-    start: 0,
-    end: Math.min(3, captions[0]?.start || 3),
-    title: topicTitle || 'EXPLAINER',
-    subtitle: undefined,
-  });
-
-  // Group captions into 5-7s scenes
   let group: typeof captions = [];
   let groupStart = captions[0]?.start || 0;
-
   for (const cap of captions) {
-    if (group.length > 0 && (cap.start - groupStart > 6 || group.length >= 4)) {
+    if (group.length > 0 && (cap.start - groupStart > 8 || group.length >= 5)) {
+      const text = group.map(c => c.text).join(' ');
       scenes.push({
-        start: groupStart,
-        end: group[group.length - 1].end,
-        title: group[0].text.split(' ').slice(0, 4).join(' ').toUpperCase(),
-        subtitle: group.map(c => c.text).join(' ').slice(0, 120),
-        sceneNumber: scenes.length,
-        points: group.length > 1 ? group.slice(0, 4).map(c => c.text.slice(0, 50)) : undefined,
+        start: groupStart, end: group[group.length - 1].end,
+        title: text.split(/\s+/).slice(0, 4).join(' ').toUpperCase(),
+        subtitle: text.slice(0, 140),
+        points: group.length > 2 ? group.map(c => c.text.slice(0, 60)) : undefined,
+        sceneNumber: scenes.length + 1,
       });
-      group = [];
-      groupStart = cap.start;
+      group = []; groupStart = cap.start;
     }
     group.push(cap);
   }
-
-  // Last group — extends to full duration
   if (group.length) {
+    const text = group.map(c => c.text).join(' ');
     scenes.push({
-      start: groupStart,
-      end: totalDuration,
-      title: group[0].text.split(' ').slice(0, 4).join(' ').toUpperCase(),
-      subtitle: group.map(c => c.text).join(' ').slice(0, 120),
-      sceneNumber: scenes.length,
+      start: groupStart, end: durationSeconds,
+      title: text.split(/\s+/).slice(0, 4).join(' ').toUpperCase(),
+      subtitle: text.slice(0, 140),
+      points: group.length > 2 ? group.map(c => c.text.slice(0, 60)) : undefined,
+      sceneNumber: scenes.length + 1,
       isSummary: true,
     });
   }
-
   return scenes;
 }
 
-// ─── DEFAULT PROPS + COMPOSITION ─────────────────────────────────────────────
+// ─── Export ───────────────────────────────────────────────────────────────────
+
+export {AutoDrawExplainer};
+
 const defaultProps: AutoDrawProps = {
   topicTitle: '5 Habits That Will Change Your Life',
   audioUrl: '',
   sourceAudioVolume: 1,
+  sourceDurationSeconds: 60,
   scenes: [
-    { start: 0, end: 3, title: '5 HABITS', subtitle: undefined },
-    { start: 3, end: 11, title: 'WAKE UP EARLY', points: ['More time for yourself', 'Better focus and clarity', 'Positive start to the day'], subtitle: 'Subah jaldi uthna mental clarity deta hai', sceneNumber: 1 },
-    { start: 11, end: 20, title: 'PLAN YOUR DAY', points: ['Set 3 main goals', 'Block focus time', 'Review at night'], subtitle: 'Plan karne se focus badhta hai aur productivity bhi', sceneNumber: 2, highlight: 'FOCUS → PRODUCTIVITY → DISCIPLINE' },
-    { start: 20, end: 30, title: 'EXERCISE DAILY', points: ['Better health', 'Boosts mood instantly', 'Builds discipline'], subtitle: 'Exercise body aur mind ke liye zaroori hai', sceneNumber: 3, isSummary: true },
+    {start: 0, end: 6, title: 'WAKE UP EARLY', points: ['More time for yourself', 'Better focus and clarity'], subtitle: 'Subah jaldi uthna mental clarity deta hai', sceneNumber: 1},
+    {start: 6, end: 14, title: 'PLAN YOUR DAY', points: ['Set 3 main goals', 'Block focus time', 'Review at night'], subtitle: 'Plan karne se focus badhta hai', sceneNumber: 2, highlight: 'Focus creates discipline'},
+    {start: 14, end: 22, title: 'EXERCISE DAILY', points: ['Better health', 'Mood boost', 'Builds discipline'], subtitle: 'Exercise body aur mind ke liye zaroori hai', sceneNumber: 3},
+    {start: 22, end: 30, title: 'KEEP GOING', points: ['Start small', 'Repeat daily', 'Track progress'], subtitle: 'Small actions compound over time', sceneNumber: 4, isSummary: true},
   ],
   captions: [],
 };
@@ -526,15 +838,15 @@ export const AutoDrawExplainerComposition = () => (
   <Composition
     id="AUTO-DRAW-EXPLAINER"
     component={AutoDrawExplainer}
-    durationInFrames={900}
+    durationInFrames={1800}
     fps={30}
     width={1080}
     height={1920}
     defaultProps={defaultProps}
-    calculateMetadata={({ props }) => {
+    calculateMetadata={({props}) => {
       const p = props as AutoDrawProps;
-      const dur = Math.max(8, Math.min(60, Number(p.sourceDurationSeconds) || 30));
-      return { durationInFrames: Math.ceil(dur * 30), fps: 30, width: 1080, height: 1920 };
+      const dur = Math.max(8, Math.min(60, Number(p.sourceDurationSeconds || p.durationSeconds) || 60));
+      return {durationInFrames: Math.ceil(dur * 30), fps: 30, width: 1080, height: 1920};
     }}
   />
 );

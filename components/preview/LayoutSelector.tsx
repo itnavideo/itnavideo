@@ -7,7 +7,7 @@ import type { PreviewLayout } from "./types";
 
 type Props = {
   layout: PreviewLayout;
-  templateId: string;
+  videoTypeId: string;
   captionStyle: string;
   captionFontFamily: string;
   captionFontSize: string;
@@ -74,7 +74,7 @@ const normalizeCaptionFont = (font: string) => {
 
 export function LayoutSelector({
   layout,
-  templateId,
+  videoTypeId,
   captionStyle,
   captionFontFamily,
   captionFontSize,
@@ -90,9 +90,9 @@ export function LayoutSelector({
   onAccentColorChange,
 }: Props) {
   const [expanded, setExpanded] = useState(true);
-  const showVideoLayout = templateId === "DYNAMIC_CREATOR_REEL";
-  const showAccentColor = templateId === "DYNAMIC_CREATOR_REEL";
-  const showProgressStyle = templateId !== "AUTO_CAPTION_REEL";
+  const showVideoLayout = videoTypeId === "DYNAMIC_CREATOR_REEL";
+  const showAccentColor = videoTypeId === "DYNAMIC_CREATOR_REEL";
+  const showProgressStyle = videoTypeId !== "AUTO_CAPTION_REEL";
 
   return (
     <div className="bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden">

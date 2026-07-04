@@ -100,7 +100,7 @@ export const CreatorBackgroundReplaceComposition = () => (
   <Composition
     id="CREATOR-BACKGROUND-REPLACE"
     component={CreatorBackgroundReplace}
-    durationInFrames={900}
+    durationInFrames={1800}
     fps={30}
     width={1080}
     height={1920}
@@ -115,11 +115,11 @@ export const CreatorBackgroundReplaceComposition = () => (
       creatorX: 0,
       creatorY: 0,
       sourceAudioVolume: 1,
-      durationSeconds: 30,
+      durationSeconds: 60,
     } as CreatorBackgroundReplaceProps}
     calculateMetadata={({props}) => {
       const p = props as CreatorBackgroundReplaceProps;
-      const duration = Math.max(1, Math.min(60, Number(p.durationSeconds) || Number(p.sourceDurationSeconds) || 30));
+      const duration = Math.max(1, Math.min(60, Number(p.durationSeconds) || Number(p.sourceDurationSeconds) || 60));
       return {durationInFrames: Math.ceil(duration * 30), fps: 30, width: 1080, height: 1920};
     }}
   />

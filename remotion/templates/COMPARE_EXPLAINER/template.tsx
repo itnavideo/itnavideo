@@ -3,14 +3,14 @@ import {
   AbsoluteFill,
   Audio,
   Composition,
-  Sequence,
   staticFile,
   spring,
   useCurrentFrame,
   useVideoConfig,
   interpolate,
 } from 'remotion';
-import {COMPARE_SFX} from './sfxManifest';
+import {PremiumAudioLayer, type PremiumSoundCue, type PremiumStyleLock} from '../../components/PremiumAudioLayer';
+import {PremiumVisualTreatment, type PremiumVisualStyleLock} from '../../components/PremiumVisualTreatment';
 
 type CompareImageInput = string | {url?: string; src?: string; imageUrl?: string};
 
@@ -35,6 +35,9 @@ type CompareProps = {
   audioUrl?: string;
   mediaUrl?: string;
   sourceAudioUrl?: string;
+  durationSeconds?: number;
+  sourceDurationSeconds?: number;
+  renderWindowSeconds?: number;
 
   comparisonImageUrls?: string[];
   comparisonImages?: CompareImageInput[];
@@ -57,6 +60,9 @@ type CompareProps = {
   transcript?: string;
   sourceScript?: string;
   topicTitle?: string;
+  premiumEditing?: boolean;
+  styleLock?: PremiumStyleLock & PremiumVisualStyleLock;
+  soundCues?: PremiumSoundCue[];
 };
 
 const STICKER_SETS = {
@@ -295,54 +301,6 @@ const getCaptionText = (
 ) => {
   const captionText = caption?.text || caption?.lines?.join(' ');
   return cleanHinglishSubtitle(makeShortSubtitle(captionText || overlay?.text || overlay?.body || overlay?.title || fallback || 'Simple difference samjho.'));
-};
-
-const findSfx = (pattern: RegExp) => COMPARE_SFX.find((src) => pattern.test(src)) || '';
-
-const CompareSfxLayer = () => {
-  const whoosh = findSfx(/whoosh|woosh|swoosh|swish|riser|jet/i) || COMPARE_SFX[0] || '';
-  const pop = findSfx(/pop|click|tap|snap|shutter|mouse/i) || COMPARE_SFX[1] || whoosh;
-  const ding = findSfx(/ding|chime|bell|notification|kaching|cash/i) || COMPARE_SFX[2] || pop;
-
-  return (
-    <>
-      {whoosh ? (
-        <Sequence from={0} durationInFrames={26}>
-          <Audio src={staticFile(whoosh)} volume={0.95} />
-        </Sequence>
-      ) : null}
-
-      {pop ? (
-        <Sequence from={12} durationInFrames={18}>
-          <Audio src={staticFile(pop)} volume={0.90} />
-        </Sequence>
-      ) : null}
-
-      {whoosh ? (
-        <Sequence from={58} durationInFrames={24}>
-          <Audio src={staticFile(whoosh)} volume={0.88} />
-        </Sequence>
-      ) : null}
-
-      {pop ? (
-        <Sequence from={96} durationInFrames={18}>
-          <Audio src={staticFile(pop)} volume={0.85} />
-        </Sequence>
-      ) : null}
-
-      {whoosh ? (
-        <Sequence from={150} durationInFrames={24}>
-          <Audio src={staticFile(whoosh)} volume={0.85} />
-        </Sequence>
-      ) : null}
-
-      {ding ? (
-        <Sequence from={220} durationInFrames={28}>
-          <Audio src={staticFile(ding)} volume={0.88} />
-        </Sequence>
-      ) : null}
-    </>
-  );
 };
 
 const VisualBox = ({
@@ -764,53 +722,13 @@ const getActiveStickerPose = ({
     // Early section: intro zone → welcome
     return STICKER_POSES.welcome;
   } else if (progress < 0.28) {
-    // First topic explanation zone → left with explaining/thinking breaks
-    const segment = Math.floor((currentTime - durationSeconds * 0.12) / 4);
-    const earlyPoses: StickerPoseKey[] = [
-      STICKER_POSES.leftSideExplainer,
-      STICKER_POSES.explaining,
-      STICKER_POSES.leftSideExplainer,
-      STICKER_POSES.comparing,
-      STICKER_POSES.thinking,
-      STICKER_POSES.leftSideExplainer,
-    ];
-    return earlyPoses[segment % earlyPoses.length];
+    return STICKER_POSES.leftSideExplainer;
   } else if (progress < 0.55) {
-    // Middle: comparison zone — use ALL poses for maximum dynamism
-    const segment = Math.floor((currentTime - durationSeconds * 0.28) / 3.5);
-    const midPoses: StickerPoseKey[] = [
-      STICKER_POSES.comparing,
-      STICKER_POSES.rightSideExplainer,
-      STICKER_POSES.surprised,
-      STICKER_POSES.leftSideExplainer,
-      STICKER_POSES.explaining,
-      STICKER_POSES.rightSideExplainer,
-      STICKER_POSES.thinking,
-      STICKER_POSES.leftSideExplainer,
-    ];
-    return midPoses[segment % midPoses.length];
+    return STICKER_POSES.comparing;
   } else if (progress < 0.78) {
-    // Second topic / deeper comparison → right + warning + surprised
-    const segment = Math.floor((currentTime - durationSeconds * 0.55) / 4);
-    const latePoses: StickerPoseKey[] = [
-      STICKER_POSES.rightSideExplainer,
-      STICKER_POSES.warning,
-      STICKER_POSES.surprised,
-      STICKER_POSES.explaining,
-      STICKER_POSES.rightSideExplainer,
-      STICKER_POSES.comparing,
-    ];
-    return latePoses[segment % latePoses.length];
+    return STICKER_POSES.rightSideExplainer;
   } else {
-    // Approaching conclusion — build toward celebrating
-    const segment = Math.floor((currentTime - durationSeconds * 0.78) / 3.5);
-    const endPoses: StickerPoseKey[] = [
-      STICKER_POSES.explaining,
-      STICKER_POSES.success,
-      STICKER_POSES.celebrating,
-      STICKER_POSES.success,
-    ];
-    return endPoses[segment % endPoses.length];
+    return STICKER_POSES.success;
   }
 };
 
@@ -1027,8 +945,12 @@ export const CompareExplainer = (props: CompareProps) => {
         filter: 'blur(40px)',
       }} />
 
-      {audioUrl ? <Audio src={audioUrl} volume={1} /> : null}
-      <CompareSfxLayer />
+      {audioUrl ? <Audio src={resolveAsset(audioUrl)} volume={1} /> : null}
+      <PremiumAudioLayer
+        enabled={props.premiumEditing !== false}
+        styleLock={props.styleLock}
+        soundCues={props.soundCues}
+      />
 
       {/* Creator handle */}
       <div
@@ -1261,18 +1183,32 @@ export const CompareExplainer = (props: CompareProps) => {
           pointerEvents: 'none',
         }}
       />
+      <PremiumVisualTreatment enabled={props.premiumEditing !== false} styleLock={props.styleLock} />
     </AbsoluteFill>
   );
+};
+
+const getCompareDurationSeconds = (props: CompareProps) => {
+  const requested =
+    Number(props.durationSeconds) ||
+    Number(props.sourceDurationSeconds) ||
+    Number(props.renderWindowSeconds) ||
+    60;
+  return Math.max(1, Math.min(60, requested));
 };
 
 export const CompareExplainerComposition = () => (
   <Composition
     id="comparisonImages"
     component={CompareExplainer}
-    durationInFrames={900}
+    durationInFrames={1800}
     fps={30}
     width={1080}
     height={1920}
+    calculateMetadata={({props}) => {
+      const durationSeconds = getCompareDurationSeconds(props as CompareProps);
+      return {durationInFrames: Math.ceil(durationSeconds * 30), fps: 30, width: 1080, height: 1920};
+    }}
   />
 );
 
@@ -1280,12 +1216,16 @@ export const Compare2DPreviewComposition = () => (
   <Composition
     id="COMPARE-2D-PREVIEW"
     component={CompareExplainer}
-    durationInFrames={900}
+    durationInFrames={1800}
     fps={30}
     width={1080}
     height={1920}
     defaultProps={{
       stickerStyle: '2d',
+    }}
+    calculateMetadata={({props}) => {
+      const durationSeconds = getCompareDurationSeconds(props as CompareProps);
+      return {durationInFrames: Math.ceil(durationSeconds * 30), fps: 30, width: 1080, height: 1920};
     }}
   />
 );
@@ -1294,12 +1234,16 @@ export const CompareCartoonPreviewComposition = () => (
   <Composition
     id="COMPARE-CARTOON-PREVIEW"
     component={CompareExplainer}
-    durationInFrames={900}
+    durationInFrames={1800}
     fps={30}
     width={1080}
     height={1920}
     defaultProps={{
       stickerStyle: 'cartoon',
+    }}
+    calculateMetadata={({props}) => {
+      const durationSeconds = getCompareDurationSeconds(props as CompareProps);
+      return {durationInFrames: Math.ceil(durationSeconds * 30), fps: 30, width: 1080, height: 1920};
     }}
   />
 );
@@ -1308,12 +1252,16 @@ export const CompareExplainerPreviewComposition = () => (
   <Composition
     id="COMPARE-EXPLAINER-PREVIEW"
     component={CompareExplainer}
-    durationInFrames={900}
+    durationInFrames={1800}
     fps={30}
     width={1080}
     height={1920}
     defaultProps={{
       stickerStyle: 'explainer',
+    }}
+    calculateMetadata={({props}) => {
+      const durationSeconds = getCompareDurationSeconds(props as CompareProps);
+      return {durationInFrames: Math.ceil(durationSeconds * 30), fps: 30, width: 1080, height: 1920};
     }}
   />
 );

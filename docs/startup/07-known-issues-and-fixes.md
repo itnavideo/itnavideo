@@ -1,3 +1,7 @@
+# Archived / Reference Note
+
+This document is archived/reference material. Please use `docs/ITNAVIDEO_MASTER_DOC.md` as the latest source of truth for Itnavideo.
+
 # Known Issues & Fixes
 
 ## Currently Known Issues

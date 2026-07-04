@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getBillingEntitlementFromServer, isEntitlementActive } from "@/services/supabase/billingStore";
 import { getBillingUsageForUser, getFounderTestAccessForUser } from "@/services/billing/renderAccess";
+import {
+  ensureFreeSignupCreditForUser,
+  getFreeSignupCreditWindow,
+  isFreeSignupCreditActive,
+} from "@/services/supabase/freeTrialCredits";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -41,15 +46,48 @@ export async function GET(request: NextRequest) {
 
     const entitlement = await getBillingEntitlementFromServer(userId);
     const active = isEntitlementActive(entitlement);
-    const usage = active && entitlement
-      ? await getBillingUsageForUser(userId, entitlement.activatedAt, entitlement.expiresAt, entitlement.monthlyVideoLimit)
-      : { used: 0, limit: entitlement?.monthlyVideoLimit || 0, remaining: 0 };
+    if (active && entitlement) {
+      const usage = await getBillingUsageForUser(userId, entitlement.activatedAt, entitlement.expiresAt, entitlement.monthlyVideoLimit);
+      return NextResponse.json({
+        ok: true,
+        active,
+        entitlement,
+        usage,
+      });
+    }
+
+    const freeSignupCredit = await ensureFreeSignupCreditForUser(userId);
+    if (isFreeSignupCreditActive(freeSignupCredit) && freeSignupCredit) {
+      const window = getFreeSignupCreditWindow(freeSignupCredit);
+      const usage = await getBillingUsageForUser(userId, window.startAt, window.endAt, window.limit);
+      return NextResponse.json({
+        ok: true,
+        active: true,
+        entitlement: {
+          userId,
+          email: freeSignupCredit.email,
+          planId: "free-signup-credit",
+          planName: "Free Signup Credit",
+          monthlyVideoLimit: window.limit,
+          amount: 0,
+          currency: "INR",
+          paymentId: "free-signup-credit",
+          orderId: "free-signup-credit",
+          status: "active",
+          activatedAt: window.startAt,
+          expiresAt: window.endAt,
+          freeTrialGranted: true,
+          transaction: freeSignupCredit.transaction,
+        },
+        usage,
+      });
+    }
 
     return NextResponse.json({
       ok: true,
-      active,
+      active: false,
       entitlement,
-      usage,
+      usage: { used: 0, limit: entitlement?.monthlyVideoLimit || 0, remaining: 0 },
     });
   } catch (error) {
     console.error("Billing entitlement read failed:", error);

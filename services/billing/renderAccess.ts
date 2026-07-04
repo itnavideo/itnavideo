@@ -5,6 +5,11 @@ import {
   getAppSettingFromServer,
   setAppSettingFromServer,
 } from "@/services/supabase/siteStore";
+import {
+  ensureFreeSignupCreditForUser,
+  getFreeSignupCreditWindow,
+  isFreeSignupCreditActive,
+} from "@/services/supabase/freeTrialCredits";
 
 const USAGE_PREFIX = "render_usage";
 const USAGE_LEDGER_LIMIT = 600;
@@ -71,6 +76,26 @@ export async function getRenderAccessForUser(userId: string): Promise<RenderAcce
       reason: remaining > 0
         ? undefined
         : `Your ${entitlement.planName} plan limit is complete for this billing period. Please upgrade or wait for renewal.`,
+    };
+  }
+
+  const freeSignupCredit = await ensureFreeSignupCreditForUser(cleanUserId);
+  if (isFreeSignupCreditActive(freeSignupCredit) && freeSignupCredit) {
+    const window = getFreeSignupCreditWindow(freeSignupCredit);
+    const used = await getWindowUsage(cleanUserId, window.startAt, window.endAt);
+    const remaining = Math.max(0, window.limit - used);
+    return {
+      allowed: remaining > 0,
+      planId: "free-signup-credit",
+      planName: "Free Signup Credit",
+      activePaidPlan: false,
+      used,
+      limit: window.limit,
+      remaining,
+      expiresAt: window.endAt,
+      reason: remaining > 0
+        ? undefined
+        : "Your free signup credit is used. Upgrade or buy credits to create more reels.",
     };
   }
 

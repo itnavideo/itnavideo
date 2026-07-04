@@ -1,3 +1,7 @@
+# Reference Note
+
+This document is asset pipeline reference material. Please use `docs/ITNAVIDEO_MASTER_DOC.md` as the latest source of truth for overall Itnavideo documentation.
+
 # Automated Asset Pre-processing Pipeline
 
 This project keeps assets in one place: `public/assets`.

@@ -17,7 +17,7 @@ export const seoLandingPages: SeoLandingPage[] = [
   page({
     slug: "ai-reel-generator",
     title: "AI Reel Generator for Reels and Shorts | Itnavideo",
-    description: "Create polished 9:16 reels from your video, audio, or images using focused AI templates for captions, explainers, promos, and creator edits.",
+    description: "Create polished 9:16 reels from your video, audio, or images using focused AI video types for captions, explainers, promos, and creator edits.",
     h1: "AI reel generator for creators who need polished short videos",
     eyebrow: "AI reel generator",
     primaryKeyword: "AI reel generator",
@@ -29,22 +29,22 @@ export const seoLandingPages: SeoLandingPage[] = [
       "Promote long-form videos with short vertical promos"
     ],
     benefits: [
-      "Focused production templates instead of a crowded template library",
+      "Focused production video types instead of a crowded library",
       "English and Roman Hinglish captions from real speech",
-      "Preview-first flow for supported templates before final render",
+      "Preview-first flow for supported video types before final render",
       "1080x1920 MP4 output ready for Reels, Shorts, and TikTok"
     ],
     faqs: [
-      { question: "What can I create with Itnavideo?", answer: "You can create short vertical videos using focused templates such as Dynamic Creator Reel, Auto Caption Reel, Compare Explainer, Auto Draw Explainer, Long Video Promo, and Creator Background Replace." },
+      { question: "What can I create with Itnavideo?", answer: "You can create short vertical videos using focused video types such as Dynamic Creator Reel, Auto Caption Reel, Compare Explainer, Auto Draw Explainer, Long Video Promo, and Creator Background Replace." },
       { question: "Does Itnavideo use my real uploaded content?", answer: "Yes. The product is built around the user's uploaded video, audio, images, and transcript so the final reel follows the actual content." },
-      { question: "How long can videos be?", answer: "The current product is focused on short reels and shorts, with template flows designed around videos up to about 60 seconds." }
+      { question: "How long can videos be?", answer: "The current product is focused on short reels and shorts, with video type flows designed around videos up to about 60 seconds." }
     ]
   }),
   page({
     slug: "instagram-reels-maker",
     title: "Instagram Reels Maker with AI Captions | Itnavideo",
-    description: "Make Instagram-ready reels from creator videos, voiceovers, thumbnails, and images with AI captions and focused short-form templates.",
-    h1: "Instagram Reels maker with AI captions and creator templates",
+    description: "Make Instagram-ready reels from creator videos, voiceovers, thumbnails, and images with AI captions and focused short-form video types.",
+    h1: "Instagram Reels maker with AI captions and creator video types",
     eyebrow: "Instagram Reels",
     primaryKeyword: "Instagram Reels maker",
     audience: "Instagram creators, personal brands, educators, and social media teams",
@@ -69,7 +69,7 @@ export const seoLandingPages: SeoLandingPage[] = [
   page({
     slug: "youtube-shorts-generator",
     title: "YouTube Shorts Generator for Creators | Itnavideo",
-    description: "Create YouTube Shorts from creator videos, voiceovers, and promo clips with AI captions, typography, and focused template layouts.",
+    description: "Create YouTube Shorts from creator videos, voiceovers, and promo clips with AI captions, typography, and focused video type layouts.",
     h1: "YouTube Shorts generator for creator videos and promos",
     eyebrow: "YouTube Shorts",
     primaryKeyword: "YouTube Shorts generator",
@@ -82,7 +82,7 @@ export const seoLandingPages: SeoLandingPage[] = [
     ],
     benefits: [
       "Built for 9:16 mobile viewing",
-      "Long Video Promo template for thumbnail-led teasers",
+      "Long Video Promo video type for thumbnail-led teasers",
       "Auto captions are burned into the MP4",
       "Finished videos appear in Your Videos for 48 hours"
     ],
@@ -95,8 +95,8 @@ export const seoLandingPages: SeoLandingPage[] = [
   page({
     slug: "ai-shorts-generator",
     title: "AI Shorts Generator for Social Video | Itnavideo",
-    description: "Generate short vertical videos with AI captions, dynamic typography, comparison layouts, whiteboard scenes, and promo templates.",
-    h1: "AI Shorts generator for focused, production-quality templates",
+    description: "Generate short vertical videos with AI captions, dynamic typography, comparison layouts, whiteboard scenes, and promo video types.",
+    h1: "AI Shorts generator for focused, production-quality video types",
     eyebrow: "AI Shorts",
     primaryKeyword: "AI Shorts generator",
     audience: "short-form creators, marketers, educators, and founders",
@@ -107,14 +107,14 @@ export const seoLandingPages: SeoLandingPage[] = [
       "Replace a creator video background with an uploaded image"
     ],
     benefits: [
-      "Quality-over-quantity template library",
+      "Quality-over-quantity video type library",
       "Works with common video, audio, and image inputs",
       "Credits are used for final renders, not basic preview editing",
       "Temporary video storage helps control cost"
     ],
     faqs: [
-      { question: "How many templates are active?", answer: "The product is focused on a small set of production templates instead of many average templates." },
-      { question: "Is this a full video editor?", answer: "No. Itnavideo is a template-based AI video creation workflow for short reels and shorts." },
+      { question: "How many video types are active?", answer: "The product is focused on a small set of production video types instead of many average layouts." },
+      { question: "Is this a full video editor?", answer: "No. Itnavideo is a video-type-based AI video creation workflow for short reels and shorts." },
       { question: "What happens after rendering?", answer: "Generated videos are available in the Your Videos section for about 48 hours." }
     ]
   }),
@@ -185,7 +185,7 @@ export const seoLandingPages: SeoLandingPage[] = [
       "Make videos more accessible"
     ],
     benefits: [
-      "Focused caption-only template",
+      "Focused caption-only video type",
       "No unrelated effects added to the video",
       "Presets apply matching text, highlight, background, font, and size",
       "User settings are passed into final render"
@@ -218,8 +218,8 @@ export const seoLandingPages: SeoLandingPage[] = [
     ],
     faqs: [
       { question: "Do I need to upload images?", answer: "No. Dynamic Creator Reel focuses on the creator video and typography only." },
-      { question: "Does it support audio-only input?", answer: "No. This template needs a creator video because the video is the main visual." },
-      { question: "Will text cover the speaker?", answer: "The template is designed to keep typography in safe areas, but every source video should still be visually checked." }
+      { question: "Does it support audio-only input?", answer: "No. This video type needs a creator video because the video is the main visual." },
+      { question: "Will text cover the speaker?", answer: "The video type is designed to keep typography in safe areas, but every source video should still be visually checked." }
     ]
   }),
   page({
@@ -296,7 +296,7 @@ export const seoLandingPages: SeoLandingPage[] = [
     ],
     faqs: [
       { question: "Do I upload the full long video?", answer: "For now, upload a short promo clip plus the thumbnail and title." },
-      { question: "Can I use a YouTube thumbnail?", answer: "Yes. A 16:9 thumbnail works best for this template." },
+      { question: "Can I use a YouTube thumbnail?", answer: "Yes. A 16:9 thumbnail works best for this video type." },
       { question: "Is this only for YouTube?", answer: "No. It also works for podcast, lecture, music, and educational promo reels." }
     ]
   }),
@@ -329,7 +329,7 @@ export const seoLandingPages: SeoLandingPage[] = [
   page({
     slug: "audio-to-reels",
     title: "Audio to Reels Generator | Itnavideo",
-    description: "Turn voiceovers and audio lessons into short reels using templates such as Compare Explainer, Auto Draw Explainer, and Long Video Promo.",
+    description: "Turn voiceovers and audio lessons into short reels using video types such as Compare Explainer, Auto Draw Explainer, and Long Video Promo.",
     h1: "Audio to reels generator for voiceover content",
     eyebrow: "Audio to reels",
     primaryKeyword: "audio to reels generator",
@@ -341,14 +341,14 @@ export const seoLandingPages: SeoLandingPage[] = [
       "Create promos from audio clips"
     ],
     benefits: [
-      "Audio-first templates for explainers and promos",
+      "Audio-first video types for explainers and promos",
       "Transcript-based planning and captions",
       "No manual editing timeline",
       "Short vertical MP4 output"
     ],
     faqs: [
-      { question: "Can I create a reel from only audio?", answer: "Yes, audio-based templates such as Compare Explainer and Auto Draw work from voiceover." },
-      { question: "Does every template support audio-only?", answer: "No. Dynamic Creator and Auto Caption require video because the uploaded video is the main visual." },
+      { question: "Can I create a reel from only audio?", answer: "Yes, audio-based video types such as Compare Explainer and Auto Draw work from voiceover." },
+      { question: "Does every video type support audio-only?", answer: "No. Dynamic Creator and Auto Caption require video because the uploaded video is the main visual." },
       { question: "Do I need images?", answer: "Compare Explainer needs two images, while Auto Draw does not require uploaded images." }
     ]
   }),

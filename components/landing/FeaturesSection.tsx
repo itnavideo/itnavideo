@@ -14,13 +14,13 @@ import {
 
 const features = [
   {
-    title: 'Template-first flow',
-    description: '6 specialized templates for different content types — each with a focused workflow.',
+    title: 'Video Type-first flow',
+    description: '6 specialized video types for different content needs - each with a focused workflow.',
     icon: Film,
   },
   {
     title: 'Real transcript timing',
-    description: 'Speech-based templates use real audio/video transcript timing.',
+    description: 'Speech-based video types use real audio/video transcript timing.',
     icon: Captions,
   },
   {

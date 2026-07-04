@@ -1,10 +1,14 @@
+# Reference Note
+
+This document remains useful as agent/project context. Please use `docs/ITNAVIDEO_MASTER_DOC.md` as the latest source of truth for Itnavideo product documentation.
+
 # Itnavideo — Project Context
 
 ## What is Itnavideo
 
 Itnavideo is an AI-powered video creation platform. Users upload raw content (video, audio, images) and get polished, ready-to-post short videos (reels) without manual editing.
 
-It is NOT a video editor. Users do not drag timelines, cut clips, or choose fonts. They upload content, pick a template, and AI handles the rest.
+It is NOT a video editor. Users do not drag timelines, cut clips, or choose fonts. They upload content, pick a Video Type, and AI handles the rest.
 
 ## Product Goal
 
@@ -26,14 +30,14 @@ Future: Also support 16:9 long-form video output.
 
 ## Current Status
 
-- 6 production templates (all 9:16 reels)
+- 6 production Video Types (all 9:16 reels)
   - Dynamic Creator Reel
   - Auto Caption Reel
   - Creator Background Replace
   - Compare Explainer
   - Auto Draw Explainer
   - Long Video Promo
-- Product direction: quality over quantity. Keep the core library focused; new templates must meet the production-quality bar end to end.
+- Product direction: quality over quantity. Keep the core library focused; new Video Types must meet the production-quality bar end to end.
 - Credit-based pricing (1 credit = 1 video)
 - Renders on AWS Lambda via Remotion
 - Transcription via Groq Whisper
@@ -58,11 +62,21 @@ Future: Also support 16:9 long-form video output.
 
 ## Deployment Rules
 
-Two deploys needed for any template/render code change:
+Two deploys needed for any video type/render code change:
 1. `npx vercel --prod` — frontend + API
 2. `npm run reel:lambda:deploy` — Remotion render engine (Lambda + site bundle)
 
-Forgetting Lambda deploy = "template not available" errors in production.
+Forgetting Lambda deploy = "video type not available" errors in production.
+
+## Free-Tier Infrastructure Constraint
+
+Itnavideo is currently operating with constrained startup infrastructure:
+
+- Vercel is the free plan and should be used only for website/frontend, dashboard UI, SEO pages, lightweight API orchestration, and status routes.
+- Vercel must not do heavy video processing, long FFmpeg work, background rendering, or bulk asset serving.
+- AWS should be treated as the current `$100 free credit / free-tier constrained` render budget.
+- New Video Types must avoid always-on servers, expensive workers, large default media libraries, long renders, high memory Lambda assumptions, and paid managed services unless the founder explicitly approves.
+- Prefer deterministic local planners, existing Remotion Lambda flow, S3 temporary storage, and reusable indexed assets.
 
 ---
 
@@ -105,14 +119,15 @@ Danger:            #EF4444
 
 | Term | Meaning |
 |------|---------|
-| Template | A specific video format/workflow with its own render logic |
-| Mode | Internal dashboard state matching a template |
+| Video Type | Top-level video workflow, such as Auto Caption Video, Compare Explainer Video, or Long Video Promo |
+| Video Type Implementation | Technical Remotion/code implementation for a Video Type, or a future style/layout inside a Video Type |
+| Mode | Internal dashboard state matching a Video Type implementation |
 | Composition | Remotion composition ID (used in Lambda render) |
 | Render Props | JSON data passed to the Remotion composition |
 | Overlay Timeline | Array of timed text/visual scenes |
 | Captions | Word-grouped subtitle segments with timing |
 
-### Template Naming Convention
+### Video Type Implementation Naming Convention
 - Folder name: `TEMPLATE_NAME` (uppercase, underscores)
 - Composition ID: `TEMPLATE-NAME` (uppercase, dashes)
 - Mode: `camelCase` in dashboard code
@@ -122,17 +137,21 @@ Danger:            #EF4444
 
 ## Video Type vs Layout vs Style
 
-- **Video Type** = the template (Compare Explainer, Auto Caption, Long Video Promo)
-- **Layout** = how elements are arranged on screen for that template
-- **Style** = visual variation within a template (sticker character, caption style)
+- **Video Type** = top-level user choice (Compare Explainer Video, Auto Caption Video, Long Video Promo)
+- **Layout** = how elements are arranged on screen for that Video Type
+- **Style** = visual variation within a Video Type (sticker character, caption style)
 
-Each template has ONE core layout. Styles are optional variations within that layout.
+Each Video Type currently has ONE core layout. Styles are optional variations within that layout.
 
 ---
 
 ## Caption Rules
 
 - Source: Groq Whisper transcription (word-level timing)
+- Do not show subtitle language dropdowns in the dashboard. Users should not have to choose English/Hindi/Urdu subtitle output.
+- For Video Types that show subtitles/captions/text from speech, the visible text should follow the uploaded audio/video language as produced by the supported Groq transcription pipeline.
+- If the user uploads English speech, captions/text should be English. If the user uploads Hindi/Urdu/Hinglish speech, captions/text should follow the supported Roman Hindi/Urdu/Hinglish output.
+- Do not promise translation/conversion between languages from the dashboard.
 - Supported languages: English, Hinglish (Roman script)
 - No Devanagari/Urdu/Arabic script in visible captions
 - Hindi audio → clean Roman Hinglish captions
@@ -165,7 +184,7 @@ Each template has ONE core layout. Styles are optional variations within that la
 - Render assets: `public/assets/` (local only, NOT deployed to Vercel)
 - Website UI assets: `public/visuals/`, `public/brand/`
 - Production render assets served from S3/CDN
-- Remotion template folders are code-only (no images/fonts/sounds inside)
+- Remotion video type implementation folders are code-only (no images/fonts/sounds inside)
 - After adding/removing assets: run `npm run assets:index`
 
 ## Timeline JSON Rules
@@ -176,7 +195,7 @@ Each template has ONE core layout. Styles are optional variations within that la
 - Scenes must not overlap
 - First scene starts at 0
 - Last scene ends at or before `durationSeconds`
-- Preview-first templates must pass the same canonical timeline/settings JSON from `/api/reels/preview` into `PreviewEditor` and then into `/api/reels/jobs`
+- Preview-first video types must pass the same canonical timeline/settings JSON from `/api/reels/preview` into `PreviewEditor` and then into `/api/reels/jobs`
 - Preview edits should be stored as JSON changes (`captions`, `scenes`, `stickers`, `layout`, `assets`, `userEdits`) rather than separate final-render-only fields
 
 ---
@@ -189,12 +208,12 @@ Each template has ONE core layout. Styles are optional variations within that la
 - Do not add tests unless explicitly requested
 - TypeScript diagnostics must be clean after every change
 - Run build check before presenting results
-- No unused imports, props, or variables in templates
-- Templates should be clean and focused on their 3-4 core elements
+- No unused imports, props, or variables in video type implementations
+- Video type implementations should be clean and focused on their 3-4 core elements
 
 ## QA Rules
 
-- Every template change must be visually verified (local render or contact sheet)
+- Every video type change must be visually verified (local render or contact sheet)
 - Diagnostic script should confirm expected behavior
 - Test with both 16:9 and vertical inputs where applicable
 - Test with long titles (overflow handling)
@@ -205,7 +224,7 @@ Each template has ONE core layout. Styles are optional variations within that la
 - Over-designed UI (keep it clean and focused)
 - Random decorative elements (gradients, circles, particles)
 - Glassmorphism everywhere
-- Channel name/subscriber/subscribe button in templates (unless explicitly needed)
+- Channel name/subscriber/subscribe button in video type implementations (unless explicitly needed)
 - Forced CTA text user didn't provide
 - Multiple paid AI API calls for the same decision
 - Broad single-word keyword matching
@@ -213,17 +232,30 @@ Each template has ONE core layout. Styles are optional variations within that la
 - Low-contrast text
 - Static-looking videos (everything should have subtle motion)
 
+## Premium Video Type Principles
+
+For every new Video Type, use these professional-editor principles unless the specific spec forbids them:
+
+- Use one shared `styleLock` per render: palette, font, caption/label style, motion family, transition family, icon/sticker direction, and sound pack should feel like one designed world.
+- Add cinematic consistency: color grade/LUT-like filter, subtle grain, vignette, depth, shadows, and background blur where appropriate.
+- Add subtle camera life: Ken Burns, pan, or controlled motion. Avoid aggressive shake unless it is content-motivated.
+- Keep pacing breathable: visual change roughly every 3 seconds, but leave short pauses after dense information.
+- Use diegetic SFX only for visible events: UI click, text pop, swipe, page turn, cash, warning, success chime.
+- Use audio ducking so voiceover/uploaded audio stays primary.
+- Finance/fintech videos should use cool trust grading, precise micro-interactions, shimmer/click/cash/success cues, and no noisy effects.
+- Auto Caption remains the exception: no added SFX/music/visual treatment by default; preserve the user's video and audio.
+
 ---
 
 ## How AI/Developers Should Work Before Coding
 
 1. Read `ITNAVIDEO_PROJECT_CONTEXT.md` (this file)
 2. Read the specific video type file in `docs/video-types/`
-3. Check existing template code to understand current state
+3. Check existing video type implementation code to understand current state
 4. Plan the change before implementing
 5. Implement with minimal additions (no feature creep)
 6. Verify with diagnostics + visual QA
-7. Deploy both Vercel + Lambda if template code changed
+7. Deploy both Vercel + Lambda if video type render code changed
 8. Update the video type documentation if behavior changed
 
 ---
@@ -235,15 +267,15 @@ Each template has ONE core layout. Styles are optional variations within that la
 - Preview generation/editing does not deduct credits
 - Deduct credit only when the user confirms preview and final render starts
 - Plans: Starter (₹9), Creator, Pro tiers
-- All templates included in every plan
+- All Video Types included in every plan
 - No free tier renders (first video requires payment or trial credit)
 
 ## Dashboard UX Rules
 
-- Templates shown as phone-frame preview cards (3 per row)
-- No template opened by default (user must click to see form)
-- Form only shows after template selection
-- Upload section auto-scrolls on mobile after template choice
-- Supported templates should use preview-first flow: generate preview plan → user reviews/edits → final render
-- Keep form fields minimal (only what the template actually renders)
-- Remove fields the template no longer uses
+- Video Types shown as phone-frame preview cards (3 per row)
+- No Video Type opened by default (user must click to see form)
+- Form only shows after Video Type selection
+- Upload section auto-scrolls on mobile after Video Type choice
+- Supported Video Types should use preview-first flow: generate preview plan → user reviews/edits → final render
+- Keep form fields minimal (only what the Video Type actually renders)
+- Remove fields the Video Type no longer uses

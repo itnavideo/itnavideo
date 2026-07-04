@@ -17,20 +17,20 @@ const faqs: FAQItem[] = [
     answer: "Itnavideo is an AI reel maker that turns audio, video, images, and voiceovers into short vertical MP4 reels."
   },
   {
-    question: "What templates are available?",
-    answer: "Itnavideo now focuses on six production templates: Dynamic Creator Reel, Auto Caption Reel, Creator Background Replace, Compare Explainer, Auto Draw Explainer, and Long Video Promo. All six are available on every paid plan."
+    question: "What video types are available?",
+    answer: "Itnavideo now focuses on seven production video types: Custom AI Reel, Creator Reel Video, Auto Caption Video, Background Replace Video, Compare Explainer Video, Auto Draw Explainer Video, and Long Video Promo. All seven are available on every paid plan."
   },
   {
     question: "Can I test Itnavideo before subscribing?",
-    answer: "Yes. The Starter plan at $9/month gives you 25 video credits to explore all templates."
+    answer: "Yes. The Starter plan at $9/month gives you 25 video credits to explore all video types."
   },
   {
     question: "Do I need editing skills?",
-    answer: "No. Choose a template, upload the matching source file, and review the generated reel output."
+    answer: "No. Choose a video type, upload the matching source file, and review the generated reel output."
   },
   {
     question: "What do I need to upload?",
-    answer: "Each template clearly shows its required input. Most need a clear video or voiceover; Compare Explainer also needs two images, and Long Video Promo needs a thumbnail."
+    answer: "Each video type clearly shows its required input. Most need a clear video or voiceover; Compare Explainer Video also needs two images, and Long Video Promo needs a thumbnail."
   },
   {
     question: "Is my data secure?",

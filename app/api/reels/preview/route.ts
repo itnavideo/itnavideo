@@ -1,7 +1,7 @@
 /**
  * /api/reels/preview
  *
- * Generates a preview plan (transcript + captions + scene timeline) for any template.
+ * Generates a preview plan (transcript + captions + scene timeline) for any video type.
  * Does NOT start a Lambda render. Does NOT deduct credits.
  * Returns inputProps JSON that can be passed directly to @remotion/player
  * and later sent to /api/reels/jobs for the final render.
@@ -10,9 +10,9 @@ import { NextResponse } from 'next/server';
 import { createReadUrl } from '@/lib/aws/mediaStorage';
 import { transcribeMediaUrlWithGroq } from '@/services/ai/groqTranscription';
 import {
-  REEL_TEMPLATE_REGISTRY,
-  type ReelTemplateConfig,
-  type ReelTemplateName,
+  REEL_VIDEO_TYPE_REGISTRY,
+  type ReelVideoTypeConfig,
+  type ReelVideoTypeName,
   type ReelTranscriptSegment,
   type ReelWord,
 } from '@/services/ai/reelPlanner';
@@ -56,28 +56,28 @@ export async function POST(request: Request) {
   const comparisonImageKeys = Array.isArray(body.comparisonImageKeys)
     ? body.comparisonImageKeys.map((value) => readString(value)).filter(Boolean).slice(0, 2)
     : [];
-  const templateNameValue = readString(body.templateName || body.template || body.mode) as ReelTemplateName | '';
+  const videoTypeNameValue = readString(body.videoTypeName || body.videoType || body.templateName || body.template || body.mode) as ReelVideoTypeName | '';
   const topicTitle = readString(body.topicTitle);
-  const subtitleLang = readString(body.subtitleOutputLanguage) || 'hinglish';
+  const subtitleLang = normalizeSubtitleLanguage(readString(body.subtitleOutputLanguage));
 
   if (!mediaKey) {
     return NextResponse.json({ ok: false, error: 'mediaKey is required.' }, { status: 400 });
   }
 
-  const templateConfig = templateNameValue ? REEL_TEMPLATE_REGISTRY[templateNameValue] : null;
-  if (!templateNameValue || !templateConfig) {
-    return NextResponse.json({ ok: false, error: 'Unknown template. Cannot generate preview.' }, { status: 422 });
+  const videoTypeConfig = videoTypeNameValue ? REEL_VIDEO_TYPE_REGISTRY[videoTypeNameValue] : null;
+  if (!videoTypeNameValue || !videoTypeConfig) {
+    return NextResponse.json({ ok: false, error: 'Unknown video type. Cannot generate preview.' }, { status: 422 });
   }
-  const templateName: ReelTemplateName = templateNameValue;
+  const videoTypeName: ReelVideoTypeName = videoTypeNameValue;
 
   try {
     // 1. Get signed S3 URL (same URL will be used in final render)
     const mediaUrl = await createReadUrl(mediaKey);
-    const comparisonImageUrls = templateName === 'comparisonImages'
+    const comparisonImageUrls = videoTypeName === 'comparisonImages'
       ? (await Promise.all(comparisonImageKeys.map((key) => createReadUrl(key)))).map(readString).filter(Boolean).slice(0, 2)
       : [];
 
-    if (templateName === 'comparisonImages' && comparisonImageUrls.length !== 2) {
+    if (videoTypeName === 'comparisonImages' && comparisonImageUrls.length !== 2) {
       return NextResponse.json({ ok: false, error: 'Compare preview needs both left and right images.' }, { status: 422 });
     }
 
@@ -120,10 +120,10 @@ export async function POST(request: Request) {
     // 4. Build captions from word timestamps
     const captions = buildCompareCaptionsFromGroq(renderWindow);
 
-    // 5. Build template-specific preview props
+    // 5. Build video-type-specific preview props
     const inputProps = buildPreviewProps({
-      templateName: templateName as ReelTemplateName,
-      templateConfig,
+      videoTypeName: videoTypeName as ReelVideoTypeName,
+      videoTypeConfig,
       body,
       mediaUrl,
       comparisonImageUrls,
@@ -135,8 +135,8 @@ export async function POST(request: Request) {
 
     // 6. Build the unified preview timeline JSON
     const previewPlan: PreviewPlan = {
-      templateId: templateName as string,
-      compositionId: templateConfig.compositionId,
+      videoTypeId: videoTypeName as string,
+      compositionId: videoTypeConfig.compositionId,
       durationSeconds: renderWindow.durationSeconds,
       mediaSrc: mediaUrl,
       mediaTrimStartSeconds: renderWindow.trimStartSeconds,
@@ -176,7 +176,7 @@ export type PreviewCaption = {
 };
 
 export type PreviewPlan = {
-  templateId: string;
+  videoTypeId: string;
   compositionId: string;
   durationSeconds: number;
   mediaSrc: string;
@@ -196,11 +196,11 @@ export type PreviewPlan = {
   transcriptWords: ReelWord[];
 };
 
-// ─── Build preview inputProps per template ────────────────────────────────────
+// ─── Build preview inputProps per video type ──────────────────────────────────
 
 function buildPreviewProps({
-  templateName,
-  templateConfig,
+  videoTypeName,
+  videoTypeConfig,
   body,
   mediaUrl,
   comparisonImageUrls,
@@ -209,8 +209,8 @@ function buildPreviewProps({
   transcription,
   topicTitle,
 }: {
-  templateName: ReelTemplateName;
-  templateConfig: ReelTemplateConfig;
+  videoTypeName: ReelVideoTypeName;
+  videoTypeConfig: ReelVideoTypeConfig;
   body: Record<string, unknown>;
   mediaUrl: string;
   comparisonImageUrls: string[];
@@ -234,7 +234,7 @@ function buildPreviewProps({
     captionPosition: readString(body.captionPosition) || 'bottom',
     fontFamily: readString(body.captionFontFamily || body.fontFamily) || undefined,
     fontSize: readString(body.captionFontSize || body.fontSize) || 'large',
-    subtitleOutputLanguage: readString(body.subtitleOutputLanguage) || 'hinglish',
+    subtitleOutputLanguage: normalizeSubtitleLanguage(readString(body.subtitleOutputLanguage)) || transcription.languageHint || '',
     textColor: readString(body.captionTextColor) || '#ffffff',
     highlightColor: readString(body.captionHighlightColor) || '#facc15',
     backgroundColor: readString(body.captionBackgroundColor) || '#18181B',
@@ -242,12 +242,13 @@ function buildPreviewProps({
     videoLayout: 'fullscreen',
     progressStyle: 'none',
     wordClickSound: false,
-    templateName,
-    compositionId: templateConfig.compositionId,
+    videoTypeName,
+    templateName: videoTypeName,
+    compositionId: videoTypeConfig.compositionId,
   };
 
-  // Template-specific additions
-  if (templateName === 'DYNAMIC_CREATOR_REEL') {
+  // Video-type-specific additions
+  if (videoTypeName === 'DYNAMIC_CREATOR_REEL') {
     const scenes = buildDynamicCreatorScenes(captions, renderWindow.durationSeconds);
     return {
       ...base,
@@ -257,7 +258,7 @@ function buildPreviewProps({
     };
   }
 
-  if (templateName === 'AUTO_CAPTION_REEL') {
+  if (videoTypeName === 'AUTO_CAPTION_REEL') {
     const energyWords = (renderWindow.words || [])
       .filter(w => w.word && Number.isFinite(w.start) && Number.isFinite(w.end))
       .map(w => ({ word: String(w.word), start: Number(w.start), end: Number(w.end) }));
@@ -271,7 +272,7 @@ function buildPreviewProps({
     };
   }
 
-  if (templateName === 'comparisonImages') {
+  if (videoTypeName === 'comparisonImages') {
     const leftTitle = readString(body.compareLeftTitle || body.leftTitle || body.leftLabel) || 'Left';
     const rightTitle = readString(body.compareRightTitle || body.rightTitle || body.rightLabel) || 'Right';
     const overlays = buildCompareOverlayTimeline(captions, renderWindow.durationSeconds, leftTitle, rightTitle);
@@ -327,7 +328,7 @@ function buildCompareOverlayTimeline(
   rightTitle: string,
 ) {
   const fallback = captions.length > 0 ? captions : [{start: 0, end: Math.max(1, durationSeconds), text: `${leftTitle} vs ${rightTitle}`}];
-  return fallback.map((caption, index) => ({
+  const captionBeats = fallback.map((caption, index) => ({
     id: `compare-beat-${index + 1}`,
     start: Number(caption.start ?? 0),
     end: Number(caption.end ?? Math.min(durationSeconds, Number(caption.start ?? 0) + 2.5)),
@@ -336,6 +337,7 @@ function buildCompareOverlayTimeline(
     title: index === 0 ? `${leftTitle} vs ${rightTitle}` : '',
     stickerPose: pickComparePose(caption.text, index, fallback.length, leftTitle, rightTitle),
   }));
+  return stabilizeCompareOverlayTimeline(captionBeats, durationSeconds, leftTitle, rightTitle);
 }
 
 function pickComparePose(textValue: string, index: number, total: number, leftTitle: string, rightTitle: string) {
@@ -352,6 +354,74 @@ function pickComparePose(textValue: string, index: number, total: number, leftTi
     : index % 3 === 1
       ? 'sticker_pointing_right_side_explainer'
       : 'sticker_general_explaining_key_point';
+}
+
+function stabilizeCompareOverlayTimeline<T extends {id: string; start: number; end: number; text?: string; body?: string; title?: string; stickerPose?: string}>(
+  beats: T[],
+  durationSeconds: number,
+  leftTitle: string,
+  rightTitle: string,
+) {
+  if (!beats.length) return beats;
+  const minHoldSeconds = 4;
+  const maxHoldSeconds = 6;
+  const normalized = beats
+    .map((beat, index) => ({
+      ...beat,
+      start: Math.max(0, Number(beat.start) || 0),
+      end: Math.min(durationSeconds, Math.max(Number(beat.end) || 0, Number(beat.start) + 0.6)),
+      stickerPose: beat.stickerPose || pickComparePose([beat.text, beat.body, beat.title].filter(Boolean).join(' '), index, beats.length, leftTitle, rightTitle),
+    }))
+    .filter((beat) => beat.start < durationSeconds && beat.end > beat.start);
+
+  const groups: typeof normalized = [];
+  let current: typeof normalized[number] | null = null;
+  let texts: string[] = [];
+
+  const flush = () => {
+    if (!current) return;
+    groups.push({
+      ...current,
+      text: texts.join(' ').replace(/\s+/g, ' ').trim() || current.text,
+      body: texts.join(' ').replace(/\s+/g, ' ').trim() || current.body,
+    });
+    current = null;
+    texts = [];
+  };
+
+  normalized.forEach((beat, index) => {
+    if (!current) {
+      current = {...beat, id: `compare-pose-${groups.length + 1}`};
+      texts = [String(beat.text || beat.body || '').trim()].filter(Boolean);
+      return;
+    }
+
+    const heldFor = current.end - current.start;
+    const intentChanged = beat.stickerPose !== current.stickerPose;
+    const sentenceEnded = /[.!?]$/.test(texts.join(' ').trim());
+    const shouldBreak =
+      heldFor >= maxHoldSeconds ||
+      (heldFor >= minHoldSeconds && (intentChanged || sentenceEnded)) ||
+      index === normalized.length - 1 && heldFor >= minHoldSeconds;
+
+    if (shouldBreak) {
+      flush();
+      current = {...beat, id: `compare-pose-${groups.length + 1}`};
+      texts = [String(beat.text || beat.body || '').trim()].filter(Boolean);
+      return;
+    }
+
+    current.end = beat.end;
+    texts.push(String(beat.text || beat.body || '').trim());
+  });
+
+  flush();
+  return groups.map((group, index) => ({
+    ...group,
+    id: `compare-pose-${index + 1}`,
+    start: Number(group.start.toFixed(2)),
+    end: Number((index === groups.length - 1 ? Math.min(durationSeconds, group.end) : group.end).toFixed(2)),
+  })) as T[];
 }
 
 // Reuse the same scenes builder logic from jobs route
@@ -528,3 +598,10 @@ function selectRenderWindow(transcription: {
 
 function r(v: number) { return Math.round(v * 1000) / 1000; }
 function readString(v: unknown): string { return typeof v === 'string' ? v.trim() : ''; }
+function normalizeSubtitleLanguage(value: string) {
+  const normalized = value.toLowerCase().replace(/[-_\s]+/g, '');
+  if (!normalized || normalized === 'auto' || normalized === 'source') return undefined;
+  if (normalized === 'english' || normalized === 'en') return 'english';
+  if (normalized === 'hinglish' || normalized === 'romanenglish' || normalized === 'romanhindi' || normalized === 'romanurdu' || normalized === 'hindi' || normalized === 'urdu' || normalized === 'hi' || normalized === 'ur') return 'hinglish';
+  return undefined;
+}

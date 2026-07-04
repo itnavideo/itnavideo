@@ -40,6 +40,22 @@ const nextConfig = {
     ];
   },
 
+  // Redirects — /templates is now /video-types; old URLs get 301 redirect
+  async redirects() {
+    return [
+      {
+        source: '/templates',
+        destination: '/video-types',
+        permanent: true,
+      },
+      {
+        source: '/templates/:slug',
+        destination: '/video-types/:slug',
+        permanent: true,
+      },
+    ];
+  },
+
 };
 
 function buildTraceExcludes() {

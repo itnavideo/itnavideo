@@ -8,7 +8,7 @@ import { useAuth } from '@/components/auth/AuthContext';
 import BrandLogo from '@/components/brand/BrandLogo';
 
 const productLinks = [
-  { label: 'Templates', href: '/templates', icon: AudioLines },
+  { label: 'Video Types', href: '/video-types', icon: AudioLines },
   { label: 'Features', href: '/features', icon: Sparkles },
 ];
 
@@ -50,18 +50,18 @@ export default function Navbar() {
         <div className="hidden items-center gap-3 md:flex">
           {user ? (
             <>
-              <a href="/dashboard" className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-2.5 text-sm font-black text-black shadow-[0_0_24px_rgba(255,255,255,0.12)] transition hover:bg-zinc-200">
+              <Link href="/dashboard" className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-2.5 text-sm font-black text-black shadow-[0_0_24px_rgba(255,255,255,0.12)] transition hover:bg-zinc-200">
                 <LayoutDashboard size={16} />
                 Dashboard
-              </a>
+              </Link>
               <button onClick={logout} className="rounded-lg px-3 py-2 text-sm font-bold text-zinc-400 transition-colors hover:bg-red-500/10 hover:text-red-300">Logout</button>
             </>
           ) : (
             <>
               <Link href="/login" className="rounded-lg px-3 py-2 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/8 hover:text-white">Login</Link>
-              <Link href="/signup" className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-black text-white shadow-[0_0_26px_rgba(37,99,235,0.18)] transition hover:shadow-[0_0_32px_rgba(37,99,235,0.28)] brand-btn-primary-dark">
+              <Link href="/signup" className="inline-flex items-center gap-2 rounded-lg border border-pink-300/25 bg-pink-500 px-5 py-2.5 text-sm font-black text-white shadow-[0_0_26px_rgba(255,61,154,0.20)] transition hover:bg-pink-400 hover:shadow-[0_0_32px_rgba(255,61,154,0.30)]">
                 <Sparkles size={16} />
-                Sign Up
+                Create My Free Video
               </Link>
             </>
           )}
@@ -127,10 +127,10 @@ export default function Navbar() {
           <div className="mt-5 grid gap-3">
           {user ? (
             <>
-              <a href="/dashboard" onClick={() => setIsOpen(false)} className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-5 py-4 text-center font-black text-black">
+              <Link href="/dashboard" onClick={() => setIsOpen(false)} className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-5 py-4 text-center font-black text-black">
                 <LayoutDashboard size={18} />
                 Open Dashboard
-              </a>
+              </Link>
               <button
                 onClick={() => {
                   setIsOpen(false);
@@ -143,9 +143,9 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <Link href="/signup" onClick={() => setIsOpen(false)} className="inline-flex items-center justify-center gap-2 rounded-lg px-5 py-4 text-center font-black text-white" style={{ background: 'var(--color-primary-hover)' }}>
+              <Link href="/signup" onClick={() => setIsOpen(false)} className="inline-flex items-center justify-center gap-2 rounded-lg border border-pink-300/25 bg-pink-500 px-5 py-4 text-center font-black text-white shadow-[0_0_26px_rgba(255,61,154,0.20)]">
                 <Sparkles size={18} />
-                Start Creating
+                Create My Free Video
               </Link>
               <Link href="/login" onClick={() => setIsOpen(false)} className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 px-5 py-3 text-center font-bold text-white">
                 <LogIn size={17} />

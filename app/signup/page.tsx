@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Eye, EyeOff, Loader2, Lock, Mail, User as UserIcon } from 'lucide-react';
+import { Check, Eye, EyeOff, Loader2, Lock, Mail, Sparkles, User as UserIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import AuthShell from '@/components/auth/AuthShell';
 import { supabase } from '@/lib/supabase/client';
@@ -124,9 +124,9 @@ export default function SignupPage() {
 
   return (
     <AuthShell
-      eyebrow="Start Building"
-      title="Create your Itnavideo workspace."
-      subtitle="Start generating Video Explainer reels from one creator dashboard."
+      eyebrow="1 Free AI Video Credit"
+      title="Create your first AI video for free."
+      subtitle="Sign up and get 1 Free AI Video Credit. Create your first video free, no credit card needed."
     >
       <div className="rounded-xl border border-white/5 bg-zinc-950/50 p-8 shadow-2xl backdrop-blur-md">
         {confirmationEmail ? (
@@ -164,8 +164,22 @@ export default function SignupPage() {
         ) : (
         <>
         <div className="mb-8">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-lg border border-pink-300/25 bg-pink-500/[0.09] px-3 py-2 text-xs font-black text-pink-100">
+            <Sparkles size={14} className="text-pink-300" />
+            1 Free AI Video Credit after signup
+          </div>
           <h2 className="text-2xl font-bold tracking-tight text-white">Create workspace</h2>
-          <p className="mt-1 text-sm text-zinc-400">Use your workspace to upload source media, render reels, and review outputs.</p>
+          <p className="mt-2 text-sm leading-6 text-zinc-400">
+            Upload your content and use your free credit to generate one ready-to-post AI video. Failed renders are not charged.
+          </p>
+          <div className="mt-4 grid gap-2 text-xs font-bold text-zinc-300">
+            {['AI captions and reel planning', 'Preview before final render', 'No credit card needed'].map((item) => (
+              <span key={item} className="flex items-center gap-2">
+                <Check size={13} className="text-brand-mint" />
+                {item}
+              </span>
+            ))}
+          </div>
         </div>
 
         <form onSubmit={handleSignup} className="space-y-5">
@@ -225,7 +239,7 @@ export default function SignupPage() {
             disabled={loading}
             className="flex w-full items-center justify-center gap-2 rounded-lg bg-white py-3 text-sm font-bold text-black transition hover:bg-zinc-200 disabled:opacity-50"
           >
-            {loading ? <Loader2 className="animate-spin" size={18} /> : 'Create Account'}
+            {loading ? <Loader2 className="animate-spin" size={18} /> : 'Create Account + Create My Free Video'}
           </button>
         </form>
 
@@ -240,7 +254,7 @@ export default function SignupPage() {
           className="flex w-full items-center justify-center gap-3 rounded-lg border border-white/10 bg-white/5 py-3 text-sm font-medium transition hover:bg-white/10 disabled:opacity-50"
         >
           <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white text-xs font-black text-black">G</span>
-          Join with Google
+          Join with Google + Create My Free Video
         </button>
 
         <p className="mt-8 text-center text-sm text-zinc-500">

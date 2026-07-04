@@ -118,7 +118,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
 
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                href={`/dashboard?template=${page.slug.includes("caption") || page.slug.includes("subtitle") ? "auto-caption-reel" : page.slug.includes("compare") ? "compare-explainer" : page.slug.includes("whiteboard") ? "auto-draw-explainer" : page.slug.includes("promo") ? "long-video-promo" : page.slug.includes("background") ? "creator-background-replace" : "dynamic-creator-reel"}`}
+                href={`/dashboard?videoType=${page.slug.includes("caption") || page.slug.includes("subtitle") ? "auto-caption-reel" : page.slug.includes("compare") ? "compare-explainer" : page.slug.includes("whiteboard") ? "auto-draw-explainer" : page.slug.includes("promo") ? "long-video-promo" : page.slug.includes("background") ? "creator-background-replace" : "dynamic-creator-reel"}`}
                 className="rounded-xl bg-brand-mint px-6 py-4 text-sm font-black text-black transition hover:bg-white"
               >
                 Create your reel
@@ -151,16 +151,16 @@ export default async function SeoLandingPage({ params }: PageProps) {
       <section className="mx-auto grid max-w-6xl gap-6 px-6 py-16 md:grid-cols-3">
         <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
           <Clapperboard className="mb-4 h-7 w-7 text-brand-mint" />
-          <h2 className="text-xl font-black">Focused templates</h2>
+          <h2 className="text-xl font-black">Focused video types</h2>
           <p className="mt-3 text-sm leading-6 text-slate-300">
-            Choose a production workflow built for one clear output instead of a crowded template library.
+            Choose a production workflow built for one clear output instead of a crowded format library.
           </p>
         </div>
         <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
           <FileText className="mb-4 h-7 w-7 text-brand-mint" />
           <h2 className="text-xl font-black">Speech timing</h2>
           <p className="mt-3 text-sm leading-6 text-slate-300">
-            Speech-based templates use transcripts for captions, scene timing, and text overlays.
+            Speech-based video types use transcripts for captions, scene timing, and text overlays.
           </p>
         </div>
         <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">

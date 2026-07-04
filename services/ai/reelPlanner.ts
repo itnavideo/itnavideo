@@ -63,6 +63,7 @@ export type ReelTemplateName =
   | 'LONG_VIDEO_PROMO'
   | 'DYNAMIC_CREATOR_REEL'
   | 'CREATOR_BACKGROUND_REPLACE'
+  | 'CUSTOM_AI_REEL'
   | 'VIDEO_EXPLAINER'
   | 'VIDEO_SIMPLE_EXPLAINER'
   | 'VIDEO_CAPTION'
@@ -79,6 +80,9 @@ export type ReelTemplateConfig = {
   plannerMode: string;
   mediaFit: string;
 };
+
+export type ReelVideoTypeName = ReelTemplateName;
+export type ReelVideoTypeConfig = ReelTemplateConfig;
 
 export const REEL_TEMPLATE_REGISTRY: Partial<Record<ReelTemplateName, ReelTemplateConfig>> = {
   AUTO_CAPTION_REEL: {
@@ -108,8 +112,8 @@ export const REEL_TEMPLATE_REGISTRY: Partial<Record<ReelTemplateName, ReelTempla
   LONG_VIDEO_PROMO: {
     templateName: 'LONG_VIDEO_PROMO',
     compositionId: 'LONG-VIDEO-PROMO',
-    allowedMedia: ['audio', 'video'],
-    transcriptRequirement: 'required',
+    allowedMedia: ['video'],
+    transcriptRequirement: 'not-required',
     plannerMode: 'videoCaption',
     mediaFit: 'videoCaption',
   },
@@ -129,6 +133,14 @@ export const REEL_TEMPLATE_REGISTRY: Partial<Record<ReelTemplateName, ReelTempla
     plannerMode: 'videoCaption',
     mediaFit: 'videoCaption',
   },
+  CUSTOM_AI_REEL: {
+    templateName: 'CUSTOM_AI_REEL',
+    compositionId: 'CUSTOM-AI-REEL',
+    allowedMedia: ['image', 'video', 'audio'],
+    transcriptRequirement: 'not-required',
+    plannerMode: 'imageStory',
+    mediaFit: 'imageStory',
+  },
 } as const satisfies Record<string, {
   templateName: ReelTemplateName;
   compositionId: string;
@@ -137,6 +149,7 @@ export const REEL_TEMPLATE_REGISTRY: Partial<Record<ReelTemplateName, ReelTempla
   plannerMode: 'videoExplainer' | 'notes' | 'videoCaption' | 'imageStory' | 'compare';
   mediaFit: 'videoExplainer' | 'notes' | 'videoCaption' | 'imageStory' | 'compare';
 }>;
+export const REEL_VIDEO_TYPE_REGISTRY = REEL_TEMPLATE_REGISTRY;
 export type ReelOverlayLayout = 'headlineCard' | 'splitExplainer' | 'statCard' | 'warningCard' | 'checklist' | 'ctaCard';
 export type ReelVideoExplainerV2Layout = VideoExplainerV2LayoutType;
 export type ReelPrimaryVisualType = 'uploadedMedia' | 'image' | 'icon' | 'chart' | 'document' | 'waveform' | 'mockup' | 'none';
@@ -1833,18 +1846,13 @@ function attachCompareStickerPoses<T extends {text: string; body?: string; type:
 ): T[] {
   if (templateName !== 'comparisonImages' || overlays.length === 0) return overlays;
 
-  let previousPose = '';
   return overlays.map((overlay, index) => {
-    const inferredPose = inferCompareStickerPose({
+    const stickerPose = inferCompareStickerPose({
       text: [overlay.text, overlay.body].filter(Boolean).join(' '),
       type: overlay.type,
       index,
       total: overlays.length,
     });
-    const stickerPose = inferredPose === previousPose
-      ? getAlternateCompareStickerPose(inferredPose, index, overlays.length)
-      : inferredPose;
-    previousPose = stickerPose;
     return {
       ...overlay,
       stickerPose,
@@ -1899,23 +1907,6 @@ function inferCompareStickerPose({
   if (progress < 0.18) return 'sticker_pointing_left_side_explainer';
   if (progress > 0.82) return 'sticker_success_conclusion_explainer';
   return naturalArc[index % naturalArc.length];
-}
-
-function getAlternateCompareStickerPose(pose: string, index: number, total: number) {
-  if (index === 0) return pose;
-  if (index === total - 1) return pose === 'sticker_happy_celebrating_outro' ? 'sticker_success_conclusion_explainer' : pose;
-  const alternates: Record<string, string[]> = {
-    sticker_pointing_left_side_explainer: ['sticker_general_explaining_key_point', 'sticker_comparing_both_sides_explainer'],
-    sticker_pointing_right_side_explainer: ['sticker_comparing_both_sides_explainer', 'sticker_general_explaining_key_point'],
-    sticker_comparing_both_sides_explainer: ['sticker_pointing_left_side_explainer', 'sticker_pointing_right_side_explainer'],
-    sticker_general_explaining_key_point: ['sticker_thinking_analysis_explainer', 'sticker_comparing_both_sides_explainer'],
-    sticker_questioning_surprised_explainer: ['sticker_thinking_analysis_explainer', 'sticker_general_explaining_key_point'],
-    sticker_thinking_analysis_explainer: ['sticker_questioning_surprised_explainer', 'sticker_general_explaining_key_point'],
-    warning: ['sticker_thinking_analysis_explainer', 'warning'],
-    sticker_success_conclusion_explainer: ['sticker_general_explaining_key_point', 'sticker_happy_celebrating_outro'],
-  };
-  const options = alternates[pose];
-  return options?.length ? options[index % options.length] : pose;
 }
 
 function normalizeForPlannerMatch(value: string) {

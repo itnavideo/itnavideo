@@ -8,7 +8,7 @@ const ALLOWED_ROLES = new Map([
   ['video-product-engineer', 'Video Product Engineer'],
   ['backend-developer-video-systems', 'Backend Developer, Video Systems'],
   ['full-stack-product-developer', 'Full-Stack Product Developer'],
-  ['graphic-designer-video-templates', 'Graphic Designer, Video Templates'],
+  ['graphic-designer-video-types', 'Graphic Designer, Video Types'],
   ['marketing-manager-ai-saas', 'Marketing Manager, AI/SaaS'],
   ['finance-operations-manager', 'Finance & Operations Manager'],
 ]);

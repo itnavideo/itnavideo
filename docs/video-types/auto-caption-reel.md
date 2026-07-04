@@ -1,3 +1,7 @@
+# Reference Note
+
+This is a detailed Video Type spec. Start with `docs/ITNAVIDEO_MASTER_DOC.md` for the latest source of truth, then use this file for Auto Caption implementation details.
+
 # Auto Caption Reel
 
 ## Basic Information
@@ -54,6 +58,15 @@ Adding word-level animated captions manually takes 15-30 minutes per video using
 | Caption Size | Selection | Small, medium, large, or extra-large |
 | Caption Position | Selection | Bottom safe area, center, or top |
 | Caption Colors | Selection | Text, highlight, and background colors |
+| Subtitle Language | Not shown | No language dropdown. Captions follow the uploaded video's spoken language as produced by the supported Groq transcription pipeline |
+
+### Dashboard Caption Style Picker
+
+- Caption style cards should use lightweight React/CSS mini 9:16 reel previews, not plain text swatches.
+- Each preview should place sample captions in the bottom safe area so users understand the final reel look before rendering.
+- Preview frames may use reusable creator/talking-head UI images from `public/visuals`; these are dashboard-only preview assets and are not passed into Remotion renders.
+- Preview styling should reuse the shared subtitle preset tokens from `remotion/types/subtitles.ts` wherever possible.
+- Selected style must remain visually obvious with a highlighted border and checkmark.
 
 ## Inputs NOT Collected
 
@@ -82,7 +95,7 @@ Adding word-level animated captions manually takes 15-30 minutes per video using
 
 ## Layout Rules
 
-The template renders one element only — the user's video as full-screen background with captions on top:
+The Video Type renders one element only — the user's video as full-screen background with captions on top:
 
 ```
 ┌─────────────────────────────┐
@@ -109,8 +122,11 @@ The template renders one element only — the user's video as full-screen backgr
 
 ### Caption Handling
 - Word-level timing from Groq transcript
+- No subtitle language dropdown. If the user uploads English speech, captions should be English; if the user uploads Hindi/Urdu/Hinglish speech, captions should follow the supported Roman Hindi/Urdu/Hinglish output.
+- Do not promise translation/conversion to another language from this Video Type.
 - Each word animates in (style-dependent: pop, fade, highlight)
 - Active word highlighted, previous words remain visible in group
+- Shorts Karaoke highlights only the currently spoken word by timestamp/index; previously spoken words return to normal gray text
 - Groups of 3-5 words shown together (not one word at a time)
 
 ### Video Aspect Handling
@@ -131,11 +147,16 @@ The template renders one element only — the user's video as full-screen backgr
 | Inactive words | Slightly dimmed or base color |
 
 ### Caption Styles Available
+- 21 dashboard-visible styles: Eclipse, Hustle, Gold Pill, Studio Clean, One Word, Arctic Glow, Karaoke Fill, Shorts Karaoke, Reels Clean, Bold Highlight Strip, Shatter Drop, Pill Bounce, Cinematic, Hacker Type, Vollkorn, Midnight, Marigold, Pop Candy, Bold Fire, Typewriter, Split Color
 - `Studio Clean` — Default stacked caption card, white text, yellow active word, dark compact background
 - `Karaoke Fill` — Words fill left-to-right using the active highlight color
-- `Gold Pill` — Compact gold text on a dark rounded pill
-- `Cinematic` — Clean subtitle bar for calmer creator footage
-- Additional styles as added to the system, but every style must stay inside the safe caption zone
+- `Shorts Karaoke` — YouTube Shorts-style white capsule, full phrase visible, active word dark/bold
+- `Reels Clean` — native Reels-style clean white caption with subtle active-word emphasis
+- `Bold Highlight Strip` — high-energy orange/yellow highlight strip for hook-heavy clips
+- `Gold Pill` / `Pill Bounce` — Compact pill-style caption treatments
+- `One Word` / `Bold Fire` — Single active word emphasis styles
+- `Cinematic` / `Vollkorn` — calmer serif subtitle treatments
+- All styles must stay inside the safe caption zone
 
 ### What Colors to Avoid
 - No colored backgrounds behind the video
@@ -177,14 +198,15 @@ The template renders one element only — the user's video as full-screen backgr
 
 ## Timeline / Scene Structure
 
-Single-scene template — no multi-scene timeline needed.
+Single-scene Video Type — no multi-scene timeline needed.
 
 - Audio source = user's uploaded video audio
 - Duration = video length (capped at 60s)
 - Captions = word-level from Groq transcription
+- No subtitle language selector in the dashboard; uploaded speech language drives the visible caption text through the supported Groq pipeline
 - No AI planning needed — captions come directly from transcript word timing
 - No overlayTimeline or scene planner
-- Dashboard must not expose video layout, progress bar, or sound effect controls for this template
+- Dashboard must not expose video layout, progress bar, or sound effect controls for this Video Type
 - Caption preset selection should apply the preset's text, highlight, background, font, and size settings automatically
 - Preview input props and final Lambda render input props must preserve the same `captionStyle`, `captionPosition`, `fontFamily`, `fontSize`, `textColor`, `highlightColor`, and `backgroundColor` values
 
@@ -234,9 +256,9 @@ Single-scene template — no multi-scene timeline needed.
 - DO NOT crop or resize the video differently per scene (there's one scene)
 - DO NOT add progress bars, click sounds, video zoom, video drift, blur-background mode, split layout, or decorative video frames
 
-## Template Value Proposition
+## Video Type Value Proposition
 
-The template adds value through:
+The Video Type adds value through:
 1. **Word-level sync** — precise timing from Groq transcript, not manual alignment
 2. **Style variety** — multiple caption looks without editing software
 3. **Speed** — instant captions vs. 15-30 min manual work

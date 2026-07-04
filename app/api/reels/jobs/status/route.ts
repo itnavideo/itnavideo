@@ -30,8 +30,21 @@ export async function GET(request: Request) {
       renderId,
       logLevel: 'info',
     });
+    const renderErrors = progress.errors || [];
+    const hasOutput = Boolean(progress.outputFile);
+    const missingOutput = Boolean(progress.done && !hasOutput && renderErrors.length === 0);
+    const diagnostics = [
+      `Mode: ${mode || 'unknown'}`,
+      `Progress: ${Math.round((progress.overallProgress || 0) * 100)}%`,
+      `Done: ${Boolean(progress.done)}`,
+      `Output: ${hasOutput ? 'yes' : 'no'}`,
+      `Workers invoked: ${progress.lambdasInvoked || 0}`,
+      progress.costs ? `Costs: ${JSON.stringify(progress.costs).slice(0, 160)}` : '',
+      renderErrors[0]?.message ? `Raw error: ${renderErrors[0].message.slice(0, 220)}` : '',
+      missingOutput ? 'Raw error: render completed without an output file' : '',
+    ].filter(Boolean);
     let usageWarning = '';
-    if (progress.done && userId) {
+    if (progress.done && userId && renderErrors.length === 0 && hasOutput) {
       try {
         await recordRenderUsageFromServer({
           userId,
@@ -45,19 +58,38 @@ export async function GET(request: Request) {
         console.error('Render usage write failed:', error);
       }
     }
+    if (mode === 'longVideoPromo') {
+      console.log('[LONG_VIDEO_PROMO_STATUS]', {
+        renderId,
+        state: renderErrors.length || missingOutput ? 'error' : progress.done ? 'done' : 'rendering',
+        progress: progress.overallProgress || 0,
+        done: progress.done,
+        output: hasOutput,
+        workers: progress.lambdasInvoked || 0,
+        firstError: renderErrors[0]?.message || (missingOutput ? 'MISSING_OUTPUT_FILE' : ''),
+      });
+    }
 
     return NextResponse.json({
       ok: true,
-      state: (progress.errors || []).length ? 'error' : progress.done ? 'done' : 'rendering',
+      state: renderErrors.length || missingOutput ? 'error' : progress.done ? 'done' : 'rendering',
       renderId,
       bucketName,
       done: progress.done,
       progress: progress.overallProgress || 0,
       outputFile: progress.outputFile,
       outputSizeInBytes: progress.outputSizeInBytes,
-      errors: (progress.errors || []).map((error) => ({
+      errors: [
+        ...renderErrors.map((error) => ({
         message: sanitizeUserFacingStatus(error.message || ''),
-      })),
+        reason: error.message || '',
+        })),
+        ...(missingOutput ? [{
+          message: 'Render finished but the MP4 was not created. Please retry.',
+          reason: 'MISSING_OUTPUT_FILE',
+        }] : []),
+      ],
+      diagnostics,
       usageWarning: usageWarning || undefined,
       renderWorkersInvoked: progress.lambdasInvoked || 0,
       costs: progress.costs || null,
@@ -141,4 +173,3 @@ function sanitizeUserFacingStatus(value: string) {
 function isTemporaryRenderCapacityMessage(value: string) {
   return value === 'Render traffic is high right now. Your upload stays selected, so please retry in a minute.';
 }
-

@@ -9,28 +9,24 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from 'remotion';
-import { CanvasGraphicsLayer } from '../../layers/CanvasGraphicsLayer';
-import { buildPromoEffects } from '../../layers/canvasEffectPresets';
-
-type CaptionItem = {
-  text?: string;
-  start?: number;
-  end?: number;
-};
+import {PremiumAudioLayer, type PremiumSoundCue, type PremiumStyleLock} from '../../components/PremiumAudioLayer';
+import {getPremiumMediaStyle, PremiumVisualTreatment, type PremiumVisualStyleLock} from '../../components/PremiumVisualTreatment';
 
 type LongVideoPromoProps = {
   // Core props (actively rendered)
   thumbnailSrc?: string;
   title?: string;
-  subtitle?: string;
   mediaSrc?: string;
-  mediaAspect?: 'landscape' | 'portrait' | 'reel' | '16:9' | '9:16' | '1:1' | '4:5';
+  mediaAspect?: 'landscape' | 'portrait' | 'reel' | '16:9' | '9:16' | '1:1' | '4:5' | 'square';
   mediaTrimStartSeconds?: number;
   sourceAudioVolume?: number;
-  captions?: CaptionItem[];
   durationSeconds?: number;
   sourceDurationSeconds?: number;
-  videoDuration?: string;
+  accentColor?: string;
+  fastRender?: boolean;
+  premiumEditing?: boolean;
+  styleLock?: PremiumStyleLock & PremiumVisualStyleLock;
+  soundCues?: PremiumSoundCue[];
   // Backward-compat props (accepted from API but not rendered)
   ctaText?: string;
   channelName?: string;
@@ -38,7 +34,6 @@ type LongVideoPromoProps = {
   subscriberCount?: string;
   mediaType?: string;
   chips?: string[];
-  accentColor?: string;
 };
 
 /**
@@ -61,20 +56,25 @@ function resolveAsset(value: string): string {
 function LongVideoPromo({
   thumbnailSrc = '',
   title = 'Watch Full Video',
-  subtitle = '',
   mediaSrc = '',
   mediaAspect = 'landscape',
   mediaTrimStartSeconds = 0,
   sourceAudioVolume = 1,
-  captions = [],
-  videoDuration = '',
+  accentColor = '#93C5FD',
+  fastRender = true,
+  premiumEditing = true,
+  styleLock,
+  soundCues = [],
 }: LongVideoPromoProps) {
   const frame = useCurrentFrame();
   const {fps, durationInFrames} = useVideoConfig();
+  const premiumMediaStyle = getPremiumMediaStyle(styleLock, frame, durationInFrames);
 
   const hasPromoClip = Boolean(mediaSrc);
   const isPortraitClip = mediaAspect === 'portrait' || mediaAspect === 'reel' || mediaAspect === '9:16';
-  const isSquareClip = mediaAspect === '1:1' || mediaAspect === '4:5';
+  const isFourFiveClip = mediaAspect === '4:5';
+  const isSquareClip = mediaAspect === '1:1' || mediaAspect === 'square';
+  const videoAspectRatio = isPortraitClip ? '9/16' : isFourFiveClip ? '4/5' : isSquareClip ? '1/1' : '16/9';
 
   // Safe title — max 60 chars, 2 lines
   const displayTitle = clampTitle(title, 60);
@@ -98,59 +98,42 @@ function LongVideoPromo({
   // Gentle continuous float for video area
   const floatY = Math.sin(frame * 0.025) * 2;
 
-  // Border highlight pulse (very subtle)
+  // Thumbnail highlight pulse (very subtle; only the top thumbnail is framed)
   const borderGlow = interpolate(Math.sin(frame * 0.03), [-1, 1], [0.4, 0.7]);
 
-  // Background slow Ken Burns drift
-  const bgDriftX = Math.sin(frame * 0.008) * 8;
-  const bgDriftY = Math.cos(frame * 0.006) * 5;
   const bgZoom = interpolate(frame, [0, durationInFrames], [1.2, 1.28], {extrapolateRight: 'clamp'});
 
-  // Video preview frame dimensions based on aspect ratio
-  const getClipFrameStyle = (): {width: string | number; height: string | number; aspectRatio?: string} => {
-    if (isPortraitClip) {
-      // 9:16 — phone-style vertical frame
-      return {width: 480, height: 854, aspectRatio: '9/16'};
-    }
-    if (isSquareClip) {
-      // 1:1 or 4:5 — square-ish frame
-      return {width: 700, height: mediaAspect === '4:5' ? 875 : 700};
-    }
-    // Default 16:9 landscape
-    return {width: '100%', height: 'auto', aspectRatio: '16/9'};
-  };
-
-  const clipFrameStyle = getClipFrameStyle();
-
   return (
-    <AbsoluteFill style={{backgroundColor: '#000'}}>
+    <AbsoluteFill style={{backgroundColor: '#0F172A'}}>
+      <PremiumAudioLayer enabled={premiumEditing} styleLock={styleLock} soundCues={soundCues} />
 
-      {/* === BACKGROUND: blurred video (moving slowly) or thumbnail fallback === */}
-      {hasPromoClip ? (
+      {/* === BACKGROUND: use thumbnail by default so Lambda decodes the uploaded video only once. === */}
+      {thumbnailSrc ? (
+        <div style={{position: 'absolute', inset: -28, overflow: 'hidden'}}>
+          <Img
+            src={resolveAsset(thumbnailSrc)}
+            style={{
+              width: '112%',
+              height: '112%',
+              objectFit: 'cover',
+              filter: 'blur(52px) brightness(0.28) saturate(1.22)',
+              transform: `${premiumMediaStyle.transform} scale(${bgZoom})`,
+              transformOrigin: 'center center',
+            }}
+          />
+        </div>
+      ) : hasPromoClip && !fastRender ? (
         <div style={{position: 'absolute', inset: -20, overflow: 'hidden'}}>
           <OffthreadVideo
-            src={mediaSrc}
+            src={resolveAsset(mediaSrc)}
             startFrom={Math.max(0, Math.round(mediaTrimStartSeconds * fps))}
             style={{
               width: '110%', height: '110%',
               objectFit: 'cover',
-              filter: 'blur(44px) brightness(0.22) saturate(1.3)',
-              transform: `scale(${bgZoom}) translate(${bgDriftX}px, ${bgDriftY}px)`,
-              transformOrigin: 'center center',
+              filter: 'blur(44px) brightness(0.18) saturate(1.1)',
+              transform: `scale(${bgZoom})`,
             }}
             volume={0}
-          />
-        </div>
-      ) : thumbnailSrc ? (
-        <div style={{position: 'absolute', inset: -20, overflow: 'hidden'}}>
-          <Img
-            src={resolveAsset(thumbnailSrc)}
-            style={{
-              width: '110%', height: '110%',
-              objectFit: 'cover',
-              filter: 'blur(44px) brightness(0.18) saturate(1.1)',
-              transform: `scale(${bgZoom}) translate(${bgDriftX}px, ${bgDriftY}px)`,
-            }}
           />
         </div>
       ) : (
@@ -173,9 +156,19 @@ function LongVideoPromo({
         background: 'linear-gradient(180deg, rgba(0,0,0,0.4) 0%, transparent 100%)',
       }} />
 
+      <div style={{
+        position: 'absolute',
+        top: 60,
+        left: 40,
+        right: 40,
+        bottom: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+      }}>
       {/* === SECTION 1: THUMBNAIL (top) === */}
       <div style={{
-        position: 'absolute', top: 60, left: 40, right: 40,
+        width: '100%',
         opacity: thumbOpacity,
         transform: `scale(${thumbScale})`,
         transformOrigin: 'center top',
@@ -216,123 +209,157 @@ function LongVideoPromo({
               <div style={{width: 0, height: 0, marginLeft: 5, borderTop: '12px solid transparent', borderBottom: '12px solid transparent', borderLeft: '20px solid rgba(255,255,255,0.9)'}} />
             </div>
           </div>
-
-          {/* Duration badge — only if provided */}
-          {videoDuration ? (
-            <div style={{
-              position: 'absolute', bottom: 10, right: 12,
-              background: 'rgba(0,0,0,0.8)', borderRadius: 5, padding: '3px 8px',
-              fontSize: 15, fontWeight: 700, color: '#fff', letterSpacing: 0.3,
-            }}>
-              {videoDuration}
-            </div>
-          ) : null}
         </div>
       </div>
 
-      {/* === SECTION 2: TITLE (below thumbnail) === */}
+      {/* === SECTION 2: TITLE (integrated typography, no bordered box) === */}
       <div style={{
-        position: 'absolute', top: 650, left: 44, right: 44,
+        width: '100%',
+        marginTop: 30,
         opacity: titleSpring,
         transform: `translateY(${titleY}px)`,
         textAlign: 'center',
       }}>
-        <h1 style={{
-          fontSize: titleFontSize,
-          fontWeight: 900,
-          color: '#ffffff',
-          lineHeight: 1.2,
-          letterSpacing: -0.5,
-          fontFamily: 'system-ui, -apple-system, sans-serif',
-          textShadow: '0 2px 16px rgba(0,0,0,0.6)',
-          maxHeight: '2.4em',
-          overflow: 'hidden',
+        <div style={{
+          position: 'relative',
+          display: 'inline-block',
+          maxWidth: '100%',
+          padding: '0 22px 18px',
         }}>
-          {displayTitle}
-        </h1>
-        {subtitle ? (
-          <p style={{
-            marginTop: 10, fontSize: 24, fontWeight: 600,
-            color: 'rgba(255,255,255,0.6)',
-            textShadow: '0 1px 8px rgba(0,0,0,0.4)',
+          <div style={{
+            position: 'absolute',
+            left: '10%',
+            right: '10%',
+            top: -14,
+            bottom: 4,
+            borderRadius: 999,
+            background: `radial-gradient(ellipse at center, ${accentColor}24 0%, transparent 70%)`,
+            filter: 'blur(12px)',
+          }} />
+          <div style={{
+            position: 'absolute',
+            left: 42,
+            right: 42,
+            bottom: 0,
+            height: 5,
+            borderRadius: 999,
+            background: `linear-gradient(90deg, transparent 0%, ${accentColor}99 22%, rgba(248,250,252,0.65) 50%, ${accentColor}99 78%, transparent 100%)`,
+            boxShadow: `0 0 24px ${accentColor}40`,
+          }} />
+          <h1 style={{
+            position: 'relative',
+            margin: 0,
+            fontSize: titleFontSize,
+            fontWeight: 900,
+            color: '#F8FAFC',
+            lineHeight: 1.2,
+            letterSpacing: 0,
+            fontFamily: 'system-ui, -apple-system, sans-serif',
+            textShadow: '0 2px 12px rgba(0,0,0,0.75)',
+            maxHeight: '2.4em',
+            overflow: 'hidden',
           }}>
-            {clampTitle(subtitle, 50)}
-          </p>
-        ) : null}
+            {displayTitle}
+          </h1>
+        </div>
       </div>
 
-      {/* === SECTION 3: PROMO VIDEO PREVIEW (bottom area — preserves aspect ratio) === */}
+      {/* === SECTION 3: PROMO VIDEO PREVIEW — starts directly below title === */}
       {hasPromoClip ? (
         <div style={{
-          position: 'absolute',
-          top: isPortraitClip ? 790 : 820,
-          left: 0, right: 0,
-          bottom: 30,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          width: 'calc(100% + 80px)',
+          flex: 1,
+          minHeight: 0,
+          marginTop: 12,
+          marginLeft: -40,
+          marginRight: -40,
+          display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
           opacity: clipSpring,
           transform: `scale(${clipSpring}) translateY(${floatY}px)`,
           transformOrigin: 'center top',
         }}>
-          {/* Blurred background behind video for empty side space */}
-          <div style={{
-            position: 'absolute', inset: 0,
-            background: 'linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%)',
-            borderRadius: 18,
-            margin: '0 28px',
-          }} />
-
-          {/* Video frame — aspect ratio preserved */}
+          {/* Borderless cinematic media stage — blurred fill prevents empty gaps */}
           <div style={{
             position: 'relative',
-            width: isPortraitClip ? 480 : isSquareClip ? 700 : 'calc(100% - 56px)',
-            maxWidth: 1000,
-            height: isPortraitClip ? 854 : undefined,
-            aspectRatio: isPortraitClip ? '9/16' : isSquareClip ? (mediaAspect === '4:5' ? '4/5' : '1/1') : '16/9',
-            maxHeight: isPortraitClip ? 1050 : 580,
-            borderRadius: isPortraitClip ? 24 : 14,
+            width: '100%',
+            height: '100%',
             overflow: 'hidden',
-            border: `2px solid rgba(255,255,255,${borderGlow * 0.35})`,
-            boxShadow: '0 16px 50px rgba(0,0,0,0.5)',
-            background: '#000',
+            background: 'transparent',
           }}>
+            {thumbnailSrc ? (
+              <Img
+                src={resolveAsset(thumbnailSrc)}
+                style={{
+                  position: 'absolute',
+                  inset: -24,
+                  width: 'calc(100% + 48px)',
+                  height: 'calc(100% + 48px)',
+                  objectFit: 'cover',
+                  filter: `blur(34px) brightness(0.46) saturate(1.16) ${styleLock?.colorGrade?.filter || ''}`,
+                  transform: 'scale(1.08)',
+                }}
+              />
+            ) : null}
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(180deg, rgba(11,17,32,0.16) 0%, rgba(11,17,32,0.04) 28%, rgba(11,17,32,0.42) 100%)',
+            }} />
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'radial-gradient(ellipse at center, transparent 38%, rgba(0,0,0,0.42) 100%)',
+            }} />
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 72,
+              background: 'linear-gradient(180deg, rgba(11,17,32,0.72) 0%, transparent 100%)',
+            }} />
             <OffthreadVideo
-              src={mediaSrc}
+              src={resolveAsset(mediaSrc)}
               startFrom={Math.max(0, Math.round(mediaTrimStartSeconds * fps))}
               style={{
-                width: '100%', height: '100%',
-                objectFit: 'contain',
+                position: 'relative',
+                zIndex: 2,
+                display: 'block',
+                width: isPortraitClip ? 560 : isFourFiveClip ? 760 : isSquareClip ? 760 : '100%',
+                height: isPortraitClip ? '100%' : isFourFiveClip || isSquareClip ? 'auto' : 'auto',
+                maxWidth: '100%',
+                maxHeight: '100%',
+                margin: '0 auto',
+                aspectRatio: videoAspectRatio,
+                objectFit: isPortraitClip ? 'cover' : 'contain',
                 objectPosition: 'center center',
+                filter: `drop-shadow(0 22px 46px rgba(0,0,0,0.58)) ${styleLock?.colorGrade?.filter || ''}`,
               }}
               volume={sourceAudioVolume}
             />
 
-            {/* Phone frame indicator for portrait clips */}
-            {isPortraitClip && (
-              <>
-                {/* Top notch */}
-                <div style={{
-                  position: 'absolute', top: 8, left: '50%', transform: 'translateX(-50%)',
-                  width: 80, height: 5, borderRadius: 3,
-                  background: 'rgba(255,255,255,0.15)',
-                }} />
-                {/* Bottom bar */}
-                <div style={{
-                  position: 'absolute', bottom: 6, left: '50%', transform: 'translateX(-50%)',
-                  width: 120, height: 4, borderRadius: 2,
-                  background: 'rgba(255,255,255,0.12)',
-                }} />
-              </>
-            )}
+            <div style={{
+              position: 'absolute',
+              zIndex: 3,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 110,
+              background: 'linear-gradient(180deg, transparent 0%, rgba(11,17,32,0.76) 100%)',
+              pointerEvents: 'none',
+            }} />
           </div>
         </div>
       ) : (
         /* No clip uploaded — show thumbnail echo as placeholder */
         <div style={{
-          position: 'absolute', top: 820, left: 60, right: 60, bottom: 80,
-          borderRadius: 14, overflow: 'hidden',
-          border: '2px solid rgba(255,255,255,0.1)',
+          width: '100%',
+          flex: 1,
+          minHeight: 0,
+          marginTop: 18,
+          overflow: 'hidden',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          background: 'rgba(255,255,255,0.03)',
+          background: 'transparent',
           opacity: clipSpring,
         }}>
           {thumbnailSrc ? (
@@ -356,31 +383,9 @@ function LongVideoPromo({
           </div>
         </div>
       )}
+      </div>
 
-      {/* === CAPTION OVERLAY (safe zone at bottom) === */}
-      {captions.length > 0 ? (() => {
-        const time = frame / fps;
-        const active = captions.find((c) => time >= Number(c.start ?? 0) && time < Number(c.end ?? 999));
-        if (!active?.text) return null;
-        return (
-          <div style={{
-            position: 'absolute', bottom: 16, left: 44, right: 44,
-            textAlign: 'center', zIndex: 30,
-          }}>
-            <div style={{
-              display: 'inline-block', padding: '10px 20px', borderRadius: 10,
-              background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)',
-            }}>
-              <span style={{fontSize: 22, fontWeight: 700, color: '#fff'}}>{active.text}</span>
-            </div>
-          </div>
-        );
-      })() : null}
-      {/* === CANVAS GRAPHICS LAYER — motion effects overlay === */}
-      <CanvasGraphicsLayer
-        effects={buildPromoEffects({ durationFrames: durationInFrames })}
-        zIndex={15}
-      />
+      <PremiumVisualTreatment enabled={premiumEditing} styleLock={styleLock} includeLightSweep />
     </AbsoluteFill>
   );
 }
@@ -388,22 +393,20 @@ function LongVideoPromo({
 const defaultProps: LongVideoPromoProps = {
   thumbnailSrc: '',
   title: 'Complete Guide to SBI Credit Card',
-  subtitle: '',
   mediaSrc: '',
   mediaAspect: 'landscape',
   mediaTrimStartSeconds: 0,
   sourceAudioVolume: 1,
-  durationSeconds: 30,
-  sourceDurationSeconds: 30,
-  captions: [],
-  videoDuration: '12:34',
+  durationSeconds: 60,
+  sourceDurationSeconds: 60,
+  fastRender: true,
 };
 
 export const LongVideoPromoComposition = () => (
   <Composition
     id="LONG-VIDEO-PROMO"
     component={LongVideoPromo}
-    durationInFrames={900}
+    durationInFrames={1800}
     fps={30}
     width={1080}
     height={1920}
@@ -411,7 +414,7 @@ export const LongVideoPromoComposition = () => (
     calculateMetadata={({props}) => {
       const p = props as LongVideoPromoProps;
       const dur = Math.max(8, Math.min(60,
-        Number(p.durationSeconds) || Number(p.sourceDurationSeconds) || 30
+        Number(p.durationSeconds) || Number(p.sourceDurationSeconds) || 60
       ));
       return {durationInFrames: Math.ceil(dur * 30), fps: 30, width: 1080, height: 1920};
     }}

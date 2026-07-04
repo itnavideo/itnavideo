@@ -12,16 +12,16 @@ export type SeoLandingPage = {
 };
 
 const defaultWorkflow = [
-  'Choose one focused Itnavideo template for the job.',
+  'Choose one focused Itnavideo video type for the job.',
   'Upload the required video, audio, image, or thumbnail assets.',
-  'Itnavideo transcribes speech or prepares the template-specific render plan.',
+  'Itnavideo transcribes speech or prepares the video-type-specific render plan.',
   'Preview where supported, then render a 9:16 MP4 for Reels, Shorts, and TikTok.',
 ];
 
 const defaultFaqs = (keyword: string) => [
   {
     question: `What is the best way to use a ${keyword}?`,
-    answer: 'Start with clear source content, choose the template that matches the output you want, preview where supported, then create the final short video.',
+    answer: 'Start with clear source content, choose the video type that matches the output you want, preview where supported, then create the final short video.',
   },
   {
     question: 'Can I use my own video, audio, and images?',
@@ -29,7 +29,7 @@ const defaultFaqs = (keyword: string) => [
   },
   {
     question: 'Is this made for YouTube Shorts and Instagram Reels?',
-    answer: 'Yes. Current templates focus on 9:16 short-form videos for Reels, Shorts, TikTok, and similar mobile platforms.',
+    answer: 'Yes. Current video types focus on 9:16 short-form videos for Reels, Shorts, TikTok, and similar mobile platforms.',
   },
 ];
 
@@ -60,9 +60,9 @@ export const seoLandingPages: SeoLandingPage[] = [
     'ai-reel-generator',
     'AI reel generator',
     'AI Reel Generator for Short-Form Creators',
-    'Create 9:16 reels from uploaded video, audio, and images using focused Itnavideo templates.',
+    'Create 9:16 reels from uploaded video, audio, and images using focused Itnavideo video types.',
     'Turn real creator content into a polished short video without manual timeline editing.',
-    'Focused production templates: captions, creator edits, comparisons, whiteboard explainers, promos, and background replacement.',
+    'Focused production video types: captions, creator edits, comparisons, whiteboard explainers, promos, and background replacement.',
     ['Creators', 'educators', 'YouTubers', 'coaches', 'small teams'],
     ['Auto captions', 'creator reels', 'comparison explainers', 'whiteboard explainers', 'long-video promos'],
   ),

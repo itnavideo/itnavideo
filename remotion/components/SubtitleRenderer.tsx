@@ -186,6 +186,12 @@ export const SubtitleRenderer: React.FC<SubtitleRendererProps> = ({
         return <VollkornStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} activeWord={activeWord} />;
       case 'karaoke':
         return <KaraokeStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} activeWord={activeWord} currentTimeSec={currentTimeSec} />;
+      case 'shorts-karaoke':
+        return <ShortsKaraokeStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} currentTimeSec={currentTimeSec} />;
+      case 'reels-clean':
+        return <ReelsCleanStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} currentTimeSec={currentTimeSec} />;
+      case 'bold-highlight-strip':
+        return <BoldHighlightStripStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} currentTimeSec={currentTimeSec} />;
       case 'shatter':
         return <ShatterStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} activeWord={activeWord} />;
       case 'pill-bounce':
@@ -647,6 +653,218 @@ const KaraokeStyle: React.FC<StyleProps> = ({caption, config, fontSize, activeWo
           </div>
         );
       })}
+    </div>
+  );
+};
+
+// Style: SHORTS KARAOKE — YouTube Shorts-style capsule, active word only.
+const ShortsKaraokeStyle: React.FC<StyleProps> = ({caption, config, fontSize, currentTimeSec = 0}) => {
+  const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
+  const words = caption.words ?? [];
+  const activeIndex = words.findIndex((w: WordTiming) => currentTimeSec >= w.start && currentTimeSec < w.end);
+  const activeWord = activeIndex >= 0 ? words[activeIndex] : null;
+  const wordLocalFrame = activeWord ? Math.max(0, Math.round((currentTimeSec - activeWord.start) * fps)) : 0;
+  const activeScale = activeWord
+    ? spring({frame: wordLocalFrame, fps, config: {damping: 14, stiffness: 260, mass: 0.55}, from: 0.96, to: 1})
+    : 1;
+  const captionStartFrame = Math.round(caption.start * fps);
+  const localFrame = frame - captionStartFrame;
+  const fade = interpolate(localFrame, [0, 7], [0, 1], {extrapolateRight: 'clamp'});
+  const slide = interpolate(localFrame, [0, 9], [18, 0], {extrapolateRight: 'clamp'});
+  const capsuleFontSize = Math.max(42, Math.min(fontSize * 1.02, 78));
+
+  return (
+    <div style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 'fit-content',
+      maxWidth: 900,
+      padding: '24px 44px',
+      borderRadius: 24,
+      backgroundColor: captionBackground(config, '#F4F4F5'),
+      boxShadow: '0 12px 28px rgba(0,0,0,0.22), inset 0 0 0 1px rgba(0,0,0,0.06)',
+      opacity: fade,
+      transform: `translateY(${slide}px)`,
+      overflowWrap: 'anywhere',
+      wordBreak: 'break-word',
+    }}>
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        columnGap: 12,
+        rowGap: 2,
+        lineHeight: 1.08,
+        textAlign: 'center',
+      }}>
+        {words.map((w: WordTiming, i: number) => {
+          const isActive = i === activeIndex;
+          return (
+            <span key={`${w.word}-${i}`} style={{
+              display: 'inline-block',
+              color: isActive ? (config.highlightColor || '#111827') : (config.textColor || '#9CA3AF'),
+              fontFamily: config.fontFamily,
+              fontSize: capsuleFontSize,
+              fontWeight: isActive ? 950 : 850,
+              letterSpacing: 0,
+              transform: isActive ? `scale(${activeScale})` : 'scale(1)',
+              transformOrigin: 'center',
+              textShadow: 'none',
+              whiteSpace: 'pre-wrap',
+            }}>
+              {w.word}
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// Style: REELS CLEAN — native Instagram/Reels-style white phrase, no box.
+const ReelsCleanStyle: React.FC<StyleProps> = ({caption, config, fontSize, currentTimeSec = 0}) => {
+  const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
+  const words = caption.words ?? [];
+  const activeIndex = words.findIndex((w: WordTiming) => currentTimeSec >= w.start && currentTimeSec < w.end);
+  const activeWord = activeIndex >= 0 ? words[activeIndex] : null;
+  const wordLocalFrame = activeWord ? Math.max(0, Math.round((currentTimeSec - activeWord.start) * fps)) : 0;
+  const activeOpacity = activeWord
+    ? spring({frame: wordLocalFrame, fps, config: {damping: 16, stiffness: 220, mass: 0.5}, from: 0.82, to: 1})
+    : 1;
+  const captionStartFrame = Math.round(caption.start * fps);
+  const localFrame = frame - captionStartFrame;
+  const fade = interpolate(localFrame, [0, 7], [0, 1], {extrapolateRight: 'clamp'});
+  const slide = interpolate(localFrame, [0, 9], [14, 0], {extrapolateRight: 'clamp'});
+  const cleanFontSize = Math.max(48, Math.min(fontSize * 0.96, 68));
+
+  return (
+    <div style={{
+      display: 'flex',
+      flexWrap: 'wrap',
+      justifyContent: 'center',
+      alignItems: 'center',
+      columnGap: 8,
+      rowGap: 2,
+      maxWidth: 850,
+      padding: '0 18px',
+      textAlign: 'center',
+      lineHeight: 1.15,
+      opacity: fade,
+      transform: `translateY(${slide}px)`,
+      filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.65)) drop-shadow(0 0 5px rgba(0,0,0,0.45))',
+    }}>
+      {words.map((w: WordTiming, i: number) => {
+        const isActive = i === activeIndex;
+        return (
+          <span key={`${w.word}-${i}`} style={{
+            display: 'inline-block',
+            color: isActive ? (config.highlightColor || '#FFFFFF') : (config.textColor || '#F8FAFC'),
+            fontFamily: config.fontFamily,
+            fontSize: cleanFontSize,
+            fontWeight: isActive ? 560 : 420,
+            letterSpacing: 0,
+            opacity: isActive ? activeOpacity : 0.88,
+            textShadow: [
+              '0 1px 1px rgba(0,0,0,0.78)',
+              '0 -1px 1px rgba(0,0,0,0.5)',
+              '1px 0 1px rgba(0,0,0,0.55)',
+              '-1px 0 1px rgba(0,0,0,0.55)',
+            ].join(', '),
+            whiteSpace: 'pre-wrap',
+          }}>
+            {w.word}
+          </span>
+        );
+      })}
+    </div>
+  );
+};
+
+// Style: BOLD HIGHLIGHT STRIP — cartoon/religious kids-video style, high contrast.
+const BoldHighlightStripStyle: React.FC<StyleProps> = ({caption, config, fontSize, currentTimeSec = 0}) => {
+  const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
+  const words = caption.words ?? [];
+  const activeIndex = words.findIndex((w: WordTiming) => currentTimeSec >= w.start && currentTimeSec < w.end);
+  const activeWord = activeIndex >= 0 ? words[activeIndex] : null;
+  const wordLocalFrame = activeWord ? Math.max(0, Math.round((currentTimeSec - activeWord.start) * fps)) : 0;
+  const activeScale = activeWord
+    ? spring({frame: wordLocalFrame, fps, config: {damping: 11, stiffness: 340, mass: 0.45}, from: 0.94, to: 1})
+    : 1;
+  const captionStartFrame = Math.round(caption.start * fps);
+  const localFrame = frame - captionStartFrame;
+  const entryScale = spring({
+    frame: Math.max(0, localFrame),
+    fps,
+    config: {damping: 16, stiffness: 260, mass: 0.55},
+    from: 0.94,
+    to: 1,
+  });
+  const fade = interpolate(localFrame, [0, 8], [0, 1], {extrapolateRight: 'clamp'});
+  const slide = interpolate(localFrame, [0, 10], [26, 0], {extrapolateRight: 'clamp'});
+  const stripFontSize = Math.max(58, Math.min(fontSize * 0.92, 86));
+
+  return (
+    <div style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      maxWidth: 980,
+      padding: '18px 42px 20px',
+      borderRadius: 16,
+      background: captionBackground(config, '#F59E0B'),
+      boxShadow: [
+        '0 12px 22px rgba(63,23,0,0.28)',
+        'inset 0 -5px 0 rgba(139,56,0,0.18)',
+        'inset 0 2px 0 rgba(255,255,255,0.22)',
+      ].join(', '),
+      opacity: fade,
+      transform: `translateY(${slide}px) scale(${entryScale})`,
+      overflowWrap: 'anywhere',
+      wordBreak: 'break-word',
+    }}>
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        alignItems: 'center',
+        columnGap: 13,
+        rowGap: 4,
+        maxHeight: stripFontSize * 2.45,
+        overflow: 'hidden',
+        textAlign: 'center',
+        lineHeight: 1.08,
+      }}>
+        {words.map((w: WordTiming, i: number) => {
+          const isActive = i === activeIndex;
+          return (
+            <span key={`${w.word}-${i}`} style={{
+              display: 'inline-block',
+              color: isActive ? (config.highlightColor || '#FFF3A3') : (config.textColor || '#FFFFFF'),
+              fontFamily: config.fontFamily,
+              fontSize: stripFontSize,
+              fontWeight: 900,
+              letterSpacing: 0,
+              WebkitTextStroke: `${Math.max(4, Math.round(stripFontSize * 0.08))}px #7F1D1D`,
+              paintOrder: 'stroke fill',
+              transform: isActive ? `scale(${activeScale * 1.035})` : 'scale(1)',
+              transformOrigin: 'center',
+              textShadow: [
+                '0 3px 0 #271010',
+                '2px 2px 0 #271010',
+                '-2px 2px 0 #271010',
+                '0 8px 12px rgba(0,0,0,0.32)',
+              ].join(', '),
+              whiteSpace: 'pre-wrap',
+            }}>
+              {w.word}
+            </span>
+          );
+        })}
+      </div>
     </div>
   );
 };

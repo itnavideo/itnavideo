@@ -84,7 +84,7 @@ export const metadata: Metadata = {
         url: "/visuals/previews/video-explainer-homepage.png",
         width: 1080,
         height: 1920,
-        alt: "Itnavideo AI reel maker template preview",
+        alt: "Itnavideo AI reel maker video type preview",
       },
     ],
   },

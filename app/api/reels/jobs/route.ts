@@ -10,16 +10,19 @@ import {hasHindiUrduScript, hasRomanHinglish} from '@/services/ai/hinglishTransc
 import {checkRateLimit, getClientIp} from '@/services/rateLimit/inMemoryRateLimiter';
 import {getRenderAccessForUser} from '@/services/billing/renderAccess';
 import {createPlanningMediaClip} from '@/services/media/mediaClipper';
-import {processCreatorBackgroundReplace} from '@/services/media/creatorBackgroundReplaceWorker';
-import {generateAutoDrawScenes} from '@/lib/ai/geminiAutoDrawPlanner';
+import {processCreatorBackgroundReplace, verifyCreatorBackgroundReplaceWorkerReady} from '@/services/media/creatorBackgroundReplaceWorker';
+import {generateAutoDrawScenes} from '@/lib/ai/autoDrawPlanner';
 import {buildEnergyTimeline, findBeatPeaks} from '@/lib/audio/energyTimeline';
+import {createCustomAiReelPlan, validateCustomAiPrompt, buildScenesFromTranscript, type CustomAiReelMediaAsset} from '@/services/ai/customAiReelPlanner';
+import {trimAudioSilences} from '@/services/media/audioSilenceTrimmer';
+import {createPremiumSoundCues, createPremiumStyleLock} from '@/services/ai/premiumStylePlanner';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 type LambdaRenderRequest = Parameters<typeof renderMediaOnLambda>[0];
 type ReelMode =
-  | 'compare' | 'autoCaption' | 'autoDraw' | 'longVideoPromo' | 'dynamicCreator' | 'creatorBackgroundReplace';
+  | 'compare' | 'autoCaption' | 'autoDraw' | 'longVideoPromo' | 'dynamicCreator' | 'creatorBackgroundReplace' | 'customAiReel';
 
 const MODE_TO_TEMPLATE: Partial<Record<ReelMode, ReelTemplateName>> = {
   compare: 'comparisonImages',
@@ -28,6 +31,7 @@ const MODE_TO_TEMPLATE: Partial<Record<ReelMode, ReelTemplateName>> = {
   longVideoPromo: 'LONG_VIDEO_PROMO',
   dynamicCreator: 'DYNAMIC_CREATOR_REEL',
   creatorBackgroundReplace: 'CREATOR_BACKGROUND_REPLACE',
+  customAiReel: 'CUSTOM_AI_REEL',
 };
 
 const MAX_RENDER_WINDOW_SECONDS = 60;
@@ -35,6 +39,7 @@ const MAX_RENDER_WINDOW_SECONDS = 60;
 const SUBTITLE_LANGUAGE_POLICY = 'General translation policy';
 const getSubtitlePolicy = (lang: string) => `Subtitle language policy: Generate subtitles strictly in ${lang}. If the script is non-Latin (like Kannada, Telugu, Urdu), use the native script. If it's a Latin-script language, use the appropriate alphabet. Ensure accurate synchronization with the audio timing.`;
 const DEFAULT_PLANNING_MEDIA_SECONDS = 60;
+const DEFAULT_LONG_PROMO_RENDER_SECONDS = 30;
 const SPEECH_LEAD_SECONDS = 0.65;
 const MIN_SPEECH_TOKEN_LENGTH = 2;
 const RENDER_IMAGE_URL_TIMEOUT_MS = 7000;
@@ -56,6 +61,16 @@ export async function POST(request: Request) {
   const explanationImageKey = readString(body.explanationImageKey);
   const promoThumbnailImageKey = readString(body.thumbnailKey);
   const creatorBackgroundImageKey = readString(body.backgroundImageKey);
+  const customAiImageKeys = Array.isArray(body.customAiImageKeys)
+    ? body.customAiImageKeys.map((value: unknown) => readString(value)).filter(Boolean).slice(0, 8)
+    : [];
+  const customAiLogoKey = readString(body.customAiLogoKey);
+  const customAiVideoKey = readString(body.customAiVideoKey);
+  const customAiAudioKey = readString(body.customAiAudioKey);
+  const customAiVideoDurationSeconds = readPositiveNumber(body.customAiVideoDurationSeconds);
+  const customAiAudioDurationSeconds = readPositiveNumber(body.customAiAudioDurationSeconds);
+  const customAiPrompt = readString(body.customAiPrompt || body.prompt || body.instructions);
+  const customAiSubtitlesEnabled = body.customAiSubtitlesEnabled === true;
   const topicTitle = readString(body.topicTitle);
   const design = toDesign(readString(body.design));
   const languageHint = toLanguageHint(readString(body.language || body.displayLanguage || body.typographyLanguage));
@@ -66,10 +81,18 @@ export async function POST(request: Request) {
   const previewOverlayTimeline = Array.isArray(body.previewOverlayTimeline) ? body.previewOverlayTimeline : null;
   const requestedMode = readString(body.mode || body.templateName || body.template || body.compositionId);
   if (!requestedMode) {
-    return NextResponse.json({ok: false, status: 'failed', reasonCode: 'MISSING_TEMPLATE', error: 'Please select a template before creating a reel.'}, {status: 400});
+    return NextResponse.json({ok: false, status: 'failed', reasonCode: 'MISSING_TEMPLATE', error: 'Please select a video type before creating a reel.'}, {status: 400});
   }
   const requestedModeValue = toMode(requestedMode);
   const resolvedTemplateName = resolveTemplateNameFromRequest(readString(body.templateName || body.template || requestedMode)) || (requestedModeValue ? MODE_TO_TEMPLATE[requestedModeValue] : null) || null;
+  if (requestedModeValue === 'creatorBackgroundReplace' || resolvedTemplateName === 'CREATOR_BACKGROUND_REPLACE') {
+    return NextResponse.json({
+      ok: false,
+      status: 'failed',
+      reasonCode: 'VIDEO_TYPE_COMING_SOON',
+      error: 'Background Replace Video is coming soon. Please choose another video type for now.',
+    }, {status: 423});
+  }
   const mode: ReelMode = requestedModeValue || toMode(resolvedTemplateName || '') || 'autoCaption';
   const templateConfig = resolvedTemplateName ? REEL_TEMPLATE_REGISTRY[resolvedTemplateName] : null;
   if (!resolvedTemplateName || !templateConfig) {
@@ -78,7 +101,7 @@ export async function POST(request: Request) {
         ok: false,
         status: 'failed',
         reasonCode: 'UNKNOWN_TEMPLATE',
-        error: 'This template is not registered for rendering yet.',
+        error: 'This video type is not registered for rendering yet.',
       },
       {status: 422},
     );
@@ -86,6 +109,12 @@ export async function POST(request: Request) {
   const templateName: ReelTemplateName = resolvedTemplateName;
   const composition = templateConfig.compositionId;
   const userId = readString(body.userId);
+  const jobStartedAt = Date.now();
+  const timings: Record<string, number> = {};
+  const markTiming = (stage: string) => {
+    timings[stage] = Date.now() - jobStartedAt;
+    return timings[stage];
+  };
   const rateLimit = checkRateLimit({
     key: `reels-job:${userId || ip}`,
     limit: userId ? 20 : 8,
@@ -95,7 +124,9 @@ export async function POST(request: Request) {
   if (!rateLimit.allowed) {
     return NextResponse.json({ok: false, error: 'Too many render jobs. Please wait a minute and try again.'}, {status: 429});
   }
-  const mediaType = toMediaType(readString(body.mediaType) || 'video');
+  const mediaType = mode === 'customAiReel'
+    ? (customAiVideoKey ? 'video' : customAiAudioKey ? 'audio' : 'image')
+    : toMediaType(readString(body.mediaType) || 'video');
 
   if (!(templateConfig.allowedMedia as readonly string[]).includes(mediaType)) {
     return NextResponse.json(
@@ -109,7 +140,7 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!mediaKey) {
+  if (!mediaKey && mode !== 'customAiReel') {
     return NextResponse.json({ok: false, error: 'mediaKey is required. Upload media before starting render.'}, {status: 400});
   }
   if (!userId) {
@@ -126,6 +157,7 @@ export async function POST(request: Request) {
 
   try {
     const access = await getRenderAccessForUser(userId);
+    markTiming('access_check_ms');
     if (!access.allowed) {
       return NextResponse.json(
         {
@@ -138,7 +170,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const mediaUrl = await createReadUrl(mediaKey);
+    const mediaUrl = mediaKey ? await createReadUrl(mediaKey) : '';
     const explanationImageUrl = explanationImageKey
       ? readString(await createReadUrl(explanationImageKey))
       : "";
@@ -154,12 +186,200 @@ export async function POST(request: Request) {
           comparisonImageKeys.map(async (key: string) => readString(await createReadUrl(key))),
         )).filter(Boolean).slice(0, 2)
       : [];
+    const customAiImageUrls = mode === 'customAiReel'
+      ? (await Promise.all(
+          customAiImageKeys.map(async (key: string) => readString(await createReadUrl(key))),
+        )).filter(Boolean).slice(0, 8)
+      : [];
+    const customAiLogoUrl = mode === 'customAiReel' && customAiLogoKey
+      ? readString(await createReadUrl(customAiLogoKey))
+      : '';
+    const customAiVideoUrl = mode === 'customAiReel' && customAiVideoKey
+      ? readString(await createReadUrl(customAiVideoKey))
+      : '';
+    const customAiAudioUrl = mode === 'customAiReel' && customAiAudioKey
+      ? readString(await createReadUrl(customAiAudioKey))
+      : '';
+    markTiming('signed_url_prepare_ms');
 
     if (mode === 'compare' && comparisonImageUrls.length !== 2) {
       return NextResponse.json(
         {ok: false, error: 'Compare visual URLs could not be prepared. Please re-upload both visuals.'},
         {status: 422},
       );
+    }
+    if (mode === 'customAiReel') {
+      const promptError = validateCustomAiPrompt(customAiPrompt);
+      if (promptError) {
+        return NextResponse.json(
+          {ok: false, status: 'failed', reasonCode: 'CUSTOM_AI_PROMPT_NEEDS_ENGLISH', error: promptError},
+          {status: 422},
+        );
+      }
+
+      const customMedia: CustomAiReelMediaAsset[] = [
+        ...customAiImageUrls.map((src, index) => ({
+          id: `custom-image-${index + 1}`,
+          kind: 'image' as const,
+          src,
+          fileName: `Uploaded image ${index + 1}`,
+        })),
+        ...(customAiVideoUrl ? [{
+          id: 'custom-video-1',
+          kind: 'video' as const,
+          src: customAiVideoUrl,
+          fileName: 'Uploaded video',
+          durationSeconds: customAiVideoDurationSeconds || undefined,
+        }] : []),
+        ...(customAiAudioUrl ? [{
+          id: 'custom-audio-1',
+          kind: 'audio' as const,
+          src: customAiAudioUrl,
+          fileName: 'Uploaded audio',
+          durationSeconds: customAiAudioDurationSeconds || undefined,
+        }] : []),
+        ...(customAiLogoUrl ? [{
+          id: 'custom-logo',
+          kind: 'logo' as const,
+          src: customAiLogoUrl,
+          fileName: 'Uploaded logo',
+        }] : []),
+      ];
+
+      const customPlan = createCustomAiReelPlan({
+        media: customMedia,
+        prompt: customAiPrompt,
+        subtitlesEnabled: customAiSubtitlesEnabled,
+      });
+      const config = readLambdaConfig();
+      if (!config.ok) return NextResponse.json({ok: false, error: config.error}, {status: 503});
+
+      // M3: transcription if subtitles are on and audio/video is present
+      let customAiCaptions: Array<{start: number; end: number; text: string}> = [];
+      if (customAiSubtitlesEnabled && (customAiAudioUrl || customAiVideoUrl)) {
+        const speechSrc = customAiAudioUrl || customAiVideoUrl;
+        try {
+          const transcription = await transcribeForPlanning({
+            mediaUrl: speechSrc,
+            outputLanguage: 'english',
+            mediaType: customAiAudioUrl ? 'audio' : 'video',
+            fileName: customAiAudioUrl ? 'voiceover.mp3' : 'clip.mp4',
+          });
+          customAiCaptions = buildCompareCaptionsFromGroq({
+            durationSeconds: customPlan.durationSeconds,
+            transcript: transcription.transcript || '',
+            words: getTranscriptionWords(transcription),
+            segments: getTranscriptionSegments(transcription),
+          });
+        } catch (transcriptError) {
+          // Per policy: transcription failure → surface error, don't silently continue
+          return NextResponse.json(
+            {ok: false, status: 'failed', reasonCode: 'TRANSCRIPTION_FAILED', error: 'We could not detect clear speech in your upload.'},
+            {status: 422},
+          );
+        }
+      }
+      const customStyleLock = createPremiumStyleLock({
+        topicTitle: topicTitle || customPlan.scenes[0]?.title || 'Custom AI Reel',
+        transcript: [customAiPrompt, customAiCaptions.map((caption) => caption.text).join(' ')].filter(Boolean).join(' '),
+        templateName,
+        mode,
+      });
+      const customSoundCues = createPremiumSoundCues({
+        styleLock: customStyleLock,
+        templateName,
+        durationSeconds: customPlan.durationSeconds,
+        timeline: customPlan.scenes.map((scene) => ({
+          start: scene.start,
+          end: scene.end,
+          text: [scene.title, scene.body, scene.label].filter(Boolean).join(' '),
+          type: scene.type,
+        })),
+        captions: customAiCaptions,
+      });
+
+      const inputProps: Record<string, unknown> = {
+        durationSeconds: Math.min(MAX_RENDER_WINDOW_SECONDS, customPlan.durationSeconds),
+        renderWindowSeconds: Math.min(MAX_RENDER_WINDOW_SECONDS, customPlan.durationSeconds),
+        prompt: customPlan.prompt,
+        scenes: customPlan.scenes,
+        media: customPlan.media,
+        subtitlesEnabled: customAiSubtitlesEnabled,
+        audioSrc: customAiAudioUrl || undefined,
+        captions: customAiCaptions,
+        subtitleChunks: customAiCaptions,
+        transcriptSegments: [],
+        transcript: '',
+        sourceScript: '',
+        mediaSrc: customAiVideoUrl || customAiAudioUrl || customPlan.media[0]?.src || 'custom-ai-reel-text-only',
+        mediaType: customAiVideoUrl ? 'video' : customAiAudioUrl ? 'audio' : 'image',
+        topicTitle: topicTitle || customPlan.scenes[0]?.title || 'Custom AI Reel',
+        design: 'Custom AI Reel',
+        premiumEditing: true,
+        styleLock: customStyleLock,
+        soundCues: customSoundCues,
+        templateName,
+        template: templateName,
+        compositionId: composition,
+      };
+
+      const preflight = validateBeforeRender({inputProps, templateName, composition, mediaType: 'image'});
+      if (preflight) {
+        return NextResponse.json(
+          {ok: false, status: 'failed', reasonCode: preflight.reasonCode, error: sanitizeUserFacingStatus(preflight.message)},
+          {status: 422},
+        );
+      }
+
+      const outName = `${TEMP_MEDIA_RENDER_PREFIX}${sanitizeSegment(userId)}/${Date.now()}-${slugify(readString(inputProps.topicTitle) || 'custom-ai-reel')}.mp4`;
+      const renderRequest: LambdaRenderRequest = {
+        region: config.region,
+        functionName: config.functionName,
+        serveUrl: config.serveUrl,
+        composition,
+        codec: 'h264',
+        audioCodec: 'aac',
+        inputProps,
+        outName,
+        privacy: 'private',
+        deleteAfter: '3-days',
+        overwrite: true,
+        concurrency: config.framesPerLambda ? undefined : config.concurrency,
+        framesPerLambda: config.framesPerLambda,
+        maxRetries: 1,
+        downloadBehavior: {
+          type: 'download',
+          fileName: 'itnavideo-custom-ai-reel.mp4',
+        },
+        isProduction: true,
+        logLevel: 'info',
+      };
+      const render = await startRenderWithCapacityRetry(renderRequest);
+
+      const hasMedia = customPlan.media.length > 0;
+      const hasVideo = Boolean(customAiVideoUrl);
+      const hasAudio = Boolean(customAiAudioUrl);
+      return NextResponse.json({
+        ok: true,
+        status: 'rendering',
+        renderId: render.renderId,
+        bucketName: render.bucketName,
+        outName,
+        mediaKey: customAiVideoKey || customAiAudioKey || mediaKey || '',
+        reelTitle: inputProps.topicTitle,
+        design: 'Custom AI Reel',
+        mode,
+        templateName,
+        transcriptSource: customAiSubtitlesEnabled && (hasAudio || hasVideo) ? 'groq-whisper' : 'not-required',
+        renderWindowSeconds: inputProps.renderWindowSeconds,
+        renderWindowSource: hasVideo ? 'custom-ai-reel-m2' : hasAudio ? 'custom-ai-reel-m3' : 'custom-ai-reel-m1',
+        planningMediaSource: hasVideo ? 'uploaded-video' : hasAudio ? 'uploaded-audio' : hasMedia ? 'uploaded-images' : 'text-only',
+        customAiTimeline: customPlan,
+        access,
+        retentionHours: 48,
+        note: `Custom AI Reel render: video=${hasVideo} audio=${hasAudio} subtitles=${customAiSubtitlesEnabled}`,
+        _renderVersion: 'v2026-06-30-custom-ai-reel-m2m3',
+      });
     }
     if (mode === 'creatorBackgroundReplace') {
       if (!contentType.startsWith('video/')) {
@@ -168,8 +388,36 @@ export async function POST(request: Request) {
       if (!creatorBackgroundImageUrl) {
         return NextResponse.json({ok: false, error: 'Creator Background Replace requires one background image.'}, {status: 400});
       }
+      const workerStatus = await verifyCreatorBackgroundReplaceWorkerReady();
+      if (!workerStatus.ok) {
+        console.error('[CREATOR_BACKGROUND_REPLACE] Worker preflight failed:', {
+          mode: workerStatus.mode,
+          reasonCode: workerStatus.reasonCode,
+          detail: workerStatus.detail || workerStatus.message,
+          retryable: workerStatus.retryable,
+        });
+        const reasonCode = workerStatus.reasonCode || 'BACKGROUND_REPLACE_WORKER_NOT_READY';
+        return NextResponse.json(
+          {
+            ok: false,
+            status: 'failed',
+            reasonCode,
+            error: 'Background Replace Video is temporarily unavailable. Please try again later or choose another video type.',
+            _founderDiagnostics: {
+              step: 'creator-background-replace-preflight',
+              reason: workerStatus.mode,
+              detail: workerStatus.detail || workerStatus.message || '',
+              retryable: Boolean(workerStatus.retryable),
+              mode,
+              templateName,
+              compositionId: composition,
+            },
+          },
+          {status: 503},
+        );
+      }
 
-      const durationSeconds = Math.max(1, Math.min(MAX_RENDER_WINDOW_SECONDS, Number(body.durationSeconds) || 30));
+      const durationSeconds = Math.max(1, Math.min(MAX_RENDER_WINDOW_SECONDS, Number(body.durationSeconds) || MAX_RENDER_WINDOW_SECONDS));
       try {
         const processed = await processCreatorBackgroundReplace({
           backgroundImageUrl: creatorBackgroundImageUrl,
@@ -211,12 +459,15 @@ export async function POST(request: Request) {
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Background replacement worker failed.';
         console.error('[CREATOR_BACKGROUND_REPLACE] Worker failed:', message);
+        const workerNotReady = /not ready|temporarily unavailable|health|timeout|timed out|unavailable|connection|econnrefused|fetch failed/i.test(message);
         return NextResponse.json(
           {
             ok: false,
             status: 'failed',
-            reasonCode: 'BACKGROUND_REPLACE_WORKER_FAILED',
-            error: sanitizeUserFacingStatus(message),
+            reasonCode: workerNotReady ? 'BACKGROUND_REPLACE_WORKER_NOT_READY' : 'BACKGROUND_REPLACE_WORKER_FAILED',
+            error: workerNotReady
+              ? 'Background Replace Video is temporarily unavailable. Please try again later or choose another video type.'
+              : sanitizeUserFacingStatus(message),
             _founderDiagnostics: {
               step: 'creator-background-replace-worker',
               reason: message,
@@ -232,6 +483,190 @@ export async function POST(request: Request) {
 
     const config = readLambdaConfig();
     if (!config.ok) return NextResponse.json({ok: false, error: config.error}, {status: 503});
+
+    if (mode === 'longVideoPromo') {
+      const requestedDuration = readFiniteNumber(body.durationSeconds, readFiniteNumber(body.sourceDurationSeconds, DEFAULT_LONG_PROMO_RENDER_SECONDS));
+      const durationSeconds = Math.max(8, Math.min(MAX_RENDER_WINDOW_SECONDS, requestedDuration || DEFAULT_LONG_PROMO_RENDER_SECONDS));
+      const promoTitle = readString(body.promoTitle) || topicTitle || titleFromFile(fileName) || 'Watch Full Video';
+      const isFounder = isFounderEmail(readString(body.userEmail || body.email)) || isFounderUser(userId);
+      if (!promoThumbnailUrl) {
+        return NextResponse.json(
+          {
+            ok: false,
+            status: 'failed',
+            reasonCode: 'LONG_PROMO_MISSING_THUMBNAIL',
+            error: 'Long Video Promo needs one thumbnail image. Please upload the thumbnail again.',
+            ...(isFounder ? {
+              _founderDiagnostics: {
+                step: 'long_video_promo_fast_path_preflight',
+                reason: 'thumbnail signed URL was empty',
+                reasonCode: 'LONG_PROMO_MISSING_THUMBNAIL',
+                timings,
+                mode,
+                templateName,
+                compositionId: composition,
+              },
+            } : {}),
+          },
+          {status: 422},
+        );
+      }
+      const styleLock = createPremiumStyleLock({
+        topicTitle: promoTitle,
+        transcript: promoTitle,
+        templateName,
+        mode,
+      });
+      const soundCues = createPremiumSoundCues({
+        styleLock,
+        templateName,
+        durationSeconds,
+        timeline: [
+          {start: 0, end: 1.2, text: promoTitle, type: 'hook'},
+          {start: 2.8, end: 3.6, text: 'promo clip reveal', type: 'transition'},
+        ],
+      });
+      const inputProps: Record<string, unknown> = {
+        mediaSrc: mediaUrl,
+        mediaType,
+        mediaFit: templateConfig.mediaFit,
+        mediaTrimStartSeconds: 0,
+        sourceDurationSeconds: durationSeconds,
+        durationSeconds,
+        renderWindowSeconds: durationSeconds,
+        renderWindowSource: 'promo-fast-path',
+        planningMediaSource: 'original-upload',
+        topicTitle: promoTitle,
+        thumbnailSrc: promoThumbnailUrl,
+        title: promoTitle,
+        mediaAspect: readString(body.mediaAspect) || 'landscape',
+        sourceAudioVolume: 1,
+        premiumEditing: true,
+        fastRender: true,
+        styleLock,
+        soundCues,
+        templateName,
+        template: templateName,
+        compositionId: composition,
+      };
+
+      const preflight = validateBeforeRender({inputProps, templateName, composition, mediaType});
+      if (preflight) {
+        const userEmail = readString(body.userEmail || body.email);
+        const isFounder = isFounderEmail(userEmail) || isFounderUser(userId);
+        return NextResponse.json(
+          {
+            ok: false,
+            status: 'failed',
+            reasonCode: preflight.reasonCode,
+            error: isFounder ? preflight.message : sanitizeUserFacingStatus(preflight.message),
+            ...(isFounder ? {
+              _founderDiagnostics: {
+                step: 'long_video_promo_fast_path_preflight',
+                reason: preflight.message,
+                reasonCode: preflight.reasonCode,
+                mode,
+                templateName,
+                compositionId: composition,
+                httpStatus: 422,
+              },
+            } : {}),
+          },
+          {status: 422},
+        );
+      }
+
+      const outName = `${TEMP_MEDIA_RENDER_PREFIX}${sanitizeSegment(userId)}/${Date.now()}-${slugify(readString(inputProps.topicTitle) || fileName || 'promo')}.mp4`;
+      markTiming('render_props_prepare_ms');
+      const promoFramesPerLambda = Math.min(Number(config.framesPerLambda || 120), 120);
+      const renderRequest: LambdaRenderRequest = {
+        region: config.region,
+        functionName: config.functionName,
+        serveUrl: config.serveUrl,
+        composition,
+        codec: 'h264',
+        audioCodec: 'aac',
+        inputProps,
+        outName,
+        privacy: 'private',
+        deleteAfter: '3-days',
+        overwrite: true,
+        concurrency: undefined,
+        framesPerLambda: promoFramesPerLambda,
+        maxRetries: 2,
+        downloadBehavior: {
+          type: 'download',
+          fileName: 'itnavideo-long-video-promo.mp4',
+        },
+        isProduction: true,
+        logLevel: 'info',
+      };
+      console.log('[LONG_VIDEO_PROMO_FAST_PATH] render start', {
+        mode,
+        templateName,
+        composition,
+        mediaType,
+        durationSeconds,
+        fastRender: true,
+        transcriptionSkipped: true,
+        captionsEnabled: false,
+        planningSkipped: true,
+        framesPerLambda: promoFramesPerLambda,
+        timings,
+      });
+      const render = await startRenderWithCapacityRetry(renderRequest);
+      markTiming('render_start_ms');
+      console.log('[LONG_VIDEO_PROMO_FAST_PATH] lambda accepted', {
+        renderId: render.renderId,
+        bucketName: render.bucketName,
+        durationSeconds,
+        timings,
+      });
+
+      return NextResponse.json({
+        ok: true,
+        status: 'rendering',
+        renderId: render.renderId,
+        bucketName: render.bucketName,
+        outName,
+        mediaKey,
+        reelTitle: inputProps.topicTitle,
+        design: 'Long Video Promo',
+        mode,
+        templateName,
+        transcriptSource: 'not-required',
+        transcriptWarning: undefined,
+        mediaTrimStartSeconds: 0,
+        renderWindowSeconds: durationSeconds,
+        renderWindowSource: 'promo-fast-path',
+        planningMediaSource: 'original-upload',
+        access,
+        retentionHours: 48,
+        note: 'Long Video Promo render started without transcription, subtitle generation, or AI planning.',
+        _renderVersion: 'v2026-06-30-long-video-promo-fast-path',
+        diagnostics: {
+          fastPath: true,
+          transcriptionSkipped: true,
+          planningSkipped: true,
+          captionsEnabled: false,
+          durationSeconds,
+          framesPerLambda: promoFramesPerLambda,
+          timings,
+        },
+        ...(isFounder ? {
+          _founderDebug: {
+            fastPath: true,
+            transcriptionSkipped: true,
+            planningSkipped: true,
+            captionsEnabled: false,
+            durationSeconds,
+            compositionId: composition,
+            framesPerLambda: promoFramesPerLambda,
+            timings,
+          },
+        } : {}),
+      });
+    }
 
     const planningMedia = await preparePlanningMediaForRender({
       mediaUrl,
@@ -253,8 +688,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const subtitleLang = readString(body.subtitleOutputLanguage) || 'english';
-    console.log('[PIPELINE] subtitleLang:', subtitleLang, '| mode:', mode, '| template:', templateName);
+    const subtitleLang = normalizeSubtitleLanguage(readString(body.subtitleOutputLanguage));
+    console.log('[PIPELINE] subtitleLang:', subtitleLang || 'auto-source', '| mode:', mode, '| template:', templateName);
 
     let transcription: PlanningTranscription;
     const transcribeStart = Date.now();
@@ -372,33 +807,59 @@ export async function POST(request: Request) {
       topicTitle: topicTitle || titleFromTranscript(transcription.transcript) || titleFromFile(fileName),
       transcript: renderWindow.transcript,
     });
+    const styleLock = createPremiumStyleLock({
+      topicTitle: topicTitle || titleFromTranscript(transcription.transcript) || titleFromFile(fileName),
+      transcript: renderWindow.transcript,
+      templateName,
+      mode,
+    });
     const inputProps: Record<string, unknown> = {
       ...(mode === 'autoCaption'
         ? { topicTitle: plan.renderProps?.topicTitle, captions: plan.renderProps?.captions }
         : (plan.renderProps || {})),
       mediaSrc: planningMedia.mediaUrl,
       ...(mode === 'autoDraw'
-        ? {
-            // Build scenes from overlayTimeline/captions for whiteboard template
-            audioUrl: planningMedia.mediaUrl,
-            scenes: await (async () => {
-              const result = await generateAutoDrawScenes({
-                transcript: renderWindow.transcript,
-                captions: buildCompareCaptionsFromGroq(renderWindow),
-                overlayTimeline: (plan.renderProps?.overlayTimeline || []).map((o: any) => ({start: o.start, end: o.end, text: o.text, body: o.body, type: o.type})),
-                topicTitle: plan.renderProps?.topicTitle || topicTitle || '',
-                durationSeconds: renderWindow.durationSeconds,
-              });
-              return result.scenes;
-            })(),
-          }
+        ? await (async () => {
+            const captions = buildCompareCaptionsFromGroq(renderWindow);
+            const result = await generateAutoDrawScenes({
+              transcript: renderWindow.transcript,
+              captions,
+              overlayTimeline: (plan.renderProps?.overlayTimeline || []).map((o: any) => ({start: o.start, end: o.end, text: o.text, body: o.body, type: o.type})),
+              topicTitle: plan.renderProps?.topicTitle || topicTitle || '',
+              durationSeconds: renderWindow.durationSeconds,
+            });
+            console.log('[AUTO_DRAW] RENDER_PROPS_DEBUG', {
+              totalPagesGenerated: result.notesPlan.pages.length,
+              totalElementsGenerated: result.notesPlan.elements.length,
+              hiddenElementsCount: result.notesPlan.elements.filter((element) => element.revealStart > 0).length,
+              revealTimelineCount: result.notesPlan.revealTimeline.length,
+              transcriptSegmentMapping: result.notesPlan.transcriptSegmentMapping.map((mapping) => ({
+                segmentIndex: mapping.segmentIndex,
+                time: `${mapping.start.toFixed(2)}-${mapping.end.toFixed(2)}`,
+                elementCount: mapping.elementIds.length,
+                sample: mapping.text.slice(0, 48),
+              })),
+            });
+            return {
+              // Build a full notes layout up front; Remotion only reveals prepared elements.
+              audioUrl: planningMedia.mediaUrl,
+              scenes: result.scenes,
+              notesPlan: result.notesPlan,
+              captions,
+              showDebugPanel: body.debugAutoDraw === true || body.showDebugPanel === true,
+              showDebugControls: body.debugAutoDraw === true || body.showDebugControls === true,
+              debugPlaybackSpeed: [0.5, 1, 1.5, 2].includes(Number(body.debugPlaybackSpeed))
+                ? Number(body.debugPlaybackSpeed)
+                : 1,
+            };
+          })()
         : {}),
       ...(mode === 'compare'
         ? (() => {
             const finalCaptions = previewCaptions
               ? previewCaptions.map((c) => ({start: Number(c.start), end: Number(c.end), text: String(c.text), words: Array.isArray(c.words) ? c.words : undefined}))
               : buildCompareCaptionsFromGroq(renderWindow);
-            const finalOverlayTimeline = previewOverlayTimeline
+            const rawOverlayTimeline = previewOverlayTimeline
               ? previewOverlayTimeline.map((item: unknown, index: number) => {
                   const overlay = item && typeof item === 'object' ? item as Record<string, unknown> : {};
                   const start = Number(overlay.start ?? finalCaptions[index]?.start ?? 0);
@@ -414,6 +875,13 @@ export async function POST(request: Request) {
                   };
                 })
               : plan.renderProps?.overlayTimeline;
+            const finalOverlayTimeline = stabilizeCompareOverlayTimeline(
+              Array.isArray(rawOverlayTimeline) ? rawOverlayTimeline : [],
+              finalCaptions,
+              renderWindow.durationSeconds,
+              compareLeftTitleValue,
+              compareRightTitleValue,
+            );
             return {
             audioUrl: planningMedia.mediaUrl,
             mediaUrl: planningMedia.mediaUrl,
@@ -449,7 +917,7 @@ export async function POST(request: Request) {
             const energyWords = (renderWindow.words || [])
               .filter((w: any) => w.word && Number.isFinite(w.start) && Number.isFinite(w.end))
               .map((w: any) => ({ word: String(w.word), start: Number(w.start), end: Number(w.end) }));
-            const durationSec = renderWindow.durationSeconds || transcription.durationSeconds || 30;
+            const durationSec = renderWindow.durationSeconds || transcription.durationSeconds || MAX_RENDER_WINDOW_SECONDS;
             const energyTimeline = buildEnergyTimeline(energyWords, durationSec, 30);
             const beatPeakFrames = findBeatPeaks(energyTimeline, 0.65, 8);
 
@@ -471,7 +939,7 @@ export async function POST(request: Request) {
         : {}),
       ...(templateName === 'DYNAMIC_CREATOR_REEL'
         ? (() => {
-            const totalDuration = renderWindow.durationSeconds || transcription.durationSeconds || 30;
+            const totalDuration = renderWindow.durationSeconds || transcription.durationSeconds || MAX_RENDER_WINDOW_SECONDS;
             const rawCaptions = previewCaptions
               ? previewCaptions.map((c) => ({start: Number(c.start), end: Number(c.end), text: String(c.text), words: Array.isArray(c.words) ? c.words as Array<{word: string; start: number; end: number}> : undefined}))
               : buildCompareCaptionsFromGroq(renderWindow);
@@ -654,7 +1122,7 @@ export async function POST(request: Request) {
       captionPosition: readString(body.captionPosition) || 'bottom',
       fontFamily: readString(body.captionFontFamily || body.fontFamily) || undefined,
       fontSize: readString(body.captionFontSize || body.fontSize) || 'large',
-      subtitleOutputLanguage: readString(body.subtitleOutputLanguage) || 'hinglish',
+      subtitleOutputLanguage: normalizeSubtitleLanguage(readString(body.subtitleOutputLanguage)) || '',
       textColor: readString(body.captionTextColor) || '#ffffff',
       highlightColor: readString(body.captionHighlightColor) || '#facc15',
       backgroundColor: readString(body.captionBackgroundColor) || '#18181B',
@@ -663,9 +1131,9 @@ export async function POST(request: Request) {
       progressStyle: mode === 'autoCaption' ? 'none' : readString(body.progressStyle) || 'glow',
       wordClickSound: mode === 'autoCaption' ? false : body.wordClickSound !== false,
       mediaTrimStartSeconds: renderWindow.trimStartSeconds,
-      sourceDurationSeconds: transcription.durationSeconds || renderWindow.durationSeconds || 30,
-      durationSeconds: renderWindow.durationSeconds || transcription.durationSeconds || 30,
-      renderWindowSeconds: renderWindow.durationSeconds || transcription.durationSeconds || 30,
+      sourceDurationSeconds: transcription.durationSeconds || renderWindow.durationSeconds || MAX_RENDER_WINDOW_SECONDS,
+      durationSeconds: renderWindow.durationSeconds || transcription.durationSeconds || MAX_RENDER_WINDOW_SECONDS,
+      renderWindowSeconds: renderWindow.durationSeconds || transcription.durationSeconds || MAX_RENDER_WINDOW_SECONDS,
       renderWindowSource: renderWindow.source,
       planningMediaSource: planningMedia.clipped ? 'first-60s-clip' : 'original-upload',
       topicTitle: plan.renderProps?.topicTitle || topicTitle || titleFromTranscript(transcription.transcript) || titleFromFile(fileName),
@@ -686,6 +1154,8 @@ export async function POST(request: Request) {
       sourceAudioVolume: 1.35,
       subtitleLanguagePolicy: SUBTITLE_LANGUAGE_POLICY,
       backgroundMusicCategory: readString(plan.renderProps?.backgroundMusicCategory) || music.category,
+      premiumEditing: mode !== 'autoCaption',
+      styleLock: mode === 'autoCaption' ? undefined : styleLock,
 
       ...(mode === 'compare'
         ? {
@@ -695,25 +1165,16 @@ export async function POST(request: Request) {
             sourceScript: renderWindow.transcript,
           }
         : {}),
-      ...(mode === 'longVideoPromo'
-        ? {
-            thumbnailSrc: promoThumbnailUrl,
-            title: readString(body.promoTitle) || readString(body.topicTitle) || 'Watch Full Video',
-            subtitle: readString(body.promoSubtitle) || '',
-            ctaText: readString(body.ctaText) || 'Watch full video →',
-            channelName: readString(body.channelName) || '',
-            channelLogoSrc: readString(body.channelLogoSrc) || '',
-            subscriberCount: readString(body.subscriberCount) || '',
-            mediaAspect: readString(body.mediaAspect) || 'landscape',
-            videoDuration: readString(body.videoDuration) || '',
-            captions: buildCompareCaptionsFromGroq(renderWindow),
-            // Long Video Promo: music OFF by default (user's clip already has audio)
-            backgroundMusic: body.backgroundMusic === true,
-            backgroundMusicSrc: body.backgroundMusic === true ? undefined : '',
-            backgroundMusicVolume: body.backgroundMusic === true ? 0.025 : 0,
-          }
-        : {}),
     };
+    if (mode !== 'autoCaption') {
+      inputProps.soundCues = createPremiumSoundCues({
+        styleLock,
+        templateName,
+        durationSeconds: Number(inputProps.durationSeconds) || renderWindow.durationSeconds || MAX_RENDER_WINDOW_SECONDS,
+        timeline: Array.isArray(inputProps.overlayTimeline) ? inputProps.overlayTimeline as Array<{start?: number; end?: number; text?: string; type?: string}> : [],
+        captions: Array.isArray(inputProps.captions) ? inputProps.captions as Array<{start?: number; end?: number; text?: string; type?: string}> : [],
+      });
+    }
     const imagePreflight = await repairRenderImageSources(inputProps, {
       templateName,
       userId,
@@ -819,7 +1280,7 @@ export async function POST(request: Request) {
           durationSeconds: imagePreflight.inputProps.durationSeconds,
           sourceDurationSeconds: imagePreflight.inputProps.sourceDurationSeconds,
           compositionId: composition,
-          selectedLanguage: subtitleLang,
+          selectedLanguage: subtitleLang || 'auto-source',
           transcriptLanguageHint: transcription.languageHint,
           translationApplied: 'not-needed',
           captionFirstText: Array.isArray(imagePreflight.inputProps.captions) ? (imagePreflight.inputProps.captions as any[])[0]?.text?.slice(0, 50) : 'none',
@@ -839,7 +1300,8 @@ export async function POST(request: Request) {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Could not start render job.';
     const errorName = error instanceof Error ? error.name : 'UnknownError';
-    console.error('Render job failed:', { mode, templateName, composition, error: errorMessage });
+    markTiming('failed_at_ms');
+    console.error('Render job failed:', { mode, templateName, composition, error: errorMessage, timings });
 
     const userEmail = readString(body.userEmail || body.email);
     const isFounder = isFounderEmail(userEmail) || isFounderUser(userId);
@@ -858,6 +1320,7 @@ export async function POST(request: Request) {
             compositionId: composition,
             httpStatus: 500,
             detail: errorMessage,
+            timings,
             raw: error instanceof Error ? error.stack?.split('\n').slice(0, 4).join(' | ') : String(error),
           },
         } : {}),
@@ -1308,7 +1771,7 @@ async function transcribeForPlanning({
   fileName,
   contentType,
   mediaType,
-  outputLanguage = 'hinglish',
+  outputLanguage,
 }: {
   mediaUrl: string;
   fileName: string;
@@ -1322,6 +1785,9 @@ async function transcribeForPlanning({
     const result = await transcribeMediaUrlWithGroq({mediaUrl, fileName, contentType});
     console.log('[TIMING] Groq transcription:', Date.now() - groqStart, 'ms | hasTranscript:', Boolean(result.transcript));
     if (result.transcript) {
+      if (!outputLanguage) {
+        return {...result, source: 'groq' as const};
+      }
       const translateStart = Date.now();
       const translated = await repairTranscriptionToLanguage({
         ...result,
@@ -1343,6 +1809,9 @@ async function transcribeForPlanning({
   try {
     const fallback = await transcribeMediaUrlWithOpenAI({mediaUrl, fileName, contentType});
     if (fallback.transcript) {
+      if (!outputLanguage) {
+        return {...fallback, source: 'openai' as const, warning: sanitizeUserFacingStatus(primaryWarning)};
+      }
       return await repairTranscriptionToLanguage({
         ...fallback,
         source: 'openai' as const,
@@ -1673,6 +2142,119 @@ function mergeRepairedSegments(original: ReelTranscriptSegment[] | undefined, re
 }
 
 
+function stabilizeCompareOverlayTimeline(
+  overlays: Array<Record<string, unknown>>,
+  captions: Array<{start: number; end: number; text: string}>,
+  durationSeconds: number,
+  leftTitle: string,
+  rightTitle: string,
+) {
+  const source: Array<Record<string, unknown>> = overlays.length
+    ? overlays
+    : captions.map((caption, index) => ({
+        id: `compare-beat-${index + 1}`,
+        start: caption.start,
+        end: caption.end,
+        text: caption.text,
+        body: caption.text,
+        title: '',
+      }));
+
+  const minHoldSeconds = 4;
+  const maxHoldSeconds = 6;
+  const normalized = source
+    .map((overlay, index) => {
+      const start = Math.max(0, Number(overlay.start ?? captions[index]?.start ?? 0) || 0);
+      const end = Math.min(
+        durationSeconds,
+        Math.max(Number(overlay.end ?? captions[index]?.end ?? start + 2.5) || start + 2.5, start + 0.6),
+      );
+      const text = readString(overlay.text || overlay.body || captions[index]?.text);
+      const pose = readString(overlay.stickerPose || overlay.pose) || pickComparePoseForStableBeat(text, index, source.length, leftTitle, rightTitle);
+      return {
+        id: readString(overlay.id) || `compare-beat-${index + 1}`,
+        start,
+        end,
+        text,
+        body: readString(overlay.body || overlay.text || text),
+        title: readString(overlay.title),
+        stickerPose: pose,
+        pose,
+      };
+    })
+    .filter((overlay) => overlay.start < durationSeconds && overlay.end > overlay.start);
+
+  const groups: typeof normalized = [];
+  let current: typeof normalized[number] | null = null;
+  let texts: string[] = [];
+
+  const flush = () => {
+    if (!current) return;
+    const combined = texts.join(' ').replace(/\s+/g, ' ').trim();
+    groups.push({
+      ...current,
+      text: combined || current.text,
+      body: combined || current.body,
+    });
+    current = null;
+    texts = [];
+  };
+
+  normalized.forEach((overlay, index) => {
+    if (!current) {
+      current = {...overlay, id: `compare-pose-${groups.length + 1}`};
+      texts = [overlay.text].filter(Boolean);
+      return;
+    }
+
+    const heldFor = current.end - current.start;
+    const intentChanged = overlay.stickerPose !== current.stickerPose;
+    const sentenceEnded = /[.!?]$/.test(texts.join(' ').trim());
+    const shouldBreak =
+      heldFor >= maxHoldSeconds ||
+      (heldFor >= minHoldSeconds && (intentChanged || sentenceEnded)) ||
+      (index === normalized.length - 1 && heldFor >= minHoldSeconds);
+
+    if (shouldBreak) {
+      flush();
+      current = {...overlay, id: `compare-pose-${groups.length + 1}`};
+      texts = [overlay.text].filter(Boolean);
+      return;
+    }
+
+    current.end = overlay.end;
+    texts.push(overlay.text);
+  });
+
+  flush();
+  return groups.map((group, index) => ({
+    ...group,
+    id: `compare-pose-${index + 1}`,
+    start: roundSeconds(group.start),
+    end: roundSeconds(index === groups.length - 1 ? Math.min(durationSeconds, group.end) : group.end),
+  }));
+}
+
+function pickComparePoseForStableBeat(textValue: string, index: number, total: number, leftTitle: string, rightTitle: string) {
+  const text = readString(textValue).toLowerCase();
+  const left = readString(leftTitle).toLowerCase();
+  const right = readString(rightTitle).toLowerCase();
+  if (index === 0) return 'sticker_welcome_intro_explainer';
+  if (index >= total - 1) return 'sticker_happy_celebrating_outro';
+  if (/[?]/.test(text) || /\b(question|confus|doubt|which|kaunsa|konsa|kya farq|kya difference|why|how)\b/i.test(text)) return 'sticker_questioning_surprised_explainer';
+  if (/\b(risk|problem|mistake|warning|issue|loss|avoid|danger|galti|nuksan)\b/i.test(text)) return 'sticker_warning_issue_explainer';
+  if (left && right && text.includes(left) && text.includes(right)) return 'sticker_comparing_both_sides_explainer';
+  if (right && text.includes(right)) return 'sticker_pointing_right_side_explainer';
+  if (left && text.includes(left)) return 'sticker_pointing_left_side_explainer';
+  if (/\b(vs|compare|comparison|difference|better|both|dono|tradeoff)\b/i.test(text)) return 'sticker_comparing_both_sides_explainer';
+  if (/\b(final|conclusion|winner|best|benefit|yaad rakho|remember|clear)\b/i.test(text)) return 'sticker_success_conclusion_explainer';
+  const progress = total > 1 ? index / (total - 1) : 0;
+  if (progress < 0.28) return 'sticker_pointing_left_side_explainer';
+  if (progress < 0.55) return 'sticker_comparing_both_sides_explainer';
+  if (progress < 0.78) return 'sticker_pointing_right_side_explainer';
+  return 'sticker_success_conclusion_explainer';
+}
+
 function buildCompareCaptionsFromGroq(renderWindow: {
   transcript: string;
   words?: ReelWord[];
@@ -1741,7 +2323,7 @@ function buildCompareCaptionsFromGroq(renderWindow: {
   }
 
   const fallbackWords = readString(renderWindow.transcript).split(/\s+/).filter(Boolean);
-  const fallbackDuration = Math.max(1, renderWindow.durationSeconds || 30);
+  const fallbackDuration = Math.max(1, renderWindow.durationSeconds || MAX_RENDER_WINDOW_SECONDS);
   const chunkSize = 5;
   const totalChunks = Math.max(1, Math.ceil(fallbackWords.length / chunkSize));
 
@@ -1958,6 +2540,7 @@ function toMode(value: string): ReelMode | null {
   if (normalized.includes('long-video') || normalized.includes('longvideo') || normalized.includes('promo')) return 'longVideoPromo';
   if (normalized.includes('dynamic-creator') || normalized.includes('dynamiccreator') || normalized.includes('dynamic-reel') || normalized.includes('dynamicreel')) return 'dynamicCreator';
   if (normalized.includes('creator-background') || normalized.includes('creatorbackground') || normalized.includes('background-replace') || normalized.includes('backgroundreplace') || normalized.includes('videobackgroundimage')) return 'creatorBackgroundReplace';
+  if (normalized.includes('custom-ai') || normalized.includes('customai') || normalized.includes('custom-reel') || normalized.includes('customreel')) return 'customAiReel';
   if (normalized.includes('auto-caption') || normalized.includes('autocaption')) return 'autoCaption';
   if (normalized.includes('caption') || normalized.includes('subtitle')) return 'autoCaption';
   if (normalized.includes('auto-draw') || normalized.includes('autodraw') || normalized.includes('whiteboard')) return 'autoDraw';
@@ -1982,6 +2565,14 @@ function toLanguageHint(value: string): 'english' | 'hinglish' | undefined {
   if (!normalized || normalized.includes('auto')) return undefined;
   if (normalized.includes('hindi') || normalized.includes('urdu') || normalized.includes('hinglish')) return 'hinglish';
   if (normalized.includes('english')) return 'english';
+  return undefined;
+}
+
+function normalizeSubtitleLanguage(value: string): 'english' | 'hinglish' | undefined {
+  const normalized = value.toLowerCase().replace(/[-_\s]+/g, '');
+  if (!normalized || normalized === 'auto' || normalized === 'source') return undefined;
+  if (normalized === 'english' || normalized === 'en') return 'english';
+  if (normalized === 'hinglish' || normalized === 'romanenglish' || normalized === 'romanhindi' || normalized === 'romanurdu' || normalized === 'hindi' || normalized === 'urdu' || normalized === 'hi' || normalized === 'ur') return 'hinglish';
   return undefined;
 }
 
@@ -2035,7 +2626,7 @@ function validateBeforeRender({
   if (!templateConfig) {
     return {
       reasonCode: 'UNKNOWN_TEMPLATE',
-      message: 'This template is not available for rendering yet.',
+      message: 'This video type is not available for rendering yet.',
     };
   }
 
@@ -2049,7 +2640,7 @@ function validateBeforeRender({
   if (readString(inputProps.templateName) !== templateName || readString(inputProps.template) !== templateName) {
     return {
       reasonCode: 'TEMPLATE_PROPS_MISMATCH',
-      message: 'The planned template does not match the selected render template.',
+      message: 'The planned video type does not match the selected render video type.',
     };
   }
 
@@ -2107,12 +2698,13 @@ function validateBeforeRender({
 }
 
 function humanTemplateName(templateName: ReelTemplateName) {
-  if (templateName === 'AUTO_CAPTION_REEL') return 'Auto Caption Reel';
-  if (templateName === 'AUTO_DRAW_EXPLAINER') return 'Auto Draw Explainer';
+  if (templateName === 'AUTO_CAPTION_REEL') return 'Auto Caption Video';
+  if (templateName === 'AUTO_DRAW_EXPLAINER') return 'Auto Draw Explainer Video';
   if (templateName === 'LONG_VIDEO_PROMO') return 'Long Video Promo';
-  if (templateName === 'DYNAMIC_CREATOR_REEL') return 'Dynamic Creator Reel';
-  if (templateName === 'CREATOR_BACKGROUND_REPLACE') return 'Creator Background Replace';
-  if (templateName === 'comparisonImages') return 'Compare Explainer';
+  if (templateName === 'DYNAMIC_CREATOR_REEL') return 'Creator Reel Video';
+  if (templateName === 'CREATOR_BACKGROUND_REPLACE') return 'Background Replace Video';
+  if (templateName === 'CUSTOM_AI_REEL') return 'Custom AI Reel';
+  if (templateName === 'comparisonImages') return 'Compare Explainer Video';
   return 'Itnavideo Reel';
 }
 
@@ -2190,6 +2782,9 @@ function readAwsRegion(value?: string): AwsRegion {
 function sanitizeUserFacingStatus(value: string) {
   const source = String(value || '');
   const normalized = source.toLowerCase();
+  if (/background replace video is temporarily unavailable|background replace worker is not configured|background_replace_worker_not_configured|background_replace_worker_not_ready|creator_bg_replace_worker_url|background_replace_worker_url|background processor is not ready|creator-background-replace-preflight/.test(normalized)) {
+    return 'Background Replace Video is temporarily unavailable. Please try again later or choose another video type.';
+  }
   if (/rate exceeded|too many requests|toomanyrequests|concurr|limit exceeded|throttl/.test(normalized)) {
     return 'Render traffic is high right now. Your upload stays selected, so please retry in a minute.';
   }

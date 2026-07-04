@@ -10,9 +10,9 @@ export const metadata = {
   },
 };
 
-const templates = [
+const videoTypes = [
   {
-    href: "/dashboard?template=video-explainer",
+    href: "/dashboard?videoType=video-explainer",
     image: "/visuals/previews/video-explainer-homepage.png",
     icon: Film,
     title: "Video Explainer",
@@ -26,7 +26,7 @@ const templates = [
     surface: "bg-cyan-300/[0.07]",
   },
   {
-    href: "/dashboard?template=compare",
+    href: "/dashboard?videoType=compare",
     image: "/visuals/previews/homepage to show the COMPARE template preview.png",
     icon: Layers3,
     title: "Compare Explainer",
@@ -40,7 +40,7 @@ const templates = [
     surface: "bg-blue-400/[0.07]",
   },
   {
-    href: "/dashboard?template=image-story-collage",
+    href: "/dashboard?videoType=image-story-collage",
     image: "/visuals/previews/image-story-preview.png",
     icon: Sparkles,
     title: "Cinematic Collage",
@@ -56,7 +56,7 @@ const templates = [
 ];
 
 const steps = [
-  {title: "Choose template", body: "Pick the output style before upload.", icon: BadgeCheck},
+  {title: "Choose Video Type", body: "Pick the output style before upload.", icon: BadgeCheck},
   {title: "Upload source", body: "The upload box changes to the right file type.", icon: Upload},
   {title: "Generate reel", body: "AI plans, renders, and returns a vertical MP4.", icon: Sparkles},
 ];
@@ -115,17 +115,17 @@ export default function CreatePage() {
         <section className="rounded-lg border border-white/10 bg-zinc-950 p-4 sm:p-6">
           <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-sm font-black uppercase tracking-[0.2em] text-brand-mint">Focused launch template</p>
+              <p className="text-sm font-black uppercase tracking-[0.2em] text-brand-mint">Focused launch video type</p>
               <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">Explainer Video</h2>
             </div>
             <p className="max-w-xl text-sm leading-6 text-zinc-400">
-              We are focusing on one excellent template first so the render stays fast, clear, and reliable.
+              We are focusing on one excellent video type first so the render stays fast, clear, and reliable.
             </p>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {templates.map((template) => (
-              <TemplateCard key={template.title} template={template} />
+            {videoTypes.map((videoType) => (
+              <VideoTypeCard key={videoType.title} videoType={videoType} />
             ))}
           </div>
         </section>
@@ -143,37 +143,37 @@ export default function CreatePage() {
   );
 }
 
-function TemplateCard({template}) {
-  const Icon = template.icon;
+function VideoTypeCard({videoType}) {
+  const Icon = videoType.icon;
 
   return (
-    <Link href={template.href} className={`group overflow-hidden rounded-lg border ${template.border} ${template.surface} transition hover:border-white/30`}>
+    <Link href={videoType.href} className={`group overflow-hidden rounded-lg border ${videoType.border} ${videoType.surface} transition hover:border-white/30`}>
       <div className="relative aspect-[9/16] bg-black">
         <Image
-          src={template.image}
-          alt={`${template.title} preview`}
+          src={videoType.image}
+          alt={`${videoType.title} preview`}
           fill
           sizes="(min-width: 1280px) 25vw, (min-width: 640px) 50vw, 100vw"
           className="object-cover object-top transition duration-500 group-hover:scale-[1.025]"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/15 to-transparent" />
-        <div className={`absolute left-4 top-4 flex h-11 w-11 items-center justify-center rounded-md bg-black/58 ${template.accent} backdrop-blur-md`}>
+        <div className={`absolute left-4 top-4 flex h-11 w-11 items-center justify-center rounded-md bg-black/58 ${videoType.accent} backdrop-blur-md`}>
           <Icon size={21} />
         </div>
       </div>
 
       <div className="p-5">
-        <h2 className="text-2xl font-black text-white">{template.title}</h2>
-        <p className="mt-3 text-sm leading-6 text-zinc-400">{template.bestFor}</p>
+        <h2 className="text-2xl font-black text-white">{videoType.title}</h2>
+        <p className="mt-3 text-sm leading-6 text-zinc-400">{videoType.bestFor}</p>
 
         <div className="mt-5 space-y-2 text-sm">
-          <InfoRow icon={AudioLines} label="Upload" value={template.upload} />
-          <InfoRow icon={Clock3} label="Needs" value={template.needs} />
+          <InfoRow icon={AudioLines} label="Upload" value={videoType.upload} />
+          <InfoRow icon={Clock3} label="Needs" value={videoType.needs} />
           <InfoRow icon={Globe} label="Support" value="13+ Languages including Hinglish" />
         </div>
 
         <div className="mt-5 flex flex-wrap gap-2">
-          {template.badges.map((badge) => (
+          {videoType.badges.map((badge) => (
             <span key={badge} className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1.5 text-[11px] font-black uppercase tracking-[0.12em] text-zinc-300">
               {badge}
             </span>
@@ -181,7 +181,7 @@ function TemplateCard({template}) {
         </div>
 
         <span className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-white px-4 py-3 text-sm font-black text-black transition group-hover:bg-brand-mint">
-          {template.cta}
+          {videoType.cta}
           <ArrowRight size={16} />
         </span>
       </div>

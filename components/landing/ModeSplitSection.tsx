@@ -4,9 +4,9 @@ import Link from 'next/link';
 const modes = [
   {
     title: 'Video Explainer',
-    eyebrow: 'Video upload template',
+    eyebrow: 'Video upload type',
     body: 'Best for talking-head clips and explainers where the source video should stay visible.',
-    href: '/dashboard?template=video-explainer',
+    href: '/dashboard?videoType=video-explainer',
     accent: 'text-cyan-200',
     border: 'border-cyan-300/25',
     bg: 'bg-cyan-300/[0.07]',
@@ -34,10 +34,10 @@ export default function ModeSplitSection() {
         <div className="mb-10 max-w-3xl sm:mb-12">
           <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-brand-mint">Workflow</p>
           <h2 className="text-3xl font-black leading-tight tracking-normal text-white sm:text-4xl md:text-6xl">
-            Two templates. Pick and upload.
+            Two video types. Pick and upload.
           </h2>
           <p className="mt-5 text-base leading-7 text-zinc-400 sm:text-lg sm:leading-8">
-            Choose your template first, then upload. Each template has a focused workflow for clean, fast renders.
+            Choose your video type first, then upload. Each video type has a focused workflow for clean, fast renders.
           </p>
         </div>
 

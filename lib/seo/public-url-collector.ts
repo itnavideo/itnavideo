@@ -1,4 +1,6 @@
-﻿import { seoLandingSlugs } from "@/lib/seo-pages";
+import { blogPosts } from "@/lib/blogPosts";
+import { seoLandingSlugs } from "@/lib/seo-pages";
+import { seoContentPages } from "@/lib/seoContent";
 
 export type PublicSitemapUrl = {
   path: string;
@@ -23,46 +25,52 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
       priority: 1,
     },
     {
-      path: "/templates",
+      path: "/video-types",
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.9,
     },
     {
-      path: "/templates/auto-caption-reel",
+      path: "/video-types/auto-caption-reel",
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.9,
     },
     {
-      path: "/templates/compare-explainer",
+      path: "/video-types/compare-explainer",
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.9,
     },
     {
-      path: "/templates/long-video-promo",
+      path: "/video-types/long-video-promo",
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.9,
     },
     {
-      path: "/templates/dynamic-creator-reel",
+      path: "/video-types/dynamic-creator-reel",
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.9,
     },
     {
-      path: "/templates/auto-draw-explainer",
+      path: "/video-types/auto-draw-explainer",
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.9,
     },
     {
-      path: "/templates/creator-background-replace",
+      path: "/video-types/creator-background-replace",
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.9,
+    },
+    {
+      path: "/custom-ai-reel",
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.92,
     },
     {
       path: "/create",
@@ -89,6 +97,24 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
       priority: 0.7,
     },
     {
+      path: "/tools",
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.88,
+    },
+    {
+      path: "/use-cases",
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
+      path: "/compare",
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.78,
+    },
+    {
       path: "/about",
       lastModified: now,
       changeFrequency: "monthly",
@@ -107,6 +133,36 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
       priority: 0.7,
     },
     {
+      path: "/promote-and-earn",
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.65,
+    },
+    {
+      path: "/docs",
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
+      path: "/ai-platform-facts",
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.55,
+    },
+    {
+      path: "/wav-to-mp3",
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.5,
+    },
+    {
+      path: "/waitlist",
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.45,
+    },
+    {
       path: "/privacy",
       lastModified: now,
       changeFrequency: "yearly",
@@ -120,6 +176,13 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
     },
   ];
 
+  const blogRoutes: PublicSitemapUrl[] = blogPosts.map((post) => ({
+    path: `/blog/${post.slug}`,
+    lastModified: new Date(post.date),
+    changeFrequency: "monthly",
+    priority: 0.72,
+  }));
+
   const seoRoutes: PublicSitemapUrl[] = seoLandingSlugs.map((slug) => ({
     path: `/${slug}`,
     lastModified: now,
@@ -132,6 +195,13 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
           : slug === "compare-explainer-video-maker" || slug === "auto-caption-video-generator" || slug === "ai-shorts-generator"
             ? 0.88
             : 0.82,
+  }));
+
+  const structuredSeoRoutes: PublicSitemapUrl[] = seoContentPages.map((page) => ({
+    path: page.path,
+    lastModified: now,
+    changeFrequency: "weekly",
+    priority: page.kind === "tool" ? 0.93 : page.kind === "useCase" ? 0.86 : 0.84,
   }));
 
   /*
@@ -150,7 +220,7 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
     }));
   */
 
-  const allRoutes = [...staticRoutes, ...seoRoutes];
+  const allRoutes = [...staticRoutes, ...blogRoutes, ...seoRoutes, ...structuredSeoRoutes];
 
   const unique = new Map<string, PublicSitemapUrl>();
 

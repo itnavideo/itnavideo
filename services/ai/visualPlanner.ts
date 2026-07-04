@@ -109,7 +109,7 @@ export function buildVisualPlan({
   segments,
   topicTitle,
 }: VisualPlanInput): VisualPlan {
-  const safeDuration = Math.max(1, Number(durationSeconds) || 30);
+  const safeDuration = Math.max(1, Number(durationSeconds) || 60);
   const topic = cleanText(topicTitle || scriptDetails.topic || 'Video Explainer');
 
   const safeSegments = repairSegments(segments, safeDuration);

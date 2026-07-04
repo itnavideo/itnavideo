@@ -49,7 +49,7 @@ export type PreviewLayout = {
 };
 
 export type PreviewPlan = {
-  templateId: string;
+  videoTypeId: string;
   compositionId: string;
   durationSeconds: number;
   mediaSrc: string;

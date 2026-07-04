@@ -205,6 +205,7 @@ function normalizeMode(value: unknown) {
   if (mode === 'longvideopromo' || mode === 'longvideopromotion' || mode === 'promo') return 'longVideoPromo';
   if (mode === 'dynamiccreator' || mode === 'dynamiccreatorreel' || mode === 'dynamicedit') return 'dynamicCreator';
   if (mode === 'creatorbackgroundreplace' || mode === 'backgroundreplace' || mode === 'videobackgroundimage') return 'creatorBackgroundReplace';
+  if (mode === 'customaireel' || mode === 'customai' || mode === 'customreel') return 'customAiReel';
   if (mode === 'notes' || mode === 'handwriting') return 'notes';
   if (mode === 'imagestory' || mode === 'imagestorycollage' || mode === 'image' || mode === 'photo') return 'imageStory';
   return 'videoExplainer';

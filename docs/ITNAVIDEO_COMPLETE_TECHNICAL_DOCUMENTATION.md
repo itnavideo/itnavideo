@@ -1,3 +1,7 @@
+# Archived / Reference Note
+
+This document is older technical reference material. Please use `docs/ITNAVIDEO_MASTER_DOC.md` as the latest source of truth for Itnavideo.
+
 # Itnavideo — Complete Technical Documentation
 ## For Investors & Technical Team Onboarding
 

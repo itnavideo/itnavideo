@@ -4,40 +4,46 @@ import { ArrowRight } from 'lucide-react';
 
 const outputShowcase = [
   {
+    title: 'Custom AI Reel',
+    body: 'Best for custom prompts where users want text, screenshots, images, and a logo arranged into one premium reel.',
+    src: '/preview/Custom AI Reel.png',
+    href: '/custom-ai-reel',
+  },
+  {
     title: 'Dynamic Creator Reel',
     body: 'Best for talking-head creators who need strong hooks, typography, and a polished short-form edit.',
     src: '/preview/Dynamic Creator Reel.png',
-    href: '/templates/dynamic-creator-reel',
+    href: '/video-types/dynamic-creator-reel',
   },
   {
     title: 'Auto Caption Reel',
     body: 'Best for existing reels that need clean, readable, social-ready captions without changing the original video.',
     src: '/preview/Auto Caption Reel.png',
-    href: '/templates/auto-caption-reel',
+    href: '/video-types/auto-caption-reel',
   },
   {
     title: 'Creator Background Replace',
     body: 'Best for creator videos that need a cleaner scene or branded background image.',
-    src: '/preview/Dynamic Creator Reel.png',
-    href: '/templates/creator-background-replace',
+    src: '/preview/Background Replace Video.png',
+    href: '/video-types/creator-background-replace',
   },
   {
     title: 'Compare Explainer',
     body: 'Best for education and product comparisons where two options must be understood quickly.',
     src: '/preview/Compare Explainer.png',
-    href: '/templates/compare-explainer',
+    href: '/video-types/compare-explainer',
   },
   {
     title: 'Auto Draw Explainer',
     body: 'Best for voiceovers that need simple whiteboard-style visual explanation.',
     src: '/preview/Auto Draw Explainer.png',
-    href: '/templates/auto-draw-explainer',
+    href: '/video-types/auto-draw-explainer',
   },
   {
     title: 'Long Video Promo',
     body: 'Best for turning a longer video into a short vertical teaser with a clear reason to watch.',
     src: '/preview/Long Video Promo.png',
-    href: '/templates/long-video-promo',
+    href: '/video-types/long-video-promo',
   },
 ];
 
@@ -49,15 +55,15 @@ export default function UseCaseGallerySection() {
           <div>
             <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-brand-mint">Output proof</p>
             <h2 className="text-3xl font-black leading-tight tracking-normal sm:text-4xl md:text-6xl">
-              The template preview is the product pitch.
+              The video type preview is the product pitch.
             </h2>
           </div>
           <p className="text-base leading-7 text-slate-400 sm:text-lg sm:leading-8">
-            Instead of asking users to read long explanations, Itnavideo now leads with six focused outputs. Each card shows the kind of reel the template is designed to create.
+            Instead of asking users to read long explanations, Itnavideo now leads with seven focused outputs. Each card shows the kind of reel the video type is designed to create.
           </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7">
           {outputShowcase.map((item) => (
             <Link
               key={item.title}

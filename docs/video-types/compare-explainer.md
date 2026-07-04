@@ -1,3 +1,7 @@
+# Reference Note
+
+This is a detailed Video Type spec. Start with `docs/ITNAVIDEO_MASTER_DOC.md` for the latest source of truth, then use this file for Compare Explainer implementation details.
+
 # Compare Explainer
 
 ## Basic Information
@@ -54,6 +58,7 @@ Making comparison videos requires editing software, finding layouts, adding anim
 | Left Title | Text | Label for left item (e.g., "iPhone 15") |
 | Right Title | Text | Label for right item (e.g., "Galaxy S24") |
 | Sticker Character | Selection | Choose from 16 available character sets |
+| Subtitle Language | Not shown | No language dropdown. Captions follow the uploaded voiceover language as produced by the supported Groq transcription pipeline |
 
 ## Inputs NOT Collected
 
@@ -76,12 +81,13 @@ Making comparison videos requires editing software, finding layouts, adding anim
 | Export format | MP4 (H.264 + AAC) |
 | Audio handling | User's uploaded voiceover plays at full volume |
 | Background music | OFF by default |
+| Premium style layer | Automatic `styleLock` and subtle `soundCues` for cohesive visual/sound design |
 
 ---
 
 ## Layout Rules
 
-The template renders a comparison layout with sticker presenter:
+The Video Type renders a comparison layout with sticker presenter:
 
 ```
 ┌─────────────────────────────┐
@@ -126,11 +132,15 @@ The template renders a comparison layout with sticker presenter:
 - `sticker_general_explaining_key_point` means the sticker explains an important rule, feature, reason, or takeaway
 - Legacy aliases (`welcome`, `left`, `right`, `thinking`, `warning`, `success`, `surprised`, `explaining`, `celebrating`, `comparing`, `sticker_left`, `sticker_right`) are accepted only for older render data
 - Intent-based switching throughout the video based on content
+- Pose changes are grouped by sentence/scene intent, not by every caption chunk or keyword hit
+- Minimum pose hold is 4-6 seconds where possible, or until the current sentence/comparison beat ends
 - Sticker MUST change poses during the video — never stays static
-- Adjacent beats should avoid repeating the same pose unless the same narration intent genuinely continues
+- Adjacent beats should keep the same pose when the same narration intent genuinely continues
 
 ### Caption Handling
 - Captions generated from Groq transcript
+- No subtitle language dropdown. If the user uploads English voiceover, captions should be English; if the user uploads Hindi/Urdu/Hinglish voiceover, captions should follow the supported Roman Hindi/Urdu/Hinglish output.
+- Do not promise translation/conversion to another language from this Video Type.
 - Displayed in a box/pill in the middle area
 - Word-grouped timing (not single words)
 
@@ -162,9 +172,15 @@ The template renders a comparison layout with sticker presenter:
 | Title bars | Slide in from top |
 | Comparison images | Scale in or fade in |
 | Caption text | Fade/slide per caption group |
-| Sticker character | Pose changes with crossfade/swap animation |
+| Sticker character | Pose changes only at sentence/scene intent boundaries with a 4-6s stable hold |
 | Sticker pointing | `sticker_pointing_left_side_explainer` when discussing the left item, `sticker_pointing_right_side_explainer` for the right item |
 | Sticker reaction | Question/surprise/explanation/comparison/conclusion poses should appear when the narration context calls for them |
+
+### Premium Style Lock
+
+Compare Explainer now receives a shared `styleLock` from the render route. Finance comparisons such as RBI/SBI/credit card content can lock into a corporate finance palette, motion pace, sticker direction, and low-volume SFX pack so both sides of the comparison feel like one designed world instead of random scene styles.
+
+The renderer applies the premium visual treatment layer for LUT-like color consistency, light grain, vignette, and depth. For finance comparisons, micro-interactions should feel precise: soft clicks for UI emphasis, cash/count cues for money beats, and success chimes for conclusion or approval moments.
 
 ### What Should NOT Animate
 - Images should not continuously bounce or float
@@ -180,7 +196,7 @@ The template renders a comparison layout with sticker presenter:
 - Sticker PNGs loaded from `public/assets/stickman/` via `staticFile()`
 - No stock images — only user-provided comparison images
 - No background music added by default
-- No sound effects
+- Subtle automatic diegetic SFX are allowed through `soundCues` only; no loud or unrelated sound effects
 - Character assets are code-referenced, not stored in template folder
 
 ---
@@ -189,8 +205,9 @@ The template renders a comparison layout with sticker presenter:
 
 - Audio source = user's uploaded voiceover
 - Duration = voiceover length (capped at 60s)
-- Captions = from Groq transcription
-- Sticker pose changes driven by overlay timeline / intent detection
+- Captions = from Groq transcription, following the uploaded voiceover language through the supported pipeline
+- No user-facing subtitle language selector
+- Sticker pose changes driven by stabilized overlay timeline / intent detection, with captions allowed to update independently
 - Preview plan includes captions, `overlayTimeline`, sticker beats, comparison image assets, layout, and user edits before final render
 - Final render should preserve edited preview captions, sticker poses, sticker character, sticker scale, and sticker position
 - Credits are deducted only after the user confirms preview and starts final render
@@ -207,7 +224,7 @@ The template renders a comparison layout with sticker presenter:
 - For important explanation beats, output `sticker_general_explaining_key_point`.
 - For warning/risk/mistake beats, output `sticker_warning_issue_explainer`.
 - For conclusion/winner/outro beats, output `sticker_success_conclusion_explainer` or `sticker_happy_celebrating_outro`.
-- Do not use the same pose on adjacent beats unless the same intent genuinely continues.
+- Keep the same pose on adjacent beats when the same intent genuinely continues; do not force pose changes just to avoid repetition.
 - The renderer still accepts old short names as legacy aliases so old jobs do not break.
 
 ## Fallback Rules
@@ -251,6 +268,7 @@ The template renders a comparison layout with sticker presenter:
 - DO NOT leave sticker in one pose for the entire video
 - DO NOT add background music by default
 - DO NOT add extra images or stock photos
+- DO NOT add random SFX; sound must map to visible/timed events such as swipe, click, warning, cash, or conclusion
 - DO NOT stretch comparison images to fill unequal areas
 - DO NOT place captions over the comparison images
 - DO NOT use AI image generation for comparison items
@@ -258,9 +276,9 @@ The template renders a comparison layout with sticker presenter:
 - DO NOT make the sticker too small to see or too large to dominate
 - DO NOT use Devanagari script for Hindi/Hinglish audio captions
 
-## Template Value Proposition
+## Video Type Value Proposition
 
-The template adds value through:
+The Video Type adds value through:
 1. **Structured comparison** — clean, equal split layout that's hard to make manually
 2. **Sticker personality** — animated presenter without needing face-on-camera
 3. **Intent-aware posing** — character reacts to content contextually

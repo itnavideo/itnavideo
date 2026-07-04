@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * PreviewEditor — Universal preview editor for all ItnaVideo templates.
+ * PreviewEditor — Universal preview editor for all ItnaVideo video types.
  *
  * Shows a Remotion Player preview of the reel before final render.
  * User can edit captions, layout, colors, and scenes.
@@ -19,7 +19,7 @@ import type { PreviewCaption, PreviewLayout, PreviewPlan, PreviewSticker } from 
 import { CaptionEditor } from "./CaptionEditor";
 import { LayoutSelector } from "./LayoutSelector";
 import { StickerEditor } from "./StickerEditor";
-import { TemplatePreviewRenderer } from "./TemplatePreviewRenderer";
+import { VideoTypePreviewRenderer } from "./VideoTypePreviewRenderer";
 import { TimelineEditor } from "./TimelineEditor";
 
 type Props = {
@@ -180,7 +180,7 @@ export function PreviewEditor({ plan, onConfirmRender, onCancel, isRendering = f
           <div className="relative rounded-xl overflow-hidden bg-black"
             style={{ aspectRatio: "9/16", width: "100%", maxWidth: 280, margin: "0 auto" }}
           >
-              <TemplatePreviewRenderer
+              <VideoTypePreviewRenderer
                 ref={playerRef}
                 compositionId={plan.compositionId}
                 inputProps={liveInputProps}
@@ -275,7 +275,7 @@ export function PreviewEditor({ plan, onConfirmRender, onCancel, isRendering = f
           {/* Layout / style editor */}
           <LayoutSelector
             layout={layout}
-            templateId={plan.templateId}
+            videoTypeId={plan.videoTypeId}
             captionStyle={captionStyle}
             captionFontFamily={captionFontFamily}
             captionFontSize={captionFontSize}
@@ -292,7 +292,7 @@ export function PreviewEditor({ plan, onConfirmRender, onCancel, isRendering = f
           />
 
           <StickerEditor
-            templateId={plan.templateId}
+            videoTypeId={plan.videoTypeId}
             currentTime={currentTime}
             stickers={stickers}
             stickerStyle={stickerStyle}
@@ -393,7 +393,7 @@ function buildLiveInputProps({
     captionPosition: layout.captionPosition,
     progressStyle: layout.progressStyle,
     // For DynamicCreatorReel: scenes may have been updated if captions changed
-    ...(plan.templateId === "DYNAMIC_CREATOR_REEL" && plan.inputProps.scenes
+    ...(plan.videoTypeId === "DYNAMIC_CREATOR_REEL" && plan.inputProps.scenes
       ? { scenes: plan.inputProps.scenes }
       : {}),
   };

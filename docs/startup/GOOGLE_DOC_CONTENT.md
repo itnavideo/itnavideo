@@ -1,3 +1,7 @@
+# Archived / Reference Note
+
+This document is archived/source material from earlier Google Docs content. Please use `docs/ITNAVIDEO_MASTER_DOC.md` as the latest source of truth for Itnavideo.
+
 # Itnavideo — Startup Documentation
 
 ---

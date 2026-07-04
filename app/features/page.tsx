@@ -10,9 +10,9 @@ export const metadata: Metadata = {
 };
 
 const features = [
-  { title: "Template-first workflow", desc: "Choose a focused format. Each template has a clear input and output — no blank timelines.", icon: Layers3 },
+  { title: "Video Type-first workflow", desc: "Choose a focused video type. Each one has a clear input and output - no blank timelines.", icon: Layers3 },
   { title: "Real transcript timing", desc: "Captions and scenes follow your actual spoken words with word-level sync.", icon: Captions },
-  { title: "6 production templates", desc: "Creator edits, background replace, captions, comparisons, whiteboard explainers, and long video promos.", icon: Film },
+  { title: "6 production video types", desc: "Creator edits, background replace, captions, comparisons, whiteboard explainers, and long video promos.", icon: Film },
   { title: "AI scene planning", desc: "Gemini/AI analyzes your content and creates visual scenes automatically.", icon: Wand2 },
   { title: "Clean visual system", desc: "Fonts, spacing, motion, and safe zones stay consistent across every reel.", icon: Palette },
   { title: "Fast cloud rendering", desc: "2-3 minute render on AWS Lambda. No local processing or heavy software needed.", icon: Zap },
@@ -23,7 +23,7 @@ const handles = [
   "Scene planning from transcript",
   "Dynamic typography and highlights",
   "Visual layout and safe zones",
-  "Template-specific design",
+  "Video type-specific design",
   "Background music selection",
   "Progress bar and CTA overlays",
   "1080×1920 MP4 export",
@@ -86,8 +86,8 @@ export default function FeaturesPage() {
           <h2 className="mb-12 text-center text-3xl font-black sm:text-4xl">Upload once. Get a reel back.</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              { num: "01", title: "Pick a template", desc: "6 focused templates for creator edits, background replace, captions, explainers, comparisons, and promos.", icon: Layers3 },
-              { num: "02", title: "Upload content", desc: "Video, audio, or images. Upload area adapts to your template.", icon: Upload },
+              { num: "01", title: "Choose a Video Type", desc: "6 focused video types for creator edits, background replace, captions, explainers, comparisons, and promos.", icon: Layers3 },
+              { num: "02", title: "Upload content", desc: "Video, audio, or images. Upload area adapts to your selected video type.", icon: Upload },
               { num: "03", title: "AI plans & renders", desc: "Speech becomes captions. AI builds layout, visuals, and exports.", icon: Wand2 },
               { num: "04", title: "Download your reel", desc: "9:16 MP4 ready for Instagram Reels, YouTube Shorts, TikTok.", icon: Film },
             ].map((step) => {
@@ -194,7 +194,7 @@ export default function FeaturesPage() {
               Start Creating Free <ArrowRight size={16} />
             </Link>
             <Link href="/pricing" className="inline-flex items-center gap-2 rounded-2xl border border-zinc-700 px-7 py-4 text-sm font-bold text-zinc-300 transition hover:text-white">
-              View Templates
+              View Video Types
             </Link>
           </div>
         </div>

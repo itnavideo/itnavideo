@@ -189,7 +189,7 @@ export default function LongVideoLabPage() {
           <div>
             <p className="text-xs font-bold text-yellow-300">Internal Testing Only</p>
             <p className="text-[11px] text-zinc-400 mt-0.5">
-              This template uses local computer rendering — not AWS Lambda. Long videos can be expensive on cloud. Test locally first, then make public if results are good.
+              This video type uses local computer rendering — not AWS Lambda. Long videos can be expensive on cloud. Test locally first, then make public if results are good.
             </p>
           </div>
         </div>

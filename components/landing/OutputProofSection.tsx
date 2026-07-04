@@ -12,7 +12,7 @@ const outputs = [
     surface: 'bg-[linear-gradient(180deg,rgba(8,47,73,0.35),rgba(9,9,11,1))]',
     icon: Film,
     status: 'Available now',
-    href: '/dashboard?template=video-explainer',
+    href: '/dashboard?videoType=video-explainer',
     body: 'Upload video/audio with speech. Get a reel with creator video on top, subtitles, title, and your explanation image at the bottom.',
     items: ['16:9 creator video', 'Transcript subtitles', 'Custom bottom image'],
     active: true,
@@ -26,7 +26,7 @@ const outputs = [
     surface: 'bg-[linear-gradient(180deg,rgba(6,78,59,0.35),rgba(9,9,11,1))]',
     icon: Layers3,
     status: 'Available now',
-    href: '/dashboard?template=compare',
+    href: '/dashboard?videoType=compare',
     body: 'Upload audio voiceover + 2-4 images. AI creates a left vs right comparison reel with timed captions.',
     items: ['Audio voiceover', 'Left vs Right panels', 'VS badge + subtitles'],
     active: true,
@@ -34,7 +34,7 @@ const outputs = [
 ];
 
 const contract = [
-  { title: 'Choose template first', body: 'Pick the output style before uploading so expectations are clear from the start.', icon: CheckCircle2 },
+  { title: 'Choose video type first', body: 'Pick the output style before uploading so expectations are clear from the start.', icon: CheckCircle2 },
   { title: 'Audio or video input', body: 'Upload a talking-head clip, screen recording, or a clean voiceover file.', icon: Film },
   { title: '1 minute max', body: 'Long uploads are accepted but the reel uses only the first minute of speech.', icon: Clock3 },
   { title: 'Private & temporary', body: 'Your uploads are used only for rendering and never shared publicly.', icon: Wand2 },
@@ -42,20 +42,20 @@ const contract = [
 
 export default function OutputProofSection() {
   return (
-    <section id="template-proof" className="relative overflow-hidden bg-[#0B1120] px-4 py-16 sm:px-6 md:py-24">
+    <section id="video-type-proof" className="relative overflow-hidden bg-[#0B1120] px-4 py-16 sm:px-6 md:py-24">
       <div className="mx-auto max-w-7xl">
         {/* Section header */}
         <div className="mb-12 max-w-3xl">
-          <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-brand-mint">Available templates</p>
+          <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-brand-mint">Available video types</p>
           <h2 className="text-3xl font-black leading-tight text-white sm:text-4xl md:text-5xl">
-            Two templates. Real outputs.
+            Two video types. Real outputs.
           </h2>
           <p className="mt-5 text-base leading-7 text-zinc-400 sm:text-lg">
-            Each template shows exactly what you upload and what you receive. No guessing.
+            Each video type shows exactly what you upload and what you receive. No guessing.
           </p>
         </div>
 
-        {/* Template cards — large featured layout */}
+        {/* Video Type cards - large featured layout */}
         <div className="mb-12 grid gap-6 lg:grid-cols-2">
           {outputs.map((output) => {
             const Icon = output.icon;

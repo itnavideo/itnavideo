@@ -18,6 +18,9 @@ export type SubtitleStyle =
   | "inline-bg"
   | "vollkorn"
   | "karaoke"
+  | "shorts-karaoke"
+  | "reels-clean"
+  | "bold-highlight-strip"
   | "shatter"
   | "pill-bounce"
   | "cinematic"
@@ -86,8 +89,12 @@ export const SUBTITLE_PRESETS: Record<string, SubtitlePreset> = {
   Typewriter: { name: "Typewriter", style: "typewriter", fontFamily: "Courier New, monospace", textColor: "#10B981", highlightColor: "#10B981", fontSize: "medium" },
   "Bold Fire": { name: "Bold Fire", style: "big-bold", fontFamily: "Impact, sans-serif", textColor: "#FFFFFF", highlightColor: "#F97316", fontSize: "xlarge" },
   "Karaoke Fill": { name: "Karaoke Fill", style: "karaoke", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#FFE500", fontSize: "large" },
+  "Shorts Karaoke": { name: "Shorts Karaoke", style: "shorts-karaoke", fontFamily: "Inter, sans-serif", textColor: "#9CA3AF", highlightColor: "#111827", backgroundColor: "#F4F4F5", fontSize: "large" },
+  "Reels Clean": { name: "Reels Clean", style: "reels-clean", fontFamily: "Inter, sans-serif", textColor: "#F8FAFC", highlightColor: "#FFFFFF", fontSize: "medium" },
+  "Bold Highlight Strip": { name: "Bold Highlight Strip", style: "bold-highlight-strip", fontFamily: "Fredoka", textColor: "#FFFFFF", highlightColor: "#FFF3A3", backgroundColor: "#F59E0B", fontSize: "xlarge" },
   "Shatter Drop": { name: "Shatter Drop", style: "shatter", fontFamily: "Impact, sans-serif", textColor: "#FFFFFF", highlightColor: "#FF3D3D", fontSize: "large" },
   "Pill Bounce": { name: "Pill Bounce", style: "pill-bounce", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#FF6B35", fontSize: "large" },
   "Cinematic": { name: "Cinematic", style: "cinematic", fontFamily: "Georgia, serif", textColor: "#FFFFFF", highlightColor: "#FFFFFF", fontSize: "medium" },
   "Hacker Type": { name: "Hacker Type", style: "typewriter-code", fontFamily: "Courier New, monospace", textColor: "#00FF88", highlightColor: "#00FF88", fontSize: "medium" },
+  "split-color": { name: "Split Color", style: "split-color", fontFamily: "sans-serif", textColor: "#FFFFFF", highlightColor: "#FACC15", fontSize: "medium" },
 };

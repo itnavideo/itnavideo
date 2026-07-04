@@ -72,10 +72,10 @@ export default function AboutPage() {
               <Zap className="mb-5 text-brand-mint" size={28} />
               <h3 className="text-2xl font-black">Itnavideo&apos;s Answer</h3>
               <p className="mt-4 text-base leading-relaxed text-zinc-300">
-                Upload once. Choose a template. Get a reel back in 2-3 minutes. AI handles transcription, captions, layout, timing, visuals, and export. You direct, AI edits.
+                Upload once. Choose a video type. Get a reel back in 2-3 minutes. AI handles transcription, captions, layout, timing, visuals, and export. You direct, AI edits.
               </p>
               <div className="mt-6 grid gap-3">
-                {["6 production templates for focused reel formats", "AI captions synced to speech", "9:16 vertical MP4 ready to post", "No editing skills required", "Works for English and Hinglish"].map((item) => (
+                {["6 production video types for focused reel formats", "AI captions synced to speech", "9:16 vertical MP4 ready to post", "No editing skills required", "Works for English and Hinglish"].map((item) => (
                   <div key={item} className="flex items-center gap-2.5 text-sm font-bold text-zinc-200">
                     <span className="text-brand-mint">✓</span> {item}
                   </div>
@@ -158,7 +158,7 @@ export default function AboutPage() {
       <section className="px-4 pb-24 sm:px-6">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-3xl font-black">Ready to create your first reel?</h2>
-          <p className="mt-4 text-base text-zinc-400">No editing skills needed. Upload content, choose a template, get a video.</p>
+          <p className="mt-4 text-base text-zinc-400">No editing skills needed. Upload content, choose a video type, get a video.</p>
           <Link href="/dashboard" className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-brand-mint px-8 py-4 text-base font-black text-black transition hover:bg-white">
             Start Creating Free <ArrowRight size={16} />
           </Link>

@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import type { PreviewSticker } from "./types";
 
 type Props = {
-  templateId: string;
+  videoTypeId: string;
   currentTime: number;
   stickers: PreviewSticker[];
   stickerStyle: string;
@@ -44,7 +44,7 @@ const POSES = [
 ] as const;
 
 export function StickerEditor({
-  templateId,
+  videoTypeId,
   currentTime,
   stickers,
   stickerStyle,
@@ -57,7 +57,7 @@ export function StickerEditor({
   onStickersChange,
 }: Props) {
   const [expanded, setExpanded] = useState(true);
-  const supportsStickers = templateId === "comparisonImages";
+  const supportsStickers = videoTypeId === "comparisonImages";
 
   const activeIndex = useMemo(() => {
     const found = stickers.findIndex((sticker) => currentTime >= sticker.start && currentTime < sticker.end);

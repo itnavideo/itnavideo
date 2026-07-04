@@ -376,8 +376,8 @@
     color: var(--text-dark-primary);
   }
 
-  /* Dashboard template card hover border */
-  .template-card-frame:hover {
+  /* Dashboard video type card hover border */
+  .video-type-card-frame:hover {
     border-color: var(--color-secondary-light) !important;
     box-shadow: 0 8px 30px rgba(6, 182, 212, 0.12) !important;
   }
@@ -406,6 +406,16 @@
     border-color: var(--color-primary-hover);
     background: rgba(37, 99, 235, 0.08);
     transform: scale(1.01);
+  }
+
+  @media (max-width: 640px) {
+    .upload-zone {
+      padding: 1.25rem;
+    }
+
+    .upload-zone:hover {
+      transform: none;
+    }
   }
 
   /* Dashboard text inputs */
@@ -499,4 +509,63 @@ audio {
 @keyframes progress {
   0% { width: 5%; }
   100% { width: 85%; }
+}
+
+@keyframes renderSweep {
+  0% { transform: translateX(-140%); opacity: 0; }
+  18% { opacity: 1; }
+  72% { opacity: 0.65; }
+  100% { transform: translateX(430%); opacity: 0; }
+}
+
+@keyframes renderFloat {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.45; }
+  50% { transform: translate3d(10px, -14px, 0) scale(1.55); opacity: 1; }
+}
+
+@keyframes renderOrbit {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes renderScanline {
+  0% { transform: translateY(-120%); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 0.85; }
+  100% { transform: translateY(420%); opacity: 0; }
+}
+
+@keyframes renderShimmer {
+  0% { transform: translateX(-110%); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateX(130%); opacity: 0; }
+}
+
+@keyframes renderCaptionRise {
+  0%, 100% { transform: translateY(0); opacity: 0.52; }
+  50% { transform: translateY(-2px); opacity: 1; }
+}
+
+.render-sweep {
+  animation: renderSweep 3.8s ease-in-out infinite;
+}
+
+.render-float {
+  animation: renderFloat 4.2s ease-in-out infinite;
+}
+
+.render-orbit {
+  animation: renderOrbit 7.5s linear infinite;
+}
+
+.render-scanline {
+  animation: renderScanline 2.8s ease-in-out infinite;
+}
+
+.render-shimmer {
+  animation: renderShimmer 2.4s ease-in-out infinite;
+}
+
+.render-caption-rise {
+  animation: renderCaptionRise 1.7s ease-in-out infinite;
 }

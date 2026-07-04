@@ -5,6 +5,7 @@ import {AutoDrawExplainerComposition} from './templates/AUTO_DRAW_EXPLAINER/temp
 import {LongVideoPromoComposition} from './templates/LONG_VIDEO_PROMO/template';
 import {DynamicCreatorReelComposition} from './templates/DYNAMIC_CREATOR_REEL/template';
 import {CreatorBackgroundReplaceComposition} from './templates/CREATOR_BACKGROUND_REPLACE/template';
+import {CustomAiReelComposition} from './templates/CUSTOM_AI_REEL/template';
 
 const compositions = [
   AutoCaptionReelComposition,
@@ -13,6 +14,7 @@ const compositions = [
   LongVideoPromoComposition,
   DynamicCreatorReelComposition,
   CreatorBackgroundReplaceComposition,
+  CustomAiReelComposition,
 ];
 
 const RemotionRoot = () => (

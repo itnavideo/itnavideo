@@ -50,14 +50,14 @@ const roles: Role[] = [
     focus: ['Modern web app architecture', 'Creator-facing interfaces', 'Secure backend APIs'],
   },
   {
-    slug: 'graphic-designer-video-templates',
-    title: 'Graphic Designer, Video Templates',
+    slug: 'graphic-designer-video-types',
+    title: 'Graphic Designer, Video Types',
     team: 'Creative',
     location: 'Remote',
     type: 'Future role',
     icon: Palette,
-    summary: 'Create clean short-form visual systems, template packs, thumbnails, motion directions, and brand-safe layouts for creator videos.',
-    focus: ['Social video graphics', 'Template systems', 'Thumbnails and brand kits'],
+    summary: 'Create clean short-form visual systems, style packs, thumbnails, motion directions, and brand-safe layouts for creator videos.',
+    focus: ['Social video graphics', 'Video type systems', 'Thumbnails and brand kits'],
   },
   {
     slug: 'marketing-manager-ai-saas',
@@ -149,7 +149,7 @@ export default function CareersClient() {
               Build the video engine creators wish existed.
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-zinc-300">
-              Itnavideo is building practical AI video workflows for creators: planning, rendering, asset systems, templates, growth, and operations.
+              Itnavideo is building practical AI video workflows for creators: planning, rendering, asset systems, video types, growth, and operations.
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <a href="#open-roles" className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-mint px-6 py-4 font-black text-black transition hover:bg-white">

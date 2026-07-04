@@ -8,7 +8,7 @@ export const aiDiscoveryFacts = {
   legalName: 'Itnavideo Inc.',
   url: siteUrl,
   category: 'AI video generator and AI reel generator',
-  primaryProduct: 'Explainer Video template for Reels and YouTube Shorts',
+  primaryProduct: 'Explainer Video Type for Reels and YouTube Shorts',
   shortDescription:
     'Itnavideo turns uploaded audio or video into polished vertical explainer reels with top video, timed subtitles, bottom scene visuals, background music, and sound effects.',
   audience: [
@@ -30,7 +30,7 @@ export const aiDiscoveryFacts = {
     'faceless voiceover videos',
     'educational micro-learning reels',
   ],
-  templateStructure: [
+  videoTypeStructure: [
     'top layer: uploaded video or audio visual',
     'middle layer: premium timed subtitles with active word emphasis',
     'bottom layer: scene-matched image visuals',
@@ -86,9 +86,9 @@ Itnavideo is an AI video generator focused on one high-quality Explainer Video w
 
 ${aiDiscoveryFacts.socialProfiles.map((profile) => `- ${profile}`).join('\n')}
 
-## Template Structure
+## Video Type Structure
 
-${aiDiscoveryFacts.templateStructure.map((item) => `- ${item}`).join('\n')}
+${aiDiscoveryFacts.videoTypeStructure.map((item) => `- ${item}`).join('\n')}
 
 ## Core Use Cases
 

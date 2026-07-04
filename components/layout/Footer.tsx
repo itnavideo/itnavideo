@@ -10,20 +10,20 @@ const footerGroups = [
     title: 'Product',
     links: [
       { label: 'Features', href: '/features' },
-      { label: 'Templates', href: '/templates' },
+      { label: 'Video Types', href: '/video-types' },
       { label: 'Pricing', href: '/pricing' },
       { label: 'Dashboard', href: '/dashboard' },
     ],
   },
   {
-    title: 'Templates',
+    title: 'Video Types',
     links: [
-      { label: 'Auto Caption Reel', href: '/templates/auto-caption-reel' },
-      { label: 'Compare Explainer', href: '/templates/compare-explainer' },
-      { label: 'Long Video Promo', href: '/templates/long-video-promo' },
-      { label: 'Dynamic Creator Reel', href: '/templates/dynamic-creator-reel' },
-      { label: 'Auto Draw Explainer', href: '/templates/auto-draw-explainer' },
-      { label: 'View all templates', href: '/templates' },
+      { label: 'Auto Caption Video', href: '/video-types/auto-caption-reel' },
+      { label: 'Compare Explainer Video', href: '/video-types/compare-explainer' },
+      { label: 'Long Video Promo', href: '/video-types/long-video-promo' },
+      { label: 'Creator Reel Video', href: '/video-types/dynamic-creator-reel' },
+      { label: 'Auto Draw Explainer Video', href: '/video-types/auto-draw-explainer' },
+      { label: 'View all video types', href: '/video-types' },
     ],
   },
   {
@@ -88,7 +88,7 @@ export default function Footer() {
             <div key={group.title}>
               <h4
                 className="mb-5 text-[11px] font-bold uppercase tracking-[0.2em]"
-                style={{ color: group.title === 'Templates' ? 'var(--color-secondary-light)' : '#FFFFFF' }}
+                style={{ color: group.title === 'Video Types' ? 'var(--color-secondary-light)' : '#FFFFFF' }}
               >
                 {group.title}
               </h4>

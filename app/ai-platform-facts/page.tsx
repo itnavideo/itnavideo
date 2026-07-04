@@ -71,7 +71,7 @@ export default function AiPlatformFactsPage() {
 
         <Section title="Who Itnavideo Is For" items={aiDiscoveryFacts.audience} />
         <Section title="Core Use Cases" items={aiDiscoveryFacts.coreUseCases} />
-        <Section title="Explainer Video Template Structure" items={aiDiscoveryFacts.templateStructure} />
+        <Section title="Explainer Video Type Structure" items={aiDiscoveryFacts.videoTypeStructure} />
         <Section title="Official Profiles" items={aiDiscoveryFacts.socialProfiles} />
 
         <section className="mt-14">

@@ -74,11 +74,17 @@ function mapCaptionStyle(style?: string): SubtitleConfig['style'] {
     Typewriter: 'typewriter',
     'Bold Fire': 'big-bold',
     'Karaoke Fill': 'karaoke',
+    'Shorts Karaoke': 'shorts-karaoke',
+    'Reels Clean': 'reels-clean',
+    'Bold Highlight Strip': 'bold-highlight-strip',
     'Shatter Drop': 'shatter',
     'Pill Bounce': 'pill-bounce',
     Cinematic: 'cinematic',
     'Hacker Type': 'typewriter-code',
     karaoke: 'karaoke',
+    'shorts-karaoke': 'shorts-karaoke',
+    'reels-clean': 'reels-clean',
+    'bold-highlight-strip': 'bold-highlight-strip',
     shatter: 'shatter',
     'pill-bounce': 'pill-bounce',
     cinematic: 'cinematic',
@@ -190,8 +196,8 @@ const defaultProps: AutoCaptionProps = {
   textColor: '#ffffff',
   highlightColor: '#facc15',
   backgroundColor: '#18181B',
-  durationSeconds: 30,
-  sourceDurationSeconds: 30,
+  durationSeconds: 60,
+  sourceDurationSeconds: 60,
   language: 'en',
   fontSize: 'medium',
   fontFamily: 'Inter, sans-serif',
@@ -209,7 +215,7 @@ export const AutoCaptionReelComposition = () => (
   <Composition
     id="AUTO-CAPTION-REEL"
     component={AutoCaptionReel}
-    durationInFrames={900}
+    durationInFrames={1800}
     fps={30}
     width={1080}
     height={1920}
@@ -217,7 +223,7 @@ export const AutoCaptionReelComposition = () => (
     calculateMetadata={({props}) => {
       const p = props as AutoCaptionProps;
       const durationSeconds = Math.max(5, Math.min(60,
-        Number(p.durationSeconds) || Number(p.sourceDurationSeconds) || Number(p.renderWindowSeconds) || 30
+        Number(p.durationSeconds) || Number(p.sourceDurationSeconds) || Number(p.renderWindowSeconds) || 60
       ));
       return {durationInFrames: Math.ceil(durationSeconds * 30), fps: 30, width: 1080, height: 1920};
     }}

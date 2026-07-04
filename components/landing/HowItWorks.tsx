@@ -1,18 +1,18 @@
 import React from 'react';
-import { Captions, Download, LayoutTemplate, Sparkles, Upload } from 'lucide-react';
+import { Captions, Clapperboard, Download, Sparkles, Upload } from 'lucide-react';
 
 const steps = [
   {
     number: '01',
-    icon: LayoutTemplate,
-    title: 'Pick a template',
-    desc: 'Choose one of six focused templates: creator edits, background replace, captions, comparisons, whiteboard explainers, or promos.',
+    icon: Clapperboard,
+    title: 'Choose a Video Type',
+    desc: 'Choose one of seven focused video types: custom prompts, creator edits, background replace, captions, comparisons, whiteboard explainers, or promos.',
   },
   {
     number: '02',
     icon: Upload,
     title: 'Upload your content',
-    desc: 'Video, audio, or images. The upload area adapts to your chosen template.',
+    desc: 'Video, audio, or images. The upload area adapts to your chosen video type.',
   },
   {
     number: '03',
@@ -41,7 +41,7 @@ export default function HowItWorks() {
           </div>
           <div className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm" style={{ border: '0.5px solid var(--border-light)', background: 'var(--color-primary-subtle)', color: 'var(--color-primary)' }}>
             <Captions size={18} style={{ color: 'var(--color-primary)' }} />
-            One payment unlocks all templates
+            One payment unlocks all video types
           </div>
         </div>
 

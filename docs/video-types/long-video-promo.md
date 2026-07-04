@@ -1,3 +1,7 @@
+# Reference Note
+
+This is a detailed Video Type spec. Start with `docs/ITNAVIDEO_MASTER_DOC.md` for the latest source of truth, then use this file for Long Video Promo implementation details.
+
 # Long Video Promo
 
 ## Basic Information
@@ -46,14 +50,11 @@ Creators have long videos but struggle to promote them on short-form platforms (
 |-------|------|----------|-------|
 | Thumbnail | Image (PNG/JPG/WebP) | Yes | 16:9 recommended (1280×720) |
 | Title | Text | Yes | Max 60 characters displayed |
-| Promo Clip | Video/Audio | Yes | The actual media to promote (10-60s) |
+| Promo Clip | Video | Yes | The actual video clip to promote (10-60s) |
 
 ## Optional User Inputs
 
-| Input | Type | Notes |
-|-------|------|-------|
-| Subtitle | Text | Secondary line below title |
-| Video Duration | Text (MM:SS) | Shows as badge on thumbnail |
+None. Long Video Promo intentionally stays simple: thumbnail, title, and promo video only.
 
 ## Inputs NOT Collected (Removed)
 
@@ -63,6 +64,10 @@ These were previously in the form but are no longer rendered:
 - CTA text
 - Channel logo
 - Chips/badges
+- Captions/subtitles
+- Subtitle language
+- Duration badge
+- Background music
 
 ---
 
@@ -74,16 +79,17 @@ These were previously in the form but are no longer rendered:
 | Supported aspect | 9:16 only (currently) |
 | Max duration | 60 seconds |
 | Min duration | 8 seconds |
-| Duration source | Matches uploaded media length |
+| Duration source | Browser-read uploaded media duration, capped to 60s |
 | Export format | MP4 (H.264 + AAC) |
-| Audio handling | User's uploaded clip audio plays at full volume |
-| Background music | OFF by default (user's clip already has audio) |
+| Audio handling | User's uploaded video audio plays at full volume |
+| Background music | Not used |
+| Premium style layer | Automatic promo/luxury `styleLock` and sparse reveal `soundCues` |
 
 ---
 
 ## Layout Rules
 
-The template renders exactly 3 elements vertically:
+The Video Type renders exactly 3 elements vertically, but only the top thumbnail is allowed to look framed:
 
 ```
 ┌─────────────────────────────┐
@@ -94,12 +100,10 @@ The template renders exactly 3 elements vertically:
 │                             │
 ├─────────────────────────────┤
 │                             │
-│         TITLE               │  ← top: 650px, centered
-│     (optional subtitle)     │
+│         TITLE               │  ← typography integrated into design, no border box
 │                             │
 ├─────────────────────────────┤
-│                             │
-│      UPLOADED VIDEO         │  ← fills remaining space
+│      UPLOADED VIDEO         │  ← borderless cinematic stage, starts below title
 │      (promo clip)           │
 │                             │
 │                             │
@@ -108,10 +112,15 @@ The template renders exactly 3 elements vertically:
 
 ### Spacing
 - Thumbnail: `top: 60px`, `left/right: 40px`
-- Title: `top: 650px`, `left/right: 44px`
-- Video clip: depends on aspect ratio
-  - Landscape (16:9): `top: 820px`, `left/right: 40px`, `bottom: 80px`
-  - Portrait (9:16): `top: 790px`, `left/right: 60px`, `bottom: 30px`
+- Title: stacked below thumbnail with a clean `26px` margin
+- Video clip: stacked directly below title with a clean `18px` margin
+- Do not use fixed video `top` offsets that create blank space between title and video
+- Vertical/reel clips may extend toward the bottom naturally
+- Landscape, 4:5, and square clips still start immediately below the title
+- Border/frame is acceptable for the top thumbnail only
+- Do not use a visible border box around the title
+- Do not use a hard/thick visible border around the lower video clip
+- The lower video should sit in a borderless cinematic media stage with blurred fill behind the preserved-aspect clip
 
 ### Title Handling
 - Max 60 characters (truncated with ellipsis)
@@ -121,8 +130,12 @@ The template renders exactly 3 elements vertically:
 
 ### Video Aspect Handling
 - 16:9 clip: `objectFit: contain` (fits within frame, no stretching)
+- 4:5 clip: preserved in a 4:5 frame, anchored under the title
+- Square clip: preserved in a 1:1 frame, anchored under the title
 - Vertical clip: `objectFit: cover` (fills the space, crops edges)
-- Background matches the media (blurred video or blurred thumbnail)
+- Background uses the uploaded thumbnail by default for speed; the uploaded video remains the promoted media
+- Empty areas around non-vertical clips must be filled with blurred video/thumbnail, not black gaps
+- Mixed aspect ratios should feel naturally placed rather than boxed
 
 ---
 
@@ -130,18 +143,20 @@ The template renders exactly 3 elements vertically:
 
 | Element | Style |
 |---------|-------|
-| Background | Blurred version of uploaded video/thumbnail |
+| Background | Blurred uploaded thumbnail by default; avoids repeatedly decoding the same uploaded video |
 | Vignette | Radial gradient (transparent center, dark edges) |
-| Title color | `#ffffff` with text shadow |
-| Subtitle color | `rgba(255,255,255,0.6)` |
+| Title background | No hard box. Use typography, soft media-matched glow, underline/accent, spacing, and shadow |
+| Title color | Warm off-white (`#F8FAFC`) with text shadow |
+| Title accent | Subtle underline/glow only; no bordered container |
 | Thumbnail border | `rgba(255,255,255, 0.2-0.35)` with glow pulse |
+| Lower clip border | None. Use blurred fill, gradients, soft masks, and drop shadow instead |
 | Play button | Dark glass circle with white triangle |
-| Duration badge | Dark bg, white text, small |
-| Caption overlay | Dark pill with white text at bottom |
 
 ### What Colors to Avoid
 - No bright colored backgrounds
 - No gradient borders on the video
+- No hard border box around the title
+- No hard border around the lower clip
 - No neon glow
 - No colored text (keep white/muted only)
 - Background should MATCH the media, not compete with it
@@ -155,8 +170,14 @@ The template renders exactly 3 elements vertically:
 | Thumbnail | Slow zoom in (1.06 → 1.0), fade in 0-14 frames, shine sweep at frame 30-55 |
 | Title | Spring slide-up (24px → 0), fades in at frame 10-26 |
 | Video clip | Spring scale-in, gentle continuous float (sine wave) |
-| Border | Very subtle glow pulse (0.4-0.7 opacity) |
+| Thumbnail border | Very subtle glow pulse (0.4-0.7 opacity) |
 | Background | Static (blurred, no motion needed) |
+
+### Premium Style Lock
+
+Long Video Promo receives a deterministic `styleLock` on the fast path. The style lock keeps title treatment, accent color, motion pacing, and sound cues in one premium promo language. Sound cues are limited to moments such as thumbnail reveal, title reveal, promo clip reveal, and outro lift.
+
+The renderer applies LUT-like grade consistency, subtle grain/vignette, media depth, and controlled Ken Burns movement. For stability, the default fast render decodes the uploaded clip only once and uses thumbnail-based blur layers instead of repeated video blur layers. Pacing should leave short breath moments after the title reveal before the promo clip becomes the main focus.
 
 ### What Should NOT Animate
 - Background should not move or pulse
@@ -171,22 +192,27 @@ The template renders exactly 3 elements vertically:
 
 - No random stock images
 - No pre-loaded background music
-- No sound effects added by default
+- Subtle automatic promo SFX are allowed through `soundCues`; background music is not used
 - Only user-provided media is used
 - Thumbnail resolved via `staticFile()` for local, HTTPS for production
 - No assets stored inside the template folder
 
 ---
 
-## Timeline / Scene Structure
+## Fast Render Pipeline
 
-This template is simple — no multi-scene timeline needed.
+This Video Type is simple and uses a deterministic fast path.
 
-- Audio source = user's uploaded clip
-- Duration = clip length (capped at 60s)
-- Captions = word-grouped from Groq transcription (optional, only if speech detected)
+- Audio source = user's uploaded video clip
+- Duration = clip length from browser metadata (clamped to 8-60s)
+- Captions/subtitles = not used in this video type
+- Transcription = skipped
+- Subtitle language/translation logic = skipped
+- AI planning = skipped
+- Background music = skipped by default
+- Render uses the uploaded thumbnail for blurred background layers so the uploaded clip is decoded only once in the main media stage
 - No overlayTimeline-driven scenes (unlike Compare Explainer)
-- No AI planning needed
+- No FFmpeg planning clip is created for the default path
 
 ## Fallback Rules
 
@@ -200,7 +226,7 @@ This template is simple — no multi-scene timeline needed.
 | Vertical video uploaded | `objectFit: cover` — fills space |
 | Short video (<8s) | Duration clamped to minimum 8s |
 | 60-second video | Renders full 60s |
-| No captions | No caption overlay shown (graceful) |
+| Caption/subtitle request | Ignored; this video type renders thumbnail, title, and promo video only |
 
 ---
 
@@ -210,12 +236,17 @@ This template is simple — no multi-scene timeline needed.
 - [ ] Long title (80+ chars) truncates safely, no overflow
 - [ ] Short title (10 chars) displays at large font size
 - [ ] 16:9 video clip does not stretch vertically
+- [ ] 16:9 video clip has blurred fill behind it, no black gaps
 - [ ] Vertical/reel clip fills remaining space properly
+- [ ] 4:5 video clip preserves its aspect ratio without a hard border
+- [ ] Square video clip preserves its aspect ratio without a hard border
 - [ ] Background matches the uploaded media (blurred)
+- [ ] Title is typography-led with no visible bordered title box
+- [ ] Lower video area has no hard border or boxed frame
 - [ ] No old UI elements visible (no channel name, no subscribe, no badges)
-- [ ] Captions appear in safe zone at bottom when available
+- [ ] No captions/subtitles appear
+- [ ] No transcription or AI planning runs in the render path
 - [ ] Video audio plays at correct volume
-- [ ] Duration badge shows only when user provides it
 - [ ] Play button visible on thumbnail
 - [ ] Shine sweep animation runs once smoothly
 - [ ] Title slide-up animation is smooth
@@ -233,11 +264,11 @@ This template is simple — no multi-scene timeline needed.
 - DO NOT force any text the user did not input
 - DO NOT stretch 16:9 content to fill 9:16 canvas
 - DO NOT use random stock images as background
-- DO NOT add sound effects
+- DO NOT add loud or unrelated sound effects; SFX must be sparse and tied to actual reveal/motion events
 
-## Template Value Proposition
+## Video Type Value Proposition
 
-The template adds value through:
+The Video Type adds value through:
 1. **Motion design** — smooth reveal animations, float, shine
 2. **Premium layout** — proper spacing, safe zones, clean typography
 3. **Smart media handling** — blurred matching background, aspect-aware sizing
