@@ -1,10 +1,14 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ArrowRight, Check, Sparkles } from "lucide-react";
+import AutoCaptionsShowcase from "@/components/captions/AutoCaptionsShowcase";
 
 export const metadata: Metadata = {
   title: "Auto Caption Reel Generator — AI Word-Level Subtitles | Itnavideo",
   description: "Upload your video and get stylish word-level captions automatically. 9:16 reel ready for Instagram Reels, YouTube Shorts, and TikTok. No editing needed.",
+  alternates: {
+    canonical: "/auto-caption-reel",
+  },
   openGraph: {
     title: "Auto Caption Reel Generator — AI Word-Level Subtitles | Itnavideo",
     description: "Upload your video and get stylish word-level captions automatically. 9:16 reel ready for Instagram Reels, YouTube Shorts, and TikTok. No editing needed.",
@@ -23,11 +27,11 @@ const jsonLd = {
   name: "Auto Caption Reel — Itnavideo",
   applicationCategory: "VideoEditor",
   operatingSystem: "Web",
-  url: "https://www.itnavideo.com/video-types/auto-caption-reel",
+  url: "https://www.itnavideo.com/auto-caption-reel",
   description: "Upload your video and get stylish word-level captions automatically. 9:16 reel ready for Instagram Reels, YouTube Shorts, and TikTok. No editing needed.",
   offers: {
     "@type": "Offer",
-    priceCurrency: "USD",
+    priceCurrency: "INR",
     price: "9",
     availability: "https://schema.org/InStock",
   },
@@ -77,6 +81,9 @@ export default function AutoCaptionReelPage() {
         </div>
       </section>
 
+      {/* Before / After demo — real videos */}
+      <AutoCaptionsShowcase />
+
       {/* Who this is for */}
       <section className="px-4 pb-16 sm:px-6">
         <div className="mx-auto max-w-3xl">
@@ -115,7 +122,7 @@ export default function AutoCaptionReelPage() {
       <section className="px-4 pb-20 sm:px-6">
         <div className="mx-auto max-w-3xl rounded-lg p-6 text-center" style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border-dark)', borderRadius: '12px' }}>
           <p className="text-sm leading-6" style={{ color: 'var(--text-dark-secondary)' }}>
-            All plans include all 6 production video types. No video types locked behind higher tiers. Plans start at $9/month.
+            All video types are available on every plan. No features locked behind higher tiers. Pay only per video, starting at ₹9.
           </p>
           <Link href="/pricing" className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold transition hover:opacity-80" style={{ color: 'var(--color-primary-hover)' }}>
             View pricing <ArrowRight size={14} />

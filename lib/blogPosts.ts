@@ -24,6 +24,86 @@ export type BlogPost = {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: 'itnavideo-vs-capcut-auto-captions-which-is-better-for-subtitles',
+    title: 'Itnavideo vs CapCut Auto Captions: Which Is Better for Subtitles and Captions?',
+    excerpt: 'Comparing CapCut Auto Captions with Itnavideo for subtitle generation, visual storytelling, and short-form video creation.',
+    date: 'Jul 10, 2026',
+    readTime: '4 min read',
+    category: 'captions',
+    intro: "If you're searching for CapCut Auto Captions, you're probably looking for the fastest way to add subtitles to your videos. CapCut has become one of the most popular tools for generating automatic captions. It's quick, easy to use, and works well for many creators. But if your goal is creating professional-looking Reels, Shorts, TikToks, or educational videos, subtitles alone often aren't enough. That's where Itnavideo takes a different approach.",
+    dashboardType: 'auto-caption-reel',
+    keywords: ['capcut auto captions', 'capcut vs itnavideo', 'auto caption generator', 'ai subtitles', 'video captions tool'],
+    faqs: [
+      { question: 'Is Itnavideo better than CapCut for captions?', answer: 'CapCut is great for basic subtitle generation. Itnavideo goes further by combining AI captions with visual storytelling, animated typography, and smart word emphasis for professional short-form videos.' },
+      { question: 'Does Itnavideo support Hinglish captions?', answer: 'Yes. Itnavideo supports both English and Hinglish (Roman script) captions powered by Groq Whisper transcription.' },
+      { question: 'Can I use Itnavideo for YouTube Shorts?', answer: 'Yes. All videos are exported as 1080x1920 vertical MP4 files ready for YouTube Shorts, Instagram Reels, and TikTok.' },
+    ],
+    internalLinks: [
+      { label: 'Try Auto Caption Video', href: '/dashboard?videoType=auto-caption-reel' },
+      { label: 'See caption style examples', href: '/auto-captions' },
+      { label: 'View all video types', href: '/video-types' },
+    ],
+    sections: [
+      {
+        heading: 'CapCut Auto Captions vs Itnavideo',
+        body: [
+          "Both platforms can help with subtitles and captions, but they're built with different goals.",
+          'CapCut Auto Captions focuses on converting speech into subtitles that you can edit and style.',
+          'Itnavideo is designed to turn your spoken content into a complete short-form video, where captions are only one part of the final experience.',
+          'Instead of simply placing text on the screen, Itnavideo aims to create captions that work together with animations, visual assets, layouts, and scene changes.',
+        ],
+      },
+      {
+        heading: 'Smarter Subtitle Placement',
+        body: [
+          "Good subtitles shouldn't cover faces or important visuals.",
+          'Itnavideo automatically considers the layout of each scene so captions remain readable while leaving space for images, graphics, or the speaker.',
+          'This creates cleaner, more professional-looking videos.',
+        ],
+      },
+      {
+        heading: 'Captions That Highlight What Matters',
+        body: [
+          "Not every word deserves the same attention.",
+          'Instead of displaying every sentence with identical styling, Itnavideo emphasizes important words and key phrases to make videos easier to follow.',
+          'This is especially useful for: Educational videos, Business content, Marketing videos, AI tutorials, Finance creators, and Tech explainers.',
+        ],
+      },
+      {
+        heading: 'More Than Basic Auto Captions',
+        body: [
+          'Most subtitle tools stop after generating captions.',
+          'Itnavideo continues by building scenes around your content.',
+          'Depending on what you\'re talking about, the AI can introduce: Animated typography, Icons, Images, Graphs, Statistics, Visual callouts, Educational diagrams, and Motion effects.',
+          'Captions become part of the story instead of the only visual element.',
+        ],
+      },
+      {
+        heading: 'Designed for Short-Form Content',
+        body: [
+          'Short-form videos move quickly.',
+          'Itnavideo is built around vertical content for YouTube Shorts, Instagram Reels, TikTok, and Facebook Reels.',
+          'The goal is to make captions feel natural while supporting the pacing of the video.',
+        ],
+      },
+      {
+        heading: 'Which One Should You Choose?',
+        body: [
+          'Choose CapCut Auto Captions if you mainly need: Fast subtitle generation, Simple caption editing, Basic text styling.',
+          'Choose Itnavideo if you want: AI-generated subtitles and captions, Dynamic animated captions, Smart emphasis of important words, Automatic visual storytelling, Less manual editing, A workflow designed for creating complete short-form videos.',
+        ],
+      },
+      {
+        heading: 'Final Thoughts',
+        body: [
+          'CapCut Auto Captions is a great option when your primary need is automatic subtitles.',
+          "Itnavideo is built for creators who want to go beyond subtitles by combining captions with AI-powered visual storytelling, helping transform a simple talking video into a more engaging short-form experience.",
+          "If you're looking for an alternative to CapCut Auto Captions that focuses on complete AI video creation—not just subtitles—Itnavideo is worth exploring.",
+        ],
+      },
+    ],
+  },
+  {
     slug: 'how-to-add-captions-to-instagram-reels',
     title: 'How to Add Captions to Instagram Reels with an Auto Caption Generator',
     excerpt: 'A practical guide to adding readable captions to Instagram Reels using an auto caption generator and video caption generator workflow.',
@@ -666,7 +746,7 @@ export const blogPosts: BlogPost[] = [
       { question: 'Do I need to type anything?', answer: 'No. The system generates captions automatically from the uploaded audio.' },
     ],
     internalLinks: [
-      { label: 'Auto Caption Video', href: '/video-types/auto-caption-reel' },
+      { label: 'Auto Caption Video', href: '/auto-caption-reel' },
       { label: 'Add subtitles to video', href: '/add-subtitles-to-video' },
       { label: 'AI subtitle generator', href: '/ai-subtitle-generator' },
     ],
@@ -717,7 +797,7 @@ export const blogPosts: BlogPost[] = [
       { question: 'Is there a preview before rendering?', answer: 'Yes. Auto Caption Video supports a preview step on supported flows before the final render.' },
     ],
     internalLinks: [
-      { label: 'Auto Caption Video', href: '/video-types/auto-caption-reel' },
+      { label: 'Auto Caption Video', href: '/auto-caption-reel' },
       { label: 'AI subtitle generator', href: '/ai-subtitle-generator' },
       { label: 'Add subtitles to video online', href: '/add-subtitles-to-video' },
     ],
@@ -768,7 +848,7 @@ export const blogPosts: BlogPost[] = [
       { question: 'Should captions be at the bottom or center?', answer: 'Bottom placement is standard for Reels and Shorts. Center works for certain emphasis styles.' },
     ],
     internalLinks: [
-      { label: 'Auto Caption Video', href: '/video-types/auto-caption-reel' },
+      { label: 'Auto Caption Video', href: '/auto-caption-reel' },
       { label: 'How to add captions to Instagram Reels', href: '/blog/how-to-add-captions-to-instagram-reels' },
       { label: 'Auto caption video generator', href: '/auto-caption-video-generator' },
     ],
@@ -820,7 +900,7 @@ export const blogPosts: BlogPost[] = [
     ],
     internalLinks: [
       { label: 'Hinglish caption generator', href: '/hinglish-caption-generator' },
-      { label: 'Auto Caption Video', href: '/video-types/auto-caption-reel' },
+      { label: 'Auto Caption Video', href: '/auto-caption-reel' },
       { label: 'AI subtitle generator for reels', href: '/ai-subtitle-generator' },
     ],
   },
@@ -870,7 +950,7 @@ export const blogPosts: BlogPost[] = [
       { question: 'Does Itnavideo support SRT export?', answer: 'The current workflow exports burned-in captioned MP4 files.' },
     ],
     internalLinks: [
-      { label: 'Auto Caption Video', href: '/video-types/auto-caption-reel' },
+      { label: 'Auto Caption Video', href: '/auto-caption-reel' },
       { label: 'Add subtitles to video online', href: '/add-subtitles-to-video' },
       { label: 'Auto caption video generator', href: '/auto-caption-video-generator' },
     ],
@@ -923,7 +1003,7 @@ export const blogPosts: BlogPost[] = [
     ],
     internalLinks: [
       { label: 'Best caption styles for reels', href: '/blog/best-caption-styles-for-reels' },
-      { label: 'Auto Caption Video', href: '/video-types/auto-caption-reel' },
+      { label: 'Auto Caption Video', href: '/auto-caption-reel' },
       { label: 'Add subtitles to video', href: '/add-subtitles-to-video' },
     ],
   },
@@ -973,7 +1053,7 @@ export const blogPosts: BlogPost[] = [
       { question: 'Does Itnavideo export TikTok-ready video?', answer: 'Yes. The output is 1080x1920 MP4 ready for TikTok upload.' },
     ],
     internalLinks: [
-      { label: 'Auto Caption Video', href: '/video-types/auto-caption-reel' },
+      { label: 'Auto Caption Video', href: '/auto-caption-reel' },
       { label: 'Best caption styles for reels', href: '/blog/best-caption-styles-for-reels' },
       { label: 'Auto caption video generator', href: '/auto-caption-video-generator' },
     ],
@@ -1024,7 +1104,7 @@ export const blogPosts: BlogPost[] = [
       { question: 'Does Itnavideo support technical vocabulary?', answer: 'Accuracy depends on clear audio. Technical terms are transcribed based on how they sound.' },
     ],
     internalLinks: [
-      { label: 'Auto Caption Video', href: '/video-types/auto-caption-reel' },
+      { label: 'Auto Caption Video', href: '/auto-caption-reel' },
       { label: 'Hinglish captions for Indian creators', href: '/blog/hinglish-captions-for-indian-creators' },
       { label: 'AI subtitle generator', href: '/ai-subtitle-generator' },
     ],
@@ -1075,7 +1155,7 @@ export const blogPosts: BlogPost[] = [
       { question: 'What about YouTube Shorts caption placement?', answer: 'YouTube Shorts has a similar safe zone at the bottom. Bottom safe area placement works for both.' },
     ],
     internalLinks: [
-      { label: 'Auto Caption Video', href: '/video-types/auto-caption-reel' },
+      { label: 'Auto Caption Video', href: '/auto-caption-reel' },
       { label: 'How to add captions to Instagram Reels', href: '/blog/how-to-add-captions-to-instagram-reels' },
       { label: 'Best caption styles for reels', href: '/blog/best-caption-styles-for-reels' },
     ],
@@ -1126,7 +1206,7 @@ export const blogPosts: BlogPost[] = [
       { question: 'Is Itnavideo free to try?', answer: 'Yes. The first video is free on paid plans starting from a low monthly fee.' },
     ],
     internalLinks: [
-      { label: 'Auto Caption Video', href: '/video-types/auto-caption-reel' },
+      { label: 'Auto Caption Video', href: '/auto-caption-reel' },
       { label: 'AI subtitle generator', href: '/ai-subtitle-generator' },
       { label: 'Add subtitles to video online', href: '/add-subtitles-to-video' },
     ],
@@ -1178,7 +1258,7 @@ export const blogPosts: BlogPost[] = [
       { question: 'What format should podcast video clips be in?', answer: 'MP4 or MOV vertical video works best. Horizontal clips can be used but may not fill the 9:16 frame.' },
     ],
     internalLinks: [
-      { label: 'Auto Caption Video', href: '/video-types/auto-caption-reel' },
+      { label: 'Auto Caption Video', href: '/auto-caption-reel' },
       { label: 'How to add captions to YouTube Shorts', href: '/blog/how-to-add-captions-to-youtube-shorts' },
       { label: 'AI subtitle generator', href: '/ai-subtitle-generator' },
     ],
@@ -1230,7 +1310,7 @@ export const blogPosts: BlogPost[] = [
     ],
     internalLinks: [
       { label: 'Best caption styles for reels', href: '/blog/best-caption-styles-for-reels' },
-      { label: 'Auto Caption Video', href: '/video-types/auto-caption-reel' },
+      { label: 'Auto Caption Video', href: '/auto-caption-reel' },
       { label: 'Caption font size guide', href: '/blog/caption-font-size-guide-reels' },
     ],
   },
@@ -1281,7 +1361,7 @@ export const blogPosts: BlogPost[] = [
     ],
     internalLinks: [
       { label: 'Hinglish captions for Indian creators', href: '/blog/hinglish-captions-for-indian-creators' },
-      { label: 'Auto Caption Video', href: '/video-types/auto-caption-reel' },
+      { label: 'Auto Caption Video', href: '/auto-caption-reel' },
       { label: 'AI subtitle generator', href: '/ai-subtitle-generator' },
     ],
   },
@@ -1331,7 +1411,7 @@ export const blogPosts: BlogPost[] = [
       { question: 'How long does captioning take?', answer: 'Typical render times are 3 to 5 minutes depending on video length and current server load.' },
     ],
     internalLinks: [
-      { label: 'Auto Caption Video', href: '/video-types/auto-caption-reel' },
+      { label: 'Auto Caption Video', href: '/auto-caption-reel' },
       { label: 'How to add captions to Instagram Reels', href: '/blog/how-to-add-captions-to-instagram-reels' },
       { label: 'Add subtitles to video online', href: '/add-subtitles-to-video' },
     ],
@@ -1382,7 +1462,7 @@ export const blogPosts: BlogPost[] = [
       { question: 'Which is better for retention?', answer: 'Word-level captions generally improve retention because viewers track the text more actively.' },
     ],
     internalLinks: [
-      { label: 'Auto Caption Video', href: '/video-types/auto-caption-reel' },
+      { label: 'Auto Caption Video', href: '/auto-caption-reel' },
       { label: 'Best caption styles for reels', href: '/blog/best-caption-styles-for-reels' },
       { label: 'AI subtitle generator', href: '/ai-subtitle-generator' },
     ],
@@ -1436,7 +1516,7 @@ export const blogPosts: BlogPost[] = [
     internalLinks: [
       { label: 'Why captions increase video retention', href: '/blog/why-captions-increase-video-retention' },
       { label: 'Caption font size guide', href: '/blog/caption-font-size-guide-reels' },
-      { label: 'Auto Caption Video', href: '/video-types/auto-caption-reel' },
+      { label: 'Auto Caption Video', href: '/auto-caption-reel' },
     ],
   },
   {
@@ -1486,7 +1566,7 @@ export const blogPosts: BlogPost[] = [
     ],
     internalLinks: [
       { label: 'Add subtitles to video online', href: '/add-subtitles-to-video' },
-      { label: 'Auto Caption Video', href: '/video-types/auto-caption-reel' },
+      { label: 'Auto Caption Video', href: '/auto-caption-reel' },
       { label: 'AI subtitle generator comparison', href: '/blog/ai-subtitle-generator-comparison-2026' },
     ],
   },
@@ -1536,7 +1616,7 @@ export const blogPosts: BlogPost[] = [
       { question: 'Which caption style is best for LinkedIn?', answer: 'Studio Clean or Reels Clean for a professional tone.' },
     ],
     internalLinks: [
-      { label: 'Auto Caption Video', href: '/video-types/auto-caption-reel' },
+      { label: 'Auto Caption Video', href: '/auto-caption-reel' },
       { label: 'Burned-in captions vs soft subtitles', href: '/blog/burned-in-captions-vs-soft-subtitles' },
       { label: 'Best caption styles for reels', href: '/blog/best-caption-styles-for-reels' },
     ],
@@ -1587,7 +1667,7 @@ export const blogPosts: BlogPost[] = [
       { question: 'Do captions work for all accents?', answer: 'Accuracy depends on audio clarity. Clear speech with minimal background noise produces the best results.' },
     ],
     internalLinks: [
-      { label: 'Auto Caption Video', href: '/video-types/auto-caption-reel' },
+      { label: 'Auto Caption Video', href: '/auto-caption-reel' },
       { label: 'How to make captions accessible', href: '/blog/how-to-make-captions-accessible' },
       { label: 'AI subtitle generator', href: '/ai-subtitle-generator' },
     ],
@@ -1640,7 +1720,7 @@ export const blogPosts: BlogPost[] = [
     internalLinks: [
       { label: 'Caption placement guide Instagram Reels', href: '/blog/caption-placement-guide-instagram-reels' },
       { label: 'Best caption styles for reels', href: '/blog/best-caption-styles-for-reels' },
-      { label: 'Auto Caption Video', href: '/video-types/auto-caption-reel' },
+      { label: 'Auto Caption Video', href: '/auto-caption-reel' },
     ],
   },
   {
@@ -1689,7 +1769,7 @@ export const blogPosts: BlogPost[] = [
       { question: 'How long should coaching reels be?', answer: 'Thirty to sixty seconds is ideal for Instagram Reels and YouTube Shorts coaching content.' },
     ],
     internalLinks: [
-      { label: 'Auto Caption Video', href: '/video-types/auto-caption-reel' },
+      { label: 'Auto Caption Video', href: '/auto-caption-reel' },
       { label: 'Why captions increase video retention', href: '/blog/why-captions-increase-video-retention' },
       { label: 'How to add captions to Instagram Reels', href: '/blog/how-to-add-captions-to-instagram-reels' },
     ],
@@ -1742,7 +1822,7 @@ export const blogPosts: BlogPost[] = [
     internalLinks: [
       { label: 'What is auto captioning', href: '/blog/what-is-auto-captioning' },
       { label: 'Burned-in captions vs soft subtitles', href: '/blog/burned-in-captions-vs-soft-subtitles' },
-      { label: 'Auto Caption Video', href: '/video-types/auto-caption-reel' },
+      { label: 'Auto Caption Video', href: '/auto-caption-reel' },
     ],
   },
   {
@@ -1782,7 +1862,7 @@ export const blogPosts: BlogPost[] = [
     ],
     internalLinks: [
       { label: 'What is auto captioning', href: '/blog/what-is-auto-captioning' },
-      { label: 'Auto Caption Video', href: '/video-types/auto-caption-reel' },
+      { label: 'Auto Caption Video', href: '/auto-caption-reel' },
       { label: 'AI subtitle generator comparison 2026', href: '/blog/ai-subtitle-generator-comparison-2026' },
     ],
   },
@@ -1832,7 +1912,7 @@ export const blogPosts: BlogPost[] = [
       { question: 'How often should a business post captioned videos?', answer: 'Consistency matters more than frequency. Even two to three captioned videos per week builds visible presence.' },
     ],
     internalLinks: [
-      { label: 'Auto Caption Video', href: '/video-types/auto-caption-reel' },
+      { label: 'Auto Caption Video', href: '/auto-caption-reel' },
       { label: 'Why captions increase video retention', href: '/blog/why-captions-increase-video-retention' },
       { label: 'Add subtitles to video online', href: '/add-subtitles-to-video' },
     ],
@@ -1885,7 +1965,7 @@ export const blogPosts: BlogPost[] = [
     internalLinks: [
       { label: 'Best caption styles for reels', href: '/blog/best-caption-styles-for-reels' },
       { label: 'Word-level captions vs sentence captions', href: '/blog/word-level-captions-vs-sentence-captions' },
-      { label: 'Auto Caption Video', href: '/video-types/auto-caption-reel' },
+      { label: 'Auto Caption Video', href: '/auto-caption-reel' },
     ],
   },
 

@@ -200,6 +200,24 @@ export const SubtitleRenderer: React.FC<SubtitleRendererProps> = ({
         return <CinematicStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} />;
       case 'typewriter-code':
         return <TypewriterCodeStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} currentTimeSec={currentTimeSec} />;
+      case 'marker-highlight':
+        return <MarkerHighlightStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} activeWord={activeWord} currentTimeSec={currentTimeSec} />;
+      case 'floating-serif':
+        return <FloatingSerifStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} activeWord={activeWord} />;
+      case 'metallic-gradient':
+        return <MetallicGradientStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} activeWord={activeWord} currentTimeSec={currentTimeSec} />;
+      case 'neon-pulse':
+        return <NeonPulseStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} activeWord={activeWord} currentTimeSec={currentTimeSec} />;
+      case 'minimal-fade':
+        return <MinimalFadeStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} activeWord={activeWord} />;
+      case 'gradient-wave':
+        return <GradientWaveStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} activeWord={activeWord} currentTimeSec={currentTimeSec} />;
+      case 'retro-vhs':
+        return <RetroVhsStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} activeWord={activeWord} currentTimeSec={currentTimeSec} />;
+      case 'handwritten':
+        return <HandwrittenStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} activeWord={activeWord} />;
+      case 'glass-blur':
+        return <GlassBlurStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} activeWord={activeWord} />;
       default:
         return <NormalStyle caption={captionWithWords} config={resolvedConfig} fontSize={fontSize} />;
     }
@@ -1016,6 +1034,183 @@ const TypewriterCodeStyle: React.FC<StyleProps> = ({caption, config, fontSize, c
   );
 };
 
+// Style: MARKER HIGHLIGHT — organic highlighter stroke with active-word emphasis.
+const MarkerHighlightStyle: React.FC<StyleProps> = ({caption, config, fontSize, activeWord, currentTimeSec = 0}) => {
+  const {fps} = useVideoConfig();
+  const words = caption.words ?? [];
+
+  return (
+    <div style={{
+      display: 'flex',
+      flexWrap: 'wrap',
+      justifyContent: 'center',
+      alignItems: 'center',
+      columnGap: 10,
+      rowGap: 8,
+      maxWidth: 920,
+      padding: '10px 18px',
+      textAlign: 'center',
+      lineHeight: 1.08,
+    }}>
+      {words.map((w: WordTiming, i: number) => {
+        const isActive = w.word === activeWord;
+        const wordLocalFrame = isActive ? Math.max(0, Math.round((currentTimeSec - w.start) * fps)) : 0;
+        const activeScale = isActive
+          ? spring({frame: wordLocalFrame, fps, config: {damping: 13, stiffness: 260, mass: 0.45}, from: 0.96, to: 1})
+          : 1;
+        const strokeSkew = i % 2 === 0 ? -1.4 : 1.2;
+
+        return (
+          <span key={`${w.word}-${i}`} style={{
+            position: 'relative',
+            zIndex: 0,
+            display: 'inline-block',
+            padding: '2px 8px 4px',
+            color: config.textColor,
+            fontFamily: config.fontFamily,
+            fontSize: Math.max(44, Math.min(fontSize * 0.98, 76)),
+            fontWeight: isActive ? 900 : 820,
+            letterSpacing: 0,
+            textShadow: [
+              '0 2px 2px rgba(0,0,0,0.72)',
+              '0 0 5px rgba(0,0,0,0.46)',
+            ].join(', '),
+            transform: `scale(${activeScale})`,
+            transformOrigin: 'center',
+            whiteSpace: 'pre-wrap',
+          }}>
+            <span style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 2,
+              height: '56%',
+              borderRadius: 8,
+              background: isActive ? (config.highlightColor || '#FDE68A') : (config.backgroundColor || '#F59E0B'),
+              opacity: isActive ? 0.96 : 0.76,
+              transform: `rotate(${strokeSkew}deg)`,
+              boxShadow: isActive ? `0 0 14px ${(config.highlightColor || '#FDE68A')}55` : 'none',
+              zIndex: -1,
+            }} />
+            {w.word}
+          </span>
+        );
+      })}
+    </div>
+  );
+};
+
+// Style: FLOATING SERIF — calm editorial caption with no box.
+const FloatingSerifStyle: React.FC<StyleProps> = ({caption, config, fontSize, activeWord}) => {
+  const words = caption.words ?? [];
+
+  return (
+    <div style={{
+      display: 'flex',
+      flexWrap: 'wrap',
+      justifyContent: 'center',
+      alignItems: 'baseline',
+      columnGap: 9,
+      rowGap: 3,
+      maxWidth: 860,
+      padding: '2px 18px',
+      textAlign: 'center',
+      lineHeight: 1.18,
+      filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.72)) drop-shadow(0 0 7px rgba(0,0,0,0.48))',
+    }}>
+      {words.map((w: WordTiming, i: number) => {
+        const isActive = w.word === activeWord;
+        return (
+          <span key={`${w.word}-${i}`} style={{
+            display: 'inline-block',
+            color: isActive ? (config.highlightColor || '#E5E7EB') : config.textColor,
+            fontFamily: config.fontFamily,
+            fontSize: Math.max(40, Math.min(fontSize * 0.78, 58)),
+            fontWeight: isActive ? 700 : 520,
+            letterSpacing: 0,
+            opacity: isActive ? 1 : 0.9,
+            textShadow: '0 2px 8px rgba(0,0,0,0.82)',
+            transform: isActive ? 'translateY(-1px)' : 'translateY(0)',
+            whiteSpace: 'pre-wrap',
+          }}>
+            {w.word}
+          </span>
+        );
+      })}
+    </div>
+  );
+};
+
+// Style: METALLIC GRADIENT — premium silver-gold text with a subtle active sheen.
+const MetallicGradientStyle: React.FC<StyleProps> = ({caption, config, fontSize, activeWord, currentTimeSec = 0}) => {
+  const {fps} = useVideoConfig();
+  const words = caption.words ?? [];
+  const metallicFontSize = Math.max(48, Math.min(fontSize * 0.92, 78));
+
+  return (
+    <div style={{
+      display: 'inline-flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      maxWidth: 940,
+      padding: '16px 30px',
+      borderRadius: 14,
+      background: captionBackground(config, 'linear-gradient(180deg, rgba(17,24,39,0.72), rgba(2,6,23,0.58))'),
+      border: '1px solid rgba(255,255,255,0.12)',
+      boxShadow: [
+        '0 12px 24px rgba(0,0,0,0.26)',
+        'inset 0 1px 0 rgba(255,255,255,0.18)',
+        'inset 0 -1px 0 rgba(0,0,0,0.28)',
+      ].join(', '),
+      overflowWrap: 'anywhere',
+      wordBreak: 'break-word',
+    }}>
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        alignItems: 'center',
+        columnGap: 12,
+        rowGap: 2,
+        textAlign: 'center',
+        lineHeight: 1.04,
+      }}>
+        {words.map((w: WordTiming, i: number) => {
+          const isActive = w.word === activeWord;
+          const wordLocalFrame = isActive ? Math.max(0, Math.round((currentTimeSec - w.start) * fps)) : 0;
+          const activeScale = isActive
+            ? spring({frame: wordLocalFrame, fps, config: {damping: 13, stiffness: 280, mass: 0.45}, from: 0.96, to: 1})
+            : 1;
+
+          return (
+            <span key={`${w.word}-${i}`} style={{
+              display: 'inline-block',
+              background: isActive
+                ? 'linear-gradient(100deg, #FFFFFF 0%, #D9B76E 32%, #94A3B8 68%, #FFFFFF 100%)'
+                : 'linear-gradient(100deg, #F8FAFC 0%, #B8C2D8 46%, #E5E7EB 100%)',
+              WebkitBackgroundClip: 'text',
+              backgroundClip: 'text',
+              color: 'transparent',
+              fontFamily: config.fontFamily,
+              fontSize: metallicFontSize,
+              fontWeight: 900,
+              letterSpacing: 0,
+              WebkitTextStroke: isActive ? '1px rgba(255,255,255,0.2)' : '1px rgba(15,23,42,0.18)',
+              paintOrder: 'stroke fill',
+              filter: isActive ? `drop-shadow(0 0 10px ${(config.highlightColor || '#D9B76E')}55)` : 'drop-shadow(0 2px 2px rgba(0,0,0,0.62))',
+              transform: `scale(${activeScale})`,
+              transformOrigin: 'center',
+              whiteSpace: 'pre-wrap',
+            }}>
+              {w.word}
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 // Helper
 function splitIntoLines(text: string, wordsPerLine: number): string[] {
   const words = text.split(' ').filter(Boolean);
@@ -1025,3 +1220,130 @@ function splitIntoLines(text: string, wordsPerLine: number): string[] {
   }
   return lines.length ? lines : [text];
 }
+
+
+// Style: NEON PULSE — cyberpunk glow with pulsing active word border
+const NeonPulseStyle: React.FC<StyleProps> = ({caption, config, fontSize, activeWord, currentTimeSec = 0}) => {
+  const words = caption.words ?? [];
+  const neonSize = Math.max(44, Math.min(fontSize * 0.88, 72));
+  const pulseGlow = Math.sin(currentTimeSec * 8) * 0.3 + 0.7;
+  return (
+    <div style={{display: 'inline-flex', justifyContent: 'center', maxWidth: 940, padding: '14px 28px', borderRadius: 12, background: captionBackground(config, 'rgba(0,0,0,0.78)'), border: '1px solid rgba(0,255,136,0.25)', boxShadow: `0 0 ${20 * pulseGlow}px rgba(0,255,136,${0.15 * pulseGlow})`}}>
+      <div style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0 10px', lineHeight: 1.1}}>
+        {words.map((w: WordTiming, i: number) => {
+          const isActive = w.word === activeWord;
+          return (
+            <span key={`${w.word}-${i}`} style={{display: 'inline-block', fontSize: neonSize, fontWeight: 900, fontFamily: config.fontFamily, color: isActive ? '#00FF88' : '#FFFFFF', textShadow: isActive ? `0 0 12px #00FF88, 0 0 24px #00FF8866` : '0 2px 8px rgba(0,0,0,0.8)', transform: isActive ? `scale(1.08)` : 'scale(1)', transition: 'all 0.1s'}}>
+              {w.word}
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// Style: MINIMAL FADE — ultra clean white text, soft fade between words
+const MinimalFadeStyle: React.FC<StyleProps> = ({caption, config, fontSize, activeWord}) => {
+  const words = caption.words ?? [];
+  const minSize = Math.max(40, Math.min(fontSize * 0.85, 66));
+  return (
+    <div style={{display: 'inline-flex', justifyContent: 'center', maxWidth: 900, padding: '12px 24px'}}>
+      <div style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0 10px', lineHeight: 1.15}}>
+        {words.map((w: WordTiming, i: number) => {
+          const isActive = w.word === activeWord;
+          return (
+            <span key={`${w.word}-${i}`} style={{display: 'inline-block', fontSize: minSize, fontWeight: 600, fontFamily: config.fontFamily, color: isActive ? '#FFFFFF' : 'rgba(255,255,255,0.55)', textShadow: '0 2px 12px rgba(0,0,0,0.5)', transition: 'color 0.2s, opacity 0.2s'}}>
+              {w.word}
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// Style: GRADIENT WAVE — rainbow gradient flows across text
+const GradientWaveStyle: React.FC<StyleProps> = ({caption, config, fontSize, activeWord, currentTimeSec = 0}) => {
+  const words = caption.words ?? [];
+  const waveSize = Math.max(44, Math.min(fontSize * 0.9, 72));
+  const offset = Math.round(currentTimeSec * 60) % 360;
+  return (
+    <div style={{display: 'inline-flex', justifyContent: 'center', maxWidth: 940, padding: '14px 26px', borderRadius: 14, background: captionBackground(config, 'rgba(0,0,0,0.62)'), border: '1px solid rgba(139,92,246,0.3)'}}>
+      <div style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0 10px', lineHeight: 1.08}}>
+        {words.map((w: WordTiming, i: number) => {
+          const isActive = w.word === activeWord;
+          const hue = (offset + i * 35) % 360;
+          return (
+            <span key={`${w.word}-${i}`} style={{display: 'inline-block', fontSize: waveSize, fontWeight: 900, fontFamily: config.fontFamily, background: isActive ? `linear-gradient(90deg, hsl(${hue},85%,65%), hsl(${(hue+60)%360},85%,65%))` : 'linear-gradient(90deg, #E2E8F0, #94A3B8)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', transform: isActive ? 'scale(1.05)' : 'scale(1)'}}>
+              {w.word}
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// Style: RETRO VHS — CRT scanlines aesthetic with glitch on active word
+const RetroVhsStyle: React.FC<StyleProps> = ({caption, config, fontSize, activeWord, currentTimeSec = 0}) => {
+  const words = caption.words ?? [];
+  const vhsSize = Math.max(44, Math.min(fontSize * 0.88, 70));
+  const glitchX = Math.sin(currentTimeSec * 12) * 2;
+  return (
+    <div style={{display: 'inline-flex', justifyContent: 'center', maxWidth: 940, padding: '16px 28px', borderRadius: 6, background: captionBackground(config, 'rgba(0,0,0,0.88)'), border: '1px solid rgba(255,107,107,0.3)', boxShadow: '0 0 0 1px rgba(255,255,255,0.05) inset'}}>
+      {/* Scanline overlay */}
+      <div style={{position: 'absolute', inset: 0, backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px)', borderRadius: 6, pointerEvents: 'none'}} />
+      <div style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0 10px', lineHeight: 1.1, position: 'relative'}}>
+        {words.map((w: WordTiming, i: number) => {
+          const isActive = w.word === activeWord;
+          return (
+            <span key={`${w.word}-${i}`} style={{display: 'inline-block', fontSize: vhsSize, fontWeight: 900, fontFamily: config.fontFamily, color: isActive ? '#FF6B6B' : '#FFFFFF', textShadow: isActive ? `${glitchX}px 0 #00FFFF, ${-glitchX}px 0 #FF0066` : '1px 1px 0 rgba(0,0,0,0.8)', letterSpacing: 1}}>
+              {w.word}
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// Style: HANDWRITTEN — wobbly underline on active word, serif feel
+const HandwrittenStyle: React.FC<StyleProps> = ({caption, config, fontSize, activeWord}) => {
+  const words = caption.words ?? [];
+  const handSize = Math.max(44, Math.min(fontSize * 0.9, 72));
+  return (
+    <div style={{display: 'inline-flex', justifyContent: 'center', maxWidth: 940, padding: '14px 28px'}}>
+      <div style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0 12px', lineHeight: 1.2}}>
+        {words.map((w: WordTiming, i: number) => {
+          const isActive = w.word === activeWord;
+          return (
+            <span key={`${w.word}-${i}`} style={{display: 'inline-block', fontSize: handSize, fontWeight: 700, fontFamily: 'Georgia, serif', fontStyle: 'italic', color: isActive ? '#FBBF24' : '#F8FAFC', textShadow: '0 3px 12px rgba(0,0,0,0.7)', borderBottom: isActive ? '3px wavy #FBBF24' : 'none', paddingBottom: isActive ? 2 : 0, transform: isActive ? 'rotate(-0.8deg)' : 'none'}}>
+              {w.word}
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// Style: GLASS BLUR — frosted glass card behind captions
+const GlassBlurStyle: React.FC<StyleProps> = ({caption, config, fontSize, activeWord}) => {
+  const words = caption.words ?? [];
+  const glassSize = Math.max(44, Math.min(fontSize * 0.88, 72));
+  return (
+    <div style={{display: 'inline-flex', justifyContent: 'center', maxWidth: 940, padding: '18px 32px', borderRadius: 18, background: 'rgba(15,23,42,0.45)', backdropFilter: 'blur(16px) saturate(1.5)', WebkitBackdropFilter: 'blur(16px) saturate(1.5)', border: '1px solid rgba(255,255,255,0.15)', boxShadow: '0 16px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12)'}}>
+      <div style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0 10px', lineHeight: 1.08}}>
+        {words.map((w: WordTiming, i: number) => {
+          const isActive = w.word === activeWord;
+          return (
+            <span key={`${w.word}-${i}`} style={{display: 'inline-block', fontSize: glassSize, fontWeight: 900, fontFamily: config.fontFamily, color: isActive ? '#60A5FA' : '#F1F5F9', textShadow: isActive ? '0 0 12px rgba(96,165,250,0.5)' : '0 2px 8px rgba(0,0,0,0.5)', transform: isActive ? 'scale(1.06)' : 'scale(1)', transition: 'all 0.1s'}}>
+              {w.word}
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+};

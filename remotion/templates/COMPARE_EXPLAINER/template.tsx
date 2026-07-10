@@ -481,8 +481,32 @@ const resolveStickerAssetPose = (set: StickerSet, poseKey: StickerPoseKey): keyo
   const setByKey = set as Record<string, string>;
   const exactAssetKey = STICKER_POSE_ASSET_ALIASES[poseKey];
   if (exactAssetKey && setByKey[exactAssetKey]) return exactAssetKey;
+
+  // Fallback: map extended poses to basic poses that ALL sticker sets have
+  const EXTENDED_TO_BASIC: Record<string, keyof StickerSet> = {
+    explaining: 'success',      // explaining → success (confident pointing pose)
+    celebrating: 'success',     // celebrating → success
+    comparing: 'thinking',      // comparing → thinking (analytical pose)
+    surprised: 'thinking',      // surprised → thinking
+  };
+
+  // Try the extended-to-basic fallback
+  if (exactAssetKey && EXTENDED_TO_BASIC[exactAssetKey]) {
+    const basicKey = EXTENDED_TO_BASIC[exactAssetKey];
+    if (setByKey[basicKey]) return basicKey;
+  }
+
+  // Try legacy pose lookup
   const legacyPose = Object.entries(CANONICAL_POSE_ALIASES).find(([, canonical]) => canonical === poseKey)?.[0];
   if (legacyPose && setByKey[legacyPose]) return legacyPose as keyof StickerSet;
+
+  // Final fallback based on pose intent
+  if (poseKey.includes('left')) return 'left';
+  if (poseKey.includes('right')) return 'right';
+  if (poseKey.includes('warning') || poseKey.includes('issue')) return 'warning';
+  if (poseKey.includes('success') || poseKey.includes('conclusion') || poseKey.includes('celebrating') || poseKey.includes('explaining')) return 'success';
+  if (poseKey.includes('thinking') || poseKey.includes('comparing') || poseKey.includes('questioning')) return 'thinking';
+
   return 'welcome';
 };
 
@@ -821,18 +845,29 @@ const StickerPresenter = ({
   const STICKER_WIDTH = sizeConfig.width;
   const STICKER_MAX_HEIGHT = sizeConfig.maxHeight;
 
-  const enterOpacity = interpolate(frame, [0, 6], [1, 1], {
+  const enterOpacity = interpolate(frame, [0, 12], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
 
-  const pop = interpolate(frame, [0, 10, 22], [0.94, 1.018, 1], {
+  // Entrance: smooth spring scale-up
+  const pop = interpolate(frame, [0, 8, 18, 28], [0.7, 1.05, 0.98, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
 
-  const idleY = Math.sin(frame / 60) * 2.5;
-  const rotate = Math.sin(frame / 100) * 0.15;
+  // Idle breathing — subtle but visible life pulse
+  const breathCycle = frame / 45; // ~1.5s cycle at 30fps
+  const idleY = Math.sin(breathCycle) * 6;
+  const breathScale = 1 + Math.sin(breathCycle) * 0.012; // subtle 1.2% scale pulse
+
+  // Gentle head tilt — makes character feel expressive
+  const rotate = Math.sin(frame / 70) * 0.6;
+
+  // Pose-change slide: when character moves left/right, add horizontal motion
+  const slideX = poseJustChanged
+    ? interpolate(poseDurationFrames, [0, 14], [stickerPosition === 'left' ? -30 : stickerPosition === 'right' ? 30 : 0, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})
+    : 0;
 
   // Horizontal positioning based on scene context
   const getHorizontalAlign = (): React.CSSProperties => {
@@ -871,9 +906,10 @@ const StickerPresenter = ({
           height: 'auto',
           objectFit: 'contain',
           opacity: enterOpacity,
-          transform: `translate(${stickerOffsetX}px, ${stickerOffsetY + idleY}px) rotate(${rotate}deg) scale(${pop * sizeConfig.scale * poseBounce * stickerScale})`,
-          transformOrigin: 'center top',
-          filter: 'drop-shadow(0 20px 24px rgba(0,0,0,0.22))',
+          transform: `translate(${stickerOffsetX + slideX}px, ${stickerOffsetY + idleY}px) rotate(${rotate}deg) scale(${pop * breathScale * sizeConfig.scale * poseBounce * stickerScale})`,
+          transformOrigin: 'center bottom',
+          filter: 'drop-shadow(0 24px 32px rgba(0,0,0,0.28))',
+          transition: 'filter 0.3s',
         }}
       />
     </div>

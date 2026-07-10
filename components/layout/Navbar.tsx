@@ -15,7 +15,6 @@ const productLinks = [
 const pageLinks = [
   { label: 'Pricing', href: '/pricing' },
   { label: 'About', href: '/about' },
-  { label: 'Careers', href: '/careers', badge: 'Hiring' },
   { label: 'Contact', href: '/contact' },
 ];
 

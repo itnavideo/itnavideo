@@ -175,7 +175,7 @@ export function buildIntroEffects(opts: {
 export function autoDetectCanvasEffects(opts: {
   transcript?: string;
   topic?: string;
-  templateType: 'autoCaption' | 'compare' | 'longVideoPromo' | 'autoDraw';
+  templateType: 'autoCaption' | 'compare' | 'longVideoPromo';
   durationFrames: number;
   fps: number;
   primaryColor?: string;

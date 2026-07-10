@@ -2,24 +2,25 @@ import React from 'react';
 import type { Metadata } from "next";
 import Hero from "@/components/landing/Hero";
 import HowItWorks from "@/components/landing/HowItWorks";
-import UseCaseGallerySection from "@/components/landing/UseCaseGallerySection";
-import SearchIntentSection from "@/components/landing/SearchIntentSection";
+import AutoCaptionsShowcase from "@/components/captions/AutoCaptionsShowcase";
+import PromoBeforeAfter from "@/components/landing/PromoBeforeAfter";
+import VideoTypeGuide from "@/components/landing/VideoTypeGuide";
 import FeaturesSection from "@/components/landing/FeaturesSection";
-import CreatorRewardsSection from "@/components/landing/CreatorRewardsSection";
+import PricingSection from "@/components/landing/PricingSection";
 import FAQSection from "@/components/FAQSection";
 
 export const metadata: Metadata = {
-  title: "Itnavideo - Seven Premium AI Video Types",
-  description: "Create polished 9:16 reels with seven focused AI video types: Custom AI Reel, Creator Reel, Auto Caption, Background Replace, Compare Explainer, Auto Draw, and Long Video Promo.",
+  title: "Itnavideo - Upload a Talking Video, Get It Back Captioned and Styled",
+  description: "AI video tool for creators. Upload your video, pick a style, get a finished 9:16 reel with captions in under 3 minutes. 1 free credit on signup. No editing skills needed.",
   openGraph: {
-    title: "Itnavideo - Seven Premium AI Video Types",
-    description: "Create polished 9:16 reels with seven focused AI video types: Custom AI Reel, Creator Reel, Auto Caption, Background Replace, Compare Explainer, Auto Draw, and Long Video Promo.",
+    title: "Itnavideo - Upload a Talking Video, Get It Back Captioned and Styled",
+    description: "AI video tool for creators. Upload your video, pick a style, get a finished 9:16 reel with captions in under 3 minutes. 1 free credit on signup.",
     images: ["/og-image.png"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Itnavideo - Seven Premium AI Video Types",
-    description: "Create polished 9:16 reels with seven focused AI video types: Custom AI Reel, Creator Reel, Auto Caption, Background Replace, Compare Explainer, Auto Draw, and Long Video Promo.",
+    title: "Itnavideo - Upload a Talking Video, Get It Back Captioned and Styled",
+    description: "AI video tool for creators. Upload your video, pick a style, get a finished 9:16 reel with captions in under 3 minutes. 1 free credit on signup.",
     images: ["/og-image.png"],
   },
 };
@@ -54,7 +55,7 @@ const jsonLd = [
     applicationCategory: "MultimediaApplication",
     operatingSystem: "Web",
     url: siteUrl,
-    description: "AI reel generator with seven focused video types for custom prompts, creator edits, background replacement, captions, comparison explainers, whiteboard explainers, and long video promos.",
+    description: "AI video tool that turns talking videos, audio, and images into polished 9:16 reels with word-level captions. Focused video types for creators: Auto Caption, Compare Explainer, Long Video Promo, and more.",
     offers: {
       "@type": "Offer",
       priceCurrency: "INR",
@@ -74,12 +75,13 @@ export default function LandingPage() {
         }}
       />
       <Hero />
+      <AutoCaptionsShowcase limit={3} />
       <HowItWorks />
-      <UseCaseGallerySection />
       <FeaturesSection />
-      <CreatorRewardsSection />
+      <PromoBeforeAfter />
+      <PricingSection />
       <FAQSection />
-      <SearchIntentSection />
+      <VideoTypeGuide />
     </div>
   );
 }

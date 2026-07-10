@@ -24,7 +24,16 @@ export type SubtitleStyle =
   | "shatter"
   | "pill-bounce"
   | "cinematic"
-  | "typewriter-code";
+  | "typewriter-code"
+  | "marker-highlight"
+  | "floating-serif"
+  | "metallic-gradient"
+  | "neon-pulse"
+  | "minimal-fade"
+  | "gradient-wave"
+  | "retro-vhs"
+  | "handwritten"
+  | "glass-blur";
 
 export type SubtitlePosition = "top" | "center" | "bottom";
 
@@ -96,5 +105,14 @@ export const SUBTITLE_PRESETS: Record<string, SubtitlePreset> = {
   "Pill Bounce": { name: "Pill Bounce", style: "pill-bounce", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#FF6B35", fontSize: "large" },
   "Cinematic": { name: "Cinematic", style: "cinematic", fontFamily: "Georgia, serif", textColor: "#FFFFFF", highlightColor: "#FFFFFF", fontSize: "medium" },
   "Hacker Type": { name: "Hacker Type", style: "typewriter-code", fontFamily: "Courier New, monospace", textColor: "#00FF88", highlightColor: "#00FF88", fontSize: "medium" },
+  "Marker Highlight": { name: "Marker Highlight", style: "marker-highlight", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#FDE68A", backgroundColor: "#F59E0B", fontSize: "large" },
+  "Floating Serif": { name: "Floating Serif", style: "floating-serif", fontFamily: "Georgia, serif", textColor: "#F8FAFC", highlightColor: "#E5E7EB", fontSize: "medium" },
+  "Metallic Gradient": { name: "Metallic Gradient", style: "metallic-gradient", fontFamily: "Arial Black, sans-serif", textColor: "#F8FAFC", highlightColor: "#D9B76E", backgroundColor: "#111827", fontSize: "large" },
+  "Neon Pulse": { name: "Neon Pulse", style: "neon-pulse", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#00FF88", backgroundColor: "rgba(0,0,0,0.75)", fontSize: "large" },
+  "Minimal Fade": { name: "Minimal Fade", style: "minimal-fade", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#94A3B8", fontSize: "medium" },
+  "Gradient Wave": { name: "Gradient Wave", style: "gradient-wave", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#8B5CF6", backgroundColor: "rgba(0,0,0,0.6)", fontSize: "large" },
+  "Retro VHS": { name: "Retro VHS", style: "retro-vhs", fontFamily: "Courier New, monospace", textColor: "#FFFFFF", highlightColor: "#FF6B6B", backgroundColor: "rgba(0,0,0,0.85)", fontSize: "large" },
+  "Handwritten": { name: "Handwritten", style: "handwritten", fontFamily: "Georgia, serif", textColor: "#F8FAFC", highlightColor: "#FBBF24", fontSize: "large" },
+  "Glass Blur": { name: "Glass Blur", style: "glass-blur", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#60A5FA", backgroundColor: "rgba(15,23,42,0.55)", fontSize: "large" },
   "split-color": { name: "Split Color", style: "split-color", fontFamily: "sans-serif", textColor: "#FFFFFF", highlightColor: "#FACC15", fontSize: "medium" },
 };

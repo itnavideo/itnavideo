@@ -14,31 +14,35 @@ interface FAQItem {
 const faqs: FAQItem[] = [
   {
     question: "What is Itnavideo?",
-    answer: "Itnavideo is an AI reel maker that turns audio, video, images, and voiceovers into short vertical MP4 reels."
+    answer: "Itnavideo is an AI video tool that turns your talking videos, audio, and images into short vertical reels — with captions, layouts, and styling handled by AI."
   },
   {
     question: "What video types are available?",
-    answer: "Itnavideo now focuses on seven production video types: Custom AI Reel, Creator Reel Video, Auto Caption Video, Background Replace Video, Compare Explainer Video, Auto Draw Explainer Video, and Long Video Promo. All seven are available on every paid plan."
+    answer: "Multiple focused video types: Auto Caption Video (word-level captions), Compare Explainer Video (left vs right with sticker presenter), and Long Video Promo (short teaser for long-form content). More types are added regularly."
   },
   {
-    question: "Can I test Itnavideo before subscribing?",
-    answer: "Yes. The Starter plan at $9/month gives you 25 video credits to explore all video types."
+    question: "How much does it cost?",
+    answer: "You get 1 free AI video credit on signup — no card needed. After that, paid credits start at ₹9 per video. No monthly subscriptions. You only pay when you render."
   },
   {
     question: "Do I need editing skills?",
-    answer: "No. Choose a video type, upload the matching source file, and review the generated reel output."
+    answer: "No. Pick a video type, upload your file, and the AI handles layout, timing, and captions. You get a finished MP4 ready to post."
   },
   {
     question: "What do I need to upload?",
-    answer: "Each video type clearly shows its required input. Most need a clear video or voiceover; Compare Explainer Video also needs two images, and Long Video Promo needs a thumbnail."
+    answer: "Each video type shows exactly what it needs. Auto Caption needs a video with speech. Compare Explainer needs audio + 2 images. Long Video Promo needs a short clip + thumbnail."
+  },
+  {
+    question: "What languages are supported for captions?",
+    answer: "English and Hinglish (Hindi/English mix in Roman script). Hindi or Hinglish audio produces clean Roman Hinglish captions — no Devanagari. English audio gives English captions."
   },
   {
     question: "Is my data secure?",
-    answer: "Your uploaded content is used to create and manage your video render. Uploads are treated as private and temporary, not public gallery content."
+    answer: "Your uploads are private and temporary. Files are only used to create your video. Final MP4 download links expire after about 48 hours."
   },
   {
-    question: "How accurate are the subtitles?",
-    answer: "Subtitle quality depends on speech clarity, language, background noise, and pacing. Clear audio or video produces the best results."
+    question: "How long does rendering take?",
+    answer: "Usually 2-5 minutes depending on video length and current server load. You can wait on the page or come back later — your video will be ready."
   }
 ];
 

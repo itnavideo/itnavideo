@@ -14,43 +14,43 @@ import {
 
 const features = [
   {
-    title: 'Video Type-first flow',
-    description: '6 specialized video types for different content needs - each with a focused workflow.',
+    title: 'Focused video types',
+    description: 'Each type has its own upload flow, AI pipeline, and output style — no generic one-size-fits-all.',
     icon: Film,
   },
   {
-    title: 'Real transcript timing',
-    description: 'Speech-based video types use real audio/video transcript timing.',
+    title: 'Word-level caption sync',
+    description: 'Captions appear exactly when each word is spoken. Powered by Groq Whisper transcription.',
     icon: Captions,
   },
   {
-    title: 'Three-layer layout',
-    description: 'Top media, premium subtitles, and scene visuals stay cleanly separated.',
+    title: 'Preview before render',
+    description: 'See your reel layout before spending a credit. Adjust style, timing, and position first.',
     icon: Film,
   },
   {
-    title: 'Consistent visual system',
-    description: 'Safe zones, spacing, and motion stay consistent across reels.',
+    title: '15+ caption styles',
+    description: 'Bold karaoke, neon pulse, minimal fade, glass blur — pick the style that fits your brand.',
     icon: Palette,
   },
   {
-    title: 'AI transitions',
-    description: 'Scene changes are paced around the source content.',
+    title: 'Under 3 minute renders',
+    description: 'Upload to finished MP4 in minutes, not hours. No timeline editing required.',
     icon: Zap,
   },
   {
-    title: 'Sound intelligence',
-    description: 'Optional SFX and music cues support important moments.',
+    title: 'Background music & SFX',
+    description: 'Optional audio layers that match your content mood and pacing.',
     icon: Music,
   },
   {
-    title: 'English & Hinglish captions',
-    description: 'English stays English; Hindi/Urdu audio becomes clean Roman Hinglish.',
+    title: 'English & Hinglish',
+    description: 'English stays English. Hindi/Hinglish audio becomes clean Roman captions — no Devanagari.',
     icon: Languages,
   },
   {
-    title: 'Platform exports',
-    description: 'Vertical MP4 output for Reels, TikTok, and Shorts.',
+    title: 'Platform-ready export',
+    description: '1080p vertical 9:16 MP4. Ready for Reels, TikTok, and YouTube Shorts.',
     icon: Smartphone,
   },
 ];
@@ -68,11 +68,11 @@ export default function FeaturesSection() {
               viewport={{ once: true }}
               className="text-4xl font-black leading-tight tracking-normal text-white md:text-6xl"
             >
-            The practical controls creators expect.
+            Everything your reels need, nothing they don&apos;t.
             </motion.h2>
           </div>
           <p className="text-lg leading-8 text-zinc-400">
-            The homepage now keeps the feature list focused: Explainer Video, transcript timing, scene visuals, safe zones, motion, language, and export.
+            Upload your video or audio. Pick a video type. Get a polished, ready-to-post reel — no timeline, no manual cuts.
           </p>
         </div>
 
@@ -87,13 +87,13 @@ export default function FeaturesSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.2 }}
                 transition={{ duration: 0.45, delay: index * 0.04 }}
-                className="rounded-lg border border-white/10 bg-zinc-950 p-6 transition hover:border-amber-200/25 hover:bg-zinc-900/70"
+                className="rounded-lg border border-white/10 bg-zinc-950 p-6 transition hover:border-amber-200/25 hover:bg-zinc-900/80"
               >
                 <div className="mb-6 flex h-11 w-11 items-center justify-center rounded-md bg-amber-200/10 text-amber-100">
                   <Icon size={20} />
                 </div>
                 <h3 className="text-lg font-bold text-white">{feature.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-zinc-400">{feature.description}</p>
+                <p className="mt-3 text-sm leading-6 text-zinc-300">{feature.description}</p>
               </motion.div>
             );
           })}

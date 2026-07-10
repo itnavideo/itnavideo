@@ -49,7 +49,7 @@ Creators have long videos but struggle to promote them on short-form platforms (
 | Input | Type | Required | Notes |
 |-------|------|----------|-------|
 | Thumbnail | Image (PNG/JPG/WebP) | Yes | 16:9 recommended (1280×720) |
-| Title | Text | Yes | Max 60 characters displayed |
+| Title | Text | Yes | Single dashboard title field, max 60 characters displayed |
 | Promo Clip | Video | Yes | The actual video clip to promote (10-60s) |
 
 ## Optional User Inputs
@@ -68,6 +68,7 @@ These were previously in the form but are no longer rendered:
 - Subtitle language
 - Duration badge
 - Background music
+- Separate reel topic/title field
 
 ---
 

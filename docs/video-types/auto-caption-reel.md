@@ -54,10 +54,8 @@ Adding word-level animated captions manually takes 15-30 minutes per video using
 | Input | Type | Notes |
 |-------|------|-------|
 | Caption Style | Selection | Choose from available styles (Studio Clean default, Karaoke Fill, Gold Pill, etc.) |
-| Caption Font | Selection | Optional font override; preset font is applied when the style changes |
-| Caption Size | Selection | Small, medium, large, or extra-large |
 | Caption Position | Selection | Bottom safe area, center, or top |
-| Caption Colors | Selection | Text, highlight, and background colors |
+| Caption Size | Selection | Small, medium, large, or extra-large |
 | Subtitle Language | Not shown | No language dropdown. Captions follow the uploaded video's spoken language as produced by the supported Groq transcription pipeline |
 
 ### Dashboard Caption Style Picker
@@ -67,6 +65,7 @@ Adding word-level animated captions manually takes 15-30 minutes per video using
 - Preview frames may use reusable creator/talking-head UI images from `public/visuals`; these are dashboard-only preview assets and are not passed into Remotion renders.
 - Preview styling should reuse the shared subtitle preset tokens from `remotion/types/subtitles.ts` wherever possible.
 - Selected style must remain visually obvious with a highlighted border and checkmark.
+- Dashboard does not show separate font, text color, highlight color, or background controls; the selected style preset owns those values.
 
 ## Inputs NOT Collected
 
@@ -147,13 +146,16 @@ The Video Type renders one element only — the user's video as full-screen back
 | Inactive words | Slightly dimmed or base color |
 
 ### Caption Styles Available
-- 21 dashboard-visible styles: Eclipse, Hustle, Gold Pill, Studio Clean, One Word, Arctic Glow, Karaoke Fill, Shorts Karaoke, Reels Clean, Bold Highlight Strip, Shatter Drop, Pill Bounce, Cinematic, Hacker Type, Vollkorn, Midnight, Marigold, Pop Candy, Bold Fire, Typewriter, Split Color
+- 24 dashboard-visible styles: Eclipse, Hustle, Gold Pill, Studio Clean, One Word, Arctic Glow, Karaoke Fill, Shorts Karaoke, Reels Clean, Bold Highlight Strip, Shatter Drop, Pill Bounce, Marker Highlight, Metallic Gradient, Floating Serif, Cinematic, Hacker Type, Vollkorn, Midnight, Marigold, Pop Candy, Bold Fire, Typewriter, Split Color
 - `Studio Clean` — Default stacked caption card, white text, yellow active word, dark compact background
 - `Karaoke Fill` — Words fill left-to-right using the active highlight color
 - `Shorts Karaoke` — YouTube Shorts-style white capsule, full phrase visible, active word dark/bold
 - `Reels Clean` — native Reels-style clean white caption with subtle active-word emphasis
 - `Bold Highlight Strip` — high-energy orange/yellow highlight strip for hook-heavy clips
 - `Gold Pill` / `Pill Bounce` — Compact pill-style caption treatments
+- `Marker Highlight` — Organic highlighter stroke behind each word, good for educational/finance explainers that need emphasis without a heavy box
+- `Metallic Gradient` — Premium silver-gold gradient text for polished business, finance, and product-style clips
+- `Floating Serif` — Calm no-background serif captions for premium, lifestyle, and trustworthy business videos
 - `One Word` / `Bold Fire` — Single active word emphasis styles
 - `Cinematic` / `Vollkorn` — calmer serif subtitle treatments
 - All styles must stay inside the safe caption zone
@@ -208,7 +210,8 @@ Single-scene Video Type — no multi-scene timeline needed.
 - No overlayTimeline or scene planner
 - Dashboard must not expose video layout, progress bar, or sound effect controls for this Video Type
 - Caption preset selection should apply the preset's text, highlight, background, font, and size settings automatically
-- Preview input props and final Lambda render input props must preserve the same `captionStyle`, `captionPosition`, `fontFamily`, `fontSize`, `textColor`, `highlightColor`, and `backgroundColor` values
+- Auto Caption skips the review/edit preview step and starts the final render directly after upload and style selection.
+- Final Lambda render input props preserve `captionStyle`, `captionPosition`, and `fontSize`; font, text color, highlight color, and background color resolve from the selected preset unless an older/debug payload explicitly provides overrides.
 
 ## Fallback Rules
 

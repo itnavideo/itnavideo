@@ -40,17 +40,52 @@ const nextConfig = {
     ];
   },
 
-  // Redirects — /templates is now /video-types; old URLs get 301 redirect
+  // Redirects for old grouped landing-page URLs. Direct video-type URLs are canonical.
   async redirects() {
     return [
+      {
+        source: '/video-types/auto-caption-reel',
+        destination: '/auto-caption-reel',
+        permanent: true,
+      },
+      {
+        source: '/video-types/compare-explainer',
+        destination: '/compare-explainer',
+        permanent: true,
+      },
+      {
+        source: '/video-types/long-video-promo',
+        destination: '/long-video-promo',
+        permanent: true,
+      },
       {
         source: '/templates',
         destination: '/video-types',
         permanent: true,
       },
       {
-        source: '/templates/:slug',
-        destination: '/video-types/:slug',
+        source: '/templates/custom-ai-reel',
+        destination: '/dashboard',
+        permanent: true,
+      },
+      {
+        source: '/custom-ai-reel',
+        destination: '/dashboard',
+        permanent: true,
+      },
+      {
+        source: '/templates/auto-caption-reel',
+        destination: '/auto-caption-reel',
+        permanent: true,
+      },
+      {
+        source: '/templates/compare-explainer',
+        destination: '/compare-explainer',
+        permanent: true,
+      },
+      {
+        source: '/templates/long-video-promo',
+        destination: '/long-video-promo',
         permanent: true,
       },
     ];

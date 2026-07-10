@@ -34,7 +34,10 @@ type PreviewLayout =
   | "split"
   | "cinematic-bar"
   | "editorial-serif"
-  | "impact-outline";
+  | "impact-outline"
+  | "marker-highlight"
+  | "floating-serif"
+  | "metallic-gradient";
 
 type CaptionStylePreviewConfig = {
   sampleLines: string[];
@@ -67,8 +70,17 @@ const PRESET_ORDER = [
   "Bold Highlight Strip",
   "Shatter Drop",
   "Pill Bounce",
+  "Marker Highlight",
+  "Metallic Gradient",
+  "Neon Pulse",
+  "Glass Blur",
+  "Floating Serif",
   "Cinematic",
   "Hacker Type",
+  "Minimal Fade",
+  "Gradient Wave",
+  "Retro VHS",
+  "Handwritten",
   "Vollkorn",
   "Midnight",
   "Marigold",
@@ -77,6 +89,53 @@ const PRESET_ORDER = [
   "Typewriter",
   "split-color",
 ];
+
+/** Categories for filtering in the dashboard */
+export const STYLE_CATEGORIES = [
+  { id: 'all', label: 'All' },
+  { id: 'popular', label: '🔥 Popular' },
+  { id: 'premium', label: '✨ Premium' },
+  { id: 'bold', label: '🎯 Bold' },
+  { id: 'creative', label: '🎨 Creative' },
+  { id: 'clean', label: '📐 Clean' },
+] as const;
+
+const STYLE_CATEGORY_MAP: Record<string, string> = {
+  Eclipse: 'popular',
+  'Karaoke Fill': 'popular',
+  'Studio Clean': 'popular',
+  'Bold Fire': 'popular',
+  'Reels Clean': 'popular',
+  'Shorts Karaoke': 'popular',
+  'Metallic Gradient': 'premium',
+  'Gold Pill': 'premium',
+  Cinematic: 'premium',
+  'Floating Serif': 'premium',
+  'Glass Blur': 'premium',
+  'One Word': 'bold',
+  'Bold Highlight Strip': 'bold',
+  Hustle: 'bold',
+  'Shatter Drop': 'bold',
+  'Neon Pulse': 'bold',
+  'Pill Bounce': 'creative',
+  'Pop Candy': 'creative',
+  'Marker Highlight': 'creative',
+  'Retro VHS': 'creative',
+  'Gradient Wave': 'creative',
+  Handwritten: 'creative',
+  'Minimal Fade': 'clean',
+  Midnight: 'clean',
+  Marigold: 'clean',
+  Typewriter: 'clean',
+  'Hacker Type': 'clean',
+  Vollkorn: 'clean',
+  'Arctic Glow': 'clean',
+  'split-color': 'clean',
+};
+
+export function getStyleCategory(styleName: string): string {
+  return STYLE_CATEGORY_MAP[styleName] || 'creative';
+}
 
 const PREVIEW_CONFIG: Record<string, CaptionStylePreviewConfig> = {
   Eclipse: {
@@ -162,6 +221,69 @@ const PREVIEW_CONFIG: Record<string, CaptionStylePreviewConfig> = {
     background: "linear-gradient(160deg, #3A1B0B 0%, #111827 56%, #020617 100%)",
     backgroundImage: CREATOR_BACKGROUNDS.studio,
     layout: "bounce-pill",
+  },
+  "Marker Highlight": {
+    sampleLines: ["clear money tips", "without confusion"],
+    activeWord: "money",
+    background: "linear-gradient(160deg, #1F2937 0%, #111827 54%, #020617 100%)",
+    backgroundImage: CREATOR_BACKGROUNDS.business,
+    layout: "marker-highlight",
+  },
+  "Metallic Gradient": {
+    sampleLines: ["premium results", "in minutes"],
+    activeWord: "premium",
+    background: "linear-gradient(160deg, #1E293B 0%, #111827 52%, #020617 100%)",
+    backgroundImage: CREATOR_BACKGROUNDS.business,
+    layout: "metallic-gradient",
+  },
+  "Neon Pulse": {
+    sampleLines: ["unlock the secret", "to viral reels"],
+    activeWord: "secret",
+    background: "linear-gradient(160deg, #020617 0%, #0a0a1a 60%, #000000 100%)",
+    backgroundImage: CREATOR_BACKGROUNDS.tech,
+    layout: "neon-pulse",
+  },
+  "Glass Blur": {
+    sampleLines: ["your brand", "elevated"],
+    activeWord: "brand",
+    background: "linear-gradient(160deg, #1E293B 0%, #0F172A 55%, #020617 100%)",
+    backgroundImage: CREATOR_BACKGROUNDS.business,
+    layout: "glass-blur",
+  },
+  "Minimal Fade": {
+    sampleLines: ["simple clean", "readable always"],
+    activeWord: "clean",
+    background: "linear-gradient(160deg, #0F172A 0%, #020617 100%)",
+    backgroundImage: CREATOR_BACKGROUNDS.educator,
+    layout: "minimal-fade",
+  },
+  "Gradient Wave": {
+    sampleLines: ["express yourself", "with color"],
+    activeWord: "yourself",
+    background: "linear-gradient(160deg, #0F0720 0%, #1a0a2e 50%, #020617 100%)",
+    backgroundImage: CREATOR_BACKGROUNDS.tech,
+    layout: "gradient-wave",
+  },
+  "Retro VHS": {
+    sampleLines: ["rewind and", "watch again"],
+    activeWord: "rewind",
+    background: "linear-gradient(160deg, #1a1a1a 0%, #0a0a0a 100%)",
+    backgroundImage: CREATOR_BACKGROUNDS.educator,
+    layout: "retro-vhs",
+  },
+  "Handwritten": {
+    sampleLines: ["feel the story", "being told"],
+    activeWord: "story",
+    background: "linear-gradient(160deg, #1E293B 0%, #0F172A 60%, #020617 100%)",
+    backgroundImage: CREATOR_BACKGROUNDS.educator,
+    layout: "handwritten",
+  },
+  "Floating Serif": {
+    sampleLines: ["build trust", "one step at a time"],
+    activeWord: "trust",
+    background: "linear-gradient(160deg, #233044 0%, #111827 56%, #020617 100%)",
+    backgroundImage: CREATOR_BACKGROUNDS.business,
+    layout: "floating-serif",
   },
   Cinematic: {
     sampleLines: ["create better reels", "in minutes"],
@@ -505,6 +627,96 @@ function CaptionPreviewText({
     );
   }
 
+  if (layout === "marker-highlight") {
+    return (
+      <div className="caption-preview-enter flex max-w-full flex-wrap justify-center gap-x-1 gap-y-1 text-center text-[9px] font-black leading-tight">
+        {config.sampleLines.flatMap((line) => line.split(" ")).map((word, index) => {
+          const cleanWord = word.toLowerCase().replace(/[^a-z0-9]/g, "");
+          const isActive = config.activeWord?.toLowerCase() === cleanWord;
+          return (
+            <span
+              key={`${word}-${index}`}
+              className={`relative inline-block px-1 ${isActive ? "caption-preview-active-word" : ""}`}
+              style={{
+                ...textStyle,
+                color: preset.textColor,
+                zIndex: 0,
+                textShadow: "0 1px 3px rgba(0,0,0,0.72)",
+              }}
+            >
+              <span
+                aria-hidden="true"
+                className="absolute inset-x-0 bottom-0 -z-10 h-[62%] rounded-[3px]"
+                style={{
+                  background: isActive ? preset.highlightColor : `${preset.bgColor || preset.highlightColor}AA`,
+                  transform: `rotate(${index % 2 === 0 ? "-1.5deg" : "1.3deg"})`,
+                  opacity: isActive ? 0.95 : 0.74,
+                }}
+              />
+              {word}
+            </span>
+          );
+        })}
+      </div>
+    );
+  }
+
+  if (layout === "floating-serif") {
+    return (
+      <div
+        className="caption-preview-enter max-w-full text-center text-[8.5px] font-semibold leading-snug"
+        style={{
+          ...textStyle,
+          color: preset.textColor,
+          fontFamily: preset.font,
+          fontWeight: 600,
+          textShadow: "0 2px 8px rgba(0,0,0,0.78)",
+        }}
+      >
+        <CaptionWords lines={config.sampleLines} activeWord={config.activeWord} activeColor={preset.highlightColor} />
+      </div>
+    );
+  }
+
+  if (layout === "metallic-gradient") {
+    return (
+      <div
+        className="caption-preview-enter max-w-full rounded-[5px] border border-white/10 px-1.5 py-1 text-center text-[9px] font-black uppercase leading-tight"
+        style={{
+          ...textStyle,
+          background: "linear-gradient(180deg, rgba(17,24,39,0.72), rgba(2,6,23,0.58))",
+          boxShadow: "0 5px 10px rgba(0,0,0,0.26), inset 0 1px 0 rgba(255,255,255,0.16)",
+        }}
+      >
+        {config.sampleLines.map((line) => (
+          <div key={line}>
+            {line.split(" ").map((word, index) => {
+              const cleanWord = word.toLowerCase().replace(/[^a-z0-9]/g, "");
+              const isActive = config.activeWord?.toLowerCase() === cleanWord;
+              return (
+                <span
+                  key={`${line}-${word}-${index}`}
+                  className={`inline-block px-0.5 ${isActive ? "caption-preview-active-word" : ""}`}
+                  style={{
+                    background: isActive
+                      ? "linear-gradient(100deg, #FFFFFF 0%, #D9B76E 38%, #94A3B8 70%, #FFFFFF 100%)"
+                      : "linear-gradient(100deg, #F8FAFC 0%, #B8C2D8 46%, #E5E7EB 100%)",
+                    WebkitBackgroundClip: "text",
+                    backgroundClip: "text",
+                    color: "transparent",
+                    textShadow: "0 1px 3px rgba(0,0,0,0.72)",
+                  }}
+                >
+                  {word}
+                </span>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   if (layout === "editorial-serif") {
     return (
       <div
@@ -702,6 +914,9 @@ function layoutForStyle(style: SubtitleStyle): PreviewLayout {
   if (style === "box") return "box";
   if (style === "split-color") return "split";
   if (style === "cinematic") return "cinematic-bar";
+  if (style === "marker-highlight") return "marker-highlight";
+  if (style === "floating-serif") return "floating-serif";
+  if (style === "metallic-gradient") return "metallic-gradient";
   if (style === "vollkorn") return "editorial-serif";
   if (style === "bold-outline" || style === "shatter") return "impact-outline";
   if (style === "typewriter-code" || style === "typewriter") return "code";
@@ -716,14 +931,14 @@ function getTextStyle(preset: PresetOption, style: SubtitleStyle): React.CSSProp
       ? `0 0 6px ${preset.highlightColor}99, 0 1px 3px rgba(0,0,0,0.55)`
       : style === "bold-outline" || style === "shatter"
         ? `0 0 5px ${preset.highlightColor}66, 1px 1px 0 rgba(0,0,0,0.72)`
-        : style === "cinematic" || style === "vollkorn"
+        : style === "cinematic" || style === "vollkorn" || style === "floating-serif"
           ? "0 1px 4px rgba(0,0,0,0.64)"
           : "0 1px 3px rgba(0,0,0,0.62)";
 
   return {
     color: preset.textColor,
     fontFamily: preset.font,
-    fontWeight: style === "cinematic" || style === "vollkorn" ? 700 : 900,
+    fontWeight: style === "cinematic" || style === "vollkorn" || style === "floating-serif" ? 700 : 900,
     textShadow,
   };
 }

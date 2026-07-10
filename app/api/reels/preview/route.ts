@@ -18,6 +18,7 @@ import {
 } from '@/services/ai/reelPlanner';
 import { checkRateLimit, getClientIp } from '@/services/rateLimit/inMemoryRateLimiter';
 import { buildEnergyTimeline, findBeatPeaks } from '@/lib/audio/energyTimeline';
+import { SUBTITLE_PRESETS } from '@/remotion/types/subtitles';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -26,6 +27,10 @@ export const maxDuration = 120; // preview can take up to 2 min (transcription)
 const MAX_RENDER_WINDOW_SECONDS = 60;
 const SPEECH_LEAD_SECONDS = 0.65;
 const MIN_SPEECH_TOKEN_LENGTH = 2;
+
+const getSubtitlePreset = (styleOrPreset: string) =>
+  SUBTITLE_PRESETS[styleOrPreset] ||
+  Object.values(SUBTITLE_PRESETS).find((preset) => preset.style === styleOrPreset);
 
 export async function POST(request: Request) {
   const ip = getClientIp(request.headers);
@@ -219,6 +224,9 @@ function buildPreviewProps({
   transcription: { transcript: string; durationSeconds?: number; languageHint?: string };
   topicTitle: string;
 }): Record<string, unknown> {
+  const captionStyle = readString(body.captionStyle) || 'Studio Clean';
+  const captionPreset = getSubtitlePreset(captionStyle);
+  const captionBackgroundColorValue = readString(body.captionBackgroundColor);
   const base: Record<string, unknown> = {
     mediaSrc: mediaUrl,
     mediaType: 'video',
@@ -230,15 +238,17 @@ function buildPreviewProps({
     subtitleChunks: captions,
     transcript: renderWindow.transcript,
     topicTitle: topicTitle || '',
-    captionStyle: readString(body.captionStyle) || 'Studio Clean',
+    captionStyle,
     captionPosition: readString(body.captionPosition) || 'bottom',
-    fontFamily: readString(body.captionFontFamily || body.fontFamily) || undefined,
-    fontSize: readString(body.captionFontSize || body.fontSize) || 'large',
+    fontFamily: readString(body.captionFontFamily || body.fontFamily) || captionPreset?.fontFamily || undefined,
+    fontSize: readString(body.captionFontSize || body.fontSize) || captionPreset?.fontSize || 'large',
     subtitleOutputLanguage: normalizeSubtitleLanguage(readString(body.subtitleOutputLanguage)) || transcription.languageHint || '',
-    textColor: readString(body.captionTextColor) || '#ffffff',
-    highlightColor: readString(body.captionHighlightColor) || '#facc15',
-    backgroundColor: readString(body.captionBackgroundColor) || '#18181B',
-    showBackground: body.captionShowBackground !== false,
+    textColor: readString(body.captionTextColor) || captionPreset?.textColor || '#ffffff',
+    highlightColor: readString(body.captionHighlightColor) || captionPreset?.highlightColor || '#facc15',
+    backgroundColor: captionBackgroundColorValue || captionPreset?.backgroundColor || '#18181B',
+    showBackground: typeof body.captionShowBackground === 'boolean'
+      ? body.captionShowBackground
+      : Boolean(captionBackgroundColorValue || captionPreset?.backgroundColor),
     videoLayout: 'fullscreen',
     progressStyle: 'none',
     wordClickSound: false,
@@ -248,15 +258,6 @@ function buildPreviewProps({
   };
 
   // Video-type-specific additions
-  if (videoTypeName === 'DYNAMIC_CREATOR_REEL') {
-    const scenes = buildDynamicCreatorScenes(captions, renderWindow.durationSeconds);
-    return {
-      ...base,
-      scenes,
-      accentColor: readString(body.accentColor) || '#2563EB',
-      backgroundMusic: false,
-    };
-  }
 
   if (videoTypeName === 'AUTO_CAPTION_REEL') {
     const energyWords = (renderWindow.words || [])
@@ -423,77 +424,6 @@ function stabilizeCompareOverlayTimeline<T extends {id: string; start: number; e
     end: Number((index === groups.length - 1 ? Math.min(durationSeconds, group.end) : group.end).toFixed(2)),
   })) as T[];
 }
-
-// Reuse the same scenes builder logic from jobs route
-function buildDynamicCreatorScenes(
-  captions: PreviewCaption[],
-  totalDuration: number,
-): Array<{ type: string; start: number; end: number; text?: string; highlightWord?: string; zoom?: number }> {
-  type Scene = { type: 'creator_face' | 'typography' | 'key_point'; start: number; end: number; text?: string; highlightWord?: string; zoom?: number };
-  const scenes: Scene[] = [];
-
-  if (captions.length === 0) {
-    scenes.push({ type: 'creator_face', start: 0, end: totalDuration, zoom: 1 });
-    return scenes;
-  }
-
-  const firstCapStart = Number(captions[0].start ?? 0);
-  const hookEnd = firstCapStart >= 1.5 ? Math.min(firstCapStart, 2.5)
-    : firstCapStart >= 0.3 ? firstCapStart : 0;
-  if (hookEnd > 0.2) {
-    const hookText = captions[0].text.split(' ').slice(0, 5).join(' ');
-    scenes.push({ type: 'typography', start: 0, end: hookEnd, text: hookText, highlightWord: hookText.split(' ').slice(-1)[0] });
-  }
-
-  let emphasisCounter = 0;
-  for (let i = 0; i < captions.length; i++) {
-    const cap = captions[i];
-    const prevEnd = scenes.length > 0 ? scenes[scenes.length - 1].end : 0;
-    const capStart = Math.max(prevEnd, Number(cap.start ?? 0));
-    const capEnd = Math.max(capStart + 0.3, Number(cap.end ?? capStart + 2.5));
-    const gap = capStart - prevEnd;
-    if (gap > 1.5 && i > 0) {
-      const gapText = captions[i - 1].text.split(' ').slice(0, 7).join(' ');
-      scenes.push({ type: emphasisCounter++ % 2 === 0 ? 'key_point' : 'typography', start: prevEnd, end: capStart, text: gapText });
-    } else if (gap > 0.03 && scenes.length > 0) {
-      scenes[scenes.length - 1].end = capStart;
-    }
-    scenes.push({ type: 'creator_face', start: capStart, end: capEnd, zoom: i % 3 === 0 ? 1.0 : i % 3 === 1 ? 1.08 : 1.14 });
-  }
-
-  const last = scenes[scenes.length - 1];
-  if (last && last.end < totalDuration - 0.05) {
-    const tailDur = totalDuration - last.end;
-    if (tailDur > 5) {
-      const mid = last.end + tailDur * 0.35;
-      const midCap = captions[Math.floor(captions.length / 2)];
-      const ctaText = midCap?.text.split(' ').slice(0, 5).join(' ') || 'Follow for more';
-      scenes.push({ type: 'typography', start: last.end, end: mid, text: ctaText, highlightWord: ctaText.split(' ')[0] });
-      scenes.push({ type: 'creator_face', start: mid, end: totalDuration, zoom: 1.0 });
-    } else if (tailDur > 2) {
-      scenes.push({ type: 'key_point', start: last.end, end: totalDuration, text: captions[captions.length - 1]?.text || '' });
-    } else {
-      last.end = totalDuration;
-    }
-  }
-
-  // Safety sweep
-  if (scenes[0]) scenes[0].start = 0;
-  if (scenes[scenes.length - 1]) scenes[scenes.length - 1].end = totalDuration;
-  const valid = scenes.filter(s => s.end - s.start > 0.03);
-  const covered: Scene[] = [];
-  for (const s of valid) {
-    const pe = covered.length > 0 ? covered[covered.length - 1].end : 0;
-    if (s.start > pe + 0.05) covered.push({ type: 'creator_face', start: pe, end: s.start, zoom: 1.0 });
-    covered.push(s);
-  }
-  const lc = covered[covered.length - 1];
-  if (lc && lc.end < totalDuration - 0.05) covered.push({ type: 'creator_face', start: lc.end, end: totalDuration, zoom: 1.0 });
-  if (covered.length === 0) covered.push({ type: 'creator_face', start: 0, end: totalDuration, zoom: 1.0 });
-  return covered;
-}
-
-// ─── Helpers (copied from jobs route for consistency) ─────────────────────────
 
 function buildCompareCaptionsFromGroq(renderWindow: {
   transcript: string;

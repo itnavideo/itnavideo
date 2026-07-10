@@ -91,7 +91,6 @@ function readString(value: unknown) {
 
 function isAllowedUploadForVideoType(videoTypeMode: string, contentType: string) {
   if (videoTypeMode === 'compare') return contentType.startsWith('audio/') || contentType.startsWith('image/');
-  if (videoTypeMode === 'creatorBackgroundReplace') return contentType.startsWith('video/') || contentType.startsWith('image/');
   if (videoTypeMode === 'autoCaption') return contentType.startsWith('video/');
   return contentType.startsWith('audio/') || contentType.startsWith('video/') || contentType.startsWith('image/');
 }
@@ -99,8 +98,6 @@ function isAllowedUploadForVideoType(videoTypeMode: string, contentType: string)
 function uploadErrorForVideoType(videoTypeMode: string) {
   if (videoTypeMode === 'compare') return 'Compare needs one audio file plus exactly 2 visuals.';
   if (videoTypeMode === 'autoCaption') return 'Auto Caption needs a video file with speech.';
-  if (videoTypeMode === 'creatorBackgroundReplace') return 'Creator Background Replace needs one video plus one background image.';
-  if (videoTypeMode === 'customAiReel') return 'Custom AI Reel accepts images, logos, audio, or video uploads.';
   return 'This video type needs audio, video, or image upload.';
 }
 
@@ -112,29 +109,9 @@ function isAutoCaptionWorkflow(value: string) {
   return value === 'autocaption' || value === 'auto-caption' || value === 'auto-caption-reel' || value === 'caption' || value === 'subtitle';
 }
 
-function isAutoDrawWorkflow(value: string) {
-  const normalized = value.toLowerCase().replace(/[-_\s]+/g, '');
-  return normalized === 'autodraw' || normalized === 'autodrawexplainer' || normalized === 'whiteboard';
-}
-
 function isLongVideoPromoWorkflow(value: string) {
   const normalized = value.toLowerCase().replace(/[-_\s]+/g, '');
   return normalized === 'longvideopromo' || normalized === 'longvideopromotion' || normalized === 'promo';
-}
-
-function isDynamicCreatorWorkflow(value: string) {
-  const normalized = value.toLowerCase().replace(/[-_\s]+/g, '');
-  return normalized === 'dynamiccreatorreel' || normalized === 'dynamiccreator' || normalized === 'dynamicreel' || normalized === 'creatordynamic';
-}
-
-function isCreatorBackgroundReplaceWorkflow(value: string) {
-  const normalized = value.toLowerCase().replace(/[-_\s]+/g, '');
-  return normalized === 'creatorbackgroundreplace' || normalized === 'backgroundreplace' || normalized === 'videobackgroundimage' || normalized === 'backgroundimage';
-}
-
-function isCustomAiReelWorkflow(value: string) {
-  const normalized = value.toLowerCase().replace(/[-_\s]+/g, '');
-  return normalized === 'customaireel' || normalized === 'customai' || normalized === 'customreel';
 }
 
 function sanitizeUserFacingStatus(value: string) {
@@ -169,14 +146,10 @@ function resolvePresignVideoTypeMode(value: string): string {
   if (!value) return 'generic';
   if (isCompareWorkflow(value)) return 'compare';
   if (isAutoCaptionWorkflow(value)) return 'autoCaption';
-  if (isAutoDrawWorkflow(value)) return 'autoDraw';
   if (isLongVideoPromoWorkflow(value)) return 'longVideoPromo';
-  if (isDynamicCreatorWorkflow(value)) return 'dynamicCreator';
-  if (isCreatorBackgroundReplaceWorkflow(value)) return 'creatorBackgroundReplace';
-  if (isCustomAiReelWorkflow(value)) return 'customAiReel';
   return 'generic';
 }
 
 function isRecognizedWorkflowMode(value: string) {
-  return isCompareWorkflow(value) || isAutoCaptionWorkflow(value) || isAutoDrawWorkflow(value) || isLongVideoPromoWorkflow(value) || isDynamicCreatorWorkflow(value) || isCreatorBackgroundReplaceWorkflow(value) || isCustomAiReelWorkflow(value);
+  return isCompareWorkflow(value) || isAutoCaptionWorkflow(value) || isLongVideoPromoWorkflow(value);
 }

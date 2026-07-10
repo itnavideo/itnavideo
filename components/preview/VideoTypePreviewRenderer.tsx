@@ -6,7 +6,6 @@ import { Loader2 } from "lucide-react";
 
 import { AutoCaptionReel } from "@/remotion/templates/AUTO_CAPTION_REEL/template";
 import { CompareExplainer } from "@/remotion/templates/COMPARE_EXPLAINER/template";
-import { DynamicCreatorReel } from "@/remotion/templates/DYNAMIC_CREATOR_REEL/template";
 
 type Props = {
   compositionId: string;
@@ -19,7 +18,6 @@ type Props = {
 const COMPOSITION_COMPONENTS: Record<string, React.ComponentType<any>> = {
   "AUTO-CAPTION-REEL": AutoCaptionReel,
   comparisonImages: CompareExplainer,
-  "DYNAMIC-CREATOR-REEL": DynamicCreatorReel,
 };
 
 export const VideoTypePreviewRenderer = forwardRef<PlayerRef, Props>(function VideoTypePreviewRenderer(

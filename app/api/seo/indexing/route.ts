@@ -50,7 +50,7 @@ export async function GET(request: Request) {
       manual: {
         method: "POST",
         body: {
-          urls: ["https://www.itnavideo.com/video-types/example"],
+          urls: ["https://www.itnavideo.com/auto-caption-reel"],
           type: "URL_UPDATED",
         },
       },

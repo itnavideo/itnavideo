@@ -264,90 +264,39 @@ function LongVideoPromo({
         </div>
       </div>
 
-      {/* === SECTION 3: PROMO VIDEO PREVIEW — starts directly below title === */}
+      {/* === SECTION 3: PROMO VIDEO CLIP — plays below title === */}
       {hasPromoClip ? (
         <div style={{
-          width: 'calc(100% + 80px)',
+          width: '100%',
           flex: 1,
           minHeight: 0,
-          marginTop: 12,
-          marginLeft: -40,
-          marginRight: -40,
+          marginTop: 20,
           display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
           opacity: clipSpring,
           transform: `scale(${clipSpring}) translateY(${floatY}px)`,
           transformOrigin: 'center top',
         }}>
-          {/* Borderless cinematic media stage — blurred fill prevents empty gaps */}
           <div style={{
             position: 'relative',
-            width: '100%',
-            height: '100%',
+            width: isPortraitClip ? '65%' : '100%',
+            maxWidth: isPortraitClip ? 520 : undefined,
+            aspectRatio: videoAspectRatio,
+            borderRadius: 16,
             overflow: 'hidden',
-            background: 'transparent',
+            border: '2px solid rgba(255,255,255,0.12)',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
           }}>
-            {thumbnailSrc ? (
-              <Img
-                src={resolveAsset(thumbnailSrc)}
-                style={{
-                  position: 'absolute',
-                  inset: -24,
-                  width: 'calc(100% + 48px)',
-                  height: 'calc(100% + 48px)',
-                  objectFit: 'cover',
-                  filter: `blur(34px) brightness(0.46) saturate(1.16) ${styleLock?.colorGrade?.filter || ''}`,
-                  transform: 'scale(1.08)',
-                }}
-              />
-            ) : null}
-            <div style={{
-              position: 'absolute',
-              inset: 0,
-              background: 'linear-gradient(180deg, rgba(11,17,32,0.16) 0%, rgba(11,17,32,0.04) 28%, rgba(11,17,32,0.42) 100%)',
-            }} />
-            <div style={{
-              position: 'absolute',
-              inset: 0,
-              background: 'radial-gradient(ellipse at center, transparent 38%, rgba(0,0,0,0.42) 100%)',
-            }} />
-            <div style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: 72,
-              background: 'linear-gradient(180deg, rgba(11,17,32,0.72) 0%, transparent 100%)',
-            }} />
             <OffthreadVideo
               src={resolveAsset(mediaSrc)}
               startFrom={Math.max(0, Math.round(mediaTrimStartSeconds * fps))}
               style={{
-                position: 'relative',
-                zIndex: 2,
-                display: 'block',
-                width: isPortraitClip ? 560 : isFourFiveClip ? 760 : isSquareClip ? 760 : '100%',
-                height: isPortraitClip ? '100%' : isFourFiveClip || isSquareClip ? 'auto' : 'auto',
-                maxWidth: '100%',
-                maxHeight: '100%',
-                margin: '0 auto',
-                aspectRatio: videoAspectRatio,
-                objectFit: isPortraitClip ? 'cover' : 'contain',
-                objectPosition: 'center center',
-                filter: `drop-shadow(0 22px 46px rgba(0,0,0,0.58)) ${styleLock?.colorGrade?.filter || ''}`,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                filter: styleLock?.colorGrade?.filter || undefined,
               }}
               volume={sourceAudioVolume}
             />
-
-            <div style={{
-              position: 'absolute',
-              zIndex: 3,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              height: 110,
-              background: 'linear-gradient(180deg, transparent 0%, rgba(11,17,32,0.76) 100%)',
-              pointerEvents: 'none',
-            }} />
           </div>
         </div>
       ) : (

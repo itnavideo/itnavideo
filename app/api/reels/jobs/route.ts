@@ -10,28 +10,26 @@ import {hasHindiUrduScript, hasRomanHinglish} from '@/services/ai/hinglishTransc
 import {checkRateLimit, getClientIp} from '@/services/rateLimit/inMemoryRateLimiter';
 import {getRenderAccessForUser} from '@/services/billing/renderAccess';
 import {createPlanningMediaClip} from '@/services/media/mediaClipper';
-import {processCreatorBackgroundReplace, verifyCreatorBackgroundReplaceWorkerReady} from '@/services/media/creatorBackgroundReplaceWorker';
-import {generateAutoDrawScenes} from '@/lib/ai/autoDrawPlanner';
 import {buildEnergyTimeline, findBeatPeaks} from '@/lib/audio/energyTimeline';
-import {createCustomAiReelPlan, validateCustomAiPrompt, buildScenesFromTranscript, type CustomAiReelMediaAsset} from '@/services/ai/customAiReelPlanner';
-import {trimAudioSilences} from '@/services/media/audioSilenceTrimmer';
 import {createPremiumSoundCues, createPremiumStyleLock} from '@/services/ai/premiumStylePlanner';
+import {planCompareStickers} from '@/services/ai/compareStickerPlanner';
+import {planWhiteboardVideo} from '@/services/ai/whiteboardPlanner';
+import {planTypographyVideo} from '@/services/ai/typographyPlanner';
+import {SUBTITLE_PRESETS} from '@/remotion/types/subtitles';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 type LambdaRenderRequest = Parameters<typeof renderMediaOnLambda>[0];
 type ReelMode =
-  | 'compare' | 'autoCaption' | 'autoDraw' | 'longVideoPromo' | 'dynamicCreator' | 'creatorBackgroundReplace' | 'customAiReel';
+  | 'compare' | 'autoCaption' | 'longVideoPromo' | 'whiteboardVideo' | 'typographyVideo';
 
 const MODE_TO_TEMPLATE: Partial<Record<ReelMode, ReelTemplateName>> = {
   compare: 'comparisonImages',
   autoCaption: 'AUTO_CAPTION_REEL',
-  autoDraw: 'AUTO_DRAW_EXPLAINER',
   longVideoPromo: 'LONG_VIDEO_PROMO',
-  dynamicCreator: 'DYNAMIC_CREATOR_REEL',
-  creatorBackgroundReplace: 'CREATOR_BACKGROUND_REPLACE',
-  customAiReel: 'CUSTOM_AI_REEL',
+  whiteboardVideo: 'WHITEBOARD_VIDEO',
+  typographyVideo: 'TYPOGRAPHY_VIDEO',
 };
 
 const MAX_RENDER_WINDOW_SECONDS = 60;
@@ -47,6 +45,10 @@ const REQUIRED_RENDER_SITE_PATH = '/sites/itnavideo-video-explainer/';
 const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses';
 const DEFAULT_TRANSCRIPT_REPAIR_MODEL = 'gpt-4o-mini';
 
+const getSubtitlePreset = (styleOrPreset: string) =>
+  SUBTITLE_PRESETS[styleOrPreset] ||
+  Object.values(SUBTITLE_PRESETS).find((preset) => preset.style === styleOrPreset);
+
 export async function POST(request: Request) {
   const ip = getClientIp(request.headers);
   const body = await readJson(request);
@@ -60,17 +62,6 @@ export async function POST(request: Request) {
     : [];
   const explanationImageKey = readString(body.explanationImageKey);
   const promoThumbnailImageKey = readString(body.thumbnailKey);
-  const creatorBackgroundImageKey = readString(body.backgroundImageKey);
-  const customAiImageKeys = Array.isArray(body.customAiImageKeys)
-    ? body.customAiImageKeys.map((value: unknown) => readString(value)).filter(Boolean).slice(0, 8)
-    : [];
-  const customAiLogoKey = readString(body.customAiLogoKey);
-  const customAiVideoKey = readString(body.customAiVideoKey);
-  const customAiAudioKey = readString(body.customAiAudioKey);
-  const customAiVideoDurationSeconds = readPositiveNumber(body.customAiVideoDurationSeconds);
-  const customAiAudioDurationSeconds = readPositiveNumber(body.customAiAudioDurationSeconds);
-  const customAiPrompt = readString(body.customAiPrompt || body.prompt || body.instructions);
-  const customAiSubtitlesEnabled = body.customAiSubtitlesEnabled === true;
   const topicTitle = readString(body.topicTitle);
   const design = toDesign(readString(body.design));
   const languageHint = toLanguageHint(readString(body.language || body.displayLanguage || body.typographyLanguage));
@@ -85,14 +76,6 @@ export async function POST(request: Request) {
   }
   const requestedModeValue = toMode(requestedMode);
   const resolvedTemplateName = resolveTemplateNameFromRequest(readString(body.templateName || body.template || requestedMode)) || (requestedModeValue ? MODE_TO_TEMPLATE[requestedModeValue] : null) || null;
-  if (requestedModeValue === 'creatorBackgroundReplace' || resolvedTemplateName === 'CREATOR_BACKGROUND_REPLACE') {
-    return NextResponse.json({
-      ok: false,
-      status: 'failed',
-      reasonCode: 'VIDEO_TYPE_COMING_SOON',
-      error: 'Background Replace Video is coming soon. Please choose another video type for now.',
-    }, {status: 423});
-  }
   const mode: ReelMode = requestedModeValue || toMode(resolvedTemplateName || '') || 'autoCaption';
   const templateConfig = resolvedTemplateName ? REEL_TEMPLATE_REGISTRY[resolvedTemplateName] : null;
   if (!resolvedTemplateName || !templateConfig) {
@@ -124,9 +107,7 @@ export async function POST(request: Request) {
   if (!rateLimit.allowed) {
     return NextResponse.json({ok: false, error: 'Too many render jobs. Please wait a minute and try again.'}, {status: 429});
   }
-  const mediaType = mode === 'customAiReel'
-    ? (customAiVideoKey ? 'video' : customAiAudioKey ? 'audio' : 'image')
-    : toMediaType(readString(body.mediaType) || 'video');
+  const mediaType = toMediaType(readString(body.mediaType) || 'video');
 
   if (!(templateConfig.allowedMedia as readonly string[]).includes(mediaType)) {
     return NextResponse.json(
@@ -140,7 +121,7 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!mediaKey && mode !== 'customAiReel') {
+  if (!mediaKey) {
     return NextResponse.json({ok: false, error: 'mediaKey is required. Upload media before starting render.'}, {status: 400});
   }
   if (!userId) {
@@ -178,28 +159,11 @@ export async function POST(request: Request) {
     const promoThumbnailUrl = thumbnailKey
       ? readString(await createReadUrl(thumbnailKey))
       : "";
-    const creatorBackgroundImageUrl = creatorBackgroundImageKey
-      ? readString(await createReadUrl(creatorBackgroundImageKey))
-      : "";
     const comparisonImageUrls = mode === 'compare'
       ? (await Promise.all(
           comparisonImageKeys.map(async (key: string) => readString(await createReadUrl(key))),
         )).filter(Boolean).slice(0, 2)
       : [];
-    const customAiImageUrls = mode === 'customAiReel'
-      ? (await Promise.all(
-          customAiImageKeys.map(async (key: string) => readString(await createReadUrl(key))),
-        )).filter(Boolean).slice(0, 8)
-      : [];
-    const customAiLogoUrl = mode === 'customAiReel' && customAiLogoKey
-      ? readString(await createReadUrl(customAiLogoKey))
-      : '';
-    const customAiVideoUrl = mode === 'customAiReel' && customAiVideoKey
-      ? readString(await createReadUrl(customAiVideoKey))
-      : '';
-    const customAiAudioUrl = mode === 'customAiReel' && customAiAudioKey
-      ? readString(await createReadUrl(customAiAudioKey))
-      : '';
     markTiming('signed_url_prepare_ms');
 
     if (mode === 'compare' && comparisonImageUrls.length !== 2) {
@@ -208,279 +172,6 @@ export async function POST(request: Request) {
         {status: 422},
       );
     }
-    if (mode === 'customAiReel') {
-      const promptError = validateCustomAiPrompt(customAiPrompt);
-      if (promptError) {
-        return NextResponse.json(
-          {ok: false, status: 'failed', reasonCode: 'CUSTOM_AI_PROMPT_NEEDS_ENGLISH', error: promptError},
-          {status: 422},
-        );
-      }
-
-      const customMedia: CustomAiReelMediaAsset[] = [
-        ...customAiImageUrls.map((src, index) => ({
-          id: `custom-image-${index + 1}`,
-          kind: 'image' as const,
-          src,
-          fileName: `Uploaded image ${index + 1}`,
-        })),
-        ...(customAiVideoUrl ? [{
-          id: 'custom-video-1',
-          kind: 'video' as const,
-          src: customAiVideoUrl,
-          fileName: 'Uploaded video',
-          durationSeconds: customAiVideoDurationSeconds || undefined,
-        }] : []),
-        ...(customAiAudioUrl ? [{
-          id: 'custom-audio-1',
-          kind: 'audio' as const,
-          src: customAiAudioUrl,
-          fileName: 'Uploaded audio',
-          durationSeconds: customAiAudioDurationSeconds || undefined,
-        }] : []),
-        ...(customAiLogoUrl ? [{
-          id: 'custom-logo',
-          kind: 'logo' as const,
-          src: customAiLogoUrl,
-          fileName: 'Uploaded logo',
-        }] : []),
-      ];
-
-      const customPlan = createCustomAiReelPlan({
-        media: customMedia,
-        prompt: customAiPrompt,
-        subtitlesEnabled: customAiSubtitlesEnabled,
-      });
-      const config = readLambdaConfig();
-      if (!config.ok) return NextResponse.json({ok: false, error: config.error}, {status: 503});
-
-      // M3: transcription if subtitles are on and audio/video is present
-      let customAiCaptions: Array<{start: number; end: number; text: string}> = [];
-      if (customAiSubtitlesEnabled && (customAiAudioUrl || customAiVideoUrl)) {
-        const speechSrc = customAiAudioUrl || customAiVideoUrl;
-        try {
-          const transcription = await transcribeForPlanning({
-            mediaUrl: speechSrc,
-            outputLanguage: 'english',
-            mediaType: customAiAudioUrl ? 'audio' : 'video',
-            fileName: customAiAudioUrl ? 'voiceover.mp3' : 'clip.mp4',
-          });
-          customAiCaptions = buildCompareCaptionsFromGroq({
-            durationSeconds: customPlan.durationSeconds,
-            transcript: transcription.transcript || '',
-            words: getTranscriptionWords(transcription),
-            segments: getTranscriptionSegments(transcription),
-          });
-        } catch (transcriptError) {
-          // Per policy: transcription failure → surface error, don't silently continue
-          return NextResponse.json(
-            {ok: false, status: 'failed', reasonCode: 'TRANSCRIPTION_FAILED', error: 'We could not detect clear speech in your upload.'},
-            {status: 422},
-          );
-        }
-      }
-      const customStyleLock = createPremiumStyleLock({
-        topicTitle: topicTitle || customPlan.scenes[0]?.title || 'Custom AI Reel',
-        transcript: [customAiPrompt, customAiCaptions.map((caption) => caption.text).join(' ')].filter(Boolean).join(' '),
-        templateName,
-        mode,
-      });
-      const customSoundCues = createPremiumSoundCues({
-        styleLock: customStyleLock,
-        templateName,
-        durationSeconds: customPlan.durationSeconds,
-        timeline: customPlan.scenes.map((scene) => ({
-          start: scene.start,
-          end: scene.end,
-          text: [scene.title, scene.body, scene.label].filter(Boolean).join(' '),
-          type: scene.type,
-        })),
-        captions: customAiCaptions,
-      });
-
-      const inputProps: Record<string, unknown> = {
-        durationSeconds: Math.min(MAX_RENDER_WINDOW_SECONDS, customPlan.durationSeconds),
-        renderWindowSeconds: Math.min(MAX_RENDER_WINDOW_SECONDS, customPlan.durationSeconds),
-        prompt: customPlan.prompt,
-        scenes: customPlan.scenes,
-        media: customPlan.media,
-        subtitlesEnabled: customAiSubtitlesEnabled,
-        audioSrc: customAiAudioUrl || undefined,
-        captions: customAiCaptions,
-        subtitleChunks: customAiCaptions,
-        transcriptSegments: [],
-        transcript: '',
-        sourceScript: '',
-        mediaSrc: customAiVideoUrl || customAiAudioUrl || customPlan.media[0]?.src || 'custom-ai-reel-text-only',
-        mediaType: customAiVideoUrl ? 'video' : customAiAudioUrl ? 'audio' : 'image',
-        topicTitle: topicTitle || customPlan.scenes[0]?.title || 'Custom AI Reel',
-        design: 'Custom AI Reel',
-        premiumEditing: true,
-        styleLock: customStyleLock,
-        soundCues: customSoundCues,
-        templateName,
-        template: templateName,
-        compositionId: composition,
-      };
-
-      const preflight = validateBeforeRender({inputProps, templateName, composition, mediaType: 'image'});
-      if (preflight) {
-        return NextResponse.json(
-          {ok: false, status: 'failed', reasonCode: preflight.reasonCode, error: sanitizeUserFacingStatus(preflight.message)},
-          {status: 422},
-        );
-      }
-
-      const outName = `${TEMP_MEDIA_RENDER_PREFIX}${sanitizeSegment(userId)}/${Date.now()}-${slugify(readString(inputProps.topicTitle) || 'custom-ai-reel')}.mp4`;
-      const renderRequest: LambdaRenderRequest = {
-        region: config.region,
-        functionName: config.functionName,
-        serveUrl: config.serveUrl,
-        composition,
-        codec: 'h264',
-        audioCodec: 'aac',
-        inputProps,
-        outName,
-        privacy: 'private',
-        deleteAfter: '3-days',
-        overwrite: true,
-        concurrency: config.framesPerLambda ? undefined : config.concurrency,
-        framesPerLambda: config.framesPerLambda,
-        maxRetries: 1,
-        downloadBehavior: {
-          type: 'download',
-          fileName: 'itnavideo-custom-ai-reel.mp4',
-        },
-        isProduction: true,
-        logLevel: 'info',
-      };
-      const render = await startRenderWithCapacityRetry(renderRequest);
-
-      const hasMedia = customPlan.media.length > 0;
-      const hasVideo = Boolean(customAiVideoUrl);
-      const hasAudio = Boolean(customAiAudioUrl);
-      return NextResponse.json({
-        ok: true,
-        status: 'rendering',
-        renderId: render.renderId,
-        bucketName: render.bucketName,
-        outName,
-        mediaKey: customAiVideoKey || customAiAudioKey || mediaKey || '',
-        reelTitle: inputProps.topicTitle,
-        design: 'Custom AI Reel',
-        mode,
-        templateName,
-        transcriptSource: customAiSubtitlesEnabled && (hasAudio || hasVideo) ? 'groq-whisper' : 'not-required',
-        renderWindowSeconds: inputProps.renderWindowSeconds,
-        renderWindowSource: hasVideo ? 'custom-ai-reel-m2' : hasAudio ? 'custom-ai-reel-m3' : 'custom-ai-reel-m1',
-        planningMediaSource: hasVideo ? 'uploaded-video' : hasAudio ? 'uploaded-audio' : hasMedia ? 'uploaded-images' : 'text-only',
-        customAiTimeline: customPlan,
-        access,
-        retentionHours: 48,
-        note: `Custom AI Reel render: video=${hasVideo} audio=${hasAudio} subtitles=${customAiSubtitlesEnabled}`,
-        _renderVersion: 'v2026-06-30-custom-ai-reel-m2m3',
-      });
-    }
-    if (mode === 'creatorBackgroundReplace') {
-      if (!contentType.startsWith('video/')) {
-        return NextResponse.json({ok: false, error: 'Creator Background Replace requires a creator video upload.'}, {status: 400});
-      }
-      if (!creatorBackgroundImageUrl) {
-        return NextResponse.json({ok: false, error: 'Creator Background Replace requires one background image.'}, {status: 400});
-      }
-      const workerStatus = await verifyCreatorBackgroundReplaceWorkerReady();
-      if (!workerStatus.ok) {
-        console.error('[CREATOR_BACKGROUND_REPLACE] Worker preflight failed:', {
-          mode: workerStatus.mode,
-          reasonCode: workerStatus.reasonCode,
-          detail: workerStatus.detail || workerStatus.message,
-          retryable: workerStatus.retryable,
-        });
-        const reasonCode = workerStatus.reasonCode || 'BACKGROUND_REPLACE_WORKER_NOT_READY';
-        return NextResponse.json(
-          {
-            ok: false,
-            status: 'failed',
-            reasonCode,
-            error: 'Background Replace Video is temporarily unavailable. Please try again later or choose another video type.',
-            _founderDiagnostics: {
-              step: 'creator-background-replace-preflight',
-              reason: workerStatus.mode,
-              detail: workerStatus.detail || workerStatus.message || '',
-              retryable: Boolean(workerStatus.retryable),
-              mode,
-              templateName,
-              compositionId: composition,
-            },
-          },
-          {status: 503},
-        );
-      }
-
-      const durationSeconds = Math.max(1, Math.min(MAX_RENDER_WINDOW_SECONDS, Number(body.durationSeconds) || MAX_RENDER_WINDOW_SECONDS));
-      try {
-        const processed = await processCreatorBackgroundReplace({
-          backgroundImageUrl: creatorBackgroundImageUrl,
-          creatorVideoUrl: mediaUrl,
-          durationSeconds,
-          fileName,
-          settings: {
-            backgroundFit: readString(body.backgroundFit) === 'contain' ? 'contain' : 'cover',
-            backgroundScale: readFiniteNumber(body.backgroundScale, 1),
-            backgroundX: readFiniteNumber(body.backgroundX, 0),
-            backgroundY: readFiniteNumber(body.backgroundY, 0),
-            creatorScale: readFiniteNumber(body.creatorScale, 1),
-            creatorX: readFiniteNumber(body.creatorX, 0),
-            creatorY: readFiniteNumber(body.creatorY, 0),
-          },
-          userId,
-        });
-        const reelTitle = topicTitle || titleFromFile(fileName) || 'Creator Background Replace';
-        return NextResponse.json({
-          ok: true,
-          status: 'ready',
-          renderId: processed.renderId,
-          bucketName: processed.bucket,
-          outputFile: processed.outputUrl,
-          outName: processed.key,
-          mediaKey,
-          reelTitle,
-          design: 'creatorBackgroundReplace',
-          mode,
-          templateName,
-          transcriptSource: 'not-required',
-          mediaTrimStartSeconds: 0,
-          renderWindowSeconds: processed.durationSeconds,
-          renderWindowSource: 'background-replace-worker',
-          access,
-          retentionHours: 48,
-          note: 'Creator background replacement finished with the Python/FFmpeg worker.',
-        });
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Background replacement worker failed.';
-        console.error('[CREATOR_BACKGROUND_REPLACE] Worker failed:', message);
-        const workerNotReady = /not ready|temporarily unavailable|health|timeout|timed out|unavailable|connection|econnrefused|fetch failed/i.test(message);
-        return NextResponse.json(
-          {
-            ok: false,
-            status: 'failed',
-            reasonCode: workerNotReady ? 'BACKGROUND_REPLACE_WORKER_NOT_READY' : 'BACKGROUND_REPLACE_WORKER_FAILED',
-            error: workerNotReady
-              ? 'Background Replace Video is temporarily unavailable. Please try again later or choose another video type.'
-              : sanitizeUserFacingStatus(message),
-            _founderDiagnostics: {
-              step: 'creator-background-replace-worker',
-              reason: message,
-              mode,
-              templateName,
-              compositionId: composition,
-            },
-          },
-          {status: 500},
-        );
-      }
-    }
-
     const config = readLambdaConfig();
     if (!config.ok) return NextResponse.json({ok: false, error: config.error}, {status: 503});
 
@@ -802,6 +493,9 @@ export async function POST(request: Request) {
 
     const compareLeftTitleValue = readString(body.compareLeftTitle || body.leftTitle || body.leftLabel) || 'Left';
     const compareRightTitleValue = readString(body.compareRightTitle || body.rightTitle || body.rightLabel) || 'Right';
+    const captionStyleValue = readString(body.captionStyle) || 'Studio Clean';
+    const captionPreset = getSubtitlePreset(captionStyleValue);
+    const captionBackgroundColorValue = readString(body.captionBackgroundColor);
 
     const music = selectBackgroundMusic({
       topicTitle: topicTitle || titleFromTranscript(transcription.transcript) || titleFromFile(fileName),
@@ -818,44 +512,8 @@ export async function POST(request: Request) {
         ? { topicTitle: plan.renderProps?.topicTitle, captions: plan.renderProps?.captions }
         : (plan.renderProps || {})),
       mediaSrc: planningMedia.mediaUrl,
-      ...(mode === 'autoDraw'
-        ? await (async () => {
-            const captions = buildCompareCaptionsFromGroq(renderWindow);
-            const result = await generateAutoDrawScenes({
-              transcript: renderWindow.transcript,
-              captions,
-              overlayTimeline: (plan.renderProps?.overlayTimeline || []).map((o: any) => ({start: o.start, end: o.end, text: o.text, body: o.body, type: o.type})),
-              topicTitle: plan.renderProps?.topicTitle || topicTitle || '',
-              durationSeconds: renderWindow.durationSeconds,
-            });
-            console.log('[AUTO_DRAW] RENDER_PROPS_DEBUG', {
-              totalPagesGenerated: result.notesPlan.pages.length,
-              totalElementsGenerated: result.notesPlan.elements.length,
-              hiddenElementsCount: result.notesPlan.elements.filter((element) => element.revealStart > 0).length,
-              revealTimelineCount: result.notesPlan.revealTimeline.length,
-              transcriptSegmentMapping: result.notesPlan.transcriptSegmentMapping.map((mapping) => ({
-                segmentIndex: mapping.segmentIndex,
-                time: `${mapping.start.toFixed(2)}-${mapping.end.toFixed(2)}`,
-                elementCount: mapping.elementIds.length,
-                sample: mapping.text.slice(0, 48),
-              })),
-            });
-            return {
-              // Build a full notes layout up front; Remotion only reveals prepared elements.
-              audioUrl: planningMedia.mediaUrl,
-              scenes: result.scenes,
-              notesPlan: result.notesPlan,
-              captions,
-              showDebugPanel: body.debugAutoDraw === true || body.showDebugPanel === true,
-              showDebugControls: body.debugAutoDraw === true || body.showDebugControls === true,
-              debugPlaybackSpeed: [0.5, 1, 1.5, 2].includes(Number(body.debugPlaybackSpeed))
-                ? Number(body.debugPlaybackSpeed)
-                : 1,
-            };
-          })()
-        : {}),
       ...(mode === 'compare'
-        ? (() => {
+        ? await (async () => {
             const finalCaptions = previewCaptions
               ? previewCaptions.map((c) => ({start: Number(c.start), end: Number(c.end), text: String(c.text), words: Array.isArray(c.words) ? c.words : undefined}))
               : buildCompareCaptionsFromGroq(renderWindow);
@@ -882,6 +540,20 @@ export async function POST(request: Request) {
               compareLeftTitleValue,
               compareRightTitleValue,
             );
+
+            // ── AI Sticker Planner: overrides keyword-based poses with intentional AI-planned ones ──
+            const stickerPlanResult = await planCompareStickers({
+              transcript: renderWindow.transcript,
+              segments: finalCaptions.map((c) => ({ start: c.start, end: c.end, text: c.text })),
+              leftTitle: compareLeftTitleValue,
+              rightTitle: compareRightTitleValue,
+              durationSeconds: renderWindow.durationSeconds,
+            });
+
+            // Apply AI plan poses to the overlay timeline
+            const aiPlannedOverlayTimeline = applyStickerPlanToOverlays(finalOverlayTimeline, stickerPlanResult.plan);
+            console.log('[COMPARE_STICKER_PLANNER]', { source: stickerPlanResult.source, poseCount: stickerPlanResult.plan.length, overlayCount: aiPlannedOverlayTimeline.length });
+
             return {
             audioUrl: planningMedia.mediaUrl,
             mediaUrl: planningMedia.mediaUrl,
@@ -900,7 +572,7 @@ export async function POST(request: Request) {
             imageSources: comparisonImageUrls,
             captions: finalCaptions,
             transcriptSegments: finalCaptions,
-            overlayTimeline: finalOverlayTimeline,
+            overlayTimeline: aiPlannedOverlayTimeline,
           };
           })()
         : {}),
@@ -937,180 +609,46 @@ export async function POST(request: Request) {
             };
           })()
         : {}),
-      ...(templateName === 'DYNAMIC_CREATOR_REEL'
-        ? (() => {
-            const totalDuration = renderWindow.durationSeconds || transcription.durationSeconds || MAX_RENDER_WINDOW_SECONDS;
-            const rawCaptions = previewCaptions
-              ? previewCaptions.map((c) => ({start: Number(c.start), end: Number(c.end), text: String(c.text), words: Array.isArray(c.words) ? c.words as Array<{word: string; start: number; end: number}> : undefined}))
-              : buildCompareCaptionsFromGroq(renderWindow);
-            const finalCaptions = rawCaptions.length > 0
-              ? rawCaptions
-              : (plan.renderProps?.captions || []).map((c: any) => ({
-                  start: Number(c.start ?? 0),
-                  end: Number(c.end ?? (c.start ?? 0) + 2.5),
-                  text: String(c.text || ''),
-                  words: c.words,
-                })).filter((c: any) => c.text);
-
-            // Build text-only creator scenes from captions, covering the FULL video duration.
-            // Dynamic Creator intentionally uses only the uploaded creator video and typography.
-            type DynamicScene = {
-              type: 'creator_face' | 'typography' | 'key_point';
-              start: number;
-              end: number;
-              text?: string;
-              highlightWord?: string;
-              caption?: string;
-              zoom?: number;
-            };
-
-            const scenes: DynamicScene[] = [];
-
-            if (finalCaptions.length === 0) {
-              // No captions at all — single full-duration creator_face (emergency only)
-              console.warn('[DYNAMIC_CREATOR_REEL] No captions found — using single creator_face fallback');
-              scenes.push({ type: 'creator_face', start: 0, end: totalDuration, zoom: 1 });
-            } else {
-              // 1. Hook typography scene — first 2s using first caption text
-              const firstCap = finalCaptions[0];
-              // If first caption starts at 0 (pure-text fallback), don't push a hook that overlaps it.
-              // hookEnd is clamped: min 1.5s if there's room, else skip hook entirely.
-              const firstCapStart = Number(firstCap.start ?? 0);
-              const hookEnd = firstCapStart >= 1.5
-                ? Math.min(firstCapStart, 2.5)
-                : firstCapStart >= 0.3
-                  ? firstCapStart  // short lead-in, use it
-                  : 0; // caption starts at/near 0 — no hook scene, go straight to creator_face
-
-              if (hookEnd > 0.2) {
-                const hookText = firstCap.text.split(' ').slice(0, 5).join(' ');
-                scenes.push({
-                  type: 'typography',
-                  start: 0,
-                  end: hookEnd,
-                  text: hookText,
-                  highlightWord: hookText.split(' ').slice(-1)[0],
-                });
-              }
-
-              // 2. Build creator_face scenes per caption, with text-only emphasis inserts in large gaps
-              let emphasisCounter = 0;
-              for (let i = 0; i < finalCaptions.length; i++) {
-                const cap = finalCaptions[i];
-                // capStart must not overlap previous scene
-                const prevSceneEnd = scenes.length > 0 ? scenes[scenes.length - 1].end : 0;
-                // Use the actual caption start, but never go backwards
-                const capStart = Math.max(prevSceneEnd, Number(cap.start ?? 0));
-                const capEnd = Math.max(capStart + 0.3, Number(cap.end ?? capStart + 2.5));
-
-                // Fill gap > 1.5s between previous scene and this caption with a variety scene
-                const gap = capStart - prevSceneEnd;
-                if (gap > 1.5 && i > 0) {
-                  const prevCap = finalCaptions[i - 1];
-                  const gapText = prevCap.text.split(' ').slice(0, 7).join(' ');
-                  const gapType = emphasisCounter % 2 === 0 ? 'key_point' : 'typography';
-                  emphasisCounter++;
-                  scenes.push({ type: gapType, start: prevSceneEnd, end: capStart, text: gapText });
-                } else if (gap > 0.03 && scenes.length > 0) {
-                  // Sub-1.5s gap — extend previous scene to close it cleanly
-                  scenes[scenes.length - 1].end = capStart;
-                }
-
-                // Creator face for this caption — vary zoom per caption index
-                scenes.push({
-                  type: 'creator_face',
-                  start: capStart,
-                  end: capEnd,
-                  zoom: i % 3 === 0 ? 1.0 : i % 3 === 1 ? 1.08 : 1.14,
-                });
-              }
-
-              // 3. Fill tail: after last caption → content until totalDuration (never black)
-              const lastScene = scenes[scenes.length - 1];
-              if (lastScene && lastScene.end < totalDuration - 0.05) {
-                const tailStart = lastScene.end;
-                const tailDuration = totalDuration - tailStart;
-
-                if (tailDuration > 5.0) {
-                  // Long tail: typography then final creator_face
-                  const ctaSplit = tailStart + tailDuration * 0.35;
-                  const midCap = finalCaptions[Math.floor(finalCaptions.length / 2)];
-                  const ctaText = midCap && midCap.text.split(' ').length >= 3
-                    ? midCap.text.split(' ').slice(0, 5).join(' ')
-                    : 'Follow for more';
-                  scenes.push({
-                    type: 'typography',
-                    start: tailStart,
-                    end: ctaSplit,
-                    text: ctaText,
-                    highlightWord: ctaText.split(' ')[0],
-                  });
-                  scenes.push({ type: 'creator_face', start: ctaSplit, end: totalDuration, zoom: 1.0 });
-                } else if (tailDuration > 2.0) {
-                  // Medium tail: text emphasis with last caption text
-                  scenes.push({
-                    type: 'key_point',
-                    start: tailStart,
-                    end: totalDuration,
-                    text: finalCaptions[finalCaptions.length - 1]?.text || '',
-                  });
-                } else {
-                  // Short tail (<2s): just extend last scene to avoid micro-gap
-                  lastScene.end = totalDuration;
-                }
-              }
-
-              // 4. Safety sweep — ALWAYS runs, catches any remaining issues
-              // a. Pin first scene to start exactly at 0
-              if (scenes[0]) scenes[0].start = 0;
-              // b. Pin last scene to end exactly at totalDuration
-              if (scenes[scenes.length - 1]) scenes[scenes.length - 1].end = totalDuration;
-              // c. Remove zero/negative duration scenes
-              const validScenes = scenes.filter(s => (s.end - s.start) > 0.03);
-              // d. Gap detector — fill ANY uncovered range with creator_face
-              const covered: DynamicScene[] = [];
-              for (const scene of validScenes) {
-                const prevEnd = covered.length > 0 ? covered[covered.length - 1].end : 0;
-                if (scene.start > prevEnd + 0.05) {
-                  covered.push({ type: 'creator_face', start: prevEnd, end: scene.start, zoom: 1.0 });
-                }
-                covered.push(scene);
-              }
-              // e. Final tail gap
-              const lastCovered = covered[covered.length - 1];
-              if (lastCovered && lastCovered.end < totalDuration - 0.05) {
-                covered.push({ type: 'creator_face', start: lastCovered.end, end: totalDuration, zoom: 1.0 });
-              }
-              // f. If safety sweep produced empty result, guarantee at least full creator_face
-              if (covered.length === 0) {
-                covered.push({ type: 'creator_face', start: 0, end: totalDuration, zoom: 1.0 });
-              }
-              scenes.length = 0;
-              scenes.push(...covered);
-            }
-
-            console.log('[DYNAMIC_CREATOR_REEL] scenes built:', {
-              totalDuration,
-              captionsCount: finalCaptions.length,
-              scenesCount: scenes.length,
-              sceneTypes: scenes.map(s => s.type).join(','),
-              firstSceneTime: scenes[0] ? `${scenes[0].start.toFixed(2)}s–${scenes[0].end.toFixed(2)}s (${scenes[0].type})` : 'none',
-              lastSceneTime: scenes[scenes.length - 1] ? `${scenes[scenes.length - 1].start.toFixed(2)}s–${scenes[scenes.length - 1].end.toFixed(2)}s (${scenes[scenes.length - 1].type})` : 'none',
-              coverageCheck: (() => {
-                let covered = 0;
-                for (const s of scenes) covered += Math.max(0, s.end - s.start);
-                return `${covered.toFixed(2)}s / ${totalDuration.toFixed(2)}s`;
-              })(),
-              source: previewScenes ? 'preview-edited' : 'freshly-built',
+      ...(mode === 'whiteboardVideo'
+        ? await (async () => {
+            const wbCaptions = buildCompareCaptionsFromGroq(renderWindow);
+            const wbPlan = await planWhiteboardVideo({
+              transcript: renderWindow.transcript,
+              segments: wbCaptions.map((c) => ({ start: c.start, end: c.end, text: c.text })),
+              durationSeconds: renderWindow.durationSeconds,
+              topicTitle: topicTitle || undefined,
             });
-
+            console.log('[WHITEBOARD_PLANNER]', { source: wbPlan.source, title: wbPlan.title, pointCount: wbPlan.points.length });
             return {
-              scenes: previewScenes ? previewScenes : scenes,
-              captions: finalCaptions,
-              durationSeconds: totalDuration,
-              accentColor: readString(body.accentColor) || '#2563EB',
-              backgroundMusic: false,
-              backgroundMusicSrc: '',
+              title: wbPlan.title,
+              titleColor: wbPlan.titleColor,
+              points: wbPlan.points,
+              conclusion: wbPlan.conclusion,
+              conclusionTime: wbPlan.conclusionTime,
+              captions: wbCaptions,
+              durationSeconds: renderWindow.durationSeconds,
+              transcript: renderWindow.transcript,
+              overlayTimeline: [],
+              assetTimeline: [],
+            };
+          })()
+        : {}),
+      ...(mode === 'typographyVideo'
+        ? (() => {
+            const typoCaptions = buildCompareCaptionsFromGroq(renderWindow);
+            const typoPlan = planTypographyVideo({
+              transcript: renderWindow.transcript,
+              words: (renderWindow.words || []).map((w: any) => ({ word: String(w.word), start: Number(w.start), end: Number(w.end) })),
+              segments: typoCaptions.map((c) => ({ start: c.start, end: c.end, text: c.text })),
+              durationSeconds: renderWindow.durationSeconds,
+            });
+            console.log('[TYPOGRAPHY_PLANNER]', { keywordCount: typoPlan.keywords.length });
+            return {
+              keywords: typoPlan.keywords,
+              typographyStyle: readString(body.typographyStyle) || 'silver-chrome',
+              captions: typoCaptions,
+              durationSeconds: renderWindow.durationSeconds,
+              transcript: renderWindow.transcript,
               overlayTimeline: [],
               assetTimeline: [],
             };
@@ -1118,15 +656,17 @@ export async function POST(request: Request) {
         : {}),
       mediaType,
       mediaFit: templateConfig.mediaFit,
-      captionStyle: readString(body.captionStyle) || 'Studio Clean',
+      captionStyle: captionStyleValue,
       captionPosition: readString(body.captionPosition) || 'bottom',
-      fontFamily: readString(body.captionFontFamily || body.fontFamily) || undefined,
-      fontSize: readString(body.captionFontSize || body.fontSize) || 'large',
+      fontFamily: readString(body.captionFontFamily || body.fontFamily) || captionPreset?.fontFamily || undefined,
+      fontSize: readString(body.captionFontSize || body.fontSize) || captionPreset?.fontSize || 'large',
       subtitleOutputLanguage: normalizeSubtitleLanguage(readString(body.subtitleOutputLanguage)) || '',
-      textColor: readString(body.captionTextColor) || '#ffffff',
-      highlightColor: readString(body.captionHighlightColor) || '#facc15',
-      backgroundColor: readString(body.captionBackgroundColor) || '#18181B',
-      showBackground: body.captionShowBackground !== false,
+      textColor: readString(body.captionTextColor) || captionPreset?.textColor || '#ffffff',
+      highlightColor: readString(body.captionHighlightColor) || captionPreset?.highlightColor || '#facc15',
+      backgroundColor: captionBackgroundColorValue || captionPreset?.backgroundColor || '#18181B',
+      showBackground: typeof body.captionShowBackground === 'boolean'
+        ? body.captionShowBackground
+        : Boolean(captionBackgroundColorValue || captionPreset?.backgroundColor),
       videoLayout: mode === 'autoCaption' ? 'fullscreen' : readString(body.videoLayout) || 'fullscreen',
       progressStyle: mode === 'autoCaption' ? 'none' : readString(body.progressStyle) || 'glow',
       wordClickSound: mode === 'autoCaption' ? false : body.wordClickSound !== false,
@@ -1626,6 +1166,8 @@ async function startRenderWithCapacityRetry(request: LambdaRenderRequest) {
     request,
     {...request, concurrency: undefined, framesPerLambda: retryFramesPerLambda, maxRetries: 1},
     {...request, concurrency: 2, framesPerLambda: undefined, maxRetries: 1},
+    // Extra attempt: minimal concurrency, generous framesPerLambda
+    {...request, concurrency: 1, framesPerLambda: undefined, maxRetries: 1},
   ];
   let lastError: unknown;
 
@@ -1637,7 +1179,8 @@ async function startRenderWithCapacityRetry(request: LambdaRenderRequest) {
       if (!isTemporaryRenderCapacityError(error) || index === attempts.length - 1) {
         throw error;
       }
-      await sleep(3500 * (index + 1));
+      // Progressive backoff: 4s, 8s, 14s
+      await sleep([4000, 8000, 14000][index] ?? 14000);
     }
   }
 
@@ -2255,6 +1798,43 @@ function pickComparePoseForStableBeat(textValue: string, index: number, total: n
   return 'sticker_success_conclusion_explainer';
 }
 
+/**
+ * Apply AI-planned sticker poses to the overlay timeline.
+ * For each overlay, find which AI plan segment covers its midpoint and assign that pose.
+ */
+function applyStickerPlanToOverlays(
+  overlays: Array<Record<string, unknown>>,
+  stickerPlan: Array<{start: number; end: number; pose: string}>,
+): Array<Record<string, unknown>> {
+  if (!stickerPlan.length) return overlays;
+
+  return overlays.map((overlay) => {
+    const overlayStart = Number(overlay.start || 0);
+    const overlayEnd = Number(overlay.end || overlayStart + 2);
+    const midpoint = (overlayStart + overlayEnd) / 2;
+
+    // Find the AI plan segment that covers this overlay's midpoint
+    const matchingPlan = stickerPlan.find((seg) => midpoint >= seg.start && midpoint <= seg.end);
+    if (matchingPlan) {
+      return { ...overlay, stickerPose: matchingPlan.pose, pose: matchingPlan.pose };
+    }
+
+    // Fallback: find the nearest plan segment if exact match fails
+    let nearest = stickerPlan[0];
+    let nearestDist = Infinity;
+    for (const seg of stickerPlan) {
+      const segMid = (seg.start + seg.end) / 2;
+      const dist = Math.abs(midpoint - segMid);
+      if (dist < nearestDist) { nearest = seg; nearestDist = dist; }
+    }
+    if (nearest && nearestDist < 10) {
+      return { ...overlay, stickerPose: nearest.pose, pose: nearest.pose };
+    }
+
+    return overlay;
+  });
+}
+
 function buildCompareCaptionsFromGroq(renderWindow: {
   transcript: string;
   words?: ReelWord[];
@@ -2538,18 +2118,18 @@ function toMode(value: string): ReelMode | null {
   const normalized = value.toLowerCase();
   if (normalized.includes('compare') || normalized.includes('comparison') || normalized === 'vs') return 'compare';
   if (normalized.includes('long-video') || normalized.includes('longvideo') || normalized.includes('promo')) return 'longVideoPromo';
-  if (normalized.includes('dynamic-creator') || normalized.includes('dynamiccreator') || normalized.includes('dynamic-reel') || normalized.includes('dynamicreel')) return 'dynamicCreator';
-  if (normalized.includes('creator-background') || normalized.includes('creatorbackground') || normalized.includes('background-replace') || normalized.includes('backgroundreplace') || normalized.includes('videobackgroundimage')) return 'creatorBackgroundReplace';
-  if (normalized.includes('custom-ai') || normalized.includes('customai') || normalized.includes('custom-reel') || normalized.includes('customreel')) return 'customAiReel';
+  if (normalized.includes('whiteboard') || normalized.includes('white-board')) return 'whiteboardVideo';
+  if (normalized.includes('typography') || normalized.includes('typo-video') || normalized.includes('bold-reel')) return 'typographyVideo';
   if (normalized.includes('auto-caption') || normalized.includes('autocaption')) return 'autoCaption';
   if (normalized.includes('caption') || normalized.includes('subtitle')) return 'autoCaption';
-  if (normalized.includes('auto-draw') || normalized.includes('autodraw') || normalized.includes('whiteboard')) return 'autoDraw';
   return null;
 }
 
 function getUploadedMediaType({mode, contentType}: {mode: ReelMode; contentType: string}): 'audio' | 'video' | 'image' {
   if (mode === 'autoCaption') return 'video';
   if (mode === 'compare') return 'audio';
+  if (mode === 'whiteboardVideo') return contentType.startsWith('video/') ? 'video' : 'audio';
+  if (mode === 'typographyVideo') return 'video';
   return contentType.startsWith('audio/') ? 'audio' : 'video';
 }
 
@@ -2697,14 +2277,12 @@ function validateBeforeRender({
   return null;
 }
 
-function humanTemplateName(templateName: ReelTemplateName) {
+function humanTemplateName(templateName: string) {
   if (templateName === 'AUTO_CAPTION_REEL') return 'Auto Caption Video';
-  if (templateName === 'AUTO_DRAW_EXPLAINER') return 'Auto Draw Explainer Video';
   if (templateName === 'LONG_VIDEO_PROMO') return 'Long Video Promo';
-  if (templateName === 'DYNAMIC_CREATOR_REEL') return 'Creator Reel Video';
-  if (templateName === 'CREATOR_BACKGROUND_REPLACE') return 'Background Replace Video';
-  if (templateName === 'CUSTOM_AI_REEL') return 'Custom AI Reel';
   if (templateName === 'comparisonImages') return 'Compare Explainer Video';
+  if (templateName === 'WHITEBOARD_VIDEO') return 'Whiteboard Video';
+  if (templateName === 'TYPOGRAPHY_VIDEO') return 'Typography Video';
   return 'Itnavideo Reel';
 }
 

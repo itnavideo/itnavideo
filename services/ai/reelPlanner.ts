@@ -59,11 +59,9 @@ export type ReelTimelineScene = {
 export type ReelTemplateName =
   | 'AUTO_CAPTION_REEL'
   | 'comparisonImages'
-  | 'AUTO_DRAW_EXPLAINER'
   | 'LONG_VIDEO_PROMO'
-  | 'DYNAMIC_CREATOR_REEL'
-  | 'CREATOR_BACKGROUND_REPLACE'
-  | 'CUSTOM_AI_REEL'
+  | 'WHITEBOARD_VIDEO'
+  | 'TYPOGRAPHY_VIDEO'
   | 'VIDEO_EXPLAINER'
   | 'VIDEO_SIMPLE_EXPLAINER'
   | 'VIDEO_CAPTION'
@@ -101,14 +99,6 @@ export const REEL_TEMPLATE_REGISTRY: Partial<Record<ReelTemplateName, ReelTempla
     plannerMode: 'compare',
     mediaFit: 'compare',
   },
-  AUTO_DRAW_EXPLAINER: {
-    templateName: 'AUTO_DRAW_EXPLAINER',
-    compositionId: 'AUTO-DRAW-EXPLAINER',
-    allowedMedia: ['audio', 'video'],
-    transcriptRequirement: 'required',
-    plannerMode: 'videoExplainer',
-    mediaFit: 'videoExplainer',
-  },
   LONG_VIDEO_PROMO: {
     templateName: 'LONG_VIDEO_PROMO',
     compositionId: 'LONG-VIDEO-PROMO',
@@ -117,29 +107,21 @@ export const REEL_TEMPLATE_REGISTRY: Partial<Record<ReelTemplateName, ReelTempla
     plannerMode: 'videoCaption',
     mediaFit: 'videoCaption',
   },
-  DYNAMIC_CREATOR_REEL: {
-    templateName: 'DYNAMIC_CREATOR_REEL',
-    compositionId: 'DYNAMIC-CREATOR-REEL',
-    allowedMedia: ['video'],
+  WHITEBOARD_VIDEO: {
+    templateName: 'WHITEBOARD_VIDEO',
+    compositionId: 'WHITEBOARD-VIDEO',
+    allowedMedia: ['audio', 'video'],
     transcriptRequirement: 'required',
     plannerMode: 'videoCaption',
     mediaFit: 'videoCaption',
   },
-  CREATOR_BACKGROUND_REPLACE: {
-    templateName: 'CREATOR_BACKGROUND_REPLACE',
-    compositionId: 'CREATOR-BACKGROUND-REPLACE',
+  TYPOGRAPHY_VIDEO: {
+    templateName: 'TYPOGRAPHY_VIDEO',
+    compositionId: 'TYPOGRAPHY-VIDEO',
     allowedMedia: ['video'],
-    transcriptRequirement: 'not-required',
+    transcriptRequirement: 'required',
     plannerMode: 'videoCaption',
     mediaFit: 'videoCaption',
-  },
-  CUSTOM_AI_REEL: {
-    templateName: 'CUSTOM_AI_REEL',
-    compositionId: 'CUSTOM-AI-REEL',
-    allowedMedia: ['image', 'video', 'audio'],
-    transcriptRequirement: 'not-required',
-    plannerMode: 'imageStory',
-    mediaFit: 'imageStory',
   },
 } as const satisfies Record<string, {
   templateName: ReelTemplateName;
@@ -374,7 +356,7 @@ export async function createReelPlan(input: ReelPlanRequest): Promise<ReelPlanRe
   const localPlan = await createLocalReelPlan(input);
 
   // Skip OpenAI managed planner for templates that only need captions/simple layout
-  const skipManagedPlanner = ['AUTO_CAPTION_REEL', 'AUTO_DRAW_EXPLAINER', 'LONG_VIDEO_PROMO', 'DYNAMIC_CREATOR_REEL'].includes(localPlan.templateName);
+  const skipManagedPlanner = ['AUTO_CAPTION_REEL', 'LONG_VIDEO_PROMO'].includes(localPlan.templateName);
 
   if (input.dryRun || !process.env.OPENAI_API_KEY || getMaxOpenAiCallsPerRender() < 1 || skipManagedPlanner) {
     return validateAndRepairReelPlan(localPlan);
@@ -568,7 +550,7 @@ export function validateAndRepairReelPlan(plan: ReelPlanResult): ReelPlanResult 
     ? autoCaptionAllowed
     : plan.templateName === 'IMAGE_STORY'
       ? imageStoryAllowed
-      : plan.templateName === 'LONG_VIDEO_PROMO' || plan.templateName === 'DYNAMIC_CREATOR_REEL' || plan.templateName === 'AUTO_DRAW_EXPLAINER'
+      : plan.templateName === 'LONG_VIDEO_PROMO'
         ? true
         : overlayTimeline.length > 0;
   const renderAllowed = transcriptSceneAllowed &&
@@ -1692,10 +1674,7 @@ function getTemplateName(value?: string): ReelTemplateName | null {
   // Keyword fallbacks for common short names
   if (normalized.includes('compare') || normalized.includes('comparison') || /\bvs\b/.test(normalized)) return 'comparisonImages';
   if (normalized.includes('autocaption') || normalized.includes('auto-caption')) return 'AUTO_CAPTION_REEL';
-  if (normalized.includes('autodraw') || normalized.includes('whiteboard')) return 'AUTO_DRAW_EXPLAINER';
   if (normalized.includes('longvideo') || normalized.includes('promo')) return 'LONG_VIDEO_PROMO';
-  if (normalized.includes('dynamiccreator') || normalized.includes('dynamicreel')) return 'DYNAMIC_CREATOR_REEL';
-  if (normalized.includes('creatorbackground') || normalized.includes('backgroundreplace') || normalized.includes('videobackgroundimage')) return 'CREATOR_BACKGROUND_REPLACE';
   if (normalized.includes('caption') || normalized.includes('subtitle')) return 'AUTO_CAPTION_REEL';
 
   // SAFETY: Do NOT silently fallback to Video Explainer.

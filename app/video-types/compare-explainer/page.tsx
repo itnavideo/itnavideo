@@ -5,6 +5,9 @@ import { ArrowRight, Check, Sparkles } from "lucide-react";
 export const metadata: Metadata = {
   title: "Compare Explainer Video Maker — Side-by-Side Reels | Itnavideo",
   description: "Create comparison reels with left vs right panels, voiceover subtitles, and sticker presenters. Perfect for education, finance, and career explainers.",
+  alternates: {
+    canonical: "/compare-explainer",
+  },
   openGraph: {
     title: "Compare Explainer Video Maker — Side-by-Side Reels | Itnavideo",
     description: "Create comparison reels with left vs right panels, voiceover subtitles, and sticker presenters. Perfect for education, finance, and career explainers.",
@@ -23,11 +26,11 @@ const jsonLd = {
   name: "Compare Explainer — Itnavideo",
   applicationCategory: "VideoEditor",
   operatingSystem: "Web",
-  url: "https://www.itnavideo.com/video-types/compare-explainer",
+  url: "https://www.itnavideo.com/compare-explainer",
   description: "Create comparison reels with left vs right panels, voiceover subtitles, and sticker presenters. Perfect for education, finance, and career explainers.",
   offers: {
     "@type": "Offer",
-    priceCurrency: "USD",
+    priceCurrency: "INR",
     price: "9",
     availability: "https://schema.org/InStock",
   },
@@ -115,7 +118,7 @@ export default function CompareExplainerPage() {
       <section className="px-4 pb-20 sm:px-6">
         <div className="mx-auto max-w-3xl rounded-lg p-6 text-center" style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border-dark)', borderRadius: '12px' }}>
           <p className="text-sm leading-6" style={{ color: 'var(--text-dark-secondary)' }}>
-            All plans include all 6 production video types. No video types locked behind higher tiers. Plans start at $9/month.
+            All video types are available on every plan. No features locked behind higher tiers. Pay only per video, starting at ₹9.
           </p>
           <Link href="/pricing" className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold transition hover:opacity-80" style={{ color: 'var(--color-primary-hover)' }}>
             View pricing <ArrowRight size={14} />

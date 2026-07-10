@@ -148,7 +148,7 @@ export function createPremiumSoundCues({
 
   const source = timeline.length ? timeline : captions;
   const cues: PremiumSoundCue[] = [];
-  const maxCues = templateName === 'DYNAMIC_CREATOR_REEL' ? 12 : 18;
+  const maxCues = 18;
   const patternCueReserve = durationSeconds > 12 ? Math.min(4, Math.floor(durationSeconds / Math.max(4.5, styleLock.pacing.patternInterruptEverySeconds || 6))) : 1;
   const sourceCueLimit = Math.max(5, maxCues - patternCueReserve - 1);
 
@@ -187,9 +187,7 @@ export function soundCueSrc(type: PremiumSoundCueType) {
 }
 
 function detectStyleId(text: string, templateName?: ReelTemplateName): PremiumStyleId {
-  if (templateName === 'AUTO_DRAW_EXPLAINER') return 'education-clean';
   if (templateName === 'LONG_VIDEO_PROMO') return 'luxury-premium';
-  if (templateName === 'DYNAMIC_CREATOR_REEL') return 'creator-energetic';
 
   if (/\b(rbi|sbi|bank|loan|credit|debit|card|atm|upi|money|finance|invest|stock|market|gold|price|tax|income|rupee|rs|₹)\b/i.test(text)) {
     return 'finance-corporate';

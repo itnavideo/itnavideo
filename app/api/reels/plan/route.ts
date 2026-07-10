@@ -187,10 +187,7 @@ function normalizeTemplate(value: unknown): ReelTemplateName {
   const normalized = (readOptionalString(value) || '').toLowerCase();
   if (normalized.includes('comparisonimages') || normalized.includes('comparison') || /\bvs\b/.test(normalized)) return 'comparisonImages';
   if (normalized.includes('caption') || normalized.includes('subtitle')) return 'AUTO_CAPTION_REEL';
-  if (normalized.includes('draw') || normalized.includes('whiteboard')) return 'AUTO_DRAW_EXPLAINER';
   if (normalized.includes('promo') || normalized.includes('long')) return 'LONG_VIDEO_PROMO';
-  if (normalized.includes('background')) return 'CREATOR_BACKGROUND_REPLACE';
-  if (normalized.includes('dynamic') || normalized.includes('creator')) return 'DYNAMIC_CREATOR_REEL';
   return 'AUTO_CAPTION_REEL';
 }
 

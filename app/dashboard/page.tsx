@@ -4,6 +4,7 @@
 import {StickerStylePicker} from '@/components/compare/StickerStylePicker';
 import {CompareTextFields} from '@/components/compare/CompareTextFields';
 import {CompareImageSlots} from '@/components/compare/CompareImageSlots';
+import {TypographyStylePicker} from '@/components/typography/TypographyStylePicker';
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -33,7 +34,6 @@ import {
   X,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import BrandLogo from "@/components/brand/BrandLogo";
 import { useAuth } from "@/components/auth/AuthContext";
 import { SubtitleStylePicker, SUBTITLE_PRESETS } from "@/components/ui/SubtitleStylePicker";
 import dynamic from "next/dynamic";
@@ -51,7 +51,9 @@ type Mode =
   | "longVideoPromo"
   | "dynamicCreator"
   | "creatorBackgroundReplace"
-  | "customAiReel";
+  | "customAiReel"
+  | "whiteboardVideo"
+  | "typographyVideo";
 type CreatorBackgroundSettings = {
   backgroundFit: "cover" | "contain";
   backgroundScale: number;
@@ -104,13 +106,11 @@ const RENDER_POLL_INTERVAL_MS = 3000;
 const RENDER_POLL_ATTEMPTS = 360;
 
 const videoTypeCards = [
-  { id: "custom-ai-reel", title: "Custom AI Reel", tag: "Custom", description: "Describe your video, upload your media, and let AI build your reel.", image: "/preview/Custom AI Reel.png", badges: ["Prompt", "Images"], proof: "Most Flexible", accent: "#60A5FA", mode: "customAiReel" as const, category: "creator" },
-  { id: "dynamic-creator-reel", title: "Creator Reel Video", tag: "Creator edit", description: "Talking video with premium typography and short-form pacing.", image: "/preview/Dynamic Creator Reel.png", badges: ["Video", "Typography"], proof: "Best first impression", accent: "#38BDF8", mode: "dynamicCreator" as const, category: "creator" },
   { id: "auto-caption-reel", title: "Auto Caption Video", tag: "Captions", description: "Clean word-level captions for existing reels.", image: "/preview/Auto Caption Reel.png", badges: ["Video", "Captions"], proof: "Most used", accent: "#22C55E", mode: "autoCaption" as const, category: "creator" },
-  { id: "creator-background-replace", title: "Background Replace Video", tag: "Background", description: "Upload a creator video and replace the background with your image.", image: "/preview/Background Replace Video.png", badges: ["Video", "Image"], proof: "Coming soon", accent: "#F97316", mode: "creatorBackgroundReplace" as const, category: "creator", comingSoon: true },
-  { id: "compare-explainer", title: "Compare Explainer Video", tag: "Comparison", description: "Left vs right comparison with narration and sticker presenter.", image: "/preview/Compare Explainer.png", badges: ["Audio", "2 Images"], proof: "Decision format", accent: "#F59E0B", mode: "compare" as const, category: "education" },
-  { id: "auto-draw", title: "Auto Draw Explainer Video", tag: "Whiteboard", description: "Voiceover converted into simple drawn explainer scenes.", image: "/preview/Auto Draw Explainer.png", badges: ["Audio", "Whiteboard"], proof: "Explainer format", accent: "#06B6D4", mode: "autoDraw" as const, category: "education" },
-  { id: "long-video-promo", title: "Long Video Promo", tag: "Promo", description: "Short vertical teaser for a long-form video.", image: "/preview/Long Video Promo.png", badges: ["Video", "Thumbnail"], proof: "Promo ready", accent: "#A3E635", mode: "longVideoPromo" as const, category: "creator" },
+  { id: "compare-explainer", title: "Compare Explainer Video", tag: "Comparison", description: "Left vs right comparison with narration and sticker presenter.", image: "/preview/Compare Explainer.png", badges: ["Audio", "2 Images"], proof: "Best for VS", accent: "#F59E0B", mode: "compare" as const, category: "education" },
+  { id: "whiteboard-video", title: "Whiteboard Video", tag: "Whiteboard", description: "AI writes key points on a whiteboard synced to your speech.", image: "/preview/Whiteboard Video.png", badges: ["Audio/Video"], proof: "Educational", accent: "#10B981", mode: "whiteboardVideo" as const, category: "education" },
+  { id: "typography-video", title: "Typography Video", tag: "Typography", description: "Big bold text pops on your video synced to keywords.", image: "/preview/Typography Video.png", badges: ["Video"], proof: "Engaging", accent: "#8B5CF6", mode: "typographyVideo" as const, category: "creator" },
+  { id: "long-video-promo", title: "Long Video Promo", tag: "Promo", description: "Promote your YouTube video as a vertical Short/Reel.", image: "/preview/Long Video Promo.png", badges: ["16:9 Clip", "Thumbnail"], proof: "Promo ready", accent: "#A3E635", mode: "longVideoPromo" as const, category: "creator" },
 ] as const;
 
 const VIDEO_TYPE_CATEGORIES = [
@@ -159,11 +159,11 @@ const modeConfig = {
   longVideoPromo: {
     label: "Long Video Promo",
     title: "Long Video Promo",
-    description: "📹 Upload: Short promo clip (10-60s)\n🖼️ Required: Thumbnail image",
+    description: "📹 Upload: Video clip (10-60s)\n🖼️ Required: Thumbnail image + title",
     accept: "video/*",
-    supported: "MP4, MOV, WEBM",
-    bestResult: "Short promo video clip with thumbnail and title",
-    uploadCta: "📹 Upload promo clip",
+    supported: "MP4, MOV, WEBM • Best with 16:9 clips",
+    bestResult: "10-60s video clip with thumbnail and title",
+    uploadCta: "📹 Upload your video clip",
     icon: Film,
     color: "text-blue-300",
     border: "border-blue-400/30",
@@ -221,6 +221,32 @@ const modeConfig = {
     border: "border-cyan-300/35",
     surface: "bg-cyan-300/[0.08]",
   },
+  whiteboardVideo: {
+    label: "Whiteboard Video",
+    title: "Whiteboard Video",
+    description: "🎙️ Upload: Audio or video with speech\n📝 AI writes key points on a whiteboard",
+    accept: "audio/*,video/*",
+    supported: "MP3, WAV, M4A, MP4, MOV",
+    bestResult: "Clear explanation with distinct points (30-60s)",
+    uploadCta: "🎙️ Upload audio or video",
+    icon: Captions,
+    color: "text-emerald-200",
+    border: "border-emerald-400/30",
+    surface: "bg-emerald-400/[0.08]",
+  },
+  typographyVideo: {
+    label: "Typography Video",
+    title: "Typography Video",
+    description: "📹 Upload: Talking video\n✨ Big bold keywords appear synced to speech",
+    accept: "video/*",
+    supported: "MP4, MOV, WEBM",
+    bestResult: "Talking video with numbers, stats, or strong statements",
+    uploadCta: "📹 Upload your talking video",
+    icon: Film,
+    color: "text-purple-200",
+    border: "border-purple-400/30",
+    surface: "bg-purple-400/[0.08]",
+  },
 } as const;
 
 type ActiveDashboardMode = keyof typeof modeConfig;
@@ -253,7 +279,7 @@ const normalizeCaptionFont = (font: string) => {
 export default function DashboardPage() {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
-  const [mode, setMode] = useState<Mode>("dynamicCreator");
+  const [mode, setMode] = useState<Mode>("autoCaption");
   const [videoTypeCategory, setVideoTypeCategory] = useState<string>("all");
   const [hasUserSelected, setHasUserSelected] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -263,6 +289,7 @@ export default function DashboardPage() {
   const [compareRightTitle, setCompareRightTitle] = useState("");
   const [compareHandle, setCompareHandle] = useState("@itnavideo");
   const [stickerStyle, setStickerStyle] = useState<string>("explainer");
+  const [typographyStyle, setTypographyStyle] = useState<string>("silver-chrome");
   const [captionStyle, setCaptionStyle] = useState<string>("Studio Clean");
   const [captionPosition, setCaptionPosition] = useState<"bottom" | "center" | "top">("bottom");
   const [captionFontFamily, setCaptionFontFamily] = useState("Inter, sans-serif");
@@ -366,8 +393,8 @@ export default function DashboardPage() {
   const paidRemaining = billingEntitlement?.usage?.remaining ?? billingEntitlement?.monthlyVideoLimit;
   const paidLimitComplete = Boolean(billingEntitlement?.active && typeof paidRemaining === "number" && paidRemaining <= 0);
   const isFreeSignupCredit = billingEntitlement?.planId === "free-signup-credit";
-  const creditLabel = isFreeSignupCredit ? "1 Free AI Video Credit" : "Credits this month";
-  const creditResetLabel = isFreeSignupCredit ? "No card needed. Use it for your first AI video." : billingEntitlement?.expiresAt ? `Resets ${formatDate(billingEntitlement.expiresAt)}` : "";
+  const creditLabel = isFreeSignupCredit ? "Your video credit" : "Credits this month";
+  const creditResetLabel = isFreeSignupCredit ? "Create your first video now." : billingEntitlement?.expiresAt && Date.parse(billingEntitlement.expiresAt) < Date.now() + 365 * 24 * 60 * 60 * 1000 ? `Resets ${formatDate(billingEntitlement.expiresAt)}` : "";
   const canPrepareReel = Boolean(
     (mode === "customAiReel" ? customAiPrompt.trim().length >= 12 : selectedFile) &&
     (mode !== "compare" || comparisonFiles.length === 2) &&
@@ -417,7 +444,7 @@ export default function DashboardPage() {
     setCustomAiAudioMeta({});
     setTopicTitle("");
     setJobStatus({state: "idle", message: ""});
-    const nextVideoType = nextMode === "autoCaption" ? "auto-caption-reel" : nextMode === "autoDraw" ? "auto-draw-explainer" : nextMode === "longVideoPromo" ? "long-video-promo" : nextMode === "dynamicCreator" ? "dynamic-creator-reel" : nextMode === "customAiReel" ? "custom-ai-reel" : "compare-explainer";
+    const nextVideoType = nextMode === "autoCaption" ? "auto-caption-reel" : nextMode === "autoDraw" ? "auto-draw-explainer" : nextMode === "longVideoPromo" ? "long-video-promo" : nextMode === "whiteboardVideo" ? "whiteboard-video" : nextMode === "typographyVideo" ? "typography-video" : nextMode === "dynamicCreator" ? "dynamic-creator-reel" : nextMode === "customAiReel" ? "custom-ai-reel" : "compare-explainer";
     window.history.replaceState(null, "", `/dashboard?videoType=${nextVideoType}`);
     // Auto-scroll to upload section on mobile
     setTimeout(() => {
@@ -469,6 +496,14 @@ export default function DashboardPage() {
         : undefined;
       setPromoClipMeta({durationSeconds, mediaAspect});
       URL.revokeObjectURL(url);
+
+      // Note aspect ratio — Long Video Promo works best with landscape but accepts any
+      if (mediaAspect === "portrait") {
+        setJobStatus({
+          state: "idle",
+          message: "",
+        });
+      }
     };
 
     const onError = () => {
@@ -591,35 +626,26 @@ export default function DashboardPage() {
     )}
     <main className="dashboard-safe-wrap min-h-screen max-w-full overflow-x-hidden bg-[#0B1120] px-4 pb-12 pt-20 text-white sm:px-5 md:px-8 md:py-24">
       <div className="mx-auto w-full max-w-6xl overflow-x-hidden">
-        <header className="mb-6 flex flex-col gap-4 border-b border-white/8 pb-6 md:mb-8 lg:flex-row lg:items-center lg:justify-between">
+        <header className="mb-6 flex flex-col gap-4 border-b border-white/8 pb-5 md:mb-8 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
-            <BrandLogo size="md" showTagline />
-            <h1 className="mt-4 tracking-normal" style={{ fontSize: '28px', fontWeight: 600, color: '#FFFFFF' }}>
+            <h1 className="text-2xl font-black tracking-normal text-white sm:text-[28px]">
               Welcome back, {firstName} 👋
             </h1>
+            <p className="mt-1 text-xs text-zinc-500">Pick a video type, upload your content, and get a finished reel.</p>
           </div>
           <div className="flex items-center gap-2">
             <Link
               href="/pricing"
-              className="inline-flex items-center justify-center gap-2 transition hover:opacity-90"
-              style={{
-                background: 'var(--color-amber-dark)',
-                color: 'var(--color-amber)',
-                border: '1px solid rgba(245, 197, 66, 0.3)',
-                fontSize: '12px',
-                fontWeight: 500,
-                borderRadius: '8px',
-                padding: '6px 14px',
-              }}
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-400/30 bg-emerald-500/[0.12] px-3.5 py-2 text-xs font-black text-emerald-300 transition hover:bg-emerald-500/[0.2]"
             >
-              <Sparkles size={14} />
+              <Sparkles size={13} />
               Upgrade
             </Link>
             <Link
               href="#your-videos"
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-xs font-black text-zinc-300 transition hover:bg-white/[0.06]"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3.5 py-2 text-xs font-bold text-zinc-400 transition hover:bg-white/[0.06] hover:text-white"
             >
-              <FolderOpen size={14} />
+              <FolderOpen size={13} />
               Your Videos
             </Link>
             <button
@@ -627,8 +653,9 @@ export default function DashboardPage() {
                 await logout();
                 router.push("/");
               }}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-3 py-2.5 text-xs font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white"
+              className="inline-flex items-center justify-center rounded-lg border border-white/10 px-2.5 py-2 text-xs text-zinc-500 transition hover:bg-white/5 hover:text-white"
               type="button"
+              aria-label="Logout"
             >
               <LogOut size={14} />
             </button>
@@ -636,62 +663,51 @@ export default function DashboardPage() {
         </header>
 
         {paymentBanner || billingEntitlement?.active ? (
-          <section className="mb-5 rounded-lg px-4 py-3" style={{ borderColor: 'var(--border-dark)', background: 'var(--bg-card)', border: '1px solid var(--border-dark)', borderRadius: '12px' }}>
+          <section className="mb-5 rounded-xl px-4 py-3" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
             {isFreeSignupCredit ? (
-              <div className="mb-4 flex flex-col gap-3 rounded-lg border border-pink-300/25 bg-pink-500/[0.08] p-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex min-w-0 items-start gap-3">
-                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-pink-300/25 bg-pink-400/10 text-pink-200">
-                    <Gift size={18} />
+              <div className="mb-3 flex flex-col gap-3 rounded-lg border border-pink-300/25 bg-pink-500/[0.08] p-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex min-w-0 items-center gap-3">
+                  <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-pink-300/25 bg-pink-400/10 text-pink-200">
+                    <Gift size={15} />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-black text-white">1 Free AI Video Credit</p>
-                    <p className="mt-1 text-xs font-bold leading-5 text-zinc-400">
-                      Create your first AI video free. Failed renders are not charged, so your credit stays safe.
-                    </p>
+                    <p className="text-xs font-black text-white">Ready to create</p>
+                    <p className="mt-0.5 text-[11px] text-zinc-400">Your credit is ready. Failed renders are not charged.</p>
                   </div>
                 </div>
                 {paidLimitComplete ? (
                   <Link
                     href="/pricing"
-                    className="inline-flex shrink-0 items-center justify-center rounded-lg bg-pink-500 px-4 py-2.5 text-xs font-black text-white transition hover:bg-pink-400"
+                    className="inline-flex shrink-0 items-center justify-center rounded-lg bg-pink-500 px-3 py-2 text-[11px] font-black text-white transition hover:bg-pink-400"
                   >
-                    Buy Credits to Create More
+                    Buy More Credits
                   </Link>
                 ) : null}
               </div>
             ) : null}
-            {/* Credit progress bar */}
+            {/* Compact credit bar */}
             {(() => {
               const total = billingEntitlement?.usage?.limit || billingEntitlement?.monthlyVideoLimit || 0;
               const used = billingEntitlement?.usage?.used ?? 0;
               const remaining = billingEntitlement?.usage?.remaining ?? total;
               const pct = total > 0 ? Math.round((remaining / total) * 100) : 100;
-              const fillColor = pct <= 10 ? 'var(--color-error)' : pct <= 20 ? 'var(--color-warning)' : 'var(--color-primary-hover)';
+              const fillColor = pct <= 10 ? '#ef4444' : pct <= 20 ? '#f59e0b' : '#22c55e';
               return (
-                <>
-                  <div className="flex items-center justify-between mb-2">
-                    <span style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-secondary-light)' }}>
-                      {creditLabel}
-                    </span>
-                    <span className="hidden sm:inline" style={{ fontSize: '11px', color: 'var(--text-dark-muted)' }}>
-                      {creditResetLabel}
-                    </span>
-                    <span className="sm:hidden" style={{ fontSize: '11px', color: 'var(--text-dark-muted)' }}>
-                      {billingEntitlement?.planName || 'Paid'}
-                    </span>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-lg font-black" style={{ color: fillColor }}>{remaining}</span>
+                    <span className="text-xs text-zinc-500">/ {total} credits left</span>
                   </div>
-                  <div className="flex items-baseline gap-2 mb-3">
-                    <span style={{ fontSize: '22px', fontWeight: 600, color: fillColor }}>{remaining}</span>
-                    <span style={{ fontSize: '13px', color: 'var(--text-dark-muted)' }}>/ {total} remaining</span>
+                  <div className="flex-1 sm:max-w-xs">
+                    <div className="h-2 overflow-hidden rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                      <div className="h-full rounded-full transition-all duration-500" style={{ background: fillColor, width: `${pct}%` }} />
+                    </div>
                   </div>
-                  <div style={{ background: 'var(--border-dark)', height: '6px', borderRadius: '100px', overflow: 'hidden' }}>
-                    <div style={{ background: fillColor, height: '100%', borderRadius: '100px', width: `${pct}%`, transition: 'width 0.3s ease' }} />
+                  <div className="flex items-center gap-3 text-[11px] text-zinc-500">
+                    <span>{used} used</span>
+                    {creditResetLabel ? <span>{creditResetLabel}</span> : null}
                   </div>
-                  <div className="flex items-center justify-between mt-2">
-                    <span style={{ fontSize: '11px', color: 'var(--text-dark-muted)' }}>{used} used</span>
-                    <span style={{ fontSize: '11px', color: 'var(--text-dark-muted)' }}>{pct}% left</span>
-                  </div>
-                </>
+                </div>
               );
             })()}
           </section>
@@ -720,56 +736,61 @@ export default function DashboardPage() {
         <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] lg:items-start">
           <section className="min-w-0 overflow-hidden rounded-2xl border border-white/8 bg-zinc-950/80 p-4 md:p-6">
             {/* Step indicator — full on md+, active step only on mobile */}
-            <div className="mb-6 hidden md:flex items-center text-[11px] uppercase tracking-widest">
-              <span className="flex items-center gap-1" style={{ color: mode && hasUserSelected ? 'var(--color-success)' : mode ? 'var(--color-primary-hover)' : 'var(--text-dark-muted)', fontWeight: mode ? 500 : 400 }}>
-                {mode && hasUserSelected ? <Check size={10} strokeWidth={3} /> : null}
-                Choose Video Type
+            <div className="mb-5 hidden md:flex items-center text-[10px] uppercase tracking-widest">
+              <span className="flex items-center gap-1.5 rounded-full px-2.5 py-1" style={{ color: mode && hasUserSelected ? '#22c55e' : '#60a5fa', background: mode && hasUserSelected ? 'rgba(34,197,94,0.08)' : 'rgba(96,165,250,0.08)' }}>
+                {mode && hasUserSelected ? <Check size={10} strokeWidth={3} /> : <span className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-pulse" />}
+                Video Type
               </span>
-              <span className="mx-2 flex-1 h-px" style={{ background: 'var(--border-dark)' }} />
-              <span className="flex items-center gap-1" style={{ color: selectedFile ? 'var(--color-success)' : (mode && hasUserSelected) ? 'var(--color-primary-hover)' : 'var(--text-dark-muted)', fontWeight: (mode && hasUserSelected) ? 500 : 400 }}>
+              <span className="mx-1.5 flex-1 h-px bg-white/8" />
+              <span className="flex items-center gap-1.5 rounded-full px-2.5 py-1" style={{ color: selectedFile ? '#22c55e' : (mode && hasUserSelected) ? '#60a5fa' : 'rgba(255,255,255,0.25)', background: selectedFile ? 'rgba(34,197,94,0.08)' : (mode && hasUserSelected) ? 'rgba(96,165,250,0.08)' : 'transparent' }}>
                 {selectedFile ? <Check size={10} strokeWidth={3} /> : null}
-                Style/Layout
+                Style
               </span>
-              <span className="mx-2 flex-1 h-px" style={{ background: 'var(--border-dark)' }} />
-              <span className="flex items-center gap-1" style={{ color: selectedFile ? 'var(--color-primary-hover)' : 'var(--text-dark-muted)', fontWeight: selectedFile ? 500 : 400 }}>
-                Upload Content
+              <span className="mx-1.5 flex-1 h-px bg-white/8" />
+              <span className="flex items-center gap-1.5 rounded-full px-2.5 py-1" style={{ color: selectedFile ? '#60a5fa' : 'rgba(255,255,255,0.25)', background: selectedFile ? 'rgba(96,165,250,0.08)' : 'transparent' }}>
+                Upload
               </span>
-              <span className="mx-2 flex-1 h-px" style={{ background: 'var(--border-dark)' }} />
-              <span style={{ color: 'var(--text-dark-muted)', fontWeight: 400 }}>
-                Generate Video
+              <span className="mx-1.5 flex-1 h-px bg-white/8" />
+              <span className="flex items-center gap-1.5 rounded-full px-2.5 py-1" style={{ color: 'rgba(255,255,255,0.25)' }}>
+                Generate
               </span>
             </div>
             {/* Mobile: show only current step */}
-            <div className="mb-6 flex md:hidden items-center gap-2 text-[11px] uppercase tracking-widest">
-              <span className="flex items-center gap-1.5" style={{ color: 'var(--color-primary-hover)', fontWeight: 500 }}>
-                <span className="flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-black text-white" style={{ background: 'var(--color-primary-hover)' }}>
+            <div className="mb-5 flex md:hidden items-center gap-2">
+              <span className="flex items-center gap-2 rounded-full bg-blue-500/[0.1] border border-blue-400/20 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-blue-300">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-500/30 text-[10px] font-black text-white">
                   {selectedFile ? '3' : (mode && hasUserSelected) ? '2' : '1'}
                 </span>
-                {selectedFile ? 'Upload Content' : (mode && hasUserSelected) ? 'Style/Layout' : 'Choose Video Type'}
+                {selectedFile ? 'Upload' : (mode && hasUserSelected) ? 'Style' : 'Choose Type'}
               </span>
-              <span style={{ color: 'var(--text-dark-muted)' }}>
-                — Step {selectedFile ? '3' : (mode && hasUserSelected) ? '2' : '1'} of 4
+              <span className="text-[10px] text-zinc-600">
+                Step {selectedFile ? '3' : (mode && hasUserSelected) ? '2' : '1'}/4
               </span>
             </div>
 
-            <div className="mb-6 flex min-w-0 flex-col gap-4 md:flex-row md:items-start md:justify-between">
-              <div className="min-w-0">
-                <h2 className="text-xl font-black text-white sm:text-2xl">{hasUserSelected ? `Create a ${activeMode.label}` : 'Choose a Video Type'}</h2>
-                <p className="mt-2 max-w-lg text-sm leading-6 text-zinc-500">
-                  {hasUserSelected ? `Upload your content for ${activeMode.label}.` : 'Select a video type below, then upload your content.'}
-                </p>
-              </div>
-              {hasUserSelected && (
-              <div className={`inline-flex max-w-full items-center gap-2 rounded-xl border ${activeMode.border} ${activeMode.surface} px-3 py-2 text-xs font-black ${activeMode.color}`}>
+            <div className="mb-5 flex min-w-0 flex-col gap-1">
+              <h2 className="text-lg font-black text-white sm:text-xl">{hasUserSelected ? activeMode.label : 'Choose a Video Type'}</h2>
+              <p className="max-w-lg text-xs leading-5 text-zinc-500">
+                {hasUserSelected ? activeMode.bestResult : 'Each type produces a different style of 9:16 video. Pick one to start.'}
+              </p>
+            </div>
+            {hasUserSelected && (
+              <div className={`mb-4 inline-flex items-center gap-2 rounded-lg border ${activeMode.border} ${activeMode.surface} px-3 py-2 text-xs font-black ${activeMode.color}`}>
                 <ActiveModeIcon size={14} />
                 <span className="min-w-0 truncate">{activeMode.label}</span>
+                <button
+                  className="ml-1 rounded-md bg-white/[0.06] px-1.5 py-0.5 text-[9px] font-bold text-zinc-400 hover:text-white transition"
+                  onClick={() => { setHasUserSelected(false); }}
+                  type="button"
+                >
+                  Change
+                </button>
               </div>
-              )}
-            </div>
+            )}
 
             <div className="grid gap-3">
-              {/* Category filter bar */}
-              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+              {/* Category filter bar — hidden until 8+ video types */}
+              {/* <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
                 {VIDEO_TYPE_CATEGORIES.map((cat) => (
                   <button
                     key={cat.id}
@@ -789,7 +810,7 @@ export default function DashboardPage() {
                     {cat.label}
                   </button>
                 ))}
-              </div>
+              </div> */}
 
               {/* Video Type cards - visual output selector */}
               <div className="grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
@@ -816,15 +837,15 @@ export default function DashboardPage() {
                   >
                     {/* Phone frame with interaction states */}
                     <div
-                      className={`relative w-full aspect-[9/16] overflow-hidden rounded-lg ${!isSelected ? 'video-type-card-frame' : ''}`}
+                      className={`relative w-full aspect-[9/16] overflow-hidden rounded-xl ${!isSelected ? 'video-type-card-frame' : ''}`}
                       style={{
                         transition: 'all 0.15s ease',
-                        border: isSelected ? `2px solid ${videoType.accent}` : '1px solid rgba(255,255,255,0.1)',
+                        border: isSelected ? `2px solid ${videoType.accent}` : '1px solid rgba(255,255,255,0.12)',
                         boxShadow: isSelected
                           ? `0 12px 34px ${videoType.accent}30`
-                          : '0 10px 28px rgba(0,0,0,0.25)',
-                        background: isSelected ? `${videoType.accent}16` : '#0F172A',
-                        padding: '4px',
+                          : '0 8px 24px rgba(0,0,0,0.3)',
+                        background: isSelected ? `${videoType.accent}16` : '#111827',
+                        padding: '3px',
                       }}
                     >
                       {/* Inner screen */}
@@ -1122,6 +1143,10 @@ export default function DashboardPage() {
                   </>
               ) : null}
 
+              {mode === "typographyVideo" ? (
+                <TypographyStylePicker value={typographyStyle} onChange={setTypographyStyle} />
+              ) : null}
+
               {mode === "creatorBackgroundReplace" ? (
                 <div className="min-w-0 overflow-hidden rounded-lg border border-orange-300/20 bg-orange-300/[0.06] p-3 sm:p-4">
                   <p className="text-sm font-black text-white">Background image</p>
@@ -1399,7 +1424,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
               ) : null}
-              <div className={mode === "autoCaption" || mode === "creatorBackgroundReplace" || mode === "customAiReel" ? "hidden" : "rounded-lg border border-white/10 bg-white/[0.035] p-4"}>
+              <div className={mode === "autoCaption" || mode === "creatorBackgroundReplace" || mode === "customAiReel" || mode === "longVideoPromo" || mode === "compare" ? "hidden" : "rounded-lg border border-white/10 bg-white/[0.035] p-4"}>
                 <label className="form-label-muted" htmlFor="reel-topic">
                   Reel topic/title
                 </label>
@@ -1437,7 +1462,7 @@ export default function DashboardPage() {
                 <p className="min-w-0 break-words leading-5" style={{ fontSize: '12px', color: 'var(--text-dark-secondary)' }}>
                   {isFreeSignupCredit && !paidLimitComplete ? (
                     <>
-                      Your <span style={{ fontWeight: 700, color: '#f9a8d4' }}>1 Free AI Video Credit</span> will be used only after the final MP4 succeeds.
+                      Your video credit will be used only after the final MP4 succeeds.
                     </>
                   ) : (
                     <>
@@ -1478,19 +1503,19 @@ export default function DashboardPage() {
                       ? "Rendering HD video... please wait"
                       : paidLimitComplete
                         ? isFreeSignupCredit ? "Buy Credits to Create More" : "Plan limit complete"
-                        : isFreeSignupCredit ? "Create My Free Video" : "Create My Reel"}
+                        : isFreeSignupCredit ? "Create My Video" : "Create My Reel"}
               </button>
               <p className="text-center text-xs font-bold leading-5 text-zinc-500">
                 {renderInProgress
                   ? "Please do not close this tab. Usually 2-10 minutes."
                   : mode === "customAiReel" && customAiPrompt.trim().length < 12 ? "Describe your video to continue. " : mode !== "customAiReel" && !selectedFile ? "Upload a file to continue. " : mode === "compare" && comparisonFiles.length !== 2 ? "Add at least two compare images. " : mode === "creatorBackgroundReplace" && !creatorBackgroundImageFile ? "Upload one background image. " : ""}
-                {!renderInProgress ? isFreeSignupCredit && !paidLimitComplete ? "Your first AI video is free. Failed renders are not charged." : "Usually 2-10 minutes depending on video type and load." : ""}
+                {!renderInProgress ? isFreeSignupCredit && !paidLimitComplete ? "Failed renders are not charged. Usually 2-10 minutes." : "Usually 2-10 minutes depending on video type and load." : ""}
               </p>
               <ProgressPreview mode={mode} />
               {paidLimitComplete ? (
                 <div className="rounded-lg border border-amber-200/20 bg-amber-200/[0.075] p-4 text-sm font-bold leading-6 text-amber-50">
                   {isFreeSignupCredit
-                    ? "Your free signup credit is used. Buy Credits to Create More."
+                    ? "Your credit is used. Get more credits to continue creating."
                     : `Your ${billingEntitlement?.planName || "paid"} plan videos are complete for this billing period. Upgrade or wait for renewal to create more reels.`}
                   <Link className="ml-2 text-brand-mint underline-offset-4 hover:underline" href="/pricing">
                     View plans
@@ -1563,8 +1588,15 @@ export default function DashboardPage() {
                   ))}
                 </div>
               ) : (
-                <div className="rounded-lg border border-dashed border-white/10 bg-black/20 px-4 py-6 text-sm font-bold leading-6 text-zinc-500">
-                  Your exported videos will appear here after final render. You will not need to remember which video type created them.
+                <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-white/10 bg-gradient-to-b from-white/[0.02] to-transparent px-4 py-10 text-center">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04]">
+                    <Clapperboard size={24} className="text-zinc-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-zinc-300">No videos yet</p>
+                    <p className="mt-1 max-w-[200px] text-xs leading-5 text-zinc-500">Create your first AI video using any video type on the left.</p>
+                  </div>
+                  <span className="mt-1 text-lg text-zinc-600">↙</span>
                 </div>
               )}
             </section>
@@ -1857,9 +1889,9 @@ export default function DashboardPage() {
         : "";
 
       // ── PREVIEW STEP: video types that support it show preview before render ──
-      // Video types with in-browser preview: autoCaption, compare, dynamicCreator
-      // All other video types go straight to render (existing behavior)
-      const PREVIEW_SUPPORTED_MODES: Mode[] = ["autoCaption", "compare", "dynamicCreator"];
+      // Video types with in-browser preview: autoCaption only
+      // Compare and others go straight to render (no preview needed)
+      const PREVIEW_SUPPORTED_MODES: Mode[] = ["autoCaption"];
       if (PREVIEW_SUPPORTED_MODES.includes(mode)) {
         setJobStatus({state: "starting", message: "Generating your preview…"});
         try {
@@ -1883,6 +1915,7 @@ export default function DashboardPage() {
               compareRightTitle: compareRightTitle.trim(),
               creatorHandle: compareHandle.trim() || "@itnavideo",
               stickerStyle,
+              typographyStyle,
               captionStyle,
               captionPosition,
               captionFontFamily,
@@ -2289,7 +2322,7 @@ function validateFileForMode(file: File, mode: Mode) {
     return "Compare needs an audio voiceover plus 2 comparison photos.";
   }
   if (mode === "longVideoPromo" && !isVideo) {
-    return "Long Video Promo needs a short MP4/MOV/WEBM video clip.";
+    return "Long Video Promo needs a video clip (MP4/MOV/WEBM).";
   }
   if (mode === "autoDraw" && !isAudio && !isVideo) {
     return `${modeConfig[mode].title} needs an audio or video file with clear speech.`;
@@ -3013,6 +3046,8 @@ function normalizeRenderMode(value: unknown): Mode | null {
   if (normalized === "compare" || normalized === "comparison" || normalized === "compareexplainer" || normalized === "vs") return "compare";
   if (normalized === "autodraw" || normalized === "autodrawexplainer" || normalized === "whiteboard") return "autoDraw";
   if (normalized === "longvideopromo" || normalized === "longvideopromotion" || normalized === "promo") return "longVideoPromo";
+  if (normalized === "whiteboardvideo" || normalized === "whiteboardreel") return "whiteboardVideo";
+  if (normalized === "typographyvideo" || normalized === "typographyreel" || normalized === "boldreel") return "typographyVideo";
   if (normalized === "dynamiccreator" || normalized === "dynamiccreatorreel" || normalized === "dynamicedit") return "dynamicCreator";
   if (normalized === "creatorbackgroundreplace" || normalized === "backgroundreplace" || normalized === "videobackgroundimage") return "creatorBackgroundReplace";
   if (normalized === "customaireel" || normalized === "customai" || normalized === "customreel") return "customAiReel";
@@ -3028,14 +3063,17 @@ function readDashboardMode(value: string | null): Mode | null {
   if (!normalized) return null;
   if (normalized === "autocaptionreel" || normalized === "autocaption") return "autoCaption";
   if (normalized === "compareexplainer" || normalized === "compare" || normalized === "comparison") return "compare";
-  if (normalized === "autodrawexplainer" || normalized === "autodraw" || normalized === "whiteboard") return "autoDraw";
+  if (normalized === "autodrawexplainer" || normalized === "autodraw") return "autoDraw";
+  if (normalized === "whiteboardvideo" || normalized === "whiteboardreel") return "whiteboardVideo";
+  if (normalized === "typographyvideo" || normalized === "typographyreel" || normalized === "boldreel") return "typographyVideo";
   if (normalized === "longvideopromo" || normalized === "longvideopromotion" || normalized === "promo") return "longVideoPromo";
   if (normalized === "dynamiccreatorreel" || normalized === "dynamiccreator" || normalized === "dynamicedit") return "dynamicCreator";
   if (normalized === "creatorbackgroundreplace" || normalized === "backgroundreplace" || normalized === "videobackgroundimage") return "creatorBackgroundReplace";
   if (normalized === "customaireel" || normalized === "customai" || normalized === "customreel") return "customAiReel";
   if (normalized.includes("caption") || normalized.includes("subtitle")) return "autoCaption";
   if (normalized.includes("compare")) return "compare";
-  if (normalized.includes("draw") || normalized.includes("whiteboard")) return "autoDraw";
+  if (normalized.includes("whiteboard")) return "whiteboardVideo";
+  if (normalized.includes("draw")) return "autoDraw";
   if (normalized.includes("promo")) return "longVideoPromo";
   if (normalized.includes("custom")) return "customAiReel";
   if (normalized.includes("dynamic") || normalized.includes("creator")) return "dynamicCreator";

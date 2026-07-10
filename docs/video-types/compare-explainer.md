@@ -66,6 +66,7 @@ Making comparison videos requires editing software, finding layouts, adding anim
 - No custom fonts
 - No CTA text
 - No thumbnail
+- No separate reel topic/title field
 
 ---
 

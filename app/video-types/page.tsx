@@ -25,40 +25,16 @@ const videoTypes = [
     accent: "#60A5FA",
   },
   {
-    title: "Creator Reel Video",
-    desc: "Creator video plus typography, hooks, and clean short-form pacing.",
-    input: "Vertical video",
-    category: "creator",
-    image: "/preview/Background Replace Video.png",
-    href: "/video-types/dynamic-creator-reel",
-    dashHref: "/dashboard?videoType=dynamic-creator-reel",
-    tags: ["premium", "creator", "typography", "talking video"],
-    proof: "Best first impression",
-    accent: "#38BDF8",
-  },
-  {
     title: "Auto Caption Video",
     desc: "Professional subtitles for existing reels, with style and position controls.",
     input: "Video",
     category: "creator",
     image: "/preview/Auto Caption Reel.png",
-    href: "/video-types/auto-caption-reel",
+    href: "/auto-caption-reel",
     dashHref: "/dashboard?videoType=auto-caption-reel",
     tags: ["captions", "subtitles", "reels"],
     proof: "Most used",
     accent: "#22C55E",
-  },
-  {
-    title: "Background Replace Video",
-    desc: "Upload creator video plus one background image, then adjust fit, crop, and placement.",
-    input: "Video + background",
-    category: "creator",
-    image: "/preview/Dynamic Creator Reel.png",
-    href: "/video-types/creator-background-replace",
-    dashHref: "/dashboard?videoType=creator-background-replace",
-    tags: ["background", "creator", "replace", "video"],
-    proof: "New utility",
-    accent: "#F97316",
   },
   {
     title: "Compare Explainer Video",
@@ -66,23 +42,11 @@ const videoTypes = [
     input: "Audio + 2 images",
     category: "education",
     image: "/preview/Compare Explainer.png",
-    href: "/video-types/compare-explainer",
+    href: "/compare-explainer",
     dashHref: "/dashboard?videoType=compare-explainer",
     tags: ["comparison", "vs", "education"],
     proof: "Clear decision format",
     accent: "#F59E0B",
-  },
-  {
-    title: "Auto Draw Explainer Video",
-    desc: "Voiceover converted into simple whiteboard-style explainer scenes.",
-    input: "Audio or video",
-    category: "education",
-    image: "/preview/Auto Draw Explainer.png",
-    href: "/video-types/auto-draw-explainer",
-    dashHref: "/dashboard?videoType=auto-draw-explainer",
-    tags: ["whiteboard", "education", "draw"],
-    proof: "Explainer format",
-    accent: "#06B6D4",
   },
   {
     title: "Long Video Promo",
@@ -90,7 +54,7 @@ const videoTypes = [
     input: "Video + thumbnail",
     category: "creator",
     image: "/preview/Long Video Promo.png",
-    href: "/video-types/long-video-promo",
+    href: "/long-video-promo",
     dashHref: "/dashboard?videoType=long-video-promo",
     tags: ["youtube", "promo", "thumbnail"],
     proof: "Promo ready",
@@ -126,7 +90,7 @@ export default function VideoTypesPage() {
         <div className="relative mx-auto max-w-7xl">
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-brand-mint/20 bg-brand-mint/[0.07] px-4 py-2 text-xs font-bold text-brand-mint">
             <Sparkles size={13} />
-            Seven production video types
+            Live video types
           </div>
           <div className="grid gap-8 lg:grid-cols-[0.78fr_1fr] lg:items-end">
             <div>
@@ -134,12 +98,12 @@ export default function VideoTypesPage() {
                 Pick the output style you want users to see.
               </h1>
               <p className="mt-5 max-w-2xl text-base leading-7 text-slate-400 sm:text-lg">
-                Itnavideo now focuses on seven video types. No crowded library, no average formats - just the reel styles we can make feel premium and reliable.
+                Itnavideo now focuses on core video types. No crowded library, no average formats - just the reel styles we can make feel premium and reliable.
               </p>
             </div>
             <div className="grid grid-cols-3 gap-3 rounded-lg border border-white/10 bg-white/[0.035] p-4">
               {[
-                ["7", "Video Types"],
+                ["4", "Video Types"],
                 ["1", "Preview flow"],
                 ["9:16", "MP4 output"],
               ].map(([value, label]) => (
@@ -195,7 +159,7 @@ export default function VideoTypesPage() {
             </Link>
           </div>
 
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:max-w-6xl xl:mx-auto">
             {filtered.map((videoType, index) => (
               <article
                 key={videoType.title}
@@ -272,7 +236,7 @@ export default function VideoTypesPage() {
         <div className="mx-auto grid max-w-5xl gap-4 sm:grid-cols-3">
           {[
             ["Preview first", "Review the plan and output style before spending the final render credit."],
-            ["Focused quality", "The team can improve seven video types deeply instead of maintaining many weak formats."],
+            ["Focused quality", "The team can improve our video types deeply instead of maintaining many weak formats."],
             ["Clear inputs", "Every video type tells users exactly what to upload and what output to expect."],
           ].map(([title, body]) => (
             <div key={title} className="rounded-lg border border-white/10 bg-white/[0.035] p-5">

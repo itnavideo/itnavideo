@@ -6,25 +6,29 @@ const steps = [
     number: '01',
     icon: Clapperboard,
     title: 'Choose a Video Type',
-    desc: 'Choose one of seven focused video types: custom prompts, creator edits, background replace, captions, comparisons, whiteboard explainers, or promos.',
+    desc: 'Pick a video type — each one has its own upload flow and output style.',
+    accent: '#60A5FA',
   },
   {
     number: '02',
     icon: Upload,
     title: 'Upload your content',
     desc: 'Video, audio, or images. The upload area adapts to your chosen video type.',
+    accent: '#22C55E',
   },
   {
     number: '03',
     icon: Sparkles,
     title: 'AI transcribes & plans',
     desc: 'Speech becomes timed subtitles. AI builds the layout, captions, and visuals.',
+    accent: '#F59E0B',
   },
   {
     number: '04',
     icon: Download,
     title: 'Download your reel',
     desc: 'Get a 9:16 MP4 ready for Instagram Reels, YouTube Shorts, and TikTok.',
+    accent: '#A78BFA',
   },
 ];
 
@@ -52,8 +56,10 @@ export default function HowItWorks() {
             return (
               <div key={step.number} className="p-6" style={{ background: 'var(--bg-white)', border: '0.5px solid var(--border-light)', borderRadius: 'var(--card-radius)', boxShadow: 'var(--card-shadow-light)' }}>
                 <div className="mb-8 flex items-center justify-between">
-                  <span className="font-mono text-sm font-bold" style={{ color: 'var(--text-light-muted)' }}>{step.number}</span>
-                  <div className="flex h-11 w-11 items-center justify-center rounded-md" style={{ background: 'var(--color-primary-subtle)', color: 'var(--color-primary)' }}>
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-black text-white" style={{ background: step.accent }}>
+                    {step.number}
+                  </span>
+                  <div className="flex h-11 w-11 items-center justify-center rounded-md" style={{ background: `${step.accent}15`, color: step.accent }}>
                     <Icon size={20} />
                   </div>
                 </div>
