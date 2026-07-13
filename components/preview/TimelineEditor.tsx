@@ -12,7 +12,7 @@ type Props = {
 };
 
 const SCENE_COLORS: Record<string, string> = {
-  creator_face: "#3b82f6",
+  creator_face: "#10b981",
   typography: "#8b5cf6",
   key_point: "#f59e0b",
   broll: "#10b981",
@@ -114,12 +114,12 @@ export function TimelineEditor({
       >
         {/* Progress fill */}
         <div
-          className="absolute top-0 left-0 h-full rounded-full bg-blue-500"
+          className="absolute top-0 left-0 h-full rounded-full bg-emerald-500"
           style={{ width: pct(currentTime) }}
         />
         {/* Thumb */}
         <div
-          className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white shadow-md border-2 border-blue-500 z-10 pointer-events-none"
+          className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white shadow-md border-2 border-emerald-500 z-10 pointer-events-none"
           style={{ left: pct(currentTime) }}
         />
       </div>

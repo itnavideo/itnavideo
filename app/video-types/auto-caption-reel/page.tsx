@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { ArrowRight, Check, Sparkles } from "lucide-react";
 import AutoCaptionsShowcase from "@/components/captions/AutoCaptionsShowcase";
+import DemoCaptionGallery from "@/components/captions/DemoCaptionGallery";
 
 export const metadata: Metadata = {
   title: "Auto Caption Reel Generator — AI Word-Level Subtitles | Itnavideo",
@@ -83,6 +84,9 @@ export default function AutoCaptionReelPage() {
 
       {/* Before / After demo — real videos */}
       <AutoCaptionsShowcase />
+
+      {/* Demo Output Gallery */}
+      <DemoCaptionGallery />
 
       {/* Who this is for */}
       <section className="px-4 pb-16 sm:px-6">

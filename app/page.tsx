@@ -2,25 +2,25 @@ import React from 'react';
 import type { Metadata } from "next";
 import Hero from "@/components/landing/Hero";
 import HowItWorks from "@/components/landing/HowItWorks";
-import AutoCaptionsShowcase from "@/components/captions/AutoCaptionsShowcase";
-import PromoBeforeAfter from "@/components/landing/PromoBeforeAfter";
 import VideoTypeGuide from "@/components/landing/VideoTypeGuide";
 import FeaturesSection from "@/components/landing/FeaturesSection";
 import PricingSection from "@/components/landing/PricingSection";
+import HomepageDemoGrid from "@/components/landing/HomepageDemoGrid";
 import FAQSection from "@/components/FAQSection";
+import StatsBar from "@/components/landing/StatsBar";
 
 export const metadata: Metadata = {
-  title: "Itnavideo - Upload a Talking Video, Get It Back Captioned and Styled",
-  description: "AI video tool for creators. Upload your video, pick a style, get a finished 9:16 reel with captions in under 3 minutes. 1 free credit on signup. No editing skills needed.",
+  title: "Itnavideo - Turn Talking Videos into Scroll-Stopping Reels",
+  description: "AI video tool for creators. Upload your video, pick a style, get a finished 9:16 reel with captions in under 3 minutes. No credit card needed.",
   openGraph: {
-    title: "Itnavideo - Upload a Talking Video, Get It Back Captioned and Styled",
-    description: "AI video tool for creators. Upload your video, pick a style, get a finished 9:16 reel with captions in under 3 minutes. 1 free credit on signup.",
+    title: "Itnavideo - Turn Talking Videos into Scroll-Stopping Reels",
+    description: "AI video tool for creators. Upload your video, pick a style, get a finished 9:16 reel with captions in under 3 minutes. No credit card needed.",
     images: ["/og-image.png"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Itnavideo - Upload a Talking Video, Get It Back Captioned and Styled",
-    description: "AI video tool for creators. Upload your video, pick a style, get a finished 9:16 reel with captions in under 3 minutes. 1 free credit on signup.",
+    title: "Itnavideo - Turn Talking Videos into Scroll-Stopping Reels",
+    description: "AI video tool for creators. Upload your video, pick a style, get a finished 9:16 reel with captions in under 3 minutes. No credit card needed.",
     images: ["/og-image.png"],
   },
 };
@@ -75,13 +75,13 @@ export default function LandingPage() {
         }}
       />
       <Hero />
-      <AutoCaptionsShowcase limit={3} />
+      <StatsBar />
+      <HomepageDemoGrid />
       <HowItWorks />
       <FeaturesSection />
-      <PromoBeforeAfter />
+      <VideoTypeGuide />
       <PricingSection />
       <FAQSection />
-      <VideoTypeGuide />
     </div>
   );
 }

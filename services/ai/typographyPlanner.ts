@@ -62,116 +62,94 @@ const STRONG_WORDS = new Set([
 // ── Main planner ──────────────────────────────────────────────────────────────
 
 export function planTypographyVideo(input: TypographyPlanInput): TypographyPlan {
-  const { words, durationSeconds } = input;
-  if (!words.length) return { keywords: [], source: 'deterministic' };
+  const { words, segments, durationSeconds } = input;
+  if (!words.length && !segments.length) return { keywords: [], source: 'deterministic' };
 
   const keywords: KeywordHit[] = [];
-  let lastKeywordEnd = 0;
-  const MIN_GAP = 3.5; // minimum seconds between keywords
   let colorIndex = 0;
+  const MIN_GAP = 2.0; // minimum 2 seconds between keywords (tighter = more keywords)
+  let lastKeywordEnd = 0;
 
-  for (let i = 0; i < words.length; i++) {
-    const w = words[i];
-    if (w.start < lastKeywordEnd + MIN_GAP) continue;
-    if (w.start >= durationSeconds - 2) break;
+  // Strategy: pick 2-3 word phrases from every segment
+  // This ensures keywords appear throughout the full video, not just where "strong" words are
+  for (const seg of segments) {
+    if (seg.start < lastKeywordEnd + MIN_GAP) continue;
+    if (seg.start >= durationSeconds - 1) break;
 
-    const wordText = w.word.trim();
-    const lowerWord = wordText.toLowerCase().replace(/[.,!?;:'"]/g, '');
+    const segWords = seg.text.trim().split(/\s+/);
+    if (segWords.length < 2) continue;
 
-    // Check if this word is "important"
-    let isImportant = false;
-    let displayText = wordText;
+    // Pick 2-3 important words from this segment
+    let displayText = '';
     let size: KeywordHit['size'] = 'large';
     let position: KeywordHit['position'] = 'center';
 
-    // Check for money/numbers (combine with next words if needed)
-    const contextText = words.slice(i, Math.min(i + 4, words.length)).map(x => x.word).join(' ');
-
-    const moneyMatch = contextText.match(MONEY_PATTERN);
-    if (moneyMatch && contextText.indexOf(moneyMatch[0]) === 0) {
-      isImportant = true;
-      displayText = moneyMatch[0].replace(/\s+/g, ' ').trim();
-      // Shorten: "17 million" → "$17 M"
-      displayText = shortenMoney(displayText);
+    // Check for money/numbers first
+    const moneyMatch = seg.text.match(MONEY_PATTERN);
+    if (moneyMatch) {
+      displayText = shortenMoney(moneyMatch[0]);
       size = 'huge';
       position = 'top';
-      // Extend end time to cover all words in the match
-      const matchWordCount = moneyMatch[0].split(/\s+/).length;
-      const endWord = words[Math.min(i + matchWordCount - 1, words.length - 1)];
-      keywords.push({
-        word: displayText,
-        start: w.start,
-        end: Math.max(endWord.end, w.start + 2.5),
-        color: COLORS[colorIndex % COLORS.length],
-        size,
-        position,
-      });
-      colorIndex++;
-      lastKeywordEnd = Math.max(endWord.end, w.start + 2.5);
-      continue;
-    }
-
-    // Check for standalone numbers
-    if (NUMBER_PATTERN.test(wordText)) {
-      isImportant = true;
+    } else if (NUMBER_PATTERN.test(seg.text)) {
+      // Number with context: take number + next word
+      const numMatch = seg.text.match(/(\d[\d,.]*%?\s*\w+)/);
+      displayText = numMatch ? numMatch[1].trim() : segWords.slice(0, 2).join(' ');
       size = 'huge';
       position = 'top';
-      displayText = wordText;
-    }
-
-    // Check for strong words
-    if (!isImportant && STRONG_WORDS.has(lowerWord) && lowerWord.length >= 4) {
-      isImportant = true;
-      size = lowerWord.length <= 6 ? 'huge' : 'large';
+    } else {
+      // Pick 2-3 most meaningful words from the segment
+      const meaningful = segWords.filter(w => w.length >= 3 && !/^(the|and|for|but|with|that|this|from|have|are|was|were|been|will|can|its|not|our|your)$/i.test(w));
+      if (meaningful.length >= 3) {
+        displayText = meaningful.slice(0, 3).join(' ');
+      } else if (meaningful.length >= 2) {
+        displayText = meaningful.slice(0, 2).join(' ');
+      } else if (segWords.length >= 2) {
+        displayText = segWords.slice(0, 3).join(' ');
+      } else {
+        displayText = segWords[0];
+      }
+      size = displayText.length > 15 ? 'medium' : 'large';
       position = 'center';
-      displayText = lowerWord;
     }
 
-    // Check for ALL CAPS words in original
-    if (!isImportant && wordText === wordText.toUpperCase() && wordText.length >= 3 && /[A-Z]/.test(wordText)) {
-      isImportant = true;
-      size = 'large';
-      position = 'center';
-      displayText = wordText;
-    }
+    if (!displayText || displayText.length < 3) continue;
 
-    if (isImportant) {
-      const holdDuration = size === 'huge' ? 3.0 : size === 'large' ? 2.5 : 2.0;
-      keywords.push({
-        word: displayText,
-        start: w.start,
-        end: Math.min(w.start + holdDuration, durationSeconds - 1),
-        color: COLORS[colorIndex % COLORS.length],
-        size,
-        position,
-      });
-      colorIndex++;
-      lastKeywordEnd = w.start + holdDuration;
-    }
+    const holdDuration = Math.min(3.0, (seg.end - seg.start) * 0.8);
+    keywords.push({
+      word: displayText.slice(0, 25),
+      start: seg.start,
+      end: Math.min(seg.start + holdDuration, durationSeconds - 0.5),
+      color: COLORS[colorIndex % COLORS.length],
+      size,
+      position,
+    });
+    colorIndex++;
+    lastKeywordEnd = seg.start + holdDuration;
   }
 
-  // If too few keywords found (< 3 for a 30s+ video), add some from segments
-  if (keywords.length < 3 && durationSeconds > 15) {
-    const existingTimes = new Set(keywords.map(k => Math.floor(k.start)));
-    const spacing = durationSeconds / 6;
+  // If still too few keywords (less than 1 per 5 seconds), fill gaps from word-level data
+  const targetCount = Math.max(4, Math.floor(durationSeconds / 4));
+  if (keywords.length < targetCount && words.length > 0) {
+    const spacing = durationSeconds / targetCount;
+    for (let t = 2; t < durationSeconds - 2; t += spacing) {
+      if (keywords.length >= targetCount) break;
+      if (keywords.some(k => Math.abs(k.start - t) < MIN_GAP)) continue;
 
-    for (let t = 4; t < durationSeconds - 4; t += spacing) {
-      if (keywords.length >= 8) break;
-      if (existingTimes.has(Math.floor(t))) continue;
-
-      // Find the word closest to this time
-      const nearWord = words.find(w => w.start >= t && w.start < t + 2 && w.word.length >= 4);
-      if (nearWord) {
-        keywords.push({
-          word: nearWord.word.toLowerCase(),
-          start: nearWord.start,
-          end: nearWord.start + 2.5,
-          color: COLORS[colorIndex % COLORS.length],
-          size: 'large',
-          position: 'center',
-        });
-        colorIndex++;
-        existingTimes.add(Math.floor(nearWord.start));
+      // Find 2-3 consecutive words near this time
+      const nearIdx = words.findIndex(w => w.start >= t);
+      if (nearIdx >= 0 && nearIdx + 1 < words.length) {
+        const phrase = words.slice(nearIdx, nearIdx + 3).map(w => w.word).join(' ');
+        if (phrase.length >= 4) {
+          keywords.push({
+            word: phrase.slice(0, 22),
+            start: words[nearIdx].start,
+            end: Math.min(words[nearIdx].start + 2.5, durationSeconds - 0.5),
+            color: COLORS[colorIndex % COLORS.length],
+            size: 'large',
+            position: 'center',
+          });
+          colorIndex++;
+        }
       }
     }
   }
@@ -179,10 +157,8 @@ export function planTypographyVideo(input: TypographyPlanInput): TypographyPlan 
   // Sort by time
   keywords.sort((a, b) => a.start - b.start);
 
-  // Cap at reasonable number (1 per 5 seconds average)
-  const maxKeywords = Math.ceil(durationSeconds / 5);
   return {
-    keywords: keywords.slice(0, maxKeywords),
+    keywords,
     source: 'deterministic',
   };
 }

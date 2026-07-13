@@ -74,7 +74,7 @@ export default function CreatorRewardsSection() {
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3 sm:justify-start">
               <span className="flex items-center gap-1.5 text-[11px] text-zinc-500">
-                <Mail size={11} className="text-blue-400" />
+                <Mail size={11} className="text-emerald-400" />
                 rohi@itnavideo.com
               </span>
               <span className="flex items-center gap-1.5 text-[11px] text-zinc-500">

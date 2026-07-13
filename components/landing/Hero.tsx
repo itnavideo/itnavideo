@@ -1,44 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ArrowRight, BrainCircuit, Check, Gift, Play, Sparkles, Star, Users, Zap } from 'lucide-react';
-import Image from 'next/image';
+import { ArrowRight, BrainCircuit, Check, Play, Sparkles, Star, Users, Zap } from 'lucide-react';
 import Link from 'next/link';
-
-const videoTypes = [
-  {
-    image: '/preview/Auto Caption Reel.png',
-    label: 'Most used',
-    title: 'Auto Caption Reel',
-    href: '/video-types/auto-caption-reel',
-    result: 'Clean word-level captions for creator reels',
-    accent: '#22C55E',
-  },
-  {
-    image: '/preview/Compare Explainer.png',
-    label: 'VS explainer',
-    title: 'Compare Explainer',
-    href: '/video-types/compare-explainer',
-    result: 'Left vs right comparison with a sticker presenter',
-    accent: '#F59E0B',
-  },
-  {
-    image: '/preview/Whiteboard Video.png',
-    label: 'Educational',
-    title: 'Whiteboard Video',
-    href: '/video-types/whiteboard-video',
-    result: 'AI writes key points on a whiteboard from your speech',
-    accent: '#10B981',
-  },
-  {
-    image: '/preview/Long Video Promo.png',
-    label: 'Promo',
-    title: 'Long Video Promo',
-    href: '/video-types/long-video-promo',
-    result: 'Turn a YouTube clip into a vertical promo Short',
-    accent: '#A3E635',
-  },
-];
 
 export default function Hero() {
   return (
@@ -170,53 +134,6 @@ export default function Hero() {
           </motion.div>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 26 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.36, duration: 0.62 }}
-          className="mx-auto mt-16 max-w-6xl"
-        >
-          <div className="mb-6 flex flex-col gap-2 text-center sm:mb-8">
-            <p className="text-xs font-black uppercase tracking-[0.24em] text-slate-500">Actual video type output styles</p>
-            <h2 className="text-2xl font-black text-white sm:text-3xl">Core formats, each built to look finished.</h2>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:max-w-4xl lg:mx-auto">
-            {videoTypes.map((videoType, index) => (
-              <Link
-                key={videoType.title}
-                href={videoType.href}
-                className={`group relative overflow-hidden rounded-lg border border-white/10 bg-slate-950 p-2 shadow-[0_18px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-1 hover:border-white/20 ${
-                  index === 0 ? 'col-span-2 sm:col-span-1' : ''
-                }`}
-              >
-                <div className="relative aspect-[9/16] overflow-hidden rounded-md bg-black">
-                  <Image
-                    src={videoType.image}
-                    alt={`${videoType.title} preview`}
-                    fill
-                    sizes="(min-width: 1024px) 210px, (min-width: 640px) 30vw, 50vw"
-                    className="object-cover object-center transition duration-500 group-hover:scale-[1.035]"
-                    priority={index < 2}
-                  />
-                  <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/88 via-black/35 to-transparent" />
-                  <span
-                    className="absolute left-3 top-3 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-slate-950"
-                    style={{ backgroundColor: videoType.accent }}
-                  >
-                    {videoType.label}
-                  </span>
-                  <div className="absolute inset-x-3 bottom-3">
-                    <p className="text-sm font-black text-white">{videoType.title}</p>
-                    <p className="mt-1 text-[11px] leading-4 text-slate-300">{videoType.result}</p>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Trust bar — tech credibility + Hinglish support */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}

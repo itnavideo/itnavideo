@@ -49,19 +49,25 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
       priority: 0.9,
     },
     {
-      path: "/dynamic-creator-reel",
+      path: "/auto-captions",
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.85,
+    },
+    {
+      path: "/whiteboard-video",
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.9,
     },
     {
-      path: "/auto-draw-explainer",
+      path: "/typography-video",
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.9,
     },
     {
-      path: "/creator-background-replace",
+      path: "/long-video-clips",
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.9,

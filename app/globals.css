@@ -55,16 +55,16 @@
 :root {
   /* ─── COLOR SYSTEM ─────────────────────────────────────────────────────
      Design philosophy: fast, premium, creator-focused, trustworthy.
-     Primary: Blue | Secondary: Cyan | Warm accent: Amber for warnings only
+     Primary: Emerald Green | Secondary: Cyan | Warm accent: Amber for warnings only
      ──────────────────────────────────────────────────────────────────── */
 
-  /* PRIMARY: Blue */
-  --color-primary:        #2563EB;
-  --color-primary-hover:  #3B82F6;
-  --color-primary-press:  #1D4ED8;
-  --color-primary-tint:   #DBEAFE;
-  --color-primary-subtle: #EFF6FF;
-  --color-primary-light:  #60A5FA;
+  /* PRIMARY: Emerald Green */
+  --color-primary:        #10B981;
+  --color-primary-hover:  #22C55E;
+  --color-primary-press:  #059669;
+  --color-primary-tint:   #D1FAE5;
+  --color-primary-subtle: #ECFDF5;
+  --color-primary-light:  #34D399;
 
   /* SECONDARY: Cyan */
   --color-secondary:        #06B6D4;
@@ -154,7 +154,7 @@
   --sidebar-ring: #2563EB;
 
   /* Brand system (legacy names kept for Tailwind compatibility) */
-  --brand-mint: #2563EB;
+  --brand-mint: #22C55E;
   --brand-cyan: #06B6D4;
   --brand-gold: #F5C542;
   --brand-ink: #0F172A;
@@ -165,7 +165,7 @@
   --bg-card-soft: #172033;
   --bg-soft: #F8FAFC;
   --primary-hover: #3B82F6;
-  --primary-soft: rgba(37, 99, 235, 0.12);
+  --primary-soft: rgba(16, 185, 129, 0.12);
   --secondary-accent: #06B6D4;
   --secondary-hover: #22D3EE;
   --secondary-soft: rgba(6, 182, 212, 0.12);
@@ -175,7 +175,7 @@
   --text-muted: #94A3B8;
   --text-disabled: #64748B;
   --border-soft: rgba(255, 255, 255, 0.10);
-  --border-active: rgba(37, 99, 235, 0.55);
+  --border-active: rgba(16, 185, 129, 0.55);
   --success: #10B981;
   --warning: #F59E0B;
   --danger: #EF4444;
@@ -259,7 +259,7 @@
 @layer utilities {
   .brand-surface {
     background:
-      radial-gradient(circle at 18% 0%, rgba(37, 99, 235, 0.10), transparent 34%),
+      radial-gradient(circle at 18% 0%, rgba(16, 185, 129, 0.10), transparent 34%),
       radial-gradient(circle at 82% 4%, rgba(6, 182, 212, 0.08), transparent 32%),
       var(--bg-hero);
   }
@@ -287,8 +287,8 @@
   }
 
   .brand-card-selected {
-    border: 1px solid rgba(37, 99, 235, 0.55);
-    box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.25), 0 12px 40px rgba(37, 99, 235, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.55);
+    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.25), 0 12px 40px rgba(16, 185, 129, 0.12);
   }
 
   .brand-card-light {
@@ -302,20 +302,20 @@
     background: var(--color-primary);
     color: #FFFFFF;
     border-radius: var(--card-radius);
-    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.25);
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25);
     transition: all 0.2s ease;
   }
 
   .brand-btn-primary:hover {
     background: var(--color-primary-hover);
     transform: translateY(-1px);
-    box-shadow: 0 12px 32px rgba(37, 99, 235, 0.35);
+    box-shadow: 0 12px 32px rgba(16, 185, 129, 0.35);
   }
 
   .brand-btn-primary:active {
     background: var(--color-primary-press);
     transform: translateY(0);
-    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.2);
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
   }
 
   /* For dark backgrounds: start brighter, go deeper on hover */
@@ -323,20 +323,20 @@
     background: var(--color-primary-hover);
     color: #FFFFFF;
     border-radius: var(--card-radius);
-    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.3);
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
     transition: all 0.2s ease;
   }
 
   .brand-btn-primary-dark:hover {
     background: var(--color-primary);
     transform: translateY(-1px);
-    box-shadow: 0 12px 32px rgba(37, 99, 235, 0.4);
+    box-shadow: 0 12px 32px rgba(16, 185, 129, 0.4);
   }
 
   .brand-btn-primary-dark:active {
     background: var(--color-primary-press);
     transform: translateY(0);
-    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.2);
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
   }
 
   .brand-btn-secondary {
@@ -394,7 +394,7 @@
   /* Dashboard upload zones */
   .upload-zone {
     border: 2px dashed var(--color-primary);
-    background: rgba(37, 99, 235, 0.04);
+    background: rgba(16, 185, 129, 0.04);
     border-radius: 12px;
     padding: 2rem;
     text-align: center;
@@ -404,7 +404,7 @@
 
   .upload-zone:hover {
     border-color: var(--color-primary-hover);
-    background: rgba(37, 99, 235, 0.08);
+    background: rgba(16, 185, 129, 0.08);
     transform: scale(1.01);
   }
 
@@ -437,7 +437,7 @@
 
   .form-input:focus {
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
   }
 }
 

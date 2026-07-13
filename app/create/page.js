@@ -35,9 +35,9 @@ const videoTypes = [
     needs: "Clear comparison audio",
     cta: "Use Compare Explainer",
     badges: ["Audio", "Left vs Right", "13+ Languages"],
-    accent: "text-blue-300",
-    border: "border-blue-400/25",
-    surface: "bg-blue-400/[0.07]",
+    accent: "text-emerald-300",
+    border: "border-emerald-400/25",
+    surface: "bg-emerald-400/[0.07]",
   },
   {
     href: "/dashboard?videoType=image-story-collage",

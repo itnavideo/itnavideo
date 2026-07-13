@@ -79,10 +79,10 @@ export function CompareImageSlots({files, onChange, onError}: CompareImageSlotsP
   ];
 
   return (
-    <div className="rounded-xl border border-blue-400/20 bg-[radial-gradient(circle_at_top,_rgba(37,99,235,0.10),_rgba(0,0,0,0.45)_48%,_rgba(0,0,0,0.72))] p-4 shadow-[0_0_32px_rgba(37,99,235,0.08)] sm:p-5">
+    <div className="rounded-xl border border-emerald-400/20 bg-[radial-gradient(circle_at_top,_rgba(37,99,235,0.10),_rgba(0,0,0,0.45)_48%,_rgba(0,0,0,0.72))] p-4 shadow-[0_0_32px_rgba(37,99,235,0.08)] sm:p-5">
       <div className="mb-5 grid gap-3 sm:flex sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-blue-300">
+          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-emerald-300">
             Upload compare visuals
           </p>
           <p className="mt-1 text-[11px] font-semibold text-zinc-500">
@@ -93,7 +93,7 @@ export function CompareImageSlots({files, onChange, onError}: CompareImageSlotsP
         <span
           className={`w-fit rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em] ${
             files.length === 2
-              ? "border-blue-400/35 bg-blue-500/10 text-blue-200"
+              ? "border-emerald-400/35 bg-emerald-500/10 text-blue-200"
               : "border-amber-300/35 bg-amber-400/10 text-amber-100"
           }`}
         >
@@ -110,8 +110,8 @@ export function CompareImageSlots({files, onChange, onError}: CompareImageSlotsP
               key={slot.inputId}
               className={`group overflow-hidden rounded-lg border p-3 transition-all duration-300 sm:p-4 ${
                 selected
-                  ? "border-blue-400/40 bg-blue-500/10 shadow-[0_0_26px_rgba(124,58,237,0.16)]"
-                  : "border-white/10 bg-white/[0.035] hover:border-blue-400/35"
+                  ? "border-emerald-400/40 bg-emerald-500/10 shadow-[0_0_26px_rgba(124,58,237,0.16)]"
+                  : "border-white/10 bg-white/[0.035] hover:border-emerald-400/35"
               }`}
             >
               <div className="mb-3 flex items-center justify-between gap-2">
@@ -125,7 +125,7 @@ export function CompareImageSlots({files, onChange, onError}: CompareImageSlotsP
                 </div>
 
                 {selected ? (
-                  <span className="rounded-full bg-blue-400 px-2 py-1 text-[9px] font-black uppercase text-black">
+                  <span className="rounded-full bg-emerald-400 px-2 py-1 text-[9px] font-black uppercase text-black">
                     Ready
                   </span>
                 ) : null}
@@ -135,8 +135,8 @@ export function CompareImageSlots({files, onChange, onError}: CompareImageSlotsP
                 htmlFor={slot.inputId}
                 className={`relative flex h-36 cursor-pointer items-center justify-center overflow-hidden rounded-lg border transition-all duration-300 sm:h-44 ${
                   selected
-                    ? "border-blue-400/35 bg-black"
-                    : "border-dashed border-white/15 bg-black/35 hover:border-blue-400/45 hover:bg-black/45"
+                    ? "border-emerald-400/35 bg-black"
+                    : "border-dashed border-white/15 bg-black/35 hover:border-emerald-400/45 hover:bg-black/45"
                 }`}
               >
                 {slot.preview ? (
@@ -160,7 +160,7 @@ export function CompareImageSlots({files, onChange, onError}: CompareImageSlotsP
                   </>
                 ) : (
                   <div className="text-center">
-                    <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full border border-blue-400/25 bg-blue-500/10 text-2xl">
+                    <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full border border-emerald-400/25 bg-emerald-500/10 text-2xl">
                       +
                     </div>
                     <p className="text-xs font-black text-white">

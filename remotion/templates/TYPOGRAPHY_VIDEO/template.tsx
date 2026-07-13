@@ -94,6 +94,33 @@ const TYPOGRAPHY_STYLE_CONFIG: Record<string, {
     textShadow: '0 0 30px rgba(34,197,94,0.7), 0 0 60px rgba(34,197,94,0.3), 0 4px 8px rgba(0,0,0,0.9)',
     fontWeight: 900,
   },
+  'cyan-electric': {
+    colors: ['rgba(165,243,252,0.9)', 'rgba(6,182,212,0.9)', 'rgba(34,211,238,0.85)'],
+    textShadow: '0 0 30px rgba(6,182,212,0.8), 0 0 60px rgba(6,182,212,0.35), 0 4px 8px rgba(0,0,0,0.9)',
+    fontWeight: 900,
+  },
+  'pink-neon': {
+    colors: ['rgba(251,191,236,0.9)', 'rgba(236,72,153,0.9)', 'rgba(244,114,182,0.85)'],
+    textShadow: '0 0 30px rgba(236,72,153,0.8), 0 0 50px rgba(236,72,153,0.35), 0 4px 8px rgba(0,0,0,0.9)',
+    fontWeight: 900,
+  },
+  'yellow-bold': {
+    colors: ['rgba(254,249,195,0.95)', 'rgba(250,204,21,0.9)', 'rgba(253,224,71,0.92)'],
+    textShadow: '0 2px 12px rgba(250,204,21,0.5), 0 4px 8px rgba(0,0,0,0.9)',
+    fontWeight: 900,
+    textStroke: '1.5px rgba(113,63,18,0.5)',
+  },
+  'sunset-gradient': {
+    colors: ['rgba(253,164,175,0.9)', 'rgba(244,114,182,0.85)', 'rgba(249,115,22,0.9)'],
+    textShadow: '0 0 25px rgba(244,114,182,0.6), 0 4px 12px rgba(0,0,0,0.9)',
+    fontWeight: 900,
+  },
+  'outline-white': {
+    colors: ['rgba(255,255,255,0.05)', 'rgba(255,255,255,0.03)', 'rgba(255,255,255,0.05)'],
+    textShadow: '0 2px 8px rgba(0,0,0,0.5)',
+    fontWeight: 900,
+    textStroke: '2.5px rgba(255,255,255,0.9)',
+  },
 };
 
 const getStyleConfig = (styleId?: string) => TYPOGRAPHY_STYLE_CONFIG[styleId || 'silver-chrome'] || TYPOGRAPHY_STYLE_CONFIG['silver-chrome'];
@@ -112,9 +139,15 @@ const resolveAsset = (value: string) => {
   return staticFile(value.replace(/^\/+/, ''));
 };
 
+// ── Animation types for variety ────────────────────────────────────────────────
+
+type AnimationType = 'pop' | 'slideUp' | 'zoomBlur' | 'shake' | 'flipIn';
+
+const ANIMATION_SEQUENCE: AnimationType[] = ['pop', 'slideUp', 'zoomBlur', 'shake', 'flipIn'];
+
 // ── Sub-Components ────────────────────────────────────────────────────────────
 
-function BigKeyword({ keyword, frame, fps, styleConfig }: { keyword: KeywordHit; frame: number; fps: number; styleConfig: typeof TYPOGRAPHY_STYLE_CONFIG[string] }) {
+function BigKeyword({ keyword, frame, fps, styleConfig, index }: { keyword: KeywordHit; frame: number; fps: number; styleConfig: typeof TYPOGRAPHY_STYLE_CONFIG[string]; index: number }) {
   const currentTime = frame / fps;
 
   // Only visible during keyword's time range
@@ -124,23 +157,69 @@ function BigKeyword({ keyword, frame, fps, styleConfig }: { keyword: KeywordHit;
   const duration = keyword.end - keyword.start;
   const durationFrames = Math.round(duration * fps);
 
-  // Entrance: spring scale from 0.7 → 1
-  const entranceProgress = spring({
+  // Pick animation type based on index (cycles through all types)
+  const animType = ANIMATION_SEQUENCE[index % ANIMATION_SEQUENCE.length];
+
+  // === ENTRANCE ANIMATIONS ===
+  let scale = 1;
+  let opacity = 1;
+  let translateY = 0;
+  let translateX = 0;
+  let rotateX = 0;
+  let blur = 0;
+
+  const entranceSpring = spring({
     frame: localFrame,
     fps,
-    config: { damping: 12, mass: 0.5, stiffness: 150 },
+    config: { damping: 10, mass: 0.4, stiffness: 180 },
   });
-  const scale = interpolate(entranceProgress, [0, 1], [0.7, 1]);
-  const opacity = interpolate(entranceProgress, [0, 1], [0, 1]);
 
-  // Exit: fade out in last 8 frames
-  const exitStart = durationFrames - 8;
-  const exitOpacity = localFrame > exitStart
-    ? interpolate(localFrame, [exitStart, durationFrames], [1, 0], { extrapolateRight: 'clamp' })
-    : 1;
+  switch (animType) {
+    case 'pop':
+      // Dramatic zoom: 1.6 → 1 with overshoot
+      scale = interpolate(entranceSpring, [0, 1], [1.6, 1]);
+      opacity = interpolate(localFrame, [0, 4], [0, 1], { extrapolateRight: 'clamp' });
+      break;
+    case 'slideUp':
+      // Slide from bottom with spring
+      translateY = interpolate(entranceSpring, [0, 1], [80, 0]);
+      opacity = interpolate(localFrame, [0, 5], [0, 1], { extrapolateRight: 'clamp' });
+      scale = interpolate(entranceSpring, [0, 1], [0.9, 1]);
+      break;
+    case 'zoomBlur':
+      // Start blurred and large, sharpen to normal
+      scale = interpolate(entranceSpring, [0, 1], [2.0, 1]);
+      blur = interpolate(localFrame, [0, 10], [12, 0], { extrapolateRight: 'clamp' });
+      opacity = interpolate(localFrame, [0, 3], [0, 1], { extrapolateRight: 'clamp' });
+      break;
+    case 'shake':
+      // Pop in with shake vibration
+      scale = interpolate(entranceSpring, [0, 1], [0.5, 1]);
+      opacity = interpolate(localFrame, [0, 3], [0, 1], { extrapolateRight: 'clamp' });
+      // Shake for first 8 frames
+      if (localFrame < 8) {
+        translateX = Math.sin(localFrame * 3) * (8 - localFrame) * 1.5;
+      }
+      break;
+    case 'flipIn':
+      // 3D flip from top
+      rotateX = interpolate(entranceSpring, [0, 1], [-90, 0]);
+      opacity = interpolate(localFrame, [0, 4], [0, 1], { extrapolateRight: 'clamp' });
+      scale = interpolate(entranceSpring, [0, 1], [0.8, 1]);
+      break;
+  }
 
-  // Subtle float
-  const floatY = Math.sin(localFrame * 0.06) * 3;
+  // === EXIT: fade + slight scale down ===
+  const exitStart = durationFrames - 6;
+  const exitProgress = localFrame > exitStart
+    ? interpolate(localFrame, [exitStart, durationFrames], [0, 1], { extrapolateRight: 'clamp' })
+    : 0;
+  const exitOpacity = 1 - exitProgress;
+  const exitScale = 1 - exitProgress * 0.15;
+
+  // === Continuous subtle motion (while visible) ===
+  const floatY = Math.sin(localFrame * 0.05) * 2;
+  const breatheScale = 1 + Math.sin(localFrame * 0.04) * 0.008;
 
   const fontSize = FONT_SIZES[keyword.size] || FONT_SIZES.large;
 
@@ -148,6 +227,10 @@ function BigKeyword({ keyword, frame, fps, styleConfig }: { keyword: KeywordHit;
   const topPosition = keyword.position === 'top' ? '12%'
     : keyword.position === 'center' ? '35%'
     : '50%';
+
+  const finalScale = scale * exitScale * breatheScale;
+  const finalOpacity = opacity * exitOpacity;
+  const finalY = translateY + floatY;
 
   return (
     <div style={{
@@ -159,9 +242,10 @@ function BigKeyword({ keyword, frame, fps, styleConfig }: { keyword: KeywordHit;
       justifyContent: 'center',
       alignItems: 'center',
       pointerEvents: 'none',
-      opacity: opacity * exitOpacity,
-      transform: `scale(${scale}) translateY(${floatY}px)`,
+      opacity: finalOpacity,
+      transform: `scale(${finalScale}) translateY(${finalY}px) translateX(${translateX}px) perspective(800px) rotateX(${rotateX}deg)`,
       transformOrigin: 'center center',
+      filter: blur > 0 ? `blur(${blur}px)` : undefined,
     }}>
       <span style={{
         fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
@@ -276,7 +360,7 @@ function TypographyVideo({
 
       {/* Big keyword overlays — appear/disappear synced to speech */}
       {keywords.map((kw, i) => (
-        <BigKeyword key={`${kw.word}-${i}`} keyword={kw} frame={frame} fps={fps} styleConfig={styleConfig} />
+        <BigKeyword key={`${kw.word}-${i}`} keyword={kw} frame={frame} fps={fps} styleConfig={styleConfig} index={i} />
       ))}
 
       {/* Small captions at bottom */}

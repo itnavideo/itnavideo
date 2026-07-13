@@ -78,7 +78,7 @@ export function CaptionEditor({ captions, currentTime, onUpdate }: Props) {
         className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-white hover:bg-zinc-800 transition-colors"
       >
         <span className="flex items-center gap-2">
-          <span className="text-blue-400">📝</span>
+          <span className="text-emerald-400">📝</span>
           Captions
           <span className="text-xs font-normal text-zinc-500">
             ({captions.length} chunks)
@@ -103,7 +103,7 @@ export function CaptionEditor({ captions, currentTime, onUpdate }: Props) {
                 ref={isActive ? activeRef : undefined}
                 className={`px-4 py-2 flex items-start gap-3 group transition-colors ${
                   isActive
-                    ? "bg-blue-950/40 border-l-2 border-blue-500"
+                    ? "bg-blue-950/40 border-l-2 border-emerald-500"
                     : "hover:bg-zinc-800/50"
                 }`}
               >
@@ -121,7 +121,7 @@ export function CaptionEditor({ captions, currentTime, onUpdate }: Props) {
                         value={editValue}
                         onChange={(e) => setEditValue(e.target.value)}
                         onKeyDown={(e) => handleKeyDown(e, i)}
-                        className="flex-1 bg-zinc-800 border border-blue-500 rounded px-2 py-1 text-sm text-white outline-none"
+                        className="flex-1 bg-zinc-800 border border-emerald-500 rounded px-2 py-1 text-sm text-white outline-none"
                       />
                       <button
                         onClick={() => commitEdit(i)}

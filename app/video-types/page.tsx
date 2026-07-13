@@ -13,18 +13,6 @@ const CATEGORIES = [
 
 const videoTypes = [
   {
-    title: "Custom AI Reel",
-    desc: "Describe the reel you want, upload optional images/logo, and let Itnavideo build a custom timeline.",
-    input: "Prompt + optional images",
-    category: "creator",
-    image: "/preview/Custom AI Reel.png",
-    href: "/custom-ai-reel",
-    dashHref: "/dashboard?videoType=custom-ai-reel",
-    tags: ["custom", "prompt", "images", "logo"],
-    proof: "Most flexible",
-    accent: "#60A5FA",
-  },
-  {
     title: "Auto Caption Video",
     desc: "Professional subtitles for existing reels, with style and position controls.",
     input: "Video",
@@ -49,6 +37,30 @@ const videoTypes = [
     accent: "#F59E0B",
   },
   {
+    title: "Whiteboard Video",
+    desc: "AI extracts key points from speech and writes them on a professional whiteboard.",
+    input: "Audio or Video",
+    category: "education",
+    image: "/preview/Whiteboard Video.png",
+    href: "/whiteboard-video",
+    dashHref: "/dashboard?videoType=whiteboard-video",
+    tags: ["whiteboard", "education", "points", "notes"],
+    proof: "Educational",
+    accent: "#10B981",
+  },
+  {
+    title: "Typography Video",
+    desc: "Big bold keywords pop on your talking video synced to speech.",
+    input: "Video",
+    category: "creator",
+    image: "/preview/Typography Video.png",
+    href: "/typography-video",
+    dashHref: "/dashboard?videoType=typography-video",
+    tags: ["typography", "bold", "keywords", "text"],
+    proof: "Engaging",
+    accent: "#8B5CF6",
+  },
+  {
     title: "Long Video Promo",
     desc: "Turn a long-form video into a short vertical teaser with a watch CTA.",
     input: "Video + thumbnail",
@@ -59,6 +71,30 @@ const videoTypes = [
     tags: ["youtube", "promo", "thumbnail"],
     proof: "Promo ready",
     accent: "#A3E635",
+  },
+  {
+    title: "Multi Images Video",
+    desc: "Video + title + animated image slideshow for news, stories, and visual content.",
+    input: "Video + images",
+    category: "creator",
+    image: "/preview/Multi Images Video.png",
+    href: "/multi-images-video",
+    dashHref: "/dashboard?videoType=multi-images-video",
+    tags: ["images", "slideshow", "news", "story"],
+    proof: "Story format",
+    accent: "#F472B6",
+  },
+  {
+    title: "Long Video Clips",
+    desc: "AI picks best high-energy moments from long videos and renders captioned short clips.",
+    input: "Long video",
+    category: "creator",
+    image: "/preview/Long Video Clips.png",
+    href: "/long-video-clips",
+    dashHref: "/dashboard?videoType=long-video-clips",
+    tags: ["clips", "repurpose", "podcast", "shorts"],
+    proof: "Repurpose",
+    accent: "#06B6D4",
   },
 ];
 
@@ -103,7 +139,7 @@ export default function VideoTypesPage() {
             </div>
             <div className="grid grid-cols-3 gap-3 rounded-lg border border-white/10 bg-white/[0.035] p-4">
               {[
-                ["4", "Video Types"],
+                [String(videoTypes.length), "Video Types"],
                 ["1", "Preview flow"],
                 ["9:16", "MP4 output"],
               ].map(([value, label]) => (

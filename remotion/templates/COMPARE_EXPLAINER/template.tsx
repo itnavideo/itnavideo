@@ -306,15 +306,20 @@ const getCaptionText = (
 const VisualBox = ({
   image,
   side,
+  isActive = false,
 }: {
   image: string;
   side: 'left' | 'right';
+  isActive?: boolean;
 }) => {
   const src = resolveAsset(image);
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   // Subtle Ken Burns on images
   const imgZoom = 1 + Math.sin(frame / 120 + (side === 'right' ? 1.5 : 0)) * 0.015;
+  // Active glow pulse when this side is being discussed
+  const glowOpacity = isActive ? 0.15 + Math.sin(frame / 20) * 0.05 : 0;
+  const activeScale = isActive ? 1.02 : 1;
 
   return (
     <div
@@ -326,9 +331,13 @@ const VisualBox = ({
         border: `4px solid ${side === 'left' ? '#3D52FF' : '#7C5CFC'}`,
         background: '#ffffff',
         overflow: 'hidden',
-        boxShadow: side === 'left'
-          ? '0 12px 32px rgba(61,82,255,0.15), 0 4px 12px rgba(0,0,0,0.08)'
-          : '0 12px 32px rgba(124,92,252,0.15), 0 4px 12px rgba(0,0,0,0.08)',
+        boxShadow: isActive
+          ? `0 16px 40px ${side === 'left' ? 'rgba(61,82,255,0.3)' : 'rgba(124,92,252,0.3)'}, 0 4px 12px rgba(0,0,0,0.1)`
+          : side === 'left'
+            ? '0 12px 32px rgba(61,82,255,0.15), 0 4px 12px rgba(0,0,0,0.08)'
+            : '0 12px 32px rgba(124,92,252,0.15), 0 4px 12px rgba(0,0,0,0.08)',
+        transform: `scale(${activeScale})`,
+        transition: 'transform 0.3s, box-shadow 0.3s',
       }}
     >
       {/* Blurred background fill */}
@@ -399,6 +408,16 @@ const VisualBox = ({
         borderRadius: '0 0 16px 16px',
         background: `linear-gradient(0deg, ${side === 'left' ? 'rgba(61,82,255,0.08)' : 'rgba(124,92,252,0.08)'} 0%, transparent 100%)`,
       }} />
+
+      {/* Active glow overlay */}
+      {isActive && (
+        <div style={{
+          position: 'absolute', inset: 0,
+          borderRadius: 16,
+          background: `radial-gradient(ellipse at center, ${side === 'left' ? 'rgba(61,82,255,' : 'rgba(124,92,252,'}${glowOpacity}) 0%, transparent 70%)`,
+          pointerEvents: 'none',
+        }} />
+      )}
     </div>
   );
 };
@@ -866,16 +885,16 @@ const StickerPresenter = ({
 
   // Pose-change slide: when character moves left/right, add horizontal motion
   const slideX = poseJustChanged
-    ? interpolate(poseDurationFrames, [0, 14], [stickerPosition === 'left' ? -30 : stickerPosition === 'right' ? 30 : 0, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})
+    ? interpolate(poseDurationFrames, [0, 14], [stickerPosition === 'left' ? -60 : stickerPosition === 'right' ? 60 : 0, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})
     : 0;
 
   // Horizontal positioning based on scene context
   const getHorizontalAlign = (): React.CSSProperties => {
     if (stickerPosition === 'left') {
-      return {justifyContent: 'flex-start', paddingLeft: 20, paddingRight: 0};
+      return {justifyContent: 'flex-start', paddingLeft: 60, paddingRight: 0};
     }
     if (stickerPosition === 'right') {
-      return {justifyContent: 'flex-end', paddingLeft: 0, paddingRight: 20};
+      return {justifyContent: 'flex-end', paddingLeft: 0, paddingRight: 60};
     }
     return {justifyContent: 'center', paddingLeft: 0, paddingRight: 0};
   };
@@ -938,6 +957,20 @@ export const CompareExplainer = (props: CompareProps) => {
     activeCaption,
     props.transcript || props.sourceScript || props.topicTitle || `${leftTitle} vs ${rightTitle}`,
   );
+
+  // Determine which image is "active" (being discussed) based on sticker pose
+  const currentTime = frame / fps;
+  const durationSeconds = Number(props.durationSeconds || props.sourceDurationSeconds || props.renderWindowSeconds || 45);
+  const currentPose = getActiveStickerPose({
+    currentTime,
+    durationSeconds,
+    overlay: activeOverlay,
+    caption: activeCaption,
+    leftTitle,
+    rightTitle,
+  });
+  const leftActive = currentPose === STICKER_POSES.leftSideExplainer;
+  const rightActive = currentPose === STICKER_POSES.rightSideExplainer;
 
   const captionScale = spring({
     frame: frame % 90, // reset spring every ~3s for each new caption
@@ -1136,10 +1169,10 @@ export const CompareExplainer = (props: CompareProps) => {
         }}
       >
         <div style={{opacity: leftImageEntry, transform: `translateX(${(1 - leftImageEntry) * -40}px)`}}>
-          <VisualBox image={leftImage} side="left" />
+          <VisualBox image={leftImage} side="left" isActive={leftActive} />
         </div>
         <div style={{opacity: rightImageEntry, transform: `translateX(${(1 - rightImageEntry) * 40}px)`}}>
-          <VisualBox image={rightImage} side="right" />
+          <VisualBox image={rightImage} side="right" isActive={rightActive} />
         </div>
       </div>
 

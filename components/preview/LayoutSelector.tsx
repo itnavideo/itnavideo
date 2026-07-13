@@ -120,7 +120,7 @@ export function LayoutSelector({
                     onClick={() => onLayoutChange({ ...layout, videoLayout: opt.value })}
                     className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all border ${
                       layout.videoLayout === opt.value
-                        ? "bg-blue-600 border-blue-500 text-white"
+                        ? "bg-blue-600 border-emerald-500 text-white"
                         : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-600"
                     }`}
                   >
@@ -146,7 +146,7 @@ export function LayoutSelector({
                   onCaptionHighlightColorChange(preset.highlightColor);
                 }
               }}
-              className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500"
+              className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500"
             >
               {CAPTION_STYLES.map((s) => (
                 <option key={s.value} value={s.value}>{s.label}</option>
@@ -160,7 +160,7 @@ export function LayoutSelector({
               <select
                 value={captionFontFamily}
                 onChange={(e) => onCaptionFontFamilyChange(e.target.value)}
-                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500"
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500"
               >
                 {CAPTION_FONTS.map((font) => (
                   <option key={font.value} value={font.value}>{font.label}</option>
@@ -173,7 +173,7 @@ export function LayoutSelector({
               <select
                 value={captionFontSize}
                 onChange={(e) => onCaptionFontSizeChange(e.target.value)}
-                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-blue-500"
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500"
               >
                 {CAPTION_SIZES.map((size) => (
                   <option key={size.value} value={size.value}>{size.label}</option>
@@ -192,7 +192,7 @@ export function LayoutSelector({
                   onClick={() => onLayoutChange({ ...layout, captionPosition: opt.value })}
                   className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all border ${
                     layout.captionPosition === opt.value
-                      ? "bg-blue-600 border-blue-500 text-white"
+                      ? "bg-blue-600 border-emerald-500 text-white"
                       : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-600"
                   }`}
                 >
@@ -237,11 +237,11 @@ export function LayoutSelector({
               <div className="flex items-center gap-2">
                 <input
                   type="color"
-                  value={accentColor || "#2563EB"}
+                  value={accentColor || "#10B981"}
                   onChange={(e) => onAccentColorChange(e.target.value)}
                   className="w-8 h-8 rounded cursor-pointer border-0 bg-transparent"
                 />
-                <span className="text-xs text-zinc-500 font-mono">{accentColor || "#2563EB"}</span>
+                <span className="text-xs text-zinc-500 font-mono">{accentColor || "#10B981"}</span>
               </div>
             </div>
           )}
@@ -257,7 +257,7 @@ export function LayoutSelector({
                   onClick={() => onLayoutChange({ ...layout, progressStyle: opt.value })}
                   className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all border ${
                     layout.progressStyle === opt.value
-                      ? "bg-blue-600 border-blue-500 text-white"
+                      ? "bg-blue-600 border-emerald-500 text-white"
                       : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-600"
                   }`}
                 >

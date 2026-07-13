@@ -37,7 +37,7 @@ export default function AuthShell({
             <ArrowLeft size={17} />
             Back to home
           </Link>
-          <div className="mb-8 inline-flex items-center gap-2 rounded-lg border border-blue-400/20 bg-blue-400/10 px-3 py-2 text-sm font-bold text-blue-200">
+          <div className="mb-8 inline-flex items-center gap-2 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-sm font-bold text-blue-200">
             <Sparkles size={15} />
             {eyebrow}
           </div>
@@ -51,7 +51,7 @@ export default function AuthShell({
               const Icon = item.icon;
               return (
                 <div key={item.label} className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3">
-                  <Icon size={18} className="text-blue-300" />
+                  <Icon size={18} className="text-emerald-300" />
                   <span className="font-semibold text-zinc-200">{item.label}</span>
                 </div>
               );

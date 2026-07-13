@@ -26,7 +26,7 @@ export default function BrandWall() {
                   key={audience.label}
                   className="flex items-center gap-2 rounded-lg border border-white/8 bg-white/[0.03] px-4 py-3 text-sm font-semibold text-zinc-300"
                 >
-                  <Icon size={16} className="text-blue-400" />
+                  <Icon size={16} className="text-emerald-400" />
                   <span>{audience.label}</span>
                 </div>
               );

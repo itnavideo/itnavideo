@@ -62,6 +62,8 @@ export type ReelTemplateName =
   | 'LONG_VIDEO_PROMO'
   | 'WHITEBOARD_VIDEO'
   | 'TYPOGRAPHY_VIDEO'
+  | 'MULTI_IMAGES_VIDEO'
+  | 'LONG_VIDEO_CLIPS'
   | 'VIDEO_EXPLAINER'
   | 'VIDEO_SIMPLE_EXPLAINER'
   | 'VIDEO_CAPTION'
@@ -77,6 +79,15 @@ export type ReelTemplateConfig = {
   transcriptRequirement: 'required' | 'not-required';
   plannerMode: string;
   mediaFit: string;
+  // Feature flags — determines what the dashboard/API should do for this template
+  needsImages?: boolean;           // Upload multiple images (2-8)
+  needsThumbnail?: boolean;        // Upload a thumbnail image
+  needsTitle?: boolean;            // Requires a title field
+  needsCompareFields?: boolean;    // Left/right titles + handle + sticker picker
+  needsCaptionStylePicker?: boolean; // Show caption style picker
+  needsTypographyStylePicker?: boolean; // Show typography style picker
+  skipTranscription?: boolean;     // Fast path — no Groq transcription
+  skipPlanner?: boolean;           // No AI scene planner needed
 };
 
 export type ReelVideoTypeName = ReelTemplateName;
@@ -90,6 +101,8 @@ export const REEL_TEMPLATE_REGISTRY: Partial<Record<ReelTemplateName, ReelTempla
     transcriptRequirement: 'required',
     plannerMode: 'videoCaption',
     mediaFit: 'videoCaption',
+    needsCaptionStylePicker: true,
+    skipPlanner: true,
   },
   comparisonImages: {
     templateName: 'comparisonImages',
@@ -98,6 +111,8 @@ export const REEL_TEMPLATE_REGISTRY: Partial<Record<ReelTemplateName, ReelTempla
     transcriptRequirement: 'required',
     plannerMode: 'compare',
     mediaFit: 'compare',
+    needsImages: true,
+    needsCompareFields: true,
   },
   LONG_VIDEO_PROMO: {
     templateName: 'LONG_VIDEO_PROMO',
@@ -106,6 +121,10 @@ export const REEL_TEMPLATE_REGISTRY: Partial<Record<ReelTemplateName, ReelTempla
     transcriptRequirement: 'not-required',
     plannerMode: 'videoCaption',
     mediaFit: 'videoCaption',
+    needsThumbnail: true,
+    needsTitle: true,
+    skipTranscription: true,
+    skipPlanner: true,
   },
   WHITEBOARD_VIDEO: {
     templateName: 'WHITEBOARD_VIDEO',
@@ -114,6 +133,7 @@ export const REEL_TEMPLATE_REGISTRY: Partial<Record<ReelTemplateName, ReelTempla
     transcriptRequirement: 'required',
     plannerMode: 'videoCaption',
     mediaFit: 'videoCaption',
+    skipPlanner: true,
   },
   TYPOGRAPHY_VIDEO: {
     templateName: 'TYPOGRAPHY_VIDEO',
@@ -122,6 +142,30 @@ export const REEL_TEMPLATE_REGISTRY: Partial<Record<ReelTemplateName, ReelTempla
     transcriptRequirement: 'required',
     plannerMode: 'videoCaption',
     mediaFit: 'videoCaption',
+    needsTypographyStylePicker: true,
+    skipPlanner: true,
+  },
+  MULTI_IMAGES_VIDEO: {
+    templateName: 'MULTI_IMAGES_VIDEO',
+    compositionId: 'MULTI-IMAGES-VIDEO',
+    allowedMedia: ['video'],
+    transcriptRequirement: 'not-required',
+    plannerMode: 'videoCaption',
+    mediaFit: 'videoCaption',
+    needsImages: true,
+    needsTitle: true,
+    skipTranscription: true,
+    skipPlanner: true,
+  },
+  LONG_VIDEO_CLIPS: {
+    templateName: 'LONG_VIDEO_CLIPS',
+    compositionId: 'LONG-VIDEO-CLIPS',
+    allowedMedia: ['video'],
+    transcriptRequirement: 'required',
+    plannerMode: 'videoCaption',
+    mediaFit: 'videoCaption',
+    needsCaptionStylePicker: true,
+    skipPlanner: true,
   },
 } as const satisfies Record<string, {
   templateName: ReelTemplateName;
@@ -130,6 +174,14 @@ export const REEL_TEMPLATE_REGISTRY: Partial<Record<ReelTemplateName, ReelTempla
   transcriptRequirement: 'required' | 'audio-or-video' | 'not-required';
   plannerMode: 'videoExplainer' | 'notes' | 'videoCaption' | 'imageStory' | 'compare';
   mediaFit: 'videoExplainer' | 'notes' | 'videoCaption' | 'imageStory' | 'compare';
+  needsImages?: boolean;
+  needsThumbnail?: boolean;
+  needsTitle?: boolean;
+  needsCompareFields?: boolean;
+  needsCaptionStylePicker?: boolean;
+  needsTypographyStylePicker?: boolean;
+  skipTranscription?: boolean;
+  skipPlanner?: boolean;
 }>;
 export const REEL_VIDEO_TYPE_REGISTRY = REEL_TEMPLATE_REGISTRY;
 export type ReelOverlayLayout = 'headlineCard' | 'splitExplainer' | 'statCard' | 'warningCard' | 'checklist' | 'ctaCard';
@@ -356,7 +408,7 @@ export async function createReelPlan(input: ReelPlanRequest): Promise<ReelPlanRe
   const localPlan = await createLocalReelPlan(input);
 
   // Skip OpenAI managed planner for templates that only need captions/simple layout
-  const skipManagedPlanner = ['AUTO_CAPTION_REEL', 'LONG_VIDEO_PROMO'].includes(localPlan.templateName);
+  const skipManagedPlanner = Boolean(REEL_TEMPLATE_REGISTRY[localPlan.templateName]?.skipPlanner);
 
   if (input.dryRun || !process.env.OPENAI_API_KEY || getMaxOpenAiCallsPerRender() < 1 || skipManagedPlanner) {
     return validateAndRepairReelPlan(localPlan);
@@ -550,7 +602,7 @@ export function validateAndRepairReelPlan(plan: ReelPlanResult): ReelPlanResult 
     ? autoCaptionAllowed
     : plan.templateName === 'IMAGE_STORY'
       ? imageStoryAllowed
-      : plan.templateName === 'LONG_VIDEO_PROMO'
+      : Boolean(REEL_TEMPLATE_REGISTRY[plan.templateName]?.skipPlanner)
         ? true
         : overlayTimeline.length > 0;
   const renderAllowed = transcriptSceneAllowed &&

@@ -320,8 +320,8 @@ export default function PromoteAndEarnPage() {
               href="mailto:rohi@itnavideo.com?subject=Itnavideo%20Promotion%20Credit%20Claim"
               className="group rounded-xl border border-white/8 bg-white/[0.02] p-5 transition hover:border-brand-mint/30 hover:bg-brand-mint/[0.03]"
             >
-              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10">
-                <Mail size={18} className="text-blue-400" />
+              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10">
+                <Mail size={18} className="text-emerald-400" />
               </div>
               <h3 className="text-sm font-bold text-white">Email Us</h3>
               <p className="mt-1 text-xs text-brand-mint font-mono">rohi@itnavideo.com</p>

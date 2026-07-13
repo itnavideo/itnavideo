@@ -67,7 +67,7 @@ export default function PricingSection() {
       <div className="relative mx-auto max-w-4xl">
         {/* Header */}
         <div className="mb-12 text-center">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-400/25 bg-blue-400/[0.07] px-4 py-1.5 text-xs font-bold text-blue-400">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-400/[0.07] px-4 py-1.5 text-xs font-bold text-emerald-400">
             <Sparkles size={12} />
             Simple pricing
           </div>

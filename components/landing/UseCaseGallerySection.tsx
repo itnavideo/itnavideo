@@ -4,12 +4,6 @@ import { ArrowRight } from 'lucide-react';
 
 const outputShowcase = [
   {
-    title: 'Custom AI Reel',
-    body: 'Best for custom prompts where users want text, screenshots, images, and a logo arranged into one premium reel.',
-    src: '/preview/Custom AI Reel.png',
-    href: '/custom-ai-reel',
-  },
-  {
     title: 'Auto Caption Reel',
     body: 'Best for existing reels that need clean, readable, social-ready captions without changing the original video.',
     src: '/preview/Auto Caption Reel.png',
@@ -26,6 +20,12 @@ const outputShowcase = [
     body: 'Best for turning a longer video into a short vertical teaser with a clear reason to watch.',
     src: '/preview/Long Video Promo.png',
     href: '/video-types/long-video-promo',
+  },
+  {
+    title: 'Whiteboard Video',
+    body: 'Best for educational content where key points need to appear clearly on a whiteboard.',
+    src: '/preview/Whiteboard Video.png',
+    href: '/video-types/whiteboard-video',
   },
 ];
 

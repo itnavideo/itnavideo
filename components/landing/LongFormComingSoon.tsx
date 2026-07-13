@@ -93,9 +93,9 @@ export default function LongFormComingSoon() {
             );
           })}
 
-          <div className="rounded-lg border border-blue-400/20 bg-blue-400/10 p-6 sm:col-span-2">
+          <div className="rounded-lg border border-emerald-400/20 bg-emerald-400/10 p-6 sm:col-span-2">
             <div className="flex gap-4">
-              <BookOpen size={22} className="mt-1 text-blue-300" />
+              <BookOpen size={22} className="mt-1 text-emerald-300" />
               <div>
                 <h3 className="font-bold text-white">Founder insight</h3>
                 <p className="mt-2 text-sm leading-6 text-zinc-300">

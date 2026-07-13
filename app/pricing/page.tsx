@@ -79,7 +79,7 @@ export default function PricingPage() {
                 {[
                   ["Monthly video credits", "25", "60", "150"],
                   ["1 video = 1 credit", "✓", "✓", "✓"],
-                  ["All 6 production video types", "✓", "✓", "✓"],
+                  ["All video types included", "✓", "✓", "✓"],
                   ["1080p HD export", "✓", "✓", "✓"],
                   ["No watermark", "✓", "✓", "✓"],
                   ["Auto captions", "✓", "✓", "✓"],
@@ -109,7 +109,7 @@ export default function PricingPage() {
             {[
               { q: "What is one video credit?", a: "One exported video = one credit. Upload content, choose any video type, generate one reel = 1 credit used." },
               { q: "What happens if my render fails?", a: "If a render fails due to a system or server issue, the credit is not charged or gets refunded automatically." },
-              { q: "Can I use any video type with any plan?", a: "Yes. All 6 production video types are available on every plan including Starter. No video types are locked behind higher tiers." },
+              { q: "Can I use any video type with any plan?", a: "Yes. All video types included are available on every plan including Starter. No video types are locked behind higher tiers." },
               { q: "Do videos have a watermark?", a: "No. All paid plans export clean videos without any Itnavideo watermark." },
               { q: "Can I use the videos commercially?", a: "The Business plan includes commercial usage rights. Starter and Creator are for personal/creator use." },
               { q: "What video formats are supported?", a: "Output is 1080×1920 MP4 at 30fps — ready for Instagram Reels, YouTube Shorts, TikTok, and WhatsApp." },

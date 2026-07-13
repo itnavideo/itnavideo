@@ -28,6 +28,7 @@ export type WhiteboardPoint = {
   markerColor: string;
   bulletType: 'number' | 'bullet' | 'check' | 'arrow' | 'star';
   isHighlight?: boolean;
+  icon?: string;
 };
 
 export type WhiteboardPlan = {
@@ -58,6 +59,9 @@ const COLORS = {
 
 // Rotate through these for regular points
 const POINT_COLORS = [COLORS.blue, COLORS.green, COLORS.blue, COLORS.green, COLORS.blue, COLORS.green, COLORS.blue];
+
+// Default icon rotation when Gemini doesn't specify
+const ICON_ROTATION = ['arrow', 'checkmark', 'lightbulb', 'star', 'circle', 'arrow', 'checkmark'];
 
 // ── Main planner ──────────────────────────────────────────────────────────────
 
@@ -103,11 +107,12 @@ async function callGeminiPlanner(input: WhiteboardPlanInput, apiKey: string): Pr
     '6. Mark exactly 1 point as "highlight" (the most important one — will be red).',
     '7. Add a conclusion (max 5 words) — appears after all points.',
     '8. bulletType: "number" for step-by-step, "check" for tips/rules, "bullet" for general lists.',
-    '9. Keep text SHORT. Not full sentences. Whiteboard notes style.',
-    '10. DO NOT repeat the title in points. Each point must be different.',
+    '9. icon: one of "arrow", "checkmark", "lightbulb", "star", "circle" — pick the most relevant for each point.',
+    '10. Keep text SHORT. Not full sentences. Whiteboard notes style.',
+    '11. DO NOT repeat the title in points. Each point must be different.',
     '',
     'OUTPUT FORMAT (JSON only, no markdown, no explanation):',
-    '{"title":"Topic Here","points":[{"text":"Short point","startTime":4,"bulletType":"number","highlight":false}],"conclusion":"Key takeaway","conclusionTime":' + Math.max(15, input.durationSeconds - 5).toFixed(0) + '}',
+    '{"title":"Topic Here","points":[{"text":"Short point","startTime":4,"bulletType":"number","highlight":false,"icon":"arrow"}],"conclusion":"Key takeaway","conclusionTime":' + Math.max(15, input.durationSeconds - 5).toFixed(0) + '}',
   ].join('\n');
 
   const response = await ai.models.generateContent({
@@ -134,6 +139,7 @@ async function callGeminiPlanner(input: WhiteboardPlanInput, apiKey: string): Pr
       markerColor: p.highlight ? COLORS.red : POINT_COLORS[i % POINT_COLORS.length],
       bulletType: (['number', 'bullet', 'check', 'arrow', 'star'].includes(p.bulletType) ? p.bulletType : 'number') as WhiteboardPoint['bulletType'],
       isHighlight: Boolean(p.highlight),
+      icon: (['arrow', 'checkmark', 'lightbulb', 'star', 'circle'].includes(p.icon) ? p.icon : ICON_ROTATION[i % ICON_ROTATION.length]) as string,
     }));
 
   // Ensure minimum 4s spacing
@@ -181,6 +187,7 @@ function buildFallbackPlan(input: WhiteboardPlanInput): WhiteboardPlan {
       markerColor: POINT_COLORS[i % POINT_COLORS.length],
       bulletType: 'number' as const,
       isHighlight: i === Math.floor(usable.length / 2), // middle point is highlight
+      icon: ICON_ROTATION[i % ICON_ROTATION.length],
     };
   });
 

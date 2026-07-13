@@ -21,6 +21,8 @@ const footerGroups = [
       { label: 'Auto Caption Video', href: '/video-types/auto-caption-reel' },
       { label: 'Compare Explainer Video', href: '/video-types/compare-explainer' },
       { label: 'Long Video Promo', href: '/video-types/long-video-promo' },
+      { label: 'Whiteboard Video', href: '/video-types/whiteboard-video' },
+      { label: 'Typography Video', href: '/video-types/typography-video' },
       { label: 'View all video types', href: '/video-types' },
     ],
   },

@@ -213,7 +213,7 @@ export default function AdminHomePage() {
                   <td className="px-6 py-4">
                     <span
                       className={`text-[10px] font-bold uppercase tracking-widest ${
-                        log.level === 'Error' ? 'text-red-500' : log.level === 'Warning' ? 'text-orange-500' : 'text-blue-500'
+                        log.level === 'Error' ? 'text-red-500' : log.level === 'Warning' ? 'text-orange-500' : 'text-emerald-500'
                       }`}
                     >
                       {log.level}

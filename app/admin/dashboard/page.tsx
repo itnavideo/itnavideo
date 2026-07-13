@@ -38,7 +38,7 @@ export default function AdminDashboardPage() {
 
       {/* Live Stats */}
       <section className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
-        <StatCard label="Total Users" value={stats?.totalUsers} loading={statsLoading} icon={Users} tone="text-blue-400" />
+        <StatCard label="Total Users" value={stats?.totalUsers} loading={statsLoading} icon={Users} tone="text-emerald-400" />
         <StatCard label="Active Today" value={stats?.activeToday} loading={statsLoading} icon={Activity} tone="text-green-400" />
         <StatCard label="Active This Week" value={stats?.activeThisWeek} loading={statsLoading} icon={Activity} tone="text-cyan-300" />
         <StatCard label="Total Renders" value={stats?.totalRenders} loading={statsLoading} icon={Server} tone="text-amber-300" />

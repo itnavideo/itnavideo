@@ -27,7 +27,7 @@ const themes = [
   {
     name: 'Finance',
     accent: 'from-blue-400 to-teal-500',
-    ring: 'border-blue-400/35 bg-blue-400/10 text-blue-200',
+    ring: 'border-emerald-400/35 bg-emerald-400/10 text-blue-200',
     icon: BadgeIndianRupee,
     headline: 'SHOULD WE TAKE A LOAN',
     keyword: 'LOAN',

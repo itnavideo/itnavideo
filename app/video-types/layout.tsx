@@ -1,17 +1,12 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Video Types - Seven AI Reel Video Types | Itnavideo",
-  description: "Browse Itnavideo's seven production video types: Custom AI Reel, Creator Reel, Auto Caption, Background Replace, Compare Explainer, Auto Draw, and Long Video Promo.",
+  title: "Video Types — AI Video Formats for Creators | Itnavideo",
+  description: "Browse Itnavideo's focused video types: Auto Caption, Compare Explainer, Long Video Promo, Whiteboard Video, and Typography Video. Each designed for a specific creator workflow.",
   openGraph: {
-    title: "Video Types - Seven AI Reel Video Types | Itnavideo",
-    description: "Browse Itnavideo's seven production video types: Custom AI Reel, Creator Reel, Auto Caption, Background Replace, Compare Explainer, Auto Draw, and Long Video Promo.",
+    title: "Video Types — AI Video Formats for Creators | Itnavideo",
+    description: "Browse Itnavideo's focused video types. Each designed for a specific creator workflow.",
     images: ["/og-image.png"],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Video Types - Seven AI Reel Video Types | Itnavideo",
-    description: "Browse seven focused AI reel video types. Upload content, preview the output, and create a polished reel.",
   },
 };
 

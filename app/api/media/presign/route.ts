@@ -151,5 +151,7 @@ function resolvePresignVideoTypeMode(value: string): string {
 }
 
 function isRecognizedWorkflowMode(value: string) {
-  return isCompareWorkflow(value) || isAutoCaptionWorkflow(value) || isLongVideoPromoWorkflow(value);
+  // Allow ALL modes — new video types should never be blocked at upload step.
+  // If mode is provided and non-empty, accept it. Validation happens in /api/reels/jobs.
+  return Boolean(value && value.trim().length > 0);
 }

@@ -45,7 +45,7 @@ export const VideoTypePreviewRenderer = forwardRef<PlayerRef, Props>(function Vi
       spaceKeyToPlayOrPause={false}
       renderLoading={() => (
         <div className="absolute inset-0 flex items-center justify-center bg-black">
-          <Loader2 className="animate-spin text-blue-400" size={32} />
+          <Loader2 className="animate-spin text-emerald-400" size={32} />
         </div>
       )}
     />

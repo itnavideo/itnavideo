@@ -15,6 +15,7 @@ import {createPremiumSoundCues, createPremiumStyleLock} from '@/services/ai/prem
 import {planCompareStickers} from '@/services/ai/compareStickerPlanner';
 import {planWhiteboardVideo} from '@/services/ai/whiteboardPlanner';
 import {planTypographyVideo} from '@/services/ai/typographyPlanner';
+import {selectBestClips} from '@/services/ai/clipSelector';
 import {SUBTITLE_PRESETS} from '@/remotion/types/subtitles';
 
 export const runtime = 'nodejs';
@@ -22,7 +23,7 @@ export const dynamic = 'force-dynamic';
 
 type LambdaRenderRequest = Parameters<typeof renderMediaOnLambda>[0];
 type ReelMode =
-  | 'compare' | 'autoCaption' | 'longVideoPromo' | 'whiteboardVideo' | 'typographyVideo';
+  | 'compare' | 'autoCaption' | 'longVideoPromo' | 'whiteboardVideo' | 'typographyVideo' | 'multiImagesVideo' | 'longVideoClips';
 
 const MODE_TO_TEMPLATE: Partial<Record<ReelMode, ReelTemplateName>> = {
   compare: 'comparisonImages',
@@ -30,6 +31,8 @@ const MODE_TO_TEMPLATE: Partial<Record<ReelMode, ReelTemplateName>> = {
   longVideoPromo: 'LONG_VIDEO_PROMO',
   whiteboardVideo: 'WHITEBOARD_VIDEO',
   typographyVideo: 'TYPOGRAPHY_VIDEO',
+  multiImagesVideo: 'MULTI_IMAGES_VIDEO',
+  longVideoClips: 'LONG_VIDEO_CLIPS',
 };
 
 const MAX_RENDER_WINDOW_SECONDS = 60;
@@ -159,7 +162,7 @@ export async function POST(request: Request) {
     const promoThumbnailUrl = thumbnailKey
       ? readString(await createReadUrl(thumbnailKey))
       : "";
-    const comparisonImageUrls = mode === 'compare'
+    const comparisonImageUrls = templateConfig.needsImages
       ? (await Promise.all(
           comparisonImageKeys.map(async (key: string) => readString(await createReadUrl(key))),
         )).filter(Boolean).slice(0, 2)
@@ -356,6 +359,243 @@ export async function POST(request: Request) {
             timings,
           },
         } : {}),
+      });
+    }
+
+    // ── MULTI IMAGES VIDEO FAST PATH (no transcription needed) ──
+    if (mode === 'multiImagesVideo') {
+      const requestedDuration = readFiniteNumber(body.durationSeconds, readFiniteNumber(body.sourceDurationSeconds, 30));
+      const durationSeconds = Math.max(8, Math.min(MAX_RENDER_WINDOW_SECONDS, requestedDuration || 30));
+      const multiTitle = readString(body.promoTitle || body.title) || topicTitle || 'Story';
+      const comparisonImageUrls2 = comparisonImageUrls.length
+        ? comparisonImageUrls
+        : (Array.isArray(body.imageSources) ? body.imageSources.map((s: unknown) => readString(s)).filter(Boolean) : []);
+
+      // Sign image URLs if they're S3 keys
+      const signedImageUrls: string[] = [];
+      const imageKeys = Array.isArray(body.comparisonImageKeys) ? body.comparisonImageKeys : [];
+      for (const key of imageKeys) {
+        const url = readString(await createReadUrl(readString(key)));
+        if (url) signedImageUrls.push(url);
+      }
+      const finalImageUrls = signedImageUrls.length ? signedImageUrls : comparisonImageUrls2;
+
+      const inputProps: Record<string, unknown> = {
+        mediaSrc: mediaUrl,
+        mediaType: 'video',
+        mediaTrimStartSeconds: 0,
+        sourceAudioVolume: 1,
+        durationSeconds,
+        sourceDurationSeconds: durationSeconds,
+        title: multiTitle,
+        imageSources: finalImageUrls,
+        templateName,
+        template: templateName,
+        compositionId: composition,
+      };
+
+      const preflight = validateBeforeRender({ inputProps, templateName, composition, mediaType });
+      if (preflight) {
+        return NextResponse.json({ ok: false, status: 'failed', reasonCode: preflight.reasonCode, error: preflight.message }, { status: 422 });
+      }
+
+      const outName = `${TEMP_MEDIA_RENDER_PREFIX}${sanitizeSegment(userId)}/${Date.now()}-multi-images.mp4`;
+      markTiming('render_props_prepare_ms');
+      const renderRequest: LambdaRenderRequest = {
+        region: config.region,
+        functionName: config.functionName,
+        serveUrl: config.serveUrl,
+        composition,
+        codec: 'h264',
+        audioCodec: 'aac',
+        inputProps,
+        outName,
+        privacy: 'private',
+        deleteAfter: '3-days',
+        overwrite: true,
+        framesPerLambda: 120,
+        maxRetries: 2,
+        downloadBehavior: { type: 'download', fileName: 'itnavideo-multi-images.mp4' },
+        isProduction: true,
+        logLevel: 'info',
+      };
+
+      console.log('[MULTI_IMAGES_VIDEO] render start', { mode, templateName, composition, durationSeconds, imageCount: finalImageUrls.length });
+      const render = await startRenderWithCapacityRetry(renderRequest);
+      markTiming('render_start_ms');
+
+      return NextResponse.json({
+        ok: true,
+        status: 'rendering',
+        renderId: render.renderId,
+        bucketName: render.bucketName,
+        outName,
+        mediaKey,
+        reelTitle: multiTitle,
+        design: 'Multi Images Video',
+        mode,
+        templateName,
+        transcriptSource: 'not-required',
+        access,
+        retentionHours: 48,
+      });
+    }
+
+    // ── LONG VIDEO CLIPS FLOW (transcribe → pick best moments → multi-render) ──
+    if (mode === 'longVideoClips') {
+      const requestedClipCount = Math.max(1, Math.min(10, readFiniteNumber(body.clipCount, 3)));
+      const requestedClipDuration = [15, 30, 60].includes(readFiniteNumber(body.clipDuration, 30))
+        ? readFiniteNumber(body.clipDuration, 30)
+        : 30;
+
+      // Transcribe the full video
+      const clipTranscription = await transcribeForPlanning({
+        mediaUrl,
+        fileName,
+        contentType,
+        mediaType: 'video',
+        outputLanguage: normalizeSubtitleLanguage(readString(body.subtitleOutputLanguage)) || undefined,
+      });
+      markTiming('clip_transcription_ms');
+
+      if (!clipTranscription.transcript) {
+        return NextResponse.json({
+          ok: false,
+          status: 'failed',
+          reasonCode: 'TRANSCRIPTION_FAILED',
+          error: 'No clear speech detected. Please upload a video with clear speaking voice.',
+        }, {status: 422});
+      }
+
+      const totalDuration = clipTranscription.durationSeconds || 120;
+      const allWords = (clipTranscription.words || []).map((w: any) => ({
+        word: String(w.word || ''),
+        start: Number(w.start ?? 0),
+        end: Number(w.end ?? 0),
+      })).filter((w: any) => w.word && Number.isFinite(w.start));
+      const allSegments = (clipTranscription.segments || []).map((s: any) => ({
+        start: Number(s.start ?? 0),
+        end: Number(s.end ?? 0),
+        text: String(s.text || ''),
+      }));
+
+      // Pick best clips using deterministic scorer
+      const bestClips = selectBestClips({
+        transcript: clipTranscription.transcript,
+        words: allWords,
+        segments: allSegments,
+        totalDurationSeconds: totalDuration,
+        clipDurationSeconds: requestedClipDuration,
+        clipCount: requestedClipCount,
+      });
+      markTiming('clip_selection_ms');
+
+      if (!bestClips.length) {
+        return NextResponse.json({
+          ok: false,
+          status: 'failed',
+          reasonCode: 'NO_CLIPS_FOUND',
+          error: 'Video too short or too quiet to extract clips. Try a longer video with more speech.',
+        }, {status: 422});
+      }
+
+      // Caption style from request
+      const clipCaptionStyle = readString(body.captionStyle) || 'Studio Clean';
+      const clipCaptionPreset = getSubtitlePreset(clipCaptionStyle);
+
+      // Render each clip as a separate Lambda job
+      const renderResults: Array<{clipIndex: number; renderId: string; bucketName: string; outName: string; startSeconds: number; endSeconds: number}> = [];
+
+      for (const clip of bestClips) {
+        // Build captions for this clip window
+        const clipWords = allWords.filter((w: any) => w.start >= clip.startSeconds && w.end <= clip.endSeconds);
+        const clipCaptions = buildCaptionsFromWords(clipWords, clip.startSeconds);
+
+        const clipInputProps: Record<string, unknown> = {
+          mediaSrc: mediaUrl,
+          mediaType: 'video',
+          mediaTrimStartSeconds: clip.startSeconds,
+          sourceAudioVolume: 1,
+          durationSeconds: clip.durationSeconds,
+          sourceDurationSeconds: clip.durationSeconds,
+          renderWindowSeconds: clip.durationSeconds,
+          captions: clipCaptions,
+          captionStyle: clipCaptionStyle,
+          captionPosition: readString(body.captionPosition) || 'bottom',
+          textColor: readString(body.captionTextColor) || clipCaptionPreset?.textColor || '#ffffff',
+          highlightColor: readString(body.captionHighlightColor) || clipCaptionPreset?.highlightColor || '#facc15',
+          backgroundColor: readString(body.captionBackgroundColor) || clipCaptionPreset?.backgroundColor || '#18181B',
+          fontSize: readString(body.captionFontSize) || clipCaptionPreset?.fontSize || 'large',
+          fontFamily: readString(body.captionFontFamily) || clipCaptionPreset?.fontFamily || undefined,
+          showBackground: true,
+          templateName,
+          template: templateName,
+          compositionId: composition,
+        };
+
+        const clipOutName = `${TEMP_MEDIA_RENDER_PREFIX}${sanitizeSegment(userId)}/${Date.now()}-clip-${clip.index + 1}.mp4`;
+
+        const clipRenderRequest: LambdaRenderRequest = {
+          region: config.region,
+          functionName: config.functionName,
+          serveUrl: config.serveUrl,
+          composition,
+          codec: 'h264',
+          audioCodec: 'aac',
+          inputProps: clipInputProps,
+          outName: clipOutName,
+          privacy: 'private',
+          deleteAfter: '3-days',
+          overwrite: true,
+          framesPerLambda: 120,
+          maxRetries: 2,
+          downloadBehavior: { type: 'download', fileName: `itnavideo-clip-${clip.index + 1}.mp4` },
+          isProduction: true,
+          logLevel: 'info',
+        };
+
+        const clipRender = await startRenderWithCapacityRetry(clipRenderRequest);
+        renderResults.push({
+          clipIndex: clip.index,
+          renderId: clipRender.renderId,
+          bucketName: clipRender.bucketName,
+          outName: clipOutName,
+          startSeconds: clip.startSeconds,
+          endSeconds: clip.endSeconds,
+        });
+      }
+      markTiming('all_clips_render_start_ms');
+
+      console.log('[LONG_VIDEO_CLIPS] All clips submitted', {
+        clipCount: renderResults.length,
+        clipDuration: requestedClipDuration,
+        totalDuration,
+        timings,
+      });
+
+      return NextResponse.json({
+        ok: true,
+        status: 'rendering',
+        renderId: renderResults[0]?.renderId,
+        bucketName: renderResults[0]?.bucketName,
+        outName: renderResults[0]?.outName,
+        mediaKey,
+        reelTitle: `${renderResults.length} clip${renderResults.length > 1 ? 's' : ''} from long video`,
+        design: 'Long Video Clips',
+        mode,
+        templateName,
+        transcriptSource: 'groq',
+        clipCount: renderResults.length,
+        clips: renderResults.map((r) => ({
+          clipIndex: r.clipIndex,
+          renderId: r.renderId,
+          bucketName: r.bucketName,
+          outName: r.outName,
+          startSeconds: r.startSeconds,
+          endSeconds: r.endSeconds,
+        })),
+        access,
+        retentionHours: 48,
       });
     }
 
@@ -625,6 +865,7 @@ export async function POST(request: Request) {
               points: wbPlan.points,
               conclusion: wbPlan.conclusion,
               conclusionTime: wbPlan.conclusionTime,
+              boardStyle: readString(body.boardStyle) || 'mobile-stand',
               captions: wbCaptions,
               durationSeconds: renderWindow.durationSeconds,
               transcript: renderWindow.transcript,
@@ -1914,6 +2155,47 @@ function buildCompareCaptionsFromGroq(renderWindow: {
   })).filter((caption) => caption.text.trim());
 }
 
+/**
+ * Build captions from word-level timestamps for a clip, adjusting times relative to clip start.
+ */
+function buildCaptionsFromWords(
+  words: Array<{word: string; start: number; end: number}>,
+  clipStartSeconds: number
+): Array<{start: number; end: number; text: string; words?: Array<{word: string; start: number; end: number}>}> {
+  const adjusted = words
+    .filter((w) => w.word && Number.isFinite(w.start) && Number.isFinite(w.end))
+    .map((w) => ({
+      word: w.word,
+      start: Math.max(0, w.start - clipStartSeconds),
+      end: Math.max(0.01, w.end - clipStartSeconds),
+    }));
+
+  if (!adjusted.length) return [];
+
+  const captions: Array<{start: number; end: number; text: string; words: Array<{word: string; start: number; end: number}>}> = [];
+  let group: typeof adjusted = [];
+
+  const flush = () => {
+    if (!group.length) return;
+    captions.push({
+      start: roundSeconds(group[0].start),
+      end: roundSeconds(Math.max(group[group.length - 1].end, group[0].start + 0.5)),
+      text: group.map((item) => item.word).join(' '),
+      words: group.map((item) => ({word: item.word, start: roundSeconds(item.start), end: roundSeconds(item.end)})),
+    });
+    group = [];
+  };
+
+  for (const word of adjusted) {
+    const groupStart = group[0]?.start ?? word.start;
+    if (group.length >= 5 || (group.length > 0 && word.end - groupStart > 1.55)) flush();
+    group.push(word);
+  }
+  flush();
+
+  return captions.filter((c) => c.text.trim());
+}
+
 function selectBackgroundMusic({
   topicTitle,
   transcript,
@@ -2120,6 +2402,8 @@ function toMode(value: string): ReelMode | null {
   if (normalized.includes('long-video') || normalized.includes('longvideo') || normalized.includes('promo')) return 'longVideoPromo';
   if (normalized.includes('whiteboard') || normalized.includes('white-board')) return 'whiteboardVideo';
   if (normalized.includes('typography') || normalized.includes('typo-video') || normalized.includes('bold-reel')) return 'typographyVideo';
+  if (normalized.includes('multi-image') || normalized.includes('multiimage') || normalized.includes('multi-images')) return 'multiImagesVideo';
+  if (normalized.includes('long-video-clip') || normalized.includes('longvideoclip') || normalized.includes('video-clips')) return 'longVideoClips';
   if (normalized.includes('auto-caption') || normalized.includes('autocaption')) return 'autoCaption';
   if (normalized.includes('caption') || normalized.includes('subtitle')) return 'autoCaption';
   return null;
@@ -2130,6 +2414,8 @@ function getUploadedMediaType({mode, contentType}: {mode: ReelMode; contentType:
   if (mode === 'compare') return 'audio';
   if (mode === 'whiteboardVideo') return contentType.startsWith('video/') ? 'video' : 'audio';
   if (mode === 'typographyVideo') return 'video';
+  if (mode === 'multiImagesVideo') return 'video';
+  if (mode === 'longVideoClips') return 'video';
   return contentType.startsWith('audio/') ? 'audio' : 'video';
 }
 
@@ -2283,6 +2569,8 @@ function humanTemplateName(templateName: string) {
   if (templateName === 'comparisonImages') return 'Compare Explainer Video';
   if (templateName === 'WHITEBOARD_VIDEO') return 'Whiteboard Video';
   if (templateName === 'TYPOGRAPHY_VIDEO') return 'Typography Video';
+  if (templateName === 'MULTI_IMAGES_VIDEO') return 'Multi Images Video';
+  if (templateName === 'LONG_VIDEO_CLIPS') return 'Long Video Clips';
   return 'Itnavideo Reel';
 }
 

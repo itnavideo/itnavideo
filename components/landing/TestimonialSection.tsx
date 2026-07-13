@@ -31,7 +31,7 @@ export default function TestimonialSection() {
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
           <div>
-            <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-blue-400">Testimonials</p>
+            <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-emerald-400">Testimonials</p>
             <motion.h2
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}

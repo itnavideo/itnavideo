@@ -4,6 +4,8 @@ import {CompareExplainerComposition} from './templates/COMPARE_EXPLAINER/templat
 import {LongVideoPromoComposition} from './templates/LONG_VIDEO_PROMO/template';
 import {WhiteboardVideoComposition} from './templates/WHITEBOARD_VIDEO/template';
 import {TypographyVideoComposition} from './templates/TYPOGRAPHY_VIDEO/template';
+import {MultiImagesVideoComposition} from './templates/MULTI_IMAGES_VIDEO/template';
+import {LongVideoClipsComposition} from './templates/LONG_VIDEO_CLIPS/template';
 
 const compositions = [
   AutoCaptionReelComposition,
@@ -11,6 +13,8 @@ const compositions = [
   LongVideoPromoComposition,
   WhiteboardVideoComposition,
   TypographyVideoComposition,
+  MultiImagesVideoComposition,
+  LongVideoClipsComposition,
 ];
 
 const RemotionRoot = () => (

@@ -165,7 +165,7 @@ export default function AutoCaptionsShowcase({ limit }: { limit?: number }) {
                 Add captions to my video free
               </Link>
               <div className="flex flex-wrap justify-center gap-4 text-[11px] text-slate-500">
-                {['No editing skills needed', 'English & Hinglish', 'No watermark', '1 free credit on signup'].map((t) => (
+                {['No editing skills needed', 'English & Hinglish', 'No watermark', 'No credit card needed'].map((t) => (
                   <span key={t} className="flex items-center gap-1.5">
                     <span className="text-green-500">✓</span> {t}
                   </span>

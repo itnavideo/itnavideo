@@ -39,12 +39,10 @@ const compareLink = (slug: string, label: string): SeoInternalLink => ({ label, 
 
 const allVideoTypes = [
   "Auto Caption Video",
-  "Dynamic Creator Reel Video",
   "Compare Explainer Video",
-  "Auto Draw Explainer Video",
   "Long Video Promo",
-  "Background Replace Video",
-  "Custom AI Reel",
+  "Whiteboard Video",
+  "Typography Video",
 ];
 
 const commonWhy = [

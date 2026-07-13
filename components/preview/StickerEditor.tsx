@@ -91,7 +91,7 @@ export function StickerEditor({
             <select
               value={stickerStyle}
               onChange={(event) => onStickerStyleChange(event.target.value)}
-              className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-white outline-none focus:border-blue-500"
+              className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-white outline-none focus:border-emerald-500"
             >
               {STICKER_STYLES.map((style) => (
                 <option key={style.value} value={style.value}>{style.label}</option>
@@ -107,7 +107,7 @@ export function StickerEditor({
               <select
                 value={activeSticker.pose}
                 onChange={(event) => updateActivePose(event.target.value)}
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-white outline-none focus:border-blue-500"
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-white outline-none focus:border-emerald-500"
               >
                 {POSES.map((pose) => (
                   <option key={pose.value} value={pose.value}>{pose.label}</option>

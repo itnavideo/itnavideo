@@ -53,7 +53,10 @@ type Mode =
   | "creatorBackgroundReplace"
   | "customAiReel"
   | "whiteboardVideo"
-  | "typographyVideo";
+  | "typographyVideo"
+  | "multiImagesVideo"
+  | "longVideoClips"
+  | "audioClean";
 type CreatorBackgroundSettings = {
   backgroundFit: "cover" | "contain";
   backgroundScale: number;
@@ -110,7 +113,10 @@ const videoTypeCards = [
   { id: "compare-explainer", title: "Compare Explainer Video", tag: "Comparison", description: "Left vs right comparison with narration and sticker presenter.", image: "/preview/Compare Explainer.png", badges: ["Audio", "2 Images"], proof: "Best for VS", accent: "#F59E0B", mode: "compare" as const, category: "education" },
   { id: "whiteboard-video", title: "Whiteboard Video", tag: "Whiteboard", description: "AI writes key points on a whiteboard synced to your speech.", image: "/preview/Whiteboard Video.png", badges: ["Audio/Video"], proof: "Educational", accent: "#10B981", mode: "whiteboardVideo" as const, category: "education" },
   { id: "typography-video", title: "Typography Video", tag: "Typography", description: "Big bold text pops on your video synced to keywords.", image: "/preview/Typography Video.png", badges: ["Video"], proof: "Engaging", accent: "#8B5CF6", mode: "typographyVideo" as const, category: "creator" },
+  { id: "multi-images-video", title: "Multi Images Video", tag: "Story", description: "Video + title + animated image slideshow for news & stories.", image: "/preview/Multi Images Video.png", badges: ["Video", "Images"], proof: "Story format", accent: "#F472B6", mode: "multiImagesVideo" as const, category: "creator" },
   { id: "long-video-promo", title: "Long Video Promo", tag: "Promo", description: "Promote your YouTube video as a vertical Short/Reel.", image: "/preview/Long Video Promo.png", badges: ["16:9 Clip", "Thumbnail"], proof: "Promo ready", accent: "#A3E635", mode: "longVideoPromo" as const, category: "creator" },
+  { id: "long-video-clips", title: "Long Video Clips", tag: "Clips", description: "Turn long videos into short viral clips with captions.", image: "/preview/Long Video Clips.png", badges: ["Long Video", "1-10 Clips"], proof: "Repurpose", accent: "#06B6D4", mode: "longVideoClips" as const, category: "creator" },
+  { id: "ai-audio-cleaner", title: "AI Audio Cleaner", tag: "Audio Tool", description: "Remove silence, filler words & noise from audio.", image: "/preview/Auto Caption Reel.png", badges: ["Audio Only"], proof: "Clean audio", accent: "#F97316", mode: "audioClean" as const, category: "creator" },
 ] as const;
 
 const VIDEO_TYPE_CATEGORIES = [
@@ -140,8 +146,8 @@ const modeConfig = {
     uploadCta: "📹 Upload your video",
     icon: Captions,
     color: "text-blue-200",
-    border: "border-blue-400/30",
-    surface: "bg-blue-400/[0.08]",
+    border: "border-emerald-400/30",
+    surface: "bg-emerald-400/[0.08]",
   },
   compare: {
     label: "Compare Explainer Video",
@@ -153,8 +159,8 @@ const modeConfig = {
     uploadCta: "🎙️ Upload audio",
     icon: Layers3,
     color: "text-blue-200",
-    border: "border-blue-400/30",
-    surface: "bg-blue-400/[0.08]",
+    border: "border-emerald-400/30",
+    surface: "bg-emerald-400/[0.08]",
   },
   longVideoPromo: {
     label: "Long Video Promo",
@@ -165,9 +171,9 @@ const modeConfig = {
     bestResult: "10-60s video clip with thumbnail and title",
     uploadCta: "📹 Upload your video clip",
     icon: Film,
-    color: "text-blue-300",
-    border: "border-blue-400/30",
-    surface: "bg-blue-400/[0.08]",
+    color: "text-emerald-300",
+    border: "border-emerald-400/30",
+    surface: "bg-emerald-400/[0.08]",
   },
   dynamicCreator: {
     label: "Creator Reel Video",
@@ -247,6 +253,45 @@ const modeConfig = {
     border: "border-purple-400/30",
     surface: "bg-purple-400/[0.08]",
   },
+  multiImagesVideo: {
+    label: "Multi Images Video",
+    title: "Multi Images Video",
+    description: "📹 Upload: 16:9 video\n🖼️ Upload: Multiple images\n✍️ Write a title",
+    accept: "video/*",
+    supported: "MP4, MOV, WEBM + JPG/PNG images",
+    bestResult: "News clip or story video with supporting images",
+    uploadCta: "📹 Upload your 16:9 video",
+    icon: ImagePlus,
+    color: "text-pink-200",
+    border: "border-pink-400/30",
+    surface: "bg-pink-400/[0.08]",
+  },
+  longVideoClips: {
+    label: "Long Video Clips",
+    title: "Long Video Clips",
+    description: "📹 Upload: Long video (any length)\n✂️ AI picks best moments as short clips",
+    accept: "video/*",
+    supported: "MP4, MOV, WEBM (any duration)",
+    bestResult: "Long podcast, interview, or lecture video",
+    uploadCta: "📹 Upload your long video",
+    icon: Film,
+    color: "text-cyan-200",
+    border: "border-cyan-400/30",
+    surface: "bg-cyan-400/[0.08]",
+  },
+  audioClean: {
+    label: "AI Audio Cleaner",
+    title: "AI Audio Cleaner",
+    description: "🎙️ Upload: Audio file\n✨ AI removes silence, fillers & noise",
+    accept: "audio/*",
+    supported: "MP3, WAV, M4A, AAC, FLAC",
+    bestResult: "Podcast, interview, or voiceover with clear speech",
+    uploadCta: "🎙️ Upload your audio",
+    icon: Mic,
+    color: "text-orange-200",
+    border: "border-orange-400/30",
+    surface: "bg-orange-400/[0.08]",
+  },
 } as const;
 
 type ActiveDashboardMode = keyof typeof modeConfig;
@@ -303,6 +348,19 @@ export default function DashboardPage() {
   const [promoThumbnailFile, setPromoThumbnailFile] = useState<File | null>(null);
   const [promoTitle, setPromoTitle] = useState("");
   const [promoClipMeta, setPromoClipMeta] = useState<{durationSeconds?: number; mediaAspect?: string}>({});
+  const [clipCount, setClipCount] = useState<number>(3);
+  const [clipDuration, setClipDuration] = useState<15 | 30 | 60>(30);
+  const [enableSfx, setEnableSfx] = useState(false);
+  const [boardStyle, setBoardStyle] = useState<string>("mobile-stand");
+  const [audioCleanOptions, setAudioCleanOptions] = useState({
+    removeSilence: true,
+    removeFillers: true,
+    removeRepeats: false,
+    removeFalseStarts: false,
+    noiseReduction: true,
+    volumeNormalize: true,
+    trimEnds: true,
+  });
   const [creatorBackgroundImageFile, setCreatorBackgroundImageFile] = useState<File | null>(null);
   const [creatorBackgroundSettings, setCreatorBackgroundSettings] = useState<CreatorBackgroundSettings>(DEFAULT_CREATOR_BACKGROUND_SETTINGS);
   const [customAiPrompt, setCustomAiPrompt] = useState("");
@@ -399,6 +457,7 @@ export default function DashboardPage() {
     (mode === "customAiReel" ? customAiPrompt.trim().length >= 12 : selectedFile) &&
     (mode !== "compare" || comparisonFiles.length === 2) &&
     (mode !== "longVideoPromo" || (Boolean(promoThumbnailFile) && Boolean(promoTitle.trim()))) &&
+    (mode !== "multiImagesVideo" || (comparisonFiles.length >= 2 && Boolean(promoTitle.trim()))) &&
     (mode !== "creatorBackgroundReplace" || Boolean(creatorBackgroundImageFile)) &&
     !renderInProgress &&
     !paidLimitComplete,
@@ -444,7 +503,7 @@ export default function DashboardPage() {
     setCustomAiAudioMeta({});
     setTopicTitle("");
     setJobStatus({state: "idle", message: ""});
-    const nextVideoType = nextMode === "autoCaption" ? "auto-caption-reel" : nextMode === "autoDraw" ? "auto-draw-explainer" : nextMode === "longVideoPromo" ? "long-video-promo" : nextMode === "whiteboardVideo" ? "whiteboard-video" : nextMode === "typographyVideo" ? "typography-video" : nextMode === "dynamicCreator" ? "dynamic-creator-reel" : nextMode === "customAiReel" ? "custom-ai-reel" : "compare-explainer";
+    const nextVideoType = nextMode === "autoCaption" ? "auto-caption-reel" : nextMode === "autoDraw" ? "auto-draw-explainer" : nextMode === "longVideoPromo" ? "long-video-promo" : nextMode === "whiteboardVideo" ? "whiteboard-video" : nextMode === "typographyVideo" ? "typography-video" : nextMode === "multiImagesVideo" ? "multi-images-video" : nextMode === "longVideoClips" ? "long-video-clips" : nextMode === "dynamicCreator" ? "dynamic-creator-reel" : nextMode === "customAiReel" ? "custom-ai-reel" : nextMode === "audioClean" ? "ai-audio-cleaner" : "compare-explainer";
     window.history.replaceState(null, "", `/dashboard?videoType=${nextVideoType}`);
     // Auto-scroll to upload section on mobile
     setTimeout(() => {
@@ -636,17 +695,17 @@ export default function DashboardPage() {
           <div className="flex items-center gap-2">
             <Link
               href="/pricing"
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-400/30 bg-emerald-500/[0.12] px-3.5 py-2 text-xs font-black text-emerald-300 transition hover:bg-emerald-500/[0.2]"
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-emerald-400/30 bg-emerald-500/[0.12] px-3 py-2 text-xs font-black text-emerald-300 transition hover:bg-emerald-500/[0.2]"
             >
               <Sparkles size={13} />
-              Upgrade
+              <span className="hidden sm:inline">Upgrade</span>
             </Link>
             <Link
               href="#your-videos"
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3.5 py-2 text-xs font-bold text-zinc-400 transition hover:bg-white/[0.06] hover:text-white"
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-xs font-bold text-zinc-400 transition hover:bg-white/[0.06] hover:text-white"
             >
               <FolderOpen size={13} />
-              Your Videos
+              <span className="hidden sm:inline">Your Videos</span>
             </Link>
             <button
               onClick={async () => {
@@ -737,8 +796,8 @@ export default function DashboardPage() {
           <section className="min-w-0 overflow-hidden rounded-2xl border border-white/8 bg-zinc-950/80 p-4 md:p-6">
             {/* Step indicator — full on md+, active step only on mobile */}
             <div className="mb-5 hidden md:flex items-center text-[10px] uppercase tracking-widest">
-              <span className="flex items-center gap-1.5 rounded-full px-2.5 py-1" style={{ color: mode && hasUserSelected ? '#22c55e' : '#60a5fa', background: mode && hasUserSelected ? 'rgba(34,197,94,0.08)' : 'rgba(96,165,250,0.08)' }}>
-                {mode && hasUserSelected ? <Check size={10} strokeWidth={3} /> : <span className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-pulse" />}
+              <span className="flex items-center gap-1.5 rounded-full px-2.5 py-1" style={{ color: mode && hasUserSelected ? '#22c55e' : '#10B981', background: mode && hasUserSelected ? 'rgba(34,197,94,0.08)' : 'rgba(16,185,129,0.08)' }}>
+                {mode && hasUserSelected ? <Check size={10} strokeWidth={3} /> : <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />}
                 Video Type
               </span>
               <span className="mx-1.5 flex-1 h-px bg-white/8" />
@@ -757,8 +816,8 @@ export default function DashboardPage() {
             </div>
             {/* Mobile: show only current step */}
             <div className="mb-5 flex md:hidden items-center gap-2">
-              <span className="flex items-center gap-2 rounded-full bg-blue-500/[0.1] border border-blue-400/20 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-blue-300">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-500/30 text-[10px] font-black text-white">
+              <span className="flex items-center gap-2 rounded-full bg-emerald-500/[0.1] border border-emerald-400/20 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-emerald-300">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/30 text-[10px] font-black text-white">
                   {selectedFile ? '3' : (mode && hasUserSelected) ? '2' : '1'}
                 </span>
                 {selectedFile ? 'Upload' : (mode && hasUserSelected) ? 'Style' : 'Choose Type'}
@@ -813,7 +872,7 @@ export default function DashboardPage() {
               </div> */}
 
               {/* Video Type cards - visual output selector */}
-              <div className="grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+              <div className="grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 sm:gap-4">
                 {videoTypeCards
                   .filter((t) => videoTypeCategory === "all" || t.category === videoTypeCategory)
                   .map((videoType) => {
@@ -823,70 +882,68 @@ export default function DashboardPage() {
                   <button
                     aria-disabled={isComingSoon}
                     aria-pressed={isSelected}
-                    className={`group relative flex min-w-0 flex-col items-center text-center ${isComingSoon ? "cursor-not-allowed" : ""}`}
+                    className={`group relative flex min-w-0 flex-col text-left ${isComingSoon ? "cursor-not-allowed" : ""}`}
                     style={{
-                      transition: 'all 0.15s ease',
+                      transition: 'all 0.18s ease',
                       opacity: isComingSoon ? 0.68 : 1,
-                      transform: isSelected ? 'scale(1.02)' : undefined,
+                      transform: isSelected ? 'scale(1.01)' : undefined,
                     }}
                     key={videoType.id}
                     onClick={() => chooseVideoTypeMode(videoType.mode)}
                     type="button"
-                    onMouseEnter={(e) => { if (!isSelected && !isComingSoon) e.currentTarget.style.transform = 'scale(1.02)'; }}
+                    onMouseEnter={(e) => { if (!isSelected && !isComingSoon) e.currentTarget.style.transform = 'translateY(-2px)'; }}
                     onMouseLeave={(e) => { if (!isSelected && !isComingSoon) e.currentTarget.style.transform = ''; }}
                   >
-                    {/* Phone frame with interaction states */}
+                    {/* Card container */}
                     <div
-                      className={`relative w-full aspect-[9/16] overflow-hidden rounded-xl ${!isSelected ? 'video-type-card-frame' : ''}`}
+                      className="relative w-full overflow-hidden rounded-xl"
                       style={{
-                        transition: 'all 0.15s ease',
-                        border: isSelected ? `2px solid ${videoType.accent}` : '1px solid rgba(255,255,255,0.12)',
+                        transition: 'all 0.18s ease',
+                        border: isSelected ? `2px solid ${videoType.accent}` : '1px solid rgba(255,255,255,0.08)',
                         boxShadow: isSelected
-                          ? `0 12px 34px ${videoType.accent}30`
-                          : '0 8px 24px rgba(0,0,0,0.3)',
-                        background: isSelected ? `${videoType.accent}16` : '#111827',
-                        padding: '3px',
+                          ? `0 8px 28px ${videoType.accent}25`
+                          : '0 4px 16px rgba(0,0,0,0.25)',
+                        background: '#0D1117',
                       }}
                     >
-                      {/* Inner screen */}
-                      <div className="relative w-full h-full overflow-hidden rounded-md bg-black">
-                        {/* Preview image */}
+                      {/* Preview image - square crop for cleaner grid */}
+                      <div className="relative w-full aspect-[3/4] overflow-hidden">
                         <Image
                           alt={videoType.title}
-                          className="object-cover object-center transition duration-300 group-hover:scale-[1.02]"
+                          className="object-cover object-top transition duration-300 group-hover:scale-[1.03]"
                           fill
-                          sizes="(min-width: 640px) 25vw, 50vw"
+                          sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
                           src={videoType.image}
                         />
 
-                        {/* Bottom gradient */}
-                        <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/88 via-black/35 to-transparent" />
-                        {isComingSoon ? (
-                          <div className="absolute inset-0 z-10 bg-slate-950/50 backdrop-blur-[1px]" />
-                        ) : null}
+                        {/* Top gradient for badge */}
+                        <div className="absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-black/50 to-transparent" />
 
+                        {/* Bottom gradient for text */}
+                        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#0D1117] via-[#0D1117]/80 to-transparent" />
+
+                        {isComingSoon && (
+                          <div className="absolute inset-0 z-10 bg-slate-950/50 backdrop-blur-[1px]" />
+                        )}
+
+                        {/* Badge */}
                         <span
-                          className="absolute left-2 top-2 z-20 rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-wide text-slate-950"
-                          style={{ backgroundColor: videoType.accent }}
+                          className="absolute left-2.5 top-2.5 z-20 rounded-md px-2 py-1 text-[10px] font-black uppercase tracking-wide"
+                          style={{ backgroundColor: videoType.accent, color: '#000' }}
                         >
                           {videoType.proof}
                         </span>
-                        {isComingSoon ? (
-                          <div className="absolute inset-x-2 bottom-2 z-20 rounded-md border border-orange-200/25 bg-orange-950/80 px-2 py-1.5 text-center text-[10px] font-black uppercase tracking-[0.08em] text-orange-100">
-                            Coming soon
-                          </div>
-                        ) : null}
 
                         {/* Selected checkmark */}
                         {isSelected && (
-                          <div className="absolute right-2 top-2 z-20 flex h-5 w-5 items-center justify-center rounded-full text-slate-950 shadow-md" style={{ background: videoType.accent }}>
-                            <Check size={11} strokeWidth={3} />
+                          <div className="absolute right-2.5 top-2.5 z-20 flex h-6 w-6 items-center justify-center rounded-full shadow-lg" style={{ background: videoType.accent }}>
+                            <Check size={13} strokeWidth={3} className="text-black" />
                           </div>
                         )}
 
-                        {/* Expand preview on hover */}
+                        {/* Expand preview */}
                         <div
-                          className={`absolute right-2 bottom-6 z-20 flex h-5 w-5 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm border border-white/15 text-white opacity-100 transition-opacity hover:bg-black/70 md:opacity-0 md:group-hover:opacity-100 ${isComingSoon ? "cursor-not-allowed" : "cursor-pointer"}`}
+                          className={`absolute right-2.5 bottom-14 z-20 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 backdrop-blur-sm border border-white/15 text-white opacity-0 transition-opacity group-hover:opacity-100 ${isComingSoon ? "cursor-not-allowed" : "cursor-pointer"}`}
                           onClick={(e) => {
                             e.stopPropagation();
                             if (isComingSoon) return;
@@ -895,18 +952,23 @@ export default function DashboardPage() {
                           role="button"
                           aria-label={`Preview ${videoType.title}`}
                         >
-                          <Eye size={9} />
+                          <Eye size={11} />
+                        </div>
+                      </div>
+
+                      {/* Info section */}
+                      <div className="px-3 pb-3 pt-1">
+                        <p className="text-[13px] font-bold text-white leading-tight line-clamp-1">{videoType.title}</p>
+                        <p className="mt-1 text-[11px] leading-4 text-zinc-500 line-clamp-2">{videoType.description}</p>
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          {videoType.badges.map((badge) => (
+                            <span key={badge} className="rounded px-1.5 py-0.5 text-[9px] font-bold uppercase" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)' }}>
+                              {badge}
+                            </span>
+                          ))}
                         </div>
                       </div>
                     </div>
-
-                    {/* Category tag + video type name below */}
-                    <span className="mt-2.5 text-[10px] font-bold uppercase tracking-[0.08em]" style={{ color: 'var(--text-dark-muted)' }}>
-                      {videoType.tag}
-                    </span>
-                    <p className="mt-0.5 w-full leading-tight line-clamp-2" style={{ fontSize: '13px', fontWeight: 500, color: isSelected ? 'var(--color-primary-hover)' : 'var(--text-dark-secondary)' }}>
-                      {videoType.title}
-                    </p>
                   </button>
                   );
                 })}
@@ -1128,6 +1190,41 @@ export default function DashboardPage() {
                 />
               ) : null}
 
+              {mode === "multiImagesVideo" ? (
+                <div className="rounded-xl border border-pink-400/20 bg-pink-400/[0.05] p-4">
+                  <p className="text-sm font-black text-white">Upload Images (2-8)</p>
+                  <p className="mt-1 text-xs text-zinc-400">Images will rotate with animations below your video and title.</p>
+                  <label className="upload-zone mt-3 flex min-h-24 cursor-pointer flex-col items-center justify-center px-3">
+                    <input
+                      accept="image/png,image/jpeg,image/jpg,image/webp"
+                      className="hidden"
+                      multiple
+                      onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                        const files = Array.from(event.target.files || []).filter(f => f.type.startsWith("image/")).slice(0, 8);
+                        if (!files.length) { setJobStatus({state: "error", message: "Please upload JPG, PNG, or WEBP images."}); return; }
+                        setComparisonFiles(prev => [...prev, ...files].slice(0, 8));
+                        setJobStatus({state: "idle", message: ""});
+                        event.currentTarget.value = "";
+                      }}
+                      type="file"
+                    />
+                    <ImagePlus size={20} className="mb-1.5 text-pink-200" />
+                    <span className="text-xs font-black text-white">{comparisonFiles.length ? `${comparisonFiles.length} image${comparisonFiles.length > 1 ? 's' : ''} selected` : 'Add images'}</span>
+                    <span className="mt-0.5 text-[10px] text-zinc-500">Up to 8 images • JPG, PNG, WEBP</span>
+                  </label>
+                  {comparisonFiles.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {comparisonFiles.map((file, i) => (
+                        <div key={i} className="relative h-14 w-14 overflow-hidden rounded-lg border border-white/10 bg-black">
+                          <img src={URL.createObjectURL(file)} alt="" className="h-full w-full object-cover" />
+                          <button type="button" onClick={() => setComparisonFiles(prev => prev.filter((_, idx) => idx !== i))} className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[8px] font-black text-white">×</button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : null}
+
               {mode === "compare" ? (
                   <>
                   <CompareTextFields
@@ -1248,8 +1345,28 @@ export default function DashboardPage() {
                 </div>
               ) : null}
 
+              {mode === "multiImagesVideo" ? (
+                <div className="rounded-xl border border-pink-400/20 bg-pink-400/[0.05] p-4">
+                  <label className="block">
+                    <span className="text-xs font-black uppercase tracking-wider text-pink-300">Video Title</span>
+                    <input
+                      type="text"
+                      maxLength={80}
+                      value={promoTitle}
+                      onChange={(e) => { setPromoTitle(e.target.value); setJobStatus({state: "idle", message: ""}); }}
+                      placeholder="Breaking: Major discovery announced today"
+                      className="mt-2 block w-full rounded-lg border border-white/10 bg-black/40 px-4 py-3 text-sm font-bold text-white placeholder:text-zinc-600 focus:border-pink-400/50 focus:outline-none"
+                    />
+                    <div className="mt-1 flex justify-between">
+                      <span className="text-[10px] text-zinc-500">Max 2 lines, short and impactful</span>
+                      <span className="text-[10px] text-zinc-500">{promoTitle.length}/80</span>
+                    </div>
+                  </label>
+                </div>
+              ) : null}
+
               {mode === "longVideoPromo" ? (
-                <div className="rounded-lg border border-blue-400/20 bg-blue-400/[0.06] p-4">
+                <div className="rounded-lg border border-emerald-400/20 bg-emerald-400/[0.06] p-4">
                   <p className="text-sm font-black text-white">Promo details</p>
                   <p className="mt-1 text-xs font-bold leading-5 text-zinc-400">
                     Upload a promo clip above, then add the thumbnail and title.
@@ -1272,7 +1389,7 @@ export default function DashboardPage() {
                       }}
                       type="file"
                     />
-                    <Upload size={18} className="mb-2 text-blue-300" />
+                    <Upload size={18} className="mb-2 text-emerald-300" />
                     <span className="max-w-full text-center text-sm font-black leading-5 text-white">
                       {promoThumbnailFile ? "Change thumbnail" : "Upload thumbnail"}
                     </span>
@@ -1285,7 +1402,7 @@ export default function DashboardPage() {
 
                   {promoThumbnailFile ? (
                     <div className="mt-3 grid min-w-0 gap-3 sm:flex sm:items-center">
-                      <div className="h-24 w-full min-w-0 overflow-hidden rounded-lg border border-blue-400/25 bg-black sm:h-16 sm:w-28">
+                      <div className="h-24 w-full min-w-0 overflow-hidden rounded-lg border border-emerald-400/25 bg-black sm:h-16 sm:w-28">
                         <UploadedImagePreview alt="Thumbnail preview" className="h-full w-full object-cover" file={promoThumbnailFile} />
                       </div>
                       <button className="inline-flex w-full items-center justify-center rounded-md border border-white/10 px-3 py-2 text-xs font-black text-zinc-300 hover:bg-white/10 hover:text-white sm:w-auto" onClick={removePromoThumbnail} type="button">Remove</button>
@@ -1309,8 +1426,86 @@ export default function DashboardPage() {
                 </div>
               ) : null}
 
+              {/* ── Whiteboard Board Picker ── */}
+              {mode === "whiteboardVideo" ? (
+                <div className="rounded-lg border border-emerald-400/20 bg-emerald-400/[0.06] p-4">
+                  <p className="text-sm font-black text-white">Board style</p>
+                  <p className="mt-1 text-xs font-bold leading-5 text-zinc-400">Choose the whiteboard environment for your video.</p>
+                  <div className="mt-3 grid grid-cols-4 gap-2">
+                    {([
+                      { id: "mobile-stand", label: "Indoor Stand", img: "/preview/board-mobile-stand.jpg" },
+                      { id: "corporate-luxury", label: "Corporate", img: "/preview/board-corporate-luxury.jpg" },
+                      { id: "coworking", label: "Coworking", img: "/preview/board-coworking.jpg" },
+                      { id: "conference", label: "Conference", img: "/preview/board-conference.jpg" },
+                      { id: "dark-modern", label: "Dark Modern", img: "/preview/board-dark-modern.jpg" },
+                      { id: "classroom", label: "Classroom", img: "/preview/board-classroom.jpg" },
+                      { id: "outdoor-street", label: "Outdoor", img: "/preview/board-outdoor-street.jpg" },
+                      { id: "person-writing", label: "Person", img: "/preview/board-person-writing.jpg" },
+                    ] as const).map((b) => (
+                      <button
+                        key={b.id}
+                        type="button"
+                        onClick={() => setBoardStyle(b.id)}
+                        className={`relative overflow-hidden rounded-lg border-2 transition ${boardStyle === b.id ? 'border-emerald-400 ring-1 ring-emerald-400/50' : 'border-white/10 hover:border-white/25'}`}
+                      >
+                        <div className="aspect-[9/16] bg-zinc-900">
+                          <img src={b.img} alt={b.label} className="h-full w-full object-cover opacity-80" />
+                        </div>
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-1">
+                          <p className="text-[8px] font-bold text-white text-center leading-tight">{b.label}</p>
+                        </div>
+                        {boardStyle === b.id && (
+                          <div className="absolute right-0.5 top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-emerald-500">
+                            <Check size={8} className="text-white" />
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              {mode === "audioClean" ? (
+                <div className="rounded-lg border border-orange-400/20 bg-orange-400/[0.06] p-4">
+                  <div>
+                    <p className="text-sm font-black text-white">AI Cleaning Options</p>
+                    <p className="mt-1 text-xs font-bold leading-5 text-zinc-400">
+                      Toggle the cleaning features you want applied to your audio.
+                    </p>
+                  </div>
+                  <div className="mt-4 grid gap-2.5">
+                    {([
+                      { key: "removeSilence", label: "Remove Long Silence", desc: "Cut pauses longer than 1 second" },
+                      { key: "removeFillers", label: "Remove Filler Words", desc: 'Cut "um", "uh", "like", "you know"' },
+                      { key: "removeRepeats", label: "Remove Repeated Sentences", desc: "Detect and cut repeated phrases" },
+                      { key: "removeFalseStarts", label: "Remove False Starts", desc: "Cut self-corrections and restarts" },
+                      { key: "noiseReduction", label: "Background Noise Reduction", desc: "Reduce hum, hiss, and room noise" },
+                      { key: "volumeNormalize", label: "Volume Normalize", desc: "Consistent volume throughout" },
+                      { key: "trimEnds", label: "Trim Start & End Silence", desc: "Remove dead air at beginning and end" },
+                    ] as const).map((opt) => (
+                      <div key={opt.key} className="flex items-center justify-between rounded-lg border border-white/8 bg-black/20 px-3 py-2">
+                        <div>
+                          <p className="text-xs font-bold text-white">{opt.label}</p>
+                          <p className="text-[10px] text-zinc-500">{opt.desc}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setAudioCleanOptions((prev) => ({ ...prev, [opt.key]: !prev[opt.key as keyof typeof prev] }))}
+                          className={`relative h-5 w-9 rounded-full transition ${audioCleanOptions[opt.key as keyof typeof audioCleanOptions] ? 'bg-orange-500' : 'bg-zinc-700'}`}
+                        >
+                          <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${audioCleanOptions[opt.key as keyof typeof audioCleanOptions] ? 'translate-x-[18px]' : 'translate-x-0.5'}`} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="mt-3 text-[10px] text-zinc-500 text-center">
+                    ⓘ AI Audio Cleaner processes only the first 1 minute of your audio.
+                  </p>
+                </div>
+              ) : null}
+
               {mode === "autoCaption" ? (
-                <div className="rounded-lg border border-blue-400/20 bg-blue-400/[0.06] p-4">
+                <div className="rounded-lg border border-emerald-400/20 bg-emerald-400/[0.06] p-4">
                   <div>
                     <p className="text-sm font-black text-white">Caption controls</p>
                     <p className="mt-1 text-xs font-bold leading-5 text-zinc-400">
@@ -1421,10 +1616,102 @@ export default function DashboardPage() {
                       </label>
                     </div>
 
+                    {/* SFX toggle */}
+                    <div className="mt-3 flex items-center justify-between rounded-lg border border-white/10 bg-black/20 px-3 py-2.5">
+                      <div>
+                        <p className="text-xs font-bold text-white">Sound effects</p>
+                        <p className="text-[10px] text-zinc-500">Subtle pop on each word highlight</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setEnableSfx(!enableSfx)}
+                        className={`relative h-6 w-11 rounded-full transition ${enableSfx ? 'bg-emerald-500' : 'bg-zinc-700'}`}
+                      >
+                        <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${enableSfx ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
+                      </button>
+                    </div>
+
                   </div>
                 </div>
               ) : null}
-              <div className={mode === "autoCaption" || mode === "creatorBackgroundReplace" || mode === "customAiReel" || mode === "longVideoPromo" || mode === "compare" ? "hidden" : "rounded-lg border border-white/10 bg-white/[0.035] p-4"}>
+
+              {/* ── Long Video Clips controls ── */}
+              {mode === "longVideoClips" ? (
+                <div className="rounded-lg border border-cyan-400/20 bg-cyan-400/[0.06] p-4">
+                  <div>
+                    <p className="text-sm font-black text-white">Clip settings</p>
+                    <p className="mt-1 text-xs font-bold leading-5 text-zinc-400">
+                      AI picks the best moments from your long video. Each clip = 1 credit.
+                    </p>
+                  </div>
+
+                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                    <label className="grid gap-2">
+                      <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Number of clips</span>
+                      <select
+                        className="form-input"
+                        value={clipCount}
+                        onChange={(e) => setClipCount(Number(e.target.value) as number)}
+                      >
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                          <option key={n} value={n}>{n} clip{n > 1 ? "s" : ""} ({n} credit{n > 1 ? "s" : ""})</option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="grid gap-2">
+                      <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Clip duration</span>
+                      <select
+                        className="form-input"
+                        value={clipDuration}
+                        onChange={(e) => setClipDuration(Number(e.target.value) as 15 | 30 | 60)}
+                      >
+                        <option value={15}>15 seconds</option>
+                        <option value={30}>30 seconds</option>
+                        <option value={60}>60 seconds</option>
+                      </select>
+                    </label>
+                  </div>
+
+                  <div className="mt-4">
+                    <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Caption style</span>
+                    <p className="mt-1 text-[10px] text-zinc-500">Captions appear on each clip synced to speech</p>
+                    <select
+                      className="form-input mt-2 w-full"
+                      value={captionStyle}
+                      onChange={(e) => chooseCaptionStyle(e.target.value)}
+                    >
+                      <option value="Studio Clean">Studio Clean (white on dark)</option>
+                      <option value="Karaoke Fill">Karaoke Fill (word-by-word color)</option>
+                      <option value="Eclipse">Eclipse (purple highlight)</option>
+                      <option value="Bold Fire">Bold Fire (big orange text)</option>
+                      <option value="One Word">One Word (one word at a time)</option>
+                      <option value="Shorts Karaoke">Shorts Karaoke (light bg)</option>
+                      <option value="Hustle">Hustle (bold outline)</option>
+                      <option value="Metallic Gradient">Metallic Gradient</option>
+                      <option value="Neon Pulse">Neon Pulse (green glow)</option>
+                      <option value="Glass Blur">Glass Blur (frosted)</option>
+                    </select>
+                  </div>
+
+                  {/* SFX toggle */}
+                  <div className="mt-3 flex items-center justify-between rounded-lg border border-white/10 bg-black/20 px-3 py-2.5">
+                    <div>
+                      <p className="text-xs font-bold text-white">Sound effects</p>
+                      <p className="text-[10px] text-zinc-500">Subtle pop on each word highlight</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setEnableSfx(!enableSfx)}
+                      className={`relative h-6 w-11 rounded-full transition ${enableSfx ? 'bg-cyan-500' : 'bg-zinc-700'}`}
+                    >
+                      <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${enableSfx ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+
+              <div className={mode === "autoCaption" || mode === "creatorBackgroundReplace" || mode === "customAiReel" || mode === "longVideoPromo" || mode === "compare" || mode === "typographyVideo" || mode === "longVideoClips" || mode === "whiteboardVideo" || mode === "audioClean" || mode === "multiImagesVideo" ? "hidden" : "rounded-lg border border-white/10 bg-white/[0.035] p-4"}>
                 <label className="form-label-muted" htmlFor="reel-topic">
                   Reel topic/title
                 </label>
@@ -1863,7 +2150,7 @@ export default function DashboardPage() {
       if (!uploadResponse.ok) throw new Error("Media upload failed.");
       const mediaUploadMs = Math.round(performance.now() - mediaUploadStartedAt);
 
-      const comparisonImageKeys = mode === "compare"
+      const comparisonImageKeys = mode === "compare" || mode === "multiImagesVideo"
         ? await uploadComparisonImages({files: comparisonFiles, userId})
         : [];
 
@@ -2058,6 +2345,11 @@ export default function DashboardPage() {
             sourceDurationSeconds: promoClipMeta.durationSeconds || undefined,
             mediaAspect: promoClipMeta.mediaAspect || undefined,
           } : {}),
+          // Multi Images Video fields
+          ...(mode === "multiImagesVideo" ? {
+            promoTitle: promoTitle.trim(),
+            title: promoTitle.trim(),
+          } : {}),
           ...(mode === "creatorBackgroundReplace" ? {
             backgroundImageKey: creatorBackgroundImageKey || undefined,
             backgroundFit: creatorBackgroundSettings.backgroundFit,
@@ -2077,6 +2369,20 @@ export default function DashboardPage() {
             customAiVideoDurationSeconds: customAiVideoDurationSeconds || undefined,
             customAiAudioDurationSeconds: customAiAudioDurationSeconds || undefined,
           } : {}),
+          // Long Video Clips fields
+          ...(mode === "longVideoClips" ? {
+            clipCount,
+            clipDuration,
+            enableSfx,
+          } : {}),
+          // AI Audio Cleaner fields
+          ...(mode === "audioClean" ? {
+            audioCleanOptions,
+          } : {}),
+          // SFX preference (applies to all caption-based templates)
+          enableSfx,
+          // Whiteboard board style
+          ...(mode === "whiteboardVideo" ? { boardStyle } : {}),
         }),
       });
       const job = await readJsonPayload(jobResponse);
@@ -2366,7 +2672,7 @@ function getUploadContentType(file: File) {
 
 async function uploadComparisonImages({files, userId}: {files: File[]; userId: string}) {
   const keys: string[] = [];
-  for (const file of files.slice(0, 4)) {
+  for (const file of files.slice(0, 8)) {
     const contentType = getUploadContentType(file);
     const presignResponse = await fetch("/api/media/presign", {
       method: "POST",
@@ -3048,9 +3354,12 @@ function normalizeRenderMode(value: unknown): Mode | null {
   if (normalized === "longvideopromo" || normalized === "longvideopromotion" || normalized === "promo") return "longVideoPromo";
   if (normalized === "whiteboardvideo" || normalized === "whiteboardreel") return "whiteboardVideo";
   if (normalized === "typographyvideo" || normalized === "typographyreel" || normalized === "boldreel") return "typographyVideo";
+  if (normalized === "multiimagesvideo" || normalized === "multiimages" || normalized === "multiimagevideo") return "multiImagesVideo";
+  if (normalized === "longvideoclips" || normalized === "longvideoclip" || normalized === "videoclips") return "longVideoClips";
   if (normalized === "dynamiccreator" || normalized === "dynamiccreatorreel" || normalized === "dynamicedit") return "dynamicCreator";
   if (normalized === "creatorbackgroundreplace" || normalized === "backgroundreplace" || normalized === "videobackgroundimage") return "creatorBackgroundReplace";
   if (normalized === "customaireel" || normalized === "customai" || normalized === "customreel") return "customAiReel";
+  if (normalized === "audioclean" || normalized === "audiocleaner" || normalized === "aiaudiocleaner") return "audioClean";
   return null;
 }
 
@@ -3066,15 +3375,19 @@ function readDashboardMode(value: string | null): Mode | null {
   if (normalized === "autodrawexplainer" || normalized === "autodraw") return "autoDraw";
   if (normalized === "whiteboardvideo" || normalized === "whiteboardreel") return "whiteboardVideo";
   if (normalized === "typographyvideo" || normalized === "typographyreel" || normalized === "boldreel") return "typographyVideo";
+  if (normalized === "multiimagesvideo" || normalized === "multiimages" || normalized === "multiimagevideo") return "multiImagesVideo";
   if (normalized === "longvideopromo" || normalized === "longvideopromotion" || normalized === "promo") return "longVideoPromo";
   if (normalized === "dynamiccreatorreel" || normalized === "dynamiccreator" || normalized === "dynamicedit") return "dynamicCreator";
   if (normalized === "creatorbackgroundreplace" || normalized === "backgroundreplace" || normalized === "videobackgroundimage") return "creatorBackgroundReplace";
   if (normalized === "customaireel" || normalized === "customai" || normalized === "customreel") return "customAiReel";
+  if (normalized === "longvideoclips" || normalized === "longvideoclip" || normalized === "videoclips") return "longVideoClips";
+  if (normalized === "audioclean" || normalized === "audiocleaner" || normalized === "aiaudiocleaner") return "audioClean";
   if (normalized.includes("caption") || normalized.includes("subtitle")) return "autoCaption";
   if (normalized.includes("compare")) return "compare";
   if (normalized.includes("whiteboard")) return "whiteboardVideo";
   if (normalized.includes("draw")) return "autoDraw";
   if (normalized.includes("promo")) return "longVideoPromo";
+  if (normalized.includes("clip")) return "longVideoClips";
   if (normalized.includes("custom")) return "customAiReel";
   if (normalized.includes("dynamic") || normalized.includes("creator")) return "dynamicCreator";
   if (normalized.includes("background")) return "creatorBackgroundReplace";

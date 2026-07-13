@@ -132,7 +132,7 @@ export default function SignupPage() {
         {confirmationEmail ? (
           <div>
             <div className="mb-8">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-lg border border-blue-400/20 bg-blue-400/10 text-blue-300">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-lg border border-emerald-400/20 bg-emerald-400/10 text-emerald-300">
                 <Mail size={22} />
               </div>
               <h2 className="text-2xl font-bold tracking-tight text-white">Verify your email</h2>
@@ -215,7 +215,7 @@ export default function SignupPage() {
                 type={showPassword ? 'text' : 'password'}
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg border border-white/10 bg-black/40 py-3 pl-10 pr-10 text-sm outline-none transition focus:border-blue-500/50"
+                className="w-full rounded-lg border border-white/10 bg-black/40 py-3 pl-10 pr-10 text-sm outline-none transition focus:border-emerald-500/50"
                 placeholder="••••••••"
                 required
                 minLength={6}
@@ -258,7 +258,7 @@ export default function SignupPage() {
         </button>
 
         <p className="mt-8 text-center text-sm text-zinc-500">
-          Already have an account? <Link href="/login" className="font-bold text-blue-500 hover:text-blue-400">Sign in</Link>
+          Already have an account? <Link href="/login" className="font-bold text-emerald-500 hover:text-emerald-400">Sign in</Link>
         </p>
         </>
         )}
@@ -299,7 +299,7 @@ function AuthInput({
           type={type}
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          className="w-full rounded-lg border border-white/10 bg-black/40 py-3 pl-10 pr-4 text-sm outline-none transition focus:border-blue-500/50"
+          className="w-full rounded-lg border border-white/10 bg-black/40 py-3 pl-10 pr-4 text-sm outline-none transition focus:border-emerald-500/50"
           placeholder={placeholder}
           required
           autoComplete={autoComplete}

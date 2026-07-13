@@ -62,7 +62,7 @@ export function PreviewEditor({ plan, onConfirmRender, onCancel, isRendering = f
     String(plan.inputProps.highlightColor || "#facc15")
   );
   const [accentColor, setAccentColor] = useState(
-    String(plan.inputProps.accentColor || "#2563EB")
+    String(plan.inputProps.accentColor || "#10B981")
   );
 
   // Build live inputProps from current editor state
@@ -200,7 +200,7 @@ export function PreviewEditor({ plan, onConfirmRender, onCancel, isRendering = f
             </button>
             <button
               onClick={togglePlay}
-              className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold transition-colors flex items-center gap-2"
+              className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-emerald-500 text-white font-semibold transition-colors flex items-center gap-2"
             >
               {isPlaying ? <Pause size={16} /> : <Play size={16} />}
               {isPlaying ? "Pause" : "Play"}
@@ -234,7 +234,7 @@ export function PreviewEditor({ plan, onConfirmRender, onCancel, isRendering = f
             <button
               onClick={handleConfirm}
               disabled={isRendering}
-              className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-sm transition-colors flex items-center justify-center gap-2"
+              className="w-full py-3 rounded-xl bg-blue-600 hover:bg-emerald-500 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-sm transition-colors flex items-center justify-center gap-2"
             >
               {isRendering ? (
                 <>

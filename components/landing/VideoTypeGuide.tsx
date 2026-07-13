@@ -1,7 +1,6 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Play } from 'lucide-react';
 
@@ -68,22 +67,8 @@ export default function VideoTypeGuide() {
       <div className="pointer-events-none absolute inset-0 opacity-[0.03] [background-image:linear-gradient(rgba(255,255,255,1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,1)_1px,transparent_1px)] [background-size:48px_48px]" />
 
       <div className="relative mx-auto max-w-6xl">
-        {/* Header with mascot */}
+        {/* Header */}
         <div className="mb-12 text-center">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="mx-auto mb-5 h-24 w-24 sm:h-28 sm:w-28"
-          >
-            <Image
-              src="/brand/mascot-notebook.webp"
-              alt="ItnaVideo mascot"
-              width={120}
-              height={120}
-              className="h-full w-full object-contain drop-shadow-[0_8px_24px_rgba(96,165,250,0.2)]"
-            />
-          </motion.div>
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -111,7 +96,7 @@ export default function VideoTypeGuide() {
         </div>
 
         {/* Guide cards */}
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {guides.map((guide, i) => (
             <motion.div
               key={guide.title}
@@ -119,7 +104,7 @@ export default function VideoTypeGuide() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.06 }}
-              className="group relative overflow-hidden rounded-2xl border border-white/8 p-5 sm:p-6 transition hover:border-white/15"
+              className="group relative overflow-hidden rounded-xl border border-white/8 p-4 transition hover:border-white/15"
               style={{ background: 'linear-gradient(160deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)' }}
             >
               {/* Accent glow on hover */}
@@ -127,17 +112,6 @@ export default function VideoTypeGuide() {
                 className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
                 style={{ background: guide.accent }}
               />
-
-              {/* Mascot image — positioned top-right */}
-              <div className="pointer-events-none absolute -right-2 -top-1 h-36 w-36 opacity-30 sm:h-40 sm:w-40 sm:opacity-40 transition-opacity group-hover:opacity-60">
-                <Image
-                  src={guide.mascot}
-                  alt=""
-                  width={160}
-                  height={160}
-                  className="h-full w-full object-contain"
-                />
-              </div>
 
               {/* Title row */}
               <div className="relative mb-4 flex items-center gap-3">
@@ -177,7 +151,7 @@ export default function VideoTypeGuide() {
 
         {/* Bottom trust line */}
         <div className="mt-10 flex flex-wrap items-center justify-center gap-4 text-[11px] text-slate-500">
-          {['No editing skills needed', 'Uploads are private & temporary', '1 free credit on signup', '9:16 MP4 for Reels & Shorts'].map((t) => (
+          {['No editing skills needed', 'Uploads are private & temporary', 'No credit card needed', '9:16 MP4 for Reels & Shorts'].map((t) => (
             <span key={t} className="flex items-center gap-1.5">
               <span className="text-emerald-400">✓</span> {t}
             </span>

@@ -57,7 +57,7 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            <button className="mt-8 bg-brand-mint hover:bg-blue-500 transition px-8 py-4 rounded-2xl font-semibold">
+            <button className="mt-8 bg-brand-mint hover:bg-emerald-500 transition px-8 py-4 rounded-2xl font-semibold">
               Save Changes
             </button>
           </section>
@@ -90,7 +90,7 @@ export default function SettingsPage() {
               />
             </div>
 
-            <button className="mt-8 bg-brand-mint hover:bg-blue-500 transition px-8 py-4 rounded-2xl font-semibold">
+            <button className="mt-8 bg-brand-mint hover:bg-emerald-500 transition px-8 py-4 rounded-2xl font-semibold">
               Update Password
             </button>
           </section>

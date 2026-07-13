@@ -75,7 +75,7 @@ export default function AboutPage() {
                 Upload once. Choose a video type. Get a reel back in 2-3 minutes. AI handles transcription, captions, layout, timing, visuals, and export. You direct, AI edits.
               </p>
               <div className="mt-6 grid gap-3">
-                {["6 production video types for focused reel formats", "AI captions synced to speech", "9:16 vertical MP4 ready to post", "No editing skills required", "Works for English and Hinglish"].map((item) => (
+                {["Focused video types for different reel formats", "AI captions synced to speech", "9:16 vertical MP4 ready to post", "No editing skills required", "Works for English and Hinglish"].map((item) => (
                   <div key={item} className="flex items-center gap-2.5 text-sm font-bold text-zinc-200">
                     <span className="text-brand-mint">✓</span> {item}
                   </div>
