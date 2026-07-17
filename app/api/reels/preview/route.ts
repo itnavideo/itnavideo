@@ -18,13 +18,15 @@ import {
 } from '@/services/ai/reelPlanner';
 import { checkRateLimit, getClientIp } from '@/services/rateLimit/inMemoryRateLimiter';
 import { buildEnergyTimeline, findBeatPeaks } from '@/lib/audio/energyTimeline';
+import { planCompareStickers } from '@/services/ai/compareStickerPlanner';
+import { createPremiumSoundCues, createPremiumStyleLock } from '@/services/ai/premiumStylePlanner';
 import { SUBTITLE_PRESETS } from '@/remotion/types/subtitles';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120; // preview can take up to 2 min (transcription)
 
-const MAX_RENDER_WINDOW_SECONDS = 60;
+const MAX_RENDER_WINDOW_SECONDS = 90;
 const SPEECH_LEAD_SECONDS = 0.65;
 const MIN_SPEECH_TOKEN_LENGTH = 2;
 
@@ -126,7 +128,7 @@ export async function POST(request: Request) {
     const captions = buildCompareCaptionsFromGroq(renderWindow);
 
     // 5. Build video-type-specific preview props
-    const inputProps = buildPreviewProps({
+    const inputProps = await buildPreviewProps({
       videoTypeName: videoTypeName as ReelVideoTypeName,
       videoTypeConfig,
       body,
@@ -137,6 +139,23 @@ export async function POST(request: Request) {
       transcription,
       topicTitle,
     });
+
+    if (videoTypeName === 'comparisonImages') {
+      const styleLock = createPremiumStyleLock({
+        topicTitle: topicTitle || renderWindow.transcript,
+        transcript: renderWindow.transcript,
+        templateName: 'comparisonImages',
+        mode: 'compare',
+      });
+      inputProps.styleLock = styleLock;
+      inputProps.soundCues = createPremiumSoundCues({
+        styleLock,
+        templateName: 'comparisonImages',
+        durationSeconds: renderWindow.durationSeconds,
+        timeline: Array.isArray(inputProps.overlayTimeline) ? inputProps.overlayTimeline as Array<{start?: number; end?: number; text?: string}> : [],
+        captions,
+      });
+    }
 
     // 6. Build the unified preview timeline JSON
     const previewPlan: PreviewPlan = {
@@ -203,7 +222,7 @@ export type PreviewPlan = {
 
 // ─── Build preview inputProps per video type ──────────────────────────────────
 
-function buildPreviewProps({
+async function buildPreviewProps({
   videoTypeName,
   videoTypeConfig,
   body,
@@ -229,7 +248,7 @@ function buildPreviewProps({
   const captionBackgroundColorValue = readString(body.captionBackgroundColor);
   const base: Record<string, unknown> = {
     mediaSrc: mediaUrl,
-    mediaType: 'video',
+    mediaType: videoTypeName === 'comparisonImages' ? 'audio' : 'video',
     mediaTrimStartSeconds: renderWindow.trimStartSeconds,
     sourceAudioVolume: 1,
     durationSeconds: renderWindow.durationSeconds,
@@ -276,7 +295,25 @@ function buildPreviewProps({
   if (videoTypeName === 'comparisonImages') {
     const leftTitle = readString(body.compareLeftTitle || body.leftTitle || body.leftLabel) || 'Left';
     const rightTitle = readString(body.compareRightTitle || body.rightTitle || body.rightLabel) || 'Right';
-    const overlays = buildCompareOverlayTimeline(captions, renderWindow.durationSeconds, leftTitle, rightTitle);
+    const stickerPlan = await planCompareStickers({
+      transcript: renderWindow.transcript,
+      segments: captions.map((caption) => ({start: Number(caption.start), end: Number(caption.end), text: caption.text})),
+      leftTitle,
+      rightTitle,
+      durationSeconds: renderWindow.durationSeconds,
+    });
+    const plannedOverlays = stickerPlan.plan.length
+      ? stickerPlan.plan.map((beat, index) => ({
+          id: `compare-pose-${index + 1}`,
+          start: beat.start,
+          end: beat.end,
+          text: captions.filter((caption) => Number(caption.end) > beat.start && Number(caption.start) < beat.end).map((caption) => caption.text).join(' '),
+          body: captions.filter((caption) => Number(caption.end) > beat.start && Number(caption.start) < beat.end).map((caption) => caption.text).join(' '),
+          title: index === 0 ? `${leftTitle} vs ${rightTitle}` : '',
+          stickerPose: beat.pose,
+        }))
+      : buildCompareOverlayTimeline(captions, renderWindow.durationSeconds, leftTitle, rightTitle);
+    const overlays = stabilizeCompareOverlayTimeline(plannedOverlays, renderWindow.durationSeconds, leftTitle, rightTitle);
     return {
       ...base,
       audioUrl: mediaUrl,

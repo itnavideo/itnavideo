@@ -37,11 +37,10 @@ export default function BrandLogo({
   className = '',
 }: BrandLogoProps) {
   const sizing = sizeMap[size];
-  const svgSize = Math.round(sizing.iconPx * 0.78);
   const content = (
     <span className={`inline-flex items-center gap-3 ${className}`}>
       <span
-        className={`relative inline-flex ${sizing.icon} shrink-0 items-center justify-center overflow-hidden rounded-lg border border-white/10 bg-[#0F172A] shadow-[0_12px_40px_rgba(37,99,235,0.18)]`}
+        className={`relative inline-flex ${sizing.icon} shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#0B1120] shadow-[0_12px_32px_rgba(34,211,238,0.16)]`}
         style={{
           width: sizing.iconPx,
           height: sizing.iconPx,
@@ -51,27 +50,30 @@ export default function BrandLogo({
           maxHeight: sizing.iconPx,
         }}
       >
-        <span className="absolute inset-0 bg-[radial-gradient(circle_at_28%_18%,rgba(34,211,238,0.45),transparent_28%),linear-gradient(135deg,rgba(37,99,235,0.94),rgba(6,182,212,0.82)_58%,rgba(96,165,250,0.72))]" />
         <svg
-          width={svgSize}
-          height={svgSize}
+          width={sizing.iconPx}
+          height={sizing.iconPx}
           viewBox="0 0 48 48"
           aria-hidden="true"
-          className="relative text-black/85"
-          style={{ width: svgSize, height: svgSize, maxWidth: svgSize, maxHeight: svgSize }}
+          className="relative"
+          style={{ width: sizing.iconPx, height: sizing.iconPx }}
         >
-          <rect x="8" y="11" width="32" height="26" rx="7" fill="rgba(2,6,23,0.88)" />
-          <path d="M19 18.5v11l10-5.5-10-5.5Z" fill="white" />
-          <path d="M10 25h4m20 0h4" stroke="white" strokeWidth="2.4" strokeLinecap="round" opacity="0.92" />
-          <path d="M14 19v10M34 19v10" stroke="#22d3ee" strokeWidth="2.4" strokeLinecap="round" />
-          <path d="M6 22v4M42 22v4" stroke="#60a5fa" strokeWidth="2.4" strokeLinecap="round" />
+          <mask id={`itnavideo-play-${size}`}>
+            <rect x="0" y="0" width="48" height="48" fill="white" />
+            {/* play-triangle knockout — reads as "video / play" even at 32px */}
+            <polygon points="23,20 23,34 34,27" fill="black" />
+          </mask>
+          {/* offset back frame for depth + the brand "reveal frame" idea */}
+          <rect x="11" y="11" width="20" height="20" rx="6" fill="#22D3EE" opacity="0.30" />
+          {/* front frame with play knockout (navy container shows through) */}
+          <rect x="17" y="17" width="20" height="20" rx="6" fill="#22D3EE" mask={`url(#itnavideo-play-${size})`} />
         </svg>
       </span>
 
       {!iconOnly && (
         <span className="min-w-0 leading-none">
           <span className={`block font-heading ${sizing.word} font-black tracking-normal text-white`}>
-            Itna<span className="text-brand-mint">video</span>
+            Itna<span className="text-[#22D3EE]">video</span>
           </span>
           {showTagline && (
             <span className="mt-1 block" style={{ fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: 'var(--text-dark-muted)' }}>

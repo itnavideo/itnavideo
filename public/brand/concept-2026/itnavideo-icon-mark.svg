@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="Itnavideo icon mark">
+  <defs>
+    <mask id="cornerNotch">
+      <rect x="0" y="0" width="48" height="48" fill="white"/>
+      <polygon points="29,17 37,17 37,25" fill="black"/>
+    </mask>
+  </defs>
+
+  <!-- Base tile -->
+  <rect x="0" y="0" width="48" height="48" rx="11" fill="#0B1120"/>
+
+  <!-- Back frame: the "input" frame, dimmed -->
+  <rect x="12" y="12" width="20" height="20" rx="6" fill="#22D3EE" opacity="0.32"/>
+
+  <!-- Front frame: the "generated" frame, solid, with a corner reveal notch -->
+  <rect x="17" y="17" width="20" height="20" rx="6" fill="#22D3EE" mask="url(#cornerNotch)"/>
+</svg>

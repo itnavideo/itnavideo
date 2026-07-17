@@ -1,40 +1,89 @@
-import type { PricingPlan } from "@/components/billing/PricingCheckoutCards";
+export type BillingCurrency = "INR" | "USD";
+
+export type PricingQuote = {
+  currency: BillingCurrency;
+  amount: number;
+  displayPrice: string;
+  priceVersion: string;
+};
+
+export type PricingPlan = {
+  id: string;
+  name: string;
+  monthlyVideoLimit: number;
+  validDays: number;
+  description: string;
+  features: string[];
+  button: string;
+  href: string;
+  popular: boolean;
+  billingPeriodLabel: string;
+  quotes: Record<BillingCurrency, PricingQuote>;
+};
+
+export const PRICE_VERSION = "2026-07-24";
 
 export const pricingPlans: PricingPlan[] = [
   {
-    id: "starter",
-    name: "Starter",
-    price: "$9",
-    amountPaise: 75000,
+    id: "pro",
+    name: "Pro",
     monthlyVideoLimit: 25,
-    description: "Explore all video types. Perfect for getting started.",
-    features: ["25 reel credits", "All video types", "HD 1080×1920 export", "No watermark"],
-    button: "Get Starter",
-    href: "/billing",
-    popular: false,
-  },
-  {
-    id: "creator",
-    name: "Creator",
-    price: "$19",
-    amountPaise: 159000,
-    monthlyVideoLimit: 60,
-    description: "For creators publishing reels regularly.",
-    features: ["60 reel credits", "All video types", "Priority render", "Caption styles"],
-    button: "Get Creator",
-    href: "/billing",
+    validDays: 31,
+    description: "For creators who publish regularly.",
+    features: [
+      "25 AI videos/month",
+      "No watermark",
+      "All templates",
+      "Faster generation",
+      "Commercial use",
+      "Priority support",
+    ],
+    button: "Upgrade to Pro",
+    href: "/pricing",
     popular: true,
+    billingPeriodLabel: "/month",
+    quotes: {
+      INR: {currency: "INR", amount: 49900, displayPrice: "₹499", priceVersion: PRICE_VERSION},
+      USD: {currency: "USD", amount: 1900, displayPrice: "$19", priceVersion: PRICE_VERSION},
+    },
   },
   {
     id: "business",
     name: "Business",
-    price: "$39",
-    amountPaise: 325000,
-    monthlyVideoLimit: 150,
-    description: "For agencies and teams creating at scale.",
-    features: ["150 reel credits", "Priority queue", "Commercial usage", "All premium video types"],
+    monthlyVideoLimit: 65,
+    validDays: 31,
+    description: "For teams and agencies creating at scale.",
+    features: [
+      "65 AI videos/month",
+      "Team collaboration",
+      "Brand Kit",
+      "Premium templates",
+      "Faster rendering",
+      "Early access to new features",
+      "Priority support",
+    ],
     button: "Get Business",
-    href: "/billing",
+    href: "/pricing",
     popular: false,
+    billingPeriodLabel: "/month",
+    quotes: {
+      INR: {currency: "INR", amount: 149900, displayPrice: "₹1,499", priceVersion: PRICE_VERSION},
+      USD: {currency: "USD", amount: 4900, displayPrice: "$49", priceVersion: PRICE_VERSION},
+    },
   },
 ];
+
+export function getPricingPlan(planId: string) {
+  return pricingPlans.find((plan) => plan.id === planId) || null;
+}
+
+export function getPlanQuoteForCurrency(plan: PricingPlan, currency: string) {
+  const normalizedCurrency = String(currency || "").toUpperCase() as BillingCurrency;
+  return plan.quotes[normalizedCurrency] || null;
+}
+
+export function resolvePlanQuoteForCountry(plan: PricingPlan, countryCode?: string | null) {
+  return String(countryCode || "").trim().toUpperCase() === "IN"
+    ? plan.quotes.INR
+    : plan.quotes.USD;
+}

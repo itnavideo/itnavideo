@@ -115,4 +115,14 @@ export const SUBTITLE_PRESETS: Record<string, SubtitlePreset> = {
   "Handwritten": { name: "Handwritten", style: "handwritten", fontFamily: "Georgia, serif", textColor: "#F8FAFC", highlightColor: "#FBBF24", fontSize: "large" },
   "Glass Blur": { name: "Glass Blur", style: "glass-blur", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#60A5FA", backgroundColor: "rgba(15,23,42,0.55)", fontSize: "large" },
   "split-color": { name: "Split Color", style: "split-color", fontFamily: "sans-serif", textColor: "#FFFFFF", highlightColor: "#FACC15", fontSize: "medium" },
+
+  // ── Professional additions (reuse tested render layouts) ──
+  "Sharp Yellow": { name: "Sharp Yellow", style: "highlight", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#FACC15", fontSize: "large" },
+  "Ocean Blue": { name: "Ocean Blue", style: "highlight", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#38BDF8", fontSize: "large" },
+  "Screamer": { name: "Screamer", style: "bold-outline", fontFamily: "Impact, sans-serif", textColor: "#FFFFFF", highlightColor: "#EF4444", fontSize: "xlarge" },
+  "Netflix Bar": { name: "Netflix Bar", style: "cinematic", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#FFFFFF", fontSize: "medium" },
+  "Black Card": { name: "Black Card", style: "floating-serif", fontFamily: "Playfair Display, serif", textColor: "#F8FAFC", highlightColor: "#D9B76E", fontSize: "large" },
+  "Stock Green": { name: "Stock Green", style: "stacked", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#22C55E", backgroundColor: "#0B1120", fontSize: "large" },
+  "Boardroom": { name: "Boardroom", style: "vollkorn", fontFamily: "Georgia, serif", textColor: "#FFFFFF", highlightColor: "#38BDF8", backgroundColor: "#000000", fontSize: "medium" },
+  "Podcast Hype": { name: "Podcast Hype", style: "stacked", fontFamily: "Arial Black, sans-serif", textColor: "#FFFFFF", highlightColor: "#F97316", backgroundColor: "#18181B", fontSize: "xlarge" },
 };

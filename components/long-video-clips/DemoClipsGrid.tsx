@@ -60,7 +60,7 @@ export function DemoClipsGrid() {
                   muted
                   playsInline
                   loop
-                  preload="metadata"
+                  preload="none"
                   onMouseEnter={(e) => (e.target as HTMLVideoElement).play()}
                   onMouseLeave={(e) => {
                     const v = e.target as HTMLVideoElement;

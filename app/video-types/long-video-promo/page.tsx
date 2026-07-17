@@ -109,11 +109,11 @@ export default function LongVideoPromoPage() {
             href="/dashboard?videoType=long-video-promo"
             className="inline-flex items-center gap-2 rounded-[10px] px-8 py-4 text-[15px] font-semibold text-white transition hover:-translate-y-[1px] brand-btn-primary-dark"
           >
-            Try this video type free
+            Create a Long Video Promo
             <ArrowRight size={16} />
           </Link>
           <p className="mt-4 text-sm" style={{ color: 'var(--text-dark-muted)' }}>
-            No credit card needed • First video free • 1080p MP4 export
+            Paid Long Video Promo exports are included in the Pro and Business plans.
           </p>
         </div>
       </section>
@@ -122,7 +122,7 @@ export default function LongVideoPromoPage() {
       <section className="px-4 pb-20 sm:px-6">
         <div className="mx-auto max-w-3xl rounded-lg p-6 text-center" style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border-dark)', borderRadius: '12px' }}>
           <p className="text-sm leading-6" style={{ color: 'var(--text-dark-secondary)' }}>
-            All video types are available on every plan. No features locked behind higher tiers. Pay only per video, starting at ₹9.
+            All currently available video types use the same transparent credit pack, with the exact 1- or 2-credit cost shown before render. Long Video Clips and long-form captions use their stated dynamic rates.
           </p>
           <Link href="/pricing" className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold transition hover:opacity-80" style={{ color: 'var(--color-primary-hover)' }}>
             View pricing <ArrowRight size={14} />

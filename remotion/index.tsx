@@ -6,6 +6,8 @@ import {WhiteboardVideoComposition} from './templates/WHITEBOARD_VIDEO/template'
 import {TypographyVideoComposition} from './templates/TYPOGRAPHY_VIDEO/template';
 import {MultiImagesVideoComposition} from './templates/MULTI_IMAGES_VIDEO/template';
 import {LongVideoClipsComposition} from './templates/LONG_VIDEO_CLIPS/template';
+import {LongFormCaptionedVideoComposition} from './templates/LONG_FORM_CAPTIONED_VIDEO/template';
+import {CaptionStudioComposition} from './templates/CAPTION_STUDIO/template';
 
 const compositions = [
   AutoCaptionReelComposition,
@@ -15,6 +17,8 @@ const compositions = [
   TypographyVideoComposition,
   MultiImagesVideoComposition,
   LongVideoClipsComposition,
+  LongFormCaptionedVideoComposition,
+  CaptionStudioComposition,
 ];
 
 const RemotionRoot = () => (

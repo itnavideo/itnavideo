@@ -23,6 +23,8 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  // On the app dashboard we drop the marketing nav links to keep an app-style, uncluttered header.
+  const isDashboard = pathname === '/dashboard';
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -37,14 +39,16 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <BrandLogo size="sm" />
 
-        <div className="hidden items-center gap-1 rounded-full border border-white/8 bg-white/[0.035] p-1 md:flex">
-          {productLinks.map((item) => (
-            <NavPill key={item.label} href={item.href} label={item.label} active={isActivePath(pathname, item.href)} strong />
-          ))}
-          {pageLinks.map((item) => (
-            <NavPill key={item.label} href={item.href} label={item.label} badge={'badge' in item ? item.badge : undefined} active={isActivePath(pathname, item.href)} />
-          ))}
-        </div>
+        {!isDashboard ? (
+          <div className="hidden items-center gap-1 rounded-full border border-white/8 bg-white/[0.035] p-1 md:flex">
+            {productLinks.map((item) => (
+              <NavPill key={item.label} href={item.href} label={item.label} active={isActivePath(pathname, item.href)} strong />
+            ))}
+            {pageLinks.map((item) => (
+              <NavPill key={item.label} href={item.href} label={item.label} badge={'badge' in item ? item.badge : undefined} active={isActivePath(pathname, item.href)} />
+            ))}
+          </div>
+        ) : null}
 
         <div className="hidden items-center gap-3 md:flex">
           {user ? (
@@ -58,7 +62,7 @@ export default function Navbar() {
           ) : (
             <>
               <Link href="/login" className="rounded-lg px-3 py-2 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/8 hover:text-white">Login</Link>
-              <Link href="/signup" className="inline-flex items-center gap-2 rounded-lg border border-pink-300/25 bg-pink-500 px-5 py-2.5 text-sm font-black text-white shadow-[0_0_26px_rgba(255,61,154,0.20)] transition hover:bg-pink-400 hover:shadow-[0_0_32px_rgba(255,61,154,0.30)]">
+              <Link href="/signup" className="inline-flex items-center gap-2 rounded-lg border border-cyan-100/25 bg-cyan-300 px-5 py-2.5 text-sm font-extrabold text-slate-950 shadow-[0_0_26px_rgba(34,211,238,0.2)] transition hover:bg-cyan-200 hover:shadow-[0_0_32px_rgba(34,211,238,0.3)]">
                 <Sparkles size={16} />
                 Create My Free Video
               </Link>
@@ -142,7 +146,7 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <Link href="/signup" onClick={() => setIsOpen(false)} className="inline-flex items-center justify-center gap-2 rounded-lg border border-pink-300/25 bg-pink-500 px-5 py-4 text-center font-black text-white shadow-[0_0_26px_rgba(255,61,154,0.20)]">
+              <Link href="/signup" onClick={() => setIsOpen(false)} className="inline-flex items-center justify-center gap-2 rounded-lg border border-cyan-100/25 bg-cyan-300 px-5 py-4 text-center font-extrabold text-slate-950 shadow-[0_0_26px_rgba(34,211,238,0.2)]">
                 <Sparkles size={18} />
                 Create My Free Video
               </Link>

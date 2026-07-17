@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { ArrowRight, Check, Scissors, Sparkles, Clock, Zap } from "lucide-react";
 import { DemoClipsGrid } from "@/components/long-video-clips/DemoClipsGrid";
+import { ConversionHook, StickyBottomCTA } from "@/components/landing/ConversionHook";
 
 export const metadata: Metadata = {
   title: "Long Video Clips — Turn Long Videos Into Viral Short Clips | Itnavideo",
@@ -51,6 +52,13 @@ export default function LongVideoClipsPage() {
             </Link>
           </div>
           <p className="mt-4 text-sm" style={{ color: 'var(--text-dark-muted)' }}>No credit card needed • 1 credit per clip • 1080p MP4 export</p>
+        </div>
+      </section>
+
+      {/* Banner */}
+      <section className="px-4 pb-12 sm:px-6">
+        <div className="mx-auto max-w-4xl overflow-hidden rounded-2xl border border-cyan-400/15 shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
+          <img src="/visuals/banners/long-video-clips.png" alt="Long video to short clips concept" className="w-full h-auto" loading="lazy" />
         </div>
       </section>
 
@@ -189,16 +197,19 @@ export default function LongVideoClipsPage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="px-4 pb-20 sm:px-6">
-        <div className="mx-auto max-w-md text-center">
-          <Link href="/dashboard?videoType=long-video-clips" className="inline-flex items-center gap-2 rounded-[10px] px-8 py-4 text-[15px] font-semibold text-white transition hover:-translate-y-[1px] brand-btn-primary-dark">
-            Try Long Video Clips
-            <ArrowRight size={16} />
-          </Link>
-          <p className="mt-4 text-sm" style={{ color: 'var(--text-dark-muted)' }}>No credit card needed • Upload any length • Captions included</p>
-        </div>
-      </section>
+      <ConversionHook
+        templateName="Short Clips"
+        dashboardUrl="/dashboard?videoType=long-video-clips"
+        accentColor="#06B6D4"
+        inputType="long video (any length)"
+        outputTime="5 minutes"
+      />
+
+      <StickyBottomCTA
+        templateName="Video Clips"
+        dashboardUrl="/dashboard?videoType=long-video-clips"
+        accentColor="#06B6D4"
+      />
     </main>
   );
 }

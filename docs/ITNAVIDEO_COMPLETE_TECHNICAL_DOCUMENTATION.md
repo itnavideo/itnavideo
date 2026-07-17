@@ -41,9 +41,10 @@ This document is older technical reference material. Please use `docs/ITNAVIDEO_
 - User downloads MP4 — ready to post on Instagram, YouTube, TikTok
 
 **Business Model:**
-- Credit-based: 1 credit = 1 rendered reel
-- Plans: Starter ($19/20 credits), Creator ($39/60 credits), Business ($99/180 credits)
-- Payment: Razorpay (USD, International enabled)
+- Credit-based with server-enforced costs per Video Type
+- Launch pack: 20 credits valid for 31 days, ₹499 in India and $19 internationally
+- Auto Caption/Long Video Promo/Typography: 1 credit; Compare/Whiteboard/Multi Images: 2; Long Video Clips: 3–12; Long-form: 1 per started minute
+- Payment: Razorpay with server-selected regional quote
 
 **Current Templates (3 Live):**
 | Template | Input | Output |

@@ -117,7 +117,7 @@ export default function AutoCaptionReelPage() {
             <ArrowRight size={16} />
           </Link>
           <p className="mt-4 text-sm" style={{ color: 'var(--text-dark-muted)' }}>
-            No credit card needed • First video free • 1080p MP4 export
+            One free watermarked Auto Caption Video • No card needed • 1080p MP4 export
           </p>
         </div>
       </section>
@@ -126,7 +126,7 @@ export default function AutoCaptionReelPage() {
       <section className="px-4 pb-20 sm:px-6">
         <div className="mx-auto max-w-3xl rounded-lg p-6 text-center" style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border-dark)', borderRadius: '12px' }}>
           <p className="text-sm leading-6" style={{ color: 'var(--text-dark-secondary)' }}>
-            All video types are available on every plan. No features locked behind higher tiers. Pay only per video, starting at ₹9.
+            Auto Caption is the only free trial workflow: one video up to 60 seconds with a fixed Itnavideo watermark. Paid credits unlock clean exports and every available video type at the shown credit cost.
           </p>
           <Link href="/pricing" className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold transition hover:opacity-80" style={{ color: 'var(--color-primary-hover)' }}>
             View pricing <ArrowRight size={14} />

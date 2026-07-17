@@ -11,6 +11,11 @@ import {
 } from 'remotion';
 import {PremiumAudioLayer, type PremiumSoundCue, type PremiumStyleLock} from '../../components/PremiumAudioLayer';
 import {PremiumVisualTreatment, type PremiumVisualStyleLock} from '../../components/PremiumVisualTreatment';
+import {resolveFont} from '../../utils/fonts';
+
+// Self-hosted fonts (Lambda-safe). Titles/VS use a heavy display face; captions/handle a clean sans.
+const DISPLAY_FONT = resolveFont('Anton');
+const TEXT_FONT = resolveFont('Montserrat');
 
 type CompareImageInput = string | {url?: string; src?: string; imageUrl?: string};
 
@@ -48,6 +53,10 @@ type CompareProps = {
   rightTitle?: string;
 
   creatorHandle?: string;
+  // Visual theme + comparison tone + optional winner highlight
+  themeId?: 'light' | 'dark' | 'bold' | string;
+  tone?: 'versus' | 'goodBad' | string;
+  winner?: 'left' | 'right' | 'none' | string;
   stickerStyle?: '2d' | 'cartoon' | 'explainer' | string;
   stickerScale?: number;
   stickerOffsetX?: number;
@@ -89,10 +98,10 @@ const STICKER_SETS = {
     thinking: 'assets/stickman/stickman-explainer/thinking-expression.png',
     warning: 'assets/stickman/stickman-explainer/confused-expression.png',
     success: 'assets/stickman/stickman-explainer/explaining-comparison.png',
-    surprised: 'assets/stickman/stickman-explainer/surprised-expression.png',
-    explaining: 'assets/stickman/stickman-explainer/explaining-point.png',
-    celebrating: 'assets/stickman/stickman-explainer/celebrating-victory.png',
-    comparing: 'assets/stickman/stickman-explainer/comparing-options.png',
+    surprised: 'assets/stickman/stickman-explainer/confused-expression.png',
+    explaining: 'assets/stickman/stickman-explainer/explaining-comparison.png',
+    celebrating: 'assets/stickman/stickman-explainer/explaining-comparison.png',
+    comparing: 'assets/stickman/stickman-explainer/explaining-comparison.png',
   },
   'girl-teacher': {
     welcome: 'assets/stickman/girl-teacher/teacher-welcome.png',
@@ -235,6 +244,104 @@ const STICKER_SIZE_CONFIG: Record<StickerBodyType, {width: number; maxHeight: nu
   upper_body: {width: 800, maxHeight: 720, scale: 1.12},
 };
 
+const COMPARE_LAYOUT = {
+  handleTop: 50,
+  titleTop: 112,
+  titleHeight: 88,
+  imageTop: 225,
+  imageHeight: 430,
+  captionTop: 720,
+  captionHeight: 126,
+  stickerTop: 870,
+  stickerBottom: 34,
+} as const;
+
+// --- Visual themes (background + caption + handle styling) ---
+type CompareTheme = {
+  background: string;
+  dots: [string, string];
+  dotsOpacity: number;
+  glow: string;
+  handle: string;
+  captionBg: string;
+  captionText: string;
+  captionBorder: string;
+  bottomFade: string;
+  boxBg: string;
+  hookBg: string;
+  hookText: string;
+  hookSub: string;
+};
+
+const COMPARE_THEMES: Record<string, CompareTheme> = {
+  light: {
+    background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 30%, #f0f4ff 70%, #e8eeff 100%)',
+    dots: ['#5B6FFF', '#9B82FF'],
+    dotsOpacity: 0.03,
+    glow: 'rgba(91,111,255,0.08)',
+    handle: '#64748b',
+    captionBg: 'rgba(255,255,255,0.92)',
+    captionText: '#0f172a',
+    captionBorder: 'rgba(61,82,255,0.15)',
+    bottomFade: 'rgba(232,238,255,0.95)',
+    boxBg: '#ffffff',
+    hookBg: 'linear-gradient(160deg, #eef2ff 0%, #ffffff 55%, #e8eeff 100%)',
+    hookText: '#0f172a',
+    hookSub: '#475569',
+  },
+  dark: {
+    background: 'linear-gradient(180deg, #0B1120 0%, #131C31 45%, #0B1120 100%)',
+    dots: ['#3D52FF', '#7C5CFC'],
+    dotsOpacity: 0.07,
+    glow: 'rgba(124,92,252,0.14)',
+    handle: '#64748b',
+    captionBg: 'rgba(15,23,42,0.86)',
+    captionText: '#f1f5f9',
+    captionBorder: 'rgba(255,255,255,0.14)',
+    bottomFade: 'rgba(8,12,22,0.96)',
+    boxBg: '#0f172a',
+    hookBg: 'linear-gradient(160deg, #0B1120 0%, #1E293B 60%, #0B1120 100%)',
+    hookText: '#ffffff',
+    hookSub: '#94a3b8',
+  },
+  bold: {
+    background: 'linear-gradient(180deg, #1E1B4B 0%, #312E81 48%, #4C1D95 100%)',
+    dots: ['#A78BFA', '#F0ABFC'],
+    dotsOpacity: 0.06,
+    glow: 'rgba(167,139,250,0.18)',
+    handle: '#c4b5fd',
+    captionBg: 'rgba(255,255,255,0.95)',
+    captionText: '#1E1B4B',
+    captionBorder: 'rgba(167,139,250,0.4)',
+    bottomFade: 'rgba(30,27,75,0.95)',
+    boxBg: '#ffffff',
+    hookBg: 'linear-gradient(160deg, #312E81 0%, #4C1D95 60%, #1E1B4B 100%)',
+    hookText: '#ffffff',
+    hookSub: '#ddd6fe',
+  },
+};
+
+// --- Comparison tone (per-side accent colors) ---
+type SideColor = {main: string; soft: string; glowPrefix: string; shadow: string};
+const COMPARE_TONES: Record<string, {left: SideColor; right: SideColor}> = {
+  // Neutral "A vs B" — both sides feel equal/positive
+  versus: {
+    left: {main: '#3D52FF', soft: '#5B6FFF', glowPrefix: 'rgba(61,82,255,', shadow: 'rgba(61,82,255,0.15)'},
+    right: {main: '#7C5CFC', soft: '#9B82FF', glowPrefix: 'rgba(124,92,252,', shadow: 'rgba(124,92,252,0.15)'},
+  },
+  // Good vs bad — green (recommended) vs red (avoid)
+  goodBad: {
+    left: {main: '#16A34A', soft: '#22C55E', glowPrefix: 'rgba(22,163,74,', shadow: 'rgba(22,163,74,0.16)'},
+    right: {main: '#DC2626', soft: '#F87171', glowPrefix: 'rgba(220,38,38,', shadow: 'rgba(220,38,38,0.16)'},
+  },
+};
+
+const resolveTheme = (id?: string): CompareTheme => COMPARE_THEMES[String(id || 'light')] || COMPARE_THEMES.light;
+const resolveTone = (id?: string) => COMPARE_TONES[String(id || 'versus')] || COMPARE_TONES.versus;
+
+const clampNumber = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+const getTitleFontSize = (title: string) => title.length > 32 ? 28 : title.length > 24 ? 34 : title.length > 16 ? 39 : 44;
+
 const resolveAsset = (value: string) => {
   if (!value) return '';
   if (/^(https?:|data:|blob:)/i.test(value)) return value;
@@ -265,12 +372,12 @@ const getActiveCaption = (items: CompareCaption[] = [], frame: number, fps: numb
 
 
 const makeShortSubtitle = (value: string) => {
-  const words = cleanText(value, 95).split(/\s+/).filter(Boolean);
+  const words = cleanText(value, 78).split(/\s+/).filter(Boolean);
 
-  if (words.length <= 6) return words.join(' ');
+  if (words.length <= 5) return words.join(' ');
 
-  const maxWords = 7;
-  const selected = words.slice(0, 14);
+  const maxWords = 6;
+  const selected = words.slice(0, 12);
   const first = selected.slice(0, maxWords).join(' ');
   const second = selected.slice(maxWords, maxWords * 2).join(' ');
 
@@ -297,24 +404,29 @@ function cleanHinglishSubtitle(value: string) {
 const getCaptionText = (
   overlay: CompareOverlay | undefined,
   caption: CompareCaption | undefined,
-  fallback: string,
 ) => {
-  const captionText = caption?.text || caption?.lines?.join(' ');
-  return cleanHinglishSubtitle(makeShortSubtitle(captionText || overlay?.text || overlay?.body || overlay?.title || fallback || 'Simple difference samjho.'));
+  // Empty-safe: only render real transcript/overlay text. No placeholder filler
+  // (avoids an odd Hinglish line appearing on English or silent sections).
+  const captionText = caption?.text || caption?.lines?.join(' ') || overlay?.text || overlay?.body || overlay?.title || '';
+  const cleaned = cleanHinglishSubtitle(makeShortSubtitle(captionText));
+  return cleaned.trim();
 };
 
 const VisualBox = ({
   image,
   side,
+  colors,
+  boxBg,
   isActive = false,
 }: {
   image: string;
   side: 'left' | 'right';
+  colors: SideColor;
+  boxBg: string;
   isActive?: boolean;
 }) => {
   const src = resolveAsset(image);
   const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
   // Subtle Ken Burns on images
   const imgZoom = 1 + Math.sin(frame / 120 + (side === 'right' ? 1.5 : 0)) * 0.015;
   // Active glow pulse when this side is being discussed
@@ -326,16 +438,14 @@ const VisualBox = ({
       style={{
         position: 'relative',
         width: 488,
-        height: 430,
+        height: COMPARE_LAYOUT.imageHeight,
         borderRadius: 20,
-        border: `4px solid ${side === 'left' ? '#3D52FF' : '#7C5CFC'}`,
-        background: '#ffffff',
+        border: `4px solid ${colors.main}`,
+        background: boxBg,
         overflow: 'hidden',
         boxShadow: isActive
-          ? `0 16px 40px ${side === 'left' ? 'rgba(61,82,255,0.3)' : 'rgba(124,92,252,0.3)'}, 0 4px 12px rgba(0,0,0,0.1)`
-          : side === 'left'
-            ? '0 12px 32px rgba(61,82,255,0.15), 0 4px 12px rgba(0,0,0,0.08)'
-            : '0 12px 32px rgba(124,92,252,0.15), 0 4px 12px rgba(0,0,0,0.08)',
+          ? `0 16px 40px ${colors.glowPrefix}0.3), 0 4px 12px rgba(0,0,0,0.1)`
+          : `0 12px 32px ${colors.shadow}, 0 4px 12px rgba(0,0,0,0.08)`,
         transform: `scale(${activeScale})`,
         transition: 'transform 0.3s, box-shadow 0.3s',
       }}
@@ -389,7 +499,7 @@ const VisualBox = ({
           width: 36,
           height: 36,
           borderRadius: 10,
-          background: side === 'left' ? '#3D52FF' : '#7C5CFC',
+          background: colors.main,
           color: '#ffffff',
           display: 'flex',
           alignItems: 'center',
@@ -406,7 +516,7 @@ const VisualBox = ({
       <div style={{
         position: 'absolute', bottom: 0, left: 0, right: 0, height: 60,
         borderRadius: '0 0 16px 16px',
-        background: `linear-gradient(0deg, ${side === 'left' ? 'rgba(61,82,255,0.08)' : 'rgba(124,92,252,0.08)'} 0%, transparent 100%)`,
+        background: `linear-gradient(0deg, ${colors.glowPrefix}0.08) 0%, transparent 100%)`,
       }} />
 
       {/* Active glow overlay */}
@@ -414,7 +524,7 @@ const VisualBox = ({
         <div style={{
           position: 'absolute', inset: 0,
           borderRadius: 16,
-          background: `radial-gradient(ellipse at center, ${side === 'left' ? 'rgba(61,82,255,' : 'rgba(124,92,252,'}${glowOpacity}) 0%, transparent 70%)`,
+          background: `radial-gradient(ellipse at center, ${colors.glowPrefix}${glowOpacity}) 0%, transparent 70%)`,
           pointerEvents: 'none',
         }} />
       )}
@@ -575,16 +685,12 @@ const getActiveStickerPose = ({
   leftTitle: string;
   rightTitle: string;
 }): StickerPoseKey => {
-  // Frame 0 / intro: welcome pose — presenter greets the viewer.
-  if (currentTime < 1.5) return STICKER_POSES.welcome;
-
-  // Final conclusion / outro: celebrating pose — presenter wraps up with energy.
-  if (durationSeconds > 0 && currentTime >= Math.max(0, durationSeconds - 2.8)) {
-    return STICKER_POSES.celebrating;
-  }
-
   const explicitPose = normalizeStickerPoseId(overlay?.stickerPose || overlay?.pose);
   if (explicitPose) return explicitPose;
+
+  // Legacy jobs without a planned overlay still get a gentle intro/outro fallback.
+  if (currentTime < 1.5) return STICKER_POSES.welcome;
+  if (durationSeconds > 0 && currentTime >= Math.max(0, durationSeconds - 2.8)) return STICKER_POSES.celebrating;
 
   const text = normalizeForMatch(
     [
@@ -842,27 +948,12 @@ const StickerPresenter = ({
   const bodyType = STICKER_BODY_TYPE[selectedStickerStyle] || 'full_body';
   const sizeConfig = STICKER_SIZE_CONFIG[bodyType];
 
-  // Position logic: sticker pose matches the side being discussed
-  // When talking about LEFT topic → sticker uses the left-side pointing explainer pose.
-  // When talking about RIGHT topic → sticker uses the right-side pointing explainer pose.
-  // Other poses → center
-  type StickerPosition = 'left' | 'right' | 'center';
-  let stickerPosition: StickerPosition = 'center';
-  if (poseKey === STICKER_POSES.leftSideExplainer) {
-    // Explaining left image → sticker on LEFT side pointing at left image
-    stickerPosition = 'left';
-  } else if (poseKey === STICKER_POSES.rightSideExplainer) {
-    // Explaining right image → sticker on RIGHT side pointing at right image
-    stickerPosition = 'right';
-  } else {
-    stickerPosition = 'center';
-  }
-
-  // Sticker zone: below the caption box with proper spacing
-  const STICKER_ZONE_TOP = 870; // leave space after caption box ends (~860)
-  const STICKER_ZONE_BOTTOM = 40; // bottom padding so sticker doesn't touch edge
+  // Presenter remains centered in one lower-safe zone; direction is carried by the selected pose art.
   const STICKER_WIDTH = sizeConfig.width;
   const STICKER_MAX_HEIGHT = sizeConfig.maxHeight;
+  const safeStickerScale = clampNumber(Number(stickerScale) || 1, 0.72, 1.15);
+  const safeStickerOffsetX = clampNumber(Number(stickerOffsetX) || 0, -110, 110);
+  const safeStickerOffsetY = clampNumber(Number(stickerOffsetY) || 0, -36, 46);
 
   const enterOpacity = interpolate(frame, [0, 12], [0, 1], {
     extrapolateLeft: 'clamp',
@@ -883,37 +974,21 @@ const StickerPresenter = ({
   // Gentle head tilt — makes character feel expressive
   const rotate = Math.sin(frame / 70) * 0.6;
 
-  // Pose-change slide: when character moves left/right, add horizontal motion
-  const slideX = poseJustChanged
-    ? interpolate(poseDurationFrames, [0, 14], [stickerPosition === 'left' ? -60 : stickerPosition === 'right' ? 60 : 0, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})
-    : 0;
-
-  // Horizontal positioning based on scene context
-  const getHorizontalAlign = (): React.CSSProperties => {
-    if (stickerPosition === 'left') {
-      return {justifyContent: 'flex-start', paddingLeft: 60, paddingRight: 0};
-    }
-    if (stickerPosition === 'right') {
-      return {justifyContent: 'flex-end', paddingLeft: 0, paddingRight: 60};
-    }
-    return {justifyContent: 'center', paddingLeft: 0, paddingRight: 0};
-  };
-
   return (
     <div
       style={{
         position: 'absolute',
         left: 0,
         right: 0,
-        top: STICKER_ZONE_TOP,
-        bottom: STICKER_ZONE_BOTTOM,
+        top: COMPARE_LAYOUT.stickerTop,
+        bottom: COMPARE_LAYOUT.stickerBottom,
         overflow: 'hidden',
-        zIndex: 7,
+        zIndex: 3,
         display: 'flex',
         alignItems: 'flex-start',
+        justifyContent: 'center',
         paddingTop: 10,
         pointerEvents: 'none',
-        ...getHorizontalAlign(),
       }}
     >
       <img
@@ -925,7 +1000,7 @@ const StickerPresenter = ({
           height: 'auto',
           objectFit: 'contain',
           opacity: enterOpacity,
-          transform: `translate(${stickerOffsetX + slideX}px, ${stickerOffsetY + idleY}px) rotate(${rotate}deg) scale(${pop * breathScale * sizeConfig.scale * poseBounce * stickerScale})`,
+          transform: `translate(${safeStickerOffsetX}px, ${safeStickerOffsetY + idleY}px) rotate(${rotate}deg) scale(${pop * breathScale * sizeConfig.scale * poseBounce * safeStickerScale})`,
           transformOrigin: 'center bottom',
           filter: 'drop-shadow(0 24px 32px rgba(0,0,0,0.28))',
           transition: 'filter 0.3s',
@@ -934,6 +1009,159 @@ const StickerPresenter = ({
     </div>
   );
 };
+// Small crown badge that sits above the winning title pill.
+const WinnerCrown = ({side}: {side: 'left' | 'right'}) => (
+  <div
+    style={{
+      position: 'absolute',
+      top: -34,
+      [side === 'left' ? 'right' : 'left']: 16,
+      fontSize: 30,
+      lineHeight: 1,
+      filter: 'drop-shadow(0 3px 4px rgba(0,0,0,0.35))',
+      transform: `rotate(${side === 'left' ? 12 : -12}deg)`,
+    }}
+  >
+    👑
+  </div>
+);
+
+// Full-screen opening hook. Shows the topic (or "A vs B") to stop the scroll.
+const HookCard = ({
+  leftTitle,
+  rightTitle,
+  topic,
+  theme,
+  leftColor,
+  rightColor,
+  opacity,
+}: {
+  leftTitle: string;
+  rightTitle: string;
+  topic: string;
+  theme: CompareTheme;
+  leftColor: SideColor;
+  rightColor: SideColor;
+  opacity: number;
+}) => {
+  const frame = useCurrentFrame();
+  const pop = spring({frame, fps: 30, config: {damping: 12, mass: 0.4, stiffness: 150}, from: 0.86, to: 1});
+  return (
+    <AbsoluteFill
+      style={{
+        background: theme.hookBg,
+        opacity,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 20,
+        padding: 80,
+        textAlign: 'center',
+        transform: `scale(${pop})`,
+      }}
+    >
+      <div style={{fontFamily: TEXT_FONT, fontSize: 30, fontWeight: 800, letterSpacing: 6, textTransform: 'uppercase', color: theme.hookSub, marginBottom: 26}}>
+        Comparison
+      </div>
+      <div style={{display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center'}}>
+        <div style={{fontFamily: DISPLAY_FONT, fontSize: 96, lineHeight: 0.98, textTransform: 'uppercase', color: leftColor.main, letterSpacing: -2}}>
+          {leftTitle}
+        </div>
+        <div style={{fontFamily: DISPLAY_FONT, fontSize: 52, color: '#FF7A2F', letterSpacing: 2}}>VS</div>
+        <div style={{fontFamily: DISPLAY_FONT, fontSize: 96, lineHeight: 0.98, textTransform: 'uppercase', color: rightColor.main, letterSpacing: -2}}>
+          {rightTitle}
+        </div>
+      </div>
+      {topic ? (
+        <div style={{fontFamily: TEXT_FONT, fontSize: 34, fontWeight: 700, color: theme.hookText, marginTop: 40, maxWidth: 820, lineHeight: 1.2}}>
+          {topic}
+        </div>
+      ) : null}
+    </AbsoluteFill>
+  );
+};
+
+// Full-screen closing card. Announces the winner (if set) and the follow CTA.
+const ClosingCard = ({
+  leftTitle,
+  rightTitle,
+  winner,
+  handle,
+  theme,
+  leftColor,
+  rightColor,
+  opacity,
+}: {
+  leftTitle: string;
+  rightTitle: string;
+  winner: 'left' | 'right' | 'none';
+  handle: string;
+  theme: CompareTheme;
+  leftColor: SideColor;
+  rightColor: SideColor;
+  opacity: number;
+}) => {
+  const frame = useCurrentFrame();
+  const pop = spring({frame, fps: 30, config: {damping: 13, mass: 0.4, stiffness: 150}, from: 0.9, to: 1});
+  const winnerTitle = winner === 'left' ? leftTitle : winner === 'right' ? rightTitle : '';
+  const winnerColor = winner === 'right' ? rightColor : leftColor;
+  return (
+    <AbsoluteFill
+      style={{
+        background: theme.hookBg,
+        opacity,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 20,
+        padding: 80,
+        textAlign: 'center',
+        transform: `scale(${pop})`,
+      }}
+    >
+      {winner !== 'none' ? (
+        <>
+          <div style={{fontSize: 70, marginBottom: 8}}>👑</div>
+          <div style={{fontFamily: TEXT_FONT, fontSize: 30, fontWeight: 800, letterSpacing: 6, textTransform: 'uppercase', color: theme.hookSub, marginBottom: 18}}>
+            Winner
+          </div>
+          <div style={{fontFamily: DISPLAY_FONT, fontSize: 104, lineHeight: 0.98, textTransform: 'uppercase', color: winnerColor.main, letterSpacing: -2}}>
+            {winnerTitle}
+          </div>
+        </>
+      ) : (
+        <>
+          <div style={{fontFamily: TEXT_FONT, fontSize: 30, fontWeight: 800, letterSpacing: 6, textTransform: 'uppercase', color: theme.hookSub, marginBottom: 18}}>
+            Which one wins?
+          </div>
+          <div style={{fontFamily: DISPLAY_FONT, fontSize: 78, lineHeight: 1.02, textTransform: 'uppercase', color: theme.hookText, letterSpacing: -1.5}}>
+            <span style={{color: leftColor.main}}>{leftTitle}</span>
+            <span style={{color: '#FF7A2F', margin: '0 18px'}}>vs</span>
+            <span style={{color: rightColor.main}}>{rightTitle}</span>
+          </div>
+        </>
+      )}
+      <div
+        style={{
+          marginTop: 52,
+          fontFamily: TEXT_FONT,
+          fontSize: 40,
+          fontWeight: 800,
+          color: '#ffffff',
+          background: 'linear-gradient(135deg, #FF6B35 0%, #FF8F00 100%)',
+          padding: '16px 40px',
+          borderRadius: 999,
+          boxShadow: '0 10px 30px rgba(255,107,53,0.35)',
+        }}
+      >
+        Follow {handle}
+      </div>
+    </AbsoluteFill>
+  );
+};
+
 export const CompareExplainer = (props: CompareProps) => {
   const frame = useCurrentFrame();
   const fps = 30;
@@ -945,22 +1173,38 @@ export const CompareExplainer = (props: CompareProps) => {
   const leftImage = uploadedImages[0] || 'assets/compare/debit-card.jpg';
   const rightImage = uploadedImages[1] || 'assets/compare/credit-card.avif';
 
-  const leftTitle = cleanText(props.compareLeftTitle || props.leftTitle || 'Left', 18);
-  const rightTitle = cleanText(props.compareRightTitle || props.rightTitle || 'Right', 18);
+  const leftTitle = cleanText(props.compareLeftTitle || props.leftTitle || 'Left', 40);
+  const rightTitle = cleanText(props.compareRightTitle || props.rightTitle || 'Right', 40);
+  const leftTitleFontSize = getTitleFontSize(leftTitle);
+  const rightTitleFontSize = getTitleFontSize(rightTitle);
+
+  // Theme + tone + optional winner
+  const theme = resolveTheme(props.themeId);
+  const tone = resolveTone(props.tone);
+  const leftColor = tone.left;
+  const rightColor = tone.right;
+  const winner: 'left' | 'right' | 'none' =
+    props.winner === 'left' || props.winner === 'right' ? props.winner : 'none';
 
   const audioUrl = props.audioUrl || props.mediaUrl || props.sourceAudioUrl || '';
   const activeOverlay = getActiveOverlay(props.overlayTimeline || [], frame, fps);
   const activeCaption = getActiveCaption(props.captions || props.transcriptSegments || props.segments || [], frame, fps);
 
-  const caption = getCaptionText(
-    activeOverlay,
-    activeCaption,
-    props.transcript || props.sourceScript || props.topicTitle || `${leftTitle} vs ${rightTitle}`,
-  );
+  const caption = getCaptionText(activeOverlay, activeCaption);
 
   // Determine which image is "active" (being discussed) based on sticker pose
   const currentTime = frame / fps;
   const durationSeconds = Number(props.durationSeconds || props.sourceDurationSeconds || props.renderWindowSeconds || 45);
+
+  // Opening hook card (first ~1.85s) and closing CTA card (last ~2.6s)
+  const totalFrames = Math.max(1, Math.round(durationSeconds * fps));
+  const hookText = cleanText(props.topicTitle || '', 46);
+  const showHook = frame < 56;
+  const hookOpacity = interpolate(frame, [0, 8, 44, 55], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const closingStart = Math.max(totalFrames - 78, Math.round(totalFrames * 0.72));
+  const showClosing = frame >= closingStart;
+  const closingOpacity = interpolate(frame, [closingStart, closingStart + 12], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+
   const currentPose = getActiveStickerPose({
     currentTime,
     durationSeconds,
@@ -995,22 +1239,22 @@ export const CompareExplainer = (props: CompareProps) => {
   return (
     <AbsoluteFill
       style={{
-        background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 30%, #f0f4ff 70%, #e8eeff 100%)',
-        fontFamily: 'Arial Black, Impact, Arial, Helvetica, sans-serif',
+        background: theme.background,
+        fontFamily: TEXT_FONT,
         overflow: 'hidden',
       }}
     >
       {/* Subtle background pattern */}
       <div style={{
-        position: 'absolute', inset: 0, opacity: 0.03,
-        background: 'radial-gradient(circle at 20% 20%, #5B6FFF 1px, transparent 1px), radial-gradient(circle at 80% 80%, #9B82FF 1px, transparent 1px)',
+        position: 'absolute', inset: 0, opacity: theme.dotsOpacity,
+        background: `radial-gradient(circle at 20% 20%, ${theme.dots[0]} 1px, transparent 1px), radial-gradient(circle at 80% 80%, ${theme.dots[1]} 1px, transparent 1px)`,
         backgroundSize: '60px 60px',
       }} />
       {/* Top accent glow */}
       <div style={{
         position: 'absolute', top: -100, left: '50%', transform: 'translateX(-50%)',
         width: 600, height: 300, borderRadius: '50%',
-        background: 'radial-gradient(ellipse, rgba(91,111,255,0.08) 0%, transparent 70%)',
+        background: `radial-gradient(ellipse, ${theme.glow} 0%, transparent 70%)`,
         filter: 'blur(40px)',
       }} />
 
@@ -1025,13 +1269,13 @@ export const CompareExplainer = (props: CompareProps) => {
       <div
         style={{
           position: 'absolute',
-          top: 50,
+          top: COMPARE_LAYOUT.handleTop,
           left: 0,
           right: 0,
           textAlign: 'center',
           fontSize: 32,
           fontWeight: 800,
-          color: '#94a3b8',
+          color: theme.handle,
           letterSpacing: 0.5,
         }}
       >
@@ -1041,7 +1285,7 @@ export const CompareExplainer = (props: CompareProps) => {
       <div
         style={{
           position: 'absolute',
-          top: 112,
+          top: COMPARE_LAYOUT.titleTop,
           left: 44,
           right: 44,
           display: 'flex',
@@ -1053,11 +1297,13 @@ export const CompareExplainer = (props: CompareProps) => {
         <div
           style={{
             width: 488,
-            minHeight: 78,
+            height: COMPARE_LAYOUT.titleHeight,
             borderRadius: 16,
-            background: 'linear-gradient(135deg, #3D52FF 0%, #5B6FFF 100%)',
-            border: 'none',
-            boxShadow: '0 8px 24px rgba(61,82,255,0.25), 0 2px 6px rgba(0,0,0,0.08)',
+            background: `linear-gradient(135deg, ${leftColor.main} 0%, ${leftColor.soft} 100%)`,
+            border: winner === 'left' ? '2px solid #FACC15' : 'none',
+            boxShadow: winner === 'left'
+              ? `0 8px 28px ${leftColor.glowPrefix}0.35), 0 0 0 3px rgba(250,204,21,0.35)`
+              : `0 8px 24px ${leftColor.glowPrefix}0.25), 0 2px 6px rgba(0,0,0,0.08)`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -1076,7 +1322,7 @@ export const CompareExplainer = (props: CompareProps) => {
               borderRadius: 10,
               background: '#ffffff',
               border: 'none',
-              color: '#3D52FF',
+              color: leftColor.main,
               fontSize: 20,
               fontWeight: 800,
               display: 'flex',
@@ -1087,11 +1333,15 @@ export const CompareExplainer = (props: CompareProps) => {
           >
             A
           </div>
+          {winner === 'left' ? <WinnerCrown side="left" /> : null}
           <div
             style={{
               textAlign: 'center',
-              fontSize: 44,
-              lineHeight: 0.95,
+              fontFamily: DISPLAY_FONT,
+              fontSize: leftTitleFontSize,
+              lineHeight: 0.98,
+              maxHeight: 58,
+              overflow: 'hidden',
               fontWeight: 750,
               color: '#ffffff',
               textTransform: 'uppercase',
@@ -1106,11 +1356,13 @@ export const CompareExplainer = (props: CompareProps) => {
         <div
           style={{
             width: 488,
-            minHeight: 78,
+            height: COMPARE_LAYOUT.titleHeight,
             borderRadius: 16,
-            background: 'linear-gradient(135deg, #7C5CFC 0%, #9B82FF 100%)',
-            border: 'none',
-            boxShadow: '0 8px 24px rgba(124,92,252,0.25), 0 2px 6px rgba(0,0,0,0.08)',
+            background: `linear-gradient(135deg, ${rightColor.main} 0%, ${rightColor.soft} 100%)`,
+            border: winner === 'right' ? '2px solid #FACC15' : 'none',
+            boxShadow: winner === 'right'
+              ? `0 8px 28px ${rightColor.glowPrefix}0.35), 0 0 0 3px rgba(250,204,21,0.35)`
+              : `0 8px 24px ${rightColor.glowPrefix}0.25), 0 2px 6px rgba(0,0,0,0.08)`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -1129,7 +1381,7 @@ export const CompareExplainer = (props: CompareProps) => {
               borderRadius: 10,
               background: '#ffffff',
               border: 'none',
-              color: '#7C5CFC',
+              color: rightColor.main,
               fontSize: 20,
               fontWeight: 800,
               display: 'flex',
@@ -1140,11 +1392,15 @@ export const CompareExplainer = (props: CompareProps) => {
           >
             B
           </div>
+          {winner === 'right' ? <WinnerCrown side="right" /> : null}
           <div
             style={{
               textAlign: 'center',
-              fontSize: 44,
-              lineHeight: 0.95,
+              fontFamily: DISPLAY_FONT,
+              fontSize: rightTitleFontSize,
+              lineHeight: 0.98,
+              maxHeight: 58,
+              overflow: 'hidden',
               fontWeight: 750,
               color: '#ffffff',
               textTransform: 'uppercase',
@@ -1160,7 +1416,7 @@ export const CompareExplainer = (props: CompareProps) => {
       <div
         style={{
           position: 'absolute',
-          top: 225,
+          top: COMPARE_LAYOUT.imageTop,
           left: 44,
           right: 44,
           display: 'flex',
@@ -1169,10 +1425,10 @@ export const CompareExplainer = (props: CompareProps) => {
         }}
       >
         <div style={{opacity: leftImageEntry, transform: `translateX(${(1 - leftImageEntry) * -40}px)`}}>
-          <VisualBox image={leftImage} side="left" isActive={leftActive} />
+          <VisualBox image={leftImage} side="left" colors={leftColor} boxBg={theme.boxBg} isActive={leftActive} />
         </div>
         <div style={{opacity: rightImageEntry, transform: `translateX(${(1 - rightImageEntry) * 40}px)`}}>
-          <VisualBox image={rightImage} side="right" isActive={rightActive} />
+          <VisualBox image={rightImage} side="right" colors={rightColor} boxBg={theme.boxBg} isActive={rightActive} />
         </div>
       </div>
 
@@ -1190,6 +1446,7 @@ export const CompareExplainer = (props: CompareProps) => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          fontFamily: DISPLAY_FONT,
           fontSize: 26,
           fontWeight: 900,
           color: '#ffffff',
@@ -1201,34 +1458,39 @@ export const CompareExplainer = (props: CompareProps) => {
         VS
       </div>
 
-      <div
-        style={{
-          position: 'absolute',
-          top: 720,
-          left: 72,
-          right: 72,
-          minHeight: 104,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          textAlign: 'center',
-          color: '#0f172a',
-          fontSize: 44,
-          lineHeight: 1.1,
-          fontWeight: 800,
-          letterSpacing: -0.8,
-          background: 'rgba(255,255,255,0.92)',
-          backdropFilter: 'blur(12px)',
-          border: '2px solid rgba(61,82,255,0.15)',
-          borderRadius: 20,
-          padding: '18px 28px',
-          boxShadow: '0 8px 32px rgba(61,82,255,0.08), 0 2px 8px rgba(0,0,0,0.06)',
-          transform: `scale(${captionScale})`,
-          zIndex: 4,
-        }}
-      >
-        {caption}
-      </div>
+      {caption ? (
+        <div
+          style={{
+            position: 'absolute',
+            top: COMPARE_LAYOUT.captionTop,
+            left: 72,
+            right: 72,
+            height: COMPARE_LAYOUT.captionHeight,
+            overflow: 'hidden',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center',
+            whiteSpace: 'pre-line',
+            color: theme.captionText,
+            fontFamily: TEXT_FONT,
+            fontSize: 40,
+            lineHeight: 1.08,
+            fontWeight: 800,
+            letterSpacing: -0.8,
+            background: theme.captionBg,
+            backdropFilter: 'blur(12px)',
+            border: `2px solid ${theme.captionBorder}`,
+            borderRadius: 20,
+            padding: '18px 28px',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06)',
+            transform: `scale(${captionScale})`,
+            zIndex: 4,
+          }}
+        >
+          {caption}
+        </div>
+      ) : null}
 
       <StickerPresenter
         overlay={activeOverlay}
@@ -1248,10 +1510,38 @@ export const CompareExplainer = (props: CompareProps) => {
           right: 0,
           bottom: 0,
           height: 100,
-          background: 'linear-gradient(0deg, rgba(232,238,255,0.95), transparent)',
+          background: `linear-gradient(0deg, ${theme.bottomFade}, transparent)`,
           pointerEvents: 'none',
         }}
       />
+
+      {/* Opening hook card — big "A vs B" question to stop the scroll */}
+      {showHook ? (
+        <HookCard
+          leftTitle={leftTitle}
+          rightTitle={rightTitle}
+          topic={hookText}
+          theme={theme}
+          leftColor={leftColor}
+          rightColor={rightColor}
+          opacity={hookOpacity}
+        />
+      ) : null}
+
+      {/* Closing card — winner + follow CTA */}
+      {showClosing ? (
+        <ClosingCard
+          leftTitle={leftTitle}
+          rightTitle={rightTitle}
+          winner={winner}
+          handle={props.creatorHandle || '@itnavideo'}
+          theme={theme}
+          leftColor={leftColor}
+          rightColor={rightColor}
+          opacity={closingOpacity}
+        />
+      ) : null}
+
       <PremiumVisualTreatment enabled={props.premiumEditing !== false} styleLock={props.styleLock} />
     </AbsoluteFill>
   );
@@ -1263,14 +1553,14 @@ const getCompareDurationSeconds = (props: CompareProps) => {
     Number(props.sourceDurationSeconds) ||
     Number(props.renderWindowSeconds) ||
     60;
-  return Math.max(1, Math.min(60, requested));
+  return Math.max(1, Math.min(90, requested));
 };
 
 export const CompareExplainerComposition = () => (
   <Composition
     id="comparisonImages"
     component={CompareExplainer}
-    durationInFrames={1800}
+    durationInFrames={2700}
     fps={30}
     width={1080}
     height={1920}

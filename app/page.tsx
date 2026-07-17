@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Metadata } from "next";
 import Hero from "@/components/landing/Hero";
+import IntroVideoSection from "@/components/landing/IntroVideoSection";
 import HowItWorks from "@/components/landing/HowItWorks";
 import VideoTypeGuide from "@/components/landing/VideoTypeGuide";
 import FeaturesSection from "@/components/landing/FeaturesSection";
@@ -10,17 +11,17 @@ import FAQSection from "@/components/FAQSection";
 import StatsBar from "@/components/landing/StatsBar";
 
 export const metadata: Metadata = {
-  title: "Itnavideo - Turn Talking Videos into Scroll-Stopping Reels",
-  description: "AI video tool for creators. Upload your video, pick a style, get a finished 9:16 reel with captions in under 3 minutes. No credit card needed.",
+  title: "Itnavideo - Polished Short Clips and Long-form Captioned Videos",
+  description: "AI video tool for creators. Turn uploads into captioned 9:16 reels or preserve a 16:9 long-form video with timed captions, original audio, and clear credit pricing.",
   openGraph: {
-    title: "Itnavideo - Turn Talking Videos into Scroll-Stopping Reels",
-    description: "AI video tool for creators. Upload your video, pick a style, get a finished 9:16 reel with captions in under 3 minutes. No credit card needed.",
+    title: "Itnavideo - Polished Short Clips and Long-form Captioned Videos",
+    description: "Create captioned 9:16 reels or preserve a 16:9 long-form video with timed captions and original audio.",
     images: ["/og-image.png"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Itnavideo - Turn Talking Videos into Scroll-Stopping Reels",
-    description: "AI video tool for creators. Upload your video, pick a style, get a finished 9:16 reel with captions in under 3 minutes. No credit card needed.",
+    title: "Itnavideo - Polished Short Clips and Long-form Captioned Videos",
+    description: "Create captioned 9:16 reels or preserve a 16:9 long-form video with timed captions and original audio.",
     images: ["/og-image.png"],
   },
 };
@@ -55,7 +56,7 @@ const jsonLd = [
     applicationCategory: "MultimediaApplication",
     operatingSystem: "Web",
     url: siteUrl,
-    description: "AI video tool that turns talking videos, audio, and images into polished 9:16 reels with word-level captions. Focused video types for creators: Auto Caption, Compare Explainer, Long Video Promo, and more.",
+    description: "AI video tool for creators that creates captioned 9:16 reels and preserves 16:9 long-form videos with timed captions. Focused video types include Auto Caption, Long-form Captioned Video, Compare Explainer, Long Video Promo, and more.",
     offers: {
       "@type": "Offer",
       priceCurrency: "INR",
@@ -75,6 +76,7 @@ export default function LandingPage() {
         }}
       />
       <Hero />
+      <IntroVideoSection />
       <StatsBar />
       <HomepageDemoGrid />
       <HowItWorks />

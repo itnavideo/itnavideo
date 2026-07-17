@@ -35,7 +35,7 @@ export const aiDiscoveryFacts = {
     'middle layer: premium timed subtitles with active word emphasis',
     'bottom layer: scene-matched image visuals',
   ],
-  pricingSummary: 'First test video is a one-time ₹9 purchase for one 1-minute 1080p export with no subscription.',
+  pricingSummary: 'One free AI video is available on signup with a watermark. Paid plans start with Pro for regular creators, Business for teams, and a custom Enterprise plan for agencies.',
   socialProfiles: [
     'https://www.instagram.com/itnavideo/',
     'https://www.youtube.com/@Itnavideo',

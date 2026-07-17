@@ -1,31 +1,23 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { BadgeCheck, Check, CreditCard, Loader2, ShieldCheck } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, BadgeCheck, Building2, Check, CreditCard, Loader2, Rocket, ShieldCheck, Sparkles } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useAuth } from "@/components/auth/AuthContext";
-
-export type PricingPlan = {
-  id: string;
-  name: string;
-  price: string;
-  amountPaise: number;
-  monthlyVideoLimit: number;
-  billingLabel?: string;
-  validDays?: number;
-  description: string;
-  features: string[];
-  button: string;
-  href: string;
-  popular: boolean;
-};
+import { supabase } from "@/lib/supabase/client";
+import type { PricingPlan } from "@/lib/billing/plans";
 
 type CreateOrderResponse = {
   ok: boolean;
   key_id?: string;
   order_id?: string;
-  amount?: number;
-  currency?: string;
+  amount: number;
+  currency: string;
+  planId?: string;
+  planName?: string;
+  priceLabel?: string;
+  billingLabel?: string;
   error?: string;
 };
 
@@ -81,8 +73,11 @@ declare global {
   }
 }
 
-function formatReceipt(plan: PricingPlan) {
-  return `${plan.id}-${Date.now()}`.replace(/[^a-zA-Z0-9_-]/g, "-").slice(0, 40);
+async function getSessionHeaders() {
+  const {data, error} = await supabase.auth.getSession();
+  const accessToken = data.session?.access_token;
+  if (error || !accessToken) throw new Error("Please log in again before checkout.");
+  return {Authorization: `Bearer ${accessToken}`};
 }
 
 function loadRazorpayScript() {
@@ -119,7 +114,12 @@ async function readJson<T>(response: Response) {
   return payload;
 }
 
-export function PricingCheckoutCards({ plans }: { plans: PricingPlan[] }) {
+/**
+ * displayPrices maps plan id -> the ONE local price string already resolved
+ * server-side (via the trusted billing region). This component must never
+ * receive or show more than one currency for the same plan.
+ */
+export function PricingCheckoutCards({ plans, displayPrices }: { plans: PricingPlan[]; displayPrices: Record<string, string> }) {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
@@ -141,19 +141,12 @@ export function PricingCheckoutCards({ plans }: { plans: PricingPlan[] }) {
         throw new Error("Could not load Razorpay checkout. Please refresh and try again.");
       }
 
+      const authHeaders = await getSessionHeaders();
       const order = await readJson<CreateOrderResponse>(
         await fetch("/api/create-order", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            amount: plan.amountPaise,
-            currency: "USD",
-            receipt: formatReceipt(plan),
-            planId: plan.id,
-            planName: plan.name,
-            userId: user.id,
-            userEmail: user.email,
-          }),
+          headers: {"Content-Type": "application/json", ...authHeaders},
+          body: JSON.stringify({planId: plan.id}),
         }),
       );
 
@@ -166,13 +159,10 @@ export function PricingCheckoutCards({ plans }: { plans: PricingPlan[] }) {
         amount: order.amount,
         currency: order.currency,
         name: "Itnavideo",
-        description: `${plan.name} ${plan.billingLabel || "monthly plan"}`,
+        description: `${order.planName || plan.name} plan`,
         order_id: order.order_id,
-        theme: { color: "#2563EB" },
-        notes: {
-          planId: plan.id,
-          planName: plan.name,
-        },
+        theme: { color: "#22D3EE" },
+        notes: {source: "itnavideo-web-checkout"},
         modal: {
           ondismiss: () => {
             setLoadingPlan(null);
@@ -184,14 +174,8 @@ export function PricingCheckoutCards({ plans }: { plans: PricingPlan[] }) {
             const verification = await readJson<VerifyPaymentResponse>(
               await fetch("/api/verify-payment", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  ...payment,
-                  userId: user.id,
-                  userEmail: user.email,
-                  planId: plan.id,
-                  planName: plan.name,
-                }),
+                headers: {"Content-Type": "application/json", ...authHeaders},
+                body: JSON.stringify(payment),
               }),
             );
 
@@ -210,7 +194,7 @@ export function PricingCheckoutCards({ plans }: { plans: PricingPlan[] }) {
 
             setMessage({
               type: "success",
-              text: "Payment verified. Your render access is active now.",
+              text: "Payment verified. Your plan is active now.",
             });
             router.push(`/dashboard?payment=success&plan=${encodeURIComponent(plan.id)}`);
           } catch (error) {
@@ -242,11 +226,14 @@ export function PricingCheckoutCards({ plans }: { plans: PricingPlan[] }) {
     }
   }, [router, user]);
 
+  const proPlan = plans.find((plan) => plan.id === "pro");
+  const businessPlan = plans.find((plan) => plan.id === "business");
+
   return (
     <>
       {message && (
         <div
-          className={`mx-auto mb-8 max-w-7xl rounded-lg border px-5 py-4 text-sm font-bold ${
+          className={`mx-auto mb-8 max-w-6xl rounded-lg border px-5 py-4 text-sm font-bold ${
             message.type === "success"
               ? "border-brand-mint/30 bg-brand-mint/10 text-brand-mint"
               : message.type === "error"
@@ -258,64 +245,139 @@ export function PricingCheckoutCards({ plans }: { plans: PricingPlan[] }) {
         </div>
       )}
 
-      <div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-2 xl:grid-cols-4">
-        {plans.map((plan) => {
-          const isLoading = loadingPlan === plan.id;
+      <div className="mx-auto grid max-w-6xl gap-5 md:grid-cols-2 xl:grid-cols-4">
+        {/* Free */}
+        <div className="relative flex flex-col rounded-2xl border border-white/10 bg-white/[0.02] p-7">
+          <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-zinc-300">
+            <Sparkles size={16} />
+          </div>
+          <h2 className="text-2xl font-black text-white">Free</h2>
+          <p className="mt-2 min-h-12 text-sm leading-6 text-zinc-500">Try Itnavideo before you buy.</p>
+          <div className="mt-6">
+            <span className="text-4xl font-black text-white">₹0</span>
+          </div>
+          <ul className="mt-7 flex-1 space-y-3.5">
+            {["1 free AI video", "Watermark included", "Limited features"].map((feature) => (
+              <li key={feature} className="flex gap-3 text-sm leading-6 text-zinc-400">
+                <Check className="mt-0.5 shrink-0 text-zinc-500" size={16} />
+                <span>{feature}</span>
+              </li>
+            ))}
+          </ul>
+          <Link
+            href="/signup"
+            className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.04] px-5 py-3.5 text-sm font-black text-zinc-200 transition hover:bg-white/[0.08]"
+          >
+            Get Started Free
+          </Link>
+        </div>
 
-          return (
-            <div
-              key={plan.name}
-              className="relative rounded-lg p-7"
-              style={{
-                border: plan.popular ? '2px solid var(--color-primary)' : '1px solid var(--border-dark)',
-                background: plan.popular ? 'rgba(37, 99, 235, 0.06)' : 'var(--bg-card)',
-                boxShadow: plan.popular ? '0 12px 40px rgba(37, 99, 235, 0.12)' : 'none',
-              }}
-            >
-              {plan.popular && (
-                <div className="absolute right-5 top-5 inline-flex items-center gap-1 rounded-md px-3 py-1 text-xs font-black text-white" style={{ background: 'var(--color-primary)' }}>
-                  <BadgeCheck size={14} />
-                  Recommended
-                </div>
-              )}
-              <h2 className="text-3xl font-black">{plan.name}</h2>
-              <p className="mt-3 min-h-12 text-sm leading-6 text-zinc-400">{plan.description}</p>
-              <div className="mt-8">
-                <span className="text-6xl font-black">{plan.price}</span>
-                <span className="ml-2 text-zinc-500">{plan.billingLabel || "/ month"}</span>
-              </div>
-              <ul className="mt-8 space-y-4">
-                {plan.features.map((feature) => (
-                  <li key={feature} className="flex gap-3 text-sm leading-6 text-zinc-300">
-                    <Check className="mt-1 shrink-0" size={17} style={{ color: plan.popular ? 'var(--color-primary-hover)' : 'var(--text-dark-muted)' }} />
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <button
-                className="mt-9 inline-flex w-full items-center justify-center gap-2 rounded-lg px-5 py-4 font-black transition disabled:cursor-not-allowed disabled:opacity-70"
-                style={plan.popular
-                  ? { background: 'var(--color-primary-hover)', color: '#FFFFFF', border: 'none' }
-                  : { background: 'transparent', border: '1px solid var(--border-dark)', color: 'var(--text-dark-secondary)' }
-                }
-                disabled={Boolean(loadingPlan) || authLoading}
-                onClick={() => startCheckout(plan)}
-                type="button"
-              >
-                {isLoading ? <Loader2 className="animate-spin" size={17} /> : <CreditCard size={17} />}
-                {isLoading ? "Opening..." : plan.button}
-              </button>
+        {/* Pro */}
+        {proPlan && (
+          <div
+            className="relative flex flex-col rounded-2xl p-7"
+            style={{
+              border: "2px solid #22D3EE",
+              background: "linear-gradient(160deg, rgba(34,211,238,0.1) 0%, rgba(11,17,32,0.98) 55%)",
+              boxShadow: "0 24px 60px rgba(34,211,238,0.18)",
+            }}
+          >
+            <div className="absolute -top-3 left-1/2 flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full bg-[#22D3EE] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[#0B1120]">
+              <BadgeCheck size={12} />
+              Most Popular
             </div>
-          );
-        })}
+            <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-lg border border-cyan-300/25 bg-cyan-400/10 text-cyan-200">
+              <Rocket size={16} />
+            </div>
+            <h2 className="text-2xl font-black text-white">{proPlan.name}</h2>
+            <p className="mt-2 min-h-12 text-sm leading-6 text-zinc-400">{proPlan.description}</p>
+            <div className="mt-6">
+              <span className="text-4xl font-black text-white">{displayPrices[proPlan.id] || ""}</span>
+              <span className="ml-1.5 text-sm font-semibold text-zinc-500">{proPlan.billingPeriodLabel}</span>
+            </div>
+            <ul className="mt-7 flex-1 space-y-3.5">
+              {proPlan.features.map((feature) => (
+                <li key={feature} className="flex gap-3 text-sm leading-6 text-zinc-200">
+                  <Check className="mt-0.5 shrink-0 text-cyan-300" size={16} />
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+            <button
+              className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#22D3EE] px-5 py-3.5 text-sm font-black text-[#0B1120] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
+              disabled={Boolean(loadingPlan) || authLoading}
+              onClick={() => startCheckout(proPlan)}
+              type="button"
+            >
+              {loadingPlan === proPlan.id ? <Loader2 className="animate-spin" size={16} /> : <CreditCard size={16} />}
+              {loadingPlan === proPlan.id ? "Opening..." : proPlan.button}
+            </button>
+          </div>
+        )}
+
+        {/* Business */}
+        {businessPlan && (
+          <div className="relative flex flex-col rounded-2xl border border-white/10 bg-white/[0.02] p-7">
+            <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-violet-200">
+              <Building2 size={16} />
+            </div>
+            <h2 className="text-2xl font-black text-white">{businessPlan.name}</h2>
+            <p className="mt-2 min-h-12 text-sm leading-6 text-zinc-400">{businessPlan.description}</p>
+            <div className="mt-6">
+              <span className="text-4xl font-black text-white">{displayPrices[businessPlan.id] || ""}</span>
+              <span className="ml-1.5 text-sm font-semibold text-zinc-500">{businessPlan.billingPeriodLabel}</span>
+            </div>
+            <ul className="mt-7 flex-1 space-y-3.5">
+              {businessPlan.features.map((feature) => (
+                <li key={feature} className="flex gap-3 text-sm leading-6 text-zinc-300">
+                  <Check className="mt-0.5 shrink-0 text-violet-300" size={16} />
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+            <button
+              className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.05] px-5 py-3.5 text-sm font-black text-white transition hover:bg-white/[0.09] disabled:cursor-not-allowed disabled:opacity-70"
+              disabled={Boolean(loadingPlan) || authLoading}
+              onClick={() => startCheckout(businessPlan)}
+              type="button"
+            >
+              {loadingPlan === businessPlan.id ? <Loader2 className="animate-spin" size={16} /> : <CreditCard size={16} />}
+              {loadingPlan === businessPlan.id ? "Opening..." : businessPlan.button}
+            </button>
+          </div>
+        )}
+
+        {/* Enterprise */}
+        <div className="relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent p-7">
+          <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-lg border border-amber-300/25 bg-amber-400/10 text-amber-200">
+            <ShieldCheck size={16} />
+          </div>
+          <h2 className="text-2xl font-black text-white">Enterprise</h2>
+          <p className="mt-2 min-h-12 text-sm leading-6 text-zinc-400">For agencies and organizations with custom needs.</p>
+          <div className="mt-6">
+            <span className="text-3xl font-black text-white">Custom Pricing</span>
+          </div>
+          <ul className="mt-7 flex-1 space-y-3.5">
+            {["Custom usage limits", "API access", "Custom integrations", "Dedicated account manager", "SLA support", "Guided onboarding"].map((feature) => (
+              <li key={feature} className="flex gap-3 text-sm leading-6 text-zinc-300">
+                <Check className="mt-0.5 shrink-0 text-amber-300" size={16} />
+                <span>{feature}</span>
+              </li>
+            ))}
+          </ul>
+          <Link
+            href="mailto:rohi@itnavideo.com"
+            className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white px-5 py-3.5 text-sm font-black text-black transition hover:bg-zinc-200"
+          >
+            Contact Sales
+            <ArrowRight size={15} />
+          </Link>
+        </div>
       </div>
 
-      <div className="mx-auto mt-8 flex max-w-7xl items-start gap-3 rounded-lg border border-brand-mint/20 bg-brand-mint/10 p-5 text-sm leading-6 text-zinc-200">
+      <div className="mx-auto mt-8 flex max-w-6xl items-start gap-3 rounded-lg border border-brand-mint/20 bg-brand-mint/10 p-5 text-sm leading-6 text-zinc-200">
         <ShieldCheck className="mt-1 shrink-0 text-brand-mint" size={20} />
-        <p>
-          Razorpay checkout is live in INR. The ₹9 test plan unlocks one real export without starting a subscription.
-        </p>
+        <p>Secure Razorpay checkout. Pricing is shown in your local currency.</p>
       </div>
     </>
   );

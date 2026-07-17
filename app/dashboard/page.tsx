@@ -23,6 +23,7 @@ import {
   Gift,
   ImagePlus,
   Layers3,
+  Laptop,
   Loader2,
   LogOut,
   Mic,
@@ -36,6 +37,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthContext";
 import { SubtitleStylePicker, SUBTITLE_PRESETS } from "@/components/ui/SubtitleStylePicker";
+import { calculateRenderCreditUnits, formatCreditUnits, type BillableRenderMode } from "@/lib/billing/creditPricing";
 import dynamic from "next/dynamic";
 
 // Lazy-load PreviewEditor — only loaded when user triggers preview
@@ -44,9 +46,46 @@ const PreviewEditor = dynamic(
   { ssr: false }
 );
 
+// Lazy-load Caption Studio live preview — only loaded when Caption Studio is selected
+const CaptionStudioPreview = dynamic(
+  () => import("@/components/preview/CaptionStudioPreview").then((m) => m.CaptionStudioPreview),
+  { ssr: false, loading: () => <div className="mx-auto w-full max-w-[220px] rounded-xl border border-white/10 bg-black/40" style={{ aspectRatio: "9 / 16" }} /> }
+);
+
+// Lazy-load Typography Video live preview — only loaded when Typography Video is selected
+const TypographyPreview = dynamic(
+  () => import("@/components/preview/TypographyPreview").then((m) => m.TypographyPreview),
+  { ssr: false, loading: () => <div className="mx-auto w-full max-w-[220px] rounded-xl border border-white/10 bg-black/40" style={{ aspectRatio: "9 / 16" }} /> }
+);
+
+// Lazy-load Whiteboard Video live preview — only loaded when Whiteboard Video is selected
+const WhiteboardPreview = dynamic(
+  () => import("@/components/preview/WhiteboardPreview").then((m) => m.WhiteboardPreview),
+  { ssr: false, loading: () => <div className="mx-auto w-full max-w-[220px] rounded-xl border border-white/10 bg-black/40" style={{ aspectRatio: "9 / 16" }} /> }
+);
+
+// Lazy-load Compare Explainer live preview — only loaded when Compare is selected
+const ComparePreview = dynamic(
+  () => import("@/components/preview/ComparePreview").then((m) => m.ComparePreview),
+  { ssr: false, loading: () => <div className="mx-auto w-full max-w-[220px] rounded-xl border border-white/10 bg-black/40" style={{ aspectRatio: "9 / 16" }} /> }
+);
+
+// Lazy-load Long Video Promo live preview — only loaded when Long Video Promo is selected
+const LongVideoPromoPreview = dynamic(
+  () => import("@/components/preview/LongVideoPromoPreview").then((m) => m.LongVideoPromoPreview),
+  { ssr: false, loading: () => <div className="mx-auto w-full max-w-[220px] rounded-xl border border-white/10 bg-black/40" style={{ aspectRatio: "9 / 16" }} /> }
+);
+
+// Lazy-load Multi Images live preview — only loaded when Multi Images Video is selected
+const MultiImagesPreview = dynamic(
+  () => import("@/components/preview/MultiImagesPreview").then((m) => m.MultiImagesPreview),
+  { ssr: false, loading: () => <div className="mx-auto w-full max-w-[220px] rounded-xl border border-white/10 bg-black/40" style={{ aspectRatio: "9 / 16" }} /> }
+);
+
 type Mode =
   | "compare"
   | "autoCaption"
+  | "captionStudio"
   | "autoDraw"
   | "longVideoPromo"
   | "dynamicCreator"
@@ -56,7 +95,60 @@ type Mode =
   | "typographyVideo"
   | "multiImagesVideo"
   | "longVideoClips"
+  | "longFormCaptionedVideo"
   | "audioClean";
+type CaptionStudioSettings = {
+  fontFamily: string;
+  fontSizePx: number;
+  fontWeight: number;
+  italic: boolean;
+  textCase: "as-is" | "uppercase" | "title" | "lowercase";
+  letterSpacingEm: number;
+  lineHeight: number;
+  textColor: string;
+  activeWordColor: string;
+  backgroundColor: string;
+  backgroundOpacity: number;
+  backgroundShape: "pill" | "rounded" | "square" | "none";
+  paddingPx: number;
+  strokeWidthPx: number;
+  strokeColor: string;
+  shadow: "none" | "soft" | "hard";
+  rotationDeg: number;
+  position: "bottom" | "center" | "top";
+  horizontalAlign: "left" | "center" | "right";
+  maxWidthPercent: number;
+  entryAnimation: "none" | "fade" | "slide-up" | "pop";
+  emphasisMode: "color" | "scale" | "box" | "underline" | "none";
+  wordsPerGroup: number;
+};
+
+const DEFAULT_STUDIO_SETTINGS: CaptionStudioSettings = {
+  fontFamily: "Inter, sans-serif",
+  fontSizePx: 72,
+  fontWeight: 800,
+  italic: false,
+  textCase: "as-is",
+  letterSpacingEm: 0,
+  lineHeight: 1.2,
+  textColor: "#FFFFFF",
+  activeWordColor: "#22D3EE",
+  backgroundColor: "#000000",
+  backgroundOpacity: 0.6,
+  backgroundShape: "pill",
+  paddingPx: 24,
+  strokeWidthPx: 0,
+  strokeColor: "#000000",
+  shadow: "soft",
+  rotationDeg: 0,
+  position: "bottom",
+  horizontalAlign: "center",
+  maxWidthPercent: 80,
+  entryAnimation: "slide-up",
+  emphasisMode: "color",
+  wordsPerGroup: 4,
+};
+
 type CreatorBackgroundSettings = {
   backgroundFit: "cover" | "contain";
   backgroundScale: number;
@@ -110,20 +202,33 @@ const RENDER_POLL_ATTEMPTS = 360;
 
 const videoTypeCards = [
   { id: "auto-caption-reel", title: "Auto Caption Video", tag: "Captions", description: "Clean word-level captions for existing reels.", image: "/preview/Auto Caption Reel.png", badges: ["Video", "Captions"], proof: "Most used", accent: "#22C55E", mode: "autoCaption" as const, category: "creator" },
+  { id: "caption-studio", title: "Caption Studio", tag: "Custom Captions", description: "Design captions from scratch. Full control over font, color, effects, and position.", image: "/preview/Auto Caption Reel.png", badges: ["Video", "Advanced"], proof: "Design mode", accent: "#A78BFA", mode: "captionStudio" as const, category: "creator" },
   { id: "compare-explainer", title: "Compare Explainer Video", tag: "Comparison", description: "Left vs right comparison with narration and sticker presenter.", image: "/preview/Compare Explainer.png", badges: ["Audio", "2 Images"], proof: "Best for VS", accent: "#F59E0B", mode: "compare" as const, category: "education" },
   { id: "whiteboard-video", title: "Whiteboard Video", tag: "Whiteboard", description: "AI writes key points on a whiteboard synced to your speech.", image: "/preview/Whiteboard Video.png", badges: ["Audio/Video"], proof: "Educational", accent: "#10B981", mode: "whiteboardVideo" as const, category: "education" },
   { id: "typography-video", title: "Typography Video", tag: "Typography", description: "Big bold text pops on your video synced to keywords.", image: "/preview/Typography Video.png", badges: ["Video"], proof: "Engaging", accent: "#8B5CF6", mode: "typographyVideo" as const, category: "creator" },
   { id: "multi-images-video", title: "Multi Images Video", tag: "Story", description: "Video + title + animated image slideshow for news & stories.", image: "/preview/Multi Images Video.png", badges: ["Video", "Images"], proof: "Story format", accent: "#F472B6", mode: "multiImagesVideo" as const, category: "creator" },
   { id: "long-video-promo", title: "Long Video Promo", tag: "Promo", description: "Promote your YouTube video as a vertical Short/Reel.", image: "/preview/Long Video Promo.png", badges: ["16:9 Clip", "Thumbnail"], proof: "Promo ready", accent: "#A3E635", mode: "longVideoPromo" as const, category: "creator" },
-  { id: "long-video-clips", title: "Long Video Clips", tag: "Clips", description: "Turn long videos into short viral clips with captions.", image: "/preview/Long Video Clips.png", badges: ["Long Video", "1-10 Clips"], proof: "Repurpose", accent: "#06B6D4", mode: "longVideoClips" as const, category: "creator" },
   { id: "ai-audio-cleaner", title: "AI Audio Cleaner", tag: "Audio Tool", description: "Remove silence, filler words & noise from audio.", image: "/preview/Auto Caption Reel.png", badges: ["Audio Only"], proof: "Clean audio", accent: "#F97316", mode: "audioClean" as const, category: "creator" },
+  { id: "long-form-captioned-video", title: "Long Video Captions", tag: "Long Videos", description: "Preserve your 16:9 video and original audio with timed captions.", image: "/visuals/previews/long-form-captioned-video.png", badges: ["16:9", "Up to 10 min"], proof: "Long-form", accent: "#22D3EE", mode: "longFormCaptionedVideo" as const, category: "long" },
+  { id: "long-video-clips", title: "Long Video Clips", tag: "Podcast Clips", description: "Turn long videos and podcasts into short viral clips with captions.", image: "/preview/Long Video Clips.png", badges: ["Long-form Input", "1-10 Clips"], proof: "Repurpose", accent: "#06B6D4", mode: "longVideoClips" as const, category: "long" },
 ] as const;
 
-const VIDEO_TYPE_CATEGORIES = [
-  {id: "all", label: "All"},
-  {id: "creator", label: "Creator"},
-  {id: "education", label: "Education"},
-] as const;
+function getPlannedRenderCreditUnits(mode: Mode, durationSeconds?: number, clipCount = 3) {
+  try {
+    if (mode === "longFormCaptionedVideo") {
+      return durationSeconds ? calculateRenderCreditUnits("longFormCaptionedVideo", {durationSeconds}) : 0;
+    }
+    if (mode === "longVideoClips") {
+      return calculateRenderCreditUnits("longVideoClips", {clipCount});
+    }
+    const billableModes: BillableRenderMode[] = ["autoCaption", "captionStudio", "compare", "longVideoPromo", "whiteboardVideo", "typographyVideo", "multiImagesVideo"];
+    return billableModes.includes(mode as BillableRenderMode)
+      ? calculateRenderCreditUnits(mode as BillableRenderMode)
+      : 0;
+  } catch {
+    return 0;
+  }
+}
 
 const DEFAULT_CREATOR_BACKGROUND_SETTINGS: CreatorBackgroundSettings = {
   backgroundFit: "cover",
@@ -148,6 +253,19 @@ const modeConfig = {
     color: "text-blue-200",
     border: "border-emerald-400/30",
     surface: "bg-emerald-400/[0.08]",
+  },
+  captionStudio: {
+    label: "Caption Studio",
+    title: "Caption Studio",
+    description: "📹 Upload: Video with speech\nDesign captions yourself",
+    accept: "video/*",
+    supported: "MP4, MOV, WEBM",
+    bestResult: "9:16 video with clear voice",
+    uploadCta: "📹 Upload your video",
+    icon: Captions,
+    color: "text-violet-200",
+    border: "border-violet-400/30",
+    surface: "bg-violet-400/[0.08]",
   },
   compare: {
     label: "Compare Explainer Video",
@@ -279,6 +397,19 @@ const modeConfig = {
     border: "border-cyan-400/30",
     surface: "bg-cyan-400/[0.08]",
   },
+  longFormCaptionedVideo: {
+    label: "Long Video Captions",
+    title: "Long Video Captions",
+    description: "📹 Upload: Video with clear speech\n💬 Timed captions on your preserved 16:9 video",
+    accept: "video/*",
+    supported: "MP4, MOV, WEBM • Up to 10 minutes / 500 MB",
+    bestResult: "Landscape YouTube videos, podcasts, interviews, and lectures",
+    uploadCta: "📹 Upload your landscape video",
+    icon: Captions,
+    color: "text-cyan-200",
+    border: "border-cyan-400/30",
+    surface: "bg-cyan-400/[0.08]",
+  },
   audioClean: {
     label: "AI Audio Cleaner",
     title: "AI Audio Cleaner",
@@ -325,7 +456,6 @@ export default function DashboardPage() {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
   const [mode, setMode] = useState<Mode>("autoCaption");
-  const [videoTypeCategory, setVideoTypeCategory] = useState<string>("all");
   const [hasUserSelected, setHasUserSelected] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [comparisonFiles, setComparisonFiles] = useState<File[]>([]);
@@ -333,8 +463,13 @@ export default function DashboardPage() {
   const [compareLeftTitle, setCompareLeftTitle] = useState("");
   const [compareRightTitle, setCompareRightTitle] = useState("");
   const [compareHandle, setCompareHandle] = useState("@itnavideo");
+  const [compareTheme, setCompareTheme] = useState<string>("light");
+  const [compareTone, setCompareTone] = useState<string>("versus");
+  const [compareWinner, setCompareWinner] = useState<string>("none");
   const [stickerStyle, setStickerStyle] = useState<string>("explainer");
   const [typographyStyle, setTypographyStyle] = useState<string>("silver-chrome");
+  const [typographyShowCaptions, setTypographyShowCaptions] = useState(true);
+  const [whiteboardBoard, setWhiteboardBoard] = useState<string>("corporate-luxury");
   const [captionStyle, setCaptionStyle] = useState<string>("Studio Clean");
   const [captionPosition, setCaptionPosition] = useState<"bottom" | "center" | "top">("bottom");
   const [captionFontFamily, setCaptionFontFamily] = useState("Inter, sans-serif");
@@ -347,11 +482,12 @@ export default function DashboardPage() {
   const [wordClickSound] = useState(true);
   const [promoThumbnailFile, setPromoThumbnailFile] = useState<File | null>(null);
   const [promoTitle, setPromoTitle] = useState("");
+  const [promoCtaText, setPromoCtaText] = useState("");
   const [promoClipMeta, setPromoClipMeta] = useState<{durationSeconds?: number; mediaAspect?: string}>({});
   const [clipCount, setClipCount] = useState<number>(3);
   const [clipDuration, setClipDuration] = useState<15 | 30 | 60>(30);
   const [enableSfx, setEnableSfx] = useState(false);
-  const [boardStyle, setBoardStyle] = useState<string>("mobile-stand");
+  const [studioSettings, setStudioSettings] = useState<CaptionStudioSettings>(DEFAULT_STUDIO_SETTINGS);
   const [audioCleanOptions, setAudioCleanOptions] = useState({
     removeSilence: true,
     removeFillers: true,
@@ -447,20 +583,44 @@ export default function DashboardPage() {
     if (!selectedFile) return null;
     return `${formatBytes(selectedFile.size)} | ${selectedFile.type || "media file"}`;
   }, [selectedFile]);
+  // Local object URL for the uploaded video — used by the Caption Studio and Typography live previews
+  const livePreviewVideoUrl = useMemo(() => {
+    if ((mode !== "captionStudio" && mode !== "typographyVideo") || !selectedFile || !selectedFile.type.startsWith("video/")) return null;
+    return URL.createObjectURL(selectedFile);
+  }, [mode, selectedFile]);
+  useEffect(() => {
+    return () => {
+      if (livePreviewVideoUrl) URL.revokeObjectURL(livePreviewVideoUrl);
+    };
+  }, [livePreviewVideoUrl]);
   const renderInProgress = ["uploading", "starting", "rendering"].includes(jobStatus.state);
   const paidRemaining = billingEntitlement?.usage?.remaining ?? billingEntitlement?.monthlyVideoLimit;
   const paidLimitComplete = Boolean(billingEntitlement?.active && typeof paidRemaining === "number" && paidRemaining <= 0);
   const isFreeSignupCredit = billingEntitlement?.planId === "free-signup-credit";
-  const creditLabel = isFreeSignupCredit ? "Your video credit" : "Credits this month";
-  const creditResetLabel = isFreeSignupCredit ? "Create your first video now." : billingEntitlement?.expiresAt && Date.parse(billingEntitlement.expiresAt) < Date.now() + 365 * 24 * 60 * 60 * 1000 ? `Resets ${formatDate(billingEntitlement.expiresAt)}` : "";
+  const isFreeTrialModeBlocked = isFreeSignupCredit && mode !== "autoCaption";
+  const creditResetLabel = isFreeSignupCredit ? "Auto Caption only · watermark included" : billingEntitlement?.expiresAt ? `Valid until ${formatDate(billingEntitlement.expiresAt)}` : "";
+  const plannedCreditUnits = getPlannedRenderCreditUnits(mode, promoClipMeta.durationSeconds, clipCount);
+  const plannedCreditCost = plannedCreditUnits ? formatCreditUnits(plannedCreditUnits) : "—";
+  const plannedCreditLabel = plannedCreditUnits
+    ? `${plannedCreditCost} credit${plannedCreditCost === "1" ? "" : "s"}`
+    : mode === "longFormCaptionedVideo"
+      ? "1–10 credits"
+      : "Cost shown before render";
+  const plannedCreditDetail = mode === "longFormCaptionedVideo"
+    ? "1 credit per started minute"
+    : mode === "longVideoClips"
+      ? "2-credit base + 1 per clip"
+      : plannedCreditUnits ? "per video" : "available after setup";
   const canPrepareReel = Boolean(
     (mode === "customAiReel" ? customAiPrompt.trim().length >= 12 : selectedFile) &&
     (mode !== "compare" || comparisonFiles.length === 2) &&
     (mode !== "longVideoPromo" || (Boolean(promoThumbnailFile) && Boolean(promoTitle.trim()))) &&
+    (mode !== "longFormCaptionedVideo" || (Boolean(promoClipMeta.durationSeconds) && promoClipMeta.durationSeconds! <= 600)) &&
     (mode !== "multiImagesVideo" || (comparisonFiles.length >= 2 && Boolean(promoTitle.trim()))) &&
     (mode !== "creatorBackgroundReplace" || Boolean(creatorBackgroundImageFile)) &&
     !renderInProgress &&
-    !paidLimitComplete,
+    !paidLimitComplete &&
+    !isFreeTrialModeBlocked,
   );
 
   useEffect(() => {
@@ -487,10 +647,15 @@ export default function DashboardPage() {
     }
     setMode(nextMode);
     setHasUserSelected(true);
+    if (nextMode === "longFormCaptionedVideo") {
+      chooseCaptionStyle("Studio Clean");
+      setCaptionPosition("bottom");
+    }
     setSelectedFile(null);
     setComparisonFiles([]);
     setPromoThumbnailFile(null);
     setPromoTitle("");
+    setPromoCtaText("");
     setPromoClipMeta({});
     setCreatorBackgroundImageFile(null);
     setCreatorBackgroundSettings(DEFAULT_CREATOR_BACKGROUND_SETTINGS);
@@ -503,7 +668,7 @@ export default function DashboardPage() {
     setCustomAiAudioMeta({});
     setTopicTitle("");
     setJobStatus({state: "idle", message: ""});
-    const nextVideoType = nextMode === "autoCaption" ? "auto-caption-reel" : nextMode === "autoDraw" ? "auto-draw-explainer" : nextMode === "longVideoPromo" ? "long-video-promo" : nextMode === "whiteboardVideo" ? "whiteboard-video" : nextMode === "typographyVideo" ? "typography-video" : nextMode === "multiImagesVideo" ? "multi-images-video" : nextMode === "longVideoClips" ? "long-video-clips" : nextMode === "dynamicCreator" ? "dynamic-creator-reel" : nextMode === "customAiReel" ? "custom-ai-reel" : nextMode === "audioClean" ? "ai-audio-cleaner" : "compare-explainer";
+    const nextVideoType = nextMode === "autoCaption" ? "auto-caption-reel" : nextMode === "captionStudio" ? "caption-studio" : nextMode === "autoDraw" ? "auto-draw-explainer" : nextMode === "longVideoPromo" ? "long-video-promo" : nextMode === "longFormCaptionedVideo" ? "long-form-captioned-video" : nextMode === "whiteboardVideo" ? "whiteboard-video" : nextMode === "typographyVideo" ? "typography-video" : nextMode === "multiImagesVideo" ? "multi-images-video" : nextMode === "longVideoClips" ? "long-video-clips" : nextMode === "dynamicCreator" ? "dynamic-creator-reel" : nextMode === "customAiReel" ? "custom-ai-reel" : nextMode === "audioClean" ? "ai-audio-cleaner" : "compare-explainer";
     window.history.replaceState(null, "", `/dashboard?videoType=${nextVideoType}`);
     // Auto-scroll to upload section on mobile
     setTimeout(() => {
@@ -515,6 +680,12 @@ export default function DashboardPage() {
     if (!file) {
       setSelectedFile(null);
       setPromoClipMeta({});
+      return;
+    }
+    if (mode === "longFormCaptionedVideo" && file.size > 500 * 1024 * 1024) {
+      setSelectedFile(null);
+      setPromoClipMeta({});
+      setJobStatus({state: "error", message: "Long-form Captioned Video supports uploads up to 500 MB. Please choose a smaller video."});
       return;
     }
     const validation = validateFileForMode(file, mode);
@@ -536,37 +707,62 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    if (mode !== "longVideoPromo" || !selectedFile || !selectedFile.type.startsWith("video/")) {
+    if ((mode !== "longVideoPromo" && mode !== "longFormCaptionedVideo") || !selectedFile || !selectedFile.type.startsWith("video/")) {
       return;
     }
 
     const url = URL.createObjectURL(selectedFile);
     const video = document.createElement("video");
+    const isLongFormCaptionedVideo = mode === "longFormCaptionedVideo";
     video.preload = "metadata";
     video.src = url;
+
+    const rejectLongFormVideo = (message: string) => {
+      setSelectedFile(null);
+      setPromoClipMeta({});
+      setJobStatus({state: "error", message});
+    };
 
     const onLoadedMetadata = () => {
       const width = video.videoWidth || 0;
       const height = video.videoHeight || 0;
+      const rawDurationSeconds = Number.isFinite(video.duration) ? video.duration : undefined;
+
+      if (isLongFormCaptionedVideo) {
+        if (!rawDurationSeconds || rawDurationSeconds <= 0 || !width || !height) {
+          rejectLongFormVideo("We couldn't read this video's duration. Export it as an H.264 MP4, up to 10 minutes, then try again.");
+          URL.revokeObjectURL(url);
+          return;
+        }
+        if (rawDurationSeconds > 600) {
+          rejectLongFormVideo("Long-form Captioned Video supports videos up to 10 minutes. Please choose a shorter video.");
+          URL.revokeObjectURL(url);
+          return;
+        }
+        const ratio = width / height;
+        if (Math.abs(ratio - 16 / 9) > 0.04) {
+          rejectLongFormVideo("Long-form Captioned Video needs a 16:9 landscape video. Export it as 1920×1080 or another 16:9 size, then try again.");
+          URL.revokeObjectURL(url);
+          return;
+        }
+      }
+
       const ratio = width && height ? width / height : 16 / 9;
       const mediaAspect = ratio < 0.8 ? "portrait" : ratio > 1.35 ? "landscape" : "1:1";
-      const durationSeconds = Number.isFinite(video.duration)
-        ? Math.max(8, Math.min(60, video.duration))
-        : undefined;
+      const durationSeconds = isLongFormCaptionedVideo
+        ? rawDurationSeconds
+        : rawDurationSeconds ? Math.max(8, Math.min(60, rawDurationSeconds)) : undefined;
       setPromoClipMeta({durationSeconds, mediaAspect});
+      setJobStatus({state: "idle", message: ""});
       URL.revokeObjectURL(url);
-
-      // Note aspect ratio — Long Video Promo works best with landscape but accepts any
-      if (mediaAspect === "portrait") {
-        setJobStatus({
-          state: "idle",
-          message: "",
-        });
-      }
     };
 
     const onError = () => {
-      setPromoClipMeta({});
+      if (isLongFormCaptionedVideo) {
+        rejectLongFormVideo("We couldn't read this video's duration. Export it as an H.264 MP4, up to 10 minutes, then try again.");
+      } else {
+        setPromoClipMeta({});
+      }
       URL.revokeObjectURL(url);
     };
 
@@ -685,36 +881,38 @@ export default function DashboardPage() {
     )}
     <main className="dashboard-safe-wrap min-h-screen max-w-full overflow-x-hidden bg-[#0B1120] px-4 pb-12 pt-20 text-white sm:px-5 md:px-8 md:py-24">
       <div className="mx-auto w-full max-w-6xl overflow-x-hidden">
-        <header className="mb-6 flex flex-col gap-4 border-b border-white/8 pb-5 md:mb-8 lg:flex-row lg:items-center lg:justify-between">
+        <header className="mb-6 flex flex-col gap-4 border-b border-white/8 pb-6 md:mb-8 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
-            <h1 className="text-2xl font-black tracking-normal text-white sm:text-[28px]">
-              Welcome back, {firstName} 👋
+            <h1 className="text-2xl font-black tracking-tight text-white sm:text-[26px]">
+              Welcome back, {firstName} <span aria-hidden="true">👋</span>
             </h1>
-            <p className="mt-1 text-xs text-zinc-500">Pick a video type, upload your content, and get a finished reel.</p>
+            <p className="mt-1.5 text-[13px] font-medium text-zinc-500">Pick a video type, upload your content, and get a finished reel.</p>
           </div>
           <div className="flex items-center gap-2">
             <Link
               href="/pricing"
-              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-emerald-400/30 bg-emerald-500/[0.12] px-3 py-2 text-xs font-black text-emerald-300 transition hover:bg-emerald-500/[0.2]"
+              className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-emerald-400/30 bg-emerald-500/[0.12] px-3.5 text-xs font-bold text-emerald-300 transition hover:border-emerald-400/50 hover:bg-emerald-500/[0.18]"
             >
               <Sparkles size={13} />
               <span className="hidden sm:inline">Upgrade</span>
             </Link>
             <Link
               href="#your-videos"
-              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-xs font-bold text-zinc-400 transition hover:bg-white/[0.06] hover:text-white"
+              className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3.5 text-xs font-semibold text-zinc-400 transition hover:bg-white/[0.06] hover:text-white"
             >
               <FolderOpen size={13} />
               <span className="hidden sm:inline">Your Videos</span>
             </Link>
+            <div className="h-5 w-px bg-white/10" aria-hidden="true" />
             <button
               onClick={async () => {
                 await logout();
                 router.push("/");
               }}
-              className="inline-flex items-center justify-center rounded-lg border border-white/10 px-2.5 py-2 text-xs text-zinc-500 transition hover:bg-white/5 hover:text-white"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-zinc-500 transition hover:bg-white/5 hover:text-white"
               type="button"
               aria-label="Logout"
+              title="Logout"
             >
               <LogOut size={14} />
             </button>
@@ -724,20 +922,20 @@ export default function DashboardPage() {
         {paymentBanner || billingEntitlement?.active ? (
           <section className="mb-5 rounded-xl px-4 py-3" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
             {isFreeSignupCredit ? (
-              <div className="mb-3 flex flex-col gap-3 rounded-lg border border-pink-300/25 bg-pink-500/[0.08] p-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="mb-3 flex flex-col gap-3 rounded-lg border border-pink-300/25 bg-pink-500/[0.08] p-3.5 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex min-w-0 items-center gap-3">
                   <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-pink-300/25 bg-pink-400/10 text-pink-200">
                     <Gift size={15} />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs font-black text-white">Ready to create</p>
-                    <p className="mt-0.5 text-[11px] text-zinc-400">Your credit is ready. Failed renders are not charged.</p>
+                    <p className="text-xs font-bold text-white">Your free Auto Caption trial is ready</p>
+                    <p className="mt-0.5 text-[11px] font-medium text-zinc-400">One video up to 60 seconds with a fixed Itnavideo watermark. Other video types need credits.</p>
                   </div>
                 </div>
                 {paidLimitComplete ? (
                   <Link
                     href="/pricing"
-                    className="inline-flex shrink-0 items-center justify-center rounded-lg bg-pink-500 px-3 py-2 text-[11px] font-black text-white transition hover:bg-pink-400"
+                    className="inline-flex shrink-0 items-center justify-center rounded-lg bg-pink-500 px-3 py-2 text-[11px] font-bold text-white transition hover:bg-pink-400"
                   >
                     Buy More Credits
                   </Link>
@@ -752,18 +950,19 @@ export default function DashboardPage() {
               const pct = total > 0 ? Math.round((remaining / total) * 100) : 100;
               const fillColor = pct <= 10 ? '#ef4444' : pct <= 20 ? '#f59e0b' : '#22c55e';
               return (
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-lg font-black" style={{ color: fillColor }}>{remaining}</span>
-                    <span className="text-xs text-zinc-500">/ {total} credits left</span>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
+                  <div className="flex items-baseline gap-1.5 whitespace-nowrap">
+                    <span className="text-xl font-black leading-none" style={{ color: fillColor }}>{remaining}</span>
+                    <span className="text-xs font-medium text-zinc-500">/ {total} credits left</span>
                   </div>
                   <div className="flex-1 sm:max-w-xs">
-                    <div className="h-2 overflow-hidden rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                    <div className="h-1.5 overflow-hidden rounded-full" style={{ background: 'rgba(255,255,255,0.07)' }}>
                       <div className="h-full rounded-full transition-all duration-500" style={{ background: fillColor, width: `${pct}%` }} />
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 text-[11px] text-zinc-500">
+                  <div className="flex items-center gap-3 text-[11px] font-medium text-zinc-500">
                     <span>{used} used</span>
+                    {creditResetLabel ? <span className="text-zinc-600">·</span> : null}
                     {creditResetLabel ? <span>{creditResetLabel}</span> : null}
                   </div>
                 </div>
@@ -774,18 +973,18 @@ export default function DashboardPage() {
 
         {/* Low credits warning */}
         {billingEntitlement?.active && typeof paidRemaining === "number" && paidRemaining <= 10 && paidRemaining > 0 ? (
-          <section className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between" style={{ background: 'var(--bg-raised)', border: '1px solid rgba(245, 197, 66, 0.25)', borderRadius: '10px', padding: '12px 16px' }}>
+          <section className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between" style={{ background: 'var(--bg-raised)', border: '1px solid rgba(245, 197, 66, 0.25)', borderRadius: '10px', padding: '13px 16px' }}>
             <div className="flex items-start gap-3">
               <span className="mt-1 h-2 w-2 shrink-0 rounded-full" style={{ background: 'var(--color-amber)' }} />
               <div>
-                <p style={{ fontSize: '12px', fontWeight: 500, color: 'var(--color-amber)' }}>Running low on credits</p>
-                <p style={{ fontSize: '12px', color: 'var(--text-dark-secondary)' }}>You have {paidRemaining} credit{paidRemaining === 1 ? "" : "s"} left.</p>
+                <p style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-amber)' }}>Running low on credits</p>
+                <p className="mt-0.5" style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text-dark-secondary)' }}>You have {paidRemaining} credit{paidRemaining === 1 ? "" : "s"} left.</p>
               </div>
             </div>
             <Link
               href="/pricing"
               className="inline-flex shrink-0 items-center gap-1 transition hover:opacity-90"
-              style={{ background: 'var(--color-amber-dark)', color: 'var(--color-amber)', border: '1px solid rgba(245, 197, 66, 0.3)', fontSize: '12px', fontWeight: 500, borderRadius: '8px', padding: '6px 14px' }}
+              style={{ background: 'var(--color-amber-dark)', color: 'var(--color-amber)', border: '1px solid rgba(245, 197, 66, 0.3)', fontSize: '12px', fontWeight: 700, borderRadius: '8px', padding: '7px 14px' }}
             >
               Upgrade plan →
             </Link>
@@ -795,7 +994,7 @@ export default function DashboardPage() {
         <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] lg:items-start">
           <section className="min-w-0 overflow-hidden rounded-2xl border border-white/8 bg-zinc-950/80 p-4 md:p-6">
             {/* Step indicator — full on md+, active step only on mobile */}
-            <div className="mb-5 hidden md:flex items-center text-[10px] uppercase tracking-widest">
+            <div className="mb-6 hidden md:flex items-center text-[10px] font-bold uppercase tracking-wider">
               <span className="flex items-center gap-1.5 rounded-full px-2.5 py-1" style={{ color: mode && hasUserSelected ? '#22c55e' : '#10B981', background: mode && hasUserSelected ? 'rgba(34,197,94,0.08)' : 'rgba(16,185,129,0.08)' }}>
                 {mode && hasUserSelected ? <Check size={10} strokeWidth={3} /> : <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />}
                 Video Type
@@ -816,25 +1015,25 @@ export default function DashboardPage() {
             </div>
             {/* Mobile: show only current step */}
             <div className="mb-5 flex md:hidden items-center gap-2">
-              <span className="flex items-center gap-2 rounded-full bg-emerald-500/[0.1] border border-emerald-400/20 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-emerald-300">
+              <span className="flex items-center gap-2 rounded-full bg-emerald-500/[0.1] border border-emerald-400/20 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-emerald-300">
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/30 text-[10px] font-black text-white">
                   {selectedFile ? '3' : (mode && hasUserSelected) ? '2' : '1'}
                 </span>
                 {selectedFile ? 'Upload' : (mode && hasUserSelected) ? 'Style' : 'Choose Type'}
               </span>
-              <span className="text-[10px] text-zinc-600">
+              <span className="text-[10px] font-medium text-zinc-600">
                 Step {selectedFile ? '3' : (mode && hasUserSelected) ? '2' : '1'}/4
               </span>
             </div>
 
-            <div className="mb-5 flex min-w-0 flex-col gap-1">
-              <h2 className="text-lg font-black text-white sm:text-xl">{hasUserSelected ? activeMode.label : 'Choose a Video Type'}</h2>
-              <p className="max-w-lg text-xs leading-5 text-zinc-500">
-                {hasUserSelected ? activeMode.bestResult : 'Each type produces a different style of 9:16 video. Pick one to start.'}
+            <div className="mb-4 flex min-w-0 flex-col gap-1">
+              <h2 className="text-lg font-black tracking-tight text-white sm:text-xl">{hasUserSelected ? activeMode.label : 'Choose a Video Type'}</h2>
+              <p className="max-w-lg text-[13px] leading-5 text-zinc-500">
+                {hasUserSelected ? activeMode.bestResult : 'Choose a short 9:16 reel or a long-form 16:9 video to start.'}
               </p>
             </div>
             {hasUserSelected && (
-              <div className={`mb-4 inline-flex items-center gap-2 rounded-lg border ${activeMode.border} ${activeMode.surface} px-3 py-2 text-xs font-black ${activeMode.color}`}>
+              <div className={`mb-4 inline-flex items-center gap-2 rounded-lg border ${activeMode.border} ${activeMode.surface} px-3 py-2 text-xs font-bold ${activeMode.color}`}>
                 <ActiveModeIcon size={14} />
                 <span className="min-w-0 truncate">{activeMode.label}</span>
                 <button
@@ -848,37 +1047,25 @@ export default function DashboardPage() {
             )}
 
             <div className="grid gap-3">
-              {/* Category filter bar — hidden until 8+ video types */}
-              {/* <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-                {VIDEO_TYPE_CATEGORIES.map((cat) => (
-                  <button
-                    key={cat.id}
-                    className="shrink-0 transition"
-                    style={{
-                      borderRadius: '20px',
-                      padding: '4px 12px',
-                      fontSize: '12px',
-                      fontWeight: 500,
-                      border: videoTypeCategory === cat.id ? '1px solid var(--color-primary-tint)' : '1px solid transparent',
-                      background: videoTypeCategory === cat.id ? 'var(--color-primary-subtle)' : 'var(--bg-raised)',
-                      color: videoTypeCategory === cat.id ? 'var(--color-primary)' : 'var(--text-dark-muted)',
-                    }}
-                    onClick={() => setVideoTypeCategory(cat.id)}
-                    type="button"
-                  >
-                    {cat.label}
-                  </button>
-                ))}
-              </div> */}
+              <div className="flex items-end justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2 text-violet-200">
+                    <Clapperboard size={16} />
+                    <span className="text-[11px] font-black uppercase tracking-[0.2em]">Shorts</span>
+                  </div>
+                  <h3 className="mt-2 text-xl font-black tracking-tight text-white sm:text-2xl">Vertical videos for Reels, Shorts, and TikTok.</h3>
+                  <p className="mt-1 max-w-2xl text-xs leading-5 text-zinc-400 sm:text-sm">Fast 9:16 outputs designed for social feeds. Pick a template, upload once, and get a ready-to-post reel.</p>
+                </div>
+                <span className="hidden shrink-0 rounded-full border border-violet-300/25 bg-violet-400/[0.08] px-3 py-1.5 text-[11px] font-bold text-violet-100 sm:inline-flex">9:16 output</span>
+              </div>
 
-              {/* Video Type cards - visual output selector */}
+              {/* Short Videos stay in the familiar portrait-card layout. */}
               <div className="grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 sm:gap-4">
-                {videoTypeCards
-                  .filter((t) => videoTypeCategory === "all" || t.category === videoTypeCategory)
-                  .map((videoType) => {
+                {videoTypeCards.filter((videoType) => videoType.category !== "long").map((videoType) => {
                   const isSelected = hasUserSelected && videoType.mode === mode;
                   const isComingSoon = Boolean("comingSoon" in videoType && videoType.comingSoon);
                   return (
+                  <div className="contents" key={videoType.id}>
                   <button
                     aria-disabled={isComingSoon}
                     aria-pressed={isSelected}
@@ -906,8 +1093,8 @@ export default function DashboardPage() {
                         background: '#0D1117',
                       }}
                     >
-                      {/* Preview image - square crop for cleaner grid */}
-                      <div className="relative w-full aspect-[3/4] overflow-hidden">
+                      {/* Preview image */}
+                      <div className="relative aspect-[3/4] w-full overflow-hidden">
                         <Image
                           alt={videoType.title}
                           className="object-cover object-top transition duration-300 group-hover:scale-[1.03]"
@@ -955,14 +1142,13 @@ export default function DashboardPage() {
                           <Eye size={11} />
                         </div>
                       </div>
-
                       {/* Info section */}
-                      <div className="px-3 pb-3 pt-1">
-                        <p className="text-[13px] font-bold text-white leading-tight line-clamp-1">{videoType.title}</p>
+                      <div className="px-3 pb-3 pt-1.5">
+                        <p className="text-[13px] font-bold leading-tight tracking-tight text-white line-clamp-1">{videoType.title}</p>
                         <p className="mt-1 text-[11px] leading-4 text-zinc-500 line-clamp-2">{videoType.description}</p>
                         <div className="mt-2 flex flex-wrap gap-1">
                           {videoType.badges.map((badge) => (
-                            <span key={badge} className="rounded px-1.5 py-0.5 text-[9px] font-bold uppercase" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)' }}>
+                            <span key={badge} className="rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)' }}>
                               {badge}
                             </span>
                           ))}
@@ -970,25 +1156,111 @@ export default function DashboardPage() {
                       </div>
                     </div>
                   </button>
+                  </div>
                   );
                 })}
               </div>
 
+              <section className="mt-10 border-t border-cyan-300/15 pt-8 sm:mt-12">
+                <div className="flex items-end justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-2 text-cyan-200">
+                      <Laptop size={17} />
+                      <span className="text-[11px] font-black uppercase tracking-[0.2em]">Long Videos</span>
+                    </div>
+                    <h3 className="mt-2 text-xl font-black tracking-tight text-white sm:text-2xl">Long-form tools for YouTube, podcasts, and lectures.</h3>
+                    <p className="mt-1 max-w-2xl text-xs leading-5 text-zinc-400 sm:text-sm">Built for landscape 16:9 content. Preserve full videos with timed captions, or turn long podcasts into short viral clips.</p>
+                  </div>
+                  <span className="hidden shrink-0 rounded-full border border-cyan-300/20 bg-cyan-400/[0.08] px-3 py-1.5 text-[11px] font-bold text-cyan-100 sm:inline-flex">16:9 workflow</span>
+                </div>
+
+                <div className="mt-4 grid gap-4 sm:grid-cols-2 sm:gap-5">
+                  {videoTypeCards.filter((videoType) => videoType.category === "long").map((longCard) => {
+                    const isSelected = hasUserSelected && longCard.mode === mode;
+                    return (
+                      <button
+                        aria-pressed={isSelected}
+                        className="group relative flex w-full flex-col text-left"
+                        key={longCard.id}
+                        onClick={() => chooseVideoTypeMode(longCard.mode)}
+                        type="button"
+                        style={{
+                          transition: 'all 0.18s ease',
+                          transform: isSelected ? 'scale(1.01)' : undefined,
+                        }}
+                        onMouseEnter={(e) => { if (!isSelected) e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                        onMouseLeave={(e) => { if (!isSelected) e.currentTarget.style.transform = ''; }}
+                      >
+                        <div
+                          className="relative overflow-hidden rounded-2xl bg-[#081626] p-2 pb-4 shadow-[0_20px_50px_rgba(6,182,212,0.1)]"
+                          style={{
+                            border: isSelected ? `2px solid ${longCard.accent}` : '1px solid rgba(34,211,238,0.22)',
+                            boxShadow: isSelected ? `0 8px 28px ${longCard.accent}25` : '0 4px 16px rgba(0,0,0,0.25)',
+                          }}
+                        >
+                          {/* Laptop-style 16:9 frame — instantly signals "long video / landscape" */}
+                          <div className="relative aspect-video overflow-hidden rounded-[13px] border-[6px] border-slate-950 bg-slate-950 shadow-[0_12px_30px_rgba(0,0,0,0.48)]">
+                            <Image
+                              alt={`${longCard.title} landscape preview`}
+                              className="object-cover object-center transition duration-300 group-hover:scale-[1.02]"
+                              fill
+                              sizes="(min-width: 1024px) 45vw, (min-width: 640px) 48vw, 96vw"
+                              src={longCard.image}
+                            />
+                            <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent" />
+                            <span className="absolute left-1/2 top-1 h-px w-6 -translate-x-1/2 rounded-full bg-slate-700" />
+                            <span
+                              className="absolute left-2.5 top-2.5 rounded-md px-2 py-1 text-[10px] font-black uppercase tracking-wide text-slate-950"
+                              style={{ background: longCard.accent }}
+                            >
+                              {longCard.proof}
+                            </span>
+                            {isSelected ? (
+                              <span
+                                className="absolute right-2.5 top-2.5 flex h-6 w-6 items-center justify-center rounded-full shadow-lg text-slate-950"
+                                style={{ background: longCard.accent }}
+                              >
+                                <Check size={13} strokeWidth={3} />
+                              </span>
+                            ) : null}
+                          </div>
+                          {/* Laptop base stub */}
+                          <div className="relative z-20 mx-auto -mt-px h-2 w-1/2 rounded-b-full border-x border-b border-slate-950 bg-slate-800 shadow-[0_6px_12px_rgba(0,0,0,0.35)]">
+                            <span className="absolute left-1/2 top-0 h-px w-1/4 -translate-x-1/2 bg-cyan-200/30" />
+                          </div>
+                          <div className="px-3 pb-1 pt-3">
+                            <p className="text-base font-black tracking-tight text-white line-clamp-1">{longCard.title}</p>
+                            <p className="mt-1 text-xs leading-5 text-zinc-400 line-clamp-2">{longCard.description}</p>
+                            <div className="mt-2 flex flex-wrap gap-1">
+                              {longCard.badges.map((badge) => (
+                                <span key={badge} className="rounded bg-white/[0.06] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-zinc-400">
+                                  {badge}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+
               {/* Selected video type summary + upload form — only shown after user clicks a video type */}
               {hasUserSelected && (<>
-              <div className={`min-w-0 rounded-xl border-2 ${activeMode.border} ${activeMode.surface} p-3 flex flex-wrap items-center gap-3 shadow-sm`}>
+              <div className={`min-w-0 rounded-xl border ${activeMode.border} ${activeMode.surface} p-3.5 flex flex-wrap items-center gap-3`}>
                 <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${activeMode.border} bg-black/30 ${activeMode.color}`}>
-                  <ActiveModeIcon size={20} />
+                  <ActiveModeIcon size={19} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-bold text-white truncate">{activeMode.title}</p>
-                  <p className="text-[11px] text-zinc-400 truncate mt-0.5">{activeMode.bestResult}</p>
+                  <p className="text-sm font-bold tracking-tight text-white truncate">{activeMode.title}</p>
+                  <p className="text-[11px] leading-4 text-zinc-400 truncate mt-0.5">{activeMode.bestResult}</p>
                 </div>
                 <div className="ml-auto shrink-0 flex flex-col items-end gap-1">
-                  <div className="rounded-md bg-brand-mint/10 border border-brand-mint/25 px-2 py-0.5 text-[10px] font-bold text-brand-mint">
-                    1 credit
+                  <div className="rounded-md border border-brand-mint/25 bg-brand-mint/10 px-2 py-0.5 text-[10px] font-bold text-brand-mint">
+                    {plannedCreditLabel}
                   </div>
-                  <span className="text-[9px] text-zinc-500">per video</span>
+                  <span className="text-[9px] font-medium text-zinc-500">{plannedCreditDetail}</span>
                 </div>
               </div>
 
@@ -1156,17 +1428,17 @@ export default function DashboardPage() {
                   <Upload size={28} style={{ color: 'var(--color-primary-hover)' }} />
                 </div>
                 <p className="max-w-full px-2 text-center text-sm font-medium leading-5 text-white">{selectedFile ? "Change selected file" : activeMode.uploadCta || 'Click to upload or drag & drop'}</p>
-                <p className="mt-2 max-w-full px-2 text-center text-xs leading-5" style={{ color: 'var(--text-dark-muted)' }}>{activeMode.supported} • Max 1 minute</p>
+                <p className="mt-2 max-w-full px-2 text-center text-xs leading-5" style={{ color: 'var(--text-dark-muted)' }}>{activeMode.supported}{mode === "longFormCaptionedVideo" ? "" : " • Max 1 minute"}</p>
               </label>
               {selectedFile ? (
                 <div className="mt-3 w-full min-w-0 overflow-hidden rounded-lg border border-white/10 bg-black/35 p-3 text-left sm:p-4">
                   <div className="grid min-w-0 gap-3 sm:flex sm:items-start sm:justify-between">
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-black text-white">{selectedFile.name}</p>
-                      <p className="mt-1 break-words text-xs font-bold leading-5 text-zinc-500">{fileMeta}</p>
+                      <p className="truncate text-sm font-bold text-white">{selectedFile.name}</p>
+                      <p className="mt-1 break-words text-xs font-medium leading-5 text-zinc-500">{fileMeta}</p>
                     </div>
                     <button
-                      className="inline-flex w-full items-center justify-center rounded-md border border-red-400/25 bg-red-500/10 px-3 py-2 text-[11px] font-black text-red-100 transition hover:bg-red-500 hover:text-white sm:w-auto sm:shrink-0"
+                      className="inline-flex w-full items-center justify-center rounded-md border border-red-400/25 bg-red-500/10 px-3 py-2 text-[11px] font-bold text-red-100 transition hover:bg-red-500 hover:text-white sm:w-auto sm:shrink-0"
                       onClick={removeSelectedFile}
                       type="button"
                     >
@@ -1180,6 +1452,24 @@ export default function DashboardPage() {
               )}
 
               {mode === "compare" ? (
+                <>
+                {/* Live preview — sticky like the CapCut editor so it stays visible while you scroll controls */}
+                <div className="sticky top-16 z-30 -mx-4 mb-1 border-b border-white/10 bg-[#141020]/95 px-4 pb-4 pt-3 backdrop-blur-md sm:top-4 sm:mx-0 sm:rounded-lg sm:border sm:border-white/10 sm:bg-black/25">
+                  <div className="mb-2 flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-[0.16em] text-amber-200">
+                    <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-amber-300" />
+                    Live preview
+                  </div>
+                  <ComparePreview
+                    files={comparisonFiles}
+                    leftTitle={compareLeftTitle}
+                    rightTitle={compareRightTitle}
+                    handle={compareHandle}
+                    themeId={compareTheme}
+                    tone={compareTone}
+                    winner={compareWinner}
+                    stickerStyle={stickerStyle}
+                  />
+                </div>
                 <CompareImageSlots
                   files={comparisonFiles}
                   onChange={(files) => {
@@ -1188,12 +1478,22 @@ export default function DashboardPage() {
                   }}
                   onError={(message) => setJobStatus({state: "error", message})}
                 />
+                </>
               ) : null}
 
               {mode === "multiImagesVideo" ? (
+                <>
+                {/* Live preview — sticky like the CapCut editor so it stays visible while you scroll controls */}
+                <div className="sticky top-16 z-30 -mx-4 mb-1 border-b border-white/10 bg-[#141020]/95 px-4 pb-4 pt-3 backdrop-blur-md sm:top-4 sm:mx-0 sm:rounded-lg sm:border sm:border-white/10 sm:bg-black/25">
+                  <div className="mb-2 flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-[0.16em] text-pink-200">
+                    <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-pink-300" />
+                    Live preview
+                  </div>
+                  <MultiImagesPreview clipFile={selectedFile} imageFiles={comparisonFiles} title={promoTitle} />
+                </div>
                 <div className="rounded-xl border border-pink-400/20 bg-pink-400/[0.05] p-4">
                   <p className="text-sm font-black text-white">Upload Images (2-8)</p>
-                  <p className="mt-1 text-xs text-zinc-400">Images will rotate with animations below your video and title.</p>
+                  <p className="mt-1 text-xs text-zinc-400">Images change in this order, synced to your narration. Reorder them to match what you say first → last.</p>
                   <label className="upload-zone mt-3 flex min-h-24 cursor-pointer flex-col items-center justify-center px-3">
                     <input
                       accept="image/png,image/jpeg,image/jpg,image/webp"
@@ -1213,16 +1513,40 @@ export default function DashboardPage() {
                     <span className="mt-0.5 text-[10px] text-zinc-500">Up to 8 images • JPG, PNG, WEBP</span>
                   </label>
                   {comparisonFiles.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-2">
+                    <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
                       {comparisonFiles.map((file, i) => (
-                        <div key={i} className="relative h-14 w-14 overflow-hidden rounded-lg border border-white/10 bg-black">
-                          <img src={URL.createObjectURL(file)} alt="" className="h-full w-full object-cover" />
-                          <button type="button" onClick={() => setComparisonFiles(prev => prev.filter((_, idx) => idx !== i))} className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[8px] font-black text-white">×</button>
+                        <div key={`${file.name}-${i}`} className="relative overflow-hidden rounded-lg border border-white/10 bg-black">
+                          <div className="relative aspect-video">
+                            <img src={URL.createObjectURL(file)} alt="" className="h-full w-full object-cover" />
+                            <span className="absolute left-1 top-1 flex h-5 min-w-5 items-center justify-center rounded-md bg-pink-500 px-1 text-[10px] font-black text-white">{i + 1}</span>
+                            <button type="button" onClick={() => setComparisonFiles(prev => prev.filter((_, idx) => idx !== i))} className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[9px] font-black text-white">×</button>
+                          </div>
+                          <div className="flex items-center justify-between gap-1 px-1.5 py-1">
+                            <button
+                              type="button"
+                              disabled={i === 0}
+                              onClick={() => setComparisonFiles(prev => { const n = [...prev]; [n[i - 1], n[i]] = [n[i], n[i - 1]]; return n; })}
+                              className="flex-1 rounded bg-white/8 py-1 text-[11px] font-black text-white transition hover:bg-white/16 disabled:opacity-30"
+                              aria-label="Move image earlier"
+                            >
+                              ↑
+                            </button>
+                            <button
+                              type="button"
+                              disabled={i === comparisonFiles.length - 1}
+                              onClick={() => setComparisonFiles(prev => { const n = [...prev]; [n[i + 1], n[i]] = [n[i], n[i + 1]]; return n; })}
+                              className="flex-1 rounded bg-white/8 py-1 text-[11px] font-black text-white transition hover:bg-white/16 disabled:opacity-30"
+                              aria-label="Move image later"
+                            >
+                              ↓
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>
                   )}
                 </div>
+                </>
               ) : null}
 
               {mode === "compare" ? (
@@ -1236,12 +1560,132 @@ export default function DashboardPage() {
                     onHandleChange={setCompareHandle}
                   />
 
+                {/* Style controls: theme + tone + winner */}
+                <div className="rounded-xl border border-amber-400/20 bg-amber-400/[0.05] p-4">
+                  <p className="text-[11px] font-black uppercase tracking-[0.2em] text-amber-300">Compare style</p>
+
+                  <p className="mt-3 mb-1.5 text-[11px] font-bold text-zinc-400">Theme</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { id: "light", label: "Light" },
+                      { id: "dark", label: "Dark" },
+                      { id: "bold", label: "Bold" },
+                    ].map((t) => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => setCompareTheme(t.id)}
+                        aria-pressed={compareTheme === t.id}
+                        className={`rounded-lg border px-3 py-2 text-xs font-black transition ${compareTheme === t.id ? "border-amber-300 bg-amber-300/15 text-white" : "border-white/10 bg-white/[0.04] text-zinc-300 hover:border-white/25"}`}
+                      >
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <p className="mt-4 mb-1.5 text-[11px] font-bold text-zinc-400">Comparison tone</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { id: "versus", label: "A vs B (neutral)" },
+                      { id: "goodBad", label: "Good vs Bad" },
+                    ].map((t) => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => setCompareTone(t.id)}
+                        aria-pressed={compareTone === t.id}
+                        className={`rounded-lg border px-3 py-2 text-xs font-black transition ${compareTone === t.id ? "border-amber-300 bg-amber-300/15 text-white" : "border-white/10 bg-white/[0.04] text-zinc-300 hover:border-white/25"}`}
+                      >
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <p className="mt-4 mb-1.5 text-[11px] font-bold text-zinc-400">Winner (shown on closing card)</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { id: "none", label: "No winner" },
+                      { id: "left", label: "Left (A)" },
+                      { id: "right", label: "Right (B)" },
+                    ].map((t) => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => setCompareWinner(t.id)}
+                        aria-pressed={compareWinner === t.id}
+                        className={`rounded-lg border px-3 py-2 text-xs font-black transition ${compareWinner === t.id ? "border-amber-300 bg-amber-300/15 text-white" : "border-white/10 bg-white/[0.04] text-zinc-300 hover:border-white/25"}`}
+                      >
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <StickerStylePicker value={stickerStyle} onChange={setStickerStyle} />
                   </>
               ) : null}
 
               {mode === "typographyVideo" ? (
-                <TypographyStylePicker value={typographyStyle} onChange={setTypographyStyle} />
+                <>
+                  {/* Live preview — sticky like the CapCut editor so it stays visible while you scroll controls */}
+                  <div className="sticky top-16 z-30 -mx-4 mb-1 border-b border-white/10 bg-[#141020]/95 px-4 pb-4 pt-3 backdrop-blur-md sm:top-4 sm:mx-0 sm:rounded-lg sm:border sm:border-white/10 sm:bg-black/25">
+                    <div className="mb-2 flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-[0.16em] text-purple-200">
+                      <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-purple-300" />
+                      Live preview
+                    </div>
+                    <TypographyPreview
+                      typographyStyle={typographyStyle}
+                      captionStyle={captionStyle}
+                      captionPosition={captionPosition}
+                      showCaptions={typographyShowCaptions}
+                      videoUrl={livePreviewVideoUrl}
+                    />
+                  </div>
+
+                  <TypographyStylePicker value={typographyStyle} onChange={setTypographyStyle} />
+
+                  <div className="rounded-lg border border-purple-400/20 bg-purple-400/[0.05] p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-black text-white">Speech captions</p>
+                        <p className="mt-1 text-xs font-bold leading-5 text-zinc-400">
+                          Small captions below the big headline text. Turn off for clean typography only.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setTypographyShowCaptions((v) => !v)}
+                        aria-pressed={typographyShowCaptions}
+                        className={`relative h-6 w-11 shrink-0 rounded-full transition ${typographyShowCaptions ? "bg-purple-500" : "bg-zinc-700"}`}
+                      >
+                        <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${typographyShowCaptions ? "translate-x-[22px]" : "translate-x-0.5"}`} />
+                      </button>
+                    </div>
+
+                    {typographyShowCaptions ? (
+                      <>
+                        <div className="mt-3">
+                          <SubtitleStylePicker value={captionStyle} onChange={chooseCaptionStyle} />
+                        </div>
+                        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                          <label className="grid gap-2">
+                            <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Position</span>
+                            <select
+                              className="form-input"
+                              onChange={(event) => setCaptionPosition(event.target.value as "bottom" | "center" | "top")}
+                              value={captionPosition}
+                            >
+                              <option value="bottom">Bottom safe area</option>
+                              <option value="center">Center</option>
+                              <option value="top">Top</option>
+                            </select>
+                          </label>
+                        </div>
+                      </>
+                    ) : null}
+                  </div>
+
+                </>
               ) : null}
 
               {mode === "creatorBackgroundReplace" ? (
@@ -1366,6 +1810,21 @@ export default function DashboardPage() {
               ) : null}
 
               {mode === "longVideoPromo" ? (
+                <>
+                {/* Live preview — sticky like the CapCut editor so it stays visible while you scroll controls */}
+                <div className="sticky top-16 z-30 -mx-4 mb-1 border-b border-white/10 bg-[#141020]/95 px-4 pb-4 pt-3 backdrop-blur-md sm:top-4 sm:mx-0 sm:rounded-lg sm:border sm:border-white/10 sm:bg-black/25">
+                  <div className="mb-2 flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-[0.16em] text-emerald-200">
+                    <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-300" />
+                    Live preview
+                  </div>
+                  <LongVideoPromoPreview
+                    thumbnailFile={promoThumbnailFile}
+                    clipFile={selectedFile}
+                    title={promoTitle}
+                    ctaText={promoCtaText}
+                    mediaAspect={promoClipMeta.mediaAspect}
+                  />
+                </div>
                 <div className="rounded-lg border border-emerald-400/20 bg-emerald-400/[0.06] p-4">
                   <p className="text-sm font-black text-white">Promo details</p>
                   <p className="mt-1 text-xs font-bold leading-5 text-zinc-400">
@@ -1422,47 +1881,72 @@ export default function DashboardPage() {
                       />
                       <span className="text-right" style={{ fontSize: '11px', color: promoTitle.length >= 75 ? 'var(--color-error)' : promoTitle.length >= 65 ? 'var(--color-amber)' : 'var(--text-dark-muted)' }}>{promoTitle.length}/80</span>
                     </label>
+
+                    <label className="grid gap-1.5">
+                      <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Call-to-action <span className="normal-case text-zinc-500">(optional)</span></span>
+                      <input
+                        className="form-input"
+                        maxLength={40}
+                        onChange={(e) => setPromoCtaText(e.target.value)}
+                        placeholder="Watch the full video"
+                        type="text"
+                        value={promoCtaText}
+                      />
+                      <span className="text-[10px] text-zinc-500">Shown on the button with an arrow pointing to the full video. Default: “Watch the full video · Link in bio”.</span>
+                    </label>
                   </div>
                 </div>
+                </>
               ) : null}
 
-              {/* ── Whiteboard Board Picker ── */}
+              {/* ── Whiteboard Style ── */}
               {mode === "whiteboardVideo" ? (
-                <div className="rounded-lg border border-emerald-400/20 bg-emerald-400/[0.06] p-4">
-                  <p className="text-sm font-black text-white">Board style</p>
-                  <p className="mt-1 text-xs font-bold leading-5 text-zinc-400">Choose the whiteboard environment for your video.</p>
-                  <div className="mt-3 grid grid-cols-4 gap-2">
+                <>
+                <div className="sticky top-16 z-30 -mx-4 mb-1 border-b border-white/10 bg-[#0a1622]/95 px-4 pb-4 pt-3 backdrop-blur-md sm:top-4 sm:mx-0 sm:rounded-lg sm:border sm:border-white/10 sm:bg-black/25">
+                  <div className="mb-2 flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-[0.16em] text-cyan-200">
+                    <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-cyan-300" />
+                    Live preview
+                  </div>
+                  <WhiteboardPreview board={whiteboardBoard} />
+                </div>
+                <div className="rounded-lg border border-cyan-300/20 bg-cyan-300/[0.06] p-4">
+                  <p className="text-sm font-black text-white">Whiteboard style</p>
+                  <p className="mt-1 text-xs font-bold leading-5 text-zinc-400">
+                    Pick the board scene. AI writes your key points inside its safe area.
+                  </p>
+                  <div className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
                     {([
-                      { id: "mobile-stand", label: "Indoor Stand", img: "/preview/board-mobile-stand.jpg" },
-                      { id: "corporate-luxury", label: "Corporate", img: "/preview/board-corporate-luxury.jpg" },
-                      { id: "coworking", label: "Coworking", img: "/preview/board-coworking.jpg" },
-                      { id: "conference", label: "Conference", img: "/preview/board-conference.jpg" },
-                      { id: "dark-modern", label: "Dark Modern", img: "/preview/board-dark-modern.jpg" },
-                      { id: "classroom", label: "Classroom", img: "/preview/board-classroom.jpg" },
-                      { id: "outdoor-street", label: "Outdoor", img: "/preview/board-outdoor-street.jpg" },
-                      { id: "person-writing", label: "Person", img: "/preview/board-person-writing.jpg" },
-                    ] as const).map((b) => (
-                      <button
-                        key={b.id}
-                        type="button"
-                        onClick={() => setBoardStyle(b.id)}
-                        className={`relative overflow-hidden rounded-lg border-2 transition ${boardStyle === b.id ? 'border-emerald-400 ring-1 ring-emerald-400/50' : 'border-white/10 hover:border-white/25'}`}
-                      >
-                        <div className="aspect-[9/16] bg-zinc-900">
-                          <img src={b.img} alt={b.label} className="h-full w-full object-cover opacity-80" />
-                        </div>
-                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-1">
-                          <p className="text-[8px] font-bold text-white text-center leading-tight">{b.label}</p>
-                        </div>
-                        {boardStyle === b.id && (
-                          <div className="absolute right-0.5 top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-emerald-500">
-                            <Check size={8} className="text-white" />
+                      { id: "corporate-luxury", label: "Corporate", image: "/preview/board-corporate-luxury.jpg" },
+                      { id: "classroom", label: "Classroom", image: "/preview/board-classroom.jpg" },
+                      { id: "dark-modern", label: "Dark", image: "/preview/board-dark-modern.jpg" },
+                      { id: "coworking", label: "Studio", image: "/preview/board-coworking.jpg" },
+                    ]).map((b) => {
+                      const isSelected = whiteboardBoard === b.id;
+                      return (
+                        <button
+                          key={b.id}
+                          type="button"
+                          onClick={() => setWhiteboardBoard(b.id)}
+                          aria-pressed={isSelected}
+                          className={`group relative overflow-hidden rounded-lg border text-left transition ${isSelected ? "border-cyan-300 ring-1 ring-cyan-300/50" : "border-white/10 hover:border-white/25"}`}
+                        >
+                          <div className="relative aspect-video w-full overflow-hidden bg-black">
+                            <Image src={b.image} alt={b.label} fill sizes="160px" className="object-cover" />
+                            {isSelected ? (
+                              <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-cyan-400 text-slate-950 shadow">
+                                <Check size={10} strokeWidth={3} />
+                              </span>
+                            ) : null}
                           </div>
-                        )}
-                      </button>
-                    ))}
+                          <div className="bg-black/40 px-1.5 py-1">
+                            <span className={`block text-center text-[10px] font-bold ${isSelected ? "text-cyan-200" : "text-zinc-400"}`}>{b.label}</span>
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
+                </>
               ) : null}
 
               {mode === "audioClean" ? (
@@ -1505,68 +1989,75 @@ export default function DashboardPage() {
               ) : null}
 
               {mode === "autoCaption" ? (
-                <div className="rounded-lg border border-emerald-400/20 bg-emerald-400/[0.06] p-4">
+                <div className="rounded-lg border border-cyan-400/20 bg-cyan-400/[0.06] p-4">
                   <div>
                     <p className="text-sm font-black text-white">Caption controls</p>
                     <p className="mt-1 text-xs font-bold leading-5 text-zinc-400">
-                      Choose caption style, position, and colors. Your video stays full-screen.
+                      Pick a caption style and position. Your video stays full-screen.
                     </p>
                   </div>
 
-                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                    <label className="grid gap-2">
-                      <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Caption style</span>
-                    </label>
-                    <div className="sm:col-span-2">
-                      <SubtitleStylePicker value={captionStyle} onChange={chooseCaptionStyle} />
-                    </div>
+                  <div className="mt-4">
+                    <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] form-label-muted">Caption style</span>
+                    <SubtitleStylePicker
+                      value={captionStyle}
+                      onChange={chooseCaptionStyle}
+                      variant="shorts"
+                    />
+                  </div>
 
-                    <label className="grid gap-2">
-                      <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Position</span>
-                      <select
-                        className="form-input"
-                        onChange={(event) => setCaptionPosition(event.target.value as "bottom" | "center" | "top")}
-                        value={captionPosition}
-                      >
-                        <option value="bottom">Bottom safe area</option>
-                        <option value="center">Center</option>
-                        <option value="top">Top</option>
-                      </select>
-                    </label>
+                  <label className="mt-4 grid max-w-sm gap-2">
+                    <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Position</span>
+                    <select
+                      className="form-input"
+                      onChange={(event) => setCaptionPosition(event.target.value as "bottom" | "center" | "top")}
+                      value={captionPosition}
+                    >
+                      <option value="bottom">Bottom safe area</option>
+                      <option value="center">Center</option>
+                      <option value="top">Top</option>
+                    </select>
+                  </label>
 
-                    <label className="grid gap-2">
-                      <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Font</span>
-                      <select
-                        className="form-input"
-                        onChange={(event) => setCaptionFontFamily(event.target.value)}
-                        value={captionFontFamily}
-                      >
-                        <option value="Inter, sans-serif">Inter</option>
-                        <option value="Impact, sans-serif">Impact</option>
-                        <option value="Arial Black, sans-serif">Arial Black</option>
-                        <option value="Georgia, serif">Georgia</option>
-                        <option value="Courier New, monospace">Courier New</option>
-                        <option value="sans-serif">Sans Serif</option>
-                      </select>
-                    </label>
-
-                    <label className="grid gap-2">
-                      <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Size</span>
-                      <select
-                        className="form-input"
-                        onChange={(event) => setCaptionFontSize(event.target.value as "small" | "medium" | "large" | "xlarge")}
-                        value={captionFontSize}
-                      >
-                        <option value="small">Small</option>
-                        <option value="medium">Medium</option>
-                        <option value="large">Large</option>
-                        <option value="xlarge">Extra large</option>
-                      </select>
-                    </label>
-
-                    <div className="grid grid-cols-1 gap-3 min-[430px]:grid-cols-2">
+                  <details className="mt-4 rounded-lg border border-white/10 bg-black/25 [&[open]>summary_svg]:rotate-180">
+                    <summary className="flex cursor-pointer select-none items-center justify-between gap-3 px-3 py-2.5 text-left [&::-webkit-details-marker]:hidden">
+                      <span className="flex flex-col">
+                        <span className="text-xs font-bold text-white">Advanced settings</span>
+                        <span className="text-[10px] text-zinc-500">Override preset font, size, and colors</span>
+                      </span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="shrink-0 text-zinc-400 transition-transform">
+                        <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </summary>
+                    <div className="grid gap-3 border-t border-white/5 p-3 sm:grid-cols-2">
                       <label className="grid gap-2">
-                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Text</span>
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Font</span>
+                        <select
+                          className="form-input"
+                          onChange={(event) => setCaptionFontFamily(event.target.value)}
+                          value={captionFontFamily}
+                        >
+                          <option value="Inter, sans-serif">Inter</option>
+                          <option value="Impact, sans-serif">Impact</option>
+                          <option value="Arial Black, sans-serif">Arial Black</option>
+                          <option value="Georgia, serif">Georgia</option>
+                        </select>
+                      </label>
+                      <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Size</span>
+                        <select
+                          className="form-input"
+                          onChange={(event) => setCaptionFontSize(event.target.value as "small" | "medium" | "large" | "xlarge")}
+                          value={captionFontSize}
+                        >
+                          <option value="small">Small</option>
+                          <option value="medium">Medium</option>
+                          <option value="large">Large</option>
+                          <option value="xlarge">Extra large</option>
+                        </select>
+                      </label>
+                      <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Text color</span>
                         <select
                           className="h-12 rounded-lg border border-white/10 bg-black/35 px-3 text-sm font-bold text-white outline-none focus:border-brand-mint/55"
                           onChange={(event) => setCaptionTextColor(event.target.value)}
@@ -1581,9 +2072,8 @@ export default function DashboardPage() {
                           <option value="#000000">Black</option>
                         </select>
                       </label>
-
                       <label className="grid gap-2">
-                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Highlight</span>
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Highlight color</span>
                         <select
                           className="h-12 rounded-lg border border-white/10 bg-black/35 px-3 text-sm font-bold text-white outline-none focus:border-brand-mint/55"
                           onChange={(event) => setCaptionHighlightColor(event.target.value)}
@@ -1597,8 +2087,491 @@ export default function DashboardPage() {
                           <option value="#ffffff">White</option>
                         </select>
                       </label>
+                      <label className="grid gap-2 sm:col-span-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Background</span>
+                        <select
+                          className="h-12 rounded-lg border border-white/10 bg-black/35 px-3 text-sm font-bold text-white outline-none focus:border-brand-mint/55"
+                          onChange={(event) => setCaptionBackgroundColor(event.target.value)}
+                          value={captionBackgroundColor}
+                        >
+                          <option value="#18181B">Soft black</option>
+                          <option value="#000000">Black</option>
+                          <option value="rgba(0,0,0,0.55)">Transparent black</option>
+                          <option value="#ffffff">White</option>
+                          <option value="#2563eb">Blue</option>
+                          <option value="#facc15">Yellow</option>
+                          <option value="">No background</option>
+                        </select>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => chooseCaptionStyle(captionStyle)}
+                        className="justify-self-start rounded-lg border border-white/15 bg-white/[0.05] px-3 py-2 text-[11px] font-bold text-zinc-200 transition hover:bg-white/[0.08] sm:col-span-2"
+                      >
+                        Reset to preset defaults
+                      </button>
+                    </div>
+                  </details>
+                </div>
+              ) : mode === "captionStudio" ? (
+                <div className="rounded-lg border border-violet-400/20 bg-violet-400/[0.06] p-4">
+                  <div>
+                    <p className="text-sm font-black text-white">Design your captions</p>
+                    <p className="mt-1 text-xs font-bold leading-5 text-zinc-400">
+                      Full manual control. Every knob is yours — font, color, effects, position. Uses 2 credits per render.
+                    </p>
+                  </div>
 
+                  {/* Live preview — sticky like the CapCut editor so it stays visible while you scroll controls */}
+                  <div className="sticky top-16 z-30 -mx-4 mb-4 border-b border-white/10 bg-[#141020]/95 px-4 pb-4 pt-3 backdrop-blur-md sm:top-4 sm:mx-0 sm:rounded-lg sm:border sm:border-white/10 sm:bg-black/25">
+                    <div className="mb-2 flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-[0.16em] text-violet-200">
+                      <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-violet-300" />
+                      Live preview
+                    </div>
+                    <CaptionStudioPreview settings={studioSettings} videoUrl={livePreviewVideoUrl} />
+                  </div>
+
+                  {/* Panel: Text */}
+                  <details open className="mt-4 rounded-lg border border-white/10 bg-black/25 [&[open]>summary_svg]:rotate-180">
+                    <summary className="flex cursor-pointer select-none items-center justify-between gap-3 px-3 py-2.5 text-left [&::-webkit-details-marker]:hidden">
+                      <span className="text-xs font-bold text-white">Text</span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="shrink-0 text-zinc-400 transition-transform">
+                        <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </summary>
+                    <div className="grid gap-3 border-t border-white/5 p-3 sm:grid-cols-2">
                       <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Font family</span>
+                        <select
+                          className="form-input"
+                          onChange={(event) => setStudioSettings((s) => ({...s, fontFamily: event.target.value}))}
+                          value={studioSettings.fontFamily}
+                        >
+                          <option value="Inter, sans-serif">Inter</option>
+                          <option value="Poppins, sans-serif">Poppins</option>
+                          <option value="Montserrat, sans-serif">Montserrat</option>
+                          <option value="Space Grotesk, sans-serif">Space Grotesk</option>
+                          <option value="Manrope, sans-serif">Manrope</option>
+                          <option value="Anton, sans-serif">Anton</option>
+                          <option value="Bebas Neue, sans-serif">Bebas Neue</option>
+                          <option value="Oswald, sans-serif">Oswald</option>
+                          <option value="Impact, sans-serif">Impact</option>
+                          <option value="Arial Black, sans-serif">Arial Black</option>
+                          <option value="Playfair Display, serif">Playfair Display</option>
+                          <option value="DM Serif Display, serif">DM Serif Display</option>
+                          <option value="Bodoni Moda, serif">Bodoni</option>
+                          <option value="Vollkorn, serif">Vollkorn</option>
+                          <option value="Georgia, serif">Georgia</option>
+                          <option value="JetBrains Mono, monospace">JetBrains Mono</option>
+                          <option value="Courier New, monospace">Courier New</option>
+                        </select>
+                      </label>
+                      <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Font size — {studioSettings.fontSizePx}px</span>
+                        <input
+                          type="range"
+                          min={40}
+                          max={140}
+                          step={2}
+                          value={studioSettings.fontSizePx}
+                          onChange={(event) => setStudioSettings((s) => ({...s, fontSizePx: Number(event.target.value)}))}
+                        />
+                      </label>
+                      <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Weight</span>
+                        <select
+                          className="form-input"
+                          onChange={(event) => setStudioSettings((s) => ({...s, fontWeight: Number(event.target.value)}))}
+                          value={studioSettings.fontWeight}
+                        >
+                          <option value={400}>Regular</option>
+                          <option value={500}>Medium</option>
+                          <option value={600}>Semibold</option>
+                          <option value={700}>Bold</option>
+                          <option value={800}>Extra bold</option>
+                          <option value={900}>Black</option>
+                        </select>
+                      </label>
+                      <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Case</span>
+                        <select
+                          className="form-input"
+                          onChange={(event) => setStudioSettings((s) => ({...s, textCase: event.target.value as CaptionStudioSettings["textCase"]}))}
+                          value={studioSettings.textCase}
+                        >
+                          <option value="as-is">As-is</option>
+                          <option value="uppercase">UPPERCASE</option>
+                          <option value="title">Title Case</option>
+                          <option value="lowercase">lowercase</option>
+                        </select>
+                      </label>
+                      <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Letter spacing — {studioSettings.letterSpacingEm.toFixed(2)}em</span>
+                        <input
+                          type="range"
+                          min={-0.05}
+                          max={0.2}
+                          step={0.01}
+                          value={studioSettings.letterSpacingEm}
+                          onChange={(event) => setStudioSettings((s) => ({...s, letterSpacingEm: Number(event.target.value)}))}
+                        />
+                      </label>
+                      <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Line height — {studioSettings.lineHeight.toFixed(2)}</span>
+                        <input
+                          type="range"
+                          min={0.9}
+                          max={1.8}
+                          step={0.05}
+                          value={studioSettings.lineHeight}
+                          onChange={(event) => setStudioSettings((s) => ({...s, lineHeight: Number(event.target.value)}))}
+                        />
+                      </label>
+                      <label className="flex items-center gap-2 sm:col-span-2">
+                        <input
+                          type="checkbox"
+                          checked={studioSettings.italic}
+                          onChange={(event) => setStudioSettings((s) => ({...s, italic: event.target.checked}))}
+                        />
+                        <span className="text-xs font-bold text-zinc-300">Italic</span>
+                      </label>
+                    </div>
+                  </details>
+
+                  {/* Panel: Color */}
+                  <details open className="mt-3 rounded-lg border border-white/10 bg-black/25 [&[open]>summary_svg]:rotate-180">
+                    <summary className="flex cursor-pointer select-none items-center justify-between gap-3 px-3 py-2.5 text-left [&::-webkit-details-marker]:hidden">
+                      <span className="text-xs font-bold text-white">Color</span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="shrink-0 text-zinc-400 transition-transform">
+                        <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </summary>
+                    <div className="grid gap-3 border-t border-white/5 p-3 sm:grid-cols-2">
+                      <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Text color</span>
+                        <input
+                          type="color"
+                          value={studioSettings.textColor}
+                          onChange={(event) => setStudioSettings((s) => ({...s, textColor: event.target.value}))}
+                          className="h-11 w-full cursor-pointer rounded-lg border border-white/10 bg-transparent"
+                        />
+                      </label>
+                      <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Active word color</span>
+                        <input
+                          type="color"
+                          value={studioSettings.activeWordColor}
+                          onChange={(event) => setStudioSettings((s) => ({...s, activeWordColor: event.target.value}))}
+                          className="h-11 w-full cursor-pointer rounded-lg border border-white/10 bg-transparent"
+                        />
+                      </label>
+                      <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Background color</span>
+                        <input
+                          type="color"
+                          value={studioSettings.backgroundColor}
+                          onChange={(event) => setStudioSettings((s) => ({...s, backgroundColor: event.target.value}))}
+                          className="h-11 w-full cursor-pointer rounded-lg border border-white/10 bg-transparent"
+                        />
+                      </label>
+                      <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Background opacity — {Math.round(studioSettings.backgroundOpacity * 100)}%</span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={1}
+                          step={0.05}
+                          value={studioSettings.backgroundOpacity}
+                          onChange={(event) => setStudioSettings((s) => ({...s, backgroundOpacity: Number(event.target.value)}))}
+                        />
+                      </label>
+                      <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Background shape</span>
+                        <select
+                          className="form-input"
+                          onChange={(event) => setStudioSettings((s) => ({...s, backgroundShape: event.target.value as CaptionStudioSettings["backgroundShape"]}))}
+                          value={studioSettings.backgroundShape}
+                        >
+                          <option value="pill">Pill</option>
+                          <option value="rounded">Rounded box</option>
+                          <option value="square">Square box</option>
+                          <option value="none">No background</option>
+                        </select>
+                      </label>
+                      <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Padding — {studioSettings.paddingPx}px</span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={60}
+                          step={2}
+                          value={studioSettings.paddingPx}
+                          onChange={(event) => setStudioSettings((s) => ({...s, paddingPx: Number(event.target.value)}))}
+                        />
+                      </label>
+                    </div>
+                  </details>
+
+                  {/* Panel: Effects */}
+                  <details className="mt-3 rounded-lg border border-white/10 bg-black/25 [&[open]>summary_svg]:rotate-180">
+                    <summary className="flex cursor-pointer select-none items-center justify-between gap-3 px-3 py-2.5 text-left [&::-webkit-details-marker]:hidden">
+                      <span className="text-xs font-bold text-white">Effects</span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="shrink-0 text-zinc-400 transition-transform">
+                        <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </summary>
+                    <div className="grid gap-3 border-t border-white/5 p-3 sm:grid-cols-2">
+                      <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Stroke width — {studioSettings.strokeWidthPx}px</span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={8}
+                          step={1}
+                          value={studioSettings.strokeWidthPx}
+                          onChange={(event) => setStudioSettings((s) => ({...s, strokeWidthPx: Number(event.target.value)}))}
+                        />
+                      </label>
+                      <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Stroke color</span>
+                        <input
+                          type="color"
+                          value={studioSettings.strokeColor}
+                          onChange={(event) => setStudioSettings((s) => ({...s, strokeColor: event.target.value}))}
+                          className="h-11 w-full cursor-pointer rounded-lg border border-white/10 bg-transparent"
+                        />
+                      </label>
+                      <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Shadow</span>
+                        <select
+                          className="form-input"
+                          onChange={(event) => setStudioSettings((s) => ({...s, shadow: event.target.value as CaptionStudioSettings["shadow"]}))}
+                          value={studioSettings.shadow}
+                        >
+                          <option value="none">None</option>
+                          <option value="soft">Soft</option>
+                          <option value="hard">Hard</option>
+                        </select>
+                      </label>
+                      <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Rotation — {studioSettings.rotationDeg}°</span>
+                        <input
+                          type="range"
+                          min={-15}
+                          max={15}
+                          step={1}
+                          value={studioSettings.rotationDeg}
+                          onChange={(event) => setStudioSettings((s) => ({...s, rotationDeg: Number(event.target.value)}))}
+                        />
+                      </label>
+                    </div>
+                  </details>
+
+                  {/* Panel: Position */}
+                  <details className="mt-3 rounded-lg border border-white/10 bg-black/25 [&[open]>summary_svg]:rotate-180">
+                    <summary className="flex cursor-pointer select-none items-center justify-between gap-3 px-3 py-2.5 text-left [&::-webkit-details-marker]:hidden">
+                      <span className="text-xs font-bold text-white">Position</span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="shrink-0 text-zinc-400 transition-transform">
+                        <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </summary>
+                    <div className="grid gap-3 border-t border-white/5 p-3 sm:grid-cols-2">
+                      <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Vertical position</span>
+                        <select
+                          className="form-input"
+                          onChange={(event) => setStudioSettings((s) => ({...s, position: event.target.value as CaptionStudioSettings["position"]}))}
+                          value={studioSettings.position}
+                        >
+                          <option value="bottom">Bottom safe area</option>
+                          <option value="center">Center</option>
+                          <option value="top">Top</option>
+                        </select>
+                      </label>
+                      <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Horizontal align</span>
+                        <select
+                          className="form-input"
+                          onChange={(event) => setStudioSettings((s) => ({...s, horizontalAlign: event.target.value as CaptionStudioSettings["horizontalAlign"]}))}
+                          value={studioSettings.horizontalAlign}
+                        >
+                          <option value="left">Left</option>
+                          <option value="center">Center</option>
+                          <option value="right">Right</option>
+                        </select>
+                      </label>
+                      <label className="grid gap-2 sm:col-span-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Max width — {studioSettings.maxWidthPercent}%</span>
+                        <input
+                          type="range"
+                          min={40}
+                          max={100}
+                          step={5}
+                          value={studioSettings.maxWidthPercent}
+                          onChange={(event) => setStudioSettings((s) => ({...s, maxWidthPercent: Number(event.target.value)}))}
+                        />
+                      </label>
+                    </div>
+                  </details>
+
+                  {/* Panel: Motion */}
+                  <details className="mt-3 rounded-lg border border-white/10 bg-black/25 [&[open]>summary_svg]:rotate-180">
+                    <summary className="flex cursor-pointer select-none items-center justify-between gap-3 px-3 py-2.5 text-left [&::-webkit-details-marker]:hidden">
+                      <span className="text-xs font-bold text-white">Motion & emphasis</span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="shrink-0 text-zinc-400 transition-transform">
+                        <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </summary>
+                    <div className="grid gap-3 border-t border-white/5 p-3 sm:grid-cols-2">
+                      <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Entry animation</span>
+                        <select
+                          className="form-input"
+                          onChange={(event) => setStudioSettings((s) => ({...s, entryAnimation: event.target.value as CaptionStudioSettings["entryAnimation"]}))}
+                          value={studioSettings.entryAnimation}
+                        >
+                          <option value="none">None</option>
+                          <option value="fade">Fade in</option>
+                          <option value="slide-up">Slide up</option>
+                          <option value="pop">Pop</option>
+                        </select>
+                      </label>
+                      <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Active word emphasis</span>
+                        <select
+                          className="form-input"
+                          onChange={(event) => setStudioSettings((s) => ({...s, emphasisMode: event.target.value as CaptionStudioSettings["emphasisMode"]}))}
+                          value={studioSettings.emphasisMode}
+                        >
+                          <option value="color">Color change</option>
+                          <option value="scale">Scale bump</option>
+                          <option value="box">Box fill</option>
+                          <option value="underline">Underline</option>
+                          <option value="none">None</option>
+                        </select>
+                      </label>
+                      <label className="grid gap-2 sm:col-span-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Words per group — {studioSettings.wordsPerGroup}</span>
+                        <input
+                          type="range"
+                          min={1}
+                          max={5}
+                          step={1}
+                          value={studioSettings.wordsPerGroup}
+                          onChange={(event) => setStudioSettings((s) => ({...s, wordsPerGroup: Number(event.target.value)}))}
+                        />
+                      </label>
+                    </div>
+                  </details>
+
+                  <button
+                    type="button"
+                    onClick={() => setStudioSettings(DEFAULT_STUDIO_SETTINGS)}
+                    className="mt-4 rounded-lg border border-white/15 bg-white/[0.05] px-3 py-2 text-[11px] font-bold text-zinc-200 transition hover:bg-white/[0.08]"
+                  >
+                    Reset all to defaults
+                  </button>
+                </div>
+              ) : mode === "longFormCaptionedVideo" ? (
+                <div className="rounded-lg border border-cyan-400/20 bg-cyan-400/[0.06] p-4">
+                  <div>
+                    <p className="text-sm font-black text-white">Caption controls</p>
+                    <p className="mt-1 text-xs font-bold leading-5 text-zinc-400">
+                      Pick a landscape-safe caption style and position. Your 16:9 video and original audio stay intact.
+                    </p>
+                  </div>
+
+                  <div className="mt-4">
+                    <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] form-label-muted">Caption style</span>
+                    <SubtitleStylePicker
+                      value={captionStyle}
+                      onChange={chooseCaptionStyle}
+                      variant="longForm"
+                    />
+                  </div>
+
+                  <label className="mt-4 grid max-w-sm gap-2">
+                    <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Position</span>
+                    <select
+                      className="form-input"
+                      onChange={(event) => setCaptionPosition(event.target.value as "bottom" | "center" | "top")}
+                      value={captionPosition}
+                    >
+                      <option value="bottom">Bottom safe area</option>
+                      <option value="center">Center</option>
+                      <option value="top">Top</option>
+                    </select>
+                  </label>
+
+                  <details className="mt-4 rounded-lg border border-white/10 bg-black/25 [&[open]>summary_svg]:rotate-180">
+                    <summary className="flex cursor-pointer select-none items-center justify-between gap-3 px-3 py-2.5 text-left [&::-webkit-details-marker]:hidden">
+                      <span className="flex flex-col">
+                        <span className="text-xs font-bold text-white">Advanced settings</span>
+                        <span className="text-[10px] text-zinc-500">Override preset font, size, and colors</span>
+                      </span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="shrink-0 text-zinc-400 transition-transform">
+                        <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </summary>
+                    <div className="grid gap-3 border-t border-white/5 p-3 sm:grid-cols-2">
+                      <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Font</span>
+                        <select
+                          className="form-input"
+                          onChange={(event) => setCaptionFontFamily(event.target.value)}
+                          value={captionFontFamily}
+                        >
+                          <option value="Inter, sans-serif">Inter</option>
+                          <option value="Impact, sans-serif">Impact</option>
+                          <option value="Arial Black, sans-serif">Arial Black</option>
+                          <option value="Georgia, serif">Georgia</option>
+                        </select>
+                      </label>
+                      <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Size</span>
+                        <select
+                          className="form-input"
+                          onChange={(event) => setCaptionFontSize(event.target.value as "small" | "medium" | "large" | "xlarge")}
+                          value={captionFontSize}
+                        >
+                          <option value="small">Small</option>
+                          <option value="medium">Medium</option>
+                          <option value="large">Large</option>
+                          <option value="xlarge">Extra large</option>
+                        </select>
+                      </label>
+                      <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Text color</span>
+                        <select
+                          className="h-12 rounded-lg border border-white/10 bg-black/35 px-3 text-sm font-bold text-white outline-none focus:border-brand-mint/55"
+                          onChange={(event) => setCaptionTextColor(event.target.value)}
+                          value={captionTextColor}
+                        >
+                          <option value="#ffffff">White</option>
+                          <option value="#facc15">Yellow</option>
+                          <option value="#22c55e">Green</option>
+                          <option value="#38bdf8">Blue</option>
+                          <option value="#fb7185">Pink</option>
+                          <option value="#ef4444">Red</option>
+                          <option value="#000000">Black</option>
+                        </select>
+                      </label>
+                      <label className="grid gap-2">
+                        <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Highlight color</span>
+                        <select
+                          className="h-12 rounded-lg border border-white/10 bg-black/35 px-3 text-sm font-bold text-white outline-none focus:border-brand-mint/55"
+                          onChange={(event) => setCaptionHighlightColor(event.target.value)}
+                          value={captionHighlightColor}
+                        >
+                          <option value="#facc15">Yellow</option>
+                          <option value="#22c55e">Green</option>
+                          <option value="#38bdf8">Blue</option>
+                          <option value="#fb7185">Pink</option>
+                          <option value="#ef4444">Red</option>
+                          <option value="#ffffff">White</option>
+                        </select>
+                      </label>
+                      <label className="grid gap-2 sm:col-span-2">
                         <span className="text-xs font-black uppercase tracking-[0.16em] form-label-muted">Background</span>
                         <select
                           className="h-12 rounded-lg border border-white/10 bg-black/35 px-3 text-sm font-bold text-white outline-none focus:border-brand-mint/55"
@@ -1615,23 +2588,7 @@ export default function DashboardPage() {
                         </select>
                       </label>
                     </div>
-
-                    {/* SFX toggle */}
-                    <div className="mt-3 flex items-center justify-between rounded-lg border border-white/10 bg-black/20 px-3 py-2.5">
-                      <div>
-                        <p className="text-xs font-bold text-white">Sound effects</p>
-                        <p className="text-[10px] text-zinc-500">Subtle pop on each word highlight</p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setEnableSfx(!enableSfx)}
-                        className={`relative h-6 w-11 rounded-full transition ${enableSfx ? 'bg-emerald-500' : 'bg-zinc-700'}`}
-                      >
-                        <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${enableSfx ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
-                      </button>
-                    </div>
-
-                  </div>
+                  </details>
                 </div>
               ) : null}
 
@@ -1641,7 +2598,7 @@ export default function DashboardPage() {
                   <div>
                     <p className="text-sm font-black text-white">Clip settings</p>
                     <p className="mt-1 text-xs font-bold leading-5 text-zinc-400">
-                      AI picks the best moments from your long video. Each clip = 1 credit.
+                      AI picks the best moments from your long video. This workflow uses 2 credits as a base, plus 1 credit per requested clip ({formatCreditUnits(calculateRenderCreditUnits("longVideoClips", {clipCount}))} credits for this selection).
                     </p>
                   </div>
 
@@ -1654,7 +2611,7 @@ export default function DashboardPage() {
                         onChange={(e) => setClipCount(Number(e.target.value) as number)}
                       >
                         {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
-                          <option key={n} value={n}>{n} clip{n > 1 ? "s" : ""} ({n} credit{n > 1 ? "s" : ""})</option>
+                          <option key={n} value={n}>{n} clip{n > 1 ? "s" : ""} ({formatCreditUnits(calculateRenderCreditUnits("longVideoClips", {clipCount: n}))} credits)</option>
                         ))}
                       </select>
                     </label>
@@ -1711,7 +2668,7 @@ export default function DashboardPage() {
                 </div>
               ) : null}
 
-              <div className={mode === "autoCaption" || mode === "creatorBackgroundReplace" || mode === "customAiReel" || mode === "longVideoPromo" || mode === "compare" || mode === "typographyVideo" || mode === "longVideoClips" || mode === "whiteboardVideo" || mode === "audioClean" || mode === "multiImagesVideo" ? "hidden" : "rounded-lg border border-white/10 bg-white/[0.035] p-4"}>
+              <div className={mode === "autoCaption" || mode === "longFormCaptionedVideo" || mode === "creatorBackgroundReplace" || mode === "customAiReel" || mode === "longVideoPromo" || mode === "compare" || mode === "typographyVideo" || mode === "longVideoClips" || mode === "whiteboardVideo" || mode === "audioClean" || mode === "multiImagesVideo" ? "hidden" : "rounded-lg border border-white/10 bg-white/[0.035] p-4"}>
                 <label className="form-label-muted" htmlFor="reel-topic">
                   Reel topic/title
                 </label>
@@ -1735,12 +2692,22 @@ export default function DashboardPage() {
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
-                <PolicyPill icon={Clock3} title="Max 1 minute" body="Longer uploads are trimmed to the first 60 seconds." />
-                <PolicyPill
-                  icon={ShieldCheck}
-                  title="Private & temporary"
-                  body="Your file is only used to create your reel. Not shared."
-                />
+                {mode === "longFormCaptionedVideo" ? (
+                  <>
+                    <PolicyPill icon={Clock3} title="Up to 10 minutes" body="Original video and audio are preserved in a 16:9 long-form MP4." />
+                    <PolicyPill icon={Captions} title="Fresh timed captions" body="English or Roman Hinglish captions are generated from this upload only." />
+                  </>
+                ) : mode === "autoCaption" || mode === "captionStudio" ? (
+                  <>
+                    <PolicyPill icon={Clock3} title="Up to 90 seconds" body="Longer uploads are trimmed to the first 90 seconds." />
+                    <PolicyPill icon={ShieldCheck} title="Private & temporary" body="Your file is only used to create your reel. Not shared." />
+                  </>
+                ) : (
+                  <>
+                    <PolicyPill icon={Clock3} title="Up to 90 seconds" body="Longer uploads are trimmed to the first 90 seconds." />
+                    <PolicyPill icon={ShieldCheck} title="Private & temporary" body="Your file is only used to create your reel. Not shared." />
+                  </>
+                )}
               </div>
 
               {/* Pre-generation credit notice */}
@@ -1748,12 +2715,12 @@ export default function DashboardPage() {
                 <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: 'var(--color-primary-hover)' }} />
                 <p className="min-w-0 break-words leading-5" style={{ fontSize: '12px', color: 'var(--text-dark-secondary)' }}>
                   {isFreeSignupCredit && !paidLimitComplete ? (
-                    <>
-                      Your video credit will be used only after the final MP4 succeeds.
-                    </>
+                    mode === "autoCaption"
+                      ? "Your one free Auto Caption Video will include a fixed Itnavideo watermark. Credits are released if the final render has a system failure."
+                      : "Your free trial is only for a watermarked Auto Caption Video. Buy credits to use this video type."
                   ) : (
                     <>
-                      This will use <span style={{ fontWeight: 600, color: 'var(--color-primary-hover)' }}>1 credit</span> — {billingEntitlement?.usage?.remaining ?? billingEntitlement?.monthlyVideoLimit ?? '—'} remaining
+                      This will use <span style={{ fontWeight: 600, color: 'var(--color-primary-hover)' }}>{plannedCreditLabel}</span> — {billingEntitlement?.usage?.remaining ?? billingEntitlement?.monthlyVideoLimit ?? '—'} remaining
                     </>
                   )}
                 </p>
@@ -1802,8 +2769,8 @@ export default function DashboardPage() {
               {paidLimitComplete ? (
                 <div className="rounded-lg border border-amber-200/20 bg-amber-200/[0.075] p-4 text-sm font-bold leading-6 text-amber-50">
                   {isFreeSignupCredit
-                    ? "Your credit is used. Get more credits to continue creating."
-                    : `Your ${billingEntitlement?.planName || "paid"} plan videos are complete for this billing period. Upgrade or wait for renewal to create more reels.`}
+                    ? "Your one free watermarked Auto Caption trial is used. Buy credits to continue creating."
+                    : `Your ${billingEntitlement?.planName || "paid"} credits are complete or expired. Buy another pack to continue creating.`}
                   <Link className="ml-2 text-brand-mint underline-offset-4 hover:underline" href="/pricing">
                     View plans
                   </Link>
@@ -1822,38 +2789,40 @@ export default function DashboardPage() {
             </div>
           </section>
 
-          <aside className="min-w-0 max-w-full space-y-6 overflow-hidden lg:sticky lg:top-20">
+          <aside className="min-w-0 max-w-full space-y-5 overflow-hidden lg:sticky lg:top-20">
             <section id="your-videos" className="scroll-mt-24 p-4 md:p-6" style={{ background: 'var(--bg-raised)', border: '0.5px solid var(--border-dark)', borderRadius: '12px' }}>
               <div className="mb-5 flex min-w-0 items-start justify-between gap-4">
                 <div className="min-w-0">
                   <p style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-secondary-light)' }}>Your Videos</p>
-                  <h2 className="mt-2 text-xl font-black text-white sm:text-2xl">Exports from every video type</h2>
-                  <p className="mt-2 text-xs font-bold leading-5 text-zinc-500">Finished videos stay here for 48 hours, no matter which video type created them.</p>
+                  <h2 className="mt-1.5 text-lg font-black tracking-tight text-white sm:text-xl">Exports from every video type</h2>
+                  <p className="mt-2 text-xs leading-5 text-zinc-500">Finished videos stay here for 48 hours, no matter which video type created them.</p>
                 </div>
-                <FolderOpen className="shrink-0" size={22} style={{ color: 'var(--color-secondary-light)' }} />
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg" style={{ background: 'rgba(34,211,238,0.08)' }}>
+                  <FolderOpen size={17} style={{ color: 'var(--color-secondary-light)' }} />
+                </div>
               </div>
               {recentRenders.length ? (
                 <div className="space-y-3">
                   {recentRenders.map((render) => (
-                    <article key={render.id} className="min-w-0 overflow-hidden rounded-lg border border-white/10 bg-black/25 p-3">
+                    <article key={render.id} className="min-w-0 overflow-hidden rounded-lg border border-white/10 bg-black/25 p-3.5">
                       <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-black text-white">{render.title}</p>
-                          <p className="mt-1 text-xs font-bold text-zinc-500">
+                          <p className="truncate text-sm font-bold tracking-tight text-white">{render.title}</p>
+                          <p className="mt-1 text-[11px] font-medium text-zinc-500">
                             {getModeLabel(render.mode)} · {formatCreatedTime(render.createdAt)}
                           </p>
                         </div>
-                        <span className="shrink-0 rounded-md border border-brand-mint/25 bg-brand-mint/10 px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-brand-mint">
+                        <span className="shrink-0 rounded-md border border-brand-mint/25 bg-brand-mint/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-brand-mint">
                           {getVideoStatusLabel(render.expiresAt)}
                         </span>
                       </div>
                       <div className="mt-3 flex min-w-0 flex-wrap items-center justify-between gap-2 rounded-md border border-white/10 bg-white/[0.035] px-3 py-2">
-                        <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-zinc-500">Available</span>
-                        <span className="text-xs font-black text-zinc-200">{formatTimeLeft(render.expiresAt)}</span>
+                        <span className="text-[10px] font-bold uppercase tracking-wide text-zinc-500">Available</span>
+                        <span className="text-xs font-bold text-zinc-200">{formatTimeLeft(render.expiresAt)}</span>
                       </div>
                       <div className="mt-3 grid gap-2 sm:grid-cols-2">
                         <a
-                          className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-3 py-3 text-xs font-black text-black transition hover:bg-brand-mint"
+                          className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-3 py-2.5 text-xs font-bold text-black transition hover:bg-brand-mint"
                           href={render.outputFile}
                           download={`itnavideo-${render.mode || 'reel'}.mp4`}
                           rel="noreferrer"
@@ -1862,7 +2831,7 @@ export default function DashboardPage() {
                           Download
                         </a>
                         <button
-                          className="inline-flex items-center justify-center gap-2 rounded-md border border-red-400/20 bg-red-500/10 px-3 py-3 text-xs font-black text-red-200 transition hover:bg-red-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                          className="inline-flex items-center justify-center gap-2 rounded-md border border-red-400/20 bg-red-500/10 px-3 py-2.5 text-xs font-bold text-red-200 transition hover:border-red-400/40 hover:bg-red-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
                           disabled={deletingRenderId === render.id}
                           onClick={() => requestDeleteRender(render)}
                           type="button"
@@ -1875,30 +2844,29 @@ export default function DashboardPage() {
                   ))}
                 </div>
               ) : (
-                <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-white/10 bg-gradient-to-b from-white/[0.02] to-transparent px-4 py-10 text-center">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04]">
-                    <Clapperboard size={24} className="text-zinc-600" />
+                <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-white/10 bg-white/[0.015] px-4 py-10 text-center">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/[0.04]">
+                    <Clapperboard size={20} className="text-zinc-600" />
                   </div>
                   <div>
                     <p className="text-sm font-bold text-zinc-300">No videos yet</p>
-                    <p className="mt-1 max-w-[200px] text-xs leading-5 text-zinc-500">Create your first AI video using any video type on the left.</p>
+                    <p className="mt-1 max-w-[220px] text-xs leading-5 text-zinc-500">Create your first AI video using any video type on the left.</p>
                   </div>
-                  <span className="mt-1 text-lg text-zinc-600">↙</span>
                 </div>
               )}
             </section>
 
             <section className="p-4 md:p-6" style={{ background: 'var(--bg-raised)', border: '0.5px solid var(--border-dark)', borderRadius: '12px' }}>
               <p style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-success)' }}>Upload privacy</p>
-              <div className="mt-5 space-y-3">
+              <div className="mt-4 space-y-3">
                 {[
                   "Your uploads are private and temporary.",
                   "Final MP4 links are removed after about 48 hours.",
                   "Your reel is created in the background. You can wait here or come back later.",
                   "We only use your file to create your reel.",
                 ].map((item) => (
-                  <div key={item} className="flex items-start gap-3 text-sm font-bold leading-6 text-zinc-200">
-                    <ShieldCheck className="mt-0.5 shrink-0" size={16} style={{ color: 'var(--color-success)' }} />
+                  <div key={item} className="flex items-start gap-2.5 text-[13px] font-medium leading-5 text-zinc-300">
+                    <ShieldCheck className="mt-0.5 shrink-0" size={15} style={{ color: 'var(--color-success)' }} />
                     <span>{item}</span>
                   </div>
                 ))}
@@ -1920,9 +2888,9 @@ export default function DashboardPage() {
                   <AlertTriangle size={22} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-black uppercase tracking-[0.2em] text-red-200">Delete render</p>
-                  <h2 className="mt-2 text-xl font-black tracking-normal text-white sm:text-2xl">Remove this video?</h2>
-                  <p className="mt-2 text-sm font-bold leading-6 text-zinc-400">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-red-200">Delete render</p>
+                  <h2 className="mt-2 text-xl font-black tracking-tight text-white sm:text-2xl">Remove this video?</h2>
+                  <p className="mt-2 text-[13px] font-medium leading-5 text-zinc-400">
                     This only removes the render from your dashboard history on this device/account. Temporary MP4 links still expire automatically.
                   </p>
                 </div>
@@ -1931,21 +2899,21 @@ export default function DashboardPage() {
             <div className="px-5 py-5">
 
               <div className="rounded-lg border border-white/10 bg-white/[0.035] p-4">
-                <p className="truncate text-sm font-black text-white">{deleteCandidate.title}</p>
-                <p className="mt-1 text-xs font-bold uppercase tracking-[0.14em] text-zinc-500">
-                  {getModeLabel(deleteCandidate.mode)} | {formatTimeLeft(deleteCandidate.expiresAt)}
+                <p className="truncate text-sm font-bold text-white">{deleteCandidate.title}</p>
+                <p className="mt-1 text-[11px] font-bold uppercase tracking-wide text-zinc-500">
+                  {getModeLabel(deleteCandidate.mode)} · {formatTimeLeft(deleteCandidate.expiresAt)}
                 </p>
               </div>
               <div className="mt-5 grid gap-3 sm:grid-cols-2">
                 <button
-                  className="inline-flex items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3.5 text-sm font-black text-zinc-200 transition hover:border-white/25 hover:bg-white/[0.08] hover:text-white"
+                  className="inline-flex items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] px-4 py-3.5 text-sm font-bold text-zinc-200 transition hover:border-white/25 hover:bg-white/[0.08] hover:text-white"
                   onClick={() => setDeleteCandidate(null)}
                   type="button"
                 >
                   Keep video
                 </button>
                 <button
-                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-red-400 px-4 py-3.5 text-sm font-black text-black transition hover:bg-red-300 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-red-400 px-4 py-3.5 text-sm font-bold text-black transition hover:bg-red-300 disabled:cursor-not-allowed disabled:opacity-60"
                   disabled={deletingRenderId === deleteCandidate.id}
                   onClick={() => void deleteRender(deleteCandidate)}
                   type="button"
@@ -2009,7 +2977,13 @@ export default function DashboardPage() {
                     <p className="text-[11px] text-zinc-400 mt-0.5">{previewVideoType.description}</p>
                   </div>
                   <div className="shrink-0 rounded-md bg-brand-mint/10 border border-brand-mint/25 px-2 py-0.5 text-[10px] font-bold text-brand-mint">
-                    1 credit
+                    {previewVideoType.mode === "longFormCaptionedVideo"
+                      ? "1–10 credits"
+                      : previewVideoType.mode === "longVideoClips"
+                        ? "3–12 credits"
+                        : getPlannedRenderCreditUnits(previewVideoType.mode)
+                          ? `${formatCreditUnits(getPlannedRenderCreditUnits(previewVideoType.mode))} credit${getPlannedRenderCreditUnits(previewVideoType.mode) === 10 ? "" : "s"}`
+                          : "See tool pricing"}
                   </div>
                 </div>
 
@@ -2107,6 +3081,12 @@ export default function DashboardPage() {
       return;
     }
 
+    if (mode === "longFormCaptionedVideo" && (!promoClipMeta.durationSeconds || promoClipMeta.durationSeconds > 600)) {
+      renderRequestInFlightRef.current = false;
+      setJobStatus({state: "error", message: "We need the video duration before rendering. Choose a video up to 10 minutes."});
+      return;
+    }
+
     if (mode === "compare" && comparisonFiles.length !== 2) {
       renderRequestInFlightRef.current = false;
       setJobStatus({state: "error", message: "Compare needs exactly two images: one left and one right."});
@@ -2176,9 +3156,9 @@ export default function DashboardPage() {
         : "";
 
       // ── PREVIEW STEP: video types that support it show preview before render ──
-      // Video types with in-browser preview: autoCaption only
-      // Compare and others go straight to render (no preview needed)
-      const PREVIEW_SUPPORTED_MODES: Mode[] = ["autoCaption"];
+      // Compare and Auto Caption use the same preview-first approval flow.
+      // Only Compare uses preview-first flow. Auto Caption renders directly for speed.
+      const PREVIEW_SUPPORTED_MODES: Mode[] = ["compare"];
       if (PREVIEW_SUPPORTED_MODES.includes(mode)) {
         setJobStatus({state: "starting", message: "Generating your preview…"});
         try {
@@ -2200,6 +3180,9 @@ export default function DashboardPage() {
               comparisonImageKeys,
               compareLeftTitle: compareLeftTitle.trim(),
               compareRightTitle: compareRightTitle.trim(),
+              compareTheme,
+              compareTone,
+              compareWinner,
               creatorHandle: compareHandle.trim() || "@itnavideo",
               stickerStyle,
               typographyStyle,
@@ -2311,6 +3294,9 @@ export default function DashboardPage() {
           comparisonImageKeys,
           compareLeftTitle: compareLeftTitle.trim(),
           compareRightTitle: compareRightTitle.trim(),
+          compareTheme,
+          compareTone,
+          compareWinner,
           creatorHandle: compareHandle.trim() || "@itnavideo",
           stickerStyle: String(overrideInputProps.stickerStyle || stickerStyle),
           // Use edited values from preview if available, else dashboard form values.
@@ -2340,6 +3326,7 @@ export default function DashboardPage() {
           // Long Video Promo fields
           ...(mode === "longVideoPromo" ? {
             promoTitle: promoTitle.trim(),
+            promoCtaText: promoCtaText.trim() || undefined,
             thumbnailKey: promoThumbnailKey || undefined,
             durationSeconds: promoClipMeta.durationSeconds || undefined,
             sourceDurationSeconds: promoClipMeta.durationSeconds || undefined,
@@ -2349,6 +3336,15 @@ export default function DashboardPage() {
           ...(mode === "multiImagesVideo" ? {
             promoTitle: promoTitle.trim(),
             title: promoTitle.trim(),
+            durationSeconds: promoClipMeta.durationSeconds || undefined,
+            sourceDurationSeconds: promoClipMeta.durationSeconds || undefined,
+          } : {}),
+          // Long-form Captioned Video fields
+          ...(mode === "longFormCaptionedVideo" ? {
+            durationSeconds: promoClipMeta.durationSeconds || undefined,
+            sourceDurationSeconds: promoClipMeta.durationSeconds || undefined,
+            backgroundMusic: false,
+            enableSfx: false,
           } : {}),
           ...(mode === "creatorBackgroundReplace" ? {
             backgroundImageKey: creatorBackgroundImageKey || undefined,
@@ -2369,6 +3365,10 @@ export default function DashboardPage() {
             customAiVideoDurationSeconds: customAiVideoDurationSeconds || undefined,
             customAiAudioDurationSeconds: customAiAudioDurationSeconds || undefined,
           } : {}),
+          // Caption Studio manual settings — server passes these through to Remotion composition
+          ...(mode === "captionStudio" ? {
+            captionStudioSettings: studioSettings,
+          } : {}),
           // Long Video Clips fields
           ...(mode === "longVideoClips" ? {
             clipCount,
@@ -2379,10 +3379,17 @@ export default function DashboardPage() {
           ...(mode === "audioClean" ? {
             audioCleanOptions,
           } : {}),
-          // SFX preference (applies to all caption-based templates)
-          enableSfx,
-          // Whiteboard board style
-          ...(mode === "whiteboardVideo" ? { boardStyle } : {}),
+          // SFX preference (applies to caption-based templates except Long-form Captioned Video)
+          enableSfx: mode === "longFormCaptionedVideo" ? false : enableSfx,
+          // Typography Video fields
+          ...(mode === "typographyVideo" ? {
+            typographyStyle,
+            typographyShowCaptions,
+          } : {}),
+          // Whiteboard Video fields
+          ...(mode === "whiteboardVideo" ? {
+            whiteboardBoard,
+          } : {}),
         }),
       });
       const job = await readJsonPayload(jobResponse);
@@ -2476,7 +3483,9 @@ export default function DashboardPage() {
 
       const renderingMessage = mode === "longVideoPromo"
         ? "Rendering your promo MP4. No transcription or caption planning is running."
-        : job.transcriptSource === "not-required"
+        : mode === "longFormCaptionedVideo"
+          ? "Rendering your full 16:9 captioned video. This can take longer for a 10-minute upload."
+          : job.transcriptSource === "not-required"
           ? "Rendering your MP4..."
           : job.transcriptSource === "primary"
             ? "Rendering your reel. This may take a few minutes..."
@@ -2619,9 +3628,10 @@ function validateFileForMode(file: File, mode: Mode) {
   if (file.size > maxBytes) {
     return "This file is too large. Please upload a shorter file or compress it under 500MB.";
   }
-  if ((mode === "creatorBackgroundReplace" || mode === "autoCaption" || mode === "dynamicCreator") && !isVideo) {
+  if ((mode === "creatorBackgroundReplace" || mode === "autoCaption" || mode === "captionStudio" || mode === "dynamicCreator") && !isVideo) {
     if (mode === "creatorBackgroundReplace") return "Creator Background Replace needs a video file. Please upload an MP4/MOV video.";
     if (mode === "dynamicCreator") return "Creator Reel Video needs a video file. Please upload an MP4/MOV video.";
+    if (mode === "captionStudio") return "Caption Studio needs a video file. Please upload an MP4/MOV video.";
     return "Auto Caption Video needs a video file. Please upload an MP4/MOV video.";
   }
   if (mode === "compare" && !isAudio) {
@@ -2629,6 +3639,9 @@ function validateFileForMode(file: File, mode: Mode) {
   }
   if (mode === "longVideoPromo" && !isVideo) {
     return "Long Video Promo needs a video clip (MP4/MOV/WEBM).";
+  }
+  if (mode === "longFormCaptionedVideo" && !isVideo) {
+    return "Long-form Captioned Video needs a video file with clear speech (MP4/MOV/WEBM).";
   }
   if (mode === "autoDraw" && !isAudio && !isVideo) {
     return `${modeConfig[mode].title} needs an audio or video file with clear speech.`;
@@ -2703,10 +3716,12 @@ async function uploadComparisonImages({files, userId}: {files: File[]; userId: s
 
 function planningMessageForMode(mode: Mode) {
   if (mode === "autoCaption") return "Preparing styled captions for your reel...";
+  if (mode === "captionStudio") return "Rendering your custom captions...";
   if (mode === "compare") return "Preparing left/right comparison scenes...";
   if (mode === "creatorBackgroundReplace") return "Preparing your background replacement render...";
   if (mode === "autoDraw") return "Creating whiteboard scenes from your voiceover...";
   if (mode === "longVideoPromo") return "Preparing your promo reel...";
+  if (mode === "longFormCaptionedVideo") return "Transcribing your full video and preparing timed captions...";
   if (mode === "dynamicCreator") return "Preparing dynamic text and pacing...";
   if (mode === "customAiReel") return "Planning your custom reel timeline...";
   return "Choosing scenes, text, and visuals...";
@@ -2784,10 +3799,9 @@ function RenderStatusStage({
       }`}
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_8%,rgba(37,99,235,0.22),transparent_30%),radial-gradient(circle_at_82%_18%,rgba(6,182,212,0.13),transparent_28%),radial-gradient(circle_at_76%_78%,rgba(255,61,154,0.10),transparent_26%),linear-gradient(135deg,rgba(255,255,255,0.07),transparent_48%)]" />
-      <div className="pointer-events-none absolute inset-0 opacity-[0.18] [background-image:linear-gradient(rgba(255,255,255,0.14)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.12)_1px,transparent_1px)] [background-size:34px_34px]" />
+      <div className="pointer-events-none absolute inset-0 opacity-[0.08] [background-image:linear-gradient(rgba(186,230,253,0.14)_1px,transparent_1px),linear-gradient(90deg,rgba(186,230,253,0.12)_1px,transparent_1px)] [background-size:34px_34px]" />
       {working ? (
         <>
-          <div className="render-sweep pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
           <div className="render-orbit pointer-events-none absolute right-6 top-6 hidden h-24 w-24 rounded-full border border-cyan-200/10 sm:block">
             <span className="absolute left-1/2 top-0 h-2 w-2 -translate-x-1/2 rounded-full bg-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.8)]" />
           </div>
@@ -2834,12 +3848,12 @@ function RenderStatusStage({
       </div>
 
       <div className="relative mt-5 grid min-w-0 max-w-full gap-4 sm:gap-5 lg:grid-cols-[minmax(0,0.96fr)_minmax(0,1.04fr)]">
-        <div className="relative min-h-52 min-w-0 max-w-full overflow-hidden rounded-lg border border-white/10 bg-black/35 p-3 sm:p-4">
-          <div className="absolute inset-x-4 top-5 h-px bg-gradient-to-r from-transparent via-brand-mint/70 to-transparent" />
+        <div className="relative hidden min-h-52 min-w-0 max-w-full overflow-hidden rounded-xl border border-cyan-100/10 bg-[#061522]/82 p-3 sm:block sm:p-4">
+          <div className="absolute inset-x-4 top-5 h-px bg-gradient-to-r from-transparent via-cyan-200/70 to-transparent" />
           <div className="absolute inset-y-6 left-1/2 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent" />
-          <div className="relative mx-auto flex aspect-[9/16] h-48 max-h-full flex-col overflow-hidden rounded-xl border border-white/15 bg-[#06090d] p-2 shadow-[0_20px_70px_rgba(0,0,0,0.55)] min-[390px]:h-56">
+          <div className="relative mx-auto mb-8 flex aspect-[9/16] h-48 max-h-full flex-col overflow-hidden rounded-xl border border-cyan-100/15 bg-[#061522] p-2 shadow-[0_20px_70px_rgba(0,0,0,0.55)] min-[390px]:h-56">
             {working ? <div className="render-scanline pointer-events-none absolute inset-x-0 z-20 h-12 bg-gradient-to-b from-transparent via-cyan-200/18 to-transparent" /> : null}
-            <div className="relative h-[36%] overflow-hidden rounded-lg border border-white/10 bg-[radial-gradient(circle_at_50%_40%,rgba(124,58,237,0.26),transparent_38%),linear-gradient(135deg,rgba(255,255,255,0.12),rgba(255,255,255,0.035))]">
+            <div className="relative h-[36%] overflow-hidden rounded-lg border border-cyan-100/10 bg-[radial-gradient(circle_at_50%_40%,rgba(124,58,237,0.18),transparent_38%),linear-gradient(135deg,rgba(34,211,238,0.12),rgba(255,255,255,0.035))]">
               <div className="render-shimmer pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/12 to-transparent" />
               <div className="absolute inset-x-4 top-1/2 flex -translate-y-1/2 items-center justify-center gap-1.5">
                 {renderPreviewBars.map((height, index) => (
@@ -2856,7 +3870,7 @@ function RenderStatusStage({
               <div className="absolute bottom-3 left-3 right-3 h-8 rounded-md border border-white/10 bg-white/10" />
             </div>
             <div className="mt-2 grid flex-1 grid-rows-[1fr_0.74fr_0.92fr] gap-2">
-              <div className="rounded-lg border border-brand-mint/20 bg-brand-mint/[0.12] p-2">
+              <div className="rounded-lg border border-cyan-200/25 bg-[#0A2630] p-2">
                 <div className="h-2 w-2/3 rounded-full bg-white/70" />
                 <div className="mt-2 h-1.5 w-1/2 rounded-full bg-brand-mint/70" />
               </div>
@@ -2871,7 +3885,7 @@ function RenderStatusStage({
             </div>
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-brand-mint via-white to-cyan-200 transition-all duration-700"
+                className="h-full rounded-full bg-gradient-to-r from-cyan-300 via-sky-200 to-white transition-all duration-700"
                 style={{width: `${Math.max(8, percentage)}%`}}
               />
             </div>
@@ -2886,7 +3900,7 @@ function RenderStatusStage({
           <div>
             <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 text-xs font-black uppercase tracking-[0.12em] form-label-muted">
               <span className="min-w-0">Live render timeline</span>
-              <span className="text-brand-mint">{failed ? "Paused" : ready ? "Complete" : "Active"}</span>
+              <span className="text-cyan-100">{failed ? "Paused" : ready ? "Complete" : "Active"}</span>
             </div>
             <div className="mt-3 h-3 overflow-hidden rounded-full border border-white/10 bg-black/45">
               <div
@@ -2905,7 +3919,7 @@ function RenderStatusStage({
                 <div
                   className={`rounded-lg border px-3 py-3 ${
                     step.done
-                      ? "border-brand-mint/30 bg-brand-mint/[0.09] text-white"
+                      ? "border-cyan-200/30 bg-[#0A2630] text-white"
                       : step.active
                         ? "border-white/20 bg-white/[0.06] text-white"
                         : "border-white/10 bg-black/20 text-zinc-500"
@@ -3047,11 +4061,11 @@ function getRenderStageMeta(status: JobStatus, mode: Mode): {
     body: mode === "longVideoPromo"
       ? "Exporting your thumbnail, title, and promo clip. No transcription or captions are running."
       : "Rendering your final MP4. Usually 2-10 minutes depending on video length, captions, and current render load.",
-    badgeClass: "border-brand-mint/30 bg-brand-mint/[0.12] text-brand-mint",
+    badgeClass: "border-cyan-200/35 bg-cyan-300/[0.12] text-cyan-100",
     icon: Clapperboard,
-    iconFrame: "border-brand-mint/35 bg-brand-mint/[0.13] text-brand-mint",
+    iconFrame: "border-cyan-200/35 bg-cyan-300/[0.13] text-cyan-100",
     kicker: "Rendering final MP4",
-    kickerClass: "text-brand-mint",
+    kickerClass: "text-cyan-100",
     title: "Rendering final MP4",
   };
 }
@@ -3349,9 +4363,11 @@ function normalizeRenderMode(value: unknown): Mode | null {
   const normalized = String(value || "").toLowerCase().replace(/[-_\s]+/g, "");
   if (!normalized) return null;
   if (normalized === "autocaption" || normalized === "autocaptionreel" || normalized === "caption" || normalized === "captions" || normalized === "subtitle" || normalized === "videocaption") return "autoCaption";
+  if (normalized === "captionstudio" || normalized === "customcaption" || normalized === "customcaptions" || normalized === "advancedcaption") return "captionStudio";
   if (normalized === "compare" || normalized === "comparison" || normalized === "compareexplainer" || normalized === "vs") return "compare";
   if (normalized === "autodraw" || normalized === "autodrawexplainer" || normalized === "whiteboard") return "autoDraw";
   if (normalized === "longvideopromo" || normalized === "longvideopromotion" || normalized === "promo") return "longVideoPromo";
+  if (normalized === "longformcaptionedvideo" || normalized === "longformcaptioned" || normalized === "longvideocaptioned") return "longFormCaptionedVideo";
   if (normalized === "whiteboardvideo" || normalized === "whiteboardreel") return "whiteboardVideo";
   if (normalized === "typographyvideo" || normalized === "typographyreel" || normalized === "boldreel") return "typographyVideo";
   if (normalized === "multiimagesvideo" || normalized === "multiimages" || normalized === "multiimagevideo") return "multiImagesVideo";
@@ -3371,12 +4387,14 @@ function readDashboardMode(value: string | null): Mode | null {
   const normalized = String(value || "").toLowerCase().replace(/[-_\s]+/g, "");
   if (!normalized) return null;
   if (normalized === "autocaptionreel" || normalized === "autocaption") return "autoCaption";
+  if (normalized === "captionstudio" || normalized === "customcaption" || normalized === "customcaptions" || normalized === "advancedcaption") return "captionStudio";
   if (normalized === "compareexplainer" || normalized === "compare" || normalized === "comparison") return "compare";
   if (normalized === "autodrawexplainer" || normalized === "autodraw") return "autoDraw";
   if (normalized === "whiteboardvideo" || normalized === "whiteboardreel") return "whiteboardVideo";
   if (normalized === "typographyvideo" || normalized === "typographyreel" || normalized === "boldreel") return "typographyVideo";
   if (normalized === "multiimagesvideo" || normalized === "multiimages" || normalized === "multiimagevideo") return "multiImagesVideo";
   if (normalized === "longvideopromo" || normalized === "longvideopromotion" || normalized === "promo") return "longVideoPromo";
+  if (normalized === "longformcaptionedvideo" || normalized === "longformcaptioned" || normalized === "longvideocaptioned") return "longFormCaptionedVideo";
   if (normalized === "dynamiccreatorreel" || normalized === "dynamiccreator" || normalized === "dynamicedit") return "dynamicCreator";
   if (normalized === "creatorbackgroundreplace" || normalized === "backgroundreplace" || normalized === "videobackgroundimage") return "creatorBackgroundReplace";
   if (normalized === "customaireel" || normalized === "customai" || normalized === "customreel") return "customAiReel";

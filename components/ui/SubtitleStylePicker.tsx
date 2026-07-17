@@ -37,7 +37,13 @@ type PreviewLayout =
   | "impact-outline"
   | "marker-highlight"
   | "floating-serif"
-  | "metallic-gradient";
+  | "metallic-gradient"
+  | "neon-pulse"
+  | "glass-blur"
+  | "minimal-fade"
+  | "gradient-wave"
+  | "retro-vhs"
+  | "handwritten";
 
 type CaptionStylePreviewConfig = {
   sampleLines: string[];
@@ -58,29 +64,47 @@ const CREATOR_BACKGROUNDS = {
 } as const;
 
 const PRESET_ORDER = [
-  "Eclipse",
-  "Hustle",
-  "Gold Pill",
+  "Sharp Yellow",
   "Studio Clean",
-  "One Word",
-  "Arctic Glow",
+  "Eclipse",
   "Karaoke Fill",
   "Shorts Karaoke",
+  "Bold Fire",
+  "Ocean Blue",
+  "Screamer",
+  "Podcast Hype",
+  "Hustle",
   "Bold Highlight Strip",
   "Shatter Drop",
-  "Pill Bounce",
-  "Marker Highlight",
+  "One Word",
   "Metallic Gradient",
-  "Neon Pulse",
+  "Black Card",
+  "Gold Pill",
+  "Stock Green",
   "Glass Blur",
   "Cinematic",
+  "Netflix Bar",
+  "Boardroom",
+  "Marker Highlight",
+  "Pill Bounce",
+  "Neon Pulse",
   "Hacker Type",
   "Gradient Wave",
   "Retro VHS",
   "Handwritten",
-  "Midnight",
   "Pop Candy",
-  "Bold Fire",
+  "Floating Serif",
+  "Midnight",
+  "Arctic Glow",
+];
+
+const LONG_FORM_PRESET_ORDER = [
+  "Studio Clean",
+  "Cinematic",
+  "Marker Highlight",
+  "Midnight",
+  "Glass Blur",
+  "Metallic Gradient",
 ];
 
 /** Categories for filtering in the dashboard */
@@ -94,20 +118,28 @@ export const STYLE_CATEGORIES = [
 ] as const;
 
 const STYLE_CATEGORY_MAP: Record<string, string> = {
+  'Sharp Yellow': 'popular',
   Eclipse: 'popular',
   'Karaoke Fill': 'popular',
   'Studio Clean': 'popular',
   'Bold Fire': 'popular',
   'Shorts Karaoke': 'popular',
+  'Ocean Blue': 'popular',
   'Metallic Gradient': 'premium',
   'Gold Pill': 'premium',
   Cinematic: 'premium',
   'Glass Blur': 'premium',
+  'Black Card': 'premium',
+  'Stock Green': 'premium',
+  'Netflix Bar': 'premium',
+  'Boardroom': 'premium',
   'One Word': 'bold',
   'Bold Highlight Strip': 'bold',
   Hustle: 'bold',
   'Shatter Drop': 'bold',
   'Neon Pulse': 'bold',
+  Screamer: 'bold',
+  'Podcast Hype': 'bold',
   'Pill Bounce': 'creative',
   'Pop Candy': 'creative',
   'Marker Highlight': 'creative',
@@ -117,6 +149,7 @@ const STYLE_CATEGORY_MAP: Record<string, string> = {
   Midnight: 'clean',
   'Hacker Type': 'clean',
   'Arctic Glow': 'clean',
+  'Floating Serif': 'clean',
 };
 
 export function getStyleCategory(styleName: string): string {
@@ -329,6 +362,64 @@ const PREVIEW_CONFIG: Record<string, CaptionStylePreviewConfig> = {
     backgroundImage: CREATOR_BACKGROUNDS.business,
     layout: "split",
   },
+  "Sharp Yellow": {
+    sampleLines: ["create better reels"],
+    activeWord: "better",
+    background: "linear-gradient(160deg, #1F2937 0%, #111827 55%, #020617 100%)",
+    backgroundImage: CREATOR_BACKGROUNDS.studio,
+    accent: "#FACC15",
+  },
+  "Ocean Blue": {
+    sampleLines: ["create better reels"],
+    activeWord: "better",
+    background: "linear-gradient(160deg, #0C2A3F 0%, #0F172A 55%, #020617 100%)",
+    backgroundImage: CREATOR_BACKGROUNDS.tech,
+    accent: "#38BDF8",
+  },
+  "Screamer": {
+    sampleLines: ["stop scrolling", "watch this"],
+    activeWord: "stop",
+    background: "linear-gradient(160deg, #2A0A0A 0%, #111827 54%, #020617 100%)",
+    backgroundImage: CREATOR_BACKGROUNDS.podcast,
+    accent: "#EF4444",
+    layout: "impact-outline",
+  },
+  "Netflix Bar": {
+    sampleLines: ["a clean cinematic", "caption style"],
+    background: "linear-gradient(160deg, #111827 0%, #020617 70%, #000000 100%)",
+    backgroundImage: CREATOR_BACKGROUNDS.educator,
+    layout: "cinematic-bar",
+  },
+  "Black Card": {
+    sampleLines: ["premium and", "timeless"],
+    activeWord: "premium",
+    background: "linear-gradient(160deg, #0A0A0A 0%, #050505 100%)",
+    backgroundImage: CREATOR_BACKGROUNDS.business,
+    layout: "floating-serif",
+  },
+  "Stock Green": {
+    sampleLines: ["profits are up", "this quarter"],
+    activeWord: "up",
+    background: "linear-gradient(160deg, #06231A 0%, #0F172A 54%, #020617 100%)",
+    backgroundImage: CREATOR_BACKGROUNDS.business,
+    accent: "#22C55E",
+    layout: "stacked",
+  },
+  "Boardroom": {
+    sampleLines: ["clear business", "communication"],
+    activeWord: "business",
+    background: "linear-gradient(160deg, #14202E 0%, #111827 54%, #020617 100%)",
+    backgroundImage: CREATOR_BACKGROUNDS.business,
+    layout: "editorial-serif",
+  },
+  "Podcast Hype": {
+    sampleLines: ["this changed", "everything"],
+    activeWord: "changed",
+    background: "linear-gradient(160deg, #2B1607 0%, #111827 54%, #020617 100%)",
+    backgroundImage: CREATOR_BACKGROUNDS.podcast,
+    accent: "#F97316",
+    layout: "stacked",
+  },
 };
 
 const PRESETS: PresetOption[] = PRESET_ORDER.flatMap((key) => {
@@ -345,12 +436,27 @@ const PRESETS: PresetOption[] = PRESET_ORDER.flatMap((key) => {
   };
 });
 
+type SubtitleStylePickerVariant = "shorts" | "longForm";
+
 interface SubtitleStylePickerProps {
   value: string;
   onChange: (presetKey: string) => void;
+  variant?: SubtitleStylePickerVariant;
 }
 
-export function SubtitleStylePicker({ value, onChange }: SubtitleStylePickerProps) {
+export function SubtitleStylePicker({ value, onChange, variant = "shorts" }: SubtitleStylePickerProps) {
+  const [activeCategory, setActiveCategory] = React.useState<string>(() => {
+    if (variant === "longForm") return "all";
+    const current = getStyleCategory(value);
+    return STYLE_CATEGORIES.some((c) => c.id === current) ? current : "popular";
+  });
+
+  const presets = variant === "longForm"
+    ? PRESETS.filter((preset) => LONG_FORM_PRESET_ORDER.includes(preset.key))
+    : activeCategory === "all"
+      ? PRESETS
+      : PRESETS.filter((preset) => getStyleCategory(preset.key) === activeCategory);
+
   return (
     <>
       <style>{`
@@ -389,8 +495,29 @@ export function SubtitleStylePicker({ value, onChange }: SubtitleStylePickerProp
           animation: captionPreviewCursor 0.9s steps(1) infinite;
         }
       `}</style>
-      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
-        {PRESETS.map((preset) => {
+      {variant === "shorts" ? (
+        <div className="mb-3 -mx-1 flex gap-2 overflow-x-auto px-1 pb-1" style={{ scrollbarWidth: "none" }}>
+          {STYLE_CATEGORIES.map((cat) => {
+            const isActive = activeCategory === cat.id;
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => setActiveCategory(cat.id)}
+                className={`shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-[11px] font-bold transition ${
+                  isActive
+                    ? "bg-brand-mint text-slate-950 shadow-[0_4px_16px_rgba(94,234,212,0.25)]"
+                    : "bg-white/[0.04] text-zinc-400 hover:bg-white/[0.08] hover:text-white"
+                }`}
+              >
+                {cat.label}
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
+      <div className={variant === "longForm" ? "grid grid-cols-1 gap-3 sm:grid-cols-2" : "grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4"}>
+        {presets.map((preset) => {
           const isActive = value === preset.key || value === preset.style;
           return (
             <CaptionStylePreviewCard
@@ -398,6 +525,7 @@ export function SubtitleStylePicker({ value, onChange }: SubtitleStylePickerProp
               preset={preset}
               isActive={isActive}
               onSelect={() => onChange(preset.key)}
+              variant={variant}
             />
           );
         })}
@@ -410,10 +538,12 @@ function CaptionStylePreviewCard({
   preset,
   isActive,
   onSelect,
+  variant,
 }: {
   preset: PresetOption;
   isActive: boolean;
   onSelect: () => void;
+  variant: SubtitleStylePickerVariant;
 }) {
   return (
     <button
@@ -432,7 +562,7 @@ function CaptionStylePreviewCard({
         </span>
       ) : null}
 
-      <CaptionPreviewFrame preset={preset} />
+      <CaptionPreviewFrame preset={preset} variant={variant} />
 
       <span className={`mt-2 truncate text-[11px] font-bold leading-tight ${isActive ? "text-brand-mint" : "text-zinc-200"}`}>
         {preset.label}
@@ -441,36 +571,61 @@ function CaptionStylePreviewCard({
   );
 }
 
-function CaptionPreviewFrame({ preset }: { preset: PresetOption }) {
+function CaptionPreviewFrame({ preset, variant }: { preset: PresetOption; variant: SubtitleStylePickerVariant }) {
   const config = PREVIEW_CONFIG[preset.key] || {
     sampleLines: ["create better reels", "in minutes"],
     activeWord: "better",
     background: "linear-gradient(160deg, #334155 0%, #111827 55%, #020617 100%)",
     backgroundImage: CREATOR_BACKGROUNDS.studio,
   };
+  const previewConfig = variant === "longForm"
+    ? {...config, sampleLines: ["clear captions for", "your long-form video"], activeWord: "captions"}
+    : config;
 
-  return (
-    <div
-      className="relative mx-auto aspect-[9/16] w-full overflow-hidden rounded-md border border-white/10 shadow-inner shadow-black/40"
-      style={{ background: config.background }}
-    >
-      {config.backgroundImage ? (
+  const scene = (
+    <>
+      {previewConfig.backgroundImage ? (
         <Image
-          src={config.backgroundImage}
+          src={previewConfig.backgroundImage}
           alt=""
           aria-hidden="true"
           fill
-          sizes="(max-width: 640px) 42vw, (max-width: 1024px) 22vw, 150px"
+          sizes={variant === "longForm" ? "(max-width: 640px) 88vw, 360px" : "(max-width: 640px) 42vw, (max-width: 1024px) 22vw, 150px"}
           className="object-cover"
         />
       ) : (
         <CreatorSilhouette />
       )}
       <div className="absolute inset-0 bg-gradient-to-b from-black/8 via-black/10 to-black/45" />
-      <div className="absolute inset-x-0 bottom-0 h-[36%] bg-gradient-to-t from-black/58 via-black/24 to-transparent" />
-      <div className="absolute inset-x-[8%] bottom-[10%] flex justify-center">
-        <CaptionPreviewText preset={preset} config={config} />
+      <div className="absolute inset-x-0 bottom-0 h-[42%] bg-gradient-to-t from-black/64 via-black/28 to-transparent" />
+      <div className="absolute inset-x-[8%] bottom-[12%] flex justify-center">
+        <CaptionPreviewText preset={preset} config={previewConfig} />
       </div>
+    </>
+  );
+
+  if (variant === "longForm") {
+    return (
+      <div className="mx-auto w-full px-1 pt-1">
+        <div className="rounded-[10px] border-[3px] border-slate-950 bg-slate-900 p-[3px] shadow-[0_8px_18px_rgba(0,0,0,0.42)]">
+          <div className="relative aspect-video overflow-hidden rounded-[4px]" style={{ background: previewConfig.background }}>
+            {scene}
+            <span className="absolute left-1/2 top-[2px] h-[2px] w-5 -translate-x-1/2 rounded-full bg-slate-700" />
+          </div>
+        </div>
+        <div className="relative mx-auto h-1.5 w-3/4 rounded-b-full border-x border-b border-slate-950 bg-slate-700 shadow-[0_4px_8px_rgba(0,0,0,0.38)]">
+          <span className="absolute left-1/2 top-0 h-px w-1/3 -translate-x-1/2 bg-cyan-100/25" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="relative mx-auto aspect-[9/16] w-full overflow-hidden rounded-md border border-white/10 shadow-inner shadow-black/40"
+      style={{ background: previewConfig.background }}
+    >
+      {scene}
     </div>
   );
 }

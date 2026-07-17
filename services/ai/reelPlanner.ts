@@ -58,12 +58,14 @@ export type ReelTimelineScene = {
 
 export type ReelTemplateName =
   | 'AUTO_CAPTION_REEL'
+  | 'CAPTION_STUDIO'
   | 'comparisonImages'
   | 'LONG_VIDEO_PROMO'
   | 'WHITEBOARD_VIDEO'
   | 'TYPOGRAPHY_VIDEO'
   | 'MULTI_IMAGES_VIDEO'
   | 'LONG_VIDEO_CLIPS'
+  | 'LONG_FORM_CAPTIONED_VIDEO'
   | 'VIDEO_EXPLAINER'
   | 'VIDEO_SIMPLE_EXPLAINER'
   | 'VIDEO_CAPTION'
@@ -102,6 +104,15 @@ export const REEL_TEMPLATE_REGISTRY: Partial<Record<ReelTemplateName, ReelTempla
     plannerMode: 'videoCaption',
     mediaFit: 'videoCaption',
     needsCaptionStylePicker: true,
+    skipPlanner: true,
+  },
+  CAPTION_STUDIO: {
+    templateName: 'CAPTION_STUDIO',
+    compositionId: 'CAPTION-STUDIO',
+    allowedMedia: ['video'],
+    transcriptRequirement: 'required',
+    plannerMode: 'videoCaption',
+    mediaFit: 'videoCaption',
     skipPlanner: true,
   },
   comparisonImages: {
@@ -160,6 +171,16 @@ export const REEL_TEMPLATE_REGISTRY: Partial<Record<ReelTemplateName, ReelTempla
   LONG_VIDEO_CLIPS: {
     templateName: 'LONG_VIDEO_CLIPS',
     compositionId: 'LONG-VIDEO-CLIPS',
+    allowedMedia: ['video'],
+    transcriptRequirement: 'required',
+    plannerMode: 'videoCaption',
+    mediaFit: 'videoCaption',
+    needsCaptionStylePicker: true,
+    skipPlanner: true,
+  },
+  LONG_FORM_CAPTIONED_VIDEO: {
+    templateName: 'LONG_FORM_CAPTIONED_VIDEO',
+    compositionId: 'LONG-FORM-CAPTIONED-VIDEO',
     allowedMedia: ['video'],
     transcriptRequirement: 'required',
     plannerMode: 'videoCaption',

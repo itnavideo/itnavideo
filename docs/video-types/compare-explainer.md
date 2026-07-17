@@ -57,7 +57,10 @@ Making comparison videos requires editing software, finding layouts, adding anim
 |-------|------|-------|
 | Left Title | Text | Label for left item (e.g., "iPhone 15") |
 | Right Title | Text | Label for right item (e.g., "Galaxy S24") |
-| Sticker Character | Selection | Choose from 16 available character sets |
+| Theme | Selection | Visual theme: `light` (default), `dark`, `bold`. Controls background, caption glass, and handle color. |
+| Comparison tone | Selection | `versus` (neutral blue vs purple, default) or `goodBad` (green = recommended, red = avoid). Drives both sides' accent colors. |
+| Winner | Selection | `none` (default), `left`, or `right`. Adds a 👑 crown on the winning title pill and a winner announcement on the closing card. |
+| Sticker Character | Selection | Choose from 16 character sets, grouped into Teachers / 3D Characters / Professionals / Faith |
 | Subtitle Language | Not shown | No language dropdown. Captions follow the uploaded voiceover language as produced by the supported Groq transcription pipeline |
 
 ## Inputs NOT Collected
@@ -76,7 +79,7 @@ Making comparison videos requires editing software, finding layouts, adding anim
 |----------|-------|
 | Default size | 1080×1920 (9:16) |
 | Supported aspect | 9:16 only (currently) |
-| Max duration | 60 seconds |
+| Max duration | 90 seconds |
 | Min duration | 8 seconds |
 | Duration source | Matches uploaded audio/video length |
 | Export format | MP4 (H.264 + AAC) |
@@ -115,11 +118,12 @@ The Video Type renders a comparison layout with sticker presenter:
 └─────────────────────────────┘
 ```
 
-### Spacing
-- Title bars: top area, split 50/50
-- Comparison images: below titles, equal width columns
-- Caption box: middle zone between images and sticker
-- Sticker character: bottom portion of canvas
+### Spacing and Safe Zones
+- Title bars are fixed at `top: 112px`, `height: 88px`; each label is constrained to 40 characters, adaptive `28–44px` type, and a clipped two-line area so it never pushes into images.
+- Comparison images occupy equal contained `488×430px` panels beginning at `top: 225px`; portrait and landscape inputs keep their aspect ratio.
+- Caption box is a fixed `top: 720px`, `height: 126px` band. Captions are capped to two concise lines (up to 12 words / 78 characters) and are never allowed to grow into the presenter zone.
+- Sticker presenter has one anchored lower-safe zone from `top: 870px` to `bottom: 34px`. Pose art supplies left/right direction; the container does not move.
+- Sticker transform inputs are bounded in the renderer: scale `0.72–1.15`, horizontal offset `-110–110px`, vertical offset `-36–46px`.
 
 ### Sticker Character System
 - 16 character sets available
@@ -209,9 +213,11 @@ The renderer applies the premium visual treatment layer for LUT-like color consi
 - Captions = from Groq transcription, following the uploaded voiceover language through the supported pipeline
 - No user-facing subtitle language selector
 - Sticker pose changes driven by stabilized overlay timeline / intent detection, with captions allowed to update independently
-- Preview plan includes captions, `overlayTimeline`, sticker beats, comparison image assets, layout, and user edits before final render
-- Final render should preserve edited preview captions, sticker poses, sticker character, sticker scale, and sticker position
-- Credits are deducted only after the user confirms preview and starts final render
+- Preview plan contains the canonical captions, stabilized `overlayTimeline`, sticker beats, comparison assets, and user edits before the final render.
+- On confirmation, the dashboard sends only preview-approved editable data (`previewCaptions`, `previewOverlayTimeline`, `previewStickers`, style/transform choices) with the original upload keys. The jobs route validates timing/text, keeps those approved captions and poses, and never trusts client media URLs.
+- Without preview-approved data, the deterministic local planner derives canonical intent poses from the current upload transcript. It merges genuine continuing narration into 4–6 second holds; it never forces left/right alternation merely for variety.
+- The same deterministic `styleLock` and timed `soundCues` are supplied to preview and final render. Background music remains off; source voiceover stays primary.
+- Credits are deducted only after the user confirms preview and starts final render.
 - Intent mapping: `sticker_welcome_intro_explainer` (intro), `sticker_pointing_left_side_explainer` (discussing item A / leftTitle / option A / first item), `sticker_pointing_right_side_explainer` (discussing item B / rightTitle / option B / second item), `sticker_comparing_both_sides_explainer` (both sides / vs / tradeoff), `sticker_questioning_surprised_explainer` (question / confusion / surprise), `sticker_general_explaining_key_point` (feature / reason / rule / benefit), `sticker_thinking_analysis_explainer` (neutral analysis), `sticker_warning_issue_explainer` (cons/issues), `sticker_success_conclusion_explainer` or `sticker_happy_celebrating_outro` (conclusion/recommendation/outro)
 
 ### Planner Pose Instructions
@@ -238,7 +244,7 @@ The renderer applies the premium visual treatment layer for LUT-like color consi
 | No sticker selected | Use default character set |
 | Transcription fails | Show error — don't render without captions |
 | Audio too short (<8s) | Clamp to minimum 8s |
-| Audio too long (>60s) | Trim to 60s |
+| Audio too long (>90s) | Trim to 90s |
 | Hindi/Hinglish audio | Roman Hinglish captions |
 | No speech detected | Show error — voiceover is required |
 
@@ -256,13 +262,35 @@ The renderer applies the premium visual treatment layer for LUT-like color consi
 - [ ] Images don't stretch or distort (maintain aspect ratio)
 - [ ] Caption box doesn't overlap sticker or images
 - [ ] All 16 sticker characters render correctly when selected
-- [ ] Preview editor can change caption text before final render
-- [ ] Preview editor can change sticker character, pose, scale, and position
-- [ ] Final render matches the preview-confirmed captions and sticker timeline
-- [ ] Long titles truncate gracefully
+- [ ] Preview editor can change caption text/timing and sticker character, pose, scale, and position before confirmation
+- [ ] Preview-confirmed captions, poses, character, and transform values persist in the final render
+- [ ] Long unbroken titles fit the fixed title bars without growing into image space
+- [ ] Long captions remain inside the fixed caption band and never cover the presenter
+- [ ] Out-of-range sticker scale/offset values are clamped inside the lower safe zone
+- [ ] Preview and final frames match the approved timeline, style lock, and source-voiceover treatment
 - [ ] Hindi/Hinglish audio produces Roman captions
 
 ---
+
+## 2026 Quality Pass (Phase A / B / C)
+
+**Phase A — render-critical**
+- Fonts are now self-hosted via `@remotion/google-fonts` (`resolveFont`): titles + VS badge use Anton (`DISPLAY_FONT`), captions/handle use Montserrat (`TEXT_FONT`). Previously the template used system `Arial Black/Impact`, which fell back inconsistently on Lambda Linux. Local preview and Lambda output now match.
+- Captions are empty-safe: no more hardcoded "Simple difference samjho." placeholder. The caption box only renders when real transcript/overlay text exists (whitespace-safe), so English and silent sections stay clean.
+
+**Phase B — visual + product**
+- Three visual themes (`themeId`): `light`, `dark`, `bold` — each defines background, dot pattern, glow, caption glass, handle color, box background, and hook/closing card background.
+- Comparison tone (`tone`): `versus` (blue vs purple) or `goodBad` (green vs red). Threaded into title pills, image boxes, corner badges, glows, and cards.
+- Winner (`winner`): `left` / `right` / `none`. Puts a 👑 crown on the winning title pill and announces the winner on the closing card.
+- Opening hook card: first ~1.85s full-screen "A **VS** B" + topic, springs in and fades into the main layout.
+- Closing CTA card: last ~2.6s full-screen winner announcement (or "Which one wins?") + "Follow @handle" pill.
+
+**Phase C — UX parity**
+- Live WYSIWYG preview in the dashboard (`components/preview/ComparePreview.tsx`) — CapCut-style sticky `@remotion/player` showing the user's real titles, uploaded images, theme, tone, winner, and sticker before render. Captions/poses in the preview are samples; real ones come from the transcript.
+- `StickerStylePicker` is grouped into categories (Teachers / 3D Characters / Professionals / Faith) with the distracting selected `animate-bounce` removed.
+
+**Server validation (`app/api/reels/jobs/route.ts`)**
+- `resolveCompareTheme` / `resolveCompareTone` / `resolveCompareWinner` validate `compareTheme`/`compareTone`/`compareWinner` against fixed allow-lists; unknown values fall back to `light` / `versus` / `none`.
 
 ## What to Avoid
 

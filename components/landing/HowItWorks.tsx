@@ -7,44 +7,44 @@ const steps = [
     icon: Clapperboard,
     title: 'Choose a Video Type',
     desc: 'Pick a video type — each one has its own upload flow and output style.',
-    accent: '#60A5FA',
+    accent: '#38BDF8',
   },
   {
     number: '02',
     icon: Upload,
     title: 'Upload your content',
     desc: 'Video, audio, or images. The upload area adapts to your chosen video type.',
-    accent: '#22C55E',
+    accent: '#22D3EE',
   },
   {
     number: '03',
     icon: Sparkles,
     title: 'AI transcribes & plans',
     desc: 'Speech becomes timed subtitles. AI builds the layout, captions, and visuals.',
-    accent: '#F59E0B',
+    accent: '#A78BFA',
   },
   {
     number: '04',
     icon: Download,
     title: 'Download your reel',
     desc: 'Get a 9:16 MP4 ready for Instagram Reels, YouTube Shorts, and TikTok.',
-    accent: '#A78BFA',
+    accent: '#4ADE80',
   },
 ];
 
 export default function HowItWorks() {
   return (
-    <section className="relative overflow-hidden px-4 py-16 sm:px-6 md:py-24" style={{ background: '#0B1120' }}>
+    <section className="relative overflow-hidden bg-[#06101F] px-5 py-20 sm:px-6 md:py-28">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-14 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+        <div className="mb-12 flex flex-col gap-5 md:mb-14 md:flex-row md:items-end md:justify-between">
           <div className="max-w-3xl">
-            <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-emerald-400">How it works</p>
-            <h2 className="text-3xl font-black leading-tight tracking-normal text-white sm:text-4xl md:text-5xl">
+            <p className="mb-4 text-xs font-bold uppercase tracking-[0.22em] text-cyan-200">How it works</p>
+            <h2 className="text-3xl font-extrabold leading-tight tracking-tight text-white sm:text-4xl md:text-5xl">
               Upload once. Get a reel back.
             </h2>
           </div>
-          <div className="flex items-center gap-3 rounded-lg border border-emerald-400/20 bg-emerald-400/[0.06] px-4 py-3 text-sm text-emerald-300">
-            <Captions size={18} className="text-emerald-400" />
+          <div className="flex items-center gap-3 rounded-xl border border-cyan-200/20 bg-cyan-300/[0.08] px-4 py-3 text-sm font-semibold text-cyan-100">
+            <Captions size={18} className="text-cyan-200" />
             One plan unlocks all video types
           </div>
         </div>

@@ -49,7 +49,7 @@ const searchIntents = [
 const trustItems = [
   "Audio, video, and voiceovers supported",
   "Uploads are private and temporary",
-  "First video test starts at ₹9",
+  "One free watermarked Auto Caption trial",
   "Vertical MP4 output for Shorts and Reels",
 ];
 

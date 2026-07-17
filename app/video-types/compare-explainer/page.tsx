@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { ArrowRight, Check, Sparkles } from "lucide-react";
 import { DemoVideoGrid, COMPARE_VIDEOS } from "@/components/captions/DemoCaptionGallery";
+import { ConversionHook, StickyBottomCTA } from "@/components/landing/ConversionHook";
 
 export const metadata: Metadata = {
   title: "Compare Explainer Video Maker — Side-by-Side Reels | Itnavideo",
@@ -48,6 +49,13 @@ export default function CompareExplainerPage() {
             </Link>
           </div>
           <p className="mt-4 text-sm" style={{ color: 'var(--text-dark-muted)' }}>No credit card needed • Upload audio + 2 images • 1080p MP4</p>
+        </div>
+      </section>
+
+      {/* Banner */}
+      <section className="px-4 pb-12 sm:px-6">
+        <div className="mx-auto max-w-md overflow-hidden rounded-2xl border border-amber-400/15 shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
+          <img src="/visuals/banners/compare-explainer.png" alt="Compare Explainer Video output preview" className="w-full h-auto" loading="lazy" />
         </div>
       </section>
 
@@ -141,14 +149,19 @@ export default function CompareExplainerPage() {
         </div>
       </section>
 
-      <section className="px-4 pb-20 sm:px-6">
-        <div className="mx-auto max-w-md text-center">
-          <Link href="/dashboard?videoType=compare-explainer" className="inline-flex items-center gap-2 rounded-[10px] px-8 py-4 text-[15px] font-semibold text-white transition hover:-translate-y-[1px] brand-btn-primary-dark">
-            Create Compare Video <ArrowRight size={16} />
-          </Link>
-          <p className="mt-4 text-sm" style={{ color: 'var(--text-dark-muted)' }}>No credit card needed • 1080p MP4 • Ready for Reels & Shorts</p>
-        </div>
-      </section>
+      <ConversionHook
+        templateName="Compare Video"
+        dashboardUrl="/dashboard?videoType=compare-explainer"
+        accentColor="#F59E0B"
+        inputType="audio + 2 images"
+        outputTime="3 minutes"
+      />
+
+      <StickyBottomCTA
+        templateName="Compare Video"
+        dashboardUrl="/dashboard?videoType=compare-explainer"
+        accentColor="#F59E0B"
+      />
     </main>
   );
 }

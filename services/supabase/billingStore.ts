@@ -46,6 +46,11 @@ export async function upsertBillingEntitlementFromServer(input: {
   const userId = sanitizeString(input.userId);
   if (!userId) throw new Error("User id is required.");
 
+  const existing = await getBillingEntitlementFromServer(userId);
+  if (existing && existing.paymentId === sanitizeString(input.paymentId) && existing.orderId === sanitizeString(input.orderId)) {
+    return existing;
+  }
+
   const now = new Date();
   const validDays = getPlanValidityDays(input.planId);
   const entitlement: BillingEntitlement = {

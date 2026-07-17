@@ -85,6 +85,18 @@ const videoTypes = [
     accent: "#F472B6",
   },
   {
+    title: "Long-form Captioned Video",
+    desc: "Preserve a landscape video and original audio with timed captions, up to 10 minutes.",
+    input: "Video with speech",
+    category: "creator",
+    image: "/visuals/previews/long-form-captioned-video.svg",
+    href: "/long-form-captioned-video",
+    dashHref: "/dashboard?videoType=long-form-captioned-video",
+    tags: ["long video", "captions", "youtube", "podcast"],
+    proof: "16:9 long-form",
+    accent: "#22D3EE",
+  },
+  {
     title: "Long Video Clips",
     desc: "AI picks best high-energy moments from long videos and renders captioned short clips.",
     input: "Long video",
@@ -131,7 +143,7 @@ export default function VideoTypesPage() {
           <div className="grid gap-8 lg:grid-cols-[0.78fr_1fr] lg:items-end">
             <div>
               <h1 className="text-4xl font-black leading-tight tracking-normal sm:text-5xl md:text-6xl">
-                Pick the output style you want users to see.
+                Pick the exact video style you want to create.
               </h1>
               <p className="mt-5 max-w-2xl text-base leading-7 text-slate-400 sm:text-lg">
                 Itnavideo now focuses on core video types. No crowded library, no average formats - just the reel styles we can make feel premium and reliable.

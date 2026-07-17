@@ -124,9 +124,9 @@ export default function SignupPage() {
 
   return (
     <AuthShell
-      eyebrow="1 Free AI Video Credit"
-      title="Create your first AI video for free."
-      subtitle="Sign up and get 1 Free AI Video Credit. Create your first video free, no credit card needed."
+      eyebrow="1 Free Watermarked Auto Caption Video"
+      title="Try Auto Caption free."
+      subtitle="Sign up for one free Auto Caption Video up to 60 seconds. It includes a fixed Itnavideo watermark; other video types use credits."
     >
       <div className="rounded-xl border border-white/5 bg-zinc-950/50 p-8 shadow-2xl backdrop-blur-md">
         {confirmationEmail ? (
@@ -166,11 +166,11 @@ export default function SignupPage() {
         <div className="mb-8">
           <div className="mb-4 inline-flex items-center gap-2 rounded-lg border border-pink-300/25 bg-pink-500/[0.09] px-3 py-2 text-xs font-black text-pink-100">
             <Sparkles size={14} className="text-pink-300" />
-            1 Free AI Video Credit after signup
+            One free watermarked Auto Caption Video after signup
           </div>
           <h2 className="text-2xl font-bold tracking-tight text-white">Create workspace</h2>
           <p className="mt-2 text-sm leading-6 text-zinc-400">
-            Upload your content and use your free credit to generate one ready-to-post AI video. Failed renders are not charged.
+            Upload a video with speech to create one Auto Caption Video up to 60 seconds. The free trial includes a fixed Itnavideo watermark; paid credits unlock other video types.
           </p>
           <div className="mt-4 grid gap-2 text-xs font-bold text-zinc-300">
             {['AI captions and reel planning', 'Preview before final render', 'No credit card needed'].map((item) => (

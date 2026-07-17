@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ArrowRight, Check, Sparkles } from "lucide-react";
+import { ConversionHook, StickyBottomCTA } from "@/components/landing/ConversionHook";
 
 export const metadata: Metadata = {
   title: "Whiteboard Video Maker — AI Explainer from Speech | Itnavideo",
@@ -90,16 +91,26 @@ export default function WhiteboardVideoPage() {
         </div>
       </section>
 
-      <section className="px-4 pb-20 sm:px-6">
-        <div className="mx-auto max-w-3xl rounded-lg p-6 text-center" style={{ background: 'var(--bg-card)', border: '0.5px solid var(--border-dark)', borderRadius: '12px' }}>
-          <p className="text-sm leading-6" style={{ color: 'var(--text-dark-secondary)' }}>
-            All video types are available on every plan. No features locked behind higher tiers.
-          </p>
-          <Link href="/pricing" className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold transition hover:opacity-80" style={{ color: 'var(--color-primary-hover)' }}>
-            View pricing <ArrowRight size={14} />
-          </Link>
+      {/* Banner */}
+      <section className="px-4 pb-12 sm:px-6">
+        <div className="mx-auto max-w-md overflow-hidden rounded-2xl border border-emerald-400/15 shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
+          <img src="/visuals/banners/whiteboard-video.png" alt="Whiteboard Video output preview" className="w-full h-auto" loading="lazy" />
         </div>
       </section>
+
+      <ConversionHook
+        templateName="Whiteboard Video"
+        dashboardUrl="/dashboard?videoType=whiteboard-video"
+        accentColor="#10B981"
+        inputType="audio or video with speech"
+        outputTime="3 minutes"
+      />
+
+      <StickyBottomCTA
+        templateName="Whiteboard Video"
+        dashboardUrl="/dashboard?videoType=whiteboard-video"
+        accentColor="#10B981"
+      />
     </main>
   );
 }

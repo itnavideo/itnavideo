@@ -8,7 +8,8 @@ import {createReelPlan, REEL_TEMPLATE_REGISTRY, validateAndRepairReelPlan, type 
 import {readUnifiedAssets} from '@/services/ai/assetPicker';
 import {hasHindiUrduScript, hasRomanHinglish} from '@/services/ai/hinglishTranscript';
 import {checkRateLimit, getClientIp} from '@/services/rateLimit/inMemoryRateLimiter';
-import {getRenderAccessForUser} from '@/services/billing/renderAccess';
+import {getRenderAccessForUser, reserveRenderUsageFromServer} from '@/services/billing/renderAccess';
+import {calculateRenderCreditUnits, formatCreditUnits, LONG_FORM_CAPTION_MAX_SECONDS} from '@/lib/billing/creditPricing';
 import {createPlanningMediaClip} from '@/services/media/mediaClipper';
 import {buildEnergyTimeline, findBeatPeaks} from '@/lib/audio/energyTimeline';
 import {createPremiumSoundCues, createPremiumStyleLock} from '@/services/ai/premiumStylePlanner';
@@ -23,23 +24,55 @@ export const dynamic = 'force-dynamic';
 
 type LambdaRenderRequest = Parameters<typeof renderMediaOnLambda>[0];
 type ReelMode =
-  | 'compare' | 'autoCaption' | 'longVideoPromo' | 'whiteboardVideo' | 'typographyVideo' | 'multiImagesVideo' | 'longVideoClips';
+  | 'compare' | 'autoCaption' | 'captionStudio' | 'longVideoPromo' | 'longFormCaptionedVideo' | 'whiteboardVideo' | 'typographyVideo' | 'multiImagesVideo' | 'longVideoClips';
 
 const MODE_TO_TEMPLATE: Partial<Record<ReelMode, ReelTemplateName>> = {
   compare: 'comparisonImages',
   autoCaption: 'AUTO_CAPTION_REEL',
+  captionStudio: 'CAPTION_STUDIO',
   longVideoPromo: 'LONG_VIDEO_PROMO',
+  longFormCaptionedVideo: 'LONG_FORM_CAPTIONED_VIDEO',
   whiteboardVideo: 'WHITEBOARD_VIDEO',
   typographyVideo: 'TYPOGRAPHY_VIDEO',
   multiImagesVideo: 'MULTI_IMAGES_VIDEO',
   longVideoClips: 'LONG_VIDEO_CLIPS',
 };
 
-const MAX_RENDER_WINDOW_SECONDS = 60;
+// All 9:16 short video types render up to 90 seconds.
+const MAX_RENDER_WINDOW_SECONDS = 90;
+const MAX_AUTO_CAPTION_SECONDS = 90;
+
+function getMaxRenderWindowSecondsForTemplate(templateName?: ReelTemplateName | null): number {
+  return MAX_RENDER_WINDOW_SECONDS;
+}
+
+// Curated whiteboard boards the dashboard can choose from. Unknown values fall back safely.
+// Compare Explainer visual options — validated against fixed allow-lists.
+const COMPARE_THEMES = new Set(['light', 'dark', 'bold']);
+const COMPARE_TONES = new Set(['versus', 'goodBad']);
+const COMPARE_WINNERS = new Set(['left', 'right', 'none']);
+function resolveCompareTheme(value: string): string {
+  const v = String(value || '').trim();
+  return COMPARE_THEMES.has(v) ? v : 'light';
+}
+function resolveCompareTone(value: string): string {
+  const v = String(value || '').trim();
+  return COMPARE_TONES.has(v) ? v : 'versus';
+}
+function resolveCompareWinner(value: string): string {
+  const v = String(value || '').trim();
+  return COMPARE_WINNERS.has(v) ? v : 'none';
+}
+
+const WHITEBOARD_BOARDS = new Set(['corporate-luxury', 'classroom', 'dark-modern', 'coworking']);
+function resolveWhiteboardBoard(value: string): string {
+  const normalized = String(value || '').trim().toLowerCase();
+  return WHITEBOARD_BOARDS.has(normalized) ? normalized : 'corporate-luxury';
+}
 
 const SUBTITLE_LANGUAGE_POLICY = 'General translation policy';
 const getSubtitlePolicy = (lang: string) => `Subtitle language policy: Generate subtitles strictly in ${lang}. If the script is non-Latin (like Kannada, Telugu, Urdu), use the native script. If it's a Latin-script language, use the appropriate alphabet. Ensure accurate synchronization with the audio timing.`;
-const DEFAULT_PLANNING_MEDIA_SECONDS = 60;
+const DEFAULT_PLANNING_MEDIA_SECONDS = 90;
 const DEFAULT_LONG_PROMO_RENDER_SECONDS = 30;
 const SPEECH_LEAD_SECONDS = 0.65;
 const MIN_SPEECH_TOKEN_LENGTH = 2;
@@ -51,6 +84,23 @@ const DEFAULT_TRANSCRIPT_REPAIR_MODEL = 'gpt-4o-mini';
 const getSubtitlePreset = (styleOrPreset: string) =>
   SUBTITLE_PRESETS[styleOrPreset] ||
   Object.values(SUBTITLE_PRESETS).find((preset) => preset.style === styleOrPreset);
+
+async function reserveAcceptedRenderUsage(input: {
+  userId: string;
+  renderId: string;
+  creditUnits: number;
+  mode: ReelMode;
+  title: string;
+}) {
+  await reserveRenderUsageFromServer({
+    userId: input.userId,
+    renderId: input.renderId,
+    creditUnits: input.creditUnits,
+    createdAt: new Date(),
+    mode: input.mode,
+    title: input.title,
+  });
+}
 
 export async function POST(request: Request) {
   const ip = getClientIp(request.headers);
@@ -73,6 +123,11 @@ export async function POST(request: Request) {
   const previewCaptions = Array.isArray(body.previewCaptions) ? body.previewCaptions as Array<{start: number; end: number; text: string; words?: unknown[]}> : null;
   const previewScenes = Array.isArray(body.previewScenes) ? body.previewScenes : null;
   const previewOverlayTimeline = Array.isArray(body.previewOverlayTimeline) ? body.previewOverlayTimeline : null;
+  const previewStickers = Array.isArray(body.previewStickers) ? body.previewStickers : null;
+  const previewStickerOverrides = new Map<string, Record<string, unknown>>((previewStickers || []).map((item, index): [string, Record<string, unknown>] => {
+    const sticker = item && typeof item === 'object' ? item as Record<string, unknown> : {};
+    return [readString(sticker.id) || `compare-pose-${index + 1}`, sticker];
+  }));
   const requestedMode = readString(body.mode || body.templateName || body.template || body.compositionId);
   if (!requestedMode) {
     return NextResponse.json({ok: false, status: 'failed', reasonCode: 'MISSING_TEMPLATE', error: 'Please select a video type before creating a reel.'}, {status: 400});
@@ -130,6 +185,33 @@ export async function POST(request: Request) {
   if (!userId) {
     return NextResponse.json({ok: false, error: 'Please log in before creating a reel.'}, {status: 401});
   }
+  const requestedLongFormDuration = mode === 'longFormCaptionedVideo'
+    ? readFiniteNumber(body.durationSeconds, readFiniteNumber(body.sourceDurationSeconds, 0))
+    : 0;
+  if (mode === 'longFormCaptionedVideo' && (!requestedLongFormDuration || requestedLongFormDuration > LONG_FORM_CAPTION_MAX_SECONDS)) {
+    return NextResponse.json({
+      ok: false,
+      status: 'failed',
+      reasonCode: 'LONG_FORM_DURATION_EXCEEDED',
+      error: 'We could not confirm this video\'s duration. Upload a readable video up to 10 minutes and try again.',
+    }, {status: 422});
+  }
+  const requestedClipCount = mode === 'longVideoClips'
+    ? Math.max(1, Math.min(10, readFiniteNumber(body.clipCount, 3)))
+    : undefined;
+  let requestedCreditUnits: number | null = null;
+  try {
+    requestedCreditUnits = mode === 'longFormCaptionedVideo'
+      ? null
+      : calculateRenderCreditUnits(mode, {clipCount: requestedClipCount});
+  } catch (error) {
+    return NextResponse.json({
+      ok: false,
+      status: 'failed',
+      reasonCode: 'INVALID_CREDIT_CONFIGURATION',
+      error: error instanceof Error ? error.message : 'This video type cannot be priced right now.',
+    }, {status: 422});
+  }
   if (mode === 'compare') {
     if (contentType && !contentType.startsWith('audio/')) {
       return NextResponse.json({ok: false, error: 'Compare requires one audio voiceover file.'}, {status: 400});
@@ -140,9 +222,11 @@ export async function POST(request: Request) {
   }
 
   try {
-    const access = await getRenderAccessForUser(userId);
+    const access = mode === 'longFormCaptionedVideo'
+      ? null
+      : await getRenderAccessForUser(userId, {mode, creditUnits: requestedCreditUnits ?? undefined});
     markTiming('access_check_ms');
-    if (!access.allowed) {
+    if (access && !access.allowed) {
       return NextResponse.json(
         {
           ok: false,
@@ -234,6 +318,8 @@ export async function POST(request: Request) {
         thumbnailSrc: promoThumbnailUrl,
         title: promoTitle,
         mediaAspect: readString(body.mediaAspect) || 'landscape',
+        ctaText: readString(body.promoCtaText).slice(0, 40) || 'Watch the full video',
+        ctaSubtext: readString(body.promoCtaSubtext ?? 'Link in bio').slice(0, 28),
         sourceAudioVolume: 1,
         premiumEditing: true,
         fastRender: true,
@@ -309,6 +395,13 @@ export async function POST(request: Request) {
         timings,
       });
       const render = await startRenderWithCapacityRetry(renderRequest);
+      await reserveAcceptedRenderUsage({
+        userId,
+        renderId: render.renderId,
+        creditUnits: requestedCreditUnits ?? calculateRenderCreditUnits('longVideoPromo'),
+        mode,
+        title: promoTitle,
+      });
       markTiming('render_start_ms');
       console.log('[LONG_VIDEO_PROMO_FAST_PATH] lambda accepted', {
         renderId: render.renderId,
@@ -335,6 +428,8 @@ export async function POST(request: Request) {
         renderWindowSource: 'promo-fast-path',
         planningMediaSource: 'original-upload',
         access,
+        creditUnits: requestedCreditUnits,
+        creditCost: formatCreditUnits(requestedCreditUnits ?? calculateRenderCreditUnits('longVideoPromo')),
         retentionHours: 48,
         note: 'Long Video Promo render started without transcription, subtitle generation, or AI planning.',
         _renderVersion: 'v2026-06-30-long-video-promo-fast-path',
@@ -362,10 +457,154 @@ export async function POST(request: Request) {
       });
     }
 
-    // ── MULTI IMAGES VIDEO FAST PATH (no transcription needed) ──
+    // ── LONG-FORM CAPTIONED VIDEO (full-source Groq captions; no trim/planning clip) ──
+    if (mode === 'longFormCaptionedVideo') {
+      const requestedDuration = requestedLongFormDuration;
+
+      let longFormTranscription: Awaited<ReturnType<typeof transcribeMediaUrlWithGroq>>;
+      try {
+        longFormTranscription = await transcribeMediaUrlWithGroq({mediaUrl, fileName, contentType});
+      } catch (error) {
+        console.error('[LONG_FORM_CAPTIONED_VIDEO] Groq transcription failed:', error);
+        return NextResponse.json({
+          ok: false,
+          status: 'failed',
+          reasonCode: 'TRANSCRIPTION_FAILED',
+          error: 'Captions could not be generated from this video. Please retry with clear speech.',
+        }, {status: 422});
+      }
+      markTiming('long_form_groq_transcription_ms');
+
+      const transcriptWords = (longFormTranscription.words || [])
+        .map((word) => ({
+          word: String(word.word || ''),
+          start: Number(word.start ?? 0),
+          end: Number(word.end ?? 0),
+        }))
+        .filter((word) => word.word && Number.isFinite(word.start) && Number.isFinite(word.end));
+      const transcriptionDuration = readFiniteNumber(longFormTranscription.durationSeconds, 0);
+      const durationSeconds = transcriptionDuration || requestedDuration;
+      if (!durationSeconds || durationSeconds > LONG_FORM_CAPTION_MAX_SECONDS) {
+        return NextResponse.json({
+          ok: false,
+          status: 'failed',
+          reasonCode: 'LONG_FORM_DURATION_EXCEEDED',
+          error: 'Long-form Captioned Video supports uploads up to 10 minutes.',
+        }, {status: 422});
+      }
+      if (!longFormTranscription.transcript || !transcriptWords.length) {
+        return NextResponse.json({
+          ok: false,
+          status: 'failed',
+          reasonCode: 'NO_SPEECH_DETECTED',
+          error: 'No clear speech was detected. Please upload a video with a clear speaking voice.',
+        }, {status: 422});
+      }
+
+      const longFormCreditUnits = calculateRenderCreditUnits('longFormCaptionedVideo', {durationSeconds});
+      const longFormAccess = await getRenderAccessForUser(userId, {mode, creditUnits: longFormCreditUnits});
+      if (!longFormAccess.allowed) {
+        return NextResponse.json({
+          ok: false,
+          error: longFormAccess.reason || 'Your video credits are not enough for this duration.',
+          access: longFormAccess,
+          upgradeUrl: '/pricing',
+        }, {status: longFormAccess.activePaidPlan ? 403 : 402});
+      }
+
+      const captions = buildCaptionsFromWords(transcriptWords, 0);
+      const captionStyle = readString(body.captionStyle) || 'Studio Clean';
+      const captionPreset = getSubtitlePreset(captionStyle);
+      const longFormTitle = topicTitle || titleFromFile(fileName) || 'Long-form Captioned Video';
+      const inputProps: Record<string, unknown> = {
+        mediaSrc: mediaUrl,
+        mediaType: 'video',
+        mediaTrimStartSeconds: 0,
+        sourceAudioVolume: 1,
+        sourceDurationSeconds: durationSeconds,
+        durationSeconds,
+        renderWindowSeconds: durationSeconds,
+        captions,
+        subtitleChunks: captions,
+        captionStyle,
+        captionPosition: readString(body.captionPosition) || 'bottom',
+        textColor: readString(body.captionTextColor) || captionPreset?.textColor || '#ffffff',
+        highlightColor: readString(body.captionHighlightColor) || captionPreset?.highlightColor || '#22d3ee',
+        backgroundColor: readString(body.captionBackgroundColor) || captionPreset?.backgroundColor || '#0f172a',
+        fontSize: readString(body.captionFontSize) || captionPreset?.fontSize || 'large',
+        fontFamily: readString(body.captionFontFamily) || captionPreset?.fontFamily || undefined,
+        showBackground: body.captionShowBackground !== false,
+        language: longFormTranscription.languageHint || 'en',
+        backgroundMusic: false,
+        enableSfx: false,
+        templateName,
+        template: templateName,
+        compositionId: composition,
+      };
+      const preflight = validateBeforeRender({inputProps, templateName, composition, mediaType: 'video'});
+      if (preflight) {
+        const isFounder = isFounderEmail(readString(body.userEmail || body.email)) || isFounderUser(userId);
+        return NextResponse.json({
+          ok: false,
+          status: 'failed',
+          reasonCode: preflight.reasonCode,
+          error: isFounder ? preflight.message : sanitizeUserFacingStatus(preflight.message),
+        }, {status: 422});
+      }
+
+      const outName = `${TEMP_MEDIA_RENDER_PREFIX}${sanitizeSegment(userId)}/${Date.now()}-long-form-captioned.mp4`;
+      const render = await startRenderWithCapacityRetry({
+        region: config.region,
+        functionName: config.functionName,
+        serveUrl: config.serveUrl,
+        composition,
+        codec: 'h264',
+        audioCodec: 'aac',
+        inputProps,
+        outName,
+        privacy: 'private',
+        deleteAfter: '3-days',
+        overwrite: true,
+        framesPerLambda: 300,
+        maxRetries: 2,
+        downloadBehavior: {type: 'download', fileName: 'itnavideo-long-form-captioned.mp4'},
+        isProduction: true,
+        logLevel: 'info',
+      });
+      markTiming('long_form_render_start_ms');
+      await reserveRenderUsageFromServer({
+        userId,
+        renderId: render.renderId,
+        creditUnits: longFormCreditUnits,
+        createdAt: new Date(),
+        mode,
+        title: longFormTitle,
+      });
+
+      return NextResponse.json({
+        ok: true,
+        status: 'rendering',
+        renderId: render.renderId,
+        bucketName: render.bucketName,
+        outName,
+        mediaKey,
+        reelTitle: longFormTitle,
+        design: 'Long-form Captioned Video',
+        mode,
+        templateName,
+        transcriptSource: 'groq',
+        durationSeconds,
+        creditUnits: longFormCreditUnits,
+        creditCost: formatCreditUnits(longFormCreditUnits),
+        access: longFormAccess,
+        retentionHours: 48,
+      });
+    }
+
+    // ── MULTI IMAGES VIDEO (transcribe → sync image changes + captions to the narration) ──
     if (mode === 'multiImagesVideo') {
       const requestedDuration = readFiniteNumber(body.durationSeconds, readFiniteNumber(body.sourceDurationSeconds, 30));
-      const durationSeconds = Math.max(8, Math.min(MAX_RENDER_WINDOW_SECONDS, requestedDuration || 30));
+      const fallbackDuration = Math.max(8, Math.min(MAX_RENDER_WINDOW_SECONDS, requestedDuration || 30));
       const multiTitle = readString(body.promoTitle || body.title) || topicTitle || 'Story';
       const comparisonImageUrls2 = comparisonImageUrls.length
         ? comparisonImageUrls
@@ -379,16 +618,59 @@ export async function POST(request: Request) {
         if (url) signedImageUrls.push(url);
       }
       const finalImageUrls = signedImageUrls.length ? signedImageUrls : comparisonImageUrls2;
+      if (finalImageUrls.length < 2 || finalImageUrls.length > 8) {
+        return NextResponse.json(
+          {ok: false, status: 'failed', error: 'Multi Images Video needs between 2 and 8 images.'},
+          {status: 422},
+        );
+      }
+
+      // Transcribe the narration so images change on speech beats and captions stay in sync.
+      // On any transcription failure we degrade gracefully to an even split with no captions.
+      const miSubtitleLang = normalizeSubtitleLanguage(readString(body.subtitleOutputLanguage));
+      let durationSeconds = fallbackDuration;
+      let mediaTrimStartSeconds = 0;
+      let miCaptions: Array<{start: number; end: number; text: string}> = [];
+      let miImageTimings: Array<{start: number; end: number}> | undefined;
+      let miTranscriptSource: 'groq' | 'not-required' = 'not-required';
+      try {
+        const miTranscription = await transcribeForPlanning({
+          mediaUrl,
+          fileName,
+          contentType,
+          mediaType: 'video',
+          outputLanguage: miSubtitleLang,
+        });
+        const miWindow = selectRenderWindow(miTranscription, MAX_RENDER_WINDOW_SECONDS);
+        if (miWindow.durationSeconds >= 4) {
+          durationSeconds = miWindow.durationSeconds;
+          mediaTrimStartSeconds = miWindow.trimStartSeconds;
+          miCaptions = buildCompareCaptionsFromGroq(miWindow)
+            .map((c) => ({
+              start: Math.max(0, Number(c.start)),
+              end: Math.min(durationSeconds, Number(c.end)),
+              text: cleanTextForRender(String(c.text), 90),
+            }))
+            .filter((c) => Number.isFinite(c.start) && Number.isFinite(c.end) && c.end > c.start && c.text);
+          miImageTimings = planMultiImageTimings(miCaptions, finalImageUrls.length, durationSeconds);
+          miTranscriptSource = 'groq';
+        }
+        console.log('[MULTI_IMAGES_VIDEO] transcription', {source: miTranscriptSource, captions: miCaptions.length, images: finalImageUrls.length, durationSeconds});
+      } catch (miErr) {
+        console.error('[MULTI_IMAGES_VIDEO] transcription failed — falling back to even split:', miErr instanceof Error ? miErr.message : miErr);
+      }
 
       const inputProps: Record<string, unknown> = {
         mediaSrc: mediaUrl,
         mediaType: 'video',
-        mediaTrimStartSeconds: 0,
+        mediaTrimStartSeconds,
         sourceAudioVolume: 1,
         durationSeconds,
         sourceDurationSeconds: durationSeconds,
         title: multiTitle,
         imageSources: finalImageUrls,
+        imageTimings: miImageTimings,
+        captions: miCaptions,
         templateName,
         template: templateName,
         compositionId: composition,
@@ -422,6 +704,13 @@ export async function POST(request: Request) {
 
       console.log('[MULTI_IMAGES_VIDEO] render start', { mode, templateName, composition, durationSeconds, imageCount: finalImageUrls.length });
       const render = await startRenderWithCapacityRetry(renderRequest);
+      await reserveAcceptedRenderUsage({
+        userId,
+        renderId: render.renderId,
+        creditUnits: requestedCreditUnits ?? calculateRenderCreditUnits('multiImagesVideo'),
+        mode,
+        title: multiTitle,
+      });
       markTiming('render_start_ms');
 
       return NextResponse.json({
@@ -435,15 +724,17 @@ export async function POST(request: Request) {
         design: 'Multi Images Video',
         mode,
         templateName,
-        transcriptSource: 'not-required',
+        transcriptSource: miTranscriptSource,
         access,
+        creditUnits: requestedCreditUnits,
+        creditCost: formatCreditUnits(requestedCreditUnits ?? calculateRenderCreditUnits('multiImagesVideo')),
         retentionHours: 48,
       });
     }
 
     // ── LONG VIDEO CLIPS FLOW (transcribe → pick best moments → multi-render) ──
     if (mode === 'longVideoClips') {
-      const requestedClipCount = Math.max(1, Math.min(10, readFiniteNumber(body.clipCount, 3)));
+      const selectedClipCount = requestedClipCount ?? 3;
       const requestedClipDuration = [15, 30, 60].includes(readFiniteNumber(body.clipDuration, 30))
         ? readFiniteNumber(body.clipDuration, 30)
         : 30;
@@ -486,7 +777,7 @@ export async function POST(request: Request) {
         segments: allSegments,
         totalDurationSeconds: totalDuration,
         clipDurationSeconds: requestedClipDuration,
-        clipCount: requestedClipCount,
+        clipCount: selectedClipCount,
       });
       markTiming('clip_selection_ms');
 
@@ -500,13 +791,17 @@ export async function POST(request: Request) {
       }
 
       // Caption style from request
+      const clipCreditUnits = calculateRenderCreditUnits('longVideoClips', {clipCount: bestClips.length});
+      const firstClipCreditUnits = calculateRenderCreditUnits('longVideoClips', {clipCount: 1});
+      const additionalClipCreditUnits = calculateRenderCreditUnits('longVideoClips', {clipCount: 2}) - firstClipCreditUnits;
+      // Caption style from request
       const clipCaptionStyle = readString(body.captionStyle) || 'Studio Clean';
       const clipCaptionPreset = getSubtitlePreset(clipCaptionStyle);
 
       // Render each clip as a separate Lambda job
       const renderResults: Array<{clipIndex: number; renderId: string; bucketName: string; outName: string; startSeconds: number; endSeconds: number}> = [];
 
-      for (const clip of bestClips) {
+      for (const [clipPosition, clip] of bestClips.entries()) {
         // Build captions for this clip window
         const clipWords = allWords.filter((w: any) => w.start >= clip.startSeconds && w.end <= clip.endSeconds);
         const clipCaptions = buildCaptionsFromWords(clipWords, clip.startSeconds);
@@ -555,6 +850,13 @@ export async function POST(request: Request) {
         };
 
         const clipRender = await startRenderWithCapacityRetry(clipRenderRequest);
+        await reserveAcceptedRenderUsage({
+          userId,
+          renderId: clipRender.renderId,
+          creditUnits: clipPosition === 0 ? firstClipCreditUnits : additionalClipCreditUnits,
+          mode,
+          title: `Long Video Clip ${clipPosition + 1}`,
+        });
         renderResults.push({
           clipIndex: clip.index,
           renderId: clipRender.renderId,
@@ -595,6 +897,8 @@ export async function POST(request: Request) {
           endSeconds: r.endSeconds,
         })),
         access,
+        creditUnits: clipCreditUnits,
+        creditCost: formatCreditUnits(clipCreditUnits),
         retentionHours: 48,
       });
     }
@@ -663,7 +967,8 @@ export async function POST(request: Request) {
 
     // Subtitles: only English/Hinglish supported (no paid translation APIs)
     // Groq handles both natively without external translation
-    const renderWindow = selectRenderWindow(transcription);
+    const maxRenderSeconds = getMaxRenderWindowSecondsForTemplate(templateName);
+    const renderWindow = selectRenderWindow(transcription, maxRenderSeconds);
     let plan: ReturnType<typeof validateAndRepairReelPlan>;
     try {
       plan = validateAndRepairReelPlan(await createReelPlan({
@@ -755,21 +1060,30 @@ export async function POST(request: Request) {
       ...(mode === 'compare'
         ? await (async () => {
             const finalCaptions = previewCaptions
-              ? previewCaptions.map((c) => ({start: Number(c.start), end: Number(c.end), text: String(c.text), words: Array.isArray(c.words) ? c.words : undefined}))
+              ? previewCaptions
+                  .map((caption) => ({
+                    start: Math.max(0, Number(caption.start)),
+                    end: Math.min(renderWindow.durationSeconds, Number(caption.end)),
+                    text: cleanTextForRender(String(caption.text), 100),
+                    words: Array.isArray(caption.words) ? caption.words : undefined,
+                  }))
+                  .filter((caption) => Number.isFinite(caption.start) && Number.isFinite(caption.end) && caption.end > caption.start && caption.text)
               : buildCompareCaptionsFromGroq(renderWindow);
             const rawOverlayTimeline = previewOverlayTimeline
               ? previewOverlayTimeline.map((item: unknown, index: number) => {
                   const overlay = item && typeof item === 'object' ? item as Record<string, unknown> : {};
                   const start = Number(overlay.start ?? finalCaptions[index]?.start ?? 0);
+                  const id = readString(overlay.id) || `compare-pose-${index + 1}`;
+                  const previewSticker = previewStickerOverrides.get(id);
                   return {
-                    id: readString(overlay.id) || `compare-beat-${index + 1}`,
+                    id,
                     start,
                     end: Number(overlay.end ?? finalCaptions[index]?.end ?? (start + 2.5)),
                     text: readString(overlay.text || overlay.body || finalCaptions[index]?.text),
                     body: readString(overlay.body || overlay.text || finalCaptions[index]?.text),
                     title: readString(overlay.title),
-                    stickerPose: readString(overlay.stickerPose || overlay.pose) || undefined,
-                    pose: readString(overlay.pose || overlay.stickerPose) || undefined,
+                    stickerPose: readString(previewSticker?.pose || overlay.stickerPose || overlay.pose) || undefined,
+                    pose: readString(previewSticker?.pose || overlay.pose || overlay.stickerPose) || undefined,
                   };
                 })
               : plan.renderProps?.overlayTimeline;
@@ -781,18 +1095,23 @@ export async function POST(request: Request) {
               compareRightTitleValue,
             );
 
-            // ── AI Sticker Planner: overrides keyword-based poses with intentional AI-planned ones ──
-            const stickerPlanResult = await planCompareStickers({
-              transcript: renderWindow.transcript,
-              segments: finalCaptions.map((c) => ({ start: c.start, end: c.end, text: c.text })),
-              leftTitle: compareLeftTitleValue,
-              rightTitle: compareRightTitleValue,
-              durationSeconds: renderWindow.durationSeconds,
+            const hasApprovedPreviewTimeline = Boolean(previewCaptions?.length || previewOverlayTimeline?.length || previewStickers?.length);
+            const plannedOverlayTimeline = hasApprovedPreviewTimeline
+              ? finalOverlayTimeline
+              : applyStickerPlanToOverlays(
+                  finalOverlayTimeline,
+                  (await planCompareStickers({
+                    transcript: renderWindow.transcript,
+                    segments: finalCaptions.map((c) => ({start: c.start, end: c.end, text: c.text})),
+                    leftTitle: compareLeftTitleValue,
+                    rightTitle: compareRightTitleValue,
+                    durationSeconds: renderWindow.durationSeconds,
+                  })).plan,
+                );
+            console.log('[COMPARE_STICKER_PLANNER]', {
+              source: hasApprovedPreviewTimeline ? 'preview-approved' : 'fallback',
+              overlayCount: plannedOverlayTimeline.length,
             });
-
-            // Apply AI plan poses to the overlay timeline
-            const aiPlannedOverlayTimeline = applyStickerPlanToOverlays(finalOverlayTimeline, stickerPlanResult.plan);
-            console.log('[COMPARE_STICKER_PLANNER]', { source: stickerPlanResult.source, poseCount: stickerPlanResult.plan.length, overlayCount: aiPlannedOverlayTimeline.length });
 
             return {
             audioUrl: planningMedia.mediaUrl,
@@ -805,6 +1124,9 @@ export async function POST(request: Request) {
             stickerOffsetX: Number(body.stickerOffsetX) || 0,
             stickerOffsetY: Number(body.stickerOffsetY) || 0,
             creatorHandle: readString(body.creatorHandle || body.handle || body.channelName) || '@itnavideo',
+            themeId: resolveCompareTheme(readString(body.compareTheme || body.themeId)),
+            tone: resolveCompareTone(readString(body.compareTone || body.tone)),
+            winner: resolveCompareWinner(readString(body.compareWinner || body.winner)),
             compareLeftTitle: readString(body.compareLeftTitle || body.leftTitle || body.leftLabel) || 'Left',
             compareRightTitle: readString(body.compareRightTitle || body.rightTitle || body.rightLabel) || 'Right',
             leftTitle: readString(body.compareLeftTitle || body.leftTitle || body.leftLabel) || 'Left',
@@ -812,7 +1134,7 @@ export async function POST(request: Request) {
             imageSources: comparisonImageUrls,
             captions: finalCaptions,
             transcriptSegments: finalCaptions,
-            overlayTimeline: aiPlannedOverlayTimeline,
+            overlayTimeline: plannedOverlayTimeline,
           };
           })()
         : {}),
@@ -849,24 +1171,74 @@ export async function POST(request: Request) {
             };
           })()
         : {}),
+      ...(mode === 'captionStudio'
+        ? (() => {
+            const studioCaptions = buildCompareCaptionsFromGroq(renderWindow);
+            const finalCaptions = studioCaptions.length > 0
+              ? studioCaptions
+              : (plan.renderProps?.captions || []).map((c: any) => ({start: c.start, end: c.end, text: c.text})).filter((c: any) => c.text);
+            const durationSec = renderWindow.durationSeconds || transcription.durationSeconds || MAX_AUTO_CAPTION_SECONDS;
+            const s = (body.captionStudioSettings && typeof body.captionStudioSettings === 'object')
+              ? body.captionStudioSettings as Record<string, unknown>
+              : {};
+            return {
+              captions: finalCaptions,
+              subtitleChunks: finalCaptions,
+              transcriptSegments: renderWindow.segments || [],
+              transcript: renderWindow.transcript,
+              sourceScript: renderWindow.transcript,
+              backgroundMusic: false,
+              backgroundMusicSrc: '',
+              durationSeconds: durationSec,
+              overlayTimeline: [],
+              assetTimeline: [],
+              // Caption Studio manual primitives — pass-through server side
+              fontFamily: readString(s.fontFamily) || 'Inter, sans-serif',
+              fontSizePx: Number.isFinite(Number(s.fontSizePx)) ? Number(s.fontSizePx) : 72,
+              fontWeight: Number.isFinite(Number(s.fontWeight)) ? Number(s.fontWeight) : 800,
+              italic: Boolean(s.italic),
+              textCase: readString(s.textCase) || 'as-is',
+              letterSpacingEm: Number.isFinite(Number(s.letterSpacingEm)) ? Number(s.letterSpacingEm) : 0,
+              lineHeight: Number.isFinite(Number(s.lineHeight)) ? Number(s.lineHeight) : 1.2,
+              textColor: readString(s.textColor) || '#FFFFFF',
+              activeWordColor: readString(s.activeWordColor) || '#22D3EE',
+              backgroundColor: readString(s.backgroundColor) || '#000000',
+              backgroundOpacity: Number.isFinite(Number(s.backgroundOpacity)) ? Number(s.backgroundOpacity) : 0.6,
+              backgroundShape: readString(s.backgroundShape) || 'pill',
+              paddingPx: Number.isFinite(Number(s.paddingPx)) ? Number(s.paddingPx) : 24,
+              strokeWidthPx: Number.isFinite(Number(s.strokeWidthPx)) ? Number(s.strokeWidthPx) : 0,
+              strokeColor: readString(s.strokeColor) || '#000000',
+              shadow: readString(s.shadow) || 'soft',
+              rotationDeg: Number.isFinite(Number(s.rotationDeg)) ? Number(s.rotationDeg) : 0,
+              position: readString(s.position) || 'bottom',
+              horizontalAlign: readString(s.horizontalAlign) || 'center',
+              maxWidthPercent: Number.isFinite(Number(s.maxWidthPercent)) ? Number(s.maxWidthPercent) : 80,
+              entryAnimation: readString(s.entryAnimation) || 'slide-up',
+              emphasisMode: readString(s.emphasisMode) || 'color',
+              wordsPerGroup: Number.isFinite(Number(s.wordsPerGroup)) ? Number(s.wordsPerGroup) : 4,
+            };
+          })()
+        : {}),
       ...(mode === 'whiteboardVideo'
         ? await (async () => {
             const wbCaptions = buildCompareCaptionsFromGroq(renderWindow);
+            const wbBoard = resolveWhiteboardBoard(readString(body.whiteboardBoard));
             const wbPlan = await planWhiteboardVideo({
               transcript: renderWindow.transcript,
               segments: wbCaptions.map((c) => ({ start: c.start, end: c.end, text: c.text })),
               durationSeconds: renderWindow.durationSeconds,
               topicTitle: topicTitle || undefined,
+              boardStyle: wbBoard,
             });
-            console.log('[WHITEBOARD_PLANNER]', { source: wbPlan.source, title: wbPlan.title, pointCount: wbPlan.points.length });
+            console.log('[WHITEBOARD_PLANNER]', { source: wbPlan.source, title: wbPlan.title, pointCount: wbPlan.points.length, board: wbBoard });
             return {
               title: wbPlan.title,
               titleColor: wbPlan.titleColor,
               points: wbPlan.points,
               conclusion: wbPlan.conclusion,
               conclusionTime: wbPlan.conclusionTime,
-              boardStyle: readString(body.boardStyle) || 'mobile-stand',
-              captions: wbCaptions,
+              boardStyle: wbBoard,
+              captions: [],
               durationSeconds: renderWindow.durationSeconds,
               transcript: renderWindow.transcript,
               overlayTimeline: [],
@@ -888,6 +1260,7 @@ export async function POST(request: Request) {
               keywords: typoPlan.keywords,
               typographyStyle: readString(body.typographyStyle) || 'silver-chrome',
               captions: typoCaptions,
+              showCaptions: body.typographyShowCaptions !== false,
               durationSeconds: renderWindow.durationSeconds,
               transcript: renderWindow.transcript,
               overlayTimeline: [],
@@ -909,6 +1282,7 @@ export async function POST(request: Request) {
         ? body.captionShowBackground
         : Boolean(captionBackgroundColorValue || captionPreset?.backgroundColor),
       videoLayout: mode === 'autoCaption' ? 'fullscreen' : readString(body.videoLayout) || 'fullscreen',
+      watermark: mode === 'autoCaption' && Boolean(access?.watermark),
       progressStyle: mode === 'autoCaption' ? 'none' : readString(body.progressStyle) || 'glow',
       wordClickSound: mode === 'autoCaption' ? false : body.wordClickSound !== false,
       mediaTrimStartSeconds: renderWindow.trimStartSeconds,
@@ -926,12 +1300,17 @@ export async function POST(request: Request) {
       templateName,
       template: templateName,
       compositionId: composition,
-      backgroundMusic: mode === 'autoCaption' ? false : plan.renderProps?.backgroundMusic !== false,
-      backgroundMusicMood: readString(plan.renderProps?.backgroundMusicMood) || music.mood,
-      backgroundMusicSrc: readString(plan.renderProps?.backgroundMusicSrc) || music.src,
-      backgroundMusicVolume: Number.isFinite(Number(plan.renderProps?.backgroundMusicVolume))
-        ? Math.min(0.04, Math.max(0.012, Number(plan.renderProps?.backgroundMusicVolume)))
-        : music.volume,
+      // Compare and Typography preserve the uploaded voiceover without generated background music.
+      ...(mode === 'typographyVideo' || mode === 'compare'
+        ? {backgroundMusic: false, backgroundMusicSrc: ''}
+        : {
+            backgroundMusic: mode === 'autoCaption' ? false : plan.renderProps?.backgroundMusic !== false,
+            backgroundMusicMood: readString(plan.renderProps?.backgroundMusicMood) || music.mood,
+            backgroundMusicSrc: readString(plan.renderProps?.backgroundMusicSrc) || music.src,
+            backgroundMusicVolume: Number.isFinite(Number(plan.renderProps?.backgroundMusicVolume))
+              ? Math.min(0.04, Math.max(0.012, Number(plan.renderProps?.backgroundMusicVolume)))
+              : music.volume,
+          }),
       sourceAudioVolume: 1.35,
       subtitleLanguagePolicy: SUBTITLE_LANGUAGE_POLICY,
       backgroundMusicCategory: readString(plan.renderProps?.backgroundMusicCategory) || music.category,
@@ -940,8 +1319,6 @@ export async function POST(request: Request) {
 
       ...(mode === 'compare'
         ? {
-            captions: buildCompareCaptionsFromGroq(renderWindow),
-            transcriptSegments: renderWindow.segments || [],
             transcript: renderWindow.transcript,
             sourceScript: renderWindow.transcript,
           }
@@ -1028,6 +1405,13 @@ export async function POST(request: Request) {
       logLevel: 'info',
     };
     const render = await startRenderWithCapacityRetry(renderRequest);
+    await reserveAcceptedRenderUsage({
+      userId,
+      renderId: render.renderId,
+      creditUnits: requestedCreditUnits ?? calculateRenderCreditUnits(mode),
+      mode,
+      title: readString(imagePreflight.inputProps.topicTitle) || titleFromFile(fileName) || 'Itnavideo reel',
+    });
 
     return NextResponse.json({
       ok: true,
@@ -1049,6 +1433,8 @@ export async function POST(request: Request) {
       renderWindowSource: renderWindow.source,
       planningMediaSource: planningMedia.clipped ? 'first-60s-clip' : 'original-upload',
       access,
+      creditUnits: requestedCreditUnits,
+      creditCost: formatCreditUnits(requestedCreditUnits ?? calculateRenderCreditUnits(mode)),
       retentionHours: 48,
       note: 'Render started. Poll /api/reels/jobs/status for progress.',
       _renderVersion: 'v2026-06-19-subtitleRenderer',
@@ -2091,14 +2477,24 @@ function buildCompareCaptionsFromGroq(renderWindow: {
     }));
 
   if (words.length) {
-    const captions: Array<{start: number; end: number; text: string; words?: Array<{word: string; start: number; end: number}>}> = [];
+    type CaptionGroup = {start: number; end: number; text: string; words?: Array<{word: string; start: number; end: number}>};
+    const captions: CaptionGroup[] = [];
     let group: typeof words = [];
+
+    // Grouping tuned for natural, readable social captions:
+    //  - break on sentence-ending punctuation (. ! ?)
+    //  - break on a clear speech pause (gap between words)
+    //  - cap words, on-screen duration, and character width (long Hinglish words)
+    const MAX_WORDS = 5;
+    const MAX_SECONDS = 1.6;
+    const MAX_CHARS = 30;
+    const PAUSE_GAP_SECONDS = 0.5;
 
     const flush = () => {
       if (!group.length) return;
       captions.push({
         start: roundSeconds(group[0].start),
-        end: roundSeconds(Math.max(group[group.length - 1].end, group[0].start + 0.65)),
+        end: roundSeconds(Math.max(group[group.length - 1].end, group[0].start + 0.55)),
         text: group.map((item) => item.word).join(' '),
         words: group.map((item) => ({word: item.word, start: roundSeconds(item.start), end: roundSeconds(item.end)})),
       });
@@ -2106,14 +2502,37 @@ function buildCompareCaptionsFromGroq(renderWindow: {
     };
 
     for (const word of words) {
-      const groupStart = group[0]?.start ?? word.start;
-      const tooManyWords = group.length >= 5;
-      const tooLong = word.end - groupStart > 1.55;
-      if (group.length && (tooManyWords || tooLong)) flush();
+      if (group.length) {
+        const groupStart = group[0].start;
+        const lastWord = group[group.length - 1];
+        const currentChars = group.reduce((total, item) => total + item.word.length + 1, 0);
+        const endsSentence = /[.!?]$/.test(lastWord.word);
+        const pause = word.start - lastWord.end;
+        const shouldBreak =
+          group.length >= MAX_WORDS ||
+          word.end - groupStart > MAX_SECONDS ||
+          currentChars + word.word.length + 1 > MAX_CHARS ||
+          pause > PAUSE_GAP_SECONDS ||
+          endsSentence;
+        if (shouldBreak) flush();
+      }
       group.push(word);
     }
-
     flush();
+
+    // Merge a tiny orphan final group (single short word) into the previous caption
+    if (captions.length >= 2) {
+      const last = captions[captions.length - 1];
+      const lastWordCount = last.words?.length ?? last.text.split(/\s+/).length;
+      if (lastWordCount <= 1 && last.end - last.start < 0.6) {
+        const prev = captions[captions.length - 2];
+        prev.end = last.end;
+        prev.text = `${prev.text} ${last.text}`.trim();
+        if (prev.words && last.words) prev.words = [...prev.words, ...last.words];
+        captions.pop();
+      }
+    }
+
     return captions.filter((caption) => caption.text.trim());
   }
 
@@ -2257,7 +2676,60 @@ function selectBackgroundMusic({
   };
 }
 
-function selectRenderWindow(transcription: PlanningTranscription): {
+/**
+ * Distributes N images across the narration so each image change lands on a natural
+ * speech pause (caption boundary) nearest to an even split. Returns per-image
+ * {start,end} windows in seconds. Falls back to an even split when boundaries are sparse.
+ */
+function planMultiImageTimings(
+  captions: Array<{start: number; end: number}>,
+  imageCount: number,
+  durationSeconds: number,
+): Array<{start: number; end: number}> {
+  if (imageCount <= 1) return [{start: 0, end: durationSeconds}];
+  const minGap = Math.max(1.2, durationSeconds / (imageCount * 3));
+  const boundaries = Array.from(
+    new Set(
+      (captions || [])
+        .map((c) => Number(c.end))
+        .filter((e) => Number.isFinite(e) && e > minGap && e < durationSeconds - minGap),
+    ),
+  ).sort((a, b) => a - b);
+
+  const cuts: number[] = [];
+  let prev = 0;
+  for (let k = 1; k < imageCount; k += 1) {
+    const target = (k * durationSeconds) / imageCount;
+    let best = target;
+    let bestDist = Infinity;
+    for (const b of boundaries) {
+      if (b <= prev + minGap) continue;
+      const d = Math.abs(b - target);
+      if (d < bestDist) { bestDist = d; best = b; }
+    }
+    if (!(best > prev + minGap) || best > durationSeconds - minGap) {
+      best = Math.min(durationSeconds - minGap * (imageCount - k), Math.max(prev + minGap, target));
+    }
+    cuts.push(best);
+    prev = best;
+  }
+
+  const points = [0, ...cuts, durationSeconds];
+  const windows = Array.from({length: imageCount}, (_, i) => ({
+    start: Number(points[i].toFixed(2)),
+    end: Number(points[i + 1].toFixed(2)),
+  }));
+  const ok = windows.every((w, i) => w.end > w.start && (i === 0 || w.start >= windows[i - 1].start));
+  if (!ok) {
+    return Array.from({length: imageCount}, (_, i) => ({
+      start: Number(((i * durationSeconds) / imageCount).toFixed(2)),
+      end: Number((((i + 1) * durationSeconds) / imageCount).toFixed(2)),
+    }));
+  }
+  return windows;
+}
+
+function selectRenderWindow(transcription: PlanningTranscription, maxSeconds: number = MAX_RENDER_WINDOW_SECONDS): {
   transcript: string;
   words?: ReelWord[];
   segments?: ReelTranscriptSegment[];
@@ -2266,13 +2738,13 @@ function selectRenderWindow(transcription: PlanningTranscription): {
   source: 'voice-activity' | 'timestamp-segment' | 'start';
 } {
   const sourceDuration = Number.isFinite(transcription.durationSeconds || 0) && (transcription.durationSeconds || 0) > 0
-    ? transcription.durationSeconds || MAX_RENDER_WINDOW_SECONDS
-    : MAX_RENDER_WINDOW_SECONDS;
+    ? transcription.durationSeconds || maxSeconds
+    : maxSeconds;
   const speechActivity = findFirstSpeechActivity(transcription);
-  const maxTrimStart = Math.max(0, sourceDuration - MAX_RENDER_WINDOW_SECONDS);
+  const maxTrimStart = Math.max(0, sourceDuration - maxSeconds);
   const trimStartSeconds = Math.min(maxTrimStart, Math.max(0, speechActivity.startSeconds - SPEECH_LEAD_SECONDS));
-  const trimEndSeconds = Math.min(sourceDuration, trimStartSeconds + MAX_RENDER_WINDOW_SECONDS);
-  const durationSeconds = Math.max(1, Math.min(MAX_RENDER_WINDOW_SECONDS, trimEndSeconds - trimStartSeconds));
+  const trimEndSeconds = Math.min(sourceDuration, trimStartSeconds + maxSeconds);
+  const durationSeconds = Math.max(1, Math.min(maxSeconds, trimEndSeconds - trimStartSeconds));
   const words = shiftWordsToWindow(getTranscriptionWords(transcription), trimStartSeconds, trimEndSeconds);
   const segments = shiftSegmentsToWindow(getTranscriptionSegments(transcription), trimStartSeconds, trimEndSeconds);
 
@@ -2398,12 +2870,13 @@ function resolveTemplateNameFromRequest(value: string): ReelTemplateName | null 
 
 function toMode(value: string): ReelMode | null {
   const normalized = value.toLowerCase();
+  if (normalized.includes('long-form-captioned') || normalized.includes('longformcaptioned') || normalized.includes('long-video-captioned')) return 'longFormCaptionedVideo';
   if (normalized.includes('compare') || normalized.includes('comparison') || normalized === 'vs') return 'compare';
+  if (normalized.includes('long-video-clip') || normalized.includes('longvideoclip') || normalized.includes('video-clips')) return 'longVideoClips';
   if (normalized.includes('long-video') || normalized.includes('longvideo') || normalized.includes('promo')) return 'longVideoPromo';
   if (normalized.includes('whiteboard') || normalized.includes('white-board')) return 'whiteboardVideo';
   if (normalized.includes('typography') || normalized.includes('typo-video') || normalized.includes('bold-reel')) return 'typographyVideo';
   if (normalized.includes('multi-image') || normalized.includes('multiimage') || normalized.includes('multi-images')) return 'multiImagesVideo';
-  if (normalized.includes('long-video-clip') || normalized.includes('longvideoclip') || normalized.includes('video-clips')) return 'longVideoClips';
   if (normalized.includes('auto-caption') || normalized.includes('autocaption')) return 'autoCaption';
   if (normalized.includes('caption') || normalized.includes('subtitle')) return 'autoCaption';
   return null;
@@ -2416,6 +2889,7 @@ function getUploadedMediaType({mode, contentType}: {mode: ReelMode; contentType:
   if (mode === 'typographyVideo') return 'video';
   if (mode === 'multiImagesVideo') return 'video';
   if (mode === 'longVideoClips') return 'video';
+  if (mode === 'longFormCaptionedVideo') return 'video';
   return contentType.startsWith('audio/') ? 'audio' : 'video';
 }
 
@@ -2465,6 +2939,11 @@ function titleFromTranscript(value: string) {
 
 function readString(value: unknown) {
   return typeof value === 'string' ? value.trim() : '';
+}
+
+function cleanTextForRender(value: string, maxLength: number) {
+  const text = value.replace(/\s+/g, ' ').trim();
+  return text.length <= maxLength ? text : `${text.slice(0, Math.max(0, maxLength - 1)).trim()}…`;
 }
 
 function readFiniteNumber(value: unknown, fallback: number) {
@@ -2525,10 +3004,17 @@ function validateBeforeRender({
   }
 
   const renderDuration = readPositiveNumber(inputProps.durationSeconds) ?? readPositiveNumber(inputProps.renderWindowSeconds);
-  if (!renderDuration || renderDuration > MAX_RENDER_WINDOW_SECONDS) {
+  const maximumDuration = templateName === 'LONG_FORM_CAPTIONED_VIDEO'
+    ? LONG_FORM_CAPTION_MAX_SECONDS
+    : templateName === 'AUTO_CAPTION_REEL' || templateName === 'CAPTION_STUDIO'
+      ? MAX_AUTO_CAPTION_SECONDS
+      : MAX_RENDER_WINDOW_SECONDS;
+  if (!renderDuration || renderDuration > maximumDuration) {
     return {
       reasonCode: 'INVALID_RENDER_DURATION',
-      message: 'Render duration must be between 1 second and 1 minute.',
+      message: templateName === 'LONG_FORM_CAPTIONED_VIDEO'
+        ? 'Long-form Captioned Video supports videos up to 10 minutes.'
+        : 'Render duration must be between 1 second and 1 minute.',
     };
   }
 
@@ -2566,6 +3052,7 @@ function validateBeforeRender({
 function humanTemplateName(templateName: string) {
   if (templateName === 'AUTO_CAPTION_REEL') return 'Auto Caption Video';
   if (templateName === 'LONG_VIDEO_PROMO') return 'Long Video Promo';
+  if (templateName === 'LONG_FORM_CAPTIONED_VIDEO') return 'Long-form Captioned Video';
   if (templateName === 'comparisonImages') return 'Compare Explainer Video';
   if (templateName === 'WHITEBOARD_VIDEO') return 'Whiteboard Video';
   if (templateName === 'TYPOGRAPHY_VIDEO') return 'Typography Video';

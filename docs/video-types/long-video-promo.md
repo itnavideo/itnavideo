@@ -49,26 +49,25 @@ Creators have long videos but struggle to promote them on short-form platforms (
 | Input | Type | Required | Notes |
 |-------|------|----------|-------|
 | Thumbnail | Image (PNG/JPG/WebP) | Yes | 16:9 recommended (1280×720) |
-| Title | Text | Yes | Single dashboard title field, max 60 characters displayed |
-| Promo Clip | Video | Yes | The actual video clip to promote (10-60s) |
+| Title | Text | Yes | Single dashboard title field, max 80 characters displayed |
+| Promo Clip | Video | Yes | The actual video clip to promote (up to 90s) |
 
 ## Optional User Inputs
 
-None. Long Video Promo intentionally stays simple: thumbnail, title, and promo video only.
+| Input | Type | Notes |
+|-------|------|-------|
+| Call-to-action text | Text | Optional, max 40 chars. Shown on the CTA button. Default: "Watch the full video" with subtext "Link in bio". |
 
 ## Inputs NOT Collected (Removed)
 
-These were previously in the form but are no longer rendered:
-- Channel name
-- Subscriber count
-- CTA text
-- Channel logo
-- Chips/badges
-- Captions/subtitles
-- Subtitle language
+These were previously in the form and are still not rendered:
+- Channel name / channel logo / subscriber count
+- Captions / subtitles / subtitle language
 - Duration badge
 - Background music
 - Separate reel topic/title field
+
+> **2026 traffic pass update:** Earlier this template deliberately had *no* CTA, badges, or arrows. That was reversed on purpose — a traffic-driving promo must tell the viewer where to watch the full video. It now renders a **FULL VIDEO** badge (thumbnail), a **PREVIEW** chip (clip), an animated **up-arrow**, and a **CTA pill** ("Watch the full video · Link in bio").
 
 ---
 
@@ -78,9 +77,9 @@ These were previously in the form but are no longer rendered:
 |----------|-------|
 | Default size | 1080×1920 (9:16) |
 | Supported aspect | 9:16 only (currently) |
-| Max duration | 60 seconds |
+| Max duration | 90 seconds |
 | Min duration | 8 seconds |
-| Duration source | Browser-read uploaded media duration, capped to 60s |
+| Duration source | Browser-read uploaded media duration, capped to 90s |
 | Export format | MP4 (H.264 + AAC) |
 | Audio handling | User's uploaded video audio plays at full volume |
 | Background music | Not used |
@@ -124,16 +123,23 @@ The Video Type renders exactly 3 elements vertically, but only the top thumbnail
 - The lower video should sit in a borderless cinematic media stage with blurred fill behind the preserved-aspect clip
 
 ### Title Handling
-- Max 60 characters (truncated with ellipsis)
-- Font size scales: >40 chars = 38px, >28 chars = 44px, else 50px
+- Max 80 characters (truncated with ellipsis) — matches the dashboard input limit
+- Font size scales: >56 chars = 34px, >40 chars = 38px, >28 chars = 44px, else 50px
+- Self-hosted Montserrat (Lambda-safe) via `resolveFont` — never system-ui
 - Max 2 lines visible (`maxHeight: 2.4em`, `overflow: hidden`)
 - No title should ever go outside the screen
+
+### Traffic elements (2026)
+- **FULL VIDEO badge** — red pill, top-left of the thumbnail; clarifies the thumbnail is the full long video.
+- **PREVIEW chip** — accent-outlined pill, top-left of the lower clip; signals it is a teaser.
+- **CTA pill** — white rounded button near the bottom with a red play icon, the CTA text (Anton), and subtext ("Link in bio"). Gentle continuous pulse.
+- **Up-arrow** — animated double-chevron above the CTA that bounces upward, pointing toward the full video / bio. Shown for all aspect ratios (not portrait-only).
 
 ### Video Aspect Handling
 - 16:9 clip: `objectFit: contain` (fits within frame, no stretching)
 - 4:5 clip: preserved in a 4:5 frame, anchored under the title
 - Square clip: preserved in a 1:1 frame, anchored under the title
-- Vertical clip: `objectFit: cover` (fills the space, crops edges)
+- Vertical/reel clip: a conservative 2:3 hero crop with an upper-third focal position; this enlarges talking-head reels while protecting faces.
 - Background uses the uploaded thumbnail by default for speed; the uploaded video remains the promoted media
 - Empty areas around non-vertical clips must be filled with blurred video/thumbnail, not black gaps
 - Mixed aspect ratios should feel naturally placed rather than boxed
@@ -170,7 +176,7 @@ The Video Type renders exactly 3 elements vertically, but only the top thumbnail
 |---------|-----------|
 | Thumbnail | Slow zoom in (1.06 → 1.0), fade in 0-14 frames, shine sweep at frame 30-55 |
 | Title | Spring slide-up (24px → 0), fades in at frame 10-26 |
-| Video clip | Spring scale-in, gentle continuous float (sine wave) |
+| Video clip | Calm spring reveal into a large aspect-aware cinematic stage, followed by a subtle continuous float |
 | Thumbnail border | Very subtle glow pulse (0.4-0.7 opacity) |
 | Background | Static (blurred, no motion needed) |
 
@@ -180,11 +186,16 @@ Long Video Promo receives a deterministic `styleLock` on the fast path. The styl
 
 The renderer applies LUT-like grade consistency, subtle grain/vignette, media depth, and controlled Ken Burns movement. For stability, the default fast render decodes the uploaded clip only once and uses thumbnail-based blur layers instead of repeated video blur layers. Pacing should leave short breath moments after the title reveal before the promo clip becomes the main focus.
 
+### Traffic-element motion (2026)
+- CTA pill: spring entrance (~frame 30) + gentle continuous pulse.
+- Up-arrow: bounces vertically, points toward the full video / bio.
+- Play button on thumbnail: subtle attention pulse.
+- Badges/chip: quick fade-in on entrance.
+
 ### What Should NOT Animate
 - Background should not move or pulse
 - No particle effects
 - No spinning elements
-- No bouncing arrows or text
 - No typewriter effect on title (just fade/slide)
 
 ---
@@ -222,7 +233,8 @@ This Video Type is simple and uses a deterministic fast path.
 | Missing thumbnail | Dark gradient placeholder shown |
 | Missing title | "Watch Full Video" default |
 | Missing video clip | Thumbnail echo as placeholder with "▶ Promo clip area" label |
-| Long title (>60 chars) | Truncated with ellipsis |
+| Long title (>80 chars) | Truncated with ellipsis |
+| Missing CTA text | Defaults to "Watch the full video · Link in bio" |
 | 16:9 video uploaded | `objectFit: contain` — no stretching |
 | Vertical video uploaded | `objectFit: cover` — fills space |
 | Short video (<8s) | Duration clamped to minimum 8s |
@@ -259,13 +271,12 @@ This Video Type is simple and uses a deterministic fast path.
 
 - DO NOT add channel name, subscriber count, or subscribe button
 - DO NOT add background music by default (user's clip has its own audio)
-- DO NOT add "Full Guide" or "New Video" chips/badges
-- DO NOT add random CTA text the user didn't provide
 - DO NOT add decorative circles, particles, or glassmorphism
-- DO NOT force any text the user did not input
 - DO NOT stretch 16:9 content to fill 9:16 canvas
 - DO NOT use random stock images as background
 - DO NOT add loud or unrelated sound effects; SFX must be sparse and tied to actual reveal/motion events
+
+> The FULL VIDEO / PREVIEW badges, the up-arrow, and the default CTA pill are now **intentional** (traffic-driving). The CTA text is either the creator's optional input or the "Watch the full video · Link in bio" default — this is the one allowed default text.
 
 ## Video Type Value Proposition
 
@@ -277,3 +288,11 @@ The Video Type adds value through:
 5. **Duration awareness** — renders match clip length exactly
 
 NOT through extra clutter, random UI, or forced text.
+
+### Portrait focus behavior
+
+Portrait/reel clips use a larger, face-biased hero crop so the speaker occupies most of the lower stage instead of sitting in a narrow column between blurred side areas. The old portrait-only curved side cue was removed in favor of the universal bottom **up-arrow + CTA pill**, which appears for every aspect ratio and communicates the "watch the full video" action clearly.
+
+### Live preview (2026)
+
+The dashboard shows a CapCut-style sticky `@remotion/player` preview (`components/preview/LongVideoPromoPreview.tsx`) using the creator's real thumbnail, title, CTA text, and (if uploaded) the promo clip, so the layout, badges, arrow, and CTA pill are visible before spending the render.

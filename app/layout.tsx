@@ -10,7 +10,7 @@ import AppChrome from '@/components/layout/AppChrome';
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.itnavideo.com";
 const siteName = "Itnavideo";
 const siteDescription =
-  "Create AI explainer videos from audio or video. Itnavideo turns real speech into short vertical reels with creator video, subtitles, title, and support visuals.";
+  "Create polished short reels or long-form captioned videos from your uploads. Itnavideo adds timed captions while preserving original video and audio.";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   applicationName: siteName,
   title: {
-    default: "Itnavideo | AI Explainer Video Generator for Reels and Shorts",
+    default: "Itnavideo | AI Video Generator for Reels and Long-form Captions",
     template: "%s | Itnavideo",
   },
   description: siteDescription,
@@ -52,6 +52,10 @@ export const metadata: Metadata = {
     "AI subtitles for reels",
     "explainer video maker",
     "short form video generator",
+    "long-form captioned video",
+    "long video caption generator",
+    "YouTube subtitle generator",
+    "podcast caption generator",
   ],
   authors: [{ name: "Itnavideo" }],
   creator: "Itnavideo",

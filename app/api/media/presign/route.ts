@@ -48,7 +48,9 @@ export async function POST(request: Request) {
   }
 
   try {
-    const access = await getRenderAccessForUser(userId);
+    const access = await getRenderAccessForUser(userId, {
+      mode: videoTypeMode === 'autoCaption' ? 'autoCaption' : undefined,
+    });
     if (!access.allowed) {
       return NextResponse.json(
         {
@@ -91,13 +93,15 @@ function readString(value: unknown) {
 
 function isAllowedUploadForVideoType(videoTypeMode: string, contentType: string) {
   if (videoTypeMode === 'compare') return contentType.startsWith('audio/') || contentType.startsWith('image/');
-  if (videoTypeMode === 'autoCaption') return contentType.startsWith('video/');
+  if (videoTypeMode === 'autoCaption' || videoTypeMode === 'captionStudio' || videoTypeMode === 'longFormCaptionedVideo') return contentType.startsWith('video/');
   return contentType.startsWith('audio/') || contentType.startsWith('video/') || contentType.startsWith('image/');
 }
 
 function uploadErrorForVideoType(videoTypeMode: string) {
   if (videoTypeMode === 'compare') return 'Compare needs one audio file plus exactly 2 visuals.';
   if (videoTypeMode === 'autoCaption') return 'Auto Caption needs a video file with speech.';
+  if (videoTypeMode === 'captionStudio') return 'Caption Studio needs a video file with speech.';
+  if (videoTypeMode === 'longFormCaptionedVideo') return 'Long-form Captioned Video needs a video file with clear speech.';
   return 'This video type needs audio, video, or image upload.';
 }
 
@@ -109,9 +113,19 @@ function isAutoCaptionWorkflow(value: string) {
   return value === 'autocaption' || value === 'auto-caption' || value === 'auto-caption-reel' || value === 'caption' || value === 'subtitle';
 }
 
+function isCaptionStudioWorkflow(value: string) {
+  const normalized = value.toLowerCase().replace(/[-_\s]+/g, '');
+  return normalized === 'captionstudio' || normalized === 'customcaption' || normalized === 'customcaptions' || normalized === 'advancedcaption';
+}
+
 function isLongVideoPromoWorkflow(value: string) {
   const normalized = value.toLowerCase().replace(/[-_\s]+/g, '');
   return normalized === 'longvideopromo' || normalized === 'longvideopromotion' || normalized === 'promo';
+}
+
+function isLongFormCaptionedWorkflow(value: string) {
+  const normalized = value.toLowerCase().replace(/[-_\s]+/g, '');
+  return normalized === 'longformcaptionedvideo' || normalized === 'longformcaptioned' || normalized === 'longvideocaptioned';
 }
 
 function sanitizeUserFacingStatus(value: string) {
@@ -146,7 +160,9 @@ function resolvePresignVideoTypeMode(value: string): string {
   if (!value) return 'generic';
   if (isCompareWorkflow(value)) return 'compare';
   if (isAutoCaptionWorkflow(value)) return 'autoCaption';
+  if (isCaptionStudioWorkflow(value)) return 'captionStudio';
   if (isLongVideoPromoWorkflow(value)) return 'longVideoPromo';
+  if (isLongFormCaptionedWorkflow(value)) return 'longFormCaptionedVideo';
   return 'generic';
 }
 

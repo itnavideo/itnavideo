@@ -37,7 +37,10 @@ type WhiteboardVideoProps = {
   points?: WhiteboardPoint[];
   conclusion?: string;
   conclusionTime?: number;
-  boardStyle?: 'mobile-stand' | 'conference' | 'dark-modern';
+  boardStyle?: string;
+  /** Optional override for the board background image (used by the browser live preview,
+   *  since public/assets board images are not deployed to Vercel). */
+  boardImageUrl?: string;
   captions?: Array<{ start: number; end: number; text: string }>;
   captionPosition?: 'bottom' | 'none';
 };
@@ -72,77 +75,58 @@ type BoardConfig = {
   titleSize: number;
   pointSize: number;
   conclusionSize: number;
+  maxPoints: number;
+  maxTextRows: number;
+  maxCharsPerLine: number;
   cameraZoomMax: number;
 };
 
+// Each photo has a different writable area. Capacity is explicit so the renderer
+// can adapt to the selected board instead of treating every image as identical.
 const BOARD_CONFIGS: Record<string, BoardConfig> = {
   'mobile-stand': {
-    image: 'assets/reusable/images/whiteboard-photo-hd.png',
+    image: 'assets/reusable/images/whiteboard-photo-hd.jpg',
     safeZone: { top: '12%', left: '12%', right: '12%', bottom: '22%' },
-    titleSize: 54,
-    pointSize: 32,
-    conclusionSize: 36,
-    cameraZoomMax: 1.15,
+    titleSize: 54, pointSize: 32, conclusionSize: 36, maxPoints: 5, maxTextRows: 15, maxCharsPerLine: 31, cameraZoomMax: 1.025,
   },
   'conference': {
-    image: 'assets/reusable/images/whiteboard-conference.png',
+    image: 'assets/reusable/images/whiteboard-conference.jpg',
     safeZone: { top: '10%', left: '16%', right: '14%', bottom: '35%' },
-    titleSize: 44,
-    pointSize: 27,
-    conclusionSize: 30,
-    cameraZoomMax: 1.12,
+    titleSize: 44, pointSize: 27, conclusionSize: 30, maxPoints: 4, maxTextRows: 13, maxCharsPerLine: 24, cameraZoomMax: 1.018,
   },
   'dark-modern': {
-    image: 'assets/reusable/images/whiteboard-dark-modern.png',
+    image: 'assets/reusable/images/whiteboard-dark-modern.jpg',
     safeZone: { top: '14%', left: '14%', right: '14%', bottom: '38%' },
-    titleSize: 42,
-    pointSize: 26,
-    conclusionSize: 29,
-    cameraZoomMax: 1.10,
+    titleSize: 42, pointSize: 26, conclusionSize: 29, maxPoints: 4, maxTextRows: 13, maxCharsPerLine: 25, cameraZoomMax: 1.016,
   },
   'outdoor-street': {
-    image: 'assets/reusable/images/whiteboard-outdoor-street.png',
+    image: 'assets/reusable/images/whiteboard-outdoor-street.jpg',
     safeZone: { top: '10%', left: '12%', right: '12%', bottom: '24%' },
-    titleSize: 52,
-    pointSize: 31,
-    conclusionSize: 35,
-    cameraZoomMax: 1.14,
+    titleSize: 52, pointSize: 31, conclusionSize: 35, maxPoints: 5, maxTextRows: 14, maxCharsPerLine: 30, cameraZoomMax: 1.022,
   },
   'classroom': {
-    image: 'assets/reusable/images/whiteboard-classroom.png',
+    image: 'assets/reusable/images/whiteboard-classroom.jpg',
     safeZone: { top: '12%', left: '16%', right: '14%', bottom: '40%' },
-    titleSize: 42,
-    pointSize: 26,
-    conclusionSize: 29,
-    cameraZoomMax: 1.10,
+    titleSize: 42, pointSize: 26, conclusionSize: 29, maxPoints: 4, maxTextRows: 13, maxCharsPerLine: 24, cameraZoomMax: 1.016,
   },
   'coworking': {
-    image: 'assets/reusable/images/whiteboard-coworking.png',
+    image: 'assets/reusable/images/whiteboard-coworking.jpg',
     safeZone: { top: '10%', left: '13%', right: '13%', bottom: '24%' },
-    titleSize: 50,
-    pointSize: 30,
-    conclusionSize: 34,
-    cameraZoomMax: 1.13,
+    titleSize: 50, pointSize: 30, conclusionSize: 34, maxPoints: 5, maxTextRows: 15, maxCharsPerLine: 29, cameraZoomMax: 1.022,
   },
   'corporate-luxury': {
-    image: 'assets/reusable/images/whiteboard-corporate-luxury.png',
+    image: 'assets/reusable/images/whiteboard-corporate-luxury.jpg',
     safeZone: { top: '9%', left: '12%', right: '12%', bottom: '22%' },
-    titleSize: 52,
-    pointSize: 31,
-    conclusionSize: 35,
-    cameraZoomMax: 1.14,
+    titleSize: 48, pointSize: 30, conclusionSize: 34, maxPoints: 4, maxTextRows: 15, maxCharsPerLine: 28, cameraZoomMax: 1,
   },
   'person-writing': {
-    image: 'assets/reusable/images/whiteboard-person-writing.png',
+    image: 'assets/reusable/images/whiteboard-person-writing.jpg',
     safeZone: { top: '8%', left: '18%', right: '10%', bottom: '30%' },
-    titleSize: 40,
-    pointSize: 25,
-    conclusionSize: 28,
-    cameraZoomMax: 1.08,
+    titleSize: 40, pointSize: 25, conclusionSize: 28, maxPoints: 4, maxTextRows: 12, maxCharsPerLine: 22, cameraZoomMax: 1.012,
   },
 };
 
-const DEFAULT_BOARD = 'mobile-stand';
+const DEFAULT_BOARD = 'corporate-luxury';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -152,24 +136,110 @@ const resolveAsset = (value: string) => {
   return staticFile(value.replace(/^\/+/, ''));
 };
 
-// ── useWriteProgress Hook ─────────────────────────────────────────────────────
+// ── Layout and writing helpers ───────────────────────────────────────────────
 
-function useWriteProgress(text: string, startFrame: number, isTitle = false) {
+type RenderPoint = WhiteboardPoint & { displayText: string; lineCount: number };
+
+type RenderPlan = {
+  title: string;
+  titleLines: number;
+  points: RenderPoint[];
+  conclusion: string;
+  conclusionLines: number;
+  scale: number;
+};
+
+function clampText(text: string, maxChars: number) {
+  const clean = String(text || '').replace(/\s+/g, ' ').trim();
+  if (clean.length <= maxChars) return clean;
+  return `${clean.slice(0, Math.max(1, maxChars - 1)).trimEnd()}…`;
+}
+
+function splitLongToken(token: string, charsPerLine: number) {
+  if (token.length <= charsPerLine) return [token];
+  const parts: string[] = [];
+  for (let index = 0; index < token.length; index += charsPerLine) {
+    parts.push(token.slice(index, index + charsPerLine));
+  }
+  return parts;
+}
+
+function wrapWhiteboardText(text: string, charsPerLine: number, maxLines: number) {
+  const words = clampText(text, charsPerLine * maxLines)
+    .split(/\s+/)
+    .filter(Boolean)
+    .flatMap((word) => splitLongToken(word, charsPerLine));
+  const lines: string[] = [];
+  let current = '';
+
+  for (const word of words) {
+    const next = current ? `${current} ${word}` : word;
+    if (next.length <= charsPerLine || !current) {
+      current = next;
+      continue;
+    }
+    lines.push(current);
+    current = word;
+    if (lines.length >= maxLines) break;
+  }
+  if (current && lines.length < maxLines) lines.push(current);
+
+  const rendered = lines.join('\n');
+  return rendered || clampText(text, charsPerLine);
+}
+
+function countLines(text: string) {
+  return text ? text.split('\n').length : 0;
+}
+
+function createRenderPlan({
+  title,
+  points,
+  conclusion,
+  board,
+}: {
+  title: string;
+  points: WhiteboardPoint[];
+  conclusion?: string;
+  board: BoardConfig;
+}): RenderPlan {
+  const titleText = wrapWhiteboardText(title || 'Key Points', board.maxCharsPerLine, 2);
+  // Icons and bullets reduce the usable row width. Plan against that actual width,
+  // and cap legacy/manual props to the same density as the deterministic planner.
+  const pointCharsPerLine = Math.max(16, board.maxCharsPerLine - 5);
+  const displayPoints = points.slice(0, board.maxPoints).map((point) => {
+    const displayText = wrapWhiteboardText(point.text, pointCharsPerLine, 2);
+    return {...point, displayText, lineCount: countLines(displayText)};
+  });
+  const conclusionText = conclusion ? wrapWhiteboardText(conclusion, board.maxCharsPerLine, 1) : '';
+
+  const usedRows = countLines(titleText) + 1 + displayPoints.reduce((total, point) => total + point.lineCount + 1, 0) + (conclusionText ? 2 : 0);
+  const scale = Math.max(0.78, Math.min(1, board.maxTextRows / Math.max(board.maxTextRows, usedRows)));
+
+  return {
+    title: titleText,
+    titleLines: countLines(titleText),
+    points: displayPoints,
+    conclusion: conclusionText,
+    conclusionLines: countLines(conclusionText),
+    scale,
+  };
+}
+
+function useWriteProgress(text: string, startFrame: number, endFrame: number) {
   const frame = useCurrentFrame();
-  const charsPerFrame = isTitle ? 0.7 : 1.1;
-  const totalChars = text.length;
-  const writeDurationFrames = Math.ceil(totalChars / charsPerFrame);
-
+  const availableFrames = Math.max(12, endFrame - startFrame);
+  const writeDurationFrames = Math.max(10, Math.min(availableFrames, Math.round(availableFrames * 0.72)));
   const progress = interpolate(
     frame,
     [startFrame, startFrame + writeDurationFrames],
     [0, 1],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+    {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
   );
 
   return {
     progress,
-    visibleChars: Math.floor(totalChars * progress),
+    visibleChars: Math.floor(text.length * progress),
     isWriting: frame >= startFrame && progress < 1,
     isComplete: progress >= 1,
     endFrame: startFrame + writeDurationFrames,
@@ -274,6 +344,7 @@ function PenCursor({ color, visible }: { color: string; visible: boolean }) {
 function WritingLine({
   text,
   startFrame,
+  endFrame,
   color,
   fontSize,
   fontWeight = 400,
@@ -285,6 +356,7 @@ function WritingLine({
 }: {
   text: string;
   startFrame: number;
+  endFrame: number;
   color: string;
   fontSize: number;
   fontWeight?: number;
@@ -295,132 +367,42 @@ function WritingLine({
   pointIndex?: number;
 }) {
   const frame = useCurrentFrame();
-  const wp = useWriteProgress(text, startFrame, isTitle);
-
-  // Fade in the whole line
-  const opacity = interpolate(frame, [startFrame - 2, startFrame + 3], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+  const wp = useWriteProgress(text, startFrame, endFrame);
   if (frame < startFrame - 2) return null;
 
+  const opacity = interpolate(frame, [startFrame - 2, startFrame + 4], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const displayText = text.slice(0, wp.visibleChars);
+  const bulletOpacity = interpolate(wp.progress, [0, 0.12], [0, 1], {extrapolateRight: 'clamp'});
 
   return (
     <div style={{
       opacity,
-      marginBottom: isTitle ? 24 : 14,
+      marginBottom: isTitle ? 22 : 12,
       display: 'flex',
       alignItems: 'flex-start',
+      minWidth: 0,
     }}>
-      {/* Doodle icon */}
-      {icon && icon !== 'none' && (
-        <DoodleIcon type={icon} color={color} startFrame={wp.endFrame + 2} size={fontSize * 0.72} />
-      )}
-
-      <div style={{ flex: 1 }}>
+      {icon && icon !== 'none' ? (
+        <DoodleIcon type={icon} color={color} startFrame={startFrame + 2} size={Math.max(18, fontSize * 0.68)} />
+      ) : null}
+      <div style={{flex: 1, minWidth: 0}}>
         <span style={{
           fontFamily: FONT_FAMILY,
           fontSize,
           fontWeight,
           color,
-          lineHeight: 1.45,
-          letterSpacing: isTitle ? -0.3 : 0.2,
+          lineHeight: isTitle ? 1.16 : 1.32,
+          letterSpacing: isTitle ? -0.25 : 0.08,
+          whiteSpace: 'pre-line',
+          overflowWrap: 'anywhere',
+          display: 'block',
         }}>
-          {bulletPrefix && <span style={{ color: COLORS.grey, marginRight: 6 }}>{bulletPrefix}</span>}
+          {bulletPrefix ? <span style={{color: COLORS.grey, marginRight: 6, opacity: bulletOpacity}}>{bulletPrefix}</span> : null}
           {displayText}
-          {/* Pen cursor inline with text */}
-          {wp.isWriting && <PenCursor color={color} visible />}
-          {/* Blinking cursor when pen is gone */}
-          {wp.isWriting && (
-            <span style={{
-              display: 'inline-block',
-              width: 2.5,
-              height: fontSize * 0.55,
-              background: color,
-              marginLeft: 1,
-              verticalAlign: 'middle',
-              opacity: Math.sin(frame * 0.4) > 0 ? 0.85 : 0.15,
-            }} />
-          )}
+          {wp.isWriting ? <PenCursor color={color} visible /> : null}
         </span>
-
-        {/* Marker underline for title or highlighted points */}
-        {isTitle && wp.isComplete && (
-          <MarkerUnderline color={color} startFrame={wp.endFrame + 4} variant={0} />
-        )}
-        {isHighlight && !isTitle && wp.isComplete && (
-          <MarkerUnderline color={color} startFrame={wp.endFrame + 2} variant={pointIndex % 3} />
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ── Progress Indicator ────────────────────────────────────────────────────────
-
-function ProgressDots({ total, current }: { total: number; current: number }) {
-  return (
-    <div style={{
-      position: 'absolute',
-      bottom: 80,
-      left: 0,
-      right: 0,
-      display: 'flex',
-      justifyContent: 'center',
-      gap: 7,
-      zIndex: 50,
-    }}>
-      {Array.from({ length: total }).map((_, i) => (
-        <div key={i} style={{
-          width: i <= current ? 10 : 6,
-          height: i <= current ? 10 : 6,
-          borderRadius: '50%',
-          background: i <= current ? '#22C55E' : 'rgba(255,255,255,0.25)',
-          boxShadow: i <= current ? '0 0 8px rgba(34,197,94,0.6)' : 'none',
-          transition: 'all 0.15s',
-        }} />
-      ))}
-    </div>
-  );
-}
-
-// ── Caption Bar ───────────────────────────────────────────────────────────────
-
-function CaptionBar({ captions, accentColor }: { captions: Array<{ start: number; end: number; text: string }>; accentColor: string }) {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const t = frame / fps;
-  const active = captions.find((c) => t >= c.start && t <= c.end);
-  if (!active) return null;
-
-  const entry = interpolate(t, [active.start, active.start + 0.12], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-
-  return (
-    <div style={{
-      position: 'absolute',
-      bottom: 28,
-      left: 20,
-      right: 20,
-      display: 'flex',
-      justifyContent: 'center',
-      zIndex: 60,
-    }}>
-      <div style={{
-        background: 'linear-gradient(135deg, rgba(10,15,30,0.92), rgba(25,35,55,0.88))',
-        backdropFilter: 'blur(14px)',
-        borderRadius: 14,
-        padding: '12px 22px',
-        maxWidth: '96%',
-        border: '1px solid rgba(255,255,255,0.06)',
-        boxShadow: '0 8px 28px rgba(0,0,0,0.35)',
-        transform: `scale(${0.92 + entry * 0.08})`,
-        opacity: entry,
-        display: 'flex',
-        alignItems: 'center',
-        gap: 10,
-      }}>
-        <div style={{ width: 6, height: 6, borderRadius: '50%', background: accentColor, flexShrink: 0, boxShadow: `0 0 10px ${accentColor}` }} />
-        <span style={{ fontFamily: 'Inter, system-ui, sans-serif', fontSize: 26, fontWeight: 700, color: '#fff', lineHeight: 1.35, textAlign: 'center' }}>
-          {active.text}
-        </span>
+        {isTitle && wp.isComplete ? <MarkerUnderline color={color} startFrame={wp.endFrame + 3} variant={0} /> : null}
+        {isHighlight && !isTitle && wp.isComplete ? <MarkerUnderline color={color} startFrame={wp.endFrame + 2} variant={pointIndex % 3} /> : null}
       </div>
     </div>
   );
@@ -433,118 +415,110 @@ function WhiteboardVideo({
   mediaType = 'audio',
   sourceAudioVolume = 1,
   mediaTrimStartSeconds = 0,
-  durationSeconds = 45,
   title = 'Key Points',
   titleColor = COLORS.title,
   points = [],
   conclusion,
   conclusionTime,
-  captions = [],
-  captionPosition = 'bottom',
-  boardStyle = 'mobile-stand',
+  boardStyle,
+  boardImageUrl,
 }: WhiteboardVideoProps) {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const {fps, durationInFrames} = useVideoConfig();
   const resolvedSrc = resolveAsset(mediaSrc);
-  const currentTime = frame / fps;
-
-  // Resolve board config
-  const board = BOARD_CONFIGS[boardStyle] || BOARD_CONFIGS[DEFAULT_BOARD];
-
-  // ── Camera logic ────────────────────────────────────────────────────────────
-  // Determine current point for camera focus and progress indicator
-  const currentPointIndex = useMemo(() => {
-    for (let i = points.length - 1; i >= 0; i--) {
-      if (currentTime >= points[i].startTime - 0.3) return i;
-    }
-    return -1;
-  }, [currentTime, points]);
-
-  // Camera: gentle zoom that eases between points (top→center as we go down)
-  const pointRatio = points.length > 1 ? Math.max(0, currentPointIndex) / (points.length - 1) : 0;
-  const targetZoom = interpolate(pointRatio, [0, 1], [board.cameraZoomMax, 1.0]);
-  const targetY = interpolate(pointRatio, [0, 1], [1.5, -1.5]);
-
-  // Smooth camera via spring
-  const cameraSpring = spring({ frame, fps, config: { damping: 40, mass: 1.5 }, durationInFrames: fps * 2 });
-  const cameraZoom = interpolate(cameraSpring, [0, 1], [1.08, targetZoom]);
-  const cameraTranslateY = targetY;
-
-  // Intro entrance
-  const introSpring = spring({ frame, fps, config: { damping: 16, mass: 0.7 } });
-  const introY = interpolate(introSpring, [0, 1], [50, 0]);
-  const introOpacity = interpolate(introSpring, [0, 1], [0, 1]);
-
-  const currentAccent = (currentPointIndex >= 0 && points[currentPointIndex])
-    ? points[currentPointIndex].markerColor
-    : COLORS.blue;
+  const board = (boardStyle && BOARD_CONFIGS[boardStyle]) || BOARD_CONFIGS[DEFAULT_BOARD];
+  const boardImage = boardImageUrl ? resolveAsset(boardImageUrl) : staticFile(board.image);
+  const renderPlan = useMemo(
+    () => createRenderPlan({title, points, conclusion, board}),
+    [board, conclusion, points, title],
+  );
+  const titleStartFrame = Math.round(0.65 * fps);
+  const firstPointStartFrame = renderPlan.points[0]
+    ? Math.round(renderPlan.points[0].startTime * fps)
+    : durationInFrames;
+  const titleEndFrame = Math.max(
+    titleStartFrame + 12,
+    Math.min(titleStartFrame + Math.round(2.4 * fps), firstPointStartFrame - 4),
+  );
+  const intro = spring({frame, fps, config: {damping: 22, mass: 0.8}});
+  const lastPointEnd = renderPlan.points.length
+    ? renderPlan.points[renderPlan.points.length - 1].endTime
+    : 2.5;
+  const conclusionStartTime = Math.max(conclusionTime || 0, lastPointEnd + 0.55);
 
   return (
-    <AbsoluteFill style={{ background: '#111827' }}>
-      {/* ── Whiteboard photo with camera transform ── */}
+    <AbsoluteFill style={{background: '#111827'}}>
       <div style={{
         position: 'absolute',
         inset: 0,
-        transform: `translateY(${introY + cameraTranslateY}px) scale(${cameraZoom})`,
-        opacity: introOpacity,
+        opacity: intro,
         transformOrigin: 'center 30%',
-        willChange: 'transform',
       }}>
-        <Img
-          src={staticFile(board.image)}
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-        />
+        <Img src={boardImage} style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+      </div>
 
-        {/* ── Text layer: INSIDE the board transform so text moves with camera ── */}
+      <div style={{
+        position: 'absolute',
+        top: board.safeZone.top,
+        left: board.safeZone.left,
+        right: board.safeZone.right,
+        bottom: board.safeZone.bottom,
+        overflow: 'hidden',
+        zIndex: 10,
+      }}>
         <div style={{
-          position: 'absolute',
-          top: board.safeZone.top,
-          left: board.safeZone.left,
-          right: board.safeZone.right,
-          bottom: board.safeZone.bottom,
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
+          width: `${100 / renderPlan.scale}%`,
+          minHeight: `${100 / renderPlan.scale}%`,
           padding: '8px 4px',
+          transform: `scale(${renderPlan.scale})`,
+          transformOrigin: 'top left',
         }}>
-          {/* Title */}
           <WritingLine
-            text={title}
-            startFrame={Math.round(0.8 * fps)}
+            text={renderPlan.title}
+            startFrame={titleStartFrame}
+            endFrame={titleEndFrame}
             color={titleColor || COLORS.title}
             fontSize={board.titleSize}
             fontWeight={700}
             isTitle
           />
 
-          {/* Points */}
-          {points.map((point, i) => {
+          {renderPlan.points.map((point, index) => {
             const bullet = point.bulletType === 'number'
-              ? `${i + 1}. `
+              ? `${index + 1}. `
               : BULLET_CHARS[point.bulletType]
                 ? `${BULLET_CHARS[point.bulletType]} `
                 : '';
+            const startFrame = Math.round(point.startTime * fps);
+            const endFrame = Math.min(
+              durationInFrames - 1,
+              Math.max(startFrame + 12, Math.round(point.endTime * fps)),
+            );
 
             return (
               <WritingLine
-                key={i}
-                text={point.text}
-                startFrame={Math.round(point.startTime * fps)}
+                key={`${point.startTime}-${index}`}
+                text={point.displayText}
+                startFrame={startFrame}
+                endFrame={endFrame}
                 color={point.markerColor || COLORS.blue}
                 fontSize={board.pointSize}
                 bulletPrefix={bullet}
                 isHighlight={point.isHighlight}
                 icon={point.icon || 'none'}
-                pointIndex={i}
+                pointIndex={index}
               />
             );
           })}
 
-          {/* Conclusion */}
-          {conclusion && conclusionTime && (
+          {renderPlan.conclusion && (
             <WritingLine
-              text={conclusion}
-              startFrame={Math.round(conclusionTime * fps)}
+              text={renderPlan.conclusion}
+              startFrame={Math.min(durationInFrames - 1, Math.round(conclusionStartTime * fps))}
+              endFrame={Math.max(
+                Math.min(durationInFrames - 1, Math.round(conclusionStartTime * fps) + 12),
+                durationInFrames - Math.round(0.45 * fps),
+              )}
               color={COLORS.black}
               fontSize={board.conclusionSize}
               fontWeight={600}
@@ -554,17 +528,6 @@ function WhiteboardVideo({
         </div>
       </div>
 
-      {/* Progress dots - outside camera transform */}
-      {points.length > 0 && (
-        <ProgressDots total={points.length} current={currentPointIndex} />
-      )}
-
-      {/* Captions - outside camera transform */}
-      {captionPosition !== 'none' && captions.length > 0 && (
-        <CaptionBar captions={captions} accentColor={currentAccent} />
-      )}
-
-      {/* Audio */}
       {resolvedSrc && mediaType === 'audio' && (
         <Audio src={resolvedSrc} volume={sourceAudioVolume} startFrom={Math.round(mediaTrimStartSeconds * fps)} />
       )}
@@ -573,7 +536,7 @@ function WhiteboardVideo({
           src={resolvedSrc}
           volume={sourceAudioVolume}
           startFrom={Math.round(mediaTrimStartSeconds * fps)}
-          style={{ position: 'absolute', width: 0, height: 0, opacity: 0 }}
+          style={{position: 'absolute', width: 0, height: 0, opacity: 0}}
         />
       )}
     </AbsoluteFill>
@@ -590,24 +553,10 @@ const defaultProps: WhiteboardVideoProps = {
   title: '5 Startup Rules',
   titleColor: COLORS.title,
   points: [
-    { text: 'Solve real problems first', startTime: 4, endTime: 9, markerColor: COLORS.blue, bulletType: 'number', icon: 'lightbulb' },
-    { text: 'Ship fast iterate faster', startTime: 9, endTime: 15, markerColor: COLORS.green, bulletType: 'number', icon: 'arrow' },
-    { text: 'Revenue before funding', startTime: 15, endTime: 21, markerColor: COLORS.red, bulletType: 'number', isHighlight: true, icon: 'star' },
-    { text: 'Build tiny focused team', startTime: 21, endTime: 27, markerColor: COLORS.blue, bulletType: 'number', icon: 'checkmark' },
-    { text: 'Talk to users daily', startTime: 27, endTime: 33, markerColor: COLORS.green, bulletType: 'number', icon: 'circle' },
+    { text: 'Solve real problems first', startTime: 4, endTime: 13, markerColor: COLORS.blue, bulletType: 'number', icon: 'lightbulb' },
+    { text: 'Ship fast and iterate', startTime: 13, endTime: 23, markerColor: COLORS.green, bulletType: 'number', icon: 'arrow' },
+    { text: 'Talk to users daily', startTime: 23, endTime: 33, markerColor: COLORS.red, bulletType: 'number', isHighlight: true, icon: 'checkmark' },
   ],
-  conclusion: 'Execute relentlessly!',
-  conclusionTime: 36,
-  captions: [
-    { start: 1, end: 3.5, text: 'Here are five rules for startups' },
-    { start: 4, end: 8, text: 'Number one: solve real problems' },
-    { start: 9, end: 14, text: 'Ship fast and iterate faster' },
-    { start: 15, end: 20, text: 'Revenue before funding always' },
-    { start: 21, end: 26, text: 'Build a tiny focused team' },
-    { start: 27, end: 32, text: 'Talk to users every single day' },
-    { start: 36, end: 40, text: 'Execute relentlessly!' },
-  ],
-  whiteboardStyle: 'photo',
 };
 
 export { WhiteboardVideo };
@@ -616,14 +565,14 @@ export const WhiteboardVideoComposition = () => (
   <Composition
     id="WHITEBOARD-VIDEO"
     component={WhiteboardVideo}
-    durationInFrames={1350}
+    durationInFrames={2700}
     fps={30}
     width={1080}
     height={1920}
     defaultProps={defaultProps}
     calculateMetadata={({ props }) => {
       const p = props as WhiteboardVideoProps;
-      const dur = Math.max(8, Math.min(60,
+      const dur = Math.max(8, Math.min(90,
         Number(p.durationSeconds) || Number(p.sourceDurationSeconds) || Number(p.renderWindowSeconds) || 45
       ));
       return { durationInFrames: Math.ceil(dur * 30), fps: 30, width: 1080, height: 1920 };

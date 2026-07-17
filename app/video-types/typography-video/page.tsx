@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { ArrowRight, Check, Sparkles } from "lucide-react";
 import { DemoVideoGrid, TYPOGRAPHY_VIDEOS } from "@/components/captions/DemoCaptionGallery";
+import { ConversionHook, StickyBottomCTA } from "@/components/landing/ConversionHook";
 
 export const metadata: Metadata = {
   title: "Typography Video — Bold Keyword Reels from Talking Videos | Itnavideo",
@@ -33,6 +34,13 @@ export default function TypographyVideoPage() {
             </Link>
           </div>
           <p className="mt-4 text-sm" style={{ color: 'var(--text-dark-muted)' }}>No credit card needed • Upload video • 1080p MP4 export</p>
+        </div>
+      </section>
+
+      {/* Banner */}
+      <section className="px-4 pb-12 sm:px-6">
+        <div className="mx-auto max-w-md overflow-hidden rounded-2xl border border-purple-400/15 shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
+          <img src="/visuals/banners/typography-video.png" alt="Typography Video output preview" className="w-full h-auto" loading="lazy" />
         </div>
       </section>
 
@@ -126,14 +134,19 @@ export default function TypographyVideoPage() {
         </div>
       </section>
 
-      <section className="px-4 pb-20 sm:px-6">
-        <div className="mx-auto max-w-md text-center">
-          <Link href="/dashboard?videoType=typography-video" className="inline-flex items-center gap-2 rounded-[10px] px-8 py-4 text-[15px] font-semibold text-white transition hover:-translate-y-[1px] brand-btn-primary-dark">
-            Create Typography Video <ArrowRight size={16} />
-          </Link>
-          <p className="mt-4 text-sm" style={{ color: 'var(--text-dark-muted)' }}>No credit card needed • 8 color styles • Ready for Reels & Shorts</p>
-        </div>
-      </section>
+      <ConversionHook
+        templateName="Typography Video"
+        dashboardUrl="/dashboard?videoType=typography-video"
+        accentColor="#8B5CF6"
+        inputType="talking video"
+        outputTime="2 minutes"
+      />
+
+      <StickyBottomCTA
+        templateName="Typography Video"
+        dashboardUrl="/dashboard?videoType=typography-video"
+        accentColor="#8B5CF6"
+      />
     </main>
   );
 }

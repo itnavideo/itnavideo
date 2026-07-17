@@ -39,7 +39,8 @@ Adding word-level animated captions manually takes 15-30 minutes per video using
 - Word-level timing synced to speech (not sentence blocks)
 - Multiple professional caption styles to choose from
 - No editing skill required
-- Ready to post immediately
+- One new-user trial is available for Auto Caption only; that free output has a fixed Itnavideo watermark
+- Paid exports are ready to post without an Itnavideo watermark
 
 ---
 
@@ -83,7 +84,7 @@ Adding word-level animated captions manually takes 15-30 minutes per video using
 |----------|-------|
 | Default size | 1080×1920 (9:16) |
 | Supported aspect | 9:16 only (currently) |
-| Max duration | 60 seconds |
+| Max duration | 90 seconds |
 | Min duration | 5 seconds |
 | Duration source | Matches uploaded video length |
 | Export format | MP4 (H.264 + AAC) |
@@ -146,7 +147,10 @@ The Video Type renders one element only — the user's video as full-screen back
 | Inactive words | Slightly dimmed or base color |
 
 ### Caption Styles Available
-- 24 dashboard-visible styles: Eclipse, Hustle, Gold Pill, Studio Clean, One Word, Arctic Glow, Karaoke Fill, Shorts Karaoke, Reels Clean, Bold Highlight Strip, Shatter Drop, Pill Bounce, Marker Highlight, Metallic Gradient, Floating Serif, Cinematic, Hacker Type, Vollkorn, Midnight, Marigold, Pop Candy, Bold Fire, Typewriter, Split Color
+- 30+ dashboard-visible styles across categories (Popular, Premium, Bold, Creative, Clean).
+- Core styles: Eclipse, Hustle, Gold Pill, Studio Clean, One Word, Arctic Glow, Karaoke Fill, Shorts Karaoke, Reels Clean, Bold Highlight Strip, Shatter Drop, Pill Bounce, Marker Highlight, Metallic Gradient, Floating Serif, Cinematic, Hacker Type, Vollkorn, Midnight, Marigold, Pop Candy, Bold Fire, Typewriter, Split Color
+- Professional additions: Sharp Yellow (CapCut-standard yellow active word), Ocean Blue, Screamer (motivation/hook outline), Netflix Bar (streaming-style clean), Black Card (luxury serif), Stock Green (finance), Boardroom (business serif), Podcast Hype (big bold)
+- The dashboard style picker groups styles by category tabs: Popular, Premium, Bold, Creative, Clean.
 - `Studio Clean` — Default stacked caption card, white text, yellow active word, dark compact background
 - `Karaoke Fill` — Words fill left-to-right using the active highlight color
 - `Shorts Karaoke` — YouTube Shorts-style white capsule, full phrase visible, active word dark/bold
@@ -203,7 +207,7 @@ The Video Type renders one element only — the user's video as full-screen back
 Single-scene Video Type — no multi-scene timeline needed.
 
 - Audio source = user's uploaded video audio
-- Duration = video length (capped at 60s)
+- Duration = video length (capped at 90s)
 - Captions = word-level from Groq transcription
 - No subtitle language selector in the dashboard; uploaded speech language drives the visible caption text through the supported Groq pipeline
 - No AI planning needed — captions come directly from transcript word timing
@@ -220,7 +224,7 @@ Single-scene Video Type — no multi-scene timeline needed.
 | No speech detected in video | Render video without captions (no error) |
 | Transcription fails | Show error to user — don't render silently |
 | Video too short (<5s) | Clamp to minimum duration |
-| Video too long (>60s) | Trim to 60s |
+| Video too long (>90s) | Trim to 90s |
 | 16:9 video uploaded | Cover-crop to fill 9:16 canvas |
 | No caption style selected | Use default style (Studio Clean) |
 | Hindi/Hinglish audio | Produce Roman Hinglish captions (no Devanagari) |
@@ -237,6 +241,7 @@ Single-scene Video Type — no multi-scene timeline needed.
 - [ ] Audio is unchanged from original video
 - [ ] Caption style selection works and renders correctly
 - [ ] Preset colors in the dashboard match the rendered output
+- [ ] A free-trial render shows the fixed Itnavideo watermark; paid renders do not
 - [ ] 16:9 video fills canvas properly (cover crop)
 - [ ] 9:16 video fills canvas without letterboxing
 - [ ] Long words don't overflow caption container
@@ -251,7 +256,7 @@ Single-scene Video Type — no multi-scene timeline needed.
 - DO NOT add background music or sound effects
 - DO NOT add explainer cards or visual elements
 - DO NOT zoom, pan, or apply effects to the user's video
-- DO NOT add a logo, watermark, or branding overlay
+- DO NOT add a logo or branding overlay to paid exports; the one free trial output is the only exception and uses the server-enforced Itnavideo watermark
 - DO NOT show captions in Devanagari script for Hindi audio
 - DO NOT use sentence-level timing (must be word-level)
 - DO NOT add transitions or scene breaks

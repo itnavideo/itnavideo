@@ -73,6 +73,12 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
       priority: 0.9,
     },
     {
+      path: "/long-form-captioned-video",
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.92,
+    },
+    {
       path: "/create",
       lastModified: now,
       changeFrequency: "weekly",

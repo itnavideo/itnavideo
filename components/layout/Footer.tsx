@@ -135,8 +135,8 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-12 flex flex-col items-center gap-3 border-t border-white/5 pt-8 text-[11px] text-zinc-600 sm:flex-row sm:justify-between">
-          <p>© 2026 Itnavideo Inc. Delaware, USA.</p>
+        <div className="mt-12 flex flex-col items-center gap-3 border-t border-white/10 pt-8 text-[11px] text-slate-500 sm:flex-row sm:justify-between">
+          <p>© 2026 Itnavideo. Bangalore, India.</p>
           <div className="flex gap-5">
             <Link href="/privacy" className="transition hover:text-white">Privacy</Link>
             <Link href="/terms" className="transition hover:text-white">Terms</Link>

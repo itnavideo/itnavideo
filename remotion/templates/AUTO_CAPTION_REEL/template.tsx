@@ -7,8 +7,7 @@ import {
 } from 'remotion';
 import {SubtitleRenderer} from '../../components/SubtitleRenderer';
 import type {CaptionSegment, SubtitleConfig} from '../../types/subtitles';
-import {SUBTITLE_PRESETS} from '../../types/subtitles';
-import {resolveFont} from '../../utils/fonts';
+import {mapCaptionStyle, getCaptionFont} from '../../utils/captionStyleMap';
 
 type AutoCaptionProps = {
   mediaSrc?: string;
@@ -30,6 +29,7 @@ type AutoCaptionProps = {
   fontSize?: SubtitleConfig['fontSize'];
   fontFamily?: string;
   showBackground?: boolean;
+  watermark?: boolean;
 };
 
 const resolveMediaSrc = (src?: string) => {
@@ -37,85 +37,6 @@ const resolveMediaSrc = (src?: string) => {
   if (/^(https?:|data:|blob:)/i.test(src)) return src;
   return staticFile(src.replace(/^\/+/, ''));
 };
-
-function mapCaptionStyle(style?: string): SubtitleConfig['style'] {
-  const map: Record<string, SubtitleConfig['style']> = {
-    yellowPop: 'highlight',
-    clean: 'normal',
-    cleanSubtitle: 'normal',
-    blackBox: 'box',
-    bold: 'big-bold',
-    minimal: 'normal',
-    classic: 'box',
-    highlight: 'highlight',
-    normal: 'normal',
-    neon: 'neon',
-    box: 'box',
-    'big-bold': 'big-bold',
-    'word-pop': 'word-pop',
-    'split-color': 'split-color',
-    typewriter: 'typewriter',
-    'bold-outline': 'bold-outline',
-    'one-word': 'one-word',
-    'gold-pill': 'gold-pill',
-    stacked: 'stacked',
-    'inline-bg': 'inline-bg',
-    vollkorn: 'vollkorn',
-    Eclipse: 'highlight',
-    Hustle: 'bold-outline',
-    Marigold: 'normal',
-    'Gold Pill': 'gold-pill',
-    Midnight: 'inline-bg',
-    'Arctic Glow': 'neon',
-    'Studio Clean': 'stacked',
-    'One Word': 'one-word',
-    Vollkorn: 'vollkorn',
-    'Pop Candy': 'box',
-    Typewriter: 'typewriter',
-    'Bold Fire': 'big-bold',
-    'Karaoke Fill': 'karaoke',
-    'Shorts Karaoke': 'shorts-karaoke',
-    'Reels Clean': 'reels-clean',
-    'Bold Highlight Strip': 'bold-highlight-strip',
-    'Shatter Drop': 'shatter',
-    'Pill Bounce': 'pill-bounce',
-    Cinematic: 'cinematic',
-    'Hacker Type': 'typewriter-code',
-    'Marker Highlight': 'marker-highlight',
-    'Floating Serif': 'floating-serif',
-    'Metallic Gradient': 'metallic-gradient',
-    'Neon Pulse': 'neon-pulse',
-    'Minimal Fade': 'minimal-fade',
-    'Gradient Wave': 'gradient-wave',
-    'Retro VHS': 'retro-vhs',
-    'Handwritten': 'handwritten',
-    'Glass Blur': 'glass-blur',
-    karaoke: 'karaoke',
-    'shorts-karaoke': 'shorts-karaoke',
-    'reels-clean': 'reels-clean',
-    'bold-highlight-strip': 'bold-highlight-strip',
-    shatter: 'shatter',
-    'pill-bounce': 'pill-bounce',
-    cinematic: 'cinematic',
-    'typewriter-code': 'typewriter-code',
-    'marker-highlight': 'marker-highlight',
-    'floating-serif': 'floating-serif',
-    'metallic-gradient': 'metallic-gradient',
-    'neon-pulse': 'neon-pulse',
-    'minimal-fade': 'minimal-fade',
-    'gradient-wave': 'gradient-wave',
-    'retro-vhs': 'retro-vhs',
-    'handwritten': 'handwritten',
-    'glass-blur': 'glass-blur',
-  };
-  return map[style || ''] || 'stacked';
-}
-
-function getCaptionFont(styleOrPreset?: string, selectedFont?: string): string {
-  if (selectedFont) return resolveFont(selectedFont);
-  const preset = styleOrPreset ? SUBTITLE_PRESETS[styleOrPreset] : undefined;
-  return resolveFont(preset?.fontFamily || 'Inter, sans-serif');
-}
 
 function normalizeCaptions(captions: CaptionSegment[], subtitleChunks?: CaptionSegment[]) {
   return (captions.length > 0 ? captions : subtitleChunks || [])
@@ -151,6 +72,7 @@ function AutoCaptionReel({
   fontSize = 'medium',
   fontFamily,
   showBackground = true,
+  watermark = false,
 }: AutoCaptionProps) {
   const {fps} = useVideoConfig();
   const captionData = normalizeCaptions(captions, subtitleChunks);
@@ -200,6 +122,43 @@ function AutoCaptionReel({
       )}
 
       <SubtitleRenderer captions={captionData} config={subtitleConfig} />
+
+      {watermark ? (
+        <div
+          style={{
+            position: 'absolute',
+            left: 40,
+            bottom: 40,
+            padding: '14px 24px',
+            borderRadius: 999,
+            background: 'rgba(11,17,32,0.78)',
+            border: '1px solid rgba(255,255,255,0.16)',
+            color: '#F8FAFC',
+            fontFamily: 'Inter, system-ui, sans-serif',
+            fontSize: 26,
+            fontWeight: 700,
+            letterSpacing: '0.02em',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            pointerEvents: 'none',
+            zIndex: 5,
+            boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
+          }}
+        >
+          <span
+            style={{
+              display: 'inline-block',
+              width: 10,
+              height: 10,
+              borderRadius: 3,
+              background: '#22D3EE',
+            }}
+          />
+          Made with itnavideo
+          <span style={{opacity: 0.55, fontWeight: 500, marginLeft: 2}}>· Free trial</span>
+        </div>
+      ) : null}
     </AbsoluteFill>
   );
 }
@@ -220,6 +179,7 @@ const defaultProps: AutoCaptionProps = {
   fontSize: 'medium',
   fontFamily: 'Inter, sans-serif',
   showBackground: true,
+  watermark: false,
   captions: [
     {start: 0, end: 3, text: 'Upload your reel video here'},
     {start: 3, end: 6, text: 'Subtitles will appear like this'},
@@ -233,15 +193,15 @@ export const AutoCaptionReelComposition = () => (
   <Composition
     id="AUTO-CAPTION-REEL"
     component={AutoCaptionReel}
-    durationInFrames={1800}
+    durationInFrames={2700}
     fps={30}
     width={1080}
     height={1920}
     defaultProps={defaultProps}
     calculateMetadata={({props}) => {
       const p = props as AutoCaptionProps;
-      const durationSeconds = Math.max(5, Math.min(60,
-        Number(p.durationSeconds) || Number(p.sourceDurationSeconds) || Number(p.renderWindowSeconds) || 60
+      const durationSeconds = Math.max(5, Math.min(90,
+        Number(p.durationSeconds) || Number(p.sourceDurationSeconds) || Number(p.renderWindowSeconds) || 90
       ));
       return {durationInFrames: Math.ceil(durationSeconds * 30), fps: 30, width: 1080, height: 1920};
     }}

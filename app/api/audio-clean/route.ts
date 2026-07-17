@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     }
 
     // Check access
-    const access = await getRenderAccessForUser(userId);
+    const access = await getRenderAccessForUser(userId, {});
     if (!access.allowed) {
       return NextResponse.json({ ok: false, error: access.reason || 'No credits remaining.', upgradeUrl: '/pricing' }, { status: 402 });
     }

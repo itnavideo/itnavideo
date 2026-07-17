@@ -22,7 +22,7 @@ const faqs: FAQItem[] = [
   },
   {
     question: "How much does it cost?",
-    answer: "You get 1 free AI video credit on signup — no card needed. After that, paid credits start at ₹9 per video. No monthly subscriptions. You only pay when you render."
+    answer: "New users get 1 free AI video with a watermark. After that, Pro and Business plans unlock more monthly videos with no watermark, priority rendering, and more templates."
   },
   {
     question: "Do I need editing skills?",

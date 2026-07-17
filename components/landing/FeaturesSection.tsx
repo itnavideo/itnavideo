@@ -61,7 +61,7 @@ export default function FeaturesSection() {
       <div className="mx-auto max-w-7xl">
         <div className="mb-14 grid gap-8 lg:grid-cols-[0.75fr_1fr] lg:items-end">
           <div>
-            <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-amber-200">What you get</p>
+            <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-cyan-200">What you get</p>
             <motion.h2
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}

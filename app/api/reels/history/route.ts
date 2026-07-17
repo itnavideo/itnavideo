@@ -203,6 +203,7 @@ function normalizeMode(value: unknown) {
   if (mode === 'compare' || mode === 'comparison' || mode === 'compareexplainer' || mode === 'vs') return 'compare';
   if (mode === 'autodraw' || mode === 'autodrawexplainer' || mode === 'whiteboard') return 'autoDraw';
   if (mode === 'longvideopromo' || mode === 'longvideopromotion' || mode === 'promo') return 'longVideoPromo';
+  if (mode === 'longformcaptionedvideo' || mode === 'longformcaptioned' || mode === 'longvideocaptioned') return 'longFormCaptionedVideo';
   if (mode === 'dynamiccreator' || mode === 'dynamiccreatorreel' || mode === 'dynamicedit') return 'dynamicCreator';
   if (mode === 'creatorbackgroundreplace' || mode === 'backgroundreplace' || mode === 'videobackgroundimage') return 'creatorBackgroundReplace';
   if (mode === 'customaireel' || mode === 'customai' || mode === 'customreel') return 'customAiReel';

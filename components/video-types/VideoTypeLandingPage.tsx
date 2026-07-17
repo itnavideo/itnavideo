@@ -91,7 +91,7 @@ export default function VideoTypeLandingPage({ config }: { config: VideoTypeLand
                 </Link>
               </div>
 
-              <p className="mt-3 text-xs text-slate-500">No credit card needed · First video free · 1080p MP4 export</p>
+              <p className="mt-3 text-xs text-slate-500">Free trial: Auto Caption only, up to 60 seconds, watermark included · Paid exports: 1080p MP4</p>
             </div>
 
             {/* Right — phone mockup */}
@@ -238,7 +238,7 @@ export default function VideoTypeLandingPage({ config }: { config: VideoTypeLand
             Start your first {name} now.
           </h2>
           <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-slate-400">
-            First video is free after signup. No credit card needed. Export a 1080p MP4 in minutes.
+            First time here? Try one Auto Caption Video free (up to 60 seconds, watermark included). Paid exports are 1080p MP4s with no Itnavideo watermark.
           </p>
           <Link
             href={dashboardHref}
@@ -249,7 +249,7 @@ export default function VideoTypeLandingPage({ config }: { config: VideoTypeLand
             {cta}
           </Link>
           <div className="mt-5 flex flex-wrap justify-center gap-4 text-[11px] text-slate-500">
-            {['No editing skills needed', 'English & Hinglish captions', 'No watermark', '1 free credit on signup'].map(t => (
+            {['No editing skills needed', 'English & Hinglish captions', 'Paid exports: no watermark', 'Free trial: Auto Caption only'].map(t => (
               <span key={t} className="flex items-center gap-1.5">
                 <Check size={11} style={{ color: accentColor }} strokeWidth={3} />
                 {t}

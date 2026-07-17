@@ -7,10 +7,20 @@ import { ArrowRight, Volume2, VolumeX } from 'lucide-react';
 const CLOUD = 'dhouh9idx';
 const BASE = `https://res.cloudinary.com/${CLOUD}/video/upload`;
 
-const SECTIONS = [
+const SECTIONS: Array<{
+  title: string;
+  description: string;
+  outcome: string;
+  accent: string;
+  href: string;
+  videos: string[];
+  labels?: string[];
+}> = [
   {
     title: 'Auto Captions',
-    accent: '#22C55E',
+    description: 'Add clean, animated captions to any talking video. Words pop on screen in perfect sync with speech.',
+    outcome: 'Ready-to-post 9:16 reel with captions',
+    accent: '#22D3EE',
     href: '/video-types/auto-caption-reel',
     videos: [
       'You_re_already_ahead_in_something.Stop_ignoring_it._That_s_your_edge._personalbranding_mhjtvu',
@@ -21,6 +31,8 @@ const SECTIONS = [
   },
   {
     title: 'Typography Video',
+    description: 'Turn a talking video into a bold creator reel with dynamic typography. Key phrases appear the moment you say them.',
+    outcome: 'Creator-style typography reel',
     accent: '#8B5CF6',
     href: '/video-types/typography-video',
     videos: [
@@ -32,6 +44,8 @@ const SECTIONS = [
   },
   {
     title: 'Compare Explainer',
+    description: 'Explain two ideas side by side with your voiceover, two images, and a sticker presenter. Great for education, finance, and product topics.',
+    outcome: 'Clear side-by-side comparison reel',
     accent: '#F59E0B',
     href: '/video-types/compare-explainer',
     videos: [
@@ -43,7 +57,8 @@ const SECTIONS = [
   },
   {
     title: 'Long Video Clips',
-    subtitle: '22-min podcast → AI picked these 4 clips automatically',
+    description: 'Turn one long podcast, interview, or lecture into short viral clips. AI picks the best moments and adds captions automatically.',
+    outcome: 'Up to 10 short clips from one long video',
     accent: '#06B6D4',
     href: '/video-types/long-video-clips',
     videos: [
@@ -74,8 +89,9 @@ export default function HomepageDemoGrid() {
     if (!clickedVideo) return;
 
     if (activeVideoId === id) {
-      // Already active — mute it (toggle off)
+      // Already active — mute + pause it (toggle off)
       clickedVideo.muted = true;
+      clickedVideo.pause();
       setActiveVideoId(null);
     } else {
       // Mute all others, unmute this one
@@ -94,24 +110,26 @@ export default function HomepageDemoGrid() {
     <section className="px-4 py-20 sm:px-6" style={{ background: '#070A12' }}>
       <div className="mx-auto max-w-7xl">
         <div className="mb-12 text-center">
-          <p className="mb-3 text-xs font-black uppercase tracking-[0.2em] text-emerald-500">See real results</p>
+          <p className="mb-3 text-xs font-black uppercase tracking-[0.2em] text-cyan-200">See real results</p>
           <h2 className="text-3xl font-black text-white sm:text-4xl">What creators are making right now</h2>
-          <p className="mx-auto mt-3 max-w-md text-sm text-slate-400">Every video below was made with Itnavideo. Hover to preview, click for sound.</p>
+          <p className="mx-auto mt-3 max-w-md text-sm text-slate-400">Every video below was made with Itnavideo. Tap any thumbnail to play with sound.</p>
         </div>
 
-        <div className="space-y-14">
+        <div className="space-y-16">
           {SECTIONS.map((section) => (
             <div key={section.title}>
-              <div className="mb-4 flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-black text-white">{section.title}</h3>
-                  {'subtitle' in section && (section as any).subtitle && (
-                    <p className="mt-0.5 text-[11px] text-zinc-500">{(section as any).subtitle}</p>
-                  )}
+              <div className="mb-5 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+                <div className="min-w-0 max-w-2xl">
+                  <h3 className="text-xl font-black tracking-tight text-white sm:text-2xl">{section.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">{section.description}</p>
+                  <p className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-bold" style={{ color: section.accent }}>
+                    <span className="inline-block h-1 w-1 rounded-full" style={{ background: section.accent }} />
+                    {section.outcome}
+                  </p>
                 </div>
                 <Link
                   href={section.href}
-                  className="flex items-center gap-1.5 text-xs font-bold transition hover:opacity-80"
+                  className="inline-flex shrink-0 items-center gap-1.5 self-start whitespace-nowrap text-xs font-bold transition hover:opacity-80"
                   style={{ color: section.accent }}
                 >
                   See all <ArrowRight size={12} />
@@ -127,7 +145,7 @@ export default function HomepageDemoGrid() {
                     isActive={activeVideoId === id}
                     onClickSound={() => handleVideoClick(id)}
                     registerRef={(el) => registerVideo(id, el)}
-                    label={'labels' in section ? (section as any).labels?.[idx] : undefined}
+                    label={section.labels?.[idx]}
                   />
                 ))}
               </div>
@@ -162,19 +180,12 @@ function VideoCard({
       <video
         ref={registerRef}
         src={`${BASE}/${publicId}.mp4`}
-        className="absolute inset-0 h-full w-full object-cover"
+        poster={`${BASE}/so_0/${publicId}.jpg`}
+        className="absolute inset-0 h-full w-full cursor-pointer object-cover"
         muted
         playsInline
         loop
-        preload="metadata"
-        onMouseEnter={(e) => (e.target as HTMLVideoElement).play()}
-        onMouseLeave={(e) => {
-          const v = e.target as HTMLVideoElement;
-          if (!isActive) {
-            v.pause();
-            v.currentTime = 0;
-          }
-        }}
+        preload="none"
         onClick={(e) => {
           e.preventDefault();
           const v = e.target as HTMLVideoElement;
@@ -213,7 +224,7 @@ function VideoCard({
 
       {/* Active glow border */}
       {isActive && (
-        <div className="pointer-events-none absolute inset-0 rounded-xl ring-2 ring-inset" style={{ ringColor: accent }} />
+        <div className="pointer-events-none absolute inset-0 rounded-xl ring-2 ring-inset" style={{ '--tw-ring-color': accent } as React.CSSProperties} />
       )}
     </div>
   );

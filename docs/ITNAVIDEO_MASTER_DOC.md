@@ -58,7 +58,7 @@ Itnavideo is not a traditional video editor. Users should not need to drag timel
 ### Main Solution
 
 - User uploads content or describes what they want.
-- Itnavideo transcribes, plans, styles, renders, and exports a 9:16 MP4.
+- Itnavideo transcribes, plans, styles, renders, and exports focused video outputs: 9:16 reels by default and a named 16:9 long-form captioned workflow.
 - Video Types provide focused workflows instead of one confusing generic editor.
 - AI and deterministic planners handle structure; Remotion/FFmpeg handle video output.
 - The user sees progress, history, and download without managing technical details.
@@ -68,13 +68,13 @@ Itnavideo is not a traditional video editor. Users should not need to drag timel
 | Area | Status |
 |---|---|
 | Website | Live at `https://www.itnavideo.com`. |
-| Main output | 9:16 short-form MP4 reels. |
+| Main output | 9:16 short-form MP4 reels by default, plus 16:9 Long-form Captioned Video output. |
 | Render engine | Remotion on AWS Lambda. |
 | Transcription | Groq Whisper. |
 | Storage | AWS S3 temporary uploads and outputs, roughly 48-hour lifecycle. |
 | Auth/database | Supabase. |
 | Payments | Razorpay. |
-| Pricing model | Credit-based. 1 credit generally maps to 1 video render. |
+| Pricing model | Credit-based. Short video exports use 1 credit; Long-form Captioned Video uses duration-based credits. |
 | Language scope | English and Hinglish/Roman script captions. Multi-language translation is paused. |
 
 ## 2. Product Overview
@@ -87,21 +87,22 @@ Users can create:
 - Creator typography reels
 - Side-by-side comparison explainers
 - Whiteboard/notes explainers
-- Long video promo reels
+- Long-form captioned videos (16:9, original media/audio preserved)
 - Background-replaced creator clips
 - Prompt-driven custom reels
 
 ### Official Product Catalog
 
-This master doc tracks 7 product-facing Video Types:
+This master doc tracks 8 product-facing Video Types:
 
 1. Auto Caption Video
 2. Dynamic Creator Reel Video
 3. Compare Explainer Video
 4. Auto Draw Explainer Video
-5. Long Video Promo
-6. Background Replace Video
-7. Custom AI Reel
+5. Long-form Captioned Video
+6. Long Video Promo
+7. Background Replace Video
+8. Custom AI Reel
 
 > Note: Some older docs describe 6 production Video Types, while some startup docs describe 7 video types. This master doc keeps all 7 requested product workflows visible and marks any uncertain production status in the Video Types section.
 
@@ -124,9 +125,10 @@ This master doc tracks 7 product-facing Video Types:
 - Free users can have lower duration/file-size limits.
 - Paid users can have higher limits and more credits.
 - Failed renders should not waste user credits.
-- Heavy or long-running video types may need separate credit logic.
-- Credits should appear clearly before and after render.
-- Usage history should show credit deduction/refund clearly.
+- Long-form Captioned Video: up to 10 minutes, 1 credit per started minute (for example: 5 minutes = 5 credits, 5:01 = 6 credits, 10 minutes = 10 credits).
+- New users receive one free, watermarked Auto Caption Video up to 60 seconds; other workflows require paid credits.
+- Paid launch pack: 20 credits valid for 31 days, ₹499 for India billing region and $19 internationally.
+- Video type credit rates are transparent before final render: focused short video types cost 1 or 2 credits, and Long Video Clips cost 3–12 credits.
 
 ### User Journey
 
@@ -1243,6 +1245,7 @@ Composition IDs can only contain `a-z`, `A-Z`, `0-9`, and `-`.
 - Render on AWS Lambda with Remotion.
 - Store uploads/outputs temporarily in S3.
 - Use Groq Whisper for transcription.
+- Long-form Captioned Video transcribes the full current upload directly, preserves original video/audio, and must not use paid translation fallbacks.
 - Use Gemini for Auto Draw planning.
 - No paid translation APIs by default.
 - Remotion video type implementation folders are code-only.
@@ -1272,6 +1275,7 @@ These files are retained for history, deep details, or focused reference. They s
 | `docs/AUTO_CAPTION_REEL_CONTEXT.md` | Deep reference | Auto Caption-specific technical context. |
 | `docs/ASSET_PREPROCESSING_PIPELINE.md` | Reference | Asset preprocessing pipeline details. |
 | `docs/TEMPLATE_NAMING_CONVENTION.md` | Reference | Naming examples; master doc contains canonical rules. |
+| `docs/video-types/long-form-captioned-video.md` | Active detailed spec | Inputs, 16:9 output, caption rules, duration pricing, failure behavior, and QA. |
 | `docs/video-types/*.md` | Video type specs/reference | Keep detailed video-type-specific specs here and update when video type behavior changes. |
 | `docs/product-tracking/templates/*.md` | Product tracking reference | Useful for QA/improvement status. |
 | `docs/references/`, `docs/reference-scripts/`, `docs/reference-screenshots/` | Reference assets | Examples and research material, not master policy. |

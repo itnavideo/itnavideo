@@ -1,6 +1,6 @@
 import {NextResponse} from 'next/server';
 import {getRenderProgress, type AwsRegion} from '@remotion/lambda/client';
-import {recordRenderUsageFromServer} from '@/services/billing/renderAccess';
+import {recordRenderUsageFromServer, releaseReservedRenderUsageFromServer} from '@/services/billing/renderAccess';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -44,6 +44,7 @@ export async function GET(request: Request) {
       missingOutput ? 'Raw error: render completed without an output file' : '',
     ].filter(Boolean);
     let usageWarning = '';
+    const isTerminalFailure = Boolean(userId && progress.done && (renderErrors.length > 0 || missingOutput));
     if (progress.done && userId && renderErrors.length === 0 && hasOutput) {
       try {
         await recordRenderUsageFromServer({
@@ -56,6 +57,13 @@ export async function GET(request: Request) {
       } catch (error) {
         usageWarning = error instanceof Error ? error.message : 'Could not record usage.';
         console.error('Render usage write failed:', error);
+      }
+    } else if (isTerminalFailure) {
+      try {
+        await releaseReservedRenderUsageFromServer({userId, renderId});
+      } catch (error) {
+        usageWarning = error instanceof Error ? error.message : 'Could not release reserved usage.';
+        console.error('Render usage release failed:', error);
       }
     }
     if (mode === 'longVideoPromo') {

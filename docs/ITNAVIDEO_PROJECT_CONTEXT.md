@@ -12,9 +12,7 @@ It is NOT a video editor. Users do not drag timelines, cut clips, or choose font
 
 ## Product Goal
 
-Turn raw creator content into publish-ready 9:16 reels in under 3 minutes, with no editing skills required.
-
-Future: Also support 16:9 long-form video output.
+Turn raw creator content into publish-ready 9:16 reels or a preserved 16:9 long-form captioned video, with no editing skills required.
 
 ## Target Users
 
@@ -30,15 +28,10 @@ Future: Also support 16:9 long-form video output.
 
 ## Current Status
 
-- 6 production Video Types (all 9:16 reels)
-  - Dynamic Creator Reel
-  - Auto Caption Reel
-  - Creator Background Replace
-  - Compare Explainer
-  - Auto Draw Explainer
-  - Long Video Promo
+- Core short-form Video Types output 9:16 reels.
+- Long-form Captioned Video outputs a 16:9 landscape MP4 up to 10 minutes, preserving the uploaded video/audio while adding fresh timed captions.
 - Product direction: quality over quantity. Keep the core library focused; new Video Types must meet the production-quality bar end to end.
-- Credit-based pricing (1 credit = 1 video)
+- Credit-based pricing: Auto Caption, Long Video Promo, and Typography cost 1 credit; Compare, Whiteboard, and Multi Images cost 2; Long Video Clips cost 3–12; Long-form Captioned Video costs 1 credit per started minute.
 - Renders on AWS Lambda via Remotion
 - Transcription via Groq Whisper
 - No paid translation APIs
@@ -262,13 +255,16 @@ For every new Video Type, use these professional-editor principles unless the sp
 
 ## Pricing / Credit Rules
 
-- 1 video = 1 credit
+- Auto Caption Video, Long Video Promo, Typography Video: 1 credit.
+- Compare Explainer, Whiteboard Video, Multi Images Video: 2 credits.
+- Long Video Clips: 2-credit base plus 1 credit per requested clip (3–12 credits).
+- Long-form Captioned Video: 1 credit per started minute, maximum 10 credits for 10 minutes.
+- One free trial: Auto Caption only, maximum 60 seconds, with a fixed Itnavideo watermark.
+- Paid credit pack: 20 credits valid for 31 days; ₹499 for India billing region, $19 internationally.
 - Failed renders due to system issues are not charged
 - Preview generation/editing does not deduct credits
-- Deduct credit only when the user confirms preview and final render starts
-- Plans: Starter (₹9), Creator, Pro tiers
-- All Video Types included in every plan
-- No free tier renders (first video requires payment or trial credit)
+- Deduct/reserve credits only when the final render starts
+- Existing reusable/internal assets can be included; paid stock or generative assets require a separate priced workflow.
 
 ## Dashboard UX Rules
 

@@ -39,6 +39,13 @@ export default function AIAudioCleanerPage() {
         </div>
       </section>
 
+      {/* Banner */}
+      <section className="px-4 pb-12 sm:px-6">
+        <div className="mx-auto max-w-md overflow-hidden rounded-2xl border border-orange-400/15 shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
+          <img src="/visuals/banners/audio-cleaner.png" alt="AI Audio Cleaner waveform visualization" className="w-full h-auto" loading="lazy" />
+        </div>
+      </section>
+
       {/* Features */}
       <section className="px-4 pb-16 sm:px-6">
         <div className="mx-auto max-w-4xl">

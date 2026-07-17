@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Play } from 'lucide-react';
 
@@ -8,7 +9,7 @@ const guides = [
   {
     title: 'Auto Caption Video',
     emoji: '🎙️',
-    accent: '#22C55E',
+    accent: '#22D3EE',
     mascot: '/brand/mascot-screen.webp',
     steps: [
       { emoji: '📹', text: 'Upload your talking video' },
@@ -21,7 +22,7 @@ const guides = [
   {
     title: 'Compare Explainer',
     emoji: '⚖️',
-    accent: '#F59E0B',
+    accent: '#A78BFA',
     mascot: '/visuals/stickers/previews/shia-moulana-3d.png',
     steps: [
       { emoji: '🖼️', text: 'Upload Image A & Image B' },
@@ -44,6 +45,20 @@ const guides = [
     ],
     result: 'Professional whiteboard explainer with marker-style text.',
     href: '/dashboard?videoType=whiteboard-video',
+  },
+  {
+    title: 'Long-form Captioned Video',
+    emoji: '💬',
+    accent: '#22D3EE',
+    mascot: '/brand/mascot-screen.webp',
+    image: '/visuals/banners/long-form-captioned-video.png',
+    steps: [
+      { emoji: '📹', text: 'Upload a 16:9 video with clear speech' },
+      { emoji: '🎨', text: 'Choose your caption style' },
+      { emoji: '⬇️', text: 'Download the full captioned MP4' },
+    ],
+    result: 'Your original video and audio stay intact with timed captions, up to 10 minutes.',
+    href: '/dashboard?videoType=long-form-captioned-video',
   },
   {
     title: 'Long Video Promo',
@@ -73,7 +88,7 @@ export default function VideoTypeGuide() {
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mb-3 text-xs font-black uppercase tracking-[0.2em] text-slate-500"
+            className="mb-3 text-xs font-black uppercase tracking-[0.2em] text-cyan-200/80"
           >
             How each video type works
           </motion.p>
@@ -113,6 +128,18 @@ export default function VideoTypeGuide() {
                 style={{ background: guide.accent }}
               />
 
+              {guide.image ? (
+                <div className="relative mb-4 aspect-video overflow-hidden rounded-lg border border-cyan-300/15 bg-slate-950">
+                  <Image
+                    alt="Long-form Captioned Video preview"
+                    className="object-cover"
+                    fill
+                    sizes="(min-width: 1024px) 280px, (min-width: 640px) 42vw, 90vw"
+                    src={guide.image}
+                  />
+                </div>
+              ) : null}
+
               {/* Title row */}
               <div className="relative mb-4 flex items-center gap-3">
                 <span className="text-2xl">{guide.emoji}</span>
@@ -151,7 +178,7 @@ export default function VideoTypeGuide() {
 
         {/* Bottom trust line */}
         <div className="mt-10 flex flex-wrap items-center justify-center gap-4 text-[11px] text-slate-500">
-          {['No editing skills needed', 'Uploads are private & temporary', 'No credit card needed', '9:16 MP4 for Reels & Shorts'].map((t) => (
+          {['No editing skills needed', 'Uploads are private & temporary', 'Clear credit cost before render', '9:16 reels + 16:9 long-form video'].map((t) => (
             <span key={t} className="flex items-center gap-1.5">
               <span className="text-emerald-400">✓</span> {t}
             </span>

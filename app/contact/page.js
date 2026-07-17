@@ -60,22 +60,22 @@ export default function ContactPage() {
                   {
                     title: "Support",
                     desc: "For account, payment, rendering, or video generation issues.",
-                    href: "mailto:rohi@itnavideo.com",
-                    label: "rohi@itnavideo.com",
+                    href: "mailto:support@itnavideo.com",
+                    label: "support@itnavideo.com",
                     icon: Mail,
                   },
                   {
                     title: "Creator Access",
                     desc: "For creators who want to test or use Itnavideo.",
-                    href: "mailto:rohi@itnavideo.com",
-                    label: "rohi@itnavideo.com",
+                    href: "mailto:creators@itnavideo.com",
+                    label: "creators@itnavideo.com",
                     icon: Users,
                   },
                   {
                     title: "Partnerships & Business",
                     desc: "For agencies, platforms, and business collaborations.",
-                    href: "mailto:rohi@itnavideo.com",
-                    label: "rohi@itnavideo.com",
+                    href: "mailto:partners@itnavideo.com",
+                    label: "partners@itnavideo.com",
                     icon: Building2,
                   },
                   {
@@ -183,7 +183,7 @@ export default function ContactPage() {
                   {formState === "error" ? (
                     <div className="flex items-center gap-2 rounded-lg border border-rose-500/20 bg-rose-500/[0.06] px-4 py-3 text-xs text-rose-300">
                       <XCircle size={14} />
-                      Something went wrong. Please try again or email us directly at rohi@itnavideo.com
+                      Something went wrong. Please try again or email us directly at support@itnavideo.com
                     </div>
                   ) : null}
 
@@ -197,7 +197,7 @@ export default function ContactPage() {
                   </button>
 
                   <p className="text-[11px] text-zinc-600">
-                    Or email directly: <a href="mailto:rohi@itnavideo.com" className="text-brand-mint/70 hover:text-brand-mint">rohi@itnavideo.com</a>
+                    Or email directly: <a href="mailto:support@itnavideo.com" className="text-brand-mint/70 hover:text-brand-mint">support@itnavideo.com</a>
                   </p>
                 </form>
               )}

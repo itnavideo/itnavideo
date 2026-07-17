@@ -18,7 +18,7 @@ export default function Hero() {
         >
           <span className="flex items-center gap-1.5"><Users size={12} className="text-brand-mint" />Built for creators</span>
           <span className="hidden h-3 w-px bg-white/10 sm:block" />
-          <span className="flex items-center gap-1.5"><Zap size={12} className="text-pink-300" />Preview before render</span>
+          <span className="flex items-center gap-1.5"><Zap size={12} className="text-violet-300" />Preview before render</span>
           <span className="hidden h-3 w-px bg-white/10 sm:block" />
           <span className="flex items-center gap-1.5"><Star size={12} className="text-sky-300" />Focused video types</span>
         </motion.div>
@@ -31,7 +31,7 @@ export default function Hero() {
             className="mb-6 inline-flex items-center gap-2 rounded-full border border-cyan-300/25 bg-cyan-500/[0.08] px-5 py-2.5 text-xs font-bold text-cyan-100 shadow-[0_14px_38px_rgba(6,182,212,0.1)]"
           >
             <Sparkles size={13} />
-            No credit card needed. Just sign up and create.
+            Focused video types with clear credit costs before render.
           </motion.div>
 
           <motion.h1
@@ -40,9 +40,9 @@ export default function Hero() {
             transition={{ delay: 0.08 }}
             className="text-[2.3rem] font-black leading-[1.03] tracking-normal text-white sm:text-5xl md:text-[5.25rem]"
           >
-            Turn talking videos into
-            <span className="block bg-[linear-gradient(135deg,#93C5FD_0%,#60A5FA_40%,#F472B6_100%)] bg-clip-text text-transparent" style={{ textShadow: '0 0 80px rgba(96,165,250,0.3)' }}>
-              scroll-stopping Reels.
+            Turn your videos into
+            <span className="block bg-[linear-gradient(135deg,#BAE6FD_0%,#22D3EE_48%,#A78BFA_100%)] bg-clip-text text-transparent" style={{ textShadow: '0 0 80px rgba(34,211,238,0.26)' }}>
+              polished short and long-form videos.
             </span>
           </motion.h1>
 
@@ -52,7 +52,7 @@ export default function Hero() {
             transition={{ delay: 0.14 }}
             className="mx-auto mt-6 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg"
           >
-            Captioned, styled, ready to post in under 3 minutes. No timelines, no keyframes — just upload and let AI handle the rest.
+Create polished short clips or preserve a long 16:9 video with timed captions. No timelines or keyframes — upload and let Itnavideo handle the production work.
           </motion.p>
 
           <motion.div
@@ -65,10 +65,10 @@ export default function Hero() {
               'AI captions from your video or audio',
               'AI reel planning for explainers',
               'Preview before final render',
-              'Ready-to-post 9:16 MP4',
+              '9:16 reels and 16:9 long-form captions',
             ].map((item) => (
               <span key={item} className="flex min-w-0 items-center gap-2 rounded-lg border border-white/10 bg-white/[0.035] px-3 py-2 text-xs font-bold text-slate-300">
-                <BrainCircuit size={13} className="shrink-0 text-pink-300" />
+                <BrainCircuit size={13} className="shrink-0 text-violet-300" />
                 <span className="min-w-0">{item}</span>
               </span>
             ))}
@@ -85,7 +85,7 @@ export default function Hero() {
               className="group inline-flex items-center gap-2.5 rounded-xl px-9 py-4 text-base font-black text-white transition hover:-translate-y-[1px] active:translate-y-0 brand-btn-primary-dark"
             >
               <Play size={18} className="transition group-hover:scale-110" />
-              Create My Video
+              Create My Free Video
               <ArrowRight size={16} />
             </Link>
           </motion.div>
@@ -98,7 +98,7 @@ export default function Hero() {
             className="mx-auto mt-5 inline-flex items-center gap-2 rounded-xl border border-emerald-400/30 bg-emerald-500/[0.1] px-6 py-3 text-sm font-black text-emerald-300"
           >
             <Check size={16} className="text-emerald-400" />
-            No credit card needed — sign up and create instantly
+            Clear credit cost before every final render
           </motion.div>
 
           <motion.div
@@ -107,7 +107,7 @@ export default function Hero() {
             transition={{ delay: 0.28 }}
             className="mx-auto mt-5 flex flex-wrap items-center justify-center gap-5 text-xs text-slate-400"
           >
-            {['No editing skills needed', 'English & Hinglish captions', 'No watermark', '9:16 ready for Reels & Shorts'].map((t) => (
+            {['No editing skills needed', 'English & Roman Hinglish captions', 'Paid exports: no watermark', '9:16 reels + 16:9 long videos'].map((t) => (
               <span key={t} className="flex items-center gap-1.5"><Check size={12} className="text-brand-mint/80" />{t}</span>
             ))}
           </motion.div>
@@ -123,7 +123,7 @@ export default function Hero() {
               👨‍💻
             </div>
             <p className="text-sm leading-6 text-slate-200 italic">
-              &ldquo;I built ItnaVideo because I was spending 3+ hours a week just captioning and formatting my own reels. Now it takes under 3 minutes.&rdquo;
+              &ldquo;I built ItnaVideo because I was spending 3+ hours a week captioning and formatting my own videos. Now the repeatable work is handled for me.&rdquo;
             </p>
             <p className="mt-3 text-xs font-black text-slate-400">
               — Syed Rohi, Founder
@@ -134,23 +134,21 @@ export default function Hero() {
           </motion.div>
         </div>
 
+        {/* Hero showcase banner */}
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.48 }}
-          className="mx-auto mt-12 flex max-w-3xl flex-wrap items-center justify-center gap-4 rounded-lg border border-white/10 bg-white/[0.035] px-6 py-4 backdrop-blur sm:gap-6"
+          transition={{ delay: 0.38, duration: 0.6 }}
+          className="mx-auto mt-14 max-w-5xl overflow-hidden rounded-2xl border border-white/10 shadow-[0_32px_80px_rgba(0,0,0,0.4)]"
         >
-          {[
-            '🎙️ Flawless Hinglish & English transcription',
-            '☁️ Powered by AWS Lambda',
-            '🚫 No watermarks',
-            '📱 9:16 MP4 ready for Reels, Shorts, TikTok',
-          ].map((item) => (
-            <span key={item} className="text-[11px] font-bold text-slate-400 sm:text-xs">
-              {item}
-            </span>
-          ))}
+          <img
+            src="/visuals/banners/hero-homepage.png"
+            alt="Itnavideo - AI video tool showing multiple device outputs"
+            className="w-full h-auto"
+            loading="eager"
+          />
         </motion.div>
+
       </div>
     </section>
   );

@@ -186,11 +186,11 @@ Download video          →     Ready to post on any platform
 
 ### Business model
 
-- Free: 1 video credit on signup (no credit card)
-- Paid: Monthly plans starting at ₹9 ($9)
-- All video types included in every plan
-- Credits = number of final renders per month
-- Failed renders are not charged
+- Free: one watermarked Auto Caption Video up to 60 seconds after signup
+- Paid: 20 credits valid for 31 days, ₹499 in India and $19 internationally
+- Credit cost varies by video type and is shown before render
+- Long-form Captioned Video uses 1 credit per started minute; Long Video Clips use 3–12 credits
+- Failed system renders release their reserved credits
 
 ---
 
@@ -289,9 +289,9 @@ Each one = full-width card with playing video, not a thumbnail.
 ### D. Pricing on homepage
 
 Add a simple pricing card or summary:
-> Free: 1 video credit
-> Starter: ₹9/month (X videos)
-> [See all plans →]
+> Free: one watermarked Auto Caption Video up to 60 seconds
+> Paid: 20 credits / ₹499 in India or $19 internationally (valid 31 days)
+> [See credit rates →]
 
 ### E. Product demo video (30 seconds)
 

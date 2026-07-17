@@ -16,15 +16,15 @@ export default function AboutPage() {
         <div className="relative z-10 mx-auto max-w-4xl text-center">
           <p className="mb-6 text-sm font-bold uppercase tracking-[0.24em] text-brand-mint">About Itnavideo</p>
           <h1 className="text-4xl font-black leading-tight sm:text-5xl md:text-7xl">
-            AI video banana ab editing nahi,<br />
-            <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-400 bg-clip-text text-transparent">direction dena hai.</span>
+            Making AI video isn&apos;t editing anymore —<br />
+            <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-400 bg-clip-text text-transparent">it&apos;s direction.</span>
           </h1>
           <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-zinc-300">
             Itnavideo helps creators, businesses, and educators turn raw audio, video, or ideas into polished reels — without spending hours on timeline editing. Upload your content. AI handles the rest.
           </p>
           <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Link href="/dashboard" className="inline-flex items-center gap-2 rounded-2xl bg-brand-mint px-8 py-4 text-base font-black text-black transition hover:bg-white">
-              Start Creating <ArrowRight size={16} />
+              Create My Free Video <ArrowRight size={16} />
             </Link>
             <Link href="/pricing" className="inline-flex items-center gap-2 rounded-2xl border border-zinc-700 bg-zinc-900/40 px-7 py-4 text-sm font-bold text-zinc-300 transition hover:text-white">
               View Pricing
@@ -160,7 +160,7 @@ export default function AboutPage() {
           <h2 className="text-3xl font-black">Ready to create your first reel?</h2>
           <p className="mt-4 text-base text-zinc-400">No editing skills needed. Upload content, choose a video type, get a video.</p>
           <Link href="/dashboard" className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-brand-mint px-8 py-4 text-base font-black text-black transition hover:bg-white">
-            Start Creating Free <ArrowRight size={16} />
+            Create My Free Video <ArrowRight size={16} />
           </Link>
         </div>
       </section>

@@ -120,3 +120,7 @@ docs/references/keyframes/
 
 # Sample videos for review (not for deployment)
 __samples/
+
+.vercel
+.vercel-itnavideo/
+.env*.local
