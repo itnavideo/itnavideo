@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import { AudioLines, LayoutDashboard, LogIn, Menu, Sparkles, X } from 'lucide-react';
+import { AudioLines, LayoutDashboard, LogIn, Sparkles } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthContext';
 import BrandLogo from '@/components/brand/BrandLogo';
 
@@ -71,12 +71,17 @@ export default function Navbar() {
         </div>
 
         <button
-          className="flex h-11 w-11 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white transition hover:bg-white/10 md:hidden"
+          className="relative flex h-11 w-11 items-center justify-center rounded-xl border border-white/12 bg-white/[0.06] text-white shadow-[0_4px_12px_rgba(0,0,0,0.2)] backdrop-blur-sm transition hover:border-brand-mint/30 hover:bg-white/10 md:hidden"
           onClick={() => setIsOpen(!isOpen)}
           aria-label={isOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={isOpen}
         >
-          {isOpen ? <X size={21} /> : <Menu size={21} />}
+          {/* Animated bars → X transition */}
+          <div className="flex h-5 w-5 flex-col items-center justify-center gap-[5px]">
+            <span className={`block h-[2px] w-5 rounded-full bg-white transition-all duration-300 ${isOpen ? 'translate-y-[7px] rotate-45' : ''}`} />
+            <span className={`block h-[2px] w-3.5 rounded-full bg-brand-mint transition-all duration-300 ${isOpen ? 'scale-0 opacity-0' : ''}`} />
+            <span className={`block h-[2px] w-5 rounded-full bg-white transition-all duration-300 ${isOpen ? '-translate-y-[7px] -rotate-45' : ''}`} />
+          </div>
         </button>
       </div>
 

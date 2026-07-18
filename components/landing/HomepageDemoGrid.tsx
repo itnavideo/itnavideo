@@ -109,12 +109,12 @@ function TemplateGrid({ items, ratio, cols }: { items: TemplateCard[]; ratio: st
           {/* Big step number — prominently visible above the card */}
           <div className="mb-3 flex items-baseline gap-3">
             <span
-              className="font-black leading-none text-white/10"
-              style={{ fontSize: 100 }}
+              className="font-black leading-none text-cyan-300/40"
+              style={{ fontSize: 64 }}
             >
               {String(t.n).padStart(2, '0')}
             </span>
-            <span className="text-sm font-bold text-slate-500">{t.title}</span>
+            <span className="text-sm font-bold text-slate-400">{t.title}</span>
           </div>
 
           <Link
