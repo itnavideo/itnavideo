@@ -7,6 +7,7 @@ import VideoTypeGuide from "@/components/landing/VideoTypeGuide";
 import FeaturesSection from "@/components/landing/FeaturesSection";
 import PricingSection from "@/components/landing/PricingSection";
 import HomepageDemoGrid from "@/components/landing/HomepageDemoGrid";
+import DemoVideoShowcase from "@/components/landing/DemoVideoShowcase";
 import FAQSection from "@/components/FAQSection";
 import StatsBar from "@/components/landing/StatsBar";
 
@@ -79,6 +80,7 @@ export default function LandingPage() {
       <IntroVideoSection />
       <StatsBar />
       <HomepageDemoGrid />
+      <DemoVideoShowcase />
       <HowItWorks />
       <FeaturesSection />
       <VideoTypeGuide />
