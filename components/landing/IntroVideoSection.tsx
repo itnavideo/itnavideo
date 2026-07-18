@@ -10,6 +10,9 @@ const SHOWCASE = [
   { id: 'Walking_into_new_territory_is_all_about_asking_the_right_questions_And_of_course_collaborating_dxwggb', label: 'Typography Video' },
   { id: 'UPSC_vs_PCS_Kaun_Hai_Asli_Boss....._upsc_ssc_knowledge_exploremore_fypage_adecyc', label: 'Compare (Hindi)' },
   { id: 'content-creator-after', label: 'Creator Reel' },
+  { id: 'professional-creator-after', label: 'Caption Studio' },
+  { id: 'Slow_down_to_be_taken_seriously.When_you_rush_people_struggle_to_keep_up.And_when_others_have_t_c2zbay', label: 'Long Video Clips' },
+  { id: 'Most_of_what_we_call_luck_is_the_visible_outcome_of_someone_staying_in_the_game_longer_than_ot_xy8vgx', label: 'Multi Images' },
 ];
 
 /**

@@ -82,7 +82,7 @@ export default function Hero() {
           >
             <Link
               href="/dashboard"
-              className="group inline-flex items-center gap-2.5 rounded-xl px-9 py-4 text-base font-black text-white transition hover:-translate-y-[1px] active:translate-y-0 brand-btn-primary-dark"
+              className="group inline-flex items-center gap-2.5 rounded-xl bg-white px-9 py-4 text-base font-black text-slate-950 shadow-[0_8px_24px_rgba(255,255,255,0.12)] transition hover:-translate-y-[1px] hover:bg-zinc-100 active:translate-y-0"
             >
               <Play size={18} className="transition group-hover:scale-110" />
               Create My Free Video
