@@ -121,6 +121,7 @@ function TemplateGrid({ items, ratio, cols }: { items: TemplateCard[]; ratio: st
             href={t.href}
             className="group block overflow-hidden rounded-2xl border border-white/10 bg-slate-950 shadow-[0_18px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-1 hover:border-white/20"
           >
+            {/* Image — clean, no text overlay */}
             <div className={`relative ${ratio} overflow-hidden bg-black`}>
               <Image
                 src={t.image}
@@ -129,8 +130,6 @@ function TemplateGrid({ items, ratio, cols }: { items: TemplateCard[]; ratio: st
                 sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
                 className="object-cover object-center transition duration-500 group-hover:scale-[1.04]"
               />
-              <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-
               {/* Proof badge */}
               <span
                 className="absolute left-3 top-3 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-slate-950"
@@ -138,15 +137,13 @@ function TemplateGrid({ items, ratio, cols }: { items: TemplateCard[]; ratio: st
               >
                 {t.proof}
               </span>
-
-              <div className="absolute bottom-3 left-4 right-4">
-                <h3 className="text-lg font-black text-white">{t.title}</h3>
-                <p className="mt-0.5 text-[11px] font-bold uppercase tracking-wide text-slate-400">{t.input}</p>
-              </div>
             </div>
 
-            <div className="p-4">
-              <p className="min-h-[3rem] text-sm leading-6 text-slate-400">{t.desc}</p>
+            {/* Text below the image — styled card area */}
+            <div className="border-t border-white/5 p-5">
+              <h3 className="text-base font-black text-white">{t.title}</h3>
+              <p className="mt-0.5 text-[11px] font-bold uppercase tracking-wide text-slate-500">{t.input}</p>
+              <p className="mt-2.5 text-sm leading-6 text-slate-400">{t.desc}</p>
               <span
                 className="mt-3 inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wide transition group-hover:gap-2.5"
                 style={{ color: t.accent }}
