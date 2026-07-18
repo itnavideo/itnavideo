@@ -1,231 +1,198 @@
-'use client';
-
-import { useCallback, useRef, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, Volume2, VolumeX } from 'lucide-react';
+import { ArrowRight, Play } from 'lucide-react';
 
-const CLOUD = 'dhouh9idx';
-const BASE = `https://res.cloudinary.com/${CLOUD}/video/upload`;
-
-const SECTIONS: Array<{
+type TemplateCard = {
+  n: number;
   title: string;
-  description: string;
-  outcome: string;
+  input: string;
+  desc: string;
+  image: string;
+  proof: string;
   accent: string;
   href: string;
-  videos: string[];
-  labels?: string[];
-}> = [
+};
+
+// Short-form (9:16) templates — same card language as the Video Types page.
+const SHORT_TEMPLATES: TemplateCard[] = [
   {
-    title: 'Auto Captions',
-    description: 'Add clean, animated captions to any talking video. Words pop on screen in perfect sync with speech.',
-    outcome: 'Ready-to-post 9:16 reel with captions',
-    accent: '#22D3EE',
-    href: '/video-types/auto-caption-reel',
-    videos: [
-      'You_re_already_ahead_in_something.Stop_ignoring_it._That_s_your_edge._personalbranding_mhjtvu',
-      'content-creator-after',
-      'professional-creator-after',
-      'OpenAl_just_dropped_GPT_5.6_with_three_models_Sol_Terra_and_Luna._Sol_outperforms_Mythos_5_on_vyzfy8',
-    ],
+    n: 1,
+    title: 'Auto Caption Video',
+    input: 'Video',
+    desc: 'Clean, word-synced captions for any talking reel. Pick a style and post.',
+    image: '/preview/Auto Caption Reel.png',
+    proof: 'Most used',
+    accent: '#22C55E',
+    href: '/dashboard?videoType=auto-caption-reel',
   },
   {
-    title: 'Typography Video',
-    description: 'Turn a talking video into a bold creator reel with dynamic typography. Key phrases appear the moment you say them.',
-    outcome: 'Creator-style typography reel',
-    accent: '#8B5CF6',
-    href: '/video-types/typography-video',
-    videos: [
-      'Walking_into_new_territory_is_all_about_asking_the_right_questions_And_of_course_collaborating_dxwggb',
-      'The_different_between_dreaming_and_building_ain_t_talent._It_s_taking-_action_consistency_and_uk6mov',
-      'Slow_down_to_be_taken_seriously.When_you_rush_people_struggle_to_keep_up.And_when_others_have_t_c2zbay',
-      'Most_of_what_we_call_luck_is_the_visible_outcome_of_someone_staying_in_the_game_longer_than_ot_xy8vgx',
-    ],
-  },
-  {
+    n: 2,
     title: 'Compare Explainer',
-    description: 'Explain two ideas side by side with your voiceover, two images, and a sticker presenter. Great for education, finance, and product topics.',
-    outcome: 'Clear side-by-side comparison reel',
+    input: 'Audio + 2 images',
+    desc: 'Left vs right comparison with a narration and a sticker presenter.',
+    image: '/preview/Compare Explainer.png',
+    proof: 'Clear decision',
     accent: '#F59E0B',
-    href: '/video-types/compare-explainer',
-    videos: [
-      'Whats_The_Difference_Between_Coding_And_Programming._coding_programming_software_development_uf7fvf',
-      'UPSC_vs_PCS_Kaun_Hai_Asli_Boss....._upsc_ssc_knowledge_exploremore_fypage_adecyc',
-      'Indian_Government_Departments_Explained_in_Simple_Words....._indiafacts_education_viralree_hciuyx',
-      'Fixed_account_vs_Current_account_..._instagood_fd_viral_savings_finance_egsc7j',
-    ],
+    href: '/dashboard?videoType=compare-explainer',
   },
   {
-    title: 'Long Video Clips',
-    description: 'Turn one long podcast, interview, or lecture into short viral clips. AI picks the best moments and adds captions automatically.',
-    outcome: 'Up to 10 short clips from one long video',
-    accent: '#06B6D4',
-    href: '/video-types/long-video-clips',
-    videos: [
-      'uploads/DEMO%20VIDEOS/LONG%20VIDEO%20CLIPS/uploads/DEMO%20VIDEOS/LONG%20VIDEO%20CLIPS/clip-01-opening-hook',
-      'uploads/DEMO%20VIDEOS/LONG%20VIDEO%20CLIPS/uploads/DEMO%20VIDEOS/LONG%20VIDEO%20CLIPS/clip-04-founder-mindset',
-      'uploads/DEMO%20VIDEOS/LONG%20VIDEO%20CLIPS/uploads/DEMO%20VIDEOS/LONG%20VIDEO%20CLIPS/clip-06-growth-strategy',
-      'uploads/DEMO%20VIDEOS/LONG%20VIDEO%20CLIPS/uploads/DEMO%20VIDEOS/LONG%20VIDEO%20CLIPS/clip-09-market-timing',
-    ],
-    labels: ['Clip 1', 'Clip 2', 'Clip 3', 'Clip 4'],
+    n: 3,
+    title: 'Whiteboard Video',
+    input: 'Audio or Video',
+    desc: 'AI writes your key points on a whiteboard, synced to your speech.',
+    image: '/preview/Whiteboard Video.png',
+    proof: 'Educational',
+    accent: '#10B981',
+    href: '/dashboard?videoType=whiteboard-video',
+  },
+  {
+    n: 4,
+    title: 'Typography Video',
+    input: 'Video',
+    desc: 'Bold keywords pop on your talking video the moment you say them.',
+    image: '/preview/Typography Video.png',
+    proof: 'Engaging',
+    accent: '#8B5CF6',
+    href: '/dashboard?videoType=typography-video',
+  },
+  {
+    n: 5,
+    title: 'Long Video Promo',
+    input: 'Video + thumbnail',
+    desc: 'Turn a long video into a short vertical teaser that drives the full watch.',
+    image: '/preview/Long Video Promo.png',
+    proof: 'Promo ready',
+    accent: '#A3E635',
+    href: '/dashboard?videoType=long-video-promo',
+  },
+  {
+    n: 6,
+    title: 'Multi Images Video',
+    input: 'Video + images',
+    desc: 'Your images animate in sync with the narration — great for stories.',
+    image: '/preview/Multi Images Video.png',
+    proof: 'Story format',
+    accent: '#F472B6',
+    href: '/dashboard?videoType=multi-images-video',
   },
 ];
 
-export default function HomepageDemoGrid() {
-  // Track which video is currently unmuted (only one at a time)
-  const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
-  const allVideosRef = useRef<Map<string, HTMLVideoElement>>(new Map());
+// Long-form (16:9) templates.
+const LONG_TEMPLATES: TemplateCard[] = [
+  {
+    n: 1,
+    title: 'Long Video Captions',
+    input: '16:9 · up to 10 min',
+    desc: 'Preserve your full landscape video and original audio with timed captions.',
+    image: '/visuals/previews/long-form-captioned-video.png',
+    proof: 'Long-form',
+    accent: '#22D3EE',
+    href: '/dashboard?videoType=long-form-captioned-video',
+  },
+  {
+    n: 2,
+    title: 'Long Video Clips',
+    input: 'Long video input',
+    desc: 'AI picks the best moments from a long video and renders captioned short clips.',
+    image: '/preview/Long Video Clips.png',
+    proof: 'Repurpose',
+    accent: '#06B6D4',
+    href: '/dashboard?videoType=long-video-clips',
+  },
+];
 
-  const registerVideo = useCallback((id: string, el: HTMLVideoElement | null) => {
-    if (el) {
-      allVideosRef.current.set(id, el);
-    } else {
-      allVideosRef.current.delete(id);
-    }
-  }, []);
-
-  const handleVideoClick = useCallback((id: string) => {
-    const clickedVideo = allVideosRef.current.get(id);
-    if (!clickedVideo) return;
-
-    if (activeVideoId === id) {
-      // Already active — mute + pause it (toggle off)
-      clickedVideo.muted = true;
-      clickedVideo.pause();
-      setActiveVideoId(null);
-    } else {
-      // Mute all others, unmute this one
-      allVideosRef.current.forEach((video, videoId) => {
-        if (videoId !== id) {
-          video.muted = true;
-        }
-      });
-      clickedVideo.muted = false;
-      clickedVideo.play();
-      setActiveVideoId(id);
-    }
-  }, [activeVideoId]);
-
+function TemplateGrid({ items, ratio, cols }: { items: TemplateCard[]; ratio: string; cols: string }) {
   return (
-    <section className="px-4 py-20 sm:px-6" style={{ background: '#070A12' }}>
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-12 text-center">
-          <p className="mb-3 text-xs font-black uppercase tracking-[0.2em] text-cyan-200">See real results</p>
-          <h2 className="text-3xl font-black text-white sm:text-4xl">What creators are making right now</h2>
-          <p className="mx-auto mt-3 max-w-md text-sm text-slate-400">Every video below was made with Itnavideo. Tap any thumbnail to play with sound.</p>
-        </div>
+    <div className={`grid grid-cols-1 gap-5 sm:grid-cols-2 ${cols}`}>
+      {items.map((t) => (
+        <Link
+          key={t.title}
+          href={t.href}
+          className="group overflow-hidden rounded-2xl border border-white/10 bg-slate-950 shadow-[0_18px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-1 hover:border-white/20"
+        >
+          <div className={`relative ${ratio} overflow-hidden bg-black`}>
+            <Image
+              src={t.image}
+              alt={`${t.title} preview`}
+              fill
+              sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+              className="object-cover object-center transition duration-500 group-hover:scale-[1.04]"
+            />
+            <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
 
-        <div className="space-y-16">
-          {SECTIONS.map((section) => (
-            <div key={section.title}>
-              <div className="mb-5 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
-                <div className="min-w-0 max-w-2xl">
-                  <h3 className="text-xl font-black tracking-tight text-white sm:text-2xl">{section.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-slate-400">{section.description}</p>
-                  <p className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-bold" style={{ color: section.accent }}>
-                    <span className="inline-block h-1 w-1 rounded-full" style={{ background: section.accent }} />
-                    {section.outcome}
-                  </p>
-                </div>
-                <Link
-                  href={section.href}
-                  className="inline-flex shrink-0 items-center gap-1.5 self-start whitespace-nowrap text-xs font-bold transition hover:opacity-80"
-                  style={{ color: section.accent }}
-                >
-                  See all <ArrowRight size={12} />
-                </Link>
-              </div>
+            {/* Big step number */}
+            <span
+              className="pointer-events-none absolute right-2 top-1 font-black leading-none text-white/15"
+              style={{ fontSize: 96, textShadow: '0 2px 20px rgba(0,0,0,0.35)' }}
+            >
+              {t.n}
+            </span>
 
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {section.videos.map((id, idx) => (
-                  <VideoCard
-                    key={id}
-                    publicId={id}
-                    accent={section.accent}
-                    isActive={activeVideoId === id}
-                    onClickSound={() => handleVideoClick(id)}
-                    registerRef={(el) => registerVideo(id, el)}
-                    label={section.labels?.[idx]}
-                  />
-                ))}
-              </div>
+            {/* Proof badge */}
+            <span
+              className="absolute left-3 top-3 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-slate-950"
+              style={{ backgroundColor: t.accent }}
+            >
+              {t.proof}
+            </span>
+
+            <div className="absolute bottom-3 left-4 right-4">
+              <h3 className="text-lg font-black text-white">{t.title}</h3>
+              <p className="mt-0.5 text-[11px] font-bold uppercase tracking-wide text-slate-400">{t.input}</p>
             </div>
-          ))}
-        </div>
-      </div>
-    </section>
+          </div>
+
+          <div className="p-4">
+            <p className="min-h-[3rem] text-sm leading-6 text-slate-400">{t.desc}</p>
+            <span
+              className="mt-3 inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wide transition group-hover:gap-2.5"
+              style={{ color: t.accent }}
+            >
+              <Play size={12} fill="currentColor" /> Use this template <ArrowRight size={12} />
+            </span>
+          </div>
+        </Link>
+      ))}
+    </div>
   );
 }
 
-function VideoCard({
-  publicId,
-  accent,
-  isActive,
-  onClickSound,
-  registerRef,
-  label,
-}: {
-  publicId: string;
-  accent: string;
-  isActive: boolean;
-  onClickSound: () => void;
-  registerRef: (el: HTMLVideoElement | null) => void;
-  label?: string;
-}) {
+export default function HomepageDemoGrid() {
   return (
-    <div
-      className="group relative aspect-[9/16] overflow-hidden rounded-xl border bg-black shadow-lg transition hover:shadow-xl"
-      style={{ borderColor: isActive ? accent : `${accent}20` }}
-    >
-      <video
-        ref={registerRef}
-        src={`${BASE}/${publicId}.mp4`}
-        poster={`${BASE}/so_0/${publicId}.jpg`}
-        className="absolute inset-0 h-full w-full cursor-pointer object-cover"
-        muted
-        playsInline
-        loop
-        preload="none"
-        onClick={(e) => {
-          e.preventDefault();
-          const v = e.target as HTMLVideoElement;
-          if (v.paused) v.play();
-          onClickSound();
-        }}
-      />
+    <section className="px-4 py-20 sm:px-6" style={{ background: '#070A12' }}>
+      <div className="mx-auto max-w-7xl">
+        {/* Section header */}
+        <div className="mx-auto mb-14 max-w-3xl text-center">
+          <h2 className="text-4xl font-black leading-tight text-white sm:text-5xl">
+            No editing skills? <span className="text-brand-cyan">NO problem</span>
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-400">
+            Turn your audio or video into a professional reel or long video automatically. Just upload and let AI do the work.
+          </p>
+        </div>
 
-      {/* Play icon — hidden on hover/active */}
-      <div className={`pointer-events-none absolute inset-0 flex items-center justify-center transition-opacity ${isActive ? 'opacity-0' : 'opacity-100 group-hover:opacity-0'}`}>
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm border border-white/10">
-          <div className="ml-0.5 h-0 w-0 border-l-[8px] border-t-[5px] border-b-[5px] border-l-white border-t-transparent border-b-transparent" />
+        {/* Short videos */}
+        <div className="mb-16">
+          <div className="mb-6 flex items-center gap-3">
+            <span className="rounded-full bg-brand-cyan/15 px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-brand-cyan">
+              Short Videos
+            </span>
+            <span className="text-xs font-bold text-slate-500">9:16 reels for Instagram, TikTok &amp; Shorts</span>
+          </div>
+          <TemplateGrid items={SHORT_TEMPLATES} ratio="aspect-[9/16]" cols="lg:grid-cols-4" />
+        </div>
+
+        {/* Long videos */}
+        <div>
+          <div className="mb-6 flex items-center gap-3">
+            <span className="rounded-full bg-brand-cyan/15 px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-brand-cyan">
+              Long Videos
+            </span>
+            <span className="text-xs font-bold text-slate-500">16:9 tools for YouTube, podcasts &amp; lectures</span>
+          </div>
+          <TemplateGrid items={LONG_TEMPLATES} ratio="aspect-video" cols="lg:grid-cols-2" />
         </div>
       </div>
-
-      {/* Label badge (for Long Video Clips) */}
-      {label && (
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 pt-10">
-          <p className="text-[11px] font-bold text-white leading-tight">{label}</p>
-          <p className="text-[9px] mt-0.5" style={{ color: `${accent}cc` }}>AI-picked clip</p>
-        </div>
-      )}
-
-      {/* Sound indicator */}
-      <div className="pointer-events-none absolute right-2 top-2">
-        {isActive ? (
-          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-black/60 backdrop-blur-sm">
-            <Volume2 size={12} className="text-white" />
-          </div>
-        ) : (
-          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity">
-            <VolumeX size={12} className="text-white/60" />
-          </div>
-        )}
-      </div>
-
-      {/* Active glow border */}
-      {isActive && (
-        <div className="pointer-events-none absolute inset-0 rounded-xl ring-2 ring-inset" style={{ '--tw-ring-color': accent } as React.CSSProperties} />
-      )}
-    </div>
+    </section>
   );
 }
