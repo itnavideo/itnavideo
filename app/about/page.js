@@ -24,7 +24,7 @@ export default function AboutPage() {
           </p>
           <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Link href="/dashboard" className="inline-flex items-center gap-2 rounded-2xl bg-brand-mint px-8 py-4 text-base font-black text-black transition hover:bg-white">
-              Create My Free Video <ArrowRight size={16} />
+              Create Free AI Video <ArrowRight size={16} />
             </Link>
             <Link href="/pricing" className="inline-flex items-center gap-2 rounded-2xl border border-zinc-700 bg-zinc-900/40 px-7 py-4 text-sm font-bold text-zinc-300 transition hover:text-white">
               View Pricing
@@ -160,7 +160,7 @@ export default function AboutPage() {
           <h2 className="text-3xl font-black">Ready to create your first reel?</h2>
           <p className="mt-4 text-base text-zinc-400">No editing skills needed. Upload content, choose a video type, get a video.</p>
           <Link href="/dashboard" className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-brand-mint px-8 py-4 text-base font-black text-black transition hover:bg-white">
-            Create My Free Video <ArrowRight size={16} />
+            Create Free AI Video <ArrowRight size={16} />
           </Link>
         </div>
       </section>

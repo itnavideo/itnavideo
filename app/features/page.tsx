@@ -48,7 +48,7 @@ export default function FeaturesPage() {
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <Link href="/dashboard" className="inline-flex items-center gap-2 rounded-2xl bg-brand-mint px-8 py-4 text-base font-black text-black transition hover:bg-white">
-              Create My Free Video <ArrowRight size={16} />
+              Create Free AI Video <ArrowRight size={16} />
             </Link>
             <Link href="/pricing" className="inline-flex items-center gap-2 rounded-2xl border border-zinc-700 bg-zinc-900/40 px-7 py-4 text-sm font-bold text-zinc-300 transition hover:text-white">
               View Pricing
@@ -191,7 +191,7 @@ export default function FeaturesPage() {
           <p className="mt-4 text-base text-zinc-400">Upload your content and get a ready-to-post reel back. No timeline, no plugins, no learning curve.</p>
           <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Link href="/dashboard" className="inline-flex items-center gap-2 rounded-2xl bg-brand-mint px-8 py-4 text-base font-black text-black transition hover:bg-white">
-              Create My Free Video <ArrowRight size={16} />
+              Create Free AI Video <ArrowRight size={16} />
             </Link>
             <Link href="/pricing" className="inline-flex items-center gap-2 rounded-2xl border border-zinc-700 px-7 py-4 text-sm font-bold text-zinc-300 transition hover:text-white">
               View Video Types

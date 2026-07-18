@@ -46,7 +46,7 @@ function StickyMobileCTA() {
         className="flex w-full items-center justify-center gap-2 rounded-xl border border-cyan-100/25 bg-cyan-300 px-6 py-3.5 text-sm font-black text-slate-950 shadow-[0_0_26px_rgba(34,211,238,0.25)] transition active:scale-[0.97]"
       >
         <Sparkles size={16} />
-        Create My Free Video
+        Create Free AI Video
       </Link>
     </div>
   );

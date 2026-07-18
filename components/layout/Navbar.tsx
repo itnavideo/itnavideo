@@ -64,7 +64,7 @@ export default function Navbar() {
               <Link href="/login" className="rounded-lg px-3 py-2 text-sm font-bold text-zinc-300 transition-colors hover:bg-white/8 hover:text-white">Login</Link>
               <Link href="/signup" className="inline-flex items-center gap-2 rounded-lg border border-cyan-100/25 bg-cyan-300 px-5 py-2.5 text-sm font-extrabold text-slate-950 shadow-[0_0_26px_rgba(34,211,238,0.2)] transition hover:bg-cyan-200 hover:shadow-[0_0_32px_rgba(34,211,238,0.3)]">
                 <Sparkles size={16} />
-                Create My Free Video
+                Create Free AI Video
               </Link>
             </>
           )}
@@ -153,7 +153,7 @@ export default function Navbar() {
             <>
               <Link href="/signup" onClick={() => setIsOpen(false)} className="inline-flex items-center justify-center gap-2 rounded-lg border border-cyan-100/25 bg-cyan-300 px-5 py-4 text-center font-extrabold text-slate-950 shadow-[0_0_26px_rgba(34,211,238,0.2)]">
                 <Sparkles size={18} />
-                Create My Free Video
+                Create Free AI Video
               </Link>
               <Link href="/login" onClick={() => setIsOpen(false)} className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 px-5 py-3 text-center font-bold text-white">
                 <LogIn size={17} />

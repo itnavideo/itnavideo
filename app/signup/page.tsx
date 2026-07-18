@@ -239,7 +239,7 @@ export default function SignupPage() {
             disabled={loading}
             className="flex w-full items-center justify-center gap-2 rounded-lg bg-white py-3 text-sm font-bold text-black transition hover:bg-zinc-200 disabled:opacity-50"
           >
-            {loading ? <Loader2 className="animate-spin" size={18} /> : 'Create Account + Create My Free Video'}
+            {loading ? <Loader2 className="animate-spin" size={18} /> : 'Create Account + Create Free AI Video'}
           </button>
         </form>
 
@@ -254,7 +254,7 @@ export default function SignupPage() {
           className="flex w-full items-center justify-center gap-3 rounded-lg border border-white/10 bg-white/5 py-3 text-sm font-medium transition hover:bg-white/10 disabled:opacity-50"
         >
           <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white text-xs font-black text-black">G</span>
-          Join with Google + Create My Free Video
+          Join with Google + Create Free AI Video
         </button>
 
         <p className="mt-8 text-center text-sm text-zinc-500">
