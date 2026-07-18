@@ -8,6 +8,7 @@ import FeaturesSection from "@/components/landing/FeaturesSection";
 import PricingSection from "@/components/landing/PricingSection";
 import HomepageDemoGrid from "@/components/landing/HomepageDemoGrid";
 import FounderVideoSection from "@/components/landing/FounderVideoSection";
+import TestimonialSection from "@/components/landing/TestimonialSection";
 import FAQSection from "@/components/FAQSection";
 import StatsBar from "@/components/landing/StatsBar";
 
@@ -84,6 +85,7 @@ export default function LandingPage() {
       <FeaturesSection />
       <VideoTypeGuide />
       <FounderVideoSection />
+      <TestimonialSection />
       <PricingSection />
       <FAQSection />
       {/* Discover more — pill links to all templates */}

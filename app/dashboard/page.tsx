@@ -2765,6 +2765,7 @@ export default function DashboardPage() {
                   : mode === "customAiReel" && customAiPrompt.trim().length < 12 ? "Describe your video to continue. " : mode !== "customAiReel" && !selectedFile ? "Upload a file to continue. " : mode === "compare" && comparisonFiles.length !== 2 ? "Add at least two compare images. " : mode === "creatorBackgroundReplace" && !creatorBackgroundImageFile ? "Upload one background image. " : ""}
                 {!renderInProgress ? isFreeSignupCredit && !paidLimitComplete ? "Failed renders are not charged. Usually 2-10 minutes." : "Usually 2-10 minutes depending on video type and load." : ""}
               </p>
+              {renderInProgress ? <RenderWaitCarousel /> : null}
               <ProgressPreview mode={mode} />
               {paidLimitComplete ? (
                 <div className="rounded-lg border border-amber-200/20 bg-amber-200/[0.075] p-4 text-sm font-bold leading-6 text-amber-50">
@@ -3712,6 +3713,24 @@ async function uploadComparisonImages({files, userId}: {files: File[]; userId: s
     if (typeof presign.key === "string") keys.push(presign.key);
   }
   return keys;
+}
+
+function RenderWaitCarousel() {
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setIdx((p) => (p + 1) % 3), 5000);
+    return () => clearInterval(t);
+  }, []);
+  const WAIT_IMAGES = ['/visuals/render-wait/wait-1.png', '/visuals/render-wait/wait-2.png', '/visuals/render-wait/wait-3.png'];
+  const WAIT_TEXTS = ['Almost there! Your video is getting ready ✨', 'AI is assembling your video...', 'Sit back, sip some chai ☕'];
+  return (
+    <div className="mt-4 flex flex-col items-center gap-3">
+      <div className="relative h-40 w-full max-w-sm overflow-hidden rounded-xl border border-white/10 bg-black/30 sm:h-48">
+        <img src={WAIT_IMAGES[idx]} alt="" className="h-full w-full object-cover transition-opacity duration-700" key={idx} />
+      </div>
+      <p className="text-center text-xs font-bold text-cyan-200">{WAIT_TEXTS[idx]}</p>
+    </div>
+  );
 }
 
 function planningMessageForMode(mode: Mode) {

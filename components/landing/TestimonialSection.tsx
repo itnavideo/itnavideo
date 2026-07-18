@@ -1,81 +1,76 @@
-'use client';
+import Image from 'next/image';
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Building2, GraduationCap, Megaphone, Quote } from 'lucide-react';
-
-const testimonials = [
+const REVIEWS = [
   {
-    quote: 'I can record a voice idea and get a polished short without opening a complex editor.',
-    name: 'Short-form creator',
-    role: 'Reels and Shorts',
-    icon: Megaphone,
+    name: 'Akram',
+    role: 'Founder, Akram Editor Studio · Videography Business',
+    image: '/visuals/reviews/akram.jpg',
+    quote: 'It reduces time for making videos. No headache — just easy and fast output. I use it for creating reels for my clients.',
   },
   {
-    quote: 'The best part is how quickly a lesson becomes something I can actually post.',
-    name: 'Online educator',
-    role: 'Course content',
-    icon: GraduationCap,
+    name: 'Afzal',
+    role: 'Gemstone Business · India, Iran & Bangkok',
+    image: '/visuals/reviews/afzal.jpg',
+    quote: 'I don\'t know editing at all. This helps me a lot — I make reels about my gemstones and post directly. So simple.',
   },
   {
-    quote: 'This is the type of workflow agencies need for repeatable client shorts and fast content testing.',
-    name: 'Content agency',
-    role: 'Client videos',
-    icon: Building2,
+    name: 'Akhtar',
+    role: 'Construction Business',
+    image: '/visuals/reviews/akhtar.jpg',
+    quote: 'I just record my site videos and upload. Itnavideo adds captions and makes it look professional. Very useful for my business.',
+  },
+  {
+    name: 'Sayeed',
+    role: 'Oracle ACE Pro · Course Creator',
+    image: '/visuals/reviews/sayeed.jpg',
+    quote: 'I create both reels and long videos for my Oracle courses. Itnavideo handles captions and formatting — I just focus on teaching.',
   },
 ];
 
 export default function TestimonialSection() {
   return (
-    <section className="bg-black px-6 py-28">
+    <section className="px-4 py-20 sm:px-6" style={{ background: '#0B1120' }}>
       <div className="mx-auto max-w-7xl">
-        <div className="grid gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
-          <div>
-            <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-emerald-400">Testimonials</p>
-            <motion.h2
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-4xl font-black leading-tight tracking-normal text-white md:text-6xl"
+        {/* Header */}
+        <div className="mb-12 text-center">
+          <p className="mb-3 text-xs font-black uppercase tracking-[0.2em] text-cyan-200">Trusted by creators</p>
+          <h2 className="text-3xl font-black text-white sm:text-4xl">
+            Real creators. Real results.
+          </h2>
+          <p className="mx-auto mt-3 max-w-md text-sm text-slate-400">
+            See what people are saying about Itnavideo.
+          </p>
+        </div>
+
+        {/* Testimonial cards — side by side */}
+        <div className="mx-auto max-w-6xl grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {REVIEWS.map((review) => (
+            <div
+              key={review.name}
+              className="rounded-2xl border border-white/8 bg-white/[0.03] p-6 sm:p-8"
             >
-              Built for creators who want videos faster.
-            </motion.h2>
-            <p className="mt-5 text-lg leading-8 text-zinc-400">
-              Itnavideo is designed for voice-first creators, educators, and teams who need polished short-form videos without heavy editing work.
-            </p>
-          </div>
-
-          <div className="grid gap-4">
-            <div className="grid gap-4 md:grid-cols-3">
-              {testimonials.map((testimonial, index) => {
-                const Icon = testimonial.icon;
-
-                return (
-                  <motion.div
-                    key={testimonial.name}
-                    initial={{ opacity: 0, y: 16 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.06 }}
-                    className="rounded-lg border border-white/10 bg-zinc-950 p-6"
-                  >
-                    <div className="mb-6 flex items-center justify-between">
-                      <Icon size={22} className="text-blue-300" />
-                      <Quote size={20} className="text-zinc-700" />
-                    </div>
-                    <p className="text-sm leading-7 text-zinc-300">“{testimonial.quote}”</p>
-                    <div className="mt-6 border-t border-white/10 pt-4">
-                      <h3 className="font-bold text-white">{testimonial.name}</h3>
-                      <p className="mt-1 text-xs font-bold uppercase tracking-[0.16em] text-zinc-500">{testimonial.role}</p>
-                    </div>
-                  </motion.div>
-                );
-              })}
+              <div className="flex items-start gap-4">
+                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border-2 border-cyan-300/20">
+                  <Image
+                    src={review.image}
+                    alt={review.name}
+                    fill
+                    sizes="56px"
+                    className="object-cover object-top"
+                  />
+                </div>
+                <div>
+                  <p className="text-sm font-black text-white">{review.name}</p>
+                  <p className="text-[11px] text-slate-500">{review.role}</p>
+                </div>
+              </div>
+              <p className="mt-5 text-base leading-7 text-slate-300 italic">
+                &ldquo;{review.quote}&rdquo;
+              </p>
             </div>
-          </div>
+          ))}
         </div>
       </div>
     </section>
   );
 }
-
