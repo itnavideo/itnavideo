@@ -21,7 +21,7 @@ export type PricingPlan = {
   quotes: Record<BillingCurrency, PricingQuote>;
 };
 
-export const PRICE_VERSION = "2026-07-24";
+export const PRICE_VERSION = "2026-07-18";
 
 export const pricingPlans: PricingPlan[] = [
   {
@@ -43,7 +43,7 @@ export const pricingPlans: PricingPlan[] = [
     popular: true,
     billingPeriodLabel: "/month",
     quotes: {
-      INR: {currency: "INR", amount: 49900, displayPrice: "₹499", priceVersion: PRICE_VERSION},
+      INR: {currency: "INR", amount: 79900, displayPrice: "₹799", priceVersion: PRICE_VERSION},
       USD: {currency: "USD", amount: 1900, displayPrice: "$19", priceVersion: PRICE_VERSION},
     },
   },
@@ -67,7 +67,7 @@ export const pricingPlans: PricingPlan[] = [
     popular: false,
     billingPeriodLabel: "/month",
     quotes: {
-      INR: {currency: "INR", amount: 149900, displayPrice: "₹1,499", priceVersion: PRICE_VERSION},
+      INR: {currency: "INR", amount: 199900, displayPrice: "₹1,999", priceVersion: PRICE_VERSION},
       USD: {currency: "USD", amount: 4900, displayPrice: "$49", priceVersion: PRICE_VERSION},
     },
   },

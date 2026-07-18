@@ -71,6 +71,58 @@ const guides = [
     result: 'You get a professional YouTube Shorts promo in minutes.',
     href: '/dashboard?videoType=long-video-promo',
   },
+  {
+    title: 'Caption Studio',
+    emoji: '🎨',
+    accent: '#A78BFA',
+    mascot: '/brand/mascot-screen.webp',
+    steps: [
+      { emoji: '📹', text: 'Upload your talking video' },
+      { emoji: '🔤', text: 'Customize font, color, position' },
+      { emoji: '✨', text: 'Full manual creative control' },
+    ],
+    result: 'Design your own unique caption style from scratch — total creative freedom.',
+    href: '/dashboard?videoType=caption-studio',
+  },
+  {
+    title: 'Typography Video',
+    emoji: '🔠',
+    accent: '#8B5CF6',
+    mascot: '/brand/mascot-screen.webp',
+    steps: [
+      { emoji: '📹', text: 'Upload your talking video' },
+      { emoji: '🤖', text: 'AI detects keywords from speech' },
+      { emoji: '💥', text: 'Bold text pops on screen in sync' },
+    ],
+    result: 'Big, bold keywords appear the moment you say them — creator-style reel.',
+    href: '/dashboard?videoType=typography-video',
+  },
+  {
+    title: 'Multi Images Video',
+    emoji: '🖼️',
+    accent: '#F472B6',
+    mascot: '/brand/mascot-screen.webp',
+    steps: [
+      { emoji: '📹', text: 'Upload your narration video' },
+      { emoji: '🖼️', text: 'Add 2–8 images in order' },
+      { emoji: '✨', text: 'Images animate synced to speech' },
+    ],
+    result: 'Your images change on speech beats with captions — perfect for stories and news.',
+    href: '/dashboard?videoType=multi-images-video',
+  },
+  {
+    title: 'Long Video Clips',
+    emoji: '✂️',
+    accent: '#06B6D4',
+    mascot: '/brand/mascot-screen.webp',
+    steps: [
+      { emoji: '📹', text: 'Upload a long video or podcast' },
+      { emoji: '🤖', text: 'AI picks the best moments' },
+      { emoji: '📱', text: 'Get 3–10 short captioned clips' },
+    ],
+    result: 'Repurpose one long video into multiple viral-ready short clips automatically.',
+    href: '/dashboard?videoType=long-video-clips',
+  },
 ];
 
 export default function VideoTypeGuide() {

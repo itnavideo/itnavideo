@@ -184,13 +184,73 @@ export default function HomepageDemoGrid() {
           <TemplateGrid items={SHORT_TEMPLATES} ratio="aspect-[9/16]" cols="lg:grid-cols-4" />
         </div>
 
-        {/* Long videos */}
+        {/* Long videos — YouTube-style landscape cards */}
         <div>
           <div className="mb-8">
             <h3 className="text-3xl font-black text-white sm:text-4xl">Long Videos</h3>
             <p className="mt-2 text-base text-slate-400">16:9 tools for YouTube, podcasts &amp; lectures</p>
           </div>
-          <TemplateGrid items={LONG_TEMPLATES} ratio="aspect-video" cols="lg:grid-cols-2" />
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
+            {LONG_TEMPLATES.map((t) => (
+              <div key={t.title}>
+                {/* Number + name */}
+                <div className="mb-3 flex items-baseline gap-3">
+                  <span className="font-black leading-none text-cyan-300/40" style={{ fontSize: 64 }}>
+                    {String(t.n).padStart(2, '0')}
+                  </span>
+                  <span className="text-sm font-bold text-slate-400">{t.title}</span>
+                </div>
+
+                <Link
+                  href={t.href}
+                  className="group block overflow-hidden rounded-2xl border border-white/10 bg-slate-950 shadow-[0_18px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-1 hover:border-white/20"
+                >
+                  {/* YouTube-style 16:9 thumbnail — big, landscape, cinematic */}
+                  <div className="relative aspect-video overflow-hidden bg-black">
+                    <Image
+                      src={t.image}
+                      alt={`${t.title} preview`}
+                      fill
+                      sizes="(min-width: 640px) 50vw, 100vw"
+                      className="object-cover object-center transition duration-500 group-hover:scale-[1.03]"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+
+                    {/* YouTube-style play overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-80 transition group-hover:opacity-100">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-black/60 backdrop-blur-sm border border-white/20 shadow-[0_8px_24px_rgba(0,0,0,0.4)]">
+                        <span className="ml-1 border-l-[14px] border-t-[8px] border-b-[8px] border-l-white border-t-transparent border-b-transparent" />
+                      </div>
+                    </div>
+
+                    {/* Badge */}
+                    <span
+                      className="absolute left-3 top-3 rounded-md px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-slate-950"
+                      style={{ backgroundColor: t.accent }}
+                    >
+                      {t.proof}
+                    </span>
+
+                    {/* Bottom info bar — YouTube thumbnail style */}
+                    <div className="absolute bottom-0 left-0 right-0 p-4">
+                      <h3 className="text-lg font-black text-white drop-shadow-lg">{t.title}</h3>
+                      <p className="mt-0.5 text-[11px] font-bold uppercase tracking-wide text-slate-300">{t.input}</p>
+                    </div>
+                  </div>
+
+                  <div className="p-4">
+                    <p className="text-sm leading-6 text-slate-400">{t.desc}</p>
+                    <span
+                      className="mt-3 inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wide transition group-hover:gap-2.5"
+                      style={{ color: t.accent }}
+                    >
+                      <Play size={12} fill="currentColor" /> Use this template <ArrowRight size={12} />
+                    </span>
+                  </div>
+                </Link>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
