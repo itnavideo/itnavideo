@@ -86,6 +86,31 @@ export default function LandingPage() {
       <FounderVideoSection />
       <PricingSection />
       <FAQSection />
+      {/* Discover more — pill links to all templates */}
+      <section className="px-4 py-16 sm:px-6" style={{ background: '#070A12' }}>
+        <div className="mx-auto max-w-4xl text-center">
+          <p className="mb-2 text-xs font-black uppercase tracking-[0.2em] text-cyan-200">Templates</p>
+          <h2 className="mb-8 text-2xl font-black text-white sm:text-3xl">Discover more:</h2>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            {[
+              { label: 'Auto Caption Video', href: '/dashboard?videoType=auto-caption-reel' },
+              { label: 'Caption Studio', href: '/dashboard?videoType=caption-studio' },
+              { label: 'Compare Explainer', href: '/dashboard?videoType=compare-explainer' },
+              { label: 'Whiteboard Video', href: '/dashboard?videoType=whiteboard-video' },
+              { label: 'Typography Video', href: '/dashboard?videoType=typography-video' },
+              { label: 'Multi Images Video', href: '/dashboard?videoType=multi-images-video' },
+              { label: 'Long Video Promo', href: '/dashboard?videoType=long-video-promo' },
+              { label: 'Long Video Captions', href: '/dashboard?videoType=long-form-captioned-video' },
+              { label: 'Long Video Clips', href: '/dashboard?videoType=long-video-clips' },
+              { label: 'AI Audio Cleaner', href: '/dashboard?videoType=ai-audio-cleaner' },
+            ].map((t) => (
+              <a key={t.label} href={t.href} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-5 py-2.5 text-sm font-semibold text-slate-300 transition hover:border-brand-cyan/40 hover:bg-white/[0.08] hover:text-white">
+                {t.label} <span className="text-slate-500">→</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
