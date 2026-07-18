@@ -103,55 +103,59 @@ const LONG_TEMPLATES: TemplateCard[] = [
 
 function TemplateGrid({ items, ratio, cols }: { items: TemplateCard[]; ratio: string; cols: string }) {
   return (
-    <div className={`grid grid-cols-1 gap-5 sm:grid-cols-2 ${cols}`}>
+    <div className={`grid grid-cols-1 gap-10 sm:grid-cols-2 ${cols}`}>
       {items.map((t) => (
-        <Link
-          key={t.title}
-          href={t.href}
-          className="group overflow-hidden rounded-2xl border border-white/10 bg-slate-950 shadow-[0_18px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-1 hover:border-white/20"
-        >
-          <div className={`relative ${ratio} overflow-hidden bg-black`}>
-            <Image
-              src={t.image}
-              alt={`${t.title} preview`}
-              fill
-              sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-              className="object-cover object-center transition duration-500 group-hover:scale-[1.04]"
-            />
-            <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-
-            {/* Big step number */}
+        <div key={t.title}>
+          {/* Big step number — prominently visible above the card */}
+          <div className="mb-3 flex items-baseline gap-3">
             <span
-              className="pointer-events-none absolute right-2 top-1 font-black leading-none text-white/15"
-              style={{ fontSize: 96, textShadow: '0 2px 20px rgba(0,0,0,0.35)' }}
+              className="font-black leading-none text-white/10"
+              style={{ fontSize: 100 }}
             >
-              {t.n}
+              {String(t.n).padStart(2, '0')}
             </span>
+            <span className="text-sm font-bold text-slate-500">{t.title}</span>
+          </div>
 
-            {/* Proof badge */}
-            <span
-              className="absolute left-3 top-3 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-slate-950"
-              style={{ backgroundColor: t.accent }}
-            >
-              {t.proof}
-            </span>
+          <Link
+            href={t.href}
+            className="group block overflow-hidden rounded-2xl border border-white/10 bg-slate-950 shadow-[0_18px_60px_rgba(0,0,0,0.28)] transition duration-300 hover:-translate-y-1 hover:border-white/20"
+          >
+            <div className={`relative ${ratio} overflow-hidden bg-black`}>
+              <Image
+                src={t.image}
+                alt={`${t.title} preview`}
+                fill
+                sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+                className="object-cover object-center transition duration-500 group-hover:scale-[1.04]"
+              />
+              <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
 
-            <div className="absolute bottom-3 left-4 right-4">
-              <h3 className="text-lg font-black text-white">{t.title}</h3>
-              <p className="mt-0.5 text-[11px] font-bold uppercase tracking-wide text-slate-400">{t.input}</p>
+              {/* Proof badge */}
+              <span
+                className="absolute left-3 top-3 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-slate-950"
+                style={{ backgroundColor: t.accent }}
+              >
+                {t.proof}
+              </span>
+
+              <div className="absolute bottom-3 left-4 right-4">
+                <h3 className="text-lg font-black text-white">{t.title}</h3>
+                <p className="mt-0.5 text-[11px] font-bold uppercase tracking-wide text-slate-400">{t.input}</p>
+              </div>
             </div>
-          </div>
 
-          <div className="p-4">
-            <p className="min-h-[3rem] text-sm leading-6 text-slate-400">{t.desc}</p>
-            <span
-              className="mt-3 inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wide transition group-hover:gap-2.5"
-              style={{ color: t.accent }}
-            >
-              <Play size={12} fill="currentColor" /> Use this template <ArrowRight size={12} />
-            </span>
-          </div>
-        </Link>
+            <div className="p-4">
+              <p className="min-h-[3rem] text-sm leading-6 text-slate-400">{t.desc}</p>
+              <span
+                className="mt-3 inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wide transition group-hover:gap-2.5"
+                style={{ color: t.accent }}
+              >
+                <Play size={12} fill="currentColor" /> Use this template <ArrowRight size={12} />
+              </span>
+            </div>
+          </Link>
+        </div>
       ))}
     </div>
   );
@@ -164,31 +168,27 @@ export default function HomepageDemoGrid() {
         {/* Section header */}
         <div className="mx-auto mb-14 max-w-3xl text-center">
           <h2 className="text-4xl font-black leading-tight text-white sm:text-5xl">
-            No editing skills? <span className="text-brand-cyan">NO problem</span>
+            Pick a template. <span className="text-brand-cyan">Upload. Done.</span>
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-400">
-            Turn your audio or video into a professional reel or long video automatically. Just upload and let AI do the work.
+            Each template has its own upload flow, AI pipeline, and output style — no generic one-size-fits-all.
           </p>
         </div>
 
         {/* Short videos */}
         <div className="mb-16">
-          <div className="mb-6 flex items-center gap-3">
-            <span className="rounded-full bg-brand-cyan/15 px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-brand-cyan">
-              Short Videos
-            </span>
-            <span className="text-xs font-bold text-slate-500">9:16 reels for Instagram, TikTok &amp; Shorts</span>
+          <div className="mb-8">
+            <h3 className="text-3xl font-black text-white sm:text-4xl">Short Videos</h3>
+            <p className="mt-2 text-base text-slate-400">9:16 reels for Instagram, TikTok &amp; YouTube Shorts</p>
           </div>
           <TemplateGrid items={SHORT_TEMPLATES} ratio="aspect-[9/16]" cols="lg:grid-cols-4" />
         </div>
 
         {/* Long videos */}
         <div>
-          <div className="mb-6 flex items-center gap-3">
-            <span className="rounded-full bg-brand-cyan/15 px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-brand-cyan">
-              Long Videos
-            </span>
-            <span className="text-xs font-bold text-slate-500">16:9 tools for YouTube, podcasts &amp; lectures</span>
+          <div className="mb-8">
+            <h3 className="text-3xl font-black text-white sm:text-4xl">Long Videos</h3>
+            <p className="mt-2 text-base text-slate-400">16:9 tools for YouTube, podcasts &amp; lectures</p>
           </div>
           <TemplateGrid items={LONG_TEMPLATES} ratio="aspect-video" cols="lg:grid-cols-2" />
         </div>

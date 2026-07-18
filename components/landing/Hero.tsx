@@ -40,9 +40,9 @@ export default function Hero() {
             transition={{ delay: 0.08 }}
             className="text-[2.3rem] font-black leading-[1.03] tracking-normal text-white sm:text-5xl md:text-[5.25rem]"
           >
-            Turn your videos into
+            No editing skills?
             <span className="block bg-[linear-gradient(135deg,#BAE6FD_0%,#22D3EE_48%,#A78BFA_100%)] bg-clip-text text-transparent" style={{ textShadow: '0 0 80px rgba(34,211,238,0.26)' }}>
-              polished short and long-form videos.
+              NO problem.
             </span>
           </motion.h1>
 
@@ -52,7 +52,7 @@ export default function Hero() {
             transition={{ delay: 0.14 }}
             className="mx-auto mt-6 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg"
           >
-Create polished short clips or preserve a long 16:9 video with timed captions. No timelines or keyframes — upload and let Itnavideo handle the production work.
+            Turn your audio or video into a professional reel or long video automatically. Just upload and let AI do the work.
           </motion.p>
 
           <motion.div
@@ -133,21 +133,6 @@ Create polished short clips or preserve a long 16:9 video with timed captions. N
             </p>
           </motion.div>
         </div>
-
-        {/* Hero showcase banner */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.38, duration: 0.6 }}
-          className="mx-auto mt-14 max-w-5xl overflow-hidden rounded-2xl border border-white/10 shadow-[0_32px_80px_rgba(0,0,0,0.4)]"
-        >
-          <img
-            src="/visuals/banners/hero-homepage.png"
-            alt="Itnavideo - AI video tool showing multiple device outputs"
-            className="w-full h-auto"
-            loading="eager"
-          />
-        </motion.div>
 
       </div>
     </section>

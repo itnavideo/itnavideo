@@ -1,7 +1,6 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Play } from 'lucide-react';
 
@@ -51,7 +50,6 @@ const guides = [
     emoji: '💬',
     accent: '#22D3EE',
     mascot: '/brand/mascot-screen.webp',
-    image: '/visuals/banners/long-form-captioned-video.png',
     steps: [
       { emoji: '📹', text: 'Upload a 16:9 video with clear speech' },
       { emoji: '🎨', text: 'Choose your caption style' },
@@ -127,18 +125,6 @@ export default function VideoTypeGuide() {
                 className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
                 style={{ background: guide.accent }}
               />
-
-              {guide.image ? (
-                <div className="relative mb-4 aspect-video overflow-hidden rounded-lg border border-cyan-300/15 bg-slate-950">
-                  <Image
-                    alt="Long-form Captioned Video preview"
-                    className="object-cover"
-                    fill
-                    sizes="(min-width: 1024px) 280px, (min-width: 640px) 42vw, 90vw"
-                    src={guide.image}
-                  />
-                </div>
-              ) : null}
 
               {/* Title row */}
               <div className="relative mb-4 flex items-center gap-3">
