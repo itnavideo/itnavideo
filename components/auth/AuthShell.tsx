@@ -37,7 +37,7 @@ export default function AuthShell({
             <ArrowLeft size={17} />
             Back to home
           </Link>
-          <div className="mb-8 inline-flex items-center gap-2 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-sm font-bold text-blue-200">
+          <div className="mb-8 inline-flex items-center gap-2 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-sm font-bold text-emerald-300">
             <Sparkles size={15} />
             {eyebrow}
           </div>

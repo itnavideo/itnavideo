@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Copy, CheckCircle2, BookOpen, Loader2 } from 'lucide-react';
+import { ArrowLeft, Copy, CheckCircle2, BookOpen, Loader2, Sparkles, Target, Zap, Link as LinkIcon, Video, AlertOctagon, CheckSquare } from 'lucide-react';
 import { toast } from 'sonner';
+import { planStrategicArticle } from '@/lib/blogPlanner';
+import { auditArticleQuality } from '@/lib/blogQualityAuditor';
 
 export default function AdminNewBlogPost() {
   const router = useRouter();
@@ -13,6 +15,7 @@ export default function AdminNewBlogPost() {
   const [excerpt, setExcerpt] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('captions');
+  const [dashboardType, setDashboardType] = useState('auto-caption-reel');
   const [publishing, setPublishing] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -39,6 +42,7 @@ export default function AdminNewBlogPost() {
     excerpt: '${excerpt.replace(/'/g, "\\'")}',
     date: '${new Date().toISOString().split('T')[0]}',
     category: '${category}',
+    dashboardType: '${dashboardType}',
     readTime: '${Math.max(3, Math.ceil(content.split(/\s+/).length / 200))} min read',
     content: \`${content.replace(/`/g, '\\`')}\`,
   },`;
@@ -55,12 +59,16 @@ export default function AdminNewBlogPost() {
       toast.error('Title, slug, and content are required.');
       return;
     }
+    if (wordCount < 1500) {
+      toast.error(`Minimum 1,500 words required to publish. Current: ${wordCount} words.`);
+      return;
+    }
     setPublishing(true);
     try {
       const res = await fetch('/api/admin/blog', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, slug, excerpt, content, category }),
+        body: JSON.stringify({ title, slug, excerpt, content, category, dashboardType }),
       });
       const data = await res.json();
       if (data.ok) {
@@ -199,18 +207,111 @@ export default function AdminNewBlogPost() {
           </div>
 
           <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-5">
-            <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">Stats</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">Promoted Product Feature</span>
+            <select
+              value={dashboardType}
+              onChange={(e) => setDashboardType(e.target.value)}
+              className="mt-3 block w-full rounded-lg border border-zinc-700 bg-black px-3 py-2 text-xs font-bold text-brand-mint focus:border-brand-mint focus:outline-none"
+            >
+              <option value="auto-caption-reel">Auto Caption Reel & 3D Subtitles</option>
+              <option value="compare-explainer">Compare Explainer (IIT vs ITI)</option>
+              <option value="whiteboard-video">Whiteboard AI Sketch Explainer</option>
+              <option value="typography-video">Kinetic Typography Video</option>
+              <option value="long-video-promo">Long Video Teaser & Promo</option>
+              <option value="long-caption-pro">Long-Form Video Caption Pro</option>
+              <option value="long-video-clips">Multi-Clip AI Highlight Extractor</option>
+              <option value="multi-images-video">Image Story & Photo Slideshow</option>
+              <option value="caption-studio">Custom Subtitle & Font Studio</option>
+              <option value="faceless-long-video">AI Faceless Video & Narration</option>
+              <option value="ai-audio-cleaner">AI Voice Cleaner & Noise Remover</option>
+            </select>
+          </div>
+
+          <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-5">
+            <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">Word Count & SEO Status</span>
             <div className="mt-3 grid grid-cols-2 gap-3">
-              <div className="rounded-lg bg-zinc-950 p-3 text-center">
-                <p className="text-lg font-black text-white">{wordCount}</p>
-                <p className="text-[10px] text-zinc-500">Words</p>
+              <div className={`rounded-lg p-3 text-center border ${wordCount >= 1500 ? 'border-emerald-500/30 bg-emerald-950/20' : 'border-amber-500/30 bg-amber-950/20'}`}>
+                <p className={`text-lg font-black ${wordCount >= 1500 ? 'text-emerald-400' : 'text-amber-400'}`}>{wordCount}</p>
+                <p className="text-[10px] font-bold text-zinc-400">{wordCount >= 1500 ? '✓ PASSED (1,500+)' : 'Min 1,500 Words'}</p>
               </div>
-              <div className="rounded-lg bg-zinc-950 p-3 text-center">
+              <div className="rounded-lg bg-zinc-950 p-3 text-center border border-zinc-800">
                 <p className="text-lg font-black text-white">{readTime} min</p>
-                <p className="text-[10px] text-zinc-500">Read time</p>
+                <p className="text-[10px] text-zinc-500">Est. Read Time</p>
               </div>
             </div>
           </div>
+
+          {/* Strategic Content Blueprint Card */}
+          {(() => {
+            const plan = planStrategicArticle(title || 'How to create viral social reels with AI captions', dashboardType);
+            return (
+              <div className="rounded-lg border-2 border-brand-mint/30 bg-zinc-950 p-5 space-y-3 shadow-lg">
+                <div className="flex items-center gap-2 text-brand-mint font-black text-xs uppercase tracking-wider">
+                  <Sparkles size={14} />
+                  <span>STRATEGIC CONTENT BLUEPRINT</span>
+                </div>
+
+                <div className="space-y-2.5 text-xs text-zinc-300">
+                  <div>
+                    <strong className="text-white block font-bold">1. Search Intent & Target Query:</strong>
+                    <span className="text-zinc-400">{plan.targetSearchQuery}</span>
+                  </div>
+                  <div>
+                    <strong className="text-white block font-bold">2. Identified Creator Problem:</strong>
+                    <span className="text-zinc-400">{plan.userProblem}</span>
+                  </div>
+                  <div>
+                    <strong className="text-white block font-bold">3. Promoted Itnavideo Solution:</strong>
+                    <span className="text-brand-mint font-bold">{plan.featureSolution}</span>
+                  </div>
+                  <div>
+                    <strong className="text-white block font-bold">4. Studio URL & Feature Link:</strong>
+                    <span className="text-zinc-400 font-mono text-[11px]">{plan.targetDashboardUrl}</span>
+                  </div>
+                  <div>
+                    <strong className="text-white block font-bold">5. Video Demo Case Study:</strong>
+                    <span className="text-zinc-400">{plan.relevantVideoExample.title}</span>
+                  </div>
+                  <div>
+                    <strong className="text-white block font-bold">6. Conversion CTA Text:</strong>
+                    <span className="text-emerald-400 font-bold">{plan.ctaButtonText}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* 24-Point Quality Audit Gatekeeper Card */}
+          {(() => {
+            const audit = auditArticleQuality({ title, slug, excerpt, content, category, dashboardType });
+            return (
+              <div className={`rounded-lg border-2 p-5 space-y-3 shadow-lg ${audit.passed ? 'border-emerald-500/40 bg-emerald-950/20' : 'border-amber-500/40 bg-zinc-950'}`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 font-black text-xs uppercase tracking-wider text-white">
+                    <CheckSquare size={15} className={audit.passed ? 'text-emerald-400' : 'text-amber-400'} />
+                    <span>AUTOMATED QUALITY AUDIT ({audit.score}%)</span>
+                  </div>
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${audit.passed ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'}`}>
+                    {audit.passed ? '✓ GATEKEEPER PASSED' : `${audit.criticalFailures.length} CRITICAL BLOCKS`}
+                  </span>
+                </div>
+
+                <div className="max-h-60 overflow-y-auto space-y-1.5 text-[11px] pr-1 scrollbar-thin">
+                  {audit.checks.map((chk) => (
+                    <div key={chk.id} className="flex items-start gap-2 py-0.5 border-b border-zinc-800/60 last:border-0">
+                      <span className={`shrink-0 font-bold ${chk.passed ? 'text-emerald-400' : 'text-red-400'}`}>
+                        {chk.passed ? '✓' : '✕'}
+                      </span>
+                      <div className="leading-tight">
+                        <span className={chk.passed ? 'text-zinc-300 font-medium' : 'text-red-300 font-bold'}>{chk.label}</span>
+                        <p className="text-[10px] text-zinc-500">{chk.message}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
 
           <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-5">
             <div className="flex items-center gap-2 mb-3">

@@ -129,9 +129,9 @@ const productStats = [
   ['Primary promise', 'Raw creator content to polished reels'],
   ['Current output', '9:16 MP4 short videos'],
   ['Target speed', 'Under 3 minutes'],
-  ['Render engine', 'Remotion on AWS Lambda'],
-  ['Transcription', 'Groq Whisper'],
-  ['Storage policy', 'Temporary S3 uploads and outputs'],
+  ['Render engine', 'High-speed Cloud Video Engine'],
+  ['Transcription', 'AI Speech Sync'],
+  ['Storage policy', 'Temporary cloud uploads and outputs'],
 ];
 
 const videoTypes = [
@@ -241,7 +241,7 @@ export default function DocsPage() {
               <h1 className="max-w-5xl text-4xl font-black leading-tight sm:text-6xl lg:text-7xl">
                 Itnavideo product, startup, and engineering docs.
               </h1>
-              <p className="mt-6 max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
+              <p className="mt-6 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">
                 A polished reading layer for the startup files, original Google Doc content, and the new internal product documentation. Use this page to orient founders, investors, developers, designers, and future team members.
               </p>
             </div>
@@ -262,7 +262,7 @@ export default function DocsPage() {
           <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {productStats.map(([label, value]) => (
               <div key={label} className="rounded-lg border border-white/10 bg-white/[0.04] p-4">
-                <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">{label}</p>
+                <p className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">{label}</p>
                 <p className="mt-2 text-sm font-black text-white">{value}</p>
               </div>
             ))}
@@ -276,7 +276,7 @@ export default function DocsPage() {
             <FileText className="text-brand-mint" size={24} />
             <div>
               <h2 className="text-3xl font-black">Startup Docs Index</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-400">
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
                 Files `01` to `09`, the original Google Doc archive, and the master internal product documentation are all represented here.
               </p>
             </div>
@@ -287,10 +287,10 @@ export default function DocsPage() {
               <article key={doc.file} className="rounded-lg border border-white/10 bg-[#111b2d] p-5">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className={`rounded-md border px-2.5 py-1 text-xs font-black ${doc.accent}`}>{doc.status}</span>
-                  <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1 text-xs text-slate-300">{doc.audience}</span>
+                  <span className="rounded-md border border-white/10 bg-black/25 px-2.5 py-1 text-xs text-muted-foreground">{doc.audience}</span>
                 </div>
                 <h3 className="mt-5 text-xl font-black">{doc.title}</h3>
-                <p className="mt-3 min-h-16 text-sm leading-6 text-slate-400">{doc.summary}</p>
+                <p className="mt-3 min-h-16 text-sm leading-6 text-muted-foreground">{doc.summary}</p>
                 <p className="mt-5 rounded-lg border border-white/10 bg-black/35 px-3 py-2 font-mono text-xs text-cyan-100">
                   {String(sourcePath)}
                   {String('displayFile' in doc ? doc.displayFile : doc.file)}
@@ -310,7 +310,7 @@ export default function DocsPage() {
                 Product catalog
               </div>
               <h2 className="text-3xl font-black leading-tight sm:text-5xl">Video types and render coverage.</h2>
-              <p className="mt-5 text-sm leading-7 text-slate-400">
+              <p className="mt-5 text-sm leading-7 text-muted-foreground">
                 The docs preserve both the current production context and the founder notes. Custom AI Reel is kept visible, but its production status should be confirmed because documentation sources differ.
               </p>
               <div className="mt-6 rounded-lg border border-red-300/25 bg-red-300/10 p-4 text-sm leading-6 text-red-50">
@@ -325,7 +325,7 @@ export default function DocsPage() {
 
             <div className="overflow-x-auto rounded-lg border border-white/10 bg-[#0d1424]">
               <table className="w-full min-w-[840px] border-collapse text-left text-sm">
-                <thead className="bg-white/[0.05] text-xs uppercase tracking-[0.16em] text-slate-400">
+                <thead className="bg-white/[0.05] text-xs uppercase tracking-[0.16em] text-muted-foreground">
                   <tr>
                     <th className="border-b border-white/10 px-4 py-4">Video type</th>
                     <th className="border-b border-white/10 px-4 py-4">Purpose</th>
@@ -337,9 +337,9 @@ export default function DocsPage() {
                   {videoTypes.map(([name, purpose, input, output]) => (
                     <tr key={name} className="border-b border-white/10 last:border-b-0">
                       <td className="px-4 py-4 font-black text-white">{name}</td>
-                      <td className="px-4 py-4 text-slate-300">{purpose}</td>
-                      <td className="px-4 py-4 text-slate-400">{input}</td>
-                      <td className="px-4 py-4 text-slate-400">{output}</td>
+                      <td className="px-4 py-4 text-muted-foreground">{purpose}</td>
+                      <td className="px-4 py-4 text-muted-foreground">{input}</td>
+                      <td className="px-4 py-4 text-muted-foreground">{output}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -355,7 +355,7 @@ export default function DocsPage() {
             <Layers3 className="text-amber-200" size={24} />
             <div>
               <h2 className="text-3xl font-black">Architecture Summary</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-400">The core product flow from upload to final MP4.</p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">The core product flow from upload to final MP4.</p>
             </div>
           </div>
 
@@ -366,7 +366,7 @@ export default function DocsPage() {
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-brand-mint text-sm font-black text-black">{step}</div>
                   <div>
                     <h3 className="font-black text-white">{title}</h3>
-                    <p className="mt-1 text-sm leading-6 text-slate-400">{body}</p>
+                    <p className="mt-1 text-sm leading-6 text-muted-foreground">{body}</p>
                   </div>
                 </div>
               ))}
@@ -381,7 +381,7 @@ export default function DocsPage() {
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[720px] border-collapse text-left text-sm">
-                  <thead className="bg-white/[0.04] text-xs uppercase tracking-[0.16em] text-slate-400">
+                  <thead className="bg-white/[0.04] text-xs uppercase tracking-[0.16em] text-muted-foreground">
                     <tr>
                       <th className="border-b border-white/10 px-4 py-4">Layer</th>
                       <th className="border-b border-white/10 px-4 py-4">Technology</th>
@@ -393,7 +393,7 @@ export default function DocsPage() {
                       <tr key={layer} className="border-b border-white/10 last:border-b-0">
                         <td className="px-4 py-4 font-black text-white">{layer}</td>
                         <td className="px-4 py-4 text-cyan-100">{tech}</td>
-                        <td className="px-4 py-4 text-slate-400">{role}</td>
+                        <td className="px-4 py-4 text-muted-foreground">{role}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -413,7 +413,7 @@ export default function DocsPage() {
                 Render props
               </div>
               <h2 className="text-3xl font-black leading-tight sm:text-5xl">Code blocks belong in the docs too.</h2>
-              <p className="mt-5 text-sm leading-7 text-slate-400">
+              <p className="mt-5 text-sm leading-7 text-muted-foreground">
                 The master documentation explains the product. The docs hub also shows shapes and examples so developers can understand how captions, settings, and render props fit together.
               </p>
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -442,7 +442,7 @@ export default function DocsPage() {
             <LineChart className="text-brand-mint" size={24} />
             <div>
               <h2 className="text-3xl font-black">Trackers and Operating System</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-400">
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
                 The new master doc adds the working trackers needed for a startup team.
               </p>
             </div>
@@ -458,7 +458,7 @@ export default function DocsPage() {
                   </div>
                   <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-500">{tracker.tag}</p>
                   <h3 className="mt-2 text-xl font-black">{tracker.title}</h3>
-                  <p className="mt-3 text-sm leading-6 text-slate-400">{tracker.body}</p>
+                  <p className="mt-3 text-sm leading-6 text-muted-foreground">{tracker.body}</p>
                 </div>
               );
             })}
@@ -471,7 +471,7 @@ export default function DocsPage() {
             </div>
             <div className="grid gap-3 md:grid-cols-2">
               {qaRules.map((rule) => (
-                <div key={rule} className="flex gap-3 rounded-lg border border-white/10 bg-black/25 p-4 text-sm leading-6 text-slate-300">
+                <div key={rule} className="flex gap-3 rounded-lg border border-white/10 bg-black/25 p-4 text-sm leading-6 text-muted-foreground">
                   <CheckCircle2 className="mt-0.5 shrink-0 text-brand-mint" size={18} />
                   <span>{rule}</span>
                 </div>
@@ -487,22 +487,22 @@ export default function DocsPage() {
             <div className="rounded-lg border border-white/10 bg-black/25 p-5">
               <Cloud className="mb-4 text-cyan-200" size={24} />
               <h3 className="font-black">Deployment</h3>
-              <p className="mt-3 text-sm leading-6 text-slate-400">Vercel for frontend/API and Remotion Lambda for render engine.</p>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">Vercel for frontend/API and Remotion Lambda for render engine.</p>
             </div>
             <div className="rounded-lg border border-white/10 bg-black/25 p-5">
               <Database className="mb-4 text-amber-200" size={24} />
               <h3 className="font-black">Database</h3>
-              <p className="mt-3 text-sm leading-6 text-slate-400">Supabase handles auth, history, credits, app data, and user state.</p>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">Supabase handles auth, history, credits, app data, and user state.</p>
             </div>
             <div className="rounded-lg border border-white/10 bg-black/25 p-5">
               <Server className="mb-4 text-fuchsia-200" size={24} />
               <h3 className="font-black">Rendering</h3>
-              <p className="mt-3 text-sm leading-6 text-slate-400">Remotion compositions render serverlessly with S3 media URLs.</p>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">Remotion compositions render serverlessly with S3 media URLs.</p>
             </div>
             <div className="rounded-lg border border-white/10 bg-black/25 p-5">
               <LockKeyhole className="mb-4 text-lime-200" size={24} />
               <h3 className="font-black">Security</h3>
-              <p className="mt-3 text-sm leading-6 text-slate-400">Private files, protected APIs, limited URLs, safe logs, and credit protection.</p>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">Private files, protected APIs, limited URLs, safe logs, and credit protection.</p>
             </div>
           </div>
 
@@ -534,3 +534,4 @@ export default function DocsPage() {
     </main>
   );
 }
+

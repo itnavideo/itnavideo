@@ -1,5 +1,5 @@
-import React from 'react';
 import {AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+import {DEFAULT_FPS} from '../constants';
 
 export type PremiumVisualStyleLock = {
   colorGrade?: {
@@ -151,15 +151,14 @@ function getEnergyAtProgress(
   return body;
 }
 
-function getPatternInterruptPulse(styleLock: PremiumVisualStyleLock | undefined, frame: number) {
+function getPatternInterruptPulse(styleLock: PremiumVisualStyleLock | undefined, frame: number, fps: number = DEFAULT_FPS) {
   const everySeconds = Math.max(0, Number(styleLock?.pacing?.patternInterruptEverySeconds) || 0);
   if (!everySeconds) return 0;
-  const assumedFps = 30;
-  const intervalFrames = Math.max(1, Math.round(everySeconds * assumedFps));
+  const intervalFrames = Math.max(1, Math.round(everySeconds * fps));
   const intervalIndex = Math.floor(frame / intervalFrames);
   if (intervalIndex < 1) return 0;
   const localFrame = frame - intervalIndex * intervalFrames;
-  const pulseFrames = Math.max(4, Math.round(assumedFps * 0.18));
+  const pulseFrames = Math.max(4, Math.round(fps * 0.18));
   const rawPulse = Math.max(0, 1 - localFrame / pulseFrames);
   const intensity = Math.max(0.2, Math.min(1, Number(styleLock?.pacing?.patternInterruptIntensity) || 0.45));
   return rawPulse * intensity;

@@ -11,6 +11,10 @@ export type BillingEntitlement = {
   currency: string;
   paymentId: string;
   orderId: string;
+  subscriptionId?: string;
+  subscriptionStatus?: string;
+  billingCycle?: "monthly" | "annual";
+  cancelAtPeriodEnd?: boolean;
   status: "active";
   activatedAt: string;
   expiresAt: string;
@@ -89,6 +93,67 @@ export async function upsertBillingEntitlementFromServer(input: {
   return entitlement;
 }
 
+export async function upsertSubscriptionEntitlementFromServer(input: {
+  userId: string;
+  email?: string | null;
+  planId: string;
+  planName: string;
+  amount: number;
+  currency: string;
+  paymentId: string;
+  subscriptionId: string;
+  currentStart: number;
+  currentEnd: number;
+  status: string;
+}) {
+  const userId = sanitizeString(input.userId);
+  const subscriptionId = sanitizeString(input.subscriptionId);
+  if (!userId || !subscriptionId || !input.currentEnd) throw new Error("Subscription details are required.");
+  const entitlement: BillingEntitlement = {
+    userId,
+    email: sanitizeString(input.email) || null,
+    planId: sanitizeString(input.planId),
+    planName: sanitizeString(input.planName),
+    monthlyVideoLimit: getPlanLimit(input.planId),
+    amount: Math.max(0, Math.round(Number(input.amount) || 0)),
+    currency: sanitizeString(input.currency || "INR").toUpperCase() || "INR",
+    paymentId: sanitizeString(input.paymentId),
+    orderId: subscriptionId,
+    subscriptionId,
+    subscriptionStatus: sanitizeString(input.status) || "active",
+    billingCycle: getPlanCycle(input.planId),
+    status: "active",
+    activatedAt: new Date(Math.max(0, Number(input.currentStart) || Date.now() / 1000) * 1000).toISOString(),
+    expiresAt: new Date(Number(input.currentEnd) * 1000).toISOString(),
+  };
+  const supabase = createSupabaseServerClient();
+  const { error } = await supabase.from("app_settings").upsert({ key: entitlementKey(userId), value: entitlement, updated_by: "razorpay-subscription", updated_at: new Date().toISOString() }, { onConflict: "key" });
+  if (error) throw new Error(`Billing entitlement write failed: ${error.message}`);
+  return entitlement;
+}
+
+export async function markSubscriptionCancellationFromServer(userId: string, subscriptionId: string) {
+  const existing = await getBillingEntitlementFromServer(userId);
+  if (!existing || existing.subscriptionId !== sanitizeString(subscriptionId)) return existing;
+  const entitlement = {...existing, cancelAtPeriodEnd: true};
+  const supabase = createSupabaseServerClient();
+  const { error } = await supabase.from("app_settings").upsert({ key: entitlementKey(userId), value: entitlement, updated_by: "razorpay-subscription-cancel", updated_at: new Date().toISOString() }, { onConflict: "key" });
+  if (error) throw new Error(`Billing entitlement write failed: ${error.message}`);
+  return entitlement;
+}
+
+export function getEntitlementCreditWindow(entitlement: BillingEntitlement, now = new Date()) {
+  const billingStart = new Date(entitlement.activatedAt);
+  const billingEnd = new Date(entitlement.expiresAt);
+  if (entitlement.billingCycle !== "annual" || Number.isNaN(billingStart.getTime()) || Number.isNaN(billingEnd.getTime())) {
+    return { startAt: entitlement.activatedAt, endAt: entitlement.expiresAt };
+  }
+  let start = billingStart;
+  while (addMonths(start, 1) <= now && addMonths(start, 1) < billingEnd) start = addMonths(start, 1);
+  const end = addMonths(start, 1) < billingEnd ? addMonths(start, 1) : billingEnd;
+  return { startAt: start.toISOString(), endAt: end.toISOString() };
+}
+
 export function isEntitlementActive(entitlement: BillingEntitlement | null) {
   if (!entitlement || entitlement.status !== "active") return false;
   return new Date(entitlement.expiresAt).getTime() > Date.now();
@@ -111,6 +176,10 @@ function normalizeEntitlement(value: unknown, expectedUserId: string): BillingEn
     currency: sanitizeString(item.currency || "INR").toUpperCase() || "INR",
     paymentId: sanitizeString(item.paymentId),
     orderId: sanitizeString(item.orderId),
+    subscriptionId: sanitizeString(item.subscriptionId) || undefined,
+    subscriptionStatus: sanitizeString(item.subscriptionStatus) || undefined,
+    billingCycle: item.billingCycle === "annual" ? "annual" : "monthly",
+    cancelAtPeriodEnd: item.cancelAtPeriodEnd === true,
     status: item.status === "active" ? "active" : "active",
     activatedAt: sanitizeString(item.activatedAt),
     expiresAt: sanitizeString(item.expiresAt),
@@ -128,10 +197,18 @@ function getPlanLimit(planId: unknown) {
   return pricingPlans.find((plan) => plan.id === id)?.monthlyVideoLimit || 0;
 }
 
+function getPlanCycle(planId: unknown) { return pricingPlans.find((plan) => plan.id === sanitizeString(planId))?.billingCycle || "monthly"; }
 function getPlanValidityDays(planId: unknown) {
   const id = sanitizeString(planId);
-  const validDays = pricingPlans.find((plan) => plan.id === id)?.validDays;
-  return Math.max(1, Math.round(Number(validDays) || 31));
+  return pricingPlans.find((plan) => plan.id === id)?.validDays || 30;
+}
+function addMonths(date: Date, count: number) {
+  const result = new Date(date);
+  const day = result.getUTCDate();
+  result.setUTCDate(1);
+  result.setUTCMonth(result.getUTCMonth() + count);
+  result.setUTCDate(Math.min(day, new Date(Date.UTC(result.getUTCFullYear(), result.getUTCMonth() + 1, 0)).getUTCDate()));
+  return result;
 }
 
 function sanitizeString(value: unknown) {

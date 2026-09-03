@@ -19,7 +19,7 @@ function PhoneMockup({ children, accentColor = '#A3E635' }: { children: React.Re
       aspectRatio: '9/16',
       borderRadius: 20,
       overflow: 'hidden',
-      background: '#0a0a0a',
+      background: '#031a09',
       border: `1.5px solid ${accentColor}44`,
       boxShadow: `0 24px 60px rgba(0,0,0,0.5), 0 0 40px ${accentColor}18`,
       position: 'relative',
@@ -36,7 +36,7 @@ function BeforePhone() {
   return (
     <PhoneMockup accentColor="#64748B">
       {/* Dark feed background */}
-      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg,#0f172a 0%,#020617 100%)' }} />
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg,#065f46 0%,#020617 100%)' }} />
 
       {/* Before badge */}
       <div style={{
@@ -57,7 +57,7 @@ function BeforePhone() {
       }}>
         {/* Placeholder thumbnail bar */}
         <div style={{
-          height: 90, background: 'linear-gradient(135deg,#1e293b 0%,#0f172a 100%)',
+          height: 90, background: 'linear-gradient(135deg,#1e293b 0%,#065f46 100%)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
           <Youtube size={28} color="rgba(255,255,255,0.2)" />
@@ -199,7 +199,7 @@ function AfterPhone() {
 export default function PromoBeforeAfter() {
   return (
     <section className="relative overflow-hidden border-t border-white/8 px-5 py-20 sm:px-8 md:py-28"
-      style={{ background: '#080C14' }}>
+      style={{ background: '#042f2e' }}>
       {/* Ambient glow */}
       <div className="pointer-events-none absolute inset-0"
         style={{ background: 'radial-gradient(ellipse 800px 400px at 50% 0%, rgba(163,230,53,0.07) 0%, transparent 60%)' }} />
@@ -214,7 +214,7 @@ export default function PromoBeforeAfter() {
           <h2 className="text-3xl font-black leading-tight text-white sm:text-4xl md:text-5xl">
             Your long video deserves a proper promo.
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-slate-400">
+          <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-muted-foreground">
             Sharing a plain YouTube link loses your audience before they even click. A vertical promo reel with thumbnail, title, and a highlight clip drives real views.
           </p>
         </div>
@@ -262,7 +262,7 @@ export default function PromoBeforeAfter() {
                 ].map(({ icon, label }) => (
                   <div key={label} className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/[0.02] px-4 py-3">
                     <span className="text-xl">{icon}</span>
-                    <span className="text-sm font-semibold text-slate-300">{label}</span>
+                    <span className="text-sm font-semibold text-muted-foreground">{label}</span>
                   </div>
                 ))}
               </div>
@@ -292,7 +292,7 @@ export default function PromoBeforeAfter() {
             '📺 YouTubers', '🎙️ Podcasters', '📚 Course creators',
             '🕌 Bayan & lecture', '🎵 Music releases', '🎓 Teachers',
           ].map((label) => (
-            <span key={label} className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-semibold text-slate-300">
+            <span key={label} className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-semibold text-muted-foreground">
               {label}
             </span>
           ))}
@@ -315,3 +315,4 @@ export default function PromoBeforeAfter() {
     </section>
   );
 }
+

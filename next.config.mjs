@@ -8,6 +8,17 @@ const nextConfig = {
   // Enforce no trailing slash for consistent URLs
   trailingSlash: false,
 
+  // Allow external images from Cloudinary CDN
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/**',
+      },
+    ],
+  },
+
   outputFileTracingExcludes: {
     '/*': buildTraceExcludes(),
     '/api/*': buildTraceExcludes(),
@@ -28,7 +39,10 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
 
-  // Security Headers
+  // Enable React strict mode for performance
+  reactStrictMode: true,
+
+  // Security & Response Caching Headers
   async headers() {
     return [
       {
@@ -49,6 +63,10 @@ const nextConfig = {
           {
             key: 'Strict-Transport-Security',
             value: 'max-age=31536000; includeSubDomains',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, s-maxage=86400, stale-while-revalidate=604800',
           },
         ],
       },

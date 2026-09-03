@@ -4,9 +4,19 @@ import Image from 'next/image';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "Features — AI Reel Workflow | Itnavideo",
-  description: "A focused AI reel workflow. Upload content, AI handles captions, scenes, layouts, and export. Not a random generator.",
+  title: "Features — Complete AI Video Creation Workflow | Itnavideo",
+  description: "Upload your content and AI handles transcription, captions, scene planning, motion, and HD export. Word-level sync, 23+ caption styles, and 11 focused video types.",
   alternates: { canonical: "/features" },
+  openGraph: {
+    title: "Features — Complete AI Video Creation Workflow | Itnavideo",
+    description: "Word-level captions, AI scene planning, 23+ styles, HD export. No editing needed.",
+    images: ["/og-image.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Features — AI Video Workflow | Itnavideo",
+    description: "Upload once, AI handles everything. Captions, motion, export — all automated.",
+  },
 };
 
 const features = [
@@ -15,7 +25,7 @@ const features = [
   { title: "Focused video types", desc: "Creator edits, background replace, captions, comparisons, whiteboard explainers, and long video promos.", icon: Film },
   { title: "AI scene planning", desc: "Gemini/AI analyzes your content and creates visual scenes automatically.", icon: Wand2 },
   { title: "Clean visual system", desc: "Fonts, spacing, motion, and safe zones stay consistent across every reel.", icon: Palette },
-  { title: "Fast cloud rendering", desc: "2-3 minute render on AWS Lambda. No local processing or heavy software needed.", icon: Zap },
+  { title: "Fast cloud rendering", desc: "2-3 minute cloud render. No local processing or heavy software needed.", icon: Zap },
 ];
 
 const handles = [
@@ -31,7 +41,7 @@ const handles = [
 
 export default function FeaturesPage() {
   return (
-    <main className="min-h-screen bg-[#0B1120] text-white">
+    <main className="min-h-screen bg-background text-foreground">
       {/* Hero */}
       <section className="px-4 pb-16 pt-28 sm:px-6 sm:pt-32">
         <div className="mx-auto max-w-4xl">
@@ -167,10 +177,10 @@ export default function FeaturesPage() {
           <h2 className="mb-10 text-3xl font-black sm:text-4xl">See what gets exported</h2>
           <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
             {[
-              { image: '/preview/Dynamic Creator Reel.png', label: 'Dynamic Edit' },
-              { image: '/preview/Auto Caption Reel.png', label: 'Auto Captions' },
-              { image: '/preview/Compare Explainer.png', label: 'Compare' },
-              { image: '/preview/Auto Draw Explainer.png', label: 'Auto Draw' },
+              { image: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788190063/file_0000000089c48211b67c16fe3c2636a2_prirg0.png', label: 'AI Video Studio' },
+              { image: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788190064/file_000000005540821181b6095da390b68b_qumuqg.png', label: 'Auto Captions' },
+              { image: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788093814/teacher-welcome_ouesss.png', label: 'Compare' },
+              { image: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788094218/Typography_Video_sitlxz.png', label: 'Typography' },
             ].map((ex) => (
               <div key={ex.label} className="relative overflow-hidden rounded-xl border border-white/8">
                 <div className="relative aspect-[9/16]">

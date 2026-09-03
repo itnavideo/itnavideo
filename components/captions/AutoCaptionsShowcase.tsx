@@ -139,14 +139,14 @@ export default function AutoCaptionsShowcase({ limit }: { limit?: number }) {
           {isPreview ? (
             <>
               <Link
-                href="/auto-captions"
+                href="/auto-caption-generator"
                 className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/[0.05] px-7 py-3.5 text-sm font-black text-slate-200 transition hover:bg-white/[0.09] hover:text-white"
               >
                 See all 6 caption examples
                 <ArrowRight size={15} />
               </Link>
               <Link
-                href="/dashboard?videoType=auto-caption-reel"
+                href="/dashboard?videoType=auto-caption-generator"
                 className="inline-flex items-center gap-2 rounded-xl bg-green-500 px-8 py-3.5 text-sm font-black text-white transition hover:-translate-y-0.5 hover:bg-green-400"
                 style={{ boxShadow: '0 0 28px rgba(34,197,94,0.4)' }}
               >
@@ -157,7 +157,7 @@ export default function AutoCaptionsShowcase({ limit }: { limit?: number }) {
           ) : (
             <>
               <Link
-                href="/dashboard?videoType=auto-caption-reel"
+                href="/dashboard?videoType=auto-caption-generator"
                 className="inline-flex items-center gap-2 rounded-xl bg-green-500 px-9 py-4 text-base font-black text-white transition hover:-translate-y-0.5 hover:bg-green-400"
                 style={{ boxShadow: '0 0 28px rgba(34,197,94,0.4)' }}
               >

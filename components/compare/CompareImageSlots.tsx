@@ -79,7 +79,7 @@ export function CompareImageSlots({files, onChange, onError}: CompareImageSlotsP
   ];
 
   return (
-    <div className="rounded-xl border border-emerald-400/20 bg-[radial-gradient(circle_at_top,_rgba(37,99,235,0.10),_rgba(0,0,0,0.45)_48%,_rgba(0,0,0,0.72))] p-4 shadow-[0_0_32px_rgba(37,99,235,0.08)] sm:p-5">
+    <div className="rounded-xl border border-emerald-400/20 bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.10),_rgba(0,0,0,0.45)_48%,_rgba(0,0,0,0.72))] p-4 shadow-[0_0_32px_rgba(16,185,129,0.08)] sm:p-5">
       <div className="mb-5 grid gap-3 sm:flex sm:items-center sm:justify-between">
         <div className="min-w-0">
           <p className="text-[11px] font-black uppercase tracking-[0.22em] text-emerald-300">
@@ -93,7 +93,7 @@ export function CompareImageSlots({files, onChange, onError}: CompareImageSlotsP
         <span
           className={`w-fit rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em] ${
             files.length === 2
-              ? "border-emerald-400/35 bg-emerald-500/10 text-blue-200"
+              ? "border-emerald-400/35 bg-emerald-500/10 text-emerald-300"
               : "border-amber-300/35 bg-amber-400/10 text-amber-100"
           }`}
         >

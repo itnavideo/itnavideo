@@ -13,7 +13,7 @@ const longFormFeatures = [
 
 export default function LongFormComingSoon() {
   return (
-    <section className="relative overflow-hidden border-y border-white/8 bg-[#061112] px-6 py-28">
+    <section className="relative overflow-hidden border-y border-white/8 bg-[#022c22] px-6 py-28">
       <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(20,184,166,0.12),transparent_35%),linear-gradient(315deg,rgba(59,130,246,0.10),transparent_32%)]" />
 
       <div className="relative z-10 mx-auto grid max-w-7xl gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
@@ -22,7 +22,7 @@ export default function LongFormComingSoon() {
             initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mb-7 inline-flex items-center gap-2 rounded-lg border border-cyan-300/20 bg-cyan-300/10 px-3 py-2 text-sm font-bold text-cyan-100"
+            className="mb-7 inline-flex items-center gap-2 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-sm font-bold text-emerald-200"
           >
             <Clock3 size={16} />
             Private waitlist open
@@ -59,7 +59,7 @@ export default function LongFormComingSoon() {
               href="https://forms.gle/WuqDzdRsuhtnEED4A"
               target="_blank"
               rel="noopener noreferrer"
-              className="group inline-flex items-center justify-center gap-2 rounded-lg bg-cyan-200 px-6 py-4 font-bold text-black transition hover:bg-white"
+              className="group inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-300 px-6 py-4 font-bold text-black transition hover:bg-white"
             >
               Join waitlist
               <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
@@ -84,7 +84,7 @@ export default function LongFormComingSoon() {
                 transition={{ delay: index * 0.05 }}
                 className="rounded-lg border border-white/10 bg-black/28 p-6 backdrop-blur"
               >
-                <div className="mb-6 flex h-11 w-11 items-center justify-center rounded-md bg-cyan-200/10 text-cyan-100">
+                <div className="mb-6 flex h-11 w-11 items-center justify-center rounded-md bg-emerald-300/10 text-emerald-200">
                   <Icon size={20} />
                 </div>
                 <h3 className="text-lg font-bold text-white">{feature.title}</h3>

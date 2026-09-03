@@ -1,18 +1,20 @@
 export const CREDIT_UNITS_PER_CREDIT = 10;
-export const LONG_FORM_CAPTION_MAX_SECONDS = 10 * 60;
+export const LONG_FORM_CAPTION_MAX_SECONDS = 20 * 60;
 export const LONG_VIDEO_CLIPS_BASE_CREDITS = 2;
 export const LONG_VIDEO_CLIPS_PER_OUTPUT_CREDITS = 1;
 
 export type BillableRenderMode =
   | "autoCaption"
-  | "captionStudio"
   | "compare"
   | "longVideoPromo"
-  | "longFormCaptionedVideo"
+  | "aiVideoGenerator"
   | "whiteboardVideo"
   | "typographyVideo"
   | "multiImagesVideo"
-  | "longVideoClips";
+  | "longVideoClips"
+  | "facelessLongVideo"
+  | "longVideoPro"
+  | "longFormCaptionedVideo";
 
 type RenderCreditOptions = {
   durationSeconds?: number;
@@ -20,12 +22,14 @@ type RenderCreditOptions = {
 };
 
 export function calculateLongFormCaptionCreditUnits(durationSeconds: number) {
-  const duration = Number(durationSeconds);
+  const duration = Number(durationSeconds) || 60;
   if (!Number.isFinite(duration) || duration <= 0 || duration > LONG_FORM_CAPTION_MAX_SECONDS) {
-    throw new Error("Long-form Captioned Video supports a confirmed duration from 1 second to 10 minutes.");
+    throw new Error("Long Video supports a confirmed duration from 1 second to 20 minutes.");
   }
 
-  return Math.ceil(duration / 60) * CREDIT_UNITS_PER_CREDIT;
+  // Simple: 1 credit per started minute. 1 min = 10 units = 1 credit.
+  const minutes = Math.ceil(duration / 60);
+  return minutes * CREDIT_UNITS_PER_CREDIT;
 }
 
 export function calculateRenderCreditUnits(mode: BillableRenderMode, options: RenderCreditOptions = {}) {
@@ -34,19 +38,21 @@ export function calculateRenderCreditUnits(mode: BillableRenderMode, options: Re
     case "longVideoPromo":
     case "typographyVideo":
       return CREDIT_UNITS_PER_CREDIT;
-    case "captionStudio":
     case "compare":
     case "whiteboardVideo":
     case "multiImagesVideo":
       return 2 * CREDIT_UNITS_PER_CREDIT;
     case "longVideoClips": {
       const clipCount = Number(options.clipCount);
-      if (!Number.isInteger(clipCount) || clipCount < 1 || clipCount > 10) {
-        throw new Error("Long Video Clips requires between 1 and 10 requested clips.");
+      if (!Number.isInteger(clipCount) || clipCount < 1 || clipCount > 15) {
+        throw new Error("Long Video Clips requires between 1 and 15 requested clips.");
       }
       return (LONG_VIDEO_CLIPS_BASE_CREDITS + clipCount * LONG_VIDEO_CLIPS_PER_OUTPUT_CREDITS) * CREDIT_UNITS_PER_CREDIT;
     }
     case "longFormCaptionedVideo":
+    case "aiVideoGenerator":
+    case "facelessLongVideo":
+    case "longVideoPro":
       return calculateLongFormCaptionCreditUnits(Number(options.durationSeconds));
     default: {
       const unsupportedMode: never = mode;

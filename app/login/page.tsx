@@ -182,7 +182,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={handleForgotPassword}
                 disabled={resetLoading}
-                className="text-xs font-bold text-emerald-500 hover:text-emerald-400 disabled:opacity-60"
+                className="text-xs font-bold text-primary hover:text-primary disabled:opacity-60"
               >
                 {resetLoading ? 'Sending...' : 'Forgot?'}
               </button>
@@ -258,7 +258,7 @@ export default function LoginPage() {
         </button>
 
         <p className="mt-8 text-center text-sm text-zinc-500">
-          Don&apos;t have an account? <Link href="/signup" className="font-bold text-emerald-500 hover:text-emerald-400">Create one</Link>
+          Don&apos;t have an account? <Link href="/signup" className="font-bold text-primary hover:text-primary">Create one</Link>
         </p>
       </div>
     </AuthShell>
@@ -351,5 +351,6 @@ function withTimeout<T>(promise: Promise<T>, code: string): Promise<T> {
     }),
   ]);
 }
+
 
 

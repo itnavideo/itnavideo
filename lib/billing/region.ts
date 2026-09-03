@@ -1,21 +1,24 @@
 import { headers } from "next/headers";
-import { getPricingPlan, resolvePlanQuoteForCountry } from "@/lib/billing/plans";
+import { pricingPlans, resolvePlanQuoteForCountry } from "@/lib/billing/plans";
 
 /**
- * Resolves the visitor's billing region from the trusted Vercel edge header
- * and returns exactly ONE local price per plan. Never expose both INR and
- * USD together — the visitor should only ever see their own region's price.
+ * Resolves the visitor's billing region and returns exact local price per plan.
  */
 export async function getRegionalPlanDisplayPrices() {
   const headersList = await headers();
   const countryCode = headersList.get("x-vercel-ip-country") || "";
 
-  const proPlan = getPricingPlan("pro");
-  const businessPlan = getPricingPlan("business");
+  const displayPrices = Object.fromEntries(pricingPlans.map((plan) => [plan.id, resolvePlanQuoteForCountry(plan, countryCode).displayPrice]));
 
   return {
     countryCode,
-    proPrice: proPlan ? resolvePlanQuoteForCountry(proPlan, countryCode).displayPrice : "₹499",
-    businessPrice: businessPlan ? resolvePlanQuoteForCountry(businessPlan, countryCode).displayPrice : "₹1,499",
+    displayPrices,
+    freePrice: displayPrices.free || "₹0",
+    starterPrice: displayPrices.starter || "₹99",
+    proPrice: displayPrices.pro || "₹499",
+    growthPrice: displayPrices.pro || "₹499",
+    agencyPrice: displayPrices.pro || "₹499",
+    businessPrice: displayPrices.pro || "₹499",
+    enterprisePrice: displayPrices.pro || "₹499",
   };
 }

@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Player } from '@remotion/player';
 import { CompareExplainer } from '@/remotion/templates/COMPARE_EXPLAINER/template';
+import { DEFAULT_FPS } from '@/remotion/constants';
 
-const PREVIEW_FPS = 30;
+const PREVIEW_FPS = DEFAULT_FPS;
 const PREVIEW_SECONDS = 12;
 
 /**
@@ -22,6 +23,7 @@ export function ComparePreview({
   tone,
   winner,
   stickerStyle,
+  imageStyle,
 }: {
   files: File[];
   leftTitle: string;
@@ -31,6 +33,7 @@ export function ComparePreview({
   tone: string;
   winner: string;
   stickerStyle: string;
+  imageStyle?: string;
 }) {
   // Turn uploaded files into object URLs so the preview shows the real visuals.
   const [urls, setUrls] = useState<string[]>([]);
@@ -52,6 +55,7 @@ export function ComparePreview({
       tone,
       winner,
       stickerStyle,
+      compareImageStyle: imageStyle || 'rounded',
       topicTitle: leftTitle && rightTitle ? `${leftTitle} vs ${rightTitle}` : '',
       premiumEditing: false,
       captions: [
@@ -59,7 +63,7 @@ export function ComparePreview({
         { start: 5.7, end: 9, text: 'Aur yahan dusra point' },
       ],
     }),
-    [urls, leftTitle, rightTitle, handle, themeId, tone, winner, stickerStyle],
+    [urls, leftTitle, rightTitle, handle, themeId, tone, winner, stickerStyle, imageStyle],
   );
 
   return (

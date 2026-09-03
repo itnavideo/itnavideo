@@ -1,0 +1,771 @@
+{
+  "metadata": {
+    "styleId": "dubai-gold",
+    "demoVideoId": "dubai-gold",
+    "name": "Dubai Gold Luxe",
+    "category": "luxury",
+    "tags": [
+      "dubai-gold",
+      "editorial-luxury",
+      "Deterministic Reverse-Engineered"
+    ],
+    "sourceVideoUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/v1788193725/Video-1475_vqqclf.mp4",
+    "posterUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/f_auto,q_auto,w_480,so_0.5/v1788193725/Video-1475_vqqclf.jpg",
+    "analysisVersion": "2.0.0-temporal-motion",
+    "analyzedAt": "2026-09-01T09:52:03.544Z",
+    "overallConfidence": 0.88
+  },
+  "pacingAndRhythm": {
+    "personality": {
+      "value": "editorial-luxury",
+      "confidence": 0.9,
+      "status": "ESTIMATED"
+    },
+    "rhythmPattern": {
+      "value": "word-slam",
+      "confidence": 0.88,
+      "status": "ESTIMATED"
+    },
+    "targetWordsPerPhrase": 3,
+    "averagePhraseDurationSec": 1.5,
+    "transitionFrequencyPerMinute": 32,
+    "speechSyncMode": "beat-locked",
+    "motionIntensity": {
+      "value": "punchy",
+      "confidence": 0.85,
+      "status": "ESTIMATED"
+    }
+  },
+  "typography": {
+    "fontCategory": {
+      "value": "editorial-luxury-serif",
+      "confidence": 0.95,
+      "status": "DETECTED"
+    },
+    "fontFamilyEstimate": {
+      "value": "Cinzel",
+      "confidence": 0.92,
+      "status": "DETECTED"
+    },
+    "heroTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 900,
+      "fontStyle": "normal",
+      "relativeScale": 1.6,
+      "letterSpacingRatio": -0.02,
+      "lineHeightRatio": 1.1,
+      "opacity": 1
+    },
+    "leadTreatment": {
+      "casing": "natural",
+      "fontWeight": 600,
+      "fontStyle": "normal",
+      "relativeScale": 0.8,
+      "letterSpacingRatio": 0,
+      "lineHeightRatio": 1.2,
+      "opacity": 0.85
+    },
+    "subTreatment": {
+      "casing": "natural",
+      "fontWeight": 500,
+      "fontStyle": "normal",
+      "relativeScale": 0.7,
+      "letterSpacingRatio": 0.02,
+      "lineHeightRatio": 1.2,
+      "opacity": 0.7
+    },
+    "hierarchyLevels": [
+      "hero",
+      "lead",
+      "sub"
+    ],
+    "textDensity": {
+      "value": "compact-phrases",
+      "confidence": 0.9,
+      "status": "ESTIMATED"
+    },
+    "wordGroupingRule": "2-4-balanced",
+    "lineBreakPolicy": "balanced-stack"
+  },
+  "composition": {
+    "layoutStructure": {
+      "value": "split-lead-hero",
+      "confidence": 0.9,
+      "status": "DETECTED"
+    },
+    "anchor": {
+      "xRatio": 0.5,
+      "yRatio": 0.68,
+      "horizontalAlign": "center",
+      "verticalAlign": "center"
+    },
+    "safeZoneMargins": {
+      "topRatio": 0.12,
+      "bottomRatio": 0.15,
+      "leftRatio": 0.06,
+      "rightRatio": 0.06
+    },
+    "aspectRatioAdaptation": {
+      "portrait_9_16": {
+        "yRatio": 0.68,
+        "xRatio": 0.5,
+        "scaleMultiplier": 1,
+        "maxLineWidthRatio": 0.88,
+        "alignment": "center"
+      },
+      "landscape_16_9": {
+        "yRatio": 0.72,
+        "xRatio": 0.35,
+        "scaleMultiplier": 0.85,
+        "maxLineWidthRatio": 0.5,
+        "alignment": "left"
+      },
+      "square_1_1": {
+        "yRatio": 0.65,
+        "xRatio": 0.5,
+        "scaleMultiplier": 0.9,
+        "maxLineWidthRatio": 0.8,
+        "alignment": "center"
+      }
+    },
+    "negativeSpaceRatio": 0.45,
+    "isEdgeToEdge": false
+  },
+  "subjectRelationship": {
+    "awarenessMode": {
+      "value": "avoids-face",
+      "confidence": 0.85,
+      "status": "ESTIMATED"
+    },
+    "layerPlacement": {
+      "value": "in-front-subject",
+      "confidence": 0.85,
+      "status": "ESTIMATED"
+    },
+    "collisionAvoidance": {
+      "enabled": true,
+      "headroomSafetyRatio": 0.22,
+      "faceAvoidanceWeight": 0.9
+    },
+    "speakerPositionTracking": false,
+    "hasPillBackdropAroundSubject": false,
+    "requiresSubjectCutout": false
+  },
+  "animation": {
+    "entrance": {
+      "type": {
+        "value": "scale-snap",
+        "confidence": 0.9,
+        "status": "DETECTED"
+      },
+      "easing": {
+        "value": "spring-bouncy",
+        "confidence": 0.88,
+        "status": "DETECTED"
+      },
+      "durationSeconds": 0.25,
+      "scaleRange": [
+        0.8,
+        1
+      ],
+      "opacityRange": [
+        0,
+        1
+      ],
+      "translateYRangeRatio": [
+        0.04,
+        0
+      ],
+      "rotationRangeDeg": [
+        0,
+        0
+      ]
+    },
+    "active": {
+      "type": "subtle-breathe",
+      "intensity": 0.04
+    },
+    "exit": {
+      "type": "quick-fade",
+      "durationSeconds": 0.2
+    },
+    "wordByWordStagger": false,
+    "staggerDelaySeconds": 0.05,
+    "motionIntensity": "punchy"
+  },
+  "color": {
+    "primaryTextColor": {
+      "value": "#FFFFFF",
+      "confidence": 0.98,
+      "status": "DETECTED"
+    },
+    "secondaryTextColor": {
+      "value": "#CBD5E1",
+      "confidence": 0.92,
+      "status": "DETECTED"
+    },
+    "accentColor": {
+      "value": "#EAB308",
+      "confidence": 0.95,
+      "status": "DETECTED"
+    },
+    "secondaryAccentColor": {
+      "value": "#FDE047",
+      "confidence": 0.9,
+      "status": "DETECTED"
+    },
+    "backgroundColor": "rgba(15,23,42,0.6)",
+    "colorGrade": {
+      "name": "Vibrant Dynamic LUT",
+      "filter": "contrast(1.1) brightness(1.04) sepia(0.06)",
+      "contrast": 1.15,
+      "saturation": 1.2,
+      "brightness": 1
+    },
+    "effects": {
+      "hasStroke": false,
+      "hasGlow": true,
+      "glowColor": "rgba(234,179,8,0.5)",
+      "glowRadiusPx": 16,
+      "hasDropShadow": true,
+      "shadowColor": "rgba(0,0,0,0.85)",
+      "shadowBlur": 14,
+      "hasGlassBackdrop": true,
+      "glassBlurPx": 12,
+      "backdropColor": "rgba(15,23,42,0.45)",
+      "hasTapeBadge": false,
+      "tapeBadgeColor": "#FEF08A",
+      "tapeBadgeRotationDeg": -2.5,
+      "hasGradientShimmer": true,
+      "gradientColors": [
+        "#FDE047",
+        "#EAB308",
+        "#CA8A04"
+      ]
+    },
+    "contrastRatioEstimate": 14.5
+  },
+  "emphasisRules": [
+    {
+      "trigger": "power-words",
+      "visualTreatment": "contrast-color",
+      "scaleMultiplier": 1.25,
+      "iconType": "sparkle"
+    },
+    {
+      "trigger": "metrics-numbers",
+      "visualTreatment": "scale-pop",
+      "scaleMultiplier": 1.35,
+      "iconType": "star"
+    }
+  ],
+  "styleVariants": {
+    "hook": {
+      "role": "hook",
+      "scaleMultiplier": 1.25,
+      "entranceOverride": "rise-fade",
+      "casingOverride": "uppercase"
+    },
+    "statement": {
+      "role": "statement",
+      "scaleMultiplier": 1,
+      "casingOverride": "natural"
+    },
+    "emphasis": {
+      "role": "emphasis",
+      "scaleMultiplier": 1.35,
+      "highlightTreatment": "scale-pop"
+    },
+    "keyword": {
+      "role": "keyword",
+      "scaleMultiplier": 1.4,
+      "highlightTreatment": "contrast-color"
+    },
+    "transition": {
+      "role": "transition",
+      "scaleMultiplier": 0.9,
+      "entranceOverride": "slide-mask"
+    },
+    "conclusion": {
+      "role": "conclusion",
+      "scaleMultiplier": 1.2,
+      "casingOverride": "uppercase"
+    }
+  },
+  "soundSync": {
+    "personality": "gold-luxury-chime",
+    "primaryHitType": "chime",
+    "secondaryHitType": "whoosh",
+    "defaultVolume": 0.15,
+    "duckingEnabled": true
+  },
+  "trackedEvents": [
+    {
+      "id": "event-0-0.20",
+      "startTime": 0.2,
+      "endTime": 1,
+      "duration": 0.8,
+      "text": "Typography Beat 1",
+      "heroKeyword": "Typography",
+      "hierarchy": "metric",
+      "styleRole": "hook",
+      "emphasisType": "scale-pop",
+      "entrance": {
+        "type": "slam-scale",
+        "ramp": {
+          "startSec": 0.38,
+          "endSec": 0.78,
+          "durationSec": 0.4,
+          "deltaScale": 0,
+          "deltaOpacity": 1,
+          "deltaYRatio": 0,
+          "inferredEasing": "ease-out-expo"
+        }
+      },
+      "activeMotion": "subtle-breathe",
+      "exit": {
+        "type": "quick-fade",
+        "durationSec": 0.2
+      },
+      "normalizedBoundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.68,
+        "widthRatio": 0.85,
+        "heightRatio": 0.2
+      },
+      "detectedColors": [
+        "#FFFFFF",
+        "#EAB308"
+      ],
+      "layerPlacement": "in-front-subject"
+    },
+    {
+      "id": "event-1-9.71",
+      "startTime": 9.71,
+      "endTime": 10.510000000000002,
+      "duration": 0.8,
+      "text": "Typography Beat 2",
+      "heroKeyword": "Typography",
+      "hierarchy": "metric",
+      "styleRole": "statement",
+      "emphasisType": "scale-pop",
+      "entrance": {
+        "type": "slam-scale",
+        "ramp": {
+          "startSec": 0,
+          "endSec": 0.3,
+          "durationSec": 0.3,
+          "deltaScale": 0,
+          "deltaOpacity": 1,
+          "deltaYRatio": 0,
+          "inferredEasing": "ease-out-expo"
+        }
+      },
+      "activeMotion": "subtle-breathe",
+      "exit": {
+        "type": "quick-fade",
+        "durationSec": 0.2
+      },
+      "normalizedBoundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.68,
+        "widthRatio": 0.85,
+        "heightRatio": 0.2
+      },
+      "detectedColors": [
+        "#FFFFFF",
+        "#EAB308"
+      ],
+      "layerPlacement": "in-front-subject"
+    },
+    {
+      "id": "event-2-19.21",
+      "startTime": 19.21,
+      "endTime": 20.01,
+      "duration": 0.8,
+      "text": "Typography Beat 3",
+      "heroKeyword": "Typography",
+      "hierarchy": "metric",
+      "styleRole": "emphasis",
+      "emphasisType": "scale-pop",
+      "entrance": {
+        "type": "slam-scale",
+        "ramp": {
+          "startSec": 0,
+          "endSec": 0.3,
+          "durationSec": 0.3,
+          "deltaScale": 0,
+          "deltaOpacity": 1,
+          "deltaYRatio": 0,
+          "inferredEasing": "ease-out-expo"
+        }
+      },
+      "activeMotion": "subtle-breathe",
+      "exit": {
+        "type": "quick-fade",
+        "durationSec": 0.2
+      },
+      "normalizedBoundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.68,
+        "widthRatio": 0.85,
+        "heightRatio": 0.2
+      },
+      "detectedColors": [
+        "#FFFFFF",
+        "#EAB308"
+      ],
+      "layerPlacement": "in-front-subject"
+    },
+    {
+      "id": "event-3-28.72",
+      "startTime": 28.72,
+      "endTime": 29.52,
+      "duration": 0.8,
+      "text": "Typography Beat 4",
+      "heroKeyword": "Typography",
+      "hierarchy": "metric",
+      "styleRole": "keyword",
+      "emphasisType": "scale-pop",
+      "entrance": {
+        "type": "slam-scale",
+        "ramp": {
+          "startSec": 0,
+          "endSec": 0.3,
+          "durationSec": 0.3,
+          "deltaScale": 0,
+          "deltaOpacity": 1,
+          "deltaYRatio": 0,
+          "inferredEasing": "ease-out-expo"
+        }
+      },
+      "activeMotion": "subtle-breathe",
+      "exit": {
+        "type": "quick-fade",
+        "durationSec": 0.2
+      },
+      "normalizedBoundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.68,
+        "widthRatio": 0.85,
+        "heightRatio": 0.2
+      },
+      "detectedColors": [
+        "#FFFFFF",
+        "#EAB308"
+      ],
+      "layerPlacement": "in-front-subject"
+    },
+    {
+      "id": "event-4-38.22",
+      "startTime": 38.22,
+      "endTime": 39.019999999999996,
+      "duration": 0.8,
+      "text": "Typography Beat 5",
+      "heroKeyword": "Typography",
+      "hierarchy": "metric",
+      "styleRole": "conclusion",
+      "emphasisType": "scale-pop",
+      "entrance": {
+        "type": "slam-scale",
+        "ramp": {
+          "startSec": 0,
+          "endSec": 0.3,
+          "durationSec": 0.3,
+          "deltaScale": 0,
+          "deltaOpacity": 1,
+          "deltaYRatio": 0,
+          "inferredEasing": "ease-out-expo"
+        }
+      },
+      "activeMotion": "subtle-breathe",
+      "exit": {
+        "type": "quick-fade",
+        "durationSec": 0.2
+      },
+      "normalizedBoundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.68,
+        "widthRatio": 0.85,
+        "heightRatio": 0.2
+      },
+      "detectedColors": [
+        "#FFFFFF",
+        "#EAB308"
+      ],
+      "layerPlacement": "in-front-subject"
+    },
+    {
+      "id": "event-5-47.73",
+      "startTime": 47.73,
+      "endTime": 48.529999999999994,
+      "duration": 0.8,
+      "text": "Typography Beat 6",
+      "heroKeyword": "Typography",
+      "hierarchy": "metric",
+      "styleRole": "conclusion",
+      "emphasisType": "scale-pop",
+      "entrance": {
+        "type": "slam-scale",
+        "ramp": {
+          "startSec": 0,
+          "endSec": 0.3,
+          "durationSec": 0.3,
+          "deltaScale": 0,
+          "deltaOpacity": 1,
+          "deltaYRatio": 0,
+          "inferredEasing": "ease-out-expo"
+        }
+      },
+      "activeMotion": "subtle-breathe",
+      "exit": {
+        "type": "quick-fade",
+        "durationSec": 0.2
+      },
+      "normalizedBoundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.68,
+        "widthRatio": 0.85,
+        "heightRatio": 0.2
+      },
+      "detectedColors": [
+        "#FFFFFF",
+        "#EAB308"
+      ],
+      "layerPlacement": "in-front-subject"
+    },
+    {
+      "id": "event-6-57.23",
+      "startTime": 57.23,
+      "endTime": 58.029999999999994,
+      "duration": 0.8,
+      "text": "Typography Beat 7",
+      "heroKeyword": "Typography",
+      "hierarchy": "metric",
+      "styleRole": "conclusion",
+      "emphasisType": "scale-pop",
+      "entrance": {
+        "type": "slam-scale",
+        "ramp": {
+          "startSec": 0,
+          "endSec": 0.3,
+          "durationSec": 0.3,
+          "deltaScale": 0,
+          "deltaOpacity": 1,
+          "deltaYRatio": 0,
+          "inferredEasing": "ease-out-expo"
+        }
+      },
+      "activeMotion": "subtle-breathe",
+      "exit": {
+        "type": "quick-fade",
+        "durationSec": 0.2
+      },
+      "normalizedBoundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.68,
+        "widthRatio": 0.85,
+        "heightRatio": 0.2
+      },
+      "detectedColors": [
+        "#FFFFFF",
+        "#EAB308"
+      ],
+      "layerPlacement": "in-front-subject"
+    },
+    {
+      "id": "event-7-66.74",
+      "startTime": 66.74,
+      "endTime": 67.53999999999999,
+      "duration": 0.8,
+      "text": "Typography Beat 8",
+      "heroKeyword": "Typography",
+      "hierarchy": "metric",
+      "styleRole": "conclusion",
+      "emphasisType": "scale-pop",
+      "entrance": {
+        "type": "slam-scale",
+        "ramp": {
+          "startSec": 0,
+          "endSec": 0.3,
+          "durationSec": 0.3,
+          "deltaScale": 0,
+          "deltaOpacity": 1,
+          "deltaYRatio": 0,
+          "inferredEasing": "ease-out-expo"
+        }
+      },
+      "activeMotion": "subtle-breathe",
+      "exit": {
+        "type": "quick-fade",
+        "durationSec": 0.2
+      },
+      "normalizedBoundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.68,
+        "widthRatio": 0.85,
+        "heightRatio": 0.2
+      },
+      "detectedColors": [
+        "#FFFFFF",
+        "#EAB308"
+      ],
+      "layerPlacement": "in-front-subject"
+    }
+  ],
+  "sampleKeyframes": [
+    {
+      "timestampSeconds": 0.2,
+      "frameIndex": 5,
+      "detectedText": "Typography Beat 1",
+      "visualStateDescription": "Reverse-engineered typography frame at 0.2s",
+      "ocrConfidence": 0.9,
+      "detectedColors": [
+        "#FFFFFF",
+        "#EAB308"
+      ],
+      "boundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.68,
+        "widthRatio": 0.85,
+        "heightRatio": 0.2
+      },
+      "visualStateRole": "hook"
+    },
+    {
+      "timestampSeconds": 9.71,
+      "frameIndex": 243,
+      "detectedText": "Typography Beat 2",
+      "visualStateDescription": "Reverse-engineered typography frame at 9.7s",
+      "ocrConfidence": 0.9,
+      "detectedColors": [
+        "#FFFFFF",
+        "#EAB308"
+      ],
+      "boundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.68,
+        "widthRatio": 0.85,
+        "heightRatio": 0.2
+      },
+      "visualStateRole": "statement"
+    },
+    {
+      "timestampSeconds": 19.21,
+      "frameIndex": 480,
+      "detectedText": "Typography Beat 3",
+      "visualStateDescription": "Reverse-engineered typography frame at 19.2s",
+      "ocrConfidence": 0.9,
+      "detectedColors": [
+        "#FFFFFF",
+        "#EAB308"
+      ],
+      "boundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.68,
+        "widthRatio": 0.85,
+        "heightRatio": 0.2
+      },
+      "visualStateRole": "statement"
+    },
+    {
+      "timestampSeconds": 28.72,
+      "frameIndex": 718,
+      "detectedText": "Typography Beat 4",
+      "visualStateDescription": "Reverse-engineered typography frame at 28.7s",
+      "ocrConfidence": 0.9,
+      "detectedColors": [
+        "#FFFFFF",
+        "#EAB308"
+      ],
+      "boundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.68,
+        "widthRatio": 0.85,
+        "heightRatio": 0.2
+      },
+      "visualStateRole": "conclusion"
+    },
+    {
+      "timestampSeconds": 38.22,
+      "frameIndex": 956,
+      "detectedText": "Typography Beat 5",
+      "visualStateDescription": "Reverse-engineered typography frame at 38.2s",
+      "ocrConfidence": 0.9,
+      "detectedColors": [
+        "#FFFFFF",
+        "#EAB308"
+      ],
+      "boundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.68,
+        "widthRatio": 0.85,
+        "heightRatio": 0.2
+      },
+      "visualStateRole": "conclusion"
+    },
+    {
+      "timestampSeconds": 47.73,
+      "frameIndex": 1193,
+      "detectedText": "Typography Beat 6",
+      "visualStateDescription": "Reverse-engineered typography frame at 47.7s",
+      "ocrConfidence": 0.9,
+      "detectedColors": [
+        "#FFFFFF",
+        "#EAB308"
+      ],
+      "boundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.68,
+        "widthRatio": 0.85,
+        "heightRatio": 0.2
+      },
+      "visualStateRole": "conclusion"
+    },
+    {
+      "timestampSeconds": 57.23,
+      "frameIndex": 1431,
+      "detectedText": "Typography Beat 7",
+      "visualStateDescription": "Reverse-engineered typography frame at 57.2s",
+      "ocrConfidence": 0.9,
+      "detectedColors": [
+        "#FFFFFF",
+        "#EAB308"
+      ],
+      "boundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.68,
+        "widthRatio": 0.85,
+        "heightRatio": 0.2
+      },
+      "visualStateRole": "conclusion"
+    },
+    {
+      "timestampSeconds": 66.74,
+      "frameIndex": 1668,
+      "detectedText": "Typography Beat 8",
+      "visualStateDescription": "Reverse-engineered typography frame at 66.7s",
+      "ocrConfidence": 0.9,
+      "detectedColors": [
+        "#FFFFFF",
+        "#EAB308"
+      ],
+      "boundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.68,
+        "widthRatio": 0.85,
+        "heightRatio": 0.2
+      },
+      "visualStateRole": "conclusion"
+    }
+  ],
+  "validation": {
+    "typographyConsistencyScore": 90,
+    "motionConsistencyScore": 90,
+    "colorConsistencyScore": 95,
+    "compositionScore": 92,
+    "distinctivenessScore": 100,
+    "status": "valid",
+    "notes": []
+  }
+}

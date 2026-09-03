@@ -12,6 +12,7 @@ import {
 import {PremiumAudioLayer, type PremiumSoundCue, type PremiumStyleLock} from '../../components/PremiumAudioLayer';
 import {PremiumVisualTreatment, type PremiumVisualStyleLock} from '../../components/PremiumVisualTreatment';
 import {resolveFont} from '../../utils/fonts';
+import {DEFAULT_FPS, secondsToFrames} from '../../constants';
 
 // Self-hosted fonts (Lambda-safe). Title uses a bold clean sans; badges/CTA use a heavy display face.
 const TITLE_FONT = resolveFont('Montserrat');
@@ -508,8 +509,8 @@ export const LongVideoPromoComposition = () => (
   <Composition
     id="LONG-VIDEO-PROMO"
     component={LongVideoPromo}
-    durationInFrames={2700}
-    fps={30}
+    durationInFrames={secondsToFrames(60, DEFAULT_FPS)}
+    fps={DEFAULT_FPS}
     width={1080}
     height={1920}
     defaultProps={defaultProps}
@@ -518,7 +519,7 @@ export const LongVideoPromoComposition = () => (
       const dur = Math.max(8, Math.min(90,
         Number(p.durationSeconds) || Number(p.sourceDurationSeconds) || 60
       ));
-      return {durationInFrames: Math.ceil(dur * 30), fps: 30, width: 1080, height: 1920};
+      return {durationInFrames: secondsToFrames(dur, DEFAULT_FPS), fps: DEFAULT_FPS, width: 1080, height: 1920};
     }}
   />
 );

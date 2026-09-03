@@ -7,13 +7,17 @@ export type PreviewCaption = {
   start: number;
   end: number;
   text: string;
+  leadText?: string;
+  heroText?: string;
+  subText?: string;
+  customImage?: string;
   words?: Array<{ word: string; start: number; end: number }>;
 };
 
 export type PreviewScene = {
-  type: 'creator_face' | 'typography' | 'key_point' | 'broll' | 'quote' | 'transition';
-  start: number;
-  end: number;
+  start?: number;
+  end?: number;
+  type: 'creator_face' | 'typography' | 'key_point' | 'broll' | 'quote' | 'transition' | string;
   text?: string;
   highlightWord?: string;
   zoom?: number;

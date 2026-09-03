@@ -10,7 +10,7 @@ import { NextResponse } from 'next/server';
 import { createReadUrl } from '@/lib/aws/mediaStorage';
 import { transcribeMediaUrlWithGroq } from '@/services/ai/groqTranscription';
 import {
-  REEL_VIDEO_TYPE_REGISTRY,
+  VIDEO_TYPE_REGISTRY,
   type ReelVideoTypeConfig,
   type ReelVideoTypeName,
   type ReelTranscriptSegment,
@@ -71,7 +71,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: 'mediaKey is required.' }, { status: 400 });
   }
 
-  const videoTypeConfig = videoTypeNameValue ? REEL_VIDEO_TYPE_REGISTRY[videoTypeNameValue] : null;
+  const videoTypeConfig = videoTypeNameValue ? VIDEO_TYPE_REGISTRY[videoTypeNameValue] : null;
   if (!videoTypeNameValue || !videoTypeConfig) {
     return NextResponse.json({ ok: false, error: 'Unknown video type. Cannot generate preview.' }, { status: 422 });
   }
@@ -242,8 +242,8 @@ async function buildPreviewProps({
   captions: PreviewCaption[];
   transcription: { transcript: string; durationSeconds?: number; languageHint?: string };
   topicTitle: string;
-}): Record<string, unknown> {
-  const captionStyle = readString(body.captionStyle) || 'Studio Clean';
+}): Promise<Record<string, unknown>> {
+  const captionStyle = readString(body.captionStyle) || 'Shorts Karaoke';
   const captionPreset = getSubtitlePreset(captionStyle);
   const captionBackgroundColorValue = readString(body.captionBackgroundColor);
   const base: Record<string, unknown> = {
@@ -278,7 +278,7 @@ async function buildPreviewProps({
 
   // Video-type-specific additions
 
-  if (videoTypeName === 'AUTO_CAPTION_REEL') {
+  if (videoTypeName === 'AUTO_CAPTION_GENERATOR') {
     const energyWords = (renderWindow.words || [])
       .filter(w => w.word && Number.isFinite(w.start) && Number.isFinite(w.end))
       .map(w => ({ word: String(w.word), start: Number(w.start), end: Number(w.end) }));

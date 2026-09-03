@@ -121,6 +121,10 @@ docs/references/keyframes/
 # Sample videos for review (not for deployment)
 __samples/
 
+# Temporary and scratch files
+/scratch/
+
 .vercel
 .vercel-itnavideo/
 .env*.local
+

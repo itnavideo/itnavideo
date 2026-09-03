@@ -41,7 +41,7 @@ export default function ComparisonSection() {
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       <div className="relative z-10 mx-auto max-w-6xl">
         <div className="mb-14 max-w-3xl">
-          <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-emerald-400">The bottleneck</p>
+          <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-primary">The bottleneck</p>
           <motion.h2
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -95,12 +95,12 @@ export default function ComparisonSection() {
           })}
         </div>
 
-        <div className="mt-8 flex flex-col gap-3 rounded-lg border border-cyan-300/15 bg-cyan-300/[0.04] p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-8 flex flex-col gap-3 rounded-lg border border-emerald-400/15 bg-emerald-400/[0.04] p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="font-bold text-white">Production focus</p>
             <p className="mt-1 text-sm text-zinc-400">7 focused video types live. Upload content, choose a polished output style, get a ready-to-post reel.</p>
           </div>
-          <div className="flex items-center gap-2 text-sm font-bold text-cyan-200">
+          <div className="flex items-center gap-2 text-sm font-bold text-emerald-300">
             <X size={16} className="text-zinc-500" />
             No overloaded scenes
           </div>
@@ -109,3 +109,4 @@ export default function ComparisonSection() {
     </section>
   );
 }
+

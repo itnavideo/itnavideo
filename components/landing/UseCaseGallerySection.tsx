@@ -12,35 +12,35 @@ const outputShowcase = [
   {
     title: 'Compare Explainer',
     body: 'Best for education and product comparisons where two options must be understood quickly.',
-    src: '/preview/Compare Explainer.png',
+    src: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788093814/teacher-welcome_ouesss.png',
     href: '/video-types/compare-explainer',
   },
   {
     title: 'Long Video Promo',
     body: 'Best for turning a longer video into a short vertical teaser with a clear reason to watch.',
-    src: '/preview/Long Video Promo.png',
+    src: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788190063/file_000000002d508209b398a35503a053e1_uiytox.png',
     href: '/video-types/long-video-promo',
   },
   {
     title: 'Whiteboard Video',
     body: 'Best for educational content where key points need to appear clearly on a whiteboard.',
-    src: '/preview/Whiteboard Video.png',
+    src: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788190745/file_000000003c2882118520991dc7d2d827_alfyoc.png',
     href: '/video-types/whiteboard-video',
   },
 ];
 
 export default function UseCaseGallerySection() {
   return (
-    <section className="bg-[#0B1120] px-4 py-16 text-white sm:px-6 md:py-24">
+    <section className="bg-[#052e16] px-4 py-16 text-white sm:px-6 md:py-24">
       <div className="mx-auto max-w-7xl">
         <div className="mb-10 grid gap-5 sm:mb-12 lg:grid-cols-[0.72fr_1fr] lg:items-end">
           <div>
-            <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-brand-mint">Output proof</p>
+            <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-primary">Output proof</p>
             <h2 className="text-3xl font-black leading-tight tracking-normal sm:text-4xl md:text-6xl">
               The video type preview is the product pitch.
             </h2>
           </div>
-          <p className="text-base leading-7 text-slate-400 sm:text-lg sm:leading-8">
+          <p className="text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
             Instead of asking users to read long explanations, Itnavideo now leads with focused outputs. Each card shows the kind of reel the video type is designed to create.
           </p>
         </div>
@@ -50,7 +50,7 @@ export default function UseCaseGallerySection() {
             <Link
               key={item.title}
               href={item.href}
-              className="group overflow-hidden rounded-lg border border-white/10 bg-slate-950 transition duration-300 hover:-translate-y-1 hover:border-white/20"
+              className="group overflow-hidden rounded-lg border border-white/10 bg-background transition duration-300 hover:-translate-y-1 hover:border-white/20"
             >
               <div className="relative aspect-[9/16] bg-black">
                 <Image
@@ -63,13 +63,13 @@ export default function UseCaseGallerySection() {
                 <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
                 <div className="absolute bottom-4 left-4 right-4">
                   <h3 className="text-base font-black text-white">{item.title}</h3>
-                  <span className="mt-2 inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-wide text-brand-mint transition group-hover:gap-2">
+                  <span className="mt-2 inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-wide text-primary transition group-hover:gap-2">
                     View output <ArrowRight size={12} />
                   </span>
                 </div>
               </div>
               <div className="p-4">
-                <p className="text-sm leading-6 text-slate-400">{item.body}</p>
+                <p className="text-sm leading-6 text-muted-foreground">{item.body}</p>
               </div>
             </Link>
           ))}
@@ -78,3 +78,4 @@ export default function UseCaseGallerySection() {
     </section>
   );
 }
+

@@ -49,7 +49,7 @@ export async function POST(request: Request) {
 
   try {
     const access = await getRenderAccessForUser(userId, {
-      mode: videoTypeMode === 'autoCaption' ? 'autoCaption' : undefined,
+      mode: (videoTypeMode === 'autoCaption' || videoTypeMode === 'captionStudio') ? 'autoCaption' : undefined,
     });
     if (!access.allowed) {
       return NextResponse.json(
@@ -93,15 +93,17 @@ function readString(value: unknown) {
 
 function isAllowedUploadForVideoType(videoTypeMode: string, contentType: string) {
   if (videoTypeMode === 'compare') return contentType.startsWith('audio/') || contentType.startsWith('image/');
-  if (videoTypeMode === 'autoCaption' || videoTypeMode === 'captionStudio' || videoTypeMode === 'longFormCaptionedVideo') return contentType.startsWith('video/');
-  return contentType.startsWith('audio/') || contentType.startsWith('video/') || contentType.startsWith('image/');
+  if (videoTypeMode === 'autoCaption' || videoTypeMode === 'captionStudio' || videoTypeMode === 'longCaptionPro') {
+    return contentType.startsWith('video/') || contentType === 'application/octet-stream' || contentType === '';
+  }
+  return contentType.startsWith('audio/') || contentType.startsWith('video/') || contentType.startsWith('image/') || contentType === 'application/octet-stream' || contentType === '';
 }
 
 function uploadErrorForVideoType(videoTypeMode: string) {
   if (videoTypeMode === 'compare') return 'Compare needs one audio file plus exactly 2 visuals.';
   if (videoTypeMode === 'autoCaption') return 'Auto Caption needs a video file with speech.';
   if (videoTypeMode === 'captionStudio') return 'Caption Studio needs a video file with speech.';
-  if (videoTypeMode === 'longFormCaptionedVideo') return 'Long-form Captioned Video needs a video file with clear speech.';
+  if (videoTypeMode === 'longCaptionPro') return 'Long Caption Pro needs a video file with clear speech.';
   return 'This video type needs audio, video, or image upload.';
 }
 
@@ -125,7 +127,7 @@ function isLongVideoPromoWorkflow(value: string) {
 
 function isLongFormCaptionedWorkflow(value: string) {
   const normalized = value.toLowerCase().replace(/[-_\s]+/g, '');
-  return normalized === 'longformcaptionedvideo' || normalized === 'longformcaptioned' || normalized === 'longvideocaptioned';
+  return normalized === 'longCaptionPro' || normalized === 'longformcaptioned' || normalized === 'longvideocaptioned';
 }
 
 function sanitizeUserFacingStatus(value: string) {
@@ -162,7 +164,7 @@ function resolvePresignVideoTypeMode(value: string): string {
   if (isAutoCaptionWorkflow(value)) return 'autoCaption';
   if (isCaptionStudioWorkflow(value)) return 'captionStudio';
   if (isLongVideoPromoWorkflow(value)) return 'longVideoPromo';
-  if (isLongFormCaptionedWorkflow(value)) return 'longFormCaptionedVideo';
+  if (isLongFormCaptionedWorkflow(value)) return 'longCaptionPro';
   return 'generic';
 }
 

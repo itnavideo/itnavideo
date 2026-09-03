@@ -1,8 +1,8 @@
 # Itnavideo
 
-AI-powered short video generator for creators. Upload audio/video, get polished reels with subtitles, stickers, and animations.
+AI-powered short video & long video generator for creators. Upload audio/video, get polished reels or 16:9 explainer videos with subtitles, stickers, and animations.
 
-## Live Templates (6)
+## Live Video Types (11)
 
 | Template | Composition ID | Description |
 |----------|---------------|-------------|
@@ -10,7 +10,12 @@ AI-powered short video generator for creators. Upload audio/video, get polished 
 | COMPARE_EXPLAINER | comparisonImages | Audio + 2 comparison images + sticker presenter |
 | AUTO_DRAW_EXPLAINER | AUTO-DRAW-EXPLAINER | Audio/video + AI whiteboard scenes (Gemini planned) |
 | LONG_VIDEO_PROMO | LONG-VIDEO-PROMO | Promote long YouTube videos with thumbnail + CTA |
-| DYNAMIC_CREATOR_REEL | DYNAMIC-CREATOR-REEL | Creator video + dynamic typography |
+| LONG_VIDEO_PRO | LONG-VIDEO-PRO | AI Visual Planning Agent 16:9 explainer with 8 visual types & 3-tier fallback |
+| LONG_VIDEO_CLIPS | LONG-VIDEO-CLIPS | Extract best moments from long videos into vertical reels |
+| LONG_CAPTION_PRO | LONG-CAPTION-PRO | Preserves 16:9 landscape format with timed word-level captions |
+| DYNAMIC_CREATOR_REEL | DYNAMIC-CREATOR-REEL | Creator video + dynamic kinetic typography |
+| TYPOGRAPHY_VIDEO | TYPOGRAPHY-VIDEO | Text & typography-focused video with kinetic motion |
+| MULTI_IMAGES_VIDEO | MULTI-IMAGES-VIDEO | Multi-image slideshow with smooth transitions and captions |
 | CREATOR_BACKGROUND_REPLACE | CREATOR-BACKGROUND-REPLACE | Short creator reel + uploaded background image |
 
 ## Project Structure
@@ -47,13 +52,67 @@ npm run assets:index         # Rebuild public/assets/assets.json
 npm run lint                 # ESLint
 ```
 
+## Transcription & Media Pipeline
+
+- **Groq Whisper**: Primary transcription engine for speech recognition across all templates.
+- **Resilient Audio Extraction**: Audio is extracted or streamed via S3 signed URLs, with automatic 24MB payload capping for Groq Whisper compliance.
+- **Strict Error Handling**: Returns HTTP 422 `NO_SPEECH_DETECTED` on empty/silent audio. No silent fallback to fake or cached captions.
+
 ## Current Provider Policy
 
 | Provider | Use | Status |
 |----------|-----|--------|
 | Groq | Transcription (Whisper) | ✅ Primary |
-| Gemini | Auto Draw scene planning, English repair | ✅ Free, active |
+| Gemini | Long Video Pro Planning Agent, Auto Draw, English repair | ✅ Free, active |
 | OpenAI | Planning fallback | ⏸️ Paused (key expired) |
+
+## Long Video Pro AI Visual Planning Agent Architecture
+
+Long Video Pro transforms 16:9 explainer creation from rigid template timing into an intelligent **Video Planning Agent**:
+
+1. **Holistic Script Analysis (`services/ai/longVideoProPlanner.ts`)**:
+   - Analyzes full transcript to understand narrative flow, statistics, key terminology, and emotional beats.
+   - Groups related consecutive sentences into logical visual sections (holding explanatory visuals for 6–15 seconds).
+2. **8 Core Visual Types**:
+   - `IMAGE`: Persons, places, objects, historical events, products.
+   - `VIDEO_CLIP`: Demonstrations, processes, sports, travel, nature.
+   - `FACE_PERSON`: Public figures and narrative commentators.
+   - `TYPOGRAPHY`: Kinetic text cards for definitions, quotes, key takeaways.
+   - `CHART_GRAPH`: Numbers, trends, percentages, comparisons, rankings.
+   - `DIAGRAM_INFOGRAPHIC`: Conceptual visual layouts for processes and timelines.
+   - `B_ROLL`: Supporting ambient visuals.
+   - `SIMPLE_BACKGROUND`: Low-complexity visual background with narration focus.
+3. **3-Tier Asset Fallback System (`services/ai/assetResolver.ts`)**:
+   - Every scene defines `Primary Asset` → `Secondary Asset` → `Fallback Visual`.
+   - If stock footage or images are missing, the Asset Resolver automatically executes the 3rd-tier `FallbackVisual` (kinetic typography, animated chart cards, or simple background cards), **guaranteeing zero broken renders or blank screens**.
+4. **Structured Video Blueprint (`services/ai/videoBlueprintTypes.ts`)**:
+   - Decouples visual intent from asset resolution and Remotion Lambda execution.
+
+## 🌐 Universal Video Template & Asset Library
+
+`itnavideo` features a decoupled, modular **Universal Video Template & Asset Library** system (`services/templates/templateLibrary.ts`). Visual styling assets are modularized into reusable library presets that work across all video aspect ratios (9:16 Shorts/Reels, 16:9 Long Video Pro, 1:1 Square):
+
+- **Caption Themes (`captionThemes`)**:
+  - `glow-viral`: High-energy glowing active word highlights (yellow/green glow).
+  - `box-pill`: Solid rounded pill background behind active spoken words.
+  - `neon-cyber`: Cyberpunk high-contrast cyan/magenta subtitles.
+  - `minimal-lower-third`: Clean, modern lower-third subtitles for podcasts & documentaries.
+- **Sticker & Graphics Packs (`stickerPacks`)**:
+  - `stickman-dev`: Animated stickman character PNGs (`public/assets/stickman/`) for coding, idea lightbulb, graph up, confused, etc.
+  - `tech-icons`: Animated tech & code terminal vector icons.
+- **Layout Frame Presets (`layoutFrames`)**:
+  - **16:9 Widescreen**: Split-screen frame, VS Code dark window frame, PiP speaker bubble.
+  - **9:16 Vertical**: Top-Bottom split reel frame, Floating glassmorphic card.
+- **Lower-Third & Chapter Cards (`lowerThirds`)**:
+  - Topic header banners and step counter badges ("01. Mindset", "02. Code Architecture").
+- **Progress & Branding Overlays (`brandingOverlays`)**:
+  - Animated bottom/top progress bars & brand logo watermarks.
+- **Remotion Layer Components (`remotion/components/library/`)**:
+  - `UniversalCaptionLayer.tsx`, `UniversalStickerLayer.tsx`, `UniversalLowerThird.tsx`, `UniversalProgressBar.tsx`.
+- **Sample Demo Blueprints (`UNIVERSAL_DEMO_PRESETS`)**:
+  - `demo-tech-explainer`: Computer Science Explainer ("How Memory Allocation Works: Stack vs Heap") with word-level highlights, stickman graphics, step badges.
+  - `demo-founder-podcast`: Founder Story ("0 to 1M Users Founder Blueprint") with clean lower-thirds, speaker tag, top timer.
+  - `demo-code-tutorial`: Code Walkthrough ("Building a High-Speed REST API in Express") with VS Code frame, cyan neon captions, terminal icons.
 
 ## Deployment
 
@@ -63,30 +122,17 @@ npm run lint                 # ESLint
 - **S3** → Temporary media uploads + render outputs (48-hour lifecycle)
 
 Two deploys needed for template changes: Vercel (frontend) + Lambda (render engine).
-Do not run Python/FFmpeg background removal on Vercel. Vercel should pass signed S3 URLs and user settings to the AWS worker through `CREATOR_BG_REPLACE_WORKER_URL`.
-Creator Background Replace is capped to shorts/reels only, max 60 seconds, to keep AWS cost low.
 
 ## Key Rules
 
 - Templates are code-only. No images/fonts/sounds inside `remotion/templates/`.
 - Assets live in `public/assets/` (local) and S3/CDN (production).
 - `.vercelignore` excludes `public/assets` — keep Vercel light.
-- Heavy processing stays on AWS. Vercel must not host the Creator Background Replace Python worker.
 - Subtitles: Groq Whisper only. English + Hinglish. No paid translation APIs.
 - Hindi/Hinglish → clean Roman captions (no Devanagari).
 - Each render gets fresh captions from current upload (no cached/old data).
 - Lambda media inputs must be HTTPS/signed S3 URLs, not local paths.
 - S3 uploads and renders expire after ~48 hours.
-
-## Adding a New Template
-
-1. Create `remotion/templates/TEMPLATE_NAME/template.tsx` with composition
-2. Register in `remotion/index.tsx`
-3. Add to `REEL_TEMPLATE_REGISTRY` in `services/ai/reelPlanner.ts`
-4. Add dashboard card + mode config in `app/dashboard/page.tsx`
-5. Add render flow support in `app/api/reels/jobs/route.ts`
-6. Deploy Lambda: `npm run reel:lambda:deploy`
-7. Deploy frontend: `npx vercel --prod`
 
 ## Environment
 
@@ -97,12 +143,3 @@ Key env vars (see `.env.example`):
 - `REMOTION_LAMBDA_FUNCTION_NAME` — Active Lambda function
 - `REMOTION_LAMBDA_BUCKET_NAME` — Render output bucket
 - `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Auth + data
-- `CREATOR_BG_REPLACE_WORKER_URL` — AWS worker endpoint for background replacement
-- `CREATOR_BG_REPLACE_WORKER_SECRET` — optional bearer secret shared with AWS worker
-
-AWS worker-only env vars:
-- `CREATOR_BG_REPLACE_PYTHON`
-- `PYTHON_PATH`
-- `CREATOR_BG_REPLACE_MAX_SECONDS`
-- `NUMBA_CACHE_DIR`
-- `FFMPEG_PATH`

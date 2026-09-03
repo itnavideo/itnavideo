@@ -260,7 +260,7 @@ For every new Video Type, use these professional-editor principles unless the sp
 - Long Video Clips: 2-credit base plus 1 credit per requested clip (3–12 credits).
 - Long-form Captioned Video: 1 credit per started minute, maximum 10 credits for 10 minutes.
 - One free trial: Auto Caption only, maximum 60 seconds, with a fixed Itnavideo watermark.
-- Paid credit pack: 20 credits valid for 31 days; ₹499 for India billing region, $19 internationally.
+- Paid credit packs are one-time Razorpay payments. Monthly packs remain active for 31 days and annual packs for one year; automatic renewal is deferred until Stripe is added.
 - Failed renders due to system issues are not charged
 - Preview generation/editing does not deduct credits
 - Deduct/reserve credits only when the final render starts

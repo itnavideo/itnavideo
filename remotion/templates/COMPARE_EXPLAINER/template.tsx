@@ -12,6 +12,7 @@ import {
 import {PremiumAudioLayer, type PremiumSoundCue, type PremiumStyleLock} from '../../components/PremiumAudioLayer';
 import {PremiumVisualTreatment, type PremiumVisualStyleLock} from '../../components/PremiumVisualTreatment';
 import {resolveFont} from '../../utils/fonts';
+import {DEFAULT_FPS, secondsToFrames} from '../../constants';
 
 // Self-hosted fonts (Lambda-safe). Titles/VS use a heavy display face; captions/handle a clean sans.
 const DISPLAY_FONT = resolveFont('Anton');
@@ -57,6 +58,7 @@ type CompareProps = {
   themeId?: 'light' | 'dark' | 'bold' | string;
   tone?: 'versus' | 'goodBad' | string;
   winner?: 'left' | 'right' | 'none' | string;
+  imageStyle?: 'rounded' | 'circle' | 'phone' | 'tilted' | 'polaroid' | string;
   stickerStyle?: '2d' | 'cartoon' | 'explainer' | string;
   stickerScale?: number;
   stickerOffsetX?: number;
@@ -418,63 +420,95 @@ const VisualBox = ({
   colors,
   boxBg,
   isActive = false,
+  imageStyle = 'rounded',
 }: {
   image: string;
   side: 'left' | 'right';
   colors: SideColor;
   boxBg: string;
   isActive?: boolean;
+  imageStyle?: string;
 }) => {
   const src = resolveAsset(image);
   const frame = useCurrentFrame();
-  // Subtle Ken Burns on images
   const imgZoom = 1 + Math.sin(frame / 120 + (side === 'right' ? 1.5 : 0)) * 0.015;
-  // Active glow pulse when this side is being discussed
   const glowOpacity = isActive ? 0.15 + Math.sin(frame / 20) * 0.05 : 0;
   const activeScale = isActive ? 1.02 : 1;
+
+  // Frame style configurations
+  const frameStyles: Record<string, React.CSSProperties> = {
+    rounded: {
+      borderRadius: 24,
+      border: `4px solid ${colors.main}`,
+      overflow: 'hidden',
+    },
+    circle: {
+      borderRadius: '50%',
+      border: `5px solid ${colors.main}`,
+      overflow: 'hidden',
+      width: 380,
+      height: 380,
+    },
+    phone: {
+      borderRadius: 36,
+      border: `8px solid #1E293B`,
+      overflow: 'hidden',
+      boxShadow: '0 20px 40px rgba(0,0,0,0.4), inset 0 0 0 2px rgba(255,255,255,0.1)',
+    },
+    tilted: {
+      borderRadius: 16,
+      border: `3px solid ${colors.main}`,
+      overflow: 'hidden',
+      transform: `scale(${activeScale}) perspective(800px) rotateY(${side === 'left' ? 5 : -5}deg) rotateX(2deg)`,
+    },
+    polaroid: {
+      borderRadius: 6,
+      border: 'none',
+      overflow: 'hidden',
+      background: '#FFFFFF',
+      padding: '12px 12px 52px 12px',
+      boxShadow: '0 12px 32px rgba(0,0,0,0.25), 0 2px 4px rgba(0,0,0,0.1)',
+    },
+  };
+
+  const currentFrame = frameStyles[imageStyle] || frameStyles.rounded;
+  const isCircle = imageStyle === 'circle';
+  const isPolaroid = imageStyle === 'polaroid';
+  const isTilted = imageStyle === 'tilted';
+  const boxWidth = isCircle ? 380 : 488;
+  const boxHeight = isCircle ? 380 : COMPARE_LAYOUT.imageHeight;
 
   return (
     <div
       style={{
         position: 'relative',
-        width: 488,
-        height: COMPARE_LAYOUT.imageHeight,
-        borderRadius: 20,
-        border: `4px solid ${colors.main}`,
-        background: boxBg,
-        overflow: 'hidden',
+        width: boxWidth,
+        height: boxHeight,
+        background: isPolaroid ? '#FFFFFF' : boxBg,
         boxShadow: isActive
           ? `0 16px 40px ${colors.glowPrefix}0.3), 0 4px 12px rgba(0,0,0,0.1)`
           : `0 12px 32px ${colors.shadow}, 0 4px 12px rgba(0,0,0,0.08)`,
-        transform: `scale(${activeScale})`,
+        transform: isTilted ? currentFrame.transform : `scale(${activeScale})`,
         transition: 'transform 0.3s, box-shadow 0.3s',
+        ...currentFrame,
+        ...(isTilted ? {} : { transform: `scale(${activeScale})` }),
       }}
     >
-      {/* Blurred background fill */}
-      <img
-        src={src}
-        style={{
-          position: 'absolute',
-          inset: 0,
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          filter: 'blur(16px)',
-          opacity: 0.06,
-          transform: 'scale(1.2)',
-        }}
-      />
+      {/* Phone notch */}
+      {imageStyle === 'phone' && (
+        <div style={{ position: 'absolute', top: 8, left: '50%', transform: 'translateX(-50%)', width: 60, height: 6, borderRadius: 3, background: '#334155', zIndex: 5 }} />
+      )}
 
-      {/* Main image with Ken Burns */}
+      {/* Main image */}
       <div
         style={{
           position: 'absolute',
-          inset: 8,
+          inset: isPolaroid ? '12px 12px 52px 12px' : isCircle ? 0 : 8,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: '#ffffff',
-          borderRadius: 14,
+          background: isPolaroid ? '#F8FAFC' : isCircle ? 'transparent' : '#ffffff',
+          borderRadius: isCircle ? '50%' : isPolaroid ? 4 : 14,
           overflow: 'hidden',
         }}
       >
@@ -483,47 +517,50 @@ const VisualBox = ({
           style={{
             width: '100%',
             height: '100%',
-            objectFit: 'contain',
+            objectFit: isCircle ? 'cover' : 'contain',
             objectPosition: 'center center',
             transform: `scale(${imgZoom})`,
           }}
         />
       </div>
 
-      {/* Corner badge */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 12,
-          [side]: 12,
-          width: 36,
-          height: 36,
-          borderRadius: 10,
-          background: colors.main,
-          color: '#ffffff',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 18,
-          fontWeight: 800,
-          boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-        }}
-      >
-        {side === 'left' ? 'A' : 'B'}
-      </div>
+      {/* Polaroid label */}
+      {isPolaroid && (
+        <div style={{ position: 'absolute', bottom: 14, left: 0, right: 0, textAlign: 'center', fontSize: 20, fontWeight: 800, color: '#1E293B', fontFamily: 'Georgia, serif' }}>
+          {side === 'left' ? 'Option A' : 'Option B'}
+        </div>
+      )}
 
-      {/* Bottom gradient accent */}
-      <div style={{
-        position: 'absolute', bottom: 0, left: 0, right: 0, height: 60,
-        borderRadius: '0 0 16px 16px',
-        background: `linear-gradient(0deg, ${colors.glowPrefix}0.08) 0%, transparent 100%)`,
-      }} />
+      {/* Corner badge (skip for polaroid/circle) */}
+      {imageStyle !== 'polaroid' && imageStyle !== 'circle' && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 12,
+            [side]: 12,
+            width: 36,
+            height: 36,
+            borderRadius: 10,
+            background: colors.main,
+            color: '#ffffff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 18,
+            fontWeight: 800,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+            zIndex: 4,
+          }}
+        >
+          {side === 'left' ? 'A' : 'B'}
+        </div>
+      )}
 
       {/* Active glow overlay */}
       {isActive && (
         <div style={{
           position: 'absolute', inset: 0,
-          borderRadius: 16,
+          borderRadius: isCircle ? '50%' : isPolaroid ? 6 : 16,
           background: `radial-gradient(ellipse at center, ${colors.glowPrefix}${glowOpacity}) 0%, transparent 70%)`,
           pointerEvents: 'none',
         }} />
@@ -967,12 +1004,12 @@ const StickerPresenter = ({
   });
 
   // Idle breathing — subtle but visible life pulse
-  const breathCycle = frame / 45; // ~1.5s cycle at 30fps
+  const breathCycle = frame / (1.5 * fps);
   const idleY = Math.sin(breathCycle) * 6;
   const breathScale = 1 + Math.sin(breathCycle) * 0.012; // subtle 1.2% scale pulse
 
   // Gentle head tilt — makes character feel expressive
-  const rotate = Math.sin(frame / 70) * 0.6;
+  const rotate = Math.sin(frame / (2.33 * fps)) * 0.6;
 
   return (
     <div
@@ -982,52 +1019,48 @@ const StickerPresenter = ({
         right: 0,
         top: COMPARE_LAYOUT.stickerTop,
         bottom: COMPARE_LAYOUT.stickerBottom,
-        overflow: 'hidden',
-        zIndex: 3,
         display: 'flex',
-        alignItems: 'flex-start',
+        alignItems: 'center',
         justifyContent: 'center',
-        paddingTop: 10,
+        zIndex: 14,
         pointerEvents: 'none',
+        opacity: enterOpacity,
+        transform: `translate(${safeStickerOffsetX}px, ${safeStickerOffsetY + idleY}px) scale(${safeStickerScale * pop * breathScale}) rotate(${rotate}deg)`,
+        transformOrigin: '50% 90%',
       }}
     >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={staticFile(src)}
+        alt="sticker presenter"
         style={{
           width: STICKER_WIDTH,
-          maxWidth: '80%',
           maxHeight: STICKER_MAX_HEIGHT,
-          height: 'auto',
           objectFit: 'contain',
-          opacity: enterOpacity,
-          transform: `translate(${safeStickerOffsetX}px, ${safeStickerOffsetY + idleY}px) rotate(${rotate}deg) scale(${pop * breathScale * sizeConfig.scale * poseBounce * safeStickerScale})`,
-          transformOrigin: 'center bottom',
-          filter: 'drop-shadow(0 24px 32px rgba(0,0,0,0.28))',
-          transition: 'filter 0.3s',
+          filter: 'drop-shadow(0 18px 28px rgba(0,0,0,0.55)) drop-shadow(0 4px 10px rgba(0,0,0,0.35))',
         }}
       />
     </div>
   );
 };
-// Small crown badge that sits above the winning title pill.
+
 const WinnerCrown = ({side}: {side: 'left' | 'right'}) => (
   <div
     style={{
       position: 'absolute',
-      top: -34,
-      [side === 'left' ? 'right' : 'left']: 16,
-      fontSize: 30,
-      lineHeight: 1,
-      filter: 'drop-shadow(0 3px 4px rgba(0,0,0,0.35))',
-      transform: `rotate(${side === 'left' ? 12 : -12}deg)`,
+      top: -24,
+      [side === 'left' ? 'left' : 'right']: 12,
+      fontSize: 32,
+      filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.4))',
+      zIndex: 20,
     }}
   >
     👑
   </div>
 );
 
-// Full-screen opening hook. Shows the topic (or "A vs B") to stop the scroll.
-const HookCard = ({
+// Full-screen opening hook card. Shown for first ~1.85s.
+const OpeningCard = ({
   leftTitle,
   rightTitle,
   topic,
@@ -1045,7 +1078,8 @@ const HookCard = ({
   opacity: number;
 }) => {
   const frame = useCurrentFrame();
-  const pop = spring({frame, fps: 30, config: {damping: 12, mass: 0.4, stiffness: 150}, from: 0.86, to: 1});
+  const {fps} = useVideoConfig();
+  const pop = spring({frame, fps, config: {damping: 12, mass: 0.4, stiffness: 150}, from: 0.86, to: 1});
   return (
     <AbsoluteFill
       style={{
@@ -1103,7 +1137,8 @@ const ClosingCard = ({
   opacity: number;
 }) => {
   const frame = useCurrentFrame();
-  const pop = spring({frame, fps: 30, config: {damping: 13, mass: 0.4, stiffness: 150}, from: 0.9, to: 1});
+  const {fps} = useVideoConfig();
+  const pop = spring({frame, fps, config: {damping: 13, mass: 0.4, stiffness: 150}, from: 0.9, to: 1});
   const winnerTitle = winner === 'left' ? leftTitle : winner === 'right' ? rightTitle : '';
   const winnerColor = winner === 'right' ? rightColor : leftColor;
   return (
@@ -1164,7 +1199,7 @@ const ClosingCard = ({
 
 export const CompareExplainer = (props: CompareProps) => {
   const frame = useCurrentFrame();
-  const fps = 30;
+  const {fps} = useVideoConfig();
 
   const uploadedImages = props.comparisonImageUrls?.length
     ? props.comparisonImageUrls
@@ -1197,13 +1232,19 @@ export const CompareExplainer = (props: CompareProps) => {
   const durationSeconds = Number(props.durationSeconds || props.sourceDurationSeconds || props.renderWindowSeconds || 45);
 
   // Opening hook card (first ~1.85s) and closing CTA card (last ~2.6s)
-  const totalFrames = Math.max(1, Math.round(durationSeconds * fps));
+  const totalFrames = Math.max(1, secondsToFrames(durationSeconds, fps));
   const hookText = cleanText(props.topicTitle || '', 46);
-  const showHook = frame < 56;
-  const hookOpacity = interpolate(frame, [0, 8, 44, 55], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const closingStart = Math.max(totalFrames - 78, Math.round(totalFrames * 0.72));
+  const hookDurationFrames = Math.round(1.85 * fps);
+  const showHook = frame < hookDurationFrames;
+  const hookOpacity = interpolate(
+    frame,
+    [0, Math.round(fps * 0.25), Math.round(fps * 1.5), hookDurationFrames],
+    [0, 1, 1, 0],
+    {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}
+  );
+  const closingStart = Math.max(totalFrames - Math.round(2.6 * fps), Math.round(totalFrames * 0.72));
   const showClosing = frame >= closingStart;
-  const closingOpacity = interpolate(frame, [closingStart, closingStart + 12], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const closingOpacity = interpolate(frame, [closingStart, closingStart + Math.round(fps * 0.4)], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
 
   const currentPose = getActiveStickerPose({
     currentTime,
@@ -1217,24 +1258,24 @@ export const CompareExplainer = (props: CompareProps) => {
   const rightActive = currentPose === STICKER_POSES.rightSideExplainer;
 
   const captionScale = spring({
-    frame: frame % 90, // reset spring every ~3s for each new caption
-    fps: 30,
+    frame: frame % Math.round(3 * fps), // reset spring every ~3s for each new caption
+    fps,
     config: {damping: 12, mass: 0.35, stiffness: 140},
     from: 0.92,
     to: 1,
   });
 
   // Entry animations for title labels
-  const leftLabelEntry = spring({frame, fps: 30, config: {damping: 13, mass: 0.4, stiffness: 130}, from: -1, to: 0});
-  const rightLabelEntry = spring({frame: Math.max(0, frame - 4), fps: 30, config: {damping: 13, mass: 0.4, stiffness: 130}, from: 1, to: 0});
+  const leftLabelEntry = spring({frame, fps, config: {damping: 13, mass: 0.4, stiffness: 130}, from: -1, to: 0});
+  const rightLabelEntry = spring({frame: Math.max(0, frame - Math.round(fps * 0.13)), fps, config: {damping: 13, mass: 0.4, stiffness: 130}, from: 1, to: 0});
 
   // Image box slide-in
-  const leftImageEntry = spring({frame: Math.max(0, frame - 8), fps: 30, config: {damping: 14, mass: 0.4, stiffness: 120}});
-  const rightImageEntry = spring({frame: Math.max(0, frame - 12), fps: 30, config: {damping: 14, mass: 0.4, stiffness: 120}});
+  const leftImageEntry = spring({frame: Math.max(0, frame - Math.round(fps * 0.26)), fps, config: {damping: 14, mass: 0.4, stiffness: 120}});
+  const rightImageEntry = spring({frame: Math.max(0, frame - Math.round(fps * 0.4)), fps, config: {damping: 14, mass: 0.4, stiffness: 120}});
 
   // VS badge pop
-  const vsBadgePop = spring({frame: Math.max(0, frame - 16), fps: 30, config: {damping: 8, mass: 0.3, stiffness: 200}});
-  const vsPulse = 1 + Math.sin(frame / 40) * 0.03; // subtle periodic pulse
+  const vsBadgePop = spring({frame: Math.max(0, frame - Math.round(fps * 0.53)), fps, config: {damping: 8, mass: 0.3, stiffness: 200}});
+  const vsPulse = 1 + Math.sin(frame / (fps * 1.33)) * 0.03; // subtle periodic pulse
 
   return (
     <AbsoluteFill
@@ -1425,10 +1466,10 @@ export const CompareExplainer = (props: CompareProps) => {
         }}
       >
         <div style={{opacity: leftImageEntry, transform: `translateX(${(1 - leftImageEntry) * -40}px)`}}>
-          <VisualBox image={leftImage} side="left" colors={leftColor} boxBg={theme.boxBg} isActive={leftActive} />
+          <VisualBox image={leftImage} side="left" colors={leftColor} boxBg={theme.boxBg} isActive={leftActive} imageStyle={props.imageStyle} />
         </div>
         <div style={{opacity: rightImageEntry, transform: `translateX(${(1 - rightImageEntry) * 40}px)`}}>
-          <VisualBox image={rightImage} side="right" colors={rightColor} boxBg={theme.boxBg} isActive={rightActive} />
+          <VisualBox image={rightImage} side="right" colors={rightColor} boxBg={theme.boxBg} isActive={rightActive} imageStyle={props.imageStyle} />
         </div>
       </div>
 
@@ -1517,7 +1558,7 @@ export const CompareExplainer = (props: CompareProps) => {
 
       {/* Opening hook card — big "A vs B" question to stop the scroll */}
       {showHook ? (
-        <HookCard
+        <OpeningCard
           leftTitle={leftTitle}
           rightTitle={rightTitle}
           topic={hookText}
@@ -1560,13 +1601,13 @@ export const CompareExplainerComposition = () => (
   <Composition
     id="comparisonImages"
     component={CompareExplainer}
-    durationInFrames={2700}
-    fps={30}
+    durationInFrames={secondsToFrames(90, DEFAULT_FPS)}
+    fps={DEFAULT_FPS}
     width={1080}
     height={1920}
     calculateMetadata={({props}) => {
       const durationSeconds = getCompareDurationSeconds(props as CompareProps);
-      return {durationInFrames: Math.ceil(durationSeconds * 30), fps: 30, width: 1080, height: 1920};
+      return {durationInFrames: secondsToFrames(durationSeconds, DEFAULT_FPS), fps: DEFAULT_FPS, width: 1080, height: 1920};
     }}
   />
 );
@@ -1575,8 +1616,8 @@ export const Compare2DPreviewComposition = () => (
   <Composition
     id="COMPARE-2D-PREVIEW"
     component={CompareExplainer}
-    durationInFrames={1800}
-    fps={30}
+    durationInFrames={secondsToFrames(60, DEFAULT_FPS)}
+    fps={DEFAULT_FPS}
     width={1080}
     height={1920}
     defaultProps={{
@@ -1584,7 +1625,7 @@ export const Compare2DPreviewComposition = () => (
     }}
     calculateMetadata={({props}) => {
       const durationSeconds = getCompareDurationSeconds(props as CompareProps);
-      return {durationInFrames: Math.ceil(durationSeconds * 30), fps: 30, width: 1080, height: 1920};
+      return {durationInFrames: secondsToFrames(durationSeconds, DEFAULT_FPS), fps: DEFAULT_FPS, width: 1080, height: 1920};
     }}
   />
 );
@@ -1593,8 +1634,8 @@ export const CompareCartoonPreviewComposition = () => (
   <Composition
     id="COMPARE-CARTOON-PREVIEW"
     component={CompareExplainer}
-    durationInFrames={1800}
-    fps={30}
+    durationInFrames={secondsToFrames(60, DEFAULT_FPS)}
+    fps={DEFAULT_FPS}
     width={1080}
     height={1920}
     defaultProps={{
@@ -1602,7 +1643,7 @@ export const CompareCartoonPreviewComposition = () => (
     }}
     calculateMetadata={({props}) => {
       const durationSeconds = getCompareDurationSeconds(props as CompareProps);
-      return {durationInFrames: Math.ceil(durationSeconds * 30), fps: 30, width: 1080, height: 1920};
+      return {durationInFrames: secondsToFrames(durationSeconds, DEFAULT_FPS), fps: DEFAULT_FPS, width: 1080, height: 1920};
     }}
   />
 );
@@ -1611,8 +1652,8 @@ export const CompareExplainerPreviewComposition = () => (
   <Composition
     id="COMPARE-EXPLAINER-PREVIEW"
     component={CompareExplainer}
-    durationInFrames={1800}
-    fps={30}
+    durationInFrames={secondsToFrames(60, DEFAULT_FPS)}
+    fps={DEFAULT_FPS}
     width={1080}
     height={1920}
     defaultProps={{
@@ -1620,7 +1661,7 @@ export const CompareExplainerPreviewComposition = () => (
     }}
     calculateMetadata={({props}) => {
       const durationSeconds = getCompareDurationSeconds(props as CompareProps);
-      return {durationInFrames: Math.ceil(durationSeconds * 30), fps: 30, width: 1080, height: 1920};
+      return {durationInFrames: secondsToFrames(durationSeconds, DEFAULT_FPS), fps: DEFAULT_FPS, width: 1080, height: 1920};
     }}
   />
 );

@@ -4,14 +4,28 @@ import {Audio, Sequence, staticFile, useVideoConfig} from 'remotion';
 export type PremiumSoundCueType =
   | 'soft-click'
   | 'soft-pop'
+  | 'pop-medium'
+  | 'pop-strong'
   | 'whoosh'
+  | 'air-rush'
   | 'swipe'
   | 'ding'
   | 'cash'
+  | 'coin-drop'
   | 'typing'
   | 'paper'
+  | 'page-flip'
   | 'warning'
-  | 'rise';
+  | 'rise'
+  | 'hit-soft'
+  | 'hit-medium'
+  | 'hit-strong'
+  | 'bass-drop'
+  | 'cinematic-boom'
+  | 'data-pulse'
+  | 'data-scan'
+  | 'digital-beep'
+  | 'chime';
 
 export type PremiumSoundCue = {
   time?: number;
@@ -44,22 +58,40 @@ type PremiumAudioLayerProps = {
 };
 
 const SFX_PATHS: Record<PremiumSoundCueType, string> = {
-  'soft-click': 'assets/reusable/sound-effects/soft-click.wav',
-  'soft-pop': 'assets/reusable/sound-effects/pop-soft.wav',
-  whoosh: 'assets/reusable/sound-effects/whoosh-short.wav',
-  swipe: 'assets/reusable/sound-effects/swipe-right.wav',
-  ding: 'assets/reusable/sound-effects/bell-ding.wav',
-  cash: 'assets/reusable/sound-effects/cash-count.wav',
-  typing: 'assets/reusable/sound-effects/typing-fast.wav',
-  paper: 'assets/reusable/sound-effects/paper-turn.wav',
-  warning: 'assets/reusable/sound-effects/warning-beep.wav',
-  rise: 'assets/reusable/sound-effects/rise-sweep.wav',
+  'soft-click': 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939814/soft-click_q5a67c.wav',
+  'soft-pop': 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939716/soft-pop_rakwkr.mp3',
+  'pop-medium': 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939810/pop-medium_pper0p.mp3',
+  'pop-strong': 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939811/pop-strong_hjdqas.mp3',
+  whoosh: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939824/whoosh-short_rfopag.wav',
+  'air-rush': 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939786/air-rush_cy9opg.wav',
+  swipe: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939818/swipe-right_kgvhek.wav',
+  ding: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788093499/ding-5_kovgrw.mp3',
+  cash: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939789/cash-register_ugloom.wav',
+  'coin-drop': 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939791/coin-drop-finance_roxrte.wav',
+  typing: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939821/typing-fast_itr1th.wav',
+  paper: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788093548/paper-slide_fnjqc9.mp3',
+  'page-flip': 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788093547/page-flip_v5jazi.mp3',
+  warning: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939823/warning-beep_aqvyfj.wav',
+  rise: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939821/victory-rise_beerfs.wav',
+  'hit-soft': 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939801/hit-soft_xvsxlu.wav',
+  'hit-medium': 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939800/hit-medium_etbaw9.wav',
+  'hit-strong': 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939801/hit-strong_xutgaw.mp3',
+  'bass-drop': 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788093466/bass-drop_sn3ngm.mp3',
+  'cinematic-boom': 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939790/cinematic-boom_usu3sy.wav',
+  'data-pulse': 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939795/data-pulse_wyffxf.wav',
+  'data-scan': 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939795/data-scan_ofyz0z.wav',
+  'digital-beep': 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939795/digital-beep_qmdtyh.wav',
+  chime: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788093483/chime_o1pvom.mp3',
 };
 
 const resolveAudioSrc = (src?: string) => {
   if (!src) return '';
   if (/^(https?:|data:|blob:)/i.test(src)) return src;
-  return staticFile(src.replace(/^\/+/, ''));
+  try {
+    return staticFile(src.replace(/^\/+/, ''));
+  } catch {
+    return '';
+  }
 };
 
 const cueSrc = (type?: PremiumSoundCueType) => SFX_PATHS[type || 'soft-click'] || SFX_PATHS['soft-click'];
@@ -103,6 +135,8 @@ export const PremiumAudioLayer: React.FC<PremiumAudioLayerProps> = ({
         const from = Math.max(0, Math.round(Number(cue.time || 0) * fps));
         if (from >= durationInFrames) return null;
         const durationInFramesForCue = Math.max(3, Math.round(Number(cue.durationSeconds || 1.2) * fps));
+        const src = resolveAudioSrc(cueSrc(cue.type));
+        if (!src) return null;
         return (
           <Sequence
             key={`${cue.type || 'cue'}-${from}-${index}`}
@@ -110,7 +144,7 @@ export const PremiumAudioLayer: React.FC<PremiumAudioLayerProps> = ({
             durationInFrames={Math.min(durationInFramesForCue, durationInFrames - from)}
           >
             <Audio
-              src={resolveAudioSrc(cueSrc(cue.type))}
+              src={src}
               volume={(frame) => {
                 const local = frame - from;
                 const fadeFrames = Math.max(2, Math.round(fps * 0.08));

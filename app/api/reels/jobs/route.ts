@@ -3,8 +3,8 @@ import {existsSync} from 'node:fs';
 import path from 'node:path';
 import {renderMediaOnLambda, type AwsRegion} from '@remotion/lambda/client';
 import {createReadUrl, TEMP_MEDIA_RENDER_PREFIX, uploadTemporaryMediaObject} from '@/lib/aws/mediaStorage';
-import {transcribeMediaUrlWithGroq, transcribeMediaUrlWithOpenAI} from '@/services/ai/groqTranscription';
-import {createReelPlan, REEL_TEMPLATE_REGISTRY, validateAndRepairReelPlan, type ReelTemplateName, type ReelTranscriptSegment, type ReelWord} from '@/services/ai/reelPlanner';
+import {transcribeMediaUrlWithGroq} from '@/services/ai/groqTranscription';
+import {createReelPlan, VIDEO_TYPE_REGISTRY, validateAndRepairReelPlan, type ReelTemplateName, type ReelTranscriptSegment, type ReelWord} from '@/services/ai/reelPlanner';
 import {readUnifiedAssets} from '@/services/ai/assetPicker';
 import {hasHindiUrduScript, hasRomanHinglish} from '@/services/ai/hinglishTranscript';
 import {checkRateLimit, getClientIp} from '@/services/rateLimit/inMemoryRateLimiter';
@@ -14,28 +14,46 @@ import {createPlanningMediaClip} from '@/services/media/mediaClipper';
 import {buildEnergyTimeline, findBeatPeaks} from '@/lib/audio/energyTimeline';
 import {createPremiumSoundCues, createPremiumStyleLock} from '@/services/ai/premiumStylePlanner';
 import {planCompareStickers} from '@/services/ai/compareStickerPlanner';
+import {planScenes} from '@/services/ai/sceneDirector';
+import {matchAssetsToScenes, loadAssetLibrary} from '@/services/ai/assetMatcher';
+import {extractAudioFromS3Video} from '@/services/media/audioExtractLambda';
+import {enhanceScenePlanWithIntelligence} from '@/services/ai/visualIntelligence';
+import {runTypographyPipeline} from '@/services/ai/typographyPipeline';
+import {makeDirectorDecision, buildVisualContinuity, checkConstraints, type VisualContinuity, type DirectorDecision} from '@/services/ai/directorBrain';
+import {getOptimalFramesPerLambda} from '@/lib/media/optimizeUpload';
+import {detectScenes} from '@/services/ai/sceneDetector';
 import {planWhiteboardVideo} from '@/services/ai/whiteboardPlanner';
 import {planTypographyVideo} from '@/services/ai/typographyPlanner';
 import {selectBestClips} from '@/services/ai/clipSelector';
 import {SUBTITLE_PRESETS} from '@/remotion/types/subtitles';
+import {planLongVideoProBlueprint} from '@/services/ai/longVideoProPlanner';
+import {resolveBlueprintAssets} from '@/services/ai/assetResolver';
+import {cleanFaceCamSilenceAndFillers} from '@/services/ai/faceCamSilenceCleaner';
+import {extractFaceKeyframes} from '@/services/vision/faceTracker';
+import {generateStructuredSceneBlueprint} from '@/services/ai/aiScenePlanner';
+import {planBrollForScenes} from '@/services/ai/brollMatcher';
+import {generateSFXEvents} from '@/services/ai/sfxEngine';
+import {detectChaptersFromTranscript} from '@/services/ai/chapterDetector';
+import {smartMatchUploadedImagesToScenes} from '@/services/ai/smartMediaMatcher';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 type LambdaRenderRequest = Parameters<typeof renderMediaOnLambda>[0];
 type ReelMode =
-  | 'compare' | 'autoCaption' | 'captionStudio' | 'longVideoPromo' | 'longFormCaptionedVideo' | 'whiteboardVideo' | 'typographyVideo' | 'multiImagesVideo' | 'longVideoClips';
+  | 'compare' | 'autoCaption' | 'longVideoPromo' | 'whiteboardVideo' | 'typographyVideo' | 'multiImagesVideo' | 'longVideoClips' | 'facelessLongVideo' | 'aiVideoGenerator' | 'longVideoPro';
 
 const MODE_TO_TEMPLATE: Partial<Record<ReelMode, ReelTemplateName>> = {
   compare: 'comparisonImages',
-  autoCaption: 'AUTO_CAPTION_REEL',
-  captionStudio: 'CAPTION_STUDIO',
+  autoCaption: 'AUTO_CAPTION_GENERATOR',
   longVideoPromo: 'LONG_VIDEO_PROMO',
-  longFormCaptionedVideo: 'LONG_FORM_CAPTIONED_VIDEO',
   whiteboardVideo: 'WHITEBOARD_VIDEO',
   typographyVideo: 'TYPOGRAPHY_VIDEO',
   multiImagesVideo: 'MULTI_IMAGES_VIDEO',
   longVideoClips: 'LONG_VIDEO_CLIPS',
+  longVideoPro: 'AI_VIDEO_GENERATOR',
+  facelessLongVideo: 'AI_VIDEO_GENERATOR',
+  aiVideoGenerator: 'AI_VIDEO_GENERATOR',
 };
 
 // All 9:16 short video types render up to 90 seconds.
@@ -124,7 +142,7 @@ export async function POST(request: Request) {
   const previewScenes = Array.isArray(body.previewScenes) ? body.previewScenes : null;
   const previewOverlayTimeline = Array.isArray(body.previewOverlayTimeline) ? body.previewOverlayTimeline : null;
   const previewStickers = Array.isArray(body.previewStickers) ? body.previewStickers : null;
-  const previewStickerOverrides = new Map<string, Record<string, unknown>>((previewStickers || []).map((item, index): [string, Record<string, unknown>] => {
+  const previewStickerOverrides = new Map<string, Record<string, unknown>>((previewStickers || []).map((item: unknown, index: number): [string, Record<string, unknown>] => {
     const sticker = item && typeof item === 'object' ? item as Record<string, unknown> : {};
     return [readString(sticker.id) || `compare-pose-${index + 1}`, sticker];
   }));
@@ -135,7 +153,7 @@ export async function POST(request: Request) {
   const requestedModeValue = toMode(requestedMode);
   const resolvedTemplateName = resolveTemplateNameFromRequest(readString(body.templateName || body.template || requestedMode)) || (requestedModeValue ? MODE_TO_TEMPLATE[requestedModeValue] : null) || null;
   const mode: ReelMode = requestedModeValue || toMode(resolvedTemplateName || '') || 'autoCaption';
-  const templateConfig = resolvedTemplateName ? REEL_TEMPLATE_REGISTRY[resolvedTemplateName] : null;
+  const templateConfig = resolvedTemplateName ? VIDEO_TYPE_REGISTRY[resolvedTemplateName] : null;
   if (!resolvedTemplateName || !templateConfig) {
     return NextResponse.json(
       {
@@ -185,23 +203,14 @@ export async function POST(request: Request) {
   if (!userId) {
     return NextResponse.json({ok: false, error: 'Please log in before creating a reel.'}, {status: 401});
   }
-  const requestedLongFormDuration = mode === 'longFormCaptionedVideo'
-    ? readFiniteNumber(body.durationSeconds, readFiniteNumber(body.sourceDurationSeconds, 0))
-    : 0;
-  if (mode === 'longFormCaptionedVideo' && (!requestedLongFormDuration || requestedLongFormDuration > LONG_FORM_CAPTION_MAX_SECONDS)) {
-    return NextResponse.json({
-      ok: false,
-      status: 'failed',
-      reasonCode: 'LONG_FORM_DURATION_EXCEEDED',
-      error: 'We could not confirm this video\'s duration. Upload a readable video up to 10 minutes and try again.',
-    }, {status: 422});
-  }
+  const requestedClipCountRaw = body.clipCount;
+  const isAutoClips = mode === 'longVideoClips' && (requestedClipCountRaw === 'auto' || requestedClipCountRaw === 0 || !requestedClipCountRaw);
   const requestedClipCount = mode === 'longVideoClips'
-    ? Math.max(1, Math.min(10, readFiniteNumber(body.clipCount, 3)))
+    ? (isAutoClips ? 5 : Math.max(1, Math.min(15, readFiniteNumber(requestedClipCountRaw, 5))))
     : undefined;
   let requestedCreditUnits: number | null = null;
   try {
-    requestedCreditUnits = mode === 'longFormCaptionedVideo'
+    requestedCreditUnits = (mode === 'longVideoPro')
       ? null
       : calculateRenderCreditUnits(mode, {clipCount: requestedClipCount});
   } catch (error) {
@@ -222,7 +231,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const access = mode === 'longFormCaptionedVideo'
+    const access = (mode === 'longVideoPro')
       ? null
       : await getRenderAccessForUser(userId, {mode, creditUnits: requestedCreditUnits ?? undefined});
     markTiming('access_check_ms');
@@ -457,150 +466,6 @@ export async function POST(request: Request) {
       });
     }
 
-    // ── LONG-FORM CAPTIONED VIDEO (full-source Groq captions; no trim/planning clip) ──
-    if (mode === 'longFormCaptionedVideo') {
-      const requestedDuration = requestedLongFormDuration;
-
-      let longFormTranscription: Awaited<ReturnType<typeof transcribeMediaUrlWithGroq>>;
-      try {
-        longFormTranscription = await transcribeMediaUrlWithGroq({mediaUrl, fileName, contentType});
-      } catch (error) {
-        console.error('[LONG_FORM_CAPTIONED_VIDEO] Groq transcription failed:', error);
-        return NextResponse.json({
-          ok: false,
-          status: 'failed',
-          reasonCode: 'TRANSCRIPTION_FAILED',
-          error: 'Captions could not be generated from this video. Please retry with clear speech.',
-        }, {status: 422});
-      }
-      markTiming('long_form_groq_transcription_ms');
-
-      const transcriptWords = (longFormTranscription.words || [])
-        .map((word) => ({
-          word: String(word.word || ''),
-          start: Number(word.start ?? 0),
-          end: Number(word.end ?? 0),
-        }))
-        .filter((word) => word.word && Number.isFinite(word.start) && Number.isFinite(word.end));
-      const transcriptionDuration = readFiniteNumber(longFormTranscription.durationSeconds, 0);
-      const durationSeconds = transcriptionDuration || requestedDuration;
-      if (!durationSeconds || durationSeconds > LONG_FORM_CAPTION_MAX_SECONDS) {
-        return NextResponse.json({
-          ok: false,
-          status: 'failed',
-          reasonCode: 'LONG_FORM_DURATION_EXCEEDED',
-          error: 'Long-form Captioned Video supports uploads up to 10 minutes.',
-        }, {status: 422});
-      }
-      if (!longFormTranscription.transcript || !transcriptWords.length) {
-        return NextResponse.json({
-          ok: false,
-          status: 'failed',
-          reasonCode: 'NO_SPEECH_DETECTED',
-          error: 'No clear speech was detected. Please upload a video with a clear speaking voice.',
-        }, {status: 422});
-      }
-
-      const longFormCreditUnits = calculateRenderCreditUnits('longFormCaptionedVideo', {durationSeconds});
-      const longFormAccess = await getRenderAccessForUser(userId, {mode, creditUnits: longFormCreditUnits});
-      if (!longFormAccess.allowed) {
-        return NextResponse.json({
-          ok: false,
-          error: longFormAccess.reason || 'Your video credits are not enough for this duration.',
-          access: longFormAccess,
-          upgradeUrl: '/pricing',
-        }, {status: longFormAccess.activePaidPlan ? 403 : 402});
-      }
-
-      const captions = buildCaptionsFromWords(transcriptWords, 0);
-      const captionStyle = readString(body.captionStyle) || 'Studio Clean';
-      const captionPreset = getSubtitlePreset(captionStyle);
-      const longFormTitle = topicTitle || titleFromFile(fileName) || 'Long-form Captioned Video';
-      const inputProps: Record<string, unknown> = {
-        mediaSrc: mediaUrl,
-        mediaType: 'video',
-        mediaTrimStartSeconds: 0,
-        sourceAudioVolume: 1,
-        sourceDurationSeconds: durationSeconds,
-        durationSeconds,
-        renderWindowSeconds: durationSeconds,
-        captions,
-        subtitleChunks: captions,
-        captionStyle,
-        captionPosition: readString(body.captionPosition) || 'bottom',
-        textColor: readString(body.captionTextColor) || captionPreset?.textColor || '#ffffff',
-        highlightColor: readString(body.captionHighlightColor) || captionPreset?.highlightColor || '#22d3ee',
-        backgroundColor: readString(body.captionBackgroundColor) || captionPreset?.backgroundColor || '#0f172a',
-        fontSize: readString(body.captionFontSize) || captionPreset?.fontSize || 'large',
-        fontFamily: readString(body.captionFontFamily) || captionPreset?.fontFamily || undefined,
-        showBackground: body.captionShowBackground !== false,
-        language: longFormTranscription.languageHint || 'en',
-        backgroundMusic: false,
-        enableSfx: false,
-        templateName,
-        template: templateName,
-        compositionId: composition,
-      };
-      const preflight = validateBeforeRender({inputProps, templateName, composition, mediaType: 'video'});
-      if (preflight) {
-        const isFounder = isFounderEmail(readString(body.userEmail || body.email)) || isFounderUser(userId);
-        return NextResponse.json({
-          ok: false,
-          status: 'failed',
-          reasonCode: preflight.reasonCode,
-          error: isFounder ? preflight.message : sanitizeUserFacingStatus(preflight.message),
-        }, {status: 422});
-      }
-
-      const outName = `${TEMP_MEDIA_RENDER_PREFIX}${sanitizeSegment(userId)}/${Date.now()}-long-form-captioned.mp4`;
-      const render = await startRenderWithCapacityRetry({
-        region: config.region,
-        functionName: config.functionName,
-        serveUrl: config.serveUrl,
-        composition,
-        codec: 'h264',
-        audioCodec: 'aac',
-        inputProps,
-        outName,
-        privacy: 'private',
-        deleteAfter: '3-days',
-        overwrite: true,
-        framesPerLambda: 300,
-        maxRetries: 2,
-        downloadBehavior: {type: 'download', fileName: 'itnavideo-long-form-captioned.mp4'},
-        isProduction: true,
-        logLevel: 'info',
-      });
-      markTiming('long_form_render_start_ms');
-      await reserveRenderUsageFromServer({
-        userId,
-        renderId: render.renderId,
-        creditUnits: longFormCreditUnits,
-        createdAt: new Date(),
-        mode,
-        title: longFormTitle,
-      });
-
-      return NextResponse.json({
-        ok: true,
-        status: 'rendering',
-        renderId: render.renderId,
-        bucketName: render.bucketName,
-        outName,
-        mediaKey,
-        reelTitle: longFormTitle,
-        design: 'Long-form Captioned Video',
-        mode,
-        templateName,
-        transcriptSource: 'groq',
-        durationSeconds,
-        creditUnits: longFormCreditUnits,
-        creditCost: formatCreditUnits(longFormCreditUnits),
-        access: longFormAccess,
-        retentionHours: 48,
-      });
-    }
-
     // ── MULTI IMAGES VIDEO (transcribe → sync image changes + captions to the narration) ──
     if (mode === 'multiImagesVideo') {
       const requestedDuration = readFiniteNumber(body.durationSeconds, readFiniteNumber(body.sourceDurationSeconds, 30));
@@ -618,9 +483,9 @@ export async function POST(request: Request) {
         if (url) signedImageUrls.push(url);
       }
       const finalImageUrls = signedImageUrls.length ? signedImageUrls : comparisonImageUrls2;
-      if (finalImageUrls.length < 2 || finalImageUrls.length > 8) {
+      if (finalImageUrls.length < 2 || finalImageUrls.length > 20) {
         return NextResponse.json(
-          {ok: false, status: 'failed', error: 'Multi Images Video needs between 2 and 8 images.'},
+          {ok: false, status: 'failed', error: 'Multi Images Video needs between 2 and 20 images.'},
           {status: 422},
         );
       }
@@ -732,19 +597,180 @@ export async function POST(request: Request) {
       });
     }
 
+    // ── LONG VIDEO PRO (AI-directed 16:9 with scene planning, visual matching, kinetic typography) ──
+    if (mode === 'longVideoPro') {
+      const audioPrep = await prepareAudioForTranscription(mediaKey, mediaUrl, fileName, contentType, mediaType);
+      const lvpTranscription = await transcribeForPlanning({
+        mediaUrl: audioPrep.audioUrl,
+        fileName: audioPrep.audioFileName,
+        contentType: audioPrep.contentType,
+        mediaType: audioPrep.mediaType,
+      });
+      if (!lvpTranscription.transcript) {
+        return NextResponse.json({ ok: false, status: 'failed', reasonCode: 'NO_SPEECH_DETECTED', error: 'No clear speech detected. Upload audio/video with clear speech.' }, { status: 422 });
+      }
+      markTiming('long_video_pro_transcription_ms');
+      const renderWindow = selectRenderWindow(lvpTranscription);
+      const words = (renderWindow.words || []).filter((w: {word: string; start: number; end: number}) => w.word && Number.isFinite(w.start) && Number.isFinite(w.end)).map((w: {word: string; start: number; end: number}) => ({ word: String(w.word), start: Number(w.start), end: Number(w.end) }));
+      const captions = buildCompareCaptionsFromGroq(renderWindow);
+
+      // AI Visual Planning Agent — holistic script analysis & Video Blueprint generation
+      const { blueprint, source } = await planLongVideoProBlueprint({
+        transcript: renderWindow.transcript,
+        words,
+        durationSeconds: renderWindow.durationSeconds,
+        topicTitle: topicTitle || undefined,
+      });
+      markTiming('long_video_pro_scene_plan_ms');
+      console.log('[LONG_VIDEO_PRO] Blueprint generated:', { source, totalScenes: blueprint.totalScenes });
+
+      // Asset Resolver — resolves 3-tier assets (Primary -> Secondary -> Fallback Exec)
+      const resolvedScenes = await resolveBlueprintAssets(blueprint);
+
+      const longVideoScenes = resolvedScenes.map((scene) => {
+        let type = 'image';
+        if (scene.renderedType === 'VIDEO_CLIP') type = 'video';
+        else if (
+          scene.renderedType === 'TYPOGRAPHY' ||
+          scene.renderedType === 'CHART_GRAPH' ||
+          scene.renderedType === 'DIAGRAM_INFOGRAPHIC'
+        )
+          type = 'typography';
+        else if (scene.renderedType === 'SIMPLE_BACKGROUND') type = 'background';
+        else if (scene.renderedType === 'FACE_PERSON') type = 'face';
+
+        return {
+          type,
+          visualType: scene.visualType,
+          startSeconds: scene.startSeconds,
+          endSeconds: scene.endSeconds,
+          text: scene.narrationText,
+          chapterTitle: scene.chapterTitle,
+          speakerInfo: scene.speakerInfo,
+          onScreenText: scene.onScreenText || scene.fallbackSpec.headline,
+          keyword: scene.fallbackSpec.headline || scene.onScreenText || 'Key Point',
+          statisticNumber: scene.fallbackSpec.statisticNumber,
+          imageSrc: scene.imageSrc,
+          videoSrc: scene.videoSrc,
+          motion:
+            scene.animation === 'slow_zoom_in'
+              ? 'zoom-in'
+              : scene.animation === 'pan_right'
+              ? 'slide-right'
+              : scene.animation === 'pan_left'
+              ? 'slide-left'
+              : 'fade',
+          fallbackSpec: scene.fallbackSpec,
+          visualPriority: scene.visualPriority,
+        };
+      });
+
+      const lvpTitle = topicTitle || titleFromTranscript(lvpTranscription.transcript) || titleFromFile(fileName) || 'Long Video Pro';
+      const visualStylePreset = String(body.visualStylePreset || 'cinematic_dark');
+      const atmosphereBg = String(body.atmosphereBg || 'none');
+
+      // Select dynamic background music and generate styleLock + soundCues
+      const music = selectBackgroundMusic({
+        topicTitle: lvpTitle,
+        transcript: lvpTranscription.transcript,
+      });
+
+      const styleLock = createPremiumStyleLock({
+        topicTitle: lvpTitle,
+        transcript: lvpTranscription.transcript,
+        templateName,
+        mode,
+      });
+
+      const soundCues = createPremiumSoundCues({
+        styleLock,
+        templateName,
+        durationSeconds: renderWindow.durationSeconds,
+        captions: captions.map((c) => ({ start: Number(c.start), end: Number(c.end), text: String(c.text) })),
+      });
+
+      // Face-Camera Silence & Filler Word Cleaner
+      const faceCamCleaned = cleanFaceCamSilenceAndFillers(words, renderWindow.durationSeconds);
+      console.log('[LONG_VIDEO_PRO_FACE_CAM]', {
+        originalDuration: faceCamCleaned.originalDurationSeconds,
+        cleanedDuration: faceCamCleaned.cleanedDurationSeconds,
+        silenceCuts: faceCamCleaned.silenceCutCount,
+        fillersRemoved: faceCamCleaned.fillersRemovedCount,
+        clipsCount: faceCamCleaned.clips.length,
+      });
+
+      // Face Tracking Keyframes for Smart Framing
+      const faceTracking = await extractFaceKeyframes(mediaUrl, faceCamCleaned.cleanedDurationSeconds, 2.0);
+      console.log('[LONG_VIDEO_PRO_FACE_TRACKING]', {
+        source: faceTracking.source,
+        keyframesCount: faceTracking.keyframes.length,
+        isStaticCenter: faceTracking.isStaticCenter,
+        avgXCenter: faceTracking.averageXCenter,
+      });
+
+      const inputProps: Record<string, unknown> = {
+        mediaSrc: mediaUrl,
+        mediaType,
+        sourceAudioVolume: 1.35,
+        durationSeconds: faceCamCleaned.cleanedDurationSeconds,
+        speechClips: faceCamCleaned.clips,
+        enableSmartPunchIn: true,
+        faceKeyframes: faceTracking.keyframes,
+        scenes: longVideoScenes,
+        captions: captions.map((c: any) => ({
+          start: Number(c.start),
+          end: Number(c.end),
+          text: String(c.text),
+          words: c.words,
+        })),
+        title: lvpTitle,
+        backgroundMusicSrc: music.src,
+        musicVolume: music.volume,
+        templateName,
+        template: templateName,
+        compositionId: composition,
+        premiumEditing: true,
+        styleLock,
+        soundCues,
+        visualStylePreset,
+        atmosphereBg,
+        headingFont: readString(body.headingFont) || 'Montserrat',
+        bodyFont: readString(body.bodyFont) || 'Inter',
+        youtubeTimestamps: blueprint.youtubeTimestamps,
+      };
+      const preflight = validateBeforeRender({ inputProps, templateName, composition, mediaType });
+      if (preflight) {
+        return NextResponse.json({ ok: false, status: 'failed', reasonCode: preflight.reasonCode, error: preflight.message }, { status: 422 });
+      }
+      const outName = `${TEMP_MEDIA_RENDER_PREFIX}${sanitizeSegment(userId)}/${Date.now()}-long-video-pro.mp4`;
+      const render = await startRenderWithCapacityRetry({
+        region: config.region, functionName: config.functionName, serveUrl: config.serveUrl,
+        composition, codec: 'h264', audioCodec: 'aac', inputProps, outName,
+        privacy: 'private', deleteAfter: '3-days', overwrite: true,
+        framesPerLambda: getOptimalFramesPerLambda(renderWindow.durationSeconds, true), maxRetries: 2,
+        downloadBehavior: { type: 'download', fileName: 'itnavideo-long-video-pro.mp4' },
+        isProduction: true, logLevel: 'info',
+      });
+      markTiming('long_video_pro_render_start_ms');
+      console.log('[LONG_VIDEO_PRO] render started', { renderId: render.renderId, sceneCount: longVideoScenes.length, source });
+      return NextResponse.json({
+        ok: true, status: 'rendering', renderId: render.renderId, bucketName: render.bucketName, outName, mediaKey,
+        reelTitle: lvpTitle, design: 'Long Video Pro', mode, templateName, transcriptSource: 'groq',
+        access, retentionHours: 48,
+        diagnostics: { sceneCount: longVideoScenes.length, planSource: source, assetsMatched: resolvedScenes.filter((s) => s.resolvedUrl).length },
+      });
+    }
+
     // ── LONG VIDEO CLIPS FLOW (transcribe → pick best moments → multi-render) ──
     if (mode === 'longVideoClips') {
-      const selectedClipCount = requestedClipCount ?? 3;
-      const requestedClipDuration = [15, 30, 60].includes(readFiniteNumber(body.clipDuration, 30))
-        ? readFiniteNumber(body.clipDuration, 30)
-        : 30;
+      const audioPrep = await prepareAudioForTranscription(mediaKey, mediaUrl, fileName, contentType, mediaType);
 
-      // Transcribe the full video
+      // Transcribe the audio/video stream
       const clipTranscription = await transcribeForPlanning({
-        mediaUrl,
-        fileName,
-        contentType,
-        mediaType: 'video',
+        mediaUrl: audioPrep.audioUrl,
+        fileName: audioPrep.audioFileName,
+        contentType: audioPrep.contentType,
+        mediaType: audioPrep.mediaType,
         outputLanguage: normalizeSubtitleLanguage(readString(body.subtitleOutputLanguage)) || undefined,
       });
       markTiming('clip_transcription_ms');
@@ -759,16 +785,35 @@ export async function POST(request: Request) {
       }
 
       const totalDuration = clipTranscription.durationSeconds || 120;
-      const allWords = (clipTranscription.words || []).map((w: any) => ({
+      const rawWords = 'words' in clipTranscription && Array.isArray(clipTranscription.words) ? clipTranscription.words : [];
+      const rawSegments = 'segments' in clipTranscription && Array.isArray(clipTranscription.segments) ? clipTranscription.segments : [];
+      const allWords = rawWords.map((w: any) => ({
         word: String(w.word || ''),
         start: Number(w.start ?? 0),
         end: Number(w.end ?? 0),
       })).filter((w: any) => w.word && Number.isFinite(w.start));
-      const allSegments = (clipTranscription.segments || []).map((s: any) => ({
+      const allSegments = rawSegments.map((s: any) => ({
         start: Number(s.start ?? 0),
         end: Number(s.end ?? 0),
         text: String(s.text || ''),
       }));
+
+      // Calculate dynamic/auto clips or retrieve user request
+      const isAutoClips = body.clipCount === 'auto' || body.clipCount === 0 || !body.clipCount;
+      let selectedClipCount = 3;
+      if (isAutoClips) {
+        if (totalDuration < 120) selectedClipCount = 2; // < 2 mins -> 2 clips
+        else if (totalDuration < 300) selectedClipCount = 3; // 2-5 mins -> 3 clips
+        else if (totalDuration < 600) selectedClipCount = 5; // 5-10 mins -> 5 clips
+        else if (totalDuration < 1200) selectedClipCount = 8; // 10-20 mins -> 8 clips
+        else selectedClipCount = 10; // 20-30 mins -> 10 clips
+      } else {
+        selectedClipCount = Math.max(1, Math.min(15, readFiniteNumber(body.clipCount, 3)));
+      }
+
+      const requestedClipDuration = [15, 30, 60].includes(readFiniteNumber(body.clipDuration, 30))
+        ? readFiniteNumber(body.clipDuration, 30)
+        : 30;
 
       // Pick best clips using deterministic scorer
       const bestClips = selectBestClips({
@@ -794,27 +839,38 @@ export async function POST(request: Request) {
       const clipCreditUnits = calculateRenderCreditUnits('longVideoClips', {clipCount: bestClips.length});
       const firstClipCreditUnits = calculateRenderCreditUnits('longVideoClips', {clipCount: 1});
       const additionalClipCreditUnits = calculateRenderCreditUnits('longVideoClips', {clipCount: 2}) - firstClipCreditUnits;
-      // Caption style from request
       const clipCaptionStyle = readString(body.captionStyle) || 'Studio Clean';
       const clipCaptionPreset = getSubtitlePreset(clipCaptionStyle);
+      const enableCaptions = body.enableCaptions !== false && body.addCaptions !== false;
 
       // Render each clip as a separate Lambda job
-      const renderResults: Array<{clipIndex: number; renderId: string; bucketName: string; outName: string; startSeconds: number; endSeconds: number}> = [];
+      const renderResults: Array<{
+        clipIndex: number;
+        renderId: string;
+        bucketName: string;
+        outName: string;
+        startSeconds: number;
+        endSeconds: number;
+        title: string;
+        durationSeconds: number;
+      }> = [];
 
       for (const [clipPosition, clip] of bestClips.entries()) {
         // Build captions for this clip window
         const clipWords = allWords.filter((w: any) => w.start >= clip.startSeconds && w.end <= clip.endSeconds);
         const clipCaptions = buildCaptionsFromWords(clipWords, clip.startSeconds);
+        const clipTitle = titleFromTranscript(clip.text) || `Viral Clip ${clipPosition + 1}`;
+        const clipDuration = clip.endSeconds - clip.startSeconds;
 
         const clipInputProps: Record<string, unknown> = {
           mediaSrc: mediaUrl,
           mediaType: 'video',
           mediaTrimStartSeconds: clip.startSeconds,
           sourceAudioVolume: 1,
-          durationSeconds: clip.durationSeconds,
-          sourceDurationSeconds: clip.durationSeconds,
-          renderWindowSeconds: clip.durationSeconds,
-          captions: clipCaptions,
+          durationSeconds: clipDuration,
+          sourceDurationSeconds: clipDuration,
+          renderWindowSeconds: clipDuration,
+          captions: enableCaptions ? clipCaptions : [],
           captionStyle: clipCaptionStyle,
           captionPosition: readString(body.captionPosition) || 'bottom',
           textColor: readString(body.captionTextColor) || clipCaptionPreset?.textColor || '#ffffff',
@@ -855,7 +911,7 @@ export async function POST(request: Request) {
           renderId: clipRender.renderId,
           creditUnits: clipPosition === 0 ? firstClipCreditUnits : additionalClipCreditUnits,
           mode,
-          title: `Long Video Clip ${clipPosition + 1}`,
+          title: clipTitle,
         });
         renderResults.push({
           clipIndex: clip.index,
@@ -864,6 +920,8 @@ export async function POST(request: Request) {
           outName: clipOutName,
           startSeconds: clip.startSeconds,
           endSeconds: clip.endSeconds,
+          title: clipTitle,
+          durationSeconds: clipDuration,
         });
       }
       markTiming('all_clips_render_start_ms');
@@ -888,14 +946,7 @@ export async function POST(request: Request) {
         templateName,
         transcriptSource: 'groq',
         clipCount: renderResults.length,
-        clips: renderResults.map((r) => ({
-          clipIndex: r.clipIndex,
-          renderId: r.renderId,
-          bucketName: r.bucketName,
-          outName: r.outName,
-          startSeconds: r.startSeconds,
-          endSeconds: r.endSeconds,
-        })),
+        clips: renderResults,
         access,
         creditUnits: clipCreditUnits,
         creditCost: formatCreditUnits(clipCreditUnits),
@@ -1038,7 +1089,7 @@ export async function POST(request: Request) {
 
     const compareLeftTitleValue = readString(body.compareLeftTitle || body.leftTitle || body.leftLabel) || 'Left';
     const compareRightTitleValue = readString(body.compareRightTitle || body.rightTitle || body.rightLabel) || 'Right';
-    const captionStyleValue = readString(body.captionStyle) || 'Studio Clean';
+    const captionStyleValue = readString(body.captionStyle) || 'Shorts Karaoke';
     const captionPreset = getSubtitlePreset(captionStyleValue);
     const captionBackgroundColorValue = readString(body.captionBackgroundColor);
 
@@ -1127,6 +1178,7 @@ export async function POST(request: Request) {
             themeId: resolveCompareTheme(readString(body.compareTheme || body.themeId)),
             tone: resolveCompareTone(readString(body.compareTone || body.tone)),
             winner: resolveCompareWinner(readString(body.compareWinner || body.winner)),
+            imageStyle: readString(body.compareImageStyle) || 'rounded',
             compareLeftTitle: readString(body.compareLeftTitle || body.leftTitle || body.leftLabel) || 'Left',
             compareRightTitle: readString(body.compareRightTitle || body.rightTitle || body.rightLabel) || 'Right',
             leftTitle: readString(body.compareLeftTitle || body.leftTitle || body.leftLabel) || 'Left',
@@ -1171,54 +1223,6 @@ export async function POST(request: Request) {
             };
           })()
         : {}),
-      ...(mode === 'captionStudio'
-        ? (() => {
-            const studioCaptions = buildCompareCaptionsFromGroq(renderWindow);
-            const finalCaptions = studioCaptions.length > 0
-              ? studioCaptions
-              : (plan.renderProps?.captions || []).map((c: any) => ({start: c.start, end: c.end, text: c.text})).filter((c: any) => c.text);
-            const durationSec = renderWindow.durationSeconds || transcription.durationSeconds || MAX_AUTO_CAPTION_SECONDS;
-            const s = (body.captionStudioSettings && typeof body.captionStudioSettings === 'object')
-              ? body.captionStudioSettings as Record<string, unknown>
-              : {};
-            return {
-              captions: finalCaptions,
-              subtitleChunks: finalCaptions,
-              transcriptSegments: renderWindow.segments || [],
-              transcript: renderWindow.transcript,
-              sourceScript: renderWindow.transcript,
-              backgroundMusic: false,
-              backgroundMusicSrc: '',
-              durationSeconds: durationSec,
-              overlayTimeline: [],
-              assetTimeline: [],
-              // Caption Studio manual primitives — pass-through server side
-              fontFamily: readString(s.fontFamily) || 'Inter, sans-serif',
-              fontSizePx: Number.isFinite(Number(s.fontSizePx)) ? Number(s.fontSizePx) : 72,
-              fontWeight: Number.isFinite(Number(s.fontWeight)) ? Number(s.fontWeight) : 800,
-              italic: Boolean(s.italic),
-              textCase: readString(s.textCase) || 'as-is',
-              letterSpacingEm: Number.isFinite(Number(s.letterSpacingEm)) ? Number(s.letterSpacingEm) : 0,
-              lineHeight: Number.isFinite(Number(s.lineHeight)) ? Number(s.lineHeight) : 1.2,
-              textColor: readString(s.textColor) || '#FFFFFF',
-              activeWordColor: readString(s.activeWordColor) || '#22D3EE',
-              backgroundColor: readString(s.backgroundColor) || '#000000',
-              backgroundOpacity: Number.isFinite(Number(s.backgroundOpacity)) ? Number(s.backgroundOpacity) : 0.6,
-              backgroundShape: readString(s.backgroundShape) || 'pill',
-              paddingPx: Number.isFinite(Number(s.paddingPx)) ? Number(s.paddingPx) : 24,
-              strokeWidthPx: Number.isFinite(Number(s.strokeWidthPx)) ? Number(s.strokeWidthPx) : 0,
-              strokeColor: readString(s.strokeColor) || '#000000',
-              shadow: readString(s.shadow) || 'soft',
-              rotationDeg: Number.isFinite(Number(s.rotationDeg)) ? Number(s.rotationDeg) : 0,
-              position: readString(s.position) || 'bottom',
-              horizontalAlign: readString(s.horizontalAlign) || 'center',
-              maxWidthPercent: Number.isFinite(Number(s.maxWidthPercent)) ? Number(s.maxWidthPercent) : 80,
-              entryAnimation: readString(s.entryAnimation) || 'slide-up',
-              emphasisMode: readString(s.emphasisMode) || 'color',
-              wordsPerGroup: Number.isFinite(Number(s.wordsPerGroup)) ? Number(s.wordsPerGroup) : 4,
-            };
-          })()
-        : {}),
       ...(mode === 'whiteboardVideo'
         ? await (async () => {
             const wbCaptions = buildCompareCaptionsFromGroq(renderWindow);
@@ -1241,6 +1245,7 @@ export async function POST(request: Request) {
               captions: [],
               durationSeconds: renderWindow.durationSeconds,
               transcript: renderWindow.transcript,
+              soundCues: wbPlan.points.map((p: unknown) => ({ time: (p as { time?: number }).time ?? 0, type: 'paper' as const, volume: 0.35 })),
               overlayTimeline: [],
               assetTimeline: [],
             };
@@ -1248,23 +1253,87 @@ export async function POST(request: Request) {
         : {}),
       ...(mode === 'typographyVideo'
         ? (() => {
+            const selectedStyle = readString(body.typographyStyle) || 'dynamic-punch';
             const typoCaptions = buildCompareCaptionsFromGroq(renderWindow);
             const typoPlan = planTypographyVideo({
               transcript: renderWindow.transcript,
               words: (renderWindow.words || []).map((w: any) => ({ word: String(w.word), start: Number(w.start), end: Number(w.end) })),
               segments: typoCaptions.map((c) => ({ start: c.start, end: c.end, text: c.text })),
               durationSeconds: renderWindow.durationSeconds,
+              typographyStyle: selectedStyle,
             });
-            console.log('[TYPOGRAPHY_PLANNER]', { keywordCount: typoPlan.keywords.length });
+            console.log('[TYPOGRAPHY_PLANNER]', { style: selectedStyle, keywordCount: typoPlan.keywords.length, soundCuesCount: typoPlan.soundCues.length });
             return {
               keywords: typoPlan.keywords,
-              typographyStyle: readString(body.typographyStyle) || 'silver-chrome',
+              soundCues: typoPlan.soundCues,
+              typographyStyle: selectedStyle,
               captions: typoCaptions,
-              showCaptions: body.typographyShowCaptions !== false,
+              showCaptions: body.typographyShowCaptions === true, // Kinetic text is hero
               durationSeconds: renderWindow.durationSeconds,
               transcript: renderWindow.transcript,
-              overlayTimeline: [],
-              assetTimeline: [],
+              premiumEditing: true,
+            };
+          })()
+        : {}),
+      ...(mode === 'facelessLongVideo' || mode === 'aiVideoGenerator'
+        ? await (async () => {
+            const facelessCaptions = buildCompareCaptionsFromGroq(renderWindow);
+            const transcriptChunks = (renderWindow.segments || []).map((seg: any) => ({
+              text: String(seg.text || ''),
+              start: Number(seg.start || 0),
+              end: Number(seg.end || 0),
+            })).filter((c: any) => c.text && c.end > c.start);
+
+            const headingFont = readString(body.headingFont) || 'Montserrat';
+            const bodyFont = readString(body.bodyFont) || readString(body.typographyFont) || 'Inter';
+            const backgroundTheme = readString(body.backgroundTheme) || readString(body.selectedBackgroundTheme) || 'purple-vignette';
+            const customBgUrl = readString(body.customBgUrl || body.customBackgroundUrl || body.backgroundUrl) || '';
+            const videoTitle = topicTitle || titleFromTranscript(transcription.transcript) || titleFromFile(fileName) || 'Faceless Long Video';
+
+            const blueprint = await generateStructuredSceneBlueprint(
+              transcriptChunks.length ? transcriptChunks : [{ text: renderWindow.transcript, start: 0, end: renderWindow.durationSeconds }],
+              { title: videoTitle, headingFont, bodyFont, backgroundTheme }
+            );
+
+            // Step 3.5: AI Visual Asset Selection & Semantic Script Mapping
+            const plannedBrollUrls = await planBrollForScenes(blueprint.scenes);
+            const userUploadedAssets = (comparisonImageUrls || []).filter(Boolean);
+
+            const uploadedCandidates = userUploadedAssets.map((url, i) => ({
+              key: `uploaded_image_${i}`,
+              url,
+              fileName: `uploaded_image_${i}`,
+            }));
+
+            const mappedBrollUrls = userUploadedAssets.length > 0
+              ? smartMatchUploadedImagesToScenes(blueprint.scenes, uploadedCandidates)
+              : plannedBrollUrls;
+
+            const sfxEvents = generateSFXEvents(blueprint.scenes, 30);
+            const chapterEvents = detectChaptersFromTranscript(transcriptChunks, 30);
+
+            console.log('[FACELESS_LONG_VIDEO_PLANNER]', {
+              totalScenes: blueprint.totalScenes,
+              userAssetsCount: userUploadedAssets.length,
+              mappedBrollCount: Object.keys(mappedBrollUrls).length,
+              customBgUrl: customBgUrl ? 'present' : 'none',
+              sfxCount: sfxEvents.length,
+              chapterCount: chapterEvents.length,
+            });
+
+            return {
+              title: videoTitle,
+              headingFont,
+              typographyFont: bodyFont,
+              backgroundTheme,
+              customBgUrl,
+              sceneBlueprint: blueprint.scenes,
+              brollUrls: mappedBrollUrls,
+              sfxEvents,
+              chapterEvents,
+              captions: facelessCaptions,
+              subtitleChunks: facelessCaptions,
+              durationSeconds: renderWindow.durationSeconds,
             };
           })()
         : {}),
@@ -1324,7 +1393,7 @@ export async function POST(request: Request) {
           }
         : {}),
     };
-    if (mode !== 'autoCaption') {
+    if (mode !== 'autoCaption' && (!Array.isArray(inputProps.soundCues) || !inputProps.soundCues.length)) {
       inputProps.soundCues = createPremiumSoundCues({
         styleLock,
         templateName,
@@ -1370,7 +1439,7 @@ export async function POST(request: Request) {
     // Debug: log caption data being sent to Lambda
     if (mode === 'autoCaption') {
       const captionsArr = Array.isArray(imagePreflight.inputProps.captions) ? imagePreflight.inputProps.captions as any[] : [];
-      console.log('[AUTO_CAPTION_REEL] Render props debug:', {
+      console.log('[AUTO_CAPTION_GENERATOR] Render props debug:', {
         captionCount: captionsArr.length,
         firstCaption: captionsArr[0] || 'EMPTY',
         lastCaption: captionsArr[captionsArr.length - 1] || 'EMPTY',
@@ -1767,12 +1836,12 @@ function readLambdaConfig():
   const region = readAwsRegion(process.env.REMOTION_AWS_REGION || process.env.AWS_REGION);
   const functionName = clean(process.env.REMOTION_LAMBDA_FUNCTION_NAME);
   const serveUrl = normalizeServeUrl(clean(process.env.REMOTION_LAMBDA_SERVE_URL));
-  const configuredConcurrency = Number(process.env.REMOTION_LAMBDA_CONCURRENCY || 6);
-  const concurrency = Math.min(8, Math.max(2, Number.isFinite(configuredConcurrency) ? configuredConcurrency : 6));
+  const configuredConcurrency = Number(process.env.REMOTION_LAMBDA_CONCURRENCY || 3);
+  const concurrency = Math.min(4, Math.max(1, Number.isFinite(configuredConcurrency) ? configuredConcurrency : 3));
   const useFramesPerLambda = clean(process.env.REMOTION_LAMBDA_USE_FRAMES_PER_LAMBDA).toLowerCase() !== 'false';
-  const configuredFramesPerLambda = Number(process.env.REMOTION_LAMBDA_FRAMES_PER_LAMBDA || 200);
+  const configuredFramesPerLambda = Number(process.env.REMOTION_LAMBDA_FRAMES_PER_LAMBDA || 300);
   const framesPerLambda = useFramesPerLambda && Number.isFinite(configuredFramesPerLambda)
-    ? Math.min(300, Math.max(120, configuredFramesPerLambda))
+    ? Math.min(600, Math.max(150, configuredFramesPerLambda))
     : undefined;
   if (!functionName || !serveUrl) {
     return {ok: false, error: 'The render system is not deployed yet.'};
@@ -1821,6 +1890,46 @@ function isTemporaryRenderCapacityError(error: unknown) {
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function prepareAudioForTranscription(
+  mediaKey: string,
+  mediaUrl: string,
+  fileName: string,
+  contentType?: string,
+  mediaType?: 'audio' | 'video' | 'image'
+) {
+  const isAudio = mediaType === 'audio' || /\.(mp3|wav|m4a|aac|flac|ogg)$/i.test(fileName);
+  if (isAudio || !mediaKey) {
+    return {
+      audioUrl: mediaUrl,
+      audioFileName: fileName,
+      contentType: contentType || 'audio/mpeg',
+      mediaType: 'audio' as const,
+    };
+  }
+
+  try {
+    const extracted = await extractAudioFromS3Video(mediaKey, fileName);
+    if (extracted.audioUrl && !extracted.error) {
+      return {
+        audioUrl: extracted.audioUrl,
+        audioFileName: extracted.audioFileName,
+        contentType: 'audio/mpeg',
+        mediaType: 'audio' as const,
+      };
+    }
+    console.warn('[AUDIO_EXTRACT] Audio extraction returned error, falling back to direct video URL:', extracted.error);
+  } catch (err) {
+    console.warn('[AUDIO_EXTRACT] Exception during audio extraction, falling back to direct video URL:', err);
+  }
+
+  return {
+    audioUrl: mediaUrl,
+    audioFileName: fileName,
+    contentType: contentType || 'video/mp4',
+    mediaType: 'video' as const,
+  };
 }
 
 async function preparePlanningMediaForRender({
@@ -1976,37 +2085,16 @@ async function transcribeForPlanning({
     });
   }
 
-  try {
-    const fallback = await transcribeMediaUrlWithOpenAI({mediaUrl, fileName, contentType});
-    if (fallback.transcript) {
-      if (!outputLanguage) {
-        return {...fallback, source: 'openai' as const, warning: sanitizeUserFacingStatus(primaryWarning)};
-      }
-      return await repairTranscriptionToLanguage({
-        ...fallback,
-        source: 'openai' as const,
-        warning: sanitizeUserFacingStatus(primaryWarning),
-      }, outputLanguage);
-    }
-    throw new Error(fallback.warning || 'OpenAI transcription returned an empty result.');
-  } catch (error) {
-    console.error('Fallback transcription failed', {
-      primary: sanitizeUserFacingStatus(primaryWarning),
-      fallback: sanitizeUserFacingStatus(error instanceof Error ? error.message : 'OpenAI transcription failed.'),
-      contentType,
-      mediaType,
-    });
-    return {
-      transcript: '',
-      durationSeconds: 0,
-      source: 'failed' as const,
-      model: process.env.OPENAI_TRANSCRIPTION_MODEL || 'whisper-1',
-      languageHint: undefined,
-      warning: sanitizeUserFacingStatus(
-        `Transcription failed. Primary: ${primaryWarning}. Fallback: ${error instanceof Error ? error.message : 'OpenAI transcription failed.'}`,
-      ),
-    };
-  }
+  return {
+    transcript: '',
+    durationSeconds: 0,
+    source: 'failed' as const,
+    model: process.env.GROQ_TRANSCRIPTION_MODEL || 'whisper-large-v3-turbo',
+    languageHint: undefined,
+    warning: sanitizeUserFacingStatus(
+      `Groq transcription failed: ${primaryWarning || 'No speech detected or audio quality too low.'}`,
+    ),
+  };
 }
 
 type PlanningTranscription = Awaited<ReturnType<typeof transcribeForPlanning>>;
@@ -2859,7 +2947,7 @@ function resolveTemplateNameFromRequest(value: string): ReelTemplateName | null 
   const lookup = normalized.replace(/[-_\s]+/g, '');
 
   // Direct registry lookup first — exact match against all registered template names
-  const registryMatch = Object.keys(REEL_TEMPLATE_REGISTRY).find((templateKey) => (
+  const registryMatch = Object.keys(VIDEO_TYPE_REGISTRY).find((templateKey) => (
     templateKey.toLowerCase().replace(/[-_\s]+/g, '') === lookup
   ));
   if (registryMatch) return registryMatch as ReelTemplateName;
@@ -2870,15 +2958,15 @@ function resolveTemplateNameFromRequest(value: string): ReelTemplateName | null 
 
 function toMode(value: string): ReelMode | null {
   const normalized = value.toLowerCase();
-  if (normalized.includes('long-form-captioned') || normalized.includes('longformcaptioned') || normalized.includes('long-video-captioned')) return 'longFormCaptionedVideo';
+  if (normalized.includes('ai-video-generator') || normalized.includes('aivideogenerator') || normalized.includes('aivideo') || normalized.includes('ai-video') || normalized.includes('text-to-video') || normalized.includes('script-to-video')) return 'aiVideoGenerator';
+  if (normalized.includes('faceless') || normalized.includes('audio-to-video') || normalized.includes('longvideopro') || normalized.includes('long-video-pro')) return 'aiVideoGenerator';
   if (normalized.includes('compare') || normalized.includes('comparison') || normalized === 'vs') return 'compare';
   if (normalized.includes('long-video-clip') || normalized.includes('longvideoclip') || normalized.includes('video-clips')) return 'longVideoClips';
   if (normalized.includes('long-video') || normalized.includes('longvideo') || normalized.includes('promo')) return 'longVideoPromo';
   if (normalized.includes('whiteboard') || normalized.includes('white-board')) return 'whiteboardVideo';
   if (normalized.includes('typography') || normalized.includes('typo-video') || normalized.includes('bold-reel')) return 'typographyVideo';
   if (normalized.includes('multi-image') || normalized.includes('multiimage') || normalized.includes('multi-images')) return 'multiImagesVideo';
-  if (normalized.includes('auto-caption') || normalized.includes('autocaption')) return 'autoCaption';
-  if (normalized.includes('caption') || normalized.includes('subtitle')) return 'autoCaption';
+  if (normalized.includes('auto-caption') || normalized.includes('autocaption') || normalized.includes('caption') || normalized.includes('subtitle') || normalized.includes('captionstudio') || normalized.includes('long-form-captioned') || normalized.includes('longcaption')) return 'autoCaption';
   return null;
 }
 
@@ -2889,7 +2977,6 @@ function getUploadedMediaType({mode, contentType}: {mode: ReelMode; contentType:
   if (mode === 'typographyVideo') return 'video';
   if (mode === 'multiImagesVideo') return 'video';
   if (mode === 'longVideoClips') return 'video';
-  if (mode === 'longFormCaptionedVideo') return 'video';
   return contentType.startsWith('audio/') ? 'audio' : 'video';
 }
 
@@ -2967,7 +3054,7 @@ function validateBeforeRender({
   composition: string;
   mediaType: 'audio' | 'video' | 'image';
 }): RenderPreflightFailure | null {
-  const templateConfig = REEL_TEMPLATE_REGISTRY[templateName];
+  const templateConfig = VIDEO_TYPE_REGISTRY[templateName];
   if (!templateConfig) {
     return {
       reasonCode: 'UNKNOWN_TEMPLATE',
@@ -3004,17 +3091,15 @@ function validateBeforeRender({
   }
 
   const renderDuration = readPositiveNumber(inputProps.durationSeconds) ?? readPositiveNumber(inputProps.renderWindowSeconds);
-  const maximumDuration = templateName === 'LONG_FORM_CAPTIONED_VIDEO'
+  const maximumDuration = (templateName as string) === 'LONG_VIDEO_PRO' || templateName === 'AI_VIDEO_GENERATOR'
     ? LONG_FORM_CAPTION_MAX_SECONDS
-    : templateName === 'AUTO_CAPTION_REEL' || templateName === 'CAPTION_STUDIO'
+    : templateName === 'AUTO_CAPTION_GENERATOR'
       ? MAX_AUTO_CAPTION_SECONDS
       : MAX_RENDER_WINDOW_SECONDS;
   if (!renderDuration || renderDuration > maximumDuration) {
     return {
       reasonCode: 'INVALID_RENDER_DURATION',
-      message: templateName === 'LONG_FORM_CAPTIONED_VIDEO'
-        ? 'Long-form Captioned Video supports videos up to 10 minutes.'
-        : 'Render duration must be between 1 second and 1 minute.',
+      message: 'Render duration must be between 1 second and 1 minute.',
     };
   }
 
@@ -3025,10 +3110,10 @@ function validateBeforeRender({
     };
   }
 
-  if ((templateName === 'VIDEO_CAPTION' || templateName === 'AUTO_CAPTION_REEL') && mediaType !== 'video') {
+  if ((templateName === 'VIDEO_CAPTION' || templateName === 'AUTO_CAPTION_GENERATOR') && mediaType !== 'video') {
     return {
       reasonCode: 'VIDEO_CAPTION_REQUIRES_VIDEO',
-      message: 'Video Caption needs a video upload before render.',
+      message: 'Auto Caption Generator needs a video upload before render.',
     };
   }
 
@@ -3050,15 +3135,48 @@ function validateBeforeRender({
 }
 
 function humanTemplateName(templateName: string) {
-  if (templateName === 'AUTO_CAPTION_REEL') return 'Auto Caption Video';
+  if (templateName === 'AUTO_CAPTION_GENERATOR') return 'Auto Caption Generator';
   if (templateName === 'LONG_VIDEO_PROMO') return 'Long Video Promo';
-  if (templateName === 'LONG_FORM_CAPTIONED_VIDEO') return 'Long-form Captioned Video';
+  if (templateName === 'LONG_VIDEO_PRO') return 'Long Video Pro';
   if (templateName === 'comparisonImages') return 'Compare Explainer Video';
   if (templateName === 'WHITEBOARD_VIDEO') return 'Whiteboard Video';
   if (templateName === 'TYPOGRAPHY_VIDEO') return 'Typography Video';
   if (templateName === 'MULTI_IMAGES_VIDEO') return 'Multi Images Video';
   if (templateName === 'LONG_VIDEO_CLIPS') return 'Long Video Clips';
   return 'Itnavideo Reel';
+}
+
+function sceneIntentToType(intent: string): 'title' | 'narration' | 'typography' | 'image' | 'callout' | 'transition' {
+  switch (intent) {
+    case 'establish_atmosphere': return 'title';
+    case 'introduce_topic': return 'title';
+    case 'emphasize_point': return 'typography';
+    case 'show_example': return 'image';
+    case 'compare_contrast': return 'callout';
+    case 'call_to_action': return 'title';
+    case 'build_tension': return 'typography';
+    case 'resolve_conclusion': return 'callout';
+    default: return 'typography';
+  }
+}
+
+/** Extract a meaningful keyword for typography fallback when no image is available */
+function extractKeyword(scene: {emphasis?: string[]; assetQuery?: string}, captions: {text: string}[]): string {
+  // Try emphasis words from scene plan
+  if (scene.emphasis?.length) return scene.emphasis[0];
+  // Try asset query (scene director's suggested visual)
+  if (scene.assetQuery) {
+    const words = scene.assetQuery.split(/\s+/).filter((w) => w.length > 3);
+    if (words.length > 0) return words.slice(0, 2).join(' ');
+  }
+  // Pick the longest meaningful word from captions in this segment
+  const allText = captions.map((c) => c.text).join(' ');
+  const meaningful = allText.split(/\s+/).filter((w) => w.length > 4 && !/^(about|these|those|there|which|where|their|would|could|should|after|before)$/i.test(w));
+  if (meaningful.length > 0) {
+    // Pick the longest word as the most impactful keyword
+    return meaningful.sort((a, b) => b.length - a.length)[0];
+  }
+  return allText.split(/\s+/).slice(0, 2).join(' ') || 'Key Point';
 }
 
 function readPositiveNumber(value: unknown) {
@@ -3093,7 +3211,7 @@ function hasVisibleTextIssue(value: unknown, predicate: (text: string) => boolea
 }
 
 function shouldSkipVisibleTextKey(keyPath: string) {
-  return /(?:scriptDetails|mediaSrc|imageSources|selectedAssets|uploadedImages|assetTimeline|assetBrief|primaryVisual\.prompt|prompt|visual|searchText|assetSearchText|detailedDescription|visualDifference|useCase|use_case|tags|category|orientation|style|motion|file|suggestedFilename|embeddingRef|storage|source|src|url|key|id|model|provider|debug|constraints|qualityChecks|warnings|repairNotes|renderNotes|captions|subtitleChunks|transcriptSegments|transcript|sourceScript|subtitleLanguagePolicy|subtitleOutputLanguage|overlayTimeline|topicTitle|compareLeftTitle|compareRightTitle|leftTitle|rightTitle|text|body|title|label)/i.test(keyPath);
+  return /(?:scriptDetails|mediaSrc|imageSources|selectedAssets|uploadedImages|assetTimeline|assetBrief|primaryVisual\.prompt|prompt|visual|searchText|assetSearchText|detailedDescription|visualDifference|useCase|use_case|tags|category|orientation|style|motion|type|file|suggestedFilename|embeddingRef|storage|source|src|url|key|id|model|provider|debug|constraints|qualityChecks|warnings|repairNotes|renderNotes|captions|subtitleChunks|transcriptSegments|transcript|sourceScript|subtitleLanguagePolicy|subtitleOutputLanguage|overlayTimeline|topicTitle|compareLeftTitle|compareRightTitle|leftTitle|rightTitle|text|body|title|label|keyword|imageSrc|scenes)/i.test(keyPath);
 }
 
 function hasForbiddenScriptText(value: string) {

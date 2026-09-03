@@ -1,0 +1,721 @@
+{
+  "metadata": {
+    "styleId": "elevate-script",
+    "demoVideoId": "elevate-script",
+    "name": "Elevate Script & Real Estate Luxury",
+    "category": "luxury",
+    "tags": [
+      "elevate-script",
+      "real-estate-luxury",
+      "editorial-serif",
+      "3d-behind-subject",
+      "glassmorphic-badges",
+      "interactive-calendar",
+      "social-review-bubble",
+      "incoming-call-ui",
+      "profile-card",
+      "AI Reverse-Engineered"
+    ],
+    "sourceVideoUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/v1788193723/Video-80725_aiv5eg.mp4",
+    "posterUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/f_auto,q_auto,w_480,so_0.5/v1788193723/Video-80725_aiv5eg.jpg",
+    "analysisVersion": "2.5.0-expert-breakdown",
+    "analyzedAt": "2026-09-01T10:25:00.000Z",
+    "overallConfidence": 0.99
+  },
+  "pacingAndRhythm": {
+    "personality": {
+      "value": "editorial-luxury",
+      "confidence": 0.98,
+      "status": "DETECTED",
+      "basis": "Rotoscoped 3D typography composited behind subject with Champagne Gold metallic gradient, Playfair/Inter font pairing, and sleek floating UI cards."
+    },
+    "rhythmPattern": {
+      "value": "phrase-stagger",
+      "confidence": 0.95,
+      "status": "DETECTED",
+      "basis": "Phrases build rhythmically around the subject with scale-and-snap entrance pops, floating glassmorphic pills, and calendar/review card overlays."
+    },
+    "targetWordsPerPhrase": 3,
+    "averagePhraseDurationSec": 1.4,
+    "transitionFrequencyPerMinute": 32,
+    "speechSyncMode": "beat-locked",
+    "motionIntensity": {
+      "value": "punchy",
+      "confidence": 0.92,
+      "status": "DETECTED"
+    }
+  },
+  "typography": {
+    "fontCategory": {
+      "value": "editorial-luxury-serif",
+      "confidence": 0.98,
+      "status": "DETECTED",
+      "basis": "High-contrast editorial serif for headline/keywords (Playfair Display / Bogart / Canela) paired with clean geometric sans-serif for sentence starters (Inter / Montserrat / SF Pro)."
+    },
+    "fontFamilyEstimate": {
+      "value": "Playfair Display",
+      "confidence": 0.95,
+      "status": "DETECTED",
+      "basis": "Editorial luxury serif with high-contrast thick/thin strokes and elegant italics, paired with Inter for body."
+    },
+    "pairing": {
+      "headlineAccentFont": "Playfair Display",
+      "headlineCategory": "Editorial Luxury Serif",
+      "headlineCase": "Title Case / Mixed",
+      "supportingBodyFont": "Inter",
+      "supportingCategory": "Clean Modern Sans-Serif",
+      "supportingCase": "Title Case / Lowercase",
+      "largeNumbersFont": "Montserrat / Plus Jakarta Sans",
+      "largeNumbersWeight": 900
+    },
+    "heroTreatment": {
+      "casing": "mixed",
+      "fontWeight": 700,
+      "fontStyle": "italic",
+      "relativeScale": 1.75,
+      "letterSpacingRatio": 0.01,
+      "lineHeightRatio": 1.05,
+      "opacity": 1
+    },
+    "leadTreatment": {
+      "casing": "natural",
+      "fontWeight": 600,
+      "fontStyle": "normal",
+      "relativeScale": 0.95,
+      "letterSpacingRatio": 0.03,
+      "lineHeightRatio": 1.15,
+      "opacity": 0.95
+    },
+    "subTreatment": {
+      "casing": "natural",
+      "fontWeight": 400,
+      "fontStyle": "normal",
+      "relativeScale": 0.75,
+      "letterSpacingRatio": 0.02,
+      "lineHeightRatio": 1.2,
+      "opacity": 0.85
+    },
+    "hierarchyLevels": [
+      "hero",
+      "lead",
+      "sub"
+    ],
+    "textDensity": {
+      "value": "compact-phrases",
+      "confidence": 0.95,
+      "status": "DETECTED"
+    },
+    "wordGroupingRule": "hook-plus-context",
+    "lineBreakPolicy": "balanced-stack"
+  },
+  "composition": {
+    "layoutStructure": {
+      "value": "stacked-vertical",
+      "confidence": 0.96,
+      "status": "DETECTED"
+    },
+    "anchor": {
+      "xRatio": 0.5,
+      "yRatio": 0.65,
+      "horizontalAlign": "center",
+      "verticalAlign": "center"
+    },
+    "safeZoneMargins": {
+      "topRatio": 0.1,
+      "bottomRatio": 0.12,
+      "leftRatio": 0.08,
+      "rightRatio": 0.08
+    },
+    "aspectRatioAdaptation": {
+      "portrait_9_16": {
+        "yRatio": 0.65,
+        "xRatio": 0.5,
+        "scaleMultiplier": 1,
+        "maxLineWidthRatio": 0.85,
+        "alignment": "center"
+      },
+      "landscape_16_9": {
+        "yRatio": 0.55,
+        "xRatio": 0.35,
+        "scaleMultiplier": 0.85,
+        "maxLineWidthRatio": 0.5,
+        "alignment": "left"
+      },
+      "square_1_1": {
+        "yRatio": 0.6,
+        "xRatio": 0.5,
+        "scaleMultiplier": 0.9,
+        "maxLineWidthRatio": 0.75,
+        "alignment": "center"
+      }
+    },
+    "negativeSpaceRatio": 0.45,
+    "isEdgeToEdge": false
+  },
+  "subjectRelationship": {
+    "awarenessMode": {
+      "value": "depth-behind-subject",
+      "confidence": 0.98,
+      "status": "DETECTED"
+    },
+    "layerPlacement": {
+      "value": "sandwich",
+      "confidence": 0.98,
+      "status": "DETECTED"
+    },
+    "layers": {
+      "layer1_bottom": "Original Background Footage + 3D Camera Track",
+      "layer2_middle": "Giant 3D Ground-Tracked Typography & Extruded Numbers (Behind Person)",
+      "layer3_subject": "Rotoscoped / Cutout Speaker Layer (Foreground Subject)",
+      "layer4_frontmost": "Floating UI Badges, Foreground Captions & Contact Cards"
+    },
+    "collisionAvoidance": {
+      "enabled": true,
+      "headroomSafetyRatio": 0.18,
+      "faceAvoidanceWeight": 0.95
+    },
+    "speakerPositionTracking": true,
+    "hasPillBackdropAroundSubject": false,
+    "requiresSubjectCutout": true
+  },
+  "animation": {
+    "entrance": {
+      "type": {
+        "value": "scale-snap",
+        "confidence": 0.96,
+        "status": "DETECTED",
+        "basis": "Scale 90% -> 100% with heavy cubic-bezier / spring easing and 0% -> 100% opacity pop."
+      },
+      "easing": {
+        "value": "spring-bouncy",
+        "confidence": 0.94,
+        "status": "DETECTED"
+      },
+      "durationSeconds": 0.28,
+      "scaleRange": [
+        0.9,
+        1.0
+      ],
+      "opacityRange": [
+        0,
+        1
+      ],
+      "translateYRangeRatio": [
+        0.02,
+        0
+      ],
+      "rotationRangeDeg": [
+        0,
+        0
+      ]
+    },
+    "active": {
+      "type": "subtle-breathe",
+      "intensity": 0.02
+    },
+    "exit": {
+      "type": "quick-fade",
+      "durationSeconds": 0.18
+    },
+    "cameraMotion": {
+      "type": "parallax-z-axis",
+      "description": "Text locked to 3D background coordinates; realistically expands/pans on camera forward push.",
+      "transitionCut": "whip-pan-directional-zoom-blur"
+    },
+    "wordByWordStagger": true,
+    "staggerDelaySeconds": 0.08,
+    "motionIntensity": "punchy"
+  },
+  "color": {
+    "primaryTextColor": {
+      "value": "#FFFFFF",
+      "confidence": 0.99,
+      "status": "DETECTED",
+      "basis": "Crisp white base subtitles & supporting text"
+    },
+    "secondaryTextColor": {
+      "value": "#FDF2C5",
+      "confidence": 0.96,
+      "status": "DETECTED",
+      "basis": "Warm cream / pale yellow highlighting"
+    },
+    "accentColor": {
+      "value": "#F5D061",
+      "confidence": 0.98,
+      "status": "DETECTED",
+      "basis": "Champagne / Metallic Gold Gradient (Yellow-Gold to Soft Bronze)"
+    },
+    "secondaryAccentColor": {
+      "value": "#C99700",
+      "confidence": 0.95,
+      "status": "DETECTED",
+      "basis": "Soft Bronze metallic shadow depth"
+    },
+    "metallicGradient": {
+      "enabled": true,
+      "gradientStops": [
+        "#FFF6D6 0%",
+        "#F5D061 35%",
+        "#E5B869 60%",
+        "#AA771C 100%"
+      ],
+      "angleDeg": 135
+    },
+    "backgroundColor": "transparent",
+    "colorGrade": {
+      "name": "Warm Luxury Editorial",
+      "filter": "contrast(1.08) brightness(1.03) saturate(1.1)",
+      "contrast": 1.08,
+      "saturation": 1.1,
+      "brightness": 1.03
+    },
+    "effects": {
+      "hasStroke": false,
+      "hasGlow": true,
+      "glowColor": "rgba(245,208,97,0.35)",
+      "glowRadiusPx": 20,
+      "hasDropShadow": true,
+      "shadowColor": "rgba(0,0,0,0.6)",
+      "shadowBlur": 16,
+      "hasGlassBackdrop": true,
+      "glassBlurPx": 16,
+      "backdropColor": "rgba(15,23,42,0.75)",
+      "hasTapeBadge": false,
+      "hasGradientShimmer": true,
+      "innerBevel": true
+    },
+    "contrastRatioEstimate": 12.5
+  },
+  "uiGraphicOverlays": [
+    {
+      "id": "glass-pills",
+      "name": "Floating Glassmorphism Badges",
+      "description": "Rounded frosted glass pills (Lenders, Contractors, Inspectors) with golden neon glow outline borders.",
+      "trigger": "badge-pills",
+      "style": "glass-gold-border"
+    },
+    {
+      "id": "review-bubble",
+      "name": "iOS / Social Review Bubble",
+      "description": "Dark frosted glass card with 5 gold stars, avatar, username, and review text.",
+      "trigger": "review-card",
+      "style": "dark-frosted-review"
+    },
+    {
+      "id": "calendar-overlay",
+      "name": "Interactive Calendar Overlay",
+      "description": "Minimalist month grid with animated gold circle date highlight.",
+      "trigger": "calendar-grid",
+      "style": "minimal-month-grid"
+    },
+    {
+      "id": "incoming-call",
+      "name": "Incoming Call UI Card",
+      "description": "Black frosted pill bar with contact photo, caller name, and Red/Green accept/decline buttons.",
+      "trigger": "call-banner",
+      "style": "ios-call-pill"
+    },
+    {
+      "id": "profile-card",
+      "name": "End Screen Profile Card",
+      "description": "Floating rounded business card pop-up with smooth zoom-in and background Gaussian/lens blur.",
+      "trigger": "profile-contact",
+      "style": "luxury-business-card"
+    }
+  ],
+  "soundDesign": {
+    "whooshOnTransitions": {
+      "type": "whoosh-low-pitch",
+      "trigger": "whip-pan cuts & scene transitions",
+      "volume": 0.2
+    },
+    "uiPopOnCards": {
+      "type": "muted-thud-pop",
+      "trigger": "review bubble & call banner appearances",
+      "volume": 0.22
+    },
+    "chimesOnHighlights": {
+      "type": "soft-glass-chime",
+      "trigger": "calendar date highlight & glass badges",
+      "volume": 0.18
+    },
+    "cameraShutter": {
+      "type": "camera-click",
+      "trigger": "end frame contact profile card",
+      "volume": 0.25
+    }
+  },
+  "emphasisRules": [
+    {
+      "trigger": "power-words",
+      "visualTreatment": "champagne-gold-serif",
+      "scaleMultiplier": 1.4,
+      "iconType": "none"
+    },
+    {
+      "trigger": "metrics-numbers",
+      "visualTreatment": "3d-extrusion-pop",
+      "scaleMultiplier": 1.8,
+      "iconType": "none"
+    }
+  ],
+  "styleVariants": {
+    "hook": {
+      "role": "hook",
+      "scaleMultiplier": 1.3,
+      "entranceOverride": "scale-snap",
+      "casingOverride": "mixed"
+    },
+    "statement": {
+      "role": "statement",
+      "scaleMultiplier": 1,
+      "casingOverride": "natural"
+    },
+    "emphasis": {
+      "role": "emphasis",
+      "scaleMultiplier": 1.4,
+      "highlightTreatment": "champagne-gold-serif"
+    },
+    "glass-badge": {
+      "role": "badge",
+      "scaleMultiplier": 1.1,
+      "highlightTreatment": "floating-glass-pill"
+    },
+    "review-bubble": {
+      "role": "ui-card",
+      "scaleMultiplier": 1.0,
+      "highlightTreatment": "social-review-bubble"
+    },
+    "calendar-overlay": {
+      "role": "ui-card",
+      "scaleMultiplier": 1.0,
+      "highlightTreatment": "calendar-date-highlight"
+    },
+    "incoming-call": {
+      "role": "ui-card",
+      "scaleMultiplier": 1.0,
+      "highlightTreatment": "incoming-call-pill"
+    },
+    "profile-card": {
+      "role": "ui-card",
+      "scaleMultiplier": 1.0,
+      "highlightTreatment": "end-screen-business-card"
+    }
+  },
+  "soundSync": {
+    "personality": "luxury-editorial-sfx",
+    "primaryHitType": "soft-glass-chime",
+    "secondaryHitType": "whoosh-low-pitch",
+    "defaultVolume": 0.2,
+    "duckingEnabled": true
+  },
+  "trackedEvents": [
+    {
+      "id": "event-0-0.38",
+      "startTime": 0.38,
+      "endTime": 1.18,
+      "duration": 0.8,
+      "text": "of the 1",
+      "heroKeyword": "1",
+      "hierarchy": "metric",
+      "styleRole": "hook",
+      "emphasisType": "3d-extruded-number",
+      "entrance": {
+        "type": "scale-snap",
+        "ramp": {
+          "startSec": 0.38,
+          "endSec": 0.68,
+          "durationSec": 0.3,
+          "deltaScale": 0.1,
+          "deltaOpacity": 1,
+          "deltaYRatio": 0,
+          "inferredEasing": "spring-bouncy"
+        }
+      },
+      "activeMotion": "subtle-breathe",
+      "exit": {
+        "type": "quick-fade",
+        "durationSec": 0.2
+      },
+      "normalizedBoundingBox": {
+        "xRatio": 0.22,
+        "yRatio": 0.38,
+        "widthRatio": 0.35,
+        "heightRatio": 0.32
+      },
+      "detectedColors": [
+        "#FFFFFF",
+        "#F5D061"
+      ],
+      "layerPlacement": "depth-behind-subject"
+    },
+    {
+      "id": "event-1-1.88",
+      "startTime": 1.88,
+      "endTime": 2.68,
+      "duration": 0.8,
+      "text": "My clients say",
+      "heroKeyword": "Clients",
+      "hierarchy": "lead",
+      "styleRole": "statement",
+      "emphasisType": "champagne-gold-serif",
+      "entrance": {
+        "type": "scale-snap",
+        "ramp": {
+          "startSec": 1.88,
+          "endSec": 2.18,
+          "durationSec": 0.3,
+          "deltaScale": 0.1,
+          "deltaOpacity": 1,
+          "deltaYRatio": 0,
+          "inferredEasing": "spring-bouncy"
+        }
+      },
+      "activeMotion": "subtle-breathe",
+      "exit": {
+        "type": "quick-fade",
+        "durationSec": 0.2
+      },
+      "normalizedBoundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.35,
+        "widthRatio": 0.75,
+        "heightRatio": 0.2
+      },
+      "detectedColors": [
+        "#FFFFFF",
+        "#F5D061",
+        "#AA771C"
+      ],
+      "layerPlacement": "depth-behind-subject"
+    },
+    {
+      "id": "event-2-4.18",
+      "startTime": 4.18,
+      "endTime": 4.98,
+      "duration": 0.8,
+      "text": "Christy always knows someone",
+      "heroKeyword": "Christy",
+      "hierarchy": "sub",
+      "styleRole": "review-bubble",
+      "emphasisType": "social-review-card",
+      "entrance": {
+        "type": "pop-spring",
+        "ramp": {
+          "startSec": 0,
+          "endSec": 0.28,
+          "durationSec": 0.28,
+          "deltaScale": 0.1,
+          "deltaOpacity": 1,
+          "deltaYRatio": 0,
+          "inferredEasing": "spring-bouncy"
+        }
+      },
+      "activeMotion": "subtle-breathe",
+      "exit": {
+        "type": "quick-fade",
+        "durationSec": 0.2
+      },
+      "normalizedBoundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.48,
+        "widthRatio": 0.65,
+        "heightRatio": 0.15
+      },
+      "detectedColors": [
+        "#0F172A",
+        "#FFFFFF",
+        "#F5D061"
+      ],
+      "layerPlacement": "in-front-subject"
+    },
+    {
+      "id": "event-3-8.16",
+      "startTime": 8.16,
+      "endTime": 8.96,
+      "duration": 0.8,
+      "text": "Lenders Contractors Inspectors",
+      "heroKeyword": "Contractors",
+      "hierarchy": "lead",
+      "styleRole": "glass-badge",
+      "emphasisType": "floating-glass-pills",
+      "entrance": {
+        "type": "scale-snap",
+        "ramp": {
+          "startSec": 0,
+          "endSec": 0.28,
+          "durationSec": 0.28,
+          "deltaScale": 0.1,
+          "deltaOpacity": 1,
+          "deltaYRatio": 0,
+          "inferredEasing": "spring-bouncy"
+        }
+      },
+      "activeMotion": "subtle-breathe",
+      "exit": {
+        "type": "quick-fade",
+        "durationSec": 0.2
+      },
+      "normalizedBoundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.45,
+        "widthRatio": 0.8,
+        "heightRatio": 0.22
+      },
+      "detectedColors": [
+        "#F5D061",
+        "#FFFFFF"
+      ],
+      "layerPlacement": "in-front-subject"
+    },
+    {
+      "id": "event-4-16.12",
+      "startTime": 16.12,
+      "endTime": 16.92,
+      "duration": 0.8,
+      "text": "It's about having trusted advisor",
+      "heroKeyword": "Having",
+      "hierarchy": "sub",
+      "styleRole": "conclusion",
+      "emphasisType": "champagne-gold-serif",
+      "entrance": {
+        "type": "scale-snap",
+        "ramp": {
+          "startSec": 0,
+          "endSec": 0.28,
+          "durationSec": 0.28,
+          "deltaScale": 0.1,
+          "deltaOpacity": 1,
+          "deltaYRatio": 0,
+          "inferredEasing": "spring-bouncy"
+        }
+      },
+      "activeMotion": "subtle-breathe",
+      "exit": {
+        "type": "quick-fade",
+        "durationSec": 0.2
+      },
+      "normalizedBoundingBox": {
+        "xRatio": 0.48,
+        "yRatio": 0.28,
+        "widthRatio": 0.7,
+        "heightRatio": 0.18
+      },
+      "detectedColors": [
+        "#FFFFFF",
+        "#F5D061"
+      ],
+      "layerPlacement": "depth-behind-subject"
+    }
+  ],
+  "sampleKeyframes": [
+    {
+      "timestampSeconds": 0.38,
+      "frameIndex": 1,
+      "detectedText": "of the 1",
+      "primaryHeroWord": "1",
+      "visualStateDescription": "Giant 3D extruded gold numeral '1' composited directly behind the speaker's shoulder ground-tracked to street coordinates.",
+      "ocrConfidence": 0.98,
+      "detectedColors": [
+        "#FFFFFF",
+        "#F5D061"
+      ],
+      "boundingBox": {
+        "xRatio": 0.22,
+        "yRatio": 0.38,
+        "widthRatio": 0.35,
+        "heightRatio": 0.32
+      },
+      "visualStateRole": "hook"
+    },
+    {
+      "timestampSeconds": 1.88,
+      "frameIndex": 3,
+      "detectedText": "My clients say",
+      "primaryHeroWord": "Clients",
+      "visualStateDescription": "Editorial luxury serif word 'Clients' in Champagne Gold metallic shimmer floating behind speaker with realistic ground parallax.",
+      "ocrConfidence": 0.97,
+      "detectedColors": [
+        "#FFFFFF",
+        "#F5D061",
+        "#AA771C"
+      ],
+      "boundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.35,
+        "widthRatio": 0.75,
+        "heightRatio": 0.2
+      },
+      "visualStateRole": "statement"
+    },
+    {
+      "timestampSeconds": 4.18,
+      "frameIndex": 7,
+      "detectedText": "Christy always knows someone",
+      "primaryHeroWord": "Christy",
+      "visualStateDescription": "Dark frosted glass iOS social review card popup with 5 gold stars and quote text.",
+      "ocrConfidence": 0.95,
+      "detectedColors": [
+        "#0F172A",
+        "#FFFFFF",
+        "#F5D061"
+      ],
+      "boundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.48,
+        "widthRatio": 0.65,
+        "heightRatio": 0.15
+      },
+      "visualStateRole": "review-bubble"
+    },
+    {
+      "timestampSeconds": 8.16,
+      "frameIndex": 8,
+      "detectedText": "Lenders Contractors Inspectors",
+      "primaryHeroWord": "Contractors",
+      "visualStateDescription": "Rounded floating glassmorphism pills (Lenders, Contractors, Inspectors) with golden neon glow outline borders.",
+      "ocrConfidence": 0.96,
+      "detectedColors": [
+        "#F5D061",
+        "#FFFFFF"
+      ],
+      "boundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.45,
+        "widthRatio": 0.8,
+        "heightRatio": 0.22
+      },
+      "visualStateRole": "glass-badge"
+    },
+    {
+      "timestampSeconds": 16.12,
+      "frameIndex": 10,
+      "detectedText": "It's about having trusted advisor",
+      "primaryHeroWord": "Having",
+      "visualStateDescription": "Editorial serif word 'Having' in champagne metallic gradient floating behind speaker's neck/shoulder.",
+      "ocrConfidence": 0.97,
+      "detectedColors": [
+        "#FFFFFF",
+        "#F5D061"
+      ],
+      "boundingBox": {
+        "xRatio": 0.48,
+        "yRatio": 0.28,
+        "widthRatio": 0.7,
+        "heightRatio": 0.18
+      },
+      "visualStateRole": "conclusion"
+    }
+  ],
+  "validation": {
+    "typographyConsistencyScore": 98,
+    "motionConsistencyScore": 96,
+    "colorConsistencyScore": 98,
+    "compositionScore": 96,
+    "distinctivenessScore": 100,
+    "status": "valid",
+    "notes": [
+      "Exact 6-category frame-by-frame reverse-engineered blueprint for Real Estate Luxury & Editorial Tour demo video."
+    ]
+  }
+}

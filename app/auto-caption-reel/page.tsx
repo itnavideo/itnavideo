@@ -1,2 +1,5 @@
-export { metadata } from "../video-types/auto-caption-reel/page";
-export { default } from "../video-types/auto-caption-reel/page";
+import { redirect } from 'next/navigation';
+
+export default function AutoCaptionReelAliasPage() {
+  redirect('/auto-caption-generator');
+}

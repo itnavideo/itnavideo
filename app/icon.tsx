@@ -1,10 +1,6 @@
 import { ImageResponse } from 'next/og';
 
-export const size = {
-  width: 32,
-  height: 32,
-};
-
+export const size = { width: 32, height: 32 };
 export const contentType = 'image/png';
 
 export default function Icon() {
@@ -13,7 +9,7 @@ export default function Icon() {
       <div
         style={{
           alignItems: 'center',
-          background: '#0B1120',
+          background: 'linear-gradient(135deg, #22D3EE 0%, #06B6D4 100%)',
           borderRadius: 8,
           display: 'flex',
           height: '100%',
@@ -21,14 +17,11 @@ export default function Icon() {
           width: '100%',
         }}
       >
-        <svg width="24" height="24" viewBox="0 0 48 48" fill="none">
-          <rect x="11" y="11" width="20" height="20" rx="6" fill="#22D3EE" opacity={0.3} />
-          <rect x="17" y="17" width="20" height="20" rx="6" fill="#22D3EE" />
-          <polygon points="23,20 23,34 34,27" fill="#0B1120" />
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M8 5.5v13l11-6.5L8 5.5z" fill="#0B1120" stroke="#0B1120" strokeWidth="1.5" strokeLinejoin="round" />
         </svg>
       </div>
     ),
-    size
+    { ...size },
   );
 }
-

@@ -77,7 +77,7 @@ export function ConversionHook({
             {/* Pricing hint */}
             <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs text-zinc-400 animate-[fadeInUp_0.5s_ease-out_0.3s_both]">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              1 free AI video to start · Upgrade anytime for more
+              Select a plan after signup · Full 1080p HD · Instant AI Creation
             </div>
 
             {/* Speed metrics */}
@@ -115,7 +115,7 @@ export function StickyBottomCTA({
   accentColor?: string;
 }) {
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-[#0B1120]/95 backdrop-blur-lg px-4 py-3 sm:hidden">
+    <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-[#052e16]/95 backdrop-blur-lg px-4 py-3 sm:hidden">
       <Link
         href={dashboardUrl}
         className="flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3.5 text-sm font-black text-white shadow-lg"

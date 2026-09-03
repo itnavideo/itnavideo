@@ -76,16 +76,7 @@ const pages = [
   { title: 'Countdown Teaser Video Maker', path: '/countdown-teaser-video-maker', type: 'SEO landing page', priority: 'Medium' },
 
   // === Blog Posts ===
-  { title: 'Best AI Reel Generators for Creators in 2026', path: '/blog/best-ai-reel-generators', type: 'Blog post', priority: 'High' },
   { title: 'Itnavideo vs CapCut: AI Reel Workflow', path: '/blog/itnavideo-vs-capcut-ai-reel-workflow', type: 'Blog post', priority: 'High' },
-  { title: 'Voice to Video AI Tools', path: '/blog/voice-to-video-ai-tools', type: 'Blog post', priority: 'High' },
-  { title: 'Best AI Video Generator for YouTube Shorts', path: '/blog/best-ai-video-generator-for-youtube-shorts', type: 'Blog post', priority: 'High' },
-  { title: 'How to Make Explainer Videos for Reels', path: '/blog/how-to-make-explainer-videos-for-reels', type: 'Blog post', priority: 'High' },
-  { title: 'Convert Any Text to Realistic Video with AI', path: '/blog/convert-any-text-to-realistic-video-with-ai', type: 'Blog post', priority: 'Medium' },
-  { title: 'Best Realistic Text-to-Speech AI 2026', path: '/blog/best-realistic-text-to-speech-ai-social-media-videos-2026', type: 'Blog post', priority: 'Medium' },
-  { title: 'Use Your Own Photos/Videos/Audio for AI Shorts', path: '/blog/use-your-own-photos-videos-audio-ai-shorts', type: 'Blog post', priority: 'Medium' },
-  { title: 'Create 100+ Shorts & Reels: Batch Video Guide', path: '/blog/create-100-shorts-reels-in-minutes-batch-video-creation', type: 'Blog post', priority: 'Medium' },
-  { title: 'Add AI Voiceovers to Videos Without Editor', path: '/blog/add-ai-voiceovers-to-videos-without-editor', type: 'Blog post', priority: 'Medium' },
 ];
 
 async function main() {

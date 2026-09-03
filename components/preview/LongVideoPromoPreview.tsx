@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Player } from '@remotion/player';
 import { LongVideoPromo } from '@/remotion/templates/LONG_VIDEO_PROMO/template';
+import { DEFAULT_FPS } from '@/remotion/constants';
 
-const PREVIEW_FPS = 30;
+const PREVIEW_FPS = DEFAULT_FPS;
 const PREVIEW_SECONDS = 10;
 
 /**

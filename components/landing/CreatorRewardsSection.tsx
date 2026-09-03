@@ -25,71 +25,73 @@ const milestones = [
     reward: "20 credits",
     description: "50,000+ views",
     icon: TrendingUp,
-    accent: "text-cyan-300",
-    bg: "bg-cyan-500/10",
-    border: "border-cyan-500/20",
+    accent: "text-blue-400",
+    bg: "bg-blue-500/10",
+    border: "border-blue-500/20",
   },
 ];
 
 export default function CreatorRewardsSection() {
   return (
-    <section className="px-4 py-16 sm:px-6 sm:py-20">
-      <div className="mx-auto max-w-5xl">
+    <section className="relative overflow-hidden px-4 py-24 sm:px-6 sm:py-32 border-t border-border bg-background">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_0px,rgba(37,99,235,0.02),transparent_100%)]" />
+
+      <div className="mx-auto max-w-5xl relative z-10">
         {/* Header */}
-        <div className="text-center">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-brand-mint/20 bg-brand-mint/[0.06] px-4 py-2 text-xs font-bold text-brand-mint">
-            <Gift size={13} />
-            Creator Rewards
+        <div className="text-center space-y-4">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/[0.06] px-4 py-1.5 text-xs font-bold text-blue-600 dark:text-blue-200 backdrop-blur-md">
+            <Gift size={13} className="text-cyan-500 dark:text-cyan-400" />
+            <span>CREATOR REWARDS</span>
           </div>
-          <h2 className="text-2xl font-black leading-tight sm:text-3xl">
-            Promote Itnavideo. <span className="text-brand-mint">Earn Free Video Credits.</span>
+          <h2 className="text-3xl font-black leading-tight text-foreground sm:text-4xl font-sans tracking-tight">
+            Promote Itnavideo. <span className="text-blue-500">Earn Free Video Credits.</span>
           </h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-zinc-400">
+          <p className="mx-auto max-w-xl text-sm leading-relaxed text-muted-foreground">
             Create a video, reel, or short about Itnavideo. If it gets views, earn free video credits to create more content.
           </p>
         </div>
 
         {/* Milestone cards */}
-        <div className="mt-10 grid gap-4 sm:grid-cols-3">
+        <div className="mt-14 grid gap-5 sm:grid-cols-3">
           {milestones.map((item) => (
             <div
               key={item.label}
-              className={`rounded-xl border ${item.border} bg-white/[0.02] p-4 text-center transition hover:bg-white/[0.04]`}
+              className={`rounded-3xl border border-border bg-card p-5 text-center shadow-sm backdrop-blur-md transition hover:border-slate-400 dark:border-border dark:bg-muted/20 dark:hover:border-border`}
             >
-              <div className={`mx-auto mb-3 flex h-9 w-9 items-center justify-center rounded-lg ${item.bg}`}>
-                <item.icon size={17} className={item.accent} />
+              <div className={`mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-2xl ${item.bg}`}>
+                <item.icon size={18} className={item.accent} />
               </div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-500">{item.label}</p>
-              <p className="mt-1 text-lg font-black text-white">{item.reward}</p>
-              <p className="mt-0.5 text-xs text-zinc-400">{item.description}</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{item.label}</p>
+              <p className="mt-1 text-base font-black text-card-foreground">{item.reward}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{item.description}</p>
             </div>
           ))}
         </div>
 
         {/* Contact + CTA row */}
-        <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-between rounded-xl border border-white/8 bg-zinc-900/40 px-5 py-4">
+        <div className="mt-10 flex flex-col items-center gap-5 sm:flex-row sm:justify-between rounded-3xl border border-border bg-card p-6 shadow-sm backdrop-blur-md dark:border-border dark:bg-muted/30">
           <div className="flex flex-col gap-1 text-center sm:text-left">
-            <p className="text-xs text-zinc-400">
+            <p className="text-xs text-card-foreground font-bold">
               Submit your video link + views screenshot to claim credits.
             </p>
-            <div className="flex flex-wrap items-center justify-center gap-3 sm:justify-start">
-              <span className="flex items-center gap-1.5 text-[11px] text-zinc-500">
-                <Mail size={11} className="text-emerald-400" />
+            <div className="flex flex-wrap items-center justify-center gap-4 sm:justify-start mt-2">
+              <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-medium">
+                <Mail size={12} className="text-blue-500 dark:text-blue-400" />
                 rohi@itnavideo.com
               </span>
-              <span className="flex items-center gap-1.5 text-[11px] text-zinc-500">
-                <Instagram size={11} className="text-cyan-300" />
+              <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-medium">
+                <Instagram size={12} className="text-blue-500 dark:text-blue-400" />
                 @itnavideo
               </span>
-              <span className="flex items-center gap-1.5 text-[11px] text-zinc-500">
-                <Clock size={11} className="text-brand-mint" />
+              <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-medium">
+                <Clock size={12} className="text-blue-500 dark:text-blue-400" />
                 Reply within 4 hours
               </span>
             </div>
           </div>
           <Link
             href="/promote-and-earn"
-            className="inline-flex shrink-0 items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-black text-white transition hover:-translate-y-[1px] brand-btn-primary-dark"
+            className="inline-flex shrink-0 items-center gap-2 rounded-2xl bg-blue-600 px-6 py-3.5 text-xs font-black text-white hover:bg-blue-500 transition duration-300 hover:-translate-y-0.5"
           >
             See Creator Rewards
             <ArrowRight size={13} />
@@ -97,10 +99,11 @@ export default function CreatorRewardsSection() {
         </div>
 
         {/* Disclaimer */}
-        <p className="mt-4 text-center text-[10px] text-zinc-600">
+        <p className="mt-6 text-center text-[10px] text-muted-foreground">
           No cash payout. Credits are only usable on Itnavideo to create videos.
         </p>
       </div>
     </section>
   );
 }
+

@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function AIAudioCleanerPage() {
   return (
-    <main className="min-h-screen text-white" style={{ background: '#0F172A' }}>
+    <main className="min-h-screen text-white" style={{ background: '#052e16' }}>
       {/* Hero */}
       <section className="px-4 pb-16 pt-28 sm:px-6 sm:pt-32">
         <div className="mx-auto max-w-4xl text-center">
@@ -24,10 +24,10 @@ export default function AIAudioCleanerPage() {
           </div>
           <h1 className="text-3xl font-black leading-tight sm:text-5xl md:text-6xl">
             AI Audio Cleaner<br />
-            <span style={{ color: '#F97316' }}>Remove Silence, Fillers &amp; Noise</span>
+            <span style={{ color: '#F97316' }}>Script Preview, Mistake &amp; Silence Removal</span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed sm:text-lg" style={{ color: 'var(--text-dark-secondary)' }}>
-            Upload your podcast, voiceover, or interview. AI detects and removes long pauses, filler words, repeated sentences, and background noise. Get broadcast-ready audio instantly.
+            Upload long podcasts, voiceovers, or interviews. AI generates a full script in the preview dashboard, removes recording mistakes, repeated takes, and long awkward silences, delivering ready-to-use studio audio.
           </p>
           <div className="mt-8">
             <Link href="/dashboard?videoType=ai-audio-cleaner" className="inline-flex items-center gap-2 rounded-[10px] px-8 py-4 text-[15px] font-semibold text-white transition hover:-translate-y-[1px] brand-btn-primary-dark">
@@ -35,14 +35,14 @@ export default function AIAudioCleanerPage() {
               <ArrowRight size={16} />
             </Link>
           </div>
-          <p className="mt-4 text-sm" style={{ color: 'var(--text-dark-muted)' }}>No credit card needed • Upload any audio • Instant download</p>
+          <p className="mt-4 text-sm" style={{ color: 'var(--text-dark-muted)' }}>No credit card needed • Full script preview • Instant download</p>
         </div>
       </section>
 
       {/* Banner */}
       <section className="px-4 pb-12 sm:px-6">
-        <div className="mx-auto max-w-md overflow-hidden rounded-2xl border border-orange-400/15 shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
-          <img src="/visuals/banners/audio-cleaner.png" alt="AI Audio Cleaner waveform visualization" className="w-full h-auto" loading="lazy" />
+        <div className="mx-auto max-w-2xl overflow-hidden rounded-2xl border border-orange-400/15 shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
+          <img src="https://res.cloudinary.com/dhouh9idx/image/upload/v1788190064/file_0000000084e482119c5951ac67c32219_lncnaa.png" alt="AI Audio Cleaner waveform and script visualization" className="w-full h-auto" loading="lazy" />
         </div>
       </section>
 

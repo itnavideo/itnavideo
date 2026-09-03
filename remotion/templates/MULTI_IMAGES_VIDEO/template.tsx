@@ -12,6 +12,7 @@ import {
 } from 'remotion';
 import {PremiumVisualTreatment} from '../../components/PremiumVisualTreatment';
 import {resolveFont} from '../../utils/fonts';
+import {DEFAULT_FPS, secondsToFrames} from '../../constants';
 
 // Self-hosted fonts (Lambda-safe) — this template previously used a bare 'Inter' string that
 // fell back to system-ui on Lambda because the font was never loaded here.
@@ -398,7 +399,7 @@ function MultiImagesVideo({
   const frame = useCurrentFrame();
   const {fps, durationInFrames} = useVideoConfig();
   const resolvedSrc = resolveAsset(mediaSrc);
-  const images = imageSources.filter(Boolean).slice(0, 8);
+  const images = imageSources.filter(Boolean).slice(0, 20);
 
   return (
     <AbsoluteFill style={{background: '#07101E'}}>
@@ -447,8 +448,8 @@ export const MultiImagesVideoComposition = () => (
   <Composition
     id="MULTI-IMAGES-VIDEO"
     component={MultiImagesVideo}
-    durationInFrames={2700}
-    fps={30}
+    durationInFrames={secondsToFrames(30, DEFAULT_FPS)}
+    fps={DEFAULT_FPS}
     width={1080}
     height={1920}
     defaultProps={defaultProps}
@@ -457,7 +458,7 @@ export const MultiImagesVideoComposition = () => (
       const duration = Math.max(8, Math.min(90,
         Number(p.durationSeconds) || Number(p.sourceDurationSeconds) || Number(p.renderWindowSeconds) || 30,
       ));
-      return {durationInFrames: Math.ceil(duration * 30), fps: 30, width: 1080, height: 1920};
+      return {durationInFrames: secondsToFrames(duration, DEFAULT_FPS), fps: DEFAULT_FPS, width: 1080, height: 1920};
     }}
   />
 );

@@ -1,4 +1,4 @@
-import { Cloud, Code2, Database, GitBranch, Server, TerminalSquare } from 'lucide-react';
+import { Cloud, Code2, Database, GitBranch, Server, TerminalSquare, ShieldCheck } from 'lucide-react';
 
 const stackItems = [
   {
@@ -35,30 +35,35 @@ const stackItems = [
 
 export default function DeploymentStackSection() {
   return (
-    <section className="relative overflow-hidden bg-black px-6 py-24">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-12 grid gap-6 lg:grid-cols-[0.7fr_1fr] lg:items-end">
+    <section className="relative overflow-hidden bg-background border-t border-border px-6 py-24 sm:py-32">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_0px,rgba(37,99,235,0.02),transparent_100%)]" />
+
+      <div className="mx-auto max-w-7xl relative z-10">
+        <div className="mb-16 grid gap-6 lg:grid-cols-[1fr_1fr] lg:items-end">
           <div>
-            <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-cyan-300">Product structure</p>
-            <h2 className="text-4xl font-black leading-tight tracking-normal text-white md:text-6xl">
+            <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.25em] text-cyan-500 dark:text-cyan-400 flex items-center gap-1.5">
+              <ShieldCheck size={12} />
+              <span>PRODUCT STRUCTURE</span>
+            </p>
+            <h2 className="text-3xl font-black leading-tight tracking-tight text-foreground md:text-5xl font-sans">
               Clean foundation for a heavier video engine.
             </h2>
           </div>
-          <p className="text-lg leading-8 text-zinc-400">
+          <p className="text-sm leading-relaxed text-muted-foreground">
             The public site, dashboard, render path, and data layer are organized so creator-facing video work can improve without breaking the whole product.
           </p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {stackItems.map((item) => {
             const Icon = item.icon;
             return (
-              <div key={item.title} className="rounded-lg border border-white/10 bg-zinc-950 p-6">
-                <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-md bg-cyan-300/10 text-cyan-200">
-                  <Icon size={20} />
+              <div key={item.title} className="rounded-3xl border border-border bg-card p-6 shadow-sm backdrop-blur-md transition duration-300 hover:border-blue-500/20 hover:bg-accent dark:border-border dark:bg-muted/20 dark:hover:bg-muted/40 group">
+                <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-500 dark:text-blue-400 border border-blue-500/20 group-hover:text-cyan-500 dark:group-hover:text-cyan-400 group-hover:border-cyan-500/20 transition duration-300">
+                  <Icon size={18} />
                 </div>
-                <h3 className="text-lg font-bold text-white">{item.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-zinc-400">{item.description}</p>
+                <h3 className="text-base font-bold text-card-foreground transition">{item.title}</h3>
+                <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{item.description}</p>
               </div>
             );
           })}
@@ -67,3 +72,4 @@ export default function DeploymentStackSection() {
     </section>
   );
 }
+

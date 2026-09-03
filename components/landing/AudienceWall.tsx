@@ -1,5 +1,5 @@
 import React from 'react';
-import { Briefcase, GraduationCap, Megaphone, ShoppingBag, UserRound } from 'lucide-react';
+import { Briefcase, GraduationCap, Megaphone, ShoppingBag, UserRound, Sparkles } from 'lucide-react';
 
 const audiences = [
   { label: 'Shorts creators', icon: UserRound },
@@ -11,11 +11,12 @@ const audiences = [
 
 export default function BrandWall() {
   return (
-    <section className="border-y border-white/8 bg-[#080809] px-6 py-10">
+    <section className="border-t border-slate-900 bg-background px-6 py-12">
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-          <p className="max-w-md text-sm font-semibold uppercase tracking-[0.22em] text-zinc-500">
-            Built for people who publish often
+          <p className="max-w-md text-xs font-bold uppercase tracking-[0.25em] text-slate-500 flex items-center gap-2">
+            <Sparkles size={12} className="text-cyan-500 animate-pulse" />
+            <span>Built for people who publish often</span>
           </p>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
             {audiences.map((audience) => {
@@ -24,9 +25,9 @@ export default function BrandWall() {
               return (
                 <div
                   key={audience.label}
-                  className="flex items-center gap-2 rounded-lg border border-white/8 bg-white/[0.03] px-4 py-3 text-sm font-semibold text-zinc-300"
+                  className="flex items-center gap-2.5 rounded-2xl border border-border bg-muted/30 px-4 py-3 text-xs font-bold text-muted-foreground backdrop-blur-md"
                 >
-                  <Icon size={16} className="text-emerald-400" />
+                  <Icon size={14} className="text-blue-400" />
                   <span>{audience.label}</span>
                 </div>
               );

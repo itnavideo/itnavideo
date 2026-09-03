@@ -56,27 +56,29 @@ export type ReelTimelineScene = {
   secondarySupport?: Array<'titleCard'>;
 };
 
-export type ReelTemplateName =
-  | 'AUTO_CAPTION_REEL'
-  | 'CAPTION_STUDIO'
+export type VideoCategory = 'reel' | 'long-form';
+
+export type ReelVideoTypeName =
+  | 'AUTO_CAPTION_GENERATOR'
   | 'comparisonImages'
   | 'LONG_VIDEO_PROMO'
   | 'WHITEBOARD_VIDEO'
   | 'TYPOGRAPHY_VIDEO'
   | 'MULTI_IMAGES_VIDEO'
   | 'LONG_VIDEO_CLIPS'
-  | 'LONG_FORM_CAPTIONED_VIDEO'
   | 'VIDEO_EXPLAINER'
   | 'VIDEO_SIMPLE_EXPLAINER'
   | 'VIDEO_CAPTION'
   | 'IMAGE_STORY'
   | 'IMAGE_STORY_COLLAGE'
   | 'HANDWRITTEN_NOTES'
-  | 'VOICE_SYNCED_NOTES';
+  | 'VOICE_SYNCED_NOTES'
+  | 'AI_VIDEO_GENERATOR';
 
-export type ReelTemplateConfig = {
-  templateName: ReelTemplateName;
+export type ReelVideoTypeConfig = {
+  templateName: ReelVideoTypeName;
   compositionId: string;
+  videoCategory: VideoCategory;
   allowedMedia: readonly ('audio' | 'video' | 'image')[];
   transcriptRequirement: 'required' | 'not-required';
   plannerMode: string;
@@ -92,13 +94,14 @@ export type ReelTemplateConfig = {
   skipPlanner?: boolean;           // No AI scene planner needed
 };
 
-export type ReelVideoTypeName = ReelTemplateName;
-export type ReelVideoTypeConfig = ReelTemplateConfig;
+export type ReelTemplateName = ReelVideoTypeName;
+export type ReelTemplateConfig = ReelVideoTypeConfig;
 
-export const REEL_TEMPLATE_REGISTRY: Partial<Record<ReelTemplateName, ReelTemplateConfig>> = {
-  AUTO_CAPTION_REEL: {
-    templateName: 'AUTO_CAPTION_REEL',
-    compositionId: 'AUTO-CAPTION-REEL',
+export const VIDEO_TYPE_REGISTRY: Partial<Record<ReelVideoTypeName, ReelVideoTypeConfig>> = {
+  AUTO_CAPTION_GENERATOR: {
+    templateName: 'AUTO_CAPTION_GENERATOR',
+    compositionId: 'AUTO-CAPTION-GENERATOR',
+    videoCategory: 'reel',
     allowedMedia: ['video'],
     transcriptRequirement: 'required',
     plannerMode: 'videoCaption',
@@ -106,18 +109,10 @@ export const REEL_TEMPLATE_REGISTRY: Partial<Record<ReelTemplateName, ReelTempla
     needsCaptionStylePicker: true,
     skipPlanner: true,
   },
-  CAPTION_STUDIO: {
-    templateName: 'CAPTION_STUDIO',
-    compositionId: 'CAPTION-STUDIO',
-    allowedMedia: ['video'],
-    transcriptRequirement: 'required',
-    plannerMode: 'videoCaption',
-    mediaFit: 'videoCaption',
-    skipPlanner: true,
-  },
   comparisonImages: {
     templateName: 'comparisonImages',
     compositionId: 'comparisonImages',
+    videoCategory: 'reel',
     allowedMedia: ['audio', 'video'],
     transcriptRequirement: 'required',
     plannerMode: 'compare',
@@ -128,6 +123,7 @@ export const REEL_TEMPLATE_REGISTRY: Partial<Record<ReelTemplateName, ReelTempla
   LONG_VIDEO_PROMO: {
     templateName: 'LONG_VIDEO_PROMO',
     compositionId: 'LONG-VIDEO-PROMO',
+    videoCategory: 'reel',
     allowedMedia: ['video'],
     transcriptRequirement: 'not-required',
     plannerMode: 'videoCaption',
@@ -140,6 +136,7 @@ export const REEL_TEMPLATE_REGISTRY: Partial<Record<ReelTemplateName, ReelTempla
   WHITEBOARD_VIDEO: {
     templateName: 'WHITEBOARD_VIDEO',
     compositionId: 'WHITEBOARD-VIDEO',
+    videoCategory: 'reel',
     allowedMedia: ['audio', 'video'],
     transcriptRequirement: 'required',
     plannerMode: 'videoCaption',
@@ -149,7 +146,8 @@ export const REEL_TEMPLATE_REGISTRY: Partial<Record<ReelTemplateName, ReelTempla
   TYPOGRAPHY_VIDEO: {
     templateName: 'TYPOGRAPHY_VIDEO',
     compositionId: 'TYPOGRAPHY-VIDEO',
-    allowedMedia: ['video'],
+    videoCategory: 'reel',
+    allowedMedia: ['video', 'audio'],
     transcriptRequirement: 'required',
     plannerMode: 'videoCaption',
     mediaFit: 'videoCaption',
@@ -159,6 +157,7 @@ export const REEL_TEMPLATE_REGISTRY: Partial<Record<ReelTemplateName, ReelTempla
   MULTI_IMAGES_VIDEO: {
     templateName: 'MULTI_IMAGES_VIDEO',
     compositionId: 'MULTI-IMAGES-VIDEO',
+    videoCategory: 'reel',
     allowedMedia: ['video'],
     transcriptRequirement: 'not-required',
     plannerMode: 'videoCaption',
@@ -171,6 +170,7 @@ export const REEL_TEMPLATE_REGISTRY: Partial<Record<ReelTemplateName, ReelTempla
   LONG_VIDEO_CLIPS: {
     templateName: 'LONG_VIDEO_CLIPS',
     compositionId: 'LONG-VIDEO-CLIPS',
+    videoCategory: 'reel',
     allowedMedia: ['video'],
     transcriptRequirement: 'required',
     plannerMode: 'videoCaption',
@@ -178,19 +178,22 @@ export const REEL_TEMPLATE_REGISTRY: Partial<Record<ReelTemplateName, ReelTempla
     needsCaptionStylePicker: true,
     skipPlanner: true,
   },
-  LONG_FORM_CAPTIONED_VIDEO: {
-    templateName: 'LONG_FORM_CAPTIONED_VIDEO',
-    compositionId: 'LONG-FORM-CAPTIONED-VIDEO',
-    allowedMedia: ['video'],
+  AI_VIDEO_GENERATOR: {
+    templateName: 'AI_VIDEO_GENERATOR',
+    compositionId: 'AI-VIDEO-GENERATOR',
+    videoCategory: 'long-form',
+    allowedMedia: ['audio', 'video'],
     transcriptRequirement: 'required',
-    plannerMode: 'videoCaption',
-    mediaFit: 'videoCaption',
+    plannerMode: 'videoExplainer',
+    mediaFit: 'videoExplainer',
+    needsTitle: true,
     needsCaptionStylePicker: true,
-    skipPlanner: true,
+    skipPlanner: false,
   },
 } as const satisfies Record<string, {
-  templateName: ReelTemplateName;
+  templateName: ReelVideoTypeName;
   compositionId: string;
+  videoCategory: VideoCategory;
   allowedMedia: ReadonlyArray<'audio' | 'video' | 'image'>;
   transcriptRequirement: 'required' | 'audio-or-video' | 'not-required';
   plannerMode: 'videoExplainer' | 'notes' | 'videoCaption' | 'imageStory' | 'compare';
@@ -204,7 +207,9 @@ export const REEL_TEMPLATE_REGISTRY: Partial<Record<ReelTemplateName, ReelTempla
   skipTranscription?: boolean;
   skipPlanner?: boolean;
 }>;
-export const REEL_VIDEO_TYPE_REGISTRY = REEL_TEMPLATE_REGISTRY;
+
+export const REEL_TEMPLATE_REGISTRY = VIDEO_TYPE_REGISTRY;
+export const REEL_VIDEO_TYPE_REGISTRY = VIDEO_TYPE_REGISTRY;
 export type ReelOverlayLayout = 'headlineCard' | 'splitExplainer' | 'statCard' | 'warningCard' | 'checklist' | 'ctaCard';
 export type ReelVideoExplainerV2Layout = VideoExplainerV2LayoutType;
 export type ReelPrimaryVisualType = 'uploadedMedia' | 'image' | 'icon' | 'chart' | 'document' | 'waveform' | 'mockup' | 'none';
@@ -609,17 +614,17 @@ export function validateAndRepairReelPlan(plan: ReelPlanResult): ReelPlanResult 
   if (plan.templateName === 'VIDEO_CAPTION' && renderProps.mediaType !== 'video') {
     warnings.push('VIDEO_CAPTION render blocked because uploaded media is not video.');
   }
-  if ((plan.templateName === 'VIDEO_CAPTION' || plan.templateName === 'AUTO_CAPTION_REEL') && !captions.length) {
+  if ((plan.templateName === 'VIDEO_CAPTION' || plan.templateName === 'AUTO_CAPTION_GENERATOR') && !captions.length) {
     warnings.push('VIDEO_CAPTION render blocked because transcript-timed captions are missing.');
   }
   const imageStoryAllowed = plan.templateName !== 'IMAGE_STORY' || Boolean(imageStoryProps?.images?.length && imageStoryProps?.storyPlan?.scenes?.length);
   if (plan.templateName === 'IMAGE_STORY' && !imageStoryAllowed) {
     warnings.push('IMAGE_STORY render blocked because no usable image story scenes were available.');
   }
-  const autoCaptionAllowed = plan.templateName === 'AUTO_CAPTION_REEL'
+  const autoCaptionAllowed = plan.templateName === 'AUTO_CAPTION_GENERATOR'
     ? renderProps.mediaType === 'video' && captions.length > 0
     : true;
-  const transcriptSceneAllowed = plan.templateName === 'AUTO_CAPTION_REEL'
+  const transcriptSceneAllowed = plan.templateName === 'AUTO_CAPTION_GENERATOR'
     ? autoCaptionAllowed
     : plan.templateName === 'IMAGE_STORY'
       ? imageStoryAllowed
@@ -672,7 +677,7 @@ export function validateAndRepairReelPlan(plan: ReelPlanResult): ReelPlanResult 
       renderAllowed,
       renderBlockReason: renderAllowed
         ? plan.validation.renderBlockReason
-        : (plan.templateName === 'VIDEO_CAPTION' && !videoCaptionAllowed) || (plan.templateName === 'AUTO_CAPTION_REEL' && !autoCaptionAllowed)
+        : (plan.templateName === 'VIDEO_CAPTION' && !videoCaptionAllowed) || (plan.templateName === 'AUTO_CAPTION_GENERATOR' && !autoCaptionAllowed)
           ? 'Caption render blocked because transcript is missing or invalid.'
           : plan.templateName === 'IMAGE_STORY' && !imageStoryAllowed
             ? 'Image Story render blocked because no usable image exists.'
@@ -779,7 +784,7 @@ async function createLocalReelPlan(
       : 'videoExplainer' as const;
   const primaryFocus = resolvedTemplate === 'HANDWRITTEN_NOTES'
     ? 'notesCanvas' as const
-    : resolvedTemplate === 'VIDEO_CAPTION' || resolvedTemplate === 'AUTO_CAPTION_REEL'
+    : resolvedTemplate === 'VIDEO_CAPTION' || resolvedTemplate === 'AUTO_CAPTION_GENERATOR'
       ? 'captions' as const
       : resolvedTemplate === 'IMAGE_STORY'
         ? 'images' as const
@@ -948,10 +953,10 @@ async function createLocalReelPlan(
       qualityScore: 92,
       qualityBand: 'professional',
       qualityChecks: [
-        resolvedTemplate === 'HANDWRITTEN_NOTES' ? 'One continuous handwritten notes canvas.' : (resolvedTemplate === 'VIDEO_CAPTION' || resolvedTemplate === 'AUTO_CAPTION_REEL') ? 'One continuous captioned video.' : resolvedTemplate === 'IMAGE_STORY' ? 'One continuous image-led cinematic story.' : resolvedTemplate === 'comparisonImages' ? 'One continuous side-by-side comparison reel.' : 'One continuous video scene.',
+        resolvedTemplate === 'HANDWRITTEN_NOTES' ? 'One continuous handwritten notes canvas.' : (resolvedTemplate === 'VIDEO_CAPTION' || resolvedTemplate === 'AUTO_CAPTION_GENERATOR') ? 'One continuous captioned video.' : resolvedTemplate === 'IMAGE_STORY' ? 'One continuous image-led cinematic story.' : resolvedTemplate === 'comparisonImages' ? 'One continuous side-by-side comparison reel.' : 'One continuous video scene.',
         resolvedTemplate === 'HANDWRITTEN_NOTES'
           ? 'Uploaded voiceover drives full-screen handwritten notes.'
-          : resolvedTemplate === 'VIDEO_CAPTION' || resolvedTemplate === 'AUTO_CAPTION_REEL'
+          : resolvedTemplate === 'VIDEO_CAPTION' || resolvedTemplate === 'AUTO_CAPTION_GENERATOR'
             ? 'Uploaded video stays full-screen while timed captions are rendered above safe zones.'
             : resolvedTemplate === 'IMAGE_STORY'
               ? 'One primary image drives each scene with subtle cinematic motion.'
@@ -1746,9 +1751,8 @@ function getTemplateName(value?: string): ReelTemplateName | null {
 
   // Keyword fallbacks for common short names
   if (normalized.includes('compare') || normalized.includes('comparison') || /\bvs\b/.test(normalized)) return 'comparisonImages';
-  if (normalized.includes('autocaption') || normalized.includes('auto-caption')) return 'AUTO_CAPTION_REEL';
+  if (normalized.includes('autocaption') || normalized.includes('auto-caption') || normalized.includes('caption') || normalized.includes('subtitle')) return 'AUTO_CAPTION_GENERATOR';
   if (normalized.includes('longvideo') || normalized.includes('promo')) return 'LONG_VIDEO_PROMO';
-  if (normalized.includes('caption') || normalized.includes('subtitle')) return 'AUTO_CAPTION_REEL';
 
   // SAFETY: Do NOT silently fallback to Video Explainer.
   // If we reach here, the template ID is genuinely unrecognized.
@@ -1757,14 +1761,14 @@ function getTemplateName(value?: string): ReelTemplateName | null {
 }
 
 function getTimelineVisualMode(templateName: ReelTemplateName): ReelTimelineScene['visualMode'] {
-  if (templateName === 'AUTO_CAPTION_REEL') return 'videoCaption';
+  if (templateName === 'AUTO_CAPTION_GENERATOR') return 'videoCaption';
   if (templateName === 'IMAGE_STORY_COLLAGE') return 'imageStory';
   if (templateName === 'comparisonImages') return 'compare';
   return 'videoExplainer';
 }
 
 function getTimelinePrimaryFocus(templateName: ReelTemplateName): ReelTimelineScene['primaryFocus'] {
-  if (templateName === 'AUTO_CAPTION_REEL') return 'captions';
+  if (templateName === 'AUTO_CAPTION_GENERATOR') return 'captions';
   if (templateName === 'IMAGE_STORY_COLLAGE') return 'images';
   if (templateName === 'comparisonImages') return 'comparison';
   return 'topVisual';
@@ -2462,7 +2466,7 @@ function getOverlayVisualRole(
   type: 'hook' | 'point' | 'stat' | 'warning' | 'quote' | 'cta',
 ): ReelOverlayVisualRole {
   if (templateName === 'HANDWRITTEN_NOTES') return type === 'hook' ? 'background' : 'assetInsert';
-  if (templateName === 'AUTO_CAPTION_REEL') return 'topVideo';
+  if (templateName === 'AUTO_CAPTION_GENERATOR') return 'topVideo';
   if (templateName === 'VIDEO_CAPTION') return 'topVideo';
   if (templateName === 'IMAGE_STORY') return 'background';
   if (templateName === 'comparisonImages') return 'bottomOverlay';

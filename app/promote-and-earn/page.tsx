@@ -99,7 +99,7 @@ const rules = [
 
 export default function PromoteAndEarnPage() {
   return (
-    <main className="bg-[#0B1120] text-white">
+    <main className="bg-[#052e16] text-white">
       {/* Hero */}
       <section className="px-4 pb-16 pt-28 sm:px-6 sm:pt-32">
         <div className="mx-auto max-w-4xl text-center">
@@ -321,7 +321,7 @@ export default function PromoteAndEarnPage() {
               className="group rounded-xl border border-white/8 bg-white/[0.02] p-5 transition hover:border-brand-mint/30 hover:bg-brand-mint/[0.03]"
             >
               <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10">
-                <Mail size={18} className="text-emerald-400" />
+                <Mail size={18} className="text-primary" />
               </div>
               <h3 className="text-sm font-bold text-white">Email Us</h3>
               <p className="mt-1 text-xs text-brand-mint font-mono">rohi@itnavideo.com</p>
@@ -478,3 +478,4 @@ export default function PromoteAndEarnPage() {
     </main>
   );
 }
+

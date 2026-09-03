@@ -175,21 +175,24 @@ async function prepareTranscriptionMedia({
   fileName: string;
   contentType?: string;
 }) {
+  const isVideo = contentType?.startsWith('video/') || /\.(mp4|mov|webm|m4v|mkv|avi|3gp)$/i.test(fileName);
   const maxSeconds = readTranscriptionMaxSeconds();
-  const shouldTrim = maxSeconds > 0 && (contentType?.startsWith('video/') || contentType?.startsWith('audio/'));
-  if (!shouldTrim) return fetchMediaBlob(mediaUrl, contentType);
 
+  // Extract audio using FFmpeg for all video uploads (or trimmed audio) so Groq ONLY receives audio
   try {
-    const clipped = await extractTranscriptionAudioClip({mediaUrl, fileName, maxSeconds});
-    if (clipped.blob.size > 0) return clipped;
+    const audioClip = await extractTranscriptionAudioClip({
+      mediaUrl,
+      fileName,
+      maxSeconds: maxSeconds > 0 ? maxSeconds : 600,
+    });
+    if (audioClip.blob.size > 0) return audioClip;
   } catch (error) {
-    console.error('FFmpeg transcription preparation failed', {
+    console.warn('FFmpeg audio extraction for Groq failed, falling back to direct media download:', {
       message: error instanceof Error ? error.message : String(error),
       fileName,
       contentType,
       mediaUrlPreview: mediaUrl.slice(0, 160),
     });
-    // If FFmpeg is unavailable in the runtime, keep the render path working.
   }
 
   return fetchMediaBlob(mediaUrl, contentType);
@@ -237,7 +240,7 @@ async function extractTranscriptionAudioClip({
       clippedSeconds: maxSeconds,
     };
   } finally {
-    await rm(workDir, {recursive: true, force: true});
+    await rm(workDir, {recursive: true, force: true}).catch(() => {});
   }
 }
 
@@ -249,17 +252,25 @@ async function fetchMediaBlob(mediaUrl: string, fallbackContentType?: string) {
 
   const contentLength = Number(response.headers.get('content-length') || 0);
   if (contentLength > MAX_TRANSCRIPTION_DOWNLOAD_BYTES) {
-    throw new Error('Uploaded media is too large for direct beta transcription. Use a shorter clip or server-side trimming.');
+    throw new Error('Uploaded media is too large for transcription. Maximum file size is 120MB.');
   }
 
-  const blob = await response.blob();
+  let blob = await response.blob();
   if (blob.size > MAX_TRANSCRIPTION_DOWNLOAD_BYTES) {
-    throw new Error('Uploaded media is too large for direct beta transcription. Use a shorter clip or server-side trimming.');
+    throw new Error('Uploaded media is too large for transcription. Maximum file size is 120MB.');
   }
 
+  // Groq Whisper API has a strict 25MB request payload limit
+  const GROQ_MAX_BYTES = 24 * 1024 * 1024; // 24MB
+  if (blob.size > GROQ_MAX_BYTES) {
+    console.warn(`[GROQ_TRANSCRIPTION] Media blob size (${(blob.size / 1024 / 1024).toFixed(1)}MB) exceeds 24MB Groq limit. Slicing to first 24MB.`);
+    blob = blob.slice(0, GROQ_MAX_BYTES, blob.type || fallbackContentType || 'video/mp4');
+  }
+
+  const effectiveType = blob.type || fallbackContentType || 'video/mp4';
   return {
-    blob: blob.type ? blob : new Blob([blob], {type: fallbackContentType || 'application/octet-stream'}),
-    contentType: blob.type || fallbackContentType,
+    blob: blob.type ? blob : new Blob([blob], {type: effectiveType}),
+    contentType: effectiveType,
   };
 }
 

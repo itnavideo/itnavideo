@@ -167,7 +167,7 @@ function Slider({
         step={step}
         value={value}
         onChange={(event) => onChange(Number(event.target.value))}
-        className="w-full accent-blue-500"
+        className="w-full accent-emerald-500"
       />
     </label>
   );

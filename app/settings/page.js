@@ -5,7 +5,7 @@ export const metadata = {
 
 export default function SettingsPage() {
   return (
-    <main className="min-h-screen bg-[#0B1120] text-white px-6 py-20">
+    <main className="min-h-screen bg-[#052e16] text-white px-6 py-20">
       
       <div className="max-w-5xl mx-auto">
         

@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CheckCircle2, Clapperboard, FileText, PlayCircle } from "lucide-react";
@@ -92,7 +92,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
   };
 
   return (
-    <main className="min-h-screen bg-[#0B1120] text-white">
+    <main className="min-h-screen bg-[#052e16] text-white">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
@@ -103,7 +103,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
       />
 
       <section className="relative overflow-hidden px-6 py-24">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.18),transparent_35%),linear-gradient(180deg,#0B1120,#0F172A)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.18),transparent_35%),linear-gradient(180deg,#052e16,#022c15)]" />
         <div className="relative mx-auto grid max-w-6xl gap-12 lg:grid-cols-[1fr_360px] lg:items-center">
           <div>
             <p className="mb-4 text-sm font-black uppercase tracking-[0.28em] text-brand-mint">
@@ -136,7 +136,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
             </p>
           </div>
 
-          <div className="rounded-[2rem] border border-blue-400/30 bg-white/5 p-3 shadow-2xl shadow-blue-500/10">
+          <div className="rounded-[2rem] border border-emerald-400/30 bg-white/5 p-3 shadow-2xl shadow-emerald-500/10">
             <div className="aspect-[9/16] overflow-hidden rounded-[1.5rem] bg-slate-950">
               <img
                 src={seoPreviewImage}

@@ -40,13 +40,12 @@ export default function AppChrome({ children }: { children: React.ReactNode }) {
 
 function StickyMobileCTA() {
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 block border-t border-white/10 bg-[#0B1120]/92 px-4 py-3 backdrop-blur-lg sm:hidden">
+    <div className="fixed bottom-0 left-0 right-0 z-50 block border-t border-white/10 bg-[#052e16]/92 px-4 py-3 backdrop-blur-lg sm:hidden">
       <Link
         href="/signup"
-        className="flex w-full items-center justify-center gap-2 rounded-xl border border-cyan-100/25 bg-cyan-300 px-6 py-3.5 text-sm font-black text-slate-950 shadow-[0_0_26px_rgba(34,211,238,0.25)] transition active:scale-[0.97]"
+        className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-200/25 bg-emerald-400 px-6 py-3.5 text-sm font-black text-slate-950 shadow-[0_0_26px_rgba(34,211,238,0.25)] transition active:scale-[0.97]"
       >
-        <Sparkles size={16} />
-        Create Free AI Video
+        Get Started
       </Link>
     </div>
   );

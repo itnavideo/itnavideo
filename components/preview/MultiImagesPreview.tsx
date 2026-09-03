@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Player } from '@remotion/player';
 import { MultiImagesVideo } from '@/remotion/templates/MULTI_IMAGES_VIDEO/template';
+import { DEFAULT_FPS } from '@/remotion/constants';
 
-const PREVIEW_FPS = 30;
+const PREVIEW_FPS = DEFAULT_FPS;
 const PREVIEW_SECONDS = 12;
 
 /**
@@ -33,7 +34,7 @@ export function MultiImagesPreview({
   }, [clipFile]);
 
   useEffect(() => {
-    const urls = imageFiles.slice(0, 8).map((f) => URL.createObjectURL(f));
+    const urls = imageFiles.slice(0, 20).map((f) => URL.createObjectURL(f));
     setImageUrls(urls);
     return () => urls.forEach((u) => URL.revokeObjectURL(u));
   }, [imageFiles]);

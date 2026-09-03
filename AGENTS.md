@@ -55,19 +55,19 @@ Multi-language translation is **paused**. Only English and Hinglish (Roman scrip
 - Do not call multiple paid providers for the same decision unless explicitly testing.
 - Keep AI usage minimal. Most templates (Auto Caption, Compare, Long Video Promo, Voice Synced Notes) skip AI planning entirely and use deterministic local planners from the transcript.
 
-## Template Creation Rule
+## Video Type Creation Rule
 
-A new template is NOT complete until all these are done:
+A new Video Type is NOT complete until all these are done:
 
 1. Remotion composition in `remotion/templates/TEMPLATE_NAME/template.tsx`
 2. Registered in `remotion/index.tsx`
-3. Entry in `REEL_TEMPLATE_REGISTRY` (`services/ai/reelPlanner.ts`)
+3. Entry in `VIDEO_TYPE_REGISTRY` (`services/ai/reelPlanner.ts`) with a proper `videoCategory` (e.g. `'reel'` for 9:16 layouts or `'long-form'` for 16:9 formats)
 4. Dashboard card + mode config in `app/dashboard/page.tsx`
 5. Backend render flow support in `app/api/reels/jobs/route.ts`
 6. Lambda redeployment (`npm run reel:lambda:deploy`)
 7. Vercel frontend deployment (`npx vercel --prod`)
 
-Do not create template folders/components without completing the full connection. A half-connected template will show "Template not available" errors to users.
+Do not create video type folders/components without completing the full connection. A half-connected video type will show "Video Type not available" errors to users.
 
 ## Template Behavior Rules
 

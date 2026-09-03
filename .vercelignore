@@ -49,6 +49,7 @@ outputs
 docs/references
 __samples
 public/test-videos
+public/videos
 visual-audit
 sticker-previews
 .tmp

@@ -111,16 +111,16 @@ type TimedText = {
 };
 
 const SFX_PATHS: Record<PremiumSoundCueType, string> = {
-  'soft-click': 'assets/reusable/sound-effects/soft-click.wav',
-  'soft-pop': 'assets/reusable/sound-effects/pop-soft.wav',
-  whoosh: 'assets/reusable/sound-effects/whoosh-short.wav',
-  swipe: 'assets/reusable/sound-effects/swipe-right.wav',
-  ding: 'assets/reusable/sound-effects/bell-ding.wav',
-  cash: 'assets/reusable/sound-effects/cash-count.wav',
-  typing: 'assets/reusable/sound-effects/typing-fast.wav',
-  paper: 'assets/reusable/sound-effects/paper-turn.wav',
-  warning: 'assets/reusable/sound-effects/warning-beep.wav',
-  rise: 'assets/reusable/sound-effects/rise-sweep.wav',
+  'soft-click': 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939814/soft-click_q5a67c.wav',
+  'soft-pop': 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939716/soft-pop_rakwkr.mp3',
+  whoosh: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939824/whoosh-short_rfopag.wav',
+  swipe: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939818/swipe-right_kgvhek.wav',
+  ding: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788093499/ding-5_kovgrw.mp3',
+  cash: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939789/cash-register_ugloom.wav',
+  typing: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939821/typing-fast_itr1th.wav',
+  paper: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788093548/paper-slide_fnjqc9.mp3',
+  warning: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939823/warning-beep_aqvyfj.wav',
+  rise: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939821/victory-rise_beerfs.wav',
 };
 
 export const PREMIUM_SFX_PATHS = SFX_PATHS;
@@ -144,7 +144,7 @@ export function createPremiumSoundCues({
   durationSeconds: number;
   templateName?: ReelTemplateName;
 }): PremiumSoundCue[] {
-  if (templateName === 'AUTO_CAPTION_REEL') return [];
+  if (templateName === 'AUTO_CAPTION_GENERATOR') return [];
 
   const source = timeline.length ? timeline : captions;
   const cues: PremiumSoundCue[] = [];

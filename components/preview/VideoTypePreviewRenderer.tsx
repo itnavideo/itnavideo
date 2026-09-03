@@ -4,40 +4,65 @@ import { forwardRef } from "react";
 import { Player, type PlayerRef } from "@remotion/player";
 import { Loader2 } from "lucide-react";
 
-import { AutoCaptionReel } from "@/remotion/templates/AUTO_CAPTION_REEL/template";
+import { AutoCaptionGenerator } from "@/remotion/templates/AUTO_CAPTION_GENERATOR/template";
 import { CompareExplainer } from "@/remotion/templates/COMPARE_EXPLAINER/template";
+import { FacelessLongVideo } from "@/remotion/templates/FACELESS_LONG_VIDEO/template";
+import { DEFAULT_FPS, secondsToFrames } from "@/remotion/constants";
 
 type Props = {
-  compositionId: string;
-  inputProps: Record<string, unknown>;
-  durationInFrames: number;
-  fps: number;
+  compositionId?: string;
+  inputProps?: Record<string, unknown>;
+  durationInFrames?: number;
+  fps?: number;
+  plan?: import("./types").PreviewPlan;
+  liveInputProps?: Record<string, unknown>;
+  playerRef?: React.RefObject<PlayerRef | null>;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const COMPOSITION_COMPONENTS: Record<string, React.ComponentType<any>> = {
-  "AUTO-CAPTION-REEL": AutoCaptionReel,
+  "AUTO-CAPTION-GENERATOR": AutoCaptionGenerator,
+  "AUTO-CAPTION-GENERATOR-LANDSCAPE": AutoCaptionGenerator,
+  AUTO_CAPTION_GENERATOR: AutoCaptionGenerator,
   comparisonImages: CompareExplainer,
+  "FACELESS-LONG-VIDEO": FacelessLongVideo,
+  facelessLongVideo: FacelessLongVideo,
+  "AI-VIDEO-GENERATOR": FacelessLongVideo,
+  aiVideoGenerator: FacelessLongVideo,
 };
 
 export const VideoTypePreviewRenderer = forwardRef<PlayerRef, Props>(function VideoTypePreviewRenderer(
-  { compositionId, inputProps, durationInFrames, fps },
+  props,
   ref,
 ) {
+  const plan = props.plan;
+  const compositionId = props.compositionId || plan?.compositionId || "AUTO-CAPTION-GENERATOR";
+  const liveInputProps = props.liveInputProps || props.inputProps || plan?.inputProps || {};
+  const fps = props.fps || DEFAULT_FPS;
+  const durationInFrames = props.durationInFrames || Math.max(fps, secondsToFrames(plan?.durationSeconds || 30, fps));
+  const effectiveRef = ref || props.playerRef;
   const CompositionComponent = COMPOSITION_COMPONENTS[compositionId];
 
   if (!CompositionComponent) {
     return <UnsupportedPreview compositionId={compositionId} />;
   }
 
+  const isLandscape =
+    compositionId === "FACELESS-LONG-VIDEO" ||
+    compositionId === "facelessLongVideo" ||
+    compositionId === "AI-VIDEO-GENERATOR" ||
+    compositionId === "aiVideoGenerator";
+  const compositionWidth = isLandscape ? 1920 : 1080;
+  const compositionHeight = isLandscape ? 1080 : 1920;
+
   return (
     <Player
-      ref={ref}
+      ref={effectiveRef}
       component={CompositionComponent}
-      inputProps={inputProps}
+      inputProps={liveInputProps}
       durationInFrames={durationInFrames}
-      compositionWidth={1080}
-      compositionHeight={1920}
+      compositionWidth={compositionWidth}
+      compositionHeight={compositionHeight}
       fps={fps}
       style={{ width: "100%", height: "100%" }}
       clickToPlay={false}

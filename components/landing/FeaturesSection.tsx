@@ -29,8 +29,8 @@ const features = [
     icon: Film,
   },
   {
-    title: '15+ caption styles',
-    description: 'Bold karaoke, neon pulse, minimal fade, glass blur — pick the style that fits your brand.',
+    title: '23+ caption styles',
+    description: 'Karaoke, neon pulse, minimal fade, glass blur, metallic gradient — pick the style that fits your brand.',
     icon: Palette,
   },
   {
@@ -57,26 +57,28 @@ const features = [
 
 export default function FeaturesSection() {
   return (
-    <section id="features" className="relative overflow-hidden px-6 py-28" style={{ background: 'linear-gradient(180deg, rgba(37, 99, 235, 0.05) 0%, transparent 100%), var(--bg-hero)' }}>
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-14 grid gap-8 lg:grid-cols-[0.75fr_1fr] lg:items-end">
+    <section id="features" className="relative overflow-hidden px-6 py-24 sm:py-32 bg-background border-t border-border">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_0px,rgba(6,182,212,0.02),transparent_100%)]" />
+
+      <div className="mx-auto max-w-7xl relative z-10">
+        <div className="mb-20 grid gap-8 lg:grid-cols-[1fr_1fr] lg:items-end">
           <div>
-            <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-cyan-200">What you get</p>
+            <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.25em] text-cyan-500 dark:text-cyan-400">What you get</p>
             <motion.h2
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-4xl font-black leading-tight tracking-normal text-white md:text-6xl"
+              className="text-4xl font-black leading-tight tracking-tight text-foreground md:text-5xl font-sans"
             >
-            Everything your reels need, nothing they don&apos;t.
+              Everything your reels need, nothing they don&apos;t.
             </motion.h2>
           </div>
-          <p className="text-lg leading-8 text-zinc-400">
+          <p className="text-sm leading-relaxed text-muted-foreground">
             Upload your video or audio. Pick a video type. Get a polished, ready-to-post reel — no timeline, no manual cuts.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
           {features.map((feature, index) => {
             const Icon = feature.icon;
 
@@ -87,13 +89,13 @@ export default function FeaturesSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.2 }}
                 transition={{ duration: 0.45, delay: index * 0.04 }}
-                className="rounded-lg border border-white/10 bg-zinc-950 p-6 transition hover:border-amber-200/25 hover:bg-zinc-900/80"
+                className="rounded-3xl border border-border bg-card p-6 shadow-sm backdrop-blur-md transition duration-300 hover:border-blue-500/20 hover:bg-accent dark:border-border dark:bg-background/20 dark:hover:bg-muted/40 group"
               >
-                <div className="mb-6 flex h-11 w-11 items-center justify-center rounded-md bg-amber-200/10 text-amber-100">
-                  <Icon size={20} />
+                <div className="mb-6 flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-500 dark:text-blue-400 border border-blue-500/20 group-hover:text-cyan-500 dark:group-hover:text-cyan-400 group-hover:border-cyan-500/20 transition duration-300">
+                  <Icon size={18} />
                 </div>
-                <h3 className="text-lg font-bold text-white">{feature.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-zinc-300">{feature.description}</p>
+                <h3 className="text-base font-bold text-card-foreground transition">{feature.title}</h3>
+                <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{feature.description}</p>
               </motion.div>
             );
           })}
@@ -102,3 +104,4 @@ export default function FeaturesSection() {
     </section>
   );
 }
+

@@ -119,15 +119,18 @@ This master doc tracks 8 product-facing Video Types:
 9. Dashboard shows progress and errors clearly.
 10. User downloads final MP4 from history/recent renders.
 
-### Credits / Pricing Idea
+### Credits / Pricing
 
-- Credits control video generation usage.
-- Free users can have lower duration/file-size limits.
-- Paid users can have higher limits and more credits.
+- Credits control video generation usage. Plans are currently one-time purchases; no payment method is charged automatically.
+- Creator: ₹799/month, 30 monthly credits.
+- Channel: ₹1,999/month, 90 monthly credits.
+- Agency: ₹5,999/month, 250 monthly credits.
+- Annual packs: Creator ₹7,999/year (360 credits), Channel ₹19,999/year (1,080 credits), Agency ₹59,999/year (3,000 credits). Annual credits are available for one year.
+- Monthly packs are valid for 31 days and annual packs for one year. They are one-time purchases and unused credits do not roll over.
+- Free users receive one watermarked Auto Caption Video up to 60 seconds; no card is required.
 - Failed renders should not waste user credits.
 - Long-form Captioned Video: up to 10 minutes, 1 credit per started minute (for example: 5 minutes = 5 credits, 5:01 = 6 credits, 10 minutes = 10 credits).
 - New users receive one free, watermarked Auto Caption Video up to 60 seconds; other workflows require paid credits.
-- Paid launch pack: 20 credits valid for 31 days, ₹499 for India billing region and $19 internationally.
 - Video type credit rates are transparent before final render: focused short video types cost 1 or 2 credits, and Long Video Clips cost 3–12 credits.
 
 ### User Journey

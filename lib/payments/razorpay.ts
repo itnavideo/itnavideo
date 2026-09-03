@@ -52,6 +52,25 @@ export function verifyRazorpaySignature({
   return expected.length === received.length && crypto.timingSafeEqual(expected, received);
 }
 
+export function verifyRazorpaySubscriptionSignature({
+  subscriptionId,
+  paymentId,
+  signature,
+}: {
+  subscriptionId: string;
+  paymentId: string;
+  signature: string;
+}) {
+  const { keySecret } = getRazorpayConfig();
+  const expectedSignature = crypto
+    .createHmac("sha256", keySecret)
+    .update(`${paymentId}|${subscriptionId}`)
+    .digest("hex");
+  const expected = Buffer.from(expectedSignature);
+  const received = Buffer.from(signature);
+  return expected.length === received.length && crypto.timingSafeEqual(expected, received);
+}
+
 export function verifyRazorpayWebhookSignature({
   rawBody,
   signature,

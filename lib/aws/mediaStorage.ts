@@ -76,7 +76,7 @@ export async function uploadTemporaryMediaObject({
   return {bucket, key};
 }
 
-export async function createReadUrl(key: string, expiresInSeconds = 60 * 60 * 3) {
+export async function createReadUrl(key: string, expiresInSeconds = 48 * 60 * 60) {
   const bucket = requiredBucket();
   const command = new GetObjectCommand({Bucket: bucket, Key: key});
   return getSignedUrl(getS3Client(), command, {expiresIn: expiresInSeconds});

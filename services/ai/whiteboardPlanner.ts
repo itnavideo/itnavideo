@@ -1,19 +1,17 @@
-/**
- * Deterministic Whiteboard Planner
- *
- * Converts the current Groq transcript into a capacity-safe whiteboard plan.
- * It intentionally uses no secondary AI provider: text, timing, and board
- * density are derived locally from the render window selected for this job.
- */
+import { GoogleGenAI } from '@google/genai';
 
 export type WhiteboardPoint = {
   text: string;
-  startTime: number;
-  endTime: number;
+  startTime: number;      // When it is written on the board (seconds)
+  endTime: number;        // When it finishes writing (seconds)
+  focusStartTime: number; // When the narrator speaks about it (for drawing circles/underlines)
+  focusEndTime: number;   // When the focus ends
   markerColor: string;
   bulletType: 'number' | 'bullet' | 'check' | 'arrow' | 'star';
   isHighlight?: boolean;
-  icon?: string;
+  icon?: 'arrow' | 'checkmark' | 'lightbulb' | 'star' | 'circle' | 'none';
+  boardIndex: number;     // Multi-scene board clears support: 0, 1, or 2
+  focusType: 'circle' | 'underline' | 'box' | 'arrow';
 };
 
 export type WhiteboardPlan = {
@@ -22,7 +20,7 @@ export type WhiteboardPlan = {
   points: WhiteboardPoint[];
   conclusion: string;
   conclusionTime: number;
-  source: 'deterministic';
+  source: 'gemini' | 'deterministic';
 };
 
 export type WhiteboardPlanInput = {
@@ -31,191 +29,458 @@ export type WhiteboardPlanInput = {
   durationSeconds: number;
   topicTitle?: string;
   boardStyle?: string;
+  apiKey?: string;
 };
 
 const COLORS = {
-  title: '#1E3A5F',
-  blue: '#2563EB',
-  red: '#DC2626',
-  green: '#16A34A',
+  title: '#0F172A',      // Corporate dark charcoal
+  blue: '#1E40AF',       // Premium boardroom Navy
+  red: '#991B1B',        // Deep corporate Crimson
+  green: '#065F46',      // Slate Teal
+  grey: '#475569',
 };
 
-const POINT_COLORS = [COLORS.blue, COLORS.green, COLORS.blue, COLORS.blue];
-const ICON_ROTATION = ['arrow', 'checkmark', 'lightbulb'];
-// A single board needs calm, readable pacing. Up to four concise beats stay
-// readable; the renderer's board config caps this further per image safe-zone.
-const MAX_BOARD_POINTS = 4;
+const POINT_COLORS = [COLORS.blue, COLORS.green, COLORS.blue];
+const FOCUS_TYPES: Array<WhiteboardPoint['focusType']> = ['circle', 'underline', 'box', 'arrow'];
 
-function cleanText(value: string) {
-  return String(value || '')
-    .replace(/[\r\n]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .replace(/[“”]/g, '')
-    .trim();
+// ── Layout Simulation & Validation Helpers ─────────────────────────────────────
+
+type BoardGeometry = {
+  maxPoints: number;
+  maxTextRows: number;
+  maxCharsPerLine: number;
+};
+
+// Simplified corporate-luxury geometry (matching template.tsx exactly)
+const BOARD_GEOMETRY: BoardGeometry = {
+  maxPoints: 4,
+  maxTextRows: 9,
+  maxCharsPerLine: 28,
+};
+
+function countLines(text: string): number {
+  return text ? text.split('\n').length : 0;
 }
 
-// Leading filler/discourse words (English + Roman Hinglish) that add no meaning to a
-// board point. Stripped from the START of a segment so the point begins on substance.
-const LEADING_FILLER = new Set([
-  // english
-  'so', 'and', 'but', 'well', 'okay', 'ok', 'now', 'basically', 'actually', 'literally',
-  'like', 'just', 'you', 'know', 'i', 'mean', 'right', 'see', 'look', 'yeah', 'um', 'uh',
-  'the', 'a', 'an', 'then', 'also', 'because', 'if', 'when', 'that', 'this', 'we', 'they',
-  // roman hinglish
-  'toh', 'to', 'aur', 'lekin', 'par', 'matlab', 'yaar', 'dekho', 'suno', 'haan', 'accha',
-  'bas', 'phir', 'ab', 'jab', 'kyunki', 'agar', 'ye', 'yeh', 'wo', 'woh', 'hum', 'main', 'mai',
-]);
-
-function cleanWord(word: string): string {
-  return word.toLowerCase().replace(/[^a-z0-9]/g, '');
+function clampText(text: string, maxChars: number): string {
+  const clean = String(text || '').replace(/\s+/g, ' ').trim();
+  if (clean.length <= maxChars) return clean;
+  return `${clean.slice(0, Math.max(1, maxChars - 1)).trimEnd()}…`;
 }
 
-/**
- * Extracts a concise, meaningful board point from a raw transcript segment.
- * Strips leading filler/discourse words so the point begins on substance
- * (e.g. "So basically the main thing" → "main thing"), then keeps the first
- * few content words within the character budget.
- */
-function extractPoint(value: string, maxWords: number, maxChars: number) {
-  const words = cleanText(value).split(/\s+/).filter(Boolean);
-  // Drop leading filler, but never strip the whole line away.
-  let start = 0;
-  while (start < words.length - 1 && LEADING_FILLER.has(cleanWord(words[start]))) start += 1;
-  const meaningful = words.slice(start);
-  let result = meaningful.slice(0, maxWords).join(' ');
-  if (result.length > maxChars) result = result.slice(0, maxChars).trimEnd();
-  result = result.replace(/[,:;.!?]+$/, '').trim();
-  return result || cleanText(value).slice(0, maxChars) || 'Key idea';
-}
-
-function shorten(value: string, maxWords: number, maxChars: number) {
-  const words = cleanText(value).split(/\s+/).filter(Boolean);
-  let result = words.slice(0, maxWords).join(' ');
-  if (result.length > maxChars) result = result.slice(0, maxChars).trimEnd();
-  return result.replace(/[,:;.!?]+$/, '') || 'Key idea';
-}
-
-function getBoardCapacity() {
-  return MAX_BOARD_POINTS;
-}
-
-function buildTranscriptSegments(transcript: string, durationSeconds: number) {
-  const sentences = cleanText(transcript)
-    .split(/(?<=[.!?])\s+/)
-    .map((text) => cleanText(text))
-    .filter((text) => text.split(/\s+/).length >= 3);
-  const step = Math.max(2.8, durationSeconds / Math.max(1, sentences.length + 1));
-
-  return sentences.map((text, index) => ({
-    text,
-    start: (index + 1) * step,
-    end: (index + 2) * step,
-  }));
-}
-
-function selectSpacedSegments(
-  segments: Array<{start: number; end: number; text: string}>,
-  count: number,
-) {
-  if (segments.length <= count) return segments;
-
-  const selected: Array<{start: number; end: number; text: string}> = [];
-  for (let index = 0; index < count; index += 1) {
-    const sourceIndex = Math.min(
-      segments.length - 1,
-      Math.max(0, Math.round(((index + 0.5) * segments.length) / count - 0.5)),
-    );
-    const candidate = segments[sourceIndex];
-    if (!selected.some((item) => item.text === candidate.text)) selected.push(candidate);
+function splitLongToken(token: string, charsPerLine: number): string[] {
+  if (token.length <= charsPerLine) return [token];
+  const parts: string[] = [];
+  for (let i = 0; i < token.length; i += charsPerLine) {
+    parts.push(token.slice(i, i + charsPerLine));
   }
-  return selected;
+  return parts;
 }
 
-function inferBulletType(text: string): WhiteboardPoint['bulletType'] {
-  // English + Roman Hinglish cues
-  if (/\b(first|second|third|step|then|next|pehla|pehle|doosra|doosri|teesra|kadam|phir|agla)\b/i.test(text)) return 'number';
-  if (/\b(avoid|never|risk|warning|mistake|bacho|bacha|mat|galti|khatra|nuksan|kabhi)\b/i.test(text)) return 'arrow';
-  if (/\b(should|must|focus|remember|always|chahiye|zaroori|zaruri|dhyan|yaad|hamesha|karo)\b/i.test(text)) return 'check';
-  return 'bullet';
+function wrapWhiteboardText(text: string, charsPerLine: number, maxLines: number): string {
+  const words = clampText(text, charsPerLine * maxLines)
+    .split(/\s+/)
+    .filter(Boolean)
+    .flatMap((word) => splitLongToken(word, charsPerLine));
+  const lines: string[] = [];
+  let current = '';
+
+  for (const word of words) {
+    const next = current ? `${current} ${word}` : word;
+    if (next.length <= charsPerLine || !current) {
+      current = next;
+      continue;
+    }
+    lines.push(current);
+    current = word;
+    if (lines.length >= maxLines) break;
+  }
+  if (current && lines.length < maxLines) lines.push(current);
+
+  const rendered = lines.join('\n');
+  return rendered || clampText(text, charsPerLine);
 }
 
-function inferIcon(text: string, index: number) {
-  if (/\b(idea|learn|think|understand|soch|socho|samajh|samjho|seekho|seekh|vichar)\b/i.test(text)) return 'lightbulb';
-  if (/\b(result|win|success|important|jeet|kamyabi|safalta|natija|zaroori|mahatvapurn|badhiya)\b/i.test(text)) return 'star';
-  if (/\b(check|focus|build|improve|banao|sudhaar|dhyan|karo|behtar)\b/i.test(text)) return 'checkmark';
-  return ICON_ROTATION[index % ICON_ROTATION.length];
-}
+export type LayoutDiagnostic = {
+  isValid: boolean;
+  issues: string[];
+  boardDiagnostics: Array<{
+    boardIndex: number;
+    pointCount: number;
+    usedRows: number;
+    scale: number;
+    truncatedPointsCount: number;
+    clampedWordsCount: number;
+  }>;
+};
 
-export async function planWhiteboardVideo(input: WhiteboardPlanInput): Promise<WhiteboardPlan> {
-  const durationSeconds = Math.max(8, Number(input.durationSeconds) || 45);
-  const capacity = getBoardCapacity();
-  const sourceSegments = input.segments
-    .map((segment) => ({
-      start: Math.max(0, Number(segment.start) || 0),
-      end: Math.max(0, Number(segment.end) || 0),
-      text: cleanText(segment.text),
-    }))
-    .filter((segment) => segment.text.split(/\s+/).length >= 3);
-  const candidates = sourceSegments.length > 0
-    ? sourceSegments
-    : buildTranscriptSegments(input.transcript, durationSeconds);
-  const pointStart = 3.2;
-  const conclusionWindow = 3.15;
-  const availablePointTime = Math.max(2.6, durationSeconds - pointStart - conclusionWindow);
-  const maxByTiming = Math.max(1, Math.floor(availablePointTime / 2.55));
-  const pointCount = Math.min(capacity, candidates.length || 1, maxByTiming);
-  const selected = selectSpacedSegments(candidates, pointCount);
-  const title = shorten(input.topicTitle || candidates[0]?.text || input.transcript || 'Key Points', 3, 26);
-  const pointInterval = availablePointTime / Math.max(1, selected.length);
-  const conclusionTime = Math.min(
-    durationSeconds - 2.8,
-    Math.max(pointStart + selected.length * pointInterval + 0.1, durationSeconds - conclusionWindow),
-  );
+export function validateWhiteboardLayout(
+  title: string,
+  points: WhiteboardPoint[],
+  conclusion: string
+): LayoutDiagnostic {
+  const issues: string[] = [];
+  const boardDiagnostics: any[] = [];
+  let isValid = true;
 
-  const points = selected.map((segment, index) => {
-    const startTime = pointStart + index * pointInterval;
-    const endTime = Math.min(conclusionTime - 0.28, startTime + Math.max(2.35, pointInterval - 0.35));
-    const isHighlight = index === Math.floor(selected.length / 2);
-    const text = extractPoint(segment.text, 5, 34);
-
-    return {
-      text,
-      startTime: Number(startTime.toFixed(2)),
-      endTime: Number(Math.max(startTime + 0.8, endTime).toFixed(2)),
-      markerColor: isHighlight ? COLORS.red : POINT_COLORS[index % POINT_COLORS.length],
-      bulletType: inferBulletType(text),
-      isHighlight,
-      icon: inferIcon(text, index),
-    };
+  // Group points by board index
+  const pointsByBoard: Record<number, WhiteboardPoint[]> = {};
+  points.forEach((p) => {
+    const idx = p.boardIndex ?? 0;
+    if (!pointsByBoard[idx]) pointsByBoard[idx] = [];
+    pointsByBoard[idx].push(p);
   });
 
+  const maxBoardIndex = Math.max(0, ...points.map((p) => p.boardIndex ?? 0));
 
-  const finalPointEnd = points.length ? points[points.length - 1].endTime : pointStart;
-  const normalizedConclusionTime = Number(Math.min(
-    durationSeconds - 0.8,
-    Math.max(finalPointEnd + 0.5, conclusionTime),
-  ).toFixed(2));
+  for (let bIdx = 0; bIdx <= maxBoardIndex; bIdx++) {
+    const boardPoints = pointsByBoard[bIdx] || [];
+    const titleText = wrapWhiteboardText(title || 'Strategy Session', BOARD_GEOMETRY.maxCharsPerLine, 2);
+    const pointCharsPerLine = Math.max(16, BOARD_GEOMETRY.maxCharsPerLine - 5); // 23
 
-  // A short takeaway recap ties the board together. Derived locally from the
-  // strongest (highlighted) point, or the title, so no extra AI call is needed.
-  const conclusion = buildConclusion(points, title);
+    // Check if points are truncated
+    const truncatedPointsCount = Math.max(0, boardPoints.length - BOARD_GEOMETRY.maxPoints);
+    if (truncatedPointsCount > 0) {
+      isValid = false;
+      issues.push(`Board ${bIdx} has too many points (${boardPoints.length} > max ${BOARD_GEOMETRY.maxPoints}), causing ${truncatedPointsCount} points to be truncated!`);
+    }
+
+    const displayPoints = boardPoints.slice(0, BOARD_GEOMETRY.maxPoints).map((point) => {
+      const displayText = wrapWhiteboardText(point.text, pointCharsPerLine, 2);
+      return {
+        ...point,
+        displayText,
+        lineCount: countLines(displayText),
+      };
+    });
+
+    const conclusionText = (bIdx === maxBoardIndex && conclusion)
+      ? wrapWhiteboardText(conclusion, BOARD_GEOMETRY.maxCharsPerLine, 2)
+      : '';
+
+    const usedRows = countLines(titleText) + 1 + displayPoints.reduce((total, p) => total + p.lineCount + 1, 0) + (conclusionText ? 2 : 0);
+    const scale = Math.max(0.78, Math.min(1, BOARD_GEOMETRY.maxTextRows / Math.max(BOARD_GEOMETRY.maxTextRows, usedRows)));
+
+    // Check if scale is too small (< 0.80 means text gets small and hard to read)
+    if (scale < 0.80) {
+      isValid = false;
+      issues.push(`Board ${bIdx} is cramped, scale is too small (${scale.toFixed(2)} < 0.80), text will look too small.`);
+    }
+
+    // Check if any point text has ellipsis indicating clamp
+    let clampedWordsCount = 0;
+    displayPoints.forEach((p) => {
+      if (p.displayText.includes('…')) {
+        clampedWordsCount++;
+      }
+    });
+    if (clampedWordsCount > 0) {
+      isValid = false;
+      issues.push(`Board ${bIdx} has ${clampedWordsCount} points that are too long and got clamped with '…'.`);
+    }
+
+    boardDiagnostics.push({
+      boardIndex: bIdx,
+      pointCount: boardPoints.length,
+      usedRows,
+      scale,
+      truncatedPointsCount,
+      clampedWordsCount,
+    });
+  }
 
   return {
-    title,
-    titleColor: COLORS.title,
-    points,
-    conclusion,
-    conclusionTime: normalizedConclusionTime,
-    source: 'deterministic',
+    isValid,
+    issues,
+    boardDiagnostics,
   };
 }
 
-/** Builds a short board takeaway from the highlighted point or the title. */
-function buildConclusion(points: WhiteboardPoint[], title: string): string {
-  if (!points.length) return '';
-  const highlight = points.find((point) => point.isHighlight) || points[points.length - 1];
-  const source = cleanText(highlight.text) || cleanText(title);
-  if (!source) return '';
-  const short = shorten(source, 4, 28);
-  return short && short !== 'Key idea' ? short : '';
+export function autoFixWhiteboardLayout(
+  title: string,
+  points: WhiteboardPoint[],
+  conclusion: string,
+  durationSeconds: number
+): { points: WhiteboardPoint[]; conclusionTime: number } {
+  console.log('[LAYOUT_AUTO_FIXER] Starting whiteboard layout improvement...');
+
+  // 1. Simplify & Shorten individual points (maximum 5 words, clear, concise)
+  const cleanedPoints = points.map((p) => {
+    let cleanText = p.text.trim();
+    const words = cleanText.split(/\s+/);
+    if (words.length > 5 || cleanText.length > 32) {
+      // Shorten deterministically to the first 5 words
+      cleanText = words.slice(0, 5).join(' ');
+      console.log(`[LAYOUT_AUTO_FIXER] Shortened text: "${p.text}" -> "${cleanText}"`);
+    }
+    return {
+      ...p,
+      text: cleanText,
+    };
+  });
+
+  // 2. Decide target board count based on total points
+  // If points count is > 4, we divide them across 3-4 boards to ensure maximum spaciousness!
+  const totalPoints = cleanedPoints.length;
+  const boardCount = totalPoints > 9 ? 4 : totalPoints > 4 ? 3 : totalPoints > 2 ? 2 : 1;
+  console.log(`[LAYOUT_AUTO_FIXER] Distributing ${totalPoints} points across ${boardCount} boards/pages.`);
+
+  // 3. Distribute points evenly across the boards
+  const pointsPerBoard = Math.ceil(totalPoints / boardCount);
+  const fixedPoints: WhiteboardPoint[] = cleanedPoints.map((p, index) => {
+    const boardIndex = Math.min(boardCount - 1, Math.floor(index / pointsPerBoard));
+    const boardStart = (boardIndex * durationSeconds) / boardCount;
+    const boardEnd = ((boardIndex + 1) * durationSeconds) / boardCount;
+
+    // Order of this point on its board
+    const orderOnBoard = index % pointsPerBoard;
+
+    // Rapid Setup Phase (all text on the board written in first 1.5 seconds)
+    const startTime = boardStart + 0.5 + orderOnBoard * 0.4;
+    const endTime = startTime + 0.6;
+
+    // Make sure focus window is well-aligned
+    let focusStartTime = p.focusStartTime;
+    let focusEndTime = p.focusEndTime;
+
+    // Focus window must start after the board is set up and complete before board erases
+    if (focusStartTime < startTime + 0.5) {
+      focusStartTime = startTime + 0.6;
+    }
+    if (focusEndTime <= focusStartTime) {
+      focusEndTime = focusStartTime + 2.5;
+    }
+    if (focusStartTime > boardEnd - 1.0) {
+      focusStartTime = Math.max(boardStart + 1.2, boardEnd - 3.5);
+      focusEndTime = boardEnd - 0.2;
+    }
+    if (focusEndTime > boardEnd) {
+      focusEndTime = boardEnd - 0.2;
+    }
+
+    return {
+      ...p,
+      boardIndex,
+      startTime: Number(startTime.toFixed(2)),
+      endTime: Number(endTime.toFixed(2)),
+      focusStartTime: Number(focusStartTime.toFixed(2)),
+      focusEndTime: Number(focusEndTime.toFixed(2)),
+    };
+  });
+
+  const conclusionTime = Number((durationSeconds - 1.5).toFixed(2));
+  console.log(`[LAYOUT_AUTO_FIXER] Layout successfully validated and fixed! Points adjusted:`, fixedPoints.length);
+
+  return {
+    points: fixedPoints,
+    conclusionTime,
+  };
+}
+
+/**
+ * Deterministic multi-board fallback planner.
+ * Breaks segments into 2-3 boards, schedules rapid writing, and matches speech focus windows.
+ */
+export function planDeterministicWhiteboard(input: WhiteboardPlanInput): WhiteboardPlan {
+  const duration = Math.max(8, Number(input.durationSeconds) || 30);
+  const rawSegments = (input.segments || [])
+    .map((s) => ({
+      start: Math.max(0, Number(s.start) || 0),
+      end: Math.min(duration, Number(s.end) || duration),
+      text: s.text.trim(),
+    }))
+    .filter((s) => s.text.split(/\s+/).length >= 2);
+
+  // Group into 2 or 3 boards depending on duration
+  const boardCount = duration > 45 ? 3 : duration > 20 ? 2 : 1;
+  const pointsPerBoard = 3;
+  const totalPointsCount = Math.min(boardCount * pointsPerBoard, rawSegments.length || 1);
+
+  // If we have no raw segments, synthesize some
+  const segmentsToUse = rawSegments.length >= totalPointsCount
+    ? rawSegments.slice(0, totalPointsCount)
+    : Array.from({ length: totalPointsCount }, (_, i) => ({
+        start: (i * duration) / totalPointsCount,
+        end: ((i + 1) * duration) / totalPointsCount - 0.5,
+        text: `Key business insight ${i + 1}`,
+      }));
+
+  const points: WhiteboardPoint[] = [];
+  const title = input.topicTitle || 'Strategy Session';
+
+  segmentsToUse.forEach((segment, index) => {
+    const boardIndex = Math.min(boardCount - 1, Math.floor(index / pointsPerBoard));
+    const boardStart = (boardIndex * duration) / boardCount;
+    
+    // Rapid writing setup at the start of each board
+    const writeOffset = (index % pointsPerBoard) * 0.4;
+    const startTime = boardStart + 0.6 + writeOffset;
+    const endTime = startTime + 0.8;
+
+    // Focus window matches spoken segment
+    const focusStartTime = segment.start;
+    const focusEndTime = segment.end;
+
+    points.push({
+      text: segment.text.slice(0, 48),
+      startTime: Number(startTime.toFixed(2)),
+      endTime: Number(endTime.toFixed(2)),
+      focusStartTime: Number(focusStartTime.toFixed(2)),
+      focusEndTime: Number(focusEndTime.toFixed(2)),
+      markerColor: POINT_COLORS[index % POINT_COLORS.length],
+      bulletType: index % 3 === 0 ? 'check' : 'arrow',
+      isHighlight: index % 3 === 2,
+      icon: index % 2 === 0 ? 'lightbulb' : 'checkmark',
+      boardIndex,
+      focusType: FOCUS_TYPES[index % FOCUS_TYPES.length],
+    });
+  });
+
+  const plan: WhiteboardPlan = {
+    title,
+    titleColor: COLORS.title,
+    points,
+    conclusion: 'Action items unlocked.',
+    conclusionTime: duration - 1.5,
+    source: 'deterministic',
+  };
+
+  const diag = validateWhiteboardLayout(plan.title, plan.points, plan.conclusion);
+  if (!diag.isValid) {
+    console.log('[WHITEBOARD_PLANNER] Deterministic plan has layout issues:', diag.issues);
+    const fixed = autoFixWhiteboardLayout(plan.title, plan.points, plan.conclusion, duration);
+    plan.points = fixed.points;
+    plan.conclusionTime = fixed.conclusionTime;
+  }
+
+  return plan;
+}
+
+/**
+ * Gemini-powered premium boardroom whiteboard planner.
+ * Organizes transcript into 2-3 strategic phases (boards), pre-renders writing,
+ * and overlays precise hand-drawn highlights synced with voice timing.
+ */
+export async function planWhiteboardVideo(input: WhiteboardPlanInput): Promise<WhiteboardPlan> {
+  const apiKey = input.apiKey || process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    console.log('[WHITEBOARD_PLANNER] No API key, using premium deterministic planner');
+    return planDeterministicWhiteboard(input);
+  }
+
+  try {
+    const ai = new GoogleGenAI({ apiKey });
+    const duration = Math.max(8, Number(input.durationSeconds) || 30);
+    const segmentDetails = input.segments
+      .map((s, i) => `[Segment ${i}] ${s.start.toFixed(2)}s to ${s.end.toFixed(2)}s: "${s.text}"`)
+      .join('\n');
+
+    const systemPrompt = `You are an elite corporate strategy consultant and visual storyboard director.
+You are planning a professional boardroom whiteboard explainer video.
+
+TOPIC TITLE: "${input.topicTitle || 'Consulting Session'}"
+VIDEO DURATION: ${duration} seconds
+
+TRANSCRIPT SEGMENTS WITH TIMESTAMPS:
+${segmentDetails}
+
+CRITICAL WHITEBOARD WORKFLOW DIRECTIVES:
+1. Divide the script into 2 or maximum 3 logical strategic boards (represented by boardIndex: 0, 1, or 2).
+   - Board 0 (Active 0s to ~35% of duration)
+   - Board 1 (Active ~35% to ~70% of duration)
+   - Board 2 (Active ~70% to end of duration)
+2. Keep ONLY 2 to 3 key strategic points per board for beautiful, spacious, high-end boardroom spacing. Never overload a board.
+3. Rapid Setup Phase (Writing):
+   - At the beginning of each board, all text of that board MUST be written rapidly within the first 1.5 seconds.
+   - For Board i (starts at time boardStart), set point.startTime = boardStart + 0.5 + offset, and point.endTime = point.startTime + 0.7.
+   - This ensures the board structure appears rapidly and remains completely stable while being explained.
+4. Voiceover Focus Windows:
+   - Match focusStartTime and focusEndTime exactly to the transcript segment timestamps when that specific point is explained.
+5. Select a professional focusType for each point:
+   - 'circle': draws a sleek hand-drawn marker circle around the point.
+   - 'underline': draws a clean corporate marker underline.
+   - 'box': wraps the point in a clean hand-drawn strategic box.
+   - 'arrow': draws an arrow pointing to the point.
+6. Design Aesthetic:
+   - Strictly corporate consulting board. NO school classroom feeling. NO cartoon doodles.
+   - Use professional bullet types: 'check' for strategies/tips, 'arrow' for flows, 'star' for highlights.
+   - Alternate marker colors: deep boardroom navy ('#1E40AF'), crimson ('#991B1B'), teal ('#065F46').
+
+OUTPUT SCHEMA (Return ONLY valid JSON):
+{
+  "title": "A short, punchy, high-end master session title",
+  "titleColor": "#0F172A",
+  "points": [
+    {
+      "text": "Extremely concise boardroom bullet (max 6 words)",
+      "startTime": 0.6,
+      "endTime": 1.3,
+      "focusStartTime": 1.5,
+      "focusEndTime": 7.2,
+      "markerColor": "#1E40AF",
+      "bulletType": "check",
+      "icon": "lightbulb",
+      "boardIndex": 0,
+      "focusType": "circle",
+      "isHighlight": true
+    }
+  ],
+  "conclusion": "A final 1-line strategy action takeaway",
+  "conclusionTime": 28.5
+}`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: [systemPrompt],
+      config: {
+        responseMimeType: 'application/json',
+      },
+    });
+
+    const text = response.text?.trim() || '';
+    const cleanJson = text.replace(/^```json\s*/i, '').replace(/```$/, '').trim();
+    const result = JSON.parse(cleanJson);
+
+    // Validate and fix output timing boundaries
+    const validatedPoints = (result.points || []).map((p: any, i: number) => {
+      const boardIndex = typeof p.boardIndex === 'number' ? p.boardIndex : 0;
+      const boardStart = (boardIndex * duration) / Math.max(1, result.points.length / 3);
+
+      return {
+        text: String(p.text || '').slice(0, 48),
+        startTime: Number(Math.max(0, Number(p.startTime) || (boardStart + 0.5 + i * 0.4)).toFixed(2)),
+        endTime: Number(Math.min(duration, Number(p.endTime) || (boardStart + 1.2 + i * 0.4)).toFixed(2)),
+        focusStartTime: Number(Math.max(0, Number(p.focusStartTime) || 0).toFixed(2)),
+        focusEndTime: Number(Math.min(duration, Number(p.focusEndTime) || duration).toFixed(2)),
+        markerColor: String(p.markerColor || COLORS.blue),
+        bulletType: (p.bulletType as any) || 'check',
+        isHighlight: Boolean(p.isHighlight),
+        icon: (p.icon as any) || 'checkmark',
+        boardIndex,
+        focusType: (p.focusType as any) || 'circle',
+      };
+    });
+
+    const initialPlan: WhiteboardPlan = {
+      title: String(result.title || input.topicTitle || 'Strategy Session'),
+      titleColor: COLORS.title,
+      points: validatedPoints,
+      conclusion: String(result.conclusion || 'Session Complete.'),
+      conclusionTime: Number(Math.min(duration, Number(result.conclusionTime) || (duration - 1.5)).toFixed(2)),
+      source: 'gemini',
+    };
+
+    const diag = validateWhiteboardLayout(initialPlan.title, initialPlan.points, initialPlan.conclusion);
+    if (!diag.isValid) {
+      console.log('[WHITEBOARD_PLANNER] Gemini-generated plan has layout issues:', diag.issues);
+      const fixed = autoFixWhiteboardLayout(initialPlan.title, initialPlan.points, initialPlan.conclusion, duration);
+      initialPlan.points = fixed.points;
+      initialPlan.conclusionTime = fixed.conclusionTime;
+    }
+
+    return initialPlan;
+  } catch (error) {
+    console.error('[WHITEBOARD_PLANNER] Gemini planning failed, falling back:', error);
+    return planDeterministicWhiteboard(input);
+  }
 }

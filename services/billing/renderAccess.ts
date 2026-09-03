@@ -1,5 +1,5 @@
 import { CREDIT_UNITS_PER_CREDIT, type BillableRenderMode, normalizeCreditUnits } from "@/lib/billing/creditPricing";
-import { getBillingEntitlementFromServer, isEntitlementActive } from "@/services/supabase/billingStore";
+import { getBillingEntitlementFromServer, getEntitlementCreditWindow, isEntitlementActive } from "@/services/supabase/billingStore";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { countRenderHistoryInWindowFromServer, getAppSettingFromServer, setAppSettingFromServer } from "@/services/supabase/siteStore";
 import { ensureFreeSignupCreditForUser, getFreeSignupCreditWindow, isFreeSignupCreditActive } from "@/services/supabase/freeTrialCredits";
@@ -43,7 +43,8 @@ export async function getRenderAccessForUser(userId: string, request: RenderAcce
 
   const entitlement = await getBillingEntitlementFromServer(cleanUserId);
   if (isEntitlementActive(entitlement) && entitlement) {
-    return accessForWindow(cleanUserId, entitlement.planId, entitlement.planName, true, entitlement.activatedAt, entitlement.expiresAt, entitlement.monthlyVideoLimit, requiredCreditUnits);
+    const creditWindow = getEntitlementCreditWindow(entitlement);
+    return accessForWindow(cleanUserId, entitlement.planId, entitlement.planName, true, creditWindow.startAt, creditWindow.endAt, entitlement.monthlyVideoLimit, requiredCreditUnits);
   }
 
   const freeSignupCredit = await ensureFreeSignupCreditForUser(cleanUserId);
@@ -62,7 +63,7 @@ export async function getRenderAccessForUser(userId: string, request: RenderAcce
 export async function getFounderTestAccessForUser(userId: string, requiredCreditUnits = CREDIT_UNITS_PER_CREDIT): Promise<RenderAccess | null> {
   const cleanUserId = sanitizeString(userId);
   if (!cleanUserId || cleanUserId === "anonymous") return null;
-  const founderEmail = await getUserEmailFromServer(cleanUserId);
+  const founderEmail = cleanUserId.includes("@") ? cleanUserId.toLowerCase() : await getUserEmailFromServer(cleanUserId);
   if (!isFounderTestEmail(founderEmail)) return null;
   return accessForWindow(cleanUserId, "founder-test", "Founder Test", true, FOUNDER_TEST_START_AT, FOUNDER_TEST_EXPIRES_AT, FOUNDER_TEST_LIMIT, requiredCreditUnits);
 }
@@ -81,7 +82,7 @@ export async function reserveRenderUsageFromServer(input: { userId: string; rend
   const createdAt = parseDate(input.createdAt) || new Date();
   const nextLedger: UsageLedger = {
     userId,
-    renders: [{ renderId, createdAt: createdAt.toISOString(), mode: sanitizeString(input.mode) || undefined, title: sanitizeString(input.title).slice(0, 120) || undefined, creditUnits: normalizeCreditUnits(input.creditUnits), status: "reserved" }, ...ledger.renders].slice(0, USAGE_LEDGER_LIMIT),
+    renders: [{ renderId, createdAt: createdAt.toISOString(), mode: sanitizeString(input.mode) || undefined, title: sanitizeString(input.title).slice(0, 120) || undefined, creditUnits: normalizeCreditUnits(input.creditUnits), status: "reserved" as UsageStatus }, ...ledger.renders].slice(0, USAGE_LEDGER_LIMIT),
   };
   await setAppSettingFromServer(usageKey(userId), nextLedger, "render-usage");
   return nextLedger;
@@ -139,7 +140,12 @@ function usageSummary(usedUnits: number, limitUnits: number) {
 
 async function getWindowUsageUnits(userId: string, startAt: string, endAt: string) {
   const ledgerUnits = countLedgerUnitsInWindow(await readUsageLedger(userId), startAt, endAt);
-  const historyUnits = await countRenderHistoryInWindowFromServer(userId, startAt, endAt) * CREDIT_UNITS_PER_CREDIT;
+  let historyUnits = 0;
+  try {
+    historyUnits = (await countRenderHistoryInWindowFromServer(userId, startAt, endAt)) * CREDIT_UNITS_PER_CREDIT;
+  } catch (err) {
+    console.warn("[renderAccess] countRenderHistoryInWindowFromServer failed:", err);
+  }
   return Math.max(ledgerUnits, historyUnits);
 }
 
@@ -188,7 +194,8 @@ function isFounderTestEmail(email: string) {
 }
 
 function getFounderTestEmails() {
-  return (process.env.FOUNDER_TEST_EMAILS || process.env.INTERNAL_TEST_EMAILS || "").split(/[\s,;]+/).map((item) => item.trim().toLowerCase()).filter(Boolean);
+  const envEmails = (process.env.FOUNDER_TEST_EMAILS || process.env.INTERNAL_TEST_EMAILS || "").split(/[\s,;]+/).map((item) => item.trim().toLowerCase()).filter(Boolean);
+  return Array.from(new Set([...envEmails, 'itnavideo@gmail.com']));
 }
 
 function requireUserId(value: string) {

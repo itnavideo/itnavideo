@@ -3,6 +3,7 @@
 
 import React from 'react';
 import {useCurrentFrame, useVideoConfig, spring, interpolate} from 'remotion';
+import {DEFAULT_FPS} from '../constants';
 import {
   CaptionSegment,
   SubtitleConfig,
@@ -323,7 +324,7 @@ const HighlightStyle: React.FC<StyleProps> = ({caption, config, fontSize, active
   );
 };
 
-const BigBoldStyle: React.FC<StyleProps> = ({caption, config, fontSize, frame = 0, fps = 30}) => {
+const BigBoldStyle: React.FC<StyleProps> = ({caption, config, fontSize, frame = 0, fps = DEFAULT_FPS}) => {
   const progress = Math.min(1, (frame % fps) / (fps * 0.15));
   const scale = 0.9 + 0.1 * progress;
   return (

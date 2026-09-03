@@ -12,6 +12,7 @@ import {
 import {SubtitleRenderer} from '../../components/SubtitleRenderer';
 import type {CaptionSegment, SubtitleConfig} from '../../types/subtitles';
 import {SUBTITLE_PRESETS} from '../../types/subtitles';
+import {DEFAULT_FPS, secondsToFrames} from '../../constants';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -80,7 +81,7 @@ function LongVideoClips({
   showBackground = true,
 }: LongVideoClipsProps) {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, durationInFrames } = useVideoConfig();
   const resolvedSrc = resolveAsset(mediaSrc);
   const videoStartFrom = Math.max(0, Math.round(mediaTrimStartSeconds * fps));
 
@@ -97,31 +98,74 @@ function LongVideoClips({
   };
 
   // Normalize captions
-  const normalizedCaptions = captions
-    .map((c) => ({
-      start: Number(c.start ?? 0) - mediaTrimStartSeconds,
-      end: Number(c.end ?? (c.start ?? 0) + 2) - mediaTrimStartSeconds,
-      text: String(c.text || ''),
-      words: Array.isArray(c.words)
-        ? c.words.map((w) => ({
-            word: String(w.word || ''),
-            start: Number(w.start ?? 0) - mediaTrimStartSeconds,
-            end: Number(w.end ?? 0) - mediaTrimStartSeconds,
-          }))
-        : undefined,
-    }))
-    .filter((c) => c.text.trim() && c.start >= 0);
+  const normalizedCaptions = React.useMemo(() => {
+    return captions
+      .map((c) => ({
+        start: Number(c.start ?? 0) - mediaTrimStartSeconds,
+        end: Number(c.end ?? (c.start ?? 0) + 2) - mediaTrimStartSeconds,
+        text: String(c.text || ''),
+        words: Array.isArray(c.words)
+          ? c.words.map((w) => ({
+              word: String(w.word || ''),
+              start: Number(w.start ?? 0) - mediaTrimStartSeconds,
+              end: Number(w.end ?? 0) - mediaTrimStartSeconds,
+            }))
+          : undefined,
+      }))
+      .filter((c) => c.text.trim() && c.start >= 0);
+  }, [captions, mediaTrimStartSeconds]);
+
+  // Assign punch-in zoom level to caption segments to create a dynamic jump-cut effect
+  const segmentsWithZoom = React.useMemo(() => {
+    let isZoomed = false;
+    return normalizedCaptions.map((cap, idx) => {
+      const text = cap.text.trim();
+      const endsSentence = /[.!?]$/.test(text);
+      if (endsSentence || idx % 2 === 0) {
+        isZoomed = !isZoomed;
+      }
+      return {
+        ...cap,
+        isZoomed,
+      };
+    });
+  }, [normalizedCaptions]);
+
+  // Calculate current scale from jump-cuts and a slow continuous camera drift
+  const currentTime = frame / fps;
+  const activeSegment = segmentsWithZoom.find(s => currentTime >= s.start && currentTime <= s.end);
+  const punchInZoom = activeSegment?.isZoomed ? 1.18 : 1.0;
+  const slowZoom = 1 + (frame / Math.max(1, durationInFrames)) * 0.04;
+  const currentScale = punchInZoom * slowZoom;
+
+  // Cinematic fade transitions
+  const transitionOpacity = interpolate(
+    frame,
+    [0, 15, durationInFrames - 15, durationInFrames],
+    [1, 0, 0, 1],
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+  );
 
   return (
     <AbsoluteFill style={{ backgroundColor: '#000', overflow: 'hidden' }}>
-      {/* Full-screen video clip */}
+      {/* Full-screen reframed video clip with pan/zoom scale */}
       {resolvedSrc && (
         <OffthreadVideo
           src={resolvedSrc}
           startFrom={videoStartFrom}
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            transform: `scale(${currentScale})`,
+          }}
           volume={sourceAudioVolume}
         />
+      )}
+
+      {/* Cinematic start/end fade-to-black overlay */}
+      {transitionOpacity > 0 && (
+        <AbsoluteFill style={{ backgroundColor: '#000', opacity: transitionOpacity, pointerEvents: 'none', zIndex: 9 }} />
       )}
 
       {/* Captions */}
@@ -156,8 +200,8 @@ export const LongVideoClipsComposition = () => (
   <Composition
     id="LONG-VIDEO-CLIPS"
     component={LongVideoClips}
-    durationInFrames={900}
-    fps={30}
+    durationInFrames={secondsToFrames(30, DEFAULT_FPS)}
+    fps={DEFAULT_FPS}
     width={1080}
     height={1920}
     defaultProps={defaultProps}
@@ -166,7 +210,7 @@ export const LongVideoClipsComposition = () => (
       const dur = Math.max(8, Math.min(60,
         Number(p.durationSeconds) || Number(p.sourceDurationSeconds) || Number(p.renderWindowSeconds) || 30
       ));
-      return { durationInFrames: Math.ceil(dur * 30), fps: 30, width: 1080, height: 1920 };
+      return { durationInFrames: secondsToFrames(dur, DEFAULT_FPS), fps: DEFAULT_FPS, width: 1080, height: 1920 };
     }}
   />
 );

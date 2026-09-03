@@ -187,7 +187,7 @@ Download video          →     Ready to post on any platform
 ### Business model
 
 - Free: one watermarked Auto Caption Video up to 60 seconds after signup
-- Paid: 20 credits valid for 31 days, ₹499 in India and $19 internationally
+- Paid subscriptions renew monthly: Creator ₹799 (30 credits), Channel ₹1,999 (90 credits), Agency ₹5,999 (250 credits).
 - Credit cost varies by video type and is shown before render
 - Long-form Captioned Video uses 1 credit per started minute; Long Video Clips use 3–12 credits
 - Failed system renders release their reserved credits
@@ -290,7 +290,7 @@ Each one = full-width card with playing video, not a thumbnail.
 
 Add a simple pricing card or summary:
 > Free: one watermarked Auto Caption Video up to 60 seconds
-> Paid: 20 credits / ₹499 in India or $19 internationally (valid 31 days)
+> Paid subscriptions renew monthly and can be cancelled anytime from the dashboard.
 > [See credit rates →]
 
 ### E. Product demo video (30 seconds)

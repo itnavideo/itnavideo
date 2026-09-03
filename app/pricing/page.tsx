@@ -1,72 +1,115 @@
 import Link from "next/link";
-import { ArrowRight, HelpCircle, Sparkles } from "lucide-react";
+import { ArrowRight, CheckCircle2, CircleHelp, CreditCard, HelpCircle, Mail, Play, ShieldCheck, Video, Sparkles } from "lucide-react";
+import Image from "next/image";
 import type { Metadata } from "next";
-import { PricingCheckoutCards } from "@/components/billing/PricingCheckoutCards";
-import { pricingPlans } from "@/lib/billing/plans";
-import { getRegionalPlanDisplayPrices } from "@/lib/billing/region";
+import PricingSection from "@/components/landing/PricingSection";
 
 export const metadata: Metadata = {
-  title: "Pricing — Simple Plans for AI Video Creation | Itnavideo",
-  description: "Start free with 1 AI video, then upgrade to Pro or Business for more videos, no watermark, and priority rendering. Enterprise plans available for teams.",
+  title: "Pricing — Monthly AI Video Plans | Itnavideo",
+  description: "Affordable monthly AI Video plans starting at ₹99 ($2)/month for 15 credits and ₹499 ($6)/month for 100 credits.",
+  alternates: { canonical: "/pricing" },
   openGraph: {
-    title: "Pricing — Simple Plans for AI Video Creation | Itnavideo",
-    description: "Free, Pro, Business, and Enterprise plans for creators, businesses, and agencies.",
+    title: "Pricing — Monthly AI Video Plans | Itnavideo",
+    description: "Simple monthly plans: Starter (₹99 / $2) and Creator Pro (₹499 / $6).",
     images: ["/og-image.png"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Pricing — Simple Plans for AI Video Creation | Itnavideo",
-    description: "Free, Pro, Business, and Enterprise plans for creators, businesses, and agencies.",
+    title: "Pricing — Monthly AI Video Plans | Itnavideo",
+    description: "Affordable monthly plans starting at ₹99 ($2)/month. Cancel or top-up anytime.",
   },
 };
 
-export default async function PricingPage() {
-  const { proPrice, businessPrice } = await getRegionalPlanDisplayPrices();
-  const displayPrices: Record<string, string> = { pro: proPrice, business: businessPrice };
-
+export default function PricingPage() {
   return (
-    <main className="bg-[#0B1120] text-white">
-      {/* Hero */}
-      <section className="px-4 pb-16 pt-28 sm:px-6 sm:pt-32">
-        <div className="mx-auto max-w-4xl text-center">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand-mint/20 bg-brand-mint/[0.06] px-4 py-2 text-xs font-bold text-brand-mint">
-            <Sparkles size={14} />
-            Simple pricing
+    <main className="bg-background text-slate-100 min-h-screen pt-12">
+      {/* Universal Modern Pricing Section (Cards, Credit Explainer, Comparison Table, Razorpay Checkout) */}
+      <PricingSection />
+
+      <section className="bg-background px-4 py-16 sm:px-6">
+        <div className="mx-auto max-w-6xl">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-blue-400">Credits, made simple</p>
+            <h2 className="mt-3 text-3xl font-black text-white sm:text-4xl">Know exactly what you&apos;re buying.</h2>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">No editing subscription and no surprise renewal—buy credits only when you need to create videos.</p>
           </div>
-          <h1 className="text-3xl font-black leading-tight sm:text-5xl md:text-6xl">
-            Plans for every stage,<br />
-            <span className="text-zinc-400">from first video to full team.</span>
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-zinc-300 sm:text-lg">
-            Start free. Upgrade when you're ready for more videos, no watermark, and priority rendering.
-          </p>
+          <div className="mt-10 grid gap-4 md:grid-cols-3">
+            {[
+              { icon: Video, title: "1 Short / Reel = 1 Credit", text: "Create a 9:16 short reel up to 60 seconds (Auto Caption, Typography, or Creator Reel)." },
+              { icon: Play, title: "1 Min Long Video = 2 Credits", text: "16:9 Faceless Long Videos use 2 credits per minute due to heavy multi-scene rendering." },
+              { icon: Sparkles, title: "Audio Clean = 1 Credit / 2 Min", text: "Podcast clipping and AI audio noise removal uses 1 credit for every 2 minutes of audio." },
+            ].map(({ icon: Icon, title, text }) => <div key={title} className="rounded-2xl border border-border bg-muted/60 p-6"><Icon className="text-blue-400" size={22} /><h3 className="mt-4 font-black text-white">{title}</h3><p className="mt-2 text-sm leading-relaxed text-muted-foreground">{text}</p></div>)}
+          </div>
+          <div className="mt-12 grid gap-4 md:grid-cols-3">
+            {[
+              { step: "01", icon: CreditCard, title: "Choose Plan", text: "Select your monthly plan (₹99 or ₹499) and complete secure Razorpay checkout." },
+              { step: "02", icon: CheckCircle2, title: "Credits arrive", text: "After payment verification, monthly credits are instantly added to your account." },
+              { step: "03", icon: Play, title: "Create & download", text: "Pick a Video Type, upload your content, and download your finished MP4." },
+            ].map(({ step, icon: Icon, title, text }) => <div key={step} className="relative rounded-2xl border border-blue-500/20 bg-blue-500/5 p-6"><span className="text-xs font-black text-blue-400">{step}</span><Icon className="mt-4 text-white" size={21}/><h3 className="mt-3 font-black text-white">{title}</h3><p className="mt-2 text-sm leading-relaxed text-muted-foreground">{text}</p></div>)}
+          </div>
         </div>
       </section>
 
-      {/* Pricing Cards */}
-      <section className="px-4 pb-16 sm:px-6">
-        <PricingCheckoutCards plans={pricingPlans} displayPrices={displayPrices} />
+      <section className="bg-white px-4 py-16 sm:px-6">
+        <div className="mx-auto max-w-6xl">
+          <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><div><p className="text-xs font-black uppercase tracking-[0.2em] text-blue-600">What you can create</p><h2 className="mt-3 text-3xl font-black text-slate-950">Use credits for real, ready-to-post videos.</h2></div><p className="max-w-md text-sm leading-relaxed text-slate-600">Your pack works across the live creator workflows—not a generic editing timeline.</p></div>
+          <div className="mt-8 grid gap-5 sm:grid-cols-3">
+            {[
+              { image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1788190064/file_000000005540821181b6095da390b68b_qumuqg.png", title: "Auto Caption Video", text: "Turn a talking video into a captioned reel." },
+              { image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1788093814/teacher-welcome_ouesss.png", title: "Compare Explainer", text: "Explain a choice with narration and two images." },
+              { image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1788190063/file_000000002d508209b398a35503a053e1_uiytox.png", title: "Long Video Promo", text: "Make a vertical teaser for your longer content." },
+            ].map((item) => <article key={item.title} className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50"><Image src={item.image} alt={`${item.title} preview`} width={720} height={960} className="h-44 w-full object-cover object-top"/><div className="p-5"><h3 className="font-black text-slate-950">{item.title}</h3><p className="mt-1 text-sm text-slate-600">{item.text}</p></div></article>)}
+          </div>
+        </div>
       </section>
 
-      {/* FAQ */}
-      <section className="px-4 pb-16 sm:px-6">
-        <div className="mx-auto max-w-3xl">
-          <h2 className="mb-8 text-center text-2xl font-black">Pricing FAQ</h2>
-          <div className="grid gap-4">
+      <section className="bg-background px-4 py-16 sm:px-6">
+        <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+          <div className="rounded-3xl border border-border bg-muted/60 p-7 sm:p-9"><div className="flex items-center gap-2 text-blue-400"><ShieldCheck size={19}/><span className="text-xs font-black uppercase tracking-[0.18em]">Clear policies</span></div><h2 className="mt-4 text-2xl font-black text-white">Pay confidently.</h2><ul className="mt-6 grid gap-4 text-sm text-muted-foreground sm:grid-cols-2">{["Flexible monthly access—cancel anytime.", "Failed system renders do not use credits.", "Credits valid for 30 days every month.", "Private uploads and completed downloads expire after about 48 hours."].map((item) => <li key={item} className="flex gap-2"><CheckCircle2 size={17} className="mt-0.5 shrink-0 text-blue-400"/>{item}</li>)}</ul></div>
+          <aside className="rounded-3xl border border-blue-500/30 bg-blue-600 p-7 text-white sm:p-9"><CircleHelp size={22}/><h2 className="mt-4 text-2xl font-black">Billing or payment issue?</h2><p className="mt-3 text-sm leading-relaxed text-blue-100">We&apos;ll help you with a failed payment, missing credits, or any billing question.</p><a href="mailto:rohi@itnavideo.com" className="mt-6 flex items-center gap-2 text-sm font-black underline underline-offset-4"><Mail size={16}/> rohi@itnavideo.com</a><a href="https://www.instagram.com/itnavideo/" target="_blank" rel="noreferrer" className="mt-3 block text-sm font-black underline underline-offset-4">DM @itnavideo on Instagram →</a></aside>
+        </div>
+      </section>
+
+      {/* Pricing FAQ Section */}
+      <section className="px-4 pb-20 sm:px-6 bg-background border-b border-border">
+        <div className="mx-auto max-w-4xl">
+          <div className="text-center space-y-2 mb-10">
+            <h2 className="text-2xl font-black text-white sm:text-4xl">Pricing FAQ</h2>
+            <p className="text-xs text-muted-foreground">Everything you need to know about credits, plans, and exports</p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
             {[
-              { q: "What do I get on the Free plan?", a: "One AI video with a watermark, so you can try Itnavideo before upgrading." },
-              { q: "What happens if my render fails?", a: "If a render fails due to a system or server issue, it does not count against your monthly video limit." },
-              { q: "Can I use any video type with Pro or Business?", a: "Yes. All available video templates are included; Business also unlocks premium templates and early access to new features." },
-              { q: "Do paid plans have a watermark?", a: "No. Pro and Business exports have no Itnavideo watermark." },
-              { q: "What if I need more than the Business plan offers?", a: "Contact sales for an Enterprise plan with custom usage, API access, and dedicated support." },
-              { q: "When does my monthly limit reset?", a: "Your plan renews on the same date each month based on your activation date." },
+              {
+                q: "Is there a Free plan available?",
+                a: "No free credits are provided by default to ensure maximum server speed and zero queue delays. You can get started instantly with our ₹99 ($2) Starter plan."
+              },
+              {
+                q: "Do plans renew automatically?",
+                a: "Plans are simple monthly packages with 30-day credit access. You have full control to renew, top-up, or upgrade anytime without surprise lock-ins."
+              },
+              {
+                q: "How do video credits work?",
+                a: "1 Credit = 1 Short Reel (up to 60s). 2 Credits = Complex AI Explainers & Whiteboard. 1 Credit / Minute = 16:9 Long-Form Videos up to 10 minutes."
+              },
+              {
+                q: "Do exports have a watermark?",
+                a: "No. Both Starter and Creator Pro exports feature crisp 1080p Full HD resolution with zero Itnavideo watermark."
+              },
+              {
+                q: "What happens if a render fails?",
+                a: "If a render fails due to a system error, your credits are immediately refunded. You only pay for successful renders."
+              },
+              {
+                q: "How long are credits valid?",
+                a: "Monthly credits are valid for 30 days from activation. You can top up or renew your plan whenever you need more."
+              },
             ].map(({ q, a }) => (
-              <div key={q} className="rounded-lg border border-white/8 bg-zinc-900/30 p-5">
+              <div key={q} className="rounded-2xl border border-border bg-muted/60 p-5 shadow-sm">
                 <div className="flex items-start gap-3">
-                  <HelpCircle size={16} className="mt-0.5 shrink-0 text-brand-mint/60" />
+                  <HelpCircle size={17} className="mt-0.5 shrink-0 text-blue-400" />
                   <div>
-                    <p className="font-black text-white">{q}</p>
-                    <p className="mt-2 text-sm leading-relaxed text-zinc-400">{a}</p>
+                    <h3 className="font-extrabold text-white text-sm">{q}</h3>
+                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{a}</p>
                   </div>
                 </div>
               </div>
@@ -75,30 +118,32 @@ export default async function PricingPage() {
         </div>
       </section>
 
-      {/* Enterprise CTA */}
-      <section className="px-4 pb-16 sm:px-6">
-        <div className="mx-auto max-w-4xl rounded-xl border border-white/10 bg-zinc-950 p-8 text-center sm:text-left sm:flex sm:items-center sm:justify-between sm:gap-6">
+      {/* Custom Enterprise CTA */}
+      <section className="px-4 py-16 sm:px-6 bg-background">
+        <div className="mx-auto max-w-4xl rounded-3xl border border-blue-500/30 bg-gradient-to-r from-blue-950/60 via-background to-slate-950 p-8 shadow-xl text-center sm:text-left sm:flex sm:items-center sm:justify-between sm:gap-6">
           <div>
-            <p className="text-sm font-bold uppercase tracking-[0.2em] text-brand-mint">Enterprise</p>
-            <h2 className="mt-2 text-2xl font-black">Need custom volume or API access?</h2>
-            <p className="mt-2 text-sm text-zinc-400">For agencies, media teams, and high-volume creators.</p>
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-blue-400">Enterprise & Custom</span>
+            <h2 className="mt-2 text-2xl font-black text-white">Need custom volume, API access, or team seats?</h2>
+            <p className="mt-1.5 text-xs text-muted-foreground">Tailored plans for media agencies, newsrooms, and high-volume production studios.</p>
           </div>
-          <Link href="mailto:rohi@itnavideo.com" className="mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-4 font-black text-black transition hover:bg-brand-mint sm:mt-0">
-            Contact us
-            <ArrowRight size={16} />
+          <Link href="mailto:rohi@itnavideo.com" className="mt-6 sm:mt-0 inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-blue-600 px-6 py-3.5 text-xs font-extrabold text-white shadow-lg shadow-blue-600/30 transition duration-200 hover:bg-blue-500">
+            Contact Sales
+            <ArrowRight size={15} />
           </Link>
         </div>
       </section>
 
-      {/* Minimal footer for pricing page */}
-      <footer className="border-t border-white/5 px-4 py-8">
-        <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-6 text-xs text-zinc-600">
-          <Link href="/terms" className="hover:text-white transition">Terms</Link>
-          <Link href="/privacy" className="hover:text-white transition">Privacy</Link>
-          <Link href="/contact" className="hover:text-white transition">Contact</Link>
+      {/* Minimal Footer */}
+      <footer className="border-t border-border px-4 py-8 bg-background">
+        <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-center gap-6 text-xs text-slate-500">
+          <Link href="/terms" className="hover:text-muted-foreground transition">Terms</Link>
+          <Link href="/privacy" className="hover:text-muted-foreground transition">Privacy</Link>
+          <Link href="/contact" className="hover:text-muted-foreground transition">Contact</Link>
           <span>© 2026 Itnavideo Inc.</span>
         </div>
       </footer>
     </main>
   );
 }
+
+

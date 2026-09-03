@@ -32,7 +32,7 @@ export default function WaitlistPage() {
   };
 
   return (
-    <main className="brand-surface flex min-h-screen items-center px-6 py-24 text-white">
+    <main className="bg-muted flex min-h-screen items-center px-6 py-24 text-white">
       <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1fr_420px] lg:items-center">
         <div>
           <div className="mb-7 inline-flex items-center gap-2 rounded-lg border border-brand-mint/20 bg-brand-mint/10 px-3 py-2 text-sm font-bold text-brand-mint">
@@ -92,3 +92,4 @@ async function submitLead(input: { kind: "waitlist"; email: string; source: stri
     throw new Error(data.details || data.error || "Submission failed.");
   }
 }
+

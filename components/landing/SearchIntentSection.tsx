@@ -55,11 +55,11 @@ const trustItems = [
 
 export default function SearchIntentSection() {
   return (
-    <section className="px-4 py-16 text-white sm:px-6 md:py-24" style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 100%, rgba(37, 99, 235, 0.07) 0%, transparent 60%), #0F172A' }}>
+    <section className="px-4 py-16 text-white sm:px-6 md:py-24" style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 100%, rgba(16, 185, 129, 0.07) 0%, transparent 60%), #065f46' }}>
       <div className="mx-auto max-w-7xl">
         <div className="mb-10 grid gap-6 lg:grid-cols-[0.78fr_1fr] lg:items-end">
           <div>
-            <div className="mb-5 inline-flex items-center gap-2 rounded-lg border border-brand-mint/20 bg-brand-mint/10 px-3 py-2 text-sm font-bold text-brand-mint">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-sm font-bold text-primary">
               <Search size={16} />
               Low-competition creator workflows
             </div>
@@ -76,9 +76,9 @@ export default function SearchIntentSection() {
           {searchIntents.map((item) => {
             const Icon = item.icon;
             return (
-              <Link key={item.query} href={item.href} className="rounded-lg border border-white/10 bg-zinc-950 p-5 transition hover:border-brand-mint/35">
+              <Link key={item.query} href={item.href} className="rounded-lg border border-white/10 bg-zinc-950 p-5 transition hover:border-emerald-400/35">
                 <div className="mb-5 flex items-start justify-between gap-4">
-                  <span className="rounded-md border border-brand-mint/20 bg-brand-mint/10 px-3 py-1.5 text-xs font-black uppercase tracking-[0.14em] text-brand-mint">
+                  <span className="rounded-md border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-xs font-black uppercase tracking-[0.14em] text-primary">
                     {item.query}
                   </span>
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-white/[0.055] text-zinc-200">
@@ -94,7 +94,7 @@ export default function SearchIntentSection() {
 
         <div className="mt-12 grid gap-5 rounded-lg border border-white/10 bg-zinc-950 p-5 md:grid-cols-[0.75fr_1.25fr] md:p-7">
           <div>
-            <p className="text-sm font-black uppercase tracking-[0.2em] text-brand-mint">Trust basics</p>
+            <p className="text-sm font-black uppercase tracking-[0.2em] text-primary">Trust basics</p>
             <h2 className="mt-3 text-3xl font-black leading-tight">Simple enough to try today.</h2>
             <Link href="/dashboard" className="mt-6 inline-flex items-center gap-2 rounded-lg px-5 py-3 text-sm font-black text-white transition hover:-translate-y-[1px] brand-btn-primary-dark">
               Start creating
@@ -104,7 +104,7 @@ export default function SearchIntentSection() {
           <div className="grid gap-3 sm:grid-cols-2">
             {trustItems.map((item, index) => (
               <div key={item} className="flex items-start gap-3 rounded-lg border border-white/10 bg-black/25 p-4">
-                <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-brand-mint/10 text-brand-mint">
+                <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-emerald-400/10 text-primary">
                   {index === 1 ? <ShieldCheck size={16} /> : <CheckCircle2 size={16} />}
                 </span>
                 <p className="text-sm font-bold leading-6 text-zinc-200">{item}</p>
@@ -116,3 +116,4 @@ export default function SearchIntentSection() {
     </section>
   );
 }
+

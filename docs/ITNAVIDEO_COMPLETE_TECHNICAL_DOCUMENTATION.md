@@ -42,7 +42,7 @@ This document is older technical reference material. Please use `docs/ITNAVIDEO_
 
 **Business Model:**
 - Credit-based with server-enforced costs per Video Type
-- Launch pack: 20 credits valid for 31 days, ₹499 in India and $19 internationally
+- Credit packs: Creator ₹799 (30 credits, valid 31 days), Channel ₹1,999 (90 credits, valid 31 days), Agency ₹5,999 (250 credits, valid 31 days). There is no automatic renewal.
 - Auto Caption/Long Video Promo/Typography: 1 credit; Compare/Whiteboard/Multi Images: 2; Long Video Clips: 3–12; Long-form: 1 per started minute
 - Payment: Razorpay with server-selected regional quote
 

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createReelPlan, REEL_TEMPLATE_REGISTRY, type ReelPlanRequest, type ReelPlanResult, type ReelTemplateName, type ReelTranscriptSegment } from '@/services/ai/reelPlanner';
+import { createReelPlan, VIDEO_TYPE_REGISTRY, type ReelPlanRequest, type ReelPlanResult, type ReelTemplateName, type ReelTranscriptSegment } from '@/services/ai/reelPlanner';
 import { checkRateLimit, getClientIp } from '@/services/rateLimit/inMemoryRateLimiter';
 
 export const runtime = 'nodejs';
@@ -91,7 +91,7 @@ function normalizeBody(body: unknown): ReelPlanRequest | null {
   const template = normalizeTemplate(body.template);
   const transcript = typeof body.transcript === 'string' ? body.transcript.trim() : '';
   const prompt = readOptionalString(body.prompt) || readOptionalString(body.topic) || readOptionalString(body.topicTitle);
-  const templateConfig = REEL_TEMPLATE_REGISTRY[template];
+  const templateConfig = VIDEO_TYPE_REGISTRY[template];
   if (!templateConfig) return null;
   const transcriptRequirement = templateConfig.transcriptRequirement;
   if (!transcript && transcriptRequirement === 'required') return null;
@@ -186,9 +186,9 @@ function readMediaType(value: unknown, template: unknown): ReelPlanRequest['medi
 function normalizeTemplate(value: unknown): ReelTemplateName {
   const normalized = (readOptionalString(value) || '').toLowerCase();
   if (normalized.includes('comparisonimages') || normalized.includes('comparison') || /\bvs\b/.test(normalized)) return 'comparisonImages';
-  if (normalized.includes('caption') || normalized.includes('subtitle')) return 'AUTO_CAPTION_REEL';
+  if (normalized.includes('caption') || normalized.includes('subtitle')) return 'AUTO_CAPTION_GENERATOR';
   if (normalized.includes('promo') || normalized.includes('long')) return 'LONG_VIDEO_PROMO';
-  return 'AUTO_CAPTION_REEL';
+  return 'AUTO_CAPTION_GENERATOR';
 }
 
 function readOptionalString(value: unknown) {

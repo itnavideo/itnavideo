@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAdmin } from '@/components/admin/AdminContext';
 import BrandLogo from '@/components/brand/BrandLogo';
 import Link from 'next/link';
-import { Loader2, ShieldCheck, User, ArrowLeft } from 'lucide-react';
+import { Loader2, ShieldCheck, KeyRound, ArrowLeft, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function AdminLoginPage() {
@@ -22,7 +22,7 @@ export default function AdminLoginPage() {
       const success = await login(username);
 
       if (success) {
-        toast.success("Identity verified. Welcome back, Founder.");
+        toast.success("Identity verified. Welcome to Itnavideo Admin Workspace.");
         router.push('/admin/dashboard');
       } else {
         toast.error("Invalid credentials. Access denied.");
@@ -35,59 +35,62 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <main className="brand-surface min-h-screen text-white flex items-center justify-center px-6 relative overflow-hidden">
-
-      <div className="w-full max-w-md relative">
-        {/* Back Link */}
-        <div className="mb-8 flex items-center justify-between gap-4">
+    <main className="bg-[#F8FAFC] min-h-screen text-slate-800 flex items-center justify-center px-4 sm:px-6 relative font-sans">
+      <div className="w-full max-w-md relative space-y-6">
+        {/* Top Header */}
+        <div className="flex items-center justify-between">
           <BrandLogo size="sm" />
-          <Link href="/" className="inline-flex items-center gap-2 text-zinc-500 hover:text-white transition-colors group">
-          <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-          <span className="text-sm font-medium">Exit Terminal</span>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
+          >
+            <ArrowLeft size={14} /> Back to Website
           </Link>
         </div>
 
         {/* Login Card */}
-        <div className="bg-zinc-900/50 backdrop-blur-xl border border-zinc-800 rounded-lg p-10 shadow-2xl">
-          <div className="mb-10 text-center">
-            <div className="w-16 h-16 bg-brand-mint/10 border border-brand-mint/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <ShieldCheck className="text-brand-mint" size={32} />
+        <div className="bg-white border border-slate-200 rounded-3xl p-8 sm:p-10 shadow-sm space-y-6">
+          <div className="text-center space-y-2">
+            <div className="w-14 h-14 bg-blue-50 border border-blue-200 rounded-2xl flex items-center justify-center mx-auto text-[#1a73e8] shadow-xs">
+              <ShieldCheck size={28} />
             </div>
-            <h1 className="text-3xl font-black tracking-tight mb-2">Admin <span className="text-brand-mint">Access</span></h1>
-            <p className="text-zinc-500 text-sm font-medium">Founder-only operations panel.</p>
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight">Admin Console</h1>
+            <p className="text-xs text-slate-500">Enter your founder security key to access the workspace.</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
-            <div className="relative group">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-brand-mint transition-colors" size={18} />
-              <input
-                type="password"
-                placeholder="Admin API key"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full bg-black/50 border border-zinc-800 rounded-lg px-12 py-4 focus:border-brand-mint focus:outline-none transition-all placeholder:text-zinc-700 font-medium"
-                required
-              />
+            <div>
+              <label className="text-[11px] font-bold text-slate-600 block mb-1 uppercase tracking-wider">
+                Founder Security Key
+              </label>
+              <div className="relative">
+                <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                <input
+                  type="password"
+                  placeholder="••••••••••••••••"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#1a73e8] focus:bg-white focus:outline-none transition font-mono"
+                  required
+                />
+              </div>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-brand-mint text-black hover:bg-white disabled:bg-zinc-800 disabled:text-zinc-500 py-4 rounded-lg font-black transition-all flex items-center justify-center gap-2 mt-4 shadow-xl shadow-blue-500/10 active:scale-[0.98]"
+              className="w-full bg-[#1a73e8] hover:bg-[#1967d2] text-white disabled:opacity-50 py-3 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-sm active:scale-[0.99]"
             >
-              {loading ? <Loader2 className="animate-spin" size={20} /> : 'AUTHENTICATE'}
+              {loading ? <Loader2 className="animate-spin" size={16} /> : 'Authenticate & Enter Console'}
             </button>
           </form>
 
-          <div className="mt-10 flex flex-col items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-[10px] uppercase tracking-[0.2em] text-zinc-600 font-bold">System Status: Secure</span>
-            </div>
+          <div className="pt-2 border-t border-slate-100 flex items-center justify-center gap-2 text-xs text-slate-400">
+            <span className="h-2 w-2 rounded-full bg-[#34a853] animate-pulse" />
+            <span className="text-[11px] font-semibold text-slate-500">Security Gate: Active & Encrypted</span>
           </div>
         </div>
       </div>
     </main>
   );
 }
-

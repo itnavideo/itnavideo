@@ -47,9 +47,11 @@ if (process.env.REEL_BACKGROUND_MUSIC_VOLUME) {
   inputProps.backgroundMusicVolume = Number(process.env.REEL_BACKGROUND_MUSIC_VOLUME);
 }
 
+import {enableTailwind} from '@remotion/tailwind';
+
 const serveUrl = await bundle({
   entryPoint,
-  webpackOverride: (config) => config,
+  webpackOverride: (config) => enableTailwind(config),
 });
 
 if (renderVariants.length) {
@@ -67,7 +69,7 @@ if (renderVariants.length) {
 } else {
   const composition = await selectComposition({
     serveUrl,
-    id: inputProps.compositionId || 'VIDEO-EXPLAINER',
+    id: process.env.COMPOSITION_ID || inputProps.compositionId || 'TYPOGRAPHY-VIDEO',
     inputProps,
   });
   await renderReel({composition, inputProps, outputLocation, serveUrl});
@@ -107,12 +109,12 @@ async function readInputProps() {
     const rawPlan = await readFile(planInputPath, 'utf8');
     const plan = JSON.parse(rawPlan.replace(/^\uFEFF/, ''));
     const renderProps = plan?.plan?.renderProps || plan?.renderProps || plan;
-    if (renderProps?.scenes?.length || renderProps?.overlayTimeline?.length) {
+    if (renderProps?.scenes?.length || renderProps?.overlayTimeline?.length || renderProps?.points?.length || renderProps?.keywords?.length) {
       process.stdout.write(`Using planner input ${path.relative(rootDir, planInputPath)}\n`);
       return {
         ...renderProps,
         brand: renderProps.brand || 'itnavideo',
-        templateName: renderProps.templateName || 'VIDEO_SIMPLE_EXPLAINER',
+        templateName: renderProps.templateName || 'WHITEBOARD_VIDEO',
       };
     }
   } catch {

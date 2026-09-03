@@ -377,6 +377,162 @@ export const seoLandingPages: SeoLandingPage[] = [
       { question: "Is this useful for Indian creators?", answer: "Yes. It is built for English and Roman Hinglish short-form creator workflows." },
       { question: "Can I choose English instead?", answer: "Yes. Users can choose English or Hinglish subtitle output." }
     ]
+  }),
+  page({
+    slug: "free-ai-video-generator",
+    title: "Free AI Video Generator Online — Create Videos with AI | Itnavideo",
+    description: "Generate high-quality AI videos for free. Turn audio, text scripts, talking clips, and images into polished Reels, Shorts, and 16:9 widescreen videos without complex editing.",
+    h1: "Free AI video generator for creators, marketers & businesses",
+    eyebrow: "Free AI Video Generator",
+    primaryKeyword: "free ai video generator",
+    audience: "content creators, YouTubers, marketers, founders, agencies, and educators",
+    useCases: [
+      "Generate viral social media reels and shorts for free",
+      "Create captions, typography, and b-roll videos from speech",
+      "Transform podcast audio into engaging video clips",
+      "Make educational whiteboard & comparison explainers"
+    ],
+    benefits: [
+      "No complex timeline or video editing experience needed",
+      "11 purpose-built video workflows for short and long-form video",
+      "Word-level sync captions in English and Roman Hinglish",
+      "Instant cloud rendering with 1080p full HD MP4 downloads"
+    ],
+    faqs: [
+      { question: "Is Itnavideo really a free AI video generator?", answer: "Yes. You can test workflows with free starter credits to create and export AI-generated videos." },
+      { question: "What types of videos can I generate for free?", answer: "You can generate auto-captioned reels, typography videos, podcast clips, faceless long videos, whiteboard explainers, and comparison videos." },
+      { question: "Do I need to install any software?", answer: "No. Itnavideo runs entirely in your web browser with ultra-fast cloud rendering." }
+    ]
+  }),
+  page({
+    slug: "ai-video-generator",
+    title: "AI Video Generator — Create Professional Videos in Minutes | Itnavideo",
+    description: "The modern AI video generator for short-form reels and long-form videos. Automated captions, kinetic typography, whiteboard explainers, and AI scene planning.",
+    h1: "AI video generator built for scalable content creation",
+    eyebrow: "AI Video Generator",
+    primaryKeyword: "ai video generator",
+    audience: "video creators, digital agencies, DTC brands, podcasters, and educators",
+    useCases: [
+      "Turn raw video clips into styled high-retention reels",
+      "Generate 16:9 widescreen landscape YouTube videos",
+      "Automate social video publishing across TikTok, Instagram, and Shorts",
+      "Produce faceless storytelling videos from audio voiceovers"
+    ],
+    benefits: [
+      "Focused production workflows with structured layouts",
+      "Precise word-level subtitle timing powered by AI transcription",
+      "Automated scene pacing, visuals, and safe zone alignment",
+      "Direct cloud rendering engine ready in 60 seconds"
+    ],
+    faqs: [
+      { question: "How does the AI video generator work?", answer: "Simply select a video type, upload your video, audio, or script, customize your caption style, and click render. AI handles the layout, motion, and export." },
+      { question: "Can I create 16:9 landscape videos for YouTube?", answer: "Yes. Itnavideo supports 16:9 Long Video Pro, Faceless Long Video, and Long Caption Pro up to 10 minutes." },
+      { question: "What formats can I export?", answer: "All videos are exported as standard high-bitrate MP4 files compatible with all video platforms." }
+    ]
+  }),
+  page({
+    slug: "best-ai-video-generator",
+    title: "Best AI Video Generator in 2026 — Features & Comparison | Itnavideo",
+    description: "Looking for the best AI video generator? Discover Itnavideo: 11 specialized workflows, word-synced subtitles, faceless long-form video, and instant cloud rendering.",
+    h1: "The best AI video generator for creators and production teams",
+    eyebrow: "Best AI Video Generator",
+    primaryKeyword: "best ai video generator",
+    audience: "professional creators, media agencies, media production teams, and growth marketers",
+    useCases: [
+      "Replace expensive video editors and tedious timeline software",
+      "Produce dozens of branded video assets weekly",
+      "Convert voiceover scripts into polished multi-scene videos",
+      "Clean audio, remove pauses, and burn viral animated subtitles"
+    ],
+    benefits: [
+      "Deterministic, high-quality layouts without AI hallucinations",
+      "Zero manual keyframing or subtitle alignment required",
+      "Transparent pay-as-you-go credit system with no lock-in contracts",
+      "Built-in audio cleaning, mistake removal, and script previews"
+    ],
+    faqs: [
+      { question: "Why is Itnavideo considered one of the best AI video generators?", answer: "Unlike generic AI tools that hallucinate random images, Itnavideo uses specialized production templates with real speech transcription, precise safe zones, and word-level typography." },
+      { question: "How fast is the rendering speed?", answer: "Most short reels render in 30 to 60 seconds, and long-form videos render in just 2 to 3 minutes on our dedicated cloud infrastructure." },
+      { question: "Can I use Itnavideo for client commercial work?", answer: "Yes. You have full commercial rights to all videos and audio files rendered with Itnavideo." }
+    ]
+  }),
+  page({
+    slug: "ai-video-maker",
+    title: "AI Video Maker Online — Make Viral Videos with AI | Itnavideo",
+    description: "Make high-retention videos with our AI video maker. Upload audio, video, or photos and let AI handle transcription, timing, dynamic overlays, and HD video export.",
+    h1: "AI video maker for YouTube Shorts, Reels & TikTok",
+    eyebrow: "AI Video Maker",
+    primaryKeyword: "ai video maker",
+    audience: "short-form creators, TikTokers, YouTubers, personal brands, and entrepreneurs",
+    useCases: [
+      "Make talking-head videos pop with kinetic text and sound sync",
+      "Convert podcast audio highlights into viral vertical reels",
+      "Build educational side-by-side comparison videos",
+      "Create high-converting video promos for courses and products"
+    ],
+    benefits: [
+      "Fast upload-to-video workflow in 3 simple steps",
+      "23+ customizable caption presets and animated text styles",
+      "Automatic silence cutting and audio enhancement",
+      "Studio quality 1080x1920 MP4 outputs ready to share"
+    ],
+    faqs: [
+      { question: "Can I make videos without showing my face?", answer: "Yes! Our Faceless Long Video, Whiteboard Video, and Compare Explainer templates allow you to create complete videos using only voiceovers or scripts." },
+      { question: "Can I customize the caption fonts and colors?", answer: "Yes. You have full control over fonts, text color, highlight color, background boxes, and positioning." },
+      { question: "Does it work on mobile phones?", answer: "Yes. The Itnavideo dashboard is fully responsive and works across mobile, tablet, and desktop browsers." }
+    ]
+  }),
+  page({
+    slug: "ai-video-creator",
+    title: "AI Video Creator — Turn Ideas & Scripts into Videos | Itnavideo",
+    description: "Create studio-quality videos effortlessly with Itnavideo AI video creator. No timeline editing required — AI automatically designs, captions, and renders your content.",
+    h1: "All-in-one AI video creator for modern creators",
+    eyebrow: "AI Video Creator",
+    primaryKeyword: "ai video creator",
+    audience: "educators, course creators, content teams, podcasters, and business owners",
+    useCases: [
+      "Transform written scripts into narrated explainer videos",
+      "Automate regular video production for YouTube and social media",
+      "Create clean educational tutorials with synchronized subtitles",
+      "Promote long videos with dynamic teaser clips"
+    ],
+    benefits: [
+      "AI-driven scene generation and layout planning",
+      "Crystal clear audio with built-in voice cleaner and silence remover",
+      "Consistent typography and visual styling across all renders",
+      "Batch workflow support for creators managing multiple channels"
+    ],
+    faqs: [
+      { question: "What files can I upload to the AI video creator?", answer: "You can upload MP4, MOV, WEBM videos, MP3, WAV, M4A audio files, and JPG, PNG images." },
+      { question: "How long are my rendered videos stored?", answer: "Rendered videos are stored safely in Your Videos for 48 hours so you can preview and download them anytime." },
+      { question: "Can I edit the script before rendering?", answer: "Yes. Preview-supported video types allow you to review the transcript and fix any words before final generation." }
+    ]
+  }),
+  page({
+    slug: "text-to-video-generator",
+    title: "Text to Video Generator — Turn Scripts into HD Videos | Itnavideo",
+    description: "Turn text prompts, articles, and voiceover scripts into engaging 9:16 and 16:9 videos with AI-selected visuals, synchronized captions, and background music.",
+    h1: "Text to video generator for faceless channels & explainers",
+    eyebrow: "Text to Video Generator",
+    primaryKeyword: "text to video generator",
+    audience: "faceless channel owners, blog authors, educators, marketers, and storytellers",
+    useCases: [
+      "Convert blog posts and articles into video summaries",
+      "Generate YouTube automation videos from scripts",
+      "Create animated whiteboard explainers from lessons",
+      "Produce dynamic typography promo videos from quotes"
+    ],
+    benefits: [
+      "Direct script-to-video planning with AI scene director",
+      "Automatic synchronization between narration and visual scenes",
+      "Supports both 9:16 vertical and 16:9 widescreen formats",
+      "High-speed cloud rendering without burning computer resources"
+    ],
+    faqs: [
+      { question: "How does text to video work on Itnavideo?", answer: "You input your script or voiceover, and the AI plans scenes, selects typography, builds animations, and renders a finished video automatically." },
+      { question: "Can I choose between vertical and widescreen video?", answer: "Yes. You can create 9:16 vertical reels for Shorts & TikTok or 16:9 widescreen videos for YouTube." },
+      { question: "Do I need a microphone to record voiceover?", answer: "You can upload your own voice recording or audio file, and the AI will transcribe, align, and sync the visuals to your words." }
+    ]
   })
 ];
 

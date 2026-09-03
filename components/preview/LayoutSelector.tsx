@@ -92,7 +92,7 @@ export function LayoutSelector({
   const [expanded, setExpanded] = useState(true);
   const showVideoLayout = videoTypeId === "DYNAMIC_CREATOR_REEL";
   const showAccentColor = videoTypeId === "DYNAMIC_CREATOR_REEL";
-  const showProgressStyle = videoTypeId !== "AUTO_CAPTION_REEL";
+  const showProgressStyle = videoTypeId !== "AUTO_CAPTION_GENERATOR";
 
   return (
     <div className="bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden">
@@ -120,7 +120,7 @@ export function LayoutSelector({
                     onClick={() => onLayoutChange({ ...layout, videoLayout: opt.value })}
                     className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all border ${
                       layout.videoLayout === opt.value
-                        ? "bg-blue-600 border-emerald-500 text-white"
+                        ? "bg-emerald-600 border-emerald-500 text-white"
                         : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-600"
                     }`}
                   >
@@ -192,7 +192,7 @@ export function LayoutSelector({
                   onClick={() => onLayoutChange({ ...layout, captionPosition: opt.value })}
                   className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all border ${
                     layout.captionPosition === opt.value
-                      ? "bg-blue-600 border-emerald-500 text-white"
+                      ? "bg-emerald-600 border-emerald-500 text-white"
                       : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-600"
                   }`}
                 >
@@ -257,7 +257,7 @@ export function LayoutSelector({
                   onClick={() => onLayoutChange({ ...layout, progressStyle: opt.value })}
                   className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all border ${
                     layout.progressStyle === opt.value
-                      ? "bg-blue-600 border-emerald-500 text-white"
+                      ? "bg-emerald-600 border-emerald-500 text-white"
                       : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-600"
                   }`}
                 >

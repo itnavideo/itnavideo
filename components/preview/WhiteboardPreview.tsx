@@ -3,8 +3,9 @@
 import { useMemo } from 'react';
 import { Player } from '@remotion/player';
 import { WhiteboardVideo } from '@/remotion/templates/WHITEBOARD_VIDEO/template';
+import { DEFAULT_FPS } from '@/remotion/constants';
 
-const PREVIEW_FPS = 30;
+const PREVIEW_FPS = DEFAULT_FPS;
 const PREVIEW_SECONDS = 12;
 
 // Board id → Vercel-served preview image (public/assets board images are not deployed to Vercel).

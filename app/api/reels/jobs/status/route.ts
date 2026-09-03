@@ -1,6 +1,7 @@
 import {NextResponse} from 'next/server';
 import {getRenderProgress, type AwsRegion} from '@remotion/lambda/client';
 import {recordRenderUsageFromServer, releaseReservedRenderUsageFromServer} from '@/services/billing/renderAccess';
+import {createReadUrl} from '@/lib/aws/mediaStorage';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -78,6 +79,15 @@ export async function GET(request: Request) {
       });
     }
 
+    let outputFile = progress.outputFile;
+    if (progress.done && progress.outKey) {
+      try {
+        outputFile = await createReadUrl(progress.outKey, 48 * 60 * 60);
+      } catch (signErr) {
+        console.warn('Could not presign outKey, falling back to progress.outputFile:', signErr);
+      }
+    }
+
     return NextResponse.json({
       ok: true,
       state: renderErrors.length || missingOutput ? 'error' : progress.done ? 'done' : 'rendering',
@@ -85,7 +95,7 @@ export async function GET(request: Request) {
       bucketName,
       done: progress.done,
       progress: progress.overallProgress || 0,
-      outputFile: progress.outputFile,
+      outputFile,
       outputSizeInBytes: progress.outputSizeInBytes,
       errors: [
         ...renderErrors.map((error) => ({

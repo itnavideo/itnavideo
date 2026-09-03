@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { PlayCircle } from 'lucide-react';
 
 const CL = 'https://res.cloudinary.com/dhouh9idx/video/upload';
 
@@ -15,15 +16,17 @@ const SHOWCASE = [
   { id: 'Most_of_what_we_call_luck_is_the_visible_outcome_of_someone_staying_in_the_game_longer_than_ot_xy8vgx', label: 'Multi Images' },
 ];
 
-/**
- * Hero-style video showcase carousel.
- * Center video autoplays (muted). Side videos show static posters.
- * User can click any card to bring it to center. Auto-rotates every 3.5s.
- * Shows the breadth of Itnavideo's output within the first fold.
- */
 export default function IntroVideoSection() {
   const [active, setActive] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     const t = setInterval(() => setActive((p) => (p + 1) % SHOWCASE.length), 3500);
@@ -39,31 +42,36 @@ export default function IntroVideoSection() {
 
   const goTo = useCallback((i: number) => setActive(i), []);
 
+  const cardWidth = isMobile ? 150 : 200;
+  const offsetDistance = isMobile ? 110 : 190;
+
   return (
-    <section className="relative overflow-hidden px-4 py-16 sm:px-6 sm:py-20" style={{ background: '#0B1120' }}>
-      <div className="mx-auto max-w-5xl">
+    <section className="relative overflow-hidden px-4 py-16 sm:px-6 sm:py-32 bg-background border-t border-border">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_-100px,rgba(37,99,235,0.03),transparent_100%)]" />
+
+      <div className="mx-auto max-w-5xl relative z-10">
         {/* Header */}
-        <div className="mb-8 text-center sm:mb-10">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-cyan-300/25 bg-cyan-400/[0.08] px-4 py-1.5 text-xs font-bold text-cyan-100">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-cyan-300" />
-            See Itnavideo in action
+        <div className="mb-10 text-center sm:mb-16 space-y-3 sm:space-y-4">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/[0.06] px-4 py-1.5 text-xs font-bold text-blue-600 dark:text-blue-200 backdrop-blur-md">
+            <PlayCircle size={13} className="text-cyan-500 dark:text-cyan-400" />
+            <span>See Itnavideo in action</span>
           </div>
-          <h2 className="text-3xl font-black leading-tight text-white sm:text-4xl md:text-5xl">
+          <h2 className="text-2xl font-black leading-tight text-foreground sm:text-4xl md:text-5xl font-sans tracking-tight px-1">
             Watch how Itnavideo turns your uploads<br className="hidden sm:block" />
-            <span className="text-cyan-300"> into ready-to-post videos.</span>
+            <span className="text-blue-500"> into ready-to-post videos.</span>
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-slate-400 sm:text-base sm:leading-7">
+          <p className="mx-auto max-w-2xl text-xs text-muted-foreground leading-relaxed px-2">
             Create reels, explainers, caption videos, and more — all from one upload.
           </p>
         </div>
 
         {/* Carousel */}
-        <div className="relative mx-auto" style={{ height: 420, maxWidth: 900 }}>
+        <div className="relative mx-auto" style={{ height: isMobile ? 310 : 420, maxWidth: 900 }}>
           {SHOWCASE.map((item, i) => {
             const isCenter = i === active;
             const offset = i - active;
             const adjusted = offset > 2 ? offset - SHOWCASE.length : offset < -2 ? offset + SHOWCASE.length : offset;
-            const translateX = adjusted * 190;
+            const translateX = adjusted * offsetDistance;
             const scale = isCenter ? 1 : 0.75;
             const opacity = Math.abs(adjusted) > 2 ? 0 : isCenter ? 1 : 0.45;
             const z = isCenter ? 10 : 5 - Math.abs(adjusted);
@@ -75,13 +83,13 @@ export default function IntroVideoSection() {
                 className="cursor-pointer"
                 style={{
                   position: 'absolute', left: '50%', top: '50%',
-                  width: 200, aspectRatio: '9/16', borderRadius: 18,
+                  width: cardWidth, aspectRatio: '9/16', borderRadius: isMobile ? 18 : 24,
                   overflow: 'hidden',
                   transform: `translate(-50%, -50%) translateX(${translateX}px) scale(${scale})`,
                   opacity, zIndex: z,
                   transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
-                  border: isCenter ? '2px solid rgba(34,211,238,0.45)' : '1px solid rgba(255,255,255,0.08)',
-                  boxShadow: isCenter ? '0 28px 64px rgba(0,0,0,0.5), 0 0 50px rgba(34,211,238,0.1)' : '0 12px 28px rgba(0,0,0,0.3)',
+                  border: isCenter ? '2px solid rgba(59,130,246,0.6)' : '1px solid var(--border)',
+                  boxShadow: isCenter ? '0 28px 64px rgba(0,0,0,0.15), 0 0 50px rgba(59,130,246,0.1)' : '0 12px 28px rgba(0,0,0,0.05)',
                 }}
               >
                 {isCenter ? (
@@ -110,21 +118,21 @@ export default function IntroVideoSection() {
 
         {/* Label + dots */}
         <div className="mt-8 text-center">
-          <span className="text-xs font-bold uppercase tracking-widest text-brand-cyan">
+          <span className="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">
             {SHOWCASE[active].label}
           </span>
-          <div className="mt-3 flex items-center justify-center gap-2">
+          <div className="mt-4 flex items-center justify-center gap-2">
             {SHOWCASE.map((_, i) => (
               <button
                 key={i}
                 onClick={() => goTo(i)}
-                className="transition-all"
+                className="transition-all duration-300"
                 style={{
-                  width: i === active ? 22 : 7,
-                  height: 7,
+                  width: i === active ? 22 : 6,
+                  height: 6,
                   borderRadius: 99,
                   border: 'none',
-                  background: i === active ? '#22D3EE' : 'rgba(255,255,255,0.15)',
+                  background: i === active ? '#2563EB' : 'var(--border)',
                   cursor: 'pointer',
                   padding: 0,
                 }}

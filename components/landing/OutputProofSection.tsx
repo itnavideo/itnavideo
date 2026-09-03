@@ -7,8 +7,8 @@ const outputs = [
     title: 'Video Explainer',
     label: 'Video upload',
     image: '/visuals/previews/Video Simple Explainer Homepage Hero.png',
-    accent: 'text-cyan-200',
-    border: 'border-cyan-300/25',
+    accent: 'text-emerald-300',
+    border: 'border-emerald-400/25',
     surface: 'bg-[linear-gradient(180deg,rgba(8,47,73,0.35),rgba(9,9,11,1))]',
     icon: Film,
     status: 'Available now',
@@ -42,11 +42,11 @@ const contract = [
 
 export default function OutputProofSection() {
   return (
-    <section id="video-type-proof" className="relative overflow-hidden bg-[#0B1120] px-4 py-16 sm:px-6 md:py-24">
+    <section id="video-type-proof" className="relative overflow-hidden bg-[#052e16] px-4 py-16 sm:px-6 md:py-24">
       <div className="mx-auto max-w-7xl">
         {/* Section header */}
         <div className="mb-12 max-w-3xl">
-          <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-brand-mint">Available video types</p>
+          <p className="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-primary">Available video types</p>
           <h2 className="text-3xl font-black leading-tight text-white sm:text-4xl md:text-5xl">
             Two video types. Real outputs.
           </h2>
@@ -75,7 +75,7 @@ export default function OutputProofSection() {
                     <div className="absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-lg bg-black/60 backdrop-blur-md">
                       <Icon size={18} className={output.accent} />
                     </div>
-                    <div className={`absolute right-4 top-4 rounded-md border border-white/12 bg-black/60 px-2.5 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-brand-mint backdrop-blur-md`}>
+                    <div className={`absolute right-4 top-4 rounded-md border border-white/12 bg-black/60 px-2.5 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-primary backdrop-blur-md`}>
                       {output.status}
                     </div>
                   </div>
@@ -89,7 +89,7 @@ export default function OutputProofSection() {
                       <div className="mt-5 grid gap-2">
                         {output.items.map((item) => (
                           <div key={item} className="flex items-center gap-3 rounded-lg border border-white/8 bg-white/[0.03] px-3 py-2.5 text-sm font-bold text-zinc-200">
-                            <CheckCircle2 size={14} className="shrink-0 text-brand-mint" />
+                            <CheckCircle2 size={14} className="shrink-0 text-primary" />
                             {item}
                           </div>
                         ))}
@@ -97,7 +97,7 @@ export default function OutputProofSection() {
                     </div>
                     <Link
                       href={output.href}
-                      className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3.5 text-sm font-black text-black transition hover:bg-brand-mint"
+                      className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3.5 text-sm font-black text-black transition hover:bg-emerald-400"
                     >
                       Use {output.title}
                       <ArrowRight size={15} />
@@ -115,7 +115,7 @@ export default function OutputProofSection() {
             const Icon = item.icon;
             return (
               <article key={item.title} className="rounded-xl border border-white/8 bg-white/[0.025] p-5">
-                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-white/[0.06] text-brand-mint">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-white/[0.06] text-primary">
                   <Icon size={18} />
                 </div>
                 <h3 className="text-base font-black text-white">{item.title}</h3>
@@ -128,3 +128,4 @@ export default function OutputProofSection() {
     </section>
   );
 }
+

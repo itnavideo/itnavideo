@@ -38,6 +38,8 @@ const bucketName = configuredBucketName?.startsWith('remotionlambda-')
   ? configuredBucketName
   : (await getOrCreateBucket({region, enableFolderExpiry: true, logLevel: 'info'})).bucketName;
 
+import {enableTailwind} from '@remotion/tailwind';
+
 process.stdout.write(`Deploying Remotion site "${siteName}" to ${bucketName}...\n`);
 const deployedSite = await deploySite({
   entryPoint,
@@ -48,7 +50,7 @@ const deployedSite = await deploySite({
   options: {
     rootDir,
     publicDir,
-    webpackOverride: (config) => config,
+    webpackOverride: (config) => enableTailwind(config),
   },
 });
 

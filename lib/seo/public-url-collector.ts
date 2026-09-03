@@ -1,4 +1,26 @@
-import { blogPosts } from "@/lib/blogPosts";
+import { getAllPublishedBlogPostsAsync } from "@/lib/blogPosts";
+import { createClient } from "@supabase/supabase-js";
+
+async function getPublishedCmsPageRoutes(): Promise<PublicSitemapUrl[]> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) return [];
+  const supabase = createClient(url, key);
+  const { data } = await supabase
+    .from("pages")
+    .select("slug, updated_at, published_at")
+    .eq("status", "published")
+    .lte("published_at", new Date().toISOString());
+
+  if (!data) return [];
+  return data.map((pg) => ({
+    path: `/p/${pg.slug}`,
+    lastModified: new Date(pg.published_at || pg.updated_at),
+    changeFrequency: "monthly",
+    priority: 0.7,
+  }));
+}
+
 import { seoLandingSlugs } from "@/lib/seo-pages";
 import { seoContentPages } from "@/lib/seoContent";
 
@@ -73,7 +95,7 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
       priority: 0.9,
     },
     {
-      path: "/long-form-captioned-video",
+      path: "/long-caption-pro",
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.92,
@@ -182,12 +204,16 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
     },
   ];
 
-  const blogRoutes: PublicSitemapUrl[] = blogPosts.map((post) => ({
+  const publishedPosts = await getAllPublishedBlogPostsAsync();
+  const blogRoutes: PublicSitemapUrl[] = publishedPosts.map((post) => ({
     path: `/blog/${post.slug}`,
     lastModified: new Date(post.date),
     changeFrequency: "monthly",
     priority: 0.72,
   }));
+
+  const cmsPageRoutes = await getPublishedCmsPageRoutes();
+
 
   const seoRoutes: PublicSitemapUrl[] = seoLandingSlugs.map((slug) => ({
     path: `/${slug}`,
@@ -226,7 +252,8 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
     }));
   */
 
-  const allRoutes = [...staticRoutes, ...blogRoutes, ...seoRoutes, ...structuredSeoRoutes];
+  const allRoutes = [...staticRoutes, ...blogRoutes, ...cmsPageRoutes, ...seoRoutes, ...structuredSeoRoutes];
+
 
   const unique = new Map<string, PublicSitemapUrl>();
 

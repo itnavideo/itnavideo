@@ -60,8 +60,19 @@ Making comparison videos requires editing software, finding layouts, adding anim
 | Theme | Selection | Visual theme: `light` (default), `dark`, `bold`. Controls background, caption glass, and handle color. |
 | Comparison tone | Selection | `versus` (neutral blue vs purple, default) or `goodBad` (green = recommended, red = avoid). Drives both sides' accent colors. |
 | Winner | Selection | `none` (default), `left`, or `right`. Adds a 👑 crown on the winning title pill and a winner announcement on the closing card. |
+| Image Frame Style | Selection | `rounded` (default), `circle`, `phone`, `tilted`, `polaroid`. Controls how the comparison images are displayed. |
 | Sticker Character | Selection | Choose from 16 character sets, grouped into Teachers / 3D Characters / Professionals / Faith |
 | Subtitle Language | Not shown | No language dropdown. Captions follow the uploaded voiceover language as produced by the supported Groq transcription pipeline |
+
+### Image Frame Styles
+
+| Style | Description |
+|-------|-------------|
+| `rounded` | Thick rounded corners (24px radius), colored border, soft shadow. Default. |
+| `circle` | Images cropped into circles (380×380). No corner badge. |
+| `phone` | Phone mockup frame — thick dark bezel, top notch, deep shadow. |
+| `tilted` | 3D perspective tilt (left tilts right, right tilts left). Depth effect. |
+| `polaroid` | White polaroid frame with label at bottom ("Option A" / "Option B"). |
 
 ## Inputs NOT Collected
 
@@ -315,3 +326,9 @@ The Video Type adds value through:
 5. **Variety** — 16 characters × 6 poses = unique combinations
 
 NOT through flashy effects, stock imagery, or AI-generated visuals.
+
+## Dedicated Page Social Proof
+
+- The dedicated `/compare-explainer` page includes a Creator Proof gallery using the 21 Instagram screenshots in the Cloudinary asset folder `compare explainer insta screenshots`.
+- The images are delivered directly from Cloudinary with responsive `f_auto`, `q_auto`, and cropped thumbnail transformations; they are not copied into Vercel/static render assets.
+- This page presents the creator-shared 100K+ follower-growth and millions-of-views proof as social proof for comparison content, followed by all 16 dashboard-available sticker presenter previews.

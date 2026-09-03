@@ -55,12 +55,12 @@ export function TimelineEditor({
             {scenes.map((scene, i) => (
               <button
                 key={i}
-                onClick={() => onSeek(scene.start)}
-                title={`${scene.type}: ${formatTime(scene.start)} – ${formatTime(scene.end)}`}
+                onClick={() => onSeek(scene.start ?? 0)}
+                title={`${scene.type}: ${formatTime(scene.start ?? 0)} – ${formatTime(scene.end ?? 0)}`}
                 className="absolute top-0 h-full opacity-80 hover:opacity-100 transition-opacity border-r border-zinc-900"
                 style={{
-                  left: pct(scene.start),
-                  width: `calc(${pct(scene.end)} - ${pct(scene.start)})`,
+                  left: pct(scene.start ?? 0),
+                  width: `calc(${pct(scene.end ?? 0)} - ${pct(scene.start ?? 0)})`,
                   background: SCENE_COLORS[scene.type] || "#6b7280",
                 }}
               />
@@ -108,7 +108,7 @@ export function TimelineEditor({
         aria-valuemax={durationSeconds}
         aria-valuenow={currentTime}
         tabIndex={0}
-        className="relative h-2 rounded-full bg-zinc-700 cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="relative h-2 rounded-full bg-zinc-700 cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-emerald-500"
         onClick={handleClick}
         onKeyDown={handleKeyDown}
       >

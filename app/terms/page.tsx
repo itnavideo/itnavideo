@@ -3,7 +3,7 @@ import { ArrowRight, FileText } from 'lucide-react';
 
 export default function TermsPage() {
   return (
-    <main className="min-h-screen bg-[#0B1120] px-6 pb-24 pt-32 text-white">
+    <main className="min-h-screen bg-background px-6 pb-24 pt-32 text-foreground">
       <section className="mx-auto max-w-4xl">
         <div className="mb-7 inline-flex items-center gap-2 rounded-lg border border-brand-mint/20 bg-brand-mint/10 px-3 py-2 text-sm font-bold text-brand-mint">
           <FileText size={16} />

@@ -103,20 +103,32 @@ export async function countRenderHistoryInWindowFromServer(userId, startAt, endA
   const cleanUserId = String(userId || '').trim();
   if (!cleanUserId) throw new Error('User id is required.');
 
+  // If userId is an email or non-UUID string, return 0 (history is tracked in ledger)
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanUserId);
+  if (!isUuid) return 0;
+
   const start = parseDate(startAt);
   const end = parseDate(endAt);
   if (!start || !end) return 0;
 
-  const supabase = getSupabaseServerClient();
-  const { count, error } = await supabase
-    .from('render_history')
-    .select('id', { count: 'exact', head: true })
-    .eq('user_id', cleanUserId)
-    .gte('created_at', start.toISOString())
-    .lte('created_at', end.toISOString());
+  try {
+    const supabase = getSupabaseServerClient();
+    const { count, error } = await supabase
+      .from('render_history')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', cleanUserId)
+      .gte('created_at', start.toISOString())
+      .lte('created_at', end.toISOString());
 
-  if (error) throw new Error(`Supabase render history count failed: ${error.message}`);
-  return count || 0;
+    if (error) {
+      console.warn('[siteStore] Supabase render history count warning:', error.message);
+      return 0;
+    }
+    return count || 0;
+  } catch (err) {
+    console.warn('[siteStore] countRenderHistoryInWindowFromServer failed:', err?.message || err);
+    return 0;
+  }
 }
 
 export async function upsertRenderHistoryFromServer(data) {

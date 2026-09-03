@@ -124,7 +124,7 @@ function PhoneMockup({ children, accentColor = '#22C55E' }: { children: React.Re
         aspectRatio: '9/16',
         borderRadius: 20,
         overflow: 'hidden',
-        background: '#0a0a0a',
+        background: '#031a09',
         border: `1.5px solid ${accentColor}44`,
         boxShadow: `0 24px 60px rgba(0,0,0,0.5), 0 0 40px ${accentColor}18`,
         position: 'relative',
@@ -292,7 +292,7 @@ function AfterPhone() {
 
 export default function CaptionBeforeAfter() {
   return (
-    <section className="relative overflow-hidden border-t border-white/8 px-5 py-20 sm:px-8 md:py-28" style={{ background: '#080C14' }}>
+    <section className="relative overflow-hidden border-t border-white/8 px-5 py-20 sm:px-8 md:py-28" style={{ background: '#042f2e' }}>
       {/* Ambient glow */}
       <div className="pointer-events-none absolute inset-0" style={{
         background: 'radial-gradient(ellipse 800px 400px at 50% 0%, rgba(34,197,94,0.08) 0%, transparent 60%)',
@@ -308,7 +308,7 @@ export default function CaptionBeforeAfter() {
           <h2 className="text-3xl font-black leading-tight text-white sm:text-4xl md:text-5xl">
             Same video. Completely different result.
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-slate-400">
+          <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-muted-foreground">
             80% of viewers watch reels on mute. Without captions they scroll past. With Itnavideo auto captions, every word is readable.
           </p>
         </div>
@@ -392,7 +392,7 @@ export default function CaptionBeforeAfter() {
                   </div>
                 </div>
                 {/* Label */}
-                <span className="text-center text-[11px] font-bold text-slate-300">{demo.label}</span>
+                <span className="text-center text-[11px] font-bold text-muted-foreground">{demo.label}</span>
                 <div className="h-1.5 w-6 rounded-full" style={{ background: demo.accent }} />
               </div>
             ))}
@@ -416,3 +416,4 @@ export default function CaptionBeforeAfter() {
     </section>
   );
 }
+

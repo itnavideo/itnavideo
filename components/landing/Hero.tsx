@@ -1,139 +1,264 @@
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, BrainCircuit, Check, Play, Sparkles, Star, Users, Zap } from 'lucide-react';
+import { 
+  ArrowRight, 
+  Play, 
+  Pause, 
+  Sparkles, 
+  Check, 
+  Upload, 
+  Captions, 
+  Layers3, 
+  FileText, 
+  PenTool, 
+  Film, 
+  Download, 
+  CheckCircle2, 
+  Zap,
+  ShieldCheck,
+  Star
+} from 'lucide-react';
 import Link from 'next/link';
 
+const HERO_MOCK_TYPES = [
+  { id: 'auto-caption-reel', label: 'Auto Caption', icon: Captions, sample: 'https://res.cloudinary.com/dhouh9idx/video/upload/q_auto,f_auto/v1783942630/Ask_yourself_this_question.Are_you_regretting_your_mistakes..._or_learning_from_them_%EF%B8%8F_d9ekcx.mp4' },
+  { id: 'compare-explainer', label: 'Compare Explainer', icon: Layers3, sample: 'https://res.cloudinary.com/dhouh9idx/video/upload/q_auto,f_auto/v1783942288/What_s_the_difference._IIT_vs_ITI_JEE_vs_NEET__Kya_aapko_bhi_in_terms_ke_beech_ka_asli_farq_pa_bflieg.mp4' },
+  { id: 'whiteboard-video', label: 'Whiteboard', icon: PenTool, sample: '/videos/demo-captions/demo-2.mp4' },
+  { id: 'typography-video', label: 'Typography', icon: FileText, sample: 'https://res.cloudinary.com/dhouh9idx/video/upload/q_auto,f_auto/v1783942704/Walking_into_new_territory_is_all_about_asking_the_right_questions_And_of_course_collaborating_dxwggb.mp4' },
+  { id: 'long-video-promo', label: 'Long Promo', icon: Film, sample: '/videos/demo-captions/demo-5.mp4' },
+];
+
 export default function Hero() {
+  const [selectedType, setSelectedType] = useState(HERO_MOCK_TYPES[0]);
+  const [isPlaying, setIsPlaying] = useState(true);
+
   return (
-    <section className="relative overflow-hidden bg-[#0B1120] px-4 pb-16 pt-24 text-white sm:px-6 sm:pt-28 md:pb-20 md:pt-32">
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:76px_76px] [mask-image:linear-gradient(to_bottom,black,transparent_88%)]" />
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(37,99,235,0.16),rgba(6,182,212,0.05)_38%,rgba(15,23,42,0)_72%)]" />
+    <section className="relative overflow-hidden bg-slate-50 px-4 pb-16 pt-24 text-slate-900 sm:px-6 sm:pb-24 sm:pt-32 border-b border-slate-200">
+      {/* Background Subtle Grid & Light Gradient */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_100%_80%_at_50%_-10%,rgba(59,130,246,0.08),transparent_100%)]" />
+      <div className="pointer-events-none absolute -top-40 right-0 h-96 w-96 rounded-full bg-blue-400/10 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-40 left-0 h-96 w-96 rounded-full bg-cyan-400/10 blur-3xl" />
 
       <div className="relative z-10 mx-auto max-w-7xl">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8 flex flex-wrap items-center justify-center gap-4 text-[11px] font-bold uppercase tracking-widest text-slate-400 sm:gap-6"
-        >
-          <span className="flex items-center gap-1.5"><Users size={12} className="text-brand-mint" />Built for creators</span>
-          <span className="hidden h-3 w-px bg-white/10 sm:block" />
-          <span className="flex items-center gap-1.5"><Zap size={12} className="text-violet-300" />Preview before render</span>
-          <span className="hidden h-3 w-px bg-white/10 sm:block" />
-          <span className="flex items-center gap-1.5"><Star size={12} className="text-sky-300" />Focused video types</span>
-        </motion.div>
-
-        <div className="mx-auto max-w-4xl text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.04 }}
-            className="mb-6 inline-flex items-center gap-2 rounded-full border border-cyan-300/25 bg-cyan-500/[0.08] px-5 py-2.5 text-xs font-bold text-cyan-100 shadow-[0_14px_38px_rgba(6,182,212,0.1)]"
-          >
-            <Sparkles size={13} />
-            Focused video types with clear credit costs before render.
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.08 }}
-            className="text-[2.3rem] font-black leading-[1.03] tracking-normal text-white sm:text-5xl md:text-[5.25rem]"
-          >
-            No editing skills?
-            <span className="block bg-[linear-gradient(135deg,#BAE6FD_0%,#22D3EE_48%,#A78BFA_100%)] bg-clip-text text-transparent" style={{ textShadow: '0 0 80px rgba(34,211,238,0.26)' }}>
-              NO problem.
-            </span>
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.14 }}
-            className="mx-auto mt-6 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg"
-          >
-            Turn your audio or video into a professional reel or long video automatically. Just upload and let AI do the work.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.19 }}
-            className="mx-auto mt-5 grid max-w-2xl grid-cols-1 gap-2 text-left sm:grid-cols-2"
-          >
-            {[
-              'AI captions from your video or audio',
-              'AI reel planning for explainers',
-              'Preview before final render',
-              '9:16 reels and 16:9 long-form captions',
-            ].map((item) => (
-              <span key={item} className="flex min-w-0 items-center gap-2 rounded-lg border border-white/10 bg-white/[0.035] px-3 py-2 text-xs font-bold text-slate-300">
-                <BrainCircuit size={13} className="shrink-0 text-violet-300" />
-                <span className="min-w-0">{item}</span>
-              </span>
-            ))}
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:justify-center"
-          >
-            <Link
-              href="/dashboard"
-              className="group inline-flex items-center gap-2.5 rounded-xl bg-white px-9 py-4 text-base font-black text-slate-950 shadow-[0_8px_24px_rgba(255,255,255,0.12)] transition hover:-translate-y-[1px] hover:bg-zinc-100 active:translate-y-0"
+        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-8">
+          
+          {/* LEFT: Hero Copy */}
+          <div className="text-center lg:col-span-6 lg:text-left">
+            {/* Top Google Analytics Accent Badge */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-5 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-1.5 text-xs font-bold text-blue-700 shadow-xs"
             >
-              <Play size={18} className="transition group-hover:scale-110" />
-              Create Free AI Video
-              <ArrowRight size={16} />
-            </Link>
-          </motion.div>
+              <Sparkles size={13} className="text-blue-600 animate-pulse" />
+              <span>Free AI Video Generator &amp; Platform • Free On Signup</span>
+            </motion.div>
 
-          {/* Trust strip — bold, unmissable */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.24 }}
-            className="mx-auto mt-5 inline-flex items-center gap-2 rounded-xl border border-emerald-400/30 bg-emerald-500/[0.1] px-6 py-3 text-sm font-black text-emerald-300"
-          >
-            <Check size={16} className="text-emerald-400" />
-            Clear credit cost before every final render
-          </motion.div>
+            {/* Main Headline */}
+            <motion.h1
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 }}
+              className="text-4xl font-black leading-[1.1] tracking-tight sm:text-5xl md:text-6xl text-slate-900 font-sans"
+            >
+              Free AI Video Generator &amp;{' '}
+              <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 bg-clip-text text-transparent font-black">
+                AI Video Maker
+              </span>
+            </motion.h1>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.28 }}
-            className="mx-auto mt-5 flex flex-wrap items-center justify-center gap-5 text-xs text-slate-400"
-          >
-            {['No editing skills needed', 'English & Roman Hinglish captions', 'Paid exports: no watermark', '9:16 reels + 16:9 long videos'].map((t) => (
-              <span key={t} className="flex items-center gap-1.5"><Check size={12} className="text-brand-mint/80" />{t}</span>
-            ))}
-          </motion.div>
+            {/* Subtitle */}
+            <motion.p
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="mt-5 text-sm sm:text-base leading-relaxed text-slate-600 max-w-xl mx-auto lg:mx-0 font-medium"
+            >
+              The all-in-one AI video creator. Turn text scripts, voiceovers, raw clips, and photos into viral Reels, Shorts, and 16:9 YouTube videos automatically.
+            </motion.p>
 
-          {/* Founder trust — prominent card with avatar */}
+            {/* Touch-Optimized CTAs */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              className="mt-7 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5"
+            >
+              <Link
+                href="/dashboard"
+                className="group relative inline-flex items-center justify-center gap-2.5 rounded-2xl bg-blue-600 hover:bg-blue-700 px-8 py-4 text-base font-black text-white shadow-lg shadow-blue-600/20 transition-all duration-300 hover:scale-[1.02] active:scale-95 w-full sm:w-auto"
+              >
+                <span>Create Your Video Free</span>
+                <ArrowRight size={18} className="transition group-hover:translate-x-1" />
+              </Link>
+
+              <a
+                href="#workflow"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-6 py-4 text-sm font-bold text-slate-800 shadow-xs transition duration-200 hover:bg-slate-100 active:scale-95 w-full sm:w-auto"
+              >
+                <Play size={15} fill="currentColor" className="text-blue-600" />
+                <span>See How It Works</span>
+              </a>
+            </motion.div>
+
+            {/* Trust Badges */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="mt-8 flex flex-wrap items-center justify-center lg:justify-start gap-3 text-xs font-semibold text-slate-600"
+            >
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 shadow-2xs">
+                <Star size={13} className="text-amber-500 fill-amber-400" />
+                <span>1,000+ Creators</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 shadow-2xs">
+                <Zap size={13} className="text-blue-600" />
+                <span>Groq Whisper Subtitles</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 shadow-2xs">
+                <ShieldCheck size={13} className="text-emerald-600" />
+                <span>No Credit Card Needed</span>
+              </span>
+            </motion.div>
+          </div>
+
+          {/* RIGHT: Modern Mobile-First Studio Window Mockup */}
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.34 }}
-            className="mx-auto mt-10 max-w-xl rounded-2xl border border-cyan-400/20 bg-gradient-to-br from-cyan-500/[0.08] via-white/[0.03] to-transparent px-6 py-5 text-center shadow-[0_16px_48px_rgba(6,182,212,0.08)]"
+            initial={{ opacity: 0, scale: 0.98, y: 16 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.3 }}
+            className="lg:col-span-6 relative"
           >
-            <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full border border-cyan-300/30 bg-cyan-400/[0.12] text-lg">
-              👨‍💻
+            {/* Background Ambient Glow */}
+            <div className="absolute -inset-4 rounded-3xl bg-gradient-to-tr from-blue-600/30 via-cyan-400/20 to-indigo-600/30 blur-2xl opacity-70" />
+            
+            <div className="relative mx-auto max-w-lg rounded-3xl border border-white/15 bg-slate-900/90 backdrop-blur-2xl p-3.5 sm:p-5 shadow-2xl shadow-cyan-500/10 ring-1 ring-white/10">
+              
+              {/* Studio Window Header */}
+              <div className="flex items-center justify-between pb-3 border-b border-white/10 bg-slate-950/60 px-3.5 py-2.5 rounded-2xl mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-1.5">
+                    <div className="h-3 w-3 rounded-full bg-red-500/80" />
+                    <div className="h-3 w-3 rounded-full bg-amber-500/80" />
+                    <div className="h-3 w-3 rounded-full bg-emerald-500/80" />
+                  </div>
+                  <span className="ml-1 text-[11px] font-bold text-slate-300 font-mono tracking-wide">
+                    ITNAVIDEO STUDIO
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-bold text-emerald-400 border border-emerald-500/20">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Engine Ready</span>
+                </div>
+              </div>
+
+              {/* Video Type Selector Bar */}
+              <div className="mt-2 flex items-center gap-1.5 overflow-x-auto pb-2 no-scrollbar">
+                {HERO_MOCK_TYPES.map((t) => {
+                  const Icon = t.icon;
+                  const isSelected = selectedType.id === t.id;
+                  return (
+                    <button
+                      key={t.id}
+                      onClick={() => setSelectedType(t)}
+                      className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[11px] font-bold transition whitespace-nowrap ${
+                        isSelected
+                          ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-md shadow-blue-500/30'
+                          : 'bg-white/5 text-slate-300 border border-white/10 hover:bg-white/10 hover:text-white'
+                      }`}
+                    >
+                      <Icon size={12} className={isSelected ? 'text-white' : 'text-cyan-400'} />
+                      <span>{t.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Workspace Preview */}
+              <div className="mt-2 grid grid-cols-1 sm:grid-cols-12 gap-3 bg-slate-950/80 rounded-2xl p-3 border border-white/10 text-white">
+                
+                {/* Left Upload & Pipeline Stats (Hidden on mobile, visible on desktop) */}
+                <div className="hidden sm:flex sm:col-span-5 flex-col justify-between space-y-3">
+                  {/* Upload Box */}
+                  <div className="rounded-xl border border-dashed border-cyan-500/30 bg-cyan-500/5 p-3 text-center">
+                    <Upload size={16} className="mx-auto text-cyan-400 mb-1" />
+                    <p className="text-[11px] font-bold text-white">Input Content</p>
+                    <p className="text-[9px] text-slate-400">narration-audio.mp3 • 4.2 MB</p>
+                  </div>
+
+                  {/* AI Progress Steps */}
+                  <div className="space-y-1.5 bg-slate-900/90 p-2.5 rounded-xl border border-white/10">
+                    <p className="text-[9px] font-extrabold uppercase tracking-wider text-cyan-400">AI Pipeline</p>
+                    <div className="flex items-center justify-between text-[10px] text-slate-300">
+                      <span className="flex items-center gap-1"><CheckCircle2 size={11} className="text-cyan-400" /> Groq Whisper</span>
+                      <span className="font-mono text-cyan-300">100%</span>
+                    </div>
+                    <div className="flex items-center justify-between text-[10px] text-slate-300">
+                      <span className="flex items-center gap-1"><CheckCircle2 size={11} className="text-cyan-400" /> Scene Planner</span>
+                      <span className="font-mono text-cyan-300">Done</span>
+                    </div>
+                    <div className="flex items-center justify-between text-[10px] text-slate-300">
+                      <span className="flex items-center gap-1"><CheckCircle2 size={11} className="text-cyan-400" /> Captions & FX</span>
+                      <span className="font-mono text-cyan-300">Synced</span>
+                    </div>
+                  </div>
+
+                  {/* Canvas Info */}
+                  <div className="flex items-center justify-between text-[10px] text-slate-400">
+                    <span>1080x1920 (9:16)</span>
+                    <span className="rounded-md bg-blue-500/20 px-2 py-0.5 font-bold text-cyan-300 border border-blue-500/30">60 FPS</span>
+                  </div>
+                </div>
+
+                {/* Live Video Preview Canvas (Full width on mobile, 7-col on sm) */}
+                <div className="sm:col-span-7 relative flex flex-col items-center justify-center rounded-2xl bg-black overflow-hidden border border-white/15 aspect-[9/14] max-h-[380px] w-full max-w-[280px] mx-auto shadow-xl">
+                  <video
+                    key={selectedType.sample}
+                    src={selectedType.sample}
+                    poster="/preview/Auto Caption Reel.png"
+                    preload="auto"
+                    autoPlay={isPlaying}
+                    muted
+                    loop
+                    playsInline
+                    className="h-full w-full object-cover"
+                  />
+
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/60 to-transparent p-2.5 flex items-center justify-between">
+                    <button
+                      onClick={() => setIsPlaying(!isPlaying)}
+                      className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg shadow-cyan-500/30 active:scale-90 transition"
+                    >
+                      {isPlaying ? <Pause size={12} fill="currentColor" /> : <Play size={12} fill="currentColor" className="ml-0.5" />}
+                    </button>
+                    <span className="text-[9px] font-mono text-slate-300">00:14 / 00:30</span>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Action Footer */}
+              <div className="mt-3 flex items-center justify-between pt-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-semibold text-slate-400">Template:</span>
+                  <span className="text-[11px] font-bold text-cyan-300">{selectedType.label}</span>
+                </div>
+                <Link
+                  href={`/dashboard?videoType=${selectedType.id}`}
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:opacity-90 px-4 py-2 text-xs font-bold text-white shadow-md shadow-cyan-500/20 transition active:scale-95"
+                >
+                  <Download size={13} />
+                  <span>Create Now →</span>
+                </Link>
+              </div>
+
             </div>
-            <p className="text-sm leading-6 text-slate-200 italic">
-              &ldquo;I built ItnaVideo because I was spending 3+ hours a week captioning and formatting my own videos. Now the repeatable work is handled for me.&rdquo;
-            </p>
-            <p className="mt-3 text-xs font-black text-slate-400">
-              — Syed Rohi, Founder
-            </p>
-            <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">
-              Built on AWS Lambda + Remotion
-            </p>
           </motion.div>
-        </div>
 
+        </div>
       </div>
     </section>
   );

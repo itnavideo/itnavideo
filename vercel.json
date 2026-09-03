@@ -1,1 +1,11 @@
-{"functions":{"app/api/reels/jobs/route.ts":{"maxDuration":60},"app/api/reels/jobs/status/route.ts":{"maxDuration":30}},"crons":[{"path":"/api/cron/seo","schedule":"0 3 * * *"}]}
+{
+  "functions": {
+    "app/api/reels/jobs/route.ts": { "maxDuration": 60 },
+    "app/api/reels/jobs/status/route.ts": { "maxDuration": 30 }
+  },
+  "crons": [
+    { "path": "/api/cron/seo", "schedule": "0 3 * * *" },
+    { "path": "/api/cron/blog", "schedule": "0 4 * * *" },
+    { "path": "/api/cron/medium", "schedule": "0 6 * * *" }
+  ]
+}

@@ -103,7 +103,7 @@ export function CaptionEditor({ captions, currentTime, onUpdate }: Props) {
                 ref={isActive ? activeRef : undefined}
                 className={`px-4 py-2 flex items-start gap-3 group transition-colors ${
                   isActive
-                    ? "bg-blue-950/40 border-l-2 border-emerald-500"
+                    ? "bg-emerald-950/40 border-l-2 border-emerald-500"
                     : "hover:bg-zinc-800/50"
                 }`}
               >

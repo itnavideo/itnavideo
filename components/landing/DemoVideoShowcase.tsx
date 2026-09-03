@@ -14,19 +14,19 @@ const DEMOS = [
   { id: 'content-creator-after', label: 'Caption Studio', accent: '#A78BFA' },
   { id: 'professional-creator-after', label: 'Multi Images / Story', accent: '#F472B6' },
   { id: 'Slow_down_to_be_taken_seriously.When_you_rush_people_struggle_to_keep_up.And_when_others_have_t_c2zbay', label: 'Long Video Promo', accent: '#A3E635' },
-  { id: 'Most_of_what_we_call_luck_is_the_visible_outcome_of_someone_staying_in_the_game_longer_than_ot_xy8vgx', label: 'Long Video Clips', accent: '#06B6D4' },
+  { id: 'Most_of_what_we_call_luck_is_the_visible_outcome_of_someone_staying_in_the_game_longer_than_ot_xy8vgx', label: 'Long Video Clips', accent: '#10B981' },
 ];
 
 export default function DemoVideoShowcase() {
   return (
-    <section className="px-4 py-20 sm:px-6" style={{ background: '#060A14' }}>
+    <section className="px-4 py-20 sm:px-6" style={{ background: '#022c22' }}>
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-10 text-center">
           <h2 className="text-3xl font-black text-white sm:text-4xl">
             Real outputs from every template
           </h2>
-          <p className="mx-auto mt-3 max-w-lg text-sm text-slate-400">
+          <p className="mx-auto mt-3 max-w-lg text-sm text-muted-foreground">
             Tap any video to play with sound. Every video below was created with Itnavideo — no manual editing.
           </p>
         </div>
@@ -42,7 +42,7 @@ export default function DemoVideoShowcase() {
         <div className="mt-10 text-center">
           <Link
             href="/video-types"
-            className="inline-flex items-center gap-2 rounded-full border border-cyan-300/25 bg-cyan-400/[0.08] px-6 py-3 text-sm font-black text-cyan-100 transition hover:bg-cyan-400/15 hover:gap-3"
+            className="inline-flex items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-500/[0.08] px-6 py-3 text-sm font-black text-emerald-200 transition hover:bg-emerald-500/15 hover:gap-3"
           >
             See all templates &amp; demo videos <ArrowRight size={15} />
           </Link>
@@ -114,3 +114,4 @@ function DemoCard({ id, label, accent }: { id: string; label: string; accent: st
     </div>
   );
 }
+

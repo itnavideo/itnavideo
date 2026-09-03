@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getBillingEntitlementFromServer, isEntitlementActive } from "@/services/supabase/billingStore";
+import { getBillingEntitlementFromServer, getEntitlementCreditWindow, isEntitlementActive } from "@/services/supabase/billingStore";
 import { getBillingUsageForUser, getFounderTestAccessForUser } from "@/services/billing/renderAccess";
 import {
   ensureFreeSignupCreditForUser,
@@ -47,12 +47,14 @@ export async function GET(request: NextRequest) {
     const entitlement = await getBillingEntitlementFromServer(userId);
     const active = isEntitlementActive(entitlement);
     if (active && entitlement) {
-      const usage = await getBillingUsageForUser(userId, entitlement.activatedAt, entitlement.expiresAt, entitlement.monthlyVideoLimit);
+      const creditWindow = getEntitlementCreditWindow(entitlement);
+      const usage = await getBillingUsageForUser(userId, creditWindow.startAt, creditWindow.endAt, entitlement.monthlyVideoLimit);
       return NextResponse.json({
         ok: true,
         active,
-        entitlement,
+        entitlement: { ...entitlement, creditRenewalAt: creditWindow.endAt },
         usage,
+        creditWindow,
       });
     }
 

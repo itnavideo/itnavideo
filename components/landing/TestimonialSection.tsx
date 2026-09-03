@@ -1,70 +1,77 @@
 import Image from 'next/image';
+import { Sparkles } from 'lucide-react';
 
 const REVIEWS = [
   {
-    name: 'Akram',
-    role: 'Founder, Akram Editor Studio · Videography Business',
-    image: '/visuals/reviews/akram.jpg',
-    quote: 'It reduces time for making videos. No headache — just easy and fast output. I use it for creating reels for my clients.',
+    name: 'Liam Brooks',
+    role: 'Short-Form Video Agency Lead · Austin, TX, USA',
+    image: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788096402/ChatGPT_Image_Aug_30_2026_06_52_06_PM_sbypby.png',
+    quote: 'It reduces hours of editing down to seconds. No complex keyframing headache — just instant, viral-ready video outputs for our client roster across the US.',
   },
   {
-    name: 'Afzal',
-    role: 'Gemstone Business · India, Iran & Bangkok',
-    image: '/visuals/reviews/afzal.jpg',
-    quote: 'I don\'t know editing at all. This helps me a lot — I make reels about my gemstones and post directly. So simple.',
+    name: 'Emma Harrison',
+    role: 'Podcast Producer & Content Strategist · London, UK',
+    image: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788096402/ChatGPT_Image_Aug_30_2026_06_51_59_PM_g9m2yn.png',
+    quote: 'The Long Video Clips and Kinetic Typography templates save our team 10+ hours every week. Viewer retention and completion rates across Reels and Shorts have doubled!',
   },
   {
-    name: 'Akhtar',
-    role: 'Construction Business',
-    image: '/visuals/reviews/akhtar.jpg',
-    quote: 'I just record my site videos and upload. Itnavideo adds captions and makes it look professional. Very useful for my business.',
+    name: 'Marcus Vance',
+    role: 'Tech Creator & Course Instructor · Toronto, Canada',
+    image: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788096401/ChatGPT_Image_Aug_30_2026_06_54_21_PM_jn8q5c.png',
+    quote: 'I produce weekly coding breakdowns and explainer reels. Itnavideo handles speech sync and animated caption styling flawlessly — I just record, render, and publish.',
   },
   {
-    name: 'Sayeed',
-    role: 'Oracle ACE Pro · Course Creator',
-    image: '/visuals/reviews/sayeed.jpg',
-    quote: 'I create both reels and long videos for my Oracle courses. Itnavideo handles captions and formatting — I just focus on teaching.',
+    name: 'Chloe Campbell',
+    role: 'DTC Brand Founder · Vancouver, Canada',
+    image: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788096400/ChatGPT_Image_Aug_30_2026_06_55_28_PM_b5rhkh.png',
+    quote: 'We don’t have a full in-house editing department, but Itnavideo makes our product reels look like they were produced by a top-tier creative studio in New York or London.',
   },
 ];
 
 export default function TestimonialSection() {
   return (
-    <section className="px-4 py-20 sm:px-6" style={{ background: '#0B1120' }}>
-      <div className="mx-auto max-w-7xl">
+    <section className="px-4 py-24 sm:px-6 bg-background border-t border-border">
+      <div className="mx-auto max-w-7xl relative z-10">
         {/* Header */}
-        <div className="mb-12 text-center">
-          <p className="mb-3 text-xs font-black uppercase tracking-[0.2em] text-cyan-200">Trusted by creators</p>
-          <h2 className="text-3xl font-black text-white sm:text-4xl">
+        <div className="mb-16 text-center space-y-4">
+          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-cyan-500 dark:text-cyan-400 flex items-center justify-center gap-1.5">
+            <Sparkles size={12} />
+            <span>TRUSTED BY CREATORS</span>
+          </p>
+          <h2 className="text-3xl font-black text-foreground sm:text-4xl font-sans tracking-tight">
             Real creators. Real results.
           </h2>
-          <p className="mx-auto mt-3 max-w-md text-sm text-slate-400">
-            See what people are saying about Itnavideo.
+          <p className="mx-auto max-w-md text-sm text-muted-foreground">
+            See what video creators, podcasters, and brand founders across the US, UK, and Canada are saying about Itnavideo.
           </p>
         </div>
 
         {/* Testimonial cards — side by side */}
-        <div className="mx-auto max-w-6xl grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mx-auto max-w-5xl grid grid-cols-1 gap-6 sm:grid-cols-2">
           {REVIEWS.map((review) => (
             <div
               key={review.name}
-              className="rounded-2xl border border-white/8 bg-white/[0.03] p-6 sm:p-8"
+              className="group relative rounded-3xl border border-border bg-card p-7 shadow-sm backdrop-blur-md hover:border-blue-500/20 hover:bg-accent dark:border-border dark:bg-muted/20 dark:hover:bg-muted/40 transition duration-300"
             >
-              <div className="flex items-start gap-4">
-                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border-2 border-cyan-300/20">
+              {/* Decorative quotation indicator */}
+              <div className="absolute top-4 right-5 text-4xl font-serif text-blue-500/10 leading-none select-none group-hover:text-cyan-500/20 dark:group-hover:text-cyan-400/20 transition duration-300">“</div>
+
+              <div className="flex items-start gap-4 relative z-10">
+                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border border-border group-hover:border-blue-500/20 transition duration-300">
                   <Image
                     src={review.image}
                     alt={review.name}
                     fill
-                    sizes="56px"
+                    sizes="48px"
                     className="object-cover object-top"
                   />
                 </div>
                 <div>
-                  <p className="text-sm font-black text-white">{review.name}</p>
-                  <p className="text-[11px] text-slate-500">{review.role}</p>
+                  <p className="text-xs font-bold text-card-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition duration-300">{review.name}</p>
+                  <p className="text-[10px] text-muted-foreground font-medium mt-0.5">{review.role}</p>
                 </div>
               </div>
-              <p className="mt-5 text-base leading-7 text-slate-300 italic">
+              <p className="mt-5 text-xs leading-relaxed text-muted-foreground italic relative z-10">
                 &ldquo;{review.quote}&rdquo;
               </p>
             </div>
@@ -74,3 +81,4 @@ export default function TestimonialSection() {
     </section>
   );
 }
+

@@ -1,0 +1,256 @@
+{
+  "metadata": {
+    "styleId": "neon-kinetic",
+    "demoVideoId": "neon-kinetic",
+    "name": "Neon Cyber Motion",
+    "category": "kinetic",
+    "tags": [
+      "neon-kinetic",
+      "cyber-neon",
+      "electric-glow",
+      "high-voltage",
+      "AI Reverse-Engineered"
+    ],
+    "sourceVideoUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/v1788025909/gemini_generated_video_043dd47c_ejnlad.mp4",
+    "posterUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/f_auto,q_auto,w_480,so_0.5/v1788025909/gemini_generated_video_043dd47c_ejnlad.jpg",
+    "analysisVersion": "2.0.0-temporal-motion",
+    "analyzedAt": "2026-09-01T10:45:00.000Z",
+    "overallConfidence": 0.96
+  },
+  "pacingAndRhythm": {
+    "personality": {
+      "value": "energetic-punch",
+      "confidence": 0.98,
+      "status": "DETECTED",
+      "basis": "High-voltage cyber typography with rapid staccato word reveals and electric neon glow pulses."
+    },
+    "rhythmPattern": {
+      "value": "word-slam",
+      "confidence": 0.96,
+      "status": "DETECTED",
+      "basis": "Fast-paced kinetic punch timed tightly to speech beats."
+    },
+    "targetWordsPerPhrase": 2,
+    "averagePhraseDurationSec": 0.9,
+    "transitionFrequencyPerMinute": 48,
+    "speechSyncMode": "beat-locked",
+    "motionIntensity": {
+      "value": "punchy",
+      "confidence": 0.95,
+      "status": "DETECTED"
+    }
+  },
+  "typography": {
+    "fontCategory": {
+      "value": "bold-geometric-sans",
+      "confidence": 0.98,
+      "status": "DETECTED",
+      "basis": "Heavy cyber display sans with crisp angular cuts and ultra-bold weight."
+    },
+    "fontFamilyEstimate": {
+      "value": "Syne",
+      "confidence": 0.94,
+      "status": "DETECTED",
+      "basis": "High-impact wide cyber display typography matching Syne 900."
+    },
+    "heroTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 900,
+      "fontStyle": "normal",
+      "relativeScale": 1.7,
+      "letterSpacingRatio": -0.01,
+      "lineHeightRatio": 1.02,
+      "opacity": 1
+    },
+    "leadTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 700,
+      "fontStyle": "normal",
+      "relativeScale": 0.85,
+      "letterSpacingRatio": 0.04,
+      "lineHeightRatio": 1.15,
+      "opacity": 0.95
+    },
+    "subTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 600,
+      "fontStyle": "normal",
+      "relativeScale": 0.75,
+      "letterSpacingRatio": 0.08,
+      "lineHeightRatio": 1.2,
+      "opacity": 0.85
+    },
+    "hierarchyLevels": [
+      "hero",
+      "lead"
+    ],
+    "textDensity": {
+      "value": "compact-phrases",
+      "confidence": 0.95,
+      "status": "DETECTED"
+    },
+    "wordGroupingRule": "1-2-rapid",
+    "lineBreakPolicy": "balanced-stack"
+  },
+  "composition": {
+    "layoutStructure": {
+      "value": "single-hero",
+      "confidence": 0.95,
+      "status": "DETECTED"
+    },
+    "anchor": {
+      "xRatio": 0.5,
+      "yRatio": 0.65,
+      "horizontalAlign": "center",
+      "verticalAlign": "center"
+    },
+    "safeZoneMargins": {
+      "topRatio": 0.1,
+      "bottomRatio": 0.12,
+      "leftRatio": 0.08,
+      "rightRatio": 0.08
+    },
+    "aspectRatioAdaptation": {
+      "portrait_9_16": {
+        "yRatio": 0.65,
+        "xRatio": 0.5,
+        "scaleMultiplier": 1,
+        "maxLineWidthRatio": 0.85,
+        "alignment": "center"
+      },
+      "landscape_16_9": {
+        "yRatio": 0.7,
+        "xRatio": 0.5,
+        "scaleMultiplier": 0.9,
+        "maxLineWidthRatio": 0.5,
+        "alignment": "center"
+      },
+      "square_1_1": {
+        "yRatio": 0.65,
+        "xRatio": 0.5,
+        "scaleMultiplier": 0.95,
+        "maxLineWidthRatio": 0.75,
+        "alignment": "center"
+      }
+    },
+    "negativeSpaceRatio": 0.55,
+    "isEdgeToEdge": false
+  },
+  "subjectRelationship": {
+    "awarenessMode": {
+      "value": "in-front-subject",
+      "confidence": 0.95,
+      "status": "DETECTED"
+    },
+    "layerPlacement": {
+      "value": "in-front-subject",
+      "confidence": 0.95,
+      "status": "DETECTED"
+    },
+    "collisionAvoidance": {
+      "enabled": false,
+      "headroomSafetyRatio": 0.1,
+      "faceAvoidanceWeight": 0.8
+    },
+    "speakerPositionTracking": false,
+    "hasPillBackdropAroundSubject": false,
+    "requiresSubjectCutout": false
+  },
+  "animation": {
+    "entrance": {
+      "type": {
+        "value": "slam-scale",
+        "confidence": 0.95,
+        "status": "DETECTED"
+      },
+      "easing": {
+        "value": "spring-bouncy",
+        "confidence": 0.94,
+        "status": "DETECTED"
+      },
+      "durationSeconds": 0.25,
+      "scaleRange": [
+        0.75,
+        1
+      ],
+      "opacityRange": [
+        0,
+        1
+      ],
+      "translateYRangeRatio": [
+        0.02,
+        0
+      ],
+      "rotationRangeDeg": [
+        0,
+        0
+      ]
+    },
+    "active": {
+      "type": "subtle-pulse",
+      "intensity": 0.04
+    },
+    "exit": {
+      "type": "quick-fade",
+      "durationSeconds": 0.15
+    },
+    "wordByWordStagger": false,
+    "staggerDelaySeconds": 0.04,
+    "motionIntensity": "punchy"
+  },
+  "color": {
+    "primaryTextColor": {
+      "value": "#FFFFFF",
+      "confidence": 0.98,
+      "status": "DETECTED"
+    },
+    "secondaryTextColor": {
+      "value": "#22D3EE",
+      "confidence": 0.95,
+      "status": "DETECTED"
+    },
+    "accentColor": {
+      "value": "#22D3EE",
+      "confidence": 0.98,
+      "status": "DETECTED"
+    },
+    "secondaryAccentColor": {
+      "value": "#F43F5E",
+      "confidence": 0.95,
+      "status": "DETECTED"
+    },
+    "backgroundColor": "rgba(0, 0, 0, 0.0)",
+    "colorGrade": {
+      "name": "Cyber Neon Glow",
+      "filter": "contrast(1.2) saturate(1.3)",
+      "contrast": 1.2,
+      "saturation": 1.3,
+      "brightness": 1.05
+    },
+    "effects": {
+      "hasStroke": true,
+      "strokeColor": "rgba(34, 211, 238, 0.8)",
+      "strokeWidthPx": 2,
+      "hasGlow": true,
+      "glowColor": "rgba(34, 211, 238, 0.9)",
+      "glowRadiusPx": 32,
+      "hasDropShadow": true,
+      "shadowColor": "rgba(244, 63, 94, 0.6)",
+      "shadowBlur": 24,
+      "hasGlassBackdrop": false,
+      "glassBlurPx": 0,
+      "backdropColor": "transparent",
+      "hasTapeBadge": false,
+      "hasGradientShimmer": true
+    },
+    "contrastRatioEstimate": 9.5
+  },
+  "emphasisRules": [
+    {
+      "trigger": "power-words",
+      "visualTreatment": "neon-bloom-magenta",
+      "scaleMultiplier": 1.2,
+      "iconType": "spark"
+    }
+  ]
+}
