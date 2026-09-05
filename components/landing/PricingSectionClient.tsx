@@ -129,8 +129,8 @@ const PLAN_CARDS = [
     cta: 'Get Starter ($9)',
     href: '/pricing',
     popular: false,
-    badgeColor: 'border-blue-200 bg-blue-50 text-blue-700',
-    accentColor: 'text-blue-600',
+    badgeColor: 'border-amber-200 bg-amber-50 text-amber-700',
+    accentColor: 'text-amber-600',
   },
   {
     id: 'growth',
@@ -149,8 +149,8 @@ const PLAN_CARDS = [
     cta: 'Get Growth ($24)',
     href: '/pricing',
     popular: true,
-    badgeColor: 'border-blue-500 bg-blue-600 text-white shadow-md',
-    accentColor: 'text-blue-600',
+    badgeColor: 'border-orange-500 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white shadow-md',
+    accentColor: 'text-amber-600',
   },
   {
     id: 'agency',
@@ -280,7 +280,7 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
           name: "Itnavideo",
           description: `${order.planName || planId} plan`,
           order_id: order.order_id,
-          theme: { color: "#2563EB" },
+          theme: { color: "#EA580C" },
           notes: { source: "itnavideo-web-checkout" },
           modal: {
             ondismiss: () => {
@@ -349,12 +349,12 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
         
         {/* Header */}
         <div className="mb-14 text-center max-w-3xl mx-auto space-y-3">
-          <p className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3.5 py-1 text-xs font-bold text-blue-700">
-            <Sparkles size={13} className="text-blue-600" />
+          <p className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50/80 px-3.5 py-1 text-xs font-bold text-amber-800">
+            <Sparkles size={13} className="text-amber-500" />
             <span>Transparent Video Creation Pricing</span>
           </p>
           <h2 className="text-3xl font-extrabold text-slate-900 sm:text-5xl font-sans tracking-tight">
-            Plans built for video production.
+            Plans built for <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">video production.</span>
           </h2>
           <p className="text-sm sm:text-base text-slate-600 font-normal max-w-2xl mx-auto">
             Pay for the amount and quality of video production you need. All paid plans include all 11 AI video workflows with 1080p export and no watermark.
@@ -368,7 +368,7 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
                 ? "border-emerald-500/30 bg-emerald-50 text-emerald-800"
                 : message.type === "error"
                   ? "border-red-500/30 bg-red-50 text-red-800"
-                  : "border-blue-500/30 bg-blue-50 text-blue-800"
+                  : "border-amber-500/30 bg-amber-50 text-amber-800"
             }`}
           >
             {message.text}
@@ -386,12 +386,12 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
               transition={{ delay: i * 0.05 }}
               className={`relative flex flex-col rounded-3xl border p-5 sm:p-6 transition-all duration-200 bg-white ${
                 plan.popular
-                  ? 'border-blue-600 shadow-xl ring-2 ring-blue-600 lg:-translate-y-2'
+                  ? 'border-orange-500 shadow-xl ring-2 ring-orange-500 lg:-translate-y-2'
                   : 'border-slate-200 shadow-xs hover:border-slate-300 hover:shadow-md'
               }`}
             >
               {plan.popular && (
-                <div className="absolute -top-3.5 left-1/2 flex -translate-x-1/2 items-center gap-1 whitespace-nowrap rounded-full bg-blue-600 px-3.5 py-0.5 text-[10px] font-black uppercase tracking-widest text-white shadow-md">
+                <div className="absolute -top-3.5 left-1/2 flex -translate-x-1/2 items-center gap-1 whitespace-nowrap rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-3.5 py-0.5 text-[10px] font-black uppercase tracking-widest text-white shadow-md">
                   <BadgeCheck size={12} />
                   <span>Most Popular</span>
                 </div>
@@ -411,7 +411,7 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
 
               {/* Video Capacity Highlight Badge */}
               <div className="my-4 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 text-center">
-                <span className="text-[11px] font-extrabold text-blue-700 block truncate">
+                <span className="text-[11px] font-extrabold text-amber-800 block truncate">
                   {plan.videoCapacity}
                 </span>
               </div>
@@ -419,23 +419,23 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
               {/* Core Feature Bullet Points */}
               <ul className="space-y-2.5 text-xs text-slate-700 flex-1 my-2">
                 <li className="flex items-center gap-2 font-medium">
-                  <Check size={14} className="text-blue-600 shrink-0" strokeWidth={2.5} />
+                  <Check size={14} className="text-amber-500 shrink-0" strokeWidth={2.5} />
                   <span><strong>{plan.credits}</strong></span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check size={14} className="text-blue-600 shrink-0" strokeWidth={2.5} />
+                  <Check size={14} className="text-amber-500 shrink-0" strokeWidth={2.5} />
                   <span>{plan.videoTypes}</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Check size={14} className="text-blue-600 shrink-0" strokeWidth={2.5} />
+                  <Check size={14} className="text-amber-500 shrink-0" strokeWidth={2.5} />
                   <span>{plan.quality}</span>
                 </li>
                 <li className="flex items-center gap-2 font-bold text-slate-900">
-                  <Check size={14} className="text-blue-600 shrink-0" strokeWidth={2.5} />
+                  <Check size={14} className="text-amber-500 shrink-0" strokeWidth={2.5} />
                   <span>{plan.watermark}</span>
                 </li>
                 <li className="flex items-center gap-2 text-slate-600">
-                  <Check size={14} className="text-blue-600 shrink-0" strokeWidth={2.5} />
+                  <Check size={14} className="text-amber-500 shrink-0" strokeWidth={2.5} />
                   <span>{plan.renderSpeed}</span>
                 </li>
               </ul>
@@ -447,8 +447,8 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
                 onClick={() => startCheckout(plan.id)}
                 className={`mt-6 flex items-center justify-center gap-2 rounded-xl py-3 text-xs font-black transition-all duration-150 ${
                   plan.popular
-                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20 hover:bg-blue-700'
-                    : 'bg-slate-100 text-slate-800 hover:bg-blue-600 hover:text-white border border-slate-200'
+                    ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white shadow-md shadow-orange-500/20 hover:from-amber-600 hover:to-orange-700'
+                    : 'bg-slate-100 text-slate-800 hover:bg-gradient-to-r hover:from-amber-500 hover:to-orange-500 hover:text-white border border-slate-200'
                 }`}
               >
                 {loadingPlan === plan.id ? (
@@ -464,10 +464,10 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
         </div>
 
         {/* HOW VIDEO CREDITS WORK (EXPLAINER BOX) */}
-        <div className="mb-14 rounded-3xl border border-blue-200 bg-blue-50/50 p-6 sm:p-8 shadow-xs max-w-4xl mx-auto">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-blue-200/80 mb-6">
+        <div className="mb-14 rounded-3xl border border-amber-200 bg-amber-50/50 p-6 sm:p-8 shadow-xs max-w-4xl mx-auto">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-amber-200/80 mb-6">
             <div className="flex items-center gap-2.5">
-              <span className="p-2 rounded-xl bg-blue-600 text-white shadow-2xs">
+              <span className="p-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-2xs">
                 <Coins size={18} />
               </span>
               <div>
@@ -476,7 +476,7 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
               </div>
             </div>
 
-            <span className="text-[11px] font-bold bg-white border border-blue-200 px-3 py-1 rounded-full text-blue-700">
+            <span className="text-[11px] font-bold bg-white border border-amber-200 px-3 py-1 rounded-full text-amber-700">
               1 Credit = 1 Short Reel (up to 60s)
             </span>
           </div>
@@ -486,7 +486,7 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
             {/* Rule 1 */}
             <div className="rounded-2xl bg-white p-4 border border-slate-200 shadow-2xs">
               <div className="flex items-center gap-2 font-bold text-slate-900 mb-1">
-                <span className="h-2 w-2 rounded-full bg-blue-600"></span>
+                <span className="h-2 w-2 rounded-full bg-amber-500"></span>
                 <span>1 Credit / Video</span>
               </div>
               <p className="text-slate-600 text-[11px] leading-relaxed">
@@ -498,7 +498,7 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
             {/* Rule 2 */}
             <div className="rounded-2xl bg-white p-4 border border-slate-200 shadow-2xs">
               <div className="flex items-center gap-2 font-bold text-slate-900 mb-1">
-                <span className="h-2 w-2 rounded-full bg-indigo-600"></span>
+                <span className="h-2 w-2 rounded-full bg-orange-500"></span>
                 <span>2 Credits / Video</span>
               </div>
               <p className="text-slate-600 text-[11px] leading-relaxed">
@@ -510,7 +510,7 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
             {/* Rule 3 */}
             <div className="rounded-2xl bg-white p-4 border border-slate-200 shadow-2xs">
               <div className="flex items-center gap-2 font-bold text-slate-900 mb-1">
-                <span className="h-2 w-2 rounded-full bg-cyan-600"></span>
+                <span className="h-2 w-2 rounded-full bg-amber-600"></span>
                 <span>1 Credit / Minute</span>
               </div>
               <p className="text-slate-600 text-[11px] leading-relaxed">
@@ -522,7 +522,7 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
           </div>
 
           {/* Quick Examples */}
-          <div className="mt-6 pt-4 border-t border-blue-200/60 flex flex-wrap items-center justify-between gap-3 text-slate-600 text-[11px]">
+          <div className="mt-6 pt-4 border-t border-amber-200/60 flex flex-wrap items-center justify-between gap-3 text-slate-600 text-[11px]">
             <span className="font-bold text-slate-900">Example Monthly Yields:</span>
             <span className="bg-white px-2.5 py-1 rounded-lg border border-slate-200"><strong>35 Credits</strong> = 35 Reels OR 17 Explainers OR 35 Mins Long-Form</span>
             <span className="bg-white px-2.5 py-1 rounded-lg border border-slate-200"><strong>99 Credits</strong> = 99 Reels OR 49 Explainers OR 99 Mins Long-Form</span>
@@ -559,8 +559,8 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
                     <th className="p-4 font-black text-slate-900 font-sans">Features &amp; Workflows</th>
                     <th className="p-4 font-black text-slate-800 text-center font-sans">Free Trial</th>
                     <th className="p-4 font-black text-violet-700 text-center font-sans bg-violet-50/50">Reel Starter ($2)</th>
-                    <th className="p-4 font-black text-blue-700 text-center font-sans">Starter ($9)</th>
-                    <th className="p-4 font-black text-blue-700 text-center font-sans bg-blue-50/60">Growth ($24)</th>
+                    <th className="p-4 font-black text-amber-700 text-center font-sans">Starter ($9)</th>
+                    <th className="p-4 font-black text-amber-700 text-center font-sans bg-amber-50/60">Growth ($24)</th>
                     <th className="p-4 font-black text-slate-900 text-center font-sans">Agency ($49)</th>
                   </tr>
                 </thead>
@@ -599,18 +599,18 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
                           {/* Starter */}
                           <td className="p-3.5 text-center text-slate-700 font-medium">
                             {typeof row.starter === 'boolean' ? (
-                              row.starter ? <Check size={16} className="text-blue-600 mx-auto" strokeWidth={3} /> : <X size={16} className="text-muted-foreground mx-auto" />
+                              row.starter ? <Check size={16} className="text-amber-600 mx-auto" strokeWidth={3} /> : <X size={16} className="text-muted-foreground mx-auto" />
                             ) : (
                               <span className="font-bold text-slate-900">{row.starter}</span>
                             )}
                           </td>
 
                           {/* Growth */}
-                          <td className="p-3.5 text-center bg-blue-50/30 font-bold text-blue-900">
+                          <td className="p-3.5 text-center bg-amber-50/30 font-bold text-amber-900">
                             {typeof row.growth === 'boolean' ? (
-                              row.growth ? <Check size={16} className="text-blue-600 mx-auto" strokeWidth={3} /> : <X size={16} className="text-muted-foreground mx-auto" />
+                              row.growth ? <Check size={16} className="text-amber-600 mx-auto" strokeWidth={3} /> : <X size={16} className="text-muted-foreground mx-auto" />
                             ) : (
-                              <span className="font-extrabold text-blue-700">{row.growth}</span>
+                              <span className="font-extrabold text-amber-700">{row.growth}</span>
                             )}
                           </td>
 

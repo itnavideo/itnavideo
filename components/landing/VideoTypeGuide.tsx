@@ -190,17 +190,17 @@ export default function VideoTypeGuide() {
   return (
     <section className="relative overflow-hidden bg-background px-4 py-20 sm:px-6 sm:py-28 md:py-32 border-t border-border">
       {/* Background Glow */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_-100px,rgba(37,99,235,0.04),transparent_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_-100px,rgba(245,158,11,0.04),transparent_100%)]" />
 
       <div className="relative z-10 mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-12 text-center space-y-3 sm:space-y-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/20 bg-cyan-500/[0.06] px-4 py-1.5 text-xs font-bold text-cyan-600 dark:text-cyan-300 backdrop-blur-md">
-            <Sparkles size={13} className="text-cyan-500 dark:text-cyan-400" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/[0.06] px-4 py-1.5 text-xs font-bold text-amber-700 dark:text-amber-300 backdrop-blur-md">
+            <Sparkles size={13} className="text-amber-500 dark:text-amber-400" />
             <span>WHAT YOU CAN CREATE</span>
           </div>
           <h2 className="text-3xl font-black leading-tight text-foreground sm:text-4xl md:text-5xl font-sans tracking-tight px-1">
-            11 video templates. <span className="text-blue-500">One platform.</span>
+            11 video templates. <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">One platform.</span>
           </h2>
           <p className="mx-auto max-w-2xl text-xs sm:text-sm text-muted-foreground leading-relaxed px-2">
             Click any template to explore its dedicated page or start creating immediately with zero editing skills required.
@@ -212,7 +212,7 @@ export default function VideoTypeGuide() {
               onClick={() => setActiveTab('all')}
               className={`rounded-xl border px-4 py-2 text-xs font-bold transition duration-200 ${
                 activeTab === 'all'
-                  ? 'border-blue-500/40 bg-blue-500/10 text-blue-600 dark:text-blue-400 shadow-sm'
+                  ? 'border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400 shadow-sm'
                   : 'border-border bg-card text-muted-foreground hover:bg-accent hover:text-foreground'
               }`}
             >
@@ -222,7 +222,7 @@ export default function VideoTypeGuide() {
               onClick={() => setActiveTab('short')}
               className={`rounded-xl border px-4 py-2 text-xs font-bold transition duration-200 ${
                 activeTab === 'short'
-                  ? 'border-blue-500/40 bg-blue-500/10 text-blue-600 dark:text-blue-400 shadow-sm'
+                  ? 'border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400 shadow-sm'
                   : 'border-border bg-card text-muted-foreground hover:bg-accent hover:text-foreground'
               }`}
             >
@@ -232,7 +232,7 @@ export default function VideoTypeGuide() {
               onClick={() => setActiveTab('long')}
               className={`rounded-xl border px-4 py-2 text-xs font-bold transition duration-200 ${
                 activeTab === 'long'
-                  ? 'border-blue-500/40 bg-blue-500/10 text-blue-600 dark:text-blue-400 shadow-sm'
+                  ? 'border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400 shadow-sm'
                   : 'border-border bg-card text-muted-foreground hover:bg-accent hover:text-foreground'
               }`}
             >
@@ -283,7 +283,7 @@ export default function VideoTypeGuide() {
                   <div>
                     <Link
                       href={item.detailHref}
-                      className="group/title inline-flex items-center gap-1.5 text-base font-black text-card-foreground transition hover:text-blue-600 dark:hover:text-blue-400"
+                      className="group/title inline-flex items-center gap-1.5 text-base font-black text-card-foreground transition hover:text-amber-600 dark:hover:text-amber-400"
                     >
                       <span>{item.title}</span>
                       <ExternalLink size={12} className="opacity-0 transition duration-200 group-hover/title:opacity-100 shrink-0" />
@@ -311,7 +311,7 @@ export default function VideoTypeGuide() {
 
                   <Link
                     href={item.dashHref}
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-3.5 py-2 text-xs font-black text-white shadow-md transition duration-200 hover:bg-blue-500 hover:shadow-blue-600/20 hover:-translate-y-0.5"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 px-3.5 py-2 text-xs font-black text-white shadow-md transition duration-200 hover:from-amber-600 hover:to-orange-700 hover:shadow-orange-500/20 hover:-translate-y-0.5"
                   >
                     <Play size={10} fill="currentColor" />
                     <span>Use</span>
@@ -326,9 +326,9 @@ export default function VideoTypeGuide() {
         <div className="mt-12 text-center space-y-3">
           <Link
             href="/video-types"
-            className="inline-flex items-center gap-2 rounded-2xl border border-border bg-card px-7 py-3.5 text-xs font-black text-foreground shadow-sm transition duration-300 hover:border-blue-500/40 hover:bg-accent hover:-translate-y-0.5 dark:border-border dark:bg-muted/60"
+            className="inline-flex items-center gap-2 rounded-2xl border border-border bg-card px-7 py-3.5 text-xs font-black text-foreground shadow-sm transition duration-300 hover:border-amber-500/40 hover:bg-accent hover:-translate-y-0.5 dark:border-border dark:bg-muted/60"
           >
-            <Compass size={15} className="text-blue-500" />
+            <Compass size={15} className="text-amber-500" />
             <span>Explore Complete Video Types Directory</span>
             <ArrowRight size={14} className="text-muted-foreground" />
           </Link>

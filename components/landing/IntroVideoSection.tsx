@@ -47,18 +47,18 @@ export default function IntroVideoSection() {
 
   return (
     <section className="relative overflow-hidden px-4 py-16 sm:px-6 sm:py-32 bg-background border-t border-border">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_-100px,rgba(37,99,235,0.03),transparent_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_-100px,rgba(245,158,11,0.03),transparent_100%)]" />
 
       <div className="mx-auto max-w-5xl relative z-10">
         {/* Header */}
         <div className="mb-10 text-center sm:mb-16 space-y-3 sm:space-y-4">
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/[0.06] px-4 py-1.5 text-xs font-bold text-blue-600 dark:text-blue-200 backdrop-blur-md">
-            <PlayCircle size={13} className="text-cyan-500 dark:text-cyan-400" />
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/[0.06] px-4 py-1.5 text-xs font-bold text-amber-700 dark:text-amber-300 backdrop-blur-md">
+            <PlayCircle size={13} className="text-amber-500 dark:text-amber-400" />
             <span>See Itnavideo in action</span>
           </div>
           <h2 className="text-2xl font-black leading-tight text-foreground sm:text-4xl md:text-5xl font-sans tracking-tight px-1">
             Watch how Itnavideo turns your uploads<br className="hidden sm:block" />
-            <span className="text-blue-500"> into ready-to-post videos.</span>
+            <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent"> into ready-to-post videos.</span>
           </h2>
           <p className="mx-auto max-w-2xl text-xs text-muted-foreground leading-relaxed px-2">
             Create reels, explainers, caption videos, and more — all from one upload.
@@ -118,7 +118,7 @@ export default function IntroVideoSection() {
 
         {/* Label + dots */}
         <div className="mt-8 text-center">
-          <span className="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400">
+          <span className="text-xs font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
             {SHOWCASE[active].label}
           </span>
           <div className="mt-4 flex items-center justify-center gap-2">
@@ -132,7 +132,7 @@ export default function IntroVideoSection() {
                   height: 6,
                   borderRadius: 99,
                   border: 'none',
-                  background: i === active ? '#2563EB' : 'var(--border)',
+                  background: i === active ? '#F59E0B' : 'var(--border)',
                   cursor: 'pointer',
                   padding: 0,
                 }}

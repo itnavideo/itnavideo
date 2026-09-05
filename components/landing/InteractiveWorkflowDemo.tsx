@@ -117,12 +117,12 @@ export default function InteractiveWorkflowDemo() {
         
         {/* Section Title */}
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <p className="text-xs font-bold uppercase tracking-widest text-blue-600 mb-2 flex items-center justify-center gap-1.5">
+          <p className="text-xs font-bold uppercase tracking-widest text-amber-600 mb-2 flex items-center justify-center gap-1.5">
             <Sparkles size={14} />
             <span>Interactive Creation Workflow</span>
           </p>
           <h2 className="text-3xl font-extrabold text-slate-900 sm:text-5xl font-sans tracking-tight">
-            See How It Works in 4 Steps
+            See How It Works <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">in 4 Steps</span>
           </h2>
           <p className="mt-4 text-sm sm:text-base text-slate-600">
             Itnavideo automates the entire video editing process. Experience what happens inside the dashboard before creating your account.
@@ -144,11 +144,11 @@ export default function InteractiveWorkflowDemo() {
                 onClick={() => setActiveStepTab(s.step)}
                 className={`flex flex-col items-start p-3.5 rounded-xl border transition text-left ${
                   isActive
-                    ? 'border-blue-600 bg-white text-slate-900 shadow-md ring-1 ring-blue-600'
+                    ? 'border-orange-500 bg-white text-slate-900 shadow-md ring-1 ring-orange-500'
                     : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900'
                 }`}
               >
-                <span className={`text-[10px] font-extrabold tracking-wider ${isActive ? 'text-blue-600' : 'text-muted-foreground'}`}>
+                <span className={`text-[10px] font-extrabold tracking-wider ${isActive ? 'text-amber-600' : 'text-muted-foreground'}`}>
                   {s.title}
                 </span>
                 <span className="text-xs font-bold font-sans mt-0.5">{s.desc}</span>
@@ -171,7 +171,7 @@ export default function InteractiveWorkflowDemo() {
                 itnavideo-studio.app/demo-workflow
               </span>
             </div>
-            <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-200">
+            <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200">
               ⚡ Studio Interactive Preview
             </span>
           </div>
@@ -182,10 +182,10 @@ export default function InteractiveWorkflowDemo() {
           <div className="lg:col-span-6 space-y-6">
             
             {/* STEP 1: Choose Video Type */}
-            <div className={`space-y-3 p-4 rounded-xl border transition ${activeTab === 1 ? 'border-blue-500/50 bg-blue-50/50' : 'border-slate-200 bg-slate-50/50'}`}>
+            <div className={`space-y-3 p-4 rounded-xl border transition ${activeTab === 1 ? 'border-amber-500/50 bg-amber-50/50' : 'border-slate-200 bg-slate-50/50'}`}>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-extrabold text-blue-600 uppercase tracking-wider">Step 1: Choose Video Type</span>
-                {activeTab === 1 && <span className="text-[10px] bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded-full">Active</span>}
+                <span className="text-xs font-extrabold text-amber-600 uppercase tracking-wider">Step 1: Choose Video Type</span>
+                {activeTab === 1 && <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">Active</span>}
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1">
@@ -201,7 +201,7 @@ export default function InteractiveWorkflowDemo() {
                       }}
                       className={`flex flex-col items-start p-2.5 rounded-lg border text-left transition ${
                         isSelected
-                          ? 'border-blue-600 bg-blue-600 text-white shadow-xs'
+                          ? 'border-orange-500 bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xs'
                           : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-100'
                       }`}
                     >
@@ -214,16 +214,16 @@ export default function InteractiveWorkflowDemo() {
             </div>
 
             {/* STEP 2: Required Content Upload */}
-            <div className={`space-y-3 p-4 rounded-xl border transition ${activeTab === 2 ? 'border-blue-500/50 bg-blue-50/50' : 'border-slate-200 bg-slate-50/50'}`}>
+            <div className={`space-y-3 p-4 rounded-xl border transition ${activeTab === 2 ? 'border-amber-500/50 bg-amber-50/50' : 'border-slate-200 bg-slate-50/50'}`}>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-extrabold text-blue-600 uppercase tracking-wider">Step 2: Upload Content</span>
+                <span className="text-xs font-extrabold text-amber-600 uppercase tracking-wider">Step 2: Upload Content</span>
                 <span className="text-[10px] font-bold text-slate-500">{selectedMode.name} Inputs</span>
               </div>
 
               <div className="flex flex-wrap gap-2 pt-1">
                 {selectedMode.inputs.map((inp) => (
                   <div key={inp} className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 shadow-2xs">
-                    <Upload size={14} className="text-blue-600" />
+                    <Upload size={14} className="text-amber-600" />
                     <span>{inp}</span>
                   </div>
                 ))}
@@ -231,9 +231,9 @@ export default function InteractiveWorkflowDemo() {
             </div>
 
             {/* STEP 3: Automated AI Pipeline Checklist */}
-            <div className={`space-y-3 p-4 rounded-xl border transition ${activeTab === 3 ? 'border-blue-500/50 bg-blue-50/50' : 'border-slate-200 bg-slate-50/50'}`}>
+            <div className={`space-y-3 p-4 rounded-xl border transition ${activeTab === 3 ? 'border-amber-500/50 bg-amber-50/50' : 'border-slate-200 bg-slate-50/50'}`}>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-extrabold text-blue-600 uppercase tracking-wider">Step 3: AI Handles Everything</span>
+                <span className="text-xs font-extrabold text-amber-600 uppercase tracking-wider">Step 3: AI Handles Everything</span>
                 <span className="text-[10px] font-mono text-emerald-600 font-bold">100% Automated</span>
               </div>
 
@@ -251,7 +251,7 @@ export default function InteractiveWorkflowDemo() {
             <div className="pt-2">
               <Link
                 href={`/dashboard?videoType=${selectedMode.id}`}
-                className="inline-flex items-center justify-center gap-2.5 w-full rounded-xl bg-blue-600 hover:bg-blue-700 px-6 py-3.5 text-sm font-bold text-white shadow-md shadow-blue-600/20 transition"
+                className="inline-flex items-center justify-center gap-2.5 w-full rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-700 px-6 py-3.5 text-sm font-bold text-white shadow-md shadow-orange-500/20 transition"
               >
                 <span>Create Video with {selectedMode.name}</span>
                 <ArrowRight size={16} />
@@ -294,7 +294,7 @@ export default function InteractiveWorkflowDemo() {
                 <div className="flex items-center justify-between pt-1">
                   <button
                     onClick={() => setIsPlaying(!isPlaying)}
-                    className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-white shadow hover:bg-blue-700 transition"
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow hover:opacity-90 transition"
                   >
                     {isPlaying ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" className="ml-0.5" />}
                   </button>

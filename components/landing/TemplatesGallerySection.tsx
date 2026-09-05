@@ -122,12 +122,12 @@ export default function TemplatesGallerySection() {
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <p className="text-xs font-bold uppercase tracking-widest text-blue-600 mb-2 flex items-center justify-center gap-1.5">
+          <p className="text-xs font-bold uppercase tracking-widest text-amber-600 mb-2 flex items-center justify-center gap-1.5">
             <Sparkles size={14} />
             <span>Best AI Video Generators &amp; Presets</span>
           </p>
           <h2 className="text-3xl font-extrabold text-slate-900 sm:text-5xl font-sans tracking-tight">
-            AI Video Maker &amp; Creator Templates
+            AI Video Maker &amp; <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">Creator Templates</span>
           </h2>
           <p className="mt-4 text-sm sm:text-base text-slate-600">
             Choose from the best AI video generators optimized for social reels, text to video conversion, YouTube promos, and high-retention explainers.
@@ -141,7 +141,7 @@ export default function TemplatesGallerySection() {
                 onClick={() => setActiveCategory(cat)}
                 className={`rounded-full px-4 py-2 text-xs font-bold transition duration-150 ${
                   activeCategory === cat
-                    ? 'bg-blue-600 text-white shadow-xs'
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xs'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
                 }`}
               >
@@ -156,7 +156,7 @@ export default function TemplatesGallerySection() {
           {filtered.map((item) => (
             <div
               key={item.id}
-              className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs transition duration-200 hover:border-blue-300 hover:shadow-md"
+              className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs transition duration-200 hover:border-amber-300 hover:shadow-md"
             >
               <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
                 <Image
@@ -171,7 +171,7 @@ export default function TemplatesGallerySection() {
                   <span className="rounded-md bg-white/90 backdrop-blur-md px-2 py-0.5 text-[10px] font-bold text-slate-800 shadow-xs">
                     {item.aspect}
                   </span>
-                  <span className="rounded-md bg-blue-600 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
+                  <span className="rounded-md bg-gradient-to-r from-amber-500 to-orange-500 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
                     {item.badge}
                   </span>
                 </div>
@@ -182,7 +182,7 @@ export default function TemplatesGallerySection() {
 
                 <Link
                   href={item.href}
-                  className="mt-4 inline-flex items-center justify-between rounded-xl bg-slate-100 hover:bg-blue-600 px-4 py-2 text-xs font-bold text-slate-700 hover:text-white transition duration-150 group/btn"
+                  className="mt-4 inline-flex items-center justify-between rounded-xl bg-slate-100 hover:bg-gradient-to-r hover:from-amber-500 hover:to-orange-500 px-4 py-2 text-xs font-bold text-slate-700 hover:text-white transition duration-150 group/btn"
                 >
                   <span>Create Video</span>
                   <ArrowRight size={14} className="transition-transform group-hover/btn:translate-x-1" />

@@ -31,7 +31,7 @@ const FEATURED_WORKFLOWS = [
     desc: 'Word-synced animated captions for Reels & Videos',
     href: '/auto-caption-generator',
     icon: Captions,
-    color: 'from-blue-500 to-cyan-400',
+    color: 'from-amber-500 to-orange-400',
   },
   {
     label: 'Compare Explainer',
@@ -264,7 +264,7 @@ export default function Navbar() {
                       onClick={() => setUserMenuOpen(false)}
                       className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-slate-200 hover:bg-slate-800 hover:text-amber-400 transition"
                     >
-                      <CreditCard size={14} className="text-blue-400" />
+                      <CreditCard size={14} className="text-amber-400" />
                       <span>Billing & Credits</span>
                     </Link>
 

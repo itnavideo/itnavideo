@@ -34,12 +34,12 @@ export default function TestimonialSection() {
       <div className="mx-auto max-w-7xl relative z-10">
         {/* Header */}
         <div className="mb-16 text-center space-y-4">
-          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-cyan-500 dark:text-cyan-400 flex items-center justify-center gap-1.5">
+          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-amber-600 dark:text-amber-400 flex items-center justify-center gap-1.5">
             <Sparkles size={12} />
             <span>TRUSTED BY CREATORS</span>
           </p>
           <h2 className="text-3xl font-black text-foreground sm:text-4xl font-sans tracking-tight">
-            Real creators. Real results.
+            Real creators. <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">Real results.</span>
           </h2>
           <p className="mx-auto max-w-md text-sm text-muted-foreground">
             See what video creators, podcasters, and brand founders across the US, UK, and Canada are saying about Itnavideo.
@@ -51,13 +51,13 @@ export default function TestimonialSection() {
           {REVIEWS.map((review) => (
             <div
               key={review.name}
-              className="group relative rounded-3xl border border-border bg-card p-7 shadow-sm backdrop-blur-md hover:border-blue-500/20 hover:bg-accent dark:border-border dark:bg-muted/20 dark:hover:bg-muted/40 transition duration-300"
+              className="group relative rounded-3xl border border-border bg-card p-7 shadow-sm backdrop-blur-md hover:border-amber-500/20 hover:bg-accent dark:border-border dark:bg-muted/20 dark:hover:bg-muted/40 transition duration-300"
             >
               {/* Decorative quotation indicator */}
-              <div className="absolute top-4 right-5 text-4xl font-serif text-blue-500/10 leading-none select-none group-hover:text-cyan-500/20 dark:group-hover:text-cyan-400/20 transition duration-300">“</div>
+              <div className="absolute top-4 right-5 text-4xl font-serif text-amber-500/10 leading-none select-none group-hover:text-amber-500/20 dark:group-hover:text-amber-400/20 transition duration-300">“</div>
 
               <div className="flex items-start gap-4 relative z-10">
-                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border border-border group-hover:border-blue-500/20 transition duration-300">
+                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border border-border group-hover:border-amber-500/20 transition duration-300">
                   <Image
                     src={review.image}
                     alt={review.name}
@@ -67,7 +67,7 @@ export default function TestimonialSection() {
                   />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-card-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition duration-300">{review.name}</p>
+                  <p className="text-xs font-bold text-card-foreground group-hover:text-amber-600 dark:group-hover:text-amber-400 transition duration-300">{review.name}</p>
                   <p className="text-[10px] text-muted-foreground font-medium mt-0.5">{review.role}</p>
                 </div>
               </div>

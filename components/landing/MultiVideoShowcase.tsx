@@ -96,14 +96,14 @@ export default function MultiVideoShowcase() {
       <div className="relative z-10 mx-auto max-w-6xl">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-14">
-          <p className="text-xs font-bold uppercase tracking-widest text-blue-600 mb-3 flex items-center justify-center gap-1.5">
+          <p className="text-xs font-bold uppercase tracking-widest text-amber-600 mb-3 flex items-center justify-center gap-1.5">
             <Sparkles size={13} />
             <span>See Itnavideo in action</span>
           </p>
           <h2 className="text-3xl sm:text-5xl font-extrabold text-slate-900 font-sans tracking-tight leading-tight">
             Watch how Itnavideo turns your uploads
             <br />
-            <span className="text-blue-600">into ready-to-post videos.</span>
+            <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">into ready-to-post videos.</span>
           </h2>
           <p className="mt-5 text-sm sm:text-base text-slate-500">
             Create reels, explainers, caption videos, and more — all from one upload.
@@ -150,7 +150,7 @@ export default function MultiVideoShowcase() {
         {/* Label + navigation */}
         <div className="mt-10 flex flex-col items-center gap-5">
           {/* Active label */}
-          <p className="text-xs font-extrabold tracking-[0.2em] text-blue-600 uppercase">
+          <p className="text-xs font-extrabold tracking-[0.2em] text-amber-600 uppercase">
             {slide.label}
           </p>
 
@@ -159,7 +159,7 @@ export default function MultiVideoShowcase() {
             <button
               onClick={goPrev}
               aria-label="Previous"
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm hover:border-blue-300 hover:text-blue-600 transition"
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm hover:border-amber-300 hover:text-amber-600 transition"
             >
               <ChevronLeft size={15} />
             </button>
@@ -171,7 +171,7 @@ export default function MultiVideoShowcase() {
                 aria-label={`Go to slide ${idx + 1}`}
                 className={`rounded-full transition-all duration-200 ${
                   idx === activeSlide
-                    ? 'w-6 h-2 bg-blue-600'
+                    ? 'w-6 h-2 bg-gradient-to-r from-amber-500 to-orange-500'
                     : 'w-2 h-2 bg-slate-300 hover:bg-slate-400'
                 }`}
               />
@@ -180,7 +180,7 @@ export default function MultiVideoShowcase() {
             <button
               onClick={goNext}
               aria-label="Next"
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm hover:border-blue-300 hover:text-blue-600 transition"
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm hover:border-amber-300 hover:text-amber-600 transition"
             >
               <ChevronRight size={15} />
             </button>

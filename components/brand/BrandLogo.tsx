@@ -43,10 +43,10 @@ export default function BrandLogo({
           className="w-full h-full drop-shadow-[0_0_14px_rgba(245,158,11,0.28)]"
         >
           <defs>
-            {/* Google Tech Blue Gradient */}
-            <linearGradient id="itnaBlueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#3B82F6" />
-              <stop offset="100%" stopColor="#1D4ED8" />
+            {/* Google Analytics Deep Orange Gradient for Stem */}
+            <linearGradient id="itnaStemGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#F97316" />
+              <stop offset="100%" stopColor="#EA580C" />
             </linearGradient>
             {/* Google Analytics Signature Amber-Orange Gradient */}
             <linearGradient id="itnaAmberGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -61,14 +61,14 @@ export default function BrandLogo({
             </linearGradient>
           </defs>
 
-          {/* Left Vertical Ribbon Stem ('I' for ITNA) - Google Royal Blue */}
+          {/* Left Vertical Ribbon Stem ('I' for ITNA) - Google Analytics Deep Amber/Orange */}
           <rect
             x="14"
             y="14"
             width="18"
             height="72"
             rx="9"
-            fill="url(#itnaBlueGrad)"
+            fill="url(#itnaStemGrad)"
           />
 
           {/* Forward Kinetic Play Chevron ('▶' for VIDEO) - Google Analytics Amber/Orange */}

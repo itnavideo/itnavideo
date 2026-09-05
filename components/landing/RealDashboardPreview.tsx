@@ -31,18 +31,18 @@ export default function RealDashboardPreview() {
   return (
     <section className="relative px-4 py-20 sm:px-6 sm:py-28 bg-slate-50 text-slate-900 overflow-hidden border-b border-slate-200">
       {/* Background Radial Glow */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_200px,rgba(37,99,235,0.08),transparent_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_200px,rgba(245,158,11,0.08),transparent_100%)]" />
 
       <div className="relative z-10 mx-auto max-w-7xl">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <p className="text-xs font-bold uppercase tracking-widest text-blue-600 mb-2 flex items-center justify-center gap-1.5">
+          <p className="text-xs font-bold uppercase tracking-widest text-amber-600 mb-2 flex items-center justify-center gap-1.5">
             <Sparkles size={14} className="animate-pulse" />
             <span>DASHBOARD PREVIEW</span>
           </p>
           <h2 className="text-3xl font-black text-slate-900 sm:text-5xl font-sans tracking-tight leading-tight">
-            Everything You Need to Create Videos
+            Everything You Need to <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">Create Videos</span>
           </h2>
           <p className="mt-4 text-sm sm:text-base text-slate-600 max-w-xl mx-auto font-medium">
             No bloated video timeline tools or complex keyframes. Upload your content, choose your style, and let AI render publish-ready videos.
@@ -72,7 +72,7 @@ export default function RealDashboardPreview() {
               </div>
               <Link
                 href="/dashboard"
-                className="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 px-3.5 py-1.5 text-xs font-bold text-white shadow-xs transition"
+                className="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-700 px-3.5 py-1.5 text-xs font-bold text-white shadow-xs transition"
               >
                 <span>Open Live Dashboard →</span>
               </Link>
@@ -90,7 +90,7 @@ export default function RealDashboardPreview() {
                 <div className="space-y-1">
                   <p className="px-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-500 mb-2">Workspace</p>
                   
-                  <div className="flex items-center gap-2.5 rounded-xl bg-blue-600/20 px-3 py-2.5 text-xs font-bold text-blue-400 border border-blue-500/30">
+                  <div className="flex items-center gap-2.5 rounded-xl bg-amber-500/20 px-3 py-2.5 text-xs font-bold text-amber-400 border border-amber-500/30">
                     <PlusCircle size={15} />
                     <span>Create New Video</span>
                   </div>
@@ -135,7 +135,7 @@ export default function RealDashboardPreview() {
               {/* Sidebar Footer */}
               <div className="p-3 bg-muted rounded-xl border border-border">
                 <div className="flex items-center gap-2 text-xs font-bold text-slate-200">
-                  <Sparkles size={14} className="text-blue-400" />
+                  <Sparkles size={14} className="text-amber-400" />
                   <span>Itnavideo Pro Plan</span>
                 </div>
                 <p className="text-[10px] text-muted-foreground mt-1">AWS Remotion Lambda Engine Enabled</p>
@@ -148,7 +148,7 @@ export default function RealDashboardPreview() {
               {/* Selected Mode Banner */}
               <div className="flex items-center justify-between p-3 rounded-xl bg-muted border border-border">
                 <div className="flex items-center gap-2.5">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30">
                     <Captions size={16} />
                   </div>
                   <div>
@@ -156,14 +156,14 @@ export default function RealDashboardPreview() {
                     <p className="text-[10px] text-muted-foreground">Word-synced animated captions for talking reels</p>
                   </div>
                 </div>
-                <span className="rounded-full bg-blue-500/20 text-blue-300 px-2.5 py-1 text-[10px] font-bold">
+                <span className="rounded-full bg-amber-500/20 text-amber-300 px-2.5 py-1 text-[10px] font-bold">
                   1 Credit / Render
                 </span>
               </div>
 
               {/* Upload Slot */}
-              <div className="rounded-xl border border-dashed border-blue-500/40 bg-blue-500/5 p-4 text-center space-y-2">
-                <div className="flex h-10 w-12 mx-auto items-center justify-center rounded-full bg-blue-600/20 text-blue-400">
+              <div className="rounded-xl border border-dashed border-amber-500/40 bg-amber-500/5 p-4 text-center space-y-2">
+                <div className="flex h-10 w-12 mx-auto items-center justify-center rounded-full bg-amber-600/20 text-amber-400">
                   <Upload size={18} />
                 </div>
                 <div>
@@ -176,7 +176,7 @@ export default function RealDashboardPreview() {
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
                   <span>Select Caption Style Preset</span>
-                  <span className="text-[10px] text-blue-400 font-bold">5 Presets</span>
+                  <span className="text-[10px] text-amber-400 font-bold">5 Presets</span>
                 </label>
 
                 <div className="grid grid-cols-1 gap-2">
@@ -188,7 +188,7 @@ export default function RealDashboardPreview() {
                         onClick={() => setSelectedPreset(preset)}
                         className={`flex items-center justify-between rounded-xl p-2.5 text-xs font-bold border transition ${
                           isSelected
-                            ? 'border-blue-500 bg-muted text-white shadow-md'
+                            ? 'border-amber-500 bg-muted text-white shadow-md'
                             : 'border-border bg-muted/40 text-muted-foreground hover:border-border'
                         }`}
                       >
@@ -242,7 +242,7 @@ export default function RealDashboardPreview() {
                 <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black via-black/70 to-transparent flex items-center justify-between">
                   <button
                     onClick={() => setIsPlaying(!isPlaying)}
-                    className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-white shadow"
+                    className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow"
                   >
                     {isPlaying ? <Pause size={12} fill="currentColor" /> : <Play size={12} fill="currentColor" className="ml-0.5" />}
                   </button>
@@ -256,8 +256,8 @@ export default function RealDashboardPreview() {
                   <span>24.5s</span>
                 </div>
                 <div className="h-2 w-full bg-muted rounded-full overflow-hidden flex">
-                  <div className="h-full w-1/3 bg-blue-500" />
-                  <div className="h-full w-1/3 bg-cyan-400" />
+                  <div className="h-full w-1/3 bg-amber-500" />
+                  <div className="h-full w-1/3 bg-orange-400" />
                   <div className="h-full w-1/3 bg-emerald-400" />
                 </div>
               </div>
@@ -265,7 +265,7 @@ export default function RealDashboardPreview() {
               <div className="w-full mt-4">
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center justify-center gap-2 w-full rounded-xl bg-blue-600 hover:bg-blue-700 px-5 py-3 text-xs font-bold text-white shadow-md transition"
+                  className="inline-flex items-center justify-center gap-2 w-full rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-700 px-5 py-3 text-xs font-bold text-white shadow-md shadow-orange-500/20 transition"
                 >
                   <Download size={14} />
                   <span>Start Render MP4 (1 Credit)</span>

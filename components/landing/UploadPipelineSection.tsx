@@ -9,12 +9,12 @@ export default function UploadPipelineSection() {
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <p className="text-xs font-bold uppercase tracking-widest text-blue-600 mb-2 flex items-center justify-center gap-1.5">
+          <p className="text-xs font-bold uppercase tracking-widest text-amber-600 mb-2 flex items-center justify-center gap-1.5">
             <Sparkles size={14} />
             <span>Universal AI Video Generation Pipeline</span>
           </p>
           <h2 className="text-3xl font-extrabold text-slate-900 sm:text-5xl font-sans tracking-tight">
-            Text to Video &amp; Automated AI Video Creator
+            Text to Video &amp; <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">Automated AI Video Creator</span>
           </h2>
           <p className="mt-4 text-sm sm:text-base text-slate-600">
             Upload audio, raw video clips, photos, or text scripts — our AI video generator automatically transcribes, plans scenes, matches visuals, syncs captions, and renders publish-ready videos.
@@ -30,16 +30,16 @@ export default function UploadPipelineSection() {
 
             {[
               { label: 'Voiceover / Audio', detail: '.mp3, .wav, speech recording', icon: Mic, color: 'text-amber-600 bg-amber-50 border-amber-200' },
-              { label: 'Talking Video', detail: 'raw camera footage, .mp4, .mov', icon: Video, color: 'text-blue-600 bg-blue-50 border-blue-200' },
+              { label: 'Talking Video', detail: 'raw camera footage, .mp4, .mov', icon: Video, color: 'text-orange-600 bg-orange-50 border-orange-200' },
               { label: 'Images & Assets', detail: '.jpg, .png, logos, graphics', icon: ImageIcon, color: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
-              { label: 'Scripts & Text', detail: 'written outline or article prompt', icon: FileText, color: 'text-cyan-600 bg-cyan-50 border-cyan-200' },
+              { label: 'Scripts & Text', detail: 'written outline or article prompt', icon: FileText, color: 'text-amber-700 bg-amber-50 border-amber-200' },
               { label: 'Voice Notes', detail: 'podcast audio or voice memo', icon: Volume2, color: 'text-purple-600 bg-purple-50 border-purple-200' },
             ].map((input) => {
               const Icon = input.icon;
               return (
                 <div
                   key={input.label}
-                  className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-white shadow-xs hover:border-blue-300 transition"
+                  className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-white shadow-xs hover:border-amber-300 transition"
                 >
                   <div className="flex items-center gap-3">
                     <div className={`flex h-9 w-9 items-center justify-center rounded-lg border ${input.color}`}>
@@ -50,19 +50,19 @@ export default function UploadPipelineSection() {
                       <p className="text-[10px] text-slate-500">{input.detail}</p>
                     </div>
                   </div>
-                  <span className="h-2 w-2 rounded-full bg-blue-600 animate-pulse" />
+                  <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
                 </div>
               );
             })}
           </div>
 
           {/* CENTER: Central AI Processing Hub */}
-          <div className="lg:col-span-4 flex flex-col items-center justify-center text-center p-8 rounded-2xl border border-blue-200 bg-white shadow-lg relative">
-            <div className="absolute -top-3 rounded-full bg-blue-600 px-3 py-0.5 text-[10px] font-bold uppercase text-white tracking-wider shadow-sm">
+          <div className="lg:col-span-4 flex flex-col items-center justify-center text-center p-8 rounded-2xl border border-amber-200 bg-white shadow-lg relative">
+            <div className="absolute -top-3 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-0.5 text-[10px] font-bold uppercase text-white tracking-wider shadow-sm">
               ITNAVIDEO AI HUB
             </div>
 
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-md shadow-blue-600/30 mb-3">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white shadow-md shadow-orange-500/25 mb-3">
               <Wand2 size={32} />
             </div>
 
@@ -78,11 +78,11 @@ export default function UploadPipelineSection() {
                 <span className="text-emerald-600 font-mono font-bold">✓ Synced</span>
               </div>
               <div className="flex items-center justify-between text-slate-700">
-                <span>Scene & Sticker Match</span>
+                <span>Scene &amp; Sticker Match</span>
                 <span className="text-emerald-600 font-mono font-bold">✓ Matched</span>
               </div>
               <div className="flex items-center justify-between text-slate-700">
-                <span>Caption Motion & Fonts</span>
+                <span>Caption Motion &amp; Fonts</span>
                 <span className="text-emerald-600 font-mono font-bold">✓ Formatted</span>
               </div>
             </div>
@@ -107,9 +107,9 @@ export default function UploadPipelineSection() {
               <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black via-black/70 to-transparent flex items-center justify-between">
                 <div>
                   <p className="text-xs font-bold text-white font-sans">1080x1920 MP4 Video</p>
-                  <p className="text-[10px] text-primary font-mono font-bold">Ready to publish</p>
+                  <p className="text-[10px] text-amber-400 font-mono font-bold">Ready to publish</p>
                 </div>
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white shadow">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow">
                   <Download size={16} />
                 </div>
               </div>

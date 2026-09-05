@@ -13,8 +13,8 @@ export default function FounderVideoSection() {
 
   return (
     <section className="relative overflow-hidden px-4 py-24 sm:px-6 sm:py-32 bg-background border-t border-border">
-      <div className="pointer-events-none absolute inset-0 opacity-[0.015] [background-image:radial-gradient(circle_at_60%_40%,rgba(37,99,235,1)_1px,transparent_1px)] [background-size:50px_50px]" />
-      <div className="pointer-events-none absolute left-1/2 top-0 h-[600px] w-[800px] -translate-x-1/2 bg-[radial-gradient(ellipse,rgba(37,99,235,0.03),transparent_70%)]" />
+      <div className="pointer-events-none absolute inset-0 opacity-[0.015] [background-image:radial-gradient(circle_at_60%_40%,rgba(245,158,11,1)_1px,transparent_1px)] [background-size:50px_50px]" />
+      <div className="pointer-events-none absolute left-1/2 top-0 h-[600px] w-[800px] -translate-x-1/2 bg-[radial-gradient(ellipse,rgba(245,158,11,0.03),transparent_70%)]" />
 
       <div className="relative z-10 mx-auto max-w-6xl">
         <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.2fr] lg:gap-16">
@@ -25,14 +25,14 @@ export default function FounderVideoSection() {
             viewport={{ once: true }}
             className="space-y-6"
           >
-            <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/[0.06] px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-200">
-              <Rocket size={12} className="text-cyan-500 dark:text-cyan-400" />
+            <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/[0.06] px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-amber-700 dark:text-amber-300">
+              <Rocket size={12} className="text-amber-500 dark:text-amber-400" />
               <span>The story behind Itnavideo</span>
             </div>
 
             <h2 className="text-3xl font-black leading-tight text-foreground sm:text-4xl font-sans tracking-tight">
               Built by a creator{' '}
-              <span className="block text-blue-500">who was tired of editing.</span>
+              <span className="block bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">who was tired of editing.</span>
             </h2>
 
             <p className="text-sm leading-relaxed text-muted-foreground">
@@ -41,12 +41,12 @@ export default function FounderVideoSection() {
 
             {/* Quote */}
             <div className="rounded-3xl border border-border bg-card p-6 shadow-sm backdrop-blur-md dark:border-border dark:bg-background/30">
-              <Quote size={18} className="mb-3 text-cyan-500/40 dark:text-cyan-400/40" />
+              <Quote size={18} className="mb-3 text-amber-500/40 dark:text-amber-400/40" />
               <p className="text-xs italic leading-relaxed text-muted-foreground">
                 &ldquo;If you create content, you shouldn&apos;t waste time on formatting. Upload, choose your style, get a professional video. That&apos;s it.&rdquo;
               </p>
               <div className="mt-5 flex items-center gap-3">
-                <div className="h-10 w-10 overflow-hidden rounded-full border border-blue-500/20">
+                <div className="h-10 w-10 overflow-hidden rounded-full border border-amber-500/20">
                   <Image src="/founder/syed-mohammed-rohi.webp" alt="Syed Rohi" width={40} height={40} className="h-full w-full object-cover" />
                 </div>
                 <div>
@@ -64,7 +64,7 @@ export default function FounderVideoSection() {
                 { icon: Rocket, value: '11', label: 'Video types' },
               ].map((stat) => (
                 <div key={stat.label} className="rounded-2xl border border-border bg-card p-3 text-center shadow-sm backdrop-blur-md dark:border-border dark:bg-background/20">
-                  <stat.icon size={13} className="mx-auto mb-1.5 text-cyan-500 dark:text-cyan-400/80" />
+                  <stat.icon size={13} className="mx-auto mb-1.5 text-amber-500 dark:text-amber-400/80" />
                   <p className="text-sm font-black text-foreground dark:text-white sm:text-base">{stat.value}</p>
                   <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground mt-0.5">{stat.label}</p>
                 </div>

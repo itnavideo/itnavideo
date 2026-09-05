@@ -243,8 +243,8 @@ export function VideoTypeRow({
       {/* Header Info & Desktop Navigation */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
         <div className="max-w-3xl">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50/70 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-blue-700 mb-2">
-            <Sparkles size={13} className="text-blue-600" />
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50/80 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-amber-800 mb-2">
+            <Sparkles size={13} className="text-amber-500" />
             <span>{badge}</span>
           </div>
 
@@ -379,13 +379,13 @@ export default function DemoVideosShowcase() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Main Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50/70 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-blue-700 shadow-2xs">
-            <Sparkles size={14} className="text-blue-600" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50/80 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-amber-800 shadow-2xs">
+            <Sparkles size={14} className="text-amber-500" />
             <span>REAL CLOUD RENDERED DEMOS</span>
           </div>
 
           <h2 className="mt-4 font-sans text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
-            Watch Live AI Video Output Demos
+            Watch Live <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">AI Video Output Demos</span>
           </h2>
 
           <p className="mt-3 text-base sm:text-lg text-slate-600">

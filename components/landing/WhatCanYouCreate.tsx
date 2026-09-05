@@ -176,12 +176,12 @@ export default function WhatCanYouCreate() {
         
         {/* Header — Clean, Evergreen, No Hardcoded Numbers */}
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50/70 px-4 py-1 text-xs font-bold uppercase tracking-wider text-blue-700 shadow-2xs mb-3">
-            <Sparkles size={14} className="text-blue-600" />
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50/80 px-4 py-1 text-xs font-bold uppercase tracking-wider text-amber-800 shadow-2xs mb-3">
+            <Sparkles size={14} className="text-amber-500" />
             <span>AI Video Creation Workflows</span>
           </div>
           <h2 className="text-3xl font-black text-slate-900 sm:text-5xl font-sans tracking-tight">
-            AI Video Maker &amp; Generator Workflows
+            AI Video Maker &amp; <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">Generator Workflows</span>
           </h2>
           <p className="mt-3 text-sm sm:text-base text-slate-600 font-normal max-w-2xl mx-auto">
             Turn speech, video clips, and scripts into publish-ready content. Choose an AI workflow below to create vertical reels, widescreen videos, or clean studio audio.
@@ -198,7 +198,7 @@ export default function WhatCanYouCreate() {
                   onClick={() => setActiveCategory(cat.id)}
                   className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20 scale-[1.02]'
+                      ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-orange-500/20 scale-[1.02]'
                       : 'bg-slate-100 text-slate-700 hover:bg-slate-200/80 border border-slate-200/60'
                   }`}
                 >
@@ -224,7 +224,7 @@ export default function WhatCanYouCreate() {
             return (
               <div
                 key={`mobile-${template.id}`}
-                className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-blue-300 hover:shadow-md"
+                className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-amber-300 hover:shadow-md"
               >
                 {/* Visual Thumbnail Banner */}
                 <div className={`relative overflow-hidden rounded-xl border border-slate-100 bg-slate-900 mb-3.5 ${
@@ -241,19 +241,19 @@ export default function WhatCanYouCreate() {
                   
                   {/* Aspect Ratio Badge */}
                   <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 rounded-md bg-black/80 backdrop-blur-xs px-2.5 py-1 text-[10px] font-bold text-white border border-white/20">
-                    <Icon size={12} className="text-blue-400" />
+                    <Icon size={12} className="text-amber-400" />
                     <span>{template.aspectRatioBadge}</span>
                   </div>
 
                   {template.popular && (
-                    <div className="absolute top-2.5 right-2.5 rounded-md bg-blue-600 px-2 py-0.5 text-[10px] font-extrabold text-white shadow-xs">
+                    <div className="absolute top-2.5 right-2.5 rounded-md bg-gradient-to-r from-amber-500 to-orange-500 px-2 py-0.5 text-[10px] font-extrabold text-white shadow-xs">
                       POPULAR
                     </div>
                   )}
 
                   {/* Input Requirement Overlay on Image Bottom */}
                   <div className="absolute bottom-2 left-2 right-2 flex items-center gap-1.5 rounded-lg bg-black/75 backdrop-blur-xs px-2.5 py-1.5 text-[11px] text-slate-200 border border-white/10">
-                    <span className="font-bold text-blue-300">Input:</span>
+                    <span className="font-bold text-amber-300">Input:</span>
                     <span className="truncate font-medium text-white">{template.inputs}</span>
                   </div>
                 </div>
@@ -270,7 +270,7 @@ export default function WhatCanYouCreate() {
 
                   <Link
                     href={template.href}
-                    className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 py-3 text-xs font-bold text-white shadow-xs transition active:scale-98 hover:bg-blue-600"
+                    className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 py-3 text-xs font-bold text-white shadow-xs transition active:scale-98 hover:bg-gradient-to-r hover:from-amber-500 hover:to-orange-500"
                   >
                     <span>Create {template.name}</span>
                     <ArrowRight size={14} />
@@ -317,11 +317,11 @@ export default function WhatCanYouCreate() {
                 <div className="w-full lg:w-1/2 flex flex-col justify-center">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-slate-700">
-                      <Icon size={14} className="text-blue-600" />
+                      <Icon size={14} className="text-amber-600" />
                       <span>{template.aspectRatioBadge}</span>
                     </div>
                     {template.popular && (
-                      <span className="rounded-full bg-blue-100 text-blue-700 border border-blue-200 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider">
+                      <span className="rounded-full bg-amber-100 text-amber-800 border border-amber-200 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider">
                         ★ POPULAR
                       </span>
                     )}
@@ -341,14 +341,14 @@ export default function WhatCanYouCreate() {
                       Required Input To Render
                     </p>
                     <p className="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-1.5">
-                      <CheckCircle2 size={14} className="text-blue-600 shrink-0" />
+                      <CheckCircle2 size={14} className="text-amber-600 shrink-0" />
                       <span>{template.inputs}</span>
                     </p>
                   </div>
                   
                   <Link 
                     href={template.href}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-7 py-3.5 text-sm font-bold text-white shadow-md shadow-blue-600/20 transition-all hover:bg-blue-700 hover:scale-[1.02] active:scale-100 w-fit"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 px-7 py-3.5 text-sm font-bold text-white shadow-md shadow-orange-500/20 transition-all hover:from-amber-600 hover:to-orange-700 hover:scale-[1.02] active:scale-100 w-fit"
                   >
                     <span>Try {template.name}</span>
                     <ArrowRight size={16} />

@@ -25,26 +25,26 @@ const milestones = [
     reward: "20 credits",
     description: "50,000+ views",
     icon: TrendingUp,
-    accent: "text-blue-400",
-    bg: "bg-blue-500/10",
-    border: "border-blue-500/20",
+    accent: "text-amber-500",
+    bg: "bg-amber-500/10",
+    border: "border-amber-500/20",
   },
 ];
 
 export default function CreatorRewardsSection() {
   return (
     <section className="relative overflow-hidden px-4 py-24 sm:px-6 sm:py-32 border-t border-border bg-background">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_0px,rgba(37,99,235,0.02),transparent_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_0px,rgba(245,158,11,0.02),transparent_100%)]" />
 
       <div className="mx-auto max-w-5xl relative z-10">
         {/* Header */}
         <div className="text-center space-y-4">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/[0.06] px-4 py-1.5 text-xs font-bold text-blue-600 dark:text-blue-200 backdrop-blur-md">
-            <Gift size={13} className="text-cyan-500 dark:text-cyan-400" />
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/[0.06] px-4 py-1.5 text-xs font-bold text-amber-700 dark:text-amber-300 backdrop-blur-md">
+            <Gift size={13} className="text-amber-500 dark:text-amber-400" />
             <span>CREATOR REWARDS</span>
           </div>
           <h2 className="text-3xl font-black leading-tight text-foreground sm:text-4xl font-sans tracking-tight">
-            Promote Itnavideo. <span className="text-blue-500">Earn Free Video Credits.</span>
+            Promote Itnavideo. <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">Earn Free Video Credits.</span>
           </h2>
           <p className="mx-auto max-w-xl text-sm leading-relaxed text-muted-foreground">
             Create a video, reel, or short about Itnavideo. If it gets views, earn free video credits to create more content.
@@ -76,22 +76,22 @@ export default function CreatorRewardsSection() {
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4 sm:justify-start mt-2">
               <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-medium">
-                <Mail size={12} className="text-blue-500 dark:text-blue-400" />
+                <Mail size={12} className="text-amber-500 dark:text-amber-400" />
                 rohi@itnavideo.com
               </span>
               <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-medium">
-                <Instagram size={12} className="text-blue-500 dark:text-blue-400" />
+                <Instagram size={12} className="text-amber-500 dark:text-amber-400" />
                 @itnavideo
               </span>
               <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-medium">
-                <Clock size={12} className="text-blue-500 dark:text-blue-400" />
+                <Clock size={12} className="text-amber-500 dark:text-amber-400" />
                 Reply within 4 hours
               </span>
             </div>
           </div>
           <Link
             href="/promote-and-earn"
-            className="inline-flex shrink-0 items-center gap-2 rounded-2xl bg-blue-600 px-6 py-3.5 text-xs font-black text-white hover:bg-blue-500 transition duration-300 hover:-translate-y-0.5"
+            className="inline-flex shrink-0 items-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 px-6 py-3.5 text-xs font-black text-white hover:from-amber-600 hover:to-orange-700 transition duration-300 hover:-translate-y-0.5 shadow-md shadow-orange-500/20"
           >
             See Creator Rewards
             <ArrowRight size={13} />

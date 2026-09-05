@@ -128,12 +128,12 @@ export default function MadeWithItnavideoGallery() {
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <p className="text-xs font-bold uppercase tracking-widest text-blue-600 mb-2 flex items-center justify-center gap-1.5">
+          <p className="text-xs font-bold uppercase tracking-widest text-amber-600 mb-2 flex items-center justify-center gap-1.5">
             <Sparkles size={14} />
             <span>AI Video Maker Showcase &amp; Real Outputs</span>
           </p>
           <h2 className="text-3xl font-extrabold text-slate-900 sm:text-5xl font-sans tracking-tight">
-            See What You Can Create with AI
+            See What You Can <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">Create with AI</span>
           </h2>
           <p className="mt-4 text-sm sm:text-base text-slate-600">
             Itnavideo is the complete AI video generator. Filter through real generated outputs across short reels, long-form widescreen videos, explainers, and audio cleanup.
@@ -147,7 +147,7 @@ export default function MadeWithItnavideoGallery() {
                 onClick={() => setActiveCategory(cat)}
                 className={`rounded-full px-4 py-2 text-xs font-bold transition duration-150 ${
                   activeCategory === cat
-                    ? 'bg-blue-600 text-white shadow-xs'
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xs'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
                 }`}
               >
@@ -266,7 +266,7 @@ export default function MadeWithItnavideoGallery() {
                   {/* Card Information */}
                   <div className="mt-4 space-y-1.5 flex-1">
                     <h3 className="text-base font-extrabold text-slate-900 font-sans leading-snug line-clamp-1">{item.title}</h3>
-                    <p className="text-xs text-blue-600 font-bold">{item.videoType}</p>
+                    <p className="text-xs text-amber-600 font-bold">{item.videoType}</p>
                     <p className="text-xs text-slate-600 font-normal line-clamp-2 pt-0.5 leading-relaxed">{item.description}</p>
                   </div>
                 </div>
@@ -275,7 +275,7 @@ export default function MadeWithItnavideoGallery() {
                   <span className="text-[11px] font-semibold text-slate-500">{item.aspectRatio} Output</span>
                   <Link
                     href={item.href}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-blue-50 hover:bg-blue-600 text-blue-700 hover:text-white px-3.5 py-1.5 text-xs font-bold transition-colors duration-200 border border-blue-200/60"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-amber-50 hover:bg-gradient-to-r hover:from-amber-500 hover:to-orange-500 text-amber-700 hover:text-white px-3.5 py-1.5 text-xs font-bold transition-all duration-200 border border-amber-200/60"
                   >
                     <span>Create This</span>
                     <ExternalLink size={13} />
@@ -295,7 +295,7 @@ export default function MadeWithItnavideoGallery() {
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-200">
               <div>
                 <h3 className="text-base font-bold text-slate-900 font-sans">{activeVideoModal.title}</h3>
-                <p className="text-xs text-blue-600 font-semibold">{activeVideoModal.videoType} • {activeVideoModal.aspectRatio}</p>
+                <p className="text-xs text-amber-600 font-semibold">{activeVideoModal.videoType} • {activeVideoModal.aspectRatio}</p>
               </div>
               <button
                 onClick={() => setActiveVideoModal(null)}

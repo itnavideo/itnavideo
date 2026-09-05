@@ -115,8 +115,8 @@ export default function LandingPage() {
       <section className="bg-slate-50 border-t border-slate-200 py-16 px-6">
         <div className="mx-auto max-w-5xl text-slate-700 space-y-8">
           <div>
-            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
-              Free AI Video Generator &amp; Online AI Video Maker Platform
+            <h2 className="text-2xl font-bold text-slate-900 tracking-tight font-sans">
+              Free AI Video Generator &amp; <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">Online AI Video Maker Platform</span>
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-slate-600">
               Itnavideo is the all-in-one <strong>free AI video generator</strong> and automated video creation platform designed to streamline video production for Instagram Reels, YouTube Shorts, TikTok, and LinkedIn. Instead of spending hours learning complex video editing software, our <strong>AI video maker</strong> leverages artificial intelligence to analyze raw audio tracks, video clips, photos, and text scripts, automatically converting them into engaging, high-retention videos in seconds.

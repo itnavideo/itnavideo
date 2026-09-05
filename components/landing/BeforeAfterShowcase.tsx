@@ -277,12 +277,12 @@ export default function BeforeAfterShowcase() {
         
         {/* Header */}
         <div className="mb-8 text-center max-w-2xl mx-auto">
-          <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-600 flex items-center justify-center gap-1.5">
+          <p className="mb-2 text-xs font-bold uppercase tracking-widest text-amber-600 flex items-center justify-center gap-1.5">
             <Sparkles size={14} />
             <span>Try Different Caption Styles</span>
           </p>
           <h2 className="text-3xl font-extrabold text-slate-900 sm:text-5xl font-sans tracking-tight">
-            See It in Action
+            See It in <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">Action</span>
           </h2>
           <p className="mt-3 text-xs sm:text-sm text-slate-600 font-normal">
             Preview your video with different caption styles before creating it. Click any style card below to see the live transformation.
@@ -318,12 +318,12 @@ export default function BeforeAfterShowcase() {
 
             {/* RIGHT: ITNAVIDEO AI CAPTIONED OUTPUT */}
             <div className="flex flex-col items-center space-y-2">
-              <span className="rounded-full bg-blue-600 px-3 py-1 text-[10px] font-black tracking-wider text-white uppercase shadow-xs flex items-center gap-1">
+              <span className="rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-1 text-[10px] font-black tracking-wider text-white uppercase shadow-xs flex items-center gap-1">
                 <Sparkles size={11} />
                 <span>{selectedStyle.label}</span>
               </span>
 
-              <div className="relative w-full aspect-[9/16] rounded-2xl overflow-hidden bg-slate-900 border border-blue-500/40 shadow-md flex items-center justify-center">
+              <div className="relative w-full aspect-[9/16] rounded-2xl overflow-hidden bg-slate-900 border border-amber-500/40 shadow-md flex items-center justify-center">
                 <video
                   ref={afterRef}
                   src={videoSrc}
@@ -541,7 +541,7 @@ export default function BeforeAfterShowcase() {
           <div className="space-y-3">
             <div className="flex items-center justify-between px-1">
               <div>
-                <p className="text-[10px] font-extrabold uppercase tracking-widest text-blue-600 mb-0.5">
+                <p className="text-[10px] font-extrabold uppercase tracking-widest text-amber-600 mb-0.5">
                   Try Different Styles
                 </p>
                 <span className="text-xs font-black uppercase tracking-wider text-slate-900 font-sans">
@@ -589,7 +589,7 @@ export default function BeforeAfterShowcase() {
                     onClick={(e) => handleStyleSelect(style, e)}
                     className={`flex-shrink-0 w-36 sm:w-44 rounded-2xl p-2.5 border text-center transition duration-200 flex flex-col justify-between ${
                       isSelected
-                        ? 'border-blue-600 bg-white ring-2 ring-blue-600 shadow-md scale-[1.02]'
+                        ? 'border-orange-500 bg-white ring-2 ring-orange-500 shadow-md scale-[1.02]'
                         : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm shadow-2xs opacity-90 hover:opacity-100'
                     }`}
                   >
@@ -609,7 +609,7 @@ export default function BeforeAfterShowcase() {
 
                       {/* Selected Checkmark Badge */}
                       {isSelected && (
-                        <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-white shadow-xs">
+                        <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xs">
                           <Check size={10} strokeWidth={3} />
                         </span>
                       )}
@@ -617,7 +617,7 @@ export default function BeforeAfterShowcase() {
 
                     {/* Card Label & Sub-badge */}
                     <div>
-                      <span className={`text-xs font-bold block truncate font-sans ${isSelected ? 'text-blue-600 font-black' : 'text-slate-900'}`}>
+                      <span className={`text-xs font-bold block truncate font-sans ${isSelected ? 'text-amber-600 font-black' : 'text-slate-900'}`}>
                         {style.label}
                       </span>
                       <span className="text-[10px] font-medium text-slate-500 block truncate mt-0.5">
@@ -642,7 +642,7 @@ export default function BeforeAfterShowcase() {
 
             <Link
               href={`/dashboard?videoType=auto-caption-reel&preset=${encodeURIComponent(selectedStyle.presetKey)}`}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 px-6 py-2.5 text-xs font-bold text-white shadow-md shadow-blue-600/20 transition duration-150 w-full sm:w-auto"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-700 px-6 py-2.5 text-xs font-bold text-white shadow-md shadow-orange-500/20 transition duration-150 w-full sm:w-auto"
             >
               <span>Create {selectedStyle.label} Video</span>
               <ArrowRight size={14} />

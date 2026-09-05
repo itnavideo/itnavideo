@@ -23,7 +23,7 @@ const SHORT_TEMPLATES: TemplateCard[] = [
     desc: 'Clean, word-synced captions for any talking reel. Pick a style and post.',
     image: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788190064/file_000000005540821181b6095da390b68b_qumuqg.png',
     proof: 'Most used',
-    accent: '#2563EB',
+    accent: '#F59E0B',
     href: '/dashboard?videoType=auto-caption-reel',
   },
   {
@@ -33,7 +33,7 @@ const SHORT_TEMPLATES: TemplateCard[] = [
     desc: 'Left vs right comparison with a narration and a sticker presenter.',
     image: '/preview/Compare Explainer.png',
     proof: 'Clear decision',
-    accent: '#06b6d4',
+    accent: '#EA580C',
     href: '/dashboard?videoType=compare-explainer',
   },
   {
@@ -43,7 +43,7 @@ const SHORT_TEMPLATES: TemplateCard[] = [
     desc: 'AI writes key points on a premium corporate board synced to your speech.',
     image: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788190745/file_000000003c2882118520991dc7d2d827_alfyoc.png',
     proof: 'Corporate',
-    accent: '#3b82f6',
+    accent: '#D97706',
     href: '/dashboard?videoType=whiteboard-video',
   },
   {
@@ -127,7 +127,7 @@ function TemplateGrid({ items, ratio, cols }: { items: TemplateCard[]; ratio: st
       {items.map((t) => (
         <div key={t.title} className="flex flex-col space-y-4">
           <div className="flex items-baseline gap-3">
-            <span className="font-mono text-5xl font-black text-blue-500/20 leading-none">
+            <span className="font-mono text-5xl font-black text-amber-500/20 leading-none">
               {String(t.n).padStart(2, '0')}
             </span>
             <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{t.title}</span>
@@ -154,7 +154,7 @@ function TemplateGrid({ items, ratio, cols }: { items: TemplateCard[]; ratio: st
             </div>
 
             <div className="border-t border-border dark:border-border p-5 space-y-2">
-              <h3 className="text-sm font-bold text-card-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition">{t.title}</h3>
+              <h3 className="text-sm font-bold text-card-foreground group-hover:text-amber-600 dark:group-hover:text-amber-400 transition">{t.title}</h3>
               <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{t.input}</p>
               <p className="text-xs leading-relaxed text-muted-foreground">{t.desc}</p>
               <span
@@ -177,12 +177,12 @@ export default function HomepageDemoGrid() {
       <div className="mx-auto max-w-7xl relative z-10">
         {/* Section header */}
         <div className="mx-auto mb-20 max-w-3xl text-center space-y-4">
-          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-cyan-500 dark:text-cyan-400 flex items-center justify-center gap-1.5">
+          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-amber-600 dark:text-amber-400 flex items-center justify-center gap-1.5">
             <Sparkles size={11} />
             <span>VIDEO TEMPLATES</span>
           </p>
           <h2 className="text-4xl font-black leading-tight text-foreground sm:text-5xl font-sans tracking-tight">
-            Pick a template. <span className="text-blue-500">Upload. Done.</span>
+            Pick a template. <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">Upload. Done.</span>
           </h2>
           <p className="mx-auto max-w-2xl text-sm leading-relaxed text-muted-foreground">
             Each template has its own upload flow, AI pipeline, and output style — no generic one-size-fits-all.
@@ -208,7 +208,7 @@ export default function HomepageDemoGrid() {
             {LONG_TEMPLATES.map((t) => (
               <div key={t.title} className="flex flex-col space-y-4">
                 <div className="flex items-baseline gap-3">
-                  <span className="font-mono text-5xl font-black text-blue-500/20 leading-none">
+                  <span className="font-mono text-5xl font-black text-amber-500/20 leading-none">
                     {String(t.n).padStart(2, '0')}
                   </span>
                   <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{t.title}</span>
@@ -243,7 +243,7 @@ export default function HomepageDemoGrid() {
                     </span>
 
                     <div className="absolute bottom-0 left-0 right-0 p-5 space-y-1 z-10">
-                      <h3 className="text-base font-bold text-white group-hover:text-blue-400 transition leading-none">{t.title}</h3>
+                      <h3 className="text-base font-bold text-white group-hover:text-amber-400 transition leading-none">{t.title}</h3>
                       <p className="text-[10px] font-bold uppercase tracking-wider text-slate-200">{t.input}</p>
                     </div>
                   </div>
