@@ -27,7 +27,7 @@ const compositions = [
 const RemotionRoot = () => (
   <>
     {compositions.map((Component, index) => (
-      <Component key={Component?.name || `comp-${index}`} />
+      Component ? <Component key={Component?.name || `comp-${index}`} /> : null
     ))}
   </>
 );

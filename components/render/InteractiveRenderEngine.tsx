@@ -16,6 +16,7 @@ import {
   VolumeX,
   Play,
   Pause,
+  Mic,
 } from 'lucide-react';
 
 export type Mode = string;
@@ -177,11 +178,11 @@ export default function InteractiveRenderEngine({
           {isReady && status.outputFile ? (
             <a
               href={status.outputFile}
-              download={`itnavideo-${mode || 'reel'}.mp4`}
+              download={mode === 'audioClean' ? 'cleaned-voiceover.mp3' : `itnavideo-${mode || 'reel'}.mp4`}
               className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-400 to-teal-300 hover:from-emerald-300 hover:to-teal-200 text-slate-950 font-black text-xs transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:scale-102"
             >
               <Download size={15} />
-              <span>Download MP4 Video</span>
+              <span>{mode === 'audioClean' ? 'Download Clean Audio (.mp3)' : 'Download MP4 Video'}</span>
             </a>
           ) : (
             <button
@@ -201,24 +202,51 @@ export default function InteractiveRenderEngine({
         <div className="lg:col-span-7 bg-zinc-900/60 rounded-2xl border border-zinc-800/80 p-5 space-y-5 shadow-xl">
           <div className="flex items-center justify-between">
             <h3 className="font-extrabold text-sm text-white flex items-center gap-2">
-              <Film size={16} className="text-emerald-400" />
-              Rendering Your Video
+              {mode === 'audioClean' ? (
+                <>
+                  <Mic size={16} className="text-orange-400" />
+                  Cleaning Your Audio
+                </>
+              ) : (
+                <>
+                  <Film size={16} className="text-emerald-400" />
+                  Rendering Your Video
+                </>
+              )}
             </h3>
             <span className="text-xs font-mono text-emerald-400 bg-emerald-950/80 px-2.5 py-1 rounded-lg border border-emerald-800/50">
               {isReady ? '100% Ready' : `${percentage}% Completed`}
             </span>
           </div>
 
-          {/* VIDEO PLAYER PREVIEW BOX */}
-          <div className="relative w-full aspect-[9/16] max-h-[420px] mx-auto rounded-2xl bg-zinc-950 border-2 border-zinc-800 overflow-hidden flex items-center justify-center shadow-2xl">
+          {/* VIDEO / AUDIO PLAYER PREVIEW BOX */}
+          <div className={`relative w-full ${mode === 'audioClean' ? 'h-64' : 'aspect-[9/16] max-h-[420px]'} mx-auto rounded-2xl bg-zinc-950 border-2 border-zinc-800 overflow-hidden flex items-center justify-center shadow-2xl`}>
             {isReady && status.outputFile ? (
-              <video
-                src={status.outputFile}
-                controls
-                autoPlay
-                playsInline
-                className="w-full h-full object-contain"
-              />
+              mode === 'audioClean' ? (
+                <div className="w-full h-full flex flex-col items-center justify-center p-6 space-y-4 bg-gradient-to-b from-zinc-900 to-zinc-950">
+                  <div className="w-14 h-14 rounded-full bg-orange-500/20 border border-orange-500/40 text-orange-400 flex items-center justify-center shadow-lg">
+                    <Mic size={28} />
+                  </div>
+                  <div className="text-center">
+                    <p className="font-extrabold text-sm text-white">Audio Cleaned & Normalized</p>
+                    <p className="text-xs text-zinc-400 mt-0.5">Retakes & long silences removed • Consistent studio loudness</p>
+                  </div>
+                  <audio
+                    src={status.outputFile}
+                    controls
+                    autoPlay
+                    className="w-full max-w-sm mt-1"
+                  />
+                </div>
+              ) : (
+                <video
+                  src={status.outputFile}
+                  controls
+                  autoPlay
+                  playsInline
+                  className="w-full h-full object-contain"
+                />
+              )
             ) : isFailed ? (
               <div className="p-6 text-center space-y-3">
                 <div className="w-12 h-12 rounded-full bg-red-500/20 border border-red-500/40 text-red-400 mx-auto flex items-center justify-center">

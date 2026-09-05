@@ -1,0 +1,58 @@
+{
+  "metadata": {
+    "styleId": "isometric-cube",
+    "demoVideoId": "isometric-cube",
+    "name": "Isometric 3D Extrusion",
+    "category": "depth",
+    "tags": ["isometric", "3d-extrusion", "block-letters", "spatial"],
+    "sourceVideoUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4",
+    "posterUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/so_1,w_600,q_auto,f_jpg/v1788450233/professional-creator-girl-before_rwmxsd.jpg",
+    "analysisVersion": "2.0.0-temporal-motion",
+    "analyzedAt": "2026-09-04T12:00:00.000Z",
+    "overallConfidence": 0.95
+  },
+  "pacingAndRhythm": {
+    "personality": { "value": "spatial-3d", "confidence": 0.95, "status": "DETECTED" },
+    "rhythmPattern": { "value": "cube-drop", "confidence": 0.95, "status": "DETECTED" },
+    "targetWordsPerPhrase": 2,
+    "averagePhraseDurationSec": 1.3,
+    "transitionFrequencyPerMinute": 38,
+    "speechSyncMode": "beat-locked",
+    "motionIntensity": { "value": "high", "confidence": 0.95, "status": "DETECTED" }
+  },
+  "typography": {
+    "fontCategory": { "value": "block-sans", "confidence": 0.95, "status": "DETECTED" },
+    "fontFamilyEstimate": { "value": "Montserrat", "confidence": 0.95, "status": "DETECTED" },
+    "heroTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 900,
+      "fontStyle": "normal",
+      "relativeScale": 1.7,
+      "letterSpacingRatio": 0.02,
+      "lineHeightRatio": 1.0,
+      "opacity": 1
+    },
+    "leadTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 800,
+      "fontStyle": "normal",
+      "relativeScale": 0.85,
+      "letterSpacingRatio": 0.04,
+      "lineHeightRatio": 1.1,
+      "opacity": 0.9
+    },
+    "subTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 700,
+      "fontStyle": "normal",
+      "relativeScale": 0.75,
+      "letterSpacingRatio": 0.05,
+      "lineHeightRatio": 1.1,
+      "opacity": 0.85
+    },
+    "hierarchyLevels": ["hero", "lead", "sub"],
+    "textDensity": { "value": "rapid-single", "confidence": 0.92, "status": "DETECTED" },
+    "wordGroupingRule": "1-3-balanced",
+    "lineBreakPolicy": "isometric-block"
+  }
+}

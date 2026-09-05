@@ -1,0 +1,83 @@
+{
+  "metadata": {
+    "styleId": "obsidian-gold",
+    "demoVideoId": "obsidian-gold",
+    "name": "Obsidian Noir & 3D Gold Extrusion",
+    "category": "depth",
+    "tags": ["obsidian-gold", "depth-layering", "3d-bevel", "gold-extrusion", "captions-ai"],
+    "sourceVideoUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/v1783942630/Ask_yourself_this_question.Are_you_regretting_your_mistakes..._or_learning_from_them_%EF%B8%8F_d9ekcx.mp4",
+    "posterUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/f_auto,q_auto,w_480,so_0.5/v1783942630/Ask_yourself_this_question.Are_you_regretting_your_mistakes..._or_learning_from_them_%EF%B8%8F_d9ekcx.jpg",
+    "analysisVersion": "2.0.0-temporal-motion",
+    "analyzedAt": "2026-09-04T12:00:00.000Z",
+    "overallConfidence": 0.94
+  },
+  "pacingAndRhythm": {
+    "personality": {
+      "value": "energetic-punch",
+      "confidence": 0.94,
+      "status": "DETECTED"
+    },
+    "rhythmPattern": {
+      "value": "callout-pill",
+      "confidence": 0.92,
+      "status": "DETECTED"
+    },
+    "targetWordsPerPhrase": 3,
+    "averagePhraseDurationSec": 1.4,
+    "transitionFrequencyPerMinute": 38,
+    "speechSyncMode": "beat-locked",
+    "motionIntensity": {
+      "value": "punchy",
+      "confidence": 0.92,
+      "status": "DETECTED"
+    }
+  },
+  "typography": {
+    "fontCategory": {
+      "value": "bold-geometric-sans",
+      "confidence": 0.96,
+      "status": "DETECTED"
+    },
+    "fontFamilyEstimate": {
+      "value": "Plus Jakarta Sans",
+      "confidence": 0.94,
+      "status": "DETECTED"
+    },
+    "heroTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 900,
+      "fontStyle": "normal",
+      "relativeScale": 1.68,
+      "letterSpacingRatio": -0.01,
+      "lineHeightRatio": 1.05,
+      "opacity": 1
+    },
+    "leadTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 800,
+      "fontStyle": "normal",
+      "relativeScale": 0.8,
+      "letterSpacingRatio": 0.06,
+      "lineHeightRatio": 1.2,
+      "opacity": 0.9
+    },
+    "subTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 700,
+      "fontStyle": "normal",
+      "relativeScale": 0.7,
+      "letterSpacingRatio": 0.04,
+      "lineHeightRatio": 1.2,
+      "opacity": 0.85
+    },
+    "hierarchyLevels": ["hero", "lead", "sub"],
+    "textDensity": {
+      "value": "compact-phrases",
+      "confidence": 0.9,
+      "status": "ESTIMATED"
+    },
+    "wordGroupingRule": "2-4-balanced",
+    "lineBreakPolicy": "balanced-stack"
+  }
+}
+

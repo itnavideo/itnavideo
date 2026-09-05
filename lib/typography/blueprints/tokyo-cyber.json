@@ -1,0 +1,83 @@
+{
+  "metadata": {
+    "styleId": "tokyo-cyber",
+    "demoVideoId": "tokyo-cyber",
+    "name": "Tokyo Cyber Neon & Terminal Hacker",
+    "category": "kinetic",
+    "tags": ["tokyo-cyber", "cyber-tech", "neon-green", "terminal", "matrix"],
+    "sourceVideoUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/v1783942630/Comment_ADVANTAGE_to_get_the_4_skills_that_give_you_the_upper_hand_on_wealth_while_everyone_el_nqbpyj.mp4",
+    "posterUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/f_auto,q_auto,w_480,so_0.5/v1783942630/Comment_ADVANTAGE_to_get_the_4_skills_that_give_you_the_upper_hand_on_wealth_while_everyone_el_nqbpyj.jpg",
+    "analysisVersion": "2.0.0-temporal-motion",
+    "analyzedAt": "2026-09-04T12:00:00.000Z",
+    "overallConfidence": 0.95
+  },
+  "pacingAndRhythm": {
+    "personality": {
+      "value": "cyber-tech",
+      "confidence": 0.96,
+      "status": "DETECTED"
+    },
+    "rhythmPattern": {
+      "value": "word-slam",
+      "confidence": 0.94,
+      "status": "DETECTED"
+    },
+    "targetWordsPerPhrase": 2,
+    "averagePhraseDurationSec": 1.1,
+    "transitionFrequencyPerMinute": 48,
+    "speechSyncMode": "word-locked",
+    "motionIntensity": {
+      "value": "explosive",
+      "confidence": 0.92,
+      "status": "DETECTED"
+    }
+  },
+  "typography": {
+    "fontCategory": {
+      "value": "display-heavy",
+      "confidence": 0.95,
+      "status": "DETECTED"
+    },
+    "fontFamilyEstimate": {
+      "value": "Syne",
+      "confidence": 0.94,
+      "status": "DETECTED"
+    },
+    "heroTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 900,
+      "fontStyle": "normal",
+      "relativeScale": 1.7,
+      "letterSpacingRatio": 0.04,
+      "lineHeightRatio": 1.05,
+      "opacity": 1
+    },
+    "leadTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 800,
+      "fontStyle": "normal",
+      "relativeScale": 0.75,
+      "letterSpacingRatio": 0.15,
+      "lineHeightRatio": 1.2,
+      "opacity": 0.9
+    },
+    "subTreatment": {
+      "casing": "natural",
+      "fontWeight": 600,
+      "fontStyle": "normal",
+      "relativeScale": 0.7,
+      "letterSpacingRatio": 0.06,
+      "lineHeightRatio": 1.2,
+      "opacity": 0.85
+    },
+    "hierarchyLevels": ["hero", "lead", "sub"],
+    "textDensity": {
+      "value": "compact-phrases",
+      "confidence": 0.92,
+      "status": "DETECTED"
+    },
+    "wordGroupingRule": "1-2-rapid",
+    "lineBreakPolicy": "single-line-clamp"
+  }
+}
+

@@ -13,6 +13,25 @@ export type TypographyStyleId =
   | 'platinum-penthouse'
   | 'royal-emerald'
   | 'silver-chrome'
+  | 'velvet-crimson'
+  | 'tokyo-cyber'
+  | 'miami-sunset'
+  | 'swiss-minimal'
+  | 'monarch-violet'
+  | 'obsidian-gold'
+  | 'hormozi-bold'
+  | 'beast-impact'
+  | 'viral-redline'
+  | 'creator-highlight'
+  | 'gadzhi-documentary'
+  | 'vogue-editorial'
+  | 'keynote-executive'
+  | 'vox-explainer'
+  | 'nordic-clean'
+  | 'spatial-glass'
+  | 'isometric-cube'
+  | 'synthwave-80s'
+  | 'hud-telemetry'
   // Legacy aliases
   | 'prime-neon'
   | 'agent-tour'
@@ -157,6 +176,215 @@ export const TYPOGRAPHY_STYLES: TypographyStyle[] = [
     posterSrc: getCloudinaryPosterUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1788193723/Video-98200_id7qk8.mp4'),
     accentColor: '#CBD5E1',
     tags: ['Metallic Chrome', 'Tech Minimal', 'Modern'],
+  },
+  {
+    id: 'velvet-crimson',
+    name: 'Velvet Crimson',
+    tag: 'Rose Gold & Velvet Crimson Luxe',
+    category: 'luxury',
+    description: 'Playfair italic serif with warm rose gold gradient & deep velvet ruby glow',
+    videoSrc: getCloudinaryVideoUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1783942631/I_filed_for_divorce_closed_a_billion-dollar_company_and_moved_to_a_country_where_I_didn_t_spea_tm9yqa.mp4'),
+    posterSrc: getCloudinaryPosterUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1783942631/I_filed_for_divorce_closed_a_billion-dollar_company_and_moved_to_a_country_where_I_didn_t_spea_tm9yqa.mp4'),
+    accentColor: '#FB7185',
+    tags: ['Rose Gold', 'Velvet Ruby', 'Editorial Luxury'],
+  },
+  {
+    id: 'tokyo-cyber',
+    name: 'Tokyo Cyber Neon',
+    tag: 'Matrix Green · Terminal Hacker',
+    category: 'kinetic',
+    description: 'Electric lime & matrix code green with bracket framing and digital glitch beats',
+    videoSrc: getCloudinaryVideoUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1783942630/Comment_ADVANTAGE_to_get_the_4_skills_that_give_you_the_upper_hand_on_wealth_while_everyone_el_nqbpyj.mp4'),
+    posterSrc: getCloudinaryPosterUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1783942630/Comment_ADVANTAGE_to_get_the_4_skills_that_give_you_the_upper_hand_on_wealth_while_everyone_el_nqbpyj.mp4'),
+    accentColor: '#4ADE80',
+    tags: ['Matrix Code', 'Terminal Hacker', 'Cyberpunk'],
+  },
+  {
+    id: 'miami-sunset',
+    name: 'Miami Sunset Kinetic',
+    tag: 'Sun Gold to Hot Pink Gradient',
+    category: 'kinetic',
+    description: 'High-energy summer kinetic typography with dual-tone sunset glow & elastic bounce',
+    videoSrc: getCloudinaryVideoUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1783942635/You_re_already_ahead_in_something.Stop_ignoring_it._That_s_your_edge._personalbranding_mhjtvu.mp4'),
+    posterSrc: getCloudinaryPosterUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1783942635/You_re_already_ahead_in_something.Stop_ignoring_it._That_s_your_edge._personalbranding_mhjtvu.mp4'),
+    accentColor: '#F43F5E',
+    tags: ['Sunset Horizon', 'Electric Coral', 'High Energy'],
+  },
+  {
+    id: 'swiss-minimal',
+    name: 'Swiss Bauhaus Studio',
+    tag: 'Architectural Modernist Studio',
+    category: 'minimal',
+    description: 'Architectural precision with stark contrast, micro-spaced tags, and minimalist Swiss crosshairs',
+    videoSrc: getCloudinaryVideoUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1783942630/Are_you_in_the_right_rooms_fppoam.mp4'),
+    posterSrc: getCloudinaryPosterUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1783942630/Are_you_in_the_right_rooms_fppoam.mp4'),
+    accentColor: '#FFFFFF',
+    tags: ['Bauhaus Minimal', 'Architectural', 'Executive'],
+  },
+  {
+    id: 'monarch-violet',
+    name: 'Monarch Amethyst & Gold',
+    tag: 'Royal Amethyst & Liquid Gold Halo',
+    category: 'luxury',
+    description: 'Ultra-luxury royal violet and 24k champagne gold for high-ticket finance & mindset reels',
+    videoSrc: getCloudinaryVideoUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1783942629/affirmationsong_affirmations_womenssecretway_dailyreminders_loveyourselfquotes_hquhqx.mp4'),
+    posterSrc: getCloudinaryPosterUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1783942629/affirmationsong_affirmations_womenssecretway_dailyreminders_loveyourselfquotes_hquhqx.mp4'),
+    accentColor: '#C084FC',
+    tags: ['Royal Amethyst', '24k Gold Crest', 'Elite Mindset'],
+  },
+  {
+    id: 'obsidian-gold',
+    name: 'Obsidian Noir & 3D Gold Extrusion',
+    tag: 'Captions AI · 3D Behind Subject',
+    category: 'depth',
+    description: 'Massive 3D metallic gold bevel with behind-the-subject depth layering and dark glassmorphic badge',
+    videoSrc: getCloudinaryVideoUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1783942630/Ask_yourself_this_question.Are_you_regretting_your_mistakes..._or_learning_from_them_%EF%B8%8F_d9ekcx.mp4'),
+    posterSrc: getCloudinaryPosterUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1783942630/Ask_yourself_this_question.Are_you_regretting_your_mistakes..._or_learning_from_them_%EF%B8%8F_d9ekcx.mp4'),
+    accentColor: '#EAB308',
+    tags: ['Behind Subject', '3D Gold Bevel', 'Captions AI'],
+  },
+  {
+    id: 'hormozi-bold',
+    name: 'Hormozi Bold Punch',
+    tag: 'Viral Hook & Heavy Stroke Outline',
+    category: 'kinetic',
+    description: 'Alex Hormozi viral punch, ultra-heavy stroke outline, tilted word pop, and neon yellow hook',
+    videoSrc: getCloudinaryVideoUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4'),
+    posterSrc: getCloudinaryPosterUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4'),
+    accentColor: '#FACC15',
+    tags: ['Alex Hormozi', 'Heavy Stroke', 'High Retention', 'Viral Hook'],
+  },
+  {
+    id: 'beast-impact',
+    name: 'Beast Impact Pop',
+    tag: 'MrBeast Comic 3D & Explosive Pop',
+    category: 'kinetic',
+    description: 'MrBeast comic 3D pop, bold drop-shadow, explosive spring bounce & tilt shake',
+    videoSrc: getCloudinaryVideoUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4'),
+    posterSrc: getCloudinaryPosterUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4'),
+    accentColor: '#38BDF8',
+    tags: ['MrBeast Style', 'Comic 3D', 'Explosive Bounce', 'High Retention'],
+  },
+  {
+    id: 'viral-redline',
+    name: 'Viral Breaking Alert',
+    tag: 'Urgent News Hook & Red Warning Pill',
+    category: 'kinetic',
+    description: 'Breaking news alert pill, red warning glowing line, and urgent high-contrast slam',
+    videoSrc: getCloudinaryVideoUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4'),
+    posterSrc: getCloudinaryPosterUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4'),
+    accentColor: '#EF4444',
+    tags: ['Breaking News', 'Redline Alert', 'Urgent Hook', 'High Retention'],
+  },
+  {
+    id: 'creator-highlight',
+    name: 'Creator Highlighter',
+    tag: 'Ali Abdaal · Study Highlighter Sweep',
+    category: 'kinetic',
+    description: 'Ali Abdaal study style, clean sans with smooth yellow marker highlighter sweep',
+    videoSrc: getCloudinaryVideoUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4'),
+    posterSrc: getCloudinaryPosterUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4'),
+    accentColor: '#FACC15',
+    tags: ['Ali Abdaal', 'Yellow Highlighter', 'Paper Study', 'Clean Sans'],
+  },
+  {
+    id: 'gadzhi-documentary',
+    name: 'Gadzhi Documentary',
+    tag: 'Iman Gadzhi · Cinematic Gold Serif',
+    category: 'luxury',
+    description: 'Iman Gadzhi documentary style, classic serif, subtle gold sheen, cinematic slow-drift, bookend rules',
+    videoSrc: getCloudinaryVideoUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4'),
+    posterSrc: getCloudinaryPosterUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4'),
+    accentColor: '#F59E0B',
+    tags: ['Iman Gadzhi', 'Cinematic Serif', 'Documentary', 'Gold Sheen'],
+  },
+  {
+    id: 'vogue-editorial',
+    name: 'Vogue High-Fashion',
+    tag: 'Bodoni Italic & Rose Gold Luxe',
+    category: 'luxury',
+    description: 'Bodoni high-contrast serif, vertical hairline accents, and chic italicized emphasis',
+    videoSrc: getCloudinaryVideoUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4'),
+    posterSrc: getCloudinaryPosterUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4'),
+    accentColor: '#F43F5E',
+    tags: ['Vogue', 'High Fashion', 'Bodoni Serif', 'Rose Gold'],
+  },
+  {
+    id: 'keynote-executive',
+    name: 'Keynote Executive',
+    tag: 'Apple Keynote · Frosted Glass Capsule',
+    category: 'minimal',
+    description: 'Apple keynote presentation, frosted glass pill, crisp sans, calm fade-up',
+    videoSrc: getCloudinaryVideoUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4'),
+    posterSrc: getCloudinaryPosterUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4'),
+    accentColor: '#38BDF8',
+    tags: ['Apple Keynote', 'Frosted Capsule', 'Executive', 'Sleek Sans'],
+  },
+  {
+    id: 'vox-explainer',
+    name: 'Vox Motion Explainer',
+    tag: 'Johnny Harris / Vox · Marker Box',
+    category: 'minimal',
+    description: 'Johnny Harris / Vox documentary style, technical coordinate badge, yellow marker box',
+    videoSrc: getCloudinaryVideoUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4'),
+    posterSrc: getCloudinaryPosterUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4'),
+    accentColor: '#EAB308',
+    tags: ['Vox Explainer', 'Johnny Harris', 'Marker Box', 'Data Viz'],
+  },
+  {
+    id: 'nordic-clean',
+    name: 'Nordic Studio Sans',
+    tag: 'Scandinavian Ultra-Minimalism',
+    category: 'minimal',
+    description: 'Scandinavian ultra-minimalism, extra-letterspaced sans, muted slate tones',
+    videoSrc: getCloudinaryVideoUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4'),
+    posterSrc: getCloudinaryPosterUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4'),
+    accentColor: '#94A3B8',
+    tags: ['Nordic', 'Scandinavian', 'Ultra Minimal', 'Studio Sans'],
+  },
+  {
+    id: 'spatial-glass',
+    name: 'Spatial Vision Glass',
+    tag: 'VisionOS Frosted Specular Acrylic',
+    category: 'depth',
+    description: 'VisionOS frosted refractive acrylic pill, specular rim light, 3D floating elevation',
+    videoSrc: getCloudinaryVideoUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4'),
+    posterSrc: getCloudinaryPosterUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4'),
+    accentColor: '#60A5FA',
+    tags: ['VisionOS Glass', 'Spatial Audio', 'Specular Rim', '3D Float'],
+  },
+  {
+    id: 'isometric-cube',
+    name: 'Isometric 3D Extrusion',
+    tag: 'Isometric Block 3D Shadow',
+    category: 'depth',
+    description: 'Angled block lettering with deep 3D shadow extrusion and spatial elevation',
+    videoSrc: getCloudinaryVideoUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4'),
+    posterSrc: getCloudinaryPosterUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4'),
+    accentColor: '#8B5CF6',
+    tags: ['Isometric 3D', 'Extruded Block', 'Deep Shadow', 'Spatial'],
+  },
+  {
+    id: 'synthwave-80s',
+    name: '80s Synthwave Outrun',
+    tag: 'Retro Chrome & Hot Neon Outrun',
+    category: 'kinetic',
+    description: 'Chrome metallic top, hot magenta neon bottom, glowing retro grid scanlines',
+    videoSrc: getCloudinaryVideoUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4'),
+    posterSrc: getCloudinaryPosterUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4'),
+    accentColor: '#EC4899',
+    tags: ['Synthwave', 'Outrun', '80s Chrome', 'Hot Pink Neon'],
+  },
+  {
+    id: 'hud-telemetry',
+    name: 'Tactical HUD Telemetry',
+    tag: 'Sci-Fi Targeting & Digital Readout',
+    category: 'kinetic',
+    description: 'Sci-fi HUD targeting reticles, coordinate stats, and digital monospace readout',
+    videoSrc: getCloudinaryVideoUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4'),
+    posterSrc: getCloudinaryPosterUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4'),
+    accentColor: '#0EA5E9',
+    tags: ['Tactical HUD', 'Sci-Fi Telemetry', 'Monospace Scan', 'Cybernetic'],
   },
 ];
 
@@ -341,40 +569,148 @@ type TypographyStylePickerProps = {
 
 export function TypographyStylePicker({ value, onChange }: TypographyStylePickerProps) {
   const [activePreviewId, setActivePreviewId] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<TypographyCategory>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const CATEGORIES: { id: TypographyCategory; label: string }[] = [
+    { id: 'all', label: 'All Styles' },
+    { id: 'kinetic', label: 'Viral & Kinetic' },
+    { id: 'luxury', label: 'Luxury & Editorial' },
+    { id: 'depth', label: '3D & Depth' },
+    { id: 'minimal', label: 'Minimal & Studio' },
+  ];
+
+  const filteredStyles = TYPOGRAPHY_STYLES.filter((style) => {
+    const matchesCategory = selectedCategory === 'all' || style.category === selectedCategory;
+    const matchesSearch =
+      !searchQuery.trim() ||
+      style.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      style.tag.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      style.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      style.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()));
+    return matchesCategory && matchesSearch;
+  });
 
   return (
     <div className="relative rounded-3xl border border-cyan-500/20 bg-zinc-950/90 p-4 sm:p-5 backdrop-blur-2xl shadow-[0_0_40px_rgba(0,0,0,0.8)]">
-      {/* ── Minimal Gallery Header ── */}
+      {/* ── Header with Count & Subtext ── */}
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <span className="flex h-2 w-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
           <h3 className="text-xs font-black uppercase tracking-[0.2em] text-cyan-200">
-            Typography Styles
+            Typography Style Library
           </h3>
+          <span className="rounded-full bg-cyan-500/10 border border-cyan-500/30 px-2 py-0.5 text-[10px] font-bold text-cyan-300">
+            {TYPOGRAPHY_STYLES.length} Styles
+          </span>
         </div>
         <span className="text-[11px] font-medium text-slate-400">
-          Click any style below to play its demo video in the top preview ☝️
+          Click any style to preview or apply to your video ☝️
         </span>
       </div>
 
-      {/* ── Pure Video-First Style Grid (All 10 Styles) ── */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 sm:gap-4">
-        {TYPOGRAPHY_STYLES.map((style) => (
-          <ReelVideoCard
-            key={style.id}
-            style={style}
-            isSelected={value === style.id}
-            isPreviewPlaying={activePreviewId === style.id}
-            onStartHover={() => setActivePreviewId(style.id)}
-            onEndHover={() => {
-              if (activePreviewId === style.id) {
-                setActivePreviewId(null);
-              }
-            }}
-            onSelect={() => onChange(style.id)}
+      {/* ── Filter Bar & Search ── */}
+      <div className="mb-4 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
+        {/* Category Pills */}
+        <div className="flex flex-wrap items-center gap-1.5">
+          {CATEGORIES.map((cat) => {
+            const count =
+              cat.id === 'all'
+                ? TYPOGRAPHY_STYLES.length
+                : TYPOGRAPHY_STYLES.filter((s) => s.category === cat.id).length;
+            const isActive = selectedCategory === cat.id;
+
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold transition-all ${
+                  isActive
+                    ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-black shadow-[0_0_15px_rgba(6,182,212,0.5)] font-bold'
+                    : 'bg-zinc-900/80 text-zinc-400 hover:bg-zinc-800 hover:text-white border border-white/5'
+                }`}
+              >
+                <span>{cat.label}</span>
+                <span
+                  className={`rounded-full px-1.5 py-0.2 text-[9px] ${
+                    isActive ? 'bg-black/30 text-black' : 'bg-white/10 text-zinc-400'
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Instant Search Bar */}
+        <div className="relative min-w-[200px] sm:w-56">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search styles..."
+            className="w-full rounded-full border border-white/10 bg-zinc-900/90 py-1.5 pl-8 pr-7 text-xs text-white placeholder-zinc-500 transition-all focus:border-cyan-400 focus:outline-none focus:ring-1 focus:ring-cyan-400/50"
           />
-        ))}
+          <svg
+            className="absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-500"
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <path d="M21 21l-4.35-4.35" />
+          </svg>
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white text-xs font-bold"
+            >
+              ×
+            </button>
+          )}
+        </div>
       </div>
+
+      {/* ── Pure Video-First Style Grid ── */}
+      {filteredStyles.length > 0 ? (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 sm:gap-4">
+          {filteredStyles.map((style) => (
+            <ReelVideoCard
+              key={style.id}
+              style={style}
+              isSelected={value === style.id}
+              isPreviewPlaying={activePreviewId === style.id}
+              onStartHover={() => setActivePreviewId(style.id)}
+              onEndHover={() => {
+                if (activePreviewId === style.id) {
+                  setActivePreviewId(null);
+                }
+              }}
+              onSelect={() => onChange(style.id)}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <p className="text-sm font-semibold text-zinc-400">No typography styles matched "{searchQuery}"</p>
+          <button
+            type="button"
+            onClick={() => {
+              setSearchQuery('');
+              setSelectedCategory('all');
+            }}
+            className="mt-2 text-xs font-bold text-cyan-400 hover:underline"
+          >
+            Reset all filters
+          </button>
+        </div>
+      )}
     </div>
   );
 }

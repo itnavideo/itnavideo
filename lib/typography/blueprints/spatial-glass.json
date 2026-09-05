@@ -1,0 +1,58 @@
+{
+  "metadata": {
+    "styleId": "spatial-glass",
+    "demoVideoId": "spatial-glass",
+    "name": "Spatial Vision Glass",
+    "category": "depth",
+    "tags": ["spatial-audio", "vision-os", "acrylic-glass", "depth-3d"],
+    "sourceVideoUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4",
+    "posterUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/so_1,w_600,q_auto,f_jpg/v1788450233/professional-creator-girl-before_rwmxsd.jpg",
+    "analysisVersion": "2.0.0-temporal-motion",
+    "analyzedAt": "2026-09-04T12:00:00.000Z",
+    "overallConfidence": 0.95
+  },
+  "pacingAndRhythm": {
+    "personality": { "value": "spatial-depth", "confidence": 0.95, "status": "DETECTED" },
+    "rhythmPattern": { "value": "floating-capsule", "confidence": 0.95, "status": "DETECTED" },
+    "targetWordsPerPhrase": 3,
+    "averagePhraseDurationSec": 1.5,
+    "transitionFrequencyPerMinute": 34,
+    "speechSyncMode": "beat-locked",
+    "motionIntensity": { "value": "smooth-float", "confidence": 0.95, "status": "DETECTED" }
+  },
+  "typography": {
+    "fontCategory": { "value": "spatial-grotesque", "confidence": 0.95, "status": "DETECTED" },
+    "fontFamilyEstimate": { "value": "Plus Jakarta Sans", "confidence": 0.95, "status": "DETECTED" },
+    "heroTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 900,
+      "fontStyle": "normal",
+      "relativeScale": 1.6,
+      "letterSpacingRatio": -0.01,
+      "lineHeightRatio": 1.05,
+      "opacity": 1
+    },
+    "leadTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 700,
+      "fontStyle": "normal",
+      "relativeScale": 0.8,
+      "letterSpacingRatio": 0.08,
+      "lineHeightRatio": 1.15,
+      "opacity": 0.9
+    },
+    "subTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 600,
+      "fontStyle": "normal",
+      "relativeScale": 0.75,
+      "letterSpacingRatio": 0.05,
+      "lineHeightRatio": 1.15,
+      "opacity": 0.85
+    },
+    "hierarchyLevels": ["lead", "hero", "sub"],
+    "textDensity": { "value": "compact-phrases", "confidence": 0.92, "status": "DETECTED" },
+    "wordGroupingRule": "2-4-balanced",
+    "lineBreakPolicy": "floating-glass-card"
+  }
+}

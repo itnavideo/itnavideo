@@ -1,0 +1,83 @@
+{
+  "metadata": {
+    "styleId": "miami-sunset",
+    "demoVideoId": "miami-sunset",
+    "name": "Miami Sunset Kinetic & Electric Coral",
+    "category": "kinetic",
+    "tags": ["miami-sunset", "kinetic-punch", "sunset-gradient", "high-energy"],
+    "sourceVideoUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/v1783942635/You_re_already_ahead_in_something.Stop_ignoring_it._That_s_your_edge._personalbranding_mhjtvu.mp4",
+    "posterUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/f_auto,q_auto,w_480,so_0.5/v1783942635/You_re_already_ahead_in_something.Stop_ignoring_it._That_s_your_edge._personalbranding_mhjtvu.jpg",
+    "analysisVersion": "2.0.0-temporal-motion",
+    "analyzedAt": "2026-09-04T12:00:00.000Z",
+    "overallConfidence": 0.93
+  },
+  "pacingAndRhythm": {
+    "personality": {
+      "value": "fast-kinetic",
+      "confidence": 0.95,
+      "status": "DETECTED"
+    },
+    "rhythmPattern": {
+      "value": "word-slam",
+      "confidence": 0.93,
+      "status": "DETECTED"
+    },
+    "targetWordsPerPhrase": 3,
+    "averagePhraseDurationSec": 1.25,
+    "transitionFrequencyPerMinute": 44,
+    "speechSyncMode": "word-locked",
+    "motionIntensity": {
+      "value": "explosive",
+      "confidence": 0.94,
+      "status": "DETECTED"
+    }
+  },
+  "typography": {
+    "fontCategory": {
+      "value": "bold-geometric-sans",
+      "confidence": 0.96,
+      "status": "DETECTED"
+    },
+    "fontFamilyEstimate": {
+      "value": "Montserrat",
+      "confidence": 0.94,
+      "status": "DETECTED"
+    },
+    "heroTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 900,
+      "fontStyle": "normal",
+      "relativeScale": 1.7,
+      "letterSpacingRatio": -0.01,
+      "lineHeightRatio": 1.02,
+      "opacity": 1
+    },
+    "leadTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 800,
+      "fontStyle": "normal",
+      "relativeScale": 0.8,
+      "letterSpacingRatio": 0.04,
+      "lineHeightRatio": 1.15,
+      "opacity": 0.95
+    },
+    "subTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 700,
+      "fontStyle": "normal",
+      "relativeScale": 0.7,
+      "letterSpacingRatio": 0.03,
+      "lineHeightRatio": 1.2,
+      "opacity": 0.9
+    },
+    "hierarchyLevels": ["hero", "lead", "sub"],
+    "textDensity": {
+      "value": "compact-phrases",
+      "confidence": 0.92,
+      "status": "DETECTED"
+    },
+    "wordGroupingRule": "2-4-balanced",
+    "lineBreakPolicy": "balanced-stack"
+  }
+}
+

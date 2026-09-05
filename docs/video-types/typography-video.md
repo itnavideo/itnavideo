@@ -16,15 +16,44 @@ Turn any uploaded creator or talking-head video into a high-retention, modern ki
 
 ## Visual Style Gallery (Video Previews)
 
-The gallery features real **5–10 second demo video previews** hosted on Cloudinary:
+The gallery features **29 Master Typography Styles** organized into 5 curated categories with real **5–10 second demo video previews** hosted on Cloudinary:
 
 - **Performance-Optimized Playback**: Inactive cards render lightweight poster images; only the hovered/tapped card dynamically mounts and plays a single `<video>` element.
 - **Strict Separation**: `activePreviewId` (controls preview video playback on hover/tap) is strictly separated from `selectedStyleId` (chosen template on click).
-- **Categories**:
-  - `3D Depth & Captions AI` (Captions AI text behind subject & glowing pill callouts)
-  - `Luxury & Editorial` (Cinzel 24k gold, Playfair italic luxury)
-  - `Kinetic & Punch` (Ultra-bold all-caps slams, torn paper tape, neon cyber motion)
-  - `Minimal & Dark` (Sleek platinum & metallic chrome precision)
+- **Categories & Styles**:
+  - `Viral & Kinetic`:
+    - `dynamic-punch` (Dynamic Punch & Yellow Pop)
+    - `hormozi-bold` (Alex Hormozi 900 heavy black stroke outline, slanted word pop, neon yellow highlight)
+    - `beast-impact` (MrBeast comic 3D pop, bold drop-shadow, explosive spring bounce & tilt shake)
+    - `viral-redline` (Breaking news alert indicator pill, bold high-contrast slam, red caution line)
+    - `creator-highlight` (Ali Abdaal clean study sans with animated yellow marker highlighter sweep)
+    - `neon-kinetic` (Neon Cyber Kinetic Glow — electric cyan and magenta punch)
+    - `prism-pro` (Prism Pro Impact Block)
+    - `paper-ii` (Paper II Collage & Editorial Tape)
+    - `tokyo-cyber` (Tokyo Cyber Neon & Terminal Hacker)
+    - `miami-sunset` (Miami Sunset Kinetic & Electric Coral)
+    - `synthwave-80s` (Chrome metallic top, hot magenta neon bottom, retro grid scanlines)
+    - `hud-telemetry` (Sci-fi HUD targeting reticles, coordinate stats, and digital monospace readout)
+  - `Luxury & Editorial`:
+    - `dubai-gold` (Dubai Gold Luxe — Cinzel 24k bevel)
+    - `gadzhi-documentary` (Iman Gadzhi classic serif, subtle gold sheen, cinematic slow-drift, bookend rules)
+    - `vogue-editorial` (Bodoni high-contrast serif, vertical hairline accents, chic italicized emphasis)
+    - `elevate-script` (Elevate Script & Serif — Playfair Italic luxury)
+    - `royal-emerald` (Royal Emerald & Champagne Gold)
+    - `velvet-crimson` (Velvet Crimson & Rose Gold Luxe)
+    - `monarch-violet` (Monarch Amethyst & Royal Gold Luxe)
+  - `3D & Depth`:
+    - `depth-3d-text` (Captions AI 3D Pill Callout)
+    - `spatial-glass` (VisionOS frosted refractive acrylic pill, specular rim light, 3D floating elevation)
+    - `isometric-cube` (Angled block lettering with deep 3D shadow extrusion and spatial elevation)
+    - `obsidian-gold` (Obsidian Noir & 3D Gold Extrusion behind speaker)
+  - `Minimal & Studio`:
+    - `keynote-executive` (Apple keynote presentation, frosted glass pill, crisp sans, calm fade-up)
+    - `vox-explainer` (Johnny Harris / Vox documentary style, technical coordinate badge, yellow marker box)
+    - `nordic-clean` (Scandinavian ultra-minimalism, extra-letterspaced sans, muted slate tones)
+    - `platinum-penthouse` (Platinum Penthouse Minimal)
+    - `silver-chrome` (Silver Chrome Metallic Precision)
+    - `swiss-minimal` (Swiss Bauhaus & Architectural Studio)
 
 ## Reusable Composition Primitives
 

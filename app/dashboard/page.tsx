@@ -45,6 +45,13 @@ import {
   Play,
   ArrowDown,
   X,
+  LayoutGrid,
+  CreditCard,
+  User,
+  Volume2,
+  Scissors,
+  VolumeX,
+  RefreshCw,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthContext";
@@ -547,12 +554,47 @@ export default function DashboardPage() {
   const [audioCleanOptions, setAudioCleanOptions] = useState({
     removeSilence: true,
     removeFillers: true,
-    removeRepeats: false,
-    removeFalseStarts: false,
-    noiseReduction: true,
+    removeRepeats: true,
+    removeFalseStarts: true,
+    noiseReduction: false,
     volumeNormalize: true,
     trimEnds: true,
   });
+  const [audioCleanAnalysis, setAudioCleanAnalysis] = useState<{
+    transcript: string;
+    segments: Array<{
+      id: string;
+      start: number;
+      end: number;
+      text: string;
+      action: 'keep' | 'cut';
+      reason?: 'repeat' | 'mistake' | 'silence' | 'filler';
+    }>;
+    originalDuration: number;
+    estimatedCleanDuration: number;
+    stats: {
+      totalWords: number;
+      repeatedTakesCount: number;
+      silenceCount: number;
+      fillerCount: number;
+      secondsSaved: number;
+    };
+    rawTranscript: any;
+    mediaKey: string;
+  } | null>(null);
+  const [isAnalyzingAudio, setIsAnalyzingAudio] = useState(false);
+  const [audioCleanResult, setAudioCleanResult] = useState<{
+    outputUrl: string;
+    originalDuration: number;
+    cleanedDuration: number;
+    removedSegments?: number;
+    stats?: {
+      repeatedTakesCut: number;
+      silencesCut: number;
+      fillersCut: number;
+      durationSavedSeconds: number;
+    };
+  } | null>(null);
   const [creatorBackgroundImageFile, setCreatorBackgroundImageFile] = useState<File | null>(null);
   const [creatorBackgroundSettings, setCreatorBackgroundSettings] = useState<CreatorBackgroundSettings>(DEFAULT_CREATOR_BACKGROUND_SETTINGS);
   const [customAiPrompt, setCustomAiPrompt] = useState("");
@@ -571,6 +613,7 @@ export default function DashboardPage() {
   const [paymentBanner, setPaymentBanner] = useState("");
   const [previewVideoTypeId, setPreviewVideoTypeId] = useState<string | null>(null);
   const [activeCategoryFilter, setActiveCategoryFilter] = useState<'all' | 'shorts' | 'long' | 'audio' | 'video' | 'text' | 'ai_prompt'>('all');
+  const [activeTab, setActiveTab] = useState<"video-types" | "credits" | "projects" | "profile">("video-types");
 
   // ── Preview Editor state ────────────────────────────────────────────────────
   // Stores pending upload keys + preview plan between "Generate Preview" and final render
@@ -672,6 +715,7 @@ export default function DashboardPage() {
     (mode !== "longCaptionPro" || (Boolean(promoClipMeta.durationSeconds) && promoClipMeta.durationSeconds! <= 600)) &&
     (mode !== "multiImagesVideo" || (comparisonFiles.length >= 2 && Boolean(promoTitle.trim()))) &&
     (mode !== "creatorBackgroundReplace" || Boolean(creatorBackgroundImageFile)) &&
+    (mode !== "audioClean" || !isAnalyzingAudio) &&
     !renderInProgress &&
     !paidLimitComplete &&
     !isFreeTrialModeBlocked &&
@@ -828,8 +872,133 @@ export default function DashboardPage() {
   const removeSelectedFile = () => {
     setSelectedFile(null);
     setPromoClipMeta({});
+    setAudioCleanAnalysis(null);
+    setAudioCleanResult(null);
     setJobStatus({state: "idle", message: ""});
   };
+
+  const toggleAudioCleanSegment = (segmentId: string) => {
+    setAudioCleanAnalysis((prev) => {
+      if (!prev) return prev;
+      const nextSegments = prev.segments.map((seg) => {
+        if (seg.id === segmentId) {
+          const nextAction: 'keep' | 'cut' = seg.action === 'keep' ? 'cut' : 'keep';
+          return {
+            ...seg,
+            action: nextAction,
+            reason: nextAction === 'cut' ? (seg.reason || 'mistake') : undefined,
+          };
+        }
+        return seg;
+      });
+      const cutSeconds = nextSegments
+        .filter((s) => s.action === 'cut')
+        .reduce((sum, s) => sum + Math.max(0, s.end - s.start), 0);
+      const estimatedCleanDuration = Math.max(1, Number((prev.originalDuration - cutSeconds).toFixed(1)));
+      return {
+        ...prev,
+        segments: nextSegments,
+        estimatedCleanDuration,
+        stats: {
+          ...prev.stats,
+          repeatedTakesCount: nextSegments.filter((s) => s.action === 'cut' && (s.reason === 'repeat' || s.reason === 'mistake')).length,
+          secondsSaved: Number(cutSeconds.toFixed(1)),
+        },
+      };
+    });
+  };
+
+  useEffect(() => {
+    if (mode !== "audioClean") {
+      setAudioCleanAnalysis(null);
+      setAudioCleanResult(null);
+      return;
+    }
+    if (!selectedFile || !user?.id) return;
+
+    let isSubscribed = true;
+
+    async function triggerAudioAnalysis() {
+      if (!selectedFile || !user?.id) return;
+      setIsAnalyzingAudio(true);
+      setAudioCleanResult(null);
+      setJobStatus({
+        state: "uploading",
+        message: "Uploading audio for transcription & full script analysis...",
+      });
+
+      try {
+        const uploadContentType = getUploadContentType(selectedFile);
+        const presignResponse = await fetch("/api/media/presign", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fileName: selectedFile.name,
+            contentType: uploadContentType,
+            fileSize: selectedFile.size,
+            mode: "audioClean",
+            userId: user.id,
+          }),
+        });
+        const presign = await readJsonPayload(presignResponse);
+        if (!presignResponse.ok || !presign.ok) {
+          throw new Error(presign.error || "Could not prepare audio upload.");
+        }
+
+        const uploadResponse = await fetch(presign.uploadUrl, {
+          method: "PUT",
+          headers: { "Content-Type": uploadContentType },
+          body: selectedFile,
+        });
+        if (!uploadResponse.ok) {
+          throw new Error("Audio upload failed.");
+        }
+
+        if (!isSubscribed) return;
+
+        setJobStatus({
+          state: "starting",
+          message: "Transcribing full script & detecting repeated sentences, mistakes, and silences...",
+        });
+
+        const analyzeResponse = await fetch("/api/audio-clean/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mediaKey: presign.key,
+            userId: user.id,
+            audioCleanOptions,
+          }),
+        });
+        const analyzeData = await readJsonPayload(analyzeResponse);
+        if (!analyzeResponse.ok || !analyzeData.ok) {
+          throw new Error(analyzeData.error || "Audio transcription & analysis failed.");
+        }
+
+        if (!isSubscribed) return;
+
+        setAudioCleanAnalysis(analyzeData);
+        setJobStatus({ state: "idle", message: "" });
+      } catch (err) {
+        if (!isSubscribed) return;
+        console.error("Audio clean analysis error:", err);
+        setJobStatus({
+          state: "error",
+          message: err instanceof Error ? err.message : "Audio transcription failed.",
+        });
+      } finally {
+        if (isSubscribed) {
+          setIsAnalyzingAudio(false);
+        }
+      }
+    }
+
+    triggerAudioAnalysis();
+
+    return () => {
+      isSubscribed = false;
+    };
+  }, [mode, selectedFile, user?.id]);
 
   useEffect(() => {
     if ((mode !== "longVideoPromo" && mode !== "longCaptionPro") || !selectedFile || !selectedFile.type.startsWith("video/")) {
@@ -1003,8 +1172,64 @@ export default function DashboardPage() {
         }}
       />
     )}
-    <main className="dashboard-safe-wrap min-h-screen max-w-full overflow-x-hidden bg-background px-4 pb-16 pt-16 text-foreground sm:px-6 md:px-8 md:py-20">
-      <div className="mx-auto w-full max-w-[1536px] overflow-x-hidden space-y-6">
+    <main className="min-h-screen max-w-full overflow-hidden bg-background text-foreground flex flex-col md:flex-row pt-16 mt-16 md:mt-0">
+      
+      {/* ── Dashboard Sidebar ── */}
+      <aside className="w-full md:w-64 shrink-0 border-r border-border bg-card flex flex-col pt-6 z-10 sticky top-16 md:top-0 h-auto md:h-screen md:overflow-y-auto">
+        <div className="px-6 pb-6 border-b border-border mb-4 hidden md:block">
+          <h2 className="text-xl font-bold tracking-tight">Dashboard</h2>
+        </div>
+        
+        <nav className="flex md:flex-col gap-1 px-3 pb-4 overflow-x-auto md:overflow-x-visible no-scrollbar">
+          <button
+            type="button"
+            onClick={() => setActiveTab("video-types")}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap md:whitespace-normal ${activeTab === "video-types" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"}`}
+          >
+            <LayoutGrid size={18} />
+            Video Types
+          </button>
+          
+          <button
+            type="button"
+            onClick={() => setActiveTab("credits")}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap md:whitespace-normal ${activeTab === "credits" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"}`}
+          >
+            <CreditCard size={18} />
+            Credits & Plans
+          </button>
+          
+          <button
+            type="button"
+            onClick={() => setActiveTab("projects")}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap md:whitespace-normal ${activeTab === "projects" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"}`}
+          >
+            <FolderOpen size={18} />
+            Projects
+            {recentRenders.length > 0 && (
+              <span className={`ml-auto rounded-full px-2 py-0.5 text-xs font-bold ${activeTab === "projects" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}>
+                {recentRenders.length}
+              </span>
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("profile")}
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-colors whitespace-nowrap md:whitespace-normal ${activeTab === "profile" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"}`}
+          >
+            <User size={18} />
+            Profile
+          </button>
+        </nav>
+      </aside>
+
+      {/* ── Main Content Area ── */}
+      <div className="flex-1 overflow-x-hidden md:overflow-y-auto h-auto md:h-screen p-4 sm:p-6 md:p-8 pb-32">
+        <div className="mx-auto w-full max-w-5xl space-y-6">
+
+        {activeTab === "video-types" && (
+          <div className="space-y-6 animate-in fade-in duration-300">
         {/* Compact Dashboard Quick Action & Credits Bar */}
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-800 bg-slate-950/80 p-3.5 sm:p-4 shadow-xl backdrop-blur-xl">
           <div className="flex items-center gap-2">
@@ -1138,23 +1363,23 @@ export default function DashboardPage() {
         ) : null}
 
         {/* ── Dashboard Header ── */}
-        <section id="ai-quick-start" className="scroll-mt-24">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-bold text-white sm:text-2xl">
-                Welcome back, <span className="text-emerald-400">{firstName}</span>
-              </h1>
-              <p className="mt-1 text-sm text-slate-400">Pick a video type and upload your file to get started.</p>
-            </div>
+        <section id="ai-quick-start" className="scroll-mt-24 pt-6 pb-2">
+          <div className="flex flex-col items-center justify-center text-center">
+            <h1 className="text-3xl font-bold text-foreground sm:text-4xl md:text-5xl tracking-tight">
+              Create Your Video
+            </h1>
+            <p className="mt-4 text-base text-muted-foreground sm:text-lg">
+              Choose a video type below and start creating your video.
+            </p>
             <button
               type="button"
               onClick={() => document.getElementById("recent-projects")?.scrollIntoView({ behavior: "smooth" })}
-              className="inline-flex items-center gap-2 rounded-xl border border-slate-700/80 bg-slate-900/90 px-4 py-2 text-xs font-bold text-slate-200 hover:border-emerald-500/50 hover:text-white transition"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-secondary/50 hover:bg-secondary px-5 py-2 text-sm font-medium text-foreground transition-colors"
             >
-              <FolderOpen size={14} className="text-emerald-400" />
+              <FolderOpen size={16} />
               Saved Videos
               {recentRenders.length > 0 && (
-                <span className="rounded-full bg-emerald-500/20 px-1.5 py-0.5 text-[10px] font-black text-emerald-300">
+                <span className="ml-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">
                   {recentRenders.length}
                 </span>
               )}
@@ -1162,42 +1387,15 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        {/* ── Step 2: Main Studio Workflow Container ── */}
-        <section id="studio-workflows" className="w-full overflow-hidden rounded-2xl border border-border bg-background/90 p-4 sm:p-6 md:p-8 shadow-2xl scroll-mt-24">
-          {/* Step indicator */}
-          <div className="mb-6 hidden md:flex items-center text-[10px] font-bold uppercase tracking-wider">
-            <span className="flex items-center gap-1.5 rounded-full px-3 py-1.5" style={{ color: mode && hasUserSelected ? '#22c55e' : '#10B981', background: mode && hasUserSelected ? 'rgba(34,197,94,0.1)' : 'rgba(16,185,129,0.1)' }}>
-              {mode && hasUserSelected ? <Check size={11} strokeWidth={3} /> : <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />}
-              1. Video Type
-            </span>
-            <span className="mx-2 flex-1 h-px bg-muted" />
-            <span className="flex items-center gap-1.5 rounded-full px-3 py-1.5" style={{ color: selectedFile ? '#22c55e' : (mode && hasUserSelected) ? '#60a5fa' : 'rgba(255,255,255,0.3)', background: selectedFile ? 'rgba(34,197,94,0.1)' : (mode && hasUserSelected) ? 'rgba(96,165,250,0.1)' : 'transparent' }}>
-              {selectedFile ? <Check size={11} strokeWidth={3} /> : null}
-              2. Customization
-            </span>
-            <span className="mx-2 flex-1 h-px bg-muted" />
-            <span className="flex items-center gap-1.5 rounded-full px-3 py-1.5" style={{ color: selectedFile ? '#60a5fa' : 'rgba(255,255,255,0.3)', background: selectedFile ? 'rgba(96,165,250,0.1)' : 'transparent' }}>
-              3. Upload
-            </span>
-            <span className="mx-2 flex-1 h-px bg-muted" />
-            <span className="flex items-center gap-1.5 rounded-full px-3 py-1.5" style={{ color: 'rgba(255,255,255,0.3)' }}>
-              4. Generate
-            </span>
-          </div>
-
-          <div className="mb-5 flex flex-col gap-1">
-            <h2 className="text-xl font-bold text-white sm:text-2xl">{hasUserSelected ? activeMode.label : 'Choose a video type'}</h2>
-            <p className="text-xs leading-5 text-muted-foreground sm:text-sm">
-              {hasUserSelected ? activeMode.bestResult : 'Select below to start rendering.'}
-            </p>
-          </div>
+        {/* ── Main Studio Workflow Container ── */}
+        <section id="studio-workflows" className="w-full scroll-mt-24 pt-8">
 
           {hasUserSelected && (
-            <div className={`mb-6 inline-flex items-center gap-3 rounded-xl border ${activeMode.border} ${activeMode.surface} px-4 py-2.5 text-xs font-bold ${activeMode.color}`}>
-              <ActiveModeIcon size={16} />
+            <div className={`mb-8 inline-flex items-center gap-3 rounded-xl border ${activeMode.border} ${activeMode.surface} px-4 py-3 text-sm font-bold ${activeMode.color} shadow-sm`}>
+              <ActiveModeIcon size={18} />
               <span className="min-w-0 font-extrabold">{activeMode.label}</span>
               <button
-                className="ml-2 rounded-lg bg-card/10 px-2.5 py-1 text-[10px] font-bold text-muted-foreground hover:bg-card/20 transition cursor-pointer"
+                className="ml-3 rounded-lg bg-black/5 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/20 px-3 py-1.5 text-xs font-bold text-foreground transition-colors cursor-pointer"
                 onClick={() => { setHasUserSelected(false); }}
                 type="button"
               >
@@ -1244,27 +1442,13 @@ export default function DashboardPage() {
                 >
                   {/* Card container */}
                   <div
-                    className={`relative flex h-full w-full flex-col overflow-hidden rounded-2xl border transition-all duration-200 ${
-                      isLongCard
-                        ? 'bg-slate-900/90 border-slate-800 hover:border-slate-700 shadow-md'
-                        : 'bg-black/90 border-black hover:border-slate-800 shadow-md'
-                    }`}
+                    className={`relative flex h-full w-full flex-col overflow-hidden rounded-xl border bg-card transition-all duration-200 hover:shadow-md ${isSelected ? 'border-primary ring-1 ring-primary' : 'border-border hover:border-foreground/30'}`}
                   >
-                    {/* Luxury Premium Header Bar (TOP) */}
-                    <div className="flex items-center justify-center gap-1.5 px-3 py-2.5 bg-slate-950/95 border-b border-slate-800/80 text-center min-w-0 w-full">
-                      <h3 className="text-[11px] sm:text-xs font-black tracking-[0.14em] uppercase text-slate-100 font-sans group-hover:text-[#00FF9D] transition-colors truncate">
-                        {videoType.title}
-                      </h3>
-                      <ArrowUpRight size={13} className="text-slate-400 group-hover:text-[#00FF9D] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform shrink-0" />
-                    </div>
-
                     {/* Pure Image Preview Container */}
-                    <div className={`relative w-full overflow-hidden bg-black ${isLongCard ? 'aspect-[16/9]' : 'aspect-[9/16]'}`}>
+                    <div className={`relative w-full overflow-hidden bg-transparent ${isLongCard ? 'aspect-[16/9]' : 'aspect-[9/16]'}`}>
                       <Image
                         alt={videoType.title}
-                        className={`transition duration-300 group-hover:scale-[1.03] ${
-                          isLongCard ? 'object-cover object-center' : 'object-contain p-1 object-center'
-                        }`}
+                        className="transition duration-300 group-hover:scale-[1.03] object-cover object-center"
                         fill
                         sizes="(min-width: 1280px) 20vw, (min-width: 768px) 33vw, 50vw"
                         src={videoType.image}
@@ -1282,35 +1466,17 @@ export default function DashboardPage() {
                         />
                       ) : null}
 
-                      {/* High-contrast meaningful badge: Popular, AI, Pro, New */}
-                      {videoType.badgeType && (
-                        <span
-                          className={`absolute left-2 top-2 z-20 rounded-md px-2 py-0.5 text-[8.5px] font-black uppercase tracking-wider backdrop-blur-md shadow-lg flex items-center gap-1 border ${
-                            videoType.badgeType === "Popular"
-                              ? "bg-emerald-950/95 text-[#00FF9D] border-[#00FF9D]/50"
-                              : videoType.badgeType === "AI"
-                              ? "bg-cyan-950/95 text-cyan-300 border-cyan-400/50"
-                              : videoType.badgeType === "Pro"
-                              ? "bg-purple-950/95 text-purple-300 border-purple-400/50"
-                              : "bg-amber-950/95 text-amber-300 border-amber-400/50"
-                          }`}
-                        >
-                          <Sparkles size={9} className="shrink-0" />
-                          <span>{videoType.badgeType}</span>
-                        </span>
-                      )}
-
                       {/* Selected Indicator Pill inside Image */}
                       {isSelected && (
-                        <div className="absolute right-2 top-2 z-20 flex items-center gap-1 rounded-full bg-[#00FF9D] px-2 py-0.5 text-[9px] font-black text-slate-950 shadow-lg">
-                          <Check size={11} strokeWidth={3} />
-                          <span>ACTIVE</span>
+                        <div className="absolute right-2 top-2 z-20 flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground shadow-sm">
+                          <Check size={12} strokeWidth={3} />
+                          <span>SELECTED</span>
                         </div>
                       )}
 
                       {/* Preview Expand Eye Icon */}
                       <div
-                        className={`absolute right-2 bottom-2 z-20 flex h-6 w-6 items-center justify-center rounded-full bg-black/75 backdrop-blur-sm border border-white/20 text-white opacity-0 transition-opacity group-hover:opacity-100 ${isComingSoon ? "cursor-not-allowed" : "cursor-pointer"}`}
+                        className={`absolute right-2 bottom-2 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-background/90 backdrop-blur-sm border border-border text-foreground opacity-0 transition-opacity group-hover:opacity-100 ${isComingSoon ? "cursor-not-allowed" : "cursor-pointer"}`}
                         onClick={(e) => {
                           e.stopPropagation();
                           if (isComingSoon) return;
@@ -1319,8 +1485,20 @@ export default function DashboardPage() {
                         role="button"
                         aria-label={`Preview ${videoType.title}`}
                       >
-                        <Eye size={11} />
+                        <Eye size={14} />
                       </div>
+                    </div>
+                    
+                    {/* Minimal Title Bar (BOTTOM) */}
+                    <div className="flex items-center justify-between gap-2 px-3 py-3 bg-card border-t border-border w-full">
+                      <h3 className="text-sm font-semibold text-foreground truncate">
+                        {videoType.title}
+                      </h3>
+                      {videoType.badgeType && (
+                        <span className="shrink-0 rounded bg-secondary px-1.5 py-0.5 text-[10px] font-bold text-secondary-foreground uppercase tracking-wider">
+                          {videoType.badgeType}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </button>
@@ -1332,7 +1510,7 @@ export default function DashboardPage() {
                 {/* Long Video Types */}
                 {visibleLongCards.length > 0 && (
                   <div>
-                    <p className="mb-4 text-xs font-bold uppercase tracking-widest text-slate-500">Long Videos</p>
+                    <p className="mb-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">Long Videos</p>
                     <div className="grid min-w-0 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
                       {visibleLongCards.map(renderCard)}
                     </div>
@@ -1342,7 +1520,7 @@ export default function DashboardPage() {
                 {/* Short Video Types */}
                 {visibleShortCards.length > 0 && (
                   <div id="quick-tools" className="scroll-mt-24">
-                    <p className="mb-4 text-xs font-bold uppercase tracking-widest text-slate-500">Short Videos</p>
+                    <p className="mb-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">Short Videos</p>
                     <div className="grid min-w-0 grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3.5 sm:gap-4">
                       {visibleShortCards.map(renderCard)}
                     </div>
@@ -2060,41 +2238,224 @@ export default function DashboardPage() {
               ) : null}
 
               {mode === "audioClean" ? (
-                <div className="rounded-lg border border-orange-400/20 bg-orange-400/[0.06] p-4">
-                  <div>
-                    <p className="text-sm font-black text-white">AI Cleaning Options</p>
-                    <p className="mt-1 text-xs font-bold leading-5 text-muted-foreground">
-                      Toggle the cleaning features you want applied to your audio.
-                    </p>
-                  </div>
-                  <div className="mt-4 grid gap-2.5">
-                    {([
-                      { key: "removeSilence", label: "Remove Long Silence", desc: "Cut pauses longer than 1 second" },
-                      { key: "removeFillers", label: "Remove Filler Words", desc: 'Cut "um", "uh", "like", "you know"' },
-                      { key: "removeRepeats", label: "Remove Repeated Sentences", desc: "Detect and cut repeated phrases" },
-                      { key: "removeFalseStarts", label: "Remove False Starts", desc: "Cut self-corrections and restarts" },
-                      { key: "noiseReduction", label: "Background Noise Reduction", desc: "Reduce hum, hiss, and room noise" },
-                      { key: "volumeNormalize", label: "Volume Normalize", desc: "Consistent volume throughout" },
-                      { key: "trimEnds", label: "Trim Start & End Silence", desc: "Remove dead air at beginning and end" },
-                    ] as const).map((opt) => (
-                      <div key={opt.key} className="flex items-center justify-between rounded-lg border border-white/8 bg-black/20 px-3 py-2">
-                        <div>
-                          <p className="text-xs font-bold text-foreground">{opt.label}</p>
-                          <p className="text-[10px] text-muted-foreground">{opt.desc}</p>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setAudioCleanOptions((prev) => ({ ...prev, [opt.key]: !prev[opt.key as keyof typeof prev] }))}
-                          className={`relative h-5 w-9 rounded-full transition ${audioCleanOptions[opt.key as keyof typeof audioCleanOptions] ? 'bg-orange-500' : 'bg-zinc-700'}`}
-                        >
-                          <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-card shadow transition-transform ${audioCleanOptions[opt.key as keyof typeof audioCleanOptions] ? 'translate-x-[18px]' : 'translate-x-0.5'}`} />
-                        </button>
+                <div className="space-y-4">
+                  {/* 1. Analyzing Banner */}
+                  {isAnalyzingAudio ? (
+                    <div className="rounded-xl border border-orange-500/30 bg-orange-500/10 p-4 text-center">
+                      <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-orange-500/20 text-orange-400 mb-2 animate-pulse">
+                        <Mic size={20} />
                       </div>
-                    ))}
+                      <p className="text-sm font-black text-white">Transcribing & Analyzing Full Script...</p>
+                      <p className="mt-1 text-xs text-orange-200/80">
+                        AI is reading your entire audio to detect repeated sentences, speech mistakes, and long awkward pauses.
+                      </p>
+                    </div>
+                  ) : null}
+
+                  {/* 2. Full Script Preview with Repeated Sentences & Mistakes Marked */}
+                  {audioCleanAnalysis ? (
+                    <div className="rounded-xl border border-orange-500/30 bg-zinc-900/80 p-4 shadow-xl">
+                      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <FileText size={16} className="text-orange-400" />
+                            <p className="text-sm font-black text-white">Full Script & AI Take Detection</p>
+                          </div>
+                          <p className="text-[11px] text-muted-foreground mt-0.5">
+                            AI analyzed your complete voiceover. Click any sentence to toggle Keep / Cut.
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">
+                            ⏱️ {audioCleanAnalysis.originalDuration}s ➔ {audioCleanAnalysis.estimatedCleanDuration}s
+                          </span>
+                          {audioCleanAnalysis.stats.repeatedTakesCount > 0 && (
+                            <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-red-950/70 text-red-300 border border-red-800/60">
+                              🔁 {audioCleanAnalysis.stats.repeatedTakesCount} retakes cut
+                            </span>
+                          )}
+                          {audioCleanAnalysis.stats.silenceCount > 0 && (
+                            <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-amber-950/70 text-amber-300 border border-amber-800/60">
+                              🔇 {audioCleanAnalysis.stats.silenceCount} silences
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Script Scrollable Area */}
+                      <div className="mt-3 max-h-64 overflow-y-auto space-y-2 pr-1 text-xs">
+                        {audioCleanAnalysis.segments && audioCleanAnalysis.segments.length > 0 ? (
+                          audioCleanAnalysis.segments.map((seg) => {
+                            const isCut = seg.action === "cut";
+                            return (
+                              <div
+                                key={seg.id}
+                                onClick={() => toggleAudioCleanSegment(seg.id)}
+                                className={`group flex items-start justify-between gap-3 p-2.5 rounded-lg border transition-all cursor-pointer ${
+                                  isCut
+                                    ? "bg-red-950/20 border-red-500/30 hover:border-red-500/50"
+                                    : "bg-zinc-950/40 border-white/5 hover:border-white/20"
+                                }`}
+                              >
+                                <div className="space-y-1 min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[10px] font-mono text-zinc-400">
+                                      {seg.start.toFixed(1)}s - {seg.end.toFixed(1)}s
+                                    </span>
+                                    {isCut && (
+                                      <span className="text-[10px] font-bold uppercase px-1.5 py-0.2 rounded bg-red-500/20 text-red-400 border border-red-500/30">
+                                        {seg.reason === "repeat"
+                                          ? "Repeated Take"
+                                          : seg.reason === "mistake"
+                                          ? "Mistake / False Start"
+                                          : seg.reason === "silence"
+                                          ? "Long Silence"
+                                          : "Cut"}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p
+                                    className={`leading-relaxed text-[13px] ${
+                                      isCut
+                                        ? "line-through text-red-300/70"
+                                        : "text-zinc-100 font-medium"
+                                    }`}
+                                  >
+                                    {seg.text}
+                                  </p>
+                                </div>
+                                <button
+                                  type="button"
+                                  className={`shrink-0 text-[10px] font-bold px-2 py-1 rounded transition ${
+                                    isCut
+                                      ? "bg-red-900/40 hover:bg-red-900/70 text-red-300 border border-red-700/50"
+                                      : "bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700"
+                                  }`}
+                                >
+                                  {isCut ? "Restore" : "Cut"}
+                                </button>
+                              </div>
+                            );
+                          })
+                        ) : (
+                          <div className="p-3 text-center text-zinc-400">
+                            {audioCleanAnalysis.transcript || "No speech detected in audio file."}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {/* 3. Audio Cleaning Options */}
+                  <div className="rounded-xl border border-orange-400/20 bg-orange-400/[0.06] p-4">
+                    <div>
+                      <p className="text-sm font-black text-white">AI Cleaning Options</p>
+                      <p className="mt-1 text-xs font-bold leading-5 text-muted-foreground">
+                        Customise how your voiceover is cleaned, normalized, and polished.
+                      </p>
+                    </div>
+                    <div className="mt-4 grid gap-2.5">
+                      {([
+                        {
+                          key: "removeRepeats",
+                          label: "Remove Repeated Sentences & Mistakes",
+                          desc: "Detects repeated takes when you stutter or re-say a sentence, keeping only your best take.",
+                        },
+                        {
+                          key: "removeSilence",
+                          label: "Remove Long Silence (>1.0s)",
+                          desc: "Trims dead air pauses down to a natural 0.3s breathing gap.",
+                        },
+                        {
+                          key: "volumeNormalize",
+                          label: "Voice Volume Normalization (Same-to-Same)",
+                          desc: "Studio EBU R128 loudness normalization for uniform, consistent volume throughout.",
+                        },
+                        {
+                          key: "noiseReduction",
+                          label: "Background Noise Reduction (Optional)",
+                          desc: "Applies FFT spectral gating to remove AC hum, fan noise, and hiss.",
+                        },
+                        {
+                          key: "removeFillers",
+                          label: "Remove Filler Words",
+                          desc: 'Cut "um", "uh", "like", and "you know" hesitations.',
+                        },
+                        {
+                          key: "removeFalseStarts",
+                          label: "Remove False Starts",
+                          desc: "Cut self-corrections and restarted sentences.",
+                        },
+                        {
+                          key: "trimEnds",
+                          label: "Trim Start & End Silence",
+                          desc: "Remove dead air before speech begins and after speech ends.",
+                        },
+                      ] as const).map((opt) => (
+                        <div
+                          key={opt.key}
+                          className="flex items-center justify-between rounded-lg border border-white/8 bg-black/20 px-3 py-2.5"
+                        >
+                          <div className="pr-3">
+                            <p className="text-xs font-bold text-foreground">{opt.label}</p>
+                            <p className="text-[10px] text-muted-foreground leading-4 mt-0.5">{opt.desc}</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setAudioCleanOptions((prev) => ({
+                                ...prev,
+                                [opt.key]: !prev[opt.key as keyof typeof prev],
+                              }))
+                            }
+                            className={`relative h-5 w-9 shrink-0 rounded-full transition ${
+                              audioCleanOptions[opt.key as keyof typeof audioCleanOptions]
+                                ? "bg-orange-500"
+                                : "bg-zinc-700"
+                            }`}
+                          >
+                            <span
+                              className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${
+                                audioCleanOptions[opt.key as keyof typeof audioCleanOptions]
+                                  ? "translate-x-[18px]"
+                                  : "translate-x-0.5"
+                              }`}
+                            />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <p className="mt-3 text-[10px] text-muted-foreground text-center">
-                    ⓘ AI Audio Cleaner processes only the first 1 minute of your audio.
-                  </p>
+
+                  {/* 4. Clean Audio Result Player & Download (if already processed) */}
+                  {audioCleanResult ? (
+                    <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-4 shadow-xl space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-emerald-400">
+                          <CheckCircle2 size={18} />
+                          <p className="text-sm font-black text-white">Cleaned Audio Ready!</p>
+                        </div>
+                        <span className="text-xs font-bold text-emerald-300">
+                          {audioCleanResult.cleanedDuration}s (was {audioCleanResult.originalDuration}s)
+                        </span>
+                      </div>
+                      <audio
+                        src={audioCleanResult.outputUrl}
+                        controls
+                        className="w-full rounded-lg"
+                      />
+                      <div className="flex items-center justify-end gap-2 pt-1">
+                        <a
+                          href={audioCleanResult.outputUrl}
+                          download="cleaned-voiceover.mp3"
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition shadow-lg"
+                        >
+                          <Download size={14} />
+                          <span>Download Clean Audio (.mp3)</span>
+                        </a>
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
               ) : null}
 
@@ -2505,12 +2866,16 @@ export default function DashboardPage() {
                 {jobStatus.state === "uploading"
                   ? "Uploading..."
                   : jobStatus.state === "starting"
-                    ? "Preparing..."
+                    ? (mode === "audioClean" ? "Cleaning Audio with AI..." : "Preparing...")
                     : jobStatus.state === "rendering"
-                      ? "Rendering HD video... please wait"
-                      : paidLimitComplete
-                        ? isFreeSignupCredit ? "Buy Credits to Create More" : "Plan limit complete"
-                        : isFreeSignupCredit ? "Create My Video" : "Create My Reel"}
+                      ? (mode === "audioClean" ? "Normalizing & Splicing Audio..." : "Rendering HD video... please wait")
+                      : mode === "audioClean"
+                        ? isAnalyzingAudio
+                          ? "Analyzing Speech & Script..."
+                          : "Clean Audio Now"
+                        : paidLimitComplete
+                          ? isFreeSignupCredit ? "Buy Credits to Create More" : "Plan limit complete"
+                          : isFreeSignupCredit ? "Create My Video" : "Create My Reel"}
               </button>
               <p className="text-center text-xs font-bold leading-5 text-muted-foreground">
                 {renderInProgress
@@ -2543,102 +2908,9 @@ export default function DashboardPage() {
           )}
         </section>
 
-        {/* ── Saved Videos & Render History (48h HD Access) ── */}
-        <section id="recent-projects" className="w-full scroll-mt-24 rounded-2xl border border-slate-800 bg-slate-950/80 p-5 sm:p-7 shadow-xl space-y-5 backdrop-blur-xl">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
-            <div>
-              <span className="text-[10px] font-black uppercase tracking-wider text-[#00FF9D]">Exports &amp; Render History</span>
-              <h2 className="mt-0.5 text-lg sm:text-xl font-black tracking-tight text-white flex items-center gap-2">
-                <span>📁 Your Saved Videos</span>
-                {recentRenders.length > 0 && (
-                  <span className="rounded-full bg-[#00FF9D]/20 px-2.5 py-0.5 text-xs font-black text-[#00FF9D] border border-[#00FF9D]/30">
-                    {recentRenders.length}
-                  </span>
-                )}
-              </h2>
-              <p className="mt-0.5 text-xs text-slate-400 font-medium">Finished renders remain ready for HD download for 48 hours.</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setShowPrivacyModal(true)}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-800 bg-slate-900 px-3.5 py-2 text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 transition cursor-pointer"
-              >
-                <ShieldCheck size={14} className="text-emerald-400" />
-                <span>Security Info</span>
-              </button>
-            </div>
           </div>
+        )}
 
-          {recentRenders.length ? (
-            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-              {recentRenders.map((render) => (
-                <article key={render.id} className="min-w-0 overflow-hidden rounded-xl border border-slate-800 bg-slate-900/90 p-4 flex flex-col justify-between shadow-md hover:border-slate-700 transition">
-                  <div>
-                    <div className="flex min-w-0 items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-black tracking-tight text-white">{render.title}</p>
-                        <p className="mt-1 text-[11px] font-semibold text-slate-400">
-                          {getModeLabel(render.mode)} · {formatCreatedTime(render.createdAt)}
-                        </p>
-                      </div>
-                      <span className="shrink-0 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-300">
-                        {getVideoStatusLabel(render.expiresAt)}
-                      </span>
-                    </div>
-                    <div className="mt-3 flex items-center justify-between gap-2 rounded-lg border border-slate-800 bg-slate-950/80 px-3 py-1.5 text-xs">
-                      <span className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Available</span>
-                      <span className="font-bold text-slate-200">{formatTimeLeft(render.expiresAt)}</span>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 grid gap-2 grid-cols-2">
-                    <a
-                      className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#00FF9D] px-3 py-2 text-xs font-black text-slate-950 transition hover:bg-[#00FF9D]/90 shadow-sm"
-                      href={render.outputFile}
-                      download={`itnavideo-${render.mode || 'reel'}.mp4`}
-                      rel="noreferrer"
-                    >
-                      <Download size={13} strokeWidth={2.5} />
-                      Download HD
-                    </a>
-                    <button
-                      className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs font-bold text-red-300 transition hover:bg-red-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
-                      disabled={deletingRenderId === render.id}
-                      onClick={() => requestDeleteRender(render)}
-                      type="button"
-                    >
-                      <Trash2 size={13} />
-                      Delete
-                    </button>
-                  </div>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-slate-800/80 bg-slate-900/30 px-4 py-8 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[#00FF9D]/30 bg-[#00FF9D]/10 text-[#00FF9D] shadow-sm">
-                <Clapperboard size={22} />
-              </div>
-              <div className="max-w-md">
-                <p className="text-sm font-black text-white">No saved videos yet</p>
-                <p className="mt-1 text-xs leading-5 text-slate-400 font-medium">
-                  When you generate a video using any workflow above, your render progress and 48-hour download link will appear here.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                className="mt-1 inline-flex items-center gap-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 px-4 py-2 text-xs font-black text-white transition border border-slate-700 cursor-pointer"
-              >
-                <Sparkles size={13} className="text-[#00FF9D]" />
-                <span>Create a Video Above ↑</span>
-              </button>
-            </div>
-          )}
-        </section>
-
-      </div>
       {deleteCandidate ? (
         <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/80 px-3 pb-4 pt-10 backdrop-blur-md sm:items-center sm:px-5 sm:pb-10">
           <div
@@ -2822,6 +3094,8 @@ export default function DashboardPage() {
           </div>
         );
       })()}
+      </div>
+      </div>
     </main>
     </>
   );
@@ -2961,6 +3235,46 @@ export default function DashboardPage() {
       const creatorBackgroundImageKey = mode === "creatorBackgroundReplace" && creatorBackgroundImageFile
         ? await uploadVideoTypeImage({file: creatorBackgroundImageFile, userId, mode: "creatorBackgroundReplace"})
         : "";
+
+      if (mode === "audioClean") {
+        setJobStatus({
+          state: "starting",
+          message: "Cleaning audio: removing retakes, awkward silences & normalizing studio volume...",
+        });
+        try {
+          const cleanResponse = await fetch("/api/audio-clean", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              mediaKey: presign.key,
+              userId,
+              audioCleanOptions,
+              transcript: audioCleanAnalysis?.rawTranscript,
+              segmentsToCut: audioCleanAnalysis?.segments?.filter((s) => s.action === "cut"),
+            }),
+          });
+          const cleanResult = await readJsonPayload(cleanResponse);
+          if (!cleanResponse.ok || !cleanResult.ok) {
+            throw new Error(cleanResult.error || "Audio cleaning failed.");
+          }
+
+          setAudioCleanResult(cleanResult);
+          setJobStatus({
+            state: "ready",
+            message: "Audio cleaned successfully! Preview and download below.",
+            outputFile: cleanResult.outputUrl,
+          });
+          renderRequestInFlightRef.current = false;
+          return;
+        } catch (cleanError) {
+          renderRequestInFlightRef.current = false;
+          setJobStatus({
+            state: "error",
+            message: cleanError instanceof Error ? cleanError.message : "Audio cleaning failed.",
+          });
+          return;
+        }
+      }
 
       // ── PREVIEW STEP: video types that support it show preview before render ──
       // Compare and Auto Caption use the same preview-first approval flow.
@@ -3352,28 +3666,33 @@ export default function DashboardPage() {
           title: meta.title,
         });
         response = await fetch(`/api/reels/jobs/status?${statusParams.toString()}`);
+        if (!response.ok) {
+          // If server returned 502/503/504 transient gateway error, treat as retryable connection glitch
+          throw new Error(`Server returned HTTP ${response.status}`);
+        }
         status = await readJsonPayload(response);
         consecutivePollErrors = 0;
       } catch (error) {
         consecutivePollErrors += 1;
-        if (consecutivePollErrors >= 3) {
-          setJobStatus({state: "error", message: formatNetworkError(error, "Could not read render progress."), renderId, bucketName, ...meta});
+        if (consecutivePollErrors >= 10) {
+          setJobStatus({state: "error", message: formatNetworkError(error, "Could not read render progress. Connection lost."), renderId, bucketName, ...meta});
           return;
         }
         setJobStatus((current) => ({
           state: "rendering",
-          message: "Render is still running. Rechecking connection...",
+          message: `Render is still running. Reconnecting... (${consecutivePollErrors}/10)`,
           progress: current.progress || 0,
           renderId,
           bucketName,
           ...meta,
         }));
+        await wait(Math.min(consecutivePollErrors * 1000, 4000));
         continue;
       }
-      if (!response.ok || !status.ok) {
+      if (!status.ok || status.state === "error") {
         setJobStatus({
           state: "error",
-          message: status.error || "Could not read render progress.",
+          message: status.error || (status.errors?.[0]?.message ? sanitizeUserFacingStatus(status.errors[0].message) : "Render failed."),
           failureStage: "render",
           diagnostics: isFounderDebugUser ? formatFounderDiagnostics(status.diagnostics || []) : undefined,
           renderId,
@@ -3382,7 +3701,7 @@ export default function DashboardPage() {
         });
         return;
       }
-      if (status.errors?.length) {
+      if (status.done && status.errors?.length) {
         setJobStatus({
           state: "error",
           message: sanitizeUserFacingStatus(status.errors[0]?.message || "Render failed."),
@@ -3497,12 +3816,15 @@ export default function DashboardPage() {
             title: clip.title,
           });
           const response = await fetch(`/api/reels/jobs/status?${statusParams.toString()}`);
+          if (!response.ok) {
+            throw new Error(`Server returned HTTP ${response.status}`);
+          }
           const status = await readJsonPayload(response);
 
-          if (!response.ok || !status.ok || status.errors?.length) {
+          if (!status.ok || status.state === "error" || (status.done && status.errors?.length)) {
             clip.status = "failed";
             updated = true;
-          } else if (status.done) {
+          } else if (status.done && status.outputFile) {
             clip.status = "done";
             clip.outputFile = status.outputFile;
             updated = true;

@@ -30,18 +30,18 @@ export async function POST(request: Request) {
     // Get signed URL
     const mediaUrl = await createReadUrl(mediaKey);
 
-    // Transcribe with Groq for filler/repeat detection
-    let transcript: any = null;
-    if (options.removeFillers || options.removeRepeats || options.removeFalseStarts) {
+    // Use passed transcript or transcribe with Groq if needed
+    let transcript: any = body.transcript || null;
+    if (!transcript && (options.removeFillers || options.removeRepeats || options.removeFalseStarts || options.removeSilence)) {
       try {
         const result = await transcribeMediaUrlWithGroq({ mediaUrl, fileName: 'audio.mp3' });
         transcript = result;
       } catch (err) {
-        console.warn('[AUDIO_CLEAN] Transcription failed, skipping filler/repeat removal:', err);
+        console.warn('[AUDIO_CLEAN] Transcription failed, proceeding with volume/noise cleanup:', err);
       }
     }
 
-    // Process audio
+    // Process audio with FFmpeg engine
     const result = await cleanAudioWithAI({
       mediaUrl,
       mediaKey,
@@ -56,6 +56,7 @@ export async function POST(request: Request) {
         trimEnds: Boolean(options.trimEnds),
       },
       transcript,
+      customSegmentsToCut: Array.isArray(body.segmentsToCut) ? body.segmentsToCut : undefined,
     });
 
     if (!result.ok) {
@@ -69,6 +70,7 @@ export async function POST(request: Request) {
       originalDuration: result.originalDuration,
       cleanedDuration: result.cleanedDuration,
       removedSegments: result.removedSegments,
+      stats: result.stats,
       access,
     });
   } catch (error) {

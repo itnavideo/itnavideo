@@ -1,0 +1,58 @@
+{
+  "metadata": {
+    "styleId": "hormozi-bold",
+    "demoVideoId": "hormozi-bold",
+    "name": "Hormozi Bold Punch",
+    "category": "kinetic",
+    "tags": ["hormozi", "viral-hook", "high-retention", "bold-stroke"],
+    "sourceVideoUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4",
+    "posterUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/so_1,w_600,q_auto,f_jpg/v1788450233/professional-creator-girl-before_rwmxsd.jpg",
+    "analysisVersion": "2.0.0-temporal-motion",
+    "analyzedAt": "2026-09-04T12:00:00.000Z",
+    "overallConfidence": 0.96
+  },
+  "pacingAndRhythm": {
+    "personality": { "value": "fast-kinetic", "confidence": 0.95, "status": "DETECTED" },
+    "rhythmPattern": { "value": "word-slam", "confidence": 0.95, "status": "DETECTED" },
+    "targetWordsPerPhrase": 2,
+    "averagePhraseDurationSec": 1.2,
+    "transitionFrequencyPerMinute": 42,
+    "speechSyncMode": "beat-locked",
+    "motionIntensity": { "value": "explosive", "confidence": 0.95, "status": "DETECTED" }
+  },
+  "typography": {
+    "fontCategory": { "value": "heavy-grotesque", "confidence": 0.95, "status": "DETECTED" },
+    "fontFamilyEstimate": { "value": "Montserrat", "confidence": 0.95, "status": "DETECTED" },
+    "heroTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 900,
+      "fontStyle": "italic",
+      "relativeScale": 1.8,
+      "letterSpacingRatio": -0.03,
+      "lineHeightRatio": 0.95,
+      "opacity": 1
+    },
+    "leadTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 900,
+      "fontStyle": "normal",
+      "relativeScale": 0.9,
+      "letterSpacingRatio": 0.02,
+      "lineHeightRatio": 1.1,
+      "opacity": 0.95
+    },
+    "subTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 800,
+      "fontStyle": "normal",
+      "relativeScale": 0.8,
+      "letterSpacingRatio": 0.05,
+      "lineHeightRatio": 1.1,
+      "opacity": 0.9
+    },
+    "hierarchyLevels": ["hero", "lead", "sub"],
+    "textDensity": { "value": "rapid-single", "confidence": 0.95, "status": "DETECTED" },
+    "wordGroupingRule": "1-2-fast",
+    "lineBreakPolicy": "stacked-punch"
+  }
+}

@@ -380,9 +380,9 @@ export async function POST(request: Request) {
         privacy: 'private',
         deleteAfter: '3-days',
         overwrite: true,
-        concurrency: undefined,
+        concurrency: config.concurrency,
         framesPerLambda: promoFramesPerLambda,
-        maxRetries: 2,
+        maxRetries: 3,
         downloadBehavior: {
           type: 'download',
           fileName: 'itnavideo-long-video-promo.mp4',
@@ -560,8 +560,9 @@ export async function POST(request: Request) {
         privacy: 'private',
         deleteAfter: '3-days',
         overwrite: true,
-        framesPerLambda: 120,
-        maxRetries: 2,
+        concurrency: config.concurrency,
+        framesPerLambda: 150,
+        maxRetries: 3,
         downloadBehavior: { type: 'download', fileName: 'itnavideo-multi-images.mp4' },
         isProduction: true,
         logLevel: 'info',
@@ -747,7 +748,8 @@ export async function POST(request: Request) {
         region: config.region, functionName: config.functionName, serveUrl: config.serveUrl,
         composition, codec: 'h264', audioCodec: 'aac', inputProps, outName,
         privacy: 'private', deleteAfter: '3-days', overwrite: true,
-        framesPerLambda: getOptimalFramesPerLambda(renderWindow.durationSeconds, true), maxRetries: 2,
+        concurrency: config.concurrency,
+        framesPerLambda: getOptimalFramesPerLambda(renderWindow.durationSeconds, true), maxRetries: 3,
         downloadBehavior: { type: 'download', fileName: 'itnavideo-long-video-pro.mp4' },
         isProduction: true, logLevel: 'info',
       });
@@ -898,8 +900,9 @@ export async function POST(request: Request) {
           privacy: 'private',
           deleteAfter: '3-days',
           overwrite: true,
-          framesPerLambda: 120,
-          maxRetries: 2,
+          concurrency: 2,
+          framesPerLambda: 150,
+          maxRetries: 3,
           downloadBehavior: { type: 'download', fileName: `itnavideo-clip-${clip.index + 1}.mp4` },
           isProduction: true,
           logLevel: 'info',
@@ -1463,9 +1466,9 @@ export async function POST(request: Request) {
       privacy: 'private',
       deleteAfter: '3-days',
       overwrite: true,
-      concurrency: config.framesPerLambda ? undefined : config.concurrency,
+      concurrency: config.concurrency,
       framesPerLambda: config.framesPerLambda,
-      maxRetries: 1,
+      maxRetries: 3,
       downloadBehavior: {
         type: 'download',
         fileName: mode === 'autoCaption' ? 'itnavideo-auto-caption-reel.mp4' : 'itnavideo-reel.mp4',
@@ -1837,12 +1840,13 @@ function readLambdaConfig():
   const functionName = clean(process.env.REMOTION_LAMBDA_FUNCTION_NAME);
   const serveUrl = normalizeServeUrl(clean(process.env.REMOTION_LAMBDA_SERVE_URL));
   const configuredConcurrency = Number(process.env.REMOTION_LAMBDA_CONCURRENCY || 3);
-  const concurrency = Math.min(4, Math.max(1, Number.isFinite(configuredConcurrency) ? configuredConcurrency : 3));
+  // Strictly cap concurrency between 1 and 3 to prevent AWS Lambda Rate Exceeded throttling in ap-south-1
+  const concurrency = Math.min(3, Math.max(1, Number.isFinite(configuredConcurrency) ? configuredConcurrency : 2));
   const useFramesPerLambda = clean(process.env.REMOTION_LAMBDA_USE_FRAMES_PER_LAMBDA).toLowerCase() !== 'false';
-  const configuredFramesPerLambda = Number(process.env.REMOTION_LAMBDA_FRAMES_PER_LAMBDA || 300);
+  const configuredFramesPerLambda = Number(process.env.REMOTION_LAMBDA_FRAMES_PER_LAMBDA || 240);
   const framesPerLambda = useFramesPerLambda && Number.isFinite(configuredFramesPerLambda)
-    ? Math.min(600, Math.max(150, configuredFramesPerLambda))
-    : undefined;
+    ? Math.min(600, Math.max(120, configuredFramesPerLambda))
+    : 240;
   if (!functionName || !serveUrl) {
     return {ok: false, error: 'The render system is not deployed yet.'};
   }
@@ -1857,21 +1861,27 @@ function normalizeServeUrl(value: string) {
 }
 
 async function startRenderWithCapacityRetry(request: LambdaRenderRequest) {
-  const retryFramesPerLambda = Math.max(Number(request.framesPerLambda || 200), 300);
+  const baseConcurrency = Math.min(3, Math.max(1, Number(request.concurrency) || 2));
+  const baseFramesPerLambda = Math.max(120, Number(request.framesPerLambda) || 240);
   const attempts: LambdaRenderRequest[] = [
-    request,
-    {...request, concurrency: undefined, framesPerLambda: retryFramesPerLambda, maxRetries: 1},
-    {...request, concurrency: 2, framesPerLambda: undefined, maxRetries: 1},
-    // Extra attempt: minimal concurrency, generous framesPerLambda
-    {...request, concurrency: 1, framesPerLambda: undefined, maxRetries: 1},
+    {...request, concurrency: baseConcurrency, framesPerLambda: baseFramesPerLambda, maxRetries: 3},
+    {...request, concurrency: 2, framesPerLambda: Math.max(baseFramesPerLambda, 300), maxRetries: 3},
+    {...request, concurrency: 1, framesPerLambda: Math.max(baseFramesPerLambda, 400), maxRetries: 3},
   ];
   let lastError: unknown;
 
   for (let index = 0; index < attempts.length; index += 1) {
     try {
+      console.log(`[RENDER_INVOKE_ATTEMPT] Attempt ${index + 1}/${attempts.length}`, {
+        concurrency: attempts[index].concurrency,
+        framesPerLambda: attempts[index].framesPerLambda,
+        maxRetries: attempts[index].maxRetries,
+        composition: attempts[index].composition,
+      });
       return await renderMediaOnLambda(attempts[index]);
     } catch (error) {
       lastError = error;
+      console.warn(`[RENDER_INVOKE_ERROR] Attempt ${index + 1} failed:`, error instanceof Error ? error.message : error);
       if (!isTemporaryRenderCapacityError(error) || index === attempts.length - 1) {
         throw error;
       }

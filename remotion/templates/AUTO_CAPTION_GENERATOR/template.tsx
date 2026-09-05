@@ -10,6 +10,7 @@
  */
 import {
   AbsoluteFill,
+  Audio,
   Composition,
   OffthreadVideo,
   staticFile,
@@ -75,6 +76,7 @@ function normalizeCaptions(captions: CaptionSegment[], subtitleChunks?: CaptionS
 
 export function AutoCaptionGenerator({
   mediaSrc,
+  mediaType = 'video',
   mediaTrimStartSeconds = 0,
   sourceAudioVolume = 1,
   captions = [],
@@ -100,6 +102,7 @@ export function AutoCaptionGenerator({
   const normalizedCaptions = normalizeCaptions(captions, subtitleChunks);
   const activeHighlight = highlightColor || activeWordColor;
   const isLandscape = width > height;
+  const isAudioOnly = mediaType === 'audio' || /\.(mp3|wav|m4a|aac|ogg|flac)($|\?)/i.test(resolvedSrc);
 
   // Resolve or plan structured CaptionEvents
   let resolvedCaptionEvents: CaptionEvent[] = captionEvents || [];
@@ -156,18 +159,35 @@ export function AutoCaptionGenerator({
 
   return (
     <AbsoluteFill style={{ backgroundColor: '#000000' }}>
-      {/* Background Media / Video Layer */}
+      {/* Background Media / Video or Audio Layer */}
       {resolvedSrc ? (
-        <OffthreadVideo
-          src={resolvedSrc}
-          startFrom={Math.round(mediaTrimStartSeconds * DEFAULT_FPS)}
-          volume={sourceAudioVolume}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-          }}
-        />
+        isAudioOnly ? (
+          <>
+            <Audio
+              src={resolvedSrc}
+              startFrom={Math.round(mediaTrimStartSeconds * DEFAULT_FPS)}
+              volume={sourceAudioVolume}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'radial-gradient(circle at center, #1e1b4b 0%, #09090b 100%)',
+              }}
+            />
+          </>
+        ) : (
+          <OffthreadVideo
+            src={resolvedSrc}
+            startFrom={Math.round(mediaTrimStartSeconds * DEFAULT_FPS)}
+            volume={sourceAudioVolume}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            }}
+          />
+        )
       ) : null}
 
       {/* Modern High-Performance Motion Caption Layer */}

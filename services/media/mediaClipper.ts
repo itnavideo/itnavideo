@@ -121,7 +121,7 @@ export async function createPlanningMediaClip({
   }
 }
 
-function findFfmpegPath() {
+export function findFfmpegPath() {
   const configured = cleanEnvValue(process.env.FFMPEG_PATH);
   if (configured && existsSync(configured)) return configured;
 
@@ -158,7 +158,7 @@ function findSystemFfmpeg() {
   return '';
 }
 
-async function readMediaInput(mediaUrl: string) {
+export async function readMediaInput(mediaUrl: string) {
   if (/^https?:\/\//i.test(mediaUrl)) {
     const response = await fetch(mediaUrl);
     if (!response.ok) {
@@ -186,7 +186,7 @@ function extensionFromContentType(contentType: string | undefined, mediaUrl: str
   return mode === 'audio' ? '.mp3' : '.mp4';
 }
 
-function runFfmpeg(command: string, args: string[]) {
+export function runFfmpeg(command: string, args: string[]) {
   return new Promise<void>((resolve, reject) => {
     const child = spawn(command, args, {stdio: ['ignore', 'ignore', 'pipe']});
     let stderr = '';

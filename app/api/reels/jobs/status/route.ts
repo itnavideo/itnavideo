@@ -34,19 +34,26 @@ export async function GET(request: Request) {
     const renderErrors = progress.errors || [];
     const hasOutput = Boolean(progress.outputFile);
     const missingOutput = Boolean(progress.done && !hasOutput && renderErrors.length === 0);
+    const hasFatalError = Boolean(
+      (progress as any).fatalErrorTimestamp != null ||
+      (progress.done && (renderErrors.length > 0 || missingOutput)) ||
+      renderErrors.some((e: any) => e.isFatal && e.willRetry === false)
+    );
+    const isTerminalFailure = Boolean(userId && hasFatalError);
+
     const diagnostics = [
       `Mode: ${mode || 'unknown'}`,
       `Progress: ${Math.round((progress.overallProgress || 0) * 100)}%`,
       `Done: ${Boolean(progress.done)}`,
       `Output: ${hasOutput ? 'yes' : 'no'}`,
       `Workers invoked: ${progress.lambdasInvoked || 0}`,
+      `Fatal error: ${hasFatalError ? 'yes' : 'no'}`,
       progress.costs ? `Costs: ${JSON.stringify(progress.costs).slice(0, 160)}` : '',
-      renderErrors[0]?.message ? `Raw error: ${renderErrors[0].message.slice(0, 220)}` : '',
+      renderErrors[0]?.message ? `Worker log: ${renderErrors[0].message.slice(0, 220)}` : '',
       missingOutput ? 'Raw error: render completed without an output file' : '',
     ].filter(Boolean);
     let usageWarning = '';
-    const isTerminalFailure = Boolean(userId && progress.done && (renderErrors.length > 0 || missingOutput));
-    if (progress.done && userId && renderErrors.length === 0 && hasOutput) {
+    if (progress.done && userId && !hasFatalError && hasOutput) {
       try {
         await recordRenderUsageFromServer({
           userId,
@@ -67,14 +74,16 @@ export async function GET(request: Request) {
         console.error('Render usage release failed:', error);
       }
     }
-    if (mode === 'longVideoPromo') {
-      console.log('[LONG_VIDEO_PROMO_STATUS]', {
+    const currentRenderState = hasFatalError ? 'error' : progress.done && hasOutput ? 'done' : 'rendering';
+    if (mode === 'longVideoPromo' || hasFatalError) {
+      console.log('[RENDER_STATUS_CHECK]', {
         renderId,
-        state: renderErrors.length || missingOutput ? 'error' : progress.done ? 'done' : 'rendering',
+        state: currentRenderState,
         progress: progress.overallProgress || 0,
         done: progress.done,
         output: hasOutput,
         workers: progress.lambdasInvoked || 0,
+        fatal: hasFatalError,
         firstError: renderErrors[0]?.message || (missingOutput ? 'MISSING_OUTPUT_FILE' : ''),
       });
     }
@@ -90,23 +99,24 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       ok: true,
-      state: renderErrors.length || missingOutput ? 'error' : progress.done ? 'done' : 'rendering',
+      state: currentRenderState,
       renderId,
       bucketName,
       done: progress.done,
       progress: progress.overallProgress || 0,
       outputFile,
       outputSizeInBytes: progress.outputSizeInBytes,
-      errors: [
+      isRetrying: !hasFatalError && renderErrors.length > 0,
+      errors: hasFatalError ? [
         ...renderErrors.map((error) => ({
-        message: sanitizeUserFacingStatus(error.message || ''),
-        reason: error.message || '',
+          message: sanitizeUserFacingStatus(error.message || ''),
+          reason: error.message || '',
         })),
         ...(missingOutput ? [{
           message: 'Render finished but the MP4 was not created. Please retry.',
           reason: 'MISSING_OUTPUT_FILE',
         }] : []),
-      ],
+      ] : [],
       diagnostics,
       usageWarning: usageWarning || undefined,
       renderWorkersInvoked: progress.lambdasInvoked || 0,
