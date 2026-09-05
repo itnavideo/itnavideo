@@ -128,6 +128,11 @@ export function findFfmpegPath() {
   const system = findSystemFfmpeg();
   if (system) return system;
 
+  try {
+    const ffmpegStatic = require('ffmpeg-static');
+    if (ffmpegStatic && existsSync(ffmpegStatic)) return ffmpegStatic;
+  } catch {}
+
   const extension = process.platform === 'win32' ? '.exe' : '';
   const packages = [
     'compositor-win32-x64-msvc',
@@ -146,6 +151,27 @@ export function findFfmpegPath() {
   }
 
   return '';
+}
+
+export async function probeAudioDuration(filePath: string): Promise<number> {
+  try {
+    const ffprobeStatic = require('ffprobe-static');
+    const ffprobePath = ffprobeStatic?.path || 'ffprobe';
+    const { execFile } = require('node:child_process');
+    const { promisify } = require('node:util');
+    const execFileAsync = promisify(execFile);
+
+    const { stdout } = await execFileAsync(ffprobePath, [
+      '-v', 'error',
+      '-show_entries', 'format=duration',
+      '-of', 'default=noprint_wrappers=1:nokey=1',
+      filePath,
+    ]);
+    const duration = parseFloat(String(stdout || '').trim());
+    return !isNaN(duration) && duration > 0 ? duration : 0;
+  } catch {
+    return 0;
+  }
 }
 
 function findSystemFfmpeg() {

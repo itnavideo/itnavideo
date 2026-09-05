@@ -17,7 +17,7 @@
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { findFfmpegPath, readMediaInput, runFfmpeg } from '@/services/media/mediaClipper';
+import { findFfmpegPath, probeAudioDuration, readMediaInput, runFfmpeg } from '@/services/media/mediaClipper';
 import { uploadTemporaryMediaObject, createReadUrl } from '@/lib/aws/mediaStorage';
 
 export type AudioCleanOptions = {
@@ -356,7 +356,8 @@ export async function cleanAudioWithAI({
   }
 
   const workDir = await mkdtemp(path.join(tmpdir(), 'itnavideo-audio-clean-'));
-  const inputAudioPath = path.join(workDir, 'input-audio.mp3');
+  const rawExt = path.extname(mediaUrl.split('?')[0] || '').toLowerCase() || '.mp3';
+  const inputAudioPath = path.join(workDir, `input-audio${rawExt}`);
   const outputAudioPath = path.join(workDir, 'cleaned-audio.mp3');
 
   try {
@@ -364,11 +365,25 @@ export async function cleanAudioWithAI({
     const rawAudioBytes = await readMediaInput(mediaUrl);
     await writeFile(inputAudioPath, rawAudioBytes);
 
-    // 2. Determine cut intervals
+    // 2. Accurately probe media duration (avoids premature cutoffs for long audio)
+    let duration = await probeAudioDuration(inputAudioPath);
+    if (!duration || duration <= 0) {
+      duration = Number(transcript?.durationSeconds || transcript?.duration || 0);
+    }
+    if (!duration || duration <= 0) {
+      const words = transcript?.words || [];
+      if (words.length > 0) {
+        duration = Math.ceil(words[words.length - 1].end + 1);
+      } else {
+        duration = 60;
+      }
+    }
+
+    // 3. Determine cut intervals
     let cuts: CutInterval[] = [];
 
-    if (Array.isArray(customSegmentsToCut) && customSegmentsToCut.length > 0) {
-      cuts = customSegmentsToCut;
+    if (Array.isArray(customSegmentsToCut)) {
+      cuts.push(...customSegmentsToCut);
     } else if (transcript) {
       const analysis = analyzeAudioScript(transcript, options);
       for (const seg of analysis.segments) {
@@ -381,39 +396,48 @@ export async function cleanAudioWithAI({
           });
         }
       }
-      // Add silence cuts if enabled
-      if (options.removeSilence && analysis.words.length > 1) {
-        for (let i = 0; i < analysis.words.length - 1; i++) {
-          const gap = analysis.words[i + 1].start - analysis.words[i].end;
-          if (gap > 1.0) {
-            const cutStart = Number((analysis.words[i].end + 0.15).toFixed(2));
-            const cutEnd = Number((analysis.words[i + 1].start - 0.15).toFixed(2));
-            if (cutEnd > cutStart + 0.3) {
-              cuts.push({ start: cutStart, end: cutEnd, reason: 'silence' });
-            }
+    }
+
+    // Always detect and remove awkward long silences (>1.0s) if enabled
+    if (options.removeSilence && transcript?.words && transcript.words.length > 1) {
+      const words = transcript.words;
+      for (let i = 0; i < words.length - 1; i++) {
+        const gap = words[i + 1].start - words[i].end;
+        if (gap > 1.0) {
+          const cutStart = Number((words[i].end + 0.15).toFixed(2));
+          const cutEnd = Number((words[i + 1].start - 0.15).toFixed(2));
+          if (cutEnd > cutStart + 0.3) {
+            cuts.push({ start: cutStart, end: cutEnd, reason: 'silence' });
           }
         }
       }
     }
 
-    const duration = Number(transcript?.durationSeconds || transcript?.duration || 0) || 60;
     const keepIntervals = computeKeepIntervals(cuts, duration);
 
-    // 3. Build FFmpeg filter chain
+    // 4. Build FFmpeg filter chain
     const filterParts: string[] = [];
     let audioOutLabel = '0:a';
 
     // Splice cuts if any
     if (cuts.length > 0 && keepIntervals.length > 0) {
-      const concatInputs: string[] = [];
-      keepIntervals.forEach((interval, idx) => {
+      if (keepIntervals.length === 1) {
+        // Single segment keep: direct atrim without concat overhead
         filterParts.push(
-          `[0:a]atrim=start=${interval.start.toFixed(3)}:end=${interval.end.toFixed(3)},asetpts=PTS-STARTPTS[a${idx}]`
+          `[0:a]atrim=start=${keepIntervals[0].start.toFixed(3)}:end=${keepIntervals[0].end.toFixed(3)},asetpts=PTS-STARTPTS[acut]`
         );
-        concatInputs.push(`[a${idx}]`);
-      });
-      filterParts.push(`${concatInputs.join('')}concat=n=${keepIntervals.length}:v=0:a=1[acut]`);
-      audioOutLabel = 'acut';
+        audioOutLabel = 'acut';
+      } else {
+        const concatInputs: string[] = [];
+        keepIntervals.forEach((interval, idx) => {
+          filterParts.push(
+            `[0:a]atrim=start=${interval.start.toFixed(3)}:end=${interval.end.toFixed(3)},asetpts=PTS-STARTPTS[a${idx}]`
+          );
+          concatInputs.push(`[a${idx}]`);
+        });
+        filterParts.push(`${concatInputs.join('')}concat=n=${keepIntervals.length}:v=0:a=1[acut]`);
+        audioOutLabel = 'acut';
+      }
     }
 
     // Background Noise Reduction (Optional)
@@ -428,8 +452,8 @@ export async function cleanAudioWithAI({
       audioOutLabel = 'anorm';
     }
 
-    // 4. Run FFmpeg command
-    const ffmpegArgs: string[] = ['-y', '-i', inputAudioPath];
+    // 5. Run FFmpeg command
+    const ffmpegArgs: string[] = ['-y', '-i', inputAudioPath, '-vn'];
 
     if (filterParts.length > 0) {
       ffmpegArgs.push('-filter_complex', filterParts.join('; '));

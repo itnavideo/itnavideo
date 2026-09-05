@@ -86,12 +86,19 @@ export default function InteractiveRenderEngine({
   // 2. Processing assets
   // 3. Applying animation
   // 4. Rendering final video
-  const steps = [
-    { label: 'Preparing project', doneAt: 15 },
-    { label: 'Processing assets', doneAt: 40 },
-    { label: 'Applying animation', doneAt: 75 },
-    { label: 'Rendering final video', doneAt: 100 },
-  ];
+  const steps = mode === 'audioClean'
+    ? [
+        { label: 'Transcribing speech & script', doneAt: 25 },
+        { label: 'Detecting retakes & mistakes', doneAt: 50 },
+        { label: 'Normalizing loudness & silence', doneAt: 75 },
+        { label: 'Exporting studio clean MP3', doneAt: 100 },
+      ]
+    : [
+        { label: 'Preparing project', doneAt: 15 },
+        { label: 'Processing assets', doneAt: 40 },
+        { label: 'Applying animation', doneAt: 75 },
+        { label: 'Rendering final video', doneAt: 100 },
+      ];
 
   // Dynamic project display title
   const displayTitle = title && title.length > 3 && title.toLowerCase() !== 'ai'
@@ -361,36 +368,61 @@ export default function InteractiveRenderEngine({
           <div className="bg-zinc-900/80 rounded-2xl border border-zinc-800/80 p-5 space-y-4 shadow-xl">
             <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
               <h4 className="font-extrabold text-xs text-white uppercase tracking-wider flex items-center gap-1.5">
-                <Info size={14} className="text-emerald-400" />
-                Render Details
+                <Info size={14} className={mode === 'audioClean' ? "text-orange-400" : "text-emerald-400"} />
+                {mode === 'audioClean' ? 'Audio Export Specs' : 'Render Details'}
               </h4>
-              <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-800/60">
-                HD Quality
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${mode === 'audioClean' ? 'text-orange-400 bg-orange-950 border-orange-800/60' : 'text-emerald-400 bg-emerald-950 border-emerald-800/60'}`}>
+                {mode === 'audioClean' ? 'Studio Quality' : 'HD Quality'}
               </span>
             </div>
 
-            <div className="space-y-2.5 text-xs">
-              <div className="flex items-center justify-between py-1 border-b border-zinc-800/60">
-                <span className="text-zinc-400 font-medium">Resolution</span>
-                <span className="font-mono font-bold text-white">1080p (1920x1080)</span>
+            {mode === 'audioClean' ? (
+              <div className="space-y-2.5 text-xs">
+                <div className="flex items-center justify-between py-1 border-b border-zinc-800/60">
+                  <span className="text-zinc-400 font-medium">Format</span>
+                  <span className="font-mono font-bold text-emerald-400">MP3 (libmp3lame)</span>
+                </div>
+                <div className="flex items-center justify-between py-1 border-b border-zinc-800/60">
+                  <span className="text-zinc-400 font-medium">Bitrate</span>
+                  <span className="font-mono font-bold text-white">192 kbps CBR</span>
+                </div>
+                <div className="flex items-center justify-between py-1 border-b border-zinc-800/60">
+                  <span className="text-zinc-400 font-medium">Sample Rate</span>
+                  <span className="font-mono font-bold text-purple-300">44.1 kHz Studio</span>
+                </div>
+                <div className="flex items-center justify-between py-1 border-b border-zinc-800/60">
+                  <span className="text-zinc-400 font-medium">Volume Normalization</span>
+                  <span className="font-mono font-bold text-amber-300">EBU R128 (-16 LUFS)</span>
+                </div>
+                <div className="flex items-center justify-between py-1">
+                  <span className="text-zinc-400 font-medium">Noise Filter</span>
+                  <span className="font-bold text-emerald-400">Spectral De-noise</span>
+                </div>
               </div>
-              <div className="flex items-center justify-between py-1 border-b border-zinc-800/60">
-                <span className="text-zinc-400 font-medium">Format</span>
-                <span className="font-mono font-bold text-emerald-400">MP4 (H.264)</span>
+            ) : (
+              <div className="space-y-2.5 text-xs">
+                <div className="flex items-center justify-between py-1 border-b border-zinc-800/60">
+                  <span className="text-zinc-400 font-medium">Resolution</span>
+                  <span className="font-mono font-bold text-white">1080p (1920x1080)</span>
+                </div>
+                <div className="flex items-center justify-between py-1 border-b border-zinc-800/60">
+                  <span className="text-zinc-400 font-medium">Format</span>
+                  <span className="font-mono font-bold text-emerald-400">MP4 (H.264)</span>
+                </div>
+                <div className="flex items-center justify-between py-1 border-b border-zinc-800/60">
+                  <span className="text-zinc-400 font-medium">Frame Rate</span>
+                  <span className="font-mono font-bold text-white">60 FPS</span>
+                </div>
+                <div className="flex items-center justify-between py-1 border-b border-zinc-800/60">
+                  <span className="text-zinc-400 font-medium">Video Size</span>
+                  <span className="font-mono font-bold text-purple-300">~8.5 MB</span>
+                </div>
+                <div className="flex items-center justify-between py-1">
+                  <span className="text-zinc-400 font-medium">Quality</span>
+                  <span className="font-bold text-amber-300">1080p HD Ultra</span>
+                </div>
               </div>
-              <div className="flex items-center justify-between py-1 border-b border-zinc-800/60">
-                <span className="text-zinc-400 font-medium">Frame Rate</span>
-                <span className="font-mono font-bold text-white">60 FPS</span>
-              </div>
-              <div className="flex items-center justify-between py-1 border-b border-zinc-800/60">
-                <span className="text-zinc-400 font-medium">Video Size</span>
-                <span className="font-mono font-bold text-purple-300">~8.5 MB</span>
-              </div>
-              <div className="flex items-center justify-between py-1">
-                <span className="text-zinc-400 font-medium">Quality</span>
-                <span className="font-bold text-amber-300">1080p HD Ultra</span>
-              </div>
-            </div>
+            )}
           </div>
 
           {/* 2. AUTO-GENERATED TITLE & DESCRIPTION BOX (Matching Sketch) */}
