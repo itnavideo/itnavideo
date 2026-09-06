@@ -69,6 +69,11 @@ export type SceneBlueprintItem = {
   timelineSteps?: string[];
   checklistItems?: string[];
   chartValuePercent?: number;
+
+  // Responsive Typography Engine metadata (16:9 widescreen layout intelligence)
+  typographyTreatment?: 'stat' | 'quote' | 'list' | 'headline' | 'short_sentence' | 'paragraph' | 'split';
+  listItems?: string[];
+  layoutMode?: string;
 };
 
 export type FullVideoSceneBlueprint = {

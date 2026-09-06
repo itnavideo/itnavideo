@@ -8,8 +8,7 @@ import {TypographyVideoComposition} from './templates/TYPOGRAPHY_VIDEO/template'
 import {MultiImagesVideoComposition} from './templates/MULTI_IMAGES_VIDEO/template';
 import {LongVideoClipsComposition} from './templates/LONG_VIDEO_CLIPS/template';
 import {LongVideoComposition} from './templates/LONG_VIDEO/template';
-import {FacelessLongVideoComposition} from './templates/FACELESS_LONG_VIDEO/template';
-import {AiVideoGeneratorComposition} from './templates/AI_VIDEO_GENERATOR/template';
+import {FacelessVideoComposition} from './templates/FACELESS_VIDEO/template';
 
 const compositions = [
   AutoCaptionGeneratorComposition,
@@ -20,8 +19,7 @@ const compositions = [
   MultiImagesVideoComposition,
   LongVideoClipsComposition,
   LongVideoComposition,
-  FacelessLongVideoComposition,
-  AiVideoGeneratorComposition,
+  FacelessVideoComposition,
 ];
 
 const RemotionRoot = () => (

@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     let transcript: any = body.transcript || null;
     if (!transcript && (options.removeFillers || options.removeRepeats || options.removeFalseStarts || options.removeSilence)) {
       try {
-        const result = await transcribeMediaUrlWithGroq({ mediaUrl, fileName: 'audio.mp3' });
+        const result = await transcribeMediaUrlWithGroq({ mediaUrl, fileName: 'audio.mp3', maxSeconds: 3600 });
         transcript = result;
       } catch (err) {
         console.warn('[AUDIO_CLEAN] Transcription failed, proceeding with volume/noise cleanup:', err);
@@ -51,9 +51,10 @@ export async function POST(request: Request) {
         removeFillers: Boolean(options.removeFillers),
         removeRepeats: Boolean(options.removeRepeats),
         removeFalseStarts: Boolean(options.removeFalseStarts),
-        noiseReduction: Boolean(options.noiseReduction),
-        volumeNormalize: Boolean(options.volumeNormalize),
+        noiseReduction: options.noiseReduction !== undefined ? Boolean(options.noiseReduction) : true,
+        volumeNormalize: options.volumeNormalize !== undefined ? Boolean(options.volumeNormalize) : true,
         trimEnds: Boolean(options.trimEnds),
+        playbackSpeed: Number(options.playbackSpeed || options.speed || 1.0),
       },
       transcript,
       customSegmentsToCut: Array.isArray(body.segmentsToCut) ? body.segmentsToCut : undefined,

@@ -6,7 +6,7 @@ import { Loader2 } from "lucide-react";
 
 import { AutoCaptionGenerator } from "@/remotion/templates/AUTO_CAPTION_GENERATOR/template";
 import { CompareExplainer } from "@/remotion/templates/COMPARE_EXPLAINER/template";
-import { FacelessLongVideo } from "@/remotion/templates/FACELESS_LONG_VIDEO/template";
+import { FacelessVideoTemplate } from "@/remotion/templates/FACELESS_VIDEO/template";
 import { DEFAULT_FPS, secondsToFrames } from "@/remotion/constants";
 
 type Props = {
@@ -25,10 +25,10 @@ const COMPOSITION_COMPONENTS: Record<string, React.ComponentType<any>> = {
   "AUTO-CAPTION-GENERATOR-LANDSCAPE": AutoCaptionGenerator,
   AUTO_CAPTION_GENERATOR: AutoCaptionGenerator,
   comparisonImages: CompareExplainer,
-  "FACELESS-LONG-VIDEO": FacelessLongVideo,
-  facelessLongVideo: FacelessLongVideo,
-  "AI-VIDEO-GENERATOR": FacelessLongVideo,
-  aiVideoGenerator: FacelessLongVideo,
+  "FACELESS-VIDEO": FacelessVideoTemplate,
+  facelessVideo: FacelessVideoTemplate,
+  "AI-VIDEO-GENERATOR": FacelessVideoTemplate,
+  aiVideoGenerator: FacelessVideoTemplate,
 };
 
 export const VideoTypePreviewRenderer = forwardRef<PlayerRef, Props>(function VideoTypePreviewRenderer(
@@ -48,8 +48,8 @@ export const VideoTypePreviewRenderer = forwardRef<PlayerRef, Props>(function Vi
   }
 
   const isLandscape =
-    compositionId === "FACELESS-LONG-VIDEO" ||
-    compositionId === "facelessLongVideo" ||
+    compositionId === "FACELESS-VIDEO" ||
+    compositionId === "facelessVideo" ||
     compositionId === "AI-VIDEO-GENERATOR" ||
     compositionId === "aiVideoGenerator";
   const compositionWidth = isLandscape ? 1920 : 1080;

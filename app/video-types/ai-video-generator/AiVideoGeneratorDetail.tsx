@@ -7,13 +7,13 @@ export default function AiVideoGeneratorDetail() {
   return (
     <RichTemplateDetail
       id="ai-video-generator"
-      title="AI Video Generator (Long YT Videos)"
+      title="Faceless Video AI Maker"
       subtitle="Turn voiceovers, videos, or scripts into complete 16:9 widescreen YouTube & 9:16 vertical videos with automated B-Roll, motion graphics, ducked music, and animated subtitles."
       badge="Free AI Video Generator • Voice & Video to Video"
       accentColor="#38BDF8"
       aspectRatio="16:9"
       previewImage="https://res.cloudinary.com/dhouh9idx/image/upload/v1788190063/file_0000000089c48211b67c16fe3c2636a2_prirg0.png"
-      dashHref="/dashboard?videoType=ai-video-generator"
+      dashHref="/dashboard?videoType=faceless-video"
       features={[
         { title: "Voiceover & Video to Scene Generator", desc: "Supports raw audio voiceovers (faceless) and recorded videos (facecam) with smart scene cuts." },
         { title: "Automatic B-Roll & Visual Assets", desc: "Matches relevant background visuals, kinetic motion graphics, stock footage, and stickers per scene." },

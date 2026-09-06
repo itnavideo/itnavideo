@@ -73,6 +73,7 @@ export type ReelVideoTypeName =
   | 'IMAGE_STORY_COLLAGE'
   | 'HANDWRITTEN_NOTES'
   | 'VOICE_SYNCED_NOTES'
+  | 'FACELESS_VIDEO'
   | 'AI_VIDEO_GENERATOR';
 
 export type ReelVideoTypeConfig = {
@@ -178,11 +179,23 @@ export const VIDEO_TYPE_REGISTRY: Partial<Record<ReelVideoTypeName, ReelVideoTyp
     needsCaptionStylePicker: true,
     skipPlanner: true,
   },
-  AI_VIDEO_GENERATOR: {
-    templateName: 'AI_VIDEO_GENERATOR',
-    compositionId: 'AI-VIDEO-GENERATOR',
+  FACELESS_VIDEO: {
+    templateName: 'FACELESS_VIDEO',
+    compositionId: 'FACELESS-VIDEO',
     videoCategory: 'long-form',
-    allowedMedia: ['audio', 'video'],
+    allowedMedia: ['audio'],
+    transcriptRequirement: 'required',
+    plannerMode: 'videoExplainer',
+    mediaFit: 'videoExplainer',
+    needsTitle: true,
+    needsCaptionStylePicker: true,
+    skipPlanner: false,
+  },
+  AI_VIDEO_GENERATOR: {
+    templateName: 'FACELESS_VIDEO',
+    compositionId: 'FACELESS-VIDEO',
+    videoCategory: 'long-form',
+    allowedMedia: ['audio'],
     transcriptRequirement: 'required',
     plannerMode: 'videoExplainer',
     mediaFit: 'videoExplainer',

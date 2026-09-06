@@ -1,7 +1,8 @@
 import React from 'react';
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
-import { Heading } from '../components/Heading';
+import { ResponsiveTypography } from '../components/ResponsiveTypography';
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
+import { resolveFont } from '../../../utils/fonts';
 
 export interface TypographySceneProps {
   scene: SceneBlueprintItem;
@@ -9,7 +10,12 @@ export interface TypographySceneProps {
   bodyFont?: string;
 }
 
-export function TypographyScene({ scene, headingFont = 'Montserrat, sans-serif' }: TypographySceneProps) {
+export function TypographyScene({
+  scene,
+  headingFont = 'Plus Jakarta Sans',
+  bodyFont = 'Inter',
+}: TypographySceneProps) {
+  const resolvedBodyFont = resolveFont(bodyFont);
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -21,10 +27,10 @@ export function TypographyScene({ scene, headingFont = 'Montserrat, sans-serif' 
   });
 
   const subtleZoom = interpolate(frame, [0, 150], [1.0, 1.05], { extrapolateRight: 'clamp' });
-  const headline = scene.heading || 'CORE TAKEAWAY';
+  const headline = scene.heading || scene.narrationSegment?.text || 'CORE TAKEAWAY';
 
-  // Only render concise supporting text if explicitly distinct from narration
-  const supportingBullet = scene.supportingText && scene.supportingText !== scene.narrationSegment?.text
+  // Only render concise supporting text if explicitly distinct from headline
+  const supportingBullet = scene.supportingText && scene.supportingText !== headline && scene.supportingText !== scene.narrationSegment?.text
     ? scene.supportingText
     : '';
 
@@ -36,17 +42,17 @@ export function TypographyScene({ scene, headingFont = 'Montserrat, sans-serif' 
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '48px',
+        padding: '100px 140px', // Strict 1920x1080 safe area (140px X, 100px Y)
         textAlign: 'center',
         zIndex: 10,
         opacity: slideEntrance,
-        transform: `translateY(${interpolate(slideEntrance, [0, 1], [40, 0])}px) scale(${subtleZoom})`,
+        transform: `translateY(${interpolate(slideEntrance, [0, 1], [30, 0])}px) scale(${subtleZoom})`,
       }}
     >
       <div
         style={{
           position: 'relative',
-          maxWidth: '1100px',
+          maxWidth: '1150px', // Controlled width (never 1800px)
           width: '100%',
           borderRadius: '32px',
           border: '1px solid rgba(168, 85, 247, 0.35)',
@@ -62,15 +68,15 @@ export function TypographyScene({ scene, headingFont = 'Montserrat, sans-serif' 
       >
         <div
           style={{
-            marginBottom: '20px',
+            marginBottom: '24px',
             display: 'inline-flex',
             alignItems: 'center',
             gap: '8px',
             borderRadius: '9999px',
             border: '1px solid rgba(168, 85, 247, 0.4)',
             backgroundColor: 'rgba(168, 85, 247, 0.12)',
-            padding: '8px 20px',
-            fontSize: '12px',
+            padding: '8px 22px',
+            fontSize: '13px',
             fontWeight: 900,
             textTransform: 'uppercase',
             letterSpacing: '0.15em',
@@ -80,23 +86,27 @@ export function TypographyScene({ scene, headingFont = 'Montserrat, sans-serif' 
           <span>CHAPTER INSIGHT</span>
         </div>
 
-        <Heading
+        {/* Responsive Typography Engine handles dynamic font scale, balance & line wrap */}
+        <ResponsiveTypography
           text={headline}
-          level="h1"
+          mode={scene.typographyTreatment}
           fontFamily={headingFont}
           color="#FFFFFF"
-          style={{ marginBottom: '16px', maxWidth: '1000px', lineHeight: 1.15 }}
+          accentColor="#C084FC"
+          availableWidth={1050}
+          availableHeight={480}
         />
 
         {supportingBullet && (
           <p
             style={{
-              fontSize: '20px',
+              fontFamily: resolvedBodyFont,
+              fontSize: '22px',
               fontWeight: 600,
               color: '#CBD5E1',
-              marginTop: '8px',
+              marginTop: '20px',
               maxWidth: '850px',
-              lineHeight: 1.5,
+              lineHeight: 1.45,
             }}
           >
             {supportingBullet}

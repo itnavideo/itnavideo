@@ -400,7 +400,7 @@ export const seoLandingPages: SeoLandingPage[] = [
     ],
     faqs: [
       { question: "Is Itnavideo really a free AI video generator?", answer: "Yes. You can test workflows with free starter credits to create and export AI-generated videos." },
-      { question: "What types of videos can I generate for free?", answer: "You can generate auto-captioned reels, typography videos, podcast clips, faceless long videos, whiteboard explainers, and comparison videos." },
+      { question: "What types of videos can I generate for free?", answer: "You can generate auto-captioned reels, typography videos, podcast clips, faceless videos, whiteboard explainers, and comparison videos." },
       { question: "Do I need to install any software?", answer: "No. Itnavideo runs entirely in your web browser with ultra-fast cloud rendering." }
     ]
   }),
@@ -426,7 +426,7 @@ export const seoLandingPages: SeoLandingPage[] = [
     ],
     faqs: [
       { question: "How does the AI video generator work?", answer: "Simply select a video type, upload your video, audio, or script, customize your caption style, and click render. AI handles the layout, motion, and export." },
-      { question: "Can I create 16:9 landscape videos for YouTube?", answer: "Yes. Itnavideo supports 16:9 Long Video Pro, Faceless Long Video, and Long Caption Pro up to 10 minutes." },
+      { question: "Can I create 16:9 landscape videos for YouTube?", answer: "Yes. Itnavideo supports 16:9 Faceless Video up to 20 minutes." },
       { question: "What formats can I export?", answer: "All videos are exported as standard high-bitrate MP4 files compatible with all video platforms." }
     ]
   }),
@@ -477,7 +477,7 @@ export const seoLandingPages: SeoLandingPage[] = [
       "Studio quality 1080x1920 MP4 outputs ready to share"
     ],
     faqs: [
-      { question: "Can I make videos without showing my face?", answer: "Yes! Our Faceless Long Video, Whiteboard Video, and Compare Explainer templates allow you to create complete videos using only voiceovers or scripts." },
+      { question: "Can I make videos without showing my face?", answer: "Yes! Our Faceless Video, Whiteboard Video, and Compare Explainer templates allow you to create complete videos using only voiceovers or scripts." },
       { question: "Can I customize the caption fonts and colors?", answer: "Yes. You have full control over fonts, text color, highlight color, background boxes, and positioning." },
       { question: "Does it work on mobile phones?", answer: "Yes. The Itnavideo dashboard is fully responsive and works across mobile, tablet, and desktop browsers." }
     ]

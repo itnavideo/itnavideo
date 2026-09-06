@@ -58,7 +58,6 @@ Multi-language translation is **paused**. Only English and Hinglish (Roman scrip
 | Template | Captions Needed? | Source |
 |----------|-----------------|--------|
 | `AUTO_CAPTION_REEL` | YES — primary feature | Word-grouped from transcript |
-| `CAPTION_STUDIO` | YES — primary feature | Word-grouped with advanced styling |
 | `VIDEO_SIMPLE_EXPLAINER` | YES — subtitle strip | From transcript segments |
 | `COMPARE_EXPLAINER` | YES — bottom strip | From transcript segments |
 | `IMAGE_STORY_COLLAGE` | Optional text overlays | From scene beats |

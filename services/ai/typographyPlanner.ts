@@ -153,7 +153,7 @@ export function planTypographyVideo(input: TypographyPlanInput): TypographyPlan 
     let icon: KineticPhrase['icon'] = 'none';
 
     // Style-specific content parsing
-    if (typographyStyle === 'dynamic-punch') {
+    if (typographyStyle === 'dynamic-punch' || typographyStyle === 'material-expressive') {
       const fullText = rawWords.join(' ');
       const isShock = /^(not|don't|dont|never|stop|wrong|no)$/i.test(fullText.trim());
       const numIdx = rawWords.findIndex((w) => /^\d+(\+|k|m|x)?$/i.test(w) || /^\$\d+/i.test(w));
@@ -393,7 +393,7 @@ function generateTypographySoundCues(
     } else if (style === 'silver-chrome') {
       type = idx % 2 === 0 ? 'whoosh' : 'hit-soft';
       volume = 0.16;
-    } else if (style === 'dynamic-punch') {
+    } else if (style === 'dynamic-punch' || style === 'material-expressive') {
       type = hitPool[idx % hitPool.length];
       volume = 0.15;
     } else {

@@ -89,6 +89,8 @@ __pycache__/
 *.sqlite
 auth_key.json
 firebase-adminsdk.json
+gcp-credentials.json
+*gcp*.json
 
 # Except .env.example (Sirf placeholder values ke liye)
 !.env.example

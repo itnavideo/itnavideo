@@ -4,6 +4,7 @@ import path from 'node:path';
 import {renderMediaOnLambda, type AwsRegion} from '@remotion/lambda/client';
 import {createReadUrl, TEMP_MEDIA_RENDER_PREFIX, uploadTemporaryMediaObject} from '@/lib/aws/mediaStorage';
 import {transcribeMediaUrlWithGroq} from '@/services/ai/groqTranscription';
+import {transcribeMediaWithGeminiFallback} from '@/services/ai/geminiTranscription';
 import {createReelPlan, VIDEO_TYPE_REGISTRY, validateAndRepairReelPlan, type ReelTemplateName, type ReelTranscriptSegment, type ReelWord} from '@/services/ai/reelPlanner';
 import {readUnifiedAssets} from '@/services/ai/assetPicker';
 import {hasHindiUrduScript, hasRomanHinglish} from '@/services/ai/hinglishTranscript';
@@ -25,13 +26,24 @@ import {detectScenes} from '@/services/ai/sceneDetector';
 import {planWhiteboardVideo} from '@/services/ai/whiteboardPlanner';
 import {planTypographyVideo} from '@/services/ai/typographyPlanner';
 import {selectBestClips} from '@/services/ai/clipSelector';
-import {SUBTITLE_PRESETS} from '@/remotion/types/subtitles';
 import {planLongVideoProBlueprint} from '@/services/ai/longVideoProPlanner';
 import {resolveBlueprintAssets} from '@/services/ai/assetResolver';
 import {cleanFaceCamSilenceAndFillers} from '@/services/ai/faceCamSilenceCleaner';
 import {extractFaceKeyframes} from '@/services/vision/faceTracker';
 import {generateStructuredSceneBlueprint} from '@/services/ai/aiScenePlanner';
 import {planBrollForScenes} from '@/services/ai/brollMatcher';
+import {planImagesFromLibraryForScenes} from '@/services/ai/aiImageLibraryMatcher';
+import {SUBTITLE_PRESETS} from '@/remotion/types/subtitles';
+
+function getFontForLanguage(lang?: string): string {
+  if (!lang) return 'Plus Jakarta Sans, sans-serif';
+  const clean = lang.toLowerCase();
+  if (clean === 'hindi' || clean === 'marathi') return 'Noto Sans Devanagari, sans-serif';
+  if (clean === 'arabic' || clean === 'urdu') return 'Noto Naskh Arabic, sans-serif';
+  if (clean === 'japanese') return 'Noto Sans JP, sans-serif';
+  if (clean === 'korean') return 'Noto Sans KR, sans-serif';
+  return 'Plus Jakarta Sans, sans-serif';
+}
 import {generateSFXEvents} from '@/services/ai/sfxEngine';
 import {detectChaptersFromTranscript} from '@/services/ai/chapterDetector';
 import {smartMatchUploadedImagesToScenes} from '@/services/ai/smartMediaMatcher';
@@ -41,7 +53,7 @@ export const dynamic = 'force-dynamic';
 
 type LambdaRenderRequest = Parameters<typeof renderMediaOnLambda>[0];
 type ReelMode =
-  | 'compare' | 'autoCaption' | 'longVideoPromo' | 'whiteboardVideo' | 'typographyVideo' | 'multiImagesVideo' | 'longVideoClips' | 'facelessLongVideo' | 'aiVideoGenerator' | 'longVideoPro';
+  | 'compare' | 'autoCaption' | 'longVideoPromo' | 'whiteboardVideo' | 'typographyVideo' | 'multiImagesVideo' | 'longVideoClips' | 'facelessVideo' | 'aiVideoGenerator' | 'longVideoPro';
 
 const MODE_TO_TEMPLATE: Partial<Record<ReelMode, ReelTemplateName>> = {
   compare: 'comparisonImages',
@@ -51,16 +63,26 @@ const MODE_TO_TEMPLATE: Partial<Record<ReelMode, ReelTemplateName>> = {
   typographyVideo: 'TYPOGRAPHY_VIDEO',
   multiImagesVideo: 'MULTI_IMAGES_VIDEO',
   longVideoClips: 'LONG_VIDEO_CLIPS',
-  longVideoPro: 'AI_VIDEO_GENERATOR',
-  facelessLongVideo: 'AI_VIDEO_GENERATOR',
-  aiVideoGenerator: 'AI_VIDEO_GENERATOR',
+  longVideoPro: 'FACELESS_VIDEO',
+  facelessVideo: 'FACELESS_VIDEO',
+  aiVideoGenerator: 'FACELESS_VIDEO',
 };
 
 // All 9:16 short video types render up to 90 seconds.
+// Long Faceless Video supports up to 20 minutes (1200 seconds) audio.
 const MAX_RENDER_WINDOW_SECONDS = 90;
 const MAX_AUTO_CAPTION_SECONDS = 90;
+const MAX_FACELESS_VIDEO_SECONDS = 20 * 60; // 1200 seconds (20 minutes)
 
 function getMaxRenderWindowSecondsForTemplate(templateName?: ReelTemplateName | null): number {
+  if (
+    templateName === 'FACELESS_VIDEO' ||
+    templateName === 'AI_VIDEO_GENERATOR' ||
+    (templateName as string) === 'LONG_VIDEO_PRO' ||
+    (templateName as string) === 'FACELESS_LONG_VIDEO'
+  ) {
+    return MAX_FACELESS_VIDEO_SECONDS;
+  }
   return MAX_RENDER_WINDOW_SECONDS;
 }
 
@@ -957,12 +979,30 @@ export async function POST(request: Request) {
       });
     }
 
+    // For facelessVideo / aiVideoGenerator, enforce voiceover audio input
+    if (mode === 'facelessVideo' || mode === 'aiVideoGenerator') {
+      const isAudioUpload = mediaType === 'audio' || /\.(mp3|wav|m4a|aac|ogg|flac)$/i.test(fileName);
+      if (!isAudioUpload) {
+        return NextResponse.json(
+          {
+            ok: false,
+            status: 'failed',
+            reasonCode: 'AUDIO_VOICEOVER_REQUIRED',
+            error: 'Faceless Video requires a voiceover audio file (.mp3, .wav, .m4a, .aac). Please upload your narration voiceover.',
+          },
+          {status: 422},
+        );
+      }
+    }
+
+    const maxRenderSeconds = getMaxRenderWindowSecondsForTemplate(templateName);
     const planningMedia = await preparePlanningMediaForRender({
       mediaUrl,
       fileName,
       contentType,
       mediaType: mediaType === 'image' ? 'video' : mediaType,
       userId,
+      maxAllowedSeconds: maxRenderSeconds,
     });
     if (planningMedia.error && !planningMedia.transcriptionMediaUrl) {
       return NextResponse.json(
@@ -970,15 +1010,16 @@ export async function POST(request: Request) {
           ok: false,
           status: 'failed',
           reasonCode: 'MEDIA_CLIP_PREP_FAILED',
-          error: 'We could not prepare the 1 minute video clip. Please try again or upload a standard MP4 file.',
+          error: 'We could not prepare the media for processing. Please try again or upload a standard MP3/MP4 file.',
           detail: process.env.NODE_ENV !== 'production' ? planningMedia.error : undefined,
         },
         {status: 422},
       );
     }
 
-    const subtitleLang = normalizeSubtitleLanguage(readString(body.subtitleOutputLanguage));
-    console.log('[PIPELINE] subtitleLang:', subtitleLang || 'auto-source', '| mode:', mode, '| template:', templateName);
+    const subtitleLang = normalizeSubtitleLanguage(readString(body.captionLanguage || body.subtitleOutputLanguage));
+    const spokenLang = readString(body.spokenLanguage || body.audioSpokenLanguage);
+    console.log('[PIPELINE] spokenLang:', spokenLang || 'auto', '| subtitleLang:', subtitleLang || 'auto-source', '| mode:', mode, '| template:', templateName);
 
     let transcription: PlanningTranscription;
     const transcribeStart = Date.now();
@@ -988,7 +1029,9 @@ export async function POST(request: Request) {
         fileName: planningMedia.transcriptionFileName,
         contentType: planningMedia.transcriptionContentType,
         mediaType: mediaType === 'image' ? 'video' : mediaType,
+        language: spokenLang && spokenLang !== 'auto' ? spokenLang : undefined,
         outputLanguage: subtitleLang,
+        maxSeconds: maxRenderSeconds,
       });
       const transcriptionSegments = 'segments' in transcription && Array.isArray(transcription.segments) ? transcription.segments : [];
       console.log('[PIPELINE] transcription+translation done in', Date.now() - transcribeStart, 'ms | languageHint:', transcription.languageHint, '| hasSegments:', Boolean(transcriptionSegments.length));
@@ -1021,7 +1064,6 @@ export async function POST(request: Request) {
 
     // Subtitles: only English/Hinglish supported (no paid translation APIs)
     // Groq handles both natively without external translation
-    const maxRenderSeconds = getMaxRenderWindowSecondsForTemplate(templateName);
     const renderWindow = selectRenderWindow(transcription, maxRenderSeconds);
     let plan: ReturnType<typeof validateAndRepairReelPlan>;
     try {
@@ -1278,7 +1320,7 @@ export async function POST(request: Request) {
             };
           })()
         : {}),
-      ...(mode === 'facelessLongVideo' || mode === 'aiVideoGenerator'
+      ...(mode === 'facelessVideo' || mode === 'aiVideoGenerator'
         ? await (async () => {
             const facelessCaptions = buildCompareCaptionsFromGroq(renderWindow);
             const transcriptChunks = (renderWindow.segments || []).map((seg: any) => ({
@@ -1288,20 +1330,27 @@ export async function POST(request: Request) {
             })).filter((c: any) => c.text && c.end > c.start);
 
             const headingFont = readString(body.headingFont) || 'Montserrat';
+            const subheadingFont = readString(body.subheadingFont) || 'Plus Jakarta Sans';
             const bodyFont = readString(body.bodyFont) || readString(body.typographyFont) || 'Inter';
-            const backgroundTheme = readString(body.backgroundTheme) || readString(body.selectedBackgroundTheme) || 'purple-vignette';
+            const backgroundTheme = readString(body.backgroundTheme) || readString(body.selectedBackgroundTheme) || 'studio-white';
             const customBgUrl = readString(body.customBgUrl || body.customBackgroundUrl || body.backgroundUrl) || '';
-            const videoTitle = topicTitle || titleFromTranscript(transcription.transcript) || titleFromFile(fileName) || 'Faceless Long Video';
+            const videoTitle = topicTitle || titleFromTranscript(transcription.transcript) || titleFromFile(fileName) || 'Faceless Video';
 
             const blueprint = await generateStructuredSceneBlueprint(
               transcriptChunks.length ? transcriptChunks : [{ text: renderWindow.transcript, start: 0, end: renderWindow.durationSeconds }],
               { title: videoTitle, headingFont, bodyFont, backgroundTheme }
             );
 
-            // Step 3.5: AI Visual Asset Selection & Semantic Script Mapping
-            const plannedBrollUrls = await planBrollForScenes(blueprint.scenes);
-            const userUploadedAssets = (comparisonImageUrls || []).filter(Boolean);
+            // Step 3.5: AI Visual Asset Selection via Curated Cloudinary ChatGPT Library
+            // Bypasses external stock APIs (Pexels/Pixabay/Google) in favor of high-quality custom visuals
+            const targetAspectRatio: '16:9' | '9:16' =
+              body.aspectRatio === '9:16' || composition.includes('VERTICAL') ? '9:16' : '16:9';
 
+            const plannedLibraryImages = await planImagesFromLibraryForScenes(blueprint.scenes, {
+              aspectRatio: targetAspectRatio,
+            });
+
+            const userUploadedAssets = (comparisonImageUrls || []).filter(Boolean);
             const uploadedCandidates = userUploadedAssets.map((url, i) => ({
               key: `uploaded_image_${i}`,
               url,
@@ -1310,12 +1359,12 @@ export async function POST(request: Request) {
 
             const mappedBrollUrls = userUploadedAssets.length > 0
               ? smartMatchUploadedImagesToScenes(blueprint.scenes, uploadedCandidates)
-              : plannedBrollUrls;
+              : plannedLibraryImages;
 
-            const sfxEvents = generateSFXEvents(blueprint.scenes, 30);
+            const sfxEvents = generateSFXEvents(blueprint.scenes, 30, renderWindow.durationSeconds);
             const chapterEvents = detectChaptersFromTranscript(transcriptChunks, 30);
 
-            console.log('[FACELESS_LONG_VIDEO_PLANNER]', {
+            console.log('[FACELESS_VIDEO_PLANNER]', {
               totalScenes: blueprint.totalScenes,
               userAssetsCount: userUploadedAssets.length,
               mappedBrollCount: Object.keys(mappedBrollUrls).length,
@@ -1327,16 +1376,24 @@ export async function POST(request: Request) {
             return {
               title: videoTitle,
               headingFont,
+              subheadingFont,
               typographyFont: bodyFont,
               backgroundTheme,
               customBgUrl,
               sceneBlueprint: blueprint.scenes,
               brollUrls: mappedBrollUrls,
               sfxEvents,
-              chapterEvents,
-              captions: facelessCaptions,
-              subtitleChunks: facelessCaptions,
+              showCaptions: body.showCaptions !== false && body.enableCaptions !== false,
+              captions: (body.showCaptions !== false && body.enableCaptions !== false) ? facelessCaptions : [],
+              subtitleChunks: (body.showCaptions !== false && body.enableCaptions !== false) ? facelessCaptions : [],
+              words: renderWindow.words,
+              segments: renderWindow.segments,
+              transcript: renderWindow.transcript,
               durationSeconds: renderWindow.durationSeconds,
+              audioSrc: planningMedia.mediaUrl,
+              audioUrl: planningMedia.mediaUrl,
+              mediaUrl: planningMedia.mediaUrl,
+              mediaType: 'audio' as const,
             };
           })()
         : {}),
@@ -1344,9 +1401,9 @@ export async function POST(request: Request) {
       mediaFit: templateConfig.mediaFit,
       captionStyle: captionStyleValue,
       captionPosition: readString(body.captionPosition) || 'bottom',
-      fontFamily: readString(body.captionFontFamily || body.fontFamily) || captionPreset?.fontFamily || undefined,
+      fontFamily: readString(body.captionFontFamily || body.fontFamily) || (subtitleLang ? getFontForLanguage(subtitleLang) : captionPreset?.fontFamily) || undefined,
       fontSize: readString(body.captionFontSize || body.fontSize) || captionPreset?.fontSize || 'large',
-      subtitleOutputLanguage: normalizeSubtitleLanguage(readString(body.subtitleOutputLanguage)) || '',
+      subtitleOutputLanguage: subtitleLang || '',
       textColor: readString(body.captionTextColor) || captionPreset?.textColor || '#ffffff',
       highlightColor: readString(body.captionHighlightColor) || captionPreset?.highlightColor || '#facc15',
       backgroundColor: captionBackgroundColorValue || captionPreset?.backgroundColor || '#18181B',
@@ -1948,14 +2005,18 @@ async function preparePlanningMediaForRender({
   contentType,
   mediaType,
   userId,
+  maxAllowedSeconds,
 }: {
   mediaUrl: string;
   fileName: string;
   contentType?: string;
   mediaType: 'audio' | 'video';
   userId: string;
+  maxAllowedSeconds?: number;
 }) {
-  const maxSeconds = readPlanningMediaMaxSeconds();
+  const maxSeconds = maxAllowedSeconds && maxAllowedSeconds > 0
+    ? maxAllowedSeconds
+    : readPlanningMediaMaxSeconds();
   const shouldClip = maxSeconds > 0 && (mediaType === 'video' || mediaType === 'audio');
   if (!shouldClip) {
     return {
@@ -2060,18 +2121,22 @@ async function transcribeForPlanning({
   fileName,
   contentType,
   mediaType,
+  language,
   outputLanguage,
+  maxSeconds,
 }: {
   mediaUrl: string;
   fileName: string;
   contentType?: string;
   mediaType: 'audio' | 'video';
+  language?: string;
   outputLanguage?: string;
+  maxSeconds?: number;
 }) {
   let primaryWarning = '';
   try {
     const groqStart = Date.now();
-    const result = await transcribeMediaUrlWithGroq({mediaUrl, fileName, contentType});
+    const result = await transcribeMediaUrlWithGroq({mediaUrl, fileName, contentType, language, maxSeconds});
     console.log('[TIMING] Groq transcription:', Date.now() - groqStart, 'ms | hasTranscript:', Boolean(result.transcript));
     if (result.transcript) {
       if (!outputLanguage) {
@@ -2088,11 +2153,43 @@ async function transcribeForPlanning({
     primaryWarning = result.warning || 'Primary transcription returned an empty result.';
   } catch (error) {
     primaryWarning = error instanceof Error ? error.message : 'Primary transcription failed.';
-    console.error('Primary transcription failed', {
+    console.error('Groq transcription failed or rate-limited', {
       message: sanitizeUserFacingStatus(primaryWarning),
       contentType,
       mediaType,
     });
+  }
+
+  // Fallback to free Gemini Transcription Engine if Groq fails / rate-limits (429)
+  try {
+    console.log('[PIPELINE] Groq transcription unavailable/empty. Initiating Gemini audio transcription fallback...');
+    const geminiStart = Date.now();
+    const geminiResult = await transcribeMediaWithGeminiFallback({
+      mediaUrl,
+      fileName,
+      contentType,
+      maxSeconds,
+    });
+
+    if (geminiResult && geminiResult.transcript) {
+      console.log(
+        '[TIMING] Gemini fallback transcription succeeded in',
+        Date.now() - geminiStart,
+        'ms | words:',
+        geminiResult.words?.length,
+        '| segments:',
+        geminiResult.segments?.length
+      );
+      if (!outputLanguage) {
+        return {...geminiResult, source: 'gemini' as const};
+      }
+      return repairTranscriptionToLanguage(
+        {...geminiResult, source: 'gemini' as const},
+        outputLanguage
+      );
+    }
+  } catch (geminiError) {
+    console.error('[PIPELINE] Gemini transcription fallback also failed:', geminiError);
   }
 
   return {
@@ -2102,7 +2199,7 @@ async function transcribeForPlanning({
     model: process.env.GROQ_TRANSCRIPTION_MODEL || 'whisper-large-v3-turbo',
     languageHint: undefined,
     warning: sanitizeUserFacingStatus(
-      `Groq transcription failed: ${primaryWarning || 'No speech detected or audio quality too low.'}`,
+      `Audio transcription failed: ${primaryWarning || 'No speech detected or audio quality too low.'}`,
     ),
   };
 }
@@ -2239,7 +2336,7 @@ type GroqLikeTranscription = {
   model: string;
   warning?: string;
   rawTranscript?: string;
-  source: 'groq' | 'openai';
+  source: 'groq' | 'openai' | 'gemini';
 };
 
 const LANGUAGE_NAMES: Record<string, string> = {
@@ -2249,6 +2346,10 @@ const LANGUAGE_NAMES: Record<string, string> = {
   urdu: 'Urdu in Urdu/Arabic script',
   kannada: 'Kannada in Kannada script',
   tamil: 'Tamil in Tamil script',
+  telugu: 'Telugu in Telugu script',
+  bengali: 'Bengali in Bengali script',
+  marathi: 'Marathi in Devanagari script',
+  gujarati: 'Gujarati in Gujarati script',
   farsi: 'Farsi/Persian in Persian script',
   arabic: 'Arabic in Arabic script',
   spanish: 'Spanish',
@@ -2256,6 +2357,8 @@ const LANGUAGE_NAMES: Record<string, string> = {
   german: 'German',
   portuguese: 'Portuguese',
   indonesian: 'Indonesian',
+  russian: 'Russian',
+  japanese: 'Japanese',
 };
 
 async function repairTranscriptionToLanguage<T extends GroqLikeTranscription>(transcription: T, outputLanguage: string): Promise<T> {
@@ -3005,12 +3108,27 @@ function toLanguageHint(value: string): 'english' | 'hinglish' | undefined {
   return undefined;
 }
 
-function normalizeSubtitleLanguage(value: string): 'english' | 'hinglish' | undefined {
+function normalizeSubtitleLanguage(value: string): string | undefined {
   const normalized = value.toLowerCase().replace(/[-_\s]+/g, '');
-  if (!normalized || normalized === 'auto' || normalized === 'source') return undefined;
+  if (!normalized || normalized === 'auto' || normalized === 'source' || normalized === 'same') return undefined;
   if (normalized === 'english' || normalized === 'en') return 'english';
-  if (normalized === 'hinglish' || normalized === 'romanenglish' || normalized === 'romanhindi' || normalized === 'romanurdu' || normalized === 'hindi' || normalized === 'urdu' || normalized === 'hi' || normalized === 'ur') return 'hinglish';
-  return undefined;
+  if (normalized === 'hinglish' || normalized === 'romanenglish' || normalized === 'romanhindi' || normalized === 'romanurdu') return 'hinglish';
+  if (normalized === 'hindi' || normalized === 'hi') return 'hindi';
+  if (normalized === 'urdu' || normalized === 'ur') return 'urdu';
+  if (normalized === 'kannada' || normalized === 'kn') return 'kannada';
+  if (normalized === 'tamil' || normalized === 'ta') return 'tamil';
+  if (normalized === 'telugu' || normalized === 'te') return 'telugu';
+  if (normalized === 'bengali' || normalized === 'bn') return 'bengali';
+  if (normalized === 'marathi' || normalized === 'mr') return 'marathi';
+  if (normalized === 'gujarati' || normalized === 'gu') return 'gujarati';
+  if (normalized === 'arabic' || normalized === 'ar') return 'arabic';
+  if (normalized === 'spanish' || normalized === 'es') return 'spanish';
+  if (normalized === 'french' || normalized === 'fr') return 'french';
+  if (normalized === 'german' || normalized === 'de') return 'german';
+  if (normalized === 'portuguese' || normalized === 'pt') return 'portuguese';
+  if (normalized === 'russian' || normalized === 'ru') return 'russian';
+  if (normalized === 'japanese' || normalized === 'ja') return 'japanese';
+  return normalized;
 }
 
 function titleFromFile(value: string) {
@@ -3101,15 +3219,12 @@ function validateBeforeRender({
   }
 
   const renderDuration = readPositiveNumber(inputProps.durationSeconds) ?? readPositiveNumber(inputProps.renderWindowSeconds);
-  const maximumDuration = (templateName as string) === 'LONG_VIDEO_PRO' || templateName === 'AI_VIDEO_GENERATOR'
-    ? LONG_FORM_CAPTION_MAX_SECONDS
-    : templateName === 'AUTO_CAPTION_GENERATOR'
-      ? MAX_AUTO_CAPTION_SECONDS
-      : MAX_RENDER_WINDOW_SECONDS;
+  const maximumDuration = getMaxRenderWindowSecondsForTemplate(templateName);
   if (!renderDuration || renderDuration > maximumDuration) {
+    const maxDesc = maximumDuration >= 60 ? `${Math.round(maximumDuration / 60)} minutes` : `${Math.round(maximumDuration)} seconds`;
     return {
       reasonCode: 'INVALID_RENDER_DURATION',
-      message: 'Render duration must be between 1 second and 1 minute.',
+      message: `Render duration must be between 1 second and ${maxDesc}.`,
     };
   }
 

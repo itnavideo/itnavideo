@@ -157,18 +157,54 @@ export const TYPOGRAPHY_DEMO_VIDEOS: DemoVideoItem[] = [
   },
 ];
 
+// ==================== 4. FACELESS VIDEO (16:9 YOUTUBE DEMOS) ====================
+export const FACELESS_VIDEO_DEMO_VIDEOS: DemoVideoItem[] = [
+  {
+    id: 'fv-1',
+    videoUrl: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788193725/Video-76814_cpmpp1.mp4',
+    posterUrl: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788190063/file_0000000089c48211b67c16fe3c2636a2_prirg0.png',
+  },
+  {
+    id: 'fv-2',
+    videoUrl: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788193725/Video-30713_i60mvm.mp4',
+    posterUrl: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788190064/file_000000005540821181b6095da390b68b_qumuqg.png',
+  },
+  {
+    id: 'fv-3',
+    videoUrl: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788193724/Video-99061_r2lfcy.mp4',
+    posterUrl: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788190063/file_000000002d508209b398a35503a053e1_uiytox.png',
+  },
+  {
+    id: 'fv-4',
+    videoUrl: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788193723/Video-14143_j4mkzn.mp4',
+    posterUrl: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788190063/file_000000000d608211b8160a28fce5b5b2_h6g5qu.png',
+  },
+  {
+    id: 'fv-5',
+    videoUrl: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788193723/Video-98200_id7qk8.mp4',
+    posterUrl: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788190063/file_000000002af082088dc89d221c90dc80_tmf4h8.png',
+  },
+  {
+    id: 'fv-6',
+    videoUrl: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788193723/Video-80725_aiv5eg.mp4',
+    posterUrl: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788190064/file_0000000028e482119337580fc1f3647f_s22zcw.png',
+  },
+];
+
 // ==================== CLEAN VIDEO CARD (NO TEXT OVERLAY) ====================
 interface CleanVideoCardProps {
   video: DemoVideoItem;
   isPlaying: boolean;
   onPlay: (id: string) => void;
   onEnded: () => void;
+  aspectRatio?: '9/16' | '16:9';
 }
 
-function CleanVideoCard({ video, isPlaying, onPlay, onEnded }: CleanVideoCardProps) {
+function CleanVideoCard({ video, isPlaying, onPlay, onEnded, aspectRatio = '9/16' }: CleanVideoCardProps) {
+  const isWidescreen = aspectRatio === '16:9';
   return (
-    <div className="group relative flex-none w-[220px] sm:w-[250px] md:w-[270px] snap-start rounded-2xl overflow-hidden bg-black shadow-md transition-all duration-300 hover:shadow-xl hover:scale-[1.01] border border-slate-800">
-      <div className="relative aspect-[9/16] w-full overflow-hidden bg-black">
+    <div className={`group relative flex-none ${isWidescreen ? 'w-[300px] sm:w-[380px] md:w-[440px]' : 'w-[220px] sm:w-[250px] md:w-[270px]'} snap-start rounded-2xl overflow-hidden bg-black shadow-md transition-all duration-300 hover:shadow-xl hover:scale-[1.01] border border-slate-800`}>
+      <div className={`relative ${isWidescreen ? 'aspect-video' : 'aspect-[9/16]'} w-full overflow-hidden bg-black`}>
         {isPlaying ? (
           <video
             src={video.videoUrl}
@@ -216,6 +252,7 @@ export interface VideoTypeRowProps {
   activePlayingId: string | null;
   onPlay: (id: string) => void;
   onEnded: () => void;
+  aspectRatio?: '9/16' | '16:9';
 }
 
 export function VideoTypeRow({
@@ -228,12 +265,13 @@ export function VideoTypeRow({
   activePlayingId,
   onPlay,
   onEnded,
+  aspectRatio = '9/16',
 }: VideoTypeRowProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
-      const scrollAmount = direction === 'left' ? -300 : 300;
+      const scrollAmount = direction === 'left' ? -360 : 360;
       scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
     }
   };
@@ -299,6 +337,7 @@ export function VideoTypeRow({
             isPlaying={activePlayingId === video.id}
             onPlay={onPlay}
             onEnded={onEnded}
+            aspectRatio={aspectRatio}
           />
         ))}
       </div>
@@ -355,6 +394,25 @@ export function TypographyDemoSection() {
       videos={TYPOGRAPHY_DEMO_VIDEOS}
       createHref="/dashboard?videoType=typography-video"
       createLabel="Create Typography Video"
+      activePlayingId={activePlayingId}
+      onPlay={(id) => setActivePlayingId((prev) => (prev === id ? null : id))}
+      onEnded={() => setActivePlayingId(null)}
+    />
+  );
+}
+
+export function FacelessVideoDemoSection() {
+  const [activePlayingId, setActivePlayingId] = useState<string | null>(null);
+
+  return (
+    <VideoTypeRow
+      badge="Faceless Video (16:9 YouTube)"
+      heading="Faceless Video Demos (16:9 YouTube)"
+      explanation="Convert long voiceovers up to 20 minutes into complete 16:9 YouTube videos with AI image storytelling, Canva background themes, and synced subtitles."
+      videos={FACELESS_VIDEO_DEMO_VIDEOS}
+      createHref="/dashboard?videoType=faceless-video"
+      createLabel="Create Faceless Video"
+      aspectRatio="16:9"
       activePlayingId={activePlayingId}
       onPlay={(id) => setActivePlayingId((prev) => (prev === id ? null : id))}
       onEnded={() => setActivePlayingId(null)}
@@ -427,6 +485,20 @@ export default function DemoVideosShowcase() {
           videos={TYPOGRAPHY_DEMO_VIDEOS}
           createHref="/dashboard?videoType=typography-video"
           createLabel="Create Typography Video"
+          activePlayingId={activePlayingId}
+          onPlay={handlePlay}
+          onEnded={handleEnded}
+        />
+
+        {/* 4. Faceless Video Row (16:9 YouTube Demos) */}
+        <VideoTypeRow
+          badge="Faceless Video (16:9 YouTube)"
+          heading="Faceless Video Demos (16:9 YouTube)"
+          explanation="Convert long voiceovers up to 20 minutes into complete 16:9 YouTube videos with AI image storytelling, Canva background themes, and synced subtitles."
+          videos={FACELESS_VIDEO_DEMO_VIDEOS}
+          createHref="/dashboard?videoType=faceless-video"
+          createLabel="Create Faceless Video"
+          aspectRatio="16:9"
           activePlayingId={activePlayingId}
           onPlay={handlePlay}
           onEnded={handleEnded}

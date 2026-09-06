@@ -53,12 +53,11 @@ const DEFAULT_OPENAI_TRANSCRIPTION_MODEL = 'whisper-1';
 const MAX_TRANSCRIPTION_DOWNLOAD_BYTES = 1024 * 1024 * 120;
 const DEFAULT_TRANSCRIPTION_MAX_SECONDS = 60;
 const GROQ_TRANSCRIPTION_PROMPT = [
-  'Transcribe and translate speech into clean natural English only for a short reel.',
-  'If the speaker uses Hindi, Urdu, or Hinglish, translate the meaning into English instead of romanizing it.',
-  'Keep official names, numbers, dates, documents, and keywords in standard English.',
-  'Use canonical terms such as RBI, Reserve Bank of India, PAN Card, Aadhaar, Salary, Benefits, Documents, Apply, Download.',
-  'Do not use Devanagari, Urdu, Arabic script, Roman Hinglish, phonetic spellings, or broken transliteration.',
-  'Return only the spoken transcript in English, no timestamps or scene notes.',
+  'Transcribe speech with high precision sub-second word-level timestamps in clean English or clean Roman Hinglish.',
+  'If speech is in Hindi or Hinglish, transcribe it phonetically in natural Latin Roman script (Roman Hinglish). Do not use Devanagari, Urdu, or Arabic script.',
+  'If speech is in English, transcribe it in standard clean English.',
+  'Keep official names, numbers, dates, terms, and keywords standard (e.g., AI, YouTube, Google, RBI, PAN Card, Aadhaar, Business, Finance, Investment).',
+  'Do not invent or omit words. Keep exact spoken timestamps for every word.',
 ].join(' ');
 const DEFAULT_TRANSCRIPTION_PROMPT = [
   'Transcribe and translate the spoken audio as a clean short-form video script in English only.',
@@ -78,12 +77,14 @@ export async function transcribeMediaUrlWithGroq({
   contentType,
   skipMediaPreparation,
   language,
+  maxSeconds,
 }: {
   mediaUrl: string;
   fileName: string;
   contentType?: string;
   skipMediaPreparation?: boolean;
   language?: string;
+  maxSeconds?: number;
 }): Promise<GroqTranscriptionResult> {
   const apiKey = cleanEnvValue(process.env.GROQ_API_KEY);
   if (!apiKey) throw new Error('Missing GROQ_API_KEY.');
@@ -93,7 +94,7 @@ export async function transcribeMediaUrlWithGroq({
   const translateToEnglish = shouldTranslateTranscriptionToEnglish();
   const media = skipMediaPreparation
     ? await fetchMediaBlob(mediaUrl, contentType)
-    : await prepareTranscriptionMedia({mediaUrl, fileName, contentType});
+    : await prepareTranscriptionMedia({mediaUrl, fileName, contentType, maxSeconds});
 
   const form = new FormData();
   form.append('file', media.blob, safeFileName(fileName, media.contentType));
@@ -166,24 +167,28 @@ export async function transcribeMediaUrlWithOpenAI({
   return normalizeGroqTranscription(await response.json(), model);
 }
 
-async function prepareTranscriptionMedia({
+export async function prepareTranscriptionMedia({
   mediaUrl,
   fileName,
   contentType,
+  maxSeconds: overrideMaxSeconds,
 }: {
   mediaUrl: string;
   fileName: string;
   contentType?: string;
+  maxSeconds?: number;
 }) {
   const isVideo = contentType?.startsWith('video/') || /\.(mp4|mov|webm|m4v|mkv|avi|3gp)$/i.test(fileName);
-  const maxSeconds = readTranscriptionMaxSeconds();
+  const maxSeconds = overrideMaxSeconds && overrideMaxSeconds > 0
+    ? Math.min(3600, Math.round(overrideMaxSeconds))
+    : readTranscriptionMaxSeconds();
 
   // Extract audio using FFmpeg for all video uploads (or trimmed audio) so Groq ONLY receives audio
   try {
     const audioClip = await extractTranscriptionAudioClip({
       mediaUrl,
       fileName,
-      maxSeconds: maxSeconds > 0 ? maxSeconds : 600,
+      maxSeconds: maxSeconds > 0 ? maxSeconds : 3600,
     });
     if (audioClip.blob.size > 0) return audioClip;
   } catch (error) {
@@ -228,7 +233,7 @@ async function extractTranscriptionAudioClip({
       '-ar',
       '16000',
       '-b:a',
-      '64k',
+      '32k',
       '-f',
       'mp3',
       outputPath,
@@ -369,7 +374,7 @@ function readTranscriptionMaxSeconds() {
     DEFAULT_TRANSCRIPTION_MAX_SECONDS,
   );
   if (!Number.isFinite(value) || value <= 0) return 0;
-  return Math.max(1, Math.min(600, Math.round(value)));
+  return Math.max(1, Math.min(1200, Math.round(value)));
 }
 
 function findFfmpegPath() {

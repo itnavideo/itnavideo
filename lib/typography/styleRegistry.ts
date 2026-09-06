@@ -29,6 +29,7 @@ import bpSpatialGlass from './blueprints/spatial-glass.json';
 import bpIsometricCube from './blueprints/isometric-cube.json';
 import bpSynthwave80s from './blueprints/synthwave-80s.json';
 import bpHudTelemetry from './blueprints/hud-telemetry.json';
+import bpMaterialExpressive from './blueprints/material-expressive.json';
 
 export const ADVANCED_STYLE_BLUEPRINTS: Record<string, AdvancedStyleBlueprint> = {
   'dynamic-punch': bpDynamicPunch as unknown as AdvancedStyleBlueprint,
@@ -60,6 +61,7 @@ export const ADVANCED_STYLE_BLUEPRINTS: Record<string, AdvancedStyleBlueprint> =
   'isometric-cube': bpIsometricCube as unknown as AdvancedStyleBlueprint,
   'synthwave-80s': bpSynthwave80s as unknown as AdvancedStyleBlueprint,
   'hud-telemetry': bpHudTelemetry as unknown as AdvancedStyleBlueprint,
+  'material-expressive': bpMaterialExpressive as unknown as AdvancedStyleBlueprint,
 };
 
 // Legacy compatibility interface
@@ -699,6 +701,27 @@ export const STYLE_BLUEPRINTS: Record<string, StyleBlueprint> = {
       stiffness: 250,
       scaleEntrance: [0.8, 1.0],
       blurEntrance: [4, 0],
+    },
+  },
+  'material-expressive': {
+    id: 'material-expressive',
+    name: 'Material 3 Expressive',
+    fontFamily: 'Plus Jakarta Sans',
+    heroFontWeight: 900,
+    leadFontWeight: 700,
+    textColor: '#FFFFFF',
+    accentColor: '#38BDF8',
+    secondaryAccentColor: '#10B981',
+    maxWordsPerChunk: 3,
+    kenBurnsIntensity: 0.04,
+    colorGrade: { name: 'Material 3 Tonal Glow', filter: 'contrast(1.15) saturate(1.2)' },
+    animationPreset: 'pop',
+    animation: {
+      mass: 0.55,
+      damping: 14,
+      stiffness: 190,
+      scaleEntrance: [0.72, 1.0],
+      blurEntrance: [8, 0],
     },
   },
 };

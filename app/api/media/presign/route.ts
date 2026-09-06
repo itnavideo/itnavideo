@@ -93,7 +93,7 @@ function readString(value: unknown) {
 
 function isAllowedUploadForVideoType(videoTypeMode: string, contentType: string) {
   if (videoTypeMode === 'compare') return contentType.startsWith('audio/') || contentType.startsWith('image/');
-  if (videoTypeMode === 'autoCaption' || videoTypeMode === 'captionStudio' || videoTypeMode === 'longCaptionPro') {
+  if (videoTypeMode === 'autoCaption') {
     return contentType.startsWith('video/') || contentType === 'application/octet-stream' || contentType === '';
   }
   return contentType.startsWith('audio/') || contentType.startsWith('video/') || contentType.startsWith('image/') || contentType === 'application/octet-stream' || contentType === '';
@@ -102,8 +102,6 @@ function isAllowedUploadForVideoType(videoTypeMode: string, contentType: string)
 function uploadErrorForVideoType(videoTypeMode: string) {
   if (videoTypeMode === 'compare') return 'Compare needs one audio file plus exactly 2 visuals.';
   if (videoTypeMode === 'autoCaption') return 'Auto Caption needs a video file with speech.';
-  if (videoTypeMode === 'captionStudio') return 'Caption Studio needs a video file with speech.';
-  if (videoTypeMode === 'longCaptionPro') return 'Long Caption Pro needs a video file with clear speech.';
   return 'This video type needs audio, video, or image upload.';
 }
 

@@ -24,89 +24,157 @@ export type PricingPlan = {
   quotes: Partial<Record<BillingCurrency, PricingQuote>> & { INR: PricingQuote };
 };
 
-export const PRICE_VERSION = "2026-09-01-v2";
+export const PRICE_VERSION = "2026-09-05-v3";
 
 export const pricingPlans: PricingPlan[] = [
   {
-    id: "starter",
-    name: "Starter",
-    credits: 15,
-    monthlyVideoLimit: 15,
+    id: "free",
+    name: "Free",
+    credits: 1,
+    monthlyVideoLimit: 1,
     validDays: 30,
     billingCycle: "monthly",
-    description: "Ideal for trying out & quick video creation needs.",
+    description: "Try Itnavideo with zero risk. No credit card required.",
     features: [
-      "15 Video Credits / month (₹6.6 / video)",
-      "Auto Caption Generator (All 10 Styles)",
-      "Standard 9:16 & 16:9 Formats",
-      "1080p Full HD, zero watermark",
-      "Credits valid for 30 days",
-      "Cancel or recharge anytime",
+      "1 Free Video Credit",
+      "Auto Caption Video (All 10 Styles)",
+      "1080p Full HD Export",
+      "Includes Itnavideo watermark",
+      "No credit card required",
+      "Instant setup & browser export",
     ],
-    button: "Get Starter (₹99/mo)",
+    button: "Get Started Free",
+    href: "/signup",
+    popular: false,
+    billingPeriodLabel: "forever",
+    razorpayPlanEnv: "",
+    quotes: {
+      USD: { currency: "USD", amount: 0, displayPrice: "$0", priceVersion: PRICE_VERSION },
+      INR: { currency: "INR", amount: 0, displayPrice: "$0", priceVersion: PRICE_VERSION },
+    },
+  },
+  {
+    id: "starter",
+    name: "Starter",
+    credits: 50,
+    monthlyVideoLimit: 50,
+    validDays: 30,
+    billingCycle: "monthly",
+    description: "For creators publishing viral vertical Shorts & Reels.",
+    features: [
+      "50 Video Credits / month ($0.58 / video)",
+      "TikTok, Instagram Reels & YT Shorts (9:16)",
+      "Auto Caption Generator (All 10 Styles)",
+      "Typography & Whiteboard Videos",
+      "1080p Full HD, zero watermark",
+      "Cancel or top-up anytime",
+    ],
+    button: "Get Starter ($29/mo)",
     href: "/pricing",
     popular: false,
     billingPeriodLabel: "month",
     razorpayPlanEnv: "RAZORPAY_PLAN_STARTER",
     quotes: {
-      INR: { currency: "INR", amount: 9900, displayPrice: "₹99", priceVersion: PRICE_VERSION },
-      USD: { currency: "USD", amount: 200, displayPrice: "$2", priceVersion: PRICE_VERSION },
-      EUR: { currency: "EUR", amount: 200, displayPrice: "€2", priceVersion: PRICE_VERSION },
-      AED: { currency: "AED", amount: 800, displayPrice: "AED 8", priceVersion: PRICE_VERSION },
-      THB: { currency: "THB", amount: 7500, displayPrice: "฿75", priceVersion: PRICE_VERSION },
-      GBP: { currency: "GBP", amount: 200, displayPrice: "£2", priceVersion: PRICE_VERSION },
+      USD: { currency: "USD", amount: 2900, displayPrice: "$29", priceVersion: PRICE_VERSION },
+      INR: { currency: "INR", amount: 249900, displayPrice: "$29", priceVersion: PRICE_VERSION },
+      EUR: { currency: "EUR", amount: 2700, displayPrice: "$29", priceVersion: PRICE_VERSION },
+      GBP: { currency: "GBP", amount: 2300, displayPrice: "$29", priceVersion: PRICE_VERSION },
+      AED: { currency: "AED", amount: 10700, displayPrice: "$29", priceVersion: PRICE_VERSION },
+      THB: { currency: "THB", amount: 99000, displayPrice: "$29", priceVersion: PRICE_VERSION },
+    },
+  },
+  {
+    id: "growth",
+    name: "Growth",
+    credits: 150,
+    monthlyVideoLimit: 150,
+    validDays: 30,
+    billingCycle: "monthly",
+    description: "Best value for full-time creators & YouTube channels.",
+    features: [
+      "150 Video Credits / month (Best Value)",
+      "TikTok, IG & YT Shorts & Reels (9:16)",
+      "YouTube Long Videos & Explainers (16:9)",
+      "Faceless Video Generator (16:9 Widescreen)",
+      "AI Audio Cleaner (Noise & Filler Removal)",
+      "Priority Fast Lambda Render Queue",
+      "1080p Full HD, zero watermark",
+    ],
+    button: "Get Growth ($49/mo)",
+    href: "/pricing",
+    popular: true,
+    billingPeriodLabel: "month",
+    razorpayPlanEnv: "RAZORPAY_PLAN_GROWTH",
+    quotes: {
+      USD: { currency: "USD", amount: 4900, displayPrice: "$49", priceVersion: PRICE_VERSION },
+      INR: { currency: "INR", amount: 419900, displayPrice: "$49", priceVersion: PRICE_VERSION },
+      EUR: { currency: "EUR", amount: 4500, displayPrice: "$49", priceVersion: PRICE_VERSION },
+      GBP: { currency: "GBP", amount: 3900, displayPrice: "$49", priceVersion: PRICE_VERSION },
+      AED: { currency: "AED", amount: 18000, displayPrice: "$49", priceVersion: PRICE_VERSION },
+      THB: { currency: "THB", amount: 169000, displayPrice: "$49", priceVersion: PRICE_VERSION },
     },
   },
   {
     id: "pro",
-    name: "Creator Pro",
-    credits: 100,
-    monthlyVideoLimit: 100,
+    name: "Pro",
+    credits: 600,
+    monthlyVideoLimit: 600,
     validDays: 30,
     billingCycle: "monthly",
-    description: "Best value for active creators, reels & daily posters.",
+    description: "High-volume studio power for agencies & multi-channel creators.",
     features: [
-      "100 Video Credits / month (₹4.9 / video — Best Value)",
-      "All Templates & Auto Caption Generator",
-      "Priority Fast Lambda Render Queue",
+      "600 Video Credits / month (High-Volume)",
+      "All 9:16 Shorts & Reels + 16:9 Long Videos",
+      "Multi-Language & Hinglish Support",
+      "Early Access to Brand New AI Features",
+      "Unlimited Creation Allowance",
+      "Dedicated Maximum Priority Render Queue",
       "1080p Full HD & 4K Export",
-      "Credits valid for 30 days",
-      "Cancel or recharge anytime",
     ],
-    button: "Get Creator Pro (₹499/mo)",
+    button: "Get Pro ($149/mo)",
     href: "/pricing",
-    popular: true,
+    popular: false,
     billingPeriodLabel: "month",
     razorpayPlanEnv: "RAZORPAY_PLAN_PRO",
     quotes: {
-      INR: { currency: "INR", amount: 49900, displayPrice: "₹499", priceVersion: PRICE_VERSION },
-      USD: { currency: "USD", amount: 600, displayPrice: "$6", priceVersion: PRICE_VERSION },
-      EUR: { currency: "EUR", amount: 600, displayPrice: "€6", priceVersion: PRICE_VERSION },
-      AED: { currency: "AED", amount: 2500, displayPrice: "AED 25", priceVersion: PRICE_VERSION },
-      THB: { currency: "THB", amount: 22000, displayPrice: "฿220", priceVersion: PRICE_VERSION },
-      GBP: { currency: "GBP", amount: 500, displayPrice: "£5", priceVersion: PRICE_VERSION },
+      USD: { currency: "USD", amount: 14900, displayPrice: "$149", priceVersion: PRICE_VERSION },
+      INR: { currency: "INR", amount: 1249900, displayPrice: "$149", priceVersion: PRICE_VERSION },
+      EUR: { currency: "EUR", amount: 13900, displayPrice: "$149", priceVersion: PRICE_VERSION },
+      GBP: { currency: "GBP", amount: 11900, displayPrice: "$149", priceVersion: PRICE_VERSION },
+      AED: { currency: "AED", amount: 54900, displayPrice: "$149", priceVersion: PRICE_VERSION },
+      THB: { currency: "THB", amount: 519000, displayPrice: "$149", priceVersion: PRICE_VERSION },
     },
   },
 ];
 
 export function getPricingPlan(planId: string) {
   const clean = (planId || "").trim().toLowerCase();
-  if (clean === "starter" || clean === "creator" || clean === "starter_pack" || clean === "starter-pack" || clean === "starter-99") {
-    return pricingPlans.find((p) => p.id === "starter") || pricingPlans[0];
+  if (clean === "free" || clean === "trial") {
+    return pricingPlans.find((p) => p.id === "free") || pricingPlans[0];
   }
-  if (clean === "pro" || clean === "channel" || clean === "agency" || clean === "creator_pro_pack" || clean === "creator-pro" || clean === "pro-499") {
-    return pricingPlans.find((p) => p.id === "pro") || pricingPlans[1];
+  if (clean === "starter" || clean === "starter_pack" || clean === "starter-pack" || clean === "starter-29") {
+    return pricingPlans.find((p) => p.id === "starter") || pricingPlans[1];
+  }
+  if (clean === "growth" || clean === "growth_pack" || clean === "growth-49" || clean === "creator") {
+    return pricingPlans.find((p) => p.id === "growth") || pricingPlans[2];
+  }
+  if (clean === "pro" || clean === "channel" || clean === "agency" || clean === "studio" || clean === "pro-149") {
+    return pricingPlans.find((p) => p.id === "pro") || pricingPlans[3];
   }
   return pricingPlans.find((plan) => plan.id === clean) || null;
 }
 
 export function getPlanQuoteForCurrency(plan: PricingPlan, currency: string) {
-  return plan.quotes[currency.toUpperCase() as BillingCurrency] || plan.quotes.INR;
+  return plan.quotes[currency.toUpperCase() as BillingCurrency] || plan.quotes.USD || plan.quotes.INR;
 }
 
 export function resolvePlanQuoteForCountry(plan: PricingPlan, countryCode?: string | null) {
   const currency = countryCurrency(countryCode);
-  return plan.quotes[currency] || plan.quotes.INR;
+  const quote = plan.quotes[currency] || plan.quotes.USD || plan.quotes.INR;
+  return {
+    ...quote,
+    displayPrice: plan.quotes.USD?.displayPrice || quote.displayPrice || "$0",
+  };
 }
 
 export function getRazorpayPlanId(plan: PricingPlan, currency: BillingCurrency = "INR") {
@@ -117,10 +185,11 @@ export function getRazorpayPlanId(plan: PricingPlan, currency: BillingCurrency =
 
 function countryCurrency(countryCode?: string | null): BillingCurrency {
   const country = (countryCode || "").toUpperCase();
+  if (country === "IN") return "INR";
   if (country === "US") return "USD";
   if (["GB", "UK"].includes(country)) return "GBP";
   if (country === "AE") return "AED";
   if (country === "TH") return "THB";
   if (["AT", "BE", "CY", "DE", "EE", "ES", "FI", "FR", "GR", "HR", "IE", "IT", "LT", "LU", "LV", "MT", "NL", "PT", "SI", "SK"].includes(country)) return "EUR";
-  return "INR";
+  return "USD";
 }

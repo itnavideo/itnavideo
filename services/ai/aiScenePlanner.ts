@@ -5,6 +5,10 @@ import {
   FullVideoSceneBlueprint,
 } from './sceneBlueprintTypes';
 import { planVisualAssetsForSentence } from './assetPlanner';
+import {
+  analyzeTypographyContent,
+  TypographyLayoutMode,
+} from '../typography/responsiveLayoutEngine';
 
 export type TranscriptChunk = {
   text: string;
@@ -68,34 +72,107 @@ export function buildDeterministicSceneBlueprint(
   const bodyFont = options.bodyFont || 'Plus Jakarta Sans';
   const backgroundTheme = options.backgroundTheme || 'purple-vignette';
 
-  const scenes: SceneBlueprintItem[] = transcript.map((chunk, index) => {
-    const sceneType = narrativeFlowOrder[index % narrativeFlowOrder.length];
-    const layoutType = ALL_VISUAL_LAYOUTS[index % ALL_VISUAL_LAYOUTS.length];
+  const scenes: SceneBlueprintItem[] = [];
+  let sceneIndexCounter = 1;
+
+  for (let i = 0; i < transcript.length; i++) {
+    const chunk = transcript[i];
     const text = chunk.text.trim();
-    const duration = Math.max(1, Math.round((chunk.end - chunk.start) * 10) / 10);
+    const chunkDuration = Math.max(1, Math.round((chunk.end - chunk.start) * 10) / 10);
+    const sceneType = narrativeFlowOrder[i % narrativeFlowOrder.length];
 
-    // AI Semantic Asset Planner evaluation
+    // Semantic asset & typography layout analysis
     const assetPlan = planVisualAssetsForSentence(text);
+    const typographyAnalysis = analyzeTypographyContent(text);
 
-    // Assign SFX based on narrative stage
+    // SFX based on narrative stage
     let SFX: 'pop' | 'woosh' | 'chime' | 'rise' | 'none' = 'none';
     if (sceneType === 'hook') SFX = 'rise';
     else if (sceneType === 'example_stat' || sceneType === 'emphasis') SFX = 'pop';
     else if (sceneType === 'transition') SFX = 'woosh';
     else if (sceneType === 'main_point') SFX = 'chime';
 
-    return {
-      sceneNumber: index + 1,
+    // Multi-beat visual splitting for complex sentences (e.g., Thesis + List of 3 items)
+    if (typographyAnalysis.hasMultipleBeats && typographyAnalysis.visualBeats && typographyAnalysis.visualBeats.length >= 2) {
+      const beats = typographyAnalysis.visualBeats;
+      const totalBeatUnits = beats.reduce((acc, b) => acc + b.estimatedDurationSec, 0);
+      let currentBeatStart = chunk.start;
+
+      beats.forEach((beat, bIdx) => {
+        const beatDuration = Math.max(
+          1.5,
+          Math.round(((beat.estimatedDurationSec / totalBeatUnits) * chunkDuration) * 10) / 10
+        );
+        const beatEnd = Math.min(chunk.end, currentBeatStart + beatDuration);
+
+        let beatLayout: VisualLayoutType = 'big_typography';
+        if (beat.layoutMode === 'list') beatLayout = 'checklist';
+        else if (beat.layoutMode === 'stat') beatLayout = 'stat_card';
+        else if (beat.layoutMode === 'quote') beatLayout = 'quote';
+        else if (bIdx % 2 === 1 && assetPlan.brollSearchQuery) beatLayout = 'image_text';
+
+        scenes.push({
+          sceneNumber: sceneIndexCounter++,
+          sceneType: bIdx === 0 ? sceneType : 'emphasis',
+          layoutType: beatLayout,
+          duration: beatDuration,
+          narrationSegment: {
+            text: beat.heading,
+            startSeconds: currentBeatStart,
+            endSeconds: beatEnd,
+          },
+          heading: beat.heading,
+          supportingText: beat.supportingText || '',
+          highlightedWords: assetPlan.highlightedWords,
+          visualAssetRequirement: assetPlan.brollSearchQuery,
+          visualIntent: assetPlan.visualIntent,
+          brollSearchQuery: assetPlan.brollSearchQuery,
+          background: backgroundTheme,
+          fontHierarchy: { headingFont, bodyFont },
+          animation: assetPlan.motion,
+          SFX: bIdx === 0 ? SFX : 'pop',
+          transition: bIdx === 0 ? (sceneType === 'transition' ? 'zoom' : 'dissolve') : 'cut',
+          typographyTreatment: beat.layoutMode,
+          listItems: beat.listItems,
+          statValue: beat.statValue,
+          statLabel: beat.statLabel,
+          quoteAuthor: beat.quoteAuthor,
+          numberBadge: sceneIndexCounter - 1,
+        });
+
+        currentBeatStart = beatEnd;
+      });
+      continue;
+    }
+
+    // Single beat: map layout type intelligently based on typography analysis
+    let layoutType: VisualLayoutType = 'big_typography';
+    if (typographyAnalysis.layoutMode === 'stat') {
+      layoutType = 'stat_card';
+    } else if (typographyAnalysis.layoutMode === 'quote') {
+      layoutType = 'quote';
+    } else if (typographyAnalysis.layoutMode === 'list') {
+      layoutType = 'checklist';
+    } else if (i % 3 === 1 && assetPlan.brollSearchQuery) {
+      layoutType = 'image_text';
+    } else if (i % 3 === 2 && assetPlan.brollSearchQuery) {
+      layoutType = 'split_screen';
+    } else {
+      layoutType = 'big_typography';
+    }
+
+    scenes.push({
+      sceneNumber: sceneIndexCounter++,
       sceneType,
       layoutType,
-      duration,
+      duration: chunkDuration,
       narrationSegment: {
         text,
         startSeconds: chunk.start,
         endSeconds: chunk.end,
       },
-      heading: assetPlan.suggestedHeading,
-      supportingText: assetPlan.suggestedSupportingText,
+      heading: typographyAnalysis.suggestedHeading || assetPlan.suggestedHeading,
+      supportingText: typographyAnalysis.suggestedSupportingText || assetPlan.suggestedSupportingText,
       highlightedWords: assetPlan.highlightedWords,
       visualAssetRequirement: assetPlan.brollSearchQuery,
       visualIntent: assetPlan.visualIntent,
@@ -108,12 +185,16 @@ export function buildDeterministicSceneBlueprint(
       animation: assetPlan.motion,
       SFX,
       transition: sceneType === 'transition' ? 'zoom' : 'dissolve',
-      statValue: '123K VIEWS',
-      numberBadge: index + 1,
-      quoteAuthor: 'Industry Expert',
-      chartValuePercent: Math.min(95, 60 + ((index * 7) % 35)),
-    };
-  });
+      typographyTreatment: typographyAnalysis.layoutMode,
+      listItems: typographyAnalysis.listItems,
+      statValue: typographyAnalysis.statData?.value || (sceneType === 'example_stat' ? '123K VIEWS' : undefined),
+      statLabel: typographyAnalysis.statData?.label || (sceneType === 'example_stat' ? 'GROWTH METRIC' : undefined),
+      statTrend: typographyAnalysis.statData?.trend,
+      quoteAuthor: typographyAnalysis.quoteData?.author || (typographyAnalysis.layoutMode === 'quote' ? 'Industry Expert' : undefined),
+      numberBadge: sceneIndexCounter - 1,
+      chartValuePercent: Math.min(95, 60 + ((i * 7) % 35)),
+    });
+  }
 
   const totalDurationSeconds = Math.round(
     transcript[transcript.length - 1].end - transcript[0].start

@@ -31,6 +31,7 @@ import { SpatialGlassPrimitive } from './SpatialGlassPrimitive';
 import { IsometricCubePrimitive } from './IsometricCubePrimitive';
 import { Synthwave80sPrimitive } from './Synthwave80sPrimitive';
 import { HudTelemetryPrimitive } from './HudTelemetryPrimitive';
+import { MaterialExpressivePrimitive } from './MaterialExpressivePrimitive';
 
 export function TypographyStyleRenderer({
   styleId,
@@ -104,6 +105,8 @@ export function TypographyStyleRenderer({
       return <Synthwave80sPrimitive phrase={phrase} localFrame={localFrame} fps={fps} blueprint={blueprint} />;
     case 'hud-telemetry':
       return <HudTelemetryPrimitive phrase={phrase} localFrame={localFrame} fps={fps} blueprint={blueprint} />;
+    case 'material-expressive':
+      return <MaterialExpressivePrimitive phrase={phrase} localFrame={localFrame} fps={fps} blueprint={blueprint} />;
     default:
       return <DynamicPunchPrimitive phrase={phrase} localFrame={localFrame} fps={fps} blueprint={blueprint} />;
   }

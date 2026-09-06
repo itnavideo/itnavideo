@@ -16,7 +16,7 @@ const PRESET_INTERNAL_LINKS = [
   { label: 'Studio Dashboard', url: '/dashboard', category: 'Product', icon: LayoutDashboard },
   { label: 'Auto Caption Reel Generator', url: '/auto-caption-reel', category: 'Templates', icon: Sparkles },
   { label: 'Typography Video Studio', url: '/dashboard?videoType=typography-video', category: 'Templates', icon: Sparkles },
-  { label: 'Faceless Long Video Maker', url: '/dashboard?videoType=faceless-long-video', category: 'Templates', icon: Sparkles },
+  { label: 'Faceless Video Maker', url: '/dashboard?videoType=faceless-video', category: 'Templates', icon: Sparkles },
   { label: 'Compare & Versus Explainer', url: '/dashboard?videoType=compare-explainer', category: 'Templates', icon: Sparkles },
   { label: 'Whiteboard Video Studio', url: '/dashboard?videoType=whiteboard-video', category: 'Templates', icon: Sparkles },
   { label: 'Free AI Audio Cleaner Tool', url: '/tools/ai-audio-cleaner', category: 'Tools', icon: Wrench },

@@ -1,6 +1,6 @@
 import React from 'react';
-import { OffthreadVideo, useCurrentFrame, useVideoConfig } from 'remotion';
-import { Heading } from '../components/Heading';
+import { OffthreadVideo, interpolate, useCurrentFrame, useVideoConfig } from 'remotion';
+import { ResponsiveTypography } from '../components/ResponsiveTypography';
 import { HighlightText } from '../components/HighlightText';
 import { getSlideAnimation } from '../animations/Slide';
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
@@ -12,6 +12,11 @@ export interface ImageTextSceneProps {
   bodyFont?: string;
 }
 
+const isVideo = (url?: string) => {
+  if (!url) return false;
+  return /\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(url) || url.includes('/video/');
+};
+
 export function ImageTextScene({
   scene,
   brollUrl,
@@ -22,6 +27,7 @@ export function ImageTextScene({
   const { fps } = useVideoConfig();
 
   const anim = getSlideAnimation(frame, fps, 'left');
+  const kenBurnsScale = interpolate(frame, [0, 150], [1.0, 1.08], { extrapolateRight: 'clamp' });
 
   // Prevent duplicate narration text rendering
   const supportingBullet = scene.supportingText && scene.supportingText !== scene.narrationSegment?.text
@@ -36,14 +42,14 @@ export function ImageTextScene({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '64px',
+        padding: '80px 140px', // Strict safe area margins (140px X, 80-100px Y)
         zIndex: 10,
         ...anim,
       }}
     >
       <div
         style={{
-          maxWidth: '1300px',
+          maxWidth: '1350px',
           width: '100%',
           borderRadius: '32px',
           border: '1px solid rgba(56, 189, 248, 0.3)',
@@ -57,13 +63,15 @@ export function ImageTextScene({
           justifyContent: 'space-between',
         }}
       >
-        <div style={{ flex: 1, paddingRight: '48px' }}>
-          <Heading
+        <div style={{ flex: 1, paddingRight: '48px', maxWidth: '720px' }}>
+          <ResponsiveTypography
             text={scene.heading || 'VISUAL BREAKDOWN'}
-            level="h1"
+            mode="split"
             fontFamily={headingFont}
             color="#FFFFFF"
-            style={{ marginBottom: '16px' }}
+            accentColor="#38BDF8"
+            availableWidth={650}
+            style={{ alignItems: 'flex-start', textAlign: 'left', marginBottom: '20px' }}
           />
 
           {supportingBullet && (
@@ -89,7 +97,25 @@ export function ImageTextScene({
           }}
         >
           {brollUrl ? (
-            <OffthreadVideo src={brollUrl} volume={0} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            isVideo(brollUrl) ? (
+              <OffthreadVideo
+                src={brollUrl}
+                volume={0}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            ) : (
+              <img
+                src={brollUrl}
+                alt={scene.heading || 'Scene Visual'}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  transform: `scale(${kenBurnsScale})`,
+                  transition: 'transform 0.1s ease-out',
+                }}
+              />
+            )
           ) : (
             <div
               style={{

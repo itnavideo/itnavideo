@@ -550,9 +550,10 @@ export default function DashboardPage() {
     removeFillers: true,
     removeRepeats: true,
     removeFalseStarts: true,
-    noiseReduction: false,
+    noiseReduction: true,
     volumeNormalize: true,
     trimEnds: true,
+    playbackSpeed: 1.0,
   });
   const [audioCleanAnalysis, setAudioCleanAnalysis] = useState<{
     transcript: string;
@@ -2525,82 +2526,82 @@ export default function DashboardPage() {
                 </div>
               ) : null}
 
-              <div className="grid gap-3 sm:grid-cols-2">
-                {mode === "facelessVideo" || mode === "aiVideoGenerator" ? (
-                  <>
-                    <PolicyPill icon={Clock3} title="Up to 20 minutes" body="Pure 16:9 widescreen video with curated AI visuals and synced captions." />
-                    <PolicyPill icon={Palette} title="Canva Colors & 3 Fonts" body="Studio white default with clean typography hierarchy and zero glare bleed." />
-                  </>
-                ) : (
-                  <>
-                    <PolicyPill icon={Clock3} title="Up to 90 seconds" body="Longer uploads are trimmed to the first 90 seconds." />
-                    <PolicyPill icon={ShieldCheck} title="Private & temporary" body="Your file is only used to create your reel. Not shared." />
-                  </>
-                )}
-              </div>
+              {mode !== "audioClean" && (
+                <>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {mode === "facelessVideo" || mode === "aiVideoGenerator" ? (
+                      <>
+                        <PolicyPill icon={Clock3} title="Up to 20 minutes" body="Pure 16:9 widescreen video with curated AI visuals and synced captions." />
+                        <PolicyPill icon={Palette} title="Canva Colors & 3 Fonts" body="Studio white default with clean typography hierarchy and zero glare bleed." />
+                      </>
+                    ) : (
+                      <>
+                        <PolicyPill icon={Clock3} title="Up to 90 seconds" body="Longer uploads are trimmed to the first 90 seconds." />
+                        <PolicyPill icon={ShieldCheck} title="Private & temporary" body="Your file is only used to create your reel. Not shared." />
+                      </>
+                    )}
+                  </div>
 
-              {/* Pre-generation credit notice */}
-              <div className="flex min-w-0 items-start gap-2" style={{ background: 'var(--bg-raised)', border: '0.5px solid var(--border-dark)', borderRadius: '8px', padding: '8px 12px' }}>
-                <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: 'var(--color-primary-hover)' }} />
-                <p className="min-w-0 break-words leading-5" style={{ fontSize: '12px', color: 'var(--text-dark-secondary)' }}>
-                  {isFreeSignupCredit && !paidLimitComplete ? (
-                    mode === "autoCaption"
-                      ? "Your one free Auto Caption Video will include a fixed Itnavideo watermark. Credits are released if the final render has a system failure."
-                      : "Your free trial is only for a watermarked Auto Caption Video. Buy credits to use this video type."
-                  ) : (
-                    <>
-                      This will use <span style={{ fontWeight: 600, color: 'var(--color-primary-hover)' }}>{plannedCreditLabel}</span> — {billingEntitlement?.usage?.remaining ?? billingEntitlement?.monthlyVideoLimit ?? '—'} remaining
-                    </>
-                  )}
-                </p>
-              </div>
+                  {/* Pre-generation credit notice */}
+                  <div className="flex min-w-0 items-start gap-2" style={{ background: 'var(--bg-raised)', border: '0.5px solid var(--border-dark)', borderRadius: '8px', padding: '8px 12px' }}>
+                    <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: 'var(--color-primary-hover)' }} />
+                    <p className="min-w-0 break-words leading-5" style={{ fontSize: '12px', color: 'var(--text-dark-secondary)' }}>
+                      {isFreeSignupCredit && !paidLimitComplete ? (
+                        mode === "autoCaption"
+                          ? "Your one free Auto Caption Video will include a fixed Itnavideo watermark. Credits are released if the final render has a system failure."
+                          : "Your free trial is only for a watermarked Auto Caption Video. Buy credits to use this video type."
+                      ) : (
+                        <>
+                          This will use <span style={{ fontWeight: 600, color: 'var(--color-primary-hover)' }}>{plannedCreditLabel}</span> — {billingEntitlement?.usage?.remaining ?? billingEntitlement?.monthlyVideoLimit ?? '—'} remaining
+                        </>
+                      )}
+                    </p>
+                  </div>
 
-              <button
-                className={`inline-flex w-full items-center justify-center gap-2 transition ${
-                  canPrepareReel
-                    ? ""
-                    : "cursor-not-allowed opacity-50"
-                }`}
-                style={{
-                  background: canPrepareReel ? 'var(--color-primary-hover)' : 'rgba(255,255,255,0.03)',
-                  color: canPrepareReel ? '#FFFFFF' : 'var(--text-dark-muted)',
-                  fontSize: '15px',
-                  fontWeight: 600,
-                  padding: '14px 18px',
-                  borderRadius: '10px',
-                  width: '100%',
-                  border: canPrepareReel ? 'none' : '1px solid var(--border)',
-                }}
-                disabled={!canPrepareReel}
-                onClick={startRenderJob}
-                onMouseEnter={(e) => { if (canPrepareReel) e.currentTarget.style.background = 'var(--color-primary)'; }}
-                onMouseLeave={(e) => { if (canPrepareReel) e.currentTarget.style.background = 'var(--color-primary-hover)'; }}
-                type="button"
-              >
-                <Sparkles size={17} />
-                {jobStatus.state === "uploading"
-                  ? "Uploading..."
-                  : jobStatus.state === "starting"
-                    ? (mode === "audioClean" ? "Cleaning Audio with AI..." : "Preparing...")
-                    : jobStatus.state === "rendering"
-                      ? (mode === "audioClean" ? "Normalizing & Splicing Audio..." : "Rendering HD video... please wait")
-                      : mode === "audioClean"
-                        ? isAnalyzingAudio
-                          ? "Analyzing Speech & Script..."
-                          : "Clean Audio Now"
-                        : paidLimitComplete
-                          ? isFreeSignupCredit ? "Buy Credits to Create More" : "Plan limit complete"
-                          : !selectedFile && mode !== "customAiReel"
-                            ? (activeMode.accept.startsWith("video") ? "Upload Video First" : "Upload Audio First")
-                            : isFreeSignupCredit ? "Create My Video" : "Create My Reel"}
-              </button>
-              <p className="text-center text-xs font-bold leading-5 text-muted-foreground">
-                {renderInProgress
-                  ? "Please do not close this tab. Usually 2-10 minutes."
-                  : mode === "customAiReel" && customAiPrompt.trim().length < 12 ? "Describe your video to continue. " : mode !== "customAiReel" && !selectedFile ? "Upload a file to continue. " : mode === "compare" && comparisonFiles.length !== 2 ? "Add at least two compare images. " : mode === "creatorBackgroundReplace" && !creatorBackgroundImageFile ? "Upload one background image. " : ""}
-                {!renderInProgress ? isFreeSignupCredit && !paidLimitComplete ? "Failed renders are not charged. Usually 2-10 minutes." : "Usually 2-10 minutes depending on video type and load." : ""}
-              </p>
-              <ProgressPreview mode={mode} />
+                  <button
+                    className={`inline-flex w-full items-center justify-center gap-2 transition ${
+                      canPrepareReel
+                        ? ""
+                        : "cursor-not-allowed opacity-50"
+                    }`}
+                    style={{
+                      background: canPrepareReel ? 'var(--color-primary-hover)' : 'rgba(255,255,255,0.03)',
+                      color: canPrepareReel ? '#FFFFFF' : 'var(--text-dark-muted)',
+                      fontSize: '15px',
+                      fontWeight: 600,
+                      padding: '14px 18px',
+                      borderRadius: '10px',
+                      width: '100%',
+                      border: canPrepareReel ? 'none' : '1px solid var(--border)',
+                    }}
+                    disabled={!canPrepareReel}
+                    onClick={startRenderJob}
+                    onMouseEnter={(e) => { if (canPrepareReel) e.currentTarget.style.background = 'var(--color-primary)'; }}
+                    onMouseLeave={(e) => { if (canPrepareReel) e.currentTarget.style.background = 'var(--color-primary-hover)'; }}
+                    type="button"
+                  >
+                    <Sparkles size={17} />
+                    {jobStatus.state === "uploading"
+                      ? "Uploading..."
+                      : jobStatus.state === "starting"
+                        ? "Preparing..."
+                        : jobStatus.state === "rendering"
+                          ? "Rendering HD video... please wait"
+                          : paidLimitComplete
+                            ? isFreeSignupCredit ? "Buy Credits to Create More" : "Plan limit complete"
+                            : !selectedFile && mode !== "customAiReel"
+                              ? (activeMode.accept.startsWith("video") ? "Upload Video First" : "Upload Audio First")
+                              : isFreeSignupCredit ? "Create My Video" : "Create My Reel"}
+                  </button>
+                  <p className="text-center text-xs font-bold leading-5 text-muted-foreground">
+                    {renderInProgress
+                      ? "Please do not close this tab. Usually 2-10 minutes."
+                      : mode === "customAiReel" && customAiPrompt.trim().length < 12 ? "Describe your video to continue. " : mode !== "customAiReel" && !selectedFile ? "Upload a file to continue. " : mode === "compare" && comparisonFiles.length !== 2 ? "Add at least two compare images. " : mode === "creatorBackgroundReplace" && !creatorBackgroundImageFile ? "Upload one background image. " : ""}
+                    {!renderInProgress ? isFreeSignupCredit && !paidLimitComplete ? "Failed renders are not charged. Usually 2-10 minutes." : "Usually 2-10 minutes depending on video type and load." : ""}
+                  </p>
+                  <ProgressPreview mode={mode} />
+                </>
+              )}
               {paidLimitComplete ? (
                 <div className="rounded-lg border border-amber-200/20 bg-amber-200/[0.075] p-4 text-sm font-bold leading-6 text-amber-50">
                   {isFreeSignupCredit

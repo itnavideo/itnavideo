@@ -26,19 +26,21 @@ import { ComparisonScene } from './scenes/ComparisonScene';
 import { QuoteScene } from './scenes/QuoteScene';
 import { ScreenshotScene } from './scenes/ScreenshotScene';
 import { ConclusionScene } from './scenes/ConclusionScene';
+import { ListScene } from './scenes/ListScene';
 
 export interface FacelessLongVideoProps {
   mediaSrc?: string;
   audioSrc?: string;
   subjectCutoutSrc?: string;
   enable3DTextBehindSubject?: boolean;
+  showCaptions?: boolean;
   captions?: CaptionChunk[];
   subtitleChunks?: CaptionChunk[];
   durationSeconds?: number;
   mediaTrimStartSeconds?: number;
   sourceAudioVolume?: number;
   title?: string;
-  backgroundTheme?: 'purple-vignette' | 'midnight-obsidian' | 'emerald-studio' | 'royal-indigo' | 'pure-dark';
+  backgroundTheme?: string;
   customBgUrl?: string;
   sfxEvents?: Array<{
     id: string;
@@ -47,6 +49,11 @@ export interface FacelessLongVideoProps {
     volume: number;
     sfxUrl: string;
   }>;
+  mediaType?: 'audio' | 'video';
+  audioUrl?: string;
+  mediaUrl?: string;
+  renderWindowSeconds?: number;
+  sourceDurationSeconds?: number;
   chapterEvents?: ChapterCardEvent[];
   stickerEvents?: StickerEvent[];
   headingFont?: string;
@@ -74,14 +81,23 @@ const resolveMediaSrc = (src?: string) => {
   return /^(https?:|data:|blob:)/i.test(src) ? src : staticFile(src.replace(/^\/+/, ''));
 };
 
+const isAudioFile = (src?: string) => {
+  if (!src) return false;
+  return /\.(mp3|wav|m4a|aac|ogg|flac)(\?.*)?$/i.test(src) || src.includes('/audio/');
+};
+
 const isVideoFile = (src?: string) => {
   if (!src) return false;
-  return /\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(src) || src.includes('/video/') || src.includes('video');
+  if (isAudioFile(src)) return false;
+  return /\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(src) || src.includes('/video/');
 };
 
 export function FacelessLongVideoTemplate({
   mediaSrc = '',
   audioSrc = '',
+  audioUrl = '',
+  mediaUrl = '',
+  mediaType = 'audio',
   subjectCutoutSrc = '',
   enable3DTextBehindSubject = false,
   captions = [],
@@ -139,18 +155,28 @@ export function FacelessLongVideoTemplate({
       transition: 'dissolve',
     },
   ],
+  showCaptions = true,
 }: FacelessLongVideoProps) {
-  const { fps } = useVideoConfig();
+  const { fps, durationInFrames } = useVideoConfig();
   const frame = useCurrentFrame();
 
-  const resolvedMediaSrc = resolveMediaSrc(mediaSrc);
-  const resolvedAudioSrc = resolveMediaSrc(audioSrc);
+  const rawAudio =
+    audioSrc ||
+    audioUrl ||
+    (mediaType === 'audio' || isAudioFile(mediaSrc || mediaUrl) ? mediaSrc || mediaUrl : '');
+  const rawVideo =
+    mediaType !== 'audio' && !isAudioFile(mediaSrc || mediaUrl) && isVideoFile(mediaSrc || mediaUrl)
+      ? mediaSrc || mediaUrl
+      : '';
+
+  const resolvedMediaSrc = resolveMediaSrc(rawVideo);
+  const resolvedAudioSrc = resolveMediaSrc(rawAudio);
   const resolvedCutoutSrc = resolveMediaSrc(subjectCutoutSrc);
 
-  const hasBackgroundVideo = isVideoFile(mediaSrc) || Boolean(resolvedMediaSrc && !audioSrc);
+  const hasBackgroundVideo = Boolean(resolvedMediaSrc && isVideoFile(rawVideo));
   const hasSubjectCutout = Boolean(enable3DTextBehindSubject && resolvedCutoutSrc);
 
-  const activeCaptions = captions.length > 0 ? captions : subtitleChunks;
+  const activeCaptions = showCaptions !== false ? (captions.length > 0 ? captions : subtitleChunks) : [];
   const currentTimeSec = frame / fps;
 
   // Active Scene Selection based on narration timestamps or proportional fallback
@@ -186,10 +212,14 @@ export function FacelessLongVideoTemplate({
     'royal-indigo',
     'pure-dark',
   ];
-  const activeBackgroundTheme =
+  const activeBackgroundTheme: string =
+    backgroundTheme ||
     currentScene?.background ||
-    BACKGROUND_THEMES[(currentScene?.sceneNumber || 1) % BACKGROUND_THEMES.length] ||
-    backgroundTheme;
+    'studio-white';
+  const isLightBackground =
+    activeBackgroundTheme === 'studio-white' ||
+    activeBackgroundTheme === 'warm-cream' ||
+    activeBackgroundTheme === 'soft-slate';
 
   // Scene Cut Transition Animation (Cross-fade between scenes)
   const sceneStartFrame = Math.round(
@@ -248,7 +278,10 @@ export function FacelessLongVideoTemplate({
     if (layout === 'quote') {
       return <QuoteScene scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
     }
-    if (stype === 'next_point' || layout === 'checklist') {
+    if (layout === 'checklist' || scene.typographyTreatment === 'list' || (scene.listItems && scene.listItems.length >= 2)) {
+      return <ListScene scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
+    }
+    if (stype === 'next_point') {
       return <ConclusionScene scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
     }
 
@@ -256,7 +289,7 @@ export function FacelessLongVideoTemplate({
   };
 
   return (
-    <AbsoluteFill className="bg-black text-white" style={{ fontFamily: typographyFont }}>
+    <AbsoluteFill style={{ fontFamily: typographyFont, backgroundColor: isLightBackground ? '#FFFFFF' : '#000000', color: isLightBackground ? '#0F172A' : '#FFFFFF' }}>
       {/* ── LAYER 1 (BOTTOM): Base Video Media or Animated Dynamic Background ── */}
       {hasBackgroundVideo && resolvedMediaSrc ? (
         <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
@@ -292,14 +325,26 @@ export function FacelessLongVideoTemplate({
       )}
 
       {/* Voiceover Audio Stream */}
-      {audioSrc && resolvedAudioSrc && <Audio src={resolvedAudioSrc} volume={sourceAudioVolume} />}
+      {resolvedAudioSrc && (
+        <Audio
+          src={resolvedAudioSrc}
+          startFrom={Math.round(mediaTrimStartSeconds * fps)}
+          volume={sourceAudioVolume}
+        />
+      )}
 
       {/* Timed Sound Effects (Pops, Swooshes, Risers) */}
-      {sfxEvents.map((sfx) => (
-        <Sequence key={sfx.id} from={sfx.startFrame}>
-          <Audio src={resolveMediaSrc(sfx.sfxUrl)} volume={sfx.volume} />
-        </Sequence>
-      ))}
+      {sfxEvents
+        .filter((sfx) => Boolean(sfx?.sfxUrl) && sfx.startFrame >= 0 && sfx.startFrame < durationInFrames)
+        .map((sfx) => (
+          <Sequence
+            key={sfx.id}
+            from={sfx.startFrame}
+            durationInFrames={Math.min(Math.round(2.5 * fps), Math.max(1, durationInFrames - sfx.startFrame))}
+          >
+            <Audio src={resolveMediaSrc(sfx.sfxUrl)} volume={sfx.volume} />
+          </Sequence>
+        ))}
 
       {/* Sticker Layer */}
       <UniversalStickerLayer stickerEvents={stickerEvents} stickerPackId={templateConfig.stickerPackId} />
@@ -308,7 +353,9 @@ export function FacelessLongVideoTemplate({
       <UniversalLowerThird chapterEvents={chapterEvents} lowerThirdId={templateConfig.lowerThirdId} />
 
       {/* Karaoke Word-Highlight Subtitles (Clean Lower Third) */}
-      <UniversalCaptionLayer chunks={activeCaptions} themeId={templateConfig.captionThemeId} />
+      {showCaptions !== false && activeCaptions.length > 0 && (
+        <UniversalCaptionLayer chunks={activeCaptions} themeId={templateConfig.captionThemeId} />
+      )}
     </AbsoluteFill>
   );
 }
@@ -330,7 +377,7 @@ export const FacelessLongVideoComposition = () => (
     }}
     calculateMetadata={({ props }) => {
       const p = props as FacelessLongVideoProps;
-      const durationSeconds = Math.max(5, Math.min(600, Number(p.durationSeconds) || 60));
+      const durationSeconds = Math.max(5, Math.min(1200, Number(p.durationSeconds) || 60));
       return {
         durationInFrames: secondsToFrames(durationSeconds, DEFAULT_FPS),
         fps: DEFAULT_FPS,

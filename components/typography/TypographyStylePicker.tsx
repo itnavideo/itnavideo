@@ -32,6 +32,7 @@ export type TypographyStyleId =
   | 'isometric-cube'
   | 'synthwave-80s'
   | 'hud-telemetry'
+  | 'material-expressive'
   // Legacy aliases
   | 'prime-neon'
   | 'agent-tour'
@@ -67,6 +68,17 @@ function getCloudinaryPosterUrl(rawUrl: string): string {
 }
 
 export const TYPOGRAPHY_STYLES: TypographyStyle[] = [
+  {
+    id: 'material-expressive',
+    name: 'Material 3 Expressive',
+    tag: 'Google M3 · Tonal Scale',
+    category: 'kinetic',
+    description: 'Material Design 3 type scale with frosted tonal pills & emphasized motion curves',
+    videoSrc: getCloudinaryVideoUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1783945650/professional-creator-after.mp4'),
+    posterSrc: getCloudinaryPosterUrl('https://res.cloudinary.com/dhouh9idx/video/upload/v1783945650/professional-creator-after.mp4'),
+    accentColor: '#38BDF8',
+    tags: ['Google M3', 'Display Hero', 'Tonal Pill', 'Emphasized Ease'],
+  },
   {
     id: 'dynamic-punch',
     name: 'Dynamic Punch',

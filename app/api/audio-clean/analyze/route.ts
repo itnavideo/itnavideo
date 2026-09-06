@@ -17,9 +17,10 @@ export async function POST(request: Request) {
       removeFillers: Boolean(body.audioCleanOptions?.removeFillers ?? true),
       removeRepeats: Boolean(body.audioCleanOptions?.removeRepeats ?? true),
       removeFalseStarts: Boolean(body.audioCleanOptions?.removeFalseStarts ?? true),
-      noiseReduction: Boolean(body.audioCleanOptions?.noiseReduction ?? false),
+      noiseReduction: Boolean(body.audioCleanOptions?.noiseReduction ?? true),
       volumeNormalize: Boolean(body.audioCleanOptions?.volumeNormalize ?? true),
       trimEnds: Boolean(body.audioCleanOptions?.trimEnds ?? true),
+      playbackSpeed: Number(body.audioCleanOptions?.playbackSpeed ?? 1.0),
     };
 
     const pastedScript = typeof body.pastedScript === 'string' ? body.pastedScript.trim() : undefined;
@@ -43,10 +44,11 @@ export async function POST(request: Request) {
     // Read URL
     const mediaUrl = await createReadUrl(mediaKey);
 
-    // Groq transcription
+    // Groq transcription (full length up to 60 minutes)
     const transcript = await transcribeMediaUrlWithGroq({
       mediaUrl,
       fileName: 'audio.mp3',
+      maxSeconds: 3600,
     });
 
     if (!transcript || !transcript.transcript) {

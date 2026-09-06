@@ -13,12 +13,12 @@ export async function getRegionalPlanDisplayPrices() {
   return {
     countryCode,
     displayPrices,
-    freePrice: displayPrices.free || "₹0",
-    starterPrice: displayPrices.starter || "₹99",
-    proPrice: displayPrices.pro || "₹499",
-    growthPrice: displayPrices.pro || "₹499",
-    agencyPrice: displayPrices.pro || "₹499",
-    businessPrice: displayPrices.pro || "₹499",
-    enterprisePrice: displayPrices.pro || "₹499",
+    freePrice: displayPrices.free || "$0",
+    starterPrice: displayPrices.starter || "$29",
+    growthPrice: displayPrices.growth || "$49",
+    proPrice: displayPrices.pro || "$149",
+    agencyPrice: displayPrices.pro || "$149",
+    businessPrice: displayPrices.pro || "$149",
+    enterprisePrice: displayPrices.pro || "$149",
   };
 }

@@ -17,7 +17,7 @@ const faqs: FAQItem[] = [
   },
   {
     question: "Is Itnavideo a free AI video generator?",
-    answer: "Yes, you can try Itnavideo for free upon signup to generate video with AI and test the production workflows. Top-up credit packs starting at ₹99 ($2) unlock 1080p Full HD video creation with zero watermarks and faster cloud rendering."
+    answer: "Yes, you can try Itnavideo for free upon signup to generate video with AI and test the production workflows. Monthly plans starting at $29 unlock 1080p Full HD video creation with zero watermarks and faster cloud rendering."
   },
   {
     question: "Can I use Itnavideo as a text to video generator?",

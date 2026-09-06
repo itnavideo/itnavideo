@@ -2,9 +2,8 @@ import React from 'react';
 import type { Metadata } from "next";
 
 import Hero from "@/components/landing/Hero";
-import QuickStartDropzone from "@/components/landing/QuickStartDropzone";
-import UploadPipelineSection from "@/components/landing/UploadPipelineSection";
 import WhatCanYouCreate from "@/components/landing/WhatCanYouCreate";
+import LongVideoShowcase from "@/components/landing/LongVideoShowcase";
 import DemoVideosShowcase from "@/components/landing/DemoVideosShowcase";
 import PricingSection from "@/components/landing/PricingSection";
 import TestimonialSection from "@/components/landing/TestimonialSection";
@@ -88,19 +87,16 @@ export default function LandingPage() {
         }}
       />
 
-            {/* 1. Hero Section — White Background, Google Workspace Aesthetic */}
+            {/* 1. Hero Section — White Background, Material 3 Aesthetic */}
       <Hero />
 
-      {/* 1.5. Interactive Visual Entry Point */}
-      <QuickStartDropzone />
-
-      {/* 2. Universal AI Pipeline */}
-      <UploadPipelineSection />
-
-      {/* 3. "What Can You Create?" Section — Shows Output Explanations for ALL 11 Video Types */}
+      {/* 2. "What Can You Create?" Section — Shows Output Explanations for ALL Video Types (9:16 & 16:9) */}
       <WhatCanYouCreate />
 
-      {/* Real Demo Videos Showcase — 27 Horizontal Demo Videos (Auto Caption, Compare Explainer, Typography) */}
+      {/* 3.5. Faceless Video Showcase — 16:9 YouTube Long-Form Production */}
+      <LongVideoShowcase />
+
+      {/* Real Demo Videos Showcase — Live Rendered Demo Videos */}
       <DemoVideosShowcase />
 
       <TestimonialSection />
@@ -138,7 +134,7 @@ export default function LandingPage() {
                 Best AI Video Generators for Creators
               </h3>
               <p className="text-slate-600 text-xs leading-relaxed">
-                Explore 11 specialized video generation workflows including Auto Caption Reels, Compare Explainers, Whiteboard Lessons, Faceless Long Videos, and 16:9 Landscape Video Pro.
+                Explore specialized video generation workflows including Auto Caption Reels, Compare Explainers, Whiteboard Lessons, Typography Videos, AI Audio Cleaner, and Faceless Videos.
               </p>
             </div>
 

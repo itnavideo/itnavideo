@@ -8,12 +8,13 @@ export type BillableRenderMode =
   | "compare"
   | "longVideoPromo"
   | "aiVideoGenerator"
+  | "facelessVideo"
   | "whiteboardVideo"
   | "typographyVideo"
   | "multiImagesVideo"
   | "longVideoClips"
-  | "facelessLongVideo"
   | "longVideoPro"
+  | "aiAudioCleaner"
   | "longFormCaptionedVideo";
 
 type RenderCreditOptions = {
@@ -27,21 +28,32 @@ export function calculateLongFormCaptionCreditUnits(durationSeconds: number) {
     throw new Error("Long Video supports a confirmed duration from 1 second to 20 minutes.");
   }
 
-  // Simple: 1 credit per started minute. 1 min = 10 units = 1 credit.
+  // 2 credits per started minute (e.g. 10 min video = 20 credits)
   const minutes = Math.ceil(duration / 60);
-  return minutes * CREDIT_UNITS_PER_CREDIT;
+  return minutes * 2 * CREDIT_UNITS_PER_CREDIT;
 }
 
 export function calculateRenderCreditUnits(mode: BillableRenderMode, options: RenderCreditOptions = {}) {
+  const duration = Number(options.durationSeconds) || 60;
+  const minutes = Math.max(1, Math.ceil(duration / 60));
+
   switch (mode) {
+    // All 9:16 videos: 1 credit for 1 min video
     case "autoCaption":
     case "longVideoPromo":
     case "typographyVideo":
-      return CREDIT_UNITS_PER_CREDIT;
     case "compare":
     case "whiteboardVideo":
     case "multiImagesVideo":
-      return 2 * CREDIT_UNITS_PER_CREDIT;
+      return minutes * CREDIT_UNITS_PER_CREDIT;
+
+    // AI Audio Cleaner: 1 credit for 5 min audio
+    case "aiAudioCleaner": {
+      const fiveMinBlocks = Math.max(1, Math.ceil(duration / 300));
+      return fiveMinBlocks * CREDIT_UNITS_PER_CREDIT;
+    }
+
+    // Long Video Clips: 2 base credits + 1 credit per output clip
     case "longVideoClips": {
       const clipCount = Number(options.clipCount);
       if (!Number.isInteger(clipCount) || clipCount < 1 || clipCount > 15) {
@@ -49,11 +61,14 @@ export function calculateRenderCreditUnits(mode: BillableRenderMode, options: Re
       }
       return (LONG_VIDEO_CLIPS_BASE_CREDITS + clipCount * LONG_VIDEO_CLIPS_PER_OUTPUT_CREDITS) * CREDIT_UNITS_PER_CREDIT;
     }
+
+    // All 16:9 Long Videos & Faceless Videos: 2 credits for 1 min video (10 min = 20 credits)
     case "longFormCaptionedVideo":
     case "aiVideoGenerator":
-    case "facelessLongVideo":
+    case "facelessVideo":
     case "longVideoPro":
       return calculateLongFormCaptionCreditUnits(Number(options.durationSeconds));
+
     default: {
       const unsupportedMode: never = mode;
       throw new Error(`Unsupported render credit mode: ${unsupportedMode}`);

@@ -112,11 +112,11 @@ export default function RealDashboardPreview() {
                   
                   {[
                     { name: 'Auto Caption Reel', active: true, badge: '1 Cr' },
-                    { name: 'Caption Studio', active: false, badge: '1 Cr' },
-                    { name: 'Compare Explainer', active: false, badge: '2 Cr' },
-                    { name: 'Whiteboard Video', active: false, badge: '2 Cr' },
+                    { name: 'Compare Explainer', active: false, badge: '1 Cr' },
+                    { name: 'Whiteboard Video', active: false, badge: '1 Cr' },
                     { name: 'Typography Video', active: false, badge: '1 Cr' },
-                    { name: 'Long Caption Pro', active: false, badge: '1 Cr/m' },
+                    { name: 'AI Audio Cleaner', active: false, badge: '1 Cr' },
+                    { name: 'Faceless Video', active: false, badge: '2 Cr' },
                   ].map((v) => (
                     <div
                       key={v.name}

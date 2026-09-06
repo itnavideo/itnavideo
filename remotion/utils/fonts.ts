@@ -23,6 +23,17 @@ import {loadFont as loadBebasNeue} from '@remotion/google-fonts/BebasNeue';
 import {loadFont as loadOswald} from '@remotion/google-fonts/Oswald';
 import {loadFont as loadDMSerifDisplay} from '@remotion/google-fonts/DMSerifDisplay';
 import {loadFont as loadVollkorn} from '@remotion/google-fonts/Vollkorn';
+// Material Design 3 & High-Production Video Fonts
+import {loadFont as loadRoboto} from '@remotion/google-fonts/Roboto';
+import {loadFont as loadRobotoMono} from '@remotion/google-fonts/RobotoMono';
+import {loadFont as loadRobotoSerif} from '@remotion/google-fonts/RobotoSerif';
+import {loadFont as loadPlusJakartaSans} from '@remotion/google-fonts/PlusJakartaSans';
+import {loadFont as loadOutfit} from '@remotion/google-fonts/Outfit';
+import {loadFont as loadSyne} from '@remotion/google-fonts/Syne';
+import {loadFont as loadLexend} from '@remotion/google-fonts/Lexend';
+import {loadFont as loadNotoSans} from '@remotion/google-fonts/NotoSans';
+import {loadFont as loadNotoSansArabic} from '@remotion/google-fonts/NotoSansArabic';
+import {loadFont as loadNotoSansBengali} from '@remotion/google-fonts/NotoSansBengali';
 
 const {fontFamily: interFamily} = loadInter();
 const {fontFamily: antonFamily} = loadAnton();
@@ -46,6 +57,17 @@ const {fontFamily: bebasNeueFamily} = loadBebasNeue();
 const {fontFamily: oswaldFamily} = loadOswald();
 const {fontFamily: dmSerifDisplayFamily} = loadDMSerifDisplay();
 const {fontFamily: vollkornFamily} = loadVollkorn();
+// M3 & Professional Video Families
+const {fontFamily: robotoFamily} = loadRoboto();
+const {fontFamily: robotoMonoFamily} = loadRobotoMono();
+const {fontFamily: robotoSerifFamily} = loadRobotoSerif();
+const {fontFamily: plusJakartaFamily} = loadPlusJakartaSans();
+const {fontFamily: outfitFamily} = loadOutfit();
+const {fontFamily: syneFamily} = loadSyne();
+const {fontFamily: lexendFamily} = loadLexend();
+const {fontFamily: notoSansFamily} = loadNotoSans();
+const {fontFamily: arabicFamily} = loadNotoSansArabic();
+const {fontFamily: bengaliFamily} = loadNotoSansBengali();
 
 // Map preset font names to loaded font families
 export const LOADED_FONTS: Record<string, string> = {
@@ -65,6 +87,9 @@ export const LOADED_FONTS: Record<string, string> = {
   'NotoSansDevanagari': devanagariFamily,
   'NotoSansKannada': kannadaFamily,
   'NotoSansTamil': tamilFamily,
+  'NotoSansArabic': arabicFamily,
+  'NotoSansBengali': bengaliFamily,
+  'Noto Sans': notoSansFamily,
   'Playfair Display': playfairDisplayFamily,
   'Cinzel': cinzelFamily,
   'Marcellus': marcellusFamily,
@@ -81,6 +106,14 @@ export const LOADED_FONTS: Record<string, string> = {
   'DM Serif Display': dmSerifDisplayFamily,
   'Vollkorn': vollkornFamily,
   'JetBrains Mono': jetbrainsFamily,
+  // M3 & Modern Broadcast Fonts
+  'Roboto': robotoFamily,
+  'Roboto Mono': robotoMonoFamily,
+  'Roboto Serif': robotoSerifFamily,
+  'Plus Jakarta Sans': plusJakartaFamily,
+  'Outfit': outfitFamily,
+  'Syne': syneFamily,
+  'Lexend': lexendFamily,
 };
 
 // Direct exports for templates that need a specific premium font without going through resolveFont()
@@ -92,6 +125,16 @@ export const PREMIUM_FONTS = {
   tenorSans: tenorSansFamily,
   bodoniModa: bodoniModaFamily,
   anton: antonFamily,
+  plusJakarta: plusJakartaFamily,
+  outfit: outfitFamily,
+  syne: syneFamily,
+  lexend: lexendFamily,
+  roboto: robotoFamily,
+  robotoMono: robotoMonoFamily,
+  robotoSerif: robotoSerifFamily,
+  notoDevanagari: devanagariFamily,
+  notoArabic: arabicFamily,
+  notoBengali: bengaliFamily,
 };
 
 /** Resolve font family — returns loaded Google Font or fallback */
@@ -105,14 +148,25 @@ export function resolveFont(fontFamily?: string): string {
 // Export for language-based font selection
 export const LANGUAGE_FONTS: Record<string, string> = {
   hindi: devanagariFamily,
+  hi: devanagariFamily,
   kannada: kannadaFamily,
+  kn: kannadaFamily,
   tamil: tamilFamily,
-  en: interFamily,
-  english: interFamily,
-  hinglish: interFamily,
+  ta: tamilFamily,
+  arabic: arabicFamily,
+  ar: arabicFamily,
+  urdu: arabicFamily,
+  bengali: bengaliFamily,
+  bn: bengaliFamily,
+  en: plusJakartaFamily,
+  english: plusJakartaFamily,
+  hinglish: plusJakartaFamily,
+  spanish: plusJakartaFamily,
+  french: plusJakartaFamily,
+  german: plusJakartaFamily,
 };
 
 export function getFontForLanguage(lang?: string): string {
-  if (!lang) return interFamily;
-  return LANGUAGE_FONTS[lang.toLowerCase()] || interFamily;
+  if (!lang) return plusJakartaFamily;
+  return LANGUAGE_FONTS[lang.toLowerCase()] || plusJakartaFamily;
 }

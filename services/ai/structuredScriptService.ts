@@ -4,14 +4,24 @@
  * Turns raw speech transcripts into a structured script:
  * - Headings (# H1, ## H2)
  * - Steps (Step 1, Step 2, etc.)
- * - Explanations & Dialogue (with timestamps & cut/keep actions)
+ * - Explanations & Dialogue grouped into clean sections (NOT hundreds of individual micro-cards)
  *
- * Also provides alignment between user-pasted pre-written scripts and spoken audio.
+ * Also provides alignment between user-pasted pre-written scripts and spoken audio,
+ * ensuring NO canonical script sentences are cut by mistake.
  */
 
 import type { AudioCleanSegment } from './audioCleanService';
 
 export type ScriptBlockType = 'heading' | 'step' | 'explanation';
+
+export type ScriptBlockSentence = {
+  id: string;
+  text: string;
+  start?: number;
+  end?: number;
+  action?: 'keep' | 'cut';
+  reason?: 'repeat' | 'mistake' | 'silence' | 'filler' | 'stumble' | 'false-start' | 'user' | 'custom';
+};
 
 export type StructuredScriptBlock = {
   id: string;
@@ -21,10 +31,11 @@ export type StructuredScriptBlock = {
   stepNumber?: number; // 1, 2, 3...
   text: string;
   segmentIds: string[];
+  sentences?: ScriptBlockSentence[];
   start?: number;
   end?: number;
   action?: 'keep' | 'cut';
-  reason?: 'repeat' | 'mistake' | 'silence' | 'filler' | 'custom';
+  reason?: 'repeat' | 'mistake' | 'silence' | 'filler' | 'stumble' | 'false-start' | 'user' | 'custom';
 };
 
 export type StructuredScriptResult = {
@@ -52,8 +63,21 @@ const HEADING_PATTERNS = [
 ];
 
 /**
+ * Split a chunk of text into clean individual sentences
+ */
+export function splitIntoSentences(text: string): string[] {
+  if (!text) return [];
+  const raw = text.split(/(?<=[.!?])\s+|\n+/);
+  return raw
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0 && !/^[-*_#]+$/.test(s));
+}
+
+/**
  * Automatically analyze transcript segments and organize them into
  * clean structured blocks (Headings, Steps, and Explanations).
+ * Segments are grouped into their parent Step or Heading section,
+ * avoiding hundreds of tiny cards.
  */
 export function structureTranscriptIntoBlocks(
   segments: AudioCleanSegment[],
@@ -64,11 +88,19 @@ export function structureTranscriptIntoBlocks(
     if (!fallbackText) {
       return { blocks: [], markdown: '' };
     }
+    const sentences = splitIntoSentences(fallbackText).map((s, idx) => ({
+      id: `sent-0-${idx}`,
+      text: s,
+      action: 'keep' as const,
+    }));
     const singleBlock: StructuredScriptBlock = {
       id: 'block-0',
       type: 'explanation',
+      title: 'Voiceover Script',
       text: fallbackText,
       segmentIds: [],
+      sentences,
+      action: 'keep',
     };
     return {
       blocks: [singleBlock],
@@ -78,8 +110,6 @@ export function structureTranscriptIntoBlocks(
 
   const blocks: StructuredScriptBlock[] = [];
   let currentStepCount = 0;
-
-  // 1. Initial Hook / Introduction block if speech starts with a topic
   let blockIndex = 0;
   let activeBlock: StructuredScriptBlock | null = null;
 
@@ -105,12 +135,11 @@ export function structureTranscriptIntoBlocks(
     let isHeading = false;
     let headingLevel: 1 | 2 | 3 = 2;
     if (i === 0) {
-      // First sentence is often the Hook / Intro
       isHeading = true;
       headingLevel = 1;
     } else {
       for (const pat of HEADING_PATTERNS) {
-        if (pat.test(text)) {
+        if (pat.test(text) && text.split(' ').length <= 12) {
           isHeading = true;
           headingLevel = 2;
           break;
@@ -118,61 +147,68 @@ export function structureTranscriptIntoBlocks(
       }
     }
 
+    const sentenceItem: ScriptBlockSentence = {
+      id: seg.id,
+      text: text,
+      start: seg.start,
+      end: seg.end,
+      action: seg.action,
+      reason: seg.reason,
+    };
+
     if (isStep) {
-      // Create Step Block
-      activeBlock = {
+      const stepBlock: StructuredScriptBlock = {
         id: `block-${blockIndex++}`,
         type: 'step',
         stepNumber: stepNum,
-        title: text.length > 50 ? text.slice(0, 48) + '...' : text,
+        title: text.length > 60 ? text.slice(0, 58) + '...' : text,
         text: text,
         segmentIds: [seg.id],
+        sentences: [sentenceItem],
         start: seg.start,
         end: seg.end,
         action: seg.action,
         reason: seg.reason,
       };
-      blocks.push(activeBlock);
-    } else if (isHeading && (i === 0 || text.split(' ').length <= 12)) {
-      // Create Heading Block
-      activeBlock = {
+      activeBlock = stepBlock;
+      blocks.push(stepBlock);
+    } else if (isHeading) {
+      const headingBlock: StructuredScriptBlock = {
         id: `block-${blockIndex++}`,
         type: 'heading',
-        headingLevel: headingLevel,
+        headingLevel,
         title: text,
         text: text,
         segmentIds: [seg.id],
+        sentences: [sentenceItem],
         start: seg.start,
         end: seg.end,
         action: seg.action,
         reason: seg.reason,
       };
-      blocks.push(activeBlock);
+      activeBlock = headingBlock;
+      blocks.push(headingBlock);
     } else {
-      // Explanation / Dialogue block
-      // Group contiguous explanation segments under the active block or create a new explanation block
-      if (activeBlock && activeBlock.type === 'explanation' && activeBlock.action === seg.action) {
-        // Append to existing explanation block
-        activeBlock.text += ` ${text}`;
-        activeBlock.segmentIds.push(seg.id);
-        activeBlock.end = seg.end;
-      } else {
+      if (!activeBlock) {
         activeBlock = {
           id: `block-${blockIndex++}`,
           type: 'explanation',
-          text: text,
-          segmentIds: [seg.id],
-          start: seg.start,
-          end: seg.end,
-          action: seg.action,
-          reason: seg.reason,
+          title: 'Introduction',
+          text: '',
+          segmentIds: [],
+          sentences: [],
+          action: 'keep',
         };
         blocks.push(activeBlock);
       }
+
+      activeBlock.segmentIds.push(seg.id);
+      activeBlock.sentences!.push(sentenceItem);
+      activeBlock.text = activeBlock.text ? `${activeBlock.text} ${text}` : text;
+      activeBlock.end = seg.end;
     }
   }
 
-  // Generate clean Markdown output
   const markdown = blocksToMarkdown(blocks);
 
   return {
@@ -188,19 +224,45 @@ export function blocksToMarkdown(blocks: StructuredScriptBlock[]): string {
   const lines: string[] = [];
 
   for (const block of blocks) {
-    const isCut = block.action === 'cut';
-    const cutPrefix = isCut ? '~~' : '';
-    const cutSuffix = isCut ? '~~ [CUT]' : '';
-
     if (block.type === 'heading') {
-      const hashes = '#'.repeat(block.headingLevel || 1);
-      lines.push(`${hashes} ${cutPrefix}${block.title || block.text}${cutSuffix}\n`);
+      const prefix = block.headingLevel === 1 ? '# ' : '## ';
+      lines.push(`${prefix}${block.title || block.text}`);
+      if (block.sentences && block.sentences.length > 0) {
+        for (const sent of block.sentences) {
+          if (sent.text !== block.title) {
+            lines.push(sent.action === 'cut' ? `~~${sent.text}~~ [CUT - RETAKE]` : sent.text);
+          }
+        }
+      }
+      lines.push('');
     } else if (block.type === 'step') {
-      const rawText = block.title || block.text || '';
-      const cleanStepText = rawText.replace(/^(?:step|point)\s*[0-9]+[\s:.-]*/i, '').trim() || rawText;
-      lines.push(`## Step ${block.stepNumber || 1}: ${cutPrefix}${cleanStepText}${cutSuffix}\n`);
+      const cleanStep = (block.title || '')
+        .replace(/^(?:##\s*)?(?:step|point)\s*[0-9]+[\s:.-]*/i, '')
+        .replace(/^[-—–:]\s*/, '')
+        .trim();
+      lines.push(`## Step ${block.stepNumber || 1}: ${cleanStep || block.title || ''}`);
+      if (block.sentences && block.sentences.length > 0) {
+        for (const sent of block.sentences) {
+          if (sent.text !== block.title) {
+            lines.push(sent.action === 'cut' ? `~~${sent.text}~~ [CUT - RETAKE]` : sent.text);
+          }
+        }
+      } else if (block.text && block.text !== block.title) {
+        lines.push(block.text);
+      }
+      lines.push('');
     } else {
-      lines.push(`${cutPrefix}${block.text}${cutSuffix}\n`);
+      if (block.title && block.title !== 'Introduction' && block.title !== 'Voiceover Script') {
+        lines.push(`### ${block.title}`);
+      }
+      if (block.sentences && block.sentences.length > 0) {
+        for (const sent of block.sentences) {
+          lines.push(sent.action === 'cut' ? `~~${sent.text}~~ [CUT - RETAKE]` : sent.text);
+        }
+      } else {
+        lines.push(block.text);
+      }
+      lines.push('');
     }
   }
 
@@ -210,71 +272,100 @@ export function blocksToMarkdown(blocks: StructuredScriptBlock[]): string {
 /**
  * Parse Markdown or user-pasted text into structured blocks
  * with Headings (#, ##), Steps, and Explanations.
+ *
+ * CRITICAL FIX: Groups all explanation lines under their parent Step or Heading,
+ * so pasting a 10-step, 250-line script creates ~10-12 clean sections,
+ * NOT 250 separate cards!
  */
 export function parsePastedScriptToBlocks(pastedText: string): StructuredScriptBlock[] {
-  const lines = pastedText.split('\n').map((l) => l.trim()).filter(Boolean);
+  const rawLines = pastedText.split('\n').map((l) => l.trim());
   const blocks: StructuredScriptBlock[] = [];
   let blockIdx = 0;
   let stepCounter = 0;
+  let activeBlock: StructuredScriptBlock | null = null;
 
-  for (const line of lines) {
-    if (line.startsWith('# ')) {
-      blocks.push({
-        id: `pasted-block-${blockIdx++}`,
-        type: 'heading',
-        headingLevel: 1,
-        title: line.replace(/^#\s+/, ''),
-        text: line.replace(/^#\s+/, ''),
+  for (let i = 0; i < rawLines.length; i++) {
+    const line = rawLines[i];
+    if (!line) continue;
+
+    // Check Heading: # or ## or ###
+    const isHeading1 = line.startsWith('# ');
+    const isHeading2 = line.startsWith('## ') || line.startsWith('### ');
+    const stepMatch =
+      line.match(/^(?:##\s*)?(?:step|point)\s*([0-9]+)[\s:.-]+(.*)/i) ||
+      line.match(/^step\s*([0-9]+)\b/i);
+
+    if (stepMatch) {
+      stepCounter++;
+      const stepNum = parseInt(stepMatch[1], 10) || stepCounter;
+      const cleanTitle = line.replace(/^###?\s+/, '').trim();
+      activeBlock = {
+        id: `block-${blockIdx++}`,
+        type: 'step',
+        stepNumber: stepNum,
+        title: cleanTitle,
+        text: cleanTitle,
         segmentIds: [],
+        sentences: [],
         action: 'keep',
-      });
-    } else if (line.startsWith('## ') || line.startsWith('### ')) {
-      const isSubHeading = line.startsWith('### ');
-      const cleanTitle = line.replace(/^###?\s+/, '');
-      const stepMatch = cleanTitle.match(/^step\s*([0-9]+)[\s:.-](.*)/i);
+      };
+      blocks.push(activeBlock);
+    } else if (isHeading1 || isHeading2) {
+      const cleanTitle = line.replace(/^#+\s*/, '').trim();
+      activeBlock = {
+        id: `block-${blockIdx++}`,
+        type: 'heading',
+        headingLevel: isHeading1 ? 1 : 2,
+        title: cleanTitle,
+        text: cleanTitle,
+        segmentIds: [],
+        sentences: [],
+        action: 'keep',
+      };
+      blocks.push(activeBlock);
+    } else {
+      // Normal explanation / sentence line
+      if (!activeBlock) {
+        activeBlock = {
+          id: `block-${blockIdx++}`,
+          type: 'explanation',
+          title: 'Introduction',
+          text: '',
+          segmentIds: [],
+          sentences: [],
+          action: 'keep',
+        };
+        blocks.push(activeBlock);
+      }
 
-      if (stepMatch) {
-        stepCounter++;
-        blocks.push({
-          id: `pasted-block-${blockIdx++}`,
-          type: 'step',
-          stepNumber: parseInt(stepMatch[1], 10) || stepCounter,
-          title: cleanTitle,
-          text: stepMatch[2].trim() || cleanTitle,
-          segmentIds: [],
-          action: 'keep',
-        });
-      } else {
-        blocks.push({
-          id: `pasted-block-${blockIdx++}`,
-          type: 'heading',
-          headingLevel: isSubHeading ? 3 : 2,
-          title: cleanTitle,
-          text: cleanTitle,
-          segmentIds: [],
-          action: 'keep',
+      const sentences = splitIntoSentences(line);
+      for (const sent of sentences) {
+        activeBlock.sentences!.push({
+          id: `sent-${blockIdx}-${activeBlock.sentences!.length}`,
+          text: sent,
+          action: 'keep', // Default: preserve user's intended script
         });
       }
-    } else if (/^(?:step|point)\s*([0-9]+)[\s:.-]/i.test(line)) {
-      stepCounter++;
-      blocks.push({
-        id: `pasted-block-${blockIdx++}`,
-        type: 'step',
-        stepNumber: stepCounter,
-        title: line,
-        text: line,
-        segmentIds: [],
-        action: 'keep',
-      });
-    } else {
-      blocks.push({
-        id: `pasted-block-${blockIdx++}`,
-        type: 'explanation',
-        text: line,
-        segmentIds: [],
-        action: 'keep',
-      });
+      activeBlock.text = activeBlock.text ? `${activeBlock.text} ${line}` : line;
     }
+  }
+
+  // Fallback if no blocks were parsed
+  if (blocks.length === 0 && pastedText.trim()) {
+    const sentences = splitIntoSentences(pastedText.trim()).map((s, idx) => ({
+      id: `sent-0-${idx}`,
+      text: s,
+      action: 'keep' as const,
+    }));
+    blocks.push({
+      id: `block-${blockIdx++}`,
+      type: 'explanation',
+      title: 'Pasted Script',
+      text: pastedText.trim(),
+      segmentIds: [],
+      sentences,
+      action: 'keep',
+    });
   }
 
   return blocks;
@@ -300,8 +391,9 @@ function tokenSimilarity(a: string, b: string): number {
 
 /**
  * Aligns audio transcript segments with user's pasted script.
- * - Matches which spoken segments match the user's intended script.
- * - Flags extra takes, false starts, and out-of-script stumbles as 'cut'.
+ * - Matches spoken segments against the user's canonical script.
+ * - Flags extra takes, false starts, and repeated stumbles in audio as 'cut'.
+ * - GUARANTEE: Never cuts canonical script sentences by mistake.
  */
 export function alignPastedScriptWithAudio(
   pastedScript: string,
@@ -323,17 +415,41 @@ export function alignPastedScriptWithAudio(
 
   const updatedSegments = segments.map((s) => ({ ...s }));
 
-  // For each block in the user's intended script, find the best-matching spoken segment(s)
-  let curSegmentIndex = 0;
+  // Collect all target sentences across all script blocks
+  type TargetItem = {
+    block: StructuredScriptBlock;
+    sentence: ScriptBlockSentence;
+  };
+  const targetItems: TargetItem[] = [];
 
   for (const block of scriptBlocks) {
-    const blockText = block.text;
+    if (block.sentences && block.sentences.length > 0) {
+      for (const sent of block.sentences) {
+        targetItems.push({ block, sentence: sent });
+      }
+    } else {
+      const titleSentence: ScriptBlockSentence = {
+        id: `title-${block.id}`,
+        text: block.title || block.text,
+        action: 'keep',
+      };
+      if (!block.sentences) block.sentences = [];
+      block.sentences.push(titleSentence);
+      targetItems.push({ block, sentence: titleSentence });
+    }
+  }
+
+  let curSegmentIndex = 0;
+
+  for (const item of targetItems) {
+    const targetText = item.sentence.text;
     let bestSegIdx = -1;
     let bestScore = 0;
 
-    // Search forward from curSegmentIndex in audio segments
-    for (let i = curSegmentIndex; i < Math.min(updatedSegments.length, curSegmentIndex + 8); i++) {
-      const score = tokenSimilarity(blockText, updatedSegments[i].text);
+    // Search forward in speech segments (lookahead up to 10 segments)
+    const maxLookahead = Math.min(updatedSegments.length, curSegmentIndex + 10);
+    for (let i = curSegmentIndex; i < maxLookahead; i++) {
+      const score = tokenSimilarity(targetText, updatedSegments[i].text);
       if (score > bestScore) {
         bestScore = score;
         bestSegIdx = i;
@@ -341,7 +457,7 @@ export function alignPastedScriptWithAudio(
     }
 
     if (bestSegIdx !== -1 && bestScore >= 0.25) {
-      // Any segments between curSegmentIndex and bestSegIdx that were discarded are likely stumbles/retakes
+      // Any speech segments skipped between curSegmentIndex and bestSegIdx are retakes / stumbles
       for (let k = curSegmentIndex; k < bestSegIdx; k++) {
         if (updatedSegments[k].action !== 'cut') {
           updatedSegments[k].action = 'cut';
@@ -349,12 +465,21 @@ export function alignPastedScriptWithAudio(
         }
       }
 
-      // Mark this segment as kept and associate with block
+      // Best take is kept and synchronized
       updatedSegments[bestSegIdx].action = 'keep';
-      block.segmentIds.push(updatedSegments[bestSegIdx].id);
-      block.start = updatedSegments[bestSegIdx].start;
-      block.end = updatedSegments[bestSegIdx].end;
+      item.sentence.start = updatedSegments[bestSegIdx].start;
+      item.sentence.end = updatedSegments[bestSegIdx].end;
+      item.sentence.action = 'keep';
+
+      if (!item.block.segmentIds.includes(updatedSegments[bestSegIdx].id)) {
+        item.block.segmentIds.push(updatedSegments[bestSegIdx].id);
+      }
+
       curSegmentIndex = bestSegIdx + 1;
+    } else {
+      // USER MANDATE: AI does NOT accidentally cut valid script sentences!
+      // Keep canonical sentence preserved even if exact match not found.
+      item.sentence.action = 'keep';
     }
   }
 

@@ -33,6 +33,8 @@ export type AudioCleanOptions = {
   noiseReduction: boolean;
   volumeNormalize: boolean;
   trimEnds?: boolean;
+  playbackSpeed?: number;
+  speed?: number;
 };
 
 export type AudioCleanSegment = {
@@ -41,13 +43,13 @@ export type AudioCleanSegment = {
   end: number;
   text: string;
   action: 'keep' | 'cut';
-  reason?: 'repeat' | 'mistake' | 'silence' | 'filler';
+  reason?: 'repeat' | 'mistake' | 'silence' | 'filler' | 'stumble' | 'false-start' | 'user';
 };
 
 export type CutInterval = {
   start: number;
   end: number;
-  reason: 'repeat' | 'mistake' | 'silence' | 'filler';
+  reason: 'repeat' | 'mistake' | 'silence' | 'filler' | 'stumble' | 'false-start' | 'user';
   text?: string;
 };
 
@@ -93,6 +95,28 @@ const FILLER_WORDS = new Set([
   // Hinglish / Hindi fillers
   'matlab', 'toh', 'hai na', 'dekho', 'acha', 'suno', 'woh',
 ]);
+
+const HESITATION_TOKENS = new Set([
+  'so', 'um', 'uh', 'uhh', 'umm', 'hmm', 'hm', 'like', 'literally',
+  'basically', 'actually', 'matlab', 'toh', 'aur', 'and', 'woh', 'dekho',
+]);
+
+const STOP_WORD_TOKENS = new Set([
+  'a', 'an', 'the', 'in', 'on', 'at', 'to', 'for', 'of', 'and', 'or', 'is', 'it', 'you', 'we', 'that', 'this',
+]);
+
+function cleanWordToken(w: string): string {
+  return String(w || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function stemWordToken(w: string): string {
+  const c = cleanWordToken(w);
+  if (c.endsWith('ing') && c.length > 5) return c.slice(0, -3);
+  if (c.endsWith('ed') && c.length > 4) return c.slice(0, -2);
+  if (c.endsWith('es') && c.length > 4) return c.slice(0, -2);
+  if (c.endsWith('s') && c.length > 3) return c.slice(0, -1);
+  return c;
+}
 
 function cleanText(text: string): string {
   return String(text || '')
@@ -159,62 +183,287 @@ export function analyzeAudioScript(
 
   const fullText = String(transcript?.transcript || rawSegments.map((s) => s.text).join(' ')).trim();
 
-  let sourceSegments: Array<{ id: string; start: number; end: number; text: string }> = [];
-  if (rawSegments.length > 0) {
-    sourceSegments = rawSegments.map((s, idx) => ({
-      id: `seg-${idx}`,
-      start: Number(s.start || 0),
-      end: Number(s.end || 0),
-      text: String(s.text || '').trim(),
-    }));
-  } else if (words.length > 0) {
-    let curStart = words[0].start;
-    let curWords: string[] = [];
-    let segIdx = 0;
-    for (let i = 0; i < words.length; i++) {
-      const w = words[i];
-      curWords.push(w.word);
-      const isEnd = /[.?!]$/.test(w.word) || (i < words.length - 1 && words[i + 1].start - w.end > 0.8) || i === words.length - 1;
-      if (isEnd) {
-        sourceSegments.push({
-          id: `seg-${segIdx++}`,
-          start: curStart,
-          end: w.end,
-          text: curWords.join(' '),
-        });
-        curWords = [];
-        if (i < words.length - 1) {
-          curStart = words[i + 1].start;
-        }
-      }
-    }
-  } else {
-    sourceSegments = [{
-      id: 'seg-0',
-      start: 0,
-      end: duration,
-      text: fullText,
-    }];
-  }
-
-  // Track actions on segments
-  const segments: AudioCleanSegment[] = sourceSegments.map((s) => ({
-    ...s,
-    action: 'keep' as const,
-  }));
+  const wordCuts: Array<{
+    startIndex: number;
+    endIndex: number;
+    start: number;
+    end: number;
+    reason: 'repeat' | 'mistake' | 'filler';
+    text: string;
+  }> = [];
 
   let repeatedTakesCount = 0;
   let silenceCount = 0;
   let fillerCount = 0;
 
-  // 1. Detect Repeated Sentences / Retakes
-  // Look forward within a 35-second window. If segment i is highly similar to segment j (j > i),
-  // segment i is marked as a flawed prior take ('repeat' or 'mistake') and segment j is kept.
+  if (words.length > 0) {
+    // Pass 1: Stutter with hesitation in between (e.g. "let's so let's start")
+    if (options.removeRepeats) {
+      for (let i = 0; i < words.length - 2; i++) {
+        const w0 = cleanWordToken(words[i].word);
+        const w1 = cleanWordToken(words[i + 1].word);
+        const w2 = cleanWordToken(words[i + 2].word);
+        if (w0 && w0 === w2 && (HESITATION_TOKENS.has(w1) || words[i + 2].start - words[i + 1].end < 1.0)) {
+          wordCuts.push({
+            startIndex: i,
+            endIndex: i + 2,
+            start: words[i].start,
+            end: words[i + 2].start,
+            reason: 'repeat',
+            text: `${words[i].word} ${words[i + 1].word}`,
+          });
+          repeatedTakesCount++;
+          i += 1;
+        }
+      }
+    }
+
+    // Pass 2: Immediate repeated N-gram phrases (N from 8 down to 1)
+    if (options.removeRepeats) {
+      for (let n = 8; n >= 1; n--) {
+        let i = 0;
+        while (i <= words.length - 2 * n) {
+          const phrase1 = words.slice(i, i + n).map((w) => cleanWordToken(w.word)).join(' ');
+          const phrase2 = words.slice(i + n, i + 2 * n).map((w) => cleanWordToken(w.word)).join(' ');
+
+          if (phrase1 && phrase1 === phrase2) {
+            const hasContent = words.slice(i, i + n).some((w) => !STOP_WORD_TOKENS.has(cleanWordToken(w.word)));
+            if (hasContent) {
+              const cutStart = words[i].start;
+              const cutEnd = words[i + n].start;
+              const already = wordCuts.some(
+                (c) => (cutStart >= c.start && cutStart < c.end) || (cutEnd > c.start && cutEnd <= c.end)
+              );
+              if (!already) {
+                wordCuts.push({
+                  startIndex: i,
+                  endIndex: i + n,
+                  start: cutStart,
+                  end: cutEnd,
+                  reason: 'repeat',
+                  text: words.slice(i, i + n).map((w) => w.word).join(' '),
+                });
+                repeatedTakesCount++;
+                i += 2 * n;
+                continue;
+              }
+            }
+          }
+          i++;
+        }
+      }
+    }
+
+    // Pass 3: Flawed tongue-twister / stumbled near-duplicate takes (e.g. "no getting quick rich promises" -> "no get rich quick promises")
+    if (options.removeRepeats || options.removeFalseStarts) {
+      for (let i = 0; i < words.length - 6; i++) {
+        for (let len1 = 3; len1 <= 8; len1++) {
+          for (let len2 = 3; len2 <= 8; len2++) {
+            if (i + len1 + len2 > words.length) continue;
+            const slice1 = words.slice(i, i + len1);
+            const slice2 = words.slice(i + len1, i + len1 + len2);
+
+            const stems1 = slice1.map((w) => stemWordToken(w.word)).filter((s) => s && !STOP_WORD_TOKENS.has(s));
+            const stems2 = slice2.map((w) => stemWordToken(w.word)).filter((s) => s && !STOP_WORD_TOKENS.has(s));
+            if (stems1.length < 2 || stems2.length < 2) continue;
+
+            let matches = 0;
+            const set2 = new Set(stems2);
+            for (const s of stems1) {
+              if (set2.has(s)) matches++;
+            }
+
+            const overlapRatio = matches / Math.max(stems1.length, stems2.length);
+            if (overlapRatio >= 0.75) {
+              const cutStart = slice1[0].start;
+              const cutEnd = slice2[0].start;
+              const already = wordCuts.some(
+                (c) => (cutStart >= c.start && cutStart < c.end) || (cutEnd > c.start && cutEnd <= c.end)
+              );
+              if (!already) {
+                wordCuts.push({
+                  startIndex: i,
+                  endIndex: i + len1,
+                  start: cutStart,
+                  end: cutEnd,
+                  reason: 'mistake',
+                  text: slice1.map((w) => w.word).join(' '),
+                });
+                repeatedTakesCount++;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Pass 4: False start restart (e.g. "so your files" -> "so your first financial goal")
+    if (options.removeFalseStarts) {
+      for (let i = 0; i < words.length - 5; i++) {
+        for (let shortLen = 2; shortLen <= 4; shortLen++) {
+          for (let longLen = shortLen + 2; longLen <= 10; longLen++) {
+            if (i + shortLen + longLen > words.length) continue;
+            const prefix1 = words.slice(i, i + 2).map((w) => cleanWordToken(w.word)).join(' ');
+            const prefix2 = words.slice(i + shortLen, i + shortLen + 2).map((w) => cleanWordToken(w.word)).join(' ');
+            const gapBetween = words[i + shortLen].start - words[i + shortLen - 1].end;
+            if (gapBetween > 2.0) continue;
+
+            if (prefix1 && prefix1 === prefix2) {
+              const contentTail1 = words
+                .slice(i + 2, i + shortLen)
+                .map((w) => cleanWordToken(w.word))
+                .filter((w) => !STOP_WORD_TOKENS.has(w));
+              const contentTail2 = words
+                .slice(i + shortLen + 2, i + shortLen + 4)
+                .map((w) => cleanWordToken(w.word))
+                .filter((w) => !STOP_WORD_TOKENS.has(w));
+
+              if (!contentTail1.length || !contentTail2.length) continue;
+
+              const isPhoneticStumble = contentTail1.some((t1) =>
+                contentTail2.some((t2) => t1.slice(0, 2) === t2.slice(0, 2) || stemWordToken(t1) === stemWordToken(t2))
+              );
+              const isShortStutter = shortLen === 2;
+
+              if (isPhoneticStumble || isShortStutter) {
+                const cutStart = words[i].start;
+                const cutEnd = words[i + shortLen].start;
+                const already = wordCuts.some(
+                  (c) => (cutStart >= c.start && cutStart < c.end) || (cutEnd > c.start && cutEnd <= c.end)
+                );
+                if (!already) {
+                  wordCuts.push({
+                    startIndex: i,
+                    endIndex: i + shortLen,
+                    start: cutStart,
+                    end: cutEnd,
+                    reason: 'mistake',
+                    text: words.slice(i, i + shortLen).map((w) => w.word).join(' '),
+                  });
+                  repeatedTakesCount++;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Pass 5: Interrupted Take Restart across gap (e.g. "so your first financial goal should be simple..." restarted)
+    if (options.removeRepeats) {
+      for (let n = 8; n >= 6; n--) {
+        for (let i = 0; i <= words.length - n; i++) {
+          const phraseI = words.slice(i, i + n).map((w) => cleanWordToken(w.word)).join(' ');
+          if (!phraseI) continue;
+
+          for (let j = i + n; j <= Math.min(words.length - n, i + n + 15); j++) {
+            if (words[j].start - words[i].end > 25) break;
+            const phraseJ = words.slice(j, j + n).map((w) => cleanWordToken(w.word)).join(' ');
+            if (phraseI === phraseJ) {
+              const cutStart = words[i].start;
+              const cutEnd = words[j].start;
+              const already = wordCuts.some(
+                (c) => (cutStart >= c.start && cutStart < c.end) || (cutEnd > c.start && cutEnd <= c.end)
+              );
+              if (!already) {
+                wordCuts.push({
+                  startIndex: i,
+                  endIndex: j,
+                  start: cutStart,
+                  end: cutEnd,
+                  reason: 'repeat',
+                  text: words.slice(i, j).map((w) => w.word).join(' '),
+                });
+                repeatedTakesCount++;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    wordCuts.sort((a, b) => a.start - b.start);
+  }
+
+  // Now create clean segments from words and wordCuts
+  const segments: AudioCleanSegment[] = [];
+  if (words.length > 0) {
+    let wIdx = 0;
+    let segCounter = 0;
+
+    while (wIdx < words.length) {
+      // Check if wIdx matches the start of a cut
+      const matchingCut = wordCuts.find((c) => c.startIndex === wIdx);
+      if (matchingCut) {
+        segments.push({
+          id: `seg-${segCounter++}`,
+          start: matchingCut.start,
+          end: matchingCut.end,
+          text: matchingCut.text,
+          action: 'cut',
+          reason: matchingCut.reason,
+        });
+        wIdx = matchingCut.endIndex;
+        continue;
+      }
+
+      // Collect words for a natural spoken sentence
+      const curWords: string[] = [];
+      const segStart = words[wIdx].start;
+      let segEnd = words[wIdx].end;
+
+      while (wIdx < words.length) {
+        const nextIsCut = wordCuts.some((c) => c.startIndex === wIdx);
+        if (nextIsCut && curWords.length > 0) break;
+
+        const w = words[wIdx];
+        curWords.push(w.word);
+        segEnd = w.end;
+        wIdx++;
+
+        const isPunct = /[.?!]$/.test(w.word);
+        const isPause = wIdx < words.length && words[wIdx].start - w.end > 0.4;
+        const isSentenceEnd =
+          curWords.length >= 12 && (isPunct || isPause || (wIdx < words.length && words[wIdx].start - w.end > 0.28));
+        if (isSentenceEnd || (isPunct && curWords.length >= 4) || isPause) break;
+      }
+
+      if (curWords.length > 0) {
+        segments.push({
+          id: `seg-${segCounter++}`,
+          start: segStart,
+          end: segEnd,
+          text: curWords.join(' '),
+          action: 'keep',
+        });
+      }
+    }
+  } else if (rawSegments.length > 0) {
+    rawSegments.forEach((s, idx) => {
+      segments.push({
+        id: `seg-${idx}`,
+        start: Number(s.start || 0),
+        end: Number(s.end || 0),
+        text: String(s.text || '').trim(),
+        action: 'keep',
+      });
+    });
+  } else {
+    segments.push({
+      id: 'seg-0',
+      start: 0,
+      end: duration,
+      text: fullText,
+      action: 'keep',
+    });
+  }
+
+  // Cross-segment retake check for segments
   if (options.removeRepeats && segments.length > 1) {
     for (let i = 0; i < segments.length - 1; i++) {
       if (segments[i].action === 'cut') continue;
       const textI = cleanText(segments[i].text);
-      if (textI.split(' ').length < 2) continue; // Skip single words
+      if (textI.split(' ').length < 3) continue;
 
       for (let j = i + 1; j < segments.length; j++) {
         if (segments[j].start - segments[i].end > 35) break;
@@ -222,25 +471,11 @@ export function analyzeAudioScript(
         const textJ = cleanText(segments[j].text);
         const sim = computePhraseSimilarity(textI, textJ);
 
-        if (sim >= 0.65) {
+        if (sim >= 0.7) {
           segments[i].action = 'cut';
           segments[i].reason = 'repeat';
           repeatedTakesCount++;
           break;
-        }
-      }
-    }
-  }
-
-  // 2. Word-level repeated false-starts
-  if (options.removeFalseStarts && words.length > 4) {
-    for (let i = 0; i < words.length - 3; i++) {
-      const phrase1 = cleanText(words.slice(i, i + 2).map((w) => w.word).join(' '));
-      const phrase2 = cleanText(words.slice(i + 2, i + 4).map((w) => w.word).join(' '));
-      if (phrase1 && phrase1 === phrase2 && words[i + 2].start - words[i + 1].end < 2.0) {
-        const segIdx = segments.findIndex((s) => s.start <= words[i].start && s.end >= words[i + 1].end);
-        if (segIdx !== -1 && segments[segIdx].action === 'keep') {
-          repeatedTakesCount++;
         }
       }
     }
@@ -474,10 +709,24 @@ export async function cleanAudioWithAI({
       }
     }
 
-    // Background Noise Reduction (Optional)
+    // Background Noise Reduction (Studio Broadcast Multi-Stage Chain)
     if (options.noiseReduction) {
-      filterParts.push(`[${audioOutLabel}]afftdn=nf=-25[anoise]`);
+      filterParts.push(
+        `[${audioOutLabel}]highpass=f=80,lowpass=f=12000,afftdn=nr=18:nf=-30:tn=1,agate=threshold=0.015:ratio=3:range=0.05:attack=10:release=150,equalizer=f=3000:t=q:w=1:g=2,equalizer=f=400:t=q:w=1:g=-2[anoise]`
+      );
       audioOutLabel = 'anoise';
+    }
+
+    // Playback Speed Adjustment (1.0x, 1.25x, 1.5x with pitch-preservation)
+    const speed =
+      typeof options.playbackSpeed === 'number' && options.playbackSpeed > 0
+        ? options.playbackSpeed
+        : typeof options.speed === 'number' && options.speed > 0
+          ? options.speed
+          : 1.0;
+    if (speed !== 1.0) {
+      filterParts.push(`[${audioOutLabel}]atempo=${speed.toFixed(2)}[aspeed]`);
+      audioOutLabel = 'aspeed';
     }
 
     // Voice Volume Normalization (EBU R128 Standard)
@@ -498,12 +747,14 @@ export async function cleanAudioWithAI({
 
     ffmpegArgs.push(
       '-c:a', 'libmp3lame',
-      '-b:a', '192k',
-      '-ar', '44100',
+      '-b:a', '256k',
+      '-ar', '48000',
+      '-id3v2_version', '3',
+      '-write_xing', '1',
       outputAudioPath
     );
 
-    console.log('[AUDIO_CLEAN] Running FFmpeg with filters:', filterParts.length);
+    console.log('[AUDIO_CLEAN] Running FFmpeg with filters:', filterParts.length, 'speed:', speed);
     await runFfmpeg(ffmpegPath, ffmpegArgs);
 
     // 5. Read processed audio and upload to S3
@@ -511,7 +762,7 @@ export async function cleanAudioWithAI({
     const { key } = await uploadTemporaryMediaObject({
       body: cleanedBytes,
       contentType: 'audio/mpeg',
-      fileName: 'cleaned-audio.mp3',
+      fileName: speed !== 1.0 ? `cleaned-audio-${speed}x.mp3` : 'cleaned-audio.mp3',
       mode: 'audio',
       userId,
       purpose: 'audio-clean',
@@ -520,7 +771,10 @@ export async function cleanAudioWithAI({
     const outputUrl = await createReadUrl(key, 48 * 60 * 60);
 
     const secondsSaved = cuts.reduce((sum, c) => sum + Math.max(0, c.end - c.start), 0);
-    const cleanedDuration = Math.max(1, Number((duration - secondsSaved).toFixed(1)));
+    const probedOutputDuration = await probeAudioDuration(outputAudioPath);
+    const cleanedDuration = probedOutputDuration && probedOutputDuration > 0
+      ? probedOutputDuration
+      : Math.max(1, Number(((duration - secondsSaved) / speed).toFixed(1)));
 
     return {
       ok: true,

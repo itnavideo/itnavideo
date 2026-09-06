@@ -1,29 +1,36 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState, useTransition, useMemo } from "react";
 import {
   Mic,
   FileText,
   Upload,
   CheckCircle2,
   Download,
-  Scissors,
   Sparkles,
   RefreshCw,
   Hash,
   ListOrdered,
   AlignLeft,
   Volume2,
-  Trash2,
   Play,
+  Pause,
   RotateCcw,
   Check,
   ChevronDown,
-  Code2,
   Layers,
+  Copy,
+  Scissors,
+  Sliders,
+  ShieldCheck,
+  Music2,
+  FileAudio,
+  AlertCircle,
+  HelpCircle,
 } from "lucide-react";
-import type { AudioCleanOptions, AudioCleanSegment } from "@/services/ai/audioCleanService";
-import type { StructuredScriptBlock } from "@/services/ai/structuredScriptService";
+import type { AudioCleanSegment } from "@/services/ai/audioCleanService";
+import type { StructuredScriptBlock, ScriptBlockSentence } from "@/services/ai/structuredScriptService";
+import { blocksToMarkdown } from "@/services/ai/structuredScriptService";
 
 interface AudioCleanStudioProps {
   selectedFile: File | null;
@@ -83,37 +90,62 @@ export function AudioCleanStudio({
   // Option 2: Paste script and align
   const [activeTab, setActiveTab] = useState<"auto" | "paste">("auto");
   const [pastedScript, setPastedScript] = useState("");
-  const [editorView, setEditorView] = useState<"blocks" | "markdown">("blocks");
-  const [isPending, startTransition] = useTransition();
+  const [editorView, setEditorView] = useState<"document" | "markdown">("document");
+  const [copiedScript, setCopiedScript] = useState(false);
 
-  // Toggle Keep/Cut for a specific segment
-  const handleToggleSegment = (segmentId: string) => {
-    if (!audioCleanAnalysis) return;
-    const updatedSegments = audioCleanAnalysis.segments.map((seg) => {
-      if (seg.id === segmentId) {
+  // Format seconds to mm:ss
+  const formatTime = (seconds: number) => {
+    if (!seconds || isNaN(seconds)) return "00:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  // Toggle sentence cut/keep inside a block
+  const handleToggleSentence = (blockIndex: number, sentenceId: string, segmentId?: string) => {
+    if (!audioCleanAnalysis?.structuredBlocks) return;
+
+    const blocks = [...audioCleanAnalysis.structuredBlocks];
+    const targetBlock = blocks[blockIndex];
+    if (!targetBlock) return;
+
+    let targetAction: "keep" | "cut" = "keep";
+
+    // Update sentence in block
+    if (targetBlock.sentences && targetBlock.sentences.length > 0) {
+      targetBlock.sentences = targetBlock.sentences.map((sent) => {
+        if (sent.id === sentenceId || (segmentId && sent.id === segmentId)) {
+          const newAct = (sent.action === "cut" ? "keep" : "cut") as "keep" | "cut";
+          targetAction = newAct;
+          return {
+            ...sent,
+            action: newAct,
+            reason: newAct === "cut" ? ("repeat" as const) : undefined,
+          };
+        }
+        return sent;
+      });
+    }
+
+    // Update corresponding segments in audioCleanAnalysis.segments
+    const updatedSegments = (audioCleanAnalysis.segments || []).map((seg) => {
+      if (seg.id === sentenceId || (segmentId && seg.id === segmentId)) {
         return {
           ...seg,
-          action: (seg.action === "cut" ? "keep" : "cut") as "keep" | "cut",
-          reason: seg.action === "cut" ? undefined : ("repeat" as const),
+          action: targetAction,
+          reason: targetAction === "cut" ? ("repeat" as const) : undefined,
         };
       }
       return seg;
     });
 
-    // Update corresponding structured block action
-    const updatedBlocks = (audioCleanAnalysis.structuredBlocks || []).map((blk) => {
-      if (blk.segmentIds.includes(segmentId)) {
-        const blkSegs = updatedSegments.filter((s) => blk.segmentIds.includes(s.id));
-        const allCut = blkSegs.length > 0 && blkSegs.every((s) => s.action === "cut");
-        return {
-          ...blk,
-          action: (allCut ? "cut" : "keep") as "keep" | "cut",
-        };
-      }
-      return blk;
-    });
+    // Check if entire block is cut
+    const allSentencesCut =
+      targetBlock.sentences &&
+      targetBlock.sentences.length > 0 &&
+      targetBlock.sentences.every((s) => s.action === "cut");
+    targetBlock.action = allSentencesCut ? "cut" : "keep";
 
-    // Recalculate stats
     let totalCutSeconds = 0;
     for (const seg of updatedSegments) {
       if (seg.action === "cut") {
@@ -128,8 +160,9 @@ export function AudioCleanStudio({
     setAudioCleanAnalysis({
       ...audioCleanAnalysis,
       segments: updatedSegments,
-      structuredBlocks: updatedBlocks,
+      structuredBlocks: blocks,
       estimatedCleanDuration: cleanDuration,
+      markdown: blocksToMarkdown(blocks),
       stats: {
         ...audioCleanAnalysis.stats,
         repeatedTakesCount: updatedSegments.filter(
@@ -140,711 +173,650 @@ export function AudioCleanStudio({
     });
   };
 
-  // Change block type (Heading #, Step, Explanation)
-  const handleChangeBlockType = (blockId: string, newType: "heading" | "step" | "explanation") => {
-    if (!audioCleanAnalysis || !audioCleanAnalysis.structuredBlocks) return;
-    const updatedBlocks = audioCleanAnalysis.structuredBlocks.map((blk) => {
-      if (blk.id === blockId) {
-        return {
-          ...blk,
-          type: newType,
-          headingLevel: newType === "heading" ? (blk.headingLevel || 1) : undefined,
-          stepNumber: newType === "step" ? (blk.stepNumber || 1) : undefined,
-        };
-      }
-      return blk;
-    });
+  const handleChangeBlockType = (blockIndex: number, newType: "heading" | "step" | "explanation") => {
+    if (!audioCleanAnalysis?.structuredBlocks) return;
+    const blocks = [...audioCleanAnalysis.structuredBlocks];
+    if (!blocks[blockIndex]) return;
+
+    blocks[blockIndex] = {
+      ...blocks[blockIndex],
+      type: newType,
+      title:
+        newType === "heading" && !blocks[blockIndex].title
+          ? blocks[blockIndex].text?.slice(0, 50) || "Section Heading"
+          : newType === "step" && !blocks[blockIndex].title
+            ? `Step ${blockIndex + 1}: ${blocks[blockIndex].text?.slice(0, 40) || "Action point"}`
+            : blocks[blockIndex].title,
+    };
+
     setAudioCleanAnalysis({
       ...audioCleanAnalysis,
-      structuredBlocks: updatedBlocks,
+      structuredBlocks: blocks,
+      markdown: blocksToMarkdown(blocks),
     });
   };
 
-  // Edit block text inline
-  const handleEditBlockText = (blockId: string, newText: string) => {
-    if (!audioCleanAnalysis || !audioCleanAnalysis.structuredBlocks) return;
-    const updatedBlocks = audioCleanAnalysis.structuredBlocks.map((blk) => {
-      if (blk.id === blockId) {
-        return {
-          ...blk,
-          text: newText,
-          title: blk.type !== "explanation" ? newText : blk.title,
-        };
-      }
-      return blk;
-    });
+  const handleEditTitle = (blockIndex: number, newTitle: string) => {
+    if (!audioCleanAnalysis?.structuredBlocks) return;
+    const blocks = [...audioCleanAnalysis.structuredBlocks];
+    if (!blocks[blockIndex]) return;
+    blocks[blockIndex] = { ...blocks[blockIndex], title: newTitle };
     setAudioCleanAnalysis({
       ...audioCleanAnalysis,
-      structuredBlocks: updatedBlocks,
+      structuredBlocks: blocks,
+      markdown: blocksToMarkdown(blocks),
     });
   };
 
-  // Toggle Cut/Keep for an entire block
-  const handleToggleBlockAction = (block: StructuredScriptBlock) => {
-    if (!audioCleanAnalysis) return;
-    const newAction = block.action === "cut" ? "keep" : "cut";
-    const segmentIdsSet = new Set(block.segmentIds);
-
-    const updatedSegments = audioCleanAnalysis.segments.map((seg) => {
-      if (segmentIdsSet.has(seg.id)) {
-        return {
-          ...seg,
-          action: newAction as "keep" | "cut",
-          reason: newAction === "cut" ? ("repeat" as const) : undefined,
-        };
-      }
-      return seg;
-    });
-
-    const updatedBlocks = (audioCleanAnalysis.structuredBlocks || []).map((b) => {
-      if (b.id === block.id) {
-        return { ...b, action: newAction as "keep" | "cut" };
-      }
-      return b;
-    });
-
-    let totalCutSeconds = 0;
-    for (const seg of updatedSegments) {
-      if (seg.action === "cut") {
-        totalCutSeconds += Math.max(0, seg.end - seg.start);
-      }
+  const handleCopyScript = () => {
+    const textToCopy =
+      audioCleanAnalysis?.markdown ||
+      (audioCleanAnalysis?.structuredBlocks
+        ? blocksToMarkdown(audioCleanAnalysis.structuredBlocks)
+        : audioCleanAnalysis?.transcript || "");
+    if (textToCopy) {
+      navigator.clipboard.writeText(textToCopy);
+      setCopiedScript(true);
+      setTimeout(() => setCopiedScript(false), 2000);
     }
-    const cleanDuration = Math.max(
-      1,
-      Number((audioCleanAnalysis.originalDuration - totalCutSeconds).toFixed(1))
-    );
-
-    setAudioCleanAnalysis({
-      ...audioCleanAnalysis,
-      segments: updatedSegments,
-      structuredBlocks: updatedBlocks,
-      estimatedCleanDuration: cleanDuration,
-      stats: {
-        ...audioCleanAnalysis.stats,
-        secondsSaved: Number(totalCutSeconds.toFixed(1)),
-      },
-    });
   };
+
+  const handleToggleOption = (key: string) => {
+    setAudioCleanOptions((prev: any) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
+
+  const wordCount = useMemo(() => {
+    if (audioCleanAnalysis?.stats?.totalWords) return audioCleanAnalysis.stats.totalWords;
+    if (audioCleanAnalysis?.transcript) {
+      return audioCleanAnalysis.transcript.trim().split(/\s+/).filter(Boolean).length;
+    }
+    return 0;
+  }, [audioCleanAnalysis]);
+
+  const blocksCount = audioCleanAnalysis?.structuredBlocks?.length || 0;
+  const stepsCount = (audioCleanAnalysis?.structuredBlocks || []).filter((b) => b.type === "step").length;
 
   return (
-    <div className="space-y-6">
-      {/* ── 2 Main Options Selector ── */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <button
-          type="button"
-          onClick={() => setActiveTab("auto")}
-          className={`relative flex items-start gap-3.5 rounded-2xl border p-4 text-left transition-all ${
-            activeTab === "auto"
-              ? "border-orange-500 bg-orange-500/10 shadow-lg shadow-orange-950/30"
-              : "border-white/10 bg-zinc-900/60 hover:border-white/20 hover:bg-zinc-900"
-          }`}
-        >
-          <div
-            className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl border ${
-              activeTab === "auto"
-                ? "border-orange-500/40 bg-orange-500/20 text-orange-400"
-                : "border-white/10 bg-zinc-800 text-zinc-400"
-            }`}
-          >
-            <Mic size={20} />
-          </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-black text-white">
-                1. Audio se Structured Script
-              </span>
-              {activeTab === "auto" && (
-                <span className="rounded-full bg-orange-500/20 px-2 py-0.5 text-[9px] font-bold text-orange-400">
-                  Active
-                </span>
-              )}
+    <div className="w-full space-y-6">
+      {/* 1. TOP HEADER & WORKFLOW SELECTOR */}
+      <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#1a1822] p-6 shadow-2xl sm:p-8">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-1.5">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#d0bcff]/20 bg-[#381e72]/40 px-3.5 py-1 text-xs font-semibold text-[#eaddff]">
+              <Sparkles size={13} className="text-[#d0bcff]" />
+              AI Voiceover Cleaning & Script Studio
             </div>
-            <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-              Audio upload karein. AI auto-detect karke <b className="text-zinc-200"># Headings</b>, <b className="text-zinc-200">Steps</b> aur <b className="text-zinc-200">Explanations</b> ka structured script dega.
+            <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+              Clean Studio Voiceover & Script Review
+            </h2>
+            <p className="max-w-2xl text-xs sm:text-sm leading-relaxed text-[#ccc2dc]">
+              Upload your raw voiceover audio. AI detects retakes, repeated mistakes, and dead silences,
+              giving you a broadcast-mastered MP3 without cutting valid sentences.
             </p>
           </div>
-        </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveTab("paste")}
-          className={`relative flex items-start gap-3.5 rounded-2xl border p-4 text-left transition-all ${
-            activeTab === "paste"
-              ? "border-sky-500 bg-sky-500/10 shadow-lg shadow-sky-950/30"
-              : "border-white/10 bg-zinc-900/60 hover:border-white/20 hover:bg-zinc-900"
-          }`}
-        >
-          <div
-            className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl border ${
-              activeTab === "paste"
-                ? "border-sky-500/40 bg-sky-500/20 text-sky-400"
-                : "border-white/10 bg-zinc-800 text-zinc-400"
-            }`}
-          >
-            <FileText size={20} />
+          {/* TWO CLEAR OPTIONS */}
+          <div className="inline-flex rounded-full border border-white/10 bg-[#121118] p-1.5 shadow-inner">
+            <button
+              type="button"
+              onClick={() => setActiveTab("auto")}
+              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all ${
+                activeTab === "auto"
+                  ? "border border-[#d0bcff]/40 bg-[#381e72] text-[#eaddff] shadow-md"
+                  : "text-[#cac4d0] hover:text-white"
+              }`}
+            >
+              <Mic size={14} />
+              Option 1: Extract Script from Audio
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("paste")}
+              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all ${
+                activeTab === "paste"
+                  ? "border border-[#d0bcff]/40 bg-[#381e72] text-[#eaddff] shadow-md"
+                  : "text-[#cac4d0] hover:text-white"
+              }`}
+            >
+              <FileText size={14} />
+              Option 2: Paste My Script
+            </button>
           </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-black text-white">
-                2. Paste Apna Script
-              </span>
-              {activeTab === "paste" && (
-                <span className="rounded-full bg-sky-500/20 px-2 py-0.5 text-[9px] font-bold text-sky-400">
-                  Active
-                </span>
-              )}
+        </div>
+
+        {/* AUDIO UPLOAD BOX */}
+        <div className="mt-6 rounded-2xl border border-white/10 bg-[#22202c] p-4 transition hover:border-white/20">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#381e72]/60 text-[#d0bcff] shadow-md">
+                <FileAudio size={24} />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="truncate text-sm font-semibold text-white">
+                    {selectedFile ? selectedFile.name : "Upload Voiceover Audio File"}
+                  </p>
+                  {selectedFile && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[11px] font-bold text-emerald-400 border border-emerald-500/30">
+                      <Check size={11} /> Audio Ready
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-[#cac4d0]">
+                  {selectedFile
+                    ? `${(selectedFile.size / (1024 * 1024)).toFixed(1)} MB • Up to 60 min supported (M4A, MP3, WAV, AAC)`
+                    : "Supports MP3, M4A, WAV, AAC, MP4, MOV (Up to 60 minutes full duration)"}
+                </p>
+              </div>
             </div>
-            <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-              Apna pehle se likha script paste karein (# Headings aur Steps ke sath). AI audio speech ko script se align karega aur retakes cut karega.
-            </p>
-          </div>
-        </button>
-      </div>
 
-      {/* ── Option 2: Pasted Script Input Box ── */}
-      {activeTab === "paste" && (
-        <div className="rounded-2xl border border-sky-500/20 bg-sky-950/20 p-4 sm:p-5 space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <Code2 size={16} className="text-sky-400" />
-              <label htmlFor="pasted-script-input" className="text-xs font-black uppercase tracking-wider text-sky-200">
-                Pasted Script with Headings (#) & Steps
+              <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-white/15 bg-[#2b2837] px-4 py-2 text-xs font-semibold text-[#eaddff] transition hover:bg-[#363345] hover:border-[#d0bcff]/30">
+                <Upload size={14} />
+                {selectedFile ? "Change Audio" : "Select Audio File"}
+                <input
+                  type="file"
+                  accept="audio/*,video/*,.mp3,.m4a,.wav,.aac,.mp4,.mov"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) onSelectFile(file);
+                  }}
+                />
               </label>
             </div>
-            <span className="text-[11px] text-muted-foreground">
-              Format: <code className="text-sky-300"># Heading</code>, <code className="text-amber-300">## Step 1</code>, explanation lines
-            </span>
           </div>
-          <textarea
-            id="pasted-script-input"
-            rows={5}
-            value={pastedScript}
-            onChange={(e) => setPastedScript(e.target.value)}
-            placeholder={`# Hook / Intro\nAaj ke video me hum 3 secret growth tips dekhenge.\n\n## Step 1: Target Audience\nPehle apne niche ke exact audience ko identify karein.\n\n## Step 2: High Retention Hook\nStarting ke 3 seconds me viewers ka interest grab karein.`}
-            className="w-full resize-y rounded-xl border border-white/10 bg-black/40 p-3.5 text-xs font-mono text-zinc-200 placeholder:text-zinc-600 focus:border-sky-500/60 focus:outline-none focus:ring-1 focus:ring-sky-500/40"
-          />
-          {selectedFile && onReanalyzeWithScript && (
-            <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={() => {
-                  if (pastedScript.trim()) {
-                    onReanalyzeWithScript(pastedScript.trim());
-                  }
-                }}
-                disabled={isAnalyzingAudio || !pastedScript.trim()}
-                className="inline-flex items-center gap-2 rounded-xl bg-sky-600 hover:bg-sky-500 px-4 py-2 text-xs font-bold text-white transition disabled:opacity-50 cursor-pointer"
-              >
-                <RefreshCw size={13} className={isAnalyzingAudio ? "animate-spin" : ""} />
-                <span>Align Audio with Pasted Script</span>
-              </button>
-            </div>
-          )}
         </div>
-      )}
 
-      {/* ── File Upload / Selected File Zone ── */}
-      {!selectedFile ? (
-        <label className="upload-zone flex min-h-44 min-w-0 max-w-full cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-white/15 bg-zinc-900/40 p-6 text-center transition hover:border-orange-500/50 hover:bg-orange-500/[0.03]">
-          <input
-            accept="audio/mp3,audio/wav,audio/m4a,audio/aac,audio/ogg,audio/webm,video/mp4"
-            className="hidden"
-            onChange={(e) => onSelectFile(e.target.files?.[0] || null)}
-            type="file"
-          />
-          <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-500/10 text-orange-400 border border-orange-500/20">
-            <Upload size={26} />
-          </div>
-          <p className="text-sm font-bold text-white">
-            {activeTab === "paste"
-              ? "Audio upload karein jise script se match karna hai"
-              : "Voiceover / Audio recording upload karein"}
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            MP3, WAV, M4A, AAC, WEBM • Up to 15 minutes
-          </p>
-        </label>
-      ) : (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-zinc-900/70 p-4">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-orange-500/15 text-orange-400 border border-orange-500/20">
-              <Mic size={18} />
-            </div>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-bold text-white">{selectedFile.name}</p>
-              <p className="text-xs text-muted-foreground">
-                {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => onSelectFile(null)}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-1.5 text-xs font-bold text-red-300 transition hover:bg-red-500/20"
-          >
-            <Trash2 size={13} />
-            <span>Change File</span>
-          </button>
-        </div>
-      )}
-
-      {/* ── Analyzing Banner ── */}
-      {isAnalyzingAudio && (
-        <div className="rounded-2xl border border-orange-500/30 bg-orange-500/10 p-5 text-center">
-          <div className="mx-auto mb-2.5 grid h-12 w-12 place-items-center rounded-full bg-orange-500/20 text-orange-400 animate-pulse">
-            <Sparkles size={24} />
-          </div>
-          <p className="text-sm font-black text-white">
-            AI Speech Analysis & Script Structuring in Progress...
-          </p>
-          <p className="mx-auto mt-1 max-w-md text-xs text-orange-200/80">
-            Whisper full audio transcribe kar raha hai aur script ko <b># Headings</b>, <b>Steps</b>, aur <b>Explanations</b> me structure kar raha hai.
-          </p>
-        </div>
-      )}
-
-      {/* ── Structured Script Studio Editor ── */}
-      {audioCleanAnalysis && (
-        <div className="rounded-2xl border border-white/15 bg-zinc-900/90 p-4 sm:p-5 shadow-2xl space-y-4">
-          {/* Header Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <FileText size={18} className="text-orange-400" />
-                <h3 className="text-sm font-black text-white tracking-wide">
-                  Structured Script & Retake Editor
-                </h3>
+        {/* OPTION 2: PASTE SCRIPT INPUT */}
+        {activeTab === "paste" && (
+          <div className="mt-5 space-y-3 rounded-2xl border border-[#d0bcff]/20 bg-[#121118] p-5 shadow-lg">
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <label className="text-xs font-bold uppercase tracking-wider text-[#d0bcff] flex items-center gap-1.5">
+                  <FileText size={14} />
+                  Paste Your Intended Script (# Headings, Step 1, Step 2...)
+                </label>
+                <p className="text-[11px] text-[#cac4d0] mt-0.5">
+                  AI compares audio against your canonical text to find retakes while guaranteeing 100% of your script lines are protected.
+                </p>
               </div>
-              <p className="mt-0.5 text-xs text-muted-foreground">
-                Script structured hai (Headings, Steps, Explanations). Aap block type badal sakte hain (#H, Step), text edit kar sakte hain aur retakes toggle kar sakte hain.
-              </p>
-            </div>
-
-            {/* View Mode & Metrics */}
-            <div className="flex flex-wrap items-center gap-2">
-              {/* Duration pill */}
-              <span className="rounded-lg border border-zinc-700 bg-zinc-800/80 px-2.5 py-1 text-xs font-bold text-zinc-300">
-                ⏱️ {audioCleanAnalysis.originalDuration}s ➔{" "}
-                <span className="text-emerald-400">
-                  {audioCleanAnalysis.estimatedCleanDuration}s
-                </span>
+              <span className="text-[11px] font-mono text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2 py-0.5 rounded-full">
+                Protected Mode
               </span>
-
-              {audioCleanAnalysis.stats.repeatedTakesCount > 0 && (
-                <span className="rounded-lg border border-red-500/30 bg-red-950/60 px-2.5 py-1 text-xs font-bold text-red-300">
-                  🔁 {audioCleanAnalysis.stats.repeatedTakesCount} retakes cut
+            </div>
+            <textarea
+              value={pastedScript}
+              onChange={(e) => setPastedScript(e.target.value)}
+              placeholder={`# How to Build Wealth from Zero\n\nSTEP 1 — Understand Where Your Money is Going\nBefore you think about investing, or building wealth, you need to understand your money.\nThink about it. If you don't know where your salary goes every month, how can you control it?\n\nSTEP 2 — Spend Less Than You Earn\nThis sounds extremely obvious, doesn't it?\nYet most people fail here.`}
+              rows={7}
+              className="w-full resize-y rounded-xl border border-white/15 bg-[#1a1822] p-4 font-mono text-xs leading-relaxed text-[#eaddff] placeholder:text-zinc-600 focus:border-[#d0bcff] focus:outline-none focus:ring-1 focus:ring-[#d0bcff]"
+            />
+            {onReanalyzeWithScript && selectedFile && (
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-[11px] text-zinc-400">
+                  {pastedScript.trim() ? `${pastedScript.trim().split(/\s+/).length} words in script` : "Paste your script above"}
                 </span>
-              )}
-
-              {audioCleanAnalysis.stats.silenceCount > 0 && (
-                <span className="rounded-lg border border-amber-500/30 bg-amber-950/60 px-2.5 py-1 text-xs font-bold text-amber-300">
-                  🔇 {audioCleanAnalysis.stats.silenceCount} silences
-                </span>
-              )}
-
-              {/* View toggle */}
-              <div className="inline-flex rounded-xl border border-white/10 bg-black/40 p-0.5">
                 <button
                   type="button"
-                  onClick={() => setEditorView("blocks")}
-                  className={`rounded-lg px-2.5 py-1 text-xs font-bold transition ${
-                    editorView === "blocks"
-                      ? "bg-orange-500 text-white shadow-sm"
-                      : "text-zinc-400 hover:text-white"
+                  disabled={isAnalyzingAudio || !pastedScript.trim()}
+                  onClick={() => onReanalyzeWithScript(pastedScript)}
+                  className="inline-flex items-center gap-2 rounded-full border border-[#d0bcff]/40 bg-[#381e72] px-5 py-2.5 text-xs font-bold text-[#eaddff] shadow-md transition hover:bg-[#4f378b] disabled:opacity-50"
+                >
+                  <Sparkles size={14} className="text-[#d0bcff]" />
+                  {isAnalyzingAudio ? "Aligning Audio to Script..." : "Align & Verify Audio with Script"}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* 2. LOADING STATE */}
+      {isAnalyzingAudio && (
+        <div className="rounded-[28px] border border-white/10 bg-[#1a1822] p-10 text-center shadow-xl">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#381e72]/40 text-[#d0bcff]">
+            <RefreshCw size={26} className="animate-spin" />
+          </div>
+          <h3 className="mt-4 text-lg font-bold text-white">Transcribing & Aligning Script...</h3>
+          <p className="mt-1 text-xs text-[#ccc2dc]">
+            Groq Whisper is processing speech, structuring sections, and matching duplicate takes.
+          </p>
+        </div>
+      )}
+
+      {/* 3. STRUCTURED SCRIPT DOCUMENT BOARD (COMPACT & SCROLLABLE) */}
+      {audioCleanAnalysis && !isAnalyzingAudio && (
+        <div className="rounded-[28px] border border-white/10 bg-[#1a1822] shadow-2xl overflow-hidden">
+          {/* Top Bar with Stats & View Toggle */}
+          <div className="flex flex-col gap-3 border-b border-white/10 p-5 sm:flex-row sm:items-center sm:justify-between sm:px-6 bg-[#16141e]">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#d0bcff]/30 bg-[#381e72]/40 px-3 py-1 text-xs font-bold text-[#eaddff]">
+                <Layers size={13} className="text-[#d0bcff]" />
+                {stepsCount > 0 ? `${stepsCount} Steps (${blocksCount} Sections)` : `${blocksCount} Sections`}
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#22202c] px-3 py-1 text-xs font-semibold text-[#cac4d0]">
+                {wordCount} Words
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#22202c] px-3 py-1 text-xs font-semibold text-[#cac4d0]">
+                Original: {formatTime(audioCleanAnalysis.originalDuration)} → Clean: {formatTime(audioCleanAnalysis.estimatedCleanDuration)}
+              </span>
+              {audioCleanAnalysis.stats?.repeatedTakesCount > 0 && (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-300">
+                  <Scissors size={12} />
+                  {audioCleanAnalysis.stats.repeatedTakesCount} Retakes Detected
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="inline-flex rounded-full border border-white/10 bg-[#121118] p-1">
+                <button
+                  type="button"
+                  onClick={() => setEditorView("document")}
+                  className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
+                    editorView === "document"
+                      ? "bg-[#381e72] text-[#eaddff]"
+                      : "text-[#cac4d0] hover:text-white"
                   }`}
                 >
-                  <span className="flex items-center gap-1.5">
-                    <Layers size={13} />
-                    <span>Blocks</span>
-                  </span>
+                  Document View
                 </button>
                 <button
                   type="button"
                   onClick={() => setEditorView("markdown")}
-                  className={`rounded-lg px-2.5 py-1 text-xs font-bold transition ${
+                  className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
                     editorView === "markdown"
-                      ? "bg-orange-500 text-white shadow-sm"
-                      : "text-zinc-400 hover:text-white"
+                      ? "bg-[#381e72] text-[#eaddff]"
+                      : "text-[#cac4d0] hover:text-white"
                   }`}
                 >
-                  <span className="flex items-center gap-1.5">
-                    <Code2 size={13} />
-                    <span>Markdown</span>
-                  </span>
+                  Markdown View
                 </button>
               </div>
+
+              <button
+                type="button"
+                onClick={handleCopyScript}
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#22202c] px-3 py-1 text-xs font-semibold text-[#eaddff] transition hover:bg-[#2b2837]"
+              >
+                {copiedScript ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
+                {copiedScript ? "Copied" : "Copy"}
+              </button>
             </div>
           </div>
 
-          {/* ── Editor View: Blocks ── */}
-          {editorView === "blocks" ? (
-            <div className="max-h-[460px] overflow-y-auto space-y-3.5 pr-1.5">
-              {audioCleanAnalysis.structuredBlocks &&
-              audioCleanAnalysis.structuredBlocks.length > 0 ? (
-                audioCleanAnalysis.structuredBlocks.map((block) => {
-                  const isCut = block.action === "cut";
-                  const blockSegments = audioCleanAnalysis.segments.filter((s) =>
-                    block.segmentIds.includes(s.id)
-                  );
+          {/* AI SAFEGUARD BANNER */}
+          <div className="bg-emerald-950/20 border-b border-emerald-500/20 px-6 py-2.5 flex items-center justify-between text-xs text-emerald-300">
+            <div className="flex items-center gap-2">
+              <ShieldCheck size={16} className="text-emerald-400 shrink-0" />
+              <span>
+                <strong>Script Safeguard Active:</strong> All canonical script sentences are protected and kept intact. Only verified speech stumbles and duplicate takes are flagged for cutting.
+              </span>
+            </div>
+            <span className="text-[11px] text-zinc-400 hidden sm:inline">
+              Click any highlighted retake to restore
+            </span>
+          </div>
+
+          {/* SCROLLABLE DOCUMENT VIEW (CONTAINED & COMPACT) */}
+          <div className="p-5 sm:p-6">
+            {editorView === "document" ? (
+              <div className="max-h-[580px] overflow-y-auto pr-2 space-y-4 scrollbar-thin scrollbar-thumb-zinc-700/60 scrollbar-track-transparent">
+                {(audioCleanAnalysis.structuredBlocks && audioCleanAnalysis.structuredBlocks.length > 0
+                  ? audioCleanAnalysis.structuredBlocks
+                  : [
+                      {
+                        id: "b-0",
+                        type: "explanation" as const,
+                        text: audioCleanAnalysis.transcript || "",
+                        segmentIds: [],
+                        sentences: [],
+                      },
+                    ]
+                ).map((block, bIdx) => {
+                  const isHeading = block.type === "heading";
+                  const isStep = block.type === "step";
+
+                  // Sentences to render
+                  const sentences: ScriptBlockSentence[] =
+                    block.sentences && block.sentences.length > 0
+                      ? block.sentences
+                      : (block.segmentIds && block.segmentIds.length > 0
+                          ? audioCleanAnalysis.segments.filter((s) => block.segmentIds.includes(s.id))
+                          : [{ id: `s-${bIdx}`, text: block.text, action: "keep" as const, reason: undefined }]
+                        ).map((s) => ({
+                          id: s.id,
+                          text: s.text,
+                          action: s.action,
+                          reason: s.reason,
+                        }));
 
                   return (
                     <div
-                      key={block.id}
-                      className={`group rounded-xl border p-3.5 transition-all ${
-                        isCut
-                          ? "border-red-500/30 bg-red-950/15"
-                          : block.type === "heading"
-                          ? "border-purple-500/30 bg-purple-950/15"
-                          : block.type === "step"
-                          ? "border-amber-500/30 bg-amber-950/15"
-                          : "border-white/10 bg-black/25 hover:border-white/20"
-                      }`}
+                      key={block.id || bIdx}
+                      className="group rounded-2xl border border-white/10 bg-[#1e1c26] p-4 sm:p-5 transition hover:border-white/20"
                     >
-                      {/* Top Bar of Block: Type Pill & Action Controls */}
-                      <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                      {/* Section Header */}
+                      <div className="flex items-center justify-between gap-3 border-b border-white/5 pb-3">
                         <div className="flex items-center gap-2">
-                          {/* Block Type Selector Pill */}
-                          <div className="flex items-center gap-1">
-                            <button
-                              type="button"
-                              onClick={() => handleChangeBlockType(block.id, "heading")}
-                              className={`rounded-md px-2 py-0.5 text-[10px] font-black uppercase tracking-wider transition ${
-                                block.type === "heading"
-                                  ? "bg-purple-500 text-white shadow"
-                                  : "bg-white/5 text-zinc-400 hover:text-purple-300"
-                              }`}
-                            >
-                              # Heading
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleChangeBlockType(block.id, "step")}
-                              className={`rounded-md px-2 py-0.5 text-[10px] font-black uppercase tracking-wider transition ${
-                                block.type === "step"
-                                  ? "bg-amber-500 text-slate-950 shadow"
-                                  : "bg-white/5 text-zinc-400 hover:text-amber-300"
-                              }`}
-                            >
-                              ⚡ Step {block.stepNumber ? block.stepNumber : ""}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleChangeBlockType(block.id, "explanation")}
-                              className={`rounded-md px-2 py-0.5 text-[10px] font-black uppercase tracking-wider transition ${
-                                block.type === "explanation"
-                                  ? "bg-sky-600 text-white shadow"
-                                  : "bg-white/5 text-zinc-400 hover:text-sky-300"
-                              }`}
-                            >
-                              💬 Explanation
-                            </button>
-                          </div>
-
-                          {block.start !== undefined && block.end !== undefined && (
-                            <span className="font-mono text-[10px] text-zinc-400">
-                              {block.start.toFixed(1)}s - {block.end.toFixed(1)}s
+                          {isStep ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 border border-amber-500/40 px-3 py-1 text-xs font-black uppercase tracking-wider text-amber-300">
+                              <ListOrdered size={13} />
+                              Step {block.stepNumber || bIdx}
+                            </span>
+                          ) : isHeading ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-[#381e72]/60 border border-[#d0bcff]/40 px-3 py-1 text-xs font-bold text-[#eaddff]">
+                              <Hash size={13} />
+                              Heading
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-white/5 border border-white/10 px-2.5 py-0.5 text-xs text-zinc-400">
+                              <AlignLeft size={12} /> Section
                             </span>
                           )}
+
+                          <input
+                            type="text"
+                            value={block.title || block.text || ""}
+                            onChange={(e) => handleEditTitle(bIdx, e.target.value)}
+                            placeholder={isHeading ? "Heading..." : isStep ? "Step title..." : "Section title..."}
+                            className="bg-transparent text-sm sm:text-base font-bold text-white px-1.5 py-0.5 rounded hover:bg-white/5 focus:bg-[#121118] focus:outline-none focus:ring-1 focus:ring-[#d0bcff] transition-all w-full max-w-lg"
+                          />
                         </div>
 
-                        {/* Block Action: Cut / Keep entire block */}
-                        <button
-                          type="button"
-                          onClick={() => handleToggleBlockAction(block)}
-                          className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition ${
-                            isCut
-                              ? "bg-red-900/40 text-red-300 border border-red-700/50 hover:bg-red-900/70"
-                              : "bg-zinc-800 text-zinc-300 border border-zinc-700 hover:bg-zinc-700"
-                          }`}
-                        >
-                          {isCut ? "Restore Block" : "Cut Block"}
-                        </button>
+                        {/* Quick block type switcher */}
+                        <div className="opacity-40 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => handleChangeBlockType(bIdx, isStep ? "heading" : "step")}
+                            title={isStep ? "Convert to Heading" : "Convert to Step"}
+                            className="text-[11px] font-medium text-zinc-400 hover:text-white px-2 py-0.5 rounded border border-white/10 hover:bg-white/5"
+                          >
+                            {isStep ? "To Heading" : "To Step"}
+                          </button>
+                        </div>
                       </div>
 
-                      {/* Block Title / Content Editor */}
-                      <div className="space-y-2">
-                        {block.type === "heading" ? (
-                          <input
-                            type="text"
-                            value={block.title || block.text}
-                            onChange={(e) => handleEditBlockText(block.id, e.target.value)}
-                            className={`w-full rounded-lg border border-purple-500/20 bg-purple-950/20 px-3 py-1.5 text-sm font-bold text-purple-200 focus:border-purple-500 focus:outline-none ${
-                              isCut ? "line-through opacity-60" : ""
-                            }`}
-                            placeholder="# Heading Title..."
-                          />
-                        ) : block.type === "step" ? (
-                          <input
-                            type="text"
-                            value={block.title || block.text}
-                            onChange={(e) => handleEditBlockText(block.id, e.target.value)}
-                            className={`w-full rounded-lg border border-amber-500/20 bg-amber-950/20 px-3 py-1.5 text-sm font-bold text-amber-200 focus:border-amber-500 focus:outline-none ${
-                              isCut ? "line-through opacity-60" : ""
-                            }`}
-                            placeholder="Step Title / Action..."
-                          />
-                        ) : (
-                          <textarea
-                            rows={2}
-                            value={block.text}
-                            onChange={(e) => handleEditBlockText(block.id, e.target.value)}
-                            className={`w-full resize-none rounded-lg border border-white/5 bg-black/30 p-2.5 text-xs leading-relaxed text-zinc-100 focus:border-sky-500/50 focus:outline-none ${
-                              isCut ? "line-through text-red-300/60" : ""
-                            }`}
-                            placeholder="Explanation dialogue..."
-                          />
-                        )}
+                      {/* Continuous Paragraph Flow with Interactive Sentences */}
+                      <div className="mt-3.5 text-xs sm:text-sm leading-relaxed text-zinc-200">
+                        {sentences.map((sent, sIdx) => {
+                          const isCut = sent.action === "cut";
 
-                        {/* Spoken Sentences List with 1-Click Cut / Restore Toggles */}
-                        {blockSegments.length > 0 && (
-                          <div className="mt-2 space-y-1.5 pt-1 border-t border-white/5">
-                            {blockSegments.map((seg) => {
-                              const segCut = seg.action === "cut";
-                              return (
-                                <div
-                                  key={seg.id}
-                                  onClick={() => handleToggleSegment(seg.id)}
-                                  className={`flex items-start justify-between gap-2.5 rounded-lg p-2 text-xs transition cursor-pointer ${
-                                    segCut
-                                      ? "bg-red-950/25 border border-red-500/30 hover:border-red-500/50"
-                                      : "bg-zinc-950/40 border border-white/5 hover:border-white/20"
-                                  }`}
-                                >
-                                  <div className="space-y-0.5 min-w-0">
-                                    <div className="flex items-center gap-2">
-                                      <span className="font-mono text-[10px] text-zinc-500">
-                                        {seg.start.toFixed(1)}s - {seg.end.toFixed(1)}s
-                                      </span>
-                                      {segCut && (
-                                        <span className="rounded bg-red-500/20 px-1.5 py-0.2 text-[9px] font-bold text-red-400 border border-red-500/30">
-                                          {seg.reason === "repeat"
-                                            ? "🔁 Repeated Take"
-                                            : seg.reason === "mistake"
-                                            ? "⚠️ Mistake"
-                                            : seg.reason === "silence"
-                                            ? "🔇 Silence"
-                                            : "Cut"}
-                                        </span>
-                                      )}
-                                    </div>
-                                    <p
-                                      className={`text-xs ${
-                                        segCut
-                                          ? "line-through text-red-300/70"
-                                          : "text-zinc-200"
-                                      }`}
-                                    >
-                                      {seg.text}
-                                    </p>
-                                  </div>
-
-                                  <button
-                                    type="button"
-                                    className={`shrink-0 rounded px-2 py-0.5 text-[10px] font-bold transition ${
-                                      segCut
-                                        ? "bg-red-900/40 text-red-300 hover:bg-red-900/70"
-                                        : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
-                                    }`}
-                                  >
-                                    {segCut ? "Restore" : "Cut"}
-                                  </button>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
+                          return (
+                            <span
+                              key={sent.id || sIdx}
+                              onClick={() => handleToggleSentence(bIdx, sent.id)}
+                              title={isCut ? "Click to RESTORE this take" : "Click to CUT this take"}
+                              className={`inline cursor-pointer transition-all rounded px-1 py-0.5 -mx-0.5 mr-1.5 ${
+                                isCut
+                                  ? "bg-red-950/40 border border-red-500/30 text-red-300 line-through hover:bg-red-900/60"
+                                  : "hover:bg-[#381e72]/30 hover:text-white"
+                              }`}
+                            >
+                              {sent.text}
+                              {isCut && (
+                                <span className="ml-1 inline-flex items-center gap-0.5 rounded bg-red-500/20 px-1 py-0.2 text-[9px] font-bold uppercase tracking-wider text-red-300 no-underline border border-red-500/40">
+                                  ✂️ Cut
+                                </span>
+                              )}
+                            </span>
+                          );
+                        })}
                       </div>
                     </div>
                   );
-                })
-              ) : (
-                <div className="p-4 text-center text-xs text-zinc-400">
-                  {audioCleanAnalysis.transcript || "No transcript speech available."}
-                </div>
-              )}
-            </div>
-          ) : (
-            /* ── Editor View: Raw Markdown ── */
-            <div className="space-y-2">
-              <textarea
-                rows={12}
-                value={
-                  audioCleanAnalysis.markdown ||
-                  audioCleanAnalysis.structuredBlocks
-                    ?.map((b) =>
-                      b.type === "heading"
-                        ? `# ${b.title || b.text}`
-                        : b.type === "step"
-                        ? `## Step ${b.stepNumber || 1}: ${b.title || b.text}`
-                        : b.text
-                    )
-                    .join("\n\n") ||
-                  ""
-                }
-                onChange={(e) =>
-                  setAudioCleanAnalysis({
-                    ...audioCleanAnalysis,
-                    markdown: e.target.value,
-                  })
-                }
-                className="w-full resize-y rounded-xl border border-white/10 bg-black/40 p-4 font-mono text-xs leading-relaxed text-zinc-200 focus:border-orange-500 focus:outline-none"
-              />
-              <p className="text-[11px] text-muted-foreground">
-                You can edit the script markdown directly. Lines starting with <code className="text-purple-300">#</code> act as section headings, <code className="text-amber-300">## Step</code> as steps.
-              </p>
-            </div>
-          )}
+                })}
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-white/10 bg-[#121118] p-5">
+                <pre className="max-h-[540px] overflow-y-auto whitespace-pre-wrap font-mono text-xs leading-relaxed text-[#eaddff]">
+                  {audioCleanAnalysis.markdown ||
+                    (audioCleanAnalysis.structuredBlocks
+                      ? blocksToMarkdown(audioCleanAnalysis.structuredBlocks)
+                      : audioCleanAnalysis.transcript)}
+                </pre>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
-      {/* ── 3. AI Cleaning Controls & Options ── */}
-      <div className="rounded-2xl border border-white/10 bg-zinc-900/60 p-4 sm:p-5 space-y-3">
-        <div>
-          <h4 className="text-sm font-black text-white">AI Audio Processing Filters</h4>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            Customize which audio imperfections are automatically cut and polished by the engine.
-          </p>
+      {/* 4. PROCESSING FILTERS */}
+      <div className="rounded-[28px] border border-white/10 bg-[#1a1822] p-6 shadow-2xl sm:p-7">
+        <div className="flex items-center gap-2 border-b border-white/10 pb-4">
+          <Sliders size={18} className="text-[#d0bcff]" />
+          <h3 className="text-base font-bold text-white">Audio Processing Filters</h3>
         </div>
 
-        <div className="grid gap-2 sm:grid-cols-2">
-          {([
-            {
-              key: "removeRepeats",
-              label: "Remove Repeated Takes & Mistakes",
-              desc: "Detects when you stuttered or re-said a line, keeping only your best take.",
-            },
-            {
-              key: "removeSilence",
-              label: "Remove Long Silence (>1.0s)",
-              desc: "Trims dead air pauses down to a natural 0.3s breathing space.",
-            },
-            {
-              key: "volumeNormalize",
-              label: "Studio Volume Normalization",
-              desc: "Uniform EBU R128 broadcast volume across entire voiceover.",
-            },
-            {
-              key: "noiseReduction",
-              label: "Background Noise Removal",
-              desc: "FFT spectral gating to eliminate fan hum, AC noise, and room hiss.",
-            },
-            {
-              key: "removeFillers",
-              label: "Remove Filler Words",
-              desc: 'Cuts "um", "uh", "ah" hesitation sounds.',
-            },
-            {
-              key: "trimEnds",
-              label: "Trim Start & End Dead Air",
-              desc: "Removes silence before first word and after last word.",
-            },
-          ] as const).map((opt) => (
-            <div
-              key={opt.key}
-              className="flex items-center justify-between rounded-xl border border-white/5 bg-black/20 p-3"
-            >
-              <div className="pr-3">
-                <p className="text-xs font-bold text-foreground">{opt.label}</p>
-                <p className="mt-0.5 text-[10px] leading-4 text-muted-foreground">{opt.desc}</p>
-              </div>
-              <button
-                type="button"
-                onClick={() =>
-                  setAudioCleanOptions((prev: any) => ({
-                    ...prev,
-                    [opt.key]: !prev?.[opt.key],
-                  }))
-                }
-                className={`relative h-5 w-9 shrink-0 rounded-full transition ${
-                  audioCleanOptions[opt.key as keyof typeof audioCleanOptions]
-                    ? "bg-orange-500"
-                    : "bg-zinc-700"
-                }`}
-              >
-                <span
-                  className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${
-                    audioCleanOptions[opt.key as keyof typeof audioCleanOptions]
-                      ? "translate-x-[18px]"
-                      : "translate-x-0.5"
-                  }`}
-                />
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── 4. Main Clean Action Button ── */}
-      <div className="flex flex-col items-center justify-center gap-3 pt-2">
-        <button
-          type="button"
-          onClick={onCleanAudio}
-          disabled={!selectedFile || isCleaning || isAnalyzingAudio}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-4 text-sm font-black text-white shadow-xl shadow-orange-950/40 transition hover:from-orange-400 hover:to-amber-400 disabled:opacity-40 sm:w-auto sm:min-w-64 cursor-pointer"
-        >
-          {isCleaning ? (
-            <>
-              <RefreshCw size={18} className="animate-spin" />
-              <span>Cleaning Audio with FFmpeg Engine...</span>
-            </>
-          ) : (
-            <>
-              <Scissors size={18} />
-              <span>Clean Audio with AI</span>
-            </>
-          )}
-        </button>
-        <p className="text-[11px] text-muted-foreground text-center">
-          Takes under 15 seconds • Spliced losslessly with broadcast EBU loudness normalization
-        </p>
-      </div>
-
-      {/* ── 5. Clean Audio Result Player & Download ── */}
-      {audioCleanResult && (
-        <div className="rounded-2xl border border-emerald-500/30 bg-emerald-950/20 p-5 shadow-2xl space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-emerald-500/20 pb-3">
-            <div className="flex items-center gap-2.5 text-emerald-400">
-              <CheckCircle2 size={20} />
-              <p className="text-sm font-black text-white">
-                Cleaned Voiceover Ready!
+        <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div
+            onClick={() => handleToggleOption("removeRepeats")}
+            className="flex cursor-pointer items-start justify-between rounded-2xl border border-white/10 bg-[#22202c] p-4 transition hover:border-white/20"
+          >
+            <div className="space-y-1">
+              <p className="text-sm font-semibold text-white">Remove Retakes & Stutters</p>
+              <p className="text-xs text-[#cac4d0]">
+                Auto-cuts false starts and repeated takes
               </p>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="rounded-lg border border-emerald-500/30 bg-emerald-900/40 px-2.5 py-1 text-xs font-bold text-emerald-300">
-                ⏱️ {audioCleanResult.cleanedDuration}s (was {audioCleanResult.originalDuration}s)
-              </span>
-              {audioCleanResult.stats?.durationSavedSeconds ? (
-                <span className="rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-bold text-emerald-400">
-                  ⚡ Saved {audioCleanResult.stats.durationSavedSeconds}s
-                </span>
-              ) : null}
+            <div
+              className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
+                audioCleanOptions.removeRepeats ? "bg-[#381e72]" : "bg-zinc-700"
+              }`}
+            >
+              <span
+                className={`absolute top-1 h-4 w-4 rounded-full bg-[#d0bcff] transition-transform ${
+                  audioCleanOptions.removeRepeats ? "left-6" : "left-1"
+                }`}
+              />
             </div>
           </div>
 
-          <audio
-            src={audioCleanResult.outputUrl}
-            controls
-            className="w-full rounded-xl"
-          />
+          <div
+            onClick={() => handleToggleOption("removeSilence")}
+            className="flex cursor-pointer items-start justify-between rounded-2xl border border-white/10 bg-[#22202c] p-4 transition hover:border-white/20"
+          >
+            <div className="space-y-1">
+              <p className="text-sm font-semibold text-white">Smart Silence Trimming</p>
+              <p className="text-xs text-[#cac4d0]">
+                Shortens pauses & dead air over 0.8s
+              </p>
+            </div>
+            <div
+              className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
+                audioCleanOptions.removeSilence ? "bg-[#381e72]" : "bg-zinc-700"
+              }`}
+            >
+              <span
+                className={`absolute top-1 h-4 w-4 rounded-full bg-[#d0bcff] transition-transform ${
+                  audioCleanOptions.removeSilence ? "left-6" : "left-1"
+                }`}
+              />
+            </div>
+          </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-            <div className="flex items-center gap-3 text-xs text-emerald-200/80">
-              {audioCleanResult.stats?.repeatedTakesCut ? (
-                <span>🔁 {audioCleanResult.stats.repeatedTakesCut} takes removed</span>
-              ) : null}
-              {audioCleanResult.stats?.silencesCut ? (
-                <span>🔇 {audioCleanResult.stats.silencesCut} silences trimmed</span>
-              ) : null}
+          <div
+            onClick={() => handleToggleOption("volumeNormalize")}
+            className="flex cursor-pointer items-start justify-between rounded-2xl border border-white/10 bg-[#22202c] p-4 transition hover:border-white/20"
+          >
+            <div className="space-y-1">
+              <p className="text-sm font-semibold text-white">Studio Loudness & EQ</p>
+              <p className="text-xs text-[#cac4d0]">
+                EBU R128 (-16 LUFS) broadcast curve
+              </p>
+            </div>
+            <div
+              className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
+                audioCleanOptions.volumeNormalize ? "bg-[#381e72]" : "bg-zinc-700"
+              }`}
+            >
+              <span
+                className={`absolute top-1 h-4 w-4 rounded-full bg-[#d0bcff] transition-transform ${
+                  audioCleanOptions.volumeNormalize ? "left-6" : "left-1"
+                }`}
+              />
+            </div>
+          </div>
+
+          <div
+            onClick={() => handleToggleOption("noiseReduction")}
+            className="flex cursor-pointer items-start justify-between rounded-2xl border border-white/10 bg-[#22202c] p-4 transition hover:border-white/20"
+          >
+            <div className="space-y-1">
+              <p className="text-sm font-semibold text-white">Background Noise Removal</p>
+              <p className="text-xs text-[#cac4d0]">
+                Spectral de-noise (fan, room hum, hiss)
+              </p>
+            </div>
+            <div
+              className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
+                audioCleanOptions.noiseReduction ? "bg-[#381e72]" : "bg-zinc-700"
+              }`}
+            >
+              <span
+                className={`absolute top-1 h-4 w-4 rounded-full bg-[#d0bcff] transition-transform ${
+                  audioCleanOptions.noiseReduction ? "left-6" : "left-1"
+                }`}
+              />
+            </div>
+          </div>
+
+          <div
+            onClick={() => handleToggleOption("trimEnds")}
+            className="flex cursor-pointer items-start justify-between rounded-2xl border border-white/10 bg-[#22202c] p-4 transition hover:border-white/20"
+          >
+            <div className="space-y-1">
+              <p className="text-sm font-semibold text-white">Trim Start & End Air</p>
+              <p className="text-xs text-[#cac4d0]">
+                Cuts mic warm-up and end silence
+              </p>
+            </div>
+            <div
+              className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
+                audioCleanOptions.trimEnds ? "bg-[#381e72]" : "bg-zinc-700"
+              }`}
+            >
+              <span
+                className={`absolute top-1 h-4 w-4 rounded-full bg-[#d0bcff] transition-transform ${
+                  audioCleanOptions.trimEnds ? "left-6" : "left-1"
+                }`}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* PLAYBACK & EXPORT SPEED SELECTOR */}
+        <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-white/10 bg-[#22202c] p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-semibold text-white">Voice Playback & Export Speed</p>
+              <span className="rounded-full bg-[#381e72] px-2 py-0.5 text-[10px] font-bold text-[#d0bcff]">
+                Natural Pitch Preserved
+              </span>
+            </div>
+            <p className="text-xs text-[#cac4d0]">
+              Faster tempo without the high-pitched chipmunk effect
+            </p>
+          </div>
+          <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-[#16141f] p-1">
+            {[
+              { val: 1.0, label: "1.0x Normal" },
+              { val: 1.25, label: "1.25x Crisp" },
+              { val: 1.5, label: "1.5x Fast" },
+            ].map((sp) => {
+              const isSelected = (audioCleanOptions.playbackSpeed || 1.0) === sp.val;
+              return (
+                <button
+                  key={sp.val}
+                  type="button"
+                  onClick={() => {
+                    setAudioCleanOptions((prev: any) => ({ ...prev, playbackSpeed: sp.val }));
+                    const audios = document.querySelectorAll("audio");
+                    audios.forEach((a) => {
+                      a.playbackRate = sp.val;
+                    });
+                  }}
+                  className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${
+                    isSelected
+                      ? "bg-[#d0bcff] text-[#1e0060] shadow-sm font-bold"
+                      : "text-[#cac4d0] hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  {sp.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* CLEAN BUTTON */}
+        <div className="mt-7">
+          <button
+            type="button"
+            disabled={!selectedFile || isCleaning || isAnalyzingAudio}
+            onClick={onCleanAudio}
+            className="group relative flex h-14 w-full items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#d0bcff] to-[#b69df8] text-base font-bold text-[#1e0060] shadow-lg shadow-[#381e72]/30 transition-all hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Sparkles size={19} className="transition group-hover:rotate-12" />
+            <span>
+              {isCleaning
+                ? "Splicing, Denoiser & Mastering Audio..."
+                : isAnalyzingAudio
+                  ? "Transcribing Speech..."
+                  : `Clean Studio Audio with AI (${audioCleanOptions.playbackSpeed || 1.0}x)`}
+            </span>
+          </button>
+          <p className="mt-2 text-center text-xs text-[#938f99]">
+            Outputs clean studio MP3 (256 kbps, -16 LUFS) • Cuts repeated stumbles & room noise • Natural pitch preserved
+          </p>
+        </div>
+      </div>
+
+      {/* 5. CLEAN AUDIO RESULT (AUDIO ONLY, NO VIDEO!) */}
+      {audioCleanResult && (
+        <div className="rounded-[28px] border border-emerald-500/20 bg-gradient-to-br from-[#1a1822] to-[#162720] p-6 shadow-2xl sm:p-7">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-400">
+                <Music2 size={24} />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h4 className="text-base font-bold text-white">Your Clean Audio is Ready</h4>
+                  <span className="rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[11px] font-bold text-emerald-300">
+                    {audioCleanOptions.playbackSpeed ? `${audioCleanOptions.playbackSpeed}x Speed` : 'Mastered'}
+                  </span>
+                </div>
+                <p className="text-xs text-[#cac4d0]">
+                  Studio mastered MP3 • Multi-band noise removal • EBU R128 broadcast curve
+                </p>
+              </div>
             </div>
 
-            <a
-              href={audioCleanResult.outputUrl}
-              download="cleaned-voiceover.mp3"
-              className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-black text-slate-950 transition hover:bg-emerald-400 shadow-lg shadow-emerald-950/40"
-            >
-              <Download size={15} />
-              <span>Download Clean Audio (.mp3)</span>
-            </a>
+            <div className="flex flex-wrap items-center gap-3">
+              <audio
+                controls
+                className="h-10 rounded-full"
+                src={audioCleanResult.outputUrl}
+                ref={(node) => {
+                  if (node && audioCleanOptions.playbackSpeed) {
+                    node.playbackRate = audioCleanOptions.playbackSpeed;
+                  }
+                }}
+              />
+              <a
+                href={audioCleanResult.outputUrl}
+                download={`itnavideo-clean-studio-audio-${audioCleanOptions.playbackSpeed || 1.0}x.mp3`}
+                className="inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500 px-5 py-2.5 text-xs font-bold text-black shadow-md transition hover:bg-emerald-400"
+              >
+                <Download size={15} />
+                Download Clean Audio ({audioCleanOptions.playbackSpeed || 1.0}x MP3)
+              </a>
+            </div>
           </div>
         </div>
       )}

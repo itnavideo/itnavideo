@@ -88,10 +88,10 @@ export default function Hero() {
             >
               <Link
                 href="/dashboard"
-                className="group relative inline-flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-700 px-8 py-4 text-base font-black text-white shadow-lg shadow-orange-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-95 w-full sm:w-auto"
+                className="group relative inline-flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-700 px-7 py-4 text-xs sm:text-sm md:text-base font-black text-white shadow-lg shadow-orange-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-95 w-full sm:w-auto tracking-wide text-center uppercase"
               >
-                <span>Create Your Video Free</span>
-                <ArrowRight size={18} className="transition group-hover:translate-x-1" />
+                <span>CLICK HERE TO GENERATE FREE AI VIDEO GENERATOR</span>
+                <ArrowRight size={18} className="transition group-hover:translate-x-1 shrink-0" />
               </Link>
 
               <a
@@ -213,8 +213,8 @@ export default function Hero() {
                   </div>
                 </div>
 
-                {/* Live Video Preview Canvas (Full width on mobile, 7-col on sm) */}
-                <div className="sm:col-span-7 relative flex flex-col items-center justify-center rounded-2xl bg-black overflow-hidden border border-white/15 aspect-[9/14] max-h-[380px] w-full max-w-[280px] mx-auto shadow-xl">
+                {/* Live Video Preview Canvas (Full width on mobile, 7-col on sm) - True 9:16 Portrait */}
+                <div className="sm:col-span-7 relative flex flex-col items-center justify-center rounded-2xl bg-black overflow-hidden border border-white/15 aspect-[9/16] max-h-[420px] w-full max-w-[250px] sm:max-w-[270px] mx-auto shadow-xl">
                   <video
                     key={selectedType.sample}
                     src={selectedType.sample}

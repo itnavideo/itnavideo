@@ -30,6 +30,7 @@ export type TypographyStyleId =
   | 'isometric-cube'
   | 'synthwave-80s'
   | 'hud-telemetry'
+  | 'material-expressive'
   | 'prime-neon'
   | 'agent-tour'
   | 'purple-chrome';
