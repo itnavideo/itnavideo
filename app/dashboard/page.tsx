@@ -6,8 +6,12 @@ import {CompareTextFields} from '@/components/compare/CompareTextFields';
 import {CompareImageSlots} from '@/components/compare/CompareImageSlots';
 import {TypographyStylePicker} from '@/components/typography/TypographyStylePicker';
 import { VideoStyleControls, HeadingFontOption, TypographyFontOption } from "@/components/ui/VideoStyleControls";
+import { FacelessVideoStyleControls } from "@/components/ui/FacelessVideoStyleControls";
+import { DualLanguageSelector } from "@/components/ui/LanguageSelector";
 import InteractiveRenderEngine from '@/components/render/InteractiveRenderEngine';
 import { BackgroundPicker } from '@/components/BackgroundPicker';
+import { MaterialCatalogGrid } from '@/components/dashboard/MaterialCatalogGrid';
+import { AudioCleanStudio } from '@/components/dashboard/AudioCleanStudio';
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -35,6 +39,7 @@ import {
   Captions,
   ShieldCheck,
   Sparkles,
+  Palette,
   Trash2,
   Upload,
   Video,
@@ -94,7 +99,6 @@ const MultiImagesPreview = dynamic(
 type Mode =
   | "compare"
   | "autoCaption"
-  | "captionStudio"
   | "autoDraw"
   | "longVideoPromo"
   | "dynamicCreator"
@@ -104,10 +108,9 @@ type Mode =
   | "typographyVideo"
   | "multiImagesVideo"
   | "longVideoClips"
-  | "longCaptionPro"
   | "audioClean"
   | "longVideoPro"
-  | "facelessLongVideo"
+  | "facelessVideo"
   | "aiVideoGenerator";
 type CaptionStudioSettings = {
   fontFamily: string;
@@ -239,7 +242,7 @@ const videoTypeCards = [
   { id: "long-video-promo", title: "Long Video Promo", tag: "Promo", description: "Promote your YouTube video as a vertical Short/Reel.", image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1788190063/file_000000002d508209b398a35503a053e1_uiytox.png", videoPreviewUrl: "/renders/long-promo-test-9x16.mp4", badgeType: undefined, accent: "#1A73E8", mode: "longVideoPromo" as const, category: "creator", inputType: "video" as const },
   { id: "ai-audio-cleaner", title: "AI Audio Cleaner", tag: "Long Audio", description: "Full script preview in dashboard • Auto removes recording mistakes, silences & noise.", image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1788190064/file_0000000084e482119c5951ac67c32219_lncnaa.png", badgeType: "Pro" as const, accent: "#1A73E8", mode: "audioClean" as const, category: "long", inputType: "audio" as const },
   { id: "long-video-clips", title: "Long Video Clips", tag: "Podcast Clips", description: "Turn long videos and podcasts into short viral clips with captions.", image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1788190063/file_000000002af082088dc89d221c90dc80_tmf4h8.png", videoPreviewUrl: "/renders/long-promo-test-9x16.mp4", badgeType: "New" as const, accent: "#1A73E8", mode: "longVideoClips" as const, category: "long", inputType: "video" as const },
-  { id: "ai-video-generator", title: "AI Video Generator", tag: "Long YT Videos", description: "Turn voiceovers, videos, or scripts into fully produced videos with AI B-roll, music, motion graphics & captions.", image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1788190063/file_0000000089c48211b67c16fe3c2636a2_prirg0.png", videoPreviewUrl: "/renders/custom-ai-reel-m1-preview.mp4", badgeType: "AI" as const, accent: "#1A73E8", mode: "aiVideoGenerator" as const, category: "long", inputType: "audio" as const },
+  { id: "faceless-video", title: "Faceless Video", tag: "16:9 YouTube • Max 20 Min", description: "Turn up to 20 min voiceover into complete 16:9 videos with curated AI visuals, Canva backgrounds & captions.", image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1788190063/file_0000000089c48211b67c16fe3c2636a2_prirg0.png", videoPreviewUrl: "/renders/custom-ai-reel-m1-preview.mp4", badgeType: "AI" as const, accent: "#F59E0B", mode: "facelessVideo" as const, category: "long", inputType: "audio" as const },
 ] as const;
 
 function getPlannedRenderCreditUnits(mode: Mode, durationSeconds?: number, clipCount = 3) {
@@ -247,7 +250,7 @@ function getPlannedRenderCreditUnits(mode: Mode, durationSeconds?: number, clipC
     if (mode === "longVideoClips") {
       return calculateRenderCreditUnits("longVideoClips", {clipCount});
     }
-    const billableModes: BillableRenderMode[] = ["autoCaption", "compare", "longVideoPromo", "whiteboardVideo", "typographyVideo", "multiImagesVideo", "longVideoPro", "facelessLongVideo", "aiVideoGenerator"];
+    const billableModes: BillableRenderMode[] = ["autoCaption", "compare", "longVideoPromo", "whiteboardVideo", "typographyVideo", "multiImagesVideo", "longVideoPro", "facelessVideo", "aiVideoGenerator"];
     return billableModes.includes(mode as BillableRenderMode)
       ? calculateRenderCreditUnits(mode as BillableRenderMode, {durationSeconds})
       : 0;
@@ -410,19 +413,6 @@ const modeConfig = {
     border: "border-border",
     surface: "bg-muted",
   },
-  longCaptionPro: {
-    label: "Long Caption Pro",
-    title: "Long Caption Pro",
-    description: "📹 Upload: Video with clear speech\n💬 Timed captions on your preserved 16:9 video",
-    accept: "video/*",
-    supported: "MP4, MOV, WEBM • Up to 10 minutes / 500 MB",
-    bestResult: "Landscape YouTube videos, podcasts, interviews, and lectures",
-    uploadCta: "📹 Upload your landscape video",
-    icon: Captions,
-    color: "text-primary",
-    border: "border-border",
-    surface: "bg-muted",
-  },
   audioClean: {
     label: "AI Audio Cleaner",
     title: "AI Audio Cleaner",
@@ -449,31 +439,31 @@ const modeConfig = {
     border: "border-border",
     surface: "bg-muted",
   },
-  aiVideoGenerator: {
-    label: "AI Video Generator",
-    title: "AI Video Generator (Long YT Videos)",
-    description: "🎙️ Upload: Voiceover audio, facecam video, or script\n✨ AI matches B-Roll, generates scenes, sound effects & captions for 16:9 YouTube & 9:16 videos",
-    accept: "audio/*,video/*",
-    supported: "MP3, WAV, M4A, AAC, MP4, MOV • Up to 10 minutes",
-    bestResult: "Full YouTube videos, faceless channels, explainers & podcasts",
-    uploadCta: "🎬 Upload your voiceover or video",
+  facelessVideo: {
+    label: "Faceless Video",
+    title: "Faceless Video (16:9 YouTube)",
+    description: "🎙️ Upload: Voiceover audio (MP3, WAV, M4A)\n✨ AI builds complete 16:9 YouTube videos with curated visuals, Canva backgrounds & synced captions",
+    accept: "audio/*",
+    supported: "MP3, WAV, M4A, AAC • Up to 20 minutes",
+    bestResult: "Faceless YouTube channels, deep-dive documentaries, storytelling & explainers",
+    uploadCta: "🎙️ Upload your voiceover / audio (Max 20 min)",
     icon: Film,
-    color: "text-primary",
-    border: "border-border",
-    surface: "bg-muted",
+    color: "text-amber-400",
+    border: "border-amber-400/40",
+    surface: "bg-amber-950/20",
   },
-  facelessLongVideo: {
-    label: "AI Video Generator",
-    title: "AI Video Generator (Long YT Videos)",
-    description: "🎙️ Upload: Voiceover audio, facecam video, or script\n✨ AI matches B-Roll, generates scenes, sound effects & captions for 16:9 YouTube & 9:16 videos",
-    accept: "audio/*,video/*",
-    supported: "MP3, WAV, M4A, AAC, MP4, MOV • Up to 10 minutes",
-    bestResult: "Full YouTube videos, faceless channels, explainers & podcasts",
-    uploadCta: "🎬 Upload your voiceover or video",
+  aiVideoGenerator: {
+    label: "Faceless Video",
+    title: "Faceless Video (16:9 YouTube)",
+    description: "🎙️ Upload: Voiceover audio (MP3, WAV, M4A)\n✨ AI builds complete 16:9 YouTube videos with curated visuals, Canva backgrounds & synced captions",
+    accept: "audio/*",
+    supported: "MP3, WAV, M4A, AAC • Up to 20 minutes",
+    bestResult: "Faceless YouTube channels, deep-dive documentaries, storytelling & explainers",
+    uploadCta: "🎙️ Upload your voiceover / audio (Max 20 min)",
     icon: Film,
-    color: "text-primary",
-    border: "border-border",
-    surface: "bg-muted",
+    color: "text-amber-400",
+    border: "border-amber-400/40",
+    surface: "bg-amber-950/20",
   },
 } as const;
 
@@ -529,6 +519,8 @@ export default function DashboardPage() {
   const [captionTextColor, setCaptionTextColor] = useState("#ffffff");
   const [captionHighlightColor, setCaptionHighlightColor] = useState("#facc15");
   const [captionBackgroundColor, setCaptionBackgroundColor] = useState("#18181B");
+  const [spokenLanguage, setSpokenLanguage] = useState<string>("auto");
+  const [captionLanguage, setCaptionLanguage] = useState<string>("auto");
   const [videoLayout] = useState<"fullscreen" | "blur-bg" | "split">("fullscreen");
   const [progressStyle] = useState<"glow" | "line" | "none">("glow");
   const [wordClickSound] = useState(true);
@@ -542,10 +534,12 @@ export default function DashboardPage() {
   const [enableClipsCaptions, setEnableClipsCaptions] = useState(true);
   const [longVideoStylePreset, setLongVideoStylePreset] = useState<"cinematic_dark" | "corporate_clean" | "documentary_warm" | "tech_futuristic">("cinematic_dark");
   const [longVideoHeadingFont, setLongVideoHeadingFont] = useState("Montserrat");
+  const [longVideoSubheadingFont, setLongVideoSubheadingFont] = useState("Plus Jakarta Sans");
   const [longVideoBodyFont, setLongVideoBodyFont] = useState("Inter");
+  const [facelessEnableCaptions, setFacelessEnableCaptions] = useState(true);
   const [headingFont, setHeadingFont] = useState<HeadingFontOption>("Plus Jakarta Sans");
   const [typographyFont, setTypographyFont] = useState<TypographyFontOption>("Plus Jakarta Sans");
-  const [selectedBackgroundTheme, setSelectedBackgroundTheme] = useState<string>("warm-off-white-cream-texture-f4f4f9_isou0y");
+  const [selectedBackgroundTheme, setSelectedBackgroundTheme] = useState<string>("studio-white");
   const [selectedBackgroundUrl, setSelectedBackgroundUrl] = useState<string>("https://res.cloudinary.com/dhouh9idx/image/upload/v1787939447/warm-off-white-cream-texture-f4f4f9_isou0y.png");
   const [longVideoAtmosphereBg, setLongVideoAtmosphereBg] = useState<"none" | "abstract_dark" | "tech_grid" | "studio_bokeh" | "warm_gradient">("none");
   const [studioSettings, setStudioSettings] = useState<CaptionStudioSettings>(DEFAULT_STUDIO_SETTINGS);
@@ -570,6 +564,8 @@ export default function DashboardPage() {
       action: 'keep' | 'cut';
       reason?: 'repeat' | 'mistake' | 'silence' | 'filler';
     }>;
+    structuredBlocks?: any[];
+    markdown?: string;
     originalDuration: number;
     estimatedCleanDuration: number;
     stats: {
@@ -683,9 +679,9 @@ export default function DashboardPage() {
     if (!selectedFile) return null;
     return `${formatBytes(selectedFile.size)} | ${selectedFile.type || "media file"}`;
   }, [selectedFile]);
-  // Local object URL for the uploaded video — used by the Caption Studio and Typography live previews
+  // Local object URL for the uploaded video — used by Typography live preview
   const livePreviewVideoUrl = useMemo(() => {
-    if ((mode !== "captionStudio" && mode !== "typographyVideo") || !selectedFile || !selectedFile.type.startsWith("video/")) return null;
+    if (mode !== "typographyVideo" || !selectedFile || !selectedFile.type.startsWith("video/")) return null;
     return URL.createObjectURL(selectedFile);
   }, [mode, selectedFile]);
   useEffect(() => {
@@ -712,7 +708,6 @@ export default function DashboardPage() {
     (mode === "customAiReel" ? customAiPrompt.trim().length >= 12 : selectedFile) &&
     (mode !== "compare" || comparisonFiles.length === 2) &&
     (mode !== "longVideoPromo" || (Boolean(promoThumbnailFile) && Boolean(promoTitle.trim()))) &&
-    (mode !== "longCaptionPro" || (Boolean(promoClipMeta.durationSeconds) && promoClipMeta.durationSeconds! <= 600)) &&
     (mode !== "multiImagesVideo" || (comparisonFiles.length >= 2 && Boolean(promoTitle.trim()))) &&
     (mode !== "creatorBackgroundReplace" || Boolean(creatorBackgroundImageFile)) &&
     (mode !== "audioClean" || !isAnalyzingAudio) &&
@@ -816,10 +811,6 @@ export default function DashboardPage() {
     }
     setMode(nextMode);
     setHasUserSelected(true);
-    if (nextMode === "longCaptionPro") {
-      chooseCaptionStyle("Studio Clean");
-      setCaptionPosition("bottom");
-    }
     setSelectedFile(null);
     setComparisonFiles([]);
     setPromoThumbnailFile(null);
@@ -849,12 +840,6 @@ export default function DashboardPage() {
     if (!file) {
       setSelectedFile(null);
       setPromoClipMeta({});
-      return;
-    }
-    if (mode === "longCaptionPro" && file.size > 500 * 1024 * 1024) {
-      setSelectedFile(null);
-      setPromoClipMeta({});
-      setJobStatus({state: "error", message: "Long-form Captioned Video supports uploads up to 500 MB. Please choose a smaller video."});
       return;
     }
     const validation = validateFileForMode(file, mode);
@@ -1000,62 +985,86 @@ export default function DashboardPage() {
     };
   }, [mode, selectedFile, user?.id]);
 
+  const handleReanalyzeWithScript = async (pastedScript: string) => {
+    if (!selectedFile || !user?.id) return;
+    setIsAnalyzingAudio(true);
+    try {
+      let mediaKey = audioCleanAnalysis?.mediaKey;
+      if (!mediaKey) {
+        const uploadContentType = getUploadContentType(selectedFile);
+        const presignResponse = await fetch("/api/media/presign", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fileName: selectedFile.name,
+            contentType: uploadContentType,
+            fileSize: selectedFile.size,
+            mode: "audioClean",
+            userId: user.id,
+          }),
+        });
+        const presign = await readJsonPayload(presignResponse);
+        if (!presignResponse.ok || !presign.ok) {
+          throw new Error(presign.error || "Could not prepare audio upload.");
+        }
+        const uploadResponse = await fetch(presign.uploadUrl, {
+          method: "PUT",
+          headers: { "Content-Type": uploadContentType },
+          body: selectedFile,
+        });
+        if (!uploadResponse.ok) {
+          throw new Error("Audio upload failed.");
+        }
+        mediaKey = presign.key;
+      }
+
+      const analyzeResponse = await fetch("/api/audio-clean/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mediaKey,
+          userId: user.id,
+          audioCleanOptions,
+          pastedScript,
+        }),
+      });
+      const analyzeData = await readJsonPayload(analyzeResponse);
+      if (!analyzeResponse.ok || !analyzeData.ok) {
+        throw new Error(analyzeData.error || "Audio transcription & analysis failed.");
+      }
+      setAudioCleanAnalysis(analyzeData);
+    } catch (err) {
+      console.error("Audio alignment error:", err);
+    } finally {
+      setIsAnalyzingAudio(false);
+    }
+  };
+
   useEffect(() => {
-    if ((mode !== "longVideoPromo" && mode !== "longCaptionPro") || !selectedFile || !selectedFile.type.startsWith("video/")) {
+    if (mode !== "longVideoPromo" || !selectedFile || !selectedFile.type.startsWith("video/")) {
       return;
     }
 
     const url = URL.createObjectURL(selectedFile);
     const video = document.createElement("video");
-    const islongCaptionPro = mode === "longCaptionPro";
     video.preload = "metadata";
     video.src = url;
-
-    const rejectLongFormVideo = (message: string) => {
-      setSelectedFile(null);
-      setPromoClipMeta({});
-      setJobStatus({state: "error", message});
-    };
 
     const onLoadedMetadata = () => {
       const width = video.videoWidth || 0;
       const height = video.videoHeight || 0;
       const rawDurationSeconds = Number.isFinite(video.duration) ? video.duration : undefined;
 
-      if (islongCaptionPro) {
-        if (!rawDurationSeconds || rawDurationSeconds <= 0 || !width || !height) {
-          rejectLongFormVideo("We couldn't read this video's duration. Export it as an H.264 MP4, up to 10 minutes, then try again.");
-          URL.revokeObjectURL(url);
-          return;
-        }
-        if (rawDurationSeconds > 600) {
-          rejectLongFormVideo("Long-form Captioned Video supports videos up to 10 minutes. Please choose a shorter video.");
-          URL.revokeObjectURL(url);
-          return;
-        }
-        const ratio = width / height;
-        if (Math.abs(ratio - 16 / 9) > 0.15) {
-          // Non-landscape: warn but allow (renderer uses objectFit: contain)
-          setJobStatus({state: "idle", message: "Tip: Long-form Captioned Video works best with landscape videos. Upload a 16:9 video (e.g., 1920×1080 or 1280×720) for the best result."});
-        }
-      }
-
       const ratio = width && height ? width / height : 16 / 9;
       const mediaAspect = ratio < 0.8 ? "portrait" : ratio > 1.35 ? "landscape" : "1:1";
-      const durationSeconds = islongCaptionPro
-        ? rawDurationSeconds
-        : rawDurationSeconds ? Math.max(8, Math.min(60, rawDurationSeconds)) : undefined;
+      const durationSeconds = rawDurationSeconds ? Math.max(8, Math.min(60, rawDurationSeconds)) : undefined;
       setPromoClipMeta({durationSeconds, mediaAspect});
       setJobStatus({state: "idle", message: ""});
       URL.revokeObjectURL(url);
     };
 
     const onError = () => {
-      if (islongCaptionPro) {
-        rejectLongFormVideo("We couldn't read this video's duration. Export it as an H.264 MP4, up to 10 minutes, then try again.");
-      } else {
-        setPromoClipMeta({});
-      }
+      setPromoClipMeta({});
       URL.revokeObjectURL(url);
     };
 
@@ -1230,20 +1239,20 @@ export default function DashboardPage() {
 
         {activeTab === "video-types" && (
           <div className="space-y-6 animate-in fade-in duration-300">
-        {/* Compact Dashboard Quick Action & Credits Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-800 bg-slate-950/80 p-3.5 sm:p-4 shadow-xl backdrop-blur-xl">
+        {/* M3 Dashboard Quick Action & Credits Bar */}
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/80 bg-card/90 p-3 sm:p-3.5 shadow-xs backdrop-blur-xl">
           <div className="flex items-center gap-2">
-            <span className="flex h-2.5 w-2.5 rounded-full bg-[#00FF9D] animate-pulse" />
-            <span className="text-xs font-black uppercase tracking-wider text-slate-200">AI Video Engine Active</span>
+            <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-xs font-black uppercase tracking-wider text-foreground">AI Video Engine Active</span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={() => {
                 document.getElementById("ai-quick-start")?.scrollIntoView({ behavior: "smooth" });
               }}
-              className="inline-flex h-8 sm:h-9 items-center justify-center gap-2 rounded-xl bg-[#00FF9D] hover:bg-[#00FF9D]/90 px-3.5 text-xs font-black text-slate-950 shadow-md shadow-[#00FF9D]/20 transition-all duration-200 hover:scale-105 border border-[#00FF9D]/50 cursor-pointer"
+              className="inline-flex h-8 sm:h-9 items-center justify-center gap-1.5 rounded-full bg-emerald-500 hover:bg-emerald-600 px-3.5 text-xs font-black text-white shadow-xs transition-all duration-200 hover:scale-105 cursor-pointer"
             >
               <Plus size={14} strokeWidth={3} />
               <span>+ Create Video</span>
@@ -1255,20 +1264,20 @@ export default function DashboardPage() {
               return (
                 <Link
                   href="/pricing"
-                  className="inline-flex h-8 sm:h-9 items-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-500/15 px-3 text-xs font-extrabold text-amber-300 shadow-xs backdrop-blur-md transition hover:bg-amber-500/25"
+                  className="inline-flex h-8 sm:h-9 items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 text-xs font-extrabold text-amber-600 dark:text-amber-400 shadow-xs backdrop-blur-md transition hover:bg-amber-500/20"
                   title="View credit details & upgrade"
                 >
-                  <Sparkles size={13} className="text-amber-400" />
-                  <span>⚡ <strong className="text-white font-black text-xs">{remaining}</strong> / {total} Credits</span>
+                  <Sparkles size={13} className="text-amber-500" />
+                  <span>⚡ <strong className="text-foreground font-black text-xs">{remaining}</strong> / {total} Credits</span>
                 </Link>
               );
             })() : null}
 
             <Link
               href="/pricing"
-              className="inline-flex h-8 sm:h-9 items-center justify-center gap-1.5 rounded-xl bg-slate-900 border border-slate-700/60 hover:border-slate-600 px-3 text-xs font-black text-slate-200 transition hover:text-white"
+              className="inline-flex h-8 sm:h-9 items-center justify-center gap-1.5 rounded-full bg-secondary/80 border border-border/70 hover:bg-secondary px-3.5 text-xs font-bold text-foreground transition"
             >
-              <Sparkles size={13} className="text-cyan-400" />
+              <Sparkles size={13} className="text-blue-500" />
               <span>Upgrade</span>
             </Link>
           </div>
@@ -1350,7 +1359,7 @@ export default function DashboardPage() {
               <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-amber-400" />
               <div>
                 <p className="text-xs font-bold text-amber-300">Running low on credits</p>
-                <p className="mt-0.5 text-xs font-medium text-muted-foreground">You have {paidRemaining} credit{paidRemaining === 1 ? "" : "s"} left. Top up anytime starting at ₹99 ($2).</p>
+                <p className="mt-0.5 text-xs font-medium text-muted-foreground">You have {paidRemaining} credit{paidRemaining === 1 ? "" : "s"} left. Plans start at $29/mo.</p>
               </div>
             </div>
             <Link
@@ -1362,40 +1371,14 @@ export default function DashboardPage() {
           </section>
         ) : null}
 
-        {/* ── Dashboard Header ── */}
-        <section id="ai-quick-start" className="scroll-mt-24 pt-6 pb-2">
-          <div className="flex flex-col items-center justify-center text-center">
-            <h1 className="text-3xl font-bold text-foreground sm:text-4xl md:text-5xl tracking-tight">
-              Create Your Video
-            </h1>
-            <p className="mt-4 text-base text-muted-foreground sm:text-lg">
-              Choose a video type below and start creating your video.
-            </p>
-            <button
-              type="button"
-              onClick={() => document.getElementById("recent-projects")?.scrollIntoView({ behavior: "smooth" })}
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-secondary/50 hover:bg-secondary px-5 py-2 text-sm font-medium text-foreground transition-colors"
-            >
-              <FolderOpen size={16} />
-              Saved Videos
-              {recentRenders.length > 0 && (
-                <span className="ml-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">
-                  {recentRenders.length}
-                </span>
-              )}
-            </button>
-          </div>
-        </section>
-
-        {/* ── Main Studio Workflow Container ── */}
-        <section id="studio-workflows" className="w-full scroll-mt-24 pt-8">
-
+        {/* ── Main Studio Workflow Container & M3 Catalog ── */}
+        <section id="studio-workflows" className="w-full scroll-mt-24 pt-2">
           {hasUserSelected && (
-            <div className={`mb-8 inline-flex items-center gap-3 rounded-xl border ${activeMode.border} ${activeMode.surface} px-4 py-3 text-sm font-bold ${activeMode.color} shadow-sm`}>
+            <div className={`mb-6 inline-flex items-center gap-3 rounded-2xl border ${activeMode.border} ${activeMode.surface} px-4 py-2.5 text-sm font-bold ${activeMode.color} shadow-xs backdrop-blur-md`}>
               <ActiveModeIcon size={18} />
               <span className="min-w-0 font-extrabold">{activeMode.label}</span>
               <button
-                className="ml-3 rounded-lg bg-black/5 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/20 px-3 py-1.5 text-xs font-bold text-foreground transition-colors cursor-pointer"
+                className="ml-3 rounded-full bg-foreground/10 hover:bg-foreground/20 px-3 py-1 text-xs font-bold text-foreground transition-colors cursor-pointer"
                 onClick={() => { setHasUserSelected(false); }}
                 type="button"
               >
@@ -1404,131 +1387,16 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {/* Helper card renderer */}
-          {(() => {
-            const isMatch = (card: typeof videoTypeCards[number]) => {
-              if (activeCategoryFilter === 'all') return true;
-              if (activeCategoryFilter === 'video') return (card.inputType as string) === 'video';
-              if (activeCategoryFilter === 'audio') return (card.inputType as string) === 'audio' || (card.id as string) === 'ai-audio-cleaner';
-              if (activeCategoryFilter === 'text') return (card.inputType as string) === 'text' || (card.id as string) === 'typography-video' || (card.id as string) === 'compare-explainer';
-              if (activeCategoryFilter === 'ai_prompt') return (card.inputType as string) === 'ai_prompt' || (card.id as string) === 'ai-video-generator';
-              if (activeCategoryFilter === 'shorts') return card.category !== 'long';
-              if (activeCategoryFilter === 'long') return card.category === 'long';
-              return true;
-            };
-
-            const visibleLongCards = videoTypeCards.filter(c => c.category === "long" && isMatch(c));
-            const visibleShortCards = videoTypeCards.filter(c => c.category !== "long" && isMatch(c));
-
-            const renderCard = (videoType: typeof videoTypeCards[number]) => {
-              const isSelected = hasUserSelected && videoType.mode === mode;
-              const isComingSoon = Boolean("comingSoon" in videoType && videoType.comingSoon);
-              const isLongCard = videoType.category === "long";
-              return (
-                <button
-                  key={videoType.id}
-                  aria-disabled={isComingSoon}
-                  aria-pressed={isSelected}
-                  className={`group relative flex w-full h-full min-w-0 flex-col text-left ${isComingSoon ? "cursor-not-allowed" : ""}`}
-                  style={{
-                    transition: 'all 0.18s ease',
-                    opacity: isComingSoon ? 0.68 : 1,
-                    transform: isSelected ? 'scale(1.01)' : undefined,
-                  }}
-                  onClick={() => chooseVideoTypeMode(videoType.mode)}
-                  type="button"
-                  onMouseEnter={(e) => { if (!isSelected && !isComingSoon) e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                  onMouseLeave={(e) => { if (!isSelected && !isComingSoon) e.currentTarget.style.transform = ''; }}
-                >
-                  {/* Card container */}
-                  <div
-                    className={`relative flex h-full w-full flex-col overflow-hidden rounded-xl border bg-card transition-all duration-200 hover:shadow-md ${isSelected ? 'border-primary ring-1 ring-primary' : 'border-border hover:border-foreground/30'}`}
-                  >
-                    {/* Pure Image Preview Container */}
-                    <div className={`relative w-full overflow-hidden bg-transparent ${isLongCard ? 'aspect-[16/9]' : 'aspect-[9/16]'}`}>
-                      <Image
-                        alt={videoType.title}
-                        className="transition duration-300 group-hover:scale-[1.03] object-cover object-center"
-                        fill
-                        sizes="(min-width: 1280px) 20vw, (min-width: 768px) 33vw, 50vw"
-                        src={videoType.image}
-                      />
-
-                      {/* Live MP4 Video Preview on Hover */}
-                      {"videoPreviewUrl" in videoType && videoType.videoPreviewUrl ? (
-                        <video
-                          src={videoType.videoPreviewUrl}
-                          autoPlay
-                          loop
-                          muted
-                          playsInline
-                          className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500 opacity-0 group-hover:opacity-100 z-10 pointer-events-none"
-                        />
-                      ) : null}
-
-                      {/* Selected Indicator Pill inside Image */}
-                      {isSelected && (
-                        <div className="absolute right-2 top-2 z-20 flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground shadow-sm">
-                          <Check size={12} strokeWidth={3} />
-                          <span>SELECTED</span>
-                        </div>
-                      )}
-
-                      {/* Preview Expand Eye Icon */}
-                      <div
-                        className={`absolute right-2 bottom-2 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-background/90 backdrop-blur-sm border border-border text-foreground opacity-0 transition-opacity group-hover:opacity-100 ${isComingSoon ? "cursor-not-allowed" : "cursor-pointer"}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (isComingSoon) return;
-                          setPreviewVideoTypeId(videoType.id);
-                        }}
-                        role="button"
-                        aria-label={`Preview ${videoType.title}`}
-                      >
-                        <Eye size={14} />
-                      </div>
-                    </div>
-                    
-                    {/* Minimal Title Bar (BOTTOM) */}
-                    <div className="flex items-center justify-between gap-2 px-3 py-3 bg-card border-t border-border w-full">
-                      <h3 className="text-sm font-semibold text-foreground truncate">
-                        {videoType.title}
-                      </h3>
-                      {videoType.badgeType && (
-                        <span className="shrink-0 rounded bg-secondary px-1.5 py-0.5 text-[10px] font-bold text-secondary-foreground uppercase tracking-wider">
-                          {videoType.badgeType}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </button>
-              );
-            };
-
-            return (
-              <div className="space-y-10">
-                {/* Long Video Types */}
-                {visibleLongCards.length > 0 && (
-                  <div>
-                    <p className="mb-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">Long Videos</p>
-                    <div className="grid min-w-0 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-                      {visibleLongCards.map(renderCard)}
-                    </div>
-                  </div>
-                )}
-
-                {/* Short Video Types */}
-                {visibleShortCards.length > 0 && (
-                  <div id="quick-tools" className="scroll-mt-24">
-                    <p className="mb-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">Short Videos</p>
-                    <div className="grid min-w-0 grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3.5 sm:gap-4">
-                      {visibleShortCards.map(renderCard)}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })()}
+          <MaterialCatalogGrid
+            cards={videoTypeCards}
+            selectedMode={mode}
+            hasUserSelected={hasUserSelected}
+            activeFilter={activeCategoryFilter}
+            onFilterChange={setActiveCategoryFilter}
+            onSelectMode={chooseVideoTypeMode}
+            onPreviewVideoType={setPreviewVideoTypeId}
+            recentRendersCount={recentRenders.length}
+          />
 
           {/* Active Workflow Configuration Container */}
           {hasUserSelected && (
@@ -1696,8 +1564,20 @@ export default function DashboardPage() {
                     </div>
                   ) : null}
                 </div>
-              ) : (
+              ) : mode === "audioClean" ? null : (
               <div id="upload-section" className="scroll-mt-20">
+              {mode === "facelessVideo" || mode === "aiVideoGenerator" ? (
+                <div className="mb-3.5 flex items-start gap-3 rounded-xl border border-sky-500/25 bg-sky-950/30 p-3.5 text-xs text-slate-300">
+                  <Sparkles size={16} className="mt-0.5 shrink-0 text-sky-400" />
+                  <div className="flex-1 leading-relaxed">
+                    <span className="font-bold text-white">Voiceover clean karna hai?</span> Agar aapki recording me retakes, background shor ya long silences hain, to video generate karne se pehle hamare{' '}
+                    <Link href="/dashboard?videoType=ai-audio-cleaner" className="font-bold text-sky-400 underline hover:text-sky-300">
+                      AI Audio Cleaner
+                    </Link>{' '}
+                    se ek click me audio clean karein.
+                  </div>
+                </div>
+              ) : null}
               <label
                 className="upload-zone flex min-h-40 min-w-0 max-w-full cursor-pointer flex-col items-center justify-center overflow-hidden sm:min-h-64"
               >
@@ -1714,7 +1594,7 @@ export default function DashboardPage() {
                   <Upload size={28} style={{ color: 'var(--color-primary-hover)' }} />
                 </div>
                 <p className="max-w-full px-2 text-center text-sm font-medium leading-5 text-white">{selectedFile ? "Change selected file" : activeMode.uploadCta || 'Click to upload or drag & drop'}</p>
-                <p className="mt-2 max-w-full px-2 text-center text-xs leading-5" style={{ color: 'var(--text-dark-muted)' }}>{activeMode.supported}{mode === "longCaptionPro" ? "" : " • Max 1 minute"}</p>
+                <p className="mt-2 max-w-full px-2 text-center text-xs leading-5" style={{ color: 'var(--text-dark-muted)' }}>{activeMode.supported}{mode === "facelessVideo" || mode === "aiVideoGenerator" ? "" : " • Max 1 minute"}</p>
               </label>
               {selectedFile ? (
                 <div className="mt-3 w-full min-w-0 overflow-hidden rounded-lg border border-border bg-black/35 p-3 text-left sm:p-4">
@@ -1732,6 +1612,35 @@ export default function DashboardPage() {
                     </button>
                   </div>
                   <SelectedMediaPreview file={selectedFile} mode={mode} />
+                </div>
+              ) : null}
+
+              {/* Multi-Language Selector: Audio Spoken & Caption Language */}
+              {(mode === "autoCaption" ||
+                mode === "typographyVideo" ||
+                mode === "facelessVideo" ||
+                mode === "aiVideoGenerator" ||
+                mode === "longVideoClips") ? (
+                <div className="mt-4 rounded-2xl border border-border bg-card/70 p-4 sm:p-5 shadow-xs">
+                  <div className="mb-3.5 flex items-center justify-between border-b border-border/60 pb-2.5">
+                    <div>
+                      <span className="text-xs font-black uppercase tracking-[0.16em] text-foreground">
+                        Language & Subtitles
+                      </span>
+                      <p className="mt-0.5 text-[11px] text-muted-foreground">
+                        Select audio speech language and caption output language
+                      </p>
+                    </div>
+                    <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-bold text-primary">
+                      Multi-Language
+                    </span>
+                  </div>
+                  <DualLanguageSelector
+                    spokenLanguage={spokenLanguage}
+                    captionLanguage={captionLanguage}
+                    onSpokenLanguageChange={setSpokenLanguage}
+                    onCaptionLanguageChange={setCaptionLanguage}
+                  />
                 </div>
               ) : null}
               </div>
@@ -1768,7 +1677,7 @@ export default function DashboardPage() {
                 </>
               ) : null}
 
-              {mode === "multiImagesVideo" || mode === "facelessLongVideo" || mode === "aiVideoGenerator" ? (
+              {mode === "multiImagesVideo" ? (
                 <>
                 {/* Live preview — sticky like the CapCut editor so it stays visible while you scroll controls */}
                 <div className="sticky top-16 z-30 -mx-4 mb-1 border-b border-border bg-[#141020]/95 px-4 pb-4 pt-3 backdrop-blur-md sm:top-4 sm:mx-0 sm:rounded-lg sm:border sm:border-border sm:bg-black/25">
@@ -2238,225 +2147,19 @@ export default function DashboardPage() {
               ) : null}
 
               {mode === "audioClean" ? (
-                <div className="space-y-4">
-                  {/* 1. Analyzing Banner */}
-                  {isAnalyzingAudio ? (
-                    <div className="rounded-xl border border-orange-500/30 bg-orange-500/10 p-4 text-center">
-                      <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-orange-500/20 text-orange-400 mb-2 animate-pulse">
-                        <Mic size={20} />
-                      </div>
-                      <p className="text-sm font-black text-white">Transcribing & Analyzing Full Script...</p>
-                      <p className="mt-1 text-xs text-orange-200/80">
-                        AI is reading your entire audio to detect repeated sentences, speech mistakes, and long awkward pauses.
-                      </p>
-                    </div>
-                  ) : null}
-
-                  {/* 2. Full Script Preview with Repeated Sentences & Mistakes Marked */}
-                  {audioCleanAnalysis ? (
-                    <div className="rounded-xl border border-orange-500/30 bg-zinc-900/80 p-4 shadow-xl">
-                      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <FileText size={16} className="text-orange-400" />
-                            <p className="text-sm font-black text-white">Full Script & AI Take Detection</p>
-                          </div>
-                          <p className="text-[11px] text-muted-foreground mt-0.5">
-                            AI analyzed your complete voiceover. Click any sentence to toggle Keep / Cut.
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">
-                            ⏱️ {audioCleanAnalysis.originalDuration}s ➔ {audioCleanAnalysis.estimatedCleanDuration}s
-                          </span>
-                          {audioCleanAnalysis.stats.repeatedTakesCount > 0 && (
-                            <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-red-950/70 text-red-300 border border-red-800/60">
-                              🔁 {audioCleanAnalysis.stats.repeatedTakesCount} retakes cut
-                            </span>
-                          )}
-                          {audioCleanAnalysis.stats.silenceCount > 0 && (
-                            <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-amber-950/70 text-amber-300 border border-amber-800/60">
-                              🔇 {audioCleanAnalysis.stats.silenceCount} silences
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Script Scrollable Area */}
-                      <div className="mt-3 max-h-64 overflow-y-auto space-y-2 pr-1 text-xs">
-                        {audioCleanAnalysis.segments && audioCleanAnalysis.segments.length > 0 ? (
-                          audioCleanAnalysis.segments.map((seg) => {
-                            const isCut = seg.action === "cut";
-                            return (
-                              <div
-                                key={seg.id}
-                                onClick={() => toggleAudioCleanSegment(seg.id)}
-                                className={`group flex items-start justify-between gap-3 p-2.5 rounded-lg border transition-all cursor-pointer ${
-                                  isCut
-                                    ? "bg-red-950/20 border-red-500/30 hover:border-red-500/50"
-                                    : "bg-zinc-950/40 border-white/5 hover:border-white/20"
-                                }`}
-                              >
-                                <div className="space-y-1 min-w-0">
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-[10px] font-mono text-zinc-400">
-                                      {seg.start.toFixed(1)}s - {seg.end.toFixed(1)}s
-                                    </span>
-                                    {isCut && (
-                                      <span className="text-[10px] font-bold uppercase px-1.5 py-0.2 rounded bg-red-500/20 text-red-400 border border-red-500/30">
-                                        {seg.reason === "repeat"
-                                          ? "Repeated Take"
-                                          : seg.reason === "mistake"
-                                          ? "Mistake / False Start"
-                                          : seg.reason === "silence"
-                                          ? "Long Silence"
-                                          : "Cut"}
-                                      </span>
-                                    )}
-                                  </div>
-                                  <p
-                                    className={`leading-relaxed text-[13px] ${
-                                      isCut
-                                        ? "line-through text-red-300/70"
-                                        : "text-zinc-100 font-medium"
-                                    }`}
-                                  >
-                                    {seg.text}
-                                  </p>
-                                </div>
-                                <button
-                                  type="button"
-                                  className={`shrink-0 text-[10px] font-bold px-2 py-1 rounded transition ${
-                                    isCut
-                                      ? "bg-red-900/40 hover:bg-red-900/70 text-red-300 border border-red-700/50"
-                                      : "bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700"
-                                  }`}
-                                >
-                                  {isCut ? "Restore" : "Cut"}
-                                </button>
-                              </div>
-                            );
-                          })
-                        ) : (
-                          <div className="p-3 text-center text-zinc-400">
-                            {audioCleanAnalysis.transcript || "No speech detected in audio file."}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ) : null}
-
-                  {/* 3. Audio Cleaning Options */}
-                  <div className="rounded-xl border border-orange-400/20 bg-orange-400/[0.06] p-4">
-                    <div>
-                      <p className="text-sm font-black text-white">AI Cleaning Options</p>
-                      <p className="mt-1 text-xs font-bold leading-5 text-muted-foreground">
-                        Customise how your voiceover is cleaned, normalized, and polished.
-                      </p>
-                    </div>
-                    <div className="mt-4 grid gap-2.5">
-                      {([
-                        {
-                          key: "removeRepeats",
-                          label: "Remove Repeated Sentences & Mistakes",
-                          desc: "Detects repeated takes when you stutter or re-say a sentence, keeping only your best take.",
-                        },
-                        {
-                          key: "removeSilence",
-                          label: "Remove Long Silence (>1.0s)",
-                          desc: "Trims dead air pauses down to a natural 0.3s breathing gap.",
-                        },
-                        {
-                          key: "volumeNormalize",
-                          label: "Voice Volume Normalization (Same-to-Same)",
-                          desc: "Studio EBU R128 loudness normalization for uniform, consistent volume throughout.",
-                        },
-                        {
-                          key: "noiseReduction",
-                          label: "Background Noise Reduction (Optional)",
-                          desc: "Applies FFT spectral gating to remove AC hum, fan noise, and hiss.",
-                        },
-                        {
-                          key: "removeFillers",
-                          label: "Remove Filler Words",
-                          desc: 'Cut "um", "uh", "like", and "you know" hesitations.',
-                        },
-                        {
-                          key: "removeFalseStarts",
-                          label: "Remove False Starts",
-                          desc: "Cut self-corrections and restarted sentences.",
-                        },
-                        {
-                          key: "trimEnds",
-                          label: "Trim Start & End Silence",
-                          desc: "Remove dead air before speech begins and after speech ends.",
-                        },
-                      ] as const).map((opt) => (
-                        <div
-                          key={opt.key}
-                          className="flex items-center justify-between rounded-lg border border-white/8 bg-black/20 px-3 py-2.5"
-                        >
-                          <div className="pr-3">
-                            <p className="text-xs font-bold text-foreground">{opt.label}</p>
-                            <p className="text-[10px] text-muted-foreground leading-4 mt-0.5">{opt.desc}</p>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setAudioCleanOptions((prev) => ({
-                                ...prev,
-                                [opt.key]: !prev[opt.key as keyof typeof prev],
-                              }))
-                            }
-                            className={`relative h-5 w-9 shrink-0 rounded-full transition ${
-                              audioCleanOptions[opt.key as keyof typeof audioCleanOptions]
-                                ? "bg-orange-500"
-                                : "bg-zinc-700"
-                            }`}
-                          >
-                            <span
-                              className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${
-                                audioCleanOptions[opt.key as keyof typeof audioCleanOptions]
-                                  ? "translate-x-[18px]"
-                                  : "translate-x-0.5"
-                              }`}
-                            />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* 4. Clean Audio Result Player & Download (if already processed) */}
-                  {audioCleanResult ? (
-                    <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-4 shadow-xl space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-emerald-400">
-                          <CheckCircle2 size={18} />
-                          <p className="text-sm font-black text-white">Cleaned Audio Ready!</p>
-                        </div>
-                        <span className="text-xs font-bold text-emerald-300">
-                          {audioCleanResult.cleanedDuration}s (was {audioCleanResult.originalDuration}s)
-                        </span>
-                      </div>
-                      <audio
-                        src={audioCleanResult.outputUrl}
-                        controls
-                        className="w-full rounded-lg"
-                      />
-                      <div className="flex items-center justify-end gap-2 pt-1">
-                        <a
-                          href={audioCleanResult.outputUrl}
-                          download="cleaned-voiceover.mp3"
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs transition shadow-lg"
-                        >
-                          <Download size={14} />
-                          <span>Download Clean Audio (.mp3)</span>
-                        </a>
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
+                <AudioCleanStudio
+                  selectedFile={selectedFile}
+                  onSelectFile={setSelectedFile}
+                  audioCleanOptions={audioCleanOptions}
+                  setAudioCleanOptions={setAudioCleanOptions}
+                  audioCleanAnalysis={audioCleanAnalysis}
+                  setAudioCleanAnalysis={setAudioCleanAnalysis}
+                  isAnalyzingAudio={isAnalyzingAudio}
+                  onReanalyzeWithScript={handleReanalyzeWithScript}
+                  audioCleanResult={audioCleanResult}
+                  onCleanAudio={startRenderJob}
+                  isCleaning={jobStatus.state === "starting" || jobStatus.state === "rendering" || jobStatus.state === "uploading"}
+                />
               ) : null}
 
               {mode === "autoCaption" ? (
@@ -2767,7 +2470,7 @@ export default function DashboardPage() {
                 </div>
               ) : null}
 
-              <div className={mode === "autoCaption" || mode === "captionStudio" || mode === "longCaptionPro" || mode === "creatorBackgroundReplace" || mode === "customAiReel" || mode === "longVideoPromo" || mode === "compare" || mode === "typographyVideo" || mode === "longVideoClips" || mode === "whiteboardVideo" || mode === "audioClean" || mode === "longVideoPro" || mode === "multiImagesVideo" ? "hidden" : "rounded-lg border border-border bg-card/[0.035] p-4"}>
+              <div className={mode === "autoCaption" || mode === "creatorBackgroundReplace" || mode === "customAiReel" || mode === "longVideoPromo" || mode === "compare" || mode === "typographyVideo" || mode === "longVideoClips" || mode === "whiteboardVideo" || mode === "audioClean" || mode === "longVideoPro" || mode === "multiImagesVideo" ? "hidden" : "rounded-lg border border-border bg-card/[0.035] p-4"}>
                 <label className="form-label-muted" htmlFor="reel-topic">
                   Reel topic/title
                 </label>
@@ -2790,7 +2493,24 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {(mode === "facelessLongVideo" || mode === "aiVideoGenerator" || mode === "longVideoPro") && (
+              {mode === "facelessVideo" || mode === "aiVideoGenerator" ? (
+                <div className="mt-4">
+                  <FacelessVideoStyleControls
+                    headingFont={longVideoHeadingFont}
+                    setHeadingFont={setLongVideoHeadingFont}
+                    subheadingFont={longVideoSubheadingFont}
+                    setSubheadingFont={setLongVideoSubheadingFont}
+                    bodyFont={longVideoBodyFont}
+                    setBodyFont={setLongVideoBodyFont}
+                    selectedBackgroundTheme={selectedBackgroundTheme}
+                    setSelectedBackgroundTheme={setSelectedBackgroundTheme}
+                    selectedBackgroundUrl={selectedBackgroundUrl}
+                    setSelectedBackgroundUrl={setSelectedBackgroundUrl}
+                    enableCaptions={facelessEnableCaptions}
+                    setEnableCaptions={setFacelessEnableCaptions}
+                  />
+                </div>
+              ) : mode === "longVideoPro" ? (
                 <div className="mt-4">
                   <VideoStyleControls
                     headingFont={headingFont}
@@ -2803,18 +2523,13 @@ export default function DashboardPage() {
                     setSelectedBackgroundUrl={setSelectedBackgroundUrl}
                   />
                 </div>
-              )}
+              ) : null}
 
               <div className="grid gap-3 sm:grid-cols-2">
-                {mode === "longCaptionPro" ? (
+                {mode === "facelessVideo" || mode === "aiVideoGenerator" ? (
                   <>
-                    <PolicyPill icon={Clock3} title="Up to 10 minutes" body="Original video and audio are preserved in a 16:9 long-form MP4." />
-                    <PolicyPill icon={Captions} title="Fresh timed captions" body="English or Roman Hinglish captions are generated from this upload only." />
-                  </>
-                ) : mode === "autoCaption" || mode === "captionStudio" ? (
-                  <>
-                    <PolicyPill icon={Clock3} title="Up to 90 seconds" body="Longer uploads are trimmed to the first 90 seconds." />
-                    <PolicyPill icon={ShieldCheck} title="Private & temporary" body="Your file is only used to create your reel. Not shared." />
+                    <PolicyPill icon={Clock3} title="Up to 20 minutes" body="Pure 16:9 widescreen video with curated AI visuals and synced captions." />
+                    <PolicyPill icon={Palette} title="Canva Colors & 3 Fonts" body="Studio white default with clean typography hierarchy and zero glare bleed." />
                   </>
                 ) : (
                   <>
@@ -2875,7 +2590,9 @@ export default function DashboardPage() {
                           : "Clean Audio Now"
                         : paidLimitComplete
                           ? isFreeSignupCredit ? "Buy Credits to Create More" : "Plan limit complete"
-                          : isFreeSignupCredit ? "Create My Video" : "Create My Reel"}
+                          : !selectedFile && mode !== "customAiReel"
+                            ? (activeMode.accept.startsWith("video") ? "Upload Video First" : "Upload Audio First")
+                            : isFreeSignupCredit ? "Create My Video" : "Create My Reel"}
               </button>
               <p className="text-center text-xs font-bold leading-5 text-muted-foreground">
                 {renderInProgress
@@ -3021,7 +2738,7 @@ export default function DashboardPage() {
             aria-label={`Preview ${previewVideoType.title}`}
           >
             <div
-              className="relative flex max-h-[90vh] w-full max-w-sm flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+              className={`relative flex max-h-[90vh] w-full ${previewVideoType.category === 'long' ? 'max-w-2xl' : 'max-w-sm'} flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl`}
               onClick={(e) => e.stopPropagation()}
             >
               {/* Close button */}
@@ -3034,14 +2751,14 @@ export default function DashboardPage() {
                 <X size={16} />
               </button>
 
-              {/* Full reel preview image - 9:16 */}
+              {/* Full reel / widescreen preview */}
               <div className="relative min-h-0 flex-1 overflow-hidden bg-black">
-                <div className="relative mx-auto aspect-[9/16] max-h-[56vh] w-full">
+                <div className={`relative mx-auto ${previewVideoType.category === 'long' ? 'aspect-video max-h-[60vh]' : 'aspect-[9/16] max-h-[56vh]'} w-full`}>
                 <Image
                   alt={previewVideoType.title}
                   className="object-cover object-center"
                   fill
-                  sizes="380px"
+                  sizes={previewVideoType.category === 'long' ? "720px" : "380px"}
                   src={previewVideoType.image}
                   priority
                 />
@@ -3159,12 +2876,6 @@ export default function DashboardPage() {
     if (validation) {
       renderRequestInFlightRef.current = false;
       setJobStatus({state: "error", message: validation});
-      return;
-    }
-
-    if (mode === "longCaptionPro" && (!promoClipMeta.durationSeconds || promoClipMeta.durationSeconds > 600)) {
-      renderRequestInFlightRef.current = false;
-      setJobStatus({state: "error", message: "We need the video duration before rendering. Choose a video up to 10 minutes."});
       return;
     }
 
@@ -3436,6 +3147,9 @@ export default function DashboardPage() {
             captionBackgroundColor: String(overrideInputProps.backgroundColor || captionBackgroundColor),
             captionShowBackground: typeof overrideInputProps.showBackground === "boolean" ? overrideInputProps.showBackground : captionBackgroundColor !== "",
           } : {}),
+          spokenLanguage: spokenLanguage !== "auto" ? spokenLanguage : undefined,
+          captionLanguage: captionLanguage !== "auto" ? captionLanguage : undefined,
+          subtitleOutputLanguage: captionLanguage !== "auto" ? captionLanguage : undefined,
           videoLayout: mode === "autoCaption" ? "fullscreen" : String(overrideInputProps.videoLayout || videoLayout),
           progressStyle: mode === "autoCaption" ? "none" : String(overrideInputProps.progressStyle || progressStyle),
           wordClickSound: mode === "autoCaption" ? false : wordClickSound,
@@ -3464,13 +3178,6 @@ export default function DashboardPage() {
             durationSeconds: promoClipMeta.durationSeconds || undefined,
             sourceDurationSeconds: promoClipMeta.durationSeconds || undefined,
           } : {}),
-          // Long-form Captioned Video fields
-          ...(mode === "longCaptionPro" ? {
-            durationSeconds: promoClipMeta.durationSeconds || undefined,
-            sourceDurationSeconds: promoClipMeta.durationSeconds || undefined,
-            backgroundMusic: false,
-            enableSfx: false,
-          } : {}),
           ...(mode === "creatorBackgroundReplace" ? {
             backgroundImageKey: creatorBackgroundImageKey || undefined,
             backgroundFit: creatorBackgroundSettings.backgroundFit,
@@ -3490,10 +3197,6 @@ export default function DashboardPage() {
             customAiVideoDurationSeconds: customAiVideoDurationSeconds || undefined,
             customAiAudioDurationSeconds: customAiAudioDurationSeconds || undefined,
           } : {}),
-          // Caption Studio manual settings — server passes these through to Remotion composition
-          ...(mode === "captionStudio" ? {
-            captionStudioSettings: studioSettings,
-          } : {}),
           // Long Video Clips fields
           ...(mode === "longVideoClips" ? {
             clipCount,
@@ -3506,8 +3209,8 @@ export default function DashboardPage() {
           ...(mode === "audioClean" ? {
             audioCleanOptions,
           } : {}),
-          // SFX preference (applies to caption-based templates except Long-form Captioned Video)
-          enableSfx: mode === "longCaptionPro" ? false : enableSfx,
+          // SFX preference
+          enableSfx,
           // Typography Video fields
           ...(mode === "typographyVideo" ? {
             typographyStyle,
@@ -3517,15 +3220,18 @@ export default function DashboardPage() {
           ...(mode === "whiteboardVideo" ? {
             whiteboardBoard,
           } : {}),
-          // AI Video Generator & Faceless Long Video background & typography
-          ...((mode === "aiVideoGenerator" || mode === "facelessLongVideo" || mode === "longVideoPro") ? {
+          // Faceless Video background & typography
+          ...((mode === "facelessVideo" || mode === "aiVideoGenerator" || mode === "longVideoPro") ? {
             backgroundTheme: selectedBackgroundTheme,
             selectedBackgroundTheme,
             customBgUrl: selectedBackgroundUrl,
             backgroundUrl: selectedBackgroundUrl,
-            headingFont,
-            bodyFont: typographyFont,
-            typographyFont,
+            headingFont: mode === "longVideoPro" ? headingFont : longVideoHeadingFont,
+            subheadingFont: longVideoSubheadingFont,
+            bodyFont: mode === "longVideoPro" ? typographyFont : longVideoBodyFont,
+            typographyFont: mode === "longVideoPro" ? typographyFont : longVideoBodyFont,
+            showCaptions: facelessEnableCaptions,
+            enableCaptions: facelessEnableCaptions,
           } : {}),
         }),
       });
@@ -3620,9 +3326,7 @@ export default function DashboardPage() {
 
       const renderingMessage = mode === "longVideoPromo"
         ? "Rendering your promo MP4. No transcription or caption planning is running."
-        : mode === "longCaptionPro"
-          ? "Rendering your full 16:9 captioned video. This can take longer for a 10-minute upload."
-          : job.transcriptSource === "not-required"
+        : job.transcriptSource === "not-required"
           ? "Rendering your MP4..."
           : job.transcriptSource === "primary"
             ? "Rendering your reel. This may take a few minutes..."
@@ -3909,10 +3613,9 @@ function validateFileForMode(file: File, mode: Mode) {
   if (file.size > maxBytes) {
     return "This file is too large. Please upload a shorter file or compress it under 500MB.";
   }
-  if ((mode === "creatorBackgroundReplace" || mode === "autoCaption" || mode === "captionStudio" || mode === "dynamicCreator") && !isVideo) {
+  if ((mode === "creatorBackgroundReplace" || mode === "autoCaption" || mode === "dynamicCreator") && !isVideo) {
     if (mode === "creatorBackgroundReplace") return "Creator Background Replace needs a video file. Please upload an MP4/MOV video.";
     if (mode === "dynamicCreator") return "Creator Reel Video needs a video file. Please upload an MP4/MOV video.";
-    if (mode === "captionStudio") return "Caption Studio needs a video file. Please upload an MP4/MOV video.";
     return "Auto Caption Video needs a video file. Please upload an MP4/MOV video.";
   }
   if (mode === "compare" && !isAudio) {
@@ -3921,14 +3624,14 @@ function validateFileForMode(file: File, mode: Mode) {
   if (mode === "longVideoPromo" && !isVideo) {
     return "Long Video Promo needs a video clip (MP4/MOV/WEBM).";
   }
-  if (mode === "longCaptionPro" && !isVideo) {
-    return "Long-form Captioned Video needs a video file with clear speech (MP4/MOV/WEBM).";
-  }
   if (mode === "autoDraw" && !isAudio && !isVideo) {
     return `${modeConfig[mode].title} needs an audio or video file with clear speech.`;
   }
   if (mode === "longVideoPro" && !isAudio && !isVideo) {
     return "Long Video Pro needs an audio or video file with clear speech.";
+  }
+  if ((mode === "facelessVideo" || mode === "aiVideoGenerator") && !isAudio) {
+    return "Faceless Video needs an audio voiceover file (MP3, WAV, M4A, AAC) up to 20 minutes.";
   }
   return "";
 }
@@ -4018,12 +3721,10 @@ function RenderWaitCarousel() {
 
 function planningMessageForMode(mode: Mode) {
   if (mode === "autoCaption") return "Preparing styled captions for your reel...";
-  if (mode === "captionStudio") return "Rendering your custom captions...";
   if (mode === "compare") return "Preparing left/right comparison scenes...";
   if (mode === "creatorBackgroundReplace") return "Preparing your background replacement render...";
   if (mode === "autoDraw") return "Creating whiteboard scenes from your voiceover...";
   if (mode === "longVideoPromo") return "Preparing your promo reel...";
-  if (mode === "longCaptionPro") return "Transcribing your full video and preparing timed captions...";
   if (mode === "dynamicCreator") return "Preparing dynamic text and pacing...";
   if (mode === "customAiReel") return "Planning your custom reel timeline...";
   return "Choosing scenes, text, and visuals...";
@@ -4452,9 +4153,7 @@ function getRenderStageMeta(status: JobStatus, mode: Mode): {
   }
   if (status.state === "starting") {
     return {
-      body: mode === "longCaptionPro"
-        ? "Transcribing your full video. This takes 30–90 seconds for longer uploads — please keep this page open."
-        : mode === "compare"
+      body: mode === "compare"
         ? "AI is transcribing your audio and preparing image comparison timing."
         : mode === "creatorBackgroundReplace"
           ? "Preparing the creator cutout and uploaded background."
@@ -4466,19 +4165,17 @@ function getRenderStageMeta(status: JobStatus, mode: Mode): {
       badgeClass: "border-brand-mint/30 bg-brand-mint/[0.12] text-brand-mint",
       icon: Layers3,
       iconFrame: "border-brand-mint/35 bg-brand-mint/[0.13] text-brand-mint",
-      kicker: mode === "longCaptionPro" ? "Transcribing full video" : mode === "longVideoPro" ? "AI is planning scenes" : mode === "compare" ? "AI is transcribing" : mode === "creatorBackgroundReplace" ? "Background prep" : mode === "longVideoPromo" ? "Promo setup" : mode === "customAiReel" ? "Timeline planning" : "AI is transcribing",
+      kicker: mode === "longVideoPro" ? "AI is planning scenes" : mode === "compare" ? "AI is transcribing" : mode === "creatorBackgroundReplace" ? "Background prep" : mode === "longVideoPromo" ? "Promo setup" : mode === "customAiReel" ? "Timeline planning" : "AI is transcribing",
       kickerClass: "text-brand-mint",
-      title: mode === "longCaptionPro" ? "Transcribing your video" : mode === "longVideoPro" ? "AI is directing your video" : mode === "compare" ? "Building your comparison" : mode === "creatorBackgroundReplace" ? "Preparing background replace" : mode === "longVideoPromo" ? "Preparing your promo reel" : mode === "customAiReel" ? "Planning your custom reel" : "AI is transcribing",
+      title: mode === "longVideoPro" ? "AI is directing your video" : mode === "compare" ? "Building your comparison" : mode === "creatorBackgroundReplace" ? "Preparing background replace" : mode === "longVideoPromo" ? "Preparing your promo reel" : mode === "customAiReel" ? "Planning your custom reel" : "AI is transcribing",
     };
   }
   return {
     body: mode === "longVideoPromo"
       ? "Exporting your thumbnail, title, and promo clip. No transcription or captions are running."
-      : mode === "longCaptionPro"
-        ? "Rendering your full 16:9 video with captions. Longer videos take longer — a 10-minute video needs 5-10 minutes."
-        : mode === "longVideoPro"
-          ? "AI is rendering your directed video with planned scenes and motion. This takes 3-10 minutes."
-          : "Rendering your final MP4. Usually 2-10 minutes depending on video length, captions, and current render load.",
+      : mode === "longVideoPro"
+        ? "AI is rendering your directed video with planned scenes and motion. This takes 3-10 minutes."
+        : "Rendering your final MP4. Usually 2-10 minutes depending on video length, captions, and current render load.",
     badgeClass: "border-cyan-200/35 bg-cyan-300/[0.12] text-cyan-100",
     icon: Clapperboard,
     iconFrame: "border-cyan-200/35 bg-cyan-300/[0.13] text-cyan-100",
@@ -4539,16 +4236,6 @@ function getRenderStepDefinitions(mode: Mode) {
       {label: "Building typography", detail: "Dynamic text, pacing, and creator-safe overlays are prepared.", threshold: 0.45, icon: Sparkles},
       {label: "Rendering final MP4", detail: "Creating HD frames. Usually 2-10 minutes.", threshold: 0.85, icon: Film},
       {label: "Ready to download", detail: "Your creator reel appears here when ready.", threshold: 0.96, icon: Clapperboard},
-    ];
-  }
-  if (mode === "longCaptionPro") {
-    return [
-      {label: "Upload received", detail: "Your landscape video is safely uploaded to secure storage.", threshold: 0.06, icon: Upload},
-      {label: "Analyzing audio", detail: "Detecting speech patterns and language from your full video.", threshold: 0.14, icon: Layers3},
-      {label: "Transcribing speech", detail: "Converting every word to timed text. This takes 30–90 seconds for long videos.", threshold: 0.32, icon: Captions},
-      {label: "Applying caption style", detail: "Positioning captions with your chosen style and safe spacing.", threshold: 0.42, icon: Sparkles},
-      {label: "Rendering 16:9 MP4", detail: "Building HD frames with cinematic treatment. Longer videos take longer.", threshold: 0.88, icon: Film},
-      {label: "Ready to download", detail: "Your full captioned video appears here when ready.", threshold: 0.96, icon: Clapperboard},
     ];
   }
   if (mode === "longVideoPro") {
@@ -4805,7 +4492,7 @@ function normalizeRenderMode(value: unknown): Mode | null {
   if (normalized === "compare" || normalized === "comparison" || normalized === "compareexplainer" || normalized === "vs") return "compare";
   if (normalized === "autodraw" || normalized === "autodrawexplainer" || normalized === "whiteboard") return "autoDraw";
   if (normalized === "longvideopromo" || normalized === "longvideopromotion" || normalized === "promo") return "longVideoPromo";
-  if (normalized === "longCaptionPro" || normalized === "longformcaptioned" || normalized === "longvideocaptioned") return "longCaptionPro";
+  if (normalized === "longformcaptioned" || normalized === "longvideocaptioned") return "autoCaption";
   if (normalized === "whiteboardvideo" || normalized === "whiteboardreel") return "whiteboardVideo";
   if (normalized === "typographyvideo" || normalized === "typographyreel" || normalized === "boldreel") return "typographyVideo";
   if (normalized === "multiimagesvideo" || normalized === "multiimages" || normalized === "multiimagevideo") return "multiImagesVideo";
@@ -4814,7 +4501,7 @@ function normalizeRenderMode(value: unknown): Mode | null {
   if (normalized === "creatorbackgroundreplace" || normalized === "backgroundreplace" || normalized === "videobackgroundimage") return "creatorBackgroundReplace";
   if (normalized === "customaireel" || normalized === "customai" || normalized === "customreel") return "customAiReel";
   if (normalized === "audioclean" || normalized === "audiocleaner" || normalized === "aiaudiocleaner") return "audioClean";
-  if (normalized === "aivideogenerator" || normalized === "aivideo" || normalized === "textovideo" || normalized === "scripttovideo" || normalized === "facelesslongvideo" || normalized === "faceless" || normalized === "longvideopro" || normalized === "longvideo" || normalized === "aidirector" || normalized === "aidirectorreel" || normalized === "directorreel") return "aiVideoGenerator";
+  if (normalized === "aivideogenerator" || normalized === "aivideo" || normalized === "textovideo" || normalized === "scripttovideo" || normalized === "facelesslongvideo" || normalized === "facelessvideo" || normalized === "faceless" || normalized === "longvideopro" || normalized === "longvideo" || normalized === "aidirector" || normalized === "aidirectorreel" || normalized === "directorreel") return "facelessVideo";
   return null;
 }
 
@@ -4825,7 +4512,7 @@ function getModeLabel(mode: Mode) {
 function readDashboardMode(value: string | null): Mode | null {
   const normalized = String(value || "").toLowerCase().replace(/[-_\s]+/g, "");
   if (!normalized) return null;
-  if (normalized === "aivideogenerator" || normalized === "aivideo" || normalized === "textovideo" || normalized === "scripttovideo" || normalized === "facelesslongvideo" || normalized === "faceless" || normalized === "longvideopro" || normalized === "longvideo" || normalized === "aidirector" || normalized === "aidirectorreel" || normalized === "directorreel") return "aiVideoGenerator";
+  if (normalized === "aivideogenerator" || normalized === "aivideo" || normalized === "textovideo" || normalized === "scripttovideo" || normalized === "facelesslongvideo" || normalized === "facelessvideo" || normalized === "faceless" || normalized === "longvideopro" || normalized === "longvideo" || normalized === "aidirector" || normalized === "aidirectorreel" || normalized === "directorreel") return "facelessVideo";
   if (normalized === "autocaptiongenerator" || normalized === "autocaptionreel" || normalized === "autocaption" || normalized === "captiongenerator" || normalized === "captionstudio" || normalized === "customcaption" || normalized === "longcaptionpro" || normalized === "longcaption") return "autoCaption";
   if (normalized === "compareexplainer" || normalized === "compare" || normalized === "comparison") return "compare";
   if (normalized === "autodrawexplainer" || normalized === "autodraw") return "autoDraw";
@@ -4833,13 +4520,13 @@ function readDashboardMode(value: string | null): Mode | null {
   if (normalized === "typographyvideo" || normalized === "typographyreel" || normalized === "boldreel") return "typographyVideo";
   if (normalized === "multiimagesvideo" || normalized === "multiimages" || normalized === "multiimagevideo") return "multiImagesVideo";
   if (normalized === "longvideopromo" || normalized === "longvideopromotion" || normalized === "promo") return "longVideoPromo";
-  if (normalized === "longCaptionPro" || normalized === "longformcaptioned" || normalized === "longvideocaptioned") return "longCaptionPro";
+  if (normalized === "longformcaptioned" || normalized === "longvideocaptioned") return "autoCaption";
   if (normalized === "dynamiccreatorreel" || normalized === "dynamiccreator" || normalized === "dynamicedit") return "dynamicCreator";
   if (normalized === "creatorbackgroundreplace" || normalized === "backgroundreplace" || normalized === "videobackgroundimage") return "creatorBackgroundReplace";
   if (normalized === "customaireel" || normalized === "customai" || normalized === "customreel") return "customAiReel";
   if (normalized === "longvideoclips" || normalized === "longvideoclip" || normalized === "videoclips") return "longVideoClips";
   if (normalized === "audioclean" || normalized === "audiocleaner" || normalized === "aiaudiocleaner") return "audioClean";
-  if (normalized === "aidirectorreel" || normalized === "aidirector" || normalized === "directorreel" || normalized === "longvideopro") return "aiVideoGenerator";
+  if (normalized === "aidirectorreel" || normalized === "aidirector" || normalized === "directorreel" || normalized === "longvideopro") return "facelessVideo";
   if (normalized.includes("caption") || normalized.includes("subtitle")) return "autoCaption";
   if (normalized.includes("compare")) return "compare";
   if (normalized.includes("whiteboard")) return "whiteboardVideo";

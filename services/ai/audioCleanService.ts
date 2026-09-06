@@ -19,6 +19,11 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { findFfmpegPath, probeAudioDuration, readMediaInput, runFfmpeg } from '@/services/media/mediaClipper';
 import { uploadTemporaryMediaObject, createReadUrl } from '@/lib/aws/mediaStorage';
+import {
+  structureTranscriptIntoBlocks,
+  alignPastedScriptWithAudio,
+  type StructuredScriptBlock,
+} from './structuredScriptService';
 
 export type AudioCleanOptions = {
   removeSilence: boolean;
@@ -51,6 +56,8 @@ export type AudioAnalysisResult = {
   error?: string;
   transcript: string;
   segments: AudioCleanSegment[];
+  structuredBlocks?: StructuredScriptBlock[];
+  markdown?: string;
   words: Array<{ word: string; start: number; end: number }>;
   originalDuration: number;
   estimatedCleanDuration: number;
@@ -132,7 +139,11 @@ function computePhraseSimilarity(a: string, b: string): number {
 /**
  * Analyze audio transcript to detect retakes, repeated sentences, silences, and fillers.
  */
-export function analyzeAudioScript(transcript: any, options: AudioCleanOptions): AudioAnalysisResult {
+export function analyzeAudioScript(
+  transcript: any,
+  options: AudioCleanOptions,
+  pastedScript?: string
+): AudioAnalysisResult {
   const rawSegments: any[] = Array.isArray(transcript?.segments) ? transcript.segments : [];
   const rawWords: any[] = Array.isArray(transcript?.words) ? transcript.words : [];
   const duration = Number(transcript?.durationSeconds || transcript?.duration || 0) ||
@@ -269,10 +280,33 @@ export function analyzeAudioScript(transcript: any, options: AudioCleanOptions):
 
   const estimatedCleanDuration = Math.max(1, Number((duration - totalCutSeconds).toFixed(1)));
 
+  // Structure transcript into Headings (#H), Steps, and Explanations (or align with pasted script)
+  let structuredBlocks: StructuredScriptBlock[] = [];
+  let markdown = '';
+
+  if (pastedScript && pastedScript.trim()) {
+    const aligned = alignPastedScriptWithAudio(pastedScript.trim(), segments);
+    structuredBlocks = aligned.blocks;
+    markdown = aligned.alignedMarkdown;
+    // update segment references from alignment
+    for (let k = 0; k < segments.length; k++) {
+      if (aligned.updatedSegments[k]) {
+        segments[k].action = aligned.updatedSegments[k].action;
+        segments[k].reason = aligned.updatedSegments[k].reason;
+      }
+    }
+  } else {
+    const structured = structureTranscriptIntoBlocks(segments, fullText);
+    structuredBlocks = structured.blocks;
+    markdown = structured.markdown;
+  }
+
   return {
     ok: true,
     transcript: fullText,
     segments,
+    structuredBlocks,
+    markdown,
     words,
     originalDuration: duration,
     estimatedCleanDuration,

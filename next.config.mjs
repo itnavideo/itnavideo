@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  serverExternalPackages: [],
+  serverExternalPackages: ['ffmpeg-static', 'ffprobe-static', '@remotion/renderer'],
   
   // Standalone output for self-hosting.
   output: 'standalone',
@@ -32,7 +32,29 @@ const nextConfig = {
     '/api/reels/jobs': [
       './node_modules/@remotion/compositor-*/*',
     ],
+    '/api/audio-clean': [
+      './node_modules/@remotion/compositor-*/*',
+      './node_modules/ffmpeg-static/**/*',
+      './node_modules/ffprobe-static/**/*',
+    ],
+    '/api/audio-clean/**': [
+      './node_modules/@remotion/compositor-*/*',
+      './node_modules/ffmpeg-static/**/*',
+      './node_modules/ffprobe-static/**/*',
+    ],
+    '/api/audio-clean/*': [
+      './node_modules/@remotion/compositor-*/*',
+      './node_modules/ffmpeg-static/**/*',
+      './node_modules/ffprobe-static/**/*',
+    ],
   },
+
+  serverExternalPackages: [
+    '@remotion/renderer',
+    '@remotion/bundler',
+    'ffmpeg-static',
+    'ffprobe-static',
+  ],
 
   // Skip TypeScript errors during production builds.
   typescript: {

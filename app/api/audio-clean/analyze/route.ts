@@ -22,6 +22,8 @@ export async function POST(request: Request) {
       trimEnds: Boolean(body.audioCleanOptions?.trimEnds ?? true),
     };
 
+    const pastedScript = typeof body.pastedScript === 'string' ? body.pastedScript.trim() : undefined;
+
     if (!mediaKey) {
       return NextResponse.json({ ok: false, error: 'Please upload an audio file first.' }, { status: 400 });
     }
@@ -51,14 +53,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: 'Could not transcribe audio. Please ensure the audio contains clear speech.' }, { status: 422 });
     }
 
-    // Run script analysis to detect repeated sentences, mistakes, and silences
-    const analysis = analyzeAudioScript(transcript, options);
+    // Run script analysis to detect repeated sentences, mistakes, silences, and structured blocks
+    const analysis = analyzeAudioScript(transcript, options, pastedScript);
 
     return NextResponse.json({
       ok: true,
       mediaKey,
       transcript: analysis.transcript,
       segments: analysis.segments,
+      structuredBlocks: analysis.structuredBlocks || [],
+      markdown: analysis.markdown || '',
       words: analysis.words,
       originalDuration: analysis.originalDuration,
       estimatedCleanDuration: analysis.estimatedCleanDuration,

@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build --webpack",
+    "build": "next build",
     "postbuild": "node scripts/sync-next-standalone-files.mjs",
     "web-start": "node .next/standalone/server.js",
     "start": "node .next/standalone/server.js",
@@ -37,6 +37,7 @@
     "visuals:index": "node scripts/index-visual-assets.mjs",
     "typography:analyze": "node scripts/analyze-typography-styles.mjs",
     "typography:replicate": "node scripts/run-replication-test.mjs",
+    "images:validate": "node scripts/sync-ai-images.mjs",
     "lint": "eslint ."
   },
   "dependencies": {
