@@ -1,0 +1,369 @@
+{
+  "solidColours": [
+    {
+      "id": "warm-off-white-cream-texture-f4f4f9_isou0y",
+      "name": "Warm Cream",
+      "type": "solid",
+      "swatch": "#F4F4F9",
+      "contrast": "#000000",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939447/warm-off-white-cream-texture-f4f4f9_isou0y.png",
+      "public_id": "warm-off-white-cream-texture-f4f4f9_isou0y",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "sunshine-yellow-ffde59-portrait_gtfjwt",
+      "name": "Sunshine Yellow",
+      "type": "solid",
+      "swatch": "#FFDE59",
+      "contrast": "#000000",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939446/sunshine-yellow-ffde59-portrait_gtfjwt.png",
+      "public_id": "sunshine-yellow-ffde59-portrait_gtfjwt",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "spring-mist-d9f4cd-background_azv7ea",
+      "name": "Spring Mist",
+      "type": "solid",
+      "swatch": "#D9F4CD",
+      "contrast": "#000000",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939446/spring-mist-d9f4cd-background_azv7ea.png",
+      "public_id": "spring-mist-d9f4cd-background_azv7ea",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "steel-gray-737373-background_jxqvwt",
+      "name": "Steel Gray",
+      "type": "solid",
+      "swatch": "#737373",
+      "contrast": "#FFFFFF",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939446/steel-gray-737373-background_jxqvwt.png",
+      "public_id": "steel-gray-737373-background_jxqvwt",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "solid-purple-8c52ff-background_qrtry1",
+      "name": "Bright Purple",
+      "type": "solid",
+      "swatch": "#8C52FF",
+      "contrast": "#FFFFFF",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939446/solid-purple-8c52ff-background_qrtry1.png",
+      "public_id": "solid-purple-8c52ff-background_qrtry1",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "navy-portrait-bg-0d1b2a_u9oksr",
+      "name": "Deep Navy",
+      "type": "solid",
+      "swatch": "#0D1B2A",
+      "contrast": "#FFFFFF",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939446/navy-portrait-bg-0d1b2a_u9oksr.png",
+      "public_id": "navy-portrait-bg-0d1b2a_u9oksr",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "solid-hot-pink-ff66c4_jrqtyx",
+      "name": "Hot Pink",
+      "type": "solid",
+      "swatch": "#FF66C4",
+      "contrast": "#FFFFFF",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939446/solid-hot-pink-ff66c4_jrqtyx.png",
+      "public_id": "solid-hot-pink-ff66c4_jrqtyx",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "muted-sage-green-84a98c_vb9mbq",
+      "name": "Muted Sage",
+      "type": "solid",
+      "swatch": "#84A98C",
+      "contrast": "#FFFFFF",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939446/muted-sage-green-84a98c_vb9mbq.png",
+      "public_id": "muted-sage-green-84a98c_vb9mbq",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "midnight-charcoal-portrait-canvas_i0zkok",
+      "name": "Midnight Charcoal",
+      "type": "solid",
+      "swatch": "#111827",
+      "contrast": "#FFFFFF",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939446/midnight-charcoal-portrait-canvas_i0zkok.png",
+      "public_id": "midnight-charcoal-portrait-canvas_i0zkok",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "light-blue-38b6ff-portrait-background_coln54",
+      "name": "Sky Blue",
+      "type": "solid",
+      "swatch": "#38B6FF",
+      "contrast": "#000000",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939445/light-blue-38b6ff-portrait-background_coln54.png",
+      "public_id": "light-blue-38b6ff-portrait-background_coln54",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "emerald-00bf63-portrait-flat-background_fqqcdz",
+      "name": "Emerald Green",
+      "type": "solid",
+      "swatch": "#00BF63",
+      "contrast": "#FFFFFF",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939445/emerald-00bf63-portrait-flat-background_fqqcdz.png",
+      "public_id": "emerald-00bf63-portrait-flat-background_fqqcdz",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "deep-royal-blue-1800ad-portrait_bfrefb",
+      "name": "Deep Royal Blue",
+      "type": "solid",
+      "swatch": "#1800AD",
+      "contrast": "#FFFFFF",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939444/deep-royal-blue-1800ad-portrait_bfrefb.png",
+      "public_id": "deep-royal-blue-1800ad-portrait_bfrefb",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "crimson-d90429-grainy-texture_ofi8pj",
+      "name": "Crimson Red",
+      "type": "solid",
+      "swatch": "#D90429",
+      "contrast": "#FFFFFF",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939444/crimson-d90429-grainy-texture_ofi8pj.png",
+      "public_id": "crimson-d90429-grainy-texture_ofi8pj",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "deep-forest-green-textured-background_lfxbui",
+      "name": "Deep Forest",
+      "type": "solid",
+      "swatch": "#0B3B24",
+      "contrast": "#FFFFFF",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939444/deep-forest-green-textured-background_lfxbui.png",
+      "public_id": "deep-forest-green-textured-background_lfxbui",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "charcoal-grey-premium-background_hbheyc",
+      "name": "Premium Charcoal",
+      "type": "solid",
+      "swatch": "#2B2D42",
+      "contrast": "#FFFFFF",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939444/charcoal-grey-premium-background_hbheyc.png",
+      "public_id": "charcoal-grey-premium-background_hbheyc",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "bg-pure-white-canvas_umjsna",
+      "name": "Pure White",
+      "type": "solid",
+      "swatch": "#FFFFFF",
+      "contrast": "#000000",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939443/bg-pure-white-canvas_umjsna.png",
+      "public_id": "bg-pure-white-canvas_umjsna",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "bg-orange-ff914d-peach-portrait_j8nv9p",
+      "name": "Peach Orange",
+      "type": "solid",
+      "swatch": "#FF914D",
+      "contrast": "#000000",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939443/bg-orange-ff914d-peach-portrait_j8nv9p.png",
+      "public_id": "bg-orange-ff914d-peach-portrait_j8nv9p",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "bg_image__ff3131_red_excyli",
+      "name": "Vivid Red",
+      "type": "solid",
+      "swatch": "#FF3131",
+      "contrast": "#FFFFFF",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939443/bg_image__ff3131_red_excyli.png",
+      "public_id": "bg_image__ff3131_red_excyli",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "cyberpunk-dark-purple-solid-background_imyaar",
+      "name": "Cyberpunk Purple",
+      "type": "solid",
+      "swatch": "#2D006B",
+      "contrast": "#FFFFFF",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939443/cyberpunk-dark-purple-solid-background_imyaar.png",
+      "public_id": "cyberpunk-dark-purple-solid-background_imyaar",
+      "width": 1080,
+      "height": 1920
+    }
+  ],
+  "gradientColours": [
+    {
+      "id": "vibrant-amber-sunset-background_tgxjyx",
+      "name": "Amber Sunset",
+      "type": "gradient",
+      "swatch": "linear-gradient(135deg, #F59E0B, #DC2626)",
+      "contrast": "#FFFFFF",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939447/vibrant-amber-sunset-background_tgxjyx.png",
+      "public_id": "vibrant-amber-sunset-background_tgxjyx",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "vertical-purple-to-gold-gradient-background_hgcgqj",
+      "name": "Purple to Gold",
+      "type": "gradient",
+      "swatch": "linear-gradient(180deg, #7E22CE, #EAB308)",
+      "contrast": "#FFFFFF",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939447/vertical-purple-to-gold-gradient-background_hgcgqj.png",
+      "public_id": "vertical-purple-to-gold-gradient-background_hgcgqj",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "velvet-dark-wine-gradient-bg_po2m6w",
+      "name": "Velvet Wine",
+      "type": "gradient",
+      "swatch": "linear-gradient(135deg, #4C0519, #881337)",
+      "contrast": "#FFFFFF",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939447/velvet-dark-wine-gradient-bg_po2m6w.png",
+      "public_id": "velvet-dark-wine-gradient-bg_po2m6w",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "sunset-glow-pink-orange-gradient_tot7ba",
+      "name": "Sunset Glow",
+      "type": "gradient",
+      "swatch": "linear-gradient(135deg, #EC4899, #F97316)",
+      "contrast": "#FFFFFF",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939446/sunset-glow-pink-orange-gradient_tot7ba.png",
+      "public_id": "sunset-glow-pink-orange-gradient_tot7ba",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "midnight-luxury-blue-gradient_l9jmpb",
+      "name": "Midnight Luxury",
+      "type": "gradient",
+      "swatch": "linear-gradient(135deg, #0F172A, #1D4ED8)",
+      "contrast": "#FFFFFF",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939446/midnight-luxury-blue-gradient_l9jmpb.png",
+      "public_id": "midnight-luxury-blue-gradient_l9jmpb",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "matte-dark-navy-vertical-gradient_yxoqng",
+      "name": "Matte Navy",
+      "type": "gradient",
+      "swatch": "linear-gradient(180deg, #0B132B, #1C2541)",
+      "contrast": "#FFFFFF",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939445/matte-dark-navy-vertical-gradient_yxoqng.png",
+      "public_id": "matte-dark-navy-vertical-gradient_yxoqng",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "lime-linear-gradient-vertical-89d957-c9e265_erd6bg",
+      "name": "Lime Glow",
+      "type": "gradient",
+      "swatch": "linear-gradient(180deg, #89D957, #C9E265)",
+      "contrast": "#000000",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939445/lime-linear-gradient-vertical-89d957-c9e265_erd6bg.png",
+      "public_id": "lime-linear-gradient-vertical-89d957-c9e265_erd6bg",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "emerald-wealth-gradient-portrait_finzhq",
+      "name": "Emerald Wealth",
+      "type": "gradient",
+      "swatch": "linear-gradient(180deg, #064E3B, #059669)",
+      "contrast": "#FFFFFF",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939445/emerald-wealth-gradient-portrait_finzhq.png",
+      "public_id": "emerald-wealth-gradient-portrait_finzhq",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "instagram-aesthetic-portrait-purple-to-red-gradient_v6gxuy",
+      "name": "Instagram Sunset",
+      "type": "gradient",
+      "swatch": "linear-gradient(135deg, #833AB4, #FD1D1D, #FCB045)",
+      "contrast": "#FFFFFF",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939445/instagram-aesthetic-portrait-purple-to-red-gradient_v6gxuy.png",
+      "public_id": "instagram-aesthetic-portrait-purple-to-red-gradient_v6gxuy",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "deep-space-tech-teal-gradient_cwllyi",
+      "name": "Space Tech Teal",
+      "type": "gradient",
+      "swatch": "linear-gradient(135deg, #022C22, #0D9488)",
+      "contrast": "#FFFFFF",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939445/deep-space-tech-teal-gradient_cwllyi.png",
+      "public_id": "deep-space-tech-teal-gradient_cwllyi",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "electric-cyan-radial-glow-particles_ryvbad",
+      "name": "Electric Cyan",
+      "type": "gradient",
+      "swatch": "radial-gradient(circle, #06B6D4, #083344)",
+      "contrast": "#FFFFFF",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939445/electric-cyan-radial-glow-particles_ryvbad.png",
+      "public_id": "electric-cyan-radial-glow-particles_ryvbad",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "cotton-candy-pink-vertical-gradient_cbbpfb",
+      "name": "Cotton Candy",
+      "type": "gradient",
+      "swatch": "linear-gradient(180deg, #F472B6, #C084FC)",
+      "contrast": "#FFFFFF",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939444/cotton-candy-pink-vertical-gradient_cbbpfb.png",
+      "public_id": "cotton-candy-pink-vertical-gradient_cbbpfb",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "bg-gradient-ocean-fresh-vertical_saug7w",
+      "name": "Ocean Fresh",
+      "type": "gradient",
+      "swatch": "linear-gradient(180deg, #0284C7, #38BDF8)",
+      "contrast": "#FFFFFF",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939444/bg-gradient-ocean-fresh-vertical_saug7w.png",
+      "public_id": "bg-gradient-ocean-fresh-vertical_saug7w",
+      "width": 1080,
+      "height": 1920
+    },
+    {
+      "id": "cyber-neon-diagonal-glow-bg_zk1paj",
+      "name": "Cyber Neon Glow",
+      "type": "gradient",
+      "swatch": "linear-gradient(135deg, #7928CA, #FF0080)",
+      "contrast": "#FFFFFF",
+      "url": "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939444/cyber-neon-diagonal-glow-bg_zk1paj.png",
+      "public_id": "cyber-neon-diagonal-glow-bg_zk1paj",
+      "width": 1080,
+      "height": 1920
+    }
+  ]
+}

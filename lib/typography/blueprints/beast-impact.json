@@ -1,0 +1,58 @@
+{
+  "metadata": {
+    "styleId": "beast-impact",
+    "demoVideoId": "beast-impact",
+    "name": "Beast Impact Pop",
+    "category": "kinetic",
+    "tags": ["mrbeast", "comic-3d", "explosive-pop", "retention"],
+    "sourceVideoUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4",
+    "posterUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/so_1,w_600,q_auto,f_jpg/v1788450233/professional-creator-girl-before_rwmxsd.jpg",
+    "analysisVersion": "2.0.0-temporal-motion",
+    "analyzedAt": "2026-09-04T12:00:00.000Z",
+    "overallConfidence": 0.95
+  },
+  "pacingAndRhythm": {
+    "personality": { "value": "explosive-pop", "confidence": 0.95, "status": "DETECTED" },
+    "rhythmPattern": { "value": "word-slam", "confidence": 0.95, "status": "DETECTED" },
+    "targetWordsPerPhrase": 3,
+    "averagePhraseDurationSec": 1.3,
+    "transitionFrequencyPerMinute": 38,
+    "speechSyncMode": "beat-locked",
+    "motionIntensity": { "value": "explosive", "confidence": 0.95, "status": "DETECTED" }
+  },
+  "typography": {
+    "fontCategory": { "value": "comic-display", "confidence": 0.95, "status": "DETECTED" },
+    "fontFamilyEstimate": { "value": "Bebas Neue", "confidence": 0.95, "status": "DETECTED" },
+    "heroTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 900,
+      "fontStyle": "normal",
+      "relativeScale": 1.9,
+      "letterSpacingRatio": 0.01,
+      "lineHeightRatio": 0.95,
+      "opacity": 1
+    },
+    "leadTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 900,
+      "fontStyle": "normal",
+      "relativeScale": 0.85,
+      "letterSpacingRatio": 0.02,
+      "lineHeightRatio": 1.1,
+      "opacity": 0.95
+    },
+    "subTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 900,
+      "fontStyle": "normal",
+      "relativeScale": 0.75,
+      "letterSpacingRatio": 0.04,
+      "lineHeightRatio": 1.1,
+      "opacity": 0.9
+    },
+    "hierarchyLevels": ["hero", "lead", "sub"],
+    "textDensity": { "value": "compact-phrases", "confidence": 0.92, "status": "DETECTED" },
+    "wordGroupingRule": "2-3-balanced",
+    "lineBreakPolicy": "comic-stack"
+  }
+}

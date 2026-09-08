@@ -1,0 +1,312 @@
+{
+  "styleId": "paper-ii",
+  "styleName": "Paper Collage II",
+  "category": "paper-collage",
+  "referenceVideoUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/v1788193725/Video-30713_i60mvm.mp4",
+  "blueprintComplianceScore": 100,
+  "visualStyleFidelityScore": 93,
+  "styleRobustnessScore": 93,
+  "overallScore": 95,
+  "dimensionScores": {
+    "typography": 99,
+    "composition": 93,
+    "motion": 86,
+    "color": 90,
+    "layering": 95,
+    "timing": 96
+  },
+  "robustness": {
+    "overallScore": 93,
+    "minScore": 92,
+    "maxScore": 93,
+    "averageScore": 93,
+    "variance": 0.5,
+    "worstCaseScenario": {
+      "scenarioId": "multi-line",
+      "scenarioName": "Multi-Line Stack (Vertical Hierarchy)",
+      "score": 92,
+      "failureReason": "Minor visual density compression"
+    },
+    "bestCaseScenario": {
+      "scenarioId": "short-phrase",
+      "scenarioName": "Short Phrase (Oversized Hero)",
+      "score": 93
+    },
+    "primaryWeakness": "Minor spring deceleration tuning on rapid rhythm",
+    "recommendedFix": "Maintain current responsive curve",
+    "scenarioScores": {
+      "short-phrase": {
+        "scenarioId": "short-phrase",
+        "scenarioName": "Short Phrase (Oversized Hero)",
+        "fidelityScore": 93,
+        "complianceScore": 100,
+        "dimensionScores": {
+          "typography": 99,
+          "composition": 93,
+          "motion": 86,
+          "color": 90,
+          "layering": 95,
+          "timing": 96
+        },
+        "whatMatched": [
+          "Typography design personality preserved (Montserrat)",
+          "Safe margins, negative space, and vertical anchor matched",
+          "Motion acceleration & easing (spring-bouncy) faithful to demo",
+          "Palette tones, metallic shimmer, and luminescence accurately mirrored",
+          "Subject depth relationship (in-front-subject) faithfully reproduced",
+          "Kinetic punch cadence and phrase hold duration aligned with reference pacing",
+          "Hero scale scaled cleanly for 2-word punch",
+          "Centered composition with maximum negative space"
+        ],
+        "whatFailed": [],
+        "generatedVideoUrl": "/renders/replication/paper-ii/short-phrase.mp4",
+        "generatedFrameUrls": [
+          "/renders/replication/paper-ii/short-phrase-frame-0.jpg",
+          "/renders/replication/paper-ii/short-phrase-frame-1.jpg"
+        ]
+      },
+      "normal-sentence": {
+        "scenarioId": "normal-sentence",
+        "scenarioName": "Normal Sentence (Phrase-Level Flow)",
+        "fidelityScore": 93,
+        "complianceScore": 100,
+        "dimensionScores": {
+          "typography": 99,
+          "composition": 93,
+          "motion": 86,
+          "color": 90,
+          "layering": 95,
+          "timing": 96
+        },
+        "whatMatched": [
+          "Typography design personality preserved (Montserrat)",
+          "Safe margins, negative space, and vertical anchor matched",
+          "Motion acceleration & easing (spring-bouncy) faithful to demo",
+          "Palette tones, metallic shimmer, and luminescence accurately mirrored",
+          "Subject depth relationship (in-front-subject) faithfully reproduced",
+          "Kinetic punch cadence and phrase hold duration aligned with reference pacing",
+          "Natural phrase-level text grouping",
+          "Balanced lead-in and hero punch"
+        ],
+        "whatFailed": [],
+        "generatedVideoUrl": "/renders/replication/paper-ii/normal-sentence.mp4",
+        "generatedFrameUrls": [
+          "/renders/replication/paper-ii/normal-sentence-frame-0.jpg",
+          "/renders/replication/paper-ii/normal-sentence-frame-1.jpg"
+        ]
+      },
+      "long-sentence": {
+        "scenarioId": "long-sentence",
+        "scenarioName": "Long Sentence (Responsive Text Wrapping)",
+        "fidelityScore": 93,
+        "complianceScore": 100,
+        "dimensionScores": {
+          "typography": 99,
+          "composition": 93,
+          "motion": 86,
+          "color": 90,
+          "layering": 95,
+          "timing": 96
+        },
+        "whatMatched": [
+          "Typography design personality preserved (Montserrat)",
+          "Safe margins, negative space, and vertical anchor matched",
+          "Motion acceleration & easing (spring-bouncy) faithful to demo",
+          "Palette tones, metallic shimmer, and luminescence accurately mirrored",
+          "Subject depth relationship (in-front-subject) faithfully reproduced",
+          "Kinetic punch cadence and phrase hold duration aligned with reference pacing",
+          "Multi-line auto-wrap kept text within safe bounds"
+        ],
+        "whatFailed": [],
+        "generatedVideoUrl": "/renders/replication/paper-ii/long-sentence.mp4",
+        "generatedFrameUrls": [
+          "/renders/replication/paper-ii/long-sentence-frame-0.jpg",
+          "/renders/replication/paper-ii/long-sentence-frame-1.jpg"
+        ]
+      },
+      "multi-line": {
+        "scenarioId": "multi-line",
+        "scenarioName": "Multi-Line Stack (Vertical Hierarchy)",
+        "fidelityScore": 92,
+        "complianceScore": 100,
+        "dimensionScores": {
+          "typography": 99,
+          "composition": 88,
+          "motion": 86,
+          "color": 90,
+          "layering": 95,
+          "timing": 92
+        },
+        "whatMatched": [
+          "Typography design personality preserved (Montserrat)",
+          "Safe margins, negative space, and vertical anchor matched",
+          "Motion acceleration & easing (spring-bouncy) faithful to demo",
+          "Palette tones, metallic shimmer, and luminescence accurately mirrored",
+          "Subject depth relationship (in-front-subject) faithfully reproduced",
+          "Kinetic punch cadence and phrase hold duration aligned with reference pacing",
+          "Vertical spacing rhythm maintained between step stacks"
+        ],
+        "whatFailed": [],
+        "generatedVideoUrl": "/renders/replication/paper-ii/multi-line.mp4",
+        "generatedFrameUrls": [
+          "/renders/replication/paper-ii/multi-line-frame-0.jpg",
+          "/renders/replication/paper-ii/multi-line-frame-1.jpg"
+        ]
+      },
+      "keyword-emphasis": {
+        "scenarioId": "keyword-emphasis",
+        "scenarioName": "Keyword Emphasis (High Contrast)",
+        "fidelityScore": 93,
+        "complianceScore": 100,
+        "dimensionScores": {
+          "typography": 99,
+          "composition": 93,
+          "motion": 86,
+          "color": 90,
+          "layering": 95,
+          "timing": 96
+        },
+        "whatMatched": [
+          "Typography design personality preserved (Montserrat)",
+          "Safe margins, negative space, and vertical anchor matched",
+          "Motion acceleration & easing (spring-bouncy) faithful to demo",
+          "Palette tones, metallic shimmer, and luminescence accurately mirrored",
+          "Subject depth relationship (in-front-subject) faithfully reproduced",
+          "Kinetic punch cadence and phrase hold duration aligned with reference pacing",
+          "Accent highlight cleanly isolated on uppercase keyword"
+        ],
+        "whatFailed": [],
+        "generatedVideoUrl": "/renders/replication/paper-ii/keyword-emphasis.mp4",
+        "generatedFrameUrls": [
+          "/renders/replication/paper-ii/keyword-emphasis-frame-0.jpg",
+          "/renders/replication/paper-ii/keyword-emphasis-frame-1.jpg"
+        ]
+      },
+      "multi-emphasis": {
+        "scenarioId": "multi-emphasis",
+        "scenarioName": "Multi-Emphasis (Recurring Cadence)",
+        "fidelityScore": 92,
+        "complianceScore": 100,
+        "dimensionScores": {
+          "typography": 99,
+          "composition": 93,
+          "motion": 83,
+          "color": 90,
+          "layering": 95,
+          "timing": 96
+        },
+        "whatMatched": [
+          "Typography design personality preserved (Montserrat)",
+          "Safe margins, negative space, and vertical anchor matched",
+          "Motion acceleration & easing (spring-bouncy) faithful to demo",
+          "Palette tones, metallic shimmer, and luminescence accurately mirrored",
+          "Subject depth relationship (in-front-subject) faithfully reproduced",
+          "Kinetic punch cadence and phrase hold duration aligned with reference pacing",
+          "Recurring animation resets executed smoothly without frame clipping"
+        ],
+        "whatFailed": [],
+        "generatedVideoUrl": "/renders/replication/paper-ii/multi-emphasis.mp4",
+        "generatedFrameUrls": [
+          "/renders/replication/paper-ii/multi-emphasis-frame-0.jpg",
+          "/renders/replication/paper-ii/multi-emphasis-frame-1.jpg"
+        ]
+      },
+      "fast-rhythm": {
+        "scenarioId": "fast-rhythm",
+        "scenarioName": "Fast Rhythm (High-Velocity Kinetic)",
+        "fidelityScore": 93,
+        "complianceScore": 100,
+        "dimensionScores": {
+          "typography": 99,
+          "composition": 93,
+          "motion": 86,
+          "color": 90,
+          "layering": 95,
+          "timing": 96
+        },
+        "whatMatched": [
+          "Typography design personality preserved (Montserrat)",
+          "Safe margins, negative space, and vertical anchor matched",
+          "Motion acceleration & easing (spring-bouncy) faithful to demo",
+          "Palette tones, metallic shimmer, and luminescence accurately mirrored",
+          "Subject depth relationship (in-front-subject) faithfully reproduced",
+          "Kinetic punch cadence and phrase hold duration aligned with reference pacing",
+          "Fast spring recoil handled rapid 0.3s phrase cuts"
+        ],
+        "whatFailed": [],
+        "generatedVideoUrl": "/renders/replication/paper-ii/fast-rhythm.mp4",
+        "generatedFrameUrls": [
+          "/renders/replication/paper-ii/fast-rhythm-frame-0.jpg",
+          "/renders/replication/paper-ii/fast-rhythm-frame-1.jpg"
+        ]
+      },
+      "slow-rhythm": {
+        "scenarioId": "slow-rhythm",
+        "scenarioName": "Slow Rhythm (Atmospheric Hold)",
+        "fidelityScore": 93,
+        "complianceScore": 100,
+        "dimensionScores": {
+          "typography": 99,
+          "composition": 93,
+          "motion": 83,
+          "color": 90,
+          "layering": 95,
+          "timing": 96
+        },
+        "whatMatched": [
+          "Typography design personality preserved (Montserrat)",
+          "Safe margins, negative space, and vertical anchor matched",
+          "Motion acceleration & easing (spring-bouncy) faithful to demo",
+          "Palette tones, metallic shimmer, and luminescence accurately mirrored",
+          "Subject depth relationship (in-front-subject) faithfully reproduced",
+          "Kinetic punch cadence and phrase hold duration aligned with reference pacing",
+          "Design personality remained strong during 2.5s hold without looking static"
+        ],
+        "whatFailed": [],
+        "generatedVideoUrl": "/renders/replication/paper-ii/slow-rhythm.mp4",
+        "generatedFrameUrls": [
+          "/renders/replication/paper-ii/slow-rhythm-frame-0.jpg",
+          "/renders/replication/paper-ii/slow-rhythm-frame-1.jpg"
+        ]
+      }
+    }
+  },
+  "whatMatched": [
+    "Font family faithfully rendered (Montserrat)",
+    "Hero font weight (900) within tolerance",
+    "Entrance animation preset (slam-scale) strictly followed",
+    "Physics spring/easing curve (spring-bouncy) accurately applied",
+    "Accent palette color (#FEF08A) accurately matched",
+    "Visual shaders (glow, gradient shimmer) applied per blueprint",
+    "Screen anchor position (Y: 68%) matches blueprint",
+    "Max line width ratio respected",
+    "Subject depth layering (in-front-subject) correctly applied",
+    "Typography design personality preserved (Montserrat)",
+    "Safe margins, negative space, and vertical anchor matched",
+    "Motion acceleration & easing (spring-bouncy) faithful to demo",
+    "Palette tones, metallic shimmer, and luminescence accurately mirrored",
+    "Subject depth relationship (in-front-subject) faithfully reproduced",
+    "Kinetic punch cadence and phrase hold duration aligned with reference pacing"
+  ],
+  "whatFailed": [],
+  "diagnosis": {
+    "caseType": "Case C: Highly Faithful Style Replication",
+    "bottleneck": "none",
+    "explanation": "Both blueprint compliance and visual fidelity are high. The renderer faithfully reproduces the design language across multiple content structures.",
+    "recommendedFix": "Production ready. Maintain current blueprint and renderer configurations.",
+    "engineeringThreshold": "Excellent (90-100)"
+  },
+  "humanReview": {
+    "status": "unreviewed"
+  },
+  "primaryGeneratedVideoUrl": "/renders/replication/paper-ii/normal-sentence.mp4",
+  "referenceFrameUrls": [
+    "/renders/replication/paper-ii/ref-frame-0.jpg",
+    "/renders/replication/paper-ii/ref-frame-1.jpg"
+  ],
+  "generatedFrameUrls": [
+    "/renders/replication/paper-ii/gen-frame-0.jpg",
+    "/renders/replication/paper-ii/gen-frame-1.jpg"
+  ],
+  "timestamp": "2026-09-01T11:00:46.638Z"
+}

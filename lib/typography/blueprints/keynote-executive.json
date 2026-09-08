@@ -1,0 +1,58 @@
+{
+  "metadata": {
+    "styleId": "keynote-executive",
+    "demoVideoId": "keynote-executive",
+    "name": "Keynote Executive",
+    "category": "minimal",
+    "tags": ["apple-keynote", "executive", "frosted-glass", "sleek-sans"],
+    "sourceVideoUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4",
+    "posterUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/so_1,w_600,q_auto,f_jpg/v1788450233/professional-creator-girl-before_rwmxsd.jpg",
+    "analysisVersion": "2.0.0-temporal-motion",
+    "analyzedAt": "2026-09-04T12:00:00.000Z",
+    "overallConfidence": 0.95
+  },
+  "pacingAndRhythm": {
+    "personality": { "value": "executive-minimal", "confidence": 0.95, "status": "DETECTED" },
+    "rhythmPattern": { "value": "calm-fade", "confidence": 0.95, "status": "DETECTED" },
+    "targetWordsPerPhrase": 3,
+    "averagePhraseDurationSec": 1.6,
+    "transitionFrequencyPerMinute": 32,
+    "speechSyncMode": "beat-locked",
+    "motionIntensity": { "value": "smooth", "confidence": 0.95, "status": "DETECTED" }
+  },
+  "typography": {
+    "fontCategory": { "value": "neo-grotesque", "confidence": 0.95, "status": "DETECTED" },
+    "fontFamilyEstimate": { "value": "Inter", "confidence": 0.95, "status": "DETECTED" },
+    "heroTreatment": {
+      "casing": "natural",
+      "fontWeight": 800,
+      "fontStyle": "normal",
+      "relativeScale": 1.5,
+      "letterSpacingRatio": -0.02,
+      "lineHeightRatio": 1.1,
+      "opacity": 1
+    },
+    "leadTreatment": {
+      "casing": "natural",
+      "fontWeight": 600,
+      "fontStyle": "normal",
+      "relativeScale": 0.85,
+      "letterSpacingRatio": 0.0,
+      "lineHeightRatio": 1.2,
+      "opacity": 0.9
+    },
+    "subTreatment": {
+      "casing": "natural",
+      "fontWeight": 500,
+      "fontStyle": "normal",
+      "relativeScale": 0.75,
+      "letterSpacingRatio": 0.01,
+      "lineHeightRatio": 1.2,
+      "opacity": 0.8
+    },
+    "hierarchyLevels": ["hero", "sub"],
+    "textDensity": { "value": "compact-phrases", "confidence": 0.92, "status": "DETECTED" },
+    "wordGroupingRule": "2-4-balanced",
+    "lineBreakPolicy": "frosted-capsule"
+  }
+}

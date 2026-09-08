@@ -1,0 +1,58 @@
+{
+  "metadata": {
+    "styleId": "vox-explainer",
+    "demoVideoId": "vox-explainer",
+    "name": "Vox Motion Explainer",
+    "category": "minimal",
+    "tags": ["vox", "johnny-harris", "documentary-explainer", "data-viz"],
+    "sourceVideoUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4",
+    "posterUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/so_1,w_600,q_auto,f_jpg/v1788450233/professional-creator-girl-before_rwmxsd.jpg",
+    "analysisVersion": "2.0.0-temporal-motion",
+    "analyzedAt": "2026-09-04T12:00:00.000Z",
+    "overallConfidence": 0.95
+  },
+  "pacingAndRhythm": {
+    "personality": { "value": "data-journalism", "confidence": 0.95, "status": "DETECTED" },
+    "rhythmPattern": { "value": "badge-reveal", "confidence": 0.95, "status": "DETECTED" },
+    "targetWordsPerPhrase": 3,
+    "averagePhraseDurationSec": 1.5,
+    "transitionFrequencyPerMinute": 34,
+    "speechSyncMode": "beat-locked",
+    "motionIntensity": { "value": "crisp", "confidence": 0.95, "status": "DETECTED" }
+  },
+  "typography": {
+    "fontCategory": { "value": "condensed-grotesque", "confidence": 0.95, "status": "DETECTED" },
+    "fontFamilyEstimate": { "value": "Oswald", "confidence": 0.95, "status": "DETECTED" },
+    "heroTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 900,
+      "fontStyle": "normal",
+      "relativeScale": 1.6,
+      "letterSpacingRatio": 0.02,
+      "lineHeightRatio": 1.0,
+      "opacity": 1
+    },
+    "leadTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 700,
+      "fontStyle": "normal",
+      "relativeScale": 0.75,
+      "letterSpacingRatio": 0.1,
+      "lineHeightRatio": 1.1,
+      "opacity": 0.9
+    },
+    "subTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 600,
+      "fontStyle": "normal",
+      "relativeScale": 0.7,
+      "letterSpacingRatio": 0.08,
+      "lineHeightRatio": 1.1,
+      "opacity": 0.85
+    },
+    "hierarchyLevels": ["lead", "hero", "sub"],
+    "textDensity": { "value": "compact-phrases", "confidence": 0.92, "status": "DETECTED" },
+    "wordGroupingRule": "2-4-balanced",
+    "lineBreakPolicy": "highlight-marker-box"
+  }
+}

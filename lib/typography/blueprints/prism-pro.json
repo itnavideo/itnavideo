@@ -1,0 +1,547 @@
+{
+  "metadata": {
+    "styleId": "prism-pro",
+    "demoVideoId": "prism-pro",
+    "name": "Prism Pro Impact",
+    "category": "kinetic",
+    "tags": [
+      "prism-pro",
+      "energetic-punch",
+      "AI Reverse-Engineered"
+    ],
+    "sourceVideoUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/v1788193725/Video-76814_cpmpp1.mp4",
+    "posterUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/f_auto,q_auto,w_480,so_0.5/v1788193725/Video-76814_cpmpp1.jpg",
+    "analysisVersion": "2.0.0-temporal-motion",
+    "analyzedAt": "2026-09-01T09:53:47.884Z",
+    "overallConfidence": 0.92
+  },
+  "pacingAndRhythm": {
+    "personality": {
+      "value": "energetic-punch",
+      "confidence": 0.92,
+      "status": "DETECTED",
+      "basis": "Rapid kinetic word reveals with bold visual hierarchy changes and high frame-to-frame text density shifts"
+    },
+    "rhythmPattern": {
+      "value": "stacked-block",
+      "confidence": 0.9,
+      "status": "DETECTED",
+      "basis": "Text layers accumulate vertically line-by-line forming multi-weight visual blocks"
+    },
+    "targetWordsPerPhrase": 3,
+    "averagePhraseDurationSec": 1.2,
+    "transitionFrequencyPerMinute": 45,
+    "speechSyncMode": "beat-locked",
+    "motionIntensity": {
+      "value": "punchy",
+      "confidence": 0.88,
+      "status": "DETECTED"
+    }
+  },
+  "typography": {
+    "fontCategory": {
+      "value": "bold-geometric-sans",
+      "confidence": 0.95,
+      "status": "DETECTED",
+      "basis": "Clean geometric letterforms with thick uniform stem weights and rounded bowl curves"
+    },
+    "fontFamilyEstimate": {
+      "value": "Plus Jakarta Sans",
+      "confidence": 0.92,
+      "status": "DETECTED",
+      "basis": "Matches geometric sans curvature and clean modern terminals of Plus Jakarta Sans ExtraBold"
+    },
+    "heroTreatment": {
+      "casing": "natural",
+      "fontWeight": 800,
+      "fontStyle": "normal",
+      "relativeScale": 1.7,
+      "letterSpacingRatio": -0.03,
+      "lineHeightRatio": 0.95,
+      "opacity": 1
+    },
+    "leadTreatment": {
+      "casing": "natural",
+      "fontWeight": 700,
+      "fontStyle": "normal",
+      "relativeScale": 0.9,
+      "letterSpacingRatio": -0.01,
+      "lineHeightRatio": 1.1,
+      "opacity": 0.95
+    },
+    "subTreatment": {
+      "casing": "natural",
+      "fontWeight": 400,
+      "fontStyle": "normal",
+      "relativeScale": 0.65,
+      "letterSpacingRatio": 0.02,
+      "lineHeightRatio": 1.2,
+      "opacity": 0.8
+    },
+    "hierarchyLevels": [
+      "hero",
+      "lead",
+      "sub"
+    ],
+    "textDensity": {
+      "value": "compact-phrases",
+      "confidence": 0.92,
+      "status": "DETECTED"
+    },
+    "wordGroupingRule": "4-tier-stack",
+    "lineBreakPolicy": "balanced-stack"
+  },
+  "composition": {
+    "layoutStructure": {
+      "value": "stacked-vertical",
+      "confidence": 0.94,
+      "status": "DETECTED"
+    },
+    "anchor": {
+      "xRatio": 0.5,
+      "yRatio": 0.65,
+      "horizontalAlign": "center",
+      "verticalAlign": "center"
+    },
+    "safeZoneMargins": {
+      "topRatio": 0.1,
+      "bottomRatio": 0.12,
+      "leftRatio": 0.08,
+      "rightRatio": 0.08
+    },
+    "aspectRatioAdaptation": {
+      "portrait_9_16": {
+        "yRatio": 0.65,
+        "xRatio": 0.5,
+        "scaleMultiplier": 1,
+        "maxLineWidthRatio": 0.85,
+        "alignment": "center"
+      },
+      "landscape_16_9": {
+        "yRatio": 0.6,
+        "xRatio": 0.3,
+        "scaleMultiplier": 0.8,
+        "maxLineWidthRatio": 0.45,
+        "alignment": "left"
+      },
+      "square_1_1": {
+        "yRatio": 0.55,
+        "xRatio": 0.5,
+        "scaleMultiplier": 0.9,
+        "maxLineWidthRatio": 0.8,
+        "alignment": "center"
+      }
+    },
+    "negativeSpaceRatio": 0.4,
+    "isEdgeToEdge": false
+  },
+  "subjectRelationship": {
+    "awarenessMode": {
+      "value": "avoids-face",
+      "confidence": 0.85,
+      "status": "ESTIMATED"
+    },
+    "layerPlacement": {
+      "value": "in-front-subject",
+      "confidence": 0.85,
+      "status": "ESTIMATED"
+    },
+    "collisionAvoidance": {
+      "enabled": true,
+      "headroomSafetyRatio": 0.2,
+      "faceAvoidanceWeight": 0.85
+    },
+    "speakerPositionTracking": false,
+    "hasPillBackdropAroundSubject": false,
+    "requiresSubjectCutout": false
+  },
+  "animation": {
+    "entrance": {
+      "type": {
+        "value": "pop-spring",
+        "confidence": 0.92,
+        "status": "DETECTED"
+      },
+      "easing": {
+        "value": "spring-bouncy",
+        "confidence": 0.9,
+        "status": "DETECTED"
+      },
+      "durationSeconds": 0.22,
+      "scaleRange": [
+        0.88,
+        1
+      ],
+      "opacityRange": [
+        0,
+        1
+      ],
+      "translateYRangeRatio": [
+        0.03,
+        0
+      ],
+      "rotationRangeDeg": [
+        0,
+        0
+      ]
+    },
+    "active": {
+      "type": "none",
+      "intensity": 0
+    },
+    "exit": {
+      "type": {
+        "value": "fade-out",
+        "confidence": 0.85,
+        "status": "ESTIMATED"
+      },
+      "durationSeconds": 0.15
+    },
+    "emphasis": {
+      "type": "scale-punch",
+      "scaleMultiplier": 1.25,
+      "glowIntensityMultiplier": 1.4
+    },
+    "wordStaggerSeconds": 0.05
+  },
+  "color": {
+    "primaryTextColor": {
+      "value": "#F8FAFC",
+      "confidence": 0.98,
+      "status": "DETECTED"
+    },
+    "secondaryTextColor": {
+      "value": "#CBD5E1",
+      "confidence": 0.9,
+      "status": "DETECTED"
+    },
+    "accentColor": {
+      "value": "#38BDF8",
+      "confidence": 0.95,
+      "status": "DETECTED"
+    },
+    "secondaryAccentColor": {
+      "value": "#818CF8",
+      "confidence": 0.92,
+      "status": "DETECTED"
+    },
+    "backgroundColor": "rgba(0,0,0,0)",
+    "colorGrade": {
+      "name": "Natural Contrast",
+      "filter": "contrast(1.08) saturate(1.1)",
+      "contrast": 1.08,
+      "saturation": 1.1,
+      "brightness": 1
+    },
+    "effects": {
+      "hasStroke": false,
+      "hasGlow": true,
+      "glowColor": "rgba(56,189,248,0.5)",
+      "glowRadiusPx": 16,
+      "hasDropShadow": true,
+      "shadowColor": "rgba(0,0,0,0.5)",
+      "shadowBlur": 8,
+      "hasGlassBackdrop": true,
+      "glassBlurPx": 12,
+      "backdropColor": "rgba(15,23,42,0.4)",
+      "hasTapeBadge": false,
+      "hasGradientShimmer": true
+    },
+    "contrastRatioEstimate": 12.5
+  },
+  "emphasisRules": [
+    {
+      "trigger": "power-words",
+      "visualTreatment": "contrast-color",
+      "scaleMultiplier": 1.3,
+      "iconType": "none"
+    },
+    {
+      "trigger": "metrics-numbers",
+      "visualTreatment": "scale-pop",
+      "scaleMultiplier": 1.4,
+      "iconType": "none"
+    }
+  ],
+  "styleVariants": {
+    "hook": {
+      "role": "hook",
+      "scaleMultiplier": 1.25,
+      "entranceOverride": "pop-spring",
+      "casingOverride": "uppercase"
+    },
+    "statement": {
+      "role": "statement",
+      "scaleMultiplier": 1,
+      "casingOverride": "natural"
+    },
+    "emphasis": {
+      "role": "emphasis",
+      "scaleMultiplier": 1.35,
+      "highlightTreatment": "scale-pop"
+    },
+    "keyword": {
+      "role": "keyword",
+      "scaleMultiplier": 1.4,
+      "highlightTreatment": "contrast-color"
+    },
+    "transition": {
+      "role": "transition",
+      "scaleMultiplier": 0.9,
+      "entranceOverride": "slide-mask"
+    },
+    "conclusion": {
+      "role": "conclusion",
+      "scaleMultiplier": 1.2,
+      "casingOverride": "uppercase"
+    }
+  },
+  "soundSync": {
+    "personality": "heavy-thud-pop",
+    "primaryHitType": "pop-strong",
+    "secondaryHitType": "whoosh",
+    "defaultVolume": 0.2,
+    "duckingEnabled": true
+  },
+  "trackedEvents": [
+    {
+      "id": "event-0-0.38",
+      "startTime": 0.38,
+      "endTime": 1.1800000000000002,
+      "duration": 0.8,
+      "text": "Hello hello",
+      "heroKeyword": "hello",
+      "hierarchy": "lead",
+      "styleRole": "hook",
+      "emphasisType": "scale-pop",
+      "entrance": {
+        "type": "slam-scale",
+        "ramp": {
+          "startSec": 0.38,
+          "endSec": 0.78,
+          "durationSec": 0.4,
+          "deltaScale": 0,
+          "deltaOpacity": 1,
+          "deltaYRatio": 0,
+          "inferredEasing": "ease-out-expo"
+        }
+      },
+      "activeMotion": "subtle-breathe",
+      "exit": {
+        "type": "quick-fade",
+        "durationSec": 0.2
+      },
+      "normalizedBoundingBox": {
+        "xRatio": 0.35,
+        "yRatio": 0.62,
+        "widthRatio": 0.4,
+        "heightRatio": 0.15
+      },
+      "detectedColors": [
+        "#FFFFFF",
+        "#38BDF8"
+      ],
+      "layerPlacement": "in-front-subject"
+    },
+    {
+      "id": "event-1-3.38",
+      "startTime": 3.38,
+      "endTime": 4.18,
+      "duration": 0.8,
+      "text": "I am speaking on a panel",
+      "heroKeyword": "speaking",
+      "hierarchy": "sub",
+      "styleRole": "statement",
+      "emphasisType": "scale-pop",
+      "entrance": {
+        "type": "slam-scale",
+        "ramp": {
+          "startSec": 3.38,
+          "endSec": 3.78,
+          "durationSec": 0.3999999999999999,
+          "deltaScale": 0,
+          "deltaOpacity": 1,
+          "deltaYRatio": 0,
+          "inferredEasing": "ease-out-expo"
+        }
+      },
+      "activeMotion": "subtle-breathe",
+      "exit": {
+        "type": "quick-fade",
+        "durationSec": 0.2
+      },
+      "normalizedBoundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.22,
+        "widthRatio": 0.75,
+        "heightRatio": 0.18
+      },
+      "detectedColors": [
+        "#FFFFFF",
+        "#E2F952"
+      ],
+      "layerPlacement": "in-front-subject"
+    },
+    {
+      "id": "event-2-13.04",
+      "startTime": 13.04,
+      "endTime": 13.84,
+      "duration": 0.8,
+      "text": "a sustainable lead generation pipeline",
+      "heroKeyword": "generation",
+      "hierarchy": "sub",
+      "styleRole": "emphasis",
+      "emphasisType": "scale-pop",
+      "entrance": {
+        "type": "slam-scale",
+        "ramp": {
+          "startSec": 0,
+          "endSec": 0.3,
+          "durationSec": 0.3,
+          "deltaScale": 0,
+          "deltaOpacity": 1,
+          "deltaYRatio": 0,
+          "inferredEasing": "ease-out-expo"
+        }
+      },
+      "activeMotion": "subtle-breathe",
+      "exit": {
+        "type": "quick-fade",
+        "durationSec": 0.2
+      },
+      "normalizedBoundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.24,
+        "widthRatio": 0.82,
+        "heightRatio": 0.22
+      },
+      "detectedColors": [
+        "#FFFFFF"
+      ],
+      "layerPlacement": "in-front-subject"
+    },
+    {
+      "id": "event-3-25.88",
+      "startTime": 25.88,
+      "endTime": 26.68,
+      "duration": 0.8,
+      "text": "that can",
+      "heroKeyword": "that",
+      "hierarchy": "lead",
+      "styleRole": "keyword",
+      "emphasisType": "scale-pop",
+      "entrance": {
+        "type": "slam-scale",
+        "ramp": {
+          "startSec": 0,
+          "endSec": 0.3,
+          "durationSec": 0.3,
+          "deltaScale": 0,
+          "deltaOpacity": 1,
+          "deltaYRatio": 0,
+          "inferredEasing": "ease-out-expo"
+        }
+      },
+      "activeMotion": "subtle-breathe",
+      "exit": {
+        "type": "quick-fade",
+        "durationSec": 0.2
+      },
+      "normalizedBoundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.82,
+        "widthRatio": 0.3,
+        "heightRatio": 0.06
+      },
+      "detectedColors": [
+        "#FFFFFF"
+      ],
+      "layerPlacement": "in-front-subject"
+    }
+  ],
+  "sampleKeyframes": [
+    {
+      "timestampSeconds": 0.38,
+      "frameIndex": 1,
+      "detectedText": "Hello hello",
+      "primaryHeroWord": "hello",
+      "visualStateDescription": "First 'Hello' in bold white sans-serif stack, secondary line reveals textured blue filled text",
+      "ocrConfidence": 0.95,
+      "detectedColors": [
+        "#FFFFFF",
+        "#38BDF8"
+      ],
+      "boundingBox": {
+        "xRatio": 0.35,
+        "yRatio": 0.62,
+        "widthRatio": 0.4,
+        "heightRatio": 0.15
+      },
+      "visualStateRole": "hook"
+    },
+    {
+      "timestampSeconds": 3.38,
+      "frameIndex": 5,
+      "detectedText": "I am speaking on a panel",
+      "primaryHeroWord": "speaking",
+      "visualStateDescription": "Top banner kinetic block with giant light-lime green hero text 'speaking' flanked by light white sub-text",
+      "ocrConfidence": 0.96,
+      "detectedColors": [
+        "#FFFFFF",
+        "#E2F952"
+      ],
+      "boundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.22,
+        "widthRatio": 0.75,
+        "heightRatio": 0.18
+      },
+      "visualStateRole": "statement"
+    },
+    {
+      "timestampSeconds": 13.04,
+      "frameIndex": 7,
+      "detectedText": "a sustainable lead generation pipeline",
+      "primaryHeroWord": "generation",
+      "visualStateDescription": "Four line vertical stacked block with ultra bold hero word 'generation' flanked by lightweight subtext",
+      "ocrConfidence": 0.94,
+      "detectedColors": [
+        "#FFFFFF"
+      ],
+      "boundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.24,
+        "widthRatio": 0.82,
+        "heightRatio": 0.22
+      },
+      "visualStateRole": "keyword"
+    },
+    {
+      "timestampSeconds": 25.88,
+      "frameIndex": 8,
+      "detectedText": "that can",
+      "primaryHeroWord": "that",
+      "visualStateDescription": "Clean minimal center bottom white speech caption during wide stage shot transition",
+      "ocrConfidence": 0.98,
+      "detectedColors": [
+        "#FFFFFF"
+      ],
+      "boundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.82,
+        "widthRatio": 0.3,
+        "heightRatio": 0.06
+      },
+      "visualStateRole": "conclusion"
+    }
+  ],
+  "validation": {
+    "typographyConsistencyScore": 90,
+    "motionConsistencyScore": 90,
+    "colorConsistencyScore": 95,
+    "compositionScore": 92,
+    "distinctivenessScore": 93,
+    "status": "valid",
+    "notes": []
+  }
+}

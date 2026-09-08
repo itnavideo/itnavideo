@@ -1,0 +1,105 @@
+{
+  "metadata": {
+    "styleId": "m3-assist-chip",
+    "demoVideoId": "m3-assist-chip",
+    "name": "M3 Assist Chip",
+    "category": "kinetic",
+    "tags": [
+      "material-3",
+      "google-m3",
+      "assist-chip",
+      "emerald-tonal",
+      "interactive-badges"
+    ],
+    "sourceVideoUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/v1783945650/professional-creator-after.mp4",
+    "posterUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/f_auto,q_auto,w_480,so_0.5/v1783945650/professional-creator-after.jpg",
+    "analysisVersion": "3.0.0-m3-assist-chip",
+    "analyzedAt": "2026-09-07T14:30:00.000Z",
+    "overallConfidence": 0.97
+  },
+  "pacingAndRhythm": {
+    "personality": {
+      "value": "punchy-expressive",
+      "confidence": 0.95,
+      "status": "ESTIMATED"
+    },
+    "rhythmPattern": {
+      "value": "m3-dynamic-flow",
+      "confidence": 0.94,
+      "status": "ESTIMATED"
+    },
+    "targetWordsPerPhrase": 3,
+    "averagePhraseDurationSec": 1.35,
+    "transitionFrequencyPerMinute": 36,
+    "speechSyncMode": "beat-locked",
+    "motionIntensity": {
+      "value": "punchy",
+      "confidence": 0.94,
+      "status": "ESTIMATED"
+    }
+  },
+  "typography": {
+    "fontCategory": {
+      "value": "m3-modern-sans",
+      "confidence": 0.95,
+      "status": "ESTIMATED"
+    },
+    "fontFamilyEstimate": {
+      "value": "Plus Jakarta Sans, Roboto, sans-serif",
+      "confidence": 0.95,
+      "status": "ESTIMATED"
+    },
+    "heroTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 900,
+      "fontStyle": "normal",
+      "relativeScale": 1.75,
+      "letterSpacingRatio": -0.03,
+      "lineHeightRatio": 1.08,
+      "opacity": 1
+    },
+    "leadTreatment": {
+      "casing": "natural",
+      "fontWeight": 700,
+      "fontStyle": "normal",
+      "relativeScale": 0.92,
+      "letterSpacingRatio": -0.015,
+      "lineHeightRatio": 1.2,
+      "opacity": 0.9
+    },
+    "subTreatment": {
+      "casing": "natural",
+      "fontWeight": 600,
+      "fontStyle": "normal",
+      "relativeScale": 0.85,
+      "letterSpacingRatio": 0,
+      "lineHeightRatio": 1.35,
+      "opacity": 0.8
+    },
+    "badgeTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 800,
+      "fontStyle": "normal",
+      "relativeScale": 0.58,
+      "letterSpacingRatio": 0.08,
+      "lineHeightRatio": 1,
+      "opacity": 1
+    }
+  },
+  "animation": {
+    "mass": 0.52,
+    "damping": 13,
+    "stiffness": 200,
+    "easing": "cubic-bezier(0.05, 0.7, 0.1, 1.0)"
+  },
+  "colorPalette": {
+    "primary": "#10B981",
+    "primaryContainer": "rgba(16, 185, 129, 0.18)",
+    "onPrimary": "#FFFFFF",
+    "surface": "#09090B",
+    "surfaceVariant": "rgba(24, 24, 27, 0.75)",
+    "outline": "rgba(255, 255, 255, 0.15)",
+    "secondary": "#34D399",
+    "tertiary": "#38BDF8"
+  }
+}

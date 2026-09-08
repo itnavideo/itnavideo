@@ -1,0 +1,58 @@
+{
+  "metadata": {
+    "styleId": "vogue-editorial",
+    "demoVideoId": "vogue-editorial",
+    "name": "Vogue High-Fashion",
+    "category": "luxury",
+    "tags": ["vogue", "high-fashion", "editorial", "didot-serif"],
+    "sourceVideoUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/v1788450233/professional-creator-girl-before_rwmxsd.mp4",
+    "posterUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/so_1,w_600,q_auto,f_jpg/v1788450233/professional-creator-girl-before_rwmxsd.jpg",
+    "analysisVersion": "2.0.0-temporal-motion",
+    "analyzedAt": "2026-09-04T12:00:00.000Z",
+    "overallConfidence": 0.95
+  },
+  "pacingAndRhythm": {
+    "personality": { "value": "editorial-luxury", "confidence": 0.95, "status": "DETECTED" },
+    "rhythmPattern": { "value": "fade-rise", "confidence": 0.95, "status": "DETECTED" },
+    "targetWordsPerPhrase": 3,
+    "averagePhraseDurationSec": 1.6,
+    "transitionFrequencyPerMinute": 32,
+    "speechSyncMode": "beat-locked",
+    "motionIntensity": { "value": "delicate", "confidence": 0.95, "status": "DETECTED" }
+  },
+  "typography": {
+    "fontCategory": { "value": "didone-serif", "confidence": 0.95, "status": "DETECTED" },
+    "fontFamilyEstimate": { "value": "Bodoni Moda", "confidence": 0.95, "status": "DETECTED" },
+    "heroTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 900,
+      "fontStyle": "italic",
+      "relativeScale": 1.7,
+      "letterSpacingRatio": 0.04,
+      "lineHeightRatio": 1.05,
+      "opacity": 1
+    },
+    "leadTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 500,
+      "fontStyle": "normal",
+      "relativeScale": 0.75,
+      "letterSpacingRatio": 0.25,
+      "lineHeightRatio": 1.2,
+      "opacity": 0.9
+    },
+    "subTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 500,
+      "fontStyle": "normal",
+      "relativeScale": 0.7,
+      "letterSpacingRatio": 0.2,
+      "lineHeightRatio": 1.2,
+      "opacity": 0.85
+    },
+    "hierarchyLevels": ["lead", "hero", "sub"],
+    "textDensity": { "value": "compact-phrases", "confidence": 0.92, "status": "DETECTED" },
+    "wordGroupingRule": "2-4-balanced",
+    "lineBreakPolicy": "high-contrast-editorial"
+  }
+}

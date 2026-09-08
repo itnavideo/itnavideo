@@ -1,0 +1,83 @@
+{
+  "metadata": {
+    "styleId": "swiss-minimal",
+    "demoVideoId": "swiss-minimal",
+    "name": "Swiss Bauhaus & Architectural Studio",
+    "category": "minimal",
+    "tags": ["swiss-minimal", "minimal-monochrome", "architectural", "clean-design"],
+    "sourceVideoUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/v1783942630/Are_you_in_the_right_rooms_fppoam.mp4",
+    "posterUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/f_auto,q_auto,w_480,so_0.5/v1783942630/Are_you_in_the_right_rooms_fppoam.jpg",
+    "analysisVersion": "2.0.0-temporal-motion",
+    "analyzedAt": "2026-09-04T12:00:00.000Z",
+    "overallConfidence": 0.95
+  },
+  "pacingAndRhythm": {
+    "personality": {
+      "value": "minimal-monochrome",
+      "confidence": 0.96,
+      "status": "DETECTED"
+    },
+    "rhythmPattern": {
+      "value": "stacked-block",
+      "confidence": 0.94,
+      "status": "DETECTED"
+    },
+    "targetWordsPerPhrase": 3,
+    "averagePhraseDurationSec": 1.7,
+    "transitionFrequencyPerMinute": 30,
+    "speechSyncMode": "phrase-cadence",
+    "motionIntensity": {
+      "value": "minimal-subtle",
+      "confidence": 0.94,
+      "status": "DETECTED"
+    }
+  },
+  "typography": {
+    "fontCategory": {
+      "value": "clean-grotesque",
+      "confidence": 0.98,
+      "status": "DETECTED"
+    },
+    "fontFamilyEstimate": {
+      "value": "Inter",
+      "confidence": 0.96,
+      "status": "DETECTED"
+    },
+    "heroTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 900,
+      "fontStyle": "normal",
+      "relativeScale": 1.6,
+      "letterSpacingRatio": -0.02,
+      "lineHeightRatio": 1.08,
+      "opacity": 1
+    },
+    "leadTreatment": {
+      "casing": "natural",
+      "fontWeight": 500,
+      "fontStyle": "normal",
+      "relativeScale": 0.8,
+      "letterSpacingRatio": 0.04,
+      "lineHeightRatio": 1.2,
+      "opacity": 0.85
+    },
+    "subTreatment": {
+      "casing": "natural",
+      "fontWeight": 500,
+      "fontStyle": "normal",
+      "relativeScale": 0.72,
+      "letterSpacingRatio": 0.02,
+      "lineHeightRatio": 1.2,
+      "opacity": 0.75
+    },
+    "hierarchyLevels": ["hero", "lead", "sub"],
+    "textDensity": {
+      "value": "compact-phrases",
+      "confidence": 0.92,
+      "status": "DETECTED"
+    },
+    "wordGroupingRule": "2-4-balanced",
+    "lineBreakPolicy": "balanced-stack"
+  }
+}
+

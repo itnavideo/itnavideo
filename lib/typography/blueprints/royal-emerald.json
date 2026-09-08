@@ -1,0 +1,542 @@
+{
+  "metadata": {
+    "styleId": "royal-emerald",
+    "demoVideoId": "royal-emerald",
+    "name": "Royal Emerald Coaching",
+    "category": "luxury",
+    "tags": [
+      "royal-emerald",
+      "editorial-luxury",
+      "AI Reverse-Engineered"
+    ],
+    "sourceVideoUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/v1788193723/Video-14143_j4mkzn.mp4",
+    "posterUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/f_auto,q_auto,w_480,so_0.5/v1788193723/Video-14143_j4mkzn.jpg",
+    "analysisVersion": "2.0.0-temporal-motion",
+    "analyzedAt": "2026-09-01T09:56:47.890Z",
+    "overallConfidence": 0.94
+  },
+  "pacingAndRhythm": {
+    "personality": {
+      "value": "editorial-luxury",
+      "confidence": 0.95,
+      "status": "DETECTED",
+      "basis": "High-end real estate setting, sleek 3D graphic typography, clean modern aesthetic with luxury accent colors."
+    },
+    "rhythmPattern": {
+      "value": "phrase-stagger",
+      "confidence": 0.92,
+      "status": "DETECTED",
+      "basis": "Phrasing alternates between small context words and large 3D keyphrase graphics locked to spoken beats."
+    },
+    "targetWordsPerPhrase": 2,
+    "averagePhraseDurationSec": 1.5,
+    "transitionFrequencyPerMinute": 38,
+    "speechSyncMode": "beat-locked",
+    "motionIntensity": {
+      "value": "punchy",
+      "confidence": 0.9,
+      "status": "DETECTED"
+    }
+  },
+  "typography": {
+    "fontCategory": {
+      "value": "bold-geometric-sans",
+      "confidence": 0.94,
+      "status": "DETECTED",
+      "basis": "Clean geometric letterforms with custom 3D bevels, glass textures, and metallic gradients."
+    },
+    "fontFamilyEstimate": {
+      "value": "Plus Jakarta Sans",
+      "confidence": 0.88,
+      "status": "ESTIMATED",
+      "basis": "Clean geometric sans curves matched with modern italic context text."
+    },
+    "heroTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 900,
+      "fontStyle": "normal",
+      "relativeScale": 1.8,
+      "letterSpacingRatio": -0.01,
+      "lineHeightRatio": 1.05,
+      "opacity": 1
+    },
+    "leadTreatment": {
+      "casing": "natural",
+      "fontWeight": 500,
+      "fontStyle": "italic",
+      "relativeScale": 0.85,
+      "letterSpacingRatio": 0.02,
+      "lineHeightRatio": 1.2,
+      "opacity": 0.95
+    },
+    "subTreatment": {
+      "casing": "natural",
+      "fontWeight": 400,
+      "fontStyle": "normal",
+      "relativeScale": 0.7,
+      "letterSpacingRatio": 0.04,
+      "lineHeightRatio": 1.2,
+      "opacity": 0.8
+    },
+    "hierarchyLevels": [
+      "hero",
+      "lead",
+      "sub"
+    ],
+    "textDensity": {
+      "value": "compact-phrases",
+      "confidence": 0.92,
+      "status": "DETECTED"
+    },
+    "wordGroupingRule": "hook-plus-context",
+    "lineBreakPolicy": "balanced-stack"
+  },
+  "composition": {
+    "layoutStructure": {
+      "value": "split-lead-hero",
+      "confidence": 0.94,
+      "status": "DETECTED"
+    },
+    "anchor": {
+      "xRatio": 0.5,
+      "yRatio": 0.65,
+      "horizontalAlign": "center",
+      "verticalAlign": "center"
+    },
+    "safeZoneMargins": {
+      "topRatio": 0.12,
+      "bottomRatio": 0.15,
+      "leftRatio": 0.08,
+      "rightRatio": 0.08
+    },
+    "aspectRatioAdaptation": {
+      "portrait_9_16": {
+        "yRatio": 0.65,
+        "xRatio": 0.5,
+        "scaleMultiplier": 1,
+        "maxLineWidthRatio": 0.85,
+        "alignment": "center"
+      },
+      "landscape_16_9": {
+        "yRatio": 0.55,
+        "xRatio": 0.3,
+        "scaleMultiplier": 0.85,
+        "maxLineWidthRatio": 0.45,
+        "alignment": "left"
+      },
+      "square_1_1": {
+        "yRatio": 0.5,
+        "xRatio": 0.5,
+        "scaleMultiplier": 0.9,
+        "maxLineWidthRatio": 0.8,
+        "alignment": "center"
+      }
+    },
+    "negativeSpaceRatio": 0.55,
+    "isEdgeToEdge": false
+  },
+  "subjectRelationship": {
+    "awarenessMode": {
+      "value": "depth-behind-subject",
+      "confidence": 0.96,
+      "status": "DETECTED"
+    },
+    "layerPlacement": {
+      "value": "behind-subject",
+      "confidence": 0.95,
+      "status": "DETECTED"
+    },
+    "collisionAvoidance": {
+      "enabled": true,
+      "headroomSafetyRatio": 0.12,
+      "faceAvoidanceWeight": 0.9
+    },
+    "speakerPositionTracking": true,
+    "hasPillBackdropAroundSubject": false,
+    "requiresSubjectCutout": true
+  },
+  "animation": {
+    "entrance": {
+      "type": {
+        "value": "pop-spring",
+        "confidence": 0.9,
+        "status": "DETECTED"
+      },
+      "easing": {
+        "value": "spring-bouncy",
+        "confidence": 0.92,
+        "status": "DETECTED"
+      },
+      "durationSeconds": 0.22,
+      "scaleRange": [
+        1.25,
+        1
+      ],
+      "opacityRange": [
+        0,
+        1
+      ],
+      "translateYRangeRatio": [
+        0.02,
+        0
+      ],
+      "rotationRangeDeg": [
+        -2,
+        0
+      ]
+    },
+    "active": {
+      "type": "shimmer-sweep",
+      "intensity": 0.06
+    },
+    "exit": {
+      "type": "quick-fade",
+      "durationSeconds": 0.15
+    },
+    "wordByWordStagger": false,
+    "staggerDelaySeconds": 0.04,
+    "motionIntensity": "punchy"
+  },
+  "color": {
+    "primaryTextColor": {
+      "value": "#FFFFFF",
+      "confidence": 0.98,
+      "status": "DETECTED"
+    },
+    "secondaryTextColor": {
+      "value": "#F1F5F9",
+      "confidence": 0.95,
+      "status": "DETECTED"
+    },
+    "accentColor": {
+      "value": "#10B981",
+      "confidence": 0.98,
+      "status": "DETECTED"
+    },
+    "secondaryAccentColor": {
+      "value": "#FCD34D",
+      "confidence": 0.95,
+      "status": "DETECTED"
+    },
+    "backgroundColor": "rgba(0,0,0,0.0)",
+    "colorGrade": {
+      "name": "Deep Emerald Luxury",
+      "filter": "contrast(1.15) saturate(1.15)",
+      "contrast": 1.15,
+      "saturation": 1.15,
+      "brightness": 1.02
+    },
+    "effects": {
+      "hasStroke": false,
+      "hasGlow": true,
+      "glowColor": "rgba(16,185,129,0.45)",
+      "glowRadiusPx": 24,
+      "hasDropShadow": true,
+      "shadowColor": "rgba(0,0,0,0.85)",
+      "shadowBlur": 18,
+      "hasGlassBackdrop": false,
+      "glassBlurPx": 0,
+      "backdropColor": "transparent",
+      "hasTapeBadge": false,
+      "hasGradientShimmer": true
+    },
+    "contrastRatioEstimate": 11.5
+  },
+  "emphasisRules": [
+    {
+      "trigger": "power-words",
+      "visualTreatment": "contrast-color",
+      "scaleMultiplier": 1.3,
+      "iconType": "sparkle"
+    },
+    {
+      "trigger": "metrics-numbers",
+      "visualTreatment": "scale-pop",
+      "scaleMultiplier": 1.5,
+      "iconType": "star"
+    }
+  ],
+  "styleVariants": {
+    "hook": {
+      "role": "hook",
+      "scaleMultiplier": 1.25,
+      "entranceOverride": "pop-spring",
+      "casingOverride": "uppercase"
+    },
+    "statement": {
+      "role": "statement",
+      "scaleMultiplier": 1,
+      "casingOverride": "natural"
+    },
+    "emphasis": {
+      "role": "emphasis",
+      "scaleMultiplier": 1.35,
+      "highlightTreatment": "scale-pop"
+    },
+    "keyword": {
+      "role": "keyword",
+      "scaleMultiplier": 1.4,
+      "highlightTreatment": "contrast-color"
+    },
+    "transition": {
+      "role": "transition",
+      "scaleMultiplier": 0.9,
+      "entranceOverride": "slide-mask"
+    },
+    "conclusion": {
+      "role": "conclusion",
+      "scaleMultiplier": 1.2,
+      "casingOverride": "uppercase"
+    }
+  },
+  "soundSync": {
+    "personality": "gold-luxury-chime",
+    "primaryHitType": "pop-strong",
+    "secondaryHitType": "whoosh",
+    "defaultVolume": 0.18,
+    "duckingEnabled": true
+  },
+  "trackedEvents": [
+    {
+      "id": "event-0-0.50",
+      "startTime": 0.5,
+      "endTime": 1.3,
+      "duration": 0.8,
+      "text": "My service",
+      "heroKeyword": "service",
+      "hierarchy": "lead",
+      "styleRole": "hook",
+      "emphasisType": "scale-pop",
+      "entrance": {
+        "type": "slam-scale",
+        "ramp": {
+          "startSec": 0.38,
+          "endSec": 0.78,
+          "durationSec": 0.4,
+          "deltaScale": 0,
+          "deltaOpacity": 1,
+          "deltaYRatio": 0,
+          "inferredEasing": "ease-out-expo"
+        }
+      },
+      "activeMotion": "subtle-breathe",
+      "exit": {
+        "type": "quick-fade",
+        "durationSec": 0.2
+      },
+      "normalizedBoundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.52,
+        "widthRatio": 0.45,
+        "heightRatio": 0.08
+      },
+      "detectedColors": [
+        "#FFFFFF"
+      ],
+      "layerPlacement": "in-front-subject"
+    },
+    {
+      "id": "event-1-1.88",
+      "startTime": 1.88,
+      "endTime": 2.6799999999999997,
+      "duration": 0.8,
+      "text": "the price",
+      "heroKeyword": "price",
+      "hierarchy": "lead",
+      "styleRole": "statement",
+      "emphasisType": "scale-pop",
+      "entrance": {
+        "type": "slam-scale",
+        "ramp": {
+          "startSec": 1.88,
+          "endSec": 2.28,
+          "durationSec": 0.3999999999999999,
+          "deltaScale": 0,
+          "deltaOpacity": 1,
+          "deltaYRatio": 0,
+          "inferredEasing": "ease-out-expo"
+        }
+      },
+      "activeMotion": "subtle-breathe",
+      "exit": {
+        "type": "quick-fade",
+        "durationSec": 0.2
+      },
+      "normalizedBoundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.51,
+        "widthRatio": 0.55,
+        "heightRatio": 0.18
+      },
+      "detectedColors": [
+        "#FFFFFF",
+        "#38BDF8"
+      ],
+      "layerPlacement": "in-front-subject"
+    },
+    {
+      "id": "event-2-3.50",
+      "startTime": 3.5,
+      "endTime": 4.3,
+      "duration": 0.8,
+      "text": "Being a luxury agent",
+      "heroKeyword": "luxury agent",
+      "hierarchy": "sub",
+      "styleRole": "emphasis",
+      "emphasisType": "scale-pop",
+      "entrance": {
+        "type": "slam-scale",
+        "ramp": {
+          "startSec": 3.38,
+          "endSec": 3.78,
+          "durationSec": 0.3999999999999999,
+          "deltaScale": 0,
+          "deltaOpacity": 1,
+          "deltaYRatio": 0,
+          "inferredEasing": "ease-out-expo"
+        }
+      },
+      "activeMotion": "subtle-breathe",
+      "exit": {
+        "type": "quick-fade",
+        "durationSec": 0.2
+      },
+      "normalizedBoundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.53,
+        "widthRatio": 0.65,
+        "heightRatio": 0.22
+      },
+      "detectedColors": [
+        "#FFFFFF",
+        "#A855F7"
+      ],
+      "layerPlacement": "in-front-subject"
+    },
+    {
+      "id": "event-3-10.16",
+      "startTime": 10.16,
+      "endTime": 10.96,
+      "duration": 0.8,
+      "text": "PROPERTY $1M",
+      "heroKeyword": "$1M",
+      "hierarchy": "metric",
+      "styleRole": "keyword",
+      "emphasisType": "scale-pop",
+      "entrance": {
+        "type": "slam-scale",
+        "ramp": {
+          "startSec": 0,
+          "endSec": 0.3,
+          "durationSec": 0.3,
+          "deltaScale": 0,
+          "deltaOpacity": 1,
+          "deltaYRatio": 0,
+          "inferredEasing": "ease-out-expo"
+        }
+      },
+      "activeMotion": "subtle-breathe",
+      "exit": {
+        "type": "quick-fade",
+        "durationSec": 0.2
+      },
+      "normalizedBoundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.25,
+        "widthRatio": 0.75,
+        "heightRatio": 0.28
+      },
+      "detectedColors": [
+        "#EAB308",
+        "#FFFFFF"
+      ],
+      "layerPlacement": "in-front-subject"
+    }
+  ],
+  "sampleKeyframes": [
+    {
+      "timestampSeconds": 0.5,
+      "frameIndex": 15,
+      "detectedText": "My service",
+      "primaryHeroWord": "service",
+      "visualStateDescription": "Clean white italicized text over speaker walking outside",
+      "ocrConfidence": 0.96,
+      "detectedColors": [
+        "#FFFFFF"
+      ],
+      "boundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.52,
+        "widthRatio": 0.45,
+        "heightRatio": 0.08
+      },
+      "visualStateRole": "hook"
+    },
+    {
+      "timestampSeconds": 1.88,
+      "frameIndex": 56,
+      "detectedText": "the price",
+      "primaryHeroWord": "price",
+      "visualStateDescription": "Small white context lead word above large 3D metallic blue liquid graphic text",
+      "ocrConfidence": 0.94,
+      "detectedColors": [
+        "#FFFFFF",
+        "#38BDF8"
+      ],
+      "boundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.51,
+        "widthRatio": 0.55,
+        "heightRatio": 0.18
+      },
+      "visualStateRole": "keyword"
+    },
+    {
+      "timestampSeconds": 3.5,
+      "frameIndex": 105,
+      "detectedText": "Being a luxury agent",
+      "primaryHeroWord": "luxury agent",
+      "visualStateDescription": "Stacked 3D vibrant purple glossy block letters centered over body",
+      "ocrConfidence": 0.95,
+      "detectedColors": [
+        "#FFFFFF",
+        "#A855F7"
+      ],
+      "boundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.53,
+        "widthRatio": 0.65,
+        "heightRatio": 0.22
+      },
+      "visualStateRole": "emphasis"
+    },
+    {
+      "timestampSeconds": 10.16,
+      "frameIndex": 305,
+      "detectedText": "PROPERTY $1M",
+      "primaryHeroWord": "$1M",
+      "visualStateDescription": "Massive 3D gold dollar text rendered BEHIND the speaker cut-out layer",
+      "ocrConfidence": 0.92,
+      "detectedColors": [
+        "#EAB308",
+        "#FFFFFF"
+      ],
+      "boundingBox": {
+        "xRatio": 0.5,
+        "yRatio": 0.25,
+        "widthRatio": 0.75,
+        "heightRatio": 0.28
+      },
+      "visualStateRole": "statement"
+    }
+  ],
+  "validation": {
+    "typographyConsistencyScore": 90,
+    "motionConsistencyScore": 90,
+    "colorConsistencyScore": 95,
+    "compositionScore": 92,
+    "distinctivenessScore": 100,
+    "status": "valid",
+    "notes": []
+  }
+}

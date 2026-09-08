@@ -1,0 +1,83 @@
+{
+  "metadata": {
+    "styleId": "velvet-crimson",
+    "demoVideoId": "velvet-crimson",
+    "name": "Velvet Crimson & Rose Gold Luxe",
+    "category": "luxury",
+    "tags": ["velvet-crimson", "editorial-luxury", "rose-gold", "premium"],
+    "sourceVideoUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/v1783942631/I_filed_for_divorce_closed_a_billion-dollar_company_and_moved_to_a_country_where_I_didn_t_spea_tm9yqa.mp4",
+    "posterUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/f_auto,q_auto,w_480,so_0.5/v1783942631/I_filed_for_divorce_closed_a_billion-dollar_company_and_moved_to_a_country_where_I_didn_t_spea_tm9yqa.jpg",
+    "analysisVersion": "2.0.0-temporal-motion",
+    "analyzedAt": "2026-09-04T12:00:00.000Z",
+    "overallConfidence": 0.94
+  },
+  "pacingAndRhythm": {
+    "personality": {
+      "value": "editorial-luxury",
+      "confidence": 0.95,
+      "status": "DETECTED"
+    },
+    "rhythmPattern": {
+      "value": "callout-pill",
+      "confidence": 0.92,
+      "status": "DETECTED"
+    },
+    "targetWordsPerPhrase": 3,
+    "averagePhraseDurationSec": 1.6,
+    "transitionFrequencyPerMinute": 34,
+    "speechSyncMode": "beat-locked",
+    "motionIntensity": {
+      "value": "smooth-cinematic",
+      "confidence": 0.9,
+      "status": "DETECTED"
+    }
+  },
+  "typography": {
+    "fontCategory": {
+      "value": "luxury-serif",
+      "confidence": 0.95,
+      "status": "DETECTED"
+    },
+    "fontFamilyEstimate": {
+      "value": "Playfair Display",
+      "confidence": 0.95,
+      "status": "DETECTED"
+    },
+    "heroTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 900,
+      "fontStyle": "normal",
+      "relativeScale": 1.65,
+      "letterSpacingRatio": 0.02,
+      "lineHeightRatio": 1.05,
+      "opacity": 1
+    },
+    "leadTreatment": {
+      "casing": "natural",
+      "fontWeight": 600,
+      "fontStyle": "italic",
+      "relativeScale": 0.85,
+      "letterSpacingRatio": 0.03,
+      "lineHeightRatio": 1.2,
+      "opacity": 0.9
+    },
+    "subTreatment": {
+      "casing": "natural",
+      "fontWeight": 600,
+      "fontStyle": "normal",
+      "relativeScale": 0.72,
+      "letterSpacingRatio": 0.03,
+      "lineHeightRatio": 1.2,
+      "opacity": 0.85
+    },
+    "hierarchyLevels": ["hero", "lead", "sub"],
+    "textDensity": {
+      "value": "compact-phrases",
+      "confidence": 0.9,
+      "status": "ESTIMATED"
+    },
+    "wordGroupingRule": "2-4-balanced",
+    "lineBreakPolicy": "balanced-stack"
+  }
+}
+

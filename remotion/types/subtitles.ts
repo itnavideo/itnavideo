@@ -1,0 +1,136 @@
+// remotion/types/subtitles.ts
+// Shared subtitle types for all Itnavideo templates
+
+export type SubtitleStyle =
+  | "none"
+  | "normal"
+  | "highlight"
+  | "big-bold"
+  | "word-pop"
+  | "neon"
+  | "box"
+  | "split-color"
+  | "typewriter"
+  | "bold-outline"
+  | "one-word"
+  | "gold-pill"
+  | "stacked"
+  | "inline-bg"
+  | "vollkorn"
+  | "karaoke"
+  | "shorts-karaoke"
+  | "reels-clean"
+  | "bold-highlight-strip"
+  | "shatter"
+  | "pill-bounce"
+  | "cinematic"
+  | "typewriter-code"
+  | "marker-highlight"
+  | "floating-serif"
+  | "metallic-gradient"
+  | "neon-pulse"
+  | "minimal-fade"
+  | "gradient-wave"
+  | "retro-vhs"
+  | "handwritten"
+  | "glass-blur"
+  | "m3-tonal-pill"
+  | "m3-dynamic-chip"
+  | "m3-elevated-card";
+
+export type SubtitlePosition = "top" | "center" | "bottom";
+
+export interface CaptionSegment {
+  start: number;
+  end: number;
+  text: string;
+  words?: WordTiming[];
+}
+
+export interface WordTiming {
+  word: string;
+  start: number;
+  end: number;
+}
+
+export interface SubtitleConfig {
+  style: SubtitleStyle;
+  position: SubtitlePosition;
+  language: string;
+  textColor: string;
+  highlightColor: string;
+  backgroundColor?: string;
+  fontSize?: "small" | "medium" | "large" | "xlarge";
+  fontFamily?: string;
+  showBackground?: boolean;
+}
+
+export const DEFAULT_SUBTITLE_CONFIG: SubtitleConfig = {
+  style: "highlight",
+  position: "bottom",
+  language: "en",
+  textColor: "#FFFFFF",
+  highlightColor: "#FFD700",
+  backgroundColor: "#000000",
+  fontSize: "medium",
+  fontFamily: "sans-serif",
+  showBackground: true,
+};
+
+export interface SubtitlePreset {
+  name: string;
+  style: SubtitleStyle;
+  fontFamily: string;
+  textColor: string;
+  highlightColor: string;
+  backgroundColor?: string;
+  fontSize?: "small" | "medium" | "large" | "xlarge";
+}
+
+export const SUBTITLE_PRESETS: Record<string, SubtitlePreset> = {
+  Eclipse: { name: "Eclipse", style: "highlight", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#7C3AED", fontSize: "large" },
+  Hustle: { name: "Hustle", style: "bold-outline", fontFamily: "Impact, sans-serif", textColor: "#FFFFFF", highlightColor: "#EF4444", fontSize: "large" },
+  Marigold: { name: "Marigold", style: "normal", fontFamily: "Georgia, serif", textColor: "#F59E0B", highlightColor: "#F59E0B", fontSize: "medium" },
+  "Gold Pill": { name: "Gold Pill", style: "gold-pill", fontFamily: "Arial Black, sans-serif", textColor: "#FFD700", highlightColor: "#FFD700", backgroundColor: "#000000", fontSize: "large" },
+  Midnight: { name: "Midnight", style: "inline-bg", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#3B82F6", fontSize: "medium" },
+  "Arctic Glow": { name: "Arctic Glow", style: "neon", fontFamily: "sans-serif", textColor: "#E0F2FE", highlightColor: "#38BDF8", fontSize: "large" },
+  "Studio Clean": { name: "Studio Clean", style: "stacked", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#FACC15", backgroundColor: "#18181B", fontSize: "large" },
+  "One Word": { name: "One Word", style: "one-word", fontFamily: "Impact, sans-serif", textColor: "#FFFFFF", highlightColor: "#FACC15", fontSize: "xlarge" },
+  Vollkorn: { name: "Vollkorn", style: "vollkorn", fontFamily: "Georgia, serif", textColor: "#FFFFFF", highlightColor: "#22D3EE", backgroundColor: "#000000", fontSize: "large" },
+  "Pop Candy": { name: "Pop Candy", style: "box", fontFamily: "sans-serif", textColor: "#000000", highlightColor: "#F472B6", fontSize: "large" },
+  Typewriter: { name: "Typewriter", style: "typewriter", fontFamily: "Courier New, monospace", textColor: "#10B981", highlightColor: "#10B981", fontSize: "medium" },
+  "Bold Fire": { name: "Bold Fire", style: "big-bold", fontFamily: "Impact, sans-serif", textColor: "#FFFFFF", highlightColor: "#F97316", fontSize: "xlarge" },
+  "Karaoke Fill": { name: "Karaoke Fill", style: "karaoke", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#FFE500", fontSize: "large" },
+  "Shorts Karaoke": { name: "Shorts Karaoke", style: "shorts-karaoke", fontFamily: "Inter, sans-serif", textColor: "#9CA3AF", highlightColor: "#111827", backgroundColor: "#F4F4F5", fontSize: "large" },
+  "Reels Clean": { name: "Reels Clean", style: "reels-clean", fontFamily: "Inter, sans-serif", textColor: "#F8FAFC", highlightColor: "#FFFFFF", fontSize: "medium" },
+  "Bold Highlight Strip": { name: "Bold Highlight Strip", style: "bold-highlight-strip", fontFamily: "Fredoka", textColor: "#FFFFFF", highlightColor: "#FFF3A3", backgroundColor: "#F59E0B", fontSize: "xlarge" },
+  "Shatter Drop": { name: "Shatter Drop", style: "shatter", fontFamily: "Impact, sans-serif", textColor: "#FFFFFF", highlightColor: "#FF3D3D", fontSize: "large" },
+  "Pill Bounce": { name: "Pill Bounce", style: "pill-bounce", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#FF6B35", fontSize: "large" },
+  "Cinematic": { name: "Cinematic", style: "cinematic", fontFamily: "Georgia, serif", textColor: "#FFFFFF", highlightColor: "#FFFFFF", fontSize: "medium" },
+  "Hacker Type": { name: "Hacker Type", style: "typewriter-code", fontFamily: "Courier New, monospace", textColor: "#00FF88", highlightColor: "#00FF88", fontSize: "medium" },
+  "Marker Highlight": { name: "Marker Highlight", style: "marker-highlight", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#FDE68A", backgroundColor: "#F59E0B", fontSize: "large" },
+  "Floating Serif": { name: "Floating Serif", style: "floating-serif", fontFamily: "Georgia, serif", textColor: "#F8FAFC", highlightColor: "#E5E7EB", fontSize: "medium" },
+  "Metallic Gradient": { name: "Metallic Gradient", style: "metallic-gradient", fontFamily: "Arial Black, sans-serif", textColor: "#F8FAFC", highlightColor: "#D9B76E", backgroundColor: "#111827", fontSize: "large" },
+  "Neon Pulse": { name: "Neon Pulse", style: "neon-pulse", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#00FF88", backgroundColor: "rgba(0,0,0,0.75)", fontSize: "large" },
+  "Minimal Fade": { name: "Minimal Fade", style: "minimal-fade", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#94A3B8", fontSize: "medium" },
+  "Gradient Wave": { name: "Gradient Wave", style: "gradient-wave", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#8B5CF6", backgroundColor: "rgba(0,0,0,0.6)", fontSize: "large" },
+  "Retro VHS": { name: "Retro VHS", style: "retro-vhs", fontFamily: "Courier New, monospace", textColor: "#FFFFFF", highlightColor: "#FF6B6B", backgroundColor: "rgba(0,0,0,0.85)", fontSize: "large" },
+  "Handwritten": { name: "Handwritten", style: "handwritten", fontFamily: "Georgia, serif", textColor: "#F8FAFC", highlightColor: "#FBBF24", fontSize: "large" },
+  "Glass Blur": { name: "Glass Blur", style: "glass-blur", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#60A5FA", backgroundColor: "rgba(15,23,42,0.55)", fontSize: "large" },
+  "split-color": { name: "Split Color", style: "split-color", fontFamily: "sans-serif", textColor: "#FFFFFF", highlightColor: "#FACC15", fontSize: "medium" },
+
+  // ── Professional additions (reuse tested render layouts) ──
+  "Sharp Yellow": { name: "Sharp Yellow", style: "highlight", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#FACC15", fontSize: "large" },
+  "Ocean Blue": { name: "Ocean Blue", style: "highlight", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#38BDF8", fontSize: "large" },
+  "Screamer": { name: "Screamer", style: "bold-outline", fontFamily: "Impact, sans-serif", textColor: "#FFFFFF", highlightColor: "#EF4444", fontSize: "xlarge" },
+  "Netflix Bar": { name: "Netflix Bar", style: "cinematic", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#FFFFFF", fontSize: "medium" },
+  "Black Card": { name: "Black Card", style: "floating-serif", fontFamily: "Playfair Display, serif", textColor: "#F8FAFC", highlightColor: "#D9B76E", fontSize: "large" },
+  "Stock Green": { name: "Stock Green", style: "stacked", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#22C55E", backgroundColor: "#0B1120", fontSize: "large" },
+  "Boardroom": { name: "Boardroom", style: "vollkorn", fontFamily: "Georgia, serif", textColor: "#FFFFFF", highlightColor: "#38BDF8", backgroundColor: "#000000", fontSize: "medium" },
+  "Podcast Hype": { name: "Podcast Hype", style: "stacked", fontFamily: "Arial Black, sans-serif", textColor: "#FFFFFF", highlightColor: "#F97316", backgroundColor: "#18181B", fontSize: "xlarge" },
+
+  // ── Material Design 3 (M3) Official Specifications (m3.material.io) ──
+  "M3 Tonal Pill": { name: "M3 Tonal Pill", style: "m3-tonal-pill", fontFamily: "Plus Jakarta Sans, sans-serif", textColor: "#F8FAFC", highlightColor: "#38BDF8", backgroundColor: "rgba(24, 24, 27, 0.85)", fontSize: "large" },
+  "M3 Dynamic Chip": { name: "M3 Dynamic Chip", style: "m3-dynamic-chip", fontFamily: "Plus Jakarta Sans, sans-serif", textColor: "#FFFFFF", highlightColor: "#10B981", backgroundColor: "rgba(16, 185, 129, 0.15)", fontSize: "large" },
+  "M3 Elevated Card": { name: "M3 Elevated Card", style: "m3-elevated-card", fontFamily: "Plus Jakarta Sans, sans-serif", textColor: "#FFFFFF", highlightColor: "#A855F7", backgroundColor: "rgba(28, 27, 31, 0.9)", fontSize: "large" },
+};

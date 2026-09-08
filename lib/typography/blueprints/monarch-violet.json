@@ -1,0 +1,83 @@
+{
+  "metadata": {
+    "styleId": "monarch-violet",
+    "demoVideoId": "monarch-violet",
+    "name": "Monarch Amethyst & Royal Gold Luxe",
+    "category": "luxury",
+    "tags": ["monarch-violet", "editorial-luxury", "amethyst", "gold", "high-status"],
+    "sourceVideoUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/v1783942629/affirmationsong_affirmations_womenssecretway_dailyreminders_loveyourselfquotes_hquhqx.mp4",
+    "posterUrl": "https://res.cloudinary.com/dhouh9idx/video/upload/f_auto,q_auto,w_480,so_0.5/v1783942629/affirmationsong_affirmations_womenssecretway_dailyreminders_loveyourselfquotes_hquhqx.jpg",
+    "analysisVersion": "2.0.0-temporal-motion",
+    "analyzedAt": "2026-09-04T12:00:00.000Z",
+    "overallConfidence": 0.94
+  },
+  "pacingAndRhythm": {
+    "personality": {
+      "value": "editorial-luxury",
+      "confidence": 0.95,
+      "status": "DETECTED"
+    },
+    "rhythmPattern": {
+      "value": "callout-pill",
+      "confidence": 0.92,
+      "status": "DETECTED"
+    },
+    "targetWordsPerPhrase": 3,
+    "averagePhraseDurationSec": 1.55,
+    "transitionFrequencyPerMinute": 32,
+    "speechSyncMode": "beat-locked",
+    "motionIntensity": {
+      "value": "smooth-cinematic",
+      "confidence": 0.9,
+      "status": "DETECTED"
+    }
+  },
+  "typography": {
+    "fontCategory": {
+      "value": "luxury-serif",
+      "confidence": 0.96,
+      "status": "DETECTED"
+    },
+    "fontFamilyEstimate": {
+      "value": "Cinzel",
+      "confidence": 0.94,
+      "status": "DETECTED"
+    },
+    "heroTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 900,
+      "fontStyle": "normal",
+      "relativeScale": 1.65,
+      "letterSpacingRatio": 0.04,
+      "lineHeightRatio": 1.05,
+      "opacity": 1
+    },
+    "leadTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 700,
+      "fontStyle": "normal",
+      "relativeScale": 0.85,
+      "letterSpacingRatio": 0.08,
+      "lineHeightRatio": 1.2,
+      "opacity": 0.9
+    },
+    "subTreatment": {
+      "casing": "uppercase",
+      "fontWeight": 600,
+      "fontStyle": "normal",
+      "relativeScale": 0.72,
+      "letterSpacingRatio": 0.04,
+      "lineHeightRatio": 1.2,
+      "opacity": 0.85
+    },
+    "hierarchyLevels": ["hero", "lead", "sub"],
+    "textDensity": {
+      "value": "compact-phrases",
+      "confidence": 0.9,
+      "status": "ESTIMATED"
+    },
+    "wordGroupingRule": "2-4-balanced",
+    "lineBreakPolicy": "balanced-stack"
+  }
+}
+
