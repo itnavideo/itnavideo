@@ -33,6 +33,7 @@ import {extractFaceKeyframes} from '@/services/vision/faceTracker';
 import {generateStructuredSceneBlueprint} from '@/services/ai/aiScenePlanner';
 import {planBrollForScenes} from '@/services/ai/brollMatcher';
 import {planImagesFromLibraryForScenes} from '@/services/ai/aiImageLibraryMatcher';
+import {getAssetsByFolder, getSfxUrl, getBackgroundMusicUrl} from '@/lib/cloudinary/client';
 import {SUBTITLE_PRESETS} from '@/remotion/types/subtitles';
 
 function getFontForLanguage(lang?: string): string {
@@ -539,11 +540,16 @@ export async function POST(request: Request) {
       const renderWindow = selectRenderWindow(itvTranscription, MAX_IMAGE_TO_VIDEO_SECONDS);
       const captions = buildCompareCaptionsFromGroq(renderWindow);
 
-      // Curated fallback 16:9 images from internal library
-      const library16x9Images = [
-        'https://res.cloudinary.com/dhouh9idx/image/upload/v1788780290/ChatGPT_Image_Sep_7_2026_04_53_09_PM_suv9x7.png',
+      // Load rich 16:9 images from Cloudinary library (assets.json)
+      const catalogAssets = getAssetsByFolder('images');
+      const catalogImages = catalogAssets
+        .filter((img) => img && img.secure_url)
+        .map((img) => img.secure_url);
+
+      const library16x9Images = catalogImages.length > 0 ? catalogImages : [
         'https://res.cloudinary.com/dhouh9idx/image/upload/v1788688244/financial_planning_collaboration_phdqrt.png',
         'https://res.cloudinary.com/dhouh9idx/image/upload/v1788688239/hand_stacking_coins_wealth_blocks_jpzudc.png',
+        'https://res.cloudinary.com/dhouh9idx/image/upload/v1788688238/hands_cupping_growing_money_plant_helfm6.png',
         'https://res.cloudinary.com/dhouh9idx/image/upload/v1788688234/creative_mindset_innovation_gears_h7qmzn.png',
         'https://res.cloudinary.com/dhouh9idx/image/upload/v1788688229/futuristic_ai_robot_neural_network_v6j5fk.png',
         'https://res.cloudinary.com/dhouh9idx/image/upload/v1788688223/modern_workspace_laptop_coffee_planning_o8nkmk.png',
@@ -629,23 +635,25 @@ export async function POST(request: Request) {
         scenes[scenes.length - 1].endSeconds = renderWindow.durationSeconds;
       }
 
-      // SFX Events: Whoosh at scene transitions (throttled to avoid exhausting browser audio decoders on long renders)
+      // SFX Events: Verified Whoosh at scene transitions (throttled to avoid exhausting browser audio decoders on long renders)
+      const whooshSfxUrl = getSfxUrl('whoosh') || 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939729/whoosh-in_ygnjid.mp3';
       const enableSfx = body.enableSfx !== false;
       const sfxStride = Math.max(1, Math.floor(scenes.length / 15));
       const sfxEvents = enableSfx
         ? scenes
             .slice(1)
             .filter((_, idx) => idx % sfxStride === 0)
-            .slice(0, 20)
+            .slice(0, 10)
             .map((s, idx) => ({
               id: `sfx-whoosh-${idx + 1}`,
-              sfxUrl: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788092928/whoosh-swoosh_d1x9w8.mp3',
+              sfxUrl: whooshSfxUrl,
               startFrame: Math.floor(s.startSeconds * 30),
-              volume: 0.20,
+              volume: 0.18,
             }))
         : [];
 
-      const finalBgmUrl = customBgmUrl || 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788092928/ambient-atmosphere_k0df1w.mp3';
+      const defaultBgm = getBackgroundMusicUrl('wealth') || 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788093179/wealth-building_kyg9kb.mp3';
+      const finalBgmUrl = customBgmUrl || defaultBgm;
 
       const inputProps: Record<string, unknown> = {
         mediaSrc: mediaUrl,

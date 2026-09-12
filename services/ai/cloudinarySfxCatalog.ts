@@ -151,10 +151,10 @@ export const SFX_BY_ROLE: Record<SfxRole, CloudinarySfxAsset[]> = {
  * Fallback defaults if role lookup is empty
  */
 export const DEFAULT_SFX_URLS: Record<SfxRole, string> = {
-  DRAMATIC_HOOK: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788093240/cinematic-impact_l17w47.mp3',
-  TRANSITION_WHOOSH: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788092928/whoosh-swoosh_d1x9w8.mp3',
+  DRAMATIC_HOOK: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788093513/hit-4_n97n2t.mp3',
+  TRANSITION_WHOOSH: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939729/whoosh-in_ygnjid.mp3',
   UI_POP: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788093637/pop-5_f0demv.mp3',
-  ACCENT_STAT: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788093521/ding-5_kovgrw.mp3',
-  TEXT_QUOTE: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788093409/typewriter-single_l92g46.mp3',
-  TECH_ACCENT: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788093245/camera-shutter_dkmg7d.mp3',
+  ACCENT_STAT: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788093499/ding-5_kovgrw.mp3',
+  TEXT_QUOTE: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788093448/typewriter-6_mgkxhx.mp3',
+  TECH_ACCENT: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939711/shutter_zhw4p5.mp3',
 };

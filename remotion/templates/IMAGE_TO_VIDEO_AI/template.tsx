@@ -53,8 +53,17 @@ export interface ImageToVideoAiProps {
 const FALLBACK_SCENE_IMAGE = 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788780290/ChatGPT_Image_Sep_7_2026_04_53_09_PM_suv9x7.png';
 
 const resolveUrl = (src?: string) => {
-  if (!src) return '';
-  return /^(https?:|data:|blob:)/i.test(src) ? src : staticFile(src.replace(/^\/+/, ''));
+  if (!src || typeof src !== 'string') return '';
+  const trimmed = src.trim();
+  if (!trimmed || trimmed === '[object Object]' || trimmed.includes('[object')) return '';
+  return /^(https?:|data:|blob:)/i.test(trimmed) ? trimmed : staticFile(trimmed.replace(/^\/+/, ''));
+};
+
+const isValidAudioUrl = (url?: string): boolean => {
+  if (!url || typeof url !== 'string') return false;
+  const trimmed = url.trim();
+  if (!trimmed || trimmed === '[object Object]' || trimmed.includes('[object')) return false;
+  return /^(https?:|data:|blob:|\/)/i.test(trimmed);
 };
 
 const resolveImageUrl = (src?: string) => {
@@ -433,7 +442,7 @@ export const ImageToVideoAiTemplate: React.FC<ImageToVideoAiProps> = ({
       {/* 3. SOUND EFFECTS LAYER (WHOOSH / RISER / AMBIENT HITS ON SCENES) */}
       {sfxEvents.map((sfx, sfxIdx) => {
         const sfxUrl = resolveUrl(sfx.sfxUrl);
-        if (!sfxUrl) return null;
+        if (!isValidAudioUrl(sfxUrl) || (sfx.volume ?? 0.28) <= 0) return null;
 
         return (
           <Sequence
@@ -450,7 +459,7 @@ export const ImageToVideoAiTemplate: React.FC<ImageToVideoAiProps> = ({
       })}
 
       {/* 4. BACKGROUND MUSIC (BGM with volume ducking) */}
-      {finalBgmUrl && (
+      {isValidAudioUrl(finalBgmUrl) && bgmVolume > 0 && (
         <Audio
           src={finalBgmUrl}
           volume={bgmVolume}
@@ -459,7 +468,7 @@ export const ImageToVideoAiTemplate: React.FC<ImageToVideoAiProps> = ({
       )}
 
       {/* 5. PRIMARY VOICEOVER SPEECH AUDIO */}
-      {finalAudioUrl && (
+      {isValidAudioUrl(finalAudioUrl) && (
         <Audio
           src={finalAudioUrl}
           volume={1.0}
