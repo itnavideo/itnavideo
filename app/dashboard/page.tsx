@@ -630,6 +630,8 @@ export default function DashboardPage() {
     creatorBackgroundImageKey: string;
   } | null>(null);
 
+  const shouldScrollToStudioRef = useRef(false);
+
   useEffect(() => {
     if (!loading && !user) router.push("/login");
   }, [loading, router, user]);
@@ -715,6 +717,7 @@ export default function DashboardPage() {
           setHasUserSelected(true);
           setSelectedFile(null);
           setComparisonFiles([]);
+          shouldScrollToStudioRef.current = true;
         }, 0);
         return () => window.clearTimeout(timer);
       }
@@ -723,6 +726,23 @@ export default function DashboardPage() {
     }
     return undefined;
   }, []);
+
+  // Smoothly auto-scroll to the upload / creator studio workspace whenever user chooses a video type
+  useEffect(() => {
+    if (shouldScrollToStudioRef.current && hasUserSelected) {
+      shouldScrollToStudioRef.current = false;
+      const scrollTimer = window.setTimeout(() => {
+        const studioEl =
+          document.getElementById("video-creation-studio") ||
+          document.getElementById("upload-section") ||
+          document.getElementById("studio-workflows");
+        if (studioEl) {
+          studioEl.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 60);
+      return () => window.clearTimeout(scrollTimer);
+    }
+  }, [mode, hasUserSelected]);
 
   const activeModeKey = toActiveDashboardMode(mode);
   const activeMode = modeConfig[activeModeKey];
@@ -890,10 +910,27 @@ export default function DashboardPage() {
     setJobStatus({state: "idle", message: ""});
     const nextVideoType = nextMode === "imageToVideoAi" ? "image-to-video-ai" : nextMode === "autoCaption" ? "auto-caption-generator" : nextMode === "autoDraw" ? "auto-draw-explainer" : nextMode === "longVideoPromo" ? "long-video-promo" : nextMode === "whiteboardVideo" ? "whiteboard-video" : nextMode === "typographyVideo" ? "typography-video" : nextMode === "longVideoClips" ? "long-video-clips" : nextMode === "dynamicCreator" ? "dynamic-creator-reel" : nextMode === "customAiReel" ? "custom-ai-reel" : nextMode === "audioClean" ? "ai-audio-cleaner" : nextMode === "longVideoPro" ? "long-video-pro" : "compare-explainer";
     window.history.replaceState(null, "", `/dashboard?videoType=${nextVideoType}`);
-    // Auto-scroll to upload section on mobile
-    setTimeout(() => {
-      document.getElementById("upload-section")?.scrollIntoView({behavior: "smooth", block: "start"});
-    }, 150);
+
+    // Flag for useEffect auto-scroll once React renders the selected studio
+    shouldScrollToStudioRef.current = true;
+
+    // Immediately trigger auto-scroll if studio or upload section is already mounted
+    const scrollTarget = () => {
+      const el =
+        document.getElementById("video-creation-studio") ||
+        document.getElementById("upload-section") ||
+        document.getElementById("studio-workflows");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        return true;
+      }
+      return false;
+    };
+
+    if (!scrollTarget()) {
+      setTimeout(scrollTarget, 60);
+      setTimeout(scrollTarget, 180);
+    }
   };
 
   const chooseFile = (file: File | null) => {
@@ -1620,7 +1657,7 @@ export default function DashboardPage() {
 
           {/* Active Workflow Configuration Container */}
           {hasUserSelected && (
-            <div className="mt-8 space-y-6 border-t border-border pt-6">
+            <div id="video-creation-studio" className="mt-8 space-y-6 border-t border-border pt-6 scroll-mt-24">
 
               <div className={`min-w-0 rounded-xl border ${activeMode.border} ${activeMode.surface} p-3.5 flex flex-wrap items-center gap-3`}>
                 <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${activeMode.border} bg-black/30 ${activeMode.color}`}>

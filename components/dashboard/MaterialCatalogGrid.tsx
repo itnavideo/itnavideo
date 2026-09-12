@@ -114,7 +114,18 @@ export function MaterialCatalogGrid({
       <div
         key={card.id}
         onClick={() => {
-          if (!isComingSoon) onSelectMode(card.mode);
+          if (!isComingSoon) {
+            onSelectMode(card.mode);
+            setTimeout(() => {
+              const target =
+                document.getElementById("video-creation-studio") ||
+                document.getElementById("upload-section") ||
+                document.getElementById("studio-workflows");
+              if (target) {
+                target.scrollIntoView({ behavior: "smooth", block: "start" });
+              }
+            }, 80);
+          }
         }}
         className={`group relative flex flex-col w-full text-left cursor-pointer transition-all duration-200 select-none ${
           isComingSoon ? 'opacity-60 cursor-not-allowed' : 'hover:-translate-y-1'
