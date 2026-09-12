@@ -46,7 +46,69 @@ export interface ImageToVideoStudioProps {
   onStartRender: () => void;
   userCredits?: number;
   estimatedDurationSeconds?: number;
+export interface ImageToVideoSubtitleStylePreset {
+  id: string;
+  title: string;
+  desc: string;
+  badge?: string;
+  previewSample: string;
+  previewBg: string;
+  containerClass: string;
+  textClass: string;
 }
+
+export const IMAGE_TO_VIDEO_SUBTITLE_STYLES: ImageToVideoSubtitleStylePreset[] = [
+  {
+    id: "parallax-modern",
+    title: "2.5D Glass Pill",
+    desc: "Frosted glass capsule with subtle purple glow & spring bounce",
+    badge: "Recommended",
+    previewSample: "DISCOVER THE FUTURE",
+    previewBg: "from-purple-950/50 via-zinc-950 to-black",
+    containerClass: "border border-purple-400/40 bg-zinc-900/85 backdrop-blur-md shadow-[0_4px_20px_rgba(168,85,247,0.25)] rounded-full px-3.5 py-1.5",
+    textClass: "text-white font-extrabold tracking-tight",
+  },
+  {
+    id: "bold-kinetic",
+    title: "Bold Kinetic Yellow",
+    desc: "High-contrast obsidian box with luminous yellow retention hook",
+    badge: "High Retention",
+    previewSample: "MAKE IT HAPPEN",
+    previewBg: "from-amber-950/40 via-zinc-950 to-black",
+    containerClass: "border border-yellow-400/50 bg-black/95 backdrop-blur-md shadow-[0_4px_20px_rgba(250,204,21,0.25)] rounded-2xl px-3.5 py-1.5",
+    textClass: "text-yellow-400 font-black uppercase tracking-tight",
+  },
+  {
+    id: "minimal-lower",
+    title: "Minimal Broadcast",
+    desc: "Clean lower-third typography with deep cinematic drop shadow",
+    badge: "Cinema",
+    previewSample: "CLEAR & TIMELESS",
+    previewBg: "from-zinc-900/50 via-zinc-950 to-black",
+    containerClass: "bg-transparent border-none px-2 py-1",
+    textClass: "text-white font-extrabold tracking-tight drop-shadow-[0_4px_10px_rgba(0,0,0,0.98)]",
+  },
+  {
+    id: "neon-cyan",
+    title: "Cyber Neon Cyan",
+    desc: "Electric cyan neon border with futuristic tech glow",
+    badge: "Tech & AI",
+    previewSample: "NEXT GENERATION",
+    previewBg: "from-cyan-950/50 via-zinc-950 to-black",
+    containerClass: "border border-cyan-400/50 bg-[#061826]/90 backdrop-blur-md shadow-[0_4px_20px_rgba(34,211,238,0.3)] rounded-full px-3.5 py-1.5",
+    textClass: "text-cyan-300 font-extrabold tracking-tight",
+  },
+  {
+    id: "impact-red",
+    title: "Impact Red Block",
+    desc: "Bold crimson block with uppercase urgent typography",
+    badge: "News / Viral",
+    previewSample: "BREAKING STORY",
+    previewBg: "from-red-950/50 via-zinc-950 to-black",
+    containerClass: "border border-red-400/40 bg-red-700/95 backdrop-blur-md shadow-[0_4px_20px_rgba(239,68,68,0.3)] rounded-xl px-3.5 py-1.5",
+    textClass: "text-white font-black uppercase tracking-wider",
+  },
+];
 
 export function ImageToVideoStudio({
   selectedAudio,
@@ -345,8 +407,8 @@ export function ImageToVideoStudio({
         </div>
       </div>
 
-      {/* ── Additional Controls: Camera Motion, Subtitles & Background Music ── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+      {/* ── Additional Controls: Framing, Camera Motion & Background Music ── */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {/* 16:9 FRAMING & 9:16 FIT */}
         <div className="rounded-3xl border border-white/10 bg-[#141218] p-5 shadow-md space-y-3">
           <div className="flex items-center gap-2 text-sm font-bold text-white">
@@ -420,35 +482,6 @@ export function ImageToVideoStudio({
           </div>
         </div>
 
-        {/* 2.5D SUBTITLE STYLE */}
-        <div className="rounded-3xl border border-white/10 bg-[#141218] p-5 shadow-md space-y-3">
-          <div className="flex items-center gap-2 text-sm font-bold text-white">
-            <Layers size={16} className="text-purple-400" />
-            <span>2.5D Parallax Subtitles</span>
-          </div>
-          <div className="space-y-2">
-            {[
-              { id: 'parallax-modern', title: '2.5D Glass Pill', desc: 'Frosted backdrop, spring pop & drop shadow' },
-              { id: 'bold-kinetic', title: 'Bold Kinetic', desc: 'High contrast yellow highlight text' },
-              { id: 'minimal-lower', title: 'Minimal Broadcast', desc: 'Clean lower-third typography' },
-            ].map((style) => (
-              <button
-                key={style.id}
-                type="button"
-                onClick={() => onChangeSubtitleStyle(style.id)}
-                className={`w-full text-left rounded-2xl p-3 border transition-all duration-150 cursor-pointer ${
-                  subtitleStyle === style.id
-                    ? 'border-purple-400 bg-purple-400/10 text-white'
-                    : 'border-white/5 bg-white/[0.03] text-zinc-400 hover:border-white/15'
-                }`}
-              >
-                <p className="text-xs font-bold text-white">{style.title}</p>
-                <p className="text-[11px] text-zinc-400 mt-0.5">{style.desc}</p>
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* BACKGROUND MUSIC & SFX */}
         <div className="rounded-3xl border border-white/10 bg-[#141218] p-5 shadow-md space-y-3 flex flex-col justify-between">
           <div className="space-y-3">
@@ -513,6 +546,91 @@ export function ImageToVideoStudio({
           <p className="text-[11px] text-zinc-500">
             ✨ Includes cinematic transition whooshes automatically.
           </p>
+        </div>
+      </div>
+
+      {/* ── 2.5D Kinetic & Parallax Caption Styles with Live Visual Previews ── */}
+      <div className="rounded-3xl border border-white/10 bg-[#141218] p-5 sm:p-6 shadow-md space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/5 pb-3">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-purple-500/15 border border-purple-500/30 text-purple-400 shrink-0">
+              <Layers size={18} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm sm:text-base font-extrabold text-white">Caption &amp; Subtitle Styles</h3>
+                <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                  Live Visual Preview
+                </span>
+              </div>
+              <p className="text-xs text-zinc-400 mt-0.5">
+                Choose how spoken words appear on your 16:9 video. Click any card to preview and apply to your render.
+              </p>
+            </div>
+          </div>
+          <span className="text-[11px] font-bold text-zinc-400 hidden sm:block">
+            Selected: <span className="text-purple-300 font-extrabold">{IMAGE_TO_VIDEO_SUBTITLE_STYLES.find(s => s.id === subtitleStyle)?.title || subtitleStyle}</span>
+          </span>
+        </div>
+
+        {/* 5-Column Grid of 16:9 Live Preview Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5 pt-1">
+          {IMAGE_TO_VIDEO_SUBTITLE_STYLES.map((style) => {
+            const isSelected = subtitleStyle === style.id;
+            return (
+              <button
+                key={style.id}
+                type="button"
+                onClick={() => onChangeSubtitleStyle(style.id)}
+                className={`group relative flex flex-col overflow-hidden rounded-2xl border text-left transition-all duration-200 cursor-pointer p-3 select-none ${
+                  isSelected
+                    ? "border-purple-500 bg-purple-500/10 ring-2 ring-purple-500/40 shadow-lg shadow-purple-950/40"
+                    : "border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]"
+                }`}
+              >
+                {/* 16:9 Simulated Video Screen Preview */}
+                <div className={`relative aspect-video w-full overflow-hidden rounded-xl bg-gradient-to-br ${style.previewBg} border border-white/10 flex flex-col justify-between p-2.5 transition-transform duration-200 group-hover:scale-[1.02]`}>
+                  {/* Aspect tag & Selected Check */}
+                  <div className="flex items-center justify-between w-full">
+                    <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-black/60 text-zinc-400 border border-white/5">
+                      16:9 Subtitles
+                    </span>
+                    {isSelected ? (
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-500 text-white shadow-md">
+                        <CheckCircle2 size={13} strokeWidth={3} />
+                      </span>
+                    ) : null}
+                  </div>
+
+                  {/* Subtitle Representation positioned at bottom third */}
+                  <div className="flex justify-center pb-1">
+                    <div className={`${style.containerClass} transition-transform duration-200 group-hover:scale-105`}>
+                      <span className={`${style.textClass} text-[11px] leading-tight block text-center truncate max-w-[130px]`}>
+                        {style.previewSample}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card Title & Description */}
+                <div className="mt-2.5 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <p className={`text-xs font-bold transition-colors ${isSelected ? "text-white" : "text-zinc-200 group-hover:text-white"}`}>
+                      {style.title}
+                    </p>
+                    {style.badge && (
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-white/5 text-zinc-400 border border-white/10">
+                        {style.badge}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-zinc-400 line-clamp-2 leading-relaxed">
+                    {style.desc}
+                  </p>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
 

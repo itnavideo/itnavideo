@@ -46,7 +46,8 @@ export interface ImageToVideoAiProps {
   renderWindowSeconds?: number;
   sourceDurationSeconds?: number;
   title?: string;
-  subtitleStyle?: 'parallax-modern' | 'kinetic-glow' | 'minimalist';
+  cameraMotionPreset?: 'ken-burns' | 'dynamic-flow' | 'subtle-drift';
+  subtitleStyle?: string;
   fitMode?: 'blur-fill' | 'cover';
 }
 
@@ -271,13 +272,115 @@ const SceneRenderer: React.FC<{
   );
 };
 
+const getSubtitleCardStyle = (styleMode: string): {
+  container: React.CSSProperties;
+  text: React.CSSProperties;
+} => {
+  switch (styleMode) {
+    case 'bold-kinetic':
+    case 'kinetic-glow':
+      return {
+        container: {
+          background: 'rgba(0, 0, 0, 0.92)',
+          backdropFilter: 'blur(16px)',
+          border: '1.5px solid rgba(250, 204, 21, 0.55)',
+          borderRadius: 24,
+          padding: '14px 34px',
+          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.85), 0 0 24px rgba(250, 204, 21, 0.3)',
+        },
+        text: {
+          color: '#FACC15',
+          fontFamily: 'Inter, system-ui, sans-serif',
+          fontWeight: 900,
+          textTransform: 'uppercase',
+          letterSpacing: '-0.01em',
+          textShadow: '0 2px 10px rgba(0, 0, 0, 0.95), 0 0 16px rgba(250, 204, 21, 0.35)',
+        },
+      };
+    case 'minimal-lower':
+    case 'minimalist':
+      return {
+        container: {
+          background: 'transparent',
+          border: 'none',
+          padding: '8px 24px',
+          boxShadow: 'none',
+        },
+        text: {
+          color: '#FFFFFF',
+          fontFamily: 'Inter, system-ui, sans-serif',
+          fontWeight: 800,
+          letterSpacing: '-0.01em',
+          textShadow: '0 4px 20px rgba(0, 0, 0, 0.98), 0 2px 6px rgba(0, 0, 0, 0.9)',
+        },
+      };
+    case 'neon-cyan':
+      return {
+        container: {
+          background: 'rgba(6, 24, 38, 0.88)',
+          backdropFilter: 'blur(16px)',
+          border: '1.5px solid rgba(56, 189, 248, 0.55)',
+          borderRadius: 26,
+          padding: '14px 34px',
+          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.85), 0 0 26px rgba(56, 189, 248, 0.35)',
+        },
+        text: {
+          color: '#38BDF8',
+          fontFamily: 'Inter, system-ui, sans-serif',
+          fontWeight: 800,
+          letterSpacing: '-0.01em',
+          textShadow: '0 2px 10px rgba(0, 0, 0, 0.95), 0 0 18px rgba(56, 189, 248, 0.5)',
+        },
+      };
+    case 'impact-red':
+      return {
+        container: {
+          background: 'rgba(185, 28, 28, 0.92)',
+          backdropFilter: 'blur(14px)',
+          border: '1.5px solid rgba(254, 202, 202, 0.35)',
+          borderRadius: 20,
+          padding: '14px 34px',
+          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.85), 0 0 22px rgba(239, 68, 68, 0.35)',
+        },
+        text: {
+          color: '#FFFFFF',
+          fontFamily: 'Inter, system-ui, sans-serif',
+          fontWeight: 900,
+          textTransform: 'uppercase',
+          letterSpacing: '0.02em',
+          textShadow: '0 2px 8px rgba(0, 0, 0, 0.9)',
+        },
+      };
+    case 'parallax-modern':
+    default:
+      return {
+        container: {
+          background: 'rgba(18, 16, 26, 0.82)',
+          backdropFilter: 'blur(16px)',
+          border: '1px solid rgba(208, 188, 255, 0.3)',
+          borderRadius: 28,
+          padding: '16px 36px',
+          boxShadow: '0 20px 48px -10px rgba(0, 0, 0, 0.75), 0 0 24px rgba(103, 80, 164, 0.25)',
+        },
+        text: {
+          color: '#FFFFFF',
+          fontFamily: 'Inter, system-ui, sans-serif',
+          fontWeight: 800,
+          lineHeight: 1.24,
+          letterSpacing: '-0.02em',
+          textShadow: '0 4px 16px rgba(0, 0, 0, 0.95)',
+        },
+      };
+  }
+};
+
 /**
  * 2.5D Parallax Kinetic Subtitle Layer
  */
 const ParallaxSubtitleLayer: React.FC<{
   captions: CaptionChunk[];
   fps: number;
-  styleMode?: 'parallax-modern' | 'kinetic-glow' | 'minimalist';
+  styleMode?: string;
 }> = ({ captions, fps, styleMode = 'parallax-modern' }) => {
   const frame = useCurrentFrame();
   const currentTime = frame / fps;
@@ -302,6 +405,8 @@ const ParallaxSubtitleLayer: React.FC<{
   const translateY = interpolate(popSpring, [0, 1], [12, 0]);
   const opacity = interpolate(popSpring, [0, 1], [0, 1]);
 
+  const { container: containerStyle, text: textStyle } = getSubtitleCardStyle(styleMode || 'parallax-modern');
+
   return (
     <div
       style={{
@@ -323,34 +428,14 @@ const ParallaxSubtitleLayer: React.FC<{
         style={{
           maxWidth: '82%',
           textAlign: 'center',
-          background:
-            styleMode === 'parallax-modern'
-              ? 'rgba(18, 16, 26, 0.78)'
-              : styleMode === 'kinetic-glow'
-                ? 'rgba(0, 0, 0, 0.85)'
-                : 'transparent',
-          backdropFilter: 'blur(16px)',
-          border:
-            styleMode === 'parallax-modern'
-              ? '1px solid rgba(208, 188, 255, 0.25)'
-              : styleMode === 'kinetic-glow'
-                ? '1px solid rgba(255, 255, 255, 0.2)'
-                : 'none',
-          padding: '16px 36px',
-          borderRadius: 28,
-          boxShadow: '0 20px 48px -10px rgba(0, 0, 0, 0.75), 0 0 24px rgba(103, 80, 164, 0.25)',
+          ...containerStyle,
         }}
       >
         <p
           style={{
             margin: 0,
-            fontFamily: 'Inter, system-ui, sans-serif',
             fontSize: 44,
-            fontWeight: 800,
-            lineHeight: 1.24,
-            letterSpacing: '-0.02em',
-            color: '#FFFFFF',
-            textShadow: '0 4px 16px rgba(0, 0, 0, 0.95)',
+            ...textStyle,
           }}
         >
           {activeChunk.text}
