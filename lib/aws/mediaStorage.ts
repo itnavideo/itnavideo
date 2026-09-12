@@ -4,7 +4,8 @@ export const TEMP_MEDIA_EXPIRATION_DAYS = 2;
 
 function isGcpStorage() {
   const provider = clean(process.env.STORAGE_PROVIDER).toLowerCase();
-  return provider === 'gcp' || Boolean(clean(process.env.GCP_RENDER_WORKER_URL));
+  if (provider === 'aws') return false;
+  return true;
 }
 
 function getGcpWorkerUrl() {

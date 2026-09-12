@@ -2015,8 +2015,9 @@ function normalizeServeUrl(value: string) {
 }
 
 async function startRenderWithCapacityRetry(request: LambdaRenderRequest) {
+  const renderProvider = clean(process.env.RENDER_PROVIDER).toLowerCase();
   const gcpWorkerUrl = clean(process.env.GCP_RENDER_WORKER_URL);
-  if (process.env.RENDER_PROVIDER === 'gcp' || gcpWorkerUrl) {
+  if (renderProvider !== 'aws') {
     const workerEndpoint = (gcpWorkerUrl || 'http://34.100.147.84:8080').replace(/\/+$/, '');
     console.log('[RENDER_DISPATCH_GCP] Dispatching to Google Cloud render worker:', workerEndpoint);
     const resp = await fetch(`${workerEndpoint}/api/render`, {

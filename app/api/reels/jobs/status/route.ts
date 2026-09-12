@@ -19,7 +19,7 @@ export async function GET(request: Request) {
   if (!renderId || !bucketName) {
     return NextResponse.json({ok: false, error: 'renderId and bucketName are required.'}, {status: 400});
   }
-  const isGcpRender = clean(process.env.RENDER_PROVIDER).toLowerCase() === 'gcp' ||
+  const isGcpRender = clean(process.env.RENDER_PROVIDER).toLowerCase() !== 'aws' ||
     bucketName === 'itnavideo-media-assets' ||
     renderId.startsWith('gcp-') ||
     Boolean(clean(process.env.GCP_RENDER_WORKER_URL));
