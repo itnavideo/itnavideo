@@ -20,7 +20,8 @@ import {
   CheckCircle2, 
   Zap,
   ShieldCheck,
-  Star
+  Star,
+  Cpu
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -196,6 +197,10 @@ export default function Hero() {
 
               {/* Quick Trust Badges */}
               <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50/80 px-2.5 py-1 text-[11px] font-bold text-blue-800 shadow-2xs">
+                  <Cpu size={12} className="text-blue-600" />
+                  <span>Google Cloud 8-vCPU</span>
+                </span>
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 shadow-2xs">
                   <Zap size={12} className="text-amber-500" />
                   <span>Groq Whisper</span>
@@ -232,9 +237,9 @@ export default function Hero() {
                     ITNAVIDEO STUDIO
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-bold text-emerald-400 border border-emerald-500/20">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>Engine Ready</span>
+                <div className="flex items-center gap-1.5 rounded-full bg-blue-500/15 px-2.5 py-0.5 text-[10px] font-bold text-blue-300 border border-blue-400/30">
+                  <span className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-pulse" />
+                  <span>GCP 8-vCPU Engine Ready</span>
                 </div>
               </div>
 
@@ -376,6 +381,47 @@ export default function Hero() {
           </motion.div>
 
         </div>
+
+        {/* Google Cloud High-Speed Render Engine Banner */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          className="mt-12 sm:mt-16 mx-auto max-w-5xl rounded-3xl border border-slate-200 bg-white/95 p-4 sm:p-5 shadow-sm backdrop-blur-sm"
+        >
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+            <div className="flex flex-col sm:flex-row items-center gap-3.5">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-blue-700 text-white shadow-md shadow-blue-500/25">
+                <Cpu size={24} />
+              </div>
+              <div>
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+                  <h4 className="text-sm sm:text-base font-black text-slate-900 tracking-tight">
+                    Rendered on Dedicated 8-vCPU Cloud Engines
+                  </h4>
+                  <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-[10px] font-bold text-blue-800 border border-blue-200">
+                    Zero Queue • Instant Export
+                  </span>
+                </div>
+                <p className="mt-0.5 text-xs text-slate-600 font-medium">
+                  Zero local heating or hardware limits. Your videos render on a 32GB RAM Google Cloud worker with instant export.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800">
+                <CheckCircle2 size={13} className="text-emerald-600" />
+                <span>Up to 30 Min Videos</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-800">
+                <Zap size={13} className="text-amber-600" />
+                <span>100% Cloud</span>
+              </span>
+            </div>
+          </div>
+        </motion.div>
+
       </div>
     </section>
   );
