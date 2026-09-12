@@ -595,6 +595,10 @@ export default function DashboardPage() {
     };
   } | null>(null);
   const [imageToVideoImages, setImageToVideoImages] = useState<File[]>([]);
+  const [imageToVideoBgmEnabled, setImageToVideoBgmEnabled] = useState<boolean>(true);
+  const [imageToVideoLibraryBgmUrl, setImageToVideoLibraryBgmUrl] = useState<string>(
+    "https://res.cloudinary.com/dhouh9idx/video/upload/v1788093179/wealth-building_kyg9kb.mp3"
+  );
   const [imageToVideoBgm, setImageToVideoBgm] = useState<File | null>(null);
   const [imageToVideoBgmVolume, setImageToVideoBgmVolume] = useState<number>(0.15);
   const [imageToVideoSubtitleStyle, setImageToVideoSubtitleStyle] = useState<string>("parallax-modern");
@@ -2288,6 +2292,10 @@ export default function DashboardPage() {
                   imageFiles={imageToVideoImages}
                   onAddImages={handleAddImageToVideoImages}
                   onRemoveImage={handleRemoveImageToVideoImage}
+                  bgmEnabled={imageToVideoBgmEnabled}
+                  onChangeBgmEnabled={setImageToVideoBgmEnabled}
+                  selectedLibraryBgmUrl={imageToVideoLibraryBgmUrl}
+                  onChangeSelectedLibraryBgmUrl={setImageToVideoLibraryBgmUrl}
                   bgmFile={imageToVideoBgm}
                   onSelectBgm={setImageToVideoBgm}
                   bgmVolume={imageToVideoBgmVolume}
@@ -3446,7 +3454,7 @@ export default function DashboardPage() {
       const imageToVideoUploadedKeys = mode === "imageToVideoAi" && imageToVideoImages.length > 0
         ? await uploadVideoTypeImages({files: imageToVideoImages, mode: "imageToVideoAi", userId})
         : [];
-      const imageToVideoBgmKey = mode === "imageToVideoAi" && imageToVideoBgm
+      const imageToVideoBgmKey = mode === "imageToVideoAi" && imageToVideoBgmEnabled && imageToVideoBgm
         ? await uploadVideoTypeImage({file: imageToVideoBgm, userId, mode: "imageToVideoAi"})
         : "";
 
@@ -3570,8 +3578,10 @@ export default function DashboardPage() {
         customAiImageKeys: [],
         customAiLogoKey: "",
         uploadedImageKeys: imageToVideoUploadedKeys,
-        bgmKey: imageToVideoBgmKey,
-        bgmVolume: imageToVideoBgmVolume,
+        bgmKey: imageToVideoBgmEnabled && imageToVideoBgm ? imageToVideoBgmKey : "",
+        bgmUrl: imageToVideoBgmEnabled ? (imageToVideoBgm ? "" : imageToVideoLibraryBgmUrl) : "",
+        enableBgm: imageToVideoBgmEnabled,
+        bgmVolume: imageToVideoBgmEnabled ? imageToVideoBgmVolume : 0,
         imageToVideoSubtitleStyle: imageToVideoSubtitleStyle,
         imageToVideoCameraMotionPreset: imageToVideoCameraMotion,
         imageToVideoFitMode: imageToVideoFitMode,
@@ -3604,6 +3614,8 @@ export default function DashboardPage() {
     customAiAudioDurationSeconds,
     uploadedImageKeys = [],
     bgmKey = "",
+    bgmUrl = "",
+    enableBgm = true,
     bgmVolume = 0.15,
     imageToVideoSubtitleStyle = "parallax-modern",
     imageToVideoCameraMotionPreset = "ken-burns",
@@ -3625,6 +3637,8 @@ export default function DashboardPage() {
     customAiAudioDurationSeconds?: number;
     uploadedImageKeys?: string[];
     bgmKey?: string;
+    bgmUrl?: string;
+    enableBgm?: boolean;
     bgmVolume?: number;
     imageToVideoSubtitleStyle?: string;
     imageToVideoCameraMotionPreset?: string;
@@ -3751,8 +3765,10 @@ export default function DashboardPage() {
           ...(mode === "imageToVideoAi" ? {
             uploadedImageKeys,
             imageKeys: uploadedImageKeys,
-            bgmKey: bgmKey || undefined,
-            bgmVolume,
+            enableBgm,
+            bgmUrl: enableBgm ? (bgmKey ? undefined : bgmUrl) : undefined,
+            bgmKey: enableBgm && bgmKey ? bgmKey : undefined,
+            bgmVolume: enableBgm ? bgmVolume : 0,
             subtitleStyle: imageToVideoSubtitleStyle,
             cameraMotionPreset: imageToVideoCameraMotionPreset,
             fitMode: imageToVideoFitMode,

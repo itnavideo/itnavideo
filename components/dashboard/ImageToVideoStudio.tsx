@@ -21,8 +21,94 @@ import {
   ArrowRight,
   ShieldCheck,
   AlertCircle,
-  Maximize2
+  Maximize2,
+  Play,
+  Pause,
+  VolumeX,
+  Radio,
 } from "lucide-react";
+
+export interface LibraryBgmTrack {
+  id: string;
+  name: string;
+  mood: string;
+  url: string;
+}
+
+export const ITNAVIDEO_LIBRARY_BGM: LibraryBgmTrack[] = [
+  {
+    id: "wealth-building",
+    name: "Wealth & Ambition",
+    mood: "Business / Success",
+    url: "https://res.cloudinary.com/dhouh9idx/video/upload/v1788093179/wealth-building_kyg9kb.mp3",
+  },
+  {
+    id: "inspiring-story",
+    name: "Inspiring Story",
+    mood: "Emotional / Uplifting",
+    url: "https://res.cloudinary.com/dhouh9idx/video/upload/v1788093168/inspiring-story_qdgjzl.mp3",
+  },
+  {
+    id: "tech-innovation",
+    name: "Tech Innovation",
+    mood: "Tech / Modern",
+    url: "https://res.cloudinary.com/dhouh9idx/video/upload/v1788093176/tech-innovation_mabllf.mp3",
+  },
+  {
+    id: "documentary-light",
+    name: "Documentary Light",
+    mood: "Cinematic / Neutral",
+    url: "https://res.cloudinary.com/dhouh9idx/video/upload/v1788093135/documentary-light_ftawjp.mp3",
+  },
+  {
+    id: "viral-momentum",
+    name: "Viral Momentum",
+    mood: "Fast / High Energy",
+    url: "https://res.cloudinary.com/dhouh9idx/video/upload/v1788093178/viral-momentum_c8rnoy.mp3",
+  },
+  {
+    id: "deep-reflection",
+    name: "Deep Reflection",
+    mood: "Calm / Storytelling",
+    url: "https://res.cloudinary.com/dhouh9idx/video/upload/v1788093134/deep-reflection_yp0own.mp3",
+  },
+  {
+    id: "startup-growth",
+    name: "Startup Growth",
+    mood: "Entrepreneur / Drive",
+    url: "https://res.cloudinary.com/dhouh9idx/video/upload/v1788093174/startup-growth_vrdjyz.mp3",
+  },
+  {
+    id: "market-insights",
+    name: "Market Insights",
+    mood: "Finance / Analysis",
+    url: "https://res.cloudinary.com/dhouh9idx/video/upload/v1788093170/market-insights_l7qifd.mp3",
+  },
+  {
+    id: "study-motivation",
+    name: "Study Motivation",
+    mood: "Focus / Deep Work",
+    url: "https://res.cloudinary.com/dhouh9idx/video/upload/v1788093175/study-motivation_qgmvnb.mp3",
+  },
+  {
+    id: "corporate-inspire",
+    name: "Corporate Inspire",
+    mood: "Professional / Clean",
+    url: "https://res.cloudinary.com/dhouh9idx/video/upload/v1788093132/corporate-inspire_gl9pn1.mp3",
+  },
+  {
+    id: "breaking-update",
+    name: "Breaking Update",
+    mood: "News / Urgent",
+    url: "https://res.cloudinary.com/dhouh9idx/video/upload/v1788093131/breaking-update_o0csbl.mp3",
+  },
+  {
+    id: "real-life-journey",
+    name: "Real Life Journey",
+    mood: "Human Story / Drama",
+    url: "https://res.cloudinary.com/dhouh9idx/video/upload/v1788093172/real-life-journey_gndlfs.mp3",
+  },
+];
 
 export interface ImageToVideoStudioProps {
   selectedAudio: File | null;
@@ -30,6 +116,10 @@ export interface ImageToVideoStudioProps {
   imageFiles: File[];
   onAddImages: (files: FileList | null) => void;
   onRemoveImage: (index: number) => void;
+  bgmEnabled?: boolean;
+  onChangeBgmEnabled?: (enabled: boolean) => void;
+  selectedLibraryBgmUrl?: string;
+  onChangeSelectedLibraryBgmUrl?: (url: string) => void;
   bgmFile: File | null;
   onSelectBgm: (file: File | null) => void;
   bgmVolume: number;
@@ -46,6 +136,8 @@ export interface ImageToVideoStudioProps {
   onStartRender: () => void;
   userCredits?: number;
   estimatedDurationSeconds?: number;
+}
+
 export interface ImageToVideoSubtitleStylePreset {
   id: string;
   title: string;
@@ -116,6 +208,10 @@ export function ImageToVideoStudio({
   imageFiles,
   onAddImages,
   onRemoveImage,
+  bgmEnabled = true,
+  onChangeBgmEnabled,
+  selectedLibraryBgmUrl = ITNAVIDEO_LIBRARY_BGM[0].url,
+  onChangeSelectedLibraryBgmUrl,
   bgmFile,
   onSelectBgm,
   bgmVolume,
@@ -139,6 +235,9 @@ export function ImageToVideoStudio({
 
   const [audioDragOver, setAudioDragOver] = useState(false);
   const [imageDragOver, setImageDragOver] = useState(false);
+  const [bgmSourceTab, setBgmSourceTab] = useState<'library' | 'custom'>(bgmFile ? 'custom' : 'library');
+  const [previewingTrackUrl, setPreviewingTrackUrl] = useState<string | null>(null);
+  const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
 
   // Credit pricing calculation: 1 minute = 2 credits
   const durationMinutes = Math.max(1, Math.ceil(estimatedDurationSeconds / 60));
@@ -152,6 +251,62 @@ export function ImageToVideoStudio({
       name: file.name,
     }));
   }, [imageFiles]);
+
+  const customBgmUrl = useMemo(() => {
+    return bgmFile ? URL.createObjectURL(bgmFile) : null;
+  }, [bgmFile]);
+
+  useEffect(() => {
+    return () => {
+      if (customBgmUrl) {
+        URL.revokeObjectURL(customBgmUrl);
+      }
+    };
+  }, [customBgmUrl]);
+
+  const handleTogglePlay = (url: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (!url) return;
+
+    if (previewingTrackUrl === url) {
+      if (audioPlayerRef.current) {
+        audioPlayerRef.current.pause();
+      }
+      setPreviewingTrackUrl(null);
+    } else {
+      if (!audioPlayerRef.current) {
+        audioPlayerRef.current = new Audio();
+      }
+      audioPlayerRef.current.pause();
+      audioPlayerRef.current.src = url;
+      audioPlayerRef.current.volume = Math.min(1, Math.max(0.2, bgmVolume * 2.5));
+      audioPlayerRef.current.play().catch((err) => {
+        console.warn("Audio preview autoplay error:", err);
+      });
+      audioPlayerRef.current.onended = () => {
+        setPreviewingTrackUrl(null);
+      };
+      setPreviewingTrackUrl(url);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (audioPlayerRef.current) {
+        audioPlayerRef.current.pause();
+        audioPlayerRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!bgmEnabled && previewingTrackUrl) {
+      if (audioPlayerRef.current) {
+        audioPlayerRef.current.pause();
+      }
+      setPreviewingTrackUrl(null);
+    }
+  }, [bgmEnabled, previewingTrackUrl]);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
@@ -407,8 +562,8 @@ export function ImageToVideoStudio({
         </div>
       </div>
 
-      {/* ── Additional Controls: Framing, Camera Motion & Background Music ── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      {/* ── Additional Controls: Framing & Camera Motion ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* 16:9 FRAMING & 9:16 FIT */}
         <div className="rounded-3xl border border-white/10 bg-[#141218] p-5 shadow-md space-y-3">
           <div className="flex items-center gap-2 text-sm font-bold text-white">
@@ -481,72 +636,285 @@ export function ImageToVideoStudio({
             ))}
           </div>
         </div>
+      </div>
 
-        {/* BACKGROUND MUSIC & SFX */}
-        <div className="rounded-3xl border border-white/10 bg-[#141218] p-5 shadow-md space-y-3 flex flex-col justify-between">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm font-bold text-white">
-                <Music2 size={16} className="text-emerald-400" />
-                <span>Background Music</span>
-              </div>
-              <span className="text-[10px] font-bold text-zinc-400">Auto-Ducking</span>
+      {/* ── Background Music Studio (Library Tracks with Live Player, Custom Upload & Toggle) ── */}
+      <div className="rounded-3xl border border-white/10 bg-[#141218] p-5 sm:p-6 shadow-md space-y-5">
+        {/* Header & Master Toggle */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/5 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 shrink-0">
+              <Music2 size={20} />
             </div>
-
-            <input
-              type="file"
-              ref={bgmInputRef}
-              accept="audio/*"
-              className="hidden"
-              onChange={(e) => onSelectBgm(e.target.files?.[0] || null)}
-            />
-
-            {!bgmFile ? (
-              <button
-                type="button"
-                onClick={() => bgmInputRef.current?.click()}
-                className="w-full flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 p-3 text-xs font-bold text-zinc-300 hover:bg-white/10 transition cursor-pointer"
-              >
-                <UploadCloud size={14} className="text-emerald-400" />
-                <span>Upload Custom BGM Track</span>
-              </button>
-            ) : (
-              <div className="flex items-center justify-between rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-2.5">
-                <p className="text-xs font-bold text-white truncate max-w-[150px]">{bgmFile.name}</p>
-                <button
-                  type="button"
-                  onClick={() => onSelectBgm(null)}
-                  className="text-zinc-400 hover:text-rose-400 text-xs font-bold cursor-pointer"
-                >
-                  Remove
-                </button>
-              </div>
-            )}
-
-            {/* Volume slider */}
-            <div className="space-y-1 pt-1">
-              <div className="flex items-center justify-between text-xs text-zinc-400 font-semibold">
-                <span className="flex items-center gap-1">
-                  <Volume2 size={13} /> BGM Volume
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm sm:text-base font-extrabold text-white">Background Music (BGM)</h3>
+                <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                  Royalty-Free &amp; Ducking
                 </span>
-                <span className="text-white font-bold">{Math.round(bgmVolume * 100)}%</span>
               </div>
-              <input
-                type="range"
-                min="0"
-                max="0.5"
-                step="0.05"
-                value={bgmVolume}
-                onChange={(e) => onChangeBgmVolume(parseFloat(e.target.value))}
-                className="w-full accent-emerald-400 cursor-pointer"
-              />
+              <p className="text-xs text-zinc-400 mt-0.5">
+                Listen and select from curated tracks, upload your own music, or turn BGM off if you only want voiceover.
+              </p>
             </div>
           </div>
 
-          <p className="text-[11px] text-zinc-500">
-            ✨ Includes cinematic transition whooshes automatically.
-          </p>
+          {/* Master BGM Toggle Button */}
+          <button
+            type="button"
+            onClick={() => {
+              const nextState = !bgmEnabled;
+              onChangeBgmEnabled?.(nextState);
+              if (!nextState && previewingTrackUrl) {
+                audioPlayerRef.current?.pause();
+                setPreviewingTrackUrl(null);
+              }
+            }}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-2xl border text-xs font-black transition-all cursor-pointer shrink-0 ${
+              bgmEnabled
+                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 shadow-[0_0_15px_rgba(52,211,153,0.15)]'
+                : 'bg-white/5 text-zinc-400 border-white/10 hover:bg-white/10'
+            }`}
+          >
+            {bgmEnabled ? (
+              <>
+                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_#34d399]" />
+                <span>BGM: ON</span>
+              </>
+            ) : (
+              <>
+                <VolumeX size={14} className="text-zinc-400" />
+                <span>BGM: OFF (Muted)</span>
+              </>
+            )}
+          </button>
         </div>
+
+        {/* Disabled State Banner */}
+        {!bgmEnabled ? (
+          <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-6 text-center space-y-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/5 text-zinc-400 mx-auto">
+              <VolumeX size={24} />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-white">Background Music is Turned OFF</p>
+              <p className="text-xs text-zinc-400 mt-1 max-w-md mx-auto">
+                No music track will be added. Your video will render with 100% clean speech voiceover and sound effects.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => onChangeBgmEnabled?.(true)}
+              className="px-4 py-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold hover:bg-emerald-500/25 transition cursor-pointer"
+            >
+              Turn Background Music ON
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {/* Tab Switcher: Library vs Custom Upload */}
+            <div className="flex items-center gap-2 p-1 rounded-2xl bg-white/[0.03] border border-white/5 w-fit">
+              <button
+                type="button"
+                onClick={() => setBgmSourceTab('library')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  bgmSourceTab === 'library'
+                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                🎵 Itnavideo Music Library ({ITNAVIDEO_LIBRARY_BGM.length} Tracks)
+              </button>
+              <button
+                type="button"
+                onClick={() => setBgmSourceTab('custom')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  bgmSourceTab === 'custom'
+                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                📤 Upload Your Own Music {bgmFile ? '✓' : ''}
+              </button>
+            </div>
+
+            {/* TAB 1: Library Tracks Grid with Live Audio Preview Player */}
+            {bgmSourceTab === 'library' && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs text-zinc-400">
+                  <span>Click ▶ to preview track audio. Click a card to select it for your video:</span>
+                  <span className="text-[11px] font-bold text-emerald-400">
+                    Selected: {ITNAVIDEO_LIBRARY_BGM.find((t) => t.url === selectedLibraryBgmUrl)?.name || 'Default'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
+                  {ITNAVIDEO_LIBRARY_BGM.map((track) => {
+                    const isSelected = selectedLibraryBgmUrl === track.url && !bgmFile;
+                    const isPlaying = previewingTrackUrl === track.url;
+
+                    return (
+                      <div
+                        key={track.id}
+                        onClick={() => {
+                          onChangeSelectedLibraryBgmUrl?.(track.url);
+                          // Clear custom file when user picks library track
+                          if (bgmFile) onSelectBgm(null);
+                        }}
+                        className={`group relative flex flex-col justify-between p-3 rounded-2xl border transition-all duration-150 cursor-pointer ${
+                          isSelected
+                            ? 'border-emerald-400 bg-emerald-500/10 shadow-[0_0_15px_rgba(52,211,153,0.15)] ring-1 ring-emerald-400/40'
+                            : 'border-white/5 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          {/* Play / Pause Preview Button */}
+                          <button
+                            type="button"
+                            title={isPlaying ? 'Pause preview' : 'Play preview'}
+                            onClick={(e) => handleTogglePlay(track.url, e)}
+                            className={`flex h-8 w-8 items-center justify-center rounded-full shrink-0 transition-transform active:scale-95 cursor-pointer ${
+                              isPlaying
+                                ? 'bg-emerald-400 text-black shadow-[0_0_12px_rgba(52,211,153,0.6)] animate-pulse'
+                                : 'bg-white/10 text-white hover:bg-emerald-400 hover:text-black'
+                            }`}
+                          >
+                            {isPlaying ? <Pause size={14} /> : <Play size={14} className="ml-0.5" />}
+                          </button>
+
+                          {/* Selected Check Indicator */}
+                          <div className="shrink-0">
+                            {isSelected ? (
+                              <CheckCircle2 size={16} className="text-emerald-400" />
+                            ) : (
+                              <div className="h-4 w-4 rounded-full border border-white/20 group-hover:border-white/40" />
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Track Info */}
+                        <div className="mt-2.5">
+                          <p className="text-xs font-bold text-white group-hover:text-emerald-300 transition-colors truncate">
+                            {track.name}
+                          </p>
+                          <div className="flex items-center justify-between mt-0.5">
+                            <span className="text-[10px] text-zinc-400">{track.mood}</span>
+                            {isPlaying && (
+                              <span className="text-[10px] text-emerald-400 font-extrabold animate-pulse">
+                                Playing...
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 2: Custom BGM Upload */}
+            {bgmSourceTab === 'custom' && (
+              <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-4 space-y-3">
+                <input
+                  type="file"
+                  ref={bgmInputRef}
+                  accept="audio/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] || null;
+                    onSelectBgm(file);
+                    if (previewingTrackUrl) {
+                      audioPlayerRef.current?.pause();
+                      setPreviewingTrackUrl(null);
+                    }
+                  }}
+                />
+
+                {!bgmFile ? (
+                  <div className="text-center py-4 space-y-2">
+                    <button
+                      type="button"
+                      onClick={() => bgmInputRef.current?.click()}
+                      className="mx-auto flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-5 py-3 text-xs font-bold text-zinc-200 hover:bg-white/10 hover:border-emerald-400/40 transition cursor-pointer"
+                    >
+                      <UploadCloud size={16} className="text-emerald-400" />
+                      <span>Choose Audio File from Computer (MP3, WAV, AAC)</span>
+                    </button>
+                    <p className="text-[11px] text-zinc-500">
+                      Your audio track will loop seamlessly under your video.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-3">
+                    <div className="flex items-center gap-3">
+                      {customBgmUrl && (
+                        <button
+                          type="button"
+                          onClick={(e) => handleTogglePlay(customBgmUrl, e)}
+                          className={`flex h-8 w-8 items-center justify-center rounded-full shrink-0 transition-transform active:scale-95 cursor-pointer ${
+                            previewingTrackUrl === customBgmUrl
+                              ? 'bg-emerald-400 text-black shadow-[0_0_12px_rgba(52,211,153,0.6)] animate-pulse'
+                              : 'bg-white/10 text-white hover:bg-emerald-400 hover:text-black'
+                          }`}
+                        >
+                          {previewingTrackUrl === customBgmUrl ? <Pause size={14} /> : <Play size={14} className="ml-0.5" />}
+                        </button>
+                      )}
+                      <div>
+                        <p className="text-xs font-bold text-white truncate max-w-[240px] sm:max-w-md">{bgmFile.name}</p>
+                        <p className="text-[10px] text-emerald-400 font-semibold">Custom Track Uploaded &amp; Active</p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onSelectBgm(null);
+                        if (previewingTrackUrl === customBgmUrl) {
+                          audioPlayerRef.current?.pause();
+                          setPreviewingTrackUrl(null);
+                        }
+                      }}
+                      className="text-zinc-400 hover:text-rose-400 text-xs font-bold cursor-pointer px-2 py-1"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Bottom Row: Volume Slider & Auto-Ducking Info */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-white/5">
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs text-zinc-300 font-semibold">
+                  <span className="flex items-center gap-1.5">
+                    <Volume2 size={14} className="text-emerald-400" /> BGM Mix Volume
+                  </span>
+                  <span className="text-emerald-300 font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30">
+                    {Math.round(bgmVolume * 100)}%
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="0.05"
+                  max="0.5"
+                  step="0.05"
+                  value={bgmVolume}
+                  onChange={(e) => onChangeBgmVolume(parseFloat(e.target.value))}
+                  className="w-full accent-emerald-400 cursor-pointer"
+                />
+              </div>
+
+              <div className="flex items-center gap-2.5 rounded-2xl border border-white/5 bg-white/[0.02] p-3 text-[11px] text-zinc-400">
+                <Sparkles size={16} className="text-emerald-400 shrink-0" />
+                <span>
+                  <strong className="text-zinc-200">AI Auto-Ducking:</strong> Music volume dips 70% automatically whenever speech voiceover is detected so narration is always loud and clear.
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ── 2.5D Kinetic & Parallax Caption Styles with Live Visual Previews ── */}

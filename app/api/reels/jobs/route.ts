@@ -165,6 +165,8 @@ export async function POST(request: Request) {
       ? body.imageKeys.map((value: unknown) => readString(value)).filter(Boolean)
       : [];
   const bgmKey = readString(body.bgmKey);
+  const requestedBgmUrl = readString(body.bgmUrl);
+  const enableBgm = typeof body.enableBgm === 'boolean' ? body.enableBgm : body.enableBgm !== 'false' && body.enableBgm !== false;
   const bgmVolume = typeof body.bgmVolume === 'number' ? body.bgmVolume : 0.15;
   const subtitleStyle = readString(body.subtitleStyle) || 'parallax-modern';
   const cameraMotionPreset = readString(body.cameraMotionPreset) || 'ken-burns';
@@ -652,14 +654,22 @@ export async function POST(request: Request) {
             }))
         : [];
 
-      const defaultBgm = getBackgroundMusicUrl('wealth') || 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788093179/wealth-building_kyg9kb.mp3';
-      const finalBgmUrl = customBgmUrl || defaultBgm;
+      let finalBgmUrl = '';
+      if (enableBgm) {
+        if (customBgmUrl) {
+          finalBgmUrl = customBgmUrl;
+        } else if (requestedBgmUrl) {
+          finalBgmUrl = requestedBgmUrl;
+        } else {
+          finalBgmUrl = getBackgroundMusicUrl('wealth') || 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788093179/wealth-building_kyg9kb.mp3';
+        }
+      }
 
       const inputProps: Record<string, unknown> = {
         mediaSrc: mediaUrl,
         audioUrl: mediaUrl,
         bgmUrl: finalBgmUrl,
-        bgmVolume,
+        bgmVolume: enableBgm ? bgmVolume : 0,
         scenes,
         captions,
         subtitleChunks: captions,
