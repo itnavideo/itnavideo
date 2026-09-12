@@ -535,7 +535,7 @@ export async function POST(request: Request) {
       }
 
       markTiming('image_to_video_transcription_ms');
-      const renderWindow = selectRenderWindow(itvTranscription);
+      const renderWindow = selectRenderWindow(itvTranscription, MAX_IMAGE_TO_VIDEO_SECONDS);
       const captions = buildCompareCaptionsFromGroq(renderWindow);
 
       // Curated fallback 16:9 images from internal library
@@ -664,6 +664,7 @@ export async function POST(request: Request) {
         deleteAfter: '3-days',
         overwrite: true,
         concurrency: config.concurrency,
+        framesPerLambda: getOptimalFramesPerLambda(renderWindow.durationSeconds, true),
         maxRetries: 3,
         downloadBehavior: { type: 'download', fileName: 'itnavideo-image-to-video-ai.mp4' },
         isProduction: true,
@@ -704,7 +705,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ ok: false, status: 'failed', reasonCode: 'NO_SPEECH_DETECTED', error: 'No clear speech detected. Upload audio/video with clear speech.' }, { status: 422 });
       }
       markTiming('long_video_pro_transcription_ms');
-      const renderWindow = selectRenderWindow(lvpTranscription);
+      const renderWindow = selectRenderWindow(lvpTranscription, MAX_FACELESS_VIDEO_SECONDS);
       const words = (renderWindow.words || []).filter((w: {word: string; start: number; end: number}) => w.word && Number.isFinite(w.start) && Number.isFinite(w.end)).map((w: {word: string; start: number; end: number}) => ({ word: String(w.word), start: Number(w.start), end: Number(w.end) }));
       const captions = buildCompareCaptionsFromGroq(renderWindow);
 
@@ -842,6 +843,7 @@ export async function POST(request: Request) {
         composition, codec: 'h264', audioCodec: 'aac', inputProps, outName,
         privacy: 'private', deleteAfter: '3-days', overwrite: true,
         concurrency: config.concurrency,
+        framesPerLambda: getOptimalFramesPerLambda(renderWindow.durationSeconds, true),
         maxRetries: 3,
         downloadBehavior: { type: 'download', fileName: 'itnavideo-long-video-pro.mp4' },
         isProduction: true, logLevel: 'info',
@@ -1984,20 +1986,26 @@ function normalizeServeUrl(value: string) {
 async function startRenderWithCapacityRetry(request: LambdaRenderRequest) {
   const baseConcurrency = Math.min(2, Math.max(1, Number(request.concurrency) || 2));
   // Remotion Lambda forbids passing both framesPerLambda and concurrency together.
-  // We use concurrency mode exclusively for deterministic AWS concurrency control.
+  // If framesPerLambda is provided, we prioritize it to avoid chunk timeouts for heavy workloads.
   const cleanRequest = {...request};
-  delete (cleanRequest as any).framesPerLambda;
+  const attempts: LambdaRenderRequest[] = [];
 
-  const attempts: LambdaRenderRequest[] = [
-    {...cleanRequest, concurrency: baseConcurrency, maxRetries: 3},
-    {...cleanRequest, concurrency: 1, maxRetries: 3},
-  ];
+  if ((cleanRequest as any).framesPerLambda) {
+    delete (cleanRequest as any).concurrency;
+    attempts.push({...cleanRequest, maxRetries: 3});
+  } else {
+    delete (cleanRequest as any).framesPerLambda;
+    attempts.push({...cleanRequest, concurrency: baseConcurrency, maxRetries: 3});
+    attempts.push({...cleanRequest, concurrency: 1, maxRetries: 3});
+  }
+
   let lastError: unknown;
 
   for (let index = 0; index < attempts.length; index += 1) {
     try {
       console.log(`[RENDER_INVOKE_ATTEMPT] Attempt ${index + 1}/${attempts.length}`, {
         concurrency: attempts[index].concurrency,
+        framesPerLambda: (attempts[index] as any).framesPerLambda,
         maxRetries: attempts[index].maxRetries,
         composition: attempts[index].composition,
       });
