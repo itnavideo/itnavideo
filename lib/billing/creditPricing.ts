@@ -1,5 +1,5 @@
 export const CREDIT_UNITS_PER_CREDIT = 10;
-export const LONG_FORM_CAPTION_MAX_SECONDS = 20 * 60;
+export const LONG_FORM_CAPTION_MAX_SECONDS = 30 * 60;
 export const LONG_VIDEO_CLIPS_BASE_CREDITS = 2;
 export const LONG_VIDEO_CLIPS_PER_OUTPUT_CREDITS = 1;
 
@@ -25,7 +25,7 @@ type RenderCreditOptions = {
 export function calculateLongFormCaptionCreditUnits(durationSeconds: number) {
   const duration = Number(durationSeconds) || 60;
   if (!Number.isFinite(duration) || duration <= 0 || duration > LONG_FORM_CAPTION_MAX_SECONDS) {
-    throw new Error("Long Video supports a confirmed duration from 1 second to 20 minutes.");
+    throw new Error("Long Video supports a confirmed duration from 1 second to 30 minutes.");
   }
 
   // 2 credits per started minute (e.g. 10 min video = 20 credits)

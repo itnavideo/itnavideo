@@ -118,7 +118,7 @@ export function ImageToVideoStudio({
                 <span className="flex items-center gap-1.5">
                   <Clock size={13} className="text-amber-400" /> Max Duration
                 </span>
-                <span className="text-white font-extrabold">10 Minutes</span>
+                <span className="text-white font-extrabold">30 Minutes</span>
               </div>
               <div className="flex items-center justify-between text-xs text-zinc-400 font-bold">
                 <span className="flex items-center gap-1.5">
@@ -203,7 +203,7 @@ export function ImageToVideoStudio({
                   Click or drag audio file here
                 </p>
                 <p className="text-xs text-zinc-400">
-                  MP3, WAV, M4A, AAC • Up to 10 minutes
+                  MP3, WAV, M4A, AAC • Up to 30 minutes
                 </p>
               </div>
             ) : (

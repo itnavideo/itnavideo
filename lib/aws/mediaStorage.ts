@@ -1,19 +1,29 @@
-import {GetObjectCommand, PutBucketLifecycleConfigurationCommand, PutObjectCommand, S3Client} from '@aws-sdk/client-s3';
-import {getSignedUrl} from '@aws-sdk/s3-request-presigner';
-
 export const TEMP_MEDIA_UPLOAD_PREFIX = 'uploads/raw/';
 export const TEMP_MEDIA_RENDER_PREFIX = 'renders/final/';
 export const TEMP_MEDIA_EXPIRATION_DAYS = 2;
+
+function isGcpStorage() {
+  const provider = clean(process.env.STORAGE_PROVIDER).toLowerCase();
+  return provider === 'gcp' || Boolean(clean(process.env.GCP_RENDER_WORKER_URL));
+}
+
+function getGcpWorkerUrl() {
+  return clean(process.env.GCP_RENDER_WORKER_URL || 'http://34.100.147.84:8080').replace(/\/+$/, '');
+}
 
 export function getAwsRegion() {
   return clean(process.env.REMOTION_AWS_REGION || process.env.AWS_REGION) || 'ap-south-1';
 }
 
 export function getTemporaryMediaBucket() {
+  if (isGcpStorage()) {
+    return clean(process.env.GCS_BUCKET_NAME) || 'itnavideo-media-assets';
+  }
   return clean(process.env.REMOTION_LAMBDA_BUCKET_NAME || process.env.AWS_ASSET_BUCKET);
 }
 
-export function getS3Client() {
+export async function getS3Client() {
+  const {S3Client} = await import('@aws-sdk/client-s3');
   const accessKeyId = clean(process.env.AWS_ACCESS_KEY_ID);
   const secretAccessKey = clean(process.env.AWS_SECRET_ACCESS_KEY);
 
@@ -34,6 +44,22 @@ export async function createUploadUrl({
   mode: 'audio' | 'video' | 'image';
   userId: string;
 }) {
+  if (isGcpStorage()) {
+    const workerUrl = getGcpWorkerUrl();
+    const resp = await fetch(`${workerUrl}/api/storage/upload-url`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({fileName, contentType, mode, userId}),
+    });
+    if (!resp.ok) {
+      throw new Error(`Failed to generate cloud upload URL: ${await resp.text()}`);
+    }
+    const data = await resp.json();
+    return {bucket: data.bucket, key: data.key, uploadUrl: data.uploadUrl};
+  }
+
+  const {PutObjectCommand} = await import('@aws-sdk/client-s3');
+  const {getSignedUrl} = await import('@aws-sdk/s3-request-presigner');
   const bucket = requiredBucket();
   const safeFileName = sanitizeFileName(fileName);
   const key = `${TEMP_MEDIA_UPLOAD_PREFIX}${sanitizeSegment(userId)}/${Date.now()}-${mode}-${safeFileName}`;
@@ -43,7 +69,8 @@ export async function createUploadUrl({
     ContentType: contentType,
   });
 
-  const uploadUrl = await getSignedUrl(getS3Client(), command, {expiresIn: 15 * 60});
+  const client = await getS3Client();
+  const uploadUrl = await getSignedUrl(client, command, {expiresIn: 15 * 60});
   return {bucket, key, uploadUrl};
 }
 
@@ -62,10 +89,30 @@ export async function uploadTemporaryMediaObject({
   userId: string;
   purpose?: string;
 }) {
+  if (isGcpStorage()) {
+    const {bucket, key, uploadUrl} = await createUploadUrl({
+      contentType,
+      fileName,
+      mode,
+      userId,
+    });
+    const putResp = await fetch(uploadUrl, {
+      method: 'PUT',
+      headers: {'Content-Type': contentType},
+      body: body,
+    });
+    if (!putResp.ok) {
+      throw new Error(`Failed to upload media to cloud bucket: ${putResp.statusText}`);
+    }
+    return {bucket, key};
+  }
+
+  const {PutObjectCommand} = await import('@aws-sdk/client-s3');
   const bucket = requiredBucket();
   const safeFileName = sanitizeFileName(fileName);
   const key = `${TEMP_MEDIA_UPLOAD_PREFIX}${sanitizeSegment(userId)}/${Date.now()}-${sanitizeSegment(purpose)}-${mode}-${safeFileName}`;
-  await getS3Client().send(
+  const client = await getS3Client();
+  await client.send(
     new PutObjectCommand({
       Bucket: bucket,
       Key: key,
@@ -77,14 +124,33 @@ export async function uploadTemporaryMediaObject({
 }
 
 export async function createReadUrl(key: string, expiresInSeconds = 48 * 60 * 60) {
+  if (isGcpStorage()) {
+    const workerUrl = getGcpWorkerUrl();
+    const resp = await fetch(`${workerUrl}/api/storage/read-url?key=${encodeURIComponent(key)}`);
+    if (!resp.ok) {
+      throw new Error(`Failed to generate cloud read URL: ${await resp.text()}`);
+    }
+    const data = await resp.json();
+    return data.readUrl;
+  }
+
+  const {GetObjectCommand} = await import('@aws-sdk/client-s3');
+  const {getSignedUrl} = await import('@aws-sdk/s3-request-presigner');
   const bucket = requiredBucket();
   const command = new GetObjectCommand({Bucket: bucket, Key: key});
-  return getSignedUrl(getS3Client(), command, {expiresIn: expiresInSeconds});
+  const client = await getS3Client();
+  return getSignedUrl(client, command, {expiresIn: expiresInSeconds});
 }
 
 export async function applyTemporaryMediaLifecycle() {
+  if (isGcpStorage()) {
+    return {bucket: getTemporaryMediaBucket(), expirationDays: TEMP_MEDIA_EXPIRATION_DAYS};
+  }
+
+  const {PutBucketLifecycleConfigurationCommand} = await import('@aws-sdk/client-s3');
   const bucket = requiredBucket();
-  await getS3Client().send(
+  const client = await getS3Client();
+  await client.send(
     new PutBucketLifecycleConfigurationCommand({
       Bucket: bucket,
       LifecycleConfiguration: {

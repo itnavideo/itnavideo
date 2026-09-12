@@ -19,19 +19,34 @@ export async function GET(request: Request) {
   if (!renderId || !bucketName) {
     return NextResponse.json({ok: false, error: 'renderId and bucketName are required.'}, {status: 400});
   }
-  if (!functionName) {
+  const isGcpRender = clean(process.env.RENDER_PROVIDER).toLowerCase() === 'gcp' ||
+    bucketName === 'itnavideo-media-assets' ||
+    renderId.startsWith('gcp-') ||
+    Boolean(clean(process.env.GCP_RENDER_WORKER_URL));
+
+  if (!functionName && !isGcpRender) {
     return NextResponse.json({ok: false, error: 'The render system is not configured yet.'}, {status: 503});
   }
 
   try {
-    const progress = await getRenderProgress({
-      region,
-      functionName,
-      bucketName,
-      renderId,
-      logLevel: 'info',
-      skipLambdaInvocation: true,
-    });
+    let progress: any;
+    if (isGcpRender) {
+      const workerUrl = clean(process.env.GCP_RENDER_WORKER_URL || 'http://34.100.147.84:8080').replace(/\/+$/, '');
+      const resp = await fetch(`${workerUrl}/api/render/progress?renderId=${encodeURIComponent(renderId)}`);
+      if (!resp.ok) {
+        throw new Error(`Cloud worker progress error: ${resp.status}`);
+      }
+      progress = await resp.json();
+    } else {
+      progress = await getRenderProgress({
+        region,
+        functionName,
+        bucketName,
+        renderId,
+        logLevel: 'info',
+        skipLambdaInvocation: true,
+      });
+    }
     const renderErrors = progress.errors || [];
     const hasOutput = Boolean(progress.outputFile);
     const missingOutput = Boolean(progress.done && !hasOutput && renderErrors.length === 0);

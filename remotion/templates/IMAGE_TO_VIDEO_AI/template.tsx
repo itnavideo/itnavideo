@@ -50,9 +50,16 @@ export interface ImageToVideoAiProps {
   fitMode?: 'blur-fill' | 'cover';
 }
 
+const FALLBACK_SCENE_IMAGE = 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788780290/ChatGPT_Image_Sep_7_2026_04_53_09_PM_suv9x7.png';
+
 const resolveUrl = (src?: string) => {
   if (!src) return '';
   return /^(https?:|data:|blob:)/i.test(src) ? src : staticFile(src.replace(/^\/+/, ''));
+};
+
+const resolveImageUrl = (src?: string) => {
+  const url = resolveUrl(src);
+  return url || FALLBACK_SCENE_IMAGE;
 };
 
 /**
@@ -158,7 +165,7 @@ const SceneRenderer: React.FC<{
         }}
       >
         <Img
-          src={resolveUrl(scene.imageUrl)}
+          src={resolveImageUrl(scene.imageUrl)}
           style={{
             width: '100%',
             height: '100%',
@@ -195,7 +202,7 @@ const SceneRenderer: React.FC<{
             }}
           >
             <Img
-              src={resolveUrl(scene.imageUrl)}
+              src={resolveImageUrl(scene.imageUrl)}
               style={{
                 width: '100%',
                 height: '100%',
@@ -217,7 +224,7 @@ const SceneRenderer: React.FC<{
           }}
         >
           <Img
-            src={resolveUrl(scene.imageUrl)}
+            src={resolveImageUrl(scene.imageUrl)}
             style={{
               width: '100%',
               height: '100%',
@@ -483,8 +490,8 @@ export const ImageToVideoAiComposition: React.FC = () => (
         Number(p.renderWindowSeconds) ||
         Number(p.sourceDurationSeconds) ||
         60;
-      // Max 10 minutes (600s) as per user rule
-      const durationSeconds = Math.max(5, Math.min(600, rawDuration));
+      // Max 30 minutes (1800s)
+      const durationSeconds = Math.max(5, Math.min(1800, rawDuration));
       return {
         durationInFrames: secondsToFrames(durationSeconds, DEFAULT_FPS),
         fps: DEFAULT_FPS,

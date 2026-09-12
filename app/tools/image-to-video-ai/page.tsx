@@ -4,7 +4,7 @@ import { ArrowRight, Film, Sparkles, Layers, Sliders, Music, Zap, Video } from "
 
 export const metadata: Metadata = {
   title: "Image to Video AI – Turn Voiceover & Photos into 16:9 Cinematic Videos | Itnavideo",
-  description: "Upload your voiceover and any number of images. AI synchronizes scenes per line, applies Ken Burns pan & zoom camera motion, 2.5D parallax subtitles, and cinematic transitions. Up to 10 minutes at 30 FPS.",
+  description: "Upload your voiceover and any number of images. AI synchronizes scenes per line, applies Ken Burns pan & zoom camera motion, 2.5D parallax subtitles, and cinematic transitions. Up to 30 minutes at 30 FPS.",
   alternates: { canonical: "/tools/image-to-video-ai" },
   openGraph: {
     title: "Image to Video AI – 16:9 Cinematic Video Generator",
@@ -21,7 +21,7 @@ export default function ImageToVideoAiPage() {
         <div className="mx-auto max-w-4xl text-center">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold" style={{ border: '1px solid rgba(139,92,246,0.3)', background: 'rgba(139,92,246,0.1)', color: '#A78BFA' }}>
             <Film size={14} />
-            16:9 Widescreen • 30 FPS • Max 10 Min
+            16:9 Widescreen • 30 FPS • Max 30 Min
           </div>
           <h1 className="text-3xl font-black leading-tight sm:text-5xl md:text-6xl tracking-tight">
             Image to Video AI<br />

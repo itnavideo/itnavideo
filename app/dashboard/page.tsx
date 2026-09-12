@@ -237,7 +237,7 @@ const videoTypeCards = [
   { id: "ai-audio-cleaner", title: "AI Audio Cleaner", tag: "Long Audio", description: "Full script preview in dashboard • Auto removes recording mistakes, silences & noise.", image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1788190064/file_0000000084e482119c5951ac67c32219_lncnaa.png", badgeType: "Pro" as const, accent: "#1A73E8", mode: "audioClean" as const, category: "long", inputType: "audio" as const },
   { id: "long-video-clips", title: "Long Video Clips", tag: "Podcast Clips", description: "Turn long videos and podcasts into short viral clips with captions.", image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1788190063/file_000000002af082088dc89d221c90dc80_tmf4h8.png", videoPreviewUrl: "/renders/long-promo-test-9x16.mp4", badgeType: "New" as const, accent: "#1A73E8", mode: "longVideoClips" as const, category: "long", inputType: "video" as const },
   { id: "faceless-video", title: "Faceless Video", tag: "16:9 YouTube • Max 20 Min", description: "Turn up to 20 min voiceover into complete 16:9 videos with curated AI visuals, Canva backgrounds & captions.", image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1788190063/file_0000000089c48211b67c16fe3c2636a2_prirg0.png", videoPreviewUrl: "/renders/custom-ai-reel-m1-preview.mp4", badgeType: "AI" as const, accent: "#F59E0B", mode: "facelessVideo" as const, category: "long", inputType: "audio" as const },
-  { id: "image-to-video-ai", title: "Image to Video AI", tag: "16:9 Widescreen • Max 10 Min", description: "Turn voiceover into cinematic 16:9 videos with images, Ken Burns motion, 2.5D parallax subtitles & transitions.", image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1788780290/ChatGPT_Image_Sep_7_2026_04_53_09_PM_suv9x7.png", badgeType: "New" as const, accent: "#8B5CF6", mode: "imageToVideoAi" as const, category: "long", inputType: "audio" as const },
+  { id: "image-to-video-ai", title: "Image to Video AI", tag: "16:9 Widescreen • Max 30 Min", description: "Turn voiceover into cinematic 16:9 videos with images, Ken Burns motion, 2.5D parallax subtitles & transitions.", image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1788780290/ChatGPT_Image_Sep_7_2026_04_53_09_PM_suv9x7.png", badgeType: "New" as const, accent: "#8B5CF6", mode: "imageToVideoAi" as const, category: "long", inputType: "audio" as const },
 ] as const;
 
 function getPlannedRenderCreditUnits(mode: Mode, durationSeconds?: number, clipCount = 3) {
@@ -452,9 +452,9 @@ const modeConfig = {
     title: "Image to Video AI (16:9 Widescreen)",
     description: "🎙️ Upload: Voiceover audio (required)\n🖼️ Optional: Multiple images (no limit) or use auto-curated visuals\n✨ AI syncs scenes, Ken Burns pan & zoom, 2.5D parallax subtitles & transitions",
     accept: "audio/*",
-    supported: "MP3, WAV, M4A, AAC • Up to 10 minutes",
+    supported: "MP3, WAV, M4A, AAC • Up to 30 minutes",
     bestResult: "Podcasts, storytelling, explainers & presentations in 16:9 format",
-    uploadCta: "🎙️ Upload your voiceover / audio (Max 10 min)",
+    uploadCta: "🎙️ Upload your voiceover / audio (Max 30 min)",
     icon: Film,
     color: "text-purple-400",
     border: "border-purple-400/40",
@@ -3661,6 +3661,7 @@ export default function DashboardPage() {
           // Image to Video AI fields
           ...(mode === "imageToVideoAi" ? {
             uploadedImageKeys,
+            imageKeys: uploadedImageKeys,
             bgmKey: bgmKey || undefined,
             bgmVolume,
             subtitleStyle: imageToVideoSubtitleStyle,

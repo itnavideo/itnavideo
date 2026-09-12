@@ -70,10 +70,10 @@ const MODE_TO_TEMPLATE: Partial<Record<ReelMode, ReelTemplateName>> = {
 
 // All 9:16 short video types render up to 90 seconds.
 // Long Faceless Video supports up to 20 minutes (1200 seconds) audio.
-// Image to Video AI supports up to 10 minutes (600 seconds) audio.
+// Image to Video AI supports up to 30 minutes (1800 seconds) audio.
 const MAX_RENDER_WINDOW_SECONDS = 90;
 const MAX_AUTO_CAPTION_SECONDS = 90;
-const MAX_IMAGE_TO_VIDEO_SECONDS = 10 * 60; // 600 seconds (10 minutes)
+const MAX_IMAGE_TO_VIDEO_SECONDS = 30 * 60; // 1800 seconds (30 minutes)
 const MAX_FACELESS_VIDEO_SECONDS = 20 * 60; // 1200 seconds (20 minutes)
 
 function getMaxRenderWindowSecondsForTemplate(templateName?: ReelTemplateName | null): number {
@@ -166,6 +166,7 @@ export async function POST(request: Request) {
   const bgmKey = readString(body.bgmKey);
   const bgmVolume = typeof body.bgmVolume === 'number' ? body.bgmVolume : 0.15;
   const subtitleStyle = readString(body.subtitleStyle) || 'parallax-modern';
+  const cameraMotionPreset = readString(body.cameraMotionPreset) || 'ken-burns';
   const explanationImageKey = readString(body.explanationImageKey);
   const promoThumbnailImageKey = readString(body.thumbnailKey);
   const topicTitle = readString(body.topicTitle);
@@ -566,12 +567,20 @@ export async function POST(request: Request) {
         fitMode?: 'blur-fill' | 'cover';
       }> = [];
 
-      const motions: Array<'zoom-in' | 'pan-left' | 'zoom-out' | 'pan-right' | 'pan-up' | 'pan-down'> = [
-        'zoom-in', 'pan-left', 'zoom-out', 'pan-right', 'zoom-in', 'pan-left'
-      ];
-      const transitions: Array<'dissolve' | 'push-left' | 'dissolve' | 'push-right' | 'hard-cut'> = [
-        'dissolve', 'push-left', 'dissolve', 'push-right', 'dissolve'
-      ];
+      let motions: Array<'zoom-in' | 'pan-left' | 'zoom-out' | 'pan-right' | 'pan-up' | 'pan-down'>;
+      let transitions: Array<'dissolve' | 'push-left' | 'dissolve' | 'push-right' | 'hard-cut'>;
+
+      if (cameraMotionPreset === 'dynamic-flow') {
+        motions = ['zoom-in', 'pan-right', 'zoom-out', 'pan-left', 'pan-up', 'pan-down'];
+        transitions = ['push-left', 'dissolve', 'push-right', 'hard-cut', 'dissolve'];
+      } else if (cameraMotionPreset === 'subtle-drift') {
+        motions = ['zoom-in', 'zoom-out', 'zoom-in', 'zoom-out'];
+        transitions = ['dissolve', 'dissolve', 'dissolve'];
+      } else {
+        // Default: ken-burns cinematic
+        motions = ['zoom-in', 'pan-left', 'zoom-out', 'pan-right', 'zoom-in', 'pan-left'];
+        transitions = ['dissolve', 'push-left', 'dissolve', 'push-right', 'dissolve'];
+      }
 
       if (rawSegments.length > 0) {
         rawSegments.forEach((seg: { start: number; end: number; text: string }, idx: number) => {
@@ -608,22 +617,33 @@ export async function POST(request: Request) {
         }
       }
 
-      // Ensure contiguous scenes spanning full duration
+      // Ensure contiguous scenes spanning full duration without inverted timestamps
       if (scenes.length > 0) {
         scenes[0].startSeconds = 0;
-        scenes[scenes.length - 1].endSeconds = renderWindow.durationSeconds;
         for (let i = 0; i < scenes.length - 1; i++) {
+          if (scenes[i + 1].startSeconds <= scenes[i].startSeconds + 0.5) {
+            scenes[i + 1].startSeconds = scenes[i].startSeconds + 0.5;
+          }
           scenes[i].endSeconds = scenes[i + 1].startSeconds;
         }
+        scenes[scenes.length - 1].endSeconds = renderWindow.durationSeconds;
       }
 
-      // SFX Events: Whoosh at scene transitions
-      const sfxEvents = scenes.slice(1).map((s, idx) => ({
-        id: `sfx-whoosh-${idx + 1}`,
-        sfxUrl: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788092928/whoosh-swoosh_d1x9w8.mp3',
-        startFrame: Math.floor(s.startSeconds * 30),
-        volume: 0.25,
-      }));
+      // SFX Events: Whoosh at scene transitions (throttled to avoid exhausting browser audio decoders on long renders)
+      const enableSfx = body.enableSfx !== false;
+      const sfxStride = Math.max(1, Math.floor(scenes.length / 15));
+      const sfxEvents = enableSfx
+        ? scenes
+            .slice(1)
+            .filter((_, idx) => idx % sfxStride === 0)
+            .slice(0, 20)
+            .map((s, idx) => ({
+              id: `sfx-whoosh-${idx + 1}`,
+              sfxUrl: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788092928/whoosh-swoosh_d1x9w8.mp3',
+              startFrame: Math.floor(s.startSeconds * 30),
+              volume: 0.20,
+            }))
+        : [];
 
       const finalBgmUrl = customBgmUrl || 'https://res.cloudinary.com/dhouh9idx/video/upload/v1788092928/ambient-atmosphere_k0df1w.mp3';
 
@@ -1964,6 +1984,17 @@ async function readJson(request: Request) {
 function readLambdaConfig():
   | {ok: true; region: AwsRegion; functionName: string; serveUrl: string; concurrency: number}
   | {ok: false; error: string} {
+  const gcpWorkerUrl = clean(process.env.GCP_RENDER_WORKER_URL);
+  if (process.env.RENDER_PROVIDER === 'gcp' || gcpWorkerUrl) {
+    return {
+      ok: true,
+      region: 'ap-south-1' as AwsRegion,
+      functionName: 'gcp-render-worker',
+      serveUrl: gcpWorkerUrl || 'http://34.100.147.84:8080',
+      concurrency: 4,
+    };
+  }
+
   const region = readAwsRegion(process.env.REMOTION_AWS_REGION || process.env.AWS_REGION);
   const functionName = clean(process.env.REMOTION_LAMBDA_FUNCTION_NAME);
   const serveUrl = normalizeServeUrl(clean(process.env.REMOTION_LAMBDA_SERVE_URL));
@@ -1984,6 +2015,29 @@ function normalizeServeUrl(value: string) {
 }
 
 async function startRenderWithCapacityRetry(request: LambdaRenderRequest) {
+  const gcpWorkerUrl = clean(process.env.GCP_RENDER_WORKER_URL);
+  if (process.env.RENDER_PROVIDER === 'gcp' || gcpWorkerUrl) {
+    const workerEndpoint = (gcpWorkerUrl || 'http://34.100.147.84:8080').replace(/\/+$/, '');
+    console.log('[RENDER_DISPATCH_GCP] Dispatching to Google Cloud render worker:', workerEndpoint);
+    const resp = await fetch(`${workerEndpoint}/api/render`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        composition: request.composition,
+        inputProps: request.inputProps,
+      }),
+    });
+    if (!resp.ok) {
+      const errText = await resp.text();
+      throw new Error(`GCP Cloud Render worker failed (${resp.status}): ${errText}`);
+    }
+    const data = await resp.json();
+    return {
+      renderId: data.renderId,
+      bucketName: data.bucketName || 'itnavideo-media-assets',
+    };
+  }
+
   const baseConcurrency = Math.min(2, Math.max(1, Number(request.concurrency) || 2));
   // Remotion Lambda forbids passing both framesPerLambda and concurrency together.
   // If framesPerLambda is provided, we prioritize it to avoid chunk timeouts for heavy workloads.
