@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { 
   ArrowRight, 
   Play, 
   Pause, 
+  Volume2,
+  VolumeX,
   Sparkles, 
   Check, 
   Upload, 
@@ -63,6 +65,18 @@ const HERO_MOCK_TYPES = [
 export default function Hero() {
   const [selectedType, setSelectedType] = useState(HERO_MOCK_TYPES[0]);
   const [isPlaying, setIsPlaying] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const toggleAudio = () => {
+    if (videoRef.current) {
+      const nextMuted = !videoRef.current.muted;
+      videoRef.current.muted = nextMuted;
+      setIsMuted(nextMuted);
+    } else {
+      setIsMuted(!isMuted);
+    }
+  };
 
   return (
     <section className="relative overflow-hidden bg-slate-50 px-4 pb-16 pt-24 text-slate-900 sm:px-6 sm:pb-24 sm:pt-32 border-b border-slate-200">
@@ -118,9 +132,9 @@ export default function Hero() {
             >
               <Link
                 href="/dashboard"
-                className="group relative inline-flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-700 px-7 py-4 text-xs sm:text-sm md:text-base font-black text-white shadow-lg shadow-orange-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-95 w-full sm:w-auto tracking-wide text-center uppercase"
+                className="group relative inline-flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-700 px-7 py-4 text-sm md:text-base font-black text-white shadow-lg shadow-orange-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-95 w-full sm:w-auto tracking-wide text-center uppercase"
               >
-                <span>CLICK HERE TO GENERATE FREE AI VIDEO GENERATOR</span>
+                <span>Create Video With AI — Free ⚡</span>
                 <ArrowRight size={18} className="transition group-hover:translate-x-1 shrink-0" />
               </Link>
 
@@ -133,25 +147,64 @@ export default function Hero() {
               </a>
             </motion.div>
 
-            {/* Trust Badges */}
+            {/* Social Proof with Creator Avatars & Rating */}
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="mt-8 flex flex-wrap items-center justify-center lg:justify-start gap-3 text-xs font-semibold text-slate-600"
+              className="mt-8 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 text-xs text-slate-600"
             >
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 shadow-2xs">
-                <Star size={13} className="text-amber-500 fill-amber-400" />
-                <span>1,000+ Creators</span>
-              </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 shadow-2xs">
-                <Zap size={13} className="text-amber-500" />
-                <span>Groq Whisper Subtitles</span>
-              </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 shadow-2xs">
-                <ShieldCheck size={13} className="text-emerald-600" />
-                <span>No Credit Card Needed</span>
-              </span>
+              <div className="flex items-center gap-2.5">
+                {/* Creator Avatar Stack */}
+                <div className="flex -space-x-2 overflow-hidden">
+                  <img
+                    className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover shadow-xs"
+                    src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
+                    alt="Creator"
+                  />
+                  <img
+                    className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover shadow-xs"
+                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80"
+                    alt="Creator"
+                  />
+                  <img
+                    className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover shadow-xs"
+                    src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80"
+                    alt="Creator"
+                  />
+                  <img
+                    className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover shadow-xs"
+                    src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80"
+                    alt="Creator"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-1 text-amber-500">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={12} fill="currentColor" />
+                    ))}
+                    <span className="ml-1 font-bold text-slate-800 text-xs">4.9/5</span>
+                  </div>
+                  <p className="text-[11px] font-medium text-slate-500">
+                    Loved by <strong className="text-slate-800">1,200+</strong> YouTube &amp; Reel Creators
+                  </p>
+                </div>
+              </div>
+
+              <div className="hidden sm:block h-6 w-px bg-slate-200" />
+
+              {/* Quick Trust Badges */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 shadow-2xs">
+                  <Zap size={12} className="text-amber-500" />
+                  <span>Groq Whisper</span>
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 shadow-2xs">
+                  <ShieldCheck size={12} className="text-emerald-600" />
+                  <span>No Card Needed</span>
+                </span>
+              </div>
             </motion.div>
           </div>
 
@@ -244,26 +297,60 @@ export default function Hero() {
                 </div>
 
                 {/* Live Video Preview Canvas (Full width on mobile, 7-col on sm) - True 9:16 Portrait */}
-                <div className="sm:col-span-7 relative flex flex-col items-center justify-center rounded-2xl bg-black overflow-hidden border border-white/15 aspect-[9/16] max-h-[420px] w-full max-w-[250px] sm:max-w-[270px] mx-auto shadow-xl">
+                <div className="sm:col-span-7 relative flex flex-col items-center justify-center rounded-2xl bg-black overflow-hidden border border-white/15 aspect-[9/16] max-h-[420px] w-full max-w-[250px] sm:max-w-[270px] mx-auto shadow-xl group">
                   <video
+                    ref={videoRef}
                     key={selectedType.sample}
                     src={selectedType.sample}
                     poster={selectedType.poster}
                     preload="metadata"
                     autoPlay={isPlaying}
-                    muted
+                    muted={isMuted}
                     loop
                     playsInline
                     className="h-full w-full object-cover"
                   />
 
+                  {/* Interactive Sound Indicator / Floating Button */}
+                  <button
+                    type="button"
+                    onClick={toggleAudio}
+                    className="absolute top-2.5 right-2.5 z-20 flex items-center gap-1.5 rounded-full bg-slate-950/80 hover:bg-slate-900 backdrop-blur-md px-2.5 py-1 text-[10px] font-bold text-white border border-white/20 shadow-md transition active:scale-95 cursor-pointer"
+                    title={isMuted ? "Click to enable sound" : "Mute sound"}
+                  >
+                    {isMuted ? (
+                      <>
+                        <VolumeX size={12} className="text-amber-400" />
+                        <span>Tap for Sound</span>
+                      </>
+                    ) : (
+                      <>
+                        <Volume2 size={12} className="text-emerald-400 animate-pulse" />
+                        <span className="text-emerald-300">Sound ON</span>
+                      </>
+                    )}
+                  </button>
+
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/60 to-transparent p-2.5 flex items-center justify-between">
-                    <button
-                      onClick={() => setIsPlaying(!isPlaying)}
-                      className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-orange-500/30 active:scale-90 transition"
-                    >
-                      {isPlaying ? <Pause size={12} fill="currentColor" /> : <Play size={12} fill="currentColor" className="ml-0.5" />}
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setIsPlaying(!isPlaying)}
+                        className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-orange-500/30 active:scale-90 transition cursor-pointer"
+                        title={isPlaying ? "Pause video" : "Play video"}
+                      >
+                        {isPlaying ? <Pause size={12} fill="currentColor" /> : <Play size={12} fill="currentColor" className="ml-0.5" />}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={toggleAudio}
+                        className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-xs transition cursor-pointer"
+                        title={isMuted ? "Unmute" : "Mute"}
+                      >
+                        {isMuted ? <VolumeX size={12} className="text-slate-300" /> : <Volume2 size={12} className="text-amber-400" />}
+                      </button>
+                    </div>
+
                     <span className="text-[9px] font-mono text-slate-300">00:14 / 00:30</span>
                   </div>
                 </div>

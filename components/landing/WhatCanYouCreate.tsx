@@ -43,7 +43,7 @@ const ACTIVE_TEMPLATES: WorkflowTemplate[] = [
     description: 'Turn voiceover audio and photos into cinematic 16:9 videos with continuous Ken Burns motion, 2.5D parallax subtitles, and transitions.',
     inputs: 'Voiceover Audio + Photos (No Limit)',
     aspectRatio: '16:9',
-    aspectRatioBadge: '16:9 Widescreen • 30 FPS • Max 10 Min',
+    aspectRatioBadge: '16:9 Widescreen • 30 FPS • Max 30 Min',
     imageSrc: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788780290/ChatGPT_Image_Sep_7_2026_04_53_09_PM_suv9x7.png',
     icon: MonitorPlay,
     href: '/tools/image-to-video-ai',
