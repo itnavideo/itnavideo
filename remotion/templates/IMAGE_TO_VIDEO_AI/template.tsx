@@ -244,13 +244,27 @@ const SceneRenderer: React.FC<{
         </div>
       )}
 
-      {/* Cinematic Vignette & Ambient Gradient for Depth */}
+      {/* Cinematic Radial Vignette for Netflix / Docu-grade Depth */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
           background:
-            'radial-gradient(circle at center, transparent 35%, rgba(0, 0, 0, 0.35) 80%, rgba(0, 0, 0, 0.75) 100%)',
+            'radial-gradient(ellipse at center, transparent 32%, rgba(0, 0, 0, 0.40) 72%, rgba(0, 0, 0, 0.84) 100%)',
+          pointerEvents: 'none',
+        }}
+      />
+
+      {/* Top Edge Shadow for Corner Badge Contrast */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '24%',
+          background:
+            'linear-gradient(to bottom, rgba(0, 0, 0, 0.65) 0%, transparent 100%)',
           pointerEvents: 'none',
         }}
       />
@@ -262,9 +276,9 @@ const SceneRenderer: React.FC<{
           bottom: 0,
           left: 0,
           right: 0,
-          height: '42%',
+          height: '44%',
           background:
-            'linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.45) 50%, transparent 100%)',
+            'linear-gradient(to top, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.45) 55%, transparent 100%)',
           pointerEvents: 'none',
         }}
       />
@@ -441,7 +455,41 @@ const ParallaxSubtitleLayer: React.FC<{
             ...textStyle,
           }}
         >
-          {activeChunk.text}
+          {activeChunk.words && activeChunk.words.length > 0 ? (
+            activeChunk.words.map((w, wIdx) => {
+              const isCurrent = currentTime >= w.start && currentTime <= w.end;
+              const glowColor =
+                styleMode === 'bold-kinetic'
+                  ? '#38BDF8'
+                  : styleMode === 'neon-cyan'
+                  ? '#FFFFFF'
+                  : styleMode === 'impact-red'
+                  ? '#FEF08A'
+                  : '#FACC15'; // Vibrant gold highlight for modern documentary
+              const textShadow = isCurrent
+                ? `0 0 18px ${glowColor}, 0 2px 8px rgba(0, 0, 0, 0.95)`
+                : undefined;
+
+              return (
+                <span
+                  key={`w-${wIdx}-${w.word}`}
+                  style={{
+                    display: 'inline-block',
+                    marginRight: '0.28em',
+                    color: isCurrent ? glowColor : undefined,
+                    textShadow,
+                    fontWeight: isCurrent ? 900 : undefined,
+                    transform: isCurrent ? 'scale(1.07)' : 'scale(1)',
+                    transition: 'color 0.08s ease, transform 0.08s ease',
+                  }}
+                >
+                  {w.word}
+                </span>
+              );
+            })
+          ) : (
+            activeChunk.text
+          )}
         </p>
       </div>
     </div>
@@ -467,6 +515,8 @@ export const ImageToVideoAiTemplate: React.FC<ImageToVideoAiProps> = ({
   fitMode = 'blur-fill',
 }) => {
   const { fps } = useVideoConfig();
+  const frame = useCurrentFrame();
+  const currentTime = frame / fps;
 
   const finalAudioUrl = resolveUrl(audioUrl || audioSrc || mediaSrc);
   const finalBgmUrl = resolveUrl(bgmUrl || bgmSrc);
@@ -526,6 +576,72 @@ export const ImageToVideoAiTemplate: React.FC<ImageToVideoAiProps> = ({
           styleMode={subtitleStyle}
         />
       )}
+
+      {/* 2.5 CORNER TOPIC BADGE */}
+      {title && title.trim() && title.trim().toLowerCase() !== 'image to video ai' && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 40,
+            left: 48,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            padding: '9px 20px',
+            borderRadius: 9999,
+            background: 'rgba(12, 10, 18, 0.75)',
+            backdropFilter: 'blur(16px)',
+            border: '1px solid rgba(255, 255, 255, 0.16)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.65)',
+            zIndex: 45,
+          }}
+        >
+          <div
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              backgroundColor: '#38BDF8',
+              boxShadow: '0 0 10px #38BDF8',
+            }}
+          />
+          <span
+            style={{
+              fontSize: 15,
+              fontWeight: 800,
+              color: 'rgba(255, 255, 255, 0.95)',
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
+              fontFamily: 'Inter, system-ui, sans-serif',
+            }}
+          >
+            {title}
+          </span>
+        </div>
+      )}
+
+      {/* 2.6 SLEEK YOUTUBE PROGRESS BAR */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: 4,
+          background: 'rgba(255, 255, 255, 0.12)',
+          zIndex: 60,
+          pointerEvents: 'none',
+        }}
+      >
+        <div
+          style={{
+            height: '100%',
+            width: `${Math.min(100, Math.max(0, (currentTime / totalDuration) * 100))}%`,
+            background: 'linear-gradient(90deg, #38BDF8 0%, #818CF8 50%, #C084FC 100%)',
+            boxShadow: '0 0 12px rgba(99, 102, 241, 0.85)',
+          }}
+        />
+      </div>
 
       {/* 3. SOUND EFFECTS LAYER (WHOOSH / RISER / AMBIENT HITS ON SCENES) */}
       {sfxEvents.map((sfx, sfxIdx) => {

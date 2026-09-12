@@ -571,20 +571,26 @@ export async function POST(request: Request) {
         fitMode,
       });
 
-      // SFX Events: Verified Whoosh at scene transitions (throttled to avoid exhausting browser audio decoders on long renders)
-      const whooshSfxUrl = getSfxUrl('whoosh') || 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939729/whoosh-in_ygnjid.mp3';
+      // SFX Events: Cinematic sound design pack across scene transitions
+      // Rotates between whoosh, camera snap, and sub-bass hit for rhythmic excitement
+      const sfxLibrary = [
+        'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939729/whoosh-in_ygnjid.mp3', // dynamic whoosh
+        'https://res.cloudinary.com/dhouh9idx/video/upload/v1788093485/click_aydqtp.mp3',      // subtle snap / shutter
+        'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939729/whoosh-in_ygnjid.mp3', // whoosh
+        'https://res.cloudinary.com/dhouh9idx/video/upload/v1788093466/bass-drop_sn3ngm.mp3',  // cinematic low bass thud
+      ];
       const enableSfx = body.enableSfx !== false;
-      const sfxStride = Math.max(1, Math.floor(scenes.length / 15));
+      const sfxStride = Math.max(1, Math.floor(scenes.length / 14));
       const sfxEvents = enableSfx
         ? scenes
             .slice(1)
             .filter((_, idx) => idx % sfxStride === 0)
-            .slice(0, 10)
+            .slice(0, 14)
             .map((s, idx) => ({
-              id: `sfx-whoosh-${idx + 1}`,
-              sfxUrl: whooshSfxUrl,
+              id: `sfx-event-${idx + 1}`,
+              sfxUrl: sfxLibrary[idx % sfxLibrary.length],
               startFrame: Math.floor(s.startSeconds * 30),
-              volume: 0.18,
+              volume: idx % sfxLibrary.length === 3 ? 0.14 : 0.16,
             }))
         : [];
 
