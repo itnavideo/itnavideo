@@ -43,7 +43,7 @@ const ACTIVE_TEMPLATES: WorkflowTemplate[] = [
     description: 'Turn voiceover audio and photos into cinematic 16:9 videos with continuous Ken Burns motion, 2.5D parallax subtitles, and transitions.',
     inputs: 'Voiceover Audio + Photos (No Limit)',
     aspectRatio: '16:9',
-    aspectRatioBadge: '16:9 Widescreen • 30 FPS • Max 30 Min',
+    aspectRatioBadge: '16:9 Widescreen • Max 30 Min • Powered by Google Cloud',
     imageSrc: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788780290/ChatGPT_Image_Sep_7_2026_04_53_09_PM_suv9x7.png',
     icon: MonitorPlay,
     href: '/tools/image-to-video-ai',
@@ -311,7 +311,7 @@ export default function WhatCanYouCreate() {
 
                     <div className="absolute top-2.5 left-2.5 flex items-center gap-1 rounded-full bg-black/75 backdrop-blur-xs px-2.5 py-1 text-[10px] font-bold text-white border border-white/20">
                       <Tv size={11} className="text-amber-400" />
-                      <span>16:9 Widescreen YouTube</span>
+                      <span>{template.aspectRatioBadge}</span>
                     </div>
 
                     {template.popular && (
