@@ -426,7 +426,7 @@ const ParallaxSubtitleLayer: React.FC<{
     >
       <div
         style={{
-          maxWidth: '82%',
+          maxWidth: '85%',
           textAlign: 'center',
           ...containerStyle,
         }}
@@ -434,7 +434,10 @@ const ParallaxSubtitleLayer: React.FC<{
         <p
           style={{
             margin: 0,
-            fontSize: 44,
+            fontSize: 42,
+            lineHeight: 1.30,
+            wordBreak: 'break-word',
+            whiteSpace: 'pre-wrap',
             ...textStyle,
           }}
         >

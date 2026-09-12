@@ -540,7 +540,8 @@ export async function POST(request: Request) {
 
       markTiming('image_to_video_transcription_ms');
       const renderWindow = selectRenderWindow(itvTranscription, MAX_IMAGE_TO_VIDEO_SECONDS);
-      const captions = buildCompareCaptionsFromGroq(renderWindow);
+      // Widescreen 16:9 natural documentary captions (8-12 words, complete sentences/clauses)
+      const captions = buildWidescreen16x9Captions(renderWindow);
 
       // Load rich 16:9 images from Cloudinary library (assets.json)
       const catalogAssets = getAssetsByFolder('images');
@@ -562,80 +563,13 @@ export async function POST(request: Request) {
 
       const fitMode = (readString(body.fitMode) as 'blur-fill' | 'cover') || 'blur-fill';
 
-      // Split speech into scene chunks (1 scene per sentence/thought line)
-      const rawSegments = renderWindow.segments || [];
-      const scenes: Array<{
-        id: string;
-        startSeconds: number;
-        endSeconds: number;
-        imageUrl: string;
-        text: string;
-        cameraMotion: 'zoom-in' | 'zoom-out' | 'pan-left' | 'pan-right' | 'pan-up' | 'pan-down';
-        transition: 'hard-cut' | 'dissolve' | 'push-left' | 'push-right';
-        fitMode?: 'blur-fill' | 'cover';
-      }> = [];
-
-      let motions: Array<'zoom-in' | 'pan-left' | 'zoom-out' | 'pan-right' | 'pan-up' | 'pan-down'>;
-      let transitions: Array<'dissolve' | 'push-left' | 'dissolve' | 'push-right' | 'hard-cut'>;
-
-      if (cameraMotionPreset === 'dynamic-flow') {
-        motions = ['zoom-in', 'pan-right', 'zoom-out', 'pan-left', 'pan-up', 'pan-down'];
-        transitions = ['push-left', 'dissolve', 'push-right', 'hard-cut', 'dissolve'];
-      } else if (cameraMotionPreset === 'subtle-drift') {
-        motions = ['zoom-in', 'zoom-out', 'zoom-in', 'zoom-out'];
-        transitions = ['dissolve', 'dissolve', 'dissolve'];
-      } else {
-        // Default: ken-burns cinematic
-        motions = ['zoom-in', 'pan-left', 'zoom-out', 'pan-right', 'zoom-in', 'pan-left'];
-        transitions = ['dissolve', 'push-left', 'dissolve', 'push-right', 'dissolve'];
-      }
-
-      if (rawSegments.length > 0) {
-        rawSegments.forEach((seg: { start: number; end: number; text: string }, idx: number) => {
-          const startSeconds = Math.max(0, Number(seg.start) || 0);
-          const endSeconds = Math.min(renderWindow.durationSeconds, Math.max(startSeconds + 1.2, Number(seg.end) || (startSeconds + 3)));
-          scenes.push({
-            id: `scene-${idx + 1}`,
-            startSeconds,
-            endSeconds,
-            imageUrl: imagePool[idx % imagePool.length],
-            text: String(seg.text || '').trim(),
-            cameraMotion: motions[idx % motions.length],
-            transition: transitions[idx % transitions.length],
-            fitMode,
-          });
-        });
-      } else {
-        // Fallback: chunk duration into 4.5-second scenes
-        const sceneCount = Math.max(1, Math.ceil(renderWindow.durationSeconds / 4.5));
-        const sceneDuration = renderWindow.durationSeconds / sceneCount;
-        for (let idx = 0; idx < sceneCount; idx++) {
-          const start = idx * sceneDuration;
-          const end = idx === sceneCount - 1 ? renderWindow.durationSeconds : (idx + 1) * sceneDuration;
-          scenes.push({
-            id: `scene-${idx + 1}`,
-            startSeconds: start,
-            endSeconds: end,
-            imageUrl: imagePool[idx % imagePool.length],
-            text: '',
-            cameraMotion: motions[idx % motions.length],
-            transition: transitions[idx % transitions.length],
-            fitMode,
-          });
-        }
-      }
-
-      // Ensure contiguous scenes spanning full duration without inverted timestamps
-      if (scenes.length > 0) {
-        scenes[0].startSeconds = 0;
-        for (let i = 0; i < scenes.length - 1; i++) {
-          if (scenes[i + 1].startSeconds <= scenes[i].startSeconds + 0.5) {
-            scenes[i + 1].startSeconds = scenes[i].startSeconds + 0.5;
-          }
-          scenes[i].endSeconds = scenes[i + 1].startSeconds;
-        }
-        scenes[scenes.length - 1].endSeconds = renderWindow.durationSeconds;
-      }
+      // Build dynamic, high-retention 16:9 scene cuts paced to script lines (~2.2s - 3.5s per cut)
+      const scenes = buildWidescreen16x9Scenes({
+        renderWindow,
+        imagePool,
+        cameraMotionPreset,
+        fitMode,
+      });
 
       // SFX Events: Verified Whoosh at scene transitions (throttled to avoid exhausting browser audio decoders on long renders)
       const whooshSfxUrl = getSfxUrl('whoosh') || 'https://res.cloudinary.com/dhouh9idx/video/upload/v1787939729/whoosh-in_ygnjid.mp3';
@@ -2920,6 +2854,285 @@ function buildCompareCaptionsFromGroq(renderWindow: {
     end: roundSeconds((fallbackDuration / totalChunks) * (index + 1)),
     text: fallbackWords.slice(index * chunkSize, index * chunkSize + chunkSize).join(' '),
   })).filter((caption) => caption.text.trim());
+}
+
+/**
+ * Generates natural, readable widescreen (16:9) captions for YouTube explainer / documentary videos.
+ * Unlike vertical 9:16 reels which break every 1-4 words, 16:9 widescreen has ample horizontal space,
+ * so captions group full thoughts, clauses, or sentences (8-12 words, 2.5-4.0s) for comfortable reading.
+ */
+function buildWidescreen16x9Captions(renderWindow: {
+  transcript: string;
+  words?: ReelWord[];
+  segments?: ReelTranscriptSegment[];
+  durationSeconds: number;
+}) {
+  const words = (renderWindow.words || [])
+    .filter((word) => readString(word.word) && Number.isFinite(word.start) && Number.isFinite(word.end))
+    .map((word) => ({
+      start: Math.max(0, Number(word.start)),
+      end: Math.max(Number(word.start) + 0.12, Number(word.end)),
+      word: readString(word.word),
+    }));
+
+  if (words.length) {
+    type CaptionGroup = {start: number; end: number; text: string; words?: Array<{word: string; start: number; end: number}>};
+    const captions: CaptionGroup[] = [];
+    let group: typeof words = [];
+
+    // Tuned specifically for 16:9 widescreen:
+    // Full sentence lines or clauses: 8-12 words, up to 3.8s, max 65 chars
+    const MAX_WORDS = 11;
+    const MAX_SECONDS = 3.8;
+    const MAX_CHARS = 65;
+    const PAUSE_GAP_SECONDS = 0.55;
+
+    const flush = () => {
+      if (!group.length) return;
+      captions.push({
+        start: roundSeconds(group[0].start),
+        end: roundSeconds(Math.max(group[group.length - 1].end, group[0].start + 0.8)),
+        text: group.map((item) => item.word).join(' '),
+        words: group.map((item) => ({word: item.word, start: roundSeconds(item.start), end: roundSeconds(item.end)})),
+      });
+      group = [];
+    };
+
+    for (let i = 0; i < words.length; i++) {
+      const word = words[i];
+      if (group.length) {
+        const groupStart = group[0].start;
+        const lastWord = group[group.length - 1];
+        const currentChars = group.reduce((total, item) => total + item.word.length + 1, 0);
+        const endsSentence = /[.!?:]$/.test(lastWord.word);
+        const isClauseBreak = /[,;-]$/.test(lastWord.word) && (group.length >= 6 || word.start - groupStart >= 2.2);
+        const pause = word.start - lastWord.end;
+        const shouldBreak =
+          group.length >= MAX_WORDS ||
+          word.end - groupStart > MAX_SECONDS ||
+          currentChars + word.word.length + 1 > MAX_CHARS ||
+          pause > PAUSE_GAP_SECONDS ||
+          endsSentence ||
+          isClauseBreak;
+        if (shouldBreak) flush();
+      }
+      group.push(word);
+    }
+    flush();
+
+    // Merge a tiny orphan final group (1-2 words) into previous caption for clean presentation
+    if (captions.length >= 2) {
+      const last = captions[captions.length - 1];
+      const lastWordCount = last.words?.length ?? last.text.split(/\s+/).length;
+      if (lastWordCount <= 2 && last.end - last.start < 1.0) {
+        const prev = captions[captions.length - 2];
+        prev.end = last.end;
+        prev.text = `${prev.text} ${last.text}`.trim();
+        if (prev.words && last.words) prev.words = [...prev.words, ...last.words];
+        captions.pop();
+      }
+    }
+
+    return captions.filter((caption) => caption.text.trim());
+  }
+
+  const segments = (renderWindow.segments || [])
+    .filter((segment) => readString(segment.text) && Number.isFinite(segment.start) && Number.isFinite(segment.end));
+
+  if (segments.length) {
+    return segments.flatMap((segment) => {
+      const parts = readString(segment.text).split(/\s+/).filter(Boolean);
+      const chunks: Array<{start: number; end: number; text: string}> = [];
+      const chunkSize = 10;
+      const duration = Math.max(1.0, Number(segment.end) - Number(segment.start));
+      const totalChunks = Math.max(1, Math.ceil(parts.length / chunkSize));
+
+      for (let index = 0; index < totalChunks; index += 1) {
+        const chunkWords = parts.slice(index * chunkSize, index * chunkSize + chunkSize);
+        const start = Number(segment.start) + (duration / totalChunks) * index;
+        const end = Number(segment.start) + (duration / totalChunks) * (index + 1);
+        chunks.push({
+          start: roundSeconds(start),
+          end: roundSeconds(end),
+          text: chunkWords.join(' '),
+        });
+      }
+
+      return chunks;
+    });
+  }
+
+  const fallbackWords = readString(renderWindow.transcript).split(/\s+/).filter(Boolean);
+  const fallbackDuration = Math.max(1, renderWindow.durationSeconds || MAX_RENDER_WINDOW_SECONDS);
+  const chunkSize = 10;
+  const totalChunks = Math.max(1, Math.ceil(fallbackWords.length / chunkSize));
+
+  return Array.from({length: totalChunks}).map((_, index) => ({
+    start: roundSeconds((fallbackDuration / totalChunks) * index),
+    end: roundSeconds((fallbackDuration / totalChunks) * (index + 1)),
+    text: fallbackWords.slice(index * chunkSize, index * chunkSize + chunkSize).join(' '),
+  })).filter((caption) => caption.text.trim());
+}
+
+/**
+ * Creates dynamic, high-retention image scenes for 16:9 YouTube explainers and documentaries.
+ * Paces image cuts frequently (~2.2s - 3.5s per cut, aligned with script lines, sentences, or pauses).
+ * Never lets an image linger longer than 3.6s without a camera motion cut or new visual.
+ */
+function buildWidescreen16x9Scenes(options: {
+  renderWindow: {
+    transcript: string;
+    words?: ReelWord[];
+    segments?: ReelTranscriptSegment[];
+    durationSeconds: number;
+  };
+  imagePool: string[];
+  cameraMotionPreset: string;
+  fitMode: 'blur-fill' | 'cover';
+}) {
+  const { renderWindow, imagePool, cameraMotionPreset, fitMode } = options;
+  const totalDuration = Math.max(1, renderWindow.durationSeconds);
+
+  let motions: Array<'zoom-in' | 'pan-left' | 'zoom-out' | 'pan-right' | 'pan-up' | 'pan-down'>;
+  let transitions: Array<'dissolve' | 'push-left' | 'dissolve' | 'push-right' | 'hard-cut'>;
+
+  if (cameraMotionPreset === 'dynamic-flow') {
+    motions = ['zoom-in', 'pan-right', 'zoom-out', 'pan-left', 'pan-up', 'pan-down'];
+    transitions = ['push-left', 'dissolve', 'push-right', 'hard-cut', 'dissolve'];
+  } else if (cameraMotionPreset === 'subtle-drift') {
+    motions = ['zoom-in', 'zoom-out', 'zoom-in', 'zoom-out', 'pan-left', 'pan-right'];
+    transitions = ['dissolve', 'dissolve', 'dissolve'];
+  } else {
+    // Default: ken-burns cinematic documentary pacing
+    motions = ['zoom-in', 'pan-left', 'zoom-out', 'pan-right', 'pan-up', 'zoom-in'];
+    transitions = ['dissolve', 'push-left', 'dissolve', 'push-right', 'dissolve'];
+  }
+
+  const scenes: Array<{
+    id: string;
+    startSeconds: number;
+    endSeconds: number;
+    imageUrl: string;
+    text: string;
+    cameraMotion: 'zoom-in' | 'zoom-out' | 'pan-left' | 'pan-right' | 'pan-up' | 'pan-down';
+    transition: 'hard-cut' | 'dissolve' | 'push-left' | 'push-right';
+    fitMode?: 'blur-fill' | 'cover';
+  }> = [];
+
+  const words = (renderWindow.words || [])
+    .filter((w) => readString(w.word) && Number.isFinite(w.start) && Number.isFinite(w.end))
+    .map((w) => ({
+      word: readString(w.word),
+      start: Math.max(0, Number(w.start)),
+      end: Math.max(Number(w.start) + 0.1, Number(w.end)),
+    }));
+
+  if (words.length > 5) {
+    // Cut based on script lines & natural sentence boundaries
+    let sceneStartIndex = 0;
+    let sceneStartSec = words[0].start;
+
+    for (let i = 0; i < words.length; i++) {
+      const currentWord = words[i];
+      const nextWord = i < words.length - 1 ? words[i + 1] : null;
+      const durationSoFar = currentWord.end - sceneStartSec;
+      const endsSentence = /[.!?]$/.test(currentWord.word);
+      const endsClause = /[,;:-]$/.test(currentWord.word);
+      const speechPause = nextWord ? (nextWord.start - currentWord.end) : 0;
+
+      const isLastWord = i === words.length - 1;
+      const shouldCut =
+        isLastWord ||
+        // Sentence finished and scene has played at least 2.0 seconds
+        (endsSentence && durationSoFar >= 2.0) ||
+        // Clause finished and scene has played at least 2.5 seconds
+        (endsClause && durationSoFar >= 2.5) ||
+        // Natural speech pause between phrases and scene has played at least 2.0 seconds
+        (speechPause > 0.38 && durationSoFar >= 2.0) ||
+        // Hard maximum duration: keep cuts frequent (max 3.6 seconds per cut)
+        (durationSoFar >= 3.6);
+
+      if (shouldCut) {
+        const sceneWords = words.slice(sceneStartIndex, i + 1);
+        const sceneEndSec = isLastWord ? totalDuration : currentWord.end;
+        const sceneIndex = scenes.length;
+
+        scenes.push({
+          id: `scene-${sceneIndex + 1}`,
+          startSeconds: roundSeconds(sceneStartSec),
+          endSeconds: roundSeconds(sceneEndSec),
+          imageUrl: imagePool[sceneIndex % imagePool.length],
+          text: sceneWords.map((w) => w.word).join(' '),
+          cameraMotion: motions[sceneIndex % motions.length],
+          transition: transitions[sceneIndex % transitions.length],
+          fitMode,
+        });
+
+        if (nextWord) {
+          sceneStartIndex = i + 1;
+          sceneStartSec = nextWord.start;
+        }
+      }
+    }
+  } else if (renderWindow.segments && renderWindow.segments.length > 0) {
+    // If only segments available, split segments > 3.6s into 2.5-3.2s sub-scenes
+    renderWindow.segments.forEach((seg) => {
+      const segStart = Math.max(0, Number(seg.start) || 0);
+      const segEnd = Math.min(totalDuration, Number(seg.end) || (segStart + 3));
+      const segDur = Math.max(1, segEnd - segStart);
+      const subSceneCount = Math.max(1, Math.ceil(segDur / 3.2));
+      const subDur = segDur / subSceneCount;
+
+      for (let s = 0; s < subSceneCount; s++) {
+        const start = segStart + s * subDur;
+        const end = s === subSceneCount - 1 ? segEnd : start + subDur;
+        const sceneIndex = scenes.length;
+
+        scenes.push({
+          id: `scene-${sceneIndex + 1}`,
+          startSeconds: roundSeconds(start),
+          endSeconds: roundSeconds(end),
+          imageUrl: imagePool[sceneIndex % imagePool.length],
+          text: s === 0 ? String(seg.text || '').trim() : '',
+          cameraMotion: motions[sceneIndex % motions.length],
+          transition: transitions[sceneIndex % transitions.length],
+          fitMode,
+        });
+      }
+    });
+  } else {
+    // Fallback: dynamic 3.0-second rapid cuts across the whole duration
+    const sceneCount = Math.max(1, Math.ceil(totalDuration / 3.0));
+    const sceneDuration = totalDuration / sceneCount;
+    for (let idx = 0; idx < sceneCount; idx++) {
+      const start = idx * sceneDuration;
+      const end = idx === sceneCount - 1 ? totalDuration : (idx + 1) * sceneDuration;
+      scenes.push({
+        id: `scene-${idx + 1}`,
+        startSeconds: roundSeconds(start),
+        endSeconds: roundSeconds(end),
+        imageUrl: imagePool[idx % imagePool.length],
+        text: '',
+        cameraMotion: motions[idx % motions.length],
+        transition: transitions[idx % transitions.length],
+        fitMode,
+      });
+    }
+  }
+
+  // Ensure 100% contiguous timeline from 0 to totalDuration without gaps or overlaps
+  if (scenes.length > 0) {
+    scenes[0].startSeconds = 0;
+    for (let i = 0; i < scenes.length - 1; i++) {
+      if (scenes[i + 1].startSeconds <= scenes[i].startSeconds + 0.5) {
+        scenes[i + 1].startSeconds = scenes[i].startSeconds + 0.5;
+      }
+      scenes[i].endSeconds = scenes[i + 1].startSeconds;
+    }
+    scenes[scenes.length - 1].endSeconds = totalDuration;
+  }
+
+  return scenes;
 }
 
 /**
