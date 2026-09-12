@@ -1,13 +1,29 @@
 'use client';
 
+import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Captions, Check, Clock3, Film, Laptop, MonitorPlay, Shield, Volume2 } from 'lucide-react';
+import { ArrowRight, Captions, Check, Clock3, Film, Laptop, MonitorPlay, Shield, Volume2, Play } from 'lucide-react';
 
 export default function LongVideoShowcase() {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const handlePlay = () => {
+    setIsPlaying(true);
+  };
+
   return (
-    <section className="relative overflow-hidden px-4 py-20 sm:px-6 sm:py-28 bg-[#090D16] border-y border-white/5">
+    <section className="relative overflow-hidden px-4 py-24 sm:px-6 sm:py-32 bg-[#090D16] border-y border-slate-800/80">
+      {/* Smooth Ambient Top Glow & Transition Divider */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-500/60 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-slate-900/50 via-slate-950/20 to-transparent" />
+
+      {/* Smooth Ambient Bottom Glow & Transition Divider */}
+      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-sky-500/60 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-slate-900/50 via-slate-950/20 to-transparent" />
+
       {/* Background ambient lighting (M3 Elevation Glow) */}
       <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 h-[500px] w-[800px] rounded-full bg-gradient-to-b from-sky-500/10 via-amber-500/5 to-transparent blur-3xl" />
       <div className="pointer-events-none absolute inset-0 opacity-[0.02] [background-image:radial-gradient(circle_at_25%_25%,rgba(56,189,248,1)_1px,transparent_1px)] [background-size:40px_40px]" />
@@ -47,7 +63,7 @@ export default function LongVideoShowcase() {
           </motion.p>
         </div>
 
-        {/* Hero visual: laptop frame with preview */}
+        {/* Hero visual: laptop frame with interactive video player */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -55,25 +71,57 @@ export default function LongVideoShowcase() {
           className="mx-auto mb-16 max-w-4xl"
         >
           <div className="rounded-[20px] border-[6px] border-slate-900 bg-background p-1 shadow-[0_30px_80px_rgba(56,189,248,0.15),0_8px_24px_rgba(0,0,0,0.5)]">
-            <div className="relative aspect-video overflow-hidden rounded-[12px] bg-slate-950">
-              <Image
-                src="https://res.cloudinary.com/dhouh9idx/image/upload/v1788190063/file_0000000089c48211b67c16fe3c2636a2_prirg0.png"
-                alt="Faceless Video 16:9 YouTube output preview"
-                fill
-                sizes="(min-width: 1024px) 900px, 90vw"
-                className="object-cover"
-                priority
-              />
-              {/* Overlay pill */}
-              <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-              <div className="absolute bottom-[10%] left-1/2 -translate-x-1/2 rounded-full border border-white/15 bg-black/75 px-6 py-2.5 text-center backdrop-blur-md">
-                <p className="text-xs sm:text-sm font-bold text-white flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                  Faceless Video • 16:9 YouTube • Voiceover Only • Up to 20 Min
-                </p>
-              </div>
+            <div className="relative aspect-video overflow-hidden rounded-[12px] bg-slate-950 group">
+              {isPlaying ? (
+                <video
+                  ref={videoRef}
+                  src="https://res.cloudinary.com/dhouh9idx/video/upload/v1788193725/Video-76814_cpmpp1.mp4"
+                  controls
+                  autoPlay
+                  playsInline
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <>
+                  <Image
+                    src="https://res.cloudinary.com/dhouh9idx/image/upload/v1788190063/file_0000000089c48211b67c16fe3c2636a2_prirg0.png"
+                    alt="Faceless Video 16:9 YouTube output preview"
+                    fill
+                    sizes="(min-width: 1024px) 900px, 90vw"
+                    className="object-cover transition duration-500 group-hover:scale-102"
+                    priority
+                  />
+                  {/* Overlay pill */}
+                  <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none" />
+                  <div className="absolute bottom-[8%] left-1/2 -translate-x-1/2 rounded-full border border-white/15 bg-black/75 px-5 py-2 text-center backdrop-blur-md z-10 pointer-events-none">
+                    <p className="text-xs sm:text-sm font-bold text-white flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                      Faceless Video • 16:9 YouTube • Voiceover Only • Up to 20 Min
+                    </p>
+                  </div>
+
+                  {/* Interactive Play Sample Video Button */}
+                  <button
+                    type="button"
+                    onClick={handlePlay}
+                    className="absolute inset-0 flex items-center justify-center bg-black/25 hover:bg-black/40 transition duration-300 cursor-pointer group/play"
+                    aria-label="Play Faceless Video Sample"
+                  >
+                    <div className="flex items-center gap-3 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-3.5 text-white shadow-2xl shadow-orange-500/50 transition-all duration-300 group-hover/play:scale-105 active:scale-95 border border-white/20">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-orange-600 shadow-md">
+                        <Play size={20} className="ml-0.5 fill-current" />
+                      </div>
+                      <div className="text-left">
+                        <span className="block text-[11px] font-black uppercase tracking-wider text-amber-100">Click To Watch</span>
+                        <span className="block text-sm font-extrabold text-white">Play 16:9 Demo Video</span>
+                      </div>
+                    </div>
+                  </button>
+                </>
+              )}
+
               {/* Camera dot */}
-              <span className="absolute left-1/2 top-2 h-1.5 w-7 -translate-x-1/2 rounded-full bg-slate-700" />
+              <span className="absolute left-1/2 top-2 h-1.5 w-7 -translate-x-1/2 rounded-full bg-slate-700 pointer-events-none z-10" />
             </div>
           </div>
           {/* Laptop base */}
