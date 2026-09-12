@@ -169,11 +169,33 @@ export async function upsertRenderHistoryFromServer(data) {
     expires_at: expiresAt.toISOString(),
   };
 
-  const { data: result, error } = await supabase
+  // Check if this render_id already exists to avoid missing unique constraint errors on onConflict
+  const { data: existing } = await supabase
     .from('render_history')
-    .upsert(row, { onConflict: 'render_id' })
-    .select()
-    .single();
+    .select('id')
+    .eq('render_id', renderId)
+    .maybeSingle();
+
+  let result;
+  let error;
+  if (existing?.id) {
+    const updateRes = await supabase
+      .from('render_history')
+      .update(row)
+      .eq('id', existing.id)
+      .select()
+      .maybeSingle();
+    result = updateRes.data;
+    error = updateRes.error;
+  } else {
+    const insertRes = await supabase
+      .from('render_history')
+      .insert(row)
+      .select()
+      .maybeSingle();
+    result = insertRes.data;
+    error = insertRes.error;
+  }
 
   if (error) throw new Error(`Supabase render history write failed: ${error.message}`);
   return result;

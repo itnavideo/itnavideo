@@ -1,6 +1,7 @@
 import {NextResponse} from 'next/server';
 import {getRenderProgress, type AwsRegion} from '@remotion/lambda/client';
 import {recordRenderUsageFromServer, releaseReservedRenderUsageFromServer} from '@/services/billing/renderAccess';
+import {upsertRenderHistoryFromServer} from '@/services/supabase/siteStore';
 import {createReadUrl} from '@/lib/aws/mediaStorage';
 
 export const runtime = 'nodejs';
@@ -70,6 +71,24 @@ export async function GET(request: Request) {
     ].filter(Boolean);
     let usageWarning = '';
     if (progress.done && userId && !hasFatalError && hasOutput) {
+      try {
+        await upsertRenderHistoryFromServer({
+          userId,
+          renderId,
+          bucketName,
+          mode: mode || 'imageToVideoAi',
+          design: title || 'AI Video',
+          title: title || 'Itnavideo reel',
+          outputFile: progress.outputFile,
+          outputSizeInBytes: progress.outputSizeInBytes,
+          costs: progress.costs,
+          createdAt: new Date().toISOString(),
+          expiresAt: new Date(Date.now() + 48 * 3600 * 1000).toISOString(),
+        });
+      } catch (histError) {
+        console.error('Server render history write failed:', histError);
+      }
+
       try {
         await recordRenderUsageFromServer({
           userId,

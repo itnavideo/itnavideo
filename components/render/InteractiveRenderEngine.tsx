@@ -18,6 +18,7 @@ import {
   ChevronUp,
   X,
 } from 'lucide-react';
+import { playRenderSuccessSound } from '@/lib/renderNotifications';
 
 export type Mode = string;
 
@@ -140,22 +141,7 @@ export default function InteractiveRenderEngine({
   // Play audio Chime when ready
   useEffect(() => {
     if (isReady && soundEnabled) {
-      try {
-        const audioCtx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(659.25, audioCtx.currentTime + 0.15);
-        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.35);
-      } catch {
-        // Audio autoplay blocked
-      }
+      playRenderSuccessSound();
     }
   }, [isReady, soundEnabled]);
 

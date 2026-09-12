@@ -63,6 +63,13 @@ import type { LucideIcon } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthContext";
 import { SubtitleStylePicker, SUBTITLE_PRESETS } from "@/components/ui/SubtitleStylePicker";
 import { calculateRenderCreditUnits, formatCreditUnits, type BillableRenderMode } from "@/lib/billing/creditPricing";
+import {
+  requestRenderNotificationPermission,
+  triggerRenderCompletionNotification,
+  saveActiveRender,
+  loadActiveRender,
+  clearActiveRender,
+} from "@/lib/renderNotifications";
 import dynamic from "next/dynamic";
 
 // Lazy-load PreviewEditor — only loaded when user triggers preview
@@ -634,7 +641,52 @@ export default function DashboardPage() {
     loadServerRecentRenders(user.id, localRenders).then(setRecentRenders).catch((error) => {
       console.warn("Could not load Supabase render history:", error);
     });
+
+    // Check if an active render was left in flight (e.g. user refreshed, closed tab, or switched apps)
+    const active = loadActiveRender(user.id);
+    if (active) {
+      setJobStatus({
+        state: "rendering",
+        message: "Resuming your video render...",
+        progress: 0.82,
+        renderId: active.renderId,
+        bucketName: active.bucketName,
+        title: active.title,
+        design: active.design || "Auto from script",
+      });
+      pollRender(active.renderId, active.bucketName, user.id, {
+        title: active.title,
+        design: active.design || "Auto from script",
+      });
+    }
+
     return () => window.clearTimeout(timer);
+  }, [user]);
+
+  // When user switches back to this browser tab from other apps or tabs, immediately sync
+  useEffect(() => {
+    if (!user) return;
+    const onVisibilityOrFocus = () => {
+      if (typeof document !== "undefined" && document.visibilityState === "visible") {
+        const active = loadActiveRender(user.id);
+        if (active) {
+          pollRender(active.renderId, active.bucketName, user.id, {
+            title: active.title,
+            design: active.design || "Auto from script",
+          });
+        }
+        loadServerRecentRenders(user.id, loadRecentRenders(user.id))
+          .then(setRecentRenders)
+          .catch(() => {});
+      }
+    };
+
+    document.addEventListener("visibilitychange", onVisibilityOrFocus);
+    window.addEventListener("focus", onVisibilityOrFocus);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibilityOrFocus);
+      window.removeEventListener("focus", onVisibilityOrFocus);
+    };
   }, [user]);
 
   useEffect(() => {
@@ -3712,6 +3764,8 @@ export default function DashboardPage() {
         : "Auto from script";
 
       if (job.status === "ready" && typeof job.outputFile === "string" && job.outputFile) {
+        clearActiveRender(userId);
+        triggerRenderCompletionNotification(plannedTitle, job.outputFile);
         const renderId = typeof job.renderId === "string" && job.renderId ? job.renderId : `direct-${Date.now()}`;
         const bucketName = typeof job.bucketName === "string" ? job.bucketName : "";
         const finishedRender: RecentRender = {
@@ -3758,6 +3812,18 @@ export default function DashboardPage() {
         });
         return;
       }
+
+      // Request browser desktop notification permission and save active render in localStorage
+      requestRenderNotificationPermission();
+      saveActiveRender(userId, {
+        renderId: job.renderId,
+        bucketName: job.bucketName,
+        userId,
+        mode,
+        title: plannedTitle,
+        design: plannedDesign,
+        startedAt: Date.now(),
+      });
 
       const renderingMessage = mode === "longVideoPromo"
         ? "Rendering your promo MP4. No transcription or caption planning is running."
@@ -3814,6 +3880,7 @@ export default function DashboardPage() {
       } catch (error) {
         consecutivePollErrors += 1;
         if (consecutivePollErrors >= 10) {
+          clearActiveRender(userId);
           setJobStatus({state: "error", message: formatNetworkError(error, "Could not read render progress. Connection lost."), renderId, bucketName, ...meta});
           return;
         }
@@ -3829,6 +3896,7 @@ export default function DashboardPage() {
         continue;
       }
       if (!status.ok || status.state === "error") {
+        clearActiveRender(userId);
         setJobStatus({
           state: "error",
           message: status.error || (status.errors?.[0]?.message ? sanitizeUserFacingStatus(status.errors[0].message) : "Render failed."),
@@ -3841,6 +3909,7 @@ export default function DashboardPage() {
         return;
       }
       if (status.done && status.errors?.length) {
+        clearActiveRender(userId);
         setJobStatus({
           state: "error",
           message: sanitizeUserFacingStatus(status.errors[0]?.message || "Render failed."),
@@ -3853,6 +3922,8 @@ export default function DashboardPage() {
         return;
       }
       if (status.done) {
+        clearActiveRender(userId);
+        triggerRenderCompletionNotification(meta.title, status.outputFile);
         const finishedRender: RecentRender = {
           id: renderId,
           title: meta.title,
@@ -3894,6 +3965,7 @@ export default function DashboardPage() {
         ...meta,
       }));
     }
+    clearActiveRender(userId);
     setJobStatus({
       state: "error",
       message: "Render is still processing longer than expected. Your upload is still selected, so you can retry without uploading again.",
@@ -4016,6 +4088,7 @@ export default function DashboardPage() {
       }
     }
 
+    clearActiveRender(userId);
     const successfulClips = activeClips.filter(c => c.status === "done");
     if (successfulClips.length === 0) {
       setJobStatus({
@@ -4025,6 +4098,7 @@ export default function DashboardPage() {
         ...meta,
       });
     } else {
+      triggerRenderCompletionNotification(meta.title, successfulClips[0].outputFile);
       setJobStatus({
         state: "ready",
         message: `Successfully generated ${successfulClips.length} high-quality viral clips!`,
