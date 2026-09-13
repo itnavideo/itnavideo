@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useMemo } from "react";
+import React, { useState, useRef, useMemo, useEffect } from "react";
 import Image from "next/image";
 import {
   Mic,
@@ -213,7 +213,7 @@ export const IMAGE_TO_VIDEO_SUBTITLE_STYLES: ImageToVideoSubtitleStylePreset[] =
 export function ImageToVideoStudio({
   selectedAudio,
   onSelectAudio,
-  imageFiles,
+  imageFiles = [],
   onAddImages,
   onRemoveImage,
   bgmEnabled = true,
@@ -222,17 +222,17 @@ export function ImageToVideoStudio({
   onChangeSelectedLibraryBgmUrl,
   bgmFile,
   onSelectBgm,
-  bgmVolume,
+  bgmVolume = 0.15,
   onChangeBgmVolume,
-  topicTitle,
+  topicTitle = '',
   onChangeTopicTitle,
-  subtitleStyle,
+  subtitleStyle = 'parallax-modern',
   onChangeSubtitleStyle,
-  cameraMotionPreset,
+  cameraMotionPreset = 'ken-burns',
   onChangeCameraMotionPreset,
   fitMode = 'blur-fill',
   onChangeFitMode,
-  isRendering,
+  isRendering = false,
   onStartRender,
   userCredits,
   estimatedDurationSeconds = 60,
@@ -294,7 +294,7 @@ export function ImageToVideoStudio({
   const [uploadedAudioUrl, setUploadedAudioUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    if (selectedAudio && !generatedVoiceMeta) {
+    if (selectedAudio && !generatedVoiceMeta && typeof window !== 'undefined' && selectedAudio instanceof Blob) {
       const url = URL.createObjectURL(selectedAudio);
       setUploadedAudioUrl(url);
       return () => {
@@ -608,15 +608,16 @@ export function ImageToVideoStudio({
 
   // Object URLs for image previews
   const imagePreviews = useMemo(() => {
-    return imageFiles.map((file) => ({
+    if (!Array.isArray(imageFiles)) return [];
+    return imageFiles.filter(Boolean).map((file) => ({
       file,
-      url: URL.createObjectURL(file),
-      name: file.name,
+      url: typeof window !== 'undefined' && file instanceof Blob ? URL.createObjectURL(file) : '',
+      name: file.name || 'image',
     }));
   }, [imageFiles]);
 
   const customBgmUrl = useMemo(() => {
-    return bgmFile ? URL.createObjectURL(bgmFile) : null;
+    return bgmFile && typeof window !== 'undefined' && bgmFile instanceof Blob ? URL.createObjectURL(bgmFile) : null;
   }, [bgmFile]);
 
   useEffect(() => {
@@ -1109,11 +1110,11 @@ export function ImageToVideoStudio({
                 )}
               </div>
             )}
-          </div>
 
-          <div className="mt-4 flex items-center gap-2 text-[11px] text-zinc-500 font-medium">
-            <ShieldCheck size={14} className="text-emerald-400 shrink-0" />
-            <span>Studio Neural2 audio powered by Google Cloud Text-to-Speech</span>
+            <div className="mt-4 flex items-center gap-2 text-[11px] text-zinc-500 font-medium">
+              <ShieldCheck size={14} className="text-emerald-400 shrink-0" />
+              <span>Studio Neural2 audio powered by Google Cloud Text-to-Speech</span>
+            </div>
           </div>
         </div>
       </div>
@@ -1947,9 +1948,10 @@ export function ImageToVideoStudio({
             </>
           )}
         </button>
-        </div>
       </div>
     </div>
   </div>
 );
 }
+
+export default ImageToVideoStudio;
