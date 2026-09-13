@@ -82,7 +82,7 @@ const jsonLd = [
 
 export default function LandingPage() {
   return (
-    <div className="relative flex flex-col overflow-x-hidden bg-white text-slate-900">
+    <div className="relative flex flex-col overflow-x-hidden bg-[#0B0F19] text-white">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -90,7 +90,7 @@ export default function LandingPage() {
         }}
       />
 
-            {/* 1. Hero Section — White Background, Material 3 Aesthetic */}
+      {/* 1. Hero Section — Cinematic Midnight Studio Aesthetic */}
       <Hero />
 
       {/* 2. "What Can You Create?" Section — Shows Output Explanations for ALL Video Types (9:16 & 16:9) */}
@@ -111,41 +111,41 @@ export default function LandingPage() {
       <FAQSection />
 
       {/* 13. Comprehensive SEO Content Section (Text-to-Code Ratio Boost) */}
-      <section className="bg-slate-50 border-t border-slate-200 py-16 px-6">
-        <div className="mx-auto max-w-5xl text-slate-700 space-y-8">
+      <section className="bg-[#070A11] border-t border-white/10 py-16 px-6">
+        <div className="mx-auto max-w-5xl text-zinc-300 space-y-8">
           <div>
-            <h2 className="text-2xl font-bold text-slate-900 tracking-tight font-sans">
-              Free AI Video Generator &amp; <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">Online AI Video Maker Platform</span>
+            <h2 className="text-2xl font-bold text-white tracking-tight font-sans">
+              Free AI Video Generator &amp; <span className="bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 bg-clip-text text-transparent">Online AI Video Maker Platform</span>
             </h2>
-            <p className="mt-3 text-sm leading-relaxed text-slate-600">
+            <p className="mt-3 text-sm leading-relaxed text-zinc-400">
               Itnavideo is the all-in-one <strong>free AI video generator</strong> and automated video creation platform designed to streamline video production for Instagram Reels, YouTube Shorts, TikTok, and LinkedIn. Instead of spending hours learning complex video editing software, our <strong>AI video maker</strong> leverages artificial intelligence to analyze raw audio tracks, video clips, photos, and text scripts, automatically converting them into engaging, high-retention videos in seconds.
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 text-sm leading-relaxed">
-            <div className="space-y-3 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-              <h3 className="text-base font-semibold text-slate-900">
+            <div className="space-y-3 bg-[#111827] p-5 rounded-2xl border border-white/10 shadow-sm">
+              <h3 className="text-base font-semibold text-white">
                 Text to Video Generator
               </h3>
-              <p className="text-slate-600 text-xs leading-relaxed">
+              <p className="text-zinc-400 text-xs leading-relaxed">
                 Turn written scripts, outlines, and prompts into complete narrated videos. Our <strong>text to video generator</strong> matches visual assets, designs dynamic scene transitions, and syncs word-level subtitles automatically.
               </p>
             </div>
 
-            <div className="space-y-3 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-              <h3 className="text-base font-semibold text-slate-900">
+            <div className="space-y-3 bg-[#111827] p-5 rounded-2xl border border-white/10 shadow-sm">
+              <h3 className="text-base font-semibold text-white">
                 Best AI Video Generators for Creators
               </h3>
-              <p className="text-slate-600 text-xs leading-relaxed">
+              <p className="text-zinc-400 text-xs leading-relaxed">
                 Explore specialized video generation workflows including Auto Caption Reels, Compare Explainers, Whiteboard Lessons, Typography Videos, AI Audio Cleaner, and Faceless Videos.
               </p>
             </div>
 
-            <div className="space-y-3 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-              <h3 className="text-base font-semibold text-slate-900">
+            <div className="space-y-3 bg-[#111827] p-5 rounded-2xl border border-white/10 shadow-sm">
+              <h3 className="text-base font-semibold text-white">
                 Studio-Quality AI Video Generation
               </h3>
-              <p className="text-slate-600 text-xs leading-relaxed">
+              <p className="text-zinc-400 text-xs leading-relaxed">
                 Generate videos with cloud rendering, sub-second speech synchronization, Roman Hinglish subtitle support, audio noise cleaning, and 1080p Full HD watermark-free downloads.
               </p>
             </div>

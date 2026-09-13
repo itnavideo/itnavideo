@@ -227,10 +227,10 @@ function CleanVideoCard({ video, isPlaying, onPlay, onEnded, aspectRatio = '9/16
             {/* Play Button Overlay (Click to Play) */}
             <button
               onClick={() => onPlay(video.id)}
-              className="absolute inset-0 flex items-center justify-center cursor-pointer bg-black/10 hover:bg-black/25 transition"
+              className="absolute inset-0 flex items-center justify-center cursor-pointer bg-black/10 hover:bg-black/30 transition"
               aria-label="Play video"
             >
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/95 text-slate-900 shadow-2xl backdrop-blur-sm transition-all duration-300 group-hover:scale-110 group-hover:bg-[#00FF9D] group-hover:text-black">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/95 text-slate-900 shadow-2xl backdrop-blur-sm transition-all duration-300 group-hover:scale-110 group-hover:bg-orange-500 group-hover:text-white">
                 <Play size={24} className="ml-1 fill-current" />
               </div>
             </button>
@@ -277,20 +277,20 @@ export function VideoTypeRow({
   };
 
   return (
-    <div className="py-14 border-b border-slate-100 last:border-b-0">
+    <div className="py-14 border-b border-white/10 last:border-b-0 text-white">
       {/* Header Info & Desktop Navigation */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
         <div className="max-w-3xl">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50/80 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-amber-800 mb-2">
-            <Sparkles size={13} className="text-amber-500" />
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-orange-400 mb-2">
+            <Sparkles size={13} className="text-orange-400" />
             <span>{badge}</span>
           </div>
 
-          <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-sans">
+          <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white font-sans">
             {heading}
           </h3>
 
-          <p className="mt-2 text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+          <p className="mt-2 text-sm sm:text-base text-zinc-400 leading-relaxed font-normal">
             {explanation}
           </p>
         </div>
@@ -299,7 +299,7 @@ export function VideoTypeRow({
         <div className="flex items-center gap-3 shrink-0">
           <Link
             href={createHref}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-slate-800 transition"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 px-4 py-2.5 text-xs font-bold text-white shadow-md shadow-orange-500/20 transition active:scale-95"
           >
             <span>{createLabel}</span>
             <ArrowRight size={14} />
@@ -308,14 +308,14 @@ export function VideoTypeRow({
           <div className="hidden sm:flex items-center gap-1.5">
             <button
               onClick={() => scroll('left')}
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-2xs hover:bg-slate-50 transition active:scale-95 cursor-pointer"
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-[#162032] text-zinc-300 shadow-2xs hover:bg-white/10 hover:text-white transition active:scale-95 cursor-pointer"
               aria-label="Scroll left"
             >
               <ChevronLeft size={16} />
             </button>
             <button
               onClick={() => scroll('right')}
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-2xs hover:bg-slate-50 transition active:scale-95 cursor-pointer"
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-[#162032] text-zinc-300 shadow-2xs hover:bg-white/10 hover:text-white transition active:scale-95 cursor-pointer"
               aria-label="Scroll right"
             >
               <ChevronRight size={16} />
@@ -433,20 +433,20 @@ export default function DemoVideosShowcase() {
   };
 
   return (
-    <section id="demo-videos" className="relative overflow-hidden bg-white py-20 border-t border-slate-100">
+    <section id="demo-videos" className="relative overflow-hidden bg-[#0B0F19] py-20 border-t border-white/10 text-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Main Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50/80 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-amber-800 shadow-2xs">
-            <Sparkles size={14} className="text-amber-500" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-orange-400 shadow-2xs">
+            <Sparkles size={14} className="text-orange-400" />
             <span>REAL CLOUD RENDERED DEMOS</span>
           </div>
 
-          <h2 className="mt-4 font-sans text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl md:text-5xl">
-            Watch Live <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">AI Video Output Demos</span>
+          <h2 className="mt-4 font-sans text-3xl font-extrabold tracking-tight text-white sm:text-4xl md:text-5xl">
+            Watch Live <span className="bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 bg-clip-text text-transparent">AI Video Output Demos</span>
           </h2>
 
-          <p className="mt-3 text-base sm:text-lg text-slate-600">
+          <p className="mt-3 text-base sm:text-lg text-zinc-400">
             Real short-form reels and explainers rendered with Itnavideo. Tap any video to play instantly.
           </p>
         </div>
@@ -505,20 +505,20 @@ export default function DemoVideosShowcase() {
         />
 
         {/* Bottom Banner CTA */}
-        <div className="mt-14 rounded-2xl border border-slate-200 bg-slate-50/80 p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+        <div className="mt-14 rounded-3xl border border-orange-500/30 bg-gradient-to-r from-orange-500/10 via-[#111827] to-[#0B0F19] p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left shadow-xl">
           <div className="space-y-1">
-            <h3 className="text-base font-bold text-slate-900">
+            <h3 className="text-base font-bold text-white">
               Ready to generate your own high-retention videos in seconds?
             </h3>
-            <p className="text-xs sm:text-sm text-slate-600">
+            <p className="text-xs sm:text-sm text-zinc-400">
               Upload your audio, video, or script and let Itnavideo handle captions, animations, and rendering.
             </p>
           </div>
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-blue-600/20 transition hover:bg-blue-700 hover:scale-[1.02] active:scale-100 shrink-0"
+            className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-orange-500/25 transition hover:scale-[1.02] active:scale-95 shrink-0"
           >
-            <span>Launch Studio Free</span>
+            <span>Launch Studio Free ⚡</span>
             <ArrowRight size={16} />
           </Link>
         </div>

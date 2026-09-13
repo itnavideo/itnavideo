@@ -80,24 +80,24 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative overflow-hidden bg-slate-50 px-4 pb-16 pt-24 text-slate-900 sm:px-6 sm:pb-24 sm:pt-32 border-b border-slate-200">
-      {/* Background Subtle Grid & Warm Amber/Orange Gradient */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_100%_80%_at_50%_-10%,rgba(245,158,11,0.08),transparent_100%)]" />
-      <div className="pointer-events-none absolute -top-40 right-0 h-96 w-96 rounded-full bg-amber-400/10 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-40 left-0 h-96 w-96 rounded-full bg-orange-400/10 blur-3xl" />
+    <section className="relative overflow-hidden bg-[#0B0F19] px-4 pb-16 pt-24 text-white sm:px-6 sm:pb-24 sm:pt-32 border-b border-white/10">
+      {/* Background Subtle Grid & Warm Amber/Orange Ambient Glow */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_100%_80%_at_50%_-10%,rgba(249,115,22,0.12),transparent_100%)]" />
+      <div className="pointer-events-none absolute -top-40 right-0 h-96 w-96 rounded-full bg-orange-500/10 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-40 left-0 h-96 w-96 rounded-full bg-amber-500/10 blur-3xl" />
 
       <div className="relative z-10 mx-auto max-w-7xl">
         <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-8">
           
           {/* LEFT: Hero Copy */}
           <div className="text-center lg:col-span-6 lg:text-left">
-            {/* Top Google Analytics Accent Badge */}
+            {/* Top Accent Badge */}
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-5 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50/80 px-4 py-1.5 text-xs font-bold text-amber-800 shadow-xs"
+              className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold text-orange-400 shadow-xs"
             >
-              <Sparkles size={13} className="text-amber-500 animate-pulse" />
+              <Sparkles size={13} className="text-orange-400 animate-pulse" />
               <span>Free AI Video Generator &amp; Platform • Free On Signup</span>
             </motion.div>
 
@@ -106,10 +106,10 @@ export default function Hero() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.05 }}
-              className="text-4xl font-black leading-[1.1] tracking-tight sm:text-5xl md:text-6xl text-slate-900 font-sans"
+              className="text-4xl font-black leading-[1.1] tracking-tight sm:text-5xl md:text-6xl text-white font-sans"
             >
               Free AI Video Generator &amp;{' '}
-              <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent font-black">
+              <span className="bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 bg-clip-text text-transparent font-black">
                 AI Video Maker
               </span>
             </motion.h1>
@@ -119,7 +119,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="mt-5 text-sm sm:text-base leading-relaxed text-slate-600 max-w-xl mx-auto lg:mx-0 font-medium"
+              className="mt-5 text-sm sm:text-base leading-relaxed text-zinc-400 max-w-xl mx-auto lg:mx-0 font-medium"
             >
               The all-in-one AI video creator. Turn text scripts, voiceovers, raw clips, and photos into viral Reels, Shorts, and 16:9 YouTube videos automatically.
             </motion.p>
@@ -133,7 +133,7 @@ export default function Hero() {
             >
               <Link
                 href="/dashboard"
-                className="group relative inline-flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-700 px-7 py-4 text-sm md:text-base font-black text-white shadow-lg shadow-orange-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-95 w-full sm:w-auto tracking-wide text-center uppercase"
+                className="group relative inline-flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 px-7 py-4 text-sm md:text-base font-black text-white shadow-lg shadow-orange-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-95 w-full sm:w-auto tracking-wide text-center uppercase"
               >
                 <span>Create Video With AI — Free ⚡</span>
                 <ArrowRight size={18} className="transition group-hover:translate-x-1 shrink-0" />
@@ -141,9 +141,9 @@ export default function Hero() {
 
               <a
                 href="#workflow"
-                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-6 py-4 text-sm font-bold text-slate-800 shadow-xs transition duration-200 hover:bg-slate-100 active:scale-95 w-full sm:w-auto"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-sm font-bold text-white shadow-xs transition duration-200 hover:bg-white/10 active:scale-95 w-full sm:w-auto"
               >
-                <Play size={15} fill="currentColor" className="text-amber-500" />
+                <Play size={15} fill="currentColor" className="text-orange-400" />
                 <span>See How It Works</span>
               </a>
             </motion.div>
@@ -153,60 +153,60 @@ export default function Hero() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="mt-8 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 text-xs text-slate-600"
+              className="mt-8 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 text-xs text-zinc-400"
             >
               <div className="flex items-center gap-2.5">
                 {/* Creator Avatar Stack */}
                 <div className="flex -space-x-2 overflow-hidden">
                   <img
-                    className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover shadow-xs"
+                    className="inline-block h-8 w-8 rounded-full ring-2 ring-[#0B0F19] object-cover shadow-xs"
                     src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
                     alt="Creator"
                   />
                   <img
-                    className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover shadow-xs"
+                    className="inline-block h-8 w-8 rounded-full ring-2 ring-[#0B0F19] object-cover shadow-xs"
                     src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80"
                     alt="Creator"
                   />
                   <img
-                    className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover shadow-xs"
+                    className="inline-block h-8 w-8 rounded-full ring-2 ring-[#0B0F19] object-cover shadow-xs"
                     src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80"
                     alt="Creator"
                   />
                   <img
-                    className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover shadow-xs"
+                    className="inline-block h-8 w-8 rounded-full ring-2 ring-[#0B0F19] object-cover shadow-xs"
                     src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80"
                     alt="Creator"
                   />
                 </div>
 
                 <div>
-                  <div className="flex items-center gap-1 text-amber-500">
+                  <div className="flex items-center gap-1 text-orange-400">
                     {[...Array(5)].map((_, i) => (
                       <Star key={i} size={12} fill="currentColor" />
                     ))}
-                    <span className="ml-1 font-bold text-slate-800 text-xs">4.9/5</span>
+                    <span className="ml-1 font-bold text-white text-xs">4.9/5</span>
                   </div>
-                  <p className="text-[11px] font-medium text-slate-500">
-                    Loved by <strong className="text-slate-800">1,200+</strong> YouTube &amp; Reel Creators
+                  <p className="text-[11px] font-medium text-zinc-400">
+                    Loved by <strong className="text-white">1,200+</strong> YouTube &amp; Reel Creators
                   </p>
                 </div>
               </div>
 
-              <div className="hidden sm:block h-6 w-px bg-slate-200" />
+              <div className="hidden sm:block h-6 w-px bg-white/10" />
 
               {/* Quick Trust Badges */}
               <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50/80 px-2.5 py-1 text-[11px] font-bold text-blue-800 shadow-2xs">
-                  <Cpu size={12} className="text-blue-600" />
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 px-2.5 py-1 text-[11px] font-bold text-blue-300 shadow-2xs">
+                  <Cpu size={12} className="text-blue-400" />
                   <span>Google Cloud 8-vCPU</span>
                 </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 shadow-2xs">
-                  <Zap size={12} className="text-amber-500" />
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-2.5 py-1 text-[11px] font-semibold text-orange-300 shadow-2xs">
+                  <Zap size={12} className="text-orange-400" />
                   <span>Groq Whisper</span>
                 </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 shadow-2xs">
-                  <ShieldCheck size={12} className="text-emerald-600" />
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold text-emerald-300 shadow-2xs">
+                  <ShieldCheck size={12} className="text-emerald-400" />
                   <span>No Card Needed</span>
                 </span>
               </div>
@@ -387,7 +387,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
-          className="mt-12 sm:mt-16 mx-auto max-w-5xl rounded-3xl border border-slate-200 bg-white/95 p-4 sm:p-5 shadow-sm backdrop-blur-sm"
+          className="mt-12 sm:mt-16 mx-auto max-w-5xl rounded-3xl border border-white/10 bg-[#111827] p-4 sm:p-5 shadow-xl backdrop-blur-sm"
         >
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
             <div className="flex flex-col sm:flex-row items-center gap-3.5">
@@ -396,26 +396,26 @@ export default function Hero() {
               </div>
               <div>
                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
-                  <h4 className="text-sm sm:text-base font-black text-slate-900 tracking-tight">
+                  <h4 className="text-sm sm:text-base font-black text-white tracking-tight">
                     Rendered on Dedicated 8-vCPU Cloud Engines
                   </h4>
-                  <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-[10px] font-bold text-blue-800 border border-blue-200">
+                  <span className="rounded-full bg-blue-500/15 px-2.5 py-0.5 text-[10px] font-bold text-blue-300 border border-blue-400/30">
                     Zero Queue • Instant Export
                   </span>
                 </div>
-                <p className="mt-0.5 text-xs text-slate-600 font-medium">
+                <p className="mt-0.5 text-xs text-zinc-400 font-medium">
                   Zero local heating or hardware limits. Your videos render on a 32GB RAM Google Cloud worker with instant export.
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
-              <span className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800">
-                <CheckCircle2 size={13} className="text-emerald-600" />
+              <span className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs font-bold text-emerald-300">
+                <CheckCircle2 size={13} className="text-emerald-400" />
                 <span>Up to 30 Min Videos</span>
               </span>
-              <span className="inline-flex items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-800">
-                <Zap size={13} className="text-amber-600" />
+              <span className="inline-flex items-center gap-1.5 rounded-xl border border-orange-500/30 bg-orange-500/10 px-3 py-1.5 text-xs font-bold text-orange-300">
+                <Zap size={13} className="text-orange-400" />
                 <span>100% Cloud</span>
               </span>
             </div>

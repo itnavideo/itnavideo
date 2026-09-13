@@ -84,26 +84,26 @@ export default function TestimonialSection() {
   const marqueeItems = [...REVIEWS, ...REVIEWS];
 
   return (
-    <section className="relative overflow-hidden px-4 py-20 sm:px-6 sm:py-28 bg-background border-t border-border">
+    <section className="relative overflow-hidden px-4 py-20 sm:px-6 sm:py-28 bg-[#070A11] border-t border-white/10 text-white">
       {/* Background ambient radial glow */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_700px_at_50%_0px,rgba(245,158,11,0.04),transparent_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_700px_at_50%_0px,rgba(249,115,22,0.06),transparent_100%)]" />
 
       <div className="mx-auto max-w-7xl relative z-10">
         {/* Header — Material Design 3 Typography & Badge */}
         <div className="mb-12 sm:mb-16 text-center space-y-3.5">
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/25 bg-amber-500/10 px-3.5 py-1 text-[11px] font-extrabold uppercase tracking-widest text-amber-600 dark:text-amber-400 backdrop-blur-md">
-            <Sparkles size={13} className="text-amber-500 animate-pulse" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-[11px] font-extrabold uppercase tracking-widest text-orange-400 backdrop-blur-md">
+            <Sparkles size={13} className="text-orange-400 animate-pulse" />
             <span>Trusted By Creators Worldwide</span>
           </div>
 
-          <h2 className="text-3xl font-black text-foreground sm:text-5xl font-sans tracking-tight">
+          <h2 className="text-3xl font-black text-white sm:text-5xl font-sans tracking-tight">
             Real creators.{' '}
-            <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 bg-clip-text text-transparent">
               Real results.
             </span>
           </h2>
 
-          <p className="mx-auto max-w-xl text-xs sm:text-sm text-muted-foreground font-normal">
+          <p className="mx-auto max-w-xl text-xs sm:text-sm text-zinc-400 font-normal">
             See how short-form creators, podcasters, and brand founders scale their video production effortlessly with Itnavideo.
           </p>
         </div>
@@ -112,30 +112,30 @@ export default function TestimonialSection() {
       {/* Infinite Horizontal Marquee Container with Left & Right Gradient Fade Masks */}
       <div className="relative w-full overflow-hidden py-3">
         {/* Left Gradient Fade Mask */}
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-16 sm:w-36 bg-gradient-to-r from-background via-background/80 to-transparent z-20" />
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-16 sm:w-36 bg-gradient-to-r from-[#070A11] via-[#070A11]/80 to-transparent z-20" />
 
         {/* Right Gradient Fade Mask */}
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-16 sm:w-36 bg-gradient-to-l from-background via-background/80 to-transparent z-20" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-16 sm:w-36 bg-gradient-to-l from-[#070A11] via-[#070A11]/80 to-transparent z-20" />
 
         {/* Marquee Track */}
         <div className="animate-m3-marquee flex gap-5 sm:gap-6 py-2 px-4 cursor-grab active:cursor-grabbing">
           {marqueeItems.map((review, idx) => (
             <div
               key={`${review.name}-${idx}`}
-              className="group relative flex flex-col justify-between w-[310px] sm:w-[390px] shrink-0 rounded-3xl border border-border/80 bg-card p-6 sm:p-7 shadow-xs backdrop-blur-xl transition-all duration-300 hover:border-amber-500/40 hover:shadow-xl hover:-translate-y-1 select-none"
+              className="group relative flex flex-col justify-between w-[310px] sm:w-[390px] shrink-0 rounded-3xl border border-white/10 bg-[#111827] p-6 sm:p-7 shadow-lg backdrop-blur-xl transition-all duration-300 hover:border-orange-500/40 hover:shadow-2xl hover:-translate-y-1 select-none"
             >
               {/* Top Accent Gradient Bar on Hover */}
-              <div className="absolute inset-x-8 top-0 h-[2px] bg-gradient-to-r from-transparent via-amber-500/0 to-transparent group-hover:via-amber-500/80 transition-all duration-500 rounded-full" />
+              <div className="absolute inset-x-8 top-0 h-[2px] bg-gradient-to-r from-transparent via-orange-500/0 to-transparent group-hover:via-orange-500/80 transition-all duration-500 rounded-full" />
 
               {/* Decorative quotation indicator */}
-              <div className="absolute top-4 right-5 text-4xl font-serif text-amber-500/10 leading-none select-none group-hover:text-amber-500/25 transition duration-300">
+              <div className="absolute top-4 right-5 text-4xl font-serif text-orange-500/10 leading-none select-none group-hover:text-orange-500/25 transition duration-300">
                 “
               </div>
 
               {/* Creator Info & Avatar */}
               <div>
                 <div className="flex items-start gap-3.5 relative z-10">
-                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border border-border group-hover:border-amber-500/40 transition duration-300 shadow-xs">
+                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border border-white/10 group-hover:border-orange-500/40 transition duration-300 shadow-xs">
                     <Image
                       src={review.image}
                       alt={review.name}
@@ -147,43 +147,43 @@ export default function TestimonialSection() {
 
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      <p className="text-sm font-bold text-card-foreground group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors truncate">
+                      <p className="text-sm font-bold text-white group-hover:text-orange-400 transition-colors truncate">
                         {review.name}
                       </p>
-                      <CheckCircle2 size={13} className="text-amber-500 shrink-0" />
+                      <CheckCircle2 size={13} className="text-orange-400 shrink-0" />
                     </div>
-                    <p className="text-[11px] text-muted-foreground font-medium truncate mt-0.5">
+                    <p className="text-[11px] text-zinc-400 font-medium truncate mt-0.5">
                       {review.role}
                     </p>
                   </div>
                 </div>
 
                 {/* Rating Stars & Platform Pill */}
-                <div className="mt-4 flex items-center justify-between gap-2 border-t border-border/40 pt-3">
+                <div className="mt-4 flex items-center justify-between gap-2 border-t border-white/10 pt-3">
                   <div className="flex items-center gap-1">
                     {[...Array(review.rating || 5)].map((_, i) => (
-                      <Star key={i} size={13} className="fill-amber-400 text-amber-400" />
+                      <Star key={i} size={13} className="fill-orange-400 text-orange-400" />
                     ))}
-                    <span className="ml-1 text-[11px] font-bold text-foreground">5.0</span>
+                    <span className="ml-1 text-[11px] font-bold text-white">5.0</span>
                   </div>
 
                   {review.platform && (
-                    <span className="rounded-full bg-secondary/80 border border-border/60 px-2.5 py-0.5 text-[10px] font-bold text-muted-foreground">
+                    <span className="rounded-full bg-white/5 border border-white/10 px-2.5 py-0.5 text-[10px] font-bold text-zinc-300">
                       {review.platform}
                     </span>
                   )}
                 </div>
 
                 {/* Testimonial Quote */}
-                <p className="mt-4 text-xs sm:text-[13px] leading-relaxed text-muted-foreground font-normal relative z-10">
+                <p className="mt-4 text-xs sm:text-[13px] leading-relaxed text-zinc-300 font-normal relative z-10">
                   &ldquo;{review.quote}&rdquo;
                 </p>
               </div>
 
               {/* Bottom Subtle Indicator */}
               <div className="mt-5 flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
                   Verified Video Creator
                 </span>
               </div>

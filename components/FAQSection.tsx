@@ -97,15 +97,15 @@ export default function FAQSection() {
   };
 
   return (
-    <section className="relative overflow-hidden px-4 py-20 sm:px-6 sm:py-32 bg-background border-t border-border">
+    <section className="relative overflow-hidden px-4 py-20 sm:px-6 sm:py-32 bg-[#0B0F19] border-t border-white/10 text-white">
       {/* Background ambient radial glow */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_0px,rgba(245,158,11,0.04),transparent_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_0px,rgba(249,115,22,0.05),transparent_100%)]" />
 
       <div className="max-w-4xl mx-auto relative z-10">
         {/* Header — Material Design 3 Typography & Badge */}
         <div className="text-center mb-10 sm:mb-14 space-y-3.5">
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/25 bg-amber-500/10 px-3.5 py-1 text-[11px] font-extrabold uppercase tracking-widest text-amber-600 dark:text-amber-400 backdrop-blur-md">
-            <Sparkles size={13} className="text-amber-500 animate-pulse" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-[11px] font-extrabold uppercase tracking-widest text-orange-400 backdrop-blur-md">
+            <Sparkles size={13} className="text-orange-400 animate-pulse" />
             <span>Help &amp; Answers</span>
           </div>
 
@@ -113,15 +113,15 @@ export default function FAQSection() {
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl font-black text-foreground sm:text-5xl font-sans tracking-tight"
+            className="text-3xl font-black text-white sm:text-5xl font-sans tracking-tight"
           >
             Frequently Asked{' '}
-            <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 bg-clip-text text-transparent">
               Questions
             </span>
           </motion.h2>
 
-          <p className="text-xs sm:text-sm max-w-lg mx-auto text-muted-foreground font-normal">
+          <p className="text-xs sm:text-sm max-w-lg mx-auto text-zinc-400 font-normal">
             Everything you need to know about our AI video workflows, cloud rendering, and plans.
           </p>
 
@@ -139,14 +139,14 @@ export default function FAQSection() {
                   }}
                   className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer ${
                     isActive
-                      ? 'bg-amber-500 text-black shadow-xs font-extrabold scale-[1.02]'
-                      : 'border border-border/80 bg-card text-muted-foreground hover:bg-secondary/70 hover:text-foreground'
+                      ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/20 font-extrabold scale-[1.02]'
+                      : 'border border-white/10 bg-[#111827] text-zinc-300 hover:bg-white/10 hover:text-white'
                   }`}
                   type="button"
                 >
                   <span>{cat.label}</span>
                   <span className={`rounded-full px-1.5 py-0.2 text-[10px] font-mono ${
-                    isActive ? 'bg-black/20 text-black font-bold' : 'bg-secondary text-muted-foreground'
+                    isActive ? 'bg-white/20 text-white font-bold' : 'bg-white/10 text-zinc-400'
                   }`}>
                     {count}
                   </span>
@@ -170,8 +170,8 @@ export default function FAQSection() {
                 transition={{ duration: 0.25, delay: index * 0.03 }}
                 className={`group rounded-3xl border transition-all duration-300 overflow-hidden ${
                   isOpen
-                    ? 'border-amber-500/40 bg-card shadow-md ring-1 ring-amber-500/20'
-                    : 'border-border/80 bg-card/80 hover:border-amber-500/25 hover:bg-card'
+                    ? 'border-orange-500/40 bg-[#111827] shadow-xl ring-1 ring-orange-500/20'
+                    : 'border-white/10 bg-[#111827]/80 hover:border-orange-500/30 hover:bg-[#111827]'
                 }`}
               >
                 <button
@@ -184,13 +184,13 @@ export default function FAQSection() {
                     {/* M3 Tonal Index Badge */}
                     <span className={`flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-xl text-xs font-mono font-bold transition-colors ${
                       isOpen
-                        ? 'bg-amber-500 text-black'
-                        : 'bg-secondary text-muted-foreground group-hover:bg-amber-500/10 group-hover:text-amber-500'
+                        ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white'
+                        : 'bg-white/5 text-zinc-400 group-hover:bg-orange-500/10 group-hover:text-orange-400'
                     }`}>
                       {indexNumber}
                     </span>
 
-                    <span className="text-sm sm:text-base font-bold text-card-foreground font-sans tracking-tight leading-snug">
+                    <span className="text-sm sm:text-base font-bold text-white font-sans tracking-tight leading-snug">
                       {faq.question}
                     </span>
                   </div>
@@ -198,8 +198,8 @@ export default function FAQSection() {
                   {/* Expressive Circular Chevron Indicator */}
                   <div className={`flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full border transition-all duration-300 ${
                     isOpen
-                      ? 'border-amber-500/40 bg-amber-500/15 text-amber-500 rotate-180'
-                      : 'border-border/60 bg-secondary/80 text-muted-foreground group-hover:text-foreground group-hover:border-amber-500/25'
+                      ? 'border-orange-500/40 bg-orange-500/15 text-orange-400 rotate-180'
+                      : 'border-white/10 bg-white/5 text-zinc-400 group-hover:text-white group-hover:border-orange-500/30'
                   }`}>
                     <ChevronDown size={16} />
                   </div>
@@ -214,8 +214,8 @@ export default function FAQSection() {
                       transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
                     >
                       <div className="px-4 pb-5 pt-1 sm:px-6 sm:pb-6">
-                        <div className="rounded-2xl bg-secondary/40 border border-border/50 p-4 sm:p-5 space-y-3">
-                          <p className="text-xs sm:text-sm leading-relaxed text-muted-foreground font-normal">
+                        <div className="rounded-2xl bg-[#070A11] border border-white/10 p-4 sm:p-5 space-y-3">
+                          <p className="text-xs sm:text-sm leading-relaxed text-zinc-300 font-normal">
                             {faq.answer}
                           </p>
 
@@ -223,7 +223,7 @@ export default function FAQSection() {
                             <div className="pt-2">
                               <Link
                                 href={faq.action.href}
-                                className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400 hover:text-amber-500 transition-colors"
+                                className="inline-flex items-center gap-1.5 text-xs font-bold text-orange-400 hover:text-orange-300 transition-colors"
                               >
                                 <span>{faq.action.label}</span>
                                 <ArrowRight size={13} />
@@ -245,17 +245,17 @@ export default function FAQSection() {
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mt-12 rounded-3xl border border-border/80 bg-secondary/30 p-6 text-center max-w-xl mx-auto backdrop-blur-md"
+          className="mt-12 rounded-3xl border border-white/10 bg-[#111827] p-6 text-center max-w-xl mx-auto backdrop-blur-md shadow-xl"
         >
-          <div className="flex h-10 w-10 mx-auto items-center justify-center rounded-full bg-amber-500/10 text-amber-500 mb-2">
+          <div className="flex h-10 w-10 mx-auto items-center justify-center rounded-full bg-orange-500/10 text-orange-400 mb-2">
             <MessageCircle size={18} />
           </div>
-          <h4 className="text-sm font-bold text-foreground">Have another question?</h4>
-          <p className="mt-1 text-xs text-muted-foreground">Our production engineering team is ready to help you 24/7.</p>
+          <h4 className="text-sm font-bold text-white">Have another question?</h4>
+          <p className="mt-1 text-xs text-zinc-400">Our production engineering team is ready to help you 24/7.</p>
           <div className="mt-4">
             <Link
               href="/contact"
-              className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2 text-xs font-bold text-background transition hover:bg-amber-500 hover:text-black active:scale-95"
+              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 px-6 py-2.5 text-xs font-bold text-white transition active:scale-95 shadow-md shadow-orange-500/20"
             >
               <span>Contact Support</span>
               <ArrowRight size={13} />
