@@ -214,9 +214,9 @@ export default function EngagementHook() {
           <div className="relative aspect-[9/19] overflow-hidden rounded-[34px] border-[6px] border-zinc-800 bg-zinc-950 p-3 shadow-2xl ring-1 ring-white/10">
             <div className="absolute left-1/2 top-4 z-20 h-4 w-28 -translate-x-1/2 rounded-full bg-zinc-800" />
 
-            <div className="flex h-full flex-col overflow-hidden rounded-[26px] bg-[linear-gradient(180deg,#111827_0%,#08090d_46%,#1e0f0b_100%)] p-4 pt-10">
+            <div className="flex h-full flex-col overflow-hidden rounded-[26px] bg-[linear-gradient(180deg,#131218_0%,#08090d_46%,#1e0f0b_100%)] p-4 pt-10">
               <div className="overflow-hidden rounded-lg border border-white/12 bg-black shadow-xl">
-                <div className="relative aspect-video bg-[radial-gradient(circle_at_center,#1e293b,#050505_72%)]">
+                <div className="relative aspect-video bg-[radial-gradient(circle_at_center,#1E1D27,#050505_72%)]">
                   <div className={`absolute inset-0 bg-gradient-to-br ${activeTheme.accent} opacity-20`} />
                   <div className="relative flex h-full items-center justify-center">
                     <Film size={38} className="text-white/75" />

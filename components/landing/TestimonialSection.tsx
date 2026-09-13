@@ -84,7 +84,7 @@ export default function TestimonialSection() {
   const marqueeItems = [...REVIEWS, ...REVIEWS];
 
   return (
-    <section className="relative overflow-hidden px-4 py-20 sm:px-6 sm:py-28 bg-[#070A11] border-t border-white/10 text-white">
+    <section className="relative overflow-hidden px-4 py-20 sm:px-6 sm:py-28 bg-[#050407] border-t border-white/10 text-white">
       {/* Background ambient radial glow */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_700px_at_50%_0px,rgba(249,115,22,0.06),transparent_100%)]" />
 
@@ -112,17 +112,17 @@ export default function TestimonialSection() {
       {/* Infinite Horizontal Marquee Container with Left & Right Gradient Fade Masks */}
       <div className="relative w-full overflow-hidden py-3">
         {/* Left Gradient Fade Mask */}
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-16 sm:w-36 bg-gradient-to-r from-[#070A11] via-[#070A11]/80 to-transparent z-20" />
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-16 sm:w-36 bg-gradient-to-r from-[#050407] via-[#050407]/80 to-transparent z-20" />
 
         {/* Right Gradient Fade Mask */}
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-16 sm:w-36 bg-gradient-to-l from-[#070A11] via-[#070A11]/80 to-transparent z-20" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-16 sm:w-36 bg-gradient-to-l from-[#050407] via-[#050407]/80 to-transparent z-20" />
 
         {/* Marquee Track */}
         <div className="animate-m3-marquee flex gap-5 sm:gap-6 py-2 px-4 cursor-grab active:cursor-grabbing">
           {marqueeItems.map((review, idx) => (
             <div
               key={`${review.name}-${idx}`}
-              className="group relative flex flex-col justify-between w-[310px] sm:w-[390px] shrink-0 rounded-3xl border border-white/10 bg-[#111827] p-6 sm:p-7 shadow-lg backdrop-blur-xl transition-all duration-300 hover:border-orange-500/40 hover:shadow-2xl hover:-translate-y-1 select-none"
+              className="group relative flex flex-col justify-between w-[310px] sm:w-[390px] shrink-0 rounded-3xl border border-white/10 bg-[#131218] p-6 sm:p-7 shadow-lg backdrop-blur-xl transition-all duration-300 hover:border-orange-500/40 hover:shadow-2xl hover:-translate-y-1 select-none"
             >
               {/* Top Accent Gradient Bar on Hover */}
               <div className="absolute inset-x-8 top-0 h-[2px] bg-gradient-to-r from-transparent via-orange-500/0 to-transparent group-hover:via-orange-500/80 transition-all duration-500 rounded-full" />

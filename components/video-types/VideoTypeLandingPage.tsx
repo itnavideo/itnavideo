@@ -101,7 +101,7 @@ export default function VideoTypeLandingPage({ config }: { config: VideoTypeLand
                   aspectRatio: '9/16',
                   border: `2px solid ${accentColor}44`,
                   boxShadow: `0 32px 80px rgba(0,0,0,0.55), 0 0 60px ${accentColor}22`,
-                  background: '#0f172a',
+                  background: '#0E0D14',
                 }}>
                 <Image
                   src={previewImage}

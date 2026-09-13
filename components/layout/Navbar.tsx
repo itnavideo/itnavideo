@@ -108,8 +108,8 @@ export default function Navbar() {
       <header
         className={`fixed top-0 z-[100] w-full transition-all duration-300 px-4 py-2.5 md:px-8 border-b ${
           scrolled
-            ? 'border-white/10 bg-[#0B0F19]/95 text-white backdrop-blur-2xl shadow-2xl'
-            : 'border-white/5 bg-[#0B0F19]/80 text-white backdrop-blur-xl'
+            ? 'border-white/10 bg-[#08070B]/95 text-white backdrop-blur-2xl shadow-2xl'
+            : 'border-white/5 bg-[#08070B]/80 text-white backdrop-blur-xl'
         }`}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between">
@@ -121,7 +121,7 @@ export default function Navbar() {
 
           {/* DESKTOP NAVIGATION BAR (UNIFIED HIGH-CONTRAST PILLS) */}
           {!isDashboard && (
-            <nav className="hidden md:flex items-center gap-1 rounded-full border border-white/10 bg-[#111827]/90 p-1.5 text-xs font-semibold backdrop-blur-xl shadow-lg">
+            <nav className="hidden md:flex items-center gap-1 rounded-full border border-white/10 bg-[#131218]/90 p-1.5 text-xs font-semibold backdrop-blur-xl shadow-lg">
               
               {/* VIDEO WORKFLOWS DROPDOWN TRIGGER */}
               <div className="relative" ref={dropdownRef}>
@@ -132,7 +132,7 @@ export default function Navbar() {
                   className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold transition-all duration-200 ${
                     dropdownOpen || pathname.startsWith('/video-types')
                       ? 'bg-orange-500/15 text-orange-400 border border-orange-500/40 shadow-[0_0_12px_rgba(249,115,22,0.2)]'
-                      : 'text-slate-300 hover:bg-white/5 hover:text-orange-400'
+                      : 'text-zinc-300 hover:bg-white/5 hover:text-orange-400'
                   }`}
                 >
                   <AudioLines size={14} className="text-orange-400" />
@@ -144,10 +144,10 @@ export default function Navbar() {
                 {dropdownOpen && (
                   <div 
                     onMouseLeave={() => setDropdownOpen(false)}
-                    className="absolute left-0 top-full mt-2 w-80 rounded-2xl border border-slate-800 bg-[#09090b] p-3 text-slate-100 shadow-2xl backdrop-blur-2xl ring-1 ring-white/10 animate-in fade-in zoom-in-95 duration-150"
+                    className="absolute left-0 top-full mt-2 w-80 rounded-2xl border border-white/10 bg-[#09090b] p-3 text-slate-100 shadow-2xl backdrop-blur-2xl ring-1 ring-white/10 animate-in fade-in zoom-in-95 duration-150"
                   >
                     <div className="mb-2 px-3 pt-1 flex items-center justify-between">
-                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">11 AI Video Workflows</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">11 AI Video Workflows</span>
                       <Sparkles size={12} className="text-amber-400" />
                     </div>
 
@@ -166,14 +166,14 @@ export default function Navbar() {
                             </div>
                             <div>
                               <p className="text-xs font-bold text-slate-100 group-hover:text-amber-400 transition">{wf.label}</p>
-                              <p className="text-[10px] text-slate-400">{wf.desc}</p>
+                              <p className="text-[10px] text-zinc-400">{wf.desc}</p>
                             </div>
                           </Link>
                         );
                       })}
                     </div>
 
-                    <div className="mt-2 border-t border-slate-800 pt-2 px-1">
+                    <div className="mt-2 border-t border-white/10 pt-2 px-1">
                       <Link
                         href="/video-types"
                         onClick={() => setDropdownOpen(false)}
@@ -197,7 +197,7 @@ export default function Navbar() {
                     className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold transition-all duration-200 ${
                       active
                         ? 'bg-orange-500/15 text-orange-400 border border-orange-500/40 shadow-[0_0_12px_rgba(249,115,22,0.2)]'
-                        : 'text-slate-300 hover:bg-white/5 hover:text-orange-400'
+                        : 'text-zinc-300 hover:bg-white/5 hover:text-orange-400'
                     }`}
                   >
                     <span>{page.label}</span>
@@ -218,7 +218,7 @@ export default function Navbar() {
             {user ? (
               <div className="relative" ref={userMenuRef}>
                 {/* USER PROFILE BUTTON WITH DROPDOWN TRIGGER */}
-                <div className="flex items-center gap-2 rounded-full border border-white/10 bg-[#111827]/90 p-1 backdrop-blur-xl shadow-md">
+                <div className="flex items-center gap-2 rounded-full border border-white/10 bg-[#131218]/90 p-1 backdrop-blur-xl shadow-md">
                   <button
                     type="button"
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
@@ -230,7 +230,7 @@ export default function Navbar() {
                     <span className="max-w-[120px] truncate text-xs font-extrabold text-slate-100">
                       {user.email?.split('@')[0]}
                     </span>
-                    <ChevronDown size={13} className={`text-slate-400 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown size={13} className={`text-zinc-400 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
                   </button>
 
                   <Link
@@ -244,16 +244,16 @@ export default function Navbar() {
 
                 {/* USER PROFILE DROPDOWN MENU */}
                 {userMenuOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl border border-white/10 bg-[#111827] p-2 text-slate-100 shadow-2xl backdrop-blur-2xl ring-1 ring-white/10 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl border border-white/10 bg-[#131218] p-2 text-slate-100 shadow-2xl backdrop-blur-2xl ring-1 ring-white/10 animate-in fade-in zoom-in-95 duration-150">
                     <div className="px-3 py-2 border-b border-white/10 mb-1">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Signed in as</p>
+                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Signed in as</p>
                       <p className="text-xs font-black text-slate-100 truncate">{user.email}</p>
                     </div>
 
                     <Link
                       href="/dashboard"
                       onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-slate-200 hover:bg-white/5 hover:text-orange-400 transition"
+                      className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-zinc-200 hover:bg-white/5 hover:text-orange-400 transition"
                     >
                       <LayoutDashboard size={14} className="text-orange-400" />
                       <span>Dashboard</span>
@@ -262,7 +262,7 @@ export default function Navbar() {
                     <Link
                       href="/billing"
                       onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-slate-200 hover:bg-slate-800 hover:text-amber-400 transition"
+                      className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-zinc-200 hover:bg-slate-800 hover:text-amber-400 transition"
                     >
                       <CreditCard size={14} className="text-amber-400" />
                       <span>Billing & Credits</span>
@@ -271,13 +271,13 @@ export default function Navbar() {
                     <Link
                       href="/dashboard"
                       onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-slate-200 hover:bg-slate-800 hover:text-amber-400 transition"
+                      className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-zinc-200 hover:bg-slate-800 hover:text-amber-400 transition"
                     >
                       <Settings size={14} className="text-purple-400" />
                       <span>Account Settings</span>
                     </Link>
 
-                    <div className="mt-1 pt-1 border-t border-slate-800">
+                    <div className="mt-1 pt-1 border-t border-white/10">
                       <button
                         type="button"
                         onClick={() => {
@@ -297,7 +297,7 @@ export default function Navbar() {
               <div className="flex items-center gap-2">
                 <Link
                   href="/login"
-                  className="rounded-full px-4 py-2 text-xs font-bold text-slate-300 transition hover:bg-white/5 hover:text-orange-400"
+                  className="rounded-full px-4 py-2 text-xs font-bold text-zinc-300 transition hover:bg-white/5 hover:text-orange-400"
                 >
                   Sign In
                 </Link>
@@ -315,7 +315,7 @@ export default function Navbar() {
           {/* MOBILE HAMBURGER BUTTON */}
           <button
             type="button"
-            className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-[#111827] text-white shadow-md active:scale-90 transition-all duration-200 hover:border-orange-500/50 md:hidden"
+            className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-[#131218] text-white shadow-md active:scale-90 transition-all duration-200 hover:border-orange-500/50 md:hidden"
             onClick={() => setIsOpen(!isOpen)}
             aria-label={isOpen ? 'Close menu' : 'Open menu'}
           >
@@ -335,14 +335,14 @@ export default function Navbar() {
 
       {/* MOBILE FLYOUT DRAWER */}
       {isOpen && (
-        <div className="fixed inset-0 z-[120] flex flex-col justify-between bg-slate-950/98 text-white backdrop-blur-3xl p-6 md:hidden animate-in fade-in slide-in-from-top-4 duration-300 overflow-y-auto">
+        <div className="fixed inset-0 z-[120] flex flex-col justify-between bg-black/98 text-white backdrop-blur-3xl p-6 md:hidden animate-in fade-in slide-in-from-top-4 duration-300 overflow-y-auto">
           <div>
-            <div className="flex items-center justify-between pb-6 border-b border-slate-800">
+            <div className="flex items-center justify-between pb-6 border-b border-white/10">
               <BrandLogo size="sm" />
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="p-2 rounded-xl bg-slate-900 text-slate-300 hover:text-white"
+                className="p-2 rounded-xl bg-[#131218] text-zinc-300 hover:text-white"
               >
                 <X size={20} />
               </button>
@@ -354,7 +354,7 @@ export default function Navbar() {
               <Link
                 href="/video-types"
                 onClick={() => setIsOpen(false)}
-                className="flex items-center justify-between rounded-2xl bg-slate-900 p-4 text-sm font-bold text-slate-100 hover:text-amber-400"
+                className="flex items-center justify-between rounded-2xl bg-[#131218] p-4 text-sm font-bold text-slate-100 hover:text-amber-400"
               >
                 <div className="flex items-center gap-3">
                   <AudioLines size={18} className="text-amber-400" />
@@ -368,7 +368,7 @@ export default function Navbar() {
                   key={page.label}
                   href={page.href}
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-between rounded-2xl bg-slate-900/60 p-4 text-sm font-bold text-slate-200 hover:text-amber-400"
+                  className="flex items-center justify-between rounded-2xl bg-[#131218]/60 p-4 text-sm font-bold text-zinc-200 hover:text-amber-400"
                 >
                   <span>{page.label}</span>
                   {page.badge && (
@@ -381,10 +381,10 @@ export default function Navbar() {
             </div>
           </div>
 
-          <div className="mt-8 pt-6 border-t border-slate-800">
+          <div className="mt-8 pt-6 border-t border-white/10">
             {user ? (
               <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-3 rounded-2xl bg-slate-900 p-3">
+                <div className="flex items-center gap-3 rounded-2xl bg-[#131218] p-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-tr from-amber-400 to-orange-500 text-slate-950 font-black text-sm">
                     {user.email ? user.email.charAt(0).toUpperCase() : <User size={16} />}
                   </div>
@@ -420,7 +420,7 @@ export default function Navbar() {
                 <Link
                   href="/login"
                   onClick={() => setIsOpen(false)}
-                  className="w-full text-center rounded-2xl bg-slate-900 py-3.5 text-sm font-bold text-slate-200"
+                  className="w-full text-center rounded-2xl bg-[#131218] py-3.5 text-sm font-bold text-zinc-200"
                 >
                   Sign In
                 </Link>

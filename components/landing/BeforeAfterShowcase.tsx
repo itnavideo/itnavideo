@@ -36,7 +36,7 @@ const CAPTION_STYLES: CaptionStyle[] = [
     description: 'Clean white stacked captions with active word highlight in rounded blue box.',
     presetKey: 'Studio Clean',
     previewCanvas: {
-      bg: '#0f172a',
+      bg: '#0E0D14',
       textColor: '#ffffff',
       highlightColor: '#2563eb',
       sampleText: 'Studio [Clean]',
@@ -102,7 +102,7 @@ const CAPTION_STYLES: CaptionStyle[] = [
     description: 'Large bold uppercase captions with strong drop shadow and energetic impact.',
     presetKey: 'Screamer',
     previewCanvas: {
-      bg: '#111827',
+      bg: '#131218',
       textColor: '#facc15',
       highlightColor: '#ef4444',
       sampleText: 'ATTENTION NOW',
@@ -180,7 +180,7 @@ const CAPTION_STYLES: CaptionStyle[] = [
     description: 'Sleek silver metallic gradient typography with subtle high-contrast outline.',
     presetKey: 'Metallic Gradient',
     previewCanvas: {
-      bg: '#0f172a',
+      bg: '#0E0D14',
       textColor: '#cbd5e1',
       highlightColor: '#f8fafc',
       sampleText: 'METALLIC',

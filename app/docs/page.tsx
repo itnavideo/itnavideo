@@ -301,7 +301,7 @@ export default function DocsPage() {
         </div>
       </section>
 
-      <section className="border-y border-white/10 bg-[#111827] px-5 py-14 sm:px-8">
+      <section className="border-y border-white/10 bg-[#131218] px-5 py-14 sm:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr]">
             <div>
@@ -404,7 +404,7 @@ export default function DocsPage() {
         </div>
       </section>
 
-      <section className="border-y border-white/10 bg-[#0f172a] px-5 py-14 sm:px-8">
+      <section className="border-y border-white/10 bg-[#0E0D14] px-5 py-14 sm:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
             <div>

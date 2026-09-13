@@ -173,7 +173,7 @@ export default function WhatCanYouCreate() {
     : ACTIVE_TEMPLATES.filter((t) => t.category === activeCategory);
 
   return (
-    <section id="workflow" className="relative px-4 py-16 sm:px-6 sm:py-24 bg-[#070A11] border-b border-white/10 text-white">
+    <section id="workflow" className="relative px-4 py-16 sm:px-6 sm:py-24 bg-[#050407] border-b border-white/10 text-white">
       <div id="video-types" className="relative z-10 mx-auto max-w-7xl">
         
         {/* Header — Material Design 3 Typography & Tonal Eyebrow */}
@@ -231,7 +231,7 @@ export default function WhatCanYouCreate() {
             return (
               <div
                 key={`mobile-${template.id}`}
-                className="group relative overflow-hidden rounded-[28px] border border-white/10 bg-[#111827] p-5 shadow-lg transition hover:border-orange-500/30"
+                className="group relative overflow-hidden rounded-[28px] border border-white/10 bg-[#131218] p-5 shadow-lg transition hover:border-orange-500/30"
               >
                 {/* Header row inside card */}
                 <div className="flex items-center justify-between gap-3 mb-3">
@@ -256,10 +256,10 @@ export default function WhatCanYouCreate() {
 
                 {/* 1. STRICT 9:16 VERTICAL REEL CANVAS */}
                 {isVertical && (
-                  <div className={`relative aspect-[9/16] w-full max-w-[270px] mx-auto rounded-2xl overflow-hidden border border-slate-200/80 shadow-md my-4 ${
+                  <div className={`relative aspect-[9/16] w-full max-w-[270px] mx-auto rounded-2xl overflow-hidden border border-white/10 shadow-md my-4 ${
                     template.id === 'compare-explainer'
-                      ? 'bg-slate-100 dark:bg-card'
-                      : 'bg-slate-950'
+                      ? 'bg-[#131218] dark:bg-card'
+                      : 'bg-black'
                   }`}>
                     <Image
                       src={template.imageSrc}
@@ -290,7 +290,7 @@ export default function WhatCanYouCreate() {
                     )}
 
                     {/* Bottom Input overlay */}
-                    <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center gap-1.5 rounded-xl bg-black/80 backdrop-blur-xs px-3 py-1.5 text-[11px] text-slate-200 border border-white/10">
+                    <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center gap-1.5 rounded-xl bg-black/80 backdrop-blur-xs px-3 py-1.5 text-[11px] text-zinc-200 border border-white/10">
                       <span className="font-bold text-amber-300">Input:</span>
                       <span className="truncate font-medium text-white">{template.inputs}</span>
                     </div>
@@ -299,7 +299,7 @@ export default function WhatCanYouCreate() {
 
                 {/* 2. STRICT 16:9 WIDESCREEN YOUTUBE CANVAS */}
                 {isWidescreen && (
-                  <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-slate-950 border border-slate-100 shadow-md my-4">
+                  <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black border border-white/10 shadow-md my-4">
                     <Image
                       src={template.imageSrc}
                       alt={template.name}
@@ -320,7 +320,7 @@ export default function WhatCanYouCreate() {
                       </div>
                     )}
 
-                    <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center gap-1.5 rounded-xl bg-black/80 backdrop-blur-xs px-3 py-1.5 text-[11px] text-slate-200 border border-white/10">
+                    <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center gap-1.5 rounded-xl bg-black/80 backdrop-blur-xs px-3 py-1.5 text-[11px] text-zinc-200 border border-white/10">
                       <span className="font-bold text-amber-300">Input:</span>
                       <span className="truncate font-medium text-white">{template.inputs}</span>
                     </div>
@@ -329,7 +329,7 @@ export default function WhatCanYouCreate() {
 
                 {/* 3. AUDIO STUDIO TOOL CANVAS */}
                 {isAudio && (
-                  <div className="relative h-44 w-full rounded-2xl overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-amber-950/40 border border-slate-800 shadow-md my-4 flex flex-col items-center justify-center p-4">
+                  <div className="relative h-44 w-full rounded-2xl overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-amber-950/40 border border-white/10 shadow-md my-4 flex flex-col items-center justify-center p-4">
                     <Image
                       src={template.imageSrc}
                       alt={template.name}
@@ -391,13 +391,13 @@ export default function WhatCanYouCreate() {
             return (
               <div 
                 key={`desktop-${template.id}`} 
-                className={`rounded-[32px] border border-white/10 bg-[#111827] p-8 lg:p-10 shadow-xl hover:border-orange-500/40 transition-all duration-300 flex flex-col gap-8 lg:gap-12 lg:items-center ${isReversed ? "lg:flex-row-reverse" : "lg:flex-row"}`}
+                className={`rounded-[32px] border border-white/10 bg-[#131218] p-8 lg:p-10 shadow-xl hover:border-orange-500/40 transition-all duration-300 flex flex-col gap-8 lg:gap-12 lg:items-center ${isReversed ? "lg:flex-row-reverse" : "lg:flex-row"}`}
               >
                 {/* Visual / Image Showcase Column */}
                 <div className="w-full lg:w-1/2 shrink-0 flex justify-center">
                   <div className={`group relative overflow-hidden rounded-2xl border border-white/10 shadow-lg transition hover:shadow-2xl ${
                     template.id === 'compare-explainer'
-                      ? 'bg-slate-900'
+                      ? 'bg-[#131218]'
                       : 'bg-black'
                   } ${
                     isWidescreen 
@@ -454,7 +454,7 @@ export default function WhatCanYouCreate() {
                   </p>
                   
                   {/* Required Input Box */}
-                  <div className="rounded-2xl border border-white/10 bg-[#0D121F] p-4 mb-6 w-full max-w-md">
+                  <div className="rounded-2xl border border-white/10 bg-[#09080E] p-4 mb-6 w-full max-w-md">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1">
                       Required Input To Render
                     </p>

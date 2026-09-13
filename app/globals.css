@@ -55,8 +55,8 @@
 :root {
   /* ─── ITNAVIDEO UNIFIED DESIGN SYSTEM ──────────────────────────────────
      Design philosophy: Cinematic Midnight Studio (OpusClip + Runway standard)
-     Canvas: Midnight Obsidian (#0B0F19) | Brand Accent: Blaze Orange (#F97316)
-     Cards: Deep Slate (#111827) | Borders: 1px Crisp (#1E293B / rgba(255,255,255,0.08))
+     Canvas: Midnight Obsidian (#08070B) | Brand Accent: Blaze Orange (#F97316)
+     Cards: Deep Slate (#131218) | Borders: 1px Crisp (#1E1D27 / rgba(255,255,255,0.08))
      ──────────────────────────────────────────────────────────────────── */
 
   /* PRIMARY: Itnavideo Blaze Orange for main CTAs and energetic accents */
@@ -68,10 +68,10 @@
   --color-primary-light:  #FB923C;
 
   /* SECONDARY: Rich Slate & Midnight Tones */
-  --color-secondary:        #1E293B;
+  --color-secondary:        #1E1D27;
   --color-secondary-light:  #334155;
-  --color-secondary-dark:   #0F172A;
-  --color-secondary-tint:   #161F30;
+  --color-secondary-dark:   #0E0D14;
+  --color-secondary-tint:   #1A1922;
 
   /* WARM ACCENT: Studio Gold */
   --color-amber:       #F59E0B;
@@ -80,16 +80,16 @@
   --color-amber-dark:  #78350F;
 
   /* CANVAS & SURFACES */
-  --bg-darkest: #070A11;
-  --bg-hero: #0B0F19;
-  --bg-card: #111827;
-  --bg-raised: #161F30;
+  --bg-darkest: #050407;
+  --bg-hero: #08070B;
+  --bg-card: #131218;
+  --bg-raised: #1A1922;
   --border-dark: rgba(255, 255, 255, 0.08);
 
   /* LIGHT FALLBACKS (Backward compat) */
-  --bg-light:       #0B0F19;
-  --bg-white:       #111827;
-  --bg-light-hover: #161F30;
+  --bg-light:       #08070B;
+  --bg-white:       #131218;
+  --bg-light-hover: #1A1922;
   --border-light:   rgba(255, 255, 255, 0.08);
 
   /* TEXT HIERARCHY */
@@ -117,19 +117,19 @@
   --card-shadow-light: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
 
   /* ─── SHADCN / UI TOKENS ──────────────────────────────────────────── */
-  --background: #0B0F19;
+  --background: #08070B;
   --foreground: #F8FAFC;
-  --card: #111827;
+  --card: #131218;
   --card-foreground: #F8FAFC;
-  --popover: #111827;
+  --popover: #131218;
   --popover-foreground: #F8FAFC;
   --primary: #F97316;
   --primary-foreground: #FFFFFF;
-  --secondary: #1E293B;
+  --secondary: #1E1D27;
   --secondary-foreground: #F8FAFC;
-  --muted: #161F30;
+  --muted: #1A1922;
   --muted-foreground: #94A3B8;
-  --accent: #1E293B;
+  --accent: #1E1D27;
   --accent-foreground: #F8FAFC;
   --destructive: #EF4444;
   --border: rgba(255, 255, 255, 0.08);
@@ -141,11 +141,11 @@
   --chart-4: #38BDF8;
   --chart-5: #10B981;
   --radius: 0.75rem;
-  --sidebar: #0D121F;
+  --sidebar: #09080E;
   --sidebar-foreground: #F8FAFC;
   --sidebar-primary: #F97316;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #161F30;
+  --sidebar-accent: #1A1922;
   --sidebar-accent-foreground: #F8FAFC;
   --sidebar-border: rgba(255, 255, 255, 0.08);
   --sidebar-ring: #F97316;
@@ -154,13 +154,13 @@
   --brand-mint: #F97316;
   --brand-cyan: #38BDF8;
   --brand-gold: #F59E0B;
-  --brand-ink: #0B0F19;
+  --brand-ink: #08070B;
 
   /* Legacy extended palette */
-  --bg-main: #0B0F19;
-  --bg-secondary: #111827;
-  --bg-card-soft: #161F30;
-  --bg-soft: #0B0F19;
+  --bg-main: #08070B;
+  --bg-secondary: #131218;
+  --bg-card-soft: #1A1922;
+  --bg-soft: #08070B;
   --primary-hover: #EA580C;
   --primary-soft: rgba(249, 115, 22, 0.15);
   --secondary-accent: #FB923C;
@@ -179,37 +179,37 @@
 }
 
 .dark {
-  --background: #0B0F19;
+  --background: #08070B;
   --foreground: #F8FAFC;
-  --card: #1E293B;
+  --card: #131218;
   --card-foreground: #FFFFFF;
-  --popover: #1E293B;
+  --popover: #131218;
   --popover-foreground: #FFFFFF;
-  --primary: #3B82F6;
+  --primary: #F97316;
   --primary-foreground: #FFFFFF;
-  --secondary: #0F172A;
+  --secondary: #1E1D27;
   --secondary-foreground: #FFFFFF;
-  --muted: #1E293B;
+  --muted: #1A1922;
   --muted-foreground: #94A3B8;
-  --accent: #1E293B;
+  --accent: #1E1D27;
   --accent-foreground: #FFFFFF;
   --destructive: #EF4444;
-  --border: rgba(255, 255, 255, 0.10);
-  --input: #172033;
-  --ring: #3B82F6;
-  --chart-1: #3B82F6;
-  --chart-2: #60A5FA;
-  --chart-3: #1D4ED8;
-  --chart-4: #F5C542;
-  --chart-5: #3B82F6;
-  --sidebar: #0B0F19;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.12);
+  --ring: #F97316;
+  --chart-1: #F97316;
+  --chart-2: #FB923C;
+  --chart-3: #F59E0B;
+  --chart-4: #A855F7;
+  --chart-5: #10B981;
+  --sidebar: #08070B;
   --sidebar-foreground: #FFFFFF;
-  --sidebar-primary: #3B82F6;
+  --sidebar-primary: #F97316;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #1E293B;
+  --sidebar-accent: #1A1922;
   --sidebar-accent-foreground: #FFFFFF;
-  --sidebar-border: rgba(255, 255, 255, 0.10);
-  --sidebar-ring: #3B82F6;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: #F97316;
 }
 
 @layer base {
@@ -256,24 +256,24 @@
 @layer utilities {
   .brand-surface {
     background:
-      radial-gradient(circle at 18% 0%, rgba(34, 211, 238, 0.12), transparent 34%),
-      radial-gradient(circle at 82% 4%, rgba(167, 139, 250, 0.07), transparent 32%),
+      radial-gradient(circle at 18% 0%, rgba(249, 115, 22, 0.08), transparent 34%),
+      radial-gradient(circle at 82% 4%, rgba(168, 85, 247, 0.08), transparent 32%),
       var(--background);
   }
 
   .brand-text-gradient {
-    background: linear-gradient(135deg, #A7F3D0 0%, #34D399 50%, #059669 100%);
+    background: linear-gradient(135deg, #FCD34D 0%, #F59E0B 50%, #F97316 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
 
   .brand-gradient-bg {
-    background: linear-gradient(135deg, #34D399 0%, #059669 100%);
+    background: linear-gradient(135deg, #F59E0B 0%, #F97316 100%);
   }
 
   .brand-gradient-border {
-    border-image: linear-gradient(135deg, #34D399, #059669) 1;
+    border-image: linear-gradient(135deg, #F59E0B, #F97316) 1;
   }
 
   .brand-card {
@@ -284,8 +284,8 @@
   }
 
   .brand-card-selected {
-    border: 1px solid rgba(16, 185, 129, 0.55);
-    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.25), 0 12px 40px rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(249, 115, 22, 0.55);
+    box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.25), 0 12px 40px rgba(249, 115, 22, 0.12);
   }
 
   .brand-card-light {

@@ -203,7 +203,7 @@ interface CleanVideoCardProps {
 function CleanVideoCard({ video, isPlaying, onPlay, onEnded, aspectRatio = '9/16' }: CleanVideoCardProps) {
   const isWidescreen = aspectRatio === '16:9';
   return (
-    <div className={`group relative flex-none ${isWidescreen ? 'w-[300px] sm:w-[380px] md:w-[440px]' : 'w-[220px] sm:w-[250px] md:w-[270px]'} snap-start rounded-2xl overflow-hidden bg-black shadow-md transition-all duration-300 hover:shadow-xl hover:scale-[1.01] border border-slate-800`}>
+    <div className={`group relative flex-none ${isWidescreen ? 'w-[300px] sm:w-[380px] md:w-[440px]' : 'w-[220px] sm:w-[250px] md:w-[270px]'} snap-start rounded-2xl overflow-hidden bg-black shadow-md transition-all duration-300 hover:shadow-xl hover:scale-[1.01] border border-white/10`}>
       <div className={`relative ${isWidescreen ? 'aspect-video' : 'aspect-[9/16]'} w-full overflow-hidden bg-black`}>
         {isPlaying ? (
           <video
@@ -230,7 +230,7 @@ function CleanVideoCard({ video, isPlaying, onPlay, onEnded, aspectRatio = '9/16
               className="absolute inset-0 flex items-center justify-center cursor-pointer bg-black/10 hover:bg-black/30 transition"
               aria-label="Play video"
             >
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/95 text-slate-900 shadow-2xl backdrop-blur-sm transition-all duration-300 group-hover:scale-110 group-hover:bg-orange-500 group-hover:text-white">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/95 text-zinc-100 shadow-2xl backdrop-blur-sm transition-all duration-300 group-hover:scale-110 group-hover:bg-orange-500 group-hover:text-white">
                 <Play size={24} className="ml-1 fill-current" />
               </div>
             </button>
@@ -433,7 +433,7 @@ export default function DemoVideosShowcase() {
   };
 
   return (
-    <section id="demo-videos" className="relative overflow-hidden bg-[#0B0F19] py-20 border-t border-white/10 text-white">
+    <section id="demo-videos" className="relative overflow-hidden bg-[#08070B] py-20 border-t border-white/10 text-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Main Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
@@ -505,7 +505,7 @@ export default function DemoVideosShowcase() {
         />
 
         {/* Bottom Banner CTA */}
-        <div className="mt-14 rounded-3xl border border-orange-500/30 bg-gradient-to-r from-orange-500/10 via-[#111827] to-[#0B0F19] p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left shadow-xl">
+        <div className="mt-14 rounded-3xl border border-orange-500/30 bg-gradient-to-r from-orange-500/10 via-[#131218] to-[#08070B] p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left shadow-xl">
           <div className="space-y-1">
             <h3 className="text-base font-bold text-white">
               Ready to generate your own high-retention videos in seconds?

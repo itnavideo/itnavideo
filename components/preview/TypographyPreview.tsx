@@ -616,9 +616,9 @@ function DynamicTypographyOverlay({
           <div
             className="mt-0.5 text-3xl font-black uppercase tracking-tight text-[#38BDF8]"
             style={{
-              WebkitTextStroke: '4px #0F172A',
+              WebkitTextStroke: '4px #0E0D14',
               paintOrder: 'stroke fill',
-              textShadow: '0 4px 0 #0284C7, 0 8px 0 #0F172A, 0 12px 20px rgba(0,0,0,0.9)',
+              textShadow: '0 4px 0 #0284C7, 0 8px 0 #0E0D14, 0 12px 20px rgba(0,0,0,0.9)',
             }}
           >
             {phrase.hero}

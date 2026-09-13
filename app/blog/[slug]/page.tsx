@@ -144,13 +144,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     : null;
 
   return (
-    <main className="min-h-screen bg-[#0B0F19] text-slate-100 pt-16">
+    <main className="min-h-screen bg-[#08070B] text-slate-100 pt-16">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJson(articleSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJson(breadcrumbSchema) }} />
       {faqSchema ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJson(faqSchema) }} /> : null}
 
       {/* Top nav bar */}
-      <div className="border-b border-white/10 bg-[#0B0F19]/80 backdrop-blur-xl">
+      <div className="border-b border-white/10 bg-[#08070B]/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-[760px] items-center justify-between px-6 py-4">
           <Link href="/blog" className="inline-flex items-center gap-2 text-xs font-bold text-slate-400 transition hover:text-orange-400">
             <ArrowLeft size={16} />
@@ -184,7 +184,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </p>
 
         {/* Featured Hero Visual Banner (Matching Itnavideo Visual Brand Identity) */}
-        <div className="my-10 overflow-hidden rounded-2xl border border-white/10 bg-[#111827] p-3 shadow-2xl">
+        <div className="my-10 overflow-hidden rounded-2xl border border-white/10 bg-[#131218] p-3 shadow-2xl">
           <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl bg-slate-950 group">
             <img
               src={post.featuredImage || `/preview/${productFeature.previewImage}`}
@@ -312,7 +312,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
         {/* Contextual Related Product Links */}
         {productFeature.relatedLinks?.length ? (
-          <section className="mt-14 rounded-2xl border border-white/10 bg-[#111827] p-7">
+          <section className="mt-14 rounded-2xl border border-white/10 bg-[#131218] p-7">
             <h2 className="font-sans text-lg font-bold text-white">Contextual Itnavideo Tools & Features</h2>
             <p className="mt-1 text-xs text-slate-400">Direct studio links for {productFeature.name}</p>
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -334,7 +334,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         ) : null}
 
         {/* Authoritative External Research & Standards */}
-        <section className="mt-14 rounded-2xl border border-white/10 bg-[#111827] p-7 shadow-sm">
+        <section className="mt-14 rounded-2xl border border-white/10 bg-[#131218] p-7 shadow-sm">
           <div className="flex items-center gap-2 mb-2">
             <Globe size={18} className="text-orange-400" />
             <h2 className="font-sans text-lg font-bold text-white">Authoritative Industry Standards & Research</h2>
@@ -398,7 +398,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </section>
 
         {/* Product Feature Spotlight Card */}
-        <div className="mt-14 rounded-2xl border border-orange-500/30 bg-gradient-to-br from-orange-500/10 via-[#111827] to-[#0B0F19] p-8 shadow-xl">
+        <div className="mt-14 rounded-2xl border border-orange-500/30 bg-gradient-to-br from-orange-500/10 via-[#131218] to-[#08070B] p-8 shadow-xl">
           <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-orange-400">
               <Sparkles size={13} className="text-orange-400" />
@@ -452,12 +452,12 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       </article>
 
       {/* More posts section */}
-      <section className="border-t border-white/10 bg-[#070A11] px-6 py-16">
+      <section className="border-t border-white/10 bg-[#050407] px-6 py-16">
         <div className="mx-auto max-w-[760px]">
           <h2 className="font-sans text-xl font-bold text-white">More from Itnavideo</h2>
           <div className="mt-6 grid gap-5 md:grid-cols-2">
             {related.map((item) => (
-              <Link key={item.slug} href={`/blog/${item.slug}`} className="group rounded-2xl border border-white/10 bg-[#111827] p-6 transition hover:border-orange-500/40 hover:shadow-lg">
+              <Link key={item.slug} href={`/blog/${item.slug}`} className="group rounded-2xl border border-white/10 bg-[#131218] p-6 transition hover:border-orange-500/40 hover:shadow-lg">
                 <p className="text-xs font-bold uppercase tracking-wide text-orange-400">{item.category}</p>
                 <h3 className="mt-2 font-sans text-lg font-bold leading-snug text-white group-hover:text-orange-400 transition">
                   {item.title}

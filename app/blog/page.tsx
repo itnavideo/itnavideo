@@ -16,7 +16,7 @@ export default async function BlogPage() {
 
 
   return (
-    <main className="min-h-screen bg-[#0B0F19] text-slate-100 pt-16">
+    <main className="min-h-screen bg-[#08070B] text-slate-100 pt-16">
       {/* Header */}
       <div className="border-b border-white/10">
         <section className="mx-auto max-w-[900px] px-6 pb-12 pt-16">

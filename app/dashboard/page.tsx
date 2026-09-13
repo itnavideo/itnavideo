@@ -1294,10 +1294,10 @@ export default function DashboardPage() {
         }}
       />
     )}
-    <main className="min-h-screen max-w-full overflow-hidden bg-[#0B0F19] text-slate-100 flex flex-col md:flex-row pt-14 md:pt-16">
+    <main className="min-h-screen max-w-full overflow-hidden bg-[#08070B] text-slate-100 flex flex-col md:flex-row pt-14 md:pt-16">
       
       {/* ── Desktop Dashboard Navigation Rail (M3) ── */}
-      <aside className="hidden md:flex md:w-64 shrink-0 border-r border-white/10 bg-[#0D121F] flex-col z-10 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto custom-scrollbar">
+      <aside className="hidden md:flex md:w-64 shrink-0 border-r border-white/10 bg-[#09080E] flex-col z-10 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto custom-scrollbar">
         {/* M3 Sidebar Header */}
         <div className="px-5 py-5 border-b border-white/10 mb-2">
           <div className="flex items-center justify-between">
@@ -1410,7 +1410,7 @@ export default function DashboardPage() {
       </aside>
 
       {/* ── M3 Mobile Bottom Navigation Bar ── */}
-      <nav className="fixed bottom-0 inset-x-0 z-50 md:hidden bg-[#0D121F]/95 backdrop-blur-xl border-t border-white/10 shadow-[0_-8px_30px_rgba(0,0,0,0.5)] px-2 py-1.5 flex items-center justify-around pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))]">
+      <nav className="fixed bottom-0 inset-x-0 z-50 md:hidden bg-[#09080E]/95 backdrop-blur-xl border-t border-white/10 shadow-[0_-8px_30px_rgba(0,0,0,0.5)] px-2 py-1.5 flex items-center justify-around pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))]">
         <button
           type="button"
           onClick={() => setActiveTab("video-types")}
@@ -1484,7 +1484,7 @@ export default function DashboardPage() {
         {activeTab === "video-types" && (
           <div className="space-y-6 animate-in fade-in duration-300">
         {/* M3 Dashboard Quick Action & Credits Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-white/10 bg-[#0B0F19] p-3 sm:p-3.5 shadow-md backdrop-blur-xl">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-white/10 bg-[#08070B] p-3 sm:p-3.5 shadow-md backdrop-blur-xl">
           <div className="flex items-center justify-between sm:justify-start gap-2">
             <div className="flex items-center gap-2">
               <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
@@ -2816,7 +2816,7 @@ export default function DashboardPage() {
                 {recentRenders.map((render) => (
                   <div
                     key={render.id}
-                    className="group relative flex flex-col justify-between rounded-3xl border border-white/10 bg-[#0B0F19] p-5 shadow-xl transition-all duration-200 hover:border-amber-400/40 hover:shadow-2xl"
+                    className="group relative flex flex-col justify-between rounded-3xl border border-white/10 bg-[#08070B] p-5 shadow-xl transition-all duration-200 hover:border-amber-400/40 hover:shadow-2xl"
                   >
                     <div>
                       {/* Top Badges: Mode & Expiry */}
@@ -2905,7 +2905,7 @@ export default function DashboardPage() {
             </div>
 
             {/* M3 Elevated Credits Card */}
-            <div className="rounded-3xl border border-white/10 bg-[#0B0F19] p-6 sm:p-8 shadow-2xl space-y-6 text-white">
+            <div className="rounded-3xl border border-white/10 bg-[#08070B] p-6 sm:p-8 shadow-2xl space-y-6 text-white">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                   <div className="inline-flex items-center gap-2 rounded-full bg-amber-400/15 border border-amber-400/30 px-3 py-1 text-xs font-extrabold text-amber-400 mb-2">
@@ -3070,7 +3070,7 @@ export default function DashboardPage() {
               </p>
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-[#0B0F19] p-6 sm:p-8 shadow-2xl space-y-6 text-white">
+            <div className="rounded-3xl border border-white/10 bg-[#08070B] p-6 sm:p-8 shadow-2xl space-y-6 text-white">
               <div className="flex items-center gap-4">
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-amber-400 to-orange-500 text-slate-950 text-2xl font-black shadow-lg shadow-amber-500/20">
                   {user?.email ? user.email.charAt(0).toUpperCase() : <User size={28} />}

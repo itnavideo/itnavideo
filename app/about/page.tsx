@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-[#0B0F19] text-white selection:bg-orange-500/30 selection:text-orange-200 pt-20 pb-24 px-4 sm:px-6">
+    <main className="min-h-screen bg-[#08070B] text-white selection:bg-orange-500/30 selection:text-orange-200 pt-20 pb-24 px-4 sm:px-6">
       {/* Background radial glow */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-500/10 rounded-full blur-[140px]" />
@@ -51,7 +51,7 @@ export default function AboutPage() {
 
           {/* 3 Core Impact Metrics (M3 Elevated Badges) */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-4 max-w-3xl mx-auto text-left">
-            <div className="rounded-2xl border border-white/10 bg-[#111827] p-4.5 backdrop-blur-md">
+            <div className="rounded-2xl border border-white/10 bg-[#131218] p-4.5 backdrop-blur-md">
               <div className="flex items-center gap-2 text-orange-400 mb-1">
                 <Clock className="w-5 h-5" />
                 <span className="text-xl sm:text-2xl font-black text-white">10x Faster</span>
@@ -59,7 +59,7 @@ export default function AboutPage() {
               <p className="text-xs text-zinc-400 font-medium">Turn hours of manual timeline slicing into 2-minute cloud renders.</p>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-[#111827] p-4.5 backdrop-blur-md">
+            <div className="rounded-2xl border border-white/10 bg-[#131218] p-4.5 backdrop-blur-md">
               <div className="flex items-center gap-2 text-amber-400 mb-1">
                 <Zap className="w-5 h-5" />
                 <span className="text-xl sm:text-2xl font-black text-white">1-Click AI</span>
@@ -67,7 +67,7 @@ export default function AboutPage() {
               <p className="text-xs text-zinc-400 font-medium">Groq Whisper synced subtitles with Roman Hinglish and audio cleanup.</p>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-[#111827] p-4.5 backdrop-blur-md">
+            <div className="rounded-2xl border border-white/10 bg-[#131218] p-4.5 backdrop-blur-md">
               <div className="flex items-center gap-2 text-emerald-400 mb-1">
                 <ShieldCheck className="w-5 h-5" />
                 <span className="text-xl sm:text-2xl font-black text-white">100% Studio</span>

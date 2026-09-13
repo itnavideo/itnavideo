@@ -17,7 +17,7 @@ import {
 import Link from 'next/link';
 
 const SUBTITLE_PRESETS_MOCK = [
-  { name: 'Studio Clean', color: '#2563eb', bg: '#1E293B' },
+  { name: 'Studio Clean', color: '#2563eb', bg: '#1E1D27' },
   { name: 'Karaoke Fill', color: '#eab308', bg: '#172554' },
   { name: 'Bold Fire', color: '#ef4444', bg: '#1C1017' },
   { name: 'Neon Pulse', color: '#06b6d4', bg: '#020617' },

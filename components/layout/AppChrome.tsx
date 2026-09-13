@@ -40,7 +40,7 @@ export default function AppChrome({ children }: { children: React.ReactNode }) {
 
 function StickyMobileCTA() {
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 block border-t border-white/10 bg-[#0B0F19]/95 px-4 py-3 backdrop-blur-xl sm:hidden">
+    <div className="fixed bottom-0 left-0 right-0 z-50 block border-t border-white/10 bg-[#08070B]/95 px-4 py-3 backdrop-blur-xl sm:hidden">
       <Link
         href="/signup"
         className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 px-6 py-3.5 text-sm font-black text-white shadow-[0_0_24px_rgba(249,115,22,0.35)] transition active:scale-[0.97]"

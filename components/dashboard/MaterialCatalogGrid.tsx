@@ -200,7 +200,7 @@ export function MaterialCatalogGrid({
           </div>
 
           {/* M3 Card Bottom Surface */}
-          <div className="flex items-center justify-between gap-2 px-3.5 py-3 bg-[#0B0F19] border-t border-white/10">
+          <div className="flex items-center justify-between gap-2 px-3.5 py-3 bg-[#08070B] border-t border-white/10">
             <div className="min-w-0 flex-1">
               <h3 className="text-sm font-bold text-white tracking-tight truncate group-hover:text-amber-400 transition-colors">
                 {card.title}

@@ -22,12 +22,12 @@ export const metadata: Metadata = {
 
 export default function PricingPage() {
   return (
-    <main className="bg-[#0B0F19] text-zinc-100 min-h-screen pt-12">
+    <main className="bg-[#08070B] text-zinc-100 min-h-screen pt-12">
       {/* Universal Modern Pricing Section (Cards, Credit Explainer, Comparison Table, Razorpay Checkout) */}
       <PricingSection />
 
       {/* Material 3 Credits Breakdown Section */}
-      <section className="bg-[#0B0F19] px-4 py-16 sm:px-6 border-b border-white/10">
+      <section className="bg-[#08070B] px-4 py-16 sm:px-6 border-b border-white/10">
         <div className="mx-auto max-w-6xl">
           <div className="mx-auto max-w-2xl text-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold text-orange-400">

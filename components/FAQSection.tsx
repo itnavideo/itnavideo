@@ -97,7 +97,7 @@ export default function FAQSection() {
   };
 
   return (
-    <section className="relative overflow-hidden px-4 py-20 sm:px-6 sm:py-32 bg-[#0B0F19] border-t border-white/10 text-white">
+    <section className="relative overflow-hidden px-4 py-20 sm:px-6 sm:py-32 bg-[#08070B] border-t border-white/10 text-white">
       {/* Background ambient radial glow */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_0px,rgba(249,115,22,0.05),transparent_100%)]" />
 
@@ -140,7 +140,7 @@ export default function FAQSection() {
                   className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer ${
                     isActive
                       ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/20 font-extrabold scale-[1.02]'
-                      : 'border border-white/10 bg-[#111827] text-zinc-300 hover:bg-white/10 hover:text-white'
+                      : 'border border-white/10 bg-[#131218] text-zinc-300 hover:bg-white/10 hover:text-white'
                   }`}
                   type="button"
                 >
@@ -170,8 +170,8 @@ export default function FAQSection() {
                 transition={{ duration: 0.25, delay: index * 0.03 }}
                 className={`group rounded-3xl border transition-all duration-300 overflow-hidden ${
                   isOpen
-                    ? 'border-orange-500/40 bg-[#111827] shadow-xl ring-1 ring-orange-500/20'
-                    : 'border-white/10 bg-[#111827]/80 hover:border-orange-500/30 hover:bg-[#111827]'
+                    ? 'border-orange-500/40 bg-[#131218] shadow-xl ring-1 ring-orange-500/20'
+                    : 'border-white/10 bg-[#131218]/80 hover:border-orange-500/30 hover:bg-[#131218]'
                 }`}
               >
                 <button
@@ -214,7 +214,7 @@ export default function FAQSection() {
                       transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
                     >
                       <div className="px-4 pb-5 pt-1 sm:px-6 sm:pb-6">
-                        <div className="rounded-2xl bg-[#070A11] border border-white/10 p-4 sm:p-5 space-y-3">
+                        <div className="rounded-2xl bg-[#050407] border border-white/10 p-4 sm:p-5 space-y-3">
                           <p className="text-xs sm:text-sm leading-relaxed text-zinc-300 font-normal">
                             {faq.answer}
                           </p>
@@ -245,7 +245,7 @@ export default function FAQSection() {
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mt-12 rounded-3xl border border-white/10 bg-[#111827] p-6 text-center max-w-xl mx-auto backdrop-blur-md shadow-xl"
+          className="mt-12 rounded-3xl border border-white/10 bg-[#131218] p-6 text-center max-w-xl mx-auto backdrop-blur-md shadow-xl"
         >
           <div className="flex h-10 w-10 mx-auto items-center justify-center rounded-full bg-orange-500/10 text-orange-400 mb-2">
             <MessageCircle size={18} />

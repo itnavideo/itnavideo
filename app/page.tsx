@@ -82,7 +82,7 @@ const jsonLd = [
 
 export default function LandingPage() {
   return (
-    <div className="relative flex flex-col overflow-x-hidden bg-[#0B0F19] text-white">
+    <div className="relative flex flex-col overflow-x-hidden bg-[#08070B] text-white">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -111,7 +111,7 @@ export default function LandingPage() {
       <FAQSection />
 
       {/* 13. Comprehensive SEO Content Section (Text-to-Code Ratio Boost) */}
-      <section className="bg-[#070A11] border-t border-white/10 py-16 px-6">
+      <section className="bg-[#050407] border-t border-white/10 py-16 px-6">
         <div className="mx-auto max-w-5xl text-zinc-300 space-y-8">
           <div>
             <h2 className="text-2xl font-bold text-white tracking-tight font-sans">
@@ -123,7 +123,7 @@ export default function LandingPage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 text-sm leading-relaxed">
-            <div className="space-y-3 bg-[#111827] p-5 rounded-2xl border border-white/10 shadow-sm">
+            <div className="space-y-3 bg-[#131218] p-5 rounded-2xl border border-white/10 shadow-sm">
               <h3 className="text-base font-semibold text-white">
                 Text to Video Generator
               </h3>
@@ -132,7 +132,7 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="space-y-3 bg-[#111827] p-5 rounded-2xl border border-white/10 shadow-sm">
+            <div className="space-y-3 bg-[#131218] p-5 rounded-2xl border border-white/10 shadow-sm">
               <h3 className="text-base font-semibold text-white">
                 Best AI Video Generators for Creators
               </h3>
@@ -141,7 +141,7 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="space-y-3 bg-[#111827] p-5 rounded-2xl border border-white/10 shadow-sm">
+            <div className="space-y-3 bg-[#131218] p-5 rounded-2xl border border-white/10 shadow-sm">
               <h3 className="text-base font-semibold text-white">
                 Studio-Quality AI Video Generation
               </h3>

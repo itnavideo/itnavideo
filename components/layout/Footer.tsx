@@ -75,7 +75,7 @@ const socialLinks = [
 
 export default function Footer() {
   return (
-    <footer className="relative w-full border-t border-white/10 bg-[#0B0F19] text-zinc-300 overflow-hidden">
+    <footer className="relative w-full border-t border-white/10 bg-[#08070B] text-zinc-300 overflow-hidden">
       {/* M3 Ambient Top Glow */}
       <div 
         className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(249,115,22,0.06),transparent_70%)]" 

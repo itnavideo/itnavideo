@@ -15,7 +15,7 @@ export default function LongVideoShowcase() {
   };
 
   return (
-    <section className="relative overflow-hidden px-4 py-24 sm:px-6 sm:py-32 bg-[#090D16] border-y border-slate-800/80">
+    <section className="relative overflow-hidden px-4 py-24 sm:px-6 sm:py-32 bg-[#090D16] border-y border-white/10/80">
       {/* Smooth Ambient Top Glow & Transition Divider */}
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-500/60 to-transparent" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-slate-900/50 via-slate-950/20 to-transparent" />
@@ -57,7 +57,7 @@ export default function LongVideoShowcase() {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="mx-auto mt-5 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg"
+            className="mx-auto mt-5 max-w-2xl text-base leading-7 text-zinc-300 sm:text-lg"
           >
             Upload your voiceover or audio up to 20 minutes. AI automatically pairs cinematic 16:9 visuals from our library, styles clean Canva backgrounds, and generates word-synced subtitles.
           </motion.p>
@@ -70,8 +70,8 @@ export default function LongVideoShowcase() {
           viewport={{ once: true }}
           className="mx-auto mb-16 max-w-4xl"
         >
-          <div className="rounded-[20px] border-[6px] border-slate-900 bg-background p-1 shadow-[0_30px_80px_rgba(56,189,248,0.15),0_8px_24px_rgba(0,0,0,0.5)]">
-            <div className="relative aspect-video overflow-hidden rounded-[12px] bg-slate-950 group">
+          <div className="rounded-[20px] border-[6px] border-white/10 bg-background p-1 shadow-[0_30px_80px_rgba(56,189,248,0.15),0_8px_24px_rgba(0,0,0,0.5)]">
+            <div className="relative aspect-video overflow-hidden rounded-[12px] bg-black group">
               {isPlaying ? (
                 <video
                   ref={videoRef}
@@ -121,11 +121,11 @@ export default function LongVideoShowcase() {
               )}
 
               {/* Camera dot */}
-              <span className="absolute left-1/2 top-2 h-1.5 w-7 -translate-x-1/2 rounded-full bg-slate-700 pointer-events-none z-10" />
+              <span className="absolute left-1/2 top-2 h-1.5 w-7 -translate-x-1/2 rounded-full bg-zinc-800 pointer-events-none z-10" />
             </div>
           </div>
           {/* Laptop base */}
-          <div className="relative mx-auto h-3 w-2/3 rounded-b-xl border-x border-b border-slate-900 bg-muted shadow-[0_8px_16px_rgba(0,0,0,0.4)]">
+          <div className="relative mx-auto h-3 w-2/3 rounded-b-xl border-x border-b border-white/10 bg-muted shadow-[0_8px_16px_rgba(0,0,0,0.4)]">
             <span className="absolute left-1/2 top-0 h-px w-1/4 -translate-x-1/2 bg-amber-400/30" />
           </div>
         </motion.div>
@@ -146,11 +146,11 @@ export default function LongVideoShowcase() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.06 }}
-              className="rounded-2xl border border-white/10 bg-slate-900/60 p-5 transition hover:border-amber-400/30 hover:bg-slate-900/80 backdrop-blur-md shadow-lg"
+              className="rounded-2xl border border-white/10 bg-[#131218]/60 p-5 transition hover:border-amber-400/30 hover:bg-[#131218]/80 backdrop-blur-md shadow-lg"
             >
               <feature.icon size={22} className="mb-3 text-amber-400" />
               <p className="text-sm font-black text-white">{feature.title}</p>
-              <p className="mt-1.5 text-xs leading-5 text-slate-300">{feature.desc}</p>
+              <p className="mt-1.5 text-xs leading-5 text-zinc-300">{feature.desc}</p>
             </motion.div>
           ))}
         </div>
@@ -160,10 +160,10 @@ export default function LongVideoShowcase() {
           initial={{ opacity: 0, y: 14 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mx-auto mt-14 max-w-3xl rounded-3xl border border-white/15 bg-slate-900/70 p-6 text-center sm:p-8 backdrop-blur-md shadow-2xl"
+          className="mx-auto mt-14 max-w-3xl rounded-3xl border border-white/15 bg-[#131218]/70 p-6 text-center sm:p-8 backdrop-blur-md shadow-2xl"
         >
           <h3 className="text-xl font-black text-white sm:text-2xl font-sans">Ready to create high-retention faceless videos?</h3>
-          <p className="mt-2 text-sm leading-6 text-slate-300">
+          <p className="mt-2 text-sm leading-6 text-zinc-300">
             Upload your audio voiceover and let Itnavideo generate a complete 16:9 YouTube video in minutes.
           </p>
           <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
@@ -185,7 +185,7 @@ export default function LongVideoShowcase() {
         </motion.div>
 
         {/* Trust line */}
-        <div className="mt-10 flex flex-wrap items-center justify-center gap-4 text-[11px] text-slate-400">
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-4 text-[11px] text-zinc-400">
           {['No face or camera needed', 'Voiceover audio only', '16:9 YouTube Widescreen', 'Curated AI visual library', 'Canva color swatches'].map((t) => (
             <span key={t} className="flex items-center gap-1.5"><Check size={11} className="text-amber-400" />{t}</span>
           ))}

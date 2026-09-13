@@ -57,7 +57,7 @@ function BeforePhone() {
       }}>
         {/* Placeholder thumbnail bar */}
         <div style={{
-          height: 90, background: 'linear-gradient(135deg,#1e293b 0%,#065f46 100%)',
+          height: 90, background: 'linear-gradient(135deg,#1E1D27 0%,#065f46 100%)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
           <Youtube size={28} color="rgba(255,255,255,0.2)" />

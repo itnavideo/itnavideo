@@ -69,7 +69,7 @@ export const CANVA_BACKGROUND_TILES: CanvaBackgroundTile[] = [
     name: "Studio White",
     category: "light",
     hex: "#F9F9FB",
-    contrastColor: "#0F172A",
+    contrastColor: "#0E0D14",
     previewBg: "linear-gradient(135deg, #FFFFFF 0%, #F1F3F7 100%)",
     cloudinaryUrl: "https://res.cloudinary.com/dhouh9idx/image/upload/v1787939447/warm-off-white-cream-texture-f4f4f9_isou0y.png",
   },
@@ -86,7 +86,7 @@ export const CANVA_BACKGROUND_TILES: CanvaBackgroundTile[] = [
     name: "Soft Slate",
     category: "light",
     hex: "#E2E8F0",
-    contrastColor: "#0F172A",
+    contrastColor: "#0E0D14",
     previewBg: "linear-gradient(135deg, #EEF2F6 0%, #D8E0EB 100%)",
   },
   {
@@ -101,7 +101,7 @@ export const CANVA_BACKGROUND_TILES: CanvaBackgroundTile[] = [
     id: "charcoal-slate",
     name: "Charcoal Slate",
     category: "dark",
-    hex: "#1E293B",
+    hex: "#1E1D27",
     contrastColor: "#F8FAFC",
     previewBg: "linear-gradient(135deg, #243044 0%, #171F2C 100%)",
   },
@@ -117,9 +117,9 @@ export const CANVA_BACKGROUND_TILES: CanvaBackgroundTile[] = [
     id: "royal-navy",
     name: "Royal Navy",
     category: "luxury",
-    hex: "#0F172A",
+    hex: "#0E0D14",
     contrastColor: "#F1F5F9",
-    previewBg: "linear-gradient(135deg, #1E293B 0%, #0B1120 100%)",
+    previewBg: "linear-gradient(135deg, #1E1D27 0%, #0B1120 100%)",
   },
   {
     id: "sunset-amber",
@@ -710,8 +710,8 @@ export function FacelessVideoStyleControls({
               <span
                 className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider shadow-sm"
                 style={{
-                  backgroundColor: activeTile.contrastColor === "#0F172A" || activeTile.contrastColor === "#1C1917" ? "#0F172A" : "rgba(255,255,255,0.15)",
-                  color: activeTile.contrastColor === "#0F172A" || activeTile.contrastColor === "#1C1917" ? "#FFFFFF" : "#FFFFFF",
+                  backgroundColor: activeTile.contrastColor === "#0E0D14" || activeTile.contrastColor === "#1C1917" ? "#0E0D14" : "rgba(255,255,255,0.15)",
+                  color: activeTile.contrastColor === "#0E0D14" || activeTile.contrastColor === "#1C1917" ? "#FFFFFF" : "#FFFFFF",
                 }}
               >
                 CHAPTER 01 &bull; HOOK

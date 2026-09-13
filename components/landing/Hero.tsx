@@ -80,7 +80,7 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative overflow-hidden bg-[#0B0F19] px-4 pb-16 pt-24 text-white sm:px-6 sm:pb-24 sm:pt-32 border-b border-white/10">
+    <section className="relative overflow-hidden bg-[#08070B] px-4 pb-16 pt-24 text-white sm:px-6 sm:pb-24 sm:pt-32 border-b border-white/10">
       {/* Background Subtle Grid & Warm Amber/Orange Ambient Glow */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_100%_80%_at_50%_-10%,rgba(249,115,22,0.12),transparent_100%)]" />
       <div className="pointer-events-none absolute -top-40 right-0 h-96 w-96 rounded-full bg-orange-500/10 blur-3xl" />
@@ -159,22 +159,22 @@ export default function Hero() {
                 {/* Creator Avatar Stack */}
                 <div className="flex -space-x-2 overflow-hidden">
                   <img
-                    className="inline-block h-8 w-8 rounded-full ring-2 ring-[#0B0F19] object-cover shadow-xs"
+                    className="inline-block h-8 w-8 rounded-full ring-2 ring-[#08070B] object-cover shadow-xs"
                     src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
                     alt="Creator"
                   />
                   <img
-                    className="inline-block h-8 w-8 rounded-full ring-2 ring-[#0B0F19] object-cover shadow-xs"
+                    className="inline-block h-8 w-8 rounded-full ring-2 ring-[#08070B] object-cover shadow-xs"
                     src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80"
                     alt="Creator"
                   />
                   <img
-                    className="inline-block h-8 w-8 rounded-full ring-2 ring-[#0B0F19] object-cover shadow-xs"
+                    className="inline-block h-8 w-8 rounded-full ring-2 ring-[#08070B] object-cover shadow-xs"
                     src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80"
                     alt="Creator"
                   />
                   <img
-                    className="inline-block h-8 w-8 rounded-full ring-2 ring-[#0B0F19] object-cover shadow-xs"
+                    className="inline-block h-8 w-8 rounded-full ring-2 ring-[#08070B] object-cover shadow-xs"
                     src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80"
                     alt="Creator"
                   />
@@ -223,17 +223,17 @@ export default function Hero() {
             {/* Background Ambient Glow */}
             <div className="absolute -inset-4 rounded-3xl bg-gradient-to-tr from-amber-600/25 via-orange-500/20 to-amber-500/25 blur-2xl opacity-70" />
             
-            <div className="relative mx-auto max-w-lg rounded-3xl border border-white/15 bg-slate-900/90 backdrop-blur-2xl p-3.5 sm:p-5 shadow-2xl shadow-orange-500/10 ring-1 ring-white/10">
+            <div className="relative mx-auto max-w-lg rounded-3xl border border-white/15 bg-[#131218]/90 backdrop-blur-2xl p-3.5 sm:p-5 shadow-2xl shadow-orange-500/10 ring-1 ring-white/10">
               
               {/* Studio Window Header */}
-              <div className="flex items-center justify-between pb-3 border-b border-white/10 bg-slate-950/60 px-3.5 py-2.5 rounded-2xl mb-3">
+              <div className="flex items-center justify-between pb-3 border-b border-white/10 bg-black/60 px-3.5 py-2.5 rounded-2xl mb-3">
                 <div className="flex items-center gap-2">
                   <div className="flex gap-1.5">
                     <div className="h-3 w-3 rounded-full bg-red-500/80" />
                     <div className="h-3 w-3 rounded-full bg-amber-500/80" />
                     <div className="h-3 w-3 rounded-full bg-emerald-500/80" />
                   </div>
-                  <span className="ml-1 text-[11px] font-bold text-slate-300 font-mono tracking-wide">
+                  <span className="ml-1 text-[11px] font-bold text-zinc-300 font-mono tracking-wide">
                     ITNAVIDEO STUDIO
                   </span>
                 </div>
@@ -255,7 +255,7 @@ export default function Hero() {
                       className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[11px] font-bold transition whitespace-nowrap ${
                         isSelected
                           ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-orange-500/30'
-                          : 'bg-white/5 text-slate-300 border border-white/10 hover:bg-white/10 hover:text-white'
+                          : 'bg-white/5 text-zinc-300 border border-white/10 hover:bg-white/10 hover:text-white'
                       }`}
                     >
                       <Icon size={12} className={isSelected ? 'text-white' : 'text-amber-400'} />
@@ -266,7 +266,7 @@ export default function Hero() {
               </div>
 
               {/* Workspace Preview */}
-              <div className="mt-2 grid grid-cols-1 sm:grid-cols-12 gap-3 bg-slate-950/80 rounded-2xl p-3 border border-white/10 text-white">
+              <div className="mt-2 grid grid-cols-1 sm:grid-cols-12 gap-3 bg-black/80 rounded-2xl p-3 border border-white/10 text-white">
                 
                 {/* Left Upload & Pipeline Stats (Hidden on mobile, visible on desktop) */}
                 <div className="hidden sm:flex sm:col-span-5 flex-col justify-between space-y-3">
@@ -274,28 +274,28 @@ export default function Hero() {
                   <div className="rounded-xl border border-dashed border-amber-500/30 bg-amber-500/5 p-3 text-center">
                     <Upload size={16} className="mx-auto text-amber-400 mb-1" />
                     <p className="text-[11px] font-bold text-white">Input Content</p>
-                    <p className="text-[9px] text-slate-400">narration-audio.mp3 • 4.2 MB</p>
+                    <p className="text-[9px] text-zinc-400">narration-audio.mp3 • 4.2 MB</p>
                   </div>
 
                   {/* AI Progress Steps */}
-                  <div className="space-y-1.5 bg-slate-900/90 p-2.5 rounded-xl border border-white/10">
+                  <div className="space-y-1.5 bg-[#131218]/90 p-2.5 rounded-xl border border-white/10">
                     <p className="text-[9px] font-extrabold uppercase tracking-wider text-amber-400">AI Pipeline</p>
-                    <div className="flex items-center justify-between text-[10px] text-slate-300">
+                    <div className="flex items-center justify-between text-[10px] text-zinc-300">
                       <span className="flex items-center gap-1"><CheckCircle2 size={11} className="text-amber-400" /> Groq Whisper</span>
                       <span className="font-mono text-amber-300">100%</span>
                     </div>
-                    <div className="flex items-center justify-between text-[10px] text-slate-300">
+                    <div className="flex items-center justify-between text-[10px] text-zinc-300">
                       <span className="flex items-center gap-1"><CheckCircle2 size={11} className="text-amber-400" /> Scene Planner</span>
                       <span className="font-mono text-amber-300">Done</span>
                     </div>
-                    <div className="flex items-center justify-between text-[10px] text-slate-300">
+                    <div className="flex items-center justify-between text-[10px] text-zinc-300">
                       <span className="flex items-center gap-1"><CheckCircle2 size={11} className="text-amber-400" /> Captions & FX</span>
                       <span className="font-mono text-amber-300">Synced</span>
                     </div>
                   </div>
 
                   {/* Canvas Info */}
-                  <div className="flex items-center justify-between text-[10px] text-slate-400">
+                  <div className="flex items-center justify-between text-[10px] text-zinc-400">
                     <span>1080x1920 (9:16)</span>
                     <span className="rounded-md bg-amber-500/20 px-2 py-0.5 font-bold text-amber-300 border border-amber-500/30">30 FPS</span>
                   </div>
@@ -320,7 +320,7 @@ export default function Hero() {
                   <button
                     type="button"
                     onClick={toggleAudio}
-                    className="absolute top-2.5 right-2.5 z-20 flex items-center gap-1.5 rounded-full bg-slate-950/80 hover:bg-slate-900 backdrop-blur-md px-2.5 py-1 text-[10px] font-bold text-white border border-white/20 shadow-md transition active:scale-95 cursor-pointer"
+                    className="absolute top-2.5 right-2.5 z-20 flex items-center gap-1.5 rounded-full bg-black/80 hover:bg-[#131218] backdrop-blur-md px-2.5 py-1 text-[10px] font-bold text-white border border-white/20 shadow-md transition active:scale-95 cursor-pointer"
                     title={isMuted ? "Click to enable sound" : "Mute sound"}
                   >
                     {isMuted ? (
@@ -352,11 +352,11 @@ export default function Hero() {
                         className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-xs transition cursor-pointer"
                         title={isMuted ? "Unmute" : "Mute"}
                       >
-                        {isMuted ? <VolumeX size={12} className="text-slate-300" /> : <Volume2 size={12} className="text-amber-400" />}
+                        {isMuted ? <VolumeX size={12} className="text-zinc-300" /> : <Volume2 size={12} className="text-amber-400" />}
                       </button>
                     </div>
 
-                    <span className="text-[9px] font-mono text-slate-300">00:14 / 00:30</span>
+                    <span className="text-[9px] font-mono text-zinc-300">00:14 / 00:30</span>
                   </div>
                 </div>
 
@@ -365,7 +365,7 @@ export default function Hero() {
               {/* Action Footer */}
               <div className="mt-3 flex items-center justify-between pt-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-semibold text-slate-400">Template:</span>
+                  <span className="text-[11px] font-semibold text-zinc-400">Template:</span>
                   <span className="text-[11px] font-bold text-amber-300">{selectedType.label}</span>
                 </div>
                 <Link
@@ -387,7 +387,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
-          className="mt-12 sm:mt-16 mx-auto max-w-5xl rounded-3xl border border-white/10 bg-[#111827] p-4 sm:p-5 shadow-xl backdrop-blur-sm"
+          className="mt-12 sm:mt-16 mx-auto max-w-5xl rounded-3xl border border-white/10 bg-[#131218] p-4 sm:p-5 shadow-xl backdrop-blur-sm"
         >
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
             <div className="flex flex-col sm:flex-row items-center gap-3.5">
