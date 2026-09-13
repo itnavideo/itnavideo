@@ -15,18 +15,18 @@ export default function LongVideoShowcase() {
   };
 
   return (
-    <section className="relative overflow-hidden px-4 py-24 sm:px-6 sm:py-32 bg-[#090D16] border-y border-white/10/80">
+    <section className="relative overflow-hidden px-4 py-24 sm:px-6 sm:py-32 bg-[#08070B] border-y border-white/10">
       {/* Smooth Ambient Top Glow & Transition Divider */}
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-500/60 to-transparent" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-slate-900/50 via-slate-950/20 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/60 via-black/20 to-transparent" />
 
       {/* Smooth Ambient Bottom Glow & Transition Divider */}
-      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-sky-500/60 to-transparent" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-slate-900/50 via-slate-950/20 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-amber-500/60 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
       {/* Background ambient lighting (M3 Elevation Glow) */}
-      <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 h-[500px] w-[800px] rounded-full bg-gradient-to-b from-sky-500/10 via-amber-500/5 to-transparent blur-3xl" />
-      <div className="pointer-events-none absolute inset-0 opacity-[0.02] [background-image:radial-gradient(circle_at_25%_25%,rgba(56,189,248,1)_1px,transparent_1px)] [background-size:40px_40px]" />
+      <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 h-[500px] w-[800px] rounded-full bg-gradient-to-b from-purple-500/10 via-amber-500/5 to-transparent blur-3xl" />
+      <div className="pointer-events-none absolute inset-0 opacity-[0.02] [background-image:radial-gradient(circle_at_25%_25%,rgba(249,115,22,1)_1px,transparent_1px)] [background-size:40px_40px]" />
 
       <div className="relative z-10 mx-auto max-w-7xl">
         {/* Section header */}
