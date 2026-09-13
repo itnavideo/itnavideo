@@ -9,7 +9,11 @@ const publicSource = path.join(root, 'public');
 const publicTarget = path.join(standaloneDir, 'public');
 
 if (process.env.VERCEL === '1') {
-  pruneVercelTraces();
+  try {
+    pruneVercelTraces();
+  } catch (err) {
+    console.warn('pruneVercelTraces warning:', err?.message || err);
+  }
   console.log('Vercel build detected; skipping standalone file sync.');
   process.exit(0);
 }
@@ -128,8 +132,13 @@ function pruneVercelTraces() {
   let addedChunkCount = 0;
 
   for (const tracePath of tracePaths) {
-    const trace = JSON.parse(fs.readFileSync(tracePath, 'utf8'));
-    if (!Array.isArray(trace.files)) continue;
+    let trace;
+    try {
+      trace = JSON.parse(fs.readFileSync(tracePath, 'utf8'));
+    } catch {
+      continue;
+    }
+    if (!Array.isArray(trace?.files)) continue;
 
     const addedChunks = addTurbopackServerChunksToTrace(tracePath, trace);
     if (addedChunks) {
