@@ -20,6 +20,7 @@ export type BillableRenderMode =
 type RenderCreditOptions = {
   durationSeconds?: number;
   clipCount?: number;
+  hasAiGeneratedImages?: boolean;
 };
 
 export function calculateLongFormCaptionCreditUnits(durationSeconds: number) {
@@ -66,8 +67,13 @@ export function calculateRenderCreditUnits(mode: BillableRenderMode, options: Re
     case "aiVideoGenerator":
     case "facelessVideo":
     case "longVideoPro":
-    case "imageToVideoAi":
       return calculateLongFormCaptionCreditUnits(Number(options.durationSeconds));
+
+    case "imageToVideoAi": {
+      const baseUnits = calculateLongFormCaptionCreditUnits(Number(options.durationSeconds));
+      const aiImageUnits = options.hasAiGeneratedImages ? 3 * CREDIT_UNITS_PER_CREDIT : 0;
+      return baseUnits + aiImageUnits;
+    }
 
     default: {
       const unsupportedMode: never = mode;

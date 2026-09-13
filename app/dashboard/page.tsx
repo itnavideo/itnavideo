@@ -604,6 +604,8 @@ export default function DashboardPage() {
   const [imageToVideoSubtitleStyle, setImageToVideoSubtitleStyle] = useState<string>("parallax-modern");
   const [imageToVideoCameraMotion, setImageToVideoCameraMotion] = useState<string>("ken-burns");
   const [imageToVideoFitMode, setImageToVideoFitMode] = useState<"blur-fill" | "cover">("blur-fill");
+  const [imageToVideoAssetMode, setImageToVideoAssetMode] = useState<"upload" | "library" | "ai-generate">("library");
+  const [imageToVideoStockUrls, setImageToVideoStockUrls] = useState<string[]>([]);
   const [creatorBackgroundImageFile, setCreatorBackgroundImageFile] = useState<File | null>(null);
   const [creatorBackgroundSettings, setCreatorBackgroundSettings] = useState<CreatorBackgroundSettings>(DEFAULT_CREATOR_BACKGROUND_SETTINGS);
   const [customAiPrompt, setCustomAiPrompt] = useState("");
@@ -1545,30 +1547,49 @@ export default function DashboardPage() {
         </div>
 
         {/* Live Active Render Progress Widget */}
-        {renderInProgress && (
-          <section className="rounded-2xl border border-blue-500/30 bg-blue-500/10 p-5 shadow-xl animate-in fade-in duration-300">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md">
-                  <Loader2 size={20} className="animate-spin" />
+        {renderInProgress && (() => {
+          const rawP = typeof jobStatus.progress === "number"
+            ? (jobStatus.progress > 0 && jobStatus.progress <= 1 ? jobStatus.progress * 100 : jobStatus.progress)
+            : 35;
+          const displayPercent = Math.min(100, Math.max(1, Math.round(rawP)));
+          return (
+            <section className="relative rounded-2xl border border-orange-500/30 bg-orange-500/10 p-5 shadow-xl animate-in fade-in duration-300">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md">
+                    <Loader2 size={20} className="animate-spin" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-black text-foreground">Creating Your AI Video...</h3>
+                    <p className="text-xs text-muted-foreground truncate">{jobStatus.message || "Processing speech alignment & Remotion cloud render"}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-sm font-black text-foreground">Creating Your AI Video...</h3>
-                  <p className="text-xs text-muted-foreground">{jobStatus.message || "Processing speech alignment & Remotion cloud render"}</p>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-3 py-1 text-xs font-black text-white shadow-sm">
+                    {displayPercent}%
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (user?.id) clearActiveRender(user.id);
+                      setJobStatus({ state: "idle", message: "" });
+                    }}
+                    className="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 transition active:scale-95"
+                    title="Dismiss background render"
+                  >
+                    <X size={15} />
+                  </button>
                 </div>
               </div>
-              <span className="rounded-full bg-blue-600 px-3 py-1 text-xs font-bold text-white">
-                {jobStatus.progress ? `${Math.round(jobStatus.progress)}%` : "Rendering"}
-              </span>
-            </div>
-            <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-blue-950/20">
-              <div
-                className="h-full rounded-full bg-blue-600 transition-all duration-300"
-                style={{ width: `${jobStatus.progress || 35}%` }}
-              />
-            </div>
-          </section>
-        )}
+              <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-zinc-800/80">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 transition-all duration-300 shadow-sm"
+                  style={{ width: `${displayPercent}%` }}
+                />
+              </div>
+            </section>
+          );
+        })()}
 
         {isFreeSignupCredit && (
           <section className="rounded-xl border border-pink-500/20 bg-pink-500/10 p-4 shadow-xs">
@@ -2314,16 +2335,20 @@ export default function DashboardPage() {
                   audioCleanOptions={audioCleanOptions}
                   setAudioCleanOptions={setAudioCleanOptions}
                   userId={user?.id}
+                  assetSourceMode={imageToVideoAssetMode}
+                  onChangeAssetSourceMode={setImageToVideoAssetMode}
+                  selectedStockAssetUrls={imageToVideoStockUrls}
+                  onChangeSelectedStockAssetUrls={setImageToVideoStockUrls}
                 />
               ) : null}
 
               {mode === "autoCaption" ? (
-                <div className="rounded-2xl border border-blue-500/20 bg-card p-4 sm:p-6 shadow-sm min-w-0 max-w-full overflow-hidden space-y-5">
+                <div className="rounded-2xl border border-orange-500/20 bg-card p-4 sm:p-6 shadow-sm min-w-0 max-w-full overflow-hidden space-y-5">
                   <div className="flex items-center justify-between border-b border-border pb-3">
                     <div>
                       <div className="flex items-center gap-2">
                         <p className="text-sm font-black text-foreground">Auto Caption Generator</p>
-                        <span className="rounded-full bg-blue-500/10 px-2.5 py-0.5 text-[10px] font-bold text-blue-500">9:16 & 16:9 Ready</span>
+                        <span className="rounded-full bg-orange-500/10 border border-orange-500/20 px-2.5 py-0.5 text-[10px] font-bold text-orange-400">9:16 & 16:9 Ready</span>
                       </div>
                       <p className="mt-0.5 text-xs font-medium text-muted-foreground">
                         AI transcribes your video & syncs animated captions word-by-word.
@@ -3768,6 +3793,9 @@ export default function DashboardPage() {
           ...(mode === "imageToVideoAi" ? {
             uploadedImageKeys,
             imageKeys: uploadedImageKeys,
+            customImageUrls: imageToVideoStockUrls.length > 0 ? imageToVideoStockUrls : undefined,
+            assetMode: imageToVideoAssetMode,
+            hasAiGeneratedImages: imageToVideoAssetMode === "ai-generate",
             enableBgm,
             bgmUrl: enableBgm ? (bgmKey ? undefined : bgmUrl) : undefined,
             bgmKey: enableBgm && bgmKey ? bgmKey : undefined,

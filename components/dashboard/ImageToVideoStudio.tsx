@@ -32,6 +32,11 @@ import {
   FileText,
 } from "lucide-react";
 import { GOOGLE_AI_VOICES, GoogleAiVoice } from "@/constants/googleAiVoices";
+import {
+  ITNAVIDEO_STOCK_ASSETS,
+  ITNAVIDEO_STOCK_CATEGORIES,
+  ItnaVideoStockAsset,
+} from "@/constants/itnavideoStockAssets";
 
 export interface LibraryBgmTrack {
   id: string;
@@ -121,6 +126,10 @@ export interface ImageToVideoStudioProps {
   imageFiles: File[];
   onAddImages: (files: FileList | null) => void;
   onRemoveImage: (index: number) => void;
+  assetSourceMode?: 'upload' | 'library' | 'ai-generate';
+  onChangeAssetSourceMode?: (mode: 'upload' | 'library' | 'ai-generate') => void;
+  selectedStockAssetUrls?: string[];
+  onChangeSelectedStockAssetUrls?: (urls: string[]) => void;
   bgmEnabled?: boolean;
   onChangeBgmEnabled?: (enabled: boolean) => void;
   selectedLibraryBgmUrl?: string;
@@ -239,6 +248,10 @@ export function ImageToVideoStudio({
   audioCleanOptions,
   setAudioCleanOptions,
   userId,
+  assetSourceMode,
+  onChangeAssetSourceMode,
+  selectedStockAssetUrls,
+  onChangeSelectedStockAssetUrls,
 }: ImageToVideoStudioProps) {
   const audioInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -246,6 +259,38 @@ export function ImageToVideoStudio({
 
   const [audioDragOver, setAudioDragOver] = useState(false);
   const [imageDragOver, setImageDragOver] = useState(false);
+  // ── 3 Visual Asset Source Options: 'upload' | 'library' | 'ai-generate' ──
+  const [internalAssetSourceMode, setInternalAssetSourceMode] = useState<'upload' | 'library' | 'ai-generate'>('library');
+  const activeAssetMode = assetSourceMode || internalAssetSourceMode;
+  const setAssetMode = (mode: 'upload' | 'library' | 'ai-generate') => {
+    setInternalAssetSourceMode(mode);
+    onChangeAssetSourceMode?.(mode);
+  };
+
+  const [internalStockUrls, setInternalStockUrls] = useState<string[]>([]);
+  const currentStockUrls = selectedStockAssetUrls ?? internalStockUrls;
+  const setStockUrls = (urls: string[]) => {
+    setInternalStockUrls(urls);
+    onChangeSelectedStockAssetUrls?.(urls);
+  };
+
+  const [activeStockCategory, setActiveStockCategory] = useState<string>('all');
+  const [aiImagePrompt, setAiImagePrompt] = useState('');
+  const [aiImageStyle, setAiImageStyle] = useState('Photorealistic 8K');
+
+  const filteredStockAssets = useMemo(() => {
+    if (activeStockCategory === 'all') return ITNAVIDEO_STOCK_ASSETS;
+    return ITNAVIDEO_STOCK_ASSETS.filter((a) => a.category === activeStockCategory);
+  }, [activeStockCategory]);
+
+  const handleToggleStockAsset = (url: string) => {
+    if (currentStockUrls.includes(url)) {
+      setStockUrls(currentStockUrls.filter((u) => u !== url));
+    } else {
+      setStockUrls([...currentStockUrls, url]);
+    }
+  };
+
   const [bgmSourceTab, setBgmSourceTab] = useState<'library' | 'custom'>(bgmFile ? 'custom' : 'library');
   const [previewingTrackUrl, setPreviewingTrackUrl] = useState<string | null>(null);
   const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
@@ -1362,107 +1407,329 @@ export function ImageToVideoStudio({
           </div>
         </div>
 
-        {/* 4.1 Visual Scene Images */}
-        <div className="rounded-3xl border border-white/10 bg-[#141218] p-6 shadow-md">
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2.5">
-                <h4 className="text-sm font-extrabold text-white flex items-center gap-2">
-                  <ImagePlus size={18} className="text-cyan-400" /> Visual Scene Images
-                </h4>
-              </div>
-              <span className="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-cyan-300">
-                Optional • No Limit
+        {/* 4.1 Visual Scene Images - 3 Clean Options */}
+        <div className="rounded-3xl border border-white/10 bg-[#141218] p-5 sm:p-6 shadow-md space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-4">
+            <div>
+              <h4 className="text-sm font-extrabold text-white flex items-center gap-2">
+                <ImagePlus size={18} className="text-orange-400" /> Visual Scene Assets
+              </h4>
+              <p className="text-xs text-zinc-400 mt-0.5">
+                Choose how scenes for your 16:9 widescreen video are sourced
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-[11px] font-black uppercase tracking-wider text-orange-400">
+                {activeAssetMode === 'ai-generate' ? '+3 Credits (AI)' : 'Included Free'}
               </span>
             </div>
+          </div>
 
-            <p className="text-xs text-zinc-400 mb-4">
-              Upload your own photos or screenshots. If left empty, AI selects relevant 16:9 images from Itnavideo&apos;s library automatically.
-            </p>
-
-            <input
-              type="file"
-              ref={imageInputRef}
-              accept="image/*"
-              multiple
-              className="hidden"
-              onChange={(e) => onAddImages(e.target.files)}
-            />
-
-            <div
-              onClick={() => imageInputRef.current?.click()}
-              onDragOver={(e) => { e.preventDefault(); setImageDragOver(true); }}
-              onDragLeave={() => setImageDragOver(false)}
-              onDrop={(e) => {
-                e.preventDefault();
-                setImageDragOver(false);
-                onAddImages(e.dataTransfer.files);
-              }}
-              className={`flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-6 text-center cursor-pointer transition-all duration-200 ${
-                imageDragOver ? 'border-cyan-500 bg-cyan-500/10' : 'border-white/15 bg-white/5 hover:border-white/30 hover:bg-white/[0.08]'
+          {/* 3 Segmented Tabs */}
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-2 rounded-2xl border border-white/10 bg-white/[0.04] p-1.5">
+            <button
+              type="button"
+              onClick={() => setAssetMode('upload')}
+              className={`flex flex-col sm:flex-row items-center justify-center gap-1.5 rounded-xl py-2.5 px-2 text-xs font-bold transition-all cursor-pointer ${
+                activeAssetMode === 'upload'
+                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md'
+                  : 'text-zinc-400 hover:text-white hover:bg-white/5'
               }`}
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/20 text-cyan-400 mb-2">
-                <ImagePlus size={20} />
-              </div>
-              <p className="text-xs font-bold text-white mb-0.5">
-                Click or drag images here
-              </p>
-              <p className="text-[11px] text-zinc-400">
-                Upload any number of images (JPG, PNG, WEBP)
-              </p>
-            </div>
+              <UploadCloud size={15} />
+              <span className="truncate">Upload Photos</span>
+              <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                activeAssetMode === 'upload' ? 'bg-black/20 text-white' : 'bg-emerald-500/10 text-emerald-400'
+              }`}>
+                Free
+              </span>
+            </button>
 
-            {/* Images Grid or Empty State Banner */}
-            {imagePreviews.length > 0 ? (
-              <div className="mt-4 space-y-2">
-                <div className="flex items-center justify-between text-xs text-zinc-400 font-bold">
-                  <span>{imagePreviews.length} custom image{imagePreviews.length === 1 ? '' : 's'} added</span>
+            <button
+              type="button"
+              onClick={() => setAssetMode('library')}
+              className={`flex flex-col sm:flex-row items-center justify-center gap-1.5 rounded-xl py-2.5 px-2 text-xs font-bold transition-all cursor-pointer ${
+                activeAssetMode === 'library'
+                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md'
+                  : 'text-zinc-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Layers size={15} />
+              <span className="truncate">ItnaVideo Assets</span>
+              <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                activeAssetMode === 'library' ? 'bg-black/20 text-white' : 'bg-amber-500/10 text-amber-400'
+              }`}>
+                Curated
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setAssetMode('ai-generate')}
+              className={`flex flex-col sm:flex-row items-center justify-center gap-1.5 rounded-xl py-2.5 px-2 text-xs font-bold transition-all cursor-pointer ${
+                activeAssetMode === 'ai-generate'
+                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md'
+                  : 'text-zinc-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Sparkles size={15} />
+              <span className="truncate">AI Generate</span>
+              <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                activeAssetMode === 'ai-generate' ? 'bg-black/20 text-white' : 'bg-orange-500/10 text-orange-400'
+              }`}>
+                +3 Cr
+              </span>
+            </button>
+          </div>
+
+          {/* TAB 1: UPLOAD PHOTOS */}
+          {activeAssetMode === 'upload' && (
+            <div className="space-y-3 animate-in fade-in duration-200">
+              <input
+                type="file"
+                ref={imageInputRef}
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={(e) => onAddImages(e.target.files)}
+              />
+
+              <div
+                onClick={() => imageInputRef.current?.click()}
+                onDragOver={(e) => { e.preventDefault(); setImageDragOver(true); }}
+                onDragLeave={() => setImageDragOver(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setImageDragOver(false);
+                  onAddImages(e.dataTransfer.files);
+                }}
+                className={`flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-6 text-center cursor-pointer transition-all duration-200 ${
+                  imageDragOver
+                    ? 'border-orange-500 bg-orange-500/10'
+                    : 'border-white/15 bg-white/5 hover:border-orange-500/40 hover:bg-white/[0.08]'
+                }`}
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/20 text-orange-400 mb-2">
+                  <UploadCloud size={20} />
+                </div>
+                <p className="text-xs font-bold text-white mb-0.5">
+                  Click or drag your photos/screenshots here
+                </p>
+                <p className="text-[11px] text-zinc-400">
+                  Upload any number of images (JPG, PNG, WEBP) • Auto-scaled to 16:9
+                </p>
+              </div>
+
+              {imagePreviews.length > 0 ? (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs text-zinc-400 font-bold">
+                    <span>{imagePreviews.length} custom photo{imagePreviews.length === 1 ? '' : 's'} added</span>
+                    <button
+                      type="button"
+                      onClick={() => imageInputRef.current?.click()}
+                      className="text-orange-400 hover:text-orange-300 font-bold transition cursor-pointer"
+                    >
+                      + Add More
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 max-h-40 overflow-y-auto p-1">
+                    {imagePreviews.map((img, idx) => (
+                      <div key={idx} className="group relative aspect-video rounded-xl overflow-hidden border border-white/10 bg-black/40">
+                        <Image
+                          src={img.url}
+                          alt={img.name}
+                          fill
+                          className="object-cover"
+                          unoptimized
+                        />
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onRemoveImage(idx);
+                          }}
+                          className="absolute top-1 right-1 h-5 w-5 rounded-full bg-black/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition hover:bg-rose-600 cursor-pointer"
+                          title="Remove image"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 p-3 text-xs text-zinc-400">
+                  <Info size={14} className="text-orange-400 shrink-0" />
+                  <span>No photos uploaded yet. If you keep this empty, video will automatically use ItnaVideo stock assets.</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB 2: ITNAVIDEO STOCK ASSETS */}
+          {activeAssetMode === 'library' && (
+            <div className="space-y-3 animate-in fade-in duration-200">
+              {/* Category Pills */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                {ITNAVIDEO_STOCK_CATEGORIES.map((cat) => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setActiveStockCategory(cat.id)}
+                    className={`whitespace-nowrap rounded-xl px-3 py-1.5 text-xs font-bold transition-all cursor-pointer ${
+                      activeStockCategory === cat.id
+                        ? 'bg-orange-500/20 text-orange-400 border border-orange-500/40 shadow-xs'
+                        : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 border border-transparent'
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Selection Status Banner */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-xl border border-orange-500/20 bg-orange-500/5 p-3 text-xs">
+                <div className="flex items-center gap-2 text-zinc-300">
+                  <Sparkles size={15} className="text-orange-400 shrink-0" />
+                  {currentStockUrls.length > 0 ? (
+                    <span>
+                      <strong className="text-white font-black">{currentStockUrls.length} image{currentStockUrls.length === 1 ? '' : 's'} selected</strong> for video scenes
+                    </span>
+                  ) : (
+                    <span>
+                      <strong className="text-orange-300 font-bold">AI Auto-Match Active:</strong> AI will automatically select the best matching 16:9 scenes for your script.
+                    </span>
+                  )}
+                </div>
+                {currentStockUrls.length > 0 && (
                   <button
                     type="button"
-                    onClick={() => imageInputRef.current?.click()}
-                    className="text-cyan-400 hover:text-cyan-300 font-bold transition cursor-pointer"
+                    onClick={() => setStockUrls([])}
+                    className="text-xs text-orange-400 hover:text-orange-300 font-bold underline cursor-pointer"
                   >
-                    + Add More
+                    Reset to Auto-Match
                   </button>
-                </div>
-                <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 max-h-36 overflow-y-auto p-1">
-                  {imagePreviews.map((img, idx) => (
-                    <div key={idx} className="group relative aspect-video rounded-xl overflow-hidden border border-white/10 bg-black/40">
+                )}
+              </div>
+
+              {/* Curated Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 max-h-60 overflow-y-auto p-1 pr-1.5">
+                {filteredStockAssets.map((asset) => {
+                  const isSelected = currentStockUrls.includes(asset.url);
+                  return (
+                    <div
+                      key={asset.id}
+                      onClick={() => handleToggleStockAsset(asset.url)}
+                      className={`group relative aspect-video rounded-xl overflow-hidden border cursor-pointer transition-all duration-200 ${
+                        isSelected
+                          ? 'border-orange-500 ring-2 ring-orange-500/50 shadow-md shadow-orange-950/40'
+                          : 'border-white/10 hover:border-white/30 hover:scale-[1.02]'
+                      }`}
+                    >
                       <Image
-                        src={img.url}
-                        alt={img.name}
+                        src={asset.url}
+                        alt={asset.title}
                         fill
                         className="object-cover"
                         unoptimized
                       />
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onRemoveImage(idx);
-                        }}
-                        className="absolute top-1 right-1 h-5 w-5 rounded-full bg-black/70 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition hover:bg-rose-600"
-                      >
-                        ×
-                      </button>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80 group-hover:opacity-100 transition" />
+                      
+                      {/* Selection Checkmark */}
+                      {isSelected ? (
+                        <div className="absolute top-1.5 right-1.5 h-5 w-5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white flex items-center justify-center shadow-md">
+                          <Check size={12} strokeWidth={3} />
+                        </div>
+                      ) : (
+                        <div className="absolute top-1.5 right-1.5 h-5 w-5 rounded-full border border-white/40 bg-black/40 opacity-0 group-hover:opacity-100 transition" />
+                      )}
+
+                      <span className="absolute bottom-1.5 left-2 right-2 truncate text-[10px] font-bold text-white drop-shadow">
+                        {asset.title}
+                      </span>
                     </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: AI GENERATE IMAGES */}
+          {activeAssetMode === 'ai-generate' && (
+            <div className="space-y-3 animate-in fade-in duration-200">
+              <div className="rounded-xl border border-orange-500/30 bg-orange-500/10 p-3.5 space-y-1">
+                <div className="flex items-center gap-2 text-xs font-black text-orange-300">
+                  <Sparkles size={14} className="text-orange-400" />
+                  <span>AI Image Diffusion Engine (+3 Credits)</span>
+                </div>
+                <p className="text-xs text-zinc-400">
+                  Generates 5 unique photorealistic 16:9 widescreen scenes tailored to your exact script and topic.
+                </p>
+              </div>
+
+              {/* Prompt Input */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs font-bold text-zinc-300">
+                  <label htmlFor="ai-img-prompt">Scene Visual Description / Prompt</label>
+                  {(topicTitle || aiScriptText) && (
+                    <button
+                      type="button"
+                      onClick={() => setAiImagePrompt(topicTitle || aiScriptText.slice(0, 100))}
+                      className="text-orange-400 hover:text-orange-300 text-[11px] underline cursor-pointer"
+                    >
+                      Use Script / Topic
+                    </button>
+                  )}
+                </div>
+                <textarea
+                  id="ai-img-prompt"
+                  value={aiImagePrompt}
+                  onChange={(e) => setAiImagePrompt(e.target.value)}
+                  placeholder="e.g. Cinematic futuristic trading desk with glowing stock charts, cinematic lighting, 8K ultra-detailed photorealistic..."
+                  rows={2}
+                  className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 text-xs text-white placeholder-zinc-500 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 transition resize-none"
+                />
+              </div>
+
+              {/* Style Presets */}
+              <div className="space-y-1.5">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">Art Style Preset</span>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    'Photorealistic 8K',
+                    'Cinematic 3D',
+                    'Documentary Realism',
+                    'Cyberpunk Neon',
+                    'Minimal Studio',
+                  ].map((style) => (
+                    <button
+                      key={style}
+                      type="button"
+                      onClick={() => setAiImageStyle(style)}
+                      className={`rounded-xl px-3 py-1 text-xs font-bold transition-all cursor-pointer ${
+                        aiImageStyle === style
+                          ? 'bg-orange-500 text-white shadow-sm'
+                          : 'bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10'
+                      }`}
+                    >
+                      {style}
+                    </button>
                   ))}
                 </div>
               </div>
-            ) : (
-              <div className="mt-4 flex items-start gap-2.5 rounded-2xl border border-cyan-500/20 bg-cyan-500/5 p-3 text-xs text-cyan-200/90">
-                <Sparkles size={16} className="text-cyan-400 shrink-0 mt-0.5" />
-                <div>
-                  <strong className="text-cyan-300 font-bold">Auto-Curated Asset Mode:</strong> If you don&apos;t upload images, the AI will automatically select high-quality 16:9 images matching each line of your script.
-                </div>
-              </div>
-            )}
-          </div>
 
-          <div className="mt-4 flex items-center gap-2 text-[11px] text-zinc-500 font-medium">
-            <CheckCircle2 size={14} className="text-cyan-400 shrink-0" />
-            <span>Images auto-scale to 16:9 widescreen with Ken Burns pan & zoom</span>
+              <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 p-3 text-xs text-zinc-400">
+                <CheckCircle2 size={14} className="text-orange-400 shrink-0" />
+                <span>
+                  Pricing: <strong>2 base credits</strong> (video render) + <strong>3 credits</strong> (5 AI images) = <strong>5 credits total</strong>.
+                </span>
+              </div>
+            </div>
+          )}
+
+          <div className="pt-2 flex items-center gap-2 text-[11px] text-zinc-500 font-medium border-t border-white/5">
+            <CheckCircle2 size={13} className="text-orange-400 shrink-0" />
+            <span>All scenes automatically apply smooth Ken Burns pan & zoom with 16:9 widescreen composition</span>
           </div>
         </div>
 
@@ -1907,19 +2174,30 @@ export function ImageToVideoStudio({
       </div>
 
       {/* ── M3 Tonal Action Card with Credit Cost & Render Trigger ── */}
-      <div className="rounded-3xl border border-purple-500/30 bg-gradient-to-r from-purple-950/40 via-purple-900/20 to-black p-6 sm:p-8 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="rounded-3xl border border-orange-500/30 bg-gradient-to-r from-orange-950/40 via-amber-950/20 to-black p-6 sm:p-8 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
-            <span className="flex h-2.5 w-2.5 rounded-full bg-purple-400 animate-pulse" />
+            <span className="flex h-2.5 w-2.5 rounded-full bg-orange-400 animate-pulse" />
             <h4 className="text-lg font-black text-white">Ready to Render Image to Video AI</h4>
           </div>
           <p className="text-xs text-zinc-400">
-            16:9 Widescreen • 30 FPS • Auto-scene cuts synced to audio script • 48-hour download retention
+            16:9 Widescreen • 30 FPS • Auto-scene cuts synced to script • Ken Burns Camera Motion
           </p>
-          <div className="flex items-center gap-3 pt-1 text-xs text-purple-300 font-bold">
-            <span>⚡ Cost: {creditCost} credits (for ~{durationMinutes} min video)</span>
+          <div className="flex flex-wrap items-center gap-2.5 pt-1 text-xs font-bold">
+            <span className="text-orange-400">⚡ Total Cost: {creditCost} credits</span>
+            <span className="text-zinc-500">•</span>
+            <span className="text-zinc-400">
+              ({baseCreditCost} render {isAiImages ? '+ 3 AI generated scenes' : '+ free assets'})
+            </span>
             {userCredits !== undefined && (
-              <span className="text-zinc-400">• Your balance: {userCredits} credits</span>
+              <>
+                <span className="text-zinc-500">•</span>
+                <span className="text-zinc-400">Your balance: {userCredits} credits</span>
+                <span className="text-zinc-500">•</span>
+                <span className={userCredits >= creditCost ? 'text-emerald-400' : 'text-rose-400'}>
+                  {userCredits >= creditCost ? `${userCredits - creditCost} remaining` : 'Insufficient credits'}
+                </span>
+              </>
             )}
           </div>
         </div>
@@ -1927,11 +2205,11 @@ export function ImageToVideoStudio({
         <button
           type="button"
           onClick={onStartRender}
-          disabled={!selectedAudio || isRendering}
+          disabled={!selectedAudio || isRendering || (userCredits !== undefined && userCredits < creditCost)}
           className={`inline-flex items-center justify-center gap-2.5 rounded-full px-8 py-4 text-sm font-black shadow-lg transition-all duration-200 cursor-pointer ${
-            !selectedAudio || isRendering
+            !selectedAudio || isRendering || (userCredits !== undefined && userCredits < creditCost)
               ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed border border-white/5'
-              : 'bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-600 text-white shadow-purple-500/25 hover:shadow-purple-500/40 hover:scale-[1.02] active:scale-95'
+              : 'bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 text-white shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-[1.02] active:scale-95'
           }`}
         >
           {isRendering ? (

@@ -251,9 +251,14 @@ export async function POST(request: Request) {
     : undefined;
   let requestedCreditUnits: number | null = null;
   try {
+    const hasAiGeneratedImages = body.hasAiGeneratedImages === true || body.assetMode === 'ai-generate';
     requestedCreditUnits = (mode === 'longVideoPro')
       ? null
-      : calculateRenderCreditUnits(mode, {clipCount: requestedClipCount});
+      : calculateRenderCreditUnits(mode, {
+          clipCount: requestedClipCount,
+          durationSeconds: readFiniteNumber(body.durationSeconds, 60),
+          hasAiGeneratedImages: mode === 'imageToVideoAi' && hasAiGeneratedImages,
+        });
   } catch (error) {
     return NextResponse.json({
       ok: false,
@@ -558,8 +563,13 @@ export async function POST(request: Request) {
         'https://res.cloudinary.com/dhouh9idx/image/upload/v1788688223/modern_workspace_laptop_coffee_planning_o8nkmk.png',
       ];
 
-      // Pool of images: user uploaded first (no fixed image limit); if none, use library
-      const imagePool = uploadedImageUrls.length > 0 ? uploadedImageUrls : library16x9Images;
+      // Pool of images: user custom stock/AI URLs > user uploaded > default 16:9 library
+      const rawCustomUrls = Array.isArray(body.customImageUrls)
+        ? (body.customImageUrls as unknown[]).map((u) => String(u || '').trim()).filter((u) => u.startsWith('http'))
+        : [];
+      const imagePool = rawCustomUrls.length > 0
+        ? rawCustomUrls
+        : (uploadedImageUrls.length > 0 ? uploadedImageUrls : library16x9Images);
 
       const fitMode = (readString(body.fitMode) as 'blur-fill' | 'cover') || 'blur-fill';
 
