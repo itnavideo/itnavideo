@@ -1942,8 +1942,9 @@ async function readJson(request: Request) {
 function readLambdaConfig():
   | {ok: true; region: AwsRegion; functionName: string; serveUrl: string; concurrency: number}
   | {ok: false; error: string} {
+  const renderProvider = clean(process.env.RENDER_PROVIDER).toLowerCase();
   const gcpWorkerUrl = clean(process.env.GCP_RENDER_WORKER_URL);
-  if (process.env.RENDER_PROVIDER === 'gcp' || gcpWorkerUrl) {
+  if (renderProvider !== 'aws') {
     return {
       ok: true,
       region: 'ap-south-1' as AwsRegion,
