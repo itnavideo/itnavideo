@@ -10,6 +10,7 @@ raw_assets
 .env
 .env.*
 !.env.example
+!.env.production
 public/uploads
 public/renders
 public/cache
