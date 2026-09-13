@@ -45,7 +45,7 @@ const FEATURED_WORKFLOWS = [
     desc: '16:9 & 9:16 long-form AI studio',
     href: '/ai-video-generator',
     icon: Film,
-    color: 'from-cyan-500 to-emerald-400',
+    color: 'from-orange-500 to-amber-400',
   },
   {
     label: 'AI Audio Cleaner',

@@ -138,8 +138,8 @@
   --chart-1: #F97316;
   --chart-2: #FB923C;
   --chart-3: #F59E0B;
-  --chart-4: #38BDF8;
-  --chart-5: #10B981;
+  --chart-4: #EA580C;
+  --chart-5: #D97706;
   --radius: 0.75rem;
   --sidebar: #09080E;
   --sidebar-foreground: #F8FAFC;
@@ -152,7 +152,7 @@
 
   /* Brand system (legacy names kept for Tailwind compatibility) */
   --brand-mint: #F97316;
-  --brand-cyan: #38BDF8;
+  --brand-cyan: #FB923C;
   --brand-gold: #F59E0B;
   --brand-ink: #08070B;
 

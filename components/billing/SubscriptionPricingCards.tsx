@@ -151,7 +151,7 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
                 key={plan.id}
                 className={`relative flex min-h-[510px] flex-col rounded-3xl border p-6 sm:p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${
                   isPopular
-                    ? "border-orange-500 ring-2 ring-orange-500/30 bg-gradient-to-b from-[#1C2536] to-[#131218] shadow-xl shadow-orange-950/30"
+                    ? "border-orange-500 ring-2 ring-orange-500/30 bg-gradient-to-b from-[#241712] to-[#131218] shadow-xl shadow-orange-950/30"
                     : "border-white/10 bg-[#131218] hover:border-white/20"
                 }`}
               >
@@ -170,7 +170,7 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
                       isPopular
                         ? "bg-orange-500/20 text-orange-300 border-orange-500/30"
                         : isFree
-                        ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/25"
+                        ? "bg-amber-500/15 text-amber-300 border-amber-500/25"
                         : "bg-zinc-800 text-zinc-300 border-zinc-700"
                     }`}
                   >
@@ -202,7 +202,7 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
                     <li key={feature} className="flex gap-2.5 items-start text-zinc-300">
                       <Check
                         size={16}
-                        className={`mt-0.5 shrink-0 ${isPopular ? "text-orange-400" : "text-emerald-400"}`}
+                        className={`mt-0.5 shrink-0 ${isPopular ? "text-orange-400" : "text-amber-400"}`}
                         strokeWidth={2.5}
                       />
                       <span>{feature}</span>

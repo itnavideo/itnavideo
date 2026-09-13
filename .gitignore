@@ -130,3 +130,5 @@ __samples/
 .vercel-itnavideo/
 .env*.local
 
+
+.env.yaml
