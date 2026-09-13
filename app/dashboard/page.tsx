@@ -2311,6 +2311,9 @@ export default function DashboardPage() {
                   isRendering={jobStatus.state === "starting" || jobStatus.state === "rendering" || jobStatus.state === "uploading"}
                   onStartRender={startRenderJob}
                   userCredits={billingEntitlement?.active ? Math.round(billingEntitlement.usage?.remaining ?? billingEntitlement.monthlyVideoLimit ?? 0) : undefined}
+                  audioCleanOptions={audioCleanOptions}
+                  setAudioCleanOptions={setAudioCleanOptions}
+                  userId={user?.id}
                 />
               ) : null}
 
@@ -3772,6 +3775,7 @@ export default function DashboardPage() {
             subtitleStyle: imageToVideoSubtitleStyle,
             cameraMotionPreset: imageToVideoCameraMotionPreset,
             fitMode: imageToVideoFitMode,
+            audioCleanOptions,
           } : {}),
         }),
       });

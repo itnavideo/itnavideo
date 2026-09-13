@@ -141,6 +141,9 @@ export interface ImageToVideoStudioProps {
   onStartRender: () => void;
   userCredits?: number;
   estimatedDurationSeconds?: number;
+  audioCleanOptions?: any;
+  setAudioCleanOptions?: React.Dispatch<React.SetStateAction<any>>;
+  userId?: string;
 }
 
 export interface ImageToVideoSubtitleStylePreset {
@@ -233,6 +236,9 @@ export function ImageToVideoStudio({
   onStartRender,
   userCredits,
   estimatedDurationSeconds = 60,
+  audioCleanOptions,
+  setAudioCleanOptions,
+  userId,
 }: ImageToVideoStudioProps) {
   const audioInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -256,6 +262,223 @@ export function ImageToVideoStudio({
   const voicePreviewAudioRef = useRef<HTMLAudioElement | null>(null);
   const generatedVoiceAudioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlayingGeneratedVoice, setIsPlayingGeneratedVoice] = useState(false);
+
+  // Speed Selector: Strictly 1.0x Normal, 1.25x Crisp, 1.5x Fast
+  const [aiVoiceSpeed, setAiVoiceSpeed] = useState<1.0 | 1.25 | 1.5>(1.25);
+  const [isAdjustingSpeed, setIsAdjustingSpeed] = useState(false);
+
+  // Audio Cleaner State & Filters (Copied from Audio Cleaner)
+  const [localCleanOptions, setLocalCleanOptions] = useState({
+    removeSilence: true,
+    removeFillers: true,
+    removeRepeats: true,
+    removeFalseStarts: true,
+    noiseReduction: true,
+    volumeNormalize: true,
+    trimEnds: true,
+    playbackSpeed: 1.25,
+  });
+  const currentCleanOptions = audioCleanOptions || localCleanOptions;
+
+  const [isCleaningAudio, setIsCleaningAudio] = useState(false);
+  const [audioCleanError, setAudioCleanError] = useState<string | null>(null);
+  const [audioCleanSuccess, setAudioCleanSuccess] = useState<{
+    secondsSaved: number;
+    silencesCut: number;
+    cleanedDuration: number;
+  } | null>(null);
+
+  // Uploaded audio playback
+  const uploadedAudioRef = useRef<HTMLAudioElement | null>(null);
+  const [isPlayingUploadedAudio, setIsPlayingUploadedAudio] = useState(false);
+  const [uploadedAudioUrl, setUploadedAudioUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (selectedAudio && !generatedVoiceMeta) {
+      const url = URL.createObjectURL(selectedAudio);
+      setUploadedAudioUrl(url);
+      return () => {
+        URL.revokeObjectURL(url);
+      };
+    } else {
+      setUploadedAudioUrl(null);
+    }
+  }, [selectedAudio, generatedVoiceMeta]);
+
+  const handleTogglePlayUploadedAudio = () => {
+    if (!uploadedAudioUrl) return;
+    if (!uploadedAudioRef.current) {
+      uploadedAudioRef.current = new Audio(uploadedAudioUrl);
+      uploadedAudioRef.current.playbackRate = aiVoiceSpeed;
+      uploadedAudioRef.current.onended = () => setIsPlayingUploadedAudio(false);
+    }
+    if (isPlayingUploadedAudio) {
+      uploadedAudioRef.current.pause();
+      setIsPlayingUploadedAudio(false);
+    } else {
+      uploadedAudioRef.current.playbackRate = aiVoiceSpeed;
+      uploadedAudioRef.current.play().catch(console.error);
+      setIsPlayingUploadedAudio(true);
+    }
+  };
+
+  const handleToggleCleanOption = (key: string) => {
+    if (setAudioCleanOptions) {
+      setAudioCleanOptions((prev: any) => ({
+        ...prev,
+        [key]: !prev[key],
+      }));
+    } else {
+      setLocalCleanOptions((prev: any) => ({
+        ...prev,
+        [key]: !prev[key],
+      }));
+    }
+  };
+
+  const handleChangeVoiceSpeed = async (newSpeed: 1.0 | 1.25 | 1.5) => {
+    setAiVoiceSpeed(newSpeed);
+    if (generatedVoiceAudioRef.current) {
+      generatedVoiceAudioRef.current.playbackRate = newSpeed;
+    }
+    if (uploadedAudioRef.current) {
+      uploadedAudioRef.current.playbackRate = newSpeed;
+    }
+    if (setAudioCleanOptions) {
+      setAudioCleanOptions((prev: any) => ({ ...prev, playbackSpeed: newSpeed }));
+    } else {
+      setLocalCleanOptions((prev: any) => ({ ...prev, playbackSpeed: newSpeed }));
+    }
+
+    // If AI voice is active, re-synthesize natively via Google Cloud TTS so output file has native prosody at that speed
+    if (generatedVoiceMeta && (generatedVoiceMeta.text || aiScriptText.trim())) {
+      setIsAdjustingSpeed(true);
+      try {
+        const res = await fetch('/api/ai/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: generatedVoiceMeta.text || aiScriptText.trim(),
+            voiceId: selectedVoiceId,
+            speakingRate: newSpeed,
+          }),
+        });
+        const data = await res.json();
+        if (res.ok && data.success && data.audioBase64) {
+          const byteCharacters = atob(data.audioBase64);
+          const byteNumbers = new Array(byteCharacters.length);
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          const blob = new Blob([byteArray], { type: 'audio/mp3' });
+          const chosenVoice = GOOGLE_AI_VOICES.find((v) => v.id === selectedVoiceId);
+          const fileName = `${(chosenVoice?.name || 'AI_Voice').replace(/[^a-zA-Z0-9]/g, '_')}_${newSpeed}x_Voiceover.mp3`;
+          const audioFile = new File([blob], fileName, { type: 'audio/mp3' });
+
+          if (generatedVoiceAudioRef.current) {
+            generatedVoiceAudioRef.current.pause();
+            generatedVoiceAudioRef.current = null;
+            setIsPlayingGeneratedVoice(false);
+          }
+          const audioUrl = URL.createObjectURL(blob);
+          setGeneratedVoiceMeta({
+            ...generatedVoiceMeta,
+            audioUrl,
+          });
+          onSelectAudio(audioFile);
+        }
+      } catch (err) {
+        console.warn('Could not re-synthesize speech at new speed:', err);
+      } finally {
+        setIsAdjustingSpeed(false);
+      }
+    }
+  };
+
+  const handleCleanAudioNow = async () => {
+    if (!selectedAudio) return;
+    setIsCleaningAudio(true);
+    setAudioCleanError(null);
+    setAudioCleanSuccess(null);
+
+    try {
+      const uploadContentType = selectedAudio.type || 'audio/mp3';
+      const presignResponse = await fetch('/api/media/presign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fileName: selectedAudio.name,
+          contentType: uploadContentType,
+          fileSize: selectedAudio.size,
+          mode: 'audioClean',
+          userId: userId || 'anonymous',
+        }),
+      });
+      const presign = await presignResponse.json();
+      if (!presignResponse.ok || !presign.ok) {
+        throw new Error(presign.error || 'Could not prepare audio upload for cleaning.');
+      }
+
+      const uploadResponse = await fetch(presign.uploadUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': uploadContentType },
+        body: selectedAudio,
+      });
+      if (!uploadResponse.ok) {
+        throw new Error('Audio upload failed.');
+      }
+
+      const cleanResponse = await fetch('/api/audio-clean', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mediaKey: presign.key,
+          userId: userId || 'anonymous',
+          audioCleanOptions: currentCleanOptions,
+        }),
+      });
+      const cleanData = await cleanResponse.json();
+      if (!cleanResponse.ok || !cleanData.ok) {
+        throw new Error(cleanData.error || 'Audio cleaning failed.');
+      }
+
+      const cleanedAudioFetch = await fetch(cleanData.outputUrl);
+      const cleanedBlob = await cleanedAudioFetch.blob();
+      const cleanedFileName = `Cleaned_${selectedAudio.name.replace(/^Cleaned_/, '')}`;
+      const cleanedFile = new File([cleanedBlob], cleanedFileName, {
+        type: 'audio/mp3',
+      });
+
+      const newUrl = URL.createObjectURL(cleanedBlob);
+      if (generatedVoiceMeta) {
+        if (generatedVoiceAudioRef.current) {
+          generatedVoiceAudioRef.current.pause();
+          generatedVoiceAudioRef.current = null;
+          setIsPlayingGeneratedVoice(false);
+        }
+        setGeneratedVoiceMeta({
+          ...generatedVoiceMeta,
+          audioUrl: newUrl,
+        });
+      }
+
+      onSelectAudio(cleanedFile);
+      const durationSaved = cleanData.stats?.durationSavedSeconds ||
+        Math.max(0, Number(((cleanData.originalDuration || 0) - (cleanData.cleanedDuration || 0)).toFixed(1)));
+
+      setAudioCleanSuccess({
+        secondsSaved: durationSaved,
+        silencesCut: cleanData.stats?.silencesCut || 0,
+        cleanedDuration: cleanData.cleanedDuration || 0,
+      });
+    } catch (err: any) {
+      console.error('Audio clean error:', err);
+      setAudioCleanError(err.message || 'Failed to clean audio. Please try again.');
+    } finally {
+      setIsCleaningAudio(false);
+    }
+  };
 
   const SAMPLE_SCRIPTS = [
     { label: '🇮🇳 Hindi Story', text: 'सफलता की राह में सबसे बड़ा कदम वही होता है, जो आप खुद पर विश्वास करके उठाते हैं।' },
@@ -309,6 +532,7 @@ export function ImageToVideoStudio({
         body: JSON.stringify({
           text: aiScriptText.trim(),
           voiceId: selectedVoiceId,
+          speakingRate: aiVoiceSpeed,
         }),
       });
 
@@ -326,7 +550,7 @@ export function ImageToVideoStudio({
       const byteArray = new Uint8Array(byteNumbers);
       const blob = new Blob([byteArray], { type: 'audio/mp3' });
       const chosenVoice = GOOGLE_AI_VOICES.find((v) => v.id === selectedVoiceId);
-      const fileName = `${(chosenVoice?.name || 'AI_Voice').replace(/[^a-zA-Z0-9]/g, '_')}_Voiceover.mp3`;
+      const fileName = `${(chosenVoice?.name || 'AI_Voice').replace(/[^a-zA-Z0-9]/g, '_')}_${aiVoiceSpeed}x_Voiceover.mp3`;
       const audioFile = new File([blob], fileName, { type: 'audio/mp3' });
 
       // Create object URL for local playback
@@ -351,6 +575,7 @@ export function ImageToVideoStudio({
     if (!generatedVoiceMeta?.audioUrl) return;
     if (!generatedVoiceAudioRef.current) {
       generatedVoiceAudioRef.current = new Audio(generatedVoiceMeta.audioUrl);
+      generatedVoiceAudioRef.current.playbackRate = aiVoiceSpeed;
       generatedVoiceAudioRef.current.onended = () => setIsPlayingGeneratedVoice(false);
     }
 
@@ -358,6 +583,7 @@ export function ImageToVideoStudio({
       generatedVoiceAudioRef.current.pause();
       setIsPlayingGeneratedVoice(false);
     } else {
+      generatedVoiceAudioRef.current.playbackRate = aiVoiceSpeed;
       generatedVoiceAudioRef.current.play().catch(console.error);
       setIsPlayingGeneratedVoice(true);
     }
@@ -444,6 +670,261 @@ export function ImageToVideoStudio({
       setPreviewingTrackUrl(null);
     }
   }, [bgmEnabled, previewingTrackUrl]);
+
+  const renderAudioCleanerAndSpeedControls = () => {
+    if (!selectedAudio) return null;
+
+    return (
+      <div className="mt-4 rounded-2xl border border-white/10 bg-[#191724] p-4 space-y-4 shadow-inner">
+        {/* AUDIO CLEANER SECTION (Copied from Audio Cleaner) */}
+        <div>
+          <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
+            <div className="flex items-center gap-2">
+              <Sliders size={16} className="text-orange-400" />
+              <h4 className="text-xs font-black uppercase tracking-wider text-white">
+                Studio Audio Cleaner &amp; Space-Cut
+              </h4>
+            </div>
+            <span className="rounded-full bg-orange-500/20 px-2 py-0.5 text-[10px] font-bold text-orange-300">
+              AI Cleaner
+            </span>
+          </div>
+
+          <p className="mt-1.5 text-[11px] text-zinc-400">
+            Auto-cuts awkward dead air &amp; silences, removes fan/room noise, and normalizes voice volume.
+          </p>
+
+          {/* 6 Toggles Grid */}
+          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {/* 1. Smart Silence Trimming */}
+            <div
+              onClick={() => handleToggleCleanOption("removeSilence")}
+              className="flex cursor-pointer items-start justify-between rounded-xl border border-white/10 bg-[#22202c] p-2.5 transition hover:border-white/20 select-none"
+            >
+              <div className="space-y-0.5 pr-2">
+                <p className="text-xs font-bold text-white">Smart Silence Trimming</p>
+                <p className="text-[10px] text-zinc-400">
+                  Cuts dead air &gt; 1.0s (Space Cut)
+                </p>
+              </div>
+              <div
+                className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${
+                  currentCleanOptions.removeSilence ? "bg-orange-500" : "bg-zinc-700"
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
+                    currentCleanOptions.removeSilence ? "left-4" : "left-0.5"
+                  }`}
+                />
+              </div>
+            </div>
+
+            {/* 2. Background Noise Removal */}
+            <div
+              onClick={() => handleToggleCleanOption("noiseReduction")}
+              className="flex cursor-pointer items-start justify-between rounded-xl border border-white/10 bg-[#22202c] p-2.5 transition hover:border-white/20 select-none"
+            >
+              <div className="space-y-0.5 pr-2">
+                <p className="text-xs font-bold text-white">Background Noise Removal</p>
+                <p className="text-[10px] text-zinc-400">
+                  Spectral de-noise fan, hiss &amp; hum
+                </p>
+              </div>
+              <div
+                className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${
+                  currentCleanOptions.noiseReduction ? "bg-orange-500" : "bg-zinc-700"
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
+                    currentCleanOptions.noiseReduction ? "left-4" : "left-0.5"
+                  }`}
+                />
+              </div>
+            </div>
+
+            {/* 3. Studio Loudness & EQ */}
+            <div
+              onClick={() => handleToggleCleanOption("volumeNormalize")}
+              className="flex cursor-pointer items-start justify-between rounded-xl border border-white/10 bg-[#22202c] p-2.5 transition hover:border-white/20 select-none"
+            >
+              <div className="space-y-0.5 pr-2">
+                <p className="text-xs font-bold text-white">Studio Loudness &amp; EQ</p>
+                <p className="text-[10px] text-zinc-400">
+                  -16 LUFS broadcast curve
+                </p>
+              </div>
+              <div
+                className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${
+                  currentCleanOptions.volumeNormalize ? "bg-orange-500" : "bg-zinc-700"
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
+                    currentCleanOptions.volumeNormalize ? "left-4" : "left-0.5"
+                  }`}
+                />
+              </div>
+            </div>
+
+            {/* 4. Remove Vocal Fillers */}
+            <div
+              onClick={() => handleToggleCleanOption("removeFillers")}
+              className="flex cursor-pointer items-start justify-between rounded-xl border border-white/10 bg-[#22202c] p-2.5 transition hover:border-white/20 select-none"
+            >
+              <div className="space-y-0.5 pr-2">
+                <p className="text-xs font-bold text-white">Remove Vocal Fillers</p>
+                <p className="text-[10px] text-zinc-400">
+                  Cuts &quot;um&quot;, &quot;uh&quot;, &quot;matlab&quot;
+                </p>
+              </div>
+              <div
+                className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${
+                  currentCleanOptions.removeFillers ? "bg-orange-500" : "bg-zinc-700"
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
+                    currentCleanOptions.removeFillers ? "left-4" : "left-0.5"
+                  }`}
+                />
+              </div>
+            </div>
+
+            {/* 5. Remove Retakes & Stutters */}
+            <div
+              onClick={() => handleToggleCleanOption("removeRepeats")}
+              className="flex cursor-pointer items-start justify-between rounded-xl border border-white/10 bg-[#22202c] p-2.5 transition hover:border-white/20 select-none"
+            >
+              <div className="space-y-0.5 pr-2">
+                <p className="text-xs font-bold text-white">Remove Retakes &amp; Stutters</p>
+                <p className="text-[10px] text-zinc-400">
+                  Auto-cuts repeated mistakes
+                </p>
+              </div>
+              <div
+                className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${
+                  currentCleanOptions.removeRepeats ? "bg-orange-500" : "bg-zinc-700"
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
+                    currentCleanOptions.removeRepeats ? "left-4" : "left-0.5"
+                  }`}
+                />
+              </div>
+            </div>
+
+            {/* 6. Trim Start & End Air */}
+            <div
+              onClick={() => handleToggleCleanOption("trimEnds")}
+              className="flex cursor-pointer items-start justify-between rounded-xl border border-white/10 bg-[#22202c] p-2.5 transition hover:border-white/20 select-none"
+            >
+              <div className="space-y-0.5 pr-2">
+                <p className="text-xs font-bold text-white">Trim Start &amp; End Air</p>
+                <p className="text-[10px] text-zinc-400">
+                  Cuts mic warm-up and trailing silence
+                </p>
+              </div>
+              <div
+                className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${
+                  currentCleanOptions.trimEnds ? "bg-orange-500" : "bg-zinc-700"
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
+                    currentCleanOptions.trimEnds ? "left-4" : "left-0.5"
+                  }`}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Clean Success Badge */}
+          {audioCleanSuccess && (
+            <div className="mt-3 flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-2.5 text-xs font-semibold text-emerald-300">
+              <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
+              <span>
+                Audio Cleaned! Cut {audioCleanSuccess.silencesCut} awkward pauses • Saved {audioCleanSuccess.secondsSaved}s dead air.
+              </span>
+            </div>
+          )}
+
+          {/* Clean Error Message */}
+          {audioCleanError && (
+            <p className="mt-2 text-xs text-rose-400 font-medium">{audioCleanError}</p>
+          )}
+
+          {/* Action Button: Auto Clean Audio */}
+          <button
+            type="button"
+            disabled={isCleaningAudio}
+            onClick={handleCleanAudioNow}
+            className="mt-3 w-full flex items-center justify-center gap-2 rounded-xl border border-orange-500/40 bg-orange-500/15 py-2.5 px-3 text-xs font-bold text-orange-300 hover:bg-orange-500/25 disabled:opacity-50 transition cursor-pointer"
+          >
+            {isCleaningAudio ? (
+              <>
+                <Loader2 size={15} className="animate-spin text-orange-400" />
+                <span>Auto-Cleaning Audio (Trimming Silences &amp; Denoising)...</span>
+              </>
+            ) : (
+              <>
+                <Zap size={15} className="text-orange-400" />
+                <span>⚡ Auto Clean Audio (Apply Space-Cut &amp; Denoise)</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* SPEED SELECTOR: "baad me speed rakho" */}
+        <div className="border-t border-white/10 pt-3">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div className="space-y-0.5">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-white">Voice Playback &amp; Export Speed</span>
+                <span className="rounded-full bg-orange-500/20 px-2 py-0.5 text-[9px] font-bold text-orange-300">
+                  Natural Pitch Preserved
+                </span>
+              </div>
+              <p className="text-[10px] text-zinc-400">
+                AI voices sound exciting and fast without pitch distortion
+              </p>
+            </div>
+
+            <div className="flex items-center gap-1 rounded-xl border border-white/10 bg-black/40 p-1">
+              {[
+                { val: 1.0 as const, label: "1.0x Normal" },
+                { val: 1.25 as const, label: "1.25x Crisp" },
+                { val: 1.5 as const, label: "1.5x Fast" },
+              ].map((sp) => (
+                <button
+                  key={sp.val}
+                  type="button"
+                  disabled={isAdjustingSpeed || isGeneratingTts}
+                  onClick={() => handleChangeVoiceSpeed(sp.val)}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
+                    aiVoiceSpeed === sp.val
+                      ? "bg-orange-500 text-white shadow-sm shadow-orange-500/20"
+                      : "text-zinc-400 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  {sp.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {isAdjustingSpeed && (
+            <div className="mt-2 flex items-center gap-2 text-[11px] text-orange-300 font-medium">
+              <Loader2 size={12} className="animate-spin text-orange-400" />
+              <span>Regenerating voice at {aiVoiceSpeed}x via Google Cloud...</span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
@@ -594,26 +1075,49 @@ export function ImageToVideoStudio({
                     </p>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between rounded-2xl border border-orange-500/30 bg-orange-500/10 p-3.5">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-500 text-white shadow-sm">
-                        <Mic size={18} />
+                  <div>
+                    <div className="flex items-center justify-between rounded-2xl border border-orange-500/30 bg-orange-500/10 p-3.5">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-500 text-white shadow-sm">
+                          <Mic size={18} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-bold text-white truncate">{selectedAudio.name}</p>
+                          <p className="text-xs text-orange-300/90 font-semibold">
+                            {(selectedAudio.size / (1024 * 1024)).toFixed(2)} MB • Audio Loaded
+                          </p>
+                        </div>
                       </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-bold text-white truncate">{selectedAudio.name}</p>
-                        <p className="text-xs text-orange-300/90 font-semibold">
-                          {(selectedAudio.size / (1024 * 1024)).toFixed(2)} MB • Audio Loaded
-                        </p>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          type="button"
+                          onClick={handleTogglePlayUploadedAudio}
+                          className={`flex h-9 w-9 items-center justify-center rounded-xl transition cursor-pointer ${
+                            isPlayingUploadedAudio
+                              ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/25'
+                              : 'bg-orange-500 text-white hover:bg-orange-400 shadow-md shadow-orange-500/20'
+                          }`}
+                          title={isPlayingUploadedAudio ? "Pause" : "Play uploaded audio"}
+                        >
+                          {isPlayingUploadedAudio ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onSelectAudio(null);
+                            if (uploadedAudioRef.current) {
+                              uploadedAudioRef.current.pause();
+                              setIsPlayingUploadedAudio(false);
+                            }
+                          }}
+                          className="p-2 text-zinc-400 hover:text-rose-400 transition cursor-pointer"
+                          title="Remove audio"
+                        >
+                          <Trash2 size={18} />
+                        </button>
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => onSelectAudio(null)}
-                      className="p-2 text-zinc-400 hover:text-rose-400 transition cursor-pointer"
-                      title="Remove audio"
-                    >
-                      <Trash2 size={18} />
-                    </button>
+                    {renderAudioCleanerAndSpeedControls()}
                   </div>
                 )}
               </div>
@@ -624,59 +1128,64 @@ export function ImageToVideoStudio({
               <div className="space-y-4">
                 {/* If AI Audio already generated & active */}
                 {generatedVoiceMeta && selectedAudio ? (
-                  <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-white">
-                          <Check size={14} />
-                        </span>
-                        <span className="text-xs font-black uppercase tracking-wider text-emerald-400">
-                          AI Voiceover Generated
-                        </span>
+                  <div>
+                    <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-white">
+                            <Check size={14} />
+                          </span>
+                          <span className="text-xs font-black uppercase tracking-wider text-emerald-400">
+                            AI Voiceover Generated
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onSelectAudio(null);
+                            setGeneratedVoiceMeta(null);
+                          }}
+                          className="p-1.5 text-zinc-400 hover:text-rose-400 transition cursor-pointer"
+                          title="Remove voiceover"
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       </div>
+
+                      <div className="flex items-center justify-between rounded-xl bg-black/40 border border-white/10 p-3 mb-2">
+                        <div className="min-w-0 pr-3">
+                          <p className="text-sm font-bold text-white truncate">
+                            {generatedVoiceMeta.voiceName}
+                          </p>
+                          <p className="text-xs text-zinc-400 line-clamp-1 italic">
+                            &quot;{generatedVoiceMeta.text}&quot;
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleTogglePlayGeneratedVoice}
+                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition cursor-pointer ${
+                            isPlayingGeneratedVoice
+                              ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/25'
+                              : 'bg-orange-500 text-white hover:bg-orange-400 shadow-md shadow-orange-500/20'
+                          }`}
+                          title={isPlayingGeneratedVoice ? "Pause" : "Play generated audio"}
+                        >
+                          {isPlayingGeneratedVoice ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
+                        </button>
+                      </div>
+
                       <button
                         type="button"
-                        onClick={() => {
-                          onSelectAudio(null);
-                          setGeneratedVoiceMeta(null);
-                        }}
-                        className="p-1.5 text-zinc-400 hover:text-rose-400 transition cursor-pointer"
-                        title="Remove voiceover"
+                        onClick={() => setGeneratedVoiceMeta(null)}
+                        className="text-xs font-semibold text-zinc-400 hover:text-white flex items-center gap-1.5 transition cursor-pointer"
                       >
-                        <Trash2 size={16} />
+                        <RefreshCw size={12} /> Regenerate with different script or voice
                       </button>
                     </div>
 
-                    <div className="flex items-center justify-between rounded-xl bg-black/40 border border-white/10 p-3 mb-2">
-                      <div className="min-w-0 pr-3">
-                        <p className="text-sm font-bold text-white truncate">
-                          {generatedVoiceMeta.voiceName}
-                        </p>
-                        <p className="text-xs text-zinc-400 line-clamp-1 italic">
-                          &quot;{generatedVoiceMeta.text}&quot;
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={handleTogglePlayGeneratedVoice}
-                        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition ${
-                          isPlayingGeneratedVoice
-                            ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/25'
-                            : 'bg-orange-500 text-white hover:bg-orange-400 shadow-md shadow-orange-500/20'
-                        }`}
-                        title={isPlayingGeneratedVoice ? "Pause" : "Play generated audio"}
-                      >
-                        {isPlayingGeneratedVoice ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
-                      </button>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => setGeneratedVoiceMeta(null)}
-                      className="text-xs font-semibold text-zinc-400 hover:text-white flex items-center gap-1.5 transition"
-                    >
-                      <RefreshCw size={12} /> Regenerate with different script or voice
-                    </button>
+                    {/* Auto Cleaner & Speed Controls displayed when Audio is Ready */}
+                    {renderAudioCleanerAndSpeedControls()}
                   </div>
                 ) : (
                   <>
@@ -693,22 +1202,23 @@ export function ImageToVideoStudio({
                       </div>
 
                       <textarea
-                        rows={3}
+                        rows={4}
+                        maxLength={5000}
                         value={aiScriptText}
                         onChange={(e) => setAiScriptText(e.target.value)}
-                        placeholder="Write or paste your video script here... AI will narrate every word with natural human pacing and intonation."
-                        className="w-full rounded-2xl border border-white/10 bg-white/5 p-3.5 text-xs text-white placeholder-zinc-500 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 transition resize-none"
+                        placeholder="Enter the voiceover script for your video... AI will speak this text with studio human emotion."
+                        className="w-full rounded-2xl border border-white/10 bg-black/40 p-3.5 text-xs text-white placeholder-zinc-500 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 transition resize-none leading-relaxed"
                       />
 
-                      {/* Quick starter suggestions */}
-                      <div className="mt-2 flex items-center gap-1.5 overflow-x-auto pb-1 text-[11px] text-zinc-400 no-scrollbar">
-                        <span className="shrink-0 text-zinc-500 font-semibold">Try:</span>
+                      {/* Sample Script Quick Fillers */}
+                      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                        <span className="text-[10px] font-semibold text-zinc-500">Quick Try:</span>
                         {SAMPLE_SCRIPTS.map((s, idx) => (
                           <button
                             key={idx}
                             type="button"
                             onClick={() => setAiScriptText(s.text)}
-                            className="shrink-0 rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-zinc-300 hover:border-orange-500/40 hover:bg-orange-500/10 hover:text-orange-300 transition"
+                            className="rounded-lg border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-medium text-zinc-300 hover:border-white/20 hover:text-white transition cursor-pointer"
                           >
                             {s.label}
                           </button>
@@ -716,35 +1226,35 @@ export function ImageToVideoStudio({
                       </div>
                     </div>
 
-                    {/* Curated Voice Selector */}
+                    {/* Voice Selection Section */}
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <label className="text-xs font-bold text-zinc-300 flex items-center gap-1.5">
-                          <Volume2 size={13} className="text-orange-400" />
-                          <span>Select Google AI Voice (Click ▶ to Listen)</span>
+                          <Radio size={13} className="text-orange-400" />
+                          <span>Select Google AI Voice</span>
                         </label>
+
+                        {/* Category Filter Pills */}
+                        <div className="flex items-center gap-1">
+                          {(['All', 'Hindi', 'Indian English', 'Global English'] as const).map((cat) => (
+                            <button
+                              key={cat}
+                              type="button"
+                              onClick={() => setActiveVoiceCategory(cat)}
+                              className={`rounded-lg px-2 py-0.5 text-[10px] font-bold transition cursor-pointer ${
+                                activeVoiceCategory === cat
+                                  ? 'bg-orange-500 text-white'
+                                  : 'bg-white/5 text-zinc-400 hover:text-white'
+                              }`}
+                            >
+                              {cat}
+                            </button>
+                          ))}
+                        </div>
                       </div>
 
-                      {/* Category filter pills */}
-                      <div className="flex items-center gap-1.5 mb-2.5 overflow-x-auto no-scrollbar">
-                        {(['All', 'Hindi', 'Indian English', 'Global English'] as const).map((cat) => (
-                          <button
-                            key={cat}
-                            type="button"
-                            onClick={() => setActiveVoiceCategory(cat)}
-                            className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold transition ${
-                              activeVoiceCategory === cat
-                                ? 'bg-orange-500 text-white shadow-sm shadow-orange-500/20'
-                                : 'border border-white/10 bg-white/5 text-zinc-400 hover:text-white'
-                            }`}
-                          >
-                            {cat === 'All' ? 'All Voices' : cat}
-                          </button>
-                        ))}
-                      </div>
-
-                      {/* Voice Cards Grid */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
+                      {/* Voices Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-1 select-none">
                         {filteredVoices.map((voice) => {
                           const isSelected = selectedVoiceId === voice.id;
                           const isPlayingThis = previewingVoiceId === voice.id;
@@ -777,7 +1287,7 @@ export function ImageToVideoStudio({
                                 type="button"
                                 onClick={(e) => handleToggleVoicePreview(voice, e)}
                                 title={isPlayingThis ? 'Pause sample' : 'Listen to voice sample'}
-                                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition ${
+                                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition cursor-pointer ${
                                   isPlayingThis
                                     ? 'bg-rose-500 text-white shadow-sm animate-pulse'
                                     : isSelected
@@ -793,6 +1303,34 @@ export function ImageToVideoStudio({
                       </div>
                     </div>
 
+                    {/* Pre-generation Speed Choice */}
+                    <div className="flex items-center justify-between rounded-xl border border-white/10 bg-[#1c1a24] p-2.5">
+                      <div className="flex items-center gap-2">
+                        <Zap size={14} className="text-orange-400" />
+                        <span className="text-xs font-bold text-white">Voice Speed</span>
+                      </div>
+                      <div className="flex items-center gap-1 bg-black/40 p-1 rounded-lg border border-white/10">
+                        {[
+                          { val: 1.0 as const, label: "1.0x Normal" },
+                          { val: 1.25 as const, label: "1.25x Crisp" },
+                          { val: 1.5 as const, label: "1.5x Fast" },
+                        ].map((sp) => (
+                          <button
+                            key={sp.val}
+                            type="button"
+                            onClick={() => setAiVoiceSpeed(sp.val)}
+                            className={`px-2 py-0.5 rounded-md text-[11px] font-bold transition cursor-pointer ${
+                              aiVoiceSpeed === sp.val
+                                ? "bg-orange-500 text-white shadow-sm"
+                                : "text-zinc-400 hover:text-white"
+                            }`}
+                          >
+                            {sp.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
                     {/* Generate Button & Error */}
                     {ttsError && (
                       <p className="text-xs text-rose-400 font-medium">{ttsError}</p>
@@ -802,7 +1340,7 @@ export function ImageToVideoStudio({
                       type="button"
                       disabled={isGeneratingTts || !aiScriptText.trim()}
                       onClick={handleGenerateAiVoice}
-                      className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 py-3 px-4 text-xs font-black uppercase tracking-wider text-white shadow-lg shadow-orange-500/25 hover:from-orange-400 hover:to-amber-400 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                      className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 py-3 px-4 text-xs font-black uppercase tracking-wider text-white shadow-lg shadow-orange-500/25 hover:from-orange-400 hover:to-amber-400 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
                     >
                       {isGeneratingTts ? (
                         <>
