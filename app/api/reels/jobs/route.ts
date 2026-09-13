@@ -532,6 +532,7 @@ export async function POST(request: Request) {
         contentType: audioPrep.contentType,
         mediaType: 'audio',
         outputLanguage: normalizeSubtitleLanguage(readString(body.subtitleOutputLanguage)) || undefined,
+        maxSeconds: MAX_IMAGE_TO_VIDEO_SECONDS,
       });
 
       if (!itvTranscription.transcript) {
@@ -548,10 +549,18 @@ export async function POST(request: Request) {
       // Widescreen 16:9 natural documentary captions (8-12 words, complete sentences/clauses)
       const captions = buildWidescreen16x9Captions(renderWindow);
 
+      // Intelligent filter: exclude user error screenshots, bug captures, or UI diagnostics
+      const isRealStoryAsset = (url: string) => {
+        if (!url || typeof url !== 'string') return false;
+        const lower = url.toLowerCase();
+        const nonStoryKeywords = ['screenshot', 'screen_shot', 'screen-shot', 'screencap', 'capture', 'error', 'bug', 'debug', 'console', '1%'];
+        return !nonStoryKeywords.some((kw) => lower.includes(kw));
+      };
+
       // Load rich 16:9 images from Cloudinary library (assets.json)
       const catalogAssets = getAssetsByFolder('images');
       const catalogImages = catalogAssets
-        .filter((img) => img && img.secure_url)
+        .filter((img) => img && img.secure_url && isRealStoryAsset(img.secure_url))
         .map((img) => img.secure_url);
 
       const library16x9Images = catalogImages.length > 0 ? catalogImages : [
@@ -563,13 +572,14 @@ export async function POST(request: Request) {
         'https://res.cloudinary.com/dhouh9idx/image/upload/v1788688223/modern_workspace_laptop_coffee_planning_o8nkmk.png',
       ];
 
-      // Pool of images: user custom stock/AI URLs > user uploaded > default 16:9 library
+      // Pool of images: user custom stock/AI URLs > user uploaded > default 16:9 library (filtered)
       const rawCustomUrls = Array.isArray(body.customImageUrls)
-        ? (body.customImageUrls as unknown[]).map((u) => String(u || '').trim()).filter((u) => u.startsWith('http'))
+        ? (body.customImageUrls as unknown[]).map((u) => String(u || '').trim()).filter((u) => u.startsWith('http') && isRealStoryAsset(u))
         : [];
+      const cleanUploadedImageUrls = uploadedImageUrls.filter(isRealStoryAsset);
       const imagePool = rawCustomUrls.length > 0
         ? rawCustomUrls
-        : (uploadedImageUrls.length > 0 ? uploadedImageUrls : library16x9Images);
+        : (cleanUploadedImageUrls.length > 0 ? cleanUploadedImageUrls : library16x9Images);
 
       const fitMode = (readString(body.fitMode) as 'blur-fill' | 'cover') || 'blur-fill';
 
@@ -3029,12 +3039,45 @@ function buildWidescreen16x9Scenes(options: {
     id: string;
     startSeconds: number;
     endSeconds: number;
-    imageUrl: string;
+    imageUrl?: string;
     text: string;
     cameraMotion: 'zoom-in' | 'zoom-out' | 'pan-left' | 'pan-right' | 'pan-up' | 'pan-down';
     transition: 'hard-cut' | 'dissolve' | 'push-left' | 'push-right';
     fitMode?: 'blur-fill' | 'cover';
+    sceneType?: 'image' | 'typography';
+    typographyPrimary?: string;
+    typographySecondary?: string;
+    typographyAccent?: string;
   }> = [];
+
+  const extractProminentTypoMetric = (text: string): { primary: string; secondary: string; accent: string } | null => {
+    if (!text) return null;
+    const moneyMatch = text.match(/(?:[\$₹£€]\s*[\d,]+(?:\.\d+)?(?:\s*(?:k|m|b|lakh|crore|million|billion|thousand))?|[\d,]+(?:\.\d+)?\s*(?:dollars|rupees|percent|%|k|m|b))/i);
+    if (moneyMatch) {
+      return {
+        primary: moneyMatch[0].toUpperCase(),
+        secondary: text.length > 55 ? text.slice(0, 52) + '...' : text,
+        accent: 'KEY METRIC',
+      };
+    }
+    const pctMatch = text.match(/\b\d+[\d,.]*(?:%|x\b)/i);
+    if (pctMatch) {
+      return {
+        primary: pctMatch[0].toUpperCase(),
+        secondary: text.length > 55 ? text.slice(0, 52) + '...' : text,
+        accent: 'THE DIFFERENCE',
+      };
+    }
+    const stepMatch = text.match(/\b(step|chapter|rule|phase|secret|day|year)\s*#?\d+\b/i);
+    if (stepMatch) {
+      return {
+        primary: stepMatch[0].toUpperCase(),
+        secondary: text.length > 55 ? text.slice(0, 52) + '...' : text,
+        accent: 'TURNING POINT',
+      };
+    }
+    return null;
+  };
 
   const words = (renderWindow.words || [])
     .filter((w) => readString(w.word) && Number.isFinite(w.start) && Number.isFinite(w.end))
@@ -3073,16 +3116,23 @@ function buildWidescreen16x9Scenes(options: {
         const sceneWords = words.slice(sceneStartIndex, i + 1);
         const sceneEndSec = isLastWord ? totalDuration : currentWord.end;
         const sceneIndex = scenes.length;
+        const sceneText = sceneWords.map((w) => w.word).join(' ');
+        const typo = extractProminentTypoMetric(sceneText);
+        const shouldUseTypography = Boolean(typo && (sceneIndex % 7 === 0 || imagePool.length === 0));
 
         scenes.push({
           id: `scene-${sceneIndex + 1}`,
           startSeconds: roundSeconds(sceneStartSec),
           endSeconds: roundSeconds(sceneEndSec),
-          imageUrl: imagePool[sceneIndex % imagePool.length],
-          text: sceneWords.map((w) => w.word).join(' '),
+          imageUrl: imagePool.length > 0 ? imagePool[sceneIndex % imagePool.length] : undefined,
+          text: sceneText,
           cameraMotion: motions[sceneIndex % motions.length],
           transition: transitions[sceneIndex % transitions.length],
           fitMode,
+          sceneType: shouldUseTypography ? 'typography' : 'image',
+          typographyPrimary: typo ? typo.primary : undefined,
+          typographySecondary: typo ? typo.secondary : undefined,
+          typographyAccent: typo ? typo.accent : undefined,
         });
 
         if (nextWord) {
@@ -3104,16 +3154,23 @@ function buildWidescreen16x9Scenes(options: {
         const start = segStart + s * subDur;
         const end = s === subSceneCount - 1 ? segEnd : start + subDur;
         const sceneIndex = scenes.length;
+        const segText = s === 0 ? String(seg.text || '').trim() : '';
+        const typo = extractProminentTypoMetric(segText);
+        const shouldUseTypography = Boolean(typo && (sceneIndex % 7 === 0 || imagePool.length === 0));
 
         scenes.push({
           id: `scene-${sceneIndex + 1}`,
           startSeconds: roundSeconds(start),
           endSeconds: roundSeconds(end),
-          imageUrl: imagePool[sceneIndex % imagePool.length],
-          text: s === 0 ? String(seg.text || '').trim() : '',
+          imageUrl: imagePool.length > 0 ? imagePool[sceneIndex % imagePool.length] : undefined,
+          text: segText,
           cameraMotion: motions[sceneIndex % motions.length],
           transition: transitions[sceneIndex % transitions.length],
           fitMode,
+          sceneType: shouldUseTypography ? 'typography' : 'image',
+          typographyPrimary: typo ? typo.primary : undefined,
+          typographySecondary: typo ? typo.secondary : undefined,
+          typographyAccent: typo ? typo.accent : undefined,
         });
       }
     });

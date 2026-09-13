@@ -18,12 +18,16 @@ export interface ImageToVideoScene {
   id: string;
   startSeconds: number;
   endSeconds: number;
-  imageUrl: string;
+  imageUrl?: string;
   text?: string;
   cameraMotion?: 'zoom-in' | 'zoom-out' | 'pan-left' | 'pan-right' | 'pan-up' | 'pan-down';
   transition?: 'hard-cut' | 'dissolve' | 'push-left' | 'push-right';
   title?: string;
   fitMode?: 'blur-fill' | 'cover';
+  sceneType?: 'image' | 'typography';
+  typographyPrimary?: string;
+  typographySecondary?: string;
+  typographyAccent?: string;
 }
 
 export interface ImageToVideoAiProps {
@@ -162,53 +166,98 @@ const SceneRenderer: React.FC<{
         backgroundColor: '#0a0a0c',
       }}
     >
-      {/* 1. Full 16:9 Ambient Blurred Fill Layer - Guarantees 100% canvas utilization without empty black pillarboxes */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: -40,
-          overflow: 'hidden',
-          filter: 'blur(42px) brightness(0.55) saturate(1.3)',
-          transform: `scale(${scale * 1.10}) translate(${translateX * 0.4}%, ${translateY * 0.4}%)`,
-          transformOrigin: 'center center',
-          pointerEvents: 'none',
-        }}
-      >
-        <Img
-          src={resolveImageUrl(scene.imageUrl)}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-          }}
-        />
-      </div>
-
-      {/* 2. Foreground Subject Layer - Dynamic Fit for 9:16 portrait and 16:9 widescreen images */}
-      {effectiveFitMode === 'blur-fill' ? (
+      {scene.sceneType === 'typography' || (!scene.imageUrl && scene.typographyPrimary) ? (
         <div
           style={{
             position: 'absolute',
             inset: 0,
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            transform: `scale(${scale}) translate(${translateX}%, ${translateY}%)`,
-            transformOrigin: 'center center',
-            transition: 'none',
+            padding: '0 80px',
+            textAlign: 'center',
+            background: 'radial-gradient(circle at center, #1a1410 0%, #0d0c0c 60%, #050505 100%)',
+            transform: `scale(${scale}) translate(${translateX * 0.3}%, ${translateY * 0.3}%)`,
           }}
         >
+          {/* Subtle glowing ambient orb */}
           <div
             style={{
-              height: '92%',
-              maxWidth: '92%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: 22,
+              position: 'absolute',
+              width: 520,
+              height: 520,
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(249, 115, 22, 0.18) 0%, transparent 70%)',
+              filter: 'blur(60px)',
+              pointerEvents: 'none',
+            }}
+          />
+
+          {/* Accent Badge (e.g. POINT 01 / TURNING POINT / CRITICAL METRIC) */}
+          {scene.typographyAccent ? (
+            <div
+              style={{
+                marginBottom: 24,
+                padding: '6px 20px',
+                borderRadius: 999,
+                border: '1px solid rgba(249, 115, 22, 0.45)',
+                backgroundColor: 'rgba(249, 115, 22, 0.12)',
+                color: '#fb923c',
+                fontSize: 16,
+                fontWeight: 800,
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                boxShadow: '0 0 24px rgba(249, 115, 22, 0.25)',
+              }}
+            >
+              {scene.typographyAccent}
+            </div>
+          ) : null}
+
+          {/* Giant Bold Metric / Number / Title */}
+          <div
+            style={{
+              fontSize: 82,
+              fontWeight: 900,
+              lineHeight: 1.08,
+              letterSpacing: '-0.03em',
+              color: '#ffffff',
+              textShadow: '0 10px 40px rgba(0, 0, 0, 0.9), 0 0 50px rgba(249, 115, 22, 0.35)',
+              maxWidth: 1200,
+            }}
+          >
+            {scene.typographyPrimary || scene.title || 'CRITICAL SHIFT'}
+          </div>
+
+          {/* Secondary Subtitle / Context */}
+          {scene.typographySecondary ? (
+            <div
+              style={{
+                marginTop: 22,
+                fontSize: 26,
+                fontWeight: 600,
+                color: 'rgba(255, 255, 255, 0.72)',
+                letterSpacing: '0.01em',
+                maxWidth: 900,
+              }}
+            >
+              {scene.typographySecondary}
+            </div>
+          ) : null}
+        </div>
+      ) : (
+        <>
+          {/* 1. Full 16:9 Ambient Blurred Fill Layer - Guarantees 100% canvas utilization without empty black pillarboxes */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: -40,
               overflow: 'hidden',
-              boxShadow:
-                '0 28px 70px rgba(0, 0, 0, 0.70), 0 0 0 1px rgba(255, 255, 255, 0.14)',
+              filter: 'blur(42px) brightness(0.55) saturate(1.3)',
+              transform: `scale(${scale * 1.10}) translate(${translateX * 0.4}%, ${translateY * 0.4}%)`,
+              transformOrigin: 'center center',
+              pointerEvents: 'none',
             }}
           >
             <Img
@@ -216,32 +265,71 @@ const SceneRenderer: React.FC<{
               style={{
                 width: '100%',
                 height: '100%',
-                objectFit: 'contain',
+                objectFit: 'cover',
               }}
             />
           </div>
-        </div>
-      ) : (
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            transform: `scale(${scale}) translate(${translateX}%, ${translateY}%)`,
-            transformOrigin: 'center center',
-            transition: 'none',
-          }}
-        >
-          <Img
-            src={resolveImageUrl(scene.imageUrl)}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-            }}
-          />
-        </div>
+
+          {/* 2. Foreground Subject Layer - Dynamic Fit for 9:16 portrait and 16:9 widescreen images */}
+          {effectiveFitMode === 'blur-fill' ? (
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transform: `scale(${scale}) translate(${translateX}%, ${translateY}%)`,
+                transformOrigin: 'center center',
+                transition: 'none',
+              }}
+            >
+              <div
+                style={{
+                  height: '92%',
+                  maxWidth: '92%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 22,
+                  overflow: 'hidden',
+                  boxShadow:
+                    '0 28px 70px rgba(0, 0, 0, 0.70), 0 0 0 1px rgba(255, 255, 255, 0.14)',
+                }}
+              >
+                <Img
+                  src={resolveImageUrl(scene.imageUrl)}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
+                  }}
+                />
+              </div>
+            </div>
+          ) : (
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                transform: `scale(${scale}) translate(${translateX}%, ${translateY}%)`,
+                transformOrigin: 'center center',
+                transition: 'none',
+              }}
+            >
+              <Img
+                src={resolveImageUrl(scene.imageUrl)}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                }}
+              />
+            </div>
+          )}
+        </>
       )}
 
       {/* Cinematic Radial Vignette for Netflix / Docu-grade Depth */}

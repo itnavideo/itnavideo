@@ -130,6 +130,12 @@ export interface ImageToVideoStudioProps {
   onChangeAssetSourceMode?: (mode: 'upload' | 'library' | 'ai-generate') => void;
   selectedStockAssetUrls?: string[];
   onChangeSelectedStockAssetUrls?: (urls: string[]) => void;
+  visualStyle?: "2d" | "3d" | "realistic";
+  onChangeVisualStyle?: (style: "2d" | "3d" | "realistic") => void;
+  characterImageFile?: File | null;
+  onSelectCharacterImage?: (file: File | null) => void;
+  characterDnaHint?: string;
+  onChangeCharacterDnaHint?: (hint: string) => void;
   bgmEnabled?: boolean;
   onChangeBgmEnabled?: (enabled: boolean) => void;
   selectedLibraryBgmUrl?: string;
@@ -252,6 +258,12 @@ export function ImageToVideoStudio({
   onChangeAssetSourceMode,
   selectedStockAssetUrls,
   onChangeSelectedStockAssetUrls,
+  visualStyle = "realistic",
+  onChangeVisualStyle,
+  characterImageFile,
+  onSelectCharacterImage,
+  characterDnaHint = "",
+  onChangeCharacterDnaHint,
 }: ImageToVideoStudioProps) {
   const audioInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -724,16 +736,15 @@ export function ImageToVideoStudio({
         <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-purple-600/10 blur-3xl pointer-events-none" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/15 px-3 py-1 text-xs font-black uppercase tracking-wider text-purple-300 backdrop-blur-md">
-              <Sparkles size={13} className="text-purple-400" />
-              <span>Material 3 AI Studio • 16:9 30 FPS</span>
+            <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/40 bg-orange-500/15 px-3 py-1 text-xs font-black uppercase tracking-wider text-orange-300 backdrop-blur-md">
+              <Sparkles size={13} className="text-orange-400" />
+              <span>16:9 Long Video Mode • 1080p 30 FPS • Not Reels/Shorts</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-              Image to Video AI
+              16:9 Long Video AI (YouTube & Storytelling)
             </h1>
             <p className="text-sm text-zinc-400 leading-relaxed">
-              Transform voiceover audio and images into a broadcast-ready 16:9 cinematic video.
-              Every sentence of your script transitions seamlessly with Ken Burns pan/zoom, 2.5D parallax subtitles, and automated sound design.
+              Exclusively designed for 16:9 widescreen long-form YouTube videos (5 to 10+ minutes). Paced with 50+ dynamic scene cuts, protagonist character consistency, and kinetic typography beats (inspired by POV Finance & Another Story).
             </p>
           </div>
 
@@ -1513,10 +1524,10 @@ export function ImageToVideoStudio({
                   <UploadCloud size={20} />
                 </div>
                 <p className="text-xs font-bold text-white mb-0.5">
-                  Click or drag your photos/screenshots here
+                  Click or drag story photos (16:9 widescreen or portrait)
                 </p>
                 <p className="text-[11px] text-zinc-400">
-                  Upload any number of images (JPG, PNG, WEBP) • Auto-scaled to 16:9
+                  Outputs strictly in 16:9 Widescreen (YouTube long video) • Portrait photos auto-zoom & pan cinematically • Screenshots excluded
                 </p>
               </div>
 
@@ -1656,15 +1667,127 @@ export function ImageToVideoStudio({
 
           {/* TAB 3: AI GENERATE IMAGES */}
           {activeAssetMode === 'ai-generate' && (
-            <div className="space-y-3 animate-in fade-in duration-200">
-              <div className="rounded-xl border border-orange-500/30 bg-orange-500/10 p-3.5 space-y-1">
-                <div className="flex items-center gap-2 text-xs font-black text-orange-300">
-                  <Sparkles size={14} className="text-orange-400" />
-                  <span>AI Image Diffusion Engine (+3 Credits)</span>
+            <div className="space-y-4 animate-in fade-in duration-200">
+              <div className="rounded-2xl border border-orange-500/30 bg-gradient-to-r from-orange-500/15 via-amber-500/10 to-transparent p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-xs font-black text-orange-300">
+                    <Sparkles size={16} className="text-orange-400" />
+                    <span>Google Gemini Storytelling Engine</span>
+                  </div>
+                  <span className="rounded-full bg-orange-500/20 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-orange-400 border border-orange-500/30">
+                    50+ Scene Cuts
+                  </span>
                 </div>
-                <p className="text-xs text-zinc-400">
-                  Generates 5 unique photorealistic 16:9 widescreen scenes tailored to your exact script and topic.
+                <p className="text-xs text-zinc-300">
+                  Generates high-retention cinematic scenes cut every 4–6 seconds (inspired by POV Finance & Another Story), with protagonist character consistency across the entire long video.
                 </p>
+              </div>
+
+              {/* 3 Visual Art Styles */}
+              <div className="space-y-2">
+                <label className="text-xs font-black uppercase tracking-wider text-zinc-300">
+                  Visual Art Style (3 Options)
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  {[
+                    {
+                      id: 'realistic',
+                      label: 'Normal Realistic',
+                      icon: '📸',
+                      desc: '8K Hyper-realistic photorealistic cinematic movie still',
+                    },
+                    {
+                      id: '3d',
+                      label: '3D Pixar / CGI',
+                      icon: '🧊',
+                      desc: '3D animated cinematic Octane render with expressive lighting',
+                    },
+                    {
+                      id: '2d',
+                      label: '2D Comic / Anime',
+                      icon: '🎨',
+                      desc: 'Stylized 2D Graphic Novel & modern anime illustration',
+                    },
+                  ].map((style) => {
+                    const isSelected = visualStyle === style.id;
+                    return (
+                      <button
+                        key={style.id}
+                        type="button"
+                        onClick={() => onChangeVisualStyle?.(style.id as any)}
+                        className={`relative flex flex-col p-3 rounded-2xl border text-left transition-all cursor-pointer ${
+                          isSelected
+                            ? 'border-orange-500 bg-orange-500/15 shadow-[0_0_20px_rgba(249,115,22,0.2)] ring-1 ring-orange-500'
+                            : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/[0.08]'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-lg">{style.icon}</span>
+                          {isSelected && <Check size={14} className="text-orange-400 font-bold" />}
+                        </div>
+                        <span className="text-xs font-black text-white">{style.label}</span>
+                        <span className="text-[10px] text-zinc-400 mt-1 leading-relaxed">{style.desc}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Protagonist / Character Consistency Section */}
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">👤</span>
+                    <div>
+                      <p className="text-xs font-black text-white">Owner / Character Consistency</p>
+                      <p className="text-[10px] text-zinc-400">Keep the same face, attire, and identity in all 50+ scenes</p>
+                    </div>
+                  </div>
+                  <span className="rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-bold text-emerald-400">
+                    Gemini Vision
+                  </span>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                  <label className="flex items-center justify-center h-20 w-28 rounded-xl border border-dashed border-white/20 bg-white/5 hover:border-orange-500/50 cursor-pointer overflow-hidden relative group">
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      className="hidden"
+                      onChange={(e) => onSelectCharacterImage?.(e.target.files?.[0] || null)}
+                    />
+                    {characterImageFile ? (
+                      <div className="relative w-full h-full">
+                        <img
+                          src={URL.createObjectURL(characterImageFile)}
+                          alt="Character"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                          <span className="text-[10px] font-bold text-white">Change</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-1 text-center p-2">
+                        <UploadCloud size={16} className="text-orange-400" />
+                        <span className="text-[10px] font-bold text-zinc-300">Upload Photo</span>
+                      </div>
+                    )}
+                  </label>
+
+                  <div className="flex-1 space-y-1.5 w-full">
+                    <input
+                      type="text"
+                      value={characterDnaHint}
+                      onChange={(e) => onChangeCharacterDnaHint?.(e.target.value)}
+                      placeholder="e.g. Alex, 28-year-old ambitious entrepreneur, charcoal turtleneck"
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-zinc-500 focus:border-orange-500 focus:outline-none"
+                    />
+                    <p className="text-[10px] text-zinc-400">
+                      Upload your photo or describe your protagonist. Gemini maintains their identity across every cut.
+                    </p>
+                  </div>
+                </div>
               </div>
 
               {/* Prompt Input */}
