@@ -10,3 +10,8 @@ raw_assets
 .env
 .env.*
 !.env.example
+public/uploads
+public/renders
+public/cache
+.system_generated
+*.log
