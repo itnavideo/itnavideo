@@ -26,7 +26,12 @@ import {
   Pause,
   VolumeX,
   Radio,
+  Loader2,
+  Check,
+  RefreshCw,
+  FileText,
 } from "lucide-react";
+import { GOOGLE_AI_VOICES, GoogleAiVoice } from "@/constants/googleAiVoices";
 
 export interface LibraryBgmTrack {
   id: string;
@@ -239,6 +244,138 @@ export function ImageToVideoStudio({
   const [previewingTrackUrl, setPreviewingTrackUrl] = useState<string | null>(null);
   const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
 
+  // Dual Audio Mode & Google Cloud AI Voices State
+  const [audioSourceMode, setAudioSourceMode] = useState<'upload' | 'ai-voice'>('upload');
+  const [aiScriptText, setAiScriptText] = useState('');
+  const [selectedVoiceId, setSelectedVoiceId] = useState<string>('hi-IN-Neural2-B');
+  const [activeVoiceCategory, setActiveVoiceCategory] = useState<'All' | 'Hindi' | 'Indian English' | 'Global English'>('All');
+  const [previewingVoiceId, setPreviewingVoiceId] = useState<string | null>(null);
+  const [isGeneratingTts, setIsGeneratingTts] = useState(false);
+  const [ttsError, setTtsError] = useState<string | null>(null);
+  const [generatedVoiceMeta, setGeneratedVoiceMeta] = useState<{ voiceName: string; text: string; audioUrl: string } | null>(null);
+  const voicePreviewAudioRef = useRef<HTMLAudioElement | null>(null);
+  const generatedVoiceAudioRef = useRef<HTMLAudioElement | null>(null);
+  const [isPlayingGeneratedVoice, setIsPlayingGeneratedVoice] = useState(false);
+
+  const SAMPLE_SCRIPTS = [
+    { label: '🇮🇳 Hindi Story', text: 'सफलता की राह में सबसे बड़ा कदम वही होता है, जो आप खुद पर विश्वास करके उठाते हैं।' },
+    { label: '🚀 Tech & AI', text: 'Artificial intelligence is changing the way human beings create, learn, and communicate with the world.' },
+    { label: '💡 Motivation', text: 'Discipline is the bridge between your goals and your greatest accomplishments. Never stop moving forward.' },
+    { label: '📜 History & Facts', text: 'Centuries ago, ancient travelers mapped the stars across the oceans to uncover uncharted lands.' },
+  ];
+
+  const filteredVoices = useMemo(() => {
+    if (activeVoiceCategory === 'All') return GOOGLE_AI_VOICES;
+    return GOOGLE_AI_VOICES.filter((v) => v.category === activeVoiceCategory);
+  }, [activeVoiceCategory]);
+
+  const handleToggleVoicePreview = (voice: GoogleAiVoice, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (!voice.previewUrl) return;
+
+    if (previewingVoiceId === voice.id) {
+      if (voicePreviewAudioRef.current) {
+        voicePreviewAudioRef.current.pause();
+      }
+      setPreviewingVoiceId(null);
+    } else {
+      if (!voicePreviewAudioRef.current) {
+        voicePreviewAudioRef.current = new Audio();
+      }
+      voicePreviewAudioRef.current.pause();
+      voicePreviewAudioRef.current.src = voice.previewUrl;
+      voicePreviewAudioRef.current.play().catch((err) => {
+        console.warn('Voice preview playback error:', err);
+      });
+      voicePreviewAudioRef.current.onended = () => {
+        setPreviewingVoiceId(null);
+      };
+      setPreviewingVoiceId(voice.id);
+    }
+  };
+
+  const handleGenerateAiVoice = async () => {
+    if (!aiScriptText.trim()) {
+      setTtsError('Please enter a script or narration text.');
+      return;
+    }
+    setTtsError(null);
+    setIsGeneratingTts(true);
+
+    try {
+      const res = await fetch('/api/ai/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: aiScriptText.trim(),
+          voiceId: selectedVoiceId,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to synthesize speech');
+      }
+
+      // Convert Base64 to Blob & File
+      const byteCharacters = atob(data.audioBase64);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'audio/mp3' });
+      const chosenVoice = GOOGLE_AI_VOICES.find((v) => v.id === selectedVoiceId);
+      const fileName = `${(chosenVoice?.name || 'AI_Voice').replace(/[^a-zA-Z0-9]/g, '_')}_Voiceover.mp3`;
+      const audioFile = new File([blob], fileName, { type: 'audio/mp3' });
+
+      // Create object URL for local playback
+      const audioUrl = URL.createObjectURL(blob);
+      setGeneratedVoiceMeta({
+        voiceName: chosenVoice?.name || 'Google AI Voice',
+        text: aiScriptText.trim(),
+        audioUrl,
+      });
+
+      // Pass directly to studio audio handler
+      onSelectAudio(audioFile);
+    } catch (err: any) {
+      console.error('Error generating AI voice:', err);
+      setTtsError(err.message || 'Error communicating with Google Cloud TTS');
+    } finally {
+      setIsGeneratingTts(false);
+    }
+  };
+
+  const handleTogglePlayGeneratedVoice = () => {
+    if (!generatedVoiceMeta?.audioUrl) return;
+    if (!generatedVoiceAudioRef.current) {
+      generatedVoiceAudioRef.current = new Audio(generatedVoiceMeta.audioUrl);
+      generatedVoiceAudioRef.current.onended = () => setIsPlayingGeneratedVoice(false);
+    }
+
+    if (isPlayingGeneratedVoice) {
+      generatedVoiceAudioRef.current.pause();
+      setIsPlayingGeneratedVoice(false);
+    } else {
+      generatedVoiceAudioRef.current.play().catch(console.error);
+      setIsPlayingGeneratedVoice(true);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (voicePreviewAudioRef.current) {
+        voicePreviewAudioRef.current.pause();
+        voicePreviewAudioRef.current = null;
+      }
+      if (generatedVoiceAudioRef.current) {
+        generatedVoiceAudioRef.current.pause();
+        generatedVoiceAudioRef.current = null;
+      }
+    };
+  }, []);
+
   // Credit pricing calculation: 1 minute = 2 credits
   const durationMinutes = Math.max(1, Math.ceil(estimatedDurationSeconds / 60));
   const creditCost = durationMinutes * 2;
@@ -367,90 +504,327 @@ export function ImageToVideoStudio({
         {/* STEP 1: VOICE AUDIO (REQUIRED) */}
         <div className="rounded-3xl border border-white/10 bg-[#141218] p-6 shadow-md flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2.5">
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-500 text-xs font-black text-white">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-orange-500 text-xs font-black text-white">
                   1
                 </span>
                 <h3 className="text-base font-extrabold text-white flex items-center gap-2">
-                  <Mic size={18} className="text-purple-400" /> Voiceover Audio
+                  <Mic size={18} className="text-orange-400" /> Voiceover Audio
                 </h3>
               </div>
-              <span className="rounded-full border border-purple-500/30 bg-purple-500/10 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-purple-300">
+              <span className="rounded-full border border-orange-500/30 bg-orange-500/10 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-orange-300">
                 Required
               </span>
             </div>
 
-            <p className="text-xs text-zinc-400 mb-4">
-              Upload the spoken speech or narration audio. The AI transcribes and slices it into dynamic visual scenes (Max 10 minutes).
-            </p>
-
-            <input
-              type="file"
-              ref={audioInputRef}
-              accept="audio/*"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0] || null;
-                onSelectAudio(file);
-              }}
-            />
-
-            {!selectedAudio ? (
-              <div
-                onClick={() => audioInputRef.current?.click()}
-                onDragOver={(e) => { e.preventDefault(); setAudioDragOver(true); }}
-                onDragLeave={() => setAudioDragOver(false)}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  setAudioDragOver(false);
-                  const file = e.dataTransfer.files?.[0];
-                  if (file && file.type.startsWith('audio/')) {
-                    onSelectAudio(file);
-                  }
-                }}
-                className={`flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 text-center cursor-pointer transition-all duration-200 ${
-                  audioDragOver ? 'border-purple-500 bg-purple-500/10' : 'border-white/15 bg-white/5 hover:border-white/30 hover:bg-white/[0.08]'
+            {/* Mode Switcher Tabs */}
+            <div className="grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-white/5 p-1 mb-4">
+              <button
+                type="button"
+                onClick={() => setAudioSourceMode('upload')}
+                className={`flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-bold transition-all ${
+                  audioSourceMode === 'upload'
+                    ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
+                    : 'text-zinc-400 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-500/20 text-purple-400 mb-3">
-                  <UploadCloud size={24} />
-                </div>
-                <p className="text-sm font-bold text-white mb-1">
-                  Click or drag audio file here
+                <UploadCloud size={14} />
+                <span>Upload Audio</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setAudioSourceMode('ai-voice')}
+                className={`flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-bold transition-all ${
+                  audioSourceMode === 'ai-voice'
+                    ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20'
+                    : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <Sparkles size={14} className={audioSourceMode === 'ai-voice' ? 'text-amber-200' : 'text-orange-400'} />
+                <span>AI Voices (Google)</span>
+              </button>
+            </div>
+
+            {/* TAB 1: UPLOAD AUDIO */}
+            {audioSourceMode === 'upload' && (
+              <div>
+                <p className="text-xs text-zinc-400 mb-3">
+                  Upload your pre-recorded spoken voiceover or podcast clip (MP3, WAV, M4A).
                 </p>
-                <p className="text-xs text-zinc-400">
-                  MP3, WAV, M4A, AAC • Up to 30 minutes
-                </p>
-              </div>
-            ) : (
-              <div className="flex items-center justify-between rounded-2xl border border-purple-500/30 bg-purple-500/10 p-4">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-500 text-white">
-                    <Mic size={20} />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-bold text-white truncate">{selectedAudio.name}</p>
-                    <p className="text-xs text-purple-300 font-semibold">
-                      {(selectedAudio.size / (1024 * 1024)).toFixed(2)} MB • Voiceover Loaded
+
+                <input
+                  type="file"
+                  ref={audioInputRef}
+                  accept="audio/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] || null;
+                    onSelectAudio(file);
+                    setGeneratedVoiceMeta(null);
+                  }}
+                />
+
+                {!selectedAudio || generatedVoiceMeta ? (
+                  <div
+                    onClick={() => audioInputRef.current?.click()}
+                    onDragOver={(e) => { e.preventDefault(); setAudioDragOver(true); }}
+                    onDragLeave={() => setAudioDragOver(false)}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      setAudioDragOver(false);
+                      const file = e.dataTransfer.files?.[0];
+                      if (file && file.type.startsWith('audio/')) {
+                        onSelectAudio(file);
+                        setGeneratedVoiceMeta(null);
+                      }
+                    }}
+                    className={`flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-7 text-center cursor-pointer transition-all duration-200 ${
+                      audioDragOver ? 'border-orange-500 bg-orange-500/10' : 'border-white/15 bg-white/5 hover:border-white/30 hover:bg-white/[0.08]'
+                    }`}
+                  >
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-500/20 text-orange-400 mb-2.5">
+                      <UploadCloud size={22} />
+                    </div>
+                    <p className="text-sm font-bold text-white mb-1">
+                      Click or drag audio file here
+                    </p>
+                    <p className="text-xs text-zinc-400">
+                      MP3, WAV, M4A, AAC • Up to 30 minutes
                     </p>
                   </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => onSelectAudio(null)}
-                  className="p-2 text-zinc-400 hover:text-rose-400 transition cursor-pointer"
-                  title="Remove audio"
-                >
-                  <Trash2 size={18} />
-                </button>
+                ) : (
+                  <div className="flex items-center justify-between rounded-2xl border border-orange-500/30 bg-orange-500/10 p-3.5">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-500 text-white shadow-sm">
+                        <Mic size={18} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-white truncate">{selectedAudio.name}</p>
+                        <p className="text-xs text-orange-300/90 font-semibold">
+                          {(selectedAudio.size / (1024 * 1024)).toFixed(2)} MB • Audio Loaded
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => onSelectAudio(null)}
+                      className="p-2 text-zinc-400 hover:text-rose-400 transition cursor-pointer"
+                      title="Remove audio"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* TAB 2: AI VOICES (GOOGLE CLOUD) */}
+            {audioSourceMode === 'ai-voice' && (
+              <div className="space-y-4">
+                {/* If AI Audio already generated & active */}
+                {generatedVoiceMeta && selectedAudio ? (
+                  <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-white">
+                          <Check size={14} />
+                        </span>
+                        <span className="text-xs font-black uppercase tracking-wider text-emerald-400">
+                          AI Voiceover Generated
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onSelectAudio(null);
+                          setGeneratedVoiceMeta(null);
+                        }}
+                        className="p-1.5 text-zinc-400 hover:text-rose-400 transition cursor-pointer"
+                        title="Remove voiceover"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between rounded-xl bg-black/40 border border-white/10 p-3 mb-2">
+                      <div className="min-w-0 pr-3">
+                        <p className="text-sm font-bold text-white truncate">
+                          {generatedVoiceMeta.voiceName}
+                        </p>
+                        <p className="text-xs text-zinc-400 line-clamp-1 italic">
+                          &quot;{generatedVoiceMeta.text}&quot;
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleTogglePlayGeneratedVoice}
+                        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition ${
+                          isPlayingGeneratedVoice
+                            ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/25'
+                            : 'bg-orange-500 text-white hover:bg-orange-400 shadow-md shadow-orange-500/20'
+                        }`}
+                        title={isPlayingGeneratedVoice ? "Pause" : "Play generated audio"}
+                      >
+                        {isPlayingGeneratedVoice ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
+                      </button>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setGeneratedVoiceMeta(null)}
+                      className="text-xs font-semibold text-zinc-400 hover:text-white flex items-center gap-1.5 transition"
+                    >
+                      <RefreshCw size={12} /> Regenerate with different script or voice
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    {/* Script Input Area */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-xs font-bold text-zinc-300 flex items-center gap-1.5">
+                          <FileText size={13} className="text-orange-400" />
+                          <span>Video Script / Narration</span>
+                        </label>
+                        <span className={`text-[11px] font-medium ${aiScriptText.length > 4500 ? 'text-amber-400' : 'text-zinc-500'}`}>
+                          {aiScriptText.length} / 5,000 chars
+                        </span>
+                      </div>
+
+                      <textarea
+                        rows={3}
+                        value={aiScriptText}
+                        onChange={(e) => setAiScriptText(e.target.value)}
+                        placeholder="Write or paste your video script here... AI will narrate every word with natural human pacing and intonation."
+                        className="w-full rounded-2xl border border-white/10 bg-white/5 p-3.5 text-xs text-white placeholder-zinc-500 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500 transition resize-none"
+                      />
+
+                      {/* Quick starter suggestions */}
+                      <div className="mt-2 flex items-center gap-1.5 overflow-x-auto pb-1 text-[11px] text-zinc-400 no-scrollbar">
+                        <span className="shrink-0 text-zinc-500 font-semibold">Try:</span>
+                        {SAMPLE_SCRIPTS.map((s, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => setAiScriptText(s.text)}
+                            className="shrink-0 rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-zinc-300 hover:border-orange-500/40 hover:bg-orange-500/10 hover:text-orange-300 transition"
+                          >
+                            {s.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Curated Voice Selector */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="text-xs font-bold text-zinc-300 flex items-center gap-1.5">
+                          <Volume2 size={13} className="text-orange-400" />
+                          <span>Select Google AI Voice (Click ▶ to Listen)</span>
+                        </label>
+                      </div>
+
+                      {/* Category filter pills */}
+                      <div className="flex items-center gap-1.5 mb-2.5 overflow-x-auto no-scrollbar">
+                        {(['All', 'Hindi', 'Indian English', 'Global English'] as const).map((cat) => (
+                          <button
+                            key={cat}
+                            type="button"
+                            onClick={() => setActiveVoiceCategory(cat)}
+                            className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold transition ${
+                              activeVoiceCategory === cat
+                                ? 'bg-orange-500 text-white shadow-sm shadow-orange-500/20'
+                                : 'border border-white/10 bg-white/5 text-zinc-400 hover:text-white'
+                            }`}
+                          >
+                            {cat === 'All' ? 'All Voices' : cat}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Voice Cards Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
+                        {filteredVoices.map((voice) => {
+                          const isSelected = selectedVoiceId === voice.id;
+                          const isPlayingThis = previewingVoiceId === voice.id;
+
+                          return (
+                            <div
+                              key={voice.id}
+                              onClick={() => setSelectedVoiceId(voice.id)}
+                              className={`group relative flex items-center justify-between rounded-xl border p-2.5 cursor-pointer transition-all ${
+                                isSelected
+                                  ? 'border-orange-500 bg-orange-500/15 shadow-sm shadow-orange-500/10'
+                                  : 'border-white/10 bg-white/[0.04] hover:border-white/25 hover:bg-white/[0.08]'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2 min-w-0 pr-2">
+                                <span className="text-base select-none shrink-0">{voice.avatarFlag}</span>
+                                <div className="min-w-0">
+                                  <div className="flex items-center gap-1.5">
+                                    <p className="text-xs font-bold text-white truncate">{voice.name}</p>
+                                    <span className="text-[9px] font-semibold text-zinc-400 uppercase">
+                                      {voice.gender === 'MALE' ? 'M' : 'F'}
+                                    </span>
+                                  </div>
+                                  <p className="text-[10px] text-zinc-400 truncate">{voice.tag}</p>
+                                </div>
+                              </div>
+
+                              {/* Play / Listen Preview Button */}
+                              <button
+                                type="button"
+                                onClick={(e) => handleToggleVoicePreview(voice, e)}
+                                title={isPlayingThis ? 'Pause sample' : 'Listen to voice sample'}
+                                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition ${
+                                  isPlayingThis
+                                    ? 'bg-rose-500 text-white shadow-sm animate-pulse'
+                                    : isSelected
+                                    ? 'bg-orange-500 text-white hover:bg-orange-400'
+                                    : 'bg-white/10 text-zinc-300 hover:bg-white/20 hover:text-white'
+                                }`}
+                              >
+                                {isPlayingThis ? <Pause size={12} /> : <Play size={12} className="ml-0.5" />}
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Generate Button & Error */}
+                    {ttsError && (
+                      <p className="text-xs text-rose-400 font-medium">{ttsError}</p>
+                    )}
+
+                    <button
+                      type="button"
+                      disabled={isGeneratingTts || !aiScriptText.trim()}
+                      onClick={handleGenerateAiVoice}
+                      className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 py-3 px-4 text-xs font-black uppercase tracking-wider text-white shadow-lg shadow-orange-500/25 hover:from-orange-400 hover:to-amber-400 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                    >
+                      {isGeneratingTts ? (
+                        <>
+                          <Loader2 size={16} className="animate-spin" />
+                          <span>Generating Voiceover via Google Cloud...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles size={16} />
+                          <span>Generate AI Voiceover</span>
+                        </>
+                      )}
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>
 
           <div className="mt-4 flex items-center gap-2 text-[11px] text-zinc-500 font-medium">
             <ShieldCheck size={14} className="text-emerald-400 shrink-0" />
-            <span>Transcription via Groq Whisper Engine with precise word timestamps</span>
+            <span>Studio Neural2 audio powered by Google Cloud Text-to-Speech</span>
           </div>
         </div>
 

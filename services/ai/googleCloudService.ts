@@ -22,10 +22,15 @@ export async function getGcpAccessToken(): Promise<string | null> {
     return cachedToken.token;
   }
 
-  const credPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+  let credPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
   if (!credPath || !existsSync(credPath)) {
-    console.warn('[GCP_AUTH] GOOGLE_APPLICATION_CREDENTIALS path not found or missing:', credPath);
-    return null;
+    const localFallback = typeof process !== 'undefined' && process.cwd ? `${process.cwd()}/gcp-credentials.json` : 'gcp-credentials.json';
+    if (existsSync(localFallback)) {
+      credPath = localFallback;
+    } else {
+      console.warn('[GCP_AUTH] GOOGLE_APPLICATION_CREDENTIALS path not found or missing:', credPath);
+      return null;
+    }
   }
 
   try {
