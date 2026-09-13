@@ -144,29 +144,29 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     : null;
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-[#0B0F19] text-slate-100 pt-16">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJson(articleSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJson(breadcrumbSchema) }} />
       {faqSchema ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJson(faqSchema) }} /> : null}
 
       {/* Top nav bar */}
-      <div className="border-b border-gray-100 bg-white/80 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-[700px] items-center justify-between px-6 py-4">
-          <Link href="/blog" className="inline-flex items-center gap-2 text-sm text-gray-500 transition hover:text-gray-900">
+      <div className="border-b border-white/10 bg-[#0B0F19]/80 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-[760px] items-center justify-between px-6 py-4">
+          <Link href="/blog" className="inline-flex items-center gap-2 text-xs font-bold text-slate-400 transition hover:text-orange-400">
             <ArrowLeft size={16} />
             All posts
           </Link>
-          <Link href="/dashboard" className="rounded-full bg-gray-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-gray-800">
+          <Link href="/dashboard" className="rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 px-4 py-2 text-xs font-bold text-white shadow-md shadow-orange-500/20 transition">
             Create video
           </Link>
         </div>
       </div>
 
       {/* Article */}
-      <article className="mx-auto max-w-[700px] px-6 pb-24 pt-12">
+      <article className="mx-auto max-w-[760px] px-6 pb-24 pt-12">
         {/* Meta */}
-        <div className="mb-6 flex flex-wrap items-center gap-3 text-sm text-gray-500">
-          <span className="font-medium text-gray-700">{post.category}</span>
+        <div className="mb-6 flex flex-wrap items-center gap-3 text-xs text-slate-400">
+          <span className="font-bold text-orange-400">{post.category}</span>
           <span>·</span>
           <span>{post.date}</span>
           <span>·</span>
@@ -174,18 +174,18 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </div>
 
         {/* Title */}
-        <h1 className="font-sans text-[32px] font-bold leading-[1.2] tracking-tight text-[#242424] md:text-[42px]">
+        <h1 className="font-sans text-[32px] font-black leading-[1.2] tracking-tight text-white md:text-[42px]">
           {post.title}
         </h1>
 
         {/* Subtitle / Intro */}
-        <p className="mt-8 font-serif text-[20px] leading-[32px] text-[#242424]">
+        <p className="mt-6 font-sans text-[18px] leading-[30px] text-slate-300">
           {post.intro}
         </p>
 
         {/* Featured Hero Visual Banner (Matching Itnavideo Visual Brand Identity) */}
-        <div className="my-10 overflow-hidden rounded-2xl border border-slate-800 bg-[#09090b] p-3 shadow-2xl">
-          <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl bg-slate-900 group">
+        <div className="my-10 overflow-hidden rounded-2xl border border-white/10 bg-[#111827] p-3 shadow-2xl">
+          <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl bg-slate-950 group">
             <img
               src={post.featuredImage || `/preview/${productFeature.previewImage}`}
               alt={`${post.title} - Itnavideo AI Video Creation Studio Feature Visual`}
@@ -193,13 +193,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-end p-6">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#00FF9D]/20 border border-[#00FF9D]/40 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#00FF9D] backdrop-blur-md">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-orange-500/20 border border-orange-500/40 px-3 py-1 text-xs font-bold uppercase tracking-wider text-orange-400 backdrop-blur-md">
                   <Sparkles size={12} />
                   ITNAVIDEO {(productFeature?.name || 'Auto Caption Reel').toUpperCase()} STUDIO
                 </span>
                 <Link
                   href={productFeature.dashboardUrl}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-[#00FF9D] px-4 py-2 text-xs font-black text-black shadow-md hover:bg-white transition hover:scale-105"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 px-4 py-2 text-xs font-black text-white shadow-md hover:scale-105 transition"
                 >
                   <span>Try {productFeature.name} →</span>
                 </Link>
@@ -212,54 +212,54 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </div>
 
         {/* Divider */}
-        <div className="my-10 h-px bg-gray-200" />
+        <div className="my-10 h-px bg-white/10" />
 
         {/* Excerpt as lead paragraph */}
-        <p className="font-serif text-[18px] leading-[32px] text-[#242424] tracking-[-0.003em]">
+        <p className="font-sans text-[17px] leading-[30px] text-slate-300">
           {post.excerpt}
         </p>
 
         {/* Key Takeaways & Executive Summary Card */}
-        <div className="my-8 rounded-2xl border border-amber-200/90 bg-amber-50/70 p-6 text-slate-800 shadow-2xs">
+        <div className="my-8 rounded-2xl border border-orange-500/30 bg-orange-500/10 p-6 text-slate-200 shadow-sm">
           <div className="flex items-center gap-2 mb-3">
-            <Lightbulb size={18} className="text-amber-600 fill-amber-600/20" />
-            <span className="font-sans text-xs font-bold uppercase tracking-wider text-amber-900">
+            <Lightbulb size={18} className="text-orange-400 fill-orange-400/20" />
+            <span className="font-sans text-xs font-bold uppercase tracking-wider text-orange-400">
               KEY TAKEAWAYS & EXECUTIVE SUMMARY
             </span>
           </div>
-          <ul className="space-y-2.5 text-xs leading-relaxed text-slate-700 font-medium">
+          <ul className="space-y-2.5 text-xs leading-relaxed text-slate-300 font-medium">
             <li className="flex items-start gap-2">
-              <span className="text-amber-600 font-bold">•</span>
+              <span className="text-orange-400 font-bold">•</span>
               <span><strong>Strategic Alignment:</strong> High retention social video creation requires clear visual hooks and automated word-level captions.</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-amber-600 font-bold">•</span>
+              <span className="text-orange-400 font-bold">•</span>
               <span><strong>Productivity Accelerator:</strong> Itnavideo cloud Remotion rendering replaces 3+ hours of manual keyframing with 60-second automation.</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-amber-600 font-bold">•</span>
+              <span className="text-orange-400 font-bold">•</span>
               <span><strong>Accessibility & Retention:</strong> Hardcoded burned-in subtitles ensure 100% viewer retention on muted mobile feeds.</span>
             </li>
           </ul>
         </div>
 
         {/* Sections / HTML Body */}
-        {/* Sections / HTML Body */}
         <div className="mt-12 space-y-12">
           {post.contentHtml ? (
             <div
+              className="prose prose-invert max-w-none text-slate-300"
               dangerouslySetInnerHTML={{ __html: sanitizeCmsHtml(post.contentHtml) }}
             />
           ) : post.sections ? (
             post.sections.map((section: any, index: number) => (
               <div key={section.heading} className="space-y-10">
                 <section>
-                  <h2 className="font-sans text-[22px] font-bold leading-snug tracking-tight text-gray-900 md:text-[24px]">
+                  <h2 className="font-sans text-[22px] font-bold leading-snug tracking-tight text-white md:text-[24px]">
                     {section.heading}
                   </h2>
                   <div className="mt-6 space-y-7">
                     {section.body.map((paragraph: string) => (
-                      <p key={paragraph} className="font-serif text-[18px] leading-[32px] text-[#242424] tracking-[-0.003em]">
+                      <p key={paragraph} className="font-sans text-[16px] leading-[28px] text-slate-300">
                         {renderRichParagraph(paragraph)}
                       </p>
                     ))}
@@ -279,7 +279,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                     <p className="text-xs text-slate-300 mb-4 leading-relaxed">
                       See how creators structure their video timelines, caption typography, and audio narration to achieve high watch retention.
                     </p>
-                    <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-black border border-slate-800">
+                    <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-black border border-white/10">
                       <iframe
                         src={`https://www.youtube-nocookie.com/embed/${post.youtubeId}`}
                         title={post.title}
@@ -297,13 +297,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
         {/* FAQ */}
         {post.faqs?.length ? (
-          <section className="mt-14 border-t border-gray-100 pt-10">
-            <h2 className="font-sans text-2xl font-bold tracking-tight text-slate-900">Frequently Asked Questions</h2>
+          <section className="mt-14 border-t border-white/10 pt-10">
+            <h2 className="font-sans text-2xl font-bold tracking-tight text-white">Frequently Asked Questions</h2>
             <div className="mt-6 space-y-6">
               {post.faqs.map((faq: { question: string; answer: string }) => (
-                <div key={faq.question}>
-                  <h3 className="font-sans text-[17px] font-bold text-[#242424]">{faq.question}</h3>
-                  <p className="mt-2 font-serif text-[18px] leading-[32px] text-[#242424] tracking-[-0.003em]">{faq.answer}</p>
+                <div key={faq.question} className="rounded-xl border border-white/10 bg-white/[0.03] p-5">
+                  <h3 className="font-sans text-[16px] font-bold text-white">{faq.question}</h3>
+                  <p className="mt-2 font-sans text-[15px] leading-[26px] text-slate-300">{faq.answer}</p>
                 </div>
               ))}
             </div>
@@ -312,21 +312,21 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
         {/* Contextual Related Product Links */}
         {productFeature.relatedLinks?.length ? (
-          <section className="mt-14 rounded-2xl border border-slate-200 bg-slate-50/70 p-7">
-            <h2 className="font-sans text-lg font-bold text-slate-900">Contextual Itnavideo Tools & Features</h2>
-            <p className="mt-1 text-xs text-slate-500">Direct studio links for {productFeature.name}</p>
+          <section className="mt-14 rounded-2xl border border-white/10 bg-[#111827] p-7">
+            <h2 className="font-sans text-lg font-bold text-white">Contextual Itnavideo Tools & Features</h2>
+            <p className="mt-1 text-xs text-slate-400">Direct studio links for {productFeature.name}</p>
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
               {productFeature.relatedLinks.map((link: { href: string; label: string; description?: string }) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="flex flex-col gap-1 rounded-xl border border-slate-200 bg-white p-4 transition hover:border-blue-400 hover:shadow-sm"
+                  className="flex flex-col gap-1 rounded-xl border border-white/10 bg-white/[0.03] p-4 transition hover:border-orange-500/40 hover:bg-white/[0.06]"
                 >
-                  <div className="flex items-center gap-2 font-bold text-sm text-slate-800">
-                    <CheckCircle2 className="shrink-0 text-blue-600" size={16} />
+                  <div className="flex items-center gap-2 font-bold text-sm text-white">
+                    <CheckCircle2 className="shrink-0 text-orange-400" size={16} />
                     <span>{link.label}</span>
                   </div>
-                  <p className="text-xs text-slate-500 pl-6">{link.description}</p>
+                  <p className="text-xs text-slate-400 pl-6">{link.description}</p>
                 </Link>
               ))}
             </div>
@@ -334,12 +334,12 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         ) : null}
 
         {/* Authoritative External Research & Standards */}
-        <section className="mt-14 rounded-2xl border border-slate-200 bg-white p-7 shadow-2xs">
+        <section className="mt-14 rounded-2xl border border-white/10 bg-[#111827] p-7 shadow-sm">
           <div className="flex items-center gap-2 mb-2">
-            <Globe size={18} className="text-blue-600" />
-            <h2 className="font-sans text-lg font-bold text-slate-900">Authoritative Industry Standards & Research</h2>
+            <Globe size={18} className="text-orange-400" />
+            <h2 className="font-sans text-lg font-bold text-white">Authoritative Industry Standards & Research</h2>
           </div>
-          <p className="text-xs text-slate-500 mb-5">
+          <p className="text-xs text-slate-400 mb-5">
             Verified external technical documentation, official accessibility guidelines, and platform specification portals:
           </p>
           <div className="grid gap-3 sm:grid-cols-2 text-xs">
@@ -347,78 +347,78 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               href="https://www.w3.org/TR/WCAG21/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 hover:border-blue-400 hover:bg-blue-50/30 transition group"
+              className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] p-3.5 hover:border-orange-500/40 hover:bg-white/[0.06] transition group"
             >
               <div className="space-y-0.5">
-                <span className="font-bold text-slate-800 block group-hover:text-blue-700">W3C Web Content Accessibility (WCAG 2.1)</span>
-                <span className="text-slate-500 block text-[11px]">Official W3C subtitle & contrast compliance rules</span>
+                <span className="font-bold text-white block group-hover:text-orange-400">W3C WCAG 2.1 Standard</span>
+                <span className="text-slate-400 block text-[11px]">Video captions & audio contrast guidelines</span>
               </div>
-              <ExternalLink size={14} className="text-slate-400 shrink-0 group-hover:text-blue-600" />
+              <ExternalLink size={14} className="text-slate-400 shrink-0 group-hover:text-orange-400" />
             </a>
 
             <a
-              href="https://groq.com/"
+              href="https://developers.google.com/search/docs/appearance/video"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 hover:border-blue-400 hover:bg-blue-50/30 transition group"
+              className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] p-3.5 hover:border-orange-500/40 hover:bg-white/[0.06] transition group"
             >
               <div className="space-y-0.5">
-                <span className="font-bold text-slate-800 block group-hover:text-blue-700">Groq Speech AI Engine Architecture</span>
-                <span className="text-slate-500 block text-[11px]">Ultra-fast Whisper speech-to-text benchmark specs</span>
+                <span className="font-bold text-white block group-hover:text-orange-400">Google Search Central Video SEO</span>
+                <span className="text-slate-400 block text-[11px]">Structured data & indexing requirements</span>
               </div>
-              <ExternalLink size={14} className="text-slate-400 shrink-0 group-hover:text-blue-600" />
+              <ExternalLink size={14} className="text-slate-400 shrink-0 group-hover:text-orange-400" />
             </a>
 
             <a
-              href="https://creators.instagram.com/"
+              href="https://business.instagram.com/creators"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 hover:border-blue-400 hover:bg-blue-50/30 transition group"
+              className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] p-3.5 hover:border-orange-500/40 hover:bg-white/[0.06] transition group"
             >
               <div className="space-y-0.5">
-                <span className="font-bold text-slate-800 block group-hover:text-blue-700">Instagram Creator Portal Guidelines</span>
-                <span className="text-slate-500 block text-[11px]">Official Reels safe zones & algorithm specifications</span>
+                <span className="font-bold text-white block group-hover:text-orange-400">Instagram Creator Best Practices</span>
+                <span className="text-slate-400 block text-[11px]">Official Reels safe zones & algorithm specifications</span>
               </div>
-              <ExternalLink size={14} className="text-slate-400 shrink-0 group-hover:text-blue-600" />
+              <ExternalLink size={14} className="text-slate-400 shrink-0 group-hover:text-orange-400" />
             </a>
 
             <a
               href="https://www.youtube.com/creators/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 hover:border-blue-400 hover:bg-blue-50/30 transition group"
+              className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] p-3.5 hover:border-orange-500/40 hover:bg-white/[0.06] transition group"
             >
               <div className="space-y-0.5">
-                <span className="font-bold text-slate-800 block group-hover:text-blue-700">YouTube Creator Academy Specifications</span>
-                <span className="text-slate-500 block text-[11px]">Shorts retention benchmarks & audio policies</span>
+                <span className="font-bold text-white block group-hover:text-orange-400">YouTube Creator Academy</span>
+                <span className="text-slate-400 block text-[11px]">Shorts retention benchmarks & audio policies</span>
               </div>
-              <ExternalLink size={14} className="text-slate-400 shrink-0 group-hover:text-blue-600" />
+              <ExternalLink size={14} className="text-slate-400 shrink-0 group-hover:text-orange-400" />
             </a>
           </div>
         </section>
 
         {/* Product Feature Spotlight Card */}
-        <div className="mt-14 rounded-2xl border border-blue-200/80 bg-gradient-to-br from-blue-50/50 via-white to-indigo-50/30 p-8 shadow-sm">
+        <div className="mt-14 rounded-2xl border border-orange-500/30 bg-gradient-to-br from-orange-500/10 via-[#111827] to-[#0B0F19] p-8 shadow-xl">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-100/60 px-3 py-1 text-xs font-bold uppercase tracking-wider text-blue-800">
-              <Sparkles size={13} className="text-blue-600" />
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-orange-400">
+              <Sparkles size={13} className="text-orange-400" />
               ITNAVIDEO {(productFeature?.category || 'Captions & Subtitles').toUpperCase()}
             </span>
-            <span className="text-xs font-medium text-slate-500">• {productFeature.name}</span>
+            <span className="text-xs font-medium text-slate-400">• {productFeature.name}</span>
           </div>
 
-          <h2 className="mt-4 font-sans text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">
+          <h2 className="mt-4 font-sans text-2xl font-bold tracking-tight text-white md:text-3xl">
             {productFeature.ctaHeadline}
           </h2>
 
-          <p className="mt-3 font-serif text-base leading-relaxed text-slate-600">
+          <p className="mt-3 font-sans text-base leading-relaxed text-slate-300">
             {productFeature.ctaDescription}
           </p>
 
           <div className="mt-5 flex flex-wrap gap-2">
-            {productFeature.keyBenefits.map((benefit) => (
-              <span key={benefit} className="inline-flex items-center gap-1 rounded-md bg-white border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-700 shadow-2xs">
-                <Check size={13} className="text-emerald-500" />
+            {productFeature.keyBenefits.map((benefit: string) => (
+              <span key={benefit} className="inline-flex items-center gap-1 rounded-full bg-white/[0.05] border border-white/10 px-3 py-1 text-xs font-medium text-slate-200">
+                <Check size={13} className="text-orange-400" />
                 {benefit}
               </span>
             ))}
@@ -427,7 +427,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <Link
               href={productFeature.dashboardUrl}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 text-sm font-bold text-white shadow-md shadow-blue-600/20 transition hover:bg-blue-700 active:translate-y-0"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-orange-500/25 transition active:scale-98"
             >
               <span>{productFeature.ctaButtonText}</span>
               <ArrowRight size={16} />
@@ -435,7 +435,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
             <Link
               href={productFeature.landingUrl}
-              className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white px-5 py-3.5 text-sm font-semibold text-slate-700 shadow-2xs transition hover:bg-slate-50 hover:text-slate-900"
+              className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-5 py-3.5 text-sm font-semibold text-slate-200 transition hover:bg-white/[0.08] hover:text-white"
             >
               <span>View Feature Specs</span>
             </Link>
@@ -444,22 +444,22 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
         {/* Quick links row */}
         <nav className="mt-8 flex flex-wrap gap-2" aria-label="Related Itnavideo pages">
-          <Link href="/" className="rounded-full border border-gray-200 px-4 py-2 text-xs font-medium text-gray-600 transition hover:bg-gray-50">Home</Link>
-          <Link href="/features" className="rounded-full border border-gray-200 px-4 py-2 text-xs font-medium text-gray-600 transition hover:bg-gray-50">Features</Link>
-          <Link href="/pricing" className="rounded-full border border-gray-200 px-4 py-2 text-xs font-medium text-gray-600 transition hover:bg-gray-50">Pricing</Link>
-          <Link href="/docs" className="rounded-full border border-gray-200 px-4 py-2 text-xs font-medium text-gray-600 transition hover:bg-gray-50">Docs</Link>
+          <Link href="/" className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold text-slate-300 transition hover:border-orange-500/40 hover:text-orange-400">Home</Link>
+          <Link href="/features" className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold text-slate-300 transition hover:border-orange-500/40 hover:text-orange-400">Features</Link>
+          <Link href="/pricing" className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold text-slate-300 transition hover:border-orange-500/40 hover:text-orange-400">Pricing</Link>
+          <Link href="/docs" className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold text-slate-300 transition hover:border-orange-500/40 hover:text-orange-400">Docs</Link>
         </nav>
       </article>
 
       {/* More posts section */}
-      <section className="border-t border-gray-100 bg-gray-50 px-6 py-16">
-        <div className="mx-auto max-w-[700px]">
-          <h2 className="font-sans text-xl font-bold text-gray-900">More from Itnavideo</h2>
+      <section className="border-t border-white/10 bg-[#070A11] px-6 py-16">
+        <div className="mx-auto max-w-[760px]">
+          <h2 className="font-sans text-xl font-bold text-white">More from Itnavideo</h2>
           <div className="mt-6 grid gap-5 md:grid-cols-2">
             {related.map((item) => (
-              <Link key={item.slug} href={`/blog/${item.slug}`} className="group rounded-xl border border-gray-200 bg-white p-6 transition hover:shadow-md">
-                <p className="text-xs font-medium uppercase tracking-wide text-gray-400">{item.category}</p>
-                <h3 className="mt-3 font-sans text-lg font-bold leading-snug text-gray-900 group-hover:text-gray-700">
+              <Link key={item.slug} href={`/blog/${item.slug}`} className="group rounded-2xl border border-white/10 bg-[#111827] p-6 transition hover:border-orange-500/40 hover:shadow-lg">
+                <p className="text-xs font-bold uppercase tracking-wide text-orange-400">{item.category}</p>
+                <h3 className="mt-2 font-sans text-lg font-bold leading-snug text-white group-hover:text-orange-400 transition">
                   {item.title}
                 </h3>
               </Link>

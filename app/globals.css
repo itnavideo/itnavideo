@@ -53,125 +53,122 @@
 }
 
 :root {
-  /* ─── COLOR SYSTEM ─────────────────────────────────────────────────────
-     Design philosophy: clean, crisp, minimalist, high contrast, analytical.
-     Primary: Royal Blue | Secondary: Slate | Warm accent: Amber
+  /* ─── ITNAVIDEO UNIFIED DESIGN SYSTEM ──────────────────────────────────
+     Design philosophy: Cinematic Midnight Studio (OpusClip + Runway standard)
+     Canvas: Midnight Obsidian (#0B0F19) | Brand Accent: Blaze Orange (#F97316)
+     Cards: Deep Slate (#111827) | Borders: 1px Crisp (#1E293B / rgba(255,255,255,0.08))
      ──────────────────────────────────────────────────────────────────── */
 
-  /* PRIMARY: Professional Royal Blue for interactive actions. */
-  --color-primary:        #2563EB;
-  --color-primary-hover:  #3B82F6;
-  --color-primary-press:  #1D4ED8;
-  --color-primary-tint:   #DBEAFE;
-  --color-primary-subtle: #F0F9FF;
-  --color-primary-light:  #60A5FA;
+  /* PRIMARY: Itnavideo Blaze Orange for main CTAs and energetic accents */
+  --color-primary:        #F97316;
+  --color-primary-hover:  #EA580C;
+  --color-primary-press:  #C2410C;
+  --color-primary-tint:   rgba(249, 115, 22, 0.15);
+  --color-primary-subtle: rgba(249, 115, 22, 0.08);
+  --color-primary-light:  #FB923C;
 
-  /* SECONDARY: Muted Slate. */
-  --color-secondary:        #475569;
-  --color-secondary-light:  #64748B;
-  --color-secondary-dark:   #334155;
-  --color-secondary-tint:   #F1F5F9;
+  /* SECONDARY: Rich Slate & Midnight Tones */
+  --color-secondary:        #1E293B;
+  --color-secondary-light:  #334155;
+  --color-secondary-dark:   #0F172A;
+  --color-secondary-tint:   #161F30;
 
-  /* WARM ACCENT: Amber (warning/payment emphasis only) */
-  --color-amber:       #F5C542;
-  --color-amber-hover: #E6A800;
-  --color-amber-tint:  #FFF3C4;
-  --color-amber-dark:  #3D2A00;
+  /* WARM ACCENT: Studio Gold */
+  --color-amber:       #F59E0B;
+  --color-amber-hover: #D97706;
+  --color-amber-tint:  rgba(245, 158, 11, 0.15);
+  --color-amber-dark:  #78350F;
 
-  /* DARK BACKGROUNDS (Legacy fallback names kept for backwards compat) */
-  --bg-darkest: var(--background);
-  --bg-hero: var(--background);
-  --bg-card: var(--card);
-  --bg-raised:   #F8FAFC;
-  --border-dark: #E2E8F0;
+  /* CANVAS & SURFACES */
+  --bg-darkest: #070A11;
+  --bg-hero: #0B0F19;
+  --bg-card: #111827;
+  --bg-raised: #161F30;
+  --border-dark: rgba(255, 255, 255, 0.08);
 
-  /* LIGHT BACKGROUNDS */
-  --bg-light:       #F8FAFC;
-  --bg-white:       #FFFFFF;
-  --bg-light-hover: #F1F5F9;
-  --border-light:   #E2E8F0;
+  /* LIGHT FALLBACKS (Backward compat) */
+  --bg-light:       #0B0F19;
+  --bg-white:       #111827;
+  --bg-light-hover: #161F30;
+  --border-light:   rgba(255, 255, 255, 0.08);
 
-  /* TEXT ON DARK BACKGROUNDS */
-  --text-dark-primary: var(--foreground);
-  --text-dark-primary: var(--foreground);
-  --text-dark-primary: var(--foreground);
-
-  /* TEXT ON LIGHT BACKGROUNDS */
-  --text-light-primary:   #0F172A;
-  --text-light-secondary: #475569;
-  --text-light-muted:     #64748B;
+  /* TEXT HIERARCHY */
+  --text-dark-primary: #F8FAFC;
+  --text-light-primary: #F8FAFC;
+  --text-light-secondary: #94A3B8;
+  --text-light-muted: #64748B;
 
   /* STATUS */
   --color-success:      #10B981;
-  --color-success-bg:   #D1FAE5;
-  --color-success-tint: #D1FAE5;
+  --color-success-bg:   rgba(16, 185, 129, 0.12);
+  --color-success-tint: rgba(16, 185, 129, 0.12);
   --color-warning:      #F59E0B;
-  --color-warning-bg:   #FEF3C7;
-  --color-warning-tint: #FEF3C7;
+  --color-warning-bg:   rgba(245, 158, 11, 0.12);
+  --color-warning-tint: rgba(245, 158, 11, 0.12);
   --color-error:        #EF4444;
-  --color-error-bg:     #FEE2E2;
-  --color-error-tint:   #FEE2E2;
-  --color-info:         #2563EB;
-  --color-info-bg:      #DBEAFE;
-  --color-info-tint:    #DBEAFE;
+  --color-error-bg:     rgba(239, 68, 68, 0.12);
+  --color-error-tint:   rgba(239, 68, 68, 0.12);
+  --color-info:         #F97316;
+  --color-info-bg:      rgba(249, 115, 22, 0.12);
+  --color-info-tint:    rgba(249, 115, 22, 0.12);
 
   /* CARDS */
-  --card-radius:       12px;
-  --card-shadow-light: 0 1px 4px rgba(15, 23, 42, 0.06), 0 0 0 0.5px #E2E8F0;
+  --card-radius:       16px;
+  --card-shadow-light: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
 
   /* ─── SHADCN / UI TOKENS ──────────────────────────────────────────── */
-  --background: #F8FAFC;
-  --foreground: #0F172A;
-  --card: #FFFFFF;
-  --card-foreground: #0F172A;
-  --popover: #FFFFFF;
-  --popover-foreground: #0F172A;
-  --primary: #2563EB;
+  --background: #0B0F19;
+  --foreground: #F8FAFC;
+  --card: #111827;
+  --card-foreground: #F8FAFC;
+  --popover: #111827;
+  --popover-foreground: #F8FAFC;
+  --primary: #F97316;
   --primary-foreground: #FFFFFF;
-  --secondary: #64748B;
-  --secondary-foreground: #FFFFFF;
-  --muted: #F1F5F9;
-  --muted-foreground: #64748B;
-  --accent: #F1F5F9;
-  --accent-foreground: #0F172A;
+  --secondary: #1E293B;
+  --secondary-foreground: #F8FAFC;
+  --muted: #161F30;
+  --muted-foreground: #94A3B8;
+  --accent: #1E293B;
+  --accent-foreground: #F8FAFC;
   --destructive: #EF4444;
-  --border: #E2E8F0;
-  --input: #E2E8F0;
-  --ring: #2563EB;
-  --chart-1: #2563EB;
-  --chart-2: #3B82F6;
-  --chart-3: #60A5FA;
-  --chart-4: #93C5FD;
-  --chart-5: #BFDBFE;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.12);
+  --ring: #F97316;
+  --chart-1: #F97316;
+  --chart-2: #FB923C;
+  --chart-3: #F59E0B;
+  --chart-4: #38BDF8;
+  --chart-5: #10B981;
   --radius: 0.75rem;
-  --sidebar: #FFFFFF;
-  --sidebar-foreground: #0F172A;
-  --sidebar-primary: #2563EB;
+  --sidebar: #0D121F;
+  --sidebar-foreground: #F8FAFC;
+  --sidebar-primary: #F97316;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #F1F5F9;
-  --sidebar-accent-foreground: #0F172A;
-  --sidebar-border: #E2E8F0;
-  --sidebar-ring: #2563EB;
+  --sidebar-accent: #161F30;
+  --sidebar-accent-foreground: #F8FAFC;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: #F97316;
 
   /* Brand system (legacy names kept for Tailwind compatibility) */
-  --brand-mint: #2563EB;
-  --brand-cyan: #3B82F6;
-  --brand-gold: #F5C542;
-  --brand-ink: #0F172A;
+  --brand-mint: #F97316;
+  --brand-cyan: #38BDF8;
+  --brand-gold: #F59E0B;
+  --brand-ink: #0B0F19;
 
-  /* Legacy extended palette (kept for backward compat, mapped to new values) */
-  --bg-main: #F8FAFC;
-  --bg-secondary: #FFFFFF;
-  --bg-card-soft: #F1F5F9;
-  --bg-soft: #F8FAFC;
-  --primary-hover: #1D4ED8;
-  --primary-soft: rgba(37, 99, 235, 0.12);
-  --secondary-accent: #3B82F6;
-  --secondary-hover: #2563EB;
-  --secondary-soft: rgba(37, 99, 235, 0.08);
-  --accent-warm: #F5C542;
-  --text-primary: #0F172A;
-  --text-secondary: #475569;
+  /* Legacy extended palette */
+  --bg-main: #0B0F19;
+  --bg-secondary: #111827;
+  --bg-card-soft: #161F30;
+  --bg-soft: #0B0F19;
+  --primary-hover: #EA580C;
+  --primary-soft: rgba(249, 115, 22, 0.15);
+  --secondary-accent: #FB923C;
+  --secondary-hover: #EA580C;
+  --secondary-soft: rgba(249, 115, 22, 0.08);
+  --accent-warm: #F59E0B;
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
   --text-muted: #64748B;
   --text-disabled: #94A3B8;
   --border-soft: #E2E8F0;

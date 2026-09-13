@@ -75,10 +75,10 @@ const socialLinks = [
 
 export default function Footer() {
   return (
-    <footer className="relative w-full border-t border-white/10 bg-[#07090E] text-zinc-300 overflow-hidden">
+    <footer className="relative w-full border-t border-white/10 bg-[#0B0F19] text-zinc-300 overflow-hidden">
       {/* M3 Ambient Top Glow */}
       <div 
-        className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(245,197,66,0.06),transparent_70%)]" 
+        className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(249,115,22,0.06),transparent_70%)]" 
         aria-hidden="true" 
       />
 
@@ -95,9 +95,9 @@ export default function Footer() {
             <div className="flex flex-col gap-2 pt-1">
               <a 
                 href="mailto:rohi@itnavideo.com" 
-                className="inline-flex items-center gap-2 text-xs font-semibold text-amber-400 transition hover:text-amber-300"
+                className="inline-flex items-center gap-2 text-xs font-semibold text-orange-400 transition hover:text-orange-300"
               >
-                <Mail size={13} className="text-amber-400/80" />
+                <Mail size={13} className="text-orange-400/80" />
                 rohi@itnavideo.com
               </a>
               <span className="text-[11px] text-zinc-500">
@@ -117,7 +117,7 @@ export default function Footer() {
                     rel="me noopener noreferrer" 
                     aria-label={item.label} 
                     title={item.label} 
-                    className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-zinc-400 transition duration-200 hover:border-amber-400/40 hover:bg-white/[0.08] hover:text-amber-400 active:scale-95"
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-zinc-400 transition duration-200 hover:border-orange-500/40 hover:bg-white/[0.08] hover:text-orange-400 active:scale-95"
                   >
                     <Icon size={14} />
                   </a>
@@ -137,12 +137,12 @@ export default function Footer() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="group inline-flex items-center text-xs text-zinc-400 transition duration-200 hover:translate-x-0.5 hover:text-amber-400"
+                      className="group inline-flex items-center text-xs text-zinc-400 transition duration-200 hover:translate-x-0.5 hover:text-orange-400"
                     >
                       <span>{link.label}</span>
                       <ArrowUpRight 
                         size={11} 
-                        className="ml-0.5 opacity-0 transition-opacity duration-200 group-hover:opacity-100 text-amber-400" 
+                        className="ml-0.5 opacity-0 transition-opacity duration-200 group-hover:opacity-100 text-orange-400" 
                       />
                     </Link>
                   </li>
@@ -162,7 +162,7 @@ export default function Footer() {
             <div className="flex items-center gap-2">
               <a 
                 href="mailto:rohi@itnavideo.com" 
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-400"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-400"
               >
                 <Mail size={13} />
                 rohi@itnavideo.com
@@ -178,7 +178,7 @@ export default function Footer() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     aria-label={item.label} 
-                    className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-zinc-400 transition hover:border-amber-400/40 hover:text-amber-400 active:scale-95"
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-zinc-400 transition hover:border-orange-500/40 hover:text-orange-400 active:scale-95"
                   >
                     <Icon size={14} />
                   </a>
@@ -233,7 +233,7 @@ function FooterAccordion({ title, links }: { title: string; links: Array<{ label
         <span>{title}</span>
         <ChevronDown 
           size={14} 
-          className={`text-zinc-400 transition-transform duration-200 ${open ? 'rotate-180 text-amber-400' : ''}`} 
+          className={`text-zinc-400 transition-transform duration-200 ${open ? 'rotate-180 text-orange-400' : ''}`} 
         />
       </button>
       {open ? (
@@ -242,10 +242,10 @@ function FooterAccordion({ title, links }: { title: string; links: Array<{ label
             <li key={link.href}>
               <Link 
                 href={link.href} 
-                className="flex items-center text-xs text-zinc-400 transition hover:text-amber-400"
+                className="flex items-center text-xs text-zinc-400 transition hover:text-orange-400"
               >
                 <span>{link.label}</span>
-                <ArrowUpRight size={10} className="ml-1 opacity-70 text-amber-400" />
+                <ArrowUpRight size={10} className="ml-1 opacity-70 text-orange-400" />
               </Link>
             </li>
           ))}

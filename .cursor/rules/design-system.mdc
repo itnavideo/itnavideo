@@ -1,0 +1,31 @@
+---
+description: Itnavideo Design System (M3 + Tailwind CSS + Midnight Studio)
+globs: **/*.{tsx,jsx,ts,js,css}
+---
+
+# Itnavideo Design System Rule (M3 + Tailwind CSS)
+
+When creating new pages, editing layouts, or adding components to Itnavideo:
+
+1. **Canvas Background**:
+   - MUST use Midnight Studio canvas: `bg-[#0B0F19]`.
+   - Never use pure white backgrounds (`#FFFFFF` or `bg-white`) or generic gray backgrounds.
+
+2. **Material Design 3 (M3) Surface Tiers**:
+   - Surface Canvas: `bg-[#0B0F19]`
+   - Low Elevation (Sidebars/Bottom Nav): `bg-[#0D121F] border-white/10`
+   - Card/Container: `bg-[#111827] border-white/10 rounded-2xl` or `rounded-3xl`
+   - Inset/Well: `bg-[#070A11]`
+
+3. **Accent Palette**:
+   - Primary: Radiant Blaze Orange (`#F97316`, Tailwind `orange-500`)
+   - Tonal Active Pills: `bg-orange-500/15 text-orange-400 border border-orange-500/30`
+   - Primary CTA: `bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black rounded-2xl shadow-lg shadow-orange-500/25`
+   - Strictly forbidden: Neon mint green (`#00FF9D`), default blue buttons, or mismatched purple accents.
+
+4. **Typography**:
+   - Strictly `font-sans` (Geist Sans).
+   - `font-serif` is prohibited.
+
+5. **Hairline Borders**:
+   - Use subtle translucent borders: `border-white/10` or `border-white/5`.

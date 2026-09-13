@@ -1294,10 +1294,10 @@ export default function DashboardPage() {
         }}
       />
     )}
-    <main className="min-h-screen max-w-full overflow-hidden bg-[#07090E] text-zinc-100 flex flex-col md:flex-row pt-14 md:pt-16">
+    <main className="min-h-screen max-w-full overflow-hidden bg-[#0B0F19] text-slate-100 flex flex-col md:flex-row pt-14 md:pt-16">
       
       {/* ── Desktop Dashboard Navigation Rail (M3) ── */}
-      <aside className="hidden md:flex md:w-64 shrink-0 border-r border-white/10 bg-[#0B0F19] flex-col z-10 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto custom-scrollbar">
+      <aside className="hidden md:flex md:w-64 shrink-0 border-r border-white/10 bg-[#0D121F] flex-col z-10 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto custom-scrollbar">
         {/* M3 Sidebar Header */}
         <div className="px-5 py-5 border-b border-white/10 mb-2">
           <div className="flex items-center justify-between">
@@ -1305,7 +1305,7 @@ export default function DashboardPage() {
               <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
               <span>Dashboard</span>
             </h2>
-            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-400 border border-amber-400/20">
+            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-orange-500/15 text-orange-400 border border-orange-500/30">
               30 FPS
             </span>
           </div>
@@ -1319,11 +1319,11 @@ export default function DashboardPage() {
             onClick={() => setActiveTab("video-types")}
             className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all duration-200 cursor-pointer ${
               activeTab === "video-types"
-                ? "bg-amber-400/15 text-amber-400 border border-amber-400/30 font-black shadow-sm"
+                ? "bg-orange-500/15 text-orange-400 border border-orange-500/30 font-black shadow-sm"
                 : "text-zinc-400 hover:bg-white/5 hover:text-zinc-100 border border-transparent"
             }`}
           >
-            <LayoutGrid size={17} strokeWidth={activeTab === "video-types" ? 2.5 : 2} className={activeTab === "video-types" ? "text-amber-400" : "text-zinc-400"} />
+            <LayoutGrid size={17} strokeWidth={activeTab === "video-types" ? 2.5 : 2} className={activeTab === "video-types" ? "text-orange-400" : "text-zinc-400"} />
             <span>Video Types</span>
           </button>
 
@@ -1332,15 +1332,15 @@ export default function DashboardPage() {
             onClick={() => setActiveTab("credits")}
             className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all duration-200 cursor-pointer ${
               activeTab === "credits"
-                ? "bg-amber-400/15 text-amber-400 border border-amber-400/30 font-black shadow-sm"
+                ? "bg-orange-500/15 text-orange-400 border border-orange-500/30 font-black shadow-sm"
                 : "text-zinc-400 hover:bg-white/5 hover:text-zinc-100 border border-transparent"
             }`}
           >
-            <CreditCard size={17} strokeWidth={activeTab === "credits" ? 2.5 : 2} className={activeTab === "credits" ? "text-amber-400" : "text-zinc-400"} />
+            <CreditCard size={17} strokeWidth={activeTab === "credits" ? 2.5 : 2} className={activeTab === "credits" ? "text-orange-400" : "text-zinc-400"} />
             <span>Credits &amp; Plans</span>
             {billingEntitlement?.active && (
               <span className={`ml-auto rounded-full px-2 py-0.5 text-[10px] font-mono font-bold ${
-                activeTab === "credits" ? "bg-amber-400 text-slate-950 font-black" : "bg-white/10 text-zinc-300"
+                activeTab === "credits" ? "bg-orange-500 text-white font-black" : "bg-white/10 text-zinc-300"
               }`}>
                 {Math.round(billingEntitlement?.usage?.remaining ?? billingEntitlement?.monthlyVideoLimit ?? 0)}
               </span>
@@ -1352,15 +1352,15 @@ export default function DashboardPage() {
             onClick={() => setActiveTab("projects")}
             className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all duration-200 cursor-pointer ${
               activeTab === "projects"
-                ? "bg-amber-400/15 text-amber-400 border border-amber-400/30 font-black shadow-sm"
+                ? "bg-orange-500/15 text-orange-400 border border-orange-500/30 font-black shadow-sm"
                 : "text-zinc-400 hover:bg-white/5 hover:text-zinc-100 border border-transparent"
             }`}
           >
-            <FolderOpen size={17} strokeWidth={activeTab === "projects" ? 2.5 : 2} className={activeTab === "projects" ? "text-amber-400" : "text-zinc-400"} />
+            <FolderOpen size={17} strokeWidth={activeTab === "projects" ? 2.5 : 2} className={activeTab === "projects" ? "text-orange-400" : "text-zinc-400"} />
             <span>Projects</span>
             {recentRenders.length > 0 && (
               <span className={`ml-auto rounded-full px-2 py-0.5 text-[10px] font-mono font-bold ${
-                activeTab === "projects" ? "bg-amber-400 text-slate-950 font-black" : "bg-white/10 text-zinc-300"
+                activeTab === "projects" ? "bg-orange-500 text-white font-black" : "bg-white/10 text-zinc-300"
               }`}>
                 {recentRenders.length}
               </span>
@@ -1372,11 +1372,11 @@ export default function DashboardPage() {
             onClick={() => setActiveTab("profile")}
             className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all duration-200 cursor-pointer ${
               activeTab === "profile"
-                ? "bg-amber-400/15 text-amber-400 border border-amber-400/30 font-black shadow-sm"
+                ? "bg-orange-500/15 text-orange-400 border border-orange-500/30 font-black shadow-sm"
                 : "text-zinc-400 hover:bg-white/5 hover:text-zinc-100 border border-transparent"
             }`}
           >
-            <User size={17} strokeWidth={activeTab === "profile" ? 2.5 : 2} className={activeTab === "profile" ? "text-amber-400" : "text-zinc-400"} />
+            <User size={17} strokeWidth={activeTab === "profile" ? 2.5 : 2} className={activeTab === "profile" ? "text-orange-400" : "text-zinc-400"} />
             <span>Profile</span>
           </button>
         </nav>
@@ -1386,7 +1386,7 @@ export default function DashboardPage() {
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
             <div className="flex items-center justify-between text-xs mb-1.5">
               <span className="text-[11px] font-bold text-zinc-400">Credits Wallet</span>
-              <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-amber-400/15 text-amber-400 border border-amber-400/20">
+              <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-orange-500/15 text-orange-400 border border-orange-500/30">
                 {billingEntitlement?.planName || "Starter"}
               </span>
             </div>
@@ -1400,7 +1400,7 @@ export default function DashboardPage() {
             </div>
             <Link
               href="/pricing"
-              className="flex items-center justify-center gap-1.5 w-full py-1.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-slate-950 font-black text-[11px] shadow-sm transition active:scale-95"
+              className="flex items-center justify-center gap-1.5 w-full py-2 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black text-[11px] shadow-md shadow-orange-500/25 transition active:scale-95"
             >
               <Sparkles size={12} />
               <span>Get More Credits</span>
@@ -1410,16 +1410,16 @@ export default function DashboardPage() {
       </aside>
 
       {/* ── M3 Mobile Bottom Navigation Bar ── */}
-      <nav className="fixed bottom-0 inset-x-0 z-50 md:hidden bg-[#0A0E1A]/95 backdrop-blur-xl border-t border-white/10 shadow-[0_-8px_30px_rgba(0,0,0,0.5)] px-2 py-1.5 flex items-center justify-around pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))]">
+      <nav className="fixed bottom-0 inset-x-0 z-50 md:hidden bg-[#0D121F]/95 backdrop-blur-xl border-t border-white/10 shadow-[0_-8px_30px_rgba(0,0,0,0.5)] px-2 py-1.5 flex items-center justify-around pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))]">
         <button
           type="button"
           onClick={() => setActiveTab("video-types")}
           className={`flex flex-col items-center justify-center flex-1 py-1 rounded-2xl transition-all duration-200 select-none cursor-pointer ${
-            activeTab === "video-types" ? "text-amber-400" : "text-zinc-400 hover:text-zinc-100"
+            activeTab === "video-types" ? "text-orange-400" : "text-zinc-400 hover:text-zinc-100"
           }`}
         >
           <div className={`px-4 py-1 rounded-full transition-all duration-200 ${
-            activeTab === "video-types" ? "bg-amber-400/15 text-amber-400 scale-105" : "bg-transparent"
+            activeTab === "video-types" ? "bg-orange-500/15 text-orange-400 scale-105" : "bg-transparent"
           }`}>
             <LayoutGrid size={20} strokeWidth={activeTab === "video-types" ? 2.5 : 2} />
           </div>
@@ -1430,11 +1430,11 @@ export default function DashboardPage() {
           type="button"
           onClick={() => setActiveTab("credits")}
           className={`flex flex-col items-center justify-center flex-1 py-1 rounded-2xl transition-all duration-200 select-none cursor-pointer ${
-            activeTab === "credits" ? "text-amber-400" : "text-zinc-400 hover:text-zinc-100"
+            activeTab === "credits" ? "text-orange-400" : "text-zinc-400 hover:text-zinc-100"
           }`}
         >
           <div className={`px-4 py-1 rounded-full transition-all duration-200 ${
-            activeTab === "credits" ? "bg-amber-400/15 text-amber-400 scale-105" : "bg-transparent"
+            activeTab === "credits" ? "bg-orange-500/15 text-orange-400 scale-105" : "bg-transparent"
           }`}>
             <CreditCard size={20} strokeWidth={activeTab === "credits" ? 2.5 : 2} />
           </div>
@@ -1445,15 +1445,15 @@ export default function DashboardPage() {
           type="button"
           onClick={() => setActiveTab("projects")}
           className={`flex flex-col items-center justify-center flex-1 py-1 rounded-2xl transition-all duration-200 select-none relative cursor-pointer ${
-            activeTab === "projects" ? "text-amber-400" : "text-zinc-400 hover:text-zinc-100"
+            activeTab === "projects" ? "text-orange-400" : "text-zinc-400 hover:text-zinc-100"
           }`}
         >
           <div className={`px-4 py-1 rounded-full transition-all duration-200 relative ${
-            activeTab === "projects" ? "bg-amber-400/15 text-amber-400 scale-105" : "bg-transparent"
+            activeTab === "projects" ? "bg-orange-500/15 text-orange-400 scale-105" : "bg-transparent"
           }`}>
             <FolderOpen size={20} strokeWidth={activeTab === "projects" ? 2.5 : 2} />
             {recentRenders.length > 0 && (
-              <span className="absolute -top-1 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-400 px-1 text-[9px] font-black text-slate-950">
+              <span className="absolute -top-1 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-orange-500 px-1 text-[9px] font-black text-white">
                 {recentRenders.length}
               </span>
             )}
@@ -1465,11 +1465,11 @@ export default function DashboardPage() {
           type="button"
           onClick={() => setActiveTab("profile")}
           className={`flex flex-col items-center justify-center flex-1 py-1 rounded-2xl transition-all duration-200 select-none cursor-pointer ${
-            activeTab === "profile" ? "text-amber-400" : "text-zinc-400 hover:text-zinc-100"
+            activeTab === "profile" ? "text-orange-400" : "text-zinc-400 hover:text-zinc-100"
           }`}
         >
           <div className={`px-4 py-1 rounded-full transition-all duration-200 ${
-            activeTab === "profile" ? "bg-amber-400/15 text-amber-400 scale-105" : "bg-transparent"
+            activeTab === "profile" ? "bg-orange-500/15 text-orange-400 scale-105" : "bg-transparent"
           }`}>
             <User size={20} strokeWidth={activeTab === "profile" ? 2.5 : 2} />
           </div>

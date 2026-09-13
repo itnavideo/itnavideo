@@ -55,7 +55,7 @@ export default function ContactPage() {
   };
 
   return (
-    <main className="min-h-screen bg-zinc-950 text-white selection:bg-orange-500/30 selection:text-orange-200 pt-24 pb-20 px-4 sm:px-6">
+    <main className="min-h-screen bg-[#0B0F19] text-white selection:bg-orange-500/30 selection:text-orange-200 pt-24 pb-20 px-4 sm:px-6">
       {/* Background glow effects */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-orange-500/10 rounded-full blur-[120px]" />
@@ -86,7 +86,7 @@ export default function ContactPage() {
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3.5" aria-label="Direct contact options">
           <a
             href={`mailto:${EMAIL_ADDRESS}`}
-            className="group flex items-center gap-3.5 rounded-2xl border border-white/10 bg-zinc-900/60 p-4 transition-all duration-200 hover:border-orange-500/40 hover:bg-zinc-900 shadow-lg"
+            className="group flex items-center gap-3.5 rounded-2xl border border-white/10 bg-[#111827] p-4 transition-all duration-200 hover:border-orange-500/40 hover:bg-[#162032] shadow-lg"
           >
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-500/15 text-orange-400 border border-orange-500/25 transition group-hover:scale-110">
               <Mail size={20} />
@@ -103,7 +103,7 @@ export default function ContactPage() {
             href={INSTAGRAM_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="group flex items-center gap-3.5 rounded-2xl border border-white/10 bg-zinc-900/60 p-4 transition-all duration-200 hover:border-orange-500/40 hover:bg-zinc-900 shadow-lg"
+            className="group flex items-center gap-3.5 rounded-2xl border border-white/10 bg-[#111827] p-4 transition-all duration-200 hover:border-orange-500/40 hover:bg-[#162032] shadow-lg"
           >
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500/20 via-orange-500/20 to-pink-500/20 text-orange-300 border border-orange-500/25 transition group-hover:scale-110">
               <Instagram size={20} />
@@ -118,7 +118,7 @@ export default function ContactPage() {
         </div>
 
         {/* Contact Form Card (M3 High Elevation Card) */}
-        <div className="mt-6 rounded-3xl border border-white/10 bg-zinc-900/80 p-6 sm:p-8 shadow-2xl backdrop-blur-2xl">
+        <div className="mt-6 rounded-3xl border border-white/10 bg-[#111827] p-6 sm:p-8 shadow-2xl backdrop-blur-2xl">
           <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
             <div className="flex items-center gap-2.5">
               <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-orange-500/15 text-orange-400 border border-orange-500/25">

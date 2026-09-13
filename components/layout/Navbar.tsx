@@ -108,8 +108,8 @@ export default function Navbar() {
       <header
         className={`fixed top-0 z-[100] w-full transition-all duration-300 px-4 py-2.5 md:px-8 border-b ${
           scrolled
-            ? 'border-slate-800/90 bg-[#09090b]/95 text-white backdrop-blur-2xl shadow-xl'
-            : 'border-slate-800/60 bg-[#09090b]/85 text-white backdrop-blur-xl'
+            ? 'border-white/10 bg-[#0B0F19]/95 text-white backdrop-blur-2xl shadow-2xl'
+            : 'border-white/5 bg-[#0B0F19]/80 text-white backdrop-blur-xl'
         }`}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between">
@@ -121,7 +121,7 @@ export default function Navbar() {
 
           {/* DESKTOP NAVIGATION BAR (UNIFIED HIGH-CONTRAST PILLS) */}
           {!isDashboard && (
-            <nav className="hidden md:flex items-center gap-1 rounded-full border border-slate-800 bg-slate-900/90 p-1.5 text-xs font-semibold backdrop-blur-xl shadow-lg">
+            <nav className="hidden md:flex items-center gap-1 rounded-full border border-white/10 bg-[#111827]/90 p-1.5 text-xs font-semibold backdrop-blur-xl shadow-lg">
               
               {/* VIDEO WORKFLOWS DROPDOWN TRIGGER */}
               <div className="relative" ref={dropdownRef}>
@@ -131,11 +131,11 @@ export default function Navbar() {
                   onMouseEnter={() => setDropdownOpen(true)}
                   className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold transition-all duration-200 ${
                     dropdownOpen || pathname.startsWith('/video-types')
-                      ? 'bg-slate-800 text-amber-400 border border-amber-400/40 shadow-[0_0_10px_rgba(245,158,11,0.15)]'
-                      : 'text-slate-200 hover:bg-slate-800/80 hover:text-amber-400'
+                      ? 'bg-orange-500/15 text-orange-400 border border-orange-500/40 shadow-[0_0_12px_rgba(249,115,22,0.2)]'
+                      : 'text-slate-300 hover:bg-white/5 hover:text-orange-400'
                   }`}
                 >
-                  <AudioLines size={14} className="text-amber-400" />
+                  <AudioLines size={14} className="text-orange-400" />
                   <span>Video Workflows</span>
                   <ChevronDown size={13} className={`transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
@@ -196,13 +196,13 @@ export default function Navbar() {
                     href={page.href}
                     className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold transition-all duration-200 ${
                       active
-                        ? 'bg-slate-800 text-amber-400 border border-amber-400/40 shadow-[0_0_10px_rgba(245,158,11,0.15)]'
-                        : 'text-slate-200 hover:bg-slate-800/80 hover:text-amber-400'
+                        ? 'bg-orange-500/15 text-orange-400 border border-orange-500/40 shadow-[0_0_12px_rgba(249,115,22,0.2)]'
+                        : 'text-slate-300 hover:bg-white/5 hover:text-orange-400'
                     }`}
                   >
                     <span>{page.label}</span>
                     {page.badge && (
-                      <span className="rounded-full bg-amber-400/15 px-1.5 py-0.2 text-[9px] font-black uppercase text-amber-400 border border-amber-400/30">
+                      <span className="rounded-full bg-orange-500/20 px-1.5 py-0.2 text-[9px] font-black uppercase text-orange-400 border border-orange-500/30">
                         {page.badge}
                       </span>
                     )}
@@ -218,13 +218,13 @@ export default function Navbar() {
             {user ? (
               <div className="relative" ref={userMenuRef}>
                 {/* USER PROFILE BUTTON WITH DROPDOWN TRIGGER */}
-                <div className="flex items-center gap-2 rounded-full border border-slate-800 bg-slate-900/90 p-1 backdrop-blur-xl shadow-md">
+                <div className="flex items-center gap-2 rounded-full border border-white/10 bg-[#111827]/90 p-1 backdrop-blur-xl shadow-md">
                   <button
                     type="button"
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
-                    className="flex items-center gap-2 pl-2 pr-2.5 py-1 rounded-full hover:bg-slate-800 transition text-left cursor-pointer"
+                    className="flex items-center gap-2 pl-2 pr-2.5 py-1 rounded-full hover:bg-white/5 transition text-left cursor-pointer"
                   >
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-tr from-amber-400 to-orange-500 text-slate-950 font-black text-xs shadow-md ring-2 ring-amber-400/30">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-tr from-orange-500 to-amber-500 text-white font-black text-xs shadow-md ring-2 ring-orange-500/30">
                       {user.email ? user.email.charAt(0).toUpperCase() : <User size={13} />}
                     </div>
                     <span className="max-w-[120px] truncate text-xs font-extrabold text-slate-100">
@@ -235,7 +235,7 @@ export default function Navbar() {
 
                   <Link
                     href="/dashboard"
-                    className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 px-4 py-1.5 text-xs font-black text-slate-950 shadow-md shadow-amber-500/20 transition-all duration-200 hover:scale-[1.03] hover:shadow-amber-500/30 active:scale-95"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 px-4 py-1.5 text-xs font-black text-white shadow-md shadow-orange-500/25 transition-all duration-200 hover:scale-[1.03] active:scale-95"
                   >
                     <LayoutDashboard size={14} />
                     <span>Dashboard</span>
@@ -244,8 +244,8 @@ export default function Navbar() {
 
                 {/* USER PROFILE DROPDOWN MENU */}
                 {userMenuOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl border border-slate-800 bg-[#09090b] p-2 text-slate-100 shadow-2xl backdrop-blur-2xl ring-1 ring-white/10 animate-in fade-in zoom-in-95 duration-150">
-                    <div className="px-3 py-2 border-b border-slate-800 mb-1">
+                  <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl border border-white/10 bg-[#111827] p-2 text-slate-100 shadow-2xl backdrop-blur-2xl ring-1 ring-white/10 animate-in fade-in zoom-in-95 duration-150">
+                    <div className="px-3 py-2 border-b border-white/10 mb-1">
                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Signed in as</p>
                       <p className="text-xs font-black text-slate-100 truncate">{user.email}</p>
                     </div>
@@ -253,9 +253,9 @@ export default function Navbar() {
                     <Link
                       href="/dashboard"
                       onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-slate-200 hover:bg-slate-800 hover:text-amber-400 transition"
+                      className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-slate-200 hover:bg-white/5 hover:text-orange-400 transition"
                     >
-                      <LayoutDashboard size={14} className="text-amber-400" />
+                      <LayoutDashboard size={14} className="text-orange-400" />
                       <span>Dashboard</span>
                     </Link>
 
@@ -297,13 +297,13 @@ export default function Navbar() {
               <div className="flex items-center gap-2">
                 <Link
                   href="/login"
-                  className="rounded-full px-4 py-2 text-xs font-bold text-slate-200 transition hover:bg-slate-800 hover:text-amber-400"
+                  className="rounded-full px-4 py-2 text-xs font-bold text-slate-300 transition hover:bg-white/5 hover:text-orange-400"
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/signup"
-                  className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 px-5 py-2.5 text-xs font-black text-slate-950 shadow-lg shadow-amber-500/20 transition-all duration-300 hover:scale-[1.03] hover:shadow-amber-500/30 active:scale-95"
+                  className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 px-5 py-2.5 text-xs font-black text-white shadow-lg shadow-orange-500/25 transition-all duration-300 hover:scale-[1.03] active:scale-95"
                 >
                   <span>Get Started</span>
                   <ArrowRight size={14} />
@@ -315,16 +315,16 @@ export default function Navbar() {
           {/* MOBILE HAMBURGER BUTTON */}
           <button
             type="button"
-            className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-800 bg-slate-900 text-white shadow-md active:scale-90 transition-all duration-200 hover:border-amber-400/50 md:hidden"
+            className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-[#111827] text-white shadow-md active:scale-90 transition-all duration-200 hover:border-orange-500/50 md:hidden"
             onClick={() => setIsOpen(!isOpen)}
             aria-label={isOpen ? 'Close menu' : 'Open menu'}
           >
             {isOpen ? (
-              <X size={20} className="text-amber-400 animate-in spin-in-90 duration-200" />
+              <X size={20} className="text-orange-400 animate-in spin-in-90 duration-200" />
             ) : (
               <div className="flex flex-col gap-[4.5px] items-center justify-center">
                 <span className="h-[2px] w-5 rounded-full bg-white transition-all" />
-                <span className="h-[2px] w-3.5 rounded-full bg-amber-400 transition-all self-start ml-[2.5px]" />
+                <span className="h-[2px] w-3.5 rounded-full bg-orange-500 transition-all self-start ml-[2.5px]" />
                 <span className="h-[2px] w-5 rounded-full bg-white transition-all" />
               </div>
             )}

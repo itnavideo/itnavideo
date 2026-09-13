@@ -151,8 +151,8 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
                 key={plan.id}
                 className={`relative flex min-h-[510px] flex-col rounded-3xl border p-6 sm:p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${
                   isPopular
-                    ? "border-orange-500 ring-2 ring-orange-500/30 bg-gradient-to-b from-zinc-900/90 to-zinc-950 shadow-xl shadow-orange-950/20"
-                    : "border-zinc-800 bg-zinc-900/60 hover:border-zinc-700"
+                    ? "border-orange-500 ring-2 ring-orange-500/30 bg-gradient-to-b from-[#1C2536] to-[#111827] shadow-xl shadow-orange-950/30"
+                    : "border-white/10 bg-[#111827] hover:border-white/20"
                 }`}
               >
                 {/* Popular Pill */}
