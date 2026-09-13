@@ -671,261 +671,6 @@ export function ImageToVideoStudio({
     }
   }, [bgmEnabled, previewingTrackUrl]);
 
-  const renderAudioCleanerAndSpeedControls = () => {
-    if (!selectedAudio) return null;
-
-    return (
-      <div className="mt-4 rounded-2xl border border-white/10 bg-[#191724] p-4 space-y-4 shadow-inner">
-        {/* AUDIO CLEANER SECTION (Copied from Audio Cleaner) */}
-        <div>
-          <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
-            <div className="flex items-center gap-2">
-              <Sliders size={16} className="text-orange-400" />
-              <h4 className="text-xs font-black uppercase tracking-wider text-white">
-                Studio Audio Cleaner &amp; Space-Cut
-              </h4>
-            </div>
-            <span className="rounded-full bg-orange-500/20 px-2 py-0.5 text-[10px] font-bold text-orange-300">
-              AI Cleaner
-            </span>
-          </div>
-
-          <p className="mt-1.5 text-[11px] text-zinc-400">
-            Auto-cuts awkward dead air &amp; silences, removes fan/room noise, and normalizes voice volume.
-          </p>
-
-          {/* 6 Toggles Grid */}
-          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            {/* 1. Smart Silence Trimming */}
-            <div
-              onClick={() => handleToggleCleanOption("removeSilence")}
-              className="flex cursor-pointer items-start justify-between rounded-xl border border-white/10 bg-[#22202c] p-2.5 transition hover:border-white/20 select-none"
-            >
-              <div className="space-y-0.5 pr-2">
-                <p className="text-xs font-bold text-white">Smart Silence Trimming</p>
-                <p className="text-[10px] text-zinc-400">
-                  Cuts dead air &gt; 1.0s (Space Cut)
-                </p>
-              </div>
-              <div
-                className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${
-                  currentCleanOptions.removeSilence ? "bg-orange-500" : "bg-zinc-700"
-                }`}
-              >
-                <span
-                  className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
-                    currentCleanOptions.removeSilence ? "left-4" : "left-0.5"
-                  }`}
-                />
-              </div>
-            </div>
-
-            {/* 2. Background Noise Removal */}
-            <div
-              onClick={() => handleToggleCleanOption("noiseReduction")}
-              className="flex cursor-pointer items-start justify-between rounded-xl border border-white/10 bg-[#22202c] p-2.5 transition hover:border-white/20 select-none"
-            >
-              <div className="space-y-0.5 pr-2">
-                <p className="text-xs font-bold text-white">Background Noise Removal</p>
-                <p className="text-[10px] text-zinc-400">
-                  Spectral de-noise fan, hiss &amp; hum
-                </p>
-              </div>
-              <div
-                className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${
-                  currentCleanOptions.noiseReduction ? "bg-orange-500" : "bg-zinc-700"
-                }`}
-              >
-                <span
-                  className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
-                    currentCleanOptions.noiseReduction ? "left-4" : "left-0.5"
-                  }`}
-                />
-              </div>
-            </div>
-
-            {/* 3. Studio Loudness & EQ */}
-            <div
-              onClick={() => handleToggleCleanOption("volumeNormalize")}
-              className="flex cursor-pointer items-start justify-between rounded-xl border border-white/10 bg-[#22202c] p-2.5 transition hover:border-white/20 select-none"
-            >
-              <div className="space-y-0.5 pr-2">
-                <p className="text-xs font-bold text-white">Studio Loudness &amp; EQ</p>
-                <p className="text-[10px] text-zinc-400">
-                  -16 LUFS broadcast curve
-                </p>
-              </div>
-              <div
-                className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${
-                  currentCleanOptions.volumeNormalize ? "bg-orange-500" : "bg-zinc-700"
-                }`}
-              >
-                <span
-                  className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
-                    currentCleanOptions.volumeNormalize ? "left-4" : "left-0.5"
-                  }`}
-                />
-              </div>
-            </div>
-
-            {/* 4. Remove Vocal Fillers */}
-            <div
-              onClick={() => handleToggleCleanOption("removeFillers")}
-              className="flex cursor-pointer items-start justify-between rounded-xl border border-white/10 bg-[#22202c] p-2.5 transition hover:border-white/20 select-none"
-            >
-              <div className="space-y-0.5 pr-2">
-                <p className="text-xs font-bold text-white">Remove Vocal Fillers</p>
-                <p className="text-[10px] text-zinc-400">
-                  Cuts &quot;um&quot;, &quot;uh&quot;, &quot;matlab&quot;
-                </p>
-              </div>
-              <div
-                className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${
-                  currentCleanOptions.removeFillers ? "bg-orange-500" : "bg-zinc-700"
-                }`}
-              >
-                <span
-                  className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
-                    currentCleanOptions.removeFillers ? "left-4" : "left-0.5"
-                  }`}
-                />
-              </div>
-            </div>
-
-            {/* 5. Remove Retakes & Stutters */}
-            <div
-              onClick={() => handleToggleCleanOption("removeRepeats")}
-              className="flex cursor-pointer items-start justify-between rounded-xl border border-white/10 bg-[#22202c] p-2.5 transition hover:border-white/20 select-none"
-            >
-              <div className="space-y-0.5 pr-2">
-                <p className="text-xs font-bold text-white">Remove Retakes &amp; Stutters</p>
-                <p className="text-[10px] text-zinc-400">
-                  Auto-cuts repeated mistakes
-                </p>
-              </div>
-              <div
-                className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${
-                  currentCleanOptions.removeRepeats ? "bg-orange-500" : "bg-zinc-700"
-                }`}
-              >
-                <span
-                  className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
-                    currentCleanOptions.removeRepeats ? "left-4" : "left-0.5"
-                  }`}
-                />
-              </div>
-            </div>
-
-            {/* 6. Trim Start & End Air */}
-            <div
-              onClick={() => handleToggleCleanOption("trimEnds")}
-              className="flex cursor-pointer items-start justify-between rounded-xl border border-white/10 bg-[#22202c] p-2.5 transition hover:border-white/20 select-none"
-            >
-              <div className="space-y-0.5 pr-2">
-                <p className="text-xs font-bold text-white">Trim Start &amp; End Air</p>
-                <p className="text-[10px] text-zinc-400">
-                  Cuts mic warm-up and trailing silence
-                </p>
-              </div>
-              <div
-                className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${
-                  currentCleanOptions.trimEnds ? "bg-orange-500" : "bg-zinc-700"
-                }`}
-              >
-                <span
-                  className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
-                    currentCleanOptions.trimEnds ? "left-4" : "left-0.5"
-                  }`}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Clean Success Badge */}
-          {audioCleanSuccess && (
-            <div className="mt-3 flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-2.5 text-xs font-semibold text-emerald-300">
-              <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
-              <span>
-                Audio Cleaned! Cut {audioCleanSuccess.silencesCut} awkward pauses • Saved {audioCleanSuccess.secondsSaved}s dead air.
-              </span>
-            </div>
-          )}
-
-          {/* Clean Error Message */}
-          {audioCleanError && (
-            <p className="mt-2 text-xs text-rose-400 font-medium">{audioCleanError}</p>
-          )}
-
-          {/* Action Button: Auto Clean Audio */}
-          <button
-            type="button"
-            disabled={isCleaningAudio}
-            onClick={handleCleanAudioNow}
-            className="mt-3 w-full flex items-center justify-center gap-2 rounded-xl border border-orange-500/40 bg-orange-500/15 py-2.5 px-3 text-xs font-bold text-orange-300 hover:bg-orange-500/25 disabled:opacity-50 transition cursor-pointer"
-          >
-            {isCleaningAudio ? (
-              <>
-                <Loader2 size={15} className="animate-spin text-orange-400" />
-                <span>Auto-Cleaning Audio (Trimming Silences &amp; Denoising)...</span>
-              </>
-            ) : (
-              <>
-                <Zap size={15} className="text-orange-400" />
-                <span>⚡ Auto Clean Audio (Apply Space-Cut &amp; Denoise)</span>
-              </>
-            )}
-          </button>
-        </div>
-
-        {/* SPEED SELECTOR: "baad me speed rakho" */}
-        <div className="border-t border-white/10 pt-3">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <div className="space-y-0.5">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-white">Voice Playback &amp; Export Speed</span>
-                <span className="rounded-full bg-orange-500/20 px-2 py-0.5 text-[9px] font-bold text-orange-300">
-                  Natural Pitch Preserved
-                </span>
-              </div>
-              <p className="text-[10px] text-zinc-400">
-                AI voices sound exciting and fast without pitch distortion
-              </p>
-            </div>
-
-            <div className="flex items-center gap-1 rounded-xl border border-white/10 bg-black/40 p-1">
-              {[
-                { val: 1.0 as const, label: "1.0x Normal" },
-                { val: 1.25 as const, label: "1.25x Crisp" },
-                { val: 1.5 as const, label: "1.5x Fast" },
-              ].map((sp) => (
-                <button
-                  key={sp.val}
-                  type="button"
-                  disabled={isAdjustingSpeed || isGeneratingTts}
-                  onClick={() => handleChangeVoiceSpeed(sp.val)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
-                    aiVoiceSpeed === sp.val
-                      ? "bg-orange-500 text-white shadow-sm shadow-orange-500/20"
-                      : "text-zinc-400 hover:text-white hover:bg-white/5"
-                  }`}
-                >
-                  {sp.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {isAdjustingSpeed && (
-            <div className="mt-2 flex items-center gap-2 text-[11px] text-orange-300 font-medium">
-              <Loader2 size={12} className="animate-spin text-orange-400" />
-              <span>Regenerating voice at {aiVoiceSpeed}x via Google Cloud...</span>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       {/* ── M3 Studio Header ── */}
@@ -980,24 +725,34 @@ export function ImageToVideoStudio({
         />
       </div>
 
-      {/* ── Two-Column Workflow Section: Step 1 (Audio) & Step 2 (Images) ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* STEP 1: VOICE AUDIO (REQUIRED) */}
-        <div className="rounded-3xl border border-white/10 bg-[#141218] p-6 shadow-md flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2.5">
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-orange-500 text-xs font-black text-white">
-                  1
-                </span>
-                <h3 className="text-base font-extrabold text-white flex items-center gap-2">
-                  <Mic size={18} className="text-orange-400" /> Voiceover Audio
-                </h3>
-              </div>
-              <span className="rounded-full border border-orange-500/30 bg-orange-500/10 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-orange-300">
-                Required
-              </span>
+      {/* ── STEP 1: AUDIO READY (USER UPLOAD OR AI GENERATE) ── */}
+      <div className="rounded-3xl border border-white/10 bg-[#141218] p-6 shadow-md space-y-4">
+        <div className="flex items-center justify-between border-b border-white/10 pb-3">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-orange-500 text-xs font-black text-white">
+              1
+            </span>
+            <div>
+              <h3 className="text-base font-extrabold text-white flex items-center gap-2">
+                <Mic size={18} className="text-orange-400" />
+                <span>Step 1: Audio Ready</span>
+              </h3>
+              <p className="text-xs text-zinc-400">
+                Upload your audio or generate studio speech using Google Cloud AI Voices
+              </p>
             </div>
+          </div>
+          {selectedAudio ? (
+            <span className="flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-400">
+              <CheckCircle2 size={14} />
+              <span>Audio Ready</span>
+            </span>
+          ) : (
+            <span className="rounded-full border border-orange-500/30 bg-orange-500/10 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-orange-300">
+              Required
+            </span>
+          )}
+        </div>
 
             {/* Mode Switcher Tabs */}
             <div className="grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-white/5 p-1 mb-4">
@@ -1117,7 +872,6 @@ export function ImageToVideoStudio({
                         </button>
                       </div>
                     </div>
-                    {renderAudioCleanerAndSpeedControls()}
                   </div>
                 )}
               </div>
@@ -1183,9 +937,6 @@ export function ImageToVideoStudio({
                         <RefreshCw size={12} /> Regenerate with different script or voice
                       </button>
                     </div>
-
-                    {/* Auto Cleaner & Speed Controls displayed when Audio is Ready */}
-                    {renderAudioCleanerAndSpeedControls()}
                   </div>
                 ) : (
                   <>
@@ -1365,18 +1116,261 @@ export function ImageToVideoStudio({
             <span>Studio Neural2 audio powered by Google Cloud Text-to-Speech</span>
           </div>
         </div>
+      </div>
 
-        {/* STEP 2: IMAGES (OPTIONAL - NO LIMIT) */}
-        <div className="rounded-3xl border border-white/10 bg-[#141218] p-6 shadow-md flex flex-col justify-between">
+      {/* ── STEP 2: AUDIO OPTIMIZE (AUDIO CLEANER & SPACE-CUT) ── */}
+      <div className="rounded-3xl border border-white/10 bg-[#141218] p-6 shadow-md space-y-4">
+        <div className="flex items-center justify-between border-b border-white/10 pb-3">
+          <div className="flex items-center gap-2.5">
+            <span className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-black text-white ${
+              selectedAudio ? 'bg-amber-500' : 'bg-zinc-700'
+            }`}>
+              2
+            </span>
+            <div>
+              <h3 className="text-base font-extrabold text-white flex items-center gap-2">
+                <Sliders size={18} className="text-amber-400" />
+                <span>Step 2: Audio Optimize (Audio Cleaner)</span>
+              </h3>
+              <p className="text-xs text-zinc-400">
+                Auto-cuts awkward dead air &amp; silences, removes fan/room noise, and normalizes voice volume
+              </p>
+            </div>
+          </div>
+          <span className="rounded-full bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 text-[10px] font-bold text-amber-300">
+            Studio AI Cleaner
+          </span>
+        </div>
+
+        {!selectedAudio ? (
+          <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 text-center text-zinc-500 text-xs">
+            <Sliders size={24} className="mx-auto mb-2 opacity-40 text-zinc-400" />
+            <p className="font-semibold text-zinc-400">Audio Not Ready Yet</p>
+            <p className="text-[11px] text-zinc-500 mt-1">Please complete Step 1 (Upload or Generate Audio) first to optimize and clean audio.</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {/* 6 Toggles Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+              {/* 1. Silence Trimming */}
+              <div
+                onClick={() => handleToggleCleanOption("removeSilence")}
+                className="flex cursor-pointer items-start justify-between rounded-xl border border-white/10 bg-[#22202c] p-2.5 transition hover:border-white/20 select-none"
+              >
+                <div className="space-y-0.5 pr-2">
+                  <p className="text-xs font-bold text-white">Smart Silence Trimming</p>
+                  <p className="text-[10px] text-zinc-400">Cuts dead air &gt; 1.0s (Space Cut)</p>
+                </div>
+                <div className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${currentCleanOptions.removeSilence ? "bg-orange-500" : "bg-zinc-700"}`}>
+                  <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${currentCleanOptions.removeSilence ? "left-4" : "left-0.5"}`} />
+                </div>
+              </div>
+
+              {/* 2. Noise Removal */}
+              <div
+                onClick={() => handleToggleCleanOption("noiseReduction")}
+                className="flex cursor-pointer items-start justify-between rounded-xl border border-white/10 bg-[#22202c] p-2.5 transition hover:border-white/20 select-none"
+              >
+                <div className="space-y-0.5 pr-2">
+                  <p className="text-xs font-bold text-white">Background Noise Removal</p>
+                  <p className="text-[10px] text-zinc-400">Spectral de-noise fan, hiss &amp; hum</p>
+                </div>
+                <div className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${currentCleanOptions.noiseReduction ? "bg-orange-500" : "bg-zinc-700"}`}>
+                  <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${currentCleanOptions.noiseReduction ? "left-4" : "left-0.5"}`} />
+                </div>
+              </div>
+
+              {/* 3. Studio Loudness */}
+              <div
+                onClick={() => handleToggleCleanOption("volumeNormalize")}
+                className="flex cursor-pointer items-start justify-between rounded-xl border border-white/10 bg-[#22202c] p-2.5 transition hover:border-white/20 select-none"
+              >
+                <div className="space-y-0.5 pr-2">
+                  <p className="text-xs font-bold text-white">Studio Loudness &amp; EQ</p>
+                  <p className="text-[10px] text-zinc-400">-16 LUFS broadcast curve</p>
+                </div>
+                <div className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${currentCleanOptions.volumeNormalize ? "bg-orange-500" : "bg-zinc-700"}`}>
+                  <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${currentCleanOptions.volumeNormalize ? "left-4" : "left-0.5"}`} />
+                </div>
+              </div>
+
+              {/* 4. Remove Fillers */}
+              <div
+                onClick={() => handleToggleCleanOption("removeFillers")}
+                className="flex cursor-pointer items-start justify-between rounded-xl border border-white/10 bg-[#22202c] p-2.5 transition hover:border-white/20 select-none"
+              >
+                <div className="space-y-0.5 pr-2">
+                  <p className="text-xs font-bold text-white">Remove Vocal Fillers</p>
+                  <p className="text-[10px] text-zinc-400">Cuts &quot;um&quot;, &quot;uh&quot;, &quot;matlab&quot;</p>
+                </div>
+                <div className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${currentCleanOptions.removeFillers ? "bg-orange-500" : "bg-zinc-700"}`}>
+                  <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${currentCleanOptions.removeFillers ? "left-4" : "left-0.5"}`} />
+                </div>
+              </div>
+
+              {/* 5. Remove Repeats */}
+              <div
+                onClick={() => handleToggleCleanOption("removeRepeats")}
+                className="flex cursor-pointer items-start justify-between rounded-xl border border-white/10 bg-[#22202c] p-2.5 transition hover:border-white/20 select-none"
+              >
+                <div className="space-y-0.5 pr-2">
+                  <p className="text-xs font-bold text-white">Remove Retakes &amp; Stutters</p>
+                  <p className="text-[10px] text-zinc-400">Auto-cuts repeated mistakes</p>
+                </div>
+                <div className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${currentCleanOptions.removeRepeats ? "bg-orange-500" : "bg-zinc-700"}`}>
+                  <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${currentCleanOptions.removeRepeats ? "left-4" : "left-0.5"}`} />
+                </div>
+              </div>
+
+              {/* 6. Trim Ends */}
+              <div
+                onClick={() => handleToggleCleanOption("trimEnds")}
+                className="flex cursor-pointer items-start justify-between rounded-xl border border-white/10 bg-[#22202c] p-2.5 transition hover:border-white/20 select-none"
+              >
+                <div className="space-y-0.5 pr-2">
+                  <p className="text-xs font-bold text-white">Trim Start &amp; End Air</p>
+                  <p className="text-[10px] text-zinc-400">Cuts mic warm-up and trailing silence</p>
+                </div>
+                <div className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${currentCleanOptions.trimEnds ? "bg-orange-500" : "bg-zinc-700"}`}>
+                  <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${currentCleanOptions.trimEnds ? "left-4" : "left-0.5"}`} />
+                </div>
+              </div>
+            </div>
+
+            {/* Clean Success Badge */}
+            {audioCleanSuccess && (
+              <div className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs font-semibold text-emerald-300">
+                <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
+                <span>
+                  Audio Cleaned! Cut {audioCleanSuccess.silencesCut} awkward pauses • Saved {audioCleanSuccess.secondsSaved}s dead air.
+                </span>
+              </div>
+            )}
+
+            {/* Clean Error Message */}
+            {audioCleanError && (
+              <p className="text-xs text-rose-400 font-medium">{audioCleanError}</p>
+            )}
+
+            {/* Clean Action Button */}
+            <button
+              type="button"
+              disabled={isCleaningAudio}
+              onClick={handleCleanAudioNow}
+              className="w-full flex items-center justify-center gap-2 rounded-2xl border border-amber-500/40 bg-amber-500/15 py-3 px-4 text-xs font-bold text-amber-300 hover:bg-amber-500/25 disabled:opacity-50 transition cursor-pointer"
+            >
+              {isCleaningAudio ? (
+                <>
+                  <Loader2 size={16} className="animate-spin text-amber-400" />
+                  <span>Auto-Cleaning Audio (Trimming Silences &amp; Denoising)...</span>
+                </>
+              ) : (
+                <>
+                  <Zap size={16} className="text-amber-400" />
+                  <span>⚡ Auto Clean Audio (Apply Space-Cut &amp; Denoise)</span>
+                </>
+              )}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* ── STEP 3: AUDIO SPEED (1.0x, 1.25x, 1.5x) ── */}
+      <div className="rounded-3xl border border-white/10 bg-[#141218] p-6 shadow-md space-y-4">
+        <div className="flex items-center justify-between border-b border-white/10 pb-3">
+          <div className="flex items-center gap-2.5">
+            <span className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-black text-white ${
+              selectedAudio ? 'bg-orange-500' : 'bg-zinc-700'
+            }`}>
+              3
+            </span>
+            <div>
+              <h3 className="text-base font-extrabold text-white flex items-center gap-2">
+                <Zap size={18} className="text-orange-400" />
+                <span>Step 3: Audio Speed</span>
+              </h3>
+              <p className="text-xs text-zinc-400">
+                Speed up voiceover for energetic pacing with natural human pitch preserved
+              </p>
+            </div>
+          </div>
+          <span className="rounded-full bg-orange-500/10 border border-orange-500/30 px-2.5 py-0.5 text-[10px] font-bold text-orange-300">
+            3 Speeds Only
+          </span>
+        </div>
+
+        {!selectedAudio ? (
+          <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 text-center text-zinc-500 text-xs">
+            <Zap size={24} className="mx-auto mb-2 opacity-40 text-zinc-400" />
+            <p className="font-semibold text-zinc-400">Audio Not Ready Yet</p>
+            <p className="text-[11px] text-zinc-500 mt-1">Please complete Step 1 to choose playback &amp; export speed.</p>
+          </div>
+        ) : (
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-white/10 bg-[#1c1a24] p-4">
+            <div>
+              <p className="text-xs font-bold text-white">Voice Playback &amp; Export Speed</p>
+              <p className="text-[11px] text-zinc-400 mt-0.5">
+                {aiVoiceSpeed === 1.25 ? "⚡ 1.25x Crisp active (keeps audience attentive & engaged)" : `Speed set to ${aiVoiceSpeed}x`}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-black/40 p-1.5 shrink-0">
+              {[
+                { val: 1.0 as const, label: "1.0x Normal" },
+                { val: 1.25 as const, label: "1.25x Crisp (Recommended)" },
+                { val: 1.5 as const, label: "1.5x Fast" },
+              ].map((sp) => (
+                <button
+                  key={sp.val}
+                  type="button"
+                  disabled={isAdjustingSpeed || isGeneratingTts}
+                  onClick={() => handleChangeVoiceSpeed(sp.val)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                    aiVoiceSpeed === sp.val
+                      ? "bg-orange-500 text-white shadow-md shadow-orange-500/20"
+                      : "text-zinc-400 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  {sp.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {isAdjustingSpeed && (
+          <div className="flex items-center gap-2 text-xs text-orange-300 font-medium">
+            <Loader2 size={14} className="animate-spin text-orange-400" />
+            <span>Regenerating speech at {aiVoiceSpeed}x via Google Cloud TTS...</span>
+          </div>
+        )}
+      </div>
+
+      {/* ── STEP 4: VIDEO BANANA (VISUALS, FRAMING, MUSIC & RENDER) ── */}
+      <div className="space-y-6">
+        <div className="flex items-center gap-2.5 px-1">
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-500 text-xs font-black text-white">
+            4
+          </span>
+          <div>
+            <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
+              <Film size={20} className="text-purple-400" />
+              <span>Step 4: Video Banana (Visuals, Music &amp; Render)</span>
+            </h3>
+            <p className="text-xs text-zinc-400">
+              Customize scene images, 16:9 framing, background music, animated subtitles and generate video
+            </p>
+          </div>
+        </div>
+
+        {/* 4.1 Visual Scene Images */}
+        <div className="rounded-3xl border border-white/10 bg-[#141218] p-6 shadow-md">
           <div>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2.5">
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-700 text-xs font-black text-white">
-                  2
-                </span>
-                <h3 className="text-base font-extrabold text-white flex items-center gap-2">
-                  <ImagePlus size={18} className="text-cyan-400" /> Visual Images
-                </h3>
+                <h4 className="text-sm font-extrabold text-white flex items-center gap-2">
+                  <ImagePlus size={18} className="text-cyan-400" /> Visual Scene Images
+                </h4>
               </div>
               <span className="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-cyan-300">
                 Optional • No Limit
@@ -1472,9 +1466,8 @@ export function ImageToVideoStudio({
             <span>Images auto-scale to 16:9 widescreen with Ken Burns pan & zoom</span>
           </div>
         </div>
-      </div>
 
-      {/* ── Additional Controls: Framing & Camera Motion ── */}
+        {/* 4.2 Framing & Camera Motion */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* 16:9 FRAMING & 9:16 FIT */}
         <div className="rounded-3xl border border-white/10 bg-[#141218] p-5 shadow-md space-y-3">
@@ -1954,7 +1947,9 @@ export function ImageToVideoStudio({
             </>
           )}
         </button>
+        </div>
       </div>
     </div>
-  );
+  </div>
+);
 }
