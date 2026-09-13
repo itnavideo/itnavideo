@@ -1115,8 +1115,6 @@ export function ImageToVideoStudio({
               <ShieldCheck size={14} className="text-emerald-400 shrink-0" />
               <span>Studio Neural2 audio powered by Google Cloud Text-to-Speech</span>
             </div>
-          </div>
-        </div>
       </div>
 
       {/* ── STEP 2: AUDIO OPTIMIZE (AUDIO CLEANER & SPACE-CUT) ── */}
