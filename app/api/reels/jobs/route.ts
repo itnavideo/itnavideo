@@ -581,7 +581,7 @@ export async function POST(request: Request) {
         ? rawCustomUrls
         : (cleanUploadedImageUrls.length > 0 ? cleanUploadedImageUrls : library16x9Images);
 
-      const fitMode = (readString(body.fitMode) as 'blur-fill' | 'cover') || 'blur-fill';
+      const fitMode = (readString(body.fitMode) as 'blur-fill' | 'cover') || 'cover';
 
       // Build dynamic, high-retention 16:9 scene cuts paced to script lines (~2.2s - 3.5s per cut)
       const scenes = buildWidescreen16x9Scenes({

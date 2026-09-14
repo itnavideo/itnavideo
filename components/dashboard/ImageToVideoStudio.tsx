@@ -245,7 +245,7 @@ export function ImageToVideoStudio({
   onChangeSubtitleStyle,
   cameraMotionPreset = 'ken-burns',
   onChangeCameraMotionPreset,
-  fitMode = 'blur-fill',
+  fitMode = 'cover',
   onChangeFitMode,
   isRendering = false,
   onStartRender,
@@ -684,6 +684,29 @@ export function ImageToVideoStudio({
       }
     };
   }, [customBgmUrl]);
+
+  const characterImagePreviewUrl = useMemo(() => {
+    if (!characterImageFile || typeof window === 'undefined') return null;
+    if (typeof characterImageFile === 'string') return characterImageFile;
+    if (characterImageFile instanceof Blob) {
+      try {
+        return URL.createObjectURL(characterImageFile);
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  }, [characterImageFile]);
+
+  useEffect(() => {
+    return () => {
+      if (characterImagePreviewUrl && characterImageFile instanceof Blob) {
+        try {
+          URL.revokeObjectURL(characterImagePreviewUrl);
+        } catch {}
+      }
+    };
+  }, [characterImagePreviewUrl, characterImageFile]);
 
   const handleTogglePlay = (url: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -1756,10 +1779,10 @@ export function ImageToVideoStudio({
                       className="hidden"
                       onChange={(e) => onSelectCharacterImage?.(e.target.files?.[0] || null)}
                     />
-                    {characterImageFile ? (
+                    {characterImagePreviewUrl ? (
                       <div className="relative w-full h-full">
                         <img
-                          src={URL.createObjectURL(characterImageFile)}
+                          src={characterImagePreviewUrl}
                           alt="Character"
                           className="w-full h-full object-cover"
                         />

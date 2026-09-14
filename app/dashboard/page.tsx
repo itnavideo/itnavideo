@@ -603,7 +603,7 @@ export default function DashboardPage() {
   const [imageToVideoBgmVolume, setImageToVideoBgmVolume] = useState<number>(0.15);
   const [imageToVideoSubtitleStyle, setImageToVideoSubtitleStyle] = useState<string>("parallax-modern");
   const [imageToVideoCameraMotion, setImageToVideoCameraMotion] = useState<string>("ken-burns");
-  const [imageToVideoFitMode, setImageToVideoFitMode] = useState<"blur-fill" | "cover">("blur-fill");
+  const [imageToVideoFitMode, setImageToVideoFitMode] = useState<"blur-fill" | "cover">("cover");
   const [imageToVideoAssetMode, setImageToVideoAssetMode] = useState<"upload" | "library" | "ai-generate">("library");
   const [imageToVideoStockUrls, setImageToVideoStockUrls] = useState<string[]>([]);
   const [imageToVideoVisualStyle, setImageToVideoVisualStyle] = useState<"2d" | "3d" | "realistic">("realistic");
@@ -2342,6 +2342,12 @@ export default function DashboardPage() {
                   onChangeAssetSourceMode={setImageToVideoAssetMode}
                   selectedStockAssetUrls={imageToVideoStockUrls}
                   onChangeSelectedStockAssetUrls={setImageToVideoStockUrls}
+                  visualStyle={imageToVideoVisualStyle}
+                  onChangeVisualStyle={setImageToVideoVisualStyle}
+                  characterImageFile={imageToVideoCharacterFile}
+                  onSelectCharacterImage={setImageToVideoCharacterFile}
+                  characterDnaHint={imageToVideoCharacterDnaHint}
+                  onChangeCharacterDnaHint={setImageToVideoCharacterDnaHint}
                 />
               ) : null}
 
@@ -3650,7 +3656,7 @@ export default function DashboardPage() {
     bgmVolume = 0.15,
     imageToVideoSubtitleStyle = "parallax-modern",
     imageToVideoCameraMotionPreset = "ken-burns",
-    imageToVideoFitMode = "blur-fill",
+    imageToVideoFitMode = "cover",
     overrideInputProps,
   }: {
     mediaKey: string;

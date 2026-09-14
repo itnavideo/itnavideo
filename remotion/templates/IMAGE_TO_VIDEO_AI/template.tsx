@@ -248,14 +248,14 @@ const SceneRenderer: React.FC<{
         </div>
       ) : (
         <>
-          {/* 1. Full 16:9 Ambient Blurred Fill Layer - Guarantees 100% canvas utilization without empty black pillarboxes */}
+          {/* 1. Full 16:9 Ambient Blurred Fill Layer (clean & bright) */}
           <div
             style={{
               position: 'absolute',
-              inset: -40,
+              inset: -20,
               overflow: 'hidden',
-              filter: 'blur(42px) brightness(0.55) saturate(1.3)',
-              transform: `scale(${scale * 1.10}) translate(${translateX * 0.4}%, ${translateY * 0.4}%)`,
+              filter: 'blur(32px) brightness(0.92) saturate(1.15)',
+              transform: `scale(${scale * 1.05}) translate(${translateX * 0.2}%, ${translateY * 0.2}%)`,
               transformOrigin: 'center center',
               pointerEvents: 'none',
             }}
@@ -270,7 +270,7 @@ const SceneRenderer: React.FC<{
             />
           </div>
 
-          {/* 2. Foreground Subject Layer - Dynamic Fit for 9:16 portrait and 16:9 widescreen images */}
+          {/* 2. Foreground Subject Layer - Dynamic 16:9 Widescreen Fit without dark borders */}
           {effectiveFitMode === 'blur-fill' ? (
             <div
               style={{
@@ -284,28 +284,14 @@ const SceneRenderer: React.FC<{
                 transition: 'none',
               }}
             >
-              <div
+              <Img
+                src={resolveImageUrl(scene.imageUrl)}
                 style={{
-                  height: '92%',
-                  maxWidth: '92%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: 22,
-                  overflow: 'hidden',
-                  boxShadow:
-                    '0 28px 70px rgba(0, 0, 0, 0.70), 0 0 0 1px rgba(255, 255, 255, 0.14)',
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
                 }}
-              >
-                <Img
-                  src={resolveImageUrl(scene.imageUrl)}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'contain',
-                  }}
-                />
-              </div>
+              />
             </div>
           ) : (
             <div
@@ -332,41 +318,16 @@ const SceneRenderer: React.FC<{
         </>
       )}
 
-      {/* Cinematic Radial Vignette for Netflix / Docu-grade Depth */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background:
-            'radial-gradient(ellipse at center, transparent 32%, rgba(0, 0, 0, 0.40) 72%, rgba(0, 0, 0, 0.84) 100%)',
-          pointerEvents: 'none',
-        }}
-      />
-
-      {/* Top Edge Shadow for Corner Badge Contrast */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '24%',
-          background:
-            'linear-gradient(to bottom, rgba(0, 0, 0, 0.65) 0%, transparent 100%)',
-          pointerEvents: 'none',
-        }}
-      />
-
-      {/* Lower Third Ambient Shadow for Subtitle Readability */}
+      {/* Gentle bottom gradient for subtitle readability only (no top shadow, no corner vignette, no border darkness) */}
       <div
         style={{
           position: 'absolute',
           bottom: 0,
           left: 0,
           right: 0,
-          height: '44%',
+          height: '22%',
           background:
-            'linear-gradient(to top, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.45) 55%, transparent 100%)',
+            'linear-gradient(to top, rgba(0, 0, 0, 0.45) 0%, transparent 100%)',
           pointerEvents: 'none',
         }}
       />
