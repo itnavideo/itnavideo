@@ -202,10 +202,10 @@ export function MaterialCatalogGrid({
           {/* M3 Card Bottom Surface */}
           <div className="flex items-center justify-between gap-2 px-3.5 py-3 bg-[#08070B] border-t border-white/10">
             <div className="min-w-0 flex-1">
-              <h3 className="text-sm font-bold text-white tracking-tight truncate group-hover:text-amber-400 transition-colors">
+              <h3 className="text-base font-black text-white tracking-tight truncate group-hover:text-amber-400 transition-colors">
                 {card.title}
               </h3>
-              <p className="text-[11px] text-zinc-400 truncate font-medium mt-0.5">
+              <p className="text-[13px] text-zinc-300 truncate font-semibold mt-1">
                 {card.tag}
               </p>
             </div>
@@ -263,7 +263,7 @@ export function MaterialCatalogGrid({
                 key={tab.key}
                 type="button"
                 onClick={() => onFilterChange(tab.key)}
-                className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 whitespace-nowrap active:scale-95 cursor-pointer ${
+                className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-bold transition-all duration-200 whitespace-nowrap active:scale-95 cursor-pointer ${
                   isActive
                     ? 'bg-amber-400 text-slate-950 shadow-md shadow-amber-500/20 font-black scale-[1.02]'
                     : 'bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white border border-white/10'
@@ -291,12 +291,12 @@ export function MaterialCatalogGrid({
           <div>
             <div className="flex items-center gap-2 mb-3.5">
               <span className="h-2 w-2 rounded-full bg-amber-500" />
-              <h2 className="text-xs font-extrabold uppercase tracking-wider text-muted-foreground">
+              <h2 className="text-sm font-black uppercase tracking-wider text-zinc-300">
                 16:9 Landscape Videos
               </h2>
             </div>
             <div className="grid min-w-0 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-              {visibleLongCards.map(renderCard)}
+              {visibleLongCards.map((card) => <VideoTypeCardItem key={card.id} card={card} isSelected={hasUserSelected && card.mode === selectedMode} onSelectMode={onSelectMode} onPreviewVideoType={onPreviewVideoType} badgeNode={renderBadge(card.badgeType)} />)}
             </div>
           </div>
         )}
@@ -306,12 +306,12 @@ export function MaterialCatalogGrid({
           <div id="quick-tools" className="scroll-mt-24">
             <div className="flex items-center gap-2 mb-3.5">
               <span className="h-2 w-2 rounded-full bg-blue-500" />
-              <h2 className="text-xs font-extrabold uppercase tracking-wider text-muted-foreground">
+              <h2 className="text-sm font-black uppercase tracking-wider text-zinc-300">
                 9:16 Shorts & Reels
               </h2>
             </div>
             <div className="grid min-w-0 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
-              {visibleShortCards.map(renderCard)}
+              {visibleShortCards.map((card) => <VideoTypeCardItem key={card.id} card={card} isSelected={hasUserSelected && card.mode === selectedMode} onSelectMode={onSelectMode} onPreviewVideoType={onPreviewVideoType} badgeNode={renderBadge(card.badgeType)} />)}
             </div>
           </div>
         )}
