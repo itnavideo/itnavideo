@@ -219,8 +219,11 @@ function CleanVideoCard({ video, isPlaying, onPlay, onEnded, aspectRatio = '9/16
             {/* Clean Instant JPG Poster */}
             <img
               src={video.posterUrl}
-              alt="Demo Video"
+              alt="AI Video creation output demo preview"
+              width={isWidescreen ? 440 : 270}
+              height={isWidescreen ? 248 : 480}
               loading="lazy"
+              decoding="async"
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
 

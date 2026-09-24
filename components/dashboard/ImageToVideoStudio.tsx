@@ -662,6 +662,8 @@ export function ImageToVideoStudio({
   // Credit pricing calculation: 1 minute = 2 credits
   const durationMinutes = Math.max(1, Math.ceil(estimatedDurationSeconds / 60));
   const creditCost = durationMinutes * 2;
+  const isAiImages = activeAssetMode === 'ai-generate';
+  const baseCreditCost = creditCost;
 
   // Object URLs for image previews
   const imagePreviews = useMemo(() => {

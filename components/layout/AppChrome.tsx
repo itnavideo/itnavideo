@@ -12,7 +12,7 @@ export default function AppChrome({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const activePath = pathname || '';
   const isFocusedRoute = activePath === '/login' || activePath === '/signup' || activePath.startsWith('/admin');
-  const isDashboard = activePath === '/dashboard';
+  const isDashboard = activePath.startsWith('/dashboard');
   const isPricingPage = activePath === '/pricing';
   const isAboutPage = activePath === '/about';
   const isContactPage = activePath === '/contact';

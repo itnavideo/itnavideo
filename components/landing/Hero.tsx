@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   ArrowRight, 
@@ -65,9 +65,17 @@ const HERO_MOCK_TYPES = [
 
 export default function Hero() {
   const [selectedType, setSelectedType] = useState(HERO_MOCK_TYPES[0]);
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    // Defer video loading until after critical render path
+    const timer = setTimeout(() => {
+      setIsPlaying(true);
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, []);
 
   const toggleAudio = () => {
     if (videoRef.current) {
@@ -161,22 +169,38 @@ export default function Hero() {
                   <img
                     className="inline-block h-8 w-8 rounded-full ring-2 ring-[#08070B] object-cover shadow-xs"
                     src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-                    alt="Creator"
+                    alt="Creator using Itnavideo"
+                    width={32}
+                    height={32}
+                    loading="lazy"
+                    decoding="async"
                   />
                   <img
                     className="inline-block h-8 w-8 rounded-full ring-2 ring-[#08070B] object-cover shadow-xs"
                     src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80"
-                    alt="Creator"
+                    alt="Reel creator"
+                    width={32}
+                    height={32}
+                    loading="lazy"
+                    decoding="async"
                   />
                   <img
                     className="inline-block h-8 w-8 rounded-full ring-2 ring-[#08070B] object-cover shadow-xs"
                     src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80"
-                    alt="Creator"
+                    alt="YouTube Shorts creator"
+                    width={32}
+                    height={32}
+                    loading="lazy"
+                    decoding="async"
                   />
                   <img
                     className="inline-block h-8 w-8 rounded-full ring-2 ring-[#08070B] object-cover shadow-xs"
                     src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80"
-                    alt="Creator"
+                    alt="Faceless video creator"
+                    width={32}
+                    height={32}
+                    loading="lazy"
+                    decoding="async"
                   />
                 </div>
 
@@ -308,7 +332,7 @@ export default function Hero() {
                     key={selectedType.sample}
                     src={selectedType.sample}
                     poster={selectedType.poster}
-                    preload="metadata"
+                    preload={isPlaying ? "metadata" : "none"}
                     autoPlay={isPlaying}
                     muted={isMuted}
                     loop

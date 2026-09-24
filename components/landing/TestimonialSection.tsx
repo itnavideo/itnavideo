@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { Sparkles, Star, CheckCircle2 } from 'lucide-react';
+import { getOptimizedAvatarUrl } from '@/lib/utils';
 
 interface Review {
   name: string;
@@ -137,7 +138,7 @@ export default function TestimonialSection() {
                 <div className="flex items-start gap-3.5 relative z-10">
                   <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border border-white/10 group-hover:border-orange-500/40 transition duration-300 shadow-xs">
                     <Image
-                      src={review.image}
+                      src={getOptimizedAvatarUrl(review.image, 96)}
                       alt={review.name}
                       fill
                       sizes="48px"

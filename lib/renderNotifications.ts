@@ -16,6 +16,7 @@ export interface ActiveRenderRecord {
   title: string;
   design?: string;
   startedAt: number;
+  estimatedSeconds?: number;
 }
 
 const ACTIVE_RENDER_KEY_PREFIX = 'itnavideo_active_render_';

@@ -145,12 +145,13 @@ export const metadata: Metadata = {
     url: siteUrl,
     siteName,
     type: "website",
+    locale: "en_US",
     images: [
       {
-        url: "/visuals/previews/video-explainer-homepage.png",
-        width: 1080,
-        height: 1920,
-        alt: "Itnavideo AI reel maker video type preview",
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Itnavideo AI Video Generator & Maker",
       },
     ],
   },
@@ -158,7 +159,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Itnavideo | AI Video Generator",
     description: siteDescription,
-    images: ["/visuals/previews/video-explainer-homepage.png"],
+    images: ["/og-image.png"],
   },
   icons: {
     icon: [
@@ -218,8 +219,8 @@ export default function RootLayout({
           </AdminProvider>
         </AuthProvider>
       </body>
-      <Script strategy="afterInteractive" async src="https://www.googletagmanager.com/gtag/js?id=G-8NSFBYS9EF" />
-      <Script id="google-analytics" strategy="afterInteractive">
+      <Script strategy="lazyOnload" async src="https://www.googletagmanager.com/gtag/js?id=G-8NSFBYS9EF" />
+      <Script id="google-analytics" strategy="lazyOnload">
         {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}

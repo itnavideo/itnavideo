@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, Captions, Check, Clock3, Film, Laptop, MonitorPlay, Shield, Volume2, Play } from 'lucide-react';
+import { getOptimizedCloudinaryUrl } from '@/lib/utils';
 
 export default function LongVideoShowcase() {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -84,12 +85,12 @@ export default function LongVideoShowcase() {
               ) : (
                 <>
                   <Image
-                    src="https://res.cloudinary.com/dhouh9idx/image/upload/v1788190063/file_0000000089c48211b67c16fe3c2636a2_prirg0.png"
+                    src={getOptimizedCloudinaryUrl("https://res.cloudinary.com/dhouh9idx/image/upload/v1788190063/file_0000000089c48211b67c16fe3c2636a2_prirg0.png", 1080)}
                     alt="Faceless Video 16:9 YouTube output preview"
                     fill
                     sizes="(min-width: 1024px) 900px, 90vw"
                     className="object-cover transition duration-500 group-hover:scale-102"
-                    priority
+                    loading="lazy"
                   />
                   {/* Overlay pill */}
                   <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none" />

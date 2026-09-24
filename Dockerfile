@@ -15,6 +15,12 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV NODE_OPTIONS="--max-old-space-size=4096"
+ENV NEXT_PUBLIC_SITE_URL="https://www.itnavideo.com"
+ENV NEXT_PUBLIC_API_BASE_URL="https://www.itnavideo.com/api"
+ENV NEXT_PUBLIC_SUPABASE_URL="https://veqkjrcewfwtlepnyjfc.supabase.co"
+ENV NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="sb_publishable_kvWfyUSg_SihO3Mnp93TKw_AJVntAiU"
+ENV NEXT_PUBLIC_RAZORPAY_KEY_ID="rzp_live_TDIcPcfQ6jFu3F"
+ENV NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="dhouh9idx"
 
 RUN npm run build
 

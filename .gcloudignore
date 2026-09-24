@@ -1,0 +1,6 @@
+﻿.git/
+.gcloudignore
+node_modules/
+.next/
+*.log
+.system_generated/

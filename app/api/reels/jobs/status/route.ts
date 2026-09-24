@@ -132,13 +132,31 @@ export async function GET(request: Request) {
       }
     }
 
+    const rawWorkerProgress =
+      typeof progress.overallProgress === 'number' ? progress.overallProgress :
+      typeof progress.progress === 'number' ? progress.progress :
+      typeof progress.percent === 'number' ? progress.percent / 100 :
+      typeof progress.renderedDoneInPercent === 'number' ? progress.renderedDoneInPercent / 100 :
+      (typeof progress.renderedFrames === 'number' && typeof progress.totalFrames === 'number' && progress.totalFrames > 0)
+        ? progress.renderedFrames / progress.totalFrames
+        : (typeof progress.framesRendered === 'number' && typeof progress.totalFrames === 'number' && progress.totalFrames > 0)
+        ? progress.framesRendered / progress.totalFrames
+        : 0;
+
+    const normalizedProgress = Number.isFinite(rawWorkerProgress)
+      ? Math.max(0, Math.min(1, rawWorkerProgress > 1 ? rawWorkerProgress / 100 : rawWorkerProgress))
+      : 0;
+
     return NextResponse.json({
       ok: true,
       state: currentRenderState,
       renderId,
       bucketName,
       done: progress.done,
-      progress: progress.overallProgress || 0,
+      progress: normalizedProgress,
+      message: progress.message || progress.statusText || undefined,
+      renderedFrames: progress.renderedFrames ?? progress.framesRendered,
+      totalFrames: progress.totalFrames,
       outputFile,
       outputSizeInBytes: progress.outputSizeInBytes,
       isRetrying: !hasFatalError && renderErrors.length > 0,
