@@ -1,5 +1,5 @@
 const SUPABASE_URL = 'https://veqkjrcewfwtlepnyjfc.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlcWtqcmNld2Z3dGxlcG55amZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3ODA4MDMsImV4cCI6MjA5NDM1NjgwM30.6vPjV-m8a2Ag9DCNv8b95dxeIG2GkKGrRj6PI7fWt4Y';
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 async function getToken() {
   // Test password auth against Supabase REST endpoint

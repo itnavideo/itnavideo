@@ -168,21 +168,21 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:3000/api
 # ─── Supabase (Auth + Database) ───────────────────────────────────────────
 NEXT_PUBLIC_SUPABASE_URL=https://veqkjrcewfwtlepnyjfc.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_kvWfyUSg_SihO3Mnp93TKw_AJVntAiU
-SUPABASE_SECRET_KEY=sb_secret_Xo5XelCeUxrfe8qt46lHqw_m78WP_cI
+SUPABASE_SECRET_KEY=sb_secret_your_key_here
 
 # ─── Groq (Primary Speech Transcription) ───────────────────────────────────
-GROQ_API_KEY=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
+GROQ_API_KEY=gsk_your_key_here
 GROQ_TRANSCRIPTION_MODEL=whisper-large-v3-turbo
 GROQ_TRANSCRIPTION_RESPONSE_FORMAT=verbose_json
 PREFERRED_TRANSCRIPTION_PROVIDER=groq
 
 # ─── Gemini (AI Planning & Audio Fallback) ────────────────────────────────
-GEMINI_API_KEY=AIzaSyCR9-efUMpo2psDvDU8EPIksTyETam8EE8
+GEMINI_API_KEY=AIzaSy_your_key_here
 
 # ─── AWS (S3 Storage + Remotion Lambda) ───────────────────────────────────
 AWS_REGION=us-east-1
-AWS_ACCESS_KEY_ID=AKIA3CLIMM6P7BBAI5PC
-AWS_SECRET_ACCESS_KEY=dUuQkTixjCbYp7kL0YlySuvlCSEPjBRB+K8fMhM4
+AWS_ACCESS_KEY_ID=AKIA_your_key_here
+AWS_SECRET_ACCESS_KEY=your_aws_secret_here
 AWS_ASSET_BUCKET=itnavideo-transcribe
 AWS_ASSET_REGION=us-east-1
 REMOTION_AWS_REGION=us-east-1
