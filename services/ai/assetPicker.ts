@@ -290,7 +290,7 @@ export function readEnrichedStockAssets() {
     const { buildUnifiedStockAssetRegistry } = require('../../scripts/index-stock-assets-vision');
     return buildUnifiedStockAssetRegistry();
   } catch {
-    return readLocalAssets();
+    return readUnifiedAssets();
   }
 }
 
