@@ -1,0 +1,189 @@
+[
+  {
+    "testId": 1,
+    "name": "Very Little Money",
+    "inputScript": "He struggled because he had very little money.",
+    "expectedConcept": "financial_hardship",
+    "selectedTitle": "Empty Wallet with Few Coins",
+    "selectedUrl": "https://remotionlambda-useast1-2zq6twaok1.s3.us-east-1.amazonaws.com/assets/reusable/images/2d/Doordash%20Driver%20very%20low%20earningst.png",
+    "classification": "GOOD_MATCH",
+    "isTrueVisualPass": true,
+    "failureReason": ""
+  },
+  {
+    "testId": 2,
+    "name": "Huge Wealth",
+    "inputScript": "He built a massive real estate empire and became a billionaire.",
+    "expectedConcept": "wealth_abundance",
+    "selectedTitle": "Real Estate Property Investment",
+    "selectedUrl": "https://remotionlambda-useast1-2zq6twaok1.s3.us-east-1.amazonaws.com/assets/reusable/images/2d/mortgage%20and%20home%20buying.png",
+    "classification": "GOOD_MATCH",
+    "isTrueVisualPass": true,
+    "failureReason": ""
+  },
+  {
+    "testId": 3,
+    "name": "Poor Family",
+    "inputScript": "The family lived in a tiny, worn-down apartment.",
+    "expectedConcept": "poverty_struggle",
+    "selectedTitle": "Typography Insight",
+    "selectedUrl": "NONE",
+    "classification": "NO_SUITABLE_ASSET",
+    "isTrueVisualPass": false,
+    "failureReason": ""
+  },
+  {
+    "testId": 4,
+    "name": "Rich Businessman",
+    "inputScript": "The CEO arrived in a private jet for the global summit.",
+    "expectedConcept": "executive_wealth",
+    "selectedTitle": "Typography Insight",
+    "selectedUrl": "NONE",
+    "classification": "NO_SUITABLE_ASSET",
+    "isTrueVisualPass": false,
+    "failureReason": ""
+  },
+  {
+    "testId": 5,
+    "name": "Financial Hardship",
+    "inputScript": "Unpaid bills stacked up on the kitchen counter.",
+    "expectedConcept": "financial_hardship",
+    "selectedTitle": "Close-up of Hundred Dollar Bill",
+    "selectedUrl": "https://remotionlambda-useast1-2zq6twaok1.s3.us-east-1.amazonaws.com/assets/reusable/images/2d/Doordash%20Delivery%20Driver%20Celebrates%20Earnings.png",
+    "classification": "GOOD_MATCH",
+    "isTrueVisualPass": true,
+    "failureReason": ""
+  },
+  {
+    "testId": 6,
+    "name": "Luxury Lifestyle",
+    "inputScript": "She spent weekends sailing on private yachts.",
+    "expectedConcept": "luxury_leisure",
+    "selectedTitle": "Typography Insight",
+    "selectedUrl": "NONE",
+    "classification": "NO_SUITABLE_ASSET",
+    "isTrueVisualPass": false,
+    "failureReason": ""
+  },
+  {
+    "testId": 7,
+    "name": "Fear / Anxiety",
+    "inputScript": "He panicked as the market crashed overnight.",
+    "expectedConcept": "market_crisis",
+    "selectedTitle": "Stock Market Analytics Chart",
+    "selectedUrl": "https://remotionlambda-useast1-2zq6twaok1.s3.us-east-1.amazonaws.com/assets/reusable/images/2d/investing%20for%20beginners.png",
+    "classification": "GOOD_MATCH",
+    "isTrueVisualPass": true,
+    "failureReason": ""
+  },
+  {
+    "testId": 8,
+    "name": "Happiness",
+    "inputScript": "They celebrated their team's historic victory.",
+    "expectedConcept": "celebration_victory",
+    "selectedTitle": "Typography Insight",
+    "selectedUrl": "NONE",
+    "classification": "NO_SUITABLE_ASSET",
+    "isTrueVisualPass": false,
+    "failureReason": ""
+  },
+  {
+    "testId": 9,
+    "name": "Loneliness",
+    "inputScript": "He sat alone in the quiet diner late at night.",
+    "expectedConcept": "solitude_night",
+    "selectedTitle": "Typography Insight",
+    "selectedUrl": "NONE",
+    "classification": "NO_SUITABLE_ASSET",
+    "isTrueVisualPass": false,
+    "failureReason": ""
+  },
+  {
+    "testId": 10,
+    "name": "Crowded City",
+    "inputScript": "Thousands of commuters flooded the subway station.",
+    "expectedConcept": "dense_urban_commute",
+    "selectedTitle": "Typography Insight",
+    "selectedUrl": "NONE",
+    "classification": "NO_SUITABLE_ASSET",
+    "isTrueVisualPass": false,
+    "failureReason": ""
+  },
+  {
+    "testId": 11,
+    "name": "Empty City",
+    "inputScript": "The streets were completely deserted at dawn.",
+    "expectedConcept": "empty_street_dawn",
+    "selectedTitle": "Typography Insight",
+    "selectedUrl": "NONE",
+    "classification": "NO_SUITABLE_ASSET",
+    "isTrueVisualPass": false,
+    "failureReason": ""
+  },
+  {
+    "testId": 12,
+    "name": "Growth",
+    "inputScript": "Her small startup revenue doubled every quarter.",
+    "expectedConcept": "business_growth",
+    "selectedTitle": "Income Growth Chart and Analytics",
+    "selectedUrl": "https://remotionlambda-useast1-2zq6twaok1.s3.us-east-1.amazonaws.com/assets/reusable/images/2d/financial%20freedom.png",
+    "classification": "GOOD_MATCH",
+    "isTrueVisualPass": true,
+    "failureReason": ""
+  },
+  {
+    "testId": 13,
+    "name": "Decline",
+    "inputScript": "The ancient empire slowly collapsed over centuries.",
+    "expectedConcept": "decline_ruins",
+    "selectedTitle": "Typography Insight",
+    "selectedUrl": "NONE",
+    "classification": "NO_SUITABLE_ASSET",
+    "isTrueVisualPass": false,
+    "failureReason": ""
+  },
+  {
+    "testId": 14,
+    "name": "Small Amount",
+    "inputScript": "She saved a few spare coins in a glass jar.",
+    "expectedConcept": "small_savings",
+    "selectedTitle": "Typography Insight",
+    "selectedUrl": "NONE",
+    "classification": "NO_SUITABLE_ASSET",
+    "isTrueVisualPass": false,
+    "failureReason": ""
+  },
+  {
+    "testId": 15,
+    "name": "Large Amount",
+    "inputScript": "The bank stored millions in secured vaults.",
+    "expectedConcept": "cash_reserve",
+    "selectedTitle": "Typography Insight",
+    "selectedUrl": "NONE",
+    "classification": "NO_SUITABLE_ASSET",
+    "isTrueVisualPass": false,
+    "failureReason": ""
+  },
+  {
+    "testId": 16,
+    "name": "Before / After",
+    "inputScript": "From a humble garage setup to a global tech giant.",
+    "expectedConcept": "garage_to_giant",
+    "selectedTitle": "High-Tech Trading & Modern City",
+    "selectedUrl": "https://remotionlambda-useast1-2zq6twaok1.s3.us-east-1.amazonaws.com/assets/reusable/images/2d/DoorDash%20Driver%20Signup%20on%20City%20Street.png",
+    "classification": "GOOD_MATCH",
+    "isTrueVisualPass": true,
+    "failureReason": ""
+  },
+  {
+    "testId": 17,
+    "name": "Specific Context",
+    "inputScript": "The researcher inspected bacteria under a microscope.",
+    "expectedConcept": "science_lab",
+    "selectedTitle": "Typography Insight",
+    "selectedUrl": "NONE",
+    "classification": "NO_SUITABLE_ASSET",
+    "isTrueVisualPass": false,
+    "failureReason": ""
+  }
+]

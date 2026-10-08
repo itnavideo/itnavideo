@@ -1,0 +1,1669 @@
+{
+  "timestamp": "2026-09-26T14:59:37.747Z",
+  "serviceAccount": "vertex-express@geometric-hull-501707-m2.iam.gserviceaccount.com",
+  "total": 166,
+  "accepted": 166,
+  "failed": 0,
+  "results": [
+    {
+      "url": "https://www.itnavideo.com/",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/pricing",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/pricing"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/tools/image-to-video-ai",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/tools/image-to-video-ai"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/image-to-video-ai",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/image-to-video-ai"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/typography-video",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/typography-video"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/video-types/typography-video",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/video-types/typography-video"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/image-to-video-ai-cost-roi-breakdown",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/image-to-video-ai-cost-roi-breakdown"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/best-ai-video-generator-luxury-real-estate",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/best-ai-video-generator-luxury-real-estate"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/why-agencies-switch-from-video-editors-to-itnavideo",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/why-agencies-switch-from-video-editors-to-itnavideo"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/dubai-real-estate-video-marketing-ai-blueprint",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/dubai-real-estate-video-marketing-ai-blueprint"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/faceless-youtube-channel-automation-profit-guide",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/faceless-youtube-channel-automation-profit-guide"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/kinetic-typography-reel-maker-commercial-guide",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/kinetic-typography-reel-maker-commercial-guide"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/capcut-pro-vs-itnavideo-pro-agency-comparison",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/capcut-pro-vs-itnavideo-pro-agency-comparison"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/turn-audio-podcast-into-viral-video-reels-profit",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/turn-audio-podcast-into-viral-video-reels-profit"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/compare-explainer-videos-ecommerce-conversion-rate",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/compare-explainer-videos-ecommerce-conversion-rate"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/whiteboard-video-ai-agency-reseller-guide",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/whiteboard-video-ai-agency-reseller-guide"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/why-german-and-japanese-brands-choose-itnavideo-motion-precision",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/why-german-and-japanese-brands-choose-itnavideo-motion-precision"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/commercial-real-estate-listing-stats-typography",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/commercial-real-estate-listing-stats-typography"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/how-australian-marketing-agencies-scale-50-client-reels",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/how-australian-marketing-agencies-scale-50-client-reels"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/the-true-roi-of-ai-video-credits-vs-hourly-contractors",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/the-true-roi-of-ai-video-credits-vs-hourly-contractors"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/from-free-tier-to-itnavideo-pro-what-you-unlock",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/from-free-tier-to-itnavideo-pro-what-you-unlock"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/video-types",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/video-types"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/video-types/explainer-video",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/video-types/explainer-video"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/video-types/social-clips",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/video-types/social-clips"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/video-types/whiteboard-video",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/video-types/whiteboard-video"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/video-types/dynamic-creator-reel",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/video-types/dynamic-creator-reel"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/video-types/auto-draw-explainer",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/video-types/auto-draw-explainer"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/tools/audio-to-video",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/tools/audio-to-video"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/tools/subtitles-generator",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/tools/subtitles-generator"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/tools/ai-audio-cleaner",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/tools/ai-audio-cleaner"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/video-types/ai-video-generator",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/video-types/ai-video-generator"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/video-types/auto-caption-generator",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/video-types/auto-caption-generator"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/video-types/auto-caption-reel",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/video-types/auto-caption-reel"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/video-types/caption-studio",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/video-types/caption-studio"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/video-types/compare-explainer",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/video-types/compare-explainer"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/video-types/faceless-video",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/video-types/faceless-video"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/video-types/long-caption-pro",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/video-types/long-caption-pro"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/video-types/long-video-clips",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/video-types/long-video-clips"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/video-types/long-video-pro",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/video-types/long-video-pro"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/video-types/long-video-promo",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/video-types/long-video-promo"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/tools/auto-caption-video-generator",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/tools/auto-caption-video-generator"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/tools/ai-reel-generator",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/tools/ai-reel-generator"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/tools/custom-ai-reel-generator",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/tools/custom-ai-reel-generator"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/tools/long-video-promo-maker",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/tools/long-video-promo-maker"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/tools/compare-explainer-video-maker",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/tools/compare-explainer-video-maker"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/tools/auto-draw-explainer-video-generator",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/tools/auto-draw-explainer-video-generator"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/tools/dynamic-explainer-video-generator",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/tools/dynamic-explainer-video-generator"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/free-ai-audio-cleaner-background-noise-remover-online",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/free-ai-audio-cleaner-background-noise-remover-online"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/free-ai-faceless-video-generator",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/free-ai-faceless-video-generator"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/whats-new-at-itnavideo-september-2026",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/whats-new-at-itnavideo-september-2026"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/what-to-do-when-itnavideo-video-takes-longer-to-generate",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/what-to-do-when-itnavideo-video-takes-longer-to-generate"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/does-itnavideo-have-a-monthly-video-duration-limit",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/does-itnavideo-have-a-monthly-video-duration-limit"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/how-to-upgrade-or-downgrade-your-itnavideo-plan",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/how-to-upgrade-or-downgrade-your-itnavideo-plan"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/introducing-itnavideo-for-real-estate-agents-save-time",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/introducing-itnavideo-for-real-estate-agents-save-time"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/why-content-creators-using-itnavideo",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/why-content-creators-using-itnavideo"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/how-to-make-whiteboard-reels-in-itnavideo",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/how-to-make-whiteboard-reels-in-itnavideo"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/ai-video-maker-vs-traditional-editing",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/ai-video-maker-vs-traditional-editing"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/how-to-scale-content-production-with-ai-video-generation",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/how-to-scale-content-production-with-ai-video-generation"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/ai-videogenerator-tools-for-educators",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/ai-videogenerator-tools-for-educators"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/best-ai-video-gen-tools-for-youtube-shorts",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/best-ai-video-gen-tools-for-youtube-shorts"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/faceless-ai-video-creator-strategy",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/faceless-ai-video-creator-strategy"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/best-ai-video-generation-platforms",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/best-ai-video-generation-platforms"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/how-to-generate-videos-with-ai-step-by-step",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/how-to-generate-videos-with-ai-step-by-step"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/best-ai-video-makers-for-social-media",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/best-ai-video-makers-for-social-media"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/text-to-video-generator-complete-guide",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/text-to-video-generator-complete-guide"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/free-ai-video-generator-tools-2026",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/free-ai-video-generator-tools-2026"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/itnavideo-vs-capcut",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/itnavideo-vs-capcut"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/itnavideo-vs-veed",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/itnavideo-vs-veed"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/best-ai-caption-generator-2026",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/best-ai-caption-generator-2026"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/itnavideo-vs-capcut-auto-captions-which-is-better-for-subtitles",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/itnavideo-vs-capcut-auto-captions-which-is-better-for-subtitles"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/what-is-auto-captioning",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/what-is-auto-captioning"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/best-caption-styles-for-reels",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/best-caption-styles-for-reels"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/why-captions-increase-video-retention",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/why-captions-increase-video-retention"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/hinglish-captions-for-indian-creators",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/hinglish-captions-for-indian-creators"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/burned-in-captions-vs-soft-subtitles",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/burned-in-captions-vs-soft-subtitles"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/caption-font-size-guide-reels",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/caption-font-size-guide-reels"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/how-to-add-captions-to-tiktok-videos",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/how-to-add-captions-to-tiktok-videos"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/auto-captions-for-educational-videos",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/auto-captions-for-educational-videos"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/caption-placement-guide-instagram-reels",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/caption-placement-guide-instagram-reels"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/ai-subtitle-generator-comparison-2026",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/ai-subtitle-generator-comparison-2026"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/how-to-caption-podcast-clips-for-social",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/how-to-caption-podcast-clips-for-social"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/subtitle-color-guide-for-reels",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/subtitle-color-guide-for-reels"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/auto-captions-for-finance-creators",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/auto-captions-for-finance-creators"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/captions-for-instagram-reels-without-computer",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/captions-for-instagram-reels-without-computer"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/word-level-captions-vs-sentence-captions",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/word-level-captions-vs-sentence-captions"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/how-to-make-captions-accessible",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/how-to-make-captions-accessible"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/how-to-add-subtitles-to-video-without-premiere",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/how-to-add-subtitles-to-video-without-premiere"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/captions-for-linkedin-video",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/captions-for-linkedin-video"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/how-subtitles-help-non-native-viewers",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/how-subtitles-help-non-native-viewers"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/caption-mistakes-to-avoid-reels",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/caption-mistakes-to-avoid-reels"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/auto-captions-for-coaching-videos",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/auto-captions-for-coaching-videos"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/difference-between-subtitles-and-captions",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/difference-between-subtitles-and-captions"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/how-to-improve-auto-caption-accuracy",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/how-to-improve-auto-caption-accuracy"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/auto-captions-for-business-videos",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/auto-captions-for-business-videos"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/karaoke-captions-vs-standard-captions",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/karaoke-captions-vs-standard-captions"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/how-to-add-captions-to-instagram-reels",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/how-to-add-captions-to-instagram-reels"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/how-to-add-captions-to-youtube-shorts",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/how-to-add-captions-to-youtube-shorts"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/how-to-create-reels-from-audio",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/how-to-create-reels-from-audio"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/how-to-turn-long-videos-into-short-promos",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/how-to-turn-long-videos-into-short-promos"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/best-ai-reel-generators",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/best-ai-reel-generators"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/itnavideo-vs-capcut-ai-reel-workflow",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/itnavideo-vs-capcut-ai-reel-workflow"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/voice-to-video-ai-tools",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/voice-to-video-ai-tools"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/best-ai-video-generator-for-youtube-shorts",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/best-ai-video-generator-for-youtube-shorts"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/how-to-make-explainer-videos-for-reels",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/how-to-make-explainer-videos-for-reels"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/convert-any-text-to-realistic-video-with-ai",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/convert-any-text-to-realistic-video-with-ai"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/best-realistic-text-to-speech-ai-social-media-videos-2026",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/best-realistic-text-to-speech-ai-social-media-videos-2026"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/use-your-own-photos-videos-audio-ai-shorts",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/use-your-own-photos-videos-audio-ai-shorts"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/create-100-shorts-reels-in-minutes-batch-video-creation",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/create-100-shorts-reels-in-minutes-batch-video-creation"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog/add-ai-voiceovers-to-videos-without-editor",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog/add-ai-voiceovers-to-videos-without-editor"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/auto-caption-reel",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/auto-caption-reel"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/blog",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/blog"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/compare-explainer",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/compare-explainer"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/long-video-promo",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/long-video-promo"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/auto-captions",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/auto-captions"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/whiteboard-video",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/whiteboard-video"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/long-video-clips",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/long-video-clips"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/long-caption-pro",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/long-caption-pro"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/faceless-video",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/faceless-video"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/caption-studio",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/caption-studio"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/auto-caption-generator",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/auto-caption-generator"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/long-video-pro",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/long-video-pro"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/ai-video-generator",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/ai-video-generator"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/custom-ai-reel",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/custom-ai-reel"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/videos",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/videos"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/create",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/create"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/features",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/features"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/tools",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/tools"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/use-cases",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/use-cases"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/compare",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/compare"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/about",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/about"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/careers",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/careers"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/contact",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/contact"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/promote-and-earn",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/promote-and-earn"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/docs",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/docs"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/ai-platform-facts",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/ai-platform-facts"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/wav-to-mp3",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/wav-to-mp3"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/waitlist",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/waitlist"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/privacy",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/privacy"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/terms",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/terms"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/ai-reel-generator",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/ai-reel-generator"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/instagram-reels-maker",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/instagram-reels-maker"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/youtube-shorts-generator",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/youtube-shorts-generator"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/ai-shorts-generator",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/ai-shorts-generator"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/ai-subtitle-generator",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/ai-subtitle-generator"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/add-subtitles-to-video",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/add-subtitles-to-video"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/auto-caption-video-generator",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/auto-caption-video-generator"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/dynamic-creator-reel-maker",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/dynamic-creator-reel-maker"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/compare-explainer-video-maker",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/compare-explainer-video-maker"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/whiteboard-video-maker",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/whiteboard-video-maker"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/long-video-promo-maker",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/long-video-promo-maker"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/audio-to-reels",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/audio-to-reels"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/hinglish-caption-generator",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/hinglish-caption-generator"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/free-ai-video-generator",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/free-ai-video-generator"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/best-ai-video-generator",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/best-ai-video-generator"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/ai-video-maker",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/ai-video-maker"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/ai-video-creator",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/ai-video-creator"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/text-to-video-generator",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/text-to-video-generator"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/use-cases/ai-video-tool-for-creators",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/use-cases/ai-video-tool-for-creators"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/use-cases/ai-video-tool-for-coaches",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/use-cases/ai-video-tool-for-coaches"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/use-cases/ai-video-tool-for-teachers",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/use-cases/ai-video-tool-for-teachers"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/use-cases/ai-video-tool-for-businesses",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/use-cases/ai-video-tool-for-businesses"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/use-cases/ai-video-tool-for-podcasters",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/use-cases/ai-video-tool-for-podcasters"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/use-cases/ai-video-tool-for-course-creators",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/use-cases/ai-video-tool-for-course-creators"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/compare/best-ai-video-tools-for-reels",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/compare/best-ai-video-tools-for-reels"
+        }
+      }
+    },
+    {
+      "url": "https://www.itnavideo.com/compare/best-auto-caption-tools",
+      "ok": true,
+      "status": 200,
+      "data": {
+        "urlNotificationMetadata": {
+          "url": "https://www.itnavideo.com/compare/best-auto-caption-tools"
+        }
+      }
+    }
+  ]
+}

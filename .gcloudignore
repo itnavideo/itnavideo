@@ -1,0 +1,17 @@
+.git/
+.gcloudignore
+node_modules/
+.next/
+*.log
+.system_generated/
+brain/
+tmp/
+*.mp4
+*.mov
+*.webm
+*.zip
+public/assets/reusable/
+public/assets/direct/
+public/assets/stickman/
+public/assets/autocaptionvideos/
+

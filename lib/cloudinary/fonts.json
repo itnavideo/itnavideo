@@ -1,0 +1,57 @@
+{
+  "Cinzel": {
+    "name": "Cinzel",
+    "slug": "cinzel",
+    "secure_url": "https://res.cloudinary.com/dhouh9idx/raw/upload/v1788458275/fonts/cinzel-bold.woff2"
+  },
+  "Inter": {
+    "name": "Inter",
+    "slug": "inter",
+    "secure_url": "https://res.cloudinary.com/dhouh9idx/raw/upload/v1788458277/fonts/inter-bold.woff2"
+  },
+  "Montserrat": {
+    "name": "Montserrat",
+    "slug": "montserrat",
+    "secure_url": "https://res.cloudinary.com/dhouh9idx/raw/upload/v1788458277/fonts/montserrat-bold.woff2"
+  },
+  "Playfair Display": {
+    "name": "Playfair Display",
+    "slug": "playfair-display",
+    "secure_url": "https://res.cloudinary.com/dhouh9idx/raw/upload/v1788458278/fonts/playfair-display-bold.woff2"
+  },
+  "Plus Jakarta Sans": {
+    "name": "Plus Jakarta Sans",
+    "slug": "plus-jakarta-sans",
+    "secure_url": "https://res.cloudinary.com/dhouh9idx/raw/upload/v1788458279/fonts/plus-jakarta-sans-bold.woff2"
+  },
+  "Bodoni Moda": {
+    "name": "Bodoni Moda",
+    "slug": "bodoni-moda",
+    "secure_url": "https://res.cloudinary.com/dhouh9idx/raw/upload/v1788458280/fonts/bodoni-moda-bold.woff2"
+  },
+  "Syne": {
+    "name": "Syne",
+    "slug": "syne",
+    "secure_url": "https://res.cloudinary.com/dhouh9idx/raw/upload/v1788458281/fonts/syne-bold.woff2"
+  },
+  "Bebas Neue": {
+    "name": "Bebas Neue",
+    "slug": "bebas-neue",
+    "secure_url": "https://res.cloudinary.com/dhouh9idx/raw/upload/v1788458281/fonts/bebas-neue-bold.woff2"
+  },
+  "Outfit": {
+    "name": "Outfit",
+    "slug": "outfit",
+    "secure_url": "https://res.cloudinary.com/dhouh9idx/raw/upload/v1788458282/fonts/outfit-bold.woff2"
+  },
+  "Poppins": {
+    "name": "Poppins",
+    "slug": "poppins",
+    "secure_url": "https://res.cloudinary.com/dhouh9idx/raw/upload/v1788458283/fonts/poppins-bold.woff2"
+  },
+  "Oswald": {
+    "name": "Oswald",
+    "slug": "oswald",
+    "secure_url": "https://res.cloudinary.com/dhouh9idx/raw/upload/v1788458283/fonts/oswald-bold.woff2"
+  }
+}

@@ -1,0 +1,9 @@
+itnavideo-60687
+                         Credentialed Accounts
+ACTIVE  ACCOUNT
+*       rohi@itnavideo.com
+        vertex-express@geometric-hull-501707-m2.iam.gserviceaccount.com
+
+To set the active account, run:
+    $ gcloud config set account `ACCOUNT`
+

@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Itnavideo — Complete Architectural & Operational Master Guide</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+    @page {
+      size: A4;
+      margin: 18mm 16mm 20mm 16mm;
+      @bottom-right {
+        content: "Page " counter(page) " of " counter(pages);
+        font-family: 'Inter', sans-serif;
+        font-size: 8pt;
+        color: #64748b;
+      }
+      @bottom-left {
+        content: "Itnavideo Internal Technical Documentation • Confidential";
+        font-family: 'Inter', sans-serif;
+        font-size: 8pt;
+        color: #64748b;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #0f172a;
+      background: #ffffff;
+      line-height: 1.6;
+      font-size: 9.5pt;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .cover {
+      page-break-after: always;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 85vh;
+      padding: 40px 20px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 12px;
+      font-size: 8.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      border-radius: 9999px;
+      background: #fff7ed;
+      color: #ea580c;
+      border: 1px solid #fed7aa;
+      margin-bottom: 20px;
+      width: fit-content;
+    }
+
+    h1.title {
+      font-size: 28pt;
+      font-weight: 900;
+      line-height: 1.15;
+      color: #0f172a;
+      letter-spacing: -0.8px;
+      margin-bottom: 12px;
+    }
+
+    h1.title span {
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 13pt;
+      color: #475569;
+      margin-bottom: 35px;
+      font-weight: 400;
+      max-width: 600px;
+      line-height: 1.5;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-top: 30px;
+      padding: 20px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      max-width: 580px;
+    }
+
+    .meta-item h4 {
+      font-size: 7.5pt;
+      text-transform: uppercase;
+      color: #64748b;
+      letter-spacing: 0.5px;
+      margin-bottom: 3px;
+    }
+
+    .meta-item p {
+      font-size: 9pt;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .page-break {
+      page-break-after: always;
+    }
+
+    h2 {
+      font-size: 15pt;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.4px;
+      margin-top: 24px;
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #fed7aa;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h3 {
+      font-size: 11.5pt;
+      font-weight: 700;
+      color: #1e293b;
+      margin-top: 16px;
+      margin-bottom: 8px;
+    }
+
+    p {
+      margin-bottom: 10px;
+      color: #334155;
+    }
+
+    ul, ol {
+      margin-left: 18px;
+      margin-bottom: 12px;
+      color: #334155;
+    }
+
+    li {
+      margin-bottom: 5px;
+    }
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8pt;
+      background: #f1f5f9;
+      padding: 2px 5px;
+      border-radius: 4px;
+      color: #0f172a;
+      border: 1px solid #e2e8f0;
+    }
+
+    pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 7.8pt;
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 12px 14px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 10px 0 14px 0;
+      line-height: 1.45;
+    }
+
+    .card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+
+    .card.highlight {
+      background: #fffaf5;
+      border-color: #ffedd5;
+      border-left: 4px solid #f97316;
+    }
+
+    .card.info {
+      background: #f0fdf4;
+      border-color: #dcfce7;
+      border-left: 4px solid #16a34a;
+    }
+
+    .card.warning {
+      background: #fefce8;
+      border-color: #fef08a;
+      border-left: 4px solid #ca8a04;
+    }
+
+    .card h4 {
+      font-size: 9.5pt;
+      font-weight: 700;
+      margin-bottom: 5px;
+      color: #0f172a;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8.5pt;
+      margin: 12px 0 16px 0;
+    }
+
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 7px 10px;
+      text-align: left;
+    }
+
+    th {
+      background: #f1f5f9;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    tr:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    .flow-step {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      background: #f97316;
+      color: #ffffff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 8.5pt;
+    }
+
+    .step-content {
+      flex: 1;
+    }
+
+    .step-content strong {
+      color: #0f172a;
+      display: block;
+      margin-bottom: 2px;
+      font-size: 9pt;
+    }
+
+    .step-content p {
+      font-size: 8.5pt;
+      margin-bottom: 4px;
+      color: #475569;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- COVER PAGE -->
+  <div class="cover">
+    <div class="badge">Architecture & Engineering Master Guide</div>
+    <h1 class="title">Everything About <span>Itnavideo</span></h1>
+    <p class="subtitle">Complete Technical Blueprint: Remotion Engine, Groq Whisper LPU, AWS Serverless Infrastructure, Video Pipelines, Pricing, and Issue Diagnostics.</p>
+    
+    <div class="meta-grid">
+      <div class="meta-item">
+        <h4>Target Project</h4>
+        <p>Itnavideo (SaaS Video Creation Engine)</p>
+      </div>
+      <div class="meta-item">
+        <h4>Core Stack</h4>
+        <p>Next.js 15, Remotion, Groq AI, AWS Lambda & S3</p>
+      </div>
+      <div class="meta-item">
+        <h4>Primary Focus</h4>
+        <p>Remotion, Groq Whisper, AWS Rendering, Billing</p>
+      </div>
+      <div class="meta-item">
+        <h4>Target Audience</h4>
+        <p>Founder & Lead Engineers (Deep Comprehension)</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLE OF CONTENTS -->
+  <h2>Table of Contents</h2>
+  <ul>
+    <li><strong>Section 1: What is Itnavideo? (High-Level Overview)</strong> — Core Mission, What it does, How the stack works together.</li>
+    <li><strong>Section 2: Deep Dive into Remotion</strong> — What is Remotion? When, where, and why we use it? How it renders video using React.</li>
+    <li><strong>Section 3: Deep Dive into Groq & Whisper AI</strong> — LPU Architecture, Speech-to-Text speed, word-level timestamps, Gemini fallback.</li>
+    <li><strong>Section 4: Deep Dive into AWS Infrastructure</strong> — S3 Storage, Lambda distributed rendering, IAM credentials, concurrency.</li>
+    <li><strong>Section 5: Video Types & Template Ecosystem</strong> — 9:16 Reels vs 16:9 Landscape YouTube Subtitles, the 5 Real Creator Styles.</li>
+    <li><strong>Section 6: Credit & Billing Architecture</strong> — Mathematical rules, deductions, 1 credit per 2 min logic, refund on failure.</li>
+    <li><strong>Section 7: Step-by-Step Lifecycle of a Video Request</strong> — Exact journey of 1 video render from upload to final MP4 download.</li>
+    <li><strong>Section 8: Timing, Performance & Bottlenecks</strong> — How many seconds each step takes, where delays happen, how to optimize.</li>
+    <li><strong>Section 9: Complete Troubleshooting & Issue Resolution Guide</strong> — Groq 429, Lambda OOM, S3 NoSuchKey, font glitches, and fixes.</li>
+  </ul>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 1 -->
+  <h2>1. What is Itnavideo? (High-Level Overview)</h2>
+  <p><strong>Itnavideo</strong> is an automated, AI-powered video rendering SaaS platform designed for content creators, podcasters, educators, and social media marketers. It eliminates the traditional video editing bottlenecks:</p>
+  
+  <div class="card highlight">
+    <h4>Core Capabilities</h4>
+    <ul>
+      <li><strong>Auto Word-Synced Kinetic Captions:</strong> Creates animated, high-retention subtitles synced to the exact millisecond of human speech.</li>
+      <li><strong>YouTube Subtitle Generator (16:9 Landscape):</strong> Adds broadcast-quality subtitles to long-form YouTube videos up to 15 minutes.</li>
+      <li><strong>Studio Audio Enhancer:</strong> Removes room echo, hiss, and hum while preserving voice clarity.</li>
+      <li><strong>Fast Cloud Video Rendering:</strong> Exports crisp 1080p Full HD MP4 videos in seconds without needing an expensive GPU laptop.</li>
+    </ul>
+  </div>
+
+  <h3>High-Level Architecture Diagram</h3>
+  <pre>
+[User Browser / Next.js Client]
+       │
+       ▼ (1. Upload Video / Audio to S3 via Presigned URL)
+[AWS S3 Input Bucket]
+       │
+       ▼ (2. Request AI Plan & Subtitles)
+[Next.js API Server: /api/reels/jobs]
+       ├──────► [Groq Whisper LPU] (1-3 sec Speech-to-Text with word timestamps)
+       │           └─ (Fallback) ──► [Google Gemini 2.0 Audio Transcription]
+       │
+       ▼ (3. Dispatch Composition ID + inputProps JSON)
+[Remotion Lambda Cluster (AWS ap-south-1)]
+       ├──────► Worker Lambda 1: Renders frames 0 to 450
+       ├──────► Worker Lambda 2: Renders frames 451 to 900
+       ├──────► Worker Lambda 3: Renders frames 901 to 1350
+       ├──────► Worker Lambda 4: Renders frames 1351 to 1800
+       │
+       ▼ (4. Stitch Frames + Mux Audio Stems into Final MP4)
+[AWS S3 Output Bucket]
+       │
+       ▼ (5. Presigned Download URL returned to User)
+[User Downloads MP4 / Plays in Browser]
+  </pre>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 2 -->
+  <h2>2. Deep Dive into Remotion</h2>
+
+  <h3>2.1 What is Remotion?</h3>
+  <p><strong>Remotion</strong> is a framework that allows developers to create MP4 videos programmatically using <strong>React, HTML, CSS, SVG, and Canvas</strong>. Instead of learning complex FFmpeg command-line scripts or writing Python MoviePy scripts, you write standard React components with props, state, and CSS animations.</p>
+
+  <h3>2.2 When and Why do we use Remotion in Itnavideo?</h3>
+  <div class="card">
+    <h4>Why NOT pure FFmpeg or traditional video editors?</h4>
+    <ul>
+      <li><strong>Dynamic Typography:</strong> Creating word-by-word kinetic highlight effects (like MrBeast or Ali Abdaal styles) in pure FFmpeg requires thousands of lines of complicated ASS subtitle filter graphs that break easily.</li>
+      <li><strong>Component Reusability:</strong> In Remotion, a subtitle pill, a progress bar, or a watermark is simply a React component (<code>&lt;MotionCaptionRenderer /&gt;</code>).</li>
+      <li><strong>Live In-Browser Preview:</strong> Remotion provides <code>@remotion/player</code> which runs client-side in the browser. Users can preview animations in real-time at 60 FPS before spending a single credit on rendering!</li>
+    </ul>
+  </div>
+
+  <h3>2.3 Where is Remotion in the Codebase?</h3>
+  <table>
+    <tr>
+      <th>Folder / File Path</th>
+      <th>Role & Functionality</th>
+    </tr>
+    <tr>
+      <td><code>remotion/index.tsx</code></td>
+      <td><strong>Root Entry Point:</strong> Calls <code>registerRoot(RemotionRoot)</code>. Registers all video compositions with Remotion.</td>
+    </tr>
+    <tr>
+      <td><code>remotion/templates/AUTO_CAPTION_GENERATOR/</code></td>
+      <td><strong>Landscape Subtitle Engine:</strong> The composition used for the YouTube Subtitle Generator (1920x1080) and 9:16 Shorts.</td>
+    </tr>
+    <tr>
+      <td><code>remotion/components/MotionCaptionRenderer.tsx</code></td>
+      <td><strong>Word-Level Kinetic Renderer:</strong> Calculates current frame time and renders active words with bounce, pop, glow, and color highlights.</td>
+    </tr>
+    <tr>
+      <td><code>remotion/types/subtitles.ts</code></td>
+      <td><strong>Style Definitions:</strong> Contains preset configs for <em>Minimal Clean, Cinematic Docu, Studio Podcast, Bold Creator, Netflix Classic</em>.</td>
+    </tr>
+    <tr>
+      <td><code>app/api/reels/jobs/route.ts</code></td>
+      <td><strong>Lambda Dispatcher:</strong> Calls <code>renderMediaOnLambda()</code> from <code>@remotion/lambda/client</code> to trigger rendering on AWS.</td>
+    </tr>
+    <tr>
+      <td><code>app/api/reels/jobs/status/route.ts</code></td>
+      <td><strong>Polling Endpoint:</strong> Calls <code>getRenderProgress()</code> to return progress percentage (0% to 100%) to the frontend progress bar.</td>
+    </tr>
+  </table>
+
+  <h3>2.4 How Remotion Works Internally</h3>
+  <div class="flow-step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <strong>Frame Concept</strong>
+      <p>Remotion treats video as a series of static frames. A 30 FPS video has 30 frames per second. A 60-second video has exactly 1,800 frames (<code>0</code> to <code>1799</code>).</p>
+    </div>
+  </div>
+  <div class="flow-step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <strong>useCurrentFrame() Hook</strong>
+      <p>Every React component inside a composition calls <code>const frame = useCurrentFrame();</code>. If <code>frame === 30</code>, Remotion calculates what the UI looks like at exactly 1.0 second.</p>
+    </div>
+  </div>
+  <div class="flow-step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <strong>Headless Chromium Capture</strong>
+      <p>Remotion opens a headless Chromium browser instance in AWS Lambda. It advances the frame counter one by one, takes a screenshot of the DOM/canvas, and passes the raw buffer to an internal FFmpeg encoder.</p>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 3 -->
+  <h2>3. Deep Dive into Groq & Whisper AI</h2>
+
+  <h3>3.1 What is Groq and what is an LPU?</h3>
+  <p><strong>Groq</strong> is an ultra-fast AI inference platform. Unlike traditional GPUs (NVIDIA A100/H100) that use high-bandwidth memory architectures, Groq invented the <strong>LPU (Language Processing Unit)</strong>, a custom chip engineered specifically for tensor processing with deterministic latency.</p>
+
+  <h3>3.2 Why Groq Whisper instead of OpenAI Whisper API?</h3>
+  <table>
+    <tr>
+      <th>Comparison Metric</th>
+      <th>Standard OpenAI Whisper API</th>
+      <th>Groq Whisper (whisper-large-v3)</th>
+    </tr>
+    <tr>
+      <td><strong>Inference Latency (1 min audio)</strong></td>
+      <td>15 to 30 seconds</td>
+      <td><strong>1.2 to 2.8 seconds</strong> (10x - 20x faster)</td>
+    </tr>
+    <tr>
+      <td><strong>Word-Level Timestamps</strong></td>
+      <td>Supported (slower)</td>
+      <td><strong>Instant word-level millisecond accuracy</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Cost per Hour of Audio</strong></td>
+      <td>~$0.36 / hr</td>
+      <td><strong>~$0.02 to $0.05 / hr</strong> (Over 80% savings)</td>
+    </tr>
+    <tr>
+      <td><strong>Impact on User Experience</strong></td>
+      <td>User waits ~30s just to see subtitles</td>
+      <td><strong>Captions appear almost instantly</strong></td>
+    </tr>
+  </table>
+
+  <h3>3.3 Where is Groq in the Codebase?</h3>
+  <ul>
+    <li>Defined in <code>app/api/reels/jobs/route.ts</code> inside <code>transcribeMediaUrlWithGroq()</code>.</li>
+    <li>Audio is extracted from the video stream and sent with model <code>whisper-large-v3</code> using <code>response_format: "verbose_json"</code> and <code>timestamp_granularities: ["word"]</code>.</li>
+    <li><strong>Dual Engine Resiliency:</strong> If Groq returns an error or HTTP 429 rate limit, Itnavideo automatically initiates <code>transcribeMediaWithGeminiFallback()</code> using Google Gemini 2.0 Audio multimodal processing. The user never experiences an error screen!</li>
+  </ul>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 4 -->
+  <h2>4. Deep Dive into AWS Infrastructure</h2>
+
+  <h3>4.1 Why AWS Lambda for Remotion?</h3>
+  <p>Rendering video locally on a standard server or your laptop takes 5 to 15 minutes and maxes out the CPU/RAM. <strong>Remotion Lambda</strong> solves this by dividing the video into chunks and rendering them across dozens of serverless Lambda instances concurrently.</p>
+
+  <div class="card info">
+    <h4>Distributed Rendering Math:</h4>
+    <p>A 15-minute video at 30 FPS has <strong>27,000 frames</strong>.<br>
+    - If rendered on 1 CPU: ~30 to 45 minutes.<br>
+    - On Remotion Lambda with concurrency = 10: 10 Lambdas render 2,700 frames each simultaneously.<br>
+    - <strong>Result:</strong> Video renders in ~3 to 4 minutes!</p>
+  </div>
+
+  <h3>4.2 AWS Components in Itnavideo</h3>
+  <table>
+    <tr>
+      <th>AWS Service</th>
+      <th>Environment Variable</th>
+      <th>Purpose</th>
+    </tr>
+    <tr>
+      <td><strong>AWS Region</strong></td>
+      <td><code>REMOTION_AWS_REGION</code></td>
+      <td>Configured to <code>ap-south-1</code> (Mumbai) for ultra-low latency in India/Asia.</td>
+    </tr>
+    <tr>
+      <td><strong>S3 Bucket</strong></td>
+      <td><code>REMOTION_LAMBDA_BUCKET_NAME</code></td>
+      <td>Stores deployed Remotion bundle, user uploads, audio stems, and output MP4 files.</td>
+    </tr>
+    <tr>
+      <td><strong>Lambda Function</strong></td>
+      <td><code>REMOTION_LAMBDA_FUNCTION_NAME</code></td>
+      <td>Custom Remotion container image with Chromium + FFmpeg pre-installed.</td>
+    </tr>
+    <tr>
+      <td><strong>Serve URL</strong></td>
+      <td><code>REMOTION_LAMBDA_SERVE_URL</code></td>
+      <td>Pre-bundled webpack site index hosted on S3 containing all React video code.</td>
+    </tr>
+    <tr>
+      <td><strong>Concurrency</strong></td>
+      <td><code>REMOTION_LAMBDA_CONCURRENCY</code></td>
+      <td>Defines how many parallel Lambda workers run simultaneously per render job.</td>
+    </tr>
+  </table>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 5 -->
+  <h2>5. Video Types & Template Ecosystem</h2>
+
+  <p>Itnavideo supports distinct video modes optimized for different creator workflows:</p>
+
+  <table>
+    <tr>
+      <th>Video Mode</th>
+      <th>Aspect Ratio & Specs</th>
+      <th>Max Duration</th>
+      <th>Pricing Model</th>
+    </tr>
+    <tr>
+      <td><strong>YouTube Subtitle Generator</strong></td>
+      <td>16:9 Landscape (1920×1080), 30 FPS</td>
+      <td><strong>15 Minutes (900s)</strong></td>
+      <td><strong>1 Credit per 2 Minutes</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Auto Caption Generator</strong></td>
+      <td>9:16 Vertical (1080×1920), 30 FPS</td>
+      <td>90 Seconds</td>
+      <td>1 Credit flat</td>
+    </tr>
+    <tr>
+      <td><strong>Compare Explainer</strong></td>
+      <td>9:16 Vertical Split-Screen, SFX</td>
+      <td>60 Seconds</td>
+      <td>1 Credit flat</td>
+    </tr>
+    <tr>
+      <td><strong>Faceless Long Video</strong></td>
+      <td>16:9 Landscape AI Narrative</td>
+      <td>5 Minutes</td>
+      <td>Tiered Credits</td>
+    </tr>
+  </table>
+
+  <h3>The 5 Real Creator Subtitle Styles</h3>
+  <div class="card">
+    <ol>
+      <li><strong>Minimal Clean</strong> (Ali Abdaal / Veritasium): Inter Sans font, translucent dark pill background, subtle highlight, zero visual clutter.</li>
+      <li><strong>Cinematic Docu</strong> (Vox / Johnny Harris): Montserrat Bold font, warm cinema off-white (<code>#F5F5F0</code>) with golden yellow keyphrase emphasis (<code>#FDE047</code>).</li>
+      <li><strong>Studio Podcast</strong> (Diary of a CEO / Huberman Lab / Joe Rogan): Poppins Bold font, matte black rounded box, maximum readability on complex background video.</li>
+      <li><strong>Bold Creator</strong> (MrBeast / MKBHD): Montserrat ExtraBold font, black stroke outline, high-energy pop animations with vibrant yellow highlights.</li>
+      <li><strong>Netflix Classic</strong> (Documentary / Cinema): Roboto Condensed font, broadcast yellow standard (<code>#FFDE00</code>) with drop shadow.</li>
+    </ol>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 6 -->
+  <h2>6. Credit & Billing Architecture</h2>
+
+  <p>Credit deduction is strictly managed in <code>lib/billing/creditPricing.ts</code> to prevent abuse and ensure transactional safety:</p>
+
+  <h3>6.1 The Mathematical Pricing Formula</h3>
+  <pre>
+export function calculateYouTubeSubtitleCreditUnits(durationSeconds: number): number {
+  const safeSeconds = Math.max(1, Math.min(15 * 60, Math.round(durationSeconds)));
+  // 1 credit for every 2 minutes (120 seconds block)
+  const creditUnits = Math.max(1, Math.ceil(safeSeconds / 120)) * CREDIT_UNITS_PER_CREDIT;
+  return creditUnits;
+}
+  </pre>
+
+  <h3>6.2 Credit Breakdown for YouTube Subtitle Generator</h3>
+  <table>
+    <tr>
+      <th>Video Duration</th>
+      <th>2-Minute Blocks</th>
+      <th>Credits Charged</th>
+    </tr>
+    <tr>
+      <td>0 to 120 seconds (0 - 2 mins)</td>
+      <td>1 block</td>
+      <td><strong>1 Credit</strong></td>
+    </tr>
+    <tr>
+      <td>121 to 240 seconds (2 - 4 mins)</td>
+      <td>2 blocks</td>
+      <td><strong>2 Credits</strong></td>
+    </tr>
+    <tr>
+      <td>241 to 360 seconds (4 - 6 mins)</td>
+      <td>3 blocks</td>
+      <td><strong>3 Credits</strong></td>
+    </tr>
+    <tr>
+      <td>541 to 600 seconds (9 - 10 mins)</td>
+      <td>5 blocks</td>
+      <td><strong>5 Credits</strong></td>
+    </tr>
+    <tr>
+      <td>841 to 900 seconds (14 - 15 mins)</td>
+      <td>8 blocks</td>
+      <td><strong>8 Credits</strong> (Max duration cap)</td>
+    </tr>
+  </table>
+
+  <div class="card warning">
+    <h4>Automatic Refund Guarantee</h4>
+    <p>If any render fails due to a network glitch, transcription failure, or Lambda timeout, the backend catches the error inside <code>app/api/reels/jobs/route.ts</code> and immediately releases the reserved credits back to the user's balance. No credits are ever lost on failed jobs.</p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 7 -->
+  <h2>7. Step-by-Step Lifecycle of a Video Request</h2>
+
+  <div class="flow-step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <strong>User Uploads Video File</strong>
+      <p>Frontend requests a presigned S3 upload URL from <code>/api/media/presign</code>. The video streams directly from the user's browser to the AWS S3 bucket (bypassing the Next.js server to avoid payload size limits).</p>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <strong>Job Creation & Credit Reservation</strong>
+      <p>Frontend triggers <code>POST /api/reels/jobs</code> with the S3 URL, duration, and chosen subtitle style. The backend verifies the user's balance and reserves the required credits.</p>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <strong>Groq Whisper Transcription</strong>
+      <p><code>transcribeMediaUrlWithGroq()</code> runs. Audio is extracted and transcribed into word-level timestamps in ~1.5 to 3 seconds.</p>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <strong>Style & Subtitle Formatting</strong>
+      <p>The words are grouped into subtitle clauses based on punctuation and reading pace, then mapped to the selected creator style preset.</p>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="step-num">5</div>
+    <div class="step-content">
+      <strong>Remotion Lambda Dispatch</strong>
+      <p>The backend calls <code>renderMediaOnLambda()</code>. Lambda instances spin up and render frame ranges concurrently.</p>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="step-num">6</div>
+    <div class="step-content">
+      <strong>Frontend Polling & Progress Updates</strong>
+      <p>Client polls <code>GET /api/reels/jobs/status?renderId=...</code> every 2 seconds. Remotion updates progress percentage from 1% to 100%.</p>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="step-num">7</div>
+    <div class="step-content">
+      <strong>Stitching & S3 MP4 Export</strong>
+      <p>The main Lambda worker stitches all rendered frame chunks, merges the original audio track, and writes the final MP4 to S3.</p>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="step-num">8</div>
+    <div class="step-content">
+      <strong>Presigned Download & Credit Finalization</strong>
+      <p>Backend confirms render success, finalizes credit deduction, and returns a secure presigned download link to the user.</p>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 8 -->
+  <h2>8. Timing, Performance & Bottlenecks</h2>
+
+  <p>Here is an empirical breakdown of how long each stage takes for a standard 60-second video vs a 10-minute long video:</p>
+
+  <table>
+    <tr>
+      <th>Pipeline Stage</th>
+      <th>60s Reel Duration</th>
+      <th>10m Long Video Duration</th>
+      <th>Where the Time is Spent</th>
+    </tr>
+    <tr>
+      <td><strong>S3 Direct Upload</strong></td>
+      <td>2 – 6 seconds</td>
+      <td>15 – 45 seconds</td>
+      <td>Depends entirely on user's internet upload bandwidth.</td>
+    </tr>
+    <tr>
+      <td><strong>Groq Whisper AI</strong></td>
+      <td><strong>1.5 – 3 seconds</strong></td>
+      <td><strong>6 – 12 seconds</strong></td>
+      <td>Groq LPU chip transcription & word timestamps.</td>
+    </tr>
+    <tr>
+      <td><strong>Lambda Cold Boot</strong></td>
+      <td>8 – 15 seconds</td>
+      <td>8 – 15 seconds</td>
+      <td>AWS container spin-up & Remotion bundle fetch.</td>
+    </tr>
+    <tr>
+      <td><strong>Frame Rendering</strong></td>
+      <td>12 – 25 seconds</td>
+      <td>90 – 160 seconds</td>
+      <td>Headless Chromium capturing React DOM elements.</td>
+    </tr>
+    <tr>
+      <td><strong>Stitching & Upload</strong></td>
+      <td>3 – 6 seconds</td>
+      <td>12 – 20 seconds</td>
+      <td>FFmpeg concatenating video chunks and encoding H.264.</td>
+    </tr>
+    <tr>
+      <td><strong>TOTAL END-TO-END</strong></td>
+      <td><strong>~28 – 55 seconds</strong></td>
+      <td><strong>~2.5 – 4.5 minutes</strong></td>
+      <td>100% automated in the cloud without user CPU load.</td>
+    </tr>
+  </table>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 9 -->
+  <h2>9. Complete Troubleshooting & Issue Resolution Guide</h2>
+
+  <div class="card">
+    <h4>Issue 1: "NoSuchKey" or S3 404 in first 20 seconds of render</h4>
+    <p><strong>Cause:</strong> When Remotion Lambda starts, the main worker has not written <code>progress.json</code> to S3 yet during container spin-up.<br>
+    <strong>Resolution:</strong> In <code>app/api/reels/jobs/status/route.ts</code>, attempts 0 to 10 treat S3 <code>NoSuchKey</code> as <code>status: 'rendering'</code> with progress = 5% instead of throwing a failure error.</p>
+  </div>
+
+  <div class="card">
+    <h4>Issue 2: Groq HTTP 429 (Rate Limit Exceeded)</h4>
+    <p><strong>Cause:</strong> High traffic or burst requests exceeding Groq's tokens-per-minute threshold.<br>
+    <strong>Resolution:</strong> The backend in <code>app/api/reels/jobs/route.ts</code> catches Groq 429 errors and automatically switches to <code>transcribeMediaWithGeminiFallback()</code>. No user intervention needed.</p>
+  </div>
+
+  <div class="card">
+    <h4>Issue 3: Remotion Lambda Timeout or Out of Memory (OOM)</h4>
+    <p><strong>Cause:</strong> Long videos (e.g. 15 minutes) render thousands of frames. If concurrency is too low (e.g. 1) or memory is 2048MB, Lambda times out at 900 seconds.<br>
+    <strong>Resolution:</strong>
+    1. Ensure Lambda memory is set to at least <strong>3008 MB</strong>.<br>
+    2. Set <code>REMOTION_LAMBDA_CONCURRENCY=4</code> or higher for long-form videos.<br>
+    3. Do NOT pass both <code>framesPerLambda</code> and <code>concurrency</code> simultaneously (Remotion Lambda SDK throws an error if both are provided).</p>
+  </div>
+
+  <div class="card">
+    <h4>Issue 4: Fonts not rendering correctly in exported MP4</h4>
+    <p><strong>Cause:</strong> Headless Chromium in AWS Lambda does not have local Windows or Mac fonts installed.<br>
+    <strong>Resolution:</strong> All fonts in Itnavideo must be loaded via <code>@remotion/google-fonts</code> (e.g. <code>loadFont('Inter')</code>, <code>loadFont('Montserrat')</code>) inside the composition template. This guarantees cross-platform font consistency.</p>
+  </div>
+
+  <div class="card">
+    <h4>Issue 5: S3 CORS Error during direct browser upload</h4>
+    <p><strong>Cause:</strong> The S3 bucket CORS configuration is missing <code>PUT</code>, <code>POST</code>, or <code>x-amz-meta-*</code> headers.<br>
+    <strong>Resolution:</strong> Verify S3 CORS rule allows <code>AllowedOrigins: ["*"]</code>, <code>AllowedMethods: ["GET", "PUT", "POST", "HEAD"]</code>, and <code>AllowedHeaders: ["*"]</code>.</p>
+  </div>
+
+  <div style="margin-top: 40px; padding: 20px; border-top: 2px solid #e2e8f0; text-align: center; color: #64748b; font-size: 8pt;">
+    Itnavideo Technical Architecture Guide • Confidential & Proprietary • Generated September 2026
+  </div>
+
+</body>
+</html>

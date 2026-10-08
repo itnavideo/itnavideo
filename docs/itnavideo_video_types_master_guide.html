@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Itnavideo — Complete Video Types Architectural Reference Guide</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+    @page {
+      size: A4;
+      margin: 16mm 14mm 18mm 14mm;
+      @bottom-right {
+        content: "Page " counter(page) " of " counter(pages);
+        font-family: 'Inter', sans-serif;
+        font-size: 8pt;
+        color: #64748b;
+      }
+      @bottom-left {
+        content: "Itnavideo Internal Technical Specification • Video Types Master Blueprint";
+        font-family: 'Inter', sans-serif;
+        font-size: 8pt;
+        color: #64748b;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #0f172a;
+      background: #ffffff;
+      line-height: 1.55;
+      font-size: 9pt;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .cover {
+      page-break-after: always;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 85vh;
+      padding: 40px 20px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 12px;
+      font-size: 8pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      border-radius: 9999px;
+      background: #fff7ed;
+      color: #ea580c;
+      border: 1px solid #fed7aa;
+      margin-bottom: 20px;
+      width: fit-content;
+    }
+
+    h1.title {
+      font-size: 26pt;
+      font-weight: 900;
+      line-height: 1.15;
+      color: #0f172a;
+      letter-spacing: -0.8px;
+      margin-bottom: 12px;
+    }
+
+    h1.title span {
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 12pt;
+      color: #475569;
+      margin-bottom: 35px;
+      font-weight: 400;
+      max-width: 620px;
+      line-height: 1.5;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-top: 30px;
+      padding: 20px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      max-width: 580px;
+    }
+
+    .meta-item h4 {
+      font-size: 7.5pt;
+      text-transform: uppercase;
+      color: #64748b;
+      letter-spacing: 0.5px;
+      margin-bottom: 3px;
+    }
+
+    .meta-item p {
+      font-size: 9pt;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .page-break {
+      page-break-after: always;
+    }
+
+    h2 {
+      font-size: 14pt;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.4px;
+      margin-top: 22px;
+      margin-bottom: 10px;
+      padding-bottom: 5px;
+      border-bottom: 2px solid #fed7aa;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h3 {
+      font-size: 11pt;
+      font-weight: 700;
+      color: #1e293b;
+      margin-top: 14px;
+      margin-bottom: 6px;
+    }
+
+    p {
+      margin-bottom: 8px;
+      color: #334155;
+    }
+
+    ul, ol {
+      margin-left: 18px;
+      margin-bottom: 10px;
+      color: #334155;
+    }
+
+    li {
+      margin-bottom: 4px;
+    }
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 7.8pt;
+      background: #f1f5f9;
+      padding: 2px 4px;
+      border-radius: 4px;
+      color: #0f172a;
+      border: 1px solid #e2e8f0;
+    }
+
+    pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 7.5pt;
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 10px 12px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 8px 0 12px 0;
+      line-height: 1.4;
+    }
+
+    .card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+    }
+
+    .card.highlight {
+      background: #fffaf5;
+      border-color: #ffedd5;
+      border-left: 4px solid #f97316;
+    }
+
+    .card.danger {
+      background: #fef2f2;
+      border-color: #fee2e2;
+      border-left: 4px solid #ef4444;
+    }
+
+    .card.info {
+      background: #f0fdf4;
+      border-color: #dcfce7;
+      border-left: 4px solid #16a34a;
+    }
+
+    .card h4 {
+      font-size: 9pt;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: #0f172a;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8pt;
+      margin: 10px 0 14px 0;
+    }
+
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 6px 8px;
+      text-align: left;
+    }
+
+    th {
+      background: #f1f5f9;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    tr:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 6px;
+      font-size: 7pt;
+      font-weight: 700;
+      border-radius: 4px;
+      text-transform: uppercase;
+      margin-right: 4px;
+    }
+    .tag.landscape { background: #e0f2fe; color: #0369a1; }
+    .tag.reel { background: #fce7f3; color: #be185d; }
+    .tag.fast { background: #dcfce7; color: #15803d; }
+    .tag.ai { background: #fef3c7; color: #b45309; }
+  </style>
+</head>
+<body>
+
+  <!-- COVER PAGE -->
+  <div class="cover">
+    <div class="badge">Master Technical Specification</div>
+    <h1 class="title">Itnavideo: <span>All Video Types</span> Deep Reference</h1>
+    <p class="subtitle">Complete Technical Blueprint covering every video template in Itnavideo: Purpose, Codebase Wiring, Architecture, AI Pipelines, Remotion Compositions, Billing Math, and Production Failure Recovery.</p>
+    
+    <div class="meta-grid">
+      <div class="meta-item">
+        <h4>Document Category</h4>
+        <p>Video Types Engine & Template Registry</p>
+      </div>
+      <div class="meta-item">
+        <h4>Core Technologies</h4>
+        <p>Remotion, React, Groq Whisper, AWS Lambda, S3</p>
+      </div>
+      <div class="meta-item">
+        <h4>Scope</h4>
+        <p>All 11 Video Formats & Creator Pipelines</p>
+      </div>
+      <div class="meta-item">
+        <h4>Target Audience</h4>
+        <p>Founders, Full-Stack Engineers & Video Architects</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLE OF CONTENTS -->
+  <h2>Master Video Types Index</h2>
+  <table>
+    <tr>
+      <th>#</th>
+      <th>Video Type Title</th>
+      <th>Aspect Ratio</th>
+      <th>Max Duration</th>
+      <th>Credit Formula</th>
+      <th>Pipeline Type</th>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td><strong>YouTube Subtitle Generator</strong></td>
+      <td>16:9 Landscape (1920×1080)</td>
+      <td>15 Minutes (900s)</td>
+      <td>1 Credit / 2 Min</td>
+      <td>Fast-Path (Groq + Remotion)</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td><strong>Auto Caption Generator</strong></td>
+      <td>9:16 Vertical (1080×1920)</td>
+      <td>90 Seconds</td>
+      <td>1 Credit Flat</td>
+      <td>Fast-Path (Groq + Remotion)</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td><strong>Compare Explainer Video</strong></td>
+      <td>9:16 Vertical Split-Screen</td>
+      <td>60 Seconds</td>
+      <td>1 Credit Flat</td>
+      <td>Asset Matcher + SFX Manifest</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td><strong>Long Video Promo</strong></td>
+      <td>9:16 Vertical Teaser</td>
+      <td>60 Seconds</td>
+      <td>1 Credit Flat</td>
+      <td>Instant Overlay (Skip Transcription)</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td><strong>Whiteboard Video</strong></td>
+      <td>9:16 Vertical Auto-Draw</td>
+      <td>60 Seconds</td>
+      <td>1 Credit Flat</td>
+      <td>Speech-Synced Whiteboard Engine</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td><strong>Typography Video</strong></td>
+      <td>9:16 Vertical Kinetic Text</td>
+      <td>60 Seconds</td>
+      <td>1 Credit Flat</td>
+      <td>Dynamic Keyword Shockwave</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td><strong>Long Video Clips</strong></td>
+      <td>9:16 Podcast/Repurposing</td>
+      <td>60 Seconds</td>
+      <td>1 Credit Flat</td>
+      <td>Clip Extract + Highlight Subtitles</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td><strong>Faceless Video / AI Video Generator</strong></td>
+      <td>16:9 Landscape Documentary</td>
+      <td>5 - 20 Minutes</td>
+      <td>Tiered Credits</td>
+      <td>AI Scene Planner + B-Roll + Canva</td>
+    </tr>
+    <tr>
+      <td>9</td>
+      <td><strong>Image To Video AI</strong></td>
+      <td>16:9 Landscape Storyteller</td>
+      <td>3 Minutes</td>
+      <td>Tiered Credits</td>
+      <td>Ken Burns Motion + Voice Sync</td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td><strong>AI Audio Cleaner</strong></td>
+      <td>Audio Voice Stems</td>
+      <td>15 Minutes</td>
+      <td>Free / 1 Credit</td>
+      <td>Echo & Noise Filter + Pause Cutter</td>
+    </tr>
+  </table>
+
+  <div class="page-break"></div>
+
+  <!-- VIDEO TYPE 1 -->
+  <h2>1. YouTube Subtitle Generator</h2>
+  <div>
+    <span class="tag landscape">16:9 Landscape</span>
+    <span class="tag fast">Fast-Path Engine</span>
+    <span class="tag">1080p Full HD</span>
+  </div>
+
+  <h3>1.1 Identity & Specs</h3>
+  <ul>
+    <li><strong>Dashboard Mode:</strong> <code>mode: "youtubeSubtitleGenerator"</code></li>
+    <li><strong>AI Registry Template:</strong> <code>YOUTUBE_SUBTITLE_GENERATOR</code></li>
+    <li><strong>Remotion Composition ID:</strong> <code>AUTO-CAPTION-GENERATOR-LANDSCAPE</code></li>
+    <li><strong>Resolution & Frame Rate:</strong> 1920 × 1080 (16:9 Landscape), 30 FPS</li>
+    <li><strong>Duration Cap:</strong> Strictly up to <strong>15 minutes (900 seconds)</strong>.</li>
+    <li><strong>Pricing Formula:</strong> <code>calculateYouTubeSubtitleCreditUnits(durationSeconds)</code> = <strong>1 credit per 2 minutes</strong> (120s blocks). Max 8 credits for 15 mins.</li>
+  </ul>
+
+  <h3>1.2 Purpose & Creator Problem Solved</h3>
+  <p>Long-form YouTube creators spend 3 to 6 hours typing and timing subtitles in Adobe Premiere or hiring freelancers on Fiverr. YouTube Subtitle Generator automates this completely in ~2 minutes with 5 high-retention creator styles.</p>
+
+  <h3>1.3 Codebase Wiring</h3>
+  <table>
+    <tr>
+      <th>Layer</th>
+      <th>File Path</th>
+      <th>Responsibility</th>
+    </tr>
+    <tr>
+      <td>Frontend Dashboard</td>
+      <td><code>app/dashboard/page.tsx</code></td>
+      <td>Registers in <code>videoTypeCards</code> (long category), manages 15-min duration validation, and renders pricing badges.</td>
+    </tr>
+    <tr>
+      <td>Planner Registry</td>
+      <td><code>services/ai/reelPlanner.ts</code></td>
+      <td>Maps <code>YOUTUBE_SUBTITLE_GENERATOR</code> with <code>skipPlanner: true</code> and <code>needsCaptionStylePicker: true</code>.</td>
+    </tr>
+    <tr>
+      <td>Fast-Path API Route</td>
+      <td><code>app/api/reels/jobs/route.ts</code></td>
+      <td>Bypasses LLM planner, sends audio straight to Groq Whisper, and invokes <code>renderMediaOnLambda()</code>.</td>
+    </tr>
+    <tr>
+      <td>Remotion Composition</td>
+      <td><code>remotion/templates/AUTO_CAPTION_GENERATOR/</code></td>
+      <td>Renders video track and overlays word-synced subtitles in 16:9 bounds.</td>
+    </tr>
+    <tr>
+      <td>Client Preview</td>
+      <td><code>components/preview/VideoTypePreviewRenderer.tsx</code></td>
+      <td>Renders live 16:9 Remotion Player without charging credits.</td>
+    </tr>
+  </table>
+
+  <h3>1.4 The 5 Curated Creator Styles</h3>
+  <ul>
+    <li><strong>Minimal Clean:</strong> Inter Sans, translucent dark pill background (Ali Abdaal / Veritasium).</li>
+    <li><strong>Cinematic Docu:</strong> Montserrat Bold, off-white text with gold keywords (Vox / Johnny Harris).</li>
+    <li><strong>Studio Podcast:</strong> Poppins Bold, matte black box for 100% legibility on busy video backdrops (Diary of a CEO).</li>
+    <li><strong>Bold Creator:</strong> Montserrat ExtraBold, black outline with yellow pop animations (MrBeast / MKBHD).</li>
+    <li><strong>Netflix Classic:</strong> Roboto Condensed, broadcast cinema yellow with drop shadow.</li>
+  </ul>
+
+  <h3>1.5 Common Errors & Technical Fixes</h3>
+  <div class="card danger">
+    <h4>Error: Video Aspect Ratio Squishing / Black Bars</h4>
+    <p><strong>Root Cause:</strong> User uploads a vertical 9:16 or square 1:1 video into YouTube Subtitle Generator.<br>
+    <strong>Fix:</strong> In <code>remotion/templates/AUTO_CAPTION_GENERATOR/template.tsx</code>, the <code>&lt;Video /&gt;</code> element uses <code>object-fit: contain</code> with a blurred mirrored background behind non-16:9 video so no content is stretched.</p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- VIDEO TYPE 2 -->
+  <h2>2. Auto Caption Generator (Reels / Shorts / TikTok)</h2>
+  <div>
+    <span class="tag reel">9:16 Vertical</span>
+    <span class="tag fast">Fast-Path Engine</span>
+  </div>
+
+  <h3>2.1 Identity & Specs</h3>
+  <ul>
+    <li><strong>Dashboard Mode:</strong> <code>mode: "autoCaption"</code></li>
+    <li><strong>AI Registry Template:</strong> <code>AUTO_CAPTION_GENERATOR</code></li>
+    <li><strong>Remotion Composition ID:</strong> <code>AUTO-CAPTION-GENERATOR</code></li>
+    <li><strong>Resolution & Frame Rate:</strong> 1080 × 1920 (9:16 Vertical), 30 FPS</li>
+    <li><strong>Duration Cap:</strong> Up to <strong>90 seconds</strong> (optimal for Instagram Reels, YouTube Shorts, TikTok).</li>
+    <li><strong>Pricing:</strong> 1 credit flat.</li>
+  </ul>
+
+  <h3>2.2 Purpose & Creator Problem Solved</h3>
+  <p>Over 75% of social media users watch Reels and TikTok videos on mute. Without animated subtitles, viewers scroll away within the first 2 seconds. Auto Caption Generator adds kinetic, word-by-word bouncing captions with active word highlighting.</p>
+
+  <h3>2.3 Codebase Wiring</h3>
+  <ul>
+    <li><code>remotion/components/MotionCaptionRenderer.tsx</code>: Calculates the exact millisecond frame window for each word using <code>useCurrentFrame()</code> and applies pop scale transformations.</li>
+    <li><code>remotion/components/library/UniversalCaptionLayer.tsx</code>: Handles safe-area padding to avoid Instagram and TikTok UI buttons (like, comment, share icons).</li>
+  </ul>
+
+  <h3>2.4 Common Errors & Technical Fixes</h3>
+  <div class="card danger">
+    <h4>Error: Subtitle words overlapping screen buttons on TikTok/Instagram</h4>
+    <p><strong>Root Cause:</strong> Subtitle position is too close to the bottom edge.<br>
+    <strong>Fix:</strong> Safe margins of <code>bottom: 240px</code> are enforced in <code>UniversalCaptionLayer.tsx</code> to keep text completely visible above user interface controls.</p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- VIDEO TYPE 3 -->
+  <h2>3. Compare Explainer Video</h2>
+  <div>
+    <span class="tag reel">9:16 Vertical</span>
+    <span class="tag ai">AI Scene Matcher</span>
+  </div>
+
+  <h3>3.1 Identity & Specs</h3>
+  <ul>
+    <li><strong>Dashboard Mode:</strong> <code>mode: "compare"</code></li>
+    <li><strong>AI Registry Template:</strong> <code>comparisonImages</code></li>
+    <li><strong>Remotion Composition ID:</strong> <code>comparisonImages</code> (mapped to <code>CompareExplainer</code>)</li>
+    <li><strong>Resolution & Frame Rate:</strong> 1080 × 1920 (9:16 Vertical), 30 FPS</li>
+    <li><strong>Duration Cap:</strong> 60 Seconds</li>
+    <li><strong>Required User Inputs:</strong> 1 Audio voiceover + 2 Images (Left Item vs Right Item) + Titles (e.g. "iPhone 16" vs "S24 Ultra").</li>
+  </ul>
+
+  <h3>3.2 Purpose & Creator Problem Solved</h3>
+  <p>Comparison videos ("Product A vs Product B", "Gym vs Home Workout", "Investing vs Real Estate") drive massive viral engagement on Reels. This template creates a split-screen layout with automated VS badges, sound effects, and voiceover synchronization.</p>
+
+  <h3>3.3 Codebase Wiring</h3>
+  <table>
+    <tr>
+      <th>Layer</th>
+      <th>File Path</th>
+      <th>Responsibility</th>
+    </tr>
+    <tr>
+      <td>Composition Template</td>
+      <td><code>remotion/templates/COMPARE_EXPLAINER/template.tsx</code></td>
+      <td>Renders split layout: Left image, Right image, center VS emblem, progress bar.</td>
+    </tr>
+    <tr>
+      <td>Sound Effects Manifest</td>
+      <td><code>remotion/templates/COMPARE_EXPLAINER/sfxManifest.ts</code></td>
+      <td>Triggers punchy sound effects (whoosh, hit, gavel, buzzer) at key speech transitions.</td>
+    </tr>
+    <tr>
+      <td>Feature Flags</td>
+      <td><code>services/ai/reelPlanner.ts</code></td>
+      <td><code>needsImages: true</code>, <code>needsCompareFields: true</code>.</td>
+    </tr>
+  </table>
+
+  <h3>3.4 Common Errors & Technical Fixes</h3>
+  <div class="card danger">
+    <h4>Error: Images distorted or unevenly cropped in split screen</h4>
+    <p><strong>Root Cause:</strong> Left and right images have drastically different aspect ratios.<br>
+    <strong>Fix:</strong> The template wraps each side in a responsive flexbox container with <code>overflow: hidden</code> and CSS <code>object-fit: cover</code> with subtle Ken Burns auto-pan so both sides look cinematic.</p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- VIDEO TYPE 4 & 5 -->
+  <h2>4. Long Video Promo</h2>
+  <div>
+    <span class="tag reel">9:16 Vertical</span>
+    <span class="tag fast">Ultra-Fast Render</span>
+  </div>
+
+  <h3>4.1 Identity & Specs</h3>
+  <ul>
+    <li><strong>Dashboard Mode:</strong> <code>mode: "longVideoPromo"</code></li>
+    <li><strong>Remotion Composition ID:</strong> <code>LONG-VIDEO-PROMO</code></li>
+    <li><strong>Inputs:</strong> 1 Video clip (10–60s) + 1 YouTube Thumbnail Image + Video Title.</li>
+    <li><strong>Execution Type:</strong> <code>skipTranscription: true</code>, <code>skipPlanner: true</code> (zero AI wait time).</li>
+  </ul>
+
+  <h3>4.2 Purpose & Creator Problem Solved</h3>
+  <p>YouTube creators need to promote their new 20-minute video on Instagram Reels or YouTube Shorts. This template overlays the YouTube thumbnail card at the top or bottom of a video teaser clip with an animated "Watch Full Video on YouTube" call-to-action.</p>
+
+  <hr style="margin: 20px 0; border: none; border-top: 1px dashed #cbd5e1;" />
+
+  <h2>5. Whiteboard Video (Auto-Draw)</h2>
+  <div>
+    <span class="tag reel">9:16 Vertical</span>
+    <span class="tag">Educational Explainer</span>
+  </div>
+
+  <h3>5.1 Identity & Specs</h3>
+  <ul>
+    <li><strong>Dashboard Mode:</strong> <code>mode: "whiteboardVideo"</code></li>
+    <li><strong>Remotion Composition ID:</strong> <code>WHITEBOARD-VIDEO</code></li>
+    <li><strong>Inputs:</strong> Spoken audio or video explainer.</li>
+    <li><strong>Resolution:</strong> 1080 × 1920 (9:16 Vertical), 30 FPS.</li>
+  </ul>
+
+  <h3>5.2 How the Auto-Draw Whiteboard Engine Works</h3>
+  <p>The system analyzes the speech transcript using NLP keyword extraction, creates bullet points and diagrams, and simulates hand-drawn SVG sketch reveals synchronized to speech pacing using Remotion's <code>interpolate()</code> stroke-dashoffset animations.</p>
+
+  <div class="page-break"></div>
+
+  <!-- VIDEO TYPE 6 & 7 -->
+  <h2>6. Typography Video</h2>
+  <div>
+    <span class="tag reel">9:16 Vertical</span>
+    <span class="tag">Kinetic Shockwave</span>
+  </div>
+
+  <h3>6.1 Identity & Specs</h3>
+  <ul>
+    <li><strong>Dashboard Mode:</strong> <code>mode: "typographyVideo"</code></li>
+    <li><strong>Remotion Composition ID:</strong> <code>TYPOGRAPHY-VIDEO</code></li>
+    <li><strong>Feature Flag:</strong> <code>needsTypographyStylePicker: true</code></li>
+    <li><strong>Inputs:</strong> Spoken voiceover or talking video.</li>
+  </ul>
+
+  <h3>6.2 Purpose & Visual Treatment</h3>
+  <p>Ideal for quotes, motivational speeches, statistics, and high-impact announcements. Instead of regular small subtitle bars, large bold typography fills the canvas, with words snapping into place with 3D camera shakes, zooms, and neon glows.</p>
+
+  <hr style="margin: 20px 0; border: none; border-top: 1px dashed #cbd5e1;" />
+
+  <h2>7. Long Video Clips (Podcast Repurposing)</h2>
+  <div>
+    <span class="tag reel">9:16 Vertical</span>
+    <span class="tag">Content Repurposing</span>
+  </div>
+
+  <h3>7.1 Identity & Specs</h3>
+  <ul>
+    <li><strong>Dashboard Mode:</strong> <code>mode: "longVideoClips"</code></li>
+    <li><strong>Remotion Composition ID:</strong> <code>LONG-VIDEO-CLIPS</code></li>
+    <li><strong>Inputs:</strong> Long video file (podcast, interview, or lecture).</li>
+    <li><strong>Output:</strong> 60-second high-energy vertical clip with creator captions.</li>
+  </ul>
+
+  <h3>7.2 How It Works</h3>
+  <p>The audio is transcribed to locate peak energy moments (highest words-per-minute or high-emotion pitch variations), extracts a 60-second clip from the source video, crops it into vertical 9:16, and overlays viral captions.</p>
+
+  <div class="page-break"></div>
+
+  <!-- VIDEO TYPE 8 & 9 -->
+  <h2>8. Faceless Video / AI Video Generator</h2>
+  <div>
+    <span class="tag landscape">16:9 Landscape</span>
+    <span class="tag ai">Full AI Scene Director</span>
+  </div>
+
+  <h3>8.1 Identity & Specs</h3>
+  <ul>
+    <li><strong>Dashboard Mode:</strong> <code>mode: "facelessVideo"</code> / <code>mode: "aiVideoGenerator"</code></li>
+    <li><strong>Remotion Composition ID:</strong> <code>FACELESS-VIDEO</code></li>
+    <li><strong>Aspect Ratio:</strong> 1920 × 1080 (16:9 Landscape)</li>
+    <li><strong>Duration:</strong> Up to <strong>20 Minutes</strong></li>
+    <li><strong>Inputs:</strong> Voiceover Audio (MP3/WAV) + Topic Script.</li>
+  </ul>
+
+  <h3>8.2 Architecture & Scene Planning Engine</h3>
+  <pre>
+[User Uploads Voiceover Audio]
+       │
+       ▼
+[Groq Whisper Transcribes Full Script]
+       │
+       ▼
+[AI Scene Planner: services/ai/visualPlanner.ts]
+  ├─ Breaks audio into 5-10 second scenes
+  ├─ Selects B-Roll video / Canva background textures
+  ├─ Chooses layout: SplitScreen, BrowserMockup, StatBadge, Connector
+  └─ Sets keyword highlights and subtitle clauses
+       │
+       ▼
+[Remotion Lambda Cluster: remotion/templates/FACELESS_VIDEO/]
+  ├─ Scene 1: Hook with Reveal animation
+  ├─ Scene 2: Stat card with CountUp animation
+  ├─ Scene 3: Browser mockup with pan animation
+  └─ Scene 4: Call to action with sound effect
+  </pre>
+
+  <h3>8.3 Common Errors & Technical Fixes</h3>
+  <div class="card danger">
+    <h4>Error: Lambda Memory Crash on 15+ Min Faceless Videos</h4>
+    <p><strong>Root Cause:</strong> Pre-loading hundreds of high-resolution B-roll images and Canva backgrounds causes Chromium to exceed 2048 MB RAM.<br>
+    <strong>Fix:</strong> Asset sequence rendering uses lazy-loaded image components with Remotion's <code>Img</code> component, and AWS Lambda function memory is allocated at <strong>3008 MB</strong>.</p>
+  </div>
+
+  <hr style="margin: 20px 0; border: none; border-top: 1px dashed #cbd5e1;" />
+
+  <h2>9. Image To Video AI</h2>
+  <div>
+    <span class="tag landscape">16:9 Landscape</span>
+    <span class="tag">Motion Photo Story</span>
+  </div>
+
+  <h3>9.1 Identity & Specs</h3>
+  <ul>
+    <li><strong>Dashboard Mode:</strong> <code>mode: "imageToVideoAi"</code></li>
+    <li><strong>Remotion Composition ID:</strong> <code>IMAGE-TO-VIDEO-AI</code></li>
+    <li><strong>Inputs:</strong> 3 to 10 Images + Narration Audio Voiceover.</li>
+    <li><strong>Effect:</strong> Smooth Ken Burns pan/zoom camera motion, cross-dissolve scene transitions, and synchronized kinetic captions.</li>
+  </ul>
+
+  <div class="page-break"></div>
+
+  <!-- VIDEO TYPE 10 -->
+  <h2>10. AI Audio Cleaner</h2>
+  <div>
+    <span class="tag fast">Audio Processor</span>
+    <span class="tag">Studio Grade</span>
+  </div>
+
+  <h3>10.1 Identity & Specs</h3>
+  <ul>
+    <li><strong>Dashboard Mode:</strong> <code>mode: "audioClean"</code></li>
+    <li><strong>Inputs:</strong> Raw voiceover or podcast audio (up to 15 mins).</li>
+    <li><strong>What it does:</strong>
+      <ul>
+        <li><strong>De-Noising:</strong> Eliminates AC hum, computer fan noise, and background street rumble.</li>
+        <li><strong>De-Reverb:</strong> Removes room echo from untreated rooms.</li>
+        <li><strong>Dead Pause Cutting:</strong> Automatically detects silent gaps > 0.6s and trims them for snappy podcast pacing.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <div class="page-break"></div>
+
+  <!-- MASTER COMPARISON MATRIX -->
+  <h2>Master Engineering Comparison Matrix</h2>
+
+  <table>
+    <tr>
+      <th>Template Name</th>
+      <th>Composition ID</th>
+      <th>Media Required</th>
+      <th>Skip AI Planner?</th>
+      <th>Fast Path?</th>
+      <th>AWS Concurrency</th>
+    </tr>
+    <tr>
+      <td><strong>YouTube Subtitle</strong></td>
+      <td><code>AUTO-CAPTION-GENERATOR-LANDSCAPE</code></td>
+      <td>Video (16:9)</td>
+      <td>Yes</td>
+      <td>Yes (Groq + Lambda)</td>
+      <td>4 – 10</td>
+    </tr>
+    <tr>
+      <td><strong>Auto Caption</strong></td>
+      <td><code>AUTO-CAPTION-GENERATOR</code></td>
+      <td>Video (9:16)</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>2 – 4</td>
+    </tr>
+    <tr>
+      <td><strong>Compare Explainer</strong></td>
+      <td><code>comparisonImages</code></td>
+      <td>Audio + 2 Images</td>
+      <td>No</td>
+      <td>No</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td><strong>Long Video Promo</strong></td>
+      <td><code>LONG-VIDEO-PROMO</code></td>
+      <td>Video + Thumbnail</td>
+      <td>Yes</td>
+      <td>Yes (Instant)</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td><strong>Whiteboard</strong></td>
+      <td><code>WHITEBOARD-VIDEO</code></td>
+      <td>Audio / Video</td>
+      <td>Yes</td>
+      <td>No</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td><strong>Typography</strong></td>
+      <td><code>TYPOGRAPHY-VIDEO</code></td>
+      <td>Audio / Video</td>
+      <td>Yes</td>
+      <td>No</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td><strong>Long Video Clips</strong></td>
+      <td><code>LONG-VIDEO-CLIPS</code></td>
+      <td>Long Video</td>
+      <td>Yes</td>
+      <td>No</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td><strong>Faceless Video</strong></td>
+      <td><code>FACELESS-VIDEO</code></td>
+      <td>Audio + Script</td>
+      <td>No (Deep LLM)</td>
+      <td>No</td>
+      <td>6 – 10</td>
+    </tr>
+    <tr>
+      <td><strong>Image To Video AI</strong></td>
+      <td><code>IMAGE-TO-VIDEO-AI</code></td>
+      <td>Audio + Images</td>
+      <td>No</td>
+      <td>No</td>
+      <td>4</td>
+    </tr>
+  </table>
+
+  <div style="margin-top: 40px; padding: 20px; border-top: 2px solid #e2e8f0; text-align: center; color: #64748b; font-size: 8pt;">
+    Itnavideo Technical Specification • Video Types Master Blueprint • Confidential • Generated September 2026
+  </div>
+
+</body>
+</html>

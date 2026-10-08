@@ -1,0 +1,1003 @@
+{
+  "version": 1,
+  "generatedAt": "2026-09-30T09:22:05.639Z",
+  "purpose": "Core reusable SFX library for Itnavideo reels.",
+  "count": 50,
+  "items": [
+    {
+      "id": "whoosh-short",
+      "title": "Whoosh Short",
+      "category": "transition",
+      "style": "synthetic-video-safe",
+      "use_case": "Scene changes, card transitions, image changes.",
+      "file": "reusable/sound-effects/whoosh-short.wav",
+      "src": "/assets/reusable/sound-effects/whoosh-short.wav",
+      "tags": [
+        "transition",
+        "whoosh",
+        "short",
+        "scene-change",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.34,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "whoosh-medium",
+      "title": "Whoosh Medium",
+      "category": "transition",
+      "style": "synthetic-video-safe",
+      "use_case": "Scene changes, card transitions, image changes.",
+      "file": "reusable/sound-effects/whoosh-medium.wav",
+      "src": "/assets/reusable/sound-effects/whoosh-medium.wav",
+      "tags": [
+        "transition",
+        "whoosh",
+        "medium",
+        "card-transition",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.52,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "whoosh-fast",
+      "title": "Whoosh Fast",
+      "category": "transition",
+      "style": "synthetic-video-safe",
+      "use_case": "Scene changes, card transitions, image changes.",
+      "file": "reusable/sound-effects/whoosh-fast.wav",
+      "src": "/assets/reusable/sound-effects/whoosh-fast.wav",
+      "tags": [
+        "transition",
+        "whoosh",
+        "fast",
+        "swipe",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.22,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "swipe-left",
+      "title": "Swipe Left",
+      "category": "transition",
+      "style": "synthetic-video-safe",
+      "use_case": "Scene changes, card transitions, image changes.",
+      "file": "reusable/sound-effects/swipe-left.wav",
+      "src": "/assets/reusable/sound-effects/swipe-left.wav",
+      "tags": [
+        "transition",
+        "swipe",
+        "left",
+        "image-change",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.34,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "swipe-right",
+      "title": "Swipe Right",
+      "category": "transition",
+      "style": "synthetic-video-safe",
+      "use_case": "Scene changes, card transitions, image changes.",
+      "file": "reusable/sound-effects/swipe-right.wav",
+      "src": "/assets/reusable/sound-effects/swipe-right.wav",
+      "tags": [
+        "transition",
+        "swipe",
+        "right",
+        "image-change",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.34,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "air-rush",
+      "title": "Air Rush",
+      "category": "transition",
+      "style": "synthetic-video-safe",
+      "use_case": "Scene changes, card transitions, image changes.",
+      "file": "reusable/sound-effects/air-rush.wav",
+      "src": "/assets/reusable/sound-effects/air-rush.wav",
+      "tags": [
+        "transition",
+        "air",
+        "rush",
+        "fast-motion",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.34,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "transition-sweep",
+      "title": "Transition Sweep",
+      "category": "transition",
+      "style": "synthetic-video-safe",
+      "use_case": "Scene changes, card transitions, image changes.",
+      "file": "reusable/sound-effects/transition-sweep.wav",
+      "src": "/assets/reusable/sound-effects/transition-sweep.wav",
+      "tags": [
+        "transition",
+        "sweep",
+        "scene-change",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.52,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "pop-soft",
+      "title": "Pop Soft",
+      "category": "text-pop",
+      "style": "synthetic-video-safe",
+      "use_case": "Keywords, statistics, CTA text, and reveal moments.",
+      "file": "reusable/sound-effects/pop-soft.wav",
+      "src": "/assets/reusable/sound-effects/pop-soft.wav",
+      "tags": [
+        "text-pop",
+        "pop",
+        "soft",
+        "keyword",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.18,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "pop-medium",
+      "title": "Pop Medium",
+      "category": "text-pop",
+      "style": "synthetic-video-safe",
+      "use_case": "Keywords, statistics, CTA text, and reveal moments.",
+      "file": "reusable/sound-effects/pop-medium.wav",
+      "src": "/assets/reusable/sound-effects/pop-medium.wav",
+      "tags": [
+        "text-pop",
+        "pop",
+        "medium",
+        "stat",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.18,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "pop-strong",
+      "title": "Pop Strong",
+      "category": "text-pop",
+      "style": "synthetic-video-safe",
+      "use_case": "Keywords, statistics, CTA text, and reveal moments.",
+      "file": "reusable/sound-effects/pop-strong.wav",
+      "src": "/assets/reusable/sound-effects/pop-strong.wav",
+      "tags": [
+        "text-pop",
+        "pop",
+        "strong",
+        "cta",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.18,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "bubble-pop",
+      "title": "Bubble Pop",
+      "category": "text-pop",
+      "style": "synthetic-video-safe",
+      "use_case": "Keywords, statistics, CTA text, and reveal moments.",
+      "file": "reusable/sound-effects/bubble-pop.wav",
+      "src": "/assets/reusable/sound-effects/bubble-pop.wav",
+      "tags": [
+        "text-pop",
+        "bubble",
+        "pop",
+        "playful",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.18,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "ui-click-pop",
+      "title": "UI Click Pop",
+      "category": "text-pop",
+      "style": "synthetic-video-safe",
+      "use_case": "Keywords, statistics, CTA text, and reveal moments.",
+      "file": "reusable/sound-effects/ui-click-pop.wav",
+      "src": "/assets/reusable/sound-effects/ui-click-pop.wav",
+      "tags": [
+        "text-pop",
+        "ui",
+        "click",
+        "pop",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.18,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "mouse-click",
+      "title": "Mouse Click",
+      "category": "ui",
+      "style": "synthetic-video-safe",
+      "use_case": "Finance, AI, tech, SaaS, forms, and interface actions.",
+      "file": "reusable/sound-effects/mouse-click.wav",
+      "src": "/assets/reusable/sound-effects/mouse-click.wav",
+      "tags": [
+        "ui",
+        "mouse",
+        "click",
+        "interface",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.065,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "soft-click",
+      "title": "Soft Click",
+      "category": "ui",
+      "style": "synthetic-video-safe",
+      "use_case": "Finance, AI, tech, SaaS, forms, and interface actions.",
+      "file": "reusable/sound-effects/soft-click.wav",
+      "src": "/assets/reusable/sound-effects/soft-click.wav",
+      "tags": [
+        "ui",
+        "soft",
+        "click",
+        "interface",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.065,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "keyboard-tap",
+      "title": "Keyboard Tap",
+      "category": "ui",
+      "style": "synthetic-video-safe",
+      "use_case": "Finance, AI, tech, SaaS, forms, and interface actions.",
+      "file": "reusable/sound-effects/keyboard-tap.wav",
+      "src": "/assets/reusable/sound-effects/keyboard-tap.wav",
+      "tags": [
+        "ui",
+        "keyboard",
+        "typing",
+        "tap",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.08,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "notification-ding",
+      "title": "Notification Ding",
+      "category": "ui",
+      "style": "synthetic-video-safe",
+      "use_case": "Finance, AI, tech, SaaS, forms, and interface actions.",
+      "file": "reusable/sound-effects/notification-ding.wav",
+      "src": "/assets/reusable/sound-effects/notification-ding.wav",
+      "tags": [
+        "ui",
+        "notification",
+        "ding",
+        "app",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.62,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "success-chime",
+      "title": "Success Chime",
+      "category": "ui",
+      "style": "synthetic-video-safe",
+      "use_case": "Finance, AI, tech, SaaS, forms, and interface actions.",
+      "file": "reusable/sound-effects/success-chime.wav",
+      "src": "/assets/reusable/sound-effects/success-chime.wav",
+      "tags": [
+        "ui",
+        "success",
+        "chime",
+        "positive",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.62,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "toggle-switch",
+      "title": "Toggle Switch",
+      "category": "ui",
+      "style": "synthetic-video-safe",
+      "use_case": "Finance, AI, tech, SaaS, forms, and interface actions.",
+      "file": "reusable/sound-effects/toggle-switch.wav",
+      "src": "/assets/reusable/sound-effects/toggle-switch.wav",
+      "tags": [
+        "ui",
+        "toggle",
+        "switch",
+        "interface",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.065,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "digital-beep",
+      "title": "Digital Beep",
+      "category": "ui",
+      "style": "synthetic-video-safe",
+      "use_case": "Finance, AI, tech, SaaS, forms, and interface actions.",
+      "file": "reusable/sound-effects/digital-beep.wav",
+      "src": "/assets/reusable/sound-effects/digital-beep.wav",
+      "tags": [
+        "ui",
+        "digital",
+        "beep",
+        "tech",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.14,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "counter-tick",
+      "title": "Counter Tick",
+      "category": "statistic",
+      "style": "synthetic-video-safe",
+      "use_case": "Salary, revenue, vacancy, exam stats, and count-up moments.",
+      "file": "reusable/sound-effects/counter-tick.wav",
+      "src": "/assets/reusable/sound-effects/counter-tick.wav",
+      "tags": [
+        "statistic",
+        "counter",
+        "tick",
+        "number",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.14,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "count-up-beep",
+      "title": "Count Up Beep",
+      "category": "statistic",
+      "style": "synthetic-video-safe",
+      "use_case": "Salary, revenue, vacancy, exam stats, and count-up moments.",
+      "file": "reusable/sound-effects/count-up-beep.wav",
+      "src": "/assets/reusable/sound-effects/count-up-beep.wav",
+      "tags": [
+        "statistic",
+        "count-up",
+        "beep",
+        "number",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.14,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "data-pulse",
+      "title": "Data Pulse",
+      "category": "statistic",
+      "style": "synthetic-video-safe",
+      "use_case": "Salary, revenue, vacancy, exam stats, and count-up moments.",
+      "file": "reusable/sound-effects/data-pulse.wav",
+      "src": "/assets/reusable/sound-effects/data-pulse.wav",
+      "tags": [
+        "statistic",
+        "data",
+        "pulse",
+        "analytics",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.34,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "score-reveal",
+      "title": "Score Reveal",
+      "category": "statistic",
+      "style": "synthetic-video-safe",
+      "use_case": "Salary, revenue, vacancy, exam stats, and count-up moments.",
+      "file": "reusable/sound-effects/score-reveal.wav",
+      "src": "/assets/reusable/sound-effects/score-reveal.wav",
+      "tags": [
+        "statistic",
+        "score",
+        "reveal",
+        "number",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.34,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "digital-tick",
+      "title": "Digital Tick",
+      "category": "statistic",
+      "style": "synthetic-video-safe",
+      "use_case": "Salary, revenue, vacancy, exam stats, and count-up moments.",
+      "file": "reusable/sound-effects/digital-tick.wav",
+      "src": "/assets/reusable/sound-effects/digital-tick.wav",
+      "tags": [
+        "statistic",
+        "digital",
+        "tick",
+        "stat",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.14,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "hit-soft",
+      "title": "impact",
+      "category": "impact",
+      "style": "synthetic-video-safe",
+      "use_case": "Hooks, shocking facts, and important revelations.",
+      "file": "reusable/sound-effects/hit-soft.wav",
+      "src": "/assets/reusable/sound-effects/hit-soft.wav",
+      "tags": [
+        "impact",
+        "hit",
+        "soft",
+        "emphasis",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.28,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "hit-medium",
+      "title": "Hit Medium",
+      "category": "impact",
+      "style": "synthetic-video-safe",
+      "use_case": "Hooks, shocking facts, and important revelations.",
+      "file": "reusable/sound-effects/hit-medium.wav",
+      "src": "/assets/reusable/sound-effects/hit-medium.wav",
+      "tags": [
+        "impact",
+        "hit",
+        "medium",
+        "hook",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.28,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "hit-strong",
+      "title": "Hit Strong",
+      "category": "impact",
+      "style": "synthetic-video-safe",
+      "use_case": "Hooks, shocking facts, and important revelations.",
+      "file": "reusable/sound-effects/hit-strong.wav",
+      "src": "/assets/reusable/sound-effects/hit-strong.wav",
+      "tags": [
+        "impact",
+        "hit",
+        "strong",
+        "reveal",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.48,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "bass-drop-light",
+      "title": "Bass Drop Light",
+      "category": "impact",
+      "style": "synthetic-video-safe",
+      "use_case": "Hooks, shocking facts, and important revelations.",
+      "file": "reusable/sound-effects/bass-drop-light.wav",
+      "src": "/assets/reusable/sound-effects/bass-drop-light.wav",
+      "tags": [
+        "impact",
+        "bass-drop",
+        "light",
+        "shock",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.48,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "cinematic-boom",
+      "title": "Cinematic Boom",
+      "category": "impact",
+      "style": "synthetic-video-safe",
+      "use_case": "Hooks, shocking facts, and important revelations.",
+      "file": "reusable/sound-effects/cinematic-boom.wav",
+      "src": "/assets/reusable/sound-effects/cinematic-boom.wav",
+      "tags": [
+        "impact",
+        "boom",
+        "cinematic",
+        "important",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.78,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "warning-beep",
+      "title": "Warning Beep",
+      "category": "warning",
+      "style": "synthetic-video-safe",
+      "use_case": "Mistakes, risks, scams, errors, and warning cards.",
+      "file": "reusable/sound-effects/warning-beep.wav",
+      "src": "/assets/reusable/sound-effects/warning-beep.wav",
+      "tags": [
+        "warning",
+        "beep",
+        "risk",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.14,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "alarm-tick",
+      "title": "Alarm Tick",
+      "category": "warning",
+      "style": "synthetic-video-safe",
+      "use_case": "Mistakes, risks, scams, errors, and warning cards.",
+      "file": "reusable/sound-effects/alarm-tick.wav",
+      "src": "/assets/reusable/sound-effects/alarm-tick.wav",
+      "tags": [
+        "warning",
+        "alarm",
+        "tick",
+        "deadline",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.14,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "negative-buzz",
+      "title": "Negative Buzz",
+      "category": "warning",
+      "style": "synthetic-video-safe",
+      "use_case": "Mistakes, risks, scams, errors, and warning cards.",
+      "file": "reusable/sound-effects/negative-buzz.wav",
+      "src": "/assets/reusable/sound-effects/negative-buzz.wav",
+      "tags": [
+        "warning",
+        "negative",
+        "buzz",
+        "mistake",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.28,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "error-sound",
+      "title": "Error Sound",
+      "category": "warning",
+      "style": "synthetic-video-safe",
+      "use_case": "Mistakes, risks, scams, errors, and warning cards.",
+      "file": "reusable/sound-effects/error-sound.wav",
+      "src": "/assets/reusable/sound-effects/error-sound.wav",
+      "tags": [
+        "warning",
+        "error",
+        "sound",
+        "wrong",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.28,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "achievement-unlock",
+      "title": "Achievement Unlock",
+      "category": "success",
+      "style": "synthetic-video-safe",
+      "use_case": "Job selection, achievement, positive CTA, and income growth.",
+      "file": "reusable/sound-effects/achievement-unlock.wav",
+      "src": "/assets/reusable/sound-effects/achievement-unlock.wav",
+      "tags": [
+        "success",
+        "achievement",
+        "unlock",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.62,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "trophy-sound",
+      "title": "Trophy Sound",
+      "category": "success",
+      "style": "synthetic-video-safe",
+      "use_case": "Job selection, achievement, positive CTA, and income growth.",
+      "file": "reusable/sound-effects/trophy-sound.wav",
+      "src": "/assets/reusable/sound-effects/trophy-sound.wav",
+      "tags": [
+        "success",
+        "trophy",
+        "win",
+        "achievement",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.62,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "cash-register",
+      "title": "Cash Register",
+      "category": "finance",
+      "style": "synthetic-video-safe",
+      "use_case": "Salary, banking, investment, payment, and business scenes.",
+      "file": "reusable/sound-effects/cash-register.wav",
+      "src": "/assets/reusable/sound-effects/cash-register.wav",
+      "tags": [
+        "finance",
+        "cash",
+        "register",
+        "payment",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.46,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "coin-drop",
+      "title": "Coin Drop",
+      "category": "finance",
+      "style": "synthetic-video-safe",
+      "use_case": "Salary, banking, investment, payment, and business scenes.",
+      "file": "reusable/sound-effects/coin-drop.wav",
+      "src": "/assets/reusable/sound-effects/coin-drop.wav",
+      "tags": [
+        "finance",
+        "coin",
+        "drop",
+        "money",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.48,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "success-bell",
+      "title": "Success Bell",
+      "category": "success",
+      "style": "synthetic-video-safe",
+      "use_case": "Job selection, achievement, positive CTA, and income growth.",
+      "file": "reusable/sound-effects/success-bell.wav",
+      "src": "/assets/reusable/sound-effects/success-bell.wav",
+      "tags": [
+        "success",
+        "bell",
+        "selected",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.62,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "coin-stack",
+      "title": "Coin Stack",
+      "category": "finance",
+      "style": "synthetic-video-safe",
+      "use_case": "Salary, banking, investment, payment, and business scenes.",
+      "file": "reusable/sound-effects/coin-stack.wav",
+      "src": "/assets/reusable/sound-effects/coin-stack.wav",
+      "tags": [
+        "finance",
+        "coin",
+        "stack",
+        "salary",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.46,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "cash-count",
+      "title": "Cash Count",
+      "category": "finance",
+      "style": "synthetic-video-safe",
+      "use_case": "Salary, banking, investment, payment, and business scenes.",
+      "file": "reusable/sound-effects/cash-count.wav",
+      "src": "/assets/reusable/sound-effects/cash-count.wav",
+      "tags": [
+        "finance",
+        "cash",
+        "count",
+        "money",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.46,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "wallet-open",
+      "title": "Wallet Open",
+      "category": "finance",
+      "style": "synthetic-video-safe",
+      "use_case": "Salary, banking, investment, payment, and business scenes.",
+      "file": "reusable/sound-effects/wallet-open.wav",
+      "src": "/assets/reusable/sound-effects/wallet-open.wav",
+      "tags": [
+        "finance",
+        "wallet",
+        "open",
+        "payment",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.46,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "payment-success",
+      "title": "Payment Success",
+      "category": "finance",
+      "style": "synthetic-video-safe",
+      "use_case": "Salary, banking, investment, payment, and business scenes.",
+      "file": "reusable/sound-effects/payment-success.wav",
+      "src": "/assets/reusable/sound-effects/payment-success.wav",
+      "tags": [
+        "finance",
+        "payment",
+        "success",
+        "upi",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.46,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "pen-writing",
+      "title": "Pen Writing",
+      "category": "education",
+      "style": "synthetic-video-safe",
+      "use_case": "SSC, UPSC, RBI, IBPS, notes, documents, and study scenes.",
+      "file": "reusable/sound-effects/pen-writing.wav",
+      "src": "/assets/reusable/sound-effects/pen-writing.wav",
+      "tags": [
+        "education",
+        "pen",
+        "writing",
+        "notes",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.5,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "page-flip",
+      "title": "Page Flip",
+      "category": "education",
+      "style": "synthetic-video-safe",
+      "use_case": "SSC, UPSC, RBI, IBPS, notes, documents, and study scenes.",
+      "file": "reusable/sound-effects/page-flip.wav",
+      "src": "/assets/reusable/sound-effects/page-flip.wav",
+      "tags": [
+        "education",
+        "page",
+        "flip",
+        "study",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.5,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "paper-turn",
+      "title": "Paper Turn",
+      "category": "education",
+      "style": "synthetic-video-safe",
+      "use_case": "SSC, UPSC, RBI, IBPS, notes, documents, and study scenes.",
+      "file": "reusable/sound-effects/paper-turn.wav",
+      "src": "/assets/reusable/sound-effects/paper-turn.wav",
+      "tags": [
+        "education",
+        "paper",
+        "turn",
+        "exam",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.5,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "exam-bell",
+      "title": "Exam Bell",
+      "category": "education",
+      "style": "synthetic-video-safe",
+      "use_case": "SSC, UPSC, RBI, IBPS, notes, documents, and study scenes.",
+      "file": "reusable/sound-effects/exam-bell.wav",
+      "src": "/assets/reusable/sound-effects/exam-bell.wav",
+      "tags": [
+        "education",
+        "exam",
+        "bell",
+        "school",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.62,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "stamp-approved",
+      "title": "Stamp Approved",
+      "category": "education",
+      "style": "synthetic-video-safe",
+      "use_case": "SSC, UPSC, RBI, IBPS, notes, documents, and study scenes.",
+      "file": "reusable/sound-effects/stamp-approved.wav",
+      "src": "/assets/reusable/sound-effects/stamp-approved.wav",
+      "tags": [
+        "education",
+        "stamp",
+        "approved",
+        "document",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.24,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "typing-fast",
+      "title": "Typing Fast",
+      "category": "office",
+      "style": "synthetic-video-safe",
+      "use_case": "Corporate jobs, career videos, office workflows, and documents.",
+      "file": "reusable/sound-effects/typing-fast.wav",
+      "src": "/assets/reusable/sound-effects/typing-fast.wav",
+      "tags": [
+        "office",
+        "typing",
+        "fast",
+        "keyboard",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.72,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "printer-sound",
+      "title": "Printer Sound",
+      "category": "office",
+      "style": "synthetic-video-safe",
+      "use_case": "Corporate jobs, career videos, office workflows, and documents.",
+      "file": "reusable/sound-effects/printer-sound.wav",
+      "src": "/assets/reusable/sound-effects/printer-sound.wav",
+      "tags": [
+        "office",
+        "printer",
+        "document",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.74,
+      "license": "generated in-repo; no third-party sample recording"
+    },
+    {
+      "id": "end-stinger",
+      "title": "End Stinger",
+      "category": "cta",
+      "style": "synthetic-video-safe",
+      "use_case": "Like, comment, follow, subscribe, and ending moments.",
+      "file": "reusable/sound-effects/end-stinger.wav",
+      "src": "/assets/reusable/sound-effects/end-stinger.wav",
+      "tags": [
+        "cta",
+        "end",
+        "stinger",
+        "subscribe",
+        "sfx",
+        "short-reel",
+        "reusable"
+      ],
+      "durationSeconds": 0.72,
+      "license": "generated in-repo; no third-party sample recording"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+﻿
+Path                                               
+----                                               
+C:\Users\user\.gemini\antigravity\scratch\itnavideo
+
+
+True
+True
