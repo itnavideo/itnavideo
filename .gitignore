@@ -87,6 +87,8 @@ __pycache__/
 # Database & Secrets
 *.db
 *.sqlite
+env.json
+*.env.json
 auth_key.json
 firebase-adminsdk.json
 gcp-credentials.json
