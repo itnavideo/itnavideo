@@ -1,7 +1,7 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { Inter, Plus_Jakarta_Sans, JetBrains_Mono, Instrument_Serif, Playfair_Display, Caveat, Lora } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans, JetBrains_Mono, Instrument_Serif, Playfair_Display, Caveat, Lora, Newsreader } from "next/font/google";
 import { AuthProvider } from '@/components/auth/AuthContext';
 import { Toaster } from 'sonner';
 import AppChrome from '@/components/layout/AppChrome';
@@ -75,6 +75,15 @@ const lora = Lora({
   variable: "--font-editorial",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  display: "swap",
+  preload: true,
+});
+
+const newsreader = Newsreader({
+  variable: "--font-newsreader",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
   style: ["normal", "italic"],
   display: "swap",
   preload: true,
@@ -221,7 +230,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`scroll-smooth ${inter.variable} ${plusJakartaSans.variable} ${jetbrainsMono.variable} ${instrumentSerif.variable} ${playfairDisplay.variable} ${caveat.variable} ${lora.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`scroll-smooth ${inter.variable} ${plusJakartaSans.variable} ${jetbrainsMono.variable} ${instrumentSerif.variable} ${playfairDisplay.variable} ${caveat.variable} ${lora.variable} ${newsreader.variable}`}>
       <head>
         <meta name="google-adsense-account" content="ca-pub-7016787089009547" />
         <script
@@ -231,7 +240,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.variable} ${plusJakartaSans.variable} ${jetbrainsMono.variable} ${instrumentSerif.variable} ${playfairDisplay.variable} ${caveat.variable} ${lora.variable} font-sans bg-background text-foreground antialiased`}
+        className={`${inter.variable} ${plusJakartaSans.variable} ${jetbrainsMono.variable} ${instrumentSerif.variable} ${playfairDisplay.variable} ${caveat.variable} ${lora.variable} ${newsreader.variable} font-sans bg-background text-foreground antialiased`}
       >
         <script
           type="application/ld+json"

@@ -29,19 +29,19 @@ export default function Hero() {
 
       <div className="relative z-10 mx-auto max-w-6xl text-center">
 
-        {/* Main Hero Headline with Central AI Video Generator Keyword */}
+        {/* Main Hero Headline with Editorial Serif Font (Invideo Reference Style) */}
         <motion.h1
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05, duration: 0.5 }}
-          className="text-4xl font-black tracking-tight text-white sm:text-6xl md:text-7xl lg:text-[82px] leading-[1.05] max-w-5xl mx-auto"
+          className="text-4xl sm:text-6xl md:text-7xl lg:text-[80px] font-[family-name:var(--font-newsreader)] font-normal tracking-tight text-white leading-[1.08] max-w-5xl mx-auto"
         >
           The Free{' '}
-          <span className="bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] bg-clip-text text-transparent italic">
             AI Video Generator
           </span>
           <br />
-          <span className="text-slate-100">For Creators & Brands</span>
+          <span className="text-zinc-100">For Creators & Brands</span>
         </motion.h1>
 
         {/* Hero Subtitle */}
