@@ -103,8 +103,8 @@ export default function Navbar() {
               ? 'border-slate-200 bg-white/95 text-slate-900 backdrop-blur-md shadow-xs'
               : 'border-slate-100 bg-white/90 text-slate-900 backdrop-blur-md shadow-none'
             : scrolled
-              ? 'border-white/10 bg-[#070B14]/90 text-white backdrop-blur-2xl shadow-2xl shadow-black/60'
-              : 'border-white/[0.08] bg-[#070B14]/75 text-white backdrop-blur-xl shadow-lg shadow-black/20'
+              ? 'border-white/10 bg-[#070B14]/95 text-white backdrop-blur-2xl shadow-xl shadow-black/50'
+              : 'border-white/[0.06] bg-[#070B14]/70 text-white backdrop-blur-xl'
         }`}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between">
@@ -115,7 +115,7 @@ export default function Navbar() {
 
             {/* DESKTOP NAVIGATION LINKS */}
             {!isDashboard && (
-              <nav className={`hidden lg:flex items-center gap-6 text-sm font-medium ${isLightPage ? 'text-slate-600' : 'text-zinc-300'}`}>
+              <nav className={`hidden lg:flex items-center gap-7 text-sm font-medium ${isLightPage ? 'text-slate-600' : 'text-zinc-300'}`}>
                 
                 {/* Product Dropdown */}
                 <div className="relative">
@@ -138,7 +138,7 @@ export default function Navbar() {
                     <div className={`absolute left-0 top-full mt-3 w-80 rounded-2xl border p-2 shadow-2xl backdrop-blur-3xl animate-in fade-in zoom-in-95 duration-150 ${
                       isLightPage
                         ? 'border-slate-200 bg-white text-slate-900 shadow-slate-900/10'
-                        : 'border-white/[0.08] bg-[#0F1117] text-zinc-100 ring-1 ring-white/10'
+                        : 'border-white/10 bg-[#0B101D] text-zinc-100 ring-1 ring-white/10 shadow-black/80'
                     }`}>
                       {PRODUCT_ITEMS.map((item) => {
                         const Icon = item.icon;
@@ -256,7 +256,7 @@ export default function Navbar() {
                     <div className={`absolute left-0 top-full mt-3 w-72 rounded-2xl border p-2 shadow-2xl backdrop-blur-3xl animate-in fade-in zoom-in-95 duration-150 ${
                       isLightPage
                         ? 'border-slate-200 bg-white text-slate-900 shadow-slate-900/10'
-                        : 'border-white/[0.08] bg-[#0F1117] text-zinc-100 ring-1 ring-white/10'
+                        : 'border-white/10 bg-[#0B101D] text-zinc-100 ring-1 ring-white/10 shadow-black/80'
                     }`}>
                       {RESOURCE_ITEMS.map((item) => {
                         const Icon = item.icon;
@@ -266,11 +266,11 @@ export default function Navbar() {
                             href={item.href}
                             onClick={() => setActiveMenu(null)}
                             className={`flex items-start gap-3 rounded-xl p-2.5 transition group ${
-                              isLightPage ? 'hover:bg-slate-50' : 'hover:bg-[#151821]'
+                              isLightPage ? 'hover:bg-slate-50' : 'hover:bg-[#151E30]'
                             }`}
                           >
                             <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-[#FF9100] transition ${
-                              isLightPage ? 'bg-slate-100 border-slate-200' : 'bg-[#151821] border-white/10'
+                              isLightPage ? 'bg-slate-100 border-slate-200' : 'bg-[#151E30] border-white/10'
                             }`}>
                               <Icon size={16} />
                             </div>
@@ -319,7 +319,7 @@ export default function Navbar() {
                 <div className={`absolute right-0 top-full mt-3 w-36 rounded-xl border p-1.5 text-xs shadow-2xl backdrop-blur-2xl ${
                   isLightPage
                     ? 'border-slate-200 bg-white text-slate-800'
-                    : 'border-white/[0.08] bg-[#0F1117] text-zinc-200'
+                    : 'border-white/10 bg-[#0B101D] text-zinc-200 shadow-black/80'
                 }`}>
                   <button type="button" onClick={() => setActiveMenu(null)} className={`w-full text-left rounded-lg px-3 py-1.5 font-bold ${
                     isLightPage ? 'bg-slate-100 text-slate-900' : 'bg-white/10 text-white'
@@ -339,7 +339,7 @@ export default function Navbar() {
                   className={`flex items-center gap-2 rounded-full border px-3.5 py-1.5 transition text-left cursor-pointer ${
                     isLightPage
                       ? 'border-slate-200 bg-slate-100 hover:bg-slate-200'
-                      : 'border-white/15 bg-[#0F1117] hover:bg-[#151821]'
+                      : 'border-white/15 bg-white/[0.04] hover:bg-white/[0.08] hover:border-[#FF6D00]/50'
                   }`}
                 >
                   <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-tr from-[#FF6D00] to-[#FF8F00] text-black font-black text-xs shadow-md">
@@ -357,7 +357,7 @@ export default function Navbar() {
                   <div className={`absolute right-0 top-full mt-2 w-56 rounded-2xl border p-2 shadow-2xl backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-150 ${
                     isLightPage
                       ? 'border-slate-200 bg-white text-slate-900 shadow-slate-900/10'
-                      : 'border-white/[0.08] bg-[#0F1117] text-zinc-100'
+                      : 'border-white/10 bg-[#0B101D] text-zinc-100 shadow-black/80'
                   }`}>
                     <div className={`px-3 py-2 border-b mb-1 ${isLightPage ? 'border-slate-100' : 'border-white/10'}`}>
                       <p className={`text-[10px] font-bold uppercase tracking-wider ${isLightPage ? 'text-slate-400' : 'text-zinc-400'}`}>Signed in as</p>
