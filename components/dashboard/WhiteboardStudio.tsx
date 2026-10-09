@@ -10,6 +10,7 @@ import {
   Loader2,
   RefreshCw,
   CheckCircle2,
+  AlertCircle,
   Volume2,
   Clock3,
   PenTool,
@@ -26,6 +27,7 @@ interface WhiteboardStudioProps {
   transcript: string;
   onTranscriptChange: (text: string) => void;
   isTranscribing: boolean;
+  transcriptionError?: string | null;
   onReTranscribe?: () => void;
 
   whiteboardFont: "marker" | "architect" | "clean" | "sans" | "blueprint";
@@ -47,6 +49,7 @@ export function WhiteboardStudio({
   transcript,
   onTranscriptChange,
   isTranscribing,
+  transcriptionError,
   onReTranscribe,
   whiteboardFont,
   onWhiteboardFontChange,
@@ -210,6 +213,24 @@ export function WhiteboardStudio({
               <Loader2 className="mx-auto h-6 w-6 animate-spin text-[#FF9100]" />
               <p className="text-xs font-bold text-zinc-200">Transcribing audio narration with AI...</p>
               <p className="text-[10px] text-zinc-400">Extracting speech words and millisecond timestamps via Groq Whisper.</p>
+            </div>
+          ) : transcriptionError ? (
+            <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-5 space-y-3">
+              <div className="flex items-center gap-2 text-red-400">
+                <AlertCircle size={16} />
+                <p className="text-xs font-bold">Transcription Failed</p>
+              </div>
+              <p className="text-[11px] text-zinc-300 font-mono leading-relaxed">{transcriptionError}</p>
+              {onReTranscribe && (
+                <button
+                  type="button"
+                  onClick={onReTranscribe}
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/30 px-3.5 py-1.5 text-xs font-bold transition cursor-pointer active:scale-95"
+                >
+                  <RefreshCw size={12} />
+                  <span>Retry Transcription</span>
+                </button>
+              )}
             </div>
           ) : (
             <div className="space-y-2">

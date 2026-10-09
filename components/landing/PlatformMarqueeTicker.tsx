@@ -120,10 +120,10 @@ const TICKER_ITEMS = [
 
 export default function PlatformMarqueeTicker() {
   return (
-    <div className="relative w-full overflow-hidden border-y border-white/10 bg-[#050505] py-3.5">
+    <div className="relative w-full overflow-hidden border-y border-white/10 bg-[#070B14] py-3.5">
       {/* Subtle edge fade masks */}
-      <div className="pointer-events-none absolute left-0 top-0 z-20 h-full w-28 bg-gradient-to-r from-[#050505] via-[#050505]/80 to-transparent" />
-      <div className="pointer-events-none absolute right-0 top-0 z-20 h-full w-28 bg-gradient-to-l from-[#050505] via-[#050505]/80 to-transparent" />
+      <div className="pointer-events-none absolute left-0 top-0 z-20 h-full w-28 bg-gradient-to-r from-[#070B14] via-[#070B14]/80 to-transparent" />
+      <div className="pointer-events-none absolute right-0 top-0 z-20 h-full w-28 bg-gradient-to-l from-[#070B14] via-[#070B14]/80 to-transparent" />
 
       <div 
         className="flex w-max animate-marquee hover:pause gap-3"

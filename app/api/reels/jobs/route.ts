@@ -1095,8 +1095,8 @@ export async function POST(request: Request) {
       const captions = buildCompareCaptionsFromGroq(renderWindow);
 
       const requestedVisualStyle = readString(body.visualStyle);
-      const visualStyle: '2d' | '3d' | 'realistic' = requestedVisualStyle === '2d' || requestedVisualStyle === '3d'
-        ? requestedVisualStyle
+      const visualStyle: '2d' | 'realistic' = requestedVisualStyle === '2d'
+        ? '2d'
         : 'realistic';
       const requestedAssetMode = readString(body.assetMode);
       const uploadedOnly = requestedAssetMode === 'upload' || body.blendStockAssets === false;
@@ -2301,17 +2301,35 @@ export async function POST(request: Request) {
         : {}),
       ...(mode === 'whiteboardVideo'
         ? await (async () => {
-            const wbCaptions = buildCompareCaptionsFromGroq(renderWindow);
+            // Use dedicated whiteboard segment builder (sentence-boundary based),
+            // NOT buildCompareCaptionsFromGroq which is tuned for compare/caption modes.
+            const wbWords = (renderWindow.words || [])
+              .filter((w) => readString(w.word) && Number.isFinite(w.start) && Number.isFinite(w.end))
+              .map((w) => ({ word: readString(w.word), start: Number(w.start), end: Number(w.end) }));
+            const wbSegments = buildWhiteboardSegments(wbWords, renderWindow.durationSeconds);
+
             const wbBoard = resolveWhiteboardBoard(readString(body.whiteboardBoard));
             const activeTranscript = readString(body.editedTranscript) || readString(body.customTranscript) || renderWindow.transcript;
+
+            // Pass word-level timestamps so planner can compute real timing.
             const wbPlan = await planWhiteboardVideo({
               transcript: activeTranscript,
-              segments: wbCaptions.map((c) => ({ start: c.start, end: c.end, text: c.text })),
+              segments: wbSegments.map((s) => ({ start: s.start, end: s.end, text: s.text })),
+              words: wbWords,
               durationSeconds: renderWindow.durationSeconds,
               topicTitle: topicTitle || undefined,
               boardStyle: wbBoard,
             });
-            console.log('[WHITEBOARD_PLANNER]', { source: wbPlan.source, title: wbPlan.title, pointCount: wbPlan.points.length, board: wbBoard });
+
+            console.log('[WHITEBOARD_PLANNER]', {
+              source: wbPlan.source,
+              title: wbPlan.title,
+              pointCount: wbPlan.points.length,
+              board: wbBoard,
+              wordCount: wbWords.length,
+              segmentCount: wbSegments.length,
+            });
+
             return {
               title: wbPlan.title,
               titleColor: wbPlan.titleColor,
@@ -2327,7 +2345,11 @@ export async function POST(request: Request) {
               captions: [],
               durationSeconds: renderWindow.durationSeconds,
               transcript: activeTranscript,
-              soundCues: wbPlan.points.map((p: unknown) => ({ time: (p as { time?: number }).time ?? 0, type: 'paper' as const, volume: 0.35 })),
+              soundCues: wbPlan.points.map((p: unknown) => ({
+                time: (p as { startTime?: number }).startTime ?? 0,
+                type: 'paper' as const,
+                volume: 0.35,
+              })),
               overlayTimeline: [],
               assetTimeline: [],
             };

@@ -47,21 +47,21 @@ export default function WhatCanYouCreate() {
   const activeGroup = HOMEPAGE_WORKFLOW_GROUPS.find((g) => g.id === activeCategory);
 
   return (
-    <section id="workflow" className="relative border-b border-white/10 bg-[#050505] px-4 py-16 text-zinc-100 sm:px-6 sm:py-24 overflow-hidden">
+    <section id="workflow" className="relative border-b border-white/10 bg-gradient-to-b from-[#070B14] via-[#0B1224] to-[#070B14] px-4 py-16 text-zinc-100 sm:px-6 sm:py-24 overflow-hidden">
       {/* Ambient background gradients */}
-      <div className="pointer-events-none absolute -left-40 top-1/4 -z-10 h-[500px] w-[500px] rounded-full bg-[#FF6D00]/5 blur-[160px]" />
-      <div className="pointer-events-none absolute -right-40 bottom-1/3 -z-10 h-[500px] w-[500px] rounded-full bg-[#FFA726]/5 blur-[160px]" />
+      <div className="pointer-events-none absolute -left-40 top-1/4 -z-10 h-[500px] w-[500px] rounded-full bg-emerald-500/5 blur-[160px]" />
+      <div className="pointer-events-none absolute -right-40 bottom-1/3 -z-10 h-[500px] w-[500px] rounded-full bg-teal-500/5 blur-[160px]" />
       
       <div id="video-types" className="relative z-10 mx-auto max-w-7xl scroll-mt-24">
         {/* Section Header */}
         <div className="mx-auto mb-10 max-w-3xl text-center sm:mb-12 space-y-3">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#FF6D00]/30 bg-[#FF6D00]/10 px-4 py-1.5 text-xs font-black uppercase tracking-wider text-[#FF9100]">
-            <Sparkles size={14} className="text-[#FF8F00] animate-pulse" />
+          <div className="inline-flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest text-emerald-400">
+            <Sparkles size={14} className="text-emerald-400" />
             <span>11 Dedicated AI Video Studios</span>
           </div>
           <h2 className="text-3xl font-black tracking-tight text-white sm:text-5xl font-sans">
             Choose the studio built for{' '}
-            <span className="bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">
               your exact format
             </span>
           </h2>
@@ -75,16 +75,16 @@ export default function WhatCanYouCreate() {
               <button
                 type="button"
                 onClick={() => setActiveCategory('shorts')}
-                className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-black transition-all cursor-pointer ${
+                className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-extrabold transition-all cursor-pointer ${
                   activeCategory === 'shorts'
-                    ? 'bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-md shadow-[#FF6D00]/30 scale-[1.02]'
+                    ? 'bg-gradient-to-r from-emerald-400 to-teal-400 text-black shadow-md shadow-emerald-500/20 scale-[1.02]'
                     : 'text-zinc-400 hover:text-white'
                 }`}
               >
-                <Smartphone size={14} className={activeCategory === 'shorts' ? 'text-black' : 'text-[#FF9100]'} />
+                <Smartphone size={14} className={activeCategory === 'shorts' ? 'text-black' : 'text-emerald-400'} />
                 <span>Shorts &amp; Reels (9:16)</span>
                 <span className={`rounded-full px-2 py-0.5 text-[10px] font-mono ${
-                  activeCategory === 'shorts' ? 'bg-black/25 text-black' : 'bg-[#151821] text-zinc-400'
+                  activeCategory === 'shorts' ? 'bg-black/25 text-black font-extrabold' : 'bg-[#151821] text-zinc-400'
                 }`}>
                   5
                 </span>
@@ -93,16 +93,16 @@ export default function WhatCanYouCreate() {
               <button
                 type="button"
                 onClick={() => setActiveCategory('youtube')}
-                className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-black transition-all cursor-pointer ${
+                className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-extrabold transition-all cursor-pointer ${
                   activeCategory === 'youtube'
-                    ? 'bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-md shadow-[#FF6D00]/30 scale-[1.02]'
+                    ? 'bg-gradient-to-r from-emerald-400 to-teal-400 text-black shadow-md shadow-emerald-500/20 scale-[1.02]'
                     : 'text-zinc-400 hover:text-white'
                 }`}
               >
-                <MonitorPlay size={14} className={activeCategory === 'youtube' ? 'text-black' : 'text-[#FF9100]'} />
+                <MonitorPlay size={14} className={activeCategory === 'youtube' ? 'text-black' : 'text-emerald-400'} />
                 <span>Widescreen (16:9)</span>
                 <span className={`rounded-full px-2 py-0.5 text-[10px] font-mono ${
-                  activeCategory === 'youtube' ? 'bg-black/25 text-black' : 'bg-[#151821] text-zinc-400'
+                  activeCategory === 'youtube' ? 'bg-black/25 text-black font-extrabold' : 'bg-[#151821] text-zinc-400'
                 }`}>
                   5
                 </span>
@@ -111,16 +111,16 @@ export default function WhatCanYouCreate() {
               <button
                 type="button"
                 onClick={() => setActiveCategory('audio')}
-                className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-black transition-all cursor-pointer ${
+                className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-extrabold transition-all cursor-pointer ${
                   activeCategory === 'audio'
-                    ? 'bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-md shadow-[#FF6D00]/30 scale-[1.02]'
+                    ? 'bg-gradient-to-r from-emerald-400 to-teal-400 text-black shadow-md shadow-emerald-500/20 scale-[1.02]'
                     : 'text-zinc-400 hover:text-white'
                 }`}
               >
-                <Mic size={14} className={activeCategory === 'audio' ? 'text-black' : 'text-[#FF9100]'} />
+                <Mic size={14} className={activeCategory === 'audio' ? 'text-black' : 'text-emerald-400'} />
                 <span>Audio Utilities</span>
                 <span className={`rounded-full px-2 py-0.5 text-[10px] font-mono ${
-                  activeCategory === 'audio' ? 'bg-black/25 text-black' : 'bg-[#151821] text-zinc-400'
+                  activeCategory === 'audio' ? 'bg-black/25 text-black font-extrabold' : 'bg-[#151821] text-zinc-400'
                 }`}>
                   1
                 </span>

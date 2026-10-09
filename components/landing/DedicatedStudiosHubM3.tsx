@@ -354,28 +354,28 @@ export default function DedicatedStudiosHubM3() {
         
         {/* ── Header Area ── */}
         <div className="flex flex-col items-center text-center">
-          {/* Eyebrow Pill */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#FF6D00]/30 bg-[#FF6D00]/10 px-4 py-1.5 text-xs font-black uppercase tracking-wider text-[#FF9100] shadow-sm backdrop-blur-md">
-            <BookOpen size={14} className="text-[#FF8F00]" />
+          {/* Eyebrow - Clean Minimal Tech Accent */}
+          <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-emerald-400">
+            <BookOpen size={14} className="text-emerald-400" />
             <span>Dedicated Studio Knowledge Hub</span>
           </div>
 
-          {/* Headline with Google Analytics Orange Gradient */}
-          <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl font-sans">
+          {/* Headline with Emerald-Cyan Gradient */}
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl font-sans">
             Explore AI Video Studios &amp;{' '}
-            <span className="bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">
               In-Depth Guides
             </span>
           </h2>
 
-          {/* Subtitle with Explicit "No Dashboard Redirect" Clarity */}
+          {/* Subtitle */}
           <p className="mt-3 max-w-3xl text-sm sm:text-base leading-relaxed text-zinc-300 font-medium">
             Each video type has a full dedicated information page with workflow breakdowns, sample renders, video rules, and formatting specs.
           </p>
 
           {/* Clear Distinction Banner */}
-          <div className="mt-4 inline-flex items-center gap-2 rounded-2xl border border-[#FF6D00]/25 bg-[#0E1526]/90 px-4 py-2 text-xs font-semibold text-slate-200 backdrop-blur-sm shadow-inner">
-            <Info size={15} className="shrink-0 text-[#FF8F00]" />
+          <div className="mt-4 inline-flex items-center gap-2 rounded-2xl border border-emerald-500/25 bg-[#0E1526]/90 px-4 py-2 text-xs font-semibold text-slate-200 backdrop-blur-sm shadow-inner">
+            <Info size={15} className="shrink-0 text-emerald-400" />
             <span>
               <strong>Note:</strong> Clicking below opens that studio&apos;s <strong>dedicated detail page</strong> to read more (does <em>not</em> redirect to the studio dashboard).
             </span>

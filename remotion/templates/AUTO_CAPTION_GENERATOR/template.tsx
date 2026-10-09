@@ -20,6 +20,7 @@ import {
 } from 'remotion';
 import { MotionCaptionRenderer } from '../../components/MotionCaptionRenderer';
 import { SubtitleRenderer } from '../../components/SubtitleRenderer';
+import { CaptionRenderer } from '../../captions/CaptionRenderer';
 import type { CaptionSegment, SubtitleConfig } from '../../types/subtitles';
 import type { CaptionEvent, TranscriptDocument } from '../../../lib/captions/types';
 import { planCaptionEvents } from '../../../lib/captions/eventPlanner';
@@ -259,36 +260,16 @@ export function AutoCaptionGenerator({
       {/* Modern High-Performance Motion Caption or Subtitle Preset Layer */}
       {captionEvents && captionEvents.length > 0 ? (
         <MotionCaptionRenderer captionEvents={captionEvents} />
-      ) : captionStyle && CAPTION_STYLE_MAP[captionStyle] && normalizedCaptions.length > 0 ? (
-        <SubtitleRenderer
-          captions={normalizedCaptions}
-          config={{
-            position: captionPosition || 'bottom',
-            style: mapCaptionStyle(captionStyle).style,
-            fontSize: fontSize || 'medium',
-            fontFamily: getCaptionFont(captionStyle, fontFamily),
-            textColor: textColor || undefined,
-            highlightColor: activeHighlight || undefined,
-            backgroundColor: backgroundColor || undefined,
-            showBackground: typeof showBackground === 'boolean' ? showBackground : undefined,
-            language: subtitleOutputLanguage || language || 'en',
-          }}
-        />
-      ) : resolvedCaptionEvents.length > 0 ? (
-        <MotionCaptionRenderer captionEvents={resolvedCaptionEvents} />
       ) : normalizedCaptions.length > 0 ? (
-        <SubtitleRenderer
+        <CaptionRenderer
           captions={normalizedCaptions}
-          config={{
+          styleName={captionStyle}
+          configOverride={{
             position: captionPosition || 'bottom',
-            style: mapCaptionStyle(captionStyle).style,
-            fontSize: fontSize || 'medium',
-            fontFamily: getCaptionFont(captionStyle, fontFamily),
             textColor: textColor || undefined,
             highlightColor: activeHighlight || undefined,
             backgroundColor: backgroundColor || undefined,
             showBackground: typeof showBackground === 'boolean' ? showBackground : undefined,
-            language: subtitleOutputLanguage || language || 'en',
           }}
         />
       ) : null}

@@ -15,6 +15,8 @@ import {
   getActiveWord,
   distributeWordTimings,
   getFontSize,
+  isWordActive,
+  cleanWord,
 } from '../utils/subtitleUtils';
 import {resolveFont, getFontForLanguage} from '../utils/fonts';
 
@@ -363,7 +365,7 @@ const HighlightStyle: React.FC<StyleProps> = ({caption, config, fontSize, active
       borderRadius: 16, padding: '12px 28px',
     }}>
       {caption.words?.map((w: WordTiming, i: number) => {
-        const isActive = w.word === activeWord;
+        const isActive = isWordActive(w.word, activeWord);
         // Spring-based scale pulse on active word
         const wordLocalFrame = isActive ? Math.round((currentTimeSec - w.start) * fps) : 0;
         const pulseScale = isActive
@@ -416,7 +418,7 @@ const WordPopStyle: React.FC<StyleProps> = ({caption, config, fontSize, activeWo
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const currentTimeSec = frame / fps;
-  const activeW = caption.words?.find((w: WordTiming) => w.word === activeWord);
+  const activeW = caption.words?.find((w: WordTiming) => isWordActive(w.word, activeWord));
   const wordLocalFrame = activeW ? Math.round((currentTimeSec - activeW.start) * fps) : 0;
   const popScale = activeWord
     ? spring({frame: wordLocalFrame, fps, config: {damping: 8, mass: 0.25, stiffness: 220}, from: 0.6, to: 1})
@@ -455,7 +457,7 @@ const NeonStyle: React.FC<StyleProps> = ({caption, config, fontSize, activeWord}
       maxWidth: 950, padding: '12px 28px',
     }}>
       {caption.words?.map((w: WordTiming, i: number) => {
-        const isActive = w.word === activeWord;
+        const isActive = isWordActive(w.word, activeWord);
         const wordLocalFrame = isActive ? Math.round((currentTimeSec - w.start) * fps) : 0;
         const glowIntensity = isActive
           ? spring({frame: wordLocalFrame, fps, config: {damping: 12, mass: 0.3, stiffness: 160}})
@@ -484,7 +486,7 @@ const BoxStyle: React.FC<StyleProps> = ({caption, config, fontSize, activeWord})
     maxWidth: 950, padding: '8px',
   }}>
     {caption.words?.map((w: WordTiming, i: number) => {
-      const isActive = w.word === activeWord;
+      const isActive = isWordActive(w.word, activeWord);
       return (
         <span key={i} style={{
           fontSize, fontFamily: config.fontFamily, fontWeight: 700,
@@ -501,7 +503,7 @@ const BoxStyle: React.FC<StyleProps> = ({caption, config, fontSize, activeWord})
 
 const SplitColorStyle: React.FC<StyleProps> = ({caption, config, fontSize, activeWord}) => {
   const words = caption.words ?? [];
-  const activeIndex = words.findIndex((w: WordTiming) => w.word === activeWord);
+  const activeIndex = words.findIndex((w: WordTiming) => isWordActive(w.word, activeWord));
   return (
     <div style={{
       display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8,
@@ -546,7 +548,7 @@ const BoldOutlineStyle: React.FC<StyleProps> = ({caption, config, fontSize, acti
     maxWidth: 950, padding: '12px 28px',
   }}>
     {caption.words?.map((w: WordTiming, i: number) => {
-      const isActive = w.word === activeWord;
+      const isActive = isWordActive(w.word, activeWord);
       return (
         <span key={i} style={{
           fontSize: isActive ? fontSize * 1.1 : fontSize,
@@ -569,7 +571,7 @@ const OneWordStyle: React.FC<StyleProps> = ({caption, config, fontSize, activeWo
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const currentTimeSec = frame / fps;
-  const activeW = caption.words?.find((w: WordTiming) => w.word === activeWord);
+  const activeW = caption.words?.find((w: WordTiming) => isWordActive(w.word, activeWord));
   const wordLocalFrame = activeW ? Math.round((currentTimeSec - activeW.start) * fps) : 0;
   const popScale = activeWord
     ? spring({frame: wordLocalFrame, fps, config: {damping: 9, mass: 0.25, stiffness: 240}, from: 0.5, to: 1})
@@ -631,7 +633,7 @@ const StackedStyle: React.FC<StyleProps> = ({caption, config, fontSize, activeWo
       backdropFilter: 'blur(8px)',
     }}>
       {displayWords.map((w: WordTiming, i: number) => {
-        const isActive = w.word === activeWord;
+        const isActive = isWordActive(w.word, activeWord);
         return (
           <span key={i} style={{
             fontSize: isActive ? fontSize * 1.4 : fontSize * 0.9,
@@ -654,7 +656,7 @@ const InlineBgStyle: React.FC<StyleProps> = ({caption, config, fontSize, activeW
     maxWidth: 950, padding: '12px 24px',
   }}>
     {caption.words?.map((w: WordTiming, i: number) => {
-      const isActive = w.word === activeWord;
+      const isActive = isWordActive(w.word, activeWord);
       return (
         <span key={i} style={{
           fontSize, fontFamily: config.fontFamily, fontWeight: 700,
@@ -679,7 +681,7 @@ const VollkornStyle: React.FC<StyleProps> = ({caption, config, fontSize, activeW
     backgroundColor: config.backgroundColor || 'rgba(0,0,0,0.85)',
   }}>
     {caption.words?.map((w: WordTiming, i: number) => {
-      const isActive = w.word === activeWord;
+      const isActive = isWordActive(w.word, activeWord);
       return (
         <span key={i} style={{
           fontSize, fontFamily: config.fontFamily, fontWeight: 700,
@@ -700,7 +702,7 @@ const VollkornStyle: React.FC<StyleProps> = ({caption, config, fontSize, activeW
 // Style: KARAOKE — words fill left-to-right like music karaoke
 const KaraokeStyle: React.FC<StyleProps> = ({caption, config, fontSize, activeWord, currentTimeSec = 0}) => {
   const words = caption.words ?? [];
-  const activeIndex = words.findIndex((w: WordTiming) => w.word === activeWord);
+  const activeIndex = words.findIndex((w: WordTiming) => isWordActive(w.word, activeWord));
 
   return (
     <div style={{
@@ -982,7 +984,7 @@ const ShatterStyle: React.FC<StyleProps> = ({caption, config, fontSize, activeWo
           from: -80, to: 0,
         });
         const opacity = interpolate(localF, [0, 5], [0, 1], { extrapolateRight: 'clamp' });
-        const isActive = w.word === activeWord;
+        const isActive = isWordActive(w.word, activeWord);
 
         return (
           <span key={i} style={{
@@ -1016,7 +1018,7 @@ const PillBounceStyle: React.FC<StyleProps> = ({caption, config, fontSize, activ
       maxWidth: 950, padding: '12px 24px',
     }}>
       {words.map((w: WordTiming, i: number) => {
-        const isActive = w.word === activeWord;
+        const isActive = isWordActive(w.word, activeWord);
         const wordLocalFrame = isActive ? Math.round((currentTimeSec - w.start) * fps) : 0;
         const scale = isActive
           ? spring({ frame: wordLocalFrame, fps, config: { damping: 10, stiffness: 400, mass: 0.5 }, from: 0.85, to: 1 })
@@ -1125,7 +1127,7 @@ const MarkerHighlightStyle: React.FC<StyleProps> = ({caption, config, fontSize, 
       lineHeight: 1.08,
     }}>
       {words.map((w: WordTiming, i: number) => {
-        const isActive = w.word === activeWord;
+        const isActive = isWordActive(w.word, activeWord);
         const wordLocalFrame = isActive ? Math.max(0, Math.round((currentTimeSec - w.start) * fps)) : 0;
         const activeScale = isActive
           ? spring({frame: wordLocalFrame, fps, config: {damping: 13, stiffness: 260, mass: 0.45}, from: 0.96, to: 1})
@@ -1191,7 +1193,7 @@ const FloatingSerifStyle: React.FC<StyleProps> = ({caption, config, fontSize, ac
       filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.72)) drop-shadow(0 0 7px rgba(0,0,0,0.48))',
     }}>
       {words.map((w: WordTiming, i: number) => {
-        const isActive = w.word === activeWord;
+        const isActive = isWordActive(w.word, activeWord);
         return (
           <span key={`${w.word}-${i}`} style={{
             display: 'inline-block',
@@ -1248,7 +1250,7 @@ const MetallicGradientStyle: React.FC<StyleProps> = ({caption, config, fontSize,
         lineHeight: 1.04,
       }}>
         {words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           const wordLocalFrame = isActive ? Math.max(0, Math.round((currentTimeSec - w.start) * fps)) : 0;
           const activeScale = isActive
             ? spring({frame: wordLocalFrame, fps, config: {damping: 13, stiffness: 280, mass: 0.45}, from: 0.96, to: 1})
@@ -1303,7 +1305,7 @@ const NeonPulseStyle: React.FC<StyleProps> = ({caption, config, fontSize, active
     <div style={{display: 'inline-flex', justifyContent: 'center', maxWidth: 940, padding: '14px 28px', borderRadius: 12, background: captionBackground(config, 'rgba(0,0,0,0.78)'), border: '1px solid rgba(0,255,136,0.25)', boxShadow: `0 0 ${20 * pulseGlow}px rgba(0,255,136,${0.15 * pulseGlow})`}}>
       <div style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0 10px', lineHeight: 1.1}}>
         {words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span key={`${w.word}-${i}`} style={{display: 'inline-block', fontSize: neonSize, fontWeight: 900, fontFamily: config.fontFamily, color: isActive ? '#00FF88' : '#FFFFFF', textShadow: isActive ? `0 0 12px #00FF88, 0 0 24px #00FF8866` : '0 2px 8px rgba(0,0,0,0.8)', transform: isActive ? `scale(1.08)` : 'scale(1)', transition: 'all 0.1s'}}>
               {w.word}
@@ -1323,7 +1325,7 @@ const MinimalFadeStyle: React.FC<StyleProps> = ({caption, config, fontSize, acti
     <div style={{display: 'inline-flex', justifyContent: 'center', maxWidth: 900, padding: '12px 24px'}}>
       <div style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0 10px', lineHeight: 1.15}}>
         {words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span key={`${w.word}-${i}`} style={{display: 'inline-block', fontSize: minSize, fontWeight: 600, fontFamily: config.fontFamily, color: isActive ? '#FFFFFF' : 'rgba(255,255,255,0.55)', textShadow: '0 2px 12px rgba(0,0,0,0.5)', transition: 'color 0.2s, opacity 0.2s'}}>
               {w.word}
@@ -1344,7 +1346,7 @@ const GradientWaveStyle: React.FC<StyleProps> = ({caption, config, fontSize, act
     <div style={{display: 'inline-flex', justifyContent: 'center', maxWidth: 940, padding: '14px 26px', borderRadius: 14, background: captionBackground(config, 'rgba(0,0,0,0.62)'), border: '1px solid rgba(139,92,246,0.3)'}}>
       <div style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0 10px', lineHeight: 1.08}}>
         {words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           const hue = (offset + i * 35) % 360;
           return (
             <span key={`${w.word}-${i}`} style={{display: 'inline-block', fontSize: waveSize, fontWeight: 900, fontFamily: config.fontFamily, background: isActive ? `linear-gradient(90deg, hsl(${hue},85%,65%), hsl(${(hue+60)%360},85%,65%))` : 'linear-gradient(90deg, #E2E8F0, #94A3B8)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent', transform: isActive ? 'scale(1.05)' : 'scale(1)'}}>
@@ -1368,7 +1370,7 @@ const RetroVhsStyle: React.FC<StyleProps> = ({caption, config, fontSize, activeW
       <div style={{position: 'absolute', inset: 0, backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px)', borderRadius: 6, pointerEvents: 'none'}} />
       <div style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0 10px', lineHeight: 1.1, position: 'relative'}}>
         {words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span key={`${w.word}-${i}`} style={{display: 'inline-block', fontSize: vhsSize, fontWeight: 900, fontFamily: config.fontFamily, color: isActive ? '#FF6B6B' : '#FFFFFF', textShadow: isActive ? `${glitchX}px 0 #00FFFF, ${-glitchX}px 0 #FF0066` : '1px 1px 0 rgba(0,0,0,0.8)', letterSpacing: 1}}>
               {w.word}
@@ -1388,7 +1390,7 @@ const HandwrittenStyle: React.FC<StyleProps> = ({caption, config, fontSize, acti
     <div style={{display: 'inline-flex', justifyContent: 'center', maxWidth: 940, padding: '14px 28px'}}>
       <div style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0 12px', lineHeight: 1.2}}>
         {words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span key={`${w.word}-${i}`} style={{display: 'inline-block', fontSize: handSize, fontWeight: 700, fontFamily: 'Georgia, serif', fontStyle: 'italic', color: isActive ? '#FBBF24' : '#F8FAFC', textShadow: '0 3px 12px rgba(0,0,0,0.7)', borderBottom: isActive ? '3px wavy #FBBF24' : 'none', paddingBottom: isActive ? 2 : 0, transform: isActive ? 'rotate(-0.8deg)' : 'none'}}>
               {w.word}
@@ -1408,7 +1410,7 @@ const GlassBlurStyle: React.FC<StyleProps> = ({caption, config, fontSize, active
     <div style={{display: 'inline-flex', justifyContent: 'center', maxWidth: 940, padding: '18px 32px', borderRadius: 18, background: 'rgba(15,23,42,0.45)', backdropFilter: 'blur(16px) saturate(1.5)', WebkitBackdropFilter: 'blur(16px) saturate(1.5)', border: '1px solid rgba(255,255,255,0.15)', boxShadow: '0 16px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12)'}}>
       <div style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0 10px', lineHeight: 1.08}}>
         {words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span key={`${w.word}-${i}`} style={{display: 'inline-block', fontSize: glassSize, fontWeight: 900, fontFamily: config.fontFamily, color: isActive ? '#60A5FA' : '#F1F5F9', textShadow: isActive ? '0 0 12px rgba(96,165,250,0.5)' : '0 2px 8px rgba(0,0,0,0.5)', transform: isActive ? 'scale(1.06)' : 'scale(1)', transition: 'all 0.1s'}}>
               {w.word}
@@ -1443,7 +1445,7 @@ const M3TonalPillStyle: React.FC<StyleProps> = ({caption, config, fontSize, acti
     >
       <div style={{display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: '8px 10px', lineHeight: 1.15}}>
         {words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span
               key={`${w.word}-${i}`}
@@ -1491,7 +1493,7 @@ const M3DynamicChipStyle: React.FC<StyleProps> = ({caption, config, fontSize, ac
       }}
     >
       {words.map((w: WordTiming, i: number) => {
-        const isActive = w.word === activeWord;
+        const isActive = isWordActive(w.word, activeWord);
         return (
           <div
             key={`${w.word}-${i}`}
@@ -1582,7 +1584,7 @@ const M3ElevatedCardStyle: React.FC<StyleProps> = ({caption, config, fontSize, a
 
       <div style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0 10px', lineHeight: 1.18}}>
         {words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span
               key={`${w.word}-${i}`}
@@ -1628,7 +1630,7 @@ const M3SurfaceOutlineStyle: React.FC<StyleProps> = ({caption, config, fontSize,
     >
       <div style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0 10px', lineHeight: 1.2}}>
         {words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span
               key={`${w.word}-${i}`}
@@ -1672,7 +1674,7 @@ const M3PrimaryContainerStyle: React.FC<StyleProps> = ({caption, config, fontSiz
     >
       <div style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0 10px', lineHeight: 1.2}}>
         {words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span
               key={`${w.word}-${i}`}
@@ -1744,7 +1746,7 @@ const ActiveBluePillStyle: React.FC<StyleProps> = ({caption, config, fontSize, a
       }}
     >
       {words.map((w: WordTiming, i: number) => {
-        const isActive = w.word === activeWord;
+        const isActive = isWordActive(w.word, activeWord);
         return (
           <span
             key={`${w.word}-${i}`}
@@ -1797,7 +1799,7 @@ const AliAbdaalStyle: React.FC<StyleProps> = ({caption, config, fontSize, active
     >
       {words.length > 0 ? (
         words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span
               key={`${w.word}-${i}`}
@@ -1856,7 +1858,7 @@ const VoxDocuStyle: React.FC<StyleProps> = ({caption, config, fontSize, activeWo
     >
       {words.length > 0 ? (
         words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span
               key={`${w.word}-${i}`}
@@ -1907,7 +1909,7 @@ const DiaryOfCeoStyle: React.FC<StyleProps> = ({caption, config, fontSize, activ
     >
       {words.length > 0 ? (
         words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span
               key={`${w.word}-${i}`}
@@ -1968,7 +1970,7 @@ const HubermanLectureStyle: React.FC<StyleProps> = ({caption, config, fontSize, 
     >
       {words.length > 0 ? (
         words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span
               key={`${w.word}-${i}`}
@@ -2020,7 +2022,7 @@ const MrBeast169Style: React.FC<StyleProps> = ({caption, config, fontSize, activ
     >
       {words.length > 0 ? (
         words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span
               key={`${w.word}-${i}`}
@@ -2096,7 +2098,7 @@ const MkbhdTechStyle: React.FC<StyleProps> = ({caption, config, fontSize, active
       />
       {words.length > 0 ? (
         words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span
               key={`${w.word}-${i}`}
@@ -2187,7 +2189,7 @@ const KurzgesagtStyle: React.FC<StyleProps> = ({caption, config, fontSize, activ
     >
       {words.length > 0 ? (
         words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span
               key={`${w.word}-${i}`}
@@ -2238,7 +2240,7 @@ const LexFridmanStyle: React.FC<StyleProps> = ({caption, config, fontSize, activ
     >
       {words.length > 0 ? (
         words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span
               key={`${w.word}-${i}`}
@@ -2288,7 +2290,7 @@ const Creator3Style: React.FC<StyleProps> = ({caption, config, fontSize, activeW
     }}>
       {words.length > 0 ? (
         words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span key={`${w.word}-${i}`} style={{
               fontFamily: config.fontFamily || 'Montserrat, sans-serif',
@@ -2328,7 +2330,7 @@ const CrazyGradientStyle: React.FC<StyleProps> = ({caption, config, fontSize, ac
     }}>
       {words.length > 0 ? (
         words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span key={`${w.word}-${i}`} style={{
               fontFamily: config.fontFamily || 'Impact, sans-serif',
@@ -2377,7 +2379,7 @@ const CrazyCyanStyle: React.FC<StyleProps> = ({caption, config, fontSize, active
     }}>
       {words.length > 0 ? (
         words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span key={`${w.word}-${i}`} style={{
               fontFamily: config.fontFamily || 'Montserrat, sans-serif',
@@ -2414,7 +2416,7 @@ const SparkGlowStyle: React.FC<StyleProps> = ({caption, config, fontSize, active
     }}>
       {words.length > 0 ? (
         words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span key={`${w.word}-${i}`} style={{
               fontFamily: config.fontFamily || 'Inter, sans-serif',
@@ -2453,7 +2455,7 @@ const GamerBoldStyle: React.FC<StyleProps> = ({caption, config, fontSize, active
     }}>
       {words.length > 0 ? (
         words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span key={`${w.word}-${i}`} style={{
               fontFamily: config.fontFamily || 'Impact, sans-serif',
@@ -2491,7 +2493,7 @@ const CursiveContrastStyle: React.FC<StyleProps> = ({caption, config, fontSize, 
     }}>
       {words.length > 0 ? (
         words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           const isScript = isActive || i % 2 === 1;
           return (
             <span key={`${w.word}-${i}`} style={{
@@ -2532,7 +2534,7 @@ const DisciplineRedStyle: React.FC<StyleProps> = ({caption, config, fontSize, ac
     }}>
       {words.length > 0 ? (
         words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span key={`${w.word}-${i}`} style={{
               fontFamily: isActive ? 'Caveat, Georgia, cursive' : (config.fontFamily || 'Montserrat, sans-serif'),
@@ -2571,7 +2573,7 @@ const KineticMulticolorStyle: React.FC<StyleProps> = ({caption, config, fontSize
     }}>
       {words.length > 0 ? (
         words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           const assignedColor = colorCycle[i % colorCycle.length];
           return (
             <span key={`${w.word}-${i}`} style={{
@@ -2612,7 +2614,7 @@ const ImpactGlowStyle: React.FC<StyleProps> = ({caption, config, fontSize, activ
     }}>
       {words.length > 0 ? (
         words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span key={`${w.word}-${i}`} style={{
               fontFamily: config.fontFamily || 'Impact, sans-serif',
@@ -2650,7 +2652,7 @@ const RedWipeStyle: React.FC<StyleProps> = ({caption, config, fontSize, activeWo
     }}>
       {words.length > 0 ? (
         words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span key={`${w.word}-${i}`} style={{
               fontFamily: config.fontFamily || 'Inter, sans-serif',
@@ -2689,7 +2691,7 @@ const PunchYellowStyle: React.FC<StyleProps> = ({caption, config, fontSize, acti
     }}>
       {words.length > 0 ? (
         words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span key={`${w.word}-${i}`} style={{
               fontFamily: config.fontFamily || 'Impact, sans-serif',
@@ -2725,7 +2727,7 @@ const CookChromaticStyle: React.FC<StyleProps> = ({caption, config, fontSize, ac
     }}>
       {words.length > 0 ? (
         words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span key={`${w.word}-${i}`} style={{
               fontFamily: config.fontFamily || 'Montserrat, sans-serif',
@@ -2770,7 +2772,7 @@ const MasterPillStyle: React.FC<StyleProps> = ({caption, config, fontSize, activ
     }}>
       {words.length > 0 ? (
         words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span key={`${w.word}-${i}`} style={{
               fontFamily: config.fontFamily || 'Inter, sans-serif',
@@ -2832,7 +2834,7 @@ const EstateMetallicStyle: React.FC<StyleProps> = ({caption, config, fontSize, a
     }}>
       {words.length > 0 ? (
         words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span key={`${w.word}-${i}`} style={{
               fontFamily: config.fontFamily || 'Montserrat, sans-serif',
@@ -2874,7 +2876,7 @@ const StorySerifStyle: React.FC<StyleProps> = ({caption, config, fontSize, activ
     }}>
       {words.length > 0 ? (
         words.map((w: WordTiming, i: number) => {
-          const isActive = w.word === activeWord;
+          const isActive = isWordActive(w.word, activeWord);
           return (
             <span key={`${w.word}-${i}`} style={{
               fontFamily: config.fontFamily || 'Georgia, "Playfair Display", serif',

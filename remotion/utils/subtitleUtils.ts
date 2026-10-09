@@ -48,6 +48,16 @@ export function distributeWordTimings(
   });
 }
 
+export function cleanWord(word?: string | null): string {
+  if (!word) return '';
+  return word.toLowerCase().replace(/[^\w\s\u0900-\u097F]/gi, '').trim();
+}
+
+export function isWordActive(wordA?: string | null, wordB?: string | null): boolean {
+  if (!wordA || !wordB) return false;
+  return cleanWord(wordA) === cleanWord(wordB);
+}
+
 export function getFontSize(size?: 'small' | 'medium' | 'large' | 'xlarge'): number {
   switch (size) {
     case 'small':
@@ -62,3 +72,4 @@ export function getFontSize(size?: 'small' | 'medium' | 'large' | 'xlarge'): num
       return 48;
   }
 }
+

@@ -384,14 +384,13 @@ export function ImageToVideoStudio({
               </div>
             </div>
 
-            {/* Visual Aesthetic Style (3 Cards) */}
+            {/* Visual Aesthetic Style (2 Cards: Realistic Images vs 2D Illustrations) */}
             <div className="space-y-2">
-              <label className="block text-xs font-bold text-zinc-300">Visual Aesthetic Style</label>
-              <div className="grid grid-cols-3 gap-2.5">
+              <label className="block text-xs font-bold text-zinc-300">Built-in Asset Visual Style</label>
+              <div className="grid grid-cols-2 gap-2.5">
                 {[
-                  { id: "realistic", label: "📷 Realistic Cinema", desc: "Cinematic real photos & stock" },
-                  { id: "3d", label: "🧊 3D Render", desc: "Depth 3D isometric scenes" },
-                  { id: "2d", label: "🎨 2D Vector", desc: "Flat art & vector illustrations" },
+                  { id: "realistic", label: "📷 Realistic Images", desc: "Approved cinematic real photos & stock" },
+                  { id: "2d", label: "🎨 2D Illustrations", desc: "Approved flat art & vector illustrations" },
                 ].map((art) => {
                   const active = activeArtStyle === art.id;
                   return (
@@ -399,7 +398,7 @@ export function ImageToVideoStudio({
                       key={art.id}
                       type="button"
                       onClick={() => onChangeVisualStyle?.(art.id)}
-                      className={`rounded-2xl border p-3 text-left transition cursor-pointer ${
+                      className={`rounded-2xl border p-3.5 text-left transition cursor-pointer ${
                         active
                           ? "border-[#FF6D00] bg-[#FF6D00]/10 text-white font-bold ring-1 ring-[#FF6D00]"
                           : "border-white/10 bg-[#161720] text-zinc-400 hover:text-white"
@@ -413,29 +412,41 @@ export function ImageToVideoStudio({
               </div>
             </div>
 
-            {/* Asset Source Mode Pills */}
+            {/* Asset Source Mode (3 Options: My Images Only, ItnaVideo Assets, My Images + ItnaVideo Assets) */}
             <div className="space-y-2 pt-2 border-t border-white/5">
-              <label className="block text-xs font-bold text-zinc-300">Asset Source Mode</label>
-              <div className="grid grid-cols-3 gap-2">
+              <label className="block text-xs font-bold text-zinc-300">Image Source Mode</label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 {[
-                  { id: "library", label: "Itnavideo AI Assets", detail: "Curated Local Stock" },
-                  { id: "upload", label: "Custom Uploads", detail: "Your Images Only" },
-                  { id: "mix", label: "Mix Both", detail: "Custom + Stock Backup" },
+                  {
+                    id: "upload",
+                    label: "My Images Only",
+                    detail: "Use only the images you upload for this video."
+                  },
+                  {
+                    id: "library",
+                    label: "ItnaVideo Assets",
+                    detail: "Choose from our built-in image library."
+                  },
+                  {
+                    id: "mix",
+                    label: "My Images + ItnaVideo Assets",
+                    detail: "Use your images first and add matching ItnaVideo assets where needed."
+                  },
                 ].map((option) => {
-                  const active = activeAssetMode === option.id;
+                  const active = activeAssetMode === option.id || (option.id === "library" && activeAssetMode === "default_stock") || (option.id === "upload" && activeAssetMode === "custom_upload");
                   return (
                     <button
                       key={option.id}
                       type="button"
                       onClick={() => onChangeAssetSourceMode?.(option.id as any)}
-                      className={`rounded-2xl border p-3 text-left transition cursor-pointer ${
+                      className={`rounded-2xl border p-3.5 text-left transition cursor-pointer flex flex-col justify-between ${
                         active
                           ? "border-[#FF6D00] bg-[#FF6D00]/10 text-white font-bold ring-1 ring-[#FF6D00]"
                           : "border-white/10 bg-[#161720] text-zinc-400 hover:text-white"
                       }`}
                     >
                       <span className="block text-xs font-bold text-white">{option.label}</span>
-                      <span className="mt-0.5 block text-[10px] text-zinc-400">{option.detail}</span>
+                      <span className="mt-1 block text-[10px] text-zinc-400 leading-tight">{option.detail}</span>
                     </button>
                   );
                 })}
@@ -652,9 +663,7 @@ export function ImageToVideoStudio({
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={
-                  activeArtStyle === "3d"
-                    ? DEFAULT_AI_SAMPLE_ASSETS[2].url
-                    : activeArtStyle === "2d"
+                  activeArtStyle === "2d"
                     ? DEFAULT_AI_SAMPLE_ASSETS[3].url
                     : DEFAULT_AI_SAMPLE_ASSETS[0].url
                 }

@@ -78,6 +78,11 @@ export async function getAdminOverviewStats() {
   let totalRevenue = 0;
   const recentPayments: any[] = [];
   let realPaidUsersCount = 0;
+  let revenueToday = 0;
+  let revenueThisMonth = 0;
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
 
   entitlements.forEach(item => {
     const value = item.value as any;
@@ -96,6 +101,14 @@ export async function getAdminOverviewStats() {
       totalRevenue += amountInRupees;
       mrr += amountInRupees;
       realPaidUsersCount++;
+
+      const pDate = new Date(value.activatedAt || item.updated_at);
+      if (pDate >= todayStart) {
+        revenueToday += amountInRupees;
+      }
+      if (pDate >= monthStart) {
+        revenueThisMonth += amountInRupees;
+      }
 
       recentPayments.push({
         id: value.paymentId || value.orderId || item.key,
@@ -119,8 +132,6 @@ export async function getAdminOverviewStats() {
   const successRate = totalRendersCount > 0 ? (successRenders / totalRendersCount) * 100 : 100;
 
   // Aggregate stats today and yesterday
-  const now = new Date();
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
   const yesterdayStart = new Date(todayStart);
   yesterdayStart.setDate(yesterdayStart.getDate() - 1);
 
@@ -227,16 +238,16 @@ export async function getAdminOverviewStats() {
     return { name: dateStr, value: dayCredits };
   });
 
-  // Insights & Video Types Breakdown across all 10 types
+  // Video Types Breakdown & Today Metrics across active types
   const VIDEO_TYPE_NAME_MAP: Record<string, string> = {
     'autoCaption': 'Auto Caption',
-    'youtubeSubtitles': 'YouTube Subtitles',
-    'imageToVideoAi': 'Image to Video AI',
-    'compare': 'Compare Explainer',
-    'whiteboardVideo': 'Whiteboard Explainer',
-    'typographyVideo': 'Kinetic Typography',
+    'imageToVideoAi': 'Image to Video',
+    'whiteboardVideo': 'Whiteboard Video',
     'facelessVideo': 'Faceless Video',
     'longVideoPromo': 'Long Video Promo',
+    'compare': 'Compare Explainer',
+    'typographyVideo': 'Kinetic Typography',
+    'youtubeSubtitles': 'YouTube Subtitles',
     'longVideoClips': 'Long Video Clips',
     'audioClean': 'AI Audio Cleaner',
   };
@@ -255,10 +266,45 @@ export async function getAdminOverviewStats() {
 
   const mostPopularTemplate = videoTypesDistribution[0]?.label || "Auto Caption";
 
+  // Video Usage Today (All job creation attempts today)
+  const todayRendersList = renders?.filter(r => new Date(r.created_at) >= todayStart) || [];
+  const usageByModeToday: Record<string, number> = {};
+  todayRendersList.forEach(r => {
+    const mode = r.mode || 'autoCaption';
+    usageByModeToday[mode] = (usageByModeToday[mode] || 0) + 1;
+  });
+
+  const maxUsageToday = Math.max(...Object.values(usageByModeToday), 1);
+  const videoUsageToday = Object.entries(VIDEO_TYPE_NAME_MAP).map(([mode, label]) => {
+    const count = usageByModeToday[mode] || 0;
+    const percent = Math.round((count / maxUsageToday) * 100);
+    return { mode, label, count, percent };
+  }).sort((a, b) => b.count - a.count);
+
+  // Videos Created Today (Successfully rendered output files today)
+  const todaySuccessRendersList = todayRendersList.filter(r => Boolean(r.output_file) || r.status === "done");
+  const createdByModeToday: Record<string, number> = {};
+  todaySuccessRendersList.forEach(r => {
+    const mode = r.mode || 'autoCaption';
+    createdByModeToday[mode] = (createdByModeToday[mode] || 0) + 1;
+  });
+
+  const maxCreatedToday = Math.max(...Object.values(createdByModeToday), 1);
+  const videosCreatedToday = Object.entries(VIDEO_TYPE_NAME_MAP).map(([mode, label]) => {
+    const count = createdByModeToday[mode] || 0;
+    const percent = Math.round((count / maxCreatedToday) * 100);
+    return { mode, label, count, percent };
+  }).sort((a, b) => b.count - a.count);
+
+  // User registration cumulative timestamps map for calendar
+  const userRegistrationTimestamps = (authUsers || []).map(u => new Date(u.created_at).getTime());
+
   return {
     kpis: {
       mrr,
       totalRevenue,
+      revenueToday,
+      revenueThisMonth,
       usersCount,
       activeUsers,
       paidUsersCount,
@@ -283,7 +329,10 @@ export async function getAdminOverviewStats() {
       videoTrend,
       creditsConsumption,
       videoTypesDistribution,
+      videoUsageToday,
+      videosCreatedToday,
     },
+    userRegistrationTimestamps,
     recentPayments: recentPayments.slice(0, 10),
     insights: {
       mostPopularTemplate,

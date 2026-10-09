@@ -79,6 +79,7 @@ export default function WhiteboardVideoPage() {
   // Transcript states
   const [transcript, setTranscript] = useState<string>("");
   const [isTranscribing, setIsTranscribing] = useState<boolean>(false);
+  const [transcriptionError, setTranscriptionError] = useState<string | null>(null);
   const [cachedMediaKey, setCachedMediaKey] = useState<string>("");
 
   // Job & render states
@@ -101,51 +102,67 @@ export default function WhiteboardVideoPage() {
     if (!selectedFile) {
       setAudioDurationSeconds(0);
       setTranscript("");
+      setTranscriptionError(null);
       setCachedMediaKey("");
       return;
     }
 
-    const audio = new Audio();
+    setTranscript("");
+    setTranscriptionError(null);
+
+    // Measure video or audio duration safely
+    const isVideo = selectedFile.type?.startsWith("video/") || /\.(mp4|mov|webm|mkv)$/i.test(selectedFile.name);
+    const mediaEl = isVideo ? document.createElement("video") : document.createElement("audio");
     const url = URL.createObjectURL(selectedFile);
-    audio.src = url;
-    audio.onloadedmetadata = () => {
-      setAudioDurationSeconds(audio.duration || 0);
+    mediaEl.src = url;
+    mediaEl.onloadedmetadata = () => {
+      if (Number.isFinite(mediaEl.duration) && mediaEl.duration > 0) {
+        setAudioDurationSeconds(mediaEl.duration);
+      }
       URL.revokeObjectURL(url);
     };
-    audio.onerror = () => {
+    mediaEl.onerror = () => {
       URL.revokeObjectURL(url);
     };
 
-    if (user?.id) {
-      performTranscription(selectedFile, user.id);
-    }
-  }, [selectedFile, user?.id]);
+    performTranscription(selectedFile, user?.id || "guest_user");
+  }, [selectedFile]);
 
   async function performTranscription(file: File, userId: string) {
     try {
       setIsTranscribing(true);
-      let mediaKey = cachedMediaKey;
-      if (!mediaKey) {
-        mediaKey = await uploadFileViaPresign(file, "whiteboardVideo", userId);
-        setCachedMediaKey(mediaKey);
+      setTranscriptionError(null);
+
+      // Trigger background presigned upload for cachedMediaKey (for render job)
+      if (!cachedMediaKey) {
+        uploadFileViaPresign(file, "whiteboardVideo", userId)
+          .then((key) => setCachedMediaKey(key))
+          .catch((err) => console.warn("Background upload presign warning:", err));
       }
+
+      const formData = new FormData();
+      formData.append("file", file, file.name);
+      formData.append("fileName", file.name);
+      formData.append("spokenLanguage", "auto");
 
       const res = await fetch("/api/reels/transcribe", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mediaKey,
-          fileName: file.name,
-          spokenLanguage: "auto",
-        }),
+        body: formData,
       });
 
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.ok && data.transcript) {
         setTranscript(data.transcript);
+        setTranscriptionError(null);
+      } else {
+        const errorMsg = data.error || `Transcription failed (${res.status})`;
+        setTranscriptionError(errorMsg);
+        console.error("Auto-transcription error:", res.status, data);
       }
-    } catch (err) {
-      console.warn("Auto-transcription error:", err);
+    } catch (err: any) {
+      const errorMsg = err?.message || "Network error during transcription.";
+      setTranscriptionError(errorMsg);
+      console.error("Auto-transcription network error:", err);
     } finally {
       setIsTranscribing(false);
     }
@@ -553,9 +570,10 @@ export default function WhiteboardVideoPage() {
                 transcript={transcript}
                 onTranscriptChange={setTranscript}
                 isTranscribing={isTranscribing}
+                transcriptionError={transcriptionError}
                 onReTranscribe={() => {
-                  if (selectedFile && user?.id) {
-                    performTranscription(selectedFile, user.id);
+                  if (selectedFile) {
+                    performTranscription(selectedFile, user?.id || "guest_user");
                   }
                 }}
                 whiteboardFont={whiteboardFont}

@@ -26,10 +26,10 @@ export function HomepageTrustStrip() {
   ];
 
   return (
-    <section aria-label="Platform facts" className="border-b border-white/10 bg-[#050505] px-4 py-5 sm:px-6">
+    <section aria-label="Platform facts" className="border-b border-white/10 bg-[#070B14] px-4 py-5 sm:px-6">
       <div className="mx-auto grid max-w-7xl grid-cols-2 gap-3 lg:grid-cols-4">
         {facts.map(({ label, Icon }) => (
-          <div key={label} className="flex items-center justify-center gap-2.5 rounded-2xl border border-white/[0.07] bg-[#0F1117] px-3.5 py-3 text-center text-xs font-bold text-zinc-300 shadow-sm transition hover:border-[#FF6D00]/40 hover:text-white">
+          <div key={label} className="flex items-center justify-center gap-2.5 rounded-2xl border border-white/10 bg-[#0E1526]/80 px-3.5 py-3 text-center text-xs font-bold text-zinc-300 shadow-sm transition hover:border-[#FF6D00]/40 hover:text-white">
             <Icon size={15} className="shrink-0 text-[#FF9100]" />
             <span>{label}</span>
           </div>
@@ -136,84 +136,113 @@ export function PlatformJourney() {
   const steps = [
     {
       number: 'STEP 01',
-      title: '1. Upload your media',
-      sub: 'Drop your voiceover, audio, images, or raw video',
+      title: '1. Upload Media',
+      sub: 'Drop your voiceover audio, images, or raw video footage.',
+      tag: 'Instant Ingest',
       IconComponent: Icon3DStep1,
-      badgeStyle: 'border-amber-500/40 bg-amber-500/10 text-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.25)]',
-      iconBoxStyle: 'border-amber-500/40 bg-gradient-to-br from-amber-500/25 via-amber-500/10 to-[#151821] text-amber-400 shadow-amber-500/20 group-hover:border-amber-400 group-hover:shadow-amber-500/40',
-      glowColor: 'bg-amber-500/10 group-hover:bg-amber-500/25',
+      badgeStyle: 'border-amber-500/40 bg-amber-500/15 text-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.3)]',
+      iconBoxStyle: 'border-amber-500/40 bg-gradient-to-br from-amber-500/25 via-amber-500/10 to-[#151E30] text-amber-400 shadow-amber-500/20 group-hover:border-amber-400 group-hover:shadow-amber-500/40',
+      glowColor: 'bg-amber-500/15 group-hover:bg-amber-500/30',
+      tagColor: 'text-amber-400 bg-amber-500/10 border-amber-500/25',
     },
     {
       number: 'STEP 02',
-      title: '2. AI does the heavy work',
-      sub: 'Smart transcription, scene pacing & motion layout',
+      title: '2. AI Generation',
+      sub: 'Ultra-fast speech transcription, scene pacing & kinetic layout.',
+      tag: 'Whisper & Gemini',
       IconComponent: Icon3DStep2,
-      badgeStyle: 'border-cyan-500/40 bg-cyan-500/10 text-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.25)]',
-      iconBoxStyle: 'border-cyan-500/40 bg-gradient-to-br from-cyan-500/25 via-cyan-500/10 to-[#151821] text-cyan-400 shadow-cyan-500/20 group-hover:border-cyan-400 group-hover:shadow-cyan-500/40',
-      glowColor: 'bg-cyan-500/10 group-hover:bg-cyan-500/25',
+      badgeStyle: 'border-cyan-500/40 bg-cyan-500/15 text-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.3)]',
+      iconBoxStyle: 'border-cyan-500/40 bg-gradient-to-br from-cyan-500/25 via-cyan-500/10 to-[#151E30] text-cyan-400 shadow-cyan-500/20 group-hover:border-cyan-400 group-hover:shadow-cyan-500/40',
+      glowColor: 'bg-cyan-500/15 group-hover:bg-cyan-500/30',
+      tagColor: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/25',
     },
     {
       number: 'STEP 03',
-      title: '3. Review your result',
-      sub: 'Inspect captions, pacing, and visual style in real-time',
+      title: '3. Real-Time Review',
+      sub: 'Inspect subtitle styles, captions, and visuals before render.',
+      tag: 'Live Style Picker',
       IconComponent: Icon3DStep3,
-      badgeStyle: 'border-purple-500/40 bg-purple-500/10 text-purple-400 shadow-[0_0_12px_rgba(168,85,247,0.25)]',
-      iconBoxStyle: 'border-purple-500/40 bg-gradient-to-br from-purple-500/25 via-purple-500/10 to-[#151821] text-purple-400 shadow-purple-500/20 group-hover:border-purple-400 group-hover:shadow-purple-500/40',
-      glowColor: 'bg-purple-500/10 group-hover:bg-purple-500/25',
+      badgeStyle: 'border-purple-500/40 bg-purple-500/15 text-purple-400 shadow-[0_0_12px_rgba(168,85,247,0.3)]',
+      iconBoxStyle: 'border-purple-500/40 bg-gradient-to-br from-purple-500/25 via-purple-500/10 to-[#151E30] text-purple-400 shadow-purple-500/20 group-hover:border-purple-400 group-hover:shadow-purple-500/40',
+      glowColor: 'bg-purple-500/15 group-hover:bg-purple-500/30',
+      tagColor: 'text-purple-400 bg-purple-500/10 border-purple-500/25',
     },
     {
       number: 'STEP 04',
-      title: '4. Download your video',
-      sub: 'Export crisp 1080p Full HD MP4 ready to publish',
+      title: '4. 1080p Cloud Export',
+      sub: 'Download crisp 1080p Full HD MP4 video ready to publish.',
+      tag: '30 FPS Full HD',
       IconComponent: Icon3DStep4,
-      badgeStyle: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.25)]',
-      iconBoxStyle: 'border-emerald-500/40 bg-gradient-to-br from-emerald-500/25 via-emerald-500/10 to-[#151821] text-emerald-400 shadow-emerald-500/20 group-hover:border-emerald-400 group-hover:shadow-emerald-500/40',
-      glowColor: 'bg-emerald-500/10 group-hover:bg-emerald-500/25',
+      badgeStyle: 'border-emerald-500/40 bg-emerald-500/15 text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.3)]',
+      iconBoxStyle: 'border-emerald-500/40 bg-gradient-to-br from-emerald-500/25 via-emerald-500/10 to-[#151E30] text-emerald-400 shadow-emerald-500/20 group-hover:border-emerald-400 group-hover:shadow-emerald-500/40',
+      glowColor: 'bg-emerald-500/15 group-hover:bg-emerald-500/30',
+      tagColor: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/25',
     },
   ];
 
   return (
-    <section className="relative border-b border-white/10 bg-[#050505] px-4 py-12 sm:px-6 sm:py-16 overflow-hidden">
-      {/* Ambient background glow */}
-      <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-[#FF6D00]/10 blur-[140px] rounded-full" />
+    <section className="relative border-b border-white/10 bg-gradient-to-b from-[#070B14] via-[#0E172E] to-[#070B14] px-4 py-16 sm:px-6 sm:py-24 overflow-hidden">
+      {/* Ambient background glows */}
+      <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[450px] bg-gradient-to-r from-[#FF6D00]/10 via-[#00F5D4]/8 to-[#A855F7]/10 blur-[150px] rounded-full" />
+      <div className="pointer-events-none absolute -right-20 top-20 h-72 w-72 rounded-full bg-[#10B981]/10 blur-[130px]" />
       
       <div className="relative z-10 mx-auto max-w-7xl">
         <div className="mx-auto max-w-3xl text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#FF6D00]/30 bg-[#FF6D00]/10 px-4 py-1.5 text-xs font-black uppercase tracking-wider text-[#FF9100]">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#FF6D00]/30 bg-[#FF6D00]/10 px-4 py-1.5 text-xs font-black uppercase tracking-wider text-[#FF9100] shadow-sm">
             <Sparkles size={14} className="text-[#FF8F00] animate-pulse" />
-            <span>How Itnavideo works</span>
+            <span>How Itnavideo Works</span>
           </div>
-          <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-5xl">
-            Simple 4-step creation.{' '}
-            <span className="text-[#FF8F00]">
-              Zero timeline lag.
+          <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-5xl font-sans">
+            Simple 4-Step Creation.{' '}
+            <span className="bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] bg-clip-text text-transparent">
+              Zero Timeline Lag.
             </span>
           </h2>
-          <p className="mt-4 text-sm leading-relaxed text-zinc-400 sm:text-base">
-            Upload → AI creates → Review → Download. From media to a published 1080p Full HD video in seconds.
+          <p className="mt-4 text-sm leading-relaxed text-zinc-300 sm:text-base max-w-2xl mx-auto">
+            Upload &rarr; AI creates &rarr; Review &rarr; Download. From raw media to a polished 1080p Full HD video in seconds.
           </p>
         </div>
 
-        <div className="mt-12 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-          {steps.map(({ number, title, sub, IconComponent, badgeStyle, iconBoxStyle, glowColor }) => (
-            <article key={number} className="group relative flex flex-col items-center text-center rounded-[28px] border border-white/[0.08] bg-white/[0.03] p-6 sm:p-8 shadow-2xl backdrop-blur-xl transition-all duration-300 hover:border-white/20 hover:-translate-y-2 hover:shadow-2xl">
-              {/* Step glowing micro-badge */}
-              <span className={`absolute top-4 right-4 flex h-6 px-2.5 items-center justify-center rounded-full border font-mono text-[10px] font-black tracking-wider ${badgeStyle}`}>
-                {number}
-              </span>
+        {/* Steps Grid with Connected Visual Progression Timeline */}
+        <div className="relative mt-16 sm:mt-20">
+          {/* Glowing Connected Timeline Rail (Desktop only) */}
+          <div className="pointer-events-none hidden lg:block absolute top-[72px] left-[12%] right-[12%] h-[3px] bg-gradient-to-r from-amber-500/40 via-cyan-400/40 via-purple-500/40 to-emerald-400/40 rounded-full shadow-[0_0_15px_rgba(255,109,0,0.4)] z-0" />
 
-              {/* Large 3D Micro-Illustration Container */}
-              <div className={`mt-2 flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center rounded-[28px] border shadow-xl group-hover:scale-110 transition-all duration-300 relative ${iconBoxStyle}`}>
-                <div className={`absolute inset-0 rounded-[28px] blur-md transition duration-300 ${glowColor}`} />
-                <div className="relative z-10">
-                  <IconComponent />
+          <div className="relative z-10 grid gap-6 sm:gap-7 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            {steps.map(({ number, title, sub, tag, IconComponent, badgeStyle, iconBoxStyle, glowColor, tagColor }, idx) => (
+              <article
+                key={number}
+                className="group relative flex flex-col items-center text-center rounded-[32px] border border-white/10 bg-[#0E1526]/90 p-7 sm:p-8 shadow-2xl shadow-black/60 backdrop-blur-2xl transition-all duration-300 hover:border-white/25 hover:bg-[#131E35] hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.8)]"
+              >
+                {/* Step Pill Badge */}
+                <div className="flex items-center justify-between w-full mb-4">
+                  <span className={`flex h-6 px-3 items-center justify-center rounded-full border font-mono text-[11px] font-black tracking-wider ${badgeStyle}`}>
+                    {number}
+                  </span>
+                  <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border ${tagColor}`}>
+                    {tag}
+                  </span>
                 </div>
-              </div>
 
-              <h3 className="mt-6 text-base sm:text-lg font-black text-white group-hover:text-[#FFA726] transition-colors">{title}</h3>
-              <p className="mt-2 text-xs text-zinc-400 leading-relaxed">{sub}</p>
-            </article>
-          ))}
+                {/* Large 3D Micro-Illustration Container */}
+                <div className={`mt-2 flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center rounded-[28px] border shadow-xl group-hover:scale-110 transition-all duration-300 relative ${iconBoxStyle}`}>
+                  <div className={`absolute inset-0 rounded-[28px] blur-md transition duration-300 ${glowColor}`} />
+                  <div className="relative z-10">
+                    <IconComponent />
+                  </div>
+                </div>
+
+                <h3 className="mt-6 text-base sm:text-lg font-black text-white group-hover:text-[#FFA726] transition-colors">{title}</h3>
+                <p className="mt-2 text-xs sm:text-[13px] text-zinc-300 leading-relaxed font-normal">{sub}</p>
+
+                {/* Step order indicator dot */}
+                <div className="mt-5 flex items-center gap-1.5 text-[11px] font-bold text-zinc-500 group-hover:text-zinc-300 transition-colors">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#FF6D00]" />
+                  <span>Stage {idx + 1} of 4</span>
+                </div>
+              </article>
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -249,7 +278,7 @@ export function WhyItnavideo() {
   ];
 
   return (
-    <section className="relative border-b border-white/10 bg-[#050505] px-4 py-12 sm:px-6 sm:py-16">
+    <section className="relative border-b border-white/10 bg-gradient-to-b from-[#070B14] via-[#0A0F1D] to-[#070B14] px-4 py-12 sm:px-6 sm:py-16">
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
         <div>
           <div className="inline-flex items-center gap-2 rounded-full border border-[#FF6D00]/30 bg-[#FF6D00]/10 px-4 py-1.5 text-xs font-black uppercase tracking-wider text-[#FF9100]">
@@ -259,12 +288,12 @@ export function WhyItnavideo() {
           <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-5xl">
             Built for creators,<br className="hidden sm:block" /> not editors.
           </h2>
-          <p className="mt-4 max-w-xl text-sm leading-relaxed text-zinc-400 sm:text-base">
+          <p className="mt-4 max-w-xl text-sm leading-relaxed text-zinc-300 sm:text-base">
             Pick the outcome you want. The studio handles scene timing, subtitles, pacing, and 1080p rendering — you just press render.
           </p>
           <Link
             href="/video-types"
-            className="mt-7 inline-flex items-center gap-2 rounded-full border border-white/15 bg-[#0F1117] px-6 py-3.5 text-sm font-black text-white shadow-md transition hover:border-[#FF6D00]/50 hover:bg-[#151821] hover:text-[#FFA726] active:scale-95"
+            className="mt-7 inline-flex items-center gap-2 rounded-full border border-white/15 bg-[#0E1526] px-6 py-3.5 text-sm font-black text-white shadow-md transition hover:border-[#FF6D00]/50 hover:bg-[#151E30] hover:text-[#FFA726] active:scale-95"
           >
             <span>Compare all 11 video studios</span>
             <ArrowRight size={15} className="text-[#FF8F00]" />
@@ -273,9 +302,9 @@ export function WhyItnavideo() {
 
         <div className="grid gap-4 sm:grid-cols-2">
           {stats.map(({ stat, title, subtext, Icon }) => (
-            <article key={title} className="group rounded-[28px] border border-white/[0.07] bg-[#0F1117] p-5 shadow-lg transition-all duration-300 hover:border-[#FF6D00]/50 hover:-translate-y-1">
+            <article key={title} className="group rounded-[28px] border border-white/10 bg-[#0E1526]/80 p-5 shadow-lg transition-all duration-300 hover:border-[#FF6D00]/50 hover:bg-[#0E1526] hover:-translate-y-1">
               <div className="flex items-center justify-between">
-                <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-[#151821] text-[#FF9100] group-hover:border-[#FF6D00]/50 group-hover:text-[#FFA726] transition">
+                <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-[#151E30] text-[#FF9100] group-hover:border-[#FF6D00]/50 group-hover:text-[#FFA726] transition">
                   <Icon size={19} />
                 </span>
                 <span className="rounded-xl border border-[#FF6D00]/30 bg-[#FF6D00]/10 px-3 py-1 text-xs font-black text-[#FF9100] group-hover:bg-[#FF6D00] group-hover:text-black transition">
@@ -283,7 +312,7 @@ export function WhyItnavideo() {
                 </span>
               </div>
               <h3 className="mt-4 text-base font-black text-white">{title}</h3>
-              <p className="mt-1 text-xs leading-relaxed text-zinc-400">{subtext}</p>
+              <p className="mt-1 text-xs leading-relaxed text-zinc-300">{subtext}</p>
             </article>
           ))}
         </div>
@@ -294,8 +323,8 @@ export function WhyItnavideo() {
 
 export function HomepageFinalCta() {
   return (
-    <section className="relative border-t border-white/10 bg-[#050505] px-4 py-12 sm:px-6 sm:py-16 overflow-hidden">
-      <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[32px] border border-[#FF6D00]/30 bg-gradient-to-b from-[#0F1117] via-[#12141A] to-[#050505] p-7 text-center shadow-2xl shadow-[#FF6D00]/10 sm:p-12">
+    <section className="relative border-t border-white/10 bg-gradient-to-b from-[#080C16] via-[#0E1526] to-[#070B14] px-4 py-12 sm:px-6 sm:py-16 overflow-hidden">
+      <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[32px] border border-[#FF6D00]/30 bg-gradient-to-b from-[#0E1526] via-[#121A30] to-[#070B14] p-7 text-center shadow-2xl shadow-[#FF6D00]/10 sm:p-12">
         {/* Glow blur backgrounds */}
         <div className="pointer-events-none absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-[#FF6D00]/15 blur-3xl" />
         <div className="pointer-events-none absolute -top-20 -right-20 h-64 w-64 rounded-full bg-[#FFA726]/10 blur-3xl" />
@@ -311,7 +340,7 @@ export function HomepageFinalCta() {
               AI video?
             </span>
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-xs sm:text-sm font-semibold text-zinc-400">
+          <p className="mx-auto mt-4 max-w-2xl text-xs sm:text-sm font-semibold text-zinc-300">
             No credit card required.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3.5 sm:flex-row">
@@ -323,7 +352,7 @@ export function HomepageFinalCta() {
             </Link>
             <Link
               href="/pricing"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/15 bg-[#0F1117] px-7 py-4 text-sm font-bold text-white shadow-md transition hover:border-[#FF6D00]/50 hover:bg-[#151821] hover:text-[#FFA726] active:scale-95 sm:w-auto"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/15 bg-[#0E1526] px-7 py-4 text-sm font-bold text-white shadow-md transition hover:border-[#FF6D00]/50 hover:bg-[#151E30] hover:text-[#FFA726] active:scale-95 sm:w-auto"
             >
               View Pricing
             </Link>

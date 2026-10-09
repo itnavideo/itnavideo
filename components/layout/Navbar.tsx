@@ -97,14 +97,14 @@ export default function Navbar() {
     <>
       <header
         ref={navRef}
-        className={`sticky top-0 z-50 w-full transition-all duration-300 px-4 py-3 md:px-8 border-b ${
+        className={`sticky top-0 z-50 w-full transition-all duration-300 px-4 py-3.5 md:px-8 border-b ${
           isLightPage
             ? scrolled
               ? 'border-slate-200 bg-white/95 text-slate-900 backdrop-blur-md shadow-xs'
               : 'border-slate-100 bg-white/90 text-slate-900 backdrop-blur-md shadow-none'
             : scrolled
-              ? 'border-white/[0.08] bg-[#050505]/85 text-white backdrop-blur-md shadow-lg shadow-black/40'
-              : 'border-white/[0.06] bg-[#050505]/75 text-white backdrop-blur-md shadow-none'
+              ? 'border-white/10 bg-[#070B14]/90 text-white backdrop-blur-2xl shadow-2xl shadow-black/60'
+              : 'border-white/[0.08] bg-[#070B14]/75 text-white backdrop-blur-xl shadow-lg shadow-black/20'
         }`}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between">

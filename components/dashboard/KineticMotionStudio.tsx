@@ -641,9 +641,6 @@ function KMLivePreviewModal({
                   }}
                 />
 
-                {/* Grid Overlay */}
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none" />
-
                 {/* Header Tag */}
                 <div className="relative z-10 pt-4 flex items-center justify-between text-[10px] text-zinc-300 font-mono font-bold">
                   <span>9:16 FULL HD</span>

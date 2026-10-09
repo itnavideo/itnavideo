@@ -71,16 +71,8 @@ export default function ContactPage() {
   return (
     <main className="min-h-screen bg-[#050505] text-white selection:bg-[#FF6D00]/30 selection:text-white pt-24 sm:pt-28 pb-24 sm:pb-32 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       
-      {/* ── AMBIENT BACKGROUND GLOW & BLUEPRINT GRID ── */}
+      {/* ── AMBIENT BACKGROUND GLOW ── */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-        {/* Subtle Blueprint Grid Pattern */}
-        <div
-          className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:48px_48px]"
-          style={{
-            WebkitMaskImage: "radial-gradient(ellipse 70% 50% at 50% 30%, black 40%, transparent 100%)",
-            maskImage: "radial-gradient(ellipse 70% 50% at 50% 30%, black 40%, transparent 100%)",
-          }}
-        />
         {/* Ambient Warm Orange Spotlights */}
         <div className="absolute top-28 left-10 lg:left-32 w-[600px] h-[500px] bg-[#FF6D00]/10 rounded-full blur-[150px]" />
         <div className="absolute bottom-20 right-10 w-[500px] h-[400px] bg-[#FFA726]/5 rounded-full blur-[140px]" />

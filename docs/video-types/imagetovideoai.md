@@ -33,13 +33,13 @@
 2. **Step 2 — Your Story Visuals & AI Character Consistency**:
    - **`AI Generated (Consistent Characters)` (Primary for User Stories)**:
      - **Main Character (Required)** + **Character 2 (Optional)** + **Character 3 (Optional)** image reference uploads for character consistency across story scenes.
-     - **Hard Constraint Visual Style**: `2D`, `3D`, or `Realistic` enforced strictly across all scenes.
+     - **Hard Constraint Visual Style**: `2D` or `Realistic` enforced strictly across all scenes.
      - **Gemini 2.0 / Vertex AI Scene Planner**: Plans story beats dynamically (~5-6s fast / ~9-10s explanatory) with scene visual prompts.
      - **Vertex AI Imagen 3 Customization Engine**: Generates character-consistent images passing subject/style references.
      - **Direct Timeline Assignment**: Bypasses runtime external image search during rendering; each scene knows its exact generated image URL.
      - **Individual Image Regeneration (`[ 🔄 Regenerate Image ]`)**: Regenerate any specific scene image on demand while preserving style, character references, and script context.
      - **Resilient S3 Media Storage**: Saves generated images asynchronously to AWS S3; if S3 fails, falls back gracefully to Data URLs so render jobs never fail.
-   - **`Itnavideo Assets` (Default)**: Match narration to selected 2D, 3D, or Realistic local image library.
+   - **`Itnavideo Assets` (Default)**: Match narration to selected 2D or Realistic local image library.
    - **`User Uploaded Images`**: Upload custom images/screenshots. Use only these images; do not add stock photos.
    - **`Mix`**: Place uploaded images at key story beats and fill remaining scenes from local Itnavideo style library.
 3. **Step 3 — Captions & Subtitles**:

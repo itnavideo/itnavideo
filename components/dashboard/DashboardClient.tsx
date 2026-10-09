@@ -369,9 +369,6 @@ export default function DashboardClient() {
 
   return (
     <div className="min-h-screen bg-[#090A0F] text-white selection:bg-[#FF6D00]/40 selection:text-[#FF8F00] max-w-full overflow-x-hidden relative">
-      {/* Background Grid Pattern */}
-      <div className="fixed inset-0 pointer-events-none z-0 bg-[radial-gradient(rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:28px_28px] opacity-70" />
-
       {/* Ambient Mesh Glows */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute -top-32 left-1/4 w-[600px] h-[600px] bg-gradient-to-br from-[#FF6D00]/15 via-[#FF8F00]/5 to-transparent rounded-full blur-[140px]" />

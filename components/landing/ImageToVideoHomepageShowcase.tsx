@@ -139,22 +139,22 @@ export default function ImageToVideoHomepageShowcase() {
   const marqueeItems = [...HOMEPAGE_IMAGE_TO_VIDEO_ITEMS, ...HOMEPAGE_IMAGE_TO_VIDEO_ITEMS, ...HOMEPAGE_IMAGE_TO_VIDEO_ITEMS];
 
   return (
-    <section className="relative w-full overflow-hidden bg-[#050505] border-b border-white/10 py-10 sm:py-14">
+    <section className="relative w-full overflow-hidden bg-gradient-to-b from-[#070B14] via-[#0E1226] to-[#070B14] border-b border-white/10 py-10 sm:py-14">
       {/* Ambient Glow */}
-      <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 w-[700px] h-[300px] bg-[#FF6D00]/8 blur-[120px] rounded-full" />
+      <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 w-[700px] h-[300px] bg-purple-500/10 blur-[120px] rounded-full" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div>
-            <div className="mb-2.5 inline-flex items-center gap-2 rounded-full border border-[#FF6D00]/30 bg-[#FF6D00]/10 px-4 py-1 text-xs font-black uppercase tracking-wider text-[#FF9100]">
-              <Film size={12} className="text-[#FF8F00]" />
-              Image to Video AI
+            <div className="mb-2 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-purple-400">
+              <Film size={13} className="text-purple-400" />
+              <span>Image to Video AI</span>
             </div>
             <h2 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl font-heading">
               Image to Video AI.{" "}
-              <span className="bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-purple-400 via-fuchsia-400 to-pink-500 bg-clip-text text-transparent">
                 Turn photos &amp; audio into 16:9 movies.
               </span>
             </h2>
@@ -165,10 +165,10 @@ export default function ImageToVideoHomepageShowcase() {
 
           <Link
             href="/dashboard/image-to-video-ai"
-            className="inline-flex shrink-0 items-center gap-2 rounded-full border border-white/15 bg-[#0E1526] px-5 py-2.5 text-xs font-black text-white hover:border-[#FF6D00]/50 hover:text-[#FFA726] transition active:scale-95 cursor-pointer"
+            className="inline-flex shrink-0 items-center gap-2 rounded-2xl border border-purple-500/30 bg-purple-500/10 px-5 py-2.5 text-xs font-bold text-purple-200 hover:bg-purple-500/20 hover:border-purple-500/50 transition active:scale-95 cursor-pointer shadow-lg shadow-purple-500/10"
           >
             <span>Create Image to Video AI</span>
-            <ArrowRight size={13} className="text-[#FF8F00]" />
+            <ArrowRight size={13} className="text-purple-400" />
           </Link>
         </div>
 

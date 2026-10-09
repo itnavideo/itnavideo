@@ -78,12 +78,12 @@ export default function FAQSection() {
   };
 
   return (
-    <section className="relative overflow-hidden px-4 py-16 sm:px-6 sm:py-24 bg-[#050505] border-t border-white/10 text-white">
+    <section className="relative overflow-hidden px-4 py-16 sm:px-6 sm:py-24 bg-gradient-to-b from-[#070B14] via-[#080C16] to-[#070B14] border-t border-white/10 text-white">
       <div className="max-w-4xl mx-auto relative z-10">
         {/* Header */}
         <div className="text-center mb-10 sm:mb-12 space-y-3.5">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#FF6D00]/30 bg-[#FF6D00]/10 px-4 py-1.5 text-[11px] font-black uppercase tracking-widest text-[#FF9100]">
-            <Sparkles size={13} className="text-[#FF8F00] animate-pulse" />
+          <div className="inline-flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest text-amber-400">
+            <HelpCircle size={14} className="text-amber-400" />
             <span>Help &amp; Answers</span>
           </div>
 
@@ -94,7 +94,7 @@ export default function FAQSection() {
             className="text-3xl font-black text-white sm:text-5xl font-sans tracking-tight"
           >
             Frequently Asked{' '}
-            <span className="bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 bg-clip-text text-transparent">
               Questions
             </span>
           </motion.h2>
@@ -115,10 +115,10 @@ export default function FAQSection() {
                     setSelectedCategory(cat.id);
                     setOpenIndex(null);
                   }}
-                  className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer ${
+                  className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer ${
                     isActive
-                      ? 'bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-md shadow-[#FF6D00]/25 font-black scale-[1.02]'
-                      : 'border border-white/[0.07] bg-[#0F1117] text-zinc-300 hover:border-[#FF6D00]/40 hover:bg-[#151821] hover:text-white'
+                      ? 'bg-gradient-to-r from-amber-400 to-yellow-500 text-black shadow-md shadow-amber-500/25 font-black scale-[1.02]'
+                      : 'border border-white/[0.07] bg-[#0F1117] text-zinc-300 hover:border-amber-500/40 hover:bg-[#151821] hover:text-white'
                   }`}
                   type="button"
                 >
@@ -222,7 +222,7 @@ export default function FAQSection() {
         <div className="mt-8 text-center">
           <Link
             href="/video-types#faq"
-            className="inline-flex items-center gap-2 rounded-full border border-[#FF6D00]/40 bg-[#FF6D00]/10 px-6 py-3 text-xs font-black text-[#FFA726] hover:bg-[#FF6D00]/20 hover:border-[#FF6D00]/60 transition-all shadow-md active:scale-95"
+            className="inline-flex items-center gap-2 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-6 py-3 text-xs font-bold text-amber-300 hover:bg-amber-500/20 hover:border-amber-500/50 transition-all shadow-lg shadow-amber-500/10 active:scale-95"
           >
             <span>View All FAQs →</span>
           </Link>

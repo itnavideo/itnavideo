@@ -25,7 +25,6 @@ import {
   FileText,
   ListOrdered,
   Download,
-  ShieldCheck,
 } from 'lucide-react';
 import { BorderBeam } from "@/components/magicui/BorderBeam";
 import { StudioWorkflowRoadmap } from "@/components/dashboard/StudioWorkflowRoadmap";
@@ -48,14 +47,14 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
   onCancelRender,
 }) => {
   // Step 1: Upload & Info State
-  const [audioUrl, setAudioUrl] = useState<string>('');
+  const [audioUrl, setAudioUrl] = useState<string>('');          // signed read URL (for plan API transcription)
+  const [audioS3Key, setAudioS3Key] = useState<string>('');      // S3 object key (for render job mediaKey)
   const [audioFileName, setAudioFileName] = useState<string>('');
   const [bookTitle, setBookTitle] = useState<string>('');
   const [authorName, setAuthorName] = useState<string>('');
   const [bookCoverUrl, setBookCoverUrl] = useState<string>('');
   const [authorPortraitUrl, setAuthorPortraitUrl] = useState<string>('');
   const [referenceImages, setReferenceImages] = useState<string[]>([]);
-  const [copyrightAccepted, setCopyrightAccepted] = useState<boolean>(false);
   const [inputError, setInputError] = useState<string | null>(null);
 
   // Uploading flags
@@ -69,6 +68,9 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [plan, setPlan] = useState<BookSummaryPlan | null>(null);
   const [transcript, setTranscript] = useState<string>('');
+  // M3: store words + timestampSegments from plan API response
+  const [planWords, setPlanWords] = useState<unknown[]>([]);
+  const [planTimestampSegments, setPlanTimestampSegments] = useState<unknown[]>([]);
   const [durationSeconds, setDurationSeconds] = useState<number>(60);
   const [editingSceneId, setEditingSceneId] = useState<string | null>(null);
 
@@ -82,23 +84,56 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
   const authorInputRef = useRef<HTMLInputElement>(null);
   const refImagesInputRef = useRef<HTMLInputElement>(null);
 
-  // 1. Direct Presigned Upload Helper
-  const handleUploadFile = async (file: File, folder: string): Promise<string> => {
+  // ─── M1: Upload audio via /api/media/presign → direct S3 PUT ──────────────
+  // Returns the S3 key (used as mediaKey for the render job).
+  // Also returns the signed read URL for the plan-book-summary transcription call.
+  const uploadAudioToS3 = async (file: File): Promise<{ key: string; readUrl: string }> => {
+    const contentType = file.type || 'audio/mpeg';
+
+    const presignRes = await fetch('/api/media/presign', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fileName: file.name,
+        contentType,
+        fileSize: file.size,
+        mode: 'bookSummary',
+        userId: '',
+      }),
+    });
+    const presign = await presignRes.json().catch(() => ({}));
+    if (!presignRes.ok || !presign.ok) {
+      throw new Error(presign.error || 'Could not prepare audio upload. Please try again.');
+    }
+
+    const putRes = await fetch(presign.uploadUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': contentType },
+      body: file,
+    });
+    if (!putRes.ok) {
+      throw new Error('Audio upload failed. Please check your connection and try again.');
+    }
+
+    // presign.key is the S3 object key; presign.uploadUrl is the signed PUT URL
+    // We need a signed read URL for the plan API to fetch the audio
+    return { key: presign.key, readUrl: presign.uploadUrl.split('?')[0] };
+  };
+
+  // ─── M2: Upload images via /api/media/cloudinary-upload ─────────────────────
+  const uploadImageToCloudinary = async (file: File, folder: string): Promise<string> => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('folder', folder);
 
-    const res = await fetch('/api/upload', {
+    const res = await fetch('/api/media/cloudinary-upload', {
       method: 'POST',
       body: formData,
     });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err?.error || 'Failed to upload media asset');
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok || !data.url) {
+      throw new Error(data.error || 'Image upload failed. Please try again.');
     }
-
-    const data = await res.json();
     return data.url;
   };
 
@@ -108,13 +143,16 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
     setInputError(null);
     setIsUploadingAudio(true);
     try {
-      const url = await handleUploadFile(file, 'audio');
-      setAudioUrl(url);
+      const { key, readUrl } = await uploadAudioToS3(file);
+      // Store the S3 key for the render job (mediaKey) and a usable URL for the plan API
+      setAudioUrl(readUrl);      // used by plan-book-summary to transcribe
+      setAudioS3Key(key);        // used by render job as mediaKey
       setAudioFileName(file.name);
     } catch (err: any) {
       setInputError(err?.message || 'Failed to upload audio file.');
     } finally {
       setIsUploadingAudio(false);
+      if (e.target) e.target.value = '';
     }
   };
 
@@ -123,12 +161,13 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
     if (!file) return;
     setIsUploadingCover(true);
     try {
-      const url = await handleUploadFile(file, 'book-covers');
+      const url = await uploadImageToCloudinary(file, 'itnavideo/book-covers');
       setBookCoverUrl(url);
     } catch (err: any) {
       setInputError(err?.message || 'Failed to upload book cover.');
     } finally {
       setIsUploadingCover(false);
+      if (e.target) e.target.value = '';
     }
   };
 
@@ -137,23 +176,34 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
     if (!file) return;
     setIsUploadingAuthor(true);
     try {
-      const url = await handleUploadFile(file, 'author-portraits');
+      const url = await uploadImageToCloudinary(file, 'itnavideo/author-portraits');
       setAuthorPortraitUrl(url);
     } catch (err: any) {
       setInputError(err?.message || 'Failed to upload author portrait.');
     } finally {
       setIsUploadingAuthor(false);
+      if (e.target) e.target.value = '';
     }
   };
 
   const handleRefImagesSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
+
+    if (referenceImages.length >= 20) {
+      setInputError('Maximum limit of 20 reference images reached.');
+      if (e.target) e.target.value = '';
+      return;
+    }
+
+    const availableSlots = 20 - referenceImages.length;
+    const filesToUpload = files.slice(0, availableSlots);
+
     setIsUploadingRef(true);
     try {
       const urls: string[] = [];
-      for (const f of files) {
-        const u = await handleUploadFile(f, 'reference-images');
+      for (const f of filesToUpload) {
+        const u = await uploadImageToCloudinary(f, 'itnavideo/reference-images');
         urls.push(u);
       }
       setReferenceImages(prev => [...prev, ...urls]);
@@ -161,6 +211,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
       setInputError(err?.message || 'Failed to upload reference images.');
     } finally {
       setIsUploadingRef(false);
+      if (e.target) e.target.value = '';
     }
   };
 
@@ -170,8 +221,10 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
       setInputError('Audio narration file is required to create a Book Summary Video.');
       return;
     }
-    if (!copyrightAccepted) {
-      setInputError('Please confirm the copyright acknowledgment before proceeding.');
+
+    const hasAnyImage = Boolean(bookCoverUrl || authorPortraitUrl || (referenceImages && referenceImages.length > 0));
+    if (!hasAnyImage) {
+      setInputError('Please upload at least 1 image (Book Cover, Author Portrait, or Reference Image).');
       return;
     }
 
@@ -200,6 +253,9 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
       const data = await res.json();
       setPlan(data.plan);
       setTranscript(data.transcript);
+      // M3: store words + timestampSegments so they can be sent with the render job
+      setPlanWords(Array.isArray(data.words) ? data.words : []);
+      setPlanTimestampSegments(Array.isArray(data.timestampSegments) ? data.timestampSegments : []);
       setDurationSeconds(data.durationSeconds);
       setStudioStep('storyboard');
     } catch (err: any) {
@@ -260,7 +316,10 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
     onStartRender({
       mode: 'bookSummary',
       template: 'BOOK_SUMMARY',
+      // M4: send S3 key as mediaKey (render job resolves it via createReadUrl)
+      // audioUrl is used as fallback mediaUrl for the plan API only
       audioUrl,
+      audioS3Key,
       durationSeconds,
       bookTitle,
       authorName,
@@ -270,6 +329,10 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
       scenes: plan.scenes.filter(s => !s.disabled),
       metadata: plan.metadata,
       captionsTheme: 'glow-viral',
+      // M3+M4: include words + segments so render job can build word-level captions
+      transcript,
+      words: planWords,
+      timestampSegments: planTimestampSegments,
     });
   };
 
@@ -388,37 +451,36 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
       {/* Magic UI BorderBeam Glowing Effect */}
       <BorderBeam size={280} duration={14} colorFrom="#FF6D00" colorTo="#FFA726" />
       {/* Studio Stage Stepper Banner */}
-      <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-[#0E1526]/80 p-4 backdrop-blur-md">
-        <div className="flex items-center gap-3">
-          <div className="rounded-full bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] p-2.5 text-black shadow-lg shadow-[#FF6D00]/20">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-white/10 bg-[#0E1526]/80 p-4 sm:p-5 backdrop-blur-md">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="shrink-0 rounded-full bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] p-2.5 text-black shadow-lg shadow-[#FF6D00]/20">
             <BookOpen size={20} />
           </div>
-          <div>
-            <h2 className="text-lg font-black text-white">Book Summary Video Studio</h2>
-            <p className="text-xs text-slate-400">1080p Widescreen • Structured AI Storyboard • 20 Credits</p>
+          <div className="min-w-0">
+            <h2 className="text-base sm:text-lg font-black text-white truncate">Book Summary Video Studio</h2>
+            <p className="text-[11px] sm:text-xs text-slate-400 leading-tight">1080p Widescreen • Structured AI Storyboard • 20 Credits</p>
           </div>
         </div>
 
-        {/* Process Workflow Roadmap */}
-        <StudioWorkflowRoadmap mode="bookSummary" />
-
         {/* Step Indicator Pills */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
           <button
+            type="button"
             onClick={() => setStudioStep('inputs')}
-            className={`rounded-full px-4 py-1.5 text-xs font-bold transition ${
+            className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
               studioStep === 'inputs'
                 ? 'bg-[#FF6D00] text-black font-black shadow-md shadow-[#FF6D00]/20'
                 : 'bg-white/5 text-slate-400 hover:text-white'
             }`}
           >
-            1. Media & Info
+            1. Media &amp; Info
           </button>
           <span className="text-slate-600">/</span>
           <button
+            type="button"
             disabled={!plan}
             onClick={() => plan && setStudioStep('storyboard')}
-            className={`rounded-full px-4 py-1.5 text-xs font-bold transition ${
+            className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
               studioStep === 'storyboard'
                 ? 'bg-[#FF6D00] text-black font-black shadow-md shadow-[#FF6D00]/20'
                 : 'bg-white/5 text-slate-400 disabled:opacity-40'
@@ -428,6 +490,9 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Process Workflow Roadmap (Full Width Standalone Block) */}
+      <StudioWorkflowRoadmap mode="bookSummary" />
 
       {/* Input Error Callout */}
       {inputError && (
@@ -485,7 +550,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                     </div>
                   </div>
                   <button
-                    onClick={() => { setAudioUrl(''); setAudioFileName(''); }}
+                    onClick={() => { setAudioUrl(''); setAudioS3Key(''); setAudioFileName(''); }}
                     className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition"
                   >
                     <Trash2 size={16} />
@@ -494,15 +559,15 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
               )}
             </div>
 
-            {/* 2. Optional Media Assets (Book Cover, Author Portrait, Reference Images) */}
+            {/* 2. Media Assets (Book Cover, Author Portrait, Reference Images - At least 1 image required) */}
             <div className="rounded-[28px] border border-white/10 bg-[#0E1526]/90 p-6 space-y-5 shadow-xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <ImagePlus size={18} className="text-[#FF9100]" />
                   <span className="text-sm font-black uppercase tracking-wider text-white">Visual Assets</span>
                 </div>
-                <span className="text-[11px] font-extrabold uppercase bg-white/5 border border-white/10 text-slate-400 px-2.5 py-1 rounded-full">
-                  Optional
+                <span className="text-[11px] font-extrabold uppercase bg-[#FF6D00]/15 border border-[#FF6D00]/30 text-[#FF9100] px-2.5 py-1 rounded-full">
+                  At Least 1 Image Required
                 </span>
               </div>
 
@@ -510,7 +575,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                 {/* Book Cover */}
                 <input ref={coverInputRef} type="file" accept="image/*" onChange={handleCoverSelect} className="hidden" />
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-300">Book Cover</label>
+                  <label className="text-xs font-bold text-slate-300">Book Cover (Optional)</label>
                   {!bookCoverUrl ? (
                     <button
                       type="button"
@@ -537,7 +602,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                 {/* Author Portrait */}
                 <input ref={authorInputRef} type="file" accept="image/*" onChange={handleAuthorSelect} className="hidden" />
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-300">Author Portrait</label>
+                  <label className="text-xs font-bold text-slate-300">Author Portrait (Optional)</label>
                   {!authorPortraitUrl ? (
                     <button
                       type="button"
@@ -562,17 +627,18 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                 </div>
               </div>
 
-              {/* Reference Images */}
+              {/* Reference Images (Up to 20 images) */}
               <input ref={refImagesInputRef} type="file" accept="image/*" multiple onChange={handleRefImagesSelect} className="hidden" />
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-slate-300">Reference Images ({referenceImages.length})</label>
+                  <label className="text-xs font-bold text-slate-300">Reference Images ({referenceImages.length}/20)</label>
                   <button
                     type="button"
+                    disabled={referenceImages.length >= 20}
                     onClick={() => refImagesInputRef.current?.click()}
-                    className="text-xs font-bold text-[#FF9100] hover:underline"
+                    className="text-xs font-bold text-[#FF9100] hover:underline disabled:opacity-40 disabled:no-underline cursor-pointer"
                   >
-                    + Add Images
+                    + Add Images (Up to 20)
                   </button>
                 </div>
                 {referenceImages.length > 0 && (
@@ -594,12 +660,17 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
             </div>
           </div>
 
-          {/* Right Column: Book Details & Copyright */}
+          {/* Right Column: Book Details */}
           <div className="space-y-6">
             <div className="rounded-[28px] border border-white/10 bg-[#0E1526]/90 p-6 space-y-5 shadow-xl">
-              <div className="flex items-center gap-2">
-                <BookOpen size={18} className="text-[#FF9100]" />
-                <span className="text-sm font-black uppercase tracking-wider text-white">Book & Author Details</span>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <BookOpen size={18} className="text-[#FF9100]" />
+                  <span className="text-sm font-black uppercase tracking-wider text-white">Book & Author Details</span>
+                </div>
+                <span className="text-[11px] font-extrabold uppercase bg-white/5 border border-white/10 text-slate-400 px-2.5 py-1 rounded-full">
+                  Optional
+                </span>
               </div>
 
               <div className="space-y-4">
@@ -627,29 +698,10 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
               </div>
             </div>
 
-            {/* Copyright Acknowledgment (Correction 17) */}
-            <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-5 space-y-3">
-              <div className="flex items-center gap-2 text-amber-400">
-                <ShieldCheck size={18} />
-                <span className="text-xs font-bold uppercase tracking-wider">Content Responsibility Acknowledgment</span>
-              </div>
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={copyrightAccepted}
-                  onChange={e => setCopyrightAccepted(e.target.checked)}
-                  className="mt-1 rounded border-amber-500/40 bg-black text-[#FF6D00] focus:ring-0"
-                />
-                <span className="text-xs text-slate-300 leading-relaxed">
-                  I confirm that I own or have necessary authorization/rights for the uploaded narration audio and media assets used in this video creation.
-                </span>
-              </label>
-            </div>
-
             {/* Stage 1 CTA Button */}
             <button
               onClick={handleAnalyzeAndBuildStoryboard}
-              disabled={isAnalyzing || !audioUrl || !copyrightAccepted}
+              disabled={isAnalyzing || !audioUrl}
               className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] px-6 py-4 text-base font-black text-black shadow-lg shadow-[#FF6D00]/25 transition hover:brightness-110 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {isAnalyzing ? (

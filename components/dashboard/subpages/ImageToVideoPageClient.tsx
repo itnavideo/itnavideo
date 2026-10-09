@@ -77,7 +77,7 @@ export default function ImageToVideoDashboardPage() {
   const [imageToVideoAssetMode, setImageToVideoAssetMode] = useState<ImageToVideoAssetMode>("library");
   const [imageToVideoStockUrls, setImageToVideoStockUrls] = useState<string[]>([]);
   const [imageToVideoAiImageUrls, setImageToVideoAiImageUrls] = useState<string[]>([]);
-  const [imageToVideoVisualStyle, setImageToVideoVisualStyle] = useState<"2d" | "3d" | "realistic">("realistic");
+  const [imageToVideoVisualStyle, setImageToVideoVisualStyle] = useState<"2d" | "realistic">("realistic");
   const [imageToVideoCharacterFile, setImageToVideoCharacterFile] = useState<File | null>(null);
   const [imageToVideoCharacterDnaHint, setImageToVideoCharacterDnaHint] = useState<string>("");
 

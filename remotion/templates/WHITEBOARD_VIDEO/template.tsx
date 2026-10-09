@@ -15,6 +15,26 @@ import { loadFont as loadJakarta } from '@remotion/google-fonts/PlusJakartaSans'
 import { loadFont as loadInter } from '@remotion/google-fonts/Inter';
 import { DEFAULT_FPS, secondsToFrames } from '../../constants';
 import { WHITEBOARD_VECTOR_DRAWINGS, resolveVectorDrawing } from '../../../lib/whiteboard/vectorDrawings';
+import {
+  WB_CANVAS_WIDTH,
+  WB_CANVAS_HEIGHT,
+  WB_SAFE_LEFT,
+  WB_SAFE_RIGHT,
+  WB_SAFE_TOP,
+  WB_SAFE_BOTTOM,
+  WB_USABLE_WIDTH,
+  WB_USABLE_HEIGHT,
+  WB_MAX_POINTS_PER_BOARD,
+  WB_MAX_WORDS_PER_POINT,
+  WB_MAX_LINES_PER_POINT,
+  WB_MAX_CHARS_PER_LINE,
+  WB_TITLE_SIZE,
+  WB_CONCLUSION_SIZE,
+  WB_POINT_SIZE_BY_COUNT,
+  WB_POINT_SIZE_MIN,
+  WB_REVEAL_FADE_FRAMES,
+  WB_REVEAL_TRANSLATE_Y_START,
+} from '../../../lib/whiteboard/whiteboardConstants';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -92,7 +112,7 @@ const COLORS = {
   red: '#B91C1C',        // Deep Crimson
   green: '#0F766E',      // Boardroom Emerald/Teal
   black: '#0F172A',      // Primary Text
-  grey: '#475569',       // Muted Muted
+  grey: '#475569',       // Muted Gray
   gold: '#D97706',       // Amber Gold
 };
 
@@ -108,21 +128,15 @@ const BULLET_CHARS: Record<string, string> = {
 
 type BoardConfig = {
   image: string;
-  safeZone: { top: string; left: string; right: string; bottom: string };
   titleSize: number;
-  pointSize: number;
   conclusionSize: number;
-  maxPoints: number;
-  maxTextRows: number;
-  maxCharsPerLine: number;
-  cameraZoomMax: number;
 };
 
 const BOARD_CONFIGS: Record<string, BoardConfig> = {
   'corporate-luxury': {
     image: 'assets/reusable/images/whiteboard-corporate-clean.png',
-    safeZone: { top: '10%', left: '8%', right: '8%', bottom: '12%' },
-    titleSize: 52, pointSize: 34, conclusionSize: 38, maxPoints: 4, maxTextRows: 9, maxCharsPerLine: 26, cameraZoomMax: 1,
+    titleSize: WB_TITLE_SIZE,
+    conclusionSize: WB_CONCLUSION_SIZE,
   },
 };
 
@@ -134,17 +148,6 @@ const resolveAsset = (value: string) => {
   if (!value) return '';
   if (/^(https?:|data:|blob:)/i.test(value)) return value;
   return staticFile(value.replace(/^\/+/, ''));
-};
-
-type RenderPoint = WhiteboardPoint & { displayText: string; lineCount: number };
-
-type RenderPlan = {
-  title: string;
-  titleLines: number;
-  points: RenderPoint[];
-  conclusion: string;
-  conclusionLines: number;
-  scale: number;
 };
 
 function clampText(text: string, maxChars: number) {
@@ -162,7 +165,7 @@ function splitLongToken(token: string, charsPerLine: number) {
   return parts;
 }
 
-function wrapWhiteboardText(text: string, charsPerLine: number, maxLines: number) {
+function wrapWhiteboardText(text: string, charsPerLine: number = WB_MAX_CHARS_PER_LINE, maxLines: number = WB_MAX_LINES_PER_POINT) {
   const words = clampText(text, charsPerLine * maxLines)
     .split(/\s+/)
     .filter(Boolean)
@@ -190,58 +193,6 @@ function countLines(text: string) {
   return text ? text.split('\n').length : 0;
 }
 
-function createRenderPlan({
-  title,
-  points,
-  conclusion,
-  board,
-}: {
-  title: string;
-  points: WhiteboardPoint[];
-  conclusion?: string;
-  board: BoardConfig;
-}): RenderPlan {
-  const titleText = wrapWhiteboardText(title || 'Executive Strategy', board.maxCharsPerLine, 2);
-  const pointCharsPerLine = Math.max(18, board.maxCharsPerLine - 4);
-  const displayPoints = points.slice(0, board.maxPoints).map((point) => {
-    const displayText = wrapWhiteboardText(point.text, pointCharsPerLine, 2);
-    return {...point, displayText, lineCount: countLines(displayText)};
-  });
-  const conclusionText = conclusion ? wrapWhiteboardText(conclusion, board.maxCharsPerLine, 2) : '';
-
-  const usedRows = countLines(titleText) + 1 + displayPoints.reduce((total, point) => total + point.lineCount + 1, 0) + (conclusionText ? 2 : 0);
-  const scale = Math.max(0.82, Math.min(1, board.maxTextRows / Math.max(board.maxTextRows, usedRows)));
-
-  return {
-    title: titleText,
-    titleLines: countLines(titleText),
-    points: displayPoints,
-    conclusion: conclusionText,
-    conclusionLines: countLines(conclusionText),
-    scale,
-  };
-}
-
-function useWriteProgress(text: string, startFrame: number, endFrame: number) {
-  const frame = useCurrentFrame();
-  const availableFrames = Math.max(12, endFrame - startFrame);
-  const writeDurationFrames = Math.max(10, Math.min(availableFrames, Math.round(availableFrames * 0.72)));
-  const progress = interpolate(
-    frame,
-    [startFrame, startFrame + writeDurationFrames],
-    [0, 1],
-    {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
-  );
-
-  return {
-    progress,
-    visibleChars: Math.floor(text.length * progress),
-    isWriting: frame >= startFrame && progress < 1,
-    isComplete: progress >= 1,
-    endFrame: startFrame + writeDurationFrames,
-  };
-}
-
 // ── SVG Doodle Icons ──────────────────────────────────────────────────────────
 
 const DOODLE_PATHS: Record<string, { path: string; viewBox: string; len: number }> = {
@@ -252,7 +203,7 @@ const DOODLE_PATHS: Record<string, { path: string; viewBox: string; len: number 
   circle: { path: 'M14 3 C20 3 25 8 25 14 C25 20 20 25 14 25 C8 25 3 20 3 14 C3 8 8 3 14 3', viewBox: '0 0 28 28', len: 64 },
 };
 
-function DoodleIcon({ type, color, startFrame, size = 28 }: { type: string; color: string; startFrame: number; size?: number }) {
+function DoodleIcon({ type, color, startFrame, size = 32 }: { type: string; color: string; startFrame: number; size?: number }) {
   const frame = useCurrentFrame();
   const doodle = DOODLE_PATHS[type];
   if (!doodle) return null;
@@ -261,7 +212,7 @@ function DoodleIcon({ type, color, startFrame, size = 28 }: { type: string; colo
   if (progress <= 0) return null;
 
   return (
-    <svg width={size} height={size} viewBox={doodle.viewBox} style={{ flexShrink: 0, marginRight: 12, marginTop: 4 }}>
+    <svg width={size} height={size} viewBox={doodle.viewBox} style={{ flexShrink: 0, marginRight: 12, marginTop: 2 }}>
       <path
         d={doodle.path}
         fill="none"
@@ -277,7 +228,6 @@ function DoodleIcon({ type, color, startFrame, size = 28 }: { type: string; colo
 }
 
 // ── Procedural Whiteboard Vector Drawing Component ─────────────────────────────
-// Stroke-dashoffset progressive path reveal synchronized with speech & marker SFX
 
 function WhiteboardDynamicSketch({
   drawingId,
@@ -285,7 +235,7 @@ function WhiteboardDynamicSketch({
   color,
   startFrame,
   endFrame,
-  size = 48,
+  size = 56,
 }: {
   drawingId?: string;
   fallbackText?: string;
@@ -318,7 +268,7 @@ function WhiteboardDynamicSketch({
       viewBox={drawingDef.viewBox}
       style={{
         flexShrink: 0,
-        marginRight: 14,
+        marginRight: 16,
         overflow: 'visible',
       }}
     >
@@ -338,7 +288,6 @@ function WhiteboardDynamicSketch({
         if (progress <= 0) return null;
 
         const strokeColor = stroke.colorKey ? colorMap[stroke.colorKey] || color : color;
-        // Safety buffer multiplier (1.18x) guarantees strokeDasharray > actual path geometry length
         const strokeDashLen = Math.ceil((stroke.len || 100) * 1.18);
 
         return (
@@ -347,7 +296,7 @@ function WhiteboardDynamicSketch({
             d={stroke.d}
             fill="none"
             stroke={strokeColor}
-            strokeWidth={stroke.strokeWidth || 3}
+            strokeWidth={stroke.strokeWidth || 3.2}
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeDasharray={strokeDashLen}
@@ -509,39 +458,7 @@ function MarkerUnderline({ color, startFrame, variant = 0 }: { color: string; st
   );
 }
 
-// ── Pen Cursor Component ──────────────────────────────────────────────────────
-
-function PenCursor({ color, visible }: { color: string; visible: boolean }) {
-  const frame = useCurrentFrame();
-  if (!visible) return null;
-
-  const wobbleY = Math.sin(frame * 0.35) * 2;
-  const wobbleR = Math.sin(frame * 0.2) * 4 - 10;
-
-  return (
-    <span
-      style={{
-        display: 'inline-block',
-        width: 18,
-        height: 38,
-        marginLeft: 4,
-        verticalAlign: 'baseline',
-        transform: `translate(2px, calc(0.18em + ${wobbleY}px)) rotate(${wobbleR}deg)`,
-        transformOrigin: 'bottom left',
-        pointerEvents: 'none',
-      }}
-    >
-      <svg width="18" height="38" viewBox="0 0 16 38" style={{ overflow: 'visible' }}>
-        <rect x="3" y="0" width="10" height="24" rx="3" fill={color} opacity="0.95" />
-        <rect x="2" y="20" width="12" height="4" rx="2" fill={color} opacity="0.7" />
-        <polygon points="5,24 8,36 11,24" fill="#1E293B" />
-        <rect x="5" y="3" width="2.5" height="12" rx="1.5" fill="white" opacity="0.3" />
-      </svg>
-    </span>
-  );
-}
-
-// ── Writing Line with Executive Corporate Slide Styling ─────────────────────
+// ── FIXED-LAYOUT WRITING LINE COMPONENT (Zero Layout Shifts) ──────────────────
 
 function WritingLine({
   text,
@@ -551,7 +468,7 @@ function WritingLine({
   focusEndTime,
   color,
   fontSize,
-  fontWeight = 600,
+  fontWeight = 700,
   isTitle = false,
   bulletPrefix = '',
   isHighlight = false,
@@ -584,29 +501,40 @@ function WritingLine({
 }) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const wp = useWriteProgress(text, startFrame, endFrame);
-  if (frame < startFrame - 2) return null;
 
-  const opacity = interpolate(frame, [startFrame - 2, startFrame + 4], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  const displayText = text.slice(0, wp.visibleChars);
-  const bulletOpacity = interpolate(wp.progress, [0, 0.12], [0, 1], {extrapolateRight: 'clamp'});
+  // Full text is rendered in full from frame 0 for stable line wrapping.
+  // Reveal is driven by opacity + small translateY over WB_REVEAL_FADE_FRAMES (8 frames).
+  const isRevealed = frame >= startFrame;
+  const opacity = interpolate(
+    frame,
+    [startFrame, startFrame + WB_REVEAL_FADE_FRAMES],
+    [0, 1],
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+  );
 
-  // Focus highlight matching current speech timeline
+  const translateY = interpolate(
+    frame,
+    [startFrame, startFrame + WB_REVEAL_FADE_FRAMES],
+    [WB_REVEAL_TRANSLATE_Y_START, 0],
+    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+  );
+
   const currentTime = frame / fps;
-  const isFocusActive = focusStartTime !== undefined && focusEndTime !== undefined && 
+  const isFocusActive = focusStartTime !== undefined && focusEndTime !== undefined &&
                        currentTime >= focusStartTime && currentTime <= focusEndTime;
 
   const isUrdu = language === 'ur' || direction === 'rtl';
   const isHindi = language === 'hi';
-  const activeFont = isTitle 
+  const activeFont = isTitle
     ? (isUrdu ? "'Noto Nastaliq Urdu', 'Gulzar', serif" : isHindi ? "'Kalam', sans-serif" : FONT_HEADER)
     : (isUrdu ? "'Noto Nastaliq Urdu', 'Gulzar', serif" : isHindi ? "'Kalam', sans-serif" : FONT_BODY);
-  const activeLineHeight = isUrdu ? 2.2 : isTitle ? 1.2 : 1.38;
+  const activeLineHeight = isUrdu ? 2.2 : isTitle ? 1.15 : 1.35;
 
   return (
     <div style={{
-      opacity,
-      marginBottom: isTitle ? 28 : 20,
+      opacity: isTitle ? (frame >= startFrame ? opacity : 0) : opacity,
+      transform: `translateY(${translateY}px)`,
+      marginBottom: isTitle ? 32 : 24,
       display: 'flex',
       flexDirection: isUrdu ? 'row-reverse' : 'row',
       alignItems: 'center',
@@ -614,15 +542,15 @@ function WritingLine({
       textAlign: isUrdu ? 'right' : 'left',
       minWidth: 0,
       position: 'relative',
-      background: isTitle ? 'transparent' : 'rgba(255, 255, 255, 0.94)',
-      border: isTitle ? 'none' : isFocusActive ? '2px solid #FACC15' : '1px solid rgba(226, 232, 240, 0.95)',
-      boxShadow: isTitle 
-        ? 'none' 
-        : isFocusActive 
-        ? '0 10px 28px rgba(234, 179, 8, 0.18), 0 2px 8px rgba(0,0,0,0.04)' 
+      background: isTitle ? 'transparent' : 'rgba(255, 255, 255, 0.96)',
+      border: isTitle ? 'none' : isFocusActive ? '3px solid #FACC15' : '1.5px solid rgba(226, 232, 240, 0.95)',
+      boxShadow: isTitle
+        ? 'none'
+        : isFocusActive
+        ? '0 12px 32px rgba(234, 179, 8, 0.22), 0 2px 8px rgba(0,0,0,0.04)'
         : '0 8px 24px rgba(15, 23, 42, 0.08), 0 2px 6px rgba(15, 23, 42, 0.04)',
-      borderRadius: isTitle ? 0 : 20,
-      padding: isTitle ? '0' : '18px 22px',
+      borderRadius: isTitle ? 0 : 24,
+      padding: isTitle ? '0' : '22px 28px',
       backdropFilter: isTitle ? 'none' : 'blur(12px)',
       transition: 'border 0.2s ease, box-shadow 0.2s ease',
     }}>
@@ -634,35 +562,31 @@ function WritingLine({
           color={color}
           startFrame={startFrame}
           endFrame={endFrame}
-          size={Math.max(44, Math.round(fontSize * 1.3))}
+          size={Math.max(48, Math.round(fontSize * 1.15))}
         />
       ) : iconUrl ? (
         <div style={{
-          width: Math.max(38, Math.round(fontSize * 1.15)),
-          height: Math.max(38, Math.round(fontSize * 1.15)),
-          marginLeft: isUrdu ? 14 : 0,
-          marginRight: isUrdu ? 0 : 14,
+          width: Math.max(44, Math.round(fontSize * 1.1)),
+          height: Math.max(44, Math.round(fontSize * 1.1)),
+          marginLeft: isUrdu ? 16 : 0,
+          marginRight: isUrdu ? 0 : 16,
           flexShrink: 0,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           background: '#FEF9C3',
-          borderRadius: 14,
-          padding: 6,
+          borderRadius: 16,
+          padding: 8,
           border: '1.5px solid #FDE047',
         }}>
           <Img src={iconUrl} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         </div>
       ) : icon && icon !== 'none' ? (
-        <DoodleIcon type={icon} color={color} startFrame={startFrame + 2} size={Math.max(22, fontSize * 0.72)} />
+        <DoodleIcon type={icon} color={color} startFrame={startFrame} size={Math.max(28, fontSize * 0.7)} />
       ) : null}
 
-      <div style={{flex: 1, minWidth: 0}}>
-        <div style={{
-          display: 'inline-block',
-          position: 'relative',
-          maxWidth: '100%',
-        }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'inline-block', position: 'relative', maxWidth: '100%' }}>
           {/* Executive Corporate Number Badge */}
           {bulletPrefix && !isTitle ? (
             <span style={{
@@ -672,12 +596,11 @@ function WritingLine({
               background: color || COLORS.blue,
               color: '#FFFFFF',
               fontWeight: 800,
-              fontSize: Math.round(fontSize * 0.65),
-              padding: '2px 10px',
-              borderRadius: 8,
-              marginRight: isUrdu ? 0 : 12,
-              marginLeft: isUrdu ? 12 : 0,
-              opacity: bulletOpacity,
+              fontSize: Math.round(fontSize * 0.62),
+              padding: '4px 12px',
+              borderRadius: 10,
+              marginRight: isUrdu ? 0 : 14,
+              marginLeft: isUrdu ? 14 : 0,
               verticalAlign: 'middle',
             }}>
               {bulletPrefix.trim()}
@@ -687,7 +610,7 @@ function WritingLine({
           <span style={{
             fontFamily: activeFont,
             fontSize,
-            fontWeight: isTitle ? 800 : fontWeight,
+            fontWeight: isTitle ? 900 : fontWeight,
             color: isTitle ? COLORS.title : '#0F172A',
             lineHeight: activeLineHeight,
             letterSpacing: isTitle ? '-0.02em' : '0.01em',
@@ -696,14 +619,13 @@ function WritingLine({
             display: 'inline',
             verticalAlign: 'middle',
           }}>
-            {displayText}
-            {wp.isWriting ? <PenCursor color={color} visible /> : null}
+            {text}
           </span>
 
-          {isTitle && wp.isComplete && <MarkerUnderline color={color} startFrame={wp.endFrame + 3} variant={0} />}
-          {isHighlight && !isTitle && wp.isComplete && <MarkerUnderline color={color} startFrame={wp.endFrame + 2} variant={pointIndex % 3} />}
+          {isTitle && isRevealed && <MarkerUnderline color={color} startFrame={startFrame + 4} variant={0} />}
+          {isHighlight && !isTitle && isRevealed && <MarkerUnderline color={color} startFrame={startFrame + 2} variant={pointIndex % 3} />}
 
-          {/* Dynamic real-time spoken highlight or focus circles */}
+          {/* Dynamic real-time spoken highlight or focus overlay */}
           {isFocusActive && (
             <FocusOverlay
               type={focusType}
@@ -717,7 +639,7 @@ function WritingLine({
   );
 }
 
-// ── Tabular Layout (Demo Video 2 Style) ───────────────────────────────────────
+// ── Tabular Layout View ───────────────────────────────────────────────────────
 
 function WhiteboardTableView({
   title,
@@ -743,28 +665,26 @@ function WhiteboardTableView({
       direction: isUrdu ? 'rtl' : 'ltr',
       fontFamily: font,
     }}>
-      {/* Title Header Banner */}
       <div style={{
         background: 'linear-gradient(135deg, #1E1B4B 0%, #312E81 100%)',
         color: '#FFFFFF',
-        borderRadius: 18,
-        padding: '16px 24px',
+        borderRadius: 20,
+        padding: '20px 28px',
         textAlign: 'center',
-        marginBottom: 20,
+        marginBottom: 24,
         boxShadow: '0 8px 24px rgba(30, 27, 75, 0.25)',
       }}>
         <h2 style={{
-          fontSize: 38,
-          fontWeight: 800,
+          fontSize: WB_TITLE_SIZE,
+          fontWeight: 900,
           margin: 0,
-          lineHeight: isUrdu ? 2.2 : 1.3,
+          lineHeight: isUrdu ? 2.2 : 1.2,
         }}>
           {title}
         </h2>
       </div>
 
-      {/* Structured Table Rows */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {rows.map((row, idx) => {
           const isRowActive = currentTime >= row.startTime && currentTime <= row.endTime;
           const rowOpacity = interpolate(
@@ -782,27 +702,27 @@ function WhiteboardTableView({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                padding: '14px 18px',
-                borderRadius: 16,
+                padding: '18px 22px',
+                borderRadius: 20,
                 background: isRowActive ? '#FEF08A' : 'rgba(255, 255, 255, 0.95)',
-                border: isRowActive ? '2px solid #EAB308' : '1.5px solid #E2E8F0',
-                boxShadow: isRowActive 
-                  ? '0 8px 20px rgba(234, 179, 8, 0.25)' 
+                border: isRowActive ? '2.5px solid #EAB308' : '1.5px solid #E2E8F0',
+                boxShadow: isRowActive
+                  ? '0 8px 20px rgba(234, 179, 8, 0.25)'
                   : '0 4px 12px rgba(15, 23, 42, 0.05)',
                 transition: 'background 0.2s ease, border 0.2s ease',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                 {row.iconUrl && (
                   <div style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: 12,
+                    width: 48,
+                    height: 48,
+                    borderRadius: 14,
                     background: '#F1F5F9',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    padding: 6,
+                    padding: 8,
                     border: '1px solid #CBD5E1',
                     flexShrink: 0,
                   }}>
@@ -811,7 +731,7 @@ function WhiteboardTableView({
                 )}
                 <div>
                   <div style={{
-                    fontSize: 28,
+                    fontSize: 32,
                     fontWeight: 800,
                     color: '#0F172A',
                     lineHeight: isUrdu ? 2.1 : 1.3,
@@ -819,7 +739,7 @@ function WhiteboardTableView({
                     {row.label}
                   </div>
                   <div style={{
-                    fontSize: 22,
+                    fontSize: 24,
                     color: '#334155',
                     fontWeight: 600,
                     lineHeight: isUrdu ? 1.9 : 1.3,
@@ -833,10 +753,10 @@ function WhiteboardTableView({
                 <div style={{
                   background: isRowActive ? '#1E293B' : '#E0E7FF',
                   color: isRowActive ? '#FEF08A' : '#3730A3',
-                  padding: '6px 14px',
-                  borderRadius: 10,
-                  fontWeight: 700,
-                  fontSize: 20,
+                  padding: '8px 16px',
+                  borderRadius: 12,
+                  fontWeight: 800,
+                  fontSize: 22,
                   lineHeight: isUrdu ? 1.8 : 1.2,
                   whiteSpace: 'nowrap',
                 }}>
@@ -851,7 +771,7 @@ function WhiteboardTableView({
   );
 }
 
-// ── Quiz Layout (Demo Video 1 Style) ──────────────────────────────────────────
+// ── Quiz Layout View ──────────────────────────────────────────────────────────
 
 function WhiteboardQuizView({
   quiz,
@@ -883,23 +803,22 @@ function WhiteboardQuizView({
       direction: isUrdu ? 'rtl' : 'ltr',
       fontFamily: font,
     }}>
-      {/* Decorative Islamic / Whiteboard Quiz Badge */}
       <div style={{
         background: 'linear-gradient(135deg, #065F46 0%, #047857 100%)',
         color: '#FFFFFF',
-        borderRadius: 20,
-        padding: '20px 24px',
+        borderRadius: 24,
+        padding: '24px 28px',
         textAlign: 'center',
         marginBottom: 24,
         boxShadow: '0 10px 28px rgba(6, 95, 70, 0.28)',
         border: '2px solid #34D399',
       }}>
-        <div style={{ fontSize: 20, opacity: 0.9, letterSpacing: '0.05em', marginBottom: 6 }}>
+        <div style={{ fontSize: 22, opacity: 0.9, letterSpacing: '0.05em', marginBottom: 6 }}>
           {isUrdu ? 'سوال نمبر ۱' : 'QUESTION'}
         </div>
         <h2 style={{
-          fontSize: 34,
-          fontWeight: 800,
+          fontSize: 38,
+          fontWeight: 900,
           margin: 0,
           lineHeight: isUrdu ? 2.3 : 1.35,
         }}>
@@ -907,12 +826,11 @@ function WhiteboardQuizView({
         </h2>
       </div>
 
-      {/* Countdown Timer Bar */}
       <div style={{
         width: '100%',
-        height: 12,
+        height: 14,
         backgroundColor: '#E2E8F0',
-        borderRadius: 6,
+        borderRadius: 7,
         overflow: 'hidden',
         marginBottom: 24,
       }}>
@@ -924,8 +842,7 @@ function WhiteboardQuizView({
         }} />
       </div>
 
-      {/* 4 Option Pills */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {quiz.options.map((opt, idx) => {
           const isCorrect = idx === quiz.correctIndex;
           const showAnswer = isRevealed && isCorrect;
@@ -937,36 +854,36 @@ function WhiteboardQuizView({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                padding: '16px 20px',
-                borderRadius: 16,
+                padding: '18px 24px',
+                borderRadius: 20,
                 background: showAnswer ? '#DCFCE7' : 'rgba(255, 255, 255, 0.95)',
                 border: showAnswer ? '3px solid #16A34A' : '1.5px solid #CBD5E1',
-                boxShadow: showAnswer 
-                  ? '0 8px 24px rgba(22, 163, 74, 0.3)' 
+                boxShadow: showAnswer
+                  ? '0 8px 24px rgba(22, 163, 74, 0.3)'
                   : '0 4px 12px rgba(15, 23, 42, 0.05)',
                 transform: showAnswer ? 'scale(1.02)' : 'none',
                 transition: 'all 0.25s ease',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                 <span style={{
-                  width: 38,
-                  height: 38,
-                  borderRadius: 10,
+                  width: 44,
+                  height: 44,
+                  borderRadius: 12,
                   backgroundColor: showAnswer ? '#16A34A' : '#0F172A',
                   color: '#FFFFFF',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontWeight: 800,
-                  fontSize: 20,
+                  fontWeight: 900,
+                  fontSize: 22,
                   flexShrink: 0,
                 }}>
                   {['A', 'B', 'C', 'D'][idx] || idx + 1}
                 </span>
 
                 <span style={{
-                  fontSize: 26,
+                  fontSize: 28,
                   fontWeight: 700,
                   color: '#0F172A',
                   lineHeight: isUrdu ? 2.1 : 1.3,
@@ -978,7 +895,7 @@ function WhiteboardQuizView({
               {showAnswer && (
                 <span style={{
                   color: '#16A34A',
-                  fontSize: 32,
+                  fontSize: 36,
                   fontWeight: 900,
                   display: 'flex',
                   alignItems: 'center',
@@ -1016,14 +933,14 @@ function WhiteboardVideo({
 }: WhiteboardVideoProps) {
   const frame = useCurrentFrame();
   const [imageError, setImageError] = useState(false);
-  const {fps, durationInFrames} = useVideoConfig();
+  const { fps } = useVideoConfig();
   const resolvedSrc = resolveAsset(mediaSrc);
   const board = BOARD_CONFIGS[boardStyle] || BOARD_CONFIGS[DEFAULT_BOARD];
   const boardImage = boardImageUrl ? resolveAsset(boardImageUrl) : staticFile(board.image);
 
   const currentTime = frame / fps;
 
-  // 1. Calculate active board clears/slides state-driven
+  // Calculate active board index
   const activeBoardIndex = useMemo(() => {
     let active = 0;
     for (const p of points) {
@@ -1035,39 +952,22 @@ function WhiteboardVideo({
     return active;
   }, [points, currentTime]);
 
-  // Filter points matching ONLY the currently active corporate board
+  // Points on the active board
   const activeBoardPoints = useMemo(() => {
     return points.filter((p) => (p.boardIndex ?? 0) === activeBoardIndex);
   }, [points, activeBoardIndex]);
 
-  // Construct independent layout plan so fonts stay beautiful and spacious
-  const renderPlan = useMemo(
-    () => createRenderPlan({title, points: activeBoardPoints, conclusion, board}),
-    [board, conclusion, activeBoardPoints, title],
-  );
+  // Fixed font size calculation per board (no transform scaling!)
+  const pointFontSize = useMemo(() => {
+    const count = activeBoardPoints.length;
+    const baseSize = WB_POINT_SIZE_BY_COUNT[count] || WB_POINT_SIZE_BY_COUNT[3];
+    return Math.max(WB_POINT_SIZE_MIN, baseSize);
+  }, [activeBoardPoints.length]);
 
-  const titleStartFrame = Math.round(0.55 * fps);
-  const titleEndFrame = titleStartFrame + Math.round(1.2 * fps);
-  const intro = spring({frame, fps, config: {damping: 22, mass: 0.8}});
+  const titleStartFrame = Math.round(0.4 * fps);
+  const titleEndFrame = titleStartFrame + Math.round(1.0 * fps);
+  const intro = spring({ frame, fps, config: { damping: 22, mass: 0.8 } });
 
-  // 2. Play Whiteboard Cap & Write Sounds
-  const isCapFrame = frame === 5 || (points.some(p => Math.round(p.startTime * fps) === frame));
-  
-  const isWritingActive = useMemo(() => {
-    const writing = activeBoardPoints.some(p => {
-      const start = Math.round(p.startTime * fps);
-      const end = Math.round(p.endTime * fps);
-      return frame >= start && frame <= end;
-    });
-    if (writing) return true;
-
-    return activeBoardPoints.some(p => {
-      const focusStart = Math.round(p.focusStartTime * fps);
-      return frame >= focusStart && frame <= (focusStart + 14);
-    });
-  }, [activeBoardPoints, frame, fps]);
-
-  // Multi-Board Auto-Erase & Page Transition Animation
   const firstPointOfCurrentBoard = activeBoardPoints[0];
   const boardTransitionStart = firstPointOfCurrentBoard && (firstPointOfCurrentBoard.boardIndex ?? 0) > 0
     ? Math.round(firstPointOfCurrentBoard.startTime * fps) - 8
@@ -1088,175 +988,127 @@ function WhiteboardVideo({
     { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
   );
 
-  const eraseWipeX = interpolate(
-    frame,
-    [boardTransitionStart - 2, boardTransitionStart + 6],
-    [-100, 100],
-    { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
-  );
-
   return (
-    <AbsoluteFill style={{background: '#0F172A'}}>
-      {/* Board image container */}
+    <AbsoluteFill style={{ background: '#0F172A' }}>
+      {/* Background board image */}
       <div style={{
         position: 'absolute',
         inset: 0,
         opacity: intro,
-        transformOrigin: 'center 30%',
       }}>
         {imageError ? (
           <div style={{
             width: '100%',
             height: '100%',
             background: 'radial-gradient(circle, #f8fafc 60%, #e2e8f0 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: 'inset 0 0 100px rgba(0,0,0,0.05)',
           }} />
         ) : (
           <Img
             src={boardImage}
             onError={() => setImageError(true)}
-            style={{width: '100%', height: '100%', objectFit: 'cover'}}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
         )}
       </div>
 
-      {/* Structured Executive Writing Surface */}
+      {/* FIXED SAFE-AREA CONTAINER (No scale transform, 100% layout stability) */}
       <div style={{
         position: 'absolute',
-        top: board.safeZone.top,
-        left: board.safeZone.left,
-        right: board.safeZone.right,
-        bottom: board.safeZone.bottom,
+        top: WB_SAFE_TOP,
+        left: WB_SAFE_LEFT,
+        width: WB_USABLE_WIDTH,
+        height: WB_USABLE_HEIGHT,
         overflow: 'hidden',
         zIndex: 10,
+        opacity: activeBoardIndex === 0 ? 1 : boardOpacity,
+        transform: `translateY(${activeBoardIndex === 0 ? 0 : boardTranslateY}px)`,
       }}>
-        <div style={{
-          width: `${100 / renderPlan.scale}%`,
-          minHeight: `${100 / renderPlan.scale}%`,
-          padding: '20px 16px',
-          opacity: activeBoardIndex === 0 ? 1 : boardOpacity,
-          transform: `scale(${renderPlan.scale}) translateY(${activeBoardIndex === 0 ? 0 : boardTranslateY}px)`,
-          transformOrigin: 'top left',
-          transition: 'opacity 0.2s ease-out',
-        }}>
-          {/* Subtle Whiteboard Duster / Erase Sheen on Board Transition */}
-          {isTransitioningBoard && (
-            <div style={{
-              position: 'absolute',
-              top: 0,
-              bottom: 0,
-              left: `${eraseWipeX}%`,
-              width: '120px',
-              background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)',
-              pointerEvents: 'none',
-              zIndex: 30,
-              filter: 'blur(4px)',
-            }} />
-          )}
+        {layoutType === 'table' && tableRows && tableRows.length > 0 ? (
+          <WhiteboardTableView
+            title={wrapWhiteboardText(title, WB_MAX_CHARS_PER_LINE, 2)}
+            rows={tableRows}
+            language={language}
+            direction={direction}
+            fps={fps}
+          />
+        ) : layoutType === 'quiz' && quiz ? (
+          <WhiteboardQuizView
+            quiz={quiz}
+            language={language}
+            direction={direction}
+            fps={fps}
+          />
+        ) : (
+          <>
+            {/* Title Header */}
+            <WritingLine
+              text={wrapWhiteboardText(title, WB_MAX_CHARS_PER_LINE, 2)}
+              startFrame={titleStartFrame}
+              endFrame={titleEndFrame}
+              color={titleColor || COLORS.title}
+              fontSize={WB_TITLE_SIZE}
+              fontWeight={900}
+              direction={direction}
+              language={language}
+              isTitle
+            />
 
-          {layoutType === 'table' && tableRows && tableRows.length > 0 ? (
-            <WhiteboardTableView
-              title={renderPlan.title}
-              rows={tableRows}
-              language={language}
-              direction={direction}
-              fps={fps}
-            />
-          ) : layoutType === 'quiz' && quiz ? (
-            <WhiteboardQuizView
-              quiz={quiz}
-              language={language}
-              direction={direction}
-              fps={fps}
-            />
-          ) : (
-            <>
-              {/* Main Strategic Title */}
+            {/* Points (Max 3 per board) */}
+            {activeBoardPoints.slice(0, WB_MAX_POINTS_PER_BOARD).map((point, index) => {
+              const bullet = point.bulletType === 'number'
+                ? `${index + 1}`
+                : BULLET_CHARS[point.bulletType] || '';
+              const startFrame = Math.round(point.startTime * fps);
+              const endFrame = Math.round(point.endTime * fps);
+              const wrappedText = wrapWhiteboardText(point.text, WB_MAX_CHARS_PER_LINE - 2, WB_MAX_LINES_PER_POINT);
+
+              return (
+                <WritingLine
+                  key={`${point.startTime}-${index}`}
+                  text={wrappedText}
+                  startFrame={startFrame}
+                  endFrame={endFrame}
+                  focusStartTime={point.focusStartTime}
+                  focusEndTime={point.focusEndTime}
+                  color={point.markerColor || COLORS.blue}
+                  fontSize={pointFontSize}
+                  fontWeight={700}
+                  bulletPrefix={bullet}
+                  isHighlight={point.isHighlight}
+                  icon={point.icon || 'none'}
+                  iconUrl={point.iconUrl}
+                  drawingId={point.drawingId}
+                  direction={direction}
+                  language={language}
+                  pointIndex={index}
+                  focusType={point.focusType || 'highlight'}
+                />
+              );
+            })}
+
+            {/* Conclusion Takeaway (shown on last board when time reaches conclusionTime) */}
+            {conclusion && currentTime >= (conclusionTime || 0) - 1 && (
               <WritingLine
-                text={renderPlan.title}
-                startFrame={titleStartFrame}
-                endFrame={titleEndFrame}
-                color={titleColor || COLORS.title}
-                fontSize={board.titleSize}
+                text={wrapWhiteboardText(conclusion, WB_MAX_CHARS_PER_LINE, 2)}
+                startFrame={Math.round((conclusionTime || 0) * fps)}
+                endFrame={Math.round((conclusionTime || 0) * fps) + 24}
+                color={COLORS.black}
+                fontSize={WB_CONCLUSION_SIZE}
                 fontWeight={800}
                 direction={direction}
                 language={language}
-                isTitle
+                bulletPrefix="★"
               />
-
-              {/* Render Active Points inside Corporate Executive Cards */}
-              {renderPlan.points.map((point, index) => {
-                const bullet = point.bulletType === 'number'
-                  ? `${index + 1}`
-                  : BULLET_CHARS[point.bulletType] || '';
-                const startFrame = Math.round(point.startTime * fps);
-                const endFrame = Math.round(point.endTime * fps);
-
-                return (
-                  <WritingLine
-                    key={`${point.startTime}-${index}`}
-                    text={point.displayText}
-                    startFrame={startFrame}
-                    endFrame={endFrame}
-                    focusStartTime={point.focusStartTime}
-                    focusEndTime={point.focusEndTime}
-                    color={point.markerColor || COLORS.blue}
-                    fontSize={board.pointSize}
-                    fontWeight={600}
-                    bulletPrefix={bullet}
-                    isHighlight={point.isHighlight}
-                    icon={point.icon || 'none'}
-                    iconUrl={point.iconUrl}
-                    drawingId={point.drawingId}
-                    direction={direction}
-                    language={language}
-                    pointIndex={index}
-                    focusType={point.focusType || 'highlight'}
-                  />
-                );
-              })}
-
-              {/* Action Conclusion Takeaway */}
-              {renderPlan.conclusion && currentTime >= (conclusionTime || 0) - 1 && (
-                <WritingLine
-                  text={renderPlan.conclusion}
-                  startFrame={Math.round((conclusionTime || 0) * fps)}
-                  endFrame={Math.round((conclusionTime || 0) * fps) + 24}
-                  color={COLORS.black}
-                  fontSize={board.conclusionSize}
-                  fontWeight={700}
-                  direction={direction}
-                  language={language}
-                  bulletPrefix="★"
-                />
-              )}
-            </>
-          )}
-        </div>
+            )}
+          </>
+        )}
       </div>
 
-      {/* 🔊 SUBTLE CORPORATE SFX SOUND DESIGN (Marker Sketch, Soft Click & Board Erase) */}
-      {isCapFrame && (
-        <Audio 
-          src={resolveAsset('assets/reusable/sound-effects/soft-click.wav')} 
-          volume={0.25} 
-        />
-      )}
-
-      {isWritingActive && (
-        <Audio 
-          src={resolveAsset('assets/reusable/sound-effects/pen-writing.wav')} 
-          volume={0.30} 
-        />
-      )}
-
+      {/* Sound Effects */}
       {isTransitioningBoard && (
-        <Audio 
-          src={resolveAsset('assets/reusable/sound-effects/swipe-right.wav')} 
-          volume={0.35} 
+        <Audio
+          src={resolveAsset('assets/reusable/sound-effects/swipe-right.wav')}
+          volume={0.35}
         />
       )}
 
@@ -1269,7 +1121,7 @@ function WhiteboardVideo({
           src={resolvedSrc}
           volume={sourceAudioVolume}
           startFrom={Math.round(mediaTrimStartSeconds * fps)}
-          style={{position: 'absolute', width: 0, height: 0, opacity: 0}}
+          style={{ position: 'absolute', width: 0, height: 0, opacity: 0 }}
         />
       )}
     </AbsoluteFill>
@@ -1286,10 +1138,10 @@ const defaultProps: WhiteboardVideoProps = {
   title: 'Executive Strategy',
   titleColor: COLORS.title,
   points: [
-    { text: 'Target the core growth bottleneck', startTime: 1.0, endTime: 1.8, focusStartTime: 2.0, focusEndTime: 7.5, markerColor: COLORS.blue, bulletType: 'number', icon: 'lightbulb', boardIndex: 0, focusType: 'circle' },
-    { text: 'Validate key executive metrics', startTime: 1.4, endTime: 2.2, focusStartTime: 7.8, focusEndTime: 14.5, markerColor: COLORS.green, bulletType: 'number', icon: 'checkmark', boardIndex: 0, focusType: 'underline' },
-    { text: 'Scale visual content distribution', startTime: 15.5, endTime: 16.3, focusStartTime: 16.5, focusEndTime: 22.0, markerColor: COLORS.red, bulletType: 'number', icon: 'arrow', boardIndex: 1, focusType: 'box' },
-    { text: 'Establish automated workflow growth', startTime: 15.9, endTime: 16.7, focusStartTime: 22.5, focusEndTime: 28.0, markerColor: COLORS.blue, bulletType: 'number', icon: 'star', boardIndex: 1, focusType: 'arrow' },
+    { text: 'Target core bottleneck', startTime: 1.0, endTime: 6.5, focusStartTime: 1.0, focusEndTime: 6.5, markerColor: COLORS.blue, bulletType: 'number', icon: 'lightbulb', boardIndex: 0, focusType: 'circle' },
+    { text: 'Validate executive metrics', startTime: 7.0, endTime: 13.5, focusStartTime: 7.0, focusEndTime: 13.5, markerColor: COLORS.green, bulletType: 'number', icon: 'checkmark', boardIndex: 0, focusType: 'underline' },
+    { text: 'Scale distribution fast', startTime: 14.0, endTime: 21.0, focusStartTime: 14.0, focusEndTime: 21.0, markerColor: COLORS.red, bulletType: 'number', icon: 'arrow', boardIndex: 1, focusType: 'box' },
+    { text: 'Automate growth workflow', startTime: 21.5, endTime: 28.0, focusStartTime: 21.5, focusEndTime: 28.0, markerColor: COLORS.blue, bulletType: 'number', icon: 'star', boardIndex: 1, focusType: 'arrow' },
   ],
   conclusion: 'Strategy alignment complete.',
   conclusionTime: 28.2,

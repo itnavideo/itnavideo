@@ -127,6 +127,54 @@ export async function transcribeMediaUrlWithGroq({
   return normalizeGroqTranscription(await response.json(), model);
 }
 
+export async function transcribeMediaBlobWithGroq({
+  blob,
+  fileName,
+  contentType,
+  language,
+}: {
+  blob: Blob;
+  fileName: string;
+  contentType?: string;
+  language?: string;
+}): Promise<GroqTranscriptionResult> {
+  const apiKey = cleanEnvValue(process.env.GROQ_API_KEY);
+  if (!apiKey) throw new Error('Missing GROQ_API_KEY.');
+
+  const model = cleanEnvValue(process.env.GROQ_TRANSCRIPTION_MODEL) || DEFAULT_GROQ_TRANSCRIPTION_MODEL;
+  const responseFormat = cleanEnvValue(process.env.GROQ_TRANSCRIPTION_RESPONSE_FORMAT) || 'verbose_json';
+  const translateToEnglish = shouldTranslateTranscriptionToEnglish();
+
+  const form = new FormData();
+  form.append('file', blob, safeFileName(fileName, contentType || blob.type));
+  form.append('model', model);
+  form.append('response_format', responseFormat);
+  form.append('temperature', '0');
+  appendTranscriptionGuidance(form, 'GROQ', translateToEnglish);
+
+  const groqLang = language ? toGroqLanguageCode(language) : undefined;
+  if (groqLang && !translateToEnglish) {
+    form.append('language', groqLang);
+  }
+
+  if (responseFormat === 'verbose_json') {
+    form.append('timestamp_granularities[]', 'segment');
+    form.append('timestamp_granularities[]', 'word');
+  }
+
+  const response = await fetch(translateToEnglish ? GROQ_TRANSLATION_URL : GROQ_TRANSCRIPTION_URL, {
+    method: 'POST',
+    headers: {Authorization: `Bearer ${apiKey}`},
+    body: form,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Groq ${translateToEnglish ? 'translation' : 'transcription'} failed: ${response.status} ${await response.text()}`);
+  }
+
+  return normalizeGroqTranscription(await response.json(), model);
+}
+
 export async function transcribeMediaUrlWithOpenAI({
   mediaUrl,
   fileName,

@@ -5893,7 +5893,6 @@ function RenderStatusStage({
       }`}
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_8%,rgba(255,109,0,0.15),transparent_30%),radial-gradient(circle_at_82%_18%,rgba(255,143,0,0.10),transparent_28%),linear-gradient(135deg,rgba(255,255,255,0.07),transparent_48%)]" />
-      <div className="pointer-events-none absolute inset-0 opacity-[0.08] [background-image:linear-gradient(rgba(255,109,0,0.14)_1px,transparent_1px),linear-gradient(90deg,rgba(255,109,0,0.12)_1px,transparent_1px)] [background-size:34px_34px]" />
       {working ? (
         <>
           <div className="render-orbit pointer-events-none absolute right-6 top-6 hidden h-24 w-24 rounded-full border border-[#FF6D00]/20 sm:block">
