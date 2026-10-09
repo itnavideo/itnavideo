@@ -88,23 +88,52 @@ export default function Hero() {
           </span>
         </motion.div>
 
-        {/* Wide Studio Showcase Image Container */}
+        {/* Ultra-Premium Studio Showcase App Frame */}
         <motion.div
           initial={{ opacity: 0, y: 30, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ delay: 0.24, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="relative mt-12 mx-auto max-w-5xl"
+          transition={{ delay: 0.24, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          className="relative mt-14 mx-auto max-w-5xl"
         >
-          {/* Warm Ambient Glow behind Studio Preview */}
-          <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 h-[380px] w-[92%] rounded-full bg-gradient-to-r from-[#FF6D00]/20 via-[#FF8F00]/15 to-[#FFA726]/10 blur-[120px]" />
+          {/* Multi-layered Studio Backglow */}
+          <div className="pointer-events-none absolute -inset-4 -z-10 rounded-[40px] bg-gradient-to-r from-[#FF6D00]/25 via-[#FF8F00]/15 to-[#FFA726]/10 blur-3xl opacity-75" />
+          <div className="pointer-events-none absolute -inset-x-20 -bottom-10 h-40 -z-10 bg-gradient-to-t from-[#FF6D00]/20 to-transparent blur-2xl" />
 
-          {/* Clean Borderless Image Container */}
-          <div className="relative w-full overflow-hidden rounded-3xl shadow-2xl">
-            <img
-              src="/visuals/homepage/creative_studio_content_flow.png"
-              alt="Itnavideo Creative Studio Content Flow"
-              className="w-full h-auto rounded-3xl object-cover object-top max-h-[650px]"
-            />
+          {/* High-End Studio Window Mockup Frame */}
+          <div className="relative rounded-[24px] sm:rounded-[32px] p-1.5 sm:p-2.5 bg-gradient-to-b from-white/20 via-white/[0.06] to-white/[0.02] shadow-[0_20px_70px_-10px_rgba(0,0,0,0.95)] ring-1 ring-white/10 backdrop-blur-2xl">
+            <div className="overflow-hidden rounded-[20px] sm:rounded-[28px] bg-[#0A0E1A] border border-white/10">
+              
+              {/* Studio Window Title Bar */}
+              <div className="flex items-center justify-between px-4 py-2.5 sm:px-5 sm:py-3 border-b border-white/[0.08] bg-[#0E1424]/90 backdrop-blur-md">
+                {/* Window Dots */}
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <div className="h-2.5 w-2.5 rounded-full bg-red-500/80" />
+                  <div className="h-2.5 w-2.5 rounded-full bg-amber-500/80" />
+                  <div className="h-2.5 w-2.5 rounded-full bg-emerald-500/80" />
+                </div>
+
+                {/* Studio Center Badge */}
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-0.5 text-[11px] font-semibold text-zinc-300">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#FF8F00] animate-pulse" />
+                  <span>Itnavideo Creative Cloud Studio</span>
+                </div>
+
+                {/* Right Status Pill */}
+                <div className="text-[11px] font-bold text-zinc-400">
+                  1080p Full HD
+                </div>
+              </div>
+
+              {/* Showcase Image with Inner Bevel */}
+              <div className="relative overflow-hidden bg-black/40">
+                <img
+                  src="/visuals/homepage/creative_studio_content_flow.png"
+                  alt="Itnavideo Creative Studio Content Flow"
+                  className="w-full h-auto object-cover object-top max-h-[640px] transition-transform duration-500 hover:scale-[1.01]"
+                />
+              </div>
+
+            </div>
           </div>
         </motion.div>
 
