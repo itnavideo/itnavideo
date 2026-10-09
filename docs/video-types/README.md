@@ -1,6 +1,6 @@
-# Itnavideo — Video Types Master Registry (10 Modes)
+# Itnavideo — Video Types Master Registry (11 Modes)
 
-This directory contains the dedicated requirement, architecture, and pipeline specifications for all **10 active video types** in [Itnavideo](https://www.itnavideo.com).
+This directory contains the dedicated requirement, architecture, and pipeline specifications for all **11 active video types** in [Itnavideo](https://www.itnavideo.com).
 
 As per **Rule 8 of `AGENTS.md` (Video Type Independence)**, each video type has distinct inputs, independent backend processing paths, and tailored UI steppers. Never merge or share generic pipeline logic across different modes.
 
@@ -11,7 +11,7 @@ As per **Rule 8 of `AGENTS.md` (Video Type Independence)**, each video type has 
 
 ---
 
-## The 10 Live Video Types
+## The 11 Live Video Types
 
 | # | Video Type | Spec File | Aspect Ratio | Resolution & Quality | Max Duration | Primary Pipeline Focus | Remotion Composition ID |
 |---|---|---|:---:|:---:|:---:|---|---|
@@ -24,7 +24,8 @@ As per **Rule 8 of `AGENTS.md` (Video Type Independence)**, each video type has 
 | 7 | **Whiteboard Animation** | [`whiteboardvideo.md`](./whiteboardvideo.md) | 9:16 Vertical | **1080×1920 (1080p Full HD)** | **3 Minutes** (180s) | Audio → AI Strategy Board Scenes & SVG Drawing | `WHITEBOARD_VIDEO` |
 | 8 | **Long Video Promo / Teaser** | [`longvideopromo.md`](./longvideopromo.md) | 9:16 Vertical | **1080×1920 (1080p Full HD)** | **3 Minutes** (180s) | Hook Video + 16:9 Thumbnail → Viral Traffic Teaser | `LONG_VIDEO_PROMO` |
 | 9 | **Long Video to Viral Clips** | [`longvideoclips.md`](./longvideoclips.md) | 9:16 Vertical | **1080×1920 (1080p Full HD)** | **Input: Up to 3 Hours**<br/>**Output: 30s–60s Clips** | Long Video → Virality Hook Detection & 9:16 Reframe | `LONG_VIDEO_CLIPS` |
-| 10 | **AI Audio Cleaner & Studio** | [`audiocleaner.md`](./audiocleaner.md) | Audio Utility | **Studio Master 320kbps MP3 / WAV** | **Up to 12 Minutes** | Raw Audio → Denoise, De-reverb, Loudness & Retakes | Audio Mastering Engine |
+| 10 | **Book Summary Video** | [`booksummary.md`](./booksummary.md) | 16:9 Cinema | **1920×1080 (1080p Full HD)** | **12 Minutes** (720s) | Book Quotes/Audio → Cinematic Chapter Visuals & Kinetic Notes | `BOOK_SUMMARY_VIDEO` |
+| 11 | **AI Audio Cleaner & Studio** | [`audiocleaner.md`](./audiocleaner.md) | Audio Utility | **Studio Master 320kbps MP3 / WAV** | **Up to 12 Minutes** | Raw Audio → Denoise, De-reverb, Loudness & Retakes | Audio Mastering Engine |
 
 ---
 
