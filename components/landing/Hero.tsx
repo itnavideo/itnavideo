@@ -54,27 +54,20 @@ export default function Hero() {
           Turn scripts, voiceovers, images, and long videos into <span className="font-semibold text-white">viral 1080p Full HD Shorts, Reels, & YouTube explainers</span> in seconds. Powered by <span className="font-semibold text-[#FF8F00]">11 purpose-built AI studios</span>.
         </motion.p>
 
-        {/* Primary & Secondary CTA Buttons */}
+        {/* Primary CTA Button */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15, duration: 0.5 }}
-          className="mt-9 flex flex-col items-center justify-center gap-4 sm:flex-row"
+          className="mt-9 flex items-center justify-center"
         >
           <Link
             href="/dashboard"
-            className="group inline-flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] px-8 py-4 text-base font-black text-black shadow-xl shadow-[#FF6D00]/25 transition duration-200 hover:brightness-110 hover:scale-[1.02] active:scale-95"
+            className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] px-8 py-4 text-base font-black text-black shadow-xl shadow-[#FF6D00]/25 transition duration-200 hover:brightness-110 hover:scale-[1.02] active:scale-95"
           >
             <span>Start Generating Free</span>
             <ArrowRight size={18} className="transition group-hover:translate-x-1" />
           </Link>
-
-          <a
-            href="#video-types"
-            className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-6 py-4 text-sm font-bold text-zinc-200 backdrop-blur-md transition hover:border-[#FF6D00]/40 hover:bg-white/10 hover:text-white active:scale-95"
-          >
-            <span>Explore 11 AI Studios →</span>
-          </a>
         </motion.div>
 
         {/* Trust Badges */}
