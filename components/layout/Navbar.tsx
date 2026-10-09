@@ -101,10 +101,8 @@ export default function Navbar() {
           isLightPage
             ? scrolled
               ? 'border-slate-200 bg-white/95 text-slate-900 backdrop-blur-md shadow-xs'
-              : 'border-slate-100 bg-white/90 text-slate-900 backdrop-blur-md shadow-none'
-            : scrolled
-              ? 'border-white/10 bg-[#070B14]/95 text-white backdrop-blur-2xl shadow-xl shadow-black/50'
-              : 'border-white/[0.06] bg-[#070B14]/70 text-white backdrop-blur-xl'
+              : 'border-slate-100 bg-white text-slate-900'
+            : 'border-white/10 bg-black text-white'
         }`}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between">
