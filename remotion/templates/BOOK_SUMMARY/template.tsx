@@ -29,6 +29,7 @@ export interface BookSummaryTemplateProps {
   authorPortraitUrl?: string;
   referenceImages?: string[];
   captionThemeId?: string;
+  aspectRatio?: '9:16' | '16:9';
 }
 
 const FALLBACK_COVER = 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788688233/person_calculating_typing_laptop_npimij.png';
@@ -597,14 +598,17 @@ export const BookSummaryComposition: React.FC = () => (
     }}
     calculateMetadata={({ props }) => {
       const p = props as BookSummaryTemplateProps;
+      const isCinema = (p.aspectRatio || '16:9') === '16:9';
       const rawDuration = Number(p.durationSeconds) || 60;
-      // Max proven limit 12 minutes (720s)
-      const durationSeconds = Math.max(5, Math.min(720, rawDuration));
+      const maxDur = isCinema ? 720 : 90;
+      const durationSeconds = Math.max(5, Math.min(maxDur, rawDuration));
+      const width = isCinema ? 1920 : 1080;
+      const height = isCinema ? 1080 : 1920;
       return {
         durationInFrames: Math.round(durationSeconds * 30),
         fps: 30,
-        width: 1920,
-        height: 1080,
+        width,
+        height,
       };
     }}
   />

@@ -1,6 +1,6 @@
 import type { TypographyStyleId } from './types';
 
-export type TypographyCategory = 'kinetic' | 'depth' | 'minimal' | 'real-estate';
+export type TypographyCategory = 'all' | 'kinetic' | 'depth' | 'minimal' | 'real-estate';
 export type TypographyWordTimestamp = { word: string; start: number; end: number };
 
 export type TypographyStyle = {

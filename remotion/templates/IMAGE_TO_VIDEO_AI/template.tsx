@@ -55,6 +55,7 @@ export interface ImageToVideoAiProps {
   cameraMotionPreset?: 'ken-burns' | 'dynamic-flow' | 'subtle-drift';
   subtitleStyle?: string;
   fitMode?: 'blur-fill' | 'cover';
+  aspectRatio?: '16:9' | '9:16';
 }
 
 const FALLBACK_SCENE_IMAGE = 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788688233/person_calculating_typing_laptop_npimij.png';
@@ -657,7 +658,8 @@ const ParallaxSubtitleLayer: React.FC<{
   captions: CaptionChunk[];
   fps: number;
   styleMode?: string;
-}> = ({ captions, fps, styleMode = 'parallax-modern' }) => {
+  isVertical?: boolean;
+}> = ({ captions, fps, styleMode = 'parallax-modern', isVertical = false }) => {
   const frame = useCurrentFrame();
   const currentTime = frame / fps;
 
@@ -692,13 +694,13 @@ const ParallaxSubtitleLayer: React.FC<{
     <div
       style={{
         position: 'absolute',
-        bottom: '12%',
+        bottom: isVertical ? '18%' : '12%',
         left: 0,
         right: 0,
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: '0 80px',
+        padding: isVertical ? '0 32px' : '0 80px',
         zIndex: 50,
         pointerEvents: 'none',
         transform: `translateY(${translateY}px) scale(${scale})`,
@@ -707,7 +709,7 @@ const ParallaxSubtitleLayer: React.FC<{
     >
       <div
         style={{
-          maxWidth: '80%',
+          maxWidth: isVertical ? '92%' : '80%',
           textAlign: 'center',
           ...containerStyle,
         }}
@@ -715,7 +717,7 @@ const ParallaxSubtitleLayer: React.FC<{
         <p
           style={{
             margin: 0,
-            fontSize: 36,
+            fontSize: isVertical ? 42 : 36,
             lineHeight: 1.28,
             maxHeight: '2.6em',
             display: '-webkit-box',
@@ -785,10 +787,12 @@ export const ImageToVideoAiTemplate: React.FC<ImageToVideoAiProps> = ({
   title = 'Image to Video AI',
   subtitleStyle = 'parallax-modern',
   fitMode = 'cover',
+  aspectRatio = '16:9',
 }) => {
   const { fps } = useVideoConfig();
   const frame = useCurrentFrame();
   const currentTime = frame / fps;
+  const isVertical = aspectRatio === '9:16';
 
   const finalAudioUrl = resolveUrl(audioUrl || audioSrc || mediaSrc);
   const finalBgmUrl = resolveUrl(bgmUrl || bgmSrc);
@@ -881,6 +885,7 @@ export const ImageToVideoAiTemplate: React.FC<ImageToVideoAiProps> = ({
           captions={activeCaptions}
           fps={fps}
           styleMode={subtitleStyle}
+          isVertical={isVertical}
         />
       )}
 
@@ -973,11 +978,12 @@ export const ImageToVideoAiComposition: React.FC = () => (
         60;
       // Max 12 minutes (720s)
       const durationSeconds = Math.max(5, Math.min(720, rawDuration));
+      const isVertical = p.aspectRatio === '9:16';
       return {
         durationInFrames: secondsToFrames(durationSeconds, DEFAULT_FPS),
         fps: DEFAULT_FPS,
-        width: 1920,
-        height: 1080,
+        width: isVertical ? 1080 : 1920,
+        height: isVertical ? 1920 : 1080,
       };
     }}
   />

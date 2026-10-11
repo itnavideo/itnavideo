@@ -205,30 +205,31 @@ export function extractProfileFromRenderer(
   }
 
   // Derive measured properties from actual runtime blueprint
-  const fontFamily = bp.fontFamily;
+  const bpAny = bp as any;
+  const fontFamily = bpAny.fontFamily || 'Inter, sans-serif';
   const fontCategory = inferFontCategory(fontFamily);
-  const heroWeight = bp.heroFontWeight;
-  const leadWeight = bp.leadFontWeight;
-  const primaryColor = bp.textColor;
-  const accentColor = bp.accentColor;
+  const heroWeight = bpAny.heroFontWeight || 900;
+  const leadWeight = bpAny.leadFontWeight || 700;
+  const primaryColor = bpAny.textColor || '#FFFFFF';
+  const accentColor = bpAny.accentColor || '#FF6D00';
 
   // Derive motion characteristics from actual spring config
-  const mass = bp.animation?.mass ?? 0.35;
-  const damping = bp.animation?.damping ?? 12;
-  const stiffness = bp.animation?.stiffness ?? 220;
-  const scaleEntrance = bp.animation?.scaleEntrance ?? [0.68, 1.0];
+  const mass = bpAny.animation?.mass ?? 0.35;
+  const damping = bpAny.animation?.damping ?? 12;
+  const stiffness = bpAny.animation?.stiffness ?? 220;
+  const scaleEntrance = bpAny.animation?.scaleEntrance ?? [0.68, 1.0];
   const scaleDelta = Math.abs(scaleEntrance[1] - scaleEntrance[0]);
   const entranceDurationFrames = Math.round((mass / (damping * 0.08)) * 10);
 
   let entranceMotion = 'slam-scale';
-  if (bp.animationPreset === 'pop') entranceMotion = 'pop-spring';
-  else if (bp.animationPreset === 'smooth-fade') entranceMotion = 'smooth-fade';
-  else if (bp.animationPreset === 'scale-snap') entranceMotion = 'scale-snap';
-  else if (bp.animationPreset === 'rise') entranceMotion = 'rise-fade';
-  else if (bp.animationPreset === 'slam') entranceMotion = 'slam-scale';
+  if (bpAny.animationPreset === 'pop') entranceMotion = 'pop-spring';
+  else if (bpAny.animationPreset === 'smooth-fade') entranceMotion = 'smooth-fade';
+  else if (bpAny.animationPreset === 'scale-snap') entranceMotion = 'scale-snap';
+  else if (bpAny.animationPreset === 'rise') entranceMotion = 'rise-fade';
+  else if (bpAny.animationPreset === 'slam') entranceMotion = 'slam-scale';
 
   let easingCurve = 'spring-bouncy';
-  if (bp.animationPreset === 'rise' || damping > 16) easingCurve = 'smooth-cubic';
+  if (bpAny.animationPreset === 'rise' || damping > 16) easingCurve = 'smooth-cubic';
   else if (stiffness > 250) easingCurve = 'spring-stiff';
 
   const hasGlow = styleId === 'dynamic-punch' || styleId === 'neon-kinetic' || styleId === 'dubai-gold' || styleId === 'elevate-script' || styleId === 'royal-emerald' || styleId === 'depth-3d-text' || styleId === 'prism-pro';
@@ -259,7 +260,7 @@ export function extractProfileFromRenderer(
     hasGradient,
     hasBackdropBadge,
     layerPlacement,
-    wordsPerPhraseAvg: bp.maxWordsPerChunk,
+    wordsPerPhraseAvg: bpAny.maxWordsPerChunk || 3,
     phraseHoldDurationAvg: 1.4,
   };
 

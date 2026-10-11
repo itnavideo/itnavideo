@@ -258,8 +258,8 @@ export function AutoCaptionGenerator({
       ) : null}
 
       {/* Modern High-Performance Motion Caption or Subtitle Preset Layer */}
-      {captionEvents && captionEvents.length > 0 ? (
-        <MotionCaptionRenderer captionEvents={captionEvents} />
+      {resolvedCaptionEvents && resolvedCaptionEvents.length > 0 ? (
+        <MotionCaptionRenderer captionEvents={resolvedCaptionEvents} />
       ) : normalizedCaptions.length > 0 ? (
         <CaptionRenderer
           captions={normalizedCaptions}
@@ -278,7 +278,7 @@ export function AutoCaptionGenerator({
       {wordClickSound && clickFrames.length > 0
         ? clickFrames.map((f, idx) => (
             <Sequence key={`click-${idx}`} from={f} durationInFrames={10} layout="none">
-              <Audio src="https://storage.googleapis.com/itnavideo-media-assets/click_aydqtp.mp3" volume={0.25} />
+              <Audio src="https://itnavideo-media-assets.s3.ap-south-1.amazonaws.com/click_aydqtp.mp3" volume={0.25} />
             </Sequence>
           ))
         : null}

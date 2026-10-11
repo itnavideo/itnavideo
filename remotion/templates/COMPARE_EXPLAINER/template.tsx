@@ -72,6 +72,7 @@ type CompareProps = {
   transcript?: string;
   sourceScript?: string;
   topicTitle?: string;
+  aspectRatio?: '9:16' | '16:9';
   premiumEditing?: boolean;
   styleLock?: PremiumStyleLock & PremiumVisualStyleLock;
   soundCues?: PremiumSoundCue[];
@@ -1936,12 +1937,13 @@ export const CompareExplainer = (props: CompareProps) => {
 };
 
 const getCompareDurationSeconds = (props: CompareProps) => {
+  const maxDur = props.aspectRatio === '16:9' ? 300 : 90;
   const requested =
     Number(props.durationSeconds) ||
     Number(props.sourceDurationSeconds) ||
     Number(props.renderWindowSeconds) ||
     60;
-  return Math.max(1, Math.min(180, requested));
+  return Math.max(1, Math.min(maxDur, requested));
 };
 
 export const CompareExplainerComposition = () => (
@@ -1953,8 +1955,12 @@ export const CompareExplainerComposition = () => (
     width={1080}
     height={1920}
     calculateMetadata={({props}) => {
-      const durationSeconds = getCompareDurationSeconds(props as CompareProps);
-      return {durationInFrames: secondsToFrames(durationSeconds, DEFAULT_FPS), fps: DEFAULT_FPS, width: 1080, height: 1920};
+      const p = props as CompareProps;
+      const isCinema = p.aspectRatio === '16:9';
+      const durationSeconds = getCompareDurationSeconds(p);
+      const width = isCinema ? 1920 : 1080;
+      const height = isCinema ? 1080 : 1920;
+      return {durationInFrames: secondsToFrames(durationSeconds, DEFAULT_FPS), fps: DEFAULT_FPS, width, height};
     }}
   />
 );
@@ -1971,8 +1977,12 @@ export const Compare2DPreviewComposition = () => (
       stickerStyle: '2d',
     }}
     calculateMetadata={({props}) => {
-      const durationSeconds = getCompareDurationSeconds(props as CompareProps);
-      return {durationInFrames: secondsToFrames(durationSeconds, DEFAULT_FPS), fps: DEFAULT_FPS, width: 1080, height: 1920};
+      const p = props as CompareProps;
+      const isCinema = p.aspectRatio === '16:9';
+      const durationSeconds = getCompareDurationSeconds(p);
+      const width = isCinema ? 1920 : 1080;
+      const height = isCinema ? 1080 : 1920;
+      return {durationInFrames: secondsToFrames(durationSeconds, DEFAULT_FPS), fps: DEFAULT_FPS, width, height};
     }}
   />
 );
@@ -1989,8 +1999,12 @@ export const CompareCartoonPreviewComposition = () => (
       stickerStyle: 'cartoon',
     }}
     calculateMetadata={({props}) => {
-      const durationSeconds = getCompareDurationSeconds(props as CompareProps);
-      return {durationInFrames: secondsToFrames(durationSeconds, DEFAULT_FPS), fps: DEFAULT_FPS, width: 1080, height: 1920};
+      const p = props as CompareProps;
+      const isCinema = p.aspectRatio === '16:9';
+      const durationSeconds = getCompareDurationSeconds(p);
+      const width = isCinema ? 1920 : 1080;
+      const height = isCinema ? 1080 : 1920;
+      return {durationInFrames: secondsToFrames(durationSeconds, DEFAULT_FPS), fps: DEFAULT_FPS, width, height};
     }}
   />
 );
@@ -2007,8 +2021,12 @@ export const CompareExplainerPreviewComposition = () => (
       stickerStyle: 'explainer',
     }}
     calculateMetadata={({props}) => {
-      const durationSeconds = getCompareDurationSeconds(props as CompareProps);
-      return {durationInFrames: secondsToFrames(durationSeconds, DEFAULT_FPS), fps: DEFAULT_FPS, width: 1080, height: 1920};
+      const p = props as CompareProps;
+      const isCinema = p.aspectRatio === '16:9';
+      const durationSeconds = getCompareDurationSeconds(p);
+      const width = isCinema ? 1920 : 1080;
+      const height = isCinema ? 1080 : 1920;
+      return {durationInFrames: secondsToFrames(durationSeconds, DEFAULT_FPS), fps: DEFAULT_FPS, width, height};
     }}
   />
 );

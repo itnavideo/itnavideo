@@ -39,6 +39,9 @@ interface WhiteboardStudioProps {
   markerColor?: string;
   onMarkerColorChange?: (val: string) => void;
 
+  aspectRatio?: "9:16" | "16:9";
+  onAspectRatioChange?: (val: "9:16" | "16:9") => void;
+
   onGenerate: () => void;
   isGenerating: boolean;
 }
@@ -57,6 +60,8 @@ export function WhiteboardStudio({
   onToggleSfx,
   markerColor,
   onMarkerColorChange,
+  aspectRatio = "9:16",
+  onAspectRatioChange,
   onGenerate,
   isGenerating,
 }: WhiteboardStudioProps) {
@@ -65,6 +70,13 @@ export function WhiteboardStudio({
   const setSfxEnabled = (val: boolean) => {
     setInternalSfx(val);
     if (onToggleSfx) onToggleSfx(val);
+  };
+
+  const [internalRatio, setInternalRatio] = React.useState<"9:16" | "16:9">("9:16");
+  const selectedRatio = aspectRatio !== undefined ? aspectRatio : internalRatio;
+  const setRatio = (val: "9:16" | "16:9") => {
+    setInternalRatio(val);
+    if (onAspectRatioChange) onAspectRatioChange(val);
   };
 
   const [internalColor, setInternalColor] = React.useState<string>("auto");
@@ -112,11 +124,31 @@ export function WhiteboardStudio({
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#161720] px-3 py-1.5 text-xs font-bold text-slate-300">
-            <Clock3 size={13} className="text-[#FF8F00]" />
-            <span>9:16 Vertical • Hand-Drawn</span>
-          </span>
+        {/* Dynamic Aspect Ratio Selector */}
+        <div className="flex items-center gap-1.5 rounded-2xl border border-white/10 bg-[#161720] p-1 shrink-0">
+          <button
+            type="button"
+            onClick={() => setRatio("9:16")}
+            className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
+              selectedRatio === "9:16"
+                ? "bg-[#FF6D00] text-black shadow-md shadow-[#FF6D00]/25 font-black"
+                : "text-zinc-400 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <span>📱 9:16 Shorts (Up to 90s)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setRatio("16:9")}
+            className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
+              selectedRatio === "16:9"
+                ? "bg-purple-600 text-white shadow-md shadow-purple-500/25 font-black"
+                : "text-zinc-400 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <span>🎬 16:9 Cinema (Up to 5 min)</span>
+          </button>
         </div>
       </div>
 
@@ -387,7 +419,11 @@ export function WhiteboardStudio({
         <div className="rounded-2xl border border-white/10 bg-[#161720] p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-zinc-300">
           <div className="flex items-center gap-2">
             <Smartphone size={15} className="text-[#FF9100] shrink-0" />
-            <span className="font-bold">📱 9:16 Vertical Cinema (1080×1920 Full HD)</span>
+            <span className="font-bold">
+              {selectedRatio === "16:9"
+                ? "🎬 16:9 Widescreen Cinema (1920×1080 1080p Full HD • Up to 5 min)"
+                : "📱 9:16 Vertical Shorts (1080×1920 1080p Full HD • Up to 90s)"}
+            </span>
           </div>
 
           <button

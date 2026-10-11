@@ -45,7 +45,7 @@ function StickyMobileCTA() {
     <div className="fixed bottom-0 left-0 right-0 z-50 block border-t border-white/10 bg-black/95 px-4 py-3 backdrop-blur-lg sm:hidden shadow-2xl">
       <Link
         href="/signup"
-        className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] px-6 py-3.5 text-sm font-black text-black shadow-lg shadow-[#FF6D00]/25 transition active:scale-[0.97] hover:brightness-110"
+        className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-purple-500/25 transition active:scale-[0.97] hover:brightness-110"
       >
         <Sparkles size={15} />
         <span>Get Started Free — 3 Free Videos</span>

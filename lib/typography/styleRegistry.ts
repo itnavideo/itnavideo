@@ -1,7 +1,7 @@
 import type { TypographyStyleId, AdvancedStyleBlueprint, StyleBlueprint } from './types';
 
 // Export legacy STYLE_BLUEPRINTS for backwards compatibility
-export const STYLE_BLUEPRINTS: Record<string, StyleBlueprint> = {
+export const STYLE_BLUEPRINTS: Record<string, any> = {
   'apple-keynote-punch': {
     id: 'apple-keynote-punch' as TypographyStyleId,
     name: 'Apple Keynote Punch',

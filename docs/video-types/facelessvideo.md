@@ -14,9 +14,9 @@
 | **Template Location** | `remotion/templates/FACELESS_VIDEO/template.tsx` & `FACELESS_LONG_VIDEO` |
 | **Dashboard Studio** | `components/dashboard/FacelessVideoStudio.tsx` |
 | **Dashboard Route** | `/dashboard/faceless-video` |
-| **Aspect Ratio** | **16:9 Widescreen Cinema Full HD (Strictly 16:9)** |
-| **Resolution & Quality** | **1080p Full HD (1920×1080 30 FPS MP4)** |
-| **Max Audio Duration** | **12 Minutes (720s)** |
+| **Aspect Ratio** | **Dual Aspect Ratio**: `16:9` Widescreen Cinema & `9:16` Vertical Shorts |
+| **Resolution & Quality** | **1080p Full HD** (`1920×1080` for 16:9 / `1080×1920` for 9:16) @ 30 FPS MP4 |
+| **Max Audio Duration** | **15 Minutes (900s for 16:9 Cinema)** / **90 Seconds (9:16 Shorts)** |
 | **Primary Category** | Social & YouTube |
 | **Credit Cost** | 2 Credits / Min |
 | **Design System** | Google Analytics Obsidian Baseline (`#070B14`, `#0E1526`) + Intentional Color & Typography Variety Policy + Material Design 3 |

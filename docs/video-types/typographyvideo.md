@@ -17,11 +17,11 @@
 | **Style Picker Component** | `components/typography/TypographyStylePicker.tsx` |
 | **Style Data & Transcripts**| `lib/typography/typographyStylesData.ts` / `lib/cloudinary/typography-transcripts.json` |
 | **Dashboard Route** | `/dashboard/typography-video` |
-| **Aspect Ratio** | **Strictly 9:16 Vertical (1080×1920 Full HD)** |
-| **Resolution & Quality** | **1080×1920 (1080p Full HD 30 FPS MP4)** |
-| **Input Media** | **Strictly User-Uploaded Speaking Video / Audio** (MP4, MOV, MP3, WAV up to 3m/180s). *No AI TTS voiceover generation.* |
+| **Aspect Ratio** | **Dual Aspect Ratio**: `9:16` Vertical Shorts & `16:9` Widescreen Cinema |
+| **Resolution & Quality** | **1080p Full HD** (`1080×1920` for 9:16 / `1920×1080` for 16:9) @ 30 FPS MP4 |
+| **Input Media** | **User-Uploaded Speaking Video / Audio** (MP4, MOV, MP3, WAV). *No AI TTS voiceover generation.* |
 | **Frame Rate** | 30 FPS |
-| **Max Video Duration** | **3 Minutes (180 seconds)** |
+| **Max Video Duration** | **90 Seconds (9:16 Shorts)** / **5 Minutes (16:9 Widescreen Cinema)** |
 | **Primary Category** | Social & YouTube Shorts / Reels / TikTok |
 | **Total Available Styles** | **11 High-Impact Motion Presets** (Curated for short-form retention) |
 | **Transcript Review & Editing**| **Interactive Word-Level Pre-Render Transcript Editor** (Edit transcription mistakes before render) |

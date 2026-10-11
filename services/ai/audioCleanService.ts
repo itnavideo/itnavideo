@@ -593,18 +593,20 @@ export async function cleanAudioWithAI({
     if (cuts.length > 0 && keepIntervals.length > 0) {
       if (keepIntervals.length === 1) {
         const dur = Math.max(0.01, keepIntervals[0].end - keepIntervals[0].start);
-        const outFadeStart = Math.max(0, dur - 0.008);
+        const fadeDur = Math.min(0.008, Math.max(0.001, dur / 3));
+        const outFadeStart = Math.max(0, dur - fadeDur);
         filterParts.push(
-          `[0:a]atrim=start=${keepIntervals[0].start.toFixed(3)}:end=${keepIntervals[0].end.toFixed(3)},asetpts=PTS-STARTPTS,afade=t=in:st=0:d=0.008,afade=t=out:st=${outFadeStart.toFixed(3)}:d=0.008[acut]`
+          `[0:a]atrim=start=${keepIntervals[0].start.toFixed(3)}:end=${keepIntervals[0].end.toFixed(3)},asetpts=PTS-STARTPTS,afade=t=in:st=0:d=${fadeDur.toFixed(3)},afade=t=out:st=${outFadeStart.toFixed(3)}:d=${fadeDur.toFixed(3)}[acut]`
         );
         audioOutLabel = 'acut';
       } else {
         const concatInputs: string[] = [];
         keepIntervals.forEach((interval, idx) => {
           const dur = Math.max(0.01, interval.end - interval.start);
-          const outFadeStart = Math.max(0, dur - 0.008);
+          const fadeDur = Math.min(0.008, Math.max(0.001, dur / 3));
+          const outFadeStart = Math.max(0, dur - fadeDur);
           filterParts.push(
-            `[0:a]atrim=start=${interval.start.toFixed(3)}:end=${interval.end.toFixed(3)},asetpts=PTS-STARTPTS,afade=t=in:st=0:d=0.008,afade=t=out:st=${outFadeStart.toFixed(3)}:d=0.008[a${idx}]`
+            `[0:a]atrim=start=${interval.start.toFixed(3)}:end=${interval.end.toFixed(3)},asetpts=PTS-STARTPTS,afade=t=in:st=0:d=${fadeDur.toFixed(3)},afade=t=out:st=${outFadeStart.toFixed(3)}:d=${fadeDur.toFixed(3)}[a${idx}]`
           );
           concatInputs.push(`[a${idx}]`);
         });

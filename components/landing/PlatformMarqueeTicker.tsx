@@ -137,12 +137,12 @@ export default function PlatformMarqueeTicker() {
           return (
             <div
               key={idx}
-              className="inline-flex items-center gap-2.5 rounded-full border border-white/[0.08] bg-white/[0.03] px-4 py-1.5 text-xs font-semibold text-slate-300 backdrop-blur-md shadow-sm transition-all duration-200 hover:border-[#FF6D00]/50 hover:bg-white/[0.08] hover:text-white hover:scale-[1.03] cursor-pointer"
+              className="inline-flex items-center gap-2.5 rounded-full border border-white/[0.08] bg-white/[0.03] px-4 py-1.5 text-xs font-semibold text-slate-300 backdrop-blur-md shadow-sm transition-all duration-200 hover:border-purple-500/50 hover:bg-white/[0.08] hover:text-white hover:scale-[1.03] cursor-pointer"
             >
               {isCustom ? (
                 <IconComponent />
               ) : (
-                <IconComponent size={15} className={`shrink-0 ${iconColor || 'text-[#FF9100]'}`} />
+                <IconComponent size={15} className={`shrink-0 ${iconColor || 'text-purple-400'}`} />
               )}
               <span>{item.label}</span>
             </div>

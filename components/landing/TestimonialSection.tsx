@@ -87,19 +87,19 @@ export default function TestimonialSection() {
   return (
     <section className="relative overflow-hidden px-4 py-20 sm:px-6 sm:py-28 bg-[#F8FAFC] border-t border-slate-200 text-[#0F172A]">
       {/* Background ambient radial glow */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_700px_at_50%_0px,rgba(249,115,22,0.03),transparent_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_700px_at_50%_0px,rgba(168,85,247,0.04),transparent_100%)]" />
 
       <div className="mx-auto max-w-7xl relative z-10">
         {/* Header — Material Design 3 Typography & Badge */}
         <div className="mb-12 sm:mb-16 text-center space-y-3.5">
-          <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/20 bg-orange-50 px-3.5 py-1 text-[11px] font-extrabold uppercase tracking-widest text-orange-700 backdrop-blur-md">
-            <Sparkles size={13} className="text-orange-600 animate-pulse" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/20 bg-purple-50 px-3.5 py-1 text-[11px] font-extrabold uppercase tracking-widest text-purple-700 backdrop-blur-md">
+            <Sparkles size={13} className="text-purple-600 animate-pulse" />
             <span>Trusted By Creators Worldwide</span>
           </div>
 
           <h2 className="text-3xl font-black text-slate-900 sm:text-5xl font-sans tracking-tight">
             Real creators.{' '}
-            <span className="bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 bg-clip-text text-transparent">
               Real results.
             </span>
           </h2>
@@ -123,20 +123,20 @@ export default function TestimonialSection() {
           {marqueeItems.map((review, idx) => (
             <div
               key={`${review.name}-${idx}`}
-              className="group relative flex flex-col justify-between w-[310px] sm:w-[390px] shrink-0 rounded-3xl border border-slate-200 bg-white p-6 sm:p-7 shadow-sm backdrop-blur-xl transition-all duration-300 hover:border-orange-500/30 hover:shadow-2xl hover:shadow-[#FF6D00]/10 hover:-translate-y-1 select-none"
+              className="group relative flex flex-col justify-between w-[310px] sm:w-[390px] shrink-0 rounded-3xl border border-slate-200 bg-white p-6 sm:p-7 shadow-sm backdrop-blur-xl transition-all duration-300 hover:border-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/10 hover:-translate-y-1 select-none"
             >
               {/* Top Accent Gradient Bar on Hover */}
-              <div className="absolute inset-x-8 top-0 h-[2px] bg-gradient-to-r from-transparent via-orange-500/0 to-transparent group-hover:via-orange-500/80 transition-all duration-500 rounded-full" />
+              <div className="absolute inset-x-8 top-0 h-[2px] bg-gradient-to-r from-transparent via-purple-500/0 to-transparent group-hover:via-purple-500/80 transition-all duration-500 rounded-full" />
 
               {/* Decorative quotation indicator */}
-              <div className="absolute top-4 right-5 text-4xl font-serif text-orange-500/10 leading-none select-none group-hover:text-orange-500/25 transition duration-300">
+              <div className="absolute top-4 right-5 text-4xl font-serif text-purple-500/10 leading-none select-none group-hover:text-purple-500/25 transition duration-300">
                 “
               </div>
 
               {/* Creator Info & Avatar */}
               <div>
                 <div className="flex items-start gap-3.5 relative z-10">
-                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border border-slate-200 group-hover:border-orange-500/30 transition duration-300 shadow-xs">
+                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border border-slate-200 group-hover:border-purple-500/30 transition duration-300 shadow-xs">
                     <Image
                       src={getOptimizedAvatarUrl(review.image, 96)}
                       alt={review.name}
@@ -148,10 +148,10 @@ export default function TestimonialSection() {
 
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      <p className="text-sm font-bold text-slate-900 group-hover:text-orange-600 transition-colors truncate">
+                      <p className="text-sm font-bold text-slate-900 group-hover:text-purple-600 transition-colors truncate">
                         {review.name}
                       </p>
-                      <CheckCircle2 size={13} className="text-orange-500 shrink-0" />
+                      <CheckCircle2 size={13} className="text-purple-600 shrink-0" />
                     </div>
                     <p className="text-[11px] text-slate-500 font-medium truncate mt-0.5">
                       {review.role}
@@ -163,7 +163,7 @@ export default function TestimonialSection() {
                 <div className="mt-4 flex items-center justify-between gap-2 border-t border-slate-100 pt-3">
                   <div className="flex items-center gap-1">
                     {[...Array(review.rating || 5)].map((_, i) => (
-                      <Star key={i} size={13} className="fill-orange-500 text-orange-500" />
+                      <Star key={i} size={13} className="fill-purple-500 text-purple-500" />
                     ))}
                     <span className="ml-1 text-[11px] font-bold text-slate-800">5.0</span>
                   </div>

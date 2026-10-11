@@ -108,19 +108,19 @@ export default function TemplatesGallerySection() {
   });
 
   return (
-    <section className="relative px-4 py-20 sm:px-6 sm:py-28 bg-white border-b border-slate-200">
+    <section className="relative px-4 py-20 sm:px-6 sm:py-28 bg-[#070B14] border-b border-white/10 text-white">
       <div className="relative z-10 mx-auto max-w-7xl">
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <p className="text-xs font-bold uppercase tracking-widest text-amber-600 mb-2 flex items-center justify-center gap-1.5">
-            <Sparkles size={14} />
+          <p className="text-xs font-bold uppercase tracking-widest text-purple-300 mb-2 flex items-center justify-center gap-1.5">
+            <Sparkles size={14} className="text-purple-400" />
             <span>Best AI Video Generators &amp; Presets</span>
           </p>
-          <h2 className="text-3xl font-extrabold text-slate-900 sm:text-5xl font-sans tracking-tight">
-            AI Video Maker &amp; <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">Creator Templates</span>
+          <h2 className="text-3xl font-extrabold text-white sm:text-5xl font-sans tracking-tight">
+            AI Video Maker &amp; <span className="bg-gradient-to-r from-purple-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">Creator Templates</span>
           </h2>
-          <p className="mt-4 text-sm sm:text-base text-slate-600">
+          <p className="mt-4 text-sm sm:text-base text-zinc-400">
             Choose from the best AI video generators optimized for social reels, text to video conversion, YouTube promos, and high-retention explainers.
           </p>
 
@@ -132,8 +132,8 @@ export default function TemplatesGallerySection() {
                 onClick={() => setActiveCategory(cat)}
                 className={`rounded-full px-4 py-2 text-xs font-bold transition duration-150 ${
                   activeCategory === cat
-                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+                    ? 'bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 text-white shadow-lg shadow-purple-500/20'
+                    : 'bg-[#0E1526] text-zinc-400 hover:bg-[#151E30] hover:text-white border border-white/10'
                 }`}
               >
                 {cat}
@@ -147,33 +147,33 @@ export default function TemplatesGallerySection() {
           {filtered.map((item) => (
             <div
               key={item.id}
-              className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs transition duration-200 hover:border-amber-300 hover:shadow-md"
+              className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0E1526] shadow-xl transition duration-200 hover:border-purple-500/50 hover:shadow-2xl hover:shadow-purple-500/10"
             >
-              <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
+              <div className="relative aspect-[16/10] w-full overflow-hidden bg-black">
                 <Image
                   src={item.image}
                   alt={item.title}
                   fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="object-cover transition-transform duration-300 group-hover:scale-105 opacity-90"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0E1526] via-transparent to-transparent" />
 
                 <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between">
-                  <span className="rounded-md bg-white/90 backdrop-blur-md px-2 py-0.5 text-[10px] font-bold text-slate-800 shadow-xs">
+                  <span className="rounded-md bg-black/80 backdrop-blur-md px-2 py-0.5 text-[10px] font-bold text-zinc-200 border border-white/10">
                     {item.aspect}
                   </span>
-                  <span className="rounded-md bg-gradient-to-r from-amber-500 to-orange-500 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
+                  <span className="rounded-md bg-gradient-to-r from-purple-600 to-pink-500 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
                     {item.badge}
                   </span>
                 </div>
               </div>
 
               <div className="p-4 flex flex-col flex-1 justify-between">
-                <h3 className="text-base font-bold text-slate-900 font-sans">{item.title}</h3>
+                <h3 className="text-base font-bold text-white font-sans">{item.title}</h3>
 
                 <Link
                   href={item.href}
-                  className="mt-4 inline-flex items-center justify-between rounded-xl bg-slate-100 hover:bg-gradient-to-r hover:from-amber-500 hover:to-orange-500 px-4 py-2 text-xs font-bold text-slate-700 hover:text-white transition duration-150 group/btn"
+                  className="mt-4 inline-flex items-center justify-between rounded-xl bg-[#151E30] hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-500 px-4 py-2 text-xs font-bold text-zinc-300 hover:text-white transition duration-150 group/btn border border-white/10 hover:border-transparent"
                 >
                   <span>Create Video</span>
                   <ArrowRight size={14} className="transition-transform group-hover/btn:translate-x-1" />

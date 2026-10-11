@@ -340,8 +340,8 @@ export default function LongVideoClipsPage() {
           clipsAspectRatio: "9:16",
           clipsHookStrategy,
           clipsTopBanner,
-          durationSeconds: mediaDurationSeconds,
-          sourceDurationSeconds: mediaDurationSeconds,
+          durationSeconds: mediaDurationSeconds || 300,
+          sourceDurationSeconds: mediaDurationSeconds || 300,
           mediaAspect: "portrait",
         }),
       });

@@ -1,3 +1,4 @@
+import type { AdvancedStyleBlueprint } from './blueprintSchema';
 export * from './blueprintSchema';
 
 export type TypographyStyleId =
@@ -108,4 +109,4 @@ export type KineticPhrase = {
   emphasis?: 'headline' | 'subtle' | 'accent';
 };
 
-export type StyleBlueprint = import('./styleRegistry').StyleBlueprint;
+export type StyleBlueprint = AdvancedStyleBlueprint;

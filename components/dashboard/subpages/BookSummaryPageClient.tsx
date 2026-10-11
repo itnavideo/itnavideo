@@ -66,6 +66,7 @@ export default function BookSummaryPageClient() {
   const [activeTab, setActiveTab] = useState<"studio" | "history">("studio");
   const [downloadingUrl, setDownloadingUrl] = useState<string | null>(null);
   const [showExitConfirmModal, setShowExitConfirmModal] = useState(false);
+  const [aspectRatio, setAspectRatio] = useState<"9:16" | "16:9">("16:9");
 
   const renderRequestInFlightRef = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -226,6 +227,7 @@ export default function BookSummaryPageClient() {
     scenes: unknown[];
     metadata?: unknown;
     captionsTheme?: string;
+    aspectRatio?: "9:16" | "16:9";
     words?: unknown[];
     timestampSegments?: unknown[];
     transcript?: string;
@@ -277,6 +279,8 @@ export default function BookSummaryPageClient() {
           words: payload.words,
           timestampSegments: payload.timestampSegments,
           captionsTheme: payload.captionsTheme || "glow-viral",
+          aspectRatio: payload.aspectRatio || aspectRatio,
+          mediaAspect: (payload.aspectRatio || aspectRatio) === "16:9" ? "landscape" : "portrait",
         }),
       });
 
@@ -596,6 +600,8 @@ export default function BookSummaryPageClient() {
             onResetRender={handleReset}
             onRetryRender={handleReset}
             onCancelRender={handleCancelProcess}
+            aspectRatio={aspectRatio}
+            onAspectRatioChange={setAspectRatio}
           />
         )}
 

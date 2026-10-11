@@ -14,10 +14,10 @@
 | **Template Location** | `remotion/templates/COMPARE_EXPLAINER/template.tsx` |
 | **Dashboard Studio** | `components/dashboard/CompareExplainerStudio.tsx` |
 | **Dashboard Route** | `/dashboard/compare-explainer` |
-| **Aspect Ratio** | **Strictly 9:16 Vertical (1080×1920 Full HD)** |
-| **Resolution & Quality** | **1080p Full HD (1080×1920 30 FPS MP4)** |
+| **Aspect Ratio** | **Dual Aspect Ratio**: `9:16` Vertical Shorts & `16:9` Widescreen Cinema |
+| **Resolution & Quality** | **1080p Full HD** (`1080×1920` for 9:16 / `1920×1080` for 16:9) @ 30 FPS MP4 |
 | **Frame Rate** | 30 FPS |
-| **Max Video Duration** | **3 Minutes (180 seconds)** |
+| **Max Video Duration** | **90 Seconds (9:16 Shorts)** / **5 Minutes (16:9 Widescreen Cinema)** |
 | **Primary Category** | Social & YouTube |
 | **Credit Cost** | 1 credit per render |
 | **Design System** | Google Analytics Obsidian Baseline (`#070B14`, `#0E1526`) + Intentional Color & Typography Variety Policy + Material Design 3 |

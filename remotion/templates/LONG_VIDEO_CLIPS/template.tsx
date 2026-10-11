@@ -416,9 +416,9 @@ export const LongVideoClipsComposition = () => (
     calculateMetadata={({ props }) => {
       const p = props as LongVideoClipsProps;
       const dur = Math.max(
-        8,
+        5,
         Math.min(
-          60,
+          120,
           Number(p.durationSeconds) ||
             Number(p.sourceDurationSeconds) ||
             Number(p.renderWindowSeconds) ||

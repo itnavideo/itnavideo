@@ -65,7 +65,7 @@ export async function getRenderAccessForUser(userId: string, request: RenderAcce
   }
   if (isFreeSignupCreditActive(freeSignupCredit) && freeSignupCredit) {
     const window = getFreeSignupCreditWindow(freeSignupCredit);
-    const trialAccess = await accessForWindow(cleanUserId, "free-signup-credit", "20 Free Trial Credits", false, window.startAt, window.endAt, window.limit, requiredCreditUnits);
+    const trialAccess = await accessForWindow(cleanUserId, "free-signup-credit", "1 Free Trial Credit", false, window.startAt, window.endAt, window.limit, requiredCreditUnits);
     return {...trialAccess, watermark: trialAccess.allowed};
   }
 

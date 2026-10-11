@@ -90,7 +90,7 @@ function ShowcaseCard({ presetKey }: ShowcaseCardProps) {
       className="relative flex-shrink-0 w-[155px] sm:w-[180px] group cursor-pointer select-none"
     >
       {/* 9:16 smartphone card container — 100% clean without extra labels or metadata */}
-      <div className="relative w-full aspect-[9/16] rounded-[22px] overflow-hidden border border-white/15 bg-[#090A0F] shadow-xl group-hover:border-[#FF6D00] group-hover:shadow-2xl group-hover:shadow-[#FF6D00]/25 transition-all duration-300 group-hover:-translate-y-1">
+      <div className="relative w-full aspect-[9/16] rounded-[22px] overflow-hidden border border-white/15 bg-[#090A0F] shadow-xl group-hover:border-purple-500 group-hover:shadow-2xl group-hover:shadow-purple-500/25 transition-all duration-300 group-hover:-translate-y-1">
         
         {/* Smartphone Speaker / Notch */}
         <div className="absolute top-2 inset-x-0 z-20 flex justify-center pointer-events-none">
@@ -136,8 +136,8 @@ function ShowcaseCard({ presetKey }: ShowcaseCardProps) {
         {/* Play Icon Overlay when paused */}
         {!isPlaying && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-black/60 border border-white/25 backdrop-blur-sm group-hover:bg-[#FF6D00] group-hover:border-[#FF6D00] transition-all duration-300 shadow-lg">
-              <Play size={18} className="fill-white text-white ml-0.5 group-hover:text-black group-hover:fill-black transition-colors" />
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-black/60 border border-white/25 backdrop-blur-sm group-hover:bg-purple-600 group-hover:border-purple-500 transition-all duration-300 shadow-lg">
+              <Play size={18} className="fill-white text-white ml-0.5 group-hover:text-white transition-colors" />
             </div>
           </div>
         )}

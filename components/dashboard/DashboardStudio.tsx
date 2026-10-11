@@ -100,7 +100,6 @@ type Mode =
   | "compare"
   | "autoCaption"
   | "autoDraw"
-  | "longVideoPromo"
   | "dynamicCreator"
   | "customAiReel"
   | "whiteboardVideo"
@@ -110,8 +109,7 @@ type Mode =
   | "longVideoPro"
   | "facelessVideo"
   | "imageToVideoAi"
-  | "aiVideoGenerator"
-  | "youtubeSubtitleGenerator";
+  | "aiVideoGenerator";
 type CaptionStudioSettings = {
   fontFamily: string;
   fontSizePx: number;
@@ -229,17 +227,15 @@ const RENDER_POLL_INTERVAL_MS = 3000;
 const RENDER_POLL_ATTEMPTS = 800; // ~40 minutes max polling for 12-minute 1080p long renders
 
 const videoTypeCards = [
-  { id: "youtube-subtitle-generator", title: "YouTube Subtitle Generator", tag: "16:9 YouTube • Max 12 Min", description: "Generate clean, professional subtitles for 16:9 landscape YouTube videos, podcasts, tutorials & lectures.", image: "/visuals/dashboard-cards/youtube-subtitles.webp", badgeType: "Popular" as const, accent: "#F59E0B", mode: "youtubeSubtitleGenerator" as const, category: "long", inputType: "video" as const, accessTier: "paid" as const, creditCost: "20 Credits • Paid" },
-  { id: "auto-caption-generator", title: "Auto Caption Generator", tag: "9:16 Reel • 🎁 20 Free Credits", description: "Generate animated word-level captions for 9:16 vertical Reels, Shorts & TikTok videos.", image: "/visuals/dashboard-cards/auto-caption.webp", badgeType: "Popular" as const, accent: "#F59E0B", mode: "autoCaption" as const, category: "creator", inputType: "video" as const, accessTier: "free" as const, creditCost: "🎁 Free Trial / 10 Credits" },
-  { id: "compare-explainer", title: "Compare Explainer Video", tag: "Comparison", description: "Left vs right comparison with narration and sticker presenter.", image: "/visuals/dashboard-cards/compare-explainer.webp", badgeType: "AI" as const, accent: "#F59E0B", mode: "compare" as const, category: "education", inputType: "text" as const, accessTier: "paid" as const, creditCost: "10 Credits • Paid" },
-  { id: "whiteboard-video", title: "Whiteboard Video", tag: "Whiteboard", description: "AI writes key points on a premium corporate board synced to your speech.", image: "/visuals/dashboard-cards/whiteboard-video.webp", badgeType: "AI" as const, accent: "#00FF9D", mode: "whiteboardVideo" as const, category: "education", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "10 Credits • Paid" },
-  { id: "typography-video", title: "Typography Video", tag: "9:16 Typography Reel", description: "Turn talking video or voiceover into viral 9:16 reels with punchy kinetic typography & synced sound effects.", image: "/visuals/dashboard-cards/typography-video.webp", badgeType: "Popular" as const, accent: "#F59E0B", mode: "typographyVideo" as const, category: "creator", inputType: "video" as const, accessTier: "paid" as const, creditCost: "10 Credits • Paid" },
-  { id: "long-video-promo", title: "Long Video Promo", tag: "Promo", description: "Promote your YouTube video as a vertical Short/Reel.", image: "/visuals/dashboard-cards/long-video-promotion.webp", badgeType: undefined, accent: "#F59E0B", mode: "longVideoPromo" as const, category: "creator", inputType: "video" as const, accessTier: "paid" as const, creditCost: "10 Credits • Paid" },
-  { id: "ai-audio-cleaner", title: "AI Audio Cleaner", tag: "Long Audio", description: "Full script preview in dashboard • Auto removes recording mistakes, silences & noise.", image: "/visuals/dashboard-cards/audio-cleaner.webp", badgeType: "Pro" as const, accent: "#F59E0B", mode: "audioClean" as const, category: "long", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "5 Credits • Paid" },
-  { id: "long-video-clips", title: "Long Video Clips", tag: "Podcast Clips", description: "Turn long videos and podcasts into short viral clips with captions.", image: "/visuals/dashboard-cards/long-video-clips.webp", badgeType: "New" as const, accent: "#F59E0B", mode: "longVideoClips" as const, category: "long", inputType: "video" as const, accessTier: "paid" as const, creditCost: "10 Credits / Clip • Paid" },
-  { id: "faceless-video", title: "Faceless Video", tag: "16:9 YouTube • Max 12 Min", description: "Turn up to 12 min voiceover into complete 16:9 videos with curated AI visuals, typography & soundtrack.", image: "/visuals/dashboard-cards/faceless-video.webp", badgeType: "AI" as const, accent: "#F59E0B", mode: "facelessVideo" as const, category: "long", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "20 Credits • Paid" },
-  { id: "image-to-video-ai", title: "Image to Video AI", tag: "16:9 Widescreen • Max 12 Min", description: "Turn up to 12 min voiceover into cinematic 16:9 videos with images, Ken Burns motion, widescreen subtitles & transitions.", image: "/visuals/dashboard-cards/image-to-video.webp", badgeType: "New" as const, accent: "#8B5CF6", mode: "imageToVideoAi" as const, category: "long", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "20 Credits • Paid" },
-  { id: "book-summary", title: "Book Summary Video", tag: "16:9 Widescreen", description: "Turn book narration into a 16:9 summary video with AI lesson cards.", image: "/visuals/dashboard-cards/book-summary.webp", badgeType: "New" as const, accent: "#FF6D00", mode: "longVideoPro" as const, category: "long", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "20 Credits • Paid" },
+  { id: "auto-caption-generator", title: "Auto Caption Generator", tag: "9:16 & 16:9 • Max 90s/5m", description: "Generate animated captions & lower-third subtitles for 9:16 Shorts or 16:9 Widescreen videos.", image: "/visuals/dashboard-cards/auto-caption.webp", badgeType: "Popular" as const, accent: "#F59E0B", mode: "autoCaption" as const, category: "creator", inputType: "video" as const, accessTier: "free" as const, creditCost: "🎁 Free Trial / 10 Credits" },
+  { id: "faceless-video", title: "Faceless Video Generator", tag: "9:16 & 16:9 • Max 90s/5m", description: "Turn voiceover into complete videos with AI visuals, B-roll & synced typography in 9:16 or 16:9.", image: "/visuals/dashboard-cards/faceless-video.webp", badgeType: "AI" as const, accent: "#F59E0B", mode: "facelessVideo" as const, category: "long", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "10 Credits • Paid" },
+  { id: "compare-explainer", title: "Compare Explainer Video", tag: "9:16 & 16:9 • Max 90s/5m", description: "Left vs right comparison with narration and sticker presenter in 9:16 or 16:9.", image: "/visuals/dashboard-cards/compare-explainer.webp", badgeType: "AI" as const, accent: "#F59E0B", mode: "compare" as const, category: "education", inputType: "text" as const, accessTier: "paid" as const, creditCost: "10 Credits • Paid" },
+  { id: "whiteboard-video", title: "Whiteboard Animation", tag: "9:16 & 16:9 • Max 90s/5m", description: "AI writes key points on a whiteboard synced to your speech in 9:16 or 16:9.", image: "/visuals/dashboard-cards/whiteboard-video.webp", badgeType: "AI" as const, accent: "#00FF9D", mode: "whiteboardVideo" as const, category: "education", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "10 Credits • Paid" },
+  { id: "typography-video", title: "Kinetic Motion Video", tag: "9:16 & 16:9 • Max 90s/5m", description: "Turn talking video or voiceover into punchy kinetic typography reels in 9:16 or 16:9.", image: "/visuals/dashboard-cards/typography-video.webp", badgeType: "Popular" as const, accent: "#F59E0B", mode: "typographyVideo" as const, category: "creator", inputType: "video" as const, accessTier: "paid" as const, creditCost: "10 Credits • Paid" },
+  { id: "image-to-video-ai", title: "Image to Video AI", tag: "9:16 & 16:9 • Max 90s/5m", description: "Turn voiceover into cinematic videos with images, Ken Burns motion & subtitles in 9:16 or 16:9.", image: "/visuals/dashboard-cards/image-to-video.webp", badgeType: "New" as const, accent: "#8B5CF6", mode: "imageToVideoAi" as const, category: "long", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "10 Credits • Paid" },
+  { id: "book-summary", title: "Book Summary Video", tag: "9:16 & 16:9 • Max 90s/5m", description: "Turn book narration into a summary video with AI lesson cards in 9:16 or 16:9.", image: "/visuals/dashboard-cards/book-summary.webp", badgeType: "New" as const, accent: "#FF6D00", mode: "longVideoPro" as const, category: "long", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "10 Credits • Paid" },
+  { id: "long-video-clips", title: "Viral Video Clips", tag: "9:16 Shorts • Input up to 2h", description: "Turn long videos and podcasts (up to 2 hours) into short viral clips with captions.", image: "/visuals/dashboard-cards/long-video-clips.webp", badgeType: "New" as const, accent: "#F59E0B", mode: "longVideoClips" as const, category: "long", inputType: "video" as const, accessTier: "paid" as const, creditCost: "10 Credits / Clip • Paid" },
+  { id: "ai-audio-cleaner", title: "AI Audio Cleaner", tag: "Studio Master Audio • Max 5m", description: "Full script preview in dashboard • Auto removes recording mistakes, silences & noise.", image: "/visuals/dashboard-cards/audio-cleaner.webp", badgeType: "Pro" as const, accent: "#F59E0B", mode: "audioClean" as const, category: "long", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "5 Credits • Paid" },
 ] as const;
 
 function getPlannedRenderCreditUnits(mode: Mode, durationSeconds?: number, clipCount = 3) {
@@ -496,6 +492,7 @@ export default function DashboardStudio({
   const { user, loading, logout } = useAuth();
   const router = useRouter();
   const [mode, setMode] = useState<Mode>(initialMode || "autoCaption");
+  const [selectedAspectRatio, setSelectedAspectRatio] = useState<"9:16" | "16:9">("9:16");
   const [hasUserSelected, setHasUserSelected] = useState<boolean>(standalone || false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [comparisonFiles, setComparisonFiles] = useState<File[]>([]);
@@ -721,7 +718,7 @@ export default function DashboardStudio({
         if (nextMode) {
           const timer = window.setTimeout(() => {
             setMode(nextMode);
-            if (nextMode === "youtubeSubtitleGenerator") {
+            if ((nextMode as string) === "youtubeSubtitleGenerator") {
               setCaptionStyle("Ali Abdaal Clean Pill");
               setCaptionPosition("bottom");
             }
@@ -732,7 +729,7 @@ export default function DashboardStudio({
           return () => window.clearTimeout(timer);
         }
       } else {
-        if (initialMode === "youtubeSubtitleGenerator") {
+        if ((initialMode as string) === "youtubeSubtitleGenerator") {
           setCaptionStyle("Ali Abdaal Clean Pill");
           setCaptionPosition("bottom");
         }
@@ -788,7 +785,7 @@ export default function DashboardStudio({
     : "Cost shown before render";
   const plannedCreditDetail = mode === "longVideoClips"
     ? "2-credit base + 1 per clip"
-    : mode === "youtubeSubtitleGenerator"
+    : (mode as string) === "youtubeSubtitleGenerator"
     ? promoClipMeta.durationSeconds
       ? `${Math.ceil(promoClipMeta.durationSeconds / 60)} min video (${Math.round(promoClipMeta.durationSeconds)}s)`
       : "1 credit for 2 min"
@@ -806,7 +803,7 @@ export default function DashboardStudio({
   const canPrepareReel = Boolean(
     (mode === "customAiReel" ? customAiPrompt.trim().length >= 12 : selectedFile) &&
     (mode !== "compare" || comparisonFiles.length === 2) &&
-    (mode !== "longVideoPromo" || (Boolean(promoThumbnailFile) && Boolean(promoTitle.trim()))) &&
+    ((mode as string) !== "longVideoPromo" || (Boolean(promoThumbnailFile) && Boolean(promoTitle.trim()))) &&
     (mode !== "audioClean" || !isAnalyzingAudio) &&
     !renderInProgress &&
     !paidLimitComplete &&
@@ -905,14 +902,12 @@ export default function DashboardStudio({
   };
 
   const chooseVideoTypeMode = (nextMode: Mode) => {
-    const dedicatedRoutes: Partial<Record<Mode, string>> = {
+    const dedicatedRoutes: Partial<Record<string, string>> = {
       imageToVideoAi: "/dashboard/image-to-video",
-      youtubeSubtitleGenerator: "/dashboard/youtube-subtitles",
       autoCaption: "/dashboard/auto-caption",
       compare: "/dashboard/compare-explainer",
       whiteboardVideo: "/dashboard/whiteboard-video",
       typographyVideo: "/dashboard/typography-video",
-      longVideoPromo: "/dashboard/long-video-promo",
       audioClean: "/dashboard/audio-cleaner",
       longVideoClips: "/dashboard/long-video-clips",
       facelessVideo: "/dashboard/faceless-video",
@@ -925,11 +920,11 @@ export default function DashboardStudio({
     setMode(nextMode);
     trackVideoTypeSelect(
       nextMode,
-      ["youtubeSubtitleGenerator", "imageToVideoAi", "facelessVideo"].includes(nextMode)
+      ["imageToVideoAi", "facelessVideo"].includes(nextMode)
         ? "16:9 Landscape"
         : "9:16 Shorts"
     );
-    if (nextMode === "youtubeSubtitleGenerator") {
+    if ((nextMode as string) === "youtubeSubtitleGenerator") {
       setCaptionStyle("Ali Abdaal Clean Pill");
       setCaptionPosition("bottom");
     }
@@ -951,7 +946,7 @@ export default function DashboardStudio({
     setImageToVideoBgm(null);
     setTopicTitle("");
     setJobStatus({state: "idle", message: ""});
-    const nextVideoType = nextMode === "imageToVideoAi" ? "image-to-video-ai" : nextMode === "youtubeSubtitleGenerator" ? "youtube-subtitle-generator" : nextMode === "autoCaption" ? "auto-caption-generator" : nextMode === "autoDraw" ? "auto-draw-explainer" : nextMode === "longVideoPromo" ? "long-video-promo" : nextMode === "whiteboardVideo" ? "whiteboard-video" : nextMode === "typographyVideo" ? "typography-video" : nextMode === "longVideoClips" ? "long-video-clips" : nextMode === "dynamicCreator" ? "dynamic-creator-reel" : nextMode === "customAiReel" ? "custom-ai-reel" : nextMode === "audioClean" ? "ai-audio-cleaner" : nextMode === "longVideoPro" ? "long-video-pro" : "compare-explainer";
+    const nextVideoType = nextMode === "imageToVideoAi" ? "image-to-video-ai" : (nextMode as string) === "youtubeSubtitleGenerator" ? "youtube-subtitle-generator" : nextMode === "autoCaption" ? "auto-caption-generator" : nextMode === "autoDraw" ? "auto-draw-explainer" : (nextMode as string) === "longVideoPromo" ? "long-video-promo" : nextMode === "whiteboardVideo" ? "whiteboard-video" : nextMode === "typographyVideo" ? "typography-video" : nextMode === "longVideoClips" ? "long-video-clips" : nextMode === "dynamicCreator" ? "dynamic-creator-reel" : nextMode === "customAiReel" ? "custom-ai-reel" : nextMode === "audioClean" ? "ai-audio-cleaner" : nextMode === "longVideoPro" ? "long-video-pro" : "compare-explainer";
     window.history.replaceState(null, "", `/dashboard?videoType=${nextVideoType}`);
     // Auto-scroll to upload section on mobile
     setTimeout(() => {
@@ -1179,7 +1174,7 @@ export default function DashboardStudio({
   };
 
   useEffect(() => {
-    if ((mode !== "longVideoPromo" && mode !== "autoCaption") || !selectedFile || !selectedFile.type.startsWith("video/")) {
+    if (((mode as string) !== "longVideoPromo" && mode !== "autoCaption") || !selectedFile || !selectedFile.type.startsWith("video/")) {
       return;
     }
 
@@ -2012,6 +2007,51 @@ export default function DashboardStudio({
                   </div>
                 </div>
               ) : null}
+
+              {/* Aspect Ratio Selector Switcher (9:16 Vertical vs 16:9 Widescreen) */}
+              {((mode as string) !== "audioClean") && (
+                <div className="mb-4 rounded-2xl border border-white/10 bg-[#070B14] p-4 shadow-md text-left">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <span className="text-xs font-black uppercase tracking-wider text-white flex items-center gap-1.5">
+                        <Film size={15} className="text-[#FF9100]" />
+                        <span>Select Aspect Ratio</span>
+                      </span>
+                      <p className="text-[11px] text-zinc-400 mt-0.5">Choose layout format for your video</p>
+                    </div>
+                    <span className="text-[10px] font-mono font-bold px-2.5 py-1 rounded-full bg-[#FF6D00]/15 text-[#FF9100] border border-[#FF6D00]/30">
+                      {selectedAspectRatio === "9:16" ? "9:16 Vertical (Max 90s)" : "16:9 Widescreen (Max 5m)"}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedAspectRatio("9:16")}
+                      className={`flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl border text-xs transition-all cursor-pointer ${
+                        selectedAspectRatio === "9:16"
+                          ? "bg-gradient-to-r from-[#FF6D00]/25 to-amber-500/20 border-[#FF6D00] text-white shadow-lg shadow-[#FF6D00]/20 font-black"
+                          : "bg-[#0E1526] border-white/10 text-zinc-400 hover:border-white/20 hover:text-white font-medium"
+                      }`}
+                    >
+                      <div className="w-3.5 h-6 rounded-[3px] border-2 border-current flex items-center justify-center" />
+                      <span>📱 9:16 Vertical (Shorts/Reels)</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedAspectRatio("16:9")}
+                      className={`flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl border text-xs transition-all cursor-pointer ${
+                        selectedAspectRatio === "16:9"
+                          ? "bg-gradient-to-r from-[#FF6D00]/25 to-amber-500/20 border-[#FF6D00] text-white shadow-lg shadow-[#FF6D00]/20 font-black"
+                          : "bg-[#0E1526] border-white/10 text-zinc-400 hover:border-white/20 hover:text-white font-medium"
+                      }`}
+                    >
+                      <div className="w-6 h-3.5 rounded-[3px] border-2 border-current flex items-center justify-center" />
+                      <span>🖥️ 16:9 Widescreen (YouTube)</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <label className="upload-zone flex min-h-40 min-w-0 max-w-full cursor-pointer flex-col items-center justify-center overflow-hidden sm:min-h-64">
                 <input
                   accept={activeMode.accept}
@@ -2032,7 +2072,14 @@ export default function DashboardStudio({
                   {selectedFile ? "Change selected file" : activeMode.uploadCta || 'Click to upload or drag & drop'}
                 </p>
                 <p className="mt-2 max-w-full px-2 text-center text-xs leading-5" style={{ color: 'var(--text-dark-muted)' }}>
-                  {activeMode.supported}{(mode as string) === "audioClean" ? "" : mode === "facelessVideo" || mode === "aiVideoGenerator" || mode === "longVideoPro" ? " • Up to 12 minutes" : " • Max 1 minute"}
+                  {activeMode.supported}
+                  {(mode as string) === "audioClean"
+                    ? " • Max 5 minutes"
+                    : mode === "longVideoClips"
+                    ? " • Input up to 2 hours"
+                    : selectedAspectRatio === "9:16"
+                    ? " • Max 90 seconds (Shorts/Reels)"
+                    : " • Max 5 minutes (Widescreen)"}
                 </p>
               </label>
               {selectedFile ? (
@@ -2060,7 +2107,7 @@ export default function DashboardStudio({
                 mode === "facelessVideo" ||
                 mode === "aiVideoGenerator" ||
                 mode === "longVideoClips" ||
-                mode === "youtubeSubtitleGenerator") ? (
+                (mode as string) === "youtubeSubtitleGenerator") ? (
                 <div className="mt-4 rounded-2xl border border-white/10 bg-[#070B14] p-4 sm:p-5 shadow-md">
                   <div className="mb-3.5 flex items-center justify-between border-b border-white/10 pb-2.5">
                     <div>
@@ -2491,7 +2538,7 @@ export default function DashboardStudio({
                 </>
               ) : null}
 
-              {mode === "longVideoPromo" ? (
+              {(mode as string) === "longVideoPromo" ? (
                 <>
                 {/* Live preview — sticky like the CapCut editor so it stays visible while you scroll controls */}
                 <div className="sticky top-16 z-30 -mx-4 mb-1 border-b border-border bg-[#141020]/95 px-4 pb-4 pt-3 backdrop-blur-md sm:top-4 sm:mx-0 sm:rounded-lg sm:border sm:border-border sm:bg-black/25">
@@ -2915,7 +2962,7 @@ export default function DashboardStudio({
                 </div>
               ) : null}
 
-              {mode === "autoCaption" || mode === "youtubeSubtitleGenerator" ? (
+              {mode === "autoCaption" || (mode as string) === "youtubeSubtitleGenerator" ? (
                 <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-4 sm:p-6 shadow-2xl min-w-0 max-w-full overflow-hidden space-y-5">
                   {/* ── Premium M3 Header (gradient + orange glow + quick stats) ── */}
                   <div className="relative overflow-hidden rounded-[22px] border border-white/10 bg-gradient-to-br from-[#0E1526] via-[#070B14] to-black p-5 sm:p-6">
@@ -2924,16 +2971,16 @@ export default function DashboardStudio({
                       <div className="space-y-2 max-w-xl">
                         <div className="inline-flex items-center gap-2 rounded-full border border-[#FF6D00]/30 bg-[#FF6D00]/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#FF9100]">
                           <Sparkles size={14} className="text-[#FF9100]" />
-                          <span>{mode === "youtubeSubtitleGenerator" ? "16:9 Landscape • Up to 15 min" : "9:16 Reel • 30 FPS • Viral Captions"}</span>
+                          <span>{(mode as string) === "youtubeSubtitleGenerator" ? "16:9 Landscape • Up to 15 min" : "9:16 Reel • 30 FPS • Viral Captions"}</span>
                         </div>
                         <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                          {mode === "youtubeSubtitleGenerator" ? "YouTube Subtitle " : "Auto Caption "}
+                          {(mode as string) === "youtubeSubtitleGenerator" ? "YouTube Subtitle " : "Auto Caption "}
                           <span className="bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] bg-clip-text text-transparent">
-                            {mode === "youtubeSubtitleGenerator" ? "Generator" : "Generator"}
+                            {(mode as string) === "youtubeSubtitleGenerator" ? "Generator" : "Generator"}
                           </span>
                         </h1>
                         <p className="text-sm text-zinc-400 leading-relaxed">
-                          {mode === "youtubeSubtitleGenerator"
+                          {(mode as string) === "youtubeSubtitleGenerator"
                             ? "Clean, professional subtitles used by top YouTube creators & podcasts. Up to 15 minutes."
                             : "AI transcribes your video and syncs animated, word-by-word viral captions automatically."}
                         </p>
@@ -2946,13 +2993,13 @@ export default function DashboardStudio({
                             <span className="flex items-center gap-1.5">
                               <Clock3 size={13} className="text-amber-400" /> Format
                             </span>
-                            <span className="text-white font-extrabold">{mode === "youtubeSubtitleGenerator" ? "16:9 · 15 min" : "9:16 · 90s"}</span>
+                            <span className="text-white font-extrabold">{(mode as string) === "youtubeSubtitleGenerator" ? "16:9 · 15 min" : "9:16 · 90s"}</span>
                           </div>
                           <div className="flex items-center justify-between text-xs text-zinc-400 font-bold">
                             <span className="flex items-center gap-1.5">
                               <Zap size={13} className="text-[#FF9100]" /> Credit Rate
                             </span>
-                            <span className="text-[#FFA726] font-extrabold">{mode === "youtubeSubtitleGenerator" ? "1 / 2 Min" : "1 / Min"}</span>
+                            <span className="text-[#FFA726] font-extrabold">{(mode as string) === "youtubeSubtitleGenerator" ? "1 / 2 Min" : "1 / Min"}</span>
                           </div>
                         </div>
                       </div>
@@ -2966,7 +3013,7 @@ export default function DashboardStudio({
                         Video Length: <strong className="text-white">{Math.floor(promoClipMeta.durationSeconds / 60)}:{(Math.round(promoClipMeta.durationSeconds % 60)).toString().padStart(2, '0')}</strong> ({Math.round(promoClipMeta.durationSeconds)}s)
                       </span>
                       <span className="font-bold text-[#FFA726]">
-                        Cost: {mode === "youtubeSubtitleGenerator"
+                        Cost: {(mode as string) === "youtubeSubtitleGenerator"
                           ? `${Math.max(1, Math.ceil(promoClipMeta.durationSeconds / 120))} Credit${Math.ceil(promoClipMeta.durationSeconds / 120) > 1 ? 's' : ''} (1 credit per 2 minutes)`
                           : `${Math.max(1, Math.ceil(promoClipMeta.durationSeconds / 60))} Credit${Math.ceil(promoClipMeta.durationSeconds / 60) > 1 ? 's' : ''} (1 credit per minute)`
                         }
@@ -2988,7 +3035,7 @@ export default function DashboardStudio({
                   ) : null}
 
                   {/* Portrait 9:16 notice if uploaded to YouTube Subtitle Generator */}
-                  {mode === "youtubeSubtitleGenerator" && promoClipMeta.mediaAspect === "portrait" ? (
+                  {(mode as string) === "youtubeSubtitleGenerator" && promoClipMeta.mediaAspect === "portrait" ? (
                     <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-600 dark:text-amber-400 flex items-start gap-2">
                       <span className="text-base leading-none">💡</span>
                       <div>
@@ -3001,7 +3048,7 @@ export default function DashboardStudio({
                   ) : null}
 
                   {/* Western Creator Guide Banner for YouTube Subtitle Generator */}
-                  {mode === "youtubeSubtitleGenerator" ? (
+                  {(mode as string) === "youtubeSubtitleGenerator" ? (
                     <div className="rounded-xl border border-[#FF6D00]/30 bg-[#FF6D00]/10 p-3.5 text-xs text-zinc-300 flex items-start gap-2.5">
                       <span className="text-lg leading-none">🇬🇧</span>
                       <div className="min-w-0 flex-1">
@@ -3018,12 +3065,12 @@ export default function DashboardStudio({
                   {/* 1. Style Preset Picker */}
                   <div>
                     <span className="mb-2 block text-xs font-black uppercase tracking-[0.16em] text-zinc-400">
-                      1. Caption Style Preset {mode === "youtubeSubtitleGenerator" ? "(16:9 Western Creator Presets)" : ""}
+                      1. Caption Style Preset {(mode as string) === "youtubeSubtitleGenerator" ? "(16:9 Western Creator Presets)" : ""}
                     </span>
                     <SubtitleStylePicker
                       value={captionStyle}
                       onChange={chooseCaptionStyle}
-                      variant={mode === "youtubeSubtitleGenerator" ? "longForm" : "shorts"}
+                      variant={(mode as string) === "youtubeSubtitleGenerator" ? "longForm" : "shorts"}
                     />
                   </div>
 
@@ -3165,7 +3212,7 @@ export default function DashboardStudio({
                   </div>
 
                   {/* 5. Mode Specific Advanced Controls */}
-                  {mode === "youtubeSubtitleGenerator" ? (
+                  {(mode as string) === "youtubeSubtitleGenerator" ? (
                     <div className="rounded-2xl border border-[#FF6D00]/20 bg-[#FF6D00]/[0.04] p-3.5 sm:p-4 space-y-3">
                       <span className="block text-xs font-black uppercase tracking-[0.16em] text-[#FF9100]">
                         5. 16:9 Landscape Safe Margin & Casing
@@ -3548,7 +3595,7 @@ export default function DashboardStudio({
                 </div>
               ) : null}
 
-              <div className={mode === "autoCaption" || mode === "youtubeSubtitleGenerator" || mode === "customAiReel" || mode === "longVideoPromo" || mode === "compare" || mode === "typographyVideo" || mode === "longVideoClips" || mode === "whiteboardVideo" || mode === "audioClean" || mode === "longVideoPro" || mode === "imageToVideoAi" ? "hidden" : "rounded-lg border border-border bg-card/[0.035] p-4"}>
+              <div className={mode === "autoCaption" || (mode as string) === "youtubeSubtitleGenerator" || mode === "customAiReel" || (mode as string) === "longVideoPromo" || mode === "compare" || mode === "typographyVideo" || mode === "longVideoClips" || mode === "whiteboardVideo" || mode === "audioClean" || mode === "longVideoPro" || mode === "imageToVideoAi" ? "hidden" : "rounded-lg border border-border bg-card/[0.035] p-4"}>
                 <label className="form-label-muted" htmlFor="reel-topic">
                   Reel topic/title
                 </label>
@@ -3805,7 +3852,7 @@ export default function DashboardStudio({
                         </span>
                       </button>
                     )
-                  ) : mode === "youtubeSubtitleGenerator" ? (
+                  ) : (mode as string) === "youtubeSubtitleGenerator" ? (
                     <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
                       <button
                         className={`inline-flex flex-1 w-full items-center justify-center gap-2 transition rounded-xl py-3.5 px-4 font-bold text-sm ${
@@ -4578,7 +4625,7 @@ export default function DashboardStudio({
                   <div className="shrink-0 rounded-md bg-amber-400/10 border border-amber-400/25 px-2 py-0.5 text-[10px] font-bold text-amber-400">
                     {previewVideoType.mode === "longVideoClips"
                       ? "3–12 credits"
-                      : previewVideoType.mode === "youtubeSubtitleGenerator"
+                      : (previewVideoType.mode as string) === "youtubeSubtitleGenerator"
                         ? "1 credit / 2 min"
                         : getPlannedRenderCreditUnits(previewVideoType.mode)
                           ? `${formatCreditUnits(getPlannedRenderCreditUnits(previewVideoType.mode))} credit${getPlannedRenderCreditUnits(previewVideoType.mode) === 10 ? "" : "s"}`
@@ -4778,22 +4825,7 @@ export default function DashboardStudio({
         ? await uploadComparisonImages({files: comparisonFiles, userId})
         : [];
 
-      const thumbnailUploadStartedAt = performance.now();
-      const promoThumbnailKey = mode === "longVideoPromo" && promoThumbnailFile
-        ? await uploadVideoTypeImage({file: promoThumbnailFile, userId, mode: "longVideoPromo"})
-        : "";
-      const thumbnailUploadMs = mode === "longVideoPromo" ? Math.round(performance.now() - thumbnailUploadStartedAt) : 0;
-      if (mode === "longVideoPromo") {
-        console.log("[LONG_VIDEO_PROMO_CLIENT_UPLOAD]", {
-          presignMs,
-          mediaUploadMs,
-          thumbnailUploadMs,
-          mediaSizeBytes: selectedFile.size,
-          thumbnailSizeBytes: promoThumbnailFile?.size || 0,
-          durationSeconds: promoClipMeta.durationSeconds || null,
-          mediaAspect: promoClipMeta.mediaAspect || "unknown",
-        });
-      }
+
 
       const imageToVideoUploadedKeys = mode === "imageToVideoAi" && imageToVideoImages.length > 0
         ? await uploadVideoTypeImages({files: imageToVideoImages, mode: "imageToVideoAi", userId})
@@ -4918,9 +4950,9 @@ export default function DashboardStudio({
               captionHighlightColor,
               captionBackgroundColor,
               captionShowBackground: captionBackgroundColor !== "",
-              videoLayout: (mode === "autoCaption" || mode === "youtubeSubtitleGenerator") ? "fullscreen" : videoLayout,
-              progressStyle: (mode === "autoCaption" || mode === "youtubeSubtitleGenerator") ? "none" : progressStyle,
-              wordClickSound: (mode === "autoCaption" || mode === "youtubeSubtitleGenerator") ? false : wordClickSound,
+              videoLayout: mode === "autoCaption" ? "fullscreen" : videoLayout,
+              progressStyle: mode === "autoCaption" ? "none" : progressStyle,
+              wordClickSound: mode === "autoCaption" ? wordClickSound : false,
               topicTitle: topicTitle.trim(),
             }),
           });
@@ -4930,7 +4962,7 @@ export default function DashboardStudio({
             setPendingRenderKeys({
               mediaKey: presign.key,
               comparisonImageKeys,
-              promoThumbnailKey,
+              promoThumbnailKey: "",
             });
             setPreviewPlan(previewData.preview);
             setJobStatus({state: "idle", message: ""});
@@ -4952,7 +4984,7 @@ export default function DashboardStudio({
         contentType: uploadContentType,
         userId,
         comparisonImageKeys,
-        promoThumbnailKey,
+        promoThumbnailKey: "",
         customAiImageKeys: [],
         customAiLogoKey: "",
         uploadedImageKeys: imageToVideoUploadedKeys,
@@ -5109,6 +5141,7 @@ export default function DashboardStudio({
           contentType: renderContentType,
           mediaType: mode === "customAiReel" ? (customAiVideoKey ? "video" : customAiAudioKey ? "audio" : "image") : getFileMediaType(selectedFile!),
           mode,
+          aspectRatio: selectedAspectRatio,
           topicTitle: topicTitle.trim(),
           visualStylePreset: longVideoStylePreset,
           atmosphereBg: longVideoAtmosphereBg,
@@ -5123,11 +5156,11 @@ export default function DashboardStudio({
           compareSpeakingPace,
           compareBgmTrack,
           compareCaptionStyle,
-          creatorHandle: (mode === "longVideoPromo" && promoCreatorHandle.trim()) ? promoCreatorHandle.trim() : (compareHandle.trim() || "@itnavideo"),
+          creatorHandle: ((mode as string) === "longVideoPromo" && promoCreatorHandle.trim()) ? promoCreatorHandle.trim() : (compareHandle.trim() || "@itnavideo"),
           stickerStyle: String(overrideInputProps.stickerStyle || stickerStyle),
           // Use edited values from preview if available, else dashboard form values.
           // Long Video Promo is intentionally thumbnail + title + promo media only.
-          ...(mode !== "longVideoPromo" ? {
+          ...((mode as string) !== "longVideoPromo" ? {
             captionStyle: String(overrideInputProps.captionStyle || (mode === "compare" ? compareCaptionStyle : captionStyle)),
             captionPosition: String(overrideInputProps.captionPosition || captionPosition),
             captionFontFamily: String(overrideInputProps.fontFamily || captionFontFamily),
@@ -5140,9 +5173,9 @@ export default function DashboardStudio({
           spokenLanguage: spokenLanguage !== "auto" ? spokenLanguage : undefined,
           captionLanguage: captionLanguage !== "auto" ? captionLanguage : undefined,
           subtitleOutputLanguage: captionLanguage !== "auto" ? captionLanguage : undefined,
-          videoLayout: (mode === "autoCaption" || mode === "youtubeSubtitleGenerator") ? "fullscreen" : String(overrideInputProps.videoLayout || videoLayout),
-          progressStyle: (mode === "autoCaption" || mode === "youtubeSubtitleGenerator") ? "none" : String(overrideInputProps.progressStyle || progressStyle),
-          wordClickSound: mode === "autoCaption" ? wordClickSound : mode === "youtubeSubtitleGenerator" ? false : wordClickSound,
+          videoLayout: mode === "autoCaption" ? "fullscreen" : String(overrideInputProps.videoLayout || videoLayout),
+          progressStyle: mode === "autoCaption" ? "none" : String(overrideInputProps.progressStyle || progressStyle),
+          wordClickSound: mode === "autoCaption" ? wordClickSound : wordClickSound,
           captionEmphasisAnimation,
           youtubeSubtitleSafeZone,
           youtubeSubtitleCase,
@@ -5154,28 +5187,15 @@ export default function DashboardStudio({
           stickerOffsetX: overrideInputProps.stickerOffsetX || undefined,
           stickerOffsetY: overrideInputProps.stickerOffsetY || undefined,
           // Pass edited captions from preview directly so jobs route uses them.
-          ...(mode !== "longVideoPromo" && overrideInputProps.captions ? { previewCaptions: overrideInputProps.captions } : {}),
+          ...(overrideInputProps.captions ? { previewCaptions: overrideInputProps.captions } : {}),
           ...(overrideInputProps.scenes ? { previewScenes: overrideInputProps.scenes } : {}),
           ...(overrideInputProps.overlayTimeline ? { previewOverlayTimeline: overrideInputProps.overlayTimeline } : {}),
           ...(overrideInputProps.stickers ? { previewStickers: overrideInputProps.stickers } : {}),
-          // Long Video Promo fields
-          ...(mode === "longVideoPromo" ? {
-            promoTitle: promoTitle.trim(),
-            promoCtaText: promoCtaText.trim() || undefined,
-            promoCtaStyle,
-            promoCreatorHandle,
-            promoBackgroundMode,
-            enableCaptions: promoEnableCaptions,
-            thumbnailKey: promoThumbnailKey || undefined,
+          // Auto Caption duration & aspect fields
+          ...(mode === "autoCaption" ? {
             durationSeconds: promoClipMeta.durationSeconds || undefined,
             sourceDurationSeconds: promoClipMeta.durationSeconds || undefined,
-            mediaAspect: promoClipMeta.mediaAspect || undefined,
-          } : {}),
-          // Auto Caption / YouTube Subtitle Generator duration & aspect fields
-          ...(mode === "autoCaption" || mode === "youtubeSubtitleGenerator" ? {
-            durationSeconds: promoClipMeta.durationSeconds || undefined,
-            sourceDurationSeconds: promoClipMeta.durationSeconds || undefined,
-            mediaAspect: mode === "youtubeSubtitleGenerator" ? "landscape" : (promoClipMeta.mediaAspect || "portrait"),
+            mediaAspect: promoClipMeta.mediaAspect || "portrait",
             safeZoneMargin: youtubeSubtitleSafeZone,
             textCasing: youtubeSubtitleCase,
           } : {}),
@@ -5265,14 +5285,6 @@ export default function DashboardStudio({
         }),
       });
       const job = await readJsonPayload(jobResponse);
-      if (mode === "longVideoPromo") {
-        console.log("[LONG_VIDEO_PROMO_JOB_START]", {
-          httpStatus: job.httpStatus,
-          ok: Boolean(job.ok),
-          elapsedMs: Math.round(performance.now() - jobStartMs),
-          diagnostics: job.diagnostics || null,
-        });
-      }
       if (!jobResponse.ok || !job.ok) {
         const reasonCode = typeof job.reasonCode === "string" ? job.reasonCode : "";
         const fd = job._founderDiagnostics || {};
@@ -5364,7 +5376,7 @@ export default function DashboardStudio({
         return;
       }
 
-      const renderingMessage = mode === "longVideoPromo"
+      const renderingMessage = (mode as string) === "longVideoPromo"
         ? "Rendering your promo MP4. No transcription or caption planning is running."
         : job.transcriptSource === "not-required"
           ? "Rendering your MP4..."
@@ -5671,16 +5683,9 @@ function validateFileForMode(file: File, mode: Mode) {
   if (file.size > maxBytes) {
     return "This file is too large. Please upload a shorter file or compress it under 500MB.";
   }
-  if ((mode === "autoCaption" || mode === "youtubeSubtitleGenerator" || mode === "dynamicCreator") && !isVideo) {
+  if ((mode === "autoCaption" || mode === "dynamicCreator") && !isVideo) {
     if (mode === "dynamicCreator") return "Creator Reel Video needs a video file. Please upload an MP4/MOV video.";
-    if (mode === "youtubeSubtitleGenerator") return "YouTube Subtitle Generator needs a video file. Please upload an MP4/MOV/WEBM video.";
     return "Auto Caption Video needs a video file. Please upload an MP4/MOV video.";
-  }
-  if (mode === "compare" && !isAudio) {
-    return "Compare needs an audio voiceover plus 2 comparison photos.";
-  }
-  if (mode === "longVideoPromo" && !isVideo) {
-    return "Long Video Promo needs a video clip (MP4/MOV/WEBM).";
   }
   if (mode === "autoDraw" && !isAudio && !isVideo) {
     return `${modeConfig[mode].title} needs an audio or video file with clear speech.`;
@@ -5805,11 +5810,11 @@ function RenderWaitCarousel() {
 }
 
 function planningMessageForMode(mode: Mode) {
-  if (mode === "youtubeSubtitleGenerator") return "Transcribing speech & syncing creator subtitles for your YouTube video...";
+  if ((mode as string) === "youtubeSubtitleGenerator") return "Transcribing speech & syncing creator subtitles for your YouTube video...";
   if (mode === "autoCaption") return "Preparing styled captions for your reel...";
   if (mode === "compare") return "Preparing left/right comparison scenes...";
   if (mode === "autoDraw") return "Creating whiteboard scenes from your voiceover...";
-  if (mode === "longVideoPromo") return "Preparing your promo reel...";
+  if ((mode as string) === "longVideoPromo") return "Preparing your promo reel...";
   if (mode === "dynamicCreator") return "Preparing dynamic text and pacing...";
   if (mode === "customAiReel") return "Planning your custom reel timeline...";
   if (mode === "imageToVideoAi") return "Transcribing voiceover & syncing Ken Burns scenes with 2.5D parallax subtitles...";
@@ -6261,12 +6266,8 @@ function getRenderStageMeta(status: JobStatus, mode: Mode): {
     return {
       body: mode === "compare"
         ? "AI is transcribing your audio and preparing image comparison timing."
-        : mode === "longVideoPromo"
-          ? "Preparing your thumbnail, title, and promo clip layout."
         : mode === "customAiReel"
           ? "Turning your instructions into a structured visual timeline."
-          : mode === "youtubeSubtitleGenerator"
-            ? "AI is transcribing speech and calculating word timestamps for YouTube subtitles."
           : mode === "autoCaption"
             ? "AI is transcribing speech and calculating word timestamps."
             : mode === "imageToVideoAi"
@@ -6275,22 +6276,18 @@ function getRenderStageMeta(status: JobStatus, mode: Mode): {
       badgeClass: "border-[#FF6D00]/30 bg-[#FF6D00]/12 text-[#FF9100]",
       icon: Layers3,
       iconFrame: "border-[#FF6D00]/35 bg-[#FF6D00]/13 text-[#FF9100]",
-      kicker: mode === "longVideoPro" ? "AI is planning scenes" : mode === "compare" ? "AI is transcribing" : mode === "longVideoPromo" ? "Promo setup" : mode === "customAiReel" ? "Timeline planning" : mode === "youtubeSubtitleGenerator" ? "Transcribing speech" : mode === "autoCaption" ? "Transcribing speech" : mode === "imageToVideoAi" ? "Pacing scene cuts" : mode === "typographyVideo" ? "Extracting punch keywords" : "AI is transcribing",
+      kicker: mode === "longVideoPro" ? "AI is planning scenes" : mode === "compare" ? "AI is transcribing" : mode === "customAiReel" ? "Timeline planning" : mode === "autoCaption" ? "Transcribing speech" : mode === "imageToVideoAi" ? "Pacing scene cuts" : mode === "typographyVideo" ? "Extracting punch keywords" : "AI is transcribing",
       kickerClass: "text-[#FF9100]",
-      title: mode === "longVideoPro" ? "AI is directing your video" : mode === "compare" ? "Building your comparison" : mode === "longVideoPromo" ? "Preparing your promo reel" : mode === "customAiReel" ? "Planning your custom reel" : mode === "youtubeSubtitleGenerator" ? "Generating creator subtitles" : mode === "autoCaption" ? "Generating animated captions" : mode === "imageToVideoAi" ? "Directing Image to Video AI" : mode === "typographyVideo" ? "Styling kinetic typography" : "AI is transcribing",
+      title: mode === "longVideoPro" ? "AI is directing your video" : mode === "compare" ? "Building your comparison" : mode === "customAiReel" ? "Planning your custom reel" : mode === "autoCaption" ? "Generating animated captions" : mode === "imageToVideoAi" ? "Directing Image to Video AI" : mode === "typographyVideo" ? "Styling kinetic typography" : "AI is transcribing",
     };
   }
   return {
-    body: mode === "longVideoPromo"
-      ? "Exporting your thumbnail, title, and promo clip. No transcription or captions are running."
-      : mode === "longVideoPro"
+    body: mode === "longVideoPro"
         ? "AI is rendering your directed video with planned scenes and motion. This takes 3-10 minutes."
-        : mode === "youtubeSubtitleGenerator"
-          ? "Rendering your 16:9 YouTube video with creator-styled subtitles. Usually takes 30-90 seconds."
         : mode === "autoCaption"
           ? "Rendering your 30 FPS reel with animated motion captions. Usually takes 15-45 seconds."
           : mode === "imageToVideoAi"
-            ? "Rendering 16:9 widescreen video with Ken Burns motion and 2.5D parallax subtitles."
+            ? "Rendering video with Ken Burns motion and 2.5D parallax subtitles."
             : mode === "typographyVideo"
               ? "Rendering your 30 FPS reel with dynamic kinetic typography & synced sound effects. Usually takes 30-60 seconds."
               : "Rendering your final MP4. Usually 2-10 minutes depending on video length, captions, and current render load.",
@@ -6334,17 +6331,8 @@ function getRenderStepDefinitions(mode: Mode) {
       {label: "Audio & images received", detail: "Speech audio and scene images are ready.", threshold: 0.08, icon: Upload},
       {label: "Transcribing speech", detail: "AI detecting speech pace and word timestamps.", threshold: 0.24, icon: Layers3},
       {label: "Pacing scene cuts", detail: "Matching images to sentences with Ken Burns camera motion.", threshold: 0.45, icon: Sparkles},
-      {label: "Rendering 16:9 MP4", detail: "Building widescreen video with synced parallax subtitles.", threshold: 0.85, icon: Film},
+      {label: "Rendering 1080p MP4", detail: "Building video with synced parallax subtitles.", threshold: 0.85, icon: Film},
       {label: "Ready to download", detail: "Your Image to Video MP4 appears here when ready.", threshold: 0.96, icon: Clapperboard},
-    ];
-  }
-  if (mode === "youtubeSubtitleGenerator") {
-    return [
-      {label: "Upload received", detail: "Your YouTube video file is safely uploaded.", threshold: 0.08, icon: Upload},
-      {label: "Transcribing speech", detail: "AI Speech Engine syncing exact word timestamps.", threshold: 0.24, icon: Layers3},
-      {label: "Styling creator subtitles", detail: "Applying chosen creator subtitle layout & typography.", threshold: 0.45, icon: Sparkles},
-      {label: "Rendering 16:9 MP4", detail: "Building landscape video with synced subtitles.", threshold: 0.85, icon: Film},
-      {label: "Ready to download", detail: "Your subtitled YouTube video appears here when ready.", threshold: 0.96, icon: Clapperboard},
     ];
   }
   if (mode === "autoCaption") {
@@ -6354,15 +6342,6 @@ function getRenderStepDefinitions(mode: Mode) {
       {label: "Styling motion captions", detail: "Applying chosen animation style & color highlights.", threshold: 0.45, icon: Sparkles},
       {label: "Rendering 30 FPS MP4", detail: "Building vertical reel with synced captions.", threshold: 0.85, icon: Film},
       {label: "Ready to download", detail: "Your captioned reel appears here when ready.", threshold: 0.96, icon: Clapperboard},
-    ];
-  }
-  if (mode === "longVideoPromo") {
-    return [
-      {label: "Upload received", detail: "Promo clip and thumbnail are safely uploaded.", threshold: 0.08, icon: Upload},
-      {label: "Thumbnail ready", detail: "Title, thumbnail, and duration badge are prepared.", threshold: 0.24, icon: ImagePlus},
-      {label: "Promo layout", detail: "Thumbnail, title, and clip are balanced for 9:16.", threshold: 0.45, icon: Sparkles},
-      {label: "Rendering final MP4", detail: "Exporting the predefined promo layout.", threshold: 0.85, icon: Film},
-      {label: "Ready to download", detail: "Your promo MP4 appears here when ready.", threshold: 0.96, icon: Clapperboard},
     ];
   }
   if (mode === "compare") {
@@ -6642,10 +6621,10 @@ function isRecentRender(value: unknown): value is RecentRender {
 function normalizeRenderMode(value: unknown): Mode | null {
   const normalized = String(value || "").toLowerCase().replace(/[-_\s]+/g, "");
   if (!normalized) return null;
-  if (normalized === "autocaption" || normalized === "autocaptionreel" || normalized === "autocaptiongenerator" || normalized === "caption" || normalized === "captions" || normalized === "subtitle" || normalized === "videocaption" || normalized === "captionstudio" || normalized === "customcaption" || normalized === "customcaptions" || normalized === "advancedcaption" || normalized === "longcaptionpro" || normalized === "longcaption") return "autoCaption";
+  if (normalized === "autocaption" || normalized === "autocaptionreel" || normalized === "autocaptiongenerator" || normalized === "caption" || normalized === "captions" || normalized === "subtitle" || normalized === "videocaption" || normalized === "captionstudio" || normalized === "customcaption" || normalized === "customcaptions" || normalized === "advancedcaption" || normalized === "longcaptionpro" || normalized === "longcaption" || normalized === "youtubesubtitlegenerator" || normalized === "youtubesubtitles") return "autoCaption";
   if (normalized === "compare" || normalized === "comparison" || normalized === "compareexplainer" || normalized === "vs") return "compare";
   if (normalized === "autodraw" || normalized === "autodrawexplainer" || normalized === "whiteboard") return "autoDraw";
-  if (normalized === "longvideopromo" || normalized === "longvideopromotion" || normalized === "promo") return "longVideoPromo";
+  if (normalized === "longvideopromo" || normalized === "longvideopromotion" || normalized === "promo") return "autoCaption";
   if (normalized === "longformcaptioned" || normalized === "longvideocaptioned") return "autoCaption";
   if (normalized === "whiteboardvideo" || normalized === "whiteboardreel") return "whiteboardVideo";
   if (normalized === "typographyvideo" || normalized === "typographyreel" || normalized === "boldreel") return "typographyVideo";
@@ -6667,13 +6646,13 @@ function readDashboardMode(value: string | null): Mode | null {
   if (!normalized) return null;
   if (normalized === "imagetovideoai" || normalized === "imagetovideo" || normalized === "image2video" || normalized === "imagetovideovideo") return "imageToVideoAi";
   if (normalized === "aivideogenerator" || normalized === "aivideo" || normalized === "textovideo" || normalized === "scripttovideo" || normalized === "facelesslongvideo" || normalized === "facelessvideo" || normalized === "faceless" || normalized === "longvideopro" || normalized === "longvideo" || normalized === "aidirector" || normalized === "aidirectorreel" || normalized === "directorreel") return "facelessVideo";
-  if (normalized === "youtubesubtitlegenerator" || normalized === "youtubesubtitles" || normalized === "youtubesubtitle" || normalized === "youtubecaptions" || normalized === "youtubecaption" || normalized === "longcaptionpro" || normalized === "longcaption") return "youtubeSubtitleGenerator";
+  if (normalized === "youtubesubtitlegenerator" || normalized === "youtubesubtitles" || normalized === "youtubesubtitle" || normalized === "youtubecaptions" || normalized === "youtubecaption" || normalized === "longcaptionpro" || normalized === "longcaption") return "autoCaption";
   if (normalized === "autocaptiongenerator" || normalized === "autocaptionreel" || normalized === "autocaption" || normalized === "captiongenerator" || normalized === "captionstudio" || normalized === "customcaption") return "autoCaption";
   if (normalized === "compareexplainer" || normalized === "compare" || normalized === "comparison") return "compare";
   if (normalized === "autodrawexplainer" || normalized === "autodraw") return "autoDraw";
   if (normalized === "whiteboardvideo" || normalized === "whiteboardreel") return "whiteboardVideo";
   if (normalized === "typographyvideo" || normalized === "typographyreel" || normalized === "boldreel") return "typographyVideo";
-  if (normalized === "longvideopromo" || normalized === "longvideopromotion" || normalized === "promo") return "longVideoPromo";
+  if (normalized === "longvideopromo" || normalized === "longvideopromotion" || normalized === "promo") return "autoCaption";
   if (normalized === "longformcaptioned" || normalized === "longvideocaptioned") return "autoCaption";
   if (normalized === "dynamiccreatorreel" || normalized === "dynamiccreator" || normalized === "dynamicedit") return "dynamicCreator";
   if (normalized === "customaireel" || normalized === "customai" || normalized === "customreel") return "customAiReel";
@@ -6684,7 +6663,7 @@ function readDashboardMode(value: string | null): Mode | null {
   if (normalized.includes("compare")) return "compare";
   if (normalized.includes("whiteboard")) return "whiteboardVideo";
   if (normalized.includes("draw")) return "autoDraw";
-  if (normalized.includes("promo")) return "longVideoPromo";
+  if (normalized.includes("promo")) return "autoCaption";
   if (normalized.includes("clip")) return "longVideoClips";
   if (normalized.includes("custom")) return "customAiReel";
   if (normalized.includes("dynamic") || normalized.includes("creator")) return "dynamicCreator";
@@ -6736,8 +6715,6 @@ function ProgressPreview({mode}: {mode: Mode}) {
         ? ["1. Long Audio Stream", "2. AI Viral Hooks", "3. 9:16 Reframe & Captions", "4. AWS Lambda Render", "5. Ready Shorts"]
       : mode === "audioClean"
         ? ["1. Voice Ingestion", "2. Groq Speech AI", "3. Retakes & Noise Removal", "4. Loudness Mastering", "5. Studio MP3"]
-      : mode === "longVideoPromo"
-        ? ["1. Ingest Clip", "2. Thumbnail Topper", "3. Viral Teaser Title", "4. 1080p Cloud Render", "5. Ready Promo"]
       : ["1. Drop Audio/Video", "2. Groq Whisper Cloud", "3. Kinetic Subtitle Style", "4. 1080p Cloud Render", "5. Ready MP4"];
 
   return (

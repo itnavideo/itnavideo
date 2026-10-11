@@ -82,6 +82,7 @@ export default function CompareExplainerPage() {
   const [compareCaptionStyle, setCompareCaptionStyle] = useState("Warikoo Black Card");
   const [compareSpeakingPace, setCompareSpeakingPace] = useState<"1.0" | "1.15" | "1.25">("1.15");
   const [compareBgmTrack, setCompareBgmTrack] = useState<"tech" | "versus" | "corporate" | "none">("versus");
+  const [aspectRatio, setAspectRatio] = useState<"9:16" | "16:9">("9:16");
 
   // Voiceover audio length tracker
   const [audioDurationSeconds, setAudioDurationSeconds] = useState<number>(0);
@@ -285,10 +286,11 @@ export default function CompareExplainerPage() {
           compareCaptionStyle,
           creatorHandle: compareHandle.trim() || "@itnavideo",
           stickerStyle,
+          aspectRatio,
           durationSeconds: audioDurationSeconds,
           sourceDurationSeconds: audioDurationSeconds,
-          mediaAspect: "portrait",
-          frameRange: audioDurationSeconds > 0 ? [0, Math.min(2700, Math.round(audioDurationSeconds * 30)) - 1] : undefined,
+          mediaAspect: aspectRatio === "16:9" ? "landscape" : "portrait",
+          frameRange: audioDurationSeconds > 0 ? [0, Math.min(aspectRatio === "16:9" ? 9000 : 2700, Math.round(audioDurationSeconds * 30)) - 1] : undefined,
         }),
       });
 
@@ -611,6 +613,8 @@ export default function CompareExplainerPage() {
                   onImageStyleChange={setCompareImageStyle}
                   stickerStyle={stickerStyle}
                   onStickerStyleChange={setStickerStyle}
+                  aspectRatio={aspectRatio}
+                  onAspectRatioChange={setAspectRatio}
                   compareCaptionStyle={compareCaptionStyle}
                   onCaptionStyleChange={setCompareCaptionStyle}
                   compareSpeakingPace={compareSpeakingPace}

@@ -37,6 +37,8 @@ interface BookSummaryStudioProps {
   onResetRender?: () => void;
   onRetryRender?: () => void;
   onCancelRender?: () => void;
+  aspectRatio?: "9:16" | "16:9";
+  onAspectRatioChange?: (val: "9:16" | "16:9") => void;
 }
 
 export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
@@ -45,8 +47,16 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
   onResetRender,
   onRetryRender,
   onCancelRender,
+  aspectRatio = "16:9",
+  onAspectRatioChange,
 }) => {
   // Step 1: Upload & Info State
+  const [internalRatio, setInternalRatio] = useState<"9:16" | "16:9">("16:9");
+  const selectedRatio = aspectRatio !== undefined ? aspectRatio : internalRatio;
+  const setRatio = (val: "9:16" | "16:9") => {
+    setInternalRatio(val);
+    onAspectRatioChange?.(val);
+  };
   const [audioUrl, setAudioUrl] = useState<string>('');          // signed read URL (for plan API transcription)
   const [audioS3Key, setAudioS3Key] = useState<string>('');      // S3 object key (for render job mediaKey)
   const [audioFileName, setAudioFileName] = useState<string>('');
@@ -329,6 +339,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
       scenes: plan.scenes.filter(s => !s.disabled),
       metadata: plan.metadata,
       captionsTheme: 'glow-viral',
+      aspectRatio: selectedRatio,
       // M3+M4: include words + segments so render job can build word-level captions
       transcript,
       words: planWords,
@@ -462,8 +473,35 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
           </div>
         </div>
 
-        {/* Step Indicator Pills */}
-        <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
+        {/* Step Indicator Pills & Aspect Ratio Selector */}
+        <div className="flex flex-wrap items-center gap-2 shrink-0 self-start sm:self-auto">
+          {/* Dual Aspect Ratio Selector */}
+          <div className="flex items-center gap-1.5 rounded-2xl border border-white/10 bg-[#151E30] p-1 shrink-0">
+            <button
+              type="button"
+              onClick={() => setRatio("16:9")}
+              className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1 text-xs font-bold transition cursor-pointer ${
+                selectedRatio === "16:9"
+                  ? "bg-purple-600 text-white shadow-md shadow-purple-500/25 font-black"
+                  : "text-zinc-400 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              <span>🎬 16:9 Cinema (Up to 12 min)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setRatio("9:16")}
+              className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1 text-xs font-bold transition cursor-pointer ${
+                selectedRatio === "9:16"
+                  ? "bg-[#FF6D00] text-black shadow-md shadow-[#FF6D00]/25 font-black"
+                  : "text-zinc-400 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              <span>📱 9:16 Shorts (Up to 90s)</span>
+            </button>
+          </div>
+
           <button
             type="button"
             onClick={() => setStudioStep('inputs')}

@@ -46,6 +46,7 @@ export interface FacelessLongVideoProps {
   title?: string;
   backgroundTheme?: string;
   customBgUrl?: string;
+  aspectRatio?: '9:16' | '16:9';
   sfxEvents?: Array<{
     id: string;
     sfxType: string;

@@ -53,7 +53,7 @@ const faqs: FAQItem[] = [
   },
   {
     question: "What video resolutions, quality, and durations are supported?",
-    answer: "Every video rendered on Itnavideo is exported in crisp 1080p Full HD at smooth 30 FPS. Vertical 9:16 short-form videos render at 1080×1920 up to 3 minutes, and 16:9 widescreen YouTube videos render at 1920×1080 up to 12 minutes.",
+    answer: "Every video rendered on Itnavideo is exported in crisp 1080p Full HD at smooth 30 FPS. All 9:16 vertical short-form videos (Reels, Shorts, TikTok) render at 1080×1920 up to 90 seconds (90s). All 16:9 widescreen YouTube videos render at 1920×1080 up to 5 minutes (300s). Long Video to Viral Clips accepts long-form source videos up to 2 hours and exports 30s–60s 1080p shorts.",
     category: 'workflows',
     categoryLabel: 'Video Workflows',
   },
@@ -82,8 +82,8 @@ export default function FAQSection() {
       <div className="max-w-4xl mx-auto relative z-10">
         {/* Header */}
         <div className="text-center mb-10 sm:mb-12 space-y-3.5">
-          <div className="inline-flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest text-amber-400">
-            <HelpCircle size={14} className="text-amber-400" />
+          <div className="inline-flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest text-purple-300">
+            <HelpCircle size={14} className="text-purple-400" />
             <span>Help &amp; Answers</span>
           </div>
 
@@ -94,7 +94,7 @@ export default function FAQSection() {
             className="text-3xl font-black text-white sm:text-5xl font-sans tracking-tight"
           >
             Frequently Asked{' '}
-            <span className="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-purple-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">
               Questions
             </span>
           </motion.h2>
@@ -117,14 +117,14 @@ export default function FAQSection() {
                   }}
                   className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer ${
                     isActive
-                      ? 'bg-gradient-to-r from-amber-400 to-yellow-500 text-black shadow-md shadow-amber-500/25 font-black scale-[1.02]'
-                      : 'border border-white/[0.07] bg-[#0F1117] text-zinc-300 hover:border-amber-500/40 hover:bg-[#151821] hover:text-white'
+                      ? 'bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 text-white shadow-md shadow-purple-500/25 font-black scale-[1.02]'
+                      : 'border border-white/[0.07] bg-[#0F1117] text-zinc-300 hover:border-purple-500/40 hover:bg-[#151821] hover:text-white'
                   }`}
                   type="button"
                 >
                   <span>{cat.label}</span>
                   <span className={`rounded-full px-1.5 py-0.2 text-[10px] font-mono ${
-                    isActive ? 'bg-black/20 text-black font-black' : 'bg-[#151821] text-zinc-400'
+                    isActive ? 'bg-black/20 text-white font-black' : 'bg-[#151821] text-zinc-400'
                   }`}>
                     {count}
                   </span>
@@ -148,8 +148,8 @@ export default function FAQSection() {
                 transition={{ duration: 0.25, delay: index * 0.03 }}
                 className={`group rounded-[24px] border transition-all duration-300 overflow-hidden ${
                   isOpen
-                    ? 'border-[#FF6D00]/60 bg-[#0F1117] shadow-xl shadow-[#FF6D00]/10 ring-1 ring-[#FF6D00]/30'
-                    : 'border-white/[0.07] bg-[#0F1117]/80 hover:border-[#FF6D00]/40 hover:bg-[#0F1117]'
+                    ? 'border-purple-500/60 bg-[#0F1117] shadow-xl shadow-purple-500/10 ring-1 ring-purple-500/30'
+                    : 'border-white/[0.07] bg-[#0F1117]/80 hover:border-purple-500/40 hover:bg-[#0F1117]'
                 }`}
               >
                 <button
@@ -162,13 +162,13 @@ export default function FAQSection() {
                     {/* Index Badge */}
                     <span className={`flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-xl text-xs font-mono font-bold transition-colors ${
                       isOpen
-                        ? 'bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black font-black'
-                        : 'border border-white/[0.07] bg-[#151821] text-[#FF9100] group-hover:border-[#FF6D00]/50'
+                        ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white font-black'
+                        : 'border border-white/[0.07] bg-[#151821] text-purple-300 group-hover:border-purple-500/50'
                     }`}>
                       {indexNumber}
                     </span>
 
-                    <span className="text-sm sm:text-base font-bold text-white font-sans tracking-tight leading-snug group-hover:text-[#FFA726] transition-colors">
+                    <span className="text-sm sm:text-base font-bold text-white font-sans tracking-tight leading-snug group-hover:text-purple-300 transition-colors">
                       {faq.question}
                     </span>
                   </div>
@@ -176,8 +176,8 @@ export default function FAQSection() {
                   {/* Circular Chevron Indicator */}
                   <div className={`flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full border transition-all duration-300 ${
                     isOpen
-                      ? 'border-[#FF6D00]/50 bg-[#FF6D00]/15 text-[#FFA726] rotate-180'
-                      : 'border-white/[0.07] bg-[#151821] text-zinc-400 group-hover:text-white group-hover:border-[#FF6D00]/40'
+                      ? 'border-purple-500/50 bg-purple-500/15 text-purple-300 rotate-180'
+                      : 'border-white/[0.07] bg-[#151821] text-zinc-400 group-hover:text-white group-hover:border-purple-500/40'
                   }`}>
                     <ChevronDown size={16} />
                   </div>
@@ -201,7 +201,7 @@ export default function FAQSection() {
                             <div className="pt-2">
                               <Link
                                 href={faq.action.href}
-                                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#FFA726] hover:text-[#FF8F00] transition-colors"
+                                className="inline-flex items-center gap-1.5 text-xs font-bold text-purple-300 hover:text-purple-200 transition-colors"
                               >
                                 <span>{faq.action.label}</span>
                                 <ArrowRight size={13} />
@@ -222,7 +222,7 @@ export default function FAQSection() {
         <div className="mt-8 text-center">
           <Link
             href="/video-types#faq"
-            className="inline-flex items-center gap-2 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-6 py-3 text-xs font-bold text-amber-300 hover:bg-amber-500/20 hover:border-amber-500/50 transition-all shadow-lg shadow-amber-500/10 active:scale-95"
+            className="inline-flex items-center gap-2 rounded-2xl border border-purple-500/30 bg-purple-500/10 px-6 py-3 text-xs font-bold text-purple-300 hover:bg-purple-500/20 hover:border-purple-500/50 transition-all shadow-lg shadow-purple-500/10 active:scale-95"
           >
             <span>View All FAQs →</span>
           </Link>
@@ -235,7 +235,7 @@ export default function FAQSection() {
           viewport={{ once: true }}
           className="mt-10 rounded-[28px] border border-white/[0.07] bg-[#0F1117] p-6 text-center max-w-xl mx-auto shadow-xl"
         >
-          <div className="flex h-10 w-10 mx-auto items-center justify-center rounded-full bg-[#FF6D00]/15 border border-[#FF6D00]/30 text-[#FF9100] mb-2">
+          <div className="flex h-10 w-10 mx-auto items-center justify-center rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-300 mb-2">
             <MessageCircle size={18} />
           </div>
           <h4 className="text-sm font-bold text-white">Have another question?</h4>
@@ -243,10 +243,10 @@ export default function FAQSection() {
           <div className="mt-4">
             <Link
               href="/contact"
-              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-[#151821] px-5 py-2.5 text-xs font-bold text-white transition hover:border-[#FF6D00]/50 hover:bg-[#1C2840] hover:text-[#FFA726] active:scale-95 shadow-md"
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-[#151821] px-5 py-2.5 text-xs font-bold text-white transition hover:border-purple-500/50 hover:bg-[#1C2840] hover:text-purple-300 active:scale-95 shadow-md"
             >
               <span>Contact Support</span>
-              <ArrowRight size={13} className="text-[#FF8F00]" />
+              <ArrowRight size={13} className="text-purple-400" />
             </Link>
           </div>
         </motion.div>

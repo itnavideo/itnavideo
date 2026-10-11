@@ -14,9 +14,9 @@ Book Summary Video transforms raw book notes, chapter outlines, key takeaways, a
 
 | Parameter | Specification |
 | :--- | :--- |
-| **Output Aspect Ratio** | **16:9 Widescreen (1920×1080 Full HD)** |
+| **Output Aspect Ratio** | **Dual Aspect Ratio**: `16:9` Widescreen Cinema & `9:16` Vertical Shorts |
 | **Frame Rate** | 30 FPS |
-| **Maximum Duration** | **12 Minutes (720 seconds)** |
+| **Maximum Duration** | **12 Minutes (720s for 16:9 Cinema)** / **90 Seconds (9:16 Shorts)** |
 | **Input Assets** | Voiceover Audio / Script + Chapter Notes / Book Cover / Quotes |
 | **Audio Extraction** | 16kHz mono audio extracted before transcription |
 | **Transcription** | Primary: Groq Whisper Cloud API (Fallback: Google Gemini 2.0 Flash) |

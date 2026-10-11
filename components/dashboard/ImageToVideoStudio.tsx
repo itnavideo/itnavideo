@@ -285,6 +285,9 @@ export function ImageToVideoStudio({
         </div>
       </div>
 
+      {/* ── Image to Video AI Cloud Demos Showcase (TOP OF DASHBOARD) ── */}
+      <ImageToVideoShowcaseCarousel />
+
       {/* 2-Column Responsive Layout (7 cols Form / 5 cols Sticky Live Cinema Stage) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Form Controls (7 cols) */}
@@ -552,9 +555,6 @@ export function ImageToVideoStudio({
               })}
             </div>
           </div>
-
-          {/* ── Image to Video AI Cloud Demos Showcase ── */}
-          <ImageToVideoShowcaseCarousel />
 
           {/* ── 4. AUDIO SCORE & SOUND EFFECTS ── */}
           <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-2xl space-y-4">

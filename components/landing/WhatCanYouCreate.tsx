@@ -49,19 +49,19 @@ export default function WhatCanYouCreate() {
   return (
     <section id="workflow" className="relative border-b border-white/10 bg-gradient-to-b from-[#070B14] via-[#0B1224] to-[#070B14] px-4 py-16 text-zinc-100 sm:px-6 sm:py-24 overflow-hidden">
       {/* Ambient background gradients */}
-      <div className="pointer-events-none absolute -left-40 top-1/4 -z-10 h-[500px] w-[500px] rounded-full bg-emerald-500/5 blur-[160px]" />
-      <div className="pointer-events-none absolute -right-40 bottom-1/3 -z-10 h-[500px] w-[500px] rounded-full bg-teal-500/5 blur-[160px]" />
+      <div className="pointer-events-none absolute -left-40 top-1/4 -z-10 h-[500px] w-[500px] rounded-full bg-purple-600/10 blur-[160px]" />
+      <div className="pointer-events-none absolute -right-40 bottom-1/3 -z-10 h-[500px] w-[500px] rounded-full bg-pink-600/10 blur-[160px]" />
       
       <div id="video-types" className="relative z-10 mx-auto max-w-7xl scroll-mt-24">
         {/* Section Header */}
         <div className="mx-auto mb-10 max-w-3xl text-center sm:mb-12 space-y-3">
-          <div className="inline-flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest text-emerald-400">
-            <Sparkles size={14} className="text-emerald-400" />
+          <div className="inline-flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest text-purple-400">
+            <Sparkles size={14} className="text-purple-400" />
             <span>11 Dedicated AI Video Studios</span>
           </div>
           <h2 className="text-3xl font-black tracking-tight text-white sm:text-5xl font-sans">
             Choose the studio built for{' '}
-            <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-purple-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">
               your exact format
             </span>
           </h2>
@@ -77,14 +77,14 @@ export default function WhatCanYouCreate() {
                 onClick={() => setActiveCategory('shorts')}
                 className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-extrabold transition-all cursor-pointer ${
                   activeCategory === 'shorts'
-                    ? 'bg-gradient-to-r from-emerald-400 to-teal-400 text-black shadow-md shadow-emerald-500/20 scale-[1.02]'
+                    ? 'bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 text-white shadow-md shadow-purple-500/20 scale-[1.02]'
                     : 'text-zinc-400 hover:text-white'
                 }`}
               >
-                <Smartphone size={14} className={activeCategory === 'shorts' ? 'text-black' : 'text-emerald-400'} />
+                <Smartphone size={14} className={activeCategory === 'shorts' ? 'text-white' : 'text-purple-400'} />
                 <span>Shorts &amp; Reels (9:16)</span>
                 <span className={`rounded-full px-2 py-0.5 text-[10px] font-mono ${
-                  activeCategory === 'shorts' ? 'bg-black/25 text-black font-extrabold' : 'bg-[#151821] text-zinc-400'
+                  activeCategory === 'shorts' ? 'bg-black/25 text-white font-extrabold' : 'bg-[#151821] text-zinc-400'
                 }`}>
                   5
                 </span>
@@ -95,14 +95,14 @@ export default function WhatCanYouCreate() {
                 onClick={() => setActiveCategory('youtube')}
                 className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-extrabold transition-all cursor-pointer ${
                   activeCategory === 'youtube'
-                    ? 'bg-gradient-to-r from-emerald-400 to-teal-400 text-black shadow-md shadow-emerald-500/20 scale-[1.02]'
+                    ? 'bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 text-white shadow-md shadow-purple-500/20 scale-[1.02]'
                     : 'text-zinc-400 hover:text-white'
                 }`}
               >
-                <MonitorPlay size={14} className={activeCategory === 'youtube' ? 'text-black' : 'text-emerald-400'} />
+                <MonitorPlay size={14} className={activeCategory === 'youtube' ? 'text-white' : 'text-purple-400'} />
                 <span>Widescreen (16:9)</span>
                 <span className={`rounded-full px-2 py-0.5 text-[10px] font-mono ${
-                  activeCategory === 'youtube' ? 'bg-black/25 text-black font-extrabold' : 'bg-[#151821] text-zinc-400'
+                  activeCategory === 'youtube' ? 'bg-black/25 text-white font-extrabold' : 'bg-[#151821] text-zinc-400'
                 }`}>
                   5
                 </span>
@@ -113,14 +113,14 @@ export default function WhatCanYouCreate() {
                 onClick={() => setActiveCategory('audio')}
                 className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-extrabold transition-all cursor-pointer ${
                   activeCategory === 'audio'
-                    ? 'bg-gradient-to-r from-emerald-400 to-teal-400 text-black shadow-md shadow-emerald-500/20 scale-[1.02]'
+                    ? 'bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 text-white shadow-md shadow-purple-500/20 scale-[1.02]'
                     : 'text-zinc-400 hover:text-white'
                 }`}
               >
-                <Mic size={14} className={activeCategory === 'audio' ? 'text-black' : 'text-emerald-400'} />
+                <Mic size={14} className={activeCategory === 'audio' ? 'text-white' : 'text-purple-400'} />
                 <span>Audio Utilities</span>
                 <span className={`rounded-full px-2 py-0.5 text-[10px] font-mono ${
-                  activeCategory === 'audio' ? 'bg-black/25 text-black font-extrabold' : 'bg-[#151821] text-zinc-400'
+                  activeCategory === 'audio' ? 'bg-black/25 text-white font-extrabold' : 'bg-[#151821] text-zinc-400'
                 }`}>
                   1
                 </span>
@@ -133,7 +133,7 @@ export default function WhatCanYouCreate() {
         {activeGroup && (
           <div className="mb-8 flex items-center justify-between border-b border-white/[0.08] pb-4">
             <div>
-              <p className="text-xs font-mono font-bold uppercase tracking-wider text-[#FF9100]">
+              <p className="text-xs font-mono font-bold uppercase tracking-wider text-purple-400">
                 {activeCategory === 'shorts' ? '9:16 VERTICAL SOCIAL ENGINES' : activeCategory === 'youtube' ? '16:9 WIDESCREEN YOUTUBE ENGINES' : 'STUDIO AUDIO MASTERING'}
               </p>
               <h3 className="mt-1 text-xl font-black text-white sm:text-2xl">
@@ -178,7 +178,7 @@ function WorkflowCard({ workflow }: { workflow: HomepageWorkflow }) {
   return (
     <Link
       href={workflow.dashboardHref}
-      className={`group relative flex min-w-0 flex-col overflow-hidden rounded-[28px] border border-white/[0.08] bg-[#0F1117] shadow-xl backdrop-blur-xl transition-all duration-300 hover:scale-[1.01] hover:border-[#FF6D00]/60 hover:shadow-2xl hover:shadow-[#FF6D00]/20 cursor-pointer ${
+      className={`group relative flex min-w-0 flex-col overflow-hidden rounded-[28px] border border-white/[0.08] bg-[#0F1117] shadow-xl backdrop-blur-xl transition-all duration-300 hover:scale-[1.01] hover:border-purple-500/60 hover:shadow-2xl hover:shadow-purple-500/20 cursor-pointer ${
         isAudio ? 'sm:grid sm:grid-cols-[minmax(280px,0.9fr)_1.1fr]' : ''
       }`}
     >
@@ -187,20 +187,20 @@ function WorkflowCard({ workflow }: { workflow: HomepageWorkflow }) {
       <div className="flex flex-1 flex-col p-5">
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#FF6D00]/40 bg-gradient-to-br from-[#FF6D00]/25 via-[#FF8F00]/10 to-transparent text-[#FFA726] shadow-md shadow-[#FF6D00]/10 group-hover:border-[#FF6D00] group-hover:scale-105 transition-all">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-purple-500/40 bg-gradient-to-br from-purple-600/25 via-fuchsia-500/15 to-transparent text-purple-300 shadow-md shadow-purple-500/10 group-hover:border-purple-500 group-hover:scale-105 transition-all">
               <Icon size={20} />
             </span>
             <div className="min-w-0">
-              <p className="text-[10px] font-black uppercase tracking-wider text-[#FF9100]">
+              <p className="text-[10px] font-black uppercase tracking-wider text-purple-400">
                 {workflow.category === 'shorts' ? '9:16 Full HD' : workflow.category === 'youtube' ? '16:9 Full HD' : 'Studio Master'}
               </p>
-              <h4 className="truncate text-base font-black tracking-tight text-white group-hover:text-[#FFA726] transition-colors">
+              <h4 className="truncate text-base font-black tracking-tight text-white group-hover:text-purple-300 transition-colors">
                 {workflow.name}
               </h4>
             </div>
           </div>
           {workflow.popular && (
-            <span className="shrink-0 rounded-full bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] px-2.5 py-1 text-[9px] font-black uppercase tracking-wide text-black shadow-sm">
+            <span className="shrink-0 rounded-full bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 px-2.5 py-1 text-[9px] font-black uppercase tracking-wide text-white shadow-sm">
               Popular
             </span>
           )}
@@ -215,7 +215,7 @@ function WorkflowCard({ workflow }: { workflow: HomepageWorkflow }) {
           <span className="text-zinc-500 font-medium group-hover:text-zinc-300 transition-colors">
             {workflow.limit}
           </span>
-          <span className="inline-flex items-center gap-1 font-bold text-[#FFA726] group-hover:translate-x-1 transition-transform">
+          <span className="inline-flex items-center gap-1 font-bold text-purple-400 group-hover:translate-x-1 transition-transform">
             <span>Open Studio</span>
             <ArrowRight size={13} />
           </span>
@@ -258,8 +258,8 @@ function WorkflowMedia({
           />
           {!isPlaying && (
             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/40 backdrop-blur-[2px] transition-all group-hover:bg-black/20">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-xl shadow-[#FF6D00]/40 transition-transform duration-200 group-hover:scale-110">
-                <Play size={20} className="fill-black ml-1" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 text-white shadow-xl shadow-purple-500/40 transition-transform duration-200 group-hover:scale-110">
+                <Play size={20} className="fill-white ml-1" />
               </div>
             </div>
           )}
@@ -288,8 +288,8 @@ function WorkflowMedia({
 function MediaPlaceholder({ workflow }: { workflow: HomepageWorkflow }) {
   const Icon = WORKFLOW_ICONS[workflow.id as keyof typeof WORKFLOW_ICONS] || Film;
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-[radial-gradient(circle_at_top,rgba(255,109,0,0.22),transparent_55%),#0F1117] p-6 text-center">
-      <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#FF6D00] to-[#FF8F00] text-black shadow-lg shadow-orange-500/20">
+    <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-[radial-gradient(circle_at_top,rgba(168,85,247,0.25),transparent_55%),#0F1117] p-6 text-center">
+      <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-600 to-pink-500 text-white shadow-lg shadow-purple-500/20">
         <Icon size={22} />
       </span>
       <p className="max-w-[200px] text-xs font-bold text-slate-200">{workflow.shortName}</p>

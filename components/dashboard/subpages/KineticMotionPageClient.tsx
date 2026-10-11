@@ -77,6 +77,7 @@ export default function KineticMotionPageClient() {
   const [accentColor, setAccentColor] = useState<string>("#FACC15");
   const [fontFamily, setFontFamily] = useState<string>("preset");
   const [intensity, setIntensity] = useState<"normal" | "aggressive">("normal");
+  const [aspectRatio, setAspectRatio] = useState<"9:16" | "16:9">("9:16");
   const [mediaDurationSeconds, setMediaDurationSeconds] = useState<number>(0);
 
   // ── Job state ─────────────────────────────────────────────────────────────────
@@ -245,11 +246,12 @@ export default function KineticMotionPageClient() {
           accentColor,
           fontFamily: fontFamily === "preset" ? undefined : fontFamily,
           animationIntensity: intensity,
+          aspectRatio,
           durationSeconds: mediaDurationSeconds || 30,
           sourceDurationSeconds: mediaDurationSeconds || 30,
-          mediaAspect: "portrait",
+          mediaAspect: aspectRatio === "16:9" ? "landscape" : "portrait",
           frameRange: mediaDurationSeconds > 0
-            ? [0, Math.min(2700, Math.round(mediaDurationSeconds * 30)) - 1]
+            ? [0, Math.min(aspectRatio === "16:9" ? 9000 : 2700, Math.round(mediaDurationSeconds * 30)) - 1]
             : undefined,
         }),
       });
@@ -487,6 +489,8 @@ export default function KineticMotionPageClient() {
                 onFontFamilyChange={setFontFamily}
                 intensity={intensity}
                 onIntensityChange={setIntensity}
+                aspectRatio={aspectRatio}
+                onAspectRatioChange={setAspectRatio}
                 onGenerate={handleStartRender}
                 isGenerating={isWorking}
               />

@@ -174,22 +174,22 @@ export default function VideoTypeGuide() {
   });
 
   return (
-    <section className="relative overflow-hidden bg-background px-4 py-20 sm:px-6 sm:py-28 md:py-32 border-t border-border">
+    <section className="relative overflow-hidden bg-[#070B14] px-4 py-20 sm:px-6 sm:py-28 md:py-32 border-t border-white/10 text-white">
       {/* Background Glow */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_-100px,rgba(245,158,11,0.04),transparent_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_-100px,rgba(168,85,247,0.08),transparent_100%)]" />
 
       <div className="relative z-10 mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-12 text-center space-y-3 sm:space-y-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/[0.06] px-4 py-1.5 text-xs font-bold text-amber-700 dark:text-amber-300 backdrop-blur-md">
-            <Sparkles size={13} className="text-amber-500 dark:text-amber-400" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 text-xs font-bold text-purple-300 backdrop-blur-md">
+            <Sparkles size={13} className="text-purple-400" />
             <span>WHAT YOU CAN CREATE</span>
           </div>
-          <h2 className="text-3xl font-black leading-tight text-foreground sm:text-4xl md:text-5xl font-sans tracking-tight px-1">
-            11 video templates. <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">One platform.</span>
+          <h2 className="text-3xl font-black leading-tight text-white sm:text-4xl md:text-5xl font-sans tracking-tight px-1">
+            11 AI video studios. <span className="bg-gradient-to-r from-purple-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">One platform.</span>
           </h2>
-          <p className="mx-auto max-w-2xl text-xs sm:text-sm text-muted-foreground leading-relaxed px-2">
-            Click any template to explore its dedicated page or start creating immediately with zero editing skills required.
+          <p className="mx-auto max-w-2xl text-xs sm:text-sm text-zinc-400 leading-relaxed px-2">
+            Click any studio to explore its dedicated page or start creating immediately with zero editing skills required.
           </p>
 
           {/* Filter Pills */}
@@ -198,18 +198,18 @@ export default function VideoTypeGuide() {
               onClick={() => setActiveTab('all')}
               className={`rounded-xl border px-4 py-2 text-xs font-bold transition duration-200 ${
                 activeTab === 'all'
-                  ? 'border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400 shadow-sm'
-                  : 'border-border bg-card text-muted-foreground hover:bg-accent hover:text-foreground'
+                  ? 'border-purple-500/40 bg-purple-500/20 text-purple-300 shadow-sm'
+                  : 'border-white/10 bg-[#0E1526] text-zinc-400 hover:bg-[#151E30] hover:text-white'
               }`}
             >
-              All 11 Templates
+              All 11 Studios
             </button>
             <button
               onClick={() => setActiveTab('short')}
               className={`rounded-xl border px-4 py-2 text-xs font-bold transition duration-200 ${
                 activeTab === 'short'
-                  ? 'border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400 shadow-sm'
-                  : 'border-border bg-card text-muted-foreground hover:bg-accent hover:text-foreground'
+                  ? 'border-purple-500/40 bg-purple-500/20 text-purple-300 shadow-sm'
+                  : 'border-white/10 bg-[#0E1526] text-zinc-400 hover:bg-[#151E30] hover:text-white'
               }`}
             >
               Short Reels (9:16)
@@ -218,8 +218,8 @@ export default function VideoTypeGuide() {
               onClick={() => setActiveTab('long')}
               className={`rounded-xl border px-4 py-2 text-xs font-bold transition duration-200 ${
                 activeTab === 'long'
-                  ? 'border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400 shadow-sm'
-                  : 'border-border bg-card text-muted-foreground hover:bg-accent hover:text-foreground'
+                  ? 'border-purple-500/40 bg-purple-500/20 text-purple-300 shadow-sm'
+                  : 'border-white/10 bg-[#0E1526] text-zinc-400 hover:bg-[#151E30] hover:text-white'
               }`}
             >
               Long Form &amp; Tools (16:9 / Audio)
@@ -235,7 +235,7 @@ export default function VideoTypeGuide() {
             return (
               <div
                 key={item.id}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border bg-card p-5 shadow-sm backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:border-slate-400 dark:border-border dark:bg-muted/40 dark:hover:border-border"
+                className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-[#0E1526] p-5 shadow-xl backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:border-purple-500/50"
               >
                 {/* Accent Background Gradient */}
                 <div
@@ -246,14 +246,14 @@ export default function VideoTypeGuide() {
                   {/* Top Bar: Icon + Aspect ratio + Badge */}
                   <div className="flex items-center justify-between gap-2">
                     <div
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-border bg-background/80 shadow-sm transition duration-300 group-hover:scale-105"
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-black/60 shadow-sm transition duration-300 group-hover:scale-105"
                       style={{ color: item.accent }}
                     >
                       <IconComponent size={18} />
                     </div>
 
                     <div className="flex items-center gap-1.5">
-                      <span className="rounded-lg bg-secondary/80 px-2 py-0.5 font-mono text-[10px] font-black uppercase tracking-wider text-secondary-foreground border border-border">
+                      <span className="rounded-lg bg-white/5 px-2 py-0.5 font-mono text-[10px] font-black uppercase tracking-wider text-zinc-300 border border-white/10">
                         {item.aspectRatio}
                       </span>
                       <span
@@ -269,27 +269,27 @@ export default function VideoTypeGuide() {
                   <div>
                     <Link
                       href={item.detailHref}
-                      className="group/title inline-flex items-center gap-1.5 text-base font-black text-card-foreground transition hover:text-amber-600 dark:hover:text-amber-400"
+                      className="group/title inline-flex items-center gap-1.5 text-base font-black text-white transition hover:text-purple-300"
                     >
                       <span>{item.title}</span>
                       <ExternalLink size={12} className="opacity-0 transition duration-200 group-hover/title:opacity-100 shrink-0" />
                     </Link>
-                    <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-zinc-400">
                       Input: {item.input}
                     </p>
                   </div>
 
                   {/* Description */}
-                  <p className="text-xs leading-relaxed text-muted-foreground min-h-[2.5rem]">
+                  <p className="text-xs leading-relaxed text-zinc-400 min-h-[2.5rem]">
                     {item.desc}
                   </p>
                 </div>
 
                 {/* Card Action Footer */}
-                <div className="relative z-10 mt-5 pt-3.5 border-t border-border/80 flex items-center justify-between gap-2">
+                <div className="relative z-10 mt-5 pt-3.5 border-t border-white/10 flex items-center justify-between gap-2">
                   <Link
                     href={item.detailHref}
-                    className="inline-flex items-center gap-1 text-[11px] font-bold text-muted-foreground transition hover:text-foreground hover:underline"
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-zinc-400 transition hover:text-white hover:underline"
                   >
                     <span>Deep Dive Page</span>
                     <ArrowRight size={11} />
@@ -297,7 +297,7 @@ export default function VideoTypeGuide() {
 
                   <Link
                     href={item.dashHref}
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 px-3.5 py-2 text-xs font-black text-white shadow-md transition duration-200 hover:from-amber-600 hover:to-orange-700 hover:shadow-orange-500/20 hover:-translate-y-0.5"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 px-3.5 py-2 text-xs font-black text-white shadow-md transition duration-200 hover:brightness-110 hover:-translate-y-0.5"
                   >
                     <Play size={10} fill="currentColor" />
                     <span>Use</span>
@@ -312,11 +312,11 @@ export default function VideoTypeGuide() {
         <div className="mt-12 text-center space-y-3">
           <Link
             href="/video-types"
-            className="inline-flex items-center gap-2 rounded-2xl border border-border bg-card px-7 py-3.5 text-xs font-black text-foreground shadow-sm transition duration-300 hover:border-amber-500/40 hover:bg-accent hover:-translate-y-0.5 dark:border-border dark:bg-muted/60"
+            className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-[#0E1526] px-7 py-3.5 text-xs font-black text-white shadow-sm transition duration-300 hover:border-purple-500/40 hover:bg-[#151E30] hover:-translate-y-0.5"
           >
-            <Compass size={15} className="text-amber-500" />
+            <Compass size={15} className="text-purple-400" />
             <span>Explore Complete Video Types Directory</span>
-            <ArrowRight size={14} className="text-muted-foreground" />
+            <ArrowRight size={14} className="text-zinc-400" />
           </Link>
         </div>
       </div>

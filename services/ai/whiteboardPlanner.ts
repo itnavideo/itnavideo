@@ -77,6 +77,7 @@ export type WhiteboardPlan = {
   conclusion: string;
   conclusionTime: number;
   source: 'gemini' | 'deterministic';
+  aspectRatio?: '9:16' | '16:9';
 };
 
 export type WhiteboardPlanInput = {
@@ -89,6 +90,7 @@ export type WhiteboardPlanInput = {
   topicTitle?: string;
   boardStyle?: string;
   apiKey?: string;
+  aspectRatio?: '9:16' | '16:9';
 };
 
 // ── Internal Gemini-only point shape (no timing) ─────────────────────────────

@@ -138,8 +138,8 @@ export interface CompositionSystem {
     landscape_16_9: AspectRatioAdaptation;
     square_1_1: AspectRatioAdaptation;
   };
-  negativeSpaceRatio: number;
-  isEdgeToEdge: boolean;
+  negativeSpaceRatio?: number;
+  isEdgeToEdge?: boolean;
 }
 
 // ── 5. Subject-Aware Relationship & Depth Layering ────────────────────────────

@@ -63,3 +63,39 @@ export const WB_REVEAL_TRANSLATE_Y_START = 12;
 export const WB_REVEAL_LEAD_SECONDS = 0.05;
 /** Minimum display time (seconds) for any point, even if speech is shorter */
 export const WB_MIN_DISPLAY_SECONDS = 1.5;
+
+// ── Dynamic Aspect Ratio Geometry Engine ─────────────────────────────────────
+export type WhiteboardAspectRatio = '9:16' | '16:9';
+
+export function getWhiteboardDimensions(aspectRatio: WhiteboardAspectRatio = '9:16') {
+  if (aspectRatio === '16:9') {
+    return {
+      width: 1920,
+      height: 1080,
+      safeLeft: 120,
+      safeRight: 120,
+      safeTop: 80,
+      safeBottom: 100,
+      usableWidth: 1680,
+      usableHeight: 900,
+      titleSize: 64,
+      conclusionSize: 52,
+      pointSizeByCount: { 1: 56, 2: 52, 3: 48 } as Record<number, number>,
+      pointSizeMin: 48,
+    };
+  }
+  return {
+    width: 1080,
+    height: 1920,
+    safeLeft: WB_SAFE_LEFT,
+    safeRight: WB_SAFE_RIGHT,
+    safeTop: WB_SAFE_TOP,
+    safeBottom: WB_SAFE_BOTTOM,
+    usableWidth: WB_USABLE_WIDTH,
+    usableHeight: WB_USABLE_HEIGHT,
+    titleSize: WB_TITLE_SIZE,
+    conclusionSize: WB_CONCLUSION_SIZE,
+    pointSizeByCount: WB_POINT_SIZE_BY_COUNT,
+    pointSizeMin: WB_POINT_SIZE_MIN,
+  };
+}

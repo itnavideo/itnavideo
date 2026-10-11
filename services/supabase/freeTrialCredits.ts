@@ -2,8 +2,8 @@ import { createSupabaseServerClient, isSupabaseServerConfigured } from "@/lib/su
 import { getAppSettingFromServer, setAppSettingFromServer } from "@/services/supabase/siteStore";
 
 const FREE_SIGNUP_CREDIT_PREFIX = "free_signup_credit";
-const FREE_SIGNUP_CREDIT_AMOUNT = 3;        // 3 total free videos (1 per day × 3 days)
-const FREE_DAILY_VIDEO_LIMIT = 1;           // max 1 free video per calendar day
+const FREE_SIGNUP_CREDIT_AMOUNT = 1;        // Exactly 1 free credit for signup
+const FREE_DAILY_VIDEO_LIMIT = 1;           // Max 1 free video total
 const FREE_SIGNUP_CREDIT_ROLLOUT_AT = "2026-07-04T00:00:00.000Z";
 const FREE_SIGNUP_CREDIT_EXPIRES_AT = "2099-12-31T23:59:59.000Z";
 
@@ -17,8 +17,8 @@ export type FreeSignupCreditGrant = {
   expiresAt: string;
   transaction: {
     type: "free_signup_credit";
-    amount: 3;
-    reason: "New user free trial — 1 free video per day for 3 days";
+    amount: 1;
+    reason: "New user free trial — 1 free credit (9:16 Short up to 90s)";
     createdAt: string;
   };
 };
@@ -48,7 +48,7 @@ export async function ensureFreeSignupCreditForUser(userId: string) {
       transaction: {
         type: "free_signup_credit",
         amount: FREE_SIGNUP_CREDIT_AMOUNT,
-        reason: "New user free trial — 1 free video per day for 3 days",
+        reason: "New user free trial — 1 free credit (9:16 Short up to 90s)",
         createdAt: now,
       },
     };
@@ -130,7 +130,7 @@ function normalizeFreeSignupCredit(value: unknown, expectedUserId: string): Free
     transaction: {
       type: "free_signup_credit",
       amount: FREE_SIGNUP_CREDIT_AMOUNT,
-      reason: "New user free trial — 1 free video per day for 3 days",
+      reason: "New user free trial — 1 free credit (9:16 Short up to 90s)",
       createdAt: sanitizeString(transaction.createdAt) || sanitizeString(item.grantedAt),
     },
   };
@@ -139,15 +139,10 @@ function normalizeFreeSignupCredit(value: unknown, expectedUserId: string): Free
   return grant;
 }
 
-// ─── Daily Rate Limit ─────────────────────────────────────────────────────────
-// Free users can create at most FREE_DAILY_VIDEO_LIMIT video(s) per calendar day.
-// Pass in the user's render history (list of ISO date strings) for today.
-// Returns true if the user is still allowed to render today.
 export function isFreeUserAllowedToday(rendersToday: number): boolean {
   return rendersToday < FREE_DAILY_VIDEO_LIMIT;
 }
 
-// Compute how many videos a free user has used today from a ledger of timestamps.
 export function countFreeRendersToday(renderTimestamps: string[]): number {
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);

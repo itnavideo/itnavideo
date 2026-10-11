@@ -784,6 +784,8 @@ export interface KineticMotionStudioProps {
   onFontFamilyChange: (font: string) => void;
   intensity: "normal" | "aggressive";
   onIntensityChange: (val: "normal" | "aggressive") => void;
+  aspectRatio?: "9:16" | "16:9";
+  onAspectRatioChange?: (val: "9:16" | "16:9") => void;
   onGenerate: () => void;
   isGenerating: boolean;
 }
@@ -806,12 +808,21 @@ export function KineticMotionStudio({
   onFontFamilyChange,
   intensity,
   onIntensityChange,
+  aspectRatio = "9:16",
+  onAspectRatioChange,
   onGenerate,
   isGenerating,
 }: KineticMotionStudioProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState<"presets" | "customize">("presets");
   const [livePreviewPreset, setLivePreviewPreset] = useState<KineticMotionPreset | null>(null);
+
+  const [internalRatio, setInternalRatio] = useState<"9:16" | "16:9">("9:16");
+  const selectedRatio = aspectRatio !== undefined ? aspectRatio : internalRatio;
+  const setRatio = (val: "9:16" | "16:9") => {
+    setInternalRatio(val);
+    if (onAspectRatioChange) onAspectRatioChange(val);
+  };
 
   const activePreset =
     KINETIC_MOTION_PRESETS.find((p) => p.id === selectedPreset) ?? KINETIC_MOTION_PRESETS[0];
@@ -841,23 +852,37 @@ export function KineticMotionStudio({
         <div>
           <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl flex items-center gap-2.5">
             <span>Kinetic Motion Studio</span>
-            <span className="rounded-full bg-[#FF6D00]/15 border border-[#FF6D00]/30 px-3 py-0.5 text-xs font-mono font-bold text-[#FF9100]">
-              9:16 · 1080p Full HD
-            </span>
           </h1>
           <p className="text-xs text-zinc-400 mt-1">
             Transform speech & voiceovers into dynamic, motion-driven kinetic text
           </p>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#161720] px-3 py-1 text-xs font-bold text-slate-300">
-            <Zap size={13} className="text-amber-500" />
-            1 Video
-          </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#FF6D00]/40 bg-[#FF6D00]/10 px-3 py-1 text-xs font-bold text-[#FFA726]">
-            <Type size={13} className="text-[#FF8F00]" />
-            {activePreset.badge} · {activePreset.name}
-          </span>
+
+        {/* Dynamic Dual Aspect Ratio Selector */}
+        <div className="flex items-center gap-1.5 rounded-2xl border border-white/10 bg-[#161720] p-1 shrink-0">
+          <button
+            type="button"
+            onClick={() => setRatio("9:16")}
+            className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
+              selectedRatio === "9:16"
+                ? "bg-[#FF6D00] text-black shadow-md shadow-[#FF6D00]/25 font-black"
+                : "text-zinc-400 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <span>📱 9:16 Shorts (Up to 90s)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setRatio("16:9")}
+            className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
+              selectedRatio === "16:9"
+                ? "bg-purple-600 text-white shadow-md shadow-purple-500/25 font-black"
+                : "text-zinc-400 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <span>🎬 16:9 Cinema (Up to 5 min)</span>
+          </button>
         </div>
       </div>
 

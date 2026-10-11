@@ -25,13 +25,17 @@ export const FacelessVideoComposition = () => (
     }}
     calculateMetadata={({ props }) => {
       const p = props as FacelessVideoProps;
+      const isCinema = (p.aspectRatio || '16:9') === '16:9';
       const rawDuration = Number(p.durationSeconds) || Number(p.renderWindowSeconds) || Number(p.sourceDurationSeconds) || 60;
-      const durationSeconds = Math.max(5, Math.min(1200, rawDuration));
+      const maxDur = isCinema ? 1200 : 90;
+      const durationSeconds = Math.max(5, Math.min(maxDur, rawDuration));
+      const width = isCinema ? 1920 : 1080;
+      const height = isCinema ? 1080 : 1920;
       return {
         durationInFrames: secondsToFrames(durationSeconds, DEFAULT_FPS),
         fps: DEFAULT_FPS,
-        width: 1920,
-        height: 1080,
+        width,
+        height,
       };
     }}
   />

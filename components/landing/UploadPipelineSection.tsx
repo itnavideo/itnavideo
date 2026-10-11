@@ -4,20 +4,20 @@ import { Sparkles, Mic, Video, Image as ImageIcon, FileText, Volume2, Wand2, Dow
 
 export default function UploadPipelineSection() {
   return (
-    <section id="workflow" className="relative px-4 py-20 sm:px-6 sm:py-24 bg-slate-50 border-b border-slate-200 overflow-hidden">
+    <section id="workflow" className="relative px-4 py-20 sm:px-6 sm:py-24 bg-[#070B14] border-b border-white/10 overflow-hidden text-white">
       <div className="relative z-10 mx-auto max-w-7xl">
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <p className="text-xs font-bold uppercase tracking-widest text-amber-600 mb-2 flex items-center justify-center gap-1.5">
-            <Sparkles size={14} />
+          <p className="text-xs font-bold uppercase tracking-widest text-purple-300 mb-2 flex items-center justify-center gap-1.5">
+            <Sparkles size={14} className="text-purple-400" />
             <span>Universal AI Video Generation Pipeline</span>
           </p>
-          <h2 className="text-3xl font-extrabold text-slate-900 sm:text-5xl font-sans tracking-tight">
-            Text to Video &amp; <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent">Automated AI Video Creator</span>
+          <h2 className="text-3xl font-extrabold text-white sm:text-5xl font-sans tracking-tight">
+            Text to Video &amp; <span className="bg-gradient-to-r from-purple-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">Automated AI Video Creator</span>
           </h2>
-          <p className="mt-4 text-sm sm:text-base text-slate-600">
-            Upload audio, raw video clips, photos, or text scripts — our AI video generator automatically transcribes, plans scenes, matches visuals, syncs captions, and renders publish-ready videos.
+          <p className="mt-4 text-sm sm:text-base text-zinc-400">
+            Upload audio, raw video clips, photos, or text scripts — our AI video generator automatically transcribes, plans scenes, matches visuals, syncs captions, and renders publish-ready 1080p Full HD videos.
           </p>
         </div>
 
@@ -26,73 +26,73 @@ export default function UploadPipelineSection() {
           
           {/* LEFT: Input Types */}
           <div className="lg:col-span-4 space-y-3">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Inputs You Provide</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2">Inputs You Provide</p>
 
             {[
-              { label: 'Voiceover / Audio', detail: '.mp3, .wav, speech recording', icon: Mic, color: 'text-amber-600 bg-amber-50 border-amber-200' },
-              { label: 'Talking Video', detail: 'raw camera footage, .mp4, .mov', icon: Video, color: 'text-orange-600 bg-orange-50 border-orange-200' },
-              { label: 'Images & Assets', detail: '.jpg, .png, logos, graphics', icon: ImageIcon, color: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
-              { label: 'Scripts & Text', detail: 'written outline or article prompt', icon: FileText, color: 'text-amber-700 bg-amber-50 border-amber-200' },
-              { label: 'Voice Notes', detail: 'podcast audio or voice memo', icon: Volume2, color: 'text-purple-600 bg-purple-50 border-purple-200' },
+              { label: 'Voiceover / Audio', detail: '.mp3, .wav, speech recording', icon: Mic, color: 'text-purple-300 bg-purple-500/10 border-purple-500/30' },
+              { label: 'Talking Video', detail: 'raw camera footage, .mp4, .mov', icon: Video, color: 'text-fuchsia-300 bg-fuchsia-500/10 border-fuchsia-500/30' },
+              { label: 'Images & Assets', detail: '.jpg, .png, logos, graphics', icon: ImageIcon, color: 'text-pink-300 bg-pink-500/10 border-pink-500/30' },
+              { label: 'Scripts & Text', detail: 'written outline or article prompt', icon: FileText, color: 'text-purple-300 bg-purple-500/10 border-purple-500/30' },
+              { label: 'Voice Notes', detail: 'podcast audio or voice memo', icon: Volume2, color: 'text-fuchsia-300 bg-fuchsia-500/10 border-fuchsia-500/30' },
             ].map((input) => {
               const Icon = input?.icon || Sparkles;
               return (
                 <div
                   key={input.label}
-                  className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 bg-white shadow-xs hover:border-amber-300 transition"
+                  className="flex items-center justify-between p-3.5 rounded-xl border border-white/10 bg-[#0E1526] shadow-xs hover:border-purple-500/40 transition"
                 >
                   <div className="flex items-center gap-3">
                     <div className={`flex h-9 w-9 items-center justify-center rounded-lg border ${input.color}`}>
                       <Icon size={18} />
                     </div>
                     <div>
-                      <h4 className="text-xs font-bold text-slate-900 font-sans">{input.label}</h4>
-                      <p className="text-[10px] text-slate-500">{input.detail}</p>
+                      <h4 className="text-xs font-bold text-white font-sans">{input.label}</h4>
+                      <p className="text-[10px] text-zinc-400">{input.detail}</p>
                     </div>
                   </div>
-                  <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+                  <span className="h-2 w-2 rounded-full bg-purple-400 animate-pulse" />
                 </div>
               );
             })}
           </div>
 
           {/* CENTER: Central AI Processing Hub */}
-          <div className="lg:col-span-4 flex flex-col items-center justify-center text-center p-8 rounded-2xl border border-amber-200 bg-white shadow-lg relative">
-            <div className="absolute -top-3 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-0.5 text-[10px] font-bold uppercase text-white tracking-wider shadow-sm">
+          <div className="lg:col-span-4 flex flex-col items-center justify-center text-center p-8 rounded-2xl border border-purple-500/30 bg-[#0E1526] shadow-2xl relative">
+            <div className="absolute -top-3 rounded-full bg-gradient-to-r from-purple-600 to-pink-500 px-3 py-0.5 text-[10px] font-bold uppercase text-white tracking-wider shadow-sm">
               ITNAVIDEO AI HUB
             </div>
 
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white shadow-md shadow-orange-500/25 mb-3">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 text-white shadow-lg shadow-purple-500/25 mb-3">
               <Wand2 size={32} />
             </div>
 
-            <h3 className="text-lg font-bold text-slate-900 font-sans">Automated Video Production</h3>
-            <p className="text-xs text-slate-500 mt-1 max-w-xs">
+            <h3 className="text-lg font-bold text-white font-sans">Automated Video Production</h3>
+            <p className="text-xs text-zinc-400 mt-1 max-w-xs">
               Precision Speech AI + Cloud Render Engine + AI Visual Director
             </p>
 
             {/* Checklist */}
-            <div className="mt-5 w-full space-y-2 bg-slate-50 p-3 rounded-xl border border-slate-200 text-left text-[11px]">
-              <div className="flex items-center justify-between text-slate-700">
+            <div className="mt-5 w-full space-y-2 bg-[#151E30] p-3 rounded-xl border border-white/10 text-left text-[11px]">
+              <div className="flex items-center justify-between text-zinc-300">
                 <span>Speech AI Sync</span>
-                <span className="text-emerald-600 font-mono font-bold">✓ Synced</span>
+                <span className="text-emerald-400 font-mono font-bold">✓ Synced</span>
               </div>
-              <div className="flex items-center justify-between text-slate-700">
+              <div className="flex items-center justify-between text-zinc-300">
                 <span>Scene &amp; Sticker Match</span>
-                <span className="text-emerald-600 font-mono font-bold">✓ Matched</span>
+                <span className="text-emerald-400 font-mono font-bold">✓ Matched</span>
               </div>
-              <div className="flex items-center justify-between text-slate-700">
+              <div className="flex items-center justify-between text-zinc-300">
                 <span>Caption Motion &amp; Fonts</span>
-                <span className="text-emerald-600 font-mono font-bold">✓ Formatted</span>
+                <span className="text-emerald-400 font-mono font-bold">✓ Formatted</span>
               </div>
             </div>
           </div>
 
           {/* RIGHT: Output Video Preview */}
           <div className="lg:col-span-4 flex flex-col items-center justify-center">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 self-start">Publish-Ready Output</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2 self-start">Publish-Ready Output</p>
 
-            <div className="relative w-full max-w-[280px] rounded-2xl border border-slate-200 bg-black overflow-hidden shadow-xl aspect-[9/16]">
+            <div className="relative w-full max-w-[280px] rounded-2xl border border-white/15 bg-black overflow-hidden shadow-2xl aspect-[9/16]">
               <video
                 src="https://res.cloudinary.com/dhouh9idx/video/upload/v1789982713/km_20260916-3_1080p_30f_20260916_232040_qtcjtv.3gp"
                 poster="/preview/Auto Caption Reel.png"
@@ -107,9 +107,9 @@ export default function UploadPipelineSection() {
               <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black via-black/70 to-transparent flex items-center justify-between">
                 <div>
                   <p className="text-xs font-bold text-white font-sans">1080x1920 MP4 Video</p>
-                  <p className="text-[10px] text-amber-400 font-mono font-bold">Ready to publish</p>
+                  <p className="text-[10px] text-purple-300 font-mono font-bold">Ready to publish</p>
                 </div>
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow">
                   <Download size={16} />
                 </div>
               </div>

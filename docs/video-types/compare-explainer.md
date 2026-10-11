@@ -88,11 +88,11 @@ Making comparison videos requires editing software, finding layouts, adding anim
 
 | Property | Value |
 |----------|-------|
-| Default size | 1080×1920 (9:16) |
-| Supported aspect | 9:16 only (currently) |
-| Max duration | 3 Minutes (180 seconds) |
+| Default size | 1080p Full HD (`1080×1920` for 9:16 / `1920×1080` for 16:9) |
+| Supported aspect | `9:16` Vertical Shorts & `16:9` Widescreen Cinema |
+| Max duration | 90s (9:16 Shorts) / 5 Minutes / 300s (16:9 Cinema) |
 | Min duration | 8 seconds |
-| Duration source | Matches uploaded audio/video length (capped at 180s) |
+| Duration source | Matches uploaded audio/video length |
 | Export format | MP4 (H.264 + AAC) |
 | Audio handling | User's uploaded voiceover plays at full volume |
 | Background music | OFF by default |

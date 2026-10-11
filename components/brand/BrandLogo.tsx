@@ -38,8 +38,8 @@ export default function BrandLogo({
 
   const badgeStyle = 
     variant === 'light' 
-      ? 'border-[#FF6D00]/40 bg-[#FF6D00]/10 text-[#FF6D00]' 
-      : 'border-[#FF6D00]/40 bg-[#FF6D00]/15 text-[#FFA726] shadow-xs';
+      ? 'border-purple-500/40 bg-purple-500/10 text-purple-600' 
+      : 'border-purple-500/40 bg-purple-500/15 text-purple-300 shadow-xs';
 
   const taglineColor = 
     variant === 'light' 
@@ -48,7 +48,7 @@ export default function BrandLogo({
 
   const content = (
     <span className={`inline-flex items-center gap-2.5 ${className}`}>
-      {/* Kinetic AI Play Mark Icon - Google Analytics Harmonized Palette */}
+      {/* Kinetic AI Play Mark Icon - Purple & Pink Vibrant Theme */}
       <span
         className="relative inline-flex shrink-0 items-center justify-center transition-transform duration-300 group-hover:scale-105"
         style={{
@@ -60,24 +60,24 @@ export default function BrandLogo({
           viewBox="0 0 100 100"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-full drop-shadow-[0_0_16px_rgba(255,109,0,0.32)]"
+          className="w-full h-full drop-shadow-[0_0_16px_rgba(168,85,247,0.4)]"
         >
           <defs>
-            {/* Google Analytics Vibrant Orange Gradient for Stem */}
+            {/* Vibrant Purple & Pink Gradient for Stem */}
             <linearGradient id="itnaStemGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#FF6D00" />
-              <stop offset="100%" stopColor="#FF8F00" />
+              <stop offset="0%" stopColor="#A855F7" />
+              <stop offset="100%" stopColor="#EC4899" />
             </linearGradient>
-            {/* Google Analytics Signature Amber-Orange Gradient for Play Chevron */}
+            {/* Signature Fuchsia & Pink Gradient for Play Chevron */}
             <linearGradient id="itnaAmberGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#FFA726" />
-              <stop offset="50%" stopColor="#FF8F00" />
-              <stop offset="100%" stopColor="#FF6D00" />
+              <stop offset="0%" stopColor="#C084FC" />
+              <stop offset="50%" stopColor="#E879F9" />
+              <stop offset="100%" stopColor="#EC4899" />
             </linearGradient>
-            {/* Warm Gold Sparkle Gradient */}
+            {/* Pink Sparkle Gradient */}
             <linearGradient id="itnaSparkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#FFE082" />
-              <stop offset="100%" stopColor="#FFA726" />
+              <stop offset="0%" stopColor="#F472B6" />
+              <stop offset="100%" stopColor="#C084FC" />
             </linearGradient>
           </defs>
 
@@ -108,9 +108,9 @@ export default function BrandLogo({
       {!iconOnly && (
         <span className="min-w-0 leading-none">
           <span className="flex items-center gap-2">
-            {/* High-Contrast Bold Typography with Google Analytics Orange Match */}
+            {/* High-Contrast Bold Typography with Purple/Pink Match */}
             <span className={`block font-sans ${s.word} font-black tracking-wider uppercase ${itnaTextColor}`}>
-              ITNA<span className="bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] bg-clip-text text-transparent">VIDEO</span>
+              ITNA<span className="bg-gradient-to-r from-purple-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">VIDEO</span>
             </span>
             {showBadge && (
               <span className={`rounded-md border ${badgeStyle} ${s.badge} font-black uppercase tracking-wider`}>
@@ -132,7 +132,7 @@ export default function BrandLogo({
     <Link
       href={href}
       aria-label="ITNAVIDEO home"
-      className="group inline-flex items-center rounded-xl outline-none transition-all duration-300 focus-visible:ring-2 focus-visible:ring-[#FF8F00]"
+      className="group inline-flex items-center rounded-xl outline-none transition-all duration-300 focus-visible:ring-2 focus-visible:ring-purple-400"
     >
       {content}
     </Link>

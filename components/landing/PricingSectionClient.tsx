@@ -71,75 +71,75 @@ const PLAN_CARDS = [
     name: 'Free Trial',
     priceMonthly: 0,
     priceAnnual: 0,
-    priceSubMonthly: '1 video / day',
-    priceSubAnnual: 'forever',
-    description: 'Try any video type free. No credit card required.',
-    credits: '3 Free Videos',
-    videoCapacity: '1 free video per day',
+    priceSubMonthly: '1 free video',
+    priceSubAnnual: 'on signup',
+    description: 'Try ItnaVideo free. No credit card required.',
+    credits: '1 Free Credit',
+    videoCapacity: '1 Short Video (up to 90s)',
     videoTypes: 'All 11 AI Video Studios',
-    shortLimit: '9:16 Shorts & Reels (up to 3 min)',
-    longLimit: 'Not included',
+    shortLimit: '1 × 9:16 Short (up to 90s)',
+    longLimit: 'Not Included (Requires Basic)',
     quality: '1080p Full HD',
-    watermark: 'Watermark Included',
+    watermark: 'No Watermark',
     renderSpeed: 'Standard Queue',
     cta: 'Get Started Free',
     popular: false,
   },
   {
     id: 'starter',
-    name: 'Starter',
-    priceMonthly: 29,
-    priceAnnual: 23,
-    priceSubMonthly: '/month',
-    priceSubAnnual: '/mo (billed annually)',
-    description: 'For creators publishing Shorts & Reels consistently.',
-    credits: '75 Videos',
-    videoCapacity: '75 Shorts or ~18 YouTube videos',
+    name: 'Basic',
+    priceMonthly: 499,
+    priceAnnual: 399,
+    priceSubMonthly: '₹499 /month ($6)',
+    priceSubAnnual: '₹399 /mo (billed annually)',
+    description: 'Ultra-affordable starter pack for new creators.',
+    credits: '40 Credits',
+    videoCapacity: '40 Shorts or 20 Widescreen videos',
     videoTypes: 'All 11 AI Video Studios',
-    shortLimit: '75 × 9:16 Shorts & Reels (up to 3 min)',
-    longLimit: '~18 × 16:9 YouTube videos (up to 12 min)',
+    shortLimit: '40 × 9:16 Shorts (up to 90s — 1 credit)',
+    longLimit: '20 × 16:9 Widescreen (up to 3 min — 2 credits)',
     quality: '1080p Full HD',
     watermark: 'No Watermark',
     renderSpeed: 'Fast Render Queue',
-    cta: 'Get Starter Plan',
+    cta: 'Get Basic — ₹499',
     popular: false,
   },
   {
     id: 'growth',
     name: 'Growth',
-    priceMonthly: 49,
-    priceAnnual: 39,
-    priceSubMonthly: '/month',
-    priceSubAnnual: '/mo (billed annually)',
-    description: 'Best value for full-time creators & YouTube channels.',
-    credits: '130 Videos',
-    videoCapacity: '130 Shorts or ~32 YouTube videos',
+    priceMonthly: 999,
+    priceAnnual: 799,
+    priceSubMonthly: '₹999 /month ($12)',
+    priceSubAnnual: '₹799 /mo (billed annually)',
+    description: 'Best value for active creators publishing weekly.',
+    credits: '90 Credits',
+    videoCapacity: '90 Shorts or 45 Widescreen videos',
     videoTypes: 'All 11 AI Video Studios',
-    shortLimit: '130 × 9:16 Shorts & Reels (up to 3 min)',
-    longLimit: '~32 × 16:9 YouTube videos (up to 12 min)',
+    shortLimit: '90 × 9:16 Shorts (up to 90s — 1 credit)',
+    longLimit: '45 × 16:9 Widescreen (up to 3 min — 2 credits)',
     quality: '1080p Full HD',
     watermark: 'No Watermark',
     renderSpeed: 'Priority Render Queue',
-    cta: 'Get Growth Plan',
+    cta: 'Get Growth — ₹999',
     popular: true,
   },
   {
     id: 'pro',
-    name: 'Pro',
-    priceMonthly: 149,
-    priceAnnual: 119,
-    priceSubMonthly: '/month',
-    priceSubAnnual: '/mo (billed annually)',
-    description: 'High-volume power for agencies & multi-channel creators.',
-    credits: '260 Videos',
-    videoCapacity: '260 Shorts or ~65 YouTube videos',
+    name: 'Pro Agency',
+    priceMonthly: 1999,
+    priceAnnual: 1599,
+    priceSubMonthly: '₹1,999 /month ($24)',
+    priceSubAnnual: '₹1,599 /mo (billed annually)',
+    description: 'High-volume power pack for agencies & multi-channel creators.',
+    credits: '200 Credits',
+    videoCapacity: '200 Shorts or 100 Widescreen videos',
     videoTypes: 'All 11 AI Video Studios',
-    shortLimit: '260 × 9:16 Shorts & Reels (up to 3 min)',
-    longLimit: '~65 × 16:9 YouTube videos (up to 12 min)',
+    shortLimit: '200 × 9:16 Shorts (up to 90s — 1 credit)',
+    longLimit: '100 × 16:9 Widescreen (up to 3 min — 2 credits)',
     quality: '1080p Full HD',
     watermark: 'No Watermark',
     renderSpeed: 'Ultra-Fast Priority Queue',
-    cta: 'Get Pro Plan',
+    cta: 'Get Pro — ₹1,999',
     popular: false,
   },
 ];
@@ -260,7 +260,7 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
           name: "Itnavideo",
           description: `${order.planName || planId} plan (${billingCycle})`,
           order_id: order.order_id,
-          theme: { color: "#FF6D00" },
+          theme: { color: "#A855F7" },
           notes: { source: "itnavideo-web-checkout", billingCycle },
           modal: {
             ondismiss: () => {
@@ -335,19 +335,19 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
 
   return (
     <section id="pricing" className="relative border-b border-white/10 bg-[#050505] px-4 py-16 sm:px-6 sm:py-24 text-zinc-100 overflow-hidden">
-      {/* Ambient Brand Orange Background Glow */}
-      <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 h-[600px] w-[800px] rounded-full bg-[#FF6D00]/10 blur-[160px]" />
+      {/* Ambient Brand Purple & Pink Background Glow */}
+      <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 h-[600px] w-[800px] rounded-full bg-purple-600/10 blur-[160px]" />
 
       <div className="mx-auto max-w-7xl relative z-10">
         
         {/* Header */}
         <div className="mb-10 text-center max-w-3xl mx-auto space-y-3">
-          <p className="inline-flex items-center gap-1.5 rounded-full border border-[#FF6D00]/30 bg-[#FF6D00]/10 px-4 py-1.5 text-xs font-black uppercase tracking-wider text-[#FF9100]">
-            <Sparkles size={13} className="text-[#FF8F00] animate-pulse" />
+          <p className="inline-flex items-center gap-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 text-xs font-black uppercase tracking-wider text-purple-300">
+            <Sparkles size={13} className="text-purple-400 animate-pulse" />
             <span>Transparent Video Creation Pricing</span>
           </p>
           <h2 className="text-3xl font-black text-white sm:text-5xl font-sans tracking-tight">
-            Plans built for <span className="bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] bg-clip-text text-transparent">video production.</span>
+            Plans built for <span className="bg-gradient-to-r from-purple-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">video production.</span>
           </h2>
           <p className="text-sm sm:text-base text-slate-400 font-normal max-w-2xl mx-auto leading-relaxed">
             Pay for the amount and quality of video production you need. All paid plans include all 11 AI video studios with 1080p Full HD export and no watermark.
@@ -361,7 +361,7 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
                 onClick={() => setBillingCycle('monthly')}
                 className={`rounded-full px-5 py-2 text-xs font-black transition-all cursor-pointer ${
                   billingCycle === 'monthly'
-                    ? 'bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-md shadow-[#FF6D00]/30 scale-[1.02]'
+                    ? 'bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 text-white shadow-md shadow-purple-500/30 scale-[1.02]'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -372,13 +372,13 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
                 onClick={() => setBillingCycle('annual')}
                 className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-xs font-black transition-all cursor-pointer ${
                   billingCycle === 'annual'
-                    ? 'bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-md shadow-[#FF6D00]/30 scale-[1.02]'
+                    ? 'bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 text-white shadow-md shadow-purple-500/30 scale-[1.02]'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
                 <span>Annual Billing</span>
                 <span className={`rounded-full px-2 py-0.5 text-[10px] font-black tracking-tight ${
-                  billingCycle === 'annual' ? 'bg-black/25 text-black' : 'bg-[#FF6D00]/20 text-[#FF9100] border border-[#FF6D00]/40'
+                  billingCycle === 'annual' ? 'bg-black/25 text-white' : 'bg-purple-500/20 text-purple-300 border border-purple-500/40'
                 }`}>
                   Save 20%
                 </span>
@@ -394,7 +394,7 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
                 ? "border-emerald-500/30 bg-emerald-950/40 text-emerald-300"
                 : message.type === "error"
                   ? "border-red-500/30 bg-red-950/40 text-red-300"
-                  : "border-amber-500/30 bg-amber-950/40 text-amber-300"
+                  : "border-purple-500/30 bg-purple-950/40 text-purple-300"
             }`}
           >
             {message.text}
@@ -420,13 +420,13 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
                 transition={{ delay: i * 0.05 }}
                 className={`relative flex flex-col rounded-[28px] border p-6 transition-all duration-300 ${
                   plan.popular
-                    ? 'border-[#FF6D00] shadow-2xl shadow-[#FF6D00]/25 ring-2 ring-[#FF6D00] lg:scale-105 z-10 bg-[#0F1117]'
-                    : 'border-white/[0.08] shadow-xl bg-[#0F1117] hover:border-[#FF6D00]/40 hover:bg-[#151821]'
+                    ? 'border-purple-500 shadow-2xl shadow-purple-500/25 ring-2 ring-purple-500 lg:scale-105 z-10 bg-[#0F1117]'
+                    : 'border-white/[0.08] shadow-xl bg-[#0F1117] hover:border-purple-500/40 hover:bg-[#151821]'
                 }`}
               >
                 {plan.popular && (
-                  <div className="absolute -top-3.5 left-1/2 flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] px-4 py-1 text-[11px] font-black uppercase tracking-wider text-black shadow-lg shadow-[#FF6D00]/30">
-                    <Sparkles size={12} className="fill-black stroke-black" />
+                  <div className="absolute -top-3.5 left-1/2 flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 px-4 py-1 text-[11px] font-black uppercase tracking-wider text-white shadow-lg shadow-purple-500/30">
+                    <Sparkles size={12} className="fill-white stroke-white" />
                     <span>🔥 RECOMMENDED</span>
                   </div>
                 )}
@@ -436,7 +436,7 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
                   <div className="flex items-center justify-between">
                     <h3 className="text-xl font-black text-white font-sans">{plan.name}</h3>
                     {billingCycle === 'annual' && plan.id !== 'free' && (
-                      <span className="rounded-full bg-[#FF6D00]/15 border border-[#FF6D00]/30 px-2 py-0.5 text-[10px] font-extrabold text-[#FF9100]">
+                      <span className="rounded-full bg-purple-500/15 border border-purple-500/30 px-2 py-0.5 text-[10px] font-extrabold text-purple-300">
                         Save 20%
                       </span>
                     )}
@@ -456,7 +456,7 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
 
                 {/* Video Capacity Highlight Badge */}
                 <div className="my-4 p-2.5 rounded-xl bg-[#151821] border border-white/[0.08] text-center">
-                  <span className="text-[11px] font-extrabold text-[#FF9100] block truncate">
+                  <span className="text-[11px] font-extrabold text-purple-300 block truncate">
                     ⚡ {plan.credits} ({plan.videoCapacity})
                   </span>
                 </div>
@@ -464,23 +464,23 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
                 {/* Plan Features */}
                 <ul className="space-y-2.5 text-xs text-slate-300 flex-1 my-2">
                   <li className="flex items-center gap-2">
-                    <Check size={14} className="text-[#FF9100] shrink-0" />
+                    <Check size={14} className="text-purple-400 shrink-0" />
                     <span>{plan.videoTypes}</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check size={14} className="text-[#FF9100] shrink-0" />
+                    <Check size={14} className="text-purple-400 shrink-0" />
                     <span>{plan.shortLimit}</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check size={14} className="text-[#FF9100] shrink-0" />
+                    <Check size={14} className="text-purple-400 shrink-0" />
                     <span>{plan.longLimit}</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check size={14} className="text-[#FF9100] shrink-0" />
+                    <Check size={14} className="text-purple-400 shrink-0" />
                     <span>{plan.quality} ({plan.watermark})</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check size={14} className="text-[#FF9100] shrink-0" />
+                    <Check size={14} className="text-purple-400 shrink-0" />
                     <span>{plan.renderSpeed}</span>
                   </li>
                 </ul>
@@ -492,8 +492,8 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
                   disabled={loadingPlan === plan.id}
                   className={`mt-6 w-full rounded-2xl py-3 px-4 text-xs font-black transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer ${
                     plan.popular
-                      ? 'bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] text-black shadow-lg shadow-[#FF6D00]/25 hover:brightness-110 active:scale-95'
-                      : 'bg-[#151821] border border-white/15 text-white hover:border-[#FF6D00]/50 hover:text-[#FFA726] active:scale-95'
+                      ? 'bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 text-white shadow-lg shadow-purple-500/25 hover:brightness-110 active:scale-95'
+                      : 'bg-[#151821] border border-white/15 text-white hover:border-purple-500/50 hover:text-purple-300 active:scale-95'
                   }`}
                 >
                   {loadingPlan === plan.id ? (
@@ -514,17 +514,17 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
         <div className="mb-14 rounded-3xl border border-white/[0.08] bg-[#0F1117] p-6 sm:p-8 shadow-2xl max-w-4xl mx-auto">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-white/[0.08] mb-6">
             <div className="flex items-center gap-2.5">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-md shadow-[#FF6D00]/20">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-md shadow-purple-500/20">
                 <Coins size={18} />
               </span>
               <div>
                 <h3 className="text-base font-extrabold text-white font-sans">How Video Credits Work</h3>
-                <p className="text-xs text-slate-400 font-normal">Simple — 1 credit = 1 Short render. Long 16:9 videos count as 4.</p>
+                <p className="text-xs text-slate-400 font-normal">Transparent — 1 Credit = 90s Short (9:16). 2 Credits = 3 min Widescreen (16:9).</p>
               </div>
             </div>
 
-            <span className="text-[11px] font-bold bg-[#151821] border border-white/[0.08] px-3 py-1 rounded-full text-[#FF9100]">
-              1 Video = 1 Short Reel (9:16)
+            <span className="text-[11px] font-bold bg-[#151821] border border-white/[0.08] px-3 py-1 rounded-full text-purple-300">
+              1 Credit = 90s Short (9:16)
             </span>
           </div>
 
@@ -532,23 +532,23 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
             {/* Rule 1 */}
             <div className="rounded-2xl bg-[#151821] p-4 border border-white/[0.08] shadow-sm">
               <div className="flex items-center gap-2 font-bold text-white mb-1">
-                <span className="h-2 w-2 rounded-full bg-[#FF6D00]"></span>
-                <span>1 Video</span>
+                <span className="h-2 w-2 rounded-full bg-purple-500"></span>
+                <span>1 Credit</span>
               </div>
               <p className="text-slate-400 text-[11px] leading-relaxed">
-                <strong className="text-white">9:16 Shorts &amp; Reels</strong><br />
-                Auto Caption, Typography, Whiteboard, Compare, Long Video Promo.
+                <strong className="text-white">9:16 Shorts &amp; Reels (Up to 90s)</strong><br />
+                Auto Caption, Typography, Whiteboard, Compare, Long Video Promo, Audio Cleaner.
               </p>
             </div>
 
             {/* Rule 2 */}
             <div className="rounded-2xl bg-[#151821] p-4 border border-white/[0.08] shadow-sm">
               <div className="flex items-center gap-2 font-bold text-white mb-1">
-                <span className="h-2 w-2 rounded-full bg-[#FF8F00]"></span>
-                <span>4 Videos</span>
+                <span className="h-2 w-2 rounded-full bg-fuchsia-400"></span>
+                <span>2 Credits</span>
               </div>
               <p className="text-slate-400 text-[11px] leading-relaxed">
-                <strong className="text-white">16:9 YouTube Videos</strong><br />
+                <strong className="text-white">16:9 Widescreen (Up to 3 Min)</strong><br />
                 Image to Video AI, Faceless Video, YouTube Subtitles, Book Summary.
               </p>
             </div>
@@ -556,22 +556,22 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
             {/* Rule 3 */}
             <div className="rounded-2xl bg-[#151821] p-4 border border-white/[0.08] shadow-sm">
               <div className="flex items-center gap-2 font-bold text-white mb-1">
-                <span className="h-2 w-2 rounded-full bg-[#FFA726]"></span>
-                <span>4 Videos / clip</span>
+                <span className="h-2 w-2 rounded-full bg-pink-400"></span>
+                <span>2 Credits / Clip</span>
               </div>
               <p className="text-slate-400 text-[11px] leading-relaxed">
                 <strong className="text-white">Long Video Clips</strong><br />
-                Each AI-generated viral short clip counts as 4 videos.
+                Each AI-generated viral short clip uses 2 credits.
               </p>
             </div>
           </div>
 
           {/* Quick Examples */}
           <div className="mt-6 pt-4 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-3 text-slate-400 text-[11px]">
-            <span className="font-bold text-white">Example Output:</span>
-            <span className="bg-[#151821] px-2.5 py-1 rounded-lg border border-white/[0.08]"><strong>75 videos</strong> = 75 Shorts OR 18 YouTube videos</span>
-            <span className="bg-[#151821] px-2.5 py-1 rounded-lg border border-white/[0.08]"><strong>130 videos</strong> = 130 Shorts OR 32 YouTube videos</span>
-            <span className="bg-[#151821] px-2.5 py-1 rounded-lg border border-white/[0.08]"><strong>260 videos</strong> = 260 Shorts OR 65 YouTube videos</span>
+            <span className="font-bold text-white">Example Capacity:</span>
+            <span className="bg-[#151821] px-2.5 py-1 rounded-lg border border-white/[0.08]"><strong>Basic (40 Credits)</strong> = 40 Shorts OR 20 Widescreen</span>
+            <span className="bg-[#151821] px-2.5 py-1 rounded-lg border border-white/[0.08]"><strong>Growth (90 Credits)</strong> = 90 Shorts OR 45 Widescreen</span>
+            <span className="bg-[#151821] px-2.5 py-1 rounded-lg border border-white/[0.08]"><strong>Pro (200 Credits)</strong> = 200 Shorts OR 100 Widescreen</span>
           </div>
         </div>
 
@@ -589,7 +589,7 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
 
             <button
               onClick={() => setShowTable(!showTable)}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-[#0F1117] px-3.5 py-2 text-xs font-bold text-slate-300 hover:text-white hover:border-[#FF6D00]/40 transition shadow-sm cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-[#0F1117] px-3.5 py-2 text-xs font-bold text-slate-300 hover:text-white hover:border-purple-500/40 transition shadow-sm cursor-pointer"
             >
               <span>{showTable ? 'Hide Table' : 'Show Full Comparison'}</span>
               {showTable ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
@@ -604,7 +604,7 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
                     <th className="p-4 font-black text-white font-sans">Features &amp; Workflows</th>
                     <th className="p-4 font-black text-slate-300 text-center font-sans">Free Trial</th>
                     <th className="p-4 font-black text-slate-300 text-center font-sans">Starter</th>
-                    <th className="p-4 font-black text-[#FF9100] text-center font-sans bg-[#FF6D00]/10">Growth (Popular)</th>
+                    <th className="p-4 font-black text-purple-300 text-center font-sans bg-purple-500/10">Growth (Popular)</th>
                     <th className="p-4 font-black text-white text-center font-sans">Pro Plan</th>
                   </tr>
                 </thead>
@@ -612,7 +612,7 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
                   {COMPARISON_ROWS.map((sec, idx) => (
                     <tr key={idx} className="contents">
                       <tr className="bg-[#151821]/60 border-y border-white/[0.08]">
-                        <td colSpan={5} className="px-4 py-2.5 font-black text-[11px] uppercase tracking-wider text-[#FF9100] font-sans">
+                        <td colSpan={5} className="px-4 py-2.5 font-black text-[11px] uppercase tracking-wider text-purple-300 font-sans">
                           {sec.category}
                         </td>
                       </tr>
@@ -634,18 +634,18 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
                           {/* Starter */}
                           <td className="p-3.5 text-center text-slate-300 font-medium">
                             {typeof row.starter === 'boolean' ? (
-                              row.starter ? <Check size={16} className="text-[#FF9100] mx-auto" strokeWidth={3} /> : <X size={16} className="text-zinc-600 mx-auto" />
+                              row.starter ? <Check size={16} className="text-purple-300 mx-auto" strokeWidth={3} /> : <X size={16} className="text-zinc-600 mx-auto" />
                             ) : (
                               <span className="font-bold text-white">{row.starter}</span>
                             )}
                           </td>
 
                           {/* Growth */}
-                          <td className="p-3.5 text-center bg-[#FF6D00]/5 font-bold text-[#FFA726]">
+                          <td className="p-3.5 text-center bg-purple-500/5 font-bold text-purple-300">
                             {typeof row.growth === 'boolean' ? (
-                              row.growth ? <Check size={16} className="text-[#FF9100] mx-auto" strokeWidth={3} /> : <X size={16} className="text-zinc-600 mx-auto" />
+                              row.growth ? <Check size={16} className="text-purple-300 mx-auto" strokeWidth={3} /> : <X size={16} className="text-zinc-600 mx-auto" />
                             ) : (
-                              <span className="font-extrabold text-[#FFA726]">{row.growth}</span>
+                              <span className="font-extrabold text-purple-300">{row.growth}</span>
                             )}
                           </td>
 

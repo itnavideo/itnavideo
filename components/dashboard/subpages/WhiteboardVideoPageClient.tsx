@@ -75,6 +75,7 @@ export default function WhiteboardVideoPage() {
   const [audioDurationSeconds, setAudioDurationSeconds] = useState<number>(0);
   const [whiteboardFont, setWhiteboardFont] = useState<"marker" | "architect" | "clean" | "sans" | "blueprint">("marker");
   const [markerColor, setMarkerColor] = useState<string>("auto");
+  const [aspectRatio, setAspectRatio] = useState<"9:16" | "16:9">("9:16");
 
   // Transcript states
   const [transcript, setTranscript] = useState<string>("");
@@ -313,11 +314,12 @@ export default function WhiteboardVideoPage() {
           whiteboardHandStyle: "direct-draw",
           whiteboardMarkerColor: markerColor,
           whiteboardFont,
+          aspectRatio,
           editedTranscript: transcript.trim() || undefined,
           durationSeconds: audioDurationSeconds,
           sourceDurationSeconds: audioDurationSeconds,
-          mediaAspect: "portrait",
-          frameRange: audioDurationSeconds > 0 ? [0, Math.min(5400, Math.round(audioDurationSeconds * 30)) - 1] : undefined,
+          mediaAspect: aspectRatio === "16:9" ? "landscape" : "portrait",
+          frameRange: audioDurationSeconds > 0 ? [0, Math.min(18000, Math.round(audioDurationSeconds * 30)) - 1] : undefined,
         }),
       });
 
@@ -580,6 +582,8 @@ export default function WhiteboardVideoPage() {
                 onWhiteboardFontChange={setWhiteboardFont}
                 markerColor={markerColor}
                 onMarkerColorChange={setMarkerColor}
+                aspectRatio={aspectRatio}
+                onAspectRatioChange={setAspectRatio}
                 onGenerate={handleStartRender}
                 isGenerating={false}
               />

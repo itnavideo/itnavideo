@@ -89,6 +89,7 @@ export default function FacelessVideoPage() {
   const [narrationMode, setNarrationMode] = useState<"ai-voice" | "upload">("ai-voice");
   const [selectedVoice, setSelectedVoice] = useState<string>("cinema-deep");
   const [subtitleStyle, setSubtitleStyle] = useState<string>("netflix-yellow");
+  const [aspectRatio, setAspectRatio] = useState<"9:16" | "16:9">("16:9");
 
   // Audio duration tracker
   const [audioDurationSeconds, setAudioDurationSeconds] = useState<number>(0);
@@ -297,10 +298,11 @@ export default function FacelessVideoPage() {
           facelessBgmVolume,
           enableSfx: facelessEnableSfx,
           facelessEnableSfx,
+          aspectRatio,
           durationSeconds: audioDurationSeconds || 60,
           sourceDurationSeconds: audioDurationSeconds || 60,
-          mediaAspect: "landscape", // Faceless video is widescreen 16:9
-          frameRange: audioDurationSeconds > 0 ? [0, Math.min(27000, Math.round(audioDurationSeconds * 30)) - 1] : undefined,
+          mediaAspect: aspectRatio === "16:9" ? "landscape" : "portrait",
+          frameRange: audioDurationSeconds > 0 ? [0, Math.min(aspectRatio === "16:9" ? 27000 : 2700, Math.round(audioDurationSeconds * 30)) - 1] : undefined,
         }),
       });
 
@@ -635,6 +637,8 @@ export default function FacelessVideoPage() {
                 onUploadedImageFilesChange={setFacelessImageFiles}
                 visualArtStyle={visualArtStyle}
                 onVisualArtStyleChange={setVisualArtStyle}
+                aspectRatio={aspectRatio}
+                onAspectRatioChange={setAspectRatio}
                 topicTitle={topicTitle}
                 onTopicTitleChange={setTopicTitle}
                 facelessBgmMood={facelessBgmMood}

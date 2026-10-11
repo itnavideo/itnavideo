@@ -23,7 +23,7 @@ import {runTypographyPipeline} from '@/services/ai/typographyPipeline';
 import {makeDirectorDecision, buildVisualContinuity, checkConstraints, type VisualContinuity, type DirectorDecision} from '@/services/ai/directorBrain';
 import {getOptimalFramesPerLambda} from '@/lib/media/optimizeUpload';
 import {detectScenes} from '@/services/ai/sceneDetector';
-import {planWhiteboardVideo} from '@/services/ai/whiteboardPlanner';
+import {planWhiteboardVideo, buildWhiteboardSegments} from '@/services/ai/whiteboardPlanner';
 import {planTypographyVideo} from '@/services/ai/typographyPlanner';
 import {selectBestClips} from '@/services/ai/clipSelector';
 import {planLongVideoProBlueprint} from '@/services/ai/longVideoProPlanner';
@@ -57,7 +57,7 @@ export const dynamic = 'force-dynamic';
 
 type LambdaRenderRequest = Parameters<typeof renderMediaOnLambda>[0];
 type ReelMode =
-  | 'compare' | 'autoCaption' | 'longVideoPromo' | 'whiteboardVideo' | 'typographyVideo' | 'longVideoClips' | 'facelessVideo' | 'aiVideoGenerator' | 'longVideoPro' | 'imageToVideoAi' | 'youtubeSubtitleGenerator' | 'bookSummary';
+  | 'compare' | 'autoCaption' | 'longVideoPromo' | 'whiteboardVideo' | 'typographyVideo' | 'longVideoClips' | 'facelessVideo' | 'aiVideoGenerator' | 'longVideoPro' | 'imageToVideoAi' | 'youtubeSubtitleGenerator' | 'bookSummary' | 'audioClean';
 
 const MODE_TO_TEMPLATE: Partial<Record<ReelMode, ReelTemplateName>> = {
   compare: 'comparisonImages',
@@ -429,7 +429,9 @@ export async function POST(request: Request) {
     );
   }
   const templateName: ReelTemplateName = resolvedTemplateName;
-  const composition = templateConfig.compositionId;
+  const composition = (templateName === 'AUTO_CAPTION_GENERATOR' && body.aspectRatio === '16:9')
+    ? 'AUTO-CAPTION-GENERATOR-LANDSCAPE'
+    : templateConfig.compositionId;
   const userId = readString(body.userId);
   const jobStartedAt = Date.now();
   const timings: Record<string, number> = {};
@@ -1426,6 +1428,7 @@ export async function POST(request: Request) {
         title: topicTitle || 'Image to Video AI',
         subtitleStyle,
         fitMode,
+        aspectRatio: readString(body.aspectRatio) || '16:9',
         templateName,
         template: templateName,
         compositionId: composition,
@@ -1545,6 +1548,7 @@ export async function POST(request: Request) {
 
       // Optional BGM
       const finalBgmUrl = customBgmUrl || '';
+      const bsAspectRatio: '9:16' | '16:9' = body.aspectRatio === '9:16' ? '9:16' : '16:9';
 
       const inputProps: Record<string, unknown> = {
         audioUrl: mediaUrl,
@@ -1561,6 +1565,7 @@ export async function POST(request: Request) {
         authorPortraitUrl: bsAuthorPortraitUrl,
         referenceImages: bsReferenceImages,
         captionThemeId: bsCaptionThemeId,
+        aspectRatio: bsAspectRatio,
         compositionId: composition,
         templateName,
       };
@@ -1893,6 +1898,7 @@ export async function POST(request: Request) {
           mediaTrimStartSeconds: clip.startSeconds,
           sourceAudioVolume: 1,
           aspectRatio: '9:16', // Always produce 9:16 vertical shorts from 16:9 input
+          layoutMode: readString(body.layoutMode) || 'auto-speaker',
           headline: clip.headline,
           showHeadline: body.showHeadline !== false,
           durationSeconds: clipDuration,
@@ -2178,7 +2184,10 @@ export async function POST(request: Request) {
     });
     const inputProps: Record<string, unknown> = {
       ...((mode as string) === 'autoCaption'
-        ? { topicTitle: plan.renderProps?.topicTitle, captions: plan.renderProps?.captions }
+        ? {
+            topicTitle: plan.renderProps?.topicTitle,
+            captions: (previewCaptions && previewCaptions.length > 0) ? previewCaptions : plan.renderProps?.captions,
+          }
         : (plan.renderProps || {})),
       mediaSrc: planningMedia.mediaUrl,
       ...(mode === 'compare'
@@ -2261,6 +2270,7 @@ export async function POST(request: Request) {
             captions: finalCaptions,
             transcriptSegments: finalCaptions,
             overlayTimeline: plannedOverlayTimeline,
+            aspectRatio: (readString(body.aspectRatio) === '16:9' ? '16:9' : '9:16') as '9:16' | '16:9',
             durationSeconds: renderWindow.durationSeconds,
             sourceDurationSeconds: renderWindow.durationSeconds,
           };
@@ -2310,6 +2320,7 @@ export async function POST(request: Request) {
 
             const wbBoard = resolveWhiteboardBoard(readString(body.whiteboardBoard));
             const activeTranscript = readString(body.editedTranscript) || readString(body.customTranscript) || renderWindow.transcript;
+            const wbAspectRatio = (readString(body.aspectRatio) === '16:9' ? '16:9' : '9:16') as '9:16' | '16:9';
 
             // Pass word-level timestamps so planner can compute real timing.
             const wbPlan = await planWhiteboardVideo({
@@ -2319,6 +2330,7 @@ export async function POST(request: Request) {
               durationSeconds: renderWindow.durationSeconds,
               topicTitle: topicTitle || undefined,
               boardStyle: wbBoard,
+              aspectRatio: wbAspectRatio,
             });
 
             console.log('[WHITEBOARD_PLANNER]', {
@@ -2328,6 +2340,7 @@ export async function POST(request: Request) {
               board: wbBoard,
               wordCount: wbWords.length,
               segmentCount: wbSegments.length,
+              aspectRatio: wbAspectRatio,
             });
 
             return {
@@ -2342,6 +2355,7 @@ export async function POST(request: Request) {
               conclusion: wbPlan.conclusion,
               conclusionTime: wbPlan.conclusionTime,
               boardStyle: wbBoard,
+              aspectRatio: wbAspectRatio,
               captions: [],
               durationSeconds: renderWindow.durationSeconds,
               transcript: activeTranscript,
@@ -2358,6 +2372,7 @@ export async function POST(request: Request) {
       ...(mode === 'typographyVideo'
         ? (() => {
             const selectedStyle = readString(body.typographyStyle) || 'dynamic-punch';
+            const typoAspectRatio = (readString(body.aspectRatio) === '16:9' ? '16:9' : '9:16') as '9:16' | '16:9';
             const typoCaptions = buildCompareCaptionsFromGroq(renderWindow);
             const typoPlan = planTypographyVideo({
               transcript: renderWindow.transcript,
@@ -2366,14 +2381,16 @@ export async function POST(request: Request) {
               durationSeconds: renderWindow.durationSeconds,
               typographyStyle: selectedStyle,
             });
-            console.log('[TYPOGRAPHY_PLANNER]', { style: selectedStyle, keywordCount: typoPlan.keywords.length, soundCuesCount: typoPlan.soundCues.length });
+            console.log('[TYPOGRAPHY_PLANNER]', { style: selectedStyle, keywordCount: typoPlan.keywords.length, soundCuesCount: typoPlan.soundCues.length, aspectRatio: typoAspectRatio });
             return {
               keywords: typoPlan.keywords,
               soundCues: typoPlan.soundCues,
               typographyStyle: selectedStyle,
+              aspectRatio: typoAspectRatio,
               captions: typoCaptions,
               showCaptions: body.typographyShowCaptions === true, // Kinetic text is hero
               durationSeconds: renderWindow.durationSeconds,
+              transcriptText: renderWindow.transcript,
               transcript: renderWindow.transcript,
               premiumEditing: true,
             };
@@ -2529,6 +2546,7 @@ export async function POST(request: Request) {
               audioSrc: planningMedia.mediaUrl,
               audioUrl: planningMedia.mediaUrl,
               mediaUrl: planningMedia.mediaUrl,
+              aspectRatio: targetAspectRatio,
               mediaType: 'audio' as const,
             };
           })()
@@ -2550,7 +2568,7 @@ export async function POST(request: Request) {
       watermark: !isFounder && (!access?.activePaidPlan || Boolean(access?.watermark)),
       progressStyle: (mode as string) === 'autoCaption' ? 'none' : readString(body.progressStyle) || 'glow',
       wordClickSound: (mode as string) === 'autoCaption' ? false : body.wordClickSound !== false,
-      mediaTrimStartSeconds: (mode as string) === 'autoCaption' ? 0 : renderWindow.trimStartSeconds,
+      mediaTrimStartSeconds: renderWindow.trimStartSeconds,
       sourceDurationSeconds: requestedDurationSeconds || transcription.durationSeconds || renderWindow.durationSeconds || MAX_RENDER_WINDOW_SECONDS,
       durationSeconds: requestedDurationSeconds || renderWindow.durationSeconds || transcription.durationSeconds || MAX_RENDER_WINDOW_SECONDS,
       renderWindowSeconds: requestedDurationSeconds || renderWindow.durationSeconds || transcription.durationSeconds || MAX_RENDER_WINDOW_SECONDS,
@@ -4254,17 +4272,18 @@ function toMode(value: string): ReelMode | null {
   if (normalized.includes('typography') || normalized.includes('typo-video') || normalized.includes('bold-reel')) return 'typographyVideo';
   if (normalized.includes('youtube') || normalized.includes('youtubesubtitle') || normalized.includes('youtube-subtitle')) return 'youtubeSubtitleGenerator';
   if (normalized.includes('auto-caption') || normalized.includes('autocaption') || normalized.includes('caption') || normalized.includes('subtitle') || normalized.includes('captionstudio') || normalized.includes('long-form-captioned') || normalized.includes('longcaption')) return 'autoCaption';
+  if (normalized.includes('audio-clean') || normalized.includes('audioclean') || normalized.includes('audio_clean') || normalized.includes('clean-audio')) return 'audioClean';
   return null;
 }
 
 function getUploadedMediaType({mode, contentType}: {mode: ReelMode; contentType: string}): 'audio' | 'video' | 'image' {
-  if (mode === 'autoCaption') return 'video';
-  if (mode === 'youtubeSubtitleGenerator') return 'video';
-  if (mode === 'compare') return 'audio';
-  if (mode === 'imageToVideoAi') return 'audio';
+  if (mode === 'autoCaption') return contentType.startsWith('audio/') ? 'audio' : 'video';
+  if (mode === 'youtubeSubtitleGenerator') return contentType.startsWith('audio/') ? 'audio' : 'video';
+  if (mode === 'compare') return contentType.startsWith('video/') ? 'video' : 'audio';
+  if (mode === 'imageToVideoAi') return contentType.startsWith('video/') ? 'video' : 'audio';
   if (mode === 'bookSummary') return contentType.startsWith('video/') ? 'video' : 'audio';
   if (mode === 'whiteboardVideo') return contentType.startsWith('video/') ? 'video' : 'audio';
-  if (mode === 'typographyVideo') return 'video';
+  if (mode === 'typographyVideo') return contentType.startsWith('audio/') ? 'audio' : 'video';
   if (mode === 'longVideoClips') return 'video';
   return contentType.startsWith('audio/') ? 'audio' : 'video';
 }

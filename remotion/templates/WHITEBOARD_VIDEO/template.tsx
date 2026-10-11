@@ -34,6 +34,8 @@ import {
   WB_POINT_SIZE_MIN,
   WB_REVEAL_FADE_FRAMES,
   WB_REVEAL_TRANSLATE_Y_START,
+  getWhiteboardDimensions,
+  WhiteboardAspectRatio,
 } from '../../../lib/whiteboard/whiteboardConstants';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -96,6 +98,7 @@ type WhiteboardVideoProps = {
   boardImageUrl?: string;
   captions?: Array<{ start: number; end: number; text: string }>;
   captionPosition?: 'bottom' | 'none';
+  aspectRatio?: '9:16' | '16:9';
 };
 
 // ── Corporate Fonts & Colors ───────────────────────────────────────────────
@@ -930,6 +933,7 @@ function WhiteboardVideo({
   conclusionTime,
   boardStyle = DEFAULT_BOARD,
   boardImageUrl,
+  aspectRatio = '9:16',
 }: WhiteboardVideoProps) {
   const frame = useCurrentFrame();
   const [imageError, setImageError] = useState(false);
@@ -938,6 +942,7 @@ function WhiteboardVideo({
   const board = BOARD_CONFIGS[boardStyle] || BOARD_CONFIGS[DEFAULT_BOARD];
   const boardImage = boardImageUrl ? resolveAsset(boardImageUrl) : staticFile(board.image);
 
+  const dim = getWhiteboardDimensions(aspectRatio);
   const currentTime = frame / fps;
 
   // Calculate active board index
@@ -960,9 +965,9 @@ function WhiteboardVideo({
   // Fixed font size calculation per board (no transform scaling!)
   const pointFontSize = useMemo(() => {
     const count = activeBoardPoints.length;
-    const baseSize = WB_POINT_SIZE_BY_COUNT[count] || WB_POINT_SIZE_BY_COUNT[3];
-    return Math.max(WB_POINT_SIZE_MIN, baseSize);
-  }, [activeBoardPoints.length]);
+    const baseSize = dim.pointSizeByCount[count] || dim.pointSizeByCount[3];
+    return Math.max(dim.pointSizeMin, baseSize);
+  }, [activeBoardPoints.length, dim]);
 
   const titleStartFrame = Math.round(0.4 * fps);
   const titleEndFrame = titleStartFrame + Math.round(1.0 * fps);
@@ -1014,10 +1019,10 @@ function WhiteboardVideo({
       {/* FIXED SAFE-AREA CONTAINER (No scale transform, 100% layout stability) */}
       <div style={{
         position: 'absolute',
-        top: WB_SAFE_TOP,
-        left: WB_SAFE_LEFT,
-        width: WB_USABLE_WIDTH,
-        height: WB_USABLE_HEIGHT,
+        top: dim.safeTop,
+        left: dim.safeLeft,
+        width: dim.usableWidth,
+        height: dim.usableHeight,
         overflow: 'hidden',
         zIndex: 10,
         opacity: activeBoardIndex === 0 ? 1 : boardOpacity,
@@ -1046,7 +1051,7 @@ function WhiteboardVideo({
               startFrame={titleStartFrame}
               endFrame={titleEndFrame}
               color={titleColor || COLORS.title}
-              fontSize={WB_TITLE_SIZE}
+              fontSize={dim.titleSize}
               fontWeight={900}
               direction={direction}
               language={language}
@@ -1093,7 +1098,7 @@ function WhiteboardVideo({
                 startFrame={Math.round((conclusionTime || 0) * fps)}
                 endFrame={Math.round((conclusionTime || 0) * fps) + 24}
                 color={COLORS.black}
-                fontSize={WB_CONCLUSION_SIZE}
+                fontSize={dim.conclusionSize}
                 fontWeight={800}
                 direction={direction}
                 language={language}
@@ -1145,6 +1150,7 @@ const defaultProps: WhiteboardVideoProps = {
   ],
   conclusion: 'Strategy alignment complete.',
   conclusionTime: 28.2,
+  aspectRatio: '9:16',
 };
 
 export { WhiteboardVideo };
@@ -1160,10 +1166,14 @@ export const WhiteboardVideoComposition = () => (
     defaultProps={defaultProps}
     calculateMetadata={({ props }) => {
       const p = props as WhiteboardVideoProps;
-      const dur = Math.max(8, Math.min(180,
+      const isLandscape = p.aspectRatio === '16:9';
+      const maxDur = isLandscape ? 300 : 90;
+      const dur = Math.max(8, Math.min(maxDur,
         Number(p.durationSeconds) || Number(p.sourceDurationSeconds) || Number(p.renderWindowSeconds) || 30
       ));
-      return { durationInFrames: secondsToFrames(dur, DEFAULT_FPS), fps: DEFAULT_FPS, width: 1080, height: 1920 };
+      const width = isLandscape ? 1920 : 1080;
+      const height = isLandscape ? 1080 : 1920;
+      return { durationInFrames: secondsToFrames(dur, DEFAULT_FPS), fps: DEFAULT_FPS, width, height };
     }}
   />
 );

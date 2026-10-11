@@ -721,7 +721,7 @@ export default function TypographyAnalyzerView() {
                           {activeBlueprint.composition.layoutStructure.value.replace(/-/g, ' ')}
                         </div>
                         <div className="text-[11px] text-slate-500">
-                          Edge-to-edge: {activeBlueprint.composition.isEdgeToEdge ? 'Yes' : 'No'} • Negative Space: {(activeBlueprint.composition.negativeSpaceRatio * 100).toFixed(0)}%
+                          Edge-to-edge: {activeBlueprint.composition.isEdgeToEdge ? 'Yes' : 'No'} • Negative Space: {((activeBlueprint.composition.negativeSpaceRatio ?? 0.2) * 100).toFixed(0)}%
                         </div>
                       </div>
                     </div>

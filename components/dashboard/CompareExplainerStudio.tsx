@@ -46,6 +46,10 @@ interface CompareExplainerStudioProps {
   compareBgmTrack?: "tech" | "versus" | "corporate" | "none";
   onBgmTrackChange?: (val: "tech" | "versus" | "corporate" | "none") => void;
 
+  // Aspect ratio option
+  aspectRatio?: "9:16" | "16:9";
+  onAspectRatioChange?: (val: "9:16" | "16:9") => void;
+
   // Audio voiceover file upload
   selectedFile: File | null;
   onSelectFile: (file: File | null) => void;
@@ -74,12 +78,20 @@ export function CompareExplainerStudio({
   onImageStyleChange,
   stickerStyle,
   onStickerStyleChange,
+  aspectRatio = "9:16",
+  onAspectRatioChange,
   selectedFile,
   onSelectFile,
   onCleanAudio,
   isCleaning,
 }: CompareExplainerStudioProps) {
   const [showHandleOnVideo, setShowHandleOnVideo] = React.useState(Boolean(compareHandle));
+  const [internalRatio, setInternalRatio] = React.useState<"9:16" | "16:9">("9:16");
+  const selectedRatio = aspectRatio !== undefined ? aspectRatio : internalRatio;
+  const setRatio = (val: "9:16" | "16:9") => {
+    setInternalRatio(val);
+    if (onAspectRatioChange) onAspectRatioChange(val);
+  };
 
   const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -112,16 +124,36 @@ export function CompareExplainerStudio({
               <span>Compare Explainer Studio</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
-              Create high-retention 9:16 comparison shorts with side-by-side visual beats & stickers.
+              Create high-retention comparison videos with side-by-side visual beats &amp; stickers.
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#161720] px-3 py-1.5 text-xs font-bold text-slate-300">
-            <Clock3 size={13} className="text-[#FF8F00]" />
-            <span>9:16 Vertical • 1080p Full HD</span>
-          </span>
+        {/* Dynamic Dual Aspect Ratio Selector */}
+        <div className="flex items-center gap-1.5 rounded-2xl border border-white/10 bg-[#161720] p-1 shrink-0">
+          <button
+            type="button"
+            onClick={() => setRatio("9:16")}
+            className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
+              selectedRatio === "9:16"
+                ? "bg-[#FF6D00] text-black shadow-md shadow-[#FF6D00]/25 font-black"
+                : "text-zinc-400 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <span>📱 9:16 Shorts (Up to 90s)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setRatio("16:9")}
+            className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
+              selectedRatio === "16:9"
+                ? "bg-purple-600 text-white shadow-md shadow-purple-500/25 font-black"
+                : "text-zinc-400 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <span>🎬 16:9 Cinema (Up to 5 min)</span>
+          </button>
         </div>
       </div>
 
@@ -135,7 +167,7 @@ export function CompareExplainerStudio({
           </div>
           <div>
             <h3 className="text-sm font-black uppercase tracking-wider text-white">1. VOICEOVER</h3>
-            <p className="text-[11px] text-zinc-400 mt-0.5">MP3 or WAV • Your narration drives the video</p>
+            <p className="text-[11px] text-zinc-400 mt-0.5">MP3, WAV, or MP4 • Your narration drives the video</p>
           </div>
         </div>
 
@@ -147,13 +179,13 @@ export function CompareExplainerStudio({
           >
             <input
               type="file"
-              accept="audio/*"
+              accept="audio/*,video/*"
               onChange={handleFileSelect}
               className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
             />
             <Upload className="mx-auto h-8 w-8 text-zinc-500 group-hover:text-[#FF9100] transition mb-3" />
-            <p className="text-xs font-bold text-zinc-200">Upload Voiceover</p>
-            <p className="text-[10px] text-zinc-400 mt-1">Supports MP3, WAV, M4A up to 50MB</p>
+            <p className="text-xs font-bold text-zinc-200">Upload Voiceover / Video Narration</p>
+            <p className="text-[10px] text-zinc-400 mt-1">Supports MP3, WAV, M4A, MP4 up to 50MB</p>
           </div>
         ) : (
           <div className="rounded-2xl border border-white/10 bg-zinc-900/60 p-4 flex items-center justify-between gap-4">

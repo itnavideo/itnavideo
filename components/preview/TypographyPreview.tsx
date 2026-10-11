@@ -69,7 +69,7 @@ export function TypographyPreview({
   showCaptions?: boolean;
   videoUrl?: string | null;
 }) {
-  const currentStyle: TypographyStyle = getTypographyStyle(typographyStyle);
+  const currentStyle: TypographyStyle = getTypographyStyle(typographyStyle) || getTypographyStyle('vox-giant-stagger')!;
   const [viewMode, setViewMode] = useState<'demo' | 'creatorTest'>('demo');
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);

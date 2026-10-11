@@ -22,10 +22,10 @@ export default function Hero() {
         }}
       />
 
-      {/* Subtle Warm Studio Ambient Glows */}
-      <div className="pointer-events-none absolute left-1/2 top-4 -translate-x-1/2 h-[400px] w-[800px] max-w-full rounded-full bg-gradient-to-tr from-[#FF6D00]/15 via-[#FF8F00]/10 to-transparent blur-[160px]" />
-      <div className="pointer-events-none absolute -right-20 top-16 h-72 w-72 rounded-full bg-[#FF6D00]/10 blur-[140px]" />
-      <div className="pointer-events-none absolute -left-20 bottom-10 h-72 w-72 rounded-full bg-[#FFA726]/8 blur-[140px]" />
+      {/* Subtle Purple & Pink Ambient Glows */}
+      <div className="pointer-events-none absolute left-1/2 top-4 -translate-x-1/2 h-[400px] w-[800px] max-w-full rounded-full bg-gradient-to-tr from-purple-600/20 via-fuchsia-500/15 to-pink-500/10 blur-[160px]" />
+      <div className="pointer-events-none absolute -right-20 top-16 h-72 w-72 rounded-full bg-purple-600/15 blur-[140px]" />
+      <div className="pointer-events-none absolute -left-20 bottom-10 h-72 w-72 rounded-full bg-pink-500/10 blur-[140px]" />
 
       <div className="relative z-10 mx-auto max-w-6xl text-center">
 
@@ -37,7 +37,7 @@ export default function Hero() {
           className="text-4xl sm:text-6xl md:text-7xl lg:text-[76px] font-extrabold tracking-[-0.03em] text-white leading-[1.08] max-w-5xl mx-auto font-sans"
         >
           The Free{' '}
-          <span className="bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-purple-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">
             AI Video Generator
           </span>
           <br />
@@ -51,7 +51,7 @@ export default function Hero() {
           transition={{ delay: 0.1, duration: 0.5 }}
           className="mx-auto mt-4 max-w-2xl text-base font-normal leading-relaxed text-zinc-300 sm:text-lg font-sans tracking-tight antialiased"
         >
-          Turn scripts, voiceovers, images, and long videos into <span className="font-semibold text-white">viral 1080p Full HD Shorts, Reels, & YouTube explainers</span> in seconds. Powered by <span className="font-semibold text-[#FF8F00]">11 purpose-built AI studios</span>.
+          Turn scripts, voiceovers, images, and long videos into <span className="font-semibold text-white">viral 1080p Full HD Shorts, Reels, & YouTube explainers</span> in seconds. Powered by <span className="font-semibold text-purple-300">11 purpose-built AI studios</span>.
         </motion.p>
 
         {/* Primary CTA Button */}
@@ -63,7 +63,7 @@ export default function Hero() {
         >
           <Link
             href="/dashboard"
-            className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] px-8 py-3.5 text-base font-black text-black shadow-xl shadow-[#FF6D00]/25 transition duration-200 hover:brightness-110 hover:scale-[1.02] active:scale-95"
+            className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 px-8 py-3.5 text-base font-black text-white shadow-xl shadow-purple-500/25 transition duration-200 hover:brightness-110 hover:scale-[1.02] active:scale-95"
           >
             <span>Start Generating Free</span>
             <ArrowRight size={18} className="transition group-hover:translate-x-1" />
@@ -81,10 +81,10 @@ export default function Hero() {
             <CheckCircle2 size={15} className="text-emerald-400" /> 3 free videos on signup
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <ShieldCheck size={15} className="text-[#FF8F00]" /> No credit card required
+            <ShieldCheck size={15} className="text-fuchsia-400" /> No credit card required
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <Zap size={15} className="text-[#FF8F00]" /> Instant 1080p Cloud Export
+            <Zap size={15} className="text-fuchsia-400" /> Instant 1080p Cloud Export
           </span>
         </motion.div>
 
@@ -96,8 +96,8 @@ export default function Hero() {
           className="relative mt-10 mx-auto max-w-5xl"
         >
           {/* Multi-layered Studio Backglow */}
-          <div className="pointer-events-none absolute -inset-4 -z-10 rounded-[44px] bg-gradient-to-r from-[#FF6D00]/20 via-[#FF8F00]/12 to-[#FFA726]/10 blur-3xl opacity-75" />
-          <div className="pointer-events-none absolute -inset-x-10 -bottom-8 h-32 -z-10 bg-gradient-to-t from-[#FF6D00]/15 to-transparent blur-2xl" />
+          <div className="pointer-events-none absolute -inset-4 -z-10 rounded-[44px] bg-gradient-to-r from-purple-600/25 via-fuchsia-500/20 to-pink-500/15 blur-3xl opacity-75" />
+          <div className="pointer-events-none absolute -inset-x-10 -bottom-8 h-32 -z-10 bg-gradient-to-t from-purple-600/20 to-transparent blur-2xl" />
 
           {/* High-End Frosted Glass Frame with Ambient Shadow */}
           <div className="relative rounded-[24px] sm:rounded-[36px] p-1.5 sm:p-2 bg-gradient-to-b from-white/20 via-white/[0.05] to-transparent shadow-[0_20px_70px_-10px_rgba(0,0,0,0.95)] ring-1 ring-white/10 backdrop-blur-2xl">

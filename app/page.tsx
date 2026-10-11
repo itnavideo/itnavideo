@@ -4,7 +4,6 @@ import Hero from '@/components/landing/Hero';
 import PlatformMarqueeTicker from '@/components/landing/PlatformMarqueeTicker';
 import CaptionStylesShowcase from '@/components/landing/CaptionStylesShowcase';
 import ImageToVideoHomepageShowcase from '@/components/landing/ImageToVideoHomepageShowcase';
-import WhatCanYouCreate from '@/components/landing/WhatCanYouCreate';
 import TenStudiosHubArchitecture from '@/components/landing/TenStudiosHubArchitecture';
 import {
   HomepageFinalCta,
@@ -143,7 +142,7 @@ const jsonLd = [
 
 export default function LandingPage() {
   return (
-    <div className="relative flex flex-col overflow-x-hidden bg-[#070B14] text-zinc-100 selection:bg-[#FF6D00]/30 selection:text-white">
+    <div className="relative flex flex-col overflow-x-hidden bg-[#070B14] text-zinc-100 selection:bg-purple-500/30 selection:text-white">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
@@ -154,7 +153,6 @@ export default function LandingPage() {
       <CaptionStylesShowcase />
       <ImageToVideoHomepageShowcase />
       <TenStudiosHubArchitecture />
-      <WhatCanYouCreate />
       <PlatformJourney />
       <PricingSection />
       <FAQSection />

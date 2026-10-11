@@ -101,7 +101,7 @@ export function MaterialCatalogGrid({
         );
       case 'popular':
         return (
-          <span className="rounded-full bg-sky-500/15 border border-sky-500/30 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-sky-600 dark:text-sky-400 backdrop-blur-md shadow-xs">
+          <span className="rounded-full bg-pink-500/15 border border-pink-500/30 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-pink-400 backdrop-blur-md shadow-xs">
             POPULAR
           </span>
         );
@@ -275,7 +275,7 @@ export function MaterialCatalogGrid({
         </div>
 
         {/* ── Transparent Free vs Paid Guide Banner ── */}
-        <div className="mt-2 mb-1 rounded-2xl border border-white/10 bg-[#0E1526] p-3.5 sm:p-4 backdrop-blur-md shadow-sm">
+        <div className="mt-2 mb-1 rounded-2xl border border-purple-500/20 bg-[#12111E] p-3.5 sm:p-4 backdrop-blur-md shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
             <div className="flex items-center gap-2.5">
               <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-[#FF6D00]/20 text-[#FF9100] font-black text-sm border border-[#FF6D00]/30 shadow-inner">

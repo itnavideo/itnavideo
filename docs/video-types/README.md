@@ -1,8 +1,8 @@
-# Itnavideo — Video Types Master Registry (11 Modes)
+# Itnavideo — Video Types Master Registry (9 Unified Modes)
 
-This directory contains the dedicated requirement, architecture, and pipeline specifications for all **11 active video types** in [Itnavideo](https://www.itnavideo.com).
+This directory contains the dedicated requirement, architecture, and pipeline specifications for all **9 active video types** in [Itnavideo](https://www.itnavideo.com).
 
-As per **Rule 8 of `AGENTS.md` (Video Type Independence)**, each video type has distinct inputs, independent backend processing paths, and tailored UI steppers. Never merge or share generic pipeline logic across different modes.
+As per **Rule 8 of `AGENTS.md` (Video Type Independence)**, each video type has distinct inputs, independent backend processing paths, and tailored UI steppers with dynamic 9:16 / 16:9 Aspect Ratio Pickers.
 
 > [!IMPORTANT]
 > ### 🚨 Mandatory Developer & AI Rule: "Check First, Update After"
@@ -11,21 +11,19 @@ As per **Rule 8 of `AGENTS.md` (Video Type Independence)**, each video type has 
 
 ---
 
-## The 11 Live Video Types
+## The 9 Live Video Types
 
-| # | Video Type | Spec File | Aspect Ratio | Resolution & Quality | Max Duration | Primary Pipeline Focus | Remotion Composition ID |
+| # | Video Type | Spec File | Aspect Ratio Support | Resolution & Quality | Max Duration | Primary Pipeline Focus | Remotion Composition ID |
 |---|---|---|:---:|:---:|:---:|---|---|
-| 1 | **Image to Video AI** | [`imagetovideoai.md`](./imagetovideoai.md) | 16:9 Cinema | **1920×1080 (1080p Full HD)** | **12 Minutes** (720s) | Audio + Scene Images → Parallax & Subtitles | `IMAGE_TO_VIDEO_AI` |
-| 2 | **Auto Caption Generator** | [`autocaption.md`](./autocaption.md) | 9:16 Shorts/Reels | **1080×1920 (1080p Full HD)** | **3 Minutes** (180s) | Video → Word-Level Kinetic Glowing Subtitles | `AUTO_CAPTION_GENERATOR` |
-| 3 | **YouTube Subtitle Generator** | [`youtubesubtitles.md`](./youtubesubtitles.md) | 16:9 Cinema | **1920×1080 (1080p Full HD)** | **12 Minutes** (720s) | 16:9 Video → Lower-Third Subtitles & SRT/VTT Export | `LONG_CAPTION_PRO` |
-| 4 | **Faceless Video Generator** | [`facelessvideo.md`](./facelessvideo.md) | 9:16 & 16:9 | **1080p Full HD (1080×1920 / 1920×1080)** | **3m** (9:16) / **12m** (16:9) | Script/Audio → AI Director + Stock B-Roll + Music | `FACELESS_VIDEO` |
-| 5 | **Compare Explainer Video** | [`compareexplainer.md`](./compareexplainer.md) | 9:16 & 16:9 | **1080p Full HD (1080×1920 / 1920×1080)** | **3 Minutes** (180s) | 2 Images + Voiceover → Versus Split Screen & Stickers | `comparisonImages` |
-| 6 | **Kinetic Typography Video** | [`typographyvideo.md`](./typographyvideo.md) | 9:16 Vertical | **1080×1920 (1080p Full HD)** | **3 Minutes** (180s) | Voiceover → Kinetic Text Motion & Camera Pulses | `TYPOGRAPHY_VIDEO` |
-| 7 | **Whiteboard Animation** | [`whiteboardvideo.md`](./whiteboardvideo.md) | 9:16 Vertical | **1080×1920 (1080p Full HD)** | **3 Minutes** (180s) | Audio → AI Strategy Board Scenes & SVG Drawing | `WHITEBOARD_VIDEO` |
-| 8 | **Long Video Promo / Teaser** | [`longvideopromo.md`](./longvideopromo.md) | 9:16 Vertical | **1080×1920 (1080p Full HD)** | **3 Minutes** (180s) | Hook Video + 16:9 Thumbnail → Viral Traffic Teaser | `LONG_VIDEO_PROMO` |
-| 9 | **Long Video to Viral Clips** | [`longvideoclips.md`](./longvideoclips.md) | 9:16 Vertical | **1080×1920 (1080p Full HD)** | **Input: Up to 3 Hours**<br/>**Output: 30s–60s Clips** | Long Video → Virality Hook Detection & 9:16 Reframe | `LONG_VIDEO_CLIPS` |
-| 10 | **Book Summary Video** | [`booksummary.md`](./booksummary.md) | 16:9 Cinema | **1920×1080 (1080p Full HD)** | **12 Minutes** (720s) | Book Quotes/Audio → Cinematic Chapter Visuals & Kinetic Notes | `BOOK_SUMMARY_VIDEO` |
-| 11 | **AI Audio Cleaner & Studio** | [`audiocleaner.md`](./audiocleaner.md) | Audio Utility | **Studio Master 320kbps MP3 / WAV** | **Up to 12 Minutes** | Raw Audio → Denoise, De-reverb, Loudness & Retakes | Audio Mastering Engine |
+| 1 | **Auto Caption Generator** | [`autocaption.md`](./autocaption.md) | 9:16 & 16:9 | **1080p Full HD** | **90s** (9:16) / **5m** (16:9) | Video/Audio → Kinetic Glowing Captions & Subtitles | `AUTO_CAPTION_GENERATOR` |
+| 2 | **Faceless Video Generator** | [`facelessvideo.md`](./facelessvideo.md) | 9:16 & 16:9 | **1080p Full HD** | **90s** (9:16) / **5m** (16:9) | Script/Audio → AI Director + Stock B-Roll + Music | `FACELESS_VIDEO` |
+| 3 | **Compare Explainer Video** | [`compareexplainer.md`](./compareexplainer.md) | 9:16 & 16:9 | **1080p Full HD** | **90s** (9:16) / **5m** (16:9) | 2 Images + Voiceover → Versus Split Screen & Stickers | `comparisonImages` |
+| 4 | **Kinetic Typography Video** | [`typographyvideo.md`](./typographyvideo.md) | 9:16 & 16:9 | **1080p Full HD** | **90s** (9:16) / **5m** (16:9) | Voiceover → Kinetic Text Motion & Camera Pulses | `TYPOGRAPHY_VIDEO` |
+| 5 | **Whiteboard Animation** | [`whiteboardvideo.md`](./whiteboardvideo.md) | 9:16 & 16:9 | **1080p Full HD** | **90s** (9:16) / **5m** (16:9) | Audio → AI Strategy Board Scenes & SVG Drawing | `WHITEBOARD_VIDEO` |
+| 6 | **Long Video to Viral Clips** | [`longvideoclips.md`](./longvideoclips.md) | Input 16:9/9:16 -> Output 9:16 | **1080p Full HD** | **Input: Up to 2 Hours**<br/>**Output: 30s–60s Clips** | Long Video → Virality Hook Detection & 9:16 Reframe | `LONG_VIDEO_CLIPS` |
+| 7 | **Book Summary Video** | [`booksummary.md`](./booksummary.md) | 9:16 & 16:9 | **1080p Full HD** | **90s** (9:16) / **5m** (16:9) | Book Quotes/Audio → Cinematic Chapter Visuals & Kinetic Notes | `BOOK_SUMMARY_VIDEO` |
+| 8 | **AI Audio Cleaner & Studio** | [`audiocleaner.md`](./audiocleaner.md) | Audio Utility | **320kbps MP3 / WAV** | **Up to 5 Minutes** | Raw Audio → Denoise, De-reverb, Loudness & Retakes | Audio Mastering Engine |
+| 9 | **Image to Video AI** | [`imagetovideoai.md`](./imagetovideoai.md) | 9:16 & 16:9 | **1080p Full HD** | **90s** (9:16) / **5m** (16:9) | Audio + Scene Images → Parallax & Subtitles | `IMAGE_TO_VIDEO_AI` |
 
 ---
 
@@ -36,9 +34,9 @@ As per **Rule 8 of `AGENTS.md` (Video Type Independence)**, each video type has 
      - **All 16:9 Cinema / Widescreen Videos**: Strictly **1920×1080 (1080p Full HD, 30 FPS MP4)**.
    - Low-resolution exports (720p or lower) are strictly forbidden across all modes.
 2. **Duration Standards (Founder Directive)**:
-   - **All 9:16 Videos (TikTok, Shorts, Reels)**: Maximum duration **3 Minutes (180 seconds)**.
-   - **All 16:9 Videos (YouTube Long Videos)**: Maximum duration **12 Minutes (720 seconds)**.
-   - **Long Video to Clips (`longvideoclips`)**: Accepts input up to **3 Hours (180 minutes)**, outputs multiple **30s–60s** viral clips based on user selection. Full video is never rendered.
+   - **All 9:16 Videos (TikTok, Shorts, Reels)**: Maximum duration **90 Seconds (90s)**.
+   - **All 16:9 Videos (YouTube Long Videos)**: Maximum duration **5 Minutes (300 seconds)**.
+   - **Long Video to Clips (`longvideoclips`)**: Accepts input up to **2 Hours (120 minutes)**, outputs multiple **30s–60s** viral clips based on user selection. Full video is never rendered.
 3. **Audio Extraction First & Transcriber Fallback**:
    - Never send raw heavy video directly to Groq. Audio is extracted as 16kHz mono audio first.
    - **Primary**: Groq Whisper Cloud API (fast transcription).

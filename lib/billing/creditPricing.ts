@@ -1,15 +1,14 @@
 export const CREDIT_UNITS_PER_CREDIT = 1;
-export const LONG_FORM_CAPTION_MAX_SECONDS = 12 * 60;
-export const SHORT_REEL_MAX_SECONDS = 3 * 60;
-export const LONG_VIDEO_CLIPS_BASE_CREDITS = 4;
-export const LONG_VIDEO_CLIPS_PER_OUTPUT_CREDITS = 4;
+export const LONG_FORM_CAPTION_MAX_SECONDS = 3 * 60; // 3 minutes (180 seconds)
+export const SHORT_REEL_MAX_SECONDS = 90; // 90 seconds
+export const LONG_VIDEO_CLIPS_BASE_CREDITS = 2;
+export const LONG_VIDEO_CLIPS_PER_OUTPUT_CREDITS = 2;
 
 // ─── Video Unit Cost ──────────────────────────────────────────────────────────
-// 1 Video unit = 1 short-form render (9:16, up to 3 min)
-// 4 Video units = 1 long-form render (16:9, up to 12 min)
-// This ratio mirrors real AWS Lambda compute cost (long form ~4× more expensive)
-export const SHORT_FORM_VIDEO_UNITS = 1;   // 9:16 Reels / Shorts / TikTok
-export const LONG_FORM_VIDEO_UNITS  = 4;   // 16:9 YouTube / Cinema
+// 1 Video credit = 1 short-form render (9:16, up to 90 sec)
+// 2 Video credits = 1 long-form render (16:9, up to 3 min)
+export const SHORT_FORM_VIDEO_UNITS = 1;   // 9:16 Reels / Shorts / TikTok (up to 90s) = 1 credit
+export const LONG_FORM_VIDEO_UNITS  = 2;   // 16:9 YouTube / Cinema (up to 3 min) = 2 credits
 
 export type BillableRenderMode =
   | "autoCaption"
@@ -22,6 +21,8 @@ export type BillableRenderMode =
   | "longVideoClips"
   | "longVideoPro"
   | "aiAudioCleaner"
+  | "audioClean"
+  | "audio-cleaner"
   | "imageToVideoAi"
   | "bookSummary"
   | "longFormCaptionedVideo"
@@ -35,18 +36,18 @@ type RenderCreditOptions = {
 export function calculateLongFormCaptionCreditUnits(durationSeconds: number) {
   const duration = Number(durationSeconds) || 60;
   if (!Number.isFinite(duration) || duration <= 0 || duration > LONG_FORM_CAPTION_MAX_SECONDS) {
-    throw new Error("Long Video supports a confirmed duration from 1 second to 12 minutes.");
+    throw new Error("16:9 Widescreen video supports up to 3 minutes (180 seconds) duration.");
   }
-  // 16:9 Long Video (up to 12 min) = 4 Video units
+  // 16:9 Widescreen Video (up to 3 min) = 2 Credits
   return LONG_FORM_VIDEO_UNITS * CREDIT_UNITS_PER_CREDIT;
 }
 
 export function calculateYouTubeSubtitleCreditUnits(durationSeconds: number) {
   const duration = Number(durationSeconds) || 60;
   if (!Number.isFinite(duration) || duration <= 0 || duration > LONG_FORM_CAPTION_MAX_SECONDS) {
-    throw new Error("YouTube Subtitle Generator supports a confirmed duration from 1 second to 12 minutes.");
+    throw new Error("YouTube Subtitle Generator supports up to 3 minutes (180 seconds) duration.");
   }
-  // YouTube 16:9 Subtitle Generator = 4 Video units
+  // YouTube 16:9 Subtitle Generator = 2 Credits
   return LONG_FORM_VIDEO_UNITS * CREDIT_UNITS_PER_CREDIT;
 }
 
@@ -54,7 +55,7 @@ export function calculateRenderCreditUnits(mode: BillableRenderMode, options: Re
   const duration = Number(options.durationSeconds) || 60;
 
   switch (mode) {
-    // All 9:16 Reels / Shorts (up to 3 min): 1 Video unit
+    // All 9:16 Reels / Shorts (up to 90s): 1 Credit
     case "autoCaption":
     case "longVideoPromo":
     case "typographyVideo":
@@ -62,21 +63,23 @@ export function calculateRenderCreditUnits(mode: BillableRenderMode, options: Re
     case "whiteboardVideo":
       return SHORT_FORM_VIDEO_UNITS * CREDIT_UNITS_PER_CREDIT;
 
-    // AI Audio Cleaner: 1 Video unit (lightweight, no render)
+    // AI Audio Cleaner: 1 Credit
     case "aiAudioCleaner":
+    case "audioClean":
+    case "audio-cleaner":
       return SHORT_FORM_VIDEO_UNITS * CREDIT_UNITS_PER_CREDIT;
 
-    // Long Video Clips: 4 units per generated clip (each clip = 1 long-form render)
+    // Long Video Clips: 2 Credits per generated clip
     case "longVideoClips": {
       const clipCount = Number(options.clipCount) || 1;
       return clipCount * LONG_FORM_VIDEO_UNITS * CREDIT_UNITS_PER_CREDIT;
     }
 
-    // YouTube Subtitle Generator (16:9 widescreen): 4 Video units
+    // YouTube Subtitle Generator (16:9 widescreen, up to 3 min): 2 Credits
     case "youtubeSubtitleGenerator":
       return calculateYouTubeSubtitleCreditUnits(duration);
 
-    // All 16:9 Long Videos & Cinema (up to 12 min): 4 Video units
+    // All 16:9 Long Videos & Cinema (up to 3 min): 2 Credits
     case "longFormCaptionedVideo":
     case "aiVideoGenerator":
     case "facelessVideo":

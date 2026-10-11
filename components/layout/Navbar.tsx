@@ -267,14 +267,14 @@ export default function Navbar() {
                               isLightPage ? 'hover:bg-slate-50' : 'hover:bg-[#151E30]'
                             }`}
                           >
-                            <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-[#FF9100] transition ${
+                            <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-purple-400 transition ${
                               isLightPage ? 'bg-slate-100 border-slate-200' : 'bg-[#151E30] border-white/10'
                             }`}>
                               <Icon size={16} />
                             </div>
                             <div>
                               <p className={`text-xs font-bold transition ${
-                                isLightPage ? 'text-slate-900 group-hover:text-[#FF6D00]' : 'text-white group-hover:text-[#FFA726]'
+                                isLightPage ? 'text-slate-900 group-hover:text-purple-600' : 'text-white group-hover:text-purple-300'
                               }`}>{item.label}</p>
                               <p className={`text-[11px] leading-snug mt-0.5 ${
                                 isLightPage ? 'text-slate-500' : 'text-zinc-400'
@@ -337,10 +337,10 @@ export default function Navbar() {
                   className={`flex items-center gap-2 rounded-full border px-3.5 py-1.5 transition text-left cursor-pointer ${
                     isLightPage
                       ? 'border-slate-200 bg-slate-100 hover:bg-slate-200'
-                      : 'border-white/15 bg-white/[0.04] hover:bg-white/[0.08] hover:border-[#FF6D00]/50'
+                      : 'border-white/15 bg-white/[0.04] hover:bg-white/[0.08] hover:border-purple-500/50'
                   }`}
                 >
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-tr from-[#FF6D00] to-[#FF8F00] text-black font-black text-xs shadow-md">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-tr from-purple-600 to-pink-500 text-white font-black text-xs shadow-md">
                     {user?.email ? user.email.charAt(0).toUpperCase() : <User size={13} />}
                   </div>
                   <span className={`max-w-[100px] truncate text-xs font-bold capitalize ${
@@ -365,14 +365,14 @@ export default function Navbar() {
                     <Link href="/dashboard" onClick={() => setUserMenuOpen(false)} className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition ${
                       isLightPage ? 'text-slate-700 hover:bg-slate-50' : 'text-zinc-200 hover:bg-[#151821]'
                     }`}>
-                      <LayoutDashboard size={14} className="text-[#FF8F00]" />
+                      <LayoutDashboard size={14} className="text-purple-400" />
                       <span>Dashboard</span>
                     </Link>
 
                     <Link href="/billing" onClick={() => setUserMenuOpen(false)} className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition ${
                       isLightPage ? 'text-slate-700 hover:bg-slate-50' : 'text-zinc-200 hover:bg-[#151821]'
                     }`}>
-                      <CreditCard size={14} className="text-[#FF8F00]" />
+                      <CreditCard size={14} className="text-purple-400" />
                       <span>Billing &amp; Videos</span>
                     </Link>
 
@@ -401,9 +401,9 @@ export default function Navbar() {
                 </Link>
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] px-5 py-2 text-xs font-black text-black shadow-lg shadow-[#FF6D00]/25 transition hover:brightness-110 active:scale-95"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 px-5 py-2 text-xs font-black text-white shadow-lg shadow-purple-500/25 transition hover:brightness-110 active:scale-95"
                 >
-                  <Sparkles size={13} className="fill-black stroke-black" />
+                  <Sparkles size={13} className="fill-white stroke-white" />
                   <span>Start Free</span>
                 </Link>
               </div>
@@ -413,7 +413,7 @@ export default function Navbar() {
           {/* MOBILE HAMBURGER BUTTON */}
           <button
             type="button"
-            className={`relative flex h-10 w-10 items-center justify-center rounded-2xl border shadow-md active:scale-95 transition-all duration-300 hover:border-[#FF6D00]/50 lg:hidden cursor-pointer ${
+            className={`relative flex h-10 w-10 items-center justify-center rounded-2xl border shadow-md active:scale-95 transition-all duration-300 hover:border-purple-500/50 lg:hidden cursor-pointer ${
               isLightPage
                 ? 'border-slate-200 bg-slate-100 text-slate-900'
                 : 'border-white/10 bg-[#0F1117] text-white'
@@ -425,7 +425,7 @@ export default function Navbar() {
               <span
                 className={`h-[2px] w-full rounded-full transition-all duration-300 transform origin-left ${
                   isLightPage ? 'bg-slate-900' : 'bg-white'
-                } ${isOpen ? 'rotate-45 translate-x-[2px] -translate-y-[1px] bg-[#FF9100]' : ''}`}
+                } ${isOpen ? 'rotate-45 translate-x-[2px] -translate-y-[1px] bg-purple-400' : ''}`}
               />
               <span
                 className={`h-[2px] w-[14px] rounded-full transition-all duration-300 ${
@@ -435,7 +435,7 @@ export default function Navbar() {
               <span
                 className={`h-[2px] w-full rounded-full transition-all duration-300 transform origin-left ${
                   isLightPage ? 'bg-slate-900' : 'bg-white'
-                } ${isOpen ? '-rotate-45 translate-x-[2px] translate-y-[1px] bg-[#FF9100]' : ''}`}
+                } ${isOpen ? '-rotate-45 translate-x-[2px] translate-y-[1px] bg-purple-400' : ''}`}
               />
             </div>
           </button>
@@ -461,8 +461,8 @@ export default function Navbar() {
             </div>
 
             {/* Primary Action Hero Banner */}
-            <div className="rounded-2xl border border-[#FF6D00]/30 bg-gradient-to-r from-[#FF6D00]/15 via-[#FF8F00]/10 to-transparent p-4 space-y-3">
-              <div className="flex items-center gap-2 text-[#FF9100] text-xs font-bold uppercase tracking-wider">
+            <div className="rounded-2xl border border-purple-500/30 bg-gradient-to-r from-purple-600/20 via-fuchsia-500/15 to-pink-500/10 p-4 space-y-3">
+              <div className="flex items-center gap-2 text-purple-300 text-xs font-bold uppercase tracking-wider">
                 <Sparkles size={14} />
                 <span>Next-Gen AI Video Engine</span>
               </div>
@@ -472,7 +472,7 @@ export default function Navbar() {
               <Link
                 href="/dashboard"
                 onClick={() => setIsOpen(false)}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] px-4 py-2.5 text-xs font-black text-black shadow-lg shadow-[#FF6D00]/25 hover:brightness-110 transition active:scale-95"
+                className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 px-4 py-2.5 text-xs font-black text-white shadow-lg shadow-purple-500/25 hover:brightness-110 transition active:scale-95"
               >
                 <span>Start Creating Free</span>
                 <ArrowRight size={14} />
@@ -489,10 +489,10 @@ export default function Navbar() {
                 <Link
                   href="/dashboard"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-between rounded-xl border border-white/[0.08] bg-[#0F1117] px-4 py-3 text-sm font-bold text-white hover:border-[#FF6D00]/50 hover:bg-[#151821] transition"
+                  className="flex items-center justify-between rounded-xl border border-white/[0.08] bg-[#0F1117] px-4 py-3 text-sm font-bold text-white hover:border-purple-500/50 hover:bg-[#151821] transition"
                 >
                   <span className="flex items-center gap-2.5">
-                    <LayoutDashboard size={16} className="text-[#FF9100]" />
+                    <LayoutDashboard size={16} className="text-purple-400" />
                     <span>AI Studios &amp; Dashboard</span>
                   </span>
                   <ChevronRight size={16} className="text-zinc-500" />
@@ -501,10 +501,10 @@ export default function Navbar() {
                 <Link
                   href="/features"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-between rounded-xl border border-white/[0.08] bg-[#0F1117] px-4 py-3 text-sm font-bold text-white hover:border-[#FF6D00]/50 hover:bg-[#151821] transition"
+                  className="flex items-center justify-between rounded-xl border border-white/[0.08] bg-[#0F1117] px-4 py-3 text-sm font-bold text-white hover:border-purple-500/50 hover:bg-[#151821] transition"
                 >
                   <span className="flex items-center gap-2.5">
-                    <Sparkles size={16} className="text-[#FF9100]" />
+                    <Sparkles size={16} className="text-purple-400" />
                     <span>Features &amp; Specs</span>
                   </span>
                   <ChevronRight size={16} className="text-zinc-500" />
@@ -513,10 +513,10 @@ export default function Navbar() {
                 <Link
                   href="/pricing"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-between rounded-xl border border-white/[0.08] bg-[#0F1117] px-4 py-3 text-sm font-bold text-white hover:border-[#FF6D00]/50 hover:bg-[#151821] transition"
+                  className="flex items-center justify-between rounded-xl border border-white/[0.08] bg-[#0F1117] px-4 py-3 text-sm font-bold text-white hover:border-purple-500/50 hover:bg-[#151821] transition"
                 >
                   <span className="flex items-center gap-2.5">
-                    <CreditCard size={16} className="text-[#FF9100]" />
+                    <CreditCard size={16} className="text-purple-400" />
                     <span>Pricing &amp; Plans</span>
                   </span>
                   <ChevronRight size={16} className="text-zinc-500" />
@@ -525,10 +525,10 @@ export default function Navbar() {
                 <Link
                   href="/about"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-between rounded-xl border border-white/[0.08] bg-[#0F1117] px-4 py-3 text-sm font-bold text-white hover:border-[#FF6D00]/50 hover:bg-[#151821] transition"
+                  className="flex items-center justify-between rounded-xl border border-white/[0.08] bg-[#0F1117] px-4 py-3 text-sm font-bold text-white hover:border-purple-500/50 hover:bg-[#151821] transition"
                 >
                   <span className="flex items-center gap-2.5">
-                    <BookOpen size={16} className="text-[#FF9100]" />
+                    <BookOpen size={16} className="text-purple-400" />
                     <span>About Us</span>
                   </span>
                   <ChevronRight size={16} className="text-zinc-500" />
@@ -561,7 +561,7 @@ export default function Navbar() {
                 <Link
                   href="/dashboard"
                   onClick={() => setIsOpen(false)}
-                  className="w-full text-center rounded-2xl bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] py-3 text-xs font-black text-black shadow-lg shadow-[#FF6D00]/25 hover:brightness-110 transition"
+                  className="w-full text-center rounded-2xl bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 py-3 text-xs font-black text-white shadow-lg shadow-purple-500/25 hover:brightness-110 transition"
                 >
                   Start Free
                 </Link>

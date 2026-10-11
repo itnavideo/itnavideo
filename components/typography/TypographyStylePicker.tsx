@@ -463,13 +463,13 @@ export function TypographyStylePicker({ value, onChange }: TypographyStylePicker
                     isPlaying={isPlaying}
                     isMuted={isMuted}
                     onSelect={() => {
-                      onChange(style.id);
+                      onChange(style.id as TypographyStyleId);
                       setPlayingStyleId(style.id);
                     }}
                     onTogglePlay={(e) => {
                       e.stopPropagation();
                       setPlayingStyleId(isPlaying ? null : style.id);
-                      if (!isSelected) onChange(style.id);
+                      if (!isSelected) onChange(style.id as TypographyStyleId);
                     }}
                     onToggleMute={(e) => {
                       e.stopPropagation();
