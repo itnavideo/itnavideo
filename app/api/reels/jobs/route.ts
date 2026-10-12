@@ -26,7 +26,6 @@ import {detectScenes} from '@/services/ai/sceneDetector';
 import {planWhiteboardVideo, buildWhiteboardSegments} from '@/services/ai/whiteboardPlanner';
 import {planTypographyVideo} from '@/services/ai/typographyPlanner';
 import {selectBestClips} from '@/services/ai/clipSelector';
-import {planLongVideoProBlueprint} from '@/services/ai/longVideoProPlanner';
 import {resolveBlueprintAssets} from '@/services/ai/assetResolver';
 import {toAbsoluteS3AssetUrl, ITNAVIDEO_STOCK_ASSETS} from '@/constants/itnavideoStockAssets';
 import {cleanFaceCamSilenceAndFillers} from '@/services/ai/faceCamSilenceCleaner';
@@ -99,7 +98,6 @@ function getMaxRenderWindowSecondsForTemplate(templateName?: ReelTemplateName | 
   if (
     templateName === 'FACELESS_VIDEO' ||
     templateName === 'AI_VIDEO_GENERATOR' ||
-    (templateName as string) === 'LONG_VIDEO_PRO' ||
     (templateName as string) === 'FACELESS_LONG_VIDEO'
   ) {
     return MAX_FACELESS_VIDEO_SECONDS;

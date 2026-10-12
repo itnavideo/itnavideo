@@ -1,5 +1,5 @@
 /**
- * Asset Resolver for Long Video Pro
+ * Asset Resolver for Faceless Video
  *
  * Resolves 3-Tier Visual Requirements (Primary -> Secondary -> Fallback Exec)
  * against available asset libraries and stock catalogs.

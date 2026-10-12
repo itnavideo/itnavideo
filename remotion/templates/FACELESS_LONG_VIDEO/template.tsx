@@ -340,7 +340,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
           <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(2, 6, 23, 0.55)', backdropFilter: 'blur(3px)' }} />
         </div>
       ) : (
-        <Background theme={activeBackgroundTheme} customBgUrl={customBgUrl} />
+        <Background theme={activeBackgroundTheme} customBgUrl={customBgUrl} aspectRatio={props.aspectRatio} />
       )}
 
       {/* ── LAYER 2 (MIDDLE): Dynamic Modular Scene Engine & Vox Graphics ── */}
@@ -399,7 +399,14 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
 
       {/* Karaoke Word-Highlight Subtitles (Clean Lower Third) */}
       {showCaptions !== false && activeCaptions.length > 0 && (
-        <UniversalCaptionLayer chunks={activeCaptions} themeId={templateConfig.captionThemeId} />
+        <UniversalCaptionLayer
+          chunks={activeCaptions}
+          themeId={templateConfig.captionThemeId}
+          styleOverrides={{
+            bottom: props.aspectRatio === '9:16' ? 140 : 55,
+            fontSize: props.aspectRatio === '9:16' ? 44 : 36,
+          }}
+        />
       )}
     </AbsoluteFill>
   );

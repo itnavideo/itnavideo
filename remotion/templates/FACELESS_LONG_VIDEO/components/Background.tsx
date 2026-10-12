@@ -16,6 +16,7 @@ export interface BackgroundProps {
     | 'pure-dark'
     | string;
   customBgUrl?: string;
+  aspectRatio?: '9:16' | '16:9';
   children?: React.ReactNode;
 }
 
@@ -33,13 +34,14 @@ const BACKGROUND_GRADIENTS: Record<string, string> = {
   'pure-dark': 'linear-gradient(180deg, #0f172a 0%, #020617 100%)',
 };
 
-export function Background({ theme = 'studio-white', customBgUrl, children }: BackgroundProps) {
+export function Background({ theme = 'studio-white', customBgUrl, aspectRatio = '16:9', children }: BackgroundProps) {
   const frame = useCurrentFrame();
   const bgGradient = BACKGROUND_GRADIENTS[theme] || BACKGROUND_GRADIENTS['studio-white'];
   const isLight = theme === 'studio-white' || theme === 'warm-cream' || theme === 'soft-slate';
 
   // Continuous Ken Burns Subtle Zoom Motion (1.0 -> 1.05)
   const subtleScale = interpolate(frame, [0, 300], [1.0, 1.05], { extrapolateRight: 'clamp' });
+  const resLabel = aspectRatio === '9:16' ? '1080x1920' : '1920x1080';
 
   return (
     <div
@@ -91,7 +93,7 @@ export function Background({ theme = 'studio-white', customBgUrl, children }: Ba
           pointerEvents: 'none',
         }}
       >
-        FPS: 60 • 1080x1920 • GRID: ACTIVE
+        FPS: 60 • {resLabel} • GRID: ACTIVE
       </div>
 
       {children}

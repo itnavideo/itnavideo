@@ -471,7 +471,7 @@ export const LongVideoComposition = () => (
       mediaSrc: '',
       mediaType: 'audio' as const,
       durationSeconds: 720,
-      title: 'Long Video Pro',
+      title: 'Faceless Video',
       scenes: [],
       captions: [],
       backgroundMusicSrc: '',

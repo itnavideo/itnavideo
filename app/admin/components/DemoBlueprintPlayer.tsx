@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Player } from '@remotion/player';
-import { LongVideoPro } from '@/remotion/templates/LONG_VIDEO_PRO/template';
+import { FacelessVideoTemplate } from '@/remotion/templates/FACELESS_VIDEO/template';
 import { DemoPresetBlueprint } from '@/services/templates/templateLibrary';
 import { DEFAULT_FPS, secondsToFrames } from '@/remotion/constants';
 
@@ -24,7 +24,7 @@ export function DemoBlueprintPlayer({ demo }: { demo: DemoPresetBlueprint }) {
   return (
     <div className="w-full aspect-video bg-black rounded-xl overflow-hidden shadow-2xl border border-zinc-800 relative">
       <Player
-        component={LongVideoPro}
+        component={FacelessVideoTemplate}
         durationInFrames={secondsToFrames(10.5, DEFAULT_FPS)}
         compositionWidth={1920}
         compositionHeight={1080}
