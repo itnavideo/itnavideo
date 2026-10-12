@@ -57,7 +57,7 @@ export const dynamic = 'force-dynamic';
 
 type LambdaRenderRequest = Parameters<typeof renderMediaOnLambda>[0];
 type ReelMode =
-  | 'compare' | 'autoCaption' | 'longVideoPromo' | 'whiteboardVideo' | 'typographyVideo' | 'longVideoClips' | 'facelessVideo' | 'aiVideoGenerator' | 'longVideoPro' | 'imageToVideoAi' | 'youtubeSubtitleGenerator' | 'bookSummary' | 'audioClean';
+  | 'compare' | 'autoCaption' | 'longVideoPromo' | 'whiteboardVideo' | 'typographyVideo' | 'longVideoClips' | 'facelessVideo' | 'aiVideoGenerator' | 'imageToVideoAi' | 'youtubeSubtitleGenerator' | 'bookSummary' | 'audioClean';
 
 const MODE_TO_TEMPLATE: Partial<Record<ReelMode, ReelTemplateName>> = {
   compare: 'comparisonImages',
@@ -67,7 +67,6 @@ const MODE_TO_TEMPLATE: Partial<Record<ReelMode, ReelTemplateName>> = {
   whiteboardVideo: 'WHITEBOARD_VIDEO',
   typographyVideo: 'TYPOGRAPHY_VIDEO',
   longVideoClips: 'LONG_VIDEO_CLIPS',
-  longVideoPro: 'FACELESS_VIDEO',
   facelessVideo: 'FACELESS_VIDEO',
   aiVideoGenerator: 'FACELESS_VIDEO',
   imageToVideoAi: 'IMAGE_TO_VIDEO_AI',
@@ -479,12 +478,10 @@ export async function POST(request: Request) {
   const requestedDurationSeconds = readFiniteNumber(body.durationSeconds, 60);
   let requestedCreditUnits: number | null = null;
   try {
-    requestedCreditUnits = (mode === 'longVideoPro')
-      ? null
-      : calculateRenderCreditUnits(mode, {
-          clipCount: requestedClipCount,
-          durationSeconds: requestedDurationSeconds,
-        });
+    requestedCreditUnits = calculateRenderCreditUnits(mode, {
+      clipCount: requestedClipCount,
+      durationSeconds: requestedDurationSeconds,
+    });
   } catch (error) {
     return NextResponse.json({
       ok: false,
@@ -503,9 +500,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const access = (mode === 'longVideoPro')
-      ? null
-      : await getRenderAccessForUser(userId, {mode, creditUnits: requestedCreditUnits ?? undefined});
+    const access = await getRenderAccessForUser(userId, {mode, creditUnits: requestedCreditUnits ?? undefined});
     markTiming('access_check_ms');
     if (access && !access.allowed) {
       return NextResponse.json(
@@ -1622,169 +1617,9 @@ export async function POST(request: Request) {
     }
 
     // ── LONG VIDEO PRO (AI-directed 16:9 with scene planning, visual matching, kinetic typography) ──
-    if (mode === 'longVideoPro') {
-      const audioPrep = await prepareAudioForTranscription(mediaKey, mediaUrl, fileName, contentType, mediaType);
-      const lvpTranscription = await transcribeForPlanning({
-        mediaUrl: audioPrep.audioUrl,
-        fileName: audioPrep.audioFileName,
-        contentType: audioPrep.contentType,
-        mediaType: audioPrep.mediaType,
-      });
-      if (!lvpTranscription.transcript) {
-        return NextResponse.json({ ok: false, status: 'failed', reasonCode: 'NO_SPEECH_DETECTED', error: 'No clear speech detected. Upload audio/video with clear speech.' }, { status: 422 });
-      }
-      markTiming('long_video_pro_transcription_ms');
-      const renderWindow = selectRenderWindow(lvpTranscription);
-      const words = (renderWindow.words || []).filter((w: {word: string; start: number; end: number}) => w.word && Number.isFinite(w.start) && Number.isFinite(w.end)).map((w: {word: string; start: number; end: number}) => ({ word: String(w.word), start: Number(w.start), end: Number(w.end) }));
-      const captions = buildCompareCaptionsFromGroq(renderWindow);
-
-      // AI Visual Planning Agent — holistic script analysis & Video Blueprint generation
-      const { blueprint, source } = await planLongVideoProBlueprint({
-        transcript: renderWindow.transcript,
-        words,
-        durationSeconds: renderWindow.durationSeconds,
-        topicTitle: topicTitle || undefined,
-      });
-      markTiming('long_video_pro_scene_plan_ms');
-      console.log('[LONG_VIDEO_PRO] Blueprint generated:', { source, totalScenes: blueprint.totalScenes });
-
-      // Asset Resolver — resolves 3-tier assets (Primary -> Secondary -> Fallback Exec)
-      const resolvedScenes = await resolveBlueprintAssets(blueprint);
-
-      const longVideoScenes = resolvedScenes.map((scene) => {
-        let type = 'image';
-        if (scene.renderedType === 'VIDEO_CLIP') type = 'video';
-        else if (
-          scene.renderedType === 'TYPOGRAPHY' ||
-          scene.renderedType === 'CHART_GRAPH' ||
-          scene.renderedType === 'DIAGRAM_INFOGRAPHIC'
-        )
-          type = 'typography';
-        else if (scene.renderedType === 'SIMPLE_BACKGROUND') type = 'background';
-        else if (scene.renderedType === 'FACE_PERSON') type = 'face';
-
-        return {
-          type,
-          visualType: scene.visualType,
-          startSeconds: scene.startSeconds,
-          endSeconds: scene.endSeconds,
-          text: scene.narrationText,
-          chapterTitle: scene.chapterTitle,
-          speakerInfo: scene.speakerInfo,
-          onScreenText: scene.onScreenText || scene.fallbackSpec.headline,
-          keyword: scene.fallbackSpec.headline || scene.onScreenText || 'Key Point',
-          statisticNumber: scene.fallbackSpec.statisticNumber,
-          imageSrc: scene.imageSrc,
-          videoSrc: scene.videoSrc,
-          motion:
-            scene.animation === 'slow_zoom_in'
-              ? 'zoom-in'
-              : scene.animation === 'pan_right'
-              ? 'slide-right'
-              : scene.animation === 'pan_left'
-              ? 'slide-left'
-              : 'fade',
-          fallbackSpec: scene.fallbackSpec,
-          visualPriority: scene.visualPriority,
-        };
-      });
-
-      const lvpTitle = topicTitle || titleFromTranscript(lvpTranscription.transcript) || titleFromFile(fileName) || 'Long Video Pro';
-      const visualStylePreset = String(body.visualStylePreset || 'cinematic_dark');
-      const atmosphereBg = String(body.atmosphereBg || 'none');
-
-      // Select dynamic background music and generate styleLock + soundCues
-      const music = selectBackgroundMusic({
-        topicTitle: lvpTitle,
-        transcript: lvpTranscription.transcript,
-      });
-
-      const styleLock = createPremiumStyleLock({
-        topicTitle: lvpTitle,
-        transcript: lvpTranscription.transcript,
-        templateName,
-        mode,
-      });
-
-      const soundCues = createPremiumSoundCues({
-        styleLock,
-        templateName,
-        durationSeconds: renderWindow.durationSeconds,
-        captions: captions.map((c) => ({ start: Number(c.start), end: Number(c.end), text: String(c.text) })),
-      });
-
-      // Face-Camera Silence & Filler Word Cleaner
-      const faceCamCleaned = cleanFaceCamSilenceAndFillers(words, renderWindow.durationSeconds);
-      console.log('[LONG_VIDEO_PRO_FACE_CAM]', {
-        originalDuration: faceCamCleaned.originalDurationSeconds,
-        cleanedDuration: faceCamCleaned.cleanedDurationSeconds,
-        silenceCuts: faceCamCleaned.silenceCutCount,
-        fillersRemoved: faceCamCleaned.fillersRemovedCount,
-        clipsCount: faceCamCleaned.clips.length,
-      });
-
-      // Face Tracking Keyframes for Smart Framing
-      const faceTracking = await extractFaceKeyframes(mediaUrl, faceCamCleaned.cleanedDurationSeconds, 2.0);
-      console.log('[LONG_VIDEO_PRO_FACE_TRACKING]', {
-        source: faceTracking.source,
-        keyframesCount: faceTracking.keyframes.length,
-        isStaticCenter: faceTracking.isStaticCenter,
-        avgXCenter: faceTracking.averageXCenter,
-      });
-
-      const inputProps: Record<string, unknown> = {
-        mediaSrc: mediaUrl,
-        mediaType,
-        sourceAudioVolume: 1.35,
-        durationSeconds: faceCamCleaned.cleanedDurationSeconds,
-        speechClips: faceCamCleaned.clips,
-        enableSmartPunchIn: true,
-        faceKeyframes: faceTracking.keyframes,
-        scenes: longVideoScenes,
-        captions: captions.map((c: any) => ({
-          start: Number(c.start),
-          end: Number(c.end),
-          text: String(c.text),
-          words: c.words,
-        })),
-        title: lvpTitle,
-        backgroundMusicSrc: music.src,
-        musicVolume: music.volume,
-        templateName,
-        template: templateName,
-        compositionId: composition,
-        premiumEditing: true,
-        styleLock,
-        soundCues,
-        visualStylePreset,
-        atmosphereBg,
-        headingFont: readString(body.headingFont) || 'Montserrat',
-        bodyFont: readString(body.bodyFont) || 'Inter',
-        youtubeTimestamps: blueprint.youtubeTimestamps,
-      };
-      const preflight = validateBeforeRender({ inputProps, templateName, composition, mediaType });
-      if (preflight) {
-        return NextResponse.json({ ok: false, status: 'failed', reasonCode: preflight.reasonCode, error: preflight.message }, { status: 422 });
-      }
-      const outName = `${TEMP_MEDIA_RENDER_PREFIX}${sanitizeSegment(userId)}/${Date.now()}-long-video-pro.mp4`;
-      const render = await startRenderWithCapacityRetry({
-        region: config.region, functionName: config.functionName, serveUrl: config.serveUrl,
-        composition, codec: 'h264', audioCodec: 'aac', inputProps, outName,
-        privacy: 'private', deleteAfter: '3-days', overwrite: true,
-        concurrency: config.concurrency,
-        maxRetries: 3,
-        downloadBehavior: { type: 'download', fileName: 'itnavideo-long-video-pro.mp4' },
-        isProduction: true, logLevel: 'info',
-      });
-      markTiming('long_video_pro_render_start_ms');
-      console.log('[LONG_VIDEO_PRO] render started', { renderId: render.renderId, sceneCount: longVideoScenes.length, source });
-      return NextResponse.json({
-        ok: true, status: 'rendering', renderId: render.renderId, bucketName: render.bucketName, outName, mediaKey,
-        reelTitle: lvpTitle, design: 'Long Video Pro', mode, templateName, transcriptSource: 'groq',
-        access, retentionHours: 48,
-        diagnostics: { sceneCount: longVideoScenes.length, planSource: source, assetsMatched: resolvedScenes.filter((s) => s.resolvedUrl).length },
-      });
-    }
+    // ── longVideoPro is now merged into facelessVideo ──
+    // This block is intentionally removed. All requests that previously used
+    // mode='longVideoPro' now use mode='facelessVideo' throughout the codebase.
 
     // ── LONG VIDEO CLIPS FLOW (transcribe → pick best moments → multi-render) ──
     if (mode === 'longVideoClips') {
