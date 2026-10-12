@@ -163,23 +163,33 @@ Multi-language translation is **paused**. Only English and Hinglish (Roman scrip
 - **Groq Whisper** → Primary speech-to-text transcription engine. Fast, cloud-based, and millisecond-accurate.
 - **Gemini (Google Cloud asia-south1)** → **Mandatory Fallback**: If Groq Whisper encounters rate-limits, downtime, or errors, system automatically falls back to Gemini 2.0 Flash for speech transcription. Also used for AI scene direction and whiteboard planning.
 - **Audio Extraction Rule**: Never send raw heavy video directly to Groq. Always extract lightweight 16kHz mono audio (MP3/WAV) before sending to Groq/Gemini.
-- **OpenAI** → Paused. Key is expired (401). Do not add OpenAI API calls without explicit approval.
+- **OpenAI** → Removed completely from project. No OpenAI API calls or dependencies.
 - **Local Planners First** → Keep AI usage minimal. Templates (Auto Caption, Compare, Long Video Promo, Voice Synced Notes, Audio Clean) use deterministic local logic from the transcript.
 
 ---
 
-## 4.1 Master Video Duration & Credit Policy (Founder Directive)
+## 4.1 Master Video Duration & Credit Policy (Founder Directive — STRICT FINAL)
 
 > [!CRITICAL]
-> **1080p FULL HD QUALITY MANDATE & CREDIT SYSTEM**:
-> - **9:16 Shorts / Reels (Up to 90s)** = **1 Credit** (1080×1920 30 FPS MP4)
-> - **16:9 Widescreen Videos (Up to 3 Min / 180s)** = **2 Credits** (1920×1080 30 FPS MP4)
+> **STRICT ASPECT RATIO, DURATION & CREDIT SYSTEM**:
+> - **All 16:9 Long-Form Videos (Up to 10 Minutes / 600s)**: Strictly 16:9 Widescreen Only. Credit Rate: **1 Min = 1 Credit** (1 Min = 1 Cr, 5 Min = 5 Cr, 10 Min = 10 Cr).
+> - **All 9:16 Short-Form Videos (Up to 90 Seconds / 90s)**: Strictly 9:16 Vertical Only. Credit Rate: **1 Credit** per video (1080×1920 30 FPS MP4).
 
-| Video Category | Aspect Ratio | Resolution & Quality | Maximum Duration | Credit Cost | Audio & Transcriber Pipeline |
-| :--- | :---: | :---: | :---: | :---: | :--- |
-| **All Short-Form Videos** (TikTok, Reels, YouTube Shorts) | **9:16** | **1080×1920 (1080p Full HD)** | **90 Seconds (90s)** | **1 Credit** | Extracted audio → Groq Whisper (Fallback: Gemini) |
-| **All Long-Form / Widescreen Videos** (YouTube, Cinema, Explainers) | **16:9** | **1920×1080 (1080p Full HD)** | **3 Minutes (180s)** | **2 Credits** | Extracted 16kHz mono audio (~9MB) → Groq Whisper (Fallback: Gemini) |
-| **Long Video to Clips** (`longvideoclips`) | **Source: 16:9 / 9:16**<br/>**Output: 9:16** | **1080×1920 (1080p Full HD)** | **Input: Up to 2 Hours**<br/>**Output: 30s–60s Clips** | **2 Credits / Clip** | Extracted audio → Groq Whisper → AI Hook Detector → Render shorts |
+### Master Category Matrix & Credit Pricing
+
+| Category | Video Type / Mode | Aspect Ratio | Max Video Duration | Credit Cost | Audio & Transcriber Pipeline |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| **16:9 Long-Form** | **Faceless Video** | **16:9 Only** | **Up to 10 Minutes (600s)** | **1 Min = 1 Credit** (1m=1, 5m=5, 10m=10 Cr) | Extracted 16kHz audio → Groq Whisper (Fallback: Gemini) |
+| **16:9 Long-Form** | **Book Summary** | **16:9 Only** | **Up to 10 Minutes (600s)** | **1 Min = 1 Credit** (1m=1, 5m=5, 10m=10 Cr) | Extracted 16kHz audio → Groq Whisper (Fallback: Gemini) |
+| **16:9 Long-Form** | **Image to Video AI** | **16:9 Only** | **Up to 10 Minutes (600s)** | **1 Min = 1 Credit** (1m=1, 5m=5, 10m=10 Cr) | Extracted 16kHz audio → Groq Whisper (Fallback: Gemini) |
+| **16:9 Long-Form** | **YouTube Subtitles Generator** | **16:9 Only** | **Up to 10 Minutes (600s)** | **1 Min = 1 Credit** (1m=1, 5m=5, 10m=10 Cr) | Extracted 16kHz audio → Groq Whisper (Fallback: Gemini) |
+| **16:9 Long-Form** | **Long Video to Shorts Clips** (`longVideoClips`) | **Source: 16:9 / 9:16**<br/>**Output: 9:16 Shorts** | **Input: Up to 2 Hours**<br/>**Output: 30s–60s Clips** | **2 Credits / Clip** | Extracted audio → Groq Whisper → AI Hook Detector → Render shorts |
+| **9:16 Short-Form** | **Auto Caption Reel** | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Extracted audio → Groq Whisper (Fallback: Gemini) |
+| **9:16 Short-Form** | **Typography Kinetic Video** | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Extracted audio → Groq Whisper (Fallback: Gemini) |
+| **9:16 Short-Form** | **Whiteboard / Stickman Explainer** | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Extracted audio → Groq Whisper (Fallback: Gemini) |
+| **9:16 Short-Form** | **Faceless Video Shorts** | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Extracted audio → Groq Whisper (Fallback: Gemini) |
+| **9:16 Short-Form** | **Long Video Promo** | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Extracted audio → Groq Whisper (Fallback: Gemini) |
+| **Utility** | **AI Studio Audio Cleaner** | **Audio Utility** | **Up to 10 Minutes (600s)** | **1 Credit** | Groq Whisper + Retake Detection + Mastering |
 
 - **Audio Extraction Rule**: Never pass raw heavy video files directly to Groq. Always extract lightweight 16kHz mono audio (MP3/WAV) before sending to Groq.
 - **Transcription Fallback**: **Primary: Groq Whisper Cloud API** (fast, cloud-based). **Fallback: Google Gemini 2.0 Flash** (`asia-south1`) if Groq encounters rate-limits or errors.

@@ -1,4 +1,4 @@
-﻿# Itnavideo
+# Itnavideo
 
 AI-powered short video & long video generator for creators. Upload audio/video, get polished reels or 16:9 explainer videos with subtitles, stickers, and animations.
 
@@ -14,11 +14,11 @@ AI-powered short video & long video generator for creators. Upload audio/video, 
 |---|---|---|---|---|---|---|
 | 1 | **Image to Video AI** | [`imagetovideoai.md`](./docs/video-types/imagetovideoai.md) | `image-to-video` | `IMAGE_TO_VIDEO_AI` | 16:9 | Google AI voices + Ken Burns cinema scenes |
 | 2 | **Auto Caption Generator** | [`autocaption.md`](./docs/video-types/autocaption.md) | `auto-caption` | `AUTO_CAPTION_GENERATOR` | 9:16 | Word-level kinetic glowing subtitles |
-| 3 | **YouTube Subtitle Generator** | [`youtubesubtitles.md`](./docs/video-types/youtubesubtitles.md) | `youtube-subtitles` | `LONG_CAPTION_PRO` | 16:9 & 9:16 | Broadcast lower-thirds + SRT/VTT export |
-| 4 | **Faceless Video Generator** | [`facelessvideo.md`](./docs/video-types/facelessvideo.md) | `faceless-video` | `FACELESS_VIDEO` | 9:16 & 16:9 | Script-to-video AI + 3-tier stock B-roll |
-| 5 | **Compare Explainer Video** | [`compareexplainer.md`](./docs/video-types/compareexplainer.md) | `compare-explainer` | `comparisonImages` | 9:16 & 16:9 | Versus split screen + animated stickers |
+| 3 | **YouTube Subtitle Generator** | [`youtubesubtitles.md`](./docs/video-types/youtubesubtitles.md) | `youtube-subtitles` | `LONG_CAPTION_PRO` | 16:9 | Broadcast lower-thirds + SRT/VTT export |
+| 4 | **Faceless Video Generator** | [`facelessvideo.md`](./docs/video-types/facelessvideo.md) | `faceless-video` | `FACELESS_VIDEO` | 9:16 | Script-to-video AI + 3-tier stock B-roll |
+| 5 | **Compare Explainer Video** | [`compareexplainer.md`](./docs/video-types/compareexplainer.md) | `compare-explainer` | `comparisonImages` | 9:16 | Versus split screen + animated stickers |
 | 6 | **Kinetic Typography Video** | [`typographyvideo.md`](./docs/video-types/typographyvideo.md) | `typography-video` | `TYPOGRAPHY_VIDEO` | 9:16 | Kinetic text motion + high retention |
-| 7 | **Whiteboard Animation** | [`whiteboardvideo.md`](./docs/video-types/whiteboardvideo.md) | `whiteboard-video` | `WHITEBOARD_VIDEO` | 16:9 & 9:16 | Executive board diagrams + SVG stroke draw |
+| 7 | **Whiteboard Animation** | [`whiteboardvideo.md`](./docs/video-types/whiteboardvideo.md) | `whiteboard-video` | `WHITEBOARD_VIDEO` | 9:16 | Executive board diagrams + SVG stroke draw |
 | 8 | **Long Video Promo / Teaser** | [`longvideopromo.md`](./docs/video-types/longvideopromo.md) | `long-video-promo` | `LONG_VIDEO_PROMO` | 9:16 | Hook video + YouTube thumbnail traffic teaser |
 | 9 | **Long Video to Viral Clips** | [`longvideoclips.md`](./docs/video-types/longvideoclips.md) | `long-video-clips` | `LONG_VIDEO_CLIPS` | 9:16 | Virality hook detector + 9:16 reframe |
 | 10 | **AI Audio Cleaner & Studio** | [`audiocleaner.md`](./docs/video-types/audiocleaner.md) | `audio-cleaner` | Mastering Engine | Audio | Studio denoise, -14 LUFS & retake detection |

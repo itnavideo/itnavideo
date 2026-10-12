@@ -1,5 +1,4 @@
 import {normalizeTranscriptForPlanner} from './hinglishTranscript';
-import {createManagedReelPlan} from './openaiReelDirector';
 import {getExternalAssetImageLimit, type ExternalVisualAssetCandidate} from './externalAssetPool';
 import {extractScriptDetails, type ScriptDetails} from './scriptDetails';
 import {buildAssetTimelineForOverlays, matchAssetsForScript, type AssetTimelineItem} from './assetPicker';
@@ -447,23 +446,6 @@ const MAX_OVERLAY_SECONDS = 8.5;
 
 export async function createReelPlan(input: ReelPlanRequest): Promise<ReelPlanResult> {
   const localPlan = await createLocalReelPlan(input);
-
-  // Skip OpenAI managed planner for templates that only need captions/simple layout
-  const skipManagedPlanner = Boolean(REEL_TEMPLATE_REGISTRY[localPlan.templateName]?.skipPlanner);
-
-  if (input.dryRun || !process.env.OPENAI_API_KEY || getMaxOpenAiCallsPerRender() < 1 || skipManagedPlanner) {
-    return validateAndRepairReelPlan(localPlan);
-  }
-
-  try {
-    const managed = await createManagedReelPlan({
-      request: input,
-      localPlan,
-    });
-    if (managed) return validateAndRepairReelPlan(await hydrateVideoExplainerAssetTimeline(managed));
-  } catch {
-    localPlan.validation.warnings.push('Managed planner failed; local repair planner was used.');
-  }
 
   return validateAndRepairReelPlan(localPlan);
 }

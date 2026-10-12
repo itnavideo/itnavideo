@@ -5,6 +5,7 @@ import {
   ArrowRight,
   CheckCircle2,
   ShieldCheck,
+  Sparkles,
   Zap,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -29,7 +30,18 @@ export default function Hero() {
 
       <div className="relative z-10 mx-auto max-w-6xl text-center">
 
-        {/* Main Hero Headline */}
+        {/* Kicker Badge: More Than AI, Your Personal Editor */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="mb-4 inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-purple-300"
+        >
+          <Sparkles size={14} className="text-purple-400" />
+          <span>More Than AI — Your Personal Editor</span>
+        </motion.div>
+
+        {/* Main Hero Headline (Kept untouched as requested) */}
         <motion.h1
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -41,32 +53,42 @@ export default function Hero() {
             AI Video Generator
           </span>
           <br />
-          <span className="text-white">For Creators & Brands</span>
+          <span className="text-white">For Creators &amp; Brands</span>
         </motion.h1>
 
-        {/* Hero Subtitle */}
+        {/* Hero Subtitle focused on Faceless Video */}
         <motion.p
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.5 }}
           className="mx-auto mt-4 max-w-2xl text-base font-normal leading-relaxed text-zinc-300 sm:text-lg font-sans tracking-tight antialiased"
         >
-          Turn scripts, voiceovers, images, and long videos into <span className="font-semibold text-white">viral 1080p Full HD Shorts, Reels, & YouTube explainers</span> in seconds. Powered by <span className="font-semibold text-purple-300">11 purpose-built AI studios</span>.
+          The #1 <span className="font-bold text-white">Faceless Video Engine</span> for YouTubers &amp; creators. Turn voiceovers and scripts into high-retention <span className="font-semibold text-purple-300">16:9 YouTube videos</span> &amp; <span className="font-semibold text-pink-300">9:16 Shorts</span> with automated B-roll, subtitles, and music.
         </motion.p>
 
-        {/* Primary CTA Button */}
+        {/* Primary CTA Buttons with 16:9 Faceless Video Priority */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15, duration: 0.5 }}
-          className="mt-7 flex items-center justify-center"
+          className="mt-7 flex flex-wrap items-center justify-center gap-3.5"
         >
+          {/* Primary CTA: 16:9 Widescreen Faceless Video (YouTube Priority) */}
           <Link
-            href="/dashboard"
-            className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 px-8 py-3.5 text-base font-black text-white shadow-xl shadow-purple-500/25 transition duration-200 hover:brightness-110 hover:scale-[1.02] active:scale-95"
+            href="/dashboard/faceless-video"
+            className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 px-7 py-3.5 text-base font-black text-white shadow-xl shadow-purple-500/25 transition duration-200 hover:brightness-110 hover:scale-[1.02] active:scale-95"
           >
-            <span>Start Generating Free</span>
+            <Sparkles size={18} className="text-white" />
+            <span>Create 16:9 Faceless Video</span>
             <ArrowRight size={18} className="transition group-hover:translate-x-1" />
+          </Link>
+
+          {/* Secondary CTA: 9:16 Shorts Format Option */}
+          <Link
+            href="/dashboard/faceless-video?ratio=9:16"
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-6 py-3.5 text-sm font-bold text-zinc-200 hover:bg-white/10 hover:text-white transition active:scale-95"
+          >
+            <span>Create 9:16 Faceless Short</span>
           </Link>
         </motion.div>
 

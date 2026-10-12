@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import nextDynamic from 'next/dynamic';
 import Hero from '@/components/landing/Hero';
 import PlatformMarqueeTicker from '@/components/landing/PlatformMarqueeTicker';
+import FacelessVideoFlagshipShowcase from '@/components/landing/FacelessVideoFlagshipShowcase';
 import CaptionStylesShowcase from '@/components/landing/CaptionStylesShowcase';
 import ImageToVideoHomepageShowcase from '@/components/landing/ImageToVideoHomepageShowcase';
 import TenStudiosHubArchitecture from '@/components/landing/TenStudiosHubArchitecture';
@@ -20,19 +21,16 @@ export const dynamic = 'force-static';
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: 'Free AI Video Generator & Maker',
-  description: `AI video generator with ${HOMEPAGE_WORKFLOW_COUNT} purpose-built studios for captions, Reels, YouTube videos, explainers, clips, image stories, and audio cleanup.`,
+  title: 'Free AI Video Generator & Maker | Faceless Video AI',
+  description: `The #1 Faceless Video AI Generator. Create 16:9 YouTube videos and 9:16 Shorts with automated storytelling, B-roll visuals, voiceovers, and subtitles.`,
   keywords: [
+    'faceless video generator',
+    'AI faceless video generator',
+    'faceless YouTube video creator',
     'AI video generator',
     'free AI video generator',
-    'AI video maker',
     'auto caption generator',
-    'YouTube subtitle generator',
-    'faceless video creator',
-    'image to video AI',
-    'AI reels maker',
-    'YouTube shorts creator',
-    'video caption generator',
+    'book summary video maker',
   ],
   alternates: {
     canonical: 'https://www.itnavideo.com',
@@ -43,8 +41,8 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: 'Free AI Video Generator & Maker | Itnavideo',
-    description: `Choose from ${HOMEPAGE_WORKFLOW_COUNT} dedicated AI video and audio studios built for specific creator outcomes.`,
+    title: 'Free AI Video Generator & Maker | Faceless Video AI',
+    description: `Create 16:9 YouTube Faceless Videos and 9:16 Shorts with automated storytelling, voiceovers, and B-roll visuals.`,
     url: 'https://www.itnavideo.com',
     siteName: 'Itnavideo',
     locale: 'en_US',
@@ -54,14 +52,14 @@ export const metadata: Metadata = {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Itnavideo AI Video Generator',
+        alt: 'Itnavideo Faceless Video AI Generator',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Free AI Video Generator & Maker | Itnavideo',
-    description: `${HOMEPAGE_WORKFLOW_COUNT} purpose-built studios for Reels, YouTube videos, captions, explainers, and audio.`,
+    title: 'Free AI Video Generator & Maker | Faceless Video AI',
+    description: `Create 16:9 YouTube Faceless Videos and 9:16 Shorts with automated B-roll, voiceover, and captions.`,
     images: ['/og-image.png'],
   },
 };
@@ -78,11 +76,11 @@ const jsonLd = [
   {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    name: 'Itnavideo',
+    name: 'Itnavideo Faceless Video AI',
     applicationCategory: 'MultimediaApplication',
     operatingSystem: 'Web',
     url: siteUrl,
-    description: `AI video creation platform with ${HOMEPAGE_WORKFLOW_COUNT} purpose-built workflows for short-form video, YouTube video, subtitles, image storytelling, clips, and audio cleanup.`,
+    description: `AI Faceless video creation platform for 16:9 YouTube videos and 9:16 Shorts with automated storytelling, voiceovers, B-roll matching, and captions.`,
     offers: pricingPlans.map((plan) => ({
       '@type': 'Offer',
       name: plan.name,
@@ -98,42 +96,18 @@ const jsonLd = [
     mainEntity: [
       {
         '@type': 'Question',
-        name: 'Can I try Itnavideo for free?',
+        name: 'Can I create 16:9 YouTube Faceless Videos on Itnavideo?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Yes. New users can start with the available free signup credit without entering a card.',
+          text: 'Yes. Itnavideo provides a dedicated 16:9 Widescreen Faceless Video studio for YouTubers and creators to make long-form videos up to 12 minutes.',
         },
       },
       {
         '@type': 'Question',
-        name: 'How many video workflows does Itnavideo offer?',
+        name: 'What formats are supported for Faceless Video?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: `Itnavideo offers ${HOMEPAGE_WORKFLOW_COUNT} dedicated studios for Auto Caption, YouTube Subtitles, Image to Video, Compare Explainers, Whiteboard Videos, Typography Videos, Faceless Videos, Long Video Promotions, Long Video Clips, AI Audio Cleaning, and Book Summary Videos.`,
-        },
-      },
-      {
-        '@type': 'Question',
-        name: 'Do all Itnavideo workflows use the same inputs and limits?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'No. Each studio has its own required inputs, duration limits, controls, processing stages, output format, and credit calculation.',
-        },
-      },
-      {
-        '@type': 'Question',
-        name: 'What video resolutions, quality, and durations are supported?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Every video rendered on Itnavideo is exported in crisp 1080p Full HD at 30 FPS. All 9:16 vertical short-form videos (Reels, TikTok, Shorts) render at 1080×1920 (1080p) up to 3 minutes (180s). All 16:9 widescreen YouTube videos render at 1920×1080 (1080p) up to 12 minutes (720s). Long Video to Clips accepts source videos up to 3 hours and creates multiple 30s–60s 1080p Full HD viral shorts.',
-        },
-      },
-      {
-        '@type': 'Question',
-        name: 'Which caption languages are currently supported?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'English and Roman Hinglish captions are currently supported. Hindi and Hinglish speech is transcribed into readable Roman Hinglish.',
+          text: 'Both 16:9 Widescreen (YouTube long-form) and 9:16 Vertical (Shorts, Reels, TikTok) formats are supported.',
         },
       },
     ],
@@ -150,6 +124,7 @@ export default function LandingPage() {
 
       <Hero />
       <PlatformMarqueeTicker />
+      <FacelessVideoFlagshipShowcase />
       <CaptionStylesShowcase />
       <ImageToVideoHomepageShowcase />
       <TenStudiosHubArchitecture />

@@ -29,9 +29,10 @@ Turn raw creator content into publish-ready 9:16 reels or a preserved 16:9 long-
 ## Current Status
 
 - **1080p Full HD Quality Standard**: Every single video rendered across all modes is strictly exported in **1080p Full HD** (1080×1920 for 9:16 vertical shorts, 1920×1080 for 16:9 cinema widescreen) at 30 FPS.
-- **Short-Form Videos (9:16)**: All TikTok, Reels, and YouTube Shorts support up to **3 Minutes (180 seconds)** in 1080×1920.
-- **Long-Form Videos (16:9)**: All YouTube long-form videos support up to **12 Minutes (720 seconds)** in 1920×1080.
-- **Long Video to Clips (`longvideoclips`)**: Accepts input up to **3 Hours (10,800s)**; generates multiple **30s–60s** viral clips in 1080×1920. Full long video is never rendered.
+- **16:9 Long-Form Category (Up to 10 Minutes / 600s)**: Strictly 16:9 Widescreen Only for Faceless Video, Book Summary, Image to Video AI, and YouTube Subtitles Generator. Credit Policy: **1 Min = 1 Credit** (1 Min = 1 Cr, 5 Min = 5 Cr, 10 Min = 10 Cr).
+- **9:16 Short-Form Category (Up to 90 Seconds / 90s)**: Strictly 9:16 Vertical Only for Auto Caption Reel, Typography Kinetic, Whiteboard Explainer, Faceless Video Shorts, and Long Video Promo. Credit Policy: **1 Credit** per video.
+- **Long Video to Clips (`longvideoclips`)**: Accepts input up to **2 Hours (7,200s)**; generates multiple **30s–60s** viral clips in 1080×1920. Credit Policy: **2 Credits / Clip**.
+- **AI Studio Audio Cleaner**: Accepts audio up to **10 Minutes**. Credit Policy: **1 Credit**.
 - **Audio Extraction First**: Heavy media is never sent directly to transcription; 16kHz mono audio is extracted first.
 - **Transcription**: Primary: Groq Whisper Cloud API. Mandatory Fallback: Google Gemini 2.0 Flash (`asia-south1`).
 - **Cloud Rendering Engine**: AWS Lambda (Remotion in Mumbai `us-east-1`).

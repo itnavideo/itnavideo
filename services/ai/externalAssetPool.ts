@@ -2,24 +2,12 @@ import type {ScriptDetails} from './scriptDetails';
 
 export type ExternalVisualAssetCandidate = {
   id: string;
-  provider: 'pexels' | 'unsplash' | 'unsplash-source';
+  provider: 'unsplash' | 'unsplash-source';
   type: 'image' | 'video';
   src: string;
   query: string;
   title: string;
   attribution?: string;
-};
-
-type PexelsPhoto = {
-  id?: number;
-  alt?: string;
-  photographer?: string;
-  src?: {
-    portrait?: string;
-    large2x?: string;
-    large?: string;
-    original?: string;
-  };
 };
 
 type UnsplashPhoto = {
@@ -39,11 +27,8 @@ export async function buildExternalVisualAssetPool(scriptDetails: ScriptDetails,
   const queries = buildAssetQueries(scriptDetails).slice(0, getQueryLimit());
   if (!queries.length) return [];
 
-  const [pexels, unsplash] = await Promise.all([
-    isPexelsEnabled() ? fetchPexelsImages(queries) : Promise.resolve([]),
-    fetchUnsplashImages(queries),
-  ]);
-  const remote = uniqueAssets([...unsplash, ...pexels]).slice(0, limit);
+  const unsplash = await fetchUnsplashImages(queries);
+  const remote = uniqueAssets(unsplash).slice(0, limit);
   return remote.filter((asset) => isRenderableRemoteImage(asset.src));
 }
 
@@ -65,36 +50,6 @@ function buildAssetQueries(scriptDetails: ScriptDetails) {
     .map((query) => sanitizeQuery(query))
     .filter(Boolean)
     .slice(0, 8);
-}
-
-async function fetchPexelsImages(queries: string[]) {
-  const apiKey = process.env.PEXELS_API_KEY || process.env.NEXT_PUBLIC_PEXELS_API_KEY;
-  if (!apiKey) return [];
-  const results = await Promise.all(queries.map(async (query, queryIndex) => {
-    try {
-      const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=2&orientation=portrait`;
-      const response = await fetch(url, {headers: {Authorization: apiKey}});
-      if (!response.ok) return [];
-      const json = await response.json() as {photos?: PexelsPhoto[]};
-      return (json.photos || []).map((photo, photoIndex) => ({
-        id: `pexels-${photo.id || `${queryIndex}-${photoIndex}`}`,
-        provider: 'pexels' as const,
-        type: 'image' as const,
-        src: photo.src?.portrait || photo.src?.large2x || photo.src?.large || photo.src?.original || '',
-        query,
-        title: photo.alt || `${titleCase(query)} photo`,
-        attribution: photo.photographer ? `Pexels / ${photo.photographer}` : 'Pexels',
-      }));
-    } catch {
-      return [];
-    }
-  }));
-  return results.flat().filter((asset) => asset.src);
-}
-
-function isPexelsEnabled() {
-  const providerList = String(process.env.EXTERNAL_ASSET_PROVIDERS || '').toLowerCase();
-  return providerList.split(',').map((item) => item.trim()).includes('pexels');
 }
 
 function getQueryLimit() {
@@ -152,7 +107,7 @@ function isRenderableRemoteImage(src: string) {
   const value = String(src || '').trim();
   if (!/^https:\/\//i.test(value)) return false;
   if (/source\.unsplash\.com/i.test(value)) return false;
-  return /\.(?:jpe?g|png|webp|avif)(?:[?#].*)?$/i.test(value) || /images\.pexels\.com|images\.unsplash\.com/i.test(value);
+  return /\.(?:jpe?g|png|webp|avif)(?:[?#].*)?$/i.test(value) || /images\.unsplash\.com/i.test(value);
 }
 
 function sanitizeQuery(value: string) {

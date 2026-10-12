@@ -781,26 +781,7 @@ function buildOverlayQuery(
 }
 
 async function embedQueries(queries: string[]) {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey || !queries.length) return [];
-  try {
-    const response = await fetch('https://api.openai.com/v1/embeddings', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: process.env.OPENAI_ASSET_EMBEDDING_MODEL || 'text-embedding-3-small',
-        input: queries,
-      }),
-    });
-    if (!response.ok) return [];
-    const json = await response.json() as {data?: Array<{embedding?: number[]}>};
-    return (json.data || []).map((item) => Array.isArray(item.embedding) ? item.embedding : null);
-  } catch {
-    return [];
-  }
+  return [];
 }
 
 function semanticBoost(asset: IndexedAsset, queryEmbedding: number[] | null, embeddings: AssetEmbeddingIndex) {

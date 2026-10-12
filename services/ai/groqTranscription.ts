@@ -46,10 +46,7 @@ export function toGroqLanguageCode(lang: string): string | undefined {
   const normalized = lang?.toLowerCase().trim();
   return map[normalized] ?? (normalized?.length === 2 ? normalized : undefined);
 }
-const OPENAI_TRANSCRIPTION_URL = 'https://api.openai.com/v1/audio/transcriptions';
-const OPENAI_TRANSLATION_URL = 'https://api.openai.com/v1/audio/translations';
 const DEFAULT_GROQ_TRANSCRIPTION_MODEL = 'whisper-large-v3-turbo';
-const DEFAULT_OPENAI_TRANSCRIPTION_MODEL = 'whisper-1';
 const MAX_TRANSCRIPTION_DOWNLOAD_BYTES = 1024 * 1024 * 120;
 const DEFAULT_TRANSCRIPTION_MAX_SECONDS = 60;
 const GROQ_TRANSCRIPTION_PROMPT = [
@@ -175,45 +172,7 @@ export async function transcribeMediaBlobWithGroq({
   return normalizeGroqTranscription(await response.json(), model);
 }
 
-export async function transcribeMediaUrlWithOpenAI({
-  mediaUrl,
-  fileName,
-  contentType,
-  skipMediaPreparation,
-}: {
-  mediaUrl: string;
-  fileName: string;
-  contentType?: string;
-  skipMediaPreparation?: boolean;
-}): Promise<GroqTranscriptionResult> {
-  const apiKey = cleanEnvValue(process.env.OPENAI_API_KEY);
-  if (!apiKey) throw new Error('Missing OPENAI_API_KEY.');
 
-  const model = cleanEnvValue(process.env.OPENAI_TRANSCRIPTION_MODEL) || DEFAULT_OPENAI_TRANSCRIPTION_MODEL;
-  const translateToEnglish = shouldTranslateTranscriptionToEnglish();
-  const media = skipMediaPreparation
-    ? await fetchMediaBlob(mediaUrl, contentType)
-    : await prepareTranscriptionMedia({mediaUrl, fileName, contentType});
-
-  const form = new FormData();
-  form.append('file', media.blob, safeFileName(fileName, media.contentType));
-  form.append('model', model);
-  form.append('response_format', 'verbose_json');
-  form.append('temperature', '0');
-  appendTranscriptionGuidance(form, 'OPENAI', translateToEnglish);
-
-  const response = await fetch(translateToEnglish ? OPENAI_TRANSLATION_URL : OPENAI_TRANSCRIPTION_URL, {
-    method: 'POST',
-    headers: {Authorization: `Bearer ${apiKey}`},
-    body: form,
-  });
-
-  if (!response.ok) {
-    throw new Error(`OpenAI ${translateToEnglish ? 'translation' : 'transcription'} failed: ${response.status} ${await response.text()}`);
-  }
-
-  return normalizeGroqTranscription(await response.json(), model);
-}
 
 export async function prepareTranscriptionMedia({
   mediaUrl,

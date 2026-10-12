@@ -28,7 +28,7 @@ export interface VideoTypeItem {
   icon: React.ElementType;
   iconBgClass: string;
   iconColorClass: string;
-  aspectRatio: '9:16' | '16:9' | '16:9 & 9:16';
+  aspectRatio: '9:16' | '16:9';
   description?: string;
   isPopular?: boolean;
 }
@@ -39,37 +39,36 @@ export interface VideoTypeItem {
 
 export const ALL_VIDEO_TYPES: VideoTypeItem[] = [
   {
+    id: 'faceless-video-169',
+    name: 'Faceless Video — 16:9 Widescreen',
+    href: '/dashboard/faceless-video',
+    icon: Tv,
+    iconBgClass: 'bg-purple-500/20 border border-purple-500/50',
+    iconColorClass: 'text-purple-300',
+    aspectRatio: '16:9',
+    description: 'Primary Focus: YouTube Explainers, Book Summaries & Voiceover stories.',
+    isPopular: true,
+  },
+  {
+    id: 'faceless-video-916',
+    name: 'Faceless Video — 9:16 Shorts',
+    href: '/dashboard/faceless-video?ratio=9:16',
+    icon: MonitorPlay,
+    iconBgClass: 'bg-fuchsia-500/20 border border-fuchsia-500/40',
+    iconColorClass: 'text-fuchsia-300',
+    aspectRatio: '9:16',
+    description: 'Short-form storytelling for TikTok, Instagram Reels & YouTube Shorts.',
+    isPopular: true,
+  },
+  {
     id: 'auto-caption',
     name: 'Auto Caption Generator',
     href: '/auto-caption-generator',
     icon: Captions,
     iconBgClass: 'bg-purple-500/15 border border-purple-500/30',
     iconColorClass: 'text-purple-400',
-    aspectRatio: '16:9 & 9:16',
+    aspectRatio: '9:16',
     description: 'Kinetic word-synced subtitles for Reels, Shorts, TikTok & YouTube.',
-    isPopular: true,
-  },
-  {
-    id: 'image-to-video-ai',
-    name: 'Image to Video AI',
-    href: '/tools/image-to-video-ai',
-    icon: FileImage,
-    iconBgClass: 'bg-pink-500/15 border border-pink-500/30',
-    iconColorClass: 'text-pink-400',
-    aspectRatio: '16:9 & 9:16',
-    description: 'Cinematic storytelling with Ken Burns camera motion & voice sync.',
-    isPopular: true,
-  },
-  {
-    id: 'faceless-video',
-    name: 'Faceless Video AI',
-    href: '/video-types/faceless-video',
-    icon: MonitorPlay,
-    iconBgClass: 'bg-fuchsia-500/15 border border-fuchsia-500/30',
-    iconColorClass: 'text-fuchsia-400',
-    aspectRatio: '16:9 & 9:16',
-    description: 'Automated storytelling with AI voiceover narration & B-roll visuals.',
-    isPopular: true,
   },
   {
     id: 'compare-explainer',
@@ -78,7 +77,7 @@ export const ALL_VIDEO_TYPES: VideoTypeItem[] = [
     icon: Columns,
     iconBgClass: 'bg-purple-500/15 border border-purple-500/30',
     iconColorClass: 'text-purple-400',
-    aspectRatio: '16:9 & 9:16',
+    aspectRatio: '9:16',
     description: 'Side-by-side comparison videos with narration & custom visuals.',
   },
   {
@@ -88,7 +87,7 @@ export const ALL_VIDEO_TYPES: VideoTypeItem[] = [
     icon: PenTool,
     iconBgClass: 'bg-pink-500/15 border border-pink-500/30',
     iconColorClass: 'text-pink-400',
-    aspectRatio: '16:9 & 9:16',
+    aspectRatio: '9:16',
     description: 'Transform spoken narration into hand-drawn whiteboard scenes.',
   },
   {
@@ -98,7 +97,7 @@ export const ALL_VIDEO_TYPES: VideoTypeItem[] = [
     icon: FileText,
     iconBgClass: 'bg-fuchsia-500/15 border border-fuchsia-500/30',
     iconColorClass: 'text-fuchsia-400',
-    aspectRatio: '16:9 & 9:16',
+    aspectRatio: '9:16',
     description: 'Kinetic speech-to-text animated motion typography.',
   },
   {
@@ -108,7 +107,7 @@ export const ALL_VIDEO_TYPES: VideoTypeItem[] = [
     icon: Scissors,
     iconBgClass: 'bg-purple-500/15 border border-purple-500/30',
     iconColorClass: 'text-purple-400',
-    aspectRatio: '16:9 & 9:16',
+    aspectRatio: '9:16',
     description: 'Detect viral high-retention moments from long videos into shorts.',
     isPopular: true,
   },
@@ -119,7 +118,7 @@ export const ALL_VIDEO_TYPES: VideoTypeItem[] = [
     icon: Captions,
     iconBgClass: 'bg-pink-500/15 border border-pink-500/30',
     iconColorClass: 'text-pink-400',
-    aspectRatio: '16:9 & 9:16',
+    aspectRatio: '16:9',
     description: 'Burn clean Western-style subtitle strips into widescreen podcasts.',
   },
   {
@@ -129,7 +128,7 @@ export const ALL_VIDEO_TYPES: VideoTypeItem[] = [
     icon: Tv,
     iconBgClass: 'bg-fuchsia-500/15 border border-fuchsia-500/30',
     iconColorClass: 'text-fuchsia-400',
-    aspectRatio: '16:9 & 9:16',
+    aspectRatio: '9:16',
     description: 'Promote widescreen videos with thumbnail, handle & CTA layout.',
   },
   {
@@ -139,7 +138,7 @@ export const ALL_VIDEO_TYPES: VideoTypeItem[] = [
     icon: BookOpen,
     iconBgClass: 'bg-purple-500/15 border border-purple-500/30',
     iconColorClass: 'text-purple-400',
-    aspectRatio: '16:9 & 9:16',
+    aspectRatio: '9:16',
     description: 'Turn book narration into cinematic lesson card video explainers.',
   },
   {
@@ -149,7 +148,7 @@ export const ALL_VIDEO_TYPES: VideoTypeItem[] = [
     icon: Mic,
     iconBgClass: 'bg-pink-500/15 border border-pink-500/30',
     iconColorClass: 'text-pink-400',
-    aspectRatio: '16:9 & 9:16',
+    aspectRatio: '9:16',
     description: 'Detect retakes, remove background noise, and export studio audio.',
   },
 ];

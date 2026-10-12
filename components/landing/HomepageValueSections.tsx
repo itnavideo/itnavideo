@@ -272,7 +272,7 @@ export function WhyItnavideo() {
     {
       stat: '1080p',
       title: 'Ready for Reels & YT',
-      subtext: 'Pre-formatted 9:16 & 16:9 1080p exports.',
+      subtext: 'Pre-formatted 1080p Full HD video exports.',
       Icon: CheckCircle2,
     },
   ];

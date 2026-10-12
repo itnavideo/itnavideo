@@ -25,7 +25,7 @@ type VideoTypeItem = {
   id: string;
   title: string;
   badge: string;
-  aspectRatio: '9:16' | '16:9' | '9:16 & 16:9' | 'Audio';
+  aspectRatio: '9:16' | '16:9' | 'Audio';
   category: 'short' | 'long';
   input: string;
   desc: string;
