@@ -122,7 +122,18 @@ export const toolSeoPages: SeoContentPage[] = [
     hero: "Upload a video with speech, choose a caption style, and generate a polished captioned MP4 without manually timing subtitles.",
     shortExplanation: "This page targets creators who need an auto caption generator, video caption generator, and AI subtitle workflow for short-form content. Itnavideo keeps the original video as the main content and adds readable, word-timed captions on top.",
     primaryKeyword: "auto caption video generator",
-    relatedKeywords: ["auto caption generator", "video caption generator", "AI subtitle generator", "caption reels", "AI video generator"],
+    relatedKeywords: [
+      "auto caption generator",
+      "video caption generator",
+      "add subtitles to instagram video",
+      "where to put captions on reels",
+      "where to put subtitles on instagram reels",
+      "instagram reel text placement guide",
+      "add captions to instagram reels",
+      "AI subtitle generator",
+      "caption reels",
+      "AI video generator"
+    ],
     dashboardType: "auto-caption-video",
     previewImage: "/preview/Auto Caption Reel.png",
     howItWorks: [
@@ -147,7 +158,9 @@ export const toolSeoPages: SeoContentPage[] = [
     whyItnavideo: commonWhy,
     faqs: [
       { question: "Can I use this as an auto caption generator?", answer: "Yes. Upload a video with speech, pick a caption style, and render a captioned MP4." },
+      { question: "Where should I put captions on Instagram Reels?", answer: "Place captions in the safe middle area (between 20% and 80% screen height) to avoid being covered by Instagram's bottom engagement buttons or top account handles." },
       { question: "Are captions burned into the final video?", answer: "Yes. Captions are rendered into the MP4 so they show on Instagram, YouTube Shorts, TikTok, and other platforms." },
+      { question: "How do I add subtitles to Instagram video automatically?", answer: "Upload your video to Itnavideo's Auto Caption Generator. Speech AI detects spoken timing and burns word-level animated subtitles into your MP4 in seconds." },
       { question: "Does Itnavideo support Hinglish captions?", answer: "The current caption flow supports English and Roman Hinglish output from the supported transcription pipeline." },
     ],
     internalLinks: [
@@ -168,7 +181,17 @@ export const toolSeoPages: SeoContentPage[] = [
     hero: "Create short-form reels from real videos, voiceovers, images, thumbnails, or prompts using focused Itnavideo Video Types.",
     shortExplanation: "Itnavideo is an AI video generator and AI reel generator for creators who want publish-ready 9:16 videos without opening a traditional timeline editor.",
     primaryKeyword: "AI reel generator",
-    relatedKeywords: ["AI video generator", "reel maker", "AI shorts generator", "video generator", "short form video generator"],
+    relatedKeywords: [
+      "AI video generator",
+      "ai reel video generator",
+      "ai reel maker",
+      "ai reel creator",
+      "ai testimonial video editing",
+      "reel maker",
+      "AI shorts generator",
+      "video generator",
+      "short form video generator"
+    ],
     dashboardType: "dynamic-creator-reel",
     previewImage: "/preview/Dynamic Creator Reel.png",
     howItWorks: [
@@ -188,11 +211,13 @@ export const toolSeoPages: SeoContentPage[] = [
       "AI Shorts",
       "Educational explainers",
       "Long video promos",
-      "Business and coaching videos",
+      "Business, coaching, and AI testimonial video editing",
     ],
     whyItnavideo: commonWhy,
     faqs: [
       { question: "Is Itnavideo an AI video generator?", answer: "Yes. Itnavideo generates short-form videos from uploaded content and focused Video Type workflows." },
+      { question: "How does the AI reel video generator work?", answer: "Select your desired Video Type, upload your raw footage or audio narration, and the AI automatically structures scene timing, caption animations, and motion graphics." },
+      { question: "Can I use Itnavideo for AI testimonial video editing?", answer: "Yes! Upload your client testimonial audio or video recording, and Itnavideo cleans background noise, transcribes speech, and adds animated kinetic captions." },
       { question: "Is this a manual editor?", answer: "No. Itnavideo is designed for users who want to upload content and let the system handle the structure and render." },
       { question: "What Video Types are available?", answer: `Itnavideo tracks ${allVideoTypes.join(", ")} as product workflows.` },
     ],

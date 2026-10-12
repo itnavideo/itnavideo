@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HelpCircle, ChevronDown, Sparkles, ArrowRight, MessageCircle } from 'lucide-react';
+import { HelpCircle, ChevronDown, ArrowRight, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 
 interface FAQItem {
@@ -66,7 +66,7 @@ const faqs: FAQItem[] = [
 ];
 
 export default function FAQSection() {
-  const [openIndex, setOpenIndex] = useState<number | null>(0); // First open by default in M3 style
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const filteredFaqs = selectedCategory === 'all'
@@ -78,7 +78,7 @@ export default function FAQSection() {
   };
 
   return (
-    <section className="relative overflow-hidden px-4 py-16 sm:px-6 sm:py-24 bg-gradient-to-b from-[#070B14] via-[#080C16] to-[#070B14] border-t border-white/10 text-white">
+    <section className="relative overflow-hidden px-4 py-16 sm:px-6 sm:py-24 bg-[#070B14] border-t border-white/10 text-white">
       <div className="max-w-4xl mx-auto relative z-10">
         {/* Header */}
         <div className="text-center mb-10 sm:mb-12 space-y-3.5">
@@ -94,7 +94,7 @@ export default function FAQSection() {
             className="text-3xl font-black text-white sm:text-5xl font-sans tracking-tight"
           >
             Frequently Asked{' '}
-            <span className="bg-gradient-to-r from-purple-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">
+            <span className="text-purple-300">
               Questions
             </span>
           </motion.h2>
@@ -117,8 +117,8 @@ export default function FAQSection() {
                   }}
                   className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer ${
                     isActive
-                      ? 'bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 text-white shadow-md shadow-purple-500/25 font-black scale-[1.02]'
-                      : 'border border-white/[0.07] bg-[#0F1117] text-zinc-300 hover:border-purple-500/40 hover:bg-[#151821] hover:text-white'
+                      ? 'bg-purple-600 text-white shadow-md shadow-purple-600/25 font-black'
+                      : 'border border-white/[0.07] bg-[#0E1526] text-zinc-300 hover:border-purple-500/40 hover:text-white'
                   }`}
                   type="button"
                 >
@@ -148,8 +148,8 @@ export default function FAQSection() {
                 transition={{ duration: 0.25, delay: index * 0.03 }}
                 className={`group rounded-[24px] border transition-all duration-300 overflow-hidden ${
                   isOpen
-                    ? 'border-purple-500/60 bg-[#0F1117] shadow-xl shadow-purple-500/10 ring-1 ring-purple-500/30'
-                    : 'border-white/[0.07] bg-[#0F1117]/80 hover:border-purple-500/40 hover:bg-[#0F1117]'
+                    ? 'border-purple-500/60 bg-[#0E1526] shadow-xl shadow-purple-500/10 ring-1 ring-purple-500/30'
+                    : 'border-white/[0.07] bg-[#0E1526]/80 hover:border-purple-500/40'
                 }`}
               >
                 <button
@@ -162,7 +162,7 @@ export default function FAQSection() {
                     {/* Index Badge */}
                     <span className={`flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-xl text-xs font-mono font-bold transition-colors ${
                       isOpen
-                        ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white font-black'
+                        ? 'bg-purple-600 text-white font-black'
                         : 'border border-white/[0.07] bg-[#151821] text-purple-300 group-hover:border-purple-500/50'
                     }`}>
                       {indexNumber}
@@ -233,7 +233,7 @@ export default function FAQSection() {
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mt-10 rounded-[28px] border border-white/[0.07] bg-[#0F1117] p-6 text-center max-w-xl mx-auto shadow-xl"
+          className="mt-10 rounded-[28px] border border-white/[0.07] bg-[#0E1526] p-6 text-center max-w-xl mx-auto shadow-xl"
         >
           <div className="flex h-10 w-10 mx-auto items-center justify-center rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-300 mb-2">
             <MessageCircle size={18} />
@@ -243,7 +243,7 @@ export default function FAQSection() {
           <div className="mt-4">
             <Link
               href="/contact"
-              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-[#151821] px-5 py-2.5 text-xs font-bold text-white transition hover:border-purple-500/50 hover:bg-[#1C2840] hover:text-purple-300 active:scale-95 shadow-md"
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-[#151E30] px-5 py-2.5 text-xs font-bold text-white transition hover:border-purple-500/50 hover:bg-[#1C2840] hover:text-purple-300 active:scale-95 shadow-md"
             >
               <span>Contact Support</span>
               <ArrowRight size={13} className="text-purple-400" />

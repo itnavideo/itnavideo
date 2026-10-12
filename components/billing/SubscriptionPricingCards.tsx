@@ -77,7 +77,7 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
         currency: payload.currency,
         name: "Itnavideo",
         description: `${plan.name} (${plan.credits} Credits)`,
-        theme: { color: "#EA580C" },
+        theme: { color: "#9333EA" },
         modal: {
           ondismiss: () => {
             setLoadingPlan(null);
@@ -123,7 +123,7 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
 
           <h2 className="mt-5 text-4xl sm:text-6xl font-black tracking-tight text-white leading-tight">
             Simple, Powerful{" "}
-            <span className="bg-gradient-to-r from-purple-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">
+            <span className="text-purple-300">
               AI Video Plans
             </span>
           </h2>
@@ -134,7 +134,7 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
           </p>
 
           {/* Simple Credit Breakdown Pill */}
-          <div className="mt-6 inline-flex flex-wrap items-center justify-center gap-3 rounded-2xl border border-white/10 bg-zinc-950/80 px-4 py-2.5 text-xs text-zinc-300 shadow-lg">
+          <div className="mt-6 inline-flex flex-wrap items-center justify-center gap-3 rounded-2xl border border-white/10 bg-[#0E1526] px-4 py-2.5 text-xs text-zinc-300 shadow-lg">
             <span className="flex items-center gap-1.5 font-bold text-white">
               <span className="flex h-2 w-2 rounded-full bg-purple-500" />
               <span>9:16 Short Reel:</span>
@@ -142,15 +142,15 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
             </span>
             <span className="text-zinc-600">•</span>
             <span className="flex items-center gap-1.5 font-bold text-white">
-              <span className="flex h-2 w-2 rounded-full bg-pink-500" />
+              <span className="flex h-2 w-2 rounded-full bg-purple-400" />
               <span>16:9 Long Video (upto 10m):</span>
-              <span className="text-pink-300 font-mono">1 Credit / Min</span>
+              <span className="text-purple-300 font-mono">1 Credit / Min</span>
             </span>
             <span className="text-zinc-600">•</span>
             <span className="flex items-center gap-1.5 font-bold text-white">
-              <span className="flex h-2 w-2 rounded-full bg-cyan-400" />
+              <span className="flex h-2 w-2 rounded-full bg-purple-400" />
               <span>AI Audio Cleaner:</span>
-              <span className="text-cyan-400 font-mono">1 Credit</span>
+              <span className="text-purple-300 font-mono">1 Credit</span>
             </span>
           </div>
         </div>
@@ -173,12 +173,12 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
                 className={`relative flex min-h-[510px] flex-col rounded-[28px] border p-6 sm:p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${
                   isPopular
                     ? "border-purple-500 ring-1 ring-purple-500/50 bg-[#0E1526] shadow-xl shadow-purple-500/20"
-                    : "border-white/10 bg-[#0E1526]/80 hover:border-purple-500/40 hover:bg-[#0E1526]"
+                    : "border-white/10 bg-[#0E1526] hover:border-purple-500/40"
                 }`}
               >
                 {/* Popular Pill */}
                 {isPopular && (
-                  <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 px-4 py-1 text-[11px] font-black tracking-wide text-white shadow-lg shadow-purple-500/30">
+                  <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-purple-600 px-4 py-1 text-[11px] font-black tracking-wide text-white shadow-lg shadow-purple-600/30">
                     ⭐ MOST POPULAR · BEST VALUE
                   </span>
                 )}
@@ -238,7 +238,7 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
                   onClick={() => buyPlan(plan)}
                   className={`mt-8 flex w-full items-center justify-center gap-2 rounded-full px-5 py-3.5 text-xs sm:text-sm font-black transition cursor-pointer ${
                     isPopular
-                      ? "bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 text-white hover:brightness-110 shadow-lg shadow-purple-500/30"
+                      ? "bg-purple-600 text-white hover:bg-purple-500 shadow-lg shadow-purple-600/30"
                       : isFree
                       ? "border border-white/15 bg-[#151E30] text-white hover:bg-[#1C2840] hover:border-purple-500/40 font-bold"
                       : "border border-white/15 bg-[#151E30] text-white hover:bg-[#1C2840] hover:border-purple-500/40 font-bold"

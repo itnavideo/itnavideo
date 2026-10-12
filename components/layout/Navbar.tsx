@@ -68,7 +68,6 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close dropdowns on outside click
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (navRef.current && !navRef.current.contains(event.target as Node)) {
@@ -80,7 +79,6 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Prevent background scroll when mobile menu is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -136,7 +134,7 @@ export default function Navbar() {
                     <div className={`absolute left-0 top-full mt-3 w-80 rounded-2xl border p-2 shadow-2xl backdrop-blur-3xl animate-in fade-in zoom-in-95 duration-150 ${
                       isLightPage
                         ? 'border-slate-200 bg-white text-slate-900 shadow-slate-900/10'
-                        : 'border-white/10 bg-[#0B101D] text-zinc-100 ring-1 ring-white/10 shadow-black/80'
+                        : 'border-white/10 bg-[#0E1526] text-zinc-100 ring-1 ring-white/10 shadow-black/80'
                     }`}>
                       {PRODUCT_ITEMS.map((item) => {
                         const Icon = item.icon;
@@ -146,17 +144,17 @@ export default function Navbar() {
                             href={item.href}
                             onClick={() => setActiveMenu(null)}
                             className={`flex items-start gap-3 rounded-xl p-2.5 transition group ${
-                              isLightPage ? 'hover:bg-slate-50' : 'hover:bg-[#151821]'
+                              isLightPage ? 'hover:bg-slate-50' : 'hover:bg-[#151E30]'
                             }`}
                           >
-                            <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-[#FF9100] transition ${
-                              isLightPage ? 'bg-slate-100 border-slate-200' : 'bg-[#151821] border-white/10'
+                            <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-purple-400 transition ${
+                              isLightPage ? 'bg-slate-100 border-slate-200' : 'bg-[#151E30] border-white/10'
                             }`}>
                               <Icon size={16} />
                             </div>
                             <div>
                               <p className={`text-xs font-bold transition ${
-                                isLightPage ? 'text-slate-900 group-hover:text-[#FF6D00]' : 'text-white group-hover:text-[#FFA726]'
+                                isLightPage ? 'text-slate-900 group-hover:text-purple-600' : 'text-white group-hover:text-purple-300'
                               }`}>{item.label}</p>
                               <p className={`text-[11px] leading-snug mt-0.5 ${
                                 isLightPage ? 'text-slate-500' : 'text-zinc-400'
@@ -190,7 +188,7 @@ export default function Navbar() {
                     <div className={`absolute left-0 top-full mt-3 w-80 rounded-2xl border p-2 shadow-2xl backdrop-blur-3xl animate-in fade-in zoom-in-95 duration-150 ${
                       isLightPage
                         ? 'border-slate-200 bg-white text-slate-900 shadow-slate-900/10'
-                        : 'border-white/[0.08] bg-[#0F1117] text-zinc-100 ring-1 ring-white/10'
+                        : 'border-white/[0.08] bg-[#0E1526] text-zinc-100 ring-1 ring-white/10'
                     }`}>
                       {STUDIO_ITEMS.map((item) => {
                         const Icon = item.icon;
@@ -200,17 +198,17 @@ export default function Navbar() {
                             href={item.href}
                             onClick={() => setActiveMenu(null)}
                             className={`flex items-start gap-3 rounded-xl p-2.5 transition group ${
-                              isLightPage ? 'hover:bg-slate-50' : 'hover:bg-[#151821]'
+                              isLightPage ? 'hover:bg-slate-50' : 'hover:bg-[#151E30]'
                             }`}
                           >
-                            <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-[#FF9100] transition ${
-                              isLightPage ? 'bg-slate-100 border-slate-200' : 'bg-[#151821] border-white/10'
+                            <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-purple-400 transition ${
+                              isLightPage ? 'bg-slate-100 border-slate-200' : 'bg-[#151E30] border-white/10'
                             }`}>
                               <Icon size={16} />
                             </div>
                             <div>
                               <p className={`text-xs font-bold transition ${
-                                isLightPage ? 'text-slate-900 group-hover:text-[#FF6D00]' : 'text-white group-hover:text-[#FFA726]'
+                                isLightPage ? 'text-slate-900 group-hover:text-purple-600' : 'text-white group-hover:text-purple-300'
                               }`}>{item.label}</p>
                               <p className={`text-[11px] leading-snug mt-0.5 ${
                                 isLightPage ? 'text-slate-500' : 'text-zinc-400'
@@ -254,7 +252,7 @@ export default function Navbar() {
                     <div className={`absolute left-0 top-full mt-3 w-72 rounded-2xl border p-2 shadow-2xl backdrop-blur-3xl animate-in fade-in zoom-in-95 duration-150 ${
                       isLightPage
                         ? 'border-slate-200 bg-white text-slate-900 shadow-slate-900/10'
-                        : 'border-white/10 bg-[#0B101D] text-zinc-100 ring-1 ring-white/10 shadow-black/80'
+                        : 'border-white/10 bg-[#0E1526] text-zinc-100 ring-1 ring-white/10 shadow-black/80'
                     }`}>
                       {RESOURCE_ITEMS.map((item) => {
                         const Icon = item.icon;
@@ -317,7 +315,7 @@ export default function Navbar() {
                 <div className={`absolute right-0 top-full mt-3 w-36 rounded-xl border p-1.5 text-xs shadow-2xl backdrop-blur-2xl ${
                   isLightPage
                     ? 'border-slate-200 bg-white text-slate-800'
-                    : 'border-white/10 bg-[#0B101D] text-zinc-200 shadow-black/80'
+                    : 'border-white/10 bg-[#0E1526] text-zinc-200 shadow-black/80'
                 }`}>
                   <button type="button" onClick={() => setActiveMenu(null)} className={`w-full text-left rounded-lg px-3 py-1.5 font-bold ${
                     isLightPage ? 'bg-slate-100 text-slate-900' : 'bg-white/10 text-white'
@@ -340,7 +338,7 @@ export default function Navbar() {
                       : 'border-white/15 bg-white/[0.04] hover:bg-white/[0.08] hover:border-purple-500/50'
                   }`}
                 >
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-tr from-purple-600 to-pink-500 text-white font-black text-xs shadow-md">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-600 text-white font-black text-xs shadow-md">
                     {user?.email ? user.email.charAt(0).toUpperCase() : <User size={13} />}
                   </div>
                   <span className={`max-w-[100px] truncate text-xs font-bold capitalize ${
@@ -355,7 +353,7 @@ export default function Navbar() {
                   <div className={`absolute right-0 top-full mt-2 w-56 rounded-2xl border p-2 shadow-2xl backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-150 ${
                     isLightPage
                       ? 'border-slate-200 bg-white text-slate-900 shadow-slate-900/10'
-                      : 'border-white/10 bg-[#0B101D] text-zinc-100 shadow-black/80'
+                      : 'border-white/10 bg-[#0E1526] text-zinc-100 shadow-black/80'
                   }`}>
                     <div className={`px-3 py-2 border-b mb-1 ${isLightPage ? 'border-slate-100' : 'border-white/10'}`}>
                       <p className={`text-[10px] font-bold uppercase tracking-wider ${isLightPage ? 'text-slate-400' : 'text-zinc-400'}`}>Signed in as</p>
@@ -363,14 +361,14 @@ export default function Navbar() {
                     </div>
 
                     <Link href="/dashboard" onClick={() => setUserMenuOpen(false)} className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition ${
-                      isLightPage ? 'text-slate-700 hover:bg-slate-50' : 'text-zinc-200 hover:bg-[#151821]'
+                      isLightPage ? 'text-slate-700 hover:bg-slate-50' : 'text-zinc-200 hover:bg-[#151E30]'
                     }`}>
                       <LayoutDashboard size={14} className="text-purple-400" />
                       <span>Dashboard</span>
                     </Link>
 
                     <Link href="/billing" onClick={() => setUserMenuOpen(false)} className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition ${
-                      isLightPage ? 'text-slate-700 hover:bg-slate-50' : 'text-zinc-200 hover:bg-[#151821]'
+                      isLightPage ? 'text-slate-700 hover:bg-slate-50' : 'text-zinc-200 hover:bg-[#151E30]'
                     }`}>
                       <CreditCard size={14} className="text-purple-400" />
                       <span>Billing &amp; Videos</span>
@@ -401,7 +399,7 @@ export default function Navbar() {
                 </Link>
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 px-5 py-2 text-xs font-black text-white shadow-lg shadow-purple-500/25 transition hover:brightness-110 active:scale-95"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-purple-600 hover:bg-purple-500 px-5 py-2 text-xs font-black text-white shadow-lg shadow-purple-600/25 transition active:scale-95"
                 >
                   <Sparkles size={13} className="fill-white stroke-white" />
                   <span>Start Free</span>
@@ -416,7 +414,7 @@ export default function Navbar() {
             className={`relative flex h-10 w-10 items-center justify-center rounded-2xl border shadow-md active:scale-95 transition-all duration-300 hover:border-purple-500/50 lg:hidden cursor-pointer ${
               isLightPage
                 ? 'border-slate-200 bg-slate-100 text-slate-900'
-                : 'border-white/10 bg-[#0F1117] text-white'
+                : 'border-white/10 bg-[#0E1526] text-white'
             }`}
             onClick={() => setIsOpen(!isOpen)}
             aria-label={isOpen ? 'Close menu' : 'Open menu'}
@@ -445,7 +443,7 @@ export default function Navbar() {
 
       {/* MOBILE FLYOUT DRAWER */}
       {isOpen && (
-        <div className="fixed inset-0 z-[120] flex flex-col justify-between bg-[#050505]/98 backdrop-blur-2xl text-white p-6 lg:hidden animate-in fade-in slide-in-from-top-4 duration-200 overflow-y-auto">
+        <div className="fixed inset-0 z-[120] flex flex-col justify-between bg-[#070B14]/98 backdrop-blur-2xl text-white p-6 lg:hidden animate-in fade-in slide-in-from-top-4 duration-200 overflow-y-auto">
           <div className="space-y-6">
             {/* Top Brand & Close Bar */}
             <div className="flex items-center justify-between pb-4 border-b border-white/10">
@@ -453,7 +451,7 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-[#0F1117] text-zinc-300 hover:text-white transition cursor-pointer"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-[#0E1526] text-zinc-300 hover:text-white transition cursor-pointer"
                 aria-label="Close menu"
               >
                 <X size={18} />
@@ -461,7 +459,7 @@ export default function Navbar() {
             </div>
 
             {/* Primary Action Hero Banner */}
-            <div className="rounded-2xl border border-purple-500/30 bg-gradient-to-r from-purple-600/20 via-fuchsia-500/15 to-pink-500/10 p-4 space-y-3">
+            <div className="rounded-2xl border border-purple-500/30 bg-[#0E1526] p-4 space-y-3">
               <div className="flex items-center gap-2 text-purple-300 text-xs font-bold uppercase tracking-wider">
                 <Sparkles size={14} />
                 <span>Next-Gen AI Video Engine</span>
@@ -472,7 +470,7 @@ export default function Navbar() {
               <Link
                 href="/dashboard"
                 onClick={() => setIsOpen(false)}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 px-4 py-2.5 text-xs font-black text-white shadow-lg shadow-purple-500/25 hover:brightness-110 transition active:scale-95"
+                className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-purple-600 hover:bg-purple-500 px-4 py-2.5 text-xs font-black text-white shadow-lg shadow-purple-600/25 transition active:scale-95"
               >
                 <span>Start Creating Free</span>
                 <ArrowRight size={14} />
@@ -489,7 +487,7 @@ export default function Navbar() {
                 <Link
                   href="/dashboard"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-between rounded-xl border border-white/[0.08] bg-[#0F1117] px-4 py-3 text-sm font-bold text-white hover:border-purple-500/50 hover:bg-[#151821] transition"
+                  className="flex items-center justify-between rounded-xl border border-white/[0.08] bg-[#0E1526] px-4 py-3 text-sm font-bold text-white hover:border-purple-500/50 hover:bg-[#151E30] transition"
                 >
                   <span className="flex items-center gap-2.5">
                     <LayoutDashboard size={16} className="text-purple-400" />
@@ -501,7 +499,7 @@ export default function Navbar() {
                 <Link
                   href="/features"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-between rounded-xl border border-white/[0.08] bg-[#0F1117] px-4 py-3 text-sm font-bold text-white hover:border-purple-500/50 hover:bg-[#151821] transition"
+                  className="flex items-center justify-between rounded-xl border border-white/[0.08] bg-[#0E1526] px-4 py-3 text-sm font-bold text-white hover:border-purple-500/50 hover:bg-[#151E30] transition"
                 >
                   <span className="flex items-center gap-2.5">
                     <Sparkles size={16} className="text-purple-400" />
@@ -513,7 +511,7 @@ export default function Navbar() {
                 <Link
                   href="/pricing"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-between rounded-xl border border-white/[0.08] bg-[#0F1117] px-4 py-3 text-sm font-bold text-white hover:border-purple-500/50 hover:bg-[#151821] transition"
+                  className="flex items-center justify-between rounded-xl border border-white/[0.08] bg-[#0E1526] px-4 py-3 text-sm font-bold text-white hover:border-purple-500/50 hover:bg-[#151E30] transition"
                 >
                   <span className="flex items-center gap-2.5">
                     <CreditCard size={16} className="text-purple-400" />
@@ -525,7 +523,7 @@ export default function Navbar() {
                 <Link
                   href="/about"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-between rounded-xl border border-white/[0.08] bg-[#0F1117] px-4 py-3 text-sm font-bold text-white hover:border-purple-500/50 hover:bg-[#151821] transition"
+                  className="flex items-center justify-between rounded-xl border border-white/[0.08] bg-[#0E1526] px-4 py-3 text-sm font-bold text-white hover:border-purple-500/50 hover:bg-[#151E30] transition"
                 >
                   <span className="flex items-center gap-2.5">
                     <BookOpen size={16} className="text-purple-400" />
@@ -561,14 +559,14 @@ export default function Navbar() {
                 <Link
                   href="/dashboard"
                   onClick={() => setIsOpen(false)}
-                  className="w-full text-center rounded-2xl bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 py-3 text-xs font-black text-white shadow-lg shadow-purple-500/25 hover:brightness-110 transition"
+                  className="w-full text-center rounded-2xl bg-purple-600 hover:bg-purple-500 py-3 text-xs font-black text-white shadow-lg shadow-purple-600/25 transition"
                 >
                   Start Free
                 </Link>
                 <Link
                   href="/login"
                   onClick={() => setIsOpen(false)}
-                  className="w-full text-center rounded-2xl border border-white/[0.08] bg-[#0F1117] py-3 text-xs font-bold text-white hover:bg-[#151821] transition"
+                  className="w-full text-center rounded-2xl border border-white/[0.08] bg-[#0E1526] py-3 text-xs font-bold text-white hover:bg-[#151E30] transition"
                 >
                   Log In
                 </Link>

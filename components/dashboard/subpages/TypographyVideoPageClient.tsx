@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import BrandLogo from "@/components/brand/BrandLogo";
 import { TypographyStudio } from "@/components/dashboard/TypographyStudio";
 import { useAuth } from "@/components/auth/AuthContext";
+import { uploadFileViaPresign } from "@/lib/media/presignedUpload";
 import {
   ArrowLeft,
   Sparkles,
@@ -194,34 +195,7 @@ export default function TypographyVideoPage() {
     fetchHistory();
   }, [user]);
 
-  async function uploadFileViaPresign(file: File, mode: string, userId: string): Promise<string> {
-    const contentType = file.type || "application/octet-stream";
-    const presignRes = await fetch("/api/media/presign", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        fileName: file.name,
-        contentType,
-        fileSize: file.size,
-        mode,
-        userId,
-      }),
-    });
-    const presign = await presignRes.json().catch(() => ({}));
-    if (!presignRes.ok || !presign.ok || !presign.uploadUrl) {
-      throw new Error(presign.error || `Could not prepare upload for ${file.name}`);
-    }
 
-    const uploadRes = await fetch(presign.uploadUrl, {
-      method: "PUT",
-      headers: { "Content-Type": contentType },
-      body: file,
-    });
-    if (!uploadRes.ok) {
-      throw new Error(`Upload failed for ${file.name}`);
-    }
-    return presign.key as string;
-  }
 
   const handleStartRender = async () => {
     if (!user) {

@@ -20,7 +20,7 @@ import {
   getPresetPosterUrl,
 } from "@/components/dashboard/AutoCaptionStyleCarousel";
 
-// ─── 10 Diverse, Distinct, High-Performing Caption Styles (Zero Repetition) ──
+// ─── 10 Diverse, Distinct, High-Performing Caption Styles ───────────────────
 const SHOWCASE_STYLE_KEYS = [
   "Hormozi Viral Pop",
   "Shorts Karaoke",
@@ -89,15 +89,12 @@ function ShowcaseCard({ presetKey }: ShowcaseCardProps) {
       onClick={handleTogglePlay}
       className="relative flex-shrink-0 w-[155px] sm:w-[180px] group cursor-pointer select-none"
     >
-      {/* 9:16 smartphone card container — 100% clean without extra labels or metadata */}
       <div className="relative w-full aspect-[9/16] rounded-[22px] overflow-hidden border border-white/15 bg-[#090A0F] shadow-xl group-hover:border-purple-500 group-hover:shadow-2xl group-hover:shadow-purple-500/25 transition-all duration-300 group-hover:-translate-y-1">
         
-        {/* Smartphone Speaker / Notch */}
         <div className="absolute top-2 inset-x-0 z-20 flex justify-center pointer-events-none">
           <div className="h-1 w-8 rounded-full bg-black/80 border border-white/20 backdrop-blur-md" />
         </div>
 
-        {/* Video element */}
         <video
           ref={videoRef}
           src={videoUrl}
@@ -115,7 +112,6 @@ function ShowcaseCard({ presetKey }: ShowcaseCardProps) {
           className="absolute inset-0 w-full h-full object-cover"
         />
 
-        {/* Live Animated Caption Overlay — synced with video playback audio */}
         {isPlaying && caption && presetOption && (
           <>
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[48%] bg-gradient-to-t from-black/85 via-black/35 to-transparent z-10" />
@@ -133,7 +129,6 @@ function ShowcaseCard({ presetKey }: ShowcaseCardProps) {
           </>
         )}
 
-        {/* Play Icon Overlay when paused */}
         {!isPlaying && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
             <div className="flex h-11 w-11 items-center justify-center rounded-full bg-black/60 border border-white/25 backdrop-blur-sm group-hover:bg-purple-600 group-hover:border-purple-500 transition-all duration-300 shadow-lg">
@@ -153,22 +148,22 @@ export default function CaptionStylesShowcase() {
   const marqueeItems = [...SHOWCASE_STYLE_KEYS, ...SHOWCASE_STYLE_KEYS];
 
   return (
-    <section className="relative w-full overflow-hidden bg-gradient-to-b from-[#070B14] via-[#0A1020] to-[#070B14] border-b border-white/10 py-10 sm:py-14">
-      {/* Ambient Glow */}
-      <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 w-[700px] h-[300px] bg-cyan-500/10 blur-[120px] rounded-full" />
+    <section className="relative w-full overflow-hidden bg-[#070B14] border-b border-white/10 py-10 sm:py-14">
+      {/* Standardized Ambient Glow */}
+      <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 w-[700px] h-[300px] bg-purple-600/10 blur-[120px] rounded-full" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div>
-            <div className="mb-2 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-cyan-400">
-              <Sparkles size={13} className="text-cyan-400" />
+            <div className="mb-2 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-purple-400">
+              <Sparkles size={13} className="text-purple-400" />
               <span>Auto Caption Styles</span>
             </div>
             <h2 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl font-heading">
               Pick a style.{" "}
-              <span className="bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent">
+              <span className="text-purple-300">
                 Upload your video. Done.
               </span>
             </h2>
@@ -179,10 +174,10 @@ export default function CaptionStylesShowcase() {
 
           <Link
             href="/dashboard/auto-caption"
-            className="inline-flex shrink-0 items-center gap-2 rounded-2xl border border-cyan-500/30 bg-cyan-500/10 px-5 py-2.5 text-xs font-bold text-cyan-200 hover:bg-cyan-500/20 hover:border-cyan-500/50 transition active:scale-95 cursor-pointer shadow-lg shadow-cyan-500/10"
+            className="inline-flex shrink-0 items-center gap-2 rounded-2xl border border-purple-500/30 bg-purple-500/10 px-5 py-2.5 text-xs font-bold text-purple-300 hover:bg-purple-500/20 hover:border-purple-500/50 transition active:scale-95 cursor-pointer shadow-lg shadow-purple-500/10"
           >
             <span>Browse all 100+ styles</span>
-            <ArrowRight size={13} className="text-cyan-400" />
+            <ArrowRight size={13} className="text-purple-400" />
           </Link>
         </div>
 

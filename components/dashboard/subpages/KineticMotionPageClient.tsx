@@ -7,6 +7,7 @@ import BrandLogo from "@/components/brand/BrandLogo";
 import { KineticMotionStudio } from "@/components/dashboard/KineticMotionStudio";
 import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine";
 import { useAuth } from "@/components/auth/AuthContext";
+import { uploadFileViaPresign } from "@/lib/media/presignedUpload";
 import {
   resolveInitialKMPreset,
   getBridgeStyleId,
@@ -189,21 +190,6 @@ export default function KineticMotionPageClient() {
     el.onerror = () => URL.revokeObjectURL(url);
   }, [selectedFile]);
 
-  // ── Presign upload ───────────────────────────────────────────────────────────
-  async function uploadFileViaPresign(file: File, userId: string): Promise<string> {
-    const contentType = file.type || "application/octet-stream";
-    const res = await fetch("/api/media/presign", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ fileName: file.name, contentType, fileSize: file.size, mode: "typographyVideo", userId }),
-    });
-    const p = await res.json().catch(() => ({}));
-    if (!res.ok || !p.ok || !p.uploadUrl) throw new Error(p.error || "Upload preparation failed");
-    const uploadRes = await fetch(p.uploadUrl, { method: "PUT", headers: { "Content-Type": contentType }, body: file });
-    if (!uploadRes.ok) throw new Error("File upload failed");
-    return p.key as string;
-  }
-
   // ── Start render ─────────────────────────────────────────────────────────────
   async function handleStartRender() {
     if (!user) { router.push("/login?returnUrl=/dashboard/typography-video"); return; }
@@ -219,7 +205,7 @@ export default function KineticMotionPageClient() {
     try {
       setJobStatus({ state: "uploading", message: "Uploading media securely to cloud...", progress: 0.08 });
 
-      const mediaKey = await uploadFileViaPresign(selectedFile, user.id);
+      const mediaKey = await uploadFileViaPresign(selectedFile, "typographyVideo", user.id);
 
       setJobStatus({ state: "starting", message: "Injecting Kinetic Motion parameters...", progress: 0.22 });
 

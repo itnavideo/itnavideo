@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Sparkles,
   ArrowRight,
@@ -13,9 +14,17 @@ import {
   Tv,
   HelpCircle,
   Smartphone,
-  ChevronRight,
+  ChevronDown,
   Flame,
   Zap,
+  BarChart3,
+  Clock,
+  ShieldCheck,
+  Award,
+  Swords,
+  Users,
+  FileText,
+  Wand2,
 } from 'lucide-react';
 
 const CHARACTERS = [
@@ -24,416 +33,585 @@ const CHARACTERS = [
     name: '3D Presenter Pro',
     tag: 'Flagship 3D',
     poses: {
-      welcome: 'https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-welcome.png',
-      pointingLeft: 'https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-left.png',
-      pointingRight: 'https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-right.png',
-      thinking: 'https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-thinking.png',
-      warning: 'https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-warning.png',
-      success: 'https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-success.png',
+      welcome: 'https://storage.googleapis.com/itnavideo-media-assets/teacher-welcome_ouesss.png',
+      pointingLeft: 'https://storage.googleapis.com/itnavideo-media-assets/teacher-left_g28jnr.png',
+      pointingRight: 'https://storage.googleapis.com/itnavideo-media-assets/teacher-right_k39fsl.png',
+      thinking: 'https://storage.googleapis.com/itnavideo-media-assets/teacher-thinking_m92kxs.png',
+      success: 'https://storage.googleapis.com/itnavideo-media-assets/teacher-success_p03kll.png',
     },
   },
   {
     id: '2d-presenter-man',
-    name: '2D Presenter Pro',
+    name: '2D Vector Host',
     tag: 'Flat Vector',
     poses: {
-      welcome: 'https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/2d-presenter-man/teacher-welcome.png',
-      pointingLeft: 'https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/2d-presenter-man/teacher-left.png',
-      pointingRight: 'https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/2d-presenter-man/teacher-right.png',
-      thinking: 'https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/2d-presenter-man/teacher-thinking.png',
-      warning: 'https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/2d-presenter-man/teacher-warning.png',
-      success: 'https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/2d-presenter-man/teacher-success.png',
+      welcome: 'https://storage.googleapis.com/itnavideo-media-assets/teacher-welcome_ouesss.png',
+      pointingLeft: 'https://storage.googleapis.com/itnavideo-media-assets/teacher-left_g28jnr.png',
+      pointingRight: 'https://storage.googleapis.com/itnavideo-media-assets/teacher-right_k39fsl.png',
+      thinking: 'https://storage.googleapis.com/itnavideo-media-assets/teacher-thinking_m92kxs.png',
+      success: 'https://storage.googleapis.com/itnavideo-media-assets/teacher-success_p03kll.png',
     },
   },
 ];
 
-const POSE_LABELS: Record<string, string> = {
-  welcome: '👋 Welcome Intro',
-  pointingLeft: '👈 Point Left (Card A)',
-  pointingRight: '👉 Point Right (Card B)',
-  thinking: '🤔 Analysis & Thinking',
-  warning: '⚠️ Drawback / Alert',
-  success: '👑 Winner Celebration',
-};
-
 export default function CompareExplainerDetail() {
   const [selectedChar, setSelectedChar] = useState<0 | 1>(0);
-  const [selectedPose, setSelectedPose] = useState<string>('pointingLeft');
-  const [simActiveSide, setSimActiveSide] = useState<'left' | 'neutral' | 'right'>('left');
+  const [selectedPose, setSelectedPose] = useState<string>('welcome');
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
-  const activeChar = CHARACTERS[selectedChar];
-  const charImageSrc = (activeChar.poses as any)[selectedPose] || activeChar.poses.welcome;
+  const toggleFaq = (index: number) => {
+    setOpenFaqIndex(openFaqIndex === index ? null : index);
+  };
+
+  const currentChar = CHARACTERS[selectedChar];
+
+  const faqData = [
+    {
+      q: "What is a Compare Explainer Video, and why does the 'VS' format perform so well?",
+      a: "A Compare Explainer video directly evaluates two subjects side-by-side (Product A vs Product B, Concept A vs Concept B, iPhone vs Android, Gold vs Stocks). The 'VS' format is inherently high-intent because audiences actively searching for comparisons are near the end of their decision-making process. The side-by-side split screen with an animated host holds viewer curiosity until the final winner reveal."
+    },
+    {
+      q: "How does Itnavideo automate dual-column split-screen video creation?",
+      a: "You simply upload your voiceover recording or script along with two subject images (Subject A and Subject B). Our AI transcribes the audio, detects comparison beats, automatically switches character poses (pointing left, pointing right, thinking, winner celebration), overlays high-contrast stat callouts, and renders a 1080p video with background tension beats."
+    },
+    {
+      q: "Do I need complex keyframing skills in Adobe Premiere Pro or After Effects?",
+      a: "Zero editing skills are needed. Traditional split-screen comparison videos require manual track layering, mask cutouts, character keyframe animation, and audio beat syncing—taking 6+ hours per video. Itnavideo handles all character pose switching and split-screen choreography automatically in the cloud."
+    },
+    {
+      q: "Can I adjust narration pacing and background tension music?",
+      a: "Yes! You can set narration pacing from 1.0x natural speed to 1.25x rapid viral pacing, toggle background tension music, enable boxing ring SFX, and choose between clean 3D presenters or flat vector hosts."
+    },
+    {
+      q: "Is this video format effective for affiliate marketing and product reviews?",
+      a: "Extremely effective. Affiliate marketers, tech reviewers, and ecommerce creators use Compare Explainer reels to demonstrate product differences, highlight pros and cons, and drive viewers to affiliate link callouts."
+    },
+    {
+      q: "What export formats and resolutions are provided?",
+      a: "Itnavideo exports full 1080p HD (1080x1920 for 9:16 Instagram Reels, Shorts, TikTok, and 1920x1080 for 16:9 widescreen YouTube videos)."
+    }
+  ];
+
+  // Schema for Google Rich Snippets
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqData.map((faq) => ({
+      '@type': 'Question',
+      name: faq.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.a,
+      },
+    })),
+  };
+
+  const softwareSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'Itnavideo Compare Explainer Video Generator',
+    operatingSystem: 'Web-based App',
+    applicationCategory: 'MultimediaApplication',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+    description: 'Create side-by-side Product VS comparison explainer videos with animated 3D presenters and sound effects.',
+  };
 
   return (
-    <div className="min-h-screen bg-[#0E0E12] text-zinc-100 selection:bg-amber-400 selection:text-black">
-      {/* M3 Top App Bar */}
-      <nav className="sticky top-0 z-40 border-b border-white/10 bg-[#0E0E12]/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
-          <div className="flex items-center gap-3">
-            <Link
-              href="/dashboard"
-              className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-zinc-300 transition hover:bg-white/10 hover:text-white"
-            >
-              ← Back to Studio
-            </Link>
-            <span className="hidden h-4 w-px bg-white/15 sm:inline-block" />
-            <div className="hidden items-center gap-2 sm:flex">
-              <span className="h-2 w-2 rounded-full bg-amber-400" />
-              <span className="text-xs font-semibold text-zinc-300">Compare Explainer Engine</span>
-            </div>
-          </div>
+    <div className="min-h-screen bg-[#070B14] text-slate-100 font-sans selection:bg-purple-500/30 selection:text-purple-200">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
+      />
 
-          <div className="flex items-center gap-3">
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#070B14]/80 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-purple-600 via-fuchsia-500 to-pink-500 text-white font-black shadow-lg shadow-purple-500/20 group-hover:scale-105 transition-transform">
+              IV
+            </div>
+            <span className="text-xl font-extrabold tracking-tight text-white">
+              Itnavideo<span className="text-purple-400">.</span>
+            </span>
+          </Link>
+
+          <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-300">
+            <Link href="/video-types" className="hover:text-purple-400 transition">Video Types</Link>
+            <Link href="/faceless-video" className="hover:text-purple-400 transition">Faceless Video</Link>
+            <Link href="/auto-caption-generator" className="hover:text-purple-400 transition">Auto Captions</Link>
+            <Link href="/pricing" className="hover:text-purple-400 transition">Pricing</Link>
+          </nav>
+
+          <div className="flex items-center gap-4">
             <Link
-              href="/dashboard?mode=compare"
-              className="flex items-center gap-2 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 px-4 py-2 text-xs font-bold text-black shadow-md shadow-amber-500/20 transition hover:scale-[1.02] hover:from-amber-300 hover:to-amber-400"
+              href="/dashboard?videoType=compare-explainer"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 px-5 py-2.5 text-xs sm:text-sm font-extrabold text-white shadow-lg shadow-purple-500/25 transition hover:brightness-110 active:scale-95"
             >
-              <Sparkles className="h-3.5 w-3.5" />
-              Open Studio
+              <Sparkles size={16} />
+              <span>Create Compare Video</span>
             </Link>
           </div>
         </div>
-      </nav>
+      </header>
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden px-4 pb-16 pt-12 sm:px-6 lg:pb-24 lg:pt-16">
-        <div className="pointer-events-none absolute left-1/2 top-0 h-[520px] w-[700px] -translate-x-1/2 rounded-full bg-gradient-to-b from-amber-500/15 via-purple-600/10 to-transparent blur-3xl" />
+      {/* HERO SECTION */}
+      <section className="relative overflow-hidden pt-12 pb-16 lg:pt-20 lg:pb-24">
+        <div className="pointer-events-none absolute -top-24 left-1/2 -z-10 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-amber-500/15 via-purple-600/20 to-pink-500/15 blur-[120px]" />
 
-        <div className="mx-auto max-w-5xl text-center">
-          {/* M3 Assist Badge */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/10 px-3.5 py-1.5 text-xs font-bold tracking-wide text-amber-300 shadow-sm backdrop-blur">
-            <Flame className="h-3.5 w-3.5 text-amber-400" />
-            <span>Material Design 3 • Viral 9:16 Compare Reels</span>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-amber-300 mb-6">
+            <Swords size={14} className="text-amber-400" />
+            <span>AI Compare Explainer Video Generator • Product VS Format</span>
           </div>
 
-          <h1 className="mt-6 text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl">
-            Side-by-Side Comparison <br />
-            <span className="bg-gradient-to-r from-amber-300 via-amber-400 to-orange-400 bg-clip-text text-transparent">
-              With Dedicated Characters
+          <h1 className="text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl leading-[1.1] max-w-5xl mx-auto">
+            Create Side-by-Side Comparison Videos{' '}
+            <span className="bg-gradient-to-r from-amber-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              That Drive Viral Decision Views
             </span>
           </h1>
 
-          <p className="mx-auto mt-6 max-w-2xl text-base text-zinc-400 sm:text-lg">
-            Turn product vs product, tech comparisons, and finance debates into high-retention 9:16 vertical reels with active spotlights, automated audio captions, and animated 3D/2D presenters.
+          <p className="mt-6 text-lg sm:text-xl text-slate-300 leading-relaxed font-medium max-w-3xl mx-auto">
+            Turn voiceovers and two subject images into high-converting "Product A vs Product B" explainer reels with animated 3D presenters, dynamic pose switching, tension beat soundtracks, and winner celebration reveals.
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/dashboard?mode=compare"
-              className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 px-6 py-3.5 text-sm font-bold text-black shadow-lg shadow-amber-500/25 transition hover:scale-[1.03] hover:from-amber-300 hover:to-amber-400"
+              href="/dashboard?videoType=compare-explainer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-amber-500 via-purple-600 to-pink-500 px-8 py-4 text-base font-black text-white shadow-xl shadow-purple-500/20 transition hover:brightness-110 active:scale-95"
             >
-              <Zap className="h-4 w-4" />
-              Create Compare Reel in Studio
+              <Play size={18} className="fill-white" />
+              <span>Start Compare Explainer Free</span>
             </Link>
             <a
-              href="#character-showcase"
-              className="flex items-center gap-2 rounded-2xl border border-white/12 bg-white/5 px-6 py-3.5 text-sm font-bold text-white backdrop-blur transition hover:bg-white/10"
+              href="#character-studio"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#0E1526] px-8 py-4 text-base font-bold text-slate-200 hover:bg-[#152038] hover:border-purple-500/30 transition"
             >
-              <Tv className="h-4 w-4 text-zinc-400" />
-              Explore Characters & Poses
+              <Users size={18} className="text-purple-400" />
+              <span>Explore Animated Presenters</span>
             </a>
           </div>
 
-          {/* Hero Showcase Image */}
-          <div className="relative mt-10 overflow-hidden rounded-3xl border border-white/10 bg-zinc-900/80 p-2 shadow-2xl">
-            <img
-              src="/visuals/heroimages/compareexplainer.hero.png"
-              alt="Compare Explainer Side-by-Side Video Showcase"
-              className="w-full rounded-2xl object-cover"
-            />
+          {/* Quick trust metrics */}
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-8 text-xs sm:text-sm font-semibold text-slate-400 border-t border-white/10 pt-8">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 size={16} className="text-emerald-400" />
+              <span>Automated Pose Switching</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 size={16} className="text-emerald-400" />
+              <span>Dual-Column Split Layout</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 size={16} className="text-emerald-400" />
+              <span>Tension BGM &amp; Winner Reveal</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 size={16} className="text-emerald-400" />
+              <span>1080p HD Export</span>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Interactive A/B Comparison Simulator (M3 Showcase) */}
-      <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        <div className="rounded-3xl border border-white/10 bg-zinc-900/60 p-6 backdrop-blur-xl sm:p-10">
-          <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-amber-400" />
-                <h2 className="text-xs font-bold uppercase tracking-wider text-amber-400">
-                  Interactive Simulator
-                </h2>
-              </div>
-              <p className="mt-1 text-2xl font-black text-white">Live Split-Screen Spotlight Preview</p>
-              <p className="mt-0.5 text-xs text-zinc-400">
-                Experience how the presenter actively spotlights Card A or Card B while dimming the opposite side.
-              </p>
+      {/* CHARACTER STUDIO PREVIEW INTERACTIVE */}
+      <section id="character-studio" className="py-16 sm:py-20 border-t border-white/10 bg-[#0A0F1D]">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-3.5 py-1 text-xs font-bold uppercase text-purple-300 mb-3">
+              <Users size={14} />
+              <span>Interactive Character Studio</span>
             </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white">
+              Meet Your Animated Video Host
+            </h2>
+            <p className="mt-2 text-slate-300 text-sm sm:text-base">
+              Switch between 3D Presenter Pro and 2D Vector Host poses to see how character body language guides viewer attention across subjects.
+            </p>
+          </div>
 
-            {/* M3 Segmented Buttons to switch spotlight */}
-            <div className="flex rounded-2xl border border-white/10 bg-black/50 p-1">
-              {[
-                { id: 'left', label: '👈 Spotlight Left (A)' },
-                { id: 'neutral', label: '⚖️ Neutral' },
-                { id: 'right', label: 'Spotlight Right (B) 👉' },
-              ].map((btn) => (
+          <div className="max-w-4xl mx-auto rounded-3xl border border-white/10 bg-[#0E1526] p-6 sm:p-8 shadow-2xl">
+            {/* Host Selector */}
+            <div className="flex justify-center gap-4 mb-8">
+              {CHARACTERS.map((char, idx) => (
                 <button
-                  key={btn.id}
-                  onClick={() => setSimActiveSide(btn.id as any)}
-                  className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
-                    simActiveSide === btn.id
-                      ? 'bg-amber-400 text-black shadow-sm'
-                      : 'text-zinc-400 hover:text-white'
+                  key={char.id}
+                  onClick={() => setSelectedChar(idx as 0 | 1)}
+                  className={`px-6 py-3 rounded-xl font-bold text-sm transition ${
+                    selectedChar === idx
+                      ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30'
+                      : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
                   }`}
                 >
-                  {btn.label}
+                  {char.name} ({char.tag})
                 </button>
               ))}
             </div>
-          </div>
 
-          {/* Simulated 9:16 Mobile View Box */}
-          <div className="relative mx-auto mt-8 max-w-md overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-b from-[#181822] to-[#0A0A0F] p-4 shadow-2xl">
-            {/* Top Creator Pill */}
-            <div className="flex justify-center">
-              <span className="rounded-full border border-white/15 bg-black/60 px-4 py-1 text-[11px] font-bold tracking-widest text-zinc-300 uppercase">
-                @itnavideo
-              </span>
-            </div>
-
-            {/* Split Title Headers */}
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <div className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 p-2 text-center text-xs font-black uppercase text-white shadow">
-                iPhone 16 Pro
-              </div>
-              <div className="rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 p-2 text-center text-xs font-black uppercase text-white shadow">
-                Galaxy S25 Ultra
-              </div>
-            </div>
-
-            {/* Visual Box Cards with Active Spotlight & Dim Effect */}
-            <div className="relative mt-3 grid grid-cols-2 gap-3">
-              {/* Left Card */}
-              <div
-                className={`relative overflow-hidden rounded-2xl border transition-all duration-300 ${
-                  simActiveSide === 'left'
-                    ? 'scale-[1.04] border-blue-400 ring-2 ring-blue-500/50 shadow-[0_8px_24px_rgba(37,99,235,0.4)] opacity-100'
-                    : simActiveSide === 'right'
-                    ? 'scale-[0.98] border-white/10 opacity-70 filter saturate-[0.8]'
-                    : 'scale-100 border-white/10 opacity-100'
-                }`}
-              >
-                <img
-                  src="https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=400&q=80"
-                  alt="Left Subject"
-                  className="h-44 w-full object-cover"
-                />
-                <div className="absolute bottom-1 left-2 rounded bg-black/70 px-1.5 py-0.5 text-[9px] font-bold text-white">
-                  Titanium A18 Pro
+            {/* Pose Showcase Display */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+              <div className="md:col-span-5 flex justify-center">
+                <div className="relative h-64 sm:h-80 w-56 rounded-2xl bg-gradient-to-b from-purple-500/10 to-black/60 border border-white/10 p-4 flex items-center justify-center overflow-hidden">
+                  <Image
+                    src={currentChar.poses[selectedPose as keyof typeof currentChar.poses] || currentChar.poses.welcome}
+                    alt={currentChar.name}
+                    width={220}
+                    height={280}
+                    className="object-contain max-h-full drop-shadow-2xl"
+                  />
+                  <div className="absolute bottom-3 inset-x-3 rounded-lg bg-black/80 backdrop-blur-md px-3 py-1.5 text-center text-xs font-bold text-purple-300 border border-white/10">
+                    Pose: {selectedPose.toUpperCase()}
+                  </div>
                 </div>
               </div>
 
-              {/* Right Card */}
-              <div
-                className={`relative overflow-hidden rounded-2xl border transition-all duration-300 ${
-                  simActiveSide === 'right'
-                    ? 'scale-[1.04] border-purple-400 ring-2 ring-purple-500/50 shadow-[0_8px_24px_rgba(124,58,237,0.4)] opacity-100'
-                    : simActiveSide === 'left'
-                    ? 'scale-[0.98] border-white/10 opacity-70 filter saturate-[0.8]'
-                    : 'scale-100 border-white/10 opacity-100'
-                }`}
-              >
-                <img
-                  src="https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?auto=format&fit=crop&w=400&q=80"
-                  alt="Right Subject"
-                  className="h-44 w-full object-cover"
-                />
-                <div className="absolute bottom-1 left-2 rounded bg-black/70 px-1.5 py-0.5 text-[9px] font-bold text-white">
-                  Snapdragon 8 Elite
+              <div className="md:col-span-7 space-y-3">
+                <h3 className="text-xl font-bold text-white mb-2">Available Poses &amp; Storytelling Triggers:</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    ['welcome', '👋 Welcome Intro'],
+                    ['pointingLeft', '👈 Point Left (Card A)'],
+                    ['pointingRight', '👉 Point Right (Card B)'],
+                    ['thinking', '🤔 Analysis & Thinking'],
+                    ['success', '👑 Winner Celebration'],
+                  ].map(([poseKey, label]) => (
+                    <button
+                      key={poseKey}
+                      onClick={() => setSelectedPose(poseKey)}
+                      className={`p-3 rounded-xl text-xs font-bold text-left border transition ${
+                        selectedPose === poseKey
+                          ? 'border-purple-500 bg-purple-500/20 text-white'
+                          : 'border-white/10 bg-white/5 text-slate-300 hover:bg-white/10'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
                 </div>
               </div>
-
-              {/* VS Slam Badge */}
-              <div className="absolute left-1/2 top-1/2 flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-xl border-2 border-white bg-gradient-to-br from-amber-400 to-orange-500 text-xs font-black text-black shadow-lg">
-                VS
-              </div>
-            </div>
-
-            {/* Subtitle Caption */}
-            <div className="mt-4 rounded-xl bg-black/60 p-2.5 text-center text-xs font-bold text-amber-300">
-              {simActiveSide === 'left'
-                ? '"iPhone gives unmatched video stabilization and raw ProRes colors!"'
-                : simActiveSide === 'right'
-                ? '"Samsung wins on 100x zoom and ultra-bright 2600 nits display!"'
-                : '"Which flagship flagship should you pick in 2026?"'}
-            </div>
-
-            {/* Presenter in Simulator */}
-            <div className="mt-2 flex justify-center">
-              <img
-                src={
-                  simActiveSide === 'left'
-                    ? activeChar.poses.pointingLeft
-                    : simActiveSide === 'right'
-                    ? activeChar.poses.pointingRight
-                    : activeChar.poses.welcome
-                }
-                alt="Presenter"
-                className="h-44 w-auto object-contain transition-transform duration-300 drop-shadow-2xl"
-              />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Dedicated Character Showcase Section */}
-      <section id="character-showcase" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <div className="text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-purple-300">
-            Curated Pro Character Packs
+      {/* SECTION 1: THE POWER OF VS COMPARISON VIDEOS */}
+      <section className="py-16 sm:py-24 border-t border-white/10 bg-[#070B14]">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div className="lg:col-span-7 space-y-6">
+              <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3.5 py-1 text-xs font-bold uppercase text-amber-300">
+                <Flame size={14} />
+                <span>High-Intent Viewer Psychology</span>
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+                Why Comparison Videos Capture Highest Intent Audiences
+              </h2>
+              <p className="text-slate-300 text-base sm:text-lg leading-relaxed">
+                When a viewer searches for <strong className="text-white font-semibold">"iPhone 15 Pro vs Samsung S24 Ultra"</strong>, <strong className="text-white font-semibold">"Shopify vs WooCommerce"</strong>, or <strong className="text-white font-semibold">"Stock Investing vs Real Estate"</strong>, they are not casually browsing—they are actively looking for a clear, objective decision.
+              </p>
+              <p className="text-slate-300 text-base sm:text-lg leading-relaxed">
+                By presenting information in a dual-column comparison layout with an animated host guiding the viewer point-by-point, you create tension, maintain curiosity, and deliver immediate value.
+              </p>
+              <p className="text-slate-300 text-base sm:text-lg leading-relaxed">
+                With an <strong className="text-amber-400 font-semibold">AI Compare Explainer Video Generator</strong>, you can produce unlimited comparison reels without spending hours editing multi-track video timelines in Premiere Pro or hiring 3D animators.
+              </p>
+            </div>
+
+            <div className="lg:col-span-5 space-y-4">
+              <div className="rounded-2xl border border-white/10 bg-[#0E1526] p-6 shadow-xl space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                    <BarChart3 size={20} />
+                  </div>
+                  <h3 className="text-lg font-bold text-white">Higher Conversion Rates</h3>
+                </div>
+                <p className="text-sm text-slate-300 leading-relaxed">
+                  Comparison content attracts viewers near the end of the buyer funnel, generating higher affiliate click-through rates.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-[#0E1526] p-6 shadow-xl space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                    <Zap size={20} />
+                  </div>
+                  <h3 className="text-lg font-bold text-white">Curiosity Tension Arc</h3>
+                </div>
+                <p className="text-sm text-slate-300 leading-relaxed">
+                  Tension background beats keep viewers waiting for the final "Winner Reveal" celebration badge.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-[#0E1526] p-6 shadow-xl space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-pink-500/10 text-pink-400 border border-pink-500/20">
+                    <Clock size={20} />
+                  </div>
+                  <h3 className="text-lg font-bold text-white">30-Second Production</h3>
+                </div>
+                <p className="text-sm text-slate-300 leading-relaxed">
+                  Upload narration audio and 2 images. The cloud engine handles keyframing, character motion, and audio ducking.
+                </p>
+              </div>
+            </div>
           </div>
-          <h2 className="mt-4 text-3xl font-black text-white sm:text-4xl">
-            Meet the New 3D & 2D Compare Presenters
-          </h2>
-          <p className="mx-auto mt-2 max-w-2xl text-sm text-zinc-400">
-            Crafted specifically for 9:16 vertical reels with hands pointing towards the upper cards, clean transparency, and high-res detail.
-          </p>
         </div>
+      </section>
 
-        {/* Character Switcher Tabs */}
-        <div className="mt-8 flex justify-center gap-3">
-          {CHARACTERS.map((char, index) => (
-            <button
-              key={char.id}
-              onClick={() => setSelectedChar(index as any)}
-              className={`flex items-center gap-2 rounded-2xl border px-5 py-3 text-sm font-bold transition ${
-                selectedChar === index
-                  ? 'border-amber-400 bg-amber-400/10 text-amber-300 ring-2 ring-amber-400/30 shadow-md'
-                  : 'border-white/10 bg-black/40 text-zinc-400 hover:border-white/20 hover:text-white'
-              }`}
-            >
-              <span>{char.name}</span>
-              <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] uppercase text-zinc-300">
-                {char.tag}
-              </span>
-            </button>
-          ))}
-        </div>
-
-        {/* Character Interactive Canvas */}
-        <div className="mt-8 grid gap-6 rounded-3xl border border-white/10 bg-zinc-900/60 p-6 backdrop-blur-xl md:grid-cols-12 md:p-8">
-          {/* Pose Selector Column */}
-          <div className="flex flex-col justify-center space-y-2 md:col-span-5">
-            <p className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2">
-              Select Pose To Preview:
+      {/* SECTION 2: THE 5 BOTTLENECKS SOLVED */}
+      <section className="py-16 sm:py-24 border-t border-white/10 bg-[#0A0F1D]">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white">
+              Solved: The 5 Major Comparison Video Bottlenecks
+            </h2>
+            <p className="mt-4 text-slate-300 text-base sm:text-lg">
+              Manual split-screen editing is tedious. Here is how Itnavideo streamlines the entire workflow.
             </p>
-            {Object.entries(POSE_LABELS).map(([poseKey, label]) => {
-              const isActive = selectedPose === poseKey;
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20 mb-6">
+                <Clock size={24} />
+              </div>
+              <h3 className="text-xl font-extrabold text-white mb-3">1. Multi-Track Timeline Layering</h3>
+              <p className="text-slate-300 text-sm leading-relaxed mb-4">
+                Setting up dual video tracks, cropping borders, aligning text overlays, and keyframing character slides manually takes 4+ hours per video.
+              </p>
+              <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 p-3 text-xs font-semibold text-amber-300">
+                <strong className="text-white">Itnavideo Solution:</strong> Automatic dual-column layout engine places images and presenters instantly.
+              </div>
+            </div>
+
+            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-500/10 text-purple-400 border border-purple-500/20 mb-6">
+                <Users size={24} />
+              </div>
+              <h3 className="text-xl font-extrabold text-white mb-3">2. Animating Character Host Poses</h3>
+              <p className="text-slate-300 text-sm leading-relaxed mb-4">
+                Rigging and keyframing 3D avatar gestures to point left, point right, and celebrate winners requires advanced 3D animation skills.
+              </p>
+              <div className="rounded-xl bg-purple-500/10 border border-purple-500/20 p-3 text-xs font-semibold text-purple-300">
+                <strong className="text-white">Itnavideo Solution:</strong> AI analyzes speech timestamps to switch character poses automatically.
+              </div>
+            </div>
+
+            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-pink-500/10 text-pink-400 border border-pink-500/20 mb-6">
+                <Zap size={24} />
+              </div>
+              <h3 className="text-xl font-extrabold text-white mb-3">3. Sound Effects &amp; Tension Beats</h3>
+              <p className="text-slate-300 text-sm leading-relaxed mb-4">
+                Sourcing boxing ring bells, tension swells, and victory fanfare SFX while manually adjusting volume levels creates audio fatigue.
+              </p>
+              <div className="rounded-xl bg-pink-500/10 border border-pink-500/20 p-3 text-xs font-semibold text-pink-300">
+                <strong className="text-white">Itnavideo Solution:</strong> Built-in boxing tension soundtracks with auto-ducking behind speech narration.
+              </div>
+            </div>
+
+            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-6">
+                <Sliders size={24} />
+              </div>
+              <h3 className="text-xl font-extrabold text-white mb-3">4. Pacing Control &amp; Speed Alignment</h3>
+              <p className="text-slate-300 text-sm leading-relaxed mb-4">
+                Slow audio narration loses viewer interest on short-form platforms like Instagram Reels and TikTok.
+              </p>
+              <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs font-semibold text-emerald-300">
+                <strong className="text-white">Itnavideo Solution:</strong> Built-in pacing controls (1.0x natural to 1.25x viral blitz) speed up delivery effortlessly.
+              </div>
+            </div>
+
+            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-fuchsia-500/10 text-fuchsia-400 border border-fuchsia-500/20 mb-6">
+                <Tv size={24} />
+              </div>
+              <h3 className="text-xl font-extrabold text-white mb-3">5. Multi-Device Mobile Formatting</h3>
+              <p className="text-slate-300 text-sm leading-relaxed mb-4">
+                Ensuring text labels and stat callouts fit inside vertical 9:16 phone screens without obscuring app UI buttons.
+              </p>
+              <div className="rounded-xl bg-fuchsia-500/10 border border-fuchsia-500/20 p-3 text-xs font-semibold text-fuchsia-300">
+                <strong className="text-white">Itnavideo Solution:</strong> Mobile-first 9:16 layout templates with safe-zone typography bounds.
+              </div>
+            </div>
+
+            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 mb-6">
+                <Award size={24} />
+              </div>
+              <h3 className="text-xl font-extrabold text-white mb-3">6. Winner Reveal Choreography</h3>
+              <p className="text-slate-300 text-sm leading-relaxed mb-4">
+                Creating custom celebratory crown badges, particle bursts, and winner highlighting effects requires graphic design tools.
+              </p>
+              <div className="rounded-xl bg-cyan-500/10 border border-cyan-500/20 p-3 text-xs font-semibold text-cyan-300">
+                <strong className="text-white">Itnavideo Solution:</strong> Automatic winner reveal sequence at the end of every comparison video.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 3: STEP BY STEP WORKFLOW */}
+      <section className="py-16 sm:py-24 border-t border-white/10 bg-[#070B14]">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white">
+              How It Works in 3 Simple Steps
+            </h2>
+            <p className="mt-4 text-slate-300 text-base sm:text-lg">
+              Generate publishing-ready comparison explainer videos in under 30 seconds.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+            <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-8 flex flex-col justify-between">
+              <div>
+                <span className="text-4xl font-black text-amber-400 block mb-4">01</span>
+                <h3 className="text-2xl font-extrabold text-white mb-3">Upload Narration Audio</h3>
+                <p className="text-slate-300 text-sm leading-relaxed">
+                  Record your voiceover explaining the two comparison subjects, or paste your script to generate AI narration.
+                </p>
+              </div>
+              <div className="mt-6 pt-4 border-t border-white/10 text-xs text-amber-300 font-semibold">
+                ✓ Auto transcription &amp; beat detection
+              </div>
+            </div>
+
+            <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-8 flex flex-col justify-between">
+              <div>
+                <span className="text-4xl font-black text-purple-400 block mb-4">02</span>
+                <h3 className="text-2xl font-extrabold text-white mb-3">Upload Subject Images</h3>
+                <p className="text-slate-300 text-sm leading-relaxed">
+                  Upload Left Subject Image (Card A) and Right Subject Image (Card B) along with labels and winner selection.
+                </p>
+              </div>
+              <div className="mt-6 pt-4 border-t border-white/10 text-xs text-purple-300 font-semibold">
+                ✓ Auto split-screen positioning
+              </div>
+            </div>
+
+            <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-8 flex flex-col justify-between">
+              <div>
+                <span className="text-4xl font-black text-pink-400 block mb-4">03</span>
+                <h3 className="text-2xl font-extrabold text-white mb-3">Export 1080p Video</h3>
+                <p className="text-slate-300 text-sm leading-relaxed">
+                  Select your presenter host style, enable tension background music, and download a crisp 1080p MP4 reel.
+                </p>
+              </div>
+              <div className="mt-6 pt-4 border-t border-white/10 text-xs text-pink-300 font-semibold">
+                ✓ Cloud render finished in ~30s
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 4: COMPARISON TABLE */}
+      <section className="py-16 sm:py-24 border-t border-white/10 bg-[#0A0F1D]">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white">
+              Traditional Split-Screen vs. Itnavideo AI Compare Explainer
+            </h2>
+          </div>
+
+          <div className="overflow-x-auto rounded-3xl border border-white/10 bg-[#0E1526] shadow-2xl">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-white/10 bg-black/40">
+                  <th className="p-6 text-sm font-extrabold uppercase text-slate-400">Production Metric</th>
+                  <th className="p-6 text-sm font-extrabold uppercase text-red-400">Manual Timeline Editing</th>
+                  <th className="p-6 text-sm font-extrabold uppercase text-amber-400 bg-amber-500/10">Itnavideo Compare Explainer</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/10 text-sm sm:text-base">
+                <tr>
+                  <td className="p-6 font-bold text-white">Editing Time per Video</td>
+                  <td className="p-6 text-slate-300">4 to 6 hours</td>
+                  <td className="p-6 font-bold text-emerald-400 bg-amber-500/5">Under 30 seconds</td>
+                </tr>
+                <tr>
+                  <td className="p-6 font-bold text-white">3D Host Animation</td>
+                  <td className="p-6 text-slate-300">Complex keyframing or 3D rigging required</td>
+                  <td className="p-6 font-bold text-emerald-400 bg-amber-500/5">Automated gesture pose switching</td>
+                </tr>
+                <tr>
+                  <td className="p-6 font-bold text-white">Winner Reveal FX</td>
+                  <td className="p-6 text-slate-300">Manual graphic design overlays</td>
+                  <td className="p-6 font-bold text-emerald-400 bg-amber-500/5">Built-in celebratory winner sequence</td>
+                </tr>
+                <tr>
+                  <td className="p-6 font-bold text-white">Audio Syncing &amp; BGM</td>
+                  <td className="p-6 text-slate-300">Manual volume keyframing &amp; beat cutting</td>
+                  <td className="p-6 font-bold text-emerald-400 bg-amber-500/5">Auto tension beat ducking behind speech</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 5: FAQ ACCORDION */}
+      <section className="py-16 sm:py-24 border-t border-white/10 bg-[#070B14]">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-5xl font-black text-white">Frequently Asked Questions</h2>
+          </div>
+
+          <div className="space-y-4">
+            {faqData.map((faq, idx) => {
+              const isOpen = openFaqIndex === idx;
               return (
-                <button
-                  key={poseKey}
-                  onClick={() => setSelectedPose(poseKey)}
-                  className={`flex items-center justify-between rounded-xl border p-3 text-left text-xs font-bold transition ${
-                    isActive
-                      ? 'border-amber-400 bg-amber-400/15 text-amber-300 shadow-sm'
-                      : 'border-white/10 bg-black/30 text-zinc-300 hover:bg-white/5 hover:border-white/20'
-                  }`}
-                >
-                  <span>{label}</span>
-                  {isActive ? <ChevronRight className="h-4 w-4 text-amber-400" /> : null}
-                </button>
+                <div key={idx} className="rounded-2xl border border-white/10 bg-[#0E1526] overflow-hidden">
+                  <button
+                    onClick={() => toggleFaq(idx)}
+                    className="w-full flex items-center justify-between p-6 text-left focus:outline-none"
+                  >
+                    <span className="text-base sm:text-lg font-bold text-white pr-4">{faq.q}</span>
+                    <div className={`flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-purple-400 transition-transform ${isOpen ? 'rotate-180 bg-purple-500/20' : ''}`}>
+                      <ChevronDown size={18} />
+                    </div>
+                  </button>
+                  {isOpen && (
+                    <div className="px-6 pb-6 text-slate-300 text-sm sm:text-base leading-relaxed border-t border-white/5 pt-4">
+                      {faq.a}
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>
-
-          {/* Character Stage */}
-          <div className="relative flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-black/50 p-6 md:col-span-7">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(245,158,11,0.12),_transparent_65%)]" />
-            <img
-              src={charImageSrc}
-              alt="Character Preview"
-              className="relative z-10 max-h-[380px] w-auto object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.6)] transition-all duration-300"
-            />
-            <div className="relative z-10 mt-4 text-center">
-              <span className="rounded-full border border-white/15 bg-black/80 px-4 py-1 text-xs font-bold text-zinc-300">
-                {activeChar.name} • {POSE_LABELS[selectedPose]}
-              </span>
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* M3 Features Bento Grid */}
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <div className="text-center">
-          <p className="text-xs font-bold uppercase tracking-wider text-amber-400">Engine Features</p>
-          <h2 className="mt-2 text-3xl font-black text-white sm:text-4xl">
-            Everything Built For Maximum Retention
-          </h2>
-        </div>
-
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {[
-            {
-              icon: <Layers className="h-5 w-5 text-amber-400" />,
-              title: 'Adaptive Descender Titles',
-              desc: 'Titles automatically scale font size to prevent descender clipping on letters like g, y, p, and q.',
-            },
-            {
-              icon: <Crown className="h-5 w-5 text-amber-400" />,
-              title: 'Winner Outro & Confetti',
-              desc: 'Declare Option A or Option B as the winner with golden crown rays and celebratory animated confetti.',
-            },
-            {
-              icon: <Sliders className="h-5 w-5 text-amber-400" />,
-              title: '5 Image Frame Styles',
-              desc: 'Choose between Rounded Cards, Circular Avatars, Mobile Smartphones, 3D Perspective Tilt, or Polaroid Photos.',
-            },
-            {
-              icon: <Sparkles className="h-5 w-5 text-amber-400" />,
-              title: 'AI Auto-Suggest Presets',
-              desc: 'One-click presets for iPhones vs Samsung, SIP vs Lump Sum, and Debit vs Credit Cards for fast production.',
-            },
-            {
-              icon: <Smartphone className="h-5 w-5 text-amber-400" />,
-              title: 'Hinglish Subtitle Engine',
-              desc: 'Accurate speech-to-text with auto-highlighted key terms and synced timestamps for maximum clarity.',
-            },
-            {
-              icon: <CheckCircle2 className="h-5 w-5 text-amber-400" />,
-              title: 'Decoupled Image Slots',
-              desc: 'Upload, change, or remove either visual independently without unexpected slot jumping or index shifts.',
-            },
-          ].map((item, i) => (
-            <div
-              key={i}
-              className="rounded-3xl border border-white/10 bg-zinc-900/60 p-6 backdrop-blur-md transition hover:border-amber-400/40 hover:bg-zinc-900/80"
-            >
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-400/10">
-                {item?.icon}
-              </div>
-              <h3 className="mt-4 text-base font-bold text-white">{item.title}</h3>
-              <p className="mt-2 text-xs leading-relaxed text-zinc-400">{item.desc}</p>
-            </div>
-          ))}
+      {/* BOTTOM CTA */}
+      <section className="py-20 border-t border-white/10 bg-gradient-to-b from-[#0A0F1D] to-[#070B14] text-center">
+        <div className="mx-auto max-w-4xl px-4">
+          <h2 className="text-3xl sm:text-5xl font-black text-white mb-6">Start Creating Compare Explainer Videos Today</h2>
+          <p className="text-slate-300 text-lg mb-8">Join thousands of creators producing high-intent decision reels in seconds.</p>
+          <Link
+            href="/dashboard?videoType=compare-explainer"
+            className="inline-flex items-center gap-3 rounded-2xl bg-gradient-to-r from-amber-500 via-purple-600 to-pink-500 px-8 py-4 text-base font-black text-white shadow-xl shadow-purple-500/25 transition hover:brightness-110"
+          >
+            <Sparkles size={18} />
+            <span>Create Compare Video Free</span>
+          </Link>
         </div>
       </section>
 
-      {/* Bottom CTA Bar */}
-      <section className="border-t border-white/10 bg-gradient-to-b from-zinc-900/40 to-black px-4 py-16 sm:px-6">
-        <div className="mx-auto max-w-4xl text-center">
-          <h2 className="text-3xl font-black text-white sm:text-4xl">
-            Ready to generate your first Compare Reel?
-          </h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm text-zinc-400">
-            Open the Compare Studio, upload your narration, pick your presenter, and render in under 30 seconds.
-          </p>
-          <div className="mt-8 flex justify-center">
-            <Link
-              href="/dashboard?mode=compare"
-              className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 px-8 py-4 text-base font-bold text-black shadow-xl shadow-amber-500/25 transition hover:scale-105 hover:from-amber-300 hover:to-amber-400"
-            >
-              <Sparkles className="h-5 w-5" />
-              Launch Compare Explainer Studio
-              <ArrowRight className="h-5 w-5" />
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* FOOTER */}
+      <footer className="border-t border-white/10 bg-[#050810] py-12 text-xs text-slate-400 text-center">
+        <p>© {new Date().getFullYear()} Itnavideo. All rights reserved.</p>
+      </footer>
     </div>
   );
 }
-
-

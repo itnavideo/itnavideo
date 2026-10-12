@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import BrandLogo from "@/components/brand/BrandLogo";
 import { LongVideoClipsStudio } from "@/components/dashboard/LongVideoClipsStudio";
 import { useAuth } from "@/components/auth/AuthContext";
+import { resolveSafeContentType } from "@/lib/media/presignedUpload";
 import {
   ArrowLeft,
   Sparkles,
@@ -207,7 +208,7 @@ export default function LongVideoClipsPage() {
     userId: string,
     onProgress?: (percent: number) => void
   ): Promise<string> {
-    const contentType = file.type || "application/octet-stream";
+    const contentType = resolveSafeContentType(file);
     const presignRes = await fetch("/api/media/presign", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

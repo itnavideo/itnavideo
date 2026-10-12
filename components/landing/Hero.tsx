@@ -11,10 +11,9 @@ import {
 import Link from 'next/link';
 
 export default function Hero() {
-
   return (
-    <section className="relative overflow-hidden border-b border-white/10 bg-[#070B14] px-4 pb-14 pt-8 text-white sm:px-6 sm:pb-20 sm:pt-12">
-      {/* Calm Architectural Box Grid (Invideo / Linear Style) */}
+    <section className="relative overflow-hidden border-b border-white/10 bg-[#070B14] px-4 pb-12 pt-8 text-white sm:px-6 sm:pb-20 sm:pt-12">
+      {/* Calm Architectural Box Grid */}
       <div
         className="pointer-events-none absolute inset-0 z-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:54px_54px]"
         style={{
@@ -23,14 +22,12 @@ export default function Hero() {
         }}
       />
 
-      {/* Subtle Purple & Pink Ambient Glows */}
-      <div className="pointer-events-none absolute left-1/2 top-4 -translate-x-1/2 h-[400px] w-[800px] max-w-full rounded-full bg-gradient-to-tr from-purple-600/20 via-fuchsia-500/15 to-pink-500/10 blur-[160px]" />
-      <div className="pointer-events-none absolute -right-20 top-16 h-72 w-72 rounded-full bg-purple-600/15 blur-[140px]" />
-      <div className="pointer-events-none absolute -left-20 bottom-10 h-72 w-72 rounded-full bg-pink-500/10 blur-[140px]" />
+      {/* Standardized Pure Purple Ambient Glow */}
+      <div className="pointer-events-none absolute left-1/2 top-4 -translate-x-1/2 h-[350px] w-[700px] max-w-full rounded-full bg-purple-600/15 blur-[140px]" />
 
-      <div className="relative z-10 mx-auto max-w-6xl text-center">
+      <div className="relative z-10 mx-auto max-w-5xl text-center">
 
-        {/* Kicker Badge: More Than AI, Your Personal Editor */}
+        {/* Kicker Badge */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -41,58 +38,49 @@ export default function Hero() {
           <span>More Than AI — Your Personal Editor</span>
         </motion.div>
 
-        {/* Main Hero Headline (Kept untouched as requested) */}
+        {/* Main Hero Headline */}
         <motion.h1
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05, duration: 0.5 }}
-          className="text-4xl sm:text-6xl md:text-7xl lg:text-[76px] font-extrabold tracking-[-0.03em] text-white leading-[1.08] max-w-5xl mx-auto font-sans"
+          className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-[-0.03em] text-white leading-[1.12] sm:leading-[1.08] max-w-4xl mx-auto font-sans"
         >
-          The Free{' '}
-          <span className="bg-gradient-to-r from-purple-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">
+          Free{' '}
+          <span className="bg-gradient-to-r from-purple-300 via-purple-400 to-purple-500 bg-clip-text text-transparent">
             AI Video Generator
           </span>
-          <br />
-          <span className="text-white">For Creators &amp; Brands</span>
+          <br className="hidden sm:block" />
+          <span className="text-white sm:ml-2">For Creators &amp; Brands</span>
         </motion.h1>
 
-        {/* Hero Subtitle focused on Faceless Video */}
+        {/* Hero Subtitle */}
         <motion.p
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.5 }}
-          className="mx-auto mt-4 max-w-2xl text-base font-normal leading-relaxed text-zinc-300 sm:text-lg font-sans tracking-tight antialiased"
+          className="mx-auto mt-3.5 max-w-xl text-sm font-normal leading-relaxed text-zinc-300 sm:text-base font-sans tracking-tight antialiased"
         >
-          The #1 <span className="font-bold text-white">Faceless Video Engine</span> for YouTubers &amp; creators. Turn voiceovers and scripts into high-retention <span className="font-semibold text-purple-300">16:9 YouTube videos</span> &amp; <span className="font-semibold text-pink-300">9:16 Shorts</span> with automated B-roll, subtitles, and music.
+          Turn scripts and voiceovers into ready-to-publish <span className="font-bold text-white">16:9 YouTube videos</span> &amp; <span className="font-bold text-white">9:16 Shorts</span> with auto B-roll, captions, and visuals — <span className="font-semibold text-purple-300">no camera required</span>.
         </motion.p>
 
-        {/* Primary CTA Buttons with 16:9 Faceless Video Priority */}
+        {/* Streamlined Primary Action (Standardized Purple Button) */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15, duration: 0.5 }}
-          className="mt-7 flex flex-wrap items-center justify-center gap-3.5"
+          className="mt-7 flex items-center justify-center"
         >
-          {/* Primary CTA: 16:9 Widescreen Faceless Video (YouTube Priority) */}
           <Link
             href="/dashboard/faceless-video"
-            className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 px-7 py-3.5 text-base font-black text-white shadow-xl shadow-purple-500/25 transition duration-200 hover:brightness-110 hover:scale-[1.02] active:scale-95"
+            className="group inline-flex items-center justify-center gap-2.5 rounded-2xl bg-purple-600 hover:bg-purple-500 px-8 py-4 text-base font-extrabold text-white shadow-xl shadow-purple-600/25 transition-all duration-200 hover:scale-[1.02] active:scale-95 w-full sm:w-auto"
           >
             <Sparkles size={18} className="text-white" />
-            <span>Create 16:9 Faceless Video</span>
+            <span>Create Faceless Video Free</span>
             <ArrowRight size={18} className="transition group-hover:translate-x-1" />
-          </Link>
-
-          {/* Secondary CTA: 9:16 Shorts Format Option */}
-          <Link
-            href="/dashboard/faceless-video?ratio=9:16"
-            className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-6 py-3.5 text-sm font-bold text-zinc-200 hover:bg-white/10 hover:text-white transition active:scale-95"
-          >
-            <span>Create 9:16 Faceless Short</span>
           </Link>
         </motion.div>
 
-        {/* Trust Badges in Refined Glass Capsule */}
+        {/* Trust Badges */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -103,25 +91,22 @@ export default function Hero() {
             <CheckCircle2 size={15} className="text-emerald-400" /> 3 free videos on signup
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <ShieldCheck size={15} className="text-fuchsia-400" /> No credit card required
+            <ShieldCheck size={15} className="text-purple-400" /> No credit card required
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <Zap size={15} className="text-fuchsia-400" /> Instant 1080p Cloud Export
+            <Zap size={15} className="text-purple-400" /> Instant 1080p Cloud Export
           </span>
         </motion.div>
 
-        {/* Ultra-Premium Studio Showcase Glass Frame */}
+        {/* Studio Showcase Frame */}
         <motion.div
           initial={{ opacity: 0, y: 30, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ delay: 0.24, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className="relative mt-10 mx-auto max-w-5xl"
         >
-          {/* Multi-layered Studio Backglow */}
-          <div className="pointer-events-none absolute -inset-4 -z-10 rounded-[44px] bg-gradient-to-r from-purple-600/25 via-fuchsia-500/20 to-pink-500/15 blur-3xl opacity-75" />
-          <div className="pointer-events-none absolute -inset-x-10 -bottom-8 h-32 -z-10 bg-gradient-to-t from-purple-600/20 to-transparent blur-2xl" />
+          <div className="pointer-events-none absolute -inset-4 -z-10 rounded-[44px] bg-purple-600/15 blur-2xl opacity-75" />
 
-          {/* High-End Frosted Glass Frame with Ambient Shadow */}
           <div className="relative rounded-[24px] sm:rounded-[36px] p-1.5 sm:p-2 bg-gradient-to-b from-white/20 via-white/[0.05] to-transparent shadow-[0_20px_70px_-10px_rgba(0,0,0,0.95)] ring-1 ring-white/10 backdrop-blur-2xl">
             <div className="overflow-hidden rounded-[20px] sm:rounded-[30px] border border-white/10 bg-[#070B14]">
               <img

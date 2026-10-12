@@ -119,12 +119,6 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
       priority: 0.95,
     },
     {
-      path: "/long-video-pro",
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.92,
-    },
-    {
       path: "/ai-video-generator",
       lastModified: now,
       changeFrequency: "weekly",
@@ -185,19 +179,7 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
       priority: 0.88,
     },
     {
-      path: "/video-types/long-caption-pro",
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.88,
-    },
-    {
       path: "/video-types/long-video-clips",
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.88,
-    },
-    {
-      path: "/video-types/long-video-pro",
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.88,

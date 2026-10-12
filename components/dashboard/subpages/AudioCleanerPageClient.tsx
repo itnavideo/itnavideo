@@ -12,6 +12,7 @@ import {
 } from "@/components/dashboard/AudioCleanStudio";
 import { StudioWorkflowRoadmap } from "@/components/dashboard/StudioWorkflowRoadmap";
 import { useAuth } from "@/components/auth/AuthContext";
+import { uploadFileViaPresign } from "@/lib/media/presignedUpload";
 import {
   ArrowLeft,
   Sparkles,
@@ -191,34 +192,7 @@ function getUploadContentType(file: File): string {
   return browserType && browserType !== "application/octet-stream" ? browserType : "audio/mpeg";
 }
 
-async function uploadFileViaPresign(file: File, mode: string, userId: string): Promise<string> {
-  const contentType = getUploadContentType(file);
-  const presignResponse = await fetch("/api/media/presign", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ fileName: file.name, contentType, fileSize: file.size, mode, userId }),
-  });
-  const presign: unknown = await presignResponse.json().catch(() => ({}));
-  if (!presignResponse.ok || !isRecord(presign) || !presign.ok || typeof presign.uploadUrl !== "string" || typeof presign.key !== "string") {
-    throw new Error(isRecord(presign) && typeof presign.error === "string" ? presign.error : `Could not prepare upload for ${file.name}`);
-  }
 
-  const uploadResponse = await fetch(presign.uploadUrl, {
-    method: "PUT",
-    headers: { "Content-Type": contentType },
-    body: file,
-  }).catch((error: unknown) => {
-    console.error("Direct S3 PUT network failure:", error);
-    throw new Error(`Upload network error for ${file.name}: ${getErrorMessage(error, "Check connection")}`);
-  });
-  if (!uploadResponse.ok) {
-    const errorText = await uploadResponse.text().catch(() => "");
-    console.error("S3 returned non-OK status:", uploadResponse.status, errorText);
-    throw new Error(`Upload to S3 failed for ${file.name} (Status: ${uploadResponse.status})`);
-  }
-
-  return presign.key;
-}
 
 const CLEAN_STEPS = [
   { label: "Recording received", detail: "Source audio uploaded to cloud stream.", threshold: 0.1, icon: Upload },
