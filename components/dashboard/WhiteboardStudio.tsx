@@ -106,12 +106,12 @@ export function WhiteboardStudio({
   return (
     <div className="relative rounded-[28px] border border-white/10 bg-[#111218] p-5 sm:p-7 shadow-2xl min-w-0 max-w-full overflow-x-hidden space-y-7 text-white">
       {/* Magic UI BorderBeam Glowing Effect */}
-      <BorderBeam size={280} duration={14} colorFrom="#FF6D00" colorTo="#FFA726" />
+      <BorderBeam size={280} duration={14} colorFrom="#FF5722" colorTo="#FFA000" />
 
       {/* Master Studio Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#FF6D00] via-[#FF8F00] to-[#FFA726] text-black shadow-md shadow-[#FF6D00]/25">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black shadow-md shadow-[#FF5722]/25">
             <Sparkles size={20} className="fill-black/20" />
           </div>
           <div>
@@ -131,7 +131,7 @@ export function WhiteboardStudio({
             onClick={() => setRatio("9:16")}
             className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
               selectedRatio === "9:16"
-                ? "bg-[#FF6D00] text-black shadow-md shadow-[#FF6D00]/25 font-black"
+                ? "bg-[#FF5722] text-black shadow-md shadow-[#FF5722]/25 font-black"
                 : "text-zinc-400 hover:text-white hover:bg-white/5"
             }`}
           >
@@ -157,7 +157,7 @@ export function WhiteboardStudio({
       {/* 1. Upload Audio Narration Card */}
       <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 sm:p-7 shadow-xl space-y-4" id="upload-section">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#FF6D00]/25 bg-[#FF6D00]/10 text-[#FF9100]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#FF5722]/25 bg-[#FF5722]/10 text-[#FF9100]">
             <Upload size={18} />
           </div>
           <div>
@@ -170,7 +170,7 @@ export function WhiteboardStudio({
           <div
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleFileDrop}
-            className="border border-dashed border-white/15 hover:border-[#FF6D00]/50 rounded-2xl bg-[#161720] p-8 text-center cursor-pointer transition relative group flex flex-col items-center justify-center"
+            className="border border-dashed border-white/15 hover:border-[#FF5722]/50 rounded-2xl bg-[#161720] p-8 text-center cursor-pointer transition relative group flex flex-col items-center justify-center"
           >
             <input
               type="file"
@@ -182,11 +182,11 @@ export function WhiteboardStudio({
             <p className="text-xs font-bold text-zinc-200">Drag &amp; drop raw script audio or video, or click to browse</p>
             <p className="text-[10px] text-zinc-400 mt-1">Supports MP3, WAV, M4A, MP4 up to 50MB (Up to 3 minutes / 180s)</p>
             
-            <div className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#FF6D00]/15 border border-[#FF6D00]/40 px-5 py-2.5 text-xs font-bold text-[#FFA726] group-hover:bg-[#FF6D00] group-hover:text-black transition duration-200 shadow-md">
+            <div className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#FF5722]/15 border border-[#FF5722]/40 px-5 py-2.5 text-xs font-bold text-[#FFA000] group-hover:bg-[#FF5722] group-hover:text-black transition duration-200 shadow-md">
               <Upload size={14} />
               <span>Select Audio File</span>
             </div>
-            <p className="text-[10px] font-medium text-[#FFA726]/80 mt-2.5 flex items-center justify-center gap-1">
+            <p className="text-[10px] font-medium text-[#FFA000]/80 mt-2.5 flex items-center justify-center gap-1">
               <Sparkles size={11} className="text-[#FF9100]" />
               <span>Interactive AI transcript editor unlocks automatically upon file selection</span>
             </p>
@@ -194,7 +194,7 @@ export function WhiteboardStudio({
         ) : (
           <div className="rounded-2xl border border-white/10 bg-[#161720] p-4 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FF6D00]/10 text-[#FF9100]">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FF5722]/10 text-[#FF9100]">
                 <span className="text-xs font-bold">🎤</span>
               </div>
               <div className="min-w-0">
@@ -218,7 +218,7 @@ export function WhiteboardStudio({
         <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 sm:p-7 shadow-xl space-y-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#FF6D00]/25 bg-[#FF6D00]/10 text-[#FF9100]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#FF5722]/25 bg-[#FF5722]/10 text-[#FF9100]">
                 <FileText size={18} />
               </div>
               <div>
@@ -271,7 +271,7 @@ export function WhiteboardStudio({
                 onChange={(e) => onTranscriptChange(e.target.value)}
                 placeholder="Narration transcript will appear here. You can freely edit, fix spelling, or adjust points..."
                 rows={5}
-                className="w-full rounded-2xl border border-white/15 bg-[#090A0F] p-4 text-xs font-mono text-zinc-200 leading-relaxed placeholder:text-zinc-600 focus:border-[#FF6D00] focus:ring-2 focus:ring-[#FF6D00]/20 focus:outline-none transition resize-y"
+                className="w-full rounded-2xl border border-white/15 bg-[#090A0F] p-4 text-xs font-mono text-zinc-200 leading-relaxed placeholder:text-zinc-600 focus:border-[#FF5722] focus:ring-2 focus:ring-[#FF5722]/20 focus:outline-none transition resize-y"
               />
               <div className="flex items-center justify-between text-[10px] text-zinc-400 px-1">
                 <div className="flex items-center gap-1.5">
@@ -291,7 +291,7 @@ export function WhiteboardStudio({
       <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 sm:p-7 shadow-xl space-y-6">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#FF6D00]/25 bg-[#FF6D00]/10 text-[#FF9100]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#FF5722]/25 bg-[#FF5722]/10 text-[#FF9100]">
               <PenTool size={18} />
             </div>
             <div>
@@ -299,7 +299,7 @@ export function WhiteboardStudio({
               <p className="text-[11px] text-zinc-400 mt-0.5">Select a typography specimen style for handwritten board text & vector drawings.</p>
             </div>
           </div>
-          <div className="hidden sm:flex items-center gap-1.5 rounded-full border border-[#FF6D00]/30 bg-[#FF6D00]/10 px-3 py-1 text-[10px] font-bold text-[#FFA726]">
+          <div className="hidden sm:flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-3 py-1 text-[10px] font-bold text-[#FFA000]">
             <Wand2 size={12} />
             <span>Smart AI Layout</span>
           </div>
@@ -314,7 +314,7 @@ export function WhiteboardStudio({
 
           <div className="flex items-center gap-2 flex-wrap">
             {[
-              { id: "auto", label: "⚡ Auto AI", color: "bg-gradient-to-r from-[#FF6D00] to-[#FFA726]" },
+              { id: "auto", label: "⚡ Auto AI", color: "bg-gradient-to-r from-[#FF5722] to-[#FFA000]" },
               { id: "navy", label: "Corporate Blue", color: "bg-blue-500" },
               { id: "teal", label: "Emerald Tech", color: "bg-emerald-500" },
               { id: "crimson", label: "Impact Red", color: "bg-red-500" },
@@ -327,7 +327,7 @@ export function WhiteboardStudio({
                   onClick={() => setSelectedMarkerColor(c.id)}
                   className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[11px] font-bold transition cursor-pointer active:scale-95 ${
                     active
-                      ? "bg-white/10 text-white border border-[#FF6D00]/50 ring-1 ring-[#FF6D00]/50 shadow-md"
+                      ? "bg-white/10 text-white border border-[#FF5722]/50 ring-1 ring-[#FF5722]/50 shadow-md"
                       : "bg-[#090A0F] text-zinc-400 border border-white/5 hover:text-zinc-200"
                   }`}
                 >
@@ -374,7 +374,7 @@ export function WhiteboardStudio({
               label: "Blueprint Draft",
               sub: "Technical Diagram",
               specimen: "[System Architecture]",
-              fontStyle: "font-mono tracking-widest text-[#FFA726]",
+              fontStyle: "font-mono tracking-widest text-[#FFA000]",
               icon: "📐",
               doodle: "⚙️ Pipeline",
             },
@@ -387,7 +387,7 @@ export function WhiteboardStudio({
                 onClick={() => onWhiteboardFontChange(f.id as any)}
                 className={`rounded-2xl border p-4 text-left transition-all cursor-pointer relative overflow-hidden group active:scale-[0.98] ${
                   active
-                    ? "border-[#FF6D00] bg-[#FF6D00]/10 text-white ring-2 ring-[#FF6D00] shadow-xl shadow-[#FF6D00]/25"
+                    ? "border-[#FF5722] bg-[#FF5722]/10 text-white ring-2 ring-[#FF5722] shadow-xl shadow-[#FF5722]/25"
                     : "border-white/10 bg-[#161720] text-zinc-400 hover:text-white hover:border-white/20"
                 }`}
               >
@@ -395,7 +395,7 @@ export function WhiteboardStudio({
                   <div className="flex items-center gap-2">
                     <span className="text-base">{f.icon}</span>
                     <div>
-                      <p className={`text-xs font-black ${active ? "text-[#FFA726]" : "text-white"}`}>{f.label}</p>
+                      <p className={`text-xs font-black ${active ? "text-[#FFA000]" : "text-white"}`}>{f.label}</p>
                       <p className="text-[10px] text-zinc-400">{f.sub}</p>
                     </div>
                   </div>
@@ -406,7 +406,7 @@ export function WhiteboardStudio({
 
                 {/* Typography Visual Specimen Container */}
                 <div className="rounded-xl border border-white/5 bg-[#090A0F] p-3 text-center">
-                  <span className={`text-xs block ${f.fontStyle} ${active ? "text-[#FFA726]" : "text-zinc-200"}`}>
+                  <span className={`text-xs block ${f.fontStyle} ${active ? "text-[#FFA000]" : "text-zinc-200"}`}>
                     {f.specimen}
                   </span>
                 </div>
@@ -432,7 +432,7 @@ export function WhiteboardStudio({
             className="inline-flex items-center gap-2.5 rounded-xl border border-white/10 bg-[#090A0F] hover:bg-[#111218] px-3.5 py-1.5 text-[11px] font-bold text-zinc-300 hover:text-white transition cursor-pointer active:scale-95 shadow-sm"
             title="Click to enable/mute sketching sound effects"
           >
-            <div className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border transition ${sfxEnabled ? "border-[#FF6D00] bg-[#FF6D00] text-black" : "border-zinc-600 bg-transparent text-transparent"}`}>
+            <div className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border transition ${sfxEnabled ? "border-[#FF5722] bg-[#FF5722] text-black" : "border-zinc-600 bg-transparent text-transparent"}`}>
               <Volume2 size={10} className="stroke-[3]" />
             </div>
             <span className="flex items-center gap-1.5">
@@ -452,13 +452,13 @@ export function WhiteboardStudio({
         disabled={isGenerating || isTranscribing || !selectedFile || !transcript.trim()}
         className={`w-full inline-flex min-h-[52px] items-center justify-center gap-2.5 rounded-2xl text-sm font-black transition duration-200 ${
           !selectedFile
-            ? "bg-[#151E30] text-[#FFA726] border border-[#FF6D00]/30 hover:border-[#FF6D00]/60 shadow-inner cursor-not-allowed"
+            ? "bg-[#151E30] text-[#FFA000] border border-[#FF5722]/30 hover:border-[#FF5722]/60 shadow-inner cursor-not-allowed"
             : isGenerating || isTranscribing
-            ? "bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black opacity-80 cursor-wait animate-pulse"
-            : "bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] text-black shadow-xl shadow-[#FF6D00]/30 hover:brightness-110 active:scale-95 cursor-pointer"
+            ? "bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black opacity-80 cursor-wait animate-pulse"
+            : "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black shadow-xl shadow-[#FF5722]/30 hover:brightness-110 active:scale-95 cursor-pointer"
         }`}
       >
-        <Sparkles size={16} className={!selectedFile ? "text-[#FFA726]" : "text-black"} />
+        <Sparkles size={16} className={!selectedFile ? "text-[#FFA000]" : "text-black"} />
         <span>
           {!selectedFile
             ? "Upload Script Voiceover Audio First"

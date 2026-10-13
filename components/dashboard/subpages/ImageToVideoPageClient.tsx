@@ -599,14 +599,14 @@ export default function ImageToVideoDashboardPage() {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center text-slate-500 gap-3">
-        <Loader2 className="h-8 w-8 animate-spin text-[#FF6D00]" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#FF5722]" />
         <p className="text-sm font-semibold tracking-wide text-slate-600">Loading Image to Video AI Studio...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#09090B] text-zinc-100 flex flex-col selection:bg-[#FF6D00]/20 selection:text-[#FF6D00]">
+    <div className="min-h-screen bg-[#09090B] text-zinc-100 flex flex-col selection:bg-[#FF5722]/20 selection:text-[#FF5722]">
       {/* ── Top Navigation Bar ── */}
       <header className="sticky top-0 z-40 border-b border-zinc-800/80 bg-[#09090B]/90 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-16 py-2 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
@@ -623,8 +623,8 @@ export default function ImageToVideoDashboardPage() {
 
             <BrandLogo size="sm" showBadge={false} />
 
-            <span className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[#FF6D00]/30 bg-[#FF6D00]/10 px-2.5 py-0.5 text-[11px] font-black text-[#FF6D00]">
-              <Sparkles size={11} className="text-[#FF6D00]" />
+            <span className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-2.5 py-0.5 text-[11px] font-black text-[#FF5722]">
+              <Sparkles size={11} className="text-[#FF5722]" />
               Dedicated Studio
             </span>
           </div>
@@ -632,12 +632,12 @@ export default function ImageToVideoDashboardPage() {
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Credits badge */}
             <div className="flex items-center gap-1.5 rounded-full border border-zinc-800 bg-zinc-900 px-2.5 sm:px-3.5 py-1.5 text-xs font-bold shadow-sm text-zinc-200">
-              <Zap size={14} className="text-[#FF6D00] fill-[#FF6D00]" />
+              <Zap size={14} className="text-[#FF5722] fill-[#FF5722]" />
               <span className="text-zinc-400 hidden xs:inline">Balance:</span>
               <span className="text-white font-black">{billingEntitlement ? userRemainingCredits : "..."} Cr</span>
               <Link
                 href="/pricing"
-                className="ml-0.5 text-[11px] text-[#FF6D00] hover:text-[#FFA726] underline font-black"
+                className="ml-0.5 text-[11px] text-[#FF5722] hover:text-[#FFA000] underline font-black"
               >
                 +Add
               </Link>
@@ -660,7 +660,7 @@ export default function ImageToVideoDashboardPage() {
                       ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
                       : isError
                         ? "border-red-500/30 bg-red-500/10 text-red-400"
-                        : "border-[#FF6D00]/30 bg-[#FF6D00]/10 text-[#FF9100] animate-pulse"
+                        : "border-[#FF5722]/30 bg-[#FF5722]/10 text-[#FF9100] animate-pulse"
                   }`}>
                     {isReady ? (
                       <CheckCircle2 size={24} />
@@ -694,7 +694,7 @@ export default function ImageToVideoDashboardPage() {
                 <div className="flex flex-wrap items-center gap-2 self-start sm:self-center">
                   {isWorking && (
                     <>
-                      <div className="flex items-center gap-2 rounded-full border border-[#FF6D00]/30 bg-[#FF6D00]/15 px-3 py-1.5 text-xs font-bold text-[#FFA726] shadow-md">
+                      <div className="flex items-center gap-2 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/15 px-3 py-1.5 text-xs font-bold text-[#FFA000] shadow-md">
                         <Clock size={13} className="text-[#FF9100] animate-pulse" />
                         <span>⏱️ Elapsed: <span className="font-mono text-white">{formatTimer(elapsedSeconds)}</span></span>
                         <span className="text-white/20">•</span>
@@ -738,7 +738,7 @@ export default function ImageToVideoDashboardPage() {
                         ? "bg-gradient-to-r from-emerald-400 to-teal-400"
                         : isError
                           ? "bg-red-500"
-                          : "bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726]"
+                          : "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000]"
                     }`}
                     style={{ width: `${Math.max(5, Math.min(98, Math.round(((elapsedSeconds / (estimatedTotalSecs || 600)) * 90) + 10)))}%` }}
                   />
@@ -760,7 +760,7 @@ export default function ImageToVideoDashboardPage() {
                         isDone
                           ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-300"
                           : isActive
-                            ? "border-[#FF6D00]/50 bg-[#FF6D00]/10 text-white shadow-lg shadow-[#FF6D00]/10"
+                            ? "border-[#FF5722]/50 bg-[#FF5722]/10 text-white shadow-lg shadow-[#FF5722]/10"
                             : "border-white/5 bg-white/[0.02] text-zinc-500"
                       }`}
                     >
@@ -777,7 +777,7 @@ export default function ImageToVideoDashboardPage() {
               {/* Ready Video Preview & Download */}
               {isReady && jobStatus.outputFile && (
                 <div className="space-y-6 pt-4 border-t border-white/10">
-                  <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-[#FF6D00]/40 bg-black shadow-2xl">
+                  <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-[#FF5722]/40 bg-black shadow-2xl">
                     <video
                       src={jobStatus.outputFile}
                       controls
@@ -797,7 +797,7 @@ export default function ImageToVideoDashboardPage() {
                         type="button"
                         onClick={() => downloadVideoDirectly(jobStatus.outputFile!, `itnavideo-cinematic-16x9-${Date.now()}.mp4`)}
                         disabled={downloadingUrl === jobStatus.outputFile}
-                        className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] px-6 py-3.5 text-xs font-black text-black shadow-lg shadow-[#FF6D00]/25 hover:brightness-110 active:scale-95 transition cursor-pointer disabled:opacity-50"
+                        className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-6 py-3.5 text-xs font-black text-black shadow-lg shadow-[#FF5722]/25 hover:brightness-110 active:scale-95 transition cursor-pointer disabled:opacity-50"
                       >
                         {downloadingUrl === jobStatus.outputFile ? (
                           <>

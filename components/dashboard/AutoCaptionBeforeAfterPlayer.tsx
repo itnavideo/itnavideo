@@ -227,7 +227,7 @@ export function AutoCaptionBeforeAfterPlayer({
                 onClick={togglePlay}
                 className="h-full w-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 via-[#070B14] to-slate-950 p-6 cursor-pointer select-none"
               >
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#FF6D00]/10 text-[#FF8F00] border border-[#FF6D00]/25 mb-4 shadow-lg shadow-[#FF6D00]/15">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#FF5722]/10 text-[#FF7043] border border-[#FF5722]/25 mb-4 shadow-lg shadow-[#FF5722]/15">
                   <FileAudio size={32} />
                 </div>
                 <p className="text-xs font-bold text-white text-center truncate max-w-[200px]">
@@ -334,7 +334,7 @@ export function AutoCaptionBeforeAfterPlayer({
                 aria-label="Play video"
                 className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-[1px] transition-all cursor-pointer group z-20"
               >
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#FF6D00] text-black shadow-2xl transition-transform group-hover:scale-110">
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#FF5722] text-black shadow-2xl transition-transform group-hover:scale-110">
                   <Play size={24} className="fill-current ml-1 text-black" />
                 </div>
               </button>
@@ -343,7 +343,7 @@ export function AutoCaptionBeforeAfterPlayer({
             {/* Bottom Scrub Progress Line */}
             <div className="absolute inset-x-0 bottom-0 h-1 bg-white/20 z-20">
               <div
-                className="h-full bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] transition-all duration-150"
+                className="h-full bg-gradient-to-r from-[#FF5722] to-[#FF7043] transition-all duration-150"
                 style={{
                   width: duration > 0 ? `${(playbackTime / duration) * 100}%` : "0%",
                 }}
@@ -356,9 +356,9 @@ export function AutoCaptionBeforeAfterPlayer({
             <button
               type="button"
               onClick={togglePlay}
-              className="inline-flex items-center gap-1.5 text-slate-700 dark:text-slate-200 hover:text-[#FF8F00] transition cursor-pointer font-bold"
+              className="inline-flex items-center gap-1.5 text-slate-700 dark:text-slate-200 hover:text-[#FF7043] transition cursor-pointer font-bold"
             >
-              {isPlaying ? <Pause size={14} className="text-[#FF8F00]" /> : <Play size={14} className="fill-current text-[#FF8F00]" />}
+              {isPlaying ? <Pause size={14} className="text-[#FF7043]" /> : <Play size={14} className="fill-current text-[#FF7043]" />}
               <span>{isPlaying ? "Pause" : "Play Preview"}</span>
             </button>
 
@@ -369,7 +369,7 @@ export function AutoCaptionBeforeAfterPlayer({
             <button
               type="button"
               onClick={toggleMute}
-              className="inline-flex items-center gap-1 text-slate-700 dark:text-slate-200 hover:text-[#FF8F00] transition cursor-pointer"
+              className="inline-flex items-center gap-1 text-slate-700 dark:text-slate-200 hover:text-[#FF7043] transition cursor-pointer"
             >
               {isMuted ? <VolumeX size={13} /> : <Volume2 size={13} className="text-emerald-500" />}
               <span>{isMuted ? "Unmute" : "Muted"}</span>

@@ -26,7 +26,7 @@ As per **Rule 8 of `AGENTS.md` (Video Type Independence)** and the **Founder Mas
 | 2 | **Typography Kinetic Video** | [`typographyvideo.md`](./typographyvideo.md) | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Voiceover → Kinetic Text Motion & Camera Pulses | `TYPOGRAPHY_VIDEO` |
 | 3 | **Whiteboard Animation** | [`whiteboardvideo.md`](./whiteboardvideo.md) | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Audio → AI Strategy Board Scenes & SVG Drawing | `WHITEBOARD_VIDEO` |
 | 4 | **Faceless Video Shorts** | [`facelessvideo.md`](./facelessvideo.md) | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Script/Audio → AI Director + Vertical B-Roll | `FACELESS_VIDEO` |
-| 5 | **Long Video Promo** | [`longvideopromo.md`](./longvideopromo.md) | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Teaser Audio/Video → Kinetic Teaser Overlays | `LONG_VIDEO_PROMO` |
+| 5 | **Long Video Promo** | [`long-video-promo.md`](./long-video-promo.md) | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Teaser Audio/Video → Kinetic Teaser Overlays | `LONG_VIDEO_PROMO` |
 
 ---
 
@@ -35,6 +35,21 @@ As per **Rule 8 of `AGENTS.md` (Video Type Independence)** and the **Founder Mas
 | # | Video Type | Spec File | Aspect Ratio | Max Duration | Credit Policy | Primary Pipeline Focus |
 |---|---|---|:---:|:---:|:---:|---|
 | 1 | **AI Studio Audio Cleaner** | [`audiocleaner.md`](./audiocleaner.md) | **Audio Utility** | **Up to 10 Minutes (10m)** | **1 Credit** | Raw Audio → Denoise, De-reverb, Loudness & Retakes |
+
+---
+
+## 4. Master Pipeline Error Handling & Fallback Architecture
+
+| Failure Scenario | Video Types Affected | Detection Mechanism | Automated Fix & Fallback | Financial / Credit Protection |
+| :--- | :--- | :--- | :--- | :--- |
+| **Upload Network Interruption** | All Types | S3 multipart upload chunk timeout | Client-side chunk retry + direct S3 presigned URL upload bypasses server body limits. | Zero credits deducted. |
+| **Media Duration Over Limit** | All Types | Browser metadata & server probe validation | Auto-clamps or rejects with clear feedback (Max 90s for Shorts, Max 10m for Long-form). | Zero credits deducted. |
+| **Groq Whisper 429 / Downtime** | All Transcribed Types | Groq API error response status or timeout | **Automatic failover to Google Gemini 2.0 Flash (`asia-south1`)** to produce accurate word-level timestamps. | Render continues uninterrupted. |
+| **No Speech Detected / Silent Audio** | `autoCaption`, `typographyVideo`, `facelessVideo`, `bookSummary` | Transcript payload empty array | Flags `NO_SPEECH_DETECTED`; prompts user to upload audio containing clear speech. | Full credit refunded via `releaseReservedRenderUsageFromServer`. |
+| **AI Scene Planning JSON Malformed** | `facelessVideo`, `whiteboardVideo`, `imageToVideoAi` | Gemini JSON parsing error or timeout | Fallback to deterministic local sentence chunking with default pacing rules. | Render completes successfully. |
+| **Asset / Visual Fetch Timeout** | `facelessVideo`, `compare`, `imageToVideoAi` | CDN 404 or image load error | Cascading fallback: Uploaded Media -> Curated Cloudinary Assets (`public/assets/reusable/`) -> Animated CSS Gradient Canvas. | Never crashes render; visually pleasing background applied. |
+| **Remotion Lambda Render Crash** | All Rendered Types | AWS Lambda timeout / exit code != 0 | Clamped frame ranges (`frameRange: [0, totalFrames - 1]`) prevent OOM; on fatal crash, `jobs/route.ts` invokes automatic refund. | **100% Credit Auto-Refunded**. User shown 1-click retry. |
+| **S3 Presigned URL Expired** | All Types | S3 SignatureExpired error (>48 hours) | `/api/reels/jobs/status` on-demand re-signs fresh download link. | User always receives valid download link. |
 
 ---
 
@@ -51,3 +66,4 @@ As per **Rule 8 of `AGENTS.md` (Video Type Independence)** and the **Founder Mas
    - Never send raw heavy video directly to Groq. Audio is extracted as 16kHz mono audio first.
    - **Primary**: Groq Whisper Cloud API (fast transcription).
    - **Mandatory Fallback**: Google Gemini 2.0 Flash (`asia-south1`) handles transcription if Groq fails or rate limits.
+

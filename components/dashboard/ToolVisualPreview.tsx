@@ -10,26 +10,28 @@ interface ToolVisualPreviewProps {
   className?: string;
 }
 
-// Clean mapping of tool IDs to 2D image paths in public/assets/reusable/tools_2d/
+// Clean mapping of tool IDs to Cloudinary assets from itnavideo-all folder
 const TOOL_IMAGE_MAP: Record<string, string> = {
-  "image-to-video": "/assets/reusable/tools_2d/image-to-video.png",
-  "youtube-subtitles": "/assets/reusable/tools_2d/youtube-subtitles.png",
-  "auto-caption": "/assets/reusable/tools_2d/auto-caption.png",
-  "faceless-video": "/assets/reusable/tools_2d/faceless-video.png",
-  "compare-explainer": "/assets/reusable/tools_2d/compare-explainer.png",
-  "typography-video": "/assets/reusable/tools_2d/typography-video.png",
-  "whiteboard-video": "/assets/reusable/tools_2d/whiteboard-video.png",
-  "long-video-promo": "/assets/reusable/tools_2d/long-video-promo.png",
-  "long-video-clips": "/assets/reusable/tools_2d/long-video-clips.png",
-  "audio-cleaner": "/assets/reusable/tools_2d/audio-cleaner.png",
+  "faceless-video": "https://res.cloudinary.com/dhouh9idx/image/upload/v1791892533/faceless_video_ytyxdo.png",
+  "book-summary": "https://res.cloudinary.com/dhouh9idx/image/upload/v1791892528/book_summary_video_xjvjuf.png",
+  "image-to-video": "https://res.cloudinary.com/dhouh9idx/image/upload/v1791892528/book_summary_video_xjvjuf.png",
+  "youtube-subtitles": "https://res.cloudinary.com/dhouh9idx/image/upload/v1791892530/youtube_subtitles_generator_nrgxle.png",
+  "auto-caption": "https://res.cloudinary.com/dhouh9idx/image/upload/v1791892531/auto_captions_x9khtt.png",
+  "typography-video": "https://res.cloudinary.com/dhouh9idx/image/upload/v1791892516/typography_kinetic_motion_lrpawu.png",
+  "whiteboard-video": "https://res.cloudinary.com/dhouh9idx/image/upload/v1791892527/whiteboard_video_wamtgr.png",
+  "compare-explainer": "https://res.cloudinary.com/dhouh9idx/image/upload/v1791892515/compare_explainer_wheox5.png",
+  "long-video-promo": "https://res.cloudinary.com/dhouh9idx/image/upload/v1791892524/longvideopromo_sq4ank.png",
+  "long-video-clips": "https://res.cloudinary.com/dhouh9idx/image/upload/v1791892526/viral_video_clips_hnlav3.png",
+  "audio-cleaner": "https://res.cloudinary.com/dhouh9idx/image/upload/v1791892521/audio_cleaner_tzshum.png",
 };
 
 // Set of 9:16 vertical reel tool IDs
 const VERTICAL_TOOLS = new Set([
   "auto-caption",
   "typography-video",
-  "faceless-video",
+  "whiteboard-video",
   "compare-explainer",
+  "long-video-promo",
   "long-video-clips",
 ]);
 

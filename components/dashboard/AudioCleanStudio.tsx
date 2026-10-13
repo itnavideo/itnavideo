@@ -319,7 +319,7 @@ export function AudioCleanStudio({
   return (
     <div className="relative rounded-[28px] border border-white/10 bg-[#111218] p-5 sm:p-7 shadow-2xl min-w-0 max-w-full overflow-x-hidden space-y-7 text-white">
       {/* Magic UI BorderBeam Glowing Effect */}
-      <BorderBeam size={280} duration={14} colorFrom="#FF6D00" colorTo="#FFA726" />
+      <BorderBeam size={280} duration={14} colorFrom="#FF5722" colorTo="#FFA000" />
 
 
       {/* ── STEP 1: UPLOAD ZONE (Only active when no file or re-uploading) ── */}
@@ -339,10 +339,10 @@ export function AudioCleanStudio({
             }}
             className={`relative flex flex-col items-center justify-center rounded-3xl border-2 border-dashed p-10 text-center transition-all ${
               isDragging
-                ? "border-[#FF6D00] bg-[#FF6D00]/10 scale-[1.01]"
+                ? "border-[#FF5722] bg-[#FF5722]/10 scale-[1.01]"
                 : selectedFile
                   ? "border-emerald-500/40 bg-[#161720]/80"
-                  : "border-white/15 bg-[#161720]/50 hover:border-[#FF6D00]/50 hover:bg-[#161720]"
+                  : "border-white/15 bg-[#161720]/50 hover:border-[#FF5722]/50 hover:bg-[#161720]"
             }`}
           >
             {selectedFile ? (
@@ -377,7 +377,7 @@ export function AudioCleanStudio({
               </div>
             ) : (
               <div className="flex flex-col items-center gap-3">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#FF6D00]/10 text-orange-400 border border-[#FF6D00]/20 shadow-md">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#FF5722]/10 text-orange-400 border border-[#FF5722]/20 shadow-md">
                   <Upload size={28} className="text-[#FF9100]" />
                 </div>
                 <div className="space-y-1 text-center">
@@ -389,7 +389,7 @@ export function AudioCleanStudio({
                   </p>
                 </div>
                 <div className="flex flex-col items-center gap-2.5 mt-2">
-                  <label className="inline-flex cursor-pointer items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] px-8 py-3 text-sm font-black text-black shadow-xl shadow-[#FF6D00]/25 transition hover:brightness-110 active:scale-95">
+                  <label className="inline-flex cursor-pointer items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-8 py-3 text-sm font-black text-black shadow-xl shadow-[#FF5722]/25 transition hover:brightness-110 active:scale-95">
                     <Upload size={16} />
                     Upload Audio or Video
                     <input
@@ -427,7 +427,7 @@ export function AudioCleanStudio({
       {/* ── STEP 2: TRANSCRIBING & SILENCE DETECTION PROGRESS CARD ── */}
       {isAnalyzingAudio && (
         <div className="rounded-[28px] border border-white/10 bg-[#111218] p-10 text-center shadow-xl space-y-4">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#FF6D00]/10 text-[#FF9100] border border-[#FF6D00]/20">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#FF5722]/10 text-[#FF9100] border border-[#FF5722]/20">
             <RefreshCw size={26} className="animate-spin" />
           </div>
           <div>
@@ -447,7 +447,7 @@ export function AudioCleanStudio({
             {/* Top Stats Ribbon */}
             <div className="flex flex-col gap-3 border-b border-white/10 p-5 sm:flex-row sm:items-center sm:justify-between sm:px-6 bg-[#161720]">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#FF6D00]/30 bg-[#FF6D00]/10 px-3 py-1 text-xs font-black text-orange-300 uppercase tracking-wider">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-3 py-1 text-xs font-black text-orange-300 uppercase tracking-wider">
                   <Edit3 size={13} className="text-orange-300" />
                   Review &amp; Edit Script
                 </span>
@@ -502,13 +502,13 @@ export function AudioCleanStudio({
 
             {/* Editable Markdown Textarea */}
             <div className="p-5 sm:p-6 space-y-3">
-              <div className="relative rounded-2xl border border-white/10 bg-[#090A0F] p-4 focus-within:border-[#FF6D00]/60 transition">
+              <div className="relative rounded-2xl border border-white/10 bg-[#090A0F] p-4 focus-within:border-[#FF5722]/60 transition">
                 <textarea
                   value={currentMarkdown}
                   onChange={(e) => handleMarkdownChange(e.target.value)}
                   placeholder="Review the generated transcript, correct any typos, format headings, or paste your pre-written script..."
                   rows={10}
-                  className="w-full resize-y bg-transparent font-mono text-xs leading-relaxed text-zinc-200 placeholder:text-zinc-600 focus:outline-none selection:bg-[#FF6D00]/30 selection:text-[#FFA726]"
+                  className="w-full resize-y bg-transparent font-mono text-xs leading-relaxed text-zinc-200 placeholder:text-zinc-600 focus:outline-none selection:bg-[#FF5722]/30 selection:text-[#FFA000]"
                 />
               </div>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between text-[11px] text-zinc-400 gap-2 px-1">
@@ -561,11 +561,11 @@ export function AudioCleanStudio({
                       onClick={() => setAudioCleanOptions((prev: AudioCleanStudioOptions) => ({ ...prev, pacing: p.id as "fast" | "natural" | "relaxed" }))}
                       className={`rounded-2xl border p-3.5 text-left transition cursor-pointer ${
                         isSelected
-                          ? "border-[#FF6D00] bg-[#FF6D00]/10 text-white shadow-lg shadow-[#FF6D00]/15"
+                          ? "border-[#FF5722] bg-[#FF5722]/10 text-white shadow-lg shadow-[#FF5722]/15"
                           : "border-white/5 bg-[#161720] text-zinc-400 hover:text-white hover:border-white/15"
                       }`}
                     >
-                      <p className={`text-xs font-black ${isSelected ? "text-[#FFA726]" : "text-white"}`}>
+                      <p className={`text-xs font-black ${isSelected ? "text-[#FFA000]" : "text-white"}`}>
                         {p.label}
                       </p>
                       <p className="text-[11px] text-zinc-400 mt-1 leading-relaxed">
@@ -586,7 +586,7 @@ export function AudioCleanStudio({
                   className="flex w-full items-center justify-between text-left text-xs font-bold text-zinc-300 hover:text-white cursor-pointer"
                 >
                   <span className="flex items-center gap-2">
-                    <Activity size={14} className="text-[#FFA726]" />
+                    <Activity size={14} className="text-[#FFA000]" />
                     <span>View Detected Pauses Across Timeline ({detectedPauses.length} silence regions)</span>
                   </span>
                   {showPauseList ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
@@ -639,7 +639,7 @@ export function AudioCleanStudio({
                 type="button"
                 disabled={isCleaning}
                 onClick={onCleanAudio}
-                className="group relative flex h-13 w-full sm:w-auto items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] px-8 text-sm font-black text-black shadow-xl shadow-[#FF6D00]/25 transition-all hover:brightness-110 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
+                className="group relative flex h-13 w-full sm:w-auto items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-8 text-sm font-black text-black shadow-xl shadow-[#FF5722]/25 transition-all hover:brightness-110 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
               >
                 <Sparkles size={17} className="transition group-hover:rotate-12" />
                 <span>Clean Audio &amp; Remove Silences ({detectedPauses.length} Gaps)</span>
@@ -653,7 +653,7 @@ export function AudioCleanStudio({
       {/* ── STEP 4: CLEANING SPINNER ── */}
       {isCleaning && (
         <div className="rounded-[28px] border border-white/10 bg-[#111218] p-10 text-center shadow-xl space-y-4">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#FF6D00]/10 text-[#FF9100] border border-[#FF6D00]/20">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#FF5722]/10 text-[#FF9100] border border-[#FF5722]/20">
             <Scissors size={26} className="animate-pulse" />
           </div>
           <div>
@@ -671,13 +671,13 @@ export function AudioCleanStudio({
           {/* Header & Stats Bar */}
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/10 pb-5">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FF6D00]/10 text-[#FF9100] border border-[#FF6D00]/20">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FF5722]/10 text-[#FF9100] border border-[#FF5722]/20">
                 <Music2 size={24} />
               </div>
               <div>
                 <div className="flex items-center gap-2">
                   <h4 className="text-lg font-bold text-white">Your Cleaned Audio is Ready</h4>
-                  <span className="rounded-full bg-[#FF6D00]/20 border border-[#FF6D00]/40 px-2.5 py-0.5 text-[11px] font-bold text-[#FF9100]">
+                  <span className="rounded-full bg-[#FF5722]/20 border border-[#FF5722]/40 px-2.5 py-0.5 text-[11px] font-bold text-[#FF9100]">
                     Smart Silence Cut
                   </span>
                 </div>
@@ -698,7 +698,7 @@ export function AudioCleanStudio({
                 </span>
                 <span className="text-zinc-600">•</span>
                 <span className="text-zinc-400">Format:</span>
-                <span className="font-black text-[#FFA726] font-mono uppercase">{exportFmt}</span>
+                <span className="font-black text-[#FFA000] font-mono uppercase">{exportFmt}</span>
                 {Boolean(audioCleanResult.stats?.silencesCut) && (
                   <>
                     <span className="text-zinc-600">•</span>
@@ -715,7 +715,7 @@ export function AudioCleanStudio({
                   className="inline-flex items-center gap-1.5 rounded-2xl border border-white/20 bg-white/10 hover:bg-white/20 px-3.5 py-2 text-xs font-bold text-white transition cursor-pointer active:scale-95 shadow-sm"
                   title="Upload a new audio file without refreshing"
                 >
-                  <Plus size={14} className="text-[#FFA726]" />
+                  <Plus size={14} className="text-[#FFA000]" />
                   <span>Upload New Audio</span>
                 </button>
               )}
@@ -829,14 +829,14 @@ export function AudioCleanStudio({
             <div
               className={`rounded-2xl border p-5 transition-all ${
                 isPlayingAfter
-                  ? "border-[#FF6D00] bg-[#FF6D00]/10 shadow-xl shadow-[#FF6D00]/15"
-                  : "border-[#FF6D00]/40 bg-[#161720] hover:border-[#FF6D00]/60"
+                  ? "border-[#FF5722] bg-[#FF5722]/10 shadow-xl shadow-[#FF5722]/15"
+                  : "border-[#FF5722]/40 bg-[#161720] hover:border-[#FF5722]/60"
               }`}
             >
               {/* Card Header */}
               <div className="flex items-center justify-between border-b border-white/10 pb-3">
                 <div className="flex items-center gap-2">
-                  <span className={`h-3 w-3 rounded-full ${isPlayingAfter ? "bg-[#FF6D00] animate-ping" : "bg-[#FF9100]"}`} />
+                  <span className={`h-3 w-3 rounded-full ${isPlayingAfter ? "bg-[#FF5722] animate-ping" : "bg-[#FF9100]"}`} />
                   <div>
                     <h5 className="text-sm font-bold text-white flex items-center gap-1.5">
                       ✨ After <span className="text-xs text-[#FF9100] font-medium">(Silences Cut &amp; Voice Preserved)</span>
@@ -844,7 +844,7 @@ export function AudioCleanStudio({
                     <p className="text-[11px] text-zinc-400">100% natural voice • Smooth fast flow</p>
                   </div>
                 </div>
-                <span className="rounded-full bg-[#FF6D00]/20 border border-[#FF6D00]/30 px-2.5 py-1 text-xs font-mono font-bold text-[#FF9100]">
+                <span className="rounded-full bg-[#FF5722]/20 border border-[#FF5722]/30 px-2.5 py-1 text-xs font-mono font-bold text-[#FF9100]">
                   {formatTime(durationAfter || audioCleanResult.cleanedDuration)}
                 </span>
               </div>
@@ -858,8 +858,8 @@ export function AudioCleanStudio({
                     onClick={handleTogglePlayAfter}
                     className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-all cursor-pointer active:scale-90 ${
                       isPlayingAfter
-                        ? "bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-lg shadow-[#FF6D00]/30"
-                        : "bg-[#FF6D00]/20 text-[#FF9100] hover:bg-[#FF6D00] hover:text-black"
+                        ? "bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black shadow-lg shadow-[#FF5722]/30"
+                        : "bg-[#FF5722]/20 text-[#FF9100] hover:bg-[#FF5722] hover:text-black"
                     }`}
                     title={isPlayingAfter ? "Pause Cleaned Audio" : "Play Cleaned Audio"}
                   >
@@ -879,7 +879,7 @@ export function AudioCleanStudio({
                         setCurrentTimeAfter(newTime);
                         if (cleanAudioRef.current) cleanAudioRef.current.currentTime = newTime;
                       }}
-                      className="w-full h-1.5 bg-white/15 rounded-lg appearance-none cursor-pointer accent-[#FF6D00]"
+                      className="w-full h-1.5 bg-white/15 rounded-lg appearance-none cursor-pointer accent-[#FF5722]"
                     />
                     <div className="flex justify-between text-[11px] font-mono text-zinc-400">
                       <span className={isPlayingAfter ? "text-[#FF9100] font-bold" : ""}>
@@ -900,7 +900,7 @@ export function AudioCleanStudio({
                       <span
                         key={i}
                         className={`w-1 rounded-full transition-all duration-300 ${
-                          isPlayingAfter ? "bg-[#FF6D00] animate-pulse" : "bg-zinc-700"
+                          isPlayingAfter ? "bg-[#FF5722] animate-pulse" : "bg-zinc-700"
                         }`}
                         style={{ height: isPlayingAfter ? `${h}%` : "20%" }}
                       />
@@ -936,7 +936,7 @@ export function AudioCleanStudio({
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 hover:bg-amber-500/30 text-xs font-bold text-amber-300 transition active:scale-95 cursor-pointer disabled:opacity-50"
                 title="Seamlessly switch playback between Before and After to hear the difference"
               >
-                <ArrowRightLeft size={15} className="text-[#FFA726]" />
+                <ArrowRightLeft size={15} className="text-[#FFA000]" />
                 <span>Instant A/B Audio Switch</span>
               </button>
               <div className="text-xs">
@@ -956,9 +956,9 @@ export function AudioCleanStudio({
 
           {/* ── POST-DOWNLOAD PROMPT / NEW UPLOAD BANNER ── */}
           {hasDownloaded && (
-            <div className="rounded-2xl border border-[#FF6D00]/40 bg-gradient-to-r from-[#FF6D00]/15 via-black/40 to-[#FF6D00]/10 p-5 shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-in fade-in duration-300">
+            <div className="rounded-2xl border border-[#FF5722]/40 bg-gradient-to-r from-[#FF5722]/15 via-black/40 to-[#FF5722]/10 p-5 shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-in fade-in duration-300">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FF6D00]/20 text-[#FF9100] border border-[#FF6D00]/40">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FF5722]/20 text-[#FF9100] border border-[#FF5722]/40">
                   <CheckCircle2 size={20} />
                 </div>
                 <div>
@@ -974,7 +974,7 @@ export function AudioCleanStudio({
                   <button
                     type="button"
                     onClick={handleFullReset}
-                    className="inline-flex flex-1 sm:flex-none items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] px-5 py-2.5 text-xs font-black text-black shadow-md transition hover:brightness-110 active:scale-95 cursor-pointer"
+                    className="inline-flex flex-1 sm:flex-none items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-5 py-2.5 text-xs font-black text-black shadow-md transition hover:brightness-110 active:scale-95 cursor-pointer"
                   >
                     <Plus size={15} />
                     <span>Upload &amp; Clean Another Audio</span>
@@ -1005,7 +1005,7 @@ export function AudioCleanStudio({
               {/* Send to Image-to-Video Studio Button */}
               <a
                 href={`/dashboard/image-to-video?audioUrl=${encodeURIComponent(audioCleanResult.outputUrl)}`}
-                className="inline-flex items-center gap-2 rounded-2xl border border-[#FF6D00]/40 bg-[#FF6D00]/10 hover:bg-[#FF6D00]/20 px-5 py-3 text-xs font-bold text-[#FF9100] transition active:scale-95 cursor-pointer"
+                className="inline-flex items-center gap-2 rounded-2xl border border-[#FF5722]/40 bg-[#FF5722]/10 hover:bg-[#FF5722]/20 px-5 py-3 text-xs font-bold text-[#FF9100] transition active:scale-95 cursor-pointer"
               >
                 <Sparkles size={15} />
                 <span>Send to Image AI Studio</span>
@@ -1016,7 +1016,7 @@ export function AudioCleanStudio({
                 href={`/api/download?url=${encodeURIComponent(audioCleanResult.outputUrl)}&filename=${encodeURIComponent(`itnavideo-clean-audio.${exportFmt}`)}`}
                 download={`itnavideo-clean-audio.${exportFmt}`}
                 onClick={() => setHasDownloaded(true)}
-                className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] px-6 py-3 text-xs font-black text-black shadow-lg shadow-[#FF6D00]/25 transition hover:brightness-110 active:scale-95 cursor-pointer"
+                className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-6 py-3 text-xs font-black text-black shadow-lg shadow-[#FF5722]/25 transition hover:brightness-110 active:scale-95 cursor-pointer"
               >
                 <Download size={15} />
                 <span>Download Clean Audio ({exportFmt.toUpperCase()})</span>

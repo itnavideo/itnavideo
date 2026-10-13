@@ -416,8 +416,8 @@ export default function FacelessVideoPageClient() {
 
           <div className="flex items-center gap-4">
             {billingEntitlement && (
-              <div className="hidden sm:flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 text-xs font-black text-purple-300 shadow-md">
-                <Zap size={13} className="text-purple-400" />
+              <div className="hidden sm:flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-black text-orange-400 shadow-md">
+                <Zap size={13} className="text-[#FF5722]" />
                 <span>{billingEntitlement.usage?.remaining ?? 0} Credits Left</span>
               </div>
             )}
@@ -430,13 +430,13 @@ export default function FacelessVideoPageClient() {
         {/* Title Banner */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-white/10 pb-6">
           <div className="space-y-1.5">
-            <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-purple-300">
-              <Sparkles size={11} className="text-purple-400" />
+            <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-orange-400">
+              <Sparkles size={11} className="text-[#FF5722]" />
               <span>Flagship AI Video Studio</span>
             </div>
             <h1 className="text-2xl font-black tracking-tight sm:text-3xl text-white">
               Faceless Video{' '}
-              <span className="bg-gradient-to-r from-purple-400 to-purple-300 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
                 Generator Studio
               </span>
             </h1>
@@ -454,8 +454,8 @@ export default function FacelessVideoPageClient() {
                 <h3 className="text-sm font-black text-white">Faceless Video Rendering Progress</h3>
                 <p className="text-xs text-zinc-400">{jobStatus.message}</p>
               </div>
-              <div className="flex items-center gap-1.5 text-xs font-black text-purple-300">
-                <Loader2 size={13} className="animate-spin text-purple-400" />
+              <div className="flex items-center gap-1.5 text-xs font-black text-orange-400">
+                <Loader2 size={13} className="animate-spin text-[#FF5722]" />
                 <span>{Math.round((jobStatus.progress || 0) * 100)}%</span>
               </div>
             </div>
@@ -463,7 +463,7 @@ export default function FacelessVideoPageClient() {
             {/* Progress Bar */}
             <div className="h-2 w-full rounded-full bg-black/40 overflow-hidden border border-white/5">
               <div
-                className="h-full rounded-full bg-purple-600 transition-all duration-500 ease-out"
+                className="h-full rounded-full bg-gradient-to-r from-[#FF5722] to-[#FFA000] transition-all duration-500 ease-out"
                 style={{ width: `${(jobStatus.progress || 0) * 100}%` }}
               />
             </div>
@@ -481,7 +481,7 @@ export default function FacelessVideoPageClient() {
                     key={step.label}
                     className={`flex flex-row md:flex-col items-center md:items-start gap-3 p-3 rounded-2xl border transition-all ${
                       active
-                        ? "border-purple-500 bg-purple-500/10 shadow-md"
+                        ? "border-[#FF5722] bg-orange-500/10 shadow-md"
                         : done
                         ? "border-emerald-500/20 bg-emerald-500/5 opacity-80"
                         : "border-white/5 bg-black/10 opacity-40"
@@ -490,7 +490,7 @@ export default function FacelessVideoPageClient() {
                     <div
                       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border ${
                         active
-                          ? "border-purple-500/30 bg-purple-500/10 text-purple-300"
+                          ? "border-orange-500/30 bg-orange-500/10 text-orange-400"
                           : done
                           ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
                           : "border-white/10 bg-white/5 text-zinc-500"
@@ -546,7 +546,7 @@ export default function FacelessVideoPageClient() {
               <a
                 href={jobStatus.outputFile}
                 download={jobStatus.title ? `${jobStatus.title}.mp4` : "faceless-video.mp4"}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-purple-600 hover:bg-purple-500 px-6 py-3 text-xs font-black text-white shadow-lg shadow-purple-600/25 transition active:scale-95"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] hover:opacity-95 px-6 py-3 text-xs font-black text-white shadow-lg shadow-orange-500/20 transition active:scale-95"
               >
                 <Download size={14} />
                 <span>Download Video MP4</span>

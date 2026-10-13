@@ -138,7 +138,7 @@ export const CINEMA_SUBTITLE_PRESETS = [
     title: "Gold Editorial",
     desc: "Metallic warm gold gradient headlines",
     renderCaption: () => (
-      <span className="font-black text-xs sm:text-sm uppercase bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] bg-clip-text text-transparent drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+      <span className="font-black text-xs sm:text-sm uppercase bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
         THE GOLDEN ERA
       </span>
     ),
@@ -259,12 +259,12 @@ export function ImageToVideoStudio({
   return (
     <div className="relative rounded-[28px] border border-white/10 bg-[#111218] p-5 sm:p-7 shadow-2xl min-w-0 max-w-full overflow-x-hidden space-y-7 text-white">
       {/* Magic UI BorderBeam Glowing Effect */}
-      <BorderBeam size={280} duration={14} colorFrom="#FF6D00" colorTo="#FFA726" />
+      <BorderBeam size={280} duration={14} colorFrom="#FF5722" colorTo="#FFA000" />
 
       {/* Master Studio Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#FF6D00] via-[#FF8F00] to-[#FFA726] text-black shadow-md shadow-[#FF6D00]/25">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black shadow-md shadow-[#FF5722]/25">
             <Sparkles size={20} className="fill-black/20" />
           </div>
           <div>
@@ -279,7 +279,7 @@ export function ImageToVideoStudio({
 
         <div className="flex items-center gap-2 shrink-0">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#161720] px-3 py-1.5 text-xs font-bold text-slate-300">
-            <Clock3 size={13} className="text-[#FF8F00]" />
+            <Clock3 size={13} className="text-[#FF7043]" />
             <span>16:9 Widescreen • Up to 12m</span>
           </span>
         </div>
@@ -296,7 +296,7 @@ export function ImageToVideoStudio({
           <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-white/5 pb-4">
               <div className="flex items-center gap-3">
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#FF6D00]/15 text-[#FF9100] text-sm font-black border border-[#FF6D00]/30">
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#FF5722]/15 text-[#FF9100] text-sm font-black border border-[#FF5722]/30">
                   1
                 </span>
                 <div>
@@ -312,10 +312,10 @@ export function ImageToVideoStudio({
             </div>
 
             {/* Audio File Dropzone */}
-            <label className="group relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/15 bg-[#161720] p-6 text-center hover:border-[#FF6D00]/50 transition cursor-pointer overflow-hidden">
+            <label className="group relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/15 bg-[#161720] p-6 text-center hover:border-[#FF5722]/50 transition cursor-pointer overflow-hidden">
               {!selectedAudio ? (
                 <div className="space-y-3 flex flex-col items-center">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FF6D00]/10 text-[#FF9100] border border-[#FF6D00]/20 group-hover:scale-110 transition">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FF5722]/10 text-[#FF9100] border border-[#FF5722]/20 group-hover:scale-110 transition">
                     <UploadCloud size={24} />
                   </div>
 
@@ -324,7 +324,7 @@ export function ImageToVideoStudio({
                     <p className="text-xs text-zinc-400 font-mono">MP3, WAV or M4A • Max 12 minutes (720s)</p>
                   </div>
 
-                  <span className="inline-flex items-center gap-1.5 rounded-xl border border-[#FF6D00]/30 bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] px-4 py-2 text-xs font-black text-black shadow-md shadow-[#FF6D00]/20 hover:brightness-110 transition">
+                  <span className="inline-flex items-center gap-1.5 rounded-xl border border-[#FF5722]/30 bg-gradient-to-r from-[#FF5722] to-[#FF7043] px-4 py-2 text-xs font-black text-black shadow-md shadow-[#FF5722]/20 hover:brightness-110 transition">
                     <Upload size={14} />
                     <span>Browse Audio Files</span>
                   </span>
@@ -372,7 +372,7 @@ export function ImageToVideoStudio({
           <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-2xl space-y-5">
             <div className="flex items-center justify-between border-b border-white/5 pb-4">
               <div className="flex items-center gap-3">
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#FF6D00]/15 text-[#FF9100] text-sm font-black border border-[#FF6D00]/30">
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#FF5722]/15 text-[#FF9100] text-sm font-black border border-[#FF5722]/30">
                   2
                 </span>
                 <div>
@@ -403,7 +403,7 @@ export function ImageToVideoStudio({
                       onClick={() => onChangeVisualStyle?.(art.id)}
                       className={`rounded-2xl border p-3.5 text-left transition cursor-pointer ${
                         active
-                          ? "border-[#FF6D00] bg-[#FF6D00]/10 text-white font-bold ring-1 ring-[#FF6D00]"
+                          ? "border-[#FF5722] bg-[#FF5722]/10 text-white font-bold ring-1 ring-[#FF5722]"
                           : "border-white/10 bg-[#161720] text-zinc-400 hover:text-white"
                       }`}
                     >
@@ -444,7 +444,7 @@ export function ImageToVideoStudio({
                       onClick={() => onChangeAssetSourceMode?.(option.id as any)}
                       className={`rounded-2xl border p-3.5 text-left transition cursor-pointer flex flex-col justify-between ${
                         active
-                          ? "border-[#FF6D00] bg-[#FF6D00]/10 text-white font-bold ring-1 ring-[#FF6D00]"
+                          ? "border-[#FF5722] bg-[#FF5722]/10 text-white font-bold ring-1 ring-[#FF5722]"
                           : "border-white/10 bg-[#161720] text-zinc-400 hover:text-white"
                       }`}
                     >
@@ -461,7 +461,7 @@ export function ImageToVideoStudio({
               <div className="space-y-3 pt-2 border-t border-white/5">
                 <div
                   onClick={() => imageInputRef.current?.click()}
-                  className="flex items-center justify-center gap-2 rounded-2xl border border-dashed border-white/15 bg-[#161720] p-4 text-xs font-bold text-zinc-200 hover:border-[#FF6D00]/50 transition cursor-pointer"
+                  className="flex items-center justify-center gap-2 rounded-2xl border border-dashed border-white/15 bg-[#161720] p-4 text-xs font-bold text-zinc-200 hover:border-[#FF5722]/50 transition cursor-pointer"
                 >
                   <Plus size={16} className="text-[#FF9100]" />
                   <span>Add Custom Images / Character References</span>
@@ -504,7 +504,7 @@ export function ImageToVideoStudio({
           <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-white/5 pb-4">
               <div className="flex items-center gap-3">
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#FF6D00]/15 text-[#FF9100] text-sm font-black border border-[#FF6D00]/30">
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#FF5722]/15 text-[#FF9100] text-sm font-black border border-[#FF5722]/30">
                   3
                 </span>
                 <div>
@@ -530,14 +530,14 @@ export function ImageToVideoStudio({
                     onClick={() => onChangeSubtitleStyle?.(style.id)}
                     className={`group relative flex flex-col justify-between rounded-2xl border p-3.5 text-left transition cursor-pointer overflow-hidden ${
                       isSelected
-                        ? "border-[#FF6D00] bg-[#FF6D00]/10 ring-1 ring-[#FF6D00]"
+                        ? "border-[#FF5722] bg-[#FF5722]/10 ring-1 ring-[#FF5722]"
                         : "border-white/10 bg-[#161720] hover:border-white/20"
                     }`}
                   >
                     <div className="relative aspect-[16/6] w-full rounded-xl border border-white/10 bg-slate-900 overflow-hidden flex items-center justify-center p-2 mb-2.5">
                       <div className="absolute inset-0 bg-black/60" />
                       {isSelected && (
-                        <div className="absolute top-1.5 right-1.5 z-10 flex h-4 w-4 items-center justify-center rounded-full bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-md">
+                        <div className="absolute top-1.5 right-1.5 z-10 flex h-4 w-4 items-center justify-center rounded-full bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black shadow-md">
                           <Check size={10} strokeWidth={3} />
                         </div>
                       )}
@@ -560,7 +560,7 @@ export function ImageToVideoStudio({
           <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-white/5 pb-4">
               <div className="flex items-center gap-3">
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#FF6D00]/15 text-[#FF9100] text-sm font-black border border-[#FF6D00]/30">
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#FF5722]/15 text-[#FF9100] text-sm font-black border border-[#FF5722]/30">
                   4
                 </span>
                 <div>
@@ -588,7 +588,7 @@ export function ImageToVideoStudio({
                       onClick={() => onSelectBgmTrack?.(track)}
                       className={`rounded-2xl border p-3 text-left transition cursor-pointer ${
                         active
-                          ? "border-[#FF6D00] bg-[#FF6D00]/10 text-white font-bold ring-1 ring-[#FF6D00]"
+                          ? "border-[#FF5722] bg-[#FF5722]/10 text-white font-bold ring-1 ring-[#FF5722]"
                           : "border-white/10 bg-[#161720] text-zinc-400 hover:text-white"
                       }`}
                     >
@@ -614,7 +614,7 @@ export function ImageToVideoStudio({
                   type="button"
                   onClick={() => onToggleSoundEffects?.(!enableSoundEffects)}
                   className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                    enableSoundEffects ? "bg-[#FF6D00]" : "bg-zinc-700"
+                    enableSoundEffects ? "bg-[#FF5722]" : "bg-zinc-700"
                   }`}
                 >
                   <span
@@ -637,7 +637,7 @@ export function ImageToVideoStudio({
                   step="0.05"
                   value={bgmVolume || 0.15}
                   onChange={(e) => onChangeBgmVolume?.(parseFloat(e.target.value))}
-                  className="w-full accent-[#FF6D00] cursor-pointer"
+                  className="w-full accent-[#FF5722] cursor-pointer"
                 />
               </div>
             </div>
@@ -652,7 +652,7 @@ export function ImageToVideoStudio({
                 <Film size={15} className="text-[#FF9100]" />
                 <span>16:9 Cinema Stage</span>
               </h3>
-              <span className="rounded-full bg-[#FF6D00]/15 border border-[#FF6D00]/30 px-2.5 py-0.5 text-[10px] font-bold text-[#FF9100]">
+              <span className="rounded-full bg-[#FF5722]/15 border border-[#FF5722]/30 px-2.5 py-0.5 text-[10px] font-bold text-[#FF9100]">
                 1920×1080 Full HD
               </span>
             </div>
@@ -713,7 +713,7 @@ export function ImageToVideoStudio({
               className={`w-full inline-flex items-center justify-center gap-2 rounded-2xl p-4 text-sm font-black text-black shadow-xl transition-all duration-200 ${
                 isRendering
                   ? "bg-gradient-to-r from-amber-500 to-orange-500 text-black cursor-wait animate-pulse"
-                  : "bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] text-black shadow-lg shadow-[#FF6D00]/30 hover:brightness-110 active:scale-95 cursor-pointer"
+                  : "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black shadow-lg shadow-[#FF5722]/30 hover:brightness-110 active:scale-95 cursor-pointer"
               }`}
             >
               <Sparkles size={18} className="fill-black/20" />

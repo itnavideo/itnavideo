@@ -406,7 +406,7 @@ export default function TypographyVideoPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#070B14] text-slate-100 selection:bg-[#FF6D00]/20 selection:text-[#FF6D00]">
+    <main className="min-h-screen bg-[#070B14] text-slate-100 selection:bg-[#FF5722]/20 selection:text-[#FF5722]">
       {/* Premium Header */}
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0E1526]/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -422,8 +422,8 @@ export default function TypographyVideoPage() {
 
           <div className="flex items-center gap-4">
             {billingEntitlement && (
-              <div className="hidden sm:flex items-center gap-2 rounded-full border border-[#FF6D00]/20 bg-[#FF6D00]/10 px-4 py-1.5 text-xs font-black text-[#FF6D00] shadow-sm">
-                <Zap size={13} className="fill-[#FF6D00]" />
+              <div className="hidden sm:flex items-center gap-2 rounded-full border border-[#FF5722]/20 bg-[#FF5722]/10 px-4 py-1.5 text-xs font-black text-[#FF5722] shadow-sm">
+                <Zap size={13} className="fill-[#FF5722]" />
                 <span>{billingEntitlement.usage?.remaining ?? 0} Credits Left</span>
               </div>
             )}
@@ -442,7 +442,7 @@ export default function TypographyVideoPage() {
                 <h3 className="text-sm font-black text-white">Typography Rendering Progress</h3>
                 <p className="text-xs text-zinc-400">{jobStatus.message}</p>
               </div>
-              <div className="flex items-center gap-1.5 text-xs font-black text-[#FFA726]">
+              <div className="flex items-center gap-1.5 text-xs font-black text-[#FFA000]">
                 <Loader2 size={13} className="animate-spin" />
                 <span>{Math.round((jobStatus.progress || 0) * 100)}%</span>
               </div>
@@ -451,7 +451,7 @@ export default function TypographyVideoPage() {
             {/* Progress Bar */}
             <div className="h-2 w-full rounded-full bg-black/60 overflow-hidden border border-white/5">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] transition-all duration-500 ease-out"
+                className="h-full rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] transition-all duration-500 ease-out"
                 style={{ width: `${(jobStatus.progress || 0) * 100}%` }}
               />
             </div>
@@ -469,7 +469,7 @@ export default function TypographyVideoPage() {
                     key={step.label}
                     className={`flex flex-row md:flex-col items-center md:items-start gap-3 p-3 rounded-2xl border transition-all ${
                       active
-                        ? "border-[#FF6D00] bg-[#FF6D00]/10 shadow-md shadow-[#FF6D00]/10"
+                        ? "border-[#FF5722] bg-[#FF5722]/10 shadow-md shadow-[#FF5722]/10"
                         : done
                         ? "border-emerald-500/20 bg-emerald-500/5 opacity-80"
                         : "border-white/5 bg-black/20 opacity-40"
@@ -478,7 +478,7 @@ export default function TypographyVideoPage() {
                     <div
                       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border ${
                         active
-                          ? "border-[#FF6D00]/30 bg-[#FF6D00]/10 text-[#FF9100]"
+                          ? "border-[#FF5722]/30 bg-[#FF5722]/10 text-[#FF9100]"
                           : done
                           ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
                           : "border-white/10 bg-white/5 text-zinc-500"
@@ -534,7 +534,7 @@ export default function TypographyVideoPage() {
               <a
                 href={jobStatus.outputFile}
                 download={jobStatus.title ? `${jobStatus.title}.mp4` : "typography-reel.mp4"}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] px-6 py-3 text-xs font-black text-black shadow-lg shadow-[#FF6D00]/25 transition hover:brightness-110 active:scale-95"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#FF5722] to-[#FF7043] px-6 py-3 text-xs font-black text-black shadow-lg shadow-[#FF5722]/25 transition hover:brightness-110 active:scale-95"
               >
                 <Download size={14} />
                 <span>Download Kinetic Video</span>

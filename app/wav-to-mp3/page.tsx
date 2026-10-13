@@ -18,7 +18,7 @@ export default function WavToMp3Page() {
       <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-5 sm:px-6 lg:px-8">
         <header className="flex items-center justify-between gap-4 border-b border-white/10 pb-5">
           <Link href="/" aria-label="Itnavideo home">
-            <BrandLogo size="md" showTagline={false} />
+            <BrandLogo size="md" showTagline={false} variant="dark" />
           </Link>
           <Link
             href="/dashboard"

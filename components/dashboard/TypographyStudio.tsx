@@ -86,12 +86,12 @@ export function TypographyStudio({
   return (
     <div className="relative rounded-[28px] border border-white/10 bg-[#111218] p-5 sm:p-7 shadow-2xl min-w-0 max-w-full overflow-x-hidden space-y-7 text-white">
       {/* Magic UI BorderBeam Glowing Effect */}
-      <BorderBeam size={280} duration={14} colorFrom="#FF6D00" colorTo="#FFA726" />
+      <BorderBeam size={280} duration={14} colorFrom="#FF5722" colorTo="#FFA000" />
 
       {/* Master Studio Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#FF6D00] via-[#FF8F00] to-[#FFA726] text-black shadow-md shadow-[#FF6D00]/25">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black shadow-md shadow-[#FF5722]/25">
             <Sparkles size={20} className="fill-black/20" />
           </div>
           <div>
@@ -106,7 +106,7 @@ export function TypographyStudio({
 
         <div className="flex items-center gap-2 shrink-0">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#161720] px-3 py-1.5 text-xs font-bold text-slate-300">
-            <Clock3 size={13} className="text-[#FF8F00]" />
+            <Clock3 size={13} className="text-[#FF7043]" />
             <span>9:16 Vertical • 1080p Full HD</span>
           </span>
         </div>
@@ -116,7 +116,7 @@ export function TypographyStudio({
       <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-2xl space-y-5">
         <div className="flex items-center justify-between border-b border-white/5 pb-4">
           <div className="flex items-center gap-3">
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#FF6D00]/15 text-[#FF9100] text-sm font-black border border-[#FF6D00]/30">
+            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#FF5722]/15 text-[#FF9100] text-sm font-black border border-[#FF5722]/30">
               1
             </span>
             <div>
@@ -142,7 +142,7 @@ export function TypographyStudio({
             <div
               onDragOver={(e) => e.preventDefault()}
               onDrop={handleFileDrop}
-              className="relative border-2 border-dashed border-white/15 bg-[#161720] hover:border-[#FF6D00]/50 rounded-3xl p-8 text-center cursor-pointer transition flex flex-col items-center justify-center gap-3 group"
+              className="relative border-2 border-dashed border-white/15 bg-[#161720] hover:border-[#FF5722]/50 rounded-3xl p-8 text-center cursor-pointer transition flex flex-col items-center justify-center gap-3 group"
             >
               <input
                 type="file"
@@ -150,14 +150,14 @@ export function TypographyStudio({
                 onChange={handleFileSelect}
                 className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
               />
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FF6D00]/10 text-[#FF9100] border border-[#FF6D00]/20 group-hover:scale-105 transition">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FF5722]/10 text-[#FF9100] border border-[#FF5722]/20 group-hover:scale-105 transition">
                 <Upload size={24} />
               </div>
               <div>
                 <p className="text-sm font-bold text-white">Upload Talking Video or Voiceover Audio</p>
                 <p className="text-xs text-zinc-400 mt-1">MP4, MOV, MP3, WAV up to 100MB</p>
               </div>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] px-5 py-2 text-xs font-black text-black shadow-lg shadow-[#FF6D00]/25">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-5 py-2 text-xs font-black text-black shadow-lg shadow-[#FF5722]/25">
                 Browse Files
               </span>
             </div>
@@ -165,7 +165,7 @@ export function TypographyStudio({
             <div className="space-y-3">
               <div className="rounded-2xl border border-emerald-500/30 bg-[#161720] p-4 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black font-bold">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black font-bold">
                     {selectedFile.type.startsWith("video/") ? <Film size={18} /> : <FileAudio size={18} />}
                   </div>
                   <div className="min-w-0">
@@ -198,7 +198,7 @@ export function TypographyStudio({
                   placeholder="Spoken transcript text will appear here. Edit any words or typos before generating video..."
                   value={scriptText}
                   onChange={(e) => onScriptTextChange?.(e.target.value)}
-                  className="w-full rounded-2xl border border-white/10 bg-[#161720] p-3 text-xs text-white placeholder-zinc-500 focus:border-[#FF6D00] focus:outline-none focus:ring-1 focus:ring-[#FF6D00]"
+                  className="w-full rounded-2xl border border-white/10 bg-[#161720] p-3 text-xs text-white placeholder-zinc-500 focus:border-[#FF5722] focus:outline-none focus:ring-1 focus:ring-[#FF5722]"
                 />
               </div>
             </div>
@@ -213,7 +213,7 @@ export function TypographyStudio({
       <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-2xl space-y-5">
         <div className="flex items-center justify-between border-b border-white/5 pb-4">
           <div className="flex items-center gap-3">
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#FF6D00]/15 text-[#FF9100] text-sm font-black border border-[#FF6D00]/30">
+            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#FF5722]/15 text-[#FF9100] text-sm font-black border border-[#FF5722]/30">
               3
             </span>
             <div>
@@ -246,7 +246,7 @@ export function TypographyStudio({
                     onClick={() => onTypographySfxIntensityChange(sfx.id as any)}
                     className={`rounded-xl py-2.5 text-center text-xs font-bold transition cursor-pointer ${
                       active
-                        ? "bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] text-black shadow-md font-black"
+                        ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black shadow-md font-black"
                         : "text-zinc-400 hover:text-white"
                     }`}
                   >
@@ -273,7 +273,7 @@ export function TypographyStudio({
                     onClick={() => onTypographyPacingChange(pace.id as any)}
                     className={`rounded-xl py-2.5 text-center text-xs font-bold transition cursor-pointer ${
                       active
-                        ? "bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] text-black shadow-md font-black"
+                        ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black shadow-md font-black"
                         : "text-zinc-400 hover:text-white"
                     }`}
                   >
@@ -300,7 +300,7 @@ export function TypographyStudio({
                     onClick={() => onTypographyTextCaseChange(casing.id as any)}
                     className={`rounded-xl py-2.5 text-center text-xs font-bold transition cursor-pointer ${
                       active
-                        ? "bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] text-black shadow-md font-black"
+                        ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black shadow-md font-black"
                         : "text-zinc-400 hover:text-white"
                     }`}
                   >
@@ -314,9 +314,9 @@ export function TypographyStudio({
       </div>
 
       {/* PRIMARY STICKY CTA FLOATING ACTION BAR */}
-      <div className="sticky bottom-4 z-40 rounded-2xl border border-[#FF6D00]/40 bg-[#0E1526]/95 backdrop-blur-md p-3.5 shadow-2xl shadow-black/80 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div className="sticky bottom-4 z-40 rounded-2xl border border-[#FF5722]/40 bg-[#0E1526]/95 backdrop-blur-md p-3.5 shadow-2xl shadow-black/80 flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-[#FF6D00] to-[#FFA726] text-black font-black shadow-md shadow-[#FF6D00]/25">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-[#FF5722] to-[#FFA000] text-black font-black shadow-md shadow-[#FF5722]/25">
             <Sparkles size={18} />
           </div>
           <div className="min-w-0">
@@ -335,7 +335,7 @@ export function TypographyStudio({
           type="button"
           onClick={onGenerate}
           disabled={isGenerating || !selectedFile}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] px-6 py-3 text-xs font-black text-black shadow-lg shadow-[#FF6D00]/25 transition active:scale-95 hover:brightness-110 disabled:opacity-45 disabled:pointer-events-none cursor-pointer whitespace-nowrap"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-6 py-3 text-xs font-black text-black shadow-lg shadow-[#FF5722]/25 transition active:scale-95 hover:brightness-110 disabled:opacity-45 disabled:pointer-events-none cursor-pointer whitespace-nowrap"
         >
           <Sparkles size={15} />
           <span>{isGenerating ? "Rendering Reel..." : "✨ Generate 9:16 Typography Video"}</span>

@@ -342,8 +342,8 @@ export default function InteractiveRenderEngine({
         <BorderBeam
           size={240}
           duration={8}
-          colorFrom="#FF6D00"
-          colorTo="#FFA726"
+          colorFrom="#FF5722"
+          colorTo="#FFA000"
           borderWidth={2}
         />
       )}
@@ -351,7 +351,7 @@ export default function InteractiveRenderEngine({
       {/* ── M3 TOP APP BAR ── */}
       <div className="flex items-center justify-between border-b border-white/10 pb-4">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-[#FF6D00] via-[#FF8F00] to-[#FFA726] flex items-center justify-center font-black text-black text-xs shadow-lg shadow-[#FF6D00]/25">
+          <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-[#FF5722] via-[#FF7043] to-[#FFA000] flex items-center justify-center font-black text-black text-xs shadow-lg shadow-[#FF5722]/25">
             {mode === 'audioClean' ? <Mic size={16} /> : <Film size={16} />}
           </div>
           <div>
@@ -362,7 +362,7 @@ export default function InteractiveRenderEngine({
                   ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30'
                   : isFailed
                   ? 'text-red-400 bg-red-500/10 border-red-500/30'
-                  : 'text-[#FF8F00] bg-[#FF6D00]/10 border-[#FF6D00]/30'
+                  : 'text-[#FF7043] bg-[#FF5722]/10 border-[#FF5722]/30'
               }`}>
                 {isReady ? '1080p Ready ✓' : isFailed ? 'Failed' : 'Rendering · 1080p 30 FPS'}
               </span>
@@ -373,7 +373,7 @@ export default function InteractiveRenderEngine({
         <div className="flex items-center gap-2">
           <button
             onClick={() => setSoundEnabled(!soundEnabled)}
-            className="p-2 rounded-xl bg-[#151E30] border border-white/10 hover:border-[#FF6D00]/40 text-slate-400 hover:text-white transition-all cursor-pointer"
+            className="p-2 rounded-xl bg-[#151E30] border border-white/10 hover:border-[#FF5722]/40 text-slate-400 hover:text-white transition-all cursor-pointer"
             title={soundEnabled ? 'Mute completion chime' : 'Enable completion chime'}
           >
             {soundEnabled ? <Volume2 size={15} /> : <VolumeX size={15} />}
@@ -393,7 +393,7 @@ export default function InteractiveRenderEngine({
         {isReady && status.outputFile ? (
           mode === 'audioClean' ? (
             <div className="w-full flex flex-col items-center justify-center p-6 space-y-4 bg-gradient-to-b from-[#151E30] to-[#070B14]">
-              <div className="w-14 h-14 rounded-2xl bg-[#FF6D00]/10 border border-[#FF6D00]/30 text-[#FF8F00] flex items-center justify-center shadow-lg shadow-[#FF6D00]/20">
+              <div className="w-14 h-14 rounded-2xl bg-[#FF5722]/10 border border-[#FF5722]/30 text-[#FF7043] flex items-center justify-center shadow-lg shadow-[#FF5722]/20">
                 <Mic size={26} />
               </div>
               <div className="text-center space-y-1">
@@ -496,10 +496,10 @@ export default function InteractiveRenderEngine({
             
             {/* Shimmering Ambient Glow Pulse & Central Animated Stage Icon */}
             <div className="relative">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-[#FF6D00]/20 via-[#FF8F00]/20 to-[#FFA726]/20 border border-[#FF6D00]/40 flex items-center justify-center text-[#FF8F00] shadow-[0_0_35px_rgba(255,109,0,0.25)]">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-[#FF5722]/20 via-[#FF7043]/20 to-[#FFA000]/20 border border-[#FF5722]/40 flex items-center justify-center text-[#FF7043] shadow-[0_0_35px_rgba(255,109,0,0.25)]">
                 <CurrentStepIcon size={32} className="animate-pulse" />
               </div>
-              <span className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-[10px] font-black text-black shadow-md">
+              <span className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-[10px] font-black text-black shadow-md">
                 {activeStepIndex + 1}
               </span>
             </div>
@@ -518,11 +518,11 @@ export default function InteractiveRenderEngine({
             <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
               <AudioSpectrumVisualizer isPlaying={true} isTranscribing={percentage < 50} barCount={14} />
               
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#070B14] border border-[#FF6D00]/30 text-[11px] font-bold text-slate-300 shadow-lg">
-                <Clock size={12} className="text-[#FF8F00] animate-pulse" />
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#070B14] border border-[#FF5722]/30 text-[11px] font-bold text-slate-300 shadow-lg">
+                <Clock size={12} className="text-[#FF7043] animate-pulse" />
                 <span>Elapsed: <span className="font-mono text-white">{formatTimer(liveElapsed)}</span></span>
                 <span className="text-slate-600">•</span>
-                <span>Est: <span className="text-[#FFA726]">{formatTimeRemaining(secondsRemaining)}</span></span>
+                <span>Est: <span className="text-[#FFA000]">{formatTimeRemaining(secondsRemaining)}</span></span>
               </div>
 
               {onCancel && (status.state === 'idle' || status.state === 'error') && (
@@ -546,7 +546,7 @@ export default function InteractiveRenderEngine({
         <div className="space-y-2">
           <div className="flex items-center justify-between text-[11px] font-bold px-1">
             <span className="text-slate-300 flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-[#FF6D00] animate-pulse" />
+              <span className="h-2 w-2 rounded-full bg-[#FF5722] animate-pulse" />
               <span>{isReady ? 'Render Finished ✓' : `Step ${activeStepIndex + 1} of ${steps.length}: ${steps[activeStepIndex]?.label}`}</span>
             </span>
             <span className="font-mono text-xs font-black text-[#FF9100]">
@@ -556,7 +556,7 @@ export default function InteractiveRenderEngine({
 
           <div className="w-full h-2.5 bg-[#070B14] rounded-full overflow-hidden border border-white/10 p-0.5 shadow-inner">
             <div
-              className="h-full bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] rounded-full transition-all duration-300 shadow-[0_0_14px_rgba(255,109,0,0.5)]"
+              className="h-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] rounded-full transition-all duration-300 shadow-[0_0_14px_rgba(255,109,0,0.5)]"
               style={{ width: `${Math.max(4, percentage)}%` }}
             />
           </div>
@@ -578,7 +578,7 @@ export default function InteractiveRenderEngine({
                   isCompleted
                     ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 shadow-sm'
                     : isCurrent
-                    ? 'bg-[#FF6D00]/15 border-[#FF6D00]/60 text-[#FFA726] ring-1 ring-[#FF6D00]/30 shadow-md shadow-[#FF6D00]/10'
+                    ? 'bg-[#FF5722]/15 border-[#FF5722]/60 text-[#FFA000] ring-1 ring-[#FF5722]/30 shadow-md shadow-[#FF5722]/10'
                     : 'bg-[#151E30]/40 border-white/5 text-slate-500'
                 }`}
               >
@@ -588,7 +588,7 @@ export default function InteractiveRenderEngine({
                       isCompleted
                         ? 'bg-emerald-400 text-black'
                         : isCurrent
-                        ? 'bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black animate-pulse'
+                        ? 'bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black animate-pulse'
                         : 'bg-[#151E30] text-slate-400 border border-white/10'
                     }`}
                   >
@@ -611,7 +611,7 @@ export default function InteractiveRenderEngine({
             type="button"
             onClick={() => downloadDirectly(status.outputFile!, mode === 'audioClean' ? 'itnavideo-clean-studio-audio.mp3' : `itnavideo-${mode || 'reel'}-1080p.mp4`)}
             disabled={isDownloading}
-            className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] hover:brightness-110 text-black font-black text-sm transition-all flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(255,109,0,0.35)] cursor-pointer disabled:opacity-50 active:scale-95"
+            className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] hover:brightness-110 text-black font-black text-sm transition-all flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(255,109,0,0.35)] cursor-pointer disabled:opacity-50 active:scale-95"
           >
             {isDownloading ? (
               <>
@@ -633,11 +633,11 @@ export default function InteractiveRenderEngine({
               className="w-full p-3.5 flex items-center justify-between text-xs font-bold text-slate-300 hover:bg-white/[0.02] transition-colors cursor-pointer"
             >
               <span className="flex items-center gap-2">
-                <Sparkles size={14} className="text-[#FF8F00]" />
+                <Sparkles size={14} className="text-[#FF7043]" />
                 Social Title &amp; Description
               </span>
               <div className="flex items-center gap-1.5 text-slate-400">
-                <span className="text-[10px] font-black text-[#FF8F00] bg-[#FF6D00]/10 px-2 py-0.5 rounded-full border border-[#FF6D00]/30">Ready to post</span>
+                <span className="text-[10px] font-black text-[#FF7043] bg-[#FF5722]/10 px-2 py-0.5 rounded-full border border-[#FF5722]/30">Ready to post</span>
                 {showSocialCopy ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
               </div>
             </button>
@@ -649,7 +649,7 @@ export default function InteractiveRenderEngine({
                     <span>Title</span>
                     <button
                       onClick={handleCopyTitle}
-                      className="text-[#FF8F00] hover:text-[#FFA726] flex items-center gap-1 text-[10px] font-bold cursor-pointer"
+                      className="text-[#FF7043] hover:text-[#FFA000] flex items-center gap-1 text-[10px] font-bold cursor-pointer"
                     >
                       {copiedTitle ? <Check size={11} /> : <Copy size={11} />}
                       <span>{copiedTitle ? 'Copied' : 'Copy'}</span>
@@ -665,7 +665,7 @@ export default function InteractiveRenderEngine({
                     <span>Caption &amp; Hashtags</span>
                     <button
                       onClick={handleCopyDesc}
-                      className="text-[#FF8F00] hover:text-[#FFA726] flex items-center gap-1 text-[10px] font-bold cursor-pointer"
+                      className="text-[#FF7043] hover:text-[#FFA000] flex items-center gap-1 text-[10px] font-bold cursor-pointer"
                     >
                       {copiedDesc ? <Check size={11} /> : <Copy size={11} />}
                       <span>{copiedDesc ? 'Copied' : 'Copy'}</span>
@@ -704,7 +704,7 @@ export default function InteractiveRenderEngine({
             </div>
             <div className="flex items-center justify-between text-slate-400">
               <span>Render Engine</span>
-              <span className="font-mono text-[#FF8F00] font-bold">AWS Lambda (Remotion Cloud)</span>
+              <span className="font-mono text-[#FF7043] font-bold">AWS Lambda (Remotion Cloud)</span>
             </div>
             <div className="flex items-center justify-between text-slate-400">
               <span>Encoding</span>

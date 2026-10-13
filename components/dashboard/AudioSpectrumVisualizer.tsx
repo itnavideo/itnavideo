@@ -41,7 +41,7 @@ export function AudioSpectrumVisualizer({
                 animationDuration: isTranscribing ? "0.6s" : "0.9s",
                 animationDelay: `${delay}s`,
               }}
-              className={`w-0.5 rounded-full bg-gradient-to-t from-[#FF6D00] to-[#FFA726] transition-all duration-200 ${
+              className={`w-0.5 rounded-full bg-gradient-to-t from-[#FF5722] to-[#FFA000] transition-all duration-200 ${
                 isPlaying || isTranscribing ? `animate-pulse ${heightClass}` : "h-1.5 opacity-40"
               }`}
             />

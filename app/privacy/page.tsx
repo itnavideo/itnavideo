@@ -3,15 +3,20 @@ import { ArrowRight, ShieldCheck } from 'lucide-react';
 
 export default function PrivacyPage() {
   return (
-    <main className="min-h-screen bg-[#07090E] px-6 pb-24 pt-32 text-zinc-100">
+    <main className="min-h-screen bg-white px-6 pb-24 pt-32 text-slate-900">
       <section className="mx-auto max-w-4xl">
-        <div className="mb-7 inline-flex items-center gap-2 rounded-lg border border-amber-400/20 bg-amber-400/10 px-3 py-1.5 text-xs font-bold text-amber-400">
-          <ShieldCheck size={15} />
-          Privacy Policy
+        <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1.5 text-xs font-bold text-orange-700">
+          <ShieldCheck size={15} className="text-[#FF5722]" />
+          <span>Privacy Policy</span>
         </div>
-        <h1 className="text-4xl font-black leading-tight sm:text-6xl text-white">Privacy Policy</h1>
-        <p className="mt-4 text-xs font-semibold uppercase tracking-[0.18em] text-zinc-400">Last updated: May 13, 2026</p>
-        <div className="mt-8 space-y-6 text-sm leading-7 text-zinc-300">
+        <h1 className="text-4xl font-black leading-tight sm:text-6xl text-slate-900 font-sans">
+          Privacy{' '}
+          <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
+            Policy
+          </span>
+        </h1>
+        <p className="mt-4 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Last updated: May 13, 2026</p>
+        <div className="mt-8 space-y-6 text-sm leading-7 text-slate-600">
           <p>
             Itnavideo collects the information needed to provide AI video generation, account access, billing,
             support, and product improvements. This may include your account details, uploaded media, voiceovers,
@@ -31,9 +36,9 @@ export default function PrivacyPage() {
         </div>
         <Link
           href="/contact"
-          className="mt-8 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 px-6 py-3.5 text-sm font-black text-slate-950 shadow-lg shadow-amber-500/20 transition hover:brightness-110 active:scale-95"
+          className="mt-8 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-orange-500/20 transition hover:brightness-105 active:scale-95"
         >
-          Contact Support
+          <span>Contact Support</span>
           <ArrowRight size={16} />
         </Link>
       </section>

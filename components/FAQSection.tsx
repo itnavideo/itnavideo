@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { HelpCircle, ChevronDown, ArrowRight, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 
@@ -66,7 +66,7 @@ const faqs: FAQItem[] = [
 ];
 
 export default function FAQSection() {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const [openIndex, setOpenIndex] = useState<number | null>(0); // First open by default
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const filteredFaqs = selectedCategory === 'all'
@@ -78,28 +78,23 @@ export default function FAQSection() {
   };
 
   return (
-    <section className="relative overflow-hidden px-4 py-16 sm:px-6 sm:py-24 bg-[#070B14] border-t border-white/10 text-white">
+    <section id="faq" className="relative overflow-hidden px-4 py-16 sm:px-6 sm:py-24 bg-white border-t border-slate-200/80 text-slate-900">
       <div className="max-w-4xl mx-auto relative z-10">
         {/* Header */}
         <div className="text-center mb-10 sm:mb-12 space-y-3.5">
-          <div className="inline-flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest text-purple-300">
-            <HelpCircle size={14} className="text-purple-400" />
+          <div className="inline-flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-widest text-orange-600">
+            <HelpCircle size={14} className="text-[#FF5722]" />
             <span>Help &amp; Answers</span>
           </div>
 
-          <motion.h2
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-3xl font-black text-white sm:text-5xl font-sans tracking-tight"
-          >
+          <h2 className="text-3xl font-black text-slate-900 sm:text-5xl font-sans tracking-tight">
             Frequently Asked{' '}
-            <span className="text-purple-300">
+            <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
               Questions
             </span>
-          </motion.h2>
+          </h2>
 
-          <p className="text-xs sm:text-sm max-w-lg mx-auto text-zinc-400 font-normal">
+          <p className="text-xs sm:text-sm max-w-lg mx-auto text-slate-600 font-normal">
             Everything you need to know about our AI video workflows, cloud rendering, and plans.
           </p>
 
@@ -117,14 +112,14 @@ export default function FAQSection() {
                   }}
                   className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer ${
                     isActive
-                      ? 'bg-purple-600 text-white shadow-md shadow-purple-600/25 font-black'
-                      : 'border border-white/[0.07] bg-[#0E1526] text-zinc-300 hover:border-purple-500/40 hover:text-white'
+                      ? 'bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-md shadow-orange-500/25 font-black scale-[1.02]'
+                      : 'border border-slate-200 bg-slate-50 text-slate-700 hover:border-orange-500/40 hover:bg-orange-50/40 hover:text-orange-950'
                   }`}
                   type="button"
                 >
                   <span>{cat.label}</span>
                   <span className={`rounded-full px-1.5 py-0.2 text-[10px] font-mono ${
-                    isActive ? 'bg-black/20 text-white font-black' : 'bg-[#151821] text-zinc-400'
+                    isActive ? 'bg-black/20 text-white font-black' : 'bg-slate-200/80 text-slate-600'
                   }`}>
                     {count}
                   </span>
@@ -141,15 +136,12 @@ export default function FAQSection() {
             const indexNumber = String(index + 1).padStart(2, '0');
 
             return (
-              <motion.div
+              <div
                 key={faq.question}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.25, delay: index * 0.03 }}
                 className={`group rounded-[24px] border transition-all duration-300 overflow-hidden ${
                   isOpen
-                    ? 'border-purple-500/60 bg-[#0E1526] shadow-xl shadow-purple-500/10 ring-1 ring-purple-500/30'
-                    : 'border-white/[0.07] bg-[#0E1526]/80 hover:border-purple-500/40'
+                    ? 'border-orange-500/60 bg-white shadow-xl shadow-orange-500/10 ring-1 ring-orange-500/30'
+                    : 'border-slate-200 bg-white hover:border-orange-500/40'
                 }`}
               >
                 <button
@@ -162,13 +154,13 @@ export default function FAQSection() {
                     {/* Index Badge */}
                     <span className={`flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-xl text-xs font-mono font-bold transition-colors ${
                       isOpen
-                        ? 'bg-purple-600 text-white font-black'
-                        : 'border border-white/[0.07] bg-[#151821] text-purple-300 group-hover:border-purple-500/50'
+                        ? 'bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-white font-black'
+                        : 'border border-slate-200 bg-slate-50 text-slate-700 group-hover:border-orange-500/50 group-hover:text-orange-600'
                     }`}>
                       {indexNumber}
                     </span>
 
-                    <span className="text-sm sm:text-base font-bold text-white font-sans tracking-tight leading-snug group-hover:text-purple-300 transition-colors">
+                    <span className="text-sm sm:text-base font-bold text-slate-900 font-sans tracking-tight leading-snug group-hover:text-orange-600 transition-colors">
                       {faq.question}
                     </span>
                   </div>
@@ -176,8 +168,8 @@ export default function FAQSection() {
                   {/* Circular Chevron Indicator */}
                   <div className={`flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full border transition-all duration-300 ${
                     isOpen
-                      ? 'border-purple-500/50 bg-purple-500/15 text-purple-300 rotate-180'
-                      : 'border-white/[0.07] bg-[#151821] text-zinc-400 group-hover:text-white group-hover:border-purple-500/40'
+                      ? 'border-orange-500/50 bg-orange-500/15 text-orange-600 rotate-180'
+                      : 'border-slate-200 bg-slate-50 text-slate-400 group-hover:text-slate-800 group-hover:border-orange-500/40'
                   }`}>
                     <ChevronDown size={16} />
                   </div>
@@ -192,8 +184,8 @@ export default function FAQSection() {
                       transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
                     >
                       <div className="px-4 pb-5 pt-1 sm:px-6 sm:pb-6">
-                        <div className="rounded-2xl bg-[#151821]/70 border border-white/[0.07] p-4 sm:p-5 space-y-3">
-                          <p className="text-xs sm:text-sm leading-relaxed text-zinc-300 font-normal">
+                        <div className="rounded-2xl bg-slate-50 border border-slate-200 p-4 sm:p-5 space-y-3">
+                          <p className="text-xs sm:text-sm leading-relaxed text-slate-600 font-normal">
                             {faq.answer}
                           </p>
 
@@ -201,7 +193,7 @@ export default function FAQSection() {
                             <div className="pt-2">
                               <Link
                                 href={faq.action.href}
-                                className="inline-flex items-center gap-1.5 text-xs font-bold text-purple-300 hover:text-purple-200 transition-colors"
+                                className="inline-flex items-center gap-1.5 text-xs font-bold text-orange-600 hover:text-orange-700 transition-colors"
                               >
                                 <span>{faq.action.label}</span>
                                 <ArrowRight size={13} />
@@ -213,43 +205,28 @@ export default function FAQSection() {
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </motion.div>
+              </div>
             );
           })}
         </div>
 
-        {/* View All FAQs Link Button */}
-        <div className="mt-8 text-center">
-          <Link
-            href="/video-types#faq"
-            className="inline-flex items-center gap-2 rounded-2xl border border-purple-500/30 bg-purple-500/10 px-6 py-3 text-xs font-bold text-purple-300 hover:bg-purple-500/20 hover:border-purple-500/50 transition-all shadow-lg shadow-purple-500/10 active:scale-95"
-          >
-            <span>View All FAQs →</span>
-          </Link>
-        </div>
-
         {/* Support Card CTA */}
-        <motion.div 
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mt-10 rounded-[28px] border border-white/[0.07] bg-[#0E1526] p-6 text-center max-w-xl mx-auto shadow-xl"
-        >
-          <div className="flex h-10 w-10 mx-auto items-center justify-center rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-300 mb-2">
+        <div className="mt-10 rounded-[28px] border border-slate-200 bg-white p-6 text-center max-w-xl mx-auto shadow-md">
+          <div className="flex h-10 w-10 mx-auto items-center justify-center rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-600 mb-2">
             <MessageCircle size={18} />
           </div>
-          <h4 className="text-sm font-bold text-white">Have another question?</h4>
-          <p className="mt-1 text-xs text-zinc-400">Contact us for product, billing, or workflow questions.</p>
+          <h4 className="text-sm font-bold text-slate-900">Have another question?</h4>
+          <p className="mt-1 text-xs text-slate-600">Contact us for product, billing, or workflow questions.</p>
           <div className="mt-4">
             <Link
               href="/contact"
-              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-[#151E30] px-5 py-2.5 text-xs font-bold text-white transition hover:border-purple-500/50 hover:bg-[#1C2840] hover:text-purple-300 active:scale-95 shadow-md"
+              className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-5 py-2.5 text-xs font-bold text-slate-800 transition hover:border-orange-500/50 hover:bg-orange-50/50 hover:text-orange-950 active:scale-95 shadow-2xs"
             >
               <span>Contact Support</span>
-              <ArrowRight size={13} className="text-purple-400" />
+              <ArrowRight size={13} className="text-[#FF5722]" />
             </Link>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

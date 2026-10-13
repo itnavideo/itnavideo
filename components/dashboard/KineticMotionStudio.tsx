@@ -455,8 +455,8 @@ function KMPresetCard({
       onClick={onSelect}
       className={`group relative rounded-[20px] border p-2.5 overflow-hidden text-left transition-all duration-300 cursor-pointer flex flex-col justify-between ${
         isSelected
-          ? "border-[#FF6D00] ring-2 ring-[#FF6D00]/40 bg-gradient-to-b from-[#FF6D00]/15 via-[#0E1526] to-[#070B14] shadow-xl shadow-[#FF6D00]/20 scale-[1.02]"
-          : "border-white/10 bg-[#0E1526]/90 hover:border-[#FF6D00]/50 hover:bg-[#151E30] hover:shadow-lg"
+          ? "border-[#FF5722] ring-2 ring-[#FF5722]/40 bg-gradient-to-b from-[#FF5722]/15 via-[#0E1526] to-[#070B14] shadow-xl shadow-[#FF5722]/20 scale-[1.02]"
+          : "border-white/10 bg-[#0E1526]/90 hover:border-[#FF5722]/50 hover:bg-[#151E30] hover:shadow-lg"
       }`}
     >
       {/* Top badges */}
@@ -478,7 +478,7 @@ function KMPresetCard({
             e.stopPropagation();
             onOpenLivePreview(e);
           }}
-          className="rounded-full bg-black/70 hover:bg-[#FF6D00] hover:text-black border border-white/20 p-1 text-zinc-200 transition-all cursor-pointer flex items-center gap-1 px-2 shadow-xs"
+          className="rounded-full bg-black/70 hover:bg-[#FF5722] hover:text-black border border-white/20 p-1 text-zinc-200 transition-all cursor-pointer flex items-center gap-1 px-2 shadow-xs"
           title="Open Full 9:16 Live Preview"
         >
           <Eye size={11} />
@@ -530,7 +530,7 @@ function KMPresetCard({
             {preset.name}
           </h3>
           {isSelected && (
-            <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#FF6D00] text-black">
+            <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#FF5722] text-black">
               <Check size={10} strokeWidth={3} />
             </span>
           )}
@@ -684,7 +684,7 @@ function KMLivePreviewModal({
                   value={sampleText}
                   onChange={(e) => setSampleText(e.target.value)}
                   placeholder="e.g. YOUR WORDS MOVE IN SYNC WITH THE BEAT"
-                  className="w-full bg-[#070B14] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white font-medium focus:border-[#FF6D00] focus:outline-none"
+                  className="w-full bg-[#070B14] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white font-medium focus:border-[#FF5722] focus:outline-none"
                 />
                 <p className="text-[10px] text-zinc-400">Type words to see live motion animation in real-time.</p>
               </div>
@@ -693,7 +693,7 @@ function KMLivePreviewModal({
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-300 block">Accent Color</label>
                 <div className="flex items-center gap-2 flex-wrap">
-                  {["#FACC15", "#FF6D00", "#EF4444", "#22C55E", "#38BDF8", "#A855F7", "#FFFFFF"].map((c) => (
+                  {["#FACC15", "#FF5722", "#EF4444", "#22C55E", "#38BDF8", "#A855F7", "#FFFFFF"].map((c) => (
                     <button
                       key={c}
                       type="button"
@@ -719,7 +719,7 @@ function KMLivePreviewModal({
                 <select
                   value={fontFamily}
                   onChange={(e) => onChangeFontFamily(e.target.value)}
-                  className="w-full bg-[#070B14] text-white text-xs font-bold rounded-xl border border-white/10 px-3 py-2 focus:border-[#FF6D00] focus:outline-none"
+                  className="w-full bg-[#070B14] text-white text-xs font-bold rounded-xl border border-white/10 px-3 py-2 focus:border-[#FF5722] focus:outline-none"
                 >
                   <option value="preset">Preset Default ({preset.previewFont.split(",")[0]})</option>
                   <option value="Impact, sans-serif">Impact — Viral Heavy</option>
@@ -733,7 +733,7 @@ function KMLivePreviewModal({
 
               {/* Animation Spec Note */}
               <div className="rounded-xl bg-[#070B14] p-3 border border-white/10 space-y-1">
-                <span className="text-[10px] font-bold text-[#FF8F00] uppercase tracking-wider block">Animation Physics</span>
+                <span className="text-[10px] font-bold text-[#FF7043] uppercase tracking-wider block">Animation Physics</span>
                 <p className="text-[11px] text-zinc-300 leading-relaxed">{preset.animationSpec}</p>
               </div>
             </div>
@@ -755,7 +755,7 @@ function KMLivePreviewModal({
               onApply();
               onClose();
             }}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-xs font-black text-black shadow-lg shadow-[#FF6D00]/25 hover:brightness-110 active:scale-95 transition cursor-pointer"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-xs font-black text-black shadow-lg shadow-[#FF5722]/25 hover:brightness-110 active:scale-95 transition cursor-pointer"
           >
             <Check size={14} strokeWidth={3} />
             Apply Motion Style
@@ -843,7 +843,7 @@ export function KineticMotionStudio({
   return (
     <div className="relative rounded-[28px] border border-white/10 bg-[#111218] p-5 sm:p-7 shadow-2xl min-w-0 max-w-full overflow-x-hidden space-y-7 text-white">
       {/* Magic UI BorderBeam Glowing Effect */}
-      <BorderBeam size={280} duration={14} colorFrom="#FF6D00" colorTo="#FFA726" />
+      <BorderBeam size={280} duration={14} colorFrom="#FF5722" colorTo="#FFA000" />
       {/* Inject CSS keyframes once */}
       <style dangerouslySetInnerHTML={{ __html: KM_STYLES }} />
 
@@ -865,7 +865,7 @@ export function KineticMotionStudio({
             onClick={() => setRatio("9:16")}
             className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
               selectedRatio === "9:16"
-                ? "bg-[#FF6D00] text-black shadow-md shadow-[#FF6D00]/25 font-black"
+                ? "bg-[#FF5722] text-black shadow-md shadow-[#FF5722]/25 font-black"
                 : "text-zinc-400 hover:text-white hover:bg-white/5"
             }`}
           >
@@ -897,7 +897,7 @@ export function KineticMotionStudio({
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
-            className="relative flex flex-col items-center justify-center gap-5 rounded-[28px] border-2 border-dashed border-white/15 hover:border-[#FF6D00]/60 bg-[#0A0C12] hover:bg-[#0E1020] min-h-[220px] p-8 text-center transition-all duration-200 cursor-pointer group"
+            className="relative flex flex-col items-center justify-center gap-5 rounded-[28px] border-2 border-dashed border-white/15 hover:border-[#FF5722]/60 bg-[#0A0C12] hover:bg-[#0E1020] min-h-[220px] p-8 text-center transition-all duration-200 cursor-pointer group"
           >
             <input
               ref={fileInputRef}
@@ -910,7 +910,7 @@ export function KineticMotionStudio({
                 e.currentTarget.value = "";
               }}
             />
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-[#FF6D00]/30 bg-[#FF6D00]/10 text-[#FF9100] group-hover:scale-110 group-hover:bg-[#FF6D00]/20 transition-all duration-300 shadow-lg shadow-[#FF6D00]/10">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-[#FF5722]/30 bg-[#FF5722]/10 text-[#FF9100] group-hover:scale-110 group-hover:bg-[#FF5722]/20 transition-all duration-300 shadow-lg shadow-[#FF5722]/10">
               <Upload size={28} />
             </div>
             <div className="space-y-1.5">
@@ -918,14 +918,14 @@ export function KineticMotionStudio({
               <p className="text-sm text-zinc-400">MP4, MOV, MP3, WAV · Up to 3 minutes</p>
               <div className="flex flex-wrap items-center justify-center gap-2 mt-3">
                 <span className="rounded-full border border-white/10 bg-[#161720] px-3 py-1 text-[11px] font-bold text-slate-300 flex items-center gap-1.5">
-                  <Film size={11} className="text-[#FF8F00]" /> MP4 / MOV Video
+                  <Film size={11} className="text-[#FF7043]" /> MP4 / MOV Video
                 </span>
                 <span className="rounded-full border border-white/10 bg-[#161720] px-3 py-1 text-[11px] font-bold text-slate-300 flex items-center gap-1.5">
-                  <FileAudio size={11} className="text-[#FF8F00]" /> MP3 / WAV Audio
+                  <FileAudio size={11} className="text-[#FF7043]" /> MP3 / WAV Audio
                 </span>
               </div>
             </div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] px-6 py-2.5 text-sm font-black text-black shadow-lg shadow-[#FF6D00]/25 group-hover:brightness-110 transition active:scale-95">
+            <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#FF5722] to-[#FF7043] px-6 py-2.5 text-sm font-black text-black shadow-lg shadow-[#FF5722]/25 group-hover:brightness-110 transition active:scale-95">
               <Upload size={15} />
               Browse Files
             </div>
@@ -935,11 +935,11 @@ export function KineticMotionStudio({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Sparkles size={16} className="text-[#FF8F00]" />
+                <Sparkles size={16} className="text-[#FF7043]" />
                 <h2 className="text-sm font-black uppercase tracking-wider text-white">
                   Pick Your Motion Style (11 Presets)
                 </h2>
-                <span className="rounded-full bg-[#FF6D00]/15 border border-[#FF6D00]/30 px-2.5 py-0.5 text-[11px] font-black text-[#FFA726]">
+                <span className="rounded-full bg-[#FF5722]/15 border border-[#FF5722]/30 px-2.5 py-0.5 text-[11px] font-black text-[#FFA000]">
                   Active: {activePreset.badge} — {activePreset.name}
                 </span>
               </div>
@@ -971,7 +971,7 @@ export function KineticMotionStudio({
             {/* Compact File Row */}
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="w-full flex items-center justify-between gap-3 rounded-2xl border border-white/10 hover:border-[#FF6D00]/50 bg-[#161720] p-3.5 transition-all cursor-pointer group"
+              className="w-full flex items-center justify-between gap-3 rounded-2xl border border-white/10 hover:border-[#FF5722]/50 bg-[#161720] p-3.5 transition-all cursor-pointer group"
             >
               <input
                 ref={fileInputRef}
@@ -1021,7 +1021,7 @@ export function KineticMotionStudio({
                   onClick={() => setActiveTab(tab)}
                   className={`rounded-xl py-2.5 text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 ${
                     activeTab === tab
-                      ? "bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-md"
+                      ? "bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black shadow-md"
                       : "text-zinc-400 hover:text-white"
                   }`}
                 >
@@ -1063,7 +1063,7 @@ export function KineticMotionStudio({
                   <select
                     value={fontFamily}
                     onChange={(e) => onFontFamilyChange(e.target.value)}
-                    className="w-full bg-[#090A0F] text-white text-xs font-bold rounded-xl border border-white/10 px-3 py-2.5 focus:border-[#FF6D00] focus:outline-none cursor-pointer"
+                    className="w-full bg-[#090A0F] text-white text-xs font-bold rounded-xl border border-white/10 px-3 py-2.5 focus:border-[#FF5722] focus:outline-none cursor-pointer"
                   >
                     <option value="preset">Preset Default Font</option>
                     <option value="Impact, sans-serif">Impact — Bold Viral</option>
@@ -1080,7 +1080,7 @@ export function KineticMotionStudio({
                   <label className="text-xs font-bold text-slate-300 block">Motion Accent Color</label>
                   <div className="flex items-center gap-3">
                     <div className="flex flex-wrap gap-1.5">
-                      {["#FACC15", "#FF6D00", "#EF4444", "#22C55E", "#38BDF8", "#A855F7", "#FFFFFF"].map((c) => (
+                      {["#FACC15", "#FF5722", "#EF4444", "#22C55E", "#38BDF8", "#A855F7", "#FFFFFF"].map((c) => (
                         <button
                           key={c}
                           type="button"
@@ -1117,7 +1117,7 @@ export function KineticMotionStudio({
                         onClick={() => onTextCaseChange(c.id as any)}
                         className={`rounded-xl py-2 text-xs font-black transition cursor-pointer ${
                           textCase === c.id
-                            ? "bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-md"
+                            ? "bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black shadow-md"
                             : "text-zinc-400 hover:text-white"
                         }`}
                       >
@@ -1142,7 +1142,7 @@ export function KineticMotionStudio({
                         onClick={() => onSfxIntensityChange(s.id as any)}
                         className={`rounded-xl py-2 text-xs font-bold transition cursor-pointer ${
                           sfxIntensity === s.id
-                            ? "bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-md font-black"
+                            ? "bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black shadow-md font-black"
                             : "text-zinc-400 hover:text-white"
                         }`}
                       >
@@ -1166,7 +1166,7 @@ export function KineticMotionStudio({
                         onClick={() => onPacingChange(p.id as any)}
                         className={`rounded-xl py-2 text-xs font-bold transition cursor-pointer ${
                           pacing === p.id
-                            ? "bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-md font-black"
+                            ? "bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black shadow-md font-black"
                             : "text-zinc-400 hover:text-white"
                         }`}
                       >
@@ -1190,7 +1190,7 @@ export function KineticMotionStudio({
                         onClick={() => onIntensityChange(v.id as any)}
                         className={`rounded-xl py-2 text-xs font-bold transition cursor-pointer ${
                           intensity === v.id
-                            ? "bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-md font-black"
+                            ? "bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black shadow-md font-black"
                             : "text-zinc-400 hover:text-white"
                         }`}
                       >
@@ -1228,7 +1228,7 @@ export function KineticMotionStudio({
                 <button
                   type="button"
                   onClick={() => setLivePreviewPreset(activePreset)}
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 hover:bg-[#FF6D00] hover:text-black px-3 py-1.5 text-xs font-bold text-white transition cursor-pointer"
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 hover:bg-[#FF5722] hover:text-black px-3 py-1.5 text-xs font-bold text-white transition cursor-pointer"
                 >
                   <Eye size={13} />
                   <span>9:16 Live Preview</span>
@@ -1257,7 +1257,7 @@ export function KineticMotionStudio({
 
               <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px]">
                 <span className="text-zinc-400">Bridge Target:</span>
-                <span className="font-mono text-[#FF8F00] font-bold">{activePreset.bridgeStyleId}</span>
+                <span className="font-mono text-[#FF7043] font-bold">{activePreset.bridgeStyleId}</span>
               </div>
             </div>
 
@@ -1266,7 +1266,7 @@ export function KineticMotionStudio({
               type="button"
               onClick={onGenerate}
               disabled={isGenerating}
-              className="w-full inline-flex min-h-[54px] items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] text-base font-black text-black shadow-xl shadow-[#FF6D00]/30 hover:brightness-110 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
+              className="w-full inline-flex min-h-[54px] items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-base font-black text-black shadow-xl shadow-[#FF5722]/30 hover:brightness-110 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
             >
               <Sparkles size={18} />
               <span>{isGenerating ? "Syncing Kinetic Motion..." : "Generate Kinetic Motion Video"}</span>

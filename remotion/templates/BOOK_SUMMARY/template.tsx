@@ -32,7 +32,8 @@ export interface BookSummaryTemplateProps {
   aspectRatio?: '9:16' | '16:9';
 }
 
-const FALLBACK_COVER = 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788688233/person_calculating_typing_laptop_npimij.png';
+// No laptop placeholder — BOOK_COVER falls back to a styled title-only card when no image is supplied
+const FALLBACK_COVER = '';
 
 const resolveUrl = (src?: string) => {
   if (!src || typeof src !== 'string') return '';

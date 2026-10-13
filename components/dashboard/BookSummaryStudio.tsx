@@ -380,10 +380,10 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
 
         {/* Ready State: Metadata & Chapter Exposures (Correction 15 & 16) */}
         {renderStatus.state === 'ready' && plan?.metadata && (
-          <div className="rounded-[28px] border border-white/10 bg-[#0E1526]/90 p-8 space-y-6 shadow-2xl shadow-[#FF6D00]/10">
+          <div className="rounded-[28px] border border-white/10 bg-[#0E1526]/90 p-8 space-y-6 shadow-2xl shadow-[#FF5722]/10">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="rounded-full bg-[#FF6D00]/10 border border-[#FF6D00]/30 p-2 text-[#FF9100]">
+                <div className="rounded-full bg-[#FF5722]/10 border border-[#FF5722]/30 p-2 text-[#FF9100]">
                   <FileText size={20} />
                 </div>
                 <div>
@@ -442,7 +442,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                 <div className="space-y-2">
                   {plan.metadata.chapters.map((chap, idx) => (
                     <div key={idx} className="flex items-center gap-3 text-sm text-slate-200">
-                      <span className="font-mono text-xs font-bold text-[#FFA726] bg-[#FF6D00]/10 px-2 py-1 rounded-md border border-[#FF6D00]/20">
+                      <span className="font-mono text-xs font-bold text-[#FFA000] bg-[#FF5722]/10 px-2 py-1 rounded-md border border-[#FF5722]/20">
                         {chap.timestamp}
                       </span>
                       <span className="font-medium">{chap.title}</span>
@@ -460,11 +460,11 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
   return (
     <div className="relative rounded-[28px] border border-white/10 bg-[#111218] p-5 sm:p-7 shadow-2xl min-w-0 max-w-full overflow-x-hidden space-y-7 text-white">
       {/* Magic UI BorderBeam Glowing Effect */}
-      <BorderBeam size={280} duration={14} colorFrom="#FF6D00" colorTo="#FFA726" />
+      <BorderBeam size={280} duration={14} colorFrom="#FF5722" colorTo="#FFA000" />
       {/* Studio Stage Stepper Banner */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-white/10 bg-[#0E1526]/80 p-4 sm:p-5 backdrop-blur-md">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="shrink-0 rounded-full bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] p-2.5 text-black shadow-lg shadow-[#FF6D00]/20">
+          <div className="shrink-0 rounded-full bg-gradient-to-r from-[#FF5722] to-[#FF7043] p-2.5 text-black shadow-lg shadow-[#FF5722]/20">
             <BookOpen size={20} />
           </div>
           <div className="min-w-0">
@@ -494,7 +494,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
               onClick={() => setRatio("9:16")}
               className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1 text-xs font-bold transition cursor-pointer ${
                 selectedRatio === "9:16"
-                  ? "bg-[#FF6D00] text-black shadow-md shadow-[#FF6D00]/25 font-black"
+                  ? "bg-[#FF5722] text-black shadow-md shadow-[#FF5722]/25 font-black"
                   : "text-zinc-400 hover:text-white hover:bg-white/5"
               }`}
             >
@@ -507,7 +507,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
             onClick={() => setStudioStep('inputs')}
             className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
               studioStep === 'inputs'
-                ? 'bg-[#FF6D00] text-black font-black shadow-md shadow-[#FF6D00]/20'
+                ? 'bg-[#FF5722] text-black font-black shadow-md shadow-[#FF5722]/20'
                 : 'bg-white/5 text-slate-400 hover:text-white'
             }`}
           >
@@ -520,7 +520,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
             onClick={() => plan && setStudioStep('storyboard')}
             className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
               studioStep === 'storyboard'
-                ? 'bg-[#FF6D00] text-black font-black shadow-md shadow-[#FF6D00]/20'
+                ? 'bg-[#FF5722] text-black font-black shadow-md shadow-[#FF5722]/20'
                 : 'bg-white/5 text-slate-400 disabled:opacity-40'
             }`}
           >
@@ -570,7 +570,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                   type="button"
                   onClick={() => audioInputRef.current?.click()}
                   disabled={isUploadingAudio}
-                  className="w-full h-36 border-2 border-dashed border-white/15 hover:border-[#FF6D00]/50 rounded-2xl bg-[#151E30]/50 hover:bg-[#151E30] transition flex flex-col items-center justify-center gap-3 text-slate-400 hover:text-white"
+                  className="w-full h-36 border-2 border-dashed border-white/15 hover:border-[#FF5722]/50 rounded-2xl bg-[#151E30]/50 hover:bg-[#151E30] transition flex flex-col items-center justify-center gap-3 text-slate-400 hover:text-white"
                 >
                   <UploadCloud size={32} className="text-[#FF9100]" />
                   <div className="text-center">
@@ -604,7 +604,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                   <ImagePlus size={18} className="text-[#FF9100]" />
                   <span className="text-sm font-black uppercase tracking-wider text-white">Visual Assets</span>
                 </div>
-                <span className="text-[11px] font-extrabold uppercase bg-[#FF6D00]/15 border border-[#FF6D00]/30 text-[#FF9100] px-2.5 py-1 rounded-full">
+                <span className="text-[11px] font-extrabold uppercase bg-[#FF5722]/15 border border-[#FF5722]/30 text-[#FF9100] px-2.5 py-1 rounded-full">
                   At Least 1 Image Required
                 </span>
               </div>
@@ -619,7 +619,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                       type="button"
                       onClick={() => coverInputRef.current?.click()}
                       disabled={isUploadingCover}
-                      className="w-full h-24 border border-white/10 hover:border-[#FF6D00]/40 rounded-xl bg-[#151E30] flex flex-col items-center justify-center gap-1.5 text-slate-400 hover:text-white text-xs font-bold transition"
+                      className="w-full h-24 border border-white/10 hover:border-[#FF5722]/40 rounded-xl bg-[#151E30] flex flex-col items-center justify-center gap-1.5 text-slate-400 hover:text-white text-xs font-bold transition"
                     >
                       <ImagePlus size={18} className="text-[#FF9100]" />
                       <span>Upload Cover</span>
@@ -646,7 +646,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                       type="button"
                       onClick={() => authorInputRef.current?.click()}
                       disabled={isUploadingAuthor}
-                      className="w-full h-24 border border-white/10 hover:border-[#FF6D00]/40 rounded-xl bg-[#151E30] flex flex-col items-center justify-center gap-1.5 text-slate-400 hover:text-white text-xs font-bold transition"
+                      className="w-full h-24 border border-white/10 hover:border-[#FF5722]/40 rounded-xl bg-[#151E30] flex flex-col items-center justify-center gap-1.5 text-slate-400 hover:text-white text-xs font-bold transition"
                     >
                       <User size={18} className="text-[#FF9100]" />
                       <span>Upload Portrait</span>
@@ -719,7 +719,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                     value={bookTitle}
                     onChange={e => setBookTitle(e.target.value)}
                     placeholder="e.g. Atomic Habits"
-                    className="w-full mt-1.5 rounded-xl border border-white/10 bg-[#151E30] px-4 py-3 text-sm text-white focus:border-[#FF6D00] focus:outline-none"
+                    className="w-full mt-1.5 rounded-xl border border-white/10 bg-[#151E30] px-4 py-3 text-sm text-white focus:border-[#FF5722] focus:outline-none"
                   />
                 </div>
 
@@ -730,7 +730,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                     value={authorName}
                     onChange={e => setAuthorName(e.target.value)}
                     placeholder="e.g. James Clear"
-                    className="w-full mt-1.5 rounded-xl border border-white/10 bg-[#151E30] px-4 py-3 text-sm text-white focus:border-[#FF6D00] focus:outline-none"
+                    className="w-full mt-1.5 rounded-xl border border-white/10 bg-[#151E30] px-4 py-3 text-sm text-white focus:border-[#FF5722] focus:outline-none"
                   />
                 </div>
               </div>
@@ -740,7 +740,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
             <button
               onClick={handleAnalyzeAndBuildStoryboard}
               disabled={isAnalyzing || !audioUrl}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] px-6 py-4 text-base font-black text-black shadow-lg shadow-[#FF6D00]/25 transition hover:brightness-110 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] to-[#FF7043] px-6 py-4 text-base font-black text-black shadow-lg shadow-[#FF5722]/25 transition hover:brightness-110 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {isAnalyzing ? (
                 <>
@@ -783,13 +783,13 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                 className={`rounded-2xl border p-5 transition ${
                   scene.disabled
                     ? 'border-white/5 bg-[#070B14]/60 opacity-50'
-                    : 'border-white/10 bg-[#0E1526] hover:border-[#FF6D00]/40'
+                    : 'border-white/10 bg-[#0E1526] hover:border-[#FF5722]/40'
                 }`}
               >
                 <div className="flex items-center justify-between gap-4">
                   {/* Scene Time & Type Badge */}
                   <div className="flex items-center gap-3">
-                    <span className="font-mono text-xs font-bold text-[#FFA726] bg-[#FF6D00]/10 px-2.5 py-1 rounded-md border border-[#FF6D00]/20">
+                    <span className="font-mono text-xs font-bold text-[#FFA000] bg-[#FF5722]/10 px-2.5 py-1 rounded-md border border-[#FF5722]/20">
                       {formatTime(scene.startSeconds)} - {formatTime(scene.endSeconds)}
                     </span>
 
@@ -843,7 +843,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                       value={scene.text || ''}
                       onChange={e => handleUpdateSceneText(scene.id, e.target.value)}
                       placeholder="Scene Text..."
-                      className="w-full rounded-xl border border-white/10 bg-[#151E30] px-4 py-2.5 text-sm font-bold text-white focus:border-[#FF6D00] focus:outline-none"
+                      className="w-full rounded-xl border border-white/10 bg-[#151E30] px-4 py-2.5 text-sm font-bold text-white focus:border-[#FF5722] focus:outline-none"
                     />
                   </div>
                 )}
@@ -862,7 +862,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
 
             <button
               onClick={handleStartFinalRender}
-              className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] px-8 py-4 text-base font-black text-black shadow-lg shadow-[#FF6D00]/25 transition hover:brightness-110 active:scale-95"
+              className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] to-[#FF7043] px-8 py-4 text-base font-black text-black shadow-lg shadow-[#FF5722]/25 transition hover:brightness-110 active:scale-95"
             >
               <Film size={18} />
               <span>Generate Video (20 Credits)</span>

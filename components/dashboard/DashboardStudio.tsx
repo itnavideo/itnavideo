@@ -22,6 +22,7 @@ import {
   ArrowLeft,
   ArrowUpRight,
   BadgeCheck,
+  BookOpen,
   Check,
   CheckCircle2,
   Clapperboard,
@@ -104,9 +105,10 @@ type Mode =
   | "customAiReel"
   | "whiteboardVideo"
   | "typographyVideo"
+  | "longVideoPromo"
   | "longVideoClips"
   | "audioClean"
-  | "longVideoPro"
+  | "bookSummary"
   | "facelessVideo"
   | "imageToVideoAi"
   | "aiVideoGenerator";
@@ -227,14 +229,13 @@ const RENDER_POLL_INTERVAL_MS = 3000;
 const RENDER_POLL_ATTEMPTS = 800; // ~40 minutes max polling for 12-minute 1080p long renders
 
 const videoTypeCards = [
-  { id: "faceless-video-169", title: "Faceless Video (16:9 Widescreen)", tag: "Primary Focus • 16:9 Widescreen", description: "Turn voiceovers into complete 16:9 YouTube videos (explainers, book summaries) with AI visuals & B-roll.", image: "/visuals/dashboard-cards/faceless-video.webp", badgeType: "Popular" as const, accent: "#8B5CF6", mode: "facelessVideo" as const, category: "long", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "10 Credits • Paid" },
-  { id: "faceless-video-916", title: "Faceless Video (9:16 Shorts)", tag: "9:16 Shorts & Reels", description: "Turn voiceover into vertical shorts with AI visuals, B-roll & synced typography.", image: "/visuals/dashboard-cards/faceless-video.webp", badgeType: "AI" as const, accent: "#EC4899", mode: "facelessVideo" as const, category: "long", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "10 Credits • Paid" },
+  { id: "faceless-video", title: "Faceless Video", tag: "Primary Focus • 16:9 Widescreen", description: "Turn voiceovers into complete 16:9 YouTube videos (explainers, book summaries) with AI visuals & B-roll.", image: "/visuals/dashboard-cards/faceless-video.webp", badgeType: "Popular" as const, accent: "#8B5CF6", mode: "facelessVideo" as const, category: "long", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "10 Credits • Paid" },
   { id: "auto-caption-generator", title: "Auto Caption Generator", tag: "9:16 Reel • Max 90s", description: "Generate animated captions & word-by-word highlights for Reels, Shorts, and TikTok videos.", image: "/visuals/dashboard-cards/auto-caption.webp", badgeType: "Popular" as const, accent: "#F59E0B", mode: "autoCaption" as const, category: "creator", inputType: "video" as const, accessTier: "free" as const, creditCost: "🎁 Free Trial / 10 Credits" },
   { id: "compare-explainer", title: "Compare Explainer Video", tag: "9:16 Reel • Max 90s", description: "Left vs right comparison with narration and sticker presenter.", image: "/visuals/dashboard-cards/compare-explainer.webp", badgeType: "AI" as const, accent: "#F59E0B", mode: "compare" as const, category: "education", inputType: "text" as const, accessTier: "paid" as const, creditCost: "10 Credits • Paid" },
   { id: "whiteboard-video", title: "Whiteboard Animation", tag: "9:16 Reel • Max 90s", description: "AI writes key points on a whiteboard synced to your speech.", image: "/visuals/dashboard-cards/whiteboard-video.webp", badgeType: "AI" as const, accent: "#00FF9D", mode: "whiteboardVideo" as const, category: "education", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "10 Credits • Paid" },
   { id: "typography-video", title: "Kinetic Motion Video", tag: "9:16 Reel • Max 90s", description: "Turn talking video or voiceover into punchy kinetic typography reels.", image: "/visuals/dashboard-cards/typography-video.webp", badgeType: "Popular" as const, accent: "#F59E0B", mode: "typographyVideo" as const, category: "creator", inputType: "video" as const, accessTier: "paid" as const, creditCost: "10 Credits • Paid" },
   { id: "image-to-video-ai", title: "Image to Video AI", tag: "9:16 Reel • Max 90s", description: "Turn voiceover into cinematic videos with images, Ken Burns motion & subtitles.", image: "/visuals/dashboard-cards/image-to-video.webp", badgeType: "New" as const, accent: "#8B5CF6", mode: "imageToVideoAi" as const, category: "long", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "10 Credits • Paid" },
-  { id: "book-summary", title: "Book Summary Video", tag: "9:16 Reel • Max 90s", description: "Turn book narration into a summary video with AI lesson cards.", image: "/visuals/dashboard-cards/book-summary.webp", badgeType: "New" as const, accent: "#FF6D00", mode: "longVideoPro" as const, category: "long", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "10 Credits • Paid" },
+  { id: "book-summary", title: "Book Summary Video", tag: "16:9 Long Video • Max 10m", description: "Turn book narration into a summary video with AI lesson cards.", image: "/visuals/dashboard-cards/book-summary.webp", badgeType: "New" as const, accent: "#FF5722", mode: "bookSummary" as const, category: "long", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "10 Credits • Paid" },
   { id: "long-video-clips", title: "Viral Video Clips", tag: "9:16 Shorts • Input up to 2h", description: "Turn long videos and podcasts (up to 2 hours) into short viral clips with captions.", image: "/visuals/dashboard-cards/long-video-clips.webp", badgeType: "New" as const, accent: "#F59E0B", mode: "longVideoClips" as const, category: "long", inputType: "video" as const, accessTier: "paid" as const, creditCost: "10 Credits / Clip • Paid" },
   { id: "ai-audio-cleaner", title: "AI Audio Cleaner", tag: "Studio Master Audio • Max 5m", description: "Full script preview in dashboard • Auto removes recording mistakes, silences & noise.", image: "/visuals/dashboard-cards/audio-cleaner.webp", badgeType: "Pro" as const, accent: "#F59E0B", mode: "audioClean" as const, category: "long", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "5 Credits • Paid" },
 ] as const;
@@ -247,7 +248,7 @@ function getPlannedRenderCreditUnits(mode: Mode, durationSeconds?: number, clipC
     if (mode === "audioClean") {
       return calculateRenderCreditUnits("aiAudioCleaner", {durationSeconds});
     }
-    const billableModes: BillableRenderMode[] = ["autoCaption", "compare", "longVideoPromo", "whiteboardVideo", "typographyVideo", "longVideoPro", "facelessVideo", "imageToVideoAi", "aiVideoGenerator", "youtubeSubtitleGenerator"];
+    const billableModes: BillableRenderMode[] = ["autoCaption", "compare", "longVideoPromo", "whiteboardVideo", "typographyVideo", "facelessVideo", "imageToVideoAi", "aiVideoGenerator", "bookSummary", "youtubeSubtitleGenerator"];
     return billableModes.includes(mode as BillableRenderMode)
       ? calculateRenderCreditUnits(mode as BillableRenderMode, {durationSeconds})
       : 0;
@@ -279,19 +280,6 @@ const modeConfig = {
     bestResult: "Short comparison voiceover + 2 clear images",
     uploadCta: "🎙️ Upload audio",
     icon: Layers3,
-    color: "text-primary",
-    border: "border-border",
-    surface: "bg-muted",
-  },
-  longVideoPromo: {
-    label: "Long Video Promo",
-    title: "Long Video Promo",
-    description: "📹 Upload: Video clip (10-60s)\n🖼️ Required: Thumbnail image + title",
-    accept: "video/*",
-    supported: "MP4, MOV, WEBM • Best with 16:9 clips",
-    bestResult: "10-60s video clip with thumbnail and title",
-    uploadCta: "📹 Upload your video clip",
-    icon: Film,
     color: "text-primary",
     border: "border-border",
     surface: "bg-muted",
@@ -387,15 +375,28 @@ const modeConfig = {
     border: "border-border",
     surface: "bg-muted",
   },
-  longVideoPro: {
-    label: "Long Video Pro",
-    title: "Long Video Pro",
-    description: "🎬 Upload: Audio or video with speech\n✨ AI plans scenes, visuals, motion & captions for a 16:9 cinematic video",
+  longVideoPromo: {
+    label: "Long Video Promo",
+    title: "Long Video Promo",
+    description: "🎬 Upload: Audio or video with speech\n✨ AI plans scenes, visuals, motion & captions for a promo video",
     accept: "audio/*,video/*",
     supported: "MP4, MOV, WEBM, MP3, WAV • Up to 10 minutes",
-    bestResult: "Explainers, presentations, educational content — AI directs every scene",
+    bestResult: "Explainers, promos, marketing clips",
     uploadCta: "🎬 Upload your audio or video",
     icon: Clapperboard,
+    color: "text-primary",
+    border: "border-border",
+    surface: "bg-muted",
+  },
+  bookSummary: {
+    label: "Book Summary Video",
+    title: "Book Summary Video",
+    description: "🎙️ Upload: Voiceover audio or narration\n📚 AI generates chapter cards, lesson notes & animated typography",
+    accept: "audio/*",
+    supported: "MP3, WAV, M4A, AAC • Up to 12 minutes",
+    bestResult: "Book summaries, educational lessons & key takeaways",
+    uploadCta: "🎙️ Upload book narration audio",
+    icon: BookOpen,
     color: "text-primary",
     border: "border-border",
     surface: "bg-muted",
@@ -436,8 +437,8 @@ const modeConfig = {
     uploadCta: "🎙️ Upload your voiceover / audio (Max 10 min)",
     icon: Film,
     color: "text-[#FF9100]",
-    border: "border-[#FF6D00]/40",
-    surface: "bg-[#FF6D00]/10",
+    border: "border-[#FF5722]/40",
+    surface: "bg-[#FF5722]/10",
   },
   youtubeSubtitleGenerator: {
     label: "YouTube Subtitle Generator",
@@ -947,7 +948,7 @@ export default function DashboardStudio({
     setImageToVideoBgm(null);
     setTopicTitle("");
     setJobStatus({state: "idle", message: ""});
-    const nextVideoType = nextMode === "imageToVideoAi" ? "image-to-video-ai" : (nextMode as string) === "youtubeSubtitleGenerator" ? "youtube-subtitle-generator" : nextMode === "autoCaption" ? "auto-caption-generator" : nextMode === "autoDraw" ? "auto-draw-explainer" : (nextMode as string) === "longVideoPromo" ? "long-video-promo" : nextMode === "whiteboardVideo" ? "whiteboard-video" : nextMode === "typographyVideo" ? "typography-video" : nextMode === "longVideoClips" ? "long-video-clips" : nextMode === "dynamicCreator" ? "dynamic-creator-reel" : nextMode === "customAiReel" ? "custom-ai-reel" : nextMode === "audioClean" ? "ai-audio-cleaner" : nextMode === "longVideoPro" ? "long-video-pro" : "compare-explainer";
+    const nextVideoType = nextMode === "imageToVideoAi" ? "image-to-video-ai" : (nextMode as string) === "youtubeSubtitleGenerator" ? "youtube-subtitle-generator" : nextMode === "autoCaption" ? "auto-caption-generator" : nextMode === "autoDraw" ? "auto-draw-explainer" : (nextMode as string) === "longVideoPromo" ? "long-video-promo" : nextMode === "whiteboardVideo" ? "whiteboard-video" : nextMode === "typographyVideo" ? "typography-video" : nextMode === "longVideoClips" ? "long-video-clips" : nextMode === "dynamicCreator" ? "dynamic-creator-reel" : nextMode === "customAiReel" ? "custom-ai-reel" : nextMode === "audioClean" ? "ai-audio-cleaner" : (nextMode as string) === "longVideoPro" ? "long-video-pro" : "compare-explainer";
     window.history.replaceState(null, "", `/dashboard?videoType=${nextVideoType}`);
     // Auto-scroll to upload section on mobile
     setTimeout(() => {
@@ -1774,7 +1775,7 @@ export default function DashboardStudio({
                   <p className="text-[11px] leading-4 text-muted-foreground truncate mt-0.5">{activeMode.bestResult}</p>
                 </div>
                 <div className="ml-auto shrink-0 flex flex-col items-end gap-1">
-                  <div className="rounded-md border border-[#FF6D00]/20 bg-[#FF6D00]/10 px-2 py-0.5 text-[10px] font-bold text-[#FF9100]">
+                  <div className="rounded-md border border-[#FF5722]/20 bg-[#FF5722]/10 px-2 py-0.5 text-[10px] font-bold text-[#FF9100]">
                     {plannedCreditLabel}
                   </div>
                   <span className="text-[9px] font-medium text-muted-foreground">{plannedCreditDetail}</span>
@@ -1807,7 +1808,7 @@ export default function DashboardStudio({
 
               {mode === "customAiReel" ? (
                 <div id="upload-section" className="scroll-mt-20 space-y-4">
-                  <div className="min-w-0 overflow-hidden rounded-xl border border-[#FF6D00]/30 bg-[#0E1526] p-3 sm:p-4">
+                  <div className="min-w-0 overflow-hidden rounded-xl border border-[#FF5722]/30 bg-[#0E1526] p-3 sm:p-4">
                     <div className="mb-3 space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-black text-white">What do you want in your video?</span>
@@ -1839,7 +1840,7 @@ export default function DashboardStudio({
                               setCustomAiPrompt(starter.prompt);
                               setJobStatus({ state: "idle", message: "" });
                             }}
-                            className="rounded-full border border-[#FF6D00]/30 bg-[#FF6D00]/10 px-3 py-1 text-[11px] font-semibold text-zinc-300 transition hover:bg-[#FF6D00]/20 active:scale-95"
+                            className="rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-3 py-1 text-[11px] font-semibold text-zinc-300 transition hover:bg-[#FF5722]/20 active:scale-95"
                           >
                             {starter.label}
                           </button>
@@ -1848,7 +1849,7 @@ export default function DashboardStudio({
                     </div>
                     <label className="grid gap-2" htmlFor="custom-ai-prompt">
                       <textarea
-                        className="min-h-48 w-full resize-y rounded-xl border border-border bg-black/35 px-4 py-3 text-sm font-bold leading-6 text-white outline-none transition placeholder:text-zinc-600 focus:border-[#FF6D00]"
+                        className="min-h-48 w-full resize-y rounded-xl border border-border bg-black/35 px-4 py-3 text-sm font-bold leading-6 text-white outline-none transition placeholder:text-zinc-600 focus:border-[#FF5722]"
                         id="custom-ai-prompt"
                         maxLength={1200}
                         onChange={(event) => {
@@ -1997,11 +1998,11 @@ export default function DashboardStudio({
               ) : mode === "audioClean" || mode === "imageToVideoAi" ? null : (
               <div id="upload-section" className="scroll-mt-20">
               {mode === "facelessVideo" || mode === "aiVideoGenerator" ? (
-                <div className="mb-3.5 flex items-start gap-3 rounded-xl border border-[#FF6D00]/20 bg-[#FF6D00]/5 p-3.5 text-xs text-zinc-300">
+                <div className="mb-3.5 flex items-start gap-3 rounded-xl border border-[#FF5722]/20 bg-[#FF5722]/5 p-3.5 text-xs text-zinc-300">
                   <Sparkles size={16} className="mt-0.5 shrink-0 text-[#FF9100]" />
                   <div className="flex-1 leading-relaxed">
                     <span className="font-bold text-white">Voiceover clean karna hai?</span> Agar aapki recording me retakes, background shor ya long silences hain, to video generate karne se pehle hamare{' '}
-                    <Link href="/dashboard?videoType=ai-audio-cleaner" className="font-bold text-[#FF9100] underline hover:text-[#FFA726]">
+                    <Link href="/dashboard?videoType=ai-audio-cleaner" className="font-bold text-[#FF9100] underline hover:text-[#FFA000]">
                       AI Audio Cleaner
                     </Link>{' '}
                     se ek click me audio clean karein.
@@ -2020,7 +2021,7 @@ export default function DashboardStudio({
                       </span>
                       <p className="text-[11px] text-zinc-400 mt-0.5">Choose layout format for your video</p>
                     </div>
-                    <span className="text-[10px] font-mono font-bold px-2.5 py-1 rounded-full bg-[#FF6D00]/15 text-[#FF9100] border border-[#FF6D00]/30">
+                    <span className="text-[10px] font-mono font-bold px-2.5 py-1 rounded-full bg-[#FF5722]/15 text-[#FF9100] border border-[#FF5722]/30">
                       {selectedAspectRatio === "9:16" ? "9:16 Vertical (Max 90s)" : "16:9 Widescreen (Max 5m)"}
                     </span>
                   </div>
@@ -2030,7 +2031,7 @@ export default function DashboardStudio({
                       onClick={() => setSelectedAspectRatio("9:16")}
                       className={`flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl border text-xs transition-all cursor-pointer ${
                         selectedAspectRatio === "9:16"
-                          ? "bg-gradient-to-r from-[#FF6D00]/25 to-amber-500/20 border-[#FF6D00] text-white shadow-lg shadow-[#FF6D00]/20 font-black"
+                          ? "bg-gradient-to-r from-[#FF5722]/25 to-amber-500/20 border-[#FF5722] text-white shadow-lg shadow-[#FF5722]/20 font-black"
                           : "bg-[#0E1526] border-white/10 text-zinc-400 hover:border-white/20 hover:text-white font-medium"
                       }`}
                     >
@@ -2042,7 +2043,7 @@ export default function DashboardStudio({
                       onClick={() => setSelectedAspectRatio("16:9")}
                       className={`flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl border text-xs transition-all cursor-pointer ${
                         selectedAspectRatio === "16:9"
-                          ? "bg-gradient-to-r from-[#FF6D00]/25 to-amber-500/20 border-[#FF6D00] text-white shadow-lg shadow-[#FF6D00]/20 font-black"
+                          ? "bg-gradient-to-r from-[#FF5722]/25 to-amber-500/20 border-[#FF5722] text-white shadow-lg shadow-[#FF5722]/20 font-black"
                           : "bg-[#0E1526] border-white/10 text-zinc-400 hover:border-white/20 hover:text-white font-medium"
                       }`}
                     >
@@ -2119,7 +2120,7 @@ export default function DashboardStudio({
                         Select audio speech language and caption output language
                       </p>
                     </div>
-                    <span className="rounded-full bg-[#FF6D00]/10 px-2.5 py-0.5 text-[10px] font-bold text-[#FF9100]">
+                    <span className="rounded-full bg-[#FF5722]/10 px-2.5 py-0.5 text-[10px] font-bold text-[#FF9100]">
                       Multi-Language
                     </span>
                   </div>
@@ -2446,7 +2447,7 @@ export default function DashboardStudio({
                     <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-40 pointer-events-none" />
 
                     <div className="relative z-10 flex items-center gap-2">
-                      <span className="h-2 w-2 rounded-full bg-[#FF6D00] shadow-[0_0_8px_#FF6D00]" />
+                      <span className="h-2 w-2 rounded-full bg-[#FF5722] shadow-[0_0_8px_#FF5722]" />
                       <p className="text-xs font-bold uppercase tracking-wider text-[#FF9100]">Kinetic SFX & Pacing Controls</p>
                     </div>
 
@@ -2467,7 +2468,7 @@ export default function DashboardStudio({
                               onClick={() => setTypographySfxIntensity(sfx.id as "full" | "subtle" | "none")}
                               className={`min-h-[52px] rounded-2xl border p-3 text-center transition-all touch-manipulation active:scale-[0.98] ${
                                 active
-                                  ? "border-2 border-[#FF6D00] bg-gradient-to-br from-[#FF6D00]/25 to-[#FF8F00]/10 text-[#FFA726] font-black shadow-[0_0_20px_rgba(255,109,0,0.25)] ring-2 ring-[#FF6D00]/30 backdrop-blur-lg"
+                                  ? "border-2 border-[#FF5722] bg-gradient-to-br from-[#FF5722]/25 to-[#FF7043]/10 text-[#FFA000] font-black shadow-[0_0_20px_rgba(255,109,0,0.25)] ring-2 ring-[#FF5722]/30 backdrop-blur-lg"
                                   : "border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.07] text-zinc-300 hover:text-white backdrop-blur-md"
                               }`}
                             >
@@ -2496,7 +2497,7 @@ export default function DashboardStudio({
                                 onClick={() => setTypographyPacing(pace.id as "fast" | "smooth")}
                                 className={`min-h-[48px] rounded-xl border p-2.5 text-center transition-all touch-manipulation active:scale-[0.98] ${
                                   active
-                                    ? "border-2 border-[#FF6D00] bg-gradient-to-br from-[#FF6D00]/25 to-[#FF8F00]/10 text-[#FFA726] font-black shadow-[0_0_20px_rgba(255,109,0,0.25)] ring-2 ring-[#FF6D00]/30 backdrop-blur-lg"
+                                    ? "border-2 border-[#FF5722] bg-gradient-to-br from-[#FF5722]/25 to-[#FF7043]/10 text-[#FFA000] font-black shadow-[0_0_20px_rgba(255,109,0,0.25)] ring-2 ring-[#FF5722]/30 backdrop-blur-lg"
                                     : "border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.07] text-zinc-300 hover:text-white backdrop-blur-md"
                                 }`}
                               >
@@ -2523,7 +2524,7 @@ export default function DashboardStudio({
                                 onClick={() => setTypographyTextCase(casing.id as "uppercase" | "natural")}
                                 className={`min-h-[48px] rounded-xl border p-2.5 text-center transition-all touch-manipulation active:scale-[0.98] ${
                                   active
-                                    ? "border-2 border-[#FF6D00] bg-gradient-to-br from-[#FF6D00]/25 to-[#FF8F00]/10 text-[#FFA726] font-black shadow-[0_0_20px_rgba(255,109,0,0.25)] ring-2 ring-[#FF6D00]/30 backdrop-blur-lg"
+                                    ? "border-2 border-[#FF5722] bg-gradient-to-br from-[#FF5722]/25 to-[#FF7043]/10 text-[#FFA000] font-black shadow-[0_0_20px_rgba(255,109,0,0.25)] ring-2 ring-[#FF5722]/30 backdrop-blur-lg"
                                     : "border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.07] text-zinc-300 hover:text-white backdrop-blur-md"
                                 }`}
                               >
@@ -2732,17 +2733,17 @@ export default function DashboardStudio({
                 <>
                 <div className="sticky top-16 z-30 -mx-4 mb-1 border-b border-border bg-[#151E30]/95 px-4 pb-4 pt-3 backdrop-blur-md sm:top-4 sm:mx-0 sm:rounded-lg sm:border sm:border-border sm:bg-black/25">
                   <div className="mb-2 flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-[0.16em] text-[#FF9100]">
-                    <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[#FF6D00]" />
+                    <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[#FF5722]" />
                     Board Live Studio
                   </div>
-                  <div className="mx-auto max-w-[320px] overflow-hidden rounded-2xl border border-[#FF6D00]/30 shadow-lg">
+                  <div className="mx-auto max-w-[320px] overflow-hidden rounded-2xl border border-[#FF5722]/30 shadow-lg">
                     <Image src="/visuals/previews/whiteboard-video-new.png" alt="Corporate Whiteboard" width={560} height={315} className="w-full object-cover" />
                   </div>
                 </div>
 
                 <div className="rounded-3xl border border-white/10 bg-zinc-900/70 p-5 shadow-sm backdrop-blur-md sm:p-6 space-y-6">
                   <div className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-[#FF6D00]" />
+                    <span className="h-2 w-2 rounded-full bg-[#FF5722]" />
                     <div>
                       <p className="text-xs font-bold uppercase tracking-wider text-[#FF9100]">Whiteboard Canvas & Pen Configuration</p>
                       <p className="mt-0.5 text-xs text-zinc-400">Select board texture, hand drawing style, and executive marker colors.</p>
@@ -2766,7 +2767,7 @@ export default function DashboardStudio({
                             onClick={() => setWhiteboardTheme(board.id as "classic" | "dark-glass" | "blueprint")}
                             className={`min-h-[64px] flex flex-col items-start rounded-2xl border p-3.5 text-left transition-all touch-manipulation active:scale-[0.98] ${
                               active
-                                ? "border-[#FF6D00] bg-[#FF6D00]/10 text-white font-black"
+                                ? "border-[#FF5722] bg-[#FF5722]/10 text-white font-black"
                                 : "border-white/10 bg-black/30 hover:border-white/20 text-zinc-400 hover:text-white"
                             }`}
                           >
@@ -2796,7 +2797,7 @@ export default function DashboardStudio({
                             onClick={() => setWhiteboardHandStyle(hand.id as "right-hand" | "stylus" | "direct-draw")}
                             className={`min-h-[58px] rounded-2xl border p-2.5 sm:p-3 text-center transition-all touch-manipulation active:scale-[0.98] ${
                               active
-                                ? "border-[#FF6D00] bg-[#FF6D00]/10 text-white font-black"
+                                ? "border-[#FF5722] bg-[#FF5722]/10 text-white font-black"
                                 : "border-white/10 bg-black/30 hover:border-white/20 text-zinc-400 hover:text-white"
                             }`}
                           >
@@ -2827,7 +2828,7 @@ export default function DashboardStudio({
                             onClick={() => setWhiteboardMarkerColor(marker.id as "navy" | "crimson" | "emerald" | "gold")}
                             className={`min-h-[44px] flex items-center gap-2 rounded-2xl border p-2.5 transition-all touch-manipulation active:scale-[0.98] ${
                               active
-                                ? "border-[#FF6D00] bg-[#FF6D00]/10 text-white font-black"
+                                ? "border-[#FF5722] bg-[#FF5722]/10 text-white font-black"
                                 : "border-white/10 bg-black/30 text-zinc-400 hover:text-white"
                             }`}
                           >
@@ -2856,7 +2857,7 @@ export default function DashboardStudio({
                             onClick={() => setWhiteboardFont(f.id as "marker" | "architect" | "sans")}
                             className={`min-h-[52px] rounded-xl border p-2 sm:p-2.5 text-center transition-all touch-manipulation active:scale-[0.98] ${
                               active
-                                ? "border-[#FF6D00] bg-[#FF6D00]/10 text-white font-black"
+                                ? "border-[#FF5722] bg-[#FF5722]/10 text-white font-black"
                                 : "border-white/10 bg-black/30 text-zinc-400 hover:text-white"
                             }`}
                           >
@@ -2891,15 +2892,15 @@ export default function DashboardStudio({
 
               {mode === "imageToVideoAi" ? (
                 <div className="space-y-4">
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 rounded-2xl bg-gradient-to-r from-[#FF6D00]/10 via-[#FF8F00]/5 to-black border border-[#FF6D00]/30 shadow-lg">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 rounded-2xl bg-gradient-to-r from-[#FF5722]/10 via-[#FF7043]/5 to-black border border-[#FF5722]/30 shadow-lg">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FF6D00]/20 text-[#FF9100] border border-[#FF6D00]/30">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FF5722]/20 text-[#FF9100] border border-[#FF5722]/30">
                         <Sparkles size={18} />
                       </div>
                       <div>
                         <h4 className="text-sm font-black text-white flex items-center gap-2">
                           Dedicated Fast Studio Available
-                          <span className="rounded-full bg-[#FF6D00]/20 px-2 py-0.5 text-[10px] font-black text-[#FF9100] border border-[#FF6D00]/30">
+                          <span className="rounded-full bg-[#FF5722]/20 px-2 py-0.5 text-[10px] font-black text-[#FF9100] border border-[#FF5722]/30">
                             Fast & Spacious
                           </span>
                         </h4>
@@ -2910,7 +2911,7 @@ export default function DashboardStudio({
                     </div>
                     <Link
                       href="/dashboard/image-to-video"
-                      className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black hover:brightness-110 px-5 py-2.5 text-xs font-black shrink-0 shadow-md shadow-[#FF6D00]/20 transition active:scale-95"
+                      className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black hover:brightness-110 px-5 py-2.5 text-xs font-black shrink-0 shadow-md shadow-[#FF5722]/20 transition active:scale-95"
                     >
                       <span>Open Dedicated Studio</span>
                       <ArrowUpRight size={14} />
@@ -2967,16 +2968,16 @@ export default function DashboardStudio({
                 <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-4 sm:p-6 shadow-2xl min-w-0 max-w-full overflow-hidden space-y-5">
                   {/* ── Premium M3 Header (gradient + orange glow + quick stats) ── */}
                   <div className="relative overflow-hidden rounded-[22px] border border-white/10 bg-gradient-to-br from-[#0E1526] via-[#070B14] to-black p-5 sm:p-6">
-                    <div className="absolute -right-14 -top-14 h-52 w-52 rounded-full bg-[#FF6D00]/10 blur-3xl pointer-events-none" />
+                    <div className="absolute -right-14 -top-14 h-52 w-52 rounded-full bg-[#FF5722]/10 blur-3xl pointer-events-none" />
                     <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
                       <div className="space-y-2 max-w-xl">
-                        <div className="inline-flex items-center gap-2 rounded-full border border-[#FF6D00]/30 bg-[#FF6D00]/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#FF9100]">
+                        <div className="inline-flex items-center gap-2 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#FF9100]">
                           <Sparkles size={14} className="text-[#FF9100]" />
                           <span>{(mode as string) === "youtubeSubtitleGenerator" ? "16:9 Landscape • Up to 15 min" : "9:16 Reel • 30 FPS • Viral Captions"}</span>
                         </div>
                         <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
                           {(mode as string) === "youtubeSubtitleGenerator" ? "YouTube Subtitle " : "Auto Caption "}
-                          <span className="bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] bg-clip-text text-transparent">
+                          <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
                             {(mode as string) === "youtubeSubtitleGenerator" ? "Generator" : "Generator"}
                           </span>
                         </h1>
@@ -3000,7 +3001,7 @@ export default function DashboardStudio({
                             <span className="flex items-center gap-1.5">
                               <Zap size={13} className="text-[#FF9100]" /> Credit Rate
                             </span>
-                            <span className="text-[#FFA726] font-extrabold">{(mode as string) === "youtubeSubtitleGenerator" ? "1 / 2 Min" : "1 / Min"}</span>
+                            <span className="text-[#FFA000] font-extrabold">{(mode as string) === "youtubeSubtitleGenerator" ? "1 / 2 Min" : "1 / Min"}</span>
                           </div>
                         </div>
                       </div>
@@ -3009,11 +3010,11 @@ export default function DashboardStudio({
 
                   {/* Dynamic Duration & Credit indicator */}
                   {promoClipMeta.durationSeconds ? (
-                    <div className="rounded-2xl border border-[#FF6D00]/20 bg-[#FF6D00]/5 px-3.5 py-2.5 text-xs flex flex-wrap items-center justify-between gap-2">
+                    <div className="rounded-2xl border border-[#FF5722]/20 bg-[#FF5722]/5 px-3.5 py-2.5 text-xs flex flex-wrap items-center justify-between gap-2">
                       <span className="text-zinc-400 font-medium">
                         Video Length: <strong className="text-white">{Math.floor(promoClipMeta.durationSeconds / 60)}:{(Math.round(promoClipMeta.durationSeconds % 60)).toString().padStart(2, '0')}</strong> ({Math.round(promoClipMeta.durationSeconds)}s)
                       </span>
-                      <span className="font-bold text-[#FFA726]">
+                      <span className="font-bold text-[#FFA000]">
                         Cost: {(mode as string) === "youtubeSubtitleGenerator"
                           ? `${Math.max(1, Math.ceil(promoClipMeta.durationSeconds / 120))} Credit${Math.ceil(promoClipMeta.durationSeconds / 120) > 1 ? 's' : ''} (1 credit per 2 minutes)`
                           : `${Math.max(1, Math.ceil(promoClipMeta.durationSeconds / 60))} Credit${Math.ceil(promoClipMeta.durationSeconds / 60) > 1 ? 's' : ''} (1 credit per minute)`
@@ -3050,7 +3051,7 @@ export default function DashboardStudio({
 
                   {/* Western Creator Guide Banner for YouTube Subtitle Generator */}
                   {(mode as string) === "youtubeSubtitleGenerator" ? (
-                    <div className="rounded-xl border border-[#FF6D00]/30 bg-[#FF6D00]/10 p-3.5 text-xs text-zinc-300 flex items-start gap-2.5">
+                    <div className="rounded-xl border border-[#FF5722]/30 bg-[#FF5722]/10 p-3.5 text-xs text-zinc-300 flex items-start gap-2.5">
                       <span className="text-lg leading-none">🇬🇧</span>
                       <div className="min-w-0 flex-1">
                         <p className="font-bold text-white">
@@ -3094,7 +3095,7 @@ export default function DashboardStudio({
                             onClick={() => setCaptionPosition(pos.id as "top" | "center" | "bottom")}
                             className={`rounded-xl py-2 text-xs font-bold transition-all ${
                               captionPosition === pos.id
-                                ? "bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black font-black shadow-md shadow-[#FF6D00]/20"
+                                ? "bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black font-black shadow-md shadow-[#FF5722]/20"
                                 : "text-zinc-400 hover:text-white hover:bg-white/5"
                             }`}
                           >
@@ -3122,7 +3123,7 @@ export default function DashboardStudio({
                             onClick={() => setCaptionFontSize(size.id as "small" | "medium" | "large" | "xlarge")}
                             className={`rounded-xl py-2 text-xs font-bold transition-all ${
                               captionFontSize === size.id
-                                ? "bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black font-black shadow-md shadow-[#FF6D00]/20"
+                                ? "bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black font-black shadow-md shadow-[#FF5722]/20"
                                 : "text-zinc-400 hover:text-white hover:bg-white/5"
                             }`}
                           >
@@ -3171,7 +3172,7 @@ export default function DashboardStudio({
                       <div className="space-y-1.5">
                         <label className="text-[11px] font-bold text-zinc-400">Background Box</label>
                         <select
-                          className="w-full rounded-xl border border-white/10 bg-[#0E1526] text-white min-h-[44px] text-xs py-2 px-3 focus:border-[#FF6D00] focus:outline-none"
+                          className="w-full rounded-xl border border-white/10 bg-[#0E1526] text-white min-h-[44px] text-xs py-2 px-3 focus:border-[#FF5722] focus:outline-none"
                           value={captionBackgroundColor}
                           onChange={(e) => setCaptionBackgroundColor(e.target.value)}
                         >
@@ -3201,7 +3202,7 @@ export default function DashboardStudio({
                           onClick={() => setCaptionHighlightColor(chip.hex)}
                           className={`min-h-[36px] flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-bold transition touch-manipulation active:scale-95 ${
                             captionHighlightColor.toLowerCase() === chip.hex.toLowerCase()
-                              ? "border-[#FF6D00] bg-[#FF6D00]/10 text-[#FF9100] font-black"
+                              ? "border-[#FF5722] bg-[#FF5722]/10 text-[#FF9100] font-black"
                               : "border-white/10 bg-[#0E1526] text-zinc-400 hover:text-white"
                           }`}
                         >
@@ -3214,7 +3215,7 @@ export default function DashboardStudio({
 
                   {/* 5. Mode Specific Advanced Controls */}
                   {(mode as string) === "youtubeSubtitleGenerator" ? (
-                    <div className="rounded-2xl border border-[#FF6D00]/20 bg-[#FF6D00]/[0.04] p-3.5 sm:p-4 space-y-3">
+                    <div className="rounded-2xl border border-[#FF5722]/20 bg-[#FF5722]/[0.04] p-3.5 sm:p-4 space-y-3">
                       <span className="block text-xs font-black uppercase tracking-[0.16em] text-[#FF9100]">
                         5. 16:9 Landscape Safe Margin & Casing
                       </span>
@@ -3236,7 +3237,7 @@ export default function DashboardStudio({
                                 onClick={() => setYoutubeSubtitleSafeZone(zone.id as "standard" | "scrubber" | "high")}
                                 className={`min-h-[42px] rounded-xl py-2 px-1 text-[11px] sm:text-xs font-bold leading-tight transition touch-manipulation active:scale-[0.98] ${
                                   youtubeSubtitleSafeZone === zone.id
-                                    ? "bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-md shadow-[#FF6D00]/20 font-black"
+                                    ? "bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black shadow-md shadow-[#FF5722]/20 font-black"
                                     : "text-zinc-400 hover:text-white"
                                 }`}
                               >
@@ -3262,7 +3263,7 @@ export default function DashboardStudio({
                                 onClick={() => setYoutubeSubtitleCase(item.id as "natural" | "uppercase")}
                                 className={`min-h-[42px] rounded-xl py-2 px-3 text-xs font-bold leading-tight transition touch-manipulation active:scale-[0.98] ${
                                   youtubeSubtitleCase === item.id
-                                    ? "bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-md shadow-[#FF6D00]/20 font-black"
+                                    ? "bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black shadow-md shadow-[#FF5722]/20 font-black"
                                     : "text-zinc-400 hover:text-white"
                                 }`}
                               >
@@ -3274,7 +3275,7 @@ export default function DashboardStudio({
                       </div>
                     </div>
                   ) : (
-                    <div className="rounded-2xl border border-[#FF6D00]/20 bg-[#FF6D00]/[0.04] p-3.5 sm:p-4 space-y-3">
+                    <div className="rounded-2xl border border-[#FF5722]/20 bg-[#FF5722]/[0.04] p-3.5 sm:p-4 space-y-3">
                       <span className="block text-xs font-black uppercase tracking-[0.16em] text-[#FF9100]">
                         5. Kinetic Sound & Animation Effects
                       </span>
@@ -3289,7 +3290,7 @@ export default function DashboardStudio({
                               type="button"
                               onClick={() => setWordClickSound(false)}
                               className={`min-h-[44px] rounded-xl py-2 px-2 text-[11px] sm:text-xs font-bold leading-tight transition touch-manipulation active:scale-[0.98] ${
-                                !wordClickSound ? "bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-md shadow-[#FF6D00]/20 font-black" : "text-zinc-400 hover:text-white"
+                                !wordClickSound ? "bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black shadow-md shadow-[#FF5722]/20 font-black" : "text-zinc-400 hover:text-white"
                               }`}
                             >
                               🔇 Mute Click Sound
@@ -3298,7 +3299,7 @@ export default function DashboardStudio({
                               type="button"
                               onClick={() => setWordClickSound(true)}
                               className={`min-h-[44px] rounded-xl py-2 px-2 text-[11px] sm:text-xs font-bold leading-tight transition touch-manipulation active:scale-[0.98] ${
-                                wordClickSound ? "bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-md shadow-[#FF6D00]/20 font-black" : "text-zinc-400 hover:text-white"
+                                wordClickSound ? "bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black shadow-md shadow-[#FF5722]/20 font-black" : "text-zinc-400 hover:text-white"
                               }`}
                             >
                               🔊 Pop / Click SFX
@@ -3323,7 +3324,7 @@ export default function DashboardStudio({
                                 onClick={() => setCaptionEmphasisAnimation(anim.id as "bounce" | "glow" | "none")}
                                 className={`min-h-[44px] rounded-xl py-2 px-1 text-[11px] sm:text-xs font-bold leading-tight transition touch-manipulation active:scale-[0.98] ${
                                   captionEmphasisAnimation === anim.id
-                                    ? "bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-md shadow-[#FF6D00]/20 font-black"
+                                    ? "bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black shadow-md shadow-[#FF5722]/20 font-black"
                                     : "text-zinc-400 hover:text-white"
                                 }`}
                               >
@@ -3340,7 +3341,7 @@ export default function DashboardStudio({
 
               {/* ── Long Video Clips controls ── */}
               {mode === "longVideoClips" ? (
-                <div className="rounded-2xl border border-[#FF6D00]/30 bg-[#0E1526] p-5 shadow-xs">
+                <div className="rounded-2xl border border-[#FF5722]/30 bg-[#0E1526] p-5 shadow-xs">
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <h4 className="text-base font-black tracking-wide text-foreground">Clip Extraction Settings</h4>
@@ -3348,7 +3349,7 @@ export default function DashboardStudio({
                         Our intelligent scorer scans speech density, keywords, and hooks to harvest the most viral highlights.
                       </p>
                     </div>
-                    <span className="shrink-0 rounded-full border border-[#FF6D00]/30 bg-[#FF6D00]/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-[#FF9100]">
+                    <span className="shrink-0 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-[#FF9100]">
                       AI Repurposer
                     </span>
                   </div>
@@ -3374,7 +3375,7 @@ export default function DashboardStudio({
                             onClick={() => setClipCount(item.value)}
                             className={`rounded-2xl border p-3 text-left transition-all duration-200 hover:-translate-y-0.5 active:scale-95 ${
                               isActive
-                                ? "bg-[#FF6D00]/10 border-[#FF6D00] shadow-xs scale-105 text-white font-black"
+                                ? "bg-[#FF5722]/10 border-[#FF5722] shadow-xs scale-105 text-white font-black"
                                 : "bg-card border-border hover:bg-accent text-foreground"
                             }`}
                           >
@@ -3405,7 +3406,7 @@ export default function DashboardStudio({
                             onClick={() => setClipDuration(item.val)}
                             className={`rounded-2xl border p-3 text-left transition-all duration-200 hover:-translate-y-0.5 active:scale-95 ${
                               isActive
-                                ? "bg-[#FF6D00]/10 border-[#FF6D00] shadow-xs text-white font-black"
+                                ? "bg-[#FF5722]/10 border-[#FF5722] shadow-xs text-white font-black"
                                 : "bg-card border-border hover:bg-accent text-foreground"
                             }`}
                           >
@@ -3430,7 +3431,7 @@ export default function DashboardStudio({
                         {Array.from({ length: clipCount === 0 ? 5 : Math.max(1, Math.min(10, clipCount)) }).map((_, i) => (
                           <div
                             key={i}
-                            className="h-2 w-[16%] rounded-full bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] shadow-md shadow-[#FF6D00]/25 animate-pulse"
+                            className="h-2 w-[16%] rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] shadow-md shadow-[#FF5722]/25 animate-pulse"
                             style={{ animationDelay: `${i * 120}ms`, animationDuration: "2s" }}
                           />
                         ))}
@@ -3453,7 +3454,7 @@ export default function DashboardStudio({
                       <span className="text-xs font-black uppercase tracking-[0.16em] text-muted-foreground block mb-3">
                         Format Conversion
                       </span>
-                      <div className="rounded-2xl border border-[#FF6D00]/30 bg-[#FF6D00]/10 p-3.5 flex items-center justify-between shadow-xs">
+                      <div className="rounded-2xl border border-[#FF5722]/30 bg-[#FF5722]/10 p-3.5 flex items-center justify-between shadow-xs">
                         <div className="flex items-center gap-3">
                           <span className="text-2xl">📱</span>
                           <div>
@@ -3463,7 +3464,7 @@ export default function DashboardStudio({
                             </p>
                           </div>
                         </div>
-                        <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-[#FF6D00] text-black shadow-sm">
+                        <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-[#FF5722] text-black shadow-sm">
                           9:16 Vertical
                         </span>
                       </div>
@@ -3488,7 +3489,7 @@ export default function DashboardStudio({
                               onClick={() => setClipsHookStrategy(strat.id as "high-energy" | "actionable" | "story")}
                               className={`min-h-[54px] rounded-2xl border p-3 text-left transition-all touch-manipulation active:scale-[0.99] ${
                                 active
-                                  ? "bg-[#FF6D00]/10 border-[#FF6D00] text-white shadow-xs font-black"
+                                  ? "bg-[#FF5722]/10 border-[#FF5722] text-white shadow-xs font-black"
                                   : "bg-card border-border hover:bg-accent text-muted-foreground hover:text-foreground"
                               }`}
                             >
@@ -3519,7 +3520,7 @@ export default function DashboardStudio({
                               onClick={() => setClipsTopBanner(banner.id as "none" | "glass-pill" | "yellow-ticker")}
                               className={`min-h-[48px] rounded-xl border p-2 sm:p-2.5 text-center transition-all touch-manipulation active:scale-[0.98] ${
                                 active
-                                  ? "bg-[#FF6D00]/10 border-[#FF6D00] text-[#FF9100] font-black"
+                                  ? "bg-[#FF5722]/10 border-[#FF5722] text-[#FF9100] font-black"
                                   : "bg-card border-border text-muted-foreground hover:text-foreground"
                               }`}
                             >
@@ -3552,7 +3553,7 @@ export default function DashboardStudio({
                   <div className="mt-5 rounded-2xl border border-border bg-muted/20 p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FF6D00]/10 text-[#FF9100] border border-[#FF6D00]/20">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FF5722]/10 text-[#FF9100] border border-[#FF5722]/20">
                           <Captions size={18} />
                         </div>
                         <div>
@@ -3563,7 +3564,7 @@ export default function DashboardStudio({
                       <button
                         type="button"
                         onClick={() => setEnableClipsCaptions(!enableClipsCaptions)}
-                        className={`relative h-6 w-11 rounded-full transition ${enableClipsCaptions ? 'bg-[#FF6D00]' : 'bg-muted-foreground/30'}`}
+                        className={`relative h-6 w-11 rounded-full transition ${enableClipsCaptions ? 'bg-[#FF5722]' : 'bg-muted-foreground/30'}`}
                       >
                         <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${enableClipsCaptions ? 'translate-x-[22px]' : 'translate-x-0.5'}`} />
                       </button>
@@ -3596,7 +3597,7 @@ export default function DashboardStudio({
                 </div>
               ) : null}
 
-              <div className={mode === "autoCaption" || (mode as string) === "youtubeSubtitleGenerator" || mode === "customAiReel" || (mode as string) === "longVideoPromo" || mode === "compare" || mode === "typographyVideo" || mode === "longVideoClips" || mode === "whiteboardVideo" || mode === "audioClean" || mode === "longVideoPro" || mode === "imageToVideoAi" ? "hidden" : "rounded-lg border border-border bg-card/[0.035] p-4"}>
+              <div className={mode === "autoCaption" || (mode as string) === "youtubeSubtitleGenerator" || mode === "customAiReel" || (mode as string) === "longVideoPromo" || mode === "compare" || mode === "typographyVideo" || mode === "longVideoClips" || mode === "whiteboardVideo" || mode === "audioClean" || (mode as string) === "longVideoPro" || mode === "imageToVideoAi" ? "hidden" : "rounded-lg border border-border bg-card/[0.035] p-4"}>
                 <label className="form-label-muted" htmlFor="reel-topic">
                   Reel topic/title
                 </label>
@@ -3637,7 +3638,7 @@ export default function DashboardStudio({
                           type="button"
                           aria-pressed={facelessAssetSourceMode === option.id}
                           onClick={() => setFacelessAssetSourceMode(option.id)}
-                          className={`rounded-xl border px-3 py-2 text-xs font-bold transition ${facelessAssetSourceMode === option.id ? "border-[#FF6D00] bg-[#FF6D00]/10 text-white" : "border-white/10 bg-black/20 text-zinc-400 hover:text-white"}`}
+                          className={`rounded-xl border px-3 py-2 text-xs font-bold transition ${facelessAssetSourceMode === option.id ? "border-[#FF5722] bg-[#FF5722]/10 text-white" : "border-white/10 bg-black/20 text-zinc-400 hover:text-white"}`}
                         >
                           {option.label}
                         </button>
@@ -3655,7 +3656,7 @@ export default function DashboardStudio({
                             type="button"
                             aria-pressed={facelessVisualArtStyle === style.id}
                             onClick={() => setFacelessVisualArtStyle(style.id)}
-                            className={`rounded-xl border px-3 py-2 text-xs font-bold transition ${facelessVisualArtStyle === style.id ? "border-[#FF6D00] bg-[#FF6D00]/10 text-white" : "border-white/10 bg-black/20 text-zinc-400 hover:text-white"}`}
+                            className={`rounded-xl border px-3 py-2 text-xs font-bold transition ${facelessVisualArtStyle === style.id ? "border-[#FF5722] bg-[#FF5722]/10 text-white" : "border-white/10 bg-black/20 text-zinc-400 hover:text-white"}`}
                           >
                             {style.label}
                           </button>
@@ -3664,7 +3665,7 @@ export default function DashboardStudio({
                     )}
                     {(facelessAssetSourceMode === "upload" || facelessAssetSourceMode === "mix") && (
                       <div className="flex flex-wrap items-center gap-3">
-                        <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-white/15 bg-black/20 px-4 py-2 text-xs font-bold text-zinc-200 hover:border-[#FF6D00]/40">
+                        <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-white/15 bg-black/20 px-4 py-2 text-xs font-bold text-zinc-200 hover:border-[#FF5722]/40">
                           <input
                             type="file"
                             accept="image/*"
@@ -3705,7 +3706,7 @@ export default function DashboardStudio({
                   {/* Motion Pacing & Ambient Soundtrack Studio */}
                   <div className="mt-4 rounded-3xl border border-white/10 bg-zinc-900/70 p-5 shadow-sm backdrop-blur-md sm:p-6 space-y-5">
                     <div className="flex items-center gap-2">
-                      <span className="h-2 w-2 rounded-full bg-[#FF6D00]" />
+                      <span className="h-2 w-2 rounded-full bg-[#FF5722]" />
                       <p className="text-xs font-bold uppercase tracking-wider text-[#FF9100]">Cinematic Motion & Background Soundtrack</p>
                     </div>
 
@@ -3725,7 +3726,7 @@ export default function DashboardStudio({
                               onClick={() => setFacelessMotionIntensity(mot.id as "ambient" | "dynamic")}
                               className={`min-h-[54px] rounded-2xl border p-3 text-left transition-all touch-manipulation active:scale-[0.99] ${
                                 active
-                                  ? "border-[#FF6D00] bg-[#FF6D00]/10 text-white font-black"
+                                  ? "border-[#FF5722] bg-[#FF5722]/10 text-white font-black"
                                   : "border-white/10 bg-black/30 hover:border-white/20 text-zinc-400 hover:text-white"
                               }`}
                             >
@@ -3756,7 +3757,7 @@ export default function DashboardStudio({
                               onClick={() => setFacelessBgmMood(sound.id as "lofi" | "tech" | "mystery" | "acoustic" | "none")}
                               className={`min-h-[44px] rounded-xl border p-2 text-center transition-all touch-manipulation active:scale-[0.98] ${
                                 active
-                                  ? "border-[#FF6D00] bg-[#FF6D00]/10 text-white font-black"
+                                  ? "border-[#FF5722] bg-[#FF5722]/10 text-white font-black"
                                   : "border-white/10 bg-black/30 text-zinc-400 hover:text-white"
                               }`}
                             >
@@ -3770,7 +3771,7 @@ export default function DashboardStudio({
 
                   </div>
                 </div>
-              ) : mode === "longVideoPro" ? (
+              ) : ((mode as string) === "longVideoPromo" || (mode as string) === "longVideoPro") ? (
                 <div className="mt-4">
                   <VideoStyleControls
                     headingFont={headingFont}
@@ -3858,7 +3859,7 @@ export default function DashboardStudio({
                       <button
                         className={`inline-flex flex-1 w-full items-center justify-center gap-2 transition rounded-xl py-3.5 px-4 font-bold text-sm ${
                           canPrepareReel
-                            ? "bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] text-black shadow-lg shadow-[#FF6D00]/25 hover:brightness-110 active:scale-95 cursor-pointer font-black"
+                            ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black shadow-lg shadow-[#FF5722]/25 hover:brightness-110 active:scale-95 cursor-pointer font-black"
                             : "bg-white/5 text-zinc-500 border border-white/10 cursor-not-allowed opacity-50"
                         }`}
                         disabled={!canPrepareReel}
@@ -3880,7 +3881,7 @@ export default function DashboardStudio({
                       <button
                         className={`inline-flex flex-1 w-full items-center justify-center gap-2 transition rounded-xl py-3.5 px-4 font-bold text-sm border ${
                           canPrepareReel
-                            ? "bg-[#151E30] text-white border-white/20 hover:bg-[#1C2840] hover:border-[#FF6D00]/50 active:scale-95 cursor-pointer"
+                            ? "bg-[#151E30] text-white border-white/20 hover:bg-[#1C2840] hover:border-[#FF5722]/50 active:scale-95 cursor-pointer"
                             : "bg-white/5 text-zinc-500 border-white/10 cursor-not-allowed opacity-50"
                         }`}
                         disabled={!canPrepareReel}
@@ -4681,7 +4682,7 @@ export default function DashboardStudio({
                 )}
 
                 <button
-                  className="w-full rounded-xl bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] px-4 py-2.5 text-xs font-black text-black transition hover:brightness-110 shadow-lg shadow-[#FF6D00]/15"
+                  className="w-full rounded-xl bg-gradient-to-r from-[#FF5722] to-[#FF7043] px-4 py-2.5 text-xs font-black text-black transition hover:brightness-110 shadow-lg shadow-[#FF5722]/15"
                   onClick={() => {
                     chooseVideoTypeMode(previewVideoType.mode);
                     setPreviewVideoTypeId(null);
@@ -5248,15 +5249,15 @@ export default function DashboardStudio({
             whiteboardFont,
           } : {}),
           // Faceless Video background & typography
-          ...((mode === "facelessVideo" || mode === "aiVideoGenerator" || mode === "longVideoPro") ? {
+          ...((mode === "facelessVideo" || mode === "aiVideoGenerator" || (mode as string) === "longVideoPromo" || (mode as string) === "longVideoPro") ? {
             backgroundTheme: selectedBackgroundTheme,
             selectedBackgroundTheme,
             customBgUrl: selectedBackgroundUrl,
             backgroundUrl: selectedBackgroundUrl,
-            headingFont: mode === "longVideoPro" ? headingFont : longVideoHeadingFont,
+            headingFont: ((mode as string) === "longVideoPromo" || (mode as string) === "longVideoPro") ? headingFont : longVideoHeadingFont,
             subheadingFont: longVideoSubheadingFont,
-            bodyFont: mode === "longVideoPro" ? typographyFont : longVideoBodyFont,
-            typographyFont: mode === "longVideoPro" ? typographyFont : longVideoBodyFont,
+            bodyFont: ((mode as string) === "longVideoPromo" || (mode as string) === "longVideoPro") ? typographyFont : longVideoBodyFont,
+            typographyFont: ((mode as string) === "longVideoPromo" || (mode as string) === "longVideoPro") ? typographyFont : longVideoBodyFont,
             showCaptions: facelessEnableCaptions,
             enableCaptions: facelessEnableCaptions,
             facelessMotionIntensity,
@@ -5691,7 +5692,7 @@ function validateFileForMode(file: File, mode: Mode) {
   if (mode === "autoDraw" && !isAudio && !isVideo) {
     return `${modeConfig[mode].title} needs an audio or video file with clear speech.`;
   }
-  if (mode === "longVideoPro" && !isAudio && !isVideo) {
+  if (((mode as string) === "longVideoPromo" || (mode as string) === "longVideoPro") && !isAudio && !isVideo) {
     return "Long Video Pro needs an audio or video file with clear speech.";
   }
   if ((mode === "facelessVideo" || mode === "aiVideoGenerator") && !isAudio) {
@@ -5895,21 +5896,21 @@ function RenderStatusStage({
           ? "border-red-300/24 bg-red-500/[0.055]"
           : ready
             ? "border-[#10B981]/35 bg-[#10B981]/[0.07]"
-            : "border-[#FF6D00]/24 bg-[#070B14]"
+            : "border-[#FF5722]/24 bg-[#070B14]"
       }`}
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_8%,rgba(255,109,0,0.15),transparent_30%),radial-gradient(circle_at_82%_18%,rgba(255,143,0,0.10),transparent_28%),linear-gradient(135deg,rgba(255,255,255,0.07),transparent_48%)]" />
       {working ? (
         <>
-          <div className="render-orbit pointer-events-none absolute right-6 top-6 hidden h-24 w-24 rounded-full border border-[#FF6D00]/20 sm:block">
-            <span className="absolute left-1/2 top-0 h-2 w-2 -translate-x-1/2 rounded-full bg-[#FF6D00] shadow-[0_0_20px_rgba(255,109,0,0.8)]" />
+          <div className="render-orbit pointer-events-none absolute right-6 top-6 hidden h-24 w-24 rounded-full border border-[#FF5722]/20 sm:block">
+            <span className="absolute left-1/2 top-0 h-2 w-2 -translate-x-1/2 rounded-full bg-[#FF5722] shadow-[0_0_20px_rgba(255,109,0,0.8)]" />
           </div>
         </>
       ) : null}
       {renderParticles.map((particle) => (
         <span
           aria-hidden="true"
-          className="render-float absolute h-1.5 w-1.5 rounded-full bg-[#FF6D00]/80 shadow-[0_0_18px_rgba(255,109,0,0.75)] motion-safe:animate-pulse"
+          className="render-float absolute h-1.5 w-1.5 rounded-full bg-[#FF5722]/80 shadow-[0_0_18px_rgba(255,109,0,0.75)] motion-safe:animate-pulse"
           key={`${particle.left}-${particle.top}`}
           style={{left: particle.left, top: particle.top, animationDelay: particle.delay}}
         />
@@ -5952,7 +5953,7 @@ function RenderStatusStage({
             <span className="text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">
               Harvested Clips List
             </span>
-            <span className="text-xs font-black text-white uppercase tracking-widest bg-[#FF6D00]/10 border border-[#FF6D00]/20 px-2.5 py-1 rounded-full">
+            <span className="text-xs font-black text-white uppercase tracking-widest bg-[#FF5722]/10 border border-[#FF5722]/20 px-2.5 py-1 rounded-full">
               {status.clips.filter((c) => c.status === "done").length} / {status.clips.length} Clips Ready
             </span>
           </div>
@@ -5966,12 +5967,12 @@ function RenderStatusStage({
               return (
                 <div
                   key={clip.renderId}
-                  className={`relative overflow-hidden rounded-2xl border p-4 bg-gradient-to-b from-[#0e1526]/90 to-[#070b14]/90 transition-all duration-300 hover:shadow-xl hover:shadow-[#FF6D00]/5 ${
+                  className={`relative overflow-hidden rounded-2xl border p-4 bg-gradient-to-b from-[#0e1526]/90 to-[#070b14]/90 transition-all duration-300 hover:shadow-xl hover:shadow-[#FF5722]/5 ${
                     isClipFailed
                       ? "border-border"
                       : isClipDone
                         ? "border-emerald-500/20 shadow-lg shadow-emerald-950/5"
-                        : "border-[#FF6D00]/20 shadow-md shadow-[#FF6D00]/5"
+                        : "border-[#FF5722]/20 shadow-md shadow-[#FF5722]/5"
                   }`}
                 >
                   {/* Clip Header */}
@@ -5992,7 +5993,7 @@ function RenderStatusStage({
                           ? "bg-red-500/10 border-red-500/30 text-red-400"
                           : isClipDone
                             ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
-                            : "bg-[#FF6D00]/10 border-[#FF6D00]/30 text-[#FF9100] animate-pulse"
+                            : "bg-[#FF5722]/10 border-[#FF5722]/30 text-[#FF9100] animate-pulse"
                       }`}
                     >
                       {clip.status}
@@ -6017,7 +6018,7 @@ function RenderStatusStage({
                     ) : (
                       <div className="p-4 text-center">
                         <div className="relative w-12 h-12 mx-auto mb-3 flex items-center justify-center">
-                          <span className="absolute inset-0 rounded-full border-2 border-[#FF6D00]/20 border-t-[#FF6D00] animate-spin" />
+                          <span className="absolute inset-0 rounded-full border-2 border-[#FF5722]/20 border-t-[#FF5722] animate-spin" />
                           <Loader2 className="text-[#FF9100] animate-pulse animate-spin" size={20} />
                         </div>
                         <p className="text-xs font-black text-[#FF9100]">AI is rendering...</p>
@@ -6032,7 +6033,7 @@ function RenderStatusStage({
                       <a
                         href={`/api/download?url=${encodeURIComponent(clip.outputFile)}&filename=${encodeURIComponent(`itnavideo-clip-${clip.clipIndex + 1}.mp4`)}`}
                         download={`itnavideo-clip-${clip.clipIndex + 1}.mp4`}
-                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] px-3 py-2.5 text-xs font-black text-black transition-all hover:brightness-110 hover:scale-[1.02] active:scale-95 cursor-pointer"
+                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF5722] to-[#FF7043] px-3 py-2.5 text-xs font-black text-black transition-all hover:brightness-110 hover:scale-[1.02] active:scale-95 cursor-pointer"
                       >
                         <Download size={13} />
                         Download Clip
@@ -6048,7 +6049,7 @@ function RenderStatusStage({
             <button
               type="button"
               onClick={onReset}
-              className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] px-6 py-2.5 text-xs font-black text-black shadow-lg shadow-[#FF6D00]/25 transition hover:brightness-110 active:scale-95 cursor-pointer"
+              className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] to-[#FF7043] px-6 py-2.5 text-xs font-black text-black shadow-lg shadow-[#FF5722]/25 transition hover:brightness-110 active:scale-95 cursor-pointer"
             >
               <Sparkles size={14} className="text-black" />
               <span>Create New Video</span>
@@ -6058,7 +6059,7 @@ function RenderStatusStage({
       ) : (
         <div className="relative mt-5 grid min-w-0 max-w-full gap-4 sm:gap-5 lg:grid-cols-[minmax(0,0.96fr)_minmax(0,1.04fr)]">
           <div className="relative hidden min-h-52 min-w-0 max-w-full overflow-hidden rounded-xl border border-white/10 bg-[#0E1526] p-3 sm:block sm:p-4">
-            <div className="absolute inset-x-4 top-5 h-px bg-gradient-to-r from-transparent via-[#FF8F00]/50 to-transparent" />
+            <div className="absolute inset-x-4 top-5 h-px bg-gradient-to-r from-transparent via-[#FF7043]/50 to-transparent" />
             <div className="absolute inset-y-6 left-1/2 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent" />
             <div className="relative mx-auto mb-8 flex aspect-[9/16] h-48 max-h-full flex-col overflow-hidden rounded-xl border border-white/10 bg-[#070B14] p-2 shadow-[0_20px_70px_rgba(0,0,0,0.55)] min-[390px]:h-56">
               {working ? <div className="render-scanline pointer-events-none absolute inset-x-0 z-20 h-12 bg-gradient-to-b from-transparent via-emerald-200/18 to-transparent" /> : null}
@@ -6094,7 +6095,7 @@ function RenderStatusStage({
               </div>
               <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-card/10">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] transition-all duration-700"
+                  className="h-full rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] transition-all duration-700"
                   style={{width: `${Math.max(8, percentage)}%`}}
                 />
               </div>
@@ -6114,7 +6115,7 @@ function RenderStatusStage({
               <div className="mt-3 h-3 overflow-hidden rounded-full border border-border bg-black/45">
                 <div
                   className={`h-full rounded-full transition-all duration-700 ${
-                    failed ? "bg-red-300" : "bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726]"
+                    failed ? "bg-red-300" : "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000]"
                   }`}
                   style={{width: `${Math.max(6, percentage)}%`}}
                 />
@@ -6163,7 +6164,7 @@ function RenderStatusStage({
                   </Link>
                 </div>
                 <a
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] px-4 py-3 text-sm font-black text-black transition-all hover:brightness-110 shadow-lg shadow-[#FF6D00]/25 active:scale-95 cursor-pointer"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#FF5722] to-[#FF7043] px-4 py-3 text-sm font-black text-black transition-all hover:brightness-110 shadow-lg shadow-[#FF5722]/25 active:scale-95 cursor-pointer"
                   href={`/api/download?url=${encodeURIComponent(status.outputFile)}&filename=${encodeURIComponent(`itnavideo-${mode || 'reel'}.mp4`)}`}
                   download={`itnavideo-${mode || 'reel'}.mp4`}
                   onClick={() => trackVideoDownload({ renderId: status.renderId || 'output', mode })}
@@ -6180,7 +6181,7 @@ function RenderStatusStage({
                 <button
                   type="button"
                   onClick={onRetry}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-[10px] bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] px-4 py-3.5 text-[15px] font-black text-black transition-all hover:brightness-110 shadow-lg shadow-[#FF6D00]/25 active:scale-95"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-[10px] bg-gradient-to-r from-[#FF5722] to-[#FF7043] px-4 py-3.5 text-[15px] font-black text-black transition-all hover:brightness-110 shadow-lg shadow-[#FF5722]/25 active:scale-95"
                 >
                   Retry
                 </button>
@@ -6255,9 +6256,9 @@ function getRenderStageMeta(status: JobStatus, mode: Mode): {
   if (status.state === "uploading") {
     return {
       body: "Uploading your file. Please keep this page open.",
-      badgeClass: "border-[#FF6D00]/25 bg-[#FF6D00]/10 text-white",
+      badgeClass: "border-[#FF5722]/25 bg-[#FF5722]/10 text-white",
       icon: Upload,
-      iconFrame: "border-[#FF6D00]/25 bg-[#FF6D00]/10 text-white",
+      iconFrame: "border-[#FF5722]/25 bg-[#FF5722]/10 text-white",
       kicker: "Media upload",
       kickerClass: "text-primary",
       title: "Uploading your file",
@@ -6274,16 +6275,16 @@ function getRenderStageMeta(status: JobStatus, mode: Mode): {
             : mode === "imageToVideoAi"
               ? "AI is transcribing speech pace and sequencing scene visuals with Ken Burns motion."
               : "AI is transcribing and building the reel structure.",
-      badgeClass: "border-[#FF6D00]/30 bg-[#FF6D00]/12 text-[#FF9100]",
+      badgeClass: "border-[#FF5722]/30 bg-[#FF5722]/12 text-[#FF9100]",
       icon: Layers3,
-      iconFrame: "border-[#FF6D00]/35 bg-[#FF6D00]/13 text-[#FF9100]",
-      kicker: mode === "longVideoPro" ? "AI is planning scenes" : mode === "compare" ? "AI is transcribing" : mode === "customAiReel" ? "Timeline planning" : mode === "autoCaption" ? "Transcribing speech" : mode === "imageToVideoAi" ? "Pacing scene cuts" : mode === "typographyVideo" ? "Extracting punch keywords" : "AI is transcribing",
+      iconFrame: "border-[#FF5722]/35 bg-[#FF5722]/13 text-[#FF9100]",
+      kicker: ((mode as string) === "longVideoPromo" || (mode as string) === "longVideoPro") ? "AI is planning scenes" : mode === "compare" ? "AI is transcribing" : mode === "customAiReel" ? "Timeline planning" : mode === "autoCaption" ? "Transcribing speech" : mode === "imageToVideoAi" ? "Pacing scene cuts" : mode === "typographyVideo" ? "Extracting punch keywords" : "AI is transcribing",
       kickerClass: "text-[#FF9100]",
-      title: mode === "longVideoPro" ? "AI is directing your video" : mode === "compare" ? "Building your comparison" : mode === "customAiReel" ? "Planning your custom reel" : mode === "autoCaption" ? "Generating animated captions" : mode === "imageToVideoAi" ? "Directing Image to Video AI" : mode === "typographyVideo" ? "Styling kinetic typography" : "AI is transcribing",
+      title: ((mode as string) === "longVideoPromo" || (mode as string) === "longVideoPro") ? "AI is directing your video" : mode === "compare" ? "Building your comparison" : mode === "customAiReel" ? "Planning your custom reel" : mode === "autoCaption" ? "Generating animated captions" : mode === "imageToVideoAi" ? "Directing Image to Video AI" : mode === "typographyVideo" ? "Styling kinetic typography" : "AI is transcribing",
     };
   }
   return {
-    body: mode === "longVideoPro"
+    body: ((mode as string) === "longVideoPromo" || (mode as string) === "longVideoPro")
         ? "AI is rendering your directed video with planned scenes and motion. This takes 3-10 minutes."
         : mode === "autoCaption"
           ? "Rendering your 30 FPS reel with animated motion captions. Usually takes 15-45 seconds."
@@ -6292,9 +6293,9 @@ function getRenderStageMeta(status: JobStatus, mode: Mode): {
             : mode === "typographyVideo"
               ? "Rendering your 30 FPS reel with dynamic kinetic typography & synced sound effects. Usually takes 30-60 seconds."
               : "Rendering your final MP4. Usually 2-10 minutes depending on video length, captions, and current render load.",
-    badgeClass: "border-[#FF6D00]/35 bg-[#FF6D00]/12 text-[#FF9100]",
+    badgeClass: "border-[#FF5722]/35 bg-[#FF5722]/12 text-[#FF9100]",
     icon: Clapperboard,
-    iconFrame: "border-[#FF6D00]/35 bg-[#FF6D00]/13 text-[#FF9100]",
+    iconFrame: "border-[#FF5722]/35 bg-[#FF5722]/13 text-[#FF9100]",
     kicker: "Rendering final MP4",
     kickerClass: "text-primary",
     title: "Rendering final MP4",
@@ -6372,7 +6373,7 @@ function getRenderStepDefinitions(mode: Mode) {
       {label: "Ready to download", detail: "Your creator reel appears here when ready.", threshold: 0.96, icon: Clapperboard},
     ];
   }
-  if (mode === "longVideoPro") {
+  if ((mode as string) === "longVideoPromo" || (mode as string) === "longVideoPro") {
     return [
       {label: "Upload received", detail: "Your audio/video is safely uploaded.", threshold: 0.06, icon: Upload},
       {label: "Transcribing speech", detail: "AI is detecting words, timing, and emphasis.", threshold: 0.15, icon: Layers3},
@@ -6721,7 +6722,7 @@ function ProgressPreview({mode}: {mode: Mode}) {
   return (
     <div className="rounded-2xl border border-white/10 bg-[#0E1526]/80 p-4 shadow-sm">
       <div className="flex items-center gap-2 mb-3">
-        <span className="h-1.5 w-1.5 rounded-full bg-[#FF6D00] animate-pulse" />
+        <span className="h-1.5 w-1.5 rounded-full bg-[#FF5722] animate-pulse" />
         <p className="text-[11px] font-black uppercase tracking-wider text-slate-300">Deterministic Pipeline Stages</p>
       </div>
       <div className="flex flex-wrap items-center gap-2">
@@ -6730,7 +6731,7 @@ function ProgressPreview({mode}: {mode: Mode}) {
             <span className="rounded-full border border-white/10 bg-[#151E30] px-3 py-1 text-[11px] font-bold text-slate-200">
               {step}
             </span>
-            {index < steps.length - 1 ? <span className="text-xs font-black text-[#FF8F00]">&rarr;</span> : null}
+            {index < steps.length - 1 ? <span className="text-xs font-black text-[#FF7043]">&rarr;</span> : null}
           </div>
         ))}
       </div>
@@ -6790,7 +6791,7 @@ function UploadMiniCard({file, label, onRemove}: {file: File; label: string; onR
         {mediaType === "image" ? (
           <UploadedImagePreview alt={label} className="h-full w-full object-cover" file={file} />
         ) : (
-          <div className="grid h-full w-full place-items-center bg-[#FF6D00]/10 text-[#FF9100]">
+          <div className="grid h-full w-full place-items-center bg-[#FF5722]/10 text-[#FF9100]">
             <MediaIcon size={22} />
           </div>
         )}

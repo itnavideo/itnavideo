@@ -105,3 +105,20 @@ export interface LongVideoClipsProps {
 - **YouTube Link Validation**: Instant client-side regex check for valid YouTube domain.
 - **2-Person Podcast Detection**: Split-screen layout prevents head cutting by rendering both top and bottom viewports simultaneously.
 - **Parallel Render Pipeline**: Renders multiple clips concurrently on AWS Remotion Lambda for zero local laptop compute.
+
+---
+
+## 8. Pipeline Error Checklist & Auto-Fix Matrix
+
+| Pipeline Stage | Potential Error / Failure | Root Cause | Automated Recovery / Fix | User-Facing Action / Feedback |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Source Ingestion** | `YOUTUBE_RESOLUTION_FAILED` | Private video, age-restricted, or invalid YouTube URL | Returns `YOUTUBE_RESOLUTION_FAILED` with human-readable error | "Could not access YouTube video. Please ensure video is public or upload MP4 directly." |
+| **1. Source Ingestion** | `FILE_SIZE_TOO_LARGE` | Video file > 3GB or corrupted during upload | S3 multipart upload with integrity verification | Clear progress percentage and resume capability |
+| **2. Audio Extraction** | `EXTRACT_TIMEOUT` | Ultra-long video (>2 hours) taking too long to process | Cloud streaming audio chunk extractor grabs 16kHz mono audio stream in parallel | Audio ready in seconds without downloading full 3GB payload |
+| **3. Transcription** | `GROQ_RATE_LIMIT_429` | Large speech transcript burst | Fallback to Google Gemini 2.0 Flash (`asia-south1`) | Instant uninterrupted transcription |
+| **3. Transcription** | `NO_SPEECH_DETECTED` | Video has only background music / silent b-roll | Returns `NO_SPEECH_DETECTED` error code | "No spoken dialogue found in this video segment." |
+| **4. AI Hook Detection** | `NO_VIRAL_HOOKS_FOUND` | Monotone audio or unstructured dialogue | Fallback to heuristic highest-energy speech density algorithm | Generates top 3 highest-energy segments with clean boundaries |
+| **5. Face Tracking & Reframe**| `NO_FACE_DETECTED` | Screen share, gaming video, or landscape B-roll | Auto-switches layout to `fit-widescreen` with blurred Gaussian backdrop | Video never crops abruptly into empty space |
+| **6. Multi-Clip Render** | `BATCH_CLIP_FAILURE` | One clip fails in a 5-clip batch | Independent clip isolation: succeeding clips render and deliver; failed clip auto-retries | Partial success delivery with retry option on failed clip |
+| **7. Credit Allocation** | `OVER_CHARGED_CREDITS` | Render cancelled or failed midway | System records usage only on completed clips and refunds unused credits | Unused credits refunded automatically |
+

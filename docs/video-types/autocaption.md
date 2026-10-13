@@ -25,11 +25,11 @@ The dedicated studio dashboard (`/dashboard/auto-caption`) features a **Strictly
 | **Showcase Player** | `components/dashboard/AutoCaptionBeforeAfterPlayer.tsx` |
 | **Style Asset Directory**| `itnavideo-assets/autocaptionvideos/*.mp4` (100 Cloudinary preview videos) |
 | **Aspect Ratio** | **9:16 Vertical Only (1080×1920 Full HD)** |
-| **Resolution & Quality** | **1080p Full HD (1080×1920 for 9:16 / 1920×1080 for 16:9)** |
+| **Resolution & Quality** | **1080p Full HD (1080×1920 @ 30 FPS MP4)** |
 | **Frame Rate** | 30 FPS |
-| **Max Video Duration** | **3 Minutes (180s)** for 9:16 Reels/Shorts / **12 Minutes (720s)** for 16:9 Subtitles |
-| **Primary Category** | Creator & Corporate Reels |
-| **Credit Cost** | 1 credit per render |
+| **Max Video Duration** | **Up to 90 Seconds (90s)** |
+| **Primary Category** | 9:16 Vertical Short-Form |
+| **Credit Cost** | 1 Credit |
 | **Design System** | Google Analytics Obsidian Baseline (`#070B14`, `#0E1526`) + Intentional Color & Typography Variety Policy + Material Design 3 |
 | **Transcription Engine**| Extracted 16kHz audio → Groq Whisper Cloud API (Fallback: Gemini 2.0 Flash `asia-south1`) |
 | **Cloud Engine** | AWS Lambda (Remotion in `us-east-1` Mumbai) |
@@ -182,3 +182,21 @@ export interface AutoCaptionGeneratorProps {
   4. `1080p Cloud Render` — AWS Lambda rendering 1080×1920 Full HD MP4
 - **Live Time Remaining**: Displays live elapsed time and accurate countdown (`~35s remaining`).
 - **1080p Full HD Player & Social Copy**: Embedded video player upon completion, direct download action, and 1-click social media title/description/hashtag generator.
+
+---
+
+## 10. Pipeline Error Checklist & Auto-Fix Matrix
+
+| Pipeline Stage | Potential Error / Failure | Root Cause | Automated Recovery / Fix | User-Facing Action / Feedback |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Upload & Format** | `DURATION_EXCEEDED` | Video duration > 90s (Shorts) or > 10m (YouTube Widescreen) | Backend preflight check stops before Lambda allocation | Clear banner: "Please trim video under limit" |
+| **1. Upload & Format** | `UNSUPPORTED_VIDEO_CODEC` | Obscure format or audio track missing | Automated container validation and audio track check | Notification to check video sound stream |
+| **2. Audio Extraction** | `HEAVY_VIDEO_TRANSCRIPTION_CRASH` | Raw video file sent to Whisper API | Backend extracts 16kHz mono audio first via streaming wrapper | Fast lightweight audio payload sent to Groq |
+| **3. Speech Transcription** | `GROQ_RATE_LIMIT_429` | Groq API rate limit or momentary spike | Instant fallback to Google Gemini 2.0 Flash (`asia-south1`) | Transparent transcription completion |
+| **3. Speech Transcription** | `NO_SPEECH_DETECTED` | Instrumental background music or silent clip | Returns `NO_SPEECH_DETECTED` reason code | "No clear spoken dialogue detected in your video. Please check audio." |
+| **4. Word Alignment** | `OUT_OF_BOUNDS_TIMESTAMPS` | Spoken timestamps exceed video duration | Normalizes timestamps using `Math.min(w.end, durationSeconds)` | Captions perfectly clamped within visible timeline |
+| **5. Subtitle Styling** | `LONG_WORD_CONTAINER_OVERFLOW` | Words $\ge 12$ characters overflowing screen margin | `adaptiveFontScaling` scales text down 15-20% and wraps automatically | Subtitle text always fits safely on screen |
+| **6. Remotion Lambda Render** | `LAMBDA_OOM_OR_TIMEOUT` | Heavy 1080p frames exceeding memory | Concurrency tuning & frameRange `[0, totalFrames - 1]` | Fast multi-part rendering |
+| **6. Remotion Lambda Render** | `RENDER_CRASH_OR_NETWORK_ERROR` | Lambda execution error | Status route intercepts fatal state, refunds reserved credits | Clear error notification + 1-click retry |
+| **7. File Download** | `EXPIRED_PRESIGNED_S3_LINK` | Download link accessed after 48 hours | Polling status route dynamically signs a fresh 48-hour download URL | Always-valid high-speed S3 download |
+

@@ -51,7 +51,7 @@ export function AutoCaptionWordReplacer({
     <div className="rounded-[22px] border border-white/10 bg-[#161720] p-4 shadow-2xl space-y-3.5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-2.5">
         <div className="flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#FF6D00]/20 text-[#FF9100]">
+          <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#FF5722]/20 text-[#FF9100]">
             <Sparkles size={13} />
           </div>
           <div>
@@ -83,7 +83,7 @@ export function AutoCaptionWordReplacer({
                 executeReplace();
               }
             }}
-            className="w-full rounded-xl bg-[#090A0F] border border-white/10 pl-8 pr-3 py-2 text-xs font-mono text-white placeholder-slate-500 focus:border-[#FF6D00] focus:outline-none"
+            className="w-full rounded-xl bg-[#090A0F] border border-white/10 pl-8 pr-3 py-2 text-xs font-mono text-white placeholder-slate-500 focus:border-[#FF5722] focus:outline-none"
           />
         </div>
 
@@ -100,7 +100,7 @@ export function AutoCaptionWordReplacer({
                 executeReplace();
               }
             }}
-            className="w-full rounded-xl bg-[#090A0F] border border-white/10 pl-8 pr-3 py-2 text-xs font-mono text-white placeholder-slate-500 focus:border-[#FF6D00] focus:outline-none"
+            className="w-full rounded-xl bg-[#090A0F] border border-white/10 pl-8 pr-3 py-2 text-xs font-mono text-white placeholder-slate-500 focus:border-[#FF5722] focus:outline-none"
           />
         </div>
 
@@ -108,7 +108,7 @@ export function AutoCaptionWordReplacer({
           <button
             type="submit"
             disabled={!findWord.trim() || !transcript}
-            className="w-full h-full min-h-[36px] flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black text-xs font-black shadow-md hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition active:scale-95 cursor-pointer"
+            className="w-full h-full min-h-[36px] flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black text-xs font-black shadow-md hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition active:scale-95 cursor-pointer"
           >
             <span>Replace</span>
           </button>
@@ -117,7 +117,7 @@ export function AutoCaptionWordReplacer({
 
       {/* Success / Alert message */}
       {replaceSuccessMsg && (
-        <div className="flex items-center gap-2 rounded-xl bg-[#FF6D00]/10 border border-[#FF6D00]/30 px-3 py-1.5 text-xs font-bold text-[#FFA726]">
+        <div className="flex items-center gap-2 rounded-xl bg-[#FF5722]/10 border border-[#FF5722]/30 px-3 py-1.5 text-xs font-bold text-[#FFA000]">
           <Check size={13} />
           <span>{replaceSuccessMsg}</span>
         </div>
@@ -135,7 +135,7 @@ export function AutoCaptionWordReplacer({
                 key={i}
                 type="button"
                 onClick={() => handleQuickWordClick(w)}
-                className="rounded-lg bg-[#090A0F] hover:bg-[#1E202E] hover:border-[#FF6D00]/40 border border-white/10 px-2 py-0.5 text-[11px] font-mono text-slate-300 hover:text-[#FFA726] transition active:scale-90 cursor-pointer"
+                className="rounded-lg bg-[#090A0F] hover:bg-[#1E202E] hover:border-[#FF5722]/40 border border-white/10 px-2 py-0.5 text-[11px] font-mono text-slate-300 hover:text-[#FFA000] transition active:scale-90 cursor-pointer"
               >
                 {w}
               </button>
@@ -156,7 +156,7 @@ export function AutoCaptionWordReplacer({
           value={transcript}
           onChange={(e) => onTranscriptChange(e.target.value)}
           placeholder={isTranscribing ? "Transcribing speech via Groq Whisper..." : "Transcript will appear here once audio is loaded. You can directly edit text."}
-          className="w-full rounded-2xl bg-[#090A0F] border border-white/10 p-3 text-xs leading-relaxed text-slate-200 placeholder-slate-600 focus:border-[#FF6D00] focus:outline-none font-sans"
+          className="w-full rounded-2xl bg-[#090A0F] border border-white/10 p-3 text-xs leading-relaxed text-slate-200 placeholder-slate-600 focus:border-[#FF5722] focus:outline-none font-sans"
         />
       </div>
     </div>

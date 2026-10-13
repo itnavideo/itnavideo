@@ -127,12 +127,12 @@ export function LongVideoPromoStudio({
   return (
     <div className="relative rounded-[28px] border border-white/10 bg-[#111218] p-5 sm:p-7 shadow-2xl min-w-0 max-w-full overflow-x-hidden space-y-7 text-white">
       {/* Magic UI BorderBeam Glowing Effect */}
-      <BorderBeam size={280} duration={14} colorFrom="#FF6D00" colorTo="#FFA726" />
+      <BorderBeam size={280} duration={14} colorFrom="#FF5722" colorTo="#FFA000" />
 
       {/* Master Studio Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#FF6D00] via-[#FF8F00] to-[#FFA726] text-black shadow-md shadow-[#FF6D00]/25">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black shadow-md shadow-[#FF5722]/25">
             <Sparkles size={20} className="fill-black/20" />
           </div>
           <div>
@@ -147,7 +147,7 @@ export function LongVideoPromoStudio({
 
         <div className="flex items-center gap-2 shrink-0">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#161720] px-3 py-1.5 text-xs font-bold text-slate-300">
-            <Clock3 size={13} className="text-[#FF8F00]" />
+            <Clock3 size={13} className="text-[#FF7043]" />
             <span>9:16 Vertical • 1080p Full HD</span>
           </span>
         </div>
@@ -165,13 +165,13 @@ export function LongVideoPromoStudio({
         <div className="rounded-[28px] border border-white/15 bg-white/[0.04] p-6 shadow-2xl backdrop-blur-2xl ring-1 ring-white/10 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#FF6D00]/30 bg-[#FF6D00]/10 text-[#FF9100] shadow-md shadow-[#FF6D00]/10">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#FF5722]/30 bg-[#FF5722]/10 text-[#FF9100] shadow-md shadow-[#FF5722]/10">
                 <Video size={18} />
               </div>
               <div>
                 <h3 className="text-sm font-black tracking-tight text-white flex items-center gap-2">
                   <span>01 — Upload Your Video</span>
-                  <span className="rounded-full bg-[#FF6D00]/15 px-2 py-0.5 text-[10px] font-bold text-[#FFA726] border border-[#FF6D00]/30">
+                  <span className="rounded-full bg-[#FF5722]/15 px-2 py-0.5 text-[10px] font-bold text-[#FFA000] border border-[#FF5722]/30">
                     Up to 3 mins
                   </span>
                 </h3>
@@ -192,7 +192,7 @@ export function LongVideoPromoStudio({
             <div
               onDragOver={(e) => e.preventDefault()}
               onDrop={handleFileDrop}
-              className="border border-dashed border-white/20 hover:border-[#FF6D00]/60 rounded-2xl bg-black/40 hover:bg-black/60 p-8 text-center cursor-pointer transition-all duration-200 relative group"
+              className="border border-dashed border-white/20 hover:border-[#FF5722]/60 rounded-2xl bg-black/40 hover:bg-black/60 p-8 text-center cursor-pointer transition-all duration-200 relative group"
             >
               <input
                 type="file"
@@ -200,12 +200,12 @@ export function LongVideoPromoStudio({
                 onChange={handleFileSelect}
                 className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
               />
-              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/5 border border-white/10 group-hover:scale-110 group-hover:border-[#FF6D00]/40 group-hover:bg-[#FF6D00]/10 transition">
+              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white/5 border border-white/10 group-hover:scale-110 group-hover:border-[#FF5722]/40 group-hover:bg-[#FF5722]/10 transition">
                 <Upload className="h-6 w-6 text-zinc-400 group-hover:text-[#FF9100] transition" />
               </div>
               <p className="text-sm font-bold text-zinc-100">Drag &amp; drop your video, or click to browse</p>
               <p className="text-xs text-zinc-400 mt-1">Supports MP4, MOV, WEBM · No manual trimming needed</p>
-              <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#FF6D00]/10 px-3 py-1 text-[10px] font-bold text-[#FFA726] border border-[#FF6D00]/20">
+              <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#FF5722]/10 px-3 py-1 text-[10px] font-bold text-[#FFA000] border border-[#FF5722]/20">
                 <Sparkles size={12} />
                 AI will cut the best 15–45s hook automatically
               </div>
@@ -213,7 +213,7 @@ export function LongVideoPromoStudio({
           ) : (
             <div className="rounded-2xl border border-white/15 bg-black/50 p-4 flex items-center justify-between gap-4">
               <div className="flex items-center gap-3.5 min-w-0">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#FF6D00]/20 to-[#FF8F00]/10 text-[#FF9100] border border-[#FF6D00]/30">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#FF5722]/20 to-[#FF7043]/10 text-[#FF9100] border border-[#FF5722]/30">
                   <Film size={20} />
                 </div>
                 <div className="min-w-0">
@@ -237,7 +237,7 @@ export function LongVideoPromoStudio({
         {/* 02 — ADD VIDEO DETAILS */}
         <div className="rounded-[28px] border border-white/15 bg-white/[0.04] p-6 shadow-2xl backdrop-blur-2xl ring-1 ring-white/10 space-y-5">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#FF6D00]/30 bg-[#FF6D00]/10 text-[#FF9100] shadow-md shadow-[#FF6D00]/10">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#FF5722]/30 bg-[#FF5722]/10 text-[#FF9100] shadow-md shadow-[#FF5722]/10">
               <Layers size={18} />
             </div>
             <div>
@@ -265,7 +265,7 @@ export function LongVideoPromoStudio({
             </div>
 
             {!promoThumbnailFile ? (
-              <div className="relative border border-dashed border-white/15 hover:border-[#FF6D00]/40 rounded-xl bg-black/30 p-5 text-center cursor-pointer transition group">
+              <div className="relative border border-dashed border-white/15 hover:border-[#FF5722]/40 rounded-xl bg-black/30 p-5 text-center cursor-pointer transition group">
                 <input
                   type="file"
                   accept="image/png,image/jpeg,image/jpg,image/webp"
@@ -302,7 +302,7 @@ export function LongVideoPromoStudio({
               <input
                 type="text"
                 maxLength={80}
-                className="w-full rounded-xl border border-white/15 bg-black/40 px-4 py-3 text-xs text-white placeholder-zinc-500 focus:border-[#FF6D00]/50 focus:ring-1 focus:ring-[#FF6D00]/30 focus:outline-none transition"
+                className="w-full rounded-xl border border-white/15 bg-black/40 px-4 py-3 text-xs text-white placeholder-zinc-500 focus:border-[#FF5722]/50 focus:ring-1 focus:ring-[#FF5722]/30 focus:outline-none transition"
                 placeholder="Enter your YouTube video title"
                 value={promoTitle}
                 onChange={(e) => onPromoTitleChange(e.target.value)}
@@ -320,7 +320,7 @@ export function LongVideoPromoStudio({
               <input
                 type="text"
                 maxLength={30}
-                className="w-full rounded-xl border border-white/15 bg-black/40 px-4 py-3 text-xs text-white placeholder-zinc-500 focus:border-[#FF6D00]/50 focus:ring-1 focus:ring-[#FF6D00]/30 focus:outline-none transition"
+                className="w-full rounded-xl border border-white/15 bg-black/40 px-4 py-3 text-xs text-white placeholder-zinc-500 focus:border-[#FF5722]/50 focus:ring-1 focus:ring-[#FF5722]/30 focus:outline-none transition"
                 placeholder="@yourchannel"
                 value={promoCreatorHandle}
                 onChange={(e) => onPromoCreatorHandleChange(e.target.value)}
@@ -333,7 +333,7 @@ export function LongVideoPromoStudio({
         {/* 03 — CHOOSE YOUR GOAL */}
         <div className="rounded-[28px] border border-white/15 bg-white/[0.04] p-6 shadow-2xl backdrop-blur-2xl ring-1 ring-white/10 space-y-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#FF6D00]/30 bg-[#FF6D00]/10 text-[#FF9100] shadow-md shadow-[#FF6D00]/10">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#FF5722]/30 bg-[#FF5722]/10 text-[#FF9100] shadow-md shadow-[#FF5722]/10">
               <Zap size={18} />
             </div>
             <div>
@@ -374,14 +374,14 @@ export function LongVideoPromoStudio({
                   onClick={() => handleGoalSelect(goal.id)}
                   className={`relative rounded-2xl border p-4 text-left transition-all active:scale-[0.98] ${
                     active
-                      ? "border-[#FF6D00] bg-gradient-to-br from-[#FF6D00]/15 to-[#FF8F00]/5 ring-2 ring-[#FF6D00]/30 shadow-lg shadow-[#FF6D00]/10"
+                      ? "border-[#FF5722] bg-gradient-to-br from-[#FF5722]/15 to-[#FF7043]/5 ring-2 ring-[#FF5722]/30 shadow-lg shadow-[#FF5722]/10"
                       : "border-white/10 bg-black/40 hover:border-white/20 hover:bg-black/60 text-zinc-400"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xl">{goal?.icon}</span>
                     {active && (
-                      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#FF6D00] text-black">
+                      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#FF5722] text-black">
                         <Check size={10} className="stroke-[3]" />
                       </span>
                     )}
@@ -389,7 +389,7 @@ export function LongVideoPromoStudio({
                   <p className={`text-xs font-black ${active ? "text-white" : "text-zinc-200"}`}>{goal.label}</p>
                   <p className="text-[10px] text-zinc-400 mt-0.5 leading-tight">{goal.sub}</p>
                   <div className={`mt-2.5 rounded-lg p-1.5 text-[9px] font-bold ${
-                    active ? "bg-[#FF6D00]/10 text-[#FFA726] border border-[#FF6D00]/20" : "bg-white/5 text-zinc-500"
+                    active ? "bg-[#FF5722]/10 text-[#FFA000] border border-[#FF5722]/20" : "bg-white/5 text-zinc-500"
                   }`}>
                     {goal.cta}
                   </div>
@@ -403,13 +403,13 @@ export function LongVideoPromoStudio({
         <div className="space-y-3 pt-2">
           {isGenerating ? (
             /* Point 9: Live AI Processing Stepper */
-            <div className="rounded-[28px] border border-[#FF6D00]/40 bg-black/80 p-6 shadow-2xl backdrop-blur-2xl ring-1 ring-[#FF6D00]/20 space-y-4">
+            <div className="rounded-[28px] border border-[#FF5722]/40 bg-black/80 p-6 shadow-2xl backdrop-blur-2xl ring-1 ring-[#FF5722]/20 space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-white/10">
                 <div className="flex items-center gap-2 text-sm font-black text-white">
-                  <span className="flex h-2.5 w-2.5 animate-ping rounded-full bg-[#FF6D00]" />
+                  <span className="flex h-2.5 w-2.5 animate-ping rounded-full bg-[#FF5722]" />
                   <span>Analyzing your video...</span>
                 </div>
-                <span className="rounded-full bg-[#FF6D00]/20 px-3 py-1 text-xs font-black text-[#FFA726] border border-[#FF6D00]/30">
+                <span className="rounded-full bg-[#FF5722]/20 px-3 py-1 text-xs font-black text-[#FFA000] border border-[#FF5722]/30">
                   {Math.round(((activeStep + 1) / aiSteps.length) * 100)}%
                 </span>
               </div>
@@ -425,15 +425,15 @@ export function LongVideoPromoStudio({
                         isDone
                           ? "text-emerald-400 font-bold"
                           : isCurrent
-                          ? "text-[#FFA726] font-bold animate-pulse"
+                          ? "text-[#FFA000] font-bold animate-pulse"
                           : "text-zinc-600"
                       }`}
                     >
                       {isDone ? (
                         <CheckCircle2 size={14} className="text-emerald-400 shrink-0" />
                       ) : isCurrent ? (
-                        <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#FF6D00]/20 border border-[#FF6D00] shrink-0">
-                          <span className="h-1.5 w-1.5 rounded-full bg-[#FF6D00]" />
+                        <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#FF5722]/20 border border-[#FF5722] shrink-0">
+                          <span className="h-1.5 w-1.5 rounded-full bg-[#FF5722]" />
                         </span>
                       ) : (
                         <span className="h-3.5 w-3.5 rounded-full border border-white/10 shrink-0" />
@@ -450,7 +450,7 @@ export function LongVideoPromoStudio({
                 type="button"
                 onClick={onGenerate}
                 disabled={!selectedFile}
-                className="w-full inline-flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] p-4.5 text-sm font-black text-black shadow-xl shadow-[#FF6D00]/25 transition-all duration-200 active:scale-[0.98] hover:brightness-110 disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
+                className="w-full inline-flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] p-4.5 text-sm font-black text-black shadow-xl shadow-[#FF5722]/25 transition-all duration-200 active:scale-[0.98] hover:brightness-110 disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
               >
                 <Sparkles size={18} />
                 <span>Generate AI Promo (1 Credit)</span>
@@ -468,8 +468,8 @@ export function LongVideoPromoStudio({
       {/* Right Column: Live Mockup Editor Preview (5 cols) */}
         <div className="lg:col-span-5 sticky top-24 space-y-4">
         <div className="rounded-[28px] border border-white/15 bg-white/[0.04] p-5 shadow-2xl backdrop-blur-2xl ring-1 ring-white/10 relative overflow-hidden text-center">
-          <div className="mb-3.5 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.16em] text-[#FFA726]">
-            <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[#FF8F00]" />
+          <div className="mb-3.5 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.16em] text-[#FFA000]">
+            <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[#FF7043]" />
             Live 9:16 Video Preview
           </div>
 
@@ -485,7 +485,7 @@ export function LongVideoPromoStudio({
           </div>
 
           <div className="rounded-2xl bg-white/[0.02] border border-white/5 p-3.5 mt-3 text-[11px] text-zinc-400 flex items-start gap-3 leading-relaxed text-left">
-            <Eye size={16} className="text-[#FF8F00] shrink-0 mt-0.5" />
+            <Eye size={16} className="text-[#FF7043] shrink-0 mt-0.5" />
             <p>
               This live preview plays your 9:16 vertical promo short with kinetic captions, 3D teaser card, and high-conversion payoff CTA.
             </p>

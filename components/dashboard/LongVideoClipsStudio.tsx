@@ -153,12 +153,12 @@ export function LongVideoClipsStudio({
   return (
     <div className="relative rounded-[28px] border border-white/10 bg-[#111218] p-5 sm:p-7 shadow-2xl min-w-0 max-w-full overflow-x-hidden space-y-7 text-white">
       {/* Magic UI BorderBeam Glowing Effect */}
-      <BorderBeam size={280} duration={14} colorFrom="#FF6D00" colorTo="#FFA726" />
+      <BorderBeam size={280} duration={14} colorFrom="#FF5722" colorTo="#FFA000" />
 
       {/* Master Studio Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#FF6D00] via-[#FF8F00] to-[#FFA726] text-black shadow-md shadow-[#FF6D00]/25">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black shadow-md shadow-[#FF5722]/25">
             <Sparkles size={20} className="fill-black/20" />
           </div>
           <div>
@@ -173,7 +173,7 @@ export function LongVideoClipsStudio({
 
         <div className="flex items-center gap-2 shrink-0">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#161720] px-3 py-1.5 text-xs font-bold text-slate-300">
-            <Clock3 size={13} className="text-[#FF8F00]" />
+            <Clock3 size={13} className="text-[#FF7043]" />
             <span>Input: Up to 3 Hours • Output: 9:16 Shorts</span>
           </span>
         </div>
@@ -188,7 +188,7 @@ export function LongVideoClipsStudio({
         <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-2xl space-y-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#FF6D00]/30 bg-[#FF6D00]/15 text-[#FF9100]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#FF5722]/30 bg-[#FF5722]/15 text-[#FF9100]">
                 <Video size={18} />
               </div>
               <div>
@@ -204,7 +204,7 @@ export function LongVideoClipsStudio({
                 onClick={() => onInputModeChange?.("file")}
                 className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
                   inputMode === "file"
-                    ? "bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] text-black font-black shadow-md"
+                    ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black font-black shadow-md"
                     : "text-zinc-400 hover:text-white"
                 }`}
               >
@@ -233,7 +233,7 @@ export function LongVideoClipsStudio({
                 <div
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={handleFileDrop}
-                  className="border-2 border-dashed border-white/15 bg-[#161720] hover:border-[#FF6D00]/50 rounded-2xl p-8 text-center cursor-pointer transition relative group flex flex-col items-center justify-center gap-2"
+                  className="border-2 border-dashed border-white/15 bg-[#161720] hover:border-[#FF5722]/50 rounded-2xl p-8 text-center cursor-pointer transition relative group flex flex-col items-center justify-center gap-2"
                 >
                   <input
                     type="file"
@@ -241,7 +241,7 @@ export function LongVideoClipsStudio({
                     onChange={handleFileSelect}
                     className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
                   />
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#FF6D00]/10 text-[#FF9100] border border-[#FF6D00]/20 group-hover:scale-105 transition">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#FF5722]/10 text-[#FF9100] border border-[#FF5722]/20 group-hover:scale-105 transition">
                     <Upload size={22} />
                   </div>
                   <p className="text-xs font-bold text-white">Drag &amp; drop source video, or click to browse</p>
@@ -250,7 +250,7 @@ export function LongVideoClipsStudio({
               ) : (
                 <div className="rounded-2xl border border-emerald-500/30 bg-[#161720] p-4 flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black font-bold">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black font-bold">
                       <Video size={18} />
                     </div>
                     <div className="min-w-0">
@@ -303,7 +303,7 @@ export function LongVideoClipsStudio({
         <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-2xl space-y-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#FF6D00]/30 bg-[#FF6D00]/15 text-[#FF9100]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#FF5722]/30 bg-[#FF5722]/15 text-[#FF9100]">
                 <User size={18} />
               </div>
               <div>
@@ -311,7 +311,7 @@ export function LongVideoClipsStudio({
                 <p className="text-[11px] text-zinc-400 mt-0.5">Computer Vision face tracking &amp; dynamic 9:16 pan-and-crop.</p>
               </div>
             </div>
-            <span className="shrink-0 rounded-full border border-[#FF6D00]/30 bg-[#FF6D00]/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-[#FF9100]">
+            <span className="shrink-0 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-[#FF9100]">
               9:16 Full HD
             </span>
           </div>
@@ -349,13 +349,13 @@ export function LongVideoClipsStudio({
                   onClick={() => onLayoutModeChange?.(mode.id)}
                   className={`rounded-2xl border p-3.5 text-left transition duration-200 cursor-pointer active:scale-95 flex flex-col justify-between ${
                     active
-                      ? "border-[#FF6D00] bg-[#FF6D00]/10 ring-1 ring-[#FF6D00] text-white font-black shadow-lg shadow-[#FF6D00]/20"
+                      ? "border-[#FF5722] bg-[#FF5722]/10 ring-1 ring-[#FF5722] text-white font-black shadow-lg shadow-[#FF5722]/20"
                       : "border-white/10 bg-[#161720] text-zinc-400 hover:text-white"
                   }`}
                 >
                   <div>
                     <div className="flex items-center justify-between gap-2 mb-2">
-                      <div className={`flex h-8 w-8 items-center justify-center rounded-xl ${active ? "bg-[#FF6D00] text-black" : "bg-white/5 text-zinc-400"}`}>
+                      <div className={`flex h-8 w-8 items-center justify-center rounded-xl ${active ? "bg-[#FF5722] text-black" : "bg-white/5 text-zinc-400"}`}>
                         <IconComp size={16} />
                       </div>
                       <span className="text-[9px] font-bold opacity-80 uppercase tracking-wider">{mode.badge}</span>
@@ -373,7 +373,7 @@ export function LongVideoClipsStudio({
         <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-2xl space-y-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#FF6D00]/30 bg-[#FF6D00]/15 text-[#FF9100]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#FF5722]/30 bg-[#FF5722]/15 text-[#FF9100]">
                 <Captions size={18} />
               </div>
               <div>
@@ -398,7 +398,7 @@ export function LongVideoClipsStudio({
                   onClick={() => handleCaptionSelect(preset.id)}
                   className={`rounded-2xl border p-3.5 text-left transition cursor-pointer flex flex-col justify-between ${
                     isSelected
-                      ? "border-[#FF6D00] bg-[#FF6D00]/10 ring-2 ring-[#FF6D00] shadow-xl shadow-[#FF6D00]/25"
+                      ? "border-[#FF5722] bg-[#FF5722]/10 ring-2 ring-[#FF5722] shadow-xl shadow-[#FF5722]/25"
                       : "border-white/10 bg-[#161720] hover:border-white/20"
                   }`}
                 >
@@ -426,7 +426,7 @@ export function LongVideoClipsStudio({
         <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-2xl space-y-6">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#FF6D00]/30 bg-[#FF6D00]/15 text-[#FF9100]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#FF5722]/30 bg-[#FF5722]/15 text-[#FF9100]">
                 <Sliders size={18} />
               </div>
               <div>
@@ -454,7 +454,7 @@ export function LongVideoClipsStudio({
                     onClick={() => onClipCountChange(item.value)}
                     className={`rounded-xl py-2.5 px-3 text-center text-xs font-bold transition cursor-pointer ${
                       isActive
-                        ? "bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] text-black font-black shadow-md"
+                        ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black font-black shadow-md"
                         : "bg-[#161720] text-zinc-400 hover:text-white border border-white/10"
                     }`}
                   >
@@ -483,7 +483,7 @@ export function LongVideoClipsStudio({
                     onClick={() => onClipDurationChange(item.val as any)}
                     className={`rounded-xl py-2.5 px-3 text-center text-xs font-bold transition cursor-pointer ${
                       isActive
-                        ? "bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] text-black font-black shadow-md"
+                        ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black font-black shadow-md"
                         : "bg-[#161720] text-zinc-400 hover:text-white border border-white/10"
                     }`}
                   >
@@ -512,7 +512,7 @@ export function LongVideoClipsStudio({
                     onClick={() => onClipsHookStrategyChange(strat.id as any)}
                     className={`rounded-xl py-2.5 px-3 text-center text-xs font-bold transition cursor-pointer ${
                       active
-                        ? "bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] text-black font-black shadow-md"
+                        ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black font-black shadow-md"
                         : "bg-[#161720] text-zinc-400 hover:text-white border border-white/10"
                     }`}
                   >
@@ -526,7 +526,7 @@ export function LongVideoClipsStudio({
           {/* Credit Estimation Bar */}
           <div className="rounded-2xl border border-white/10 bg-[#161720] p-4 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#FF6D00]/15 text-[#FF9100] border border-[#FF6D00]/30">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#FF5722]/15 text-[#FF9100] border border-[#FF5722]/30">
                 <Zap size={16} className="fill-[#FF9100]" />
               </div>
               <div>
@@ -550,7 +550,7 @@ export function LongVideoClipsStudio({
               ? !youtubeUrl || !/(youtube\.com|youtu\.be)/i.test(youtubeUrl)
               : !selectedFile)
           }
-          className="w-full inline-flex items-center justify-center gap-2.5 rounded-3xl bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] p-4.5 text-sm font-black text-black shadow-xl shadow-[#FF6D00]/25 transition active:scale-95 hover:brightness-110 disabled:opacity-45 disabled:pointer-events-none cursor-pointer"
+          className="w-full inline-flex items-center justify-center gap-2.5 rounded-3xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] p-4.5 text-sm font-black text-black shadow-xl shadow-[#FF5722]/25 transition active:scale-95 hover:brightness-110 disabled:opacity-45 disabled:pointer-events-none cursor-pointer"
         >
           <Sparkles size={18} />
           <span>{isGenerating ? "Transcribing & Extracting Clips..." : "Extract 9:16 Viral Clips"}</span>
@@ -561,7 +561,7 @@ export function LongVideoClipsStudio({
       <div className="lg:col-span-5 sticky top-24 space-y-6">
         <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-2xl relative overflow-hidden">
           <div className="mb-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.16em] text-[#FF9100]">
-            <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#FF6D00]" />
+            <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#FF5722]" />
             Podcast Repurposer Information
           </div>
 
@@ -569,19 +569,19 @@ export function LongVideoClipsStudio({
             <h4 className="text-xs font-black text-white uppercase tracking-wider">Automated Cloud Pipeline:</h4>
             <ul className="space-y-3.5 text-xs">
               <li className="flex items-center gap-3">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#FF6D00]/20 text-[#FF9100] text-xs font-black">✓</span>
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#FF5722]/20 text-[#FF9100] text-xs font-black">✓</span>
                 <span className="font-bold text-zinc-200">Parallel Groq Speech Transcription</span>
               </li>
               <li className="flex items-center gap-3">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#FF6D00]/20 text-[#FF9100] text-xs font-black">✓</span>
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#FF5722]/20 text-[#FF9100] text-xs font-black">✓</span>
                 <span className="font-bold text-zinc-200">AI Hook &amp; High-Retention Slicing</span>
               </li>
               <li className="flex items-center gap-3">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#FF6D00]/20 text-[#FF9100] text-xs font-black">✓</span>
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#FF5722]/20 text-[#FF9100] text-xs font-black">✓</span>
                 <span className="font-bold text-zinc-200">Computer Vision 9:16 Speaker Tracking</span>
               </li>
               <li className="flex items-center gap-3">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#FF6D00]/20 text-[#FF9100] text-xs font-black">✓</span>
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#FF5722]/20 text-[#FF9100] text-xs font-black">✓</span>
                 <span className="font-bold text-zinc-200">Animated Subtitle Overlay Engine</span>
               </li>
             </ul>

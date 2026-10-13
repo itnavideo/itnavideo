@@ -464,7 +464,7 @@ export default function AutoCaptionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#070B14] text-slate-100 flex flex-col selection:bg-[#FF6D00]/30 selection:text-white pb-28 sm:pb-12">
+    <div className="min-h-screen bg-[#070B14] text-slate-100 flex flex-col selection:bg-[#FF5722]/30 selection:text-white pb-28 sm:pb-12">
       {/* ── Top Navigation Bar (Google Analytics Obsidian Surface) ── */}
       <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0E1526]/90 backdrop-blur-xl shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
@@ -475,7 +475,7 @@ export default function AutoCaptionPage() {
               href="/dashboard"
               className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#151E30] hover:bg-[#1C2840] px-3.5 py-1.5 text-xs font-bold text-slate-200 hover:text-white transition group"
             >
-              <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform text-[#FF8F00]" />
+              <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform text-[#FF7043]" />
               <span>Back to Dashboard</span>
             </Link>
           </div>
@@ -483,14 +483,14 @@ export default function AutoCaptionPage() {
           <div className="flex items-center gap-3">
             {/* Credits badge */}
             <div className="flex items-center gap-2 rounded-full border border-white/10 bg-[#151E30] px-3.5 py-1.5 text-xs font-bold shadow-xs">
-              <Zap size={14} className="text-[#FFA726] fill-[#FFA726]" />
+              <Zap size={14} className="text-[#FFA000] fill-[#FFA000]" />
               <span className="text-slate-400">Balance:</span>
               <span className="text-white font-extrabold">
                 {billingEntitlement && userRemainingCredits !== undefined ? `${userRemainingCredits} Credits` : "908 Credits"}
               </span>
               <Link
                 href="/pricing"
-                className="ml-1 text-[11px] text-[#FF8F00] hover:text-[#FFA726] underline font-black"
+                className="ml-1 text-[11px] text-[#FF7043] hover:text-[#FFA000] underline font-black"
               >
                 +Add
               </Link>
@@ -506,7 +506,7 @@ export default function AutoCaptionPage() {
           <div>
             <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
               Auto Caption{" "}
-              <span className="text-[#FF8F00]">
+              <span className="text-[#FF7043]">
                 Studio
               </span>
             </h1>
@@ -610,13 +610,13 @@ export default function AutoCaptionPage() {
                   disabled={!selectedFile || isWorking}
                   className={`w-full inline-flex min-h-[52px] items-center justify-center gap-2.5 rounded-2xl text-base font-black transition duration-200 ${
                     !selectedFile
-                      ? "bg-[#151E30] text-[#FFA726] border border-[#FF6D00]/30 hover:border-[#FF6D00]/60 shadow-inner cursor-not-allowed"
+                      ? "bg-[#151E30] text-[#FFA000] border border-[#FF5722]/30 hover:border-[#FF5722]/60 shadow-inner cursor-not-allowed"
                       : isWorking
-                      ? "bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black opacity-80 cursor-wait animate-pulse"
-                      : "bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] text-black shadow-xl shadow-[#FF6D00]/30 hover:brightness-110 active:scale-95 cursor-pointer"
+                      ? "bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black opacity-80 cursor-wait animate-pulse"
+                      : "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black shadow-xl shadow-[#FF5722]/30 hover:brightness-110 active:scale-95 cursor-pointer"
                   }`}
                 >
-                  <Sparkles size={18} className={!selectedFile ? "text-[#FFA726]" : "text-black"} />
+                  <Sparkles size={18} className={!selectedFile ? "text-[#FFA000]" : "text-black"} />
                   <span>
                     {!selectedFile
                       ? "Upload Video First (Costs 1 Credit)"
@@ -653,7 +653,7 @@ export default function AutoCaptionPage() {
               }
             }}
             disabled={isWorking}
-            className="shrink-0 inline-flex items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] px-5 py-3 text-xs font-black text-black shadow-lg shadow-[#FF6D00]/30 active:scale-95 transition cursor-pointer"
+            className="shrink-0 inline-flex items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-5 py-3 text-xs font-black text-black shadow-lg shadow-[#FF5722]/30 active:scale-95 transition cursor-pointer"
           >
             <Sparkles size={15} className="text-black" />
             <span>{selectedFile ? "Generate Reel" : "Upload File"}</span>

@@ -197,3 +197,18 @@ The following legacy modules are permanently removed to keep the tool lightning-
 - ❌ Broadcast loudness tampering (`loudnorm` -14 LUFS)
 - ❌ Fake English sentence fallback
 - ❌ Document-mode block sentence tagging tabs
+
+---
+
+## 9. Pipeline Error Checklist & Auto-Fix Matrix
+
+| Pipeline Stage | Potential Error / Issue | Root Cause | Automated Resolution & Fix Strategy | User Experience / UI Notification |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Upload & Audio Preflight** | Upload failure or unsupported codec | Heavy raw video or unsupported audio container | Client streams directly to presigned S3 storage; FFmpeg probe checks audio stream integrity and converts to 16kHz mono. | Real-time upload progress with file validation indicator. |
+| **2. Transcription & Word Timings** | Groq Whisper 429 Rate Limit / Network error | Groq API congestion or silent audio | Primary: Groq Whisper Cloud API (`whisper-large-v3-turbo`). Fallback: Auto-switches to Gemini 2.0 Flash (`asia-south1`) to extract word timestamps. | Status displays "Analyzing Audio & Generating Script" seamlessly. |
+| **3. Dead Air / Pause Detection** | Silence detection over-cutting or under-cutting | Ambient background noise or soft whispering | Local silence detector computes dynamic threshold ($>0.6\text{s}$ pause with $150\text{ms}$ pre/post speech padding) to prevent clipping first/last words. | Script review preview shows highlighted cuts with interactive toggles. |
+| **4. Retake & Flub Detection** | Script hallucination or missed repetition | Complex conversational repetitions | Deterministic n-gram word matcher identifies consecutive repeated sentences or false starts; marks candidate bad takes in Markdown script. | User can review and toggle cut regions before final export. |
+| **5. Audio Mastering & Export** | FFmpeg filter graph concat error / crash | Irregular audio chunk sample rates | Uses standard FFmpeg `atrim` + `concat` pipeline with unified 44.1kHz sample rate to produce artifact-free 320kbps MP3 / lossless WAV. | Live progress bar shows mastering state (0% -> 100%). |
+| **6. Processing Failure & Credits** | Server crash or timeout during audio processing | Cloud compute or network failure | Auto-catches failure in `/api/audio-clean`, invokes credit restoration logic to refund 1 credit immediately. | Error toast with clear explanation and 1-click retry. |
+| **7. Clean Audio Download** | Expired download link or download interruption | S3 presigned URL expiration | Generates fresh presigned S3 download link upon request with 48h validity. | Instant "Download Studio Clean Audio (MP3/WAV)" button. |
+

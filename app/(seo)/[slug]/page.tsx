@@ -5,7 +5,7 @@ import { CheckCircle2, Clapperboard, FileText, PlayCircle } from "lucide-react";
 import { getSeoLandingPage, seoLandingPages } from "@/lib/seo-pages";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://itnavideo.com";
-const seoPreviewImage = "/preview/Dynamic Creator Reel.png";
+const seoPreviewImage = "https://res.cloudinary.com/dhouh9idx/image/upload/v1791892531/auto_captions_x9khtt.png";
 
 type PageProps = {
   params: Promise<{ slug: string }>;

@@ -296,3 +296,18 @@ Portrait/reel clips use a larger, face-biased hero crop so the speaker occupies 
 ### Live preview (2026)
 
 The dashboard shows a CapCut-style sticky `@remotion/player` preview (`components/preview/LongVideoPromoPreview.tsx`) using the creator's real thumbnail, title, CTA text, and (if uploaded) the promo clip, so the layout, badges, arrow, and CTA pill are visible before spending the render.
+
+---
+
+## 8. Pipeline Error Checklist & Auto-Fix Matrix
+
+| Pipeline Stage | Potential Error / Issue | Root Cause | Automated Resolution & Fix Strategy | User Experience / UI Notification |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Upload & Media Preflight** | Upload timeout or file > 500MB | High bitrate long video uploaded | Client chunks payload and presigns S3 upload. Validates clip duration (8s to 60s max). | Instant upload progress bar with clean retry modal if connection drops. |
+| **2. Missing Thumbnail** | User uploaded video clip without custom thumbnail | User provided only video clip | Extracts middle frame from uploaded video clip or creates blurred glassmorphism backdrop with video title. | Seamless fallback; thumbnail renders automatically. |
+| **3. Missing Title / CTA** | Blank title or missing call-to-action text | Optional fields skipped | Auto-defaults title to "Watch Full Video" and CTA text to "Watch the full video · Link in bio". | Studio preview displays default placeholders in real-time. |
+| **4. Aspect Ratio Distortion** | 16:9 widescreen or 4:5 square clip in 9:16 vertical canvas | Aspect ratio mismatch | Applies `objectFit: contain` with blurred background echoing the uploaded media; prevents any stretching or black letterbox bars. | Aspect ratio auto-conforms in player with zero distortion. |
+| **5. Cloud Render Job** | Lambda timeout / Chromium canvas crash | High-resolution 4K source decoding | Render executes on AWS Lambda with clamped duration (`frameRange: [0, totalFrames - 1]`). Decodes media only once. | Step indicator highlights "Rendering Promo Video" with live progress percentage. |
+| **6. Render Failure & Credits** | Network disconnect or AWS Lambda error | Cloud compute failure | Auto-catches failure in `jobs/route.ts`, invokes `releaseReservedRenderUsageFromServer` to instantly restore 1 credit to user balance. | Error banner displays clear failure reason with 1-click retry button; credits refunded. |
+| **7. Download Delivery** | Presigned S3 link expired (>48 hours) | AWS S3 signature expiration | Status route (`/api/reels/jobs/status`) generates dynamic refreshed presigned URL upon request. | 1-Click "Download 1080p MP4" button always serves valid fresh link. |
+

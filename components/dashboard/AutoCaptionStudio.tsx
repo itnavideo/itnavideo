@@ -278,12 +278,12 @@ export function AutoCaptionStudio({
   return (
     <div className="relative rounded-[28px] border border-white/10 bg-[#111218] p-4 sm:p-6 shadow-2xl min-w-0 max-w-full overflow-x-hidden space-y-6 text-white">
       {/* Magic UI BorderBeam Glowing Effect */}
-      <BorderBeam size={240} duration={12} colorFrom="#FF6D00" colorTo="#FFA726" />
+      <BorderBeam size={240} duration={12} colorFrom="#FF5722" colorTo="#FFA000" />
 
       {/* ── Studio Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-md shadow-[#FF6D00]/25">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black shadow-md shadow-[#FF5722]/25">
             <Sparkles size={20} />
           </div>
           <div>
@@ -294,9 +294,9 @@ export function AutoCaptionStudio({
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#161720] px-3 py-1 text-xs font-bold text-slate-300">
-            <Clock3 size={13} className="text-[#FF8F00]" />
-            9:16 Reels · Up to 3m
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1.5 text-xs font-bold text-orange-400">
+            <Clock3 size={13} className="text-[#FF7043]" />
+            9:16 Reels · Up to 90s
           </span>
         </div>
       </div>
@@ -318,7 +318,7 @@ export function AutoCaptionStudio({
           </div>
           <a
             href="/dashboard/youtube-subtitles"
-            className="shrink-0 rounded-xl bg-[#FF6D00] px-3.5 py-2 text-xs font-black text-black hover:brightness-110 transition shadow-md"
+            className="shrink-0 rounded-xl bg-[#FF5722] px-3.5 py-2 text-xs font-black text-black hover:brightness-110 transition shadow-md"
           >
             16:9 Subtitles →
           </a>
@@ -352,9 +352,9 @@ export function AutoCaptionStudio({
               e.stopPropagation();
               if (e.dataTransfer.files?.[0]) onSelectFile(e.dataTransfer.files[0]);
             }}
-            className="flex flex-col items-center justify-center gap-4 rounded-[22px] border-2 border-dashed border-white/15 hover:border-[#FF6D00]/60 bg-[#0A0C12] hover:bg-[#0E1020] min-h-[200px] sm:min-h-[230px] p-6 sm:p-8 text-center transition-all duration-200 cursor-pointer group"
+            className="flex flex-col items-center justify-center gap-4 rounded-[22px] border-2 border-dashed border-white/15 hover:border-[#FF5722]/60 bg-[#0A0C12] hover:bg-[#0E1020] min-h-[200px] sm:min-h-[230px] p-6 sm:p-8 text-center transition-all duration-200 cursor-pointer group"
           >
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[#FF6D00]/30 bg-[#FF6D00]/10 text-[#FF9100] group-hover:scale-110 group-hover:bg-[#FF6D00]/20 transition-all duration-300 shadow-lg shadow-[#FF6D00]/10">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[#FF5722]/30 bg-[#FF5722]/10 text-[#FF9100] group-hover:scale-110 group-hover:bg-[#FF5722]/20 transition-all duration-300 shadow-lg shadow-[#FF5722]/10">
               <FileVideo size={26} />
             </div>
             <div className="space-y-1">
@@ -365,11 +365,11 @@ export function AutoCaptionStudio({
                 Drag &amp; drop or click to browse (MP4, MOV · Up to 3 minutes)
               </p>
             </div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] px-5 py-2 text-xs font-black text-black shadow-lg shadow-[#FF6D00]/25 group-hover:brightness-110 transition active:scale-95 mt-1">
+            <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#FF5722] to-[#FF7043] px-5 py-2 text-xs font-black text-black shadow-lg shadow-[#FF5722]/25 group-hover:brightness-110 transition active:scale-95 mt-1">
               <Upload size={14} />
               Select Video
             </div>
-            <p className="text-[10px] font-medium text-[#FFA726]/80 flex items-center justify-center gap-1 mt-1">
+            <p className="text-[10px] font-medium text-[#FFA000]/80 flex items-center justify-center gap-1 mt-1">
               <Sparkles size={11} className="text-[#FF9100]" />
               <span>Word-level transcript replacer &amp; .SRT export unlock automatically upon file upload</span>
             </p>
@@ -380,7 +380,7 @@ export function AutoCaptionStudio({
             {/* Header */}
             <div className="flex items-center justify-between pb-3.5 border-b border-white/10">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#FF6D00]/15 border border-[#FF6D00]/30 text-[#FF8F00] shadow-sm">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#FF5722]/15 border border-[#FF5722]/30 text-[#FF7043] shadow-sm">
                   <SlidersHorizontal size={16} />
                 </div>
                 <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-white font-display">
@@ -413,7 +413,7 @@ export function AutoCaptionStudio({
                         onClick={() => onCaptionPositionChange(pos.id as any)}
                         className={`min-h-[38px] rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center ${
                           isCur
-                            ? "bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-md shadow-[#FF6D00]/25 scale-[1.02]"
+                            ? "bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black shadow-md shadow-[#FF5722]/25 scale-[1.02]"
                             : "text-slate-400 hover:text-white hover:bg-white/5"
                         }`}
                       >
@@ -430,7 +430,7 @@ export function AutoCaptionStudio({
                   Font Selection
                 </label>
                 <select
-                  className="w-full rounded-2xl border border-white/10 bg-[#090C15] text-slate-100 min-h-[44px] text-xs px-3.5 focus:border-[#FF6D00] focus:outline-none cursor-pointer font-extrabold shadow-inner"
+                  className="w-full rounded-2xl border border-white/10 bg-[#090C15] text-slate-100 min-h-[44px] text-xs px-3.5 focus:border-[#FF5722] focus:outline-none cursor-pointer font-extrabold shadow-inner"
                   value={captionFontFamily || "preset"}
                   onChange={(e) => { if (onCaptionFontFamilyChange) onCaptionFontFamilyChange(e.target.value); }}
                 >
@@ -468,7 +468,7 @@ export function AutoCaptionStudio({
                         }}
                         className={`min-h-[38px] rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center ${
                           isCur
-                            ? "bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-md shadow-[#FF6D00]/25 scale-[1.02]"
+                            ? "bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black shadow-md shadow-[#FF5722]/25 scale-[1.02]"
                             : "text-slate-400 hover:text-white hover:bg-white/5"
                         }`}
                       >
@@ -495,7 +495,7 @@ export function AutoCaptionStudio({
                     }}
                     className={`min-h-[44px] rounded-2xl border px-3 py-1.5 text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 ${
                       youtubeSubtitleCase === "uppercase"
-                        ? "bg-[#FF6D00]/15 border-[#FF6D00]/40 text-[#FF8F00] shadow-sm"
+                        ? "bg-[#FF5722]/15 border-[#FF5722]/40 text-[#FF7043] shadow-sm"
                         : "bg-[#090C15] border-white/10 text-slate-400 hover:text-white"
                     }`}
                   >
@@ -537,7 +537,7 @@ export function AutoCaptionStudio({
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                   {/* 1. Text Color */}
-                  <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#090C15] p-3 shadow-inner hover:border-[#FF6D00]/40 transition">
+                  <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#090C15] p-3 shadow-inner hover:border-[#FF5722]/40 transition">
                     <input
                       type="color"
                       value={toValidHex(captionTextColor, "#FFFFFF")}
@@ -556,10 +556,10 @@ export function AutoCaptionStudio({
                   </div>
 
                   {/* 2. Highlight Color */}
-                  <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#090C15] p-3 shadow-inner hover:border-[#FF6D00]/40 transition">
+                  <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#090C15] p-3 shadow-inner hover:border-[#FF5722]/40 transition">
                     <input
                       type="color"
-                      value={toValidHex(captionHighlightColor, "#FF6D00")}
+                      value={toValidHex(captionHighlightColor, "#FF5722")}
                       onChange={(e) => onCaptionHighlightColorChange(e.target.value)}
                       className="h-9 w-9 rounded-xl border-0 cursor-pointer bg-transparent shrink-0 shadow-md"
                       title="Highlight Color"
@@ -568,14 +568,14 @@ export function AutoCaptionStudio({
                       <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">
                         Highlight Color
                       </span>
-                      <span className="font-mono text-xs font-black text-[#FF8F00] uppercase tracking-wider">
-                        {toValidHex(captionHighlightColor, "#FF6D00")}
+                      <span className="font-mono text-xs font-black text-[#FF7043] uppercase tracking-wider">
+                        {toValidHex(captionHighlightColor, "#FF5722")}
                       </span>
                     </div>
                   </div>
 
                   {/* 3. Background Color */}
-                  <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#090C15] p-3 shadow-inner hover:border-[#FF6D00]/40 transition">
+                  <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#090C15] p-3 shadow-inner hover:border-[#FF5722]/40 transition">
                     <input
                       type="color"
                       value={toValidHex(captionBackgroundColor, "#18181B")}
@@ -610,7 +610,7 @@ export function AutoCaptionStudio({
 
                 <div className="flex flex-wrap items-center gap-2.5">
                   {[
-                    { name: "Viral Orange", text: "#FFFFFF", highlight: "#FF6D00", bg: "#000000", colorDot: "#FF6D00" },
+                    { name: "Viral Orange", text: "#FFFFFF", highlight: "#FF5722", bg: "#000000", colorDot: "#FF5722" },
                     { name: "Hot Pink", text: "#FFFFFF", highlight: "#FF2A85", bg: "#12131A", colorDot: "#FF2A85" },
                     { name: "Cyber Gold", text: "#FFFFFF", highlight: "#FACC15", bg: "#18181B", colorDot: "#FACC15" },
                     { name: "Neon Mint", text: "#FFFFFF", highlight: "#00FF9D", bg: "#0A0D14", colorDot: "#00FF9D" },
@@ -624,7 +624,7 @@ export function AutoCaptionStudio({
                         onCaptionHighlightColorChange(theme.highlight);
                         if (onCaptionBackgroundColorChange) onCaptionBackgroundColorChange(theme.bg);
                       }}
-                      className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-[#090C15] hover:bg-[#161A28] hover:border-[#FF6D00]/40 px-3.5 py-2 text-xs font-extrabold text-slate-200 transition cursor-pointer active:scale-95 shadow-sm"
+                      className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-[#090C15] hover:bg-[#161A28] hover:border-[#FF5722]/40 px-3.5 py-2 text-xs font-extrabold text-slate-200 transition cursor-pointer active:scale-95 shadow-sm"
                     >
                       <span className="h-3 w-3 rounded-full shrink-0 shadow-sm" style={{ backgroundColor: theme.colorDot }} />
                       <span>{theme.name}</span>
@@ -656,16 +656,16 @@ export function AutoCaptionStudio({
 
           {/* Duration / word count badge */}
           {mediaDurationSeconds > 0 && (
-            <div className="rounded-2xl border border-[#FF6D00]/30 bg-[#FF6D00]/5 px-4 py-2.5 text-xs flex flex-wrap items-center justify-between gap-3">
+            <div className="rounded-2xl border border-[#FF5722]/30 bg-[#FF5722]/5 px-4 py-2.5 text-xs flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <Activity size={15} className="text-[#FF8F00]" />
+                <Activity size={15} className="text-[#FF7043]" />
                 <span className="text-zinc-200 font-bold">
                   Duration: <NumberTicker value={Math.round(mediaDurationSeconds)} />s (~<NumberTicker value={estimatedWordCount} /> words)
                 </span>
               </div>
               <div className="flex items-center gap-3">
                 <AudioSpectrumVisualizer isPlaying={Boolean(selectedFile)} isTranscribing={isTranscribing} />
-                <span className="font-black text-[#FF8F00] uppercase text-[11px] bg-[#FF6D00]/10 px-2.5 py-1 rounded-full border border-[#FF6D00]/30">
+                <span className="font-black text-[#FF7043] uppercase text-[11px] bg-[#FF5722]/10 px-2.5 py-1 rounded-full border border-[#FF5722]/30">
                   1080p Full HD
                 </span>
               </div>
@@ -681,7 +681,7 @@ export function AutoCaptionStudio({
               e.stopPropagation();
               if (e.dataTransfer.files?.[0]) onSelectFile(e.dataTransfer.files[0]);
             }}
-            className="w-full flex items-center justify-between gap-3 rounded-2xl border border-white/10 hover:border-[#FF6D00]/50 bg-[#161720] p-3.5 transition-all cursor-pointer group"
+            className="w-full flex items-center justify-between gap-3 rounded-2xl border border-white/10 hover:border-[#FF5722]/50 bg-[#161720] p-3.5 transition-all cursor-pointer group"
           >
             <div className="flex items-center gap-3 min-w-0">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 shrink-0">
@@ -709,13 +709,13 @@ export function AutoCaptionStudio({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-1.5 text-slate-300 text-[11px] font-bold uppercase tracking-wider">
-                  <Globe size={13} className="text-[#FF8F00]" />
+                  <Globe size={13} className="text-[#FF7043]" />
                   <span>Spoken Language</span>
                 </div>
                 <select
                   value={spokenLanguage || "auto"}
                   onChange={(e) => { if (onSpokenLanguageChange) onSpokenLanguageChange(e.target.value); }}
-                  className="w-full bg-[#090A0F] text-white text-xs font-bold rounded-xl border border-white/10 px-2.5 py-2 focus:border-[#FF6D00] focus:outline-none cursor-pointer"
+                  className="w-full bg-[#090A0F] text-white text-xs font-bold rounded-xl border border-white/10 px-2.5 py-2 focus:border-[#FF5722] focus:outline-none cursor-pointer"
                 >
                   {AUDIO_SPOKEN_LANGUAGES.map((lang) => (
                     <option key={lang.id} value={lang.id} className="bg-[#090A0F] text-white">{lang.label}</option>
@@ -724,13 +724,13 @@ export function AutoCaptionStudio({
               </div>
               <div className="space-y-1.5">
                 <div className="flex items-center gap-1.5 text-slate-300 text-[11px] font-bold uppercase tracking-wider">
-                  <Layers size={13} className="text-[#FFA726]" />
+                  <Layers size={13} className="text-[#FFA000]" />
                   <span>Subtitle Language</span>
                 </div>
                 <select
                   value={captionLanguage || "same"}
                   onChange={(e) => { if (onCaptionLanguageChange) onCaptionLanguageChange(e.target.value); }}
-                  className="w-full bg-[#090A0F] text-white text-xs font-bold rounded-xl border border-white/10 px-2.5 py-2 focus:border-[#FF6D00] focus:outline-none cursor-pointer"
+                  className="w-full bg-[#090A0F] text-white text-xs font-bold rounded-xl border border-white/10 px-2.5 py-2 focus:border-[#FF5722] focus:outline-none cursor-pointer"
                 >
                   {SUBTITLE_OUTPUT_LANGUAGES.map((lang) => (
                     <option key={lang.id} value={lang.id} className="bg-[#090A0F] text-white">{lang.label}</option>

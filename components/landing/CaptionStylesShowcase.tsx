@@ -20,7 +20,7 @@ import {
   getPresetPosterUrl,
 } from "@/components/dashboard/AutoCaptionStyleCarousel";
 
-// ─── 10 Diverse, Distinct, High-Performing Caption Styles ───────────────────
+// ─── 10 Diverse, Distinct, High-Performing Caption Styles (Zero Repetition) ──
 const SHOWCASE_STYLE_KEYS = [
   "Hormozi Viral Pop",
   "Shorts Karaoke",
@@ -89,12 +89,15 @@ function ShowcaseCard({ presetKey }: ShowcaseCardProps) {
       onClick={handleTogglePlay}
       className="relative flex-shrink-0 w-[155px] sm:w-[180px] group cursor-pointer select-none"
     >
+      {/* 9:16 smartphone card container — 100% clean without extra labels or metadata */}
       <div className="relative w-full aspect-[9/16] rounded-[22px] overflow-hidden border border-white/15 bg-[#090A0F] shadow-xl group-hover:border-purple-500 group-hover:shadow-2xl group-hover:shadow-purple-500/25 transition-all duration-300 group-hover:-translate-y-1">
         
+        {/* Smartphone Speaker / Notch */}
         <div className="absolute top-2 inset-x-0 z-20 flex justify-center pointer-events-none">
           <div className="h-1 w-8 rounded-full bg-black/80 border border-white/20 backdrop-blur-md" />
         </div>
 
+        {/* Video element */}
         <video
           ref={videoRef}
           src={videoUrl}
@@ -112,6 +115,7 @@ function ShowcaseCard({ presetKey }: ShowcaseCardProps) {
           className="absolute inset-0 w-full h-full object-cover"
         />
 
+        {/* Live Animated Caption Overlay — synced with video playback audio */}
         {isPlaying && caption && presetOption && (
           <>
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[48%] bg-gradient-to-t from-black/85 via-black/35 to-transparent z-10" />
@@ -129,9 +133,10 @@ function ShowcaseCard({ presetKey }: ShowcaseCardProps) {
           </>
         )}
 
+        {/* Play Icon Overlay when paused */}
         {!isPlaying && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-black/60 border border-white/25 backdrop-blur-sm group-hover:bg-purple-600 group-hover:border-purple-500 transition-all duration-300 shadow-lg">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-black/60 border border-white/25 backdrop-blur-sm group-hover:bg-[#FF5722] group-hover:border-[#FF5722] transition-all duration-300 shadow-lg">
               <Play size={18} className="fill-white text-white ml-0.5 group-hover:text-white transition-colors" />
             </div>
           </div>
@@ -148,36 +153,36 @@ export default function CaptionStylesShowcase() {
   const marqueeItems = [...SHOWCASE_STYLE_KEYS, ...SHOWCASE_STYLE_KEYS];
 
   return (
-    <section className="relative w-full overflow-hidden bg-[#070B14] border-b border-white/10 py-10 sm:py-14">
-      {/* Standardized Ambient Glow */}
-      <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 w-[700px] h-[300px] bg-purple-600/10 blur-[120px] rounded-full" />
+    <section className="relative w-full overflow-hidden bg-slate-50 border-b border-slate-200/80 py-10 sm:py-14 text-slate-900">
+      {/* Ambient Glow */}
+      <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 w-[700px] h-[300px] bg-orange-500/10 blur-[120px] rounded-full" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div>
-            <div className="mb-2 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-purple-400">
-              <Sparkles size={13} className="text-purple-400" />
+            <div className="mb-2 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-orange-600">
+              <Sparkles size={13} className="text-[#FF5722]" />
               <span>Auto Caption Styles</span>
             </div>
-            <h2 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl font-heading">
+            <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl font-heading">
               Pick a style.{" "}
-              <span className="text-purple-300">
+              <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
                 Upload your video. Done.
               </span>
             </h2>
-            <p className="mt-1.5 text-xs sm:text-sm text-zinc-400 max-w-lg">
+            <p className="mt-1.5 text-xs sm:text-sm text-slate-600 max-w-lg">
               100+ caption styles — from viral bold to cinematic minimal.
             </p>
           </div>
 
           <Link
             href="/dashboard/auto-caption"
-            className="inline-flex shrink-0 items-center gap-2 rounded-2xl border border-purple-500/30 bg-purple-500/10 px-5 py-2.5 text-xs font-bold text-purple-300 hover:bg-purple-500/20 hover:border-purple-500/50 transition active:scale-95 cursor-pointer shadow-lg shadow-purple-500/10"
+            className="inline-flex shrink-0 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-2.5 text-xs font-bold text-slate-800 hover:border-orange-500/50 hover:bg-orange-50/50 hover:text-orange-900 transition active:scale-95 cursor-pointer shadow-2xs"
           >
             <span>Browse all 100+ styles</span>
-            <ArrowRight size={13} className="text-purple-400" />
+            <ArrowRight size={13} className="text-[#FF5722]" />
           </Link>
         </div>
 

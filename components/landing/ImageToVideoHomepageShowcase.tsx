@@ -76,15 +76,18 @@ function ImageToVideoCard({ item }: ImageToVideoCardProps) {
       onClick={handleTogglePlay}
       className="relative flex-shrink-0 w-[270px] sm:w-[320px] md:w-[360px] group cursor-pointer select-none"
     >
-      <div className="relative w-full aspect-video rounded-[22px] overflow-hidden border border-white/15 bg-[#090A0F] shadow-xl group-hover:border-purple-500 group-hover:shadow-2xl group-hover:shadow-purple-500/25 transition-all duration-300 group-hover:-translate-y-1">
+      {/* 16:9 Widescreen Smartphone Card */}
+      <div className="relative w-full aspect-video rounded-[22px] overflow-hidden border border-white/15 bg-[#090A0F] shadow-xl group-hover:border-[#FF6D00] group-hover:shadow-2xl group-hover:shadow-[#FF6D00]/25 transition-all duration-300 group-hover:-translate-y-1">
         
+        {/* Top Badge */}
         <div className="absolute top-2.5 left-2.5 z-20 pointer-events-none">
-          <span className="inline-flex items-center gap-1 rounded-full border border-purple-500/30 bg-black/80 backdrop-blur-md px-2.5 py-0.5 text-[9.5px] font-black uppercase text-purple-300">
-            <Sparkles size={10} className="text-purple-400" />
+          <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/80 backdrop-blur-md px-2.5 py-0.5 text-[9.5px] font-black uppercase text-[#FF8F00]">
+            <Sparkles size={10} className="text-[#FF9100]" />
             <span>{item.tag}</span>
           </span>
         </div>
 
+        {/* Video Element */}
         <video
           ref={videoRef}
           src={item.videoUrl}
@@ -98,28 +101,33 @@ function ImageToVideoCard({ item }: ImageToVideoCardProps) {
           className="absolute inset-0 w-full h-full object-cover"
         />
 
+        {/* Play Icon Overlay when paused */}
         {!isPlaying && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black/60 border border-white/25 backdrop-blur-sm group-hover:bg-purple-600 group-hover:border-purple-500 transition-all duration-300 shadow-lg">
-              <Play size={20} className="fill-white text-white ml-0.5" />
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30 bg-black/20 group-hover:bg-black/40 transition">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black/70 border border-white/25 backdrop-blur-sm group-hover:bg-[#FF6D00] group-hover:border-[#FF6D00] group-hover:scale-110 transition-all duration-300 shadow-xl">
+              <Play size={20} className="fill-white text-white ml-0.5 group-hover:text-black group-hover:fill-black transition-colors" />
             </div>
           </div>
         )}
 
-        <div className="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-20 pointer-events-none flex items-center justify-between">
-          <span className="text-xs font-bold text-white tracking-tight drop-shadow-md">
-            {item.title}
-          </span>
+        {/* Mute/Unmute Overlay when playing */}
+        {isPlaying && (
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
               setIsMuted(!isMuted);
             }}
-            className="pointer-events-auto p-1 rounded-full bg-black/50 text-white/80 hover:text-white hover:bg-black/80 transition"
+            className="absolute top-2.5 right-2.5 z-30 flex h-7 w-7 items-center justify-center rounded-full bg-black/70 border border-white/20 text-white backdrop-blur-md hover:bg-black transition cursor-pointer"
           >
-            {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+            {isMuted ? <VolumeX size={12} /> : <Volume2 size={12} className="text-emerald-400" />}
           </button>
+        )}
+
+        {/* Title Footer Overlay */}
+        <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none z-20 flex items-center justify-between">
+          <span className="text-xs font-black text-white truncate drop-shadow">{item.title}</span>
+          <span className="text-[9px] font-mono font-bold text-amber-400 bg-black/60 px-2 py-0.5 rounded-full border border-white/10">1080p MP4</span>
         </div>
       </div>
     </div>
@@ -128,40 +136,43 @@ function ImageToVideoCard({ item }: ImageToVideoCardProps) {
 
 export default function ImageToVideoHomepageShowcase() {
   const [isPaused, setIsPaused] = useState(false);
-  const marqueeItems = [...HOMEPAGE_IMAGE_TO_VIDEO_ITEMS, ...HOMEPAGE_IMAGE_TO_VIDEO_ITEMS];
+  const marqueeItems = [...HOMEPAGE_IMAGE_TO_VIDEO_ITEMS, ...HOMEPAGE_IMAGE_TO_VIDEO_ITEMS, ...HOMEPAGE_IMAGE_TO_VIDEO_ITEMS];
 
   return (
-    <section className="relative w-full overflow-hidden bg-[#070B14] border-b border-white/10 py-10 sm:py-14">
-      <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 w-[700px] h-[300px] bg-purple-600/10 blur-[120px] rounded-full" />
+    <section className="relative w-full overflow-hidden bg-white border-b border-slate-200/80 py-10 sm:py-14 text-slate-900">
+      {/* Ambient Glow */}
+      <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 w-[700px] h-[300px] bg-orange-500/10 blur-[120px] rounded-full" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
+        {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div>
-            <div className="mb-2 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-purple-400">
-              <Film size={13} className="text-purple-400" />
+            <div className="mb-2 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-orange-600">
+              <Film size={13} className="text-[#FF5722]" />
               <span>Image to Video AI</span>
             </div>
-            <h2 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl font-heading">
+            <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl font-heading">
               Image to Video AI.{" "}
-              <span className="text-purple-300">
+              <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
                 Turn photos &amp; audio into 16:9 movies.
               </span>
             </h2>
-            <p className="mt-1.5 text-xs sm:text-sm text-zinc-400 max-w-lg">
+            <p className="mt-1.5 text-xs sm:text-sm text-slate-600 max-w-lg">
               Cinematic widescreen storytelling with Ken Burns camera motion, voiceover sync, and frosted captions.
             </p>
           </div>
 
           <Link
             href="/dashboard/image-to-video-ai"
-            className="inline-flex shrink-0 items-center gap-2 rounded-2xl border border-purple-500/30 bg-purple-500/10 px-5 py-2.5 text-xs font-bold text-purple-300 hover:bg-purple-500/20 hover:border-purple-500/50 transition active:scale-95 cursor-pointer shadow-lg shadow-purple-500/10"
+            className="inline-flex shrink-0 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-2.5 text-xs font-bold text-slate-800 hover:border-orange-500/50 hover:bg-orange-50/50 hover:text-orange-900 transition active:scale-95 cursor-pointer shadow-2xs"
           >
             <span>Create Image to Video AI</span>
-            <ArrowRight size={13} className="text-purple-400" />
+            <ArrowRight size={13} className="text-[#FF5722]" />
           </Link>
         </div>
 
+        {/* Infinite Slow Moving Marquee Track */}
         <div 
           className="relative w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]"
           onMouseEnter={() => setIsPaused(true)}
@@ -169,7 +180,7 @@ export default function ImageToVideoHomepageShowcase() {
         >
           <motion.div
             className="flex gap-4 w-max"
-            animate={isPaused ? { x: undefined } : { x: ["0%", "-50%"] }}
+            animate={isPaused ? { x: undefined } : { x: ["0%", "-33.333%"] }}
             transition={{
               x: {
                 repeat: Infinity,

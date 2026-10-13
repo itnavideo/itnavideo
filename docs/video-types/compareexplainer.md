@@ -14,12 +14,12 @@
 | **Template Location** | `remotion/templates/COMPARE_EXPLAINER/template.tsx` |
 | **Dashboard Studio** | `components/dashboard/CompareExplainerStudio.tsx` |
 | **Dashboard Route** | `/dashboard/compare-explainer` |
-| **Aspect Ratio** | **Dual Aspect Ratio**: `9:16` Vertical Shorts & `16:9` Widescreen Cinema |
-| **Resolution & Quality** | **1080p Full HD** (`1080×1920` for 9:16 / `1920×1080` for 16:9) @ 30 FPS MP4 |
+| **Aspect Ratio** | **9:16 Vertical Shorts Only** |
+| **Resolution & Quality** | **1080p Full HD** (`1080×1920` @ 30 FPS MP4) |
 | **Frame Rate** | 30 FPS |
-| **Max Video Duration** | **90 Seconds (9:16 Shorts)** / **5 Minutes (16:9 Widescreen Cinema)** |
-| **Primary Category** | Social & YouTube |
-| **Credit Cost** | 1 credit per render |
+| **Max Video Duration** | **Up to 90 Seconds (90s)** |
+| **Primary Category** | 9:16 Vertical Short-Form |
+| **Credit Cost** | 1 Credit |
 | **Design System** | Google Analytics Obsidian Baseline (`#070B14`, `#0E1526`) + Intentional Color & Typography Variety Policy + Material Design 3 |
 | **Transcription Engine**| Extracted 16kHz audio → Groq Whisper Cloud API (Fallback: Google Gemini 2.0 Flash `asia-south1`) |
 | **Image Backdrop** | Adaptive blurred ambient backdrop (`blur(22px)`) eliminating empty letterboxing |
@@ -143,3 +143,20 @@ export interface CompareExplainerProps {
 ## 8. Showcase & Homepage Assets
 - **Demo Video URL**: `https://storage.googleapis.com/itnavideo-assets/homepage/compare-explainer-demovideo.mp4`
 - **Output Verified**: 9:16 vertical MP4 comparing Coupon vs Voucher with dual cards, animated presenter character, and synced bottom subtitles.
+
+---
+
+## 9. Pipeline Error Checklist & Auto-Fix Matrix
+
+| Pipeline Stage | Potential Error / Failure | Root Cause | Automated Recovery / Fix | User-Facing Action / Feedback |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Upload & Media Validation** | `MISSING_COMPARISON_IMAGES` | User uploaded only 1 image instead of both left and right | Preflight validation blocks submission with explicit 400 error | "Compare requires exactly 2 visuals: one left and one right" |
+| **1. Upload & Media Validation** | `NON_AUDIO_PRIMARY_FILE` | User uploaded non-audio file as main track | Extracts 16kHz audio or converts video audio seamlessly | Audio track processed reliably |
+| **2. Speech Transcription** | `WHISPER_RATE_LIMIT_429` | Groq Whisper concurrency burst | Seamless failover to Google Gemini 2.0 Flash (`asia-south1`) | Instant zero-downtime transcription |
+| **2. Speech Transcription** | `NO_SPEECH_DETECTED` | Audio lacks audible vocal track | Fails with explicit `NO_SPEECH_DETECTED` reason code | "No clear speech detected. Please upload clear narration audio." |
+| **3. Sticker & Pose Sync** | `MISSING_STICKER_SET` | Custom presenter stickman graphic unavailable | Auto-falls back to standard 3D presenter stickman avatar set | Presenter avatar always renders properly |
+| **4. Layout Formatting** | `IMAGE_ASPECT_DISTORTION` | Images of vastly different aspect ratios (e.g. 1:1 vs 16:9) | Auto-scales with aspect-fit containment and subtle blurred ambient backing | Perfectly balanced dual-subject presentation |
+| **5. Remotion Lambda Render** | `LAMBDA_OOM_OR_TIMEOUT` | Dual image composition timeout | Clamps frameRange to `[0, totalFrames - 1]` and optimizes Lambda concurrency | Fast Full HD 30 FPS MP4 export |
+| **5. Remotion Lambda Render** | `FATAL_RENDER_CRASH` | AWS Lambda instance crash | Status route catches error and refunds reserved credits via `releaseReservedRenderUsageFromServer` | Immediate credit refund + retry prompt |
+| **6. File Delivery** | `S3_DOWNLOAD_LINK_EXPIRED` | User returns to download link after 48h | Polling status route auto-renews S3 presigned URL on demand | Direct download link re-activated instantly |
+

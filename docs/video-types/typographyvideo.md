@@ -203,4 +203,21 @@ export interface TypographyVideoProps {
    - All motion styles are presented directly in a unified, high-converting visual grid.
    - Category filter tabs and filter chips are intentionally omitted because creators pick styles directly from the visible gallery grid rather than filtering by category.
 5. **Google Analytics Visual System**:
-   - Obsidian base container (`#070B14`), elevated surface (`#0E1526`), GA Orange active ring (`#FF6D00`), and smooth M3 tactile micro-interactions (`active:scale-95`).
+   - Obsidian base container (`#070B14`), elevated surface (`#0E1526`), GA Orange active ring (`#FF5722` / `#FFA000`), and smooth M3 tactile micro-interactions (`active:scale-95`).
+
+---
+
+## 7. Pipeline Error Checklist & Auto-Fix Matrix
+
+| Pipeline Stage | Potential Error / Failure | Root Cause | Automated Recovery / Fix | User-Facing Action / Feedback |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Audio / Video Input** | `DURATION_TOO_LONG` | Uploaded audio exceeds 90s (Shorts) or 5m (Widescreen) | Preflight validation blocks render request with 422 | "Please trim your audio under 90s for Shorts" |
+| **1. Audio / Video Input** | `MISSING_AUDIO_TRACK` | Video container has no audio track | Detects silent audio stream early before transcription | "No audio track found in this video file" |
+| **2. Speech Transcription** | `WHISPER_RATE_LIMIT_429` | Groq Whisper concurrency limits | Automatic failover to Google Gemini 2.0 Flash (`asia-south1`) | Instant zero-downtime transcription |
+| **2. Speech Transcription** | `NO_SPEECH_DETECTED` | Audio lacks audible vocal track | Fails with explicit `NO_SPEECH_DETECTED` reason code | "No clear speech detected. Please upload clear narration audio." |
+| **3. Kinetic Layout Engine** | `RAPID_SPEECH_OVERLAP` | Speech rate exceeds 200 WPM, causing text collisions | Adaptive chunking enforces 2-3 word maximum ceiling per kinetic spring | Fast words display sequentially with clean kinetic punch |
+| **3. Kinetic Layout Engine** | `OVERSIZED_KEYWORD_OVERFLOW` | Single word > 14 characters overflows frame width | Auto-downscales font size by 18% with `clamp` bounds | Kinetic text fits comfortably inside screen boundaries |
+| **4. Remotion Render** | `LAMBDA_FRAME_TIMEOUT` | Heavy spring animations causing compute timeout | Clamps frameRange to `[0, totalFrames - 1]` and batches render | Fast Full HD 30 FPS MP4 export |
+| **4. Remotion Render** | `FATAL_RENDER_CRASH` | AWS Lambda instance crash | Status route catches error and refunds reserved credits via `releaseReservedRenderUsageFromServer` | Immediate credit refund + retry prompt |
+| **5. File Delivery** | `S3_DOWNLOAD_LINK_EXPIRED` | User returns to download link after 48h | Polling status route auto-renews S3 presigned URL on demand | Direct download link re-activated instantly |
+

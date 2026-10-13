@@ -98,14 +98,14 @@ export default function DashboardSidebar({
         {/* Top Header & Brand */}
         <div className="flex items-center justify-between p-5 border-b border-white/10 bg-[#0E1526]/50">
           <Link href="/dashboard" className="flex items-center gap-3 group">
-            <div className="p-1.5 rounded-xl bg-[#151E30] border border-white/10 group-hover:border-[#FF6D00]/50 transition-colors shadow-sm">
+            <div className="p-1.5 rounded-xl bg-[#151E30] border border-white/10 group-hover:border-orange-500/50 transition-colors shadow-sm">
               <BrandLogo size="sm" iconOnly={true} />
             </div>
             <div className="flex flex-col">
-              <span className="text-sm font-black tracking-wider text-white group-hover:text-[#FFA726] transition-colors">
+              <span className="text-sm font-black tracking-wider text-white group-hover:text-[#FFA000] transition-colors">
                 ITNAVIDEO
               </span>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-[#FF9100]">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[#FF5722]">
                 AI VIDEO STUDIO
               </span>
             </div>
@@ -129,7 +129,7 @@ export default function DashboardSidebar({
             {/* Header row */}
             <div className="flex items-center justify-between gap-2 mb-2">
               <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-300 uppercase tracking-wider">
-                <Zap size={14} className="text-[#FF8F00] fill-[#FF8F00]" />
+                <Zap size={14} className="text-[#FF5722] fill-[#FF5722]" />
                 <span>Credits</span>
               </div>
               <span className="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
@@ -151,7 +151,7 @@ export default function DashboardSidebar({
             <div className="space-y-2">
               <Link
                 href="/pricing"
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black font-black text-xs shadow-md shadow-[#FF6D00]/20 hover:brightness-110 active:scale-98 transition-all"
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white font-bold text-xs shadow-md shadow-orange-500/25 hover:brightness-110 active:scale-98 transition-all"
               >
                 <CreditCard size={14} />
                 <span>+ Add Credits</span>
@@ -163,7 +163,7 @@ export default function DashboardSidebar({
                 className="w-full text-center text-xs font-bold text-zinc-400 hover:text-white transition flex items-center justify-center gap-1.5 py-1"
               >
                 <span>View usage</span>
-                <ArrowRight size={12} className="text-[#FF8F00]" />
+                <ArrowRight size={12} className="text-[#FF5722]" />
               </button>
             </div>
           </div>
@@ -185,7 +185,7 @@ export default function DashboardSidebar({
                 }}
                 className={`w-full flex items-center justify-between p-3 rounded-xl text-left transition-all group ${
                   activeTab === "studios"
-                    ? "bg-[#151E30] border border-[#FF6D00]/60 text-white font-bold shadow-md"
+                    ? "bg-[#151E30] border border-orange-500/60 text-white font-bold shadow-md"
                     : "text-zinc-300 hover:text-white hover:bg-white/5 border border-transparent"
                 }`}
               >
@@ -193,8 +193,8 @@ export default function DashboardSidebar({
                   <div
                     className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors shrink-0 ${
                       activeTab === "studios"
-                        ? "bg-[#FF6D00] text-black shadow-md shadow-[#FF6D00]/30"
-                        : "bg-[#151E30] text-zinc-300 group-hover:text-[#FF8F00] border border-white/10"
+                        ? "bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-white shadow-md shadow-orange-500/30"
+                        : "bg-[#151E30] text-zinc-300 group-hover:text-[#FFA000] border border-white/10"
                     }`}
                   >
                     <Film size={18} />
@@ -205,7 +205,7 @@ export default function DashboardSidebar({
                   </div>
                 </div>
 
-                <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-[#FF6D00]/15 text-[#FF9100] border border-[#FF6D00]/30 shrink-0">
+                <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-orange-500/15 text-[#FF5722] border border-orange-500/30 shrink-0">
                   10 Tools
                 </span>
               </button>
@@ -225,7 +225,7 @@ export default function DashboardSidebar({
                   <div
                     className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors shrink-0 ${
                       activeTab === "history"
-                        ? "bg-emerald-500 text-black shadow-md shadow-emerald-500/30"
+                        ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/30"
                         : "bg-[#151E30] text-zinc-300 group-hover:text-emerald-400 border border-white/10"
                     }`}
                   >
@@ -268,7 +268,7 @@ export default function DashboardSidebar({
                   <div
                     className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors shrink-0 ${
                       activeTab === "announcements"
-                        ? "bg-amber-500 text-black shadow-md shadow-amber-500/30"
+                        ? "bg-amber-500 text-white shadow-md shadow-amber-500/30"
                         : "bg-[#151E30] text-zinc-300 group-hover:text-amber-400 border border-white/10"
                     }`}
                   >
@@ -310,7 +310,7 @@ export default function DashboardSidebar({
         <div className="p-4 border-t border-white/10 bg-[#0E1526]/50">
           <div className="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-[#121826] border border-white/10 shadow-sm">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#FF6D00] to-[#FFA726] text-black font-black text-xs flex items-center justify-center shrink-0 shadow-md shadow-[#FF6D00]/30">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#FF5722] to-[#FFA000] text-white font-black text-xs flex items-center justify-center shrink-0 shadow-md shadow-orange-500/30">
                 {userEmail ? userEmail.charAt(0).toUpperCase() : "U"}
               </div>
               <div className="min-w-0">
@@ -348,7 +348,7 @@ export default function DashboardSidebar({
             {/* Modal Header */}
             <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
               <div className="flex items-center gap-2">
-                <div className="p-2 rounded-xl bg-[#FF6D00]/10 border border-[#FF6D00]/30 text-[#FF9100]">
+                <div className="p-2 rounded-xl bg-orange-500/10 border border-orange-500/30 text-[#FF5722]">
                   <History size={18} />
                 </div>
                 <div>
@@ -374,7 +374,7 @@ export default function DashboardSidebar({
               <Link
                 href="/pricing"
                 onClick={() => setShowUsageModal(false)}
-                className="py-1.5 px-3 rounded-lg bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black font-bold text-xs shadow hover:brightness-110 transition"
+                className="py-1.5 px-3 rounded-lg bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white font-bold text-xs shadow shadow-orange-500/20 hover:brightness-110 transition"
               >
                 + Add Credits
               </Link>
@@ -384,7 +384,7 @@ export default function DashboardSidebar({
             <div className="max-h-64 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
               {historyLoading ? (
                 <div className="py-8 text-center text-xs text-zinc-400 flex items-center justify-center gap-2">
-                  <Clock size={16} className="animate-spin text-[#FF8F00]" />
+                  <Clock size={16} className="animate-spin text-[#FF5722]" />
                   <span>Loading usage history...</span>
                 </div>
               ) : transactions.length === 0 ? (
@@ -420,7 +420,7 @@ export default function DashboardSidebar({
                     </div>
 
                     <div className="text-right shrink-0">
-                      <span className="text-xs font-black text-[#FF9100]">
+                      <span className="text-xs font-black text-[#FF5722]">
                         -{item.creditsConsumed} Credits
                       </span>
                       <span className="block text-[9px] font-mono text-zinc-400 capitalize">

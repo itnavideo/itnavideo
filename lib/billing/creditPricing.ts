@@ -19,7 +19,6 @@ export type BillableRenderMode =
   | "whiteboardVideo"
   | "typographyVideo"
   | "longVideoClips"
-  | "longVideoPro"
   | "aiAudioCleaner"
   | "audioClean"
   | "audio-cleaner"
@@ -83,7 +82,6 @@ export function calculateRenderCreditUnits(mode: BillableRenderMode, options: Re
     case "longFormCaptionedVideo":
     case "aiVideoGenerator":
     case "facelessVideo":
-    case "longVideoPro":
     case "imageToVideoAi":
     case "bookSummary":
       return calculateLongFormCaptionCreditUnits(duration);

@@ -549,14 +549,14 @@ export default function AudioCleanerPage() {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-[#090A0F] flex flex-col items-center justify-center text-zinc-400 gap-3">
-        <Loader2 className="h-8 w-8 animate-spin text-[#FF8F00]" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#FF7043]" />
         <p className="text-sm font-semibold tracking-wide text-zinc-300">Loading AI Audio Cleaner...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#070B14] text-zinc-100 flex flex-col selection:bg-[#FF6D00]/30 selection:text-[#FFA726] pb-12">
+    <div className="min-h-screen bg-[#070B14] text-zinc-100 flex flex-col selection:bg-[#FF5722]/30 selection:text-[#FFA000] pb-12">
       {/* ── Top Navigation Bar (Google Analytics Obsidian Surface) ── */}
       <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0E1526]/90 backdrop-blur-xl shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
@@ -573,7 +573,7 @@ export default function AudioCleanerPage() {
 
             <BrandLogo size="sm" showBadge={false} />
 
-            <span className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[#FF6D00]/30 bg-[#FF6D00]/10 px-2.5 py-0.5 text-[11px] font-black text-[#FF9100]">
+            <span className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-2.5 py-0.5 text-[11px] font-black text-[#FF9100]">
               <Sparkles size={11} className="text-[#FF9100]" />
               Dedicated Studio
             </span>
@@ -582,12 +582,12 @@ export default function AudioCleanerPage() {
           <div className="flex items-center gap-3">
             {/* Credits badge */}
             <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-xs font-bold">
-              <Zap size={14} className="text-[#FF8F00] fill-[#FF8F00]" />
+              <Zap size={14} className="text-[#FF7043] fill-[#FF7043]" />
               <span className="text-zinc-400">Balance:</span>
               <span className="text-white font-black">{billingEntitlement ? userRemainingCredits : "..."} Credits</span>
               <Link
                 href="/pricing"
-                className="ml-1 text-[11px] text-[#FF9100] hover:text-[#FFA726] underline font-black"
+                className="ml-1 text-[11px] text-[#FF9100] hover:text-[#FFA000] underline font-black"
               >
                 +Add
               </Link>
@@ -602,12 +602,12 @@ export default function AudioCleanerPage() {
         <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-6 shadow-2xl space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
             <div className="space-y-1">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#FF6D00]/30 bg-[#FF6D00]/10 px-3.5 py-1 text-xs font-black text-[#FF9100] uppercase tracking-wider">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-3.5 py-1 text-xs font-black text-[#FF9100] uppercase tracking-wider">
                 <Sparkles size={13} className="text-[#FF9100]" />
                 <span>Smart Pause & Silence Cutter</span>
               </div>
               <h1 className="text-2xl sm:text-4xl font-black text-white">
-                AI Audio Cleaner <span className="bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] bg-clip-text text-transparent">& Studio</span>
+                AI Audio Cleaner <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">& Studio</span>
               </h1>
               <p className="text-xs sm:text-sm text-zinc-400">
                 Clean unwanted pauses and silence from your recordings while keeping your natural voice 100% intact.
@@ -638,7 +638,7 @@ export default function AudioCleanerPage() {
             </p>
             <button
               onClick={handleReset}
-              className="rounded-full bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] px-6 py-2.5 text-xs font-black text-black shadow-lg shadow-[#FF6D00]/25 transition hover:brightness-110 cursor-pointer"
+              className="rounded-full bg-gradient-to-r from-[#FF5722] to-[#FF7043] px-6 py-2.5 text-xs font-black text-black shadow-lg shadow-[#FF5722]/25 transition hover:brightness-110 cursor-pointer"
             >
               Reset & Try Again
             </button>

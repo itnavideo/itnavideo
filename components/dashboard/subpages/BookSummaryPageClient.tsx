@@ -464,7 +464,7 @@ export default function BookSummaryPageClient() {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-[#070B14] flex flex-col items-center justify-center text-zinc-400 gap-3">
-        <Loader2 className="h-8 w-8 animate-spin text-[#FF6D00]" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#FF5722]" />
         <p className="text-sm font-semibold text-zinc-200">Loading Book Summary Studio...</p>
       </div>
     );
@@ -472,7 +472,7 @@ export default function BookSummaryPageClient() {
 
   // ─────────────────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-[#070B14] text-white flex flex-col selection:bg-[#FF6D00]/30 selection:text-white pb-12">
+    <div className="min-h-screen bg-[#070B14] text-white flex flex-col selection:bg-[#FF5722]/30 selection:text-white pb-12">
 
       {/* ── Top Navigation Bar (Google Analytics Obsidian Surface) ── */}
       <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0E1526]/90 backdrop-blur-xl shadow-md">
@@ -491,7 +491,7 @@ export default function BookSummaryPageClient() {
             <div className="h-4 w-px bg-white/10 hidden sm:block" />
             <BrandLogo size="sm" showBadge={false} />
 
-            <span className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[#FF6D00]/30 bg-[#FF6D00]/10 px-2.5 py-0.5 text-[11px] font-black text-[#FF9100]">
+            <span className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-2.5 py-0.5 text-[11px] font-black text-[#FF9100]">
               <BookOpen size={11} />
               Book Summary Studio
             </span>
@@ -501,7 +501,7 @@ export default function BookSummaryPageClient() {
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Timer badge while rendering */}
             {isWorking && (
-              <div className="flex items-center gap-1.5 rounded-full border border-[#FF6D00]/30 bg-[#FF6D00]/10 px-3 py-1.5 text-xs font-black text-[#FF9100]">
+              <div className="flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-3 py-1.5 text-xs font-black text-[#FF9100]">
                 <Clock size={13} className="animate-pulse" />
                 <span>{formatTimer(elapsedSeconds)}</span>
               </div>
@@ -509,14 +509,14 @@ export default function BookSummaryPageClient() {
 
             {/* Credits badge */}
             <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-[#151E30] px-2.5 sm:px-3.5 py-1.5 text-xs font-bold shadow-sm">
-              <Zap size={14} className="text-[#FF6D00] fill-[#FF6D00]" />
+              <Zap size={14} className="text-[#FF5722] fill-[#FF5722]" />
               <span className="text-zinc-400 hidden xs:inline">Balance:</span>
               <span className="text-white font-black">
                 {billingEntitlement ? userRemainingCredits : "..."} Cr
               </span>
               <Link
                 href="/pricing"
-                className="ml-0.5 text-[11px] text-[#FF9100] hover:text-[#FFA726] underline font-black"
+                className="ml-0.5 text-[11px] text-[#FF9100] hover:text-[#FFA000] underline font-black"
               >
                 +Add
               </Link>
@@ -528,7 +528,7 @@ export default function BookSummaryPageClient() {
               onClick={() => setActiveTab(activeTab === "history" ? "studio" : "history")}
               className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
                 activeTab === "history"
-                  ? "border-[#FF6D00]/40 bg-[#FF6D00]/10 text-[#FF9100]"
+                  ? "border-[#FF5722]/40 bg-[#FF5722]/10 text-[#FF9100]"
                   : "border-white/10 bg-[#151E30] text-zinc-300 hover:border-white/20 hover:text-white"
               }`}
             >
@@ -559,7 +559,7 @@ export default function BookSummaryPageClient() {
             </div>
             <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
               Book Summary{" "}
-              <span className="bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
                 Video Studio
               </span>
             </h1>
@@ -613,7 +613,7 @@ export default function BookSummaryPageClient() {
               <button
                 type="button"
                 onClick={() => setActiveTab("studio")}
-                className="text-xs font-bold text-[#FF6D00] hover:text-[#FFA726] transition"
+                className="text-xs font-bold text-[#FF5722] hover:text-[#FFA000] transition"
               >
                 ← Back to Studio
               </button>
@@ -629,7 +629,7 @@ export default function BookSummaryPageClient() {
                 <button
                   type="button"
                   onClick={() => setActiveTab("studio")}
-                  className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] px-5 py-2.5 text-sm font-black text-black shadow-lg shadow-[#FF6D00]/25 transition hover:brightness-110 active:scale-95"
+                  className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] to-[#FF7043] px-5 py-2.5 text-sm font-black text-black shadow-lg shadow-[#FF5722]/25 transition hover:brightness-110 active:scale-95"
                 >
                   <Sparkles size={14} />
                   Create Your First Book Summary
@@ -647,7 +647,7 @@ export default function BookSummaryPageClient() {
                   return (
                     <div
                       key={render.id}
-                      className="rounded-[28px] border border-slate-200 bg-white p-5 space-y-4 hover:border-[#FF6D00]/40 hover:shadow-lg hover:shadow-[#FF6D00]/10 transition-all duration-300"
+                      className="rounded-[28px] border border-slate-200 bg-white p-5 space-y-4 hover:border-[#FF5722]/40 hover:shadow-lg hover:shadow-[#FF5722]/10 transition-all duration-300"
                     >
                       {/* Thumbnail placeholder */}
                       <div className="aspect-video w-full rounded-2xl bg-slate-100 flex items-center justify-center overflow-hidden">
@@ -699,7 +699,7 @@ export default function BookSummaryPageClient() {
                               )
                             }
                             disabled={downloadingUrl === render.outputFile}
-                            className="inline-flex items-center gap-1.5 rounded-2xl bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] px-3.5 py-1.5 text-xs font-black text-black shadow-sm shadow-[#FF6D00]/20 transition hover:brightness-110 active:scale-95 disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 rounded-2xl bg-gradient-to-r from-[#FF5722] to-[#FF7043] px-3.5 py-1.5 text-xs font-black text-black shadow-sm shadow-[#FF5722]/20 transition hover:brightness-110 active:scale-95 disabled:opacity-50"
                           >
                             <Download size={12} />
                             {downloadingUrl === render.outputFile ? "Downloading..." : "Download"}

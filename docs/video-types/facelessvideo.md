@@ -14,11 +14,11 @@
 | **Template Location** | `remotion/templates/FACELESS_VIDEO/template.tsx` & `FACELESS_LONG_VIDEO` |
 | **Dashboard Studio** | `components/dashboard/FacelessVideoStudio.tsx` |
 | **Dashboard Route** | `/dashboard/faceless-video` |
-| **Aspect Ratio** | **Dual Aspect Ratio**: `16:9` Widescreen Cinema & `9:16` Vertical Shorts |
-| **Resolution & Quality** | **1080p Full HD** (`1920×1080` for 16:9 / `1080×1920` for 9:16) @ 30 FPS MP4 |
-| **Max Audio Duration** | **15 Minutes (900s for 16:9 Cinema)** / **90 Seconds (9:16 Shorts)** |
-| **Primary Category** | Social & YouTube |
-| **Credit Cost** | 2 Credits / Min |
+| **Aspect Ratio** | **16:9 Widescreen Cinema Only** |
+| **Resolution & Quality** | **1080p Full HD** (`1920×1080` @ 30 FPS MP4) |
+| **Max Audio Duration** | **Up to 10 Minutes (600s)** |
+| **Primary Category** | 16:9 Widescreen Long-Form |
+| **Credit Cost** | **1 Min = 1 Credit** (1m=1, 5m=5, 10m=10 Cr) |
 | **Design System** | Google Analytics Obsidian Baseline (`#070B14`, `#0E1526`) + Intentional Color & Typography Variety Policy + Material Design 3 |
 | **Transcription Engine**| Extracted 16kHz audio → Groq Whisper Cloud API (Fallback: Google Gemini 2.0 Flash `asia-south1`) |
 | **B-Roll Looping** | Seamless `<Loop durationInFrames={120}>` wrapping on all video assets (never freezes) |
@@ -105,7 +105,7 @@ export interface FacelessVideoProps {
   musicVolume?: number; // default 0.15
   enableSfx?: boolean;
   scenes: FacelessScene[];
-  aspectRatio: '16:9';
+  aspectRatio: '16:9' | '9:16';
   totalDurationInFrames: number;
   fps: number;
   subtitles?: {
@@ -115,3 +115,22 @@ export interface FacelessVideoProps {
   }[];
 }
 ```
+
+---
+
+## 7. Pipeline Error Checklist & Auto-Fix Matrix
+
+| Pipeline Stage | Potential Error / Failure | Root Cause | Automated Recovery / Fix | User-Facing Action / Feedback |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Upload & Media Validation** | `AUDIO_TOO_LONG` | Audio exceeds 12-15 minute limit | Backend preflight check halts early before consuming API calls or credits | Prompt user to trim audio under limit |
+| **1. Upload & Media Validation** | `INVALID_MEDIA_TYPE` | Uploaded video instead of audio in audio-only mode | Auto-detect MIME type & extract 16kHz mono audio via ffmpeg cloud wrapper | Seamless audio extraction without throwing fatal error |
+| **1. Upload & Media Validation** | `MISSING_USER_IMAGES` | User selected "User Uploaded Images" mode with 0 files | Client-side validation block on submit | Highlights file dropzone with "Upload at least 1 image" |
+| **2. Transcription** | `GROQ_RATE_LIMIT_429` / `GROQ_DOWNTIME` | Groq Whisper API rate limit or outage | Automatic fallback to Google Gemini 2.0 Flash (`asia-south1`) | Transparent failover without user interruption |
+| **2. Transcription** | `NO_SPEECH_DETECTED` | Audio is purely music, silence, or heavily distorted | Both Groq and Gemini return empty transcript | Display clear alert: "No clear speech detected. Please upload audio with clear spoken voice." |
+| **3. AI Scene Direction** | `GEMINI_JSON_PARSE_ERROR` | LLM returns malformed JSON or truncated output | Fallback to deterministic local scene splitter (1 scene per sentence/beat) | Video generates with fallback uniform scene timing |
+| **4. Asset Matching** | `PEXELS_EMPTY_OR_FAIL` | Stock image search returns 0 results or rate limited | Falls back to internal curated asset catalog (`public/assets/reusable/`) and gradient canvas | Scene renders with abstract animated canvas, never black screen |
+| **4. Asset Matching** | `BROKEN_ASSET_URL` | Image URL 404 or S3 presign expired | Asset validation step checks head status before passing props to Remotion | Replaces broken asset with default category fallback image |
+| **5. Remotion Render** | `LAMBDA_FRAME_TIMEOUT` | Long video (10m+) exceeds single worker timeout | Dynamic frame range chunking across parallel Lambda instances (`getOptimalFramesPerLambda`) | High-speed multi-threaded cloud rendering |
+| **5. Remotion Render** | `FATAL_RENDER_ERROR` | Composition crash inside Lambda | Backend status route catches fatal error and executes `releaseReservedRenderUsageFromServer` | Reserved credits immediately refunded to user balance |
+| **6. Output Delivery** | `DOWNLOAD_URL_EXPIRED` | User accesses download link after 48h lifecycle | Polling status route auto-renews S3 presigned URL on demand | Fresh download link generated instantly |
+

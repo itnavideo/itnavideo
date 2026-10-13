@@ -76,26 +76,26 @@ const socialLinks = [
 
 export default function Footer() {
   return (
-    <footer className="relative w-full border-t border-white/10 bg-[#070B14] text-zinc-400 overflow-hidden">
+    <footer className="relative w-full border-t border-slate-200/80 bg-slate-50 text-slate-600 overflow-hidden">
       <div className="relative z-10 mx-auto max-w-7xl px-4 pt-16 pb-12 sm:px-6 lg:px-8">
         {/* Main Grid - Desktop */}
         <div className="hidden md:grid md:grid-cols-6 md:gap-10 lg:gap-12">
           {/* Brand & Summary */}
           <div className="col-span-2 space-y-5">
-            <BrandLogo size="md" showTagline />
-            <p className="max-w-sm text-xs leading-relaxed text-zinc-400">
+            <BrandLogo size="md" showTagline variant="light" />
+            <p className="max-w-sm text-xs leading-relaxed text-slate-600">
               AI video creation engine from audio, video, or text scripts. Built for viral Reels, Shorts, and automated creator production workflows.
             </p>
 
             <div className="flex flex-col gap-2 pt-1">
               <a 
                 href="mailto:rohi@itnavideo.com" 
-                className="inline-flex items-center gap-2 text-xs font-semibold text-purple-300 transition hover:text-purple-200"
+                className="inline-flex items-center gap-2 text-xs font-semibold text-orange-600 transition hover:text-orange-700"
               >
-                <Mail size={13} className="text-purple-400" />
+                <Mail size={13} className="text-[#FF5722]" />
                 rohi@itnavideo.com
               </a>
-              <span className="text-[11px] text-zinc-400">
+              <span className="text-[11px] text-slate-500">
                 Support · Inquiries · Collaborations
               </span>
             </div>
@@ -112,7 +112,7 @@ export default function Footer() {
                     rel="me noopener noreferrer" 
                     aria-label={item.label} 
                     title={item.label} 
-                    className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-[#0E1526] text-zinc-300 transition duration-200 hover:border-purple-500/50 hover:bg-[#151E30] hover:text-purple-300 active:scale-95 shadow-sm"
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition duration-200 hover:border-orange-500/50 hover:bg-orange-50/50 hover:text-orange-950 active:scale-95 shadow-2xs"
                   >
                     <Icon size={14} />
                   </a>
@@ -124,7 +124,7 @@ export default function Footer() {
           {/* Link Columns */}
           {footerGroups.map((group) => (
             <div key={group.title} className="space-y-4">
-              <h4 className="text-[11px] font-bold uppercase tracking-[0.18em] text-white">
+              <h4 className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-900">
                 {group.title}
               </h4>
               <ul className="space-y-2.5">
@@ -132,12 +132,12 @@ export default function Footer() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="group inline-flex items-center text-xs text-zinc-400 transition duration-200 hover:translate-x-0.5 hover:text-purple-300"
+                      className="group inline-flex items-center text-xs text-slate-600 transition duration-200 hover:translate-x-0.5 hover:text-orange-600"
                     >
                       <span>{link.label}</span>
                       <ArrowUpRight 
                         size={11} 
-                        className="ml-0.5 opacity-0 transition-opacity duration-200 group-hover:opacity-100 text-purple-400" 
+                        className="ml-0.5 opacity-0 transition-opacity duration-200 group-hover:opacity-100 text-[#FF5722]" 
                       />
                     </Link>
                   </li>
@@ -150,16 +150,16 @@ export default function Footer() {
         {/* Mobile View - M3 Accordion */}
         <div className="md:hidden space-y-6">
           <div className="space-y-4">
-            <BrandLogo size="md" showTagline />
-            <p className="text-xs leading-relaxed text-zinc-400">
+            <BrandLogo size="md" showTagline variant="light" />
+            <p className="text-xs leading-relaxed text-slate-600">
               AI video creation engine from audio, video, or text scripts. Built for viral Reels, Shorts, and creator workflows.
             </p>
             <div className="flex items-center gap-2">
               <a 
                 href="mailto:rohi@itnavideo.com" 
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-purple-300"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-600"
               >
-                <Mail size={13} className="text-purple-400" />
+                <Mail size={13} className="text-[#FF5722]" />
                 rohi@itnavideo.com
               </a>
             </div>
@@ -173,7 +173,7 @@ export default function Footer() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     aria-label={item.label} 
-                    className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-[#0E1526] text-zinc-300 transition hover:border-purple-500/50 hover:bg-[#151E30] hover:text-purple-300 active:scale-95 shadow-sm"
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition hover:border-orange-500/50 hover:bg-orange-50/50 hover:text-orange-950 active:scale-95 shadow-2xs"
                   >
                     <Icon size={14} />
                   </a>
@@ -182,7 +182,7 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="divide-y divide-white/10 border-y border-white/10 rounded-2xl bg-[#0E1526] px-4 shadow-sm">
+          <div className="divide-y divide-slate-200 border-y border-slate-200 rounded-2xl bg-white px-4 shadow-2xs">
             {footerGroups.map((group) => (
               <FooterAccordion key={group.title} title={group.title} links={group.links} />
             ))}
@@ -190,23 +190,23 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-[11px] text-zinc-400 sm:flex-row">
+        <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-slate-200/80 pt-8 text-[11px] text-slate-500 sm:flex-row">
           <div className="flex flex-wrap items-center gap-3">
-            <span className="flex items-center gap-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 px-2.5 py-1 text-[10px] font-bold text-purple-300">
-              <span className="h-1.5 w-1.5 rounded-full bg-purple-500" />
+            <span className="flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-2.5 py-1 text-[10px] font-bold text-orange-700">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#FF5722]" />
               Cloud rendering
             </span>
             <span>© 2026 Itnavideo AI. Bangalore, India.</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-5">
-            <Link href="/privacy" className="transition hover:text-white">
+            <Link href="/privacy" className="transition hover:text-slate-900">
               Privacy Policy
             </Link>
-            <Link href="/terms" className="transition hover:text-white">
+            <Link href="/terms" className="transition hover:text-slate-900">
               Terms of Service
             </Link>
-            <Link href="/contact" className="transition hover:text-white">
+            <Link href="/contact" className="transition hover:text-slate-900">
               Contact
             </Link>
           </div>
@@ -222,13 +222,13 @@ function FooterAccordion({ title, links }: { title: string; links: Array<{ label
     <div className="py-1">
       <button
         onClick={() => setOpen(!open)}
-        className="flex w-full items-center justify-between py-3.5 text-xs font-semibold text-zinc-200"
+        className="flex w-full items-center justify-between py-3.5 text-xs font-semibold text-slate-800"
         type="button"
       >
         <span>{title}</span>
         <ChevronDown 
           size={14} 
-          className={`text-zinc-400 transition-transform duration-200 ${open ? 'rotate-180 text-purple-400' : ''}`} 
+          className={`text-slate-400 transition-transform duration-200 ${open ? 'rotate-180 text-orange-600' : ''}`} 
         />
       </button>
       {open ? (
@@ -237,10 +237,10 @@ function FooterAccordion({ title, links }: { title: string; links: Array<{ label
             <li key={link.href}>
               <Link 
                 href={link.href} 
-                className="flex items-center text-xs text-zinc-400 transition hover:text-purple-300"
+                className="flex items-center text-xs text-slate-600 transition hover:text-orange-600"
               >
                 <span>{link.label}</span>
-                <ArrowUpRight size={10} className="ml-1 opacity-70 text-purple-400" />
+                <ArrowUpRight size={10} className="ml-1 opacity-70 text-[#FF5722]" />
               </Link>
             </li>
           ))}

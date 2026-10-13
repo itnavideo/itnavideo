@@ -255,7 +255,7 @@ function LoginFormContent() {
         {confirmationEmail ? (
           <div>
             <div className="mb-6">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-amber-500/30 bg-amber-500/10 text-amber-400">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-orange-500/30 bg-orange-500/10 text-[#FF5722]">
                 <Mail size={22} />
               </div>
               <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white font-sans">Verify your email</h2>
@@ -272,9 +272,9 @@ function LoginFormContent() {
                 type="button"
                 onClick={handleResendConfirmation}
                 disabled={resendLoading}
-                className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-500 py-3.5 text-sm font-bold text-slate-950 shadow-lg shadow-orange-500/20 transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+                className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] hover:opacity-95 py-3.5 text-sm font-bold text-white shadow-lg shadow-orange-500/25 transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer"
               >
-                {resendLoading ? <Loader2 className="animate-spin text-slate-950" size={18} /> : 'Resend verification email'}
+                {resendLoading ? <Loader2 className="animate-spin text-white" size={18} /> : 'Resend verification email'}
               </button>
               <button
                 type="button"
@@ -297,7 +297,7 @@ function LoginFormContent() {
                 }}
                 className={`flex-1 py-2 rounded-full text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer ${
                   activeTab === 'signin'
-                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow-md shadow-orange-500/25'
+                    ? 'bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-md shadow-orange-500/25'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -311,7 +311,7 @@ function LoginFormContent() {
                 }}
                 className={`flex-1 py-2 rounded-full text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer ${
                   activeTab === 'signup'
-                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow-md shadow-orange-500/25'
+                    ? 'bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-md shadow-orange-500/25'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -361,7 +361,7 @@ function LoginFormContent() {
                   <label className="mb-1.5 block text-xs font-semibold text-slate-300">
                     Full Name
                   </label>
-                  <div className="relative flex items-center rounded-2xl border border-white/12 bg-[#0C0F17]/80 transition-all duration-200 focus-within:border-amber-400 focus-within:ring-2 focus-within:ring-amber-400/20 focus-within:bg-[#0F131C]">
+                  <div className="relative flex items-center rounded-2xl border border-white/12 bg-[#0C0F17]/80 transition-all duration-200 focus-within:border-[#FF5722] focus-within:ring-2 focus-within:ring-[#FF5722]/20 focus-within:bg-[#0F131C]">
                     <UserIcon className="absolute left-4 text-slate-400 pointer-events-none" size={17} />
                     <input
                       type="text"
@@ -381,7 +381,7 @@ function LoginFormContent() {
                 <label className="mb-1.5 block text-xs font-semibold text-slate-300">
                   Email Address
                 </label>
-                <div className="relative flex items-center rounded-2xl border border-white/12 bg-[#0C0F17]/80 transition-all duration-200 focus-within:border-amber-400 focus-within:ring-2 focus-within:ring-amber-400/20 focus-within:bg-[#0F131C]">
+                <div className="relative flex items-center rounded-2xl border border-white/12 bg-[#0C0F17]/80 transition-all duration-200 focus-within:border-[#FF5722] focus-within:ring-2 focus-within:ring-[#FF5722]/20 focus-within:bg-[#0F131C]">
                   <Mail className="absolute left-4 text-slate-400 pointer-events-none" size={17} />
                   <input
                     type="email"
@@ -409,13 +409,13 @@ function LoginFormContent() {
                       type="button"
                       onClick={handleForgotPassword}
                       disabled={resetLoading}
-                      className="text-xs font-bold text-amber-400 hover:text-amber-300 transition-colors disabled:opacity-60 cursor-pointer"
+                      className="text-xs font-bold text-[#FF5722] hover:text-[#FFA000] transition-colors disabled:opacity-60 cursor-pointer"
                     >
                       {resetLoading ? 'Sending...' : 'Forgot?'}
                     </button>
                   )}
                 </div>
-                <div className="relative flex items-center rounded-2xl border border-white/12 bg-[#0C0F17]/80 transition-all duration-200 focus-within:border-amber-400 focus-within:ring-2 focus-within:ring-amber-400/20 focus-within:bg-[#0F131C]">
+                <div className="relative flex items-center rounded-2xl border border-white/12 bg-[#0C0F17]/80 transition-all duration-200 focus-within:border-[#FF5722] focus-within:ring-2 focus-within:ring-[#FF5722]/20 focus-within:bg-[#0F131C]">
                   <Lock className="absolute left-4 text-slate-400 pointer-events-none" size={17} />
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -452,7 +452,7 @@ function LoginFormContent() {
                       type="button"
                       onClick={handleForgotPassword}
                       disabled={loading || resetLoading}
-                      className="mt-2.5 font-bold text-amber-400 transition hover:text-amber-300 disabled:opacity-60 cursor-pointer block"
+                      className="mt-2.5 font-bold text-[#FF5722] transition hover:text-[#FFA000] disabled:opacity-60 cursor-pointer block"
                     >
                       {resetLoading ? 'Sending reset link...' : 'Send password reset link'}
                     </button>
@@ -462,7 +462,7 @@ function LoginFormContent() {
                       type="button"
                       onClick={handleResendConfirmation}
                       disabled={loading || resendLoading}
-                      className="mt-2.5 font-bold text-amber-400 transition hover:text-amber-300 disabled:opacity-60 cursor-pointer block"
+                      className="mt-2.5 font-bold text-[#FF5722] transition hover:text-[#FFA000] disabled:opacity-60 cursor-pointer block"
                     >
                       {resendLoading ? 'Sending verification...' : 'Resend verification email'}
                     </button>
@@ -474,10 +474,10 @@ function LoginFormContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-500 py-3.5 text-sm font-bold text-slate-950 shadow-lg shadow-orange-500/25 transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer mt-3"
+                className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] hover:opacity-95 py-3.5 text-sm font-bold text-white shadow-lg shadow-orange-500/25 transition-all active:scale-[0.98] disabled:opacity-50 cursor-pointer mt-3"
               >
                 {loading ? (
-                  <Loader2 className="animate-spin text-slate-950" size={18} />
+                  <Loader2 className="animate-spin text-white" size={18} />
                 ) : (
                   <span>{activeTab === 'signin' ? 'Sign In' : 'Create Free Account'}</span>
                 )}
@@ -495,7 +495,7 @@ function LoginFormContent() {
                       setActiveTab('signup');
                       setAuthError('');
                     }}
-                    className="font-bold text-amber-400 hover:text-amber-300 transition-colors ml-1 cursor-pointer"
+                    className="font-bold text-[#FF5722] hover:text-[#FFA000] transition-colors ml-1 cursor-pointer"
                   >
                     Create one
                   </button>
@@ -509,7 +509,7 @@ function LoginFormContent() {
                       setActiveTab('signin');
                       setAuthError('');
                     }}
-                    className="font-bold text-amber-400 hover:text-amber-300 transition-colors ml-1 cursor-pointer"
+                    className="font-bold text-[#FF5722] hover:text-[#FFA000] transition-colors ml-1 cursor-pointer"
                   >
                     Sign in
                   </button>

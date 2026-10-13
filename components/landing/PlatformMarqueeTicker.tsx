@@ -120,10 +120,10 @@ const TICKER_ITEMS = [
 
 export default function PlatformMarqueeTicker() {
   return (
-    <div className="relative w-full overflow-hidden border-y border-white/10 bg-[#070B14] py-3.5">
+    <div className="relative w-full overflow-hidden border-y border-slate-200/80 bg-white py-3.5">
       {/* Subtle edge fade masks */}
-      <div className="pointer-events-none absolute left-0 top-0 z-20 h-full w-28 bg-gradient-to-r from-[#070B14] via-[#070B14]/80 to-transparent" />
-      <div className="pointer-events-none absolute right-0 top-0 z-20 h-full w-28 bg-gradient-to-l from-[#070B14] via-[#070B14]/80 to-transparent" />
+      <div className="pointer-events-none absolute left-0 top-0 z-20 h-full w-28 bg-gradient-to-r from-white via-white/80 to-transparent" />
+      <div className="pointer-events-none absolute right-0 top-0 z-20 h-full w-28 bg-gradient-to-l from-white via-white/80 to-transparent" />
 
       <div 
         className="flex w-max animate-marquee hover:pause gap-3"
@@ -137,12 +137,12 @@ export default function PlatformMarqueeTicker() {
           return (
             <div
               key={idx}
-              className="inline-flex items-center gap-2.5 rounded-full border border-white/[0.08] bg-white/[0.03] px-4 py-1.5 text-xs font-semibold text-slate-300 backdrop-blur-md shadow-sm transition-all duration-200 hover:border-purple-500/50 hover:bg-white/[0.08] hover:text-white hover:scale-[1.03] cursor-pointer"
+              className="inline-flex items-center gap-2.5 rounded-full border border-slate-200/80 bg-slate-50 px-4 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs transition-all duration-200 hover:border-orange-500/50 hover:bg-orange-50/60 hover:text-orange-900 hover:scale-[1.03] cursor-pointer"
             >
               {isCustom ? (
                 <IconComponent />
               ) : (
-                <IconComponent size={15} className={`shrink-0 ${iconColor || 'text-purple-400'}`} />
+                <IconComponent size={15} className={`shrink-0 ${iconColor || 'text-orange-500'}`} />
               )}
               <span>{item.label}</span>
             </div>

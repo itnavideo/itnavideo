@@ -77,7 +77,7 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
         currency: payload.currency,
         name: "Itnavideo",
         description: `${plan.name} (${plan.credits} Credits)`,
-        theme: { color: "#9333EA" },
+        theme: { color: "#EA580C" },
         modal: {
           ondismiss: () => {
             setLoadingPlan(null);
@@ -112,51 +112,51 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
   };
 
   return (
-    <section id="pricing" className="border-t border-white/10 bg-[#070B14] text-white px-4 py-16 sm:px-6 sm:py-24">
+    <section id="pricing" className="border-t border-slate-200/80 bg-white text-slate-900 px-4 py-16 sm:px-6 sm:py-24">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 text-xs font-bold text-purple-300">
-            <Sparkles size={14} className="text-purple-400" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold text-orange-700">
+            <Sparkles size={14} className="text-[#FF5722]" />
             <span>TRANSPARENT CREATOR PRICING</span>
           </div>
 
-          <h2 className="mt-5 text-4xl sm:text-6xl font-black tracking-tight text-white leading-tight">
+          <h2 className="mt-5 text-4xl sm:text-6xl font-black tracking-tight text-slate-900 leading-tight">
             Simple, Powerful{" "}
-            <span className="text-purple-300">
+            <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
               AI Video Plans
             </span>
           </h2>
 
-          <p className="mt-4 text-base sm:text-lg text-zinc-300">
-            Create Reels, YouTube videos, subtitles, explainers, clips, and clean audio with purpose-built studios.
-            <span className="block text-purple-300 text-sm font-bold mt-2">Monthly subscription • Credits reset every 30 days • Top up anytime</span>
+          <p className="mt-4 text-base sm:text-lg text-slate-600">
+            Create Faceless videos, YouTube long-form, Reels, subtitles, and viral clips with purpose-built studios.
+            <span className="block text-orange-600 text-sm font-bold mt-2">Monthly subscription • Credits reset every 30 days • Top up anytime</span>
           </p>
 
           {/* Simple Credit Breakdown Pill */}
-          <div className="mt-6 inline-flex flex-wrap items-center justify-center gap-3 rounded-2xl border border-white/10 bg-[#0E1526] px-4 py-2.5 text-xs text-zinc-300 shadow-lg">
-            <span className="flex items-center gap-1.5 font-bold text-white">
-              <span className="flex h-2 w-2 rounded-full bg-purple-500" />
-              <span>9:16 Short Reel:</span>
-              <span className="text-purple-300 font-mono">1 Credit</span>
+          <div className="mt-6 inline-flex flex-wrap items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs text-slate-700 shadow-2xs">
+            <span className="flex items-center gap-1.5 font-bold text-slate-900">
+              <span className="flex h-2 w-2 rounded-full bg-[#FF5722]" />
+              <span>9:16 Short (upto 90s):</span>
+              <span className="text-orange-600 font-mono">1 Credit</span>
             </span>
-            <span className="text-zinc-600">•</span>
-            <span className="flex items-center gap-1.5 font-bold text-white">
-              <span className="flex h-2 w-2 rounded-full bg-purple-400" />
+            <span className="text-slate-300">•</span>
+            <span className="flex items-center gap-1.5 font-bold text-slate-900">
+              <span className="flex h-2 w-2 rounded-full bg-emerald-500" />
               <span>16:9 Long Video (upto 10m):</span>
-              <span className="text-purple-300 font-mono">1 Credit / Min</span>
+              <span className="text-emerald-600 font-mono">1 Min = 1 Credit</span>
             </span>
-            <span className="text-zinc-600">•</span>
-            <span className="flex items-center gap-1.5 font-bold text-white">
-              <span className="flex h-2 w-2 rounded-full bg-purple-400" />
+            <span className="text-slate-300">•</span>
+            <span className="flex items-center gap-1.5 font-bold text-slate-900">
+              <span className="flex h-2 w-2 rounded-full bg-amber-500" />
               <span>AI Audio Cleaner:</span>
-              <span className="text-purple-300 font-mono">1 Credit</span>
+              <span className="text-amber-600 font-mono">1 Credit</span>
             </span>
           </div>
         </div>
 
         {message && (
-          <p className="mx-auto mt-6 max-w-xl rounded-2xl border border-purple-500/30 bg-purple-500/10 px-4 py-3 text-center text-sm font-semibold text-purple-300">
+          <p className="mx-auto mt-6 max-w-xl rounded-2xl border border-orange-500/30 bg-orange-50 px-4 py-3 text-center text-sm font-semibold text-orange-950">
             {message}
           </p>
         )}
@@ -170,60 +170,60 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
             return (
               <article
                 key={plan.id}
-                className={`relative flex min-h-[510px] flex-col rounded-[28px] border p-6 sm:p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl ${
+                className={`relative flex min-h-[510px] flex-col rounded-[28px] border p-6 sm:p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${
                   isPopular
-                    ? "border-purple-500 ring-1 ring-purple-500/50 bg-[#0E1526] shadow-xl shadow-purple-500/20"
-                    : "border-white/10 bg-[#0E1526] hover:border-purple-500/40"
+                    ? "border-[#FF5722] ring-2 ring-[#FF5722]/30 bg-gradient-to-b from-orange-50/50 via-white to-white shadow-xl shadow-orange-500/10"
+                    : "border-slate-200 bg-white hover:border-orange-500/40"
                 }`}
               >
                 {/* Popular Pill */}
                 {isPopular && (
-                  <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-purple-600 px-4 py-1 text-[11px] font-black tracking-wide text-white shadow-lg shadow-purple-600/30">
+                  <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-[#FF5722] to-[#FFA000] px-4 py-1 text-[11px] font-black tracking-wide text-white shadow-lg shadow-orange-500/30">
                     ⭐ MOST POPULAR · BEST VALUE
                   </span>
                 )}
 
                 {/* Plan Header */}
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-black text-white">{plan.name}</h2>
+                  <h3 className="text-xl font-black text-slate-900">{plan.name}</h3>
                   <span
                     className={`text-xs font-bold px-3 py-1 rounded-full border ${
                       isPopular
-                        ? "bg-purple-500/20 text-purple-300 border-purple-500/40 font-black"
+                        ? "bg-orange-500/15 text-orange-700 border-orange-500/30 font-black"
                         : isFree
-                        ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30 font-bold"
-                        : "bg-[#151E30] text-zinc-300 border-white/10"
+                        ? "bg-emerald-500/15 text-emerald-700 border-emerald-500/30 font-bold"
+                        : "bg-slate-100 text-slate-700 border-slate-200"
                     }`}
                   >
                     {isFree ? "20 Free Credits" : `${plan.credits.toLocaleString()} Credits`}
                   </span>
                 </div>
 
-                <p className="mt-2 text-xs leading-relaxed text-zinc-400 min-h-[36px]">
+                <p className="mt-2 text-xs leading-relaxed text-slate-600 min-h-[36px]">
                   {plan.description}
                 </p>
 
                 {/* Pricing Display */}
                 <div className="mt-5 flex items-baseline gap-1.5">
-                  <span className="text-4xl sm:text-5xl font-black tracking-tight text-white">
+                  <span className="text-4xl sm:text-5xl font-black tracking-tight text-slate-900">
                     {displayPrices[plan.id] || plan.quotes.USD?.displayPrice || "$0"}
                   </span>
-                  <span className="text-xs font-semibold text-zinc-400">
+                  <span className="text-xs font-semibold text-slate-500">
                     / {plan.billingPeriodLabel}
                   </span>
                 </div>
 
-                <p className="mt-2 text-xs font-bold text-purple-300">
+                <p className="mt-2 text-xs font-bold text-orange-600">
                   {isFree ? "✓ No credit card required" : `✓ ${plan.credits} credits valid for 30 days`}
                 </p>
 
                 {/* Features List */}
                 <ul className="mt-6 flex-1 space-y-3 text-xs sm:text-sm">
                   {plan.features.map((feature) => (
-                    <li key={feature} className="flex gap-2.5 items-start text-zinc-300">
+                    <li key={feature} className="flex gap-2.5 items-start text-slate-700">
                       <Check
                         size={16}
-                        className={`mt-0.5 shrink-0 ${isPopular ? "text-purple-400" : "text-emerald-400"}`}
+                        className={`mt-0.5 shrink-0 ${isPopular ? "text-[#FF5722]" : "text-emerald-500"}`}
                         strokeWidth={2.5}
                       />
                       <span>{feature}</span>
@@ -238,10 +238,10 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
                   onClick={() => buyPlan(plan)}
                   className={`mt-8 flex w-full items-center justify-center gap-2 rounded-full px-5 py-3.5 text-xs sm:text-sm font-black transition cursor-pointer ${
                     isPopular
-                      ? "bg-purple-600 text-white hover:bg-purple-500 shadow-lg shadow-purple-600/30"
+                      ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white hover:brightness-110 shadow-lg shadow-orange-500/25 active:scale-95"
                       : isFree
-                      ? "border border-white/15 bg-[#151E30] text-white hover:bg-[#1C2840] hover:border-purple-500/40 font-bold"
-                      : "border border-white/15 bg-[#151E30] text-white hover:bg-[#1C2840] hover:border-purple-500/40 font-bold"
+                      ? "border border-slate-200 bg-slate-50 text-slate-800 hover:bg-orange-50 hover:border-orange-500/40 hover:text-orange-950 font-bold active:scale-95 shadow-2xs"
+                      : "border border-slate-200 bg-slate-50 text-slate-800 hover:bg-orange-50 hover:border-orange-500/40 hover:text-orange-950 font-bold active:scale-95 shadow-2xs"
                   }`}
                 >
                   {loadingPlan === plan.id && <Loader2 size={16} className="animate-spin" />}
@@ -253,9 +253,9 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
         </div>
 
         {/* Security & Guarantee Trust Bar */}
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-xs text-zinc-400">
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-600">
           <div className="flex items-center gap-2">
-            <ShieldCheck size={16} className="text-purple-400" />
+            <ShieldCheck size={16} className="text-[#FF5722]" />
             <span>100% Secure Checkout via Razorpay</span>
           </div>
           <span>•</span>

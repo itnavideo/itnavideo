@@ -7,7 +7,7 @@ import { Loader2 } from "lucide-react";
 function KMLoading() {
   return (
     <div className="min-h-screen bg-[#070B14] flex items-center justify-center gap-3">
-      <Loader2 className="h-7 w-7 animate-spin text-[#FF6D00]" />
+      <Loader2 className="h-7 w-7 animate-spin text-[#FF5722]" />
       <span className="text-sm font-semibold text-slate-400">Loading Kinetic Motion Studio...</span>
     </div>
   );

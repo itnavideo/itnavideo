@@ -157,15 +157,6 @@ export default function TemplatesGallerySection() {
                   className="object-cover transition-transform duration-300 group-hover:scale-105 opacity-90"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0E1526] via-transparent to-transparent" />
-
-                <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between">
-                  <span className="rounded-md bg-black/80 backdrop-blur-md px-2 py-0.5 text-[10px] font-bold text-zinc-200 border border-white/10">
-                    {item.aspect}
-                  </span>
-                  <span className="rounded-md bg-gradient-to-r from-purple-600 to-pink-500 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
-                    {item.badge}
-                  </span>
-                </div>
               </div>
 
               <div className="p-4 flex flex-col flex-1 justify-between">

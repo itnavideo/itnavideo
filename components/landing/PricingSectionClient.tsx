@@ -335,19 +335,19 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
 
   return (
     <section id="pricing" className="relative border-b border-white/10 bg-[#050505] px-4 py-16 sm:px-6 sm:py-24 text-zinc-100 overflow-hidden">
-      {/* Ambient Brand Purple & Pink Background Glow */}
-      <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 h-[600px] w-[800px] rounded-full bg-purple-600/10 blur-[160px]" />
+      {/* Ambient Brand Flame Orange & Amber Background Glow */}
+      <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 h-[600px] w-[800px] rounded-full bg-orange-600/10 blur-[160px]" />
 
       <div className="mx-auto max-w-7xl relative z-10">
         
         {/* Header */}
         <div className="mb-10 text-center max-w-3xl mx-auto space-y-3">
-          <p className="inline-flex items-center gap-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 text-xs font-black uppercase tracking-wider text-purple-300">
-            <Sparkles size={13} className="text-purple-400 animate-pulse" />
+          <p className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-black uppercase tracking-wider text-orange-400">
+            <Sparkles size={13} className="text-[#FF5722] animate-pulse" />
             <span>Transparent Video Creation Pricing</span>
           </p>
           <h2 className="text-3xl font-black text-white sm:text-5xl font-sans tracking-tight">
-            Plans built for <span className="bg-gradient-to-r from-purple-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">video production.</span>
+            Plans built for <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">video production.</span>
           </h2>
           <p className="text-sm sm:text-base text-slate-400 font-normal max-w-2xl mx-auto leading-relaxed">
             Pay for the amount and quality of video production you need. All paid plans include all 11 AI video studios with 1080p Full HD export and no watermark.
@@ -361,7 +361,7 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
                 onClick={() => setBillingCycle('monthly')}
                 className={`rounded-full px-5 py-2 text-xs font-black transition-all cursor-pointer ${
                   billingCycle === 'monthly'
-                    ? 'bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 text-white shadow-md shadow-purple-500/30 scale-[1.02]'
+                    ? 'bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-md shadow-orange-500/25 scale-[1.02]'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -372,13 +372,13 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
                 onClick={() => setBillingCycle('annual')}
                 className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-xs font-black transition-all cursor-pointer ${
                   billingCycle === 'annual'
-                    ? 'bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 text-white shadow-md shadow-purple-500/30 scale-[1.02]'
+                    ? 'bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-md shadow-orange-500/25 scale-[1.02]'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
                 <span>Annual Billing</span>
                 <span className={`rounded-full px-2 py-0.5 text-[10px] font-black tracking-tight ${
-                  billingCycle === 'annual' ? 'bg-black/25 text-white' : 'bg-purple-500/20 text-purple-300 border border-purple-500/40'
+                  billingCycle === 'annual' ? 'bg-black/25 text-white' : 'bg-orange-500/20 text-orange-300 border border-orange-500/40'
                 }`}>
                   Save 20%
                 </span>
@@ -394,7 +394,7 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
                 ? "border-emerald-500/30 bg-emerald-950/40 text-emerald-300"
                 : message.type === "error"
                   ? "border-red-500/30 bg-red-950/40 text-red-300"
-                  : "border-purple-500/30 bg-purple-950/40 text-purple-300"
+                  : "border-orange-500/30 bg-orange-950/40 text-orange-300"
             }`}
           >
             {message.text}
@@ -420,14 +420,14 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
                 transition={{ delay: i * 0.05 }}
                 className={`relative flex flex-col rounded-[28px] border p-6 transition-all duration-300 ${
                   plan.popular
-                    ? 'border-purple-500 shadow-2xl shadow-purple-500/25 ring-2 ring-purple-500 lg:scale-105 z-10 bg-[#0F1117]'
-                    : 'border-white/[0.08] shadow-xl bg-[#0F1117] hover:border-purple-500/40 hover:bg-[#151821]'
+                    ? 'border-[#FF5722] shadow-2xl shadow-orange-500/25 ring-2 ring-[#FF5722] lg:scale-105 z-10 bg-gradient-to-b from-[#181112] via-[#0F1117] to-[#0F1117]'
+                    : 'border-white/[0.08] shadow-xl bg-[#0F1117] hover:border-orange-500/40 hover:bg-[#151821]'
                 }`}
               >
                 {plan.popular && (
-                  <div className="absolute -top-3.5 left-1/2 flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 px-4 py-1 text-[11px] font-black uppercase tracking-wider text-white shadow-lg shadow-purple-500/30">
+                  <div className="absolute -top-3.5 left-1/2 flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-4 py-1 text-[11px] font-black uppercase tracking-wider text-white shadow-lg shadow-orange-500/30">
                     <Sparkles size={12} className="fill-white stroke-white" />
-                    <span>🔥 RECOMMENDED</span>
+                    <span>🔥 MOST POPULAR</span>
                   </div>
                 )}
 
@@ -436,7 +436,7 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
                   <div className="flex items-center justify-between">
                     <h3 className="text-xl font-black text-white font-sans">{plan.name}</h3>
                     {billingCycle === 'annual' && plan.id !== 'free' && (
-                      <span className="rounded-full bg-purple-500/15 border border-purple-500/30 px-2 py-0.5 text-[10px] font-extrabold text-purple-300">
+                      <span className="rounded-full bg-orange-500/15 border border-orange-500/30 px-2 py-0.5 text-[10px] font-extrabold text-orange-300">
                         Save 20%
                       </span>
                     )}
@@ -456,7 +456,7 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
 
                 {/* Video Capacity Highlight Badge */}
                 <div className="my-4 p-2.5 rounded-xl bg-[#151821] border border-white/[0.08] text-center">
-                  <span className="text-[11px] font-extrabold text-purple-300 block truncate">
+                  <span className="text-[11px] font-extrabold text-orange-300 block truncate">
                     ⚡ {plan.credits} ({plan.videoCapacity})
                   </span>
                 </div>
@@ -464,23 +464,23 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
                 {/* Plan Features */}
                 <ul className="space-y-2.5 text-xs text-slate-300 flex-1 my-2">
                   <li className="flex items-center gap-2">
-                    <Check size={14} className="text-purple-400 shrink-0" />
+                    <Check size={14} className="text-emerald-400 shrink-0" />
                     <span>{plan.videoTypes}</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check size={14} className="text-purple-400 shrink-0" />
+                    <Check size={14} className="text-emerald-400 shrink-0" />
                     <span>{plan.shortLimit}</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check size={14} className="text-purple-400 shrink-0" />
+                    <Check size={14} className="text-emerald-400 shrink-0" />
                     <span>{plan.longLimit}</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check size={14} className="text-purple-400 shrink-0" />
+                    <Check size={14} className="text-emerald-400 shrink-0" />
                     <span>{plan.quality} ({plan.watermark})</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check size={14} className="text-purple-400 shrink-0" />
+                    <Check size={14} className="text-emerald-400 shrink-0" />
                     <span>{plan.renderSpeed}</span>
                   </li>
                 </ul>
@@ -492,8 +492,8 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
                   disabled={loadingPlan === plan.id}
                   className={`mt-6 w-full rounded-2xl py-3 px-4 text-xs font-black transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer ${
                     plan.popular
-                      ? 'bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 text-white shadow-lg shadow-purple-500/25 hover:brightness-110 active:scale-95'
-                      : 'bg-[#151821] border border-white/15 text-white hover:border-purple-500/50 hover:text-purple-300 active:scale-95'
+                      ? 'bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-lg shadow-orange-500/25 hover:brightness-110 active:scale-95'
+                      : 'bg-[#151821] border border-white/15 text-white hover:border-orange-500/50 hover:text-orange-300 active:scale-95'
                   }`}
                 >
                   {loadingPlan === plan.id ? (

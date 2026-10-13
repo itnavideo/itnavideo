@@ -353,7 +353,7 @@ export default function KineticMotionPageClient() {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-[#070B14] flex items-center justify-center gap-3">
-        <Loader2 className="h-7 w-7 animate-spin text-[#FF6D00]" />
+        <Loader2 className="h-7 w-7 animate-spin text-[#FF5722]" />
         <span className="text-sm font-semibold text-slate-400">Loading Kinetic Motion Studio...</span>
       </div>
     );
@@ -361,7 +361,7 @@ export default function KineticMotionPageClient() {
 
   // ─────────────────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-[#070B14] text-slate-100 flex flex-col selection:bg-[#FF6D00]/30 selection:text-white pb-28 sm:pb-0">
+    <div className="min-h-screen bg-[#070B14] text-slate-100 flex flex-col selection:bg-[#FF5722]/30 selection:text-white pb-28 sm:pb-0">
 
       {/* ── Top nav ── */}
       <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0E1526]/90 backdrop-blur-xl shadow-md">
@@ -376,7 +376,7 @@ export default function KineticMotionPageClient() {
             </Link>
             <div className="h-4 w-px bg-white/10 hidden sm:block" />
             <BrandLogo size="sm" showBadge={false} />
-            <span className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[#FF6D00]/30 bg-[#FF6D00]/10 px-2.5 py-0.5 text-[11px] font-black text-[#FF6D00]">
+            <span className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-2.5 py-0.5 text-[11px] font-black text-[#FF5722]">
               <Sparkles size={11} />
               Kinetic Motion Studio
             </span>
@@ -384,17 +384,17 @@ export default function KineticMotionPageClient() {
 
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-[#0E1526] px-3 py-1.5 text-xs font-bold shadow-xs">
-              <Zap size={13} className="text-[#FFA726] fill-[#FFA726]" />
+              <Zap size={13} className="text-[#FFA000] fill-[#FFA000]" />
               <span className="text-slate-400 hidden xs:inline">Balance:</span>
               <span className="text-white font-extrabold">{billingEntitlement ? userRemaining : "..."} Videos</span>
-              <Link href="/pricing" className="ml-0.5 text-[11px] text-[#FF8F00] hover:text-[#FFA726] underline font-black">+Add</Link>
+              <Link href="/pricing" className="ml-0.5 text-[11px] text-[#FF7043] hover:text-[#FFA000] underline font-black">+Add</Link>
             </div>
             <button
               type="button"
               onClick={() => setActiveTab(activeTab === "history" ? "studio" : "history")}
               className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold transition ${
                 activeTab === "history"
-                  ? "border-[#FF6D00]/40 bg-[#FF6D00]/10 text-[#FF6D00]"
+                  ? "border-[#FF5722]/40 bg-[#FF5722]/10 text-[#FF5722]"
                   : "border-white/10 bg-[#151E30] text-slate-300 hover:text-white"
               }`}
             >
@@ -412,13 +412,13 @@ export default function KineticMotionPageClient() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-6">
           <div>
             <div className="flex items-center gap-2 text-xs font-bold text-slate-500 mb-2">
-              <button onClick={() => router.push("/dashboard")} className="hover:text-[#FF6D00] transition">← Video Modes</button>
+              <button onClick={() => router.push("/dashboard")} className="hover:text-[#FF5722] transition">← Video Modes</button>
               <span>/</span>
               <span className="text-slate-300">Kinetic Motion</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
               Kinetic Motion{" "}
-              <span className="bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
                 Video Studio
               </span>
             </h1>
@@ -428,7 +428,7 @@ export default function KineticMotionPageClient() {
           </div>
           <div className="flex flex-wrap gap-2 shrink-0">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-[#151E30] border border-white/10 px-3 py-1 text-xs font-bold text-slate-300">
-              <Sparkles size={11} className="text-[#FF6D00]" /> 11 Motion Presets
+              <Sparkles size={11} className="text-[#FF5722]" /> 11 Motion Presets
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-[#151E30] border border-white/10 px-3 py-1 text-xs font-bold text-slate-300">
               9:16 · 1080p
@@ -489,7 +489,7 @@ export default function KineticMotionPageClient() {
           <section className="space-y-5">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-black text-white">Recent Kinetic Motion Renders</h2>
-              <button onClick={() => setActiveTab("studio")} className="text-xs font-bold text-[#FF6D00] hover:text-[#FFA726] transition">
+              <button onClick={() => setActiveTab("studio")} className="text-xs font-bold text-[#FF5722] hover:text-[#FFA000] transition">
                 ← Back to Studio
               </button>
             </div>
@@ -501,7 +501,7 @@ export default function KineticMotionPageClient() {
                 <p className="text-xs text-slate-500 mt-1">Completed videos appear here for 48 hours.</p>
                 <button
                   onClick={() => setActiveTab("studio")}
-                  className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] px-5 py-2.5 text-sm font-black text-black shadow-lg shadow-[#FF6D00]/25 transition hover:brightness-110 active:scale-95"
+                  className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] to-[#FF7043] px-5 py-2.5 text-sm font-black text-black shadow-lg shadow-[#FF5722]/25 transition hover:brightness-110 active:scale-95"
                 >
                   <Sparkles size={14} /> Create Your First Kinetic Video
                 </button>
@@ -512,7 +512,7 @@ export default function KineticMotionPageClient() {
                   const expired = render.expiresAt < Date.now();
                   const expiresHours = Math.max(0, Math.ceil((render.expiresAt - Date.now()) / (60 * 60 * 1000)));
                   return (
-                    <div key={render.id} className="rounded-[28px] border border-white/10 bg-[#0E1526] p-5 space-y-4 hover:border-[#FF6D00]/40 transition-all duration-300">
+                    <div key={render.id} className="rounded-[28px] border border-white/10 bg-[#0E1526] p-5 space-y-4 hover:border-[#FF5722]/40 transition-all duration-300">
                       <div className="aspect-video w-full rounded-2xl bg-black/40 overflow-hidden flex items-center justify-center">
                         {render.outputFile && !expired ? (
                           <video src={render.outputFile} className="w-full h-full object-cover" muted playsInline
@@ -539,7 +539,7 @@ export default function KineticMotionPageClient() {
                           <button
                             onClick={() => downloadVideoDirectly(render.outputFile, `kinetic-motion-${render.id.slice(-6)}.mp4`)}
                             disabled={downloadingUrl === render.outputFile}
-                            className="inline-flex items-center gap-1.5 rounded-2xl bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] px-3.5 py-1.5 text-xs font-black text-black shadow-sm transition hover:brightness-110 active:scale-95 disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 rounded-2xl bg-gradient-to-r from-[#FF5722] to-[#FF7043] px-3.5 py-1.5 text-xs font-black text-black shadow-sm transition hover:brightness-110 active:scale-95 disabled:opacity-50"
                           >
                             <Download size={12} />
                             {downloadingUrl === render.outputFile ? "Downloading..." : "Download"}

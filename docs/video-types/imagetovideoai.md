@@ -219,5 +219,22 @@ export interface ImageToVideoAiProps {
   - Integrated in both the Studio workspace ([`ImageToVideoShowcaseCarousel.tsx`](file:///c:/Users/Akram%20Editor%20Studio/.gemini/antigravity/scratch/itnavideo_studio/components/dashboard/ImageToVideoShowcaseCarousel.tsx)) and Homepage ([`ImageToVideoHomepageShowcase.tsx`](file:///c:/Users/Akram%20Editor%20Studio/.gemini/antigravity/scratch/itnavideo_studio/components/landing/ImageToVideoHomepageShowcase.tsx)).
   - Uses Cloudinary `so_3` (3-second start offset) poster generation so full artwork scenes are visible instead of black title screens.
 
+---
+
+## 15. Pipeline Error Checklist & Auto-Fix Matrix
+
+| Pipeline Stage | Potential Error / Failure | Root Cause | Automated Recovery / Fix | User-Facing Action / Feedback |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Upload Validation** | `AUDIO_TOO_LONG` | Audio exceeds 12-minute max duration | Validation check returns 422 with clear message | "Please trim audio under 12 minutes" |
+| **1. Upload Validation** | `MISSING_SCENE_IMAGES` | User uploaded audio but 0 images | Client preflight blocks submission | "Please upload at least 1 image for your scenes" |
+| **1. Upload Validation** | `BLOB_URL_FAILURE` | Client `blob:` URLs cannot be loaded inside AWS Lambda | Server resolves and uploads blob data to S3 presigned URLs before Lambda render | Seamless conversion to signed HTTPS URLs |
+| **2. Speech Transcription** | `WHISPER_RATE_LIMIT_429` | Groq Whisper concurrency limits | Automatic failover to Google Gemini 2.0 Flash (`asia-south1`) | Instant zero-downtime transcription |
+| **2. Speech Transcription** | `NO_SPEECH_DETECTED` | Audio lacks audible vocal track | Fails with explicit `NO_SPEECH_DETECTED` reason code | "No clear speech detected. Please upload clear narration audio." |
+| **3. Scene Pacing & Parallax** | `IMAGE_COUNT_MISMATCH` | Number of uploaded images does not match scene count | Pacing engine dynamically loops, holds, or stretches image timings across script duration | Smooth transition pacing without freeze or black frames |
+| **4. Remotion Render** | `LOCAL_ASSET_404_IN_LAMBDA` | Relative path (`/assets/...`) sent to Lambda | `resolvedCustomUrls` automatically uploads local disk assets to temporary S3 bucket | 100% cloud-accessible HTTPS URLs |
+| **5. Render Recovery** | `RENDER_CRASH_OR_TIMEOUT` | Lambda task failure or network disconnect | Status route triggers credit refund via `releaseReservedRenderUsageFromServer` | Instant credit restore with retry button |
+| **6. Output Delivery** | `DOWNLOAD_URL_EXPIRED` | Expired presigned S3 link | Polling `/api/reels/jobs/status` regenerates signed URL on demand | Direct MP4 download link available |
+
+
 
 

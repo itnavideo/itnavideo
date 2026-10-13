@@ -26,6 +26,7 @@ import {detectScenes} from '@/services/ai/sceneDetector';
 import {planWhiteboardVideo, buildWhiteboardSegments} from '@/services/ai/whiteboardPlanner';
 import {planTypographyVideo} from '@/services/ai/typographyPlanner';
 import {selectBestClips} from '@/services/ai/clipSelector';
+import {planLongVideoProBlueprint} from '@/services/ai/longVideoProPlanner';
 import {resolveBlueprintAssets} from '@/services/ai/assetResolver';
 import {toAbsoluteS3AssetUrl, ITNAVIDEO_STOCK_ASSETS} from '@/constants/itnavideoStockAssets';
 import {cleanFaceCamSilenceAndFillers} from '@/services/ai/faceCamSilenceCleaner';
@@ -56,13 +57,12 @@ export const dynamic = 'force-dynamic';
 
 type LambdaRenderRequest = Parameters<typeof renderMediaOnLambda>[0];
 type ReelMode =
-  | 'compare' | 'autoCaption' | 'longVideoPromo' | 'whiteboardVideo' | 'typographyVideo' | 'longVideoClips' | 'facelessVideo' | 'aiVideoGenerator' | 'imageToVideoAi' | 'youtubeSubtitleGenerator' | 'bookSummary' | 'audioClean';
+  | 'compare' | 'autoCaption' | 'whiteboardVideo' | 'typographyVideo' | 'longVideoClips' | 'facelessVideo' | 'aiVideoGenerator' | 'imageToVideoAi' | 'youtubeSubtitleGenerator' | 'bookSummary' | 'audioClean' | 'longVideoPromo';
 
 const MODE_TO_TEMPLATE: Partial<Record<ReelMode, ReelTemplateName>> = {
   compare: 'comparisonImages',
   autoCaption: 'AUTO_CAPTION_GENERATOR',
   youtubeSubtitleGenerator: 'YOUTUBE_SUBTITLE_GENERATOR',
-  longVideoPromo: 'LONG_VIDEO_PROMO',
   whiteboardVideo: 'WHITEBOARD_VIDEO',
   typographyVideo: 'TYPOGRAPHY_VIDEO',
   longVideoClips: 'LONG_VIDEO_CLIPS',
@@ -70,6 +70,7 @@ const MODE_TO_TEMPLATE: Partial<Record<ReelMode, ReelTemplateName>> = {
   aiVideoGenerator: 'FACELESS_VIDEO',
   imageToVideoAi: 'IMAGE_TO_VIDEO_AI',
   bookSummary: 'BOOK_SUMMARY',
+  longVideoPromo: 'LONG_VIDEO_PROMO',
 };
 
 // All 9:16 short video types render up to 90 seconds.
@@ -98,6 +99,7 @@ function getMaxRenderWindowSecondsForTemplate(templateName?: ReelTemplateName | 
   if (
     templateName === 'FACELESS_VIDEO' ||
     templateName === 'AI_VIDEO_GENERATOR' ||
+    (templateName as string) === 'LONG_VIDEO_PRO' ||
     (templateName as string) === 'FACELESS_LONG_VIDEO'
   ) {
     return MAX_FACELESS_VIDEO_SECONDS;
@@ -637,231 +639,6 @@ export async function POST(request: Request) {
     }
     const config = readLambdaConfig();
     if (!config.ok) return NextResponse.json({ok: false, error: config.error}, {status: 503});
-
-    if (mode === 'longVideoPromo') {
-      const requestedDuration = readFiniteNumber(body.durationSeconds, readFiniteNumber(body.sourceDurationSeconds, DEFAULT_LONG_PROMO_RENDER_SECONDS));
-      const durationSeconds = Math.max(8, Math.min(MAX_RENDER_WINDOW_SECONDS, requestedDuration || DEFAULT_LONG_PROMO_RENDER_SECONDS));
-      const promoTitle = readString(body.promoTitle) || topicTitle || titleFromFile(fileName) || 'Watch Full Video';
-      const isFounder = isFounderEmail(readString(body.userEmail || body.email)) || isFounderUser(userId);
-      if (!promoThumbnailUrl) {
-        return NextResponse.json(
-          {
-            ok: false,
-            status: 'failed',
-            reasonCode: 'LONG_PROMO_MISSING_THUMBNAIL',
-            error: 'Long Video Promo needs one thumbnail image. Please upload the thumbnail again.',
-            ...(isFounder ? {
-              _founderDiagnostics: {
-                step: 'long_video_promo_fast_path_preflight',
-                reason: 'thumbnail signed URL was empty',
-                reasonCode: 'LONG_PROMO_MISSING_THUMBNAIL',
-                timings,
-                mode,
-                templateName,
-                compositionId: composition,
-              },
-            } : {}),
-          },
-          {status: 422},
-        );
-      }
-      const styleLock = createPremiumStyleLock({
-        topicTitle: promoTitle,
-        transcript: promoTitle,
-        templateName,
-        mode,
-      });
-      const soundCues = createPremiumSoundCues({
-        styleLock,
-        templateName,
-        durationSeconds,
-        timeline: [
-          {start: 0, end: 1.2, text: promoTitle, type: 'hook'},
-          {start: 2.8, end: 3.6, text: 'promo clip reveal', type: 'transition'},
-        ],
-      });
-      const inputProps: Record<string, unknown> = {
-        mediaSrc: mediaUrl,
-        mediaType,
-        mediaFit: templateConfig.mediaFit,
-        mediaTrimStartSeconds: 0,
-        sourceDurationSeconds: durationSeconds,
-        durationSeconds,
-        renderWindowSeconds: durationSeconds,
-        renderWindowSource: 'promo-fast-path',
-        planningMediaSource: 'original-upload',
-        topicTitle: promoTitle,
-        thumbnailSrc: promoThumbnailUrl,
-        title: promoTitle,
-        mediaAspect: readString(body.mediaAspect) || 'landscape',
-        promoGoal: readString(body.promoGoal) || 'watch-full-video',
-        ctaText: readString(body.promoCtaText).slice(0, 40) || 'Watch the full video',
-        ctaSubtext: readString(body.promoCtaSubtext ?? 'Link in bio').slice(0, 28),
-        promoCtaStyle: readString(body.promoCtaStyle) || 'youtube-red',
-        promoCreatorHandle: readString(body.promoCreatorHandle) || '',
-        promoBackgroundMode: readString(body.promoBackgroundMode) || 'blur',
-        accentColor: readString(body.accentColor) || '#38BDF8',
-        sourceAudioVolume: 1,
-        premiumEditing: true,
-        fastRender: true,
-        styleLock,
-        soundCues,
-        templateName,
-        template: templateName,
-        compositionId: composition,
-        watermark: !isFounder && (!access?.activePaidPlan || Boolean(access?.watermark)),
-      };
-
-      try {
-        const promoTrans = await transcribeForPlanning({
-          mediaUrl,
-          fileName,
-          contentType,
-          mediaType: (mediaType === 'image' ? 'video' : mediaType) as 'audio' | 'video',
-        });
-        if ('words' in promoTrans && Array.isArray((promoTrans as any).words) && (promoTrans as any).words.length) {
-          const words = (promoTrans as any).words;
-          const captionChunks: Array<{text: string; start: number; end: number}> = [];
-          for (let i = 0; i < words.length; i += 4) {
-            const chunk = words.slice(i, i + 4);
-            captionChunks.push({
-              text: chunk.map((w: {word: string}) => w.word).join(' '),
-              start: chunk[0].start,
-              end: chunk[chunk.length - 1].end,
-            });
-          }
-          inputProps.captions = captionChunks;
-        }
-      } catch (captionErr) {
-        console.warn('[LONG_VIDEO_PROMO] Speech transcription fallback:', captionErr);
-      }
-
-      const preflight = validateBeforeRender({inputProps, templateName, composition, mediaType});
-      if (preflight) {
-        const userEmail = readString(body.userEmail || body.email);
-        const isFounder = isFounderEmail(userEmail) || isFounderUser(userId);
-        return NextResponse.json(
-          {
-            ok: false,
-            status: 'failed',
-            reasonCode: preflight.reasonCode,
-            error: isFounder ? preflight.message : sanitizeUserFacingStatus(preflight.message),
-            ...(isFounder ? {
-              _founderDiagnostics: {
-                step: 'long_video_promo_fast_path_preflight',
-                reason: preflight.message,
-                reasonCode: preflight.reasonCode,
-                mode,
-                templateName,
-                compositionId: composition,
-                httpStatus: 422,
-              },
-            } : {}),
-          },
-          {status: 422},
-        );
-      }
-
-      const outName = `${TEMP_MEDIA_RENDER_PREFIX}${sanitizeSegment(userId)}/${Date.now()}-${slugify(readString(inputProps.topicTitle) || fileName || 'promo')}.mp4`;
-      markTiming('render_props_prepare_ms');
-      const promoFramesPerLambda = 120;
-      const renderRequest: LambdaRenderRequest = {
-        region: config.region,
-        functionName: config.functionName,
-        serveUrl: config.serveUrl,
-        composition,
-        codec: 'h264',
-        audioCodec: 'aac',
-        inputProps,
-        outName,
-        privacy: 'private',
-        deleteAfter: '3-days',
-        overwrite: true,
-        concurrency: config.concurrency,
-        framesPerLambda: promoFramesPerLambda,
-        maxRetries: 3,
-        downloadBehavior: {
-          type: 'download',
-          fileName: 'itnavideo-long-video-promo.mp4',
-        },
-        isProduction: true,
-        logLevel: 'info',
-      };
-      console.log('[LONG_VIDEO_PROMO_FAST_PATH] render start', {
-        mode,
-        templateName,
-        composition,
-        mediaType,
-        durationSeconds,
-        fastRender: true,
-        transcriptionSkipped: true,
-        captionsEnabled: false,
-        planningSkipped: true,
-        framesPerLambda: promoFramesPerLambda,
-        timings,
-      });
-      const render = await startRenderWithCapacityRetry(renderRequest);
-      await reserveAcceptedRenderUsage({
-        userId,
-        renderId: render.renderId,
-        creditUnits: requestedCreditUnits ?? calculateRenderCreditUnits('longVideoPromo'),
-        mode,
-        title: promoTitle,
-      });
-      markTiming('render_start_ms');
-      console.log('[LONG_VIDEO_PROMO_FAST_PATH] lambda accepted', {
-        renderId: render.renderId,
-        bucketName: render.bucketName,
-        durationSeconds,
-        timings,
-      });
-
-      return NextResponse.json({
-        ok: true,
-        status: 'rendering',
-        renderId: render.renderId,
-        bucketName: render.bucketName,
-        outName,
-        mediaKey,
-        reelTitle: inputProps.topicTitle,
-        design: 'Long Video Promo',
-        mode,
-        templateName,
-        transcriptSource: 'not-required',
-        transcriptWarning: undefined,
-        mediaTrimStartSeconds: 0,
-        renderWindowSeconds: durationSeconds,
-        renderWindowSource: 'promo-fast-path',
-        planningMediaSource: 'original-upload',
-        access,
-        creditUnits: requestedCreditUnits,
-        creditCost: formatCreditUnits(requestedCreditUnits ?? calculateRenderCreditUnits('longVideoPromo')),
-        retentionHours: 48,
-        note: 'Long Video Promo render started without transcription, subtitle generation, or AI planning.',
-        _renderVersion: 'v2026-06-30-long-video-promo-fast-path',
-        diagnostics: {
-          fastPath: true,
-          transcriptionSkipped: true,
-          planningSkipped: true,
-          captionsEnabled: false,
-          durationSeconds,
-          framesPerLambda: promoFramesPerLambda,
-          timings,
-        },
-        ...(isFounder ? {
-          _founderDebug: {
-            fastPath: true,
-            transcriptionSkipped: true,
-            planningSkipped: true,
-            captionsEnabled: false,
-            durationSeconds,
-            compositionId: composition,
-            framesPerLambda: promoFramesPerLambda,
-            timings,
-          },
-        } : {}),
-      });
-    }
 
     // ── AUTO CAPTION / YOUTUBE SUBTITLE GENERATOR FAST PATH (Direct S3 URL + Groq Whisper + Remotion Lambda) ──
     if (mode === 'autoCaption' || mode === 'youtubeSubtitleGenerator') {

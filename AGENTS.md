@@ -185,9 +185,9 @@ Multi-language translation is **paused**. Only English and Hinglish (Roman scrip
 | **16:9 Long-Form** | **YouTube Subtitles Generator** | **16:9 Only** | **Up to 10 Minutes (600s)** | **1 Min = 1 Credit** (1m=1, 5m=5, 10m=10 Cr) | Extracted 16kHz audio → Groq Whisper (Fallback: Gemini) |
 | **16:9 Long-Form** | **Long Video to Shorts Clips** (`longVideoClips`) | **Source: 16:9 / 9:16**<br/>**Output: 9:16 Shorts** | **Input: Up to 2 Hours**<br/>**Output: 30s–60s Clips** | **2 Credits / Clip** | Extracted audio → Groq Whisper → AI Hook Detector → Render shorts |
 | **9:16 Short-Form** | **Auto Caption Reel** | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Extracted audio → Groq Whisper (Fallback: Gemini) |
+| **9:16 Short-Form** | **Compare Explainer** | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Extracted audio → Groq Whisper (Fallback: Gemini) |
 | **9:16 Short-Form** | **Typography Kinetic Video** | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Extracted audio → Groq Whisper (Fallback: Gemini) |
 | **9:16 Short-Form** | **Whiteboard / Stickman Explainer** | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Extracted audio → Groq Whisper (Fallback: Gemini) |
-| **9:16 Short-Form** | **Faceless Video Shorts** | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Extracted audio → Groq Whisper (Fallback: Gemini) |
 | **9:16 Short-Form** | **Long Video Promo** | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Extracted audio → Groq Whisper (Fallback: Gemini) |
 | **Utility** | **AI Studio Audio Cleaner** | **Audio Utility** | **Up to 10 Minutes (600s)** | **1 Credit** | Groq Whisper + Retake Detection + Mastering |
 
@@ -248,19 +248,22 @@ A new Video Type is complete when all 5 are done:
 > [!IMPORTANT]
 > **NO ONE-SIZE-FITS-ALL PIPELINE**: Every Video Type in Itnavideo serves a fundamentally different purpose, uses different inputs, and executes a distinct processing pipeline. NEVER share a generic or hardcoded pipeline across all modes.
 
-### A. Core Video Type Requirements Matrix (9 Unified Modes)
+### A. Core Video Type Requirements Matrix (10 Active Modes)
 
 | Video Type / Mode | User Inputs | Aspect Ratio Support | Transcription? | Asset Matching? | AI Planner? | Output Format | Pipeline Stages |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
-| `autoCaption` | Video / Audio | 9:16 & 16:9 | ✅ Groq Whisper | ❌ None | ❌ None | 9:16 / 16:9 MP4 | Project Prep → Transcribe Speech → Style Motion Captions → Render 1080p MP4 |
-| `imageToVideoAi` | Audio + Images | 9:16 & 16:9 | ✅ Groq Whisper | ❌ (User Images) | ❌ Local | 9:16 / 16:9 MP4 | Audio Prep → Transcribe → Scene Pacing & Parallax → Render 1080p MP4 |
-| `facelessVideo` | Script / Audio | 9:16 & 16:9 | ✅ Groq Whisper | ✅ Stock Visuals | ✅ Full Director | 9:16 / 16:9 MP4 | Script Prep → Transcribe → Match B-Roll & SFX → Render 1080p MP4 |
-| `compare` | Voiceover + 2 Images | 9:16 & 16:9 | ✅ Groq Whisper | ❌ (User Images) | ❌ Local | 9:16 / 16:9 MP4 | Upload Received → Transcribe Audio → Build Comparison Beats → Render 1080p MP4 |
-| `typographyVideo` | Voiceover / Audio | 9:16 & 16:9 | ✅ Groq Whisper | ❌ None | ❌ Local | 9:16 / 16:9 MP4 | Audio Prep → Transcribe → Kinetic Text Kinetics & Camera Pulses → Render 1080p MP4 |
-| `whiteboardVideo` | Script / Audio | 9:16 & 16:9 | ✅ Groq Whisper | ✅ Stickman/Icons | ✅ Gemini | 9:16 / 16:9 MP4 | Upload Received → Transcribe → Whiteboard Strategy Scenes → Render 1080p MP4 |
-| `longVideoClips` | Long Video (Up to 2h) | Input 16:9/9:16 -> Output 9:16 | ✅ Groq Whisper | ❌ None | ✅ Hook Detector | 9:16 MP4 Clips | Upload Received → Chunk Audio → AI Hook Detector → Render 1080p Shorts |
-| `bookSummary` | Script / Audio | 9:16 & 16:9 | ✅ Groq Whisper | ❌ None | ❌ Local | 9:16 / 16:9 MP4 | Audio Prep → Transcribe → Cinematic Chapter Visuals & Kinetic Notes → Render 1080p MP4 |
+| `facelessVideo` | Script / Audio | **16:9 Only** | ✅ Groq Whisper | ✅ Stock Visuals | ✅ Full Director | 16:9 Widescreen MP4 | Script Prep → Transcribe → Match B-Roll & SFX → Render 1080p MP4 |
+| `bookSummary` | Script / Audio | **16:9 Only** | ✅ Groq Whisper | ❌ None | ❌ Local | 16:9 Widescreen MP4 | Audio Prep → Transcribe → Cinematic Chapter Visuals & Kinetic Notes → Render 1080p MP4 |
+| `imageToVideoAi` | Audio + Images | **16:9 Only** | ✅ Groq Whisper | ❌ (User Images) | ❌ Local | 16:9 Widescreen MP4 | Audio Prep → Transcribe → Scene Pacing & Parallax → Render 1080p MP4 |
+| `youtubeSubtitles` | Video / Audio | **16:9 Only** | ✅ Groq Whisper | ❌ None | ❌ None | 16:9 Widescreen MP4 | Project Prep → Transcribe Speech → Burnt-In Scrubber Subtitles → Render 1080p MP4 |
+| `autoCaption` | Video / Audio | **9:16 Only** | ✅ Groq Whisper | ❌ None | ❌ None | 9:16 Vertical MP4 | Project Prep → Transcribe Speech → Style Motion Captions → Render 1080p MP4 |
+| `compare` | Voiceover + 2 Images | **9:16 Only** | ✅ Groq Whisper | ❌ (User Images) | ❌ Local | 9:16 Vertical MP4 | Upload Received → Transcribe Audio → Build Comparison Beats → Render 1080p MP4 |
+| `typographyVideo` | Voiceover / Audio | **9:16 Only** | ✅ Groq Whisper | ❌ None | ❌ Local | 9:16 Vertical MP4 | Audio Prep → Transcribe → Kinetic Text Kinetics & Camera Pulses → Render 1080p MP4 |
+| `whiteboardVideo` | Script / Audio | **9:16 Only** | ✅ Groq Whisper | ✅ Stickman/Icons | ✅ Gemini | 9:16 Vertical MP4 | Upload Received → Transcribe → Whiteboard Strategy Scenes → Render 1080p MP4 |
+| `longVideoPromo` | Video + Thumbnail | **9:16 Only** | ❌ (Direct Promo) | ❌ (User Media) | ❌ Local | 9:16 Vertical MP4 | Media Prep → Teaser Hook Extraction → Aspect Conforming → Render 1080p MP4 |
+| `longVideoClips` | Long Video (Up to 2h) | Input 16:9/9:16 -> Output **9:16** | ✅ Groq Whisper | ❌ None | ✅ Hook Detector | 9:16 Vertical MP4 Clips | Upload Received → Chunk Audio → AI Hook Detector → Render 1080p Shorts |
 | `audioClean` | Audio / Video | Utility | ✅ Groq Whisper | ❌ None | ❌ Local | Studio Clean MP3/WAV | Script Transcribe → Retake & Mistake Detection → Loudness & Noise Mastering → Export Studio Master |
+
 
 ### B. Mandatory Implementation Rules
 
@@ -278,69 +281,76 @@ A new Video Type is complete when all 5 are done:
 
 ---
 
-## 9. Visual Design System: The 4 Final Brand Colors (White, Black, Purple, Pink)
+## 9. Visual Design System: The Primary Brand Colors (White, Black, Flame Orange & Sunset Amber) + Complementary Palette
 
 > [!IMPORTANT]
-> **FOUNDER DIRECTIVE: THE 4 FINAL BRAND COLORS (White, Black, Purple, Pink)**:
-> Based on creator economy preferences and viral video tool design (popular with short-form creators, female audiences, and modern SaaS platforms), Itnavideo strictly uses **4 core primary brand colors**:
-> 1. **White (`#FFFFFF`)**: Primary high-contrast headlines, crisp body text, and clean surface highlights.
-> 2. **Black (`#000000` / `#070B14` / `#0E1526`)**: Deep obsidian dark canvas, video player mockups, and high-elevation cards.
-> 3. **Purple (`#9333EA` / `#A855F7` / `purple-600`)**: Primary vibrant brand accent, gradient start (`from-purple-600`), active filter chips, and primary CTAs.
-> 4. **Pink (`#EC4899` / `#F43F5E` / `pink-500` / `fuchsia-500`)**: Secondary creator warm gradient (`to-pink-500`), highlight badges, and vibrant button glows (highly favored by creators).
+> **FOUNDER DIRECTIVE: THE PRIMARY BRAND PALETTE (White, Black, Orange)**:
+> Itnavideo uses **White, Black, and Flame Orange & Sunset Amber** as core primary brand colors, enriched with thoughtful complementary accents:
+> 1. **Pure Crisp White (`#FFFFFF`)**: Main page background, card surfaces, clean modal backgrounds, and trust badge containers.
+> 2. **Obsidian Black & Deep Slate (`#070B14` / `text-slate-900` / `#0E1526`)**: Primary high-contrast headlines, crisp body text, and YouTube video player mockup frames.
+> 3. **Flame Orange & Sunset Amber (`#FF5722` → `#FFA000`)**: Primary high-conversion action color used for:
+>    - Main Headline Gradient (*"AI Video Generator"*)
+>    - Top Kicker Badge (*"More Than AI — Your Personal Editor"*)
+>    - Main CTA Button (*"Create Faceless Video Free"*)
+>    - Faceless Player Showcase Outer Glow
+>    - Pricing Section *"Most Popular"* Plan & Action Buttons
+> 4. **Thoughtful Complementary Palette**: Do NOT restrict the entire UI to only three colors. Use complementary colors for highlights, success/error states, badges, charts, icons, and micro-interactions (e.g. Emerald `#10B981` for completed/success states, Sky/Cyan for AI speech tags, Violet/Purple for multi-style tags, Rose/Red for errors) to make the design visually appealing, professional, and engaging without visual clutter.
 
 ### A. The Core Brand Palette Tokens
 
 | Token / Element | Color Code | Tailwind Equivalent | Purpose & Usage |
 | :--- | :--- | :--- | :--- |
-| **Canvas / Background (Dark)** | `#070B14` / `#0E1526` | `bg-[#070B14]`, `bg-[#0E1526]` | Primary dark obsidian canvas & card surface |
-| **Primary Text (Light)** | `#FFFFFF` / `#F1F5F9` | `text-white`, `text-slate-100` | Crisp high-legibility primary text |
-| **Heading Primary Gradient** | `#A855F7` → `#E879F9` → `#EC4899` | `from-purple-400 via-fuchsia-400 to-pink-400` | Signature vibrant Purple & Pink gradient |
-| **Primary CTA Button** | `#9333EA` → `#D946EF` → `#EC4899` | `from-purple-600 via-fuchsia-500 to-pink-500` | High-conversion Purple to Pink gradient CTA |
-| **Secondary / Muted Text** | `#94A3B8` / `#A1A1AA` | `text-slate-400`, `text-zinc-400` | Subtitles, metadata, input placeholders |
-| **Subtle Structural Borders** | `rgba(255,255,255,0.1)` | `border-white/10` | Fine structural borders (no heavy borders) |
-| **Active Badges & Eyebrows** | `rgba(168,85,247,0.1)` | `bg-purple-500/10 border-purple-500/30 text-purple-300` | Feature tags and kicker pills |
-| **Status: Success** | `#10B981` | `text-emerald-400`, `bg-emerald-500/10` | Verified status, completed renders |
-| **Status: Error / Danger** | `#EF4444` | `text-red-400`, `bg-red-500/10` | Failures, delete actions |
+| **Canvas / Background (Light)** | `#FFFFFF` / `#FAFAFA` | `bg-white`, `bg-[#FAFAFA]`, `bg-slate-50` | Primary clean light canvas & card surface |
+| **Canvas / Dark Mockups** | `#070B14` / `#0E1526` | `bg-[#070B14]`, `bg-[#0E1526]` | Video player mockups & high-elevation dark frames |
+| **Primary Text (Dark Surface)** | `#FFFFFF` / `#F8FAFC` | `text-white`, `text-slate-100` | Crisp high-legibility light text on dark surfaces |
+| **Primary Text (Light Surface)** | `#0F172A` / `#1E293B` | `text-slate-900`, `text-slate-800` | High-contrast headlines & readable copy |
+| **Heading Primary Gradient** | `#FF5722` → `#FF7043` → `#FFA000` | `from-[#FF5722] via-[#FF7043] to-[#FFA000]` | Signature Flame Orange & Sunset Amber gradient |
+| **Primary CTA Button** | `#FF5722` → `#FF7043` → `#FFA000` | `from-[#FF5722] via-[#FF7043] to-[#FFA000]` | High-conversion Flame Orange to Sunset Amber CTA |
+| **Secondary / Muted Text** | `#64748B` / `#94A3B8` | `text-slate-600`, `text-slate-500` | Subtitles, metadata, input placeholders |
+| **Subtle Structural Borders** | `rgba(0,0,0,0.08)` / `rgba(255,255,255,0.1)` | `border-slate-200`, `border-white/10` | Fine structural borders |
+| **Active Badges & Eyebrows** | `rgba(255,87,34,0.1)` | `bg-orange-500/10 border-orange-500/30 text-orange-700` | Feature kickers & primary tags |
+| **Status / Verified: Success** | `#10B981` | `text-emerald-500`, `bg-emerald-500/10` | Verified status, 1080p completion, checkmarks |
+| **Status: Error / Danger** | `#EF4444` | `text-red-500`, `bg-red-500/10` | Failures, delete actions, live alerts |
+| **Complementary Accents** | `#06B6D4`, `#8B5CF6`, `#F59E0B` | `text-cyan-500`, `text-purple-500`, `text-amber-500` | Specialized studio badges & icon accents |
 
 ### B. Standard Component Patterns (MANDATORY COPY-PASTE PATTERNS)
 
-#### 1. Page Headings (`h1` / `h2` with Purple & Pink Gradient)
+#### 1. Page Headings (`h1` / `h2` with Flame Orange & Sunset Amber Gradient)
 ```tsx
 {/* Standard Eyebrow / Kicker */}
-<div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-purple-300">
-  <Sparkles size={14} className="text-purple-400" />
-  <span>Studio Feature Name</span>
+<div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-orange-700">
+  <Sparkles size={14} className="text-[#FF5722]" />
+  <span>More Than AI — Your Personal Editor</span>
 </div>
 
-{/* Standard Heading with Purple & Pink Gradient */}
-<h1 className="text-3xl font-black tracking-tight text-white sm:text-5xl md:text-6xl">
-  Title Words in Clean White{' '}
-  <span className="bg-gradient-to-r from-purple-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">
-    Purple &amp; Pink Creator Highlight
+{/* Standard Heading with Flame Orange Gradient */}
+<h1 className="text-3xl font-black tracking-tight text-slate-900 sm:text-5xl md:text-6xl font-sans">
+  The Free{' '}
+  <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
+    AI Video Generator
   </span>
 </h1>
 ```
 
 #### 2. Primary & Secondary CTA Buttons
 ```tsx
-{/* Primary CTA: Purple & Pink Gradient */}
-<button className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-purple-500/25 transition hover:brightness-110 active:scale-95">
-  <span>Start Creating Free</span>
-  <ArrowRight size={16} />
+{/* Primary CTA: Flame Orange & Sunset Amber Gradient */}
+<button className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-8 py-4 text-base font-black text-white shadow-xl shadow-orange-500/25 transition duration-200 hover:brightness-110 hover:scale-[1.02] active:scale-95">
+  <span>Create Faceless Video Free</span>
+  <ArrowRight size={18} />
 </button>
 
-{/* Secondary CTA: Dark Surface with Purple Icon */}
-<a href="#details" className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#151E30] px-6 py-3.5 text-sm font-bold text-zinc-200 hover:bg-[#1C2840] transition">
-  <BookOpen size={16} className="text-purple-400" />
-  <span>Read Guide &amp; Specs</span>
+{/* Secondary CTA: Clean Surface with Orange Highlight */}
+<a href="#details" className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 py-3.5 text-sm font-bold text-slate-800 hover:border-orange-500/40 hover:bg-orange-50/50 transition">
+  <span>Browse all 11 Studios</span>
+  <ArrowRight size={14} className="text-[#FF5722]" />
 </a>
 ```
 
 #### 3. Studio Cards & Category Chips
-- All studio cards share the Obsidian + Purple hover sheen:
-  `rounded-[28px] border border-white/10 bg-[#0E1526] hover:border-purple-500/50 hover:shadow-2xl hover:shadow-purple-500/15`
-- Active Category Chips: M3 pill with Purple to Pink gradient (`rounded-full bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 text-white font-black shadow-lg shadow-purple-500/25`).
-- Inactive Category Chips: `rounded-full bg-[#0E1526] text-zinc-400 border border-white/10 hover:border-purple-500/40 hover:text-white`.
+- Studio cards: `rounded-[28px] border border-slate-200/90 bg-white hover:border-orange-500/50 hover:shadow-xl hover:shadow-orange-500/10 transition-all`
+- Active Category Chips: `rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white font-black shadow-md shadow-orange-500/20`
+- Inactive Category Chips: `rounded-full bg-white text-slate-600 border border-slate-200 hover:border-orange-500/40 hover:text-slate-900`
 
 ### C. Material Design 3 (M3) System Integration (https://m3.material.io/)
 

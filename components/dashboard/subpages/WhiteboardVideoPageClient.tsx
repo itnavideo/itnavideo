@@ -443,10 +443,10 @@ export default function WhiteboardVideoPage() {
         {/* Navigation & Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/10 pb-4">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <BrandLogo size="sm" />
+            <BrandLogo size="sm" variant="dark" />
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-zinc-400 hover:text-[#FFA726] transition border-l border-white/10 pl-4"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-zinc-400 hover:text-[#FFA000] transition border-l border-white/10 pl-4"
             >
               <ArrowLeft size={14} />
               <span>Back to Studio Dashboard</span>
@@ -470,7 +470,7 @@ export default function WhiteboardVideoPage() {
                 onClick={() => setActiveTab("studio")}
                 className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
                   activeTab === "studio"
-                    ? "bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] text-black font-black shadow-md shadow-[#FF6D00]/20"
+                    ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black font-black shadow-md shadow-[#FF5722]/20"
                     : "text-zinc-400 hover:text-white"
                 }`}
               >
@@ -482,7 +482,7 @@ export default function WhiteboardVideoPage() {
                 onClick={() => setActiveTab("history")}
                 className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
                   activeTab === "history"
-                    ? "bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] text-black font-black shadow-md shadow-[#FF6D00]/20"
+                    ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black font-black shadow-md shadow-[#FF5722]/20"
                     : "text-zinc-400 hover:text-white"
                 }`}
               >
@@ -495,13 +495,13 @@ export default function WhiteboardVideoPage() {
 
         {/* Page Title ($H_1$) */}
         <div className="flex items-center gap-3 pt-1 pb-2">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#FF6D00]/10 text-[#FF9100] border border-[#FF6D00]/20 shadow-sm">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#FF5722]/10 text-[#FF9100] border border-[#FF5722]/20 shadow-sm">
             <Sparkles size={22} />
           </div>
           <div>
             <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
               AI Whiteboard Explainer{" "}
-              <span className="bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
                 Studio
               </span>
             </h1>
@@ -567,7 +567,7 @@ export default function WhiteboardVideoPage() {
               <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-lg">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FF6D00]/10 text-[#FF9100]">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FF5722]/10 text-[#FF9100]">
                       <History size={18} />
                     </div>
                     <div>
@@ -607,7 +607,7 @@ export default function WhiteboardVideoPage() {
                         <a
                           href={render.outputFile}
                           download={`${render.title || "whiteboard-explainer"}.mp4`}
-                          className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#FF6D00]/10 hover:bg-[#FF6D00]/20 text-[#FF9100] border border-[#FF6D00]/20 py-2 text-xs font-bold transition"
+                          className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#FF5722]/10 hover:bg-[#FF5722]/20 text-[#FF9100] border border-[#FF5722]/20 py-2 text-xs font-bold transition"
                         >
                           <Download size={13} />
                           <span>Download MP4</span>

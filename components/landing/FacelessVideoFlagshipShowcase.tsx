@@ -2,142 +2,124 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import {
   Sparkles,
   ArrowRight,
-  Tv,
-  Smartphone,
-  CheckCircle2,
-  Zap,
+  Film,
+  Subtitles,
+  Volume2,
 } from 'lucide-react';
 
 export default function FacelessVideoFlagshipShowcase() {
   return (
-    <section id="faceless-video-flagship" className="relative w-full overflow-hidden bg-[#070B14] py-14 sm:py-20 text-white border-b border-white/10">
-      {/* Standardized Ambient Lighting */}
-      <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[900px] max-w-full rounded-full bg-purple-600/10 blur-[180px]" />
+    <section id="faceless-video-flagship" className="relative w-full overflow-hidden bg-white py-16 sm:py-24 text-slate-900 border-b border-slate-200/80">
+      {/* Ambient Radial Lighting */}
+      <div className="pointer-events-none absolute left-1/2 top-1/3 -translate-x-1/2 h-[500px] w-[900px] max-w-full rounded-full bg-orange-500/10 blur-[180px]" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
 
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-purple-300">
-            <Sparkles size={14} className="text-purple-400" />
-            <span>Primary Focus • Flagship Feature</span>
+          <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-orange-700 shadow-xs">
+            <Sparkles size={14} className="text-[#FF5722]" />
+            <span>Primary Focus • Flagship Video Engine</span>
           </div>
 
-          <h2 className="mt-3 text-2xl font-black tracking-tight text-white sm:text-4xl">
-            Faceless Video AI Generator
+          <h2 className="mt-4 text-3xl font-black tracking-tight text-slate-900 sm:text-5xl md:text-6xl">
+            Faceless Video AI
           </h2>
 
-          <p className="mt-2 text-xs font-extrabold uppercase tracking-wider text-purple-300 sm:text-sm">
-            Automated Video Production — No Camera Needed
+          <p className="mt-3 text-lg font-bold bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent sm:text-2xl">
+            More Than AI — Your Personal Editor.
           </p>
 
-          <p className="mt-2 text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-xl mx-auto">
-            Turn audio, scripts, or images into ready-to-publish 16:9 YouTube videos and 9:16 Reels with automated B-roll visuals, voiceovers, and subtitles.
+          <p className="mt-3 text-base text-slate-600 leading-relaxed max-w-2xl mx-auto">
+            Faceless Video is our primary focus. Turn any topic, voiceover audio, or script into a complete 1080p Full HD video with automated cinematic B-roll, subtitles, and storytelling.
           </p>
         </div>
 
-        {/* Two Options for Faceless Video */}
-        <div className="mt-10 grid gap-6 md:grid-cols-2 items-stretch max-w-5xl mx-auto">
-
-          {/* Option 1: 16:9 Widescreen */}
-          <motion.div
-            whileHover={{ y: -4 }}
-            transition={{ duration: 0.2 }}
-            className="relative flex flex-col justify-between rounded-[28px] border border-purple-500/40 bg-[#0E1526] p-6 sm:p-8 shadow-xl hover:shadow-purple-500/20"
-          >
-            <div className="absolute -top-3.5 left-6 inline-flex items-center gap-1.5 rounded-full bg-purple-600 px-3.5 py-1 text-xs font-black uppercase tracking-wider text-white shadow-lg">
-              <Zap size={13} />
-              <span>Primary • 16:9 YouTube Widescreen</span>
+        {/* Big Flagship 16:9 YouTube Showcase Player Mockup - Placed Right Under Heading */}
+        <div className="mt-10 max-w-5xl mx-auto">
+          <div className="relative rounded-[28px] sm:rounded-[36px] p-2.5 sm:p-3.5 bg-gradient-to-b from-orange-500/20 via-slate-100 to-slate-200 border border-orange-500/30 shadow-[0_25px_80px_-20px_rgba(255,87,34,0.25)]">
+            
+            {/* Top YouTube Studio Bar */}
+            <div className="flex items-center justify-between px-3 py-2 text-xs font-bold text-slate-700">
+              <div className="flex items-center gap-2">
+                <span className="flex h-3 w-3 rounded-full bg-red-500" />
+                <span className="flex h-3 w-3 rounded-full bg-amber-500" />
+                <span className="flex h-3 w-3 rounded-full bg-emerald-500" />
+                <span className="ml-2 font-mono text-[11px] text-slate-500 font-semibold hidden sm:inline">
+                  16:9 Widescreen • 1080p 30 FPS • YouTube Long-Form &amp; Shorts
+                </span>
+              </div>
+              <span className="rounded-full bg-red-600 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-white">
+                LIVE DEMO PREVIEW
+              </span>
             </div>
 
-            <div>
-              <div className="mt-2 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-500/20 border border-purple-500/40 text-purple-300">
-                    <Tv size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-xl sm:text-2xl font-black text-white">Faceless Video — 16:9</h3>
-                    <p className="text-xs font-semibold text-purple-300">Widescreen Long-Form (YouTube)</p>
-                  </div>
+            {/* Main Video Visual Preview Frame */}
+            <div className="relative overflow-hidden rounded-[20px] sm:rounded-[28px] border border-slate-900/10 bg-[#070B14]">
+              <img
+                src="https://res.cloudinary.com/dhouh9idx/image/upload/v1791892533/faceless_video_ytyxdo.png"
+                alt="Faceless Video AI Creation Preview"
+                className="w-full h-auto object-cover max-h-[580px] transition-transform duration-700 hover:scale-[1.01]"
+              />
+
+              {/* Floating Features Badge Overlay */}
+              <div className="absolute bottom-4 left-4 right-4 hidden sm:flex items-center justify-between rounded-2xl bg-black/75 p-3.5 backdrop-blur-md border border-white/10 text-white">
+                <div className="flex items-center gap-4 text-xs font-semibold">
+                  <span className="flex items-center gap-1.5 text-orange-400">
+                    <Film size={14} /> Auto B-Roll Matching
+                  </span>
+                  <span className="flex items-center gap-1.5 text-amber-400">
+                    <Subtitles size={14} /> Kinetic Subtitles
+                  </span>
+                  <span className="flex items-center gap-1.5 text-emerald-400">
+                    <Volume2 size={14} /> Studio Voice &amp; Music
+                  </span>
                 </div>
-              </div>
-
-              <p className="mt-4 text-sm text-zinc-300 leading-relaxed">
-                Built for YouTubers &amp; creators. Turns voiceover audio &amp; scripts into 1080p Full HD widescreen videos with AI visual matching and stock B-roll.
-              </p>
-
-              <div className="mt-5 space-y-2 border-t border-white/10 pt-4">
-                <p className="text-xs font-bold uppercase tracking-wider text-zinc-400">Powers Multiple Use Cases:</p>
-                <div className="grid grid-cols-2 gap-2 text-xs text-zinc-200">
-                  <span className="flex items-center gap-1.5"><CheckCircle2 size={13} className="text-purple-400" /> Book Summaries</span>
-                  <span className="flex items-center gap-1.5"><CheckCircle2 size={13} className="text-purple-400" /> YouTube Explainers</span>
-                  <span className="flex items-center gap-1.5"><CheckCircle2 size={13} className="text-purple-400" /> Voiceover Stories</span>
-                  <span className="flex items-center gap-1.5"><CheckCircle2 size={13} className="text-purple-400" /> Image Stories</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 pt-4 border-t border-white/10">
-              <Link
-                href="/dashboard/faceless-video"
-                className="group inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-purple-600 hover:bg-purple-500 px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-purple-600/20 transition active:scale-95"
-              >
-                <span>Create 16:9 Widescreen Video</span>
-                <ArrowRight size={16} className="transition group-hover:translate-x-1" />
-              </Link>
-            </div>
-          </motion.div>
-
-          {/* Option 2: 9:16 Vertical */}
-          <motion.div
-            whileHover={{ y: -4 }}
-            transition={{ duration: 0.2 }}
-            className="relative flex flex-col justify-between rounded-[28px] border border-white/10 bg-[#0E1526] p-6 sm:p-8 hover:border-purple-500/40 transition shadow-xl"
-          >
-            <div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-500/20 border border-purple-500/40 text-purple-300">
-                    <Smartphone size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-xl sm:text-2xl font-black text-white">Faceless Video — 9:16</h3>
-                    <p className="text-xs font-semibold text-purple-300">Vertical Shorts &amp; Reels</p>
-                  </div>
-                </div>
-              </div>
-
-              <p className="mt-4 text-sm text-zinc-300 leading-relaxed">
-                Built for TikTok, Instagram Reels &amp; YouTube Shorts. Turns scripts and voiceovers into fast-paced 1080p vertical shorts with word-by-word captions.
-              </p>
-
-              <div className="mt-5 space-y-2 border-t border-white/10 pt-4">
-                <p className="text-xs font-bold uppercase tracking-wider text-zinc-400">Short-Form Format Highlights:</p>
-                <div className="grid grid-cols-2 gap-2 text-xs text-zinc-200">
-                  <span className="flex items-center gap-1.5"><CheckCircle2 size={13} className="text-purple-400" /> 9:16 1080p Full HD</span>
-                  <span className="flex items-center gap-1.5"><CheckCircle2 size={13} className="text-purple-400" /> Word Highlights</span>
-                  <span className="flex items-center gap-1.5"><CheckCircle2 size={13} className="text-purple-400" /> Rapid B-Roll Cuts</span>
-                  <span className="flex items-center gap-1.5"><CheckCircle2 size={13} className="text-purple-400" /> Auto Voiceover Sync</span>
-                </div>
+                <Link
+                  href="/dashboard/faceless-video"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] to-[#FFA000] px-4 py-2 text-xs font-black text-white hover:brightness-110 shadow-md transition"
+                >
+                  <span>Launch Faceless Studio</span>
+                  <ArrowRight size={13} />
+                </Link>
               </div>
             </div>
+          </div>
 
-            <div className="mt-8 pt-4 border-t border-white/10">
-              <Link
-                href="/dashboard/faceless-video?ratio=9:16"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/15 bg-[#151E30] px-6 py-3.5 text-sm font-bold text-zinc-200 hover:bg-[#1C2840] hover:text-white transition active:scale-95"
-              >
-                <span>Create 9:16 Vertical Short</span>
-                <ArrowRight size={16} />
-              </Link>
+          {/* 4 Key Faceless Video Capabilities Cards */}
+          <div className="mt-7 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3.5 shadow-2xs hover:border-orange-500/40 transition">
+              <p className="text-xs font-black text-slate-900">📚 Book Summaries</p>
+              <p className="text-[11px] text-slate-500 mt-0.5">Chapter-by-chapter visuals</p>
             </div>
-          </motion.div>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3.5 shadow-2xs hover:border-orange-500/40 transition">
+              <p className="text-xs font-black text-slate-900">📺 YouTube Explainers</p>
+              <p className="text-[11px] text-slate-500 mt-0.5">16:9 Widescreen 1080p</p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3.5 shadow-2xs hover:border-orange-500/40 transition">
+              <p className="text-xs font-black text-slate-900">🎙️ Voiceover Sync</p>
+              <p className="text-[11px] text-slate-500 mt-0.5">Automatic B-roll &amp; audio</p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3.5 shadow-2xs hover:border-orange-500/40 transition">
+              <p className="text-xs font-black text-slate-900">📱 Vertical Shorts</p>
+              <p className="text-[11px] text-slate-500 mt-0.5">9:16 TikTok, Reels &amp; Shorts</p>
+            </div>
+          </div>
 
+          {/* Central CTA Button */}
+          <div className="mt-8 flex justify-center">
+            <Link
+              href="/dashboard/faceless-video"
+              className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-8 py-4 text-base font-black text-white shadow-xl shadow-orange-500/25 transition duration-200 hover:brightness-110 hover:scale-[1.02] active:scale-95"
+            >
+              <Sparkles size={18} className="text-white" />
+              <span>Create Faceless Video AI</span>
+              <ArrowRight size={18} className="transition group-hover:translate-x-1" />
+            </Link>
+          </div>
         </div>
 
       </div>

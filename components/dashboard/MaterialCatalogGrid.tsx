@@ -278,7 +278,7 @@ export function MaterialCatalogGrid({
         <div className="mt-2 mb-1 rounded-2xl border border-purple-500/20 bg-[#12111E] p-3.5 sm:p-4 backdrop-blur-md shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
             <div className="flex items-center gap-2.5">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-[#FF6D00]/20 text-[#FF9100] font-black text-sm border border-[#FF6D00]/30 shadow-inner">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-[#FF5722]/20 text-[#FF9100] font-black text-sm border border-[#FF5722]/30 shadow-inner">
                 🎁
               </span>
               <div>
@@ -289,7 +289,7 @@ export function MaterialCatalogGrid({
               </div>
             </div>
             <div className="flex items-center gap-2.5 border-t sm:border-t-0 sm:border-l border-white/10 pt-2.5 sm:pt-0 sm:pl-4">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-[#FF6D00]/20 text-[#FF9100] font-black text-sm border border-[#FF6D00]/30 shadow-inner">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-[#FF5722]/20 text-[#FF9100] font-black text-sm border border-[#FF5722]/30 shadow-inner">
                 ⭐
               </span>
               <div className="flex-1">
@@ -300,7 +300,7 @@ export function MaterialCatalogGrid({
               </div>
               <Link
                 href="/pricing"
-                className="shrink-0 rounded-full bg-[#FF6D00]/20 hover:bg-[#FF6D00]/30 border border-[#FF6D00]/40 px-3 py-1 text-[11px] font-bold text-[#FFA726] transition-colors whitespace-nowrap"
+                className="shrink-0 rounded-full bg-[#FF5722]/20 hover:bg-[#FF5722]/30 border border-[#FF5722]/40 px-3 py-1 text-[11px] font-bold text-[#FFA000] transition-colors whitespace-nowrap"
               >
                 View Plans →
               </Link>

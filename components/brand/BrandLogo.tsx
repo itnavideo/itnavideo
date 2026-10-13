@@ -30,25 +30,25 @@ export default function BrandLogo({
     ? { icon: size, word: 'text-lg sm:text-xl', tagline: 'text-[10px]', badge: 'px-2 py-0.5 text-[9px]' }
     : (sizeMap[String(size)] || sizeMap.md);
 
-  // Ensure ITNA is always high-contrast crisp white on dark/obsidian backgrounds (no navy/blue)
+  // Ensure ITNA is always high-contrast (dark obsidian on light, crisp white on dark)
   const itnaTextColor = 
-    variant === 'light' 
-      ? 'text-black' 
-      : 'text-white';
+    variant === 'dark' 
+      ? 'text-white' 
+      : 'text-slate-900';
 
   const badgeStyle = 
-    variant === 'light' 
-      ? 'border-purple-500/40 bg-purple-500/10 text-purple-600' 
-      : 'border-purple-500/40 bg-purple-500/15 text-purple-300 shadow-xs';
+    variant === 'dark' 
+      ? 'border-[#FFA000]/40 bg-[#FFA000]/15 text-[#FFA000] shadow-xs' 
+      : 'border-[#FF5722]/30 bg-[#FF5722]/10 text-[#FF5722]';
 
   const taglineColor = 
-    variant === 'light' 
-      ? 'text-zinc-600' 
-      : 'text-zinc-300';
+    variant === 'dark' 
+      ? 'text-zinc-400' 
+      : 'text-slate-500';
 
   const content = (
     <span className={`inline-flex items-center gap-2.5 ${className}`}>
-      {/* Kinetic AI Play Mark Icon - Purple & Pink Vibrant Theme */}
+      {/* Kinetic AI Play Mark Icon - Flame Orange & Warm Amber */}
       <span
         className="relative inline-flex shrink-0 items-center justify-center transition-transform duration-300 group-hover:scale-105"
         style={{
@@ -60,24 +60,24 @@ export default function BrandLogo({
           viewBox="0 0 100 100"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-full drop-shadow-[0_0_16px_rgba(168,85,247,0.4)]"
+          className="w-full h-full drop-shadow-[0_0_16px_rgba(255,87,34,0.35)]"
         >
           <defs>
-            {/* Vibrant Purple & Pink Gradient for Stem */}
+            {/* Vibrant Flame Orange Gradient for Stem */}
             <linearGradient id="itnaStemGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#A855F7" />
-              <stop offset="100%" stopColor="#EC4899" />
+              <stop offset="0%" stopColor="#FF5722" />
+              <stop offset="100%" stopColor="#FF8A65" />
             </linearGradient>
-            {/* Signature Fuchsia & Pink Gradient for Play Chevron */}
+            {/* Signature Flame Orange & Warm Amber Gradient for Play Chevron */}
             <linearGradient id="itnaAmberGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#C084FC" />
-              <stop offset="50%" stopColor="#E879F9" />
-              <stop offset="100%" stopColor="#EC4899" />
+              <stop offset="0%" stopColor="#FF5722" />
+              <stop offset="50%" stopColor="#FF7043" />
+              <stop offset="100%" stopColor="#FFA000" />
             </linearGradient>
-            {/* Pink Sparkle Gradient */}
+            {/* Warm Gold Sparkle Gradient */}
             <linearGradient id="itnaSparkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#F472B6" />
-              <stop offset="100%" stopColor="#C084FC" />
+              <stop offset="0%" stopColor="#FFA000" />
+              <stop offset="100%" stopColor="#FFD54F" />
             </linearGradient>
           </defs>
 
@@ -108,9 +108,9 @@ export default function BrandLogo({
       {!iconOnly && (
         <span className="min-w-0 leading-none">
           <span className="flex items-center gap-2">
-            {/* High-Contrast Bold Typography with Purple/Pink Match */}
+            {/* High-Contrast Bold Typography with Orange/Amber Match */}
             <span className={`block font-sans ${s.word} font-black tracking-wider uppercase ${itnaTextColor}`}>
-              ITNA<span className="bg-gradient-to-r from-purple-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">VIDEO</span>
+              ITNA<span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">VIDEO</span>
             </span>
             {showBadge && (
               <span className={`rounded-md border ${badgeStyle} ${s.badge} font-black uppercase tracking-wider`}>

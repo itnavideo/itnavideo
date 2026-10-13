@@ -111,12 +111,12 @@ export function CompareExplainerStudio({
   return (
     <div className="relative rounded-[28px] border border-white/10 bg-[#111218] p-5 sm:p-7 shadow-2xl min-w-0 max-w-full overflow-x-hidden space-y-7 text-white">
       {/* Magic UI BorderBeam Glowing Effect */}
-      <BorderBeam size={280} duration={14} colorFrom="#FF6D00" colorTo="#FFA726" />
+      <BorderBeam size={280} duration={14} colorFrom="#FF5722" colorTo="#FFA000" />
 
       {/* Master Studio Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#FF6D00] via-[#FF8F00] to-[#FFA726] text-black shadow-md shadow-[#FF6D00]/25">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black shadow-md shadow-[#FF5722]/25">
             <Sparkles size={20} className="fill-black/20" />
           </div>
           <div>
@@ -129,31 +129,12 @@ export function CompareExplainerStudio({
           </div>
         </div>
 
-        {/* Dynamic Dual Aspect Ratio Selector */}
-        <div className="flex items-center gap-1.5 rounded-2xl border border-white/10 bg-[#161720] p-1 shrink-0">
-          <button
-            type="button"
-            onClick={() => setRatio("9:16")}
-            className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
-              selectedRatio === "9:16"
-                ? "bg-[#FF6D00] text-black shadow-md shadow-[#FF6D00]/25 font-black"
-                : "text-zinc-400 hover:text-white hover:bg-white/5"
-            }`}
-          >
-            <span>📱 9:16 Shorts (Up to 90s)</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setRatio("16:9")}
-            className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
-              selectedRatio === "16:9"
-                ? "bg-purple-600 text-white shadow-md shadow-purple-500/25 font-black"
-                : "text-zinc-400 hover:text-white hover:bg-white/5"
-            }`}
-          >
-            <span>🎬 16:9 Cinema (Up to 5 min)</span>
-          </button>
+        {/* Aspect Ratio Badge: 9:16 Only */}
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-violet-500/30 bg-violet-500/10 px-3.5 py-1.5 text-xs font-bold text-violet-300">
+            <Clock3 size={13} className="text-violet-400" />
+            <span>9:16 Shorts · Up to 90s</span>
+          </span>
         </div>
       </div>
 
@@ -162,7 +143,7 @@ export function CompareExplainerStudio({
       {/* STEP 1: VOICEOVER */}
       <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-6 shadow-lg space-y-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#FF6D00]/25 bg-[#FF6D00]/10 text-[#FF9100]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#FF5722]/25 bg-[#FF5722]/10 text-[#FF9100]">
             <Upload size={18} />
           </div>
           <div>
@@ -175,7 +156,7 @@ export function CompareExplainerStudio({
           <div
             onDragOver={(e) => e.preventDefault()}
             onDrop={handleFileDrop}
-            className="border border-dashed border-white/15 hover:border-[#FF6D00]/40 rounded-2xl bg-[#07090E]/60 p-8 text-center cursor-pointer transition relative group"
+            className="border border-dashed border-white/15 hover:border-[#FF5722]/40 rounded-2xl bg-[#07090E]/60 p-8 text-center cursor-pointer transition relative group"
           >
             <input
               type="file"
@@ -190,7 +171,7 @@ export function CompareExplainerStudio({
         ) : (
           <div className="rounded-2xl border border-white/10 bg-zinc-900/60 p-4 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FF6D00]/10 text-[#FF9100]">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FF5722]/10 text-[#FF9100]">
                 <span className="text-xs font-bold">🎤</span>
               </div>
               <div className="min-w-0">
@@ -212,7 +193,7 @@ export function CompareExplainerStudio({
       {/* STEP 2: COMPARISON */}
       <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-6 shadow-lg space-y-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#FF6D00]/25 bg-[#FF6D00]/10 text-[#FF9100]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#FF5722]/25 bg-[#FF5722]/10 text-[#FF9100]">
             <Columns size={18} />
           </div>
           <div>
@@ -235,7 +216,7 @@ export function CompareExplainerStudio({
       {/* STEP 3: CHARACTER */}
       <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-6 shadow-lg space-y-4">
         <div className="flex items-center gap-3 mb-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#FF6D00]/25 bg-[#FF6D00]/10 text-[#FF9100]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#FF5722]/25 bg-[#FF5722]/10 text-[#FF9100]">
             <UserCheck size={18} />
           </div>
           <div>
@@ -250,7 +231,7 @@ export function CompareExplainerStudio({
       {/* STEP 4: VISUAL THEME & OPTIONS */}
       <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-6 shadow-lg space-y-5">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#FF6D00]/25 bg-[#FF6D00]/10 text-[#FF9100]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#FF5722]/25 bg-[#FF5722]/10 text-[#FF9100]">
             <Sparkles size={18} />
           </div>
           <div>
@@ -264,7 +245,7 @@ export function CompareExplainerStudio({
           <div className="rounded-2xl border border-white/10 bg-black/40 p-4 space-y-2">
             <label className="text-xs font-bold text-white flex items-center justify-between">
               <span>Background Theme</span>
-              <span className="text-[10px] text-[#FFA726] font-semibold">{compareTheme.toUpperCase()}</span>
+              <span className="text-[10px] text-[#FFA000] font-semibold">{compareTheme.toUpperCase()}</span>
             </label>
             <div className="grid grid-cols-3 gap-1.5 pt-1">
               {[
@@ -278,7 +259,7 @@ export function CompareExplainerStudio({
                   onClick={() => onThemeChange?.(t.id)}
                   className={`rounded-xl py-2 px-1 text-[11px] font-extrabold transition cursor-pointer ${
                     compareTheme === t.id
-                      ? "bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-md font-black"
+                      ? "bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black shadow-md font-black"
                       : "border border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10"
                   }`}
                 >
@@ -292,7 +273,7 @@ export function CompareExplainerStudio({
           <div className="rounded-2xl border border-white/10 bg-black/40 p-4 space-y-2">
             <label className="text-xs font-bold text-white flex items-center justify-between">
               <span>Comparison Tone</span>
-              <span className="text-[10px] text-[#FFA726] font-semibold">{compareTone === "goodBad" ? "Good vs Bad" : "A vs B"}</span>
+              <span className="text-[10px] text-[#FFA000] font-semibold">{compareTone === "goodBad" ? "Good vs Bad" : "A vs B"}</span>
             </label>
             <div className="grid grid-cols-2 gap-2 pt-1">
               {[
@@ -305,7 +286,7 @@ export function CompareExplainerStudio({
                   onClick={() => onToneChange?.(tn.id)}
                   className={`rounded-xl py-2 px-2 text-[10px] font-extrabold transition cursor-pointer text-center ${
                     compareTone === tn.id
-                      ? "bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-md font-black"
+                      ? "bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black shadow-md font-black"
                       : "border border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10"
                   }`}
                 >
@@ -319,7 +300,7 @@ export function CompareExplainerStudio({
           <div className="rounded-2xl border border-white/10 bg-black/40 p-4 space-y-2">
             <label className="text-xs font-bold text-white flex items-center justify-between">
               <span>End Winner Crown Reveal</span>
-              <span className="text-[10px] text-[#FFA726] font-semibold">{compareWinner.toUpperCase()}</span>
+              <span className="text-[10px] text-[#FFA000] font-semibold">{compareWinner.toUpperCase()}</span>
             </label>
             <div className="grid grid-cols-3 gap-1.5 pt-1">
               {[
@@ -333,7 +314,7 @@ export function CompareExplainerStudio({
                   onClick={() => onWinnerChange?.(w.id)}
                   className={`rounded-xl py-2 px-1 text-[10px] font-extrabold transition cursor-pointer ${
                     compareWinner === w.id
-                      ? "bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-md font-black"
+                      ? "bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black shadow-md font-black"
                       : "border border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10"
                   }`}
                 >
@@ -347,7 +328,7 @@ export function CompareExplainerStudio({
           <div className="rounded-2xl border border-white/10 bg-black/40 p-4 space-y-2">
             <label className="text-xs font-bold text-white flex items-center justify-between">
               <span>Image Card Frame</span>
-              <span className="text-[10px] text-[#FFA726] font-semibold">{compareImageStyle.toUpperCase()}</span>
+              <span className="text-[10px] text-[#FFA000] font-semibold">{compareImageStyle.toUpperCase()}</span>
             </label>
             <div className="grid grid-cols-3 gap-1.5 pt-1">
               {[
@@ -361,7 +342,7 @@ export function CompareExplainerStudio({
                   onClick={() => onImageStyleChange?.(st.id)}
                   className={`rounded-xl py-2 px-1 text-[10px] font-extrabold transition cursor-pointer ${
                     compareImageStyle === st.id
-                      ? "bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-md font-black"
+                      ? "bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black shadow-md font-black"
                       : "border border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10"
                   }`}
                 >
@@ -376,7 +357,7 @@ export function CompareExplainerStudio({
       {/* STEP 5: OPTIONAL */}
       <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-6 shadow-lg space-y-5">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#FF6D00]/25 bg-[#FF6D00]/10 text-[#FF9100]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#FF5722]/25 bg-[#FF5722]/10 text-[#FF9100]">
             <Share2 size={18} />
           </div>
           <div>
@@ -389,7 +370,7 @@ export function CompareExplainerStudio({
         <div className="rounded-2xl border border-white/10 bg-black/40 p-4 space-y-3">
           <div className="flex items-center justify-between">
             <label className="flex items-center gap-1.5 text-xs font-bold text-white">
-              <Share2 size={14} className="text-[#FF8F00]" />
+              <Share2 size={14} className="text-[#FF7043]" />
               <span>Instagram handle</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer select-none">
@@ -405,7 +386,7 @@ export function CompareExplainerStudio({
                     onHandleChange("@yourusername");
                   }
                 }}
-                className="h-4 w-4 rounded border-white/20 bg-black text-[#FF6D00] focus:ring-[#FF6D00] focus:ring-offset-0 accent-[#FF6D00] cursor-pointer"
+                className="h-4 w-4 rounded border-white/20 bg-black text-[#FF5722] focus:ring-[#FF5722] focus:ring-offset-0 accent-[#FF5722] cursor-pointer"
               />
               <span className="text-xs font-semibold text-zinc-300">Show on video</span>
             </label>
@@ -420,7 +401,7 @@ export function CompareExplainerStudio({
             disabled={!showHandleOnVideo}
             className={`w-full rounded-xl border px-3.5 py-2.5 text-xs font-semibold text-white placeholder-zinc-600 outline-none transition ${
               showHandleOnVideo
-                ? "border-white/10 bg-black/60 focus:border-[#FF6D00] focus:ring-1 focus:ring-[#FF6D00]/20"
+                ? "border-white/10 bg-black/60 focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722]/20"
                 : "border-white/5 bg-black/20 opacity-40 cursor-not-allowed"
             }`}
           />
@@ -431,7 +412,7 @@ export function CompareExplainerStudio({
           type="button"
           onClick={onCleanAudio}
           disabled={isCleaning || !selectedFile || comparisonFiles.length !== 2}
-          className="w-full inline-flex items-center justify-center gap-2.5 rounded-3xl bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] p-4.5 text-sm font-black text-black shadow-lg shadow-[#FF6D00]/25 transition active:scale-[0.97] hover:brightness-110 disabled:opacity-45 disabled:pointer-events-none cursor-pointer"
+          className="w-full inline-flex items-center justify-center gap-2.5 rounded-3xl bg-gradient-to-r from-[#FF5722] to-[#FF7043] p-4.5 text-sm font-black text-black shadow-lg shadow-[#FF5722]/25 transition active:scale-[0.97] hover:brightness-110 disabled:opacity-45 disabled:pointer-events-none cursor-pointer"
         >
           <Sparkles size={16} />
           <span>{isCleaning ? "Directing Compare Scenes..." : "✨ Generate Compare Reel"}</span>
@@ -454,7 +435,7 @@ export function CompareExplainerStudio({
                 key={feat}
                 className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[10px] font-semibold text-zinc-300"
               >
-                <Check size={11} className="text-[#FFA726]" />
+                <Check size={11} className="text-[#FFA000]" />
                 <span>{feat}</span>
               </span>
             ))}
@@ -463,9 +444,9 @@ export function CompareExplainerStudio({
       </div>
 
       {/* PRIMARY STICKY CTA FLOATING ACTION BAR */}
-      <div className="sticky bottom-4 z-40 rounded-2xl border border-[#FF6D00]/40 bg-[#0E1526]/95 backdrop-blur-md p-3.5 shadow-2xl shadow-black/80 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div className="sticky bottom-4 z-40 rounded-2xl border border-[#FF5722]/40 bg-[#0E1526]/95 backdrop-blur-md p-3.5 shadow-2xl shadow-black/80 flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-[#FF6D00] to-[#FFA726] text-black font-black shadow-md shadow-[#FF6D00]/25">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-[#FF5722] to-[#FFA000] text-black font-black shadow-md shadow-[#FF5722]/25">
             <Sparkles size={18} />
           </div>
           <div className="min-w-0">
@@ -484,7 +465,7 @@ export function CompareExplainerStudio({
           type="button"
           onClick={onCleanAudio}
           disabled={isCleaning || !selectedFile || comparisonFiles.length !== 2}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] px-6 py-3 text-xs font-black text-black shadow-lg shadow-[#FF6D00]/25 transition active:scale-95 hover:brightness-110 disabled:opacity-45 disabled:pointer-events-none cursor-pointer whitespace-nowrap"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-6 py-3 text-xs font-black text-black shadow-lg shadow-[#FF5722]/25 transition active:scale-95 hover:brightness-110 disabled:opacity-45 disabled:pointer-events-none cursor-pointer whitespace-nowrap"
         >
           <Sparkles size={15} />
           <span>{isCleaning ? "Directing..." : "✨ Generate Compare Reel"}</span>

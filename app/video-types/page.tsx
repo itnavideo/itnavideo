@@ -312,22 +312,25 @@ export default function VideoTypesPage() {
   }, [selectedCategory, searchQuery]);
 
   return (
-    <main className="min-h-screen bg-background text-foreground pb-20">
+    <main className="min-h-screen bg-white text-slate-900 pb-20">
       {/* Hero Banner */}
-      <section className="relative overflow-hidden px-4 pt-28 pb-16 sm:px-6 sm:pt-32 border-b border-border">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_1000px_500px_at_50%_-100px,rgba(255,109,0,0.12),transparent_70%)]" />
+      <section className="relative overflow-hidden px-4 pt-28 pb-16 sm:px-6 sm:pt-32 border-b border-slate-200 bg-[#FAFAFA]">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_1000px_500px_at_50%_-100px,rgba(255,87,34,0.08),transparent_70%)]" />
         
         <div className="relative mx-auto max-w-7xl text-center space-y-6">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#FF6D00]/30 bg-[#FF6D00]/10 px-4 py-1.5 text-xs font-bold text-[#FF9100]">
-            <Sparkles size={14} />
+          <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold text-orange-700">
+            <Sparkles size={14} className="text-[#FF5722]" />
             <span>AI Video Creation Suite • 10 Audited & Upgraded Studios</span>
           </div>
 
-          <h1 className="text-4xl font-black tracking-tight sm:text-5xl md:text-6xl text-foreground font-sans">
-            AI Video Generator &amp; Creator Studios
+          <h1 className="text-4xl font-black tracking-tight sm:text-5xl md:text-6xl text-slate-900 font-sans">
+            AI Video Generator &amp;{' '}
+            <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
+              Creator Studios
+            </span>
           </h1>
 
-          <p className="mx-auto max-w-2xl text-base text-muted-foreground sm:text-lg leading-relaxed">
+          <p className="mx-auto max-w-2xl text-base text-slate-600 sm:text-lg leading-relaxed">
             Professional AI video generation for short-form reels, 16:9 YouTube explainers, kinetic typography, and broadcast-grade audio mastering. Equipped with authentic Western creator presets, safe zones, and multi-aspect framing.
           </p>
 
@@ -339,9 +342,9 @@ export default function VideoTypesPage() {
               ["9:16, 16:9, 1:1", "Aspect Ratios"],
               ["24-Bit WAV", "Studio Master Audio"],
             ].map(([stat, label]) => (
-              <div key={label} className="rounded-2xl border border-border bg-card p-3.5 shadow-xs">
-                <p className="text-xl font-black text-[#FF9100]">{stat}</p>
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{label}</p>
+              <div key={label} className="rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs">
+                <p className="text-xl font-black text-[#FF5722]">{stat}</p>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{label}</p>
               </div>
             ))}
           </div>
@@ -349,18 +352,18 @@ export default function VideoTypesPage() {
       </section>
 
       {/* Main Navigation & View Switcher Bar */}
-      <section className="sticky top-16 z-40 border-b border-border bg-background/90 px-4 py-4 backdrop-blur-xl sm:px-6">
+      <section className="sticky top-16 z-40 border-b border-slate-200 bg-white/90 px-4 py-4 backdrop-blur-xl sm:px-6">
         <div className="mx-auto max-w-7xl flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           
           {/* Search Box */}
           <div className="relative w-full md:w-80">
-            <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               placeholder="Search AI video generators (captions, text to video, promo...)"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-2xl border border-border bg-card py-2.5 pl-10 pr-4 text-xs font-semibold text-foreground outline-none transition focus:border-[#FF6D00]"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-xs font-semibold text-slate-900 outline-none transition focus:border-[#FF5722] focus:bg-white"
             />
             {searchQuery && (
               <button
@@ -385,8 +388,8 @@ export default function VideoTypesPage() {
                 onClick={() => setSelectedCategory(cat.id as any)}
                 className={`min-h-[40px] shrink-0 rounded-2xl border px-4 py-2 text-xs font-bold transition touch-manipulation active:scale-95 ${
                   selectedCategory === cat.id
-                    ? "border-[#FF6D00] bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black font-black shadow-md"
-                    : "border-border bg-card text-muted-foreground hover:text-foreground"
+                    ? "border-transparent bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white font-black shadow-md shadow-orange-500/20"
+                    : "border-slate-200 bg-white text-slate-600 hover:text-slate-900"
                 }`}
               >
                 {cat.label}
@@ -395,11 +398,11 @@ export default function VideoTypesPage() {
           </div>
 
           {/* View Mode Toggle (Cards vs Matrix) */}
-          <div className="hidden lg:flex items-center gap-1 rounded-2xl border border-border bg-card p-1">
+          <div className="hidden lg:flex items-center gap-1 rounded-2xl border border-slate-200 bg-slate-50 p-1">
             <button
               onClick={() => setActiveTab("grid")}
               className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition ${
-                activeTab === "grid" ? "bg-[#FF6D00] text-black font-extrabold" : "text-muted-foreground hover:text-foreground"
+                activeTab === "grid" ? "bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-white font-extrabold shadow-sm" : "text-slate-600 hover:text-slate-900"
               }`}
             >
               <Layers size={13} />
@@ -408,7 +411,7 @@ export default function VideoTypesPage() {
             <button
               onClick={() => setActiveTab("matrix")}
               className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition ${
-                activeTab === "matrix" ? "bg-[#FF6D00] text-black font-extrabold" : "text-muted-foreground hover:text-foreground"
+                activeTab === "matrix" ? "bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-white font-extrabold shadow-sm" : "text-slate-600 hover:text-slate-900"
               }`}
             >
               <Sliders size={13} />
@@ -427,12 +430,12 @@ export default function VideoTypesPage() {
           {activeTab === "grid" && (
             <div>
               <div className="mb-6 flex items-center justify-between">
-                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
                   Showing {filteredTypes.length} video styles
                 </p>
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center gap-1.5 text-xs font-black text-[#FF9100] hover:underline"
+                  className="inline-flex items-center gap-1.5 text-xs font-black text-[#FF5722] hover:underline"
                 >
                   <span>Open Studio Dashboard</span>
                   <ArrowRight size={14} />
@@ -443,10 +446,10 @@ export default function VideoTypesPage() {
                 {filteredTypes.map((item) => (
                   <article
                     key={item.id}
-                    className="group relative flex flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#FF6D00]/50 hover:shadow-xl hover:shadow-[#FF6D00]/10"
+                    className="group relative flex flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-orange-500/40 hover:shadow-xl hover:shadow-orange-500/10"
                   >
                     {/* Preview Image Container */}
-                    <div className="relative aspect-[9/16] overflow-hidden bg-background">
+                    <div className="relative aspect-[9/16] overflow-hidden bg-slate-100">
                       <Image
                         src={item.image}
                         alt={item.title}
@@ -460,11 +463,11 @@ export default function VideoTypesPage() {
                       <div className="absolute left-3 top-3 right-3 flex items-center justify-between gap-2">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           {item.id === "auto-caption-generator" ? (
-                            <span className="rounded-full bg-emerald-500 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-950 shadow-md">
+                            <span className="rounded-full bg-emerald-500 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-white shadow-md">
                               🎁 1 Free Trial
                             </span>
                           ) : (
-                            <span className="rounded-full bg-[#FF6D00] px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-black shadow-md">
+                            <span className="rounded-full bg-gradient-to-r from-[#FF5722] to-[#FFA000] px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-white shadow-md">
                               ⭐ Pro Studio
                             </span>
                           )}
@@ -475,7 +478,7 @@ export default function VideoTypesPage() {
                             {item.proof}
                           </span>
                         </div>
-                        <span className="rounded-full bg-muted/80 backdrop-blur-md border border-white/20 px-2.5 py-1 text-[10px] font-bold text-white flex items-center gap-1">
+                        <span className="rounded-full bg-black/60 backdrop-blur-md border border-white/20 px-2.5 py-1 text-[10px] font-bold text-white flex items-center gap-1">
                           <Film size={10} />
                           {item.aspectRatio}
                         </span>
@@ -484,11 +487,11 @@ export default function VideoTypesPage() {
                       {/* Title & Specs Overlay */}
                       <div className="absolute bottom-4 left-4 right-4">
                         <h3 className="text-lg font-black text-white leading-tight">{item.title}</h3>
-                        <div className="mt-2 flex flex-wrap gap-1.5 text-[10px] font-medium text-muted-foreground">
-                          <span className="rounded-md bg-white/10 px-2 py-0.5 backdrop-blur-xs">
+                        <div className="mt-2 flex flex-wrap gap-1.5 text-[10px] font-medium text-slate-200">
+                          <span className="rounded-md bg-white/20 px-2 py-0.5 backdrop-blur-xs">
                             Inputs: {item.input}
                           </span>
-                          <span className="rounded-md bg-white/10 px-2 py-0.5 backdrop-blur-xs flex items-center gap-1">
+                          <span className="rounded-md bg-white/20 px-2 py-0.5 backdrop-blur-xs flex items-center gap-1">
                             <Clock size={10} />
                             {item.renderTime}
                           </span>
@@ -500,12 +503,12 @@ export default function VideoTypesPage() {
                     <div className="flex flex-1 flex-col justify-between p-5">
                       <div>
                         {item.featureBadge && (
-                          <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-[#FF6D00]/30 bg-[#FF6D00]/10 px-2.5 py-0.5 text-[11px] font-black text-[#FF9100]">
-                            <Sparkles size={11} className="text-[#FF8F00]" />
+                          <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-2.5 py-0.5 text-[11px] font-black text-orange-700">
+                            <Sparkles size={11} className="text-[#FF5722]" />
                             <span>{item.featureBadge}</span>
                           </div>
                         )}
-                        <p className="text-xs leading-relaxed text-muted-foreground min-h-[44px]">
+                        <p className="text-xs leading-relaxed text-slate-600 min-h-[44px]">
                           {item.desc}
                         </p>
                         {item.featureChips && item.featureChips.length > 0 && (
@@ -513,7 +516,7 @@ export default function VideoTypesPage() {
                             {item.featureChips.map((chip, idx) => (
                               <span
                                 key={idx}
-                                className="inline-flex items-center rounded-lg border border-border bg-muted/60 px-2 py-0.5 text-[10px] font-semibold text-foreground/80"
+                                className="inline-flex items-center rounded-lg border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-semibold text-slate-700"
                               >
                                 {chip}
                               </span>
@@ -525,14 +528,14 @@ export default function VideoTypesPage() {
                       <div className="mt-5 grid grid-cols-2 gap-2">
                         <Link
                           href={item.dashHref}
-                          className="min-h-[44px] inline-flex items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] px-3 py-2.5 text-xs font-black text-black shadow-md hover:brightness-110 transition touch-manipulation active:scale-[0.98]"
+                          className="min-h-[44px] inline-flex items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-3 py-2.5 text-xs font-black text-white shadow-md shadow-orange-500/20 hover:brightness-105 transition touch-manipulation active:scale-[0.98]"
                         >
                           <Play size={12} fill="currentColor" />
                           <span>Use Style</span>
                         </Link>
                         <Link
                           href={item.href}
-                          className="min-h-[44px] inline-flex items-center justify-center gap-1.5 rounded-2xl border border-white/10 bg-white/5 px-3 py-2.5 text-xs font-bold text-zinc-200 hover:bg-white/10 transition touch-manipulation active:scale-[0.98]"
+                          className="min-h-[44px] inline-flex items-center justify-center gap-1.5 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-100 transition touch-manipulation active:scale-[0.98]"
                         >
                           <span>Deep Dive</span>
                           <ArrowRight size={12} />
@@ -547,9 +550,9 @@ export default function VideoTypesPage() {
 
           {/* SPECS MATRIX VIEW */}
           {activeTab === "matrix" && (
-            <div className="overflow-x-auto rounded-3xl border border-border bg-card shadow-sm">
-              <table className="w-full text-left text-xs text-foreground">
-                <thead className="border-b border-border bg-muted/50 text-[11px] font-black uppercase tracking-wider text-muted-foreground">
+            <div className="overflow-x-auto rounded-3xl border border-slate-200 bg-white shadow-xs">
+              <table className="w-full text-left text-xs text-slate-900">
+                <thead className="border-b border-slate-200 bg-slate-50 text-[11px] font-black uppercase tracking-wider text-slate-500">
                   <tr>
                     <th className="p-4">Video Type Style</th>
                     <th className="p-4">Format</th>
@@ -560,37 +563,37 @@ export default function VideoTypesPage() {
                     <th className="p-4 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y border-border">
+                <tbody className="divide-y border-slate-200">
                   {filteredTypes.map((item) => (
-                    <tr key={item.id} className="hover:bg-muted/30 transition">
+                    <tr key={item.id} className="hover:bg-slate-50 transition">
                       <td className="p-4 font-bold">
                         <div className="flex items-center gap-2">
                           <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: item.accent }} />
                           <span>{item.title}</span>
                         </div>
                         {item.featureBadge && (
-                          <span className="inline-block mt-0.5 text-[10px] font-bold text-[#FF9100] pl-4">
+                          <span className="inline-block mt-0.5 text-[10px] font-bold text-[#FF5722] pl-4">
                             {item.featureBadge}
                           </span>
                         )}
                       </td>
                       <td className="p-4">
-                        <span className="rounded-md border border-border px-2 py-0.5 font-mono text-[11px]">
+                        <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 font-mono text-[11px]">
                           {item.aspectRatio}
                         </span>
                       </td>
-                      <td className="p-4 text-muted-foreground">{item.input}</td>
-                      <td className="p-4 font-medium">{item.output}</td>
-                      <td className="p-4 text-muted-foreground">{item.renderTime}</td>
+                      <td className="p-4 text-slate-600">{item.input}</td>
+                      <td className="p-4 font-medium text-slate-900">{item.output}</td>
+                      <td className="p-4 text-slate-600">{item.renderTime}</td>
                       <td className="p-4">
-                        <span className="rounded-full bg-[#FF6D00]/10 px-2.5 py-0.5 text-[#FF9100] font-bold">
+                        <span className="rounded-full bg-orange-500/10 px-2.5 py-0.5 text-[#FF5722] font-bold">
                           {item.credits} cr
                         </span>
                       </td>
                       <td className="p-4 text-right">
                         <Link
                           href={item.dashHref}
-                          className="inline-flex items-center gap-1 rounded-xl bg-[#FF6D00] px-3 py-1.5 text-[11px] font-black text-black hover:brightness-110"
+                          className="inline-flex items-center gap-1 rounded-xl bg-gradient-to-r from-[#FF5722] to-[#FFA000] px-3 py-1.5 text-[11px] font-black text-white hover:brightness-105"
                         >
                           <span>Use</span>
                           <ArrowRight size={12} />
@@ -606,13 +609,13 @@ export default function VideoTypesPage() {
           {/* Empty state */}
           {filteredTypes.length === 0 && (
             <div className="py-20 text-center space-y-4">
-              <p className="text-lg font-bold text-muted-foreground">No video types match your search filter.</p>
+              <p className="text-lg font-bold text-slate-500">No video types match your search filter.</p>
               <button
                 onClick={() => {
                   setSearchQuery("");
                   setSelectedCategory("all");
                 }}
-                className="rounded-2xl border border-[#FF6D00]/30 bg-[#FF6D00]/10 px-5 py-2.5 text-xs font-bold text-[#FF9100]"
+                className="rounded-2xl border border-orange-500/30 bg-orange-500/10 px-5 py-2.5 text-xs font-bold text-orange-700"
               >
                 Reset Search Filters
               </button>
@@ -623,13 +626,13 @@ export default function VideoTypesPage() {
       </section>
 
       {/* Feature Deep-Dive Section */}
-      <section className="border-t border-border px-4 py-16 sm:px-6 bg-card/40">
+      <section className="border-t border-slate-200 px-4 py-16 sm:px-6 bg-slate-50">
         <div className="mx-auto max-w-5xl space-y-8">
           <div className="text-center space-y-2">
-            <h2 className="text-2xl font-black text-foreground font-sans">
+            <h2 className="text-2xl font-black text-slate-900 font-sans">
               Built for Speed &amp; Precision
             </h2>
-            <p className="text-xs text-muted-foreground max-w-md mx-auto">
+            <p className="text-xs text-slate-600 max-w-md mx-auto">
               Every video type follows a strict 3-stage automated rendering architecture.
             </p>
           </div>
@@ -655,15 +658,15 @@ export default function VideoTypesPage() {
                 icon: Zap,
               },
             ].map(({ step, title, desc, icon: Icon }) => (
-              <div key={step} className="rounded-3xl border border-border bg-card p-6 shadow-xs relative overflow-hidden">
-                <span className="absolute top-4 right-4 text-3xl font-black text-muted-foreground/15 font-mono">
+              <div key={step} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs relative overflow-hidden">
+                <span className="absolute top-4 right-4 text-3xl font-black text-slate-200 font-mono">
                   {step}
                 </span>
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#FF6D00]/10 text-[#FF9100] mb-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-orange-500/10 text-[#FF5722] mb-4">
                   <Icon size={18} />
                 </div>
-                <h3 className="text-sm font-black text-card-foreground" dangerouslySetInnerHTML={{ __html: title }} />
-                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{desc}</p>
+                <h3 className="text-sm font-black text-slate-900" dangerouslySetInnerHTML={{ __html: title }} />
+                <p className="mt-2 text-xs leading-relaxed text-slate-600">{desc}</p>
               </div>
             ))}
           </div>
@@ -672,11 +675,11 @@ export default function VideoTypesPage() {
 
       {/* INSPECT MODAL */}
       {inspectItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="relative w-full max-w-lg rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl space-y-6">
             <button
               onClick={() => setInspectItem(null)}
-              className="absolute right-4 top-4 rounded-full border border-border p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"
+              className="absolute right-4 top-4 rounded-full border border-slate-200 p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
             >
               <X size={16} />
             </button>
@@ -684,20 +687,20 @@ export default function VideoTypesPage() {
             <div className="flex items-center gap-3">
               <span className="h-3 w-3 rounded-full" style={{ backgroundColor: inspectItem.accent }} />
               <div>
-                <h3 className="text-xl font-black text-foreground">{inspectItem.title}</h3>
-                <p className="text-xs text-muted-foreground font-semibold">{inspectItem.proof}</p>
+                <h3 className="text-xl font-black text-slate-900">{inspectItem.title}</h3>
+                <p className="text-xs text-slate-500 font-semibold">{inspectItem.proof}</p>
               </div>
             </div>
 
-            <p className="text-xs leading-relaxed text-muted-foreground">{inspectItem.desc}</p>
+            <p className="text-xs leading-relaxed text-slate-600">{inspectItem.desc}</p>
 
             {/* Workflow Steps */}
-            <div className="rounded-2xl border border-border bg-muted/40 p-4 space-y-3">
-              <p className="text-[11px] font-black uppercase tracking-wider text-muted-foreground">Workflow Steps</p>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+              <p className="text-[11px] font-black uppercase tracking-wider text-slate-500">Workflow Steps</p>
               <ol className="space-y-2 text-xs">
                 {inspectItem.workflowSteps.map((step, idx) => (
-                  <li key={step} className="flex items-start gap-2 text-foreground">
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#FF6D00] text-[10px] font-black text-black">
+                  <li key={step} className="flex items-start gap-2 text-slate-800">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-[10px] font-black text-white">
                       {idx + 1}
                     </span>
                     <span className="leading-tight mt-0.5">{step}</span>
@@ -708,23 +711,23 @@ export default function VideoTypesPage() {
 
             {/* Specs Grid */}
             <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="rounded-xl border border-border p-3">
-                <span className="text-[10px] font-bold text-muted-foreground uppercase">Required Input</span>
-                <p className="font-bold text-foreground mt-0.5">{inspectItem.input}</p>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <span className="text-[10px] font-bold text-slate-500 uppercase">Required Input</span>
+                <p className="font-bold text-slate-900 mt-0.5">{inspectItem.input}</p>
               </div>
-              <div className="rounded-xl border border-border p-3">
-                <span className="text-[10px] font-bold text-muted-foreground uppercase">Output Format</span>
-                <p className="font-bold text-foreground mt-0.5">{inspectItem.output}</p>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <span className="text-[10px] font-bold text-slate-500 uppercase">Output Format</span>
+                <p className="font-bold text-slate-900 mt-0.5">{inspectItem.output}</p>
               </div>
             </div>
 
-            <div className="flex items-center justify-between gap-3 border-t border-border pt-4">
-              <span className="text-xs font-bold text-muted-foreground">
-                Cost: <strong className="text-[#FF9100]">{inspectItem.credits} credit</strong> / render
+            <div className="flex items-center justify-between gap-3 border-t border-slate-200 pt-4">
+              <span className="text-xs font-bold text-slate-600">
+                Cost: <strong className="text-[#FF5722]">{inspectItem.credits} credit</strong> / render
               </span>
               <Link
                 href={inspectItem.dashHref}
-                className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] px-5 py-3 text-xs font-black text-black shadow-lg shadow-[#FF6D00]/25 hover:brightness-110"
+                className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-5 py-3 text-xs font-black text-white shadow-lg shadow-orange-500/25 hover:brightness-105"
               >
                 <span>Launch in Dashboard</span>
                 <ArrowRight size={14} />

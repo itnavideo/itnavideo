@@ -34,14 +34,14 @@ interface StudioWorkflowRoadmapProps {
 // ── COLOR & ICON PALETTES FOR EACH STEP ─────────────────────────────────────
 const STEP_THEMES = [
   {
-    badgeBg: 'bg-gradient-to-br from-[#FF6D00] to-[#FF8F00]',
+    badgeBg: 'bg-gradient-to-br from-[#FF5722] to-[#FF7043]',
     badgeText: 'text-black',
     cardBg: 'bg-[#151E30] hover:bg-[#1C2840]',
-    border: 'border-white/10 hover:border-[#FF6D00]/40',
+    border: 'border-white/10 hover:border-[#FF5722]/40',
     label: 'text-white',
-    accentText: 'text-[#FFA726]',
-    shadow: 'shadow-sm shadow-black/40 hover:shadow-md hover:shadow-[#FF6D00]/10',
-    iconBg: 'bg-[#FF6D00]/15 text-[#FFA726]',
+    accentText: 'text-[#FFA000]',
+    shadow: 'shadow-sm shadow-black/40 hover:shadow-md hover:shadow-[#FF5722]/10',
+    iconBg: 'bg-[#FF5722]/15 text-[#FFA000]',
     icon: Upload,
   },
   {
@@ -209,12 +209,12 @@ export function StudioWorkflowRoadmap({
       className={`relative w-full rounded-2xl border border-white/10 bg-[#0E1526]/95 p-3.5 sm:p-4 text-white shadow-xl shadow-black/40 backdrop-blur-xl overflow-hidden select-none transition-all duration-300 ${className}`}
     >
       {/* Subtle top animated color bar */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FF6D00] via-purple-500 via-emerald-500 via-amber-500 to-rose-500 animate-pulse" />
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FF5722] via-purple-500 via-emerald-500 via-amber-500 to-rose-500 animate-pulse" />
 
       {/* Top Header Section */}
       <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-white/10">
         <div className="flex items-center gap-2">
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#FF6D00]/15 text-[#FFA726] border border-[#FF6D00]/30 shadow-xs">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#FF5722]/15 text-[#FFA000] border border-[#FF5722]/30 shadow-xs">
             <Sparkles size={13} className="animate-spin" style={{ animationDuration: '8s' }} />
           </span>
           <span className="text-xs font-black uppercase tracking-wider text-slate-200">
@@ -257,7 +257,7 @@ export function StudioWorkflowRoadmap({
               <div className="flex flex-col min-w-0 flex-1">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <StepIcon size={12} className={`${theme.accentText} shrink-0`} />
-                  <span className="text-[11.5px] sm:text-xs font-black text-white tracking-tight leading-none group-hover:text-[#FFA726] transition-colors truncate">
+                  <span className="text-[11.5px] sm:text-xs font-black text-white tracking-tight leading-none group-hover:text-[#FFA000] transition-colors truncate">
                     {s.label}
                   </span>
                 </div>

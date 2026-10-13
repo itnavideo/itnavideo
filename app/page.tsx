@@ -116,7 +116,7 @@ const jsonLd = [
 
 export default function LandingPage() {
   return (
-    <div className="relative flex flex-col overflow-x-hidden bg-[#070B14] text-zinc-100 selection:bg-purple-500/30 selection:text-white">
+    <div className="relative flex flex-col overflow-x-hidden bg-white text-slate-900 selection:bg-orange-500/20 selection:text-orange-950">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
@@ -125,10 +125,10 @@ export default function LandingPage() {
       <Hero />
       <PlatformMarqueeTicker />
       <FacelessVideoFlagshipShowcase />
+      <PlatformJourney />
       <CaptionStylesShowcase />
       <ImageToVideoHomepageShowcase />
       <TenStudiosHubArchitecture />
-      <PlatformJourney />
       <PricingSection />
       <FAQSection />
       <HomepageFinalCta />

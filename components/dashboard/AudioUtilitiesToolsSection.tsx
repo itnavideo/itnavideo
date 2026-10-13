@@ -12,8 +12,8 @@ interface AudioUtilitiesToolsSectionProps {
 }
 
 function getDashboardCardImage(id: string): string {
-  if (id.includes('audio') || id.includes('cleaner')) return '/visuals/dashboard-cards/audio-cleaner.webp';
-  return '/visuals/dashboard-cards/audio-cleaner.webp';
+  if (id.includes('audio') || id.includes('cleaner')) return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1791892521/audio_cleaner_tzshum.png';
+  return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1791892521/audio_cleaner_tzshum.png';
 }
 
 export default function AudioUtilitiesToolsSection({
@@ -58,28 +58,16 @@ export default function AudioUtilitiesToolsSection({
               href={tool.slug}
               className="group relative flex flex-col overflow-hidden rounded-[24px] border border-white/10 bg-[#0E1526] shadow-xl hover:border-emerald-400/80 hover:shadow-2xl hover:shadow-emerald-500/20 transition-all duration-300 hover:-translate-y-1.5 cursor-pointer"
             >
-              {/* Image Container */}
-              <div className="relative aspect-[16/10] w-full overflow-hidden bg-black/50">
-                <Image
+              {/* Image Container 16:9 */}
+              <div className="relative aspect-[16/9] w-full overflow-hidden bg-black/50">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   src={cardImage}
                   alt={tool.title}
-                  fill
-                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                  className="object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
+                  className="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
+                  loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0E1526] via-black/20 to-black/30" />
-
-                {/* Top Badges */}
-                <div className="absolute top-3 inset-x-3 flex items-center justify-between z-10 pointer-events-none">
-                  <span className="rounded-full bg-black/70 border border-white/20 px-2.5 py-0.5 text-[10px] font-black text-white backdrop-blur-md">
-                    Audio Studio
-                  </span>
-                  {tool.badge && (
-                    <span className="rounded-full bg-emerald-500/90 border border-emerald-300 px-2.5 py-0.5 text-[10px] font-black text-black backdrop-blur-md uppercase tracking-wider">
-                      {tool.badge}
-                    </span>
-                  )}
-                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0E1526] via-black/10 to-transparent" />
               </div>
 
               {/* Bottom Card Title & Action CTA */}
