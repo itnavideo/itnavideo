@@ -97,11 +97,13 @@ export default function BrandLogo({
             fill="url(#itnaAmberGrad)"
           />
 
-          {/* AI Sparkle Star (✦) Top Right Corner */}
-          <path
-            d="M 80 12 C 80 18.6 85.4 24 92 24 C 85.4 24 80 29.4 80 36 C 80 29.4 74.6 24 68 24 C 74.6 24 80 18.6 80 12 Z"
-            fill="url(#itnaSparkGrad)"
-          />
+          {/* AI Sparkle Star (✦) Top Right Corner (Shown on md/lg for crisp definition) */}
+          {s.icon >= 38 && (
+            <path
+              d="M 80 12 C 80 18.6 85.4 24 92 24 C 85.4 24 80 29.4 80 36 C 80 29.4 74.6 24 68 24 C 74.6 24 80 18.6 80 12 Z"
+              fill="url(#itnaSparkGrad)"
+            />
+          )}
         </svg>
       </span>
 

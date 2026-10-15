@@ -141,13 +141,13 @@ export default function LongVideoClipsPage() {
     if (!user) return;
     async function fetchBilling() {
       try {
-        const res = await fetch(`/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}`);
+        const res = await fetch(`/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}&email=${encodeURIComponent(user?.email || "")}`);
         const payload = await res.json().catch(() => ({}));
         if (res.ok && payload.ok && payload.entitlement) {
           const ent = payload.entitlement;
           const limit = Math.max(0, Math.round(Number(payload.usage?.limit || ent.monthlyVideoLimit || 0)));
           const used = Math.max(0, Math.round(Number(payload.usage?.used || 0)));
-          const remaining = Math.max(0, Math.round(Number(payload.usage?.remaining || limit - used)));
+          const remaining = Math.max(0, Math.round(Number(payload.usage?.remaining ?? (limit - used))));
           setBillingEntitlement({
             active: Boolean(ent.active),
             planId: ent.planId || "paid",
@@ -332,6 +332,7 @@ export default function LongVideoClipsPage() {
           mode: "longVideoClips",
           topicTitle: plannedTitle,
           userId: user.id,
+          userEmail: user.email || undefined,
           layoutMode,
           clipCount,
           clipDuration,
@@ -520,9 +521,9 @@ export default function LongVideoClipsPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#070B14] text-white">
+    <main className="min-h-screen bg-[#0B0D13] text-white">
       {/* Premium Header */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#070B14]/80 backdrop-blur-md">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0B0D13]/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-6">
             <Link
@@ -632,7 +633,7 @@ export default function LongVideoClipsPage() {
                             ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
                             : clip.status === "failed"
                             ? "bg-red-500/10 border-red-500/20 text-red-400"
-                            : "bg-indigo-500/10 border-indigo-500/20 text-indigo-300 animate-pulse"
+                            : "bg-[#FF5722]/10 border-[#FF5722]/30 text-[#FFA000] animate-pulse"
                         }`}
                       >
                         {clip.status}

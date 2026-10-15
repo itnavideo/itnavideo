@@ -22,6 +22,8 @@ import {
   History,
   Image as ImageIcon
 } from "lucide-react";
+import CinematicRenderProgress from "@/components/dashboard/CinematicRenderProgress";
+
 
 type BillingEntitlement = {
   active: boolean;
@@ -58,11 +60,10 @@ type RecentRender = {
 };
 
 const PROMO_RENDER_STEPS = [
-  { label: "Transcribing audio & speech", detail: "Fast Speech AI cloud speech-to-text scan.", threshold: 0.15, icon: Upload },
-  { label: "Finding strongest viral moment", detail: "AI identifying high-retention 15–45s hook segment.", threshold: 0.35, icon: Sparkles },
-  { label: "Generating kinetic captions", detail: "Word-level kinetic captions synchronized to speech.", threshold: 0.60, icon: ImageIcon },
-  { label: "Building 9:16 vertical layout", detail: "3D teaser card, audio spectrum, and YouTube CTA card.", threshold: 0.80, icon: Film },
-  { label: "Rendering 1080p promo MP4", detail: "Exporting 30 FPS Full HD promo video ready for Shorts/Reels.", threshold: 0.95, icon: Clapperboard },
+  { label: "Media & video source preparation", detail: "Loading uploaded teaser clip and preparing 9:16 vertical canvas.", threshold: 0.20, icon: Upload },
+  { label: "Teaser hook extraction & pacing", detail: "Analyzing video timeline and preparing high-retention payoff moments.", threshold: 0.45, icon: Sparkles },
+  { label: "Composing 9:16 vertical layout", detail: "Integrating 3D thumbnail card, dynamic CTA button & video player.", threshold: 0.70, icon: Film },
+  { label: "Rendering 1080p promo MP4", detail: "Exporting 30 FPS Full HD promo video ready for Shorts, Reels & TikTok.", threshold: 0.95, icon: Clapperboard },
 ];
 
 export type LongVideoPromoGoal = "watch-full-video" | "subscribers" | "promote-episode";
@@ -86,11 +87,25 @@ export default function LongVideoPromoPage() {
 
   // Job & render states
   const [jobStatus, setJobStatus] = useState<JobStatus>({ state: "idle" });
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [billingEntitlement, setBillingEntitlement] = useState<BillingEntitlement | null>(null);
   const [recentRenders, setRecentRenders] = useState<RecentRender[]>([]);
   const [activeTab, setActiveTab] = useState<"studio" | "history">("studio");
 
   const renderRequestInFlightRef = useRef(false);
+
+  // Timer for elapsed seconds
+  useEffect(() => {
+    if (jobStatus.state !== "rendering" && jobStatus.state !== "uploading") {
+      setElapsedSeconds(0);
+      return;
+    }
+    const interval = setInterval(() => {
+      setElapsedSeconds((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [jobStatus.state]);
+
 
   // Auth redirect
   useEffect(() => {
@@ -109,7 +124,10 @@ export default function LongVideoPromoPage() {
     const url = URL.createObjectURL(selectedFile);
     video.src = url;
     video.onloadedmetadata = () => {
-      setMediaDurationSeconds(video.duration || 0);
+      const rawDur = video.duration || 0;
+      // Strictly clamp to max 90s per Rule 4.1 & user instructions
+      const clamped = Math.min(90, Math.max(5, Math.round(rawDur)));
+      setMediaDurationSeconds(clamped);
       URL.revokeObjectURL(url);
     };
     video.onerror = () => {
@@ -122,13 +140,13 @@ export default function LongVideoPromoPage() {
     if (!user) return;
     async function fetchBilling() {
       try {
-        const res = await fetch(`/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}`);
+        const res = await fetch(`/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}&email=${encodeURIComponent(user?.email || "")}`);
         const payload = await res.json().catch(() => ({}));
         if (res.ok && payload.ok && payload.entitlement) {
           const ent = payload.entitlement;
           const limit = Math.max(0, Math.round(Number(payload.usage?.limit || ent.monthlyVideoLimit || 0)));
           const used = Math.max(0, Math.round(Number(payload.usage?.used || 0)));
-          const remaining = Math.max(0, Math.round(Number(payload.usage?.remaining || limit - used)));
+          const remaining = Math.max(0, Math.round(Number(payload.usage?.remaining ?? (limit - used))));
           setBillingEntitlement({
             active: Boolean(ent.active),
             planId: ent.planId || "paid",
@@ -221,11 +239,13 @@ export default function LongVideoPromoPage() {
       // 3. Submit Render Job
       setJobStatus({
         state: "starting",
-        message: "AI detecting strongest hook moment...",
+        message: "Composing 9:16 vertical promo layout...",
         progress: 0.35,
       });
 
       const plannedTitle = promoTitle.trim() || selectedFile.name.replace(/\.[^/.]+$/, "");
+      const effectiveDuration = Math.min(90, Math.max(5, mediaDurationSeconds || 30));
+      const totalFrames = Math.min(2700, Math.round(effectiveDuration * 30));
 
       const jobResponse = await fetch("/api/reels/jobs", {
         method: "POST",
@@ -238,6 +258,8 @@ export default function LongVideoPromoPage() {
           mode: "longVideoPromo",
           topicTitle: plannedTitle,
           userId: user.id,
+          userEmail: user.email || undefined,
+          thumbnailKey: promoThumbnailKey,
           promoThumbnailKey,
           promoTitle: plannedTitle,
           promoGoal,
@@ -245,10 +267,11 @@ export default function LongVideoPromoPage() {
           creatorHandle: promoCreatorHandle.trim() || "@itnavideo",
           promoCtaStyle,
           promoBackgroundMode,
-          durationSeconds: mediaDurationSeconds,
-          sourceDurationSeconds: mediaDurationSeconds,
+          aspectRatio: "9:16",
+          durationSeconds: effectiveDuration,
+          sourceDurationSeconds: effectiveDuration,
           mediaAspect: "portrait",
-          frameRange: mediaDurationSeconds > 0 ? [0, Math.min(2700, Math.round(mediaDurationSeconds * 30)) - 1] : undefined,
+          frameRange: [0, totalFrames - 1],
         }),
       });
 
@@ -398,9 +421,9 @@ export default function LongVideoPromoPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#070B14] text-white">
+    <main className="min-h-screen bg-[#0B0D13] text-white">
       {/* Premium Header */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#070B14]/80 backdrop-blur-md">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0B0D13]/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-6">
             <Link
@@ -426,88 +449,29 @@ export default function LongVideoPromoPage() {
       {/* Main Container */}
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 space-y-6">
 
-        {/* Dynamic Stepper Overlay during Render */}
+        {/* Dynamic Stepper Overlay during Render - Zero Blue Cinematic Render Screen */}
         {jobStatus.state !== "idle" && jobStatus.state !== "ready" && (
-          <div className="rounded-[28px] border border-white/10 bg-[#0E1526]/95 p-6 sm:p-8 shadow-xl max-w-3xl mx-auto space-y-6">
-            <div className="flex items-center justify-between gap-4">
-              <div className="space-y-1">
-                <h3 className="text-sm font-black text-white">Promo Video Rendering Progress</h3>
-                <p className="text-xs text-zinc-400">{jobStatus.message}</p>
-              </div>
-              <div className="flex items-center gap-1.5 text-xs font-black text-[#FFA000]">
-                <Loader2 size={13} className="animate-spin" />
-                <span>{Math.round((jobStatus.progress || 0) * 100)}%</span>
-              </div>
-            </div>
-
-            {/* Progress Bar */}
-            <div className="h-2 w-full rounded-full bg-black/40 overflow-hidden border border-white/5">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] transition-all duration-500 ease-out"
-                style={{ width: `${(jobStatus.progress || 0) * 100}%` }}
-              />
-            </div>
-
-            {/* Custom Steps List */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 pt-2">
-              {PROMO_RENDER_STEPS.map((step, idx) => {
-                const stepProgress = jobStatus.progress || 0;
-                const active = stepProgress >= step.threshold && stepProgress < (PROMO_RENDER_STEPS[idx + 1]?.threshold || 1.1);
-                const done = stepProgress >= (PROMO_RENDER_STEPS[idx + 1]?.threshold || 0.98);
-                const Icon = step?.icon || Sparkles;
-
-                return (
-                  <div
-                    key={step.label}
-                    className={`flex flex-row md:flex-col items-center md:items-start gap-3 p-3 rounded-2xl border transition-all ${
-                      active
-                        ? "border-[#FF5722] bg-[#FF5722]/5 shadow-md shadow-[#FF5722]/5"
-                        : done
-                        ? "border-emerald-500/20 bg-emerald-500/5 opacity-80"
-                        : "border-white/5 bg-black/10 opacity-40"
-                    }`}
-                  >
-                    <div
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border ${
-                        active
-                          ? "border-[#FF5722]/30 bg-[#FF5722]/10 text-[#FF9100]"
-                          : done
-                          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-                          : "border-white/10 bg-white/5 text-zinc-500"
-                      }`}
-                    >
-                      {done ? <CheckCircle2 size={15} /> : <Icon size={14} />}
-                    </div>
-                    <div className="space-y-0.5">
-                      <p className="text-[11px] font-black text-zinc-200 leading-snug">{step.label}</p>
-                      <p className="hidden md:block text-[9px] text-zinc-500 leading-normal">{step.detail}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {jobStatus.state === "error" && (
-              <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 flex items-start gap-3 text-xs text-red-300">
-                <AlertCircle size={16} className="shrink-0 mt-0.5" />
-                <div className="space-y-1">
-                  <p className="font-bold">Rendering Interrupted</p>
-                  <p>{jobStatus.message}</p>
-                  <button
-                    onClick={() => setJobStatus({ state: "idle" })}
-                    className="mt-2 rounded-lg bg-red-500 px-3 py-1 text-[10px] font-black text-white hover:bg-red-600 transition"
-                  >
-                    Reset Studio
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+          <CinematicRenderProgress
+            title="Promo Video Reel"
+            subtitle="Composing 9:16 vertical layout, 3D teaser card, and high-conversion callout overlays."
+            modeLabel="9:16 Promo Video Studio"
+            progress={jobStatus.progress}
+            isIndeterminate={jobStatus.progress === undefined}
+            statusMessage={jobStatus.message}
+            elapsedSeconds={elapsedSeconds}
+            steps={PROMO_RENDER_STEPS}
+            isError={jobStatus.state === "error"}
+            errorMessage={jobStatus.message}
+            onRetry={() => handleStartRender()}
+            onReset={() => setJobStatus({ state: "idle" })}
+            showTipsCarousel={true}
+          />
         )}
 
         {/* Ready Download Preview Stage */}
         {jobStatus.state === "ready" && jobStatus.outputFile && (
-          <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-6 shadow-xl max-w-2xl mx-auto text-center space-y-6">
+          <div className="rounded-[28px] border border-white/10 bg-[#0B0D13] p-6 shadow-xl max-w-2xl mx-auto text-center space-y-6">
+
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
               <CheckCircle2 size={28} />
             </div>

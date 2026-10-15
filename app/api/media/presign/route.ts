@@ -1,5 +1,5 @@
 import {NextResponse} from 'next/server';
-import {createUploadUrl} from '@/lib/gcs/mediaStorage';
+import {createUploadUrl} from '@/lib/aws/mediaStorage';
 import {checkRateLimit, getClientIp} from '@/services/rateLimit/inMemoryRateLimiter';
 import {getRenderAccessForUser} from '@/services/billing/renderAccess';
 
@@ -9,19 +9,21 @@ export const dynamic = 'force-dynamic';
 const MAX_FILE_SIZE_BYTES = 1024 * 1024 * 500;
 
 export async function POST(request: Request) {
+  const body = await readJson(request);
+  if (!body) return NextResponse.json({ok: false, error: 'Invalid JSON body.'}, {status: 400});
+
   const ip = getClientIp(request.headers);
+  const rawUserId = readString(body.userId);
+  const effectiveUserId = rawUserId || 'guest_user';
   const rateLimit = checkRateLimit({
-    key: `media-presign:${ip}`,
-    limit: 600, // Allow up to 600 image/audio presign requests per 15 minutes for multi-image video modes
+    key: `media-presign:${effectiveUserId !== 'guest_user' ? effectiveUserId : ip}`,
+    limit: 1200, // Generous creator limit for batch uploads
     windowMs: 15 * 60_000,
   });
 
   if (!rateLimit.allowed) {
-    return NextResponse.json({ok: false, error: 'Too many upload attempts. Try again shortly.'}, {status: 429});
+    return NextResponse.json({ok: false, error: 'Upload limit reached. Please wait a moment before uploading more files.'}, {status: 429});
   }
-
-  const body = await readJson(request);
-  if (!body) return NextResponse.json({ok: false, error: 'Invalid JSON body.'}, {status: 400});
 
   const fileName = readString(body.fileName);
   const contentType = readString(body.contentType);
@@ -38,7 +40,6 @@ export async function POST(request: Request) {
     // If no userId provided, fallback to guest session instead of failing
     body.userId = "guest_user";
   }
-  const effectiveUserId = readString(body.userId) || "guest_user";
   if (workflowMode && !isRecognizedWorkflowMode(workflowMode)) {
     return NextResponse.json({ok: false, error: 'This video type is not available right now.'}, {status: 422});
   }
@@ -49,11 +50,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ok: false, error: uploadErrorForVideoType(videoTypeMode)}, {status: 400});
   }
 
+  const userEmail = readString(body.userEmail || body.email);
+
   try {
     let access = { allowed: true, planId: "free", planName: "Guest", activePaidPlan: false, used: 0, limit: 10, remaining: 10 };
     if (effectiveUserId !== "guest_user") {
       access = await getRenderAccessForUser(effectiveUserId, {
         mode: (videoTypeMode === 'autoCaption' || videoTypeMode === 'captionStudio') ? 'autoCaption' : undefined,
+        userEmail: userEmail || undefined,
       });
     }
 
@@ -126,13 +130,13 @@ function sanitizeUserFacingStatus(value: string) {
   const source = String(value || '');
   const normalized = source.toLowerCase();
   if (/bucket|storage|s3|aws|remotion|lambda|credential|access key|secret/i.test(normalized)) {
-    return 'Secure upload storage is not ready yet. Please try again shortly.';
+    return 'Cloud upload service is preparing. Please retry in a few seconds.';
   }
 
   return source
     .replace(/\s+at\s+[\s\S]*$/i, '')
     .replace(/https?:\/\/\S+/gi, '')
-    .replace(/\b(?:REMOTION|GROQ|OPENAI|AWS|S3|FFMPEG)[A-Z0-9_]*\b/g, 'render system')
+    .replace(/\b(?:REMOTION|GROQ|OPENAI|GEMINI|AWS|S3|FFMPEG)[A-Z0-9_]*\b/g, 'render system')
     .replace(/\bGroq\b/gi, 'transcription service')
     .replace(/\bAWS Lambda\b/gi, 'render system')
     .replace(/\bAWS\b/gi, 'render')
@@ -140,7 +144,7 @@ function sanitizeUserFacingStatus(value: string) {
     .replace(/\bRemotion\b/gi, 'video renderer')
     .replace(/\bS3\b/gi, 'secure storage')
     .replace(/\bffmpeg\b/gi, 'media processor')
-    .replace(/\bOpenAI\b/gi, 'AI planner')
+    .replace(/\b(?:Gemini|Google AI|OpenAI|ChatGPT)\b/gi, 'AI Director')
     .trim() || 'Could not create upload URL.';
 }
 

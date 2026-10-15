@@ -14,14 +14,15 @@
 | **Template Location** | `remotion/templates/WHITEBOARD_VIDEO/template.tsx` |
 | **Dashboard Studio** | `components/dashboard/WhiteboardStudio.tsx` |
 | **Dashboard Route** | `/dashboard/whiteboard-video` |
-| **Aspect Ratio** | Dual Support: **9:16 Vertical Shorts** & **16:9 Widescreen Cinema** |
-| **Resolution & Quality** | **1080×1920 (9:16)** & **1920×1080 (16:9)** Full HD @ 30 FPS |
+| **Aspect Ratio** | Strictly **9:16 Vertical Shorts** Only (16:9 completely removed) |
+| **Resolution & Quality** | **1080×1920 (9:16)** Full HD @ 30 FPS |
 | **Frame Rate** | 30 FPS |
-| **Max Video Duration** | **90s (9:16 Shorts)** / **5 Minutes (300s) (16:9 Cinema)** |
+| **Max Video Duration** | **Up to 90 Seconds (90s)** (Master Rule 4.1) |
 | **Primary Category** | Explainer & Shorts/Reels |
-| **Credit Cost** | 1 credit per render |
-| **Design System** | Google Analytics Obsidian Baseline (`#070B14`, `#0E1526`) + Intentional Color & Typography Variety Policy + Material Design 3 |
+| **Credit Cost** | **1 Credit** per render (Master Rule 4.1) |
+| **Design System** | Google Analytics Obsidian Baseline (`#070B14`, `#0E1526`) + Flame Orange & Sunset Amber Accents + Material Design 3 |
 | **Transcription Engine**| Extracted 16kHz audio → Groq Whisper Cloud API (Fallback: Google Gemini 2.0 Flash `asia-south1`) |
+| **AI Scene Director** | Groq Cloud LLM (`qwen/qwen3.8-27b`) + Semantic Storyboard Scene Director (Fallback: Gemini / Rule Engine) |
 
 ---
 

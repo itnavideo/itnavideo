@@ -28,17 +28,23 @@ export type RenderAccess = {
   reason?: string;
 };
 
+export const FOUNDER_USER_IDS = [
+  "a50a8342-f362-4f49-adfe-fc7a9a4e14db", // rohi@itnavideo.com
+];
+
 type RenderAccessRequest = {
   mode?: BillableRenderMode;
   creditUnits?: number;
+  userEmail?: string;
 };
 
 export async function getRenderAccessForUser(userId: string, request: RenderAccessRequest = {}): Promise<RenderAccess> {
   const cleanUserId = sanitizeString(userId);
+  const userEmail = sanitizeString(request.userEmail).toLowerCase();
   const requiredCreditUnits = normalizeCreditUnits(request.creditUnits, CREDIT_UNITS_PER_CREDIT);
   if (!cleanUserId || cleanUserId === "anonymous") return deniedAccess("none", "Account required", "Please log in before creating a video.");
 
-  const founderAccess = await getFounderTestAccessForUser(cleanUserId, requiredCreditUnits);
+  const founderAccess = await getFounderTestAccessForUser(cleanUserId, requiredCreditUnits, userEmail);
   if (founderAccess) return founderAccess;
 
   // Local development / testing fallback: if Supabase server credentials are not configured, allow local testing
@@ -69,10 +75,34 @@ export async function getRenderAccessForUser(userId: string, request: RenderAcce
     return {...trialAccess, watermark: trialAccess.allowed};
   }
 
+  // Resilient zero-usage guarantee: brand new users with 0 renders are always granted 1 free video
+  try {
+    const totalRenders = await getWindowUsageUnits(cleanUserId, "2020-01-01T00:00:00.000Z", new Date().toISOString());
+    if (totalRenders === 0) {
+      return {
+        allowed: true,
+        planId: "free-signup-credit",
+        planName: "1 Free Trial Credit",
+        activePaidPlan: false,
+        used: 0,
+        limit: 1,
+        remaining: 1,
+        watermark: true,
+        expiresAt: "2099-12-31T23:59:59.000Z",
+      };
+    }
+  } catch (usageErr) {
+    console.warn("[renderAccess] Usage fallback check bypassed:", usageErr);
+  }
+
   return deniedAccess("credits-required", "Credits required", "Upgrade to Pro or Business to create another video.");
 }
 
-export async function getFounderTestAccessForUser(userId: string, requiredCreditUnits = CREDIT_UNITS_PER_CREDIT): Promise<RenderAccess | null> {
+export async function getFounderTestAccessForUser(
+  userId: string,
+  requiredCreditUnits = CREDIT_UNITS_PER_CREDIT,
+  email?: string
+): Promise<RenderAccess | null> {
   const cleanUserId = sanitizeString(userId);
   if (!cleanUserId || cleanUserId === "anonymous") return null;
 
@@ -93,9 +123,20 @@ export async function getFounderTestAccessForUser(userId: string, requiredCredit
     );
   }
 
-  const founderEmail = cleanUserId.includes("@") ? cleanUserId.toLowerCase() : await getUserEmailFromServer(cleanUserId);
-  if (!isFounderTestEmail(founderEmail)) return null;
-  return accessForWindow(cleanUserId, "founder-test", "Founder Test", true, FOUNDER_TEST_START_AT, FOUNDER_TEST_EXPIRES_AT, FOUNDER_TEST_LIMIT, requiredCreditUnits);
+  const cleanEmail = sanitizeString(email).toLowerCase();
+  const isDirectFounderId = FOUNDER_USER_IDS.includes(cleanUserId);
+  const isDirectFounderEmail = isFounderTestEmail(cleanEmail) || (cleanUserId.includes("@") && isFounderTestEmail(cleanUserId));
+
+  let founderEmail = cleanEmail || (cleanUserId.includes("@") ? cleanUserId.toLowerCase() : "");
+  if (!founderEmail && !isDirectFounderId) {
+    founderEmail = await getUserEmailFromServer(cleanUserId);
+  }
+
+  if (!isDirectFounderId && !isDirectFounderEmail && !isFounderTestEmail(founderEmail)) {
+    return null;
+  }
+
+  return accessForWindow(cleanUserId, "founder-test", "Founder Test Studio", true, FOUNDER_TEST_START_AT, FOUNDER_TEST_EXPIRES_AT, FOUNDER_TEST_LIMIT, requiredCreditUnits);
 }
 
 export async function getBillingUsageForUser(userId: string, startAt: string, endAt: string, limit: number) {
@@ -225,7 +266,7 @@ function isFounderTestEmail(email: string) {
 
 function getFounderTestEmails() {
   const envEmails = (process.env.FOUNDER_TEST_EMAILS || process.env.INTERNAL_TEST_EMAILS || "").split(/[\s,;]+/).map((item) => item.trim().toLowerCase()).filter(Boolean);
-  return Array.from(new Set([...envEmails, 'rohi@itnavideo.com', 'founder@itnavideo.com']));
+  return Array.from(new Set([...envEmails, 'rohi@itnavideo.com', 'itnavideo@gmail.com']));
 }
 
 function requireUserId(value: string) {

@@ -235,24 +235,61 @@ export function ImageToVideoStudio({
     }));
   }, [imageFiles]);
 
+  // Audio playback state
+  const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);
+  const [audioCurrentTime, setAudioCurrentTime] = useState<number>(0);
+  const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
+
   // Detected audio duration
   const [audioDurationSeconds, setAudioDurationSeconds] = useState<number>(0);
+
   useEffect(() => {
+    setIsPlayingAudio(false);
+    setAudioCurrentTime(0);
     if (!selectedAudio) {
       setAudioDurationSeconds(0);
+      if (audioPlayerRef.current) {
+        audioPlayerRef.current.pause();
+        audioPlayerRef.current.src = "";
+      }
       return;
     }
-    const audioObj = new Audio();
     const url = URL.createObjectURL(selectedAudio);
-    audioObj.src = url;
+    const audioObj = new Audio(url);
     audioObj.onloadedmetadata = () => {
       if (audioObj.duration && !isNaN(audioObj.duration)) {
-        setAudioDurationSeconds(Math.round(audioObj.duration));
+        setAudioDurationSeconds(Math.min(600, Math.round(audioObj.duration)));
       }
+    };
+    if (audioPlayerRef.current) {
+      audioPlayerRef.current.src = url;
+    }
+    return () => {
       URL.revokeObjectURL(url);
     };
   }, [selectedAudio]);
 
+  const toggleAudioPlay = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!audioPlayerRef.current) return;
+    if (isPlayingAudio) {
+      audioPlayerRef.current.pause();
+      setIsPlayingAudio(false);
+    } else {
+      audioPlayerRef.current.play().then(() => {
+        setIsPlayingAudio(true);
+      }).catch((err) => console.warn("Audio play error", err));
+    }
+  };
+
+  const formatAudioTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  const calculatedCredits = Math.max(1, Math.min(10, Math.ceil((audioDurationSeconds || estimatedDurationSeconds || 60) / 60)));
   const activeArtStyle = visualStyle || "realistic";
   const activeAssetMode = assetSourceMode || "library";
 
@@ -260,6 +297,20 @@ export function ImageToVideoStudio({
     <div className="relative rounded-[28px] border border-white/10 bg-[#111218] p-5 sm:p-7 shadow-2xl min-w-0 max-w-full overflow-x-hidden space-y-7 text-white">
       {/* Magic UI BorderBeam Glowing Effect */}
       <BorderBeam size={280} duration={14} colorFrom="#FF5722" colorTo="#FFA000" />
+
+      {/* Hidden audio element for preview */}
+      <audio
+        ref={audioPlayerRef}
+        onTimeUpdate={() => {
+          if (audioPlayerRef.current) {
+            setAudioCurrentTime(audioPlayerRef.current.currentTime);
+          }
+        }}
+        onEnded={() => {
+          setIsPlayingAudio(false);
+          setAudioCurrentTime(0);
+        }}
+      />
 
       {/* Master Studio Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-white/10">
@@ -278,9 +329,9 @@ export function ImageToVideoStudio({
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#161720] px-3 py-1.5 text-xs font-bold text-slate-300">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#161720] px-3.5 py-1.5 text-xs font-bold text-slate-200">
             <Clock3 size={13} className="text-[#FF7043]" />
-            <span>16:9 Widescreen • Up to 12m</span>
+            <span>16:9 Widescreen • Up to 10m</span>
           </span>
         </div>
       </div>
@@ -305,7 +356,7 @@ export function ImageToVideoStudio({
                     <span>Upload Your Audio</span>
                   </h3>
                   <p className="text-xs text-zinc-400 mt-0.5">
-                    Select voiceover narration audio (MP3, WAV, M4A — up to 12 mins).
+                    Select voiceover narration audio (MP3, WAV, M4A — up to 10 mins).
                   </p>
                 </div>
               </div>
@@ -321,7 +372,7 @@ export function ImageToVideoStudio({
 
                   <div className="space-y-1">
                     <p className="text-sm font-bold text-white">Drop your audio file here or browse</p>
-                    <p className="text-xs text-zinc-400 font-mono">MP3, WAV or M4A • Max 12 minutes (720s)</p>
+                    <p className="text-xs text-zinc-400 font-mono">MP3, WAV or M4A • Max 10 minutes (600s)</p>
                   </div>
 
                   <span className="inline-flex items-center gap-1.5 rounded-xl border border-[#FF5722]/30 bg-gradient-to-r from-[#FF5722] to-[#FF7043] px-4 py-2 text-xs font-black text-black shadow-md shadow-[#FF5722]/20 hover:brightness-110 transition">
@@ -330,29 +381,59 @@ export function ImageToVideoStudio({
                   </span>
                 </div>
               ) : (
-                <div className="flex items-center justify-between w-full rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 text-left">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400 shrink-0">
-                      <CheckCircle2 size={18} />
+                <div className="flex flex-col w-full rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-left space-y-3">
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-3 min-w-0">
+                      {/* Play/Pause Button */}
+                      <button
+                        type="button"
+                        onClick={toggleAudioPlay}
+                        className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FF5722] text-black hover:brightness-110 transition shadow-lg shrink-0 cursor-pointer"
+                        title={isPlayingAudio ? "Pause" : "Play preview"}
+                      >
+                        {isPlayingAudio ? (
+                          <Pause size={18} className="fill-black" />
+                        ) : (
+                          <Play size={18} className="ml-0.5 fill-black" />
+                        )}
+                      </button>
+                      <div className="min-w-0">
+                        <p className="text-xs sm:text-sm font-bold text-white truncate">{selectedAudio.name}</p>
+                        <p className="text-[11px] text-emerald-300 font-mono mt-0.5 flex items-center gap-2">
+                          <span>{(selectedAudio.size / (1024 * 1024)).toFixed(1)} MB</span>
+                          <span>•</span>
+                          <span>{audioDurationSeconds > 0 ? `${formatAudioTime(audioCurrentTime)} / ${formatAudioTime(audioDurationSeconds)}` : "Loaded"}</span>
+                        </p>
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-xs font-bold text-white truncate">{selectedAudio.name}</p>
-                      <p className="text-[10px] text-emerald-300 font-mono mt-0.5">
-                        {(selectedAudio.size / (1024 * 1024)).toFixed(1)} MB • {audioDurationSeconds > 0 ? `${audioDurationSeconds}s` : "Loaded"}
-                      </p>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (audioPlayerRef.current) {
+                          audioPlayerRef.current.pause();
+                        }
+                        setIsPlayingAudio(false);
+                        onSelectAudio(null);
+                      }}
+                      className="text-xs text-zinc-400 hover:text-red-400 font-bold px-2 py-1 rounded-lg hover:bg-white/5 transition cursor-pointer"
+                    >
+                      Remove
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      onSelectAudio(null);
-                    }}
-                    className="text-xs text-zinc-400 hover:text-red-400 font-bold px-2 py-1 cursor-pointer"
-                  >
-                    Remove
-                  </button>
+
+                  {/* Scrubber Progress Bar */}
+                  {audioDurationSeconds > 0 && (
+                    <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+                      <div
+                        className="bg-gradient-to-r from-[#FF5722] to-[#FFA000] h-full transition-all duration-100"
+                        style={{
+                          width: `${Math.min(100, (audioCurrentTime / audioDurationSeconds) * 100)}%`,
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -361,8 +442,6 @@ export function ImageToVideoStudio({
                 accept="audio/*"
                 className="hidden"
                 onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) onSelectAudio(file);
                 }}
               />
             </label>
@@ -692,7 +771,13 @@ export function ImageToVideoStudio({
               <div className="flex items-center justify-between text-zinc-400 border-b border-white/5 pb-2">
                 <span>Audio Duration</span>
                 <span className="font-mono text-white font-bold">
-                  {audioDurationSeconds > 0 ? `${audioDurationSeconds} seconds` : "Ready for audio"}
+                  {audioDurationSeconds > 0 ? `${audioDurationSeconds} seconds (${Math.ceil(audioDurationSeconds / 60)}m)` : "Ready for audio"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-zinc-400 border-b border-white/5 pb-2">
+                <span>Credit Rate</span>
+                <span className="font-mono text-emerald-400 font-bold">
+                  {calculatedCredits} {calculatedCredits === 1 ? "Credit" : "Credits"} (1 Min = 1 Cr)
                 </span>
               </div>
               <div className="flex items-center justify-between text-zinc-400 border-b border-white/5 pb-2">
@@ -718,7 +803,9 @@ export function ImageToVideoStudio({
             >
               <Sparkles size={18} className="fill-black/20" />
               <span>{isRendering ? "Rendering 1080p MP4..." : "Generate Video"}</span>
-              <span className="rounded-full bg-black/20 px-2.5 py-0.5 text-xs font-mono font-bold">Costs 2 Credits</span>
+              <span className="rounded-full bg-black/25 px-2.5 py-0.5 text-xs font-mono font-bold">
+                {calculatedCredits} {calculatedCredits === 1 ? "Credit" : "Credits"}
+              </span>
             </button>
           </div>
         </div>

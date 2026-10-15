@@ -1,14 +1,14 @@
 export const CREDIT_UNITS_PER_CREDIT = 1;
-export const LONG_FORM_CAPTION_MAX_SECONDS = 3 * 60; // 3 minutes (180 seconds)
+export const LONG_FORM_CAPTION_MAX_SECONDS = 10 * 60; // 10 minutes (600 seconds)
 export const SHORT_REEL_MAX_SECONDS = 90; // 90 seconds
 export const LONG_VIDEO_CLIPS_BASE_CREDITS = 2;
 export const LONG_VIDEO_CLIPS_PER_OUTPUT_CREDITS = 2;
 
 // ─── Video Unit Cost ──────────────────────────────────────────────────────────
 // 1 Video credit = 1 short-form render (9:16, up to 90 sec)
-// 2 Video credits = 1 long-form render (16:9, up to 3 min)
+// 16:9 Long-Form: 1 Min = 1 Credit (up to 10 min / 600s)
 export const SHORT_FORM_VIDEO_UNITS = 1;   // 9:16 Reels / Shorts / TikTok (up to 90s) = 1 credit
-export const LONG_FORM_VIDEO_UNITS  = 2;   // 16:9 YouTube / Cinema (up to 3 min) = 2 credits
+export const LONG_FORM_VIDEO_UNITS  = 2;   // Base long-form unit
 
 export type BillableRenderMode =
   | "autoCaption"
@@ -35,19 +35,21 @@ type RenderCreditOptions = {
 export function calculateLongFormCaptionCreditUnits(durationSeconds: number) {
   const duration = Number(durationSeconds) || 60;
   if (!Number.isFinite(duration) || duration <= 0 || duration > LONG_FORM_CAPTION_MAX_SECONDS) {
-    throw new Error("16:9 Widescreen video supports up to 3 minutes (180 seconds) duration.");
+    throw new Error("16:9 Widescreen video supports up to 10 minutes (600 seconds) duration.");
   }
-  // 16:9 Widescreen Video (up to 3 min) = 2 Credits
-  return LONG_FORM_VIDEO_UNITS * CREDIT_UNITS_PER_CREDIT;
+  // Rule 4.1: 1 Min = 1 Credit (1m=1, 5m=5, 10m=10 Cr)
+  const minutes = Math.max(1, Math.min(10, Math.ceil(duration / 60)));
+  return minutes * CREDIT_UNITS_PER_CREDIT;
 }
 
 export function calculateYouTubeSubtitleCreditUnits(durationSeconds: number) {
   const duration = Number(durationSeconds) || 60;
   if (!Number.isFinite(duration) || duration <= 0 || duration > LONG_FORM_CAPTION_MAX_SECONDS) {
-    throw new Error("YouTube Subtitle Generator supports up to 3 minutes (180 seconds) duration.");
+    throw new Error("YouTube Subtitle Generator supports up to 10 minutes (600 seconds) duration.");
   }
-  // YouTube 16:9 Subtitle Generator = 2 Credits
-  return LONG_FORM_VIDEO_UNITS * CREDIT_UNITS_PER_CREDIT;
+  // Rule 4.1: 1 Min = 1 Credit (up to 10 minutes)
+  const minutes = Math.max(1, Math.min(10, Math.ceil(duration / 60)));
+  return minutes * CREDIT_UNITS_PER_CREDIT;
 }
 
 export function calculateRenderCreditUnits(mode: BillableRenderMode, options: RenderCreditOptions = {}) {

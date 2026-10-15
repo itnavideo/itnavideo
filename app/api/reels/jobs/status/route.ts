@@ -2,6 +2,7 @@ import {NextResponse} from 'next/server';
 import {getRenderProgress, type AwsRegion} from '@remotion/lambda/client';
 import {recordRenderUsageFromServer, releaseReservedRenderUsageFromServer} from '@/services/billing/renderAccess';
 import {createReadUrl} from '@/lib/aws/mediaStorage';
+import {isJobCancelled} from '@/lib/jobs/cancellationRegistry';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -20,6 +21,28 @@ export async function GET(request: Request) {
   if (!renderId || !bucketName) {
     return NextResponse.json({ok: false, error: 'renderId and bucketName are required.'}, {status: 400});
   }
+
+  // Check persistent cancellation registry first
+  if (isJobCancelled(renderId)) {
+    return NextResponse.json({
+      ok: true,
+      state: 'cancelled',
+      renderId,
+      bucketName,
+      done: true,
+      progress: 0,
+      outputFile: null,
+      message: 'Render job was cancelled by user.',
+      errors: [],
+    }, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      },
+    });
+  }
+
   if (!functionName) {
     return NextResponse.json({ok: false, error: 'The render system is not configured yet.'}, {status: 503});
   }
@@ -206,7 +229,7 @@ function sanitizeUserFacingStatus(value: string) {
   return source
     .replace(/\s+at\s+[\s\S]*$/i, '')
     .replace(/https?:\/\/\S+/gi, '')
-    .replace(/\b(?:REMOTION|GROQ|OPENAI|AWS|S3|FFMPEG)[A-Z0-9_]*\b/g, 'render system')
+    .replace(/\b(?:REMOTION|GROQ|OPENAI|GEMINI|AWS|S3|FFMPEG)[A-Z0-9_]*\b/g, 'render system')
     .replace(/\bGroq\b/gi, 'transcription service')
     .replace(/\bAWS Lambda\b/gi, 'render system')
     .replace(/\bAWS\b/gi, 'render')
@@ -214,7 +237,7 @@ function sanitizeUserFacingStatus(value: string) {
     .replace(/\bRemotion\b/gi, 'video renderer')
     .replace(/\bS3\b/gi, 'secure storage')
     .replace(/\bffmpeg\b/gi, 'media processor')
-    .replace(/\bOpenAI\b/gi, 'AI planner')
+    .replace(/\b(?:Gemini|Google AI|OpenAI|ChatGPT)\b/gi, 'AI Director')
     .trim() || 'Something went wrong. Please try again.';
 }
 

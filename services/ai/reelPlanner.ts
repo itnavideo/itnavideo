@@ -132,6 +132,7 @@ export const VIDEO_TYPE_REGISTRY: Partial<Record<ReelVideoTypeName, ReelVideoTyp
     mediaFit: 'videoCaption',
     needsThumbnail: true,
     needsTitle: true,
+    skipTranscription: true,
     skipPlanner: true,
   },
   comparisonImages: {
@@ -181,7 +182,7 @@ export const VIDEO_TYPE_REGISTRY: Partial<Record<ReelVideoTypeName, ReelVideoTyp
     templateName: 'FACELESS_VIDEO',
     compositionId: 'FACELESS-VIDEO',
     videoCategory: 'long-form',
-    allowedMedia: ['audio'],
+    allowedMedia: ['audio', 'video'],
     transcriptRequirement: 'required',
     plannerMode: 'videoExplainer',
     mediaFit: 'videoExplainer',
@@ -193,7 +194,7 @@ export const VIDEO_TYPE_REGISTRY: Partial<Record<ReelVideoTypeName, ReelVideoTyp
     templateName: 'FACELESS_VIDEO',
     compositionId: 'FACELESS-VIDEO',
     videoCategory: 'long-form',
-    allowedMedia: ['audio'],
+    allowedMedia: ['audio', 'video'],
     transcriptRequirement: 'required',
     plannerMode: 'videoExplainer',
     mediaFit: 'videoExplainer',
@@ -601,7 +602,7 @@ export function validateAndRepairReelPlan(plan: ReelPlanResult): ReelPlanResult 
     warnings.push('No valid scenes were available after plan validation.');
   }
   if (plan.validation.openAiCallsUsed > maxOpenAiCalls) {
-    warnings.push(`OpenAI planning call count exceeded policy and was capped to ${maxOpenAiCalls}.`);
+    warnings.push(`AI Director planning call count exceeded policy and was capped to ${maxOpenAiCalls}.`);
   }
 
   const captions = repairCaptionsForTemplate(plan.renderProps.captions, durationSeconds, plan.templateName, warnings);

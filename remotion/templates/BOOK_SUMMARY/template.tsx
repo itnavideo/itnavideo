@@ -29,7 +29,7 @@ export interface BookSummaryTemplateProps {
   authorPortraitUrl?: string;
   referenceImages?: string[];
   captionThemeId?: string;
-  aspectRatio?: '9:16' | '16:9';
+  aspectRatio?: '16:9';
 }
 
 // No laptop placeholder — BOOK_COVER falls back to a styled title-only card when no image is supplied
@@ -599,17 +599,14 @@ export const BookSummaryComposition: React.FC = () => (
     }}
     calculateMetadata={({ props }) => {
       const p = props as BookSummaryTemplateProps;
-      const isCinema = (p.aspectRatio || '16:9') === '16:9';
       const rawDuration = Number(p.durationSeconds) || 60;
-      const maxDur = isCinema ? 720 : 90;
+      const maxDur = 600; // 10 minutes strictly per Rule 4.1
       const durationSeconds = Math.max(5, Math.min(maxDur, rawDuration));
-      const width = isCinema ? 1920 : 1080;
-      const height = isCinema ? 1080 : 1920;
       return {
         durationInFrames: Math.round(durationSeconds * 30),
         fps: 30,
-        width,
-        height,
+        width: 1920,
+        height: 1080,
       };
     }}
   />

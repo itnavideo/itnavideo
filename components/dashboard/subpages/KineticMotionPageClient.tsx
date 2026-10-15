@@ -352,7 +352,7 @@ export default function KineticMotionPageClient() {
   // ── Loading screen ────────────────────────────────────────────────────────────
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#070B14] flex items-center justify-center gap-3">
+      <div className="min-h-screen bg-[#0B0D13] flex items-center justify-center gap-3">
         <Loader2 className="h-7 w-7 animate-spin text-[#FF5722]" />
         <span className="text-sm font-semibold text-slate-400">Loading Kinetic Motion Studio...</span>
       </div>
@@ -361,15 +361,15 @@ export default function KineticMotionPageClient() {
 
   // ─────────────────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-[#070B14] text-slate-100 flex flex-col selection:bg-[#FF5722]/30 selection:text-white pb-28 sm:pb-0">
+    <div className="min-h-screen bg-[#0B0D13] text-slate-100 flex flex-col selection:bg-[#FF5722]/30 selection:text-white pb-28 sm:pb-0">
 
       {/* ── Top nav ── */}
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0E1526]/90 backdrop-blur-xl shadow-md">
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0B0D13]/90 backdrop-blur-xl shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 sm:gap-4">
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#151E30] hover:bg-[#1C2840] px-3.5 py-1.5 text-xs font-bold text-slate-200 hover:text-white transition group"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 px-3.5 py-1.5 text-xs font-bold text-slate-200 hover:text-white transition group"
             >
               <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
               <span className="hidden sm:inline">All Tools</span>

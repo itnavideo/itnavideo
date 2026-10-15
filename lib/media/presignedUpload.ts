@@ -32,7 +32,8 @@ export function resolveSafeContentType(file: File): string {
 export async function uploadFileViaPresign(
   file: File,
   workflowMode: string,
-  userId: string = "guest_user"
+  userId: string = "guest_user",
+  userEmail?: string
 ): Promise<string> {
   const contentType = resolveSafeContentType(file);
 
@@ -44,6 +45,7 @@ export async function uploadFileViaPresign(
       contentType,
       mode: workflowMode,
       userId: userId || "guest_user",
+      userEmail: userEmail || undefined,
       fileSize: file.size,
     }),
   });

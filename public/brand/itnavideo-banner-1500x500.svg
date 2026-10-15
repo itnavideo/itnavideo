@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 500" width="1500" height="500">
+  <defs>
+    <!-- Background Obsidian Gradient -->
+    <linearGradient id="bannerBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#080A10"/>
+      <stop offset="50%" stop-color="#0E121B"/>
+      <stop offset="100%" stop-color="#06070B"/>
+    </linearGradient>
+
+    <!-- Vibrant Flame Orange Gradient -->
+    <linearGradient id="bannerOrangeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FF5722"/>
+      <stop offset="50%" stop-color="#FF7043"/>
+      <stop offset="100%" stop-color="#FFA000"/>
+    </linearGradient>
+
+    <!-- Radial Glow Behind Logo -->
+    <radialGradient id="bannerCenterGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FF5722" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#FF5722" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Drop Shadow -->
+    <filter id="bannerGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="24" flood-color="#FF5722" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <!-- Deep Obsidian Studio Canvas -->
+  <rect width="1500" height="500" fill="url(#bannerBg)"/>
+
+  <!-- Subtle Studio Grid Pattern -->
+  <g opacity="0.08" stroke="#FFFFFF" stroke-width="1">
+    <line x1="0" y1="100" x2="1500" y2="100"/>
+    <line x1="0" y1="200" x2="1500" y2="200"/>
+    <line x1="0" y1="300" x2="1500" y2="300"/>
+    <line x1="0" y1="400" x2="1500" y2="400"/>
+    <line x1="250" y1="0" x2="250" y2="500"/>
+    <line x1="500" y1="0" x2="500" y2="500"/>
+    <line x1="750" y1="0" x2="750" y2="500"/>
+    <line x1="1000" y1="0" x2="1000" y2="500"/>
+    <line x1="1250" y1="0" x2="1250" y2="500"/>
+  </g>
+
+  <!-- Center Ambient Radial Glow -->
+  <circle cx="750" cy="230" r="380" fill="url(#bannerCenterGlow)"/>
+
+  <!-- Centered Hero Brand Block -->
+  <!-- Kinetic Mark (Glyph) -->
+  <g transform="translate(360, 160) scale(1.35)" filter="url(#bannerGlow)">
+    <rect x="14" y="14" width="18" height="72" rx="9" fill="url(#bannerOrangeGrad)"/>
+    <path
+      d="M 38 18 C 38 14 42.5 11.5 46 13.8 L 84 45.8 C 87.2 48 87.2 52 84 54.2 L 46 86.2 C 42.5 88.5 38 86 38 82 Z"
+      fill="url(#bannerOrangeGrad)"
+    />
+    <path
+      d="M 80 12 C 80 18.6 85.4 24 92 24 C 85.4 24 80 29.4 80 36 C 80 29.4 74.6 24 68 24 C 74.6 24 80 18.6 80 12 Z"
+      fill="#FFA000"
+    />
+  </g>
+
+  <!-- Title 'ITNAVIDEO' -->
+  <g transform="translate(520, 245)">
+    <text font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif" font-weight="900" font-size="78" letter-spacing="2">
+      <tspan fill="#FFFFFF">ITNA</tspan>
+      <tspan fill="url(#bannerOrangeGrad)">VIDEO</tspan>
+    </text>
+
+    <!-- Subtitle / Tagline -->
+    <text x="5" y="48" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="18" fill="#94A3B8" letter-spacing="5">
+      AI VIDEO GENERATION ENGINE · 16:9 &amp; 9:16
+    </text>
+
+    <!-- Workflow Badges -->
+    <g transform="translate(5, 82)">
+      <!-- Badge 1 -->
+      <rect x="0" y="0" width="145" height="30" rx="15" fill="rgba(255, 87, 34, 0.12)" stroke="rgba(255, 87, 34, 0.35)" stroke-width="1.5"/>
+      <text x="72" y="19" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="11" fill="#FFA000">🔥 FACELESS VIDEO</text>
+
+      <!-- Badge 2 -->
+      <rect x="155" y="0" width="145" height="30" rx="15" fill="rgba(255, 255, 255, 0.06)" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1.5"/>
+      <text x="227" y="19" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="11" fill="#FFFFFF">AUTO CAPTION</text>
+
+      <!-- Badge 3 -->
+      <rect x="310" y="0" width="135" height="30" rx="15" fill="rgba(255, 255, 255, 0.06)" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1.5"/>
+      <text x="377" y="19" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="11" fill="#FFFFFF">IMAGE TO VIDEO</text>
+    </g>
+  </g>
+
+  <!-- URL Tag at bottom right -->
+  <text x="1440" y="465" text-anchor="end" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="14" fill="#64748B" letter-spacing="2">
+    WWW.ITNAVIDEO.COM
+  </text>
+</svg>

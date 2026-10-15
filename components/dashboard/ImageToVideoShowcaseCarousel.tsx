@@ -68,7 +68,7 @@ function ImageToVideoCard({ item, isPlaying, isMuted, onTogglePlay, onToggleMute
   return (
     <div
       onClick={handleVideoClick}
-      className="group relative flex-shrink-0 w-[290px] sm:w-[330px] md:w-[370px] aspect-video rounded-[22px] overflow-hidden border border-white/15 bg-[#090A12] shadow-xl hover:border-purple-500/70 hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-300 cursor-pointer select-none"
+      className="group relative flex-shrink-0 w-[290px] sm:w-[330px] md:w-[370px] aspect-video rounded-[22px] overflow-hidden border border-white/15 bg-[#070B14] shadow-xl hover:border-[#FF5722]/60 hover:shadow-2xl hover:shadow-[#FF5722]/20 transition-all duration-300 cursor-pointer select-none"
     >
       {/* 16:9 Widescreen Video or Poster */}
       {isPlaying ? (
@@ -93,8 +93,8 @@ function ImageToVideoCard({ item, isPlaying, isMuted, onTogglePlay, onToggleMute
 
           {/* Center Play Button Overlay */}
           <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/30 transition">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black/75 border border-white/25 backdrop-blur-md group-hover:bg-gradient-to-r group-hover:from-purple-600 group-hover:to-pink-500 group-hover:scale-110 transition-all duration-300 shadow-2xl">
-              <Play size={20} className="ml-0.5 fill-white text-white group-hover:fill-white" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black/75 border border-white/25 backdrop-blur-md group-hover:bg-gradient-to-r group-hover:from-[#FF5722] group-hover:to-[#FFA000] group-hover:scale-110 transition-all duration-300 shadow-2xl">
+              <Play size={20} className="ml-0.5 fill-white text-white group-hover:fill-black group-hover:text-black" />
             </div>
           </div>
         </>
@@ -102,8 +102,8 @@ function ImageToVideoCard({ item, isPlaying, isMuted, onTogglePlay, onToggleMute
 
       {/* Top Badge Overlay */}
       <div className="absolute top-3 left-3 z-20 pointer-events-none">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-black/80 backdrop-blur-md px-3 py-1 text-[10px] font-black uppercase text-purple-300 tracking-wider">
-          <Sparkles size={11} className="text-pink-400" />
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-black/80 backdrop-blur-md px-3 py-1 text-[10px] font-black uppercase text-[#FFA000] tracking-wider">
+          <Sparkles size={11} className="text-[#FF5722]" />
           <span>{item.badge}</span>
         </span>
       </div>
@@ -118,17 +118,17 @@ function ImageToVideoCard({ item, isPlaying, isMuted, onTogglePlay, onToggleMute
           }}
           className="absolute top-3 right-3 z-30 flex h-7 w-7 items-center justify-center rounded-full bg-black/80 border border-white/20 text-white backdrop-blur-md hover:bg-black transition cursor-pointer"
         >
-          {isMuted ? <VolumeX size={12} /> : <Volume2 size={12} className="text-pink-400" />}
+          {isMuted ? <VolumeX size={12} /> : <Volume2 size={12} className="text-[#FFA000]" />}
         </button>
       )}
 
-      {/* Title & 1080p Tag Overlaid Directly on Bottom of Card (No separate box) */}
+      {/* Title & 1080p Tag Overlaid Directly on Bottom of Card */}
       {!isPlaying && (
         <div className="absolute inset-x-0 bottom-0 p-3.5 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none z-20 flex items-center justify-between gap-2">
-          <span className="text-xs sm:text-sm font-black text-white truncate drop-shadow-md group-hover:text-purple-200 transition">
+          <span className="text-xs sm:text-sm font-black text-white truncate drop-shadow-md group-hover:text-[#FFA000] transition">
             {item.title}
           </span>
-          <span className="shrink-0 text-[9.5px] font-mono font-bold text-pink-300 bg-black/70 px-2.5 py-0.5 rounded-full border border-pink-500/30">
+          <span className="shrink-0 text-[9.5px] font-mono font-bold text-[#FFA000] bg-black/70 px-2.5 py-0.5 rounded-full border border-[#FF5722]/40">
             1080p MP4
           </span>
         </div>
@@ -158,13 +158,13 @@ export function ImageToVideoShowcaseCarousel() {
       {/* Header */}
       <div className="flex items-center justify-between pb-2 border-b border-white/10">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-purple-500/15 border border-purple-500/30 text-purple-400">
+          <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-[#FF5722]/15 border border-[#FF5722]/30 text-[#FF7043]">
             <Film size={14} />
           </div>
           <div>
             <h3 className="text-sm sm:text-base font-extrabold text-white flex items-center gap-2">
               <span>Image to Video AI — Live Showcase</span>
-              <span className="text-[10px] font-bold text-pink-400 bg-pink-500/10 border border-pink-500/20 px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-bold text-[#FFA000] bg-[#FF5722]/10 border border-[#FF5722]/30 px-2 py-0.5 rounded-full">
                 1080p Full HD
               </span>
             </h3>

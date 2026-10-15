@@ -26,24 +26,24 @@ const FAQ_CATEGORIES = [
 const faqs: FAQItem[] = [
   {
     question: "What is Itnavideo AI Video Generator?",
-    answer: "Itnavideo is an AI video generator with 11 specialized video studios. Each studio has its own optimized pipeline, controls, and 1080p Full HD output format instead of forcing every project through a complicated timeline editor.",
+    answer: "Itnavideo is an AI video generator with 10 specialized video studios and 1 audio utility. Each studio has its own dedicated pipeline, controls, and 1080p Full HD output format instead of forcing every project through a complicated timeline editor.",
     category: 'product',
     categoryLabel: 'Product & AI',
-    action: { label: 'Explore All 11 Video Studios', href: '/video-types' },
+    action: { label: 'Explore All Studios', href: '#video-types' },
   },
   {
     question: "Can I try Itnavideo for free?",
-    answer: "Yes. New creators can start with free video renders without entering a credit card. You get instant access to auto captions, explainers, typography, and clip tools.",
+    answer: "Yes. New creators get 1 free credit on signup without entering a credit card, valid to generate any 9:16 vertical short-form video (up to 90s). Widescreen 16:9 long-form videos require a credit plan.",
     category: 'pricing',
     categoryLabel: 'Credits & Pricing',
     action: { label: 'View Pricing & Credit Plans', href: '/pricing' },
   },
   {
     question: "Which AI video types are available?",
-    answer: "The 11 specialized studios are Auto Caption Generator, YouTube Subtitles, Image to Video AI, Compare Explainer, Whiteboard Explainer, Kinetic Typography, Faceless Video, Long Video Promo, Long Video to Viral Clips, AI Audio Cleaner, and Book Summary Video.",
+    answer: "The 10 video studios are Faceless Video, Book Summary Video, Image to Video AI, YouTube Subtitles (16:9 Widescreen), Auto Caption Generator, Kinetic Typography, Whiteboard Video, Compare Explainer, Long Video to Clips, and Long Video Promo (9:16 Shorts), plus our AI Audio Cleaner utility.",
     category: 'workflows',
     categoryLabel: 'Video Workflows',
-    action: { label: 'Compare All 11 Video Styles', href: '/video-types' },
+    action: { label: 'Explore Studio Workflows', href: '#video-types' },
   },
   {
     question: "Do I need manual video editing skills?",
@@ -53,7 +53,7 @@ const faqs: FAQItem[] = [
   },
   {
     question: "What video resolutions, quality, and durations are supported?",
-    answer: "Every video rendered on Itnavideo is exported in crisp 1080p Full HD at smooth 30 FPS. All 9:16 vertical short-form videos (Reels, Shorts, TikTok) render at 1080×1920 up to 90 seconds (90s). All 16:9 widescreen YouTube videos render at 1920×1080 up to 5 minutes (300s). Long Video to Viral Clips accepts long-form source videos up to 2 hours and exports 30s–60s 1080p shorts.",
+    answer: "Every video rendered on Itnavideo is exported in crisp 1080p Full HD at smooth 30 FPS. All 9:16 vertical short-form videos (Reels, Shorts, TikTok) render at 1080×1920 up to 90 seconds (90s). All 16:9 widescreen YouTube videos render at 1920×1080 up to 10 minutes (600s). Long Video to Viral Clips accepts long-form source videos up to 2 hours and exports 30s–60s 1080p shorts.",
     category: 'workflows',
     categoryLabel: 'Video Workflows',
   },

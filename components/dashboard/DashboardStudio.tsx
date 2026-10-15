@@ -234,8 +234,8 @@ const videoTypeCards = [
   { id: "compare-explainer", title: "Compare Explainer Video", tag: "9:16 Reel • Max 90s", description: "Left vs right comparison with narration and sticker presenter.", image: "/visuals/dashboard-cards/compare-explainer.webp", badgeType: "AI" as const, accent: "#F59E0B", mode: "compare" as const, category: "education", inputType: "text" as const, accessTier: "paid" as const, creditCost: "10 Credits • Paid" },
   { id: "whiteboard-video", title: "Whiteboard Animation", tag: "9:16 Reel • Max 90s", description: "AI writes key points on a whiteboard synced to your speech.", image: "/visuals/dashboard-cards/whiteboard-video.webp", badgeType: "AI" as const, accent: "#00FF9D", mode: "whiteboardVideo" as const, category: "education", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "10 Credits • Paid" },
   { id: "typography-video", title: "Kinetic Motion Video", tag: "9:16 Reel • Max 90s", description: "Turn talking video or voiceover into punchy kinetic typography reels.", image: "/visuals/dashboard-cards/typography-video.webp", badgeType: "Popular" as const, accent: "#F59E0B", mode: "typographyVideo" as const, category: "creator", inputType: "video" as const, accessTier: "paid" as const, creditCost: "10 Credits • Paid" },
-  { id: "image-to-video-ai", title: "Image to Video AI", tag: "9:16 Reel • Max 90s", description: "Turn voiceover into cinematic videos with images, Ken Burns motion & subtitles.", image: "/visuals/dashboard-cards/image-to-video.webp", badgeType: "New" as const, accent: "#8B5CF6", mode: "imageToVideoAi" as const, category: "long", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "10 Credits • Paid" },
-  { id: "book-summary", title: "Book Summary Video", tag: "16:9 Long Video • Max 10m", description: "Turn book narration into a summary video with AI lesson cards.", image: "/visuals/dashboard-cards/book-summary.webp", badgeType: "New" as const, accent: "#FF5722", mode: "bookSummary" as const, category: "long", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "10 Credits • Paid" },
+  { id: "image-to-video-ai", title: "Image to Video AI", tag: "16:9 Long Video • Max 10m", description: "Turn voiceover into cinematic videos with images, Ken Burns motion & subtitles.", image: "/visuals/dashboard-cards/image-to-video.webp", badgeType: "New" as const, accent: "#8B5CF6", mode: "imageToVideoAi" as const, category: "long", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "1 Min = 1 Cr • Paid" },
+  { id: "book-summary", title: "Book Summary Video", tag: "16:9 Long Video • Max 10m", description: "Turn book narration into a summary video with AI lesson cards.", image: "/visuals/dashboard-cards/book-summary.webp", badgeType: "New" as const, accent: "#FF5722", mode: "bookSummary" as const, category: "long", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "1 Min = 1 Cr • Paid" },
   { id: "long-video-clips", title: "Viral Video Clips", tag: "9:16 Shorts • Input up to 2h", description: "Turn long videos and podcasts (up to 2 hours) into short viral clips with captions.", image: "/visuals/dashboard-cards/long-video-clips.webp", badgeType: "New" as const, accent: "#F59E0B", mode: "longVideoClips" as const, category: "long", inputType: "video" as const, accessTier: "paid" as const, creditCost: "10 Credits / Clip • Paid" },
   { id: "ai-audio-cleaner", title: "AI Audio Cleaner", tag: "Studio Master Audio • Max 5m", description: "Full script preview in dashboard • Auto removes recording mistakes, silences & noise.", image: "/visuals/dashboard-cards/audio-cleaner.webp", badgeType: "Pro" as const, accent: "#F59E0B", mode: "audioClean" as const, category: "long", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "5 Credits • Paid" },
 ] as const;
@@ -393,7 +393,7 @@ const modeConfig = {
     title: "Book Summary Video",
     description: "🎙️ Upload: Voiceover audio or narration\n📚 AI generates chapter cards, lesson notes & animated typography",
     accept: "audio/*",
-    supported: "MP3, WAV, M4A, AAC • Up to 12 minutes",
+    supported: "MP3, WAV, M4A, AAC • Up to 10 minutes",
     bestResult: "Book summaries, educational lessons & key takeaways",
     uploadCta: "🎙️ Upload book narration audio",
     icon: BookOpen,
@@ -747,7 +747,8 @@ export default function DashboardStudio({
   const isFounderDebugUser =
     user?.email?.toLowerCase() === "itnavideo@gmail.com" ||
     user?.email?.toLowerCase() === "rohi@itnavideo.com" ||
-    Boolean(user?.email?.toLowerCase().includes("akram")) ||
+    Boolean(user?.email?.toLowerCase().includes("rohi")) ||
+    Boolean(user?.email?.toLowerCase().includes("syed")) ||
     Boolean(user?.email?.toLowerCase().includes("itnavideo")) ||
     (typeof window !== "undefined" && (window.location.search.includes("debug=1") || window.localStorage?.getItem("itnavideo_debug") === "true"));
   const ActiveModeIcon = activeMode?.icon || Sparkles;
@@ -5896,7 +5897,7 @@ function RenderStatusStage({
           ? "border-red-300/24 bg-red-500/[0.055]"
           : ready
             ? "border-[#10B981]/35 bg-[#10B981]/[0.07]"
-            : "border-[#FF5722]/24 bg-[#070B14]"
+            : "border-[#FF5722]/24 bg-[#0B0D13]"
       }`}
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_8%,rgba(255,109,0,0.15),transparent_30%),radial-gradient(circle_at_82%_18%,rgba(255,143,0,0.10),transparent_28%),linear-gradient(135deg,rgba(255,255,255,0.07),transparent_48%)]" />
@@ -6058,10 +6059,10 @@ function RenderStatusStage({
         </div>
       ) : (
         <div className="relative mt-5 grid min-w-0 max-w-full gap-4 sm:gap-5 lg:grid-cols-[minmax(0,0.96fr)_minmax(0,1.04fr)]">
-          <div className="relative hidden min-h-52 min-w-0 max-w-full overflow-hidden rounded-xl border border-white/10 bg-[#0E1526] p-3 sm:block sm:p-4">
+          <div className="relative hidden min-h-52 min-w-0 max-w-full overflow-hidden rounded-xl border border-white/10 bg-[#0B0D13] p-3 sm:block sm:p-4">
             <div className="absolute inset-x-4 top-5 h-px bg-gradient-to-r from-transparent via-[#FF7043]/50 to-transparent" />
             <div className="absolute inset-y-6 left-1/2 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent" />
-            <div className="relative mx-auto mb-8 flex aspect-[9/16] h-48 max-h-full flex-col overflow-hidden rounded-xl border border-white/10 bg-[#070B14] p-2 shadow-[0_20px_70px_rgba(0,0,0,0.55)] min-[390px]:h-56">
+            <div className="relative mx-auto mb-8 flex aspect-[9/16] h-48 max-h-full flex-col overflow-hidden rounded-xl border border-white/10 bg-[#0B0D13] p-2 shadow-[0_20px_70px_rgba(0,0,0,0.55)] min-[390px]:h-56">
               {working ? <div className="render-scanline pointer-events-none absolute inset-x-0 z-20 h-12 bg-gradient-to-b from-transparent via-emerald-200/18 to-transparent" /> : null}
               <div className="relative h-[36%] overflow-hidden rounded-lg border border-emerald-100/10 bg-[radial-gradient(circle_at_50%_40%,rgba(16,185,129,0.18),transparent_38%),linear-gradient(135deg,rgba(16,185,129,0.12),rgba(255,255,255,0.035))]">
                 <div className="render-shimmer pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/12 to-transparent" />
@@ -6891,7 +6892,7 @@ function sanitizeUserFacingStatus(value: string) {
     .replace(/\bTRANSCRIPT_REQUIRED\b/gi, "We could not detect clear speech in your upload.")
     .replace(/\bUNSUPPORTED_MEDIA_FOR_TEMPLATE\b/gi, "This file type does not match the selected video type.")
     .replace(/\bMISSING_MEDIA_SOURCE\b/gi, "Please upload a supported file before creating your reel.")
-    .replace(/\b(?:REMOTION|GROQ|OPENAI|AWS|S3|FFMPEG)[A-Z0-9_]*\b/g, "render system")
+    .replace(/\b(?:REMOTION|GROQ|OPENAI|GEMINI|AWS|S3|FFMPEG)[A-Z0-9_]*\b/g, "render system")
     .replace(/\bGroq\b/gi, "transcription service")
     .replace(/\bAWS Lambda\b/gi, "render system")
     .replace(/\bAWS\b/gi, "render")
@@ -6899,7 +6900,7 @@ function sanitizeUserFacingStatus(value: string) {
     .replace(/\bRemotion\b/gi, "video renderer")
     .replace(/\bS3\b/gi, "secure storage")
     .replace(/\bffmpeg\b/gi, "media processor")
-    .replace(/\bOpenAI\b/gi, "AI planner")
+    .replace(/\b(?:Gemini|Google AI|OpenAI|ChatGPT)\b/gi, "AI Director")
     .trim() || "Something went wrong. Please try again.";
 }
 

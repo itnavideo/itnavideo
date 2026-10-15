@@ -281,7 +281,7 @@ For every new Video Type, use these professional-editor principles unless the sp
 - **16:9 Long-Form Videos (upto 12 min)**: `20 Credits` (YouTube Subtitles, Cinema Explainers, Long Form Faceless, Image to Video AI).
 - **AI Audio Cleaner (upto 30 min audio)**: `5 Credits` (Studio loudness mastering, retake and mistake removal).
 - **Long Video Clips (upto 3hr source)**: `10 Credits / clip`.
-- **Free Signup Trial**: `20 Free Credits` (2 free 9:16 reels or 1 16:9 long video with subtle watermark).
+- **Free Signup Trial**: `1 Free Credit` (valid for any 1 × 9:16 vertical short-form video up to 90s, no credit card required).
 - **Packs & Tiers**:
   - Starter (\$29): `300 Credits` (~30 Reels or 15 Long Videos)
   - Growth / Pro Creator (\$49): `1,000 Credits` (~100 Reels or 50 Long Videos)

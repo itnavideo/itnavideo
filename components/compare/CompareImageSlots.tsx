@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect, useMemo} from "react";
+import { useEffect, useMemo } from "react";
 
 type CompareImageSlotsProps = {
   files: File[];
@@ -122,16 +122,14 @@ export function CompareImageSlots({
         </p>
 
         <span
-          className={`inline-flex items-center gap-1.5 self-start sm:self-auto rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${
-            filledCount === 2
+          className={`inline-flex items-center gap-1.5 self-start sm:self-auto rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${filledCount === 2
               ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
               : "border-amber-500/30 bg-amber-500/10 text-amber-300"
-          }`}
+            }`}
         >
           <span
-            className={`h-1.5 w-1.5 rounded-full ${
-              filledCount === 2 ? "bg-emerald-400" : "bg-amber-400 animate-pulse"
-            }`}
+            className={`h-1.5 w-1.5 rounded-full ${filledCount === 2 ? "bg-emerald-400" : "bg-amber-400 animate-pulse"
+              }`}
           />
           {filledCount}/2 Visuals Ready
         </span>
@@ -144,11 +142,10 @@ export function CompareImageSlots({
           return (
             <div
               key={slot.inputId}
-              className={`group relative flex flex-col justify-between rounded-2xl border p-4 transition-all duration-300 ${
-                selected
+              className={`group relative flex flex-col justify-between rounded-2xl border p-4 transition-all duration-300 ${selected
                   ? "border-white/20 bg-zinc-800/40 shadow-md"
                   : "border-white/10 bg-black/30 hover:border-white/20 hover:bg-black/40"
-              }`}
+                }`}
             >
               {/* Slot Header */}
               <div className="mb-3 flex items-center justify-between">
@@ -170,11 +167,10 @@ export function CompareImageSlots({
               {/* Upload Drop Area */}
               <label
                 htmlFor={slot.inputId}
-                className={`relative flex h-36 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border transition-all duration-300 ${
-                  selected
+                className={`relative flex h-36 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border transition-all duration-300 ${selected
                     ? "border-white/10 bg-black"
-                    : "border-dashed border-white/15 bg-white/[0.02] hover:border-[#FF6D00]/50 hover:bg-white/[0.04]"
-                }`}
+                    : "border-dashed border-white/15 bg-white/[0.02] hover:border-[#FF5722]/50 hover:bg-white/[0.04]"
+                  }`}
               >
                 {slot.preview ? (
                   <>
@@ -197,7 +193,7 @@ export function CompareImageSlots({
                   </>
                 ) : (
                   <div className="flex flex-col items-center text-center p-3">
-                    <div className="mb-1.5 flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-lg text-zinc-400 transition-colors group-hover:bg-[#FF6D00]/20 group-hover:text-[#FFA726]">
+                    <div className="mb-1.5 flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-lg text-zinc-400 transition-colors group-hover:bg-[#FF5722]/20 group-hover:text-[#FFA000]">
                       +
                     </div>
                     <p className="text-xs font-semibold text-white">
@@ -255,7 +251,7 @@ export function CompareImageSlots({
                     value={slot.nameValue}
                     onChange={(e) => slot.onNameChange!(e.target.value)}
                     placeholder={slot.namePlaceholder}
-                    className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-xs font-semibold text-white placeholder-zinc-600 outline-none transition focus:border-[#FF6D00] focus:ring-1 focus:ring-[#FF6D00]/20"
+                    className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-xs font-semibold text-white placeholder-zinc-600 outline-none transition focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722]/20"
                   />
                 </div>
               ) : null}

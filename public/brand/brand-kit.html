@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Itnavideo — Official Brand Kit & Social Media Assets</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090B10;
+      --card-dark: #11141D;
+      --card-light: #FFFFFF;
+      --orange: #FF5722;
+      --amber: #FFA000;
+      --text: #F8FAFC;
+      --muted: #94A3B8;
+      --border: rgba(255, 255, 255, 0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      padding: 40px 20px 80px;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 87, 34, 0.12);
+      border: 1px solid rgba(255, 87, 34, 0.35);
+      color: #FF7043;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-size: 38px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+    }
+    h1 span {
+      background: linear-gradient(135deg, #FF5722 0%, #FFA000 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p.lead {
+      color: var(--muted);
+      font-size: 16px;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 28px;
+      margin-bottom: 40px;
+    }
+    .card {
+      background: var(--card-dark);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+    .card.light-mode {
+      background: #F8FAFC;
+      border-color: #E2E8F0;
+      color: #0F172A;
+    }
+    .card.light-mode h3 { color: #0F172A; }
+    .card.light-mode p { color: #64748B; }
+    .card h3 {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .tag {
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .tag-recommended {
+      background: rgba(255, 87, 34, 0.15);
+      color: #FF7043;
+      border: 1px solid rgba(255, 87, 34, 0.3);
+    }
+    .tag-studio {
+      background: rgba(255, 160, 0, 0.15);
+      color: #FFA000;
+      border: 1px solid rgba(255, 160, 0, 0.3);
+    }
+    .card p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+    .preview-box {
+      border-radius: 16px;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      min-height: 260px;
+      margin-bottom: 24px;
+      border: 1px dashed rgba(255, 255, 255, 0.12);
+    }
+    .card.light-mode .preview-box {
+      background: #FFFFFF;
+      border-color: #CBD5E1;
+    }
+    .preview-box.dark-bg {
+      background: #080A10;
+    }
+    .avatar-preview-row {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .avatar-img {
+      width: 140px;
+      height: 140px;
+      border-radius: 20px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    }
+    .avatar-circle {
+      border-radius: 50% !important;
+      border: 2px solid rgba(255, 87, 34, 0.4);
+    }
+    .preview-subtext {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0.6;
+    }
+    .use-cases-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+    .use-cases-list li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .use-cases-list li::before {
+      content: "✓";
+      color: #10B981;
+      font-weight: 900;
+    }
+    .btn-row {
+      margin-top: auto;
+      display: flex;
+      gap: 12px;
+    }
+    .btn {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 13px;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      border: none;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #FF5722 0%, #FFA000 100%);
+      color: #FFFFFF;
+      box-shadow: 0 4px 16px rgba(255, 87, 34, 0.35);
+    }
+    .btn-primary:hover {
+      opacity: 0.95;
+      transform: translateY(-2px);
+    }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: #F8FAFC;
+      border: 1px solid var(--border);
+    }
+    .card.light-mode .btn-secondary {
+      background: #F1F5F9;
+      color: #0F172A;
+      border-color: #CBD5E1;
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.14);
+    }
+    .full-width-card {
+      background: var(--card-dark);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      margin-bottom: 40px;
+    }
+    .wordmark-preview {
+      width: 100%;
+      max-width: 580px;
+      height: auto;
+    }
+    .banner-preview {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="badge">🔥 Option 3 Dual Identity System</div>
+      <h1>Official <span>Itnavideo</span> Brand Kit</h1>
+      <p class="lead">
+        Full dual-variant logo and avatar suite optimized for YouTube, Instagram, Twitter/X, Discord, and HD video watermarks. Click below to download high-resolution PNGs or vector SVGs.
+      </p>
+    </header>
+
+    <!-- SECTION 1: SOCIAL MEDIA AVATARS (LIGHT VS DARK) -->
+    <div class="grid-2">
+      <!-- Variant A: Crisp White Social Avatar -->
+      <div class="card light-mode">
+        <h3>
+          Variant A: Crisp White Avatar
+          <span class="tag tag-recommended">Recommended for DP</span>
+        </h3>
+        <p>
+          High-contrast crisp white background with a 20% circular safe-zone. Will NEVER get cropped or cut awkwardly on Instagram or YouTube round profile previews.
+        </p>
+
+        <div class="preview-box">
+          <div class="avatar-preview-row">
+            <div>
+              <img src="/brand/itnavideo-avatar-light.svg" alt="Light Avatar Square" class="avatar-img" id="img-light-sq">
+              <div class="preview-subtext" style="text-align:center; margin-top:8px;">Square (512px)</div>
+            </div>
+            <div>
+              <img src="/brand/itnavideo-avatar-light.svg" alt="Light Avatar Circular" class="avatar-img avatar-circle" id="img-light-cir">
+              <div class="preview-subtext" style="text-align:center; margin-top:8px; color:#FF5722;">Instagram / YT Circle</div>
+            </div>
+          </div>
+        </div>
+
+        <ul class="use-cases-list">
+          <li><strong>YouTube Channel Profile:</strong> Instant high recognition in comments & search</li>
+          <li><strong>Instagram Profile Photo:</strong> High brightness against feed background</li>
+          <li><strong>WhatsApp Business:</strong> Clean contrast in chats</li>
+          <li><strong>Twitter / X:</strong> Pops strongly on both Light and Dark feeds</li>
+        </ul>
+
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="exportPNG('/brand/itnavideo-avatar-light.svg', 'itnavideo-avatar-light-1024x1024.png', 1024, 1024)">
+            ⬇ Download 1024px PNG
+          </button>
+          <a href="/brand/itnavideo-avatar-light.svg" download="itnavideo-avatar-light.svg" class="btn btn-secondary">
+            SVG Vector
+          </a>
+        </div>
+      </div>
+
+      <!-- Variant B: Obsidian Dark Studio Avatar -->
+      <div class="card">
+        <h3>
+          Variant B: Obsidian Dark Avatar
+          <span class="tag tag-studio">Studio Dark / Watermark</span>
+        </h3>
+        <p>
+          Deep obsidian canvas (#080A10) featuring a protective glowing Flame Orange ring. Designed specifically so it never blends invisibly into OLED dark screens.
+        </p>
+
+        <div class="preview-box dark-bg">
+          <div class="avatar-preview-row">
+            <div>
+              <img src="/brand/itnavideo-avatar-dark.svg" alt="Dark Avatar Square" class="avatar-img" id="img-dark-sq">
+              <div class="preview-subtext" style="text-align:center; margin-top:8px;">Square (512px)</div>
+            </div>
+            <div>
+              <img src="/brand/itnavideo-avatar-dark.svg" alt="Dark Avatar Circular" class="avatar-img avatar-circle" id="img-dark-cir">
+              <div class="preview-subtext" style="text-align:center; margin-top:8px; color:#FFA000;">OLED Protected Circle</div>
+            </div>
+          </div>
+        </div>
+
+        <ul class="use-cases-list">
+          <li><strong>Discord Server & Bot Avatar:</strong> Perfect gaming/creator dark aesthetic</li>
+          <li><strong>Video Watermark Corner Bug:</strong> Premium corner stamp for rendered shorts</li>
+          <li><strong>Twitter 'Lights Out' Dark Mode:</strong> Glowing ring maintains perfect boundary</li>
+          <li><strong>Dark Mode Web App & Favicon:</strong> High-tech studio identity</li>
+        </ul>
+
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="exportPNG('/brand/itnavideo-avatar-dark.svg', 'itnavideo-avatar-dark-1024x1024.png', 1024, 1024)">
+            ⬇ Download 1024px PNG
+          </button>
+          <a href="/brand/itnavideo-avatar-dark.svg" download="itnavideo-avatar-dark.svg" class="btn btn-secondary">
+            SVG Vector
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: HORIZONTAL BRAND WORDMARKS -->
+    <div class="full-width-card">
+      <h3 style="margin-bottom: 8px;">Horizontal Brand Wordmarks (Light & Dark Surfaces)</h3>
+      <p style="color: var(--muted); margin-bottom: 24px; font-size: 14px;">
+        Use these for website navigation, invoices, documentation, email signatures, and pitch decks.
+      </p>
+
+      <div class="grid-2" style="margin-bottom: 0;">
+        <!-- Light Surface Wordmark -->
+        <div style="background: #FFFFFF; padding: 24px; border-radius: 16px; border: 1px solid #E2E8F0; display:flex; flex-direction:column; align-items:center; justify-content:space-between; gap:20px;">
+          <img src="/brand/itnavideo-wordmark-light-canvas.svg" alt="Light Surface Wordmark" class="wordmark-preview">
+          <div style="display:flex; gap:10px; width:100%;">
+            <button class="btn btn-secondary" style="flex:1;" onclick="exportPNG('/brand/itnavideo-wordmark-light-canvas.svg', 'itnavideo-wordmark-light-1280x320.png', 1280, 320)">
+              ⬇ Light Wordmark PNG
+            </button>
+            <a href="/brand/itnavideo-wordmark-light-canvas.svg" download="itnavideo-wordmark-light.svg" class="btn btn-secondary" style="width: auto;">
+              SVG
+            </a>
+          </div>
+        </div>
+
+        <!-- Dark Surface Wordmark -->
+        <div style="background: #080A10; padding: 24px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); display:flex; flex-direction:column; align-items:center; justify-content:space-between; gap:20px;">
+          <img src="/brand/itnavideo-wordmark-dark-canvas.svg" alt="Dark Surface Wordmark" class="wordmark-preview">
+          <div style="display:flex; gap:10px; width:100%;">
+            <button class="btn btn-secondary" style="flex:1;" onclick="exportPNG('/brand/itnavideo-wordmark-dark-canvas.svg', 'itnavideo-wordmark-dark-1280x320.png', 1280, 320)">
+              ⬇ Dark Wordmark PNG
+            </button>
+            <a href="/brand/itnavideo-wordmark-dark-canvas.svg" download="itnavideo-wordmark-dark.svg" class="btn btn-secondary" style="width: auto;">
+              SVG
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 3: SOCIAL MEDIA BANNER (1500x500) -->
+    <div class="full-width-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; flex-wrap:wrap; gap:12px;">
+        <div>
+          <h3>Official Social Header / Banner (1500 × 500)</h3>
+          <p style="color: var(--muted); font-size: 13px;">Optimized for Twitter/X Header, YouTube Channel Banner, and LinkedIn Company Cover.</p>
+        </div>
+        <button class="btn btn-primary" onclick="exportPNG('/brand/itnavideo-banner-1500x500.svg', 'itnavideo-social-banner-1500x500.png', 1500, 500)">
+          ⬇ Download Banner PNG (1500×500)
+        </button>
+      </div>
+
+      <img src="/brand/itnavideo-banner-1500x500.svg" alt="Social Media Banner" class="banner-preview">
+    </div>
+
+    <footer>
+      <p>© 2026 Itnavideo AI Technologies. All brand assets conform to Flame Orange (#FF5722) &amp; Sunset Amber (#FFA000) Master Palette.</p>
+    </footer>
+  </div>
+
+  <!-- In-Browser High-Resolution PNG Generator -->
+  <script>
+    function exportPNG(svgUrl, outputFileName, width, height) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        canvas.toBlob(function(blob) {
+          const a = document.createElement('a');
+          a.download = outputFileName;
+          a.href = URL.createObjectURL(blob);
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        }, 'image/png', 1.0);
+      };
+      img.src = svgUrl;
+    }
+  </script>
+</body>
+</html>

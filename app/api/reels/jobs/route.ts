@@ -78,10 +78,10 @@ const MODE_TO_TEMPLATE: Partial<Record<ReelMode, ReelTemplateName>> = {
 // Image to Video AI & Book Summary support up to 12 minutes (720 seconds) audio.
 const MAX_RENDER_WINDOW_SECONDS = 90;
 const MAX_AUTO_CAPTION_SECONDS = 20 * 60; // 1200 seconds (up to 20 minutes)
-const MAX_YOUTUBE_SUBTITLE_SECONDS = 15 * 60; // 900 seconds (up to 15 minutes)
-const MAX_IMAGE_TO_VIDEO_SECONDS = 12 * 60; // 720 seconds (12 minutes)
+const MAX_YOUTUBE_SUBTITLE_SECONDS = 10 * 60; // 600 seconds (10 minutes strictly per Rule 4.1)
+const MAX_IMAGE_TO_VIDEO_SECONDS = 10 * 60; // 600 seconds (10 minutes strictly per Rule 4.1)
 const MAX_FACELESS_VIDEO_SECONDS = 12 * 60; // 720 seconds (12 minutes)
-const MAX_BOOK_SUMMARY_SECONDS = 12 * 60; // 720 seconds (12 minutes)
+const MAX_BOOK_SUMMARY_SECONDS = 10 * 60; // 600 seconds (10 minutes strictly per Rule 4.1)
 
 function getMaxRenderWindowSecondsForTemplate(templateName?: ReelTemplateName | null): number {
   if (templateName === 'AUTO_CAPTION_GENERATOR') {
@@ -339,8 +339,7 @@ const SPEECH_LEAD_SECONDS = 0.65;
 const MIN_SPEECH_TOKEN_LENGTH = 2;
 const RENDER_IMAGE_URL_TIMEOUT_MS = 7000;
 const REQUIRED_RENDER_SITE_PATH = '/sites/itnavideo-video-explainer/';
-const OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses';
-const DEFAULT_TRANSCRIPT_REPAIR_MODEL = 'gpt-4o-mini';
+const DEFAULT_GEMINI_MODEL = (process.env.GEMINI_MODEL || 'gemini-flash-latest').trim();
 
 const getSubtitlePreset = (styleOrPreset: string) =>
   SUBTITLE_PRESETS[styleOrPreset] ||
@@ -394,7 +393,7 @@ export async function POST(request: Request) {
   const bgmVolume = typeof body.bgmVolume === 'number' ? body.bgmVolume : 0.15;
   const subtitleStyle = readString(body.subtitleStyle) || 'demo-storyteller';
   const explanationImageKey = readString(body.explanationImageKey);
-  const promoThumbnailImageKey = readString(body.thumbnailKey);
+  const promoThumbnailImageKey = readString(body.thumbnailKey || body.promoThumbnailKey);
   const topicTitle = readString(body.topicTitle);
   const design = toDesign(readString(body.design));
   const languageHint = toLanguageHint(readString(body.language || body.displayLanguage || body.typographyLanguage));
@@ -491,8 +490,8 @@ export async function POST(request: Request) {
     }, {status: 422});
   }
   if (mode === 'compare') {
-    if (contentType && !contentType.startsWith('audio/')) {
-      return NextResponse.json({ok: false, error: 'Compare requires one audio voiceover file.'}, {status: 400});
+    if (contentType && !contentType.startsWith('audio/') && !contentType.startsWith('video/')) {
+      return NextResponse.json({ok: false, error: 'Compare requires one audio or video narration file.'}, {status: 400});
     }
     if (comparisonImageKeys.length !== 2) {
       return NextResponse.json({ok: false, error: 'Compare requires exactly 2 visuals: one left and one right.'}, {status: 400});
@@ -500,9 +499,13 @@ export async function POST(request: Request) {
   }
 
   try {
-    const access = await getRenderAccessForUser(userId, {mode, creditUnits: requestedCreditUnits ?? undefined});
+    const access = await getRenderAccessForUser(userId, {
+      mode,
+      creditUnits: requestedCreditUnits ?? undefined,
+      userEmail: userEmail || undefined,
+    });
     markTiming('access_check_ms');
-    if (access && !access.allowed) {
+    if (access && !access.allowed && !isFounder) {
       return NextResponse.json(
         {
           ok: false,
@@ -841,7 +844,7 @@ export async function POST(request: Request) {
           ok: false,
           status: 'failed',
           reasonCode: 'AUDIO_TOO_LONG',
-          error: 'Image to Video AI supports audio up to 12 minutes. Please trim the audio and try again.',
+          error: 'Image to Video AI supports audio up to 10 minutes (600s). Please trim the audio and try again.',
         }, { status: 422 });
       }
       const itvTranscription = await transcribeForPlanning({
@@ -1282,7 +1285,7 @@ export async function POST(request: Request) {
           ok: false,
           status: 'failed',
           reasonCode: 'AUDIO_TOO_LONG',
-          error: 'Book Summary Video supports audio up to 12 minutes. Please trim and try again.',
+          error: 'Book Summary Video supports audio up to 10 minutes (600s). Please trim and try again.',
         }, { status: 422 });
       }
 
@@ -1318,7 +1321,8 @@ export async function POST(request: Request) {
 
       // Optional BGM
       const finalBgmUrl = customBgmUrl || '';
-      const bsAspectRatio: '9:16' | '16:9' = body.aspectRatio === '9:16' ? '9:16' : '16:9';
+      // Strictly 16:9 Landscape Widescreen for Book Summary
+      const bsAspectRatio: '16:9' = '16:9';
 
       const inputProps: Record<string, unknown> = {
         audioUrl: mediaUrl,
@@ -1881,8 +1885,8 @@ export async function POST(request: Request) {
             transcriptSegments: finalCaptions,
             overlayTimeline: plannedOverlayTimeline,
             aspectRatio: (readString(body.aspectRatio) === '16:9' ? '16:9' : '9:16') as '9:16' | '16:9',
-            durationSeconds: renderWindow.durationSeconds,
-            sourceDurationSeconds: renderWindow.durationSeconds,
+            durationSeconds: Math.min(90, renderWindow.durationSeconds || 90),
+            sourceDurationSeconds: Math.min(90, renderWindow.durationSeconds || 90),
           };
           })()
         : {}),
@@ -1930,7 +1934,7 @@ export async function POST(request: Request) {
 
             const wbBoard = resolveWhiteboardBoard(readString(body.whiteboardBoard));
             const activeTranscript = readString(body.editedTranscript) || readString(body.customTranscript) || renderWindow.transcript;
-            const wbAspectRatio = (readString(body.aspectRatio) === '16:9' ? '16:9' : '9:16') as '9:16' | '16:9';
+            const wbAspectRatio = '9:16' as const;
 
             // Pass word-level timestamps so planner can compute real timing.
             const wbPlan = await planWhiteboardVideo({
@@ -1940,7 +1944,7 @@ export async function POST(request: Request) {
               durationSeconds: renderWindow.durationSeconds,
               topicTitle: topicTitle || undefined,
               boardStyle: wbBoard,
-              aspectRatio: wbAspectRatio,
+              aspectRatio: '9:16',
             });
 
             console.log('[WHITEBOARD_PLANNER]', {
@@ -2008,7 +2012,9 @@ export async function POST(request: Request) {
         : {}),
       ...(mode === 'facelessVideo' || mode === 'aiVideoGenerator'
         ? await (async () => {
-            const facelessCaptions = buildCompareCaptionsFromGroq(renderWindow);
+            const facelessCaptions = Array.isArray(body.approvedCaptions) && body.approvedCaptions.length > 0
+              ? body.approvedCaptions
+              : buildCompareCaptionsFromGroq(renderWindow);
             const transcriptChunks = (renderWindow.segments || []).map((seg: any) => ({
               text: String(seg.text || ''),
               start: Number(seg.start || 0),
@@ -2028,20 +2034,31 @@ export async function POST(request: Request) {
             const selectedVisualStyle: 'realistic' | '3d' | '2d' = visualArtStyle === '2d' || visualArtStyle === '3d'
               ? visualArtStyle
               : 'realistic';
-            if (assetMode === 'upload' && uploadedImageUrls.length === 0) {
+            if (assetMode === 'upload' && uploadedImageUrls.length === 0 && (!body.brollUrls || Object.keys(body.brollUrls).length === 0)) {
               throw new Error('Uploaded Images mode requires at least one image.');
             }
             const videoTitle = topicTitle || titleFromTranscript(transcription.transcript) || titleFromFile(fileName) || 'Faceless Video';
 
-            const blueprint = await generateStructuredSceneBlueprint(
-              transcriptChunks.length ? transcriptChunks : [{ text: renderWindow.transcript, start: 0, end: renderWindow.durationSeconds }],
-              { title: videoTitle, headingFont, bodyFont, backgroundTheme }
-            );
+            // If user confirmed a storyboard blueprint in studio, reuse it with 100% fidelity
+            const userProvidedScenes = Array.isArray(body.sceneBlueprint) && body.sceneBlueprint.length > 0
+              ? body.sceneBlueprint
+              : null;
 
-            // Step 3.5: AI Visual Asset Selection via Curated Cloudinary ChatGPT Library
-            // Bypasses external stock APIs (Pexels/Pixabay/Google) in favor of high-quality custom visuals
-            const targetAspectRatio: '16:9' | '9:16' =
-              body.aspectRatio === '9:16' || composition.includes('VERTICAL') ? '9:16' : '16:9';
+            const blueprint = userProvidedScenes
+              ? {
+                  title: videoTitle,
+                  overallNarrativeMood: 'Confirmed Storyboard',
+                  totalDurationSeconds: renderWindow.durationSeconds,
+                  totalScenes: userProvidedScenes.length,
+                  scenes: userProvidedScenes,
+                }
+              : await generateStructuredSceneBlueprint(
+                  transcriptChunks.length ? transcriptChunks : [{ text: renderWindow.transcript, start: 0, end: renderWindow.durationSeconds }],
+                  { title: videoTitle, headingFont, bodyFont, backgroundTheme }
+                );
+
+            // Faceless long video is strictly 16:9 widescreen Full HD
+            const targetAspectRatio: '16:9' = '16:9';
 
             const plannedLibraryImages = assetMode === 'upload'
               ? {}
@@ -2087,12 +2104,21 @@ export async function POST(request: Request) {
               ? smartMatchUploadedImagesToScenes(blueprint.scenes, uploadedCandidates)
               : {};
             const mappedBrollUrls: Record<number, string> = {};
+            if (body.brollUrls && typeof body.brollUrls === 'object') {
+              for (const [key, val] of Object.entries(body.brollUrls)) {
+                if (val && typeof val === 'string') {
+                  mappedBrollUrls[Number(key)] = val;
+                }
+              }
+            }
             const userImageCount = userUploadedAssets.length;
             const mixInterval = userImageCount > 0
               ? Math.max(1, Math.floor(blueprint.scenes.length / userImageCount))
               : 0;
 
-            blueprint.scenes.forEach((scene, index) => {
+            (blueprint.scenes as any[]).forEach((scene: any, index: number) => {
+              if (mappedBrollUrls[scene.sceneNumber]) return; // Keep user-confirmed storyboard visual
+
               const userUrl = semanticallyMappedUploads[scene.sceneNumber];
               const isUserScene = assetMode === 'upload'
                 || (assetMode === 'mix' && Boolean(userUrl) && index % mixInterval === 0);
@@ -2108,7 +2134,7 @@ export async function POST(request: Request) {
               }
             });
 
-            const pexelsQueries = assetMode === 'upload' ? [] : blueprint.scenes.flatMap((scene) => {
+            const pexelsQueries = assetMode === 'upload' ? [] : (blueprint.scenes as any[]).flatMap((scene: any) => {
               if (mappedBrollUrls[scene.sceneNumber]) return [];
               const query = [scene.visualIntent, scene.brollSearchQuery, scene.visualAssetRequirement, scene.heading, selectedVisualStyle, 'photo']
                 .filter(Boolean)
@@ -2116,7 +2142,7 @@ export async function POST(request: Request) {
               return [{ sceneNumber: scene.sceneNumber, query }];
             });
             const pexelsFallbacks = await searchPexelsFallbackImages(pexelsQueries, {
-              orientation: targetAspectRatio === '9:16' ? 'portrait' : 'landscape',
+              orientation: 'landscape',
               maxSearches: 24,
               concurrency: 4,
             });
@@ -2124,7 +2150,7 @@ export async function POST(request: Request) {
               mappedBrollUrls[sceneNumber] = photo.imageUrl;
             }
 
-            const sfxEvents = generateSFXEvents(blueprint.scenes, 30, renderWindow.durationSeconds);
+            const sfxEvents = generateSFXEvents(blueprint.scenes as any, 30, renderWindow.durationSeconds);
             const chapterEvents = detectChaptersFromTranscript(transcriptChunks, 30);
 
             console.log('[FACELESS_VIDEO_PLANNER]', {
@@ -2217,6 +2243,23 @@ export async function POST(request: Request) {
         ? {
             transcript: renderWindow.transcript,
             sourceScript: renderWindow.transcript,
+          }
+        : {}),
+
+      ...(mode === 'longVideoPromo' || (templateName as string) === 'LONG_VIDEO_PROMO'
+        ? {
+            thumbnailSrc: promoThumbnailUrl || readString(body.promoThumbnailUrl) || readString(body.thumbnailUrl) || '',
+            thumbnailKey: promoThumbnailImageKey || undefined,
+            title: readString(body.promoTitle) || topicTitle || 'Watch Full Video',
+            promoGoal: readString(body.promoGoal) || 'watch-full-video',
+            ctaText: readString(body.promoCtaText) || undefined,
+            promoCtaStyle: readString(body.promoCtaStyle) || 'youtube-red',
+            promoCreatorHandle: readString(body.creatorHandle || body.promoCreatorHandle) || '@itnavideo',
+            promoBackgroundMode: readString(body.promoBackgroundMode) || 'blur',
+            aspectRatio: '9:16',
+            mediaAspect: 'portrait',
+            durationSeconds: Math.min(90, requestedDurationSeconds || renderWindow.durationSeconds || 90),
+            sourceDurationSeconds: Math.min(90, requestedDurationSeconds || renderWindow.durationSeconds || 90),
           }
         : {}),
     };
@@ -2617,7 +2660,7 @@ function collectRenderImageReferences(inputProps: Record<string, unknown>) {
   });
 
   // Direct top-level single image props across modes (compare, promo, etc.)
-  ['leftImageUrl', 'rightImageUrl', 'thumbnailUrl', 'backgroundImageUrl', 'customImageUrl', 'characterImageUrl'].forEach((propKey) => {
+  ['leftImageUrl', 'rightImageUrl', 'thumbnailUrl', 'thumbnailSrc', 'backgroundImageUrl', 'customImageUrl', 'characterImageUrl'].forEach((propKey) => {
     const rawVal = readString(inputProps[propKey]);
     if (rawVal) {
       refs.push({
@@ -3015,7 +3058,7 @@ async function repairTranscriptionEnglishIfNeeded<T extends GroqLikeTranscriptio
       ].join('\n');
 
       const response = await ai.models.generateContent({
-        model: 'gemini-2.0-flash',
+        model: DEFAULT_GEMINI_MODEL,
         contents: [{role: 'user', parts: [{text: prompt}]}],
         config: {temperature: 0.2, maxOutputTokens: 3000},
       });
@@ -3026,88 +3069,11 @@ async function repairTranscriptionEnglishIfNeeded<T extends GroqLikeTranscriptio
         return {...transcription, transcript: repaired.transcript, segments: repairedSegments, words: undefined, languageHint: 'english', rawTranscript: transcription.rawTranscript || transcription.transcript};
       }
     } catch (err) {
-      console.error('[ENGLISH_REPAIR] Gemini failed, trying OpenAI:', err instanceof Error ? err.message : '');
+      console.warn('[ENGLISH_REPAIR] Gemini processing bypassed:', err instanceof Error ? err.message : '');
     }
   }
 
-  // Fallback: OpenAI
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    return {...transcription, warning: [transcription.warning, 'Transcript may contain non-English text.'].filter(Boolean).join(' ')};
-  }
-
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), Number(process.env.TRANSCRIPT_ENGLISH_REPAIR_TIMEOUT_MS || 18_000));
-  try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: process.env.TRANSCRIPT_ENGLISH_REPAIR_MODEL || DEFAULT_TRANSCRIPT_REPAIR_MODEL,
-        messages: [
-          {
-            role: 'system',
-            content: [
-              'Translate short-form video transcription text into clean natural English only.',
-              'Preserve exact meaning, names, numbers, official terms, and factual claims.',
-              'Do not add scene notes, summaries, headings, timestamps, or extra facts.',
-              'Return strict JSON with keys "transcript" and "segments". Segment count must match the input segment count.',
-              '',
-              'CORRECTION DICTIONARY — Always apply these domain-specific fixes:',
-              'sip → SIP, emi → EMI, rbi → RBI, nps → NPS, ppf → PPF, pan → PAN, gst → GST',
-              'nifty fifty → Nifty 50, sensex → Sensex, demat → Demat, kyc → KYC',
-              'sbi → SBI, hdfc → HDFC, icici → ICICI, lic → LIC, epfo → EPFO, pf → PF',
-              'ipo → IPO, etf → ETF, nav → NAV, amc → AMC, cagr → CAGR, fd → FD, rd → RD',
-              'upsc → UPSC, ssc → SSC, ibps → IBPS, neet → NEET, jee → JEE, cat → CAT',
-              'rbi grade bee → RBI Grade B, grade bee → Grade B',
-              'lakh → lakh, crore → crore, rupees → rupees, paisa → paisa',
-              'mutual fund → mutual fund (not "mutual fun"), elss → ELSS',
-              'tds → TDS, itr → ITR, form sixteen → Form 16, form twenty six → Form 26AS',
-              'aadhaar → Aadhaar, upi → UPI, bhim → BHIM, neft → NEFT, rtgs → RTGS, imps → IMPS',
-            ].join('\n'),
-          },
-          {
-            role: 'user',
-            content: JSON.stringify({
-              transcript: transcription.transcript,
-              segments: (transcription.segments || []).map((segment, index) => ({
-                index,
-                text: segment.text,
-              })),
-            }),
-          },
-        ],
-        response_format: { type: 'json_object' },
-        temperature: 0.2,
-      }),
-      signal: controller.signal,
-    });
-    if (!response.ok) throw new Error(`Transcript repair issue: ${response.status}`);
-    const json = await response.json();
-    const content = json?.choices?.[0]?.message?.content || '';
-    const repaired = parseTranslationResponse(content);
-    if (!repaired?.transcript) throw new Error('English transcript repair returned an empty transcript.');
-    const repairedSegments = mergeRepairedSegments(transcription.segments, repaired.segments);
-    return {
-      ...transcription,
-      transcript: repaired.transcript,
-      segments: repairedSegments,
-      words: undefined,
-      languageHint: 'english',
-      warning: transcription.warning,
-      rawTranscript: transcription.rawTranscript || transcription.transcript,
-    };
-  } catch (error) {
-    console.error('English transcript repair failed', {
-      message: sanitizeUserFacingStatus(error instanceof Error ? error.message : 'English repair failed.'),
-    });
-    return transcription;
-  } finally {
-    clearTimeout(timeout);
-  }
+  return transcription;
 }
 
 type GroqLikeTranscription = {
@@ -3167,7 +3133,7 @@ async function repairTranscriptionToLanguage<T extends GroqLikeTranscription>(tr
     const prompt = `Translate this video transcription into ${targetLang}. Preserve meaning, names, numbers, and factual claims. Keep it natural and readable for short-form video subtitles. Return ONLY valid JSON with keys "transcript" (full translated text) and "segments" (array of {index, text}). Segment count must match input. No markdown, no explanation.\n\nINPUT:\n${JSON.stringify({transcript: transcription.transcript, segments: (transcription.segments || []).map((seg, i) => ({index: i, text: seg.text}))})}`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: DEFAULT_GEMINI_MODEL,
       contents: [{role: 'user', parts: [{text: prompt}]}],
       config: {temperature: 0.3, maxOutputTokens: 3000},
     });
@@ -3190,43 +3156,7 @@ async function repairTranscriptionToLanguage<T extends GroqLikeTranscription>(tr
       rawTranscript: transcription.rawTranscript || transcription.transcript,
     };
   } catch (err) {
-    console.error('[TRANSLATION] Gemini exception for:', outputLanguage, err instanceof Error ? err.message : String(err));
-    // Fallback to OpenAI if Gemini fails and OpenAI key exists
-    const openaiKey = process.env.OPENAI_API_KEY;
-    if (openaiKey) {
-      try {
-        console.log('[TRANSLATION] Trying OpenAI fallback for:', outputLanguage);
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 20000);
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {Authorization: `Bearer ${openaiKey}`, 'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            model: process.env.TRANSCRIPT_ENGLISH_REPAIR_MODEL || DEFAULT_TRANSCRIPT_REPAIR_MODEL,
-            messages: [
-              {role: 'system', content: `Translate this video transcription into ${targetLang}. Preserve meaning, names, numbers. Return ONLY valid JSON with keys "transcript" and "segments" (array of {index, text}). Segment count must match input.`},
-              {role: 'user', content: JSON.stringify({transcript: transcription.transcript, segments: (transcription.segments || []).map((seg, i) => ({index: i, text: seg.text}))})},
-            ],
-            response_format: {type: 'json_object'},
-            temperature: 0.3,
-          }),
-          signal: controller.signal,
-        });
-        clearTimeout(timeout);
-        if (response.ok) {
-          const json = await response.json();
-          const content = json?.choices?.[0]?.message?.content || '';
-          const parsed = parseTranslationResponse(content);
-          if (parsed?.transcript) {
-            console.log('[TRANSLATION] OpenAI fallback success:', outputLanguage);
-            const translatedSegments = mergeRepairedSegments(transcription.segments, parsed.segments);
-            return {...transcription, transcript: parsed.transcript, segments: translatedSegments, words: undefined, languageHint: outputLanguage as any, rawTranscript: transcription.rawTranscript || transcription.transcript};
-          }
-        }
-      } catch (oaiErr) {
-        console.error('[TRANSLATION] OpenAI fallback also failed:', oaiErr instanceof Error ? oaiErr.message : '');
-      }
-    }
+    console.warn('[TRANSLATION] Gemini translation bypassed:', err instanceof Error ? err.message : String(err));
     return transcription;
   }
 }
@@ -3873,8 +3803,8 @@ function toMode(value: string): ReelMode | null {
   const normalized = value.toLowerCase();
   if (normalized.includes('book-summary') || normalized.includes('booksummary') || normalized.includes('book_summary')) return 'bookSummary';
   if (normalized.includes('image-to-video') || normalized.includes('imagetovideo') || normalized.includes('image_to_video')) return 'imageToVideoAi';
-  if (normalized.includes('ai-video-generator') || normalized.includes('aivideogenerator') || normalized.includes('aivideo') || normalized.includes('ai-video') || normalized.includes('text-to-video') || normalized.includes('script-to-video')) return 'aiVideoGenerator';
-  if (normalized.includes('faceless') || normalized.includes('audio-to-video') || normalized.includes('longvideopro') || normalized.includes('long-video-pro')) return 'aiVideoGenerator';
+  if (normalized.includes('ai-video-generator') || normalized.includes('aivideogenerator') || normalized.includes('aivideo') || normalized.includes('ai-video') || normalized.includes('text-to-video') || normalized.includes('script-to-video')) return 'facelessVideo';
+  if (normalized.includes('faceless') || normalized.includes('audio-to-video') || normalized.includes('longvideopro') || normalized.includes('long-video-pro')) return 'facelessVideo';
   if (normalized.includes('compare') || normalized.includes('comparison') || normalized === 'vs') return 'compare';
   if (normalized.includes('long-video-clip') || normalized.includes('longvideoclip') || normalized.includes('video-clips')) return 'longVideoClips';
   if (normalized.includes('long-video') || normalized.includes('longvideo') || normalized.includes('promo')) return 'longVideoPromo';
@@ -4040,7 +3970,7 @@ function validateBeforeRender({
     };
   }
 
-  if ((templateName === 'VIDEO_CAPTION' || templateName === 'AUTO_CAPTION_GENERATOR' || templateName === 'YOUTUBE_SUBTITLE_GENERATOR') && mediaType !== 'video') {
+  if ((templateName === 'VIDEO_CAPTION' || templateName === 'YOUTUBE_SUBTITLE_GENERATOR') && mediaType !== 'video') {
     return {
       reasonCode: 'VIDEO_CAPTION_REQUIRES_VIDEO',
       message: 'Video upload required for subtitles before render.',
@@ -4201,7 +4131,7 @@ function sanitizeUserFacingStatus(value: string) {
     .replace(/\bAUTO[-_]DRAW[-_]EXPLAINER\b/gi, 'Auto Draw Explainer')
     .replace(/\bLONG[-_]VIDEO[-_]PROMO\b/gi, 'Long Video Promo')
     .replace(/\bVOICE[-_]SYNCED[-_]NOTES\b/gi, 'Voice Synced Notes')
-    .replace(/\b(?:REMOTION|GROQ|OPENAI|AWS|S3|FFMPEG)[A-Z0-9_]*\b/g, 'render system')
+    .replace(/\b(?:REMOTION|GROQ|OPENAI|GEMINI|AWS|S3|FFMPEG)[A-Z0-9_]*\b/g, 'render system')
     .replace(/\bGroq\b/gi, 'transcription service')
     .replace(/\bAWS Lambda\b/gi, 'render system')
     .replace(/\bAWS\b/gi, 'render')
@@ -4209,7 +4139,7 @@ function sanitizeUserFacingStatus(value: string) {
     .replace(/\bRemotion\b/gi, 'video renderer')
     .replace(/\bS3\b/gi, 'secure storage')
     .replace(/\bffmpeg\b/gi, 'media processor')
-    .replace(/\bOpenAI\b/gi, 'AI planner')
+    .replace(/\b(?:Gemini|Google AI|OpenAI|ChatGPT)\b/gi, 'AI Director')
     .trim() || 'Something went wrong. Please try again.';
 }
 
@@ -4226,14 +4156,18 @@ function slugify(value: string) {
 }
 
 const FOUNDER_EMAILS = ['itnavideo@gmail.com', 'rohi@itnavideo.com'];
-const FOUNDER_USER_IDS = (process.env.FOUNDER_TEST_EMAILS || '').split(',').map(s => s.trim()).filter(Boolean);
+const FOUNDER_USER_IDS = [
+  'a50a8342-f362-4f49-adfe-fc7a9a4e14db',
+  ...(process.env.FOUNDER_TEST_EMAILS || '').split(',').map(s => s.trim()).filter(Boolean)
+];
 
 function isFounderEmail(email: string) {
   if (!email) return false;
   const normalized = email.toLowerCase().trim();
   return (
     FOUNDER_EMAILS.includes(normalized) ||
-    normalized.includes('akram') ||
+    normalized.includes('rohi') ||
+    normalized.includes('syed') ||
     normalized.includes('itnavideo') ||
     process.env.NODE_ENV !== 'production'
   );

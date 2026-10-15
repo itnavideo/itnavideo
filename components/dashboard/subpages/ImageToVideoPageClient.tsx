@@ -180,7 +180,7 @@ export default function ImageToVideoDashboardPage() {
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const estimatedMinutes = Math.max(5, Math.min(15, Math.ceil((estimatedDurationSeconds || 720) / 60) + (imageFiles.length > 20 ? 3 : 1)));
+  const estimatedMinutes = Math.max(5, Math.min(15, Math.ceil((estimatedDurationSeconds || 600) / 60) + (imageFiles.length > 20 ? 3 : 1)));
   const estimatedTotalSecs = estimatedMinutes * 60;
   const remainingSeconds = Math.max(5, estimatedTotalSecs - elapsedSeconds);
   const formatRemainingTime = (secs: number) => {
@@ -202,13 +202,13 @@ export default function ImageToVideoDashboardPage() {
     if (!user) return;
     async function fetchBilling() {
       try {
-        const res = await fetch(`/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}`);
+        const res = await fetch(`/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}&email=${encodeURIComponent(user?.email || "")}`);
         const payload = await res.json().catch(() => ({}));
         if (res.ok && payload.ok && payload.entitlement) {
           const ent = payload.entitlement;
           const limit = Math.max(0, Math.round(Number(payload.usage?.limit || ent.monthlyVideoLimit || 0)));
           const used = Math.max(0, Math.round(Number(payload.usage?.used || 0)));
-          const remaining = Math.max(0, Math.round(Number(payload.usage?.remaining || limit - used)));
+          const remaining = Math.max(0, Math.round(Number(payload.usage?.remaining ?? (limit - used))));
           setBillingEntitlement({
             active: Boolean(ent.active),
             planId: ent.planId || "paid",
@@ -286,7 +286,7 @@ export default function ImageToVideoDashboardPage() {
     audio.src = audioUrl;
     audio.onloadedmetadata = () => {
       if (audio.duration && Number.isFinite(audio.duration)) {
-        setEstimatedDurationSeconds(Math.min(Math.round(audio.duration), 12 * 60));
+        setEstimatedDurationSeconds(Math.min(Math.round(audio.duration), 10 * 60));
       }
       URL.revokeObjectURL(audioUrl);
     };
@@ -406,6 +406,7 @@ export default function ImageToVideoDashboardPage() {
           mode: "imageToVideoAi",
           topicTitle: plannedTitle,
           userId: user.id,
+          userEmail: user.email || undefined,
           uploadedImageKeys,
           uploadedImageAnchors,
           previewScenes: previewScenes || undefined,
@@ -786,7 +787,7 @@ export default function ImageToVideoDashboardPage() {
                     />
                   </div>
 
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-[#070B14] border border-white/10">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-[#0B0D13] border border-white/10">
                     <div>
                       <p className="text-base font-black text-white">Your 16:9 Widescreen MP4 is Ready!</p>
                       <p className="text-xs text-zinc-400 mt-0.5">Files are retained in your private cloud for 48 hours.</p>

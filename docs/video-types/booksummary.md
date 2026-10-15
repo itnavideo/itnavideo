@@ -14,24 +14,25 @@ Book Summary Video transforms raw book notes, chapter outlines, key takeaways, a
 
 | Parameter | Specification |
 | :--- | :--- |
-| **Output Aspect Ratio** | **Dual Aspect Ratio**: `16:9` Widescreen Cinema & `9:16` Vertical Shorts |
+| **Output Aspect Ratio** | **Strictly 16:9 Landscape Widescreen Only** (`1920×1080`) — No 9:16 vertical |
 | **Frame Rate** | 30 FPS |
-| **Maximum Duration** | **12 Minutes (720s for 16:9 Cinema)** / **90 Seconds (9:16 Shorts)** |
-| **Input Assets** | Voiceover Audio / Script + Chapter Notes / Book Cover / Quotes |
+| **Maximum Duration** | **Up to 10 Minutes (600s)** for YouTube long-form |
+| **Credit Pricing** | **1 Min = 1 Credit** (1m=1, 5m=5, 10m=10 Cr) per Rule 4.1 |
+| **Input Assets** | Voiceover Audio (MP3/WAV/M4A) + Book Cover / Author Portrait / Reference Images |
 | **Audio Extraction** | 16kHz mono audio extracted before transcription |
 | **Transcription** | Primary: Groq Whisper Cloud API (Fallback: Google Gemini 2.0 Flash) |
-| **Remotion Composition ID** | `BOOK_SUMMARY_VIDEO` |
-| **Color Accents** | Cyber Gold (`#FFD700`) & Deep Amber (`#FF8F00`) |
+| **Remotion Composition ID** | `BOOK-SUMMARY` (`1920×1080`) |
+| **Color Accents** | Flame Orange (`#FF5722`), Sunset Amber (`#FFA000`), Dark Slate (`#0B0F19`) |
 
 ---
 
 ## 3. Pipeline Stages
 
-1. **Audio Prep & Extract**: Validate duration <= 12m, extract lightweight audio.
+1. **Audio Prep & Extract**: Validate duration <= 10m (600s), extract lightweight audio.
 2. **Speech Transcription**: Groq Whisper millisecond timestamps for quotes and keywords.
 3. **Chapter Breakdown**: Auto-structure into Chapter Title, Big Idea, Key Quote, and Actionable Steps.
-4. **Cinematic Motion & Parallax**: Animate book illustrations, kinetic quote reveals, and chapter progress bar.
-5. **1080p Cloud Render**: AWS Lambda Remotion render to MP4.
+4. **Cinematic Motion & Parallax**: Animate 3D book cover intro/outro, kinetic quote reveals, and chapter progress bar.
+5. **1080p Cloud Render**: AWS Lambda Remotion render to MP4 (16:9 Landscape).
 
 ---
 
@@ -65,7 +66,7 @@ export interface BookSummaryVideoProps {
 
 | Pipeline Stage | Potential Error / Failure | Root Cause | Automated Recovery / Fix | User-Facing Action / Feedback |
 | :--- | :--- | :--- | :--- | :--- |
-| **1. Audio Upload** | `DURATION_EXCEEDED` | Voiceover longer than 12 minutes (720s) | Backend validation rejects before queueing | Notification to split audio into parts |
+| **1. Audio Upload** | `DURATION_EXCEEDED` | Voiceover longer than 10 minutes (600s) | Backend validation rejects before queueing | Notification to split audio into parts |
 | **1. Audio Upload** | `UNSUPPORTED_AUDIO_CODEC` | Rare or uncompressed audio container | Cloud FFmpeg wrapper normalizes to 16kHz mono MP3 | Smooth processing without user re-encoding |
 | **2. Transcription** | `WHISPER_RATE_LIMIT` | Groq Whisper concurrency burst | Seamless failover to Google Gemini 2.0 Flash (`asia-south1`) | Zero render disruption |
 | **2. Transcription** | `NO_SPEECH_DETECTED` | Instrumental audio or corrupted microphone stream | Transcription returns 0 word timestamps | Clear alert: "No clear voiceover detected in audio file" |

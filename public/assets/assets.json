@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-02T21:01:51.115Z",
+  "generatedAt": "2026-10-14T19:55:16.731Z",
   "root": "/assets",
   "rules": {
     "direct": "Use for one specific page, section, workflow, or campaign.",
@@ -9,24 +9,24 @@
     "awsRecommended": "true means keep repo metadata only and store binary in S3/CDN for production."
   },
   "counts": {
-    "total": 451,
-    "direct": 0,
-    "reusable": 451,
-    "images": 388,
+    "total": 456,
+    "direct": 1,
+    "reusable": 455,
+    "images": 393,
     "audio": 63,
     "fonts": 0,
-    "needsLabel": 267,
-    "safeToUse": 184,
-    "awsRecommended": 392,
+    "needsLabel": 268,
+    "safeToUse": 188,
+    "awsRecommended": 396,
     "byKind": {
       "background": 3,
-      "image": 385,
+      "image": 390,
       "sound-effect": 63
     }
   },
   "assets": [
     {
-      "id": "reusable-backgrounds-blueprint-grid-3d-713779818b",
+      "id": "reusable-backgrounds-blueprint-grid-3d-218e40e42b",
       "title": "Blueprint Grid 3d",
       "suggestedFilename": null,
       "detailedDescription": "",
@@ -37,17 +37,21 @@
       "file": "reusable/backgrounds/blueprint-grid-3d.png",
       "src": "/assets/reusable/backgrounds/blueprint-grid-3d.png",
       "extension": "png",
-      "sizeBytes": 133,
-      "sizeKb": 0,
-      "dimensions": null,
-      "orientation": "unknown",
+      "sizeBytes": 149549,
+      "sizeKb": 146,
+      "dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "orientation": "landscape",
       "tags": [
         "reusable",
         "background",
         "image",
         "blueprint",
         "grid",
-        "3d"
+        "3d",
+        "landscape"
       ],
       "keywords": [
         "reusable",
@@ -55,7 +59,8 @@
         "image",
         "blueprint",
         "grid",
-        "3d"
+        "3d",
+        "landscape"
       ],
       "style": null,
       "useCase": null,
@@ -65,7 +70,7 @@
       ],
       "avoidFor": [],
       "emotion": "neutral",
-      "qualityScore": 70,
+      "qualityScore": 78,
       "usageCount": 0,
       "embeddingRef": null,
       "needsLabel": false,
@@ -78,7 +83,7 @@
       }
     },
     {
-      "id": "reusable-backgrounds-cinematic-studio-bg-713779818b",
+      "id": "reusable-backgrounds-cinematic-studio-bg-a53e8dcb52",
       "title": "Cinematic Studio Bg",
       "suggestedFilename": null,
       "detailedDescription": "",
@@ -89,17 +94,21 @@
       "file": "reusable/backgrounds/cinematic-studio-bg.png",
       "src": "/assets/reusable/backgrounds/cinematic-studio-bg.png",
       "extension": "png",
-      "sizeBytes": 133,
-      "sizeKb": 0,
-      "dimensions": null,
-      "orientation": "unknown",
+      "sizeBytes": 119682,
+      "sizeKb": 117,
+      "dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "orientation": "landscape",
       "tags": [
         "reusable",
         "background",
         "image",
         "cinematic",
         "studio",
-        "bg"
+        "bg",
+        "landscape"
       ],
       "keywords": [
         "reusable",
@@ -107,7 +116,8 @@
         "image",
         "cinematic",
         "studio",
-        "bg"
+        "bg",
+        "landscape"
       ],
       "style": null,
       "useCase": null,
@@ -117,7 +127,7 @@
       ],
       "avoidFor": [],
       "emotion": "neutral",
-      "qualityScore": 70,
+      "qualityScore": 78,
       "usageCount": 0,
       "embeddingRef": null,
       "needsLabel": false,
@@ -130,7 +140,7 @@
       }
     },
     {
-      "id": "reusable-backgrounds-studio-whiteboard-dark-713779818b",
+      "id": "reusable-backgrounds-studio-whiteboard-dark-661d6c1ca1",
       "title": "Studio Whiteboard Dark",
       "suggestedFilename": null,
       "detailedDescription": "",
@@ -141,17 +151,21 @@
       "file": "reusable/backgrounds/studio-whiteboard-dark.png",
       "src": "/assets/reusable/backgrounds/studio-whiteboard-dark.png",
       "extension": "png",
-      "sizeBytes": 133,
-      "sizeKb": 0,
-      "dimensions": null,
-      "orientation": "unknown",
+      "sizeBytes": 107243,
+      "sizeKb": 105,
+      "dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "orientation": "landscape",
       "tags": [
         "reusable",
         "background",
         "image",
         "studio",
         "whiteboard",
-        "dark"
+        "dark",
+        "landscape"
       ],
       "keywords": [
         "reusable",
@@ -159,7 +173,8 @@
         "image",
         "studio",
         "whiteboard",
-        "dark"
+        "dark",
+        "landscape"
       ],
       "style": null,
       "useCase": null,
@@ -169,7 +184,7 @@
       ],
       "avoidFor": [],
       "emotion": "neutral",
-      "qualityScore": 70,
+      "qualityScore": 78,
       "usageCount": 0,
       "embeddingRef": null,
       "needsLabel": false,
@@ -179,6 +194,122 @@
         "publicUrl": "/assets/reusable/backgrounds/studio-whiteboard-dark.png",
         "awsKey": null,
         "awsRecommended": true
+      }
+    },
+    {
+      "id": "auth-founder-presenter-1f2a5d81c5",
+      "title": "Founder Presenter",
+      "suggestedFilename": null,
+      "detailedDescription": "",
+      "scope": "reusable",
+      "kind": "image",
+      "type": "image",
+      "category": "general",
+      "file": "auth/founder-presenter.png",
+      "src": "/assets/auth/founder-presenter.png",
+      "extension": "png",
+      "sizeBytes": 1786418,
+      "sizeKb": 1745,
+      "dimensions": {
+        "width": 1024,
+        "height": 1536
+      },
+      "orientation": "portrait",
+      "tags": [
+        "reusable",
+        "image",
+        "general",
+        "auth",
+        "founder",
+        "presenter",
+        "portrait"
+      ],
+      "keywords": [
+        "reusable",
+        "image",
+        "general",
+        "auth",
+        "founder",
+        "presenter",
+        "portrait"
+      ],
+      "style": null,
+      "useCase": null,
+      "useFor": [
+        "vertical reel scenes"
+      ],
+      "avoidFor": [],
+      "emotion": "neutral",
+      "qualityScore": 76,
+      "usageCount": 0,
+      "embeddingRef": null,
+      "needsLabel": false,
+      "safeToUse": true,
+      "storage": {
+        "provider": "local-public",
+        "publicUrl": "/assets/auth/founder-presenter.png",
+        "awsKey": null,
+        "awsRecommended": true
+      }
+    },
+    {
+      "id": "direct-faceless-long-video-hero-d8cd5c19c3",
+      "title": "Faceless Long Video Hero",
+      "suggestedFilename": null,
+      "detailedDescription": "",
+      "scope": "direct",
+      "kind": "image",
+      "type": "image",
+      "category": "creator",
+      "file": "direct/faceless-long-video-hero.jpg",
+      "src": "/assets/direct/faceless-long-video-hero.jpg",
+      "extension": "jpg",
+      "sizeBytes": 227349,
+      "sizeKb": 222,
+      "dimensions": {
+        "height": 576,
+        "width": 1024
+      },
+      "orientation": "landscape",
+      "tags": [
+        "direct",
+        "image",
+        "creator",
+        "faceless",
+        "long",
+        "video",
+        "hero",
+        "landscape"
+      ],
+      "keywords": [
+        "direct",
+        "image",
+        "creator",
+        "faceless",
+        "long",
+        "video",
+        "hero",
+        "landscape"
+      ],
+      "style": null,
+      "useCase": null,
+      "useFor": [
+        "specific page or campaign asset"
+      ],
+      "avoidFor": [
+        "automatic AI selection until labeled"
+      ],
+      "emotion": "neutral",
+      "qualityScore": 45,
+      "usageCount": 0,
+      "embeddingRef": null,
+      "needsLabel": true,
+      "safeToUse": false,
+      "storage": {
+        "provider": "local-public",
+        "publicUrl": "/assets/direct/faceless-long-video-hero.jpg",
+        "awsKey": null,
+        "awsRecommended": false
       }
     },
     {
@@ -23793,7 +23924,176 @@
       }
     },
     {
-      "id": "reusable-sfx-boom-713779818b",
+      "id": "support-agent-3d-6a4c775463",
+      "title": "Support Agent 3d",
+      "suggestedFilename": null,
+      "detailedDescription": "",
+      "scope": "reusable",
+      "kind": "image",
+      "type": "image",
+      "category": "general",
+      "file": "support-agent-3d.png",
+      "src": "/assets/support-agent-3d.png",
+      "extension": "png",
+      "sizeBytes": 1631457,
+      "sizeKb": 1593,
+      "dimensions": {
+        "width": 1374,
+        "height": 1145
+      },
+      "orientation": "landscape",
+      "tags": [
+        "reusable",
+        "image",
+        "general",
+        "support",
+        "agent",
+        "3d",
+        "landscape"
+      ],
+      "keywords": [
+        "reusable",
+        "image",
+        "general",
+        "support",
+        "agent",
+        "3d",
+        "landscape"
+      ],
+      "style": null,
+      "useCase": null,
+      "useFor": [
+        "AI asset selection",
+        "general explainer scenes"
+      ],
+      "avoidFor": [],
+      "emotion": "neutral",
+      "qualityScore": 76,
+      "usageCount": 0,
+      "embeddingRef": null,
+      "needsLabel": false,
+      "safeToUse": true,
+      "storage": {
+        "provider": "local-public",
+        "publicUrl": "/assets/support-agent-3d.png",
+        "awsKey": null,
+        "awsRecommended": true
+      }
+    },
+    {
+      "id": "workflows-book-summary-091a82c6ef",
+      "title": "Book Summary",
+      "suggestedFilename": null,
+      "detailedDescription": "",
+      "scope": "reusable",
+      "kind": "image",
+      "type": "image",
+      "category": "general",
+      "file": "workflows/book-summary.png",
+      "src": "/assets/workflows/book-summary.png",
+      "extension": "png",
+      "sizeBytes": 2060924,
+      "sizeKb": 2013,
+      "dimensions": {
+        "width": 1672,
+        "height": 940
+      },
+      "orientation": "landscape",
+      "tags": [
+        "reusable",
+        "image",
+        "general",
+        "workflows",
+        "book",
+        "summary",
+        "landscape"
+      ],
+      "keywords": [
+        "reusable",
+        "image",
+        "general",
+        "workflows",
+        "book",
+        "summary",
+        "landscape"
+      ],
+      "style": null,
+      "useCase": null,
+      "useFor": [
+        "AI asset selection",
+        "general explainer scenes"
+      ],
+      "avoidFor": [],
+      "emotion": "neutral",
+      "qualityScore": 76,
+      "usageCount": 0,
+      "embeddingRef": null,
+      "needsLabel": false,
+      "safeToUse": true,
+      "storage": {
+        "provider": "local-public",
+        "publicUrl": "/assets/workflows/book-summary.png",
+        "awsKey": null,
+        "awsRecommended": true
+      }
+    },
+    {
+      "id": "workflows-faceless-790e921169",
+      "title": "Faceless",
+      "suggestedFilename": null,
+      "detailedDescription": "",
+      "scope": "reusable",
+      "kind": "image",
+      "type": "image",
+      "category": "general",
+      "file": "workflows/faceless.png",
+      "src": "/assets/workflows/faceless.png",
+      "extension": "png",
+      "sizeBytes": 2113443,
+      "sizeKb": 2064,
+      "dimensions": {
+        "width": 1672,
+        "height": 940
+      },
+      "orientation": "landscape",
+      "tags": [
+        "reusable",
+        "image",
+        "general",
+        "workflows",
+        "faceless",
+        "landscape"
+      ],
+      "keywords": [
+        "reusable",
+        "image",
+        "general",
+        "workflows",
+        "faceless",
+        "landscape"
+      ],
+      "style": null,
+      "useCase": null,
+      "useFor": [
+        "AI asset selection",
+        "general explainer scenes"
+      ],
+      "avoidFor": [],
+      "emotion": "neutral",
+      "qualityScore": 76,
+      "usageCount": 0,
+      "embeddingRef": null,
+      "needsLabel": false,
+      "safeToUse": true,
+      "storage": {
+        "provider": "local-public",
+        "publicUrl": "/assets/workflows/faceless.png",
+        "awsKey": null,
+        "awsRecommended": true
+      }
+    },
+    {
+      "id": "reusable-sfx-boom-4884c7b533",
       "title": "Boom",
       "suggestedFilename": null,
       "detailedDescription": "",
@@ -23804,8 +24104,8 @@
       "file": "reusable/sfx/boom.wav",
       "src": "/assets/reusable/sfx/boom.wav",
       "extension": "wav",
-      "sizeBytes": 133,
-      "sizeKb": 0,
+      "sizeBytes": 74924,
+      "sizeKb": 73,
       "dimensions": null,
       "orientation": "unknown",
       "tags": [
@@ -23847,7 +24147,7 @@
       }
     },
     {
-      "id": "reusable-sfx-chime-713779818b",
+      "id": "reusable-sfx-chime-8f444a1737",
       "title": "Chime",
       "suggestedFilename": null,
       "detailedDescription": "",
@@ -23858,8 +24158,8 @@
       "file": "reusable/sfx/chime.mp3",
       "src": "/assets/reusable/sfx/chime.mp3",
       "extension": "mp3",
-      "sizeBytes": 133,
-      "sizeKb": 0,
+      "sizeBytes": 59564,
+      "sizeKb": 58,
       "dimensions": null,
       "orientation": "unknown",
       "tags": [
@@ -23901,7 +24201,7 @@
       }
     },
     {
-      "id": "reusable-sfx-click-713779818b",
+      "id": "reusable-sfx-click-592edc9548",
       "title": "Click",
       "suggestedFilename": null,
       "detailedDescription": "",
@@ -23912,8 +24212,8 @@
       "file": "reusable/sfx/click.wav",
       "src": "/assets/reusable/sfx/click.wav",
       "extension": "wav",
-      "sizeBytes": 133,
-      "sizeKb": 0,
+      "sizeBytes": 17324,
+      "sizeKb": 17,
       "dimensions": null,
       "orientation": "unknown",
       "tags": [
@@ -23955,7 +24255,7 @@
       }
     },
     {
-      "id": "reusable-sfx-ding-713779818b",
+      "id": "reusable-sfx-ding-8f444a1737",
       "title": "Ding",
       "suggestedFilename": null,
       "detailedDescription": "",
@@ -23966,8 +24266,8 @@
       "file": "reusable/sfx/ding.mp3",
       "src": "/assets/reusable/sfx/ding.mp3",
       "extension": "mp3",
-      "sizeBytes": 133,
-      "sizeKb": 0,
+      "sizeBytes": 59564,
+      "sizeKb": 58,
       "dimensions": null,
       "orientation": "unknown",
       "tags": [
@@ -24009,7 +24309,7 @@
       }
     },
     {
-      "id": "reusable-sfx-hit-713779818b",
+      "id": "reusable-sfx-hit-77e7c448a4",
       "title": "Hit",
       "suggestedFilename": null,
       "detailedDescription": "",
@@ -24020,8 +24320,8 @@
       "file": "reusable/sfx/hit.mp3",
       "src": "/assets/reusable/sfx/hit.mp3",
       "extension": "mp3",
-      "sizeBytes": 133,
-      "sizeKb": 0,
+      "sizeBytes": 72015,
+      "sizeKb": 70,
       "dimensions": null,
       "orientation": "unknown",
       "tags": [
@@ -24063,7 +24363,7 @@
       }
     },
     {
-      "id": "reusable-sfx-pop-713779818b",
+      "id": "reusable-sfx-pop-5dfc366945",
       "title": "Pop",
       "suggestedFilename": null,
       "detailedDescription": "",
@@ -24074,8 +24374,8 @@
       "file": "reusable/sfx/pop.mp3",
       "src": "/assets/reusable/sfx/pop.mp3",
       "extension": "mp3",
-      "sizeBytes": 133,
-      "sizeKb": 0,
+      "sizeBytes": 46937,
+      "sizeKb": 46,
       "dimensions": null,
       "orientation": "unknown",
       "tags": [
@@ -24117,7 +24417,7 @@
       }
     },
     {
-      "id": "reusable-sfx-rise-713779818b",
+      "id": "reusable-sfx-rise-1a3092db8a",
       "title": "Rise",
       "suggestedFilename": null,
       "detailedDescription": "",
@@ -24128,8 +24428,8 @@
       "file": "reusable/sfx/rise.wav",
       "src": "/assets/reusable/sfx/rise.wav",
       "extension": "wav",
-      "sizeBytes": 133,
-      "sizeKb": 0,
+      "sizeBytes": 32684,
+      "sizeKb": 32,
       "dimensions": null,
       "orientation": "unknown",
       "tags": [
@@ -24171,7 +24471,7 @@
       }
     },
     {
-      "id": "reusable-sfx-whoosh-713779818b",
+      "id": "reusable-sfx-whoosh-e61be36390",
       "title": "Whoosh",
       "suggestedFilename": null,
       "detailedDescription": "",
@@ -24182,8 +24482,8 @@
       "file": "reusable/sfx/whoosh.wav",
       "src": "/assets/reusable/sfx/whoosh.wav",
       "extension": "wav",
-      "sizeBytes": 133,
-      "sizeKb": 0,
+      "sizeBytes": 49964,
+      "sizeKb": 49,
       "dimensions": null,
       "orientation": "unknown",
       "tags": [

@@ -64,6 +64,9 @@ export interface AnalyzedImage {
   setting?: string;
   quantityScale?: 'small_amount' | 'moderate' | 'large_abundance' | 'irrelevant';
   mood: string;
+  narrativeRole?: 'problem_tension' | 'action_process' | 'success_payoff' | 'concept_abstract' | 'broll_environment';
+  emotionalValence?: 'crisis_negative' | 'neutral_analytical' | 'triumphant_positive';
+  microAction?: string;
   positiveThemes: string[];
   negativeThemes: string[];
   tierDisqualifiers?: string[];
@@ -407,7 +410,7 @@ Analyze the ACTUAL VISUAL CONTENT in each provided image (labeled Image 1 to Ima
 For EACH image, extract:
 1. Core Subject & Action (e.g. "man tired at office desk", "green candlestick stock market chart on phone", "modern city skyline", "stack of cash on table").
 2. Key Elements & Keywords (10-15 tags, e.g. ["money", "cash", "finance", "savings", "dollar", "wealth", "real_estate", "property"]).
-3. Positive Themes & Detected Objects (e.g. ["chart", "growth", "buildings"]).
+3. Narrative Role & Emotional Valence (Crucial for disambiguating similar images: distinguishes crisis/struggle from celebration/growth).
 
 Return ONLY a strict JSON array of objects with this exact structure:
 [
@@ -418,6 +421,9 @@ Return ONLY a strict JSON array of objects with this exact structure:
     "keywords": ["tag1", "tag2", "tag3", "tag4", "tag5"],
     "visualCategory": "finance_business | tech_ai | workspace_office | nature_travel | lifestyle_people | charts_data | architecture_urban",
     "detectedObjects": ["object1", "object2"],
+    "narrativeRole": "problem_tension | action_process | success_payoff | concept_abstract | broll_environment",
+    "emotionalValence": "crisis_negative | neutral_analytical | triumphant_positive",
+    "microAction": "specific physical action verb...",
     "mood": "cinematic | dramatic | analytical | corporate",
     "positiveThemes": ["theme1", "theme2"],
     "negativeThemes": []
@@ -589,6 +595,25 @@ export function scoreScriptToAnalyzedImageMatch(chunkText: string, image: Analyz
         score += 5;
       }
     }
+  }
+
+  // 7. Emotional Valence & Narrative Role Disambiguation (Prevents Similar Images Confusion)
+  const isCrisisText = /\b(debt|loss|collapse|bankrupt|fail|failing|struggle|struggling|crisis|problem|hard|poor|mistake|pain|broke|down|red|danger|fear)\b/i.test(normalizedText);
+  const isSuccessText = /\b(success|successful|profit|profitable|revenue|growth|scale|scaling|win|winning|celebrate|million|rich|wealth|abundance|high|green|trophy)\b/i.test(normalizedText);
+
+  if (image.emotionalValence === 'crisis_negative') {
+    if (isCrisisText) score += 35; // Boost negative image on crisis narration
+    if (isSuccessText) score -= 50; // Heavy penalty: never show crying/loss during success!
+  } else if (image.emotionalValence === 'triumphant_positive') {
+    if (isSuccessText) score += 35; // Boost celebration image on win narration
+    if (isCrisisText) score -= 50; // Heavy penalty: never show celebration during crisis!
+  }
+
+  if (image.narrativeRole === 'problem_tension' && isCrisisText) {
+    score += 25;
+  }
+  if (image.narrativeRole === 'success_payoff' && isSuccessText) {
+    score += 25;
   }
 
   return score;

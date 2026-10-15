@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles, Palette, Box, Camera, Check } from "lucide-react";
+import { Sparkles, Palette, Box, Check } from "lucide-react";
 
 export type StickerStyle =
   | "3d-presenter-man"
@@ -16,7 +16,7 @@ export type CharacterItem = {
   id: StickerStyle;
   name: string;
   badge?: string;
-  category: "2D" | "3D" | "Realistic";
+  category: "2D" | "3D";
   preview: string;
   poses: {
     welcome: string;
@@ -28,6 +28,10 @@ export type CharacterItem = {
   };
 };
 
+/**
+ * 100% Verified Cloudinary Asset Catalog for Compare Explainer
+ * Strictly shows available, working character assets. Missing/placeholder 3D characters removed.
+ */
 export const CHARACTER_CATALOG: CharacterItem[] = [
   // ── 3D Characters ──
   {
@@ -35,29 +39,14 @@ export const CHARACTER_CATALOG: CharacterItem[] = [
     name: "3D Teacher Pro",
     badge: "Popular 3D",
     category: "3D",
-    preview: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-welcome.png",
+    preview: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711876/itnavideo/assets/stickman/3d-presenter-man/teacher-welcome.png",
     poses: {
-      welcome: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-welcome.png",
-      left: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-left.png",
-      right: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-right.png",
-      thinking: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-thinking.png",
-      warning: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-warning.png",
-      success: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-success.png",
-    },
-  },
-  {
-    id: "casual-guy-3d",
-    name: "3D Casual Creator",
-    badge: "3D Stylized",
-    category: "3D",
-    preview: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-welcome.png",
-    poses: {
-      welcome: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-welcome.png",
-      left: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-left.png",
-      right: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-right.png",
-      thinking: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-thinking.png",
-      warning: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-warning.png",
-      success: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-success.png",
+      welcome: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711876/itnavideo/assets/stickman/3d-presenter-man/teacher-welcome.png",
+      left: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711871/itnavideo/assets/stickman/3d-presenter-man/teacher-left.png",
+      right: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711872/itnavideo/assets/stickman/3d-presenter-man/teacher-right.png",
+      thinking: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711874/itnavideo/assets/stickman/3d-presenter-man/teacher-thinking.png",
+      warning: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711875/itnavideo/assets/stickman/3d-presenter-man/teacher-warning.png",
+      success: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711873/itnavideo/assets/stickman/3d-presenter-man/teacher-success.png",
     },
   },
 
@@ -67,106 +56,74 @@ export const CHARACTER_CATALOG: CharacterItem[] = [
     name: "2D Teacher Pro",
     badge: "Vector Pro",
     category: "2D",
-    preview: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/2d-presenter-man/teacher-welcome.png",
+    preview: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711870/itnavideo/assets/stickman/2d-presenter-man/teacher-welcome.png",
     poses: {
-      welcome: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/2d-presenter-man/teacher-welcome.png",
-      left: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/2d-presenter-man/teacher-left.png",
-      right: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/2d-presenter-man/teacher-right.png",
-      thinking: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/2d-presenter-man/teacher-thinking.png",
-      warning: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/2d-presenter-man/teacher-warning.png",
-      success: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/2d-presenter-man/teacher-success.png",
+      welcome: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711870/itnavideo/assets/stickman/2d-presenter-man/teacher-welcome.png",
+      left: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711865/itnavideo/assets/stickman/2d-presenter-man/teacher-left.png",
+      right: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711865/itnavideo/assets/stickman/2d-presenter-man/teacher-right.png",
+      thinking: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711867/itnavideo/assets/stickman/2d-presenter-man/teacher-thinking.png",
+      warning: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711868/itnavideo/assets/stickman/2d-presenter-man/teacher-warning.png",
+      success: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711866/itnavideo/assets/stickman/2d-presenter-man/teacher-success.png",
     },
   },
   {
     id: "character-1",
-    name: "2D Anime Guy",
-    badge: "Anime",
+    name: "Stickman Pro",
+    badge: "Popular Stickman",
     category: "2D",
-    preview: "/assets/stickman/compare_characters/character-1/normal.png",
+    preview: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791706431/itnavideo/visuals/compare_explainer/character-1.png",
     poses: {
-      welcome: "/assets/stickman/compare_characters/character-1/normal.png",
-      left: "/assets/stickman/compare_characters/character-1/left.png",
-      right: "/assets/stickman/compare_characters/character-1/right.png",
-      thinking: "/assets/stickman/compare_characters/character-1/normal.png",
-      warning: "/assets/stickman/compare_characters/character-1/normal.png",
-      success: "/assets/stickman/compare_characters/character-1/normal.png",
+      welcome: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711886/itnavideo/assets/stickman/compare_characters/character-1/normal.png",
+      left: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711882/itnavideo/assets/stickman/compare_characters/character-1/left.png",
+      right: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711891/itnavideo/assets/stickman/compare_characters/character-1/right.png",
+      thinking: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711886/itnavideo/assets/stickman/compare_characters/character-1/normal.png",
+      warning: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711886/itnavideo/assets/stickman/compare_characters/character-1/normal.png",
+      success: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711886/itnavideo/assets/stickman/compare_characters/character-1/normal.png",
     },
   },
   {
     id: "character-2",
-    name: "2D Sketch Artist",
+    name: "Sketch Artist",
     badge: "Sketch",
     category: "2D",
-    preview: "/assets/stickman/compare_characters/character-2/normal.png",
+    preview: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791706433/itnavideo/visuals/compare_explainer/character-2.png",
     poses: {
-      welcome: "/assets/stickman/compare_characters/character-2/normal.png",
-      left: "/assets/stickman/compare_characters/character-2/left.png",
-      right: "/assets/stickman/compare_characters/character-2/right.png",
-      thinking: "/assets/stickman/compare_characters/character-2/normal.png",
-      warning: "/assets/stickman/compare_characters/character-2/normal.png",
-      success: "/assets/stickman/compare_characters/character-2/normal.png",
+      welcome: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711921/itnavideo/assets/stickman/compare_characters/character-2/normal.png",
+      left: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711903/itnavideo/assets/stickman/compare_characters/character-2/left.png",
+      right: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711928/itnavideo/assets/stickman/compare_characters/character-2/right.png",
+      thinking: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711921/itnavideo/assets/stickman/compare_characters/character-2/normal.png",
+      warning: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711921/itnavideo/assets/stickman/compare_characters/character-2/normal.png",
+      success: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711921/itnavideo/assets/stickman/compare_characters/character-2/normal.png",
     },
   },
   {
     id: "character-3",
-    name: "2D Stickman Presenter",
-    badge: "Stickman",
+    name: "Stickman Presenter",
+    badge: "Dynamic",
     category: "2D",
-    preview: "/assets/stickman/compare_characters/character-3/normal.png",
+    preview: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791706435/itnavideo/visuals/compare_explainer/character-3.png",
     poses: {
-      welcome: "/assets/stickman/compare_characters/character-3/normal.png",
-      left: "/assets/stickman/compare_characters/character-3/left.png",
-      right: "/assets/stickman/compare_characters/character-3/right.png",
-      thinking: "/assets/stickman/compare_characters/character-3/normal.png",
-      warning: "/assets/stickman/compare_characters/character-3/normal.png",
-      success: "/assets/stickman/compare_characters/character-3/normal.png",
+      welcome: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711933/itnavideo/assets/stickman/compare_characters/character-3/normal.png",
+      left: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711930/itnavideo/assets/stickman/compare_characters/character-3/left.png",
+      right: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711935/itnavideo/assets/stickman/compare_characters/character-3/right.png",
+      thinking: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711933/itnavideo/assets/stickman/compare_characters/character-3/normal.png",
+      warning: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711933/itnavideo/assets/stickman/compare_characters/character-3/normal.png",
+      success: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711933/itnavideo/assets/stickman/compare_characters/character-3/normal.png",
     },
   },
   {
     id: "character-4",
-    name: "2D Doodle Explainer",
+    name: "Doodle Explainer",
     badge: "Doodle",
     category: "2D",
-    preview: "/assets/stickman/compare_characters/character-4/normal.png",
+    preview: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791706436/itnavideo/visuals/compare_explainer/character-4.png",
     poses: {
-      welcome: "/assets/stickman/compare_characters/character-4/normal.png",
-      left: "/assets/stickman/compare_characters/character-4/left.png",
-      right: "/assets/stickman/compare_characters/character-4/right.png",
-      thinking: "/assets/stickman/compare_characters/character-4/normal.png",
-      warning: "/assets/stickman/compare_characters/character-4/normal.png",
-      success: "/assets/stickman/compare_characters/character-4/normal.png",
-    },
-  },
-
-  // ── Realistic Characters ──
-  {
-    id: "doctor-pro-real",
-    name: "Realistic Doctor",
-    badge: "Realistic Pro",
-    category: "Realistic",
-    preview: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-welcome.png",
-    poses: {
-      welcome: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-welcome.png",
-      left: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-left.png",
-      right: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-right.png",
-      thinking: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-thinking.png",
-      warning: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-warning.png",
-      success: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-success.png",
-    },
-  },
-  {
-    id: "tech-founder-real",
-    name: "Realistic Founder",
-    badge: "Realistic Pro",
-    category: "Realistic",
-    preview: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-welcome.png",
-    poses: {
-      welcome: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-welcome.png",
-      left: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-left.png",
-      right: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-right.png",
-      thinking: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-thinking.png",
-      warning: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-warning.png",
-      success: "https://storage.googleapis.com/itnavideo-media-assets/Templates/Compare-Explainer/Characters/3d-presenter-man/teacher-success.png",
+      welcome: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711942/itnavideo/assets/stickman/compare_characters/character-4/normal.png",
+      left: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711939/itnavideo/assets/stickman/compare_characters/character-4/left.png",
+      right: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711945/itnavideo/assets/stickman/compare_characters/character-4/right.png",
+      thinking: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711942/itnavideo/assets/stickman/compare_characters/character-4/normal.png",
+      warning: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711942/itnavideo/assets/stickman/compare_characters/character-4/normal.png",
+      success: "https://res.cloudinary.com/dhouh9idx/image/upload/v1791711942/itnavideo/assets/stickman/compare_characters/character-4/normal.png",
     },
   },
 ];
@@ -179,24 +136,17 @@ type StickerStylePickerProps = {
 const CATEGORY_SECTIONS = [
   {
     id: "3D" as const,
-    title: "1. 3D Characters",
+    title: "3D Stylized Presenter",
     icon: Box,
-    badge: "3D Stylized",
-    description: "High-fidelity stylized 3D avatars",
+    badge: "3D Pro",
+    description: "High-fidelity rendered 3D avatar",
   },
   {
     id: "2D" as const,
-    title: "2. 2D Characters",
+    title: "2D Vector & Stickman Presenters",
     icon: Palette,
-    badge: "2D Vector / Anime",
-    description: "Flat, sketch & animated cartoon presenters",
-  },
-  {
-    id: "Realistic" as const,
-    title: "3. Realistic Characters",
-    icon: Camera,
-    badge: "Realistic Pro",
-    description: "Photorealistic avatar presenters for professional explainers",
+    badge: "Vector / Stickman",
+    description: "Flat, sketch & animated stickman cartoon presenters",
   },
 ] as const;
 
@@ -209,28 +159,28 @@ export function StickerStylePicker({ value, onChange }: StickerStylePickerProps)
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Header with Title & Filter Pills */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-white/10 pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#FF8F00] shadow-[0_0_10px_rgba(255,143,0,0.8)]" />
-            <h3 className="text-sm font-black uppercase tracking-wider text-white">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#FF5722] shadow-[0_0_10px_rgba(255,87,34,0.8)]" />
+            <h4 className="text-xs font-black uppercase tracking-wider text-white">
               Choose Presenter Character
-            </h3>
-            <span className="rounded-full border border-[#FF6D00]/30 bg-[#FF6D00]/10 px-2.5 py-0.5 text-[10px] font-extrabold text-[#FFA726]">
-              {CHARACTER_CATALOG.length} Avatars
+            </h4>
+            <span className="rounded-full border border-orange-500/30 bg-orange-500/10 px-2.5 py-0.5 text-[10px] font-extrabold text-orange-400">
+              {CHARACTER_CATALOG.length} Verified Presenters
             </span>
           </div>
           <p className="mt-1 text-xs text-zinc-300 flex items-center gap-1.5 font-medium">
-            <Sparkles size={13} className="text-[#FFA726] shrink-0" />
-            <span>AI automatically syncs character poses, expressions, and reaction sound effects to your narration.</span>
+            <Sparkles size={13} className="text-[#FFA000] shrink-0" />
+            <span>AI automatically syncs character poses, side-pointing, and reactions to your narration.</span>
           </p>
         </div>
 
         {/* Quick Filter Tabs */}
-        <div className="flex flex-wrap gap-1 rounded-2xl border border-white/10 bg-black/40 p-1">
-          {["All", "3D", "2D", "Realistic"].map((cat) => {
+        <div className="flex flex-wrap gap-1 rounded-2xl border border-white/10 bg-black/50 p-1">
+          {["All", "3D", "2D"].map((cat) => {
             const isActive = activeCategoryFilter === cat;
             return (
               <button
@@ -239,25 +189,19 @@ export function StickerStylePicker({ value, onChange }: StickerStylePickerProps)
                 onClick={() => setActiveCategoryFilter(cat)}
                 className={`rounded-xl px-3 py-1 text-[11px] font-extrabold transition-all duration-200 cursor-pointer ${
                   isActive
-                    ? "bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-md shadow-[#FF6D00]/25 font-black"
+                    ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black shadow-md shadow-[#FF5722]/25 font-black"
                     : "text-zinc-400 hover:bg-white/5 hover:text-white"
                 }`}
               >
-                {cat === "All" ? "Show All Rows" : cat}
+                {cat === "All" ? "All Styles" : `${cat} Presenters`}
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* 3 STACKED SECTIONS: 2D -> 3D -> REALISTIC */}
-      {CHARACTER_CATALOG.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-white/15 bg-black/30 p-8 text-center">
-          <p className="text-xs font-bold text-zinc-300">No Presenter Characters Active</p>
-          <p className="text-[11px] text-zinc-500 mt-1">Ready to receive real character assets and poses.</p>
-        </div>
-      ) : (
-        <div className="space-y-8">
+      {/* Stacked Sections */}
+      <div className="space-y-6">
         {visibleSections.map((section) => {
           const sectionChars = CHARACTER_CATALOG.filter((c) => c.category === section.id);
           const SectionIcon = section.icon;
@@ -265,29 +209,29 @@ export function StickerStylePicker({ value, onChange }: StickerStylePickerProps)
           if (sectionChars.length === 0) return null;
 
           return (
-            <div key={section.id} className="space-y-3.5">
+            <div key={section.id} className="space-y-3">
               {/* Section Title Banner */}
-              <div className="flex items-center justify-between rounded-xl border border-white/5 bg-[#151E30]/70 px-3.5 py-2">
+              <div className="flex items-center justify-between rounded-xl border border-white/10 bg-[#070B14]/70 px-3.5 py-2">
                 <div className="flex items-center gap-2.5">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#FF6D00]/30 bg-[#FF6D00]/15 text-[#FFA726]">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg border border-orange-500/30 bg-orange-500/15 text-orange-400">
                     <SectionIcon size={14} />
                   </div>
                   <div>
-                    <h4 className="text-xs font-black tracking-wide text-white uppercase flex items-center gap-2">
+                    <h5 className="text-xs font-black tracking-wide text-white uppercase flex items-center gap-2">
                       <span>{section.title}</span>
                       <span className="text-[10px] font-normal normal-case text-zinc-400 hidden sm:inline">
                         • {section.description}
                       </span>
-                    </h4>
+                    </h5>
                   </div>
                 </div>
                 <span className="rounded-full border border-white/10 bg-black/40 px-2 py-0.5 text-[9px] font-bold text-zinc-300">
-                  {sectionChars.length} Avatars
+                  {sectionChars.length} {section.id}
                 </span>
               </div>
 
               {/* Character Grid with Circular Avatars */}
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
                 {sectionChars.map((char) => {
                   const isSelected = value === char.id;
 
@@ -297,39 +241,39 @@ export function StickerStylePicker({ value, onChange }: StickerStylePickerProps)
                       onClick={() => onChange(char.id)}
                       className={`group relative flex flex-col items-center justify-between rounded-2xl border p-3 transition-all duration-200 cursor-pointer ${
                         isSelected
-                          ? "border-[#FF6D00] bg-gradient-to-b from-[#FF6D00]/20 via-[#0E1526] to-[#070B14] shadow-[0_0_20px_rgba(255,109,0,0.3)] ring-2 ring-[#FF6D00]/50"
-                          : "border-white/10 bg-[#0E1526]/80 hover:border-white/25 hover:bg-[#151E30]"
+                          ? "border-[#FF5722] bg-gradient-to-b from-[#FF5722]/20 via-[#0E1526] to-[#070B14] shadow-[0_0_20px_rgba(255,87,34,0.35)] ring-2 ring-[#FF5722]/50"
+                          : "border-white/10 bg-[#070B14]/80 hover:border-white/25 hover:bg-[#111726]"
                       }`}
                     >
                       {/* Top Badge */}
-                      {char.badge ? (
+                      {char.badge && (
                         <div className="absolute left-2 top-2 z-10">
-                          <span className="rounded-full bg-[#FF6D00] px-1.5 py-0.5 text-[7px] font-black uppercase text-black shadow-md">
+                          <span className="rounded-full bg-gradient-to-r from-[#FF5722] to-[#FFA000] px-1.5 py-0.5 text-[7px] font-black uppercase text-black shadow-md">
                             {char.badge}
                           </span>
                         </div>
-                      ) : null}
+                      )}
 
                       {/* Selected Checkmark Badge */}
-                      {isSelected ? (
-                        <span className="absolute right-2 top-2 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-[10px] font-black text-black shadow-lg ring-2 ring-black">
+                      {isSelected && (
+                        <span className="absolute right-2 top-2 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-[10px] font-black text-black shadow-lg ring-2 ring-black">
                           ✓
                         </span>
-                      ) : null}
+                      )}
 
-                      {/* CIRCULAR Avatar Frame (Shows 100% Full Character Cleanly) */}
+                      {/* CIRCULAR Avatar Frame */}
                       <div className="my-1.5 flex flex-col items-center">
                         <div
                           className={`relative h-20 w-20 sm:h-22 sm:w-22 rounded-full overflow-hidden border p-1.5 flex items-center justify-center transition-all duration-300 group-hover:scale-105 ${
                             isSelected
-                              ? "border-[#FF6D00] bg-gradient-to-b from-[#FF6D00]/30 via-black to-black shadow-[0_0_15px_rgba(255,109,0,0.4)] ring-2 ring-[#FF6D00]/40"
+                              ? "border-[#FF5722] bg-gradient-to-b from-[#FF5722]/30 via-black to-black shadow-[0_0_15px_rgba(255,87,34,0.4)] ring-2 ring-[#FF5722]/40"
                               : "border-white/15 bg-black/60 group-hover:border-white/30"
                           }`}
                         >
                           {failedImages[char.id] ? (
                             <div className="flex flex-col items-center justify-center text-center p-1">
-                              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-tr from-[#FF6D00] to-[#FFA726] text-black font-black shadow-md">
-                                {char.category === "3D" ? <Box size={20} /> : char.category === "2D" ? <Palette size={20} /> : <Camera size={20} />}
+                              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-tr from-[#FF5722] to-[#FFA000] text-black font-black shadow-md">
+                                {char.category === "3D" ? <Box size={20} /> : <Palette size={20} />}
                               </div>
                             </div>
                           ) : (
@@ -347,7 +291,7 @@ export function StickerStylePicker({ value, onChange }: StickerStylePickerProps)
                         {/* Name */}
                         <p
                           className={`mt-2 text-center text-[11px] font-extrabold px-1 leading-tight ${
-                            isSelected ? "text-[#FFA726]" : "text-zinc-200"
+                            isSelected ? "text-[#FFA000]" : "text-zinc-200"
                           }`}
                         >
                           {char.name}
@@ -359,8 +303,8 @@ export function StickerStylePicker({ value, onChange }: StickerStylePickerProps)
                         <div
                           className={`w-full rounded-xl py-1 text-center text-[9px] font-black transition-all ${
                             isSelected
-                              ? "bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black shadow-sm"
-                              : "border border-white/10 bg-white/5 text-zinc-400 group-hover:border-[#FF6D00]/40 group-hover:bg-[#FF6D00]/10 group-hover:text-[#FFA726]"
+                              ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black shadow-sm"
+                              : "border border-white/10 bg-white/5 text-zinc-400 group-hover:border-orange-500/40 group-hover:bg-orange-500/10 group-hover:text-orange-300"
                           }`}
                         >
                           {isSelected ? "Selected" : "Select"}
@@ -374,8 +318,6 @@ export function StickerStylePicker({ value, onChange }: StickerStylePickerProps)
           );
         })}
       </div>
-      )}
     </div>
   );
 }
-

@@ -22,6 +22,8 @@ import {
   History,
   Layers3
 } from "lucide-react";
+import CinematicRenderProgress from "@/components/dashboard/CinematicRenderProgress";
+
 
 type BillingEntitlement = {
   active: boolean;
@@ -84,11 +86,25 @@ export default function TypographyVideoPage() {
 
   // Job & render states
   const [jobStatus, setJobStatus] = useState<JobStatus>({ state: "idle" });
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [billingEntitlement, setBillingEntitlement] = useState<BillingEntitlement | null>(null);
   const [recentRenders, setRecentRenders] = useState<RecentRender[]>([]);
   const [activeTab, setActiveTab] = useState<"studio" | "history">("studio");
 
   const renderRequestInFlightRef = useRef(false);
+
+  // Timer for elapsed seconds
+  useEffect(() => {
+    if (jobStatus.state !== "rendering" && jobStatus.state !== "uploading") {
+      setElapsedSeconds(0);
+      return;
+    }
+    const interval = setInterval(() => {
+      setElapsedSeconds((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [jobStatus.state]);
+
 
   // Auth redirect
   useEffect(() => {
@@ -134,13 +150,13 @@ export default function TypographyVideoPage() {
     if (!user) return;
     async function fetchBilling() {
       try {
-        const res = await fetch(`/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}`);
+        const res = await fetch(`/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}&email=${encodeURIComponent(user?.email || "")}`);
         const payload = await res.json().catch(() => ({}));
         if (res.ok && payload.ok && payload.entitlement) {
           const ent = payload.entitlement;
           const limit = Math.max(0, Math.round(Number(payload.usage?.limit || ent.monthlyVideoLimit || 0)));
           const used = Math.max(0, Math.round(Number(payload.usage?.used || 0)));
-          const remaining = Math.max(0, Math.round(Number(payload.usage?.remaining || limit - used)));
+          const remaining = Math.max(0, Math.round(Number(payload.usage?.remaining ?? (limit - used))));
           setBillingEntitlement({
             active: Boolean(ent.active),
             planId: ent.planId || "paid",
@@ -248,6 +264,7 @@ export default function TypographyVideoPage() {
           selectedVoice,
           topicTitle: plannedTitle,
           userId: user.id,
+          userEmail: user.email || undefined,
           typographyStyle,
           typographyShowCaptions: false,
           sfxIntensity: typographySfxIntensity,
@@ -406,9 +423,9 @@ export default function TypographyVideoPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#070B14] text-slate-100 selection:bg-[#FF5722]/20 selection:text-[#FF5722]">
+    <main className="min-h-screen bg-[#0B0D13] text-slate-100 selection:bg-[#FF5722]/20 selection:text-[#FF5722]">
       {/* Premium Header */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0E1526]/90 backdrop-blur-md">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0B0D13]/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-6">
             <Link
@@ -434,84 +451,25 @@ export default function TypographyVideoPage() {
       {/* Main Container */}
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 space-y-6">
 
-        {/* Dynamic Stepper Overlay during Render - Video rendering monitor stays dark black */}
+        {/* Dynamic Stepper Overlay during Render - Zero Blue Cinematic Render Screen */}
         {jobStatus.state !== "idle" && jobStatus.state !== "ready" && (
-          <div className="rounded-[28px] border border-slate-800 bg-[#070B14] p-6 sm:p-8 shadow-2xl max-w-3xl mx-auto space-y-6 text-white">
-            <div className="flex items-center justify-between gap-4">
-              <div className="space-y-1">
-                <h3 className="text-sm font-black text-white">Typography Rendering Progress</h3>
-                <p className="text-xs text-zinc-400">{jobStatus.message}</p>
-              </div>
-              <div className="flex items-center gap-1.5 text-xs font-black text-[#FFA000]">
-                <Loader2 size={13} className="animate-spin" />
-                <span>{Math.round((jobStatus.progress || 0) * 100)}%</span>
-              </div>
-            </div>
-
-            {/* Progress Bar */}
-            <div className="h-2 w-full rounded-full bg-black/60 overflow-hidden border border-white/5">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] transition-all duration-500 ease-out"
-                style={{ width: `${(jobStatus.progress || 0) * 100}%` }}
-              />
-            </div>
-
-            {/* Custom Steps List */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 pt-2">
-              {TYPO_RENDER_STEPS.map((step, idx) => {
-                const stepProgress = jobStatus.progress || 0;
-                const active = stepProgress >= step.threshold && stepProgress < (TYPO_RENDER_STEPS[idx + 1]?.threshold || 1.1);
-                const done = stepProgress >= (TYPO_RENDER_STEPS[idx + 1]?.threshold || 0.98);
-                const Icon = step?.icon || Sparkles;
-
-                return (
-                  <div
-                    key={step.label}
-                    className={`flex flex-row md:flex-col items-center md:items-start gap-3 p-3 rounded-2xl border transition-all ${
-                      active
-                        ? "border-[#FF5722] bg-[#FF5722]/10 shadow-md shadow-[#FF5722]/10"
-                        : done
-                        ? "border-emerald-500/20 bg-emerald-500/5 opacity-80"
-                        : "border-white/5 bg-black/20 opacity-40"
-                    }`}
-                  >
-                    <div
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border ${
-                        active
-                          ? "border-[#FF5722]/30 bg-[#FF5722]/10 text-[#FF9100]"
-                          : done
-                          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-                          : "border-white/10 bg-white/5 text-zinc-500"
-                      }`}
-                    >
-                      {done ? <CheckCircle2 size={15} /> : <Icon size={14} />}
-                    </div>
-                    <div className="space-y-0.5">
-                      <p className="text-[11px] font-black text-zinc-200 leading-snug">{step.label}</p>
-                      <p className="hidden md:block text-[9px] text-zinc-500 leading-normal">{step.detail}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {jobStatus.state === "error" && (
-              <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 flex items-start gap-3 text-xs text-red-300">
-                <AlertCircle size={16} className="shrink-0 mt-0.5" />
-                <div className="space-y-1">
-                  <p className="font-bold">Rendering Interrupted</p>
-                  <p>{jobStatus.message}</p>
-                  <button
-                    onClick={() => setJobStatus({ state: "idle" })}
-                    className="mt-2 rounded-lg bg-red-500 px-3 py-1 text-[10px] font-black text-white hover:bg-red-600 transition"
-                  >
-                    Reset Studio
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+          <CinematicRenderProgress
+            title="Kinetic Typography Video"
+            subtitle="Building your 30 FPS vertical reel with dynamic kinetic typography, spring physics & synced SFX."
+            modeLabel="9:16 Kinetic Typography Studio"
+            progress={jobStatus.progress}
+            isIndeterminate={jobStatus.progress === undefined}
+            statusMessage={jobStatus.message}
+            elapsedSeconds={elapsedSeconds}
+            steps={TYPO_RENDER_STEPS}
+            isError={jobStatus.state === "error"}
+            errorMessage={jobStatus.message}
+            onRetry={() => handleStartRender()}
+            onReset={() => setJobStatus({ state: "idle" })}
+            showTipsCarousel={true}
+          />
         )}
+
 
         {/* Ready Download Preview Stage - Kept dark for video contrast */}
         {jobStatus.state === "ready" && jobStatus.outputFile && (

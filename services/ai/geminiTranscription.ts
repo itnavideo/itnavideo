@@ -14,7 +14,13 @@ export type GeminiTranscriptionResult = {
   source: 'gemini';
 };
 
-const GEMINI_MODELS = ['gemini-2.0-flash', 'gemini-2.5-flash-lite', 'gemini-1.5-flash'];
+const GEMINI_MODELS = [
+  (process.env.GEMINI_MODEL || '').trim(),
+  'gemini-flash-latest',
+  'gemini-2.5-flash-lite',
+  'gemini-3.8-flash',
+  'gemini-3.1-flash-lite',
+].filter(Boolean);
 
 export async function transcribeMediaWithGeminiFallback({
   mediaUrl,

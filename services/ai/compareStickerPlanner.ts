@@ -80,7 +80,7 @@ function classifySentencePose(
   }
 
   // 3. Drawback / Warning / Risk / Trap in script
-  if (/\b(risk|problem|mistake|warning|issue|loss|avoid|danger|galti|nuksan|drawback|cons|kharab|heating|bekaar|mat lena|dhyan rakhna)\b/i.test(norm)) {
+  if (/\b(risk|problem|mistake|warning|issue|loss|avoid|danger|galti|nuksan|drawback|cons|kharab|heating|bekaar|mat lena|dhyan rakhna|dhyan rahe|drain|slow|lag|worst)\b/i.test(norm)) {
     return { pose: POSES.warning, reason: 'Highlighting drawback or warning in script' };
   }
 

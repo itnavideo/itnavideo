@@ -22,6 +22,8 @@ import {
   Clapperboard,
   History
 } from "lucide-react";
+import CinematicRenderProgress from "@/components/dashboard/CinematicRenderProgress";
+
 
 type BillingEntitlement = {
   active: boolean;
@@ -90,11 +92,25 @@ export default function CompareExplainerPage() {
 
   // Job & render states
   const [jobStatus, setJobStatus] = useState<JobStatus>({ state: "idle" });
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [billingEntitlement, setBillingEntitlement] = useState<BillingEntitlement | null>(null);
   const [recentRenders, setRecentRenders] = useState<RecentRender[]>([]);
   const [activeTab, setActiveTab] = useState<"studio" | "history">("studio");
 
   const renderRequestInFlightRef = useRef(false);
+
+  // Timer for elapsed seconds
+  useEffect(() => {
+    if (jobStatus.state !== "rendering" && jobStatus.state !== "uploading") {
+      setElapsedSeconds(0);
+      return;
+    }
+    const interval = setInterval(() => {
+      setElapsedSeconds((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [jobStatus.state]);
+
 
   // Auth check
   useEffect(() => {
@@ -134,13 +150,13 @@ export default function CompareExplainerPage() {
     if (!user) return;
     async function fetchBilling() {
       try {
-        const res = await fetch(`/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}`);
+        const res = await fetch(`/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}&email=${encodeURIComponent(user?.email || "")}`);
         const payload = await res.json().catch(() => ({}));
         if (res.ok && payload.ok && payload.entitlement) {
           const ent = payload.entitlement;
           const limit = Math.max(0, Math.round(Number(payload.usage?.limit || ent.monthlyVideoLimit || 0)));
           const used = Math.max(0, Math.round(Number(payload.usage?.used || 0)));
-          const remaining = Math.max(0, Math.round(Number(payload.usage?.remaining || limit - used)));
+          const remaining = Math.max(0, Math.round(Number(payload.usage?.remaining ?? (limit - used))));
           setBillingEntitlement({
             active: Boolean(ent.active),
             planId: ent.planId || "paid",
@@ -248,6 +264,7 @@ export default function CompareExplainerPage() {
           mode: "compare",
           topicTitle: plannedTitle,
           userId: user.id,
+          userEmail: user.email || undefined,
           comparisonImageKeys,
           compareLeftTitle: compareLeftTitle.trim(),
           compareRightTitle: compareRightTitle.trim(),
@@ -260,11 +277,11 @@ export default function CompareExplainerPage() {
           compareCaptionStyle,
           creatorHandle: compareHandle.trim() || "@itnavideo",
           stickerStyle,
-          aspectRatio,
-          durationSeconds: audioDurationSeconds,
-          sourceDurationSeconds: audioDurationSeconds,
-          mediaAspect: aspectRatio === "16:9" ? "landscape" : "portrait",
-          frameRange: audioDurationSeconds > 0 ? [0, Math.min(aspectRatio === "16:9" ? 9000 : 2700, Math.round(audioDurationSeconds * 30)) - 1] : undefined,
+          aspectRatio: "9:16",
+          durationSeconds: Math.min(90, audioDurationSeconds),
+          sourceDurationSeconds: Math.min(90, audioDurationSeconds),
+          mediaAspect: "portrait",
+          frameRange: audioDurationSeconds > 0 ? [0, Math.min(2700, Math.round(audioDurationSeconds * 30)) - 1] : undefined,
         }),
       });
 
@@ -415,9 +432,9 @@ export default function CompareExplainerPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#070B14] text-slate-100 selection:bg-[#FF5722]/20 selection:text-[#FF5722]">
+    <main className="min-h-screen bg-[#0B0D13] text-slate-100 selection:bg-[#FF5722]/20 selection:text-[#FF5722]">
       {/* Premium Header */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0E1526]/90 backdrop-blur-md">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0B0D13]/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-6">
             <Link
@@ -443,88 +460,29 @@ export default function CompareExplainerPage() {
       {/* Main Container */}
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 space-y-6">
 
-        {/* Dynamic Stepper Overlay during Render - Dark Black Frame */}
+        {/* Dynamic Stepper Overlay during Render - Zero Blue Cinematic Render Screen */}
         {jobStatus.state !== "idle" && jobStatus.state !== "ready" && (
-          <div className="rounded-[28px] border border-slate-800 bg-[#070B14] p-6 sm:p-8 shadow-2xl max-w-3xl mx-auto space-y-6 text-white">
-            <div className="flex items-center justify-between gap-4">
-              <div className="space-y-1">
-                <h3 className="text-sm font-black text-white">Versus Reel Rendering Progress</h3>
-                <p className="text-xs text-zinc-400">{jobStatus.message}</p>
-              </div>
-              <div className="flex items-center gap-1.5 text-xs font-black text-[#FFA000]">
-                <Loader2 size={13} className="animate-spin" />
-                <span>{Math.round((jobStatus.progress || 0) * 100)}%</span>
-              </div>
-            </div>
-
-            {/* M3 Custom Stepper Progress Bar */}
-            <div className="h-2 w-full rounded-full bg-black/60 overflow-hidden border border-white/5">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] transition-all duration-500 ease-out"
-                style={{ width: `${(jobStatus.progress || 0) * 100}%` }}
-              />
-            </div>
-
-            {/* Custom Steps List */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 pt-2">
-              {COMPARE_RENDER_STEPS.map((step, idx) => {
-                const stepProgress = jobStatus.progress || 0;
-                const active = stepProgress >= step.threshold && stepProgress < (COMPARE_RENDER_STEPS[idx + 1]?.threshold || 1.1);
-                const done = stepProgress >= (COMPARE_RENDER_STEPS[idx + 1]?.threshold || 0.98);
-                const Icon = step?.icon || Sparkles;
-
-                return (
-                  <div
-                    key={step.label}
-                    className={`flex flex-row md:flex-col items-center md:items-start gap-3 p-3 rounded-2xl border transition-all ${
-                      active
-                        ? "border-[#FF5722] bg-[#FF5722]/10 shadow-md shadow-[#FF5722]/10"
-                        : done
-                        ? "border-emerald-500/20 bg-emerald-500/5 opacity-80"
-                        : "border-white/5 bg-black/20 opacity-40"
-                    }`}
-                  >
-                    <div
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border ${
-                        active
-                          ? "border-[#FF5722]/30 bg-[#FF5722]/10 text-[#FF9100]"
-                          : done
-                          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-                          : "border-white/10 bg-white/5 text-zinc-500"
-                      }`}
-                    >
-                      {done ? <CheckCircle2 size={15} /> : <Icon size={14} />}
-                    </div>
-                    <div className="space-y-0.5">
-                      <p className="text-[11px] font-black text-zinc-200 leading-snug">{step.label}</p>
-                      <p className="hidden md:block text-[9px] text-zinc-500 leading-normal">{step.detail}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {jobStatus.state === "error" && (
-              <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 flex items-start gap-3 text-xs text-red-300">
-                <AlertCircle size={16} className="shrink-0 mt-0.5" />
-                <div className="space-y-1">
-                  <p className="font-bold">Rendering Interrupted</p>
-                  <p>{jobStatus.message}</p>
-                  <button
-                    onClick={() => setJobStatus({ state: "idle" })}
-                    className="mt-2 rounded-lg bg-red-500 px-3 py-1 text-[10px] font-black text-white hover:bg-red-600 transition"
-                  >
-                    Reset Studio
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+          <CinematicRenderProgress
+            title="Versus Comparison Reel"
+            subtitle="Composing split-screen comparison cards, dynamic presenter reactions, and synced captions."
+            modeLabel="9:16 Compare Explainer Studio"
+            progress={jobStatus.progress}
+            isIndeterminate={jobStatus.progress === undefined}
+            statusMessage={jobStatus.message}
+            elapsedSeconds={elapsedSeconds}
+            steps={COMPARE_RENDER_STEPS}
+            isError={jobStatus.state === "error"}
+            errorMessage={jobStatus.message}
+            onRetry={() => handleStartRender()}
+            onReset={() => setJobStatus({ state: "idle" })}
+            showTipsCarousel={true}
+          />
         )}
+
 
         {/* Ready Download Preview Stage - Kept Dark Black for contrast */}
         {jobStatus.state === "ready" && jobStatus.outputFile && (
-          <div className="rounded-[28px] border border-slate-800 bg-[#070B14] p-6 shadow-2xl max-w-2xl mx-auto text-center space-y-6 text-white">
+          <div className="rounded-[28px] border border-white/10 bg-[#0B0D13] p-6 shadow-2xl max-w-2xl mx-auto text-center space-y-6 text-white">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
               <CheckCircle2 size={28} />
             </div>
@@ -602,11 +560,14 @@ export default function CompareExplainerPage() {
                 />
 
                 {/* Popular Comparison Formats Showcase */}
-                <div className="mx-auto max-w-3xl pt-8 border-t border-slate-200/80 space-y-4">
+                <div className="mx-auto max-w-4xl pt-8 border-t border-white/10 space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-sm font-black text-slate-800">Popular Comparison Formats</h3>
-                      <p className="text-xs text-slate-500">Trending versus topics creators make on Itnavideo</p>
+                      <h3 className="text-sm font-black text-white flex items-center gap-2">
+                        <Sparkles size={14} className="text-[#FFA000]" />
+                        <span>Popular Comparison Formats</span>
+                      </h3>
+                      <p className="text-xs text-zinc-400">Click any format to quick-fill your comparison titles</p>
                     </div>
                   </div>
 
@@ -625,16 +586,16 @@ export default function CompareExplainerPage() {
                             setCompareRightTitle(r);
                           }
                         }}
-                        className="group rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm hover:border-[#FF5722]/50 hover:shadow-md transition cursor-pointer"
+                        className="group rounded-2xl border border-white/10 bg-[#0E1526]/80 p-4 shadow-sm hover:border-[#FF5722]/50 hover:bg-[#111726] hover:shadow-lg hover:shadow-[#FF5722]/10 transition cursor-pointer"
                       >
                         <div className="flex items-center justify-between">
                           <span className="text-lg">{item.icon}</span>
-                          <span className="rounded-full bg-slate-100 group-hover:bg-[#FF5722]/10 px-2 py-0.5 text-[10px] font-bold text-slate-600 group-hover:text-[#FF5722] transition">
+                          <span className="rounded-full bg-white/5 group-hover:bg-[#FF5722]/15 px-2 py-0.5 text-[10px] font-bold text-zinc-400 group-hover:text-[#FFA000] transition">
                             {item.tag}
                           </span>
                         </div>
-                        <h4 className="mt-2 text-xs font-black text-slate-800">{item.title}</h4>
-                        <p className="mt-1 text-[11px] text-slate-500 font-medium group-hover:text-slate-700 transition">
+                        <h4 className="mt-2 text-xs font-black text-white group-hover:text-[#FFA000] transition">{item.title}</h4>
+                        <p className="mt-1 text-[11px] text-zinc-400 font-medium group-hover:text-zinc-200 transition">
                           {item.example}
                         </p>
                       </div>

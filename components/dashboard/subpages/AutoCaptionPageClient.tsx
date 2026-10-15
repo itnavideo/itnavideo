@@ -161,13 +161,13 @@ export default function AutoCaptionPage() {
     if (!user) return;
     async function fetchBilling() {
       try {
-        const res = await fetch(`/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}`);
+        const res = await fetch(`/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}&email=${encodeURIComponent(user?.email || "")}`);
         const payload = await res.json().catch(() => ({}));
         if (res.ok && payload.ok && payload.entitlement) {
           const ent = payload.entitlement;
           const limit = Math.max(0, Math.round(Number(payload.usage?.limit || ent.monthlyVideoLimit || 0)));
           const used = Math.max(0, Math.round(Number(payload.usage?.used || 0)));
-          const remaining = Math.max(0, Math.round(Number(payload.usage?.remaining || limit - used)));
+          const remaining = Math.max(0, Math.round(Number(payload.usage?.remaining ?? (limit - used))));
           setBillingEntitlement({
             active: Boolean(ent.active),
             planId: ent.planId || "paid",
@@ -276,6 +276,7 @@ export default function AutoCaptionPage() {
           mode: "autoCaption",
           topicTitle: plannedTitle,
           userId: user.id,
+          userEmail: user.email || undefined,
           captionStyle,
           captionPosition,
           captionFontSize,
@@ -464,16 +465,16 @@ export default function AutoCaptionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#070B14] text-slate-100 flex flex-col selection:bg-[#FF5722]/30 selection:text-white pb-28 sm:pb-12">
-      {/* ── Top Navigation Bar (Google Analytics Obsidian Surface) ── */}
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0E1526]/90 backdrop-blur-xl shadow-md">
+    <div className="min-h-screen bg-[#0B0D13] text-slate-100 flex flex-col selection:bg-[#FF5722]/30 selection:text-white pb-28 sm:pb-12">
+      {/* ── Top Navigation Bar (Obsidian Charcoal Surface) ── */}
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0B0D13]/90 backdrop-blur-xl shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 sm:gap-4">
             <BrandLogo size="sm" showBadge={false} />
             <div className="h-4 w-px bg-white/10 hidden sm:block" />
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#151E30] hover:bg-[#1C2840] px-3.5 py-1.5 text-xs font-bold text-slate-200 hover:text-white transition group"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 px-3.5 py-1.5 text-xs font-bold text-slate-200 hover:text-white transition group"
             >
               <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform text-[#FF7043]" />
               <span>Back to Dashboard</span>
@@ -499,22 +500,30 @@ export default function AutoCaptionPage() {
         </div>
       </header>
 
-      {/* ── Main Canvas ── */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      {/* ── Main Canvas (Spacious Studio Layout) ── */}
+      <main className="flex-1 max-w-[1700px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Navigation & Mode Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-6">
           <div>
-            <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
+            <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight font-jakarta">
               Auto Caption{" "}
-              <span className="text-[#FF7043]">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000]">
                 Studio
               </span>
             </h1>
-            <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl">
-              Generate word-synchronized kinetic subtitles for your videos in seconds.
+            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl font-medium">
+              Generate word-synchronized kinetic subtitles for your videos in seconds with Groq Whisper &amp; Remotion.
             </p>
           </div>
 
+          <div className="flex items-center gap-3">
+            <Link
+              href="/auto-caption/templates"
+              className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-[#0E1526] hover:bg-[#131B2E] hover:border-[#FF5722]/50 px-4 py-2 text-xs font-black text-[#FFA000] shadow-sm transition"
+            >
+              <span>Explore 100+ Template Gallery</span>
+            </Link>
+          </div>
         </div>
 
         {(isWorking || isReady || isError) ? (
@@ -537,9 +546,9 @@ export default function AutoCaptionPage() {
             />
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-            {/* Left 2 Cols: Form Config */}
-            <div className="lg:col-span-2 min-w-0 max-w-full overflow-x-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Left 8 Cols: Form Config & Style Catalog */}
+            <div className="lg:col-span-7 xl:col-span-8 min-w-0 max-w-full overflow-x-hidden">
               <AutoCaptionStudio
                 mode="autoCaption"
                 userId={user?.id}
@@ -588,8 +597,8 @@ export default function AutoCaptionPage() {
               />
             </div>
 
-            {/* Right 1 Col: Live 9:16 Video Preview Stage & Primary Render Action */}
-            <div className="space-y-5 lg:sticky lg:top-20">
+            {/* Right 4 Cols: Live 9:16 Video Preview Stage & Primary Render Action */}
+            <div className="lg:col-span-5 xl:col-span-4 space-y-5 lg:sticky lg:top-20">
               {/* 9:16 Vertical Video Preview Stage */}
               <AutoCaptionBeforeAfterPlayer
                 selectedPresetKey={captionStyle}
@@ -601,30 +610,44 @@ export default function AutoCaptionPage() {
                 onSelectPreset={setCaptionStyle}
                 onHighlightColorChange={setCaptionHighlightColor}
                 onRemoveFile={() => setSelectedFile(null)}
+                previewCaptions={previewCaptions}
               />
 
               {/* Primary Action Button */}
-              <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-4 shadow-xl">
+              <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-4 sm:p-5 shadow-2xl space-y-2.5">
                 <button
                   onClick={handleStartRender}
                   disabled={!selectedFile || isWorking}
-                  className={`w-full inline-flex min-h-[52px] items-center justify-center gap-2.5 rounded-2xl text-base font-black transition duration-200 ${
+                  className={`w-full inline-flex min-h-[56px] items-center justify-center gap-2.5 rounded-2xl text-base font-black transition duration-200 ${
                     !selectedFile
                       ? "bg-[#151E30] text-[#FFA000] border border-[#FF5722]/30 hover:border-[#FF5722]/60 shadow-inner cursor-not-allowed"
                       : isWorking
                       ? "bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black opacity-80 cursor-wait animate-pulse"
-                      : "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black shadow-xl shadow-[#FF5722]/30 hover:brightness-110 active:scale-95 cursor-pointer"
+                      : "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black shadow-xl shadow-[#FF5722]/30 hover:brightness-110 active:scale-95 cursor-pointer font-jakarta"
                   }`}
                 >
                   <Sparkles size={18} className={!selectedFile ? "text-[#FFA000]" : "text-black"} />
                   <span>
                     {!selectedFile
-                      ? "Upload Video First (Costs 1 Credit)"
+                      ? "Upload 9:16 Video First (1 Credit)"
                       : isWorking
-                      ? "Styling Reel..."
-                      : "Generate Video (Costs 1 Credit)"}
+                      ? "Rendering 1080p Reel..."
+                      : editedTranscript
+                      ? "Generate 1080p Reel (Costs 1 Credit)"
+                      : "Generate Reel (Costs 1 Credit)"}
                   </span>
                 </button>
+
+                {editedTranscript ? (
+                  <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-emerald-400">
+                    <CheckCircle2 size={14} />
+                    <span>Transcript synced with video</span>
+                  </div>
+                ) : (
+                  <p className="text-center text-[11px] text-slate-400 font-medium">
+                    1 Credit = 1 high-definition 1080p MP4 reel
+                  </p>
+                )}
               </div>
             </div>
           </div>

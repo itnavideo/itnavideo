@@ -140,3 +140,4 @@ public/visuals/**/*.mp4
 public/visuals/**/*.png
 public/visuals/**/*.jpg
 build_out.log
+.system_cache/

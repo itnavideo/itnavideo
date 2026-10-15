@@ -161,30 +161,51 @@ export function buildDeterministicSceneBlueprint(
       layoutType = 'big_typography';
     }
 
-    scenes.push({
-      sceneNumber: sceneIndexCounter++,
-      sceneType,
-      layoutType,
-      duration: chunkDuration,
-      narrationSegment: {
-        text,
-        startSeconds: chunk.start,
-        endSeconds: chunk.end,
-      },
-      heading: typographyAnalysis.suggestedHeading || assetPlan.suggestedHeading,
-      supportingText: typographyAnalysis.suggestedSupportingText || assetPlan.suggestedSupportingText,
-      highlightedWords: assetPlan.highlightedWords,
-      visualAssetRequirement: assetPlan.brollSearchQuery,
-      visualIntent: assetPlan.visualIntent,
-      brollSearchQuery: assetPlan.brollSearchQuery,
-      background: backgroundTheme,
-      fontHierarchy: {
-        headingFont,
-        bodyFont,
-      },
-      animation: assetPlan.motion,
-      SFX,
-      transition: sceneType === 'transition' ? 'zoom' : 'dissolve',
+      // Intelligent transition mapping according to YouTube editorial rules:
+      // Cut: everyday edits / fast beats
+      // Crossfade / Dissolve: calm documentary passages & historical visuals
+      // Slide / Wipe: chapter changes, comparison cards, lists
+      // Zoom: dramatic hook / key stat reveals (never overused)
+      // Fade to Black: major section breaks & conclusion
+      let sceneTransition: 'cut' | 'crossfade' | 'dissolve' | 'slide' | 'zoom' | 'fade_to_black' = 'dissolve';
+      if (sceneType === 'hook') {
+        sceneTransition = 'zoom';
+      } else if (sceneType === 'next_point' || (transcript.length > 2 && i === transcript.length - 1)) {
+        sceneTransition = 'fade_to_black';
+      } else if (layoutType === 'checklist' || layoutType === 'split_screen') {
+        sceneTransition = 'slide';
+      } else if (sceneType === 'example_stat') {
+        sceneTransition = 'zoom';
+      } else if (sceneType === 'main_point' && i > 0) {
+        sceneTransition = 'cut';
+      } else {
+        sceneTransition = 'dissolve';
+      }
+
+      scenes.push({
+        sceneNumber: sceneIndexCounter++,
+        sceneType,
+        layoutType,
+        duration: chunkDuration,
+        narrationSegment: {
+          text,
+          startSeconds: chunk.start,
+          endSeconds: chunk.end,
+        },
+        heading: typographyAnalysis.suggestedHeading || assetPlan.suggestedHeading,
+        supportingText: typographyAnalysis.suggestedSupportingText || assetPlan.suggestedSupportingText,
+        highlightedWords: assetPlan.highlightedWords,
+        visualAssetRequirement: assetPlan.brollSearchQuery,
+        visualIntent: assetPlan.visualIntent,
+        brollSearchQuery: assetPlan.brollSearchQuery,
+        background: backgroundTheme,
+        fontHierarchy: {
+          headingFont,
+          bodyFont,
+        },
+        animation: assetPlan.motion,
+        SFX,
+        transition: sceneTransition,
       typographyTreatment: typographyAnalysis.layoutMode,
       listItems: typographyAnalysis.listItems,
       statValue: typographyAnalysis.statData?.value || (sceneType === 'example_stat' ? '123K VIEWS' : undefined),
@@ -278,8 +299,9 @@ Return a strict JSON object with this structure:
   ]
 }`;
 
+    const modelName = (process.env.GEMINI_MODEL || 'gemini-flash-latest').trim();
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${geminiApiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

@@ -6,7 +6,7 @@ export async function POST(request) {
     const { apiKey } = await request.json();
     const cookieStore = await cookies();
     const adminApiKey = process.env.ADMIN_API_KEY || process.env.ADMIN_API_SECRET || process.env.ADMIN_PASSWORD || '8151933347';
-    const founderEmails = (process.env.FOUNDER_TEST_EMAILS || 'itnavideo@gmail.com,rohi@itnavideo.com,founder@itnavideo.com').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
+    const founderEmails = (process.env.FOUNDER_TEST_EMAILS || 'itnavideo@gmail.com,rohi@itnavideo.com').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
 
     if (!adminApiKey && !founderEmails.length) {
       return Response.json(

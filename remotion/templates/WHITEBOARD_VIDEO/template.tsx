@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import {
   AbsoluteFill,
   Audio,
@@ -11,6 +11,7 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from 'remotion';
+import { loadFont as loadKalam } from '@remotion/google-fonts/Kalam';
 import { loadFont as loadJakarta } from '@remotion/google-fonts/PlusJakartaSans';
 import { loadFont as loadInter } from '@remotion/google-fonts/Inter';
 import { DEFAULT_FPS, secondsToFrames } from '../../constants';
@@ -25,7 +26,6 @@ import {
   WB_USABLE_WIDTH,
   WB_USABLE_HEIGHT,
   WB_MAX_POINTS_PER_BOARD,
-  WB_MAX_WORDS_PER_POINT,
   WB_MAX_LINES_PER_POINT,
   WB_MAX_CHARS_PER_LINE,
   WB_TITLE_SIZE,
@@ -35,7 +35,6 @@ import {
   WB_REVEAL_FADE_FRAMES,
   WB_REVEAL_TRANSLATE_Y_START,
   getWhiteboardDimensions,
-  WhiteboardAspectRatio,
 } from '../../../lib/whiteboard/whiteboardConstants';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -96,27 +95,29 @@ type WhiteboardVideoProps = {
   conclusionTime?: number;
   boardStyle?: string;
   boardImageUrl?: string;
-  captions?: Array<{ start: number; end: number; text: string }>;
-  captionPosition?: 'bottom' | 'none';
-  aspectRatio?: '9:16' | '16:9';
+  aspectRatio?: '9:16';
+  enableSfx?: boolean;
 };
 
-// ── Corporate Fonts & Colors ───────────────────────────────────────────────
+// ── Whiteboard Marker Fonts & Colors ─────────────────────────────────────────
 
+const { fontFamily: KALAM_FONT } = loadKalam();
 const { fontFamily: JAKARTA_FONT } = loadJakarta();
 const { fontFamily: INTER_FONT } = loadInter();
 
+const FONT_WHITEBOARD = `${KALAM_FONT}, 'Kalam', 'Caveat', cursive, sans-serif`;
 const FONT_HEADER = `${JAKARTA_FONT}, sans-serif`;
 const FONT_BODY = `${INTER_FONT}, sans-serif`;
 
 const COLORS = {
-  title: '#0F172A',      // Corporate Slate Charcoal
+  title: '#0F172A',      // Slate Black
   blue: '#1E3A8A',       // Executive Navy
-  red: '#B91C1C',        // Deep Crimson
-  green: '#0F766E',      // Boardroom Emerald/Teal
+  green: '#0F766E',      // Boardroom Emerald
+  red: '#B91C1C',        // Vivid Crimson
+  amber: '#D97706',      // Sunset Amber
   black: '#0F172A',      // Primary Text
   grey: '#475569',       // Muted Gray
-  gold: '#D97706',       // Amber Gold
+  highlight: '#FEF08A',  // Yellow Marker Highlighter
 };
 
 const BULLET_CHARS: Record<string, string> = {
@@ -126,24 +127,6 @@ const BULLET_CHARS: Record<string, string> = {
   arrow: '→',
   star: '★',
 };
-
-// ── Board Configurations ──────────────────────────────────────────────────────
-
-type BoardConfig = {
-  image: string;
-  titleSize: number;
-  conclusionSize: number;
-};
-
-const BOARD_CONFIGS: Record<string, BoardConfig> = {
-  'corporate-luxury': {
-    image: 'assets/reusable/images/whiteboard-corporate-clean.png',
-    titleSize: WB_TITLE_SIZE,
-    conclusionSize: WB_CONCLUSION_SIZE,
-  },
-};
-
-const DEFAULT_BOARD = 'corporate-luxury';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -168,7 +151,11 @@ function splitLongToken(token: string, charsPerLine: number) {
   return parts;
 }
 
-function wrapWhiteboardText(text: string, charsPerLine: number = WB_MAX_CHARS_PER_LINE, maxLines: number = WB_MAX_LINES_PER_POINT) {
+function wrapWhiteboardText(
+  text: string,
+  charsPerLine: number = WB_MAX_CHARS_PER_LINE,
+  maxLines: number = WB_MAX_LINES_PER_POINT
+) {
   const words = clampText(text, charsPerLine * maxLines)
     .split(/\s+/)
     .filter(Boolean)
@@ -192,8 +179,127 @@ function wrapWhiteboardText(text: string, charsPerLine: number = WB_MAX_CHARS_PE
   return rendered || clampText(text, charsPerLine);
 }
 
-function countLines(text: string) {
-  return text ? text.split('\n').length : 0;
+// ── Procedural Whiteboard Frame & Background Component ────────────────────────
+
+function ProceduralWhiteboardCanvas() {
+  return (
+    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+      {/* Outer Room Ambience / Wall Shadow */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        background: 'linear-gradient(135deg, #0A0D14 0%, #111827 50%, #0A0D14 100%)',
+      }} />
+
+      {/* Realistic Aluminum Whiteboard Frame */}
+      <div style={{
+        position: 'absolute',
+        top: 24,
+        left: 20,
+        right: 20,
+        bottom: 24,
+        borderRadius: 24,
+        padding: 12,
+        background: 'linear-gradient(135deg, #E2E8F0 0%, #94A3B8 50%, #CBD5E1 100%)',
+        boxShadow: '0 24px 60px rgba(0, 0, 0, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.8), inset 0 -2px 4px rgba(0, 0, 0, 0.3)',
+      }}>
+        {/* Corner Screws / Mounting Brackets */}
+        {[
+          { top: 6, left: 6 },
+          { top: 6, right: 6 },
+          { bottom: 6, left: 6 },
+          { bottom: 6, right: 6 },
+        ].map((pos, i) => (
+          <div
+            key={i}
+            style={{
+              position: 'absolute',
+              ...pos,
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              backgroundColor: '#64748B',
+              boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.5)',
+            }}
+          />
+        ))}
+
+        {/* Whiteboard Porcelain Enamel Surface */}
+        <div style={{
+          position: 'relative',
+          width: '100%',
+          height: '100%',
+          borderRadius: 16,
+          background: 'linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 55%, #F1F5F9 100%)',
+          boxShadow: 'inset 0 4px 14px rgba(15, 23, 42, 0.08), inset 0 -2px 8px rgba(15, 23, 42, 0.04)',
+          overflow: 'hidden',
+        }}>
+          {/* Subtle Dry-Erase Dot Matrix Pattern (Physical Board feel) */}
+          <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0, opacity: 0.35 }}>
+            <defs>
+              <pattern id="wb-dots" x="0" y="0" width="36" height="36" patternUnits="userSpaceOnUse">
+                <circle cx="2" cy="2" r="1" fill="#94A3B8" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#wb-dots)" />
+          </svg>
+
+          {/* Soft Top Surface Specular Gloss Reflection */}
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '28%',
+            background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0) 100%)',
+            pointerEvents: 'none',
+          }} />
+        </div>
+      </div>
+
+      {/* Bottom Marker Tray with Pens & Eraser */}
+      <div style={{
+        position: 'absolute',
+        bottom: 20,
+        left: 120,
+        right: 120,
+        height: 18,
+        background: 'linear-gradient(180deg, #94A3B8 0%, #64748B 100%)',
+        borderRadius: '0 0 10px 10px',
+        boxShadow: '0 6px 16px rgba(0,0,0,0.4), inset 0 2px 3px rgba(255,255,255,0.4)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 24px',
+      }}>
+        {/* Felt Eraser */}
+        <div style={{
+          width: 68,
+          height: 10,
+          background: 'linear-gradient(180deg, #1E293B 0%, #0F172A 100%)',
+          borderRadius: 3,
+          boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+          borderTop: '2px solid #334155',
+        }} />
+
+        {/* 4 Dry-Erase Markers (Navy, Emerald, Crimson, Black) */}
+        <div style={{ display: 'flex', gap: 10 }}>
+          {['#1E3A8A', '#0F766E', '#B91C1C', '#0F172A'].map((c, i) => (
+            <div
+              key={i}
+              style={{
+                width: 44,
+                height: 8,
+                borderRadius: 4,
+                background: `linear-gradient(90deg, ${c} 0%, ${c} 70%, #E2E8F0 70%, #E2E8F0 100%)`,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // ── SVG Doodle Icons ──────────────────────────────────────────────────────────
@@ -204,23 +310,26 @@ const DOODLE_PATHS: Record<string, { path: string; viewBox: string; len: number 
   lightbulb: { path: 'M14 3 C9 3 5 7.5 5 12 C5 15.5 7.5 17 8.5 19 L19.5 19 C20.5 17 23 15.5 23 12 C23 7.5 19 3 14 3 Z M10 22 L18 22 M11 25 L17 25', viewBox: '0 0 28 28', len: 72 },
   star: { path: 'M14 2 L16.5 10 L25 10 L18.5 15 L21 23 L14 18.5 L7 23 L9.5 15 L3 10 L11.5 10 Z', viewBox: '0 0 28 28', len: 82 },
   circle: { path: 'M14 3 C20 3 25 8 25 14 C25 20 20 25 14 25 C8 25 3 20 3 14 C3 8 8 3 14 3', viewBox: '0 0 28 28', len: 64 },
+  chart: { path: 'M4 24 L4 4 M4 24 L24 24 M8 18 L14 11 L18 15 L24 7', viewBox: '0 0 28 28', len: 68 },
+  target: { path: 'M14 3 A11 11 0 1 0 14 25 A11 11 0 1 0 14 3 M14 8 A6 6 0 1 0 14 20 A6 6 0 1 0 14 8 M14 12 A2 2 0 1 0 14 16 A2 2 0 1 0 14 12', viewBox: '0 0 28 28', len: 90 },
+  rocket: { path: 'M14 3 C17 6 21 11 21 16 L17 19 L14 16 L11 19 L7 16 C7 11 11 6 14 3 Z M14 16 L14 24', viewBox: '0 0 28 28', len: 76 },
 };
 
-function DoodleIcon({ type, color, startFrame, size = 32 }: { type: string; color: string; startFrame: number; size?: number }) {
+function DoodleIcon({ type, color, startFrame, size = 36 }: { type: string; color: string; startFrame: number; size?: number }) {
   const frame = useCurrentFrame();
-  const doodle = DOODLE_PATHS[type];
+  const doodle = DOODLE_PATHS[type] || DOODLE_PATHS.lightbulb;
   if (!doodle) return null;
 
   const progress = interpolate(frame, [startFrame, startFrame + 12], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
   if (progress <= 0) return null;
 
   return (
-    <svg width={size} height={size} viewBox={doodle.viewBox} style={{ flexShrink: 0, marginRight: 12, marginTop: 2 }}>
+    <svg width={size} height={size} viewBox={doodle.viewBox} style={{ flexShrink: 0, marginRight: 14 }}>
       <path
         d={doodle.path}
         fill="none"
         stroke={color}
-        strokeWidth={3}
+        strokeWidth={3.4}
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeDasharray={doodle.len}
@@ -238,7 +347,7 @@ function WhiteboardDynamicSketch({
   color,
   startFrame,
   endFrame,
-  size = 56,
+  size = 64,
 }: {
   drawingId?: string;
   fallbackText?: string;
@@ -258,9 +367,9 @@ function WhiteboardDynamicSketch({
   const colorMap: Record<string, string> = {
     primary: color || '#1E40AF',
     accent: '#FF6D00',
-    highlight: '#F59E0B',
+    highlight: '#D97706',
     danger: '#DC2626',
-    success: '#16A34A',
+    success: '#0F766E',
     white: '#FFFFFF',
   };
 
@@ -299,7 +408,7 @@ function WhiteboardDynamicSketch({
             d={stroke.d}
             fill="none"
             stroke={strokeColor}
-            strokeWidth={stroke.strokeWidth || 3.2}
+            strokeWidth={stroke.strokeWidth || 3.4}
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeDasharray={strokeDashLen}
@@ -311,7 +420,7 @@ function WhiteboardDynamicSketch({
   );
 }
 
-// ── Focus Overlays ─────────────────────────────────────────────────────────
+// ── Focus Overlays (Spoken Word Highlighting) ──────────────────────────────────
 
 function FocusOverlay({
   type,
@@ -323,7 +432,7 @@ function FocusOverlay({
   startFrame: number;
 }) {
   const frame = useCurrentFrame();
-  const progress = interpolate(frame - startFrame, [0, 14], [0, 1], {
+  const progress = interpolate(frame - startFrame, [0, 12], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
@@ -337,13 +446,13 @@ function FocusOverlay({
           position: 'absolute',
           inset: '-6px -12px',
           backgroundColor: '#FEF08A',
-          borderRadius: '8px',
+          borderRadius: 8,
           zIndex: -1,
-          opacity: 0.88 * Math.min(1, progress * 1.5),
-          transform: `scaleX(${progress}) skew(-1deg)`,
+          opacity: 0.92 * Math.min(1, progress * 1.5),
+          transform: `scaleX(${progress}) skew(-2deg)`,
           transformOrigin: 'left center',
           pointerEvents: 'none',
-          boxShadow: '0 2px 10px rgba(250, 204, 21, 0.4)',
+          boxShadow: '0 2px 12px rgba(250, 204, 21, 0.45)',
         }}
       />
     );
@@ -354,14 +463,14 @@ function FocusOverlay({
       <div style={{ position: 'absolute', inset: '-8px -14px', pointerEvents: 'none', zIndex: 5 }}>
         <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
           <path
-            d="M 50,5 C 80,4 95,20 95,50 C 95,80 75,95 50,95 C 22,95 5,78 5,50 C 5,20 22,5 47,6"
+            d="M 50,5 C 82,4 96,20 96,50 C 96,80 75,95 50,95 C 20,95 4,78 4,50 C 4,20 20,5 48,6"
             fill="none"
             stroke={color}
-            strokeWidth={2.8}
+            strokeWidth={3.4}
             strokeLinecap="round"
             strokeDasharray={310}
             strokeDashoffset={310 * (1 - progress)}
-            opacity={0.88}
+            opacity={0.92}
           />
         </svg>
       </div>
@@ -370,17 +479,17 @@ function FocusOverlay({
 
   if (type === 'underline') {
     return (
-      <div style={{ position: 'absolute', bottom: '-6px', left: 0, right: 0, height: '8px', pointerEvents: 'none', zIndex: 5 }}>
-        <svg width="100%" height="100%" viewBox="0 0 200 8" preserveAspectRatio="none">
+      <div style={{ position: 'absolute', bottom: '-8px', left: 0, right: 0, height: 10, pointerEvents: 'none', zIndex: 5 }}>
+        <svg width="100%" height="100%" viewBox="0 0 200 10" preserveAspectRatio="none">
           <path
-            d="M 0,4 C 40,2 100,6 200,3"
+            d="M 0,5 C 40,2 100,8 200,4"
             fill="none"
             stroke={color}
-            strokeWidth={4}
+            strokeWidth={4.5}
             strokeLinecap="round"
             strokeDasharray={200}
             strokeDashoffset={200 * (1 - progress)}
-            opacity={0.88}
+            opacity={0.9}
           />
         </svg>
       </div>
@@ -396,33 +505,13 @@ function FocusOverlay({
             y="3"
             width="94"
             height="94"
-            rx="10"
-            fill="none"
-            stroke={color}
-            strokeWidth={2.6}
-            strokeLinecap="round"
-            strokeDasharray={400}
-            strokeDashoffset={400 * (1 - progress)}
-            opacity={0.85}
-          />
-        </svg>
-      </div>
-    );
-  }
-
-  if (type === 'arrow') {
-    return (
-      <div style={{ position: 'absolute', left: '-36px', top: '50%', transform: 'translateY(-50%)', width: '28px', height: '28px', pointerEvents: 'none', zIndex: 5 }}>
-        <svg width="100%" height="100%" viewBox="0 0 24 24">
-          <path
-            d="M 2,12 H 22 M 16,6 L 22,12 L 16,18"
+            rx="12"
             fill="none"
             stroke={color}
             strokeWidth={3.2}
             strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeDasharray={36}
-            strokeDashoffset={36 * (1 - progress)}
+            strokeDasharray={400}
+            strokeDashoffset={400 * (1 - progress)}
             opacity={0.9}
           />
         </svg>
@@ -434,28 +523,28 @@ function FocusOverlay({
 }
 
 const UNDERLINE_PATHS = [
-  'M0 4 C30 2 60 6 90 4 C120 2 150 6 180 3',
-  'M0 3 C40 5 80 1 120 4 C160 6 200 3 240 4',
-  'M0 5 C25 2 50 6 75 3 C100 1 125 5 150 3',
+  'M0 4 C35 1 70 7 105 4 C140 1 175 7 210 3',
+  'M0 4 C45 6 90 2 135 5 C180 7 225 3 260 4',
+  'M0 5 C30 2 60 7 90 3 C120 1 150 6 180 4',
 ];
 
 function MarkerUnderline({ color, startFrame, variant = 0 }: { color: string; startFrame: number; variant?: number }) {
   const frame = useCurrentFrame();
-  const pathLen = 240;
-  const progress = interpolate(frame, [startFrame, startFrame + 10], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+  const pathLen = 260;
+  const progress = interpolate(frame, [startFrame, startFrame + 12], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
   if (progress <= 0) return null;
 
   return (
-    <svg width="100%" height={8} viewBox="0 0 240 8" preserveAspectRatio="none" style={{ marginTop: 4 }}>
+    <svg width="100%" height={10} viewBox="0 0 260 10" preserveAspectRatio="none" style={{ marginTop: 6 }}>
       <path
         d={UNDERLINE_PATHS[variant % 3]}
         fill="none"
         stroke={color}
-        strokeWidth={3.8}
+        strokeWidth={4.6}
         strokeLinecap="round"
         strokeDasharray={pathLen}
         strokeDashoffset={pathLen * (1 - progress)}
-        opacity={0.8}
+        opacity={0.88}
       />
     </svg>
   );
@@ -505,9 +594,11 @@ function WritingLine({
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // Full text is rendered in full from frame 0 for stable line wrapping.
-  // Reveal is driven by opacity + small translateY over WB_REVEAL_FADE_FRAMES (8 frames).
-  const isRevealed = frame >= startFrame;
+  // Point is hidden until its speech starts
+  if (frame < startFrame) {
+    return null;
+  }
+
   const opacity = interpolate(
     frame,
     [startFrame, startFrame + WB_REVEAL_FADE_FRAMES],
@@ -527,15 +618,12 @@ function WritingLine({
                        currentTime >= focusStartTime && currentTime <= focusEndTime;
 
   const isUrdu = language === 'ur' || direction === 'rtl';
-  const isHindi = language === 'hi';
-  const activeFont = isTitle
-    ? (isUrdu ? "'Noto Nastaliq Urdu', 'Gulzar', serif" : isHindi ? "'Kalam', sans-serif" : FONT_HEADER)
-    : (isUrdu ? "'Noto Nastaliq Urdu', 'Gulzar', serif" : isHindi ? "'Kalam', sans-serif" : FONT_BODY);
-  const activeLineHeight = isUrdu ? 2.2 : isTitle ? 1.15 : 1.35;
+  const activeFont = isUrdu ? "'Noto Nastaliq Urdu', 'Gulzar', serif" : FONT_WHITEBOARD;
+  const activeLineHeight = isUrdu ? 2.2 : isTitle ? 1.2 : 1.35;
 
   return (
     <div style={{
-      opacity: isTitle ? (frame >= startFrame ? opacity : 0) : opacity,
+      opacity,
       transform: `translateY(${translateY}px)`,
       marginBottom: isTitle ? 32 : 24,
       display: 'flex',
@@ -545,19 +633,18 @@ function WritingLine({
       textAlign: isUrdu ? 'right' : 'left',
       minWidth: 0,
       position: 'relative',
-      background: isTitle ? 'transparent' : 'rgba(255, 255, 255, 0.96)',
-      border: isTitle ? 'none' : isFocusActive ? '3px solid #FACC15' : '1.5px solid rgba(226, 232, 240, 0.95)',
+      background: isTitle ? 'transparent' : 'rgba(255, 255, 255, 0.94)',
+      border: isTitle ? 'none' : isFocusActive ? `3px solid ${color || '#FACC15'}` : '1.5px solid rgba(203, 213, 225, 0.9)',
       boxShadow: isTitle
         ? 'none'
         : isFocusActive
-        ? '0 12px 32px rgba(234, 179, 8, 0.22), 0 2px 8px rgba(0,0,0,0.04)'
-        : '0 8px 24px rgba(15, 23, 42, 0.08), 0 2px 6px rgba(15, 23, 42, 0.04)',
-      borderRadius: isTitle ? 0 : 24,
-      padding: isTitle ? '0' : '22px 28px',
-      backdropFilter: isTitle ? 'none' : 'blur(12px)',
+        ? `0 12px 30px rgba(15, 23, 42, 0.12), 0 0 16px ${color}33`
+        : '0 8px 22px rgba(15, 23, 42, 0.07)',
+      borderRadius: isTitle ? 0 : 20,
+      padding: isTitle ? '0' : '20px 24px',
       transition: 'border 0.2s ease, box-shadow 0.2s ease',
     }}>
-      {/* Procedural Vector Drawing Sketch OR Cloudinary Icon OR SVG doodle */}
+      {/* Procedural Vector Drawing Sketch OR Doodle Icon */}
       {drawingId ? (
         <WhiteboardDynamicSketch
           drawingId={drawingId}
@@ -565,12 +652,12 @@ function WritingLine({
           color={color}
           startFrame={startFrame}
           endFrame={endFrame}
-          size={Math.max(48, Math.round(fontSize * 1.15))}
+          size={Math.max(52, Math.round(fontSize * 1.25))}
         />
       ) : iconUrl ? (
         <div style={{
-          width: Math.max(44, Math.round(fontSize * 1.1)),
-          height: Math.max(44, Math.round(fontSize * 1.1)),
+          width: Math.max(48, Math.round(fontSize * 1.15)),
+          height: Math.max(48, Math.round(fontSize * 1.15)),
           marginLeft: isUrdu ? 16 : 0,
           marginRight: isUrdu ? 0 : 16,
           flexShrink: 0,
@@ -578,19 +665,19 @@ function WritingLine({
           alignItems: 'center',
           justifyContent: 'center',
           background: '#FEF9C3',
-          borderRadius: 16,
+          borderRadius: 14,
           padding: 8,
           border: '1.5px solid #FDE047',
         }}>
           <Img src={iconUrl} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         </div>
       ) : icon && icon !== 'none' ? (
-        <DoodleIcon type={icon} color={color} startFrame={startFrame} size={Math.max(28, fontSize * 0.7)} />
+        <DoodleIcon type={icon} color={color} startFrame={startFrame} size={Math.max(32, fontSize * 0.75)} />
       ) : null}
 
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'inline-block', position: 'relative', maxWidth: '100%' }}>
-          {/* Executive Corporate Number Badge */}
+          {/* Hand-drawn marker number badge */}
           {bulletPrefix && !isTitle ? (
             <span style={{
               display: 'inline-flex',
@@ -598,13 +685,16 @@ function WritingLine({
               justifyContent: 'center',
               background: color || COLORS.blue,
               color: '#FFFFFF',
+              fontFamily: FONT_HEADER,
               fontWeight: 800,
-              fontSize: Math.round(fontSize * 0.62),
+              fontSize: Math.round(fontSize * 0.58),
               padding: '4px 12px',
               borderRadius: 10,
               marginRight: isUrdu ? 0 : 14,
               marginLeft: isUrdu ? 14 : 0,
               verticalAlign: 'middle',
+              transform: 'rotate(-2deg)',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
             }}>
               {bulletPrefix.trim()}
             </span>
@@ -625,15 +715,15 @@ function WritingLine({
             {text}
           </span>
 
-          {isTitle && isRevealed && <MarkerUnderline color={color} startFrame={startFrame + 4} variant={0} />}
-          {isHighlight && !isTitle && isRevealed && <MarkerUnderline color={color} startFrame={startFrame + 2} variant={pointIndex % 3} />}
+          {isTitle && <MarkerUnderline color={color} startFrame={startFrame + 4} variant={0} />}
+          {isHighlight && !isTitle && <MarkerUnderline color={color} startFrame={startFrame + 2} variant={pointIndex % 3} />}
 
-          {/* Dynamic real-time spoken highlight or focus overlay */}
+          {/* Real-time spoken highlight or focus overlay */}
           {isFocusActive && (
             <FocusOverlay
               type={focusType}
               color={color}
-              startFrame={Math.round(focusStartTime * fps)}
+              startFrame={Math.round((focusStartTime || 0) * fps)}
             />
           )}
         </div>
@@ -660,7 +750,7 @@ function WhiteboardTableView({
   const frame = useCurrentFrame();
   const currentTime = frame / fps;
   const isUrdu = language === 'ur' || direction === 'rtl';
-  const font = isUrdu ? "'Noto Nastaliq Urdu', 'Gulzar', serif" : "'Plus Jakarta Sans', sans-serif";
+  const font = isUrdu ? "'Noto Nastaliq Urdu', 'Gulzar', serif" : FONT_WHITEBOARD;
 
   return (
     <div style={{
@@ -790,7 +880,7 @@ function WhiteboardQuizView({
   const frame = useCurrentFrame();
   const currentTime = frame / fps;
   const isUrdu = language === 'ur' || direction === 'rtl';
-  const font = isUrdu ? "'Noto Nastaliq Urdu', 'Gulzar', serif" : "'Plus Jakarta Sans', sans-serif";
+  const font = isUrdu ? "'Noto Nastaliq Urdu', 'Gulzar', serif" : FONT_WHITEBOARD;
 
   const isRevealed = currentTime >= quiz.revealStart;
   const timerDuration = Math.max(1, quiz.revealStart - quiz.timerStart);
@@ -931,21 +1021,15 @@ function WhiteboardVideo({
   quiz,
   conclusion = '',
   conclusionTime,
-  boardStyle = DEFAULT_BOARD,
-  boardImageUrl,
-  aspectRatio = '9:16',
+  enableSfx = true,
 }: WhiteboardVideoProps) {
   const frame = useCurrentFrame();
-  const [imageError, setImageError] = useState(false);
   const { fps } = useVideoConfig();
   const resolvedSrc = resolveAsset(mediaSrc);
-  const board = BOARD_CONFIGS[boardStyle] || BOARD_CONFIGS[DEFAULT_BOARD];
-  const boardImage = boardImageUrl ? resolveAsset(boardImageUrl) : staticFile(board.image);
-
-  const dim = getWhiteboardDimensions(aspectRatio);
+  const dim = getWhiteboardDimensions();
   const currentTime = frame / fps;
 
-  // Calculate active board index
+  // Active board index: tracks current scene
   const activeBoardIndex = useMemo(() => {
     let active = 0;
     for (const p of points) {
@@ -957,22 +1041,22 @@ function WhiteboardVideo({
     return active;
   }, [points, currentTime]);
 
-  // Points on the active board
+  // Points belonging to the active board
   const activeBoardPoints = useMemo(() => {
     return points.filter((p) => (p.boardIndex ?? 0) === activeBoardIndex);
   }, [points, activeBoardIndex]);
 
-  // Fixed font size calculation per board (no transform scaling!)
+  // Dynamic point font size: calibrated so content never shrinks into illegibility
   const pointFontSize = useMemo(() => {
     const count = activeBoardPoints.length;
     const baseSize = dim.pointSizeByCount[count] || dim.pointSizeByCount[3];
     return Math.max(dim.pointSizeMin, baseSize);
   }, [activeBoardPoints.length, dim]);
 
-  const titleStartFrame = Math.round(0.4 * fps);
-  const titleEndFrame = titleStartFrame + Math.round(1.0 * fps);
-  const intro = spring({ frame, fps, config: { damping: 22, mass: 0.8 } });
+  const titleStartFrame = Math.round(0.2 * fps);
+  const titleEndFrame = titleStartFrame + Math.round(0.8 * fps);
 
+  // Transition between boards (swipe sound effect + board wipe)
   const firstPointOfCurrentBoard = activeBoardPoints[0];
   const boardTransitionStart = firstPointOfCurrentBoard && (firstPointOfCurrentBoard.boardIndex ?? 0) > 0
     ? Math.round(firstPointOfCurrentBoard.startTime * fps) - 8
@@ -989,34 +1073,16 @@ function WhiteboardVideo({
   const boardTranslateY = interpolate(
     frame,
     [boardTransitionStart, boardTransitionStart + 8],
-    [18, 0],
+    [16, 0],
     { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
   );
 
   return (
-    <AbsoluteFill style={{ background: '#0F172A' }}>
-      {/* Background board image */}
-      <div style={{
-        position: 'absolute',
-        inset: 0,
-        opacity: intro,
-      }}>
-        {imageError ? (
-          <div style={{
-            width: '100%',
-            height: '100%',
-            background: 'radial-gradient(circle, #f8fafc 60%, #e2e8f0 100%)',
-          }} />
-        ) : (
-          <Img
-            src={boardImage}
-            onError={() => setImageError(true)}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          />
-        )}
-      </div>
+    <AbsoluteFill style={{ background: '#0A0D14' }}>
+      {/* 1. Procedural Realistic Whiteboard Canvas & Frame */}
+      <ProceduralWhiteboardCanvas />
 
-      {/* FIXED SAFE-AREA CONTAINER (No scale transform, 100% layout stability) */}
+      {/* 2. Safe Area Container for Content */}
       <div style={{
         position: 'absolute',
         top: dim.safeTop,
@@ -1058,14 +1124,14 @@ function WhiteboardVideo({
               isTitle
             />
 
-            {/* Points (Max 3 per board) */}
+            {/* Points (Max 3 per board, step-by-step reveal) */}
             {activeBoardPoints.slice(0, WB_MAX_POINTS_PER_BOARD).map((point, index) => {
               const bullet = point.bulletType === 'number'
                 ? `${index + 1}`
                 : BULLET_CHARS[point.bulletType] || '';
               const startFrame = Math.round(point.startTime * fps);
               const endFrame = Math.round(point.endTime * fps);
-              const wrappedText = wrapWhiteboardText(point.text, WB_MAX_CHARS_PER_LINE - 2, WB_MAX_LINES_PER_POINT);
+              const wrappedText = wrapWhiteboardText(point.text, WB_MAX_CHARS_PER_LINE, WB_MAX_LINES_PER_POINT);
 
               return (
                 <WritingLine
@@ -1091,13 +1157,13 @@ function WhiteboardVideo({
               );
             })}
 
-            {/* Conclusion Takeaway (shown on last board when time reaches conclusionTime) */}
-            {conclusion && currentTime >= (conclusionTime || 0) - 1 && (
+            {/* Final Conclusion Takeaway */}
+            {conclusion && currentTime >= (conclusionTime || 0) - 1.2 && (
               <WritingLine
                 text={wrapWhiteboardText(conclusion, WB_MAX_CHARS_PER_LINE, 2)}
                 startFrame={Math.round((conclusionTime || 0) * fps)}
                 endFrame={Math.round((conclusionTime || 0) * fps) + 24}
-                color={COLORS.black}
+                color={COLORS.amber}
                 fontSize={dim.conclusionSize}
                 fontWeight={800}
                 direction={direction}
@@ -1109,17 +1175,21 @@ function WhiteboardVideo({
         )}
       </div>
 
-      {/* Sound Effects */}
-      {isTransitioningBoard && (
+      {/* 3. Sound Effects (Tactile Writing & Board Swipe) */}
+      {enableSfx && isTransitioningBoard && (
         <Audio
           src={resolveAsset('assets/reusable/sound-effects/swipe-right.wav')}
           volume={0.35}
         />
       )}
 
-      {/* Narration audio track */}
+      {/* 4. Narration Audio Track */}
       {resolvedSrc && mediaType === 'audio' && (
-        <Audio src={resolvedSrc} volume={sourceAudioVolume} startFrom={Math.round(mediaTrimStartSeconds * fps)} />
+        <Audio
+          src={resolvedSrc}
+          volume={sourceAudioVolume}
+          startFrom={Math.round(mediaTrimStartSeconds * fps)}
+        />
       )}
       {resolvedSrc && mediaType === 'video' && (
         <OffthreadVideo
@@ -1133,7 +1203,7 @@ function WhiteboardVideo({
   );
 }
 
-// ── Composition ───────────────────────────────────────────────────────────────
+// ── Composition (Strictly 9:16 Vertical Portrait, Up to 90s) ──────────────────
 
 const defaultProps: WhiteboardVideoProps = {
   mediaSrc: '',
@@ -1146,7 +1216,7 @@ const defaultProps: WhiteboardVideoProps = {
     { text: 'Target core bottleneck', startTime: 1.0, endTime: 6.5, focusStartTime: 1.0, focusEndTime: 6.5, markerColor: COLORS.blue, bulletType: 'number', icon: 'lightbulb', boardIndex: 0, focusType: 'circle' },
     { text: 'Validate executive metrics', startTime: 7.0, endTime: 13.5, focusStartTime: 7.0, focusEndTime: 13.5, markerColor: COLORS.green, bulletType: 'number', icon: 'checkmark', boardIndex: 0, focusType: 'underline' },
     { text: 'Scale distribution fast', startTime: 14.0, endTime: 21.0, focusStartTime: 14.0, focusEndTime: 21.0, markerColor: COLORS.red, bulletType: 'number', icon: 'arrow', boardIndex: 1, focusType: 'box' },
-    { text: 'Automate growth workflow', startTime: 21.5, endTime: 28.0, focusStartTime: 21.5, focusEndTime: 28.0, markerColor: COLORS.blue, bulletType: 'number', icon: 'star', boardIndex: 1, focusType: 'arrow' },
+    { text: 'Automate growth workflow', startTime: 21.5, endTime: 28.0, focusStartTime: 21.5, focusEndTime: 28.0, markerColor: COLORS.amber, bulletType: 'number', icon: 'star', boardIndex: 1, focusType: 'highlight' },
   ],
   conclusion: 'Strategy alignment complete.',
   conclusionTime: 28.2,
@@ -1166,14 +1236,10 @@ export const WhiteboardVideoComposition = () => (
     defaultProps={defaultProps}
     calculateMetadata={({ props }) => {
       const p = props as WhiteboardVideoProps;
-      const isLandscape = p.aspectRatio === '16:9';
-      const maxDur = isLandscape ? 300 : 90;
-      const dur = Math.max(8, Math.min(maxDur,
+      const dur = Math.max(8, Math.min(90,
         Number(p.durationSeconds) || Number(p.sourceDurationSeconds) || Number(p.renderWindowSeconds) || 30
       ));
-      const width = isLandscape ? 1920 : 1080;
-      const height = isLandscape ? 1080 : 1920;
-      return { durationInFrames: secondsToFrames(dur, DEFAULT_FPS), fps: DEFAULT_FPS, width, height };
+      return { durationInFrames: secondsToFrames(dur, DEFAULT_FPS), fps: DEFAULT_FPS, width: 1080, height: 1920 };
     }}
   />
 );

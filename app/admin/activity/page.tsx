@@ -32,7 +32,7 @@ const MOCK_AUDIT_LOGS: LogEntry[] = [
     category: "Auth",
     level: "Info",
     message: "User login completed successfully via Google SSO",
-    user: "founder@itnavideo.com",
+    user: "rohi@itnavideo.com",
     metadata: { ip: "103.240.231.14", duration: "120ms" }
   },
   {
@@ -41,7 +41,7 @@ const MOCK_AUDIT_LOGS: LogEntry[] = [
     category: "Videos",
     level: "Info",
     message: "Video render started for Long Video Clips",
-    user: "akram@itnavideo.com",
+    user: "rohi@itnavideo.com",
     metadata: { ip: "103.240.231.15", duration: "45000ms" }
   },
   {

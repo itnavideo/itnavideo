@@ -7,8 +7,9 @@
  * and later sent to /api/reels/jobs for the final render.
  */
 import { NextResponse } from 'next/server';
-import { createReadUrl } from '@/lib/gcs/mediaStorage';
+import { createReadUrl } from '@/lib/aws/mediaStorage';
 import { transcribeMediaUrlWithGroq } from '@/services/ai/groqTranscription';
+import { transcribeMediaWithGeminiFallback } from '@/services/ai/geminiTranscription';
 import {
   VIDEO_TYPE_REGISTRY,
   type ReelVideoTypeConfig,
@@ -107,11 +108,25 @@ export async function POST(request: Request) {
         language: subtitleLang,
       });
     } catch (err) {
-      return NextResponse.json({
-        ok: false,
-        error: 'Could not transcribe audio. Please ensure your file has clear speech.',
-        detail: err instanceof Error ? err.message : String(err),
-      }, { status: 422 });
+      console.warn('[PREVIEW] Groq transcription failed, trying Gemini fallback:', err);
+      try {
+        const geminiResult = await transcribeMediaWithGeminiFallback({
+          mediaUrl,
+          fileName,
+          contentType,
+        });
+        if (geminiResult && geminiResult.transcript) {
+          transcription = geminiResult;
+        } else {
+          throw new Error('Gemini fallback returned empty transcript.');
+        }
+      } catch (geminiErr) {
+        return NextResponse.json({
+          ok: false,
+          error: 'Could not transcribe audio. Please ensure your file has clear speech.',
+          detail: err instanceof Error ? err.message : String(err),
+        }, { status: 422 });
+      }
     }
 
     if (!transcription.transcript) {

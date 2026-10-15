@@ -61,7 +61,7 @@ export default function ShortsReelsToolsSection({
   return (
     <section className="space-y-4">
       {/* Section Header Banner */}
-      <div className="relative overflow-hidden rounded-[24px] border border-white/10 bg-gradient-to-r from-[#0E1526] via-[#151E30] to-[#070B14] shadow-2xl min-h-[120px] p-5 flex flex-col justify-between">
+      <div className="relative overflow-hidden rounded-[24px] border border-white/10 bg-gradient-to-r from-[#12151F] via-[#181B26] to-[#0B0D13] shadow-2xl min-h-[120px] p-5 flex flex-col justify-between">
         <div className="flex items-center justify-between gap-3 mb-2">
           <div className="inline-flex items-center gap-2 rounded-full border border-[#FF5722]/40 bg-black/50 backdrop-blur-md px-3 py-1 text-[11px] font-black tracking-wider text-[#FF9100]">
             <Smartphone size={13} className="text-[#FF9100]" />

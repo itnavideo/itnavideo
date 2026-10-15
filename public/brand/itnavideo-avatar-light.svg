@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Vibrant Flame Orange to Sunset Amber Gradient -->
+    <linearGradient id="avatarLightStem" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF5722"/>
+      <stop offset="100%" stop-color="#FF7043"/>
+    </linearGradient>
+
+    <linearGradient id="avatarLightChevron" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF5722"/>
+      <stop offset="55%" stop-color="#FF7043"/>
+      <stop offset="100%" stop-color="#FFA000"/>
+    </linearGradient>
+
+    <!-- Warm Dimensional Shadow on Crisp White Canvas -->
+    <filter id="avatarLightShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#FF5722" flood-opacity="0.22"/>
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.06"/>
+    </filter>
+  </defs>
+
+  <!-- Crisp Pure White Canvas (100% Clean in Circular & Square Avatars) -->
+  <rect width="512" height="512" fill="#FFFFFF"/>
+
+  <!-- Subtle Circular Safe-Zone Alignment Ring (Visible on Light Feeds) -->
+  <circle cx="256" cy="256" r="252" fill="none" stroke="#F1F5F9" stroke-width="6"/>
+
+  <!-- Centered Iconic Glyph with 20% Circular Safe-Zone (Never Cut by Instagram/YouTube) -->
+  <g transform="translate(64, 64) scale(3.84)" filter="url(#avatarLightShadow)">
+    <!-- Left Vertical Ribbon Stem ('I' for ITNA) -->
+    <rect x="15" y="14" width="18" height="72" rx="9" fill="url(#avatarLightStem)"/>
+
+    <!-- Forward Kinetic Play Chevron ('▶' for VIDEO) -->
+    <path
+      d="M 39 18 C 39 14 43.5 11.5 47 13.8 L 84 45.8 C 87.2 48 87.2 52 84 54.2 L 47 86.2 C 43.5 88.5 39 86 39 82 Z"
+      fill="url(#avatarLightChevron)"
+    />
+  </g>
+</svg>

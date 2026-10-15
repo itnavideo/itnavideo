@@ -76,10 +76,10 @@ These were previously in the form and are still not rendered:
 | Property | Value |
 |----------|-------|
 | Default size | 1080×1920 (9:16) |
-| Supported aspect | 9:16 only (currently) |
-| Max duration | 3 Minutes (180 seconds) |
+| Supported aspect | Strictly 9:16 Vertical Only (Master Rule 4.1) |
+| Max duration | 90 Seconds (90s) |
 | Min duration | 8 seconds |
-| Duration source | Browser-read uploaded media duration, capped to 180s |
+| Duration source | Browser-read uploaded media duration, strictly capped to 90s |
 | Export format | MP4 (H.264 + AAC) |
 | Audio handling | User's uploaded video audio plays at full volume |
 | Background music | Not used |
@@ -293,9 +293,9 @@ NOT through extra clutter, random UI, or forced text.
 
 Portrait/reel clips use a larger, face-biased hero crop so the speaker occupies most of the lower stage instead of sitting in a narrow column between blurred side areas. The old portrait-only curved side cue was removed in favor of the universal bottom **up-arrow + CTA pill**, which appears for every aspect ratio and communicates the "watch the full video" action clearly.
 
-### Live preview (2026)
+### Full-Width Spacious Studio Dashboard (Updated)
 
-The dashboard shows a CapCut-style sticky `@remotion/player` preview (`components/preview/LongVideoPromoPreview.tsx`) using the creator's real thumbnail, title, CTA text, and (if uploaded) the promo clip, so the layout, badges, arrow, and CTA pill are visible before spending the render.
+The dashboard provides a spacious, full-width creation workflow (`components/dashboard/LongVideoPromoStudio.tsx`). The weak sticky player preview was removed to make full use of screen real estate. The studio uses the signature Flame Orange (`#FF5722`) and Sunset Amber (`#FFA000`) brand palette, clear 4-step workflow, and high-conversion CTA cards without displaying unavailable demo videos.
 
 ---
 

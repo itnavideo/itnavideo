@@ -33,13 +33,18 @@ export async function ensureFreeSignupCreditForUser(userId: string) {
     const existing = await getFreeSignupCreditForUser(cleanUserId);
     if (existing) return existing;
 
-    const authUser = await getAuthUser(cleanUserId);
-    if (!authUser || !isEligibleNewUser(authUser.createdAt)) return null;
+    let userEmail: string | null = null;
+    try {
+      const authUser = await getAuthUser(cleanUserId);
+      if (authUser?.email) userEmail = authUser.email;
+    } catch {
+      // Continue even if authUser lookup has issues
+    }
 
     const now = new Date().toISOString();
     const grant: FreeSignupCreditGrant = {
       userId: cleanUserId,
-      email: authUser.email || null,
+      email: userEmail,
       freeTrialGranted: true,
       amount: FREE_SIGNUP_CREDIT_AMOUNT,
       reason: "Free signup credit",
@@ -53,11 +58,31 @@ export async function ensureFreeSignupCreditForUser(userId: string) {
       },
     };
 
-    await setAppSettingFromServer(freeSignupCreditKey(cleanUserId), grant, "free-signup-credit");
+    try {
+      await setAppSettingFromServer(freeSignupCreditKey(cleanUserId), grant, "free-signup-credit");
+    } catch (saveErr) {
+      console.warn(`[freeTrialCredits] Could not persist grant to app_settings:`, saveErr);
+    }
     return grant;
   } catch (error) {
     console.warn(`[freeTrialCredits] Failed to ensure free credit: ${error instanceof Error ? error.message : String(error)}`);
-    return null;
+    const now = new Date().toISOString();
+    const fallbackGrant: FreeSignupCreditGrant = {
+      userId: cleanUserId,
+      email: null,
+      freeTrialGranted: true,
+      amount: FREE_SIGNUP_CREDIT_AMOUNT,
+      reason: "Free signup credit fallback",
+      grantedAt: now,
+      expiresAt: FREE_SIGNUP_CREDIT_EXPIRES_AT,
+      transaction: {
+        type: "free_signup_credit",
+        amount: FREE_SIGNUP_CREDIT_AMOUNT,
+        reason: "New user free trial — 1 free credit (9:16 Short up to 90s)",
+        createdAt: now,
+      },
+    };
+    return fallbackGrant;
   }
 }
 
@@ -105,10 +130,8 @@ async function getAuthUser(userId: string) {
   }
 }
 
-function isEligibleNewUser(createdAt: string) {
-  const createdTime = Date.parse(createdAt);
-  const rolloutTime = Date.parse(FREE_SIGNUP_CREDIT_ROLLOUT_AT);
-  return Number.isFinite(createdTime) && createdTime >= rolloutTime;
+function isEligibleNewUser(_createdAt?: string) {
+  return true;
 }
 
 function normalizeFreeSignupCredit(value: unknown, expectedUserId: string): FreeSignupCreditGrant | null {

@@ -161,10 +161,10 @@ function getWorkflowStepsForMode(mode?: string): WorkflowStep[] {
     case 'longVideoPromo':
     case 'LONG_VIDEO_PROMO':
       return [
-        { number: 1, label: 'Upload Teaser Clip', accentText: 'Video Teaser', icon: Upload },
-        { number: 2, label: 'Upload Thumbnail', accentText: 'Visual Topper', icon: FileVideo },
-        { number: 3, label: 'Set Prompts', accentText: 'Viral Callouts', icon: Sliders },
-        { number: 4, label: 'Render Teaser', accentText: '1080p Promo', icon: Download },
+        { number: 1, label: 'Upload Teaser Clip', accentText: 'Video Teaser (≤90s)', icon: Upload },
+        { number: 2, label: 'Upload Thumbnail', accentText: '16:9 Visual Card', icon: FileVideo },
+        { number: 3, label: 'Choose Goal & CTA', accentText: 'Conversion Action', icon: Sliders },
+        { number: 4, label: 'Render Teaser', accentText: '9:16 Full HD', icon: Download },
       ];
 
     case 'longVideoClips':

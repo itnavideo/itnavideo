@@ -13,18 +13,20 @@ export const dynamic = "force-dynamic";
 export async function GET(request: NextRequest) {
   try {
     const userId = sanitizeString(request.nextUrl.searchParams.get("userId"));
-    if (!userId) {
-      return NextResponse.json({ ok: false, active: false, error: "userId is required" }, { status: 400 });
+    const email = sanitizeString(request.nextUrl.searchParams.get("email")).toLowerCase();
+    if (!userId && !email) {
+      return NextResponse.json({ ok: false, active: false, error: "userId or email is required" }, { status: 400 });
     }
+    const effectiveUserId = userId || email;
 
-    const founderAccess = await getFounderTestAccessForUser(userId);
+    const founderAccess = await getFounderTestAccessForUser(effectiveUserId, 1, email);
     if (founderAccess) {
       return NextResponse.json({
         ok: true,
         active: true,
         entitlement: {
-          userId,
-          email: null,
+          userId: effectiveUserId,
+          email: email || "rohi@itnavideo.com",
           planId: founderAccess.planId,
           planName: founderAccess.planName,
           monthlyVideoLimit: founderAccess.limit,

@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { releaseReservedRenderUsageFromServer } from '@/services/billing/renderAccess';
+import { cancelJob, cancelledJobs } from '@/lib/jobs/cancellationRegistry';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-// In-memory cancelled jobs set so status checks immediately return cancelled state
-export const cancelledJobs = new Set<string>();
+export { cancelledJobs };
 
 export async function POST(request: Request) {
   try {
@@ -17,8 +17,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: 'renderId or jobId is required.' }, { status: 400 });
     }
 
-    // Add render ID to in-memory cancellation registry
-    cancelledJobs.add(renderId);
+    // Add render ID to persistent cancellation registry
+    cancelJob(renderId);
 
     // Release reserved credit allocation if userId is provided
     if (userId) {

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useRef } from "react";
+import Link from "next/link";
 import {
   Sparkles,
   Check,
@@ -11,16 +12,19 @@ import {
   Pause,
   Volume2,
   VolumeX,
+  Flame,
+  Zap,
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
 } from "lucide-react";
 import { SUBTITLE_PRESETS } from "@/remotion/types/subtitles";
 import {
   SHORTS_PRESET_ORDER,
   LONG_FORM_PRESET_ORDER,
-  CaptionPreviewText,
   PREVIEW_CONFIG,
 } from "@/components/ui/SubtitleStylePicker";
 import previewTranscripts from "@/lib/cloudinary/autocaption-transcripts.json";
-import { getPreviewCaptionAtTime, type SavedPreviewTranscript } from "@/lib/captions/previewTranscript";
 import { getCaptionStyleCatalogItem } from "@/lib/cloudinary/captionCatalog";
 
 export interface AutoCaptionStyleCarouselProps {
@@ -48,21 +52,19 @@ export type StyleCategory =
 export interface CategoryTab {
   id: StyleCategory;
   label: string;
+  icon?: string;
 }
 
 export const CATEGORY_TABS: CategoryTab[] = [
-  { id: "viral-bold", label: "🔥 Bold / Viral" },
+  { id: "all", label: "🌐 All Styles (100+)" },
+  { id: "viral-bold", label: "🔥 Viral & Bold" },
   { id: "kinetic", label: "⚡ Kinetic" },
   { id: "glow", label: "✨ Glow & Neon" },
   { id: "cinematic", label: "🎬 Cinematic" },
   { id: "podcast", label: "🎙️ Podcast" },
   { id: "educational", label: "🎓 Educational" },
   { id: "minimal", label: "💎 Minimal & Clean" },
-  { id: "kids", label: "Kids Creators" },
-  { id: "animation2d", label: "2D Animation" },
-  { id: "animation3d", label: "3D Animation" },
   { id: "favorites", label: "★ Favorites" },
-  { id: "all", label: "🌐 All 100 Styles" },
 ];
 
 // Exact Category Presets Sets
@@ -103,6 +105,8 @@ export const GLOW_PRESETS = new Set([
   "Spark Glow",
   "Impact Glow",
   "Crazy Cyan",
+  "Blue Muse",
+  "Arctic Glow",
 ]);
 
 export const CINEMATIC_PRESETS = new Set([
@@ -186,78 +190,8 @@ export const ANIMATION_3D_PRESETS = new Set([
 
 export const CLEAN_PRO_PRESETS = MINIMAL_PRESETS;
 
-export interface StyleSectionDef {
-  id: StyleCategory;
-  title: string;
-  badge: string;
-  presets: string[];
-}
-
-export const STYLE_SECTIONS: StyleSectionDef[] = [
-  {
-    id: "viral-bold",
-    title: "Bold & Viral Styles",
-    badge: "🔥 High Retention",
-    presets: Array.from(VIRAL_BOLD_PRESETS),
-  },
-  {
-    id: "kinetic",
-    title: "Kinetic & Karaoke Styles",
-    badge: "⚡ Word-by-Word Motion",
-    presets: Array.from(KINETIC_PRESETS),
-  },
-  {
-    id: "glow",
-    title: "Glow & Neon Styles",
-    badge: "✨ Vibrant Illumination",
-    presets: Array.from(GLOW_PRESETS),
-  },
-  {
-    id: "cinematic",
-    title: "Cinematic & Documentary",
-    badge: "🎬 Broadcast Quality",
-    presets: Array.from(CINEMATIC_PRESETS),
-  },
-  {
-    id: "podcast",
-    title: "Podcast & Keynote",
-    badge: "🎙️ Studio Lecture",
-    presets: Array.from(PODCAST_PRESETS),
-  },
-  {
-    id: "educational",
-    title: "Educational & Explainer",
-    badge: "🎓 Clear Visual Pills",
-    presets: Array.from(EDUCATIONAL_PRESETS),
-  },
-  {
-    id: "minimal",
-    title: "Minimal & Clean Pro",
-    badge: "💎 Executive Elegance",
-    presets: Array.from(MINIMAL_PRESETS),
-  },
-  {
-    id: "kids",
-    title: "Kids Creator Styles",
-    badge: "Kids & Family Content",
-    presets: Array.from(KIDS_PRESETS),
-  },
-  {
-    id: "animation2d",
-    title: "2D Animation Styles",
-    badge: "Cartoons & Motion Graphics",
-    presets: Array.from(ANIMATION_2D_PRESETS),
-  },
-  {
-    id: "animation3d",
-    title: "3D Creator Styles",
-    badge: "Depth, Voxel & Cinema",
-    presets: Array.from(ANIMATION_3D_PRESETS),
-  },
-];
-
 export function getPresetCategoryLabel(key: string): string {
-  if (VIRAL_BOLD_PRESETS.has(key)) return "Bold / Viral";
+  if (VIRAL_BOLD_PRESETS.has(key)) return "Viral Bold";
   if (KINETIC_PRESETS.has(key)) return "Kinetic";
   if (GLOW_PRESETS.has(key)) return "Glow";
   if (CINEMATIC_PRESETS.has(key)) return "Cinematic";
@@ -267,7 +201,7 @@ export function getPresetCategoryLabel(key: string): string {
   if (KIDS_PRESETS.has(key)) return "Kids";
   if (ANIMATION_2D_PRESETS.has(key)) return "2D Animation";
   if (ANIMATION_3D_PRESETS.has(key)) return "3D Animation";
-  return "Broadcast";
+  return "Creator";
 }
 
 // Master list of all styles in canonical deduplicated order
@@ -279,228 +213,29 @@ export const ALL_STYLES_MASTER: string[] = Array.from(
   ])
 );
 
-// Registered Cloudinary preview videos, including the 19 new creator styles.
-export const AUTOCAPTION_54_VIDEOS: string[] = [
-  "ali-abdaal-clean-pill.mp4",
-  "bbc-netflix-closed-captions.mp4",
-  "cook.mp4",
-  "crazy-2.mp4",
-  "crazy.mp4",
-  "creator-3.mp4",
-  "cursive.mp4",
-  "cyber-lime-pill.mp4",
-  "devane-luxury-serif.mp4",
-  "diary-of-a-ceo.mp4",
-  "discipline.mp4",
-  "estate.mp4",
-  "gamer.mp4",
-  "hormozi-viral-pop.mp4",
-  "huberman-lab-lecture.mp4",
-  "impact.mp4",
-  "kinetic.mp4",
-  "kurzgesagt-explainer.mp4",
-  "lex-fridman-minimalist.mp4",
-  "m3-dynamic-chip.mp4",
-  "m3-elevated-card.mp4",
-  "m3-tonal-pill.mp4",
-  "master.mp4",
-  "mkbhd-tech-studio.mp4",
-  "mrbeast-16-9-punch.mp4",
-  "mrbeast-shorts-impact.mp4",
-  "opus-inverted-box.mp4",
-  "punch.mp4",
-  "red-wipe.mp4",
-  "shorts-karaoke.mp4",
-  "solo.mp4",
-  "spark.mp4",
-  "story.mp4",
-  "submagic-glow.mp4",
-  "vox-documentary.mp4",
-  "rainbow-pop.mp4",
-  "bubble-bounce.mp4",
-  "storybook-spark.mp4",
-  "crayon-caption.mp4",
-  "candy-karaoke.mp4",
-  "toon-word-pop.mp4",
-  "comic-burst-2d.mp4",
-  "cel-shade-2d.mp4",
-  "anime-kinetic-2d.mp4",
-  "flat-motion-2d.mp4",
-  "pixel-pop-2d.mp4",
-  "cutout-story-2d.mp4",
-  "toy-block-3d.mp4",
-  "depth-pop-3d.mp4",
-  "chrome-bounce-3d.mp4",
-  "holo-glass-3d.mp4",
-  "neon-voxel-3d.mp4",
-  "orbit-motion-3d.mp4",
-  "cinema-depth-3d.mp4",
+// Top 8 Trending Creator Presets for the Demo Video Showcase
+export const FEATURED_TRENDING_DEMOS: Array<{ key: string; badge: string; tag: string }> = [
+  { key: "Hormozi Viral Pop", badge: "🔥 #1 Viral", tag: "Alex Hormozi" },
+  { key: "MrBeast Shorts Impact", badge: "⚡ High Energy", tag: "MrBeast Punch" },
+  { key: "Submagic Glow", badge: "✨ Neon Glow", tag: "Submagic Viral" },
+  { key: "Ali Abdaal Clean Pill", badge: "💎 Minimal", tag: "Ali Abdaal" },
+  { key: "Kurzgesagt Explainer", badge: "🎓 Explainer", tag: "Kurzgesagt" },
+  { key: "Diary of a CEO", badge: "🎙️ Podcast", tag: "Steven Bartlett" },
+  { key: "Crazy 2", badge: "⚡ Dynamic", tag: "Kinetic Pop" },
+  { key: "Devane Luxury Serif", badge: "👑 Luxury", tag: "Editorial Serif" },
 ];
 
-// Explicit mapping for top style presets to their dedicated video files
-export const PRESET_TO_VIDEO_MAP: Record<string, string> = {
-  // Top Creator & Viral Styles
-  "Hormozi Viral Pop": "hormozi-viral-pop.mp4",
-  "MrBeast Shorts Impact": "mrbeast-shorts-impact.mp4",
-  "MrBeast 16:9 Punch": "mrbeast-16-9-punch.mp4",
-  "Impact": "impact.mp4",
-  "Bold Creator": "creator-3.mp4",
-  "Kinetic": "kinetic.mp4",
-  "Shorts Karaoke": "shorts-karaoke.mp4",
-  "Crazy": "crazy.mp4",
-  "Crazy 2": "crazy-2.mp4",
-  "Cursive": "cursive.mp4",
-  "Gamer": "gamer.mp4",
-  "Submagic Glow": "submagic-glow.mp4",
-  "Spark Glow": "spark.mp4",
-  "Spark": "spark.mp4",
-  "Vox Documentary": "vox-documentary.mp4",
-  "BBC / Netflix Closed Captions": "bbc-netflix-closed-captions.mp4",
-  "Studio Podcast": "solo.mp4",
-  "Diary of a CEO": "diary-of-a-ceo.mp4",
-  "Huberman Lab Lecture": "huberman-lab-lecture.mp4",
-  "MKBHD Tech Studio": "mkbhd-tech-studio.mp4",
-  "Kurzgesagt Explainer": "kurzgesagt-explainer.mp4",
-  "M3 Tonal Pill": "m3-tonal-pill.mp4",
-  "M3 Dynamic Chip": "m3-dynamic-chip.mp4",
-  "M3 Elevated Card": "m3-elevated-card.mp4",
-  "Minimal Clean": "ali-abdaal-clean-pill.mp4",
-  "Lex Fridman Minimalist": "lex-fridman-minimalist.mp4",
-  "Devane Luxury Serif": "devane-luxury-serif.mp4",
-  "Ali Abdaal Clean Pill": "ali-abdaal-clean-pill.mp4",
-  "Opus Inverted Box": "opus-inverted-box.mp4",
-  "Cyber Lime Pill": "cyber-lime-pill.mp4",
-  "Cook": "cook.mp4",
-  "Discipline": "discipline.mp4",
-  "Master": "master.mp4",
-  "Punch": "punch.mp4",
-  "Red Wipe": "red-wipe.mp4",
-  "Estate": "estate.mp4",
-  "Creator 3": "creator-3.mp4",
-  "Story": "story.mp4",
-  "Solo": "solo.mp4",
-
-  // Moonshot Typography & Additional Presets
-  "Blue Muse": "submagic-glow.mp4",
-  "Headliner": "mrbeast-shorts-impact.mp4",
-  "Chalk": "vox-documentary.mp4",
-  "Gold Centre": "devane-luxury-serif.mp4",
-  "Floodlight": "hormozi-viral-pop.mp4",
-  "Storyline": "story.mp4",
-  "The Difference": "ali-abdaal-clean-pill.mp4",
-  "Action": "punch.mp4",
-  "Stat Numbers": "kurzgesagt-explainer.mp4",
-  "Sharp Yellow": "punch.mp4",
-  "Ocean Blue": "ali-abdaal-clean-pill.mp4",
-  "Screamer": "crazy.mp4",
-  "Netflix Bar": "bbc-netflix-closed-captions.mp4",
-  "Black Card": "m3-elevated-card.mp4",
-  "Stock Green": "cyber-lime-pill.mp4",
-  "Boardroom": "lex-fridman-minimalist.mp4",
-  "Podcast Hype": "diary-of-a-ceo.mp4",
-  "Hustle": "discipline.mp4",
-  "Marigold": "mrbeast-shorts-impact.mp4",
-  "Gold Pill": "devane-luxury-serif.mp4",
-  "Midnight": "mkbhd-tech-studio.mp4",
-  "Arctic Glow": "submagic-glow.mp4",
-  "Studio Clean": "solo.mp4",
-  "One Word": "hormozi-viral-pop.mp4",
-  "Vollkorn": "vox-documentary.mp4",
-  "Pop Candy": "spark.mp4",
-  "Typewriter": "vox-documentary.mp4",
-  "Bold Fire": "red-wipe.mp4",
-  "Karaoke Fill": "shorts-karaoke.mp4",
-  "Reels Clean": "ali-abdaal-clean-pill.mp4",
-  "Bold Highlight Strip": "m3-dynamic-chip.mp4",
-  "Shatter Drop": "impact.mp4",
-  "Pill Bounce": "m3-tonal-pill.mp4",
-  "Cinematic Docu": "vox-documentary.mp4",
-  "Hacker Type": "cyber-lime-pill.mp4",
-  "Marker Highlight": "huberman-lab-lecture.mp4",
-  "Floating Serif": "devane-luxury-serif.mp4",
-  "Metallic Gradient": "estate.mp4",
-  "Neon Pulse": "spark.mp4",
-  "Minimal Fade": "lex-fridman-minimalist.mp4",
-  "Gradient Wave": "crazy-2.mp4",
-  "Retro VHS": "gamer.mp4",
-  "Handwritten": "cursive.mp4",
-  "Glass Blur": "m3-elevated-card.mp4",
-  "Split Color": "cook.mp4",
-  "M3 Surface Outline": "m3-tonal-pill.mp4",
-  "M3 Primary Container": "m3-dynamic-chip.mp4",
-  "Warikoo Black Card": "m3-elevated-card.mp4",
-  "Active Orange Pill": "m3-tonal-pill.mp4",
-  "Rainbow Pop": "rainbow-pop.mp4",
-  "Bubble Bounce": "bubble-bounce.mp4",
-  "Storybook Spark": "storybook-spark.mp4",
-  "Crayon Caption": "crayon-caption.mp4",
-  "Candy Karaoke": "candy-karaoke.mp4",
-  "Toon Word Pop": "toon-word-pop.mp4",
-  "Comic Burst 2D": "comic-burst-2d.mp4",
-  "Cel Shade 2D": "cel-shade-2d.mp4",
-  "Anime Kinetic 2D": "anime-kinetic-2d.mp4",
-  "Flat Motion 2D": "flat-motion-2d.mp4",
-  "Pixel Pop 2D": "pixel-pop-2d.mp4",
-  "Cutout Story 2D": "cutout-story-2d.mp4",
-  "Toy Block 3D": "toy-block-3d.mp4",
-  "Depth Pop 3D": "depth-pop-3d.mp4",
-  "Chrome Bounce 3D": "chrome-bounce-3d.mp4",
-  "Holo Glass 3D": "holo-glass-3d.mp4",
-  "Neon Voxel 3D": "neon-voxel-3d.mp4",
-  "Orbit Motion 3D": "orbit-motion-3d.mp4",
-  "Cinema Depth 3D": "cinema-depth-3d.mp4",
-};
-
-const SAVED_PREVIEW_VIDEO_FILENAMES = Object.keys(
-  previewTranscripts as Record<string, SavedPreviewTranscript>,
-);
-
-const SHORTS_STYLE_VIDEO_MAP: Record<string, string> = (() => {
-  const assignments: Record<string, string> = {};
-  const assignedVideos = new Set<string>();
-  const styleKeys = Array.from(new Set(SHORTS_PRESET_ORDER));
-
-  for (const key of styleKeys) {
-    const preferredVideo = PRESET_TO_VIDEO_MAP[key];
-    if (preferredVideo && (previewTranscripts as Record<string, any>)[preferredVideo] && !assignedVideos.has(preferredVideo)) {
-      assignments[key] = preferredVideo;
-      assignedVideos.add(preferredVideo);
-    }
-  }
-
-  const remainingVideos = SAVED_PREVIEW_VIDEO_FILENAMES.filter((filename) => !assignedVideos.has(filename));
-  let nextVideoIndex = 0;
-
-  for (const key of styleKeys) {
-    if (assignments[key]) continue;
-    const nextVideo = remainingVideos[nextVideoIndex];
-    if (!nextVideo) break;
-    assignments[key] = nextVideo;
-    nextVideoIndex += 1;
-  }
-
-  return assignments;
-})();
-
-function getCloudinaryPreviewAssetUrl(filename: string, transformation: string, extension: string): string {
-  const savedTranscript = (previewTranscripts as Record<string, SavedPreviewTranscript>)[filename];
-  const fallbackPublicId = `itnavideo-assets/autocaptionvideos/${filename.replace(/\.mp4$/i, "")}`;
-  const publicId = savedTranscript?.publicId || fallbackPublicId;
-  const encodedPublicId = publicId.split("/").map(encodeURIComponent).join("/");
-  return `https://res.cloudinary.com/dhouh9idx/video/upload/${transformation}/${encodedPublicId}.${extension}`;
-}
-
-export function getPresetVideoFilename(key: string, overrideIndex?: number): string {
+export function getPresetVideoFilename(key: string): string {
   const item = getCaptionStyleCatalogItem(key);
   return item.filename;
 }
 
-export function getPresetVideoUrl(key: string, overrideIndex?: number): string {
+export function getPresetVideoUrl(key: string): string {
   const item = getCaptionStyleCatalogItem(key);
   return item.previewVideoUrl;
 }
 
-export function getPresetPosterUrl(key: string, overrideIndex?: number): string {
+export function getPresetPosterUrl(key: string): string {
   const item = getCaptionStyleCatalogItem(key);
   return item.posterUrl;
 }
@@ -510,15 +245,14 @@ export function AutoCaptionStyleCarousel({
   onSelectPreset,
   onHighlightColorChange,
   mode = "shorts",
-  videoUrl,
 }: AutoCaptionStyleCarouselProps) {
-  const [activeCategory, setActiveCategory] = useState<StyleCategory>("viral-bold");
+  const [activeCategory, setActiveCategory] = useState<StyleCategory>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [showFeaturedDemos, setShowFeaturedDemos] = useState<boolean>(true);
 
-  // Only play video when explicitly clicked (Zero background autoPlay to protect 4GB RAM & mobile speed)
-  const [playingCardKey, setPlayingCardKey] = useState<string | null>(null);
-  const [cardPlaybackTimes, setCardPlaybackTimes] = useState<Record<string, number>>({});
-  const [isMuted, setIsMuted] = useState<boolean>(true);
+  // Demo showcase playback state (strictly limited to top 8 featured demos)
+  const [playingDemoKey, setPlayingDemoKey] = useState<string | null>(null);
+  const [isDemoMuted, setIsDemoMuted] = useState<boolean>(true);
 
   // Favorites state with localStorage persistence
   const [favorites, setFavorites] = useState<Set<string>>(() => {
@@ -552,7 +286,7 @@ export function AutoCaptionStyleCarousel({
 
   const masterList = mode === "longForm" ? LONG_FORM_PRESET_ORDER : SHORTS_PRESET_ORDER;
 
-  // Compute all visible style keys directly in a single flat array
+  // Filter styles instantaneously with 0 lag
   const filteredStyleKeys = useMemo(() => {
     const list = Array.from(new Set([...masterList, ...ALL_STYLES_MASTER]));
     return list.filter((key) => {
@@ -568,147 +302,90 @@ export function AutoCaptionStyleCarousel({
         if (!nameMatch && !fontMatch && !styleMatch) return false;
       }
 
-      // Favorites filter if favorites-only filter is active
+      // Favorites toggle filter
       if (activeCategory === "favorites") {
         return favorites.has(key);
       }
-
       return true;
     });
   }, [masterList, searchQuery, activeCategory, favorites]);
 
+  const handleCardClick = (key: string) => {
+    onSelectPreset(key);
+    const presetData = SUBTITLE_PRESETS[key];
+    if (onHighlightColorChange && presetData?.highlightColor) {
+      onHighlightColorChange(presetData.highlightColor);
+    }
+  };
+
   return (
-    <div id="caption-style-gallery" className="w-full space-y-4 pt-2 select-none scroll-mt-6">
-      {/* ── 1. Header: Title & Search ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-3">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black shadow-md shadow-[#FF5722]/20">
-            <Sparkles size={16} className="fill-black/20" />
+    <div id="caption-style-gallery" className="w-full space-y-6 pt-1 select-none scroll-mt-6">
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          FEATURED TOP 8 DEMOS STRIP (Real Video Moving Previews)
+      ══════════════════════════════════════════════════════════════════════ */}
+      <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-4 sm:p-5 shadow-xl space-y-3.5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-white/10 pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black shadow-md shadow-[#FF5722]/20">
+              <Flame size={17} className="fill-black/30" />
+            </div>
+            <div>
+              <h3 className="text-sm font-black uppercase tracking-wider text-white font-jakarta flex items-center gap-2">
+                Featured Creator Demos
+                <span className="rounded-full bg-orange-500/15 border border-orange-500/30 text-[#FFA000] text-[10px] font-black px-2 py-0.5 uppercase tracking-wider">
+                  Top 8 Live Videos
+                </span>
+              </h3>
+              <p className="text-xs text-slate-300">
+                Live video results from top creators. Click to apply directly to your video.
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-sm font-black uppercase tracking-wider text-white">
-              Available Caption Styles ({filteredStyleKeys.length})
-            </h3>
-            <p className="text-[11px] text-slate-400">
-              Select any style to preview live on your video.
-            </p>
-          </div>
-        </div>
 
-        <div className="flex items-center gap-2">
-          {/* Favorites Filter Quick Toggle */}
-          <button
-            type="button"
-            onClick={() => setActiveCategory(activeCategory === "favorites" ? "all" : "favorites")}
-            className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
-              activeCategory === "favorites"
-                ? "bg-amber-400 text-black shadow-md"
-                : "bg-[#161720] text-slate-300 border border-white/10 hover:border-amber-400/50"
-            }`}
-          >
-            <Star size={13} className={activeCategory === "favorites" ? "fill-black" : "text-amber-400 fill-amber-400/30"} />
-            <span>Favorites ({favorites.size})</span>
-          </button>
-
-          {/* Search Bar 🔍 */}
-          <div className="relative w-full sm:w-64">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search styles or fonts..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-[#090A0F] pl-9 pr-8 py-1.5 text-xs font-medium text-white placeholder-slate-500 focus:border-[#FF5722] focus:outline-none focus:ring-1 focus:ring-[#FF5722]/40 transition"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-0.5 rounded-full cursor-pointer"
-              >
-                <X size={13} />
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* ── 2. Unified 9:16 Style Grid (No Categories) ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 max-h-[520px] overflow-y-auto pr-1 custom-scrollbar">
-        {filteredStyleKeys.map((key) => {
-          const isSelected = selectedPresetKey === key;
-          const isPlaying = playingCardKey === key;
-          const isFav = favorites.has(key);
-          const presetData = SUBTITLE_PRESETS[key];
-          if (!presetData) return null;
-
-          const videoFilename = getPresetVideoFilename(key);
-          const cloudinaryVideoUrl = getPresetVideoUrl(key);
-          const cloudinaryPosterUrl = getPresetPosterUrl(key);
-
-          const cardVideoSrc = videoUrl || cloudinaryVideoUrl;
-          const cardPosterSrc = cloudinaryPosterUrl;
-          const savedPreviewTranscript = videoUrl
-            ? undefined
-            : (previewTranscripts as Record<string, SavedPreviewTranscript>)[videoFilename];
-          const cardPlaybackTime = cardPlaybackTimes[key] || 0;
-          const cardCaption = getPreviewCaptionAtTime(savedPreviewTranscript, cardPlaybackTime);
-          const cardCurrentWord = cardCaption?.words.find(
-            (word) => cardPlaybackTime >= word.start && cardPlaybackTime <= word.end,
-          );
-          const isCardPreviewActive = isPlaying || isSelected;
-
-          const presetOption = {
-            key,
-            label: presetData.name,
-            style: presetData.style,
-            font: presetData.fontFamily,
-            textColor: presetData.textColor,
-            highlightColor: presetData.highlightColor,
-            bgColor: presetData.backgroundColor,
-          };
-
-          const previewConfig = PREVIEW_CONFIG[key] || {
-            sampleLines: ["VIRAL CAPTIONS", "THAT POP"],
-            activeWord: "VIRAL",
-          };
-
-          return (
-            <div
-              key={key}
-              onClick={() => {
-                onSelectPreset(key);
-                if (onHighlightColorChange && presetData.highlightColor) {
-                  onHighlightColorChange(presetData.highlightColor);
-                }
-                if (playingCardKey === key) {
-                  setPlayingCardKey(null);
-                } else {
-                  setPlayingCardKey(key);
-                }
-              }}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  onSelectPreset(key);
-                  if (playingCardKey === key) {
-                    setPlayingCardKey(null);
-                  } else {
-                    setPlayingCardKey(key);
-                  }
-                }
-              }}
-              className={`group relative flex flex-col rounded-2xl border overflow-hidden cursor-pointer transition-all duration-200 select-none ${
-                isSelected
-                  ? "border-[#FF5722] bg-[#161720] ring-2 ring-[#FF5722]/50 shadow-xl shadow-[#FF5722]/25 scale-[1.02] z-10"
-                  : "border-white/10 bg-[#111218] hover:border-[#FF5722]/40 hover:bg-[#161720] hover:-translate-y-0.5"
-              }`}
+          <div className="flex items-center gap-2.5">
+            <Link
+              href="/auto-caption/templates"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-[#131B2E] hover:border-[#FF5722]/50 hover:bg-[#1A233A] px-3 py-1.5 text-xs font-bold text-[#FFA000] transition"
             >
-              {/* 9:16 Vertical Video / Style Preview Stage */}
-              <div className="relative w-full aspect-[9/16] bg-[#090A0F] overflow-hidden flex flex-col items-center justify-center">
-                {/* Real Video Playback for Caption Style */}
+              <span>Full 100+ Gallery</span>
+              <ExternalLink size={12} />
+            </Link>
+
+            <button
+              type="button"
+              onClick={() => setShowFeaturedDemos(!showFeaturedDemos)}
+              className="inline-flex items-center gap-1 rounded-xl border border-white/10 bg-[#070B14] hover:bg-[#131B2E] px-3 py-1.5 text-xs font-bold text-slate-300 hover:text-white transition cursor-pointer"
+            >
+              <span>{showFeaturedDemos ? "Hide Demos" : "Show Demos"}</span>
+              {showFeaturedDemos ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+            </button>
+          </div>
+        </div>
+
+        {/* Horizontal Carousel of the 8 Featured Video Demos */}
+        {showFeaturedDemos && (
+          <div className="flex gap-3 overflow-x-auto pb-2 pr-1 custom-scrollbar snap-x snap-mandatory">
+          {FEATURED_TRENDING_DEMOS.map(({ key, badge, tag }) => {
+            const isSelected = selectedPresetKey === key;
+            const isPlaying = playingDemoKey === key;
+            const videoSrc = getPresetVideoUrl(key);
+            const posterSrc = getPresetPosterUrl(key);
+            const presetData = SUBTITLE_PRESETS[key];
+
+            return (
+              <div
+                key={`demo-${key}`}
+                onClick={() => handleCardClick(key)}
+                onMouseEnter={() => setPlayingDemoKey(key)}
+                onMouseLeave={() => setPlayingDemoKey(null)}
+                className={`group relative flex-shrink-0 w-[140px] sm:w-[155px] aspect-[9/16] rounded-2xl border overflow-hidden cursor-pointer transition-all duration-200 snap-start select-none ${
+                  isSelected
+                    ? "border-2 border-[#FF5722] bg-[#141C30] ring-4 ring-[#FF5722]/20 shadow-xl shadow-[#FF5722]/25 scale-[1.02] z-10"
+                    : "border-white/10 bg-[#070B14] hover:border-[#FF5722]/50 hover:bg-[#0E1526] hover:-translate-y-1"
+                }`}
+              >
+                {/* Video Tag with zero background bandwidth waste (preload=none) */}
                 <video
                   ref={(el) => {
                     if (el) {
@@ -720,144 +397,260 @@ export function AutoCaptionStyleCarousel({
                       }
                     }
                   }}
-                  src={cardVideoSrc}
-                  poster={cardPosterSrc}
+                  src={videoSrc}
+                  poster={posterSrc}
                   playsInline
                   loop
-                  muted={isMuted}
-                  preload="metadata"
-                  onTimeUpdate={(e) => {
-                    const nextTime = Math.round(e.currentTarget.currentTime * 4) / 4;
-                    setCardPlaybackTimes((current) => current[key] === nextTime
-                      ? current
-                      : { ...current, [key]: nextTime });
-                  }}
+                  muted={isDemoMuted}
+                  preload="none"
                   className="h-full w-full object-cover"
                 />
 
-                {/* Center Play / Pause Action Button Overlay */}
-                <div className={`absolute inset-0 flex items-center justify-center z-25 transition-all duration-200 pointer-events-none ${
-                  isPlaying ? "opacity-0 group-hover:opacity-100" : "opacity-90 group-hover:scale-105"
-                }`}>
-                  <div className={`flex h-11 w-11 items-center justify-center rounded-full backdrop-blur-md border shadow-2xl transition-all ${
-                    isPlaying
-                      ? "bg-black/75 border-white/30 text-white hover:bg-red-500 hover:text-white hover:border-transparent"
-                      : "bg-black/65 border-white/20 text-white group-hover:bg-gradient-to-r group-hover:from-[#FF5722] group-hover:to-[#FF7043] group-hover:text-black group-hover:border-transparent group-hover:scale-110"
-                  }`}>
-                    {isPlaying ? <Pause size={18} className="fill-current" /> : <Play size={18} className="fill-current ml-0.5" />}
+                {/* Top Overlay Badges */}
+                <div className="absolute top-2 inset-x-2 flex items-center justify-between pointer-events-none z-20">
+                  <span className="rounded-full bg-black/80 backdrop-blur-md border border-white/15 px-2 py-0.5 text-[9px] font-black text-amber-300 shadow">
+                    {badge}
+                  </span>
+                  {isSelected && (
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#FF5722] text-black shadow-md">
+                      <Check size={11} strokeWidth={3.5} />
+                    </span>
+                  )}
+                </div>
+
+                {/* Play / Mute Controls */}
+                <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none transition-opacity duration-200">
+                  {!isPlaying && (
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-black/60 border border-white/20 text-white backdrop-blur-md group-hover:scale-110 group-hover:bg-[#FF5722] group-hover:text-black group-hover:border-transparent transition-transform shadow-lg">
+                      <Play size={15} className="fill-current ml-0.5" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Bottom Sound Toggle */}
+                {isPlaying && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsDemoMuted(!isDemoMuted);
+                    }}
+                    className="absolute top-2 right-2 z-30 flex h-6 w-6 items-center justify-center rounded-full bg-black/80 text-white border border-white/20 hover:bg-emerald-500 hover:text-black transition cursor-pointer"
+                  >
+                    {!isDemoMuted ? <Volume2 size={11} /> : <VolumeX size={11} />}
+                  </button>
+                )}
+
+                {/* Bottom Card Title Info */}
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/75 to-transparent p-2.5 pt-6 z-20">
+                  <p className="text-[11px] font-black text-white truncate font-jakarta">
+                    {key}
+                  </p>
+                  <p className="text-[9px] font-bold text-slate-300 truncate">
+                    {tag}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        )}
+      </div>
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          MAIN 100+ KINETIC TYPOGRAPHY CARDS (Ultra-Fast 60 FPS, Zero Lag)
+      ══════════════════════════════════════════════════════════════════════ */}
+      <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-4 sm:p-6 shadow-2xl space-y-5">
+        {/* Gallery Header + Search */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black shadow-md shadow-[#FF5722]/20">
+              <Sparkles size={16} className="fill-black/20" />
+            </div>
+            <div>
+              <h3 className="text-sm font-black uppercase tracking-wider text-white font-jakarta">
+                All Caption Styles ({filteredStyleKeys.length})
+              </h3>
+              <p className="text-xs text-slate-300">
+                Instant 60 FPS kinetic preview. Select any style to apply to the right video stage.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Favorites Toggle */}
+            <button
+              type="button"
+              onClick={() => setActiveCategory(activeCategory === "favorites" ? "all" : "favorites")}
+              className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-black transition cursor-pointer ${
+                activeCategory === "favorites"
+                  ? "bg-amber-400 text-black shadow-md"
+                  : "bg-[#131B2E] text-slate-200 border border-white/10 hover:border-amber-400/50"
+              }`}
+            >
+              <Star size={13} className={activeCategory === "favorites" ? "fill-black" : "text-amber-400 fill-amber-400/30"} />
+              <span>Favorites ({favorites.size})</span>
+            </button>
+
+            {/* Search Bar */}
+            <div className="relative w-full sm:w-60">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search styles or fonts..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full rounded-xl border border-white/10 bg-[#070B14] pl-9 pr-8 py-2 text-xs font-semibold text-white placeholder-slate-400 focus:border-[#FF5722] focus:outline-none focus:ring-1 focus:ring-[#FF5722]/40 transition"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-0.5 rounded-full cursor-pointer"
+                >
+                  <X size={13} />
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Direct All Styles Grid (No Category Tabs - All 100+ Presets Displayed Directly) */}
+
+        {/* 100+ Kinetic Typography Grid (Zero video lag, pure CSS/SVG animation) */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-3 max-h-[560px] overflow-y-auto pr-1 custom-scrollbar">
+          {filteredStyleKeys.map((key) => {
+            const isSelected = selectedPresetKey === key;
+            const isFav = favorites.has(key);
+            const presetData = SUBTITLE_PRESETS[key];
+            if (!presetData) return null;
+
+            const categoryLabel = getPresetCategoryLabel(key);
+            const highlightColor = presetData.highlightColor || "#FFA000";
+            const textColor = presetData.textColor || "#FFFFFF";
+            const backgroundColor = presetData.backgroundColor;
+            const fontFamily = presetData.fontFamily || "Plus Jakarta Sans, sans-serif";
+
+            return (
+              <div
+                key={key}
+                onClick={() => handleCardClick(key)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleCardClick(key);
+                  }
+                }}
+                className={`group relative flex flex-col justify-between rounded-2xl border cursor-pointer transition-all duration-200 select-none overflow-hidden ${
+                  isSelected
+                    ? "border-2 border-[#FF5722] bg-[#141C30] ring-4 ring-[#FF5722]/20 shadow-xl shadow-[#FF5722]/25 scale-[1.02] z-10"
+                    : "border-white/10 bg-[#070B14] hover:border-[#FF5722]/50 hover:bg-[#131B2E] hover:-translate-y-0.5"
+                }`}
+              >
+                {/* Top Card Header: Category Badge + Favorite Star */}
+                <div className="flex items-center justify-between p-2.5 pb-1 z-10">
+                  <span className="rounded-md bg-white/5 border border-white/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-slate-300">
+                    {categoryLabel}
+                  </span>
+
+                  <div className="flex items-center gap-1">
+                    {isSelected && (
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#FF5722] text-black shadow-md">
+                        <Check size={11} strokeWidth={3.5} />
+                      </span>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={(e) => toggleFavorite(e, key)}
+                      className={`flex h-6 w-6 items-center justify-center rounded-full transition cursor-pointer ${
+                        isFav
+                          ? "bg-amber-400 text-black shadow-md"
+                          : "text-slate-500 hover:text-amber-300 hover:bg-white/10"
+                      }`}
+                      title={isFav ? "Remove from Favorites" : "Add to Favorites"}
+                    >
+                      <Star size={11} className={isFav ? "fill-black" : ""} />
+                    </button>
                   </div>
                 </div>
 
-                {/* Top-Right Mute / Unmute Sound Toggle Button */}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsMuted(!isMuted);
-                  }}
-                  className={`absolute top-2.5 right-2.5 z-30 flex h-7 w-7 items-center justify-center rounded-full backdrop-blur-md border transition cursor-pointer ${
-                    !isMuted
-                      ? "bg-emerald-500 text-black border-emerald-400 shadow-lg shadow-emerald-500/30 scale-105"
-                      : "bg-black/60 text-slate-300 border-white/20 hover:text-white hover:bg-black/80"
-                  }`}
-                  title={isMuted ? "Turn Sound ON" : "Turn Sound OFF (Muted)"}
-                >
-                  {!isMuted ? <Volume2 size={13} strokeWidth={2.5} /> : <VolumeX size={13} strokeWidth={2.5} />}
-                </button>
+                {/* Central Kinetic Typography Preview Canvas */}
+                <div className="relative w-full aspect-[16/10] flex items-center justify-center p-3 text-center overflow-hidden">
+                  {/* Subtle ambient accent glow */}
+                  <div
+                    className="absolute inset-0 opacity-10 pointer-events-none blur-xl transition-opacity group-hover:opacity-25"
+                    style={{ backgroundColor: highlightColor }}
+                  />
 
-                {/* Top-Left Status Badges (Active & Playing indicators) */}
-                <div className="absolute top-2.5 left-2.5 pointer-events-none z-30 flex flex-col items-start gap-1">
-                  {isSelected && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-[#FF5722] px-2 py-0.5 text-[9px] font-black uppercase text-black shadow-md">
-                      <Check size={10} strokeWidth={3.5} />
-                      <span>Active</span>
+                  {/* The Typography Preview Elements */}
+                  <div className="relative z-10 flex flex-wrap items-center justify-center gap-1.5 px-1">
+                    <span
+                      style={{
+                        fontFamily,
+                        color: textColor,
+                        textShadow: "0 2px 4px rgba(0,0,0,0.9)",
+                      }}
+                      className="text-xs sm:text-sm font-black tracking-wide uppercase transition-transform group-hover:scale-105"
+                    >
+                      VIRAL
                     </span>
-                  )}
-                  {isPlaying && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500 px-2 py-0.5 text-[9px] font-black uppercase text-black shadow-md animate-pulse">
-                      <span className="h-1.5 w-1.5 rounded-full bg-black" />
-                      <span>Playing</span>
+                    <span
+                      style={{
+                        fontFamily,
+                        color: highlightColor,
+                        backgroundColor: backgroundColor && backgroundColor !== "transparent" ? backgroundColor : undefined,
+                        textShadow: `0 0 10px ${highlightColor}80`,
+                      }}
+                      className="text-xs sm:text-sm font-black tracking-wide uppercase px-1.5 py-0.5 rounded shadow-sm transition-transform group-hover:scale-110"
+                    >
+                      REEL
                     </span>
-                  )}
+                  </div>
                 </div>
 
-                {/* Favorite Star Button Overlay */}
-                <button
-                  type="button"
-                  onClick={(e) => toggleFavorite(e, key)}
-                  className={`absolute bottom-2.5 right-2.5 z-30 flex h-6 w-6 items-center justify-center rounded-full backdrop-blur-md border transition cursor-pointer ${
-                    isFav
-                      ? "bg-amber-400 text-black border-amber-300 shadow-md"
-                      : "bg-black/50 text-slate-400 border-white/10 hover:text-amber-300 hover:bg-black/70"
-                  }`}
-                  title={isFav ? "Remove from Favorites" : "Add to Favorites"}
-                >
-                  <Star size={11} className={isFav ? "fill-black" : ""} />
-                </button>
-
-                {/* Dynamic Live Caption Text Overlay */}
-                {isCardPreviewActive && cardCaption && (
-                  <>
-                    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[48%] bg-gradient-to-t from-black/85 via-black/35 to-transparent z-10" />
-                    <div className="pointer-events-none absolute inset-x-2 bottom-[24%] z-20 flex justify-center px-1 text-center">
-                      <CaptionPreviewText
-                        preset={presetOption}
-                        config={previewConfig}
-                        chunk={cardCaption}
-                        playbackTime={cardPlaybackTime}
-                        isPlaying={isCardPreviewActive}
-                        activeWord={cardCurrentWord?.word || cardCaption.activeWord}
-                        currentWordObj={cardCurrentWord}
-                      />
-                    </div>
-                  </>
-                )}
-              </div>
-
-              {/* Card Footer Info */}
-              <div className="flex items-center justify-between p-1.5 sm:p-2 bg-[#090A0F] border-t border-white/5 gap-1">
-                <div className="min-w-0 flex-1 pr-1" title={key}>
-                  <p className="text-[9px] sm:text-[10px] leading-snug font-black text-white tracking-tighter truncate">{key}</p>
-                  <p className="text-[8px] sm:text-[8.5px] font-extrabold text-slate-400 truncate">
-                    {getPresetCategoryLabel(key)}
+                {/* Card Footer: Style Name & Font Family */}
+                <div className="p-2.5 pt-2 border-t border-white/5 bg-[#090D18]/90">
+                  <p className="text-xs font-black text-white truncate font-jakarta">
+                    {key}
+                  </p>
+                  <p className="text-[10px] font-bold text-slate-400 truncate mt-0.5 font-mono">
+                    {fontFamily.split(",")[0].replace(/['"]/g, "")}
                   </p>
                 </div>
-                <div className="flex items-center gap-0.5 text-[8px] sm:text-[9px] font-bold text-[#FF7043] bg-[#FF5722]/10 border border-[#FF5722]/20 px-1.5 py-0.5 rounded-md shrink-0">
-                  {isPlaying ? <Pause size={8} /> : <Play size={8} />}
-                  <span>{isPlaying ? "Pause" : "Play"}</span>
-                </div>
               </div>
-            </div>
-          );
-              })}
-      </div>
-
-      {/* Empty State when Search returns no matches */}
-      {filteredStyleKeys.length === 0 && (
-        <div className="py-12 text-center space-y-2.5 rounded-2xl border border-dashed border-white/10 bg-[#0E1526]/60 p-6">
-          <p className="text-sm font-bold text-slate-300">
-            {activeCategory === "favorites"
-              ? "No favorite caption styles saved yet."
-              : `No caption styles found matching "${searchQuery}"`}
-          </p>
-          <p className="text-xs text-slate-500">
-            {activeCategory === "favorites"
-              ? "Click the star icon on any style card to add it to your favorites."
-              : 'Try searching for keywords like "Bold", "Pill", "Glow", or "Hormozi".'}
-          </p>
-          <button
-            type="button"
-            onClick={() => {
-              setSearchQuery("");
-              setActiveCategory("all");
-            }}
-            className="mt-2 inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-[#151E30] px-4 py-2 text-xs font-bold text-slate-200 hover:text-white hover:border-[#FF5722]/50 transition cursor-pointer"
-          >
-            Reset Filters
-          </button>
+            );
+          })}
         </div>
-      )}
+
+        {/* Empty State */}
+        {filteredStyleKeys.length === 0 && (
+          <div className="py-12 text-center space-y-2.5 rounded-2xl border border-dashed border-white/10 bg-[#070B14] p-6">
+            <p className="text-sm font-bold text-slate-300">
+              {activeCategory === "favorites"
+                ? "No favorite caption styles saved yet."
+                : `No caption styles found matching "${searchQuery}"`}
+            </p>
+            <p className="text-xs text-slate-500">
+              {activeCategory === "favorites"
+                ? "Click the star icon on any style card to add it to your favorites."
+                : 'Try searching for keywords like "Bold", "Glow", or "Hormozi".'}
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery("");
+                setActiveCategory("all");
+              }}
+              className="mt-2 inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-[#131B2E] px-4 py-2 text-xs font-bold text-slate-200 hover:text-white hover:border-[#FF5722]/50 transition cursor-pointer"
+            >
+              Reset Filters
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
-

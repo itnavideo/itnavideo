@@ -25,6 +25,7 @@
     "media:clean": "node scripts/preprocess-media-audio.mjs",
     "media:transcribe": "node scripts/transcribe-video-explainer.mjs",
     "assets:index": "node scripts/index-assets.mjs",
+    "assets:auto-tag": "tsx scripts/auto-tag-s3-images.ts",
     "assets:preprocess": "node scripts/preprocess-assets.mjs",
     "assets:sfx": "node scripts/generate-core-sfx.mjs",
     "assets:sfx:download": "node scripts/download-core-sfx.mjs",

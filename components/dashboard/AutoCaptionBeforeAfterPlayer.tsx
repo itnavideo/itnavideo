@@ -18,6 +18,7 @@ import {
   PREVIEW_CONFIG,
   CaptionStylePreviewConfig,
   PresetOption,
+  CaptionScriptChunk,
 } from "@/components/ui/SubtitleStylePicker";
 import {
   AutoCaptionStyleCarousel,
@@ -37,6 +38,7 @@ export interface AutoCaptionBeforeAfterPlayerProps {
   onReplaceFile?: () => void;
   onRemoveFile?: () => void;
   hideCarousel?: boolean;
+  previewCaptions?: Array<{ start: number; end: number; text: string; words?: any[] }> | null;
 }
 
 export function AutoCaptionBeforeAfterPlayer({
@@ -50,6 +52,7 @@ export function AutoCaptionBeforeAfterPlayer({
   onReplaceFile,
   onRemoveFile,
   hideCarousel = false,
+  previewCaptions = null,
 }: AutoCaptionBeforeAfterPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
@@ -179,14 +182,41 @@ export function AutoCaptionBeforeAfterPlayer({
   };
 
   const savedPreviewTranscript = (previewTranscripts as Record<string, SavedPreviewTranscript>)[videoFilename];
-  const currentChunk = uploadedMediaUrl
-    ? isPlaying
-      ? PREVIEW_SCRIPT_CHUNKS.find((chunk) => playbackTime >= chunk.start && playbackTime < chunk.end) || PREVIEW_SCRIPT_CHUNKS[0]
-      : PREVIEW_SCRIPT_CHUNKS[0]
-    : getPreviewCaptionAtTime(savedPreviewTranscript, playbackTime) || PREVIEW_SCRIPT_CHUNKS[Math.floor((playbackTime % 8) / 2) % PREVIEW_SCRIPT_CHUNKS.length];
+  const currentChunk = useMemo(() => {
+    if (uploadedMediaUrl) {
+      if (previewCaptions && previewCaptions.length > 0) {
+        const found = previewCaptions.find(
+          (c) => playbackTime >= c.start && playbackTime <= c.end
+        ) || previewCaptions[0];
+        if (found) {
+          const rawWords = (found.words && found.words.length > 0)
+            ? found.words
+            : found.text.split(/\s+/).map((w, i, arr) => ({
+                word: w,
+                start: found.start + (i / Math.max(arr.length, 1)) * Math.max(found.end - found.start, 1),
+                end: found.start + ((i + 1) / Math.max(arr.length, 1)) * Math.max(found.end - found.start, 1),
+              }));
+          const activeWordObj = rawWords.find((w: any) => playbackTime >= w.start && playbackTime <= w.end);
+          return {
+            id: 1,
+            start: found.start,
+            end: found.end,
+            sampleLines: [found.text],
+            lines: [found.text],
+            activeWord: activeWordObj?.word || rawWords[0]?.word || "",
+            words: rawWords,
+          } as CaptionScriptChunk;
+        }
+      }
+      return isPlaying
+        ? PREVIEW_SCRIPT_CHUNKS.find((chunk) => playbackTime >= chunk.start && playbackTime < chunk.end) || PREVIEW_SCRIPT_CHUNKS[0]
+        : PREVIEW_SCRIPT_CHUNKS[0];
+    }
+    return getPreviewCaptionAtTime(savedPreviewTranscript, playbackTime) || PREVIEW_SCRIPT_CHUNKS[Math.floor((playbackTime % 8) / 2) % PREVIEW_SCRIPT_CHUNKS.length];
+  }, [uploadedMediaUrl, previewCaptions, playbackTime, isPlaying, savedPreviewTranscript]);
 
   const currentWordObj = isPlaying && currentChunk
-    ? currentChunk.words.find((word) => playbackTime >= word.start && playbackTime <= word.end)
+    ? currentChunk.words.find((word: any) => playbackTime >= word.start && playbackTime <= word.end)
     : undefined;
 
   const currentActiveWord = currentWordObj
@@ -197,16 +227,16 @@ export function AutoCaptionBeforeAfterPlayer({
   const fileSizeText = uploadedFile ? `${(uploadedFile.size / (1024 * 1024)).toFixed(1)} MB` : "";
 
   return (
-    <div className="relative overflow-hidden rounded-[24px] sm:rounded-[28px] border border-white/10 bg-[#111218] p-3.5 sm:p-4 shadow-2xl text-white">
+    <div className="relative overflow-hidden rounded-[24px] sm:rounded-[28px] border border-white/10 bg-[#0E1526] p-4 sm:p-5 shadow-2xl text-white">
       {/* Top Stage Player: Always Active */}
       <div className="w-full">
         {/* Main Video Display Stage */}
         <div className="flex flex-col items-center">
           <div
-            className={`relative overflow-hidden rounded-[20px] bg-[#090A0F] border border-white/15 shadow-xl transition-all ${
+            className={`relative overflow-hidden rounded-[20px] bg-[#070B14] border border-white/15 shadow-2xl transition-all ${
               mode === "longForm"
-                ? "w-full max-w-[420px] aspect-video"
-                : "w-[210px] sm:w-[240px] aspect-[9/16]"
+                ? "w-full max-w-[440px] aspect-video"
+                : "w-[220px] sm:w-[260px] aspect-[9/16]"
             }`}
           >
 

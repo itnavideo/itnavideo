@@ -66,7 +66,7 @@ export default function BookSummaryPageClient() {
   const [activeTab, setActiveTab] = useState<"studio" | "history">("studio");
   const [downloadingUrl, setDownloadingUrl] = useState<string | null>(null);
   const [showExitConfirmModal, setShowExitConfirmModal] = useState(false);
-  const [aspectRatio, setAspectRatio] = useState<"9:16" | "16:9">("16:9");
+  const [aspectRatio] = useState<"16:9">("16:9");
 
   const renderRequestInFlightRef = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -84,14 +84,14 @@ export default function BookSummaryPageClient() {
     async function fetchBilling() {
       try {
         const res = await fetch(
-          `/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}`
+          `/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}&email=${encodeURIComponent(user?.email || "")}`
         );
         const payload = await res.json().catch(() => ({}));
         if (res.ok && payload.ok && payload.entitlement) {
           const ent = payload.entitlement;
           const limit = Math.max(0, Math.round(Number(payload.usage?.limit || ent.monthlyVideoLimit || 0)));
           const used = Math.max(0, Math.round(Number(payload.usage?.used || 0)));
-          const remaining = Math.max(0, Math.round(Number(payload.usage?.remaining || limit - used)));
+          const remaining = Math.max(0, Math.round(Number(payload.usage?.remaining ?? (limit - used))));
           setBillingEntitlement({
             active: Boolean(ent.active),
             planId: ent.planId || "paid",
@@ -227,7 +227,7 @@ export default function BookSummaryPageClient() {
     scenes: unknown[];
     metadata?: unknown;
     captionsTheme?: string;
-    aspectRatio?: "9:16" | "16:9";
+    aspectRatio?: "16:9";
     words?: unknown[];
     timestampSegments?: unknown[];
     transcript?: string;
@@ -268,6 +268,7 @@ export default function BookSummaryPageClient() {
           mode: "bookSummary",
           topicTitle: bookTitle,
           userId: user.id,
+          userEmail: user.email || undefined,
           bookTitle: payload.bookTitle,
           authorName: payload.authorName,
           bookCoverUrl: payload.bookCoverUrl,
@@ -279,8 +280,8 @@ export default function BookSummaryPageClient() {
           words: payload.words,
           timestampSegments: payload.timestampSegments,
           captionsTheme: payload.captionsTheme || "glow-viral",
-          aspectRatio: payload.aspectRatio || aspectRatio,
-          mediaAspect: (payload.aspectRatio || aspectRatio) === "16:9" ? "landscape" : "portrait",
+          aspectRatio: "16:9",
+          mediaAspect: "landscape",
         }),
       });
 
@@ -463,7 +464,7 @@ export default function BookSummaryPageClient() {
   // ── Loading screen ───────────────────────────────────────────────────────────
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#070B14] flex flex-col items-center justify-center text-zinc-400 gap-3">
+      <div className="min-h-screen bg-[#0B0D13] flex flex-col items-center justify-center text-zinc-400 gap-3">
         <Loader2 className="h-8 w-8 animate-spin text-[#FF5722]" />
         <p className="text-sm font-semibold text-zinc-200">Loading Book Summary Studio...</p>
       </div>
@@ -472,10 +473,10 @@ export default function BookSummaryPageClient() {
 
   // ─────────────────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-[#070B14] text-white flex flex-col selection:bg-[#FF5722]/30 selection:text-white pb-12">
+    <div className="min-h-screen bg-[#0B0D13] text-white flex flex-col selection:bg-[#FF5722]/30 selection:text-white pb-12">
 
       {/* ── Top Navigation Bar (Google Analytics Obsidian Surface) ── */}
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0E1526]/90 backdrop-blur-xl shadow-md">
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0E1017]/90 backdrop-blur-xl shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-16 py-2 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
           {/* Left: back + logo */}
           <div className="flex items-center gap-2 sm:gap-4 shrink-0">
@@ -508,7 +509,7 @@ export default function BookSummaryPageClient() {
             )}
 
             {/* Credits badge */}
-            <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-[#151E30] px-2.5 sm:px-3.5 py-1.5 text-xs font-bold shadow-sm">
+            <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-[#141722] px-2.5 sm:px-3.5 py-1.5 text-xs font-bold shadow-sm">
               <Zap size={14} className="text-[#FF5722] fill-[#FF5722]" />
               <span className="text-zinc-400 hidden xs:inline">Balance:</span>
               <span className="text-white font-black">
@@ -542,53 +543,51 @@ export default function BookSummaryPageClient() {
       {/* ── Main Canvas ────────────────────────────────────────────────────────── */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
-        {/* Hero banner with Mascot Image */}
-        <div className="relative rounded-[28px] border border-white/10 bg-gradient-to-r from-[#0E1526] via-[#111827] to-[#151E30] p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden shadow-2xl">
-          <div className="space-y-3 max-w-2xl z-10">
-            <div className="flex items-center gap-2 text-xs font-bold text-zinc-400">
-              <button
-                type="button"
-                onClick={handleBackClick}
-                className="inline-flex items-center gap-1.5 text-zinc-400 hover:text-[#FF9100] transition cursor-pointer"
-              >
-                <ArrowLeft size={14} />
-                <span>Back to Video Modes</span>
-              </button>
-              <span>/</span>
-              <span className="text-zinc-200">Book Summary Video</span>
+        {/* Hero banner: Expansive 16:9 Widescreen Book Summary Studio Header */}
+        <div className="relative rounded-[28px] border border-white/10 bg-gradient-to-r from-[#0E1526] via-[#111827] to-[#151E30] p-6 sm:p-8 overflow-hidden shadow-2xl">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 z-10 relative">
+            <div className="space-y-3 max-w-3xl">
+              <div className="flex items-center gap-2 text-xs font-bold text-zinc-400">
+                <button
+                  type="button"
+                  onClick={handleBackClick}
+                  className="inline-flex items-center gap-1.5 text-zinc-400 hover:text-[#FF9100] transition cursor-pointer"
+                >
+                  <ArrowLeft size={14} />
+                  <span>Back to Video Modes</span>
+                </button>
+                <span>/</span>
+                <span className="text-zinc-200">Book Summary Video</span>
+              </div>
+              <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
+                Book Summary{" "}
+                <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
+                  Video Studio
+                </span>
+              </h1>
+              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
+                Transform your book narration into a cinematic 16:9 Full HD summary video. Features AI chapter markers, animated quote cards, 3D book cover intro, and synchronized captions for YouTube.
+              </p>
             </div>
-            <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
-              Book Summary{" "}
-              <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
-                Video Studio
-              </span>
-            </h1>
-            <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
-              Upload your book narration audio, add cover art, review the AI-generated storyboard, and render a stunning 16:9 Full HD summary video with visual chapters and takeaways.
-            </p>
 
-            {/* Spec badges */}
-            <div className="flex flex-wrap gap-2 pt-1">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 border border-white/10 px-3 py-1 text-xs font-bold text-zinc-300">
-                <Sparkles size={12} className="text-[#FF9100]" />
-                16:9 Widescreen
-              </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 border border-white/10 px-3 py-1 text-xs font-bold text-zinc-300">
-                1080p Full HD
-              </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 border border-white/10 px-3 py-1 text-xs font-bold text-zinc-300">
-                ⚡ ~35s render
-              </span>
+            {/* Spec Highlights Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 shrink-0 w-full lg:w-auto">
+              <div className="rounded-2xl border border-white/10 bg-white/5 px-3.5 py-2.5 backdrop-blur-sm">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Format</div>
+                <div className="text-xs font-black text-white flex items-center gap-1 mt-0.5">
+                  <Sparkles size={12} className="text-[#FF9100]" />
+                  16:9 Widescreen
+                </div>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/5 px-3.5 py-2.5 backdrop-blur-sm">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Duration Limit</div>
+                <div className="text-xs font-black text-white mt-0.5">Up to 10 Min (600s)</div>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/5 px-3.5 py-2.5 backdrop-blur-sm">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Pricing</div>
+                <div className="text-xs font-black text-[#FFA000] mt-0.5">1 Min = 1 Credit</div>
+              </div>
             </div>
-          </div>
-
-          {/* Mascot Visual Guide */}
-          <div className="shrink-0 relative z-10 flex items-center justify-center pt-2 md:pt-0">
-            <img
-              src="/visuals/book_summary_mascot.png"
-              alt="Book Summary Visual Guide"
-              className="h-32 sm:h-44 w-auto object-contain drop-shadow-[0_10px_25px_rgba(255,109,0,0.25)] hover:scale-105 transition-transform duration-300 pointer-events-none"
-            />
           </div>
         </div>
 
@@ -600,8 +599,6 @@ export default function BookSummaryPageClient() {
             onResetRender={handleReset}
             onRetryRender={handleReset}
             onCancelRender={handleCancelProcess}
-            aspectRatio={aspectRatio}
-            onAspectRatioChange={setAspectRatio}
           />
         )}
 

@@ -28,11 +28,23 @@ function loadCheckout() {
   });
 }
 
+function getDiscountedPrice(priceStr: string, isFree: boolean, isAnnual: boolean) {
+  if (isFree || !isAnnual || !priceStr) return priceStr;
+  const match = priceStr.match(/^([^\d]*)([\d,]+)(.*)$/);
+  if (!match) return priceStr;
+  const prefix = match[1];
+  const num = parseInt(match[2].replace(/,/g, ''), 10);
+  if (isNaN(num)) return priceStr;
+  const discounted = Math.round(num * 0.8);
+  return `${prefix}${discounted.toLocaleString()}`;
+}
+
 export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Record<string, string> }) {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [message, setMessage] = useState("");
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
 
   const buyPlan = async (plan: PricingPlan) => {
     if (plan.id === "free") {
@@ -153,6 +165,35 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
               <span className="text-amber-600 font-mono">1 Credit</span>
             </span>
           </div>
+
+          {/* Monthly / Annual Billing Toggle */}
+          <div className="mt-8 flex items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => setBillingCycle('monthly')}
+              className={`rounded-full px-4 py-1.5 text-xs font-bold transition cursor-pointer ${
+                billingCycle === 'monthly'
+                  ? 'bg-slate-900 text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Monthly Billing
+            </button>
+            <button
+              type="button"
+              onClick={() => setBillingCycle('annual')}
+              className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-bold transition cursor-pointer ${
+                billingCycle === 'annual'
+                  ? 'bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-white shadow-xs'
+                  : 'bg-orange-500/10 text-orange-700 border border-orange-500/30 hover:bg-orange-500/20'
+              }`}
+            >
+              <span>Annual Billing</span>
+              <span className="rounded-full bg-white/25 px-1.5 py-0.2 text-[10px] font-black uppercase">
+                Save 20%
+              </span>
+            </button>
+          </div>
         </div>
 
         {message && (
@@ -166,6 +207,8 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
           {pricingPlans.map((plan) => {
             const isPopular = plan.popular;
             const isFree = plan.id === "free";
+            const rawPrice = displayPrices[plan.id] || plan.quotes.USD?.displayPrice || "$0";
+            const effectivePrice = getDiscountedPrice(rawPrice, isFree, billingCycle === 'annual');
 
             return (
               <article
@@ -195,7 +238,7 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
                         : "bg-slate-100 text-slate-700 border-slate-200"
                     }`}
                   >
-                    {isFree ? "20 Free Credits" : `${plan.credits.toLocaleString()} Credits`}
+                    {isFree ? "1 Free Credit" : `${plan.credits.toLocaleString()} Credits`}
                   </span>
                 </div>
 
@@ -206,15 +249,17 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
                 {/* Pricing Display */}
                 <div className="mt-5 flex items-baseline gap-1.5">
                   <span className="text-4xl sm:text-5xl font-black tracking-tight text-slate-900">
-                    {displayPrices[plan.id] || plan.quotes.USD?.displayPrice || "$0"}
+                    {effectivePrice}
                   </span>
                   <span className="text-xs font-semibold text-slate-500">
-                    / {plan.billingPeriodLabel}
+                    / {billingCycle === 'annual' && !isFree ? 'mo (billed annually)' : plan.billingPeriodLabel}
                   </span>
                 </div>
 
                 <p className="mt-2 text-xs font-bold text-orange-600">
-                  {isFree ? "✓ No credit card required" : `✓ ${plan.credits} credits valid for 30 days`}
+                  {isFree
+                    ? "✓ No card required • 1 free 9:16 Short (up to 90s)"
+                    : `✓ ${plan.credits.toLocaleString()} credits (up to ${plan.credits.toLocaleString()} Shorts or mins)`}
                 </p>
 
                 {/* Features List */}

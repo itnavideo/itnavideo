@@ -53,22 +53,35 @@
 > 
 > *(Removing heavy Live Canvas Previews perfectly aligns with this engine, reducing client memory footprint to zero and delivering flawless final outputs on cloud render).*
 
-1. **Step 1: Your Voiceover (Required)**:
-   - Voice discussing comparison points, pros, cons, and verdict (`.mp3` or `.wav`).
-   - Limit: Up to 3 Minutes (180 seconds). Raw video/audio is processed as extracted 16kHz mono audio.
-2. **Step 2: Your Comparison (Required)**:
+1. **Top Showcase: 5 Featured Cloudinary Demo Videos**:
+   - High-retention 9:16 vertical shorts player cards with instant poster previews:
+     - `Dajjal & Yajooj Majooj` (Stickman Trial)
+     - `Passport vs Visa Explained` (Viral Education)
+     - `Indian Govt Departments in Simple Words` (India Facts)
+     - `Coding vs Programming` (Tech & Software)
+     - `90% People Confuse These Two` (Viral English)
+   - 1-Click "Use Example Concept" pre-fills comparison titles.
+
+2. **Step 1: Your Voiceover (Required)**:
+   - Voice discussing comparison points, pros, cons, and verdict (`.mp3`, `.wav`, `.m4a` or `.mp4`).
+   - Limit: **Up to 90 Seconds (90s)** per Master Credit Policy Rule 4.1 (1 Credit flat).
+
+3. **Step 2: Your Comparison (Required)**:
    - **Option A (Left)**: Upload Image A + assign Name A (Title).
    - **Option B (Right)**: Upload Image B + assign Name B (Title).
    - Clean paired visual cards with instant preview and live 2/2 ready status.
-3. **Step 3: Choose Character (Required)**:
-   - Organized into 3 stacked sections with circular avatar cards showing 100% full character views:
-     - **Section 1: 2D Characters**: `2d-presenter-man` (2D Anime Teacher), `2d-sketch-artist` (2D Sketch), `2d-vector-creator` (2D Vector Creator).
-     - **Section 2: 3D Characters**: `casual-guy-3d`, `doctor-pro-3d`, `hijab-teacher-3d`, `action-hero-3d`, `genz-creator-3d`, `student-researcher-3d`, `kid-and-dog-3d`, `young-creator-3d`, `arab-boy-3d`.
-     - **Section 3: Realistic Characters**: `doctor-pro-real` (Realistic Doctor), `student-researcher-real` (Realistic Analyst), `tech-founder-real` (Realistic Presenter).
-   - Poses & expressions automatically match voiceover pacing and topic direction.
-4. **Step 4: Generate**:
-   - Optional Instagram / Channel Handle tag (`@yourchannel`).
-   - 1-Click render CTA triggering automated split-screen framing, dynamic zooms, auto-captions, and winner reveals.
+
+4. **Step 3: Choose Character (Required)**:
+   - 100% Verified Cloudinary Assets (HTTP 200 OK across all poses):
+     - **3D Characters**: `3d-presenter-man` (3D Teacher Pro - 6 poses: welcome, left, right, thinking, warning, success).
+     - **2D Characters**: `2d-presenter-man` (2D Teacher Pro), `character-1` (Stickman Pro), `character-2` (Sketch Artist), `character-3` (Stickman Presenter), `character-4` (Doodle Explainer).
+   - *All missing 3D placeholders removed to ensure clean, bug-free dashboard display.*
+
+5. **Step 4: Styling & Watermark (Optional)**:
+   - Background Theme: Light Studio / Dark Slate / Bold Contrast.
+   - Comparison Tone: Neutral A vs B / Good vs Bad.
+   - Winner Crown Reveal: No Crown / Option A Wins 👑 / Option B Wins 👑.
+   - Channel Watermark: Optional Instagram / Channel Handle tag (`@yourchannel`).
 
 ---
 

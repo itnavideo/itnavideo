@@ -115,9 +115,10 @@ export function validateAndRepairBookSummaryPlan(
       }
     }
 
-    // 4. KEY_IDEA over-frequency guard (minimum 12s separation)
+    // 4. KEY_IDEA over-frequency guard (adaptive separation based on video duration)
+    const minSeparation = totalDurationSeconds <= 45 ? 4 : (totalDurationSeconds <= 90 ? 8 : 12);
     if (scene.type === 'KEY_IDEA') {
-      if (scene.startSeconds - lastKeyIdeaEndTime < 12) {
+      if (scene.startSeconds - lastKeyIdeaEndTime < minSeparation) {
         // Too frequent -> Fallback to CAPTIONS
         scene.type = 'CAPTIONS';
       } else {
@@ -289,9 +290,11 @@ export function buildLocalBookSummaryPlan(request: BookSummaryPlanRequest): Book
       }
     }
 
-    // Key Idea spacing: approx 1 Key Idea every 25 seconds
-    if (seg.start - lastKeyIdeaTime >= 24 && segDuration >= 2.0 && segText.length >= 15 && segText.length <= 120) {
-      const isShortHeading = segText.split(' ').length <= 10;
+    // Key Idea spacing: adaptive interval based on duration
+    const keyIdeaInterval = duration <= 45 ? 6 : (duration <= 90 ? 12 : 24);
+    const minSegLen = duration <= 45 ? 8 : 15;
+    if (seg.start - lastKeyIdeaTime >= keyIdeaInterval && segDuration >= 1.2 && segText.length >= minSegLen && segText.length <= 140) {
+      const isShortHeading = segText.split(' ').length <= 14;
       if (isShortHeading) {
         let assetUrl: string | undefined = undefined;
         let assetType: 'reference' | 'author' | 'cover' | undefined = undefined;
@@ -309,7 +312,7 @@ export function buildLocalBookSummaryPlan(request: BookSummaryPlanRequest): Book
           id: `scene-keyidea-${i}`,
           type: 'KEY_IDEA',
           startSeconds: seg.start,
-          endSeconds: Math.max(seg.start + 2.5, seg.end),
+          endSeconds: Math.min(duration, Math.max(seg.start + 2.5, seg.end)),
           text: segText,
           subtitle: bookTitle ? `Key Insight — ${bookTitle}` : 'Core Concept',
           assetUrl,
@@ -317,6 +320,35 @@ export function buildLocalBookSummaryPlan(request: BookSummaryPlanRequest): Book
         });
         lastKeyIdeaTime = seg.end;
       }
+    }
+  }
+
+  // Ensure every book summary has at least 2-4 visual scenes for engaging pacing
+  if (scenes.length <= 1 && segments.length > 0) {
+    const candidateSegs = segments.filter(s => s.start >= 3.0 && s.text.trim().length >= 8);
+    const step = Math.max(1, Math.floor(candidateSegs.length / 3));
+    for (let c = 0; c < candidateSegs.length && scenes.length < 4; c += step) {
+      const seg = candidateSegs[c];
+      let assetUrl: string | undefined = undefined;
+      let assetType: 'reference' | 'author' | 'cover' | undefined = undefined;
+      if (referenceImages.length > 0) {
+        assetUrl = referenceImages[c % referenceImages.length];
+        assetType = 'reference';
+      } else if (authorPortraitUrl) {
+        assetUrl = authorPortraitUrl;
+        assetType = 'author';
+      }
+
+      scenes.push({
+        id: `scene-auto-takeaway-${c}`,
+        type: 'KEY_IDEA',
+        startSeconds: seg.start,
+        endSeconds: Math.min(duration, Math.max(seg.start + 2.5, seg.end)),
+        text: seg.text.trim(),
+        subtitle: bookTitle ? `Key Insight — ${bookTitle}` : 'Core Takeaway',
+        assetUrl,
+        assetType,
+      });
     }
   }
 

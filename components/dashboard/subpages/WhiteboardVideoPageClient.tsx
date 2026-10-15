@@ -74,9 +74,7 @@ export default function WhiteboardVideoPage() {
   // Studio Form Options
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [audioDurationSeconds, setAudioDurationSeconds] = useState<number>(0);
-  const [whiteboardFont, setWhiteboardFont] = useState<"marker" | "architect" | "clean" | "sans" | "blueprint">("marker");
   const [markerColor, setMarkerColor] = useState<string>("auto");
-  const [aspectRatio, setAspectRatio] = useState<"9:16" | "16:9">("9:16");
 
   // Transcript states
   const [transcript, setTranscript] = useState<string>("");
@@ -175,13 +173,13 @@ export default function WhiteboardVideoPage() {
     if (!user) return;
     async function fetchBilling() {
       try {
-        const res = await fetch(`/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}`);
+        const res = await fetch(`/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}&email=${encodeURIComponent(user?.email || "")}`);
         const payload = await res.json().catch(() => ({}));
         if (res.ok && payload.ok && payload.entitlement) {
           const ent = payload.entitlement;
           const limit = Math.max(0, Math.round(Number(payload.usage?.limit || ent.monthlyVideoLimit || 0)));
           const used = Math.max(0, Math.round(Number(payload.usage?.used || 0)));
-          const remaining = Math.max(0, Math.round(Number(payload.usage?.remaining || limit - used)));
+          const remaining = Math.max(0, Math.round(Number(payload.usage?.remaining ?? (limit - used))));
           setBillingEntitlement({
             active: Boolean(ent.active),
             planId: ent.planId || "paid",
@@ -284,16 +282,14 @@ export default function WhiteboardVideoPage() {
           mode: "whiteboardVideo",
           topicTitle: plannedTitle,
           userId: user.id,
-          whiteboardBoard: "corporate-luxury",
-          whiteboardHandStyle: "direct-draw",
+          userEmail: user.email || undefined,
           whiteboardMarkerColor: markerColor,
-          whiteboardFont,
-          aspectRatio,
+          aspectRatio: "9:16",
           editedTranscript: transcript.trim() || undefined,
           durationSeconds: audioDurationSeconds,
           sourceDurationSeconds: audioDurationSeconds,
-          mediaAspect: aspectRatio === "16:9" ? "landscape" : "portrait",
-          frameRange: audioDurationSeconds > 0 ? [0, Math.min(18000, Math.round(audioDurationSeconds * 30)) - 1] : undefined,
+          mediaAspect: "portrait",
+          frameRange: audioDurationSeconds > 0 ? [0, Math.min(2700, Math.round(audioDurationSeconds * 30)) - 1] : undefined,
         }),
       });
 
@@ -552,12 +548,8 @@ export default function WhiteboardVideoPage() {
                     performTranscription(selectedFile, user?.id || "guest_user");
                   }
                 }}
-                whiteboardFont={whiteboardFont}
-                onWhiteboardFontChange={setWhiteboardFont}
                 markerColor={markerColor}
                 onMarkerColorChange={setMarkerColor}
-                aspectRatio={aspectRatio}
-                onAspectRatioChange={setAspectRatio}
                 onGenerate={handleStartRender}
                 isGenerating={false}
               />

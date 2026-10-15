@@ -57,6 +57,8 @@ export async function POST(req: Request) {
     if (!durationSeconds || durationSeconds <= 0) {
       durationSeconds = 60; // Fallback safe estimate
     }
+    // Limit to 10 minutes (600s) strictly per Rule 4.1
+    durationSeconds = Math.min(600, durationSeconds);
 
     const planRequest: BookSummaryPlanRequest = {
       transcript,

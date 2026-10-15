@@ -17,9 +17,9 @@
 | **Aspect Ratio** | 16:9 Cinema Widescreen |
 | **Resolution & Quality** | **1920×1080 (1080p Full HD)** |
 | **Frame Rate** | 30 FPS |
-| **Max Audio Duration** | Up to **12 minutes** (720 seconds) |
+| **Max Audio Duration** | Up to **10 minutes** (600 seconds) strictly per Rule 4.1 |
 | **Primary Category** | Cinema, Narrative Stories & Explainers |
-| **Credit Cost** | Standard tier credit allocation based on duration |
+| **Credit Cost** | **1 Min = 1 Credit** (1m=1, 5m=5, 10m=10 Cr) per Rule 4.1 |
 | **Design System** | Google Analytics Obsidian Baseline (`#070B14`, `#0E1526`) + Intentional Color & Typography Variety Policy + M3. See [`COLOR_DESIGN_SYSTEM.md`](file:///c:/Users/user/.gemini/antigravity/scratch/itnavideo/COLOR_DESIGN_SYSTEM.md) |
 | **Speech Transcription** | Extracted 16kHz audio → Groq Whisper Cloud API (Fallback: Gemini 2.0 Flash `asia-south1`) |
 | **Cloud Engine** | AWS Lambda (Remotion in `us-east-1` Mumbai) |

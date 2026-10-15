@@ -39,96 +39,35 @@ export function HomepageTrustStrip() {
   );
 }
 
-function Icon3DStep1() {
+function StepIcon1() {
   return (
-    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-[0_8px_20px_rgba(168,85,247,0.6)] group-hover:scale-110 transition-transform duration-300">
-      <defs>
-        <radialGradient id="bulbGlow" cx="50%" cy="40%" r="50%">
-          <stop offset="0%" stopColor="#FFF" stopOpacity="0.9" />
-          <stop offset="40%" stopColor="#C084FC" />
-          <stop offset="100%" stopColor="#9333EA" />
-        </radialGradient>
-        <linearGradient id="baseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#475569" />
-          <stop offset="100%" stopColor="#1E293B" />
-        </linearGradient>
-      </defs>
-      <circle cx="24" cy="20" r="14" fill="url(#bulbGlow)" />
-      <path d="M18 28C18 28 20 32 24 32C28 32 30 28 30 28" fill="url(#bulbGlow)" />
-      <path d="M24 12V24M18 18H30" stroke="#FFF" strokeWidth="2.5" strokeLinecap="round" />
-      <rect x="18" y="32" width="12" height="6" rx="2" fill="url(#baseGrad)" stroke="#C084FC" strokeWidth="1" />
-      <rect x="20" y="38" width="8" height="3" rx="1.5" fill="#C084FC" />
-      <path d="M8 12L11 15M40 12L37 15M24 2L24 5" stroke="#F472B6" strokeWidth="2" strokeLinecap="round" />
-    </svg>
+    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-500/10 border border-orange-500/25 text-[#FF5722] shadow-xs group-hover:scale-110 transition-transform duration-300">
+      <Upload size={24} strokeWidth={2.2} />
+    </div>
   );
 }
 
-function Icon3DStep2() {
+function StepIcon2() {
   return (
-    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-[0_8px_20px_rgba(6,182,212,0.6)] group-hover:scale-110 transition-transform duration-300">
-      <defs>
-        <linearGradient id="micBody" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#38BDF8" />
-          <stop offset="100%" stopColor="#0284C7" />
-        </linearGradient>
-        <linearGradient id="micMesh" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.8" />
-          <stop offset="100%" stopColor="#38BDF8" />
-        </linearGradient>
-      </defs>
-      <rect x="18" y="6" width="12" height="20" rx="6" fill="url(#micBody)" stroke="#FFF" strokeWidth="1" />
-      <rect x="19" y="8" width="10" height="10" rx="5" fill="url(#micMesh)" opacity="0.8" />
-      <path d="M12 20V22C12 26.4183 15.5817 30 20 30H28C32.4183 30 36 26.4183 36 22V20" stroke="#38BDF8" strokeWidth="3" strokeLinecap="round" />
-      <path d="M24 30V40M16 40H32" stroke="#475569" strokeWidth="3.5" strokeLinecap="round" />
-      <path d="M6 20C6 14 9 10 12 8M42 20C42 14 39 10 36 8" stroke="#0284C7" strokeWidth="2" strokeLinecap="round" strokeDasharray="3 3" />
-    </svg>
+    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 border border-amber-500/25 text-amber-500 shadow-xs group-hover:scale-110 transition-transform duration-300">
+      <Sparkles size={24} strokeWidth={2.2} />
+    </div>
   );
 }
 
-function Icon3DStep3() {
+function StepIcon3() {
   return (
-    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-[0_8px_20px_rgba(168,85,247,0.6)] group-hover:scale-110 transition-transform duration-300">
-      <defs>
-        <linearGradient id="clapperBody" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#1E293B" />
-          <stop offset="100%" stopColor="#0F172A" />
-        </linearGradient>
-        <linearGradient id="purpleBar" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#9333EA" />
-          <stop offset="100%" stopColor="#E879F9" />
-        </linearGradient>
-      </defs>
-      <rect x="8" y="18" width="32" height="24" rx="4" fill="url(#clapperBody)" stroke="#C084FC" strokeWidth="1.5" />
-      <circle cx="24" cy="30" r="7" fill="url(#purpleBar)" />
-      <polygon points="22,26 28,30 22,34" fill="#FFFFFF" />
-      <rect x="8" y="8" width="32" height="8" rx="2" fill="url(#purpleBar)" />
-      <path d="M14 8L18 16M24 8L28 16M34 8L38 16" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
-    </svg>
+    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-500/10 border border-orange-500/25 text-orange-600 shadow-xs group-hover:scale-110 transition-transform duration-300">
+      <Settings2 size={24} strokeWidth={2.2} />
+    </div>
   );
 }
 
-function Icon3DStep4() {
+function StepIcon4() {
   return (
-    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-[0_8px_20px_rgba(16,185,129,0.6)] group-hover:scale-110 transition-transform duration-300">
-      <defs>
-        <linearGradient id="rocketBody" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#FFFFFF" />
-          <stop offset="100%" stopColor="#CBD5E1" />
-        </linearGradient>
-        <linearGradient id="flameGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#34D399" />
-          <stop offset="100%" stopColor="#059669" />
-        </linearGradient>
-      </defs>
-      <path d="M24 6C24 6 32 14 32 26H16C16 14 24 6 24 6Z" fill="url(#rocketBody)" stroke="#34D399" strokeWidth="1" />
-      <circle cx="24" cy="18" r="4" fill="#0F172A" stroke="#059669" strokeWidth="1.5" />
-      <circle cx="24" cy="18" r="1.5" fill="#38BDF8" />
-      <path d="M16 22L10 28V32L16 28V22Z" fill="#059669" />
-      <path d="M32 22L38 28V32L32 28V22Z" fill="#059669" />
-      <rect x="20" y="26" width="8" height="4" fill="#475569" />
-      <path d="M20 30C20 30 24 42 24 42C24 42 28 30 28 30H20Z" fill="url(#flameGrad)" />
-      <path d="M22 30C22 30 24 38 24 38C24 38 26 30 26 30H22Z" fill="#FFFFFF" />
-    </svg>
+    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-500 shadow-xs group-hover:scale-110 transition-transform duration-300">
+      <CheckCircle2 size={24} strokeWidth={2.2} />
+    </div>
   );
 }
 
@@ -136,10 +75,10 @@ export function PlatformJourney() {
   const steps = [
     {
       number: 'STEP 01',
-      title: '1. Upload Media',
-      sub: 'Drop your voiceover audio, images, or raw video footage.',
+      title: '1. Ingest Media',
+      sub: 'Drop your voiceover audio, podcast recording, or video files.',
       tag: 'Instant Ingest',
-      IconComponent: Icon3DStep1,
+      IconComponent: StepIcon1,
       badgeStyle: 'border-orange-500/40 bg-orange-500/15 text-orange-700 shadow-2xs',
       iconBoxStyle: 'border-orange-500/30 bg-gradient-to-br from-orange-500/15 via-orange-500/5 to-white text-orange-600 shadow-orange-500/10 group-hover:border-orange-400',
       glowColor: 'bg-orange-500/10 group-hover:bg-orange-500/20',
@@ -147,10 +86,10 @@ export function PlatformJourney() {
     },
     {
       number: 'STEP 02',
-      title: '2. AI Generation',
-      sub: 'Ultra-fast speech transcription, scene pacing & kinetic layout.',
-      tag: 'Whisper & Gemini',
-      IconComponent: Icon3DStep2,
+      title: '2. AI Storyboard',
+      sub: 'Cloud speech transcription, scene pacing & automatic visual matching.',
+      tag: 'Auto B-Roll & SFX',
+      IconComponent: StepIcon2,
       badgeStyle: 'border-amber-500/40 bg-amber-500/15 text-amber-700 shadow-2xs',
       iconBoxStyle: 'border-amber-500/30 bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-white text-amber-600 shadow-amber-500/10 group-hover:border-amber-400',
       glowColor: 'bg-amber-500/10 group-hover:bg-amber-500/20',
@@ -158,10 +97,10 @@ export function PlatformJourney() {
     },
     {
       number: 'STEP 03',
-      title: '3. Real-Time Review',
-      sub: 'Inspect subtitle styles, captions, and visuals before render.',
-      tag: 'Live Style Picker',
-      IconComponent: Icon3DStep3,
+      title: '3. Storyboard Review',
+      sub: 'Inspect scene visuals, subtitle styles, and timings before cloud render.',
+      tag: 'Interactive Review',
+      IconComponent: StepIcon3,
       badgeStyle: 'border-orange-500/40 bg-orange-500/15 text-orange-700 shadow-2xs',
       iconBoxStyle: 'border-orange-500/30 bg-gradient-to-br from-orange-500/15 via-orange-500/5 to-white text-orange-600 shadow-orange-500/10 group-hover:border-orange-400',
       glowColor: 'bg-orange-500/10 group-hover:bg-orange-500/20',
@@ -172,7 +111,7 @@ export function PlatformJourney() {
       title: '4. 1080p Cloud Export',
       sub: 'Download crisp 1080p Full HD MP4 video ready to publish.',
       tag: '30 FPS Full HD',
-      IconComponent: Icon3DStep4,
+      IconComponent: StepIcon4,
       badgeStyle: 'border-emerald-500/40 bg-emerald-500/15 text-emerald-700 shadow-2xs',
       iconBoxStyle: 'border-emerald-500/30 bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-white text-emerald-600 shadow-emerald-500/10 group-hover:border-emerald-400',
       glowColor: 'bg-emerald-500/10 group-hover:bg-emerald-500/20',

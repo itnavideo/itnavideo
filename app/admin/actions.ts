@@ -68,9 +68,7 @@ export async function getAdminOverviewStats() {
   const EXCLUDED_TEST_EMAILS = [
     'itnavideo@gmail.com',
     'rohi@itnavideo.com',
-    'founder@itnavideo.com',
     'test@itnavideo.com',
-    'akram.editor.studio@gmail.com',
   ];
 
   // Calculate MRR & total revenue

@@ -173,7 +173,7 @@ export default function CaptionStylesShowcase() {
               </span>
             </h2>
             <p className="mt-1.5 text-xs sm:text-sm text-slate-600 max-w-lg">
-              100+ caption styles — from viral bold to cinematic minimal.
+              Handcrafted viral styles — Hormozi pop, karaoke, glow, minimal &amp; documentary.
             </p>
           </div>
 
@@ -181,7 +181,7 @@ export default function CaptionStylesShowcase() {
             href="/dashboard/auto-caption"
             className="inline-flex shrink-0 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-2.5 text-xs font-bold text-slate-800 hover:border-orange-500/50 hover:bg-orange-50/50 hover:text-orange-900 transition active:scale-95 cursor-pointer shadow-2xs"
           >
-            <span>Browse all 100+ styles</span>
+            <span>Open Auto Caption Studio</span>
             <ArrowRight size={13} className="text-[#FF5722]" />
           </Link>
         </div>

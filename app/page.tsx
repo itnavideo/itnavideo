@@ -3,8 +3,7 @@ import nextDynamic from 'next/dynamic';
 import Hero from '@/components/landing/Hero';
 import PlatformMarqueeTicker from '@/components/landing/PlatformMarqueeTicker';
 import FacelessVideoFlagshipShowcase from '@/components/landing/FacelessVideoFlagshipShowcase';
-import CaptionStylesShowcase from '@/components/landing/CaptionStylesShowcase';
-import ImageToVideoHomepageShowcase from '@/components/landing/ImageToVideoHomepageShowcase';
+import DualShowcaseTabs from '@/components/landing/DualShowcaseTabs';
 import TenStudiosHubArchitecture from '@/components/landing/TenStudiosHubArchitecture';
 import {
   HomepageFinalCta,
@@ -99,7 +98,7 @@ const jsonLd = [
         name: 'Can I create 16:9 YouTube Faceless Videos on Itnavideo?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Yes. Itnavideo provides a dedicated 16:9 Widescreen Faceless Video studio for YouTubers and creators to make long-form videos up to 12 minutes.',
+          text: 'Yes. Itnavideo provides a dedicated 16:9 Widescreen Faceless Video studio for YouTubers and creators to make long-form videos up to 10 minutes.',
         },
       },
       {
@@ -107,7 +106,7 @@ const jsonLd = [
         name: 'What formats are supported for Faceless Video?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Both 16:9 Widescreen (YouTube long-form) and 9:16 Vertical (Shorts, Reels, TikTok) formats are supported.',
+          text: 'Faceless Video is built specifically for 16:9 Widescreen Full HD (1920×1080) YouTube long-form videos up to 10 minutes. For 9:16 vertical shorts, creators can use our dedicated Auto Caption and Clip studios.',
         },
       },
     ],
@@ -126,8 +125,7 @@ export default function LandingPage() {
       <PlatformMarqueeTicker />
       <FacelessVideoFlagshipShowcase />
       <PlatformJourney />
-      <CaptionStylesShowcase />
-      <ImageToVideoHomepageShowcase />
+      <DualShowcaseTabs />
       <TenStudiosHubArchitecture />
       <PricingSection />
       <FAQSection />

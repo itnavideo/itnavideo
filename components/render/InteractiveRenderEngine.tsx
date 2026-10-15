@@ -175,6 +175,14 @@ function getModeSteps(mode: string): StepDef[] {
   }
 }
 
+const ENGINE_CREATOR_TIPS = [
+  { kicker: "YOUTUBE RETENTION SECRET", tip: "Cutting to new B-roll every 3–4 seconds keeps viewer retention 2.4× higher than static scenes." },
+  { kicker: "AUDIO DUCKING FORMULA", tip: "Ducking background music by -14dB while speech is active gives your voiceover crisp documentary authority." },
+  { kicker: "FIRST 3 SECONDS HOOK", tip: "80% of short-form viewers decide to keep watching in the first 3 seconds — make your opening scene punchy." },
+  { kicker: "CINEMATIC KEN BURNS MOTION", tip: "Subtle zoom drift (1.0× to 1.15×) glues audience eyes to the frame without causing visual motion fatigue." },
+  { kicker: "CLOUD SPEED", tip: "AWS Lambda Remotion instances compose 1080p frames simultaneously across 200+ cloud cores." },
+];
+
 export default function InteractiveRenderEngine({
   mode,
   status,
@@ -190,6 +198,8 @@ export default function InteractiveRenderEngine({
   const [showSpecs, setShowSpecs] = useState(false);
   const [showSocialCopy, setShowSocialCopy] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [currentTipIdx, setCurrentTipIdx] = useState(0);
+
 
   const downloadDirectly = async (url: string, filename: string) => {
     try {
@@ -269,6 +279,14 @@ export default function InteractiveRenderEngine({
     return `${mins.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
+  useEffect(() => {
+    if (isReady || isFailed) return;
+    const tipInterval = setInterval(() => {
+      setCurrentTipIdx((prev) => (prev + 1) % ENGINE_CREATOR_TIPS.length);
+    }, 6500);
+    return () => clearInterval(tipInterval);
+  }, [isReady, isFailed]);
+
   // Estimate remaining time accurately using elapsed and estimated duration
   const isLongMode = mode === 'imageToVideoAi' || mode === 'youtubeSubtitles' || mode === 'facelessVideo' || mode === 'longVideoClips';
   const defaultEstimate = isLongMode ? 300 : 90;
@@ -335,7 +353,7 @@ export default function InteractiveRenderEngine({
   const CurrentStepIcon = steps[activeStepIndex]?.icon || Sparkles;
 
   return (
-    <div className="relative w-full max-w-2xl mx-auto rounded-[28px] border border-white/10 bg-[#0E1526]/95 p-5 sm:p-7 text-white shadow-2xl space-y-5 font-sans select-none backdrop-blur-xl overflow-hidden">
+    <div className="relative w-full max-w-2xl mx-auto rounded-[28px] border border-white/10 bg-[#0B0D13]/98 p-5 sm:p-7 text-white shadow-2xl space-y-5 font-sans select-none backdrop-blur-xl overflow-hidden">
       
       {/* ── AMBIENT BORDER BEAM (Active Glow During Render) ── */}
       {!isFailed && !isReady && (
@@ -373,14 +391,14 @@ export default function InteractiveRenderEngine({
         <div className="flex items-center gap-2">
           <button
             onClick={() => setSoundEnabled(!soundEnabled)}
-            className="p-2 rounded-xl bg-[#151E30] border border-white/10 hover:border-[#FF5722]/40 text-slate-400 hover:text-white transition-all cursor-pointer"
+            className="p-2 rounded-xl bg-[#141722] border border-white/10 hover:border-[#FF5722]/40 text-slate-400 hover:text-white transition-all cursor-pointer"
             title={soundEnabled ? 'Mute completion chime' : 'Enable completion chime'}
           >
             {soundEnabled ? <Volume2 size={15} /> : <VolumeX size={15} />}
           </button>
           <button
             onClick={onReset}
-            className="p-2 rounded-xl bg-[#151E30] hover:bg-[#1C2840] border border-white/10 text-slate-400 hover:text-white transition-all cursor-pointer"
+            className="p-2 rounded-xl bg-[#141722] hover:bg-[#1B202E] border border-white/10 text-slate-400 hover:text-white transition-all cursor-pointer"
             title="Close workbench"
           >
             <X size={15} />
@@ -389,10 +407,10 @@ export default function InteractiveRenderEngine({
       </div>
 
       {/* ── M3 PREVIEW & STATUS CONTAINER ── */}
-      <div className="relative w-full rounded-2xl bg-[#151E30]/80 border border-white/10 overflow-hidden shadow-inner">
+      <div className="relative w-full rounded-2xl bg-[#12151F]/80 border border-white/10 overflow-hidden shadow-inner">
         {isReady && status.outputFile ? (
           mode === 'audioClean' ? (
-            <div className="w-full flex flex-col items-center justify-center p-6 space-y-4 bg-gradient-to-b from-[#151E30] to-[#070B14]">
+            <div className="w-full flex flex-col items-center justify-center p-6 space-y-4 bg-gradient-to-b from-[#141722] to-[#0B0D13]">
               <div className="w-14 h-14 rounded-2xl bg-[#FF5722]/10 border border-[#FF5722]/30 text-[#FF7043] flex items-center justify-center shadow-lg shadow-[#FF5722]/20">
                 <Mic size={26} />
               </div>
@@ -425,7 +443,7 @@ export default function InteractiveRenderEngine({
               </div>
             </div>
             {status.diagnostics && status.diagnostics.length > 0 ? (
-              <details className="mt-2 text-left bg-[#070B14] rounded-xl p-3 border border-white/10 text-[10px] text-slate-400 max-w-md mx-auto">
+              <details className="mt-2 text-left bg-[#0B0D13] rounded-xl p-3 border border-white/10 text-[10px] text-slate-400 max-w-md mx-auto">
                 <summary className="cursor-pointer font-mono font-bold text-slate-300 select-none">Technical Details</summary>
                 <div className="mt-1.5 space-y-1 font-mono break-all max-h-32 overflow-y-auto">
                   {status.diagnostics.map((d, i) => (
@@ -443,6 +461,7 @@ export default function InteractiveRenderEngine({
             </button>
           </div>
         ) : (mode === 'whiteboard' || mode === 'whiteboardVideo' || mode === 'WHITEBOARD_VIDEO') ? (
+
           /* Light Corporate Whiteboard Canvas Loader Theme */
           <div className="p-6 sm:p-8 flex flex-col items-center justify-center text-center space-y-4 bg-[#F8FAFC] border-2 border-slate-300/80 rounded-xl shadow-inner text-slate-900 relative overflow-hidden">
             {/* Subtle Titanium Board Border Accent */}
@@ -492,7 +511,7 @@ export default function InteractiveRenderEngine({
           </div>
         ) : (
           /* M3 Waiting & Rendering State (Warm Orange + Waveform Equalizer) */
-          <div className="p-6 sm:p-8 flex flex-col items-center justify-center text-center space-y-4 bg-gradient-to-b from-[#151E30]/90 via-[#151E30]/50 to-[#070B14]">
+          <div className="p-6 sm:p-8 flex flex-col items-center justify-center text-center space-y-4 bg-gradient-to-b from-[#141722]/90 via-[#141722]/50 to-[#0B0D13]">
             
             {/* Shimmering Ambient Glow Pulse & Central Animated Stage Icon */}
             <div className="relative">
@@ -518,7 +537,7 @@ export default function InteractiveRenderEngine({
             <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
               <AudioSpectrumVisualizer isPlaying={true} isTranscribing={percentage < 50} barCount={14} />
               
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#070B14] border border-[#FF5722]/30 text-[11px] font-bold text-slate-300 shadow-lg">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0B0D13] border border-[#FF5722]/30 text-[11px] font-bold text-slate-300 shadow-lg">
                 <Clock size={12} className="text-[#FF7043] animate-pulse" />
                 <span>Elapsed: <span className="font-mono text-white">{formatTimer(liveElapsed)}</span></span>
                 <span className="text-slate-600">•</span>
@@ -554,7 +573,7 @@ export default function InteractiveRenderEngine({
             </span>
           </div>
 
-          <div className="w-full h-2.5 bg-[#070B14] rounded-full overflow-hidden border border-white/10 p-0.5 shadow-inner">
+          <div className="w-full h-2.5 bg-[#0B0D13] rounded-full overflow-hidden border border-white/10 p-0.5 shadow-inner">
             <div
               className="h-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] rounded-full transition-all duration-300 shadow-[0_0_14px_rgba(255,109,0,0.5)]"
               style={{ width: `${Math.max(4, percentage)}%` }}
@@ -579,7 +598,7 @@ export default function InteractiveRenderEngine({
                     ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 shadow-sm'
                     : isCurrent
                     ? 'bg-[#FF5722]/15 border-[#FF5722]/60 text-[#FFA000] ring-1 ring-[#FF5722]/30 shadow-md shadow-[#FF5722]/10'
-                    : 'bg-[#151E30]/40 border-white/5 text-slate-500'
+                    : 'bg-[#141722]/50 border-white/5 text-slate-500'
                 }`}
               >
                 <div className="flex items-center gap-1 mb-1">
@@ -589,7 +608,7 @@ export default function InteractiveRenderEngine({
                         ? 'bg-emerald-400 text-black'
                         : isCurrent
                         ? 'bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black animate-pulse'
-                        : 'bg-[#151E30] text-slate-400 border border-white/10'
+                        : 'bg-[#141722] text-slate-400 border border-white/10'
                     }`}
                   >
                     {isCompleted ? <Check size={11} strokeWidth={3} /> : idx + 1}
@@ -601,6 +620,24 @@ export default function InteractiveRenderEngine({
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* ── ROTATING CREATOR TIPS & RETENTION INSIGHTS (ANTI-BOREDOM CAROUSEL) ── */}
+      {!isFailed && !isReady && (
+        <div className="rounded-2xl border border-orange-500/20 bg-gradient-to-r from-orange-500/[0.08] via-amber-500/[0.04] to-transparent p-3.5 space-y-1.5 animate-in fade-in">
+          <div className="flex items-center justify-between">
+            <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-[#FFA000]">
+              <Sparkles size={11} className="text-[#FF5722]" />
+              <span>{ENGINE_CREATOR_TIPS[currentTipIdx]?.kicker}</span>
+            </span>
+            <span className="text-[9px] font-mono font-bold text-zinc-500">
+              Tip {currentTipIdx + 1}/{ENGINE_CREATOR_TIPS.length}
+            </span>
+          </div>
+          <p className="text-xs text-zinc-200 font-medium leading-relaxed">
+            "{ENGINE_CREATOR_TIPS[currentTipIdx]?.tip}"
+          </p>
         </div>
       )}
 
@@ -627,7 +664,8 @@ export default function InteractiveRenderEngine({
           </button>
 
           {/* Collapsible Social Title & Caption Accordion */}
-          <div className="rounded-2xl border border-white/10 bg-[#151E30]/60 overflow-hidden">
+          <div className="rounded-2xl border border-white/10 bg-[#141722]/60 overflow-hidden">
+
             <button
               onClick={() => setShowSocialCopy(!showSocialCopy)}
               className="w-full p-3.5 flex items-center justify-between text-xs font-bold text-slate-300 hover:bg-white/[0.02] transition-colors cursor-pointer"

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Deep Obsidian Studio Background Gradient -->
+    <linearGradient id="avatarDarkBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#12151F"/>
+      <stop offset="100%" stop-color="#080A10"/>
+    </linearGradient>
+
+    <!-- Vibrant Flame Orange to Sunset Amber Gradient -->
+    <linearGradient id="avatarDarkStem" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF5722"/>
+      <stop offset="100%" stop-color="#FF7043"/>
+    </linearGradient>
+
+    <linearGradient id="avatarDarkChevron" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF5722"/>
+      <stop offset="55%" stop-color="#FF7043"/>
+      <stop offset="100%" stop-color="#FFA000"/>
+    </linearGradient>
+
+    <!-- Glowing Amber Ambient Flare (Never Blends Into Dark Feeds) -->
+    <filter id="avatarDarkGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="22" flood-color="#FF5722" flood-opacity="0.45"/>
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#FFA000" flood-opacity="0.30"/>
+    </filter>
+  </defs>
+
+  <!-- Deep Obsidian Solid Canvas -->
+  <rect width="512" height="512" fill="url(#avatarDarkBg)"/>
+
+  <!-- Protective Glowing Outer Ring (Ensures Circular Crop is Crisp on OLED/Dark Feeds) -->
+  <circle cx="256" cy="256" r="250" fill="none" stroke="rgba(255, 87, 34, 0.40)" stroke-width="4"/>
+  <circle cx="256" cy="256" r="244" fill="none" stroke="rgba(255, 255, 255, 0.08)" stroke-width="2"/>
+
+  <!-- Centered Iconic Glyph with 20% Safe-Zone -->
+  <g transform="translate(64, 64) scale(3.84)" filter="url(#avatarDarkGlow)">
+    <!-- Left Vertical Ribbon Stem ('I' for ITNA) -->
+    <rect x="15" y="14" width="18" height="72" rx="9" fill="url(#avatarDarkStem)"/>
+
+    <!-- Forward Kinetic Play Chevron ('▶' for VIDEO) -->
+    <path
+      d="M 39 18 C 39 14 43.5 11.5 47 13.8 L 84 45.8 C 87.2 48 87.2 52 84 54.2 L 47 86.2 C 43.5 88.5 39 86 39 82 Z"
+      fill="url(#avatarDarkChevron)"
+    />
+  </g>
+</svg>

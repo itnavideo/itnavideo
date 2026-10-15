@@ -36,6 +36,21 @@ if (fs.existsSync(envProdSource)) {
   fs.copyFileSync(envProdSource, path.join(standaloneDir, '.env'));
 }
 
+// Ensure ffmpeg-static and ffprobe-static binaries are present in standalone build
+const standaloneNodeModules = path.join(standaloneDir, 'node_modules');
+['ffmpeg-static', 'ffprobe-static'].forEach((pkg) => {
+  const src = path.join(root, 'node_modules', pkg);
+  const dest = path.join(standaloneNodeModules, pkg);
+  if (fs.existsSync(src)) {
+    try {
+      fs.mkdirSync(path.dirname(dest), { recursive: true });
+      fs.cpSync(src, dest, { recursive: true, force: true });
+    } catch (e) {
+      console.warn(`[sync-standalone] Could not copy ${pkg}:`, e.message);
+    }
+  }
+});
+
 console.log('Next standalone files synced.');
 
 function copyRequiredDirectory(source, target, label) {

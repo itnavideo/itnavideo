@@ -32,17 +32,84 @@ import {
   Layers,
   Activity,
   Trash2,
+  Check,
+  Search,
+  Clock,
+  Video,
 } from "lucide-react";
 import { SUBTITLE_PRESETS } from "@/remotion/types/subtitles";
 import { BorderBeam } from "@/components/magicui/BorderBeam";
 import { NumberTicker } from "@/components/magicui/NumberTicker";
 import { AudioSpectrumVisualizer } from "@/components/dashboard/AudioSpectrumVisualizer";
 
-// Cloudinary-hosted 16:9 talking head broadcast preview video & poster screenshot
-const CLOUDINARY_16_9_PREVIEW_VIDEO =
-  "https://res.cloudinary.com/dhouh9idx/video/upload/v1790440433/itnavideo-assets/youtube-subtitles/youtube_subtitle_preview.mp4";
-const CLOUDINARY_16_9_PREVIEW_POSTER =
-  "https://res.cloudinary.com/dhouh9idx/video/upload/v1790440433/itnavideo-assets/youtube-subtitles/youtube_subtitle_preview.jpg";
+// Cloudinary-hosted 16:9 test videos for instant zero-friction preview & testing
+export interface CloudinarySampleVideo {
+  id: string;
+  name: string;
+  category: string;
+  videoUrl: string;
+  posterUrl: string;
+  durationSeconds: number;
+  sampleTranscript: string;
+  sampleCaptions: Array<{ start: number; end: number; text: string }>;
+}
+
+export const CLOUDINARY_SAMPLE_VIDEOS: CloudinarySampleVideo[] = [
+  {
+    id: "podcast-interview",
+    name: "Tech & Podcast Interview",
+    category: "Podcast",
+    videoUrl:
+      "https://res.cloudinary.com/dhouh9idx/video/upload/v1790440433/itnavideo-assets/youtube-subtitles/youtube_subtitle_preview.mp4",
+    posterUrl:
+      "https://res.cloudinary.com/dhouh9idx/video/upload/v1790440433/itnavideo-assets/youtube-subtitles/youtube_subtitle_preview.jpg",
+    durationSeconds: 18,
+    sampleTranscript:
+      "The mystery behind quantum computing is that particles can exist in multiple states simultaneously.",
+    sampleCaptions: [
+      { start: 0, end: 4.5, text: "The mystery behind quantum computing..." },
+      { start: 4.5, end: 9.8, text: "particles can exist in multiple states simultaneously" },
+      { start: 9.8, end: 14.5, text: "which completely revolutionizes computational power" },
+      { start: 14.5, end: 18.0, text: "and unlocks answers to previously unsolvable problems." },
+    ],
+  },
+  {
+    id: "cinematic-documentary",
+    name: "Cinematic Parallax Story",
+    category: "Cinematic",
+    videoUrl:
+      "https://res.cloudinary.com/dhouh9idx/video/upload/v1791489914/InShot_20261009_011644112_vtrkhq.mp4",
+    posterUrl:
+      "https://res.cloudinary.com/dhouh9idx/video/upload/so_3/v1791489914/InShot_20261009_011644112_vtrkhq.jpg",
+    durationSeconds: 22,
+    sampleTranscript:
+      "In the heart of the ancient ruins, archaeologists uncovered a secret that rewritten history.",
+    sampleCaptions: [
+      { start: 0, end: 5.0, text: "In the heart of the ancient ruins..." },
+      { start: 5.0, end: 11.0, text: "archaeologists uncovered a secret that rewritten history" },
+      { start: 11.0, end: 16.5, text: "a lost civilization powered by mysterious energy" },
+      { start: 16.5, end: 22.0, text: "buried deep beneath the golden sands." },
+    ],
+  },
+  {
+    id: "creator-explainer",
+    name: "Creator Studio Explainer",
+    category: "Explainer",
+    videoUrl:
+      "https://res.cloudinary.com/dhouh9idx/video/upload/v1791489914/InShot_20261009_011245820_oqja39.mp4",
+    posterUrl:
+      "https://res.cloudinary.com/dhouh9idx/video/upload/so_3/v1791489914/InShot_20261009_011245820_oqja39.jpg",
+    durationSeconds: 20,
+    sampleTranscript:
+      "Every top YouTube creator knows that retaining viewers requires high-contrast motion subtitles.",
+    sampleCaptions: [
+      { start: 0, end: 4.8, text: "Every top YouTube creator knows the secret..." },
+      { start: 4.8, end: 10.2, text: "retaining viewers requires high-contrast motion subtitles" },
+      { start: 10.2, end: 15.0, text: "keeping audience engagement above 70 percent" },
+      { start: 15.0, end: 20.0, text: "throughout the entire 10-minute broadcast." },
+    ],
+  },
+];
 
 type BillingEntitlement = {
   active: boolean;
@@ -79,7 +146,7 @@ type RecentRender = {
 };
 
 // 16:9 Broadcast Presets tailored for widescreen cinema & long-form YouTube
-const BROADCAST_PRESETS = [
+export const BROADCAST_PRESETS = [
   {
     id: "BBC / Netflix Closed Captions",
     title: "Clean Documentary",
@@ -288,19 +355,47 @@ const SUBTITLE_OUTPUT_LANGUAGES = [
 ];
 
 const RENDER_STEPS = [
-  { label: "Widescreen video received", detail: "Landscape/horizontal 16:9 video uploaded securely to cloud.", threshold: 0.08, icon: Upload },
-  { label: "AI transcribing voiceover", detail: "Speech AI mapping vocal patterns, sentences, and timing marks.", threshold: 0.32, icon: Layers3 },
-  { label: "Aligning subtitle segments", detail: "Aligning broadcast subtitles with 14% YouTube scrubber clearance.", threshold: 0.62, icon: Sparkles },
-  { label: "Rendering 16:9 widescreen", detail: "Cloud render engine compiling 1080p Full HD video with burnt-in tracks.", threshold: 0.85, icon: Film },
-  { label: "Ready to download", detail: "Widescreen video with burnt-in captions ready for YouTube broadcast.", threshold: 0.98, icon: Clapperboard },
+  {
+    label: "Widescreen video received",
+    detail: "Landscape/horizontal 16:9 video uploaded securely to cloud.",
+    threshold: 0.08,
+    icon: Upload,
+  },
+  {
+    label: "AI transcribing voiceover",
+    detail: "Groq Whisper detecting speech, word boundaries, and timing marks.",
+    threshold: 0.32,
+    icon: Layers3,
+  },
+  {
+    label: "Aligning subtitle segments",
+    detail: "Formatting broadcast subtitles with 14% YouTube scrubber clearance.",
+    threshold: 0.62,
+    icon: Sparkles,
+  },
+  {
+    label: "Rendering 16:9 widescreen",
+    detail: "Remotion engine compiling 1080p Full HD video with burnt-in tracks.",
+    threshold: 0.85,
+    icon: Film,
+  },
+  {
+    label: "Ready to download",
+    detail: "1080p video with burnt-in captions ready for YouTube broadcast.",
+    threshold: 0.98,
+    icon: Clapperboard,
+  },
 ];
 
 export default function YoutubeSubtitlesPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
 
-  // Form states
+  // Active Media & Sample State
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [activeSampleId, setActiveSampleId] = useState<string>("podcast-interview");
+
+  // Subtitle Style & Styling States
   const [captionStyle, setCaptionStyle] = useState<string>("BBC / Netflix Closed Captions");
   const [captionPosition, setCaptionPosition] = useState<"top" | "center" | "bottom">("bottom");
   const [captionFontSize, setCaptionFontSize] = useState<"small" | "medium" | "large" | "xlarge">("large");
@@ -311,47 +406,34 @@ export default function YoutubeSubtitlesPage() {
   const [spokenLanguage, setSpokenLanguage] = useState<string>("auto");
   const [captionLanguage, setCaptionLanguage] = useState<string>("same");
 
+  // YouTube Subtitles Safe-Zone & Casing
+  const [youtubeSubtitleSafeZone, setYoutubeSubtitleSafeZone] = useState<"standard" | "scrubber" | "high">("scrubber");
+  const [youtubeSubtitleCase, setYoutubeSubtitleCase] = useState<"natural" | "uppercase">("natural");
+
   // Preset Filtering & Search States
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [presetSearch, setPresetSearch] = useState<string>("");
 
-  const filteredPresets = useMemo(() => {
-    return BROADCAST_PRESETS.filter((p) => {
-      const matchesSearch =
-        !presetSearch ||
-        p.title.toLowerCase().includes(presetSearch.toLowerCase()) ||
-        p.desc.toLowerCase().includes(presetSearch.toLowerCase()) ||
-        p.specimen.toLowerCase().includes(presetSearch.toLowerCase());
-      const matchesCategory = selectedCategory === "all" || (p as any).category === selectedCategory;
-      return matchesSearch && matchesCategory;
-    });
-  }, [presetSearch, selectedCategory]);
-
-  // YouTube Subtitles safe-zone & casing
-  const [youtubeSubtitleSafeZone, setYoutubeSubtitleSafeZone] = useState<"standard" | "scrubber" | "high">("scrubber");
-  const [youtubeSubtitleCase, setYoutubeSubtitleCase] = useState<"natural" | "uppercase">("natural");
-
-  // Custom styling collapsible (Open by default)
-  const [showAdvanced, setShowAdvanced] = useState(true);
+  // Sub-panel tabs in settings card
+  const [activeSettingsTab, setActiveSettingsTab] = useState<"typography" | "safezone" | "language">("typography");
 
   // Media Metadata
   const [mediaDurationSeconds, setMediaDurationSeconds] = useState<number>(0);
-  const [mediaAspect, setMediaAspect] = useState<string>("landscape");
 
-  // Live Preview Player states
+  // Live Preview Player States
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isMuted, setIsMuted] = useState<boolean>(true);
   const [playbackTime, setPlaybackTime] = useState<number>(0);
-  const [previewDuration, setPreviewDuration] = useState<number>(10);
+  const [previewDuration, setPreviewDuration] = useState<number>(18);
   const previewVideoRef = useRef<HTMLVideoElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Job & render states
+  // Job & Render States
   const [jobStatus, setJobStatus] = useState<JobStatus>({ state: "idle" });
   const [billingEntitlement, setBillingEntitlement] = useState<BillingEntitlement | null>(null);
   const [recentRenders, setRecentRenders] = useState<RecentRender[]>([]);
 
-  // Transcription states
+  // Transcription States
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [editedTranscript, setEditedTranscript] = useState<string>("");
   const [previewCaptions, setPreviewCaptions] = useState<Array<{ start: number; end: number; text: string }> | null>(null);
@@ -370,13 +452,17 @@ export default function YoutubeSubtitlesPage() {
     if (!user) return;
     async function fetchBilling() {
       try {
-        const res = await fetch(`/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}`);
+        const res = await fetch(
+          `/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}&email=${encodeURIComponent(
+            user?.email || ""
+          )}`
+        );
         const payload = await res.json().catch(() => ({}));
         if (res.ok && payload.ok && payload.entitlement) {
           const ent = payload.entitlement;
           const limit = Math.max(0, Math.round(Number(payload.usage?.limit || ent.monthlyVideoLimit || 0)));
           const used = Math.max(0, Math.round(Number(payload.usage?.used || 0)));
-          const remaining = Math.max(0, Math.round(Number(payload.usage?.remaining || limit - used)));
+          const remaining = Math.max(0, Math.round(Number(payload.usage?.remaining ?? limit - used)));
           setBillingEntitlement({
             active: Boolean(ent.active),
             planId: ent.planId || "paid",
@@ -392,19 +478,30 @@ export default function YoutubeSubtitlesPage() {
     fetchBilling();
   }, [user]);
 
+  // Current active Cloudinary sample video object
+  const activeSampleVideo = useMemo(() => {
+    return (
+      CLOUDINARY_SAMPLE_VIDEOS.find((s) => s.id === activeSampleId) ||
+      CLOUDINARY_SAMPLE_VIDEOS[0]
+    );
+  }, [activeSampleId]);
+
   // Handle uploaded video metadata
   useEffect(() => {
     if (!selectedFile) {
       setMediaDurationSeconds(0);
-      setMediaAspect("landscape");
-      setEditedTranscript("");
-      setPreviewCaptions(null);
+      setEditedTranscript(activeSampleVideo.sampleTranscript);
+      setPreviewCaptions(activeSampleVideo.sampleCaptions);
+      setPreviewDuration(activeSampleVideo.durationSeconds);
       return;
     }
 
     const type = selectedFile.type || "";
     const name = selectedFile.name.toLowerCase();
-    const isVideoOrAudio = type.startsWith("video/") || type.startsWith("audio/") || /\.(mp4|mov|mp3|wav|m4a|aac)$/i.test(name);
+    const isVideoOrAudio =
+      type.startsWith("video/") ||
+      type.startsWith("audio/") ||
+      /\.(mp4|mov|mp3|wav|m4a|aac)$/i.test(name);
 
     if (isVideoOrAudio) {
       const url = URL.createObjectURL(selectedFile);
@@ -414,9 +511,10 @@ export default function YoutubeSubtitlesPage() {
       element.preload = "metadata";
 
       const handleLoadedMetadata = () => {
-        setMediaDurationSeconds(element.duration || 0);
-        setMediaAspect("landscape");
-        setPreviewDuration(element.duration || 10);
+        // Cap at 600s strictly per Rule 4.1
+        const dur = Math.min(600, Math.round(element.duration || 60));
+        setMediaDurationSeconds(dur);
+        setPreviewDuration(dur);
         URL.revokeObjectURL(url);
       };
 
@@ -426,7 +524,7 @@ export default function YoutubeSubtitlesPage() {
         URL.revokeObjectURL(url);
       };
     }
-  }, [selectedFile]);
+  }, [selectedFile, activeSampleVideo]);
 
   // Auto-transcribe media on file selection
   useEffect(() => {
@@ -492,7 +590,9 @@ export default function YoutubeSubtitlesPage() {
     () => (selectedFile ? URL.createObjectURL(selectedFile) : null),
     [selectedFile]
   );
-  const activePreviewVideoSrc = uploadedVideoUrl || CLOUDINARY_16_9_PREVIEW_VIDEO;
+
+  const activePreviewVideoSrc = uploadedVideoUrl || activeSampleVideo.videoUrl;
+  const activePreviewPoster = selectedFile ? undefined : activeSampleVideo.posterUrl;
 
   useEffect(() => {
     return () => {
@@ -558,6 +658,7 @@ export default function YoutubeSubtitlesPage() {
         desc: "Broadcast Subtitle Preset",
         specimen: "Clear spoken word alignment...",
         badge: "Broadcast",
+        category: "cinematic",
         fontFamily: remotionPreset.fontFamily,
         textColor: remotionPreset.textColor,
         highlightColor: remotionPreset.highlightColor,
@@ -567,7 +668,38 @@ export default function YoutubeSubtitlesPage() {
     return BROADCAST_PRESETS[0];
   }, [captionStyle]);
 
+  // Filtered Presets for Gallery
+  const filteredPresets = useMemo(() => {
+    return BROADCAST_PRESETS.filter((p) => {
+      const matchesSearch =
+        !presetSearch ||
+        p.title.toLowerCase().includes(presetSearch.toLowerCase()) ||
+        p.desc.toLowerCase().includes(presetSearch.toLowerCase()) ||
+        p.specimen.toLowerCase().includes(presetSearch.toLowerCase());
+      const matchesCategory =
+        selectedCategory === "all" || (p as any).category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [presetSearch, selectedCategory]);
 
+  // Current active caption text based on video playback time
+  const currentActiveCaptionText = useMemo(() => {
+    const caps = previewCaptions || activeSampleVideo.sampleCaptions;
+    if (caps && caps.length > 0) {
+      const match = caps.find(
+        (c) => playbackTime >= c.start && playbackTime <= c.end
+      );
+      if (match) return match.text;
+    }
+    return activePresetConfig.specimen;
+  }, [playbackTime, previewCaptions, activeSampleVideo, activePresetConfig]);
+
+  // Rule 4.1 Pricing: 1 Min = 1 Credit (1m=1, 5m=5, 10m=10 Cr)
+  const currentDurationSeconds = mediaDurationSeconds || previewDuration || 60;
+  const calculatedCredits = Math.max(
+    1,
+    Math.min(10, Math.ceil(currentDurationSeconds / 60))
+  );
 
   // Start Render Job
   async function handleStartRender() {
@@ -589,7 +721,11 @@ export default function YoutubeSubtitlesPage() {
         progress: 0.05,
       });
 
-      const mediaKey = await uploadFileViaPresign(selectedFile, "youtubeSubtitleGenerator", user.id);
+      const mediaKey = await uploadFileViaPresign(
+        selectedFile,
+        "youtubeSubtitleGenerator",
+        user.id
+      );
 
       setJobStatus({
         state: "starting",
@@ -598,7 +734,9 @@ export default function YoutubeSubtitlesPage() {
       });
 
       const plannedTitle = selectedFile.name.replace(/\.[^/.]+$/, "");
-      const isAudio = selectedFile.type.startsWith("audio/") || /\.(mp3|wav|m4a|aac)$/i.test(selectedFile.name);
+      const isAudio =
+        selectedFile.type.startsWith("audio/") ||
+        /\.(mp3|wav|m4a|aac)$/i.test(selectedFile.name);
 
       const jobResponse = await fetch("/api/reels/jobs", {
         method: "POST",
@@ -611,10 +749,12 @@ export default function YoutubeSubtitlesPage() {
           mode: "youtubeSubtitleGenerator",
           topicTitle: plannedTitle,
           userId: user.id,
+          userEmail: user.email || undefined,
           captionStyle,
           captionPosition,
           captionFontSize,
-          captionFontFamily: captionFontFamily !== "preset" ? captionFontFamily : undefined,
+          captionFontFamily:
+            captionFontFamily !== "preset" ? captionFontFamily : undefined,
           captionTextColor,
           captionHighlightColor,
           captionBackgroundColor,
@@ -633,7 +773,7 @@ export default function YoutubeSubtitlesPage() {
           mediaAspect: "landscape",
           frameRange:
             mediaDurationSeconds > 0
-              ? [0, Math.min(27000, Math.round(mediaDurationSeconds * 30)) - 1]
+              ? [0, Math.min(18000, Math.round(mediaDurationSeconds * 30)) - 1]
               : undefined,
         }),
       });
@@ -657,7 +797,7 @@ export default function YoutubeSubtitlesPage() {
       });
 
       let attempts = 0;
-      const MAX_ATTEMPTS = 800;
+      const MAX_ATTEMPTS = 600;
 
       const pollInterval = setInterval(async () => {
         attempts++;
@@ -798,28 +938,43 @@ export default function YoutubeSubtitlesPage() {
 
   const [isExportingSubtitles, setIsExportingSubtitles] = useState<boolean>(false);
 
+  // Download .SRT or .VTT with fallback
   async function handleExportSubtitles(format: "srt" | "vtt" = "srt") {
     if (!user) {
       router.push("/login?returnUrl=/dashboard/youtube-subtitles");
       return;
     }
-    if (!selectedFile) {
-      fileInputRef.current?.click();
-      return;
-    }
+
     try {
       setIsExportingSubtitles(true);
-      const mediaKey = await uploadFileViaPresign(selectedFile, "youtubeSubtitleGenerator", user.id);
+
+      const capsToExport = previewCaptions || activeSampleVideo.sampleCaptions;
+      const baseName = selectedFile
+        ? selectedFile.name.replace(/\.[^/.]+$/, "")
+        : `${activeSampleVideo.id}-subtitles`;
+
+      // If user uploaded file, also upload via presign if no captions yet
+      let mediaKey: string | undefined = undefined;
+      if (selectedFile && (!capsToExport || capsToExport.length === 0)) {
+        mediaKey = await uploadFileViaPresign(
+          selectedFile,
+          "youtubeSubtitleGenerator",
+          user.id
+        );
+      }
+
       const res = await fetch("/api/reels/subtitles/export", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          captions: capsToExport,
+          transcript: editedTranscript || activeSampleVideo.sampleTranscript,
           mediaKey,
-          fileName: selectedFile.name,
+          fileName: baseName,
           format,
+          casing: youtubeSubtitleCase,
           spokenLanguage: spokenLanguage !== "auto" ? spokenLanguage : undefined,
           captionLanguage: captionLanguage !== "same" ? captionLanguage : undefined,
-          youtubeSubtitleCase,
         }),
       });
 
@@ -832,7 +987,6 @@ export default function YoutubeSubtitlesPage() {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      const baseName = selectedFile.name.replace(/\.[^/.]+$/, "") || "subtitles";
       a.download = `${baseName}.${format}`;
       document.body.appendChild(a);
       a.click();
@@ -846,20 +1000,24 @@ export default function YoutubeSubtitlesPage() {
   }
 
   const userRemainingCredits = billingEntitlement?.active
-    ? Math.round(billingEntitlement.usage?.remaining ?? billingEntitlement.monthlyVideoLimit ?? 0)
+    ? Math.round(
+        billingEntitlement.usage?.remaining ?? billingEntitlement.monthlyVideoLimit ?? 0
+      )
     : undefined;
   const isWorking =
-    jobStatus.state === "uploading" || jobStatus.state === "starting" || jobStatus.state === "rendering";
+    jobStatus.state === "uploading" ||
+    jobStatus.state === "starting" ||
+    jobStatus.state === "rendering";
   const isReady = jobStatus.state === "ready" && Boolean(jobStatus.outputFile);
   const isError = jobStatus.state === "error";
 
-  // Estimated speech metrics
+  // Estimated speech word count
   const estimatedWordCount = useMemo(() => {
-    if (!mediaDurationSeconds || mediaDurationSeconds <= 0) return 0;
-    return Math.round((mediaDurationSeconds / 60) * 140);
-  }, [mediaDurationSeconds]);
+    const dur = mediaDurationSeconds || previewDuration || 60;
+    return Math.round((dur / 60) * 140);
+  }, [mediaDurationSeconds, previewDuration]);
 
-  // Safe margin position percentage calculation for live preview
+  // Safe margin bottom position
   const safeMarginBottomClass =
     youtubeSubtitleSafeZone === "high"
       ? "bottom-[18%]"
@@ -869,9 +1027,9 @@ export default function YoutubeSubtitlesPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#090A0F] flex flex-col items-center justify-center text-zinc-400 gap-3">
-        <Loader2 className="h-8 w-8 animate-spin text-[#FF9100]" />
-        <p className="text-sm font-semibold tracking-wide text-zinc-300">
+      <div className="min-h-screen bg-[#070B14] flex flex-col items-center justify-center text-slate-400 gap-3">
+        <Loader2 className="h-8 w-8 animate-spin text-[#FF5722]" />
+        <p className="text-sm font-semibold tracking-wide text-slate-200">
           Loading YouTube Subtitle Studio...
         </p>
       </div>
@@ -879,14 +1037,14 @@ export default function YoutubeSubtitlesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#090A0F] text-white flex flex-col selection:bg-[#FF5722]/30 selection:text-[#FFA000]">
+    <div className="min-h-screen bg-[#070B14] text-white flex flex-col selection:bg-[#FF5722]/30 selection:text-[#FFA000]">
       {/* ── Top Navigation Bar ── */}
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#090A0F]/90 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#070B14]/90 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 sm:gap-4">
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 px-3 py-1.5 text-xs font-bold text-zinc-300 hover:text-white transition group"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 px-3 py-1.5 text-xs font-bold text-slate-300 hover:text-white transition group"
             >
               <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
               <span className="hidden sm:inline">All Studios</span>
@@ -896,21 +1054,23 @@ export default function YoutubeSubtitlesPage() {
 
             <BrandLogo size="sm" showBadge={false} variant="dark" />
 
-            <span className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-2.5 py-0.5 text-[11px] font-black text-[#FF9100]">
-              <Sparkles size={11} className="text-[#FF9100]" />
-              Studio #8 • 16:9 Widescreen
+            <span className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-3 py-1 text-[11px] font-black text-[#FFA000]">
+              <Sparkles size={11} className="text-[#FF5722]" />
+              Studio #4 • 16:9 Widescreen
             </span>
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Credits badge */}
-            <div className="flex items-center gap-2 rounded-full border border-white/10 bg-[#111218] px-3.5 py-1.5 text-xs font-bold">
+            {/* Credits Balance Badge */}
+            <div className="flex items-center gap-2 rounded-full border border-white/10 bg-[#0E1526] px-3.5 py-1.5 text-xs font-bold">
               <Zap size={14} className="text-[#FF7043] fill-[#FF7043]" />
-              <span className="text-zinc-400">Balance:</span>
-              <span className="text-white font-black">{billingEntitlement ? userRemainingCredits : "..."} Credits</span>
+              <span className="text-slate-400">Balance:</span>
+              <span className="text-white font-black">
+                {billingEntitlement ? userRemainingCredits : "..."} Credits
+              </span>
               <Link
                 href="/pricing"
-                className="ml-1 text-[11px] text-[#FF9100] hover:text-[#FFA000] underline font-black"
+                className="ml-1 text-[11px] text-[#FFA000] hover:text-white underline font-black"
               >
                 +Add
               </Link>
@@ -920,44 +1080,46 @@ export default function YoutubeSubtitlesPage() {
       </header>
 
       {/* ── Main Canvas ── */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* Navigation & Mode Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
+        {/* Header Banner & Value Proposition */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-6">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#FF9100] mb-2">
-              <Sparkles size={13} className="text-[#FF9100]" />
-              <span>Studio #8 • YouTube Subtitle Generator</span>
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#FFA000] mb-2">
+              <Sparkles size={13} className="text-[#FF5722]" />
+              <span>Studio #4 • YouTube Subtitle Generator</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight">
               YouTube Subtitle{" "}
               <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
                 Generator
               </span>
             </h1>
-            <p className="text-xs sm:text-sm text-zinc-400 mt-1 max-w-2xl">
-              Burn responsive broadcast subtitles directly onto 16:9 videos or export millisecond-accurate .SRT / .VTT files for YouTube Studio.
+            <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl leading-relaxed">
+              Burn responsive broadcast subtitles directly onto 16:9 widescreen videos with 14% YouTube scrubber clearance, or export millisecond-accurate .SRT / .VTT files.
             </p>
           </div>
 
-          {/* Locked 16:9 & Scrubber Margin Indicator */}
-          <div className="rounded-2xl border border-white/10 bg-[#111218] px-4 py-3 flex items-center gap-3.5 shrink-0 shadow-lg">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FF5722]/10 border border-[#FF5722]/30 text-[#FF9100]">
-              <Tv size={20} />
-            </div>
-            <div>
-              <p className="text-xs font-black text-white">16:9 Widescreen Cinema</p>
-              <p className="text-[10px] text-emerald-400 font-bold flex items-center gap-1 mt-0.5">
-                <ShieldCheck size={12} />
-                <span>14% YouTube Scrubber Safe-Zone</span>
-              </p>
-            </div>
+          {/* Quick Badges Stack */}
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <span className="rounded-full border border-white/10 bg-[#0E1526] px-3.5 py-1.5 text-xs font-bold text-slate-200 flex items-center gap-1.5">
+              <Tv size={14} className="text-[#FF7043]" />
+              <span>16:9 Landscape Only</span>
+            </span>
+            <span className="rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-3.5 py-1.5 text-xs font-bold text-[#FFA000] flex items-center gap-1.5">
+              <Clock size={14} className="text-[#FF5722]" />
+              <span>Max 10 Min (600s)</span>
+            </span>
+            <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1.5 text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+              <ShieldCheck size={14} />
+              <span>1 Min = 1 Credit</span>
+            </span>
           </div>
         </div>
 
         {/* ── In-Progress / Ready Render State ── */}
         {isWorking || isReady || isError ? (
           <div className="max-w-4xl mx-auto space-y-6">
-            <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#111218] p-6 sm:p-8 shadow-2xl">
+            <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#0E1526] p-6 sm:p-8 shadow-2xl">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-6 border-b border-white/10">
                 <div className="flex items-center gap-3.5">
                   <div
@@ -966,7 +1128,7 @@ export default function YoutubeSubtitlesPage() {
                         ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
                         : isError
                         ? "border-red-500/30 bg-red-500/10 text-red-400"
-                        : "border-[#FF5722]/30 bg-[#FF5722]/10 text-[#FF9100] animate-pulse"
+                        : "border-[#FF5722]/30 bg-[#FF5722]/10 text-[#FFA000] animate-pulse"
                     }`}
                   >
                     {isReady ? (
@@ -979,9 +1141,13 @@ export default function YoutubeSubtitlesPage() {
                   </div>
                   <div>
                     <h3 className="text-base font-black text-white">
-                      {isReady ? "Subtitles Complete!" : isError ? "Processing Error" : "Processing 16:9 Subtitles..."}
+                      {isReady
+                        ? "Subtitles Complete!"
+                        : isError
+                        ? "Processing Error"
+                        : "Processing 16:9 Subtitles..."}
                     </h3>
-                    <p className="text-xs text-zinc-400 mt-0.5">
+                    <p className="text-xs text-slate-400 mt-0.5">
                       {isReady
                         ? "Your widescreen video has been subtitled with 1080p broadcast clarity."
                         : isError
@@ -995,7 +1161,7 @@ export default function YoutubeSubtitlesPage() {
                   {isReady && (
                     <button
                       onClick={handleReset}
-                      className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 px-4 py-2.5 text-xs font-bold text-zinc-300 hover:text-white transition cursor-pointer"
+                      className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 px-4 py-2.5 text-xs font-bold text-slate-300 hover:text-white transition cursor-pointer"
                     >
                       <RefreshCw size={13} />
                       <span>Start New Video</span>
@@ -1016,8 +1182,10 @@ export default function YoutubeSubtitlesPage() {
               <div className="space-y-6">
                 <div>
                   <div className="flex items-center justify-between text-xs font-bold mb-2">
-                    <span className="text-zinc-400">{jobStatus.message || "Working..."}</span>
-                    <span className="text-[#FF9100]">{Math.round((jobStatus.progress || 0) * 100)}%</span>
+                    <span className="text-slate-300">{jobStatus.message || "Working..."}</span>
+                    <span className="text-[#FFA000] font-mono">
+                      {Math.round((jobStatus.progress || 0) * 100)}%
+                    </span>
                   </div>
                   <div className="h-2 w-full rounded-full bg-white/5 overflow-hidden">
                     <div
@@ -1028,13 +1196,14 @@ export default function YoutubeSubtitlesPage() {
                 </div>
 
                 {/* Vertical Stepper tracker */}
-                <div className="grid gap-3.5 sm:gap-4 max-w-2xl">
+                <div className="grid gap-3 max-w-2xl">
                   {RENDER_STEPS.map((step, idx) => {
                     const currentProgress = jobStatus.progress || 0;
                     const isActive =
                       currentProgress >= step.threshold &&
                       currentProgress < (RENDER_STEPS[idx + 1]?.threshold || 1.1);
-                    const isPassed = currentProgress >= (RENDER_STEPS[idx + 1]?.threshold || 1.0) || isReady;
+                    const isPassed =
+                      currentProgress >= (RENDER_STEPS[idx + 1]?.threshold || 1.0) || isReady;
                     const StepIcon = step?.icon || Sparkles;
 
                     return (
@@ -1044,30 +1213,32 @@ export default function YoutubeSubtitlesPage() {
                           isActive
                             ? "border-[#FF5722]/40 bg-[#FF5722]/10 shadow-md"
                             : isPassed
-                            ? "border-emerald-500/10 bg-emerald-500/[0.01]"
+                            ? "border-emerald-500/20 bg-emerald-500/5"
                             : "border-white/5 bg-transparent opacity-45"
                         }`}
                       >
                         <div
-                          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${
+                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${
                             isActive
-                              ? "border-[#FF5722]/30 bg-[#FF5722]/15 text-[#FF9100] animate-pulse"
+                              ? "border-[#FF5722]/30 bg-[#FF5722]/15 text-[#FFA000] animate-pulse"
                               : isPassed
                               ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
-                              : "border-white/10 bg-white/5 text-zinc-500"
+                              : "border-white/10 bg-white/5 text-slate-500"
                           }`}
                         >
-                          {isPassed ? <CheckCircle2 size={18} /> : <StepIcon size={18} />}
+                          {isPassed ? <CheckCircle2 size={16} /> : <StepIcon size={16} />}
                         </div>
                         <div>
                           <p
                             className={`text-xs font-black ${
-                              isActive ? "text-white" : isPassed ? "text-zinc-300" : "text-zinc-500"
+                              isActive ? "text-white" : isPassed ? "text-slate-200" : "text-slate-500"
                             }`}
                           >
                             {step.label}
                           </p>
-                          <p className="text-[11px] text-zinc-400 mt-0.5 leading-relaxed">{step.detail}</p>
+                          <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">
+                            {step.detail}
+                          </p>
                         </div>
                       </div>
                     );
@@ -1108,7 +1279,7 @@ export default function YoutubeSubtitlesPage() {
                         download={`itnavideo-subtitled-${jobStatus.renderId}.mp4`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-full sm:w-auto inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 px-5 py-4 text-xs font-bold text-zinc-300 hover:text-white transition"
+                        className="w-full sm:w-auto inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 px-5 py-4 text-xs font-bold text-slate-300 hover:text-white transition"
                         title="Direct Link"
                       >
                         <Download size={16} className="text-[#FF7043]" />
@@ -1123,7 +1294,7 @@ export default function YoutubeSubtitlesPage() {
                     <span className="block text-[11px] font-black uppercase text-red-400">
                       Technical Diagnostics:
                     </span>
-                    <div className="max-h-32 overflow-y-auto font-mono text-[10px] text-zinc-500 leading-normal space-y-1">
+                    <div className="max-h-32 overflow-y-auto font-mono text-[10px] text-slate-400 leading-normal space-y-1">
                       {jobStatus.diagnostics.map((line, idx) => (
                         <p key={idx}>{line}</p>
                       ))}
@@ -1134,41 +1305,49 @@ export default function YoutubeSubtitlesPage() {
             </div>
           </div>
         ) : (
-          /* ── Two-Column Main Studio Grid ── */
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          /* ── Main Responsive Studio (7 cols Form & Styles / 5 cols Sticky Live Cinema Stage) ── */
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* Hidden File Input */}
             <input
               ref={fileInputRef}
               accept="video/*,audio/*"
               className="hidden"
               onChange={(event: ChangeEvent<HTMLInputElement>) => {
-                setSelectedFile(event.target.files?.[0] || null);
+                const file = event.target.files?.[0];
+                if (file) {
+                  setSelectedFile(file);
+                }
                 event.currentTarget.value = "";
               }}
               type="file"
             />
 
-            {/* ── LEFT COLUMN (7 Cols): File Dropzone, Controls & Spacious Subtitle Gallery ── */}
+            {/* ── LEFT COLUMN (7 Cols): Upload + Cloudinary Switcher + Styles Gallery + Alignment ── */}
             <div className="lg:col-span-7 space-y-6">
-              {/* ── 1. 16:9 Video & Audio Upload Dropzone ── */}
-              <div className="rounded-[28px] border border-white/10 bg-[#111218] p-5 shadow-2xl space-y-4">
+              {/* ── 1. Video & Audio Upload Dropzone + Cloudinary Sample Selector ── */}
+              <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-5 sm:p-6 shadow-2xl space-y-4">
                 <div className="flex items-center justify-between pb-3 border-b border-white/10">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-[#FF5722]/15 text-[#FF9100] text-xs font-black border border-[#FF5722]/30">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-[#FF5722]/15 text-[#FFA000] text-xs font-black border border-[#FF5722]/30">
                       1
                     </span>
                     <div>
-                      <h3 className="text-sm font-black text-white flex items-center gap-2">
-                        <Upload size={16} className="text-[#FF9100]" />
+                      <h3 className="text-sm sm:text-base font-black text-white flex items-center gap-2">
+                        <Upload size={16} className="text-[#FF7043]" />
                         <span>Upload 16:9 Video or Audio</span>
                       </h3>
-                      <p className="text-[11px] text-zinc-400 mt-0.5">
-                        Select widescreen video or voiceover track (MP4, MOV, MP3, WAV — up to 12 mins).
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        MP4, MOV, MP3, WAV — strictly up to 10 minutes (600s).
                       </p>
                     </div>
                   </div>
+
+                  <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full font-bold">
+                    16:9 Widescreen
+                  </span>
                 </div>
 
+                {/* Primary Upload Dropzone */}
                 <div
                   onClick={() => fileInputRef.current?.click()}
                   onDragOver={(e) => {
@@ -1182,257 +1361,168 @@ export default function YoutubeSubtitlesPage() {
                       setSelectedFile(e.dataTransfer.files[0]);
                     }
                   }}
-                  className="w-full flex items-center justify-between gap-3 rounded-2xl border-2 border-dashed border-white/15 hover:border-[#FF5722]/60 bg-[#090A0F] p-4 transition-all cursor-pointer group"
+                  className={`w-full flex items-center justify-between gap-3 rounded-2xl border-2 border-dashed p-4 transition-all cursor-pointer group ${
+                    selectedFile
+                      ? "border-emerald-500/50 bg-emerald-500/5"
+                      : "border-white/15 hover:border-[#FF5722]/60 bg-[#070B14]"
+                  }`}
                 >
                   <div className="flex items-center gap-3.5 min-w-0">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#FF5722]/30 bg-[#FF5722]/10 text-[#FF9100] group-hover:scale-105 transition-transform shrink-0">
-                      <Upload size={20} />
+                    <div
+                      className={`flex h-11 w-11 items-center justify-center rounded-xl border group-hover:scale-105 transition-transform shrink-0 ${
+                        selectedFile
+                          ? "border-emerald-500/30 bg-emerald-500/20 text-emerald-400"
+                          : "border-[#FF5722]/30 bg-[#FF5722]/10 text-[#FFA000]"
+                      }`}
+                    >
+                      {selectedFile ? <CheckCircle2 size={20} /> : <Upload size={20} />}
                     </div>
 
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs sm:text-sm font-extrabold text-zinc-100 truncate">
-                          {selectedFile ? selectedFile.name : "Drop your video or audio file here"}
+                        <span className="text-xs sm:text-sm font-extrabold text-white truncate">
+                          {selectedFile ? selectedFile.name : "Drop your 16:9 video or audio here"}
                         </span>
                         {selectedFile && (
-                          <span className="rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold px-2 py-0.5 shrink-0">
+                          <span className="rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-mono font-bold px-2 py-0.5 shrink-0">
                             Loaded
                           </span>
                         )}
                       </div>
-                      <p className="text-[11px] text-zinc-400 truncate mt-0.5">
+                      <p className="text-[11px] text-slate-400 truncate mt-0.5">
                         {selectedFile
-                          ? `${(selectedFile.size / (1024 * 1024)).toFixed(1)} MB · 16:9 Widescreen Ready`
-                          : "Drag & drop MP4, MOV, MP3, WAV (Up to 12 mins)"}
+                          ? `${(selectedFile.size / (1024 * 1024)).toFixed(1)} MB • ${
+                              mediaDurationSeconds > 0 ? `${mediaDurationSeconds}s` : "Ready"
+                            }`
+                          : "Drag & drop MP4, MOV, MP3, WAV • Max 10 minutes (600s)"}
                       </p>
                     </div>
                   </div>
 
-                  <span className="rounded-xl border border-[#FF5722]/30 bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black font-black text-xs px-4 py-2 hover:brightness-110 shadow-md shadow-[#FF5722]/20 transition shrink-0 flex items-center gap-1.5">
+                  <span className="rounded-xl border border-[#FF5722]/30 bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black font-black text-xs px-4 py-2 hover:brightness-110 shadow-md shadow-[#FF5722]/20 transition shrink-0 flex items-center gap-1.5 cursor-pointer">
                     <Upload size={13} className="text-black" />
-                    <span>{selectedFile ? "Change File" : "Browse Media"}</span>
+                    <span>{selectedFile ? "Change File" : "Browse Files"}</span>
                   </span>
                 </div>
 
                 {/* Duration & Waveform Pill */}
-                {mediaDurationSeconds > 0 && (
-                  <div className="rounded-2xl border border-[#FF5722]/30 bg-[#FF5722]/5 px-4 py-2.5 text-xs flex flex-wrap items-center justify-between gap-3">
+                {selectedFile && mediaDurationSeconds > 0 && (
+                  <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-xs flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
-                      <Activity size={15} className="text-[#FF7043]" />
-                      <span className="text-zinc-200 font-bold">
-                        Duration: <NumberTicker value={Math.round(mediaDurationSeconds)} />s (~<NumberTicker value={estimatedWordCount} /> words)
+                      <Activity size={15} className="text-emerald-400" />
+                      <span className="text-slate-100 font-bold">
+                        Duration: <NumberTicker value={Math.round(mediaDurationSeconds)} />s (~
+                        <NumberTicker value={estimatedWordCount} /> words)
                       </span>
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <AudioSpectrumVisualizer isPlaying={Boolean(selectedFile)} isTranscribing={isTranscribing} />
-                      <span className="font-black text-[#FF7043] uppercase text-[11px] bg-[#FF5722]/10 px-2.5 py-1 rounded-full border border-[#FF5722]/30">
-                        1080p Cinema
-                      </span>
+                      <AudioSpectrumVisualizer
+                        isPlaying={Boolean(selectedFile)}
+                        isTranscribing={isTranscribing}
+                      />
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedFile(null);
+                        }}
+                        className="text-xs text-slate-400 hover:text-red-400 font-bold transition flex items-center gap-1 cursor-pointer"
+                      >
+                        <Trash2 size={12} />
+                        <span>Remove</span>
+                      </button>
                     </div>
                   </div>
                 )}
-              </div>
 
-              {/* ── 2. Language & Alignment Settings ── */}
-              <div className="rounded-[28px] border border-white/10 bg-[#111218] p-5 shadow-xl space-y-4">
-                <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-white">
-                  <Globe size={15} className="text-[#FF9100]" />
-                  <span>Language &amp; Safe Zone</span>
-                </div>
-
-                {/* Spoken & Subtitle Language Selectors */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-zinc-300 block">Spoken Language</label>
-                    <select
-                      value={spokenLanguage}
-                      onChange={(e) => setSpokenLanguage(e.target.value)}
-                      className="w-full bg-[#090A0F] text-white text-xs font-bold rounded-xl border border-white/10 px-3 py-2.5 focus:border-[#FF5722] focus:outline-none cursor-pointer"
-                    >
-                      {AUDIO_SPOKEN_LANGUAGES.map((l) => (
-                        <option key={l.id} value={l.id} className="bg-[#090A0F] text-white">
-                          {l.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-zinc-300 block">Subtitle Script</label>
-                    <select
-                      value={captionLanguage}
-                      onChange={(e) => setCaptionLanguage(e.target.value)}
-                      className="w-full bg-[#090A0F] text-white text-xs font-bold rounded-xl border border-white/10 px-3 py-2.5 focus:border-[#FF5722] focus:outline-none cursor-pointer"
-                    >
-                      {SUBTITLE_OUTPUT_LANGUAGES.map((l) => (
-                        <option key={l.id} value={l.id} className="bg-[#090A0F] text-white">
-                          {l.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                {/* Safe-Zone Margin & Casing Controls */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-zinc-300 block">Scrubber Safe-Zone</label>
-                    <select
-                      value={youtubeSubtitleSafeZone}
-                      onChange={(e) => setYoutubeSubtitleSafeZone(e.target.value as any)}
-                      className="w-full bg-[#090A0F] text-white text-xs font-bold rounded-xl border border-white/10 px-3 py-2.5 focus:border-[#FF5722] focus:outline-none cursor-pointer"
-                    >
-                      <option value="scrubber">14% Clearance (Recommended)</option>
-                      <option value="standard">10% Standard Clearance</option>
-                      <option value="high">18% High Clearance</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-zinc-300 block">Text Casing</label>
-                    <select
-                      value={youtubeSubtitleCase}
-                      onChange={(e) => setYoutubeSubtitleCase(e.target.value as any)}
-                      className="w-full bg-[#090A0F] text-white text-xs font-bold rounded-xl border border-white/10 px-3 py-2.5 focus:border-[#FF5722] focus:outline-none cursor-pointer"
-                    >
-                      <option value="natural">Natural Case (Recommended)</option>
-                      <option value="uppercase">ALL UPPERCASE</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Collapsible ⚙️ Typography & Style Drawer */}
-                <div className="rounded-2xl border border-white/10 bg-[#161720] overflow-hidden">
-                  <button
-                    type="button"
-                    onClick={() => setShowAdvanced(!showAdvanced)}
-                    className="w-full flex items-center justify-between p-3.5 text-left hover:bg-white/5 transition cursor-pointer"
-                  >
-                    <div className="flex items-center gap-2">
-                      <SlidersHorizontal size={14} className="text-[#FF7043]" />
-                      <span className="text-xs font-black uppercase tracking-wider text-zinc-200">
-                        ⚙️ Typography &amp; Placement
+                {/* ── Interactive Cloudinary Sample Videos (Instant Testing with Real Media) ── */}
+                <div className="pt-2 border-t border-white/5 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-black uppercase text-slate-300 flex items-center gap-1.5">
+                      <Film size={12} className="text-[#FF7043]" />
+                      <span>Or Try With Sample Cloudinary Video:</span>
+                    </span>
+                    {selectedFile && (
+                      <span className="text-[10px] text-amber-400 font-semibold">
+                        (Custom video active)
                       </span>
-                    </div>
-                    <ChevronDown
-                      size={15}
-                      className={`text-zinc-400 transition-transform ${showAdvanced ? "rotate-180" : ""}`}
-                    />
-                  </button>
+                    )}
+                  </div>
 
-                  {showAdvanced && (
-                    <div className="p-4 pt-0 space-y-3.5 border-t border-white/10">
-                      {/* Font Family */}
-                      <div className="space-y-1.5 pt-2">
-                        <label className="text-[11px] font-bold text-zinc-300 block">Font Family</label>
-                        <select
-                          className="w-full rounded-xl border border-white/10 bg-[#090A0F] text-zinc-100 text-xs px-3 py-2 focus:border-[#FF5722] focus:outline-none cursor-pointer font-bold"
-                          value={captionFontFamily}
-                          onChange={(e) => setCaptionFontFamily(e.target.value)}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    {CLOUDINARY_SAMPLE_VIDEOS.map((sample) => {
+                      const isActive = !selectedFile && activeSampleId === sample.id;
+                      return (
+                        <button
+                          key={sample.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedFile(null);
+                            setActiveSampleId(sample.id);
+                            setPreviewDuration(sample.durationSeconds);
+                            setEditedTranscript(sample.sampleTranscript);
+                            setPreviewCaptions(sample.sampleCaptions);
+                            if (previewVideoRef.current) {
+                              previewVideoRef.current.currentTime = 0;
+                            }
+                          }}
+                          className={`rounded-xl border p-2.5 text-left transition-all cursor-pointer flex flex-col justify-between ${
+                            isActive
+                              ? "border-[#FF5722] bg-[#FF5722]/15 text-white shadow-md ring-1 ring-[#FF5722]"
+                              : "border-white/10 bg-[#070B14] text-slate-400 hover:text-white hover:border-white/20"
+                          }`}
                         >
-                          <option value="preset">Preset Default Font</option>
-                          <option value="Impact, sans-serif">Impact (Bold Heavy)</option>
-                          <option value="Montserrat, sans-serif">Montserrat (Modern Clean)</option>
-                          <option value="'Roboto Condensed', sans-serif">Roboto Condensed (Punchy)</option>
-                          <option value="Poppins, sans-serif">Poppins (Smooth Geometric)</option>
-                          <option value="Inter, sans-serif">Inter (Minimal Tech)</option>
-                          <option value="'Bebas Neue', sans-serif">Bebas Neue (Tall Headline)</option>
-                          <option value="Oswald, sans-serif">Oswald (Narrow Bold)</option>
-                          <option value="Anton, sans-serif">Anton (Heavy Poster)</option>
-                        </select>
-                      </div>
-
-                      {/* Font Size & Position */}
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="space-y-1">
-                          <label className="text-[11px] font-bold text-zinc-300 block">Font Size</label>
-                          <select
-                            className="w-full rounded-xl border border-white/10 bg-[#090A0F] text-zinc-100 text-xs px-2.5 py-2 focus:border-[#FF5722] focus:outline-none cursor-pointer font-bold"
-                            value={captionFontSize}
-                            onChange={(e) => setCaptionFontSize(e.target.value as any)}
-                          >
-                            <option value="small">Small</option>
-                            <option value="medium">Medium</option>
-                            <option value="large">Large</option>
-                            <option value="xlarge">Extra Large</option>
-                          </select>
-                        </div>
-
-                        <div className="space-y-1">
-                          <label className="text-[11px] font-bold text-zinc-300 block">Position</label>
-                          <select
-                            className="w-full rounded-xl border border-white/10 bg-[#090A0F] text-zinc-100 text-xs px-2.5 py-2 focus:border-[#FF5722] focus:outline-none cursor-pointer font-bold"
-                            value={captionPosition}
-                            onChange={(e) => setCaptionPosition(e.target.value as any)}
-                          >
-                            <option value="bottom">Bottom (14% Safe Zone)</option>
-                            <option value="center">Center</option>
-                            <option value="top">Top</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      {/* Text & Highlight Color */}
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="space-y-1">
-                          <label className="text-[11px] font-bold text-zinc-300 block">Text Color</label>
-                          <div className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-[#090A0F] p-1">
-                            <input
-                              type="color"
-                              value={captionTextColor}
-                              onChange={(e) => setCaptionTextColor(e.target.value)}
-                              className="h-6 w-6 rounded border border-zinc-700 cursor-pointer p-0 bg-zinc-900 shrink-0"
-                            />
-                            <span className="font-mono text-[10px] font-bold text-zinc-300 uppercase truncate">
-                              {captionTextColor}
+                          <div className="flex items-center justify-between w-full">
+                            <span className="text-[10px] font-bold uppercase text-[#FFA000]">
+                              {sample.category}
+                            </span>
+                            <span className="text-[9px] font-mono text-slate-400">
+                              {sample.durationSeconds}s
                             </span>
                           </div>
-                        </div>
-
-                        <div className="space-y-1">
-                          <label className="text-[11px] font-bold text-zinc-300 block">Highlight Color</label>
-                          <div className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-[#090A0F] p-1">
-                            <input
-                              type="color"
-                              value={captionHighlightColor}
-                              onChange={(e) => setCaptionHighlightColor(e.target.value)}
-                              className="h-6 w-6 rounded border border-zinc-700 cursor-pointer p-0 bg-zinc-900 shrink-0"
-                            />
-                            <span className="font-mono text-[10px] font-bold text-zinc-300 uppercase truncate">
-                              {captionHighlightColor}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                          <p className="text-xs font-bold text-white truncate mt-1">
+                            {sample.name}
+                          </p>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 
-              {/* ── 3. Spacious 16:9 Broadcast Subtitle Gallery (3 Cards Per Row) ── */}
-              <div className="rounded-[28px] border border-white/10 bg-[#111218] p-5 sm:p-6 shadow-xl space-y-5 relative overflow-hidden">
+              {/* ── 2. Spacious 16:9 Broadcast Subtitle Gallery ── */}
+              <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-5 sm:p-6 shadow-2xl space-y-4 relative overflow-hidden">
                 <BorderBeam size={220} duration={14} colorFrom="#FF5722" colorTo="#FFA000" />
 
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
                   <div className="flex items-center gap-3">
-                    <h3 className="text-sm font-black text-white flex items-center gap-2">
-                      <Film size={16} className="text-[#FF9100]" />
-                      <span>16:9 Subtitle Style Gallery</span>
-                    </h3>
-                    <span className="text-[11px] font-bold text-[#FF9100] bg-[#FF5722]/10 px-2.5 py-0.5 rounded-full border border-[#FF5722]/30 font-mono">
-                      {filteredPresets.length} Presets
+                    <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-[#FF5722]/15 text-[#FFA000] text-xs font-black border border-[#FF5722]/30">
+                      2
                     </span>
+                    <div>
+                      <h3 className="text-sm sm:text-base font-black text-white flex items-center gap-2">
+                        <Film size={16} className="text-[#FF7043]" />
+                        <span>16:9 Subtitle Style Gallery</span>
+                      </h3>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        Select from 15 Tier-1 creator presets. Updates preview instantly.
+                      </p>
+                    </div>
                   </div>
 
                   {/* Search Input Box */}
-                  <div className="relative min-w-[200px]">
+                  <div className="relative min-w-[180px]">
+                    <Search
+                      size={13}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                    />
                     <input
                       type="text"
-                      placeholder="Search styles 🔍..."
+                      placeholder="Search presets..."
                       value={presetSearch}
                       onChange={(e) => setPresetSearch(e.target.value)}
-                      className="w-full bg-[#090A0F] text-xs text-white placeholder-zinc-500 rounded-xl border border-white/15 px-3 py-2 focus:border-[#FF5722] focus:outline-none"
+                      className="w-full bg-[#070B14] text-xs text-white placeholder-slate-500 rounded-xl border border-white/15 pl-8 pr-3 py-2 focus:border-[#FF5722] focus:outline-none"
                     />
                   </div>
                 </div>
@@ -1455,8 +1545,8 @@ export default function YoutubeSubtitlesPage() {
                         onClick={() => setSelectedCategory(cat.id)}
                         className={`rounded-full px-3 py-1 text-[11px] font-black transition cursor-pointer ${
                           active
-                            ? "bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black shadow-md shadow-[#FF5722]/25"
-                            : "bg-[#161720] text-zinc-400 border border-white/10 hover:text-white hover:border-white/20"
+                            ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black shadow-md shadow-[#FF5722]/25"
+                            : "bg-[#070B14] text-slate-400 border border-white/10 hover:text-white hover:border-white/20"
                         }`}
                       >
                         {cat.label}
@@ -1465,8 +1555,8 @@ export default function YoutubeSubtitlesPage() {
                   })}
                 </div>
 
-                {/* Spacious Preset Cards Grid (3 Cards Per Row for Perfect Room & Breathing Space) */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-1">
+                {/* Responsive 3-Column Clean Specimen Cards Grid (Zero CPU Video Lag) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-1">
                   {filteredPresets.map((preset) => {
                     const active = captionStyle === preset.id;
                     return (
@@ -1476,45 +1566,51 @@ export default function YoutubeSubtitlesPage() {
                         onClick={() => handleSelectPreset(preset)}
                         className={`rounded-2xl border p-3.5 text-left transition-all cursor-pointer relative overflow-hidden group active:scale-[0.98] ${
                           active
-                            ? "border-[#FF5722] bg-[#FF5722]/10 text-white ring-2 ring-[#FF5722] shadow-xl shadow-[#FF5722]/25"
-                            : "border-white/10 bg-[#161720] text-zinc-400 hover:text-white hover:border-white/20"
+                            ? "border-[#FF5722] bg-[#FF5722]/15 text-white ring-2 ring-[#FF5722] shadow-xl shadow-[#FF5722]/20"
+                            : "border-white/10 bg-[#070B14] text-slate-400 hover:text-white hover:border-white/20"
                         }`}
                       >
-                        <div className="flex items-center justify-between mb-1.5 gap-1">
-                          <span className={`text-xs font-extrabold truncate ${active ? "text-[#FFA000]" : "text-white"}`}>
+                        <div className="flex items-center justify-between mb-1 gap-1">
+                          <span
+                            className={`text-xs font-black truncate ${
+                              active ? "text-[#FFA000]" : "text-white"
+                            }`}
+                          >
                             {preset.title}
                           </span>
-                          <span className="text-[9px] rounded-full border border-white/10 bg-black/40 px-2 py-0.5 text-zinc-400 font-mono shrink-0">
-                            {preset.badge}
-                          </span>
+                          {active && (
+                            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-black">
+                              <Check size={10} strokeWidth={3} />
+                            </span>
+                          )}
                         </div>
 
-                        <p className="text-[10px] text-zinc-400 mb-2.5 leading-tight line-clamp-2 min-h-[26px]">
+                        <p className="text-[10px] text-slate-400 mb-2.5 leading-tight line-clamp-1">
                           {preset.desc}
                         </p>
 
-                        {/* 16:9 Cloudinary Video Preview Box */}
-                        <div className="relative w-full aspect-video rounded-xl border border-white/10 bg-[#090A0F] overflow-hidden flex items-end justify-center p-2 group-hover:border-[#FF5722]/50 transition-colors shadow-inner">
-                          <video
-                            src={CLOUDINARY_16_9_PREVIEW_VIDEO}
-                            poster={CLOUDINARY_16_9_PREVIEW_POSTER}
-                            autoPlay
-                            loop
-                            muted
-                            playsInline
-                            className="absolute inset-0 h-full w-full object-cover opacity-75 group-hover:scale-105 transition-transform duration-300 pointer-events-none"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent pointer-events-none" />
+                        {/* Live Stylized Specimen Box */}
+                        <div className="relative w-full aspect-[16/7] rounded-xl border border-white/10 bg-[#03060C] overflow-hidden flex items-center justify-center p-2 group-hover:border-[#FF5722]/40 transition-colors">
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
 
                           <span
                             style={{
                               fontFamily: preset.fontFamily,
                               color: preset.textColor,
-                              backgroundColor: preset.backgroundColor !== "rgba(0, 0, 0, 0.88)" ? preset.backgroundColor : undefined,
+                              backgroundColor:
+                                preset.backgroundColor !== "rgba(0, 0, 0, 0.88)"
+                                  ? preset.backgroundColor
+                                  : undefined,
                             }}
-                            className="relative z-10 text-[10px] font-extrabold text-center block truncate px-2 py-0.5 rounded shadow-xl backdrop-blur-[1px] border border-white/10 max-w-[95%]"
+                            className="relative z-10 text-[10px] sm:text-[11px] font-black text-center block truncate px-2.5 py-1 rounded shadow-lg backdrop-blur-xs border border-white/10 max-w-[95%]"
                           >
-                            {preset.specimen}
+                            <span style={{ color: preset.highlightColor }}>
+                              {preset.specimen}
+                            </span>
+                          </span>
+
+                          <span className="absolute bottom-1 right-2 text-[8px] font-mono text-slate-500 z-10">
+                            {preset.badge}
                           </span>
                         </div>
                       </button>
@@ -1522,50 +1618,257 @@ export default function YoutubeSubtitlesPage() {
                   })}
                 </div>
               </div>
+
+              {/* ── 3. Alignment, Safe-Zone & Custom Typography ── */}
+              <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-5 sm:p-6 shadow-xl space-y-4">
+                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-[#FF5722]/15 text-[#FFA000] text-xs font-black border border-[#FF5722]/30">
+                      3
+                    </span>
+                    <div>
+                      <h3 className="text-sm sm:text-base font-black text-white flex items-center gap-2">
+                        <SlidersHorizontal size={16} className="text-[#FF7043]" />
+                        <span>Alignment &amp; Typography</span>
+                      </h3>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        Fine-tune safe zones, languages, and typography overrides.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Settings Tab Selector */}
+                  <div className="flex items-center gap-1 bg-[#070B14] p-1 rounded-xl border border-white/10">
+                    <button
+                      type="button"
+                      onClick={() => setActiveSettingsTab("typography")}
+                      className={`px-2.5 py-1 rounded-lg text-[10.5px] font-bold transition cursor-pointer ${
+                        activeSettingsTab === "typography"
+                          ? "bg-[#FF5722] text-black font-black"
+                          : "text-slate-400 hover:text-white"
+                      }`}
+                    >
+                      Typography
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveSettingsTab("safezone")}
+                      className={`px-2.5 py-1 rounded-lg text-[10.5px] font-bold transition cursor-pointer ${
+                        activeSettingsTab === "safezone"
+                          ? "bg-[#FF5722] text-black font-black"
+                          : "text-slate-400 hover:text-white"
+                      }`}
+                    >
+                      Safe-Zone
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveSettingsTab("language")}
+                      className={`px-2.5 py-1 rounded-lg text-[10.5px] font-bold transition cursor-pointer ${
+                        activeSettingsTab === "language"
+                          ? "bg-[#FF5722] text-black font-black"
+                          : "text-slate-400 hover:text-white"
+                      }`}
+                    >
+                      Language
+                    </button>
+                  </div>
+                </div>
+
+                {/* Tab 1: Typography Controls */}
+                {activeSettingsTab === "typography" && (
+                  <div className="space-y-3.5 pt-1">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-slate-300 block">
+                        Font Family Override
+                      </label>
+                      <select
+                        className="w-full rounded-xl border border-white/10 bg-[#070B14] text-slate-100 text-xs px-3 py-2.5 focus:border-[#FF5722] focus:outline-none cursor-pointer font-bold"
+                        value={captionFontFamily}
+                        onChange={(e) => setCaptionFontFamily(e.target.value)}
+                      >
+                        <option value="preset">Preset Default Font</option>
+                        <option value="Impact, sans-serif">Impact (Bold Heavy)</option>
+                        <option value="Montserrat, sans-serif">Montserrat (Modern Clean)</option>
+                        <option value="'Roboto Condensed', sans-serif">Roboto Condensed (Punchy)</option>
+                        <option value="Poppins, sans-serif">Poppins (Smooth Geometric)</option>
+                        <option value="Inter, sans-serif">Inter (Minimal Tech)</option>
+                        <option value="'Bebas Neue', sans-serif">Bebas Neue (Tall Headline)</option>
+                        <option value="Oswald, sans-serif">Oswald (Narrow Bold)</option>
+                        <option value="Anton, sans-serif">Anton (Heavy Poster)</option>
+                      </select>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-300 block">Font Size</label>
+                        <select
+                          className="w-full rounded-xl border border-white/10 bg-[#070B14] text-slate-100 text-xs px-2.5 py-2 focus:border-[#FF5722] focus:outline-none cursor-pointer font-bold"
+                          value={captionFontSize}
+                          onChange={(e) => setCaptionFontSize(e.target.value as any)}
+                        >
+                          <option value="small">Small (28px)</option>
+                          <option value="medium">Medium (34px)</option>
+                          <option value="large">Large (42px — Recommended)</option>
+                          <option value="xlarge">Extra Large (50px)</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-300 block">Position</label>
+                        <select
+                          className="w-full rounded-xl border border-white/10 bg-[#070B14] text-slate-100 text-xs px-2.5 py-2 focus:border-[#FF5722] focus:outline-none cursor-pointer font-bold"
+                          value={captionPosition}
+                          onChange={(e) => setCaptionPosition(e.target.value as any)}
+                        >
+                          <option value="bottom">Bottom (14% Safe Zone)</option>
+                          <option value="center">Center Stage</option>
+                          <option value="top">Top Header</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-300 block">Text Color</label>
+                        <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-[#070B14] p-1.5">
+                          <input
+                            type="color"
+                            value={captionTextColor}
+                            onChange={(e) => setCaptionTextColor(e.target.value)}
+                            className="h-6 w-6 rounded border border-slate-700 cursor-pointer p-0 bg-transparent shrink-0"
+                          />
+                          <span className="font-mono text-xs font-bold text-slate-200 uppercase truncate">
+                            {captionTextColor}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold text-slate-300 block">Highlight Color</label>
+                        <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-[#070B14] p-1.5">
+                          <input
+                            type="color"
+                            value={captionHighlightColor}
+                            onChange={(e) => setCaptionHighlightColor(e.target.value)}
+                            className="h-6 w-6 rounded border border-slate-700 cursor-pointer p-0 bg-transparent shrink-0"
+                          />
+                          <span className="font-mono text-xs font-bold text-[#FFA000] uppercase truncate">
+                            {captionHighlightColor}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Tab 2: Safe-Zone & Casing */}
+                {activeSettingsTab === "safezone" && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-slate-300 block">
+                        YouTube Scrubber Safe-Zone
+                      </label>
+                      <select
+                        value={youtubeSubtitleSafeZone}
+                        onChange={(e) => setYoutubeSubtitleSafeZone(e.target.value as any)}
+                        className="w-full bg-[#070B14] text-white text-xs font-bold rounded-xl border border-white/10 px-3 py-2.5 focus:border-[#FF5722] focus:outline-none cursor-pointer"
+                      >
+                        <option value="scrubber">14% Clearance (Recommended YouTube)</option>
+                        <option value="standard">10% Standard Clearance</option>
+                        <option value="high">18% High Clearance (Large Scrubbers)</option>
+                      </select>
+                      <p className="text-[10px] text-slate-400">
+                        Prevents subtitles from being covered by YouTube’s bottom progress bar.
+                      </p>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-slate-300 block">Text Casing</label>
+                      <select
+                        value={youtubeSubtitleCase}
+                        onChange={(e) => setYoutubeSubtitleCase(e.target.value as any)}
+                        className="w-full bg-[#070B14] text-white text-xs font-bold rounded-xl border border-white/10 px-3 py-2.5 focus:border-[#FF5722] focus:outline-none cursor-pointer"
+                      >
+                        <option value="natural">Natural Case (Sentence Case)</option>
+                        <option value="uppercase">ALL UPPERCASE (Punchy Headlines)</option>
+                      </select>
+                      <p className="text-[10px] text-slate-400">
+                        Formats word typography dynamically across all frames.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Tab 3: Language Settings */}
+                {activeSettingsTab === "language" && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-slate-300 block">Spoken Language</label>
+                      <select
+                        value={spokenLanguage}
+                        onChange={(e) => setSpokenLanguage(e.target.value)}
+                        className="w-full bg-[#070B14] text-white text-xs font-bold rounded-xl border border-white/10 px-3 py-2.5 focus:border-[#FF5722] focus:outline-none cursor-pointer"
+                      >
+                        {AUDIO_SPOKEN_LANGUAGES.map((l) => (
+                          <option key={l.id} value={l.id} className="bg-[#070B14] text-white">
+                            {l.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-slate-300 block">Subtitle Script</label>
+                      <select
+                        value={captionLanguage}
+                        onChange={(e) => setCaptionLanguage(e.target.value)}
+                        className="w-full bg-[#070B14] text-white text-xs font-bold rounded-xl border border-white/10 px-3 py-2.5 focus:border-[#FF5722] focus:outline-none cursor-pointer"
+                      >
+                        {SUBTITLE_OUTPUT_LANGUAGES.map((l) => (
+                          <option key={l.id} value={l.id} className="bg-[#070B14] text-white">
+                            {l.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* ── RIGHT COLUMN (5 Cols - Sticky Preview Stage): Live Video Preview Player & Dual Export Bar ── */}
-            <div className="lg:col-span-5 lg:sticky lg:top-6 space-y-6">
+            {/* ── RIGHT COLUMN (5 Cols, Sticky Stage): Live 16:9 Cinema Player & Dual Export Hub ── */}
+            <div className="lg:col-span-5 lg:sticky lg:top-20 space-y-6">
               {/* 16:9 Broadcast Video Preview Stage */}
-              <div className="rounded-[28px] border border-white/10 bg-[#111218] p-5 shadow-2xl space-y-4">
+              <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-5 shadow-2xl space-y-4">
                 <div className="flex items-center justify-between pb-3 border-b border-white/10">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
                     <span
-                      className={`flex h-2.5 w-2.5 rounded-full ${
-                        selectedFile ? "bg-emerald-500 animate-pulse" : "bg-[#FF5722] animate-pulse"
+                      className={`flex h-2.5 w-2.5 rounded-full shrink-0 ${
+                        selectedFile ? "bg-emerald-400 animate-pulse" : "bg-[#FF5722] animate-pulse"
                       }`}
                     />
                     <span className="text-xs font-black uppercase tracking-wider text-white truncate">
                       {selectedFile
                         ? selectedFile.name
-                        : `16:9 Broadcast Preview • ${activePresetConfig.title}`}
+                        : `16:9 Preview • ${activePresetConfig.title}`}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    {selectedFile && (
-                      <button
-                        type="button"
-                        onClick={() => setSelectedFile(null)}
-                        className="inline-flex items-center gap-1 rounded-xl border border-red-900/40 bg-red-950/30 px-2.5 py-1 text-[11px] font-bold text-red-400 hover:bg-red-950/60 transition cursor-pointer"
-                      >
-                        <Trash2 size={11} />
-                        <span>Remove</span>
-                      </button>
-                    )}
-                    <span className="rounded-full bg-[#FF5722]/10 border border-[#FF5722]/30 px-2.5 py-0.5 text-[10px] font-black text-[#FF9100]">
-                      16:9 Full HD
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="rounded-full bg-[#FF5722]/10 border border-[#FF5722]/30 px-2.5 py-0.5 text-[10px] font-black text-[#FFA000]">
+                      1080p MP4
                     </span>
                   </div>
                 </div>
 
                 {/* 16:9 Cinema Widescreen Player Container */}
-                <div className="relative w-full aspect-video rounded-2xl bg-[#090A0F] border border-white/10 overflow-hidden shadow-2xl flex items-center justify-center group">
+                <div className="relative w-full aspect-video rounded-2xl bg-black border border-white/10 overflow-hidden shadow-2xl flex items-center justify-center group select-none">
                   {/* Real Cloudinary 16:9 Broadcast Video or User Uploaded Video */}
                   <video
                     ref={previewVideoRef}
                     src={activePreviewVideoSrc}
-                    poster={CLOUDINARY_16_9_PREVIEW_POSTER}
+                    poster={activePreviewPoster}
                     autoPlay
                     playsInline
                     loop
@@ -1574,7 +1877,7 @@ export default function YoutubeSubtitlesPage() {
                     onLoadedMetadata={(e) => {
                       const d = e.currentTarget.duration;
                       if (d && !isNaN(d) && isFinite(d) && d > 0) {
-                        setPreviewDuration(d);
+                        setPreviewDuration(Math.round(d));
                       }
                     }}
                     onPlay={() => setIsPlaying(true)}
@@ -1585,8 +1888,8 @@ export default function YoutubeSubtitlesPage() {
 
                   {/* Top Live Indicator Badge */}
                   <div className="absolute top-3 left-3 z-20 pointer-events-none">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-black/70 backdrop-blur-md border border-white/15 text-[#FFA000] text-[10px] font-extrabold uppercase px-3 py-1 tracking-wider shadow-md">
-                      <Sparkles size={11} className="text-[#FF9100]" />
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-black/75 backdrop-blur-md border border-white/15 text-[#FFA000] text-[10px] font-extrabold uppercase px-3 py-1 tracking-wider shadow-md">
+                      <Sparkles size={11} className="text-[#FF5722]" />
                       <span>{activePresetConfig.title}</span>
                     </span>
                   </div>
@@ -1596,14 +1899,14 @@ export default function YoutubeSubtitlesPage() {
                     type="button"
                     onClick={toggleMute}
                     aria-label={isMuted ? "Unmute audio" : "Mute audio"}
-                    className="absolute top-3 right-3 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-black/75 text-white hover:bg-black transition shadow-md border border-white/15 cursor-pointer"
+                    className="absolute top-3 right-3 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-black/80 text-white hover:bg-black transition shadow-md border border-white/15 cursor-pointer"
                   >
                     {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} className="text-emerald-400" />}
                   </button>
 
                   {/* ── Real-Time 16:9 Burned-In Subtitle Overlay ── */}
                   <div
-                    className={`pointer-events-none absolute inset-x-4 ${safeMarginBottomClass} flex justify-center text-center z-10`}
+                    className={`pointer-events-none absolute inset-x-4 ${safeMarginBottomClass} flex justify-center text-center z-10 transition-all duration-200`}
                   >
                     <div
                       style={{
@@ -1615,13 +1918,13 @@ export default function YoutubeSubtitlesPage() {
                         backgroundColor:
                           captionBackgroundColor !== "" ? captionBackgroundColor : undefined,
                       }}
-                      className="px-4 py-1.5 rounded-xl text-center text-sm sm:text-base font-extrabold tracking-wide shadow-2xl backdrop-blur-xs max-w-[85%] border border-white/10"
+                      className="px-4 py-1.5 rounded-xl text-center text-xs sm:text-sm font-extrabold tracking-wide shadow-2xl backdrop-blur-xs max-w-[85%] border border-white/10"
                     >
                       <span
                         style={{ color: captionHighlightColor }}
                         className={youtubeSubtitleCase === "uppercase" ? "uppercase" : ""}
                       >
-                        {activePresetConfig.specimen}
+                        {currentActiveCaptionText}
                       </span>
                     </div>
                   </div>
@@ -1644,7 +1947,7 @@ export default function YoutubeSubtitlesPage() {
                       aria-label="Play preview"
                       className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[1px] transition-all cursor-pointer group z-20"
                     >
-                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black shadow-2xl transition-transform group-hover:scale-110">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black shadow-2xl transition-transform group-hover:scale-110">
                         <Play size={24} className="fill-current ml-1 text-black" />
                       </div>
                     </button>
@@ -1655,31 +1958,38 @@ export default function YoutubeSubtitlesPage() {
                     <div
                       className="h-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] transition-all duration-150"
                       style={{
-                        width: previewDuration > 0 ? `${(playbackTime / previewDuration) * 100}%` : "0%",
+                        width:
+                          previewDuration > 0
+                            ? `${(playbackTime / previewDuration) * 100}%`
+                            : "0%",
                       }}
                     />
                   </div>
                 </div>
 
                 {/* Player Controls Bar */}
-                <div className="flex items-center justify-between text-xs font-semibold text-zinc-400 pt-1">
+                <div className="flex items-center justify-between text-xs font-semibold text-slate-400 pt-1">
                   <button
                     type="button"
                     onClick={togglePlay}
-                    className="inline-flex items-center gap-1.5 text-zinc-200 hover:text-[#FF7043] transition cursor-pointer font-bold"
+                    className="inline-flex items-center gap-1.5 text-slate-200 hover:text-[#FFA000] transition cursor-pointer font-bold"
                   >
-                    {isPlaying ? <Pause size={14} className="text-[#FF7043]" /> : <Play size={14} className="fill-current text-[#FF7043]" />}
+                    {isPlaying ? (
+                      <Pause size={14} className="text-[#FF7043]" />
+                    ) : (
+                      <Play size={14} className="fill-current text-[#FF7043]" />
+                    )}
                     <span>{isPlaying ? "Pause Preview" : "Play Preview"}</span>
                   </button>
 
-                  <span className="text-[11px] text-zinc-400 font-mono">
-                    {Math.floor(playbackTime)}s / {Math.floor(previewDuration || 10)}s
+                  <span className="text-[11px] text-slate-400 font-mono">
+                    {Math.floor(playbackTime)}s / {Math.floor(previewDuration || 18)}s
                   </span>
 
                   <button
                     type="button"
                     onClick={toggleMute}
-                    className="inline-flex items-center gap-1 text-zinc-200 hover:text-[#FF7043] transition cursor-pointer"
+                    className="inline-flex items-center gap-1 text-slate-200 hover:text-[#FFA000] transition cursor-pointer"
                   >
                     {isMuted ? <VolumeX size={13} /> : <Volume2 size={13} className="text-emerald-400" />}
                     <span>{isMuted ? "Unmute Audio" : "Mute Audio"}</span>
@@ -1687,15 +1997,37 @@ export default function YoutubeSubtitlesPage() {
                 </div>
               </div>
 
-              {/* ── Dual Export Bar ── */}
-              <div className="rounded-[28px] border border-white/10 bg-[#111218] p-5 sm:p-6 shadow-xl space-y-4">
-                <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-white">
-                  <FileText size={15} className="text-[#FF9100]" />
-                  <span>Dual Export Bar</span>
+              {/* ── Dual Export Hub & Cost Calculation ── */}
+              <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-5 sm:p-6 shadow-2xl space-y-4">
+                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                  <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-white">
+                    <FileText size={15} className="text-[#FF7043]" />
+                    <span>Dual Export Hub</span>
+                  </div>
+                  <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 font-bold">
+                    1 Min = 1 Cr
+                  </span>
                 </div>
-                <p className="text-xs text-zinc-400 leading-relaxed">
-                  Render a 1080p Full HD video with burnt-in motion subtitles, or export millisecond-accurate subtitle files (.SRT / .VTT) for YouTube Studio.
-                </p>
+
+                {/* Summary Specs Table */}
+                <div className="space-y-2 text-xs">
+                  <div className="flex items-center justify-between text-slate-400 border-b border-white/5 pb-2">
+                    <span>Duration &amp; Words</span>
+                    <span className="font-mono text-white font-bold">
+                      {Math.round(currentDurationSeconds)}s (~{estimatedWordCount} words)
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-slate-400 border-b border-white/5 pb-2">
+                    <span>Active Subtitle Style</span>
+                    <span className="font-bold text-[#FFA000]">{activePresetConfig.title}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-slate-400 border-b border-white/5 pb-2">
+                    <span>Credit Rate (Rule 4.1)</span>
+                    <span className="font-mono text-emerald-400 font-bold">
+                      {calculatedCredits} {calculatedCredits === 1 ? "Credit" : "Credits"} ({calculatedCredits}m duration)
+                    </span>
+                  </div>
+                </div>
 
                 <div className="space-y-3 pt-2">
                   {/* Primary Action Button: Render 16:9 Subtitled Video */}
@@ -1703,10 +2035,15 @@ export default function YoutubeSubtitlesPage() {
                     type="button"
                     onClick={handleStartRender}
                     disabled={isWorking || isExportingSubtitles}
-                    className="w-full inline-flex min-h-[52px] items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-sm font-black text-black shadow-xl shadow-[#FF5722]/25 transition hover:brightness-110 active:scale-95 disabled:opacity-45 disabled:cursor-not-allowed cursor-pointer"
+                    className="w-full inline-flex min-h-[52px] items-center justify-between px-5 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-sm font-black text-black shadow-xl shadow-[#FF5722]/25 transition hover:brightness-110 active:scale-95 disabled:opacity-45 disabled:cursor-not-allowed cursor-pointer"
                   >
-                    <span>Render 16:9 Subtitled Video (1080p)</span>
-                    <Sparkles size={16} className="text-black" />
+                    <span className="flex items-center gap-2">
+                      <Sparkles size={16} className="text-black" />
+                      <span>Render 16:9 Subtitled Video</span>
+                    </span>
+                    <span className="rounded-full bg-black/25 px-2.5 py-0.5 text-xs font-mono font-bold">
+                      {calculatedCredits} {calculatedCredits === 1 ? "Credit" : "Credits"}
+                    </span>
                   </button>
 
                   {/* Secondary Action Buttons: Download Subtitles (.SRT / .VTT) */}
@@ -1715,12 +2052,12 @@ export default function YoutubeSubtitlesPage() {
                       type="button"
                       onClick={() => handleExportSubtitles("srt")}
                       disabled={isWorking || isExportingSubtitles}
-                      className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-2xl border border-white/10 bg-[#161720] hover:bg-white/10 text-xs font-bold text-white transition disabled:opacity-45 disabled:cursor-not-allowed cursor-pointer active:scale-95"
+                      className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-2xl border border-white/10 bg-[#070B14] hover:bg-white/10 text-xs font-bold text-white transition disabled:opacity-45 disabled:cursor-not-allowed cursor-pointer active:scale-95"
                     >
                       {isExportingSubtitles ? (
-                        <Loader2 size={13} className="animate-spin text-[#FF9100]" />
+                        <Loader2 size={13} className="animate-spin text-[#FFA000]" />
                       ) : (
-                        <Download size={13} className="text-[#FF9100]" />
+                        <Download size={13} className="text-[#FF7043]" />
                       )}
                       <span>Download .SRT</span>
                     </button>
@@ -1729,20 +2066,20 @@ export default function YoutubeSubtitlesPage() {
                       type="button"
                       onClick={() => handleExportSubtitles("vtt")}
                       disabled={isWorking || isExportingSubtitles}
-                      className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-2xl border border-white/10 bg-[#161720] hover:bg-white/10 text-xs font-bold text-white transition disabled:opacity-45 disabled:cursor-not-allowed cursor-pointer active:scale-95"
+                      className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-2xl border border-white/10 bg-[#070B14] hover:bg-white/10 text-xs font-bold text-white transition disabled:opacity-45 disabled:cursor-not-allowed cursor-pointer active:scale-95"
                     >
                       {isExportingSubtitles ? (
-                        <Loader2 size={13} className="animate-spin text-[#FF9100]" />
+                        <Loader2 size={13} className="animate-spin text-[#FFA000]" />
                       ) : (
-                        <Download size={13} className="text-[#FF9100]" />
+                        <Download size={13} className="text-[#FF7043]" />
                       )}
                       <span>Download .VTT</span>
                     </button>
                   </div>
 
                   {!selectedFile && (
-                    <p className="text-[10px] text-center text-zinc-500 font-bold">
-                      *Clicking render or export will prompt file selection
+                    <p className="text-[10px] text-center text-slate-500 font-semibold">
+                      *Rendering will use your uploaded video. Or try testing presets above with Cloudinary samples!
                     </p>
                   )}
                 </div>

@@ -1,26 +1,26 @@
 {
   "version": 1,
-  "generatedAt": "2026-10-02T21:01:51.115Z",
+  "generatedAt": "2026-10-14T19:55:16.731Z",
   "root": "/assets",
   "counts": {
-    "total": 451,
-    "direct": 0,
-    "reusable": 451,
-    "images": 388,
+    "total": 456,
+    "direct": 1,
+    "reusable": 455,
+    "images": 393,
     "audio": 63,
     "fonts": 0,
-    "needsLabel": 267,
-    "safeToUse": 184,
-    "awsRecommended": 392,
+    "needsLabel": 268,
+    "safeToUse": 188,
+    "awsRecommended": 396,
     "byKind": {
       "background": 3,
-      "image": 385,
+      "image": 390,
       "sound-effect": 63
     }
   },
   "assets": [
     {
-      "id": "reusable-backgrounds-blueprint-grid-3d-713779818b",
+      "id": "reusable-backgrounds-blueprint-grid-3d-218e40e42b",
       "title": "Blueprint Grid 3d",
       "suggestedFilename": null,
       "detailedDescription": "",
@@ -31,17 +31,21 @@
       "file": "reusable/backgrounds/blueprint-grid-3d.png",
       "src": "/assets/reusable/backgrounds/blueprint-grid-3d.png",
       "extension": "png",
-      "sizeBytes": 133,
-      "sizeKb": 0,
-      "dimensions": null,
-      "orientation": "unknown",
+      "sizeBytes": 149549,
+      "sizeKb": 146,
+      "dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "orientation": "landscape",
       "tags": [
         "reusable",
         "background",
         "image",
         "blueprint",
         "grid",
-        "3d"
+        "3d",
+        "landscape"
       ],
       "keywords": [
         "reusable",
@@ -49,7 +53,8 @@
         "image",
         "blueprint",
         "grid",
-        "3d"
+        "3d",
+        "landscape"
       ],
       "style": null,
       "useCase": null,
@@ -59,7 +64,7 @@
       ],
       "avoidFor": [],
       "emotion": "neutral",
-      "qualityScore": 70,
+      "qualityScore": 78,
       "usageCount": 0,
       "embeddingRef": null,
       "needsLabel": false,
@@ -72,7 +77,7 @@
       }
     },
     {
-      "id": "reusable-backgrounds-cinematic-studio-bg-713779818b",
+      "id": "reusable-backgrounds-cinematic-studio-bg-a53e8dcb52",
       "title": "Cinematic Studio Bg",
       "suggestedFilename": null,
       "detailedDescription": "",
@@ -83,17 +88,21 @@
       "file": "reusable/backgrounds/cinematic-studio-bg.png",
       "src": "/assets/reusable/backgrounds/cinematic-studio-bg.png",
       "extension": "png",
-      "sizeBytes": 133,
-      "sizeKb": 0,
-      "dimensions": null,
-      "orientation": "unknown",
+      "sizeBytes": 119682,
+      "sizeKb": 117,
+      "dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "orientation": "landscape",
       "tags": [
         "reusable",
         "background",
         "image",
         "cinematic",
         "studio",
-        "bg"
+        "bg",
+        "landscape"
       ],
       "keywords": [
         "reusable",
@@ -101,7 +110,8 @@
         "image",
         "cinematic",
         "studio",
-        "bg"
+        "bg",
+        "landscape"
       ],
       "style": null,
       "useCase": null,
@@ -111,7 +121,7 @@
       ],
       "avoidFor": [],
       "emotion": "neutral",
-      "qualityScore": 70,
+      "qualityScore": 78,
       "usageCount": 0,
       "embeddingRef": null,
       "needsLabel": false,
@@ -124,7 +134,7 @@
       }
     },
     {
-      "id": "reusable-backgrounds-studio-whiteboard-dark-713779818b",
+      "id": "reusable-backgrounds-studio-whiteboard-dark-661d6c1ca1",
       "title": "Studio Whiteboard Dark",
       "suggestedFilename": null,
       "detailedDescription": "",
@@ -135,17 +145,21 @@
       "file": "reusable/backgrounds/studio-whiteboard-dark.png",
       "src": "/assets/reusable/backgrounds/studio-whiteboard-dark.png",
       "extension": "png",
-      "sizeBytes": 133,
-      "sizeKb": 0,
-      "dimensions": null,
-      "orientation": "unknown",
+      "sizeBytes": 107243,
+      "sizeKb": 105,
+      "dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "orientation": "landscape",
       "tags": [
         "reusable",
         "background",
         "image",
         "studio",
         "whiteboard",
-        "dark"
+        "dark",
+        "landscape"
       ],
       "keywords": [
         "reusable",
@@ -153,7 +167,8 @@
         "image",
         "studio",
         "whiteboard",
-        "dark"
+        "dark",
+        "landscape"
       ],
       "style": null,
       "useCase": null,
@@ -163,7 +178,7 @@
       ],
       "avoidFor": [],
       "emotion": "neutral",
-      "qualityScore": 70,
+      "qualityScore": 78,
       "usageCount": 0,
       "embeddingRef": null,
       "needsLabel": false,
@@ -171,6 +186,62 @@
       "storage": {
         "provider": "local-public",
         "publicUrl": "/assets/reusable/backgrounds/studio-whiteboard-dark.png",
+        "awsKey": null,
+        "awsRecommended": true
+      }
+    },
+    {
+      "id": "auth-founder-presenter-1f2a5d81c5",
+      "title": "Founder Presenter",
+      "suggestedFilename": null,
+      "detailedDescription": "",
+      "scope": "reusable",
+      "kind": "image",
+      "type": "image",
+      "category": "general",
+      "file": "auth/founder-presenter.png",
+      "src": "/assets/auth/founder-presenter.png",
+      "extension": "png",
+      "sizeBytes": 1786418,
+      "sizeKb": 1745,
+      "dimensions": {
+        "width": 1024,
+        "height": 1536
+      },
+      "orientation": "portrait",
+      "tags": [
+        "reusable",
+        "image",
+        "general",
+        "auth",
+        "founder",
+        "presenter",
+        "portrait"
+      ],
+      "keywords": [
+        "reusable",
+        "image",
+        "general",
+        "auth",
+        "founder",
+        "presenter",
+        "portrait"
+      ],
+      "style": null,
+      "useCase": null,
+      "useFor": [
+        "vertical reel scenes"
+      ],
+      "avoidFor": [],
+      "emotion": "neutral",
+      "qualityScore": 76,
+      "usageCount": 0,
+      "embeddingRef": null,
+      "needsLabel": false,
+      "safeToUse": true,
+      "storage": {
+        "provider": "local-public",
+        "publicUrl": "/assets/auth/founder-presenter.png",
         "awsKey": null,
         "awsRecommended": true
       }
@@ -23782,6 +23853,175 @@
       "storage": {
         "provider": "local-public",
         "publicUrl": "/assets/stickman/compare_characters/character-4/right.png",
+        "awsKey": null,
+        "awsRecommended": true
+      }
+    },
+    {
+      "id": "support-agent-3d-6a4c775463",
+      "title": "Support Agent 3d",
+      "suggestedFilename": null,
+      "detailedDescription": "",
+      "scope": "reusable",
+      "kind": "image",
+      "type": "image",
+      "category": "general",
+      "file": "support-agent-3d.png",
+      "src": "/assets/support-agent-3d.png",
+      "extension": "png",
+      "sizeBytes": 1631457,
+      "sizeKb": 1593,
+      "dimensions": {
+        "width": 1374,
+        "height": 1145
+      },
+      "orientation": "landscape",
+      "tags": [
+        "reusable",
+        "image",
+        "general",
+        "support",
+        "agent",
+        "3d",
+        "landscape"
+      ],
+      "keywords": [
+        "reusable",
+        "image",
+        "general",
+        "support",
+        "agent",
+        "3d",
+        "landscape"
+      ],
+      "style": null,
+      "useCase": null,
+      "useFor": [
+        "AI asset selection",
+        "general explainer scenes"
+      ],
+      "avoidFor": [],
+      "emotion": "neutral",
+      "qualityScore": 76,
+      "usageCount": 0,
+      "embeddingRef": null,
+      "needsLabel": false,
+      "safeToUse": true,
+      "storage": {
+        "provider": "local-public",
+        "publicUrl": "/assets/support-agent-3d.png",
+        "awsKey": null,
+        "awsRecommended": true
+      }
+    },
+    {
+      "id": "workflows-book-summary-091a82c6ef",
+      "title": "Book Summary",
+      "suggestedFilename": null,
+      "detailedDescription": "",
+      "scope": "reusable",
+      "kind": "image",
+      "type": "image",
+      "category": "general",
+      "file": "workflows/book-summary.png",
+      "src": "/assets/workflows/book-summary.png",
+      "extension": "png",
+      "sizeBytes": 2060924,
+      "sizeKb": 2013,
+      "dimensions": {
+        "width": 1672,
+        "height": 940
+      },
+      "orientation": "landscape",
+      "tags": [
+        "reusable",
+        "image",
+        "general",
+        "workflows",
+        "book",
+        "summary",
+        "landscape"
+      ],
+      "keywords": [
+        "reusable",
+        "image",
+        "general",
+        "workflows",
+        "book",
+        "summary",
+        "landscape"
+      ],
+      "style": null,
+      "useCase": null,
+      "useFor": [
+        "AI asset selection",
+        "general explainer scenes"
+      ],
+      "avoidFor": [],
+      "emotion": "neutral",
+      "qualityScore": 76,
+      "usageCount": 0,
+      "embeddingRef": null,
+      "needsLabel": false,
+      "safeToUse": true,
+      "storage": {
+        "provider": "local-public",
+        "publicUrl": "/assets/workflows/book-summary.png",
+        "awsKey": null,
+        "awsRecommended": true
+      }
+    },
+    {
+      "id": "workflows-faceless-790e921169",
+      "title": "Faceless",
+      "suggestedFilename": null,
+      "detailedDescription": "",
+      "scope": "reusable",
+      "kind": "image",
+      "type": "image",
+      "category": "general",
+      "file": "workflows/faceless.png",
+      "src": "/assets/workflows/faceless.png",
+      "extension": "png",
+      "sizeBytes": 2113443,
+      "sizeKb": 2064,
+      "dimensions": {
+        "width": 1672,
+        "height": 940
+      },
+      "orientation": "landscape",
+      "tags": [
+        "reusable",
+        "image",
+        "general",
+        "workflows",
+        "faceless",
+        "landscape"
+      ],
+      "keywords": [
+        "reusable",
+        "image",
+        "general",
+        "workflows",
+        "faceless",
+        "landscape"
+      ],
+      "style": null,
+      "useCase": null,
+      "useFor": [
+        "AI asset selection",
+        "general explainer scenes"
+      ],
+      "avoidFor": [],
+      "emotion": "neutral",
+      "qualityScore": 76,
+      "usageCount": 0,
+      "embeddingRef": null,
+      "needsLabel": false,
+      "safeToUse": true,
+      "storage": {
+        "provider": "local-public",
+        "publicUrl": "/assets/workflows/faceless.png",
         "awsKey": null,
         "awsRecommended": true
       }

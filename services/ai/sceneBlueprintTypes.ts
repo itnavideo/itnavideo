@@ -57,7 +57,7 @@ export type SceneBlueprintItem = {
   };
   animation: MotionAnimationPreset;
   SFX: 'pop' | 'woosh' | 'whoosh' | 'chime' | 'rise' | 'none';
-  transition: 'cut' | 'dissolve' | 'zoom' | 'wipe';
+  transition: 'cut' | 'dissolve' | 'crossfade' | 'zoom' | 'wipe' | 'slide' | 'fade_to_black';
 
   // Extra metadata for specialized layouts
   statValue?: string;

@@ -55,7 +55,7 @@ export interface ImageToVideoAiProps {
   cameraMotionPreset?: 'ken-burns' | 'dynamic-flow' | 'subtle-drift';
   subtitleStyle?: string;
   fitMode?: 'blur-fill' | 'cover';
-  aspectRatio?: '16:9' | '9:16';
+  aspectRatio?: '16:9';
 }
 
 const FALLBACK_SCENE_IMAGE = 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788688233/person_calculating_typing_laptop_npimij.png';
@@ -792,7 +792,7 @@ export const ImageToVideoAiTemplate: React.FC<ImageToVideoAiProps> = ({
   const { fps } = useVideoConfig();
   const frame = useCurrentFrame();
   const currentTime = frame / fps;
-  const isVertical = aspectRatio === '9:16';
+  const isVertical = false; // Strictly 16:9 Widescreen per Rule 4.1
 
   const finalAudioUrl = resolveUrl(audioUrl || audioSrc || mediaSrc);
   const finalBgmUrl = resolveUrl(bgmUrl || bgmSrc);
@@ -976,14 +976,13 @@ export const ImageToVideoAiComposition: React.FC = () => (
         Number(p.renderWindowSeconds) ||
         Number(p.sourceDurationSeconds) ||
         60;
-      // Max 12 minutes (720s)
-      const durationSeconds = Math.max(5, Math.min(720, rawDuration));
-      const isVertical = p.aspectRatio === '9:16';
+      // Max 10 minutes (600s) strictly per Rule 4.1
+      const durationSeconds = Math.max(5, Math.min(600, rawDuration));
       return {
         durationInFrames: secondsToFrames(durationSeconds, DEFAULT_FPS),
         fps: DEFAULT_FPS,
-        width: isVertical ? 1080 : 1920,
-        height: isVertical ? 1920 : 1080,
+        width: 1920,
+        height: 1080,
       };
     }}
   />

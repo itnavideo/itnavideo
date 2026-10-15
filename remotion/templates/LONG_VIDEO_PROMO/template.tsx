@@ -1049,7 +1049,7 @@ export const LongVideoPromoComposition = () => (
     defaultProps={defaultProps}
     calculateMetadata={({props}) => {
       const p = props as LongVideoPromoProps;
-      const dur = Math.max(8, Math.min(180, Number(p.durationSeconds) || Number(p.sourceDurationSeconds) || 60));
+      const dur = Math.max(8, Math.min(90, Number(p.durationSeconds) || Number(p.sourceDurationSeconds) || 60));
       return {
         durationInFrames: secondsToFrames(dur, DEFAULT_FPS),
         fps: DEFAULT_FPS,

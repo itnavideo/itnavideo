@@ -256,14 +256,41 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     activeBackgroundTheme === 'warm-cream' ||
     activeBackgroundTheme === 'soft-slate';
 
-  // Scene Cut Transition Animation (Cross-fade between scenes)
+  // ── Dynamic Scene Transition Engine ──
+  // 1. Cut: Direct cut, instantaneous (no fade)
+  // 2. Crossfade / Dissolve: Smooth opacity blend over 10 frames
+  // 3. Slide / Wipe: Enters with subtle horizontal push (50px -> 0) and smooth opacity
+  // 4. Zoom: Camera-like smooth scale (1.08 -> 1.0) and opacity
+  // 5. Fade to Black: Dips through black overlay at scene transition
   const sceneStartFrame = Math.round(
     Number(currentScene?.narrationSegment?.startSeconds ?? (currentScene?.narrationSegment as any)?.start ?? 0) * fps
   );
   const framesSinceSceneStart = Math.max(0, frame - sceneStartFrame);
-  const sceneTransitionOpacity = interpolate(framesSinceSceneStart, [0, 8], [0, 1], {
-    extrapolateRight: 'clamp',
-  });
+  const transitionType = (currentScene?.transition || 'dissolve').toLowerCase();
+
+  const transitionStyles = React.useMemo(() => {
+    if (transitionType === 'cut') {
+      return { opacity: 1, transform: 'none', isFadeToBlack: false, blackOverlayOpacity: 0 };
+    }
+    if (transitionType === 'slide' || transitionType === 'wipe') {
+      const slideX = interpolate(framesSinceSceneStart, [0, 9], [50, 0], { extrapolateRight: 'clamp' });
+      const op = interpolate(framesSinceSceneStart, [0, 8], [0, 1], { extrapolateRight: 'clamp' });
+      return { opacity: op, transform: `translateX(${slideX}px)`, isFadeToBlack: false, blackOverlayOpacity: 0 };
+    }
+    if (transitionType === 'zoom' || transitionType === 'zoom_blur') {
+      const scaleVal = interpolate(framesSinceSceneStart, [0, 10], [1.08, 1.0], { extrapolateRight: 'clamp' });
+      const op = interpolate(framesSinceSceneStart, [0, 7], [0, 1], { extrapolateRight: 'clamp' });
+      return { opacity: op, transform: `scale(${scaleVal})`, isFadeToBlack: false, blackOverlayOpacity: 0 };
+    }
+    if (transitionType === 'fade_to_black' || transitionType === 'dip_to_black') {
+      const blackOpacity = interpolate(framesSinceSceneStart, [0, 4, 8], [1, 0.75, 0], { extrapolateRight: 'clamp' });
+      const op = interpolate(framesSinceSceneStart, [2, 8], [0, 1], { extrapolateRight: 'clamp' });
+      return { opacity: op, transform: 'none', isFadeToBlack: true, blackOverlayOpacity: blackOpacity };
+    }
+    // Default: crossfade / dissolve
+    const dissolveOp = interpolate(framesSinceSceneStart, [0, 10], [0, 1], { extrapolateRight: 'clamp' });
+    return { opacity: dissolveOp, transform: 'none', isFadeToBlack: false, blackOverlayOpacity: 0 };
+  }, [transitionType, framesSinceSceneStart]);
 
   // Render Vox/Johnny Harris Style Modular Scene Layout
   const renderModularScene = (scene: SceneBlueprintItem) => {
@@ -343,11 +370,33 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
         <Background theme={activeBackgroundTheme} customBgUrl={customBgUrl} aspectRatio={props.aspectRatio} />
       )}
 
-      {/* ── LAYER 2 (MIDDLE): Dynamic Modular Scene Engine & Vox Graphics ── */}
-      <div style={{ position: 'absolute', inset: 0, zIndex: 10, opacity: sceneTransitionOpacity }}>
+      {/* ── LAYER 2 (MIDDLE): Dynamic Modular Scene Engine & Transitions ── */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 10,
+          opacity: transitionStyles.opacity,
+          transform: transitionStyles.transform,
+        }}
+      >
         {/* Dynamic Modular Scene Engine */}
         {currentScene && renderModularScene(currentScene)}
       </div>
+
+      {/* Fade to Black Transition Overlay */}
+      {transitionStyles.isFadeToBlack && (transitionStyles.blackOverlayOpacity || 0) > 0 && (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 25,
+            backgroundColor: '#000000',
+            opacity: transitionStyles.blackOverlayOpacity,
+            pointerEvents: 'none',
+          }}
+        />
+      )}
 
       {/* ── LAYER 3 (TOP): Subject Mask Cutout Video (Text Behind Subject) ── */}
       {hasSubjectCutout && (
@@ -403,8 +452,8 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
           chunks={activeCaptions}
           themeId={templateConfig.captionThemeId}
           styleOverrides={{
-            bottom: props.aspectRatio === '9:16' ? 140 : 55,
-            fontSize: props.aspectRatio === '9:16' ? 44 : 36,
+            bottom: 55,
+            fontSize: 36,
           }}
         />
       )}
@@ -429,7 +478,7 @@ export const FacelessLongVideoComposition = () => (
     }}
     calculateMetadata={({ props }) => {
       const p = props as FacelessLongVideoProps;
-      const durationSeconds = Math.max(5, Math.min(1200, Number(p.durationSeconds) || 60));
+      const durationSeconds = Math.max(5, Math.min(600, Number(p.durationSeconds) || 60));
       return {
         durationInFrames: secondsToFrames(durationSeconds, DEFAULT_FPS),
         fps: DEFAULT_FPS,

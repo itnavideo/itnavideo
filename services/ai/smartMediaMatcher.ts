@@ -64,11 +64,10 @@ export function smartMatchUploadedImagesToScenes(
     });
 
     let chosenAssetIdx = -1;
+    // Only map asset when there is an actual semantic relevance match (score > 0)
+    // Avoids forcing random unrelated uploaded images into arbitrary scenes
     if (bestScore > 0 && bestAssetIdx >= 0) {
       chosenAssetIdx = bestAssetIdx;
-    } else {
-      // Pick next available unused asset in sorted chronological order
-      chosenAssetIdx = sortedAssets.findIndex((_, idx) => !usedIndices.has(idx));
     }
 
     if (chosenAssetIdx >= 0 && chosenAssetIdx < sortedAssets.length) {
@@ -78,9 +77,9 @@ export function smartMatchUploadedImagesToScenes(
         usedIndices.add(chosenAssetIdx);
       }
     }
-    // NO MODULO LOOPING FALLBACK: When all uploaded images have been used once,
-    // mappedBrollUrls[scene.sceneNumber] stays empty so surplus scenes automatically
-    // transform into Impact Kinetic Typography Callout Cards!
+    // When no uploaded image matches the scene's semantic meaning,
+    // mappedBrollUrls[scene.sceneNumber] remains empty so the scene automatically
+    // renders clean kinetic typography or curated library b-roll without visual clutter.
   });
 
   return mappedBrollUrls;

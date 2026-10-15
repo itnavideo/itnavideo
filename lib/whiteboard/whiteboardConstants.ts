@@ -1,9 +1,8 @@
 /**
  * whiteboardConstants.ts
  * Single source of truth for all whiteboard layout geometry.
- * Imported by BOTH the planner (services/ai/whiteboardPlanner.ts)
- * AND the Remotion template (remotion/templates/WHITEBOARD_VIDEO/template.tsx).
- * NEVER duplicate these values — change here, both sides see it.
+ * Strictly 9:16 Vertical Portrait (1080×1920) reels up to 90 seconds.
+ * 16:9 is completely eliminated per founder directive.
  */
 
 // ── Canvas dimensions (1080×1920 portrait) ─────────────────────────────────
@@ -11,52 +10,52 @@ export const WB_CANVAS_WIDTH = 1080;
 export const WB_CANVAS_HEIGHT = 1920;
 
 // ── Safe area (px) — stays clear of reel UI chrome top/bottom ──────────────
-export const WB_SAFE_LEFT = 80;
-export const WB_SAFE_RIGHT = 80;
-export const WB_SAFE_TOP = 160;
-export const WB_SAFE_BOTTOM = 240;
+export const WB_SAFE_LEFT = 70;
+export const WB_SAFE_RIGHT = 70;
+export const WB_SAFE_TOP = 140;
+export const WB_SAFE_BOTTOM = 220;
 
 // Derived usable dimensions inside the safe area
-export const WB_USABLE_WIDTH = WB_CANVAS_WIDTH - WB_SAFE_LEFT - WB_SAFE_RIGHT; // 920px
-export const WB_USABLE_HEIGHT = WB_CANVAS_HEIGHT - WB_SAFE_TOP - WB_SAFE_BOTTOM; // 1520px
+export const WB_USABLE_WIDTH = WB_CANVAS_WIDTH - WB_SAFE_LEFT - WB_SAFE_RIGHT; // 940px
+export const WB_USABLE_HEIGHT = WB_CANVAS_HEIGHT - WB_SAFE_TOP - WB_SAFE_BOTTOM; // 1560px
 
 // ── Per-board limits ────────────────────────────────────────────────────────
 export const WB_MAX_POINTS_PER_BOARD = 3;
-export const WB_MAX_WORDS_PER_POINT = 5;
+export const WB_MAX_WORDS_PER_POINT = 7;
 export const WB_MAX_LINES_PER_POINT = 2;
 
-// ── Chars-per-line: unified single value (was 28 in planner vs 26 in template) ──
-export const WB_MAX_CHARS_PER_LINE = 26;
+// ── Chars-per-line: calibrated for 940px width at 44px-52px font size ────────
+export const WB_MAX_CHARS_PER_LINE = 30;
 
 // ── Typography: px values on a 1080×1920 canvas ─────────────────────────────
-export const WB_TITLE_SIZE = 96;
-export const WB_CONCLUSION_SIZE = 72;
+export const WB_TITLE_SIZE = 64;
+export const WB_CONCLUSION_SIZE = 48;
 
-// Point font size table indexed by [pointCount - 1] (1, 2, or 3 points on board)
-// 1 point → biggest, 3 points → minimum readable
+// Point font size table indexed by point count (1, 2, or 3 points on board)
+// Calibrated so text never overflows and is always crisp and readable
 export const WB_POINT_SIZE_BY_COUNT: Record<number, number> = {
-  1: 80,
-  2: 72,
-  3: 68,
+  1: 54,
+  2: 50,
+  3: 46,
 } as const;
-export const WB_POINT_SIZE_MIN = 68; // hard floor, never go below
+export const WB_POINT_SIZE_MIN = 42; // Hard floor, never go below
 
 // ── Line height multipliers ──────────────────────────────────────────────────
-export const WB_TITLE_LINE_HEIGHT = 1.15;
+export const WB_TITLE_LINE_HEIGHT = 1.2;
 export const WB_POINT_LINE_HEIGHT = 1.35;
-export const WB_CONCLUSION_LINE_HEIGHT = 1.2;
+export const WB_CONCLUSION_LINE_HEIGHT = 1.25;
 
 // ── Spacing (px) between elements ─────────────────────────────────────────
-export const WB_TITLE_MARGIN_BOTTOM = 40;
-export const WB_POINT_MARGIN_BOTTOM = 28;
-export const WB_POINT_PADDING_V = 22;
-export const WB_POINT_PADDING_H = 28;
+export const WB_TITLE_MARGIN_BOTTOM = 36;
+export const WB_POINT_MARGIN_BOTTOM = 24;
+export const WB_POINT_PADDING_V = 20;
+export const WB_POINT_PADDING_H = 24;
 
 // ── Writing / reveal animation ───────────────────────────────────────────────
-/** Frames to fade-in full point text (opacity 0→1). Keep short so layout is final from frame 0. */
+/** Frames to fade-in point text (opacity 0→1). */
 export const WB_REVEAL_FADE_FRAMES = 8;
 /** translateY offset (px) at start of reveal animation */
-export const WB_REVEAL_TRANSLATE_Y_START = 12;
+export const WB_REVEAL_TRANSLATE_Y_START = 10;
 
 // ── Timing buffers ───────────────────────────────────────────────────────────
 /** Seconds before first spoken word of a point to start its reveal */
@@ -64,29 +63,11 @@ export const WB_REVEAL_LEAD_SECONDS = 0.05;
 /** Minimum display time (seconds) for any point, even if speech is shorter */
 export const WB_MIN_DISPLAY_SECONDS = 1.5;
 
-// ── Dynamic Aspect Ratio Geometry Engine ─────────────────────────────────────
-export type WhiteboardAspectRatio = '9:16' | '16:9';
-
-export function getWhiteboardDimensions(aspectRatio: WhiteboardAspectRatio = '9:16') {
-  if (aspectRatio === '16:9') {
-    return {
-      width: 1920,
-      height: 1080,
-      safeLeft: 120,
-      safeRight: 120,
-      safeTop: 80,
-      safeBottom: 100,
-      usableWidth: 1680,
-      usableHeight: 900,
-      titleSize: 64,
-      conclusionSize: 52,
-      pointSizeByCount: { 1: 56, 2: 52, 3: 48 } as Record<number, number>,
-      pointSizeMin: 48,
-    };
-  }
+// ── Dedicated 9:16 Geometry Engine ───────────────────────────────────────────
+export function getWhiteboardDimensions() {
   return {
-    width: 1080,
-    height: 1920,
+    width: WB_CANVAS_WIDTH,
+    height: WB_CANVAS_HEIGHT,
     safeLeft: WB_SAFE_LEFT,
     safeRight: WB_SAFE_RIGHT,
     safeTop: WB_SAFE_TOP,

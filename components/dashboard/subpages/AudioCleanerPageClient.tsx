@@ -243,13 +243,13 @@ export default function AudioCleanerPage() {
     if (!user) return;
     async function fetchBilling() {
       try {
-        const res = await fetch(`/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}`);
+        const res = await fetch(`/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}&email=${encodeURIComponent(user?.email || "")}`);
         const payload = await res.json().catch(() => ({}));
         if (res.ok && payload.ok && payload.entitlement) {
           const ent = payload.entitlement;
           const limit = Math.max(0, Math.round(Number(payload.usage?.limit || ent.monthlyVideoLimit || 0)));
           const used = Math.max(0, Math.round(Number(payload.usage?.used || 0)));
-          const remaining = Math.max(0, Math.round(Number(payload.usage?.remaining || limit - used)));
+          const remaining = Math.max(0, Math.round(Number(payload.usage?.remaining ?? (limit - used))));
           setBillingEntitlement({
             active: Boolean(ent.active),
             planId: ent.planId || "paid",
@@ -556,9 +556,9 @@ export default function AudioCleanerPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#070B14] text-zinc-100 flex flex-col selection:bg-[#FF5722]/30 selection:text-[#FFA000] pb-12">
-      {/* ── Top Navigation Bar (Google Analytics Obsidian Surface) ── */}
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0E1526]/90 backdrop-blur-xl shadow-md">
+    <div className="min-h-screen bg-[#0B0D13] text-zinc-100 flex flex-col selection:bg-[#FF5722]/30 selection:text-[#FFA000] pb-12">
+      {/* ── Top Navigation Bar (Obsidian Charcoal Surface) ── */}
+      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0B0D13]/90 backdrop-blur-xl shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 sm:gap-4">
             <Link

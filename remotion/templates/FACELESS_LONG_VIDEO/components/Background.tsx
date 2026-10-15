@@ -1,5 +1,5 @@
 import React from 'react';
-import { interpolate, useCurrentFrame } from 'remotion';
+import { interpolate, useCurrentFrame, useVideoConfig } from 'remotion';
 
 export interface BackgroundProps {
   theme?:
@@ -36,6 +36,7 @@ const BACKGROUND_GRADIENTS: Record<string, string> = {
 
 export function Background({ theme = 'studio-white', customBgUrl, aspectRatio = '16:9', children }: BackgroundProps) {
   const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
   const bgGradient = BACKGROUND_GRADIENTS[theme] || BACKGROUND_GRADIENTS['studio-white'];
   const isLight = theme === 'studio-white' || theme === 'warm-cream' || theme === 'soft-slate';
 
@@ -93,7 +94,7 @@ export function Background({ theme = 'studio-white', customBgUrl, aspectRatio = 
           pointerEvents: 'none',
         }}
       >
-        FPS: 60 • {resLabel} • GRID: ACTIVE
+        FPS: {fps} • {resLabel} • 1080P FULL HD
       </div>
 
       {children}

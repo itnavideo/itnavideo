@@ -72,9 +72,14 @@ function LightningIcon() {
 
 const TICKER_ITEMS = [
   { 
-    label: '1080×1920 Full HD (30 FPS)', 
+    label: '1920×1080 Widescreen YouTube', 
+    IconComponent: Layers, 
+    iconColor: 'text-[#FF5722] drop-shadow-[0_0_6px_rgba(255,87,34,0.4)]' 
+  },
+  { 
+    label: '1080×1920 Shorts & Reels', 
     IconComponent: Smartphone, 
-    iconColor: 'text-cyan-400 drop-shadow-[0_0_6px_rgba(34,211,238,0.5)]' 
+    iconColor: 'text-cyan-500 drop-shadow-[0_0_6px_rgba(34,211,238,0.4)]' 
   },
   { 
     label: 'YouTube Shorts Ready', 
@@ -92,12 +97,12 @@ const TICKER_ITEMS = [
     isCustom: true 
   },
   { 
-    label: 'Ultra-Fast Speech Subtitles', 
+    label: 'Word-Synced Kinetic Subtitles', 
     IconComponent: SubtitleCcIcon, 
     isCustom: true 
   },
   { 
-    label: '60s Instant Cloud Render', 
+    label: 'Instant Cloud Rendering', 
     IconComponent: LightningIcon, 
     isCustom: true 
   },
@@ -107,14 +112,14 @@ const TICKER_ITEMS = [
     isCustom: true 
   },
   { 
-    label: '11 Dedicated Video Engines', 
+    label: '10 Dedicated Video Studios', 
     IconComponent: Layers, 
-    iconColor: 'text-[#FF9100] drop-shadow-[0_0_6px_rgba(255,109,0,0.5)]' 
+    iconColor: 'text-amber-500 drop-shadow-[0_0_6px_rgba(245,158,11,0.4)]' 
   },
   { 
     label: 'Zero Local Hardware Lag', 
     IconComponent: ShieldCheck, 
-    iconColor: 'text-emerald-400 drop-shadow-[0_0_6px_rgba(52,211,153,0.5)]' 
+    iconColor: 'text-emerald-500 drop-shadow-[0_0_6px_rgba(16,185,129,0.4)]' 
   },
 ];
 

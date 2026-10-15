@@ -406,7 +406,7 @@ export const UNIVERSAL_DEMO_PRESETS: DemoPresetBlueprint[] = [
         { start: 6.5, end: 10.0, text: 'In 90 days, organic word of mouth took us to over one million active creators.' },
       ],
       chapterEvents: [
-        { id: 'p1', title: 'Akram Editor', subtitle: 'Founder Story & Initial Struggles', start: 0, end: 3.0 },
+        { id: 'p1', title: 'Syed Rohi', subtitle: 'Founder Story & Initial Struggles', start: 0, end: 3.0 },
         { id: 'p2', title: 'The Pivot Strategy', subtitle: 'Simplifying UI & One-Click Presets', start: 3.0, end: 6.5 },
         { id: 'p3', title: 'Hyper Growth Phase', subtitle: '1,000,000+ Active Users', start: 6.5, end: 10.0 },
       ],

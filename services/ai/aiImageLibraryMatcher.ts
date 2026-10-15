@@ -139,15 +139,27 @@ export async function planImagesFromLibraryForScenes(
   if (!scenes || scenes.length === 0) return result;
 
   const allLibraryImages = getAllLibraryImages();
-  const library = options?.visualStyle
-    ? allLibraryImages.filter((image) => {
-        const searchable = `${image.url} ${image.category} ${image.title} ${(image.tags || []).join(' ')}`.toLowerCase();
-        if (options.visualStyle === '2d') return /(?:\/2d\/|\b2d\b|vector|illustration|cartoon)/i.test(searchable);
-        if (options.visualStyle === '3d') return /(?:\/3d\/|\b3d\b|render|isometric|cgi)/i.test(searchable);
-        return /(?:\/realistic\/|realistic|photograph|\bphoto\b)/i.test(searchable);
-      })
-    : allLibraryImages;
-  if (library.length === 0) return result;
+  let library = allLibraryImages;
+  if (options?.visualStyle === '2d') {
+    const filtered = allLibraryImages.filter((image) => {
+      const searchable = `${image.url} ${image.category} ${image.title} ${(image.tags || []).join(' ')}`.toLowerCase();
+      return /(?:\/2d\/|\b2d\b|vector|illustration|cartoon)/i.test(searchable);
+    });
+    if (filtered.length > 0) library = filtered;
+  } else if (options?.visualStyle === '3d') {
+    const filtered = allLibraryImages.filter((image) => {
+      const searchable = `${image.url} ${image.category} ${image.title} ${(image.tags || []).join(' ')}`.toLowerCase();
+      return /(?:\/3d\/|\b3d\b|render|isometric|cgi)/i.test(searchable);
+    });
+    if (filtered.length > 0) library = filtered;
+  } else if (options?.visualStyle === 'realistic') {
+    const filtered = allLibraryImages.filter((image) => {
+      const searchable = `${image.url} ${image.category} ${image.title} ${(image.tags || []).join(' ')}`.toLowerCase();
+      return !/(?:\/2d\/|\/3d\/|vector|cartoon|isometric)/i.test(searchable);
+    });
+    if (filtered.length > 0) library = filtered;
+  }
+  if (library.length === 0) library = allLibraryImages;
 
   const targetRatio = options?.aspectRatio || '16:9';
   const recentlyUsedIds: string[] = [];
