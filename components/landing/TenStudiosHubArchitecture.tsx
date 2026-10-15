@@ -68,7 +68,7 @@ export const WIDESCREEN_169_STUDIOS: VideoTypeItem[] = [
     aspectRatio: '16:9',
     description: 'Transform images & audio into 16:9 cinematic videos with Ken Burns camera motion.',
     isPopular: true,
-    imagePreview: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1791892532/image_to_video_ai_h2f54a.png',
+    imagePreview: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1791896597/imagetovideoai_akygiu.jpg',
   },
   {
     id: 'youtube-subtitle-generator',
@@ -184,7 +184,11 @@ export default function TenStudiosHubArchitecture() {
   const showUtility = activeTab === 'all' || activeTab === 'utility';
 
   return (
-    <section id="video-types" className="relative w-full overflow-hidden bg-[#FAFAFA] py-16 text-slate-900 sm:py-24 border-b border-slate-200/80">
+    <section
+      id="video-types"
+      className="relative w-full overflow-hidden bg-slate-950 bg-[#070B14] py-16 text-white sm:py-24 border-y border-white/10"
+      style={{ backgroundColor: '#070B14', color: '#ffffff' }}
+    >
       {/* Background Ambient Glows */}
       <div className="pointer-events-none absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-orange-500/10 blur-[160px] rounded-full" />
       <div className="pointer-events-none absolute right-0 bottom-10 w-96 h-96 bg-amber-500/10 blur-[140px] rounded-full" />
@@ -193,21 +197,51 @@ export default function TenStudiosHubArchitecture() {
         
         {/* Top Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold text-orange-700 shadow-xs">
+          <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/40 bg-orange-500/15 px-4 py-1.5 text-xs font-bold text-orange-400 shadow-xs">
             <Sparkles size={14} className="text-[#FF5722]" />
             <span>ALL-IN-ONE VIDEO CREATION PLATFORM</span>
           </div>
           
-          <h2 className="text-3xl font-black tracking-tight text-slate-900 sm:text-5xl font-sans">
+          <h2 className="text-3xl font-black tracking-tight text-white sm:text-5xl font-sans" style={{ color: '#ffffff' }}>
             AI Video Studios{' '}
             <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
               &amp; Workflows
             </span>
           </h2>
 
-          <p className="text-sm sm:text-base text-slate-600 font-normal leading-relaxed">
+          <p className="text-sm sm:text-base text-slate-300 font-normal leading-relaxed">
             Select any dedicated studio below to start creating 1080p Full HD video instantly. Each studio has specialized AI planners, timing logic, and motion presets.
           </p>
+
+          {/* Luxury Dark SaaS Feature Header Graphic (Image 3 - Faceless Creation Canvas) */}
+          <div className="pt-2 pb-2 max-w-4xl mx-auto w-full">
+            <div className="group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/10 bg-[#0E1526]/90 p-2.5 sm:p-4 shadow-[0_0_60px_rgba(255,87,34,0.12),0_25px_80px_rgba(0,0,0,0.6)] backdrop-blur-md transition-all duration-300 hover:border-orange-500/30">
+              {/* Dark SaaS Window Chrome */}
+              <div className="flex items-center justify-between px-3 py-1.5 text-[11px] font-bold text-slate-400 border-b border-white/10 mb-2.5">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-2.5 w-2.5 rounded-full bg-red-500/80" />
+                  <span className="flex h-2.5 w-2.5 rounded-full bg-amber-500/80" />
+                  <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500/80" />
+                  <span className="ml-2 font-mono text-[11px] text-orange-400 font-extrabold uppercase tracking-wider">
+                    Itnavideo Studio Canvas Engine
+                  </span>
+                </div>
+                <span className="text-slate-400 font-mono text-[10px] hidden sm:inline">
+                  Multi-Track Timeline • Auto B-Roll • 1080p Cloud Render
+                </span>
+              </div>
+
+              {/* Dark Glassmorphism Graphic Backdrop */}
+              <div className="relative overflow-hidden rounded-2xl bg-slate-800/80 border border-slate-700/60 shadow-lg shadow-orange-500/10 backdrop-blur-md p-2 sm:p-4">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://res.cloudinary.com/dhouh9idx/image/upload/v1792056190/3D_Faceless_Video_Creation_Canvas_HeroExplainer_Visual_qjndsg.png"
+                  alt="Itnavideo Faceless Creation Canvas Architecture"
+                  className="w-full h-auto object-contain rounded-xl drop-shadow-[0_15px_35px_rgba(255,87,34,0.15)] transition-transform duration-500 group-hover:scale-[1.01]"
+                />
+              </div>
+            </div>
+          </div>
 
           {/* Interactive Filter Tabs */}
           <div className="pt-3 flex flex-wrap items-center justify-center gap-2">
@@ -216,8 +250,8 @@ export default function TenStudiosHubArchitecture() {
               onClick={() => setActiveTab('all')}
               className={`rounded-full px-4 py-2 text-xs font-bold transition cursor-pointer ${
                 activeTab === 'all'
-                  ? 'bg-slate-900 text-white shadow-md'
-                  : 'bg-white text-slate-600 border border-slate-200 hover:border-orange-500/40 hover:text-slate-900'
+                  ? 'bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-white shadow-md shadow-orange-500/20'
+                  : 'bg-white/10 text-slate-200 border border-white/10 hover:border-orange-500/40 hover:text-white'
               }`}
             >
               All Studios (11)
@@ -227,8 +261,8 @@ export default function TenStudiosHubArchitecture() {
               onClick={() => setActiveTab('169')}
               className={`rounded-full px-4 py-2 text-xs font-bold transition cursor-pointer ${
                 activeTab === '169'
-                  ? 'bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-white shadow-md'
-                  : 'bg-white text-slate-600 border border-slate-200 hover:border-orange-500/40 hover:text-slate-900'
+                  ? 'bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-white shadow-md shadow-orange-500/20'
+                  : 'bg-white/10 text-slate-200 border border-white/10 hover:border-orange-500/40 hover:text-white'
               }`}
             >
               🖥️ 16:9 Widescreen (4)
@@ -238,8 +272,8 @@ export default function TenStudiosHubArchitecture() {
               onClick={() => setActiveTab('916')}
               className={`rounded-full px-4 py-2 text-xs font-bold transition cursor-pointer ${
                 activeTab === '916'
-                  ? 'bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-white shadow-md'
-                  : 'bg-white text-slate-600 border border-slate-200 hover:border-orange-500/40 hover:text-slate-900'
+                  ? 'bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-white shadow-md shadow-orange-500/20'
+                  : 'bg-white/10 text-slate-200 border border-white/10 hover:border-orange-500/40 hover:text-white'
               }`}
             >
               📱 9:16 Shorts &amp; Reels (6)
@@ -249,8 +283,8 @@ export default function TenStudiosHubArchitecture() {
               onClick={() => setActiveTab('utility')}
               className={`rounded-full px-4 py-2 text-xs font-bold transition cursor-pointer ${
                 activeTab === 'utility'
-                  ? 'bg-emerald-600 text-white shadow-md'
-                  : 'bg-white text-slate-600 border border-slate-200 hover:border-emerald-500/40 hover:text-slate-900'
+                  ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20'
+                  : 'bg-white/10 text-slate-200 border border-white/10 hover:border-emerald-500/40 hover:text-white'
               }`}
             >
               🎙️ Audio Utility (1)
@@ -262,23 +296,26 @@ export default function TenStudiosHubArchitecture() {
         {/* 1. 16:9 WIDESCREEN CINEMA & LONG-FORM STUDIOS                */}
         {/* ───────────────────────────────────────────────────────────── */}
         {show169 && (
-          <div className="rounded-[32px] border border-slate-200/90 bg-white p-6 sm:p-8 backdrop-blur-2xl shadow-xl ring-1 ring-slate-100">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-6 border-b border-slate-100">
+          <div
+            className="rounded-[32px] border border-white/10 bg-[#0C1222]/95 p-6 sm:p-8 backdrop-blur-2xl shadow-2xl ring-1 ring-white/5"
+            style={{ backgroundColor: '#0C1222' }}
+          >
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-6 border-b border-white/10">
               <div>
-                <div className="inline-flex items-center gap-2 rounded-full bg-orange-500/10 border border-orange-500/30 px-3 py-1 text-[11px] font-mono font-bold text-[#FF5722] uppercase tracking-wider mb-2">
+                <div className="inline-flex items-center gap-2 rounded-full bg-orange-500/15 border border-orange-500/30 px-3 py-1 text-[11px] font-mono font-bold text-orange-400 uppercase tracking-wider mb-2">
                   🖥️ 16:9 Widescreen Cinema
                 </div>
-                <h3 className="text-2xl font-black text-slate-900 tracking-tight">
+                <h3 className="text-2xl font-black text-white tracking-tight">
                   16:9 Long-Form &amp; Cinema Studios
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
+                <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
                   Full 16:9 widescreen format for YouTube, presentations, summaries, and podcasts up to 10 minutes.
                 </p>
               </div>
               <div className="flex items-center gap-2 text-xs font-mono font-bold shrink-0">
-                <span className="text-orange-700 px-2.5 py-1 rounded-md bg-orange-500/10 border border-orange-500/30">1 Min = 1 Cr</span>
-                <span className="text-slate-400">•</span>
-                <span className="text-slate-700 px-2.5 py-1 rounded-md bg-slate-100 border border-slate-200">1920×1080 Full HD</span>
+                <span className="text-orange-400 px-2.5 py-1 rounded-md bg-orange-500/15 border border-orange-500/30">1 Min = 1 Cr</span>
+                <span className="text-slate-500">•</span>
+                <span className="text-slate-300 px-2.5 py-1 rounded-md bg-white/10 border border-white/15">1920×1080 Full HD</span>
               </div>
             </div>
 
@@ -289,20 +326,24 @@ export default function TenStudiosHubArchitecture() {
                   <Link
                     key={item.id}
                     href={item.href}
-                    className="group relative flex flex-col justify-between overflow-hidden rounded-[24px] border border-slate-200/90 bg-white hover:border-orange-500/50 hover:bg-white transition-all duration-300 active:scale-[0.98] shadow-sm hover:shadow-xl hover:shadow-orange-500/10"
+                    className="group relative flex flex-col justify-between overflow-hidden rounded-[24px] border border-white/10 bg-[#121A2D] hover:border-orange-500/60 hover:bg-[#162138] transition-all duration-300 active:scale-[0.98] shadow-lg hover:shadow-2xl hover:shadow-orange-500/15"
+                    style={{ backgroundColor: '#121A2D' }}
                   >
                     <div>
                       {/* Top 16:9 Image Preview Stage */}
                       {item.imagePreview && (
-                        <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-900 border-b border-slate-100">
+                        <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-950 border-b border-white/10">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={item.imagePreview}
                             alt={item.name}
                             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                             loading="lazy"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'https://res.cloudinary.com/dhouh9idx/image/upload/v1791892533/faceless_video_ytyxdo.png';
+                            }}
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-80 group-hover:opacity-60 transition-opacity" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90 group-hover:opacity-70 transition-opacity" />
 
                           {/* Top Badges on Image */}
                           <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5">
@@ -328,19 +369,19 @@ export default function TenStudiosHubArchitecture() {
                           <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${item.iconBgClass} ${item.iconColorClass}`}>
                             <Icon size={14} />
                           </div>
-                          <h4 className="text-base font-extrabold text-slate-900 tracking-tight group-hover:text-orange-600 transition-colors line-clamp-1">
+                          <h4 className="text-base font-extrabold text-white tracking-tight group-hover:text-orange-400 transition-colors line-clamp-1">
                             {item.name}
                           </h4>
                         </div>
 
-                        <p className="text-xs text-slate-500 leading-relaxed line-clamp-2 min-h-[32px]">
+                        <p className="text-xs text-slate-400 leading-relaxed line-clamp-2 min-h-[32px]">
                           {item.description}
                         </p>
                       </div>
                     </div>
 
                     {/* Footer Link CTA */}
-                    <div className="px-4 pb-4 sm:px-5 sm:pb-5 pt-0 flex items-center justify-between text-xs font-bold text-orange-600 group-hover:text-orange-700 transition-colors">
+                    <div className="px-4 pb-4 sm:px-5 sm:pb-5 pt-0 flex items-center justify-between text-xs font-bold text-orange-400 group-hover:text-orange-300 transition-colors">
                       <span>Open Studio</span>
                       <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
                     </div>
@@ -355,23 +396,26 @@ export default function TenStudiosHubArchitecture() {
         {/* 2. 9:16 VERTICAL SHORTS & REELS STUDIOS                       */}
         {/* ───────────────────────────────────────────────────────────── */}
         {show916 && (
-          <div className="rounded-[32px] border border-slate-200/90 bg-white p-6 sm:p-8 backdrop-blur-2xl shadow-xl ring-1 ring-slate-100">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-6 border-b border-slate-100">
+          <div
+            className="rounded-[32px] border border-white/10 bg-[#0C1222]/95 p-6 sm:p-8 backdrop-blur-2xl shadow-2xl ring-1 ring-white/5"
+            style={{ backgroundColor: '#0C1222' }}
+          >
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-6 border-b border-white/10">
               <div>
-                <div className="inline-flex items-center gap-2 rounded-full bg-orange-500/10 border border-orange-500/30 px-3 py-1 text-[11px] font-mono font-bold text-[#FF5722] uppercase tracking-wider mb-2">
+                <div className="inline-flex items-center gap-2 rounded-full bg-orange-500/15 border border-orange-500/30 px-3 py-1 text-[11px] font-mono font-bold text-orange-400 uppercase tracking-wider mb-2">
                   📱 9:16 Vertical Shorts
                 </div>
-                <h3 className="text-2xl font-black text-slate-900 tracking-tight">
+                <h3 className="text-2xl font-black text-white tracking-tight">
                   9:16 Shorts, Reels &amp; TikTok Studios
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
+                <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
                   Full 9:16 vertical smartphone format with auto-captions, kinetic text, whiteboard, and viral clips up to 90 seconds.
                 </p>
               </div>
               <div className="flex items-center gap-2 text-xs font-mono font-bold shrink-0">
-                <span className="text-emerald-700 px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/30">1 Credit / Video</span>
-                <span className="text-slate-400">•</span>
-                <span className="text-slate-700 px-2.5 py-1 rounded-md bg-slate-100 border border-slate-200">1080×1920 Full HD</span>
+                <span className="text-emerald-400 px-2.5 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/30">1 Credit / Video</span>
+                <span className="text-slate-500">•</span>
+                <span className="text-slate-300 px-2.5 py-1 rounded-md bg-white/10 border border-white/15">1080×1920 Full HD</span>
               </div>
             </div>
 
@@ -382,20 +426,24 @@ export default function TenStudiosHubArchitecture() {
                   <Link
                     key={item.id}
                     href={item.href}
-                    className="group relative flex flex-col justify-between overflow-hidden rounded-[24px] border border-slate-200/90 bg-white hover:border-orange-500/50 hover:bg-white transition-all duration-300 active:scale-[0.98] shadow-sm hover:shadow-xl hover:shadow-orange-500/10"
+                    className="group relative flex flex-col justify-between overflow-hidden rounded-[24px] border border-white/10 bg-[#121A2D] hover:border-orange-500/60 hover:bg-[#162138] transition-all duration-300 active:scale-[0.98] shadow-lg hover:shadow-2xl hover:shadow-orange-500/15"
+                    style={{ backgroundColor: '#121A2D' }}
                   >
                     <div>
                       {/* Top 9:16 Vertical Image Preview Stage */}
                       {item.imagePreview && (
-                        <div className="relative aspect-[9/16] w-full overflow-hidden bg-slate-900 border-b border-slate-100">
+                        <div className="relative aspect-[9/16] w-full overflow-hidden bg-slate-950 border-b border-white/10">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={item.imagePreview}
                             alt={item.name}
                             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                             loading="lazy"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'https://res.cloudinary.com/dhouh9idx/image/upload/v1791892531/auto_captions_x9khtt.png';
+                            }}
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-85 group-hover:opacity-60 transition-opacity" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90 group-hover:opacity-70 transition-opacity" />
 
                           {/* Top Badges on Image */}
                           <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5">
@@ -421,19 +469,19 @@ export default function TenStudiosHubArchitecture() {
                           <div className={`flex h-6 w-6 items-center justify-center rounded-md ${item.iconBgClass} ${item.iconColorClass}`}>
                             <Icon size={12} />
                           </div>
-                          <h4 className="text-sm font-extrabold text-slate-900 tracking-tight group-hover:text-orange-600 transition-colors line-clamp-1">
+                          <h4 className="text-sm font-extrabold text-white tracking-tight group-hover:text-orange-400 transition-colors line-clamp-1">
                             {item.name}
                           </h4>
                         </div>
 
-                        <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-2 min-h-[30px]">
+                        <p className="text-[11px] text-slate-400 leading-relaxed line-clamp-2 min-h-[30px]">
                           {item.description}
                         </p>
                       </div>
                     </div>
 
                     {/* Footer Link CTA */}
-                    <div className="px-3.5 pb-3.5 sm:px-4 sm:pb-4 pt-0 flex items-center justify-between text-[11px] font-bold text-orange-600 group-hover:text-orange-700 transition-colors">
+                    <div className="px-3.5 pb-3.5 sm:px-4 sm:pb-4 pt-0 flex items-center justify-between text-[11px] font-bold text-orange-400 group-hover:text-orange-300 transition-colors">
                       <span>Open</span>
                       <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
                     </div>
@@ -448,23 +496,26 @@ export default function TenStudiosHubArchitecture() {
         {/* 3. STUDIO UTILITIES (AI AUDIO CLEANER)                       */}
         {/* ───────────────────────────────────────────────────────────── */}
         {showUtility && (
-          <div className="rounded-[32px] border border-slate-200/90 bg-white p-6 sm:p-8 backdrop-blur-2xl shadow-xl ring-1 ring-slate-100">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-6 border-b border-slate-100">
+          <div
+            className="rounded-[32px] border border-white/10 bg-[#0C1222]/95 p-6 sm:p-8 backdrop-blur-2xl shadow-2xl ring-1 ring-white/5"
+            style={{ backgroundColor: '#0C1222' }}
+          >
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-6 border-b border-white/10">
               <div>
-                <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 text-[11px] font-mono font-bold text-emerald-600 uppercase tracking-wider mb-2">
+                <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-3 py-1 text-[11px] font-mono font-bold text-emerald-400 uppercase tracking-wider mb-2">
                   🎙️ Studio Audio Utility
                 </div>
-                <h3 className="text-2xl font-black text-slate-900 tracking-tight">
+                <h3 className="text-2xl font-black text-white tracking-tight">
                   AI Studio Audio Cleaner &amp; Mastering
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
+                <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
                   Clean voiceovers, detect retakes, remove background room noise, and export studio master audio.
                 </p>
               </div>
               <div className="flex items-center gap-2 text-xs font-mono font-bold shrink-0">
-                <span className="text-emerald-700 px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/30">1 Credit / File</span>
-                <span className="text-slate-400">•</span>
-                <span className="text-slate-700 px-2.5 py-1 rounded-md bg-slate-100 border border-slate-200">Studio MP3/WAV</span>
+                <span className="text-emerald-400 px-2.5 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/30">1 Credit / File</span>
+                <span className="text-slate-500">•</span>
+                <span className="text-slate-300 px-2.5 py-1 rounded-md bg-white/10 border border-white/15">Studio MP3/WAV</span>
               </div>
             </div>
 
@@ -475,19 +526,23 @@ export default function TenStudiosHubArchitecture() {
                   <Link
                     key={item.id}
                     href={item.href}
-                    className="group relative flex flex-col justify-between overflow-hidden rounded-[24px] border border-slate-200/90 bg-white hover:border-emerald-500/50 hover:bg-white transition-all duration-300 active:scale-[0.98] shadow-sm hover:shadow-xl hover:shadow-emerald-500/10"
+                    className="group relative flex flex-col justify-between overflow-hidden rounded-[24px] border border-white/10 bg-[#121A2D] hover:border-emerald-500/60 hover:bg-[#162138] transition-all duration-300 active:scale-[0.98] shadow-lg hover:shadow-2xl hover:shadow-emerald-500/15"
+                    style={{ backgroundColor: '#121A2D' }}
                   >
                     <div>
                       {item.imagePreview && (
-                        <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-900 border-b border-slate-100">
+                        <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-950 border-b border-white/10">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={item.imagePreview}
                             alt={item.name}
                             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                             loading="lazy"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'https://res.cloudinary.com/dhouh9idx/image/upload/v1791892521/audio_cleaner_tzshum.png';
+                            }}
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-80 group-hover:opacity-60 transition-opacity" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90 group-hover:opacity-70 transition-opacity" />
                           <div className="absolute bottom-2.5 left-2.5 flex items-center gap-2">
                             <span className="px-2 py-0.5 rounded-full bg-black/80 text-[10px] font-bold text-emerald-400 border border-emerald-400/30 backdrop-blur-md">
                               🎙️ Master Audio
@@ -501,17 +556,17 @@ export default function TenStudiosHubArchitecture() {
                           <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${item.iconBgClass} ${item.iconColorClass}`}>
                             <Icon size={14} />
                           </div>
-                          <h4 className="text-base font-extrabold text-slate-900 tracking-tight group-hover:text-emerald-600 transition-colors line-clamp-1">
+                          <h4 className="text-base font-extrabold text-white tracking-tight group-hover:text-emerald-400 transition-colors line-clamp-1">
                             {item.name}
                           </h4>
                         </div>
-                        <p className="text-xs text-slate-500 leading-relaxed line-clamp-2 min-h-[32px]">
+                        <p className="text-xs text-slate-400 leading-relaxed line-clamp-2 min-h-[32px]">
                           {item.description}
                         </p>
                       </div>
                     </div>
 
-                    <div className="px-4 pb-4 sm:px-5 sm:pb-5 pt-0 flex items-center justify-between text-xs font-bold text-emerald-600 group-hover:text-emerald-700 transition-colors">
+                    <div className="px-4 pb-4 sm:px-5 sm:pb-5 pt-0 flex items-center justify-between text-xs font-bold text-emerald-400 group-hover:text-emerald-300 transition-colors">
                       <span>Open Audio Cleaner</span>
                       <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
                     </div>
@@ -522,15 +577,21 @@ export default function TenStudiosHubArchitecture() {
           </div>
         )}
 
-        {/* View All Studios Dashboard Button CTA */}
-        <div className="flex justify-center pt-4">
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-8 py-3.5 text-sm font-black text-white shadow-lg shadow-orange-500/25 transition-all hover:brightness-110 active:scale-95"
-          >
-            <span>Open All Studios in Studio Dashboard</span>
-            <ArrowRight size={16} />
-          </Link>
+        {/* View All Studios Dashboard Button CTA with Ambient Glowing Halo */}
+        <div className="flex justify-center pt-6 pb-2">
+          <div className="relative group">
+            {/* Ambient Pulsing Glow Halo */}
+            <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] opacity-50 blur-lg transition duration-500 group-hover:opacity-85 group-hover:blur-xl" />
+            
+            <Link
+              href="/dashboard"
+              className="relative inline-flex items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-9 py-4 text-sm font-black text-white shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 ring-2 ring-orange-400/40 transition-all duration-200 hover:brightness-110 hover:scale-[1.02] active:scale-95"
+            >
+              <Sparkles size={16} className="text-white fill-white" />
+              <span>Launch Any Studio Free</span>
+              <ArrowRight size={16} />
+            </Link>
+          </div>
         </div>
 
       </div>

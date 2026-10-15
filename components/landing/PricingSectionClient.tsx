@@ -69,10 +69,10 @@ const PLAN_CARDS = [
   {
     id: 'free',
     name: 'Free Trial',
-    priceMonthly: 0,
-    priceAnnual: 0,
-    priceSubMonthly: '1 free video',
-    priceSubAnnual: 'on signup',
+    priceINRMonthly: 0,
+    priceINRAnnual: 0,
+    priceUSDMonthly: 0,
+    priceUSDAnnual: 0,
     description: 'Try ItnaVideo free. No credit card required.',
     credits: '1 Free Credit',
     videoCapacity: '1 Short Video (up to 90s)',
@@ -82,16 +82,17 @@ const PLAN_CARDS = [
     quality: '1080p Full HD',
     watermark: 'No Watermark',
     renderSpeed: 'Standard Queue',
-    cta: 'Get Started Free',
+    ctaINR: 'Get Started Free',
+    ctaUSD: 'Get Started Free',
     popular: false,
   },
   {
     id: 'starter',
     name: 'Basic',
-    priceMonthly: 499,
-    priceAnnual: 399,
-    priceSubMonthly: '₹499 /month ($6)',
-    priceSubAnnual: '₹399 /mo (billed annually)',
+    priceINRMonthly: 499,
+    priceINRAnnual: 399,
+    priceUSDMonthly: 6,
+    priceUSDAnnual: 5,
     description: 'Ultra-affordable starter pack for new creators.',
     credits: '40 Credits',
     videoCapacity: '40 Shorts or 20 Widescreen videos',
@@ -101,16 +102,17 @@ const PLAN_CARDS = [
     quality: '1080p Full HD',
     watermark: 'No Watermark',
     renderSpeed: 'Fast Render Queue',
-    cta: 'Get Basic — ₹499',
+    ctaINR: 'Get Basic — ₹499',
+    ctaUSD: 'Get Basic — $6',
     popular: false,
   },
   {
     id: 'growth',
     name: 'Growth',
-    priceMonthly: 999,
-    priceAnnual: 799,
-    priceSubMonthly: '₹999 /month ($12)',
-    priceSubAnnual: '₹799 /mo (billed annually)',
+    priceINRMonthly: 999,
+    priceINRAnnual: 799,
+    priceUSDMonthly: 12,
+    priceUSDAnnual: 9,
     description: 'Best value for active creators publishing weekly.',
     credits: '90 Credits',
     videoCapacity: '90 Shorts or 45 Widescreen videos',
@@ -120,16 +122,17 @@ const PLAN_CARDS = [
     quality: '1080p Full HD',
     watermark: 'No Watermark',
     renderSpeed: 'Priority Render Queue',
-    cta: 'Get Growth — ₹999',
+    ctaINR: 'Get Growth — ₹999',
+    ctaUSD: 'Get Growth — $12',
     popular: true,
   },
   {
     id: 'pro',
     name: 'Pro Agency',
-    priceMonthly: 1999,
-    priceAnnual: 1599,
-    priceSubMonthly: '₹1,999 /month ($24)',
-    priceSubAnnual: '₹1,599 /mo (billed annually)',
+    priceINRMonthly: 1999,
+    priceINRAnnual: 1599,
+    priceUSDMonthly: 24,
+    priceUSDAnnual: 19,
     description: 'High-volume power pack for agencies & multi-channel creators.',
     credits: '200 Credits',
     videoCapacity: '200 Shorts or 100 Widescreen videos',
@@ -139,7 +142,8 @@ const PLAN_CARDS = [
     quality: '1080p Full HD',
     watermark: 'No Watermark',
     renderSpeed: 'Ultra-Fast Priority Queue',
-    cta: 'Get Pro — ₹1,999',
+    ctaINR: 'Get Pro — ₹1,999',
+    ctaUSD: 'Get Pro — $24',
     popular: false,
   },
 ];
@@ -194,11 +198,22 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
   const { user, loading: authLoading } = useAuth();
   const [showTable, setShowTable] = useState<boolean>(true);
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('annual');
+  const [currency, setCurrency] = useState<'USD' | 'INR'>('USD');
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [message, setMessage] = useState<{ type: "success" | "error" | "info"; text: string } | null>(null);
 
   useEffect(() => {
     trackViewPricing('pricing_page');
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+      if (tz.includes('Calcutta') || tz.includes('Kolkata') || tz.includes('Asia/Colombo')) {
+        setCurrency('INR');
+      } else {
+        setCurrency('USD');
+      }
+    } catch {
+      setCurrency('USD');
+    }
   }, []);
 
   const startCheckout = useCallback(
@@ -353,8 +368,8 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
             Pay for the amount and quality of video production you need. All paid plans include all 11 AI video studios with 1080p Full HD export and no watermark.
           </p>
 
-          {/* Monthly / Annual Billing Toggle Switch */}
-          <div className="pt-4 flex items-center justify-center">
+          {/* Monthly / Annual Billing Toggle Switch + Currency Switcher */}
+          <div className="pt-4 flex flex-wrap items-center justify-center gap-3">
             <div className="inline-flex items-center rounded-full border border-white/[0.08] bg-[#0F1117] p-1.5 shadow-xl">
               <button
                 type="button"
@@ -384,6 +399,32 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
                 </span>
               </button>
             </div>
+
+            {/* Currency Selector (USD $ vs INR ₹) */}
+            <div className="inline-flex items-center rounded-full border border-white/[0.08] bg-[#0F1117] p-1 shadow-xl">
+              <button
+                type="button"
+                onClick={() => setCurrency('USD')}
+                className={`flex items-center gap-1 rounded-full px-3.5 py-1.5 text-xs font-black transition-all cursor-pointer ${
+                  currency === 'USD'
+                    ? 'bg-white/15 text-white shadow-xs'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <span>$ USD</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setCurrency('INR')}
+                className={`flex items-center gap-1 rounded-full px-3.5 py-1.5 text-xs font-black transition-all cursor-pointer ${
+                  currency === 'INR'
+                    ? 'bg-white/15 text-white shadow-xs'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <span>₹ INR</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -404,12 +445,19 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
         {/* 4 Pricing Cards */}
         <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-14 items-stretch">
           {PLAN_CARDS.map((plan, i) => {
-            const displayPrice = billingCycle === 'annual' ? plan.priceAnnual : plan.priceMonthly;
+            const isUSD = currency === 'USD';
+            const displayPrice = isUSD
+              ? (billingCycle === 'annual' ? plan.priceUSDAnnual : plan.priceUSDMonthly)
+              : (billingCycle === 'annual' ? plan.priceINRAnnual : plan.priceINRMonthly);
+            const currencySymbol = isUSD ? '$' : '₹';
             const subtext = plan.id === 'free' 
               ? 'forever' 
               : billingCycle === 'annual' 
-                ? plan.priceSubAnnual 
-                : plan.priceSubMonthly;
+                ? '/mo (billed annually)' 
+                : '/month';
+            const ctaText = plan.id === 'free' 
+              ? 'Get Started Free' 
+              : (isUSD ? plan.ctaUSD : plan.ctaINR);
 
             return (
               <motion.div
@@ -447,7 +495,7 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
                 {/* Price */}
                 <div className="mt-4 pb-4 border-b border-white/[0.08] flex items-baseline gap-1.5">
                   <span className="text-4xl sm:text-5xl font-black text-white font-sans tracking-tight">
-                    ${displayPrice}
+                    {currencySymbol}{displayPrice}
                   </span>
                   <span className="text-xs font-semibold text-slate-400">
                     {subtext}
@@ -492,7 +540,7 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
                   disabled={loadingPlan === plan.id}
                   className={`mt-6 w-full rounded-2xl py-3 px-4 text-xs font-black transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer ${
                     plan.popular
-                      ? 'bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-lg shadow-orange-500/25 hover:brightness-110 active:scale-95'
+                      ? 'bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:brightness-110 active:scale-95'
                       : 'bg-[#151821] border border-white/15 text-white hover:border-orange-500/50 hover:text-orange-300 active:scale-95'
                   }`}
                 >
@@ -500,7 +548,7 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
                     <Loader2 size={16} className="animate-spin" />
                   ) : (
                     <>
-                      <span>{plan.cta}</span>
+                      <span>{ctaText}</span>
                       <ArrowRight size={14} />
                     </>
                   )}

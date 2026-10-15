@@ -84,6 +84,7 @@ export default function WhiteboardVideoPage() {
 
   // Job & render states
   const [jobStatus, setJobStatus] = useState<JobStatus>({ state: "idle" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [billingEntitlement, setBillingEntitlement] = useState<BillingEntitlement | null>(null);
   const [recentRenders, setRecentRenders] = useState<RecentRender[]>([]);
   const [activeTab, setActiveTab] = useState<"studio" | "history">("studio");
@@ -247,6 +248,7 @@ export default function WhiteboardVideoPage() {
     }
     if (renderRequestInFlightRef.current) return;
     renderRequestInFlightRef.current = true;
+    setIsSubmitting(true);
 
     try {
       setJobStatus({
@@ -526,6 +528,7 @@ export default function WhiteboardVideoPage() {
                 setSelectedFile(null);
                 setTranscript("");
                 setCachedMediaKey("");
+                setIsSubmitting(false);
                 setJobStatus({ state: "idle" });
               }}
             />
@@ -551,7 +554,7 @@ export default function WhiteboardVideoPage() {
                 markerColor={markerColor}
                 onMarkerColorChange={setMarkerColor}
                 onGenerate={handleStartRender}
-                isGenerating={false}
+                isGenerating={isSubmitting || jobStatus.state !== "idle"}
               />
             )}
 

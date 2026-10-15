@@ -4,6 +4,7 @@ import Hero from '@/components/landing/Hero';
 import PlatformMarqueeTicker from '@/components/landing/PlatformMarqueeTicker';
 import FacelessVideoFlagshipShowcase from '@/components/landing/FacelessVideoFlagshipShowcase';
 import DualShowcaseTabs from '@/components/landing/DualShowcaseTabs';
+import BeforeAfterComparison from '@/components/landing/BeforeAfterComparison';
 import TenStudiosHubArchitecture from '@/components/landing/TenStudiosHubArchitecture';
 import {
   HomepageFinalCta,
@@ -16,8 +17,8 @@ import { HOMEPAGE_WORKFLOW_COUNT } from '@/constants/homepageWorkflows';
 const PricingSection = nextDynamic(() => import('@/components/landing/PricingSection'), { ssr: true });
 const FAQSection = nextDynamic(() => import('@/components/FAQSection'), { ssr: true });
 
-export const dynamic = 'force-static';
-export const revalidate = 86400;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: 'Free AI Video Generator & Maker | Faceless Video AI',
@@ -125,6 +126,7 @@ export default function LandingPage() {
       <PlatformMarqueeTicker />
       <FacelessVideoFlagshipShowcase />
       <PlatformJourney />
+      <BeforeAfterComparison />
       <DualShowcaseTabs />
       <TenStudiosHubArchitecture />
       <PricingSection />

@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   AbsoluteFill,
+  Audio,
   Composition,
   Img,
   interpolate,
@@ -17,8 +18,11 @@ export type TypographyVideoProps = {
   captions?: CaptionSegment[];
   subjectImageUrl?: string;
   backgroundMediaUrl?: string;
+  mediaSrc?: string;
+  audioUrl?: string;
+  bgmUrl?: string;
   transcriptText?: string;
-  aspectRatio?: '9:16' | '16:9';
+  aspectRatio?: '9:16';
 };
 
 export const KineticTypographyRenderer: React.FC<TypographyVideoProps> = ({
@@ -27,6 +31,9 @@ export const KineticTypographyRenderer: React.FC<TypographyVideoProps> = ({
   captions = [],
   subjectImageUrl,
   backgroundMediaUrl,
+  mediaSrc,
+  audioUrl,
+  bgmUrl,
   transcriptText,
   aspectRatio = '9:16',
 }) => {
@@ -264,6 +271,14 @@ export const KineticTypographyRenderer: React.FC<TypographyVideoProps> = ({
           {activeBlueprint.name || typographyStyle}
         </span>
       </div>
+
+      {/* ── Audio Playback Layer ── */}
+      {(mediaSrc || audioUrl) && (
+        <Audio src={mediaSrc || audioUrl} volume={1} />
+      )}
+      {bgmUrl && (
+        <Audio src={bgmUrl} volume={0.15} loop />
+      )}
     </AbsoluteFill>
   );
 };
@@ -279,12 +294,9 @@ export const TypographyVideoComposition: React.FC = () => {
       durationInFrames={150}
       calculateMetadata={async ({ props }) => {
         const fps = 30;
-        const isWidescreen = props.aspectRatio === '16:9';
-        const width = isWidescreen ? 1920 : 1080;
-        const height = isWidescreen ? 1080 : 1920;
-
-        // Calculate max duration: 90s for 9:16 Shorts, 300s (5 min) for 16:9 Cinema
-        const maxDurSeconds = isWidescreen ? 300 : 90;
+        const width = 1080;
+        const height = 1920;
+        const maxDurSeconds = 90; // Strictly 9:16 Shorts up to 90s (Rule 4.1)
 
         let durationSeconds = Number(props.durationSeconds) || 0;
         if (durationSeconds <= 0 && Array.isArray(props.captions) && props.captions.length > 0) {

@@ -16,11 +16,11 @@ export type GeminiTranscriptionResult = {
 
 const GEMINI_MODELS = [
   (process.env.GEMINI_MODEL || '').trim(),
+  'gemini-2.5-flash',
   'gemini-flash-latest',
-  'gemini-2.5-flash-lite',
   'gemini-3.8-flash',
-  'gemini-3.1-flash-lite',
-].filter(Boolean);
+  'gemini-2.5-flash-lite',
+].filter((m) => m && m !== 'gemini-2.0-flash');
 
 export async function transcribeMediaWithGeminiFallback({
   mediaUrl,

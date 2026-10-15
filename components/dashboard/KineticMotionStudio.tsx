@@ -1005,31 +1005,11 @@ export function KineticMotionStudio({
           </p>
         </div>
 
-        {/* Dynamic Dual Aspect Ratio Selector */}
-        <div className="flex items-center gap-1.5 rounded-2xl border border-white/10 bg-[#070B14] p-1 shrink-0">
-          <button
-            type="button"
-            onClick={() => setRatio("9:16")}
-            className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
-              selectedRatio === "9:16"
-                ? "bg-[#FF5722] text-black shadow-md shadow-[#FF5722]/25 font-black"
-                : "text-slate-400 hover:text-white hover:bg-white/5"
-            }`}
-          >
-            <span>📱 9:16 Shorts (Up to 90s)</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setRatio("16:9")}
-            className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
-              selectedRatio === "16:9"
-                ? "bg-purple-600 text-white shadow-md shadow-purple-500/25 font-black"
-                : "text-slate-400 hover:text-white hover:bg-white/5"
-            }`}
-          >
-            <span>🎬 16:9 Cinema (Up to 5 min)</span>
-          </button>
+        {/* Strictly 9:16 Vertical Reel Format Badge (Rule 4.1) */}
+        <div className="flex items-center gap-1.5 rounded-2xl border border-white/10 bg-[#070B14] px-3.5 py-1.5 shrink-0">
+          <span className="text-xs font-black text-[#FF5722] flex items-center gap-1.5">
+            <span>📱 9:16 Vertical Only • Up to 90s</span>
+          </span>
         </div>
       </div>
 

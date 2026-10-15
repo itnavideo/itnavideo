@@ -23,6 +23,7 @@ import {
   Layers3
 } from "lucide-react";
 import CinematicRenderProgress from "@/components/dashboard/CinematicRenderProgress";
+import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine";
 
 
 type BillingEntitlement = {
@@ -452,91 +453,49 @@ export default function TypographyVideoPage() {
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 space-y-6">
 
         {/* Dynamic Stepper Overlay during Render - Zero Blue Cinematic Render Screen */}
-        {jobStatus.state !== "idle" && jobStatus.state !== "ready" && (
-          <CinematicRenderProgress
-            title="Kinetic Typography Video"
-            subtitle="Building your 30 FPS vertical reel with dynamic kinetic typography, spring physics & synced SFX."
-            modeLabel="9:16 Kinetic Typography Studio"
-            progress={jobStatus.progress}
-            isIndeterminate={jobStatus.progress === undefined}
-            statusMessage={jobStatus.message}
-            elapsedSeconds={elapsedSeconds}
-            steps={TYPO_RENDER_STEPS}
-            isError={jobStatus.state === "error"}
-            errorMessage={jobStatus.message}
-            onRetry={() => handleStartRender()}
-            onReset={() => setJobStatus({ state: "idle" })}
-            showTipsCarousel={true}
-          />
-        )}
-
-
-        {/* Ready Download Preview Stage - Kept dark for video contrast */}
-        {jobStatus.state === "ready" && jobStatus.outputFile && (
-          <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-2xl max-w-2xl mx-auto text-center space-y-6 text-white">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
-              <CheckCircle2 size={28} />
-            </div>
-            <div className="space-y-1.5">
-              <h3 className="text-lg font-black text-white">Kinetic Typography Reel is Ready!</h3>
-              <p className="text-xs text-zinc-400">Your lyric-synced video export has successfully generated.</p>
-            </div>
-
-            <video
-              src={jobStatus.outputFile}
-              controls
-              className="mx-auto h-[480px] w-auto rounded-2xl bg-black border border-slate-800 shadow-2xl"
+        {/* Dynamic Stepper Overlay during Render - Unified InteractiveRenderEngine */}
+        {jobStatus.state !== "idle" ? (
+          <div className="max-w-4xl mx-auto py-4">
+            <InteractiveRenderEngine
+              mode="typography"
+              status={jobStatus}
+              title={jobStatus.title || selectedFile?.name?.replace(/\.[^/.]+$/, "") || "Kinetic Typography Video"}
+              fileName={selectedFile?.name}
+              onRetry={handleStartRender}
+              onReset={() => {
+                setSelectedFile(null);
+                setJobStatus({ state: "idle" });
+              }}
+              onCancel={() => {
+                renderRequestInFlightRef.current = false;
+                setJobStatus({ state: "idle" });
+              }}
             />
-
-            <div className="flex flex-col sm:flex-row gap-3 items-center justify-center pt-2">
-              <a
-                href={jobStatus.outputFile}
-                download={jobStatus.title ? `${jobStatus.title}.mp4` : "typography-reel.mp4"}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#FF5722] to-[#FF7043] px-6 py-3 text-xs font-black text-black shadow-lg shadow-[#FF5722]/25 transition hover:brightness-110 active:scale-95"
-              >
-                <Download size={14} />
-                <span>Download Kinetic Video</span>
-              </a>
-              <button
-                onClick={() => {
-                  setSelectedFile(null);
-                  setJobStatus({ state: "idle" });
-                }}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full border border-slate-700 bg-white/5 hover:bg-white/10 px-6 py-3 text-xs font-bold text-zinc-300 transition active:scale-95"
-              >
-                <RefreshCw size={14} />
-                <span>Create New Video</span>
-              </button>
-            </div>
           </div>
-        )}
-
-        {/* Primary Views */}
-        {jobStatus.state === "idle" && (
-          <>
-            {activeTab === "studio" && (
-              <TypographyStudio
-                selectedFile={selectedFile}
-                onSelectFile={setSelectedFile}
-                scriptText={scriptText}
-                onScriptTextChange={setScriptText}
-                narrationMode={narrationMode}
-                onNarrationModeChange={setNarrationMode}
-                selectedVoice={selectedVoice}
-                onSelectVoiceChange={setSelectedVoice}
-                typographyStyle={typographyStyle}
-                onTypographyStyleChange={setTypographyStyle}
-                typographySfxIntensity={typographySfxIntensity}
-                onTypographySfxIntensityChange={setTypographySfxIntensity}
-                typographyPacing={typographyPacing}
-                onTypographyPacingChange={setTypographyPacing}
-                typographyTextCase={typographyTextCase}
-                onTypographyTextCaseChange={setTypographyTextCase}
-                onGenerate={handleStartRender}
-                isGenerating={false}
-              />
-            )}
-          </>
+        ) : (
+          /* Primary Views */
+          activeTab === "studio" && (
+            <TypographyStudio
+              selectedFile={selectedFile}
+              onSelectFile={setSelectedFile}
+              scriptText={scriptText}
+              onScriptTextChange={setScriptText}
+              narrationMode={narrationMode}
+              onNarrationModeChange={setNarrationMode}
+              selectedVoice={selectedVoice}
+              onSelectVoiceChange={setSelectedVoice}
+              typographyStyle={typographyStyle}
+              onTypographyStyleChange={setTypographyStyle}
+              typographySfxIntensity={typographySfxIntensity}
+              onTypographySfxIntensityChange={setTypographySfxIntensity}
+              typographyPacing={typographyPacing}
+              onTypographyPacingChange={setTypographyPacing}
+              typographyTextCase={typographyTextCase}
+              onTypographyTextCaseChange={setTypographyTextCase}
+              onGenerate={handleStartRender}
+              isGenerating={renderRequestInFlightRef.current}
+            />
+          )
         )}
       </div>
     </main>

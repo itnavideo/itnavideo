@@ -1325,6 +1325,7 @@ export async function POST(request: Request) {
       const bsAspectRatio: '16:9' = '16:9';
 
       const inputProps: Record<string, unknown> = {
+        mediaSrc: mediaUrl,
         audioUrl: mediaUrl,
         audioSrc: mediaUrl,
         bgmUrl: finalBgmUrl,
@@ -1342,6 +1343,7 @@ export async function POST(request: Request) {
         aspectRatio: bsAspectRatio,
         compositionId: composition,
         templateName,
+        template: templateName,
       };
 
       const preflight = validateBeforeRender({ inputProps, templateName, composition, mediaType });
@@ -3932,7 +3934,8 @@ function validateBeforeRender({
     };
   }
 
-  if (readString(inputProps.templateName) !== templateName || readString(inputProps.template) !== templateName) {
+  const propTemplateName = readString(inputProps.templateName) || readString(inputProps.template);
+  if (!propTemplateName || propTemplateName !== templateName) {
     return {
       reasonCode: 'TEMPLATE_PROPS_MISMATCH',
       message: 'The planned video type does not match the selected render video type.',
@@ -3963,7 +3966,8 @@ function validateBeforeRender({
     };
   }
 
-  if (!readString(inputProps.mediaSrc)) {
+  const effectiveMediaSrc = readString(inputProps.mediaSrc) || readString(inputProps.audioUrl) || readString(inputProps.videoUrl) || readString(inputProps.audioSrc);
+  if (!effectiveMediaSrc) {
     return {
       reasonCode: 'MISSING_MEDIA_SOURCE',
       message: `${humanTemplateName(templateName)} needs uploaded media before render.`,
@@ -3995,6 +3999,7 @@ function validateBeforeRender({
 }
 
 function humanTemplateName(templateName: string) {
+  if (templateName === 'BOOK_SUMMARY') return 'Book Summary Video';
   if (templateName === 'YOUTUBE_SUBTITLE_GENERATOR') return 'YouTube Subtitle Generator';
   if (templateName === 'IMAGE_TO_VIDEO_AI') return 'Image to Video AI';
   if (templateName === 'AUTO_CAPTION_GENERATOR') return 'Auto Caption Generator';

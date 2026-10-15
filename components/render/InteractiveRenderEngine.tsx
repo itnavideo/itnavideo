@@ -23,6 +23,7 @@ import {
   Share2,
   Play,
   Zap,
+  ShieldCheck,
 } from 'lucide-react';
 import {
   requestNotificationPermission,
@@ -37,7 +38,7 @@ export type Mode = string;
 
 export interface JobStatus {
   state: 'idle' | 'uploading' | 'starting' | 'rendering' | 'ready' | 'error';
-  message: string;
+  message?: string;
   progress?: number;
   outputFile?: string;
   jobId?: string;
@@ -176,11 +177,13 @@ function getModeSteps(mode: string): StepDef[] {
 }
 
 const ENGINE_CREATOR_TIPS = [
-  { kicker: "YOUTUBE RETENTION SECRET", tip: "Cutting to new B-roll every 3–4 seconds keeps viewer retention 2.4× higher than static scenes." },
-  { kicker: "AUDIO DUCKING FORMULA", tip: "Ducking background music by -14dB while speech is active gives your voiceover crisp documentary authority." },
+  { kicker: "VIRAL RETENTION SECRET", tip: "Cutting to new B-roll every 3–4 seconds keeps viewer retention 2.4× higher than static scenes." },
   { kicker: "FIRST 3 SECONDS HOOK", tip: "80% of short-form viewers decide to keep watching in the first 3 seconds — make your opening scene punchy." },
+  { kicker: "AUDIO DUCKING FORMULA", tip: "Ducking background music by -14dB while speech is active gives your voiceover crisp documentary authority." },
   { kicker: "CINEMATIC KEN BURNS MOTION", tip: "Subtle zoom drift (1.0× to 1.15×) glues audience eyes to the frame without causing visual motion fatigue." },
-  { kicker: "CLOUD SPEED", tip: "AWS Lambda Remotion instances compose 1080p frames simultaneously across 200+ cloud cores." },
+  { kicker: "HIGH-CONTRAST SUBTITLES", tip: "Bright yellow and orange kinetic word highlights improve mobile comprehension by 38% in silent autoplay feeds." },
+  { kicker: "CLOUD SPEED ENGINE", tip: "AWS Lambda Remotion instances compose 1080p frames simultaneously across 200+ cloud cores." },
+  { kicker: "BROADCAST AUDIO STANDARD", tip: "Normalizing voiceover audio to -14 LUFS (EBU R128 standard) ensures pristine vocal presence across smartphone speakers." },
 ];
 
 export default function InteractiveRenderEngine({
@@ -353,7 +356,7 @@ export default function InteractiveRenderEngine({
   const CurrentStepIcon = steps[activeStepIndex]?.icon || Sparkles;
 
   return (
-    <div className="relative w-full max-w-2xl mx-auto rounded-[28px] border border-white/10 bg-[#0B0D13]/98 p-5 sm:p-7 text-white shadow-2xl space-y-5 font-sans select-none backdrop-blur-xl overflow-hidden">
+    <div className="relative w-full max-w-3xl mx-auto rounded-[28px] border border-white/10 bg-[#0E1526] p-6 sm:p-8 text-white shadow-2xl space-y-6 font-sans select-none backdrop-blur-xl overflow-hidden">
       
       {/* ── AMBIENT BORDER BEAM (Active Glow During Render) ── */}
       {!isFailed && !isReady && (
@@ -406,42 +409,49 @@ export default function InteractiveRenderEngine({
         </div>
       </div>
 
-      {/* ── M3 PREVIEW & STATUS CONTAINER ── */}
-      <div className="relative w-full rounded-2xl bg-[#12151F]/80 border border-white/10 overflow-hidden shadow-inner">
+      {/* ── UNIFIED SHOWCASE CONTAINER ── */}
+      <div className="relative w-full rounded-2xl bg-[#12151F]/90 border border-white/10 overflow-hidden shadow-inner">
         {isReady && status.outputFile ? (
           mode === 'audioClean' ? (
-            <div className="w-full flex flex-col items-center justify-center p-6 space-y-4 bg-gradient-to-b from-[#141722] to-[#0B0D13]">
-              <div className="w-14 h-14 rounded-2xl bg-[#FF5722]/10 border border-[#FF5722]/30 text-[#FF7043] flex items-center justify-center shadow-lg shadow-[#FF5722]/20">
-                <Mic size={26} />
+            <div className="w-full flex flex-col items-center justify-center p-8 space-y-4 bg-gradient-to-b from-[#181B26] to-[#0E1017] rounded-2xl border border-white/10 shadow-inner">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#FF5722]/20 to-[#FFA000]/20 border border-[#FF5722]/40 text-[#FFA000] flex items-center justify-center shadow-lg shadow-orange-500/20">
+                <Mic size={30} />
               </div>
               <div className="text-center space-y-1">
-                <p className="font-black text-sm text-white">Audio Cleaned &amp; Mastered</p>
-                <p className="text-xs text-slate-400">Silences trimmed • EBU R128 loudness normalized</p>
+                <p className="font-black text-base text-white">Audio Cleaned &amp; Mastered</p>
+                <p className="text-xs text-slate-400">Silences trimmed • EBU R128 loudness normalized • 320kbps MP3</p>
               </div>
               <audio src={status.outputFile} controls autoPlay className="w-full max-w-md mt-2" />
             </div>
           ) : (
-            <div className="relative w-full aspect-video max-h-[320px] bg-black flex items-center justify-center">
-              <video
-                src={status.outputFile}
-                controls
-                autoPlay
-                playsInline
-                className="w-full h-full object-contain"
-              />
+            <div className="p-4 sm:p-6 bg-gradient-to-b from-[#141722] to-[#0B0D13]">
+              <div className={`relative w-full ${
+                !['youtubeSubtitles', 'YOUTUBE_SUBTITLES', 'imageToVideoAi', 'IMAGE_TO_VIDEO_AI', 'facelessVideo', 'FACELESS_VIDEO', 'bookSummary', 'BOOK_SUMMARY'].includes(mode)
+                  ? 'aspect-[9/16] max-h-[460px] max-w-[270px] mx-auto rounded-2xl border-2 border-white/15'
+                  : 'aspect-video max-h-[360px] rounded-2xl border border-white/10'
+              } bg-black overflow-hidden shadow-2xl flex items-center justify-center`}>
+                <video
+                  src={status.outputFile}
+                  controls
+                  autoPlay
+                  playsInline
+                  className="w-full h-full object-contain"
+                />
+              </div>
             </div>
           )
         ) : isFailed ? (
-          <div className="p-6 text-center space-y-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 mx-auto flex items-center justify-center">
-              <AlertCircle size={24} />
+          <div className="p-6 sm:p-8 text-center space-y-4 bg-red-950/20 border border-red-500/30 rounded-2xl">
+            <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 mx-auto flex items-center justify-center shadow-lg shadow-red-500/10">
+              <AlertCircle size={28} />
             </div>
-            <div>
-              <p className="font-extrabold text-sm text-red-400">Render Interrupted</p>
-              <div className="mt-2 p-3 rounded-xl bg-red-950/80 border border-red-500/40 text-xs text-red-200 font-mono break-words max-w-md mx-auto shadow-inner">
-                {status.error || status.message || 'Error occurred during generation.'}
-              </div>
+            <div className="space-y-1.5 max-w-md mx-auto">
+              <h3 className="text-lg font-black text-white">Rendering Connection Interrupted</h3>
+              <p className="text-xs text-red-200 leading-relaxed font-medium">
+                {status.error || status.message || 'Error occurred during cloud generation. Your upload is safe.'}
+              </p>
             </div>
+
             {status.diagnostics && status.diagnostics.length > 0 ? (
               <details className="mt-2 text-left bg-[#0B0D13] rounded-xl p-3 border border-white/10 text-[10px] text-slate-400 max-w-md mx-auto">
                 <summary className="cursor-pointer font-mono font-bold text-slate-300 select-none">Technical Details</summary>
@@ -452,99 +462,103 @@ export default function InteractiveRenderEngine({
                 </div>
               </details>
             ) : null}
-            <button
-              onClick={onRetry}
-              className="px-6 py-2.5 bg-gradient-to-r from-red-600 to-red-500 hover:brightness-110 text-white rounded-2xl font-black text-xs transition-all inline-flex items-center gap-2 shadow-lg shadow-red-600/30 cursor-pointer active:scale-95"
-            >
-              <RotateCcw size={14} />
-              <span>Retry Render</span>
-            </button>
-          </div>
-        ) : (mode === 'whiteboard' || mode === 'whiteboardVideo' || mode === 'WHITEBOARD_VIDEO') ? (
 
-          /* Light Corporate Whiteboard Canvas Loader Theme */
-          <div className="p-6 sm:p-8 flex flex-col items-center justify-center text-center space-y-4 bg-[#F8FAFC] border-2 border-slate-300/80 rounded-xl shadow-inner text-slate-900 relative overflow-hidden">
-            {/* Subtle Titanium Board Border Accent */}
-            <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-slate-400 via-slate-300 to-slate-400" />
-
-            {/* Central Animated Whiteboard Marker Centerpiece */}
-            <div className="relative">
-              <div className="w-20 h-20 rounded-2xl bg-white border-2 border-slate-200 flex items-center justify-center text-[#1E3A8A] shadow-md relative">
-                <span className="text-3xl animate-bounce">✍️</span>
-              </div>
-              <span className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-[#1E3A8A] text-[10px] font-black text-white shadow-md">
-                {activeStepIndex + 1}
-              </span>
+            {/* Reassuring Zero-Credit Deducted Safety Badge */}
+            <div className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-black/40 px-4 py-2 text-xs text-zinc-300">
+              <Zap size={14} className="text-[#FFA000]" />
+              <span>Zero credits deducted for interrupted or failed render attempts.</span>
             </div>
 
-            <div className="space-y-1 max-w-sm">
-              <p className="text-sm font-black text-slate-900 tracking-wide truncate">{displayTitle}</p>
-              <p className="text-xs text-[#1E3A8A] font-extrabold">
-                {status.message || steps[activeStepIndex]?.label || 'Drawing your whiteboard video...'}
-              </p>
-              <p className="text-[11px] text-slate-600 font-medium">
-                {steps[activeStepIndex]?.detail || 'Creating handwritten visual concepts'}
-              </p>
-            </div>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={onRetry}
+                className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] hover:brightness-110 text-black rounded-xl font-black text-xs transition-all inline-flex items-center justify-center gap-2 shadow-lg shadow-orange-500/25 cursor-pointer active:scale-95"
+              >
+                <RotateCcw size={14} />
+                <span>Retry Generation Now</span>
+              </button>
 
-            {/* Light Canvas Timer Pill & Progress */}
-            <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-300 text-[11px] font-bold text-slate-700 shadow-sm">
-                <Clock size={12} className="text-[#1E3A8A] animate-pulse" />
-                <span>Elapsed: <span className="font-mono text-slate-900">{formatTimer(liveElapsed)}</span></span>
-                <span className="text-slate-300">•</span>
-                <span>Est: <span className="text-[#1E3A8A] font-semibold">{formatTimeRemaining(secondsRemaining)}</span></span>
-              </div>
-
-              {onCancel && (status.state === 'idle' || status.state === 'error') && (
-                <button
-                  type="button"
-                  onClick={onCancel}
-                  className="px-3.5 py-1.5 rounded-full bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 text-[11px] font-bold transition-all inline-flex items-center gap-1.5 shadow-sm active:scale-95 cursor-pointer"
-                  title="Cancel active generation"
-                >
-                  <X size={13} className="text-red-600" />
-                  <span>Cancel / Stop</span>
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={onReset}
+                className="w-full sm:w-auto px-5 py-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold text-xs transition-all inline-flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+              >
+                <span>Edit Media &amp; Setup</span>
+              </button>
             </div>
           </div>
         ) : (
-          /* M3 Waiting & Rendering State (Warm Orange + Waveform Equalizer) */
-          <div className="p-6 sm:p-8 flex flex-col items-center justify-center text-center space-y-4 bg-gradient-to-b from-[#141722]/90 via-[#141722]/50 to-[#0B0D13]">
+          /* ── UNIFIED CINEMATIC APERTURE RING & LIVE METRICS SHOWCASE ── */
+          <div className="relative rounded-2xl border border-white/[0.08] bg-[#12151F]/90 p-6 sm:p-8 space-y-6 text-center shadow-inner overflow-hidden">
             
-            {/* Shimmering Ambient Glow Pulse & Central Animated Stage Icon */}
-            <div className="relative">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-[#FF5722]/20 via-[#FF7043]/20 to-[#FFA000]/20 border border-[#FF5722]/40 flex items-center justify-center text-[#FF7043] shadow-[0_0_35px_rgba(255,109,0,0.25)]">
-                <CurrentStepIcon size={32} className="animate-pulse" />
+            {/* Central Animated Aperture & Progress Ring */}
+            <div className="relative mx-auto flex h-28 w-28 sm:h-32 sm:w-32 items-center justify-center">
+              {/* Outer Breathing Ring */}
+              <div className="absolute inset-0 rounded-full border-2 border-[#FF5722]/20 animate-ping opacity-25" />
+
+              {/* Glowing Conic Border Halo */}
+              <div
+                className="absolute inset-1 rounded-full p-[2px] animate-spin"
+                style={{
+                  animationDuration: '6s',
+                  background: 'conic-gradient(from 0deg, #FF5722, #FFA000, transparent 60%)',
+                }}
+              >
+                <div className="h-full w-full rounded-full bg-[#12151F]" />
               </div>
-              <span className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-[10px] font-black text-black shadow-md">
-                {activeStepIndex + 1}
-              </span>
+
+              {/* Inner Dark Core */}
+              <div className="relative flex h-24 w-24 sm:h-28 sm:w-28 flex-col items-center justify-center rounded-full bg-gradient-to-b from-[#181B26] to-[#0E1017] border border-white/10 shadow-2xl">
+                <span className="font-mono text-2xl sm:text-3xl font-black text-white tracking-tight">
+                  {percentage}%
+                </span>
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#FFA000]">
+                  {percentage >= 90 ? 'Finishing' : percentage >= 40 ? 'Composing' : 'Ingesting'}
+                </span>
+              </div>
             </div>
 
-            <div className="space-y-1 max-w-sm">
-              <p className="text-sm font-black text-white tracking-wide truncate">{displayTitle}</p>
-              <p className="text-xs text-[#FF9100] font-bold">
-                {status.message || steps[activeStepIndex]?.label || 'Processing video scenes...'}
+            {/* Current Message & Status Headline */}
+            <div className="space-y-1.5 max-w-lg mx-auto">
+              <h3 className="text-base sm:text-lg font-black text-white tracking-normal truncate">
+                {displayTitle}
+              </h3>
+              <p className="text-xs sm:text-sm text-[#FF9100] font-bold">
+                {status.message || steps[activeStepIndex]?.label || 'Rendering your video in cloud...'}
               </p>
-              <p className="text-[11px] text-slate-400">
-                {steps[activeStepIndex]?.detail || 'AWS Lambda 1080p Cloud Node'}
+              <p className="text-xs text-zinc-300 font-medium leading-relaxed">
+                {steps[activeStepIndex]?.detail || 'AWS Lambda 1080p 30 FPS Remotion cluster node'}
               </p>
             </div>
 
-            {/* Audio Spectrum Wave & Live Timer Pill */}
+            {/* Dynamic Audio Spectrum Waveform Visualizer */}
+            <div className="flex items-center justify-center pt-1">
+              <AudioSpectrumVisualizer isPlaying={true} isTranscribing={percentage < 50} barCount={18} />
+            </div>
+
+            {/* Dual Timing Pill & Fail-Safe Cloud Badge */}
             <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
-              <AudioSpectrumVisualizer isPlaying={true} isTranscribing={percentage < 50} barCount={14} />
-              
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0B0D13] border border-[#FF5722]/30 text-[11px] font-bold text-slate-300 shadow-lg">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-3.5 py-1.5 text-[11px] font-bold text-zinc-300 shadow-sm">
                 <Clock size={12} className="text-[#FF7043] animate-pulse" />
-                <span>Elapsed: <span className="font-mono text-white">{formatTimer(liveElapsed)}</span></span>
-                <span className="text-slate-600">•</span>
-                <span>Est: <span className="text-[#FFA000]">{formatTimeRemaining(secondsRemaining)}</span></span>
+                <span>
+                  Elapsed: <span className="font-mono text-white">{formatTimer(liveElapsed)}</span>
+                </span>
+                <span className="text-zinc-600">•</span>
+                <span>
+                  Est. Remaining:{' '}
+                  <span className="text-[#FFA000] font-extrabold">
+                    {formatTimeRemaining(secondsRemaining)}
+                  </span>
+                </span>
               </div>
 
-              {onCancel && (status.state === 'idle' || status.state === 'error') && (
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-[11px] font-bold text-emerald-400">
+                <ShieldCheck size={13} />
+                <span>Fail-Safe Cloud Render</span>
+              </div>
+
+              {onCancel && !isReady && (
                 <button
                   type="button"
                   onClick={onCancel}
@@ -552,7 +566,7 @@ export default function InteractiveRenderEngine({
                   title="Cancel active generation and release resources"
                 >
                   <X size={13} className="text-red-400" />
-                  <span>Cancel / Stop Process</span>
+                  <span>Cancel Rendering</span>
                 </button>
               )}
             </div>
@@ -560,62 +574,66 @@ export default function InteractiveRenderEngine({
         )}
       </div>
 
-      {/* ── M3 LINEAR PROGRESS BAR ── */}
+      {/* ── UNIFIED LINEAR GLOWING PROGRESS TRACK ── */}
       {!isFailed && (
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-[11px] font-bold px-1">
-            <span className="text-slate-300 flex items-center gap-1.5">
+          <div className="flex items-center justify-between text-xs font-bold px-1">
+            <span className="text-slate-300 flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-[#FF5722] animate-pulse" />
-              <span>{isReady ? 'Render Finished ✓' : `Step ${activeStepIndex + 1} of ${steps.length}: ${steps[activeStepIndex]?.label}`}</span>
+              <span>{isReady ? 'Render Finished ✓' : `Stage ${activeStepIndex + 1} of ${steps.length}: ${steps[activeStepIndex]?.label}`}</span>
             </span>
-            <span className="font-mono text-xs font-black text-[#FF9100]">
+            <span className="font-mono text-sm font-black text-[#FFA000]">
               {percentage}%
             </span>
           </div>
 
-          <div className="w-full h-2.5 bg-[#0B0D13] rounded-full overflow-hidden border border-white/10 p-0.5 shadow-inner">
+          <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-black/60 border border-white/10 p-0.5 shadow-inner">
             <div
-              className="h-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] rounded-full transition-all duration-300 shadow-[0_0_14px_rgba(255,109,0,0.5)]"
+              className="h-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] rounded-full transition-all duration-300 shadow-[0_0_14px_rgba(255,109,0,0.6)]"
               style={{ width: `${Math.max(4, percentage)}%` }}
             />
           </div>
         </div>
       )}
 
-      {/* ── M3 COMPACT 4-STEP HORIZONTAL STEPPER (With Warm Glow & Crisp Icons) ── */}
+      {/* ── UNIFIED HORIZONTAL PIPELINE STEPPER CARDS ── */}
       {!isFailed && (
-        <div className="grid grid-cols-4 gap-2 pt-1">
+        <div className={`grid grid-cols-2 sm:grid-cols-4 ${steps.length === 5 ? 'lg:grid-cols-5' : ''} gap-2.5 pt-1`}>
           {steps.map((step, idx) => {
             const isCompleted = percentage >= step.doneAt || isReady;
             const isCurrent = !isCompleted && idx === activeStepIndex;
-            const StepIcon = step.icon;
+            const StepIcon = step.icon || Sparkles;
 
             return (
               <div
                 key={idx}
-                className={`flex flex-col items-center justify-center p-2.5 rounded-2xl border text-center transition-all ${
+                className={`flex flex-col items-center justify-center p-3 rounded-2xl border text-center transition-all ${
                   isCompleted
                     ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 shadow-sm'
                     : isCurrent
-                    ? 'bg-[#FF5722]/15 border-[#FF5722]/60 text-[#FFA000] ring-1 ring-[#FF5722]/30 shadow-md shadow-[#FF5722]/10'
-                    : 'bg-[#141722]/50 border-white/5 text-slate-500'
+                    ? 'bg-gradient-to-b from-orange-500/15 to-amber-500/10 border-[#FF5722] ring-2 ring-orange-500/30 text-[#FFA000] shadow-lg shadow-orange-500/15'
+                    : 'bg-[#12151F]/60 border-white/5 text-slate-500'
                 }`}
               >
-                <div className="flex items-center gap-1 mb-1">
+                <div className="flex items-center gap-1.5 mb-1.5">
                   <span
-                    className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black ${
+                    className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black shadow-sm ${
                       isCompleted
                         ? 'bg-emerald-400 text-black'
                         : isCurrent
-                        ? 'bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black animate-pulse'
+                        ? 'bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-black animate-pulse'
                         : 'bg-[#141722] text-slate-400 border border-white/10'
                     }`}
                   >
-                    {isCompleted ? <Check size={11} strokeWidth={3} /> : idx + 1}
+                    {isCompleted ? <Check size={12} strokeWidth={3} /> : idx + 1}
                   </span>
+                  <StepIcon size={13} className={isCompleted ? 'text-emerald-400' : isCurrent ? 'text-[#FFA000]' : 'text-slate-500'} />
                 </div>
-                <span className="text-[10px] font-black leading-tight truncate w-full">
+                <span className="text-[11px] font-black leading-tight truncate w-full">
                   {step.shortLabel}
+                </span>
+                <span className="text-[9px] text-slate-400 truncate w-full mt-0.5">
+                  {isCompleted ? 'Done ✓' : isCurrent ? 'Rendering...' : 'Waiting'}
                 </span>
               </div>
             );
@@ -623,16 +641,16 @@ export default function InteractiveRenderEngine({
         </div>
       )}
 
-      {/* ── ROTATING CREATOR TIPS & RETENTION INSIGHTS (ANTI-BOREDOM CAROUSEL) ── */}
+      {/* ── ROTATING CREATOR RETENTION SECRETS & TIPS (ANTI-BOREDOM CAROUSEL) ── */}
       {!isFailed && !isReady && (
-        <div className="rounded-2xl border border-orange-500/20 bg-gradient-to-r from-orange-500/[0.08] via-amber-500/[0.04] to-transparent p-3.5 space-y-1.5 animate-in fade-in">
+        <div className="rounded-2xl border border-orange-500/20 bg-gradient-to-r from-orange-500/[0.08] via-amber-500/[0.04] to-transparent p-4 space-y-1.5 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-[#FFA000]">
-              <Sparkles size={11} className="text-[#FF5722]" />
+            <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-[#FFA000]">
+              <Sparkles size={12} className="text-[#FF5722]" />
               <span>{ENGINE_CREATOR_TIPS[currentTipIdx]?.kicker}</span>
             </span>
-            <span className="text-[9px] font-mono font-bold text-zinc-500">
-              Tip {currentTipIdx + 1}/{ENGINE_CREATOR_TIPS.length}
+            <span className="text-[10px] font-mono font-bold text-zinc-500">
+              Insight {currentTipIdx + 1}/{ENGINE_CREATOR_TIPS.length}
             </span>
           </div>
           <p className="text-xs text-zinc-200 font-medium leading-relaxed">
@@ -641,27 +659,82 @@ export default function InteractiveRenderEngine({
         </div>
       )}
 
+      {/* ── MULTI-CLIPS GRID (WHEN MODE HAS CLIPS E.G. LONG VIDEO CLIPS) ── */}
+      {status.clips && status.clips.length > 0 && (
+        <div className="rounded-2xl border border-white/10 bg-[#141722]/80 p-4 space-y-3">
+          <div className="flex items-center justify-between text-xs font-bold text-zinc-300">
+            <span className="flex items-center gap-1.5">
+              <Film size={14} className="text-[#FF7043]" />
+              <span>Extracted Shorts Clips ({status.clips.length})</span>
+            </span>
+            <span className="text-emerald-400 font-semibold">
+              {status.clips.filter((c) => c.status === 'done').length} / {status.clips.length} Ready
+            </span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-56 overflow-y-auto pr-1">
+            {status.clips.map((clip, idx) => (
+              <div
+                key={clip.renderId || idx}
+                className="rounded-xl border border-white/5 bg-black/40 p-3 flex items-center justify-between gap-3 text-xs"
+              >
+                <div className="min-w-0">
+                  <p className="font-bold text-white truncate">{clip.title || `Clip ${idx + 1}`}</p>
+                  <p className="text-[10px] text-zinc-400 mt-0.5">
+                    {clip.durationSeconds ? `${Math.round(clip.durationSeconds)}s` : 'Shorts Segment'}
+                  </p>
+                </div>
+                {clip.outputFile || clip.outputUrl ? (
+                  <button
+                    type="button"
+                    onClick={() => downloadDirectly(clip.outputFile || clip.outputUrl!, `clip-${idx + 1}.mp4`)}
+                    className="px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/25 text-[10px] font-bold inline-flex items-center gap-1 transition"
+                  >
+                    <Download size={11} />
+                    <span>Download</span>
+                  </button>
+                ) : (
+                  <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-amber-500/10 text-amber-300 border border-amber-500/30">
+                    {clip.status || 'rendering'}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* ── M3 ACTIONS AREA (WHEN READY) ── */}
       {isReady && status.outputFile ? (
         <div className="space-y-3 pt-2 animate-in fade-in duration-300">
-          <button
-            type="button"
-            onClick={() => downloadDirectly(status.outputFile!, mode === 'audioClean' ? 'itnavideo-clean-studio-audio.mp3' : `itnavideo-${mode || 'reel'}-1080p.mp4`)}
-            disabled={isDownloading}
-            className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] hover:brightness-110 text-black font-black text-sm transition-all flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(255,109,0,0.35)] cursor-pointer disabled:opacity-50 active:scale-95"
-          >
-            {isDownloading ? (
-              <>
-                <div className="h-4 w-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                <span>Downloading 1080p Video...</span>
-              </>
-            ) : (
-              <>
-                <Download size={18} />
-                <span>{mode === 'audioClean' ? 'Download Studio Master (MP3)' : 'Download Ready 1080p MP4'}</span>
-              </>
-            )}
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              type="button"
+              onClick={() => downloadDirectly(status.outputFile!, mode === 'audioClean' ? 'itnavideo-clean-studio-audio.mp3' : `itnavideo-${mode || 'reel'}-1080p.mp4`)}
+              disabled={isDownloading}
+              className="flex-1 py-4 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] hover:brightness-110 text-black font-black text-sm transition-all flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(255,109,0,0.35)] cursor-pointer disabled:opacity-50 active:scale-95"
+            >
+              {isDownloading ? (
+                <>
+                  <div className="h-4 w-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                  <span>Downloading 1080p Video...</span>
+                </>
+              ) : (
+                <>
+                  <Download size={18} />
+                  <span>{mode === 'audioClean' ? 'Download Studio Master (MP3)' : 'Download Ready 1080p MP4'}</span>
+                </>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={onReset}
+              className="sm:w-auto px-6 py-4 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 whitespace-nowrap"
+            >
+              <RotateCcw size={15} />
+              <span>Create Another Video</span>
+            </button>
+          </div>
 
           {/* Collapsible Social Title & Caption Accordion */}
           <div className="rounded-2xl border border-white/10 bg-[#141722]/60 overflow-hidden">
@@ -734,7 +807,9 @@ export default function InteractiveRenderEngine({
           <div className="mt-2.5 p-3.5 rounded-2xl bg-[#151E30] border border-white/10 text-[11px] space-y-2">
             <div className="flex items-center justify-between text-slate-400">
               <span>Resolution</span>
-              <span className="font-mono text-white font-bold">1080p Full HD ({mode === 'youtubeSubtitles' || mode === 'imageToVideoAi' ? '1920×1080' : '1080×1920'})</span>
+              <span className="font-mono text-white font-bold">
+                1080p Full HD ({['youtubeSubtitles', 'YOUTUBE_SUBTITLES', 'imageToVideoAi', 'IMAGE_TO_VIDEO_AI', 'facelessVideo', 'FACELESS_VIDEO', 'bookSummary', 'BOOK_SUMMARY'].includes(mode) ? '1920×1080 Widescreen' : '1080×1920 Vertical'})
+              </span>
             </div>
             <div className="flex items-center justify-between text-slate-400">
               <span>Frame Rate</span>

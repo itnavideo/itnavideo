@@ -50,28 +50,28 @@ export default function GeneratedVideosTab({
   return (
     <div className="space-y-8 animate-fadeIn">
       {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-[28px] bg-white border border-slate-200/90 p-6 sm:p-8 shadow-xl">
+      <div className="relative overflow-hidden rounded-[28px] bg-[#0D111D] border border-white/10 p-6 sm:p-8 shadow-2xl">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-emerald-700 mb-3">
-              <Video size={14} className="text-emerald-600" />
-              <span>Export History & Cloud Library</span>
+            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-emerald-400 mb-3">
+              <Video size={14} className="text-emerald-400" />
+              <span>Export History &amp; Cloud Library</span>
             </div>
-            <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
+            <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
               Generated{" "}
-              <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
                 1080p MP4 Videos
               </span>
             </h1>
-            <p className="mt-2 text-xs sm:text-sm text-slate-600 max-w-xl">
+            <p className="mt-2 text-xs sm:text-sm text-zinc-400 max-w-xl">
               Access your cloud-rendered master files. All videos are rendered at 1080p Full HD 30/60 FPS with zero watermarks.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-center min-w-[100px]">
-              <div className="text-2xl font-black text-slate-900">{renders.length}</div>
-              <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+            <div className="rounded-2xl border border-white/10 bg-[#121624] p-3 text-center min-w-[100px]">
+              <div className="text-2xl font-black text-white">{renders.length}</div>
+              <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
                 Total Exports
               </div>
             </div>
@@ -87,10 +87,10 @@ export default function GeneratedVideosTab({
             return (
               <div
                 key={render.id || index}
-                className="group relative flex flex-col justify-between rounded-[24px] bg-white border border-slate-200 hover:border-emerald-500/60 p-5 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 hover:-translate-y-1.5 overflow-hidden"
+                className="group relative flex flex-col justify-between rounded-[24px] bg-[#121624] border border-white/10 hover:border-emerald-500/60 p-5 shadow-lg hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 hover:-translate-y-1.5 overflow-hidden"
               >
                 {/* Video Preview / Mock Stage */}
-                <div className="relative aspect-video w-full rounded-xl bg-[#070B14] border border-slate-800 overflow-hidden mb-4 flex items-center justify-center group/stage">
+                <div className="relative aspect-video w-full rounded-xl bg-[#070B14] border border-white/10 overflow-hidden mb-4 flex items-center justify-center group/stage">
                   {render.videoUrl ? (
                     <video
                       src={render.videoUrl}
@@ -99,7 +99,7 @@ export default function GeneratedVideosTab({
                       preload="metadata"
                     />
                   ) : (
-                    <div className="flex flex-col items-center gap-2 text-slate-400">
+                    <div className="flex flex-col items-center gap-2 text-zinc-400">
                       <Film size={32} className="text-[#FF5722]" />
                       <span className="text-xs font-semibold">1080p Master Video</span>
                     </div>
@@ -109,7 +109,7 @@ export default function GeneratedVideosTab({
                   {render.videoUrl && (
                     <button
                       onClick={() => setSelectedVideo(render.videoUrl || null)}
-                      className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover/stage:opacity-100 transition-opacity backdrop-blur-xs"
+                      className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover/stage:opacity-100 transition-opacity backdrop-blur-xs cursor-pointer"
                     >
                       <div className="w-12 h-12 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/40 hover:scale-110 transition-transform">
                         <Play size={20} className="fill-white ml-0.5" />
@@ -117,36 +117,36 @@ export default function GeneratedVideosTab({
                     </button>
                   )}
 
-                  <span className="absolute top-2.5 right-2.5 text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-emerald-400 border border-emerald-500/30">
+                  <span className="absolute top-2.5 right-2.5 text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-black/80 backdrop-blur-md text-emerald-400 border border-emerald-500/30">
                     1080p Ready
                   </span>
                 </div>
 
                 {/* Details */}
                 <div className="space-y-1.5 mb-4">
-                  <h3 className="text-sm font-black text-slate-900 truncate">
+                  <h3 className="text-sm font-black text-white truncate">
                     {render.templateName || "1080p AI Video Export"}
                   </h3>
-                  <div className="flex items-center gap-3 text-[11px] text-slate-500">
+                  <div className="flex items-center gap-3 text-[11px] text-zinc-400">
                     <span className="flex items-center gap-1">
-                      <Clock size={12} className="text-emerald-600" />
+                      <Clock size={12} className="text-emerald-400" />
                       {render.createdAt
                         ? new Date(render.createdAt).toLocaleDateString()
                         : "Recently Rendered"}
                     </span>
                     <span>•</span>
-                    <span className="text-emerald-600 font-bold">Full HD MP4</span>
+                    <span className="text-emerald-400 font-bold">Full HD MP4</span>
                   </div>
                 </div>
 
                 {/* Actions */}
-                <div className="grid grid-cols-2 gap-2 pt-3 border-t border-slate-100">
+                <div className="grid grid-cols-2 gap-2 pt-3 border-t border-white/10">
                   <a
                     href={downloadLink}
                     download
                     target="_blank"
                     rel="noreferrer"
-                    className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20 hover:brightness-110 transition"
+                    className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20 hover:brightness-110 transition cursor-pointer"
                   >
                     <Download size={14} />
                     <span>Download</span>
@@ -155,9 +155,9 @@ export default function GeneratedVideosTab({
                   {render.videoUrl && (
                     <button
                       onClick={() => handleCopyLink(render.videoUrl!, render.id)}
-                      className="py-2.5 px-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 transition"
+                      className="py-2.5 px-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
                     >
-                      <Share2 size={13} className="text-emerald-600" />
+                      <Share2 size={13} className="text-emerald-400" />
                       <span>{copiedId === render.id ? "Copied!" : "Share Link"}</span>
                     </button>
                   )}
@@ -168,41 +168,41 @@ export default function GeneratedVideosTab({
         </div>
       ) : (
         /* Empty State */
-        <div className="relative overflow-hidden rounded-[28px] bg-white border border-slate-200 p-10 text-center max-w-2xl mx-auto shadow-xl">
+        <div className="relative overflow-hidden rounded-[28px] bg-[#0D111D] border border-white/10 p-10 text-center max-w-2xl mx-auto shadow-2xl">
           <div className="w-16 h-16 rounded-2xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-[#FF5722] mx-auto mb-4 shadow-lg shadow-orange-500/10">
             <Film size={32} />
           </div>
 
-          <h3 className="text-xl font-black text-slate-900">No Rendered Videos Yet</h3>
-          <p className="mt-2 text-xs sm:text-sm text-slate-600 max-w-md mx-auto">
+          <h3 className="text-xl font-black text-white">No Rendered Videos Yet</h3>
+          <p className="mt-2 text-xs sm:text-sm text-zinc-400 max-w-md mx-auto">
             Pick any creation studio from the sidebar or choose a quick-start template below to render your first 1080p MP4.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6 text-left max-w-lg mx-auto">
             <Link
               href="/dashboard/auto-caption-reel"
-              className="p-3.5 rounded-2xl bg-slate-50 hover:bg-orange-500/5 border border-slate-200 hover:border-orange-500/40 transition group flex items-center justify-between"
+              className="p-3.5 rounded-2xl bg-[#121624] hover:bg-[#161C2E] border border-white/10 hover:border-orange-500/40 transition group flex items-center justify-between"
             >
               <div>
-                <div className="text-xs font-black text-slate-900 group-hover:text-[#FF5722]">
+                <div className="text-xs font-black text-white group-hover:text-[#FFA000]">
                   ⚡ Auto Caption Studio
                 </div>
-                <div className="text-[10px] text-slate-500">Safe-zone word subtitles</div>
+                <div className="text-[10px] text-zinc-400">Safe-zone word subtitles</div>
               </div>
-              <ArrowRight size={14} className="text-slate-400 group-hover:text-[#FF5722]" />
+              <ArrowRight size={14} className="text-zinc-500 group-hover:text-[#FFA000]" />
             </Link>
 
             <Link
               href="/dashboard/typography-video"
-              className="p-3.5 rounded-2xl bg-slate-50 hover:bg-orange-500/5 border border-slate-200 hover:border-orange-500/40 transition group flex items-center justify-between"
+              className="p-3.5 rounded-2xl bg-[#121624] hover:bg-[#161C2E] border border-white/10 hover:border-orange-500/40 transition group flex items-center justify-between"
             >
               <div>
-                <div className="text-xs font-black text-slate-900 group-hover:text-[#FF5722]">
+                <div className="text-xs font-black text-white group-hover:text-[#FFA000]">
                   🔥 Kinetic Motion
                 </div>
-                <div className="text-[10px] text-slate-500">11 motion animation presets</div>
+                <div className="text-[10px] text-zinc-400">11 motion animation presets</div>
               </div>
-              <ArrowRight size={14} className="text-slate-400 group-hover:text-[#FF5722]" />
+              <ArrowRight size={14} className="text-zinc-500 group-hover:text-[#FFA000]" />
             </Link>
           </div>
         </div>

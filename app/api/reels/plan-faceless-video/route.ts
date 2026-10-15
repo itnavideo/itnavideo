@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { createReadUrl } from '@/lib/aws/mediaStorage';
 import { transcribeMediaUrlWithGroq } from '@/services/ai/groqTranscription';
 import { transcribeMediaWithGeminiFallback } from '@/services/ai/geminiTranscription';
 import { generateStructuredSceneBlueprint } from '@/services/ai/aiScenePlanner';
@@ -16,7 +17,6 @@ export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
     const {
-      audioUrl,
       topicTitle = '',
       assetMode = 'library',
       visualArtStyle = 'realistic',
@@ -27,6 +27,24 @@ export async function POST(req: Request) {
       existingSegments = null,
       backgroundTheme = 'studio-white',
     } = body;
+
+    let audioUrl = String(body.audioUrl || '').trim();
+    const mediaKey = String(body.mediaKey || '').trim();
+
+    // Auto-resolve mediaKey into signed S3 read URL if needed
+    if (!audioUrl && mediaKey) {
+      try {
+        audioUrl = await createReadUrl(mediaKey);
+      } catch (err) {
+        console.warn('[PLAN_FACELESS] Could not generate read URL for mediaKey:', mediaKey, err);
+      }
+    } else if (audioUrl && !audioUrl.startsWith('http://') && !audioUrl.startsWith('https://') && !audioUrl.startsWith('data:')) {
+      try {
+        audioUrl = await createReadUrl(audioUrl);
+      } catch (err) {
+        console.warn('[PLAN_FACELESS] Could not resolve audioUrl key:', audioUrl, err);
+      }
+    }
 
     let transcript = String(existingTranscript || '').trim();
     let segments: TranscriptSegment[] = Array.isArray(existingSegments) ? existingSegments : [];
@@ -145,7 +163,18 @@ export async function POST(req: Request) {
     }
 
     if (assetMode === 'upload' || assetMode === 'mix') {
-      const candidates = (uploadedImageUrls || []).map((url: string, idx: number) => ({
+      const resolvedUploadUrls: string[] = await Promise.all(
+        (uploadedImageUrls || []).map(async (url: string) => {
+          if (!url) return '';
+          if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url;
+          try {
+            return await createReadUrl(url);
+          } catch {
+            return url;
+          }
+        })
+      );
+      const candidates = resolvedUploadUrls.filter(Boolean).map((url: string, idx: number) => ({
         key: `upload_${idx}`,
         url,
         fileName: decodeURIComponent((url.split('?')[0].split('/').pop() || `image_${idx}`)),
@@ -158,7 +187,7 @@ export async function POST(req: Request) {
         } else {
           // Mix: place uploads where match exists, keep library for others
           for (const [sNum, uUrl] of Object.entries(uploadMatches)) {
-            if (uUrl) mappedBrollUrls[Number(sNum)] = uUrl;
+            if (uUrl) mappedBrollUrls[Number(sNum)] = String(uUrl);
           }
         }
       }

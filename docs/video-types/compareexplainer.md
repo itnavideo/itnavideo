@@ -164,8 +164,9 @@ export interface CompareExplainerProps {
 | Pipeline Stage | Potential Error / Failure | Root Cause | Automated Recovery / Fix | User-Facing Action / Feedback |
 | :--- | :--- | :--- | :--- | :--- |
 | **1. Upload & Media Validation** | `MISSING_COMPARISON_IMAGES` | User uploaded only 1 image instead of both left and right | Preflight validation blocks submission with explicit 400 error | "Compare requires exactly 2 visuals: one left and one right" |
+| **1. Upload & Media Validation** | `LONG_FILENAME_OR_SPECIAL_CHARS` | Filename > 100 chars or containing brackets/commas | `sanitizeFileName` isolates base and preserves extension, cleaning URL unsafe chars | Safe S3 presigned URL generation and instant download |
 | **1. Upload & Media Validation** | `NON_AUDIO_PRIMARY_FILE` | User uploaded non-audio file as main track | Extracts 16kHz audio or converts video audio seamlessly | Audio track processed reliably |
-| **2. Speech Transcription** | `WHISPER_RATE_LIMIT_429` | Groq Whisper concurrency burst | Seamless failover to Google Gemini 2.0 Flash (`asia-south1`) | Instant zero-downtime transcription |
+| **2. Speech Transcription** | `WHISPER_RATE_LIMIT_429` | Groq Whisper concurrency burst | Seamless failover to Google Gemini 2.5 Flash / Flash Latest | Instant zero-downtime transcription |
 | **2. Speech Transcription** | `NO_SPEECH_DETECTED` | Audio lacks audible vocal track | Fails with explicit `NO_SPEECH_DETECTED` reason code | "No clear speech detected. Please upload clear narration audio." |
 | **3. Sticker & Pose Sync** | `MISSING_STICKER_SET` | Custom presenter stickman graphic unavailable | Auto-falls back to standard 3D presenter stickman avatar set | Presenter avatar always renders properly |
 | **4. Layout Formatting** | `IMAGE_ASPECT_DISTORTION` | Images of vastly different aspect ratios (e.g. 1:1 vs 16:9) | Auto-scales with aspect-fit containment and subtle blurred ambient backing | Perfectly balanced dual-subject presentation |

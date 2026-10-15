@@ -380,11 +380,11 @@ export default function DashboardClient() {
   );
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] text-slate-900 selection:bg-[#FF5722]/20 selection:text-[#FF5722] max-w-full overflow-x-hidden relative font-sans">
+    <div className="min-h-screen bg-[#070B14] text-white selection:bg-[#FF5722]/30 selection:text-white max-w-full overflow-x-hidden relative font-sans">
       {/* Subtle Ambient Mesh Glows */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute -top-32 left-1/4 w-[600px] h-[600px] bg-gradient-to-br from-[#FF5722]/8 via-[#FFA000]/4 to-transparent rounded-full blur-[140px]" />
-        <div className="absolute top-1/3 -right-32 w-[700px] h-[700px] bg-gradient-to-bl from-[#FF5722]/6 via-[#FFA000]/3 to-transparent rounded-full blur-[160px]" />
+        <div className="absolute -top-32 left-1/4 w-[600px] h-[600px] bg-gradient-to-br from-[#FF5722]/10 via-[#FFA000]/5 to-transparent rounded-full blur-[140px]" />
+        <div className="absolute top-1/3 -right-32 w-[700px] h-[700px] bg-gradient-to-bl from-[#FF5722]/8 via-[#FFA000]/4 to-transparent rounded-full blur-[160px]" />
       </div>
 
       <Suspense fallback={null}>
@@ -414,20 +414,20 @@ export default function DashboardClient() {
       {/* Main Page Area with Left Sidebar Offset */}
       <div className="lg:pl-72 flex flex-col min-h-screen relative z-10">
         {/* Top Header */}
-        <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl shadow-xs">
+        <header className="sticky top-0 z-30 border-b border-white/10 bg-[#0B0F19]/90 backdrop-blur-xl shadow-md">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             {/* Mobile Hamburger & Studio Title */}
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setMobileSidebarOpen(true)}
-                className="lg:hidden p-2 rounded-xl border border-slate-200 bg-white text-slate-700 hover:text-slate-900 hover:bg-slate-50 transition cursor-pointer shadow-xs"
+                className="lg:hidden p-2 rounded-xl border border-white/10 bg-[#0E1526] text-zinc-300 hover:text-white hover:bg-[#141B2D] transition cursor-pointer shadow-xs"
                 aria-label="Open Navigation Menu"
               >
                 <Menu size={20} />
               </button>
 
               <div className="flex items-center gap-2">
-                <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200/80 text-xs text-slate-800">
+                <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0E1526] border border-white/10 text-xs text-zinc-300">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10B981] animate-pulse" />
                   <span className="font-bold tracking-wide">
                     {dashboardTab === "studios"
@@ -444,14 +444,14 @@ export default function DashboardClient() {
             <div className="flex items-center gap-2 sm:gap-3">
               <Link
                 href="/pricing"
-                className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-gradient-to-r from-orange-500/10 via-amber-500/10 to-orange-500/5 border border-orange-500/30 hover:border-orange-500/60 transition-all text-xs font-bold text-orange-950 shadow-xs group cursor-pointer"
+                className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-gradient-to-r from-orange-500/20 via-amber-500/15 to-orange-500/10 border border-orange-500/40 hover:border-orange-500/70 transition-all text-xs font-bold text-orange-200 shadow-xs group cursor-pointer"
               >
                 <Zap className="w-3.5 h-3.5 text-[#FF5722] fill-[#FF5722] animate-pulse group-hover:scale-110 transition-transform" />
-                <span className="text-orange-900 font-black">
+                <span className="text-orange-300 font-black">
                   {remainingCredits !== null ? `${remainingCredits} Credits` : (isFounder ? "908 Credits" : "...")}
                 </span>
                 {isFounder ? (
-                  <span className="inline-block rounded-full bg-emerald-500/20 text-emerald-800 border border-emerald-500/40 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider shadow-sm">
+                  <span className="inline-block rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider shadow-sm">
                     Founder
                   </span>
                 ) : (
@@ -464,7 +464,7 @@ export default function DashboardClient() {
               {user && !isFounder && (
                 <Link
                   href="/pricing"
-                  className="hidden md:inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-slate-900 px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 transition shadow-xs"
+                  className="hidden md:inline-flex items-center gap-1.5 text-xs font-bold text-zinc-300 hover:text-white px-3.5 py-1.5 rounded-xl border border-white/10 bg-[#0E1526] hover:bg-[#141B2D] transition shadow-xs"
                 >
                   <span>Upgrade Plan</span>
                   <ArrowUpRight size={13} className="text-[#FF5722]" />
@@ -473,7 +473,7 @@ export default function DashboardClient() {
               {!user && (
                 <Link
                   href="/login"
-                  className="px-4 py-1.5 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition"
+                  className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white text-xs font-bold hover:brightness-110 transition shadow-md shadow-orange-500/20"
                 >
                   Sign In
                 </Link>
@@ -507,13 +507,13 @@ export default function DashboardClient() {
               {/* ── 1. Top Controls Bar: Category Pills & Search ── */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
                 {/* Category Pills */}
-                <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-white border border-slate-200/90 overflow-x-auto scrollbar-none shadow-xs">
+                <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-[#0B0F19] border border-white/10 overflow-x-auto scrollbar-none shadow-xs">
                   <button
                     onClick={() => setActiveCategory("all")}
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                       activeCategory === "all"
                         ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-md shadow-orange-500/20"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                        : "text-zinc-400 hover:text-white hover:bg-white/5"
                     }`}
                   >
                     ✨ All Studios ({ALL_TOOLS.length})
@@ -523,7 +523,7 @@ export default function DashboardClient() {
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                       activeCategory === "social"
                         ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-md shadow-orange-500/20"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                        : "text-zinc-400 hover:text-white hover:bg-white/5"
                     }`}
                   >
                     📱 9:16 Vertical
@@ -533,7 +533,7 @@ export default function DashboardClient() {
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                       activeCategory === "long"
                         ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-md shadow-orange-500/20"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                        : "text-zinc-400 hover:text-white hover:bg-white/5"
                     }`}
                   >
                     🖥️ 16:9 Cinema
@@ -543,7 +543,7 @@ export default function DashboardClient() {
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                       activeCategory === "utility"
                         ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-md shadow-orange-500/20"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                        : "text-zinc-400 hover:text-white hover:bg-white/5"
                     }`}
                   >
                     🎙️ Audio Studio
@@ -552,13 +552,13 @@ export default function DashboardClient() {
 
                 {/* Search Input */}
                 <div className="relative flex-1 sm:w-64">
-                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
                   <input
                     type="text"
                     placeholder="Search video studios..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white border border-slate-200 focus:border-[#FF5722] focus:ring-2 focus:ring-[#FF5722]/15 focus:outline-none text-xs text-slate-900 placeholder:text-slate-400 transition-all font-medium shadow-xs"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#0B0F19] border border-white/10 focus:border-[#FF5722] focus:ring-2 focus:ring-[#FF5722]/20 focus:outline-none text-xs text-white placeholder:text-zinc-500 transition-all font-medium shadow-xs"
                   />
                 </div>
               </div>
@@ -587,7 +587,7 @@ export default function DashboardClient() {
                   className={`relative rounded-2xl border-2 border-dashed p-4 sm:p-5 text-center transition-all duration-200 ${
                     isDragging
                       ? "border-[#FF5722] bg-orange-500/10 scale-[1.01]"
-                      : "border-slate-200 bg-white/70 hover:border-slate-300 hover:bg-white"
+                      : "border-white/10 bg-[#0B0F19]/80 hover:border-white/20 hover:bg-[#0E1526]"
                   }`}
                 >
                   <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
@@ -596,11 +596,11 @@ export default function DashboardClient() {
                         <UploadCloud size={20} />
                       </div>
                       <div>
-                        <p className="text-xs font-black text-slate-900">
+                        <p className="text-xs font-black text-white">
                           Instant Studio Launcher
                         </p>
-                        <p className="text-[11px] text-slate-500">
-                          Drop voiceover audio to launch <strong className="text-slate-800 font-bold">16:9 Faceless Video</strong>, or video to launch <strong className="text-slate-800 font-bold">9:16 Auto Caption</strong>.
+                        <p className="text-[11px] text-zinc-400">
+                          Drop voiceover audio to launch <strong className="text-white font-bold">16:9 Faceless Video</strong>, or video to launch <strong className="text-white font-bold">9:16 Auto Caption</strong>.
                         </p>
                       </div>
                     </div>
@@ -615,7 +615,7 @@ export default function DashboardClient() {
                       </Link>
                       <Link
                         href="/dashboard/auto-caption"
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 px-3.5 py-1.5 text-xs font-bold text-slate-700 transition"
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 px-3.5 py-1.5 text-xs font-bold text-zinc-300 hover:text-white transition"
                       >
                         <span>Auto Caption (9:16)</span>
                       </Link>
@@ -626,26 +626,26 @@ export default function DashboardClient() {
 
               {/* ── 2. RECENT CLOUD RENDERS (48h Retention Lifecycle, Only Completed Renders) ── */}
               {recentRenders.filter((r) => Boolean(r.outputUrl || r.outputFile)).length > 0 && searchQuery === "" && activeCategory === "all" && (
-                <div className="rounded-[28px] border border-slate-200/90 bg-white p-5 sm:p-7 shadow-sm ring-1 ring-slate-100">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 border-b border-slate-100 pb-4">
+                <div className="rounded-[28px] border border-white/10 bg-[#0D111D] p-5 sm:p-7 shadow-xl">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 border-b border-white/10 pb-4">
                     <div>
                       <div className="flex items-center gap-2">
-                        <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                        <h2 className="text-base sm:text-lg font-black text-white tracking-tight">
                           Recent Cloud Renders
                         </h2>
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 text-[10px] font-bold text-emerald-400">
                           <CheckCircle2 size={11} />
                           <span>Ready for Download</span>
                         </span>
                       </div>
-                      <p className="text-xs text-slate-500 mt-0.5">
+                      <p className="text-xs text-zinc-400 mt-0.5">
                         Preserved in cloud storage for 48 hours. Download your 1080p Full HD MP4 directly.
                       </p>
                     </div>
 
                     <button
                       onClick={() => setDashboardTab("history")}
-                      className="self-start sm:self-auto inline-flex items-center gap-1 text-xs font-bold text-[#FF5722] hover:text-[#E64A19] transition cursor-pointer"
+                      className="self-start sm:self-auto inline-flex items-center gap-1 text-xs font-bold text-[#FFA000] hover:text-[#FF7043] transition cursor-pointer"
                     >
                       <span>View All in Export Library</span>
                       <ChevronRight size={14} />
@@ -661,32 +661,32 @@ export default function DashboardClient() {
                       return (
                         <div
                           key={render.renderId}
-                          className="group relative flex flex-col justify-between rounded-2xl border border-slate-200 p-4 bg-slate-50/50 hover:bg-slate-50 hover:border-orange-500/30 transition-all shadow-xs"
+                          className="group relative flex flex-col justify-between rounded-2xl border border-white/10 p-4 bg-[#121624] hover:bg-[#161C2E] hover:border-orange-500/40 transition-all shadow-md"
                         >
                           <div>
                             <div className="flex items-center justify-between gap-2 mb-2">
-                              <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700">
+                              <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-white/10 border border-white/10 text-zinc-300">
                                 {render.aspectRatio || (render.mode?.toLowerCase().includes("faceless") || render.mode?.toLowerCase().includes("summary") ? "16:9" : "9:16")}
                               </span>
-                              <span className="inline-flex items-center gap-1 text-[10px] font-mono font-medium text-slate-400">
+                              <span className="inline-flex items-center gap-1 text-[10px] font-mono font-medium text-zinc-400">
                                 <Clock3 size={11} className="text-[#FF5722]" />
                                 <span>48h Cloud</span>
                               </span>
                             </div>
 
-                            <h3 className="text-xs font-bold text-slate-900 line-clamp-1 group-hover:text-[#FF5722] transition-colors">
+                            <h3 className="text-xs font-bold text-white line-clamp-1 group-hover:text-[#FFA000] transition-colors">
                               {displayTitle}
                             </h3>
-                            <p className="text-[11px] text-slate-500 mt-0.5">
+                            <p className="text-[11px] text-zinc-400 mt-0.5">
                               {render.createdAt ? new Date(render.createdAt).toLocaleDateString() : "Just now"} · 1080p MP4
                             </p>
                           </div>
 
-                          <div className="flex items-center gap-2 pt-3 mt-3 border-t border-slate-200/70">
+                          <div className="flex items-center gap-2 pt-3 mt-3 border-t border-white/10">
                             <a
                               href={videoUrl}
                               download={filename}
-                              className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 text-xs font-bold shadow-xs transition cursor-pointer"
+                              className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 text-xs font-bold shadow-xs transition cursor-pointer"
                             >
                               <Download size={13} />
                               <span>Download</span>
@@ -695,7 +695,7 @@ export default function DashboardClient() {
                               href={videoUrl}
                               target="_blank"
                               rel="noreferrer"
-                              className="inline-flex items-center justify-center p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 transition"
+                              className="inline-flex items-center justify-center p-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white transition"
                               title="Preview in new tab"
                             >
                               <ExternalLink size={14} />
@@ -712,28 +712,28 @@ export default function DashboardClient() {
               {/* SECTION 1: 16:9 VIDEO TYPES (FIRST ON DASHBOARD)              */}
               {/* ───────────────────────────────────────────────────────────── */}
               {show169Section && (
-                <div className="rounded-[32px] border border-slate-200/90 bg-white p-6 sm:p-8 backdrop-blur-2xl shadow-xl relative overflow-hidden ring-1 ring-slate-100 space-y-6">
+                <div className="rounded-[32px] border border-white/10 bg-[#0D111D] p-6 sm:p-8 backdrop-blur-2xl shadow-2xl relative overflow-hidden space-y-6">
                   
                   {/* Clean Spacious Header Banner */}
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/10 pb-5">
                     <div>
-                      <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold text-orange-700 uppercase tracking-wider mb-2">
+                      <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold text-orange-400 uppercase tracking-wider mb-2">
                         <Sparkles size={13} className="text-[#FF5722]" />
                         <span>16:9 Widescreen Cinema Studios</span>
                       </div>
-                      <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight font-sans">
+                      <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-sans">
                         YouTube &amp; Long-Form Video Studios
                       </h2>
-                      <p className="mt-1 text-xs sm:text-sm text-slate-600 max-w-2xl leading-relaxed">
+                      <p className="mt-1 text-xs sm:text-sm text-zinc-400 max-w-2xl leading-relaxed">
                         Full HD 1080p horizontal videos for YouTube channels, documentary explainers, presentations, and chapter book summaries.
                       </p>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2 self-start sm:self-center text-xs font-mono font-bold">
-                      <span className="px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-800">
+                      <span className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-zinc-300">
                         1920×1080 Full HD
                       </span>
-                      <span className="px-3 py-1.5 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-700">
+                      <span className="px-3 py-1.5 rounded-xl bg-orange-500/10 border border-orange-500/30 text-[#FFA000]">
                         2 Credits / Video
                       </span>
                     </div>
@@ -747,10 +747,10 @@ export default function DashboardClient() {
                         <Link
                           key={item.id}
                           href={item.slug}
-                          className="group relative flex flex-col justify-between overflow-hidden rounded-[26px] border border-slate-200/90 bg-white p-4.5 transition-all duration-300 hover:-translate-y-1 hover:border-orange-500/50 hover:shadow-xl hover:shadow-orange-500/10 active:scale-[0.98] cursor-pointer ring-1 ring-slate-100 shadow-xs"
+                          className="group relative flex flex-col justify-between overflow-hidden rounded-[26px] border border-white/10 bg-[#121624] p-4.5 transition-all duration-300 hover:-translate-y-1 hover:border-orange-500/50 hover:bg-[#161C2E] hover:shadow-xl hover:shadow-orange-500/10 active:scale-[0.98] cursor-pointer shadow-md"
                         >
                           {/* 16:9 Featured Widescreen Image Stage */}
-                          <div className="relative aspect-[16/9] w-full rounded-2xl bg-[#0B0D13] mb-4 border border-slate-800/80 overflow-hidden shadow-inner flex items-center justify-center group-hover:border-orange-500/40 transition-colors">
+                          <div className="relative aspect-[16/9] w-full rounded-2xl bg-[#070B14] mb-4 border border-white/10 overflow-hidden shadow-inner flex items-center justify-center group-hover:border-orange-500/40 transition-colors">
                             <img
                               src={item.imageCard || "https://res.cloudinary.com/dhouh9idx/image/upload/v1791892533/faceless_video_ytyxdo.png"}
                               alt={item.title}
@@ -761,7 +761,7 @@ export default function DashboardClient() {
                             {/* Badge Tag on Image */}
                             {item.badge && (
                               <div className="absolute top-2.5 right-2.5 z-10">
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-black/70 border border-white/20 text-white backdrop-blur-md shadow-sm">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-black/80 border border-white/20 text-white backdrop-blur-md shadow-sm">
                                   {item.badge}
                                 </span>
                               </div>
@@ -782,19 +782,19 @@ export default function DashboardClient() {
                                 <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${item.iconBgClass} ${item.iconColorClass}`}>
                                   <Icon size={15} />
                                 </div>
-                                <h3 className="text-sm font-extrabold text-slate-900 tracking-tight group-hover:text-[#FF5722] transition-colors line-clamp-2">
+                                <h3 className="text-sm font-extrabold text-white tracking-tight group-hover:text-[#FFA000] transition-colors line-clamp-2">
                                   {item.title}
                                 </h3>
                               </div>
 
-                              <p className="text-[11px] text-slate-600 line-clamp-2 leading-relaxed mb-4">
+                              <p className="text-[11px] text-zinc-400 line-clamp-2 leading-relaxed mb-4">
                                 {item.description}
                               </p>
                             </div>
 
                             {/* Card Footer CTA */}
-                            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                              <span className="text-[10px] font-mono font-bold text-slate-500">
+                            <div className="pt-3 border-t border-white/10 flex items-center justify-between text-xs">
+                              <span className="text-[10px] font-mono font-bold text-zinc-400">
                                 2 Credits
                               </span>
                               <span className="inline-flex items-center gap-1 font-bold text-white text-[11px] bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-3 py-1.5 rounded-xl shadow-md shadow-orange-500/20 group-hover:translate-x-0.5 transition-all">
@@ -815,28 +815,28 @@ export default function DashboardClient() {
               {/* SECTION 2: 9:16 ALL VIDEO CLIPS / SHORTS (SECOND ON DASHBOARD) */}
               {/* ───────────────────────────────────────────────────────────── */}
               {show916Section && (
-                <div className="rounded-[32px] border border-slate-200/90 bg-white p-6 sm:p-8 backdrop-blur-2xl shadow-xl relative overflow-hidden ring-1 ring-slate-100 space-y-6">
+                <div className="rounded-[32px] border border-white/10 bg-[#0D111D] p-6 sm:p-8 backdrop-blur-2xl shadow-2xl relative overflow-hidden space-y-6">
                   
                   {/* Clean Spacious Header Banner */}
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-100 pb-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/10 pb-5">
                     <div>
-                      <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold text-orange-700 uppercase tracking-wider mb-2">
+                      <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold text-orange-400 uppercase tracking-wider mb-2">
                         <Sparkles size={13} className="text-[#FF5722]" />
                         <span>9:16 Vertical Shorts &amp; Reels</span>
                       </div>
-                      <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight font-sans">
+                      <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-sans">
                         Shorts, Reels &amp; TikTok Studios
                       </h2>
-                      <p className="mt-1 text-xs sm:text-sm text-slate-600 max-w-2xl leading-relaxed">
+                      <p className="mt-1 text-xs sm:text-sm text-zinc-400 max-w-2xl leading-relaxed">
                         Create viral vertical videos with auto captions, kinetic motion text, whiteboard animations, and teaser promos up to 90 seconds.
                       </p>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2 self-start sm:self-center text-xs font-mono font-bold">
-                      <span className="px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-800">
+                      <span className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-zinc-300">
                         1080×1920 Full HD
                       </span>
-                      <span className="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700">
+                      <span className="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
                         1 Credit / Video · Max 90s
                       </span>
                     </div>
@@ -852,10 +852,10 @@ export default function DashboardClient() {
                         <Link
                           key={item.id}
                           href={item.slug}
-                          className="group relative flex flex-col justify-between overflow-hidden rounded-[26px] border border-slate-200/90 bg-white p-4.5 transition-all duration-300 hover:-translate-y-1 hover:border-orange-500/50 hover:shadow-xl hover:shadow-orange-500/10 active:scale-[0.98] cursor-pointer ring-1 ring-slate-100 shadow-xs"
+                          className="group relative flex flex-col justify-between overflow-hidden rounded-[26px] border border-white/10 bg-[#121624] p-4.5 transition-all duration-300 hover:-translate-y-1 hover:border-orange-500/50 hover:bg-[#161C2E] hover:shadow-xl hover:shadow-orange-500/10 active:scale-[0.98] cursor-pointer shadow-md"
                         >
                           {/* 9:16 Featured Vertical Smartphone Preview Stage */}
-                          <div className="relative aspect-[16/10] sm:aspect-[16/9] w-full rounded-2xl bg-[#0B0D13] mb-3.5 border border-slate-800/80 overflow-hidden shadow-inner flex flex-col items-center justify-center group-hover:border-orange-500/40 transition-colors">
+                          <div className="relative aspect-[16/10] sm:aspect-[16/9] w-full rounded-2xl bg-[#070B14] mb-3.5 border border-white/10 overflow-hidden shadow-inner flex flex-col items-center justify-center group-hover:border-orange-500/40 transition-colors">
                             <img
                               src={item.imageCard || "https://res.cloudinary.com/dhouh9idx/image/upload/v1791892531/auto_captions_x9khtt.png"}
                               alt={item.title}
@@ -866,7 +866,7 @@ export default function DashboardClient() {
                             {/* Badge Tag on Image */}
                             {item.badge && (
                               <div className="absolute top-2.5 right-2.5 z-10">
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-black/70 border border-white/20 text-white backdrop-blur-md shadow-sm">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-black/80 border border-white/20 text-white backdrop-blur-md shadow-sm">
                                   {item.badge}
                                 </span>
                               </div>
@@ -887,19 +887,19 @@ export default function DashboardClient() {
                                 <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${item.iconBgClass} ${item.iconColorClass}`}>
                                   <Icon size={14} />
                                 </div>
-                                <h3 className="text-sm font-extrabold text-slate-900 tracking-tight group-hover:text-[#FF5722] transition-colors line-clamp-2">
+                                <h3 className="text-sm font-extrabold text-white tracking-tight group-hover:text-[#FFA000] transition-colors line-clamp-2">
                                   {item.title}
                                 </h3>
                               </div>
 
-                              <p className="text-[11px] text-slate-600 line-clamp-2 leading-relaxed mb-3">
+                              <p className="text-[11px] text-zinc-400 line-clamp-2 leading-relaxed mb-3">
                                 {item.description}
                               </p>
                             </div>
 
                             {/* Card Footer CTA */}
-                            <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
-                              <span className="text-[10px] font-mono font-bold text-slate-500">
+                            <div className="pt-2.5 border-t border-white/10 flex items-center justify-between text-xs">
+                              <span className="text-[10px] font-mono font-bold text-zinc-400">
                                 {isClips ? "2 Credits / Clip" : "1 Credit"}
                               </span>
                               <span className="inline-flex items-center gap-1 font-bold text-white text-[11px] bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-3 py-1.5 rounded-xl shadow-md shadow-orange-500/20 group-hover:translate-x-0.5 transition-all">
@@ -920,22 +920,22 @@ export default function DashboardClient() {
               {/* SECTION 3: AUDIO STUDIO & UTILITIES (THIRD ON DASHBOARD)       */}
               {/* ───────────────────────────────────────────────────────────── */}
               {showUtilitySection && (
-                <div className="rounded-[32px] border border-slate-200/90 bg-white p-6 sm:p-8 backdrop-blur-2xl shadow-xl relative overflow-hidden ring-1 ring-slate-100">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 border-b border-slate-100 pb-5">
+                <div className="rounded-[32px] border border-white/10 bg-[#0D111D] p-6 sm:p-8 backdrop-blur-2xl shadow-2xl relative overflow-hidden">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 border-b border-white/10 pb-5">
                     <div>
-                      <div className="inline-flex items-center gap-2 rounded-full border border-teal-500/30 bg-teal-500/10 px-3.5 py-1 text-xs font-bold text-teal-700 uppercase tracking-wider mb-2">
-                        <Mic size={13} className="text-teal-600" />
+                      <div className="inline-flex items-center gap-2 rounded-full border border-teal-500/30 bg-teal-500/10 px-3.5 py-1 text-xs font-bold text-teal-400 uppercase tracking-wider mb-2">
+                        <Mic size={13} className="text-teal-400" />
                         <span>Studio Utility &amp; Audio Clean</span>
                       </div>
-                      <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight font-sans">
+                      <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-sans">
                         Audio Cleaning &amp; Mastering
                       </h2>
-                      <p className="mt-1 text-xs sm:text-sm text-slate-600">
+                      <p className="mt-1 text-xs sm:text-sm text-zinc-400">
                         Remove background noise, hum, room echo, and retakes to broadcast standard.
                       </p>
                     </div>
 
-                    <span className="px-3 py-1.5 rounded-xl bg-teal-500/10 border border-teal-500/30 text-teal-700 text-xs font-mono font-bold self-start sm:self-center">
+                    <span className="px-3 py-1.5 rounded-xl bg-teal-500/10 border border-teal-500/30 text-teal-400 text-xs font-mono font-bold self-start sm:self-center">
                       1 Credit · Studio Clean
                     </span>
                   </div>
@@ -947,17 +947,17 @@ export default function DashboardClient() {
                         <Link
                           key={item.id}
                           href={item.slug}
-                          className="group relative flex flex-col md:flex-row md:items-center justify-between gap-5 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-white p-5 sm:p-6 hover:border-orange-500/40 transition-all duration-200 active:scale-[0.99] shadow-xs hover:shadow-xl hover:shadow-orange-500/10 cursor-pointer"
+                          className="group relative flex flex-col md:flex-row md:items-center justify-between gap-5 rounded-2xl border border-white/10 bg-[#121624] hover:bg-[#161C2E] p-5 sm:p-6 hover:border-orange-500/40 transition-all duration-200 active:scale-[0.99] shadow-md hover:shadow-xl hover:shadow-orange-500/10 cursor-pointer"
                         >
                           <div className="flex items-center gap-4 min-w-0 flex-1">
                             <div className={`flex h-13 w-13 shrink-0 items-center justify-center rounded-2xl ${item.iconBgClass} ${item.iconColorClass} group-hover:scale-105 transition-transform shadow-sm`}>
                               <Icon size={24} />
                             </div>
                             <div>
-                              <div className="text-base font-black text-slate-900 tracking-tight group-hover:text-[#FF5722] transition-colors">
+                              <div className="text-base font-black text-white tracking-tight group-hover:text-[#FFA000] transition-colors">
                                 {item.title}
                               </div>
-                              <div className="text-xs text-slate-600 mt-1 max-w-xl">
+                              <div className="text-xs text-zinc-400 mt-1 max-w-xl">
                                 {item.description}
                               </div>
                             </div>
@@ -965,13 +965,13 @@ export default function DashboardClient() {
 
                           {/* 3 Core Verified Feature Pills */}
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-[11px] font-semibold text-slate-700">
+                            <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] font-semibold text-zinc-300">
                               -14dB Noise Isolation
                             </span>
-                            <span className="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-[11px] font-semibold text-slate-700">
+                            <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] font-semibold text-zinc-300">
                               Auto Retake Cut
                             </span>
-                            <span className="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-[11px] font-semibold text-slate-700">
+                            <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] font-semibold text-zinc-300">
                               EBU R128 Loudness
                             </span>
                           </div>
@@ -990,9 +990,9 @@ export default function DashboardClient() {
 
               {/* Empty Search Result */}
               {!show916Section && !show169Section && !showUtilitySection && (
-                <div className="text-center py-16 border border-dashed border-slate-300 rounded-[32px] bg-slate-50 backdrop-blur-2xl">
-                  <Search className="w-10 h-10 text-slate-400 mx-auto mb-3" />
-                  <p className="text-sm text-slate-700 font-bold">
+                <div className="text-center py-16 border border-dashed border-white/15 rounded-[32px] bg-[#0E1526]/50 backdrop-blur-2xl">
+                  <Search className="w-10 h-10 text-zinc-500 mx-auto mb-3" />
+                  <p className="text-sm text-zinc-300 font-bold">
                     No video studios match &ldquo;{searchQuery}&rdquo;
                   </p>
                   <button
@@ -1000,7 +1000,7 @@ export default function DashboardClient() {
                       setSearchQuery("");
                       setActiveCategory("all");
                     }}
-                    className="mt-3 text-xs text-[#FF5722] font-bold hover:underline cursor-pointer"
+                    className="mt-3 text-xs text-[#FFA000] font-bold hover:underline cursor-pointer"
                   >
                     Clear filters
                   </button>

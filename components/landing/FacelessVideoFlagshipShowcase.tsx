@@ -1,42 +1,20 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import {
   Sparkles,
   ArrowRight,
+  Play,
   Film,
   Subtitles,
-  Volume2,
-  VolumeX,
-  Play,
-  Pause,
 } from 'lucide-react';
 
 export default function FacelessVideoFlagshipShowcase() {
-  const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
-
-  const togglePlay = () => {
-    if (!videoRef.current) return;
-    if (isPlaying) {
-      videoRef.current.pause();
-      setIsPlaying(false);
-    } else {
-      videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
-    }
-  };
-
-  const toggleMute = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!videoRef.current) return;
-    videoRef.current.muted = !isMuted;
-    setIsMuted(!isMuted);
-  };
 
   return (
-    <section id="faceless-video-flagship" className="relative w-full overflow-hidden bg-white py-16 sm:py-24 text-slate-900 border-b border-slate-200/80">
+    <section id="faceless-video-flagship" className="relative w-full overflow-hidden bg-slate-50/80 pt-8 pb-16 sm:pt-10 sm:pb-16 text-slate-900 border-b border-slate-200/80">
       {/* Ambient Radial Lighting */}
       <div className="pointer-events-none absolute left-1/2 top-1/3 -translate-x-1/2 h-[500px] w-[900px] max-w-full rounded-full bg-orange-500/10 blur-[180px]" />
 
@@ -62,113 +40,140 @@ export default function FacelessVideoFlagshipShowcase() {
           </p>
         </div>
 
-        {/* Big Flagship 16:9 YouTube Showcase Player Mockup - Placed Right Under Heading */}
-        <div className="mt-10 max-w-5xl mx-auto">
-          <div className="relative rounded-[28px] sm:rounded-[36px] p-2.5 sm:p-3.5 bg-gradient-to-b from-orange-500/20 via-slate-100 to-slate-200 border border-orange-500/30 shadow-[0_25px_80px_-20px_rgba(255,87,34,0.25)]">
+        {/* Big Flagship 16:9 YouTube Showcase Player Mockup / Laptop Frame */}
+        <div className="mt-8 sm:mt-10 max-w-5xl mx-auto">
+          <div className="relative rounded-[28px] sm:rounded-[36px] p-2.5 sm:p-3.5 bg-[#0C111D] border border-gray-200/80 shadow-[0_20px_50px_rgba(0,0,0,0.12)]">
             
-            {/* Top YouTube Studio Bar */}
-            <div className="flex items-center justify-between px-3 py-2 text-xs font-bold text-slate-700">
+            {/* Top Studio Bar */}
+            <div className="flex items-center justify-between px-3 py-2 text-xs font-bold text-slate-300">
               <div className="flex items-center gap-2">
-                <span className="flex h-3 w-3 rounded-full bg-red-500" />
-                <span className="flex h-3 w-3 rounded-full bg-amber-500" />
-                <span className="flex h-3 w-3 rounded-full bg-emerald-500" />
-                <span className="ml-2 font-mono text-[11px] text-slate-500 font-semibold hidden sm:inline">
-                  16:9 Widescreen • 1080p 30 FPS • YouTube Long-Form Videos (Up to 10 Minutes)
+                <span className="flex h-3 w-3 rounded-full bg-red-500/90 shadow-xs" />
+                <span className="flex h-3 w-3 rounded-full bg-amber-500/90 shadow-xs" />
+                <span className="flex h-3 w-3 rounded-full bg-emerald-500/90 shadow-xs" />
+                <span className="ml-2 font-mono text-[11px] text-slate-400 font-semibold hidden sm:inline">
+                  16:9 Widescreen • 1080p 30 FPS • Official YouTube Long-Form Demo
                 </span>
               </div>
-              <span className="rounded-full bg-red-600 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-white">
-                {isPlaying ? 'PLAYING PREVIEW' : 'CLICK TO WATCH DEMO'}
+              <span className={`rounded-full px-3 py-0.5 text-[10px] font-black uppercase tracking-wider text-white shadow-xs ${
+                isPlaying 
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' 
+                  : 'bg-gradient-to-r from-red-600 to-orange-600'
+              }`}>
+                {isPlaying ? '● PLAYING OFFICIAL DEMO' : 'CLICK TO WATCH REAL VIDEO'}
               </span>
             </div>
 
-            {/* Main Video Visual Preview Frame */}
+            {/* Main Video Visual Preview Frame (Aspect 16:9) */}
             <div 
-              className="relative overflow-hidden rounded-[20px] sm:rounded-[28px] border border-slate-900/10 bg-[#070B14] cursor-pointer group"
-              onClick={togglePlay}
+              className="relative aspect-video w-full overflow-hidden rounded-[20px] sm:rounded-[28px] border border-white/10 bg-[#070B14] group"
             >
-              <video
-                ref={videoRef}
-                src="https://res.cloudinary.com/dhouh9idx/video/upload/v1791489914/InShot_20261009_011644112_vtrkhq.mp4"
-                poster="https://res.cloudinary.com/dhouh9idx/image/upload/v1791892533/faceless_video_ytyxdo.png"
-                playsInline
-                loop
-                muted={isMuted}
-                onPlay={() => setIsPlaying(true)}
-                onPause={() => setIsPlaying(false)}
-                className="w-full h-auto object-cover max-h-[580px] transition-transform duration-700 group-hover:scale-[1.01]"
-              />
+              {isPlaying ? (
+                <iframe
+                  src="https://www.youtube.com/embed/wg95A8eg7_c?autoplay=1&rel=0&modestbranding=1"
+                  title="He Wanted to Become a YouTuber… But Had No Time to Edit | Itnavideo Faceless Video AI"
+                  className="w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              ) : (
+                <div 
+                  onClick={() => setIsPlaying(true)}
+                  className="relative w-full h-full cursor-pointer overflow-hidden"
+                >
+                  {/* YouTube MaxRes Poster Image */}
+                  <img
+                    src="https://i.ytimg.com/vi/wg95A8eg7_c/maxresdefault.jpg"
+                    alt="Faceless Video AI - Real YouTube Output by Itnavideo"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+                    loading="lazy"
+                  />
 
-              {/* Play Overlay Button */}
-              {!isPlaying && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/35 backdrop-blur-[2px] transition-opacity">
-                  <div className="flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-white shadow-2xl shadow-orange-500/50 hover:scale-110 active:scale-95 transition-all duration-200">
-                    <Play size={28} className="fill-white translate-x-0.5" />
+                  {/* High-Contrast Gradient Backdrop */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/35 transition-opacity group-hover:via-black/15" />
+
+                  {/* Top-Left YouTube Quality Tag */}
+                  <div className="absolute top-4 left-4 inline-flex items-center gap-1.5 rounded-full bg-black/70 px-3 py-1 text-[11px] font-bold text-white backdrop-blur-md border border-white/10">
+                    <span className="h-2 w-2 rounded-full bg-red-500" />
+                    <span>Real Video Output • YouTube 1080p</span>
+                  </div>
+
+                  {/* Play Overlay Button with Pulsing Beacon Ring */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+                    <div className="relative flex items-center justify-center">
+                      <div className="absolute h-24 w-24 sm:h-28 sm:w-28 rounded-full bg-orange-500/30 animate-ping" />
+                      <div className="relative flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-white shadow-2xl shadow-orange-500/60 group-hover:scale-110 active:scale-95 transition-all duration-200">
+                        <Play size={28} className="fill-white translate-x-0.5" />
+                      </div>
+                    </div>
+                    <span className="text-xs sm:text-sm font-black tracking-wide text-white drop-shadow-md bg-black/60 px-3.5 py-1 rounded-full border border-white/10">
+                      Click to Play Real Video Demo
+                    </span>
+                  </div>
+
+                  {/* Floating Features Badge Overlay */}
+                  <div className="absolute bottom-4 left-4 right-4 hidden sm:flex items-center justify-between rounded-2xl bg-black/85 p-3.5 backdrop-blur-md border border-white/10 text-white">
+                    <div className="flex items-center gap-4 text-xs font-semibold">
+                      <span className="flex items-center gap-1.5 text-orange-400">
+                        <Film size={14} /> Auto B-Roll Matching
+                      </span>
+                      <span className="flex items-center gap-1.5 text-amber-400">
+                        <Subtitles size={14} /> Kinetic Subtitles
+                      </span>
+                      <a
+                        href="https://youtu.be/wg95A8eg7_c"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex items-center gap-1.5 text-slate-300 hover:text-white transition cursor-pointer"
+                      >
+                        <span>Watch on YouTube ↗</span>
+                      </a>
+                    </div>
+                    <Link
+                      href="/dashboard/faceless-video"
+                      onClick={(e) => e.stopPropagation()}
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] to-[#FFA000] px-4 py-2 text-xs font-black text-white hover:brightness-110 shadow-md transition"
+                    >
+                      <span>Launch Faceless Studio</span>
+                      <ArrowRight size={13} />
+                    </Link>
                   </div>
                 </div>
               )}
-
-              {/* Floating Features Badge Overlay */}
-              <div className="absolute bottom-4 left-4 right-4 hidden sm:flex items-center justify-between rounded-2xl bg-black/80 p-3.5 backdrop-blur-md border border-white/10 text-white">
-                <div className="flex items-center gap-4 text-xs font-semibold">
-                  <span className="flex items-center gap-1.5 text-orange-400">
-                    <Film size={14} /> Auto B-Roll Matching
-                  </span>
-                  <span className="flex items-center gap-1.5 text-amber-400">
-                    <Subtitles size={14} /> Kinetic Subtitles
-                  </span>
-                  <button
-                    type="button"
-                    onClick={toggleMute}
-                    className="flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 transition cursor-pointer"
-                  >
-                    {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
-                    <span>{isMuted ? 'Unmute Audio' : 'Mute Audio'}</span>
-                  </button>
-                </div>
-                <Link
-                  href="/dashboard/faceless-video"
-                  onClick={(e) => e.stopPropagation()}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] to-[#FFA000] px-4 py-2 text-xs font-black text-white hover:brightness-110 shadow-md transition"
-                >
-                  <span>Launch Faceless Studio</span>
-                  <ArrowRight size={13} />
-                </Link>
-              </div>
             </div>
           </div>
+        </div>
 
-          {/* 4 Key Faceless Video Capabilities Cards - Strictly 16:9 */}
-          <div className="mt-7 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3.5 shadow-2xs hover:border-orange-500/40 transition">
-              <p className="text-xs font-black text-slate-900">📚 Book Summaries</p>
-              <p className="text-[11px] text-slate-500 mt-0.5">Chapter-by-chapter visuals</p>
-            </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3.5 shadow-2xs hover:border-orange-500/40 transition">
-              <p className="text-xs font-black text-slate-900">📺 YouTube Explainers</p>
-              <p className="text-[11px] text-slate-500 mt-0.5">16:9 Widescreen 1080p</p>
-            </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3.5 shadow-2xs hover:border-orange-500/40 transition">
-              <p className="text-xs font-black text-slate-900">🎙️ Voiceover Sync</p>
-              <p className="text-[11px] text-slate-500 mt-0.5">Automatic B-roll &amp; audio</p>
-            </div>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3.5 shadow-2xs hover:border-orange-500/40 transition">
-              <p className="text-xs font-black text-slate-900">⏱️ Up to 10 Minutes</p>
-              <p className="text-[11px] text-slate-500 mt-0.5">Long-form YouTube videos</p>
-            </div>
+        {/* 4 Key Faceless Video Capabilities Cards - Strictly 16:9 */}
+        <div className="mt-4 max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-3.5 text-center">
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_30px_-6px_rgba(0,0,0,0.12)] hover:border-orange-500/40 transition-all duration-300">
+            <p className="text-xs font-black text-slate-900">📚 Book Summaries</p>
+            <p className="text-[11px] text-slate-500 mt-1">Chapter-by-chapter visuals</p>
           </div>
-
-          {/* Central CTA Button */}
-          <div className="mt-8 flex justify-center">
-            <Link
-              href="/dashboard/faceless-video"
-              className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-8 py-4 text-base font-black text-white shadow-xl shadow-orange-500/25 transition duration-200 hover:brightness-110 hover:scale-[1.02] active:scale-95"
-            >
-              <Sparkles size={18} className="text-white" />
-              <span>Create Faceless Video AI</span>
-              <ArrowRight size={18} className="transition group-hover:translate-x-1" />
-            </Link>
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_30px_-6px_rgba(0,0,0,0.12)] hover:border-orange-500/40 transition-all duration-300">
+            <p className="text-xs font-black text-slate-900">📺 YouTube Explainers</p>
+            <p className="text-[11px] text-slate-500 mt-1">16:9 Widescreen 1080p</p>
           </div>
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_30px_-6px_rgba(0,0,0,0.12)] hover:border-orange-500/40 transition-all duration-300">
+            <p className="text-xs font-black text-slate-900">🎙️ Voiceover Sync</p>
+            <p className="text-[11px] text-slate-500 mt-1">Automatic B-roll &amp; audio</p>
+          </div>
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_30px_-6px_rgba(0,0,0,0.12)] hover:border-orange-500/40 transition-all duration-300">
+            <p className="text-xs font-black text-slate-900">⏱️ Up to 10 Minutes</p>
+            <p className="text-[11px] text-slate-500 mt-1">Long-form YouTube videos</p>
+          </div>
+        </div>
 
+        {/* Central CTA Button */}
+        <div className="mt-8 flex justify-center">
+          <Link
+            href="/dashboard/faceless-video"
+            className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-8 py-4 text-base font-black text-white shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all duration-200 hover:brightness-110 hover:scale-[1.02] active:scale-95"
+          >
+            <Sparkles size={18} className="text-white" />
+            <span>Create Faceless Video AI</span>
+            <ArrowRight size={18} className="transition group-hover:translate-x-1" />
+          </Link>
         </div>
 
       </div>

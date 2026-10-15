@@ -1,5 +1,5 @@
 import {NextResponse} from 'next/server';
-import {createUploadUrl} from '@/lib/aws/mediaStorage';
+import {createUploadUrl, createReadUrl} from '@/lib/aws/mediaStorage';
 import {checkRateLimit, getClientIp} from '@/services/rateLimit/inMemoryRateLimiter';
 import {getRenderAccessForUser} from '@/services/billing/renderAccess';
 
@@ -23,6 +23,24 @@ export async function POST(request: Request) {
 
   if (!rateLimit.allowed) {
     return NextResponse.json({ok: false, error: 'Upload limit reached. Please wait a moment before uploading more files.'}, {status: 429});
+  }
+
+  // Handle on-demand S3 read URL generation
+  const action = readString(body.action).toLowerCase();
+  const rawKey = readString(body.key || body.mediaKey);
+  if (action === 'read' || (rawKey && !readString(body.fileName) && !readString(body.contentType))) {
+    if (!rawKey) {
+      return NextResponse.json({ok: false, error: 'Key is required to generate read URL.'}, {status: 400});
+    }
+    try {
+      const readUrl = await createReadUrl(rawKey);
+      return NextResponse.json({ok: true, readUrl, key: rawKey});
+    } catch (err: any) {
+      return NextResponse.json(
+        {ok: false, error: sanitizeUserFacingStatus(err instanceof Error ? err.message : 'Could not generate read URL.')},
+        {status: 500},
+      );
+    }
   }
 
   const fileName = readString(body.fileName);

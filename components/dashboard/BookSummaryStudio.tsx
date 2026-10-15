@@ -77,6 +77,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
 
   // Step 2: Storyboard & AI Plan State
   const [studioStep, setStudioStep] = useState<'inputs' | 'storyboard' | 'rendering'>('inputs');
+  const [isSubmittingRender, setIsSubmittingRender] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [plan, setPlan] = useState<BookSummaryPlan | null>(null);
   const [transcript, setTranscript] = useState<string>('');
@@ -350,8 +351,9 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
 
   // ─── Step 2 -> Step 3: Trigger Final Video Render Job ────────────────────
   const handleStartFinalRender = () => {
-    if (!plan || !onStartRender) return;
+    if (!plan || !onStartRender || isSubmittingRender) return;
 
+    setIsSubmittingRender(true);
     setStudioStep('rendering');
     onStartRender({
       mode: 'bookSummary',
@@ -1083,10 +1085,19 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
             <button
               type="button"
               onClick={handleStartFinalRender}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-8 py-4 text-base font-black text-black shadow-xl shadow-[#FF5722]/30 transition hover:brightness-110 active:scale-95 cursor-pointer"
+              disabled={isSubmittingRender}
+              className={`w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-2xl px-8 py-4 text-base font-black text-black shadow-xl transition-all duration-200 ${
+                isSubmittingRender
+                  ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] opacity-80 cursor-wait animate-pulse"
+                  : "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] shadow-[#FF5722]/30 hover:brightness-110 active:scale-95 cursor-pointer"
+              }`}
             >
               <Film size={18} className="stroke-[2.5]" />
-              <span>Render 1080p Widescreen Video ({calculatedCredits} Credit{calculatedCredits > 1 ? 's' : ''})</span>
+              <span>
+                {isSubmittingRender
+                  ? "Submitting Cloud Render..."
+                  : `Render 1080p Widescreen Video (${calculatedCredits} Credit${calculatedCredits > 1 ? 's' : ''})`}
+              </span>
             </button>
           </div>
         </div>

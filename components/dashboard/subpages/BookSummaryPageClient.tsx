@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import BrandLogo from "@/components/brand/BrandLogo";
 import { BookSummaryStudio } from "@/components/dashboard/BookSummaryStudio";
+import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine";
 import { useAuth } from "@/components/auth/AuthContext";
 import {
   ArrowLeft,
@@ -70,6 +71,14 @@ export default function BookSummaryPageClient() {
 
   const renderRequestInFlightRef = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const lastPayloadRef = useRef<any>(null);
+
+  const isWorking =
+    jobStatus.state === "uploading" ||
+    jobStatus.state === "starting" ||
+    jobStatus.state === "rendering";
+  const isReady = jobStatus.state === "ready" || Boolean(jobStatus.outputFile);
+  const isError = jobStatus.state === "error";
 
   // ── Auth redirect ────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -238,6 +247,7 @@ export default function BookSummaryPageClient() {
     }
     if (renderRequestInFlightRef.current) return;
     renderRequestInFlightRef.current = true;
+    lastPayloadRef.current = payload;
     abortControllerRef.current = new AbortController();
     const currentSignal = abortControllerRef.current.signal;
 
@@ -260,12 +270,14 @@ export default function BookSummaryPageClient() {
         headers: { "Content-Type": "application/json" },
         signal: currentSignal,
         body: JSON.stringify({
-          mediaKey: payload.audioUrl,
+          mediaKey: (payload as any).audioS3Key || payload.audioUrl,
           mediaUrl: payload.audioUrl,
           fileName: bookTitle + ".mp3",
           contentType: "audio/mpeg",
           mediaType: "audio",
           mode: "bookSummary",
+          template: "BOOK_SUMMARY",
+          templateName: "BOOK_SUMMARY",
           topicTitle: bookTitle,
           userId: user.id,
           userEmail: user.email || undefined,
@@ -450,11 +462,6 @@ export default function BookSummaryPageClient() {
     ? Math.round(billingEntitlement.usage?.remaining ?? billingEntitlement.monthlyVideoLimit ?? 0)
     : undefined;
 
-  const isWorking =
-    jobStatus.state === "uploading" ||
-    jobStatus.state === "starting" ||
-    jobStatus.state === "rendering";
-
   const formatTimer = (totalSecs: number) => {
     const mins = Math.floor(totalSecs / 60);
     const secs = totalSecs % 60;
@@ -591,15 +598,35 @@ export default function BookSummaryPageClient() {
           </div>
         </div>
 
-        {/* ── Tab: Studio ────────────────────────────────────────────────────────── */}
-        {activeTab === "studio" && (
-          <BookSummaryStudio
-            onStartRender={handleStartRender}
-            renderStatus={{ ...jobStatus, message: jobStatus.message || '' }}
-            onResetRender={handleReset}
-            onRetryRender={handleReset}
-            onCancelRender={handleCancelProcess}
-          />
+        {/* ── Active Cloud Render Stage (Unified InteractiveRenderEngine) ────────── */}
+        {(isWorking || isReady || isError) ? (
+          <div className="max-w-4xl mx-auto py-4">
+            <InteractiveRenderEngine
+              mode="bookSummary"
+              status={jobStatus}
+              title={jobStatus.title || "Book Summary Video"}
+              onRetry={() => {
+                if (lastPayloadRef.current) {
+                  handleStartRender(lastPayloadRef.current);
+                } else {
+                  handleReset();
+                }
+              }}
+              onReset={handleReset}
+              onCancel={handleCancelProcess}
+            />
+          </div>
+        ) : (
+          /* ── Tab: Studio (Form is only shown when idle) ─────────────────────── */
+          activeTab === "studio" && (
+            <BookSummaryStudio
+              onStartRender={handleStartRender}
+              renderStatus={{ ...jobStatus, message: jobStatus.message || '' }}
+              onResetRender={handleReset}
+              onRetryRender={handleReset}
+              onCancelRender={handleCancelProcess}
+            />
+          )
         )}
 
         {/* ── Tab: History ───────────────────────────────────────────────────────── */}

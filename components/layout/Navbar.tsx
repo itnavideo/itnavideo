@@ -29,20 +29,20 @@ import {
 import { useAuth } from '@/components/auth/AuthContext';
 import BrandLogo from '@/components/brand/BrandLogo';
 
-const PRODUCT_ITEMS = [
-  { label: 'Auto Caption Generator', desc: 'Add kinetic animated captions to Reels & Shorts', href: '/dashboard/auto-caption', icon: Smartphone },
-  { label: 'YouTube Subtitles', desc: '1080p Full HD subtitles for widescreen videos', href: '/dashboard/youtube-subtitles', icon: Captions },
-  { label: 'Image to Video AI', desc: 'Animate photos & images into cinematic video beats', href: '/dashboard/image-to-video-ai', icon: Film },
-  { label: 'Faceless Video AI', desc: 'Script-to-video auto B-roll & voiceover generator', href: '/dashboard/faceless-video', icon: MonitorPlay },
+const WIDESCREEN_PRODUCTS = [
+  { label: 'Faceless Video AI', desc: 'Auto B-roll, voiceovers & 16:9 YouTube story', href: '/dashboard/faceless-video', icon: MonitorPlay },
+  { label: 'Book Summary Video', desc: 'Turn book narration into cinematic lesson cards', href: '/dashboard/book-summary', icon: BookOpen },
+  { label: 'Image to Video AI', desc: 'Animate photos into cinematic video beats', href: '/dashboard/image-to-video-ai', icon: Film },
+  { label: 'YouTube Subtitles', desc: '1080p Full HD burned subtitles for podcasts', href: '/dashboard/youtube-subtitles', icon: Captions },
   { label: 'AI Audio Cleaner', desc: 'Studio audio noise cleanup & retake detection', href: '/dashboard/audio-cleaner', icon: Mic },
 ];
 
-const STUDIO_ITEMS = [
-  { label: 'Book Summary Video', desc: 'Turn book narration into cinematic lesson explainers', href: '/dashboard/book-summary', icon: BookOpen },
-  { label: 'Compare Explainer', desc: 'Side-by-side comparison video generator', href: '/dashboard/compare-explainer', icon: Columns },
-  { label: 'Whiteboard Video', desc: 'Whiteboard stickman animation explainers', href: '/dashboard/whiteboard-video', icon: PenTool },
+const VERTICAL_PRODUCTS = [
+  { label: 'Auto Caption Generator', desc: 'Kinetic animated captions for Reels & Shorts', href: '/dashboard/auto-caption', icon: Smartphone },
   { label: 'Kinetic Typography', desc: 'Dynamic speech-to-text kinetic motion presets', href: '/dashboard/typography-video', icon: FileText },
-  { label: 'Long Video Clips', desc: 'Auto hook detector clips from long videos into shorts', href: '/dashboard/long-video-clips', icon: Scissors },
+  { label: 'Whiteboard Video', desc: 'Whiteboard stickman animation explainers', href: '/dashboard/whiteboard-video', icon: PenTool },
+  { label: 'Compare Explainer', desc: 'Side-by-side comparison video generator', href: '/dashboard/compare-explainer', icon: Columns },
+  { label: 'Long Video to Clips', desc: 'Auto hook detector clips from long videos', href: '/dashboard/long-video-clips', icon: Scissors },
   { label: 'Long Video Promo', desc: 'Turn YouTube videos into viral promo Shorts', href: '/dashboard/long-video-promo', icon: Tv },
 ];
 
@@ -52,10 +52,16 @@ const RESOURCE_ITEMS = [
   { label: 'About Itnavideo', desc: 'Learn about our AI video rendering engine', href: '/about', icon: Sparkles },
 ];
 
+const LANGUAGES = [
+  { code: 'EN', name: 'English (EN)' },
+  { code: 'HI', name: 'Hinglish (HI)' },
+];
+
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeMenu, setActiveMenu] = useState<'product' | 'studios' | 'resources' | 'lang' | null>(null);
+  const [activeMenu, setActiveMenu] = useState<'products' | 'resources' | 'lang' | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [selectedLang, setSelectedLang] = useState(LANGUAGES[0]);
   const { user, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
@@ -90,8 +96,14 @@ export default function Navbar() {
     }
   }, [isOpen]);
 
-  const toggleMenu = (menu: 'product' | 'studios' | 'resources' | 'lang') => {
-    setActiveMenu(activeMenu === menu ? null : menu);
+  const toggleMenu = (menu: 'products' | 'resources' | 'lang') => {
+    setUserMenuOpen(false);
+    setActiveMenu((prev) => (prev === menu ? null : menu));
+  };
+
+  const toggleUserMenu = () => {
+    setActiveMenu(null);
+    setUserMenuOpen((prev) => !prev);
   };
 
   return (
@@ -114,218 +126,337 @@ export default function Navbar() {
 
             {/* DESKTOP NAVIGATION LINKS */}
             {!isDashboard && (
-              <nav className={`hidden lg:flex items-center gap-7 text-sm font-medium ${isLightPage ? 'text-slate-600' : 'text-zinc-300'}`}>
+              <nav className={`hidden lg:flex items-center gap-7 text-sm font-medium ${isLightPage ? 'text-slate-700' : 'text-zinc-300'}`}>
                 
-                {/* Product Dropdown */}
+                {/* 1. Products Mega Menu Dropdown */}
                 <div className="relative">
                   <button
                     type="button"
-                    onClick={() => toggleMenu('product')}
-                    className={`flex items-center gap-1 transition cursor-pointer py-1 ${
+                    onClick={() => toggleMenu('products')}
+                    className={`flex items-center gap-1 transition cursor-pointer py-1 font-semibold ${
                       isLightPage
-                        ? activeMenu === 'product' ? 'text-slate-900 font-bold' : 'text-slate-700 hover:text-slate-900'
-                        : activeMenu === 'product' ? 'text-white font-semibold' : 'text-zinc-300 hover:text-white'
+                        ? activeMenu === 'products' ? 'text-orange-600 font-bold' : 'text-slate-800 hover:text-orange-600'
+                        : activeMenu === 'products' ? 'text-white font-semibold' : 'text-zinc-300 hover:text-white'
                     }`}
                   >
-                    <span>Product</span>
+                    <span>Products</span>
                     <ChevronDown size={14} className={`transition-transform duration-200 ${
                       isLightPage ? 'text-slate-500' : 'text-zinc-400'
-                    } ${activeMenu === 'product' ? 'rotate-180' : ''}`} />
+                    } ${activeMenu === 'products' ? 'rotate-180 text-orange-600' : ''}`} />
                   </button>
 
-                  {activeMenu === 'product' && (
-                    <div className={`absolute left-0 top-full mt-3 w-80 rounded-2xl border p-2 shadow-2xl backdrop-blur-3xl animate-in fade-in zoom-in-95 duration-150 ${
-                      isLightPage
-                        ? 'border-slate-200 bg-white text-slate-900 shadow-slate-900/10'
-                        : 'border-white/10 bg-[#0B101D] text-zinc-100 ring-1 ring-white/10 shadow-black/80'
-                    }`}>
-                      {PRODUCT_ITEMS.map((item) => {
-                        const Icon = item.icon;
-                        return (
+                  {activeMenu === 'products' && (
+                    <div
+                      style={{ backgroundColor: '#ffffff', opacity: 1, boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', zIndex: 60 }}
+                      className="absolute left-0 top-full mt-2 w-[540px] sm:w-[560px] bg-white rounded-2xl border border-gray-200/90 shadow-2xl p-5 z-50 text-slate-900 animate-in fade-in zoom-in-95 duration-150"
+                    >
+                      {/* 2 Column Layout for Studios */}
+                      <div className="grid grid-cols-2 gap-4 pb-3">
+                        {/* Column 1: Short Video Studios (9:16) */}
+                        <div className="space-y-2">
+                          <span className="text-[11px] font-extrabold text-orange-600 uppercase tracking-wider block px-1">
+                            📱 9:16 Shorts &amp; Reels
+                          </span>
+
                           <Link
-                            key={item.label}
-                            href={item.href}
+                            href="/dashboard/faceless-video"
                             onClick={() => setActiveMenu(null)}
-                            className={`flex items-start gap-3 rounded-xl p-2.5 transition group ${
-                              isLightPage ? 'hover:bg-slate-50' : 'hover:bg-[#151821]'
-                            }`}
+                            className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
                           >
-                            <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-[#FF9100] transition ${
-                              isLightPage ? 'bg-slate-100 border-slate-200' : 'bg-[#151821] border-white/10'
-                            }`}>
-                              <Icon size={16} />
-                            </div>
+                            <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-lg flex items-center justify-center shrink-0">
+                              🎬
+                            </span>
                             <div>
-                              <p className={`text-xs font-bold transition ${
-                                isLightPage ? 'text-slate-900 group-hover:text-[#FF6D00]' : 'text-white group-hover:text-[#FFA726]'
-                              }`}>{item.label}</p>
-                              <p className={`text-[11px] leading-snug mt-0.5 ${
-                                isLightPage ? 'text-slate-500' : 'text-zinc-400'
-                              }`}>{item.desc}</p>
+                              <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
+                                Faceless Video AI
+                              </h4>
+                              <p className="text-xs text-gray-500 font-medium">Auto B-roll, voiceover &amp; captions</p>
                             </div>
                           </Link>
-                        );
-                      })}
+
+                          <Link
+                            href="/dashboard/auto-caption"
+                            onClick={() => setActiveMenu(null)}
+                            className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
+                          >
+                            <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-lg flex items-center justify-center shrink-0">
+                              💬
+                            </span>
+                            <div>
+                              <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
+                                Auto Captions
+                              </h4>
+                              <p className="text-xs text-gray-500 font-medium">Kinetic captions for Reels &amp; Shorts</p>
+                            </div>
+                          </Link>
+
+                          <Link
+                            href="/dashboard/typography-video"
+                            onClick={() => setActiveMenu(null)}
+                            className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
+                          >
+                            <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-lg flex items-center justify-center shrink-0">
+                              ✨
+                            </span>
+                            <div>
+                              <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
+                                Kinetic Typography
+                              </h4>
+                              <p className="text-xs text-gray-500 font-medium">Dynamic speech-to-text motion</p>
+                            </div>
+                          </Link>
+
+                          <Link
+                            href="/dashboard/whiteboard-video"
+                            onClick={() => setActiveMenu(null)}
+                            className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
+                          >
+                            <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-lg flex items-center justify-center shrink-0">
+                              ✏️
+                            </span>
+                            <div>
+                              <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
+                                Whiteboard Video
+                              </h4>
+                              <p className="text-xs text-gray-500 font-medium">Stickman &amp; doodle explainers</p>
+                            </div>
+                          </Link>
+
+                          <Link
+                            href="/dashboard/compare-explainer"
+                            onClick={() => setActiveMenu(null)}
+                            className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
+                          >
+                            <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-lg flex items-center justify-center shrink-0">
+                              ⚖️
+                            </span>
+                            <div>
+                              <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
+                                Compare Explainer
+                              </h4>
+                              <p className="text-xs text-gray-500 font-medium">Side-by-side comparison generator</p>
+                            </div>
+                          </Link>
+                        </div>
+
+                        {/* Column 2: Widescreen & Long Form (16:9) */}
+                        <div className="space-y-2">
+                          <span className="text-[11px] font-extrabold text-amber-600 uppercase tracking-wider block px-1">
+                            🖥️ 16:9 Long-Form
+                          </span>
+
+                          <Link
+                            href="/dashboard/long-video-clips"
+                            onClick={() => setActiveMenu(null)}
+                            className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
+                          >
+                            <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-lg flex items-center justify-center shrink-0">
+                              ✂️
+                            </span>
+                            <div>
+                              <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
+                                Long Video Clips
+                              </h4>
+                              <p className="text-xs text-gray-500 font-medium">Cut viral shorts from long videos</p>
+                            </div>
+                          </Link>
+
+                          <Link
+                            href="/dashboard/book-summary"
+                            onClick={() => setActiveMenu(null)}
+                            className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
+                          >
+                            <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-lg flex items-center justify-center shrink-0">
+                              📚
+                            </span>
+                            <div>
+                              <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
+                                Book Summary Video
+                              </h4>
+                              <p className="text-xs text-gray-500 font-medium">Cinematic explainer lesson cards</p>
+                            </div>
+                          </Link>
+
+                          <Link
+                            href="/dashboard/image-to-video-ai"
+                            onClick={() => setActiveMenu(null)}
+                            className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
+                          >
+                            <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-lg flex items-center justify-center shrink-0">
+                              🎞️
+                            </span>
+                            <div>
+                              <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
+                                Image to Video AI
+                              </h4>
+                              <p className="text-xs text-gray-500 font-medium">Animate photos into video beats</p>
+                            </div>
+                          </Link>
+
+                          <Link
+                            href="/dashboard/youtube-subtitles"
+                            onClick={() => setActiveMenu(null)}
+                            className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
+                          >
+                            <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-lg flex items-center justify-center shrink-0">
+                              🎯
+                            </span>
+                            <div>
+                              <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
+                                YouTube Subtitles
+                              </h4>
+                              <p className="text-xs text-gray-500 font-medium">1080p burned-in subtitles</p>
+                            </div>
+                          </Link>
+
+                          <Link
+                            href="/dashboard/audio-cleaner"
+                            onClick={() => setActiveMenu(null)}
+                            className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
+                          >
+                            <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-lg flex items-center justify-center shrink-0">
+                              🎙️
+                            </span>
+                            <div>
+                              <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
+                                AI Audio Cleaner
+                              </h4>
+                              <p className="text-xs text-gray-500 font-medium">Studio voice cleanup &amp; retake fix</p>
+                            </div>
+                          </Link>
+                        </div>
+                      </div>
+
+                      {/* Bottom Banner */}
+                      <div className="pt-3 border-t border-gray-100 flex items-center justify-between text-xs px-2 -mx-2 -mb-2 bg-slate-50/90 rounded-b-xl p-3">
+                        <span className="text-[11px] font-semibold text-gray-600">
+                          ⚡ 1080p Cloud Render in 60s • 1 Free Credit on Signup
+                        </span>
+                        <Link
+                          href="/dashboard"
+                          onClick={() => setActiveMenu(null)}
+                          className="font-bold text-orange-600 hover:text-orange-700 flex items-center gap-1 text-xs"
+                        >
+                          <span>Open All Studios</span>
+                          <ArrowRight size={13} />
+                        </Link>
+                      </div>
                     </div>
                   )}
                 </div>
 
-                {/* Studios Dropdown */}
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => toggleMenu('studios')}
-                    className={`flex items-center gap-1 transition cursor-pointer py-1 ${
-                      isLightPage
-                        ? activeMenu === 'studios' ? 'text-slate-900 font-bold' : 'text-slate-700 hover:text-slate-900'
-                        : activeMenu === 'studios' ? 'text-white font-semibold' : 'text-zinc-300 hover:text-white'
-                    }`}
-                  >
-                    <span>Studios</span>
-                    <ChevronDown size={14} className={`transition-transform duration-200 ${
-                      isLightPage ? 'text-slate-500' : 'text-zinc-400'
-                    } ${activeMenu === 'studios' ? 'rotate-180' : ''}`} />
-                  </button>
-
-                  {activeMenu === 'studios' && (
-                    <div className={`absolute left-0 top-full mt-3 w-80 rounded-2xl border p-2 shadow-2xl backdrop-blur-3xl animate-in fade-in zoom-in-95 duration-150 ${
-                      isLightPage
-                        ? 'border-slate-200 bg-white text-slate-900 shadow-slate-900/10'
-                        : 'border-white/[0.08] bg-[#0F1117] text-zinc-100 ring-1 ring-white/10'
-                    }`}>
-                      {STUDIO_ITEMS.map((item) => {
-                        const Icon = item.icon;
-                        return (
-                          <Link
-                            key={item.label}
-                            href={item.href}
-                            onClick={() => setActiveMenu(null)}
-                            className={`flex items-start gap-3 rounded-xl p-2.5 transition group ${
-                              isLightPage ? 'hover:bg-slate-50' : 'hover:bg-[#151821]'
-                            }`}
-                          >
-                            <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-[#FF9100] transition ${
-                              isLightPage ? 'bg-slate-100 border-slate-200' : 'bg-[#151821] border-white/10'
-                            }`}>
-                              <Icon size={16} />
-                            </div>
-                            <div>
-                              <p className={`text-xs font-bold transition ${
-                                isLightPage ? 'text-slate-900 group-hover:text-[#FF6D00]' : 'text-white group-hover:text-[#FFA726]'
-                              }`}>{item.label}</p>
-                              <p className={`text-[11px] leading-snug mt-0.5 ${
-                                isLightPage ? 'text-slate-500' : 'text-zinc-400'
-                              }`}>{item.desc}</p>
-                            </div>
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-
-                {/* Features / Specs */}
-                <Link href="/features" className={`transition ${isLightPage ? 'hover:text-slate-900' : 'hover:text-white'}`}>
+                {/* 2. Features / Specs */}
+                <Link href="/features" className={`transition font-semibold ${isLightPage ? 'text-slate-800 hover:text-orange-600' : 'text-zinc-300 hover:text-white'}`}>
                   Features
                 </Link>
 
-                {/* Pricing */}
-                <Link href="/pricing" className={`transition ${isLightPage ? 'hover:text-slate-900' : 'hover:text-white'}`}>
+                {/* 3. Pricing */}
+                <Link href="/pricing" className={`transition font-semibold ${isLightPage ? 'text-slate-800 hover:text-orange-600' : 'text-zinc-300 hover:text-white'}`}>
                   Pricing
                 </Link>
 
-                {/* Resources Dropdown */}
+                {/* 4. Resources Dropdown */}
                 <div className="relative">
                   <button
                     type="button"
                     onClick={() => toggleMenu('resources')}
-                    className={`flex items-center gap-1 transition cursor-pointer py-1 ${
+                    className={`flex items-center gap-1 transition cursor-pointer py-1 font-semibold ${
                       isLightPage
-                        ? activeMenu === 'resources' ? 'text-slate-900 font-bold' : 'text-slate-700 hover:text-slate-900'
+                        ? activeMenu === 'resources' ? 'text-orange-600 font-bold' : 'text-slate-800 hover:text-orange-600'
                         : activeMenu === 'resources' ? 'text-white font-semibold' : 'text-zinc-300 hover:text-white'
                     }`}
                   >
                     <span>Resources</span>
                     <ChevronDown size={14} className={`transition-transform duration-200 ${
                       isLightPage ? 'text-slate-500' : 'text-zinc-400'
-                    } ${activeMenu === 'resources' ? 'rotate-180' : ''}`} />
+                    } ${activeMenu === 'resources' ? 'rotate-180 text-orange-600' : ''}`} />
                   </button>
 
                   {activeMenu === 'resources' && (
-                    <div className={`absolute left-0 top-full mt-3 w-72 rounded-2xl border p-2 shadow-2xl backdrop-blur-3xl animate-in fade-in zoom-in-95 duration-150 ${
-                      isLightPage
-                        ? 'border-slate-200 bg-white text-slate-900 shadow-slate-900/10'
-                        : 'border-white/10 bg-[#0B101D] text-zinc-100 ring-1 ring-white/10 shadow-black/80'
-                    }`}>
-                      {RESOURCE_ITEMS.map((item) => {
-                        const Icon = item.icon;
-                        return (
-                          <Link
-                            key={item.label}
-                            href={item.href}
-                            onClick={() => setActiveMenu(null)}
-                            className={`flex items-start gap-3 rounded-xl p-2.5 transition group ${
-                              isLightPage ? 'hover:bg-slate-50' : 'hover:bg-[#151E30]'
-                            }`}
-                          >
-                            <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-purple-400 transition ${
-                              isLightPage ? 'bg-slate-100 border-slate-200' : 'bg-[#151E30] border-white/10'
-                            }`}>
-                              <Icon size={16} />
-                            </div>
-                            <div>
-                              <p className={`text-xs font-bold transition ${
-                                isLightPage ? 'text-slate-900 group-hover:text-purple-600' : 'text-white group-hover:text-purple-300'
-                              }`}>{item.label}</p>
-                              <p className={`text-[11px] leading-snug mt-0.5 ${
-                                isLightPage ? 'text-slate-500' : 'text-zinc-400'
-                              }`}>{item.desc}</p>
-                            </div>
-                          </Link>
-                        );
-                      })}
+                    <div
+                      style={{ backgroundColor: '#ffffff', opacity: 1, boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', zIndex: 60 }}
+                      className="absolute left-0 top-full mt-2 w-80 rounded-2xl border border-gray-200/90 bg-white p-3 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 text-gray-900"
+                    >
+                      <div className="space-y-1">
+                        {RESOURCE_ITEMS.map((item) => {
+                          const Icon = item.icon;
+                          return (
+                            <Link
+                              key={item.label}
+                              href={item.href}
+                              onClick={() => setActiveMenu(null)}
+                              className="flex items-start gap-3 rounded-xl p-2.5 transition hover:bg-orange-50/70 group"
+                            >
+                              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-orange-200/80 bg-orange-50 text-orange-600 group-hover:bg-orange-500 group-hover:text-white group-hover:border-transparent transition">
+                                <Icon size={16} />
+                              </div>
+                              <div>
+                                <p className="text-xs font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
+                                  {item.label}
+                                </p>
+                                <p className="text-[11px] font-medium leading-snug mt-0.5 text-gray-500">
+                                  {item.desc}
+                                </p>
+                              </div>
+                            </Link>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
                 </div>
-
-                {/* About Us */}
-                <Link href="/about" className={`transition ${isLightPage ? 'hover:text-slate-900' : 'hover:text-white'}`}>
-                  About
-                </Link>
 
               </nav>
             )}
           </div>
 
           {/* RIGHT SIDE: LANGUAGE + LOGIN + PRIMARY CTA */}
-          <div className="hidden lg:flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-3">
             
-            {/* EN Language Selector */}
+            {/* Language Selector Dropdown */}
             <div className="relative">
               <button
                 type="button"
                 onClick={() => toggleMenu('lang')}
-                className={`flex items-center gap-1.5 text-xs font-medium transition cursor-pointer py-1 ${
-                  isLightPage ? 'text-slate-700 hover:text-slate-900' : 'text-zinc-300 hover:text-white'
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl transition cursor-pointer border ${
+                  isLightPage
+                    ? 'border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-800'
+                    : 'border-white/15 bg-white/[0.06] text-zinc-200 hover:bg-white/10'
                 }`}
               >
-                <Globe size={14} className={isLightPage ? 'text-slate-500' : 'text-zinc-400'} />
-                <span>EN</span>
-                <ChevronDown size={12} className={isLightPage ? 'text-slate-500' : 'text-zinc-400'} />
+                <Globe size={14} className={isLightPage ? 'text-gray-600' : 'text-zinc-400'} />
+                <span>{selectedLang.code}</span>
+                <ChevronDown size={12} className={`transition-transform duration-200 ${
+                  isLightPage ? 'text-gray-500' : 'text-zinc-400'
+                } ${activeMenu === 'lang' ? 'rotate-180' : ''}`} />
               </button>
 
               {activeMenu === 'lang' && (
-                <div className={`absolute right-0 top-full mt-3 w-36 rounded-xl border p-1.5 text-xs shadow-2xl backdrop-blur-2xl ${
-                  isLightPage
-                    ? 'border-slate-200 bg-white text-slate-800'
-                    : 'border-white/10 bg-[#0B101D] text-zinc-200 shadow-black/80'
-                }`}>
-                  <button type="button" onClick={() => setActiveMenu(null)} className={`w-full text-left rounded-lg px-3 py-1.5 font-bold ${
-                    isLightPage ? 'bg-slate-100 text-slate-900' : 'bg-white/10 text-white'
-                  }`}>English (EN)</button>
-                  <button type="button" onClick={() => setActiveMenu(null)} className={`w-full text-left rounded-lg px-3 py-1.5 transition ${
-                    isLightPage ? 'text-slate-600 hover:text-slate-900 hover:bg-slate-50' : 'text-zinc-400 hover:text-white hover:bg-white/5'
-                  }`}>Hinglish (HI)</button>
+                <div
+                  style={{ backgroundColor: '#ffffff', opacity: 1, boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', zIndex: 60 }}
+                  className="absolute right-0 top-full mt-2 w-44 rounded-2xl border border-gray-200/90 bg-white p-1.5 text-xs shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 text-gray-800"
+                >
+                  <div className="space-y-0.5">
+                    {LANGUAGES.map((lang) => {
+                      const isSelected = selectedLang.code === lang.code;
+                      return (
+                        <button
+                          key={lang.code}
+                          type="button"
+                          onClick={() => {
+                            setSelectedLang(lang);
+                            setActiveMenu(null);
+                          }}
+                          className={`w-full flex items-center justify-between rounded-xl px-3 py-2 text-left transition cursor-pointer font-bold ${
+                            isSelected ? 'bg-orange-50 text-orange-600' : 'hover:bg-gray-50 text-gray-700'
+                          }`}
+                        >
+                          <span>{lang.name}</span>
+                          {isSelected && <span className="h-2 w-2 rounded-full bg-orange-600" />}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>
@@ -334,54 +465,59 @@ export default function Navbar() {
               <div className="relative">
                 <button
                   type="button"
-                  onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className={`flex items-center gap-2 rounded-full border px-3.5 py-1.5 transition text-left cursor-pointer ${
+                  onClick={toggleUserMenu}
+                  className={`flex items-center gap-2 rounded-xl border px-3 py-1.5 transition text-left cursor-pointer shadow-2xs ${
                     isLightPage
                       ? 'border-slate-200 bg-slate-100 hover:bg-slate-200'
                       : 'border-white/15 bg-white/[0.04] hover:bg-white/[0.08] hover:border-purple-500/50'
                   }`}
                 >
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-tr from-purple-600 to-pink-500 text-white font-black text-xs shadow-md">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-tr from-purple-600 to-pink-500 text-white font-black text-xs shadow-xs">
                     {user?.email ? user.email.charAt(0).toUpperCase() : <User size={13} />}
                   </div>
-                  <span className={`max-w-[100px] truncate text-xs font-bold capitalize ${
+                  <span className={`max-w-[110px] truncate text-xs font-bold capitalize ${
                     isLightPage ? 'text-slate-900' : 'text-white'
                   }`}>
-                    {user?.displayName || (user?.email?.split('@')[0] ? user.email.split('@')[0].charAt(0).toUpperCase() + user.email.split('@')[0].slice(1) : '')}
+                    {user?.displayName || (user?.email?.split('@')[0] ? user.email.split('@')[0].charAt(0).toUpperCase() + user.email.split('@')[0].slice(1) : 'Dev Tester')}
                   </span>
-                  <ChevronDown size={12} className={isLightPage ? 'text-slate-500' : 'text-zinc-400'} />
+                  <ChevronDown size={12} className={`transition-transform duration-200 ${
+                    isLightPage ? 'text-slate-500' : 'text-zinc-400'
+                  } ${userMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {userMenuOpen && (
-                  <div className={`absolute right-0 top-full mt-2 w-56 rounded-2xl border p-2 shadow-2xl backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-150 ${
-                    isLightPage
-                      ? 'border-slate-200 bg-white text-slate-900 shadow-slate-900/10'
-                      : 'border-white/10 bg-[#0B101D] text-zinc-100 shadow-black/80'
-                  }`}>
-                    <div className={`px-3 py-2 border-b mb-1 ${isLightPage ? 'border-slate-100' : 'border-white/10'}`}>
-                      <p className={`text-[10px] font-bold uppercase tracking-wider ${isLightPage ? 'text-slate-400' : 'text-zinc-400'}`}>Signed in as</p>
-                      <p className={`text-xs font-black truncate ${isLightPage ? 'text-slate-900' : 'text-white'}`}>{user?.email}</p>
+                  <div
+                    style={{ backgroundColor: '#ffffff', opacity: 1, boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', zIndex: 60 }}
+                    className="absolute right-0 top-full mt-2 w-56 rounded-2xl border border-gray-200/90 bg-white p-2 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 text-slate-900"
+                  >
+                    <div className="px-3 py-2 border-b border-gray-100 mb-1">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Signed in as</p>
+                      <p className="text-xs font-black truncate text-slate-900">{user?.email}</p>
                     </div>
 
-                    <Link href="/dashboard" onClick={() => setUserMenuOpen(false)} className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition ${
-                      isLightPage ? 'text-slate-700 hover:bg-slate-50' : 'text-zinc-200 hover:bg-[#151821]'
-                    }`}>
-                      <LayoutDashboard size={14} className="text-purple-400" />
+                    <Link
+                      href="/dashboard"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition"
+                    >
+                      <LayoutDashboard size={14} className="text-[#FF5722]" />
                       <span>Dashboard</span>
                     </Link>
 
-                    <Link href="/billing" onClick={() => setUserMenuOpen(false)} className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold transition ${
-                      isLightPage ? 'text-slate-700 hover:bg-slate-50' : 'text-zinc-200 hover:bg-[#151821]'
-                    }`}>
-                      <CreditCard size={14} className="text-purple-400" />
+                    <Link
+                      href="/billing"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition"
+                    >
+                      <CreditCard size={14} className="text-[#FF5722]" />
                       <span>Billing &amp; Videos</span>
                     </Link>
 
-                    <div className={`mt-1 pt-1 border-t ${isLightPage ? 'border-slate-100' : 'border-white/10'}`}>
+                    <div className="mt-1 pt-1 border-t border-gray-100">
                       <button
                         type="button"
                         onClick={() => { setUserMenuOpen(false); void logout(); }}
-                        className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-rose-500 hover:bg-rose-50 transition"
+                        className="w-full flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 transition cursor-pointer"
                       >
                         <LogOut size={14} />
                         <span>Log Out</span>
@@ -402,7 +538,7 @@ export default function Navbar() {
                 </Link>
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-5 py-2 text-xs font-black text-white shadow-lg shadow-orange-500/25 transition hover:brightness-110 active:scale-95"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-5 py-2 text-xs font-black text-white shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:brightness-110 active:scale-95 transition-all duration-200"
                 >
                   <Sparkles size={13} className="fill-white stroke-white" />
                   <span>Start Free</span>
@@ -477,7 +613,7 @@ export default function Navbar() {
               <Link
                 href="/dashboard"
                 onClick={() => setIsOpen(false)}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-4 py-2.5 text-xs font-black text-white shadow-md shadow-orange-500/25 hover:brightness-110 transition active:scale-95"
+                className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-4 py-2.5 text-xs font-black text-white shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:brightness-110 active:scale-95 transition-all duration-200"
               >
                 <span>Start Creating Free</span>
                 <ArrowRight size={14} />

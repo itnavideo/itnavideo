@@ -313,7 +313,7 @@ export function FacelessVideoStudio({
   };
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm text-slate-900 space-y-8">
+    <div className="rounded-3xl border border-white/10 bg-[#0B0D13] p-6 sm:p-8 shadow-2xl text-white space-y-8">
       {/* Hidden audio element for preview */}
       {audioObjectUrl && (
         <audio
@@ -325,24 +325,24 @@ export function FacelessVideoStudio({
       )}
 
       {/* ── HEADER & STEPPER ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10">
         <div>
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#0E1526] px-3 py-1 text-xs font-semibold text-zinc-300">
               <Tv size={13} className="text-[#FF5722]" />
               <span>16:9 Widescreen Only · Up to 10 min</span>
             </span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 mt-2">
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white mt-2">
             Faceless Video Studio
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+          <p className="text-xs sm:text-sm text-zinc-400 mt-0.5">
             Turn voiceovers into complete 1080p widescreen YouTube explainer videos with verified transcripts and cinematic visuals.
           </p>
         </div>
 
         {/* 3-Step Wizard Navigation Indicator */}
-        <div className="flex items-center gap-2 text-xs font-medium bg-slate-50 border border-slate-200 rounded-full p-1.5 self-start sm:self-auto">
+        <div className="flex items-center gap-2 text-xs font-medium bg-[#0B0F19] border border-white/10 rounded-full p-1.5 self-start sm:self-auto">
           {[
             { id: "inputs", label: "1. Voiceover & Setup" },
             { id: "transcript", label: "2. Transcript Review" },
@@ -363,15 +363,15 @@ export function FacelessVideoStudio({
                   if (s.id === "storyboard" && sceneBlueprint.length > 0) setStudioStep("storyboard");
                 }}
                 disabled={s.id !== "inputs" && !transcriptText && sceneBlueprint.length === 0}
-                className={`flex items-center gap-1.5 rounded-full px-3 py-1 transition cursor-pointer disabled:opacity-40 disabled:pointer-events-none ${
+                className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 transition cursor-pointer disabled:opacity-40 disabled:pointer-events-none ${
                   isActive
-                    ? "bg-white text-slate-900 font-bold shadow-sm border border-slate-200"
+                    ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white font-bold shadow-md shadow-orange-500/20"
                     : isCompleted
-                    ? "text-emerald-700 hover:text-slate-900"
-                    : "text-slate-500 hover:text-slate-800"
+                    ? "text-emerald-400 hover:text-white"
+                    : "text-zinc-400 hover:text-white"
                 }`}
               >
-                {isCompleted && <Check size={12} className="text-emerald-600" />}
+                {isCompleted && <Check size={12} className="text-emerald-400" />}
                 <span>{s.label}</span>
               </button>
             );
@@ -387,17 +387,17 @@ export function FacelessVideoStudio({
           {/* Left Column (8 cols): Primary Inputs */}
           <div className="lg:col-span-8 space-y-6">
             {/* 1. Audio Voiceover Upload Dropzone */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="rounded-2xl border border-white/10 bg-[#0D111D] p-6 shadow-xl space-y-4">
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
                 <div className="flex items-center gap-2.5">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-50 text-orange-600 text-xs font-bold border border-orange-200">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-500/10 text-orange-400 text-xs font-bold border border-orange-500/30">
                     1
                   </span>
                   <div>
-                    <h3 className="text-sm sm:text-base font-bold text-slate-900">
+                    <h3 className="text-sm sm:text-base font-bold text-white">
                       Upload Voiceover Audio
                     </h3>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-zinc-400">
                       Upload spoken voiceover track (MP3, WAV, M4A up to 10 minutes / 600s).
                     </p>
                   </div>
@@ -406,8 +406,8 @@ export function FacelessVideoStudio({
                 <span
                   className={`rounded-full px-2.5 py-0.5 text-xs font-medium border ${
                     selectedFile
-                      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                      : "bg-slate-50 text-slate-500 border-slate-200"
+                      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                      : "bg-white/5 text-zinc-400 border border-white/10"
                   }`}
                 >
                   {selectedFile ? "Audio Loaded" : "Required"}
@@ -428,28 +428,28 @@ export function FacelessVideoStudio({
                 {!selectedFile ? (
                   <label
                     htmlFor="faceless-voiceover-input"
-                    className="rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/60 p-8 text-center transition cursor-pointer flex flex-col items-center justify-center gap-3 hover:border-slate-400 hover:bg-slate-50"
+                    className="rounded-xl border-2 border-dashed border-white/15 bg-[#121624]/60 p-8 text-center transition cursor-pointer flex flex-col items-center justify-center gap-3 hover:border-orange-500/40 hover:bg-[#121624]"
                   >
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-700 shadow-sm">
-                      <Upload size={20} className="text-[#FF5722]" />
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#0E1526] border border-white/10 text-[#FF5722] shadow-sm">
+                      <Upload size={20} />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-slate-900">Choose voiceover audio file</p>
-                      <p className="text-xs text-slate-500 mt-0.5">MP3, WAV, M4A · 16:9 Full HD format · Up to 10 minutes</p>
+                      <p className="text-sm font-semibold text-white">Choose voiceover audio file</p>
+                      <p className="text-xs text-zinc-400 mt-0.5">MP3, WAV, M4A · 16:9 Full HD format · Up to 10 minutes</p>
                     </div>
-                    <span className="rounded-full bg-slate-900 hover:bg-slate-800 px-4 py-2 text-xs font-medium text-white shadow-sm transition">
+                    <span className="rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] hover:brightness-110 px-4 py-2 text-xs font-bold text-white shadow-md shadow-orange-500/20 transition">
                       Browse File
                     </span>
                   </label>
                 ) : (
-                  <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4 flex items-center justify-between gap-4">
+                  <div className="rounded-xl border border-white/10 bg-[#121624] p-4 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-700 font-bold text-sm shadow-sm">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/5 border border-white/10 text-white font-bold text-sm shadow-sm">
                         🎙️
                       </div>
                       <div className="min-w-0">
-                        <p className="text-xs font-bold text-slate-900 truncate max-w-md">{selectedFile.name}</p>
-                        <p className="text-[11px] text-slate-500 mt-0.5">
+                        <p className="text-xs font-bold text-white truncate max-w-md">{selectedFile.name}</p>
+                        <p className="text-[11px] text-zinc-400 mt-0.5">
                           {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB · Ready for speech transcription
                         </p>
                       </div>
@@ -458,7 +458,7 @@ export function FacelessVideoStudio({
                       <button
                         type="button"
                         onClick={() => onSelectFile(null)}
-                        className="rounded-lg border border-slate-200 bg-white p-2 text-slate-500 hover:text-red-600 hover:border-red-200 transition cursor-pointer"
+                        className="rounded-lg border border-white/10 bg-white/5 p-2 text-zinc-400 hover:text-red-400 hover:border-red-500/40 transition cursor-pointer"
                         title="Remove audio"
                       >
                         <Trash2 size={14} />
@@ -470,7 +470,7 @@ export function FacelessVideoStudio({
 
               {/* Video Title / Topic (Optional) */}
               <div className="space-y-1.5 pt-2">
-                <label className="block text-xs font-semibold text-slate-700">
+                <label className="block text-xs font-semibold text-zinc-300">
                   Video Topic or Channel Headline (Optional)
                 </label>
                 <input
@@ -478,22 +478,22 @@ export function FacelessVideoStudio({
                   value={topicTitle}
                   onChange={(e) => onTopicTitleChange?.(e.target.value)}
                   placeholder="e.g. How The Global Semiconductor Race Changed Technology"
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none transition"
+                  className="w-full rounded-xl border border-white/10 bg-[#121624] px-3.5 py-2.5 text-xs text-white placeholder:text-zinc-500 focus:border-[#FF5722] focus:outline-none transition"
                 />
               </div>
             </div>
 
             {/* 2. Visual Media Source & Art Style */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
-              <div className="flex items-center gap-2.5 border-b border-slate-100 pb-3">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-50 text-orange-600 text-xs font-bold border border-orange-200">
+            <div className="rounded-2xl border border-white/10 bg-[#0D111D] p-6 shadow-xl space-y-5">
+              <div className="flex items-center gap-2.5 border-b border-white/10 pb-3">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-500/10 text-orange-400 text-xs font-bold border border-orange-500/30">
                   2
                 </span>
                 <div>
-                  <h3 className="text-sm sm:text-base font-bold text-slate-900">
+                  <h3 className="text-sm sm:text-base font-bold text-white">
                     Visual Media &amp; Art Direction
                   </h3>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-zinc-400">
                     Choose how scene visuals and B-roll will be matched to your voiceover.
                   </p>
                 </div>
@@ -501,7 +501,7 @@ export function FacelessVideoStudio({
 
               {/* Source Mode Options */}
               <div className="space-y-2">
-                <label className="block text-xs font-semibold text-slate-700">Asset Source Mode</label>
+                <label className="block text-xs font-semibold text-zinc-300">Asset Source Mode</label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {[
                     { id: "library", label: "Curated Stock Library", desc: "AI matches verified high-definition B-roll" },
@@ -516,12 +516,12 @@ export function FacelessVideoStudio({
                         onClick={() => onAssetSourceModeChange(opt.id as any)}
                         className={`rounded-xl border p-3.5 text-left transition cursor-pointer ${
                           active
-                            ? "border-slate-900 bg-slate-50 text-slate-900 font-semibold shadow-xs"
-                            : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50/50"
+                            ? "border-orange-500/60 bg-[#161C2E] text-white font-semibold ring-1 ring-orange-500/40 shadow-sm"
+                            : "border-white/10 bg-[#121624] text-zinc-400 hover:border-white/20 hover:text-white"
                         }`}
                       >
-                        <p className="text-xs font-bold text-slate-900">{opt.label}</p>
-                        <p className="text-[11px] text-slate-500 mt-1 leading-snug">{opt.desc}</p>
+                        <p className="text-xs font-bold text-white">{opt.label}</p>
+                        <p className="text-[11px] text-zinc-400 mt-1 leading-snug">{opt.desc}</p>
                       </button>
                     );
                   })}
@@ -529,8 +529,8 @@ export function FacelessVideoStudio({
               </div>
 
               {/* Visual Art Style Selector */}
-              <div className="space-y-2 pt-2 border-t border-slate-100">
-                <label className="block text-xs font-semibold text-slate-700">Visual Art Style</label>
+              <div className="space-y-2 pt-2 border-t border-white/10">
+                <label className="block text-xs font-semibold text-zinc-300">Visual Art Style</label>
                 <div className="grid grid-cols-3 gap-3">
                   {[
                     { id: "realistic", label: "📸 Realistic Photo", desc: "Authentic documentary photography" },
@@ -545,12 +545,12 @@ export function FacelessVideoStudio({
                         onClick={() => onVisualArtStyleChange?.(style.id as any)}
                         className={`rounded-xl border p-3 text-left transition cursor-pointer ${
                           active
-                            ? "border-slate-900 bg-slate-50 font-semibold text-slate-900"
-                            : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                            ? "border-orange-500/60 bg-[#161C2E] font-semibold text-white ring-1 ring-orange-500/40 shadow-sm"
+                            : "border-white/10 bg-[#121624] text-zinc-400 hover:border-white/20 hover:text-white"
                         }`}
                       >
-                        <p className="text-xs font-bold text-slate-900">{style.label}</p>
-                        <p className="text-[10px] text-slate-500 mt-0.5">{style.desc}</p>
+                        <p className="text-xs font-bold text-white">{style.label}</p>
+                        <p className="text-[10px] text-zinc-400 mt-0.5">{style.desc}</p>
                       </button>
                     );
                   })}
@@ -559,8 +559,8 @@ export function FacelessVideoStudio({
 
               {/* Custom Uploads Zone (if Upload or Mix chosen) */}
               {(assetSourceMode === "upload" || assetSourceMode === "mix") && (
-                <div className="space-y-3 pt-3 border-t border-slate-100">
-                  <label className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-xs font-semibold text-slate-700 hover:border-slate-400 transition cursor-pointer">
+                <div className="space-y-3 pt-3 border-t border-white/10">
+                  <label className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-white/20 bg-white/5 p-4 text-xs font-semibold text-zinc-300 hover:border-orange-500/40 hover:text-white transition cursor-pointer">
                     <input
                       type="file"
                       multiple
@@ -568,7 +568,7 @@ export function FacelessVideoStudio({
                       onChange={handleMediaUpload}
                       className="hidden"
                     />
-                    <Plus size={15} className="text-slate-600" />
+                    <Plus size={15} className="text-zinc-400" />
                     <span>Upload Custom Images or Clips ({uploadedImageFiles.length} selected)</span>
                   </label>
 
@@ -577,14 +577,14 @@ export function FacelessVideoStudio({
                       {uploadedImageFiles.map((file, idx) => (
                         <div
                           key={idx}
-                          className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs text-slate-700 shadow-xs"
+                          className="flex items-center gap-2 rounded-lg border border-white/10 bg-[#121624] px-2.5 py-1 text-xs text-zinc-300 shadow-xs"
                         >
                           <span className="text-xs">{file.type.startsWith("image") ? "🖼️" : "🎬"}</span>
                           <span className="truncate max-w-[130px] text-[11px] font-medium">{file.name}</span>
                           <button
                             type="button"
                             onClick={() => removeMediaFile(idx)}
-                            className="text-slate-400 hover:text-red-500 text-xs ml-1 cursor-pointer"
+                            className="text-zinc-400 hover:text-red-400 text-xs ml-1 cursor-pointer"
                           >
                             ✕
                           </button>
@@ -597,16 +597,16 @@ export function FacelessVideoStudio({
             </div>
 
             {/* 3. Subtitle Preset Picker */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
-              <div className="flex items-center gap-2.5 border-b border-slate-100 pb-3">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-50 text-orange-600 text-xs font-bold border border-orange-200">
+            <div className="rounded-2xl border border-white/10 bg-[#0D111D] p-6 shadow-xl space-y-4">
+              <div className="flex items-center gap-2.5 border-b border-white/10 pb-3">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-500/10 text-orange-400 text-xs font-bold border border-orange-500/30">
                   3
                 </span>
                 <div>
-                  <h3 className="text-sm sm:text-base font-bold text-slate-900">
+                  <h3 className="text-sm sm:text-base font-bold text-white">
                     Subtitle Typography Style
                   </h3>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-zinc-400">
                     Word-synced animated lower-third subtitle styles.
                   </p>
                 </div>
@@ -622,23 +622,23 @@ export function FacelessVideoStudio({
                       onClick={() => onSubtitleStyleChange?.(style.id)}
                       className={`rounded-xl border p-3.5 text-left transition cursor-pointer flex flex-col justify-between ${
                         isSelected
-                          ? "border-slate-900 bg-slate-50 ring-1 ring-slate-900 shadow-sm"
-                          : "border-slate-200 bg-white hover:border-slate-300"
+                          ? "border-orange-500/60 bg-[#161C2E] ring-1 ring-orange-500/40 shadow-md"
+                          : "border-white/10 bg-[#121624] hover:border-white/20"
                       }`}
                     >
                       <div>
                         <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
                             {style.badge}
                           </span>
-                          {isSelected && <Check size={14} className="text-slate-900" />}
+                          {isSelected && <Check size={14} className="text-[#FFA000]" />}
                         </div>
-                        <p className="text-xs font-bold text-slate-900 mt-1">{style.title}</p>
-                        <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-1">{style.desc}</p>
+                        <p className="text-xs font-bold text-white mt-1">{style.title}</p>
+                        <p className="text-[11px] text-zinc-400 mt-0.5 line-clamp-1">{style.desc}</p>
                       </div>
 
                       {/* Mini Preview Box */}
-                      <div className="mt-3 rounded-lg bg-slate-900 p-2 text-center text-[10px] font-bold text-white">
+                      <div className="mt-3 rounded-lg bg-[#070B14] border border-white/10 p-2 text-center text-[10px] font-bold text-white">
                         {style.highlightWord ? (
                           <span>
                             {style.previewText.replace(style.highlightWord, "")}
@@ -655,16 +655,16 @@ export function FacelessVideoStudio({
             </div>
 
             {/* 4. Audio Score: BGM & SFX */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
-              <div className="flex items-center gap-2.5 border-b border-slate-100 pb-3">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-50 text-orange-600 text-xs font-bold border border-orange-200">
+            <div className="rounded-2xl border border-white/10 bg-[#0D111D] p-6 shadow-xl space-y-4">
+              <div className="flex items-center gap-2.5 border-b border-white/10 pb-3">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-500/10 text-orange-400 text-xs font-bold border border-orange-500/30">
                   4
                 </span>
                 <div>
-                  <h3 className="text-sm sm:text-base font-bold text-slate-900">
+                  <h3 className="text-sm sm:text-base font-bold text-white">
                     Background Music &amp; Audio Pacing
                   </h3>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-zinc-400">
                     Smart audio ducking during speech + beat transition sound effects.
                   </p>
                 </div>
@@ -672,7 +672,7 @@ export function FacelessVideoStudio({
 
               {/* Music Mood Grid */}
               <div className="space-y-2">
-                <label className="block text-xs font-semibold text-slate-700">Music Mood</label>
+                <label className="block text-xs font-semibold text-zinc-300">Music Mood</label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                   {[
                     { id: "mystery", label: "🕯️ Mystery Cinema" },
@@ -688,8 +688,8 @@ export function FacelessVideoStudio({
                         onClick={() => onBgmMoodChange?.(bgm.id as any)}
                         className={`rounded-xl border p-2.5 text-center text-xs font-semibold transition cursor-pointer ${
                           active
-                            ? "border-slate-900 bg-slate-50 text-slate-900 font-bold"
-                            : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                            ? "border-orange-500/60 bg-[#161C2E] text-white font-bold ring-1 ring-orange-500/40"
+                            : "border-white/10 bg-[#121624] text-zinc-400 hover:border-white/20 hover:text-white"
                         }`}
                       >
                         {bgm.label}
@@ -700,20 +700,20 @@ export function FacelessVideoStudio({
               </div>
 
               {/* Volume & SFX Toggles */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-slate-100">
-                <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-white/10">
+                <div className="flex items-center justify-between rounded-xl border border-white/10 bg-[#121624] p-3">
                   <div>
-                    <p className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                      <Volume2 size={14} className="text-slate-700" />
+                    <p className="text-xs font-bold text-white flex items-center gap-1.5">
+                      <Volume2 size={14} className="text-zinc-300" />
                       <span>Beat Sound Effects (SFX)</span>
                     </p>
-                    <p className="text-[11px] text-slate-500">Whooshes &amp; stat impact sounds</p>
+                    <p className="text-[11px] text-zinc-400">Whooshes &amp; stat impact sounds</p>
                   </div>
                   <button
                     type="button"
                     onClick={() => onEnableSfxChange?.(!facelessEnableSfx)}
                     className={`relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
-                      facelessEnableSfx ? "bg-slate-900" : "bg-slate-300"
+                      facelessEnableSfx ? "bg-[#FF5722]" : "bg-white/20"
                     }`}
                   >
                     <span
@@ -725,10 +725,10 @@ export function FacelessVideoStudio({
                 </div>
 
                 {facelessBgmMood !== "none" ? (
-                  <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 space-y-1">
-                    <div className="flex items-center justify-between text-xs font-semibold text-slate-700">
+                  <div className="rounded-xl border border-white/10 bg-[#121624] p-3 space-y-1">
+                    <div className="flex items-center justify-between text-xs font-semibold text-zinc-300">
                       <span>Music Mix Volume</span>
-                      <span className="font-mono text-slate-900">{Math.round((facelessBgmVolume || 0.15) * 100)}%</span>
+                      <span className="font-mono text-white">{Math.round((facelessBgmVolume || 0.15) * 100)}%</span>
                     </div>
                     <input
                       type="range"
@@ -737,11 +737,11 @@ export function FacelessVideoStudio({
                       step="0.05"
                       value={facelessBgmVolume || 0.15}
                       onChange={(e) => onBgmVolumeChange?.(parseFloat(e.target.value))}
-                      className="w-full accent-slate-900 cursor-pointer"
+                      className="w-full accent-[#FF5722] cursor-pointer"
                     />
                   </div>
                 ) : (
-                  <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-3 flex items-center text-xs text-slate-400 italic">
+                  <div className="rounded-xl border border-white/10 bg-[#121624]/40 p-3 flex items-center text-xs text-zinc-500 italic">
                     Background music disabled
                   </div>
                 )}
@@ -751,37 +751,37 @@ export function FacelessVideoStudio({
 
           {/* Right Column (4 cols): Summary & Direct Next Action */}
           <div className="lg:col-span-4 sticky top-24 space-y-6">
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+            <div className="rounded-2xl border border-white/10 bg-[#0D111D] p-5 shadow-xl space-y-4">
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
                   Video Specifications
                 </h3>
-                <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-700">
+                <span className="rounded-full bg-white/5 border border-white/10 px-2 py-0.5 text-[10px] font-bold text-zinc-300">
                   16:9 1080p Full HD
                 </span>
               </div>
 
               {/* Video Specs Breakdown */}
-              <div className="space-y-2.5 text-xs text-slate-600">
-                <div className="flex items-center justify-between py-1 border-b border-slate-50">
-                  <span className="text-slate-500">Aspect Ratio</span>
-                  <span className="font-semibold text-slate-900">16:9 Widescreen Cinema</span>
+              <div className="space-y-2.5 text-xs text-zinc-300">
+                <div className="flex items-center justify-between py-1 border-b border-white/5">
+                  <span className="text-zinc-400">Aspect Ratio</span>
+                  <span className="font-semibold text-white">16:9 Widescreen Cinema</span>
                 </div>
-                <div className="flex items-center justify-between py-1 border-b border-slate-50">
-                  <span className="text-slate-500">Resolution</span>
-                  <span className="font-semibold text-slate-900">1920×1080 @ 30 FPS</span>
+                <div className="flex items-center justify-between py-1 border-b border-white/5">
+                  <span className="text-zinc-400">Resolution</span>
+                  <span className="font-semibold text-white">1920×1080 @ 30 FPS</span>
                 </div>
-                <div className="flex items-center justify-between py-1 border-b border-slate-50">
-                  <span className="text-slate-500">Max Duration</span>
-                  <span className="font-semibold text-slate-900">Up to 10 Minutes (600s)</span>
+                <div className="flex items-center justify-between py-1 border-b border-white/5">
+                  <span className="text-zinc-400">Max Duration</span>
+                  <span className="font-semibold text-white">Up to 10 Minutes (600s)</span>
                 </div>
-                <div className="flex items-center justify-between py-1 border-b border-slate-50">
-                  <span className="text-slate-500">Audio Sync</span>
-                  <span className="font-semibold text-slate-900">Word-Level Groq Whisper</span>
+                <div className="flex items-center justify-between py-1 border-b border-white/5">
+                  <span className="text-zinc-400">Audio Sync</span>
+                  <span className="font-semibold text-white">Word-Level Groq Whisper</span>
                 </div>
                 <div className="flex items-center justify-between py-1">
-                  <span className="text-slate-500">Credit Rate</span>
-                  <span className="font-semibold text-slate-900">1 Min = 1 Credit</span>
+                  <span className="text-zinc-400">Credit Rate</span>
+                  <span className="font-semibold text-white">1 Min = 1 Credit</span>
                 </div>
               </div>
 
@@ -790,7 +790,7 @@ export function FacelessVideoStudio({
                 type="button"
                 onClick={handleProceedToTranscript}
                 disabled={!selectedFile || isPlanning}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 hover:bg-slate-800 p-3.5 text-xs font-bold text-white shadow-sm transition active:scale-98 disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
+                className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] hover:brightness-110 p-3.5 text-xs font-bold text-white shadow-lg shadow-orange-500/20 transition active:scale-98 disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
               >
                 {isPlanning ? (
                   <>
@@ -805,7 +805,7 @@ export function FacelessVideoStudio({
                 )}
               </button>
 
-              <p className="text-[11px] text-center text-slate-400">
+              <p className="text-[11px] text-center text-zinc-500">
                 Step 2 allows you to review the transcript and verify timestamps before video generation.
               </p>
             </div>
@@ -818,12 +818,12 @@ export function FacelessVideoStudio({
       {/* ─────────────────────────────────────────────────────────────────── */}
       {studioStep === "transcript" && (
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
             <div>
-              <h3 className="text-base font-bold text-slate-900">
+              <h3 className="text-base font-bold text-white">
                 Step 2: Review &amp; Approve Transcript
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-zinc-400">
                 Verify speech recognition accuracy. You can edit any sentence below. Spoken audio is preserved.
               </p>
             </div>
@@ -833,7 +833,7 @@ export function FacelessVideoStudio({
                 <button
                   type="button"
                   onClick={togglePlayAudio}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-xs transition cursor-pointer"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#0E1526] px-3.5 py-1.5 text-xs font-semibold text-zinc-300 hover:bg-[#141B2D] hover:text-white shadow-xs transition cursor-pointer"
                 >
                   {isPlayingAudio ? <Pause size={13} /> : <Play size={13} />}
                   <span>{isPlayingAudio ? "Pause Audio" : "Listen to Narration"}</span>
@@ -844,11 +844,11 @@ export function FacelessVideoStudio({
 
           {/* Edit Warning Notice if text modified */}
           {hasEditedTranscript && (
-            <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-4 flex items-start gap-3 text-amber-900 text-xs">
-              <AlertCircle size={16} className="text-amber-600 shrink-0 mt-0.5" />
+            <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 flex items-start gap-3 text-amber-200 text-xs">
+              <AlertCircle size={16} className="text-amber-400 shrink-0 mt-0.5" />
               <div className="space-y-1">
                 <p className="font-bold">Transcript modified</p>
-                <p className="text-amber-800 leading-relaxed">
+                <p className="text-amber-300/90 leading-relaxed">
                   Original voiceover audio will play unchanged. Your edited text will appear in subtitles and on-screen cards. If words were significantly added or removed, subtitle timing may slightly diverge from spoken voice.
                 </p>
               </div>
@@ -860,10 +860,10 @@ export function FacelessVideoStudio({
             {transcriptSegments.map((segment, idx) => (
               <div
                 key={idx}
-                className="rounded-xl border border-slate-200 bg-slate-50/40 p-3.5 space-y-2 hover:border-slate-300 transition"
+                className="rounded-xl border border-white/10 bg-[#0D111D] p-3.5 space-y-2 hover:border-white/20 transition"
               >
-                <div className="flex items-center justify-between text-[11px] text-slate-500 font-mono">
-                  <span className="font-semibold text-slate-700">Sentence {idx + 1}</span>
+                <div className="flex items-center justify-between text-[11px] text-zinc-400 font-mono">
+                  <span className="font-semibold text-zinc-300">Sentence {idx + 1}</span>
                   <span>
                     {Math.floor(segment.start / 60)}:{(segment.start % 60).toFixed(1).padStart(4, "0")} —{" "}
                     {Math.floor(segment.end / 60)}:{(segment.end % 60).toFixed(1).padStart(4, "0")}
@@ -873,18 +873,18 @@ export function FacelessVideoStudio({
                   value={segment.text}
                   onChange={(e) => handleSegmentChange(idx, e.target.value)}
                   rows={2}
-                  className="w-full rounded-lg border border-slate-200 bg-white p-2.5 text-xs text-slate-900 focus:border-slate-400 focus:outline-none transition leading-relaxed resize-none"
+                  className="w-full rounded-lg border border-white/10 bg-[#121624] p-2.5 text-xs text-white focus:border-[#FF5722] focus:outline-none transition leading-relaxed resize-none"
                 />
               </div>
             ))}
           </div>
 
           {/* Action Row */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-slate-100">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-white/10">
             <button
               type="button"
               onClick={() => setStudioStep("inputs")}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-400 hover:text-white cursor-pointer"
             >
               <ArrowLeft size={13} />
               <span>Back to Audio Settings</span>
@@ -895,7 +895,7 @@ export function FacelessVideoStudio({
                 <button
                   type="button"
                   onClick={handleResetTranscript}
-                  className="text-xs font-medium text-slate-500 hover:text-slate-800 cursor-pointer"
+                  className="text-xs font-medium text-zinc-400 hover:text-white cursor-pointer"
                 >
                   Reset to Original
                 </button>
@@ -903,7 +903,7 @@ export function FacelessVideoStudio({
               <button
                 type="button"
                 onClick={handleApproveTranscript}
-                className="inline-flex items-center gap-2 rounded-xl bg-slate-900 hover:bg-slate-800 px-5 py-2.5 text-xs font-bold text-white shadow-sm transition active:scale-98 cursor-pointer"
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] hover:brightness-110 px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-orange-500/20 transition active:scale-98 cursor-pointer"
               >
                 <span>Approve Transcript &amp; View Storyboard</span>
                 <ArrowRight size={13} />
@@ -918,21 +918,21 @@ export function FacelessVideoStudio({
       {/* ─────────────────────────────────────────────────────────────────── */}
       {studioStep === "storyboard" && (
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
             <div>
-              <h3 className="text-base font-bold text-slate-900">
+              <h3 className="text-base font-bold text-white">
                 Step 3: Storyboard &amp; Scene Confirmation
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-zinc-400">
                 Review matched visual layouts, transitions, and B-roll for each scene before rendering.
               </p>
             </div>
 
-            <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
-              <span className="rounded-full bg-slate-100 px-3 py-1">
+            <div className="flex items-center gap-2 text-xs text-zinc-300 font-medium">
+              <span className="rounded-full bg-white/5 border border-white/10 px-3 py-1">
                 {sceneBlueprint.length} Planned Scenes
               </span>
-              <span className="rounded-full bg-slate-100 px-3 py-1">
+              <span className="rounded-full bg-white/5 border border-white/10 px-3 py-1">
                 {Math.round(audioDurationSec)}s Duration
               </span>
             </div>
@@ -948,26 +948,26 @@ export function FacelessVideoStudio({
               return (
                 <div
                   key={idx}
-                  className="rounded-2xl border border-slate-200 bg-white p-4 space-y-3 shadow-xs hover:border-slate-300 transition flex flex-col justify-between"
+                  className="rounded-2xl border border-white/10 bg-[#0D111D] p-4 space-y-3 shadow-md hover:border-orange-500/40 hover:bg-[#121624] transition flex flex-col justify-between"
                 >
                   {/* Top Metadata */}
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold text-slate-400 font-mono">
+                      <span className="text-[10px] font-bold text-zinc-500 font-mono">
                         SCENE {scene.sceneNumber || idx + 1}
                       </span>
-                      <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase text-slate-700">
+                      <span className="inline-flex items-center gap-1 rounded-md bg-white/5 border border-white/10 px-2 py-0.5 text-[10px] font-bold uppercase text-zinc-300">
                         {transitionName}
                       </span>
                     </div>
 
-                    <span className="inline-block rounded-md bg-orange-50 border border-orange-100 px-2 py-0.5 text-[10px] font-bold uppercase text-orange-700">
+                    <span className="inline-block rounded-md bg-orange-500/10 border border-orange-500/30 px-2 py-0.5 text-[10px] font-bold uppercase text-orange-400">
                       {layoutType}
                     </span>
                   </div>
 
                   {/* Visual Preview Thumbnail Box */}
-                  <div className="relative aspect-video w-full rounded-xl overflow-hidden border border-slate-200 bg-slate-900 flex items-center justify-center text-center p-3">
+                  <div className="relative aspect-video w-full rounded-xl overflow-hidden border border-white/10 bg-[#070B14] flex items-center justify-center text-center p-3">
                     {assignedUrl ? (
                       <Image
                         src={assignedUrl}
@@ -977,16 +977,16 @@ export function FacelessVideoStudio({
                         unoptimized
                       />
                     ) : (
-                      <div className="space-y-1 text-slate-400">
-                        <Film size={20} className="mx-auto text-slate-500" />
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-slate-300">
+                      <div className="space-y-1 text-zinc-400">
+                        <Film size={20} className="mx-auto text-zinc-500" />
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
                           Kinetic Typography Card
                         </p>
                       </div>
                     )}
 
                     {/* Headline Overlay Badge */}
-                    <div className="absolute inset-x-2 bottom-2 rounded-lg bg-black/75 backdrop-blur-xs p-1.5 text-center">
+                    <div className="absolute inset-x-2 bottom-2 rounded-lg bg-black/85 backdrop-blur-xs p-1.5 text-center border border-white/10">
                       <p className="text-[10px] font-bold text-white truncate">
                         {scene.heading || "SCENE HEADLINE"}
                       </p>
@@ -995,10 +995,10 @@ export function FacelessVideoStudio({
 
                   {/* Narration Segment Quote */}
                   <div className="space-y-1">
-                    <p className="text-[11px] text-slate-600 line-clamp-2 leading-relaxed">
+                    <p className="text-[11px] text-zinc-300 line-clamp-2 leading-relaxed">
                       "{scene.narrationSegment?.text || scene.supportingText}"
                     </p>
-                    <p className="text-[10px] text-slate-400 font-mono">
+                    <p className="text-[10px] text-zinc-500 font-mono">
                       {(scene.narrationSegment?.startSeconds || 0).toFixed(1)}s — {(scene.narrationSegment?.endSeconds || 0).toFixed(1)}s
                     </p>
                   </div>
@@ -1008,11 +1008,11 @@ export function FacelessVideoStudio({
           </div>
 
           {/* Action Row: Confirm Storyboard & Render */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-slate-100">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-white/10">
             <button
               type="button"
               onClick={() => setStudioStep("transcript")}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-400 hover:text-white cursor-pointer"
             >
               <ArrowLeft size={13} />
               <span>Back to Transcript Review</span>
@@ -1022,7 +1022,7 @@ export function FacelessVideoStudio({
               type="button"
               onClick={handleConfirmAndRender}
               disabled={isGenerating}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] hover:brightness-105 px-6 py-3.5 text-xs font-bold text-white shadow-md shadow-orange-500/20 transition active:scale-98 disabled:opacity-40 cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] hover:brightness-105 px-6 py-3.5 text-xs font-bold text-white shadow-lg shadow-orange-500/20 transition active:scale-98 disabled:opacity-40 cursor-pointer"
             >
               <Sparkles size={15} />
               <span>{isGenerating ? "Rendering Faceless Video..." : "Confirm Storyboard & Render Video"}</span>

@@ -426,11 +426,12 @@ function runFfmpeg(command: string, args: string[]) {
 function safeFileName(fileName: string, contentType?: string) {
   const cleanName = fileName.replace(/[^\w.\-() ]/g, '').trim();
   if (cleanName && /\.[a-z0-9]+$/i.test(cleanName)) return cleanName;
-  if (contentType?.includes('mp4')) return `${cleanName || 'media'}.mp4`;
-  if (contentType?.includes('webm')) return `${cleanName || 'media'}.webm`;
-  if (contentType?.includes('mpeg')) return `${cleanName || 'media'}.mp3`;
-  if (contentType?.includes('wav')) return `${cleanName || 'media'}.wav`;
-  return `${cleanName || 'media'}.mp3`;
+  const baseName = cleanName.replace(/\.+$/, '') || 'media';
+  if (contentType?.includes('mp4')) return `${baseName}.mp4`;
+  if (contentType?.includes('webm')) return `${baseName}.webm`;
+  if (contentType?.includes('mpeg')) return `${baseName}.mp3`;
+  if (contentType?.includes('wav')) return `${baseName}.wav`;
+  return `${baseName}.mp3`;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

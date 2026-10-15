@@ -25,7 +25,8 @@ import {
   HelpCircle,
   Clock,
 } from "lucide-react";
-import CinematicRenderProgress from "@/components/dashboard/CinematicRenderProgress";
+import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine";
+import { uploadFileViaPresign } from "@/lib/media/presignedUpload";
 
 
 type BillingEntitlement = {
@@ -204,54 +205,24 @@ export default function FacelessVideoPageClient() {
     return () => clearInterval(interval);
   }, [jobStatus.state, jobStatus.startedAt]);
 
-  // Presigned S3 file upload helper
-  async function uploadFileViaPresign(file: File, folderMode: string, userId: string): Promise<string> {
-    const presignRes = await fetch("/api/reels/jobs/presign", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        fileName: file.name,
-        contentType: file.type || "audio/mpeg",
-        mode: folderMode,
-        userId,
-      }),
-    });
-
-    const presignPayload = await presignRes.json().catch(() => ({}));
-    if (!presignRes.ok || !presignPayload.ok || !presignPayload.uploadUrl || !presignPayload.key) {
-      throw new Error(presignPayload.error || "Failed to generate presigned upload URL.");
-    }
-
-    const uploadRes = await fetch(presignPayload.uploadUrl, {
-      method: "PUT",
-      headers: { "Content-Type": file.type || "audio/mpeg" },
-      body: file,
-    });
-
-    if (!uploadRes.ok) {
-      throw new Error(`Direct upload failed (${uploadRes.status}). Please check network connectivity.`);
-    }
-
-    return presignPayload.key;
-  }
-
   // Helper to convert mediaKey into a readable cloud URL
   async function getReadUrlFromKey(key: string): Promise<string> {
-    // If key is already a full URL, return it
-    if (/^https?:\/\//i.test(key)) return key;
+    if (!key || /^https?:\/\//i.test(key)) return key;
 
-    const res = await fetch("/api/reels/jobs/presign", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        fileName: key.split("/").pop() || "media.mp3",
-        mode: "facelessVideo",
-        action: "read",
-        key,
-      }),
-    });
-    const payload = await res.json().catch(() => ({}));
-    return payload.readUrl || payload.uploadUrl?.split("?")[0] || key;
+    try {
+      const res = await fetch("/api/media/presign", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "read",
+          key,
+        }),
+      });
+      const payload = await res.json().catch(() => ({}));
+      return payload.readUrl || key;
+    } catch {
+      return key;
+    }
   }
 
   // ── STEP 1 -> 2: Plan & Transcribe Handler ──
@@ -656,14 +627,14 @@ export default function FacelessVideoPageClient() {
   const etaSeconds = calculateEtaSeconds();
 
   return (
-    <main className="min-h-screen bg-[#FAFAFA] text-slate-900">
+    <main className="min-h-screen bg-[#070B14] text-white selection:bg-[#FF5722]/30 selection:text-white">
       {/* ── TOP NAVIGATION ── */}
-      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur-md">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0B0F19]/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-5">
             <Link
               href="/dashboard"
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition active:scale-95 shadow-2xs"
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-[#0E1526] text-zinc-300 hover:bg-[#141B2D] hover:text-white transition active:scale-95 shadow-xs"
               title="Return to Dashboard"
             >
               <ArrowLeft size={16} />
@@ -673,7 +644,7 @@ export default function FacelessVideoPageClient() {
 
           <div className="flex items-center gap-3">
             {billingEntitlement && (
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1 text-xs font-semibold text-slate-700 shadow-2xs">
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#0E1526] px-3.5 py-1 text-xs font-semibold text-zinc-300 shadow-xs">
                 <Zap size={13} className="text-[#FF5722]" />
                 <span>{billingEntitlement.usage?.remaining ?? 0} Credits Left</span>
               </div>
@@ -685,102 +656,43 @@ export default function FacelessVideoPageClient() {
       {/* ── MAIN CONTENT CONTAINER ── */}
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
         {/* Page Title & Badging */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-200/60">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-white/10">
           <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold text-slate-700 shadow-2xs mb-1.5">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-[11px] font-semibold text-orange-400 shadow-xs mb-1.5">
               <Sparkles size={12} className="text-[#FF5722]" />
               <span>Flagship Widescreen Studio</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
               Faceless Video Generator
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            <p className="text-xs sm:text-sm text-zinc-400 mt-0.5">
               Create professional 1080p Full HD widescreen YouTube videos from narration audio with automatic B-roll, subtitles, and music.
             </p>
           </div>
         </div>
 
-        {/* ── PRODUCTION RENDERING SCREEN (ZERO BLUE, ENGAGING CREATOR TIPS & EQUALIZER) ── */}
-        {(jobStatus.state === "uploading" || jobStatus.state === "planning" || jobStatus.state === "rendering" || jobStatus.state === "error") && (
-          <CinematicRenderProgress
-            title={jobStatus.title || "Faceless Video Generation"}
-            subtitle="Our cloud engine is aligning scene beats, assembling visuals, and mastering audio for your 16:9 widescreen video."
-            modeLabel="16:9 Faceless Video Studio"
-            progress={jobStatus.progress}
-            isIndeterminate={jobStatus.progress === undefined}
-            statusMessage={jobStatus.message}
-            elapsedSeconds={elapsedSeconds}
-            estimatedRemainingSeconds={etaSeconds}
-            steps={FACELESS_RENDER_STEPS}
-            isError={jobStatus.state === "error"}
-            errorMessage={jobStatus.message}
-            onRetry={() => handleStartRender()}
-            onReset={() => setJobStatus({ state: "idle" })}
-            onCancel={() => setShowCancelModal(true)}
-            cancelLabel="Cancel Video"
-            showTipsCarousel={true}
-          />
-        )}
-
-
-        {/* ── CANCELLED STATE ── */}
-        {jobStatus.state === "cancelled" && (
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm max-w-2xl mx-auto space-y-4">
-            <h3 className="text-base font-bold text-slate-900">Process Cancelled</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Video generation was cancelled. Any reserved credits have been released back to your balance.
-            </p>
-            <button
-              type="button"
-              onClick={() => setJobStatus({ state: "idle" })}
-              className="rounded-xl bg-slate-900 hover:bg-slate-800 px-4 py-2 text-xs font-bold text-white shadow-sm transition cursor-pointer"
-            >
-              Return to Studio
-            </button>
-          </div>
-        )}
-
-        {/* ── READY VIDEO STATE (1080p PLAYER & DOWNLOAD) ── */}
-        {jobStatus.state === "ready" && jobStatus.outputFile && (
-          <div className="rounded-3xl border border-emerald-200 bg-white p-6 sm:p-8 shadow-sm max-w-3xl mx-auto space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-              <div>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-xs font-bold text-emerald-700">
-                  <CheckCircle2 size={13} />
-                  <span>1080p Full HD Video Ready</span>
-                </span>
-                <h3 className="text-lg font-bold text-slate-900 mt-1">{jobStatus.title || "Faceless Video"}</h3>
-              </div>
-              <a
-                href={jobStatus.outputFile}
-                download
-                className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] to-[#FFA000] px-4 py-2 text-xs font-bold text-white shadow-sm hover:brightness-105 transition cursor-pointer"
-              >
-                <Download size={14} />
-                <span>Download MP4</span>
-              </a>
-            </div>
-
-            {/* Video Player */}
-            <div className="aspect-video w-full rounded-2xl overflow-hidden bg-black border border-slate-200 shadow-sm">
-              <video
-                src={jobStatus.outputFile}
-                controls
-                autoPlay
-                className="w-full h-full object-contain"
-              />
-            </div>
-
-            <div className="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-100">
-              <span>Aspect Ratio: 16:9 Widescreen (1920×1080)</span>
-              <button
-                type="button"
-                onClick={() => setJobStatus({ state: "idle" })}
-                className="text-slate-700 hover:text-slate-900 font-semibold cursor-pointer"
-              >
-                Create Another Video
-              </button>
-            </div>
+        {/* ── Dedicated Interactive Render Engine Stage ── */}
+        {jobStatus.state !== "idle" && (
+          <div className="max-w-4xl mx-auto py-4">
+            <InteractiveRenderEngine
+              mode="facelessVideo"
+              status={{
+                state: jobStatus.state === "cancelled" ? "error" : (jobStatus.state as any),
+                message: jobStatus.state === "cancelled" ? "Generation cancelled" : (jobStatus.message || "Generating 16:9 widescreen faceless video..."),
+                progress: jobStatus.progress,
+                outputFile: jobStatus.outputFile,
+                title: jobStatus.title || topicTitle || selectedFile?.name?.replace(/\.[^/.]+$/, "") || "Faceless AI Video",
+              }}
+              title={jobStatus.title || topicTitle || selectedFile?.name?.replace(/\.[^/.]+$/, "") || "Faceless AI Video"}
+              fileName={selectedFile?.name}
+              onRetry={handleStartRender}
+              onReset={() => {
+                setSelectedFile(null);
+                setFacelessImageFiles([]);
+                setJobStatus({ state: "idle" });
+              }}
+              onCancel={() => setShowCancelModal(true)}
+            />
           </div>
         )}
 
@@ -819,28 +731,28 @@ export default function FacelessVideoPageClient() {
 
         {/* ── RECENT RENDERS ARCHIVE ── */}
         {recentRenders.length > 0 && jobStatus.state === "idle" && (
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500">
+          <div className="rounded-3xl border border-white/10 bg-[#0D111D] p-6 shadow-xl space-y-4">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-400">
               Recent Faceless Videos
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {recentRenders.map((render) => (
                 <div
                   key={render.id}
-                  className="rounded-2xl border border-slate-200 p-4 space-y-3 bg-slate-50/50 hover:bg-slate-50 transition flex flex-col justify-between"
+                  className="rounded-2xl border border-white/10 p-4 space-y-3 bg-[#121624] hover:bg-[#161C2E] transition flex flex-col justify-between"
                 >
                   <div>
-                    <p className="text-xs font-bold text-slate-900 truncate">{render.title}</p>
-                    <p className="text-[11px] text-slate-400 mt-0.5">
+                    <p className="text-xs font-bold text-white truncate">{render.title}</p>
+                    <p className="text-[11px] text-zinc-400 mt-0.5">
                       {new Date(render.createdAt).toLocaleDateString()} · 16:9 1080p
                     </p>
                   </div>
-                  <div className="flex items-center justify-between pt-2 border-t border-slate-200/60">
+                  <div className="flex items-center justify-between pt-2 border-t border-white/10">
                     <a
                       href={render.outputFile}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 hover:text-slate-900"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-zinc-300 hover:text-white"
                     >
                       <Play size={12} />
                       <span>Preview</span>
@@ -848,7 +760,7 @@ export default function FacelessVideoPageClient() {
                     <a
                       href={render.outputFile}
                       download
-                      className="inline-flex items-center gap-1 text-xs font-bold text-[#FF5722] hover:text-[#E64A19]"
+                      className="inline-flex items-center gap-1 text-xs font-bold text-[#FFA000] hover:text-[#FF7043]"
                     >
                       <Download size={12} />
                       <span>Download</span>
@@ -863,17 +775,17 @@ export default function FacelessVideoPageClient() {
 
       {/* ── CANCEL CONFIRMATION MODAL ── */}
       {showCancelModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 max-w-sm w-full space-y-4 shadow-xl">
-            <h3 className="text-base font-bold text-slate-900">Cancel Video Generation?</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4">
+          <div className="rounded-3xl border border-white/15 bg-[#0E1526] p-6 max-w-sm w-full space-y-4 shadow-2xl">
+            <h3 className="text-base font-bold text-white">Cancel Video Generation?</h3>
+            <p className="text-xs text-zinc-300 leading-relaxed">
               Are you sure you want to cancel? The render job will stop immediately and any reserved credits will be refunded to your account balance.
             </p>
             <div className="flex items-center justify-end gap-2 pt-2">
               <button
                 type="button"
                 onClick={() => setShowCancelModal(false)}
-                className="rounded-xl border border-slate-200 px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+                className="rounded-xl border border-white/10 px-3.5 py-2 text-xs font-semibold text-zinc-300 hover:bg-white/5 transition cursor-pointer"
               >
                 Keep Rendering
               </button>

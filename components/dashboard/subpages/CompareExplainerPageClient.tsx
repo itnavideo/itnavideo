@@ -22,7 +22,7 @@ import {
   Clapperboard,
   History
 } from "lucide-react";
-import CinematicRenderProgress from "@/components/dashboard/CinematicRenderProgress";
+import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine";
 
 
 type BillingEntitlement = {
@@ -92,6 +92,7 @@ export default function CompareExplainerPage() {
 
   // Job & render states
   const [jobStatus, setJobStatus] = useState<JobStatus>({ state: "idle" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [billingEntitlement, setBillingEntitlement] = useState<BillingEntitlement | null>(null);
   const [recentRenders, setRecentRenders] = useState<RecentRender[]>([]);
@@ -228,6 +229,7 @@ export default function CompareExplainerPage() {
     }
     if (renderRequestInFlightRef.current) return;
     renderRequestInFlightRef.current = true;
+    setIsSubmitting(true);
 
     try {
       setJobStatus({
@@ -460,64 +462,28 @@ export default function CompareExplainerPage() {
       {/* Main Container */}
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 space-y-6">
 
-        {/* Dynamic Stepper Overlay during Render - Zero Blue Cinematic Render Screen */}
-        {jobStatus.state !== "idle" && jobStatus.state !== "ready" && (
-          <CinematicRenderProgress
-            title="Versus Comparison Reel"
-            subtitle="Composing split-screen comparison cards, dynamic presenter reactions, and synced captions."
-            modeLabel="9:16 Compare Explainer Studio"
-            progress={jobStatus.progress}
-            isIndeterminate={jobStatus.progress === undefined}
-            statusMessage={jobStatus.message}
-            elapsedSeconds={elapsedSeconds}
-            steps={COMPARE_RENDER_STEPS}
-            isError={jobStatus.state === "error"}
-            errorMessage={jobStatus.message}
-            onRetry={() => handleStartRender()}
-            onReset={() => setJobStatus({ state: "idle" })}
-            showTipsCarousel={true}
-          />
-        )}
-
-
-        {/* Ready Download Preview Stage - Kept Dark Black for contrast */}
-        {jobStatus.state === "ready" && jobStatus.outputFile && (
-          <div className="rounded-[28px] border border-white/10 bg-[#0B0D13] p-6 shadow-2xl max-w-2xl mx-auto text-center space-y-6 text-white">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
-              <CheckCircle2 size={28} />
-            </div>
-            <div className="space-y-1.5">
-              <h3 className="text-lg font-black text-white">Versus Comparison Reel is Ready!</h3>
-              <p className="text-xs text-zinc-400">Your dual split-screen explainer render has completed successfully.</p>
-            </div>
-
-            <video
-              src={jobStatus.outputFile}
-              controls
-              className="mx-auto h-[480px] w-auto rounded-2xl bg-black border border-slate-800 shadow-2xl"
+        {/* Dedicated Interactive Render Engine Stage */}
+        {jobStatus.state !== "idle" && (
+          <div className="max-w-3xl mx-auto py-4">
+            <InteractiveRenderEngine
+              mode="compare"
+              status={{
+                state: jobStatus.state as any,
+                message: jobStatus.message || "Composing versus comparison reel...",
+                progress: jobStatus.progress,
+                outputFile: jobStatus.outputFile,
+                title: jobStatus.title || (compareLeftTitle && compareRightTitle ? `${compareLeftTitle} vs ${compareRightTitle}` : "Versus Comparison Reel"),
+              }}
+              title={jobStatus.title || (compareLeftTitle && compareRightTitle ? `${compareLeftTitle} vs ${compareRightTitle}` : "Versus Comparison Reel")}
+              fileName={selectedFile?.name}
+              onRetry={handleStartRender}
+              onReset={() => {
+                setSelectedFile(null);
+                setComparisonFiles([]);
+                setIsSubmitting(false);
+                setJobStatus({ state: "idle" });
+              }}
             />
-
-            <div className="flex flex-col sm:flex-row gap-3 items-center justify-center pt-2">
-              <a
-                href={jobStatus.outputFile}
-                download={jobStatus.title ? `${jobStatus.title}.mp4` : "compare-reel.mp4"}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#FF5722] to-[#FF7043] px-6 py-3 text-xs font-black text-black shadow-lg shadow-[#FF5722]/25 transition hover:brightness-110 active:scale-95"
-              >
-                <Download size={14} />
-                <span>Download HD MP4 Video</span>
-              </a>
-              <button
-                onClick={() => {
-                  setSelectedFile(null);
-                  setComparisonFiles([]);
-                  setJobStatus({ state: "idle" });
-                }}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full border border-slate-700 bg-white/5 hover:bg-white/10 px-6 py-3 text-xs font-bold text-zinc-300 transition active:scale-95"
-              >
-                <RefreshCw size={14} />
-                <span>Create New Comparison</span>
-              </button>
-            </div>
           </div>
         )}
 
@@ -556,7 +522,7 @@ export default function CompareExplainerPage() {
                   selectedFile={selectedFile}
                   onSelectFile={setSelectedFile}
                   onCleanAudio={handleStartRender}
-                  isCleaning={false}
+                  isCleaning={isSubmitting || jobStatus.state !== "idle"}
                 />
 
                 {/* Popular Comparison Formats Showcase */}

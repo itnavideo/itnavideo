@@ -457,9 +457,9 @@ export default function AutoCaptionPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center text-slate-500 gap-3">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
-        <p className="text-sm font-semibold tracking-wide text-slate-700">Loading Auto Caption Studio...</p>
+      <div className="min-h-screen bg-[#070B14] flex flex-col items-center justify-center text-zinc-400 gap-3">
+        <Loader2 className="h-8 w-8 animate-spin text-[#FF5722]" />
+        <p className="text-sm font-semibold tracking-wide text-zinc-300">Loading Auto Caption Studio...</p>
       </div>
     );
   }
@@ -653,36 +653,6 @@ export default function AutoCaptionPage() {
           </div>
         )}
       </main>
-
-      {/* ── Mobile-First Sticky Action Bar (65% mobile creators) ── */}
-      {activeTab === "studio" && !isWorking && !isReady && !isError && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[100] bg-[#0E1526]/98 backdrop-blur-xl border-t border-white/10 p-3.5 pb-[calc(0.85rem+env(safe-area-inset-bottom))] shadow-[0_-10px_30px_rgba(0,0,0,0.8)] flex items-center justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-black text-white truncate">
-              {captionStyle}
-            </p>
-            <p className="text-[11px] text-slate-400 truncate">
-              {selectedFile ? selectedFile.name : "No file selected"}
-            </p>
-          </div>
-
-          <button
-            onClick={() => {
-              if (!selectedFile) {
-                const el = document.getElementById("upload-section");
-                el?.scrollIntoView({ behavior: "smooth" });
-              } else {
-                handleStartRender();
-              }
-            }}
-            disabled={isWorking}
-            className="shrink-0 inline-flex items-center justify-center gap-1.5 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-5 py-3 text-xs font-black text-black shadow-lg shadow-[#FF5722]/30 active:scale-95 transition cursor-pointer"
-          >
-            <Sparkles size={15} className="text-black" />
-            <span>{selectedFile ? "Generate Reel" : "Upload File"}</span>
-          </button>
-        </div>
-      )}
     </div>
   );
 }

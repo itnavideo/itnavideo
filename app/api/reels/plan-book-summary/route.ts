@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { createReadUrl } from '@/lib/aws/mediaStorage';
 import { transcribeMediaUrlWithGroq } from '@/services/ai/groqTranscription';
 import { transcribeMediaWithGeminiFallback } from '@/services/ai/geminiTranscription';
 import { buildLocalBookSummaryPlan, validateAndRepairBookSummaryPlan, type BookSummaryPlanRequest } from '@/services/ai/bookSummaryPlanner';
@@ -10,7 +11,6 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const {
-      audioUrl,
       transcript: inputTranscript,
       words: inputWords,
       timestampSegments: inputSegments,
@@ -21,6 +21,24 @@ export async function POST(req: Request) {
       authorPortraitUrl,
       referenceImages = [],
     } = body;
+
+    let audioUrl = String(body.audioUrl || body.mediaKey || '').trim();
+    if (audioUrl) {
+      if (!audioUrl.startsWith('http://') && !audioUrl.startsWith('https://')) {
+        try {
+          audioUrl = await createReadUrl(audioUrl);
+        } catch (e) {
+          console.warn('[PlanBookSummary] Could not resolve audioUrl key:', audioUrl, e);
+        }
+      } else if (audioUrl.includes('.amazonaws.com/') && !audioUrl.includes('X-Amz-Signature')) {
+        try {
+          const key = audioUrl.split('.amazonaws.com/')[1];
+          if (key) audioUrl = await createReadUrl(decodeURIComponent(key));
+        } catch (e) {
+          console.warn('[PlanBookSummary] Could not sign S3 URL:', audioUrl, e);
+        }
+      }
+    }
 
     if (!audioUrl && !inputTranscript) {
       return NextResponse.json(

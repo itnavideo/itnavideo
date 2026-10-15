@@ -41,32 +41,32 @@ export function HomepageTrustStrip() {
 
 function StepIcon1() {
   return (
-    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-500/10 border border-orange-500/25 text-[#FF5722] shadow-xs group-hover:scale-110 transition-transform duration-300">
-      <Upload size={24} strokeWidth={2.2} />
+    <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 via-[#FF5722] to-amber-500 text-white shadow-[inset_0_2px_4px_rgba(255,255,255,0.7),0_10px_20px_-4px_rgba(255,87,34,0.35)] group-hover:scale-110 transition-transform duration-300">
+      <Upload size={26} strokeWidth={2.4} className="drop-shadow" />
     </div>
   );
 }
 
 function StepIcon2() {
   return (
-    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 border border-amber-500/25 text-amber-500 shadow-xs group-hover:scale-110 transition-transform duration-300">
-      <Sparkles size={24} strokeWidth={2.2} />
+    <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 via-orange-400 to-amber-500 text-white shadow-[inset_0_2px_4px_rgba(255,255,255,0.7),0_10px_20px_-4px_rgba(245,158,11,0.35)] group-hover:scale-110 transition-transform duration-300">
+      <Sparkles size={26} strokeWidth={2.4} className="drop-shadow" />
     </div>
   );
 }
 
 function StepIcon3() {
   return (
-    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-500/10 border border-orange-500/25 text-orange-600 shadow-xs group-hover:scale-110 transition-transform duration-300">
-      <Settings2 size={24} strokeWidth={2.2} />
+    <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#FF5722] via-[#FF7043] to-orange-600 text-white shadow-[inset_0_2px_4px_rgba(255,255,255,0.7),0_10px_20px_-4px_rgba(255,87,34,0.35)] group-hover:scale-110 transition-transform duration-300">
+      <Settings2 size={26} strokeWidth={2.4} className="drop-shadow" />
     </div>
   );
 }
 
 function StepIcon4() {
   return (
-    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-500 shadow-xs group-hover:scale-110 transition-transform duration-300">
-      <CheckCircle2 size={24} strokeWidth={2.2} />
+    <div className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 text-white shadow-[inset_0_2px_4px_rgba(255,255,255,0.7),0_10px_20px_-4px_rgba(16,185,129,0.35)] group-hover:scale-110 transition-transform duration-300">
+      <CheckCircle2 size={26} strokeWidth={2.4} className="drop-shadow" />
     </div>
   );
 }
@@ -75,9 +75,9 @@ export function PlatformJourney() {
   const steps = [
     {
       number: 'STEP 01',
-      title: '1. Ingest Media',
+      title: '1. Smart Input & Ingest',
       sub: 'Drop your voiceover audio, podcast recording, or video files.',
-      tag: 'Instant Ingest',
+      tag: 'Smart Input & B-Roll',
       IconComponent: StepIcon1,
       badgeStyle: 'border-orange-500/40 bg-orange-500/15 text-orange-700 shadow-2xs',
       iconBoxStyle: 'border-orange-500/30 bg-gradient-to-br from-orange-500/15 via-orange-500/5 to-white text-orange-600 shadow-orange-500/10 group-hover:border-orange-400',
@@ -142,46 +142,76 @@ export function PlatformJourney() {
           </p>
         </div>
 
-        {/* Steps Grid with Connected Visual Progression Timeline */}
-        <div className="relative mt-16 sm:mt-20">
-          {/* Glowing Connected Timeline Rail (Desktop only) */}
-          <div className="pointer-events-none hidden lg:block absolute top-[72px] left-[12%] right-[12%] h-[3px] bg-gradient-to-r from-orange-400/40 via-amber-400/40 via-orange-400/40 to-emerald-400/40 rounded-full shadow-[0_0_15px_rgba(255,87,34,0.3)] z-0" />
-
-          <div className="relative z-10 grid gap-6 sm:gap-7 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-            {steps.map(({ number, title, sub, tag, IconComponent, badgeStyle, iconBoxStyle, glowColor, tagColor }, idx) => (
-              <article
+        {/* 2-Column Responsive Layout: Left 4 Steps List, Right Image 2 Visual */}
+        <div className="mt-12 sm:mt-16 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+          
+          {/* Left Column: 4 Creation Steps Vertical List */}
+          <div className="lg:col-span-6 space-y-3.5">
+            {steps.map(({ number, title, sub, tag, IconComponent, badgeStyle, iconBoxStyle, tagColor }, idx) => (
+              <div
                 key={number}
-                className="group relative flex flex-col items-center text-center rounded-[32px] border border-slate-200/90 bg-white p-7 sm:p-8 shadow-sm transition-all duration-300 hover:border-orange-500/40 hover:-translate-y-2 hover:shadow-xl hover:shadow-orange-500/10"
+                className="group relative flex items-start gap-4 rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-5 shadow-xs transition-all duration-300 hover:border-orange-500/40 hover:shadow-md hover:bg-orange-50/15"
               >
-                {/* Step Pill Badge */}
-                <div className="flex items-center justify-between w-full mb-4">
-                  <span className={`flex h-6 px-3 items-center justify-center rounded-full border font-mono text-[11px] font-black tracking-wider ${badgeStyle}`}>
-                    {number}
-                  </span>
-                  <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border ${tagColor}`}>
-                    {tag}
-                  </span>
+                {/* Step Icon */}
+                <div className={`shrink-0 flex h-12 w-12 sm:h-13 sm:w-13 items-center justify-center rounded-2xl border shadow-xs relative ${iconBoxStyle}`}>
+                  <IconComponent />
                 </div>
 
-                {/* Large 3D Micro-Illustration Container */}
-                <div className={`mt-2 flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center rounded-[28px] border shadow-md group-hover:scale-110 transition-all duration-300 relative ${iconBoxStyle}`}>
-                  <div className={`absolute inset-0 rounded-[28px] blur-md transition duration-300 ${glowColor}`} />
-                  <div className="relative z-10">
-                    <IconComponent />
+                {/* Step Content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={`px-2 py-0.5 rounded-full border font-mono text-[10px] font-black tracking-wider ${badgeStyle}`}>
+                      {number}
+                    </span>
+                    <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full border ${tagColor}`}>
+                      {tag}
+                    </span>
                   </div>
+                  <h3 className="text-base font-extrabold text-slate-900 group-hover:text-orange-600 transition-colors">
+                    {title}
+                  </h3>
+                  <p className="mt-1 text-xs text-slate-600 leading-relaxed font-normal">
+                    {sub}
+                  </p>
                 </div>
 
-                <h3 className="mt-6 text-base sm:text-lg font-black text-slate-900 group-hover:text-orange-600 transition-colors">{title}</h3>
-                <p className="mt-2 text-xs sm:text-[13px] text-slate-600 leading-relaxed font-normal">{sub}</p>
-
-                {/* Step order indicator dot */}
-                <div className="mt-5 flex items-center gap-1.5 text-[11px] font-bold text-slate-400 group-hover:text-slate-600 transition-colors">
+                {/* Stage Indicator */}
+                <div className="shrink-0 hidden sm:flex items-center gap-1.5 text-[11px] font-bold text-slate-400 group-hover:text-orange-600 self-center">
                   <span className="h-1.5 w-1.5 rounded-full bg-[#FF5722]" />
-                  <span>Stage {idx + 1} of 4</span>
+                  <span>Stage {idx + 1}/4</span>
                 </div>
-              </article>
+              </div>
             ))}
           </div>
+
+          {/* Right Column: Cloudinary Image 2 (Smart Input & B-Roll Matcher) */}
+          <div className="lg:col-span-6">
+            <div className="group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-gradient-to-b from-white via-white/95 to-orange-50/25 p-3 sm:p-5 shadow-[0_20px_50px_rgba(0,0,0,0.06)] drop-shadow-xl transition-all duration-300 hover:shadow-[0_25px_60px_rgba(0,0,0,0.10)]">
+              {/* SaaS Window Chrome */}
+              <div className="flex items-center justify-between px-2 py-1 text-[11px] font-bold text-slate-500 border-b border-slate-100/90 mb-3">
+                <div className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-orange-500 animate-pulse" />
+                  <span className="uppercase tracking-wider font-extrabold text-orange-700">
+                    Smart Media Input &amp; B-Roll Matcher
+                  </span>
+                </div>
+                <span className="text-slate-400 font-semibold text-[10px] hidden sm:inline">
+                  Waveform &amp; Scene Alignment
+                </span>
+              </div>
+
+              {/* Crisp Visual Container */}
+              <div className="relative overflow-hidden rounded-xl bg-white/70 p-1">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://res.cloudinary.com/dhouh9idx/image/upload/v1792056190/Step_1_Smart_Input_B-Roll_Matcher_Visual_How_It_Works_ybdykd.png"
+                  alt="Smart Input &amp; B-Roll Matcher Workflow"
+                  className="w-full h-auto object-contain rounded-lg drop-shadow-sm transition-transform duration-500 group-hover:scale-[1.01]"
+                />
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </section>
@@ -285,7 +315,7 @@ export function HomepageFinalCta() {
           <div className="mt-8 flex flex-col items-center justify-center gap-3.5 sm:flex-row">
             <Link
               href="/dashboard"
-              className="inline-flex w-full items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-8 py-4 text-sm font-black text-white shadow-xl shadow-orange-500/25 transition hover:brightness-110 active:scale-95 sm:w-auto"
+              className="inline-flex w-full items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-8 py-4 text-sm font-black text-white shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:brightness-110 active:scale-95 transition-all duration-200 sm:w-auto"
             >
               <span>Start Creating Free →</span>
             </Link>

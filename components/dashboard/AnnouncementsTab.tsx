@@ -80,18 +80,18 @@ export default function AnnouncementsTab() {
   return (
     <div className="space-y-8 animate-fadeIn">
       {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-[28px] bg-white border border-slate-200/90 p-6 sm:p-8 shadow-xl">
-        <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-orange-700 mb-3">
+      <div className="relative overflow-hidden rounded-[28px] bg-[#0D111D] border border-white/10 p-6 sm:p-8 shadow-2xl">
+        <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-orange-400 mb-3">
           <Sparkles size={14} className="text-[#FF5722]" />
-          <span>Product Updates & Changelog</span>
+          <span>Product Updates &amp; Changelog</span>
         </div>
-        <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
+        <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
           What&apos;s New in{" "}
           <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
             Itnavideo AI Studio
           </span>
         </h1>
-        <p className="mt-2 text-xs sm:text-sm text-slate-600 max-w-xl">
+        <p className="mt-2 text-xs sm:text-sm text-zinc-400 max-w-xl">
           Discover the latest engine improvements, rendering speeds, and new video templates designed to maximize your creator retention and YouTube RPM.
         </p>
       </div>
@@ -103,7 +103,7 @@ export default function AnnouncementsTab() {
           return (
             <div
               key={index}
-              className="relative rounded-[28px] bg-white border border-slate-200 p-6 sm:p-8 shadow-sm hover:shadow-xl hover:border-orange-500/50 transition-all duration-300"
+              className="relative rounded-[28px] bg-[#121624] border border-white/10 p-6 sm:p-8 shadow-lg hover:shadow-xl hover:border-orange-500/50 transition-all duration-300"
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div className="flex items-center gap-3">
@@ -111,8 +111,8 @@ export default function AnnouncementsTab() {
                     <Icon size={24} />
                   </div>
                   <div>
-                    <h2 className="text-lg sm:text-xl font-black text-slate-900">{update.title}</h2>
-                    <div className="text-xs text-slate-500 font-medium">{update.version}</div>
+                    <h2 className="text-lg sm:text-xl font-black text-white">{update.title}</h2>
+                    <div className="text-xs text-zinc-400 font-medium">{update.version}</div>
                   </div>
                 </div>
 
@@ -122,19 +122,19 @@ export default function AnnouncementsTab() {
                   >
                     {update.badge}
                   </span>
-                  <span className="text-xs text-slate-400 font-medium">{update.date}</span>
+                  <span className="text-xs text-zinc-500 font-medium">{update.date}</span>
                 </div>
               </div>
 
-              <p className="text-sm text-slate-600 leading-relaxed mb-4">{update.description}</p>
+              <p className="text-sm text-zinc-300 leading-relaxed mb-4">{update.description}</p>
 
-              <div className="grid sm:grid-cols-3 gap-2.5 pt-4 border-t border-slate-100">
+              <div className="grid sm:grid-cols-3 gap-2.5 pt-4 border-t border-white/10">
                 {update.highlights.map((h, hIdx) => (
                   <div
                     key={hIdx}
-                    className="flex items-center gap-2 text-xs text-slate-700 font-medium bg-slate-50 p-2.5 rounded-xl border border-slate-200/80"
+                    className="flex items-center gap-2 text-xs text-zinc-300 font-medium bg-white/5 p-2.5 rounded-xl border border-white/10"
                   >
-                    <CheckCircle2 size={14} className="text-emerald-600 shrink-0" />
+                    <CheckCircle2 size={14} className="text-emerald-400 shrink-0" />
                     <span className="truncate">{h}</span>
                   </div>
                 ))}

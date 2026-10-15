@@ -222,7 +222,7 @@ export default function DualShowcaseTabs() {
   const imageItems = [...HOMEPAGE_IMAGE_TO_VIDEO_ITEMS, ...HOMEPAGE_IMAGE_TO_VIDEO_ITEMS];
 
   return (
-    <section className="relative w-full overflow-hidden bg-slate-50/70 border-b border-slate-200/80 py-14 sm:py-20 text-slate-900">
+    <section className="relative w-full overflow-hidden bg-white border-b border-slate-200/80 py-14 sm:py-20 text-slate-900">
       <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 w-[700px] h-[300px] bg-orange-500/10 blur-[140px] rounded-full" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

@@ -41,6 +41,7 @@ import { SUBTITLE_PRESETS } from "@/remotion/types/subtitles";
 import { BorderBeam } from "@/components/magicui/BorderBeam";
 import { NumberTicker } from "@/components/magicui/NumberTicker";
 import { AudioSpectrumVisualizer } from "@/components/dashboard/AudioSpectrumVisualizer";
+import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine";
 
 // Cloudinary-hosted 16:9 test videos for instant zero-friction preview & testing
 export interface CloudinarySampleVideo {
@@ -1117,192 +1118,29 @@ export default function YoutubeSubtitlesPage() {
         </div>
 
         {/* ── In-Progress / Ready Render State ── */}
-        {isWorking || isReady || isError ? (
-          <div className="max-w-4xl mx-auto space-y-6">
-            <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#0E1526] p-6 sm:p-8 shadow-2xl">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-6 border-b border-white/10">
-                <div className="flex items-center gap-3.5">
-                  <div
-                    className={`flex h-12 w-12 items-center justify-center rounded-2xl border ${
-                      isReady
-                        ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-                        : isError
-                        ? "border-red-500/30 bg-red-500/10 text-red-400"
-                        : "border-[#FF5722]/30 bg-[#FF5722]/10 text-[#FFA000] animate-pulse"
-                    }`}
-                  >
-                    {isReady ? (
-                      <CheckCircle2 size={24} />
-                    ) : isError ? (
-                      <AlertCircle size={24} />
-                    ) : (
-                      <Loader2 size={24} className="animate-spin" />
-                    )}
-                  </div>
-                  <div>
-                    <h3 className="text-base font-black text-white">
-                      {isReady
-                        ? "Subtitles Complete!"
-                        : isError
-                        ? "Processing Error"
-                        : "Processing 16:9 Subtitles..."}
-                    </h3>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      {isReady
-                        ? "Your widescreen video has been subtitled with 1080p broadcast clarity."
-                        : isError
-                        ? "Something went wrong during generation."
-                        : "AI is aligning vocal clips and generating subtitle placements."}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  {isReady && (
-                    <button
-                      onClick={handleReset}
-                      className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 px-4 py-2.5 text-xs font-bold text-slate-300 hover:text-white transition cursor-pointer"
-                    >
-                      <RefreshCw size={13} />
-                      <span>Start New Video</span>
-                    </button>
-                  )}
-                  {isError && (
-                    <button
-                      onClick={handleReset}
-                      className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-5 py-2.5 text-xs font-black text-black shadow-lg shadow-[#FF5722]/25 hover:brightness-110 transition cursor-pointer"
-                    >
-                      <span>Try Again</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Progress Monitor Slider / Details */}
-              <div className="space-y-6">
-                <div>
-                  <div className="flex items-center justify-between text-xs font-bold mb-2">
-                    <span className="text-slate-300">{jobStatus.message || "Working..."}</span>
-                    <span className="text-[#FFA000] font-mono">
-                      {Math.round((jobStatus.progress || 0) * 100)}%
-                    </span>
-                  </div>
-                  <div className="h-2 w-full rounded-full bg-white/5 overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] transition-all duration-500 rounded-full"
-                      style={{ width: `${(jobStatus.progress || 0) * 100}%` }}
-                    />
-                  </div>
-                </div>
-
-                {/* Vertical Stepper tracker */}
-                <div className="grid gap-3 max-w-2xl">
-                  {RENDER_STEPS.map((step, idx) => {
-                    const currentProgress = jobStatus.progress || 0;
-                    const isActive =
-                      currentProgress >= step.threshold &&
-                      currentProgress < (RENDER_STEPS[idx + 1]?.threshold || 1.1);
-                    const isPassed =
-                      currentProgress >= (RENDER_STEPS[idx + 1]?.threshold || 1.0) || isReady;
-                    const StepIcon = step?.icon || Sparkles;
-
-                    return (
-                      <div
-                        key={step.label}
-                        className={`flex items-start gap-4 p-3.5 rounded-2xl border transition-all ${
-                          isActive
-                            ? "border-[#FF5722]/40 bg-[#FF5722]/10 shadow-md"
-                            : isPassed
-                            ? "border-emerald-500/20 bg-emerald-500/5"
-                            : "border-white/5 bg-transparent opacity-45"
-                        }`}
-                      >
-                        <div
-                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${
-                            isActive
-                              ? "border-[#FF5722]/30 bg-[#FF5722]/15 text-[#FFA000] animate-pulse"
-                              : isPassed
-                              ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
-                              : "border-white/10 bg-white/5 text-slate-500"
-                          }`}
-                        >
-                          {isPassed ? <CheckCircle2 size={16} /> : <StepIcon size={16} />}
-                        </div>
-                        <div>
-                          <p
-                            className={`text-xs font-black ${
-                              isActive ? "text-white" : isPassed ? "text-slate-200" : "text-slate-500"
-                            }`}
-                          >
-                            {step.label}
-                          </p>
-                          <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">
-                            {step.detail}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Ready Preview */}
-                {isReady && jobStatus.outputFile && (
-                  <div className="border-t border-white/10 pt-6 mt-6 max-w-2xl mx-auto space-y-5">
-                    <div className="aspect-video w-full rounded-2xl bg-black overflow-hidden border border-white/10 relative shadow-xl">
-                      <video src={jobStatus.outputFile} controls className="h-full w-full object-contain" />
-                    </div>
-                    <div className="flex flex-col sm:flex-row items-center gap-3">
-                      <button
-                        onClick={() =>
-                          downloadVideoDirectly(
-                            jobStatus.outputFile || "",
-                            `itnavideo-subtitled-${jobStatus.renderId}.mp4`
-                          )
-                        }
-                        disabled={downloadingUrl === jobStatus.outputFile}
-                        className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-6 py-4 text-sm font-black text-black shadow-xl shadow-[#FF5722]/25 hover:brightness-110 active:scale-95 transition cursor-pointer disabled:opacity-50"
-                      >
-                        {downloadingUrl === jobStatus.outputFile ? (
-                          <>
-                            <div className="h-4 w-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                            <span>Downloading...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Download size={16} className="text-black" />
-                            <span>Download Subtitled Widescreen MP4 (1080p)</span>
-                          </>
-                        )}
-                      </button>
-                      <a
-                        href={jobStatus.outputFile}
-                        download={`itnavideo-subtitled-${jobStatus.renderId}.mp4`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full sm:w-auto inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 px-5 py-4 text-xs font-bold text-slate-300 hover:text-white transition"
-                        title="Direct Link"
-                      >
-                        <Download size={16} className="text-[#FF7043]" />
-                      </a>
-                    </div>
-                  </div>
-                )}
-
-                {/* Diagnostics on failure */}
-                {isError && jobStatus.diagnostics && jobStatus.diagnostics.length > 0 && (
-                  <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-4 space-y-1">
-                    <span className="block text-[11px] font-black uppercase text-red-400">
-                      Technical Diagnostics:
-                    </span>
-                    <div className="max-h-32 overflow-y-auto font-mono text-[10px] text-slate-400 leading-normal space-y-1">
-                      {jobStatus.diagnostics.map((line, idx) => (
-                        <p key={idx}>{line}</p>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+        {(isWorking || isReady || isError) ? (
+          <div className="max-w-4xl mx-auto py-4">
+            <InteractiveRenderEngine
+              mode="youtubeSubtitles"
+              status={{
+                state: isReady ? "ready" : isError ? "error" : isWorking ? (jobStatus.state as any) : "idle",
+                message: jobStatus.message || "Generating 16:9 subtitles...",
+                progress: jobStatus.progress,
+                outputFile: jobStatus.outputFile,
+                title: selectedFile?.name ? selectedFile.name.replace(/\.[^/.]+$/, "") : "YouTube 16:9 Subtitles",
+                error: isError ? jobStatus.message : undefined,
+                diagnostics: jobStatus.diagnostics,
+              }}
+              title={selectedFile?.name ? selectedFile.name.replace(/\.[^/.]+$/, "") : "YouTube 16:9 Subtitles"}
+              fileName={selectedFile?.name}
+              onRetry={handleStartRender}
+              onReset={() => {
+                setSelectedFile(null);
+                setEditedTranscript("");
+                setPreviewCaptions([]);
+                setJobStatus({ state: "idle" });
+              }}
+            />
           </div>
         ) : (
           /* ── Main Responsive Studio (7 cols Form & Styles / 5 cols Sticky Live Cinema Stage) ── */

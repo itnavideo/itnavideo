@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import BrandLogo from "@/components/brand/BrandLogo";
 import { LongVideoClipsStudio } from "@/components/dashboard/LongVideoClipsStudio";
+import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine";
 import { useAuth } from "@/components/auth/AuthContext";
 import { resolveSafeContentType } from "@/lib/media/presignedUpload";
 import {
@@ -105,6 +106,7 @@ export default function LongVideoClipsPage() {
 
   // Job & render states
   const [jobStatus, setJobStatus] = useState<JobStatus>({ state: "idle" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [billingEntitlement, setBillingEntitlement] = useState<BillingEntitlement | null>(null);
   const [recentRenders, setRecentRenders] = useState<RecentRender[]>([]);
   const [activeTab, setActiveTab] = useState<"studio" | "history">("studio");
@@ -275,6 +277,7 @@ export default function LongVideoClipsPage() {
     }
     if (renderRequestInFlightRef.current) return;
     renderRequestInFlightRef.current = true;
+    setIsSubmitting(true);
 
     try {
       let mediaKey = "";
@@ -549,207 +552,32 @@ export default function LongVideoClipsPage() {
       {/* Main Container */}
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 space-y-6">
 
-        {/* Render Status Panel */}
-        {jobStatus.state !== "idle" && jobStatus.state !== "ready" && (
-          <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 sm:p-8 shadow-xl max-w-3xl mx-auto space-y-6">
-            <div className="flex items-center justify-between gap-4">
-              <div className="space-y-1">
-                <h3 className="text-sm font-black text-white">Parallel Clips Export Progress</h3>
-                <p className="text-xs text-zinc-400">{jobStatus.message}</p>
-              </div>
-              <div className="flex items-center gap-1.5 text-xs font-black text-[#FFA000]">
-                <Loader2 size={13} className="animate-spin" />
-                <span>{Math.round((jobStatus.progress || 0) * 100)}%</span>
-              </div>
-            </div>
-
-            {/* Progress Bar */}
-            <div className="h-2 w-full rounded-full bg-black/40 overflow-hidden border border-white/5">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] transition-all duration-500 ease-out"
-                style={{ width: `${(jobStatus.progress || 0) * 100}%` }}
-              />
-            </div>
-
-            {/* Steps List */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 pt-2">
-              {CLIPS_RENDER_STEPS.map((step, idx) => {
-                const stepProgress = jobStatus.progress || 0;
-                const active = stepProgress >= step.threshold && stepProgress < (CLIPS_RENDER_STEPS[idx + 1]?.threshold || 1.1);
-                const done = stepProgress >= (CLIPS_RENDER_STEPS[idx + 1]?.threshold || 0.98);
-                const Icon = step?.icon || Sparkles;
-
-                return (
-                  <div
-                    key={step.label}
-                    className={`flex flex-row md:flex-col items-center md:items-start gap-3 p-3 rounded-2xl border transition-all ${
-                      active
-                        ? "border-[#FF5722] bg-[#FF5722]/5 shadow-md shadow-[#FF5722]/5"
-                        : done
-                        ? "border-emerald-500/20 bg-emerald-500/5 opacity-80"
-                        : "border-white/5 bg-black/10 opacity-40"
-                    }`}
-                  >
-                    <div
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border ${
-                        active
-                          ? "border-[#FF5722]/30 bg-[#FF5722]/10 text-[#FF9100]"
-                          : done
-                          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-                          : "border-white/10 bg-white/5 text-zinc-500"
-                      }`}
-                    >
-                      {done ? <CheckCircle2 size={15} /> : <Icon size={14} />}
-                    </div>
-                    <div className="space-y-0.5">
-                      <p className="text-[11px] font-black text-zinc-200 leading-snug">{step.label}</p>
-                      <p className="hidden md:block text-[9px] text-zinc-500 leading-normal">{step.detail}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Clips status list grid during export */}
-            {jobStatus.clips && jobStatus.clips.length > 0 && (
-              <div className="pt-4 border-t border-white/5 space-y-3">
-                <div className="flex items-center justify-between text-xs text-zinc-400 font-bold uppercase tracking-wider">
-                  <span>Extracting Scene Highlights ({jobStatus.clips.length} segments):</span>
-                  <span>{jobStatus.clips.filter((c) => c.status === "done").length} / {jobStatus.clips.length} Ready</span>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-52 overflow-y-auto pr-1">
-                  {jobStatus.clips.map((clip) => (
-                    <div
-                      key={clip.renderId}
-                      className="rounded-xl border border-white/5 bg-black/40 p-3 flex items-center justify-between gap-3 text-xs"
-                    >
-                      <div className="min-w-0">
-                        <p className="font-bold text-white truncate">{clip.title}</p>
-                        <p className="text-[10px] text-zinc-500 mt-0.5">Duration: {Math.round(clip.durationSeconds)}s</p>
-                      </div>
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase border ${
-                          clip.status === "done"
-                            ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-                            : clip.status === "failed"
-                            ? "bg-red-500/10 border-red-500/20 text-red-400"
-                            : "bg-[#FF5722]/10 border-[#FF5722]/30 text-[#FFA000] animate-pulse"
-                        }`}
-                      >
-                        {clip.status}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {jobStatus.state === "error" && (
-              <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 flex items-start gap-3 text-xs text-red-300">
-                <AlertCircle size={16} className="shrink-0 mt-0.5" />
-                <div className="space-y-1">
-                  <p className="font-bold">Extraction Terminated</p>
-                  <p>{jobStatus.message}</p>
-                  <button
-                    onClick={() => setJobStatus({ state: "idle" })}
-                    className="mt-2 rounded-lg bg-red-500 px-3 py-1 text-[10px] font-black text-white hover:bg-red-600 transition"
-                  >
-                    Reset Studio
-                  </button>
-                </div>
-              </div>
-            )}
+        {/* Dedicated Interactive Render Engine Stage */}
+        {jobStatus.state !== "idle" && (
+          <div className="max-w-4xl mx-auto py-4">
+            <InteractiveRenderEngine
+              mode="longVideoClips"
+              status={{
+                state: jobStatus.state as any,
+                message: jobStatus.message || "Repurposing viral vertical shorts...",
+                progress: jobStatus.progress,
+                outputFile: jobStatus.outputFile,
+                title: jobStatus.title || (inputMode === "youtube" ? "YouTube Video Clips" : selectedFile?.name?.replace(/\.[^/.]+$/, "")) || "Long Video to Shorts",
+                clips: jobStatus.clips,
+              }}
+              title={jobStatus.title || (inputMode === "youtube" ? "YouTube Video Clips" : selectedFile?.name?.replace(/\.[^/.]+$/, "")) || "Long Video to Shorts"}
+              fileName={selectedFile?.name || (inputMode === "youtube" ? "youtube-video.mp4" : undefined)}
+              onRetry={handleStartRender}
+              onReset={() => {
+                setSelectedFile(null);
+                setYoutubeUrl("");
+                setIsSubmitting(false);
+                setJobStatus({ state: "idle" });
+              }}
+            />
           </div>
         )}
 
-        {/* Ready Clips Download Stage */}
-        {jobStatus.state === "ready" && jobStatus.clips && (
-          <div className="space-y-6">
-            <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 text-center space-y-4 max-w-xl mx-auto shadow-2xl">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
-                <CheckCircle2 size={28} />
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-base font-black text-white">Successfully Repurposed {jobStatus.clips.filter((c) => c.status === "done").length} Viral Clips!</h3>
-                <p className="text-xs text-zinc-400">Smart speech density highlighting and vertical 9:16 layout formatting is fully complete.</p>
-              </div>
-              <button
-                onClick={() => {
-                  setSelectedFile(null);
-                  setJobStatus({ state: "idle" });
-                }}
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 px-5 py-2.5 text-xs font-bold text-zinc-300 transition active:scale-95 cursor-pointer"
-              >
-                <RefreshCw size={13} />
-                <span>Upload New Video</span>
-              </button>
-            </div>
-
-            {/* Clips Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
-              {jobStatus.clips.map((clip) => {
-                const isClipDone = clip.status === "done";
-                const isClipFailed = clip.status === "failed";
-
-                return (
-                  <div
-                    key={clip.renderId}
-                    className={`relative overflow-hidden rounded-[28px] border p-5 bg-[#111218] flex flex-col justify-between gap-4 shadow-xl ${
-                      isClipFailed
-                        ? "opacity-60 border-red-500/10"
-                        : "border-white/10"
-                    }`}
-                  >
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between gap-2">
-                        <h4 className="text-xs font-black text-white truncate max-w-[70%]">{clip.title}</h4>
-                        <span
-                          className={`shrink-0 text-[9px] font-black uppercase px-2 py-0.5 rounded-full border ${
-                            isClipFailed
-                              ? "bg-red-500/10 border-red-500/20 text-red-400"
-                              : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-                          }`}
-                        >
-                          {clip.status}
-                        </span>
-                      </div>
-                      <p className="text-[10px] text-zinc-500">
-                        Segment: {Math.floor(clip.startSeconds / 60)}:{(clip.startSeconds % 60).toString().padStart(2, '0')} - {Math.floor(clip.endSeconds / 60)}:{(clip.endSeconds % 60).toString().padStart(2, '0')} ({Math.round(clip.durationSeconds)}s)
-                      </p>
-                    </div>
-
-                    <div className="aspect-[9/16] h-[360px] mx-auto rounded-2xl overflow-hidden bg-black border border-white/5 relative flex items-center justify-center">
-                      {isClipDone && clip.outputFile ? (
-                        <video
-                          src={clip.outputFile}
-                          controls
-                          className="w-full h-full object-cover"
-                          playsInline
-                        />
-                      ) : (
-                        <div className="text-center p-4">
-                          <span className="text-red-400 font-bold block mb-1">Rendering Failed</span>
-                          <span className="text-[9px] text-zinc-500 block">Failures are not charged. Feel free to try again.</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {isClipDone && clip.outputFile && (
-                      <a
-                        href={clip.outputFile}
-                        download={`clip-${clip.clipIndex + 1}.mp4`}
-                        className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] to-[#FF7043] py-3 text-xs font-black text-black shadow-lg shadow-[#FF5722]/25 transition hover:brightness-110 active:scale-95"
-                      >
-                        <Download size={13} />
-                        <span>Download Clip</span>
-                      </a>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
 
         {/* Primary Views */}
         {jobStatus.state === "idle" && (
@@ -777,7 +605,7 @@ export default function LongVideoClipsPage() {
                 captionStyle={captionStyle}
                 onCaptionStyleChange={setCaptionStyle}
                 onGenerate={handleStartRender}
-                isGenerating={false}
+                isGenerating={isSubmitting || jobStatus.state !== "idle"}
               />
             )}
           </>

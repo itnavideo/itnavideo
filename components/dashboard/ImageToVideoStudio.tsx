@@ -363,7 +363,21 @@ export function ImageToVideoStudio({
             </div>
 
             {/* Audio File Dropzone */}
-            <label className="group relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/15 bg-[#161720] p-6 text-center hover:border-[#FF5722]/50 transition cursor-pointer overflow-hidden">
+            <label
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const file = e.dataTransfer?.files?.[0] || null;
+                if (file) {
+                  onSelectAudio(file);
+                }
+              }}
+              className="group relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/15 bg-[#161720] p-6 text-center hover:border-[#FF5722]/50 transition cursor-pointer overflow-hidden"
+            >
               {!selectedAudio ? (
                 <div className="space-y-3 flex flex-col items-center">
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FF5722]/10 text-[#FF9100] border border-[#FF5722]/20 group-hover:scale-110 transition">
@@ -439,9 +453,14 @@ export function ImageToVideoStudio({
 
               <input
                 type="file"
-                accept="audio/*"
+                accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac"
                 className="hidden"
                 onChange={(e) => {
+                  const file = e.target.files?.[0] || null;
+                  if (file) {
+                    onSelectAudio(file);
+                  }
+                  e.target.value = "";
                 }}
               />
             </label>

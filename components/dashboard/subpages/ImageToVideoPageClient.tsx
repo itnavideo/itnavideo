@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import BrandLogo from "@/components/brand/BrandLogo";
 import { ImageToVideoStudio, ITNAVIDEO_LIBRARY_BGM, type ImageToVideoAssetMode } from "@/components/dashboard/ImageToVideoStudio";
+import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine";
 import { useAuth } from "@/components/auth/AuthContext";
 import { uploadFileViaPresign } from "@/lib/media/presignedUpload";
 import {
@@ -599,9 +600,9 @@ export default function ImageToVideoDashboardPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center text-slate-500 gap-3">
+      <div className="min-h-screen bg-[#070B14] flex flex-col items-center justify-center text-zinc-400 gap-3">
         <Loader2 className="h-8 w-8 animate-spin text-[#FF5722]" />
-        <p className="text-sm font-semibold tracking-wide text-slate-600">Loading Image to Video AI Studio...</p>
+        <p className="text-sm font-semibold tracking-wide text-zinc-300">Loading Image to Video AI Studio...</p>
       </div>
     );
   }
@@ -651,214 +652,17 @@ export default function ImageToVideoDashboardPage() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
         {(isWorking || isReady || isError) ? (
-          /* Render Monitor View (When in progress or ready) */
-          <div className="max-w-4xl mx-auto space-y-6">
-            <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#0E1526] p-6 sm:p-8 shadow-2xl">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-6 border-b border-white/10">
-                <div className="flex items-center gap-3.5">
-                  <div className={`flex h-12 w-12 items-center justify-center rounded-2xl border ${
-                    isReady
-                      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-                      : isError
-                        ? "border-red-500/30 bg-red-500/10 text-red-400"
-                        : "border-[#FF5722]/30 bg-[#FF5722]/10 text-[#FF9100] animate-pulse"
-                  }`}>
-                    {isReady ? (
-                      <CheckCircle2 size={24} />
-                    ) : isError ? (
-                      <AlertCircle size={24} />
-                    ) : (
-                      <Loader2 size={24} className="animate-spin" />
-                    )}
-                  </div>
-                  <div>
-                    <span className="text-[11px] font-black uppercase tracking-wider text-[#FF9100]">
-                      {isReady ? "Render Complete" : isError ? "Render Alert" : "Live Render Monitor"}
-                    </span>
-                    <h2 className="text-xl sm:text-2xl font-black text-white mt-0.5">
-                      {jobStatus.title || "Image to Video AI Generation"}
-                    </h2>
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-400 mt-1">
-                      <span>{jobStatus.message}</span>
-                      {isWorking && (
-                        <>
-                          <span className="text-white/20">•</span>
-                          <span className="text-amber-300/90 font-medium">
-                            Takes ~{estimatedMinutes} min for {imageFiles.length > 0 ? `${imageFiles.length} images` : "large image sets"} &amp; 12 min video
-                          </span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-2 self-start sm:self-center">
-                  {isWorking && (
-                    <>
-                      <div className="flex items-center gap-2 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/15 px-3 py-1.5 text-xs font-bold text-[#FFA000] shadow-md">
-                        <Clock size={13} className="text-[#FF9100] animate-pulse" />
-                        <span>⏱️ Elapsed: <span className="font-mono text-white">{formatTimer(elapsedSeconds)}</span></span>
-                        <span className="text-white/20">•</span>
-                        <span>Rem: <span className="font-mono text-amber-300">{formatRemainingTime(remainingSeconds)}</span></span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={handleCancelProcess}
-                        className="px-3.5 py-1.5 rounded-full bg-red-950/80 hover:bg-red-900 border border-red-500/40 text-red-300 hover:text-white text-xs font-bold transition-all inline-flex items-center gap-1.5 shadow-md active:scale-95 cursor-pointer ml-1"
-                      >
-                        <RefreshCw size={12} className="text-red-400" />
-                        <span>Cancel Process</span>
-                      </button>
-                    </>
-                  )}
-                  {isReady && (
-                    <span className="rounded-full border border-emerald-500/30 bg-emerald-500/15 px-3 py-1 text-xs font-black text-emerald-400">
-                      1080p Ready ✓
-                    </span>
-                  )}
-                  {isError && (
-                    <span className="rounded-full border border-red-500/30 bg-red-500/15 px-3 py-1 text-xs font-black text-red-400">
-                      Failed
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* Progress Bar & Time Tracker */}
-              <div className="space-y-2 mb-8">
-                <div className="flex items-center justify-between text-[11px] font-bold text-zinc-400 px-1">
-                  <span>{isReady ? "Export Completed" : isError ? "Render Paused" : "Rendering 1080p Full HD Video..."}</span>
-                  <span className="font-mono text-amber-400">
-                    {isReady ? "Ready" : isError ? "Alert" : `⏱️ ${formatTimer(elapsedSeconds)} / ~${estimatedMinutes}m`}
-                  </span>
-                </div>
-                <div className="h-3 w-full rounded-full bg-black/50 border border-white/10 overflow-hidden p-0.5">
-                  <div
-                    className={`h-full rounded-full transition-all duration-500 ${
-                      isReady
-                        ? "bg-gradient-to-r from-emerald-400 to-teal-400"
-                        : isError
-                          ? "bg-red-500"
-                          : "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000]"
-                    }`}
-                    style={{ width: `${Math.max(5, Math.min(98, Math.round(((elapsedSeconds / (estimatedTotalSecs || 600)) * 90) + 10)))}%` }}
-                  />
-                </div>
-              </div>
-
-              {/* 5-Step Visual Progress Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-8">
-                {RENDER_STEPS.map((step, idx) => {
-                  const currentProg = jobStatus.progress || 0.1;
-                  const isDone = isReady || currentProg >= step.threshold;
-                  const isActive = !isReady && !isError && currentProg < step.threshold && (idx === 0 || currentProg >= RENDER_STEPS[idx - 1].threshold);
-                  const Icon = step?.icon || Sparkles;
-
-                  return (
-                    <div
-                      key={step.label}
-                      className={`p-3.5 rounded-2xl border transition-all ${
-                        isDone
-                          ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-300"
-                          : isActive
-                            ? "border-[#FF5722]/50 bg-[#FF5722]/10 text-white shadow-lg shadow-[#FF5722]/10"
-                            : "border-white/5 bg-white/[0.02] text-zinc-500"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <Icon size={15} className={isActive ? "text-[#FF9100] animate-pulse" : isDone ? "text-emerald-400" : "text-zinc-600"} />
-                        <span className="text-xs font-black uppercase tracking-wider">{step.label}</span>
-                      </div>
-                      <p className="text-[11px] text-zinc-400 leading-relaxed">{step.detail}</p>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Ready Video Preview & Download */}
-              {isReady && jobStatus.outputFile && (
-                <div className="space-y-6 pt-4 border-t border-white/10">
-                  <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-[#FF5722]/40 bg-black shadow-2xl">
-                    <video
-                      src={jobStatus.outputFile}
-                      controls
-                      autoPlay
-                      className="h-full w-full object-contain"
-                    />
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-5 rounded-2xl bg-[#0B0D13] border border-white/10">
-                    <div>
-                      <p className="text-base font-black text-white">Your 16:9 Widescreen MP4 is Ready!</p>
-                      <p className="text-xs text-zinc-400 mt-0.5">Files are retained in your private cloud for 48 hours.</p>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
-                      <button
-                        type="button"
-                        onClick={() => downloadVideoDirectly(jobStatus.outputFile!, `itnavideo-cinematic-16x9-${Date.now()}.mp4`)}
-                        disabled={downloadingUrl === jobStatus.outputFile}
-                        className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-6 py-3.5 text-xs font-black text-black shadow-lg shadow-[#FF5722]/25 hover:brightness-110 active:scale-95 transition cursor-pointer disabled:opacity-50"
-                      >
-                        {downloadingUrl === jobStatus.outputFile ? (
-                          <>
-                            <div className="h-4 w-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                            <span>Downloading MP4...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Download size={16} className="text-black" />
-                            <span>Download 1080p MP4</span>
-                          </>
-                        )}
-                      </button>
-
-                      <a
-                        href={jobStatus.outputFile}
-                        download={`itnavideo-cinematic-16x9-${Date.now()}.mp4`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center gap-1.5 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 px-4 py-3.5 text-xs font-bold text-zinc-300 hover:text-white transition"
-                        title="Direct Download Link"
-                      >
-                        <Download size={14} className="text-[#FF9100]" />
-                        <span>Direct Link</span>
-                      </a>
-
-                      <button
-                        type="button"
-                        onClick={() => setActiveTab("history")}
-                        className="inline-flex items-center justify-center gap-1.5 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 px-4 py-3.5 text-xs font-bold text-zinc-300 hover:text-white transition"
-                      >
-                        <Film size={14} className="text-[#FF9100]" />
-                        <span>View in Projects</span>
-                      </button>
-
-                      <button
-                        onClick={handleReset}
-                        className="inline-flex items-center justify-center gap-1.5 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 px-4 py-3.5 text-xs font-bold text-zinc-300 hover:text-white transition"
-                      >
-                        <RefreshCw size={14} />
-                        <span>New Video</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Error Actions */}
-              {isError && (
-                <div className="flex items-center justify-between gap-4 pt-4 border-t border-red-500/20">
-                  <p className="text-xs text-red-300">Something went wrong during generation. Your credits were not deducted.</p>
-                  <button
-                    onClick={handleReset}
-                    className="rounded-full bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 px-5 py-2.5 text-xs font-black text-red-200 transition"
-                  >
-                    Try Again
-                  </button>
-                </div>
-              )}
-            </div>
+          /* Render Monitor View (Unified InteractiveRenderEngine) */
+          <div className="max-w-4xl mx-auto py-4">
+            <InteractiveRenderEngine
+              mode="imageToVideoAi"
+              status={jobStatus}
+              title={jobStatus.title || topicTitle || selectedAudio?.name?.replace(/\.[^/.]+$/, "") || "Image to Video AI Generation"}
+              fileName={selectedAudio?.name}
+              onRetry={handleStartRender}
+              onReset={handleReset}
+              onCancel={handleCancelProcess}
+            />
           </div>
         ) : (
           /* Main Studio Form */

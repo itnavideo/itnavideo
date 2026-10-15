@@ -2,20 +2,22 @@ import Link from "next/link";
 import { ArrowRight, CheckCircle2, CircleHelp, CreditCard, HelpCircle, Mail, Play, ShieldCheck, Video, Sparkles } from "lucide-react";
 import type { Metadata } from "next";
 import PricingSection from "@/components/landing/PricingSection";
+import PricingComparisonTable from "@/components/billing/PricingComparisonTable";
 
 export const metadata: Metadata = {
   title: "Pricing — Monthly AI Video Plans | Itnavideo",
-  description: "Affordable monthly AI Video plans starting at $29/month for 75 credits and $49/month for 135 credits.",
+  description: "Affordable monthly AI Video plans starting at $9/month (₹499) for Shorts and $19/month (₹999) for Shorts + Widescreen YouTube Videos.",
   alternates: { canonical: "/pricing" },
   openGraph: {
     title: "Pricing — Monthly AI Video Plans | Itnavideo",
-    description: "Simple monthly plans: Starter ($29), Growth ($49), and Pro ($149). Free trial available.",
+    description: "Simple monthly plans: Basic ($9 / ₹499), Growth ($19 / ₹999), and Pro Agency ($39 / ₹1,999). Free trial available.",
     images: ["/og-image.png"],
   },
   twitter: {
     card: "summary_large_image",
     title: "Pricing — Monthly AI Video Plans | Itnavideo",
-    description: "Affordable monthly credit packs starting at $29. Top-up credits whenever you need.",
+    description: "Affordable monthly video packs starting at $9 / ₹499. Dedicated studios for Shorts and Widescreen Faceless Video.",
+    images: ["/og-image.png"],
   },
 };
 
@@ -24,6 +26,9 @@ export default function PricingPage() {
     <main className="bg-white text-slate-900 min-h-screen pt-12">
       {/* Universal Modern Pricing Section */}
       <PricingSection />
+
+      {/* Clueso-Style Detailed Plan Comparison Matrix */}
+      <PricingComparisonTable />
 
       {/* Material 3 Credits Breakdown Section */}
       <section className="bg-[#FAFAFA] px-4 py-16 sm:px-6 border-b border-slate-200/80">

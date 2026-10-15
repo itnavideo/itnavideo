@@ -131,12 +131,20 @@ function requiredBucket() {
 }
 
 function sanitizeFileName(value: string) {
-  const cleanName = value
-    .replace(/[/\\?%*:|"<>]/g, '-')
+  const raw = String(value || '').trim();
+  const lastDot = raw.lastIndexOf('.');
+  const ext = lastDot > 0 ? raw.slice(lastDot).toLowerCase() : '';
+  const base = lastDot > 0 ? raw.slice(0, lastDot) : raw;
+
+  const cleanBase = base
+    .replace(/[/\\?%*:|"<>\[\](),']/g, '-')
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-')
-    .slice(0, 100);
-  return cleanName || 'upload.bin';
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80);
+
+  const cleanExt = ext.replace(/[^a-z0-9.]/gi, '').slice(0, 10);
+  return `${cleanBase || 'upload'}${cleanExt || '.bin'}`;
 }
 
 function sanitizeSegment(value: string) {

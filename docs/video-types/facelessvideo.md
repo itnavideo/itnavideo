@@ -121,4 +121,7 @@ During rendering, the screen provides a calm, reassuring experience:
 | [`remotion/templates/FACELESS_VIDEO/template.tsx`](file:///c:/Itnavideo/remotion/templates/FACELESS_VIDEO/template.tsx) | Strictly 16:9 format (`1920×1080`), removed 9:16 fallback logic |
 | [`app/api/reels/jobs/route.ts`](file:///c:/Itnavideo/app/api/reels/jobs/route.ts) | Reuses confirmed `sceneBlueprint`, `brollUrls`, and `approvedCaptions` with 100% fidelity |
 | [`components/dashboard/FacelessVideoStudio.tsx`](file:///c:/Itnavideo/components/dashboard/FacelessVideoStudio.tsx) | Redesigned with premium white UI, 3-step wizard, audio playback, and storyboard review |
-| [`components/dashboard/subpages/FacelessVideoPageClient.tsx`](file:///c:/Itnavideo/components/dashboard/subpages/FacelessVideoPageClient.tsx) | Redesigned with white rendering card, real progress, cancel modal, and refresh persistence |
+| [`components/dashboard/subpages/FacelessVideoPageClient.tsx`](file:///c:/Itnavideo/components/dashboard/subpages/FacelessVideoPageClient.tsx) | Switched to centralized `uploadFileViaPresign` from `@/lib/media/presignedUpload`, fixing 404 on `/api/reels/jobs/presign` |
+| [`app/api/media/presign/route.ts`](file:///c:/Itnavideo/app/api/media/presign/route.ts) | Added on-demand S3 read URL generation via `action: 'read'` with `createReadUrl` |
+| [`app/api/reels/jobs/presign/route.ts`](file:///c:/Itnavideo/app/api/reels/jobs/presign/route.ts) | Created backwards-compatibility re-export route forwarding to `@/app/api/media/presign` |
+| [`app/api/reels/plan-faceless-video/route.ts`](file:///c:/Itnavideo/app/api/reels/plan-faceless-video/route.ts) | Auto-resolves raw S3 `mediaKey` and uploaded image keys using `createReadUrl` |

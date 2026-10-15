@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, Loader2, ShieldCheck, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthContext";
 import { supabase } from "@/lib/supabase/client";
@@ -45,6 +45,20 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
+  const [currency, setCurrency] = useState<'USD' | 'INR'>('USD');
+
+  useEffect(() => {
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+      if (tz.includes('Calcutta') || tz.includes('Kolkata') || tz.includes('Asia/Colombo')) {
+        setCurrency('INR');
+      } else {
+        setCurrency('USD');
+      }
+    } catch {
+      setCurrency('USD');
+    }
+  }, []);
 
   const buyPlan = async (plan: PricingPlan) => {
     if (plan.id === "free") {
@@ -124,7 +138,7 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
   };
 
   return (
-    <section id="pricing" className="border-t border-slate-200/80 bg-white text-slate-900 px-4 py-16 sm:px-6 sm:py-24">
+    <section id="pricing" className="border-t border-slate-200/80 bg-gradient-to-b from-[#FFFDFB] via-white to-[#FFFDFB] text-slate-900 px-4 py-16 sm:px-6 sm:py-24">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center">
@@ -166,33 +180,61 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
             </span>
           </div>
 
-          {/* Monthly / Annual Billing Toggle */}
-          <div className="mt-8 flex items-center justify-center gap-3">
-            <button
-              type="button"
-              onClick={() => setBillingCycle('monthly')}
-              className={`rounded-full px-4 py-1.5 text-xs font-bold transition cursor-pointer ${
-                billingCycle === 'monthly'
-                  ? 'bg-slate-900 text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Monthly Billing
-            </button>
-            <button
-              type="button"
-              onClick={() => setBillingCycle('annual')}
-              className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-bold transition cursor-pointer ${
-                billingCycle === 'annual'
-                  ? 'bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-white shadow-xs'
-                  : 'bg-orange-500/10 text-orange-700 border border-orange-500/30 hover:bg-orange-500/20'
-              }`}
-            >
-              <span>Annual Billing</span>
-              <span className="rounded-full bg-white/25 px-1.5 py-0.2 text-[10px] font-black uppercase">
-                Save 20%
-              </span>
-            </button>
+          {/* Monthly / Annual Billing Toggle + Currency Switcher */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <div className="inline-flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setBillingCycle('monthly')}
+                className={`rounded-full px-4 py-1.5 text-xs font-bold transition cursor-pointer ${
+                  billingCycle === 'monthly'
+                    ? 'bg-slate-900 text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Monthly Billing
+              </button>
+              <button
+                type="button"
+                onClick={() => setBillingCycle('annual')}
+                className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-bold transition cursor-pointer ${
+                  billingCycle === 'annual'
+                    ? 'bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-white shadow-xs'
+                    : 'bg-orange-500/10 text-orange-700 border border-orange-500/30 hover:bg-orange-500/20'
+                }`}
+              >
+                <span>Annual Billing</span>
+                <span className="rounded-full bg-white/25 px-1.5 py-0.2 text-[10px] font-black uppercase">
+                  Save 20%
+                </span>
+              </button>
+            </div>
+
+            {/* Currency Switcher */}
+            <div className="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 p-0.5">
+              <button
+                type="button"
+                onClick={() => setCurrency('USD')}
+                className={`rounded-full px-3 py-1 text-xs font-bold transition cursor-pointer ${
+                  currency === 'USD'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                $ USD (Global)
+              </button>
+              <button
+                type="button"
+                onClick={() => setCurrency('INR')}
+                className={`rounded-full px-3 py-1 text-xs font-bold transition cursor-pointer ${
+                  currency === 'INR'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                ₹ INR (India)
+              </button>
+            </div>
           </div>
         </div>
 
@@ -207,22 +249,27 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
           {pricingPlans.map((plan) => {
             const isPopular = plan.popular;
             const isFree = plan.id === "free";
-            const rawPrice = displayPrices[plan.id] || plan.quotes.USD?.displayPrice || "$0";
+            const quote = currency === 'USD' ? plan.quotes.USD : plan.quotes.INR;
+            const rawPrice = quote?.displayPrice || (currency === 'USD' ? '$0' : '₹0');
             const effectivePrice = getDiscountedPrice(rawPrice, isFree, billingCycle === 'annual');
+            const planShortName = plan.name.split(" (")[0];
+            const buttonLabel = isFree
+              ? "Get Started Free"
+              : `Buy ${planShortName} — ${effectivePrice}`;
 
             return (
               <article
                 key={plan.id}
-                className={`relative flex min-h-[510px] flex-col rounded-[28px] border p-6 sm:p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${
+                className={`relative flex min-h-[510px] flex-col rounded-[28px] p-6 sm:p-7 transition-all duration-300 hover:-translate-y-1 ${
                   isPopular
-                    ? "border-[#FF5722] ring-2 ring-[#FF5722]/30 bg-gradient-to-b from-orange-50/50 via-white to-white shadow-xl shadow-orange-500/10"
-                    : "border-slate-200 bg-white hover:border-orange-500/40"
+                    ? "border-2 border-[#FF5722] ring-4 ring-orange-500/15 bg-gradient-to-b from-orange-50/40 via-white to-white shadow-2xl shadow-orange-500/15 lg:scale-105 z-10"
+                    : "border border-slate-200/90 bg-white shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] hover:shadow-xl hover:border-slate-300"
                 }`}
               >
                 {/* Popular Pill */}
                 {isPopular && (
-                  <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-[#FF5722] to-[#FFA000] px-4 py-1 text-[11px] font-black tracking-wide text-white shadow-lg shadow-orange-500/30">
-                    ⭐ MOST POPULAR · BEST VALUE
+                  <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-[#FF5722] to-[#FFA000] px-4 py-1 text-[11px] font-black uppercase tracking-wider text-white shadow-lg shadow-orange-500/35">
+                    ⭐ Most Popular · Best Value
                   </span>
                 )}
 
@@ -259,7 +306,11 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
                 <p className="mt-2 text-xs font-bold text-orange-600">
                   {isFree
                     ? "✓ No card required • 1 free 9:16 Short (up to 90s)"
-                    : `✓ ${plan.credits.toLocaleString()} credits (up to ${plan.credits.toLocaleString()} Shorts or mins)`}
+                    : plan.id === "starter"
+                    ? "✓ 25 Shorts & Reels (9:16, up to 90s)"
+                    : plan.id === "growth"
+                    ? "✓ 35 Shorts + 10 Long Videos (up to 5 min)"
+                    : "✓ 60 Shorts + 14 Long Videos (up to 10 min)"}
                 </p>
 
                 {/* Features List */}
@@ -281,16 +332,16 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
                   type="button"
                   disabled={loading || Boolean(loadingPlan)}
                   onClick={() => buyPlan(plan)}
-                  className={`mt-8 flex w-full items-center justify-center gap-2 rounded-full px-5 py-3.5 text-xs sm:text-sm font-black transition cursor-pointer ${
+                  className={`mt-8 flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-xs sm:text-sm font-black transition cursor-pointer ${
                     isPopular
                       ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white hover:brightness-110 shadow-lg shadow-orange-500/25 active:scale-95"
                       : isFree
-                      ? "border border-slate-200 bg-slate-50 text-slate-800 hover:bg-orange-50 hover:border-orange-500/40 hover:text-orange-950 font-bold active:scale-95 shadow-2xs"
-                      : "border border-slate-200 bg-slate-50 text-slate-800 hover:bg-orange-50 hover:border-orange-500/40 hover:text-orange-950 font-bold active:scale-95 shadow-2xs"
+                      ? "bg-slate-900 text-white hover:bg-slate-800 shadow-md active:scale-95 font-black"
+                      : "border border-slate-300 bg-white text-slate-800 hover:border-orange-500/40 hover:bg-orange-50/50 hover:text-orange-950 font-bold active:scale-95 shadow-sm"
                   }`}
                 >
                   {loadingPlan === plan.id && <Loader2 size={16} className="animate-spin" />}
-                  {loadingPlan === plan.id ? "Preparing checkout..." : plan.button}
+                  {loadingPlan === plan.id ? "Preparing checkout..." : buttonLabel}
                 </button>
               </article>
             );

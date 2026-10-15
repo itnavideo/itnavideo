@@ -539,53 +539,114 @@ export function LongVideoClipsStudio({
             <span className="text-sm font-black text-[#FF9100]">{(clipCount === 0 ? 5 : clipCount) + 2} Credits</span>
           </div>
         </div>
-
-        {/* PRIMARY ACTION CTA */}
-        <button
-          type="button"
-          onClick={onGenerate}
-          disabled={
-            isGenerating ||
-            (inputMode === "youtube"
-              ? !youtubeUrl || !/(youtube\.com|youtu\.be)/i.test(youtubeUrl)
-              : !selectedFile)
-          }
-          className="w-full inline-flex items-center justify-center gap-2.5 rounded-3xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] p-4.5 text-sm font-black text-black shadow-xl shadow-[#FF5722]/25 transition active:scale-95 hover:brightness-110 disabled:opacity-45 disabled:pointer-events-none cursor-pointer"
-        >
-          <Sparkles size={18} />
-          <span>{isGenerating ? "Transcribing & Extracting Clips..." : "Extract 9:16 Viral Clips"}</span>
-        </button>
       </div>
 
-      {/* Right Column: Live Information Card (5 cols) */}
+      {/* Right Column: Live Information & Primary CTA Stage (5 cols) */}
       <div className="lg:col-span-5 sticky top-24 space-y-6">
-        <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-2xl relative overflow-hidden">
-          <div className="mb-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.16em] text-[#FF9100]">
-            <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#FF5722]" />
-            Podcast Repurposer Information
+        <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-6 shadow-2xl space-y-6 text-white">
+          <div className="flex items-center justify-between border-b border-white/10 pb-4">
+            <div className="flex items-center gap-2">
+              <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-xs font-black uppercase tracking-wider text-slate-300">
+                Live 9:16 Preview
+              </span>
+            </div>
+            <span className="rounded-full bg-white/5 border border-white/10 px-2.5 py-0.5 text-[10px] font-bold text-slate-400">
+              9:16 Shorts
+            </span>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-[#161720] p-5 space-y-4">
-            <h4 className="text-xs font-black text-white uppercase tracking-wider">Automated Cloud Pipeline:</h4>
-            <ul className="space-y-3.5 text-xs">
-              <li className="flex items-center gap-3">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#FF5722]/20 text-[#FF9100] text-xs font-black">✓</span>
-                <span className="font-bold text-zinc-200">Parallel Groq Speech Transcription</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#FF5722]/20 text-[#FF9100] text-xs font-black">✓</span>
-                <span className="font-bold text-zinc-200">AI Hook &amp; High-Retention Slicing</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#FF5722]/20 text-[#FF9100] text-xs font-black">✓</span>
-                <span className="font-bold text-zinc-200">Computer Vision 9:16 Speaker Tracking</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#FF5722]/20 text-[#FF9100] text-xs font-black">✓</span>
-                <span className="font-bold text-zinc-200">Animated Subtitle Overlay Engine</span>
-              </li>
-            </ul>
+          {/* 9:16 Canvas Mockup Frame */}
+          <div className="relative mx-auto aspect-[9/16] w-full max-w-[250px] rounded-2xl border-2 border-white/10 bg-[#0B0F19] overflow-hidden shadow-2xl flex flex-col justify-between p-3.5">
+            {/* Top Watermark */}
+            <div className="relative z-10 flex items-center justify-between">
+              <span className="inline-flex items-center gap-1 rounded-full bg-black/80 px-2.5 py-0.5 text-[9px] font-black text-[#FFA000]">
+                <span>⚡ AI Viral Clip</span>
+              </span>
+              <span className="text-[9px] font-mono text-zinc-400">
+                {layoutMode === "auto-speaker" ? "Auto-Speaker" : layoutMode === "split-screen" ? "Split-Screen" : "Fit 16:9"}
+              </span>
+            </div>
+
+            {/* Center Video Frame Mockup */}
+            <div className="relative z-10 my-auto text-center space-y-3 px-1">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 border border-white/10 shadow-inner">
+                <span className="text-2xl animate-pulse">🎙️</span>
+              </div>
+              <div className="space-y-1">
+                <p className="text-[11px] font-black text-white line-clamp-2">
+                  {selectedFile ? selectedFile.name : youtubeUrl ? "YouTube Video Repurposing" : "Upload long video or paste URL"}
+                </p>
+                <p className="text-[9px] text-[#FFA000] font-bold">
+                  {clipCount === 0 ? "Extracting 5-10 Top Hooks" : `${clipCount} Shorts Clips`}
+                </p>
+              </div>
+
+              {/* Caption Overlay Preview */}
+              {enableClipsCaptions && (
+                <div className="mt-2 inline-block rounded-md bg-[#FFE600] px-2.5 py-0.5 text-[10px] font-black uppercase text-black shadow-md">
+                  VIRAL HOOK
+                </div>
+              )}
+            </div>
+
+            {/* Bottom Scrubber */}
+            <div className="relative z-10 rounded-xl bg-black/80 p-2 backdrop-blur-sm space-y-1">
+              <div className="flex items-center justify-between text-[9px] font-mono text-zinc-300">
+                <span>30-60s Clip</span>
+                <span className="text-[#FFA000]">1080×1920</span>
+              </div>
+              <div className="h-1 w-full rounded-full bg-white/20 overflow-hidden">
+                <div className="h-full w-2/5 bg-gradient-to-r from-[#FF5722] to-[#FFA000] rounded-full" />
+              </div>
+            </div>
           </div>
+
+          {/* Specs & Credit Cost Breakdown */}
+          <div className="rounded-2xl border border-white/5 bg-black/40 p-4 space-y-2.5 text-xs">
+            <div className="flex items-center justify-between text-slate-400">
+              <span>Output Format</span>
+              <span className="font-bold text-white">9:16 Vertical (1080×1920)</span>
+            </div>
+            <div className="flex items-center justify-between text-slate-400">
+              <span>Clip Target Length</span>
+              <span className="font-bold text-white">30s–60s Viral Hooks</span>
+            </div>
+            <div className="flex items-center justify-between text-slate-400">
+              <span>Estimated Cost</span>
+              <span className="font-bold text-[#FFA000]">{(clipCount === 0 ? 5 : clipCount) * 2} Credits (2 Cr/Clip)</span>
+            </div>
+          </div>
+
+          {/* Primary Action Button */}
+          <button
+            type="button"
+            onClick={onGenerate}
+            disabled={
+              isGenerating ||
+              (inputMode === "youtube"
+                ? !youtubeUrl || !/(youtube\.com|youtu\.be)/i.test(youtubeUrl)
+                : !selectedFile)
+            }
+            className={`w-full inline-flex min-h-[52px] items-center justify-center gap-2.5 rounded-2xl text-sm font-black tracking-tight transition-all duration-200 ${
+              (inputMode === "youtube" ? !youtubeUrl : !selectedFile)
+                ? "bg-[#141A28] text-zinc-500 border border-white/10 shadow-inner cursor-not-allowed"
+                : isGenerating
+                ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black opacity-80 cursor-wait animate-pulse"
+                : "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black shadow-xl shadow-[#FF5722]/25 hover:brightness-110 active:scale-[0.99] cursor-pointer"
+            }`}
+          >
+            <Sparkles size={16} className={(inputMode === "youtube" ? !youtubeUrl : !selectedFile) ? "text-zinc-600" : "text-black"} />
+            <span>
+              {isGenerating
+                ? "Transcribing & Extracting Clips..."
+                : inputMode === "youtube" && !youtubeUrl
+                ? "Paste YouTube URL Above"
+                : !selectedFile && inputMode === "file"
+                ? "Upload Long Video Above"
+                : "Extract 9:16 Viral Clips"}
+            </span>
+          </button>
         </div>
       </div>
     </div>
