@@ -30,12 +30,12 @@ export function ComparisonScene({ scene, headingFont = 'Montserrat, sans-serif',
 
       <div className="grid grid-cols-2 gap-12 w-full max-w-5xl">
         <div className="rounded-3xl p-8 bg-red-950/40 border border-red-500/30 backdrop-blur-xl shadow-2xl flex flex-col items-center justify-center">
-          <span className="text-sm font-black text-red-400 uppercase tracking-widest mb-4">BEFORE / COMMON PITFALL</span>
+          <span className="text-base font-black text-red-400 uppercase tracking-widest mb-4">BEFORE</span>
           <span className="text-3xl font-extrabold text-white" style={{ fontFamily: bodyFont }}>{leftItem}</span>
         </div>
 
         <div className="rounded-3xl p-8 bg-emerald-950/40 border border-emerald-500/30 backdrop-blur-xl shadow-2xl flex flex-col items-center justify-center">
-          <span className="text-sm font-black text-emerald-400 uppercase tracking-widest mb-4">AFTER / WINNING FORMULA</span>
+          <span className="text-base font-black text-emerald-400 uppercase tracking-widest mb-4">AFTER</span>
           <span className="text-3xl font-extrabold text-white" style={{ fontFamily: bodyFont }}>{rightItem}</span>
         </div>
       </div>

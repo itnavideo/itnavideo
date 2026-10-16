@@ -50,7 +50,7 @@ import {generateSFXEvents} from '@/services/ai/sfxEngine';
 import {detectChaptersFromTranscript} from '@/services/ai/chapterDetector';
 import {smartMatchUploadedImagesToScenes} from '@/services/ai/smartMediaMatcher';
 import {analyzeMultipleImages, analyzeBatchImagesInSingleCall, generateDeterministicAnalysis, matchScriptToAnalyzedImages, isGenericFilename, type AnalyzedImage} from '@/services/ai/imageUnderstanding';
-import {searchPexelsFallbackImages} from '@/services/ai/pexelsImages';
+import {searchPexelsFallbackImages, matchPexelsMediaForScenes} from '@/services/ai/pexelsImages';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -1650,32 +1650,62 @@ export async function POST(request: Request) {
     const spokenLang = readString(body.spokenLanguage || body.audioSpokenLanguage);
     console.log('[PIPELINE] spokenLang:', spokenLang || 'auto', '| subtitleLang:', subtitleLang || 'auto-source', '| mode:', mode, '| template:', templateName);
 
+    const userProvidedTranscript = readString(body.transcript);
+    const userProvidedApprovedCaptions = Array.isArray(body.approvedCaptions) && body.approvedCaptions.length > 0 ? body.approvedCaptions : null;
+    const userProvidedSceneBlueprint = Array.isArray(body.sceneBlueprint) && body.sceneBlueprint.length > 0 ? body.sceneBlueprint : null;
+
     let transcription: PlanningTranscription;
-    const transcribeStart = Date.now();
-    try {
-      transcription = await transcribeForPlanning({
-        mediaUrl: planningMedia.transcriptionMediaUrl,
-        fileName: planningMedia.transcriptionFileName,
-        contentType: planningMedia.transcriptionContentType,
-        mediaType: mediaType === 'image' ? 'video' : mediaType,
-        language: spokenLang && spokenLang !== 'auto' ? spokenLang : undefined,
-        outputLanguage: subtitleLang,
-        maxSeconds: maxRenderSeconds,
-      });
-      const transcriptionSegments = 'segments' in transcription && Array.isArray(transcription.segments) ? transcription.segments : [];
-      console.log('[PIPELINE] transcription+translation done in', Date.now() - transcribeStart, 'ms | languageHint:', transcription.languageHint, '| hasSegments:', Boolean(transcriptionSegments.length));
-    } catch (transcribeError) {
-      const errMsg = transcribeError instanceof Error ? transcribeError.message : 'Transcription crashed';
-      console.error('Transcription error:', errMsg);
-      const userEmail = readString(body.userEmail || body.email);
-      const isFounder = isFounderEmail(userEmail) || isFounderUser(userId);
-      return NextResponse.json({
-        ok: false,
-        status: 'failed',
-        reasonCode: 'TRANSCRIPTION_CRASHED',
-        error: isFounder ? `Transcription crashed: ${errMsg}` : 'Could not process audio. Please try again.',
-        ...(isFounder ? { _founderDiagnostics: { step: 'transcription', reason: errMsg, mode, templateName, compositionId: composition, httpStatus: 500, raw: transcribeError instanceof Error ? transcribeError.stack?.split('\n').slice(0, 5).join(' | ') : '' } } : {}),
-      }, {status: 500});
+
+    // ── Resilient Fast Path: Reuse confirmed storyboard transcript & captions ──
+    // Eliminates duplicate Groq Whisper calls, avoids 429 rate limits, and guarantees 100% fidelity
+    if (userProvidedTranscript || (userProvidedSceneBlueprint && userProvidedSceneBlueprint.length > 0)) {
+      const fullText = userProvidedTranscript || userProvidedSceneBlueprint!.map((s: any) => s.narrationSegment?.text || s.heading || '').filter(Boolean).join(' ');
+      const dur = Number(body.durationSeconds) || Number(body.sourceDurationSeconds) || (userProvidedApprovedCaptions && userProvidedApprovedCaptions.length > 0 ? Math.ceil(userProvidedApprovedCaptions[userProvidedApprovedCaptions.length - 1].end) : 60);
+      transcription = {
+        transcript: fullText,
+        durationSeconds: dur,
+        source: 'groq' as const,
+        model: 'whisper-large-v3-turbo',
+        languageHint: (spokenLang === 'english' ? 'english' : 'hinglish') as 'english' | 'hinglish',
+        segments: userProvidedSceneBlueprint
+          ? userProvidedSceneBlueprint.map((s: any, idx: number) => ({
+              id: idx + 1,
+              start: Number(s.narrationSegment?.startSeconds || 0),
+              end: Number(s.narrationSegment?.endSeconds || 0),
+              text: String(s.narrationSegment?.text || s.heading || ''),
+            }))
+          : [],
+        words: userProvidedApprovedCaptions || [],
+      };
+      console.log('[PIPELINE] Reusing confirmed client storyboard transcript (bypassing duplicate Groq call). Words:', userProvidedApprovedCaptions?.length || 0, '| Scenes:', userProvidedSceneBlueprint?.length);
+    } else {
+      const transcribeStart = Date.now();
+      try {
+        transcription = await transcribeForPlanning({
+          mediaUrl: planningMedia.transcriptionMediaUrl,
+          fileName: planningMedia.transcriptionFileName,
+          contentType: planningMedia.transcriptionContentType,
+          mediaType: mediaType === 'image' ? 'video' : mediaType,
+          language: spokenLang && spokenLang !== 'auto' ? spokenLang : undefined,
+          outputLanguage: subtitleLang,
+          maxSeconds: maxRenderSeconds,
+          prompt: readString(body.brandNamesHint || body.prompt),
+        });
+        const transcriptionSegments = 'segments' in transcription && Array.isArray(transcription.segments) ? transcription.segments : [];
+        console.log('[PIPELINE] transcription+translation done in', Date.now() - transcribeStart, 'ms | languageHint:', transcription.languageHint, '| hasSegments:', Boolean(transcriptionSegments.length));
+      } catch (transcribeError) {
+        const errMsg = transcribeError instanceof Error ? transcribeError.message : 'Transcription crashed';
+        console.error('Transcription error:', errMsg);
+        const userEmail = readString(body.userEmail || body.email);
+        const isFounder = isFounderEmail(userEmail) || isFounderUser(userId);
+        return NextResponse.json({
+          ok: false,
+          status: 'failed',
+          reasonCode: 'TRANSCRIPTION_CRASHED',
+          error: isFounder ? `Transcription crashed: ${errMsg}` : 'Could not process audio. Please try again.',
+          ...(isFounder ? { _founderDiagnostics: { step: 'transcription', reason: errMsg, mode, templateName, compositionId: composition, httpStatus: 500, raw: transcribeError instanceof Error ? transcribeError.stack?.split('\n').slice(0, 5).join(' | ') : '' } } : {}),
+        }, {status: 500});
+      }
     }
 
     if (!transcription.transcript) {
@@ -2026,18 +2056,18 @@ export async function POST(request: Request) {
             const headingFont = readString(body.headingFont) || 'Montserrat';
             const subheadingFont = readString(body.subheadingFont) || 'Plus Jakarta Sans';
             const bodyFont = readString(body.bodyFont) || readString(body.typographyFont) || 'Inter';
-            const backgroundTheme = readString(body.backgroundTheme) || readString(body.selectedBackgroundTheme) || 'studio-white';
+            const backgroundTheme = readString(body.backgroundTheme) || readString(body.selectedBackgroundTheme) || 'midnight-mesh';
             const customBgUrl = readString(body.customBgUrl || body.customBackgroundUrl || body.backgroundUrl) || '';
+            const subtitleStyle = readString(body.subtitleStyle) || 'netflix-yellow';
+            const captionAnimationStyle = readString(body.captionAnimationStyle) || 'bouncy';
+            const captionPosition = readString(body.captionPosition) || 'bottom';
             const requestedAssetMode = readString(body.assetMode);
             const assetMode: 'library' | 'upload' | 'mix' = requestedAssetMode === 'upload'
               ? 'upload'
               : requestedAssetMode === 'mix' ? 'mix' : 'library';
-            const visualArtStyle = readString(body.visualArtStyle);
-            const selectedVisualStyle: 'realistic' | '3d' | '2d' = visualArtStyle === '2d' || visualArtStyle === '3d'
-              ? visualArtStyle
-              : 'realistic';
+            const selectedVisualStyle: 'realistic' = 'realistic';
             if (assetMode === 'upload' && uploadedImageUrls.length === 0 && (!body.brollUrls || Object.keys(body.brollUrls).length === 0)) {
-              throw new Error('Uploaded Images mode requires at least one image.');
+              throw new Error('Uploaded Media mode requires at least one photo or video clip.');
             }
             const videoTitle = topicTitle || titleFromTranscript(transcription.transcript) || titleFromFile(fileName) || 'Faceless Video';
 
@@ -2109,7 +2139,7 @@ export async function POST(request: Request) {
             if (body.brollUrls && typeof body.brollUrls === 'object') {
               for (const [key, val] of Object.entries(body.brollUrls)) {
                 if (val && typeof val === 'string') {
-                  mappedBrollUrls[Number(key)] = val;
+                  mappedBrollUrls[Number(key)] = toAbsoluteS3AssetUrl(val);
                 }
               }
             }
@@ -2125,31 +2155,34 @@ export async function POST(request: Request) {
               const isUserScene = assetMode === 'upload'
                 || (assetMode === 'mix' && Boolean(userUrl) && index % mixInterval === 0);
               if (isUserScene && userUrl) {
-                mappedBrollUrls[scene.sceneNumber] = userUrl;
+                mappedBrollUrls[scene.sceneNumber] = toAbsoluteS3AssetUrl(userUrl);
                 return;
               }
 
               if (assetMode !== 'upload') {
                 const libraryUrl = plannedLibraryImages[scene.sceneNumber]
                   || curatedStyleUrls[index % Math.max(1, curatedStyleUrls.length)];
-                if (libraryUrl) mappedBrollUrls[scene.sceneNumber] = libraryUrl;
+                if (libraryUrl) mappedBrollUrls[scene.sceneNumber] = toAbsoluteS3AssetUrl(libraryUrl);
               }
             });
 
-            const pexelsQueries = assetMode === 'upload' ? [] : (blueprint.scenes as any[]).flatMap((scene: any) => {
-              if (mappedBrollUrls[scene.sceneNumber]) return [];
-              const query = [scene.visualIntent, scene.brollSearchQuery, scene.visualAssetRequirement, scene.heading, selectedVisualStyle, 'photo']
-                .filter(Boolean)
-                .join(' ');
-              return [{ sceneNumber: scene.sceneNumber, query }];
-            });
-            const pexelsFallbacks = await searchPexelsFallbackImages(pexelsQueries, {
-              orientation: 'landscape',
-              maxSearches: 24,
-              concurrency: 4,
-            });
-            for (const [sceneNumber, photo] of pexelsFallbacks) {
-              mappedBrollUrls[sceneNumber] = photo.imageUrl;
+            if (assetMode !== 'upload' || Object.keys(mappedBrollUrls).length === 0) {
+              const missingScenes = (blueprint.scenes as any[]).filter((scene: any) => !mappedBrollUrls[scene.sceneNumber]);
+              if (missingScenes.length > 0) {
+                try {
+                  const pexelsMatches = await matchPexelsMediaForScenes(missingScenes, {
+                    orientation: 'landscape',
+                    preferVideo: true,
+                  });
+                  for (const [sceneNumber, mediaUrl] of Object.entries(pexelsMatches)) {
+                    if (mediaUrl && !mappedBrollUrls[Number(sceneNumber)]) {
+                      mappedBrollUrls[Number(sceneNumber)] = toAbsoluteS3AssetUrl(mediaUrl);
+                    }
+                  }
+                } catch (pexelsErr) {
+                  console.warn('[FACELESS_VIDEO] Pexels media match warning:', pexelsErr);
+                }
+              }
             }
 
             const sfxEvents = generateSFXEvents(blueprint.scenes as any, 30, renderWindow.durationSeconds);
@@ -2170,9 +2203,14 @@ export async function POST(request: Request) {
               subheadingFont,
               typographyFont: bodyFont,
               backgroundTheme,
-              customBgUrl,
+              customBgUrl: customBgUrl ? toAbsoluteS3AssetUrl(customBgUrl) : '',
+              subtitleStyle,
+              captionAnimationStyle,
+              captionPosition,
               sceneBlueprint: blueprint.scenes,
-              brollUrls: mappedBrollUrls,
+              brollUrls: Object.fromEntries(
+                Object.entries(mappedBrollUrls).map(([k, v]) => [k, toAbsoluteS3AssetUrl(v)])
+              ),
               sfxEvents,
               showCaptions: body.showCaptions !== false && body.enableCaptions !== false,
               captions: (body.showCaptions !== false && body.enableCaptions !== false) ? facelessCaptions : [],
@@ -2951,6 +2989,7 @@ async function transcribeForPlanning({
   outputLanguage,
   maxSeconds,
   skipMediaPreparation,
+  prompt,
 }: {
   mediaUrl: string;
   fileName: string;
@@ -2960,11 +2999,12 @@ async function transcribeForPlanning({
   outputLanguage?: string;
   maxSeconds?: number;
   skipMediaPreparation?: boolean;
+  prompt?: string;
 }) {
   let primaryWarning = '';
   try {
     const groqStart = Date.now();
-    const result = await transcribeMediaUrlWithGroq({mediaUrl, fileName, contentType, language, maxSeconds, skipMediaPreparation});
+    const result = await transcribeMediaUrlWithGroq({mediaUrl, fileName, contentType, language, maxSeconds, skipMediaPreparation, prompt});
     console.log('[TIMING] Groq transcription:', Date.now() - groqStart, 'ms | hasTranscript:', Boolean(result.transcript));
     if (result.transcript) {
       if (!outputLanguage) {

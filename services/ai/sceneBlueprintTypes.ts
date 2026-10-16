@@ -21,6 +21,9 @@ export type VisualLayoutType =
   | 'numbered_point'
   | 'fullscreen_statement'
   | 'data_visualization'
+  | 'full_bleed_visual'
+  | 'chapter_title'
+  | 'card_concept'
   | 'broll_overlay';
 
 export type MotionAnimationPreset =
@@ -56,8 +59,8 @@ export type SceneBlueprintItem = {
     bodyFont: string;
   };
   animation: MotionAnimationPreset;
-  SFX: 'pop' | 'woosh' | 'whoosh' | 'chime' | 'rise' | 'none';
-  transition: 'cut' | 'dissolve' | 'crossfade' | 'zoom' | 'wipe' | 'slide' | 'fade_to_black';
+  SFX: 'pop' | 'woosh' | 'whoosh' | 'chime' | 'rise' | 'hit' | 'ding' | 'none';
+  transition: 'cut' | 'dissolve' | 'crossfade' | 'zoom' | 'wipe' | 'slide' | 'whip' | 'fade_to_black';
 
   // Extra metadata for specialized layouts
   statValue?: string;

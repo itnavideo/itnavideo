@@ -28,6 +28,10 @@ import { QuoteScene } from './scenes/QuoteScene';
 import { ScreenshotScene } from './scenes/ScreenshotScene';
 import { ConclusionScene } from './scenes/ConclusionScene';
 import { ListScene } from './scenes/ListScene';
+import { ChartScene } from './scenes/ChartScene';
+import { FullBleedVisualScene } from './scenes/FullBleedVisualScene';
+import { ChapterTitleScene } from './scenes/ChapterTitleScene';
+import { CardConceptScene } from './scenes/CardConceptScene';
 
 export interface FacelessLongVideoProps {
   mediaSrc?: string;
@@ -63,6 +67,10 @@ export interface FacelessLongVideoProps {
   stickerEvents?: StickerEvent[];
   headingFont?: string;
   typographyFont?: string;
+  subtitleStyle?: string;
+  captionThemeId?: string;
+  captionAnimationStyle?: 'mrbeast' | 'handwriting' | 'bouncy' | 'smooth';
+  captionPosition?: 'bottom' | 'center' | 'top';
   templateConfig?: {
     stickerPackId?: string;
     captionThemeId?: string;
@@ -81,9 +89,20 @@ export interface FacelessLongVideoProps {
   sceneBlueprint?: SceneBlueprintItem[];
 }
 
+const S3_REMOTION_BASE_URL = 'https://remotionlambda-useast1-2zq6twaok1.s3.us-east-1.amazonaws.com';
+
 const resolveMediaSrc = (src?: string) => {
   if (!src) return '';
-  return /^(https?:|data:|blob:)/i.test(src) ? src : staticFile(src.replace(/^\/+/, ''));
+  if (/^(https?:|data:|blob:)/i.test(src)) return src;
+  const clean = src.replace(/^\/+/, '');
+  if (clean.startsWith('assets/')) {
+    const encoded = clean
+      .split('/')
+      .map((seg) => encodeURIComponent(decodeURIComponent(seg)))
+      .join('/');
+    return `${S3_REMOTION_BASE_URL}/${encoded}`;
+  }
+  return staticFile(clean);
 };
 
 const isAudioFile = (src?: string) => {
@@ -191,7 +210,8 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
   const resolvedMusicSrc = resolveMediaSrc(musicTrackUrl);
 
   const dynamicMusicVolume = React.useMemo(() => {
-    const baseDuckedVolume = props.musicVolume || 0.13;
+    // Default BGM volume strictly locked at 12% (capped at 30% per standard)
+    const baseDuckedVolume = Math.min(0.30, Math.max(0.08, props.musicVolume ?? 0.12));
     if (!activeCaptions || activeCaptions.length === 0) return baseDuckedVolume;
 
     const isSpeaking = activeCaptions.some((c) => {
@@ -201,7 +221,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     });
 
     if (isSpeaking) {
-      return baseDuckedVolume; // Stay ducked at 0.12 - 0.15 during active speech
+      return baseDuckedVolume; // Stay strictly locked at 10% - 12% during active voiceover
     }
 
     let minSilenceSec = 999;
@@ -238,19 +258,22 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
 
   // Resolve Secondary Asset (B-Roll, Screenshot, Image) for current scene
   const matchedBrollUrl =
-    brollUrls && typeof brollUrls === 'object'
-      ? (brollUrls as Record<number, string>)[currentScene?.sceneNumber]
-      : Array.isArray(brollUrls)
-      ? brollUrls[0]
-      : assetTimeline?.[currentScene?.sceneNumber]?.url ||
-        mediaAssets.find((a) => (a.startSeconds || 0) <= currentTimeSec && (a.endSeconds || durationSeconds) >= currentTimeSec)?.url ||
-        '';
+    (brollUrls && typeof brollUrls === 'object' && !Array.isArray(brollUrls)
+      ? (brollUrls as Record<number, string>)[currentScene?.sceneNumber] ||
+        Object.values(brollUrls).find(Boolean) ||
+        ''
+      : Array.isArray(brollUrls) && brollUrls.length > 0
+      ? brollUrls[Math.max(0, (currentScene?.sceneNumber || 1) - 1) % brollUrls.length]
+      : '') ||
+    assetTimeline?.[currentScene?.sceneNumber]?.url ||
+    mediaAssets.find((a) => (a.startSeconds || 0) <= currentTimeSec && (a.endSeconds || durationSeconds) >= currentTimeSec)?.url ||
+    '';
 
   // Background Theme Variety Engine
   const activeBackgroundTheme: string =
     backgroundTheme ||
     currentScene?.background ||
-    'studio-white';
+    'midnight-mesh';
   const isLightBackground =
     activeBackgroundTheme === 'studio-white' ||
     activeBackgroundTheme === 'warm-cream' ||
@@ -277,6 +300,18 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       const op = interpolate(framesSinceSceneStart, [0, 8], [0, 1], { extrapolateRight: 'clamp' });
       return { opacity: op, transform: `translateX(${slideX}px)`, isFadeToBlack: false, blackOverlayOpacity: 0 };
     }
+    if (transitionType === 'whip' || transitionType === 'whip_pan') {
+      const whipX = interpolate(framesSinceSceneStart, [0, 8], [120, 0], { extrapolateRight: 'clamp' });
+      const op = interpolate(framesSinceSceneStart, [0, 6], [0, 1], { extrapolateRight: 'clamp' });
+      const blurVal = interpolate(framesSinceSceneStart, [0, 4, 8], [8, 3, 0], { extrapolateRight: 'clamp' });
+      return {
+        opacity: op,
+        transform: `translateX(${whipX}px)`,
+        filter: blurVal > 0 ? `blur(${blurVal}px)` : 'none',
+        isFadeToBlack: false,
+        blackOverlayOpacity: 0,
+      };
+    }
     if (transitionType === 'zoom' || transitionType === 'zoom_blur') {
       const scaleVal = interpolate(framesSinceSceneStart, [0, 10], [1.08, 1.0], { extrapolateRight: 'clamp' });
       const op = interpolate(framesSinceSceneStart, [0, 7], [0, 1], { extrapolateRight: 'clamp' });
@@ -298,12 +333,12 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     const stype = scene.sceneType || 'main_point';
     const resolvedAssetUrl = matchedBrollUrl ? resolveMediaSrc(matchedBrollUrl) : undefined;
 
-    if (stype === 'hook') {
-      return <HookScene scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
-    }
-    if (layout === 'split_screen' || (layout as string) === 'side_by_side') {
+    const sceneKey = `scene-${scene.sceneNumber || 0}`;
+
+    if (stype === 'hook' && scene.sceneNumber <= 1) {
       return (
-        <SplitScreenLayout
+        <HookScene
+          key={sceneKey}
           scene={scene}
           mediaUrl={resolvedAssetUrl}
           headingFont={headingFont}
@@ -311,22 +346,59 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
         />
       );
     }
-    if (layout === 'stat_card' || stype === 'example_stat') {
-      return <StatScene scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
-    }
-    if (layout === 'image_text' || layout === 'broll_overlay') {
+    if (layout === 'chapter_title' || (layout as string) === 'chapterTitle' || (stype === 'hook' && scene.sceneNumber > 1)) {
       return (
-        <ImageTextScene
+        <ChapterTitleScene
+          key={sceneKey}
           scene={scene}
-          brollUrl={resolvedAssetUrl}
+          mediaUrl={resolvedAssetUrl}
           headingFont={headingFont}
           bodyFont={typographyFont}
         />
       );
     }
+    // ── Full-Bleed Priority (User Directive: Always use 100% full screen for images) ──
+    if (
+      layout === 'full_bleed_visual' ||
+      (layout as string) === 'fullImage' ||
+      (layout as string) === 'fullClip' ||
+      layout === 'broll_overlay' ||
+      layout === 'fullscreen_statement' ||
+      layout === 'card_concept' ||
+      (layout as string) === 'cardIconKeyword' ||
+      layout === 'split_screen' ||
+      (layout as string) === 'side_by_side' ||
+      (layout as string) === 'splitImageText' ||
+      layout === 'image_text'
+    ) {
+      return (
+        <FullBleedVisualScene
+          key={sceneKey}
+          scene={scene}
+          mediaUrl={resolvedAssetUrl}
+          headingFont={headingFont}
+          bodyFont={typographyFont}
+        />
+      );
+    }
+    if (layout === 'stat_card' || (layout as string) === 'stat' || stype === 'example_stat') {
+      return (
+        <StatScene
+          key={sceneKey}
+          scene={scene}
+          mediaUrl={resolvedAssetUrl}
+          headingFont={headingFont}
+          bodyFont={typographyFont}
+        />
+      );
+    }
+    if (layout === 'data_visualization' || (layout as string) === 'chart' || (layout as string) === 'diagram') {
+      return <ChartScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
+    }
     if (layout === 'screenshot_highlight' || (layout as string) === 'web_mockup') {
       return (
         <ScreenshotScene
+          key={sceneKey}
           scene={scene}
           mediaUrl={resolvedAssetUrl}
           headingFont={headingFont}
@@ -335,19 +407,31 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       );
     }
     if (layout === 'comparison') {
-      return <ComparisonScene scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
+      return <ComparisonScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
     }
     if (layout === 'quote') {
-      return <QuoteScene scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
+      return <QuoteScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
     }
-    if (layout === 'checklist' || scene.typographyTreatment === 'list' || (scene.listItems && scene.listItems.length >= 2)) {
-      return <ListScene scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
+    if (layout === 'checklist' || (layout as string) === 'iconList' || scene.typographyTreatment === 'list' || (scene.listItems && scene.listItems.length >= 2)) {
+      return <ListScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
     }
     if (stype === 'next_point') {
-      return <ConclusionScene scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
+      return <ConclusionScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
     }
 
-    return <TypographyScene scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
+    if (resolvedAssetUrl) {
+      return (
+        <FullBleedVisualScene
+          key={sceneKey}
+          scene={scene}
+          mediaUrl={resolvedAssetUrl}
+          headingFont={headingFont}
+          bodyFont={typographyFont}
+        />
+      );
+    }
+
+    return <TypographyScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
   };
 
   return (
@@ -446,14 +530,16 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       {/* Chapter Lower Third Cards */}
       <UniversalLowerThird chapterEvents={chapterEvents} lowerThirdId={templateConfig.lowerThirdId} />
 
-      {/* Karaoke Word-Highlight Subtitles (Clean Lower Third) */}
+      {/* Word-Highlight Subtitles with Dynamic Animation & Position */}
       {showCaptions !== false && activeCaptions.length > 0 && (
         <UniversalCaptionLayer
           chunks={activeCaptions}
-          themeId={templateConfig.captionThemeId}
+          themeId={props.subtitleStyle || props.captionThemeId || templateConfig.captionThemeId || 'netflix-yellow'}
+          animationStyle={props.captionAnimationStyle || 'bouncy'}
+          position={props.captionPosition || 'bottom'}
+          emphasisWords={currentScene?.highlightedWords || []}
           styleOverrides={{
-            bottom: 55,
-            fontSize: 36,
+            fontSize: 38,
           }}
         />
       )}
@@ -475,6 +561,7 @@ export const FacelessLongVideoComposition = () => (
       durationSeconds: 60,
       title: 'FACELESS LONG VIDEO',
       backgroundTheme: 'purple-vignette',
+      musicVolume: 0.12,
     }}
     calculateMetadata={({ props }) => {
       const p = props as FacelessLongVideoProps;

@@ -1,4 +1,5 @@
-import libraryData from '@/lib/cloudinary/ai-video-library.json';
+import { readUnifiedAssets } from './assetPicker';
+import { toAbsoluteS3AssetUrl } from '@/constants/itnavideoStockAssets';
 
 export interface AiLibraryImage {
   id: string;
@@ -13,35 +14,77 @@ export interface AiLibraryImage {
   dominantColor?: string;
 }
 
-const typedCatalog = (libraryData as AiLibraryImage[]).map((img) => ({
-  ...img,
-  url: /^https?:\/\/(storage\.googleapis\.com|res\.cloudinary\.com\/dhouh9idx\/image\/upload\/v1788)/i.test(img.url)
-    ? 'assets/reusable/backgrounds/cinematic-studio-bg.png'
-    : img.url,
-}));
+let cachedLibraryImages: AiLibraryImage[] | null = null;
+
+function getVerifiedCatalog(): AiLibraryImage[] {
+  if (cachedLibraryImages) return cachedLibraryImages;
+
+  try {
+    const unified = readUnifiedAssets();
+    const mapped = unified
+      .filter((asset) => asset.type === 'image' && asset.safeToUse && asset.src)
+      .map((asset) => {
+        const absoluteUrl = toAbsoluteS3AssetUrl(asset.src);
+        return {
+          id: asset.id,
+          public_id: asset.id,
+          url: absoluteUrl,
+          title: asset.title || 'Curated Scene Visual',
+          category: asset.category || 'all',
+          tags: [...(asset.tags || []), ...(asset.keywords || [])],
+          visualDescription: asset.detailedDescription || asset.title || '',
+          mood: asset.style || 'cinematic',
+          aspectRatio: ((asset as any).orientation === 'portrait' ? '9:16' : '16:9') as '16:9' | '9:16',
+          dominantColor: '#0E1526',
+        };
+      });
+
+    if (mapped.length > 0) {
+      cachedLibraryImages = mapped;
+      return mapped;
+    }
+  } catch (err) {
+    console.warn('[aiImageLibrary] Could not read unified assets, using fallback:', err);
+  }
+
+  // Safe fallback if unified index unavailable
+  cachedLibraryImages = [
+    {
+      id: 'default-cinematic-bg',
+      public_id: 'default-cinematic-bg',
+      url: toAbsoluteS3AssetUrl('assets/reusable/backgrounds/cinematic-studio-bg.png'),
+      title: 'Cinematic Studio Background',
+      category: 'background',
+      tags: ['cinematic', 'studio', 'dark', 'background'],
+      aspectRatio: '16:9',
+    },
+  ];
+  return cachedLibraryImages;
+}
 
 /**
- * Return all images currently cataloged in the ChatGPT Cloudinary library
+ * Return all images currently cataloged in the verified S3 asset library
  */
 export function getAllLibraryImages(): AiLibraryImage[] {
-  return typedCatalog;
+  return getVerifiedCatalog();
 }
 
 /**
  * Filter library images by target aspect ratio
  */
 export function getLibraryImagesByAspectRatio(aspectRatio: '16:9' | '9:16'): AiLibraryImage[] {
-  const matched = typedCatalog.filter(
+  const catalog = getVerifiedCatalog();
+  const matched = catalog.filter(
     (img) => (img.aspectRatio || '16:9') === aspectRatio
   );
-  return matched.length > 0 ? matched : typedCatalog;
+  return matched.length > 0 ? matched : catalog;
 }
 
 /**
  * Return unique categories in the library
  */
 export function getLibraryCategories(): string[] {
-  return Array.from(new Set(typedCatalog.map((img) => img.category).filter(Boolean)));
+  return Array.from(new Set(getVerifiedCatalog().map((img) => img.category).filter(Boolean)));
 }
 
 /**
@@ -60,7 +103,7 @@ export function searchLibraryImages(
     .split(/\s+/)
     .filter((w) => w.length > 2);
 
-  let pool = typedCatalog;
+  let pool = getVerifiedCatalog();
 
   if (options?.aspectRatio) {
     const ratioPool = pool.filter((img) => (img.aspectRatio || '16:9') === options.aspectRatio);

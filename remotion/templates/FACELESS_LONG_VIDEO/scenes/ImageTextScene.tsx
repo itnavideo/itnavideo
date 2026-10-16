@@ -132,7 +132,7 @@ export function ImageTextScene({
               }}
             >
               <span style={{ fontSize: '20px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#A5B4FC' }}>
-                {scene.visualAssetRequirement || 'VISUAL CONCEPT MOCKUP'}
+                {scene.visualAssetRequirement || ''}
               </span>
             </div>
           )}

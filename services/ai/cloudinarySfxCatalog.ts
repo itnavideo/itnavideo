@@ -121,21 +121,68 @@ function getVolumeForRole(role: SfxRole): number {
   }
 }
 
-// Build indexed catalog
-export const CLOUDINARY_SFX_CATALOG: CloudinarySfxAsset[] = rawSfxList
-  .filter((item) => Boolean(item.secure_url))
-  .map((item, index) => {
-    const rawName = item.filename ? item.filename.replace(/_[a-z0-9]+$/i, '') : `sfx-${index}`;
-    const role = categorizeFilename(rawName);
-    return {
-      id: `cld-sfx-${index}`,
-      name: rawName,
-      url: item.secure_url!,
-      durationSec: Number(item.duration) || 0.3,
-      role,
-      defaultVolume: getVolumeForRole(role),
-    };
-  });
+const S3_BASE = 'https://remotionlambda-useast1-2zq6twaok1.s3.us-east-1.amazonaws.com';
+
+export const DEFAULT_SFX_URLS: Record<SfxRole, string> = {
+  DRAMATIC_HOOK: `${S3_BASE}/assets/reusable/sound-effects/cinematic-boom.wav`,
+  TRANSITION_WHOOSH: `${S3_BASE}/assets/reusable/sound-effects/whoosh-medium.wav`,
+  UI_POP: `${S3_BASE}/assets/reusable/sound-effects/pop-medium.wav`,
+  ACCENT_STAT: `${S3_BASE}/assets/reusable/sound-effects/achievement-unlock.wav`,
+  TEXT_QUOTE: `${S3_BASE}/assets/reusable/sound-effects/paper-turn.wav`,
+  TECH_ACCENT: `${S3_BASE}/assets/reusable/sound-effects/keyboard-tap.wav`,
+};
+
+// Build indexed catalog with verified live S3 sound effects
+export const CLOUDINARY_SFX_CATALOG: CloudinarySfxAsset[] = [
+  {
+    id: 'sfx-hook-boom',
+    name: 'cinematic-boom',
+    url: DEFAULT_SFX_URLS.DRAMATIC_HOOK,
+    durationSec: 1.5,
+    role: 'DRAMATIC_HOOK',
+    defaultVolume: getVolumeForRole('DRAMATIC_HOOK'),
+  },
+  {
+    id: 'sfx-trans-whoosh',
+    name: 'whoosh-medium',
+    url: DEFAULT_SFX_URLS.TRANSITION_WHOOSH,
+    durationSec: 0.8,
+    role: 'TRANSITION_WHOOSH',
+    defaultVolume: getVolumeForRole('TRANSITION_WHOOSH'),
+  },
+  {
+    id: 'sfx-ui-pop',
+    name: 'pop-medium',
+    url: DEFAULT_SFX_URLS.UI_POP,
+    durationSec: 0.4,
+    role: 'UI_POP',
+    defaultVolume: getVolumeForRole('UI_POP'),
+  },
+  {
+    id: 'sfx-stat-accent',
+    name: 'achievement-unlock',
+    url: DEFAULT_SFX_URLS.ACCENT_STAT,
+    durationSec: 1.0,
+    role: 'ACCENT_STAT',
+    defaultVolume: getVolumeForRole('ACCENT_STAT'),
+  },
+  {
+    id: 'sfx-quote-paper',
+    name: 'paper-turn',
+    url: DEFAULT_SFX_URLS.TEXT_QUOTE,
+    durationSec: 0.6,
+    role: 'TEXT_QUOTE',
+    defaultVolume: getVolumeForRole('TEXT_QUOTE'),
+  },
+  {
+    id: 'sfx-tech-keyboard',
+    name: 'keyboard-tap',
+    url: DEFAULT_SFX_URLS.TECH_ACCENT,
+    durationSec: 0.5,
+    role: 'TECH_ACCENT',
+    defaultVolume: getVolumeForRole('TECH_ACCENT'),
+  },
+];
 
 // Role-based lookup buckets
 export const SFX_BY_ROLE: Record<SfxRole, CloudinarySfxAsset[]> = {
@@ -145,16 +192,4 @@ export const SFX_BY_ROLE: Record<SfxRole, CloudinarySfxAsset[]> = {
   ACCENT_STAT: CLOUDINARY_SFX_CATALOG.filter((s) => s.role === 'ACCENT_STAT'),
   TEXT_QUOTE: CLOUDINARY_SFX_CATALOG.filter((s) => s.role === 'TEXT_QUOTE'),
   TECH_ACCENT: CLOUDINARY_SFX_CATALOG.filter((s) => s.role === 'TECH_ACCENT'),
-};
-
-/**
- * Fallback defaults if role lookup is empty
- */
-export const DEFAULT_SFX_URLS: Record<SfxRole, string> = {
-  DRAMATIC_HOOK: 'https://storage.googleapis.com/itnavideo-media-assets/cinematic-impact_l17w47.mp3',
-  TRANSITION_WHOOSH: 'https://storage.googleapis.com/itnavideo-media-assets/whoosh-swoosh_d1x9w8.mp3',
-  UI_POP: 'https://storage.googleapis.com/itnavideo-media-assets/pop-5_f0demv.mp3',
-  ACCENT_STAT: 'https://storage.googleapis.com/itnavideo-media-assets/ding-5_kovgrw.mp3',
-  TEXT_QUOTE: 'https://storage.googleapis.com/itnavideo-media-assets/typewriter-single_l92g46.mp3',
-  TECH_ACCENT: 'https://storage.googleapis.com/itnavideo-media-assets/camera-shutter_dkmg7d.mp3',
 };

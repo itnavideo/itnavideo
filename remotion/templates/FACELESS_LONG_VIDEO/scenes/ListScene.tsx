@@ -64,26 +64,6 @@ export function ListScene({
             textAlign: 'center',
           }}
         >
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              borderRadius: '9999px',
-              border: '1px solid rgba(245, 158, 11, 0.4)',
-              backgroundColor: 'rgba(245, 158, 11, 0.12)',
-              padding: '6px 20px',
-              fontSize: '13px',
-              fontWeight: 800,
-              textTransform: 'uppercase',
-              letterSpacing: '0.15em',
-              color: '#F59E0B',
-              marginBottom: '14px',
-            }}
-          >
-            <span>OVERVIEW &bull; {items.length} KEY TAKEAWAYS</span>
-          </div>
-
           <h1
             style={{
               fontFamily: resolvedHeadingFont,

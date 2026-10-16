@@ -7,6 +7,7 @@
 
 import { ITNAVIDEO_STOCK_ASSETS, toAbsoluteS3AssetUrl } from '@/constants/itnavideoStockAssets';
 import { loadAssetLibrary } from './assetMatcher';
+import { searchPexelsVideos, searchPexelsPhotos } from './pexelsImages';
 
 export interface BrollMatchResult {
   sceneIndex: number;
@@ -129,7 +130,21 @@ export async function matchBrollForQuery(
     console.warn('[BROLL_MATCHER] Asset library match warning, falling back to dynamic card:', err);
   }
 
-  // 3. Fallback: Return null so Remotion renders dynamic typography/gradient card
+  // 3. Seamless Pexels Fallback: Fetch real 1080p HD stock video or crisp photo from Pexels API
+  try {
+    const pexelsVideos = await searchPexelsVideos(cleanQuery, { orientation: 'landscape', perPage: 2 });
+    if (pexelsVideos.length > 0 && pexelsVideos[0].videoUrl) {
+      return pexelsVideos[0].videoUrl;
+    }
+    const pexelsPhotos = await searchPexelsPhotos(cleanQuery, { orientation: 'landscape', perPage: 2 });
+    if (pexelsPhotos.length > 0 && pexelsPhotos[0].imageUrl) {
+      return pexelsPhotos[0].imageUrl;
+    }
+  } catch (pexelsErr) {
+    console.warn('[BROLL_MATCHER] Pexels fallback error:', pexelsErr);
+  }
+
+  // 4. Fallback: Return null so Remotion renders dynamic typography/gradient card
   return null;
 }
 

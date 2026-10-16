@@ -5,6 +5,8 @@ export interface UploadedImageCandidate {
   url: string;
   fileName?: string;
   captionOrLabel?: string;
+  tags?: string[];
+  description?: string;
 }
 
 /**
@@ -47,10 +49,21 @@ export function smartMatchUploadedImagesToScenes(
     sortedAssets.forEach((asset, assetIdx) => {
       if (usedIndices.has(assetIdx)) return; // Strictly 1-to-1: Each image used at most ONCE
 
-      const assetLabel = `${asset.fileName || ''} ${asset.captionOrLabel || ''} ${asset.key || ''}`;
-      const assetKeywords = extractWords(assetLabel);
-
       let score = 0;
+
+      // 1. Vision AI Tags matching (Highest relevance weight: +5 per match)
+      if (Array.isArray(asset.tags) && asset.tags.length > 0) {
+        asset.tags.forEach((tag) => {
+          const tClean = tag.toLowerCase().trim();
+          if (sceneKeywords.some((sWord) => sWord.includes(tClean) || tClean.includes(sWord))) {
+            score += 5;
+          }
+        });
+      }
+
+      // 2. Filename & label matching (+3 per match)
+      const assetLabel = `${asset.fileName || ''} ${asset.captionOrLabel || ''} ${asset.description || ''} ${asset.key || ''}`;
+      const assetKeywords = extractWords(assetLabel);
       sceneKeywords.forEach((sWord) => {
         if (assetKeywords.some((aWord) => aWord.includes(sWord) || sWord.includes(aWord))) {
           score += 3;
@@ -64,8 +77,7 @@ export function smartMatchUploadedImagesToScenes(
     });
 
     let chosenAssetIdx = -1;
-    // Only map asset when there is an actual semantic relevance match (score > 0)
-    // Avoids forcing random unrelated uploaded images into arbitrary scenes
+    // Primary Pass: map asset when there is an actual semantic relevance match (score > 0)
     if (bestScore > 0 && bestAssetIdx >= 0) {
       chosenAssetIdx = bestAssetIdx;
     }
@@ -77,10 +89,51 @@ export function smartMatchUploadedImagesToScenes(
         usedIndices.add(chosenAssetIdx);
       }
     }
-    // When no uploaded image matches the scene's semantic meaning,
-    // mappedBrollUrls[scene.sceneNumber] remains empty so the scene automatically
-    // renders clean kinetic typography or curated library b-roll without visual clutter.
   });
+
+  // Secondary Pass: Prioritize integrating ALL remaining uploaded user assets across scenes
+  const visualLayouts = new Set([
+    'full_bleed_visual',
+    'card_concept',
+    'split_screen',
+    'image_text',
+    'broll_overlay',
+    'screenshot_highlight',
+  ]);
+
+  const unusedAssetIndices = sortedAssets
+    .map((_, idx) => idx)
+    .filter((idx) => !usedIndices.has(idx));
+
+  if (unusedAssetIndices.length > 0) {
+    let nextUnusedPointer = 0;
+
+    // 1. First assign to visual scenes that don't have a media asset yet
+    for (const scene of scenes) {
+      if (nextUnusedPointer >= unusedAssetIndices.length) break;
+      if (!mappedBrollUrls[scene.sceneNumber] && visualLayouts.has(scene.layoutType)) {
+        const assetIdx = unusedAssetIndices[nextUnusedPointer++];
+        const asset = sortedAssets[assetIdx];
+        if (asset && asset.url) {
+          mappedBrollUrls[scene.sceneNumber] = asset.url;
+          usedIndices.add(assetIdx);
+        }
+      }
+    }
+
+    // 2. If still unused, assign to any remaining scene
+    for (const scene of scenes) {
+      if (nextUnusedPointer >= unusedAssetIndices.length) break;
+      if (!mappedBrollUrls[scene.sceneNumber]) {
+        const assetIdx = unusedAssetIndices[nextUnusedPointer++];
+        const asset = sortedAssets[assetIdx];
+        if (asset && asset.url) {
+          mappedBrollUrls[scene.sceneNumber] = asset.url;
+          usedIndices.add(assetIdx);
+        }
+      }
+    }
+  }
 
   return mappedBrollUrls;
 }

@@ -82,6 +82,141 @@ Return JSON strictly in this format:
   };
 }
 
+const DANGLING_STOP_WORDS = new Set([
+  'and', 'or', 'but', 'for', 'to', 'of', 'with', 'in', 'on', 'at', 'by', 'from',
+  'as', 'so', 'yet', 'nor', 'if', 'that', 'which', 'who', 'whom', 'whose', 'is',
+  'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does',
+  'did', 'will', 'would', 'shall', 'should', 'can', 'could', 'may', 'might', 'must',
+  'just', 'a', 'an', 'the', 'this', 'these', 'those', 'your', 'my', 'our', 'their',
+  'his', 'her', 'its', 'than', 'about', 'into', 'through', 'during', 'before', 'after',
+  'above', 'below', 'up', 'down', 'over', 'under', 'again', 'then', 'when', 'where',
+  'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some',
+  'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'too', 'very', 's', 't'
+]);
+
+export function generateCleanConceptHeading(text: string): string {
+  const lower = (text || '').toLowerCase().trim();
+
+  // 1. High-accuracy conceptual mapping for common explainers & Hindi/Hinglish speech
+  if (/\b(rooz|roz|din|daily|aadat|aadatein|routine|consistency|habit|habits|disciplin)\b/i.test(lower)) {
+    return 'DAILY HABITS & CONSISTENCY';
+  }
+  if (/\b(sapne|sapna|lakshya|goal|goals|manzil|target|aim|vision|destin)\b/i.test(lower)) {
+    return 'CLEAR GOALS & VISION';
+  }
+  if (/\b(mehnat|effort|hard\s*work|koshish|lagan|practice|abhyas|consistent|struggle)\b/i.test(lower)) {
+    return 'POWER OF PERSISTENCE';
+  }
+  if (/\b(soch|mindset|nazariya|focus|dhyan|concentration|mental|attitude)\b/i.test(lower)) {
+    return 'FOCUSED MINDSET';
+  }
+  if (/\b(safal|safalta|success|kamyab|kamyabi|winner|win|achieve|unlock)\b/i.test(lower)) {
+    return 'THE ROAD TO SUCCESS';
+  }
+  if (/\b(samay|waqt|time|future|bhavishya|sabr|patience|wait|years|salo|saal)\b/i.test(lower)) {
+    return 'PATIENCE & COMPOUNDING';
+  }
+  if (/\b(darr|dar|fear|khauf|himmat|courage|confidence|brave|unshakable)\b/i.test(lower)) {
+    return 'UNSHAKABLE CONFIDENCE';
+  }
+  if (/\b(seekho|seekhna|learn|learning|gyan|knowledge|read|kitab|book|study)\b/i.test(lower)) {
+    return 'CONTINUOUS LEARNING';
+  }
+  if (/\b(galti|mistake|bhool|failure|haar|lose|loss|problem|challenge|trap)\b/i.test(lower)) {
+    return 'OVERCOMING MISTAKES';
+  }
+  if (/\b(shuruat|shuru|start|beginning|pehla kadam|step|action|execute)\b/i.test(lower)) {
+    return 'TAKING THE FIRST STEP';
+  }
+  if (/\b(freedom|choose how you live|live on your terms|liberty)\b/i.test(lower)) {
+    return 'FINANCIAL FREEDOM';
+  }
+  if (/\b(savings|save|saving|opportunity|opportunities|compound|compounding)\b/i.test(lower)) {
+    return 'THE POWER OF SAVINGS';
+  }
+  if (/\b(earn|spend|carefully|invest|budget|budgeting|expense|expenses)\b/i.test(lower)) {
+    return 'SPEND & INVEST WISELY';
+  }
+  if (/\b(control your life|control your money|money control|take control)\b/i.test(lower)) {
+    return 'CONTROL YOUR WEALTH';
+  }
+  if (/\b(money is not just|having more|know what to do|financial awareness|understanding)\b/i.test(lower)) {
+    return 'UNDERSTANDING MONEY';
+  }
+  if (/\b(debt|broke|poverty|crisis|zero money)\b/i.test(lower)) {
+    return 'OVERCOMING FINANCIAL STRESS';
+  }
+  if (/\b(growth|scale|profit|revenue|millionaire|rich|wealth|abundance)\b/i.test(lower)) {
+    return 'WEALTH ACCUMULATION';
+  }
+
+  // 2. Intelligent grammatical extraction (Never end in dangling conjunctions/prepositions)
+  const rawWords = text
+    .split(/\s+/)
+    .map((w) => w.replace(/[^\w]/g, '').trim())
+    .filter(Boolean);
+
+  if (rawWords.length === 0) return 'KEY TAKEAWAY';
+
+  // Take up to 4 words max
+  let candidateWords = rawWords.slice(0, Math.min(4, rawWords.length));
+
+  // Recursively trim dangling stop words from the end (e.g. "AND", "FOR", "JUST", "THE")
+  while (candidateWords.length > 1) {
+    const lastWordLower = candidateWords[candidateWords.length - 1].toLowerCase();
+    if (DANGLING_STOP_WORDS.has(lastWordLower)) {
+      candidateWords.pop();
+    } else {
+      break;
+    }
+  }
+
+  // Trim leading stop words (e.g. "AND", "WHERE", "THAT", "SO")
+  while (candidateWords.length > 1) {
+    const firstWordLower = candidateWords[0].toLowerCase();
+    if (DANGLING_STOP_WORDS.has(firstWordLower)) {
+      candidateWords.shift();
+    } else {
+      break;
+    }
+  }
+
+  const finalHeading = candidateWords.join(' ').toUpperCase();
+  return finalHeading.length >= 3 ? finalHeading : 'CORE PRINCIPLE';
+}
+
+export function generateCleanTakeaway(text: string, heading: string): string {
+  const clean = (text || '').trim();
+  if (!clean) return '';
+
+  const words = clean.split(/\s+/).filter(Boolean);
+  if (words.length <= 8) {
+    return clean;
+  }
+
+  // Find the punchiest clause (after comma, colon, or semicolon)
+  const parts = clean.split(/[,;:—–]/).map((p) => p.trim()).filter((p) => p.length >= 8);
+  if (parts.length > 1) {
+    const candidate = parts[parts.length - 1];
+    const cWords = candidate.split(/\s+/).filter(Boolean);
+    if (cWords.length >= 3 && cWords.length <= 9) {
+      return candidate.charAt(0).toUpperCase() + candidate.slice(1);
+    }
+  }
+
+  let sliceWords = words.slice(0, 7);
+  while (sliceWords.length > 3) {
+    const last = sliceWords[sliceWords.length - 1].toLowerCase().replace(/[^\w]/g, '');
+    if (DANGLING_STOP_WORDS.has(last)) {
+      sliceWords.pop();
+    } else {
+      break;
+    }
+  }
+
+  return sliceWords.join(' ') + '.';
+}
+
 /**
  * Deterministic semantic visual asset planner that matches spoken transcript context
  * to exact visual representations, motions, and search queries.
@@ -93,9 +228,8 @@ export function planVisualAssetsForSentence(text: string): SemanticAssetPlan {
   // Keyword extraction for emphasis (words >= 4 letters)
   const words = cleanText.split(/\s+/).map((w) => w.replace(/[^\w]/g, ''));
   const highlightedWords = words.filter((w) => w.length >= 4).slice(0, 3);
-  const heading = words.slice(0, 5).join(' ').toUpperCase() || 'KEY INSIGHT';
-
-  const conciseSupportingText = cleanText.split(/\s+/).slice(0, 10).join(' ') + (cleanText.split(/\s+/).length > 10 ? '...' : '');
+  const heading = generateCleanConceptHeading(cleanText);
+  const conciseSupportingText = generateCleanTakeaway(cleanText, heading);
 
   // 0. Poverty / Zero Money / Debt / Financial Struggle (Must run BEFORE general money/success)
   const isPovertyOrZeroMoney =

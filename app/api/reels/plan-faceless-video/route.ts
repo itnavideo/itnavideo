@@ -5,8 +5,11 @@ import { transcribeMediaWithGeminiFallback } from '@/services/ai/geminiTranscrip
 import { generateStructuredSceneBlueprint } from '@/services/ai/aiScenePlanner';
 import { planImagesFromLibraryForScenes } from '@/services/ai/aiImageLibraryMatcher';
 import { smartMatchUploadedImagesToScenes } from '@/services/ai/smartMediaMatcher';
+import { autoTagUploadedMediaAssets } from '@/services/ai/visionAutoTagger';
 import { generateSFXEvents } from '@/services/ai/sfxEngine';
 import { validateAndAlignTranscript, type TranscriptSegment } from '@/services/ai/transcriptAlignment';
+import { toAbsoluteS3AssetUrl } from '@/constants/itnavideoStockAssets';
+import { matchPexelsMediaForScenes } from '@/services/ai/pexelsImages';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -25,7 +28,8 @@ export async function POST(req: Request) {
       language = 'en',
       existingTranscript = '',
       existingSegments = null,
-      backgroundTheme = 'studio-white',
+      backgroundTheme = 'midnight-mesh',
+      brandNamesHint = '',
     } = body;
 
     let audioUrl = String(body.audioUrl || '').trim();
@@ -61,6 +65,7 @@ export async function POST(req: Request) {
           fileName: 'faceless-voiceover.mp3',
           language,
           maxSeconds: MAX_FACELESS_DURATION_SECONDS,
+          prompt: brandNamesHint,
         });
       } catch (groqErr) {
         console.warn('[PLAN_FACELESS] Groq Whisper failed, trying Gemini fallback:', groqErr);
@@ -138,6 +143,9 @@ export async function POST(req: Request) {
       text: s.text,
       start: s.start,
       end: s.end,
+      words: words && words.length > 0
+        ? words.filter((w) => w.start >= s.start - 0.08 && w.end <= s.end + 0.08)
+        : undefined,
     }));
 
     const blueprint = await generateStructuredSceneBlueprint(transcriptChunks, {
@@ -149,7 +157,7 @@ export async function POST(req: Request) {
 
     // 4. Semantic Asset Matching (Curated Library vs Uploaded Assets)
     const targetRatio = '16:9';
-    const selectedVisualStyle = visualArtStyle === '2d' || visualArtStyle === '3d' ? visualArtStyle : 'realistic';
+    const selectedVisualStyle = 'realistic';
 
     const mappedBrollUrls: Record<number, string> = {};
 
@@ -161,6 +169,8 @@ export async function POST(req: Request) {
       });
       Object.assign(mappedBrollUrls, libraryMatches);
     }
+
+    let taggedAssets: any[] = [];
 
     if (assetMode === 'upload' || assetMode === 'mix') {
       const resolvedUploadUrls: string[] = await Promise.all(
@@ -174,13 +184,30 @@ export async function POST(req: Request) {
           }
         })
       );
-      const candidates = resolvedUploadUrls.filter(Boolean).map((url: string, idx: number) => ({
+      const rawCandidates = resolvedUploadUrls.filter(Boolean).map((url: string, idx: number) => ({
         key: `upload_${idx}`,
         url,
-        fileName: decodeURIComponent((url.split('?')[0].split('/').pop() || `image_${idx}`)),
+        fileName: decodeURIComponent((url.split('?')[0].split('/').pop() || `media_${idx}`)),
       }));
 
-      if (candidates.length > 0) {
+      let candidates = rawCandidates;
+
+      if (rawCandidates.length > 0) {
+        try {
+          taggedAssets = await autoTagUploadedMediaAssets(rawCandidates);
+          candidates = rawCandidates.map((c, i) => {
+            const t = taggedAssets[i];
+            return {
+              ...c,
+              tags: t?.tags || [],
+              description: t?.description || '',
+              captionOrLabel: t?.title || '',
+            };
+          });
+        } catch (visionErr) {
+          console.warn('[PlanFacelessVideo] Vision AI tagging error, using baseline filename tags:', visionErr);
+        }
+
         const uploadMatches = smartMatchUploadedImagesToScenes(blueprint.scenes, candidates);
         if (assetMode === 'upload') {
           Object.assign(mappedBrollUrls, uploadMatches);
@@ -189,6 +216,27 @@ export async function POST(req: Request) {
           for (const [sNum, uUrl] of Object.entries(uploadMatches)) {
             if (uUrl) mappedBrollUrls[Number(sNum)] = String(uUrl);
           }
+        }
+      }
+    }
+
+    // 4b. Pexels Stock Media Fallback (HD Video Clips & Photos)
+    // Ensures every single scene receives cinematic B-roll instead of a dark blank slide
+    if (assetMode !== 'upload' || Object.keys(mappedBrollUrls).length === 0) {
+      const missingScenes = blueprint.scenes.filter((s: any) => !mappedBrollUrls[s.sceneNumber]);
+      if (missingScenes.length > 0) {
+        try {
+          const pexelsMatches = await matchPexelsMediaForScenes(missingScenes as any, {
+            orientation: 'landscape',
+            preferVideo: true,
+          });
+          for (const [sNum, pUrl] of Object.entries(pexelsMatches)) {
+            if (pUrl && !mappedBrollUrls[Number(sNum)]) {
+              mappedBrollUrls[Number(sNum)] = pUrl;
+            }
+          }
+        } catch (pexelsErr) {
+          console.warn('[PlanFacelessVideo] Pexels match error:', pexelsErr);
         }
       }
     }
@@ -203,7 +251,10 @@ export async function POST(req: Request) {
       words: validation.repairedSegments.flatMap((s) => s.words || []),
       durationSeconds,
       sceneBlueprint: blueprint.scenes,
-      brollUrls: mappedBrollUrls,
+      brollUrls: Object.fromEntries(
+        Object.entries(mappedBrollUrls).map(([k, v]) => [k, toAbsoluteS3AssetUrl(v)])
+      ),
+      uploadedAssets: taggedAssets,
       sfxEvents,
       warnings,
       videoTitle,

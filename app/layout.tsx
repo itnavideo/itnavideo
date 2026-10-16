@@ -233,6 +233,12 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className={`scroll-smooth ${inter.variable} ${plusJakartaSans.variable} ${jetbrainsMono.variable} ${instrumentSerif.variable} ${playfairDisplay.variable} ${caveat.variable} ${lora.variable} ${newsreader.variable}`}>
       <head>
         <meta name="google-adsense-account" content="ca-pub-7016787089009547" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Anton&family=Bangers&family=Black+Ops+One&family=Cinzel:wght@700;900&family=Kaushan+Script&family=Londrina+Solid:wght@400;900&family=Montserrat:wght@700;900&family=Outfit:wght@700;900&family=Titan+One&display=swap"
+          rel="stylesheet"
+        />
         <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7016787089009547"

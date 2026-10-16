@@ -66,26 +66,6 @@ export function TypographyScene({
           justifyContent: 'center',
         }}
       >
-        <div
-          style={{
-            marginBottom: '24px',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            borderRadius: '9999px',
-            border: '1px solid rgba(168, 85, 247, 0.4)',
-            backgroundColor: 'rgba(168, 85, 247, 0.12)',
-            padding: '8px 22px',
-            fontSize: '13px',
-            fontWeight: 900,
-            textTransform: 'uppercase',
-            letterSpacing: '0.15em',
-            color: '#C084FC',
-          }}
-        >
-          <span>CHAPTER INSIGHT</span>
-        </div>
-
         {/* Responsive Typography Engine handles dynamic font scale, balance & line wrap */}
         <ResponsiveTypography
           text={headline}

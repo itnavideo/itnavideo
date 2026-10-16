@@ -19,10 +19,6 @@ export function ConclusionScene({ scene, headingFont = 'Montserrat, sans-serif',
 
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center p-16 z-10 text-center" style={anim}>
-      <div className="mb-6 inline-block rounded-full bg-emerald-500/20 px-6 py-2 text-xs font-black uppercase tracking-widest text-emerald-400 border border-emerald-500/40">
-        CONCLUSION & NEXT STEPS
-      </div>
-
       <Heading
         text={scene.heading || 'TAKE ACTION TODAY'}
         level="h1"

@@ -3646,22 +3646,9 @@ export default function DashboardStudio({
                       ))}
                     </div>
                     {facelessAssetSourceMode !== "upload" && (
-                      <div className="grid grid-cols-3 gap-2">
-                        {([
-                          {id: "realistic", label: "Realistic"},
-                          {id: "3d", label: "3D images"},
-                          {id: "2d", label: "2D images"},
-                        ] as const).map((style) => (
-                          <button
-                            key={style.id}
-                            type="button"
-                            aria-pressed={facelessVisualArtStyle === style.id}
-                            onClick={() => setFacelessVisualArtStyle(style.id)}
-                            className={`rounded-xl border px-3 py-2 text-xs font-bold transition ${facelessVisualArtStyle === style.id ? "border-[#FF5722] bg-[#FF5722]/10 text-white" : "border-white/10 bg-black/20 text-zinc-400 hover:text-white"}`}
-                          >
-                            {style.label}
-                          </button>
-                        ))}
+                      <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-xs">
+                        <span className="text-zinc-400">Default Visual Style:</span>
+                        <span className="font-bold text-orange-400">Assets / Realistic Photos &amp; B-Roll</span>
                       </div>
                     )}
                     {(facelessAssetSourceMode === "upload" || facelessAssetSourceMode === "mix") && (
@@ -3669,7 +3656,7 @@ export default function DashboardStudio({
                         <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-dashed border-white/15 bg-black/20 px-4 py-2 text-xs font-bold text-zinc-200 hover:border-[#FF5722]/40">
                           <input
                             type="file"
-                            accept="image/*"
+                            accept="image/*,video/mp4,video/webm,video/quicktime,video/mov"
                             multiple
                             className="hidden"
                             onChange={(event) => {
@@ -3678,9 +3665,9 @@ export default function DashboardStudio({
                               event.target.value = "";
                             }}
                           />
-                          <ImagePlus size={14} className="text-[#FF9100]" /> Add images
+                          <ImagePlus size={14} className="text-[#FF9100]" /> Add photos &amp; video clips
                         </label>
-                        <span className="text-[11px] text-zinc-400">{facelessImageFiles.length} images selected</span>
+                        <span className="text-[11px] text-zinc-400">{facelessImageFiles.length} media files selected</span>
                         {facelessImageFiles.length > 0 && (
                           <button type="button" onClick={() => setFacelessImageFiles([])} className="text-[11px] font-semibold text-amber-300 hover:text-white">
                             Clear uploads

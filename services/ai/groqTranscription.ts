@@ -75,6 +75,7 @@ export async function transcribeMediaUrlWithGroq({
   skipMediaPreparation,
   language,
   maxSeconds,
+  prompt,
 }: {
   mediaUrl: string;
   fileName: string;
@@ -82,6 +83,7 @@ export async function transcribeMediaUrlWithGroq({
   skipMediaPreparation?: boolean;
   language?: string;
   maxSeconds?: number;
+  prompt?: string;
 }): Promise<GroqTranscriptionResult> {
   const apiKey = cleanEnvValue(process.env.GROQ_API_KEY);
   if (!apiKey) throw new Error('Missing GROQ_API_KEY.');
@@ -98,7 +100,7 @@ export async function transcribeMediaUrlWithGroq({
   form.append('model', model);
   form.append('response_format', responseFormat);
   form.append('temperature', '0');
-  appendTranscriptionGuidance(form, 'GROQ', translateToEnglish);
+  appendTranscriptionGuidance(form, 'GROQ', translateToEnglish, prompt);
 
   // Pass language hint to Whisper for better accuracy on non-English content
   const groqLang = language ? toGroqLanguageCode(language) : undefined;
@@ -291,17 +293,22 @@ function normalizeGroqTranscription(payload: unknown, model: string): GroqTransc
   };
 }
 
-function appendTranscriptionGuidance(form: FormData, provider: 'GROQ' | 'OPENAI', translateToEnglish: boolean) {
-  const prompt = cleanEnvValue(
+function appendTranscriptionGuidance(form: FormData, provider: 'GROQ' | 'OPENAI', translateToEnglish: boolean, customPrompt?: string) {
+  const basePrompt = cleanEnvValue(
     process.env[`${provider}_TRANSCRIPTION_PROMPT`] ||
     process.env.TRANSCRIPTION_PROMPT,
   ) || (provider === 'GROQ' ? GROQ_TRANSCRIPTION_PROMPT : DEFAULT_TRANSCRIPTION_PROMPT);
+
+  const finalPrompt = customPrompt?.trim()
+    ? `Vocabulary, proper nouns, and brand hints: ${customPrompt.trim()}. ${basePrompt}`
+    : basePrompt;
+
   const language = cleanEnvValue(
     process.env[`${provider}_TRANSCRIPTION_LANGUAGE`] ||
     process.env.TRANSCRIPTION_LANGUAGE,
   );
 
-  if (prompt) form.append('prompt', prompt);
+  if (finalPrompt) form.append('prompt', finalPrompt);
   if (!translateToEnglish && language && language.toLowerCase() !== 'auto') form.append('language', language);
 }
 

@@ -19,8 +19,8 @@ export function QuoteScene({
   const { fps } = useVideoConfig();
 
   const anim = getFadeAnimation(frame, fps);
-  const quoteText = scene.heading || scene.narrationSegment?.text || 'Key Quote';
-  const author = scene.quoteAuthor || 'INDUSTRY EXPERT';
+  const quoteText = scene.heading || scene.narrationSegment?.text || '';
+  const author = scene.quoteAuthor || undefined;
 
   return (
     <div

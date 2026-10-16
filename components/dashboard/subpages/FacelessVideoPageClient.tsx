@@ -95,12 +95,16 @@ export default function FacelessVideoPageClient() {
   const [assetSourceMode, setAssetSourceMode] = useState<"library" | "upload" | "mix">("library");
   const [topicTitle, setTopicTitle] = useState("");
   const [facelessBgmMood, setFacelessBgmMood] = useState<"lofi" | "tech" | "mystery" | "acoustic" | "none">("mystery");
-  const [facelessBgmVolume, setFacelessBgmVolume] = useState(0.15);
+  const [facelessBgmVolume, setFacelessBgmVolume] = useState(0.12);
   const [facelessPacingStyle, setFacelessPacingStyle] = useState<"clean" | "cinematic" | "documentary" | "dynamic">("cinematic");
   const [facelessEnableSfx, setFacelessEnableSfx] = useState<boolean>(true);
   const [subtitleStyle, setSubtitleStyle] = useState<string>("netflix-yellow");
-  const [visualArtStyle, setVisualArtStyle] = useState<"realistic" | "3d" | "2d">("realistic");
-  const [backgroundTheme, setBackgroundTheme] = useState<string>("studio-white");
+  const [captionAnimationStyle, setCaptionAnimationStyle] = useState<"mrbeast" | "handwriting" | "bouncy" | "smooth">("mrbeast");
+  const [captionPosition, setCaptionPosition] = useState<"bottom" | "center" | "top">("bottom");
+  const [visualArtStyle, setVisualArtStyle] = useState<"realistic">("realistic");
+  const [backgroundTheme, setBackgroundTheme] = useState<string>("midnight-mesh");
+  const [customBgUrl, setCustomBgUrl] = useState<string>("");
+  const [customBgFile, setCustomBgFile] = useState<File | null>(null);
 
   // Job, billing and render history
   const [jobStatus, setJobStatus] = useState<JobStatus>({ state: "idle" });
@@ -114,6 +118,10 @@ export default function FacelessVideoPageClient() {
   // Time tracker for accurate ETA
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [isPlanningAudio, setIsPlanningAudio] = useState(false);
+  const [planningMessage, setPlanningMessage] = useState<string>("");
+  const [planningError, setPlanningError] = useState<string | null>(null);
+  const cachedAudioKeyRef = useRef<string>("");
+  const lastStoryboardPayloadRef = useRef<any>(null);
 
   // In-flight guard
   const renderRequestInFlightRef = useRef(false);
@@ -226,39 +234,37 @@ export default function FacelessVideoPageClient() {
   }
 
   // ── STEP 1 -> 2: Plan & Transcribe Handler ──
-  const handleTranscribeAndPlan = async (audioFile: File) => {
+  const handleTranscribeAndPlan = async (audioFile: File, brandNamesHint?: string) => {
     if (!user) {
       router.push("/login?returnUrl=/dashboard/faceless-video");
       return null;
     }
 
     setIsPlanningAudio(true);
+    setPlanningError(null);
+    setPlanningMessage("Uploading voiceover safely to cloud storage...");
     try {
-      setJobStatus({
-        state: "planning",
-        message: "Uploading voiceover safely to cloud storage...",
-      });
+      const activeUserId = user?.id || "guest_user";
 
       // 1. Direct cloud upload voiceover
-      const mediaKey = await uploadFileViaPresign(audioFile, "facelessVideo", user.id);
+      const mediaKey = await uploadFileViaPresign(audioFile, "facelessVideo", activeUserId);
+      cachedAudioKeyRef.current = mediaKey;
       const audioUrl = await getReadUrlFromKey(mediaKey);
 
       // 2. Upload any selected user images
       const uploadedImageUrls: string[] = [];
       if (facelessImageFiles.length > 0 && assetSourceMode !== "library") {
+        setPlanningMessage("Uploading custom visual assets...");
         for (const img of facelessImageFiles) {
-          const imgKey = await uploadFileViaPresign(img, "facelessVideo", user.id);
+          const imgKey = await uploadFileViaPresign(img, "facelessVideo", activeUserId);
           const imgUrl = await getReadUrlFromKey(imgKey);
           uploadedImageUrls.push(imgUrl);
         }
       }
 
-      setJobStatus({
-        state: "planning",
-        message: "Speech AI transcribing voiceover and planning scenes...",
-      });
+      setPlanningMessage("Transcribing speech with Groq Whisper & planning scenes...");
 
-      // 3. Call dedicated plan endpoint
+      // 3. Call dedicated plan endpoint with brandNamesHint bias
       const planRes = await fetch("/api/reels/plan-faceless-video", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -270,6 +276,7 @@ export default function FacelessVideoPageClient() {
           visualArtStyle,
           uploadedImageUrls,
           backgroundTheme,
+          brandNamesHint,
         }),
       });
 
@@ -278,7 +285,7 @@ export default function FacelessVideoPageClient() {
         throw new Error(planPayload.error || "Failed to transcribe speech or generate scene plan.");
       }
 
-      setJobStatus({ state: "idle" });
+      setPlanningMessage("");
 
       return {
         transcript: planPayload.transcript,
@@ -288,13 +295,13 @@ export default function FacelessVideoPageClient() {
         brollUrls: planPayload.brollUrls,
         durationSeconds: planPayload.durationSeconds,
         warnings: planPayload.warnings,
+        uploadedAssets: planPayload.uploadedAssets || [],
       };
     } catch (err: any) {
       console.error("[PLAN_ERROR]", err);
-      setJobStatus({
-        state: "error",
-        message: err?.message || "Failed to transcribe audio. Please ensure the file contains clear speech.",
-      });
+      const errMsg = err?.message || "Failed to transcribe audio. Please ensure the file contains clear speech.";
+      setPlanningError(errMsg);
+      setPlanningMessage("");
       return null;
     } finally {
       setIsPlanningAudio(false);
@@ -314,6 +321,11 @@ export default function FacelessVideoPageClient() {
     if (renderRequestInFlightRef.current) return;
     renderRequestInFlightRef.current = true;
 
+    if (storyboardPayload) {
+      lastStoryboardPayloadRef.current = storyboardPayload;
+    }
+    const activeStoryboard = storyboardPayload || lastStoryboardPayloadRef.current;
+
     try {
       setJobStatus({
         state: "uploading",
@@ -321,7 +333,8 @@ export default function FacelessVideoPageClient() {
       });
 
       // 1. Upload audio if not already done
-      const mediaKey = await uploadFileViaPresign(selectedFile, "facelessVideo", user.id);
+      const mediaKey = cachedAudioKeyRef.current || (await uploadFileViaPresign(selectedFile, "facelessVideo", user.id));
+      cachedAudioKeyRef.current = mediaKey;
 
       const uploadedImageKeys: string[] = [];
       if (facelessImageFiles.length > 0 && assetSourceMode !== "library") {
@@ -332,11 +345,17 @@ export default function FacelessVideoPageClient() {
       }
 
       const plannedTitle =
-        storyboardPayload?.topicTitle ||
+        activeStoryboard?.topicTitle ||
         topicTitle.trim() ||
         selectedFile.name.replace(/\.[^/.]+$/, "");
 
-      const audioDuration = storyboardPayload?.durationSeconds || 60;
+      const audioDuration = activeStoryboard?.durationSeconds || 60;
+
+      let resolvedCustomBgUrl = customBgUrl;
+      if (customBgFile) {
+        const bgKey = await uploadFileViaPresign(customBgFile, "facelessVideo", user.id);
+        resolvedCustomBgUrl = await getReadUrlFromKey(bgKey);
+      }
 
       // 2. Submit Render Job with Approved Storyboard Blueprint
       const jobResponse = await fetch("/api/reels/jobs", {
@@ -348,27 +367,31 @@ export default function FacelessVideoPageClient() {
           contentType: selectedFile.type || "audio/mpeg",
           mediaType: "audio",
           mode: "facelessVideo",
-          subtitleStyle: storyboardPayload?.subtitleStyle || subtitleStyle,
+          subtitleStyle: activeStoryboard?.subtitleStyle || subtitleStyle,
+          captionAnimationStyle: activeStoryboard?.captionAnimationStyle || captionAnimationStyle,
+          captionPosition: activeStoryboard?.captionPosition || captionPosition,
           uploadedImageKeys,
           assetMode: assetSourceMode,
           topicTitle: plannedTitle,
           userId: user.id,
           userEmail: user.email || undefined,
-          facelessBgmMood: storyboardPayload?.facelessBgmMood || facelessBgmMood,
-          facelessBgmVolume: storyboardPayload?.facelessBgmVolume ?? facelessBgmVolume,
+          facelessBgmMood: activeStoryboard?.facelessBgmMood || facelessBgmMood,
+          facelessBgmVolume: activeStoryboard?.facelessBgmVolume ?? facelessBgmVolume,
           facelessPacingStyle,
-          facelessEnableSfx: storyboardPayload?.facelessEnableSfx ?? facelessEnableSfx,
+          facelessEnableSfx: activeStoryboard?.facelessEnableSfx ?? facelessEnableSfx,
           aspectRatio: "16:9",
           durationSeconds: audioDuration,
           sourceDurationSeconds: audioDuration,
           mediaAspect: "landscape",
-          backgroundTheme: storyboardPayload?.backgroundTheme || backgroundTheme,
-          visualArtStyle: storyboardPayload?.visualArtStyle || visualArtStyle,
+          backgroundTheme: activeStoryboard?.backgroundTheme || backgroundTheme,
+          customBgUrl: resolvedCustomBgUrl || activeStoryboard?.customBgUrl || customBgUrl,
+          visualArtStyle: activeStoryboard?.visualArtStyle || visualArtStyle,
           // Pass user-confirmed storyboard data
-          sceneBlueprint: storyboardPayload?.sceneBlueprint,
-          brollUrls: storyboardPayload?.brollUrls,
-          approvedCaptions: storyboardPayload?.approvedCaptions,
-          transcript: storyboardPayload?.transcript,
+          sceneBlueprint: activeStoryboard?.sceneBlueprint,
+          brollUrls: activeStoryboard?.brollUrls,
+          approvedCaptions: activeStoryboard?.approvedCaptions,
+          transcript: activeStoryboard?.transcript,
+          brandNamesHint: activeStoryboard?.brandNamesHint,
           frameRange: audioDuration > 0 ? [0, Math.min(18000, Math.round(audioDuration * 30)) - 1] : undefined,
         }),
       });
@@ -689,6 +712,10 @@ export default function FacelessVideoPageClient() {
               onReset={() => {
                 setSelectedFile(null);
                 setFacelessImageFiles([]);
+                cachedAudioKeyRef.current = "";
+                lastStoryboardPayloadRef.current = null;
+                setPlanningError(null);
+                setPlanningMessage("");
                 setJobStatus({ state: "idle" });
               }}
               onCancel={() => setShowCancelModal(true)}
@@ -700,11 +727,20 @@ export default function FacelessVideoPageClient() {
         {jobStatus.state === "idle" && (
           <FacelessVideoStudio
             selectedFile={selectedFile}
-            onSelectFile={setSelectedFile}
+            onSelectFile={(file: File | null) => {
+              setSelectedFile(file);
+              cachedAudioKeyRef.current = "";
+              setPlanningError(null);
+              setPlanningMessage("");
+            }}
             topicTitle={topicTitle}
             onTopicTitleChange={setTopicTitle}
             subtitleStyle={subtitleStyle}
             onSubtitleStyleChange={setSubtitleStyle}
+            captionAnimationStyle={captionAnimationStyle}
+            onCaptionAnimationStyleChange={setCaptionAnimationStyle}
+            captionPosition={captionPosition}
+            onCaptionPositionChange={setCaptionPosition}
             facelessBgmMood={facelessBgmMood}
             onBgmMoodChange={setFacelessBgmMood}
             facelessBgmVolume={facelessBgmVolume}
@@ -717,12 +753,21 @@ export default function FacelessVideoPageClient() {
             onVisualArtStyleChange={setVisualArtStyle}
             backgroundTheme={backgroundTheme}
             onBackgroundThemeChange={setBackgroundTheme}
+            customBgUrl={customBgUrl}
+            onCustomBgUrlChange={setCustomBgUrl}
+            onCustomBgFileSelect={setCustomBgFile}
             assetSourceMode={assetSourceMode}
             onAssetSourceModeChange={setAssetSourceMode}
             uploadedImageFiles={facelessImageFiles}
             onUploadedImageFilesChange={setFacelessImageFiles}
             onTranscribeAndPlan={handleTranscribeAndPlan}
             isPlanning={isPlanningAudio}
+            planningMessage={planningMessage}
+            planningError={planningError}
+            onClearPlanningError={() => {
+              setPlanningError(null);
+              setPlanningMessage("");
+            }}
             onGenerate={handleStartRender}
             isGenerating={false}
             renderedVideoUrl={jobStatus.outputFile}

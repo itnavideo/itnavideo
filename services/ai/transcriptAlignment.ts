@@ -133,3 +133,170 @@ export function validateAndAlignTranscript(
     totalWords: totalWordsCount,
   };
 }
+
+export interface AlignedWord {
+  word: string;
+  start: number;
+  end: number;
+  isEdited?: boolean;
+}
+
+/**
+ * Diff-Based Alignment Engine
+ *
+ * Matches edited word tokens to original Whisper word timestamps using sequence alignment.
+ * Unchanged words preserve their exact original Whisper timestamps down to the millisecond.
+ * Only inserted/modified words interpolate within their surrounding unchanged anchor bounds.
+ */
+export function diffBasedAlignTranscript(
+  originalWords: Array<{ word: string; start: number; end: number }>,
+  editedText: string,
+  totalDurationSeconds: number
+): { words: AlignedWord[]; segments: TranscriptSegment[] } {
+  const maxDuration = Math.max(1, Number(totalDurationSeconds) || 60);
+  const editTokens = editedText.trim().split(/\s+/).filter(Boolean);
+
+  if (editTokens.length === 0) {
+    return { words: [], segments: [] };
+  }
+
+  // If no original words available, fall back to proportional distribution
+  if (!originalWords || originalWords.length === 0) {
+    const perWord = maxDuration / editTokens.length;
+    const fallbackWords: AlignedWord[] = editTokens.map((w, i) => ({
+      word: w,
+      start: Math.round(i * perWord * 100) / 100,
+      end: Math.round((i + 1) * perWord * 100) / 100,
+      isEdited: true,
+    }));
+    return {
+      words: fallbackWords,
+      segments: [
+        {
+          start: 0,
+          end: maxDuration,
+          text: editedText,
+          words: fallbackWords,
+        },
+      ],
+    };
+  }
+
+  // Normalize tokens for matching
+  const cleanOriginal = originalWords.map((w) => ({
+    raw: w.word,
+    clean: w.word.toLowerCase().replace(/[^a-z0-9]/g, ''),
+    start: Number(w.start),
+    end: Number(w.end),
+  }));
+
+  const cleanEdited = editTokens.map((t) => ({
+    raw: t,
+    clean: t.toLowerCase().replace(/[^a-z0-9]/g, ''),
+  }));
+
+  // Build Monotonic Anchor Alignment (greedy forward scan with lookahead)
+  const matchedOriginalIndex: number[] = new Array(cleanEdited.length).fill(-1);
+  let lastMatchedOrigIdx = -1;
+
+  for (let eIdx = 0; eIdx < cleanEdited.length; eIdx++) {
+    const editItem = cleanEdited[eIdx];
+    if (!editItem.clean) continue;
+
+    // Lookahead up to 16 words in original
+    const searchEnd = Math.min(cleanOriginal.length, lastMatchedOrigIdx + 17);
+    for (let oIdx = lastMatchedOrigIdx + 1; oIdx < searchEnd; oIdx++) {
+      if (cleanOriginal[oIdx].clean === editItem.clean) {
+        matchedOriginalIndex[eIdx] = oIdx;
+        lastMatchedOrigIdx = oIdx;
+        break;
+      }
+    }
+  }
+
+  // Interpolate unanchored words between surrounding anchors
+  const alignedWords: AlignedWord[] = [];
+
+  for (let i = 0; i < cleanEdited.length; i++) {
+    const origIdx = matchedOriginalIndex[i];
+    if (origIdx !== -1) {
+      // Unchanged word -> 100% exact original Whisper timestamp
+      alignedWords.push({
+        word: cleanEdited[i].raw,
+        start: cleanOriginal[origIdx].start,
+        end: cleanOriginal[origIdx].end,
+        isEdited: false,
+      });
+    } else {
+      // Find previous anchor
+      let prevAnchorEnd = 0;
+      for (let p = i - 1; p >= 0; p--) {
+        if (matchedOriginalIndex[p] !== -1) {
+          prevAnchorEnd = cleanOriginal[matchedOriginalIndex[p]].end;
+          break;
+        }
+      }
+
+      // Find next anchor
+      let nextAnchorStart = maxDuration;
+      let nextAnchorIndex = cleanEdited.length;
+      for (let n = i + 1; n < cleanEdited.length; n++) {
+        if (matchedOriginalIndex[n] !== -1) {
+          nextAnchorStart = cleanOriginal[matchedOriginalIndex[n]].start;
+          nextAnchorIndex = n;
+          break;
+        }
+      }
+
+      // Find count of consecutive unanchored words in this gap
+      let gapStartIndex = i;
+      while (gapStartIndex > 0 && matchedOriginalIndex[gapStartIndex - 1] === -1) {
+        gapStartIndex--;
+      }
+      const gapTotalWords = nextAnchorIndex - gapStartIndex;
+      const wordPositionInGap = i - gapStartIndex;
+
+      const safeStartBound = Math.max(0, prevAnchorEnd);
+      const safeEndBound = Math.max(safeStartBound + 0.3, nextAnchorStart);
+      const gapDuration = safeEndBound - safeStartBound;
+      const step = gapDuration / Math.max(1, gapTotalWords);
+
+      const wordStart = safeStartBound + wordPositionInGap * step;
+      const wordEnd = safeStartBound + (wordPositionInGap + 1) * step;
+
+      alignedWords.push({
+        word: cleanEdited[i].raw,
+        start: Math.round(wordStart * 100) / 100,
+        end: Math.round(wordEnd * 100) / 100,
+        isEdited: true,
+      });
+    }
+  }
+
+  // Reconstruct sentence segments based on punctuation (.?!) or natural breaks (max 10 words)
+  const segments: TranscriptSegment[] = [];
+  let currentSegmentWords: AlignedWord[] = [];
+
+  alignedWords.forEach((wordObj, idx) => {
+    currentSegmentWords.push(wordObj);
+    const hasPunctuation = /[.?!]$/.test(wordObj.word);
+    const isAtChunkLimit = currentSegmentWords.length >= 10;
+    const isLast = idx === alignedWords.length - 1;
+
+    if (hasPunctuation || isAtChunkLimit || isLast) {
+      const segText = currentSegmentWords.map((w) => w.word).join(' ');
+      const segStart = currentSegmentWords[0].start;
+      const segEnd = currentSegmentWords[currentSegmentWords.length - 1].end;
+
+      segments.push({
+        text: segText,
+        start: segStart,
+        end: Math.max(segStart + 0.5, segEnd),
+        words: [...currentSegmentWords],
+      });
+      currentSegmentWords = [];
+    }
+  });
+
+  return { words: alignedWords, segments };
+}

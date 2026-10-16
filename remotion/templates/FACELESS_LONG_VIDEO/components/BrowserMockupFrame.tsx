@@ -46,12 +46,12 @@ export function BrowserMockupFrame({
   return (
     <div
       style={{
-        borderRadius: '20px',
+        borderRadius: '24px',
         overflow: 'hidden',
-        border: '1px solid rgba(56, 189, 248, 0.35)',
+        border: '1px solid rgba(255, 255, 255, 0.14)',
         backgroundColor: 'rgba(15, 23, 42, 0.95)',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(56, 189, 248, 0.2)',
-        backdropFilter: 'blur(16px)',
+        boxShadow: '0 25px 60px -12px rgba(0, 0, 0, 0.85), 0 0 35px rgba(56, 189, 248, 0.12)',
+        backdropFilter: 'blur(20px)',
         display: 'flex',
         flexDirection: 'column',
         width: '100%',
@@ -60,61 +60,15 @@ export function BrowserMockupFrame({
         ...style,
       }}
     >
-      {/* ── macOS Style Browser Title Bar ── */}
+      {/* ── Clean Cinematic Media Viewport with Ken Burns / Motion ── */}
       <div
         style={{
-          height: '42px',
-          backgroundColor: 'rgba(2, 6, 23, 0.9)',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 16px',
-          zIndex: 10,
-        }}
-      >
-        {/* Window Control Buttons */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ width: '11px', height: '11px', borderRadius: '50%', backgroundColor: '#EF4444' }} />
-          <div style={{ width: '11px', height: '11px', borderRadius: '50%', backgroundColor: '#F59E0B' }} />
-          <div style={{ width: '11px', height: '11px', borderRadius: '50%', backgroundColor: '#10B981' }} />
-        </div>
-
-        {/* Address Bar */}
-        <div
-          style={{
-            flex: 1,
-            maxWidth: '450px',
-            margin: '0 16px',
-            height: '24px',
-            backgroundColor: 'rgba(30, 41, 59, 0.8)',
-            borderRadius: '6px',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '0 12px',
-          }}
-        >
-          <span style={{ fontSize: '10px', color: '#10B981', marginRight: '6px' }}>🔒</span>
-          <span style={{ fontSize: '11px', fontFamily: 'monospace', color: '#94A3B8', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-            {urlAddress}
-          </span>
-        </div>
-
-        {/* Title Tag */}
-        <span style={{ fontSize: '10px', fontWeight: 800, letterSpacing: '0.1em', color: '#38BDF8', textTransform: 'uppercase' }}>
-          {title}
-        </span>
-      </div>
-
-      {/* ── Media Content Viewport with Ken Burns / Scroll Motion ── */}
-      <div
-        style={{
-          flex: 1,
+          width: '100%',
+          height: '100%',
           overflow: 'hidden',
           position: 'relative',
           backgroundColor: '#020617',
+          borderRadius: '24px',
         }}
       >
         <div
@@ -122,7 +76,7 @@ export function BrowserMockupFrame({
             width: '100%',
             height: '100%',
             transform: `scale(${scale}) translateY(${translateY}px)`,
-            transformOrigin: 'top center',
+            transformOrigin: 'center center',
             transition: 'transform 0.1s ease-out',
           }}
         >
@@ -138,12 +92,12 @@ export function BrowserMockupFrame({
             ) : (
               <img
                 src={resolvedSrc}
-                alt={title}
+                alt={title || 'Visual Card'}
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             )
           ) : (
-            /* Fallback Graphic */
+            /* Clean Minimalist Fallback Graphic */
             <div
               style={{
                 width: '100%',
@@ -158,13 +112,12 @@ export function BrowserMockupFrame({
                 textAlign: 'center',
               }}
             >
-              <div style={{ fontSize: '32px', marginBottom: '12px' }}>📊</div>
-              <div style={{ fontSize: '18px', fontWeight: 800, color: '#FFFFFF', marginBottom: '6px' }}>
-                {title}
-              </div>
-              <div style={{ fontSize: '12px', color: '#94A3B8' }}>
-                {urlAddress}
-              </div>
+              <div style={{ fontSize: '40px', marginBottom: '14px' }}>📊</div>
+              {title && (
+                <div style={{ fontSize: '20px', fontWeight: 800, color: '#FFFFFF' }}>
+                  {title}
+                </div>
+              )}
             </div>
           )}
         </div>
