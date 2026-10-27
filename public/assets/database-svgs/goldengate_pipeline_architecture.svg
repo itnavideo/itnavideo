@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="GoldenGate Architecture Pipeline">
+  <!-- Itnavideo Database Asset: GoldenGate Architecture Pipeline -->
+  <rect x="8" y="32" width="22" height="36" rx="4" fill="#0F172A" stroke="#F97316" stroke-width="1.5" />
+      <text x="19" y="52" fill="#FFFFFF" font-size="6" font-family="sans-serif" text-anchor="middle">EXTRACT</text>
+      <path d="M 30 50 h 12" stroke="#F97316" stroke-width="2" />
+      <rect x="42" y="36" width="16" height="28" rx="3" fill="#C2410C" />
+      <text x="50" y="52" fill="#FFFFFF" font-size="6" font-family="sans-serif" text-anchor="middle">TRAIL</text>
+      <path d="M 58 50 h 12" stroke="#F97316" stroke-width="2" />
+      <rect x="70" y="32" width="22" height="36" rx="4" fill="#0F172A" stroke="#F97316" stroke-width="1.5" />
+      <text x="81" y="52" fill="#FFFFFF" font-size="6" font-family="sans-serif" text-anchor="middle">REPLICAT</text>
+      <path d="M 92 50 h 14" stroke="#F97316" stroke-width="2" />
+      <circle cx="110" cy="50" r="4" fill="#22C55E" />
+      <text x="60" y="96" fill="#FB923C" font-size="8" font-family="sans-serif" font-weight="900" text-anchor="middle">GOLDENGATE CDC PIPELINE</text>
+</svg>

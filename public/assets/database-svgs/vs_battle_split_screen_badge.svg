@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="VS Battle Split Screen Badge">
+  <!-- Itnavideo Database Asset: VS Battle Split Screen Badge -->
+  <polygon points="60,14 104,36 104,84 60,106 16,84 16,36" fill="#DC2626" stroke="#FEF08A" stroke-width="3" />
+      <text x="60" y="66" fill="#FEF08A" font-size="24" font-family="sans-serif" font-weight="900" text-anchor="middle">VS</text>
+      <text x="60" y="84" fill="#FFFFFF" font-size="7.5" font-family="sans-serif" font-weight="bold" text-anchor="middle">HEAD TO HEAD</text>
+</svg>

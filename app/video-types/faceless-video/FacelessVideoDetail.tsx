@@ -230,7 +230,7 @@ export default function FacelessVideoDetail() {
 
               {/* Dynamic Poster Image */}
               <Image
-                src="https://storage.googleapis.com/itnavideo-media-assets/file_0000000089c48211b67c16fe3c2636a2_prirg0.png"
+                src="https://res.cloudinary.com/dhouh9idx/image/upload/v1792945592/file_000000004290821180a71f25ad75480e_nztpwe.png"
                 alt="AI Faceless Video Generator 16:9 YouTube Widescreen Studio Preview"
                 width={1920}
                 height={1080}

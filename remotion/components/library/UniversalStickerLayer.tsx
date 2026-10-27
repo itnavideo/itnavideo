@@ -15,10 +15,30 @@ export interface UniversalStickerLayerProps {
   stickerPackId?: string;
 }
 
+const S3_REMOTION_BASE_URL = 'https://remotionlambda-useast1-2zq6twaok1.s3.us-east-1.amazonaws.com';
+
+function resolveStickerSrc(rawSrc?: string): string {
+  if (!rawSrc) return '';
+  if (/^(https?:|data:|blob:)/i.test(rawSrc)) return rawSrc;
+  const clean = rawSrc.replace(/^\/+/, '');
+  if (clean.startsWith('assets/')) {
+    const encoded = clean
+      .split('/')
+      .map((seg) => encodeURIComponent(decodeURIComponent(seg)))
+      .join('/');
+    return `${S3_REMOTION_BASE_URL}/${encoded}`;
+  }
+  return staticFile(clean);
+}
+
 export const UniversalStickerLayer: React.FC<UniversalStickerLayerProps> = ({
   stickerEvents,
-  stickerPackId = 'stickman-dev',
+  stickerPackId = 'none',
 }) => {
+  if (!stickerPackId || stickerPackId === 'none' || !stickerEvents || stickerEvents.length === 0) {
+    return null;
+  }
+
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const currentTime = frame / fps;
@@ -41,49 +61,51 @@ export const UniversalStickerLayer: React.FC<UniversalStickerLayerProps> = ({
         const enterSpring = spring({
           frame: Math.max(0, frame - startFrame),
           fps,
-          config: { damping: 10, stiffness: 180 },
+          config: { damping: 12, stiffness: 160 },
         });
 
-        const rawSrc = item.src || '';
-        const imageSrc = rawSrc.startsWith('http')
-          ? rawSrc
-          : rawSrc.includes('visuals/stickers')
-          ? staticFile(rawSrc)
-          : staticFile('visuals/stickers/stickman-explainer.png');
-        const pos = ev.position || 'center-right';
+        const imageSrc = resolveStickerSrc(item.src);
+        const pos = ev.position || 'bottom-right';
 
         let positionStyles: React.CSSProperties = {
           position: 'absolute',
-          right: 80,
-          top: '30%',
+          right: 90,
+          bottom: 110,
         };
 
         if (pos === 'top-left') {
-          positionStyles = { position: 'absolute', left: 80, top: 100 };
+          positionStyles = { position: 'absolute', left: 90, top: 100 };
         } else if (pos === 'top-right') {
-          positionStyles = { position: 'absolute', right: 80, top: 100 };
+          positionStyles = { position: 'absolute', right: 90, top: 100 };
         } else if (pos === 'center-left') {
-          positionStyles = { position: 'absolute', left: 80, top: '35%' };
+          positionStyles = { position: 'absolute', left: 90, top: '40%' };
+        } else if (pos === 'center-right') {
+          positionStyles = { position: 'absolute', right: 90, top: '38%' };
         } else if (pos === 'bottom-right') {
-          positionStyles = { position: 'absolute', right: 80, bottom: 120 };
+          positionStyles = { position: 'absolute', right: 90, bottom: 110 };
         }
+
+        const floatBob = Math.sin((frame - startFrame) / 14) * 6;
+        const subtleRotate = Math.sin((frame - startFrame) / 20) * 2;
 
         return (
           <div
             key={ev.id}
             style={{
               ...positionStyles,
-              transform: `scale(${enterSpring}) rotate(${Math.sin(frame / 10) * 3}deg)`,
-              zIndex: 40,
+              transform: `translateY(${floatBob}px) scale(${enterSpring}) rotate(${subtleRotate}deg)`,
+              transformOrigin: 'bottom center',
+              zIndex: 45,
               pointerEvents: 'none',
-              filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.5))',
+              filter: 'drop-shadow(0 14px 28px rgba(0, 0, 0, 0.65)) drop-shadow(0 0 16px rgba(255, 160, 0, 0.25))',
             }}
           >
             <Img
               src={imageSrc}
               style={{
-                width: 220,
+                width: 290,
                 height: 'auto',
+                maxHeight: 380,
                 objectFit: 'contain',
               }}
             />

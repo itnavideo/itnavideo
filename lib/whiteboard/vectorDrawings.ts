@@ -14,7 +14,16 @@ export type VectorStroke = {
 export type VectorDrawingDef = {
   id: string;
   name: string;
-  category: 'character' | 'medical' | 'business' | 'science' | 'process' | 'comparison' | 'general';
+  category:
+    | 'character'
+    | 'medical'
+    | 'business'
+    | 'science'
+    | 'process'
+    | 'comparison'
+    | 'general'
+    | 'location'
+    | 'story';
   viewBox: string;
   strokes: VectorStroke[];
   keywords: string[];
@@ -325,6 +334,235 @@ export const WHITEBOARD_VECTOR_DRAWINGS: Record<string, VectorDrawingDef> = {
       { d: 'M 22 40 L 34 52 L 58 24', len: 55, strokeWidth: 4, colorKey: 'success', order: 1 },
     ],
     keywords: ['correct', 'success', 'solution', 'right', 'yes', 'sahi', 'new', 'fixed', 'advantage'],
+  },
+
+  // ── STORYTELLING & ENVIRONMENT (VILLAGES, CITIES, JOURNEYS) ────────────────
+  'story_village_house': {
+    id: 'story_village_house',
+    name: 'Village Home & Countryside Pathway',
+    category: 'location',
+    viewBox: '0 0 100 100',
+    strokes: [
+      // Pitched Roof
+      { d: 'M 16 46 L 50 18 L 84 46 Z', len: 150, strokeWidth: 3, order: 0 },
+      // Chimney & Smoke
+      { d: 'M 66 32 L 66 20 L 74 20 L 74 38 M 70 16 Q 76 10 70 4', len: 65, strokeWidth: 2.5, colorKey: 'accent', order: 1 },
+      // House Walls
+      { d: 'M 24 46 L 24 82 L 76 82 L 76 46', len: 124, strokeWidth: 3, order: 2 },
+      // Wooden Door
+      { d: 'M 44 82 L 44 60 L 56 60 L 56 82 M 53 71 A 1.5 1.5 0 1 0 53 72', len: 68, strokeWidth: 2.5, colorKey: 'highlight', order: 3 },
+      // Window with Cross Panes
+      { d: 'M 28 54 L 38 54 L 38 66 L 28 66 Z M 33 54 L 33 66 M 28 60 L 38 60', len: 64, strokeWidth: 2, colorKey: 'accent', order: 4 },
+      // Countryside Ground & Trail
+      { d: 'M 6 84 Q 45 82 94 84 M 44 82 L 36 94 M 56 82 L 64 94', len: 120, strokeWidth: 2.5, order: 5 },
+      // Side Garden Tree
+      { d: 'M 88 84 L 88 62 M 88 62 C 80 58 80 48 88 44 C 96 48 96 58 88 62', len: 75, strokeWidth: 2.5, colorKey: 'success', order: 6 },
+    ],
+    keywords: ['village', 'house', 'home', 'cottage', 'rural', 'town', 'basti', 'gao', 'childhood', 'roots', 'origin', 'family', 'cabin'],
+  },
+
+  'story_city_buildings': {
+    id: 'story_city_buildings',
+    name: 'City Skyline & Modern Architecture',
+    category: 'location',
+    viewBox: '0 0 100 100',
+    strokes: [
+      // Street Ground Line & Lane Dashes
+      { d: 'M 6 88 L 94 88 M 16 93 L 28 93 M 42 93 L 54 93 M 68 93 L 80 93', len: 135, strokeWidth: 2.5, order: 0 },
+      // Building 1 (Left Medium Block)
+      { d: 'M 14 88 L 14 42 L 34 42 L 34 88', len: 112, strokeWidth: 2.5, order: 1 },
+      // Center Skyscraper with Antenna Spire
+      { d: 'M 38 88 L 38 18 L 64 18 L 64 88 M 51 18 L 51 6', len: 165, strokeWidth: 3, colorKey: 'accent', order: 2 },
+      // Corporate Tower (Right Stepped)
+      { d: 'M 68 88 L 68 32 L 88 32 L 88 88', len: 132, strokeWidth: 2.5, order: 3 },
+      // Architectural Window Grid on Center Skyscraper
+      { d: 'M 44 28 L 58 28 M 44 38 L 58 38 M 44 48 L 58 48 M 44 58 L 58 58 M 44 68 L 58 68 M 44 78 L 58 78', len: 84, strokeWidth: 2, colorKey: 'highlight', order: 4 },
+      // Window Rows on Left & Right Towers
+      { d: 'M 20 52 L 28 52 M 20 64 L 28 64 M 20 76 L 28 76 M 74 44 L 82 44 M 74 56 L 82 56 M 74 68 L 82 68 M 74 80 L 82 80', len: 65, strokeWidth: 1.8, colorKey: 'accent', order: 5 },
+    ],
+    keywords: ['city', 'skyline', 'buildings', 'skyscrapers', 'urban', 'metro', 'shahar', 'corporate', 'downtown', 'capital', 'office', 'agency'],
+  },
+
+  'story_journey_road': {
+    id: 'story_journey_road',
+    name: 'Winding Road to the Future',
+    category: 'location',
+    viewBox: '0 0 100 100',
+    strokes: [
+      // Horizon Mountains / Hills
+      { d: 'M 6 46 Q 30 36 50 42 Q 74 34 94 45', len: 95, strokeWidth: 2.5, order: 0 },
+      // Rising Sun Beacon at Horizon
+      { d: 'M 44 42 C 44 34 56 34 56 42 M 50 26 L 50 31 M 40 31 L 44 34 M 60 31 L 56 34', len: 55, strokeWidth: 2, colorKey: 'highlight', order: 1 },
+      // Perspective Road Borders (Narrow at horizon, wide in foreground)
+      { d: 'M 47 42 L 10 92 M 53 42 L 90 92', len: 140, strokeWidth: 3, colorKey: 'accent', order: 2 },
+      // Dynamic Center Dashed Lines (Scaling in perspective)
+      { d: 'M 50 45 L 50 49 M 50 54 L 50 60 M 50 66 L 50 74 M 50 82 L 50 92', len: 50, strokeWidth: 3, colorKey: 'white', order: 3 },
+      // Milestone Route Marker / Signpost
+      { d: 'M 22 68 L 22 52 L 34 52 L 34 68 M 18 56 L 36 56', len: 58, strokeWidth: 2.5, colorKey: 'success', order: 4 },
+    ],
+    keywords: ['road', 'journey', 'path', 'travel', 'highway', 'destination', 'safar', 'rasta', 'future', 'direction', 'timeline', 'way', 'route'],
+  },
+
+  'character_journey_walking': {
+    id: 'character_journey_walking',
+    name: 'Determined Traveler on Journey',
+    category: 'character',
+    viewBox: '0 0 100 100',
+    strokes: [
+      // Head
+      { d: 'M 56 20 A 8 8 0 1 0 56 36 A 8 8 0 1 0 56 20', len: 50, strokeWidth: 3, order: 0 },
+      // Torso Leaning Forward
+      { d: 'M 53 36 L 47 62', len: 28, strokeWidth: 3, order: 1 },
+      // Backpack
+      { d: 'M 44 40 L 34 42 L 34 56 L 46 56 Z', len: 50, strokeWidth: 2.5, colorKey: 'accent', order: 2 },
+      // Forward Stride Leg
+      { d: 'M 47 62 L 62 74 L 66 88', len: 45, strokeWidth: 3, colorKey: 'accent', order: 3 },
+      // Trailing Push Leg
+      { d: 'M 47 62 L 36 72 L 28 86', len: 45, strokeWidth: 3, order: 4 },
+      // Pumping Arms in Motion
+      { d: 'M 50 42 L 64 52 M 46 42 L 34 52', len: 40, strokeWidth: 3, colorKey: 'highlight', order: 5 },
+      // Ground Path & Dust
+      { d: 'M 15 88 L 85 88 M 20 92 L 28 92 M 62 92 L 72 92', len: 85, strokeWidth: 2, order: 6 },
+    ],
+    keywords: ['walking', 'traveler', 'journey', 'moving', 'alone', 'began', 'started', 'hustle', 'chalna', 'stride', 'boy', 'man', 'person'],
+  },
+
+  'character_struggling_burden': {
+    id: 'character_struggling_burden',
+    name: 'Overcoming Heavy Challenge',
+    category: 'character',
+    viewBox: '0 0 100 100',
+    strokes: [
+      // Steep Incline Hill
+      { d: 'M 8 88 L 92 48', len: 94, strokeWidth: 2.5, order: 0 },
+      // Heavy Boulder Stone
+      { d: 'M 64 36 A 15 15 0 1 0 64 66 A 15 15 0 1 0 64 36', len: 95, strokeWidth: 3.5, colorKey: 'danger', order: 1 },
+      // Person Head & Straining Torso
+      { d: 'M 38 52 A 6 6 0 1 0 38 64 A 6 6 0 1 0 38 52 M 38 64 L 34 76', len: 50, strokeWidth: 3, order: 2 },
+      // Extended Straining Arms Pushing Boulder
+      { d: 'M 37 62 L 49 54 M 37 65 L 50 60', len: 38, strokeWidth: 3, colorKey: 'accent', order: 3 },
+      // Braced Legs on Hill Slope
+      { d: 'M 34 76 L 24 82 M 34 76 L 38 84', len: 32, strokeWidth: 3, order: 4 },
+      // Sweat / Effort Droplets
+      { d: 'M 30 50 Q 32 46 30 44', len: 10, strokeWidth: 2, colorKey: 'highlight', order: 5 },
+    ],
+    keywords: ['struggle', 'hardship', 'challenge', 'burden', 'problem', 'effort', 'musibat', 'mushkil', 'grit', 'pressure', 'heavy', 'obstacle', 'tough'],
+  },
+
+  'story_home_workspace': {
+    id: 'story_home_workspace',
+    name: 'Late Night Workspace & Study',
+    category: 'location',
+    viewBox: '0 0 100 100',
+    strokes: [
+      // Desk Surface & Sturdy Legs
+      { d: 'M 14 66 L 86 66 M 20 66 L 20 90 M 80 66 L 80 90', len: 120, strokeWidth: 3, order: 0 },
+      // Open Laptop
+      { d: 'M 38 66 L 36 50 L 56 50 L 54 66 Z M 32 66 L 60 66', len: 80, strokeWidth: 2.5, colorKey: 'accent', order: 1 },
+      // Desk Reading Lamp
+      { d: 'M 72 66 L 72 38 L 60 36 M 60 32 L 54 40 L 64 40 Z', len: 65, strokeWidth: 2.5, colorKey: 'highlight', order: 2 },
+      // Lamp Glow Cones
+      { d: 'M 54 42 L 46 52 M 64 42 L 70 52', len: 30, strokeWidth: 2, colorKey: 'highlight', order: 3 },
+      // Coffee / Tea Mug
+      { d: 'M 25 66 L 25 56 L 31 56 L 31 66 Z M 31 58 C 34 58 34 63 31 63', len: 38, strokeWidth: 2, colorKey: 'white', order: 4 },
+    ],
+    keywords: ['workspace', 'desk', 'laptop', 'study', 'late night', 'working', 'code', 'research', 'writing', 'kamra', 'kam', 'room', 'bed'],
+  },
+
+  'concept_zero_to_one': {
+    id: 'concept_zero_to_one',
+    name: 'Starting From Zero to Milestone',
+    category: 'story',
+    viewBox: '0 0 100 100',
+    strokes: [
+      // Bold "0" at start
+      { d: 'M 24 35 C 24 24 36 24 36 35 L 36 65 C 36 76 24 76 24 65 Z', len: 120, strokeWidth: 3.5, colorKey: 'highlight', order: 0 },
+      // Connecting growth arrow leaping from 0 to 1
+      { d: 'M 40 60 Q 56 42 70 32 M 62 32 L 70 32 L 70 40', len: 65, strokeWidth: 3.5, colorKey: 'accent', order: 1 },
+      // Rising "1" pillar
+      { d: 'M 78 30 L 84 26 L 84 74 M 76 74 L 92 74', len: 80, strokeWidth: 3.5, colorKey: 'success', order: 2 },
+      // Upward sparkle star
+      { d: 'M 84 14 L 84 10 M 80 12 L 88 12', len: 16, strokeWidth: 2, colorKey: 'highlight', order: 3 },
+      // Ground foundation
+      { d: 'M 14 80 L 94 80', len: 80, strokeWidth: 2.5, order: 4 },
+    ],
+    keywords: ['zero', 'shunya', 'starting', 'start', 'scratch', 'shuruat', 'kadam', 'step', 'first', 'origin', 'foundation'],
+  },
+
+  'money_growth_coins': {
+    id: 'money_growth_coins',
+    name: 'Financial Foundation & Wealth Building',
+    category: 'business',
+    viewBox: '0 0 100 100',
+    strokes: [
+      // Coin Stack 1 (Small)
+      { d: 'M 20 62 C 20 58 36 58 36 62 C 36 66 20 66 20 62 M 20 62 L 20 78 C 20 82 36 82 36 78 L 36 62', len: 90, strokeWidth: 2.5, colorKey: 'highlight', order: 0 },
+      // Coin Stack 2 (Medium)
+      { d: 'M 42 46 C 42 42 58 42 58 46 C 58 50 42 50 42 46 M 42 46 L 42 78 C 42 82 58 82 58 78 L 58 46', len: 110, strokeWidth: 2.5, colorKey: 'accent', order: 1 },
+      // Coin Stack 3 (Large)
+      { d: 'M 64 30 C 64 26 80 26 80 30 C 80 34 64 34 64 30 M 64 30 L 64 78 C 64 82 80 82 80 78 L 80 30', len: 130, strokeWidth: 2.5, colorKey: 'success', order: 2 },
+      // Currency Symbol Floating
+      { d: 'M 50 16 L 50 26 M 44 19 L 56 19 M 44 23 L 54 23', len: 35, strokeWidth: 2.5, colorKey: 'highlight', order: 3 },
+      // Base Table Line
+      { d: 'M 10 82 L 90 82', len: 80, strokeWidth: 2.5, order: 4 },
+    ],
+    keywords: ['money', 'paisa', 'paise', 'rupee', 'capital', 'resource', 'fund', 'savings', 'income', 'budget', 'investment', 'wealth'],
+  },
+
+  'character_burning_passion': {
+    id: 'character_burning_passion',
+    name: 'Relentless Drive & Burning Passion',
+    category: 'character',
+    viewBox: '0 0 100 100',
+    strokes: [
+      // Determined Runner Head
+      { d: 'M 52 20 A 8 8 0 1 0 52 36 A 8 8 0 1 0 52 20', len: 50, strokeWidth: 3, order: 0 },
+      // Torso Moving with Forward Momentum
+      { d: 'M 50 36 L 44 62', len: 28, strokeWidth: 3, order: 1 },
+      // Torch / Flaming Passion in Hand
+      { d: 'M 48 42 L 68 34 M 68 34 L 72 26 M 68 24 C 68 16 76 16 74 24 C 78 20 82 24 76 28 C 76 30 70 30 68 24 Z', len: 85, strokeWidth: 3, colorKey: 'accent', order: 2 },
+      // Powerful Forward Stride Legs
+      { d: 'M 44 62 L 60 74 L 66 88 M 44 62 L 30 72 L 20 86', len: 85, strokeWidth: 3, order: 3 },
+      // Ground Speed Lines
+      { d: 'M 8 88 L 88 88 M 14 93 L 36 93 M 52 93 L 74 93', len: 120, strokeWidth: 2.5, colorKey: 'highlight', order: 4 },
+    ],
+    keywords: ['passion', 'junoon', 'fire', 'drive', 'energy', 'grit', 'mehnat', 'hard work', 'consistency', 'relentless', 'moving forward', 'determination'],
+  },
+
+  'mindset_focus_lane': {
+    id: 'mindset_focus_lane',
+    name: 'Focus on Your Own Lane (No Comparison)',
+    category: 'comparison',
+    viewBox: '0 0 100 100',
+    strokes: [
+      // Central Protected Running Lane
+      { d: 'M 35 15 L 20 85 M 65 15 L 80 85', len: 150, strokeWidth: 3, colorKey: 'accent', order: 0 },
+      // Center Runner in Focus
+      { d: 'M 50 30 A 6 6 0 1 0 50 42 A 6 6 0 1 0 50 30 M 50 42 L 50 64 M 50 64 L 42 78 M 50 64 L 58 78', len: 80, strokeWidth: 3, colorKey: 'success', order: 1 },
+      // Target Star at the end of your lane
+      { d: 'M 50 14 L 50 8 M 46 11 L 54 11', len: 20, strokeWidth: 2.5, colorKey: 'highlight', order: 2 },
+      // Faded/Crossed out outside noise (left and right distractions blocked)
+      { d: 'M 8 40 L 22 40 M 12 34 L 18 46 M 78 40 L 92 40 M 82 34 L 88 46', len: 60, strokeWidth: 2, colorKey: 'danger', order: 3 },
+    ],
+    keywords: ['compare', 'comparison', 'tulna', 'focus', 'lane', 'noise', 'own path', 'self', 'unique', 'mindset', 'distraction'],
+  },
+
+  'dream_big_vision': {
+    id: 'dream_big_vision',
+    name: 'Dream Big & Reaching High',
+    category: 'story',
+    viewBox: '0 0 100 100',
+    strokes: [
+      // Figure looking up at the summit
+      { d: 'M 32 60 A 7 7 0 1 0 32 74 A 7 7 0 1 0 32 60 M 32 74 L 32 92 M 32 78 L 44 68 M 32 78 L 22 86', len: 80, strokeWidth: 3, order: 0 },
+      // Mountain Peak Summit in background
+      { d: 'M 10 92 L 68 28 L 94 92 M 52 44 L 84 92', len: 180, strokeWidth: 2.5, colorKey: 'accent', order: 1 },
+      // Massive Glowing Dream Star above peak
+      { d: 'M 68 18 L 71 10 L 79 13 L 74 20 L 78 28 L 70 26 L 65 32 L 64 24 L 56 22 L 63 16 Z', len: 90, strokeWidth: 2.5, colorKey: 'highlight', order: 2 },
+      // Radiating Dream Light Beams
+      { d: 'M 50 20 L 42 16 M 85 15 L 93 11 M 86 34 L 94 38 M 52 30 L 44 36', len: 60, strokeWidth: 2, colorKey: 'highlight', order: 3 },
+    ],
+    keywords: ['dream', 'sapna', 'vision', 'big', 'bada', 'future', 'star', 'mountain', 'summit', 'aim', 'ambition', 'hope', 'goal', 'reach'],
   },
 };
 

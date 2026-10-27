@@ -15,7 +15,7 @@ export interface RawPhraseSegment {
 }
 
 const STRONG_PUNCTUATION = /[.!?]/;
-const WEAK_PUNCTUATION = /[,:;—–-]/;
+const WEAK_PUNCTUATION = /[,:;-]/;
 
 // Prepositions, articles, and conjunctions that should not be isolated at line ends
 const TRAILING_DISCOURAGED = new Set([
@@ -56,7 +56,7 @@ export function formatPunctuationAwareLineBreaks(
 
     if (/[.!?]/.test(word)) {
       punctuationBonus = 50;
-    } else if (/[,:;—–-]/.test(word)) {
+    } else if (/[,:;-]/.test(word)) {
       punctuationBonus = 35;
     }
 

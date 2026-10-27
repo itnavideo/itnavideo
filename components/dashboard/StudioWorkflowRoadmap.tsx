@@ -31,7 +31,7 @@ interface StudioWorkflowRoadmapProps {
   className?: string;
 }
 
-// ── COLOR & ICON PALETTES FOR EACH STEP ─────────────────────────────────────
+//  COLOR & ICON PALETTES FOR EACH STEP 
 const STEP_THEMES = [
   {
     badgeBg: 'bg-gradient-to-br from-[#FF5722] to-[#FF7043]',
@@ -90,7 +90,7 @@ const STEP_THEMES = [
   },
 ];
 
-// ── MODE-SPECIFIC WORKFLOW ROADMAP DEFINITIONS ─────────────────────────────
+//  MODE-SPECIFIC WORKFLOW ROADMAP DEFINITIONS 
 function getWorkflowStepsForMode(mode?: string): WorkflowStep[] {
   switch (mode) {
     case 'autoCaption':
@@ -161,7 +161,7 @@ function getWorkflowStepsForMode(mode?: string): WorkflowStep[] {
     case 'longVideoPromo':
     case 'LONG_VIDEO_PROMO':
       return [
-        { number: 1, label: 'Upload Teaser Clip', accentText: 'Video Teaser (≤90s)', icon: Upload },
+        { number: 1, label: 'Upload Teaser Clip', accentText: 'Video Teaser (90s)', icon: Upload },
         { number: 2, label: 'Upload Thumbnail', accentText: '16:9 Visual Card', icon: FileVideo },
         { number: 3, label: 'Choose Goal & CTA', accentText: 'Conversion Action', icon: Sliders },
         { number: 4, label: 'Render Teaser', accentText: '9:16 Full HD', icon: Download },
@@ -172,7 +172,7 @@ function getWorkflowStepsForMode(mode?: string): WorkflowStep[] {
       return [
         { number: 1, label: 'Upload Source', accentText: 'Up to 3 Hours', icon: Upload },
         { number: 2, label: 'AI Hook Detector', accentText: 'Retention Scoring', icon: Wand2 },
-        { number: 3, label: 'Select Shorts', accentText: '30s–60s Clips', icon: Eye },
+        { number: 3, label: 'Select Shorts', accentText: '30s60s Clips', icon: Eye },
         { number: 4, label: 'Export Shorts', accentText: '1080p MP4s', icon: Download },
       ];
 
@@ -228,7 +228,7 @@ export function StudioWorkflowRoadmap({
         </div>
       </div>
 
-      {/* Responsive Steps Grid Container — Fits 100% without horizontal cut-off */}
+      {/* Responsive Steps Grid Container  Fits 100% without horizontal cut-off */}
       <div
         className={`grid gap-2 sm:gap-2.5 w-full ${
           steps.length === 5
@@ -274,7 +274,7 @@ export function StudioWorkflowRoadmap({
               {/* Subtle Directional Chevron on larger screens */}
               {!isLast && (
                 <span className="absolute -right-1.5 top-1/2 -translate-y-1/2 z-10 hidden xl:flex h-4 w-4 items-center justify-center rounded-full bg-[#0E1526] border border-white/10 text-slate-400 text-[10px] pointer-events-none">
-                  ›
+                  
                 </span>
               )}
             </div>

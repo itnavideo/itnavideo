@@ -57,37 +57,43 @@ type PremiumAudioLayerProps = {
   enabled?: boolean;
 };
 
+const S3_SFX_BASE = 'https://remotionlambda-useast1-2zq6twaok1.s3.us-east-1.amazonaws.com/assets/reusable/sound-effects';
+
 const SFX_PATHS: Record<PremiumSoundCueType, string> = {
-  'soft-click': 'https://storage.googleapis.com/itnavideo-media-assets/soft-click_q5a67c.wav',
-  'soft-pop': 'https://storage.googleapis.com/itnavideo-media-assets/soft-pop_rakwkr.mp3',
-  'pop-medium': 'https://storage.googleapis.com/itnavideo-media-assets/pop-medium_pper0p.mp3',
-  'pop-strong': 'https://storage.googleapis.com/itnavideo-media-assets/pop-strong_hjdqas.mp3',
-  whoosh: 'https://storage.googleapis.com/itnavideo-media-assets/whoosh-short_rfopag.wav',
-  'air-rush': 'https://storage.googleapis.com/itnavideo-media-assets/air-rush_cy9opg.wav',
-  swipe: 'https://storage.googleapis.com/itnavideo-media-assets/swipe-right_kgvhek.wav',
-  ding: 'https://storage.googleapis.com/itnavideo-media-assets/ding-5_kovgrw.mp3',
-  cash: 'https://storage.googleapis.com/itnavideo-media-assets/cash-register_ugloom.wav',
-  'coin-drop': 'https://storage.googleapis.com/itnavideo-media-assets/coin-drop-finance_roxrte.wav',
-  typing: 'https://storage.googleapis.com/itnavideo-media-assets/typing-fast_itr1th.wav',
-  paper: 'https://storage.googleapis.com/itnavideo-media-assets/paper-slide_fnjqc9.mp3',
-  'page-flip': 'https://storage.googleapis.com/itnavideo-media-assets/page-flip_v5jazi.mp3',
-  warning: 'https://storage.googleapis.com/itnavideo-media-assets/warning-beep_aqvyfj.wav',
-  rise: 'https://storage.googleapis.com/itnavideo-media-assets/victory-rise_beerfs.wav',
-  'hit-soft': 'https://storage.googleapis.com/itnavideo-media-assets/hit-soft_xvsxlu.wav',
-  'hit-medium': 'https://storage.googleapis.com/itnavideo-media-assets/hit-medium_etbaw9.wav',
-  'hit-strong': 'https://storage.googleapis.com/itnavideo-media-assets/hit-strong_xutgaw.mp3',
-  'bass-drop': 'https://storage.googleapis.com/itnavideo-media-assets/bass-drop_sn3ngm.mp3',
-  'cinematic-boom': 'https://storage.googleapis.com/itnavideo-media-assets/cinematic-boom_usu3sy.wav',
-  'data-pulse': 'https://storage.googleapis.com/itnavideo-media-assets/data-pulse_wyffxf.wav',
-  'data-scan': 'https://storage.googleapis.com/itnavideo-media-assets/data-scan_ofyz0z.wav',
-  'digital-beep': 'https://storage.googleapis.com/itnavideo-media-assets/digital-beep_qmdtyh.wav',
-  chime: 'https://storage.googleapis.com/itnavideo-media-assets/chime_o1pvom.mp3',
+  'soft-click': `${S3_SFX_BASE}/soft-click.wav`,
+  'soft-pop': `${S3_SFX_BASE}/pop-soft.wav`,
+  'pop-medium': `${S3_SFX_BASE}/pop-medium.wav`,
+  'pop-strong': `${S3_SFX_BASE}/pop-strong.wav`,
+  whoosh: `${S3_SFX_BASE}/whoosh-short.wav`,
+  'air-rush': `${S3_SFX_BASE}/air-rush.wav`,
+  swipe: `${S3_SFX_BASE}/swipe-right.wav`,
+  ding: `${S3_SFX_BASE}/success-chime.wav`,
+  cash: `${S3_SFX_BASE}/cash-register.wav`,
+  'coin-drop': `${S3_SFX_BASE}/coin-drop.wav`,
+  typing: `${S3_SFX_BASE}/typing-fast.wav`,
+  paper: `${S3_SFX_BASE}/page-flip.wav`,
+  'page-flip': `${S3_SFX_BASE}/page-flip.wav`,
+  warning: `${S3_SFX_BASE}/warning-beep.wav`,
+  rise: `${S3_SFX_BASE}/transition-sweep.wav`,
+  'hit-soft': `${S3_SFX_BASE}/hit-soft.wav`,
+  'hit-medium': `${S3_SFX_BASE}/hit-medium.wav`,
+  'hit-strong': `${S3_SFX_BASE}/hit-strong.wav`,
+  'bass-drop': `${S3_SFX_BASE}/bass-drop.wav`,
+  'cinematic-boom': `${S3_SFX_BASE}/cinematic-boom.wav`,
+  'data-pulse': `${S3_SFX_BASE}/pop-soft.wav`,
+  'data-scan': `${S3_SFX_BASE}/soft-click.wav`,
+  'digital-beep': `${S3_SFX_BASE}/warning-beep.wav`,
+  chime: `${S3_SFX_BASE}/success-chime.wav`,
 };
 
 const resolveAudioSrc = (src?: string) => {
   if (!src) return '';
+  if (src.includes('storage.googleapis.com/itnavideo-media-assets')) {
+    const filename = src.split('/').pop()?.split('?')[0] || '';
+    const cleanName = filename.replace(/_[a-z0-9]+\.(wav|mp3)$/i, '.$1');
+    return `${S3_SFX_BASE}/${cleanName}`;
+  }
   if (/^(https?:|data:|blob:)/i.test(src)) return src;
-  // If not full URL, do not attempt to load non-existent local files on cloud render
   return '';
 };
 

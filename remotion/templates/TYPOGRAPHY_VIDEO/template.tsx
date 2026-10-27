@@ -11,6 +11,7 @@ import {
 } from 'remotion';
 import { getAdvancedStyleBlueprint } from '../../../lib/typography/styleRegistry';
 import type { CaptionSegment } from '../../types/subtitles';
+import { CreatorEditorialRenderer } from './templates/CreatorEditorialRenderer';
 
 export type TypographyVideoProps = {
   durationSeconds?: number;
@@ -27,7 +28,7 @@ export type TypographyVideoProps = {
 
 export const KineticTypographyRenderer: React.FC<TypographyVideoProps> = ({
   durationSeconds = 5,
-  typographyStyle = 'vox-giant-stagger',
+  typographyStyle = 'creator-editorial',
   captions = [],
   subjectImageUrl,
   backgroundMediaUrl,
@@ -37,6 +38,27 @@ export const KineticTypographyRenderer: React.FC<TypographyVideoProps> = ({
   transcriptText,
   aspectRatio = '9:16',
 }) => {
+  // If Creator Editorial template is chosen (or default), render dedicated reference template
+  if (
+    !typographyStyle ||
+    typographyStyle === 'creator-editorial' ||
+    typographyStyle === 'editorial' ||
+    typographyStyle.includes('creator') ||
+    typographyStyle === 'vox-giant-stagger'
+  ) {
+    return (
+      <CreatorEditorialRenderer
+        durationSeconds={durationSeconds}
+        captions={captions}
+        mediaSrc={mediaSrc}
+        audioUrl={audioUrl}
+        bgmUrl={bgmUrl}
+        transcriptText={transcriptText}
+        overlayMediaUrl={backgroundMediaUrl || subjectImageUrl}
+      />
+    );
+  }
+
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
 
@@ -318,7 +340,7 @@ export const TypographyVideoComposition: React.FC = () => {
       }}
       defaultProps={{
         durationSeconds: 5,
-        typographyStyle: 'vox-giant-stagger',
+        typographyStyle: 'creator-editorial',
         aspectRatio: '9:16',
         captions: [
           {

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="Full Database Backup">
+  <!-- Itnavideo Database Asset: Full Database Backup -->
+  <path d="M 24 22 v 24 a 36 12 0 0 0 72 0 v -24 Z" fill="#166534" stroke="#052E16" stroke-width="2.5" stroke-linejoin="round" />
+    <ellipse cx="60" cy="46" rx="36" ry="12" fill="#166534" stroke="#052E16" stroke-width="2.5" />
+    <ellipse cx="60" cy="22" rx="36" ry="12" fill="#15803D" stroke="#052E16" stroke-width="2.5" />
+  
+      <rect x="24" y="68" width="72" height="28" rx="6" fill="#047857" stroke="#34D399" stroke-width="2" />
+      <text x="60" y="84" fill="#FFFFFF" font-size="8" font-family="sans-serif" font-weight="900" text-anchor="middle">FULL BACKUP (L0)</text>
+      <text x="60" y="93" fill="#A7F3D0" font-size="6.5" font-family="sans-serif" text-anchor="middle">All Allocated Blocks</text>
+</svg>

@@ -103,8 +103,8 @@ function generateHeadlineAndTitle(
 
   // Build headline (max 7 punchy words)
   const headlineWords = hookWords.slice(0, 7).join(' ').replace(/[,;:.!?]/g, '');
-  const emoji = strategy === 'high-energy' ? '🔥' : strategy === 'actionable' ? '💡' : '✨';
-  const headline = headlineWords ? `${headlineWords.toUpperCase()} ${emoji}` : `VIRAL CLIP ${emoji}`;
+  
+  const headline = headlineWords ? `${headlineWords.toUpperCase()}` : `VIRAL CLIP`;
 
   // Title for display
   const title = hookText.length > 55 ? `${hookText.slice(0, 52)}...` : hookText || 'Viral Highlight';

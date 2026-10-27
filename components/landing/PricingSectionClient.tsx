@@ -88,16 +88,16 @@ const PLAN_CARDS = [
   },
   {
     id: 'starter',
-    name: 'Basic',
+    name: 'Starter',
     priceINRMonthly: 499,
     priceINRAnnual: 399,
-    priceUSDMonthly: 6,
-    priceUSDAnnual: 5,
+    priceUSDMonthly: 19.99,
+    priceUSDAnnual: 9.99,
     description: 'Ultra-affordable starter pack for new creators.',
-    credits: '40 Credits',
-    videoCapacity: '40 Shorts or 20 Widescreen videos',
+    credits: '100 Credits',
+    videoCapacity: '100 Shorts or 20 Long videos (5m)',
     videoTypes: 'All 11 AI Video Studios',
-    shortLimit: '40 × 9:16 Shorts (up to 90s — 1 credit)',
+    shortLimit: '100 × 9:16 Shorts (up to 90s — 1 credit)',
     longLimit: '20 × 16:9 Widescreen (up to 3 min — 2 credits)',
     quality: '1080p Full HD',
     watermark: 'No Watermark',
@@ -567,7 +567,7 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
               </span>
               <div>
                 <h3 className="text-base font-extrabold text-white font-sans">How Video Credits Work</h3>
-                <p className="text-xs text-slate-400 font-normal">Transparent — 1 Credit = 90s Short (9:16). 2 Credits = 3 min Widescreen (16:9).</p>
+                <p className="text-xs text-slate-400 font-normal">Transparent — 1 Credit = 90s Short (9:16). 1 Credit = 1 Long-Form minute (16:9, max 5 min).</p>
               </div>
             </div>
 
@@ -593,10 +593,10 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
             <div className="rounded-2xl bg-[#151821] p-4 border border-white/[0.08] shadow-sm">
               <div className="flex items-center gap-2 font-bold text-white mb-1">
                 <span className="h-2 w-2 rounded-full bg-fuchsia-400"></span>
-                <span>2 Credits</span>
+                <span>1 Credit / Min</span>
               </div>
               <p className="text-slate-400 text-[11px] leading-relaxed">
-                <strong className="text-white">16:9 Widescreen (Up to 3 Min)</strong><br />
+                <strong className="text-white">16:9 Widescreen (Up to 5 Min)</strong><br />
                 Image to Video AI, Faceless Video, YouTube Subtitles, Book Summary.
               </p>
             </div>
@@ -605,11 +605,11 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
             <div className="rounded-2xl bg-[#151821] p-4 border border-white/[0.08] shadow-sm">
               <div className="flex items-center gap-2 font-bold text-white mb-1">
                 <span className="h-2 w-2 rounded-full bg-pink-400"></span>
-                <span>2 Credits / Clip</span>
+                <span>1 Credit / Clip</span>
               </div>
               <p className="text-slate-400 text-[11px] leading-relaxed">
                 <strong className="text-white">Long Video Clips</strong><br />
-                Each AI-generated viral short clip uses 2 credits.
+                Each AI-generated viral short clip uses 1 credit.
               </p>
             </div>
           </div>

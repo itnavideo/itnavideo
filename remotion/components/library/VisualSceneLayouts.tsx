@@ -7,12 +7,14 @@ interface VisualSceneLayoutProps {
   scene: SceneBlueprintItem;
   headingFont?: string;
   bodyFont?: string;
+  theme?: 'light' | 'dark' | 'auto';
 }
 
 export function VisualSceneLayout({
   scene,
   headingFont = 'Plus Jakarta Sans',
   bodyFont = 'Plus Jakarta Sans',
+  theme = 'dark',
 }: VisualSceneLayoutProps) {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();

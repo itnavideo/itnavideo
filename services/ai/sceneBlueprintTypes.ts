@@ -21,11 +21,46 @@ export type VisualLayoutType =
   | 'numbered_point'
   | 'fullscreen_statement'
   | 'data_visualization'
+  | 'donut_breakdown'
+  | 'sticky_note'
+  | 'numbered_steps'
+  | 'social_post'
+  | 'chat_dialogue'
+  | 'vector_concept'
+  | 'search_discovery'
   | 'full_bleed_visual'
   | 'chapter_title'
   | 'card_concept'
-  | 'broll_overlay';
+  | 'broll_overlay'
+  | 'prompt_window'
+  | 'calendar_grid'
+  | 'milestone_ladder'
+  | 'script_bubble'
+  | 'roadmap'
+  | 'vertical_roadmap'
+  | 'workflow'
+  | 'vs_battle'
+  | 'metric_pill'
+  | 'newspaper_headline'
+  | 'stamp_badge'
+  | 'supporting_note'
+  | 'drawing_story'
+  | 'hook';
 
+export type FacelessGraphicKind = 'allocation' | 'comparison' | 'sequence' | 'metric' | 'concept' | 'growth';
+
+export type FacelessGraphicItem = {
+  label: string;
+  displayValue?: string;
+  value?: number;
+};
+
+export type FacelessGraphicPlan = {
+  kind: FacelessGraphicKind;
+  title: string;
+  sourceText: string;
+  items: FacelessGraphicItem[];
+};
 export type MotionAnimationPreset =
   | 'slow_zoom_in'
   | 'slow_zoom_out'
@@ -52,6 +87,7 @@ export type SceneBlueprintItem = {
   highlightedWords: string[];
   visualAssetRequirement: string;
   visualIntent?: string;
+  englishMeaning?: string;
   brollSearchQuery?: string;
   background: string; // background gradient theme ID
   fontHierarchy: {
@@ -72,6 +108,14 @@ export type SceneBlueprintItem = {
   timelineSteps?: string[];
   checklistItems?: string[];
   chartValuePercent?: number;
+
+  // Visual Graphics Metadata
+  chartItems?: Array<{ label: string; value: number; formattedValue?: string; color?: string }>;
+  donutSlices?: Array<{ label: string; value: number; color?: string }>;
+  chatMessages?: Array<{ sender: 'left' | 'right'; text: string }>;
+  searchQuery?: string;
+  vectorDrawingId?: string;
+  graphicPlan?: FacelessGraphicPlan;
 
   // Responsive Typography Engine metadata (16:9 widescreen layout intelligence)
   typographyTreatment?: 'stat' | 'quote' | 'list' | 'headline' | 'short_sentence' | 'paragraph' | 'split';

@@ -69,33 +69,7 @@ export async function getRenderAccessForUser(userId: string, request: RenderAcce
   } catch (error) {
     console.warn("[renderAccess] Free signup credit bypassed:", error);
   }
-  if (isFreeSignupCreditActive(freeSignupCredit) && freeSignupCredit) {
-    const window = getFreeSignupCreditWindow(freeSignupCredit);
-    const trialAccess = await accessForWindow(cleanUserId, "free-signup-credit", "1 Free Trial Credit", false, window.startAt, window.endAt, window.limit, requiredCreditUnits);
-    return {...trialAccess, watermark: trialAccess.allowed};
-  }
-
-  // Resilient zero-usage guarantee: brand new users with 0 renders are always granted 1 free video
-  try {
-    const totalRenders = await getWindowUsageUnits(cleanUserId, "2020-01-01T00:00:00.000Z", new Date().toISOString());
-    if (totalRenders === 0) {
-      return {
-        allowed: true,
-        planId: "free-signup-credit",
-        planName: "1 Free Trial Credit",
-        activePaidPlan: false,
-        used: 0,
-        limit: 1,
-        remaining: 1,
-        watermark: true,
-        expiresAt: "2099-12-31T23:59:59.000Z",
-      };
-    }
-  } catch (usageErr) {
-    console.warn("[renderAccess] Usage fallback check bypassed:", usageErr);
-  }
-
-  return deniedAccess("credits-required", "Credits required", "Upgrade to Pro or Business to create another video.");
+  return deniedAccess("credits-required", "Credits required", "Choose a paid plan (Starter $19.99) to create videos.");
 }
 
 export async function getFounderTestAccessForUser(

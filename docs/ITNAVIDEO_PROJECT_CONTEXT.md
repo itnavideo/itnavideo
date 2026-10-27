@@ -29,10 +29,12 @@ Turn raw creator content into publish-ready 9:16 reels or a preserved 16:9 long-
 ## Current Status
 
 - **1080p Full HD Quality Standard**: Every single video rendered across all modes is strictly exported in **1080p Full HD** (1080×1920 for 9:16 vertical shorts, 1920×1080 for 16:9 cinema widescreen) at 30 FPS.
-- **16:9 Long-Form Category (Up to 10 Minutes / 600s)**: Strictly 16:9 Widescreen Only for Faceless Video, Book Summary, Image to Video AI, and YouTube Subtitles Generator. Credit Policy: **1 Min = 1 Credit** (1 Min = 1 Cr, 5 Min = 5 Cr, 10 Min = 10 Cr).
+- **16:9 Long-Form Category (Up to 5 Minutes / 300s)**: Strictly 16:9 Widescreen Only for Faceless Video, Book Summary, Image to Video AI, and YouTube Subtitles Generator. Credit Policy: **1 Min = 1 Credit** (1 Min = 1 Cr, 2 Min = 2 Cr, 3 Min = 3 Cr, 4 Min = 4 Cr, 5 Min = 5 Cr).
 - **9:16 Short-Form Category (Up to 90 Seconds / 90s)**: Strictly 9:16 Vertical Only for Auto Caption Reel, Typography Kinetic, Whiteboard Explainer, Faceless Video Shorts, and Long Video Promo. Credit Policy: **1 Credit** per video.
-- **Long Video to Clips (`longvideoclips`)**: Accepts input up to **2 Hours (7,200s)**; generates multiple **30s–60s** viral clips in 1080×1920. Credit Policy: **2 Credits / Clip**.
-- **AI Studio Audio Cleaner**: Accepts audio up to **10 Minutes**. Credit Policy: **1 Credit**.
+- **Long Video to Clips (`longvideoclips`)**: Accepts input up to **2 Hours (7,200s)**; generates multiple **30s–60s** viral clips in 1080×1920. Credit Policy: **1 Credit / Clip**.
+- **AI Studio Audio Cleaner**: Accepts audio up to **5 Minutes (300s)**. Credit Policy: **1 Credit**.
+- **Faceless Video Storytelling Standard**: Stock photography capped to max 10% of video duration; remaining 90%+ executed via procedural 520px+ vector drawings (`DrawingStoryScene`), split-screen badges (`CardConceptScene`), and kinetic typography (`TypographyScene`).
+- **Auto Caption WhiteStair Engine**: 2-step workflow (Upload -> Editor Studio), two-tone dynamic styling (`WhiteStairCaptionRenderer.tsx`), natural phrase cadence chunking, and real-time playback synchronization.
 - **Audio Extraction First**: Heavy media is never sent directly to transcription; 16kHz mono audio is extracted first.
 - **Transcription**: Primary: Groq Whisper Cloud API. Mandatory Fallback: Google Gemini 2.0 Flash (`asia-south1`).
 - **Cloud Rendering Engine**: AWS Lambda (Remotion in Mumbai `us-east-1`).
@@ -277,19 +279,18 @@ For every new Video Type, use these professional-editor principles unless the sp
 
 ## Pricing / Credit Rules
 
-- **9:16 Shorts & Reels (upto 3 min)**: `10 Credits` (Auto Caption, Typography, Compare, Whiteboard, Long Video Promo, Faceless Video, Image to Video).
-- **16:9 Long-Form Videos (upto 12 min)**: `20 Credits` (YouTube Subtitles, Cinema Explainers, Long Form Faceless, Image to Video AI).
-- **AI Audio Cleaner (upto 30 min audio)**: `5 Credits` (Studio loudness mastering, retake and mistake removal).
-- **Long Video Clips (upto 3hr source)**: `10 Credits / clip`.
-- **Free Signup Trial**: `1 Free Credit` (valid for any 1 × 9:16 vertical short-form video up to 90s, no credit card required).
+- **9:16 Shorts & Reels (upto 90s)**: 1 Credit (Auto Caption, Typography, Compare, Whiteboard, Long Video Promo, Faceless Shorts, Image to Video).
+- **16:9 Long-Form Videos (upto 5 min)**: 1 Min = 1 Credit (YouTube Subtitles, Cinema Explainers, Long Form Faceless, Image to Video AI).
+- **AI Audio Cleaner**: 1 Credit.
+- **Long Video Clips (upto 2hr source)**: 1 Credit / clip.
+- **Free Signup Trial**: 1 Free Credit.
 - **Packs & Tiers**:
-  - Starter (\$29): `300 Credits` (~30 Reels or 15 Long Videos)
-  - Growth / Pro Creator (\$49): `1,000 Credits` (~100 Reels or 50 Long Videos)
-  - Pro / Agency (\$149): `2,500 Credits` (~250 Reels or 125 Long Videos)
-- Paid credit packs are one-time Razorpay payments. Monthly packs remain active for 30 days.
+  - Starter (.99/mo | .99/yr): 100 Credits (~100 Shorts or 20x 5m Long Videos)
+  - Growth (.99/mo | .99/yr): 250 Credits (~250 Shorts or 50x 5m Long Videos)
+  - Pro Agency (.99/mo | .99/yr): 600 Credits (~600 Shorts or 120x 5m Long Videos)
+- Subscriptions are handled via Razorpay.
 - Failed renders due to system issues are not charged.
-- Preview generation/editing does not deduct credits.
-- Deduct/reserve credits only when the final render starts.
+- Deduct credits only when the final render starts.
 
 ## Dashboard UX Rules
 

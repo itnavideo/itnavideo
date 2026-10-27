@@ -65,8 +65,23 @@ const footerGroups = [
   },
 ];
 
+function XIcon({ size = 14, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
+
 const socialLinks = [
-  { label: 'X (Twitter)', href: 'https://x.com/itnavideo', icon: Twitter },
+  { label: 'X (formerly Twitter)', href: 'https://x.com/Itnavideo', icon: XIcon },
   { label: 'Facebook', href: 'https://www.facebook.com/itnavideo', icon: Facebook },
   { label: 'Instagram', href: 'https://www.instagram.com/itnavideo/', icon: Instagram },
   { label: 'YouTube', href: 'https://www.youtube.com/@Itnavideo', icon: Youtube },
@@ -76,15 +91,15 @@ const socialLinks = [
 
 export default function Footer() {
   return (
-    <footer className="relative w-full border-t border-slate-200/80 bg-slate-50 text-slate-600 overflow-hidden">
+    <footer className="relative w-full border-t-2 border-slate-200/90 bg-gradient-to-b from-slate-50 via-slate-50 to-slate-100/60 text-slate-600 overflow-hidden">
       <div className="relative z-10 mx-auto max-w-7xl px-4 pt-16 pb-12 sm:px-6 lg:px-8">
-        {/* Main Grid - Desktop */}
-        <div className="hidden md:grid md:grid-cols-6 md:gap-10 lg:gap-12">
+        {/* Main Grid - Desktop - Balanced Column Alignment */}
+        <div className="hidden md:grid md:grid-cols-6 md:gap-8 lg:gap-10 items-start">
           {/* Brand & Summary */}
           <div className="col-span-2 space-y-5">
             <BrandLogo size="md" showTagline variant="light" />
             <p className="max-w-sm text-xs leading-relaxed text-slate-600">
-              AI video creation engine from audio, video, or text scripts. Built for viral Reels, Shorts, and automated creator production workflows.
+              AI video creation engine from voiceovers, audio recordings, or video clips. Built for viral Reels, Shorts, and automated creator production workflows.
             </p>
 
             <div className="flex flex-col gap-2 pt-1">
@@ -152,7 +167,7 @@ export default function Footer() {
           <div className="space-y-4">
             <BrandLogo size="md" showTagline variant="light" />
             <p className="text-xs leading-relaxed text-slate-600">
-              AI video creation engine from audio, video, or text scripts. Built for viral Reels, Shorts, and creator workflows.
+              AI video creation engine from voiceovers, audio recordings, or video clips. Built for viral Reels, Shorts, and creator workflows.
             </p>
             <div className="flex items-center gap-2">
               <a 

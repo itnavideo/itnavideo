@@ -28,7 +28,7 @@ import {
   BookOpen,
 } from "lucide-react";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+//  Types 
 
 type BillingEntitlement = {
   active: boolean;
@@ -58,7 +58,7 @@ type RecentRender = {
   expiresAt: number;
 };
 
-// ─── Component ────────────────────────────────────────────────────────────────
+//  Component 
 
 export default function KineticMotionPageClient() {
   const router = useRouter();
@@ -67,7 +67,7 @@ export default function KineticMotionPageClient() {
 
   const presetParam = searchParams.get("preset_id");
 
-  // ── Studio state ─────────────────────────────────────────────────────────────
+  //  Studio state 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedPreset, setSelectedPreset] = useState<KineticMotionPresetId>(
     () => resolveInitialKMPreset(presetParam)
@@ -81,7 +81,7 @@ export default function KineticMotionPageClient() {
   const aspectRatio: "9:16" = "9:16";
   const [mediaDurationSeconds, setMediaDurationSeconds] = useState<number>(0);
 
-  // ── Job state ─────────────────────────────────────────────────────────────────
+  //  Job state 
   const [jobStatus, setJobStatus] = useState<JobStatus>({ state: "idle" });
   const [billingEntitlement, setBillingEntitlement] = useState<BillingEntitlement | null>(null);
   const [recentRenders, setRecentRenders] = useState<RecentRender[]>([]);
@@ -90,26 +90,26 @@ export default function KineticMotionPageClient() {
 
   const renderRequestInFlightRef = useRef(false);
 
-  // ── Sync URL preset param on mount ───────────────────────────────────────────
+  //  Sync URL preset param on mount 
   useEffect(() => {
     const resolved = resolveInitialKMPreset(presetParam);
     setSelectedPreset(resolved);
   }, [presetParam]);
 
-  // ── Persist last-used preset ─────────────────────────────────────────────────
+  //  Persist last-used preset 
   useEffect(() => {
     if (!selectedPreset) return;
     try { localStorage.setItem(KM_LAST_PRESET_KEY, selectedPreset); } catch {}
   }, [selectedPreset]);
 
-  // ── Auth redirect ────────────────────────────────────────────────────────────
+  //  Auth redirect 
   useEffect(() => {
     if (!authLoading && !user) {
       router.push("/login?returnUrl=/dashboard/typography-video");
     }
   }, [user, authLoading, router]);
 
-  // ── Billing ──────────────────────────────────────────────────────────────────
+  //  Billing 
   useEffect(() => {
     if (!user) return;
     (async () => {
@@ -132,7 +132,7 @@ export default function KineticMotionPageClient() {
     })();
   }, [user]);
 
-  // ── History ──────────────────────────────────────────────────────────────────
+  //  History 
   useEffect(() => {
     try {
       const saved = localStorage.getItem("itnavideo_kinetic_motion_projects");
@@ -179,7 +179,7 @@ export default function KineticMotionPageClient() {
     })();
   }, [user]);
 
-  // ── Media duration detection ─────────────────────────────────────────────────
+  //  Media duration detection 
   useEffect(() => {
     if (!selectedFile) { setMediaDurationSeconds(0); return; }
     const isVideo = selectedFile.type.startsWith("video/");
@@ -190,14 +190,14 @@ export default function KineticMotionPageClient() {
     el.onerror = () => URL.revokeObjectURL(url);
   }, [selectedFile]);
 
-  // ── Start render ─────────────────────────────────────────────────────────────
+  //  Start render 
   async function handleStartRender() {
     if (!user) { router.push("/login?returnUrl=/dashboard/typography-video"); return; }
     if (!selectedFile) { alert("Please upload a video or audio file first."); return; }
     if (renderRequestInFlightRef.current) return;
     renderRequestInFlightRef.current = true;
 
-    // Phase 1 bridge: resolve KM preset → existing TypographyStyleId for Lambda
+    // Phase 1 bridge: resolve KM preset  existing TypographyStyleId for Lambda
     const bridgeStyle = getBridgeStyleId(selectedPreset);
     const plannedTitle = selectedFile.name.replace(/\.[^/.]+$/, "").slice(0, 50) || "Kinetic Motion Reel";
     const isAudio = selectedFile.type.startsWith("audio/") || /\.(mp3|wav|m4a|aac)$/i.test(selectedFile.name);
@@ -217,7 +217,7 @@ export default function KineticMotionPageClient() {
           fileName: selectedFile.name,
           contentType: selectedFile.type || (isAudio ? "audio/mpeg" : "video/mp4"),
           mediaType: isAudio ? "audio" : "video",
-          // Backend mode stays 'typographyVideo' — no Lambda change needed
+          // Backend mode stays 'typographyVideo'  no Lambda change needed
           mode: "typographyVideo",
           topicTitle: plannedTitle,
           userId: user.id,
@@ -318,14 +318,14 @@ export default function KineticMotionPageClient() {
     }
   }
 
-  // ── Reset ─────────────────────────────────────────────────────────────────────
+  //  Reset 
   const handleReset = () => {
     setJobStatus({ state: "idle" });
     setSelectedFile(null);
     renderRequestInFlightRef.current = false;
   };
 
-  // ── Download ──────────────────────────────────────────────────────────────────
+  //  Download 
   const downloadVideoDirectly = async (url: string, filename: string) => {
     try {
       setDownloadingUrl(url);
@@ -341,7 +341,7 @@ export default function KineticMotionPageClient() {
     finally { setDownloadingUrl(null); }
   };
 
-  // ── Derived ───────────────────────────────────────────────────────────────────
+  //  Derived 
   const userRemaining = billingEntitlement?.active
     ? Math.round(billingEntitlement.usage?.remaining ?? billingEntitlement.monthlyVideoLimit ?? 0)
     : undefined;
@@ -349,7 +349,7 @@ export default function KineticMotionPageClient() {
   const isReady = jobStatus.state === "ready" && Boolean(jobStatus.outputFile);
   const isError = jobStatus.state === "error";
 
-  // ── Loading screen ────────────────────────────────────────────────────────────
+  //  Loading screen 
   if (authLoading) {
     return (
       <div className="min-h-screen bg-[#0B0D13] flex items-center justify-center gap-3">
@@ -359,11 +359,11 @@ export default function KineticMotionPageClient() {
     );
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
+  // 
   return (
     <div className="min-h-screen bg-[#0B0D13] text-slate-100 flex flex-col selection:bg-[#FF5722]/30 selection:text-white pb-28 sm:pb-0">
 
-      {/* ── Top nav ── */}
+      {/*  Top nav  */}
       <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0B0D13]/90 backdrop-blur-xl shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 sm:gap-4">
@@ -375,7 +375,7 @@ export default function KineticMotionPageClient() {
               <span className="hidden sm:inline">All Tools</span>
             </Link>
             <div className="h-4 w-px bg-white/10 hidden sm:block" />
-            <BrandLogo size="sm" showBadge={false} />
+            <BrandLogo size="sm" showBadge={false} variant="dark" />
             <span className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-2.5 py-0.5 text-[11px] font-black text-[#FF5722]">
               <Sparkles size={11} />
               Kinetic Motion Studio
@@ -405,14 +405,14 @@ export default function KineticMotionPageClient() {
         </div>
       </header>
 
-      {/* ── Main ── */}
+      {/*  Main  */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
         {/* Page header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-6">
           <div>
             <div className="flex items-center gap-2 text-xs font-bold text-slate-500 mb-2">
-              <button onClick={() => router.push("/dashboard")} className="hover:text-[#FF5722] transition">← Video Modes</button>
+              <button onClick={() => router.push("/dashboard")} className="hover:text-[#FF5722] transition"> Video Modes</button>
               <span>/</span>
               <span className="text-slate-300">Kinetic Motion</span>
             </div>
@@ -423,7 +423,7 @@ export default function KineticMotionPageClient() {
               </span>
             </h1>
             <p className="mt-1 text-sm text-zinc-400 max-w-lg">
-              Transform speech into dynamic, animated kinetic text — 11 motion presets, 1080p Full HD, instant cloud render.
+              Transform speech into dynamic, animated kinetic text  11 motion presets, 1080p Full HD, instant cloud render.
             </p>
           </div>
           <div className="flex flex-wrap gap-2 shrink-0">
@@ -431,12 +431,12 @@ export default function KineticMotionPageClient() {
               <Sparkles size={11} className="text-[#FF5722]" /> 11 Motion Presets
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-[#151E30] border border-white/10 px-3 py-1 text-xs font-bold text-slate-300">
-              9:16 · 1080p
+              9:16  1080p
             </span>
           </div>
         </div>
 
-        {/* ── Tab: Studio ── */}
+        {/*  Tab: Studio  */}
         {activeTab === "studio" && (
           <>
             {(isWorking || isReady || isError) ? (
@@ -484,13 +484,13 @@ export default function KineticMotionPageClient() {
           </>
         )}
 
-        {/* ── Tab: History ── */}
+        {/*  Tab: History  */}
         {activeTab === "history" && (
           <section className="space-y-5">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-black text-white">Recent Kinetic Motion Renders</h2>
               <button onClick={() => setActiveTab("studio")} className="text-xs font-bold text-[#FF5722] hover:text-[#FFA000] transition">
-                ← Back to Studio
+                 Back to Studio
               </button>
             </div>
 

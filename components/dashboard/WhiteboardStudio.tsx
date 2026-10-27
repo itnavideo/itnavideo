@@ -17,6 +17,7 @@ import {
   ShieldCheck,
   Play,
   Layers3,
+  Film,
 } from "lucide-react";
 import { BorderBeam } from "@/components/magicui/BorderBeam";
 
@@ -37,6 +38,12 @@ interface WhiteboardStudioProps {
   onToggleSfx?: (val: boolean) => void;
 
   onGenerate: () => void;
+  onPlanStoryboard?: () => void;
+  isPlanning?: boolean;
+  plan?: any;
+  setPlan?: (plan: any) => void;
+  studioStep?: "inputs" | "storyboard";
+  setStudioStep?: (step: "inputs" | "storyboard") => void;
   isGenerating: boolean;
 }
 
@@ -54,6 +61,8 @@ export function WhiteboardStudio({
   onToggleSfx,
   onGenerate,
   isGenerating,
+  isPlanning,
+  studioStep = 'inputs',
 }: WhiteboardStudioProps) {
   const [internalSfx, setInternalSfx] = React.useState<boolean>(true);
   const sfxEnabled = enableSfx !== undefined ? enableSfx : internalSfx;
@@ -87,6 +96,7 @@ export function WhiteboardStudio({
   return (
     <div className="space-y-8">
       {/* 2-Column Standardized Studio Layout */}
+      {studioStep === "inputs" && (
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Panel: Input Controls (8 cols) */}
         <div className="lg:col-span-7 xl:col-span-8 min-w-0 max-w-full overflow-x-hidden space-y-6">
@@ -114,10 +124,10 @@ export function WhiteboardStudio({
 
               {/* Strict 9:16 Vertical Shorts Format Badge */}
               <div className="inline-flex items-center gap-2 rounded-2xl border border-orange-500/30 bg-orange-500/10 px-4 py-2 text-xs font-bold text-orange-400 shadow-inner shrink-0">
-                <span className="text-base">📱</span>
+                <span className="text-base"></span>
                 <div>
                   <div className="text-[11px] font-black uppercase tracking-wider text-[#FFA000]">Strictly 9:16 Vertical</div>
-                  <div className="text-[10px] text-zinc-400">1080×1920 Full HD • Up to 90s</div>
+                  <div className="text-[10px] text-zinc-400">10801920 Full HD  Up to 90s</div>
                 </div>
               </div>
             </div>
@@ -170,13 +180,13 @@ export function WhiteboardStudio({
                 <div className="rounded-2xl border border-white/10 bg-[#0B0F19] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-3.5 min-w-0">
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#FF5722]/15 text-[#FFA000] border border-[#FF5722]/30">
-                      <span className="text-xl">🎙️</span>
+                      <span className="text-xl"></span>
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-bold text-white truncate">{selectedFile.name}</p>
                       <div className="flex items-center gap-2 text-xs text-zinc-400 mt-0.5">
                         <span>{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</span>
-                        <span>•</span>
+                        <span></span>
                         <span className="text-emerald-400 font-semibold">Ready for AI Planning</span>
                       </div>
                     </div>
@@ -284,7 +294,7 @@ export function WhiteboardStudio({
                   <span className="text-xs font-bold text-zinc-300">Marker Accent Color:</span>
                   <div className="grid grid-cols-2 gap-2">
                     {[
-                      { id: "auto", label: "⚡ Auto AI", bg: "bg-gradient-to-r from-[#FF5722] to-[#FFA000]" },
+                      { id: "auto", label: " Auto AI", bg: "bg-gradient-to-r from-[#FF5722] to-[#FFA000]" },
                       { id: "navy", label: "Executive Navy", bg: "bg-blue-600" },
                       { id: "teal", label: "Emerald Green", bg: "bg-emerald-600" },
                       { id: "crimson", label: "Impact Crimson", bg: "bg-red-600" },
@@ -331,7 +341,7 @@ export function WhiteboardStudio({
                         : "bg-zinc-800 border-zinc-700 text-zinc-400"
                     }`}
                   >
-                    {sfxEnabled ? "✓ Active (30% Writing SFX)" : "Muted"}
+                    {sfxEnabled ? " Active (30% Writing SFX)" : "Muted"}
                   </button>
                 </div>
               </div>
@@ -373,14 +383,14 @@ export function WhiteboardStudio({
               {/* Hand-Drawn Sketch Animation Indicator in Center */}
               <div className="relative z-10 my-auto text-center space-y-3 px-2">
                 <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-black/5 border border-black/10 shadow-inner">
-                  <span className="text-3xl animate-bounce">✍️</span>
+                  <span className="text-3xl animate-bounce"></span>
                 </div>
                 <div className="space-y-1">
                   <p className="text-[11px] font-black text-slate-900 leading-snug line-clamp-2">
                     {transcript.trim() ? transcript.slice(0, 60) + "..." : "Upload audio to preview progressive vector drawing reveal"}
                   </p>
                   <p className="text-[9px] text-slate-500 font-medium">
-                    Marker: {activeColor.toUpperCase()} • Progressive Line Sync
+                    Marker: {activeColor.toUpperCase()}  Progressive Line Sync
                   </p>
                 </div>
               </div>
@@ -407,7 +417,7 @@ export function WhiteboardStudio({
                   <Tv size={12} className="text-slate-500" />
                   <span>Resolution</span>
                 </span>
-                <span className="font-bold text-white">1080×1920 (Vertical)</span>
+                <span className="font-bold text-white">10801920 (Vertical)</span>
               </div>
               <div className="flex items-center justify-between text-slate-400">
                 <span className="flex items-center gap-1.5">
@@ -429,7 +439,7 @@ export function WhiteboardStudio({
             <button
               type="button"
               onClick={onGenerate}
-              disabled={isGenerating || !isReadyToRender}
+              disabled={(isGenerating || isPlanning) || !isReadyToRender}
               className={`w-full inline-flex min-h-[52px] items-center justify-center gap-2.5 rounded-2xl text-sm font-black tracking-tight transition-all duration-200 ${
                 !isReadyToRender
                   ? "bg-[#141A28] text-zinc-500 border border-white/10 shadow-inner cursor-not-allowed"
@@ -453,7 +463,7 @@ export function WhiteboardStudio({
                       ? "Transcribing Speech..."
                       : !transcript.trim()
                       ? "Waiting for Script..."
-                      : "Generate AI Whiteboard Video (1 Credit)"}
+                      : studioStep === "inputs" ? "Generate AI Storyboard & Plan" : "Generate AI Whiteboard Video (1 Credit)"}
                   </span>
                 </>
               )}
@@ -461,6 +471,7 @@ export function WhiteboardStudio({
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 }

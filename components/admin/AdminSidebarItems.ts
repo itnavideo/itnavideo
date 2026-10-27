@@ -2,6 +2,7 @@ import {
   LayoutDashboard,
   Users,
   TrendingUp,
+  BarChart3,
   Settings,
 } from "lucide-react";
 
@@ -16,6 +17,11 @@ export const ADMIN_SIDEBAR_ITEMS: SidebarItem[] = [
     label: "Dashboard",
     href: "/admin/dashboard",
     icon: LayoutDashboard,
+  },
+  {
+    label: "Analytics & VC",
+    href: "/admin/analytics",
+    icon: BarChart3,
   },
   {
     label: "Users",

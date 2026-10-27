@@ -445,7 +445,7 @@ export default function CompareExplainerPage() {
             >
               <ArrowLeft size={16} />
             </Link>
-            <BrandLogo />
+            <BrandLogo size="sm" variant="dark" />
           </div>
 
           <div className="flex items-center gap-4">
@@ -539,9 +539,9 @@ export default function CompareExplainerPage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {[
-                      { title: "Tech & Gadgets", example: "iPhone 16 Pro vs Galaxy S25 Ultra", icon: "📱", tag: "Tech" },
-                      { title: "Personal Finance", example: "Debit Card vs Credit Card", icon: "💳", tag: "Finance" },
-                      { title: "Investing & Wealth", example: "SIP vs Lump Sum Investing", icon: "📈", tag: "Investing" },
+                      { title: "Tech & Gadgets", example: "iPhone 16 Pro vs Galaxy S25 Ultra", icon: "", tag: "Tech" },
+                      { title: "Personal Finance", example: "Debit Card vs Credit Card", icon: "", tag: "Finance" },
+                      { title: "Investing & Wealth", example: "SIP vs Lump Sum Investing", icon: "", tag: "Investing" },
                     ].map((item) => (
                       <div
                         key={item.title}

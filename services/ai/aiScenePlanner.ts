@@ -47,6 +47,19 @@ export const ALL_VISUAL_LAYOUTS: VisualLayoutType[] = [
   'fullscreen_statement',
   'data_visualization',
   'broll_overlay',
+  'prompt_window',
+  'calendar_grid',
+  'milestone_ladder',
+  'script_bubble',
+  'roadmap',
+  'vertical_roadmap',
+  'workflow',
+  'vs_battle',
+  'metric_pill',
+  'newspaper_headline',
+  'stamp_badge',
+  'supporting_note',
+  'hook',
 ];
 
 export function normalizeVisualLayout(input?: string): VisualLayoutType {
@@ -56,19 +69,52 @@ export function normalizeVisualLayout(input?: string): VisualLayoutType {
     case 'fullImage':
     case 'fullClip':
     case 'full_bleed_visual':
-    case 'fullscreen_statement':
       return 'full_bleed_visual';
     case 'broll_overlay':
       return 'broll_overlay';
+    case 'fullscreen_statement':
+      return 'fullscreen_statement';
     case 'splitImageText':
     case 'side_by_side':
     case 'split_screen':
+      return 'split_screen';
     case 'image_text':
+      return 'image_text';
     case 'cardIconKeyword':
     case 'card_concept':
+      return 'card_concept';
+    case 'sticky_note':
+    case 'note':
+    case 'memo':
+      return 'sticky_note';
+    case 'numbered_steps':
+    case 'steps':
+    case 'process_steps':
+      return 'numbered_steps';
+    case 'social_post':
+    case 'tweet':
+    case 'post_card':
+      return 'social_post';
+    case 'chat_dialogue':
+    case 'chat':
+    case 'dialogue':
+    case 'conversation':
+      return 'chat_dialogue';
+    case 'vector_concept':
+    case 'vector_drawing':
+    case 'illustration':
+      return 'vector_concept';
+    case 'search_discovery':
+    case 'search_bar':
+    case 'typing_search':
+      return 'search_discovery';
+    case 'donut_breakdown':
+    case 'donut_chart':
+    case 'pareto':
+      return 'donut_breakdown';
     case 'bigKeyword':
     case 'big_typography':
-      return 'full_bleed_visual';
+      return 'big_typography';
     case 'quote':
       return 'quote';
     case 'iconList':
@@ -83,14 +129,68 @@ export function normalizeVisualLayout(input?: string): VisualLayoutType {
       return 'data_visualization';
     case 'comparison':
       return 'comparison';
+    case 'timeline':
+    case 'roadmap':
+    case 'milestone':
+      return 'timeline';
     case 'chapterTitle':
     case 'chapter_title':
       return 'chapter_title';
     case 'screenshot_highlight':
     case 'web_mockup':
       return 'screenshot_highlight';
-    case 'image_text':
-      return 'image_text';
+    case 'workflow':
+    case 'pipeline':
+    case 'automation':
+      return 'workflow' as any;
+    case 'goal_target':
+    case 'allocation':
+    case 'salary_target':
+      return 'goal_target' as any;
+    case 'prompt':
+    case 'prompt_window':
+    case 'code_prompt':
+    case 'ai_prompt':
+      return 'prompt_window';
+    case 'calendar':
+    case 'calendar_grid':
+    case 'time_block':
+    case 'schedule':
+      return 'calendar_grid';
+    case 'milestone':
+    case 'milestone_ladder':
+    case 'ladder':
+    case 'staircase':
+    case 'progression':
+      return 'milestone_ladder';
+    case 'script_bubble':
+    case 'script':
+    case 'message':
+    case 'outreach':
+      return 'script_bubble';
+    case 'vs_battle':
+    case 'comparison_battle':
+    case 'battle_card':
+    case 'vs':
+      return 'vs_battle';
+    case 'metric_pill':
+    case 'growth_stat':
+    case 'metric_stat':
+      return 'metric_pill';
+    case 'newspaper_headline':
+    case 'breaking_news':
+    case 'headline_card':
+      return 'newspaper_headline';
+    case 'stamp_badge':
+    case 'verified_badge':
+    case 'stamp':
+      return 'stamp_badge';
+    case 'supporting_note':
+    case 'note_card':
+    case 'editorial_note':
+      return 'supporting_note';
+    case 'vertical_roadmap':
+      return 'vertical_roadmap';
     default:
       return 'full_bleed_visual';
   }
@@ -119,7 +219,7 @@ export function extractKeywordEmphasis(text: string, count: number = 2): string[
   if (!text) return [];
   const rawWords = text
     .split(/\s+/)
-    .map((w) => w.replace(/[^\w$%₹]/g, '').trim())
+    .map((w) => w.replace(/[^\p{L}\p{N}$%₹]/gu, '').trim())
     .filter(Boolean);
 
   if (rawWords.length === 0) return [];
@@ -158,7 +258,7 @@ const NarrativeSceneTypeSchema = z.enum([
   'next_point',
 ]);
 
-const VisualLayoutTypeSchema = z.enum([
+export const VisualLayoutTypeSchema = z.enum([
   'full_bleed_visual',
   'chapter_title',
   'card_concept',
@@ -174,7 +274,27 @@ const VisualLayoutTypeSchema = z.enum([
   'numbered_point',
   'fullscreen_statement',
   'data_visualization',
+  'donut_breakdown',
+  'sticky_note',
+  'numbered_steps',
+  'social_post',
+  'chat_dialogue',
+  'vector_concept',
+  'search_discovery',
   'broll_overlay',
+  'prompt_window',
+  'calendar_grid',
+  'milestone_ladder',
+  'script_bubble',
+  'roadmap',
+  'vertical_roadmap',
+  'workflow',
+  'vs_battle',
+  'metric_pill',
+  'newspaper_headline',
+  'stamp_badge',
+  'supporting_note',
+  'hook',
 ]);
 
 const SceneBlueprintItemSchema = z.object({
@@ -192,6 +312,7 @@ const SceneBlueprintItemSchema = z.object({
   highlightedWords: z.array(z.string()).optional().default([]),
   visualAssetRequirement: z.string().optional().default(''),
   visualIntent: z.string().optional().default(''),
+  englishMeaning: z.string().optional().default(''),
   brollSearchQuery: z.string().optional().default(''),
   background: z.string().optional().default('studio-white'),
   fontHierarchy: z
@@ -210,6 +331,25 @@ const SceneBlueprintItemSchema = z.object({
   listItems: z.array(z.string()).optional(),
   chartValuePercent: z.number().optional(),
   numberBadge: z.number().optional(),
+
+  // Visual Graphics Metadata
+  chartItems: z.array(z.object({
+    label: z.string(),
+    value: z.number(),
+    formattedValue: z.string().optional(),
+    color: z.string().optional(),
+  })).optional(),
+  donutSlices: z.array(z.object({
+    label: z.string(),
+    value: z.number(),
+    color: z.string().optional(),
+  })).optional(),
+  chatMessages: z.array(z.object({
+    sender: z.enum(['left', 'right']),
+    text: z.string(),
+  })).optional(),
+  searchQuery: z.string().optional(),
+  vectorDrawingId: z.string().optional(),
 });
 
 export const FullVideoBlueprintSchema = z.object({
@@ -238,18 +378,19 @@ export function enforceEditorialPacingRules(
 
   const rawScenes = blueprint.scenes;
   const processedScenes: SceneBlueprintItem[] = [];
-  const MAX_SHOT_DURATION = 8.0;
+  // YouTube high-retention industry benchmark: visual cuts every 3.5 - 4.2 seconds
+  const MAX_SHOT_DURATION = 4.2;
 
-  // 1. Enforce Max Shot Duration <= 8 seconds by splitting longer scenes into snappy multi-beats
+  // 1. Enforce Max Shot Duration <= 4.2 seconds by splitting longer narration into snappy visual cuts
   for (let i = 0; i < rawScenes.length; i++) {
     const scene = rawScenes[i];
-    const duration = Math.max(1, scene.duration || (scene.narrationSegment.endSeconds ? scene.narrationSegment.endSeconds - scene.narrationSegment.startSeconds : 5));
+    const duration = Math.max(1, scene.duration || (scene.narrationSegment.endSeconds ? scene.narrationSegment.endSeconds - scene.narrationSegment.startSeconds : 4));
 
     if (duration > MAX_SHOT_DURATION) {
       const parts = Math.ceil(duration / MAX_SHOT_DURATION);
       const partDuration = Math.round((duration / parts) * 10) / 10;
       const words = (scene.narrationSegment.text || '').split(/\s+/).filter(Boolean);
-      const wordsPerPart = Math.ceil(words.length / parts);
+      const wordsPerPart = Math.max(1, Math.ceil(words.length / parts));
 
       let currentStart = scene.narrationSegment.startSeconds;
 
@@ -261,24 +402,18 @@ export function enforceEditorialPacingRules(
         const partWords = words.slice(p * wordsPerPart, (p + 1) * wordsPerPart);
         const partText = partWords.join(' ') || scene.narrationSegment.text;
 
-        // Alternate layouts for split beats (e.g. Beat 1: Full-Bleed Visual, Beat 2: Stat / Graphic)
-        let subLayout: VisualLayoutType = scene.layoutType;
-        if (p % 2 === 1) {
-          if (subLayout === 'full_bleed_visual' || subLayout === 'split_screen') {
-            subLayout = 'stat_card';
-          } else {
-            subLayout = 'full_bleed_visual';
-          }
-        }
+        // Alternate visual layouts across snappy cuts: Vector Concept <-> Split Screen
+        const subLayout: VisualLayoutType = p % 2 === 0 ? 'vector_concept' : 'split_screen';
 
         const emphasis = extractKeywordEmphasis(partText, 2);
+        const beatSearchQuery = emphasis.length > 0 ? emphasis.join(' ') : partText.slice(0, 30);
 
         processedScenes.push({
           ...scene,
           sceneNumber: processedScenes.length + 1,
           sceneType: p === 0 ? scene.sceneType : 'emphasis',
           layoutType: subLayout,
-          duration: partDuration,
+          duration: Math.max(1, partEnd - currentStart),
           narrationSegment: {
             text: partText,
             startSeconds: currentStart,
@@ -287,8 +422,11 @@ export function enforceEditorialPacingRules(
           heading: p === 0 ? generateCleanConceptHeading(scene.heading) : generateCleanConceptHeading(partText),
           supportingText: p === 0 ? generateCleanTakeaway(scene.supportingText || scene.narrationSegment?.text || '', scene.heading) : generateCleanTakeaway(partText, scene.heading),
           highlightedWords: emphasis.length > 0 ? emphasis : scene.highlightedWords,
-          transition: p === 0 ? scene.transition : 'cut', // Fast cut within split beats
-          SFX: p === 0 ? scene.SFX : 'pop',
+          brollSearchQuery: beatSearchQuery,
+          visualAssetRequirement: beatSearchQuery,
+          visualIntent: `cinematic b-roll for ${beatSearchQuery}`,
+          transition: p === 0 ? scene.transition : 'cut', // Fast cinematic cut within split beats
+          SFX: p === 0 ? scene.SFX : 'woosh',
         });
 
         currentStart = partEnd;
@@ -307,70 +445,46 @@ export function enforceEditorialPacingRules(
     }
   }
 
-  // 2. Enforce Anti-Repetition (No consecutive same layout) & Graphic Diversity (1 non-image per 4-5 scenes)
-  const imageLayouts = new Set<VisualLayoutType>([
-    'full_bleed_visual',
-    'image_text',
-    'split_screen',
-    'card_concept',
-    'broll_overlay',
-    'screenshot_highlight',
-  ]);
-  const nonImageLayoutPool: VisualLayoutType[] = [
-    'stat_card',
-    'checklist',
-    'quote',
-    'data_visualization',
-    'big_typography',
-    'chapter_title',
-  ];
+  // 2. Soft Repetition Preference: Allow up to 2 consecutive scenes of same layout for narrative flow,
+  // but prevent 3 in a row.
+  for (let i = 2; i < processedScenes.length; i++) {
+    const current = processedScenes[i];
+    const prev1 = processedScenes[i - 1];
+    const prev2 = processedScenes[i - 2];
 
-  let consecutiveImageCount = 0;
+    if (current.layoutType === prev1.layoutType && current.layoutType === prev2.layoutType) {
+      // Divert 3rd repetition to complementary explanatory layout (vector storytelling or typography)
+      if (current.layoutType === 'full_bleed_visual' || current.layoutType === 'vector_concept') {
+        current.layoutType = 'big_typography';
+      } else if (current.layoutType === 'big_typography') {
+        current.layoutType = 'supporting_note';
+      } else {
+        current.layoutType = 'vector_concept';
+      }
+    }
+
+    // Strict Chart Evidence Validation: If data_visualization or donut_breakdown lacks valid numbers,
+    // gracefully route to vector_concept or supporting_note instead of fabricating fake percentages or crashing.
+    if (current.layoutType === 'data_visualization') {
+      const hasValidChart = current.chartItems && current.chartItems.length >= 2 && current.chartItems.every(c => c.value > 0);
+      if (!hasValidChart) {
+        current.layoutType = 'vector_concept';
+      }
+    } else if (current.layoutType === 'donut_breakdown') {
+      const hasValidDonut = current.donutSlices && current.donutSlices.length >= 2 && current.donutSlices.every(s => s.value > 0);
+      if (!hasValidDonut) {
+        current.layoutType = 'vector_concept';
+      }
+    } else if (current.layoutType === 'sticky_note') {
+      const noteLength = (current.supportingText || current.heading || '').split(/\s+/).length;
+      if (noteLength > 25) {
+        current.layoutType = 'supporting_note';
+      }
+    }
+  }
 
   for (let i = 0; i < processedScenes.length; i++) {
     const current = processedScenes[i];
-    const prev = i > 0 ? processedScenes[i - 1] : null;
-
-    // Rule: Same layout type lagatar 2 baar nahi
-    if (prev && current.layoutType === prev.layoutType) {
-      if (imageLayouts.has(current.layoutType)) {
-        // Swap to contrasting graphic layout
-        current.layoutType = nonImageLayoutPool[(i + 1) % nonImageLayoutPool.length];
-      } else {
-        // Swap to cinematic full-bleed visual or split screen
-        current.layoutType = i % 2 === 0 ? 'full_bleed_visual' : 'split_screen';
-      }
-    }
-
-    // Track consecutive image scenes
-    if (imageLayouts.has(current.layoutType)) {
-      consecutiveImageCount++;
-      // Rule: Har 4-5 scenes mein ek non-image scene zaroor hona chahiye
-      if (consecutiveImageCount >= 4) {
-        current.layoutType = nonImageLayoutPool[(i * 3) % nonImageLayoutPool.length];
-        consecutiveImageCount = 0;
-      }
-    } else {
-      consecutiveImageCount = 0;
-    }
-
-    // Enrich layout metadata if converted to specialized graphic layout
-    if (current.layoutType === 'stat_card' && !current.statValue) {
-      current.statValue = current.highlightedWords[0] ? `${current.highlightedWords[0].toUpperCase()}` : '98.4%';
-      current.statLabel = current.heading || 'KEY PERFORMANCE METRIC';
-    } else if (current.layoutType === 'checklist' && (!current.listItems || current.listItems.length < 2)) {
-      current.listItems = [
-        current.heading || 'Primary strategic driver',
-        current.supportingText || 'Key execution milestone',
-        'Long-term sustainable outcome',
-      ];
-    } else if (current.layoutType === 'quote' && !current.quoteAuthor) {
-      current.quoteAuthor = undefined;
-    } else if (current.layoutType === 'data_visualization' && !current.chartValuePercent) {
-      current.chartValuePercent = Math.min(95, 60 + ((i * 11) % 35));
-    }
-
-    // Transition & SFX polish:
     // Long-form retention: 60% simple cuts, chapter changes whip/zoom
     if (i === 0) {
       current.transition = 'zoom';
@@ -448,7 +562,7 @@ export function buildDeterministicSceneBlueprint(
     const hasRealMetric = /(\$|€|£|₹)\s*\d+|\b\d+(?:\.\d+)?\s*(%|percent|x|times|crore|lakh|million|billion)\b/i.test(text);
 
     if (i === 0) {
-      layoutType = 'full_bleed_visual';
+      layoutType = 'hook';
       sfx = 'rise';
     } else if (hasRealMetric && typographyAnalysis.statData?.value) {
       layoutType = 'stat_card';
@@ -456,16 +570,33 @@ export function buildDeterministicSceneBlueprint(
     } else if (text.toLowerCase().includes(' vs ') || text.toLowerCase().includes('versus') || text.toLowerCase().includes('instead of')) {
       layoutType = 'comparison';
       sfx = 'hit';
-    } else if (typographyAnalysis.layoutMode === 'list' && typographyAnalysis.listItems && typographyAnalysis.listItems.length >= 3) {
+    } else if (typographyAnalysis.layoutMode === 'list' && typographyAnalysis.listItems && typographyAnalysis.listItems.length >= 2) {
       layoutType = 'checklist';
       sfx = 'pop';
+    } else if (/roadmap|milestone|step by step|timeline|path|journey/i.test(text)) {
+      layoutType = 'roadmap';
+      sfx = 'pop';
+    } else if (/workflow|pipeline|automation|process|system|funnel/i.test(text)) {
+      layoutType = 'workflow';
+      sfx = 'pop';
+    } else if (seg.isChapterStart && seg.id > 1) {
+      layoutType = 'chapter_title';
+      sfx = 'rise';
     } else {
-      // 100% of image/video scenes are Full Bleed Cinematic B-Roll (Zero PPT box feeling)
-      layoutType = 'full_bleed_visual';
-      sfx = i % 3 === 0 ? 'woosh' : 'none';
+      // SVG-First & Kinetic Typography Cadence (90%+ explanatory visual share)
+      const svgLayoutCadence: VisualLayoutType[] = [
+        'vector_concept',
+        'big_typography',
+        'vector_concept',
+        'supporting_note',
+        'vector_concept',
+        'numbered_steps',
+      ];
+      layoutType = svgLayoutCadence[i % svgLayoutCadence.length];
+      sfx = 'woosh';
     }
 
-    if (sfx === 'none' && i % 4 === 0) {
+    if ((sfx as string) === 'none' && i % 4 === 0) {
       sfx = 'woosh';
     }
 
@@ -562,25 +693,53 @@ export async function generateStructuredSceneBlueprint(
     const chunkDecisions: Map<number, any> = new Map();
 
     try {
-      const prompt = `You are an elite YouTube director and motion graphics art director for high-retention faceless explainer videos (Vox, Johnny Harris, Magnates Media style).
+      const prompt = `You are an elite motion graphics art director and visual storyboard director for high-retention 9:16 Vertical Shorts (YouTube Shorts, Instagram Reels, TikTok, Vox/Magnates style).
 
-Analyze these pre-cut narration segments and assign the best visual layout, keywords, and sound effect for each segment.
+Analyze these pre-cut narration segments and plan the visual storyboard for each segment.
 
-CRITICAL EDITORIAL RULES:
-1. FULL-BLEED VISUALS (PRIMARY): At least 40% of scenes MUST use 'full_bleed_visual' with subtle continuous Ken Burns pan/zoom (alternating between stock video clips and images).
-2. CLEAN LAYOUTS (NO UI JUNK): Avoid adding micro-icons, fake browser window controls, or meta-badges around images/cards. Keep overlays strictly clean and minimal.
-3. NO CONSECUTIVE DUPLICATES: Never assign the exact same layout type 2 times in a row. Previous layouts were: ${JSON.stringify(prevLayouts)}.
-4. SCENE VARIETY: Every 4 to 5 scenes, you MUST inject at least one high-impact non-image graphic scene (stat_card, checklist, quote, comparison, data_visualization, big_typography).
-5. CHAPTER HEADERS: If isChapterStart is true, use 'chapter_title' layout with 'rise' SFX.
-6. EMPHASIS KEYWORDS: For every scene, choose 1 or 2 punchy, highest-impact keywords in "highlightedWords" for kinetic text glow / handwriting marker draw.
-7. SFX PACING: Use 'whoosh' on ~1/3 of cuts, 'pop' on text/checklist items, 'rise' on chapter headers, 'hit' on key stats. Use 'none' on ordinary scenes.
+CRITICAL 9:16 VERTICAL MOTION GRAPHICS & SVG RULES:
+1. SVG-FIRST STORYTELLING: SVGs and vector graphics must be substantial, full-canvas storytelling elements — NOT tiny icons! Prioritize animated diagrams, flowcharts, timelines, comparisons, funnels, and process maps.
+2. DYNAMIC VISUAL PACING: Create visual variety across scenes. Prioritize:
+   - 'vector_concept': FULL-BLEED animated SVG diagrams (flowcharts, mind maps, funnels, feedback cycles, timelines, hierarchy pyramids).
+   - 'roadmap': Multi-stage timeline or step-by-step milestone progression.
+   - 'workflow': Process automation pipeline or system architecture.
+   - 'comparison': Side-by-side contrast (before vs after, old vs new, problem vs solution).
+   - 'data_visualization' / 'stat_card': Data charts and high-impact metrics.
+   - 'numbered_steps' / 'checklist': Sequential steps, pillars, or action points.
+   - 'split_screen' / 'card_concept': Kinetic typography cards with geometric accents.
+3. REPETITION PREVENTION: Never repeat the exact same layout 3 times in a row. Previous layouts: ${JSON.stringify(prevLayouts)}.
+4. METRIC & CHART RIGOR:
+   - Use 'data_visualization' ONLY when 2 or more related comparison numbers are explicitly discussed. Provide "chartItems": [{"label": "Before", "value": 10}, {"label": "After", "value": 50}].
+   - Use 'donut_breakdown' ONLY for proportional distributions (e.g. 80/20 rule). Provide "donutSlices": [{"label": "Core", "value": 80}, {"label": "Rest", "value": 20}].
+   - Use 'stat_card' for single standalone metrics (e.g. $10M, 85%, 3.5x).
+   - If NO real numbers exist in the spoken text, DO NOT choose a chart or stat layout!
+5. STORYTELLING & UI RIGOR:
+   - Use 'social_post' ONLY when narration quotes a tweet or post.
+   - Use 'chat_dialogue' ONLY when narration describes a conversation. Provide "chatMessages".
+   - Use 'sticky_note' for a punchy mental rule, caution, or memo (<= 20 words).
+   - Use 'quote' for memorable quotes or powerful mindset takeaways.
+6. CHAPTER HEADERS: If isChapterStart is true and segmentId > 1, use 'chapter_title' layout with 'rise' SFX.
+7. EMPHASIS KEYWORDS: For every scene, choose 1 or 2 punchy, highest-impact keywords in "highlightedWords" for kinetic text glow.
+8. SFX PACING: Use 'whoosh' on cuts, 'pop' on concepts/reveals, 'rise' on chapter headers, 'hit' on key stats.
+9. MULTI-LANGUAGE TRANSLATION: If the narration segment is in Hindi, Hinglish, or regional languages, provide the exact English translation in "englishMeaning".
 
-Available Visual Layout Types:
-- full_bleed_visual (90%+ of video: full-screen 1920x1080 cinematic video/photo with continuous pan/zoom Ken Burns motion and clean contrast headline)
-- chapter_title (cinematic chapter header with chapter number and big title)
-- stat_card (strictly for real metrics with numbers: e.g. $10M, 85%, 3.5x)
-- checklist (bullet items, 3 pillars, steps)
-- comparison (versus, before vs after, pros vs cons)
+Available Visual Layout Types (Vertical 9:16 Canvas):
+- vector_concept (native 9:16 full-screen animated SVG diagrams: flowchart, funnel, mind map, cycle loop, timeline)
+- roadmap (step-by-step milestone progression ladder)
+- workflow (process pipeline or system workflow diagram)
+- comparison (versus, before vs after, pros vs cons side-by-side)
+- split_screen (editorial split with kinetic text and visual accents)
+- chapter_title (cinematic chapter header with title)
+- stat_card (strictly for a single real metric with number: e.g. $10M, 85%, 3.5x)
+- data_visualization (comparison bar chart: requires 2+ explicit numbers in text)
+- donut_breakdown (proportional ring: 80/20 rule or allocation breakdown)
+- sticky_note (skewed paper memo with tape for punchy rules)
+- numbered_steps (vertical 3-step numbered progression card)
+- checklist (bullet items, pillars)
+- quote (memorable quotes or powerful mindset takeaways)
+- social_post (quoted tweet/post from speech)
+- chat_dialogue (two-message exchange)
+- search_discovery (search bar with typed query)
 
 Segments to plan:
 ${JSON.stringify(chunkSegments.map((s) => ({ segmentId: s.id, text: s.text, isChapterStart: s.isChapterStart, chapterNumber: s.chapterNumber })), null, 2)}
@@ -593,9 +752,10 @@ Return a strict JSON object with this EXACT structure:
       "layoutType": "full_bleed_visual",
       "heading": "COMPLETE CONCEPT TITLE (2-4 WORDS, E.G. 'FINANCIAL FREEDOM', NEVER END IN 'AND'/'FOR'/'JUST')",
       "supportingText": "Crisp 4-6 word takeaway concept",
+      "englishMeaning": "Accurate English translation of spoken sentence",
       "highlightedWords": ["keyword1"],
-      "visualAssetRequirement": "Stock b-roll visual description",
-      "brollSearchQuery": "stock search query",
+      "visualAssetRequirement": "Stock b-roll visual description in English",
+      "brollSearchQuery": "english stock keywords (e.g. cuckoo bird tree)",
       "sfx": "whoosh",
       "statValue": "+37%",
       "statLabel": "Annual Growth",
@@ -649,10 +809,12 @@ Return a strict JSON object with this EXACT structure:
         : 'full_bleed_visual';
       if (!decision) {
         // Fallback decision for this segment
-        if (seg.isChapterStart) chosenLayout = 'chapter_title';
+        if (seg.isChapterStart && seg.id > 1) chosenLayout = 'chapter_title';
         else if (hasRealMetric && typographyAnalysis.statData?.value) chosenLayout = 'stat_card';
-        else if (typographyAnalysis.layoutMode === 'list' && typographyAnalysis.listItems && typographyAnalysis.listItems.length >= 3) chosenLayout = 'checklist';
-        else chosenLayout = 'full_bleed_visual';
+        else if (typographyAnalysis.layoutMode === 'list' && typographyAnalysis.listItems && typographyAnalysis.listItems.length >= 2) chosenLayout = 'checklist';
+        else {
+          chosenLayout = sIdx % 2 === 0 ? 'full_bleed_visual' : 'split_screen';
+        }
       }
 
       const safeStatVal = (hasRealMetric && (decision?.statValue || typographyAnalysis.statData?.value))
@@ -686,6 +848,7 @@ Return a strict JSON object with this EXACT structure:
         highlightedWords: keywords,
         visualAssetRequirement: decision?.visualAssetRequirement || assetPlan.brollSearchQuery || '',
         visualIntent: decision?.visualAssetRequirement || assetPlan.visualIntent || 'cinematic visual',
+        englishMeaning: decision?.englishMeaning || '',
         brollSearchQuery: decision?.brollSearchQuery || decision?.visualAssetRequirement || assetPlan.brollSearchQuery || '',
         background: backgroundTheme,
         fontHierarchy: { headingFont, bodyFont },
@@ -714,4 +877,24 @@ Return a strict JSON object with this EXACT structure:
   };
 
   return enforceEditorialPacingRules(rawBlueprint, options);
+}
+
+export type FacelessStickerEvent = {
+  id: string;
+  stickerId: string;
+  start: number;
+  end: number;
+  position?: 'top-right' | 'top-left' | 'center-right' | 'center-left' | 'bottom-right';
+};
+
+/**
+ * Generates context-aware 3D presenter and animated sticker events for faceless long video.
+ * Analyzes speech narration sentiment, keywords, and scene pacing.
+ */
+/**
+ * Faceless videos strictly do NOT use 3D cartoon avatar presenters.
+ * 3D cartoon avatars are reserved exclusively for Compare Explainer.
+ */
+export function generateFacelessStickerEvents(_scenes: SceneBlueprintItem[]): FacelessStickerEvent[] {
+  return [];
 }

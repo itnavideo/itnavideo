@@ -3,43 +3,31 @@ import {
   Loop,
   OffthreadVideo,
   interpolate,
-  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from 'remotion';
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
 import { HandwritingHighlight } from '../../../components/library/HandwritingHighlight';
+import type { BackgroundColorPalette } from '../../../components/backgrounds/BackgroundCatalog';
+import { safeResolveMediaSrc, isVideoMedia } from '../../../utils/safeMedia';
+import { VectorDrawingIcon } from '../../../components/graphics/VectorDrawingIcon';
 
 export interface FullBleedVisualSceneProps {
   scene: SceneBlueprintItem;
   mediaUrl?: string;
   headingFont?: string;
   bodyFont?: string;
+  sceneFrame?: number;
+  palette?: BackgroundColorPalette;
+  renderSeed?: number;
 }
 
-const resolveMediaSrc = (src?: string) => {
-  if (!src) return '';
-  return /^(https?:|data:|blob:)/i.test(src) ? src : staticFile(src.replace(/^\/+/, ''));
-};
-
-const isVideo = (src?: string) => {
-  if (!src) return false;
-  return /\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(src) || src.includes('/video/');
-};
-
-function getContextualEmoji(text: string): string {
-  const t = text.toLowerCase();
-  if (/\b(money|cash|dollar|rupee|wealth|rich|income|profit|revenue|earning|salary|crore|lakh)\b/.test(t)) return '💰';
-  if (/\b(invest|investment|stock|market|crypto|bitcoin|compound|growth|portfolio|mutual\s*fund)\b/.test(t)) return '📈';
-  if (/\b(freedom|free|independent|escape|lifestyle|travel|peace)\b/.test(t)) return '🕊️';
-  if (/\b(focus|discipline|target|goal|habit|routine|consistency|mindset)\b/.test(t)) return '🎯';
-  if (/\b(idea|brain|knowledge|learn|smart|think|strategy|secret|tip)\b/.test(t)) return '💡';
-  if (/\b(power|energy|fast|speed|rapid|growth|rocket|viral)\b/.test(t)) return '⚡';
-  if (/\b(warning|danger|mistake|avoid|lose|loss|broke|debt|risk|trap)\b/.test(t)) return '⚠️';
-  if (/\b(time|future|year|hour|clock|patience|wait|schedule)\b/.test(t)) return '⏳';
-  if (/\b(success|win|winner|champion|trophy|achieve|unlock)\b/.test(t)) return '🏆';
-  if (/\b(book|read|study|summary|author|chapter)\b/.test(t)) return '📚';
-  return '✦';
+function getContextualEmoji(text: string): React.ReactNode {
+  return (
+    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+      <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" />
+    </svg>
+  );
 }
 
 export function FullBleedVisualScene({
@@ -47,43 +35,59 @@ export function FullBleedVisualScene({
   mediaUrl,
   headingFont = 'Montserrat, sans-serif',
   bodyFont = 'Inter, sans-serif',
+  sceneFrame,
+  palette,
+  renderSeed = 0,
 }: FullBleedVisualSceneProps) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
+  // Enforce Scene-Local Frame Law: Measure motion from scene's own start frame
+  const currentFrame = sceneFrame !== undefined ? sceneFrame : frame;
+  const sceneDurationFrames = Math.max(30, Math.round((scene.duration || 5) * fps));
+
   const activeMediaUrl = mediaUrl || scene.visualAssetRequirement || '';
-  const resolvedSrc = resolveMediaSrc(activeMediaUrl);
-  const isVid = isVideo(activeMediaUrl);
+  const resolvedSrc = safeResolveMediaSrc(activeMediaUrl);
+  const isVid = isVideoMedia(activeMediaUrl);
 
-  // Directional Ken Burns rotation based on sceneNumber
-  const motionMode = (scene.sceneNumber || 0) % 4;
+  // Generative Diversity Engine: Camera motion & framing dynamic salt
+  const salt = renderSeed || ((scene.heading?.length || 0) * 13 + (scene.sceneNumber || 1) * 7);
+  const motionMode = ((scene.sceneNumber || 0) + salt) % 5;
 
-  let transformStyle = 'scale(1.05)';
+  // Snappy Entrance Camera Punch
+  const punchScale = interpolate(currentFrame, [0, 4, 10], [1.06, 1.02, 1.0], { extrapolateRight: 'clamp' });
+
+  let transformStyle = 'scale(1.08)';
   if (motionMode === 0) {
-    // Smooth Slow Zoom In (1.0 -> 1.12)
-    const scale = interpolate(frame, [0, 150], [1.0, 1.12], { extrapolateRight: 'clamp' });
-    transformStyle = `scale(${scale})`;
+    const scale = interpolate(currentFrame, [0, sceneDurationFrames], [1.05, 1.25], { extrapolateRight: 'clamp' });
+    transformStyle = `scale(${scale * punchScale})`;
   } else if (motionMode === 1) {
-    // Smooth Slow Zoom Out (1.14 -> 1.02)
-    const scale = interpolate(frame, [0, 150], [1.14, 1.02], { extrapolateRight: 'clamp' });
-    transformStyle = `scale(${scale})`;
+    const scale = interpolate(currentFrame, [0, sceneDurationFrames], [1.25, 1.05], { extrapolateRight: 'clamp' });
+    transformStyle = `scale(${scale * punchScale})`;
   } else if (motionMode === 2) {
-    // Pan Left + Subtle Zoom
-    const transX = interpolate(frame, [0, 150], [0, -35], { extrapolateRight: 'clamp' });
-    transformStyle = `scale(1.08) translateX(${transX}px)`;
+    const transX = interpolate(currentFrame, [0, sceneDurationFrames], [40, -45], { extrapolateRight: 'clamp' });
+    transformStyle = `scale(${1.18 * punchScale}) translateX(${transX}px)`;
+  } else if (motionMode === 3) {
+    const transX = interpolate(currentFrame, [0, sceneDurationFrames], [-45, 40], { extrapolateRight: 'clamp' });
+    transformStyle = `scale(${1.18 * punchScale}) translateX(${transX}px)`;
   } else {
-    // Pan Right + Subtle Zoom
-    const transX = interpolate(frame, [0, 150], [-35, 0], { extrapolateRight: 'clamp' });
-    transformStyle = `scale(1.08) translateX(${transX}px)`;
+    const transY = interpolate(currentFrame, [0, sceneDurationFrames], [-25, 25], { extrapolateRight: 'clamp' });
+    transformStyle = `scale(${1.16 * punchScale}) translateY(${transY}px)`;
   }
 
-  // Fade-in entrance for text overlay
-  const textOpacity = interpolate(frame, [0, 18], [0, 1], { extrapolateRight: 'clamp' });
-  const textTranslateY = interpolate(frame, [0, 18], [20, 0], { extrapolateRight: 'clamp' });
+  // Smooth Spring-like Entrance for Text Overlay
+  const textOpacity = interpolate(currentFrame, [0, 12], [0, 1], { extrapolateRight: 'clamp' });
+  const textTranslateY = interpolate(currentFrame, [0, 12], [28, 0], { extrapolateRight: 'clamp' });
 
-  const headline = scene.heading || '';
-  const highlightWord = (scene.highlightedWords && scene.highlightedWords[0]) || '';
+  const headline = String(scene.heading || '').trim();
+  const rawHighlight = (scene.highlightedWords && typeof scene.highlightedWords[0] === 'string')
+    ? scene.highlightedWords[0].trim()
+    : '';
+  const highlightWord = rawHighlight.length >= 2 ? rawHighlight : '';
   const emoji = getContextualEmoji(`${headline} ${scene.supportingText || ''}`);
+
+  const placementMode = ((scene.sceneNumber || 0) + salt) % 3;
+  const isLight = palette?.isDark === false;
 
   return (
     <div
@@ -93,10 +97,10 @@ export function FullBleedVisualScene({
         width: '100%',
         height: '100%',
         overflow: 'hidden',
-        backgroundColor: '#020617',
+        backgroundColor: 'transparent',
       }}
     >
-      {/* ── 1. Full-Bleed Media with Continuous Cinematic Ken Burns ── */}
+      {/* ── 1. Full-Bleed Media Canvas ── */}
       <div
         style={{
           position: 'absolute',
@@ -105,7 +109,6 @@ export function FullBleedVisualScene({
           height: '100%',
           transform: transformStyle,
           transformOrigin: 'center center',
-          transition: 'transform 0.1s ease-out',
         }}
       >
         {resolvedSrc ? (
@@ -133,89 +136,181 @@ export function FullBleedVisualScene({
             />
           )
         ) : (
-          /* High-End Dark Atmospheric Ambient Fallback */
           <div
             style={{
               width: '100%',
               height: '100%',
-              background: 'radial-gradient(ellipse at center, #1E293B 0%, #0F172A 50%, #020617 100%)',
+              background: isLight
+                ? 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 50%, #F1F5F9 100%)'
+                : 'radial-gradient(ellipse at 50% 40%, #1E1B4B 0%, #0F172A 50%, #020617 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
-          />
+          >
+            <div style={{ transform: 'scale(1.15)', marginTop: '20px' }}>
+              <VectorDrawingIcon
+                keyword={`${headline} ${scene.supportingText || ''}`}
+                size={380}
+                strokeWidth={3.8}
+                animated={true}
+                theme={isLight ? 'light' : 'dark'}
+              />
+            </div>
+          </div>
         )}
       </div>
 
-      {/* ── 2. Cinematic Gradient Vignette (Crucial for subtitle contrast & broadcast punch) ── */}
+      {/* Cinematic Gradient Vignette & Ambient Glow */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          background:
-            'linear-gradient(180deg, rgba(2, 6, 23, 0.75) 0%, rgba(2, 6, 23, 0.12) 40%, rgba(2, 6, 23, 0.88) 100%)',
+          background: isLight
+            ? 'linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.25) 45%, rgba(255, 255, 255, 0.90) 100%)'
+            : (placementMode === 2
+                ? 'linear-gradient(180deg, rgba(2, 6, 23, 0.45) 0%, rgba(2, 6, 23, 0.2) 40%, rgba(2, 6, 23, 0.92) 100%)'
+                : 'linear-gradient(180deg, rgba(2, 6, 23, 0.82) 0%, rgba(2, 6, 23, 0.15) 45%, rgba(2, 6, 23, 0.88) 100%)'),
           pointerEvents: 'none',
         }}
       />
+          <div
+            style={{
+              position: 'absolute',
+              top: '-10%',
+              right: '-5%',
+              width: '55%',
+              height: '55%',
+              background: 'radial-gradient(circle, rgba(255, 160, 0, 0.14) 0%, rgba(255, 87, 34, 0.06) 45%, transparent 75%)',
+              filter: 'blur(40px)',
+              pointerEvents: 'none',
+            }}
+          />
 
-      {/* ── 3. Clean Broadcast Overlay Headline (NO bulky card box — pure cinema feel) ── */}
+      {/* ── 2. Floating Anchor / Category Badge ── */}
+      <div
+        style={{
+          position: 'absolute',
+          top: isLight ? '38px' : '65px',
+          right: placementMode === 1 ? '70px' : '90px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          backgroundColor: isLight ? '#FFFFFF' : 'rgba(7, 11, 20, 0.82)',
+          backdropFilter: 'blur(20px)',
+          border: isLight ? '1.5px solid rgba(255, 87, 34, 0.35)' : '1.5px solid rgba(255, 160, 0, 0.45)',
+          borderRadius: '32px',
+          padding: '8px 22px',
+          boxShadow: isLight
+            ? '0 6px 20px rgba(255, 87, 34, 0.15), 0 2px 6px rgba(15, 23, 42, 0.06)'
+            : '0 12px 32px rgba(0, 0, 0, 0.7), 0 0 20px rgba(255, 87, 34, 0.35)',
+          opacity: textOpacity,
+          transform: `translateY(${textTranslateY}px) scale(${interpolate(currentFrame, [0, 15], [0.8, 1], { extrapolateRight: 'clamp' })})`,
+          zIndex: 20,
+          pointerEvents: 'none',
+        }}
+      >
+        <span
+          style={{
+            fontSize: '24px',
+            filter: 'drop-shadow(0 2px 8px rgba(255, 160, 0, 0.5))',
+            display: 'inline-block',
+            transform: `rotate(${Math.sin(currentFrame / 15) * 4}deg)`,
+          }}
+        >
+          {emoji}
+        </span>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <span
+            style={{
+              fontFamily: headingFont,
+              fontSize: '12px',
+              fontWeight: 900,
+              textTransform: 'uppercase',
+              letterSpacing: '0.12em',
+              color: isLight ? '#FF5722' : '#FFA000',
+            }}
+          >
+            {'KEY INSIGHT'}
+          </span>
+          <span
+            style={{
+              fontFamily: bodyFont,
+              fontSize: '11px',
+              fontWeight: 700,
+              letterSpacing: '0.04em',
+              color: isLight ? '#64748B' : 'rgba(255, 255, 255, 0.75)',
+            }}
+          >
+            CHAPTER 0{Math.min(9, Math.max(1, Number(scene.numberBadge) || scene.sceneNumber || 1))}
+          </span>
+        </div>
+      </div>
+
+      {/* ── 3. Dynamic Headline & Supporting Text Overlay ── */}
       {headline && (
         <div
           style={{
             position: 'absolute',
-            top: '85px',
-            left: 0,
-            right: 0,
+            ...(isLight
+              ? { top: '35px', left: '100px', right: '400px', alignItems: 'flex-start' }
+              : placementMode === 2
+              ? { bottom: '150px', left: '100px', right: '100px', alignItems: 'flex-start' }
+              : placementMode === 1
+              ? { top: '85px', left: '100px', right: '100px', alignItems: 'flex-start' }
+              : { top: '85px', left: 0, right: 0, alignItems: 'center' }),
             opacity: textOpacity,
             transform: `translateY(${textTranslateY}px)`,
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
-            alignItems: 'center',
-            padding: '0 80px',
+            padding: !isLight && placementMode === 0 ? '0 100px' : '0',
             pointerEvents: 'none',
             zIndex: 15,
-            gap: '14px',
+            gap: isLight ? '8px' : '16px',
           }}
         >
-          {emoji && emoji !== '✦' && (
-            <div
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                backgroundColor: 'rgba(2, 6, 23, 0.65)',
-                backdropFilter: 'blur(12px)',
-                border: '1px solid rgba(255, 255, 255, 0.22)',
-                borderRadius: '24px',
-                padding: '6px 18px',
-                fontSize: '20px',
-                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.6)',
-              }}
-            >
-              <span>{emoji}</span>
-            </div>
-          )}
-
-          <h1
+          <div
             style={{
-              fontFamily: headingFont,
-              fontSize: '54px',
-              fontWeight: 900,
-              color: '#FFFFFF',
-              letterSpacing: '-0.025em',
-              lineHeight: 1.2,
-              margin: 0,
-              maxWidth: '1300px',
-              textAlign: 'center',
-              textShadow:
-                '0 4px 30px rgba(0, 0, 0, 0.98), 0 2px 12px rgba(0, 0, 0, 0.95), 0 0 50px rgba(0, 0, 0, 0.8)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '18px',
             }}
           >
-            {highlightWord && headline.toLowerCase().includes(highlightWord.toLowerCase()) ? (
+            {(isLight || placementMode === 1) && (
+              <div
+                style={{
+                  width: '6px',
+                  alignSelf: 'stretch',
+                  borderRadius: '3px',
+                  background: 'linear-gradient(180deg, #FF5722, #FFA000)',
+                  boxShadow: '0 0 14px rgba(255, 87, 34, 0.8)',
+                }}
+              />
+            )}
+            <h1
+              style={{
+                fontFamily: headingFont,
+                fontSize: isLight ? '48px' : placementMode === 0 ? '74px' : '68px',
+                fontWeight: 900,
+                color: isLight ? '#0F172A' : '#FFFFFF',
+                letterSpacing: '-0.025em',
+                lineHeight: 1.15,
+                margin: 0,
+                maxWidth: isLight ? '1100px' : placementMode === 0 ? '1420px' : '1100px',
+                textAlign: !isLight && placementMode === 0 ? 'center' : 'left',
+                textShadow: isLight
+                  ? '0 2px 10px rgba(255, 255, 255, 0.9)'
+                  : '0 4px 35px rgba(0, 0, 0, 0.98), 0 2px 14px rgba(0, 0, 0, 0.95), 0 0 60px rgba(0, 0, 0, 0.85)',
+              }}
+            >
+              {highlightWord && headline.toLowerCase().includes(highlightWord.toLowerCase()) ? (
                 <>
                   {headline.slice(0, headline.toLowerCase().indexOf(highlightWord.toLowerCase()))}
                   <HandwritingHighlight
                     text={highlightWord.toUpperCase()}
                     variant="underline"
-                    color="#FFA000"
+                    color="#FF5722"
                     delayFrames={10}
                   />
                   {headline.slice(
@@ -226,6 +321,33 @@ export function FullBleedVisualScene({
                 headline
               )}
             </h1>
+          </div>
+
+          {/* Supporting Insight Copy */}
+          {scene.supportingText && scene.supportingText.trim().toLowerCase() !== headline.toLowerCase() && (
+            <p
+              style={{
+                fontFamily: bodyFont,
+                fontSize: isLight ? '20px' : '28px',
+                fontWeight: 600,
+                color: isLight ? '#334155' : 'rgba(255, 255, 255, 0.94)',
+                lineHeight: 1.4,
+                margin: 0,
+                maxWidth: isLight ? '900px' : placementMode === 0 ? '1180px' : '920px',
+                textAlign: !isLight && placementMode === 0 ? 'center' : 'left',
+                textShadow: isLight ? 'none' : '0 3px 18px rgba(0, 0, 0, 0.98), 0 1px 6px rgba(0, 0, 0, 0.9)',
+                backgroundColor: isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(2, 6, 23, 0.55)',
+                backdropFilter: 'blur(10px)',
+                padding: isLight ? '4px 16px' : '8px 20px',
+                borderRadius: '10px',
+                border: isLight ? '1px solid rgba(15, 23, 42, 0.08)' : '1px solid rgba(255, 255, 255, 0.1)',
+                display: 'inline-block',
+                boxShadow: isLight ? '0 2px 8px rgba(15, 23, 42, 0.05)' : undefined,
+              }}
+            >
+              {scene.supportingText}
+            </p>
+          )}
         </div>
       )}
     </div>

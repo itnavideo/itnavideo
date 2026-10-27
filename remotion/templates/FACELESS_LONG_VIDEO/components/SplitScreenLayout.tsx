@@ -16,31 +16,17 @@ export interface SplitScreenLayoutProps {
   mediaUrl?: string;
   headingFont?: string;
   bodyFont?: string;
+  sceneFrame?: number;
 }
 
-const resolveMediaSrc = (src?: string) => {
-  if (!src) return '';
-  return /^(https?:|data:|blob:)/i.test(src) ? src : staticFile(src.replace(/^\/+/, ''));
-};
+import { safeResolveMediaSrc, isVideoMedia, isValidMediaUrl } from '../../../utils/safeMedia';
 
-const isVideo = (src?: string) => {
-  if (!src) return false;
-  return /\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(src) || src.includes('/video/');
-};
-
-function getContextualEmoji(text: string): string {
-  const t = text.toLowerCase();
-  if (/\b(money|cash|dollar|rupee|wealth|rich|income|profit|revenue|earning|salary|crore|lakh)\b/.test(t)) return '💰';
-  if (/\b(invest|investment|stock|market|crypto|bitcoin|compound|growth|portfolio|mutual\s*fund)\b/.test(t)) return '📈';
-  if (/\b(freedom|free|independent|escape|lifestyle|travel|peace)\b/.test(t)) return '🕊️';
-  if (/\b(focus|discipline|target|goal|habit|routine|consistency|mindset)\b/.test(t)) return '🎯';
-  if (/\b(idea|brain|knowledge|learn|smart|think|strategy|secret|tip)\b/.test(t)) return '💡';
-  if (/\b(power|energy|fast|speed|rapid|growth|rocket|viral)\b/.test(t)) return '⚡';
-  if (/\b(warning|danger|mistake|avoid|lose|loss|broke|debt|risk|trap)\b/.test(t)) return '⚠️';
-  if (/\b(time|future|year|hour|clock|patience|wait|schedule)\b/.test(t)) return '⏳';
-  if (/\b(success|win|winner|champion|trophy|achieve|unlock)\b/.test(t)) return '🏆';
-  if (/\b(book|read|study|summary|author|chapter)\b/.test(t)) return '📚';
-  return '';
+function getContextualEmoji(text: string): React.ReactNode {
+  return (
+    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+      <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" />
+    </svg>
+  );
 }
 
 export function SplitScreenLayout({
@@ -48,30 +34,50 @@ export function SplitScreenLayout({
   mediaUrl,
   headingFont = 'Montserrat, sans-serif',
   bodyFont = 'Inter, sans-serif',
+  sceneFrame,
 }: SplitScreenLayoutProps) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // Smooth Editorial Slide Entrance
+  // Enforce Scene-Local Frame Law: Measure motion from scene's own start frame
+  const currentFrame = sceneFrame !== undefined ? sceneFrame : frame;
+  const sceneDurationFrames = Math.max(30, Math.round((scene.duration || 4) * fps));
+
+  // Smooth Editorial Slide Entrance on Each Scene Transition
   const leftEntrance = spring({
-    frame,
+    frame: currentFrame,
     fps,
-    config: { damping: 16, mass: 0.9 },
+    config: { damping: 14, mass: 0.8 },
   });
 
-  const leftTranslateX = interpolate(leftEntrance, [0, 1], [-60, 0]);
+  const leftTranslateX = interpolate(leftEntrance, [0, 1], [-50, 0]);
   const leftOpacity = interpolate(leftEntrance, [0, 1], [0, 1]);
 
   const activeMediaUrl = mediaUrl || scene.visualAssetRequirement || '';
-  const resolvedSrc = resolveMediaSrc(activeMediaUrl);
-  const isVid = isVideo(activeMediaUrl);
+  const resolvedSrc = safeResolveMediaSrc(activeMediaUrl);
+  const isVid = isVideoMedia(activeMediaUrl);
 
   const headline = scene.heading || 'KEY PRINCIPLE';
   const highlightWord = (scene.highlightedWords && scene.highlightedWords[0]) || '';
   const emoji = getContextualEmoji(`${headline} ${scene.supportingText || ''}`);
 
-  // Continuous subtle Ken Burns on the right-hand media panel (1.0 -> 1.09x)
-  const mediaScale = interpolate(frame, [0, 180], [1.0, 1.09], { extrapolateRight: 'clamp' });
+  // Dynamic Camera Motion on the Media Panel (Snappy Zoom & Pan)
+  const motionMode = (scene.sceneNumber || 0) % 3;
+  let mediaTransform = 'scale(1.08)';
+
+  if (motionMode === 0) {
+    // Dynamic Zoom In (1.05 -> 1.22)
+    const scale = interpolate(currentFrame, [0, sceneDurationFrames], [1.05, 1.22], { extrapolateRight: 'clamp' });
+    mediaTransform = `scale(${scale})`;
+  } else if (motionMode === 1) {
+    // Dynamic Zoom Out (1.22 -> 1.05)
+    const scale = interpolate(currentFrame, [0, sceneDurationFrames], [1.22, 1.05], { extrapolateRight: 'clamp' });
+    mediaTransform = `scale(${scale})`;
+  } else {
+    // Subtle Pan + Overscan
+    const panX = interpolate(currentFrame, [0, sceneDurationFrames], [20, -25], { extrapolateRight: 'clamp' });
+    mediaTransform = `scale(1.15) translateX(${panX}px)`;
+  }
 
   return (
     <div
@@ -149,7 +155,7 @@ export function SplitScreenLayout({
         <h1
           style={{
             fontFamily: headingFont,
-            fontSize: '52px',
+            fontSize: '64px',
             fontWeight: 900,
             lineHeight: 1.15,
             color: '#FFFFFF',
@@ -183,10 +189,10 @@ export function SplitScreenLayout({
           <p
             style={{
               fontFamily: bodyFont,
-              fontSize: '24px',
-              fontWeight: 500,
-              lineHeight: 1.5,
-              color: '#94A3B8',
+              fontSize: '30px',
+              fontWeight: 600,
+              lineHeight: 1.45,
+              color: '#E2E8F0',
               margin: 0,
               maxWidth: '680px',
             }}
@@ -212,7 +218,7 @@ export function SplitScreenLayout({
             inset: 0,
             width: '100%',
             height: '100%',
-            transform: `scale(${mediaScale})`,
+            transform: mediaTransform,
             transformOrigin: 'center center',
           }}
         >

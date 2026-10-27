@@ -365,16 +365,43 @@ export const UNIVERSAL_CAPTION_THEMES: CaptionThemePreset[] = [
 
 export const UNIVERSAL_STICKER_PACKS: StickerPackPreset[] = [
   {
-    id: 'stickman-dev',
-    name: 'Stickman Creator & Dev Pack',
-    description: 'Animated stickman character drawings for coding, ideas, confusion, graphs, and excitement.',
+    id: '3d-presenter-man',
+    name: '3D Presenter Character Pack',
+    description: 'High-quality 3D rendered character presenter for explainers, questions, warnings, and celebrations.',
     category: 'stickman',
     stickers: [
-      { id: 'stickman-idea', name: 'Idea Lightbulb', src: 'assets/stickman/idea.png', keywords: ['idea', 'think', 'thought', 'solution'] },
-      { id: 'stickman-code', name: 'Coding on Laptop', src: 'assets/stickman/coding.png', keywords: ['code', 'developer', 'programming', 'laptop'] },
-      { id: 'stickman-graph', name: 'Graph Going Up', src: 'assets/stickman/graph.png', keywords: ['growth', 'analytics', 'chart', 'profit'] },
-      { id: 'stickman-confused', name: 'Confused Question', src: 'assets/stickman/confused.png', keywords: ['question', 'problem', 'confused', 'why'] },
-      { id: 'stickman-happy', name: 'Success / Celebration', src: 'assets/stickman/happy.png', keywords: ['success', 'win', 'happy', 'great'] },
+      { id: 'teacher-welcome', name: 'Welcome & Introduction', src: 'assets/stickman/3d-presenter-man/teacher-welcome.png', keywords: ['welcome', 'intro', 'start', 'hello', 'presentation', 'topic'] },
+      { id: 'teacher-thinking', name: 'Thinking & Analysis', src: 'assets/stickman/3d-presenter-man/teacher-thinking.png', keywords: ['think', 'thought', 'question', 'why', 'mystery', 'analysis', 'wonder'] },
+      { id: 'teacher-success', name: 'Success & Winning', src: 'assets/stickman/3d-presenter-man/teacher-success.png', keywords: ['success', 'win', 'rich', 'profit', 'goal', 'achievement', 'great', 'champion'] },
+      { id: 'teacher-warning', name: 'Warning & Caution', src: 'assets/stickman/3d-presenter-man/teacher-warning.png', keywords: ['warning', 'danger', 'mistake', 'loss', 'trap', 'avoid', 'careful', 'risk'] },
+      { id: 'teacher-left', name: 'Pointing Left', src: 'assets/stickman/3d-presenter-man/teacher-left.png', keywords: ['look', 'point', 'option', 'left', 'key', 'rule'] },
+      { id: 'teacher-right', name: 'Pointing Right', src: 'assets/stickman/3d-presenter-man/teacher-right.png', keywords: ['look', 'point', 'detail', 'right', 'important', 'action'] },
+    ],
+  },
+  {
+    id: '2d-presenter-man',
+    name: '2D Presenter Character Pack',
+    description: 'Clean 2D vector style character presenter for whiteboard and modern explainer videos.',
+    category: 'stickman',
+    stickers: [
+      { id: 'teacher-welcome', name: 'Welcome & Introduction', src: 'assets/stickman/2d-presenter-man/teacher-welcome.png', keywords: ['welcome', 'intro', 'start', 'hello'] },
+      { id: 'teacher-thinking', name: 'Thinking & Analysis', src: 'assets/stickman/2d-presenter-man/teacher-thinking.png', keywords: ['think', 'question', 'analysis'] },
+      { id: 'teacher-success', name: 'Success & Celebration', src: 'assets/stickman/2d-presenter-man/teacher-success.png', keywords: ['success', 'win', 'profit', 'goal'] },
+      { id: 'teacher-warning', name: 'Warning & Mistake', src: 'assets/stickman/2d-presenter-man/teacher-warning.png', keywords: ['warning', 'danger', 'mistake', 'risk'] },
+      { id: 'teacher-left', name: 'Pointing Left', src: 'assets/stickman/2d-presenter-man/teacher-left.png', keywords: ['left', 'point', 'rule'] },
+      { id: 'teacher-right', name: 'Pointing Right', src: 'assets/stickman/2d-presenter-man/teacher-right.png', keywords: ['right', 'point', 'note'] },
+    ],
+  },
+  {
+    id: 'stickman-dev',
+    name: 'Stickman Creator & Dev Pack',
+    description: 'Animated character drawings for coding, ideas, confusion, graphs, and excitement.',
+    category: 'stickman',
+    stickers: [
+      { id: 'teacher-welcome', name: 'Welcome & Intro', src: 'assets/stickman/3d-presenter-man/teacher-welcome.png', keywords: ['welcome', 'intro', 'start'] },
+      { id: 'teacher-thinking', name: 'Thinking & Question', src: 'assets/stickman/3d-presenter-man/teacher-thinking.png', keywords: ['idea', 'think', 'thought', 'solution'] },
+      { id: 'teacher-success', name: 'Success / Growth', src: 'assets/stickman/3d-presenter-man/teacher-success.png', keywords: ['growth', 'analytics', 'chart', 'profit', 'win'] },
+      { id: 'teacher-warning', name: 'Warning / Problem', src: 'assets/stickman/3d-presenter-man/teacher-warning.png', keywords: ['question', 'problem', 'confused', 'why', 'warning'] },
     ],
   },
   {
@@ -383,9 +410,9 @@ export const UNIVERSAL_STICKER_PACKS: StickerPackPreset[] = [
     description: 'Clean vector icons for software, databases, servers, and code callouts.',
     category: 'tech-icons',
     stickers: [
-      { id: 'tech-terminal', name: 'Terminal Window', src: 'assets/reusable/icons/terminal.png', keywords: ['terminal', 'command', 'cli'] },
-      { id: 'tech-database', name: 'Database Stack', src: 'assets/reusable/icons/database.png', keywords: ['database', 'data', 'sql'] },
-      { id: 'tech-rocket', name: 'Rocket Launch', src: 'assets/reusable/icons/rocket.png', keywords: ['launch', 'fast', 'speed', 'scale'] },
+      { id: 'tech-terminal', name: 'Terminal Window', src: 'assets/stickman/3d-presenter-man/teacher-thinking.png', keywords: ['terminal', 'command', 'cli'] },
+      { id: 'tech-database', name: 'Database Stack', src: 'assets/stickman/3d-presenter-man/teacher-left.png', keywords: ['database', 'data', 'sql'] },
+      { id: 'tech-rocket', name: 'Rocket Launch', src: 'assets/stickman/3d-presenter-man/teacher-success.png', keywords: ['launch', 'fast', 'speed', 'scale'] },
     ],
   },
 ];

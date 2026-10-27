@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="Control File (.ctl)">
+  <!-- Itnavideo Database Asset: Control File (.ctl) -->
+  <polygon points="60,14 100,34 100,86 60,106 20,86 20,34" fill="#0F172A" stroke="#EAB308" stroke-width="2.5" />
+      <circle cx="60" cy="55" r="18" fill="#CA8A04" stroke="#FEF08A" stroke-width="2" />
+      <text x="60" y="58" fill="#FFFFFF" font-size="8" font-family="sans-serif" font-weight="900" text-anchor="middle">CTL</text>
+      <text x="60" y="86" fill="#FDE047" font-size="7.5" font-family="sans-serif" font-weight="bold" text-anchor="middle">DB METADATA</text>
+      <text x="60" y="96" fill="#94A3B8" font-size="6.5" font-family="sans-serif" text-anchor="middle">SCN &amp; CHECKPOINT</text>
+</svg>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="Java Pool">
+  <!-- Itnavideo Database Asset: Java Pool -->
+  <rect x="16" y="20" width="88" height="80" rx="12" fill="#701A75" stroke="#E879F9" stroke-width="2.5" />
+      <text x="60" y="44" fill="#F5D0FE" font-size="11" font-family="sans-serif" font-weight="900" text-anchor="middle">JAVA POOL</text>
+      <path d="M 45 65 c 4 -8 15 -8 20 0 c -8 4 -12 8 -20 0" fill="none" stroke="#F43F5E" stroke-width="2.5" />
+      <path d="M 48 78 c 4 -6 12 -6 16 0" fill="none" stroke="#F59E0B" stroke-width="2" />
+      <text x="60" y="90" fill="#FFFFFF" font-size="8" font-family="sans-serif" font-weight="bold" text-anchor="middle">JVM Code & Heap</text>
+</svg>

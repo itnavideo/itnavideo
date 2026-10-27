@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="Voting Disk (Cluster Quorum)">
+  <!-- Itnavideo Database Asset: Voting Disk (Cluster Quorum) -->
+  <circle cx="60" cy="60" r="42" fill="#0F172A" stroke="#EAB308" stroke-width="3" />
+      <circle cx="60" cy="60" r="14" fill="#EAB308" />
+      <text x="60" y="64" fill="#78350F" font-size="8" font-family="sans-serif" font-weight="900" text-anchor="middle">CSSD</text>
+      <text x="60" y="32" fill="#FEF08A" font-size="7.5" font-family="sans-serif" font-weight="bold" text-anchor="middle">VOTING DISK</text>
+      <text x="60" y="92" fill="#CBD5E1" font-size="7" font-family="sans-serif" text-anchor="middle">QUORUM ARBITER</text>
+</svg>

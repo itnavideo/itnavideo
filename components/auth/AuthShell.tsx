@@ -30,7 +30,7 @@ export default function AuthShell({
         <section className="hidden lg:flex lg:flex-col lg:justify-between space-y-6">
           <div>
             <div className="mb-6 flex items-center justify-between">
-              <BrandLogo size="md" showTagline />
+              <BrandLogo size="md" showTagline variant="dark" />
               <Link 
                 href="/" 
                 className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-300 transition-all hover:bg-white/10 hover:border-orange-500/40 hover:text-white active:scale-95"
@@ -63,12 +63,15 @@ export default function AuthShell({
             />
 
             <img
-              src="/assets/auth/founder-presenter.png"
+              src="https://res.cloudinary.com/dhouh9idx/image/upload/v1792946360/Professional_Presenter_in_Charcoal_Suit_ty6e33.png"
               alt="Executive Presenter in Charcoal Suit"
               className="relative z-10 max-h-[580px] lg:max-h-[660px] w-auto object-contain drop-shadow-[0_25px_60px_rgba(0,0,0,0.95)] transition-transform duration-500 hover:scale-[1.01]"
               style={{
                 WebkitMaskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)',
                 maskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)'
+              }}
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = '/assets/auth/founder-presenter.png';
               }}
             />
 
@@ -83,7 +86,7 @@ export default function AuthShell({
         {/* Right Form Container Column */}
         <section className="mx-auto w-full max-w-md">
           <div className="flex items-center justify-between mb-4 lg:hidden">
-            <BrandLogo size="sm" />
+            <BrandLogo size="sm" variant="dark" />
             <Link 
               href="/" 
               className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-300 transition-all hover:bg-white/10 hover:text-white"

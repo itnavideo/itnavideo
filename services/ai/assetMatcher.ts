@@ -46,6 +46,8 @@ const VISUAL_TYPE_PREFERENCES: Record<VisualType, { types: AssetMetadata['type']
   product_closeup: { types: ['image', 'video'], styles: ['minimalist', 'corporate'], moods: ['professional', 'neutral'] },
   text_overlay: { types: ['image'], styles: ['minimalist', 'abstract'], moods: ['neutral', 'professional'] },
   data_visualization: { types: ['image', 'illustration'], styles: ['corporate', 'minimalist'], moods: ['professional', 'neutral'] },
+  svg_structured: { types: ['illustration', 'icon'], styles: ['minimalist', 'corporate'], moods: ['professional', 'neutral'] },
+  drawing_story: { types: ['illustration', 'icon', 'image'], styles: ['creative', 'editorial'], moods: ['dramatic', 'energetic', 'calm'] },
   person_portrait: { types: ['image', 'video'], styles: ['editorial', 'cinematic'], moods: ['professional', 'calm'] },
   abstract_motion: { types: ['video', 'lottie'], styles: ['abstract', 'creative'], moods: ['energetic', 'playful'] },
   icon_illustration: { types: ['icon', 'illustration', 'image'], styles: ['minimalist', 'creative'], moods: ['neutral', 'professional'] },

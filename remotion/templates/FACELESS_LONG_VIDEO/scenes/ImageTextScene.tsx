@@ -12,10 +12,7 @@ export interface ImageTextSceneProps {
   bodyFont?: string;
 }
 
-const isVideo = (url?: string) => {
-  if (!url) return false;
-  return /\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(url) || url.includes('/video/');
-};
+import { safeResolveMediaSrc, isVideoMedia } from '../../../utils/safeMedia';
 
 export function ImageTextScene({
   scene,
@@ -96,46 +93,51 @@ export function ImageTextScene({
             boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
           }}
         >
-          {brollUrl ? (
-            isVideo(brollUrl) ? (
-              <Loop durationInFrames={120}>
-                <OffthreadVideo
-                  src={brollUrl}
-                  volume={0}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          {(() => {
+            const resolvedSrc = safeResolveMediaSrc(brollUrl);
+            const isVid = isVideoMedia(brollUrl);
+            if (resolvedSrc) {
+              return isVid ? (
+                <Loop durationInFrames={120}>
+                  <OffthreadVideo
+                    src={resolvedSrc}
+                    volume={0}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                </Loop>
+              ) : (
+                <img
+                  src={resolvedSrc}
+                  alt={scene.heading || 'Scene Visual'}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    transform: `scale(${kenBurnsScale})`,
+                    transition: 'transform 0.1s ease-out',
+                  }}
                 />
-              </Loop>
-            ) : (
-              <img
-                src={brollUrl}
-                alt={scene.heading || 'Scene Visual'}
+              );
+            }
+            return (
+              <div
                 style={{
                   width: '100%',
                   height: '100%',
-                  objectFit: 'cover',
-                  transform: `scale(${kenBurnsScale})`,
-                  transition: 'transform 0.1s ease-out',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: 'linear-gradient(135deg, rgba(30, 27, 75, 0.8) 0%, rgba(49, 46, 129, 0.8) 100%)',
+                  padding: '32px',
+                  textAlign: 'center',
                 }}
-              />
-            )
-          ) : (
-            <div
-              style={{
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'linear-gradient(135deg, rgba(30, 27, 75, 0.8) 0%, rgba(49, 46, 129, 0.8) 100%)',
-                padding: '32px',
-                textAlign: 'center',
-              }}
-            >
-              <span style={{ fontSize: '20px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#A5B4FC' }}>
-                {scene.visualAssetRequirement || ''}
-              </span>
-            </div>
-          )}
+              >
+                <span style={{ fontSize: '20px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#A5B4FC' }}>
+                  {scene.visualAssetRequirement || ''}
+                </span>
+              </div>
+            );
+          })()}
         </div>
       </div>
     </div>

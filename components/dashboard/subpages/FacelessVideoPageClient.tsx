@@ -94,15 +94,19 @@ export default function FacelessVideoPageClient() {
   const [facelessImageFiles, setFacelessImageFiles] = useState<File[]>([]);
   const [assetSourceMode, setAssetSourceMode] = useState<"library" | "upload" | "mix">("library");
   const [topicTitle, setTopicTitle] = useState("");
-  const [facelessBgmMood, setFacelessBgmMood] = useState<"lofi" | "tech" | "mystery" | "acoustic" | "none">("mystery");
-  const [facelessBgmVolume, setFacelessBgmVolume] = useState(0.12);
+  const [facelessBgmMood, setFacelessBgmMood] = useState<"lofi" | "tech" | "mystery" | "acoustic" | "upbeat" | "dynamic" | "none">("upbeat");
+  const [selectedBgmTrackId, setSelectedBgmTrackId] = useState<string>("not-for-nothing-otis-mcdonald");
+  const [selectedBgmUrl, setSelectedBgmUrl] = useState<string>(
+    "https://remotionlambda-useast1-2zq6twaok1.s3.us-east-1.amazonaws.com/assets/reusable/music/not-for-nothing-otis-mcdonald.mp3"
+  );
+  const [facelessBgmVolume, setFacelessBgmVolume] = useState(0.14);
   const [facelessPacingStyle, setFacelessPacingStyle] = useState<"clean" | "cinematic" | "documentary" | "dynamic">("cinematic");
   const [facelessEnableSfx, setFacelessEnableSfx] = useState<boolean>(true);
-  const [subtitleStyle, setSubtitleStyle] = useState<string>("netflix-yellow");
-  const [captionAnimationStyle, setCaptionAnimationStyle] = useState<"mrbeast" | "handwriting" | "bouncy" | "smooth">("mrbeast");
+  const [visualArtStyle, setVisualArtStyle] = useState<"realistic" | "3d" | "2d">("realistic");
+  const [subtitleStyle, setSubtitleStyle] = useState<string>("ali-editorial");
+  const [captionAnimationStyle, setCaptionAnimationStyle] = useState<"mrbeast" | "handwriting" | "bouncy" | "smooth" | "capsule" | "decodingyt">("smooth");
   const [captionPosition, setCaptionPosition] = useState<"bottom" | "center" | "top">("bottom");
-  const [visualArtStyle, setVisualArtStyle] = useState<"realistic">("realistic");
-  const [backgroundTheme, setBackgroundTheme] = useState<string>("midnight-mesh");
+  const [backgroundTheme, setBackgroundTheme] = useState<string>("solid-white");
   const [customBgUrl, setCustomBgUrl] = useState<string>("");
   const [customBgFile, setCustomBgFile] = useState<File | null>(null);
 
@@ -233,7 +237,7 @@ export default function FacelessVideoPageClient() {
     }
   }
 
-  // ── STEP 1 -> 2: Plan & Transcribe Handler ──
+  //  STEP 1 -> 2: Plan & Transcribe Handler 
   const handleTranscribeAndPlan = async (audioFile: File, brandNamesHint?: string) => {
     if (!user) {
       router.push("/login?returnUrl=/dashboard/faceless-video");
@@ -308,7 +312,7 @@ export default function FacelessVideoPageClient() {
     }
   };
 
-  // ── STEP 3 -> 4: Start Render Job with Approved Storyboard ──
+  //  STEP 3 -> 4: Start Render Job with Approved Storyboard 
   const handleStartRender = async (storyboardPayload?: any) => {
     if (!user) {
       router.push("/login?returnUrl=/dashboard/faceless-video");
@@ -321,10 +325,16 @@ export default function FacelessVideoPageClient() {
     if (renderRequestInFlightRef.current) return;
     renderRequestInFlightRef.current = true;
 
-    if (storyboardPayload) {
+    const isActualPayload =
+      storyboardPayload &&
+      typeof storyboardPayload === "object" &&
+      !("nativeEvent" in storyboardPayload) &&
+      !("_reactName" in storyboardPayload);
+
+    if (isActualPayload) {
       lastStoryboardPayloadRef.current = storyboardPayload;
     }
-    const activeStoryboard = storyboardPayload || lastStoryboardPayloadRef.current;
+    const activeStoryboard = (isActualPayload ? storyboardPayload : lastStoryboardPayloadRef.current) || {};
 
     try {
       setJobStatus({
@@ -347,15 +357,9 @@ export default function FacelessVideoPageClient() {
       const plannedTitle =
         activeStoryboard?.topicTitle ||
         topicTitle.trim() ||
-        selectedFile.name.replace(/\.[^/.]+$/, "");
+        (selectedFile?.name ? selectedFile.name.replace(/\.[^/.]+$/, "") : "Faceless Video");
 
       const audioDuration = activeStoryboard?.durationSeconds || 60;
-
-      let resolvedCustomBgUrl = customBgUrl;
-      if (customBgFile) {
-        const bgKey = await uploadFileViaPresign(customBgFile, "facelessVideo", user.id);
-        resolvedCustomBgUrl = await getReadUrlFromKey(bgKey);
-      }
 
       // 2. Submit Render Job with Approved Storyboard Blueprint
       const jobResponse = await fetch("/api/reels/jobs", {
@@ -377,14 +381,16 @@ export default function FacelessVideoPageClient() {
           userEmail: user.email || undefined,
           facelessBgmMood: activeStoryboard?.facelessBgmMood || facelessBgmMood,
           facelessBgmVolume: activeStoryboard?.facelessBgmVolume ?? facelessBgmVolume,
+          bgmUrl: activeStoryboard?.bgmUrl || (facelessBgmMood === "none" ? "" : selectedBgmUrl),
+          bgmTrackId: activeStoryboard?.bgmTrackId || selectedBgmTrackId,
           facelessPacingStyle,
           facelessEnableSfx: activeStoryboard?.facelessEnableSfx ?? facelessEnableSfx,
           aspectRatio: "16:9",
           durationSeconds: audioDuration,
           sourceDurationSeconds: audioDuration,
           mediaAspect: "landscape",
-          backgroundTheme: activeStoryboard?.backgroundTheme || backgroundTheme,
-          customBgUrl: resolvedCustomBgUrl || activeStoryboard?.customBgUrl || customBgUrl,
+          backgroundTheme: "solid-white",
+          customBgUrl: "",
           visualArtStyle: activeStoryboard?.visualArtStyle || visualArtStyle,
           // Pass user-confirmed storyboard data
           sceneBlueprint: activeStoryboard?.sceneBlueprint,
@@ -438,7 +444,7 @@ export default function FacelessVideoPageClient() {
     }
   };
 
-  // ── Polling Engine: Queries backend progress reliably ──
+  //  Polling Engine: Queries backend progress reliably 
   const startPolling = (renderId: string, bucketName: string, title: string, startedAt: number) => {
     if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
 
@@ -606,7 +612,7 @@ export default function FacelessVideoPageClient() {
     }, 3500);
   };
 
-  // ── Cancel Render Handler ──
+  //  Cancel Render Handler 
   const handleConfirmCancel = async () => {
     setIsCancelling(true);
     try {
@@ -650,24 +656,24 @@ export default function FacelessVideoPageClient() {
   const etaSeconds = calculateEtaSeconds();
 
   return (
-    <main className="min-h-screen bg-[#070B14] text-white selection:bg-[#FF5722]/30 selection:text-white">
+    <main className="min-h-screen bg-[#0A0B0E] text-white selection:bg-[#FF5722]/30 selection:text-white">
       {/* ── TOP NAVIGATION ── */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0B0F19]/90 backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-50 border-b border-white/[0.08] bg-[#0E0F14]/90 backdrop-blur-md">
+        <div className="mx-auto flex max-w-[1520px] h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-5">
             <Link
               href="/dashboard"
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-[#0E1526] text-zinc-300 hover:bg-[#141B2D] hover:text-white transition active:scale-95 shadow-xs"
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.05] text-zinc-300 hover:bg-white/[0.1] hover:text-white transition active:scale-95 shadow-xs"
               title="Return to Dashboard"
             >
               <ArrowLeft size={16} />
             </Link>
-            <BrandLogo />
+            <BrandLogo size="sm" variant="dark" />
           </div>
 
           <div className="flex items-center gap-3">
             {billingEntitlement && (
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#0E1526] px-3.5 py-1 text-xs font-semibold text-zinc-300 shadow-xs">
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-[#141519] px-3.5 py-1 text-xs font-semibold text-zinc-300 shadow-xs">
                 <Zap size={13} className="text-[#FF5722]" />
                 <span>{billingEntitlement.usage?.remaining ?? 0} Credits Left</span>
               </div>
@@ -676,10 +682,10 @@ export default function FacelessVideoPageClient() {
         </div>
       </header>
 
-      {/* ── MAIN CONTENT CONTAINER ── */}
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
+      {/* ── MAIN CONTENT CONTAINER (WIDENED TO 1520PX FOR STUDIO WORKSPACE) ── */}
+      <div className="mx-auto max-w-[1520px] px-4 py-8 sm:px-6 lg:px-8 space-y-8">
         {/* Page Title & Badging */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-white/10">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-white/[0.07]">
           <div>
             <div className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-[11px] font-semibold text-orange-400 shadow-xs mb-1.5">
               <Sparkles size={12} className="text-[#FF5722]" />
@@ -706,9 +712,9 @@ export default function FacelessVideoPageClient() {
                 outputFile: jobStatus.outputFile,
                 title: jobStatus.title || topicTitle || selectedFile?.name?.replace(/\.[^/.]+$/, "") || "Faceless AI Video",
               }}
-              title={jobStatus.title || topicTitle || selectedFile?.name?.replace(/\.[^/.]+$/, "") || "Faceless AI Video"}
+              title={jobStatus.title || topicTitle || (selectedFile?.name ? selectedFile.name.replace(/\.[^/.]+$/, "") : "") || "Faceless AI Video"}
               fileName={selectedFile?.name}
-              onRetry={handleStartRender}
+              onRetry={() => handleStartRender()}
               onReset={() => {
                 setSelectedFile(null);
                 setFacelessImageFiles([]);
@@ -743,6 +749,11 @@ export default function FacelessVideoPageClient() {
             onCaptionPositionChange={setCaptionPosition}
             facelessBgmMood={facelessBgmMood}
             onBgmMoodChange={setFacelessBgmMood}
+            selectedBgmTrackId={selectedBgmTrackId}
+            onBgmTrackSelect={(trackId, url) => {
+              setSelectedBgmTrackId(trackId);
+              setSelectedBgmUrl(url);
+            }}
             facelessBgmVolume={facelessBgmVolume}
             onBgmVolumeChange={setFacelessBgmVolume}
             facelessPacingStyle={facelessPacingStyle}
@@ -776,7 +787,7 @@ export default function FacelessVideoPageClient() {
 
         {/* ── RECENT RENDERS ARCHIVE ── */}
         {recentRenders.length > 0 && jobStatus.state === "idle" && (
-          <div className="rounded-3xl border border-white/10 bg-[#0D111D] p-6 shadow-xl space-y-4">
+          <div className="rounded-3xl border border-white/[0.08] bg-[#141519] p-6 shadow-xl space-y-4">
             <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-400">
               Recent Faceless Videos
             </h3>
@@ -784,15 +795,15 @@ export default function FacelessVideoPageClient() {
               {recentRenders.map((render) => (
                 <div
                   key={render.id}
-                  className="rounded-2xl border border-white/10 p-4 space-y-3 bg-[#121624] hover:bg-[#161C2E] transition flex flex-col justify-between"
+                  className="rounded-2xl border border-white/[0.06] p-4 space-y-3 bg-[#181A20] hover:bg-[#1E2028] transition flex flex-col justify-between"
                 >
                   <div>
                     <p className="text-xs font-bold text-white truncate">{render.title}</p>
                     <p className="text-[11px] text-zinc-400 mt-0.5">
-                      {new Date(render.createdAt).toLocaleDateString()} · 16:9 1080p
+                      {new Date(render.createdAt).toLocaleDateString()} • 16:9 1080p
                     </p>
                   </div>
-                  <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                  <div className="flex items-center justify-between pt-2 border-t border-white/[0.06]">
                     <a
                       href={render.outputFile}
                       target="_blank"
@@ -805,7 +816,7 @@ export default function FacelessVideoPageClient() {
                     <a
                       href={render.outputFile}
                       download
-                      className="inline-flex items-center gap-1 text-xs font-bold text-[#FFA000] hover:text-[#FF7043]"
+                      className="inline-flex items-center gap-1 text-xs font-bold text-orange-400 hover:text-orange-300"
                     >
                       <Download size={12} />
                       <span>Download</span>
@@ -821,7 +832,7 @@ export default function FacelessVideoPageClient() {
       {/* ── CANCEL CONFIRMATION MODAL ── */}
       {showCancelModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4">
-          <div className="rounded-3xl border border-white/15 bg-[#0E1526] p-6 max-w-sm w-full space-y-4 shadow-2xl">
+          <div className="rounded-3xl border border-white/[0.1] bg-[#141519] p-6 max-w-sm w-full space-y-4 shadow-2xl">
             <h3 className="text-base font-bold text-white">Cancel Video Generation?</h3>
             <p className="text-xs text-zinc-300 leading-relaxed">
               Are you sure you want to cancel? The render job will stop immediately and any reserved credits will be refunded to your account balance.
@@ -830,7 +841,7 @@ export default function FacelessVideoPageClient() {
               <button
                 type="button"
                 onClick={() => setShowCancelModal(false)}
-                className="rounded-xl border border-white/10 px-3.5 py-2 text-xs font-semibold text-zinc-300 hover:bg-white/5 transition cursor-pointer"
+                className="rounded-xl border border-white/[0.08] px-3.5 py-2 text-xs font-semibold text-zinc-300 hover:bg-white/5 transition cursor-pointer"
               >
                 Keep Rendering
               </button>

@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     title: 'AI Video Generator (Long YT Videos) — Free Online AI Video Maker | Itnavideo',
     description:
       'Turn voiceovers, videos, or scripts into fully produced videos with AI B-roll, music, motion graphics & captions.',
-    images: ['https://storage.googleapis.com/itnavideo-media-assets/file_0000000089c48211b67c16fe3c2636a2_prirg0.png'],
+    images: ['https://res.cloudinary.com/dhouh9idx/image/upload/v1792945592/file_000000004290821180a71f25ad75480e_nztpwe.png'],
   },
 };
 

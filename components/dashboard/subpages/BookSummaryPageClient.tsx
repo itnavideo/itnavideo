@@ -18,7 +18,7 @@ import {
   BookOpen,
 } from "lucide-react";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+//  Types 
 
 type BillingEntitlement = {
   active: boolean;
@@ -52,7 +52,7 @@ type RecentRender = {
   expiresAt: number;
 };
 
-// ─── Component ────────────────────────────────────────────────────────────────
+//  Component 
 
 export default function BookSummaryPageClient() {
   const router = useRouter();
@@ -80,14 +80,14 @@ export default function BookSummaryPageClient() {
   const isReady = jobStatus.state === "ready" || Boolean(jobStatus.outputFile);
   const isError = jobStatus.state === "error";
 
-  // ── Auth redirect ────────────────────────────────────────────────────────────
+  //  Auth redirect 
   useEffect(() => {
     if (!authLoading && !user) {
       router.push("/login");
     }
   }, [user, authLoading, router]);
 
-  // ── Billing entitlement ──────────────────────────────────────────────────────
+  //  Billing entitlement 
   useEffect(() => {
     if (!user) return;
     async function fetchBilling() {
@@ -116,7 +116,7 @@ export default function BookSummaryPageClient() {
     fetchBilling();
   }, [user]);
 
-  // ── Recent renders (localStorage + server history) ───────────────────────────
+  //  Recent renders (localStorage + server history) 
   useEffect(() => {
     try {
       const saved = localStorage.getItem("itnavideo_book_summary_projects");
@@ -170,7 +170,7 @@ export default function BookSummaryPageClient() {
     fetchHistory();
   }, [user]);
 
-  // ── Live timer tick during render ────────────────────────────────────────────
+  //  Live timer tick during render 
   useEffect(() => {
     const isActive =
       jobStatus.state === "uploading" ||
@@ -183,7 +183,7 @@ export default function BookSummaryPageClient() {
     return () => clearInterval(interval);
   }, [jobStatus.state, renderStartedAt]);
 
-  // ── Cancel handler ───────────────────────────────────────────────────────────
+  //  Cancel handler 
   const handleCancelProcess = async () => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -222,7 +222,7 @@ export default function BookSummaryPageClient() {
     router.push("/dashboard");
   };
 
-  // ── onStartRender — called by BookSummaryStudio when user clicks "Render" ────
+  //  onStartRender  called by BookSummaryStudio when user clicks "Render" 
   const handleStartRender = async (payload: {
     mode: string;
     template: string;
@@ -262,7 +262,7 @@ export default function BookSummaryPageClient() {
         progress: 0.1,
       });
 
-      // The audio is already uploaded by BookSummaryStudio — audioUrl is a cloud URL.
+      // The audio is already uploaded by BookSummaryStudio  audioUrl is a cloud URL.
       // We need its S3 key (relative path) for the jobs route's mediaKey field.
       // Pass the full audioUrl as mediaKey so the backend can resolve it.
       const jobResponse = await fetch("/api/reels/jobs", {
@@ -327,7 +327,7 @@ export default function BookSummaryPageClient() {
           setJobStatus({
             state: "error",
             message:
-              "Render took longer than expected. Your video is still processing in the cloud — check your Projects tab shortly.",
+              "Render took longer than expected. Your video is still processing in the cloud  check your Projects tab shortly.",
           });
           return;
         }
@@ -429,7 +429,7 @@ export default function BookSummaryPageClient() {
     }
   };
 
-  // ── Download helper ──────────────────────────────────────────────────────────
+  //  Download helper 
   const downloadVideoDirectly = async (url: string, filename: string) => {
     try {
       setDownloadingUrl(url);
@@ -450,14 +450,14 @@ export default function BookSummaryPageClient() {
     }
   };
 
-  // ── Reset ────────────────────────────────────────────────────────────────────
+  //  Reset 
   const handleReset = () => {
     setJobStatus({ state: "idle" });
     setRenderStartedAt(null);
     setElapsedSeconds(0);
   };
 
-  // ── Derived state ────────────────────────────────────────────────────────────
+  //  Derived state 
   const userRemainingCredits = billingEntitlement?.active
     ? Math.round(billingEntitlement.usage?.remaining ?? billingEntitlement.monthlyVideoLimit ?? 0)
     : undefined;
@@ -468,7 +468,7 @@ export default function BookSummaryPageClient() {
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  // ── Loading screen ───────────────────────────────────────────────────────────
+  //  Loading screen 
   if (authLoading) {
     return (
       <div className="min-h-screen bg-[#0B0D13] flex flex-col items-center justify-center text-zinc-400 gap-3">
@@ -478,11 +478,11 @@ export default function BookSummaryPageClient() {
     );
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
+  // 
   return (
     <div className="min-h-screen bg-[#0B0D13] text-white flex flex-col selection:bg-[#FF5722]/30 selection:text-white pb-12">
 
-      {/* ── Top Navigation Bar (Google Analytics Obsidian Surface) ── */}
+      {/*  Top Navigation Bar (Google Analytics Obsidian Surface)  */}
       <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0E1017]/90 backdrop-blur-xl shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-16 py-2 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
           {/* Left: back + logo */}
@@ -497,7 +497,7 @@ export default function BookSummaryPageClient() {
             </button>
 
             <div className="h-4 w-px bg-white/10 hidden sm:block" />
-            <BrandLogo size="sm" showBadge={false} />
+            <BrandLogo size="sm" showBadge={false} variant="dark" />
 
             <span className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-2.5 py-0.5 text-[11px] font-black text-[#FF9100]">
               <BookOpen size={11} />
@@ -547,7 +547,7 @@ export default function BookSummaryPageClient() {
         </div>
       </header>
 
-      {/* ── Main Canvas ────────────────────────────────────────────────────────── */}
+      {/*  Main Canvas  */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
         {/* Hero banner: Expansive 16:9 Widescreen Book Summary Studio Header */}
@@ -588,7 +588,7 @@ export default function BookSummaryPageClient() {
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/5 px-3.5 py-2.5 backdrop-blur-sm">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Duration Limit</div>
-                <div className="text-xs font-black text-white mt-0.5">Up to 10 Min (600s)</div>
+                <div className="text-xs font-black text-white mt-0.5">Up to 5 Min (300s)</div>
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/5 px-3.5 py-2.5 backdrop-blur-sm">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Pricing</div>
@@ -598,7 +598,7 @@ export default function BookSummaryPageClient() {
           </div>
         </div>
 
-        {/* ── Active Cloud Render Stage (Unified InteractiveRenderEngine) ────────── */}
+        {/*  Active Cloud Render Stage (Unified InteractiveRenderEngine)  */}
         {(isWorking || isReady || isError) ? (
           <div className="max-w-4xl mx-auto py-4">
             <InteractiveRenderEngine
@@ -617,7 +617,7 @@ export default function BookSummaryPageClient() {
             />
           </div>
         ) : (
-          /* ── Tab: Studio (Form is only shown when idle) ─────────────────────── */
+          /*  Tab: Studio (Form is only shown when idle)  */
           activeTab === "studio" && (
             <BookSummaryStudio
               onStartRender={handleStartRender}
@@ -629,7 +629,7 @@ export default function BookSummaryPageClient() {
           )
         )}
 
-        {/* ── Tab: History ───────────────────────────────────────────────────────── */}
+        {/*  Tab: History  */}
         {activeTab === "history" && (
           <section className="space-y-5">
             <div className="flex items-center justify-between">
@@ -639,7 +639,7 @@ export default function BookSummaryPageClient() {
                 onClick={() => setActiveTab("studio")}
                 className="text-xs font-bold text-[#FF5722] hover:text-[#FFA000] transition"
               >
-                ← Back to Studio
+                 Back to Studio
               </button>
             </div>
 
@@ -739,7 +739,7 @@ export default function BookSummaryPageClient() {
         )}
       </main>
 
-      {/* ── Exit Confirmation Modal ─────────────────────────────────────────────── */}
+      {/*  Exit Confirmation Modal  */}
       {showExitConfirmModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="w-full max-w-sm mx-4 rounded-[28px] border border-white/10 bg-[#0E1526] p-8 space-y-5 shadow-2xl">

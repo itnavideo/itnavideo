@@ -84,7 +84,7 @@ export function buildCaptionStyleCatalog(): Record<string, CaptionStyleCatalogIt
   // 1. Assign preferred direct matches
   for (const key of allStyleKeys) {
     const preferredFile = PREFERRED_STYLE_FILE_MAP[key];
-    if (preferredFile && TRANSCRIPT_DATA[preferredFile] && !assignedFilenames.has(preferredFile)) {
+    if (preferredFile && TRANSCRIPT_DATA[preferredFile]) {
       const data = TRANSCRIPT_DATA[preferredFile];
       const publicId = data.publicId || preferredFile.replace(/\.mp4$/i, "");
       catalog[key] = {
@@ -109,7 +109,8 @@ export function buildCaptionStyleCatalog(): Record<string, CaptionStyleCatalogIt
     if (catalog[key]) continue;
     const nextFile = remainingFiles[remainingIdx % remainingFiles.length] || RAW_FILENAMES[remainingIdx % RAW_FILENAMES.length];
     const data = TRANSCRIPT_DATA[nextFile];
-    const publicId = data?.publicId || nextFile.replace(/\.mp4$/i, "");
+    if (!data || !nextFile) continue;
+    const publicId = data.publicId || nextFile.replace(/\.mp4$/i, "");
     catalog[key] = {
       key,
       filename: nextFile,

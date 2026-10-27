@@ -1,7 +1,7 @@
 "use client";
 
-import { Check, Loader2, ShieldCheck, Sparkles } from "lucide-react";
-import { useState, useEffect } from "react";
+import { CheckCircle2, Loader2, ShieldCheck, Sparkles } from "lucide-react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthContext";
 import { supabase } from "@/lib/supabase/client";
@@ -28,15 +28,57 @@ function loadCheckout() {
   });
 }
 
-function getDiscountedPrice(priceStr: string, isFree: boolean, isAnnual: boolean) {
-  if (isFree || !isAnnual || !priceStr) return priceStr;
-  const match = priceStr.match(/^([^\d]*)([\d,]+)(.*)$/);
-  if (!match) return priceStr;
-  const prefix = match[1];
-  const num = parseInt(match[2].replace(/,/g, ''), 10);
-  if (isNaN(num)) return priceStr;
-  const discounted = Math.round(num * 0.8);
-  return `${prefix}${discounted.toLocaleString()}`;
+function getPlanPricing(planId: string, currency: 'USD' | 'INR', isAnnual: boolean) {
+  if (currency === 'USD') {
+    if (planId === 'starter') {
+      return {
+        displayPrice: isAnnual ? '$16.60' : '$19.99',
+        savingsLine: isAnnual ? 'Save $40/year vs monthly' : 'Save $40/year with annual billing',
+        annualBilled: '$199.90/year',
+      };
+    }
+    if (planId === 'growth') {
+      return {
+        displayPrice: isAnnual ? '$33.30' : '$39.99',
+        savingsLine: isAnnual ? 'Save $80/year vs monthly' : 'Save $80/year with annual billing',
+        annualBilled: '$399.90/year',
+      };
+    }
+    if (planId === 'pro') {
+      return {
+        displayPrice: isAnnual ? '$66.60' : '$79.99',
+        savingsLine: isAnnual ? 'Save $160/year vs monthly' : 'Save $160/year with annual billing',
+        annualBilled: '$799.90/year',
+      };
+    }
+  } else {
+    if (planId === 'starter') {
+      return {
+        displayPrice: isAnnual ? '₹832' : '₹999',
+        savingsLine: isAnnual ? 'Save ₹2,000/year vs monthly' : 'Save ₹2,000/year with annual billing',
+        annualBilled: '₹9,990/year',
+      };
+    }
+    if (planId === 'growth') {
+      return {
+        displayPrice: isAnnual ? '₹1,665' : '₹1,999',
+        savingsLine: isAnnual ? 'Save ₹4,000/year vs monthly' : 'Save ₹4,000/year with annual billing',
+        annualBilled: '₹19,990/year',
+      };
+    }
+    if (planId === 'pro') {
+      return {
+        displayPrice: isAnnual ? '₹3,332' : '₹3,999',
+        savingsLine: isAnnual ? 'Save ₹8,000/year vs monthly' : 'Save ₹8,000/year with annual billing',
+        annualBilled: '₹39,990/year',
+      };
+    }
+  }
+  return {
+    displayPrice: '$19.99',
+    savingsLine: 'Save $40/year with annual billing',
+    annualBilled: '$199.90/year',
+  };
 }
 
 export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Record<string, string> }) {
@@ -46,19 +88,6 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
   const [message, setMessage] = useState("");
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
   const [currency, setCurrency] = useState<'USD' | 'INR'>('USD');
-
-  useEffect(() => {
-    try {
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-      if (tz.includes('Calcutta') || tz.includes('Kolkata') || tz.includes('Asia/Colombo')) {
-        setCurrency('INR');
-      } else {
-        setCurrency('USD');
-      }
-    } catch {
-      setCurrency('USD');
-    }
-  }, []);
 
   const buyPlan = async (plan: PricingPlan) => {
     if (plan.id === "free") {
@@ -138,101 +167,75 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
   };
 
   return (
-    <section id="pricing" className="border-t border-slate-200/80 bg-gradient-to-b from-[#FFFDFB] via-white to-[#FFFDFB] text-slate-900 px-4 py-16 sm:px-6 sm:py-24">
+    <section id="pricing" className="border-t border-stone-200/80 bg-white text-slate-900 px-4 pt-10 pb-16 sm:px-6 sm:pt-14 sm:pb-20">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold text-orange-700">
+          <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-orange-700 shadow-xs">
             <Sparkles size={14} className="text-[#FF5722]" />
-            <span>TRANSPARENT CREATOR PRICING</span>
+            <span>Transparent Creator Pricing</span>
           </div>
 
-          <h2 className="mt-5 text-4xl sm:text-6xl font-black tracking-tight text-slate-900 leading-tight">
+          <h2 className="mt-4 text-3xl sm:text-5xl font-black tracking-tight text-slate-900 leading-tight font-sans">
             Simple, Powerful{" "}
             <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
               AI Video Plans
             </span>
           </h2>
 
-          <p className="mt-4 text-base sm:text-lg text-slate-600">
-            Create Faceless videos, YouTube long-form, Reels, subtitles, and viral clips with purpose-built studios.
-            <span className="block text-orange-600 text-sm font-bold mt-2">Monthly subscription • Credits reset every 30 days • Top up anytime</span>
+          <p className="mt-3 text-sm sm:text-base text-slate-600 max-w-xl mx-auto">
+            Create Faceless videos, YouTube long-form, Reels, subtitles, and viral clips with dedicated studios.
           </p>
 
-          {/* Simple Credit Breakdown Pill */}
-          <div className="mt-6 inline-flex flex-wrap items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs text-slate-700 shadow-2xs">
-            <span className="flex items-center gap-1.5 font-bold text-slate-900">
-              <span className="flex h-2 w-2 rounded-full bg-[#FF5722]" />
-              <span>9:16 Short (upto 90s):</span>
-              <span className="text-orange-600 font-mono">1 Credit</span>
-            </span>
-            <span className="text-slate-300">•</span>
-            <span className="flex items-center gap-1.5 font-bold text-slate-900">
-              <span className="flex h-2 w-2 rounded-full bg-emerald-500" />
-              <span>16:9 Long Video (upto 10m):</span>
-              <span className="text-emerald-600 font-mono">1 Min = 1 Credit</span>
-            </span>
-            <span className="text-slate-300">•</span>
-            <span className="flex items-center gap-1.5 font-bold text-slate-900">
-              <span className="flex h-2 w-2 rounded-full bg-amber-500" />
-              <span>AI Audio Cleaner:</span>
-              <span className="text-amber-600 font-mono">1 Credit</span>
-            </span>
-          </div>
-
-          {/* Monthly / Annual Billing Toggle + Currency Switcher */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <div className="inline-flex items-center gap-2">
+          {/* Monthly / Annual Floating Pill Toggle (Reference Design) */}
+          <div className="mt-8 flex flex-col items-center justify-center gap-3">
+            <div className="inline-flex items-center rounded-full border border-stone-200 bg-stone-100/90 p-1 shadow-xs">
               <button
                 type="button"
                 onClick={() => setBillingCycle('monthly')}
-                className={`rounded-full px-4 py-1.5 text-xs font-bold transition cursor-pointer ${
+                className={`rounded-full px-6 py-2 text-xs font-bold transition-all cursor-pointer ${
                   billingCycle === 'monthly'
-                    ? 'bg-slate-900 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:text-slate-900'
+                    ? 'bg-[#18181b] text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                Monthly Billing
+                Monthly
               </button>
               <button
                 type="button"
                 onClick={() => setBillingCycle('annual')}
-                className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-bold transition cursor-pointer ${
+                className={`flex items-center gap-2 rounded-full px-5 py-2 text-xs font-bold transition-all cursor-pointer ${
                   billingCycle === 'annual'
-                    ? 'bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-white shadow-xs'
-                    : 'bg-orange-500/10 text-orange-700 border border-orange-500/30 hover:bg-orange-500/20'
+                    ? 'bg-[#18181b] text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                <span>Annual Billing</span>
-                <span className="rounded-full bg-white/25 px-1.5 py-0.2 text-[10px] font-black uppercase">
-                  Save 20%
+                <span>Annual</span>
+                <span className="rounded-full bg-emerald-500 text-white px-2 py-0.5 text-[10px] font-bold">
+                  2 months free
                 </span>
               </button>
             </div>
 
             {/* Currency Switcher */}
-            <div className="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 p-0.5">
+            <div className="inline-flex items-center rounded-full border border-stone-200 bg-stone-50 p-0.5 text-[11px] font-bold">
               <button
                 type="button"
                 onClick={() => setCurrency('USD')}
-                className={`rounded-full px-3 py-1 text-xs font-bold transition cursor-pointer ${
-                  currency === 'USD'
-                    ? 'bg-white text-slate-900 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                className={`rounded-full px-3 py-1 transition cursor-pointer ${
+                  currency === 'USD' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-900'
                 }`}
               >
-                $ USD (Global)
+                $ USD
               </button>
               <button
                 type="button"
                 onClick={() => setCurrency('INR')}
-                className={`rounded-full px-3 py-1 text-xs font-bold transition cursor-pointer ${
-                  currency === 'INR'
-                    ? 'bg-white text-slate-900 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
+                className={`rounded-full px-3 py-1 transition cursor-pointer ${
+                  currency === 'INR' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-900'
                 }`}
               >
-                ₹ INR (India)
+                ₹ INR
               </button>
             </div>
           </div>
@@ -244,83 +247,59 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
           </p>
         )}
 
-        {/* 4-Column Grid */}
-        <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
-          {pricingPlans.map((plan) => {
+        {/* 3-Column Grid for Paid Plans (Starter, Growth, Pro) */}
+        <div className="mt-12 grid gap-6 md:grid-cols-3 max-w-6xl mx-auto items-stretch">
+          {pricingPlans.filter((plan) => plan.id !== "free").map((plan) => {
             const isPopular = plan.popular;
-            const isFree = plan.id === "free";
-            const quote = currency === 'USD' ? plan.quotes.USD : plan.quotes.INR;
-            const rawPrice = quote?.displayPrice || (currency === 'USD' ? '$0' : '₹0');
-            const effectivePrice = getDiscountedPrice(rawPrice, isFree, billingCycle === 'annual');
+            const pricing = getPlanPricing(plan.id, currency, billingCycle === 'annual');
             const planShortName = plan.name.split(" (")[0];
-            const buttonLabel = isFree
-              ? "Get Started Free"
-              : `Buy ${planShortName} — ${effectivePrice}`;
 
             return (
               <article
                 key={plan.id}
-                className={`relative flex min-h-[510px] flex-col rounded-[28px] p-6 sm:p-7 transition-all duration-300 hover:-translate-y-1 ${
+                className={`relative flex flex-col rounded-3xl transition-all duration-300 p-6 sm:p-8 bg-white ${
                   isPopular
-                    ? "border-2 border-[#FF5722] ring-4 ring-orange-500/15 bg-gradient-to-b from-orange-50/40 via-white to-white shadow-2xl shadow-orange-500/15 lg:scale-105 z-10"
-                    : "border border-slate-200/90 bg-white shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] hover:shadow-xl hover:border-slate-300"
+                    ? "border-2 border-orange-500 ring-4 ring-orange-500/15 shadow-xl shadow-orange-500/10 lg:scale-[1.02] z-10"
+                    : "border border-stone-200/90 shadow-xs hover:border-stone-300 hover:shadow-md"
                 }`}
               >
-                {/* Popular Pill */}
+                {/* Most Popular Floating Pill Badge */}
                 {isPopular && (
-                  <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-[#FF5722] to-[#FFA000] px-4 py-1 text-[11px] font-black uppercase tracking-wider text-white shadow-lg shadow-orange-500/35">
-                    ⭐ Most Popular · Best Value
+                  <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-4 py-0.5 text-[11px] font-bold text-white shadow-md">
+                    Most Popular
                   </span>
                 )}
 
                 {/* Plan Header */}
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-black text-slate-900">{plan.name}</h3>
-                  <span
-                    className={`text-xs font-bold px-3 py-1 rounded-full border ${
-                      isPopular
-                        ? "bg-orange-500/15 text-orange-700 border-orange-500/30 font-black"
-                        : isFree
-                        ? "bg-emerald-500/15 text-emerald-700 border-emerald-500/30 font-bold"
-                        : "bg-slate-100 text-slate-700 border-slate-200"
-                    }`}
-                  >
-                    {isFree ? "1 Free Credit" : `${plan.credits.toLocaleString()} Credits`}
+                <h3 className="text-2xl font-black text-slate-900">{planShortName}</h3>
+
+                {/* Pricing Display */}
+                <div className="mt-4 flex items-baseline gap-1.5">
+                  <span className="text-4xl sm:text-5xl font-black tracking-tight text-slate-900">
+                    {pricing.displayPrice}
+                  </span>
+                  <span className="text-xs sm:text-sm font-semibold text-slate-500">
+                    /month
                   </span>
                 </div>
 
-                <p className="mt-2 text-xs leading-relaxed text-slate-600 min-h-[36px]">
+                {/* Green Savings Line (Exact Reference) */}
+                <p className="mt-2 text-xs font-bold text-emerald-600">
+                  {pricing.savingsLine}
+                </p>
+
+                {/* Description */}
+                <p className="mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed font-normal min-h-[40px]">
                   {plan.description}
                 </p>
 
-                {/* Pricing Display */}
-                <div className="mt-5 flex items-baseline gap-1.5">
-                  <span className="text-4xl sm:text-5xl font-black tracking-tight text-slate-900">
-                    {effectivePrice}
-                  </span>
-                  <span className="text-xs font-semibold text-slate-500">
-                    / {billingCycle === 'annual' && !isFree ? 'mo (billed annually)' : plan.billingPeriodLabel}
-                  </span>
-                </div>
-
-                <p className="mt-2 text-xs font-bold text-orange-600">
-                  {isFree
-                    ? "✓ No card required • 1 free 9:16 Short (up to 90s)"
-                    : plan.id === "starter"
-                    ? "✓ 25 Shorts & Reels (9:16, up to 90s)"
-                    : plan.id === "growth"
-                    ? "✓ 35 Shorts + 10 Long Videos (up to 5 min)"
-                    : "✓ 60 Shorts + 14 Long Videos (up to 10 min)"}
-                </p>
-
-                {/* Features List */}
-                <ul className="mt-6 flex-1 space-y-3 text-xs sm:text-sm">
+                {/* Feature List with Green Checkmark Circles */}
+                <ul className="mt-6 flex-1 space-y-3.5 text-xs sm:text-sm border-t border-stone-100 pt-6">
                   {plan.features.map((feature) => (
-                    <li key={feature} className="flex gap-2.5 items-start text-slate-700">
-                      <Check
-                        size={16}
-                        className={`mt-0.5 shrink-0 ${isPopular ? "text-[#FF5722]" : "text-emerald-500"}`}
-                        strokeWidth={2.5}
+                    <li key={feature} className="flex gap-2.5 items-start text-slate-700 font-medium">
+                      <CheckCircle2
+                        size={17}
+                        className="mt-0.5 shrink-0 text-emerald-500"
                       />
                       <span>{feature}</span>
                     </li>
@@ -332,32 +311,41 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
                   type="button"
                   disabled={loading || Boolean(loadingPlan)}
                   onClick={() => buyPlan(plan)}
-                  className={`mt-8 flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-xs sm:text-sm font-black transition cursor-pointer ${
+                  className={`mt-8 flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 px-5 text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                     isPopular
-                      ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white hover:brightness-110 shadow-lg shadow-orange-500/25 active:scale-95"
-                      : isFree
-                      ? "bg-slate-900 text-white hover:bg-slate-800 shadow-md active:scale-95 font-black"
-                      : "border border-slate-300 bg-white text-slate-800 hover:border-orange-500/40 hover:bg-orange-50/50 hover:text-orange-950 font-bold active:scale-95 shadow-sm"
+                      ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-md shadow-orange-500/25 hover:brightness-110 active:scale-98"
+                      : "bg-[#18181b] hover:bg-black text-white shadow-xs active:scale-98"
                   }`}
                 >
                   {loadingPlan === plan.id && <Loader2 size={16} className="animate-spin" />}
-                  {loadingPlan === plan.id ? "Preparing checkout..." : buttonLabel}
+                  {loadingPlan === plan.id ? "Preparing checkout..." : `Get Started with ${planShortName}`}
                 </button>
               </article>
             );
           })}
         </div>
 
-        {/* Security & Guarantee Trust Bar */}
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-600">
-          <div className="flex items-center gap-2">
-            <ShieldCheck size={16} className="text-[#FF5722]" />
-            <span>100% Secure Checkout via Razorpay</span>
+        {/* Simple Credit Rate & Guarantee Trust Bar */}
+        <div className="mt-12 flex flex-col items-center justify-center gap-3">
+          <div className="inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold text-orange-800 shadow-xs">
+            <span>Simple Pricing Rule:</span>
+            <span className="font-extrabold text-orange-950">1 Credit = 1 Minute YouTube Video</span>
+            <span className="text-orange-400">•</span>
+            <span className="font-extrabold text-orange-950">1 Credit = 1 Vertical Short / Clip</span>
+            <span className="text-orange-400">•</span>
+            <span className="font-extrabold text-orange-950">1 Credit = 1 Audio Clean</span>
           </div>
-          <span>•</span>
-          <span>Instant Credit Delivery</span>
-          <span>•</span>
-          <span>Buy More Credits Anytime</span>
+
+          <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-slate-600 mt-1">
+            <div className="flex items-center gap-2">
+              <ShieldCheck size={16} className="text-[#FF5722]" />
+              <span>100% Secure Checkout via Razorpay</span>
+            </div>
+            <span>•</span>
+            <span>Instant Credit Delivery</span>
+            <span>•</span>
+            <span>Top Up Credits Anytime</span>
+          </div>
         </div>
       </div>
     </section>

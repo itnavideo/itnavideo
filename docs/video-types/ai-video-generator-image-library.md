@@ -4,9 +4,9 @@
 
 The **AI Video Generator** creates long-form videos by analyzing narration and blueprints into structured scenes. 
 
-Instead of relying on third-party stock APIs (Pixabay, Pexels, Google Images) which can have rate limits, watermarks, and inconsistent aesthetics, Itnavideo uses a **curated library of ChatGPT / DALL-E generated images** hosted in your Cloudinary account.
+Instead of relying on third-party stock APIs (Pixabay, Pexels, Google Images) which can have rate limits, watermarks, and inconsistent aesthetics, Itnavideo uses a **curated library of 1,235 high-definition visual assets** (515 vertical `9:16` assets for Shorts + 720 widescreen `16:9` assets for Long Videos) across all major creator niches.
 
-Whenever a video is rendered, the **AI Scene Matcher** automatically analyzes each scene's narration, heading, and visual requirement, selecting the most contextually relevant image from your library.
+Whenever a video is rendered, the **AI Scene Matcher** automatically analyzes each scene's narration, heading, and visual requirement, selecting the most contextually relevant image from your library matching the target aspect ratio (`9:16` or `16:9`).
 
 ---
 

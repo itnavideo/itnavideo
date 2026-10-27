@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="AWR (Automatic Workload Repository)">
+  <!-- Itnavideo Database Asset: AWR (Automatic Workload Repository) -->
+  <rect x="20" y="16" width="80" height="88" rx="10" fill="#0F172A" stroke="#F59E0B" stroke-width="2.5" />
+      <rect x="28" y="24" width="64" height="16" rx="4" fill="#B45309" />
+      <text x="60" y="36" fill="#FFFFFF" font-size="8" font-family="sans-serif" font-weight="900" text-anchor="middle">AWR REPORT</text>
+      <path d="M 32 68 l 12 -16 l 16 10 l 16 -20" fill="none" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+      <text x="60" y="80" fill="#E2E8F0" font-size="7" font-family="sans-serif" text-anchor="middle">Top 5 Timed Events</text>
+      <text x="60" y="92" fill="#FDE68A" font-size="7.5" font-family="sans-serif" font-weight="bold" text-anchor="middle">DB TIME ANALYSIS</text>
+</svg>

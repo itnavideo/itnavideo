@@ -7,11 +7,15 @@ export interface AiLibraryImage {
   url: string;
   title: string;
   category: string;
+  subCategory?: string;
+  kind?: string;
   tags: string[];
   visualDescription?: string;
   mood?: string;
   aspectRatio?: '16:9' | '9:16' | string;
   dominantColor?: string;
+  qualityScore?: number;
+  recommendedVideoTypes?: string[];
 }
 
 let cachedLibraryImages: AiLibraryImage[] | null = null;
@@ -22,20 +26,32 @@ function getVerifiedCatalog(): AiLibraryImage[] {
   try {
     const unified = readUnifiedAssets();
     const mapped = unified
-      .filter((asset) => asset.type === 'image' && asset.safeToUse && asset.src)
+      .filter((asset) => {
+        if (!asset.safeToUse || !asset.src) return false;
+        // Strictly exclude all audio assets (WAV/MP3/SFX/music)
+        if (asset.type === 'audio' || asset.kind === 'sound-effect' || asset.kind === 'background-music') return false;
+        if (asset.src.endsWith('.wav') || asset.src.endsWith('.mp3')) return false;
+        // Accept valid visual assets
+        return asset.type === 'image' || asset.type === 'video';
+      })
       .map((asset) => {
         const absoluteUrl = toAbsoluteS3AssetUrl(asset.src);
+        const isPortrait = (asset as any).orientation === 'portrait' || asset.kind === 'whiteboard';
         return {
           id: asset.id,
           public_id: asset.id,
           url: absoluteUrl,
           title: asset.title || 'Curated Scene Visual',
           category: asset.category || 'all',
+          subCategory: asset.subCategory,
+          kind: asset.kind,
           tags: [...(asset.tags || []), ...(asset.keywords || [])],
           visualDescription: asset.detailedDescription || asset.title || '',
           mood: asset.style || 'cinematic',
-          aspectRatio: ((asset as any).orientation === 'portrait' ? '9:16' : '16:9') as '16:9' | '9:16',
+          aspectRatio: (isPortrait ? '9:16' : '16:9') as '16:9' | '9:16',
           dominantColor: '#0E1526',
+          qualityScore: asset.qualityScore,
+          recommendedVideoTypes: asset.recommendedVideoTypes || asset.useFor || [],
         };
       });
 

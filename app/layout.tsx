@@ -26,67 +26,54 @@ const siteDescription =
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800", "900"],
   display: "swap",
-  preload: true,
 });
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
-  preload: true,
 });
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-mono",
   subsets: ["latin"],
   display: "swap",
-  preload: true,
 });
 
 const instrumentSerif = Instrument_Serif({
   variable: "--font-serif",
   subsets: ["latin"],
-  weight: ["400"],
+  weight: "400",
   style: ["normal", "italic"],
   display: "swap",
-  preload: true,
 });
 
 const playfairDisplay = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
   style: ["normal", "italic"],
   display: "swap",
-  preload: true,
 });
 
 const caveat = Caveat({
   variable: "--font-caveat",
   subsets: ["latin"],
-  weight: ["600", "700"],
   display: "swap",
 });
 
 const lora = Lora({
   variable: "--font-editorial",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
   style: ["normal", "italic"],
   display: "swap",
-  preload: true,
 });
 
 const newsreader = Newsreader({
   variable: "--font-newsreader",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
   style: ["normal", "italic"],
   display: "swap",
-  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -183,9 +170,13 @@ export const metadata: Metadata = {
   },
   verification: {
     google: "fUpspvl0Zqhd0nPIDewDuDrP4DKNztIOINBz_5lSa4c",
+    other: {
+      "msvalidate.01": "B9FFCC2A867FB907BF39E06F5F64178A",
+    },
   },
   other: {
     "google-adsense-account": "ca-pub-7016787089009547",
+    "msvalidate.01": "B9FFCC2A867FB907BF39E06F5F64178A",
   },
   openGraph: {
     title: "Itnavideo | AI Video Generator for Reels and Shorts",
@@ -235,10 +226,6 @@ export default function RootLayout({
         <meta name="google-adsense-account" content="ca-pub-7016787089009547" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Anton&family=Bangers&family=Black+Ops+One&family=Cinzel:wght@700;900&family=Kaushan+Script&family=Londrina+Solid:wght@400;900&family=Montserrat:wght@700;900&family=Outfit:wght@700;900&family=Titan+One&display=swap"
-          rel="stylesheet"
-        />
         <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7016787089009547"
@@ -276,13 +263,24 @@ export default function RootLayout({
           <Toaster richColors position="top-right" closeButton />
         </AuthProvider>
       </body>
-      <Script strategy="lazyOnload" async src="https://www.googletagmanager.com/gtag/js?id=G-8NSFBYS9EF" />
-      <Script id="google-analytics" strategy="lazyOnload">
+      <Script strategy="afterInteractive" async src="https://www.googletagmanager.com/gtag/js?id=G-8NSFBYS9EF" />
+      <Script id="google-analytics" strategy="afterInteractive">
         {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
-          gtag('config', 'G-8NSFBYS9EF');
+          gtag('config', 'G-8NSFBYS9EF', {
+            send_page_view: true,
+            cookie_flags: 'SameSite=None;Secure'
+          });
+        `}
+      </Script>
+      <Script id="load-caption-fonts" strategy="afterInteractive">
+        {`
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = 'https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Anton&family=Bangers&family=Black+Ops+One&family=Cinzel:wght@700;900&family=Kaushan+Script&family=Londrina+Solid:wght@400;900&family=Montserrat:wght@700;900&family=Outfit:wght@700;900&family=Titan+One&display=swap';
+          document.head.appendChild(link);
         `}
       </Script>
     </html>

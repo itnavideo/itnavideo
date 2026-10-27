@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="MRP (Managed Recovery Process)">
+  <!-- Itnavideo Database Asset: MRP (Managed Recovery Process) -->
+  <circle cx="60" cy="48" r="28" fill="#0284C7" stroke="#0369A1" stroke-width="3" />
+      <path d="M 44 48 l 10 10 l 20 -18" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+      <text x="60" y="32" fill="#E0F2FE" font-size="8.5" font-family="sans-serif" font-weight="900" text-anchor="middle">MRP0</text>
+      <text x="60" y="98" fill="#38BDF8" font-size="7.5" font-family="sans-serif" font-weight="bold" text-anchor="middle">REDO APPLY ENGINE</text>
+</svg>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="DBA Pro Tip Golden Badge">
+  <!-- Itnavideo Database Asset: DBA Pro Tip Golden Badge -->
+  <circle cx="60" cy="50" r="36" fill="#B45309" stroke="#FDE68A" stroke-width="3.5" />
+      <circle cx="60" cy="50" r="30" fill="#D97706" />
+      <path d="M 60 28 l 4 12 h 12 l -10 8 l 4 12 l -10 -7 l -10 7 l 4 -12 l -10 -8 h 12 Z" fill="#FEF08A" />
+      <text x="60" y="74" fill="#FFFFFF" font-size="8" font-family="sans-serif" font-weight="900" text-anchor="middle">DBA PRO TIP</text>
+</svg>

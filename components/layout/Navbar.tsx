@@ -39,7 +39,6 @@ const WIDESCREEN_PRODUCTS = [
 
 const VERTICAL_PRODUCTS = [
   { label: 'Auto Caption Generator', desc: 'Kinetic animated captions for Reels & Shorts', href: '/dashboard/auto-caption', icon: Smartphone },
-  { label: 'Kinetic Typography', desc: 'Dynamic speech-to-text kinetic motion presets', href: '/dashboard/typography-video', icon: FileText },
   { label: 'Whiteboard Video', desc: 'Whiteboard stickman animation explainers', href: '/dashboard/whiteboard-video', icon: PenTool },
   { label: 'Compare Explainer', desc: 'Side-by-side comparison video generator', href: '/dashboard/compare-explainer', icon: Columns },
   { label: 'Long Video to Clips', desc: 'Auto hook detector clips from long videos', href: '/dashboard/long-video-clips', icon: Scissors },
@@ -47,7 +46,7 @@ const VERTICAL_PRODUCTS = [
 ];
 
 const RESOURCE_ITEMS = [
-  { label: 'Video Types & Specs', desc: 'Master documentation for all 11 video pipelines', href: '/features', icon: BookOpen },
+  { label: 'Video Types & Specs', desc: 'Master documentation & directory for all 10+ studios', href: '/video-types', icon: BookOpen },
   { label: 'Pricing & Packs', desc: 'Flexible video credit packages for creators', href: '/pricing', icon: CreditCard },
   { label: 'About Itnavideo', desc: 'Learn about our AI video rendering engine', href: '/about', icon: Sparkles },
 ];
@@ -121,7 +120,7 @@ export default function Navbar() {
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           
           {/* LEFT: BRAND LOGO */}
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-10">
             <BrandLogo size="sm" showBadge={false} variant={isLightPage ? 'light' : 'dark'} />
 
             {/* DESKTOP NAVIGATION LINKS */}
@@ -190,21 +189,6 @@ export default function Navbar() {
                             </div>
                           </Link>
 
-                          <Link
-                            href="/dashboard/typography-video"
-                            onClick={() => setActiveMenu(null)}
-                            className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
-                          >
-                            <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-lg flex items-center justify-center shrink-0">
-                              ✨
-                            </span>
-                            <div>
-                              <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
-                                Kinetic Typography
-                              </h4>
-                              <p className="text-xs text-gray-500 font-medium">Dynamic speech-to-text motion</p>
-                            </div>
-                          </Link>
 
                           <Link
                             href="/dashboard/whiteboard-video"
@@ -329,17 +313,28 @@ export default function Navbar() {
 
                       {/* Bottom Banner */}
                       <div className="pt-3 border-t border-gray-100 flex items-center justify-between text-xs px-2 -mx-2 -mb-2 bg-slate-50/90 rounded-b-xl p-3">
-                        <span className="text-[11px] font-semibold text-gray-600">
-                          ⚡ 1080p Cloud Render in 60s • 1 Free Credit on Signup
+                        <span className="text-[11px] font-semibold text-gray-600 hidden sm:inline">
+                          ⚡ 1080p Cloud Render • 1 Free Credit on Signup
                         </span>
-                        <Link
-                          href="/dashboard"
-                          onClick={() => setActiveMenu(null)}
-                          className="font-bold text-orange-600 hover:text-orange-700 flex items-center gap-1 text-xs"
-                        >
-                          <span>Open All Studios</span>
-                          <ArrowRight size={13} />
-                        </Link>
+                        <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                          <Link
+                            href="/video-types"
+                            onClick={() => setActiveMenu(null)}
+                            className="font-bold text-slate-700 hover:text-orange-600 flex items-center gap-1 text-xs transition-colors"
+                          >
+                            <span>Browse All 10 Video Types &amp; Specs</span>
+                            <ArrowRight size={13} />
+                          </Link>
+                          <span className="text-slate-300">|</span>
+                          <Link
+                            href="/dashboard"
+                            onClick={() => setActiveMenu(null)}
+                            className="font-bold text-orange-600 hover:text-orange-700 flex items-center gap-1 text-xs"
+                          >
+                            <span>Open All Studios</span>
+                            <ArrowRight size={13} />
+                          </Link>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -538,10 +533,10 @@ export default function Navbar() {
                 </Link>
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-5 py-2 text-xs font-black text-white shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:brightness-110 active:scale-95 transition-all duration-200"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-5 sm:px-6 py-2.5 text-xs font-black text-white shadow-md shadow-orange-500/25 hover:shadow-orange-500/40 hover:brightness-110 hover:-translate-y-0.5 active:scale-95 transition-all duration-200"
                 >
                   <Sparkles size={13} className="fill-white stroke-white" />
-                  <span>Start Free</span>
+                  <span>Get Started</span>
                 </Link>
               </div>
             )}
@@ -679,6 +674,23 @@ export default function Navbar() {
                 </Link>
 
                 <Link
+                  href="/video-types"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center justify-between rounded-xl border border-slate-200/90 bg-slate-50/80 px-3.5 py-2.5 text-xs font-bold text-slate-800 hover:border-orange-500/40 hover:bg-orange-50/40 hover:text-orange-950 transition"
+                >
+                  <span className="flex items-center gap-2.5">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-500/10 text-orange-600">
+                      <BookOpen size={14} />
+                    </span>
+                    <span>
+                      <span className="block text-slate-900 font-extrabold">Video Types &amp; Specs</span>
+                      <span className="block text-[10px] text-slate-500 font-normal">Dedicated pages for every video tool</span>
+                    </span>
+                  </span>
+                  <ChevronRight size={15} className="text-slate-400" />
+                </Link>
+
+                <Link
                   href="/pricing"
                   onClick={() => setIsOpen(false)}
                   className="flex items-center justify-between rounded-xl border border-slate-200/90 bg-slate-50/80 px-3.5 py-2.5 text-xs font-bold text-slate-800 hover:border-orange-500/40 hover:bg-orange-50/40 hover:text-orange-950 transition"
@@ -724,7 +736,7 @@ export default function Navbar() {
                   onClick={() => setIsOpen(false)}
                   className="w-full text-center rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] py-3 text-xs font-black text-white shadow-md shadow-orange-500/25 hover:brightness-110 transition"
                 >
-                  Start Free (1 Free Credit)
+                  Get Started
                 </Link>
                 <Link
                   href="/login"

@@ -48,6 +48,7 @@
     "@remotion/bundler": "^4.0.467",
     "@remotion/google-fonts": "4.0.467",
     "@remotion/lambda": "^4.0.467",
+    "@remotion/paths": "^4.0.538",
     "@remotion/player": "4.0.467",
     "@remotion/renderer": "^4.0.467",
     "@remotion/tailwind": "^4.0.467",
@@ -73,6 +74,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "remotion": "^4.0.467",
+    "shiki": "^4.5.0",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.6.0",
     "zod": "^4.3.6"

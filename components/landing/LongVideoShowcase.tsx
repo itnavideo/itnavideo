@@ -131,7 +131,7 @@ export default function LongVideoShowcase() {
             { icon: Film, title: 'Curated AI Visuals', desc: 'AI automatically identifies semantic requirements and places matching 16:9 library assets.' },
             { icon: Laptop, title: 'Canva Color Swatches', desc: 'Clean Studio White (default), Warm Cream, Soft Slate, or Obsidian without artificial glare.' },
             { icon: MonitorPlay, title: '3-Font Hierarchy Suite', desc: 'Customizable Heading, Subheading, and Body typography (Montserrat, Jakarta Sans, Inter).' },
-            { icon: Captions, title: 'Precision Word-Synced Captions', desc: 'Sub-second accurate word-synced subtitles in English and clean Roman Hinglish.' },
+            { icon: Captions, title: 'Precision Word-Synced Captions', desc: 'Sub-second accurate word-synced subtitles with multi-dialect support.' },
           ].map((feature, i) => {
             const Icon = feature?.icon || Sparkles;
             return (

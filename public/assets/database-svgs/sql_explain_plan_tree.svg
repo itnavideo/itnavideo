@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="SQL Explain Plan Tree">
+  <!-- Itnavideo Database Asset: SQL Explain Plan Tree -->
+  <rect x="42" y="16" width="36" height="18" rx="4" fill="#0284C7" />
+      <text x="60" y="28" fill="#FFFFFF" font-size="7" font-family="sans-serif" font-weight="bold" text-anchor="middle">SELECT (Cost 4)</text>
+      <path d="M 60 34 v 12 M 42 46 h 36" stroke="#38BDF8" stroke-width="2" />
+      <rect x="18" y="52" width="38" height="20" rx="4" fill="#0369A1" />
+      <text x="37" y="65" fill="#FFFFFF" font-size="6.5" font-family="sans-serif" text-anchor="middle">HASH JOIN</text>
+      <rect x="64" y="52" width="38" height="20" rx="4" fill="#0369A1" />
+      <text x="83" y="65" fill="#FFFFFF" font-size="6.5" font-family="sans-serif" text-anchor="middle">INDEX SCAN</text>
+      <text x="60" y="98" fill="#7DD3FC" font-size="8" font-family="sans-serif" font-weight="900" text-anchor="middle">SQL EXPLAIN PLAN</text>
+</svg>

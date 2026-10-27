@@ -322,7 +322,7 @@ export function AudioCleanStudio({
       <BorderBeam size={280} duration={14} colorFrom="#FF5722" colorTo="#FFA000" />
 
 
-      {/* ── STEP 1: UPLOAD ZONE (Only active when no file or re-uploading) ── */}
+      {/*  STEP 1: UPLOAD ZONE (Only active when no file or re-uploading)  */}
       {!audioCleanAnalysis && !isAnalyzingAudio && !audioCleanResult && (
         <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-2xl sm:p-8 space-y-6">
           <div
@@ -358,7 +358,7 @@ export function AudioCleanStudio({
                     </span>
                   </div>
                   <p className="text-xs text-zinc-400">
-                    {(selectedFile.size / (1024 * 1024)).toFixed(1)} MB • Audio track detected
+                    {(selectedFile.size / (1024 * 1024)).toFixed(1)} MB  Audio track detected
                   </p>
                 </div>
                 <label className="mt-2 inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-semibold text-zinc-200 transition hover:bg-white/10 hover:border-white/30">
@@ -415,7 +415,7 @@ export function AudioCleanStudio({
                     <span>Or test with a sample audio</span>
                   </button>
                   <p className="text-[11px] text-zinc-500 mt-1">
-                    Audio: MP3 • WAV • M4A • AAC &nbsp;|&nbsp; Video: MP4 • MOV (Auto extracted)
+                    Audio: MP3  WAV  M4A  AAC &nbsp;|&nbsp; Video: MP4  MOV (Auto extracted)
                   </p>
                 </div>
               </div>
@@ -424,7 +424,7 @@ export function AudioCleanStudio({
         </div>
       )}
 
-      {/* ── STEP 2: TRANSCRIBING & SILENCE DETECTION PROGRESS CARD ── */}
+      {/*  STEP 2: TRANSCRIBING & SILENCE DETECTION PROGRESS CARD  */}
       {isAnalyzingAudio && (
         <div className="rounded-[28px] border border-white/10 bg-[#111218] p-10 text-center shadow-xl space-y-4">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#FF5722]/10 text-[#FF9100] border border-[#FF5722]/20">
@@ -439,7 +439,7 @@ export function AudioCleanStudio({
         </div>
       )}
 
-      {/* ── STEP 3: REVIEW / EDIT TRANSCRIPT & SMART PAUSE CONTROLS ── */}
+      {/*  STEP 3: REVIEW / EDIT TRANSCRIPT & SMART PAUSE CONTROLS  */}
       {audioCleanAnalysis && !isAnalyzingAudio && !audioCleanResult && (
         <div className="space-y-6">
           {/* Main Review & Edit Card */}
@@ -457,7 +457,7 @@ export function AudioCleanStudio({
                 </span>
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#111218] px-3 py-1 text-xs font-semibold text-zinc-200">
                   <Clock size={12} className="text-zinc-400" />
-                  Original: {formatTime(audioCleanAnalysis.originalDuration)} → Estimated Clean: {formatTime(audioCleanAnalysis.estimatedCleanDuration)}
+                  Original: {formatTime(audioCleanAnalysis.originalDuration)}  Estimated Clean: {formatTime(audioCleanAnalysis.estimatedCleanDuration)}
                 </span>
                 {detectedPauses.length > 0 && (
                   <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-300">
@@ -513,7 +513,7 @@ export function AudioCleanStudio({
               </div>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between text-[11px] text-zinc-400 gap-2 px-1">
                 <span>
-                  💡 <strong>Script Review:</strong> You can edit words, correct transcription mistakes, or paste your exact script. The original voice is 100% preserved.
+                   <strong>Script Review:</strong> You can edit words, correct transcription mistakes, or paste your exact script. The original voice is 100% preserved.
                 </span>
                 <span className="font-mono text-zinc-500 shrink-0">{currentMarkdown.length} characters</span>
               </div>
@@ -527,11 +527,11 @@ export function AudioCleanStudio({
                     Smart Pause Compression Pacing
                   </h4>
                   <p className="text-[11px] text-zinc-400 mt-0.5">
-                    Calibrated specifically for Image to Video AI (visuals changing every 5–6 seconds)
+                    Calibrated specifically for Image to Video AI (visuals changing every 56 seconds)
                   </p>
                 </div>
                 <span className="text-[11px] text-orange-400 font-bold hidden sm:inline">
-                  ⚡ Recommended: Fast Retention
+                   Recommended: Fast Retention
                 </span>
               </div>
 
@@ -539,17 +539,17 @@ export function AudioCleanStudio({
                 {[
                   {
                     id: "fast",
-                    label: "⚡ Fast Retention (Image to Video)",
+                    label: " Fast Retention (Image to Video)",
                     desc: "Compresses pauses >0.40s down to ~0.28s. Eliminates dead air so viewers stay engaged during visual transitions.",
                   },
                   {
                     id: "natural",
-                    label: "🎙️ Natural Conversational",
+                    label: " Natural Conversational",
                     desc: "Compresses pauses >0.50s down to ~0.35s. Standard conversational breathing space.",
                   },
                   {
                     id: "relaxed",
-                    label: "☕ Relaxed Flow",
+                    label: " Relaxed Flow",
                     desc: "Compresses pauses >0.65s down to ~0.45s. Suitable for slow-paced educational podcasts.",
                   },
                 ].map((p) => {
@@ -604,7 +604,7 @@ export function AudioCleanStudio({
                             #{pause.index}
                           </span>
                           <span className="font-mono text-zinc-300 text-[11px]">
-                            {formatTime(pause.start)} – {formatTime(pause.end)}
+                            {formatTime(pause.start)}  {formatTime(pause.end)}
                           </span>
                           <span className="truncate text-zinc-400 text-[11px]">{pause.description}</span>
                         </div>
@@ -650,7 +650,7 @@ export function AudioCleanStudio({
         </div>
       )}
 
-      {/* ── STEP 4: CLEANING SPINNER ── */}
+      {/*  STEP 4: CLEANING SPINNER  */}
       {isCleaning && (
         <div className="rounded-[28px] border border-white/10 bg-[#111218] p-10 text-center shadow-xl space-y-4">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#FF5722]/10 text-[#FF9100] border border-[#FF5722]/20">
@@ -665,7 +665,7 @@ export function AudioCleanStudio({
         </div>
       )}
 
-      {/* ── STEP 5: PREVIEW & DOWNLOAD (LIVE A/B COMPARE) ── */}
+      {/*  STEP 5: PREVIEW & DOWNLOAD (LIVE A/B COMPARE)  */}
       {audioCleanResult && (
         <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-2xl sm:p-8 space-y-6">
           {/* Header & Stats Bar */}
@@ -696,12 +696,12 @@ export function AudioCleanStudio({
                     ? `${audioCleanResult.stats.durationSavedSeconds.toFixed(1)}s`
                     : `${Math.max(0, audioCleanResult.originalDuration - audioCleanResult.cleanedDuration).toFixed(1)}s`}
                 </span>
-                <span className="text-zinc-600">•</span>
+                <span className="text-zinc-600"></span>
                 <span className="text-zinc-400">Format:</span>
                 <span className="font-black text-[#FFA000] font-mono uppercase">{exportFmt}</span>
                 {Boolean(audioCleanResult.stats?.silencesCut) && (
                   <>
-                    <span className="text-zinc-600">•</span>
+                    <span className="text-zinc-600"></span>
                     <span className="text-zinc-400">Gaps Cut:</span>
                     <span className="font-bold text-amber-400 font-mono">{audioCleanResult.stats?.silencesCut}</span>
                   </>
@@ -722,9 +722,9 @@ export function AudioCleanStudio({
             </div>
           </div>
 
-          {/* ── DUAL AUDIO PLAYERS: SIDE-BY-SIDE BEFORE & AFTER ── */}
+          {/*  DUAL AUDIO PLAYERS: SIDE-BY-SIDE BEFORE & AFTER  */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* 🔴 CARD 1: BEFORE (ORIGINAL AUDIO) */}
+            {/*  CARD 1: BEFORE (ORIGINAL AUDIO) */}
             <div
               className={`rounded-2xl border p-5 transition-all ${
                 isPlayingBefore
@@ -738,7 +738,7 @@ export function AudioCleanStudio({
                   <span className={`h-3 w-3 rounded-full ${isPlayingBefore ? "bg-rose-500 animate-ping" : "bg-rose-400"}`} />
                   <div>
                     <h5 className="text-sm font-bold text-white flex items-center gap-1.5">
-                      🔴 Before <span className="text-xs text-rose-300 font-medium">(Original Recording)</span>
+                       Before <span className="text-xs text-rose-300 font-medium">(Original Recording)</span>
                     </h5>
                     <p className="text-[11px] text-zinc-400">With dead air pauses and silences</p>
                   </div>
@@ -825,7 +825,7 @@ export function AudioCleanStudio({
               />
             </div>
 
-            {/* ✨ CARD 2: AFTER (CLEANED STUDIO MASTER) */}
+            {/*  CARD 2: AFTER (CLEANED STUDIO MASTER) */}
             <div
               className={`rounded-2xl border p-5 transition-all ${
                 isPlayingAfter
@@ -839,9 +839,9 @@ export function AudioCleanStudio({
                   <span className={`h-3 w-3 rounded-full ${isPlayingAfter ? "bg-[#FF5722] animate-ping" : "bg-[#FF9100]"}`} />
                   <div>
                     <h5 className="text-sm font-bold text-white flex items-center gap-1.5">
-                      ✨ After <span className="text-xs text-[#FF9100] font-medium">(Silences Cut &amp; Voice Preserved)</span>
+                       After <span className="text-xs text-[#FF9100] font-medium">(Silences Cut &amp; Voice Preserved)</span>
                     </h5>
-                    <p className="text-[11px] text-zinc-400">100% natural voice • Smooth fast flow</p>
+                    <p className="text-[11px] text-zinc-400">100% natural voice  Smooth fast flow</p>
                   </div>
                 </div>
                 <span className="rounded-full bg-[#FF5722]/20 border border-[#FF5722]/30 px-2.5 py-1 text-xs font-mono font-bold text-[#FF9100]">
@@ -926,7 +926,7 @@ export function AudioCleanStudio({
             </div>
           </div>
 
-          {/* ── INSTANT A/B COMPARISON SWITCHER BAR ── */}
+          {/*  INSTANT A/B COMPARISON SWITCHER BAR  */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-black/50 border border-white/10">
             <div className="flex items-center gap-3 w-full sm:w-auto">
               <button
@@ -942,7 +942,7 @@ export function AudioCleanStudio({
               <div className="text-xs">
                 <span className="text-zinc-400">Current Track: </span>
                 <span className={`font-bold ${compareMode === "after" ? "text-[#FF9100]" : "text-rose-400"}`}>
-                  {compareMode === "after" ? "✨ Cleaned (Gaps Cut)" : "🔴 Original (Before)"}
+                  {compareMode === "after" ? " Cleaned (Gaps Cut)" : " Original (Before)"}
                 </span>
               </div>
             </div>
@@ -954,7 +954,7 @@ export function AudioCleanStudio({
             </div>
           </div>
 
-          {/* ── POST-DOWNLOAD PROMPT / NEW UPLOAD BANNER ── */}
+          {/*  POST-DOWNLOAD PROMPT / NEW UPLOAD BANNER  */}
           {hasDownloaded && (
             <div className="rounded-2xl border border-[#FF5722]/40 bg-gradient-to-r from-[#FF5722]/15 via-black/40 to-[#FF5722]/10 p-5 shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-in fade-in duration-300">
               <div className="flex items-center gap-3">
@@ -994,11 +994,11 @@ export function AudioCleanStudio({
             </div>
           )}
 
-          {/* ── BOTTOM ACTIONS: DOWNLOAD, SEND TO STUDIO, RE-EDIT ── */}
+          {/*  BOTTOM ACTIONS: DOWNLOAD, SEND TO STUDIO, RE-EDIT  */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-[#161720] border border-white/10">
             <div className="flex items-center gap-2 text-xs text-zinc-400">
               <FileAudio size={15} className="text-[#FF9100]" />
-              <span>Studio Master Export • 100% Quality</span>
+              <span>Studio Master Export  100% Quality</span>
             </div>
 
             <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto justify-end">

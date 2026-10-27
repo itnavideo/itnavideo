@@ -140,4 +140,6 @@ public/visuals/**/*.mp4
 public/visuals/**/*.png
 public/visuals/**/*.jpg
 build_out.log
+*.log
 .system_cache/
+/scripts/scratch-tests/

@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { interpolate, random, useCurrentFrame, useVideoConfig } from 'remotion';
-import { BACKGROUND_CATALOG } from './BackgroundCatalog';
+import { BACKGROUND_CATALOG, CREATOR_CORE_COLORS, getBackgroundPalette } from './BackgroundCatalog';
 
 export interface BackgroundProps {
   theme?: string;
@@ -30,7 +30,8 @@ export function Background({
   // Normalize theme or fallback
   const activeId = (theme || 'midnight-mesh').toLowerCase().trim();
   const matched = BACKGROUND_CATALOG.find((b) => b.id === activeId) || BACKGROUND_CATALOG[0];
-  const isLight = activeId === 'studio-white';
+  const activePalette = getBackgroundPalette(theme);
+  const isLight = !activePalette.isDark;
 
   // Seeded particles generator (28 deterministic particles)
   const particles = useMemo(() => {
@@ -134,9 +135,10 @@ export function Background({
     );
   };
 
-  // ── 2. MINIMAL BACKGROUNDS ──
+  // ── 2. MINIMAL BACKGROUNDS (Includes 12 Creator Video Colors) ──
   const renderMinimal = () => {
-    if (activeId === 'studio-white') {
+    // 1. Crisp Studio White
+    if (activeId === 'studio-white' || activeId === 'solid-white') {
       return (
         <div
           style={{
@@ -149,6 +151,133 @@ export function Background({
       );
     }
 
+    // 2. Flame Brand Orange
+    if (activeId === 'solid-orange' || activeId === 'flame-orange') {
+      return (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundColor: '#FF5722',
+            backgroundImage: `radial-gradient(circle at 50% 40%, #FF7043 0%, #FF5722 65%, #D84315 100%)`,
+          }}
+        />
+      );
+    }
+
+    // 3. Warm Vintage Cream
+    if (activeId === 'solid-cream' || activeId === 'vintage-cream') {
+      return (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundColor: '#FAF8F5',
+            backgroundImage: `radial-gradient(circle at 50% 40%, #FFFFFF 0%, #FAF8F5 70%, #F1ECE1 100%)`,
+          }}
+        />
+      );
+    }
+
+    // 4. Emerald Money Green
+    if (activeId === 'solid-emerald' || activeId === 'money-green') {
+      return (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundColor: '#064E3B',
+            backgroundImage: `radial-gradient(circle at 50% 40%, #047857 0%, #064E3B 70%, #022C22 100%)`,
+          }}
+        />
+      );
+    }
+
+    // 5. Royal Wall St Navy
+    if (activeId === 'solid-navy' || activeId === 'royal-navy') {
+      return (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundColor: '#0A192F',
+            backgroundImage: `radial-gradient(circle at 50% 40%, #1E3A8A 0%, #0A192F 70%, #020617 100%)`,
+          }}
+        />
+      );
+    }
+
+    // 6. Cyber Electric Cyan
+    if (activeId === 'solid-cyan' || activeId === 'cyber-cyan') {
+      return (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundColor: '#082F49',
+            backgroundImage: `radial-gradient(circle at 50% 40%, #0284C7 0%, #082F49 70%, #03131E 100%)`,
+          }}
+        />
+      );
+    }
+
+    // 7. Regal Royal Purple
+    if (activeId === 'solid-purple' || activeId === 'royal-purple') {
+      return (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundColor: '#2E1065',
+            backgroundImage: `radial-gradient(circle at 50% 40%, #581C87 0%, #2E1065 70%, #0F0326 100%)`,
+          }}
+        />
+      );
+    }
+
+    // 8. Deep Warning Crimson
+    if (activeId === 'solid-crimson' || activeId === 'crimson-red') {
+      return (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundColor: '#450A0A',
+            backgroundImage: `radial-gradient(circle at 50% 40%, #7F1D1D 0%, #450A0A 70%, #1C0202 100%)`,
+          }}
+        />
+      );
+    }
+
+    // 9. Sunset Golden Amber
+    if (activeId === 'solid-amber' || activeId === 'sunset-amber') {
+      return (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundColor: '#78350F',
+            backgroundImage: `radial-gradient(circle at 50% 40%, #B45309 0%, #78350F 70%, #2A1103 100%)`,
+          }}
+        />
+      );
+    }
+
+    // 10. Studio Neutral Gray
+    if (activeId === 'solid-zinc' || activeId === 'studio-gray') {
+      return (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundColor: '#18181B',
+            backgroundImage: `radial-gradient(circle at 50% 40%, #27272A 0%, #18181B 70%, #09090B 100%)`,
+          }}
+        />
+      );
+    }
+
+    // 11. Dark Paper Editorial
     if (activeId === 'dark-paper') {
       return (
         <div
@@ -167,7 +296,8 @@ export function Background({
       );
     }
 
-    if (activeId === 'deep-slate') {
+    // 12. Deep Midnight Slate
+    if (activeId === 'deep-slate' || activeId === 'solid-slate') {
       return (
         <div
           style={{
@@ -180,7 +310,37 @@ export function Background({
       );
     }
 
-    // Default 'studio-dark' (Obsidian #070B14)
+    // 13. Match Any of the 44 Canva Creator Core Colors
+    const coreColor = CREATOR_CORE_COLORS.find((c) => c.id === activeId);
+    if (coreColor) {
+      return (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundColor: coreColor.hex,
+            backgroundImage: `radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.08) 0%, transparent 80%)`,
+          }}
+        />
+      );
+    }
+
+    // 14. Dynamic Custom Hex Code (e.g., #FF0055, hex-ff0055)
+    if (activeId.startsWith('#') || activeId.startsWith('hex-') || /^[0-9a-f]{6}$/i.test(activeId)) {
+      const hex = activeId.startsWith('#') ? activeId : '#' + activeId.replace(/^hex-/, '');
+      return (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundColor: hex,
+            backgroundImage: `radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.06) 0%, transparent 80%)`,
+          }}
+        />
+      );
+    }
+
+    // Default 'studio-dark' / 'solid-black' (Obsidian #070B14)
     return (
       <div
         style={{
@@ -242,6 +402,70 @@ export function Background({
               height: '2px',
               background: 'linear-gradient(90deg, transparent 0%, rgba(14, 165, 233, 0.8) 50%, transparent 100%)',
               boxShadow: '0 0 8px rgba(14, 165, 233, 0.6)',
+            }}
+          />
+        </div>
+      );
+    }
+
+    if (activeId === 'decoding-grid') {
+      const pulseGlow = 0.22 + Math.sin(frame * 0.03) * 0.06;
+      return (
+        <div style={{ position: 'absolute', inset: 0, backgroundColor: '#070B14', overflow: 'hidden' }}>
+          {/* Subtle Dotted Halftone Grid */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.12) 1.5px, transparent 1.5px)',
+              backgroundSize: '36px 36px',
+            }}
+          />
+          {/* Signature Flame Orange Ambient Spotlight */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: `radial-gradient(circle at 50% 45%, rgba(255, 87, 34, ${pulseGlow}) 0%, rgba(255, 160, 0, 0.08) 35%, transparent 70%)`,
+              pointerEvents: 'none',
+            }}
+          />
+          {/* Vignette Edge */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'radial-gradient(ellipse at center, transparent 40%, rgba(7, 11, 20, 0.95) 100%)',
+              pointerEvents: 'none',
+            }}
+          />
+        </div>
+      );
+    }
+
+    if (activeId === 'youtube-dark') {
+      const pulseGlow = 0.20 + Math.sin(frame * 0.025) * 0.05;
+      return (
+        <div style={{ position: 'absolute', inset: 0, backgroundColor: '#0B0F19', overflow: 'hidden' }}>
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: `
+                radial-gradient(circle at 75% 30%, rgba(16, 185, 129, ${pulseGlow}) 0%, transparent 55%),
+                radial-gradient(circle at 25% 75%, rgba(6, 182, 212, 0.15) 0%, transparent 55%)
+              `,
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundImage: `
+                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px)
+              `,
+              backgroundSize: '48px 48px',
             }}
           />
         </div>

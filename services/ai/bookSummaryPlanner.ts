@@ -1,6 +1,16 @@
 import { ReelWord, ReelTranscriptSegment } from './reelPlanner';
+import { readUnifiedAssets } from './assetPicker';
 
-export type BookSummarySceneType = 'CAPTIONS' | 'KEY_IDEA' | 'QUOTE' | 'LESSON_TITLE' | 'BOOK_COVER';
+export type BookSummarySceneType =
+  | 'CAPTIONS'
+  | 'KEY_IDEA'
+  | 'QUOTE'
+  | 'LESSON_TITLE'
+  | 'BOOK_COVER'
+  | 'COMPARISON'
+  | 'KEY_STEPS'
+  | 'STAT_INSIGHT'
+  | 'CONCLUSION';
 
 export interface BookSummaryScene {
   id: string;
@@ -15,6 +25,14 @@ export interface BookSummaryScene {
   assetUrl?: string; // Optional image url (Book cover, author portrait, reference image)
   assetType?: 'cover' | 'author' | 'reference';
   disabled?: boolean;
+  // Dynamic scene variety props (learned from Faceless Video)
+  comparisonLeft?: string;
+  comparisonRight?: string;
+  comparisonLeftTitle?: string;
+  comparisonRightTitle?: string;
+  steps?: string[];
+  statValue?: string;
+  statLabel?: string;
 }
 
 export interface BookSummaryMetadata {
@@ -69,8 +87,8 @@ export function validateQuoteInTranscript(quoteText: string, fullTranscript: str
 /**
  * Validates and repairs a Book Summary Plan according to strict business rules:
  * 1. No invalid overlaps or out-of-bound timestamps.
- * 2. KEY_IDEA minimum visual duration is 2.0 seconds.
- * 3. KEY_IDEA over-frequency guard (at least 12 seconds spacing between KEY_IDEA scenes).
+ * 2. Visual scene minimum visual duration is 2.0 seconds.
+ * 3. Over-frequency guard (adaptive spacing between card scenes).
  * 4. QUOTE text must exist in the transcript; fallback to CAPTIONS if invalid.
  * 5. Audio duration ceiling check.
  * 6. Empty text cleanup.
@@ -83,7 +101,7 @@ export function validateAndRepairBookSummaryPlan(
   const maxDuration = Math.max(1, totalDurationSeconds);
   const validatedScenes: BookSummaryScene[] = [];
 
-  let lastKeyIdeaEndTime = -999;
+  let lastCardEndTime = -999;
 
   for (let i = 0; i < plan.scenes.length; i++) {
     const scene = { ...plan.scenes[i] };
@@ -92,37 +110,47 @@ export function validateAndRepairBookSummaryPlan(
     scene.startSeconds = Math.max(0, Math.min(scene.startSeconds, maxDuration - 0.5));
     scene.endSeconds = Math.max(scene.startSeconds + 0.5, Math.min(scene.endSeconds, maxDuration));
 
-    // 2. Validate scene types
-    const validTypes: BookSummarySceneType[] = ['CAPTIONS', 'KEY_IDEA', 'QUOTE', 'LESSON_TITLE', 'BOOK_COVER'];
+    // 2. Validate scene types (includes new diverse scene types)
+    const validTypes: BookSummarySceneType[] = [
+      'CAPTIONS',
+      'KEY_IDEA',
+      'QUOTE',
+      'LESSON_TITLE',
+      'BOOK_COVER',
+      'COMPARISON',
+      'KEY_STEPS',
+      'STAT_INSIGHT',
+      'CONCLUSION',
+    ];
     if (!validTypes.includes(scene.type)) {
       scene.type = 'CAPTIONS';
     }
 
-    // 3. KEY_IDEA minimum duration rule (>= 2 seconds)
-    if (scene.type === 'KEY_IDEA') {
+    const isVisualCard = scene.type !== 'CAPTIONS';
+
+    // 3. Minimum duration rule (>= 2 seconds for visual cards)
+    if (isVisualCard) {
       const duration = scene.endSeconds - scene.startSeconds;
       if (duration < 2.0) {
-        // Attempt timing repair
         const deficit = 2.0 - duration;
         if (scene.endSeconds + deficit <= maxDuration) {
           scene.endSeconds = scene.endSeconds + deficit;
         } else if (scene.startSeconds - deficit >= 0) {
           scene.startSeconds = scene.startSeconds - deficit;
         } else {
-          // Unrepairable -> Fallback to CAPTIONS
           scene.type = 'CAPTIONS';
         }
       }
     }
 
-    // 4. KEY_IDEA over-frequency guard (adaptive separation based on video duration)
-    const minSeparation = totalDurationSeconds <= 45 ? 4 : (totalDurationSeconds <= 90 ? 8 : 12);
-    if (scene.type === 'KEY_IDEA') {
-      if (scene.startSeconds - lastKeyIdeaEndTime < minSeparation) {
-        // Too frequent -> Fallback to CAPTIONS
+    // 4. Over-frequency guard (adaptive separation based on video duration)
+    const minSeparation = totalDurationSeconds <= 45 ? 4 : (totalDurationSeconds <= 90 ? 7 : 10);
+    if (scene.type !== 'CAPTIONS' && scene.type !== 'BOOK_COVER') {
+      if (scene.startSeconds - lastCardEndTime < minSeparation) {
+        // Too close to previous card -> Fallback to CAPTIONS
         scene.type = 'CAPTIONS';
       } else {
-        lastKeyIdeaEndTime = scene.endSeconds;
+        lastCardEndTime = scene.endSeconds;
       }
     }
 
@@ -136,7 +164,14 @@ export function validateAndRepairBookSummaryPlan(
     }
 
     // 6. Non-empty text check for visual scenes
-    if ((scene.type === 'KEY_IDEA' || scene.type === 'LESSON_TITLE' || scene.type === 'QUOTE') && !scene.text?.trim()) {
+    if (
+      (scene.type === 'KEY_IDEA' ||
+        scene.type === 'LESSON_TITLE' ||
+        scene.type === 'QUOTE' ||
+        scene.type === 'STAT_INSIGHT' ||
+        scene.type === 'CONCLUSION') &&
+      !scene.text?.trim()
+    ) {
       scene.type = 'CAPTIONS';
     }
 
@@ -148,12 +183,16 @@ export function validateAndRepairBookSummaryPlan(
 
   // Fallback metadata if empty
   const metadata: BookSummaryMetadata = {
-    suggestedTitle: plan.metadata?.suggestedTitle || (planRequestTitle(fullTranscript)),
+    suggestedTitle: plan.metadata?.suggestedTitle || planRequestTitle(fullTranscript),
     description: plan.metadata?.description || `Key takeaways and core lessons from this audio summary.`,
-    chapters: Array.isArray(plan.metadata?.chapters) && plan.metadata.chapters.length > 0 ? plan.metadata.chapters : generateDefaultChapters(validatedScenes),
-    keyTakeaways: Array.isArray(plan.metadata?.keyTakeaways) && plan.metadata.keyTakeaways.length > 0
-      ? plan.metadata.keyTakeaways
-      : extractKeyTakeawaysFromScenes(validatedScenes),
+    chapters:
+      Array.isArray(plan.metadata?.chapters) && plan.metadata.chapters.length > 0
+        ? plan.metadata.chapters
+        : generateDefaultChapters(validatedScenes),
+    keyTakeaways:
+      Array.isArray(plan.metadata?.keyTakeaways) && plan.metadata.keyTakeaways.length > 0
+        ? plan.metadata.keyTakeaways
+        : extractKeyTakeawaysFromScenes(validatedScenes),
   };
 
   return {
@@ -169,7 +208,7 @@ function planRequestTitle(transcript: string): string {
 
 function generateDefaultChapters(scenes: BookSummaryScene[]): Array<{ timestamp: string; seconds: number; title: string }> {
   const chapters: Array<{ timestamp: string; seconds: number; title: string }> = [];
-  const lessonScenes = scenes.filter(s => s.type === 'LESSON_TITLE' && s.text);
+  const lessonScenes = scenes.filter(s => (s.type === 'LESSON_TITLE' || s.type === 'KEY_IDEA') && s.text);
   
   if (lessonScenes.length > 0) {
     lessonScenes.forEach((s, idx) => {
@@ -179,7 +218,7 @@ function generateDefaultChapters(scenes: BookSummaryScene[]): Array<{ timestamp:
       chapters.push({
         timestamp: ts,
         seconds: s.startSeconds,
-        title: s.text || `Lesson ${idx + 1}`,
+        title: s.text || `Key Insight #${idx + 1}`,
       });
     });
   } else {
@@ -190,15 +229,85 @@ function generateDefaultChapters(scenes: BookSummaryScene[]): Array<{ timestamp:
 }
 
 function extractKeyTakeawaysFromScenes(scenes: BookSummaryScene[]): string[] {
-  const keyIdeas = scenes
-    .filter(s => (s.type === 'KEY_IDEA' || s.type === 'LESSON_TITLE') && s.text)
+  const takeaways = scenes
+    .filter(s => (s.type === 'KEY_IDEA' || s.type === 'LESSON_TITLE' || s.type === 'KEY_STEPS' || s.type === 'CONCLUSION') && s.text)
     .map(s => s.text!.trim());
-  return keyIdeas.length > 0 ? keyIdeas.slice(0, 5) : ['Understand core principles of the book', 'Apply practical insights to daily habits'];
+  return takeaways.length > 0 ? takeaways.slice(0, 5) : ['Understand core principles of the book', 'Apply practical insights to daily habits'];
+}
+
+/**
+ * Helper to extract numeric stat values (e.g. "80/20", "1%", "10x", "$100k") from spoken segment
+ */
+function extractStatInsight(text: string): { statValue: string; statLabel: string } | null {
+  const ratioMatch = text.match(/\b(80\/20|90\/10|70\/30|50\/50)\b/i);
+  if (ratioMatch) {
+    return { statValue: ratioMatch[1], statLabel: 'The Power Law Principle' };
+  }
+  const pctMatch = text.match(/\b(\d+(?:\.\d+)?%)\b/);
+  if (pctMatch) {
+    return { statValue: pctMatch[1], statLabel: 'Compounding Impact Metric' };
+  }
+  const multiMatch = text.match(/\b(\d+x)\b/i);
+  if (multiMatch) {
+    return { statValue: multiMatch[1].toUpperCase(), statLabel: 'Exponential Growth Multiplier' };
+  }
+  const currencyMatch = text.match(/\b(\$[\d,]+(?:\s*(?:k|m|b|million|billion))?)\b/i);
+  if (currencyMatch) {
+    return { statValue: currencyMatch[1].toUpperCase(), statLabel: 'Financial Benchmark Metric' };
+  }
+  const ruleMatch = text.match(/\b(1% rule|10,\s*000 hours|5 second rule|2 minute rule)\b/i);
+  if (ruleMatch) {
+    return { statValue: ruleMatch[1].toUpperCase(), statLabel: 'Core Behavioral Law' };
+  }
+  return null;
+}
+
+/**
+ * Helper to extract comparison contrast (e.g. Old Habit vs Book Rule) from spoken segment
+ */
+function extractComparison(text: string): { left: string; right: string; leftTitle: string; rightTitle: string } | null {
+  const contrastTriggers = [
+    /\binstead of\s+([^,.;]+)[,;]\s*(?:try to|always|focus on|you must|do)?\s*([^,.;]+)/i,
+    /\bthe difference between\s+([^,.;]+)\s+and\s+([^,.;]+)/i,
+    /\bnot\s+([^,.;]+)[,;]\s*but\s+([^,.;]+)/i,
+    /\b(poor|scarcity|reactive)\s+(?:mindset|people|habits?)\s+([^,.;]+)[,;]\s*(?:while|whereas|rich|abundance|proactive)\s+([^,.;]+)/i,
+  ];
+
+  for (const regex of contrastTriggers) {
+    const match = text.match(regex);
+    if (match && match[1] && match[2]) {
+      const left = match[1].trim();
+      const right = match[2].trim();
+      if (left.length >= 6 && right.length >= 6) {
+        return {
+          leftTitle: 'THE OLD HABIT / MISTAKE',
+          left: left.length > 50 ? `${left.slice(0, 48)}...` : left,
+          rightTitle: 'THE BOOK PRINCIPLE',
+          right: right.length > 50 ? `${right.slice(0, 48)}...` : right,
+        };
+      }
+    }
+  }
+
+  // General fallback contrast trigger if " vs " or "versus" is present
+  if (/\b(vs\.?|versus)\b/i.test(text)) {
+    const parts = text.split(/\b(?:vs\.?|versus)\b/i);
+    if (parts.length >= 2 && parts[0].trim().length >= 4 && parts[1].trim().length >= 4) {
+      return {
+        leftTitle: 'COMMON BELIEF',
+        left: parts[0].trim().slice(0, 48),
+        rightTitle: 'CORE INSIGHT',
+        right: parts[1].trim().slice(0, 48),
+      };
+    }
+  }
+
+  return null;
 }
 
 /**
  * Local Deterministic AI Planner (Zero external LLM latency dependency fallback & primary deterministic generator)
- * Parses spoken segments & word timestamps to generate a balanced Book Summary Plan.
+ * Parses spoken segments & word timestamps to generate a dynamic, non-repeating Book Summary Plan.
  */
 export function buildLocalBookSummaryPlan(request: BookSummaryPlanRequest): BookSummaryPlan {
   const {
@@ -238,24 +347,31 @@ export function buildLocalBookSummaryPlan(request: BookSummaryPlanRequest): Book
     });
   }
 
-  // 2. Scan segments for natural lesson titles, quotes, and key ideas (approx 1 Key Idea every 25s)
+  // 2. Scan segments for natural lesson titles, quotes, comparisons, stats, and key ideas
   const segments = timestampSegments.length > 0 ? timestampSegments : fallBackSegments(transcript, duration);
   
   let currentLessonCount = 1;
-  let lastKeyIdeaTime = 0;
+  let lastCardEndTime = 0;
+  let lastCardType: BookSummarySceneType = bookCoverUrl ? 'BOOK_COVER' : 'LESSON_TITLE';
   let refImageIdx = 0;
+
+  // Scene type rotation list to ensure diverse visual pacing without repeating the same card layout
+  const rotationTypes: BookSummarySceneType[] = ['KEY_IDEA', 'COMPARISON', 'KEY_STEPS', 'STAT_INSIGHT'];
+  let rotationIndex = 0;
 
   for (let i = 0; i < segments.length; i++) {
     const seg = segments[i];
     const segText = seg.text.trim();
     const segDuration = seg.end - seg.start;
     const isFirstHalf = seg.start < duration * 0.5;
+    const isNearEnd = seg.end > duration * 0.85;
 
-    // Detect Lesson Titles
-    const isLessonTrigger = /^(lesson|chapter|rule|principle|part|step|#?\d+)/i.test(segText) ||
+    // A. Detect Lesson Titles
+    const isLessonTrigger =
+      /^(lesson|chapter|rule|principle|part|step|#?\d+)/i.test(segText) ||
       /\b(firstly|secondly|thirdly|the first key|the main lesson|key takeaway)\b/i.test(segText);
 
-    if (isLessonTrigger && seg.start > 3.5 && (seg.end - seg.start) >= 1.5) {
+    if (isLessonTrigger && seg.start > 3.5 && segDuration >= 1.5) {
       scenes.push({
         id: `scene-lesson-${i}`,
         type: 'LESSON_TITLE',
@@ -266,10 +382,12 @@ export function buildLocalBookSummaryPlan(request: BookSummaryPlanRequest): Book
         subtitle: `Core Insight #${currentLessonCount}`,
       });
       currentLessonCount++;
+      lastCardEndTime = seg.end;
+      lastCardType = 'LESSON_TITLE';
       continue;
     }
 
-    // Detect Quotes
+    // B. Detect Quotes
     const isQuoteTrigger = /"([^"]+)"/.test(segText) || /\b(quote|said|wrote|stating|he writes|she writes)\b/i.test(segText);
     if (isQuoteTrigger && segDuration >= 2.0 && seg.start > 5) {
       const match = segText.match(/"([^"]+)"/);
@@ -286,49 +404,202 @@ export function buildLocalBookSummaryPlan(request: BookSummaryPlanRequest): Book
           assetUrl: authorPortraitUrl || undefined,
           assetType: authorPortraitUrl ? 'author' : undefined,
         });
+        lastCardEndTime = seg.end;
+        lastCardType = 'QUOTE';
         continue;
       }
     }
 
-    // Key Idea spacing: adaptive interval based on duration
-    const keyIdeaInterval = duration <= 45 ? 6 : (duration <= 90 ? 12 : 24);
-    const minSegLen = duration <= 45 ? 8 : 15;
-    if (seg.start - lastKeyIdeaTime >= keyIdeaInterval && segDuration >= 1.2 && segText.length >= minSegLen && segText.length <= 140) {
-      const isShortHeading = segText.split(' ').length <= 14;
-      if (isShortHeading) {
-        let assetUrl: string | undefined = undefined;
-        let assetType: 'reference' | 'author' | 'cover' | undefined = undefined;
+    // C. Pacing Interval: Check if enough time has passed to show another visual scene
+    const cardInterval = duration <= 45 ? 6 : (duration <= 90 ? 12 : 22);
+    const minSegLen = duration <= 45 ? 8 : 14;
 
-        if (referenceImages.length > 0 && refImageIdx < referenceImages.length) {
-          assetUrl = referenceImages[refImageIdx % referenceImages.length];
-          assetType = 'reference';
-          refImageIdx++;
-        } else if (authorPortraitUrl && isFirstHalf) {
-          assetUrl = authorPortraitUrl;
-          assetType = 'author';
+    if (seg.start - lastCardEndTime >= cardInterval && segDuration >= 1.2 && segText.length >= minSegLen && segText.length <= 160) {
+      const sceneEndTime = Math.min(duration, Math.max(seg.start + 2.5, seg.end));
+
+      // 1. Check for Outro / CONCLUSION if in final 15% of video
+      if (isNearEnd && lastCardType !== 'CONCLUSION' && scenes.filter(s => s.type === 'CONCLUSION').length === 0) {
+        scenes.push({
+          id: `scene-conclusion-${i}`,
+          type: 'CONCLUSION',
+          startSeconds: seg.start,
+          endSeconds: sceneEndTime,
+          text: segText,
+          subtitle: bookTitle ? `Final Takeaway — ${bookTitle}` : 'Ultimate Action Step',
+          authorName: authorName || 'Key Takeaway',
+        });
+        lastCardEndTime = sceneEndTime;
+        lastCardType = 'CONCLUSION';
+        continue;
+      }
+
+      // 2. Check for STAT_INSIGHT
+      const stat = extractStatInsight(segText);
+      if (stat && lastCardType !== 'STAT_INSIGHT') {
+        scenes.push({
+          id: `scene-stat-${i}`,
+          type: 'STAT_INSIGHT',
+          startSeconds: seg.start,
+          endSeconds: sceneEndTime,
+          text: segText,
+          statValue: stat.statValue,
+          statLabel: stat.statLabel,
+          subtitle: bookTitle ? `${bookTitle} Metric` : 'Key Metric',
+        });
+        lastCardEndTime = sceneEndTime;
+        lastCardType = 'STAT_INSIGHT';
+        continue;
+      }
+
+      // 3. Check for COMPARISON
+      const comp = extractComparison(segText);
+      if (comp && lastCardType !== 'COMPARISON') {
+        scenes.push({
+          id: `scene-comp-${i}`,
+          type: 'COMPARISON',
+          startSeconds: seg.start,
+          endSeconds: sceneEndTime,
+          text: segText,
+          subtitle: 'Paradigm Shift',
+          comparisonLeft: comp.left,
+          comparisonRight: comp.right,
+          comparisonLeftTitle: comp.leftTitle,
+          comparisonRightTitle: comp.rightTitle,
+        });
+        lastCardEndTime = sceneEndTime;
+        lastCardType = 'COMPARISON';
+        continue;
+      }
+
+      // 4. Non-repeating rotation across KEY_IDEA, KEY_STEPS, and COMPARISON
+      let chosenType = rotationTypes[rotationIndex % rotationTypes.length];
+      if (chosenType === lastCardType) {
+        rotationIndex++;
+        chosenType = rotationTypes[rotationIndex % rotationTypes.length];
+      }
+      rotationIndex++;
+
+      // Pick asset for KEY_IDEA if available
+      let assetUrl: string | undefined = undefined;
+      let assetType: 'reference' | 'author' | 'cover' | undefined = undefined;
+      if (referenceImages.length > 0 && refImageIdx < referenceImages.length) {
+        assetUrl = referenceImages[refImageIdx % referenceImages.length];
+        assetType = 'reference';
+        refImageIdx++;
+      } else if (authorPortraitUrl && isFirstHalf) {
+        assetUrl = authorPortraitUrl;
+        assetType = 'author';
+      } else if (chosenType === 'KEY_IDEA') {
+        // High-relevance educational diagram or framework match from cloud asset library
+        try {
+          const unified = readUnifiedAssets();
+          const cleanTokens = segText.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length > 3);
+          const isDbBook = cleanTokens.some(t => ['database', 'sql', 'oracle', 'tablespace', 'query', 'schema', 'architecture'].includes(t));
+
+          const candidates = unified.filter((a) => {
+            if (!a.safeToUse || !a.src) return false;
+            if (a.type !== 'image') return false;
+            if (a.kind === 'icon' || a.kind === 'whiteboard') return false;
+            if (a.category === 'oracle-database') return isDbBook;
+            return a.category === 'diagrams' || a.category === 'backgrounds';
+          });
+
+          if (candidates.length > 0) {
+            let bestAsset: any = null;
+            let bestScore = 0;
+            for (const cand of candidates) {
+              const candTags = (cand.tags || []).map(t => t.toLowerCase());
+              const candTitle = (cand.title || '').toLowerCase();
+              let score = 0;
+              for (const tok of cleanTokens) {
+                if (candTags.some(tag => tag.includes(tok) || tok.includes(tag))) score += 3;
+                if (candTitle.includes(tok)) score += 2;
+              }
+              if (score > bestScore) {
+                bestScore = score;
+                bestAsset = cand;
+              }
+            }
+            if (bestAsset && bestScore >= 4) {
+              assetUrl = bestAsset.src;
+              assetType = 'reference';
+            }
+          }
+        } catch {
+          // Fallback safely to clean text-only card if asset matching is unavailable
         }
+      }
 
+      if (chosenType === 'KEY_STEPS') {
+        // Build 3 actionable steps from segment or context
+        const words = segText.split(' ');
+        const step1 = words.slice(0, Math.ceil(words.length / 3)).join(' ') || 'Identify the core leverage point';
+        const step2 = words.slice(Math.ceil(words.length / 3), Math.ceil((words.length * 2) / 3)).join(' ') || 'Apply daily systematic execution';
+        const step3 = words.slice(Math.ceil((words.length * 2) / 3)).join(' ') || 'Compound results without friction';
+
+        scenes.push({
+          id: `scene-keysteps-${i}`,
+          type: 'KEY_STEPS',
+          startSeconds: seg.start,
+          endSeconds: sceneEndTime,
+          text: segText,
+          subtitle: '3-Step Action Roadmap',
+          steps: [step1, step2, step3],
+        });
+      } else if (chosenType === 'COMPARISON') {
+        scenes.push({
+          id: `scene-comp-rot-${i}`,
+          type: 'COMPARISON',
+          startSeconds: seg.start,
+          endSeconds: sceneEndTime,
+          text: segText,
+          subtitle: 'Mindset Shift',
+          comparisonLeftTitle: 'TRADITIONAL APPROACH',
+          comparisonLeft: 'Reactive habits & short-term gratification',
+          comparisonRightTitle: 'THE BOOK PRINCIPLE',
+          comparisonRight: segText.length > 60 ? `${segText.slice(0, 58)}...` : segText,
+        });
+      } else if (chosenType === 'STAT_INSIGHT') {
+        scenes.push({
+          id: `scene-stat-rot-${i}`,
+          type: 'STAT_INSIGHT',
+          startSeconds: seg.start,
+          endSeconds: sceneEndTime,
+          text: segText,
+          statValue: '80 / 20',
+          statLabel: 'Pareto Law Takeaway',
+          subtitle: bookTitle || 'Core Multiplier',
+        });
+      } else {
+        // Fallback to KEY_IDEA
         scenes.push({
           id: `scene-keyidea-${i}`,
           type: 'KEY_IDEA',
           startSeconds: seg.start,
-          endSeconds: Math.min(duration, Math.max(seg.start + 2.5, seg.end)),
+          endSeconds: sceneEndTime,
           text: segText,
           subtitle: bookTitle ? `Key Insight — ${bookTitle}` : 'Core Concept',
           assetUrl,
           assetType,
         });
-        lastKeyIdeaTime = seg.end;
       }
+
+      lastCardEndTime = sceneEndTime;
+      lastCardType = chosenType;
     }
   }
 
-  // Ensure every book summary has at least 2-4 visual scenes for engaging pacing
-  if (scenes.length <= 1 && segments.length > 0) {
+  // Ensure every book summary has at least 3-4 visual scenes with varied layouts for engaging pacing
+  if (scenes.length <= 2 && segments.length > 0) {
     const candidateSegs = segments.filter(s => s.start >= 3.0 && s.text.trim().length >= 8);
     const step = Math.max(1, Math.floor(candidateSegs.length / 3));
+    const fallbackTypes: BookSummarySceneType[] = ['KEY_IDEA', 'COMPARISON', 'KEY_STEPS'];
+
     for (let c = 0; c < candidateSegs.length && scenes.length < 4; c += step) {
       const seg = candidateSegs[c];
+      const sceneType = fallbackTypes[c % fallbackTypes.length];
+      const sceneEndTime = Math.min(duration, Math.max(seg.start + 2.5, seg.end));
+
       let assetUrl: string | undefined = undefined;
       let assetType: 'reference' | 'author' | 'cover' | undefined = undefined;
       if (referenceImages.length > 0) {
@@ -339,16 +610,41 @@ export function buildLocalBookSummaryPlan(request: BookSummaryPlanRequest): Book
         assetType = 'author';
       }
 
-      scenes.push({
-        id: `scene-auto-takeaway-${c}`,
-        type: 'KEY_IDEA',
-        startSeconds: seg.start,
-        endSeconds: Math.min(duration, Math.max(seg.start + 2.5, seg.end)),
-        text: seg.text.trim(),
-        subtitle: bookTitle ? `Key Insight — ${bookTitle}` : 'Core Takeaway',
-        assetUrl,
-        assetType,
-      });
+      if (sceneType === 'COMPARISON') {
+        scenes.push({
+          id: `scene-auto-comp-${c}`,
+          type: 'COMPARISON',
+          startSeconds: seg.start,
+          endSeconds: sceneEndTime,
+          text: seg.text.trim(),
+          subtitle: 'Mindset Shift',
+          comparisonLeftTitle: 'OLD WAY',
+          comparisonLeft: 'Unconscious repetition of past habits',
+          comparisonRightTitle: 'NEW INSIGHT',
+          comparisonRight: seg.text.trim(),
+        });
+      } else if (sceneType === 'KEY_STEPS') {
+        scenes.push({
+          id: `scene-auto-steps-${c}`,
+          type: 'KEY_STEPS',
+          startSeconds: seg.start,
+          endSeconds: sceneEndTime,
+          text: seg.text.trim(),
+          subtitle: 'Key Action Steps',
+          steps: ['Focus on high-leverage activities', 'Eliminate cognitive distractions', 'Review progress systematically'],
+        });
+      } else {
+        scenes.push({
+          id: `scene-auto-takeaway-${c}`,
+          type: 'KEY_IDEA',
+          startSeconds: seg.start,
+          endSeconds: sceneEndTime,
+          text: seg.text.trim(),
+          subtitle: bookTitle ? `Key Insight — ${bookTitle}` : 'Core Takeaway',
+          assetUrl,
+          assetType,
+        });
+      }
     }
   }
 

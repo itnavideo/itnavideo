@@ -4,15 +4,11 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import BrandLogo from "@/components/brand/BrandLogo";
 import {
-  Film,
   Video,
-  Sparkles,
   Zap,
   CreditCard,
-  BookOpen,
   LogOut,
   X,
-  ExternalLink,
   ArrowRight,
   History,
   CheckCircle2,
@@ -91,19 +87,24 @@ export default function DashboardSidebar({
 
       {/* Grounded Solid Dark Sidebar Container */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 flex flex-col w-72 bg-[#0B0F19] border-r border-white/10 text-white shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.2,0,0,1)] lg:translate-x-0 ${
+        className={`fixed top-0 bottom-0 left-0 z-50 flex flex-col w-72 bg-[#0B0B0E] border-r border-white/10 text-white shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.2,0,0,1)] lg:translate-x-0 ${
           isOpenMobile ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Top Header & Brand */}
-        <div className="flex items-center justify-between p-5 border-b border-white/10 bg-[#0E1526]/50">
-          <Link href="/dashboard" className="flex items-center gap-3 group">
-            <div className="p-1.5 rounded-xl bg-[#151E30] border border-white/10 group-hover:border-orange-500/50 transition-colors shadow-sm">
+        <div className="flex items-center justify-between p-5 border-b border-white/10 bg-[#101014]/90">
+          <Link
+            href="/dashboard"
+            onClick={() => onSelectTab("studios")}
+            className="flex items-center gap-3 group"
+          >
+            <div className="p-1.5 rounded-xl bg-[#181820] border border-white/10 group-hover:border-orange-500/50 transition-colors shadow-sm">
               <BrandLogo size="sm" iconOnly={true} />
             </div>
             <div className="flex flex-col">
-              <span className="text-sm font-black tracking-wider text-white group-hover:text-[#FFA000] transition-colors">
-                ITNAVIDEO
+              <span className="text-sm font-black tracking-wider uppercase select-none">
+                <span className="text-white">ITNA</span>
+                <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">VIDEO</span>
               </span>
               <span className="text-[10px] font-bold uppercase tracking-widest text-[#FF5722]">
                 AI VIDEO STUDIO
@@ -115,7 +116,7 @@ export default function DashboardSidebar({
           {onCloseMobile && (
             <button
               onClick={onCloseMobile}
-              className="lg:hidden p-2 rounded-xl border border-white/10 bg-[#151E30] text-zinc-400 hover:text-white transition"
+              className="lg:hidden p-2 rounded-xl border border-white/10 bg-[#181820] text-zinc-400 hover:text-white transition"
               aria-label="Close navigation"
             >
               <X size={18} />
@@ -125,11 +126,14 @@ export default function DashboardSidebar({
 
         {/* Credit Balance Card (Solid Grounded SaaS Design) */}
         <div className="p-4">
-          <div className="rounded-2xl bg-[#121826] border border-white/10 p-4 shadow-xl relative overflow-hidden">
+          <div className="rounded-2xl bg-gradient-to-b from-[#1A1A24] to-[#111116] border border-white/10 p-4 shadow-xl relative overflow-hidden group hover:border-[#FF5722]/40 transition-colors">
+            {/* Ambient Warm Corner Glow */}
+            <div className="absolute -top-12 -right-12 w-24 h-24 bg-[#FF5722]/20 rounded-full blur-xl pointer-events-none group-hover:bg-[#FF5722]/30 transition-all" />
+
             {/* Header row */}
-            <div className="flex items-center justify-between gap-2 mb-2">
+            <div className="flex items-center justify-between gap-2 mb-2 relative z-10">
               <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-300 uppercase tracking-wider">
-                <Zap size={14} className="text-[#FF5722] fill-[#FF5722]" />
+                <Zap size={14} className="text-[#FF5722] fill-[#FF5722] animate-pulse" />
                 <span>Credits</span>
               </div>
               <span className="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
@@ -138,7 +142,7 @@ export default function DashboardSidebar({
             </div>
 
             {/* Big Crisp Balance Display */}
-            <div className="flex items-baseline gap-2 mb-3.5">
+            <div className="flex items-baseline gap-2 mb-3.5 relative z-10">
               <span className="text-3xl font-black text-white tracking-tight">
                 {remainingCredits}
               </span>
@@ -148,10 +152,10 @@ export default function DashboardSidebar({
             </div>
 
             {/* Action Buttons */}
-            <div className="space-y-2">
+            <div className="space-y-2 relative z-10">
               <Link
                 href="/pricing"
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white font-bold text-xs shadow-md shadow-orange-500/25 hover:brightness-110 active:scale-98 transition-all"
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white font-bold text-xs shadow-lg shadow-orange-500/25 hover:brightness-110 active:scale-98 transition-all"
               >
                 <CreditCard size={14} />
                 <span>+ Add Credits</span>
@@ -169,146 +173,46 @@ export default function DashboardSidebar({
           </div>
         </div>
 
-        {/* Navigation Section */}
-        <div className="flex-1 px-3 py-1 space-y-4 overflow-y-auto custom-scrollbar">
-          {/* Section: CREATE */}
-          <div>
-            <div className="px-3 py-1 text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-1">
-              Create
-            </div>
-
-            <div className="space-y-1">
-              <button
-                onClick={() => {
-                  onSelectTab("studios");
-                  if (onCloseMobile) onCloseMobile();
-                }}
-                className={`w-full flex items-center justify-between p-3 rounded-xl text-left transition-all group ${
-                  activeTab === "studios"
-                    ? "bg-[#151E30] border border-orange-500/60 text-white font-bold shadow-md"
-                    : "text-zinc-300 hover:text-white hover:bg-white/5 border border-transparent"
-                }`}
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div
-                    className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors shrink-0 ${
-                      activeTab === "studios"
-                        ? "bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-white shadow-md shadow-orange-500/30"
-                        : "bg-[#151E30] text-zinc-300 group-hover:text-[#FFA000] border border-white/10"
-                    }`}
-                  >
-                    <Film size={18} />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-xs font-bold truncate">Video Studios</div>
-                    <div className="text-[10px] text-zinc-400 truncate">10 AI Pipelines</div>
-                  </div>
-                </div>
-
-                <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-orange-500/15 text-[#FF5722] border border-orange-500/30 shrink-0">
-                  10 Tools
-                </span>
-              </button>
-
-              <button
-                onClick={() => {
-                  onSelectTab("history");
-                  if (onCloseMobile) onCloseMobile();
-                }}
-                className={`w-full flex items-center justify-between p-3 rounded-xl text-left transition-all group ${
+        {/* Navigation Section: Generated Videos Only */}
+        <div className="flex-1 px-3 py-3 space-y-2 overflow-y-auto custom-scrollbar">
+          <button
+            onClick={() => {
+              onSelectTab("history");
+              if (onCloseMobile) onCloseMobile();
+            }}
+            className={`w-full flex items-center justify-between p-3 rounded-xl text-left transition-all group ${
+              activeTab === "history"
+                ? "bg-[#1C1C24] border border-orange-500/60 text-white font-bold shadow-md"
+                : "text-zinc-300 hover:text-white hover:bg-white/5 border border-transparent"
+            }`}
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div
+                className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors shrink-0 ${
                   activeTab === "history"
-                    ? "bg-[#151E30] border border-emerald-500/60 text-white font-bold shadow-md"
-                    : "text-zinc-300 hover:text-white hover:bg-white/5 border border-transparent"
+                    ? "bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-white shadow-md shadow-orange-500/30"
+                    : "bg-[#181820] text-zinc-300 group-hover:text-[#FFA000] border border-white/10"
                 }`}
               >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div
-                    className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors shrink-0 ${
-                      activeTab === "history"
-                        ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/30"
-                        : "bg-[#151E30] text-zinc-300 group-hover:text-emerald-400 border border-white/10"
-                    }`}
-                  >
-                    <Video size={18} />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-xs font-bold truncate">Generated Videos</div>
-                    <div className="text-[10px] text-zinc-400 truncate">Export Cloud Library</div>
-                  </div>
-                </div>
-
-                {renderedVideosCount > 0 && (
-                  <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 shrink-0">
-                    {renderedVideosCount} Ready
-                  </span>
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* Section: DISCOVER / RESOURCES */}
-          <div>
-            <div className="px-3 py-1 text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-1">
-              Discover & Resources
+                <Video size={18} />
+              </div>
+              <div className="min-w-0">
+                <div className="text-xs font-bold truncate">Generated Videos</div>
+                <div className="text-[10px] text-zinc-400 truncate">Export Cloud Library</div>
+              </div>
             </div>
 
-            <div className="space-y-1">
-              <button
-                onClick={() => {
-                  onSelectTab("announcements");
-                  if (onCloseMobile) onCloseMobile();
-                }}
-                className={`w-full flex items-center justify-between p-3 rounded-xl text-left transition-all group ${
-                  activeTab === "announcements"
-                    ? "bg-[#151E30] border border-amber-500/60 text-white font-bold shadow-md"
-                    : "text-zinc-300 hover:text-white hover:bg-white/5 border border-transparent"
-                }`}
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div
-                    className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors shrink-0 ${
-                      activeTab === "announcements"
-                        ? "bg-amber-500 text-white shadow-md shadow-amber-500/30"
-                        : "bg-[#151E30] text-zinc-300 group-hover:text-amber-400 border border-white/10"
-                    }`}
-                  >
-                    <Sparkles size={18} />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-xs font-bold truncate">What&apos;s New</div>
-                    <div className="text-[10px] text-zinc-400 truncate">2026 Engine Updates</div>
-                  </div>
-                </div>
-
-                <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 shrink-0">
-                  NEW
-                </span>
-              </button>
-
-              <Link
-                href="/blog"
-                className="w-full flex items-center justify-between p-3 rounded-xl text-left text-zinc-300 hover:text-white hover:bg-white/5 border border-transparent transition-all group"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-9 h-9 rounded-lg bg-[#151E30] text-zinc-300 border border-white/10 flex items-center justify-center group-hover:text-sky-400 transition-colors shrink-0">
-                    <BookOpen size={18} />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-xs font-bold text-zinc-200 group-hover:text-white truncate">
-                      Guides & Blog
-                    </div>
-                    <div className="text-[10px] text-zinc-400 truncate">Safe Zones & Video SEO</div>
-                  </div>
-                </div>
-                <ExternalLink size={14} className="text-zinc-400 group-hover:text-white shrink-0" />
-              </Link>
-            </div>
-          </div>
+            {renderedVideosCount > 0 && (
+              <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-orange-500/15 text-orange-300 border border-orange-500/30 shrink-0">
+                {renderedVideosCount} Ready
+              </span>
+            )}
+          </button>
         </div>
 
         {/* User Account / Footer */}
-        <div className="p-4 border-t border-white/10 bg-[#0E1526]/50">
-          <div className="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-[#121826] border border-white/10 shadow-sm">
+        <div className="p-4 border-t border-white/10 bg-[#101014]/90">
+          <div className="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-[#181820] border border-white/10 shadow-sm">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#FF5722] to-[#FFA000] text-white font-black text-xs flex items-center justify-center shrink-0 shadow-md shadow-orange-500/30">
                 {userEmail ? userEmail.charAt(0).toUpperCase() : "U"}
@@ -413,7 +317,7 @@ export default function DashboardSidebar({
                         <div className="text-xs font-bold text-white truncate">{item.title}</div>
                         <div className="text-[10px] text-zinc-400 flex items-center gap-2">
                           <span className="capitalize">{item.mode}</span>
-                          <span>•</span>
+                          <span></span>
                           <span>{new Date(item.createdAt).toLocaleDateString()}</span>
                         </div>
                       </div>

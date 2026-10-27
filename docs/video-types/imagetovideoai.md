@@ -213,11 +213,10 @@ export interface ImageToVideoAiProps {
 
 ---
 
-## 14. Live Cloudinary Demo Showcase (Homepage & Studio)
-- **5 High-Quality 1080p Cloud Demos**:
-  - Rendered widescreen 16:9 MP4 samples hosted on Cloudinary (`itnavideo-assets/Imagetovideoai-homepagevideos`).
-  - Integrated in both the Studio workspace ([`ImageToVideoShowcaseCarousel.tsx`](file:///c:/Users/Akram%20Editor%20Studio/.gemini/antigravity/scratch/itnavideo_studio/components/dashboard/ImageToVideoShowcaseCarousel.tsx)) and Homepage ([`ImageToVideoHomepageShowcase.tsx`](file:///c:/Users/Akram%20Editor%20Studio/.gemini/antigravity/scratch/itnavideo_studio/components/landing/ImageToVideoHomepageShowcase.tsx)).
-  - Uses Cloudinary `so_3` (3-second start offset) poster generation so full artwork scenes are visible instead of black title screens.
+## 14. Demo Videos Strategy (Dedicated SEO Pages Only)
+- **Dedicated SEO Pages Only**:
+  - Demo video carousels have been removed from the creation studio workspace (`components/dashboard/ImageToVideoStudio.tsx`) to keep the dashboard focused, fast, and clean.
+  - Rendered widescreen 16:9 MP4 samples are featured strictly on dedicated SEO landing pages (e.g. `/tools/image-to-video-ai`).
 
 ---
 

@@ -2,28 +2,21 @@ import { NextResponse } from 'next/server';
 import { createReadUrl } from '@/lib/aws/mediaStorage';
 import { transcribeMediaUrlWithGroq } from '@/services/ai/groqTranscription';
 import { transcribeMediaWithGeminiFallback } from '@/services/ai/geminiTranscription';
-import { generateStructuredSceneBlueprint } from '@/services/ai/aiScenePlanner';
-import { planImagesFromLibraryForScenes } from '@/services/ai/aiImageLibraryMatcher';
-import { smartMatchUploadedImagesToScenes } from '@/services/ai/smartMediaMatcher';
-import { autoTagUploadedMediaAssets } from '@/services/ai/visionAutoTagger';
+import { generateStructuredSceneBlueprint, generateFacelessStickerEvents } from '@/services/ai/aiScenePlanner';
+import { planFacelessGraphics } from '@/services/ai/facelessGraphicPlanner';
 import { generateSFXEvents } from '@/services/ai/sfxEngine';
 import { validateAndAlignTranscript, type TranscriptSegment } from '@/services/ai/transcriptAlignment';
-import { toAbsoluteS3AssetUrl } from '@/constants/itnavideoStockAssets';
-import { matchPexelsMediaForScenes } from '@/services/ai/pexelsImages';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const MAX_FACELESS_DURATION_SECONDS = 600; // 10 minutes maximum
+const MAX_FACELESS_DURATION_SECONDS = 300; // 300 seconds (5 minutes maximum strictly per user standard)
 
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
     const {
       topicTitle = '',
-      assetMode = 'library',
-      visualArtStyle = 'realistic',
-      uploadedImageUrls = [],
       durationSeconds: inputDuration,
       language = 'en',
       existingTranscript = '',
@@ -155,107 +148,28 @@ export async function POST(req: Request) {
       backgroundTheme,
     });
 
-    // 4. Semantic Asset Matching (Curated Library vs Uploaded Assets)
-    const targetRatio = '16:9';
-    const selectedVisualStyle = 'realistic';
+    // Image visuals are paused; derive every scene graphic from the approved narration.
+    const sceneBlueprint = planFacelessGraphics(blueprint.scenes).map((scene) => ({
+      ...scene,
+      visualAssetRequirement: "",
+      brollSearchQuery: "",
+    }));
 
-    const mappedBrollUrls: Record<number, string> = {};
-
-    if (assetMode === 'library' || assetMode === 'mix') {
-      const libraryMatches = await planImagesFromLibraryForScenes(blueprint.scenes, {
-        aspectRatio: targetRatio,
-        visualStyle: selectedVisualStyle,
-        minimumScore: 8,
-      });
-      Object.assign(mappedBrollUrls, libraryMatches);
-    }
-
-    let taggedAssets: any[] = [];
-
-    if (assetMode === 'upload' || assetMode === 'mix') {
-      const resolvedUploadUrls: string[] = await Promise.all(
-        (uploadedImageUrls || []).map(async (url: string) => {
-          if (!url) return '';
-          if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url;
-          try {
-            return await createReadUrl(url);
-          } catch {
-            return url;
-          }
-        })
-      );
-      const rawCandidates = resolvedUploadUrls.filter(Boolean).map((url: string, idx: number) => ({
-        key: `upload_${idx}`,
-        url,
-        fileName: decodeURIComponent((url.split('?')[0].split('/').pop() || `media_${idx}`)),
-      }));
-
-      let candidates = rawCandidates;
-
-      if (rawCandidates.length > 0) {
-        try {
-          taggedAssets = await autoTagUploadedMediaAssets(rawCandidates);
-          candidates = rawCandidates.map((c, i) => {
-            const t = taggedAssets[i];
-            return {
-              ...c,
-              tags: t?.tags || [],
-              description: t?.description || '',
-              captionOrLabel: t?.title || '',
-            };
-          });
-        } catch (visionErr) {
-          console.warn('[PlanFacelessVideo] Vision AI tagging error, using baseline filename tags:', visionErr);
-        }
-
-        const uploadMatches = smartMatchUploadedImagesToScenes(blueprint.scenes, candidates);
-        if (assetMode === 'upload') {
-          Object.assign(mappedBrollUrls, uploadMatches);
-        } else {
-          // Mix: place uploads where match exists, keep library for others
-          for (const [sNum, uUrl] of Object.entries(uploadMatches)) {
-            if (uUrl) mappedBrollUrls[Number(sNum)] = String(uUrl);
-          }
-        }
-      }
-    }
-
-    // 4b. Pexels Stock Media Fallback (HD Video Clips & Photos)
-    // Ensures every single scene receives cinematic B-roll instead of a dark blank slide
-    if (assetMode !== 'upload' || Object.keys(mappedBrollUrls).length === 0) {
-      const missingScenes = blueprint.scenes.filter((s: any) => !mappedBrollUrls[s.sceneNumber]);
-      if (missingScenes.length > 0) {
-        try {
-          const pexelsMatches = await matchPexelsMediaForScenes(missingScenes as any, {
-            orientation: 'landscape',
-            preferVideo: true,
-          });
-          for (const [sNum, pUrl] of Object.entries(pexelsMatches)) {
-            if (pUrl && !mappedBrollUrls[Number(sNum)]) {
-              mappedBrollUrls[Number(sNum)] = pUrl;
-            }
-          }
-        } catch (pexelsErr) {
-          console.warn('[PlanFacelessVideo] Pexels match error:', pexelsErr);
-        }
-      }
-    }
-
-    // 5. Sound Effects (SFX) Events
-    const sfxEvents = generateSFXEvents(blueprint.scenes, 30, durationSeconds);
+    // 5. Sound Effects (SFX) & High-Impact 3D Sticker Events
+    const sfxEvents = generateSFXEvents(sceneBlueprint, 30, durationSeconds);
+    const stickerEvents: any[] = []; // Faceless videos do NOT use 3D cartoon avatar presenters
 
     return NextResponse.json({
       ok: true,
       transcript,
       segments,
-      words: validation.repairedSegments.flatMap((s) => s.words || []),
+      words: words,
       durationSeconds,
-      sceneBlueprint: blueprint.scenes,
-      brollUrls: Object.fromEntries(
-        Object.entries(mappedBrollUrls).map(([k, v]) => [k, toAbsoluteS3AssetUrl(v)])
-      ),
-      uploadedAssets: taggedAssets,
+      sceneBlueprint,
+      brollUrls: {},
+      uploadedAssets: [],
       sfxEvents,
+      stickerEvents,
       warnings,
       videoTitle,
       aspectRatio: '16:9',

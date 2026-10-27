@@ -56,7 +56,7 @@ export default function RenderProgressModal({
 
       // Trigger System Tray Notification
       sendRenderCompleteNotification({
-        title: 'Download Complete! 🎉',
+        title: 'Download Complete! ',
         body: `Aapki 1080p Full HD video (${title}) render ho chuki hai. Click to view & download.`,
         outputUrl: status.outputFile,
         onNotificationClick: () => {

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="Data Guard Unplanned Failover">
+  <!-- Itnavideo Database Asset: Data Guard Unplanned Failover -->
+  <circle cx="34" cy="46" r="20" fill="#7F1D1D" stroke="#EF4444" stroke-width="2" />
+      <path d="M 26 38 l 16 16 M 42 38 l -16 16" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" />
+      <circle cx="86" cy="46" r="20" fill="#166534" stroke="#22C55E" stroke-width="2.5" />
+      <text x="86" y="49" fill="#FFFFFF" font-size="7.5" font-family="sans-serif" font-weight="bold" text-anchor="middle">NEW PRI</text>
+      <path d="M 58 46 h 14 l -4 -4 M 72 46 l -4 4" fill="none" stroke="#F59E0B" stroke-width="3" stroke-linecap="round" />
+      <text x="60" y="94" fill="#EF4444" font-size="8" font-family="sans-serif" font-weight="900" text-anchor="middle">EMERGENCY FAILOVER</text>
+      <text x="60" y="106" fill="#FCA5A5" font-size="6.5" font-family="sans-serif" text-anchor="middle">Standby Promoted to Primary</text>
+</svg>

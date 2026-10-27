@@ -20,6 +20,10 @@ import {
   PresetOption,
   CaptionScriptChunk,
 } from "@/components/ui/SubtitleStylePicker";
+import { getWhiteStairTemplate, type WhiteStairCard } from "@/lib/captions/whiteStairTemplates";
+import { WhiteStairCaptionRenderer } from "@/components/captions/WhiteStairCaptionRenderer";
+import { segmentTranscriptIntoPhrases } from "@/lib/captions/phraseSegmenter";
+import type { TranscriptWordItem } from "@/lib/captions/types";
 import {
   AutoCaptionStyleCarousel,
   getPresetVideoFilename,
@@ -34,11 +38,13 @@ export interface AutoCaptionBeforeAfterPlayerProps {
   captionPosition?: "top" | "center" | "bottom";
   onPositionChange?: (pos: "top" | "center" | "bottom") => void;
   onSelectPreset?: (presetKey: string) => void;
-  onHighlightColorChange?: (color: string) => void;
   onReplaceFile?: () => void;
   onRemoveFile?: () => void;
   hideCarousel?: boolean;
   previewCaptions?: Array<{ start: number; end: number; text: string; words?: any[] }> | null;
+  safeZones?: boolean;
+  onTimeUpdate?: (currentTime: number, duration: number) => void;
+  externalSeekTime?: number | null;
 }
 
 export function AutoCaptionBeforeAfterPlayer({
@@ -48,11 +54,13 @@ export function AutoCaptionBeforeAfterPlayer({
   captionPosition = "center",
   onPositionChange,
   onSelectPreset,
-  onHighlightColorChange,
   onReplaceFile,
   onRemoveFile,
   hideCarousel = false,
   previewCaptions = null,
+  safeZones = false,
+  onTimeUpdate,
+  externalSeekTime = null,
 }: AutoCaptionBeforeAfterPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
@@ -77,25 +85,26 @@ export function AutoCaptionBeforeAfterPlayer({
     };
   }, [uploadedFile]);
 
-  const mediaType = uploadedFile && (uploadedFile.type.startsWith("audio/") || /\.(mp3|wav|m4a|aac)$/i.test(uploadedFile.name))
-    ? "audio"
-    : "video";
-  const activeMediaRef = mediaType === "audio" && uploadedMediaUrl ? audioRef : videoRef;
+  const isAudioFile = Boolean(uploadedFile && (uploadedFile.type.startsWith("audio/") || /\.(mp3|wav|m4a|aac)$/i.test(uploadedFile.name)));
+  const isUploadedVideo = Boolean(uploadedMediaUrl && !isAudioFile);
+  const isUploadedAudio = Boolean(uploadedMediaUrl && isAudioFile);
 
   // Standard clean 10-second 16:9 talking-head preview video hosted on Cloudinary
   const YOUTUBE_TALKING_HEAD_PREVIEW_VIDEO =
     "https://res.cloudinary.com/dhouh9idx/video/upload/v1789982713/km_20260916-3_1080p_30f_20260916_232040_qtcjtv.3gp";
 
-  const videoFilename = getPresetVideoFilename(selectedPresetKey);
+  // Dedicated 9:16 vertical talking-head video for Shorts
+  const DEFAULT_SHORTS_PREVIEW_VIDEO = "/visuals/homepage/autocaption.mp4";
+
   const defaultPreviewVideo = mode === "longForm"
     ? YOUTUBE_TALKING_HEAD_PREVIEW_VIDEO
-    : getPresetVideoUrl(selectedPresetKey);
+    : DEFAULT_SHORTS_PREVIEW_VIDEO;
 
-  const activeVideoUrl = uploadedMediaUrl || defaultPreviewVideo;
+  const activeVideoUrl = isUploadedVideo ? uploadedMediaUrl! : defaultPreviewVideo;
 
   // Whenever activeVideoUrl changes (or on initial mount), reload video and attempt autoplay
   useEffect(() => {
-    const v = activeMediaRef.current;
+    const v = videoRef.current;
     if (!v) return;
 
     setPlaybackTime(0);
@@ -108,22 +117,30 @@ export function AutoCaptionBeforeAfterPlayer({
         .then(() => setIsPlaying(true))
         .catch(() => setIsPlaying(false));
     }
-  }, [activeVideoUrl, activeMediaRef]);
+  }, [activeVideoUrl]);
 
   // Ensure audio mute matches state
   useEffect(() => {
-    if (activeMediaRef.current) {
-      activeMediaRef.current.muted = isMuted;
+    if (videoRef.current) {
+      videoRef.current.muted = isUploadedAudio ? true : isMuted;
     }
-  }, [isMuted, activeMediaRef]);
+    if (audioRef.current) {
+      audioRef.current.muted = isMuted;
+    }
+  }, [isMuted, isUploadedAudio]);
 
-  // Sync playback time loop
+  // Keep caption preview timing responsive without rerendering the full studio at 60fps.
   useEffect(() => {
     let animId: number;
-    const loop = () => {
-      const v = activeMediaRef.current;
-      if (v && !v.paused) {
-        setPlaybackTime(v.currentTime);
+    let lastUpdateAt = 0;
+    const loop = (now: number) => {
+      const activeEl = isUploadedAudio && audioRef.current ? audioRef.current : videoRef.current;
+      if (activeEl && !activeEl.paused && now - lastUpdateAt >= 80) {
+        setPlaybackTime(activeEl.currentTime);
+        if (onTimeUpdate) {
+          onTimeUpdate(activeEl.currentTime, activeEl.duration || duration || 8);
+        }
+        lastUpdateAt = now;
       }
       animId = requestAnimationFrame(loop);
     };
@@ -131,18 +148,37 @@ export function AutoCaptionBeforeAfterPlayer({
       animId = requestAnimationFrame(loop);
     }
     return () => cancelAnimationFrame(animId);
-  }, [isPlaying, activeMediaRef]);
+  }, [isPlaying, isUploadedAudio, onTimeUpdate, duration]);
+
+  // Handle external seek requests from timeline
+  useEffect(() => {
+    if (externalSeekTime !== null && externalSeekTime !== undefined) {
+      if (videoRef.current) {
+        const vDur = videoRef.current.duration || 8;
+        videoRef.current.currentTime = externalSeekTime % vDur;
+      }
+      if (audioRef.current) {
+        audioRef.current.currentTime = externalSeekTime;
+      }
+      setPlaybackTime(externalSeekTime);
+      if (onTimeUpdate) {
+        onTimeUpdate(externalSeekTime, duration || 8);
+      }
+    }
+  }, [externalSeekTime, onTimeUpdate, duration]);
 
   const togglePlay = () => {
-    const v = activeMediaRef.current;
-    if (!v) return;
-    if (v.paused) {
-      v.play()
-        .then(() => setIsPlaying(true))
-        .catch(() => {});
-    } else {
-      v.pause();
-      setIsPlaying(false);
+    const v = videoRef.current;
+    const a = audioRef.current;
+    if (v) {
+      if (v.paused) {
+        v.play().then(() => setIsPlaying(true)).catch(() => {});
+        if (a) a.play().catch(() => {});
+      } else {
+        v.pause();
+        if (a) a.pause();
+        setIsPlaying(false);
+      }
     }
   };
 
@@ -156,9 +192,14 @@ export function AutoCaptionBeforeAfterPlayer({
     }
   };
 
+  // 1. Resolve active WhiteStair template (e.g. Creator 4, Solo, Crazy, etc.)
+  const activeWhiteStairTemplate = useMemo(() => {
+    return getWhiteStairTemplate(selectedPresetKey);
+  }, [selectedPresetKey]);
+
   // Resolve preset configuration for live overlay
   const presetData = SUBTITLE_PRESETS[selectedPresetKey] || SUBTITLE_PRESETS["Hormozi Viral Pop"] || {
-    name: selectedPresetKey,
+    name: activeWhiteStairTemplate?.name || selectedPresetKey,
     style: "one-word",
     fontFamily: "Impact, sans-serif",
     textColor: "#FFFFFF",
@@ -168,7 +209,7 @@ export function AutoCaptionBeforeAfterPlayer({
 
   const presetOption: PresetOption = {
     key: selectedPresetKey,
-    label: presetData.name,
+    label: activeWhiteStairTemplate?.name || presetData.name,
     style: presetData.style,
     font: presetData.fontFamily,
     textColor: presetData.textColor,
@@ -181,39 +222,118 @@ export function AutoCaptionBeforeAfterPlayer({
     activeWord: "VIRAL",
   };
 
-  const savedPreviewTranscript = (previewTranscripts as Record<string, SavedPreviewTranscript>)[videoFilename];
-  const currentChunk = useMemo(() => {
-    if (uploadedMediaUrl) {
-      if (previewCaptions && previewCaptions.length > 0) {
-        const found = previewCaptions.find(
-          (c) => playbackTime >= c.start && playbackTime <= c.end
-        ) || previewCaptions[0];
-        if (found) {
-          const rawWords = (found.words && found.words.length > 0)
-            ? found.words
-            : found.text.split(/\s+/).map((w, i, arr) => ({
-                word: w,
-                start: found.start + (i / Math.max(arr.length, 1)) * Math.max(found.end - found.start, 1),
-                end: found.start + ((i + 1) / Math.max(arr.length, 1)) * Math.max(found.end - found.start, 1),
-              }));
-          const activeWordObj = rawWords.find((w: any) => playbackTime >= w.start && playbackTime <= w.end);
-          return {
-            id: 1,
-            start: found.start,
-            end: found.end,
-            sampleLines: [found.text],
-            lines: [found.text],
-            activeWord: activeWordObj?.word || rawWords[0]?.word || "",
-            words: rawWords,
-          } as CaptionScriptChunk;
+  // 2. Gather all word-level items from previewCaptions or raw transcript
+  const allWordItems = useMemo<TranscriptWordItem[]>(() => {
+    if (previewCaptions && previewCaptions.length > 0) {
+      const items: TranscriptWordItem[] = [];
+      previewCaptions.forEach((seg, sIdx) => {
+        if (seg.words && seg.words.length > 0) {
+          seg.words.forEach((w: any, wIdx: number) => {
+            items.push({
+              id: `w-${sIdx}-${wIdx}`,
+              word: String(w.word || w.text || ""),
+              start: Number(w.start ?? seg.start),
+              end: Number(w.end ?? seg.end),
+            });
+          });
+        } else if (seg.text) {
+          const segWords = seg.text.trim().split(/\s+/).filter(Boolean);
+          const segDur = Math.max(0.2, seg.end - seg.start);
+          segWords.forEach((w, i) => {
+            items.push({
+              id: `w-${sIdx}-${i}`,
+              word: w,
+              start: seg.start + (i / Math.max(1, segWords.length)) * segDur,
+              end: seg.start + ((i + 1) / Math.max(1, segWords.length)) * segDur,
+            });
+          });
         }
-      }
+      });
+      return items;
+    }
+    return [];
+  }, [previewCaptions]);
+
+  // 3. Segment into dynamic, single-line phrases (max 2-4 words per phrase based on template)
+  const singleLinePhrases = useMemo(() => {
+    const maxWords = activeWhiteStairTemplate?.maxWordsPerLine || 3;
+    if (allWordItems.length > 0) {
+      return segmentTranscriptIntoPhrases(allWordItems, {
+        minWordsPerPhrase: 1,
+        maxWordsPerPhrase: maxWords,
+        maxDurationSeconds: 2.0,
+      });
+    }
+    return [];
+  }, [allWordItems, activeWhiteStairTemplate]);
+
+  // 4. Find active phrase dynamically synchronized with currentTime
+  const defaultTranscript = (Object.values(previewTranscripts)[0] || undefined) as SavedPreviewTranscript | undefined;
+
+  const activePhrase = useMemo(() => {
+    if (singleLinePhrases.length > 0) {
+      const found = singleLinePhrases.find(
+        (p) => playbackTime >= p.start && playbackTime <= p.end
+      );
+      if (found) return found;
+
+      // During brief speech pauses, keep recent phrase on screen for 0.6s
+      const recent = singleLinePhrases.find(
+        (p) => playbackTime >= p.start && playbackTime <= p.end + 0.6
+      );
+      if (recent) return recent;
+
+      if (!isPlaying) return singleLinePhrases[0];
+      return null;
+    }
+
+    // Fallback when no audio is uploaded yet
+    if (activeWhiteStairTemplate && activeWhiteStairTemplate.words && activeWhiteStairTemplate.words.length > 0) {
+      return {
+        id: "demo",
+        text: activeWhiteStairTemplate.words.map((w) => w.text).join(" "),
+        start: 0,
+        end: 8,
+        duration: 8,
+        words: activeWhiteStairTemplate.words.map((w, idx) => ({
+          id: `demo-${idx}`,
+          word: w.text || "SAMPLE",
+          start: idx * 0.8,
+          end: (idx + 1) * 0.8,
+        })),
+        hasMajorPunctuation: false,
+        pauseAfterSeconds: 0,
+      };
+    }
+
+    return null;
+  }, [singleLinePhrases, playbackTime, isPlaying, activeWhiteStairTemplate]);
+
+  // Dynamic chunk built from the active single-line phrase
+  const currentChunk = useMemo<CaptionScriptChunk | null>(() => {
+    if (activePhrase) {
+      const activeWordObj = activePhrase.words.find(
+        (w: any) => playbackTime >= w.start && playbackTime <= w.end
+      );
+      return {
+        id: 1,
+        start: activePhrase.start,
+        end: activePhrase.end,
+        sampleLines: [activePhrase.text],
+        lines: [activePhrase.text],
+        activeWord: activeWordObj?.word || activePhrase.words[0]?.word || "",
+        words: activePhrase.words,
+      } as CaptionScriptChunk;
+    }
+
+    if (uploadedMediaUrl) {
       return isPlaying
         ? PREVIEW_SCRIPT_CHUNKS.find((chunk) => playbackTime >= chunk.start && playbackTime < chunk.end) || PREVIEW_SCRIPT_CHUNKS[0]
         : PREVIEW_SCRIPT_CHUNKS[0];
     }
-    return getPreviewCaptionAtTime(savedPreviewTranscript, playbackTime) || PREVIEW_SCRIPT_CHUNKS[Math.floor((playbackTime % 8) / 2) % PREVIEW_SCRIPT_CHUNKS.length];
-  }, [uploadedMediaUrl, previewCaptions, playbackTime, isPlaying, savedPreviewTranscript]);
+
+    return getPreviewCaptionAtTime(defaultTranscript, playbackTime) || PREVIEW_SCRIPT_CHUNKS[Math.floor((playbackTime % 8) / 2) % PREVIEW_SCRIPT_CHUNKS.length];
+  }, [activePhrase, playbackTime, uploadedMediaUrl, isPlaying, defaultTranscript]);
 
   const currentWordObj = isPlaying && currentChunk
     ? currentChunk.words.find((word: any) => playbackTime >= word.start && playbackTime <= word.end)
@@ -222,7 +342,10 @@ export function AutoCaptionBeforeAfterPlayer({
   const currentActiveWord = currentWordObj
     ? currentWordObj.word.replace(/[^a-zA-Z0-9']/g, "")
     : currentChunk?.activeWord || "";
-  const shouldShowCaptionOverlay = Boolean(currentChunk);
+
+  // Never show overlay if "No Caption" template is selected
+  const isNoCaptionSelected = activeWhiteStairTemplate?.isCrossed || selectedPresetKey === "none";
+  const shouldShowCaptionOverlay = !isNoCaptionSelected && Boolean(activePhrase || currentChunk);
 
   const fileSizeText = uploadedFile ? `${(uploadedFile.size / (1024 * 1024)).toFixed(1)} MB` : "";
 
@@ -251,58 +374,59 @@ export function AutoCaptionBeforeAfterPlayer({
               {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} className="text-emerald-400" />}
             </button>
 
-            {/* HTML5 Video or Audio Player */}
-            {uploadedMediaUrl && mediaType === "audio" ? (
-              <div
-                onClick={togglePlay}
-                className="h-full w-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 via-[#070B14] to-slate-950 p-6 cursor-pointer select-none"
-              >
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#FF5722]/10 text-[#FF7043] border border-[#FF5722]/25 mb-4 shadow-lg shadow-[#FF5722]/15">
-                  <FileAudio size={32} />
-                </div>
-                <p className="text-xs font-bold text-white text-center truncate max-w-[200px]">
-                  {uploadedFile?.name}
-                </p>
-                <p className="text-[10px] text-slate-400 mt-1">Audio Track Active</p>
-
-                <audio
-                  ref={audioRef}
-                  src={uploadedMediaUrl}
-                  loop
-                  muted={isMuted}
-                  preload="auto"
-                  onLoadedMetadata={(e) => {
-                    const d = e.currentTarget.duration;
-                    if (d && !isNaN(d) && isFinite(d) && d > 0) setDuration(d);
-                  }}
-                  onPlay={() => setIsPlaying(true)}
-                  onPause={() => setIsPlaying(false)}
-                />
-              </div>
-            ) : (
+            {/* HTML5 Video Player with Talking Presenter Background */}
+            <div className="relative h-full w-full">
               <video
                 ref={videoRef}
                 src={activeVideoUrl}
-                poster={!uploadedMediaUrl && mode === "shorts" ? getPresetPosterUrl(selectedPresetKey) : undefined}
+                poster="/visuals/homepage/autocaption.1.png"
                 autoPlay
                 playsInline
                 loop
-                muted={isMuted}
+                muted={isUploadedAudio ? true : isMuted}
                 preload="auto"
                 onLoadedMetadata={(e) => {
                   const d = e.currentTarget.duration;
-                  if (d && !isNaN(d) && isFinite(d) && d > 0) setDuration(d);
+                  if (d && !isNaN(d) && isFinite(d) && d > 0) {
+                    if (!isUploadedAudio) setDuration(d);
+                  }
                 }}
                 onCanPlay={(e) => {
                   const d = e.currentTarget.duration;
-                  if (d && !isNaN(d) && isFinite(d) && d > 0) setDuration(d);
+                  if (d && !isNaN(d) && isFinite(d) && d > 0) {
+                    if (!isUploadedAudio) setDuration(d);
+                  }
                 }}
                 onPlay={() => setIsPlaying(true)}
                 onPause={() => setIsPlaying(false)}
                 onClick={togglePlay}
                 className="h-full w-full object-cover cursor-pointer"
               />
-            )}
+
+              {/* If user uploaded audio, audio track plays in sync with talking video background */}
+              {isUploadedAudio && (
+                <>
+                  <audio
+                    ref={audioRef}
+                    src={uploadedMediaUrl!}
+                    loop
+                    muted={isMuted}
+                    preload="auto"
+                    onLoadedMetadata={(e) => {
+                      const d = e.currentTarget.duration;
+                      if (d && !isNaN(d) && isFinite(d) && d > 0) setDuration(d);
+                    }}
+                    onPlay={() => setIsPlaying(true)}
+                    onPause={() => setIsPlaying(false)}
+                  />
+                  <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 rounded-full bg-black/75 backdrop-blur-md border border-white/15 px-2.5 py-1 text-[10px] font-bold text-white shadow-md">
+                    <FileAudio size={12} className="text-[#FF7043]" />
+                    <span className="truncate max-w-[120px]">{uploadedFile?.name}</span>
+                  </div>
+                </>
+              )}
+            </div>
+
 
             {/* Use the saved transcript for each Cloudinary style preview. */}
             {shouldShowCaptionOverlay && currentChunk && (
@@ -331,21 +455,52 @@ export function AutoCaptionBeforeAfterPlayer({
                   } flex justify-center text-center z-10 cursor-ns-resize group/drag transition-all duration-150`}
                   title="Drag Up/Down to Reposition Captions"
                 >
-                  <div className="relative">
-                    <CaptionPreviewText
-                      preset={presetOption}
-                      config={config}
-                      chunk={currentChunk}
-                      playbackTime={playbackTime}
-                      isPlaying={isPlaying}
-                      activeWord={currentActiveWord}
-                      currentWordObj={currentWordObj}
-                    />
-                    <div className="absolute -top-5 left-1/2 -translate-x-1/2 opacity-0 group-hover/drag:opacity-100 transition-opacity bg-black/80 text-[9px] text-amber-400 font-bold px-2 py-0.5 rounded-md whitespace-nowrap pointer-events-none border border-amber-400/30">
-                      ↕ Drag to Reposition
+                  {/* WhiteStair Interactive Caption Layer Bounding Box */}
+                  <div className="relative p-2 rounded-2xl border border-indigo-400/80 bg-indigo-500/10 hover:border-[#FF5722] hover:bg-[#FF5722]/10 transition-all duration-150 shadow-lg">
+                    {/* 4 Corner Anchor Handles (WhiteStair Signature) */}
+                    <div className="absolute -top-1 -left-1 w-2.5 h-2.5 rounded-full bg-white border-2 border-indigo-500 shadow-sm pointer-events-none" />
+                    <div className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-white border-2 border-indigo-500 shadow-sm pointer-events-none" />
+                    <div className="absolute -bottom-1 -left-1 w-2.5 h-2.5 rounded-full bg-white border-2 border-indigo-500 shadow-sm pointer-events-none" />
+                    <div className="absolute -bottom-1 -right-1 w-2.5 h-2.5 rounded-full bg-white border-2 border-indigo-500 shadow-sm pointer-events-none" />
+
+                    {activeWhiteStairTemplate && activeWhiteStairTemplate.words && activeWhiteStairTemplate.words.length > 0 && activePhrase ? (
+                      <WhiteStairCaptionRenderer
+                        template={activeWhiteStairTemplate}
+                        phrase={activePhrase}
+                        playbackTime={playbackTime}
+                        isPlaying={isPlaying}
+                      />
+                    ) : currentChunk ? (
+                      <CaptionPreviewText
+                        preset={presetOption}
+                        config={config}
+                        chunk={currentChunk}
+                        playbackTime={playbackTime}
+                        isPlaying={isPlaying}
+                        activeWord={currentActiveWord}
+                        currentWordObj={currentWordObj}
+                      />
+                    ) : null}
+                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover/drag:opacity-100 transition-opacity bg-black/90 text-[9px] text-[#FFA000] font-black px-2.5 py-0.5 rounded-full whitespace-nowrap pointer-events-none border border-[#FF5722]/40 shadow-lg">
+                      ↕ Drag to Reposition (Top / Middle / Bottom)
                     </div>
                   </div>
                 </div>
+                {/* 9:16 Vertical Safe Zone Lines (WhiteStair Style) */}
+                {safeZones && (
+                  <div className="pointer-events-none absolute inset-0 z-20 flex flex-col justify-between p-3 border-2 border-dashed border-amber-400/40 rounded-[20px]">
+                    <div className="h-[12%] border-b border-dashed border-amber-400/35 flex items-start justify-end pr-1">
+                      <span className="text-[8px] font-mono text-amber-300/90 bg-black/70 px-1.5 py-0.5 rounded">
+                        Top Header Safe Zone
+                      </span>
+                    </div>
+                    <div className="h-[20%] border-t border-dashed border-amber-400/35 flex items-end justify-end pr-1 pb-1">
+                      <span className="text-[8px] font-mono text-amber-300/90 bg-black/70 px-1.5 py-0.5 rounded">
+                        Bottom Scrubber Safe Zone
+                      </span>
+                    </div>
+                  </div>
+                )}
                 {mode === "longForm" && (
                   <div className="pointer-events-none absolute inset-x-0 bottom-[14%] border-b border-dashed border-red-500/30 z-10 flex justify-end pr-2">
                     <span className="text-[9px] font-mono font-bold text-red-400/70 -translate-y-full">
@@ -414,7 +569,6 @@ export function AutoCaptionBeforeAfterPlayer({
           <AutoCaptionStyleCarousel
             selectedPresetKey={selectedPresetKey}
             onSelectPreset={handleSelectPreset}
-            onHighlightColorChange={onHighlightColorChange}
             mode={mode}
             videoUrl={uploadedMediaUrl || undefined}
           />

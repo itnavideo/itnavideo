@@ -3,13 +3,18 @@
 ## 1. Overview & Purpose
 **Auto Caption Generator** is Itnavideo's executive and high-retention video captioning engine built for short-form (TikTok, Instagram Reels, YouTube Shorts) and long-form captioned video. It transcribes spoken dialogue with Groq Whisper, calculates word-level precision timestamps, and burns in viral caption animations (Alex Hormozi style, Corporate Executive, MrBeast impact, Submagic glow, dynamic M3 pills, bouncy spring physics, and auto-fit safe zones).
 
-The dedicated studio dashboard (`/dashboard/auto-caption`) features a **Strictly 9:16 Vertical & Video-First Motion Studio**:
-- **Strictly 9:16 Vertical Only**: Optimized for Instagram Reels, YouTube Shorts, and TikTok (1080×1920 Full HD). Widescreen/YouTube scrubber offsets have been purged for a clutter-free experience.
-- **Video-Only Style Selection**: Outdated static text chips and modal lists are replaced by a rich, video-first motion gallery (`AutoCaptionStyleCarousel.tsx`) featuring real video loop previews across categories (Hormozi, MrBeast, Kinetic, Glow, Cinematic, Podcast, Minimal).
+The dedicated studio dashboard (`/dashboard/auto-caption`) features a **Strictly 9:16 Vertical WhiteStair Studio**:
+- **WhiteStair 2-Step Workflow**:
+  - **Step 1 (Upload View)**: High-converting video dropzone (up to 90s) with auto 16kHz audio extraction and fast language verification.
+  - **Step 2 (Studio Editor View)**: Interactive workspace featuring live 9:16 synchronized preview player, two-tone caption styling, and instant cloud render CTA.
+- **Single-Line Two-Tone Dynamic Caption Engine (`WhiteStairCaptionRenderer.tsx`)**:
+  - **Rhythm-Balanced Phrases**: Spoken words are dynamically segmented into natural cadence phrases (3-5 words) rather than rigid multi-line blocks.
+  - **Two-Tone Contrast Styling**: High-contrast pairing of vibrant lead words (e.g., Gold `#FACC15`, Cyan `#22D3EE`, Hot Pink `#F43F5E`) with crisp contrast words (White `#FFFFFF`).
+  - **Millisecond Playback Sync**: Real-time binding with video player `currentTime`, featuring dynamic active word scaling (`1.08x`) and subtle glow filter.
+  - **Master WhiteStair Template Catalog (`whiteStairTemplates.ts`)**: Direct selection across top creator styles (`Creator 4`, `Creator 3`, `Solo`, `Crazy`, `Spark`, `Story`, etc.).
 - **Two-Column Responsive Stage**:
-  - **Left Column**: Fast video dropzone (up to 3 min), spoken & subtitle language selectors, Smart Script Review & Word Replacer (`AutoCaptionWordReplacer.tsx`) to fix brand names in 1 click, and a collapsible `⚙️ Advanced Settings` drawer for caption positioning and fonts.
-  - **Right Column**: 9:16 phone-framed live player (`AutoCaptionBeforeAfterPlayer.tsx`) with real-time active subtitles, prominent `Generate 9:16 Reel (1080p Full HD)` button, and 1-click `Download Subtitles (.SRT)` export.
-  - **Bottom Dock**: Full-width video style carousel displaying animated loops for 100+ styles.
+  - **Left Column**: Script review & word replacer, font & placement controls, and WhiteStair template gallery.
+  - **Right Column**: 9:16 phone-framed live player (`AutoCaptionBeforeAfterPlayer.tsx`) rendering live dynamic two-tone subtitles, with 1-click cloud render and SRT subtitle download.
 
 ---
 

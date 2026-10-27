@@ -14,7 +14,7 @@
 | **Template Location** | `remotion/templates/AUTO_CAPTION_GENERATOR/template.tsx` / `MotionCaptionRenderer.tsx` |
 | **Primitives Location** | `remotion/components/MotionCaptionRenderer.tsx` |
 | **Dashboard Studio** | `components/dashboard/TypographyStudio.tsx` |
-| **Style Picker Component** | `components/typography/TypographyStylePicker.tsx` |
+| **Style Picker Component** | Transitioning from legacy style gallery to comprehensive visual Templates (Upcoming Reference-Based Templates) |
 | **Style Data & Transcripts**| `lib/typography/typographyStylesData.ts` / `lib/cloudinary/typography-transcripts.json` |
 | **Dashboard Route** | `/dashboard/typography-video` |
 | **Aspect Ratio** | **Dual Aspect Ratio**: `9:16` Vertical Shorts & `16:9` Widescreen Cinema |
@@ -23,7 +23,7 @@
 | **Frame Rate** | 30 FPS |
 | **Max Video Duration** | **90 Seconds (9:16 Shorts)** / **5 Minutes (16:9 Widescreen Cinema)** |
 | **Primary Category** | Social & YouTube Shorts / Reels / TikTok |
-| **Total Available Styles** | **11 High-Impact Motion Presets** (Curated for short-form retention) |
+| **Total Available Styles** | Transitioned to Template-Driven System (Custom video references & prompt-based templates) |
 | **Transcript Review & Editing**| **Interactive Word-Level Pre-Render Transcript Editor** (Edit transcription mistakes before render) |
 | **Fast-Speech Adaptive Chunking**| Enforces 2-3 word ceiling when speech velocity exceeds 180 WPM |
 | **Long-Word Margin Guard**| Auto-downscales font size by 18% for words >12 characters |
@@ -32,21 +32,22 @@
 
 ---
 
-## 3. Kinetic Motion Presets (11 Curated High-Impact Presets)
+## 3. Kinetic Visual Templates (Reference-Driven Recreation Engine)
 
-Featuring 11 high-converting kinetic motion presets designed specifically for viral Reels, TikTok, and YouTube Shorts. Each preset includes live 9:16 motion video previews and word-level script editing:
+Instead of individual legacy style presets, Kinetic Typography operates on complete reference-driven visual **Templates**. Users upload their video/audio, and the output replicates the exact typography choreography, multi-font hierarchy, and layout of the chosen template:
 
-1. `#KM-01 Slam Impact`: High-energy hook, loud statements (`🔥 Viral`).
-2. `#KM-02 Elastic Bounce`: Playful, conversational podcast clips (`⚡ Kinetic`).
-3. `#KM-03 Word Cascade`: Fast speakers, rapid-fire talking heads (`⚡ Kinetic`).
-4. `#KM-04 Cinematic 3D Flip`: Tech reviews, luxury brands, documentary (`🎬 Cinematic`).
-5. `#KM-05 Masked Slide`: Clean, premium Apple aesthetic storytelling (`💎 Minimal`).
-6. `#KM-06 Glitch Scramble`: Coding, AI, crypto, futuristic themes (`🤖 Cyber`).
-7. `#KM-07 Typewriter Cursor`: Storytelling, finance, journal reflections (`💎 Minimal`).
-8. `#KM-08 Particle Burst`: Emotional peaks, punchlines, revelation moments (`🔥 Viral`).
-9. `#KM-09 Highlighter Sweep`: Educational, breakdowns, tutorial reels (`🎓 Educational`).
-10. `#KM-10 Zoom Through`: Dramatic scene shifts, climax sentences (`🎬 Cinematic`).
-11. `#KM-11 Fluid Wave`: Calm, lifestyle, travel, reflective reels (`🌊 Lifestyle`).
+### Template #01: Creator Editorial (Hybrid Serif & Bold Sans)
+- **Template ID**: `creator-editorial` (Active & Default)
+- **Reference Video Specification**: [`vidssave.com_Great_Update_for_AI_Channels_youtube_480P_inrbb1.mp4`](https://res.cloudinary.com/dhouh9idx/video/upload/v1792952622/vidssave.com_Great_Update_for_AI_Channels_youtube_480P_inrbb1.mp4)
+- **Primary Visual Language**:
+  - **Hero Anchor Words**: Bold Sans-Serif (`Montserrat` / `Inter`, weight 900, uppercase).
+  - **Stylistic Accents**: Elegant Italic Serif (`Playfair Display`, weight 700, flowing italic).
+  - **Connectors**: Lightweight Sans-Serif (`Inter`, weight 600, scale 0.55x).
+  - **Electric Yellow Accent**: Keyword color `#FACC15` pop on high-retention concepts (`AI`, `ORIGINALITY`, `MONETIZATION`).
+- **Adaptive Dual-Zone Layout**:
+  - **Headroom Mode (18% from top)**: Default positioning when the creator is talking with unobstructed upper frame.
+  - **Chest Mode (70% from top)**: Automatically active when a picture-in-picture media card/screenshot appears in the upper third.
+- **Remotion Implementation**: `remotion/templates/TYPOGRAPHY_VIDEO/templates/CreatorEditorialRenderer.tsx`.
 
 ### A. 🔥 High Impact Kinetic (10 Styles)
 | Style ID | Name | Theme & Spoken Transcript | Visual System & Typography | Accent Color |

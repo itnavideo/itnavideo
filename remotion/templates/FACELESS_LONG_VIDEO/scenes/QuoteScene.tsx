@@ -3,22 +3,31 @@ import { useCurrentFrame, useVideoConfig } from 'remotion';
 import { ResponsiveTypography } from '../components/ResponsiveTypography';
 import { getFadeAnimation } from '../animations/Fade';
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
+import { FACELESS_DESIGN_TOKENS } from '../facelessTokens';
 
 export interface QuoteSceneProps {
   scene: SceneBlueprintItem;
   headingFont?: string;
   bodyFont?: string;
+  sceneFrame?: number;
+  palette?: any;
 }
 
 export function QuoteScene({
   scene,
-  headingFont = 'Playfair Display, serif',
-  bodyFont = 'Inter, sans-serif',
+  headingFont = FACELESS_DESIGN_TOKENS.typography.editorialSerif,
+  bodyFont = FACELESS_DESIGN_TOKENS.typography.interfaceSans,
+  sceneFrame,
 }: QuoteSceneProps) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const currentFrame = sceneFrame ?? frame;
 
-  const anim = getFadeAnimation(frame, fps);
+  const textColor = FACELESS_DESIGN_TOKENS.colors.textPrimary;
+  const quoteMarkColor = FACELESS_DESIGN_TOKENS.colors.accentCoral;
+  const accentColor = FACELESS_DESIGN_TOKENS.colors.accentAmber;
+
+  const anim = getFadeAnimation(currentFrame, fps);
   const quoteText = scene.heading || scene.narrationSegment?.text || '';
   const author = scene.quoteAuthor || undefined;
 
@@ -30,21 +39,16 @@ export function QuoteScene({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '100px 140px', // Strict safe area (140px X, 100px Y)
+        padding: '100px 140px', // Strict safe area
         zIndex: 10,
+        backgroundColor: FACELESS_DESIGN_TOKENS.colors.canvasWhite,
         ...anim,
       }}
     >
       <div
         style={{
-          maxWidth: '1100px', // Controlled width (never 1800px)
+          maxWidth: '1240px',
           width: '100%',
-          borderRadius: '32px',
-          border: '1px solid rgba(129, 140, 248, 0.35)',
-          backgroundColor: 'rgba(15, 23, 42, 0.9)',
-          padding: '48px 56px',
-          boxShadow: '0 25px 60px rgba(0, 0, 0, 0.85), 0 0 50px rgba(129, 140, 248, 0.2)',
-          backdropFilter: 'blur(24px)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -55,11 +59,12 @@ export function QuoteScene({
         <span
           style={{
             fontFamily: headingFont,
-            fontSize: '84px',
-            color: '#818CF8',
+            fontSize: '96px',
+            color: quoteMarkColor,
             lineHeight: 0.6,
-            marginBottom: '16px',
+            marginBottom: '20px',
             display: 'block',
+            filter: 'drop-shadow(0 4px 16px rgba(234, 88, 12, 0.25))',
           }}
         >
           &ldquo;
@@ -70,9 +75,9 @@ export function QuoteScene({
           mode="quote"
           quoteAuthor={author}
           fontFamily={headingFont}
-          color="#FFFFFF"
-          accentColor="#818CF8"
-          availableWidth={1000}
+          color={textColor}
+          accentColor={accentColor}
+          availableWidth={1100}
         />
       </div>
     </div>

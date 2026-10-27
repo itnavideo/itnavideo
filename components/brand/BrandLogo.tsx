@@ -23,28 +23,27 @@ export default function BrandLogo({
   iconOnly = false,
   showTagline = false,
   showBadge = false,
-  variant = 'auto',
+  variant = 'dark',
   className = '',
 }: BrandLogoProps) {
   const s = typeof size === 'number'
     ? { icon: size, word: 'text-lg sm:text-xl', tagline: 'text-[10px]', badge: 'px-2 py-0.5 text-[9px]' }
     : (sizeMap[String(size)] || sizeMap.md);
 
-  // Ensure ITNA is always high-contrast (dark obsidian on light, crisp white on dark)
-  const itnaTextColor = 
-    variant === 'dark' 
-      ? 'text-white' 
-      : 'text-slate-900';
+  // Ensure ITNA is always high-contrast:
+  // variant === 'light' -> dark obsidian (text-slate-900) for white/light backgrounds
+  // variant === 'dark' or default ('auto') -> crisp white (text-white) for all dashboards and dark surfaces
+  const isLight = variant === 'light';
 
-  const badgeStyle = 
-    variant === 'dark' 
-      ? 'border-[#FFA000]/40 bg-[#FFA000]/15 text-[#FFA000] shadow-xs' 
-      : 'border-[#FF5722]/30 bg-[#FF5722]/10 text-[#FF5722]';
+  const itnaTextColor = isLight ? 'text-slate-900' : 'text-white';
 
-  const taglineColor = 
-    variant === 'dark' 
-      ? 'text-zinc-400' 
-      : 'text-slate-500';
+  const badgeStyle = isLight
+    ? 'border-[#FF5722]/30 bg-[#FF5722]/10 text-[#FF5722]'
+    : 'border-[#FFA000]/40 bg-[#FFA000]/15 text-[#FFA000] shadow-xs';
+
+  const taglineColor = isLight
+    ? 'text-slate-500'
+    : 'text-zinc-400';
 
   const content = (
     <span className={`inline-flex items-center gap-2.5 ${className}`}>
@@ -60,59 +59,36 @@ export default function BrandLogo({
           viewBox="0 0 100 100"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-full drop-shadow-[0_0_16px_rgba(255,87,34,0.35)]"
+          className="w-full h-full drop-shadow-[0_2px_14px_rgba(255,87,34,0.35)]"
         >
           <defs>
-            {/* Vibrant Flame Orange Gradient for Stem */}
-            <linearGradient id="itnaStemGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#FF5722" />
-              <stop offset="100%" stopColor="#FF8A65" />
-            </linearGradient>
-            {/* Signature Flame Orange & Warm Amber Gradient for Play Chevron */}
-            <linearGradient id="itnaAmberGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#FF5722" />
-              <stop offset="50%" stopColor="#FF7043" />
-              <stop offset="100%" stopColor="#FFA000" />
-            </linearGradient>
-            {/* Warm Gold Sparkle Gradient */}
-            <linearGradient id="itnaSparkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#FFA000" />
-              <stop offset="100%" stopColor="#FFD54F" />
+            {/* Signature Flame Orange & Warm Amber Gradient for Hollow Play Ribbon */}
+            <linearGradient id="itnaBrandPlayGrad" x1="15%" y1="0%" x2="85%" y2="100%">
+              <stop offset="0%" stopColor="#FF7A45" />
+              <stop offset="50%" stopColor="#FF5722" />
+              <stop offset="100%" stopColor="#F4511E" />
             </linearGradient>
           </defs>
 
-          {/* Left Vertical Ribbon Stem ('I' for ITNA) */}
-          <rect
-            x="14"
-            y="14"
-            width="18"
-            height="72"
-            rx="9"
-            fill="url(#itnaStemGrad)"
-          />
-
-          {/* Forward Kinetic Play Chevron ('▶' for VIDEO) */}
+          {/* Unified Hollow Rounded Play Triangle */}
           <path
-            d="M 38 18 C 38 14 42.5 11.5 46 13.8 L 84 45.8 C 87.2 48 87.2 52 84 54.2 L 46 86.2 C 42.5 88.5 38 86 38 82 Z"
-            fill="url(#itnaAmberGrad)"
+            d="M 28 22 C 28 16 34 12.5 39 15.5 L 80 43.5 C 85 46.5 85 53.5 80 56.5 L 39 84.5 C 34 87.5 28 84 28 78 Z"
+            fill="none"
+            stroke="url(#itnaBrandPlayGrad)"
+            strokeWidth="15"
+            strokeLinejoin="round"
+            strokeLinecap="round"
           />
-
-          {/* AI Sparkle Star (✦) Top Right Corner (Shown on md/lg for crisp definition) */}
-          {s.icon >= 38 && (
-            <path
-              d="M 80 12 C 80 18.6 85.4 24 92 24 C 85.4 24 80 29.4 80 36 C 80 29.4 74.6 24 68 24 C 74.6 24 80 18.6 80 12 Z"
-              fill="url(#itnaSparkGrad)"
-            />
-          )}
         </svg>
       </span>
 
       {!iconOnly && (
         <span className="min-w-0 leading-none">
           <span className="flex items-center gap-2">
-            {/* High-Contrast Bold Typography with Orange/Amber Match */}
-            <span className={`block font-sans ${s.word} font-black tracking-wider uppercase ${itnaTextColor}`}>
-              ITNA<span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">VIDEO</span>
+            {/* High-Contrast Bold Typography matching Brand Image (ItnaVideo) */}
+            <span className={`block font-sans ${s.word} font-black tracking-tight select-none`}>
+              <span className={itnaTextColor}>Itna</span>
+              <span className="text-[#FF5722]">Video</span>
             </span>
             {showBadge && (
               <span className={`rounded-md border ${badgeStyle} ${s.badge} font-black uppercase tracking-wider`}>

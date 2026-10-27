@@ -73,7 +73,7 @@ export default function DemoPreviewModal({ isOpen, onClose, tool }: DemoPreviewM
           <div>
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Speed</p>
             <p className="text-xs font-black text-[#FFA000] flex items-center gap-1 mt-0.5">
-              <Zap className="w-3.5 h-3.5 fill-[#FFA000]" /> {tool.renderSpeed || "⚡ ~30s"}
+              <Zap className="w-3.5 h-3.5 fill-[#FFA000]" /> {tool.renderSpeed || " ~30s"}
             </p>
           </div>
           <div>

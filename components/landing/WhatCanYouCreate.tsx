@@ -30,7 +30,6 @@ const WORKFLOW_ICONS = {
   'auto-caption': Captions,
   'compare-explainer': Columns,
   'whiteboard-video': PenTool,
-  'typography-video': FileText,
   'long-video-promo': Tv,
   'long-video-clips': Scissors,
   'youtube-subtitles': Captions,

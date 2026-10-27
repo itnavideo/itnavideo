@@ -409,7 +409,7 @@ export default function CaptionBeforeAfter() {
             <Play size={15} fill="currentColor" />
             Add captions to my video free
           </Link>
-          <p className="text-xs text-slate-500">No editing skills · English & Hinglish · 1080p MP4 export</p>
+          <p className="text-xs text-slate-500">No editing skills · Multi-Language & Accents · 1080p MP4 export</p>
         </div>
 
       </div>

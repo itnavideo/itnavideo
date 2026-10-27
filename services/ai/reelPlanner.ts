@@ -63,7 +63,6 @@ export type ReelVideoTypeName =
   | 'comparisonImages'
   | 'LONG_VIDEO_PROMO'
   | 'WHITEBOARD_VIDEO'
-  | 'TYPOGRAPHY_VIDEO'
   | 'LONG_VIDEO_CLIPS'
   | 'VIDEO_EXPLAINER'
   | 'VIDEO_SIMPLE_EXPLAINER'
@@ -73,6 +72,7 @@ export type ReelVideoTypeName =
   | 'HANDWRITTEN_NOTES'
   | 'VOICE_SYNCED_NOTES'
   | 'FACELESS_VIDEO'
+  | 'FACELESS_SHORTS'
   | 'AI_VIDEO_GENERATOR'
   | 'IMAGE_TO_VIDEO_AI'
   | 'BOOK_SUMMARY';
@@ -156,17 +156,6 @@ export const VIDEO_TYPE_REGISTRY: Partial<Record<ReelVideoTypeName, ReelVideoTyp
     mediaFit: 'videoCaption',
     skipPlanner: true,
   },
-  TYPOGRAPHY_VIDEO: {
-    templateName: 'TYPOGRAPHY_VIDEO',
-    compositionId: 'TYPOGRAPHY-VIDEO',
-    videoCategory: 'reel',
-    allowedMedia: ['video', 'audio'],
-    transcriptRequirement: 'required',
-    plannerMode: 'videoCaption',
-    mediaFit: 'videoCaption',
-    needsTypographyStylePicker: true,
-    skipPlanner: true,
-  },
   LONG_VIDEO_CLIPS: {
     templateName: 'LONG_VIDEO_CLIPS',
     compositionId: 'LONG-VIDEO-CLIPS',
@@ -177,6 +166,18 @@ export const VIDEO_TYPE_REGISTRY: Partial<Record<ReelVideoTypeName, ReelVideoTyp
     mediaFit: 'videoCaption',
     needsCaptionStylePicker: true,
     skipPlanner: true,
+  },
+  FACELESS_SHORTS: {
+    templateName: 'FACELESS_SHORTS',
+    compositionId: 'FACELESS-SHORTS',
+    videoCategory: 'reel',
+    allowedMedia: ['audio', 'video'],
+    transcriptRequirement: 'required',
+    plannerMode: 'videoExplainer',
+    mediaFit: 'videoExplainer',
+    needsTitle: true,
+    needsCaptionStylePicker: true,
+    skipPlanner: false,
   },
   FACELESS_VIDEO: {
     templateName: 'FACELESS_VIDEO',

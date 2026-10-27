@@ -71,8 +71,8 @@ export function MaterialCatalogGrid({
 
   const filterTabs = [
     { key: 'all' as const, label: 'All Formats', icon: Layers, count: cards.length },
-    { key: 'free' as const, label: '🎁 Free to Try', icon: Sparkles, count: cards.filter(c => c.accessTier === 'free').length },
-    { key: 'paid' as const, label: '⭐ Pro Studios', icon: Zap, count: cards.filter(c => c.accessTier !== 'free').length },
+    { key: 'free' as const, label: ' Free to Try', icon: Sparkles, count: cards.filter(c => c.accessTier === 'free').length },
+    { key: 'paid' as const, label: ' Pro Studios', icon: Zap, count: cards.filter(c => c.accessTier !== 'free').length },
     { key: 'long' as const, label: '16:9 Landscape', icon: Film, count: cards.filter(c => c.category === 'long').length },
     { key: 'shorts' as const, label: '9:16 Shorts', icon: Smartphone, count: cards.filter(c => c.category !== 'long').length },
     { key: 'audio' as const, label: 'Voice & Audio', icon: Mic, count: cards.filter(c => c.inputType === 'audio' || c.id === 'ai-audio-cleaner').length },
@@ -177,7 +177,7 @@ export function MaterialCatalogGrid({
                 </span>
                 {card.accessTier === 'free' ? (
                   <span className="rounded-full bg-emerald-500/90 border border-emerald-400 px-2 py-0.5 text-[10px] font-black text-slate-950 backdrop-blur-md shadow-xs flex items-center gap-1">
-                    <span>🎁 FREE TRIAL</span>
+                    <span> FREE TRIAL</span>
                   </span>
                 ) : (
                   <span className="rounded-full bg-purple-950/85 border border-purple-400/40 px-2 py-0.5 text-[10px] font-extrabold text-purple-200 backdrop-blur-md shadow-xs flex items-center gap-1">
@@ -242,7 +242,7 @@ export function MaterialCatalogGrid({
 
   return (
     <div className="space-y-6">
-      {/* ── M3 Studio Header ── */}
+      {/*  M3 Studio Header  */}
       <section id="ai-quick-start" className="scroll-mt-24 pt-2">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2">
           <div>
@@ -274,12 +274,12 @@ export function MaterialCatalogGrid({
           </button>
         </div>
 
-        {/* ── Transparent Free vs Paid Guide Banner ── */}
+        {/*  Transparent Free vs Paid Guide Banner  */}
         <div className="mt-2 mb-1 rounded-2xl border border-purple-500/20 bg-[#12111E] p-3.5 sm:p-4 backdrop-blur-md shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
             <div className="flex items-center gap-2.5">
               <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-[#FF5722]/20 text-[#FF9100] font-black text-sm border border-[#FF5722]/30 shadow-inner">
-                🎁
+                
               </span>
               <div>
                 <span className="font-extrabold text-white">Free Trial:</span>{' '}
@@ -290,7 +290,7 @@ export function MaterialCatalogGrid({
             </div>
             <div className="flex items-center gap-2.5 border-t sm:border-t-0 sm:border-l border-white/10 pt-2.5 sm:pt-0 sm:pl-4">
               <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-[#FF5722]/20 text-[#FF9100] font-black text-sm border border-[#FF5722]/30 shadow-inner">
-                ⭐
+                
               </span>
               <div className="flex-1">
                 <span className="font-extrabold text-white">Pro Studios:</span>{' '}
@@ -302,13 +302,13 @@ export function MaterialCatalogGrid({
                 href="/pricing"
                 className="shrink-0 rounded-full bg-[#FF5722]/20 hover:bg-[#FF5722]/30 border border-[#FF5722]/40 px-3 py-1 text-[11px] font-bold text-[#FFA000] transition-colors whitespace-nowrap"
               >
-                View Plans →
+                View Plans 
               </Link>
             </div>
           </div>
         </div>
 
-        {/* ── M3 Segmented Filter Chips ── */}
+        {/*  M3 Segmented Filter Chips  */}
         <div className="flex items-center gap-2 pt-3 overflow-x-auto no-scrollbar pb-1.5">
           {filterTabs.map((tab) => {
             const Icon = tab?.icon || Sparkles;
@@ -339,7 +339,7 @@ export function MaterialCatalogGrid({
         </div>
       </section>
 
-      {/* ── Cards Grid ── */}
+      {/*  Cards Grid  */}
       <div className="space-y-8 pt-2">
         {/* Long Videos (16:9) */}
         {visibleLongCards.length > 0 && (

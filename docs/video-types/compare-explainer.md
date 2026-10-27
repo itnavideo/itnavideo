@@ -296,9 +296,10 @@ The renderer applies the premium visual treatment layer for LUT-like color consi
 - Opening hook card: first ~1.85s full-screen "A **VS** B" + topic, springs in and fades into the main layout.
 - Closing CTA card: last ~2.6s full-screen winner announcement (or "Which one wins?") + "Follow @handle" pill.
 
-**Phase C — UX parity**
-- Live WYSIWYG preview in the dashboard (`components/preview/ComparePreview.tsx`) — CapCut-style sticky `@remotion/player` showing the user's real titles, uploaded images, theme, tone, winner, and sticker before render. Captions/poses in the preview are samples; real ones come from the transcript.
-- `StickerStylePicker` is grouped into categories (Teachers / 3D Characters / Professionals / Faith) with the distracting selected `animate-bounce` removed.
+**Phase C — UX & Studio Streamlining**
+- Demo videos carousel removed from the studio interface (demo reels are reserved strictly for dedicated SEO pages like `/compare-explainer`).
+- Presenter character picker (2D/3D) cleanly removed from dashboard studio while new unified custom character selection is being developed.
+- Studio layout streamlined to 3 focused steps: Step 1 (Audio Voiceover), Step 2 (Dual Images & Subject Titles), Step 3 (Visual Theme & Winner Celebration).
 
 **Server validation (`app/api/reels/jobs/route.ts`)**
 - `resolveCompareTheme` / `resolveCompareTone` / `resolveCompareWinner` validate `compareTheme`/`compareTone`/`compareWinner` against fixed allow-lists; unknown values fall back to `light` / `versus` / `none`.

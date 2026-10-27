@@ -30,7 +30,6 @@ import { getCaptionStyleCatalogItem } from "@/lib/cloudinary/captionCatalog";
 export interface AutoCaptionStyleCarouselProps {
   selectedPresetKey: string;
   onSelectPreset: (presetKey: string) => void;
-  onHighlightColorChange?: (color: string) => void;
   mode?: "shorts" | "longForm";
   videoUrl?: string;
 }
@@ -56,15 +55,18 @@ export interface CategoryTab {
 }
 
 export const CATEGORY_TABS: CategoryTab[] = [
-  { id: "all", label: "🌐 All Styles (100+)" },
-  { id: "viral-bold", label: "🔥 Viral & Bold" },
-  { id: "kinetic", label: "⚡ Kinetic" },
-  { id: "glow", label: "✨ Glow & Neon" },
-  { id: "cinematic", label: "🎬 Cinematic" },
-  { id: "podcast", label: "🎙️ Podcast" },
-  { id: "educational", label: "🎓 Educational" },
-  { id: "minimal", label: "💎 Minimal & Clean" },
-  { id: "favorites", label: "★ Favorites" },
+  { id: "all", label: " All Shorts Styles" },
+  { id: "viral-bold", label: " Viral & Bold" },
+  { id: "kinetic", label: " Kinetic" },
+  { id: "glow", label: " Glow & Neon" },
+  { id: "cinematic", label: " Cinematic" },
+  { id: "podcast", label: " Podcast" },
+  { id: "educational", label: " Educational" },
+  { id: "minimal", label: " Minimal & Clean" },
+  { id: "kids", label: "Kids" },
+  { id: "animation2d", label: "2D Animation" },
+  { id: "animation3d", label: "3D Animation" },
+  { id: "favorites", label: " Favorites" },
 ];
 
 // Exact Category Presets Sets
@@ -204,25 +206,22 @@ export function getPresetCategoryLabel(key: string): string {
   return "Creator";
 }
 
-// Master list of all styles in canonical deduplicated order
-export const ALL_STYLES_MASTER: string[] = Array.from(
-  new Set([
-    ...SHORTS_PRESET_ORDER,
-    ...LONG_FORM_PRESET_ORDER,
-    ...Object.keys(SUBTITLE_PRESETS),
-  ])
+// Curated style list shown in the Auto Caption picker
+// This gallery is exclusively for 9:16 Auto Caption styles.
+export const ALL_STYLES_MASTER: string[] = SHORTS_PRESET_ORDER.filter(
+  (key) => Boolean(SUBTITLE_PRESETS[key])
 );
 
-// Top 8 Trending Creator Presets for the Demo Video Showcase
-export const FEATURED_TRENDING_DEMOS: Array<{ key: string; badge: string; tag: string }> = [
-  { key: "Hormozi Viral Pop", badge: "🔥 #1 Viral", tag: "Alex Hormozi" },
-  { key: "MrBeast Shorts Impact", badge: "⚡ High Energy", tag: "MrBeast Punch" },
-  { key: "Submagic Glow", badge: "✨ Neon Glow", tag: "Submagic Viral" },
-  { key: "Ali Abdaal Clean Pill", badge: "💎 Minimal", tag: "Ali Abdaal" },
-  { key: "Kurzgesagt Explainer", badge: "🎓 Explainer", tag: "Kurzgesagt" },
-  { key: "Diary of a CEO", badge: "🎙️ Podcast", tag: "Steven Bartlett" },
-  { key: "Crazy 2", badge: "⚡ Dynamic", tag: "Kinetic Pop" },
-  { key: "Devane Luxury Serif", badge: "👑 Luxury", tag: "Editorial Serif" },
+// Curated style previews with dedicated matching Cloudinary clips
+export const FEATURED_STYLE_PREVIEWS: Array<{ key: string; badge: string; tag: string }> = [
+  { key: "MrBeast Shorts Impact", badge: "Bold Impact", tag: "Kinetic" },
+  { key: "Shorts Karaoke", badge: "Karaoke", tag: "Word Sync" },
+  { key: "Submagic Glow", badge: "Glow", tag: "Neon" },
+  { key: "Spark", badge: "Gold", tag: "Premium" },
+  { key: "Story", badge: "Editorial", tag: "Serif" },
+  { key: "M3 Tonal Pill", badge: "Tonal", tag: "Soft Container" },
+  { key: "M3 Dynamic Chip", badge: "Dynamic", tag: "Color Container" },
+  { key: "M3 Elevated Card", badge: "Elevated", tag: "Layered Container" },
 ];
 
 export function getPresetVideoFilename(key: string): string {
@@ -243,7 +242,6 @@ export function getPresetPosterUrl(key: string): string {
 export function AutoCaptionStyleCarousel({
   selectedPresetKey,
   onSelectPreset,
-  onHighlightColorChange,
   mode = "shorts",
 }: AutoCaptionStyleCarouselProps) {
   const [activeCategory, setActiveCategory] = useState<StyleCategory>("all");
@@ -288,7 +286,7 @@ export function AutoCaptionStyleCarousel({
 
   // Filter styles instantaneously with 0 lag
   const filteredStyleKeys = useMemo(() => {
-    const list = Array.from(new Set([...masterList, ...ALL_STYLES_MASTER]));
+    const list = Array.from(new Set(masterList));
     return list.filter((key) => {
       const presetData = SUBTITLE_PRESETS[key];
       if (!presetData) return false;
@@ -312,18 +310,14 @@ export function AutoCaptionStyleCarousel({
 
   const handleCardClick = (key: string) => {
     onSelectPreset(key);
-    const presetData = SUBTITLE_PRESETS[key];
-    if (onHighlightColorChange && presetData?.highlightColor) {
-      onHighlightColorChange(presetData.highlightColor);
-    }
   };
 
   return (
     <div id="caption-style-gallery" className="w-full space-y-6 pt-1 select-none scroll-mt-6">
 
-      {/* ══════════════════════════════════════════════════════════════════════
+      {/* 
           FEATURED TOP 8 DEMOS STRIP (Real Video Moving Previews)
-      ══════════════════════════════════════════════════════════════════════ */}
+       */}
       <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-4 sm:p-5 shadow-xl space-y-3.5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-white/10 pb-3">
           <div className="flex items-center gap-2.5">
@@ -332,13 +326,13 @@ export function AutoCaptionStyleCarousel({
             </div>
             <div>
               <h3 className="text-sm font-black uppercase tracking-wider text-white font-jakarta flex items-center gap-2">
-                Featured Creator Demos
+                Caption Style Previews
                 <span className="rounded-full bg-orange-500/15 border border-orange-500/30 text-[#FFA000] text-[10px] font-black px-2 py-0.5 uppercase tracking-wider">
-                  Top 8 Live Videos
+                  8 live previews
                 </span>
               </h3>
               <p className="text-xs text-slate-300">
-                Live video results from top creators. Click to apply directly to your video.
+                Preview each caption treatment, then apply it to your video.
               </p>
             </div>
           </div>
@@ -348,7 +342,7 @@ export function AutoCaptionStyleCarousel({
               href="/auto-caption/templates"
               className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-[#131B2E] hover:border-[#FF5722]/50 hover:bg-[#1A233A] px-3 py-1.5 text-xs font-bold text-[#FFA000] transition"
             >
-              <span>Full 100+ Gallery</span>
+              <span>Full Shorts Style Gallery</span>
               <ExternalLink size={12} />
             </Link>
 
@@ -364,9 +358,9 @@ export function AutoCaptionStyleCarousel({
         </div>
 
         {/* Horizontal Carousel of the 8 Featured Video Demos */}
-        {showFeaturedDemos && (
+        {showFeaturedDemos && mode === "shorts" && (
           <div className="flex gap-3 overflow-x-auto pb-2 pr-1 custom-scrollbar snap-x snap-mandatory">
-          {FEATURED_TRENDING_DEMOS.map(({ key, badge, tag }) => {
+          {FEATURED_STYLE_PREVIEWS.map(({ key, badge, tag }) => {
             const isSelected = selectedPresetKey === key;
             const isPlaying = playingDemoKey === key;
             const videoSrc = getPresetVideoUrl(key);
@@ -457,9 +451,9 @@ export function AutoCaptionStyleCarousel({
         )}
       </div>
 
-      {/* ══════════════════════════════════════════════════════════════════════
-          MAIN 100+ KINETIC TYPOGRAPHY CARDS (Ultra-Fast 60 FPS, Zero Lag)
-      ══════════════════════════════════════════════════════════════════════ */}
+      {/* 
+          MAIN SHORTS KINETIC TYPOGRAPHY CARDS (Ultra-Fast 60 FPS, Zero Lag)
+       */}
       <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-4 sm:p-6 shadow-2xl space-y-5">
         {/* Gallery Header + Search */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
@@ -515,9 +509,9 @@ export function AutoCaptionStyleCarousel({
           </div>
         </div>
 
-        {/* Direct All Styles Grid (No Category Tabs - All 100+ Presets Displayed Directly) */}
+        {/* Curated Auto Caption styles */}
 
-        {/* 100+ Kinetic Typography Grid (Zero video lag, pure CSS/SVG animation) */}
+        {/* Real preview videos load only during explicit hover playback. */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-3 max-h-[560px] overflow-y-auto pr-1 custom-scrollbar">
           {filteredStyleKeys.map((key) => {
             const isSelected = selectedPresetKey === key;
@@ -577,40 +571,27 @@ export function AutoCaptionStyleCarousel({
                   </div>
                 </div>
 
-                {/* Central Kinetic Typography Preview Canvas */}
-                <div className="relative w-full aspect-[16/10] flex items-center justify-center p-3 text-center overflow-hidden">
-                  {/* Subtle ambient accent glow */}
-                  <div
-                    className="absolute inset-0 opacity-10 pointer-events-none blur-xl transition-opacity group-hover:opacity-25"
-                    style={{ backgroundColor: highlightColor }}
+                {/* Real style video, loaded only while a card is previewed. */}
+                <div className="relative w-full aspect-[9/16] overflow-hidden bg-black">
+                  <video
+                    src={getPresetVideoUrl(key)}
+                    poster={getPresetPosterUrl(key)}
+                    aria-hidden="true"
+                    playsInline
+                    loop
+                    muted
+                    preload="none"
+                    className="h-full w-full object-cover"
+                    onMouseEnter={(event) => event.currentTarget.play().catch(() => {})}
+                    onMouseLeave={(event) => {
+                      event.currentTarget.pause();
+                      event.currentTarget.currentTime = 0;
+                    }}
                   />
-
-                  {/* The Typography Preview Elements */}
-                  <div className="relative z-10 flex flex-wrap items-center justify-center gap-1.5 px-1">
-                    <span
-                      style={{
-                        fontFamily,
-                        color: textColor,
-                        textShadow: "0 2px 4px rgba(0,0,0,0.9)",
-                      }}
-                      className="text-xs sm:text-sm font-black tracking-wide uppercase transition-transform group-hover:scale-105"
-                    >
-                      VIRAL
-                    </span>
-                    <span
-                      style={{
-                        fontFamily,
-                        color: highlightColor,
-                        backgroundColor: backgroundColor && backgroundColor !== "transparent" ? backgroundColor : undefined,
-                        textShadow: `0 0 10px ${highlightColor}80`,
-                      }}
-                      className="text-xs sm:text-sm font-black tracking-wide uppercase px-1.5 py-0.5 rounded shadow-sm transition-transform group-hover:scale-110"
-                    >
-                      REEL
-                    </span>
-                  </div>
+                  <span className="pointer-events-none absolute bottom-2 left-2 rounded-full border border-white/15 bg-black/75 px-2 py-1 text-[9px] font-bold text-white/90">
+                    Live style preview
+                  </span>
                 </div>
-
                 {/* Card Footer: Style Name & Font Family */}
                 <div className="p-2.5 pt-2 border-t border-white/5 bg-[#090D18]/90">
                   <p className="text-xs font-black text-white truncate font-jakarta">

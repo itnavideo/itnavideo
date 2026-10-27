@@ -157,7 +157,7 @@ export interface ComputedTypographyLayout {
  * Natural line wrapping that balances line lengths and eliminates orphan/widow words.
  */
 export function balanceLineWraps(text: string, maxCharsPerLine: number): string[] {
-  const clean = text.trim().replace(/\s+/g, ' ');
+  const clean = String(text || '').trim().replace(/\s+/g, ' ');
   if (!clean) return [];
 
   const words = clean.split(' ');
@@ -210,9 +210,11 @@ export function balanceLineWraps(text: string, maxCharsPerLine: number): string[
  * Detects numbers, currency, percentages, views, metrics in text.
  */
 function extractStatistic(text: string): { value: string; label: string; trend?: 'up' | 'down' | 'neutral' } | null {
+  const safeText = String(text || '');
+  if (!safeText.trim()) return null;
   // Regex to detect values like: $5 billion, $500k, 78%, 3.5x, 10M, 100k views, 5.2 crore
   const statRegex = /(?:\$|€|£|₹)?\s*\b\d+(?:[.,]\d+)?\s*(?:billion|million|trillion|crore|lakh|k|m|b|%|x|times|views|subscribers|users|dollars|rupees)?\b/i;
-  const match = text.match(statRegex);
+  const match = safeText.match(statRegex);
 
   if (match && match[0].trim().length >= 2) {
     const rawVal = match[0].trim();
@@ -224,12 +226,12 @@ function extractStatistic(text: string): { value: string; label: string; trend?:
 
     if (isProminent) {
       let statValue = rawVal.toUpperCase();
-      if (!statValue.startsWith('$') && text.includes('$')) {
+      if (!statValue.startsWith('$') && safeText.includes('$')) {
         statValue = '$' + statValue;
       }
       
       // Clean label by removing the stat value from the sentence
-      let label = text.replace(match[0], '').replace(/[.,;:!?]+$/, '').trim();
+      let label = safeText.replace(match[0], '').replace(/[.,;:!?]+$/, '').trim();
       label = label.replace(/\s+/g, ' ');
       // Shorten label if too long for clean stat card
       const labelWords = label.split(' ');

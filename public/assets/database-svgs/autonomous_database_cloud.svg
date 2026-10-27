@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="Oracle Autonomous Database">
+  <!-- Itnavideo Database Asset: Oracle Autonomous Database -->
+  <circle cx="60" cy="46" r="30" fill="#042F2E" stroke="#14B8A6" stroke-width="3" />
+      <circle cx="60" cy="46" r="14" fill="none" stroke="#5EEAD4" stroke-width="2.5" stroke-dasharray="6 3" />
+      <circle cx="60" cy="46" r="5" fill="#FACC15" />
+      <text x="60" y="94" fill="#2DD4BF" font-size="8" font-family="sans-serif" font-weight="900" text-anchor="middle">AUTONOMOUS DATABASE</text>
+      <text x="60" y="106" fill="#99F6E4" font-size="6.5" font-family="sans-serif" text-anchor="middle">Self-Driving, Self-Securing</text>
+</svg>

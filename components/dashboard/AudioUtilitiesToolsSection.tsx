@@ -12,8 +12,8 @@ interface AudioUtilitiesToolsSectionProps {
 }
 
 function getDashboardCardImage(id: string): string {
-  if (id.includes('audio') || id.includes('cleaner')) return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1791892521/audio_cleaner_tzshum.png';
-  return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1791892521/audio_cleaner_tzshum.png';
+  if (id.includes('audio') || id.includes('cleaner')) return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1792946356/audio_cleaner_pipcxj.png';
+  return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1792946356/audio_cleaner_pipcxj.png';
 }
 
 export default function AudioUtilitiesToolsSection({

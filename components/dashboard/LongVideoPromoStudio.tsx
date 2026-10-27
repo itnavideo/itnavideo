@@ -151,7 +151,7 @@ export function LongVideoPromoStudio({
                 <Clock3 size={14} className="text-[#FFA000]" />
                 <div>
                   <div className="text-[11px] font-black uppercase tracking-wider text-[#FFA000]">Strictly 9:16 Vertical</div>
-                  <div className="text-[10px] text-zinc-400">1080×1920 Full HD • Up to 90s</div>
+                  <div className="text-[10px] text-zinc-400">10801920 Full HD  Up to 90s</div>
                 </div>
               </div>
             </div>
@@ -213,7 +213,7 @@ export function LongVideoPromoStudio({
                       <p className="text-sm font-bold text-white truncate">{selectedFile.name}</p>
                       <div className="flex items-center gap-2 text-xs text-zinc-400 mt-0.5">
                         <span>{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</span>
-                        <span>•</span>
+                        <span></span>
                         <span className="text-emerald-400 font-semibold">Ready for 9:16 Conforming</span>
                       </div>
                     </div>
@@ -273,7 +273,7 @@ export function LongVideoPromoStudio({
                   <UploadedImagePreview alt="Thumbnail preview" className="h-14 w-24 rounded-lg object-cover" file={promoThumbnailFile} />
                   <div className="min-w-0">
                     <p className="text-xs font-bold text-white truncate">{promoThumbnailFile.name}</p>
-                    <p className="text-[10px] text-emerald-400 mt-0.5">✓ 3D Card Active</p>
+                    <p className="text-[10px] text-emerald-400 mt-0.5"> 3D Card Active</p>
                   </div>
                 </div>
               )}
@@ -381,7 +381,7 @@ export function LongVideoPromoStudio({
               {/* Top Watermark */}
               <div className="relative z-10 flex items-center justify-between">
                 <span className="inline-flex items-center gap-1 rounded-full bg-black/80 px-2.5 py-0.5 text-[9px] font-black text-[#FFA000]">
-                  <span>🎬 Promo Teaser</span>
+                  <span> Promo Teaser</span>
                 </span>
                 <span className="text-[9px] font-mono text-zinc-400">
                   {promoCreatorHandle || "@channel"}
@@ -421,7 +421,7 @@ export function LongVideoPromoStudio({
                     ? "bg-amber-400 text-black"
                     : "bg-white/20 backdrop-blur-md text-white border border-white/20"
                 }`}>
-                  ▶ WATCH FULL VIDEO
+                   WATCH FULL VIDEO
                 </div>
               </div>
             </div>
@@ -433,7 +433,7 @@ export function LongVideoPromoStudio({
                   <Tv size={12} className="text-slate-500" />
                   <span>Resolution</span>
                 </span>
-                <span className="font-bold text-white">1080×1920 (Vertical)</span>
+                <span className="font-bold text-white">10801920 (Vertical)</span>
               </div>
               <div className="flex items-center justify-between text-slate-400">
                 <span className="flex items-center gap-1.5">

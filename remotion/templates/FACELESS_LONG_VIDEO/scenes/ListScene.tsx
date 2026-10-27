@@ -3,24 +3,37 @@ import { interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
 import { resolveFont } from '../../../utils/fonts';
 
+import type { BackgroundColorPalette } from '../../../components/backgrounds/BackgroundCatalog';
+
 export interface ListSceneProps {
   scene: SceneBlueprintItem;
   headingFont?: string;
   bodyFont?: string;
+  sceneFrame?: number;
+  palette?: BackgroundColorPalette;
 }
 
 export function ListScene({
   scene,
   headingFont = 'Plus Jakarta Sans',
   bodyFont = 'Inter',
+  sceneFrame,
+  palette,
 }: ListSceneProps) {
   const resolvedHeadingFont = resolveFont(headingFont);
   const resolvedBodyFont = resolveFont(bodyFont);
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const currentFrame = sceneFrame ?? frame;
+
+  const isDark = palette?.isDark ?? true;
+  const headingColor = isDark ? '#FFFFFF' : '#0F172A';
+  const itemBg = isDark ? 'rgba(15, 23, 42, 0.75)' : 'rgba(255, 255, 255, 0.92)';
+  const itemBorder = isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.08)';
+  const itemTextColor = isDark ? '#F8FAFC' : '#0F172A';
 
   const titleEntrance = spring({
-    frame,
+    frame: currentFrame,
     fps,
     config: { damping: 14, mass: 0.8 },
   });
@@ -69,17 +82,17 @@ export function ListScene({
               fontFamily: resolvedHeadingFont,
               fontSize: '52px',
               fontWeight: 900,
-              color: '#FFFFFF',
+              color: headingColor,
               margin: 0,
               letterSpacing: '-0.02em',
-              textShadow: '0 4px 20px rgba(0,0,0,0.6)',
+              textShadow: isDark ? '0 4px 20px rgba(0,0,0,0.6)' : 'none',
             }}
           >
             {heading}
           </h1>
         </div>
 
-        {/* Staggered List Cards */}
+        {/* Staggered List Items */}
         <div
           style={{
             width: '100%',
@@ -91,7 +104,7 @@ export function ListScene({
         >
           {items.map((item, index) => {
             const itemEntrance = spring({
-              frame: frame - (15 + index * 10), // Staggered reveal
+              frame: Math.max(0, currentFrame - (12 + index * 8)), // Staggered reveal from sceneFrame
               fps,
               config: { damping: 15, mass: 0.7 },
             });
@@ -102,15 +115,15 @@ export function ListScene({
                 style={{
                   opacity: itemEntrance,
                   transform: `translateX(${interpolate(itemEntrance, [0, 1], [40, 0])}px)`,
-                  borderRadius: '18px',
-                  border: '1px solid rgba(255, 255, 255, 0.15)',
-                  backgroundColor: 'rgba(15, 23, 42, 0.85)',
-                  backdropFilter: 'blur(20px)',
+                  borderRadius: '16px',
+                  border: itemBorder,
+                  backgroundColor: itemBg,
+                  backdropFilter: 'blur(16px)',
                   padding: '18px 28px',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '20px',
-                  boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)',
+                  boxShadow: isDark ? '0 10px 30px rgba(0, 0, 0, 0.4)' : '0 4px 16px rgba(0, 0, 0, 0.06)',
                 }}
               >
                 <div
@@ -118,15 +131,15 @@ export function ListScene({
                     width: '36px',
                     height: '36px',
                     borderRadius: '10px',
-                    backgroundColor: 'rgba(245, 158, 11, 0.2)',
-                    border: '1px solid rgba(245, 158, 11, 0.5)',
+                    backgroundColor: 'rgba(255, 87, 34, 0.15)',
+                    border: '1px solid rgba(255, 87, 34, 0.45)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontFamily: resolvedHeadingFont,
                     fontSize: '16px',
                     fontWeight: 900,
-                    color: '#F59E0B',
+                    color: '#FF5722',
                     flexShrink: 0,
                   }}
                 >
@@ -136,11 +149,10 @@ export function ListScene({
                 <span
                   style={{
                     fontFamily: resolvedBodyFont,
-                    fontSize: '28px',
+                    fontSize: '26px',
                     fontWeight: 600,
-                    color: '#FFFFFF',
-                    lineHeight: 1.35,
-                    letterSpacing: '-0.01em',
+                    color: itemTextColor,
+                    lineHeight: 1.4,
                   }}
                 >
                   {item}
@@ -153,3 +165,4 @@ export function ListScene({
     </div>
   );
 }
+

@@ -1,42 +1,17 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { Check, Captions, Tv, Wand2, Layers, Film } from "lucide-react";
+import { Check, Captions, Tv, Wand2, Layers, Film, Search } from "lucide-react";
+import { FACELESS_FONT_CATALOG } from "../../lib/fonts/facelessFontCatalog";
 
-export type FacelessFontOption =
-  | "Montserrat"
-  | "Plus Jakarta Sans"
-  | "Inter"
-  | "Poppins"
-  | "Bebas Neue"
-  | "Oswald"
-  | "Playfair Display"
-  | "Space Grotesk"
-  | "Outfit"
-  | "Cinzel"
-  | "Syne"
-  | "Roboto";
+export type FacelessFontOption = string;
 
-export const CURATED_FACELESS_FONTS: {
-  id: FacelessFontOption;
-  label: string;
-  role: string;
-  tag: string;
-}[] = [
-  { id: "Montserrat", label: "Montserrat", role: "High-retention bold YouTube headline", tag: "GEOMETRIC SANS" },
-  { id: "Plus Jakarta Sans", label: "Plus Jakarta Sans", role: "Editorial accent & smooth subtitle flow", tag: "MODERN GROTESK" },
-  { id: "Inter", label: "Inter", role: "Clarity, readability & clean screen text", tag: "INTERFACE CLEAN" },
-  { id: "Poppins", label: "Poppins", role: "Friendly geometric contemporary aesthetic", tag: "GEOMETRIC" },
-  { id: "Bebas Neue", label: "Bebas Neue", role: "High-impact uppercase documentary hooks", tag: "CONDENSED DISPLAY" },
-  { id: "Oswald", label: "Oswald", role: "Sharp narrow news & business headlines", tag: "EDITORIAL CONDENSED" },
-  { id: "Outfit", label: "Outfit", role: "Sleek Silicon Valley tech & AI presentations", tag: "TECH SANS" },
-  { id: "Space Grotesk", label: "Space Grotesk", role: "Cybernetic, futuristic & algorithmic tone", tag: "DIGITAL DISPLAY" },
-  { id: "Playfair Display", label: "Playfair Display", role: "Luxury, narrative storytelling & documentary", tag: "EDITORIAL SERIF" },
-  { id: "Cinzel", label: "Cinzel", role: "Cinematic, dramatic & historical authority", tag: "CINEMATIC SERIF" },
-  { id: "Syne", label: "Syne", role: "Avant-garde artistic & creative branding", tag: "CREATIVE DISPLAY" },
-  { id: "Roboto", label: "Roboto", role: "Classic YouTube clean informational text", tag: "STANDARD SANS" },
-];
-
+export const CURATED_FACELESS_FONTS = FACELESS_FONT_CATALOG.map(({ family }) => ({
+  id: family,
+  label: family,
+  role: 'Locally hosted Google Font',
+  tag: 'LATIN',
+}));
 export interface CanvaBackgroundTile {
   id: string;
   name: string;
@@ -214,6 +189,22 @@ export function FacelessVideoStyleControls({
   const [internalPacing, setInternalPacing] = useState<"dynamic" | "balanced" | "cinema">(aiPacing);
   const [enableSFX, setEnableSFX] = useState<boolean>(true);
   const [textStyle, setTextStyle] = useState<"clean" | "bold" | "cinematic" | "modern">("bold");
+  const [fontPanelOpen, setFontPanelOpen] = useState(false);
+  const [fontRole, setFontRole] = useState<"heading" | "supporting">("heading");
+  const [fontSearch, setFontSearch] = useState("");
+  const visibleFontOptions = useMemo(() => {
+    const query = fontSearch.trim().toLowerCase();
+    return FACELESS_FONT_CATALOG.filter((font) => !query || font.family.toLowerCase().includes(query));
+  }, [fontSearch]);
+  const selectedFont = fontRole === "heading" ? headingFont : bodyFont;
+  const selectFont = (family: string) => {
+    if (fontRole === "heading") {
+      setHeadingFont(family);
+      return;
+    }
+    setSubheadingFont(family);
+    setBodyFont(family);
+  };
 
   const activePacing = setAiPacing ? aiPacing : internalPacing;
   const handlePacingChange = (p: "dynamic" | "balanced" | "cinema") => {
@@ -343,7 +334,84 @@ export function FacelessVideoStyleControls({
 
 
 
-      {/* ── SECTION 2: Text Style (Automated Typography) ── */}
+      {/* ── FONT LIBRARY ── */}
+      <div className="space-y-3 border-t border-white/10 pt-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h4 className="text-sm font-bold text-white">Font library</h4>
+            <p className="mt-1 text-xs text-zinc-400">{FACELESS_FONT_CATALOG.length} downloaded fonts · Latin character support</p>
+          </div>
+          <button
+            type="button"
+            aria-expanded={fontPanelOpen}
+            onClick={() => setFontPanelOpen((open) => !open)}
+            className="rounded-full border border-amber-400/30 bg-amber-400/10 px-4 py-2 text-xs font-bold text-amber-200 transition active:scale-95 hover:border-amber-300/60"
+          >
+            {fontPanelOpen ? "Close fonts" : "Choose fonts"}
+          </button>
+        </div>
+
+        {fontPanelOpen ? (
+          <div className="space-y-3 rounded-2xl border border-white/10 bg-zinc-900/60 p-3">
+            <style>{FACELESS_FONT_CATALOG.map(({ family, assetPath }) => '@font-face{font-family:"' + family + '";src:url("/' + assetPath + '") format("woff2");font-style:normal;font-weight:400;font-display:swap}').join("\n")}</style>
+            <div className="flex flex-wrap gap-2" aria-label="Font role">
+              {[
+                { id: "heading" as const, label: "Heading", value: headingFont },
+                { id: "supporting" as const, label: "Supporting text", value: bodyFont },
+              ].map((role) => (
+                <button
+                  key={role.id}
+                  type="button"
+                  aria-pressed={fontRole === role.id}
+                  onClick={() => setFontRole(role.id)}
+                  className={fontRole === role.id ? "rounded-full border border-amber-400/60 bg-amber-400/15 px-3.5 py-2 text-xs font-bold text-amber-200 transition active:scale-95" : "rounded-full border border-white/10 bg-zinc-950 px-3.5 py-2 text-xs font-bold text-zinc-300 transition active:scale-95 hover:border-white/25"}
+                >
+                  {role.label}<span className="ml-1.5 font-medium text-zinc-400">· {role.value}</span>
+                </button>
+              ))}
+            </div>
+
+            <label className="relative block">
+              <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
+              <input
+                type="search"
+                value={fontSearch}
+                onChange={(event) => setFontSearch(event.target.value)}
+                placeholder={"Search " + FACELESS_FONT_CATALOG.length + " fonts"}
+                aria-label="Search font families"
+                className="w-full rounded-2xl border border-white/10 bg-zinc-950 py-3 pl-10 pr-3 text-sm text-white outline-none transition placeholder:text-zinc-500 focus:border-amber-400/60 focus:ring-2 focus:ring-amber-400/15"
+              />
+            </label>
+
+            <div className="grid max-h-64 grid-cols-1 gap-2 overflow-y-auto sm:grid-cols-2">
+              {visibleFontOptions.slice(0, 18).map((font) => {
+                const isSelected = selectedFont === font.family;
+                return (
+                  <button
+                    key={font.family}
+                    type="button"
+                    aria-pressed={isSelected}
+                    onClick={() => selectFont(font.family)}
+                    className={isSelected ? "flex items-center justify-between gap-3 rounded-2xl border border-amber-400/60 bg-amber-400/10 px-3 py-2.5 text-left text-white transition active:scale-[0.99]" : "flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-zinc-950/70 px-3 py-2.5 text-left text-zinc-200 transition active:scale-[0.99] hover:border-white/25"}
+                  >
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-semibold" style={{ fontFamily: '"' + font.family + '", sans-serif' }}>{font.family}</span>
+                      <span className="mt-0.5 block text-[10px] text-zinc-500" style={{ fontFamily: '"' + font.family + '", sans-serif' }}>Finance education</span>
+                    </span>
+                    <span className="shrink-0 text-xl font-bold" style={{ fontFamily: '"' + font.family + '", sans-serif' }}>Aa</span>
+                  </button>
+                );
+              })}
+              {visibleFontOptions.length === 0 ? (
+                <p className="col-span-full rounded-xl border border-dashed border-white/10 px-3 py-5 text-center text-sm text-zinc-400">No fonts match that search.</p>
+              ) : null}
+            </div>
+            {visibleFontOptions.length > 18 ? (
+              <p className="text-center text-[11px] text-zinc-500">Showing 18 of {visibleFontOptions.length}. Search to narrow the list.</p>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
       <div className="space-y-3 pt-4 border-t border-white/10">
         <div className="flex items-center justify-between">
           <label className="text-[11px] font-bold tracking-wider uppercase text-amber-400">
@@ -381,7 +449,7 @@ export function FacelessVideoStyleControls({
         </div>
 
         <p className="text-[10px] text-zinc-400 italic pt-0.5">
-          AI automatically decides font family, sizes, placements, kinetic animations, colors &amp; visual hierarchy.
+          Selected font families control the heading and supporting text; AI still adapts size, placement, animation, color and hierarchy.
         </p>
       </div>
     </div>

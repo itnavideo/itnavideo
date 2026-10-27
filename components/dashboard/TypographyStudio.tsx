@@ -18,10 +18,7 @@ import {
   Clock3,
 } from "lucide-react";
 import { BorderBeam } from "@/components/magicui/BorderBeam";
-import {
-  TypographyStylePicker,
-  getTypographyStyle,
-} from "@/components/typography/TypographyStylePicker";
+import { TypographyTemplatePicker } from "@/components/typography/TypographyTemplatePicker";
 
 export interface TypographyStudioProps {
   selectedFile: File | null;
@@ -36,8 +33,8 @@ export interface TypographyStudioProps {
   selectedVoice?: string;
   onSelectVoiceChange?: (voice: string) => void;
 
-  typographyStyle: string;
-  onTypographyStyleChange: (val: string) => void;
+  typographyStyle?: string;
+  onTypographyStyleChange?: (val: string) => void;
 
   typographySfxIntensity: "full" | "subtle" | "none";
   onTypographySfxIntensityChange: (val: "full" | "subtle" | "none") => void;
@@ -107,7 +104,7 @@ export function TypographyStudio({
         <div className="flex items-center gap-2 shrink-0">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#161720] px-3 py-1.5 text-xs font-bold text-slate-300">
             <Clock3 size={13} className="text-[#FF7043]" />
-            <span>9:16 Vertical • 1080p Full HD</span>
+            <span>9:16 Vertical  1080p Full HD</span>
           </span>
         </div>
       </div>
@@ -175,7 +172,7 @@ export function TypographyStudio({
                       <div className="min-w-0">
                         <p className="text-xs font-bold text-white truncate">{selectedFile.name}</p>
                         <p className="text-[10px] text-emerald-400 font-semibold mt-0.5">
-                          {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB • Ready for Kinetic Sync
+                          {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB  Ready for Kinetic Sync
                         </p>
                       </div>
                     </div>
@@ -195,7 +192,7 @@ export function TypographyStudio({
                         <FileText size={14} className="text-[#FF9100]" />
                         <span>Review &amp; Edit Spoken Script Transcript</span>
                       </label>
-                      <span className="text-[10px] text-[#FF9100] font-semibold">✨ Fix any transcription typos before render</span>
+                      <span className="text-[10px] text-[#FF9100] font-semibold"> Fix any transcription typos before render</span>
                     </div>
                     <textarea
                       rows={3}
@@ -210,8 +207,11 @@ export function TypographyStudio({
             </div>
           </div>
 
-          {/* STEP 2: CATEGORIZED 9:16 MOTION TYPOGRAPHY GALLERY */}
-          <TypographyStylePicker value={typographyStyle} onChange={onTypographyStyleChange} />
+          {/* STEP 2: SELECT KINETIC REFERENCE TEMPLATE */}
+          <TypographyTemplatePicker
+            value={typographyStyle || "creator-editorial"}
+            onChange={onTypographyStyleChange}
+          />
 
           {/* STEP 3: STREAMLINED AUDIO & MOTION PACING CONTROLS */}
           <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-2xl space-y-5">
@@ -238,9 +238,9 @@ export function TypographyStudio({
                 <label className="block text-xs font-bold text-zinc-300">Sound Effects (SFX)</label>
                 <div className="grid grid-cols-3 gap-1.5 rounded-2xl bg-[#161720] p-1 border border-white/10">
                   {[
-                    { id: "full", label: "💥 Full" },
-                    { id: "subtle", label: "🔉 Subtle" },
-                    { id: "none", label: "🔇 Mute" },
+                    { id: "full", label: " Full" },
+                    { id: "subtle", label: " Subtle" },
+                    { id: "none", label: " Mute" },
                   ].map((sfx) => {
                     const active = typographySfxIntensity === sfx.id;
                     return (
@@ -266,8 +266,8 @@ export function TypographyStudio({
                 <label className="block text-xs font-bold text-zinc-300">Word Motion Velocity</label>
                 <div className="grid grid-cols-2 gap-1.5 rounded-2xl bg-[#161720] p-1 border border-white/10">
                   {[
-                    { id: "fast", label: "⚡ Viral Blitz" },
-                    { id: "smooth", label: "📖 Smooth Flow" },
+                    { id: "fast", label: " Viral Blitz" },
+                    { id: "smooth", label: " Smooth Flow" },
                   ].map((pace) => {
                     const active = typographyPacing === pace.id;
                     return (
@@ -327,7 +327,7 @@ export function TypographyStudio({
                 <span>9:16 Canvas Stage</span>
               </h3>
               <span className="rounded-full bg-[#FF5722]/15 border border-[#FF5722]/30 px-2.5 py-0.5 text-[10px] font-bold text-[#FF9100]">
-                1080×1920 Full HD
+                10801920 Full HD
               </span>
             </div>
 
@@ -335,16 +335,23 @@ export function TypographyStudio({
             <div className="relative aspect-[9/16] max-h-[380px] w-full mx-auto overflow-hidden rounded-2xl border border-white/10 bg-[#070B14] flex flex-col items-center justify-center p-6 text-center group shadow-xl">
               <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80" />
 
-              {/* Kinetic Typography Specimen Display */}
+              {/* Kinetic Typography Specimen Display - Reference Hybrid Style */}
               <div className="relative z-10 space-y-2">
-                <span className="text-[10px] uppercase tracking-widest text-[#FFA000] font-black">
-                  {typographyStyle || "Kinetic Text"}
+                <span className="text-[10px] uppercase tracking-widest text-[#FACC15] font-black">
+                  {typographyStyle === "creator-editorial" || !typographyStyle ? "Creator Editorial • Hybrid" : typographyStyle}
                 </span>
-                <p className="text-xl sm:text-2xl font-black text-white tracking-tight drop-shadow-md">
-                  {typographyTextCase === "uppercase" ? "MAKE EVERY WORD IMPACT" : "Make Every Word Impact"}
-                </p>
+                <div className="space-y-1">
+                  <p className="font-serif italic text-2xl text-white drop-shadow-md">
+                    agar
+                  </p>
+                  <p className="text-2xl sm:text-3xl font-black tracking-tight drop-shadow-md flex items-center justify-center gap-2">
+                    <span className="text-sm font-sans font-medium text-white/90">aap</span>
+                    <span className="text-[#FACC15] drop-shadow-[0_0_20px_rgba(250,204,21,0.5)]">AI</span>
+                  </p>
+                  <p className="text-xs font-sans text-white/80 font-medium">se</p>
+                </div>
                 <span className="inline-block px-2.5 py-0.5 rounded-full bg-[#FF5722]/20 border border-[#FF5722]/40 text-[#FFA000] font-mono text-[10px] font-bold">
-                  ⚡ {typographyPacing === "fast" ? "Viral Blitz" : "Smooth Flow"}
+                   {typographyPacing === "fast" ? "Viral Blitz" : "Smooth Flow"}
                 </span>
               </div>
 
@@ -366,8 +373,8 @@ export function TypographyStudio({
                 </span>
               </div>
               <div className="flex items-center justify-between text-zinc-400 border-b border-white/5 pb-2">
-                <span>Preset Style</span>
-                <span className="font-bold text-[#FF9100] capitalize">{typographyStyle || "Impact"}</span>
+                <span>Template</span>
+                <span className="font-bold text-[#FF9100] capitalize">{typographyStyle || "Kinetic Template"}</span>
               </div>
               <div className="flex items-center justify-between text-zinc-400 border-b border-white/5 pb-2">
                 <span>Credit Rate</span>
@@ -406,9 +413,9 @@ export function TypographyStudio({
               {selectedFile ? selectedFile.name : "Upload media above to begin"}
             </p>
             <p className="text-[10px] text-[#FF9100] font-semibold flex items-center gap-1.5 mt-0.5">
-              <span>9:16 Vertical • 1080p Full HD</span>
-              <span>•</span>
-              <span className="text-zinc-300">Preset: {typographyStyle || "Slam Impact"}</span>
+              <span>9:16 Vertical  1080p Full HD</span>
+              <span></span>
+              <span className="text-zinc-300">Template: {typographyStyle || "Kinetic Template"}</span>
             </p>
           </div>
         </div>
@@ -420,7 +427,7 @@ export function TypographyStudio({
           className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-6 py-3 text-xs font-black text-black shadow-lg shadow-[#FF5722]/25 transition active:scale-95 hover:brightness-110 disabled:opacity-45 disabled:pointer-events-none cursor-pointer whitespace-nowrap"
         >
           <Sparkles size={15} />
-          <span>{isGenerating ? "Rendering Reel..." : "✨ Generate 9:16 Typography Video"}</span>
+          <span>{isGenerating ? "Rendering Reel..." : " Generate 9:16 Typography Video"}</span>
         </button>
       </div>
     </div>

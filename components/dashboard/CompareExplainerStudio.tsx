@@ -18,9 +18,7 @@ import {
   Play,
 } from "lucide-react";
 import { BorderBeam } from "@/components/magicui/BorderBeam";
-import { StickerStylePicker } from "@/components/compare/StickerStylePicker";
 import { CompareImageSlots } from "@/components/compare/CompareImageSlots";
-import { CompareExplainerShowcase } from "@/components/compare/CompareExplainerShowcase";
 import { StudioWorkflowRoadmap } from "@/components/dashboard/StudioWorkflowRoadmap";
 
 interface CompareExplainerStudioProps {
@@ -107,19 +105,11 @@ export function CompareExplainerStudio({
     }
   };
 
-  const handleSelectExample = (left: string, right: string) => {
-    onLeftTitleChange(left);
-    onRightTitleChange(right);
-  };
-
   const isReadyToRender = Boolean(selectedFile && comparisonFiles.length === 2);
 
   return (
     <div className="space-y-8">
-      {/* 1. TOP SHOWCASE: 5 Featured Demo Videos */}
-      <CompareExplainerShowcase onSelectTopicExample={handleSelectExample} />
-
-      {/* 2. 2-COLUMN STANDARDIZED STUDIO LAYOUT */}
+      {/* 2-COLUMN STANDARDIZED STUDIO LAYOUT */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Panel: Input Controls (8 cols) */}
         <div className="lg:col-span-7 xl:col-span-8 min-w-0 max-w-full overflow-x-hidden space-y-6">
@@ -140,7 +130,7 @@ export function CompareExplainerStudio({
                     <span>Compare Explainer Studio</span>
                   </h2>
                   <p className="text-xs sm:text-sm text-slate-300 mt-0.5">
-                    Upload voiceover &amp; 2 split-screen visuals. AI animates character reactions, side-pointing, and winner reveal.
+                    Upload voiceover &amp; 2 split-screen visuals. AI animates comparison timing, split-screen effects, and winner reveal.
                   </p>
                 </div>
               </div>
@@ -149,7 +139,7 @@ export function CompareExplainerStudio({
               <div className="flex items-center gap-2 shrink-0">
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1.5 text-xs font-black text-orange-300">
                   <Clock3 size={13} className="text-[#FFA000]" />
-                  <span>9:16 Shorts · Max 90s · 1 Credit</span>
+                  <span>9:16 Shorts  Max 90s  1 Credit</span>
                 </span>
               </div>
             </div>
@@ -166,17 +156,17 @@ export function CompareExplainerStudio({
                   </div>
                   <div>
                     <h3 className="text-sm font-black uppercase tracking-wider text-white">
-                      Step 1 · Voiceover Narration
+                      Step 1  Voiceover Narration
                     </h3>
                     <p className="text-xs text-zinc-400 mt-0.5">
-                      MP3, WAV, M4A or MP4 video • Your narration drives split-screen timing
+                      MP3, WAV, M4A or MP4 video  Your narration drives split-screen timing
                     </p>
                   </div>
                 </div>
 
                 {selectedFile && (
                   <span className="rounded-full bg-emerald-500/15 border border-emerald-500/30 px-3 py-1 text-[11px] font-bold text-emerald-300">
-                    ✓ Audio Uploaded
+                     Audio Uploaded
                   </span>
                 )}
               </div>
@@ -205,12 +195,12 @@ export function CompareExplainerStudio({
                 <div className="rounded-2xl border border-white/15 bg-black/60 p-4 flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-500/15 text-[#FFA000] text-sm">
-                      🎤
+                      
                     </div>
                     <div className="min-w-0">
                       <p className="text-xs font-bold text-white truncate">{selectedFile.name}</p>
                       <p className="text-[11px] text-zinc-400 mt-0.5">
-                        {(selectedFile.size / 1024 / 1024).toFixed(2)} MB • Ready for Groq cloud transcription
+                        {(selectedFile.size / 1024 / 1024).toFixed(2)} MB  Ready for Groq cloud transcription
                       </p>
                     </div>
                   </div>
@@ -233,7 +223,7 @@ export function CompareExplainerStudio({
                 </div>
                 <div>
                   <h3 className="text-sm font-black uppercase tracking-wider text-white">
-                    Step 2 · Split-Screen Comparison Subjects
+                    Step 2  Split-Screen Comparison Subjects
                   </h3>
                   <p className="text-xs text-zinc-400 mt-0.5">
                     Upload Option A (Left) &amp; Option B (Right) visual screenshots with descriptive titles.
@@ -252,29 +242,7 @@ export function CompareExplainerStudio({
               />
             </div>
 
-            {/* STEP 3: CHARACTER PRESENTER SELECTION */}
-            <div className="rounded-[24px] border border-white/10 bg-[#070B14] p-5 sm:p-6 shadow-md space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-orange-500/30 bg-orange-500/15 text-[#FFA000]">
-                  <UserCheck size={18} />
-                </div>
-                <div>
-                  <h3 className="text-sm font-black uppercase tracking-wider text-white">
-                    Step 3 · Presenter Character
-                  </h3>
-                  <p className="text-xs text-zinc-400 mt-0.5">
-                    Select an animated stickman or 3D host to react, compare and announce the winner.
-                  </p>
-                </div>
-              </div>
-
-              <StickerStylePicker
-                value={stickerStyle}
-                onChange={onStickerStyleChange}
-              />
-            </div>
-
-            {/* STEP 4: VISUAL THEME & ADVANCED CONFIGURATION */}
+            {/* STEP 3: VISUAL THEME & ADVANCED CONFIGURATION */}
             <div className="rounded-[24px] border border-white/10 bg-[#070B14] p-5 sm:p-6 shadow-md space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -283,7 +251,7 @@ export function CompareExplainerStudio({
                   </div>
                   <div>
                     <h3 className="text-sm font-black uppercase tracking-wider text-white">
-                      Step 4 · Visual Theme &amp; Winner
+                      Step 3  Visual Theme &amp; Winner
                     </h3>
                     <p className="text-xs text-zinc-400 mt-0.5">
                       Card background palette and automated winner reveal celebration.
@@ -407,13 +375,10 @@ export function CompareExplainerStudio({
                 <div className="mt-1 h-1.5 w-12 rounded-full bg-blue-500/40" />
               </div>
 
-              {/* Center VS Badge + Host Reaction */}
+              {/* Center VS Badge */}
               <div className="my-2 flex items-center justify-center relative">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-tr from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black font-black text-xs shadow-lg shadow-[#FF5722]/30 border-2 border-white/20">
                   VS
-                </div>
-                <div className="absolute right-3 text-lg animate-bounce">
-                  {stickerStyle.includes("presenter") ? "🕺" : "🤾"}
                 </div>
               </div>
 
@@ -430,7 +395,7 @@ export function CompareExplainerStudio({
               {compareWinner !== "none" && (
                 <div className="mt-2 rounded-xl bg-emerald-500/20 border border-emerald-500/40 py-1.5 text-center">
                   <span className="text-[10px] font-black text-emerald-400">
-                    🏆 {compareWinner === "left" ? (compareLeftTitle || "Option A") : (compareRightTitle || "Option B")} WINS
+                     {compareWinner === "left" ? (compareLeftTitle || "Option A") : (compareRightTitle || "Option B")} WINS
                   </span>
                 </div>
               )}
@@ -443,7 +408,7 @@ export function CompareExplainerStudio({
                   <Tv size={12} className="text-slate-500" />
                   <span>Resolution</span>
                 </span>
-                <span className="font-bold text-white">1080×1920 (Vertical)</span>
+                <span className="font-bold text-white">10801920 (Vertical)</span>
               </div>
               <div className="flex items-center justify-between text-slate-400">
                 <span className="flex items-center gap-1.5">

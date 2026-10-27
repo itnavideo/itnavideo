@@ -19,6 +19,7 @@ import {
   useVideoConfig,
 } from 'remotion';
 import { MotionCaptionRenderer } from '../../components/MotionCaptionRenderer';
+import { GithubRemotionCaption, isGithubRemotionCaptionStyle } from '../../captions/github-remotion-styles/GithubRemotionCaption';
 import { SubtitleRenderer } from '../../components/SubtitleRenderer';
 import { CaptionRenderer } from '../../captions/CaptionRenderer';
 import type { CaptionSegment, SubtitleConfig } from '../../types/subtitles';
@@ -175,7 +176,7 @@ export function AutoCaptionGenerator({
       customTextColor: textColor,
       customHighlightColor: activeHighlight,
       customBackgroundColor: backgroundColor,
-      customFontFamily: fontFamily,
+      customFontFamily: fontFamily && fontFamily !== 'preset' ? fontFamily : undefined,
       customFontSize: fontSize,
     });
   }, [
@@ -258,7 +259,9 @@ export function AutoCaptionGenerator({
       ) : null}
 
       {/* Modern High-Performance Motion Caption or Subtitle Preset Layer */}
-      {resolvedCaptionEvents && resolvedCaptionEvents.length > 0 ? (
+      {isGithubRemotionCaptionStyle(captionStyle) ? (
+        <GithubRemotionCaption captions={normalizedCaptions} styleName={captionStyle} position={captionPosition} />
+      ) : resolvedCaptionEvents && resolvedCaptionEvents.length > 0 ? (
         <MotionCaptionRenderer captionEvents={resolvedCaptionEvents} />
       ) : normalizedCaptions.length > 0 ? (
         <CaptionRenderer

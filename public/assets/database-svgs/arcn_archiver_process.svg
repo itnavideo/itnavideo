@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="ARCn (Archiver Process)">
+  <!-- Itnavideo Database Asset: ARCn (Archiver Process) -->
+  <circle cx="60" cy="46" r="28" fill="#D97706" stroke="#78350F" stroke-width="3" />
+      <rect x="44" y="34" width="32" height="24" rx="4" fill="#FEF3C7" stroke="#92400E" stroke-width="2" />
+      <line x1="50" y1="42" x2="70" y2="42" stroke="#92400E" stroke-width="2" />
+      <line x1="50" y1="48" x2="66" y2="48" stroke="#92400E" stroke-width="2" />
+      <text x="60" y="30" fill="#FEF3C7" font-size="8.5" font-family="sans-serif" font-weight="900" text-anchor="middle">ARCn</text>
+      <text x="60" y="98" fill="#F59E0B" font-size="7.5" font-family="sans-serif" font-weight="bold" text-anchor="middle">COPIES TO ARCHIVELOG</text>
+</svg>

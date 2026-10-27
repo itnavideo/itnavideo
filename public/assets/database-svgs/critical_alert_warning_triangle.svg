@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="Critical Alert Warning Triangle">
+  <!-- Itnavideo Database Asset: Critical Alert Warning Triangle -->
+  <polygon points="60,18 104,94 16,94" fill="#EA580C" stroke="#FEF08A" stroke-width="3.5" stroke-linejoin="round" />
+      <text x="60" y="72" fill="#FFFFFF" font-size="28" font-family="sans-serif" font-weight="900" text-anchor="middle">!</text>
+      <text x="60" y="88" fill="#FEF08A" font-size="7" font-family="sans-serif" font-weight="bold" text-anchor="middle">CRITICAL ALERT</text>
+</svg>

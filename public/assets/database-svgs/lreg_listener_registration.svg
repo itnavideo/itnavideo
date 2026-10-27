@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="LREG (Listener Registration)">
+  <!-- Itnavideo Database Asset: LREG (Listener Registration) -->
+  <circle cx="60" cy="46" r="28" fill="#0284C7" stroke="#0369A1" stroke-width="3" />
+      <path d="M 46 46 a 14 14 0 0 1 28 0" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" />
+      <path d="M 40 40 a 22 22 0 0 1 40 0" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" />
+      <circle cx="60" cy="54" r="4" fill="#FACC15" />
+      <text x="60" y="28" fill="#E0F2FE" font-size="8" font-family="sans-serif" font-weight="900" text-anchor="middle">LREG</text>
+      <text x="60" y="98" fill="#38BDF8" font-size="7.5" font-family="sans-serif" font-weight="bold" text-anchor="middle">REGISTERS TO TNS LISTENER</text>
+</svg>

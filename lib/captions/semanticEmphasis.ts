@@ -21,7 +21,7 @@ const LOW_IMPACT_FUNCTION_WORDS = new Set([
 ]);
 
 function isNumberOrCurrency(str: string): boolean {
-  return /[\d$%€£₹]/.test(str);
+  return /[\d$%]/.test(str);
 }
 
 function cleanToken(str: string): string {

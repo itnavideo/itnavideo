@@ -2,27 +2,22 @@ import type { Metadata } from 'next';
 import nextDynamic from 'next/dynamic';
 import Hero from '@/components/landing/Hero';
 import PlatformMarqueeTicker from '@/components/landing/PlatformMarqueeTicker';
-import FacelessVideoFlagshipShowcase from '@/components/landing/FacelessVideoFlagshipShowcase';
-import DualShowcaseTabs from '@/components/landing/DualShowcaseTabs';
-import BeforeAfterComparison from '@/components/landing/BeforeAfterComparison';
+import TransformationShowcaseSection from '@/components/landing/TransformationShowcaseSection';
 import TenStudiosHubArchitecture from '@/components/landing/TenStudiosHubArchitecture';
+import DualFormatEngineShowcase from '@/components/landing/DualFormatEngineShowcase';
+import TestimonialSection from '@/components/landing/TestimonialSection';
+import ComparisonSection from '@/components/landing/ComparisonSection';
 import {
   HomepageFinalCta,
-  PlatformJourney,
-  WhyItnavideo,
 } from '@/components/landing/HomepageValueSections';
+import StickyMobileActionBar from '@/components/landing/StickyMobileActionBar';
 import { pricingPlans } from '@/lib/billing/plans';
-import { HOMEPAGE_WORKFLOW_COUNT } from '@/constants/homepageWorkflows';
-
-const PricingSection = nextDynamic(() => import('@/components/landing/PricingSection'), { ssr: true });
+const HomepagePricing = nextDynamic(() => import('@/components/landing/PricingSection'), { ssr: true });
 const FAQSection = nextDynamic(() => import('@/components/FAQSection'), { ssr: true });
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 export const metadata: Metadata = {
-  title: 'Free AI Video Generator & Maker | Faceless Video AI',
-  description: `The #1 Faceless Video AI Generator. Create 16:9 YouTube videos and 9:16 Shorts with automated storytelling, B-roll visuals, voiceovers, and subtitles.`,
+  title: 'Free AI Video Generator & Maker | 10+ AI Video Studios',
+  description: `The all-in-one AI Video Generator. Create 16:9 YouTube videos (up to 5 min) and 9:16 Shorts with automated B-roll visuals, voiceovers, kinetic captions, and clips.`,
   keywords: [
     'faceless video generator',
     'AI faceless video generator',
@@ -99,7 +94,7 @@ const jsonLd = [
         name: 'Can I create 16:9 YouTube Faceless Videos on Itnavideo?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Yes. Itnavideo provides a dedicated 16:9 Widescreen Faceless Video studio for YouTubers and creators to make long-form videos up to 10 minutes.',
+          text: 'Yes. Itnavideo provides a dedicated 16:9 Widescreen Faceless Video studio for YouTubers and creators to make long-form videos up to 5 minutes.',
         },
       },
       {
@@ -107,7 +102,7 @@ const jsonLd = [
         name: 'What formats are supported for Faceless Video?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'Faceless Video is built specifically for 16:9 Widescreen Full HD (1920×1080) YouTube long-form videos up to 10 minutes. For 9:16 vertical shorts, creators can use our dedicated Auto Caption and Clip studios.',
+          text: 'Faceless Video is built specifically for 16:9 Widescreen Full HD (1920×1080) YouTube videos up to 5 minutes. For 9:16 vertical shorts, creators can use our dedicated Auto Caption and Clip studios.',
         },
       },
     ],
@@ -116,7 +111,7 @@ const jsonLd = [
 
 export default function LandingPage() {
   return (
-    <div className="relative flex flex-col overflow-x-hidden bg-white text-slate-900 selection:bg-orange-500/20 selection:text-orange-950">
+    <div className="relative flex flex-col overflow-x-hidden bg-white text-slate-900 selection:bg-orange-500/20 selection:text-orange-950 pb-16 md:pb-0">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
@@ -124,14 +119,15 @@ export default function LandingPage() {
 
       <Hero />
       <PlatformMarqueeTicker />
-      <FacelessVideoFlagshipShowcase />
-      <PlatformJourney />
-      <BeforeAfterComparison />
-      <DualShowcaseTabs />
+      <TransformationShowcaseSection />
       <TenStudiosHubArchitecture />
-      <PricingSection />
+      <DualFormatEngineShowcase />
+      <TestimonialSection />
+      <ComparisonSection />
+      <HomepagePricing />
       <FAQSection />
       <HomepageFinalCta />
+      <StickyMobileActionBar />
     </div>
   );
 }

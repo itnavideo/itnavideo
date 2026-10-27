@@ -12,31 +12,35 @@ import { ResponsiveTypography } from '../components/ResponsiveTypography';
 import { FullBleedVisualScene } from './FullBleedVisualScene';
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
 
+import type { BackgroundColorPalette } from '../../../components/backgrounds/BackgroundCatalog';
+import { safeResolveMediaSrc, isVideoMedia, isValidMediaUrl } from '../../../utils/safeMedia';
+
 export interface StatSceneProps {
   scene: SceneBlueprintItem;
   mediaUrl?: string;
   headingFont?: string;
   bodyFont?: string;
+  sceneFrame?: number;
+  palette?: BackgroundColorPalette;
 }
 
-const resolveMediaSrc = (src?: string) => {
-  if (!src) return '';
-  return /^(https?:|data:|blob:)/i.test(src) ? src : staticFile(src.replace(/^\/+/, ''));
-};
+// resolveMediaSrc replaced by safeResolveMediaSrc
 
-const isVideo = (src?: string) => {
-  if (!src) return false;
-  return /\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(src) || src.includes('/video/');
-};
+// isVideo replaced by isVideoMedia
 
 export function StatScene({
   scene,
   mediaUrl,
   headingFont = 'Montserrat, sans-serif',
   bodyFont = 'Inter, sans-serif',
+  sceneFrame,
+  palette,
 }: StatSceneProps) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+
+  const currentFrame = sceneFrame !== undefined ? sceneFrame : frame;
+  const sceneDurationFrames = Math.max(30, Math.round((scene.duration || 5) * fps));
 
   const statVal = scene.statValue || scene.numberBadge?.toString();
 
@@ -48,12 +52,14 @@ export function StatScene({
         mediaUrl={mediaUrl}
         headingFont={headingFont}
         bodyFont={bodyFont}
+        sceneFrame={sceneFrame}
+        palette={palette}
       />
     );
   }
 
   const entrance = spring({
-    frame,
+    frame: currentFrame,
     fps,
     config: { damping: 14, mass: 0.8 },
   });
@@ -66,9 +72,13 @@ export function StatScene({
     (isDummyLabel ? scene.heading || scene.narrationSegment?.text || '' : scene.statLabel) || '';
 
   const activeMediaUrl = mediaUrl || scene.visualAssetRequirement || '';
-  const resolvedSrc = resolveMediaSrc(activeMediaUrl);
-  const isVid = isVideo(activeMediaUrl);
-  const kenBurns = interpolate(frame, [0, 150], [1.0, 1.08], { extrapolateRight: 'clamp' });
+  const resolvedSrc = safeResolveMediaSrc(activeMediaUrl);
+  const isVid = isVideoMedia(activeMediaUrl);
+  const kenBurns = interpolate(currentFrame, [0, sceneDurationFrames], [1.02, 1.12], { extrapolateRight: 'clamp' });
+
+  const isDark = palette ? palette.isDark : true;
+  const textColor = isDark ? '#FFFFFF' : '#0F172A';
+  const labelColor = isDark ? 'rgba(255, 255, 255, 0.85)' : '#334155';
 
   return (
     <div
@@ -78,7 +88,7 @@ export function StatScene({
         width: '100%',
         height: '100%',
         overflow: 'hidden',
-        backgroundColor: '#020617',
+        backgroundColor: 'transparent',
       }}
     >
       {/* ── 1. Full-Bleed Media in Background (Edge-to-Edge 1920x1080) ── */}
@@ -108,63 +118,96 @@ export function StatScene({
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           )}
+          {/* Subtle directional scrim over media for 100% legibility */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'radial-gradient(ellipse at center, rgba(7, 11, 20, 0.72) 0%, rgba(2, 6, 23, 0.92) 100%)',
+              backdropFilter: 'blur(12px)',
+            }}
+          />
         </div>
       )}
 
-      {/* ── 2. Cinematic Dark Frosted Overlay Scrim ── */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background: resolvedSrc
-            ? 'radial-gradient(ellipse at center, rgba(7, 11, 20, 0.78) 0%, rgba(2, 6, 23, 0.94) 100%)'
-            : 'radial-gradient(ellipse at center, #1E293B 0%, #0F172A 60%, #020617 100%)',
-          backdropFilter: resolvedSrc ? 'blur(16px)' : undefined,
-          pointerEvents: 'none',
-        }}
-      />
-
-      {/* ── 3. Ultra-Clean Hero Metric Display in Center ── */}
+      {/* ── 2. Cinematic Hero Metric Display in Center (Zero SaaS Card Box) ── */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '100px 140px',
+          padding: '80px 140px',
           zIndex: 10,
           opacity: entrance,
-          transform: `scale(${interpolate(entrance, [0, 1], [0.94, 1.0])})`,
+          transform: `scale(${interpolate(entrance, [0, 1], [0.92, 1.0])})`,
+          textAlign: 'center',
         }}
       >
+        {/* Metric Kicker Eyebrow */}
         <div
           style={{
-            maxWidth: '1100px',
-            width: '100%',
-            borderRadius: '36px',
-            border: '1px solid rgba(255, 160, 0, 0.35)',
-            backgroundColor: 'rgba(15, 23, 42, 0.82)',
-            padding: '52px 64px',
-            boxShadow: '0 30px 80px rgba(0, 0, 0, 0.85), 0 0 60px rgba(255, 87, 34, 0.18)',
-            backdropFilter: 'blur(24px)',
-            display: 'flex',
-            flexDirection: 'column',
+            display: 'inline-flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            textAlign: 'center',
+            gap: '8px',
+            backgroundColor: isDark ? 'rgba(255, 87, 34, 0.15)' : 'rgba(255, 87, 34, 0.10)',
+            border: '1px solid rgba(255, 87, 34, 0.35)',
+            borderRadius: '9999px',
+            padding: '8px 24px',
+            marginBottom: '28px',
           }}
         >
-          <ResponsiveTypography
-            text={statLbl}
-            mode="stat"
-            statData={{ value: statVal, label: statLbl }}
-            fontFamily={headingFont}
-            color="#F1F5F9"
-            accentColor="#FFA000"
-            availableWidth={1000}
-          />
+          <span style={{ fontSize: '18px' }}>📊</span>
+          <span
+            style={{
+              fontFamily: headingFont,
+              fontSize: '14px',
+              fontWeight: 900,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: '#FF7043',
+            }}
+          >
+            KEY METRIC
+          </span>
         </div>
+
+        {/* Oversized Glowing Hero Statistic */}
+        <div
+          style={{
+            fontFamily: headingFont,
+            fontSize: '130px',
+            fontWeight: 900,
+            lineHeight: 1.0,
+            letterSpacing: '-0.03em',
+            background: 'linear-gradient(135deg, #FF5722 0%, #FF7043 50%, #FFA000 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            filter: 'drop-shadow(0 15px 35px rgba(255, 87, 34, 0.45))',
+            marginBottom: '24px',
+          }}
+        >
+          {statVal}
+        </div>
+
+        {/* High-Contrast Context Label */}
+        {statLbl && (
+          <div
+            style={{
+              fontFamily: bodyFont,
+              fontSize: '32px',
+              fontWeight: 700,
+              color: resolvedSrc ? '#F8FAFC' : textColor,
+              maxWidth: '1100px',
+              lineHeight: 1.4,
+              textShadow: resolvedSrc ? '0 4px 20px rgba(0, 0, 0, 0.9)' : undefined,
+            }}
+          >
+            {statLbl}
+          </div>
+        )}
       </div>
     </div>
   );

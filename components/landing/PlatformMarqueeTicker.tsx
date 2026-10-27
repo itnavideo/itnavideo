@@ -57,7 +57,7 @@ function SubtitleCcIcon() {
 function LanguageGlobeIcon() {
   return (
     <div className="inline-flex h-4 px-1.5 items-center justify-center rounded bg-sky-500/20 border border-sky-400/50 font-sans text-[10px] font-black text-sky-300 shrink-0 shadow-[0_0_8px_rgba(56,189,248,0.3)]">
-      A / अ
+      EN / HI
     </div>
   );
 }
@@ -72,12 +72,12 @@ function LightningIcon() {
 
 const TICKER_ITEMS = [
   { 
-    label: '1920×1080 Widescreen YouTube', 
+    label: '1920×1080 Widescreen YouTube (Up to 5 Min)', 
     IconComponent: Layers, 
     iconColor: 'text-[#FF5722] drop-shadow-[0_0_6px_rgba(255,87,34,0.4)]' 
   },
   { 
-    label: '1080×1920 Shorts & Reels', 
+    label: '1080×1920 Shorts & Reels (Up to 90s)', 
     IconComponent: Smartphone, 
     iconColor: 'text-cyan-500 drop-shadow-[0_0_6px_rgba(34,211,238,0.4)]' 
   },
@@ -97,6 +97,11 @@ const TICKER_ITEMS = [
     isCustom: true 
   },
   { 
+    label: 'Global Accents to English B-Roll', 
+    IconComponent: LanguageGlobeIcon, 
+    isCustom: true 
+  },
+  { 
     label: 'Word-Synced Kinetic Subtitles', 
     IconComponent: SubtitleCcIcon, 
     isCustom: true 
@@ -107,12 +112,12 @@ const TICKER_ITEMS = [
     isCustom: true 
   },
   { 
-    label: 'Roman Hinglish + English', 
+    label: 'Global Dialects & English Subtitles', 
     IconComponent: LanguageGlobeIcon, 
     isCustom: true 
   },
   { 
-    label: '10 Dedicated Video Studios', 
+    label: '10+ Dedicated Video Studios', 
     IconComponent: Layers, 
     iconColor: 'text-amber-500 drop-shadow-[0_0_6px_rgba(245,158,11,0.4)]' 
   },
@@ -131,8 +136,9 @@ export default function PlatformMarqueeTicker() {
       <div className="pointer-events-none absolute right-0 top-0 z-20 h-full w-28 bg-gradient-to-l from-white via-white/80 to-transparent" />
 
       <div 
-        className="flex w-max animate-marquee hover:pause gap-3"
+        className="flex w-max animate-marquee hover:pause gap-3 whitespace-nowrap"
         style={{
+          willChange: 'transform',
           WebkitMaskImage: 'linear-gradient(to right, transparent, black 6%, black 94%, transparent)',
           maskImage: 'linear-gradient(to right, transparent, black 6%, black 94%, transparent)',
         }}

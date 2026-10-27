@@ -15,6 +15,10 @@ import {
 import {
   BACKGROUND_CATALOG,
   BACKGROUND_CATEGORIES,
+  CREATOR_CORE_COLORS,
+  getBackgroundPalette,
+  type BackgroundColorPalette,
+  type CreatorCoreColor,
   type BackgroundCategory,
   type BackgroundItem,
 } from "@/remotion/components/backgrounds/BackgroundCatalog";
@@ -36,6 +40,8 @@ export function BackgroundPicker({
 }: BackgroundPickerProps) {
   const [activeCategory, setActiveCategory] = useState<BackgroundCategory>("all");
   const [hoveredCardId, setHoveredCardId] = useState<string | null>(null);
+  const [colorGroupFilter, setColorGroupFilter] = useState<'all' | 'core' | 'pastel' | 'vibrant' | 'earth' | 'deep'>('all');
+  const [customHex, setCustomHex] = useState(selectedTheme.startsWith('#') ? selectedTheme : '#FF5722');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Filter catalog
@@ -44,9 +50,31 @@ export function BackgroundPicker({
     return bg.category === activeCategory;
   });
 
+  const isCustomHex = selectedTheme.startsWith('#') || selectedTheme.startsWith('hex-');
+  const activeCoreColor = CREATOR_CORE_COLORS.find((c) => c.id === selectedTheme);
   const activeBackground =
     BACKGROUND_CATALOG.find((b) => b.id === selectedTheme) ||
-    BACKGROUND_CATALOG[0];
+    (activeCoreColor
+      ? {
+          id: activeCoreColor.id,
+          name: activeCoreColor.name,
+          category: "minimal" as const,
+          tag: "Minimal" as const,
+          description: activeCoreColor.description,
+          isDark: activeCoreColor.isDark,
+          accentColor: activeCoreColor.hex,
+        }
+      : isCustomHex
+      ? {
+          id: selectedTheme,
+          name: `Custom Hex (${selectedTheme})`,
+          category: "minimal" as const,
+          tag: "Minimal" as const,
+          description: `Custom color canvas ${selectedTheme}`,
+          isDark: getBackgroundPalette(selectedTheme).isDark,
+          accentColor: selectedTheme.startsWith('#') ? selectedTheme : '#' + selectedTheme.replace(/^hex-/, ''),
+        }
+      : BACKGROUND_CATALOG[0]);
 
   // Handle custom upload file
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -153,7 +181,36 @@ export function BackgroundPicker({
       );
     }
 
-    // Minimal previews
+    // 12 Creator Core Colors & Minimal previews
+    if (bg.id.startsWith("solid-")) {
+      const core = CREATOR_CORE_COLORS.find((c) => c.id === bg.id);
+      const hex = core ? core.hex : "#070B14";
+      const isLight = core ? !core.isDark : false;
+      return (
+        <div
+          className="absolute inset-0 flex items-center justify-center transition-transform duration-500 overflow-hidden"
+          style={{
+            backgroundColor: hex,
+            background: isLight
+              ? `radial-gradient(circle at 50% 35%, #FFFFFF 0%, ${hex} 70%, #CBD5E1 100%)`
+              : `radial-gradient(circle at 50% 35%, ${hex}FF 0%, ${hex} 65%, #000000 100%)`,
+            transform: isHovered ? "scale(1.05)" : "scale(1.0)",
+          }}
+        >
+          <span
+            className="relative text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded shadow-xs"
+            style={{
+              color: isLight ? "#0F172A" : "#FFFFFF",
+              backgroundColor: isLight ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.12)",
+              border: isLight ? "1px solid rgba(0,0,0,0.1)" : "1px solid rgba(255,255,255,0.15)",
+            }}
+          >
+            {core?.shortName || bg.name}
+          </span>
+        </div>
+      );
+    }
+
     if (bg.id === "studio-white") {
       return (
         <div className="absolute inset-0 bg-[#FAFAFA] flex items-center justify-center">
@@ -241,6 +298,50 @@ export function BackgroundPicker({
           <div
             className="absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-sky-400 to-transparent transition-all duration-700"
             style={{ top: isHovered ? "80%" : "30%" }}
+          />
+        </div>
+      );
+    }
+
+    if (bg.id === "decoding-grid") {
+      return (
+        <div className="absolute inset-0 bg-[#070B14] overflow-hidden">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: "radial-gradient(rgba(255, 255, 255, 0.18) 1.2px, transparent 1.2px)",
+              backgroundSize: "16px 16px",
+            }}
+          />
+          <div
+            className="absolute inset-0 transition-opacity duration-500"
+            style={{
+              background: "radial-gradient(circle at 50% 50%, rgba(255, 87, 34, 0.35) 0%, transparent 75%)",
+              opacity: isHovered ? 1 : 0.7,
+            }}
+          />
+        </div>
+      );
+    }
+
+    if (bg.id === "youtube-dark") {
+      return (
+        <div className="absolute inset-0 bg-[#0B0F19] overflow-hidden">
+          <div
+            className="absolute inset-0 transition-all duration-700"
+            style={{
+              background: `
+                radial-gradient(circle at ${isHovered ? "80% 25%" : "70% 30%"}, rgba(16, 185, 129, 0.35) 0%, transparent 60%),
+                radial-gradient(circle at 20% 80%, rgba(6, 182, 212, 0.25) 0%, transparent 60%)
+              `,
+            }}
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: "linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px)",
+              backgroundSize: "20px 20px",
+            }}
           />
         </div>
       );
@@ -412,7 +513,7 @@ export function BackgroundPicker({
 
   return (
     <div className="rounded-2xl border border-white/10 bg-[#0D111D] p-5 sm:p-6 shadow-xl space-y-6">
-      {/* ── HEADER ── */}
+      {/*  HEADER  */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
         <div className="flex items-center gap-2.5">
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-500/10 text-orange-400 text-xs font-bold border border-orange-500/30">
@@ -435,7 +536,146 @@ export function BackgroundPicker({
         </div>
       </div>
 
-      {/* ── CATEGORY TABS ── */}
+      {/* ── CANVA-STYLE COLOR CANVASES & CUSTOM HEX PICKER (44 COLORS + CUSTOM) ── */}
+      <div className="rounded-xl border border-white/10 bg-[#070B14] p-3.5 sm:p-4 space-y-3.5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="flex h-2 w-2 rounded-full bg-[#FF5722] animate-pulse" />
+            <h4 className="text-xs font-bold uppercase tracking-wider text-white">
+              Canva-Style Color Canvases <span className="text-zinc-400 font-normal lowercase">(44 curated colors + custom hex)</span>
+            </h4>
+          </div>
+          
+          {/* Custom Hex Color Quick Input */}
+          <div className="flex items-center gap-1.5 self-start sm:self-auto">
+            <div className="relative flex items-center">
+              <input
+                type="color"
+                value={customHex.startsWith('#') && customHex.length === 7 ? customHex : '#FF5722'}
+                onChange={(e) => {
+                  const val = e.target.value.toUpperCase();
+                  setCustomHex(val);
+                  onSelectTheme(val);
+                }}
+                className="w-7 h-7 rounded-md cursor-pointer border border-white/20 bg-transparent p-0"
+                title="Open Canva-style color picker"
+              />
+            </div>
+            <input
+              type="text"
+              value={customHex}
+              maxLength={7}
+              placeholder="#FFFFFF"
+              onChange={(e) => setCustomHex(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  let hex = customHex.trim();
+                  if (!hex.startsWith('#')) hex = '#' + hex;
+                  if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+                    onSelectTheme(hex.toUpperCase());
+                  }
+                }
+              }}
+              className="w-20 px-2 py-1 text-xs font-mono font-bold rounded-md bg-white/5 border border-white/15 text-white focus:outline-none focus:border-orange-500 uppercase"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                let hex = customHex.trim();
+                if (!hex.startsWith('#')) hex = '#' + hex;
+                if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+                  onSelectTheme(hex.toUpperCase());
+                }
+              }}
+              className="px-2.5 py-1 text-[11px] font-bold rounded-md bg-orange-500/20 border border-orange-500/40 text-orange-300 hover:bg-orange-500 hover:text-white transition cursor-pointer"
+            >
+              Apply
+            </button>
+          </div>
+        </div>
+
+        {/* Color Group Filter Pills */}
+        <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">
+          {[
+            { id: 'all', label: 'All Colors (44)' },
+            { id: 'core', label: 'Core Canvases' },
+            { id: 'pastel', label: 'Soft Pastels' },
+            { id: 'vibrant', label: 'Vibrant Pop' },
+            { id: 'earth', label: 'Earth Tones' },
+            { id: 'deep', label: 'Deep Studio' },
+          ].map((pill) => {
+            const isGroupActive = colorGroupFilter === pill.id;
+            return (
+              <button
+                key={pill.id}
+                type="button"
+                onClick={() => setColorGroupFilter(pill.id as any)}
+                className={`shrink-0 px-2.5 py-1 rounded-md text-[11px] font-semibold transition cursor-pointer ${
+                  isGroupActive
+                    ? 'bg-orange-500 text-white shadow-xs'
+                    : 'bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-zinc-200'
+                }`}
+              >
+                {pill.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Dynamic Swatches Grid */}
+        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-11 gap-2 max-h-[220px] overflow-y-auto pr-1 scrollbar-thin">
+          {CREATOR_CORE_COLORS.filter(
+            (c) => colorGroupFilter === 'all' || c.group === colorGroupFilter
+          ).map((color) => {
+            const isSelected = selectedTheme.toLowerCase() === color.id.toLowerCase() || selectedTheme.toUpperCase() === color.hex.toUpperCase();
+            return (
+              <button
+                key={color.id}
+                type="button"
+                onClick={() => {
+                  onSelectTheme(color.id);
+                  setCustomHex(color.hex);
+                }}
+                title={`${color.name}: ${color.description}`}
+                className={`group relative flex flex-col items-center gap-1 p-1 rounded-lg border transition-all cursor-pointer ${
+                  isSelected
+                    ? "border-orange-500 bg-orange-500/20 ring-2 ring-orange-500/50 shadow-md shadow-orange-500/20 scale-105"
+                    : "border-white/10 bg-white/5 hover:border-white/25 hover:bg-white/10"
+                }`}
+              >
+                {/* Circular Color Swatch */}
+                <div
+                  className="relative h-7 w-7 rounded-full border shadow-inner flex items-center justify-center transition-transform group-hover:scale-110"
+                  style={{
+                    backgroundColor: color.hex,
+                    borderColor: color.isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.15)",
+                  }}
+                >
+                  {isSelected && (
+                    <Check
+                      size={13}
+                      strokeWidth={3}
+                      style={{ color: color.textColor }}
+                      className="drop-shadow-xs"
+                    />
+                  )}
+                </div>
+
+                {/* Swatch Label */}
+                <span
+                  className={`text-[9.5px] font-bold tracking-tight truncate max-w-full ${
+                    isSelected ? "text-orange-400" : "text-zinc-400 group-hover:text-zinc-200"
+                  }`}
+                >
+                  {color.shortName}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/*  CATEGORY TABS  */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
         {BACKGROUND_CATEGORIES.map((cat) => {
           const isActive = activeCategory === cat.id;
@@ -456,7 +696,7 @@ export function BackgroundPicker({
         })}
       </div>
 
-      {/* ── BACKGROUND CARDS GRID ── */}
+      {/*  BACKGROUND CARDS GRID  */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5 max-h-[460px] overflow-y-auto pr-1">
         {/* Custom Upload Card (Shown in All or Custom category) */}
         {(activeCategory === "all" || activeCategory === "custom") && (
@@ -574,7 +814,7 @@ export function BackgroundPicker({
           })}
       </div>
 
-      {/* ── LIVE MINI PREVIEW PANEL (16:9 Widescreen Frame with Headline Overlay) ── */}
+      {/*  LIVE MINI PREVIEW PANEL (16:9 Widescreen Frame with Headline Overlay)  */}
       <div className="pt-2 border-t border-white/10">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -584,38 +824,110 @@ export function BackgroundPicker({
             </h4>
           </div>
           <span className="text-[11px] text-zinc-400 font-mono">
-            {activeBackground.name} · {activeBackground.category.toUpperCase()}
+            {activeBackground.name}  {activeBackground.category.toUpperCase()}
           </span>
         </div>
 
         {/* 16:9 Widescreen Mockup Stage */}
-        <div className="relative aspect-video w-full max-w-2xl mx-auto rounded-2xl overflow-hidden border border-white/15 bg-[#070B14] shadow-2xl flex items-center justify-center">
-          {/* Live Background Render */}
-          {renderCardPreview(activeBackground, true)}
+        {(() => {
+          const activePalette = getBackgroundPalette(selectedTheme);
+          return (
+            <div className="space-y-3">
+              <div className="relative aspect-video w-full max-w-2xl mx-auto rounded-2xl overflow-hidden border border-white/15 bg-[#070B14] shadow-2xl flex items-center justify-center">
+                {/* Live Background Render */}
+                {renderCardPreview(activeBackground, true)}
 
-          {/* Headline & Subtitle Simulation */}
-          <div className="relative z-10 text-center px-6 max-w-lg space-y-2 pointer-events-none">
-            <span className="inline-block rounded-full bg-orange-500/15 border border-orange-500/30 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-orange-400 backdrop-blur-xs">
-              AI Explainer Simulation
-            </span>
+                {/* Headline & Subtitle Simulation */}
+                <div className="relative z-10 text-center px-6 max-w-lg space-y-2 pointer-events-none">
+                  <span
+                    className="inline-block rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider backdrop-blur-xs border"
+                    style={{
+                      backgroundColor: activePalette.isDark ? "rgba(255, 87, 34, 0.15)" : "rgba(255, 87, 34, 0.10)",
+                      borderColor: activePalette.isDark ? "rgba(255, 87, 34, 0.35)" : "rgba(255, 87, 34, 0.45)",
+                      color: activePalette.isDark ? "#FFA000" : "#C2410C",
+                    }}
+                  >
+                    AI Explainer Simulation
+                  </span>
 
-            <h3 className="text-base sm:text-xl font-extrabold text-white tracking-tight drop-shadow-md leading-snug">
-              HOW THE GLOBAL RACE CHANGED EVERYTHING
-            </h3>
+                  <h3
+                    className="text-base sm:text-xl font-extrabold tracking-tight leading-snug"
+                    style={{
+                      color: activePalette.textPrimary,
+                      textShadow: activePalette.isDark ? "0 2px 10px rgba(0,0,0,0.8)" : "none",
+                    }}
+                  >
+                    HOW THE GLOBAL RACE CHANGED EVERYTHING
+                  </h3>
 
-            {/* Yellow Netflix Subtitle Simulation */}
-            <div className="inline-block rounded-md bg-black/80 border border-white/10 px-3 py-1 backdrop-blur-xs">
-              <span className="text-xs sm:text-sm font-black text-[#FDE047] tracking-wide">
-                UNCOVERING THE LOST SECRET
-              </span>
+                  {/* Dynamic Keyword Highlight Box Simulation */}
+                  <div>
+                    <div
+                      className="inline-block rounded-md px-3 py-1 text-xs sm:text-sm font-black tracking-wide shadow-md"
+                      style={{
+                        backgroundColor: activePalette.highlightBg,
+                        color: activePalette.highlightText,
+                      }}
+                    >
+                      UNCOVERING THE LOST SECRET
+                    </div>
+                  </div>
+                </div>
+
+                {/* Telemetry coordinate watermark */}
+                <div
+                  className={`absolute top-3 right-3 text-[10px] font-mono font-bold tracking-widest pointer-events-none ${
+                    activePalette.isDark ? "text-white/20" : "text-slate-900/30"
+                  }`}
+                >
+                  19201080 // 30 FPS
+                </div>
+              </div>
+
+              {/*  6-COLOR ADAPTIVE PALETTE INSPECTOR (CONFIRMING PERFECT CONTRAST)  */}
+              <div className="rounded-xl border border-white/10 bg-[#070B14] p-3 max-w-2xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-[11px] font-bold text-white uppercase tracking-wider">
+                    Auto-Matched 6-Color Kit:
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2 flex-wrap">
+                  {/* 1. Primary Text */}
+                  <div className="flex items-center gap-1.5 bg-white/5 rounded-md px-2 py-1 border border-white/10">
+                    <span className="h-3 w-3 rounded-full border border-white/20 shadow-xs" style={{ backgroundColor: activePalette.textPrimary }} />
+                    <span className="text-[10px] text-zinc-300 font-mono">Title</span>
+                  </div>
+
+                  {/* 2. Muted Text */}
+                  <div className="flex items-center gap-1.5 bg-white/5 rounded-md px-2 py-1 border border-white/10">
+                    <span className="h-3 w-3 rounded-full border border-white/20 shadow-xs" style={{ backgroundColor: activePalette.textSecondary }} />
+                    <span className="text-[10px] text-zinc-300 font-mono">Muted</span>
+                  </div>
+
+                  {/* 3. Card Surface */}
+                  <div className="flex items-center gap-1.5 bg-white/5 rounded-md px-2 py-1 border border-white/10">
+                    <span className="h-3 w-3 rounded-full border border-white/20 shadow-xs" style={{ backgroundColor: activePalette.cardBg }} />
+                    <span className="text-[10px] text-zinc-300 font-mono">Cards</span>
+                  </div>
+
+                  {/* 4. Brand Accent */}
+                  <div className="flex items-center gap-1.5 bg-white/5 rounded-md px-2 py-1 border border-white/10">
+                    <span className="h-3 w-3 rounded-full border border-white/20 shadow-xs" style={{ backgroundColor: activePalette.accent }} />
+                    <span className="text-[10px] text-zinc-300 font-mono">Accent</span>
+                  </div>
+
+                  {/* 5. Highlight Marker */}
+                  <div className="flex items-center gap-1.5 bg-white/5 rounded-md px-2 py-1 border border-white/10">
+                    <span className="h-3 w-3 rounded-full border border-white/20 shadow-xs" style={{ backgroundColor: activePalette.highlightBg }} />
+                    <span className="text-[10px] text-zinc-300 font-mono">Marker</span>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-
-          {/* Telemetry coordinate watermark */}
-          <div className="absolute top-3 right-3 text-[10px] font-mono font-bold text-white/20 tracking-widest pointer-events-none">
-            1920×1080 // 30 FPS
-          </div>
-        </div>
+          );
+        })()}
       </div>
     </div>
   );

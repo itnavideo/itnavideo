@@ -3,7 +3,6 @@ import {
   AbsoluteFill,
   Audio,
   Composition,
-  Img,
   OffthreadVideo,
   interpolate,
   spring,
@@ -94,7 +93,6 @@ type WhiteboardVideoProps = {
   conclusion?: string;
   conclusionTime?: number;
   boardStyle?: string;
-  boardImageUrl?: string;
   aspectRatio?: '9:16';
   enableSfx?: boolean;
 };
@@ -179,131 +177,28 @@ function wrapWhiteboardText(
   return rendered || clampText(text, charsPerLine);
 }
 
-// ── Procedural Whiteboard Frame & Background Component ────────────────────────
+// ── Light CSS Whiteboard Canvas Component ────────────────────────
 
 function ProceduralWhiteboardCanvas() {
   return (
-    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
-      {/* Outer Room Ambience / Wall Shadow */}
+    <div style={{
+      position: 'absolute',
+      inset: 0,
+      overflow: 'hidden',
+      pointerEvents: 'none',
+      background: '#FFFFFF',
+    }}>
       <div style={{
         position: 'absolute',
-        inset: 0,
-        background: 'linear-gradient(135deg, #0A0D14 0%, #111827 50%, #0A0D14 100%)',
+        inset: 24,
+        borderRadius: 28,
+        border: '6px solid #E2E8F0',
+        background: '#FFFFFF',
+        boxShadow: '0 10px 32px rgba(15, 23, 42, 0.08), inset 0 0 0 1px #F1F5F9',
       }} />
-
-      {/* Realistic Aluminum Whiteboard Frame */}
-      <div style={{
-        position: 'absolute',
-        top: 24,
-        left: 20,
-        right: 20,
-        bottom: 24,
-        borderRadius: 24,
-        padding: 12,
-        background: 'linear-gradient(135deg, #E2E8F0 0%, #94A3B8 50%, #CBD5E1 100%)',
-        boxShadow: '0 24px 60px rgba(0, 0, 0, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.8), inset 0 -2px 4px rgba(0, 0, 0, 0.3)',
-      }}>
-        {/* Corner Screws / Mounting Brackets */}
-        {[
-          { top: 6, left: 6 },
-          { top: 6, right: 6 },
-          { bottom: 6, left: 6 },
-          { bottom: 6, right: 6 },
-        ].map((pos, i) => (
-          <div
-            key={i}
-            style={{
-              position: 'absolute',
-              ...pos,
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
-              backgroundColor: '#64748B',
-              boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.5)',
-            }}
-          />
-        ))}
-
-        {/* Whiteboard Porcelain Enamel Surface */}
-        <div style={{
-          position: 'relative',
-          width: '100%',
-          height: '100%',
-          borderRadius: 16,
-          background: 'linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 55%, #F1F5F9 100%)',
-          boxShadow: 'inset 0 4px 14px rgba(15, 23, 42, 0.08), inset 0 -2px 8px rgba(15, 23, 42, 0.04)',
-          overflow: 'hidden',
-        }}>
-          {/* Subtle Dry-Erase Dot Matrix Pattern (Physical Board feel) */}
-          <svg width="100%" height="100%" style={{ position: 'absolute', inset: 0, opacity: 0.35 }}>
-            <defs>
-              <pattern id="wb-dots" x="0" y="0" width="36" height="36" patternUnits="userSpaceOnUse">
-                <circle cx="2" cy="2" r="1" fill="#94A3B8" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#wb-dots)" />
-          </svg>
-
-          {/* Soft Top Surface Specular Gloss Reflection */}
-          <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: '28%',
-            background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0) 100%)',
-            pointerEvents: 'none',
-          }} />
-        </div>
-      </div>
-
-      {/* Bottom Marker Tray with Pens & Eraser */}
-      <div style={{
-        position: 'absolute',
-        bottom: 20,
-        left: 120,
-        right: 120,
-        height: 18,
-        background: 'linear-gradient(180deg, #94A3B8 0%, #64748B 100%)',
-        borderRadius: '0 0 10px 10px',
-        boxShadow: '0 6px 16px rgba(0,0,0,0.4), inset 0 2px 3px rgba(255,255,255,0.4)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '0 24px',
-      }}>
-        {/* Felt Eraser */}
-        <div style={{
-          width: 68,
-          height: 10,
-          background: 'linear-gradient(180deg, #1E293B 0%, #0F172A 100%)',
-          borderRadius: 3,
-          boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
-          borderTop: '2px solid #334155',
-        }} />
-
-        {/* 4 Dry-Erase Markers (Navy, Emerald, Crimson, Black) */}
-        <div style={{ display: 'flex', gap: 10 }}>
-          {['#1E3A8A', '#0F766E', '#B91C1C', '#0F172A'].map((c, i) => (
-            <div
-              key={i}
-              style={{
-                width: 44,
-                height: 8,
-                borderRadius: 4,
-                background: `linear-gradient(90deg, ${c} 0%, ${c} 70%, #E2E8F0 70%, #E2E8F0 100%)`,
-                boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
-              }}
-            />
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
-
-// ── SVG Doodle Icons ──────────────────────────────────────────────────────────
-
 const DOODLE_PATHS: Record<string, { path: string; viewBox: string; len: number }> = {
   arrow: { path: 'M4 16 L24 16 M18 10 L24 16 L18 22', viewBox: '0 0 28 28', len: 36 },
   checkmark: { path: 'M4 15 L10 22 L24 6', viewBox: '0 0 28 28', len: 38 },
@@ -564,9 +459,7 @@ function WritingLine({
   isTitle = false,
   bulletPrefix = '',
   isHighlight = false,
-  icon,
-  iconUrl,
-  drawingId,
+  icon,  drawingId,
   direction = 'ltr',
   language = 'en',
   pointIndex = 0,
@@ -633,48 +526,25 @@ function WritingLine({
       textAlign: isUrdu ? 'right' : 'left',
       minWidth: 0,
       position: 'relative',
-      background: isTitle ? 'transparent' : 'rgba(255, 255, 255, 0.94)',
-      border: isTitle ? 'none' : isFocusActive ? `3px solid ${color || '#FACC15'}` : '1.5px solid rgba(203, 213, 225, 0.9)',
-      boxShadow: isTitle
-        ? 'none'
-        : isFocusActive
-        ? `0 12px 30px rgba(15, 23, 42, 0.12), 0 0 16px ${color}33`
-        : '0 8px 22px rgba(15, 23, 42, 0.07)',
-      borderRadius: isTitle ? 0 : 20,
-      padding: isTitle ? '0' : '20px 24px',
-      transition: 'border 0.2s ease, box-shadow 0.2s ease',
+      background: 'transparent',
+      border: 'none',
+      boxShadow: 'none',
+
+      borderRadius: 0,
+      padding: isTitle ? '0' : '8px 0',
+
     }}>
-      {/* Procedural Vector Drawing Sketch OR Doodle Icon */}
-      {drawingId ? (
+      {/* Every written line gets a semantic, progressive SVG sketch. */}
+      {text.trim() ? (
         <WhiteboardDynamicSketch
           drawingId={drawingId}
-          fallbackText={text}
+          fallbackText={icon && icon !== "none" ? icon + " " + text : text}
           color={color}
           startFrame={startFrame}
           endFrame={endFrame}
-          size={Math.max(52, Math.round(fontSize * 1.25))}
+          size={isTitle ? Math.max(44, Math.round(fontSize * 0.72)) : Math.max(52, Math.round(fontSize * 1.25))}
         />
-      ) : iconUrl ? (
-        <div style={{
-          width: Math.max(48, Math.round(fontSize * 1.15)),
-          height: Math.max(48, Math.round(fontSize * 1.15)),
-          marginLeft: isUrdu ? 16 : 0,
-          marginRight: isUrdu ? 0 : 16,
-          flexShrink: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: '#FEF9C3',
-          borderRadius: 14,
-          padding: 8,
-          border: '1.5px solid #FDE047',
-        }}>
-          <Img src={iconUrl} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-        </div>
-      ) : icon && icon !== 'none' ? (
-        <DoodleIcon type={icon} color={color} startFrame={startFrame} size={Math.max(32, fontSize * 0.75)} />
       ) : null}
-
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'inline-block', position: 'relative', maxWidth: '100%' }}>
           {/* Hand-drawn marker number badge */}
@@ -802,26 +672,16 @@ function WhiteboardTableView({
                 boxShadow: isRowActive
                   ? '0 8px 20px rgba(234, 179, 8, 0.25)'
                   : '0 4px 12px rgba(15, 23, 42, 0.05)',
-                transition: 'background 0.2s ease, border 0.2s ease',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                {row.iconUrl && (
-                  <div style={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: 14,
-                    background: '#F1F5F9',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: 8,
-                    border: '1px solid #CBD5E1',
-                    flexShrink: 0,
-                  }}>
-                    <Img src={row.iconUrl} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                  </div>
-                )}
+                <WhiteboardDynamicSketch
+                  fallbackText={`${row.label} ${row.value}`}
+                  color={COLORS.blue}
+                  startFrame={Math.round(row.startTime * fps)}
+                  endFrame={Math.round(row.endTime * fps)}
+                  size={48}
+                />
                 <div>
                   <div style={{
                     fontSize: 32,
@@ -927,12 +787,9 @@ function WhiteboardQuizView({
         overflow: 'hidden',
         marginBottom: 24,
       }}>
-        <div style={{
-          width: `${timerProgress * 100}%`,
-          height: '100%',
-          backgroundColor: timerProgress > 0.3 ? '#10B981' : '#EF4444',
-          transition: 'width 0.1s linear',
-        }} />
+        <svg width="100%" height="100%" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true">
+          <rect x="0" y="0" width={timerProgress * 100} height="10" rx="5" fill={timerProgress > 0.3 ? '#10B981' : '#EF4444'} />
+        </svg>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -955,7 +812,6 @@ function WhiteboardQuizView({
                   ? '0 8px 24px rgba(22, 163, 74, 0.3)'
                   : '0 4px 12px rgba(15, 23, 42, 0.05)',
                 transform: showAnswer ? 'scale(1.02)' : 'none',
-                transition: 'all 0.25s ease',
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -1078,8 +934,8 @@ function WhiteboardVideo({
   );
 
   return (
-    <AbsoluteFill style={{ background: '#0A0D14' }}>
-      {/* 1. Procedural Realistic Whiteboard Canvas & Frame */}
+    <AbsoluteFill style={{ background: '#F1F5F9' }}>
+      {/* 1. Light CSS canvas; content visuals are text and animated SVG. */}
       <ProceduralWhiteboardCanvas />
 
       {/* 2. Safe Area Container for Content */}

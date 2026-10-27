@@ -39,18 +39,19 @@ interface ShortsReelsToolsSectionProps {
 }
 
 function getDashboardCardImage(id: string): string {
-  if (id.includes('caption')) return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1791892531/auto_captions_x9khtt.png';
-  if (id.includes('compare')) return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1791892515/compare_explainer_wheox5.png';
-  if (id.includes('typography') || id.includes('kinetic')) return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1791892516/typography_kinetic_motion_lrpawu.png';
-  if (id.includes('whiteboard')) return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1791892527/whiteboard_video_wamtgr.png';
-  if (id.includes('clips')) return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1791892526/viral_video_clips_hnlav3.png';
-  if (id.includes('promo')) return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1791892524/longvideopromo_sq4ank.png';
-  if (id.includes('audio') || id.includes('cleaner')) return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1791892521/audio_cleaner_tzshum.png';
-  if (id.includes('faceless')) return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1791892533/faceless_video_ytyxdo.png';
-  if (id.includes('image')) return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1791896597/imagetovideoai_akygiu.jpg';
-  if (id.includes('youtube') || id.includes('subtitle')) return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1791892530/youtube_subtitles_generator_nrgxle.png';
-  if (id.includes('book')) return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1791892528/book_summary_video_xjvjuf.png';
-  return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1791892531/auto_captions_x9khtt.png';
+  if (id.includes('caption')) return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png';
+  if (id.includes('compare')) return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1792946197/file_0000000035a48208ab4068beb2a66a7d_kctvo9.png';
+  if (id.includes('typography') || id.includes('kinetic')) return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000a07482118a938d210f92e32c_lblzpy.png';
+  if (id.includes('whiteboard')) return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1792950977/file_00000000a8388211b1207dad39960dc7_ahvk9g.png';
+  if (id.includes('split')) return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1792945581/file_0000000039948211a5955d513e5d104a_wzrget.png';
+  if (id.includes('clips')) return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1792946357/viral_video_clips_rllgec.png';
+  if (id.includes('promo')) return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1792946358/longvideopromo_o0qheb.png';
+  if (id.includes('audio') || id.includes('cleaner')) return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1792946356/audio_cleaner_pipcxj.png';
+  if (id.includes('faceless')) return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1792945593/file_00000000806482119547c1b937b7e386_zsrmkb.png';
+  if (id.includes('image')) return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1792946349/imagetovideoai_w3hyci.jpg';
+  if (id.includes('youtube') || id.includes('subtitle')) return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1792946360/youtube_subtitles_generator_who62l.png';
+  if (id.includes('book')) return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1792946358/book_summary_video_zbs4em.png';
+  return 'https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png';
 }
 
 export default function ShortsReelsToolsSection({
@@ -95,16 +96,24 @@ export default function ShortsReelsToolsSection({
               href={tool.slug}
               className="group relative flex flex-col overflow-hidden rounded-[24px] border border-white/10 bg-[#0E1526] shadow-xl hover:border-[#FF5722]/80 hover:shadow-2xl hover:shadow-[#FF5722]/20 transition-all duration-300 hover:-translate-y-1.5 cursor-pointer"
             >
-              {/* Image Container 9:16 */}
-              <div className="relative aspect-[9/16] w-full overflow-hidden bg-black/50">
+              {/* Image Container 9:16 (Full Uncropped Display) */}
+              <div className="relative aspect-[9/16] w-full overflow-hidden bg-black flex items-center justify-center">
+                {/* Ambient Blurred Background Glow Layer */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={cardImage}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 h-full w-full object-cover scale-125 blur-xl opacity-25 pointer-events-none"
+                />
+                {/* Full Uncropped Foreground Image */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={cardImage}
                   alt={tool.title}
-                  className="h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
+                  className="relative z-10 h-full w-full object-contain object-center transition-transform duration-500 ease-out group-hover:scale-102"
                   loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0E1526] via-black/10 to-transparent" />
               </div>
 
               {/* Bottom Card Title & Action CTA */}

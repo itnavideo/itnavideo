@@ -21,7 +21,7 @@ export const FacelessVideoComposition = () => (
     defaultProps={{
       durationSeconds: 60,
       title: 'FACELESS VIDEO',
-      backgroundTheme: 'purple-vignette',
+      backgroundTheme: 'solid-white',
     }}
     calculateMetadata={({ props }) => {
       const p = props as FacelessVideoProps;

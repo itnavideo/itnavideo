@@ -9,15 +9,28 @@ export interface CaptionChunk {
   words?: Array<{ word: string; start: number; end: number }>;
 }
 
+export type CaptionAnimationStyle =
+  | 'mrbeast'
+  | 'handwriting'
+  | 'bouncy'
+  | 'smooth'
+  | 'capsule'
+  | 'stacy-pill'
+  | 'decodingyt'
+  | 'marker'
+  | 'highlighter'
+  | (string & {});
+
 export interface UniversalCaptionLayerProps {
   chunks?: CaptionChunk[];
   captions?: CaptionChunk[];
   captionThemeId?: string;
   themeId?: string;
-  animationStyle?: 'mrbeast' | 'handwriting' | 'bouncy' | 'smooth';
+  animationStyle?: CaptionAnimationStyle;
   position?: 'bottom' | 'center' | 'top';
   styleOverrides?: React.CSSProperties;
   emphasisWords?: string[];
+  backgroundTheme?: string;
 }
 
 export const UniversalCaptionLayer: React.FC<UniversalCaptionLayerProps> = ({
@@ -29,6 +42,7 @@ export const UniversalCaptionLayer: React.FC<UniversalCaptionLayerProps> = ({
   position = 'bottom',
   styleOverrides,
   emphasisWords = [],
+  backgroundTheme,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -81,6 +95,17 @@ export const UniversalCaptionLayer: React.FC<UniversalCaptionLayerProps> = ({
           }));
         })();
 
+  const isLightCanvas =
+    backgroundTheme === 'solid-white' ||
+    backgroundTheme === 'studio-white' ||
+    backgroundTheme === 'solid-cream' ||
+    backgroundTheme === 'minimal-gray' ||
+    backgroundTheme === 'solid-light' ||
+    backgroundTheme === 'paper-cream' ||
+    backgroundTheme?.includes('white') ||
+    backgroundTheme?.includes('cream');
+  const shouldWrapPill = isLightCanvas || animationStyle === 'capsule' || animationStyle === 'stacy-pill';
+
   return (
     <div
       style={{
@@ -97,23 +122,28 @@ export const UniversalCaptionLayer: React.FC<UniversalCaptionLayerProps> = ({
       }}
     >
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Anton&family=Bangers&family=Black+Ops+One&family=Cinzel:wght@700;900&family=Kaushan+Script&family=Londrina+Solid:wght@400;900&family=Montserrat:wght@700;900&family=Outfit:wght@700;900&family=Titan+One&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Anton&family=Bangers&family=Black+Ops+One&family=Caveat:wght@700;900&family=Cinzel:wght@700;900&family=Kalam:wght@700&family=Kaushan+Script&family=Londrina+Solid:wght@400;900&family=Montserrat:wght@700;900&family=Outfit:wght@700;900&family=Titan+One&display=swap');
       `}</style>
       <div
         style={{
           transform: `scale(${scale})`,
           opacity,
-          fontSize: styles.fontSize || 46,
-          fontFamily: styles.fontFamily || 'Montserrat, Outfit, system-ui, -apple-system, sans-serif',
+          fontSize: animationStyle === 'handwriting' ? (styles.fontSize || 54) : (styles.fontSize || 46),
+          fontFamily:
+            animationStyle === 'handwriting'
+              ? "'Caveat', 'Kalam', cursive, sans-serif"
+              : styles.fontFamily || 'Montserrat, Outfit, system-ui, -apple-system, sans-serif',
           fontWeight: 900,
           textAlign: 'center',
           lineHeight: 1.3,
           color: styles.inactiveTextColor || '#FFFFFF',
           textShadow: styles.textShadow || '0 2px 14px rgba(0,0,0,0.98), 0 0 24px rgba(0,0,0,0.9)',
           filter: 'drop-shadow(0px 4px 18px rgba(0,0,0,0.98)) drop-shadow(0px 2px 8px rgba(0,0,0,0.95))',
-          backgroundColor: styles.backgroundColor,
-          borderRadius: styles.borderRadius,
-          padding: styles.padding,
+          backgroundColor: shouldWrapPill ? 'rgba(7, 11, 20, 0.88)' : styles.backgroundColor,
+          backdropFilter: shouldWrapPill ? 'blur(16px)' : undefined,
+          border: shouldWrapPill ? '1px solid rgba(255, 255, 255, 0.18)' : undefined,
+          borderRadius: shouldWrapPill ? '9999px' : styles.borderRadius,
+          padding: shouldWrapPill ? '12px 32px' : styles.padding,
           display: 'inline-flex',
           flexWrap: 'wrap',
           justifyContent: 'center',
@@ -123,15 +153,16 @@ export const UniversalCaptionLayer: React.FC<UniversalCaptionLayerProps> = ({
           ...styleOverrides,
         }}
       >
-        {wordsList.map((w: { word: string; start: number; end: number }, idx: number) => {
+        {wordsList.map((w: { word?: string; text?: string; start: number; end: number }, idx: number) => {
+          const rawWordStr = String(w?.word || (w as any)?.text || '').trim();
           const isActive = currentTime >= w.start && currentTime <= w.end;
-          const cleanWord = w.word.toLowerCase().replace(/[^a-z0-9]/g, '');
+          const cleanWord = rawWordStr.toLowerCase().replace(/[^a-z0-9]/g, '');
           const isEmphasis = Boolean(
             emphasisWords &&
               emphasisWords.length > 0 &&
               cleanWord &&
               emphasisWords.some((ew) => {
-                const cleanEW = ew.toLowerCase().replace(/[^a-z0-9]/g, '');
+                const cleanEW = String(ew || '').toLowerCase().replace(/[^a-z0-9]/g, '');
                 return cleanEW && (cleanWord.includes(cleanEW) || cleanEW.includes(cleanWord));
               })
           );
@@ -153,7 +184,41 @@ export const UniversalCaptionLayer: React.FC<UniversalCaptionLayerProps> = ({
             : '0 2px 10px rgba(0,0,0,0.95)';
           let wordUnderline: string | undefined = undefined;
 
-          if (animationStyle === 'mrbeast') {
+          if (animationStyle === 'decodingyt' || animationStyle === 'marker' || animationStyle === 'highlighter') {
+            if (isActive) {
+              wordBg = isEmphasis ? '#FF5722' : '#FFE600';
+              wordColor = isEmphasis ? '#FFFFFF' : '#070B14';
+              wordPadding = '4px 12px';
+              wordRadius = '6px';
+              wordTransform = isEmphasis ? 'scale(1.22) rotate(-1.5deg)' : 'scale(1.15) rotate(-1deg)';
+              wordShadow = isEmphasis
+                ? '0 0 24px rgba(255, 87, 34, 0.9), 0 4px 16px rgba(0,0,0,0.9)'
+                : '0 0 20px rgba(255, 230, 0, 0.9), 0 4px 14px rgba(0,0,0,0.9)';
+            } else {
+              wordColor = isEmphasis ? '#FFA000' : '#FFFFFF';
+              wordBg = 'transparent';
+            }
+          } else if (animationStyle === 'capsule' || animationStyle === 'stacy-pill') {
+            if (isActive) {
+              const pillSpring = spring({
+                frame: Math.max(0, frame - Math.floor(w.start * fps)),
+                fps,
+                config: { damping: 12, stiffness: 220 },
+              });
+              const pScale = interpolate(pillSpring, [0, 1], [0.95, isEmphasis ? 1.22 : 1.14]);
+              wordBg = isEmphasis ? '#FF5722' : '#10B981';
+              wordColor = '#FFFFFF';
+              wordPadding = '4px 18px';
+              wordRadius = '9999px';
+              wordTransform = `scale(${pScale})`;
+              wordShadow = isEmphasis
+                ? '0 0 26px rgba(255, 87, 34, 0.95), 0 4px 16px rgba(0,0,0,1)'
+                : '0 0 24px rgba(16, 185, 129, 0.9), 0 4px 14px rgba(0,0,0,1)';
+            } else {
+              wordColor = isEmphasis ? '#34D399' : '#FFFFFF';
+              wordBg = 'transparent';
+            }
+          } else if (animationStyle === 'mrbeast') {
             if (isActive) {
               wordBg = isEmphasis ? '#FF5722' : '#FFE600';
               wordColor = isEmphasis ? '#FFFFFF' : '#000000';
@@ -168,11 +233,21 @@ export const UniversalCaptionLayer: React.FC<UniversalCaptionLayerProps> = ({
               wordBg = 'transparent';
             }
           } else if (animationStyle === 'handwriting') {
+            const rot = idx % 2 === 0 ? -2.5 : 2.0;
             if (isActive) {
-              wordTransform = isEmphasis ? 'scale(1.25) rotate(-2deg)' : 'scale(1.15) rotate(-1.5deg)';
-              wordUnderline = `underline ${isEmphasis ? '6px #FF5722' : `5px ${styles.activeTextColor || '#FFE600'}`}`;
-              wordColor = isEmphasis ? '#FF5722' : (styles.activeTextColor || '#FFE600');
-              wordShadow = '0 0 20px rgba(255, 230, 0, 0.9), 0 2px 12px rgba(0,0,0,1)';
+              const penSpring = spring({
+                frame: Math.max(0, frame - Math.floor(w.start * fps)),
+                fps,
+                config: { damping: 10, stiffness: 220 },
+              });
+              const hwScale = interpolate(penSpring, [0, 1], [0.94, isEmphasis ? 1.28 : 1.16]);
+              wordTransform = `scale(${hwScale}) rotate(${rot}deg)`;
+              wordColor = isEmphasis ? '#FF5722' : '#FFA000';
+              wordUnderline = `underline wavy ${isEmphasis ? '#FF5722 5px' : '#FFA000 4px'}`;
+              wordShadow = '0 0 24px rgba(255, 160, 0, 0.95), 0 2px 14px rgba(0,0,0,1)';
+            } else {
+              wordColor = isEmphasis ? '#FFA000' : '#FFFFFF';
+              wordTransform = `rotate(${rot * 0.4}deg)`;
             }
           } else if (animationStyle === 'bouncy') {
             if (isActive) {

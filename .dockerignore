@@ -11,6 +11,7 @@ raw_assets
 .env.*
 !.env.example
 !.env.production
+!.env.local
 public/uploads
 public/renders
 public/cache

@@ -24,6 +24,7 @@ import {
   Play,
   Zap,
   ShieldCheck,
+  ArrowLeft,
 } from 'lucide-react';
 import {
   requestNotificationPermission,
@@ -107,15 +108,6 @@ function getModeSteps(mode: string): StepDef[] {
         { shortLabel: 'Subtitles', label: 'Styling bottom motion captions', detail: 'Kinetic typography highlights', doneAt: 75, icon: Sparkles },
         { shortLabel: 'Render', label: 'Rendering 1080p comparison reel', detail: 'AWS Lambda Remotion engine', doneAt: 100, icon: Film },
       ];
-    case 'typography':
-    case 'typographyVideo':
-    case 'TYPOGRAPHY_VIDEO':
-      return [
-        { shortLabel: 'Audio Wave', label: 'Analyzing vocal rhythm & beats', detail: 'Speech cadence extraction', doneAt: 20, icon: Mic },
-        { shortLabel: 'Kinetics', label: 'Arranging kinetic typography', detail: 'Dynamic word placement & zooms', doneAt: 45, icon: Sparkles },
-        { shortLabel: 'Springs', label: 'Applying camera shakes & pop physics', detail: 'High-retention visual springs', doneAt: 75, icon: Layers },
-        { shortLabel: 'Render', label: 'Rendering 1080p kinetic MP4', detail: 'AWS Lambda Remotion engine', doneAt: 100, icon: Film },
-      ];
     case 'longVideoClips':
     case 'LONG_VIDEO_CLIPS':
       return [
@@ -155,6 +147,14 @@ function getModeSteps(mode: string): StepDef[] {
         { shortLabel: '9:16 Layout', label: 'Building teaser split composition', detail: 'Thumbnail topper & video player', doneAt: 50, icon: Sparkles },
         { shortLabel: 'Callout FX', label: 'Adding social hook callouts', detail: 'Dynamic watch prompts & arrows', doneAt: 75, icon: Zap },
         { shortLabel: 'Render', label: 'Rendering 1080p promo reel', detail: 'AWS Lambda Remotion engine', doneAt: 100, icon: Film },
+      ];
+    case 'facelessShorts':
+    case 'FACELESS_SHORTS':
+      return [
+        { shortLabel: 'Script AI', label: 'Analyzing audio & script', detail: 'Groq Whisper & Gemini visual director', doneAt: 20, icon: Mic },
+        { shortLabel: '9:16 Visuals', label: 'Matching AI B-roll & assets', detail: 'Sourcing 1080x1920 vertical media', doneAt: 45, icon: Layers },
+        { shortLabel: 'Kinetics', label: 'Applying kinetic typography', detail: 'Bold animated viral subtitles', doneAt: 75, icon: Sparkles },
+        { shortLabel: 'Render', label: 'Rendering 9:16 Shorts', detail: 'AWS Lambda Remotion engine', doneAt: 100, icon: Film },
       ];
     case 'facelessVideo':
     case 'FACELESS_VIDEO':
@@ -515,19 +515,22 @@ export default function InteractiveRenderEngine({
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
               <button
                 type="button"
-                onClick={onRetry}
+                onClick={onReset}
                 className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] hover:brightness-110 text-black rounded-xl font-black text-xs transition-all inline-flex items-center justify-center gap-2 shadow-lg shadow-orange-500/25 cursor-pointer active:scale-95"
               >
-                <RotateCcw size={14} />
-                <span>Retry Generation Now</span>
+                <ArrowLeft size={14} />
+                <span>Back to Editor / Start Fresh</span>
               </button>
 
               <button
                 type="button"
-                onClick={onReset}
+                onClick={() => {
+                  if (typeof window !== 'undefined') window.location.reload();
+                }}
                 className="w-full sm:w-auto px-5 py-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold text-xs transition-all inline-flex items-center justify-center gap-2 cursor-pointer active:scale-95"
               >
-                <span>Edit Media &amp; Setup</span>
+                <RotateCcw size={14} />
+                <span>Refresh Page</span>
               </button>
             </div>
           </div>

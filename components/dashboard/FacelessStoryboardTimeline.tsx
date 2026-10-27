@@ -14,12 +14,16 @@ import {
   RefreshCw,
   Search,
   Filter,
+  Clock,
+  Layout,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import type { SceneBlueprintItem } from "@/services/ai/sceneBlueprintTypes";
 import type { TaggedMediaAsset } from "@/services/ai/visionAutoTagger";
 import { toAbsoluteS3AssetUrl } from "@/constants/itnavideoStockAssets";
 
-// Sample top curated realistic stock assets for quick swapping
+// Curated stock assets for quick visual swapping
 const QUICK_STOCK_OPTIONS = [
   {
     title: "Modern Tech Office Workspace",
@@ -81,7 +85,7 @@ export function FacelessStoryboardTimeline({
 }: FacelessStoryboardTimelineProps) {
   const [activeSwapSceneNumber, setActiveSwapSceneNumber] = useState<number | null>(null);
   const [swapTab, setSwapTab] = useState<"uploads" | "library">("uploads");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [filterLayout, setFilterLayout] = useState<string>("all");
 
   if (!scenes || scenes.length === 0) return null;
 
@@ -127,45 +131,60 @@ export function FacelessStoryboardTimeline({
     setActiveSwapSceneNumber(null);
   };
 
+  const filteredScenes = scenes.filter((s) => {
+    if (filterLayout === "all") return true;
+    return s.layoutType === filterLayout;
+  });
+
   return (
-    <div className="rounded-2xl border border-white/10 bg-[#0D111D] p-5 shadow-2xl space-y-5">
+    <div className="rounded-2xl border border-white/[0.08] bg-[#141519] p-5 sm:p-6 shadow-xl space-y-6">
       {/* ── Storyboard Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.07] pb-4">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-[#FF5722] animate-pulse" />
-            <h3 className="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2">
-              <span>Scene-by-Scene Timeline &amp; Visual Storyboard</span>
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
+            <h3 className="text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-2">
+              <span>Scene Timeline &amp; Visual Storyboard</span>
             </h3>
-            <span className="rounded-full bg-orange-500/10 border border-orange-500/30 px-2 py-0.5 text-[10px] font-bold text-orange-400">
+            <span className="rounded-full bg-white/[0.06] border border-white/[0.1] px-2.5 py-0.5 text-xs font-semibold text-zinc-300">
               {scenes.length} Scenes
             </span>
           </div>
-          <p className="text-xs text-zinc-400 mt-0.5">
-            Vision AI has automatically mapped user uploads &amp; b-roll to matching narration beats. You can visually verify or swap assets below.
+          <p className="text-xs text-zinc-400 mt-1 max-w-2xl">
+            Each scene is synchronized with your narration audio. Review scene headings, narration timing, and swap visual assets directly below.
           </p>
         </div>
 
-        {uploadedAssets.length > 0 && (
-          <div className="flex items-center gap-1.5 rounded-xl bg-[#161C2E] border border-white/10 px-3 py-1.5 text-xs text-zinc-300">
-            <Sparkles size={13} className="text-[#FF5722]" />
-            <span className="font-semibold text-white">{uploadedAssets.length}</span>
-            <span>Custom Media Tagged</span>
-          </div>
-        )}
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          {uploadedAssets.length > 0 && (
+            <div className="flex items-center gap-1.5 rounded-xl bg-white/[0.05] border border-white/[0.08] px-3 py-1.5 text-xs text-zinc-300">
+              <Sparkles size={13} className="text-orange-400" />
+              <span className="font-semibold text-white">{uploadedAssets.length}</span>
+              <span>Uploaded Media</span>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* ── Visual Scrubber Bar (Mini Timeline Strip) ── */}
-      <div className="rounded-xl border border-white/10 bg-[#121624] p-2.5">
-        <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-2 px-1 flex items-center justify-between">
-          <span>Timeline Flow (Click any scene to preview)</span>
-          <span className="font-mono text-zinc-500">Total: {scenes.length} Scenes</span>
-        </p>
-        <div className="flex items-stretch gap-1.5 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-zinc-700">
+      {/* ── Visual Scrubber Bar (Horizontal Timeline Flow) ── */}
+      <div className="rounded-xl border border-white/[0.06] bg-[#101114] p-3 space-y-2">
+        <div className="flex items-center justify-between text-[11px] font-semibold text-zinc-400 px-1">
+          <span className="flex items-center gap-1.5 text-zinc-300">
+            <Clock size={12} className="text-orange-400" />
+            <span>Interactive Timeline Sequence (Click to jump audio)</span>
+          </span>
+          <span className="font-mono text-zinc-500">
+            {formatTime(scenes[0]?.narrationSegment?.startSeconds)} → {formatTime(scenes[scenes.length - 1]?.narrationSegment?.endSeconds)}
+          </span>
+        </div>
+
+        <div className="flex items-stretch gap-2 overflow-x-auto pb-1.5 scrollbar-thin scrollbar-thumb-zinc-700">
           {scenes.map((scene, idx) => {
             const assignedUrl = brollUrls[scene.sceneNumber];
             const hasAsset = Boolean(assignedUrl);
             const isUser = isUserUpload(assignedUrl);
+            const isSelected = activeSwapSceneNumber === scene.sceneNumber;
+
             return (
               <button
                 key={scene.sceneNumber || idx}
@@ -175,38 +194,49 @@ export function FacelessStoryboardTimeline({
                     onSeekAudio?.(scene.narrationSegment.startSeconds);
                   }
                 }}
-                className={`flex-shrink-0 w-28 rounded-lg border p-1.5 text-left transition flex flex-col justify-between hover:border-[#FF5722]/60 cursor-pointer ${
-                  activeSwapSceneNumber === scene.sceneNumber
-                    ? "border-[#FF5722] bg-[#1A2035] ring-1 ring-[#FF5722]"
-                    : "border-white/10 bg-[#0A0D16]/80"
+                className={`flex-shrink-0 w-32 rounded-xl border p-2 text-left transition flex flex-col justify-between group cursor-pointer ${
+                  isSelected
+                    ? "border-orange-500/80 bg-[#1E2028] ring-1 ring-orange-500/40"
+                    : "border-white/[0.08] bg-[#16171D] hover:border-white/25 hover:bg-[#1B1D24]"
                 }`}
               >
-                <div className="flex items-center justify-between text-[9px] mb-1">
-                  <span className="font-bold text-white">#{scene.sceneNumber}</span>
-                  <span className="font-mono text-zinc-400">{formatTime(scene.narrationSegment?.startSeconds)}</span>
+                <div className="flex items-center justify-between text-[10px] mb-1.5">
+                  <span className="font-bold text-white group-hover:text-orange-400 transition">
+                    Scene #{scene.sceneNumber}
+                  </span>
+                  <span className="font-mono text-zinc-400 text-[9.5px]">
+                    {formatTime(scene.narrationSegment?.startSeconds)}
+                  </span>
                 </div>
-                <div className="w-full h-10 rounded bg-black/60 relative overflow-hidden flex items-center justify-center mb-1">
+
+                <div className="w-full h-12 rounded-lg bg-black/60 relative overflow-hidden flex items-center justify-center mb-1.5 border border-white/[0.06]">
                   {hasAsset ? (
                     isVideo(assignedUrl) ? (
-                      <div className="flex items-center gap-1 text-[8.5px] font-bold text-orange-400">
-                        <Video size={12} /> Video
+                      <div className="flex items-center gap-1 text-[9px] font-bold text-orange-400">
+                        <Video size={13} />
+                        <span>Video Clip</span>
                       </div>
                     ) : (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={toAbsoluteS3AssetUrl(assignedUrl)}
                         alt={scene.heading || "Visual"}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover group-hover:scale-105 transition duration-200"
                       />
                     )
                   ) : (
-                    <span className="text-[8.5px] font-bold text-zinc-500">Text Only</span>
+                    <div className="flex items-center gap-1 text-[9px] font-semibold text-zinc-400">
+                      <Layout size={11} className="text-zinc-500" />
+                      <span>SVG / Notes</span>
+                    </div>
                   )}
+
                   {isUser && (
-                    <span className="absolute top-0.5 right-0.5 h-2 w-2 rounded-full bg-emerald-400 ring-1 ring-black" />
+                    <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-emerald-400 ring-2 ring-black" />
                   )}
                 </div>
-                <span className="text-[8.5px] font-medium text-zinc-400 truncate block">
+
+                <span className="text-[10px] font-medium text-zinc-300 truncate block">
                   {scene.heading || scene.layoutType}
                 </span>
               </button>
@@ -215,81 +245,82 @@ export function FacelessStoryboardTimeline({
         </div>
       </div>
 
-      {/* ── Scene-by-Scene Cards ── */}
-      <div className="space-y-3.5">
-        {scenes.map((scene) => {
+      {/* ── Spacious 2-Column Responsive Scene Cards Grid ── */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        {filteredScenes.map((scene) => {
           const assignedUrl = brollUrls[scene.sceneNumber];
           const hasAsset = Boolean(assignedUrl);
           const isUser = isUserUpload(assignedUrl);
           const isVid = isVideo(assignedUrl);
           const isModalOpen = activeSwapSceneNumber === scene.sceneNumber;
-
-          // Find Vision AI metadata for assigned upload if present
           const matchedUploadedMeta = uploadedAssets.find((u) => u.url === assignedUrl);
 
           return (
             <div
               key={scene.sceneNumber}
-              className={`rounded-2xl border transition-all ${
+              className={`rounded-2xl border transition flex flex-col justify-between ${
                 isModalOpen
-                  ? "border-[#FF5722] bg-[#141B2D] ring-1 ring-[#FF5722]/50 shadow-lg"
-                  : "border-white/10 bg-[#111625] hover:border-white/20"
+                  ? "border-orange-500/60 bg-[#1A1C24] ring-1 ring-orange-500/30 shadow-lg"
+                  : "border-white/[0.07] bg-[#16171C] hover:border-white/15 hover:bg-[#191B22]"
               }`}
             >
-              <div className="p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                {/* 1. Left Column: Scene Metadata & Time */}
-                <div className="flex items-center gap-3 shrink-0">
-                  <div className="w-12 h-12 rounded-xl bg-black/40 border border-white/10 flex flex-col items-center justify-center text-center">
-                    <span className="text-[9px] uppercase font-bold text-zinc-500">Scene</span>
-                    <span className="text-base font-extrabold text-white leading-none">
-                      {scene.sceneNumber}
+              <div className="p-4 sm:p-5 space-y-3.5">
+                {/* 1. Header Row: Scene Number, Time Range, Layout Badge */}
+                <div className="flex items-center justify-between gap-2 border-b border-white/[0.06] pb-2.5">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-500/10 text-orange-400 text-xs font-black border border-orange-500/25">
+                      {scene.sceneNumber < 10 ? `0${scene.sceneNumber}` : scene.sceneNumber}
                     </span>
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs font-bold text-orange-400 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded">
-                        {formatTime(scene.narrationSegment?.startSeconds)} - {formatTime(scene.narrationSegment?.endSeconds)}
-                      </span>
-                      <span className="text-[10px] font-bold uppercase tracking-wider bg-white/5 border border-white/10 text-zinc-300 px-2 py-0.5 rounded">
-                        {scene.layoutType.replace(/_/g, " ")}
+                    <div>
+                      <span className="text-xs font-bold text-white tracking-wide block">
+                        {scene.heading || `Scene Beat #${scene.sceneNumber}`}
                       </span>
                     </div>
-                    <p className="text-xs font-bold text-white mt-1">
-                      {scene.heading || "Visual Scene Beat"}
-                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1 font-mono text-[11px] font-semibold text-zinc-300 bg-white/[0.05] border border-white/[0.08] px-2.5 py-0.5 rounded-md">
+                      <Clock size={10} className="text-zinc-400" />
+                      <span>{formatTime(scene.narrationSegment?.startSeconds)} - {formatTime(scene.narrationSegment?.endSeconds)}</span>
+                    </span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider bg-white/[0.06] border border-white/[0.08] text-zinc-400 px-2 py-0.5 rounded-md">
+                      {scene.layoutType.replace(/_/g, " ")}
+                    </span>
                   </div>
                 </div>
 
-                {/* 2. Center Column: Spoken Script & Keywords */}
-                <div className="flex-1 w-full md:px-4">
-                  <p className="text-xs text-zinc-300 leading-relaxed font-normal">
+                {/* 2. Narration Script Beat */}
+                <div className="rounded-xl bg-black/30 border border-white/[0.04] p-3">
+                  <p className="text-xs sm:text-[13px] text-slate-200 leading-relaxed font-sans">
                     &ldquo;{scene.narrationSegment?.text}&rdquo;
                   </p>
+
                   {scene.highlightedWords && scene.highlightedWords.length > 0 && (
-                    <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                      <span className="text-[10px] text-zinc-500 font-semibold">Keywords:</span>
+                    <div className="flex flex-wrap items-center gap-1.5 mt-2.5 pt-2 border-t border-white/[0.05]">
+                      <span className="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">
+                        Emphasis:
+                      </span>
                       {scene.highlightedWords.map((kw, kIdx) => (
                         <span
                           key={kIdx}
-                          className="rounded bg-yellow-400/15 border border-yellow-400/30 px-1.5 py-0.5 text-[10px] font-bold text-yellow-300"
+                          className="rounded-md bg-amber-400/15 border border-amber-400/30 px-2 py-0.5 text-[10px] font-semibold text-amber-300"
                         >
-                          ✦ {kw}
+                          {kw}
                         </span>
                       ))}
                     </div>
                   )}
                 </div>
 
-                {/* 3. Right Column: Assigned Asset & Swap Button */}
-                <div className="flex items-center gap-3 shrink-0 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 pt-3 md:pt-0 border-white/10">
-                  <div className="flex items-center gap-2.5">
-                    {/* Visual Asset Thumbnail */}
-                    <div className="w-24 h-14 rounded-lg bg-black/60 border border-white/15 relative overflow-hidden flex items-center justify-center shadow-inner">
+                {/* 3. Visual Asset Bar & Action Controls */}
+                <div className="flex items-center justify-between gap-3 pt-1">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-16 h-11 rounded-lg bg-black/60 border border-white/[0.08] relative overflow-hidden flex items-center justify-center shrink-0">
                       {hasAsset ? (
                         isVid ? (
                           <div className="flex flex-col items-center text-orange-400">
-                            <Video size={18} />
-                            <span className="text-[8px] font-bold uppercase mt-0.5">Video Clip</span>
+                            <Video size={15} />
+                            <span className="text-[7.5px] font-bold uppercase">Video</span>
                           </div>
                         ) : (
                           // eslint-disable-next-line @next/next/no-img-element
@@ -300,36 +331,26 @@ export function FacelessStoryboardTimeline({
                           />
                         )
                       ) : (
-                        <div className="text-center text-zinc-500 p-1">
-                          <span className="text-[9px] font-bold block leading-tight">Typography</span>
-                          <span className="text-[8px] block">No visual</span>
+                        <div className="text-center text-zinc-400 p-1">
+                          <Layout size={13} className="mx-auto text-zinc-500 mb-0.5" />
+                          <span className="text-[7.5px] font-semibold block leading-tight">SVG Diagram</span>
                         </div>
                       )}
 
-                      {/* User upload badge indicator */}
                       {isUser && (
-                        <span className="absolute top-1 left-1 bg-emerald-500 text-white text-[7.5px] font-black uppercase px-1 rounded shadow">
-                          User Upload
+                        <span className="absolute top-0.5 left-0.5 bg-emerald-500 text-white text-[7px] font-black uppercase px-1 rounded shadow">
+                          Upload
                         </span>
                       )}
                     </div>
 
-                    {/* Metadata details */}
-                    <div className="max-w-[140px] text-left">
-                      <p className="text-[11px] font-bold text-white truncate">
-                        {matchedUploadedMeta?.title || getCleanFileName(assignedUrl) || (hasAsset ? "Stock Asset" : "Kinetic Text")}
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold text-white truncate max-w-[180px] sm:max-w-xs">
+                        {matchedUploadedMeta?.title || getCleanFileName(assignedUrl) || (hasAsset ? "Stock Asset" : "Dynamic SVG & Canvas")}
                       </p>
-                      <p className="text-[9.5px] text-zinc-400 truncate">
-                        {isUser ? "👤 Custom Upload" : hasAsset ? "✨ AI Stock Library" : "🔤 Clean Typography"}
+                      <p className="text-[10.5px] text-zinc-400 mt-0.5 truncate">
+                        {isUser ? "Custom Upload Media" : hasAsset ? "Verified Stock Asset" : "Editorial Whiteboard Canvas"}
                       </p>
-                      {matchedUploadedMeta?.tags && matchedUploadedMeta.tags.length > 0 && (
-                        <div className="flex items-center gap-1 mt-0.5">
-                          <Tag size={9} className="text-emerald-400 shrink-0" />
-                          <span className="text-[9px] text-emerald-300 font-mono truncate">
-                            {matchedUploadedMeta.tags.slice(0, 2).join(", ")}
-                          </span>
-                        </div>
-                      )}
                     </div>
                   </div>
 
@@ -337,43 +358,43 @@ export function FacelessStoryboardTimeline({
                   <button
                     type="button"
                     onClick={() => setActiveSwapSceneNumber(isModalOpen ? null : scene.sceneNumber)}
-                    className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-bold transition cursor-pointer ${
+                    className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold transition cursor-pointer shrink-0 ${
                       isModalOpen
-                        ? "border-[#FF5722] bg-[#FF5722] text-white shadow-lg"
-                        : "border-white/15 bg-white/5 text-zinc-200 hover:border-[#FF5722]/50 hover:bg-white/10 hover:text-white"
+                        ? "border-orange-500 bg-orange-500 text-white shadow-md shadow-orange-500/20"
+                        : "border-white/[0.1] bg-white/[0.05] text-zinc-300 hover:text-white hover:bg-white/[0.1] hover:border-white/20"
                     }`}
                   >
-                    <ArrowLeftRight size={13} />
-                    <span>{isModalOpen ? "Close" : "Swap"}</span>
+                    <ArrowLeftRight size={12} />
+                    <span>{isModalOpen ? "Close Drawer" : "Swap Visual"}</span>
                   </button>
                 </div>
               </div>
 
-              {/* ── INLINE SWAP DRAWER / MODAL ── */}
+              {/* ── INLINE ASSET SWAP DRAWER ── */}
               {isModalOpen && (
-                <div className="border-t border-white/10 bg-[#0B0F19] p-4 rounded-b-2xl space-y-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="border-t border-white/[0.08] bg-[#111216] p-4 rounded-b-2xl space-y-3.5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-bold text-white">Choose Asset for Scene #{scene.sceneNumber}:</span>
                       {hasAsset && (
                         <button
                           type="button"
                           onClick={() => handleClearAssetFromScene(scene.sceneNumber)}
-                          className="text-[10.5px] font-bold text-red-400 hover:text-red-300 transition underline cursor-pointer"
+                          className="text-[11px] font-semibold text-red-400 hover:text-red-300 transition underline cursor-pointer ml-1"
                         >
-                          Clear Visual (Make Typography Only)
+                          Clear Visual (Use Clean SVG)
                         </button>
                       )}
                     </div>
 
-                    {/* Source Tab Toggle */}
-                    <div className="inline-flex rounded-xl bg-black/40 border border-white/10 p-0.5">
+                    {/* Tab Selector */}
+                    <div className="inline-flex rounded-lg bg-black/40 border border-white/[0.08] p-0.5">
                       <button
                         type="button"
                         onClick={() => setSwapTab("uploads")}
-                        className={`rounded-lg px-3 py-1 text-xs font-bold transition cursor-pointer ${
+                        className={`rounded-md px-2.5 py-1 text-xs font-semibold transition cursor-pointer ${
                           swapTab === "uploads"
-                            ? "bg-[#FF5722] text-white"
+                            ? "bg-orange-500 text-white"
                             : "text-zinc-400 hover:text-white"
                         }`}
                       >
@@ -382,32 +403,32 @@ export function FacelessStoryboardTimeline({
                       <button
                         type="button"
                         onClick={() => setSwapTab("library")}
-                        className={`rounded-lg px-3 py-1 text-xs font-bold transition cursor-pointer ${
+                        className={`rounded-md px-2.5 py-1 text-xs font-semibold transition cursor-pointer ${
                           swapTab === "library"
-                            ? "bg-[#FF5722] text-white"
+                            ? "bg-orange-500 text-white"
                             : "text-zinc-400 hover:text-white"
                         }`}
                       >
-                        AI Stock Library ({QUICK_STOCK_OPTIONS.length})
+                        Stock Library ({QUICK_STOCK_OPTIONS.length})
                       </button>
                     </div>
                   </div>
 
                   {/* TAB 1: User Uploaded Assets */}
                   {swapTab === "uploads" && (
-                    <div className="space-y-2">
+                    <div>
                       {uploadedAssets.length === 0 ? (
-                        <div className="rounded-xl border border-white/10 bg-[#121624] p-4 text-center text-xs text-zinc-400">
+                        <div className="rounded-xl border border-white/[0.06] bg-[#16171D] p-4 text-center text-xs text-zinc-400">
                           <p>No custom photos or video clips uploaded yet.</p>
-                          <p className="text-[11px] text-zinc-500 mt-0.5">
-                            Use the &ldquo;Upload Custom Media&rdquo; section above to add your own visual assets.
+                          <p className="text-[11px] text-zinc-500 mt-1">
+                            You can upload custom visual assets to assign them to specific narrative scenes.
                           </p>
                         </div>
                       ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2.5 max-h-56 overflow-y-auto pr-1">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-h-48 overflow-y-auto pr-1">
                           {uploadedAssets.map((asset, aIdx) => {
                             const isSelected = assignedUrl === asset.url;
-                            const isVid = asset.mediaType === "video" || isVideo(asset.url);
+                            const isVidThumb = asset.mediaType === "video" || isVideo(asset.url);
                             return (
                               <button
                                 key={`${asset.url}_${aIdx}`}
@@ -415,13 +436,13 @@ export function FacelessStoryboardTimeline({
                                 onClick={() => handleAssignAssetToScene(scene.sceneNumber, asset.url)}
                                 className={`rounded-xl border p-2 text-left transition flex flex-col justify-between group cursor-pointer relative ${
                                   isSelected
-                                    ? "border-emerald-500 bg-emerald-500/15 ring-2 ring-emerald-500"
-                                    : "border-white/10 bg-[#161C2E] hover:border-orange-500/60 hover:bg-[#1E263E]"
+                                    ? "border-emerald-500 bg-emerald-500/10 ring-1 ring-emerald-500"
+                                    : "border-white/[0.08] bg-[#181A20] hover:border-orange-500/50 hover:bg-[#1E2028]"
                                 }`}
                               >
-                                <div className="w-full h-16 rounded-lg bg-black/50 overflow-hidden relative flex items-center justify-center mb-1.5">
-                                  {isVid ? (
-                                    <Video size={22} className="text-orange-400" />
+                                <div className="w-full h-14 rounded-lg bg-black/50 overflow-hidden relative flex items-center justify-center mb-1">
+                                  {isVidThumb ? (
+                                    <Video size={18} className="text-orange-400" />
                                   ) : (
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img
@@ -432,23 +453,13 @@ export function FacelessStoryboardTimeline({
                                   )}
                                   {isSelected && (
                                     <span className="absolute top-1 right-1 p-0.5 rounded-full bg-emerald-500 text-white">
-                                      <Check size={10} />
+                                      <Check size={9} />
                                     </span>
                                   )}
                                 </div>
                                 <p className="text-[10px] font-bold text-white truncate w-full">
                                   {asset.title || asset.fileName}
                                 </p>
-                                <div className="flex flex-wrap gap-0.5 mt-1 overflow-hidden h-4">
-                                  {asset.tags?.slice(0, 2).map((t, tidx) => (
-                                    <span
-                                      key={tidx}
-                                      className="text-[8px] font-mono text-zinc-400 bg-black/40 px-1 rounded truncate max-w-[50px]"
-                                    >
-                                      {t}
-                                    </span>
-                                  ))}
-                                </div>
                               </button>
                             );
                           })}
@@ -457,9 +468,9 @@ export function FacelessStoryboardTimeline({
                     </div>
                   )}
 
-                  {/* TAB 2: Curated Stock Library */}
+                  {/* TAB 2: Stock Library */}
                   {swapTab === "library" && (
-                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 gap-2.5 max-h-56 overflow-y-auto pr-1">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-h-48 overflow-y-auto pr-1">
                       {QUICK_STOCK_OPTIONS.map((stock, sIdx) => {
                         const isSelected = assignedUrl === stock.url;
                         return (
@@ -469,11 +480,11 @@ export function FacelessStoryboardTimeline({
                             onClick={() => handleAssignAssetToScene(scene.sceneNumber, stock.url)}
                             className={`rounded-xl border p-2 text-left transition flex flex-col justify-between cursor-pointer relative ${
                               isSelected
-                                ? "border-emerald-500 bg-emerald-500/15 ring-2 ring-emerald-500"
-                                : "border-white/10 bg-[#161C2E] hover:border-orange-500/60 hover:bg-[#1E263E]"
+                                ? "border-emerald-500 bg-emerald-500/10 ring-1 ring-emerald-500"
+                                : "border-white/[0.08] bg-[#181A20] hover:border-orange-500/50 hover:bg-[#1E2028]"
                             }`}
                           >
-                            <div className="w-full h-16 rounded-lg bg-black/50 overflow-hidden relative mb-1.5">
+                            <div className="w-full h-14 rounded-lg bg-black/50 overflow-hidden relative mb-1">
                               {/* eslint-disable-next-line @next/next/no-img-element */}
                               <img
                                 src={toAbsoluteS3AssetUrl(stock.url)}
@@ -482,23 +493,13 @@ export function FacelessStoryboardTimeline({
                               />
                               {isSelected && (
                                 <span className="absolute top-1 right-1 p-0.5 rounded-full bg-emerald-500 text-white">
-                                  <Check size={10} />
+                                  <Check size={9} />
                                 </span>
                               )}
                             </div>
                             <p className="text-[10px] font-bold text-white truncate w-full">
                               {stock.title}
                             </p>
-                            <div className="flex flex-wrap gap-0.5 mt-1 overflow-hidden h-4">
-                              {stock.tags.slice(0, 3).map((t, tidx) => (
-                                <span
-                                  key={tidx}
-                                  className="text-[8px] font-mono text-zinc-400 bg-black/40 px-1 rounded"
-                                >
-                                  {t}
-                                </span>
-                              ))}
-                            </div>
                           </button>
                         );
                       })}
@@ -513,4 +514,5 @@ export function FacelessStoryboardTimeline({
     </div>
   );
 }
+
 export default FacelessStoryboardTimeline;

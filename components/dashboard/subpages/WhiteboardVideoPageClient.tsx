@@ -64,7 +64,7 @@ const WHITEBOARD_RENDER_STEPS = [
   { label: "Understanding Content", detail: "AI analyzing semantics to detect steps, stats, comparisons & key takeaways.", threshold: 0.35, icon: Layers3 },
   { label: "Planning Visual Scenes", detail: "AI Director directing vector cards, stickman icons, arrows & layout geometry.", threshold: 0.60, icon: Columns },
   { label: "Syncing Vector Drawings", detail: "Synchronizing progressive line reveals & karaoke highlighting with narration.", threshold: 0.82, icon: Film },
-  { label: "Rendering 1080p Video", detail: "Cloud Render Engine exporting crisp 1080×1920 Full HD MP4.", threshold: 0.98, icon: Clapperboard },
+  { label: "Rendering 1080p Video", detail: "Cloud Render Engine exporting crisp 10801920 Full HD MP4.", threshold: 0.98, icon: Clapperboard },
 ];
 
 export default function WhiteboardVideoPage() {
@@ -78,6 +78,10 @@ export default function WhiteboardVideoPage() {
 
   // Transcript states
   const [transcript, setTranscript] = useState<string>("");
+  const [words, setWords] = useState<any[]>([]);
+  const [plan, setPlan] = useState<any | null>(null);
+  const [studioStep, setStudioStep] = useState<"inputs" | "storyboard">("inputs");
+  const [isPlanning, setIsPlanning] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState<boolean>(false);
   const [transcriptionError, setTranscriptionError] = useState<string | null>(null);
   const [cachedMediaKey, setCachedMediaKey] = useState<string>("");
@@ -154,6 +158,7 @@ export default function WhiteboardVideoPage() {
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.ok && data.transcript) {
         setTranscript(data.transcript);
+        setWords(data.words || []);
         setTranscriptionError(null);
       } else {
         const errorMsg = data.error || `Transcription failed (${res.status})`;
@@ -236,6 +241,44 @@ export default function WhiteboardVideoPage() {
   }, [user]);
 
 
+
+  
+  const handlePlanStoryboard = async () => {
+    if (!selectedFile) return;
+    setIsPlanning(true);
+    setTranscriptionError(null);
+    try {
+      let mediaKey = cachedMediaKey;
+      if (!mediaKey) {
+        mediaKey = await uploadFileViaPresign(selectedFile, "whiteboardVideo", user?.id || "guest");
+        setCachedMediaKey(mediaKey);
+      }
+      
+      const res = await fetch("/api/reels/plan-whiteboard", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          audioUrl: mediaKey,
+          transcript,
+          words,
+          durationSeconds: audioDurationSeconds,
+        })
+      });
+      
+      const data = await res.json();
+      if (data.success && data.plan) {
+        setPlan(data.plan);
+        if (data.words && data.words.length > 0) setWords(data.words);
+        setStudioStep("storyboard");
+      } else {
+        setTranscriptionError(data.error || "Failed to plan storyboard");
+      }
+    } catch(err: any) {
+      setTranscriptionError(err?.message || "Network error planning storyboard.");
+    } finally {
+      setIsPlanning(false);
+    }
+  };
 
   const handleStartRender = async () => {
     if (!user) {
@@ -457,7 +500,7 @@ export default function WhiteboardVideoPage() {
               <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-[#111218] px-4 py-2 text-xs shadow-sm">
                 <span className="h-2 w-2 rounded-full bg-emerald-500" />
                 <span className="font-bold text-zinc-300">
-                  {billingEntitlement.usage ? `⚡ Balance: ${billingEntitlement.usage.remaining} Credits` : "Active"}
+                  {billingEntitlement.usage ? ` Balance: ${billingEntitlement.usage.remaining} Credits` : "Active"}
                 </span>
               </div>
             )}
@@ -554,6 +597,12 @@ export default function WhiteboardVideoPage() {
                 markerColor={markerColor}
                 onMarkerColorChange={setMarkerColor}
                 onGenerate={handleStartRender}
+                  onPlanStoryboard={handlePlanStoryboard}
+                  isPlanning={isPlanning}
+                  plan={plan}
+                  setPlan={setPlan}
+                  studioStep={studioStep}
+                  setStudioStep={setStudioStep}
                 isGenerating={isSubmitting || jobStatus.state !== "idle"}
               />
             )}

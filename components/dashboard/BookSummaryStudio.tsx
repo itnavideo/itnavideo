@@ -41,11 +41,11 @@ interface BookSummaryStudioProps {
 }
 
 const TOPIC_PRESETS = [
-  { label: '💰 Wealth & Compounding', value: 'wealth' },
-  { label: '⚡ Habits & Productivity', value: 'habits' },
-  { label: '🧠 Mindset & Psychology', value: 'psychology' },
-  { label: '🚀 Business & Leadership', value: 'business' },
-  { label: '🧘 Philosophy & Focus', value: 'philosophy' },
+  { label: ' Wealth & Compounding', value: 'wealth' },
+  { label: ' Habits & Productivity', value: 'habits' },
+  { label: ' Mindset & Psychology', value: 'psychology' },
+  { label: ' Business & Leadership', value: 'business' },
+  { label: ' Philosophy & Focus', value: 'philosophy' },
 ];
 
 export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
@@ -99,7 +99,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
   const effectiveDuration = audioDuration > 0 ? audioDuration : (durationSeconds || 60);
   const calculatedCredits = Math.max(1, Math.min(10, Math.ceil(effectiveDuration / 60)));
 
-  // ─── S3 & Cloudinary Upload Helpers ───────────────────────────────────────
+  //  S3 & Cloudinary Upload Helpers 
   const uploadAudioToS3 = async (file: File): Promise<{ key: string; readUrl: string }> => {
     const contentType = file.type || 'audio/mpeg';
 
@@ -147,7 +147,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
     return data.url;
   };
 
-  // ─── Handle Audio Selection & Instant Duration Detection ──────────────────
+  //  Handle Audio Selection & Instant Duration Detection 
   const handleAudioSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -243,7 +243,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
     }
   };
 
-  // ─── Step 1 -> Step 2: Run Storyboard Analysis API ────────────────────────
+  //  Step 1 -> Step 2: Run Storyboard Analysis API 
   const handleAnalyzeAndBuildStoryboard = async () => {
     if (!audioUrl) {
       setInputError('Audio narration file is required to create a Book Summary Video.');
@@ -297,7 +297,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
     }
   };
 
-  // ─── Storyboard editing helpers ───────────────────────────────────────────
+  //  Storyboard editing helpers 
   const handleUpdateSceneText = (sceneId: string, newText: string) => {
     if (!plan) return;
     setPlan({
@@ -341,7 +341,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
       startSeconds: Math.max(0, start),
       endSeconds: Math.min(maxDur, start + 3.5),
       text: 'Key Principle or Takeaway',
-      subtitle: bookTitle ? `Key Insight — ${bookTitle}` : 'Core Concept',
+      subtitle: bookTitle ? `Key Insight  ${bookTitle}` : 'Core Concept',
     };
     setPlan({
       ...plan,
@@ -349,7 +349,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
     });
   };
 
-  // ─── Step 2 -> Step 3: Trigger Final Video Render Job ────────────────────
+  //  Step 2 -> Step 3: Trigger Final Video Render Job 
   const handleStartFinalRender = () => {
     if (!plan || !onStartRender || isSubmittingRender) return;
 
@@ -390,7 +390,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  // ─── Render Active Cloud Render View ──────────────────────────────────────
+  //  Render Active Cloud Render View 
   if (studioStep === 'rendering' && renderStatus && renderStatus.state !== 'idle') {
     return (
       <div className="w-full space-y-8">
@@ -505,7 +505,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
               </span>
             </div>
             <p className="text-[11px] sm:text-xs text-slate-400 leading-tight mt-0.5">
-              1080p Landscape • Structured AI Chapters • {calculatedCredits} Credit{calculatedCredits > 1 ? 's' : ''} (1 Min = 1 Cr)
+              1080p Landscape  Structured AI Chapters  {calculatedCredits} Credit{calculatedCredits > 1 ? 's' : ''} (1 Min = 1 Cr)
             </p>
           </div>
         </div>
@@ -573,7 +573,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                     </div>
                     <div>
                       <span className="text-sm font-black uppercase tracking-wider text-white">Audio Narration</span>
-                      <p className="text-[11px] text-slate-400">Spoken book summary or chapter overview (Up to 10 min)</p>
+                      <p className="text-[11px] text-slate-400">Spoken book summary or chapter overview (Up to 5 min)</p>
                     </div>
                   </div>
                   <span className="text-[11px] font-extrabold uppercase bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 px-3 py-1 rounded-full">
@@ -603,7 +603,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                       <p className="text-sm font-bold text-white">
                         {isUploadingAudio ? 'Uploading Narration Audio...' : 'Click to Upload Narration Audio'}
                       </p>
-                      <p className="text-xs text-slate-400 mt-1">MP3, WAV, M4A, or MP4 audio • Max 10 Minutes (600s)</p>
+                      <p className="text-xs text-slate-400 mt-1">MP3, WAV, M4A, or MP4 audio  Max 5 Minutes (300s)</p>
                       <span className="inline-block mt-2 font-mono text-[11px] text-orange-400/90 bg-orange-500/10 px-2.5 py-0.5 rounded-full border border-orange-500/20">
                         1 Min = 1 Credit
                       </span>
@@ -622,7 +622,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                             <span className="font-mono text-xs font-bold text-emerald-400">
                               {formatTime(audioDuration || durationSeconds)} / 10:00 Max
                             </span>
-                            <span className="text-slate-500">•</span>
+                            <span className="text-slate-500"></span>
                             <span className="text-xs font-bold text-amber-300">
                               {calculatedCredits} Credit{calculatedCredits > 1 ? 's' : ''} Cost
                             </span>
@@ -1005,10 +1005,18 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                           ? 'bg-blue-500/20 text-blue-300 border border-blue-500/40'
                           : scene.type === 'BOOK_COVER'
                           ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                          : scene.type === 'COMPARISON'
+                          ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
+                          : scene.type === 'KEY_STEPS'
+                          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
+                          : scene.type === 'STAT_INSIGHT'
+                          ? 'bg-orange-500/20 text-orange-300 border border-orange-500/40'
+                          : scene.type === 'CONCLUSION'
+                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
                           : 'bg-white/5 text-slate-400 border border-white/10'
                       }`}
                     >
-                      {scene.type}
+                      {scene.type === 'KEY_STEPS' ? '3-STEP ROADMAP' : scene.type}
                     </span>
 
                     {scene.subtitle && (
@@ -1079,7 +1087,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
               onClick={() => setStudioStep('inputs')}
               className="w-full sm:w-auto rounded-xl border border-white/10 bg-white/5 px-6 py-3.5 text-sm font-bold text-slate-300 hover:bg-white/10 transition cursor-pointer"
             >
-              ← Back to Media Setup
+               Back to Media Setup
             </button>
 
             <button

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="Oracle Instance (SGA + Background Processes)">
+  <!-- Itnavideo Database Asset: Oracle Instance (SGA + Background Processes) -->
+  <rect x="12" y="16" width="96" height="88" rx="14" fill="#0F172A" stroke="#38BDF8" stroke-width="2.5" stroke-dasharray="6 4" />
+      <rect x="22" y="26" width="76" height="34" rx="8" fill="#1E293B" stroke="#0284C7" stroke-width="2" />
+      <text x="60" y="48" fill="#38BDF8" font-size="12" font-family="sans-serif" font-weight="900" text-anchor="middle">SGA MEMORY</text>
+      <circle cx="34" cy="80" r="12" fill="#F97316" stroke="#C2410C" stroke-width="2" />
+      <text x="34" y="84" fill="#FFFFFF" font-size="8" font-family="sans-serif" font-weight="bold" text-anchor="middle">PMON</text>
+      <circle cx="60" cy="80" r="12" fill="#F97316" stroke="#C2410C" stroke-width="2" />
+      <text x="60" y="84" fill="#FFFFFF" font-size="8" font-family="sans-serif" font-weight="bold" text-anchor="middle">SMON</text>
+      <circle cx="86" cy="80" r="12" fill="#F97316" stroke="#C2410C" stroke-width="2" />
+      <text x="86" y="84" fill="#FFFFFF" font-size="8" font-family="sans-serif" font-weight="bold" text-anchor="middle">DBWn</text>
+</svg>

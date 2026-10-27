@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="OGG Remote Trail File">
+  <!-- Itnavideo Database Asset: OGG Remote Trail File -->
+  <rect x="30" y="18" width="60" height="72" rx="8" fill="#0C4A6E" stroke="#38BDF8" stroke-width="2.5" />
+      <text x="60" y="38" fill="#38BDF8" font-size="8" font-family="sans-serif" font-weight="900" text-anchor="middle">REMOTE TRAIL</text>
+      <text x="60" y="52" fill="#FFFFFF" font-size="7" font-family="monospace" text-anchor="middle">./dirdat/rt000001</text>
+      <line x1="40" y1="64" x2="80" y2="64" stroke="#0369A1" stroke-width="2" />
+      <line x1="40" y1="74" x2="70" y2="74" stroke="#0369A1" stroke-width="2" />
+      <text x="60" y="106" fill="#BAE6FD" font-size="7" font-family="sans-serif" text-anchor="middle">Target Staging Trail</text>
+</svg>

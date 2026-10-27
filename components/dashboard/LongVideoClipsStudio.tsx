@@ -62,7 +62,7 @@ export const CLIPS_CAPTION_PRESETS = [
     id: "hormozi-pop",
     name: "Hormozi Pop",
     desc: "Yellow & green word highlights with rapid scale pops",
-    badge: "🔥 Most Viral",
+    badge: " Most Viral",
     previewText: "VIRAL HOOK",
     previewStyle: "bg-[#FFE600] text-black font-black tracking-tight uppercase px-2 py-0.5 rounded shadow-lg",
   },
@@ -70,7 +70,7 @@ export const CLIPS_CAPTION_PRESETS = [
     id: "mrbeast-impact",
     name: "MrBeast Impact",
     desc: "Heavy bold white text with thick black outline stroke",
-    badge: "⚡ High Retention",
+    badge: " High Retention",
     previewText: "BIG MOMENT!",
     previewStyle: "text-white font-black tracking-wider uppercase drop-shadow-[0_4px_8px_rgba(0,0,0,1)]",
   },
@@ -78,7 +78,7 @@ export const CLIPS_CAPTION_PRESETS = [
     id: "submagic-glow",
     name: "Submagic Glow",
     desc: "Cyan & orange neon gradient glow with smooth box pop",
-    badge: "✨ Cyber Neon",
+    badge: " Cyber Neon",
     previewText: "NEXT LEVEL",
     previewStyle: "text-cyan-300 font-extrabold tracking-wide uppercase drop-shadow-[0_0_12px_rgba(0,229,255,0.8)]",
   },
@@ -86,7 +86,7 @@ export const CLIPS_CAPTION_PRESETS = [
     id: "minimal-clean",
     name: "Minimal Clean",
     desc: "Crisp white typography on soft dark glass backdrop",
-    badge: "📐 Editorial",
+    badge: " Editorial",
     previewText: "Clean Insights",
     previewStyle: "text-white font-semibold tracking-normal bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10",
   },
@@ -94,7 +94,7 @@ export const CLIPS_CAPTION_PRESETS = [
     id: "none",
     name: "No Captions",
     desc: "Clean raw video export without subtitle overlays",
-    badge: "🔇 Raw Video",
+    badge: " Raw Video",
     previewText: "No Captions",
     previewStyle: "text-zinc-500 font-medium italic text-xs",
   },
@@ -174,7 +174,7 @@ export function LongVideoClipsStudio({
         <div className="flex items-center gap-2 shrink-0">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#161720] px-3 py-1.5 text-xs font-bold text-slate-300">
             <Clock3 size={13} className="text-[#FF7043]" />
-            <span>Input: Up to 3 Hours • Output: 9:16 Shorts</span>
+            <span>Input: Up to 3 Hours  Output: 9:16 Shorts</span>
           </span>
         </div>
       </div>
@@ -256,7 +256,7 @@ export function LongVideoClipsStudio({
                     <div className="min-w-0">
                       <p className="text-xs font-bold text-white truncate">{selectedFile.name}</p>
                       <p className="text-[10px] text-emerald-400 font-semibold mt-0.5">
-                        {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB • Ready for AI Slicing
+                        {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB  Ready for AI Slicing
                       </p>
                     </div>
                   </div>
@@ -472,8 +472,8 @@ export function LongVideoClipsStudio({
               {[
                 { val: "auto" as const, label: "AI Auto" },
                 { val: "under-30" as const, label: "Under 30s" },
-                { val: "30-60" as const, label: "30–60s" },
-                { val: "60-90" as const, label: "60–90s" },
+                { val: "30-60" as const, label: "3060s" },
+                { val: "60-90" as const, label: "6090s" },
               ].map((item) => {
                 const isActive = clipDuration === item.val || (item.val === "auto" && (!clipDuration || clipDuration === 0));
                 return (
@@ -561,7 +561,7 @@ export function LongVideoClipsStudio({
             {/* Top Watermark */}
             <div className="relative z-10 flex items-center justify-between">
               <span className="inline-flex items-center gap-1 rounded-full bg-black/80 px-2.5 py-0.5 text-[9px] font-black text-[#FFA000]">
-                <span>⚡ AI Viral Clip</span>
+                <span> AI Viral Clip</span>
               </span>
               <span className="text-[9px] font-mono text-zinc-400">
                 {layoutMode === "auto-speaker" ? "Auto-Speaker" : layoutMode === "split-screen" ? "Split-Screen" : "Fit 16:9"}
@@ -571,7 +571,7 @@ export function LongVideoClipsStudio({
             {/* Center Video Frame Mockup */}
             <div className="relative z-10 my-auto text-center space-y-3 px-1">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 border border-white/10 shadow-inner">
-                <span className="text-2xl animate-pulse">🎙️</span>
+                <span className="text-2xl animate-pulse"></span>
               </div>
               <div className="space-y-1">
                 <p className="text-[11px] font-black text-white line-clamp-2">
@@ -594,7 +594,7 @@ export function LongVideoClipsStudio({
             <div className="relative z-10 rounded-xl bg-black/80 p-2 backdrop-blur-sm space-y-1">
               <div className="flex items-center justify-between text-[9px] font-mono text-zinc-300">
                 <span>30-60s Clip</span>
-                <span className="text-[#FFA000]">1080×1920</span>
+                <span className="text-[#FFA000]">10801920</span>
               </div>
               <div className="h-1 w-full rounded-full bg-white/20 overflow-hidden">
                 <div className="h-full w-2/5 bg-gradient-to-r from-[#FF5722] to-[#FFA000] rounded-full" />
@@ -606,11 +606,11 @@ export function LongVideoClipsStudio({
           <div className="rounded-2xl border border-white/5 bg-black/40 p-4 space-y-2.5 text-xs">
             <div className="flex items-center justify-between text-slate-400">
               <span>Output Format</span>
-              <span className="font-bold text-white">9:16 Vertical (1080×1920)</span>
+              <span className="font-bold text-white">9:16 Vertical (10801920)</span>
             </div>
             <div className="flex items-center justify-between text-slate-400">
               <span>Clip Target Length</span>
-              <span className="font-bold text-white">30s–60s Viral Hooks</span>
+              <span className="font-bold text-white">30s60s Viral Hooks</span>
             </div>
             <div className="flex items-center justify-between text-slate-400">
               <span>Estimated Cost</span>

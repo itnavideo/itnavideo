@@ -1,22 +1,5 @@
-export const dynamic = "force-dynamic";
-
-import { Suspense } from "react";
-import KineticMotionPageClient from "@/components/dashboard/subpages/KineticMotionPageClient";
-import { Loader2 } from "lucide-react";
-
-function KMLoading() {
-  return (
-    <div className="min-h-screen bg-[#070B14] flex items-center justify-center gap-3">
-      <Loader2 className="h-7 w-7 animate-spin text-[#FF5722]" />
-      <span className="text-sm font-semibold text-slate-400">Loading Kinetic Motion Studio...</span>
-    </div>
-  );
-}
+import { redirect } from "next/navigation";
 
 export default function KineticMotionPage() {
-  return (
-    <Suspense fallback={<KMLoading />}>
-      <KineticMotionPageClient />
-    </Suspense>
-  );
+  redirect("/dashboard/auto-caption");
 }

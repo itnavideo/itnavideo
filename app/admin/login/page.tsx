@@ -39,7 +39,7 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md relative space-y-6">
         {/* Top Header */}
         <div className="flex items-center justify-between">
-          <BrandLogo size="sm" />
+          <BrandLogo size="sm" variant="light" />
           <Link
             href="/"
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"

@@ -55,13 +55,13 @@ function resolveFont(font?: string): string {
 function mapStyle(style?: string): SubtitleConfig['style'] {
   const map: Record<string, SubtitleConfig['style']> = {
     'Studio Clean': 'stacked',
-    'Karaoke Fill': 'karaoke',
+    'Karaoke Fill': 'shorts-karaoke',
     'One Word': 'one-word',
     'Bold Fire': 'big-bold',
     'Shorts Karaoke': 'shorts-karaoke',
     'Eclipse': 'highlight',
     'Hustle': 'bold-outline',
-    karaoke: 'karaoke',
+    karaoke: 'shorts-karaoke',
     stacked: 'stacked',
     'one-word': 'one-word',
     'big-bold': 'big-bold',

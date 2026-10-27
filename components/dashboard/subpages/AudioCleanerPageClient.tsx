@@ -557,7 +557,7 @@ export default function AudioCleanerPage() {
 
   return (
     <div className="min-h-screen bg-[#0B0D13] text-zinc-100 flex flex-col selection:bg-[#FF5722]/30 selection:text-[#FFA000] pb-12">
-      {/* ── Top Navigation Bar (Obsidian Charcoal Surface) ── */}
+      {/*  Top Navigation Bar (Obsidian Charcoal Surface)  */}
       <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0B0D13]/90 backdrop-blur-xl shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 sm:gap-4">
@@ -571,7 +571,7 @@ export default function AudioCleanerPage() {
 
             <div className="h-4 w-px bg-white/10" />
 
-            <BrandLogo size="sm" showBadge={false} />
+            <BrandLogo size="sm" showBadge={false} variant="dark" />
 
             <span className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-2.5 py-0.5 text-[11px] font-black text-[#FF9100]">
               <Sparkles size={11} className="text-[#FF9100]" />
@@ -596,7 +596,7 @@ export default function AudioCleanerPage() {
         </div>
       </header>
 
-      {/* ── Main Canvas ── */}
+      {/*  Main Canvas  */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Navigation & Unified Header Bar */}
         <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-6 shadow-2xl space-y-6">

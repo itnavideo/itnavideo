@@ -213,7 +213,6 @@ export const PRESET_ORDER = [
   "Crazy 2",
   "Spark",
   "Gamer",
-  "Cursive",
   "Discipline",
   "Kinetic",
   "Impact",
@@ -247,6 +246,12 @@ export const PRESET_ORDER = [
   "M3 Tonal Pill",
   "M3 Dynamic Chip",
   "M3 Elevated Card",
+  "Flame Gradient",
+  "Spectrum Shift",
+  "Chromatic Depth",
+  "Typewriter Reveal",
+  "Letter Wave",
+  "Soft Focus",
   "M3 Surface Outline",
   "M3 Primary Container",
   "Warikoo Black Card",
@@ -307,8 +312,6 @@ export const PRESET_ORDER = [
   "Cinema Depth 3D",
 ];
 
-export const SHORTS_PRESET_ORDER = PRESET_ORDER;
-
 export const LONG_FORM_PRESET_ORDER = [
   // ── Western 16:9 Creator Presets (USA, UK, Canada, Australia) ──
   "Ali Abdaal Clean Pill",
@@ -325,6 +328,12 @@ export const LONG_FORM_PRESET_ORDER = [
   "M3 Tonal Pill",
   "M3 Dynamic Chip",
   "M3 Elevated Card",
+  "Flame Gradient",
+  "Spectrum Shift",
+  "Chromatic Depth",
+  "Typewriter Reveal",
+  "Letter Wave",
+  "Soft Focus",
   "M3 Surface Outline",
   "M3 Primary Container",
   "Minimal Clean",
@@ -344,6 +353,24 @@ export const LONG_FORM_PRESET_ORDER = [
   "Neon Pulse",
 ];
 
+// Keep preset catalogs disjoint by output aspect ratio.
+// Curated Auto Caption selection. Legacy entries stay registered for saved renders.
+export const SHORTS_PRESET_ORDER = [
+  "MrBeast Shorts Impact",
+  "Shorts Karaoke",
+  "Submagic Glow",
+  "Spark",
+  "Story",
+  "M3 Tonal Pill",
+  "M3 Dynamic Chip",
+  "M3 Elevated Card",
+  "Flame Gradient",
+  "Spectrum Shift",
+  "Chromatic Depth",
+  "Typewriter Reveal",
+  "Letter Wave",
+  "Soft Focus",
+].filter((key) => Boolean(REMOTION_SUBTITLE_PRESETS[key]));
 /** Categories for filtering in the dashboard */
 export const STYLE_CATEGORIES = [
   { id: 'all', label: 'All Styles' },
@@ -1176,7 +1203,7 @@ export const PREVIEW_CONFIG: Record<string, CaptionStylePreviewConfig> = {
   },
 };
 
-const PRESETS: PresetOption[] = PRESET_ORDER.flatMap((key) => {
+const PRESETS: PresetOption[] = Array.from(new Set(PRESET_ORDER)).flatMap((key) => {
   const preset = REMOTION_SUBTITLE_PRESETS[key];
   if (!preset) return [];
   return {
@@ -1199,9 +1226,15 @@ interface SubtitleStylePickerProps {
 }
 
 export function SubtitleStylePicker({ value, onChange, variant = "shorts" }: SubtitleStylePickerProps) {
+  const availablePresets = React.useMemo(
+    () => variant === "longForm"
+      ? PRESETS.filter((preset) => LONG_FORM_PRESET_ORDER.includes(preset.key))
+      : PRESETS.filter((preset) => SHORTS_PRESET_ORDER.includes(preset.key)),
+    [variant]
+  );
   const selectedPreset = React.useMemo(() => {
-    return PRESETS.find((p) => p.key === value || p.style === value) || PRESETS[0];
-  }, [value]);
+    return availablePresets.find((p) => p.key === value || p.style === value) || availablePresets[0];
+  }, [availablePresets, value]);
 
   const [playingKey, setPlayingKey] = React.useState<string>(() => {
     return selectedPreset?.key || "Sharp Yellow";
@@ -1218,14 +1251,9 @@ export function SubtitleStylePicker({ value, onChange, variant = "shorts" }: Sub
     }
   }, [selectedPreset?.key]);
 
-  const presets = variant === "longForm"
-    ? PRESETS.filter((preset) =>
-        LONG_FORM_PRESET_ORDER.includes(preset.key) &&
-        (activeCategory === "all" || getStyleCategory(preset.key) === activeCategory)
-      )
-    : activeCategory === "all"
-      ? PRESETS
-      : PRESETS.filter((preset) => getStyleCategory(preset.key) === activeCategory);
+  const presets = availablePresets.filter(
+    (preset) => activeCategory === "all" || getStyleCategory(preset.key) === activeCategory
+  );
 
   return (
     <>
@@ -1369,12 +1397,12 @@ function CaptionStylePreviewCard({
       {variant === "longForm" && PREVIEW_LONG_FORM_VIDEO_URL ? (
         <div className="relative w-full aspect-video rounded-xl bg-[#090D16] overflow-hidden flex items-center justify-center border border-slate-800/80 shadow-inner group">
           <video
-            src={catalogItem.previewVideoUrl || PREVIEW_LONG_FORM_VIDEO_URL}
+            src={PREVIEW_LONG_FORM_VIDEO_URL}
             playsInline
             loop
             muted
             autoPlay
-            poster={catalogItem.posterUrl || PREVIEW_LONG_FORM_POSTER_URL}
+            poster={PREVIEW_LONG_FORM_POSTER_URL}
             className="h-full w-full object-cover"
           />
           {/* Dark scrim overlay for subtitle readability */}
@@ -1514,6 +1542,29 @@ export function CaptionPreviewText({
   const textStyle = getTextStyle(preset, style);
   const sampleLines = chunk?.sampleLines || config.sampleLines || ["VIRAL CAPTIONS", "THAT POP"];
   const finalActiveWord = activeWord || chunk?.activeWord || config.activeWord || "VIRAL";
+
+  if (style.startsWith("github-")) {
+    const previewCopy = sampleLines.join(" ");
+    const variantStyle: React.CSSProperties = style === "github-flame-gradient"
+      ? { color: "transparent", backgroundImage: "linear-gradient(90deg, #ff5722, #ffd166, #ff8a00)", backgroundClip: "text", WebkitBackgroundClip: "text", filter: "drop-shadow(0 2px 6px #111)" }
+      : style === "github-spectrum-shift"
+        ? { color: "#d8b4fe", textShadow: "0 0 12px currentColor", filter: `hue-rotate(${Math.round(playbackTime * 55)}deg)` }
+        : style === "github-chromatic-depth"
+          ? { color: "#f8fafc", textShadow: "-2px 0 #ff3158, 2px 0 #00e5ff, 0 3px 8px #000" }
+          : style === "github-typewriter-reveal"
+            ? { color: "#fff", fontFamily: "ui-monospace, monospace", clipPath: `inset(0 ${isPlaying ? Math.max(0, 75 - (playbackTime % 2) * 45) : 0}% 0 0)` }
+            : style === "github-soft-focus"
+              ? { color: "#fff", fontFamily: "Georgia, serif", fontWeight: 600, filter: `blur(${isPlaying ? Math.max(0, 1.5 - (playbackTime % 1) * 3) : 0}px)`, textShadow: "0 2px 10px #000" }
+              : { color: "#fff", textShadow: "0 3px 10px #000" };
+
+    return (
+      <div className="max-w-full break-words text-center text-[13px] sm:text-[15px] md:text-[17px] font-black leading-tight" style={{ ...textStyle, ...variantStyle }}>
+        {style === "github-letter-wave"
+          ? [...previewCopy].map((char, index) => <span key={`${index}-${char}`} className="inline-block" style={{ transform: `translateY(${Math.sin(playbackTime * 5 + index * 0.45) * (isPlaying ? 2 : 0)}px)` }}>{char === " " ? "\u00a0" : char}</span>)
+          : previewCopy}
+      </div>
+    );
+  }
 
   if (layout === "one-word") {
     const displayWord = isPlaying

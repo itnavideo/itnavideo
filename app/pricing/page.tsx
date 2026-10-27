@@ -5,18 +5,18 @@ import PricingSection from "@/components/landing/PricingSection";
 import PricingComparisonTable from "@/components/billing/PricingComparisonTable";
 
 export const metadata: Metadata = {
-  title: "Pricing — Monthly AI Video Plans | Itnavideo",
-  description: "Affordable monthly AI Video plans starting at $9/month (₹499) for Shorts and $19/month (₹999) for Shorts + Widescreen YouTube Videos.",
+  title: "Pricing — Creator & Agency AI Video Plans | Itnavideo",
+  description: "Flexible AI Video plans starting at $19.99/mo (get 2 months free with annual billing) for 100 Credits (100 Shorts or twenty 5-minute Long Videos).",
   alternates: { canonical: "/pricing" },
   openGraph: {
-    title: "Pricing — Monthly AI Video Plans | Itnavideo",
-    description: "Simple monthly plans: Basic ($9 / ₹499), Growth ($19 / ₹999), and Pro Agency ($39 / ₹1,999). Free trial available.",
+    title: "Pricing — Creator & Agency AI Video Plans | Itnavideo",
+    description: "Paid creator plans: Starter ($19.99/mo), Growth ($39.99/mo), and Pro Agency ($79.99/mo) with 2 months free on annual billing.",
     images: ["/og-image.png"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Pricing — Monthly AI Video Plans | Itnavideo",
-    description: "Affordable monthly video packs starting at $9 / ₹499. Dedicated studios for Shorts and Widescreen Faceless Video.",
+    title: "Pricing — Creator & Agency AI Video Plans | Itnavideo",
+    description: "Paid creator video packs starting at $19.99/mo (2 months free on annual). 10+ dedicated studios for 9:16 Shorts and 16:9 Cinema.",
     images: ["/og-image.png"],
   },
 };

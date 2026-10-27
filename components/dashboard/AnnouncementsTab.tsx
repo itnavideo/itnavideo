@@ -16,7 +16,7 @@ import {
 export default function AnnouncementsTab() {
   const updates = [
     {
-      version: "v2.8.0 • Cloud Engine Upgrade",
+      version: "v2.8.0  Cloud Engine Upgrade",
       date: "September 2026",
       title: "1080p Full HD Cloud Rendering",
       badge: "Performance",
@@ -25,13 +25,13 @@ export default function AnnouncementsTab() {
         "All 10 creation studios now render directly on our dedicated serverless cloud render fleet. Export 1080p Full HD 30/60 FPS MP4 videos in ~30 seconds without putting any CPU or RAM stress on your laptop.",
       highlights: [
         "Zero local rendering lag or memory freezing",
-        "Crisp 1080×1920 (Shorts) and 1920×1080 (Cinema) outputs",
+        "Crisp 10801920 (Shorts) and 19201080 (Cinema) outputs",
         "48-hour secure cloud asset lifecycle",
       ],
       icon: Zap,
     },
     {
-      version: "v2.7.4 • Safe Zone Physics",
+      version: "v2.7.4  Safe Zone Physics",
       date: "September 2026",
       title: "Automated Instagram Reels Safe-Zone Calibration",
       badge: "Algorithm",
@@ -46,7 +46,7 @@ export default function AnnouncementsTab() {
       icon: ShieldCheck,
     },
     {
-      version: "v2.6.0 • Financial Documentaries",
+      version: "v2.6.0  Financial Documentaries",
       date: "September 2026",
       title: "POV Finance & Compare Explainer Studio",
       badge: "New Studio",
@@ -61,7 +61,7 @@ export default function AnnouncementsTab() {
       icon: Film,
     },
     {
-      version: "v2.5.2 • Audio AI",
+      version: "v2.5.2  Audio AI",
       date: "September 2026",
       title: "AI Audio Cleaner with Retake Detection",
       badge: "Studio Audio",

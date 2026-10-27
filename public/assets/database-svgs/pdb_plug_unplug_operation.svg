@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="PDB Plug & Unplug Operation">
+  <!-- Itnavideo Database Asset: PDB Plug & Unplug Operation -->
+  <rect x="14" y="28" width="40" height="48" rx="6" fill="#1E293B" stroke="#F59E0B" stroke-width="2" />
+      <text x="34" y="54" fill="#FDE68A" font-size="7" font-family="sans-serif" font-weight="bold" text-anchor="middle">UNPLUG</text>
+      <path d="M 54 52 h 12 l -3 -3 M 66 52 l -3 3" fill="none" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round" />
+      <rect x="66" y="28" width="40" height="48" rx="6" fill="#1E293B" stroke="#22C55E" stroke-width="2" />
+      <text x="86" y="54" fill="#86EFAC" font-size="7" font-family="sans-serif" font-weight="bold" text-anchor="middle">PLUG</text>
+      <text x="60" y="96" fill="#FACC15" font-size="8" font-family="sans-serif" font-weight="900" text-anchor="middle">PDB MOBILITY</text>
+</svg>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="B-Tree Index Structure">
+  <!-- Itnavideo Database Asset: B-Tree Index Structure -->
+  <rect x="46" y="14" width="28" height="18" rx="4" fill="#4338CA" stroke="#A5B4FC" stroke-width="2" />
+      <text x="60" y="26" fill="#FFFFFF" font-size="7.5" font-family="sans-serif" font-weight="bold" text-anchor="middle">ROOT</text>
+      <path d="M 50 32 L 32 46 M 70 32 L 88 46" stroke="#818CF8" stroke-width="2" />
+      <rect x="18" y="46" width="28" height="18" rx="4" fill="#3730A3" stroke="#A5B4FC" stroke-width="1.5" />
+      <text x="32" y="58" fill="#FFFFFF" font-size="6.5" font-family="sans-serif" text-anchor="middle">BRANCH</text>
+      <rect x="74" y="46" width="28" height="18" rx="4" fill="#3730A3" stroke="#A5B4FC" stroke-width="1.5" />
+      <text x="88" y="58" fill="#FFFFFF" font-size="6.5" font-family="sans-serif" text-anchor="middle">BRANCH</text>
+      <path d="M 24 64 L 16 78 M 40 64 L 46 78 M 80 64 L 74 78 M 96 64 L 104 78" stroke="#818CF8" stroke-width="1.5" />
+      <rect x="8" y="78" width="20" height="24" rx="3" fill="#1E1B4B" stroke="#818CF8" stroke-width="1" />
+      <rect x="36" y="78" width="20" height="24" rx="3" fill="#1E1B4B" stroke="#818CF8" stroke-width="1" />
+      <rect x="64" y="78" width="20" height="24" rx="3" fill="#1E1B4B" stroke="#818CF8" stroke-width="1" />
+      <rect x="92" y="78" width="20" height="24" rx="3" fill="#1E1B4B" stroke="#818CF8" stroke-width="1" />
+      <text x="60" y="112" fill="#C7D2FE" font-size="7" font-family="sans-serif" font-weight="bold" text-anchor="middle">LEAF BLOCKS + ROWIDs</text>
+</svg>

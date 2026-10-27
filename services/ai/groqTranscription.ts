@@ -430,8 +430,8 @@ function runFfmpeg(command: string, args: string[]) {
   });
 }
 
-function safeFileName(fileName: string, contentType?: string) {
-  const cleanName = fileName.replace(/[^\w.\-() ]/g, '').trim();
+function safeFileName(fileName?: string, contentType?: string) {
+  const cleanName = String(fileName || 'media.mp3').replace(/[^\w.\-() ]/g, '').trim();
   if (cleanName && /\.[a-z0-9]+$/i.test(cleanName)) return cleanName;
   const baseName = cleanName.replace(/\.+$/, '') || 'media';
   if (contentType?.includes('mp4')) return `${baseName}.mp4`;

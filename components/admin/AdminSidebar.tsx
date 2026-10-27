@@ -24,7 +24,7 @@ export default function AdminSidebar() {
       {/* Brand & Logo */}
       <div className="px-2 pt-1 pb-6 border-b border-slate-100 flex items-center justify-between">
         <Link href="/admin/dashboard">
-          <BrandLogo size="md" showTagline={false} />
+          <BrandLogo size="md" showTagline={false} variant="light" />
         </Link>
         <button
           onClick={() => setIsOpen(false)}
@@ -90,7 +90,7 @@ export default function AdminSidebar() {
     <>
       {/* Mobile Header Bar */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-white border-b border-slate-200/80 px-4 py-3 flex items-center justify-between shadow-2xs">
-        <BrandLogo size="sm" />
+        <BrandLogo size="sm" variant="light" />
         <button
           onClick={() => setIsOpen(true)}
           className="p-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200"

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="OCR (Oracle Cluster Registry)">
+  <!-- Itnavideo Database Asset: OCR (Oracle Cluster Registry) -->
+  <polygon points="60,16 98,36 98,84 60,104 22,84 22,36" fill="#1E1B4B" stroke="#818CF8" stroke-width="2.5" />
+      <text x="60" y="52" fill="#FFFFFF" font-size="12" font-family="sans-serif" font-weight="900" text-anchor="middle">OCR</text>
+      <text x="60" y="66" fill="#C7D2FE" font-size="7" font-family="sans-serif" font-weight="bold" text-anchor="middle">CLUSTER CONFIG</text>
+      <circle cx="60" cy="78" r="4" fill="#38BDF8" />
+</svg>

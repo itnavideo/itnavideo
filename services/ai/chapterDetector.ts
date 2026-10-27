@@ -37,8 +37,8 @@ export function detectChaptersFromTranscript(
     if (startIdx >= totalChunks) break;
 
     const chunk = transcript[startIdx];
-    const text = chunk.text.trim();
-    const words = text.split(/\s+/).map((w) => w.replace(/[^\w]/g, ''));
+    const text = String(chunk?.text || '').trim();
+    const words = text ? text.split(/\s+/).map((w) => (w || '').replace(/[^\w]/g, '')).filter(Boolean) : [];
     const topic = words.slice(0, 4).join(' ').toUpperCase() || `TOPIC 0${i + 1}`;
 
     const startFrame = Math.floor(chunk.start * fps);

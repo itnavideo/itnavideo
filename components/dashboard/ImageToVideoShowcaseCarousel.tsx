@@ -163,7 +163,7 @@ export function ImageToVideoShowcaseCarousel() {
           </div>
           <div>
             <h3 className="text-sm sm:text-base font-extrabold text-white flex items-center gap-2">
-              <span>Image to Video AI — Live Showcase</span>
+              <span>Image to Video AI  Live Showcase</span>
               <span className="text-[10px] font-bold text-[#FFA000] bg-[#FF5722]/10 border border-[#FF5722]/30 px-2 py-0.5 rounded-full">
                 1080p Full HD
               </span>
@@ -172,7 +172,7 @@ export function ImageToVideoShowcaseCarousel() {
         </div>
 
         <span className="text-[11px] font-semibold text-zinc-400 hidden sm:inline-block">
-          Hover to pause • Click to play demo
+          Hover to pause  Click to play demo
         </span>
       </div>
 

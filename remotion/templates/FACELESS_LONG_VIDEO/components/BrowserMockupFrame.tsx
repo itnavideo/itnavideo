@@ -10,15 +10,7 @@ export interface BrowserMockupFrameProps {
   style?: React.CSSProperties;
 }
 
-const resolveMediaSrc = (src?: string) => {
-  if (!src) return '';
-  return /^(https?:|data:|blob:)/i.test(src) ? src : staticFile(src.replace(/^\/+/, ''));
-};
-
-const isVideo = (src?: string) => {
-  if (!src) return false;
-  return /\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(src) || src.includes('video');
-};
+import { safeResolveMediaSrc, isVideoMedia } from '../../../utils/safeMedia';
 
 export function BrowserMockupFrame({
   src,
@@ -31,8 +23,8 @@ export function BrowserMockupFrame({
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const resolvedSrc = resolveMediaSrc(src);
-  const isVid = type === 'video' || isVideo(src);
+  const resolvedSrc = safeResolveMediaSrc(src);
+  const isVid = type === 'video' || isVideoMedia(src);
 
   // Smooth Vox/Johnny Harris style Pan & Scan / Ken Burns calculation
   const scale = zoomEffect === 'ken-burns'

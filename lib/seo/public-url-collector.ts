@@ -143,6 +143,78 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
       priority: 0.92,
     },
     {
+      path: "/tools/image-to-video-ai",
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.92,
+    },
+    {
+      path: "/book-summary",
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.95,
+    },
+    {
+      path: "/image-to-video-ai",
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.95,
+    },
+    {
+      path: "/ai-audio-cleaner",
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.92,
+    },
+    {
+      path: "/auto-caption",
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.95,
+    },
+    {
+      path: "/voice-synced-notes",
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.88,
+    },
+    {
+      path: "/video-types/book-summary",
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      path: "/video-types/youtube-subtitle-generator",
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      path: "/video-types/ai-audio-cleaner",
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.88,
+    },
+    {
+      path: "/video-types/voice-synced-notes",
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.88,
+    },
+    {
+      path: "/video-types/long-caption-pro",
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.88,
+    },
+    {
+      path: "/video-types/long-video-pro",
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.88,
+    },
+    {
       path: "/video-types/ai-video-generator",
       lastModified: now,
       changeFrequency: "weekly",
@@ -307,12 +379,21 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
   ];
 
   const publishedPosts = await getAllPublishedBlogPostsAsync();
-  const blogRoutes: PublicSitemapUrl[] = publishedPosts.map((post) => ({
-    path: `/blog/${post.slug}`,
-    lastModified: new Date(post.date),
-    changeFrequency: "monthly",
-    priority: 0.72,
-  }));
+  const blogRoutes: PublicSitemapUrl[] = publishedPosts.map((post) => {
+    let lastMod = now;
+    if (post.date) {
+      const d = new Date(post.date);
+      if (!isNaN(d.getTime())) {
+        lastMod = d;
+      }
+    }
+    return {
+      path: `/blog/${post.slug}`,
+      lastModified: lastMod,
+      changeFrequency: "weekly",
+      priority: 0.75,
+    };
+  });
 
   const cmsPageRoutes = await getPublishedCmsPageRoutes();
 

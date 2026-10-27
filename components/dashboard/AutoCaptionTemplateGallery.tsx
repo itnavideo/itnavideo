@@ -18,7 +18,6 @@ import {
 import { SUBTITLE_PRESETS } from "@/remotion/types/subtitles";
 import {
   SHORTS_PRESET_ORDER,
-  LONG_FORM_PRESET_ORDER,
 } from "@/components/ui/SubtitleStylePicker";
 import {
   ALL_STYLES_MASTER,
@@ -31,6 +30,9 @@ import {
   PODCAST_PRESETS,
   EDUCATIONAL_PRESETS,
   MINIMAL_PRESETS,
+  KIDS_PRESETS,
+  ANIMATION_2D_PRESETS,
+  ANIMATION_3D_PRESETS,
   getPresetCategoryLabel,
   getPresetVideoUrl,
   getPresetPosterUrl,
@@ -70,7 +72,7 @@ export function AutoCaptionTemplateGallery() {
   };
 
   const allStyles = useMemo(() => {
-    return Array.from(new Set([...SHORTS_PRESET_ORDER, ...LONG_FORM_PRESET_ORDER, ...ALL_STYLES_MASTER]));
+    return Array.from(new Set([...SHORTS_PRESET_ORDER, ...ALL_STYLES_MASTER]));
   }, []);
 
   const filteredStyles = useMemo(() => {
@@ -96,6 +98,9 @@ export function AutoCaptionTemplateGallery() {
       if (activeCategory === "podcast") return PODCAST_PRESETS.has(key);
       if (activeCategory === "educational") return EDUCATIONAL_PRESETS.has(key);
       if (activeCategory === "minimal") return MINIMAL_PRESETS.has(key);
+      if (activeCategory === "kids") return KIDS_PRESETS.has(key);
+      if (activeCategory === "animation2d") return ANIMATION_2D_PRESETS.has(key);
+      if (activeCategory === "animation3d") return ANIMATION_3D_PRESETS.has(key);
 
       return true;
     });
@@ -117,7 +122,7 @@ export function AutoCaptionTemplateGallery() {
 
             <div>
               <h1 className="text-lg sm:text-2xl font-black text-white font-jakarta flex items-center gap-2">
-                100+ Caption Template{" "}
+                Shorts Caption Template{" "}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000]">
                   Gallery
                 </span>
@@ -134,7 +139,7 @@ export function AutoCaptionTemplateGallery() {
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search 100+ styles or fonts..."
+                placeholder="Search Shorts styles or fonts..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full rounded-xl border border-white/10 bg-[#0E1526] pl-9 pr-8 py-2 text-xs font-semibold text-white placeholder-slate-400 focus:border-[#FF5722] focus:outline-none focus:ring-1 focus:ring-[#FF5722]/40 transition"

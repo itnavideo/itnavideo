@@ -244,46 +244,72 @@ export async function matchPexelsMediaForScenes(
   const maxItems = options.maxItems || 30;
 
   const targetScenes = scenes.slice(0, maxItems);
+  const usedMediaUrls = new Set<string>();
 
-  await Promise.all(
-    targetScenes.map(async (scene, idx) => {
-      const cleanTerm = (
-        scene.brollSearchQuery ||
-        scene.visualAssetRequirement ||
-        scene.visualIntent ||
-        scene.heading ||
-        ''
-      )
-        .replace(/[^a-zA-Z0-9\s]/g, ' ')
-        .trim();
+  // Process sequentially to guarantee zero duplicate assets across scenes
+  for (let idx = 0; idx < targetScenes.length; idx++) {
+    const scene = targetScenes[idx];
+    const cleanTerm = (
+      scene.brollSearchQuery ||
+      (scene as any).englishMeaning ||
+      scene.visualAssetRequirement ||
+      scene.visualIntent ||
+      scene.heading ||
+      ''
+    )
+      .replace(/[^a-zA-Z0-9\s]/g, ' ')
+      .trim();
 
-      if (!cleanTerm) return;
+    if (!cleanTerm) continue;
 
-      // Clean search tokens (take 1-3 most meaningful words)
-      const tokens = cleanTerm
-        .split(/\s+/)
-        .filter((t) => t.length > 2 && !['photo', 'video', 'cinematic', 'broll', 'none'].includes(t.toLowerCase()))
-        .slice(0, 3)
-        .join(' ');
+    // Clean search tokens (take 1-3 most meaningful words)
+    const tokens = cleanTerm
+      .split(/\s+/)
+      .filter((t: string) => t.length > 2 && !['photo', 'video', 'cinematic', 'broll', 'none'].includes(t.toLowerCase()))
+      .slice(0, 3)
+      .join(' ');
 
-      const searchQuery = tokens || cleanTerm;
+    const searchQuery = tokens || cleanTerm;
 
-      // Even scenes or preferVideo -> Try HD video first
-      if (preferVideo && idx % 2 === 0) {
-        const videos = await searchPexelsVideos(searchQuery, { orientation, perPage: 2 });
-        if (videos.length > 0 && videos[0].videoUrl) {
-          mediaMap[scene.sceneNumber] = videos[0].videoUrl;
-          return;
+    // 1. Try HD Video Clips
+    if (preferVideo) {
+      try {
+        let videos = await searchPexelsVideos(searchQuery, { orientation, perPage: 6 });
+        if (videos.length === 0) {
+          const fallbackThemes = ['cinematic nature landscape', 'wildlife animal nature', 'dramatic sky sunset', 'inspiring documentary', 'modern architecture'];
+          const fbQuery = fallbackThemes[idx % fallbackThemes.length];
+          videos = await searchPexelsVideos(fbQuery, { orientation, perPage: 6 });
         }
+        const availableVideos = videos.filter((v) => v.videoUrl && !usedMediaUrls.has(v.videoUrl));
+        if (availableVideos.length > 0) {
+          const chosenVideo = availableVideos[Math.floor(Math.random() * Math.min(3, availableVideos.length))];
+          usedMediaUrls.add(chosenVideo.videoUrl);
+          mediaMap[scene.sceneNumber] = chosenVideo.videoUrl;
+          continue;
+        }
+      } catch (err) {
+        console.warn(`[Pexels] Video search fallback for scene ${scene.sceneNumber}:`, err);
       }
+    }
 
-      // Photos fallback or alternate
-      const photos = await searchPexelsPhotos(searchQuery, { orientation, perPage: 3 });
-      if (photos.length > 0 && photos[0].imageUrl) {
-        mediaMap[scene.sceneNumber] = photos[0].imageUrl;
+    // 2. High-Definition Photos
+    try {
+      let photos = await searchPexelsPhotos(searchQuery, { orientation, perPage: 8 });
+      if (photos.length === 0) {
+        const fallbackThemes = ['nature landscape cinematic', 'wildlife bird nature', 'dramatic sunrise mountain', 'cinematic documentary'];
+        const fbQuery = fallbackThemes[idx % fallbackThemes.length];
+        photos = await searchPexelsPhotos(fbQuery, { orientation, perPage: 8 });
       }
-    })
-  );
+      const availablePhotos = photos.filter((p) => p.imageUrl && !usedMediaUrls.has(p.imageUrl));
+      if (availablePhotos.length > 0) {
+        const chosenPhoto = availablePhotos[Math.floor(Math.random() * Math.min(4, availablePhotos.length))];
+        usedMediaUrls.add(chosenPhoto.imageUrl);
+        mediaMap[scene.sceneNumber] = chosenPhoto.imageUrl;
+      }
+    } catch (err) {
+      console.warn(`[Pexels] Photo search error for scene ${scene.sceneNumber}:`, err);
+    }
+  }
 
   return mediaMap;
 }

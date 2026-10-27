@@ -211,3 +211,58 @@ export function trackPurchase(params: {
     ],
   });
 }
+
+// 5. Social Proof, Reviews & VC Engagement Metrics
+
+/**
+ * Triggered when social proof, testimonials or reviews are viewed by a user
+ */
+export function trackReviewView(params?: { source?: string; totalReviews?: number; averageRating?: number }) {
+  gtag('event', 'view_reviews', {
+    source: params?.source || 'landing_hero',
+    total_reviews: params?.totalReviews || 5240,
+    average_rating: params?.averageRating || 4.9,
+  });
+}
+
+/**
+ * Triggered when a creator submits a review or testimonial
+ */
+export function trackReviewSubmitted(params: {
+  rating: number;
+  reviewText?: string;
+  creatorType?: string;
+}) {
+  gtag('event', 'review_submitted', {
+    rating: params.rating,
+    review_snippet: params.reviewText ? params.reviewText.slice(0, 100) : undefined,
+    creator_type: params.creatorType || 'creator',
+    value: params.rating,
+  });
+}
+
+/**
+ * Triggered when a video showcase or demo player is viewed / played
+ */
+export function trackVideoPlayerView(params: {
+  videoType: string;
+  aspectRatio: string;
+  source: string;
+}) {
+  gtag('event', 'video_view', {
+    video_type: params.videoType,
+    aspect_ratio: params.aspectRatio,
+    source: params.source,
+  });
+}
+
+/**
+ * Real-time Active User Heartbeat (Ensures active users appear in GA4 Realtime)
+ */
+export function trackActiveUserPulse(page: string) {
+  gtag('event', 'active_pulse', {
+    active_page: page,
+    timestamp: Date.now(),
+  });
+}
+

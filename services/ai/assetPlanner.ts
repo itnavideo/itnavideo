@@ -98,46 +98,70 @@ export function generateCleanConceptHeading(text: string): string {
   const lower = (text || '').toLowerCase().trim();
 
   // 1. High-accuracy conceptual mapping for common explainers & Hindi/Hinglish speech
-  if (/\b(rooz|roz|din|daily|aadat|aadatein|routine|consistency|habit|habits|disciplin)\b/i.test(lower)) {
+  if (/\b(rooz|roz|din|daily|aadat|aadatein|routine|consistency|habit|habits|disciplin)\b|दिन|आदत|नियम|रोज|हर\s*दिन/i.test(lower)) {
     return 'DAILY HABITS & CONSISTENCY';
   }
-  if (/\b(sapne|sapna|lakshya|goal|goals|manzil|target|aim|vision|destin)\b/i.test(lower)) {
+  if (/\b(sapne|sapna|lakshya|goal|goals|manzil|target|aim|vision|destin)\b|सपना|सपने|लक्ष्य|मंजिल|दृष्टि|उद्देश्य/i.test(lower)) {
     return 'CLEAR GOALS & VISION';
   }
-  if (/\b(mehnat|effort|hard\s*work|koshish|lagan|practice|abhyas|consistent|struggle)\b/i.test(lower)) {
+  if (/\b(mehnat|effort|hard\s*work|koshish|lagan|practice|abhyas|consistent|struggle)\b|मेहनत|परिश्रम|कोशिश|प्रयास/i.test(lower)) {
     return 'POWER OF PERSISTENCE';
   }
-  if (/\b(soch|mindset|nazariya|focus|dhyan|concentration|mental|attitude)\b/i.test(lower)) {
+  if (/\b(soch|mindset|nazariya|focus|dhyan|concentration|mental|attitude)\b|सोच|नजरिया|ध्यान|विचार/i.test(lower)) {
     return 'FOCUSED MINDSET';
   }
-  if (/\b(safal|safalta|success|kamyab|kamyabi|winner|win|achieve|unlock)\b/i.test(lower)) {
+  if (/\b(safal|safalta|success|kamyab|kamyabi|winner|win|achieve|unlock)\b|सफलता|सफल|कामयाबी|जीत/i.test(lower)) {
     return 'THE ROAD TO SUCCESS';
   }
-  if (/\b(samay|waqt|time|future|bhavishya|sabr|patience|wait|years|salo|saal)\b/i.test(lower)) {
+  if (/\b(shunya|zero|scratch|beginning)\b|शून्य|शुरुआत|जीरो|शुरू/i.test(lower)) {
+    return 'STARTING FROM ZERO';
+  }
+  if (/\b(junoon|passion|fire|drive)\b|जुनून|लगन|हिम्मत|जोश/i.test(lower)) {
+    return 'RELENTLESS PASSION';
+  }
+  if (/\b(tulna|compare|comparison|others)\b|तुलना|दूसरों|मुकाबला/i.test(lower)) {
+    return 'FOCUS ON YOUR OWN LANE';
+  }
+  if (/\b(mushkil|obstacle|challenge|hardship|rukawat|problem)\b|मुश्किल|मुश्किलें|कठिनाई|रास्ते|रुकावट|परेशानी|सामना/i.test(lower)) {
+    return 'OVERCOMING OBSTACLES';
+  }
+  if (/\b(paise|money|resource|fund|capital|sansadhan)\b|पैसे|संसाधन|धन|रुपये|पूंजी/i.test(lower)) {
+    return 'STARTING WITH WHAT YOU HAVE';
+  }
+  if (/\b(aage|badhte|badhna|forward|move|momentum)\b|आगे|बढ़ते|बढ़ना|निरंतर/i.test(lower)) {
+    return 'KEEP MOVING FORWARD';
+  }
+  if (/\b(log|people|team|dost|saath)\b|लोग|टीम|साथी|दोस्त/i.test(lower)) {
+    return 'FINDING THE RIGHT PATH';
+  }
+  if (/\b(samay|waqt|time|future|bhavishya|sabr|patience|wait|years|salo|saal)\b|समय|वक्त|धैर्य|सब्र/i.test(lower)) {
     return 'PATIENCE & COMPOUNDING';
   }
-  if (/\b(darr|dar|fear|khauf|himmat|courage|confidence|brave|unshakable)\b/i.test(lower)) {
+  if (/\b(darr|dar|fear|khauf|himmat|courage|confidence|brave|unshakable)\b|डर|साहस|विश्वास|हिम्मत/i.test(lower)) {
     return 'UNSHAKABLE CONFIDENCE';
   }
-  if (/\b(seekho|seekhna|learn|learning|gyan|knowledge|read|kitab|book|study)\b/i.test(lower)) {
+  if (/\b(seekho|seekhna|learn|learning|gyan|knowledge|read|kitab|book|study)\b|सीखना|सीखो|ज्ञान|अध्ययन/i.test(lower)) {
     return 'CONTINUOUS LEARNING';
   }
-  if (/\b(galti|mistake|bhool|failure|haar|lose|loss|problem|challenge|trap)\b/i.test(lower)) {
+  if (/\b(galti|mistake|bhool|failure|haar|lose|loss|problem|challenge|trap)\b|गलती|असफलता|हार|विफलता/i.test(lower)) {
     return 'OVERCOMING MISTAKES';
   }
-  if (/\b(shuruat|shuru|start|beginning|pehla kadam|step|action|execute)\b/i.test(lower)) {
+  if (/\b(shuruat|shuru|start|beginning|pehla kadam|step|action|execute)\b|कदम|शुरुआत|शुरू|प्रारंभ/i.test(lower)) {
     return 'TAKING THE FIRST STEP';
   }
-  if (/\b(freedom|choose how you live|live on your terms|liberty)\b/i.test(lower)) {
+  if (/\b(bada|badi|big|huge|great|grand)\b|बड़ा|बड़ी|विशाल/i.test(lower)) {
+    return 'THINK BIG & AIM HIGH';
+  }
+  if (/\b(freedom|choose how you live|live on your terms|liberty)\b|आजादी|स्वतंत्रता/i.test(lower)) {
     return 'FINANCIAL FREEDOM';
   }
-  if (/\b(savings|save|saving|opportunity|opportunities|compound|compounding)\b/i.test(lower)) {
+  if (/\b(savings|save|saving|opportunity|opportunities|compound|compounding)\b|बचत|अवसर/i.test(lower)) {
     return 'THE POWER OF SAVINGS';
   }
-  if (/\b(earn|spend|carefully|invest|budget|budgeting|expense|expenses)\b/i.test(lower)) {
+  if (/\b(earn|spend|carefully|invest|budget|budgeting|expense|expenses)\b|खर्च|निवेश|कमाई/i.test(lower)) {
     return 'SPEND & INVEST WISELY';
   }
-  if (/\b(control your life|control your money|money control|take control)\b/i.test(lower)) {
+  if (/\b(control your life|control your money|money control|take control)\b|नियंत्रण/i.test(lower)) {
     return 'CONTROL YOUR WEALTH';
   }
   if (/\b(money is not just|having more|know what to do|financial awareness|understanding)\b/i.test(lower)) {
@@ -146,14 +170,14 @@ export function generateCleanConceptHeading(text: string): string {
   if (/\b(debt|broke|poverty|crisis|zero money)\b/i.test(lower)) {
     return 'OVERCOMING FINANCIAL STRESS';
   }
-  if (/\b(growth|scale|profit|revenue|millionaire|rich|wealth|abundance)\b/i.test(lower)) {
+  if (/\b(growth|scale|profit|revenue|millionaire|rich|wealth|abundance)\b|वृद्धि|मुनाफा|प्रगति/i.test(lower)) {
     return 'WEALTH ACCUMULATION';
   }
 
   // 2. Intelligent grammatical extraction (Never end in dangling conjunctions/prepositions)
   const rawWords = text
     .split(/\s+/)
-    .map((w) => w.replace(/[^\w]/g, '').trim())
+    .map((w) => w.replace(/[^\p{L}\p{N}]/gu, '').trim())
     .filter(Boolean);
 
   if (rawWords.length === 0) return 'KEY TAKEAWAY';
@@ -182,6 +206,17 @@ export function generateCleanConceptHeading(text: string): string {
   }
 
   const finalHeading = candidateWords.join(' ').toUpperCase();
+  if (/[\u0900-\u097F]/.test(finalHeading)) {
+    const devanagariFallbacks = [
+      'POWER OF PERSISTENCE',
+      'BUILDING MOMENTUM',
+      'OVERCOMING CHALLENGES',
+      'CONTINUOUS PROGRESS',
+      'THE ROAD AHEAD',
+      'DISCIPLINE & FOCUS'
+    ];
+    return devanagariFallbacks[Math.abs(text.length) % devanagariFallbacks.length];
+  }
   return finalHeading.length >= 3 ? finalHeading : 'CORE PRINCIPLE';
 }
 

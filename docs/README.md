@@ -15,6 +15,7 @@ Older docs in this folder are kept as archived/reference material. They may cont
 | File / Folder | Purpose |
 |---|---|
 | `ITNAVIDEO_MASTER_DOC.md` | Latest source of truth. |
+| `homepage.md` | Master Homepage architecture, sections, copy, & specs. |
 | `ITNAVIDEO_PROJECT_CONTEXT.md` | Agent/project context reference. |
 | `video-types/` | Detailed per-Video-Type specs. |
 | `startup/` | Archived startup docs and investor/product notes. |

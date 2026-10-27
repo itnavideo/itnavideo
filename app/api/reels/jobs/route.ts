@@ -31,7 +31,8 @@ import {resolveBlueprintAssets} from '@/services/ai/assetResolver';
 import {toAbsoluteS3AssetUrl, ITNAVIDEO_STOCK_ASSETS} from '@/constants/itnavideoStockAssets';
 import {cleanFaceCamSilenceAndFillers} from '@/services/ai/faceCamSilenceCleaner';
 import {extractFaceKeyframes} from '@/services/vision/faceTracker';
-import {generateStructuredSceneBlueprint} from '@/services/ai/aiScenePlanner';
+import {generateStructuredSceneBlueprint, generateFacelessStickerEvents} from '@/services/ai/aiScenePlanner';
+import { planFacelessGraphics } from '@/services/ai/facelessGraphicPlanner';
 import {planBrollForScenes} from '@/services/ai/brollMatcher';
 import {planImagesFromLibraryForScenes} from '@/services/ai/aiImageLibraryMatcher';
 import {planSemanticImageToVideoTimeline, planVisualIntelligenceTimeline} from '@/services/ai/visualPlanner';
@@ -57,16 +58,17 @@ export const dynamic = 'force-dynamic';
 
 type LambdaRenderRequest = Parameters<typeof renderMediaOnLambda>[0];
 type ReelMode =
-  | 'compare' | 'autoCaption' | 'whiteboardVideo' | 'typographyVideo' | 'longVideoClips' | 'facelessVideo' | 'aiVideoGenerator' | 'imageToVideoAi' | 'youtubeSubtitleGenerator' | 'bookSummary' | 'audioClean' | 'longVideoPromo';
+  | 'compare' | 'autoCaption' | 'whiteboardVideo' | 'typographyVideo' | 'longVideoClips' | 'facelessVideo' | 'facelessShorts' | 'aiVideoGenerator' | 'imageToVideoAi' | 'youtubeSubtitleGenerator' | 'bookSummary' | 'audioClean' | 'longVideoPromo';
 
 const MODE_TO_TEMPLATE: Partial<Record<ReelMode, ReelTemplateName>> = {
   compare: 'comparisonImages',
   autoCaption: 'AUTO_CAPTION_GENERATOR',
   youtubeSubtitleGenerator: 'YOUTUBE_SUBTITLE_GENERATOR',
   whiteboardVideo: 'WHITEBOARD_VIDEO',
-  typographyVideo: 'TYPOGRAPHY_VIDEO',
+  typographyVideo: 'AUTO_CAPTION_GENERATOR',
   longVideoClips: 'LONG_VIDEO_CLIPS',
   facelessVideo: 'FACELESS_VIDEO',
+  facelessShorts: 'FACELESS_SHORTS',
   aiVideoGenerator: 'FACELESS_VIDEO',
   imageToVideoAi: 'IMAGE_TO_VIDEO_AI',
   bookSummary: 'BOOK_SUMMARY',
@@ -74,14 +76,13 @@ const MODE_TO_TEMPLATE: Partial<Record<ReelMode, ReelTemplateName>> = {
 };
 
 // All 9:16 short video types render up to 90 seconds.
-// Long Faceless Video supports up to 20 minutes (1200 seconds) audio.
-// Image to Video AI & Book Summary support up to 12 minutes (720 seconds) audio.
+// All 16:9 Long-Form Video types support up to 5 minutes (300 seconds / 9,000 frames) audio.
 const MAX_RENDER_WINDOW_SECONDS = 90;
-const MAX_AUTO_CAPTION_SECONDS = 20 * 60; // 1200 seconds (up to 20 minutes)
-const MAX_YOUTUBE_SUBTITLE_SECONDS = 10 * 60; // 600 seconds (10 minutes strictly per Rule 4.1)
-const MAX_IMAGE_TO_VIDEO_SECONDS = 10 * 60; // 600 seconds (10 minutes strictly per Rule 4.1)
-const MAX_FACELESS_VIDEO_SECONDS = 12 * 60; // 720 seconds (12 minutes)
-const MAX_BOOK_SUMMARY_SECONDS = 10 * 60; // 600 seconds (10 minutes strictly per Rule 4.1)
+const MAX_AUTO_CAPTION_SECONDS = 90;
+const MAX_YOUTUBE_SUBTITLE_SECONDS = 5 * 60; // 300 seconds (5 minutes strictly per user standard)
+const MAX_IMAGE_TO_VIDEO_SECONDS = 5 * 60; // 300 seconds (5 minutes strictly per user standard)
+const MAX_FACELESS_VIDEO_SECONDS = 5 * 60; // 300 seconds (5 minutes strictly per user standard)
+const MAX_BOOK_SUMMARY_SECONDS = 5 * 60; // 300 seconds (5 minutes strictly per user standard)
 
 function getMaxRenderWindowSecondsForTemplate(templateName?: ReelTemplateName | null): number {
   if (templateName === 'AUTO_CAPTION_GENERATOR') {
@@ -379,9 +380,11 @@ export async function POST(request: Request) {
       ? body.imageKeys.map((value: unknown) => readString(value)).filter(Boolean)
       : [];
   const uploadedImageAnchors = Array.isArray(body.uploadedImageAnchors)
-    ? (body.uploadedImageAnchors as Array<{ url: string; targetPhrase: string }>).map((item) => ({
+    ? (body.uploadedImageAnchors as Array<{ url: string; targetPhrase: string; sequenceIndex?: number; originalFileName?: string }>).map((item, idx) => ({
         url: readString(item?.url),
         targetPhrase: readString(item?.targetPhrase),
+        sequenceIndex: typeof item?.sequenceIndex === 'number' ? item.sequenceIndex : idx,
+        originalFileName: readString(item?.originalFileName),
       })).filter((item) => item.url)
     : [];
   const customImageUrls = Array.isArray(body.customImageUrls)
@@ -617,21 +620,21 @@ export async function POST(request: Request) {
     ];
 
     const resolvedImageAnchors = await Promise.all(
-      uploadedImageAnchors.map(async (anchor) => {
+      uploadedImageAnchors.map(async (anchor, idx) => {
         try {
-          if (!anchor.url) return { url: '', targetPhrase: anchor.targetPhrase };
+          if (!anchor.url) return { url: '', targetPhrase: anchor.targetPhrase, sequenceIndex: idx, originalKey: '' };
           if (anchor.url.startsWith('http://') || anchor.url.startsWith('https://')) {
-            return anchor;
+            return { url: anchor.url, targetPhrase: anchor.targetPhrase, sequenceIndex: (anchor as any).sequenceIndex ?? idx, originalKey: anchor.url };
           }
           const signed = readString(await createReadUrl(anchor.url));
-          return { url: signed, targetPhrase: anchor.targetPhrase };
+          return { url: signed, targetPhrase: anchor.targetPhrase, sequenceIndex: (anchor as any).sequenceIndex ?? idx, originalKey: anchor.url };
         } catch {
-          return { url: '', targetPhrase: anchor.targetPhrase };
+          return { url: '', targetPhrase: anchor.targetPhrase, sequenceIndex: idx, originalKey: anchor.url };
         }
       })
-    ).then((arr) => arr.filter((a) => a.url));
+    );
 
-    const customBgmUrl = bgmKey ? readString(await createReadUrl(bgmKey)) : '';
+    const customBgmUrl = bgmKey ? readString(await createReadUrl(bgmKey)) : (readString(body.bgmUrl) || '');
     markTiming('signed_url_prepare_ms');
 
     if (mode === 'compare' && comparisonImageUrls.length !== 2) {
@@ -839,12 +842,12 @@ export async function POST(request: Request) {
     // ── IMAGE TO VIDEO AI (16:9 Widescreen, scene flow synced to script, Ken Burns camera motion, 2.5D parallax subtitles) ──
     if (mode === 'imageToVideoAi') {
       const audioPrep = await prepareAudioForTranscription(mediaKey, mediaUrl, fileName, contentType, mediaType);
-      if (Number((audioPrep as any).durationSeconds) > MAX_IMAGE_TO_VIDEO_SECONDS) {
+      if (Number((audioPrep as any).durationSeconds) > 300) {
         return NextResponse.json({
           ok: false,
           status: 'failed',
           reasonCode: 'AUDIO_TOO_LONG',
-          error: 'Image to Video AI supports audio up to 10 minutes (600s). Please trim the audio and try again.',
+          error: 'Image to Video AI supports audio up to 5 minutes (300s). Please trim the audio and try again.',
         }, { status: 422 });
       }
       const itvTranscription = await transcribeForPlanning({
@@ -868,6 +871,12 @@ export async function POST(request: Request) {
       markTiming('image_to_video_transcription_ms');
       const renderWindow = selectRenderWindow(itvTranscription, MAX_IMAGE_TO_VIDEO_SECONDS);
       const captions = buildCompareCaptionsFromGroq(renderWindow);
+
+      const plannerDiagnostics = {
+        unmatchedPhrases: [] as Array<{ index: number; phrase: string }>,
+        conflictsResolved: [] as Array<{ indexA: number; indexB: number; boundarySeconds: number }>,
+        translatedSegmentsCount: 0,
+      };
 
       const requestedVisualStyle = readString(body.visualStyle);
       const visualStyle: '2d' | 'realistic' = requestedVisualStyle === '2d'
@@ -975,7 +984,7 @@ export async function POST(request: Request) {
         typographyPrimary?: string;
         typographySecondary?: string;
         typographyAccent?: string;
-        cameraMotion: 'zoom-in' | 'zoom-out' | 'pan-left' | 'pan-right' | 'pan-up' | 'pan-down';
+        cameraMotion: 'zoom-in' | 'zoom-out' | 'pan-left' | 'pan-right' | 'pan-up' | 'pan-down' | 'diagonal-tl-br' | 'diagonal-br-tl' | 'push-in' | 'pull-back';
         transition: 'hard-cut' | 'dissolve' | 'push-left' | 'push-right';
         fitMode?: 'blur-fill' | 'cover';
       }> = [];
@@ -1035,14 +1044,39 @@ export async function POST(request: Request) {
 
         console.log(`[IMAGE_TO_VIDEO_AI] Executing Visual Intelligence Pipeline (2-Stage Intent & Multimodal Rerank)... Prompt: "${userPrompt || 'none'}"`);
 
+        const anchorMap = new Map<string, { targetPhrase?: string; sequenceIndex?: number }>();
+        if (Array.isArray(body.uploadedImageAnchors)) {
+          body.uploadedImageAnchors.forEach((anc: any, idx: number) => {
+            const keyOrUrl = String(anc.url || '');
+            const targetPhrase = anc.targetPhrase ? String(anc.targetPhrase).trim() : undefined;
+            const sequenceIndex = anc.sequenceIndex !== undefined ? Number(anc.sequenceIndex) : idx;
+            anchorMap.set(keyOrUrl, { targetPhrase, sequenceIndex });
+            const resolvedAnchor = resolvedImageAnchors[idx];
+            if (resolvedAnchor?.url) {
+              anchorMap.set(resolvedAnchor.url, { targetPhrase, sequenceIndex });
+            }
+          });
+        }
+
+        const mappedUploadedImages = analyzedUserImages.map((u, idx) => {
+          const anchorInfo = anchorMap.get(u.originalUrl) || (resolvedImageAnchors[idx] ? {
+            targetPhrase: resolvedImageAnchors[idx].targetPhrase,
+            sequenceIndex: resolvedImageAnchors[idx].sequenceIndex ?? idx,
+          } : undefined);
+
+          return {
+            url: u.originalUrl,
+            title: u.descriptiveFilename || u.originalFileName || `Image ${idx + 1}`,
+            targetPhrase: anchorInfo?.targetPhrase || undefined,
+            sequenceIndex: anchorInfo?.sequenceIndex !== undefined ? anchorInfo.sequenceIndex : idx,
+            originalFileName: u.originalFileName,
+          };
+        });
+
         const semanticScenes = await planVisualIntelligenceTimeline({
           words: whisperWords,
           totalDuration,
-          uploadedImages: analyzedUserImages.map((u, idx) => ({
-            url: u.originalUrl,
-            title: u.descriptiveFilename || u.originalFileName || `Uploaded Visual ${idx + 1}`,
-            targetPhrase: u.descriptiveFilename,
-          })),
+          uploadedImages: mappedUploadedImages,
           stockAssets: stockAssetsForMatching.map((sa, idx) => ({
             id: (sa as any).id || `stock-${idx + 1}`,
             url: sa.url,
@@ -1051,6 +1085,11 @@ export async function POST(request: Request) {
           })),
           userPrompt,
           visualStyle,
+          uploadedOnly,
+          transcriptSegments: renderWindow.segments || [],
+          language: itvTranscription.languageHint || undefined,
+          analyzedImages: analyzedUserImages,
+          diagnostics: plannerDiagnostics,
         });
 
         scenes = semanticScenes.map((sc) => ({
@@ -1149,37 +1188,49 @@ export async function POST(request: Request) {
       }
 
       // ── VISUAL DIVERSITY & NULL-SAFETY POST-PROCESSOR ──
-      // Guarantee zero scene image duplications and 100% null-safety against broken 2D assets
-      const usedImageUrlsInJob = new Set<string>();
-      for (let i = 0; i < scenes.length; i++) {
-        const sc = scenes[i];
-        if (sc.sceneType === 'image' && sc.imageUrl && typeof sc.imageUrl === 'string') {
-          if (usedImageUrlsInJob.has(sc.imageUrl)) {
-            // Find an unused stock image from the available pool
-            const unusedAsset = stockAssetsForMatching.find((a) => a.url && !usedImageUrlsInJob.has(a.url));
-            if (unusedAsset && unusedAsset.url) {
-              sc.imageUrl = unusedAsset.url;
-              usedImageUrlsInJob.add(unusedAsset.url);
+      // In uploadedOnly mode: Strictly preserve 100% user footage, permitting deliberate reuse across story beats
+      // In library/stock mode: Ensure zero scene image duplications and null-safety
+      if (!uploadedOnly) {
+        const usedImageUrlsInJob = new Set<string>();
+        for (let i = 0; i < scenes.length; i++) {
+          const sc = scenes[i];
+          if (sc.sceneType === 'image' && sc.imageUrl && typeof sc.imageUrl === 'string') {
+            if (usedImageUrlsInJob.has(sc.imageUrl)) {
+              // Find an unused stock image from the available pool
+              const unusedAsset = stockAssetsForMatching.find((a) => a.url && !usedImageUrlsInJob.has(a.url));
+              if (unusedAsset && unusedAsset.url) {
+                sc.imageUrl = unusedAsset.url;
+                usedImageUrlsInJob.add(unusedAsset.url);
+              } else {
+                // Graceful fallback: Convert duplicate scene into a high-impact kinetic typography beat
+                sc.sceneType = 'typography';
+                const words = (sc.text || '').split(/\s+/).filter((w) => w.length > 2);
+                sc.typographyPrimary = words.slice(0, 3).join(' ').toUpperCase() || 'KEY TAKEAWAY';
+                sc.typographyAccent = 'INSIGHT';
+                sc.typographySecondary = sc.text || '';
+                sc.imageUrl = '';
+              }
             } else {
-              // Graceful fallback: Convert duplicate scene into a high-impact kinetic typography beat
-              sc.sceneType = 'typography';
-              const words = (sc.text || '').split(/\s+/).filter((w) => w.length > 2);
-              sc.typographyPrimary = words.slice(0, 3).join(' ').toUpperCase() || 'KEY TAKEAWAY';
-              sc.typographyAccent = 'INSIGHT';
-              sc.typographySecondary = sc.text || '';
-              sc.imageUrl = '';
+              usedImageUrlsInJob.add(sc.imageUrl);
             }
-          } else {
-            usedImageUrlsInJob.add(sc.imageUrl);
+          } else if (!sc.imageUrl || typeof sc.imageUrl !== 'string' || !sc.imageUrl.trim()) {
+            sc.sceneType = 'typography';
+            const words = (sc.text || '').split(/\s+/).filter((w) => w.length > 2);
+            sc.typographyPrimary = words.slice(0, 3).join(' ').toUpperCase() || 'CRITICAL SHIFT';
+            sc.typographyAccent = 'KEY POINT';
+            sc.typographySecondary = sc.text || '';
+            sc.imageUrl = '';
           }
-        } else if (!sc.imageUrl || typeof sc.imageUrl !== 'string' || !sc.imageUrl.trim()) {
-          // Null-Safety: Convert missing asset scene to typography beat
-          sc.sceneType = 'typography';
-          const words = (sc.text || '').split(/\s+/).filter((w) => w.length > 2);
-          sc.typographyPrimary = words.slice(0, 3).join(' ').toUpperCase() || 'CRITICAL SHIFT';
-          sc.typographyAccent = 'KEY POINT';
-          sc.typographySecondary = sc.text || '';
-          sc.imageUrl = '';
+        }
+      } else {
+        // Guarantee 100% user footage coverage: ensure every scene has a valid user image
+        const fallbackUserUrl = uploadedImageUrls[0] || '';
+        for (let i = 0; i < scenes.length; i++) {
+          const sc = scenes[i];
+          if (!sc.imageUrl || typeof sc.imageUrl !== 'string' || !sc.imageUrl.trim()) {
+            sc.imageUrl = uploadedImageUrls[i % uploadedImageUrls.length] || fallbackUserUrl;
+            sc.sceneType = 'image';
+          }
         }
       }
 
@@ -1252,7 +1303,13 @@ export async function POST(request: Request) {
         transcriptSource: 'groq',
         access,
         retentionHours: 48,
-        diagnostics: { sceneCount: scenes.length, imageCount: uploadedImageUrls.length + stockAssetsForMatching.length },
+        diagnostics: {
+          sceneCount: scenes.length,
+          imageCount: uploadedImageUrls.length + stockAssetsForMatching.length,
+          unmatchedPhrases: plannerDiagnostics.unmatchedPhrases,
+          conflictsResolved: plannerDiagnostics.conflictsResolved,
+          translatedSegmentsCount: plannerDiagnostics.translatedSegmentsCount,
+        },
       });
     }
 
@@ -1609,7 +1666,7 @@ export async function POST(request: Request) {
     }
 
     // For facelessVideo / aiVideoGenerator, enforce voiceover audio input
-    if (mode === 'facelessVideo' || mode === 'aiVideoGenerator') {
+    if ((mode === 'facelessVideo' || mode === 'facelessShorts') || mode === 'aiVideoGenerator') {
       const isAudioUpload = mediaType === 'audio' || /\.(mp3|wav|m4a|aac|ogg|flac)$/i.test(fileName);
       if (!isAudioUpload) {
         return NextResponse.json(
@@ -1661,6 +1718,43 @@ export async function POST(request: Request) {
     if (userProvidedTranscript || (userProvidedSceneBlueprint && userProvidedSceneBlueprint.length > 0)) {
       const fullText = userProvidedTranscript || userProvidedSceneBlueprint!.map((s: any) => s.narrationSegment?.text || s.heading || '').filter(Boolean).join(' ');
       const dur = Number(body.durationSeconds) || Number(body.sourceDurationSeconds) || (userProvidedApprovedCaptions && userProvidedApprovedCaptions.length > 0 ? Math.ceil(userProvidedApprovedCaptions[userProvidedApprovedCaptions.length - 1].end) : 60);
+
+      // Extract clean flat word list from client approved captions or chunks
+      let flattenedWords: Array<{ word: string; start: number; end: number }> = Array.isArray(body.words) && body.words.length > 0 ? body.words : [];
+      if (flattenedWords.length === 0 && Array.isArray(userProvidedApprovedCaptions)) {
+        for (const item of userProvidedApprovedCaptions) {
+          if (!item) continue;
+          if (Array.isArray(item.words) && item.words.length > 0) {
+            for (const w of item.words) {
+              if (w && typeof w.word === 'string') {
+                flattenedWords.push({
+                  word: String(w.word),
+                  start: Number(w.start ?? item.start ?? 0),
+                  end: Number(w.end ?? item.end ?? 0),
+                });
+              }
+            }
+          } else if (typeof item.word === 'string') {
+            flattenedWords.push({
+              word: item.word,
+              start: Number(item.start ?? 0),
+              end: Number(item.end ?? 0),
+            });
+          } else if (typeof item.text === 'string') {
+            const rawWords = item.text.trim().split(/\s+/).filter(Boolean);
+            const span = Math.max(0.2, (Number(item.end) || 1) - (Number(item.start) || 0));
+            const step = span / Math.max(1, rawWords.length);
+            rawWords.forEach((rw: string, ri: number) => {
+              flattenedWords.push({
+                word: rw,
+                start: Number(item.start ?? 0) + ri * step,
+                end: Number(item.start ?? 0) + (ri + 1) * step,
+              });
+            });
+          }
+        }
+      }
+
       transcription = {
         transcript: fullText,
         durationSeconds: dur,
@@ -1675,9 +1769,9 @@ export async function POST(request: Request) {
               text: String(s.narrationSegment?.text || s.heading || ''),
             }))
           : [],
-        words: userProvidedApprovedCaptions || [],
+        words: flattenedWords,
       };
-      console.log('[PIPELINE] Reusing confirmed client storyboard transcript (bypassing duplicate Groq call). Words:', userProvidedApprovedCaptions?.length || 0, '| Scenes:', userProvidedSceneBlueprint?.length);
+      console.log('[PIPELINE] Reusing confirmed client storyboard transcript (bypassing duplicate Groq call). Words:', flattenedWords.length, '| Scenes:', userProvidedSceneBlueprint?.length);
     } else {
       const transcribeStart = Date.now();
       try {
@@ -1728,7 +1822,7 @@ export async function POST(request: Request) {
       Boolean(templateConfig.skipPlanner) ||
       mode === 'whiteboardVideo' ||
       mode === 'typographyVideo' ||
-      mode === 'facelessVideo' ||
+      (mode === 'facelessVideo' || mode === 'facelessShorts') ||
       mode === 'aiVideoGenerator' ||
       mode === 'compare';
 
@@ -1913,6 +2007,8 @@ export async function POST(request: Request) {
             leftTitle: readString(body.compareLeftTitle || body.leftTitle || body.leftLabel) || 'Left',
             rightTitle: readString(body.compareRightTitle || body.rightTitle || body.rightLabel) || 'Right',
             imageSources: comparisonImageUrls,
+            premiumEditing: false,
+            soundCues: [],
             captions: finalCaptions,
             transcriptSegments: finalCaptions,
             overlayTimeline: plannedOverlayTimeline,
@@ -1969,7 +2065,7 @@ export async function POST(request: Request) {
             const wbAspectRatio = '9:16' as const;
 
             // Pass word-level timestamps so planner can compute real timing.
-            const wbPlan = await planWhiteboardVideo({
+            const wbPlan = body.plan ? body.plan : await planWhiteboardVideo({
               transcript: activeTranscript,
               segments: wbSegments.map((s) => ({ start: s.start, end: s.end, text: s.text })),
               words: wbWords,
@@ -2042,7 +2138,7 @@ export async function POST(request: Request) {
             };
           })()
         : {}),
-      ...(mode === 'facelessVideo' || mode === 'aiVideoGenerator'
+      ...((mode === 'facelessVideo' || mode === 'facelessShorts') || mode === 'aiVideoGenerator'
         ? await (async () => {
             const facelessCaptions = Array.isArray(body.approvedCaptions) && body.approvedCaptions.length > 0
               ? body.approvedCaptions
@@ -2056,19 +2152,11 @@ export async function POST(request: Request) {
             const headingFont = readString(body.headingFont) || 'Montserrat';
             const subheadingFont = readString(body.subheadingFont) || 'Plus Jakarta Sans';
             const bodyFont = readString(body.bodyFont) || readString(body.typographyFont) || 'Inter';
-            const backgroundTheme = readString(body.backgroundTheme) || readString(body.selectedBackgroundTheme) || 'midnight-mesh';
-            const customBgUrl = readString(body.customBgUrl || body.customBackgroundUrl || body.backgroundUrl) || '';
-            const subtitleStyle = readString(body.subtitleStyle) || 'netflix-yellow';
+            const backgroundTheme = readString(body.backgroundTheme) || readString(body.selectedBackgroundTheme) || 'solid-white';
+            const subtitleStyle = readString(body.subtitleStyle) || 'classic-clean';
             const captionAnimationStyle = readString(body.captionAnimationStyle) || 'bouncy';
             const captionPosition = readString(body.captionPosition) || 'bottom';
-            const requestedAssetMode = readString(body.assetMode);
-            const assetMode: 'library' | 'upload' | 'mix' = requestedAssetMode === 'upload'
-              ? 'upload'
-              : requestedAssetMode === 'mix' ? 'mix' : 'library';
-            const selectedVisualStyle: 'realistic' = 'realistic';
-            if (assetMode === 'upload' && uploadedImageUrls.length === 0 && (!body.brollUrls || Object.keys(body.brollUrls).length === 0)) {
-              throw new Error('Uploaded Media mode requires at least one photo or video clip.');
-            }
+
             const videoTitle = topicTitle || titleFromTranscript(transcription.transcript) || titleFromFile(fileName) || 'Faceless Video';
 
             // If user confirmed a storyboard blueprint in studio, reuse it with 100% fidelity
@@ -2089,112 +2177,79 @@ export async function POST(request: Request) {
                   { title: videoTitle, headingFont, bodyFont, backgroundTheme }
                 );
 
-            // Faceless long video is strictly 16:9 widescreen Full HD
-            const targetAspectRatio: '16:9' = '16:9';
+            const targetAspectRatio: '16:9' | '9:16' = mode === 'facelessShorts' ? '9:16' : '16:9';
+            const graphicScenes = planFacelessGraphics(blueprint.scenes);
+            blueprint.scenes = graphicScenes;
 
-            const plannedLibraryImages = assetMode === 'upload'
-              ? {}
-              : await planImagesFromLibraryForScenes(blueprint.scenes, {
+            // ── Strict Visual Composition Rule (Founder Directive) ──
+            // Maximum 10% stock image share of video timeline.
+            // Remaining 90%+ is explained through animated text, large detailed SVG illustrations,
+            // diagrams, shapes, infographics, and motion graphics.
+            const totalDurationSec = renderWindow.durationSeconds || 60;
+            const maxImageDurationAllowed = totalDurationSec * 0.10; // strictly max 10% of timeline
+            const totalSceneCount = blueprint.scenes.length || 1;
+            const maxImageScenesAllowed = Math.max(0, Math.min(1, Math.floor(totalSceneCount * 0.10)));
+
+            let mappedBrollUrls: Record<number, string> = {};
+            const userProvidedBroll = (body.brollUrls && typeof body.brollUrls === 'object') ? body.brollUrls : {};
+
+            if (Object.keys(userProvidedBroll).length > 0) {
+              // If user provided brollUrls in studio, strictly enforce the 10% maximum budget
+              let currentImageDuration = 0;
+              for (const [sNumStr, url] of Object.entries(userProvidedBroll)) {
+                if (!url) continue;
+                const sNum = Number(sNumStr);
+                const sceneItem = blueprint.scenes.find((s: any) => s.sceneNumber === sNum);
+                const sceneDur = sceneItem?.duration || 5;
+                if (currentImageDuration + sceneDur <= maxImageDurationAllowed && Object.keys(mappedBrollUrls).length < maxImageScenesAllowed) {
+                  mappedBrollUrls[sNum] = String(url);
+                  currentImageDuration += sceneDur;
+                }
+              }
+            } else if (maxImageScenesAllowed > 0) {
+              // Only search library if the 10% budget allows at least 1 image scene
+              try {
+                const libraryMatches = await planImagesFromLibraryForScenes(blueprint.scenes, {
                   aspectRatio: targetAspectRatio,
-                  visualStyle: selectedVisualStyle,
-                  minimumScore: 12,
+                  videoType: 'facelessVideo',
+                  minimumScore: 8,
                 });
-            const styleFolder = `/images/${selectedVisualStyle}/`;
-            const curatedStyleUrls = assetMode === 'upload'
-              ? []
-              : readUnifiedAssets()
-                  .filter((asset) => asset.type === 'image' && asset.safeToUse && asset.src.toLowerCase().includes(styleFolder))
-                  .map((asset) => asset.src);
-            const userUploadedAssets = assetMode === 'library' ? [] : uploadedImageUrls.filter(Boolean);
-            userUploadedAssets.sort((a, b) => {
-              const getCleanName = (url: string) => {
-                try {
-                  const pathWithoutQuery = url.split('?')[0];
-                  return decodeURIComponent(pathWithoutQuery.split('/').pop() || url);
-                } catch {
-                  return url;
-                }
-              };
-              return getCleanName(a).localeCompare(getCleanName(b), undefined, { numeric: true, sensitivity: 'base' });
-            });
-            const uploadedCandidates = userUploadedAssets.map((url, i) => {
-              const cleanFileName = (() => {
-                try {
-                  const p = url.split('?')[0];
-                  return decodeURIComponent(p.split('/').pop() || `uploaded_image_${i}`);
-                } catch {
-                  return `uploaded_image_${i}`;
-                }
-              })();
-              return {
-                key: `uploaded_image_${i}`,
-                url,
-                fileName: cleanFileName,
-              };
-            });
-            const semanticallyMappedUploads = userUploadedAssets.length > 0
-              ? smartMatchUploadedImagesToScenes(blueprint.scenes, uploadedCandidates)
-              : {};
-            const mappedBrollUrls: Record<number, string> = {};
-            if (body.brollUrls && typeof body.brollUrls === 'object') {
-              for (const [key, val] of Object.entries(body.brollUrls)) {
-                if (val && typeof val === 'string') {
-                  mappedBrollUrls[Number(key)] = toAbsoluteS3AssetUrl(val);
-                }
-              }
-            }
-            const userImageCount = userUploadedAssets.length;
-            const mixInterval = userImageCount > 0
-              ? Math.max(1, Math.floor(blueprint.scenes.length / userImageCount))
-              : 0;
-
-            (blueprint.scenes as any[]).forEach((scene: any, index: number) => {
-              if (mappedBrollUrls[scene.sceneNumber]) return; // Keep user-confirmed storyboard visual
-
-              const userUrl = semanticallyMappedUploads[scene.sceneNumber];
-              const isUserScene = assetMode === 'upload'
-                || (assetMode === 'mix' && Boolean(userUrl) && index % mixInterval === 0);
-              if (isUserScene && userUrl) {
-                mappedBrollUrls[scene.sceneNumber] = toAbsoluteS3AssetUrl(userUrl);
-                return;
-              }
-
-              if (assetMode !== 'upload') {
-                const libraryUrl = plannedLibraryImages[scene.sceneNumber]
-                  || curatedStyleUrls[index % Math.max(1, curatedStyleUrls.length)];
-                if (libraryUrl) mappedBrollUrls[scene.sceneNumber] = toAbsoluteS3AssetUrl(libraryUrl);
-              }
-            });
-
-            if (assetMode !== 'upload' || Object.keys(mappedBrollUrls).length === 0) {
-              const missingScenes = (blueprint.scenes as any[]).filter((scene: any) => !mappedBrollUrls[scene.sceneNumber]);
-              if (missingScenes.length > 0) {
-                try {
-                  const pexelsMatches = await matchPexelsMediaForScenes(missingScenes, {
-                    orientation: 'landscape',
-                    preferVideo: true,
-                  });
-                  for (const [sceneNumber, mediaUrl] of Object.entries(pexelsMatches)) {
-                    if (mediaUrl && !mappedBrollUrls[Number(sceneNumber)]) {
-                      mappedBrollUrls[Number(sceneNumber)] = toAbsoluteS3AssetUrl(mediaUrl);
-                    }
+                // Pick at most 1 scene within the 10% budget limit
+                let currentImageDuration = 0;
+                for (const [sNumStr, url] of Object.entries(libraryMatches)) {
+                  if (!url) continue;
+                  const sNum = Number(sNumStr);
+                  const sceneItem = blueprint.scenes.find((s: any) => s.sceneNumber === sNum);
+                  const sceneDur = sceneItem?.duration || 5;
+                  if (currentImageDuration + sceneDur <= maxImageDurationAllowed && Object.keys(mappedBrollUrls).length < maxImageScenesAllowed) {
+                    mappedBrollUrls[sNum] = String(url);
+                    currentImageDuration += sceneDur;
+                    break;
                   }
-                } catch (pexelsErr) {
-                  console.warn('[FACELESS_VIDEO] Pexels media match warning:', pexelsErr);
                 }
+              } catch (err) {
+                console.warn('[FACELESS_VIDEO_PLANNER] Library visual matching fallback error:', err);
               }
             }
-
-            const sfxEvents = generateSFXEvents(blueprint.scenes as any, 30, renderWindow.durationSeconds);
-            const chapterEvents = detectChaptersFromTranscript(transcriptChunks, 30);
 
             console.log('[FACELESS_VIDEO_PLANNER]', {
               totalScenes: blueprint.totalScenes,
-              userAssetsCount: userUploadedAssets.length,
+              mappedBrollCount: 0,
+              customBgUrl: 'disabled-in-svg-mode',
+            });
+            const sfxEvents = generateSFXEvents(blueprint.scenes as any, 30, renderWindow.durationSeconds);
+            const chapterEvents = detectChaptersFromTranscript(transcriptChunks, 30);
+            const stickerEvents = Array.isArray(body.stickerEvents) && body.stickerEvents.length > 0
+              ? body.stickerEvents
+              : [];
+
+            console.log('[FACELESS_VIDEO_PLANNER]', {
+              totalScenes: blueprint.totalScenes,
               mappedBrollCount: Object.keys(mappedBrollUrls).length,
-              customBgUrl: customBgUrl ? 'present' : 'none',
+              customBgUrl: 'disabled-in-svg-mode',
               sfxCount: sfxEvents.length,
               chapterCount: chapterEvents.length,
+              stickerCount: stickerEvents.length,
             });
 
             return {
@@ -2203,7 +2258,7 @@ export async function POST(request: Request) {
               subheadingFont,
               typographyFont: bodyFont,
               backgroundTheme,
-              customBgUrl: customBgUrl ? toAbsoluteS3AssetUrl(customBgUrl) : '',
+              customBgUrl: '',
               subtitleStyle,
               captionAnimationStyle,
               captionPosition,
@@ -2212,6 +2267,13 @@ export async function POST(request: Request) {
                 Object.entries(mappedBrollUrls).map(([k, v]) => [k, toAbsoluteS3AssetUrl(v)])
               ),
               sfxEvents,
+              chapterEvents,
+              stickerEvents,
+              templateConfig: {
+                captionThemeId: subtitleStyle,
+                lowerThirdId: 'tech_modern',
+                stickerPackId: 'none',
+              },
               showCaptions: body.showCaptions !== false && body.enableCaptions !== false,
               captions: (body.showCaptions !== false && body.enableCaptions !== false) ? facelessCaptions : [],
               subtitleChunks: (body.showCaptions !== false && body.enableCaptions !== false) ? facelessCaptions : [],
@@ -2303,7 +2365,7 @@ export async function POST(request: Request) {
           }
         : {}),
     };
-    if ((mode as string) !== 'autoCaption' && (!Array.isArray(inputProps.soundCues) || !inputProps.soundCues.length)) {
+    if ((mode as string) !== 'autoCaption' && (mode as string) !== 'compare' && (!Array.isArray(inputProps.soundCues) || !inputProps.soundCues.length)) {
       inputProps.soundCues = createPremiumSoundCues({
         styleLock,
         templateName,
@@ -2450,7 +2512,14 @@ export async function POST(request: Request) {
     const errorMessage = error instanceof Error ? error.message : 'Could not start render job.';
     const errorName = error instanceof Error ? error.name : 'UnknownError';
     markTiming('failed_at_ms');
-    console.error('Render job failed:', { mode, templateName, composition, error: errorMessage, timings });
+    console.error('Render job failed:', {
+      mode,
+      templateName,
+      composition,
+      error: errorMessage,
+      stack: error instanceof Error ? error.stack : undefined,
+      timings,
+    });
 
     const userEmail = readString(body.userEmail || body.email);
     const isFounder = isFounderEmail(userEmail) || isFounderUser(userId);
@@ -2561,9 +2630,10 @@ async function repairRenderImageSources(inputProps: Record<string, unknown>, con
   return {inputProps, failures};
 }
 
-async function uploadLocalAssetToS3(src: string, userId: string): Promise<{ok: true; s3Url: string} | {ok: false; reason: string}> {
+async function uploadLocalAssetToS3(src?: string, userId?: string): Promise<{ok: true; s3Url: string} | {ok: false; reason: string}> {
   try {
-    const cleanSrc = src.replace(/^\/+/, '');
+    const cleanSrc = String(src || '').replace(/^\/+/, '');
+    if (!cleanSrc) return {ok: false, reason: 'EMPTY_SRC'};
     const possible = [
       path.join(process.cwd(), cleanSrc),
       path.join(process.cwd(), 'public', cleanSrc),
@@ -2582,7 +2652,7 @@ async function uploadLocalAssetToS3(src: string, userId: string): Promise<{ok: t
       contentType,
       fileName: safeBasename,
       mode: 'image',
-      userId,
+      userId: userId || 'anonymous',
       purpose: 'render-stock-asset',
     });
     const signedUrl = readString(await createReadUrl(s3Key));
@@ -2785,8 +2855,9 @@ async function validateRemoteImageUrl(url: string): Promise<{ok: true} | {ok: fa
   }
 }
 
-function validateLocalImageSource(src: string): {ok: true} | {ok: false; reason: string} {
-  const cleanSrc = src.replace(/^\/+/, '');
+function validateLocalImageSource(src?: string): {ok: true} | {ok: false; reason: string} {
+  const cleanSrc = String(src || '').replace(/^\/+/, '');
+  if (!cleanSrc) return {ok: false, reason: 'EMPTY_LOCAL_IMAGE_SRC'};
   if (!/\.(?:png|jpe?g|webp|avif)$/i.test(cleanSrc)) return {ok: false, reason: 'LOCAL_IMAGE_UNSUPPORTED_EXTENSION'};
   const possible = [
     path.join(process.cwd(), 'public', cleanSrc),
@@ -2865,26 +2936,35 @@ function normalizeServeUrl(value: string) {
 
 async function startRenderWithCapacityRetry(request: LambdaRenderRequest) {
   const frameRange = request.frameRange;
-  const frameCount = frameRange && Array.isArray(frameRange) && typeof frameRange[0] === 'number' && typeof frameRange[1] === 'number' ? Math.max(30, frameRange[1] - frameRange[0]) : 1800;
-  // Calculate optimal concurrency: process ~90-120 frames per worker so each Lambda function finishes in under 10 seconds
-  const idealWorkers = Math.max(4, Math.min(24, Math.ceil(frameCount / 100)));
-  const baseConcurrency = Math.min(24, Math.max(4, Number(request.concurrency) || idealWorkers));
+  const frameCount = frameRange && Array.isArray(frameRange) && typeof frameRange[0] === 'number' && typeof frameRange[1] === 'number' ? Math.max(30, frameRange[1] - frameRange[0] + 1) : 1800;
 
-  // Remotion Lambda forbids passing both framesPerLambda and concurrency together.
+  // AWS Lambda in us-east-1 account concurrency quota is strictly limited (default ~10).
+  // Total running Lambdas (workers + orchestrator) must NEVER exceed 6, otherwise AWS rejects with Rate Exceeded.
+  // With max 5 minutes (9,000 frames), concurrency: 5 gives 1,800 frames per worker (~3.5 minutes render time, safely under the 15-minute Lambda timeout).
+  // For a short video (e.g. 708 frames = ~24s), concurrency: 2 gives ~354 frames per worker (~30s render time).
   const cleanRequest = {...request};
   delete (cleanRequest as any).framesPerLambda;
 
+  const maxAccountConcurrency = Math.max(2, Math.min(5, Number(process.env.REMOTION_LAMBDA_CONCURRENCY) || 5));
+  const safeConcurrency = Math.min(
+    maxAccountConcurrency,
+    Math.max(2, Math.ceil(frameCount / 1800))
+  );
+
   const attempts: LambdaRenderRequest[] = [
-    {...cleanRequest, concurrency: baseConcurrency, maxRetries: 3},
-    {...cleanRequest, concurrency: Math.max(4, Math.floor(baseConcurrency / 2)), maxRetries: 3},
-    {...cleanRequest, concurrency: 4, maxRetries: 3},
+    // Attempt 1: Optimal safe concurrency (2 to 5 workers max)
+    {...cleanRequest, concurrency: safeConcurrency, maxRetries: 3},
+    // Attempt 2: Conservative fallback (e.g. 3 workers)
+    {...cleanRequest, concurrency: Math.max(2, safeConcurrency - 1), maxRetries: 3},
+    // Attempt 3: Minimum parallel fail-safe (2 workers)
+    {...cleanRequest, concurrency: 2, maxRetries: 3},
   ];
   let lastError: unknown;
 
   for (let index = 0; index < attempts.length; index += 1) {
     try {
       console.log(`[RENDER_INVOKE_ATTEMPT] Attempt ${index + 1}/${attempts.length}`, {
-        concurrency: attempts[index].concurrency,
+        concurrency: (attempts[index] as any).concurrency,
         maxRetries: attempts[index].maxRetries,
         composition: attempts[index].composition,
         frameCount,
@@ -2896,8 +2976,8 @@ async function startRenderWithCapacityRetry(request: LambdaRenderRequest) {
       if (!isTemporaryRenderCapacityError(error) || index === attempts.length - 1) {
         throw error;
       }
-      // Progressive backoff: 3s, 6s
-      await sleep([3000, 6000][index] ?? 6000);
+      // Progressive backoff: 4s, 8s so AWS token bucket refills
+      await sleep([4000, 8000][index] ?? 8000);
     }
   }
 
@@ -3736,7 +3816,7 @@ function findFirstSpeechActivity(transcription: PlanningTranscription): {
   source: 'voice-activity' | 'timestamp-segment' | 'start';
 } {
   const wordStart = getTranscriptionWords(transcription)
-    ?.filter((word) => isSpeechLikeText(word.word))
+    ?.filter((word) => word && isSpeechLikeText(word.word))
     .map((word) => word.start)
     .find((start) => Number.isFinite(start) && start >= 0);
   if (wordStart !== undefined) {
@@ -3744,7 +3824,7 @@ function findFirstSpeechActivity(transcription: PlanningTranscription): {
   }
 
   const segmentStart = getTranscriptionSegments(transcription)
-    ?.filter((segment) => isSpeechLikeText(segment.text))
+    ?.filter((segment) => segment && isSpeechLikeText(segment.text))
     .map((segment) => segment.start)
     .find((start) => Number.isFinite(start) && start >= 0);
   if (segmentStart !== undefined) {
@@ -3802,7 +3882,8 @@ function roundSeconds(value: number) {
   return Math.round(value * 1000) / 1000;
 }
 
-function isSpeechLikeText(value: string) {
+function isSpeechLikeText(value?: string) {
+  if (!value || typeof value !== 'string') return false;
   const normalized = value
     .replace(/\[[^\]]+]/g, ' ')
     .replace(/\([^)]*\)/g, ' ')
@@ -3846,6 +3927,7 @@ function toMode(value: string): ReelMode | null {
   if (normalized.includes('book-summary') || normalized.includes('booksummary') || normalized.includes('book_summary')) return 'bookSummary';
   if (normalized.includes('image-to-video') || normalized.includes('imagetovideo') || normalized.includes('image_to_video')) return 'imageToVideoAi';
   if (normalized.includes('ai-video-generator') || normalized.includes('aivideogenerator') || normalized.includes('aivideo') || normalized.includes('ai-video') || normalized.includes('text-to-video') || normalized.includes('script-to-video')) return 'facelessVideo';
+  if (normalized.includes('faceless-shorts') || normalized.includes('facelessshorts') || normalized.includes('faceless_shorts')) return 'facelessShorts';
   if (normalized.includes('faceless') || normalized.includes('audio-to-video') || normalized.includes('longvideopro') || normalized.includes('long-video-pro')) return 'facelessVideo';
   if (normalized.includes('compare') || normalized.includes('comparison') || normalized === 'vs') return 'compare';
   if (normalized.includes('long-video-clip') || normalized.includes('longvideoclip') || normalized.includes('video-clips')) return 'longVideoClips';
@@ -4047,7 +4129,7 @@ function humanTemplateName(templateName: string) {
   if (templateName === 'LONG_VIDEO_PRO') return 'Long Video Pro';
   if (templateName === 'comparisonImages') return 'Compare Explainer Video';
   if (templateName === 'WHITEBOARD_VIDEO') return 'Whiteboard Video';
-  if (templateName === 'TYPOGRAPHY_VIDEO') return 'Typography Video';
+  // TYPOGRAPHY_VIDEO deprecated and routed to AUTO_CAPTION_GENERATOR
   if (templateName === 'LONG_VIDEO_CLIPS') return 'Long Video Clips';
   return 'Itnavideo Reel';
 }
@@ -4196,7 +4278,8 @@ function uniqueStrings(values: string[]) {
   return Array.from(new Set(values.map((value) => String(value || '').trim()).filter(Boolean)));
 }
 
-function slugify(value: string) {
+function slugify(value?: string) {
+  if (!value || typeof value !== 'string') return 'reel';
   return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 64) || 'reel';
 }
 
@@ -4222,3 +4305,5 @@ function isFounderUser(userId: string) {
   if (!userId) return false;
   return FOUNDER_USER_IDS.includes(userId);
 }
+
+

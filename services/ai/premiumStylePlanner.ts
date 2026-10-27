@@ -110,17 +110,19 @@ type TimedText = {
   type?: string;
 };
 
+const S3_SFX_BASE = 'https://remotionlambda-useast1-2zq6twaok1.s3.us-east-1.amazonaws.com/assets/reusable/sound-effects';
+
 const SFX_PATHS: Record<PremiumSoundCueType, string> = {
-  'soft-click': 'https://storage.googleapis.com/itnavideo-media-assets/soft-click_q5a67c.wav',
-  'soft-pop': 'https://storage.googleapis.com/itnavideo-media-assets/soft-pop_rakwkr.mp3',
-  whoosh: 'https://storage.googleapis.com/itnavideo-media-assets/whoosh-short_rfopag.wav',
-  swipe: 'https://storage.googleapis.com/itnavideo-media-assets/swipe-right_kgvhek.wav',
-  ding: 'https://storage.googleapis.com/itnavideo-media-assets/ding-5_kovgrw.mp3',
-  cash: 'https://storage.googleapis.com/itnavideo-media-assets/cash-register_ugloom.wav',
-  typing: 'https://storage.googleapis.com/itnavideo-media-assets/typing-fast_itr1th.wav',
-  paper: 'https://storage.googleapis.com/itnavideo-media-assets/paper-slide_fnjqc9.mp3',
-  warning: 'https://storage.googleapis.com/itnavideo-media-assets/warning-beep_aqvyfj.wav',
-  rise: 'https://storage.googleapis.com/itnavideo-media-assets/victory-rise_beerfs.wav',
+  'soft-click': `${S3_SFX_BASE}/soft-click.wav`,
+  'soft-pop': `${S3_SFX_BASE}/pop-soft.wav`,
+  whoosh: `${S3_SFX_BASE}/whoosh-short.wav`,
+  swipe: `${S3_SFX_BASE}/swipe-right.wav`,
+  ding: `${S3_SFX_BASE}/success-chime.wav`,
+  cash: `${S3_SFX_BASE}/cash-register.wav`,
+  typing: `${S3_SFX_BASE}/typing-fast.wav`,
+  paper: `${S3_SFX_BASE}/page-flip.wav`,
+  warning: `${S3_SFX_BASE}/warning-beep.wav`,
+  rise: `${S3_SFX_BASE}/transition-sweep.wav`,
 };
 
 export const PREMIUM_SFX_PATHS = SFX_PATHS;

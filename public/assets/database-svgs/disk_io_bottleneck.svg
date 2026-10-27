@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="Disk I/O Latency Bottleneck">
+  <!-- Itnavideo Database Asset: Disk I/O Latency Bottleneck -->
+  <circle cx="60" cy="48" r="32" fill="#3B0764" stroke="#C084FC" stroke-width="2.5" />
+      <path d="M 40 48 h 40" stroke="#E9D5FF" stroke-width="4" stroke-linecap="round" />
+      <polygon points="76,42 86,48 76,54" fill="#E9D5FF" />
+      <text x="60" y="96" fill="#C084FC" font-size="8.5" font-family="sans-serif" font-weight="900" text-anchor="middle">DISK I/O BOTTLENECK</text>
+      <text x="60" y="108" fill="#CBD5E1" font-size="6.5" font-family="sans-serif" text-anchor="middle">High Latency / Slow Storage</text>
+</svg>

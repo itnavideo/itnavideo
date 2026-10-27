@@ -45,8 +45,8 @@ const features = [
     icon: Music,
   },
   {
-    title: 'English & Hinglish',
-    description: 'English stays English. Hindi/Hinglish audio becomes clean Roman captions — no Devanagari.',
+    title: 'English & Global Dialects',
+    description: 'High-precision speech-to-text with bilingual and accent understanding — no broken transcripts.',
     icon: Languages,
   },
   {

@@ -49,7 +49,7 @@ interface MatrixCategory {
 }
 
 export function PricingComparisonTable({
-  currency: initialCurrency = "INR",
+  currency: initialCurrency = "USD",
   billingCycle = "monthly",
   onSelectPlan,
   loadingPlan,
@@ -57,19 +57,6 @@ export function PricingComparisonTable({
   const router = useRouter();
   const [currency, setCurrency] = useState<"USD" | "INR">(initialCurrency);
   const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>({});
-
-  useEffect(() => {
-    try {
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
-      if (tz.includes("Calcutta") || tz.includes("Kolkata") || tz.includes("Asia/Colombo")) {
-        setCurrency("INR");
-      } else {
-        setCurrency("USD");
-      }
-    } catch {
-      setCurrency("USD");
-    }
-  }, []);
 
   const handlePlanClick = (planId: string) => {
     if (onSelectPlan) {
@@ -107,28 +94,28 @@ export function PricingComparisonTable({
         {
           name: "Monthly Credits Included",
           tooltip: "Credits reset every 30 days. Unused credits don't rollover, but you can top up anytime.",
-          free: "1 Credit",
-          basic: "25 Credits",
-          growth: "85 Credits",
-          pro: "200 Credits",
+          free: "0 Credits (Paid Plans Only)",
+          basic: "100 Credits",
+          growth: "250 Credits",
+          pro: "600 Credits",
           highlight: true,
         },
         {
           name: "Real Video Output (Equivalent)",
           tooltip: "Actual video volume possible with your credits. Short-form (9:16) = 1 Cr. Long-form (16:9) = 1 Cr / Min.",
-          free: "1 Short (90s)",
-          basic: "25 Shorts & Reels (9:16)",
-          growth: "35 Shorts + 10 Long (5m each)",
-          pro: "60 Shorts + 14 Long (10m each)",
+          free: "Preview Only",
+          basic: "100 Shorts OR 20 Long (5m)",
+          growth: "250 Shorts OR 50 Long (5m)",
+          pro: "600 Shorts OR 120 Long (5m)",
           highlight: true,
         },
         {
           name: "Max Duration (16:9 Widescreen)",
           tooltip: "Maximum video length allowed for a single 16:9 Faceless or Book Summary video.",
-          free: "90s (Preview)",
-          basic: "Shorts Only (9:16)",
+          free: "Preview Only",
+          basic: "Up to 5 Mins (300s)",
           growth: "Up to 5 Mins (300s)",
-          pro: "Up to 10 Mins (600s)",
+          pro: "Up to 5 Mins (300s)",
         },
         {
           name: "Max Duration (9:16 Shorts & Reels)",
@@ -175,7 +162,7 @@ export function PricingComparisonTable({
           free: "Preview",
           basic: false,
           growth: "✓ (Up to 5 min)",
-          pro: "✓ (Up to 10 min)",
+          pro: "✓ (Up to 5 min)",
           highlight: true,
         },
         {
@@ -191,8 +178,8 @@ export function PricingComparisonTable({
           tooltip: "AI Hook Detector that finds the top viral retention hooks from long podcasts/lectures.",
           free: false,
           basic: false,
-          growth: "✓ (2 Cr / clip)",
-          pro: "✓ (2 Cr / clip)",
+          growth: "✓ (1 Cr / clip)",
+          pro: "✓ (1 Cr / clip)",
           highlight: true,
         },
         {
@@ -201,7 +188,7 @@ export function PricingComparisonTable({
           free: "Preview",
           basic: false,
           growth: "✓ (Up to 5 min)",
-          pro: "✓ (Up to 10 min)",
+          pro: "✓ (Up to 5 min)",
         },
         {
           name: "Kinetic Typography Studio (9:16)",
@@ -225,7 +212,7 @@ export function PricingComparisonTable({
           free: "Preview",
           basic: false,
           growth: "✓ (Up to 5 min)",
-          pro: "✓ (Up to 10 min)",
+          pro: "✓ (Up to 5 min)",
         },
         {
           name: "YouTube Subtitles Burner (16:9)",
@@ -356,33 +343,24 @@ export function PricingComparisonTable({
   // Pricing summary cards for the table header
   const planHeaders = [
     {
-      id: "free",
-      name: "Free Trial",
-      price: currency === "USD" ? "$0" : "₹0",
-      period: "forever",
-      credits: "1 Credit",
-      cta: "Try Free",
-      isPopular: false,
-    },
-    {
       id: "starter",
-      name: "Basic (Shorts Only)",
+      name: "Starter (Shorts & Long)",
       price: isAnnual
-        ? currency === "USD" ? "$7" : "₹399"
-        : currency === "USD" ? "$9" : "₹499",
+        ? currency === "USD" ? "$16.60" : "₹832"
+        : currency === "USD" ? "$19.99" : "₹999",
       period: isAnnual ? "/mo (annual)" : "/month",
-      credits: "25 Credits",
-      cta: "Choose Basic",
+      credits: "100 Credits",
+      cta: "Choose Starter",
       isPopular: false,
     },
     {
       id: "growth",
-      name: "Growth (Shorts + Long)",
+      name: "Growth (Most Popular)",
       price: isAnnual
-        ? currency === "USD" ? "$15" : "₹799"
-        : currency === "USD" ? "$19" : "₹999",
+        ? currency === "USD" ? "$33.30" : "₹1,665"
+        : currency === "USD" ? "$39.99" : "₹1,999",
       period: isAnnual ? "/mo (annual)" : "/month",
-      credits: "85 Credits",
+      credits: "250 Credits",
       cta: "Choose Growth",
       isPopular: true,
     },
@@ -390,10 +368,10 @@ export function PricingComparisonTable({
       id: "pro",
       name: "Pro Agency",
       price: isAnnual
-        ? currency === "USD" ? "$31" : "₹1,599"
-        : currency === "USD" ? "$39" : "₹1,999",
+        ? currency === "USD" ? "$66.60" : "₹3,332"
+        : currency === "USD" ? "$79.99" : "₹3,999",
       period: isAnnual ? "/mo (annual)" : "/month",
-      credits: "200 Credits",
+      credits: "600 Credits",
       cta: "Choose Pro",
       isPopular: false,
     },
@@ -452,7 +430,7 @@ export function PricingComparisonTable({
           {/* Table Header: Sticky Plans Bar */}
           <thead>
             <tr className="border-b border-slate-200/80 bg-slate-50/80 backdrop-blur-sm">
-              <th className="w-[32%] p-5 sm:p-6 text-slate-900 align-bottom">
+              <th className="w-[34%] p-5 sm:p-6 text-slate-900 align-bottom">
                 <span className="text-xs font-black uppercase tracking-wider text-slate-500">
                   Feature / Capability
                 </span>
@@ -462,7 +440,7 @@ export function PricingComparisonTable({
               {planHeaders.map((plan) => (
                 <th
                   key={plan.id}
-                  className={`w-[17%] p-4 sm:p-5 text-center align-bottom transition-colors ${
+                  className={`w-[22%] p-4 sm:p-5 text-center align-bottom transition-colors ${
                     plan.isPopular
                       ? "bg-gradient-to-b from-orange-50/70 to-orange-50/20 border-x-2 border-t-2 border-[#FF5722]/30"
                       : ""
@@ -515,7 +493,7 @@ export function PricingComparisonTable({
                     onClick={() => toggleCategory(category.title)}
                     className="border-t-2 border-b border-slate-200/90 bg-slate-100/70 hover:bg-slate-100 cursor-pointer transition select-none"
                   >
-                    <td colSpan={5} className="py-3 px-5 sm:px-6">
+                    <td colSpan={4} className="py-3 px-5 sm:px-6">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
                           <span className="rounded-lg bg-orange-500/10 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-orange-700 border border-orange-500/20">
@@ -566,10 +544,7 @@ export function PricingComparisonTable({
                           </div>
                         </td>
 
-                        {/* Free Plan */}
-                        <td className="p-4 text-center">{renderCellContent(row.free, row.highlight)}</td>
-
-                        {/* Basic Plan */}
+                        {/* Starter Plan */}
                         <td className="p-4 text-center">{renderCellContent(row.basic, row.highlight)}</td>
 
                         {/* Growth Plan (Highlighted Column) */}

@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: 'https://storage.googleapis.com/itnavideo-media-assets/file_0000000089c48211b67c16fe3c2636a2_prirg0.png',
+        url: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1792945592/file_000000004290821180a71f25ad75480e_nztpwe.png',
         width: 1920,
         height: 1080,
         alt: 'Itnavideo AI Faceless Video Generator Preview',
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     title: 'AI Faceless Video Generator — 16:9 YouTube Video Creator',
     description:
       'Create high-yield faceless YouTube videos with automated stock B-roll, studio backgrounds, and word-synced subtitles in seconds.',
-    images: ['https://storage.googleapis.com/itnavideo-media-assets/file_0000000089c48211b67c16fe3c2636a2_prirg0.png'],
+    images: ['https://res.cloudinary.com/dhouh9idx/image/upload/v1792945592/file_000000004290821180a71f25ad75480e_nztpwe.png'],
   },
 };
 

@@ -1,6 +1,8 @@
 import type { ScriptDetails } from './scriptDetails';
 import { GoogleGenAI } from '@google/genai';
 import { readEnrichedStockAssets } from './assetPicker';
+import { scoreScriptToAnalyzedImageMatch, type AnalyzedImage } from './imageUnderstanding';
+import { hasHindiUrduScript, hasRomanHinglish } from './hinglishTranscript';
 
 export type VisualPlannerFrameType =
   | 'InfoCard'
@@ -555,17 +557,43 @@ export interface ImageToVideoSceneOutput {
   typographyPrimary?: string;
   typographySecondary?: string;
   typographyAccent?: string;
-  cameraMotion: 'zoom-in' | 'zoom-out' | 'pan-left' | 'pan-right' | 'pan-up' | 'pan-down';
+  cameraMotion:
+    | 'zoom-in'
+    | 'zoom-out'
+    | 'pan-left'
+    | 'pan-right'
+    | 'pan-up'
+    | 'pan-down'
+    | 'diagonal-tl-br'
+    | 'diagonal-br-tl'
+    | 'push-in'
+    | 'pull-back';
   transition: 'hard-cut' | 'dissolve' | 'push-left' | 'push-right';
+  objectPosition?: string;
 }
 
 export interface SemanticImageTimelineInput {
   words: Array<{ word: string; start: number; end: number }>;
   totalDuration: number;
-  uploadedImages: Array<{ url: string; targetPhrase?: string; title?: string }>;
+  uploadedImages: Array<{
+    url: string;
+    targetPhrase?: string;
+    title?: string;
+    sequenceIndex?: number;
+    originalFileName?: string;
+  }>;
   stockAssets?: Array<{ id: string; url: string; title?: string; tags?: string[] }>;
   userPrompt?: string;
   visualStyle?: string;
+  uploadedOnly?: boolean;
+  transcriptSegments?: Array<{ start: number; end: number; text: string }>;
+  language?: string;
+  analyzedImages?: AnalyzedImage[];
+  diagnostics?: {
+    unmatchedPhrases?: Array<{ index: number; phrase: string }>;
+    conflictsResolved?: Array<{ indexA: number; indexB: number; boundarySeconds: number }>;
+    translatedSegmentsCount?: number;
+  };
 }
 
 export function planSemanticImageToVideoTimeline(
@@ -1158,6 +1186,208 @@ Return ONLY a strict JSON object:
 }
 
 /**
+ * Helper: Translate narration segments to English for internal planning & visual matching
+ * Preserves original timestamps and does not alter spoken voiceover audio or user subtitles.
+ */
+export async function translateSegmentsToEnglish(
+  segments: Array<{ start: number; end: number; text: string }>
+): Promise<Array<{ start: number; end: number; originalText: string; englishText: string }>> {
+  if (!Array.isArray(segments) || segments.length === 0) return [];
+
+  const fullText = segments.map((s) => s.text || '').join(' ');
+  const hasIndic = /[\u0900-\u097F]/.test(fullText);
+  const hasHinglish = /\b(kya|hai|hain|hota|hoti|hote|aur|kaise|isliye|lekin|hum|aap|unka|inke|mein|bhi|par|se|ko|ki|ke|ka)\b/i.test(fullText);
+
+  if (!hasIndic && !hasHinglish) {
+    return segments.map((s) => ({
+      start: s.start,
+      end: s.end,
+      originalText: s.text,
+      englishText: s.text,
+    }));
+  }
+
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY;
+  if (!apiKey) {
+    return segments.map((s) => ({
+      start: s.start,
+      end: s.end,
+      originalText: s.text,
+      englishText: s.text,
+    }));
+  }
+
+  try {
+    const ai = new GoogleGenAI({ apiKey });
+    const prompt = `Translate each numbered narration segment from Hindi/Hinglish into standard English for visual story planning.
+Preserve the exact segment numbers. Return ONLY a valid JSON array of objects: [{"index": number, "englishText": string}].
+
+Segments:
+${segments.map((s, idx) => `[${idx + 1}] ${s.text}`).join('\n')}`;
+
+    const res = await ai.models.generateContent({
+      model: 'gemini-2.0-flash',
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      config: {
+        temperature: 0.1,
+        responseMimeType: 'application/json',
+      },
+    });
+
+    const parsed = JSON.parse(res.text || '[]');
+    const map = new Map<number, string>();
+    if (Array.isArray(parsed)) {
+      parsed.forEach((item: any) => {
+        if (item.index !== undefined && item.englishText) {
+          map.set(Number(item.index), String(item.englishText));
+        }
+      });
+    }
+
+    return segments.map((s, idx) => ({
+      start: s.start,
+      end: s.end,
+      originalText: s.text,
+      englishText: map.get(idx + 1) || s.text,
+    }));
+  } catch (err) {
+    console.warn('[TRANSLATION] Gemini transcript translation failed, using original transcript:', err);
+    return segments.map((s) => ({
+      start: s.start,
+      end: s.end,
+      originalText: s.text,
+      englishText: s.text,
+    }));
+  }
+}
+
+/**
+ * Match optional user script excerpts against Whisper word timestamps
+ * Preserves Unicode text (Devanagari Hindi, Roman Hinglish, Latin), resolves conflicts,
+ * and reports diagnostics.
+ */
+function matchScriptExcerptsToTimeline(
+  uploadedImages: Array<{ url: string; targetPhrase?: string; sequenceIndex?: number; title?: string }>,
+  words: Array<{ word: string; start: number; end: number }>,
+  totalDuration: number,
+  diagnostics?: {
+    unmatchedPhrases?: Array<{ index: number; phrase: string }>;
+    conflictsResolved?: Array<{ indexA: number; indexB: number; boundarySeconds: number }>;
+  }
+): Map<number, { startSeconds: number; endSeconds: number }> {
+  const matches = new Map<number, { startSeconds: number; endSeconds: number }>();
+  if (!words.length) return matches;
+
+  // Unicode-aware normalizer: preserves Devanagari Hindi (letters + matras [\u0900-\u097F]), Latin, and numbers
+  const normalize = (t: string) =>
+    String(t || '')
+      .toLowerCase()
+      .replace(/[^\p{L}\p{M}\p{N}\s]/gu, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+  const normalizedWords = words.map((w) => ({
+    word: normalize(w.word),
+    start: Number(w.start) || 0,
+    end: Number(w.end) || 0,
+  })).filter((w) => w.word.length > 0);
+
+  if (!normalizedWords.length) return matches;
+
+  uploadedImages.forEach((img, imgIdx) => {
+    const rawPhrase = (img.targetPhrase || '').trim();
+    if (!rawPhrase || rawPhrase.length < 2) return;
+
+    const phrase = normalize(rawPhrase);
+    if (!phrase || phrase.length < 2) return;
+
+    const tokens = phrase.split(' ').filter(Boolean);
+    if (!tokens.length) return;
+
+    let matchedStart = -1;
+    let matchedEnd = -1;
+
+    // 1. Exact contiguous token match
+    for (let i = 0; i <= normalizedWords.length - tokens.length; i++) {
+      let isMatch = true;
+      for (let j = 0; j < tokens.length; j++) {
+        const curWord = normalizedWords[i + j].word;
+        const curTok = tokens[j];
+        if (!curWord.includes(curTok) && !curTok.includes(curWord)) {
+          isMatch = false;
+          break;
+        }
+      }
+      if (isMatch) {
+        matchedStart = normalizedWords[i].start;
+        matchedEnd = normalizedWords[i + tokens.length - 1].end;
+        break;
+      }
+    }
+
+    // 2. Fuzzy sliding window match (>= 50% tokens matched)
+    if (matchedStart === -1 && tokens.length > 1) {
+      let bestScore = 0;
+      let bestWindowStart = -1;
+      let bestWindowEnd = -1;
+
+      const windowSize = Math.min(tokens.length + 3, normalizedWords.length);
+      for (let i = 0; i <= normalizedWords.length - tokens.length; i++) {
+        let score = 0;
+        const limit = Math.min(normalizedWords.length, i + windowSize);
+        for (let j = i; j < limit; j++) {
+          if (tokens.some((tok) => tok === normalizedWords[j].word || normalizedWords[j].word.includes(tok) || tok.includes(normalizedWords[j].word))) {
+            score++;
+          }
+        }
+        if (score > bestScore && score >= Math.ceil(tokens.length * 0.5)) {
+          bestScore = score;
+          bestWindowStart = normalizedWords[i].start;
+          bestWindowEnd = normalizedWords[Math.min(normalizedWords.length - 1, i + tokens.length - 1)].end;
+        }
+      }
+
+      if (bestWindowStart !== -1) {
+        matchedStart = bestWindowStart;
+        matchedEnd = bestWindowEnd;
+      }
+    }
+
+    if (matchedStart !== -1 && matchedEnd > matchedStart) {
+      matches.set(imgIdx, {
+        startSeconds: Math.max(0, matchedStart),
+        endSeconds: Math.min(totalDuration, matchedEnd),
+      });
+    } else {
+      diagnostics?.unmatchedPhrases?.push({
+        index: imgIdx,
+        phrase: rawPhrase,
+      });
+    }
+  });
+
+  // 3. Resolve conflicts / overlapping anchor ranges safely
+  const sortedEntries = Array.from(matches.entries()).sort((a, b) => a[1].startSeconds - b[1].startSeconds);
+  for (let i = 0; i < sortedEntries.length - 1; i++) {
+    const cur = sortedEntries[i];
+    const nxt = sortedEntries[i + 1];
+    if (cur[1].endSeconds > nxt[1].startSeconds) {
+      const mid = Math.round(((cur[1].endSeconds + nxt[1].startSeconds) / 2) * 100) / 100;
+      const safeSplit = Math.max(cur[1].startSeconds + 1.0, Math.min(nxt[1].endSeconds - 1.0, mid));
+      cur[1].endSeconds = safeSplit;
+      nxt[1].startSeconds = safeSplit;
+      diagnostics?.conflictsResolved?.push({
+        indexA: cur[0],
+        indexB: nxt[0],
+        boundarySeconds: safeSplit,
+      });
+    }
+  }
+
+  return matches;
+}
+
+/**
  * Main Async Entry Point: Full Visual Intelligence Pipeline
  */
 export async function planVisualIntelligenceTimeline(
@@ -1169,12 +1399,255 @@ export async function planVisualIntelligenceTimeline(
     uploadedImages = [],
     stockAssets = [],
     userPrompt = '',
+    uploadedOnly = false,
+    transcriptSegments = [],
+    analyzedImages = [],
+    diagnostics,
   } = input;
 
-  const safeTotalDuration = Math.max(1, Number(totalDuration) || 10);
+  const safeTotalDuration = Math.max(1, Math.min(300, Number(totalDuration) || 10));
   const fullTranscript = words.map((w) => w.word).join(' ').trim();
 
-  // 1. Initial Time Beats
+  // Internal English Semantic Translation for Hindi/Hinglish Narration
+  const allTranscriptText = (transcriptSegments && transcriptSegments.length > 0)
+    ? transcriptSegments.map((s) => s.text || '').join(' ')
+    : fullTranscript;
+
+  let englishSegments: Array<{ start: number; end: number; originalText: string; englishText: string }> = [];
+  const isHindiOrHinglish = hasHindiUrduScript(allTranscriptText) || hasRomanHinglish(allTranscriptText) || input.language?.toLowerCase() === 'hi';
+
+  if (isHindiOrHinglish && transcriptSegments && transcriptSegments.length > 0) {
+    try {
+      englishSegments = await translateSegmentsToEnglish(transcriptSegments);
+      if (diagnostics) {
+        diagnostics.translatedSegmentsCount = englishSegments.length;
+      }
+    } catch (transErr) {
+      console.warn('[IMAGE_TO_VIDEO_AI] Hindi translation fallback to original segments:', transErr);
+      englishSegments = transcriptSegments.map((s) => ({
+        start: s.start,
+        end: s.end,
+        originalText: s.text,
+        englishText: s.text,
+      }));
+    }
+  }
+
+  const DIVERSE_MOTIONS: Array<ImageToVideoSceneOutput['cameraMotion']> = [
+    'zoom-in',
+    'pan-right',
+    'diagonal-tl-br',
+    'zoom-out',
+    'pan-left',
+    'push-in',
+    'diagonal-br-tl',
+    'pan-up',
+    'pull-back',
+    'pan-down',
+  ];
+  const DIVERSE_TRANSITIONS: Array<ImageToVideoSceneOutput['transition']> = [
+    'dissolve',
+    'push-left',
+    'dissolve',
+    'push-right',
+  ];
+
+  // ── BRANCH A: User-Uploaded Footage Priority (100% User Visuals) ──
+  const validUploaded = uploadedImages.filter((img) => img && img.url);
+
+  if (validUploaded.length > 0) {
+    // Sort strictly by user's explicit sequence order (Image 1, Image 2, etc.)
+    const sortedUserImages = [...validUploaded].sort((a, b) => {
+      const seqA = a.sequenceIndex !== undefined ? a.sequenceIndex : 0;
+      const seqB = b.sequenceIndex !== undefined ? b.sequenceIndex : 0;
+      return seqA - seqB;
+    });
+
+    // Map analyzed images by URL for semantic inspection
+    const analyzedMap = new Map<string, AnalyzedImage>();
+    if (Array.isArray(analyzedImages)) {
+      analyzedImages.forEach((ai) => {
+        if (ai && ai.originalUrl) {
+          analyzedMap.set(ai.originalUrl, ai);
+        }
+      });
+    }
+
+    // 1. Check for script excerpt anchors (Unicode-aware, with diagnostics)
+    const anchorMatches = matchScriptExcerptsToTimeline(sortedUserImages, words, safeTotalDuration, diagnostics);
+
+    // 2. Build natural story beats based on sentence boundaries and narration pacing
+    const beats: Array<{ startSeconds: number; endSeconds: number; text: string; englishText?: string }> = [];
+
+    if (words.length > 0) {
+      let currentStart = 0;
+      let currentWords: string[] = [];
+
+      for (let i = 0; i < words.length; i++) {
+        const w = words[i];
+        const wordText = String(w.word || '').trim();
+        const wordStart = Number(w.start) || 0;
+        const wordEnd = Number(w.end) || wordStart + 0.3;
+
+        if (currentWords.length === 0) currentStart = Math.min(currentStart, wordStart);
+        currentWords.push(wordText);
+
+        const durSoFar = wordEnd - currentStart;
+        const isLastWord = i === words.length - 1;
+        const isSentenceBreak = /[.!?।|]$/.test(wordText) || (i < words.length - 1 && (Number(words[i + 1].start) - wordEnd) > 0.4);
+
+        // Dynamic Duration Boundaries: 2.0s minimum, 6.5s maximum
+        if ((durSoFar >= 2.0 && isSentenceBreak) || durSoFar >= 6.5 || isLastWord) {
+          const beatEnd = isLastWord ? Math.max(wordEnd, safeTotalDuration) : wordEnd;
+          const beatOriginalText = currentWords.join(' ');
+
+          // Find overlapping English semantic translation if available
+          let beatEnglishText = beatOriginalText;
+          if (englishSegments.length > 0) {
+            const matchedSegments = englishSegments.filter(
+              (es) => es.end >= currentStart && es.start <= beatEnd
+            );
+            if (matchedSegments.length > 0) {
+              beatEnglishText = matchedSegments.map((es) => es.englishText).join(' ');
+            }
+          }
+
+          beats.push({
+            startSeconds: currentStart,
+            endSeconds: beatEnd,
+            text: beatOriginalText,
+            englishText: beatEnglishText,
+          });
+          currentStart = wordEnd;
+          currentWords = [];
+        }
+      }
+    } else {
+      // Fallback if no words provided
+      const targetBeatDuration = Math.max(3.0, Math.min(6.0, safeTotalDuration / sortedUserImages.length));
+      const beatCount = Math.max(1, Math.ceil(safeTotalDuration / targetBeatDuration));
+      const step = safeTotalDuration / beatCount;
+      for (let i = 0; i < beatCount; i++) {
+        beats.push({
+          startSeconds: i * step,
+          endSeconds: i === beatCount - 1 ? safeTotalDuration : (i + 1) * step,
+          text: `Scene Beat ${i + 1}`,
+          englishText: `Scene Beat ${i + 1}`,
+        });
+      }
+    }
+
+    // Ensure gapless tiling (0 to safeTotalDuration)
+    for (let i = 0; i < beats.length - 1; i++) {
+      beats[i + 1].startSeconds = beats[i].endSeconds;
+    }
+    if (beats.length > 0) {
+      beats[0].startSeconds = 0;
+      beats[beats.length - 1].endSeconds = safeTotalDuration;
+    }
+
+    // 3. Assign images following story order, script anchors, and recurring character continuity
+    const scenes: ImageToVideoSceneOutput[] = [];
+    let lastMotion: ImageToVideoSceneOutput['cameraMotion'] = 'zoom-in';
+
+    for (let idx = 0; idx < beats.length; idx++) {
+      const beat = beats[idx];
+      const semanticContext = beat.englishText || beat.text;
+      let chosenImg = sortedUserImages[idx % sortedUserImages.length];
+
+      // Check if an image was anchored via user script excerpt (prioritize maximum overlap)
+      let anchoredMatchFound = false;
+      let maxOverlap = 0;
+      for (const [imgIdx, timing] of anchorMatches.entries()) {
+        const img = sortedUserImages[imgIdx];
+        if (img && timing.startSeconds < beat.endSeconds && timing.endSeconds > beat.startSeconds) {
+          const overlap = Math.min(timing.endSeconds, beat.endSeconds) - Math.max(timing.startSeconds, beat.startSeconds);
+          if (overlap > maxOverlap) {
+            maxOverlap = overlap;
+            chosenImg = img;
+            anchoredMatchFound = true;
+          }
+        }
+      }
+
+      // If no explicit anchor, select image intelligently
+      if (!anchoredMatchFound) {
+        if (idx < sortedUserImages.length) {
+          // Strictly preserve user's initial sequence order (Image 1, Image 2, Image 3...)
+          chosenImg = sortedUserImages[idx];
+        } else {
+          // More beats than uploaded images: reuse images based on character/semantic continuity
+          let bestReuseImg = sortedUserImages[idx % sortedUserImages.length];
+          let bestReuseScore = -1;
+
+          for (const candImg of sortedUserImages) {
+            const aiData = analyzedMap.get(candImg.url);
+            if (aiData) {
+              const score = scoreScriptToAnalyzedImageMatch(semanticContext, aiData);
+              if (score > bestReuseScore && score >= 20) {
+                bestReuseScore = score;
+                bestReuseImg = candImg;
+              }
+            }
+          }
+          chosenImg = bestReuseImg;
+        }
+      }
+
+      // Inspect image metadata for subject-aware framing
+      const imgAi = analyzedMap.get(chosenImg.url);
+      const textLower = semanticContext.toLowerCase();
+
+      // Subject-Aware Framing: anchor upper-third for people/faces, center for graphics/objects
+      let objectPosition = 'center 35%';
+      if (imgAi?.visualCategory === 'charts_data' || imgAi?.visualCategory === 'workspace_office' || /chart|data|graph|table|document|screenshot/i.test(textLower)) {
+        objectPosition = 'center center';
+      } else if (imgAi?.subjects && imgAi.subjects.length > 0) {
+        objectPosition = 'center 30%';
+      }
+
+      // Contextual Camera Motion Selection
+      const isTensionOrCrisis = imgAi?.emotionalValence === 'crisis_negative' || /struggle|crisis|problem|danger|loss|debt|fail|fear|shock|hard/i.test(textLower);
+      const isSuccessOrPayoff = imgAi?.emotionalValence === 'triumphant_positive' || /success|win|growth|profit|million|trophy|wealth|celebrate|great/i.test(textLower);
+
+      let selectedMotion: ImageToVideoSceneOutput['cameraMotion'] = 'zoom-in';
+      if (isTensionOrCrisis) {
+        selectedMotion = idx % 2 === 0 ? 'push-in' : 'zoom-in';
+      } else if (isSuccessOrPayoff) {
+        selectedMotion = idx % 2 === 0 ? 'zoom-out' : 'pull-back';
+      } else if (/journey|progress|future|road|path|walk|forward/i.test(textLower)) {
+        selectedMotion = idx % 2 === 0 ? 'pan-right' : 'diagonal-tl-br';
+      } else if (/history|past|background|skyline|landscape|view/i.test(textLower)) {
+        selectedMotion = idx % 2 === 0 ? 'pan-left' : 'pan-up';
+      } else {
+        selectedMotion = DIVERSE_MOTIONS[idx % DIVERSE_MOTIONS.length];
+      }
+
+      // Prevent consecutive motion repetition
+      if (selectedMotion === lastMotion) {
+        const nextIdx: number = (DIVERSE_MOTIONS.indexOf(selectedMotion) + 1) % DIVERSE_MOTIONS.length;
+        selectedMotion = DIVERSE_MOTIONS[nextIdx];
+      }
+      lastMotion = selectedMotion;
+
+      scenes.push({
+        id: `scene-${String(idx + 1).padStart(2, '0')}`,
+        startSeconds: Math.round(beat.startSeconds * 100) / 100,
+        endSeconds: Math.round(beat.endSeconds * 100) / 100,
+        imageUrl: chosenImg.url,
+        sceneType: 'image' as const,
+        text: beat.text,
+        title: chosenImg.title || `Scene ${idx + 1}`,
+        cameraMotion: selectedMotion,
+        transition: DIVERSE_TRANSITIONS[idx % DIVERSE_TRANSITIONS.length],
+        objectPosition,
+      });
+    }
+
+    return scenes;
+  }
+
+  // ── BRANCH B: Stock / Library Fallback Pipeline (When No User Images Uploaded) ──
   const rawBeats: Array<{ startSeconds: number; endSeconds: number; text: string }> = [];
   if (words.length > 0) {
     let currentStart = 0;
@@ -1193,7 +1666,7 @@ export async function planVisualIntelligenceTimeline(
       const isLastWord = i === words.length - 1;
       const isSentenceBreak = /[.!?]$/.test(wordText) || (i < words.length - 1 && (Number(words[i + 1].start) - wordEnd) > 0.35);
 
-      if ((durSoFar >= 1.8 && isSentenceBreak) || durSoFar >= 4.2 || isLastWord) {
+      if ((durSoFar >= 2.0 && isSentenceBreak) || durSoFar >= 5.0 || isLastWord) {
         rawBeats.push({
           startSeconds: currentStart,
           endSeconds: isLastWord ? Math.max(wordEnd, safeTotalDuration) : wordEnd,
@@ -1207,14 +1680,10 @@ export async function planVisualIntelligenceTimeline(
     rawBeats.push({ startSeconds: 0, endSeconds: safeTotalDuration, text: userPrompt || 'Visual Story' });
   }
 
-  // 2. Gemini Call 1: Multi-Beat Semantic Intent Planner
   const subBeats = await generateVisualSceneIntents(fullTranscript, rawBeats);
-
-  // Load Unified Assets Pool (Pre-indexed stock + uploaded images)
   const enrichedStock = readEnrichedStockAssets();
-  const allPool = [...uploadedImages.map((u, idx) => ({ ...u, id: `upload-${idx + 1}`, sourceType: 'upload' })), ...enrichedStock];
+  const allPool = enrichedStock;
 
-  // 3. Stage 1 Local Search for Candidates
   const candidatesMap = new Map<string, CandidateAssetScore[]>();
   const cooldownMap = new Map<string, number>();
   let lastAssetUrl = '';
@@ -1224,17 +1693,7 @@ export async function planVisualIntelligenceTimeline(
     candidatesMap.set(sb.subBeatId, cands);
   });
 
-  // 4. Stage 2 Gemini Multimodal Visual Reranker
   const finalAssignments = await rerankCandidatesWithGemini(subBeats, candidatesMap);
-
-  const motions: Array<'zoom-in' | 'pan-left' | 'zoom-out' | 'pan-right' | 'pan-up' | 'pan-down'> = [
-    'zoom-in', 'pan-left', 'zoom-out', 'pan-right', 'pan-up', 'pan-down'
-  ];
-  const transitions: Array<'hard-cut' | 'dissolve' | 'push-left' | 'push-right'> = [
-    'dissolve', 'push-left', 'hard-cut', 'push-right'
-  ];
-
-  // 5. Build Final Timeline Scenes with Calibrated Decision Matrix
   const scenes: ImageToVideoSceneOutput[] = [];
 
   for (let idx = 0; idx < subBeats.length; idx++) {
@@ -1251,15 +1710,12 @@ export async function planVisualIntelligenceTimeline(
 
     const isNumericRequirement = /\b(\d+%|\$\d+|\d+x|statistics|percent)\b/i.test(sb.text);
 
-    // STRICT CALIBRATED DECISION MATRIX
     if (assignment && confidence >= 65 && !isNumericRequirement) {
-      // Tier 1 / Tier 2: Excellent or Good Contextual Image Match
       chosenUrl = assignment.url;
       chosenTitle = assignment.title;
       cooldownMap.set(chosenUrl, sb.endSeconds);
       lastAssetUrl = chosenUrl;
     } else {
-      // NO_SUITABLE_ASSET or Weak Match (< 65%): Deliberate Typography / Graphic Fallback
       chosenSceneType = 'typography';
       const wordsArr = sb.text.split(/\s+/).filter((w) => w.length > 2);
       typographyPrimary = wordsArr.slice(0, 3).join(' ').toUpperCase() || 'KEY INSIGHT';
@@ -1279,8 +1735,8 @@ export async function planVisualIntelligenceTimeline(
       typographyPrimary,
       typographySecondary,
       typographyAccent,
-      cameraMotion: motions[idx % motions.length],
-      transition: transitions[idx % transitions.length],
+      cameraMotion: DIVERSE_MOTIONS[idx % DIVERSE_MOTIONS.length],
+      transition: DIVERSE_TRANSITIONS[idx % DIVERSE_TRANSITIONS.length],
     });
   }
 

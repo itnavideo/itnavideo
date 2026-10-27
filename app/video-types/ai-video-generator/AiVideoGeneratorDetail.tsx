@@ -12,7 +12,7 @@ export default function AiVideoGeneratorDetail() {
       badge="Free AI Video Generator • Voice & Video to Video"
       accentColor="#38BDF8"
       aspectRatio="16:9"
-      previewImage="https://storage.googleapis.com/itnavideo-media-assets/file_0000000089c48211b67c16fe3c2636a2_prirg0.png"
+      previewImage="https://res.cloudinary.com/dhouh9idx/image/upload/v1792945592/file_000000004290821180a71f25ad75480e_nztpwe.png"
       dashHref="/dashboard?videoType=faceless-video"
       features={[
         { title: "Voiceover & Video to Scene Generator", desc: "Supports raw audio voiceovers (faceless) and recorded videos (facecam) with smart scene cuts." },

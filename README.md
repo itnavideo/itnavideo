@@ -14,17 +14,17 @@ Itnavideo is an enterprise-grade AI video creation suite for creators, agencies,
 
 | # | Video Studio | Spec File | Aspect Ratio | Max Duration | Credit Pricing | Core Pipeline & Focus |
 |---|---|---|:---:|:---:|:---:|---|
-| 1 | **Faceless Video Generator** | [`facelessvideo.md`](./docs/video-types/facelessvideo.md) | **16:9 Widescreen** | Up to 10 Min (600s) | 1 Min = 1 Credit | Voiceover → Groq Whisper → AI B-roll matching → Sound effects → 1080p MP4 |
-| 2 | **Book Summary Video** | [`booksummary.md`](./docs/video-types/booksummary.md) | **16:9 Widescreen** | Up to 10 Min (600s) | 1 Min = 1 Credit | Book narration audio → Chapter timestamps → Kinetic chapter cards & B-roll |
-| 3 | **Image to Video AI** | [`imagetovideoai.md`](./docs/video-types/imagetovideoai.md) | **16:9 Widescreen** | Up to 10 Min (600s) | 1 Min = 1 Credit | User images/photos + audio → Smooth parallax motion & scene pacing |
-| 4 | **YouTube Subtitles Generator** | [`youtubesubtitles.md`](./docs/video-types/youtubesubtitles.md) | **16:9 Widescreen** | Up to 10 Min (600s) | 1 Min = 1 Credit | Video/Audio → Groq Whisper → Burnt-in scrubber captions + SRT/VTT download |
-| 5 | **Long Video to Viral Clips** | [`longvideoclips.md`](./docs/video-types/longvideoclips.md) | **Output 9:16** | Input: 2 Hours<br/>Output: 30–60s | 2 Credits / Clip | Long horizontal video → AI hook detector → Face center tracking → 9:16 Shorts |
-| 6 | **Auto Caption Reel Generator** | [`autocaption.md`](./docs/video-types/autocaption.md) | **9:16 Vertical** | Up to 90s | 1 Credit | Raw video → Groq Whisper → Safe-zone kinetic word subtitles (11 presets) |
+| 1 | **Faceless Video Generator** | [`facelessvideo.md`](./docs/video-types/facelessvideo.md) | **16:9 Widescreen** | Up to 5 Min (300s) | 1 Min = 1 Credit | Voiceover → Groq Whisper → Vector storytelling (≤10% stock images, 90%+ 520px procedural SVGs) → Sound effects → 1080p MP4 |
+| 2 | **Book Summary Video** | [`booksummary.md`](./docs/video-types/booksummary.md) | **16:9 Widescreen** | Up to 5 Min (300s) | 1 Min = 1 Credit | Book narration audio → Chapter timestamps → Kinetic chapter cards & B-roll |
+| 3 | **Image to Video AI** | [`imagetovideoai.md`](./docs/video-types/imagetovideoai.md) | **16:9 Widescreen** | Up to 5 Min (300s) | 1 Min = 1 Credit | User images/photos + audio → Smooth parallax motion & scene pacing |
+| 4 | **YouTube Subtitles Generator** | [`youtubesubtitles.md`](./docs/video-types/youtubesubtitles.md) | **16:9 Widescreen** | Up to 5 Min (300s) | 1 Min = 1 Credit | Video/Audio → Groq Whisper → Burnt-in scrubber captions + SRT/VTT download |
+| 5 | **Long Video to Viral Clips** | [`longvideoclips.md`](./docs/video-types/longvideoclips.md) | **Output 9:16** | Input: 2 Hours<br/>Output: 30–60s | 1 Credit / Clip | Long horizontal video → AI hook detector → Face center tracking → 9:16 Shorts |
+| 6 | **Auto Caption Reel Generator** | [`autocaption.md`](./docs/video-types/autocaption.md) | **9:16 Vertical** | Up to 90s | 1 Credit | Raw video → Groq Whisper → WhiteStair two-tone single-line captions (11 presets) |
 | 7 | **Compare Explainer Video** | [`compareexplainer.md`](./docs/video-types/compareexplainer.md) | **9:16 Vertical** | Up to 90s | 1 Credit | Audio + 2 comparison images → Split-screen versus battle + animated stickers |
 | 8 | **Kinetic Typography Video** | [`typographyvideo.md`](./docs/video-types/typographyvideo.md) | **9:16 Vertical** | Up to 90s | 1 Credit | Narration audio → Millisecond word kinetics + dynamic camera pulses |
 | 9 | **Whiteboard Animation Video** | [`whiteboardvideo.md`](./docs/video-types/whiteboardvideo.md) | **9:16 Vertical** | Up to 90s | 1 Credit | Narration → Gemini strategy planner → SVG stickman draw + hand gestures |
 | 10 | **Long Video Promo Teaser** | [`longvideopromo.md`](./docs/video-types/longvideopromo.md) | **9:16 Vertical** | Up to 90s | 1 Credit | YouTube video + thumbnail → High-converting viral teaser reel |
-| 11 | **AI Studio Audio Cleaner** | [`audiocleaner.md`](./docs/video-types/audiocleaner.md) | **Audio Utility** | Up to 10 Min (600s) | 1 Credit | Denoise (-14dB), auto retake removal, EBU R128 loudness mastering |
+| 11 | **AI Studio Audio Cleaner** | [`audiocleaner.md`](./docs/video-types/audiocleaner.md) | **Audio Utility** | Up to 5 Min (300s) | 1 Credit | Denoise (-14dB), auto retake removal, EBU R128 loudness mastering |
 
 ---
 
@@ -32,9 +32,9 @@ Itnavideo is an enterprise-grade AI video creation suite for creators, agencies,
 
 Itnavideo uses a transparent, dual-currency ladder model designed for both short-form creators and long-form YouTube documentary producers:
 
-- **16:9 Long-Form Videos (Up to 10 Min)**: **1 Min = 1 Credit** (1 Min = 1 Cr, 5 Min = 5 Cr, 10 Min = 10 Cr).
+- **16:9 Long-Form Videos (Up to 5 Min)**: **1 Min = 1 Credit** (1 Min = 1 Cr, 2 Min = 2 Cr, 3 Min = 3 Cr, 4 Min = 4 Cr, 5 Min = 5 Cr).
 - **9:16 Short-Form Videos (Up to 90s)**: **1 Credit** per video (1080×1920 30 FPS MP4).
-- **Long Video Clips**: **2 Credits** per extracted vertical short.
+- **Long Video Clips**: **1 Credit** per extracted vertical short (1 clip = 1 credit, 5 clips = 5 credits).
 - **AI Audio Cleaner**: **1 Credit** per master audio export.
 
 ### Subscription Plans

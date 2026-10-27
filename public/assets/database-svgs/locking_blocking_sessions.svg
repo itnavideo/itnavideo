@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="Blocking Sessions & Row Locks">
+  <!-- Itnavideo Database Asset: Blocking Sessions & Row Locks -->
+  <circle cx="34" cy="46" r="18" fill="#15803D" stroke="#4ADE80" stroke-width="2" />
+      <text x="34" y="49" fill="#FFFFFF" font-size="7" font-family="sans-serif" font-weight="bold" text-anchor="middle">Holder</text>
+      <path d="M 52 46 h 16" stroke="#EF4444" stroke-width="3" stroke-linecap="round" />
+      <circle cx="86" cy="46" r="18" fill="#991B1B" stroke="#F87171" stroke-width="2" />
+      <text x="86" y="49" fill="#FFFFFF" font-size="7" font-family="sans-serif" font-weight="bold" text-anchor="middle">Waiter</text>
+      <text x="60" y="94" fill="#EF4444" font-size="8.5" font-family="sans-serif" font-weight="900" text-anchor="middle">BLOCKING SESSIONS</text>
+</svg>

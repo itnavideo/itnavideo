@@ -12,27 +12,31 @@ interface ToolVisualPreviewProps {
 
 // Clean mapping of tool IDs to Cloudinary assets from itnavideo-all folder
 const TOOL_IMAGE_MAP: Record<string, string> = {
-  "faceless-video": "https://res.cloudinary.com/dhouh9idx/image/upload/v1791892533/faceless_video_ytyxdo.png",
-  "book-summary": "https://res.cloudinary.com/dhouh9idx/image/upload/v1791892528/book_summary_video_xjvjuf.png",
-  "image-to-video": "https://res.cloudinary.com/dhouh9idx/image/upload/v1791892528/book_summary_video_xjvjuf.png",
-  "youtube-subtitles": "https://res.cloudinary.com/dhouh9idx/image/upload/v1791892530/youtube_subtitles_generator_nrgxle.png",
-  "auto-caption": "https://res.cloudinary.com/dhouh9idx/image/upload/v1791892531/auto_captions_x9khtt.png",
-  "typography-video": "https://res.cloudinary.com/dhouh9idx/image/upload/v1791892516/typography_kinetic_motion_lrpawu.png",
-  "whiteboard-video": "https://res.cloudinary.com/dhouh9idx/image/upload/v1791892527/whiteboard_video_wamtgr.png",
-  "compare-explainer": "https://res.cloudinary.com/dhouh9idx/image/upload/v1791892515/compare_explainer_wheox5.png",
-  "long-video-promo": "https://res.cloudinary.com/dhouh9idx/image/upload/v1791892524/longvideopromo_sq4ank.png",
-  "long-video-clips": "https://res.cloudinary.com/dhouh9idx/image/upload/v1791892526/viral_video_clips_hnlav3.png",
-  "audio-cleaner": "https://res.cloudinary.com/dhouh9idx/image/upload/v1791892521/audio_cleaner_tzshum.png",
+  "faceless-video": "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945592/file_000000004290821180a71f25ad75480e_nztpwe.png",
+  "faceless-shorts": "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945593/file_00000000806482119547c1b937b7e386_zsrmkb.png",
+  "book-summary": "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946358/book_summary_video_zbs4em.png",
+  "image-to-video": "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946349/imagetovideoai_w3hyci.jpg",
+  "youtube-subtitles": "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946360/youtube_subtitles_generator_who62l.png",
+  "auto-caption": "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png",
+  "typography-video": "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000a07482118a938d210f92e32c_lblzpy.png",
+  "whiteboard-video": "https://res.cloudinary.com/dhouh9idx/image/upload/v1792950977/file_00000000a8388211b1207dad39960dc7_ahvk9g.png",
+  "compare-explainer": "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946197/file_0000000035a48208ab4068beb2a66a7d_kctvo9.png",
+  "long-video-promo": "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946358/longvideopromo_o0qheb.png",
+  "long-video-clips": "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946357/viral_video_clips_rllgec.png",
+  "split-screen-explainer": "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945581/file_0000000039948211a5955d513e5d104a_wzrget.png",
+  "audio-cleaner": "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946356/audio_cleaner_pipcxj.png",
 };
 
 // Set of 9:16 vertical reel tool IDs
 const VERTICAL_TOOLS = new Set([
+  "faceless-shorts",
   "auto-caption",
   "typography-video",
   "whiteboard-video",
   "compare-explainer",
   "long-video-promo",
   "long-video-clips",
+  "split-screen-explainer",
 ]);
 
 export default function ToolVisualPreview({
@@ -90,7 +94,7 @@ export default function ToolVisualPreview({
               <span className="text-[10px] font-black tracking-wider text-amber-400 uppercase bg-amber-500/20 border border-amber-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
                 <Sparkles className="w-2.5 h-2.5" /> 16:9 Cinema Parallax
               </span>
-              <span className="text-[9px] font-mono text-slate-400">4K Render • 30fps</span>
+              <span className="text-[9px] font-mono text-slate-400">4K Render  30fps</span>
             </div>
             <div className="flex items-center gap-3 my-1">
               <div className="w-10 h-11 rounded-md bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center text-black font-black text-xs shadow-md">
@@ -132,7 +136,7 @@ export default function ToolVisualPreview({
             <div className="text-center space-y-1 my-1">
               <span className="block text-[10px] font-black text-slate-400">THIS IS HOW YOU</span>
               <span className="inline-block text-xs font-black text-slate-900 bg-amber-400 px-2 py-0.5 rounded shadow-lg transform -rotate-2 scale-105 animate-pulse">
-                GO VIRAL 🔥
+                GO VIRAL 
               </span>
             </div>
             <div className="w-full flex items-center justify-center gap-1 text-[8px] font-bold text-slate-300 bg-slate-800/80 py-0.5 rounded border border-slate-700">

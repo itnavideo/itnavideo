@@ -14,7 +14,7 @@ export interface ConfidentValue<T> {
   basis?: string; // Evidence basis (e.g., "temporal frame delta", "ocr bounding box", "gemini vision")
 }
 
-// ── 1. Style Metadata ─────────────────────────────────────────────────────────
+//  1. Style Metadata 
 
 export interface StyleMetadata {
   styleId: string;
@@ -29,7 +29,7 @@ export interface StyleMetadata {
   overallConfidence: number;
 }
 
-// ── 2. Style Identity & Temporal Rhythm ───────────────────────────────────────
+//  2. Style Identity & Temporal Rhythm 
 
 export type StylePersonality =
   | 'fast-kinetic'
@@ -62,7 +62,7 @@ export interface StylePacingAndRhythm {
   motionIntensity: ConfidentValue<'explosive' | 'punchy' | 'smooth-cinematic' | 'minimal-subtle'>;
 }
 
-// ── 3. Typography System & Hierarchy ─────────────────────────────────────────
+//  3. Typography System & Hierarchy 
 
 export type FontClassification =
   | 'bold-geometric-sans'
@@ -98,7 +98,7 @@ export interface TypographySystem {
   lineBreakPolicy: 'word-wrap' | 'balanced-stack' | 'single-line-clamp';
 }
 
-// ── 4. Composition System & Responsive Layout ─────────────────────────────────
+//  4. Composition System & Responsive Layout 
 
 export type LayoutStructure =
   | 'single-hero'
@@ -142,7 +142,7 @@ export interface CompositionSystem {
   isEdgeToEdge?: boolean;
 }
 
-// ── 5. Subject-Aware Relationship & Depth Layering ────────────────────────────
+//  5. Subject-Aware Relationship & Depth Layering 
 
 export type SubjectAwarenessMode =
   | 'avoids-face'
@@ -166,7 +166,7 @@ export interface SubjectRelationship {
   requiresSubjectCutout: boolean;
 }
 
-// ── 6. Motion & Animation System ──────────────────────────────────────────────
+//  6. Motion & Animation System 
 
 export type EntranceMotionType =
   | 'slam-scale'
@@ -217,7 +217,7 @@ export interface AnimationSystem {
   motionIntensity: 'explosive' | 'punchy' | 'smooth-cinematic' | 'minimal-subtle';
 }
 
-// ── 7. Color & Visual Treatment ───────────────────────────────────────────────
+//  7. Color & Visual Treatment 
 
 export interface VisualEffects {
   hasStroke: boolean;
@@ -263,7 +263,7 @@ export interface ColorSystem {
   contrastRatioEstimate: number;
 }
 
-// ── 8. Emphasis & Semantic Triggers ───────────────────────────────────────────
+//  8. Emphasis & Semantic Triggers 
 
 export type EmphasisTrigger =
   | 'power-words'
@@ -290,7 +290,7 @@ export interface EmphasisRule {
   iconType?: 'sparkle' | 'star' | 'checkmark' | 'speedometer' | 'question' | 'none';
 }
 
-// ── 9. Style Variants (Multiple Visual States in One Demo) ────────────────────
+//  9. Style Variants (Multiple Visual States in One Demo) 
 
 export type VisualStateSceneRole = 'hook' | 'statement' | 'emphasis' | 'keyword' | 'transition' | 'conclusion';
 
@@ -303,7 +303,7 @@ export interface StyleVariantRule {
   casingOverride?: TextCasing;
 }
 
-// ── 10. Sound Sync & Audio Cues ───────────────────────────────────────────────
+//  10. Sound Sync & Audio Cues 
 
 export type SfxPersonality =
   | 'heavy-thud-pop'
@@ -321,7 +321,7 @@ export interface SoundCueSystem {
   duckingEnabled: boolean;
 }
 
-// ── 11. Temporal Typography Events (Tracked Elements across Time) ─────────────
+//  11. Temporal Typography Events (Tracked Elements across Time) 
 
 export interface TransitionRamp {
   startSec: number;
@@ -362,7 +362,7 @@ export interface TypographyEvent {
   layerPlacement: LayerPlacement;
 }
 
-// ── 12. Frame Detections & Validation ─────────────────────────────────────────
+//  12. Frame Detections & Validation 
 
 export interface KeyframeDetection {
   timestampSeconds: number;
@@ -392,7 +392,7 @@ export interface BlueprintValidationReport {
   notes: string[];
 }
 
-// ── Complete Master Style Blueprint ───────────────────────────────────────────
+//  Complete Master Style Blueprint 
 
 export interface AdvancedStyleBlueprint {
   metadata: StyleMetadata;

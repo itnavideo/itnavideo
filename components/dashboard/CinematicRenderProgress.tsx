@@ -19,6 +19,7 @@ import {
   ShieldCheck,
   Tv,
   ArrowRight,
+  ArrowLeft,
 } from 'lucide-react';
 
 export interface RenderStepItem {
@@ -48,11 +49,11 @@ export interface CinematicRenderProgressProps {
   showTipsCarousel?: boolean;
 }
 
-// ─── HIGH-VALUE CREATOR RETENTION SECRETS & TIPS ─────────────────────────────
+//  HIGH-VALUE CREATOR RETENTION SECRETS & TIPS 
 const CREATOR_TIPS = [
   {
     kicker: 'YOUTUBE RETENTION SECRET',
-    tip: 'Cutting to new B-roll every 3–4 seconds keeps viewer retention 2.4× higher than static scenes.',
+    tip: 'Cutting to new B-roll every 34 seconds keeps viewer retention 2.4 higher than static scenes.',
     author: 'YouTube Algorithm Insight',
   },
   {
@@ -67,12 +68,12 @@ const CREATOR_TIPS = [
   },
   {
     kicker: 'CINEMATIC KEN BURNS MOTION',
-    tip: 'Subtle zoom drift (1.0× to 1.15×) glues audience eyes to the frame without causing visual motion fatigue.',
+    tip: 'Subtle zoom drift (1.0 to 1.15) glues audience eyes to the frame without causing visual motion fatigue.',
     author: 'Documentary Pacing Rule',
   },
   {
     kicker: 'CLOUD RENDERING SPEED',
-    tip: 'Our AWS Lambda Remotion cluster renders 1080p 30 FPS frames in parallel — 6× faster than local laptop rendering.',
+    tip: 'Our AWS Lambda Remotion cluster renders 1080p 30 FPS frames in parallel  6 faster than local laptop rendering.',
     author: 'Itnavideo Cloud Engine',
   },
   {
@@ -144,7 +145,7 @@ export default function CinematicRenderProgress({
 
   return (
     <div className="relative w-full max-w-3xl mx-auto rounded-[32px] border border-white/10 bg-[#0B0D13] p-5 sm:p-8 text-white shadow-2xl space-y-7 font-sans select-none overflow-hidden backdrop-blur-2xl">
-      {/* ── TOP AMBIENT WARM RADIAL GLOW (PURE ORANGE / AMBER, STRICT ZERO BLUE) ── */}
+      {/*  TOP AMBIENT WARM RADIAL GLOW (PURE ORANGE / AMBER, STRICT ZERO BLUE)  */}
       <div
         className="pointer-events-none absolute -top-32 inset-x-0 h-64 opacity-50 blur-3xl"
         style={{
@@ -152,7 +153,7 @@ export default function CinematicRenderProgress({
         }}
       />
 
-      {/* ── HEADER ROW: BADGES & CANCEL / RESET ── */}
+      {/*  HEADER ROW: BADGES & CANCEL / RESET  */}
       <div className="relative flex items-center justify-between gap-3 border-b border-white/[0.08] pb-4">
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black font-black shadow-md shadow-[#FF5722]/30">
@@ -173,7 +174,7 @@ export default function CinematicRenderProgress({
               </span>
             </div>
             <p className="text-[11px] text-zinc-400 truncate mt-0.5">
-              1080p Full HD · 30 FPS · AWS Lambda Cloud Node
+              1080p Full HD  30 FPS  AWS Lambda Cloud Node
             </p>
           </div>
         </div>
@@ -203,7 +204,7 @@ export default function CinematicRenderProgress({
         </div>
       </div>
 
-      {/* ── MAIN SHOWCASE: GLOWING APERTURE RING & LIVE METRICS ── */}
+      {/*  MAIN SHOWCASE: GLOWING APERTURE RING & LIVE METRICS  */}
       {!isError ? (
         <div className="relative rounded-2xl border border-white/[0.08] bg-[#12151F]/70 p-5 sm:p-7 space-y-6 text-center shadow-inner overflow-hidden">
           {/* Central Animated Aperture & Progress Ring */}
@@ -269,7 +270,7 @@ export default function CinematicRenderProgress({
               <span>
                 Elapsed: <span className="font-mono text-white">{formatTime(elapsedSeconds)}</span>
               </span>
-              <span className="text-zinc-600">•</span>
+              <span className="text-zinc-600"></span>
               <span>
                 Est. Remaining:{' '}
                 <span className="text-[#FFA000] font-extrabold">
@@ -287,7 +288,7 @@ export default function CinematicRenderProgress({
           </div>
         </div>
       ) : (
-        /* ── INTERRUPTED ERROR RECOVERY CONTAINER ── */
+        /*  INTERRUPTED ERROR RECOVERY CONTAINER  */
         <div className="relative rounded-2xl border border-red-500/30 bg-red-950/20 p-5 sm:p-7 space-y-5 text-center shadow-inner">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-red-500/30 bg-red-500/10 text-red-400 shadow-lg shadow-red-500/10">
             <AlertCircle size={28} />
@@ -306,33 +307,34 @@ export default function CinematicRenderProgress({
             <span>Zero credits deducted for interrupted or failed render attempts.</span>
           </div>
 
-          {/* Action Buttons: Retry vs Return */}
+          {/* Action Buttons: Back or Refresh */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-            {onRetry && (
-              <button
-                type="button"
-                onClick={onRetry}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-6 py-3 text-xs font-black text-black shadow-lg shadow-orange-500/25 transition hover:brightness-110 active:scale-95 cursor-pointer"
-              >
-                <RotateCcw size={14} />
-                <span>Retry Generation Now</span>
-              </button>
-            )}
-
             {onReset && (
               <button
                 type="button"
                 onClick={onReset}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 px-5 py-3 text-xs font-bold text-zinc-200 transition cursor-pointer active:scale-95"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-6 py-3 text-xs font-black text-black shadow-lg shadow-orange-500/25 transition hover:brightness-110 active:scale-95 cursor-pointer"
               >
-                <span>Edit Media &amp; Storyboard</span>
+                <ArrowLeft size={14} />
+                <span>Back to Editor / Start Fresh</span>
               </button>
             )}
+
+            <button
+              type="button"
+              onClick={() => {
+                if (typeof window !== 'undefined') window.location.reload();
+              }}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 px-5 py-3 text-xs font-bold text-zinc-200 transition cursor-pointer active:scale-95"
+            >
+              <RotateCcw size={14} />
+              <span>Refresh Page</span>
+            </button>
           </div>
         </div>
       )}
 
-      {/* ── LINEAR PROGRESS TRACK ── */}
+      {/*  LINEAR PROGRESS TRACK  */}
       {!isError && (
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs font-bold px-0.5">
@@ -361,7 +363,7 @@ export default function CinematicRenderProgress({
         </div>
       )}
 
-      {/* ── CINEMATIC 4-STAGE PIPELINE TRACKER ── */}
+      {/*  CINEMATIC 4-STAGE PIPELINE TRACKER  */}
       <div className="space-y-3 pt-1 border-t border-white/[0.08]">
         <div className="flex items-center justify-between text-xs font-black uppercase tracking-wider text-zinc-400">
           <span>Production Pipeline</span>
@@ -434,7 +436,7 @@ export default function CinematicRenderProgress({
         </div>
       </div>
 
-      {/* ── ROTATING CREATOR TIPS & YOUTUBE RETENTION INSIGHTS CAROUSEL ── */}
+      {/*  ROTATING CREATOR TIPS & YOUTUBE RETENTION INSIGHTS CAROUSEL  */}
       {showTipsCarousel && !isError && (
         <div className="rounded-2xl border border-orange-500/20 bg-gradient-to-r from-orange-500/[0.08] via-amber-500/[0.04] to-transparent p-4 space-y-2">
           <div className="flex items-center justify-between">

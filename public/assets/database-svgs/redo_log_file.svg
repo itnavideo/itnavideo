@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="Online Redo Log File">
+  <!-- Itnavideo Database Asset: Online Redo Log File -->
+  <circle cx="60" cy="60" r="44" fill="#7F1D1D" stroke="#EF4444" stroke-width="3" />
+      <circle cx="60" cy="60" r="32" fill="#991B1B" stroke="#F87171" stroke-width="1.5" stroke-dasharray="4 3" />
+      <circle cx="60" cy="60" r="16" fill="#DC2626" />
+      <polygon points="56,52 68,60 56,68" fill="#FEF08A" />
+      <text x="60" y="96" fill="#FECACA" font-size="7.5" font-family="sans-serif" font-weight="bold" text-anchor="middle">ONLINE REDO</text>
+</svg>

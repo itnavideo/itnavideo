@@ -17,7 +17,7 @@ export default function UploadPipelineSection() {
             Text to Video &amp; <span className="bg-gradient-to-r from-purple-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">Automated AI Video Creator</span>
           </h2>
           <p className="mt-4 text-sm sm:text-base text-zinc-400">
-            Upload audio, raw video clips, photos, or text scripts — our AI video generator automatically transcribes, plans scenes, matches visuals, syncs captions, and renders publish-ready 1080p Full HD videos.
+            Upload voiceovers, raw video recordings, or photos — our AI video generator automatically transcribes, plans scenes, matches visuals, syncs captions, and renders publish-ready 1080p Full HD videos.
           </p>
         </div>
 

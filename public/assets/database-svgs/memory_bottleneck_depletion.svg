@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="Memory Depletion & OOM Killer">
+  <!-- Itnavideo Database Asset: Memory Depletion & OOM Killer -->
+  <rect x="18" y="28" width="84" height="48" rx="6" fill="#1E293B" stroke="#F97316" stroke-width="2" />
+      <rect x="22" y="32" width="76" height="40" fill="#EA580C" />
+      <text x="60" y="56" fill="#FFFFFF" font-size="10" font-family="sans-serif" font-weight="900" text-anchor="middle">RAM 99%</text>
+      <text x="60" y="94" fill="#F97316" font-size="8" font-family="sans-serif" font-weight="900" text-anchor="middle">MEMORY DEPLETION</text>
+      <text x="60" y="106" fill="#FED7AA" font-size="6.5" font-family="sans-serif" text-anchor="middle">Swapping / Paging Detected</text>
+</svg>

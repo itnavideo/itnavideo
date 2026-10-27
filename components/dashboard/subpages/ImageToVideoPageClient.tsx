@@ -312,7 +312,21 @@ export default function ImageToVideoDashboardPage() {
     setImagePhrases((prev) => prev.filter((_, idx) => idx !== indexToRemove));
   };
 
-
+  const handleReorderImage = (fromIndex: number, toIndex: number) => {
+    if (fromIndex < 0 || toIndex < 0 || fromIndex >= imageFiles.length || toIndex >= imageFiles.length) return;
+    setImageFiles((prev) => {
+      const copy = [...prev];
+      const [moved] = copy.splice(fromIndex, 1);
+      copy.splice(toIndex, 0, moved);
+      return copy;
+    });
+    setImagePhrases((prev) => {
+      const copy = [...prev];
+      const [moved] = copy.splice(fromIndex, 1);
+      copy.splice(toIndex, 0, moved);
+      return copy;
+    });
+  };
 
   // Batch upload images in chunks of 4
   async function uploadImagesBatch(files: File[], mode: string, userId: string): Promise<string[]> {
@@ -329,13 +343,18 @@ export default function ImageToVideoDashboardPage() {
   }
 
   // Start Render Handler
-  async function handleStartRender(previewScenes?: any[]) {
+  async function handleStartRender(scenesInput?: any) {
+    const previewScenes = Array.isArray(scenesInput) ? scenesInput : undefined;
     if (!user) {
       router.push("/login?returnUrl=/dashboard/image-to-video");
       return;
     }
     if (!selectedAudio) {
       alert("Please upload a voiceover audio file first.");
+      return;
+    }
+    if (estimatedDurationSeconds > 300) {
+      alert("Image to Video AI supports audio up to 5 minutes (300s). Please trim your audio file and try again.");
       return;
     }
     if ((imageToVideoAssetMode === "upload" || imageToVideoAssetMode === "mix") && imageFiles.length === 0) {
@@ -361,7 +380,7 @@ export default function ImageToVideoDashboardPage() {
 
       // 2. Upload images whenever the user has added any
       let uploadedImageKeys: string[] = [];
-      let uploadedImageAnchors: { url: string; targetPhrase: string }[] = [];
+      let uploadedImageAnchors: { url: string; targetPhrase: string; sequenceIndex: number }[] = [];
       if (imageFiles.length > 0) {
         setJobStatus({
           state: "uploading",
@@ -371,7 +390,9 @@ export default function ImageToVideoDashboardPage() {
         uploadedImageKeys = await uploadImagesBatch(imageFiles, "imageToVideoAi", user.id);
         uploadedImageAnchors = uploadedImageKeys.map((key, idx) => ({
           url: key,
-          targetPhrase: imagePhrases[idx] || ""
+          targetPhrase: (imagePhrases[idx] || "").trim(),
+          sequenceIndex: idx,
+          originalFileName: imageFiles[idx]?.name || `Image ${idx + 1}`,
         }));
       }
 
@@ -410,7 +431,7 @@ export default function ImageToVideoDashboardPage() {
           userEmail: user.email || undefined,
           uploadedImageKeys,
           uploadedImageAnchors,
-          previewScenes: previewScenes || undefined,
+          previewScenes: previewScenes,
           customImageUrls: (() => {
             if (Array.isArray(previewScenes) && previewScenes.length > 0) {
               const urls = previewScenes.map((s: any) => s.imageUrl || s.url).filter(Boolean);
@@ -449,6 +470,19 @@ export default function ImageToVideoDashboardPage() {
       const renderId = jobPayload.renderId;
       const bucketName = jobPayload.bucketName;
 
+      // Extract planner diagnostics (unmatched phrases, conflicts resolved, Hindi translation alignment)
+      const diag = jobPayload.diagnostics;
+      const diagMessages: string[] = [];
+      if (Array.isArray(diag?.unmatchedPhrases) && diag.unmatchedPhrases.length > 0) {
+        diagMessages.push(`${diag.unmatchedPhrases.length} excerpt phrase${diag.unmatchedPhrases.length > 1 ? 's' : ''} not found in speech audio; automatic AI story pacing applied.`);
+      }
+      if (Array.isArray(diag?.conflictsResolved) && diag.conflictsResolved.length > 0) {
+        diagMessages.push(`${diag.conflictsResolved.length} overlapping excerpt boundary smoothly snapped to speech pause.`);
+      }
+      if (typeof diag?.translatedSegmentsCount === 'number' && diag.translatedSegmentsCount > 0) {
+        diagMessages.push(`Hindi narration aligned with English visual tags (${diag.translatedSegmentsCount} segments).`);
+      }
+
       // 5. Poll Job Status
       setJobStatus({
         state: "rendering",
@@ -457,6 +491,7 @@ export default function ImageToVideoDashboardPage() {
         renderId,
         bucketName,
         title: plannedTitle,
+        diagnostics: diagMessages.length > 0 ? diagMessages : undefined,
       });
 
       let attempts = 0;
@@ -609,7 +644,7 @@ export default function ImageToVideoDashboardPage() {
 
   return (
     <div className="min-h-screen bg-[#09090B] text-zinc-100 flex flex-col selection:bg-[#FF5722]/20 selection:text-[#FF5722]">
-      {/* ── Top Navigation Bar ── */}
+      {/*  Top Navigation Bar  */}
       <header className="sticky top-0 z-40 border-b border-zinc-800/80 bg-[#09090B]/90 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-16 py-2 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
           <div className="flex items-center gap-2 sm:gap-4 shrink-0">
@@ -623,7 +658,7 @@ export default function ImageToVideoDashboardPage() {
 
             <div className="h-4 w-px bg-zinc-800 hidden sm:block" />
 
-            <BrandLogo size="sm" showBadge={false} />
+            <BrandLogo size="sm" showBadge={false} variant="dark" />
 
             <span className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-2.5 py-0.5 text-[11px] font-black text-[#FF5722]">
               <Sparkles size={11} className="text-[#FF5722]" />
@@ -648,7 +683,7 @@ export default function ImageToVideoDashboardPage() {
         </div>
       </header>
 
-      {/* ── Main Canvas ── */}
+      {/*  Main Canvas  */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
         {(isWorking || isReady || isError) ? (
@@ -659,7 +694,7 @@ export default function ImageToVideoDashboardPage() {
               status={jobStatus}
               title={jobStatus.title || topicTitle || selectedAudio?.name?.replace(/\.[^/.]+$/, "") || "Image to Video AI Generation"}
               fileName={selectedAudio?.name}
-              onRetry={handleStartRender}
+              onRetry={() => handleStartRender()}
               onReset={handleReset}
               onCancel={handleCancelProcess}
             />
@@ -672,6 +707,7 @@ export default function ImageToVideoDashboardPage() {
             imageFiles={imageFiles}
             onAddImages={handleAddImages}
             onRemoveImage={handleRemoveImage}
+            onReorderImages={handleReorderImage}
             imagePhrases={imagePhrases}
             onChangeImagePhrase={(idx, val) => {
               setImagePhrases((prev) => {
@@ -719,7 +755,7 @@ export default function ImageToVideoDashboardPage() {
         )}
       </main>
 
-      {/* ── Exit Confirmation Modal ── */}
+      {/*  Exit Confirmation Modal  */}
       {showExitConfirmModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <div className="w-full max-w-md rounded-[28px] border border-white/10 bg-[#0E1526] p-6 sm:p-8 shadow-2xl space-y-5 text-center">

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="SQL Tuning Advisor (STA)">
+  <!-- Itnavideo Database Asset: SQL Tuning Advisor (STA) -->
+  <circle cx="60" cy="46" r="28" fill="#0C4A6E" stroke="#38BDF8" stroke-width="3" />
+      <path d="M 48 38 l 24 16 l -24 0 Z" fill="#FACC15" />
+      <text x="60" y="94" fill="#38BDF8" font-size="8" font-family="sans-serif" font-weight="900" text-anchor="middle">SQL TUNING ADVISOR</text>
+      <text x="60" y="106" fill="#CBD5E1" font-size="6.5" font-family="sans-serif" text-anchor="middle">Generates SQL Profiles</text>
+</svg>

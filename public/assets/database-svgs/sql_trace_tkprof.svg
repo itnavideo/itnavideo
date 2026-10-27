@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="SQL Trace & TKPROF Formatter">
+  <!-- Itnavideo Database Asset: SQL Trace & TKPROF Formatter -->
+  <rect x="22" y="18" width="76" height="74" rx="8" fill="#1C1917" stroke="#F59E0B" stroke-width="2.5" />
+      <text x="60" y="34" fill="#FDE68A" font-size="8.5" font-family="sans-serif" font-weight="900" text-anchor="middle">TKPROF REPORT</text>
+      <text x="60" y="48" fill="#FFFFFF" font-size="6" font-family="monospace" text-anchor="middle">Parse  CPU  Elapsed</text>
+      <text x="60" y="58" fill="#F59E0B" font-size="6" font-family="monospace" text-anchor="middle">0.01   0.45   0.52</text>
+      <text x="60" y="70" fill="#22C55E" font-size="6" font-family="monospace" text-anchor="middle">Rows: 1,420,000</text>
+      <text x="60" y="104" fill="#F59E0B" font-size="7.5" font-family="sans-serif" font-weight="bold" text-anchor="middle">RAW TRACE PROFILER</text>
+</svg>

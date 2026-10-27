@@ -434,7 +434,7 @@ export default function LongVideoPromoPage() {
             >
               <ArrowLeft size={16} />
             </Link>
-            <BrandLogo />
+            <BrandLogo size="sm" variant="dark" />
           </div>
 
           <div className="flex items-center gap-4">

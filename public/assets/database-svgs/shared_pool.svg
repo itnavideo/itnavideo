@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="Shared Pool (Library Cache + Data Dictionary)">
+  <!-- Itnavideo Database Asset: Shared Pool (Library Cache + Data Dictionary) -->
+  <rect x="12" y="16" width="96" height="88" rx="10" fill="#312E81" stroke="#818CF8" stroke-width="2.5" />
+      <text x="60" y="34" fill="#C7D2FE" font-size="10" font-family="sans-serif" font-weight="900" text-anchor="middle">SHARED POOL</text>
+      <rect x="20" y="42" width="80" height="26" rx="6" fill="#4338CA" stroke="#A5B4FC" stroke-width="1.5" />
+      <text x="60" y="58" fill="#FFFFFF" font-size="8" font-family="sans-serif" font-weight="bold" text-anchor="middle">Library Cache (Parsed SQL)</text>
+      <rect x="20" y="72" width="80" height="24" rx="6" fill="#4338CA" stroke="#A5B4FC" stroke-width="1.5" />
+      <text x="60" y="88" fill="#FFFFFF" font-size="8" font-family="sans-serif" font-weight="bold" text-anchor="middle">Data Dictionary Cache</text>
+</svg>

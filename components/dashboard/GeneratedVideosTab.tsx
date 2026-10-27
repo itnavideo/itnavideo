@@ -134,7 +134,7 @@ export default function GeneratedVideosTab({
                         ? new Date(render.createdAt).toLocaleDateString()
                         : "Recently Rendered"}
                     </span>
-                    <span>•</span>
+                    <span></span>
                     <span className="text-emerald-400 font-bold">Full HD MP4</span>
                   </div>
                 </div>
@@ -185,7 +185,7 @@ export default function GeneratedVideosTab({
             >
               <div>
                 <div className="text-xs font-black text-white group-hover:text-[#FFA000]">
-                  ⚡ Auto Caption Studio
+                   Auto Caption Studio
                 </div>
                 <div className="text-[10px] text-zinc-400">Safe-zone word subtitles</div>
               </div>
@@ -198,7 +198,7 @@ export default function GeneratedVideosTab({
             >
               <div>
                 <div className="text-xs font-black text-white group-hover:text-[#FFA000]">
-                  🔥 Kinetic Motion
+                   Kinetic Motion
                 </div>
                 <div className="text-[10px] text-zinc-400">11 motion animation presets</div>
               </div>

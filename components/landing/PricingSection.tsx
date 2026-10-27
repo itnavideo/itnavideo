@@ -2,7 +2,7 @@ import { SubscriptionPricingCards } from "@/components/billing/SubscriptionPrici
 import { pricingPlans, resolvePlanQuoteForCountry } from "@/lib/billing/plans";
 
 const defaultDisplayPrices = Object.fromEntries(
-  pricingPlans.map((plan) => [plan.id, resolvePlanQuoteForCountry(plan, "IN").displayPrice])
+  pricingPlans.map((plan) => [plan.id, resolvePlanQuoteForCountry(plan, "US").displayPrice])
 );
 
 export default function PricingSection() {

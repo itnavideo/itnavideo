@@ -1,7 +1,8 @@
 // lib/captions/styleSystems.ts
-// 10 Distinct Professional Motion Caption Style Design Systems ($49+ tier)
+// 13 Distinct Professional Motion Caption Style Design Systems ($49+ tier)
 
 import type { StyleSystemPreset } from './types';
+import { SUBTITLE_PRESETS } from '../../remotion/types/subtitles';
 
 export const STYLE_SYSTEMS: Record<string, StyleSystemPreset> = {
   'dynamic-punch': {
@@ -598,7 +599,7 @@ export const STYLE_SYSTEMS: Record<string, StyleSystemPreset> = {
 };
 
 /**
- * Normalizes any legacy or custom style string into one of the 10 core Style Systems
+ * Normalizes any legacy or custom style string into one of the 13 core Style Systems
  */
 export function resolveStyleSystem(styleName?: string): StyleSystemPreset {
   if (!styleName) return STYLE_SYSTEMS['dynamic-punch'];
@@ -650,8 +651,39 @@ export function resolveStyleSystem(styleName?: string): StyleSystemPreset {
     'eclipse': 'studio-clean',
     'marigold': 'dubai-gold',
     'midnight': 'studio-clean',
+    'creator-3': 'dynamic-punch',
+    'creator-4': 'dubai-gold',
+    'crazy-gradient': 'prism-pro',
+    'spark-glow': 'dubai-gold',
+    'gamer-bold': 'dynamic-punch',
+    'cursive-contrast': 'minimal-editorial',
+    'discipline-red': 'dynamic-punch',
+    'kinetic-multicolor': 'karaoke-pro',
+    'impact-glow': 'neon-kinetic',
+    'red-wipe': 'paper-collage',
+    'punch-yellow': 'dynamic-punch',
+    'cook-chromatic': 'neon-kinetic',
+    'master-pill': 'studio-clean',
+    'solo-pop': 'dynamic-punch',
+    'estate-metallic': 'liquid-chrome',
+    'story-serif': 'minimal-editorial',
+    'submagic-glow': 'neon-kinetic',
+    'hormozi-viral-pop': 'dynamic-punch',
+    'mrbeast-shorts-impact': 'dynamic-punch',
+    'ali-abdaal-clean-pill': 'studio-clean',
+    'kurzgesagt-explainer': 'm3-dynamic-chip',
+    'diary-of-a-ceo': 'minimal-editorial',
+    'devane-luxury-serif': 'dubai-gold',
+    'spark': 'dubai-gold',
+    'vox-documentary': 'minimal-editorial',
+    'hacker-type': 'prism-pro',
   };
 
-  const matchedKey = ALIAS_MAP[normalized] || 'dynamic-punch';
+  const presetStyle = SUBTITLE_PRESETS[styleName]?.style;
+  const normalizedPresetStyle = presetStyle?.toLowerCase().replace(/[_\s-]+/g, '-') || '';
+  const matchedKey =
+    ALIAS_MAP[normalized] ||
+    ALIAS_MAP[normalizedPresetStyle] ||
+    (STYLE_SYSTEMS[normalizedPresetStyle] ? normalizedPresetStyle : 'dynamic-punch');
   return STYLE_SYSTEMS[matchedKey] || STYLE_SYSTEMS['dynamic-punch'];
 }

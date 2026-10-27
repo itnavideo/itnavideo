@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="Large Pool">
+  <!-- Itnavideo Database Asset: Large Pool -->
+  <rect x="14" y="20" width="92" height="80" rx="12" fill="#14532D" stroke="#22C55E" stroke-width="2.5" />
+      <text x="60" y="42" fill="#86EFAC" font-size="11" font-family="sans-serif" font-weight="900" text-anchor="middle">LARGE POOL</text>
+      <rect x="22" y="52" width="76" height="18" rx="4" fill="#15803D" />
+      <text x="60" y="65" fill="#FFFFFF" font-size="8" font-family="sans-serif" font-weight="bold" text-anchor="middle">RMAN Backup Buffers</text>
+      <rect x="22" y="74" width="76" height="18" rx="4" fill="#15803D" />
+      <text x="60" y="87" fill="#FFFFFF" font-size="8" font-family="sans-serif" font-weight="bold" text-anchor="middle">Parallel Query Slaves</text>
+</svg>

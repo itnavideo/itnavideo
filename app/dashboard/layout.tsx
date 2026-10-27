@@ -10,5 +10,5 @@ export const metadata: Metadata = {
 };
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  return <div className="bg-[#F8FAFC] text-slate-900 min-h-screen selection:bg-[#FF5722]/20 selection:text-[#FF5722]">{children}</div>;
+  return <div className="bg-[#070B14] text-white min-h-screen selection:bg-[#FF5722]/20 selection:text-[#FF5722]">{children}</div>;
 }

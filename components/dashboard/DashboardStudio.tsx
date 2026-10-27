@@ -1,10 +1,8 @@
 "use client";
 
 import BrandLogo from '@/components/brand/BrandLogo';
-import {StickerStylePicker} from '@/components/compare/StickerStylePicker';
 import {CompareTextFields} from '@/components/compare/CompareTextFields';
 import {CompareImageSlots} from '@/components/compare/CompareImageSlots';
-import {TypographyStylePicker} from '@/components/typography/TypographyStylePicker';
 import { VideoStyleControls, HeadingFontOption, TypographyFontOption } from "@/components/ui/VideoStyleControls";
 import { FacelessVideoStyleControls } from "@/components/ui/FacelessVideoStyleControls";
 import { DualLanguageSelector } from "@/components/ui/LanguageSelector";
@@ -71,27 +69,27 @@ const trackVideoTypeSelect = (..._args: any[]) => {};
 const trackFileUpload = (..._args: any[]) => {};
 import dynamic from "next/dynamic";
 
-// Lazy-load PreviewEditor — only loaded when user triggers preview
+// Lazy-load PreviewEditor  only loaded when user triggers preview
 const PreviewEditor = dynamic(
   () => import("@/components/preview/PreviewEditor").then((m) => m.PreviewEditor),
   { ssr: false }
 );
 
-// Lazy-load Typography Video live preview — only loaded when Typography Video is selected
+// Lazy-load Typography Video live preview  only loaded when Typography Video is selected
 const TypographyPreview = dynamic(
   () => import("@/components/preview/TypographyPreview").then((m) => m.TypographyPreview),
   { ssr: false, loading: () => <div className="mx-auto w-full max-w-[220px] rounded-xl border border-border bg-muted/40" style={{ aspectRatio: "9 / 16" }} /> }
 );
 
-// Whiteboard uses a single board style now — no live preview component needed
+// Whiteboard uses a single board style now  no live preview component needed
 
-// Lazy-load Compare Explainer live preview — only loaded when Compare is selected
+// Lazy-load Compare Explainer live preview  only loaded when Compare is selected
 const ComparePreview = dynamic(
   () => import("@/components/preview/ComparePreview").then((m) => m.ComparePreview),
   { ssr: false, loading: () => <div className="mx-auto w-full max-w-[220px] rounded-xl border border-border bg-muted/40" style={{ aspectRatio: "9 / 16" }} /> }
 );
 
-// Lazy-load Long Video Promo live preview — only loaded when Long Video Promo is selected
+// Lazy-load Long Video Promo live preview  only loaded when Long Video Promo is selected
 const LongVideoPromoPreview = dynamic(
   () => import("@/components/preview/LongVideoPromoPreview").then((m) => m.LongVideoPromoPreview),
   { ssr: false, loading: () => <div className="mx-auto w-full max-w-[220px] rounded-xl border border-border bg-muted/40" style={{ aspectRatio: "9 / 16" }} /> }
@@ -229,15 +227,14 @@ const RENDER_POLL_INTERVAL_MS = 3000;
 const RENDER_POLL_ATTEMPTS = 800; // ~40 minutes max polling for 12-minute 1080p long renders
 
 const videoTypeCards = [
-  { id: "faceless-video", title: "Faceless Video", tag: "Primary Focus • 16:9 Widescreen", description: "Turn voiceovers into complete 16:9 YouTube videos (explainers, book summaries) with AI visuals & B-roll.", image: "/visuals/dashboard-cards/faceless-video.webp", badgeType: "Popular" as const, accent: "#8B5CF6", mode: "facelessVideo" as const, category: "long", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "10 Credits • Paid" },
-  { id: "auto-caption-generator", title: "Auto Caption Generator", tag: "9:16 Reel • Max 90s", description: "Generate animated captions & word-by-word highlights for Reels, Shorts, and TikTok videos.", image: "/visuals/dashboard-cards/auto-caption.webp", badgeType: "Popular" as const, accent: "#F59E0B", mode: "autoCaption" as const, category: "creator", inputType: "video" as const, accessTier: "free" as const, creditCost: "🎁 Free Trial / 10 Credits" },
-  { id: "compare-explainer", title: "Compare Explainer Video", tag: "9:16 Reel • Max 90s", description: "Left vs right comparison with narration and sticker presenter.", image: "/visuals/dashboard-cards/compare-explainer.webp", badgeType: "AI" as const, accent: "#F59E0B", mode: "compare" as const, category: "education", inputType: "text" as const, accessTier: "paid" as const, creditCost: "10 Credits • Paid" },
-  { id: "whiteboard-video", title: "Whiteboard Animation", tag: "9:16 Reel • Max 90s", description: "AI writes key points on a whiteboard synced to your speech.", image: "/visuals/dashboard-cards/whiteboard-video.webp", badgeType: "AI" as const, accent: "#00FF9D", mode: "whiteboardVideo" as const, category: "education", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "10 Credits • Paid" },
-  { id: "typography-video", title: "Kinetic Motion Video", tag: "9:16 Reel • Max 90s", description: "Turn talking video or voiceover into punchy kinetic typography reels.", image: "/visuals/dashboard-cards/typography-video.webp", badgeType: "Popular" as const, accent: "#F59E0B", mode: "typographyVideo" as const, category: "creator", inputType: "video" as const, accessTier: "paid" as const, creditCost: "10 Credits • Paid" },
-  { id: "image-to-video-ai", title: "Image to Video AI", tag: "16:9 Long Video • Max 10m", description: "Turn voiceover into cinematic videos with images, Ken Burns motion & subtitles.", image: "/visuals/dashboard-cards/image-to-video.webp", badgeType: "New" as const, accent: "#8B5CF6", mode: "imageToVideoAi" as const, category: "long", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "1 Min = 1 Cr • Paid" },
-  { id: "book-summary", title: "Book Summary Video", tag: "16:9 Long Video • Max 10m", description: "Turn book narration into a summary video with AI lesson cards.", image: "/visuals/dashboard-cards/book-summary.webp", badgeType: "New" as const, accent: "#FF5722", mode: "bookSummary" as const, category: "long", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "1 Min = 1 Cr • Paid" },
-  { id: "long-video-clips", title: "Viral Video Clips", tag: "9:16 Shorts • Input up to 2h", description: "Turn long videos and podcasts (up to 2 hours) into short viral clips with captions.", image: "/visuals/dashboard-cards/long-video-clips.webp", badgeType: "New" as const, accent: "#F59E0B", mode: "longVideoClips" as const, category: "long", inputType: "video" as const, accessTier: "paid" as const, creditCost: "10 Credits / Clip • Paid" },
-  { id: "ai-audio-cleaner", title: "AI Audio Cleaner", tag: "Studio Master Audio • Max 5m", description: "Full script preview in dashboard • Auto removes recording mistakes, silences & noise.", image: "/visuals/dashboard-cards/audio-cleaner.webp", badgeType: "Pro" as const, accent: "#F59E0B", mode: "audioClean" as const, category: "long", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "5 Credits • Paid" },
+  { id: "faceless-video", title: "Faceless Video", tag: "Primary Focus  16:9 Widescreen", description: "Turn voiceovers into complete 16:9 YouTube videos (explainers, book summaries) with AI visuals & B-roll.", image: "/visuals/dashboard-cards/faceless-video.webp", badgeType: "Popular" as const, accent: "#8B5CF6", mode: "facelessVideo" as const, category: "long", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "10 Credits  Paid" },
+  { id: "auto-caption-generator", title: "Auto Caption Generator", tag: "9:16 Reel  Max 90s", description: "Generate animated captions & word-by-word highlights for Reels, Shorts, and TikTok videos.", image: "/visuals/dashboard-cards/auto-caption.webp", badgeType: "Popular" as const, accent: "#F59E0B", mode: "autoCaption" as const, category: "creator", inputType: "video" as const, accessTier: "free" as const, creditCost: " Free Trial / 10 Credits" },
+  { id: "compare-explainer", title: "Compare Explainer Video", tag: "9:16 Reel  Max 90s", description: "Left vs right comparison with narration and sticker presenter.", image: "/visuals/dashboard-cards/compare-explainer.webp", badgeType: "AI" as const, accent: "#F59E0B", mode: "compare" as const, category: "education", inputType: "text" as const, accessTier: "paid" as const, creditCost: "10 Credits  Paid" },
+  { id: "whiteboard-video", title: "Whiteboard Animation", tag: "9:16 Reel  Max 90s", description: "AI writes key points on a whiteboard synced to your speech.", image: "/visuals/dashboard-cards/whiteboard-video.webp", badgeType: "AI" as const, accent: "#00FF9D", mode: "whiteboardVideo" as const, category: "education", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "10 Credits  Paid" },
+  { id: "image-to-video-ai", title: "Image to Video AI", tag: "16:9 Long Video  Max 10m", description: "Turn voiceover into cinematic videos with images, Ken Burns motion & subtitles.", image: "/visuals/dashboard-cards/image-to-video.webp", badgeType: "New" as const, accent: "#8B5CF6", mode: "imageToVideoAi" as const, category: "long", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "1 Min = 1 Cr  Paid" },
+  { id: "book-summary", title: "Book Summary Video", tag: "16:9 Long Video  Max 10m", description: "Turn book narration into a summary video with AI lesson cards.", image: "/visuals/dashboard-cards/book-summary.webp", badgeType: "New" as const, accent: "#FF5722", mode: "bookSummary" as const, category: "long", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "1 Min = 1 Cr  Paid" },
+  { id: "long-video-clips", title: "Viral Video Clips", tag: "9:16 Shorts  Input up to 2h", description: "Turn long videos and podcasts (up to 2 hours) into short viral clips with captions.", image: "/visuals/dashboard-cards/long-video-clips.webp", badgeType: "New" as const, accent: "#F59E0B", mode: "longVideoClips" as const, category: "long", inputType: "video" as const, accessTier: "paid" as const, creditCost: "10 Credits / Clip  Paid" },
+  { id: "ai-audio-cleaner", title: "AI Audio Cleaner", tag: "Studio Master Audio  Max 5m", description: "Full script preview in dashboard  Auto removes recording mistakes, silences & noise.", image: "/visuals/dashboard-cards/audio-cleaner.webp", badgeType: "Pro" as const, accent: "#F59E0B", mode: "audioClean" as const, category: "long", inputType: "audio" as const, accessTier: "paid" as const, creditCost: "5 Credits  Paid" },
 ] as const;
 
 function getPlannedRenderCreditUnits(mode: Mode, durationSeconds?: number, clipCount = 3) {
@@ -261,11 +258,11 @@ const modeConfig = {
   autoCaption: {
     label: "Auto Caption Generator",
     title: "Auto Caption Generator",
-    description: "📹 Upload: Vertical video with speech (9:16 Reel/Shorts/TikTok)\nAI generates word-synced animated captions",
+    description: " Upload: Vertical video with speech (9:16 Reel/Shorts/TikTok)\nAI generates word-synced animated captions",
     accept: "video/*",
     supported: "MP4, MOV, WEBM",
     bestResult: "9:16 vertical videos with clear voice (1 credit per min)",
-    uploadCta: "📹 Upload your 9:16 video",
+    uploadCta: " Upload your 9:16 video",
     icon: Captions,
     color: "text-primary",
     border: "border-border",
@@ -274,11 +271,11 @@ const modeConfig = {
   compare: {
     label: "Compare Explainer Video",
     title: "Compare Explainer Video",
-    description: "🎙️ Upload: Audio voiceover\n🖼️ Required: 2 images (left vs right)",
+    description: " Upload: Audio voiceover\n Required: 2 images (left vs right)",
     accept: "audio/*",
     supported: "MP3, WAV, M4A, AAC",
     bestResult: "Short comparison voiceover + 2 clear images",
-    uploadCta: "🎙️ Upload audio",
+    uploadCta: " Upload audio",
     icon: Layers3,
     color: "text-primary",
     border: "border-border",
@@ -287,11 +284,11 @@ const modeConfig = {
   dynamicCreator: {
     label: "Creator Reel Video",
     title: "Creator Reel Video",
-    description: "📹 Upload: One vertical talking video\nAI adds dynamic edits and typography",
+    description: " Upload: One vertical talking video\nAI adds dynamic edits and typography",
     accept: "video/*",
     supported: "MP4, MOV, WEBM",
     bestResult: "Vertical talking video with clear speech, up to 60 seconds",
-    uploadCta: "📹 Upload your talking video",
+    uploadCta: " Upload your talking video",
     icon: Film,
     color: "text-primary",
     border: "border-border",
@@ -300,11 +297,11 @@ const modeConfig = {
   customAiReel: {
     label: "Custom AI Reel",
     title: "Custom AI Reel",
-    description: "✍️ Describe your reel\n🖼️ Optional: images, screenshots, logo",
+    description: " Describe your reel\n Optional: images, screenshots, logo",
     accept: "image/*",
     supported: "Prompt + JPG, PNG, WEBP images",
     bestResult: "Simple English prompt with clear images/screenshots",
-    uploadCta: "🖼️ Add images or screenshots",
+    uploadCta: " Add images or screenshots",
     icon: Sparkles,
     color: "text-primary",
     border: "border-border",
@@ -313,11 +310,11 @@ const modeConfig = {
   autoDraw: {
     label: "Auto Draw Explainer Video",
     title: "Auto Draw Explainer Video",
-    description: "🎙️ Upload: Audio or video with speech\nAI creates whiteboard scenes",
+    description: " Upload: Audio or video with speech\nAI creates whiteboard scenes",
     accept: "audio/*,video/*",
     supported: "MP3, WAV, MP4, MOV",
     bestResult: "Step-by-step explanation, clear voice",
-    uploadCta: "🎙️ Upload audio/video",
+    uploadCta: " Upload audio/video",
     icon: Film,
     color: "text-primary",
     border: "border-border",
@@ -326,11 +323,11 @@ const modeConfig = {
   whiteboardVideo: {
     label: "Whiteboard Video",
     title: "Whiteboard Video",
-    description: "🎙️ Upload: Audio or video with speech\n📝 AI writes key points on a whiteboard",
+    description: " Upload: Audio or video with speech\n AI writes key points on a whiteboard",
     accept: "audio/*,video/*",
     supported: "MP3, WAV, M4A, MP4, MOV",
     bestResult: "Clear explanation with distinct points (30-60s)",
-    uploadCta: "🎙️ Upload audio or video",
+    uploadCta: " Upload audio or video",
     icon: Captions,
     color: "text-primary",
     border: "border-border",
@@ -339,11 +336,11 @@ const modeConfig = {
   typographyVideo: {
     label: "Typography Video",
     title: "Typography Video",
-    description: "📹 Upload: Talking video or audio voiceover\n✨ Big bold keywords appear synced to speech",
+    description: " Upload: Talking video or audio voiceover\n Big bold keywords appear synced to speech",
     accept: "video/*,audio/*",
     supported: "MP4, MOV, WEBM, MP3, WAV, M4A",
     bestResult: "Talking video or voiceover with numbers, stats, or strong statements",
-    uploadCta: "📹 Upload your video or audio",
+    uploadCta: " Upload your video or audio",
     icon: Film,
     color: "text-primary",
     border: "border-border",
@@ -352,11 +349,11 @@ const modeConfig = {
   longVideoClips: {
     label: "Long Video Clips",
     title: "Long Video Clips",
-    description: "📹 Upload: Long video (any length)\n✂️ AI picks best moments as short clips",
+    description: " Upload: Long video (any length)\n AI picks best moments as short clips",
     accept: "video/*",
     supported: "MP4, MOV, WEBM (any duration)",
     bestResult: "Long podcast, interview, or lecture video",
-    uploadCta: "📹 Upload your long video",
+    uploadCta: " Upload your long video",
     icon: Film,
     color: "text-primary",
     border: "border-border",
@@ -365,11 +362,11 @@ const modeConfig = {
   audioClean: {
     label: "AI Audio Cleaner",
     title: "AI Audio Cleaner",
-    description: "🎙️ Upload: Voiceover or podcast audio (up to 15 mins)\n✨ AI generates full script preview, cuts recording mistakes, dead pauses & filler words",
+    description: " Upload: Voiceover or podcast audio (up to 15 mins)\n AI generates full script preview, cuts recording mistakes, dead pauses & filler words",
     accept: "audio/*",
-    supported: "MP3, WAV, M4A, AAC, FLAC • Up to 15 minutes",
+    supported: "MP3, WAV, M4A, AAC, FLAC  Up to 15 minutes",
     bestResult: "Podcasts, voiceovers, lectures, or raw audio takes",
-    uploadCta: "🎙️ Upload your audio (up to 15 mins)",
+    uploadCta: " Upload your audio (up to 15 mins)",
     icon: Mic,
     color: "text-primary",
     border: "border-border",
@@ -378,11 +375,11 @@ const modeConfig = {
   longVideoPromo: {
     label: "Long Video Promo",
     title: "Long Video Promo",
-    description: "🎬 Upload: Audio or video with speech\n✨ AI plans scenes, visuals, motion & captions for a promo video",
+    description: " Upload: Audio or video with speech\n AI plans scenes, visuals, motion & captions for a promo video",
     accept: "audio/*,video/*",
-    supported: "MP4, MOV, WEBM, MP3, WAV • Up to 10 minutes",
+    supported: "MP4, MOV, WEBM, MP3, WAV  Up to 10 minutes",
     bestResult: "Explainers, promos, marketing clips",
-    uploadCta: "🎬 Upload your audio or video",
+    uploadCta: " Upload your audio or video",
     icon: Clapperboard,
     color: "text-primary",
     border: "border-border",
@@ -391,11 +388,11 @@ const modeConfig = {
   bookSummary: {
     label: "Book Summary Video",
     title: "Book Summary Video",
-    description: "🎙️ Upload: Voiceover audio or narration\n📚 AI generates chapter cards, lesson notes & animated typography",
+    description: " Upload: Voiceover audio or narration\n AI generates chapter cards, lesson notes & animated typography",
     accept: "audio/*",
-    supported: "MP3, WAV, M4A, AAC • Up to 10 minutes",
+    supported: "MP3, WAV, M4A, AAC  Up to 5 minutes",
     bestResult: "Book summaries, educational lessons & key takeaways",
-    uploadCta: "🎙️ Upload book narration audio",
+    uploadCta: " Upload book narration audio",
     icon: BookOpen,
     color: "text-primary",
     border: "border-border",
@@ -404,11 +401,11 @@ const modeConfig = {
   facelessVideo: {
     label: "Faceless Video",
     title: "Faceless Video (16:9 YouTube)",
-    description: "🎙️ Upload: Voiceover audio (MP3, WAV, M4A)\n✨ AI builds complete 16:9 YouTube videos with curated visuals, Canva backgrounds & synced captions",
+    description: " Upload: Voiceover audio (MP3, WAV, M4A)\n AI builds complete 16:9 YouTube videos with curated visuals, Canva backgrounds & synced captions",
     accept: "audio/*",
-    supported: "MP3, WAV, M4A, AAC • Up to 12 minutes",
+    supported: "MP3, WAV, M4A, AAC  Up to 5 minutes",
     bestResult: "Faceless YouTube channels, deep-dive documentaries, storytelling & explainers",
-    uploadCta: "🎙️ Upload your voiceover / audio (Max 12 min)",
+    uploadCta: " Upload your voiceover / audio (Max 5 min)",
     icon: Film,
     color: "text-amber-400",
     border: "border-amber-400/40",
@@ -417,11 +414,11 @@ const modeConfig = {
   aiVideoGenerator: {
     label: "Faceless Video",
     title: "Faceless Video (16:9 YouTube)",
-    description: "🎙️ Upload: Voiceover audio (MP3, WAV, M4A)\n✨ AI builds complete 16:9 YouTube videos with curated visuals, Canva backgrounds & synced captions",
+    description: " Upload: Voiceover audio (MP3, WAV, M4A)\n AI builds complete 16:9 YouTube videos with curated visuals, Canva backgrounds & synced captions",
     accept: "audio/*",
-    supported: "MP3, WAV, M4A, AAC • Up to 12 minutes",
+    supported: "MP3, WAV, M4A, AAC  Up to 5 minutes",
     bestResult: "Faceless YouTube channels, deep-dive documentaries, storytelling & explainers",
-    uploadCta: "🎙️ Upload your voiceover / audio (Max 12 min)",
+    uploadCta: " Upload your voiceover / audio (Max 5 min)",
     icon: Film,
     color: "text-amber-400",
     border: "border-amber-400/40",
@@ -430,11 +427,11 @@ const modeConfig = {
   imageToVideoAi: {
     label: "Image to Video AI",
     title: "Image to Video AI (16:9 Widescreen)",
-    description: "🎙️ Upload: Voiceover audio (required)\n🖼️ Optional: Multiple images (no limit) or use auto-curated visuals\n✨ AI syncs scenes, Ken Burns pan & zoom, 2.5D parallax subtitles & transitions",
+    description: " Upload: Voiceover audio (required)\n Optional: Multiple images (no limit) or use auto-curated visuals\n AI syncs scenes, Ken Burns pan & zoom, 2.5D parallax subtitles & transitions",
     accept: "audio/*",
-    supported: "MP3, WAV, M4A, AAC • Up to 10 minutes",
+    supported: "MP3, WAV, M4A, AAC  Up to 5 minutes",
     bestResult: "Podcasts, storytelling, explainers & presentations in 16:9 format",
-    uploadCta: "🎙️ Upload your voiceover / audio (Max 10 min)",
+    uploadCta: " Upload your voiceover / audio (Max 5 min)",
     icon: Film,
     color: "text-[#FF9100]",
     border: "border-[#FF5722]/40",
@@ -443,11 +440,11 @@ const modeConfig = {
   youtubeSubtitleGenerator: {
     label: "YouTube Subtitle Generator",
     title: "YouTube Subtitle Generator (16:9 Landscape)",
-    description: "📹 Upload: 16:9 Landscape video (up to 15 mins)\n✨ Clean, professional subtitles used by top YouTube creators & podcasts",
+    description: " Upload: 16:9 Landscape video (up to 5 mins)\n Clean, professional subtitles used by top YouTube creators & podcasts",
     accept: "video/*",
-    supported: "MP4, MOV, WEBM • Up to 15 minutes",
+    supported: "MP4, MOV, WEBM  Up to 5 minutes",
     bestResult: "16:9 landscape YouTube videos (1 credit for 2 min)",
-    uploadCta: "📹 Upload 16:9 video (Max 15 min)",
+    uploadCta: " Upload 16:9 video (Max 5 min)",
     icon: Captions,
     color: "text-red-500",
     border: "border-red-500/40",
@@ -673,7 +670,7 @@ export default function DashboardStudio({
   const [activeTab, setActiveTab] = useState<"video-types" | "credits" | "projects" | "profile">("video-types");
   const [showUpgradeModal, setShowUpgradeModal] = useState<boolean>(false);
 
-  // ── Preview Editor state ────────────────────────────────────────────────────
+  //  Preview Editor state 
   // Stores pending upload keys + preview plan between "Generate Preview" and final render
   const [previewPlan, setPreviewPlan] = useState<import("@/components/preview/types").PreviewPlan | null>(null);
   const [pendingRenderKeys, setPendingRenderKeys] = useState<{
@@ -757,7 +754,7 @@ export default function DashboardStudio({
     if (!selectedFile) return null;
     return `${formatBytes(selectedFile.size)} | ${selectedFile.type || "media file"}`;
   }, [selectedFile]);
-  // Local object URL for the uploaded video — used by Typography live preview
+  // Local object URL for the uploaded video  used by Typography live preview
   const livePreviewVideoUrl = useMemo(() => {
     if (mode !== "typographyVideo" || !selectedFile || !selectedFile.type.startsWith("video/")) return null;
     return URL.createObjectURL(selectedFile);
@@ -780,9 +777,9 @@ export default function DashboardStudio({
   const isPaidModeLocked = !isFreeTrialMode && !isPaidUserWithCredits;
   const isFreeTrialModeBlocked = isFreeSignupCredit && !isFreeTrialMode;
   const isCaptionOnlyModeBlocked = false;
-  const creditResetLabel = isFreeSignupCredit ? "Auto Caption only · watermark included" : billingEntitlement?.expiresAt ? `Valid until ${formatDate(String(billingEntitlement.expiresAt))}` : "";
+  const creditResetLabel = isFreeSignupCredit ? "Auto Caption only  watermark included" : billingEntitlement?.expiresAt ? `Valid until ${formatDate(String(billingEntitlement.expiresAt))}` : "";
   const plannedCreditUnits = getPlannedRenderCreditUnits(mode, promoClipMeta.durationSeconds, clipCount);
-  const plannedCreditCost = plannedCreditUnits ? formatCreditUnits(plannedCreditUnits) : "—";
+  const plannedCreditCost = plannedCreditUnits ? formatCreditUnits(plannedCreditUnits) : "";
   const plannedCreditLabel = plannedCreditUnits
     ? `${plannedCreditCost} credit${plannedCreditCost === "1" ? "" : "s"}`
     : "Cost shown before render";
@@ -910,7 +907,7 @@ export default function DashboardStudio({
       autoCaption: "/dashboard/auto-caption",
       compare: "/dashboard/compare-explainer",
       whiteboardVideo: "/dashboard/whiteboard-video",
-      typographyVideo: "/dashboard/typography-video",
+      typographyVideo: "/dashboard/auto-caption",
       audioClean: "/dashboard/audio-cleaner",
       longVideoClips: "/dashboard/long-video-clips",
       facelessVideo: "/dashboard/faceless-video",
@@ -1330,7 +1327,7 @@ export default function DashboardStudio({
 
   return (
     <>
-    {/* ── Universal Preview Editor overlay ─────────────────────────── */}
+    {/*  Universal Preview Editor overlay  */}
     {previewPlan && pendingRenderKeys && (
       <PreviewEditor
         plan={previewPlan}
@@ -1360,7 +1357,7 @@ export default function DashboardStudio({
     )}
     <main className="min-h-screen max-w-full overflow-hidden bg-[#07090E] text-zinc-100 flex flex-col md:flex-row pt-14 md:pt-16">
       
-      {/* ── Desktop Dashboard Navigation Rail (M3) ── */}
+      {/*  Desktop Dashboard Navigation Rail (M3)  */}
       <aside className="hidden md:flex md:w-64 shrink-0 border-r border-white/10 bg-[#0B0F19] flex-col z-10 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto custom-scrollbar">
         {/* M3 Sidebar Header */}
         <div className="px-5 py-5 border-b border-white/10 mb-2">
@@ -1473,7 +1470,7 @@ export default function DashboardStudio({
         </div>
       </aside>
 
-      {/* ── M3 Mobile Bottom Navigation Bar ── */}
+      {/*  M3 Mobile Bottom Navigation Bar  */}
       <nav className="fixed bottom-0 inset-x-0 z-50 md:hidden bg-[#0A0E1A]/95 backdrop-blur-xl border-t border-white/10 shadow-[0_-8px_30px_rgba(0,0,0,0.5)] px-2 py-1.5 flex items-center justify-around pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))]">
         <button
           type="button"
@@ -1541,7 +1538,7 @@ export default function DashboardStudio({
         </button>
       </nav>
 
-      {/* ── Main Content Area ── */}
+      {/*  Main Content Area  */}
       <div className="flex-1 overflow-x-hidden md:overflow-y-auto h-auto md:h-screen p-3 sm:p-6 md:p-8 pb-28 md:pb-16">
         <div className="mx-auto w-full max-w-5xl space-y-6">
 
@@ -1593,7 +1590,7 @@ export default function DashboardStudio({
                   title="View credit details & upgrade"
                 >
                   <Sparkles size={13} className="text-amber-400" />
-                  <span>⚡ <strong className="text-white font-black text-xs">{remaining}</strong> / {total} Credits</span>
+                  <span> <strong className="text-white font-black text-xs">{remaining}</strong> / {total} Credits</span>
                 </Link>
               );
             })() : null}
@@ -1691,12 +1688,12 @@ export default function DashboardStudio({
               href="/pricing"
               className="inline-flex shrink-0 items-center gap-1 text-xs font-bold text-amber-300 hover:text-amber-200 transition"
             >
-              Top Up Credits →
+              Top Up Credits 
             </Link>
           </section>
         ) : null}
 
-        {/* ── Main Studio Workflow Container & M3 Catalog ── */}
+        {/*  Main Studio Workflow Container & M3 Catalog  */}
         <section id="studio-workflows" className="w-full scroll-mt-24 pt-2">
           {standalone ? (
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border/60 bg-muted/30 p-4 backdrop-blur-md">
@@ -1729,7 +1726,7 @@ export default function DashboardStudio({
                   href="/pricing"
                   className="inline-flex items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3.5 py-2 text-xs font-bold text-amber-400 hover:bg-amber-500/20 transition-all cursor-pointer"
                 >
-                  <span>Credits: {billingEntitlement?.usage ? `${billingEntitlement.usage.remaining}` : (user ? "Active" : "—")}</span>
+                  <span>Credits: {billingEntitlement?.usage ? `${billingEntitlement.usage.remaining}` : (user ? "Active" : "")}</span>
                   <span className="text-[10px] underline">+Add</span>
                 </Link>
               </div>
@@ -1793,7 +1790,7 @@ export default function DashboardStudio({
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h4 className="text-sm font-black text-white">🎁 1 Free Trial Available for Auto Caption</h4>
+                          <h4 className="text-sm font-black text-white"> 1 Free Trial Available for Auto Caption</h4>
                           <span className="rounded-full bg-emerald-500/20 border border-emerald-500/40 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
                             No Payment Required
                           </span>
@@ -1818,19 +1815,19 @@ export default function DashboardStudio({
                       <div className="flex flex-wrap gap-2">
                         {[
                           {
-                            label: "⚡ SaaS Launch",
+                            label: " SaaS Launch",
                             prompt: "Create a 30-second SaaS demo reel. Start with bold title: 'Meet the Future of Productivity'. At 5s show my app screenshot. At 15s play my video clip. End with logo and CTA: 'Try Free at ItnaVideo.com'.",
                           },
                           {
-                            label: "📈 3 Tips Explainer",
+                            label: " 3 Tips Explainer",
                             prompt: "Create a 45-second educational reel. Hook: '3 Habits That Changed My Life'. Split into Step 1, Step 2, and Step 3 with bold captions and synced screenshots. Outro with follow reminder.",
                           },
                           {
-                            label: "🛒 Product Sale",
+                            label: " Product Sale",
                             prompt: "Create an energetic 20-second product promo. Bold flash text: 'Limited Time Deal - 30% OFF'. Feature product images, price callout, and logo outro with website link.",
                           },
                           {
-                            label: "🎙️ Podcast Highlight",
+                            label: " Podcast Highlight",
                             prompt: "Create a high-retention podcast reel from my video clip. Highlight the most intense insight with kinetic pop subtitles, dark vignette backdrop, and host social handle.",
                           },
                         ].map((starter, i) => (
@@ -2037,7 +2034,7 @@ export default function DashboardStudio({
                       }`}
                     >
                       <div className="w-3.5 h-6 rounded-[3px] border-2 border-current flex items-center justify-center" />
-                      <span>📱 9:16 Vertical (Shorts/Reels)</span>
+                      <span> 9:16 Vertical (Shorts/Reels)</span>
                     </button>
                     <button
                       type="button"
@@ -2049,7 +2046,7 @@ export default function DashboardStudio({
                       }`}
                     >
                       <div className="w-6 h-3.5 rounded-[3px] border-2 border-current flex items-center justify-center" />
-                      <span>🖥️ 16:9 Widescreen (YouTube)</span>
+                      <span> 16:9 Widescreen (YouTube)</span>
                     </button>
                   </div>
                 </div>
@@ -2077,12 +2074,12 @@ export default function DashboardStudio({
                 <p className="mt-2 max-w-full px-2 text-center text-xs leading-5" style={{ color: 'var(--text-dark-muted)' }}>
                   {activeMode.supported}
                   {(mode as string) === "audioClean"
-                    ? " • Max 5 minutes"
+                    ? "  Max 5 minutes"
                     : mode === "longVideoClips"
-                    ? " • Input up to 2 hours"
+                    ? "  Input up to 2 hours"
                     : selectedAspectRatio === "9:16"
-                    ? " • Max 90 seconds (Shorts/Reels)"
-                    : " • Max 5 minutes (Widescreen)"}
+                    ? "  Max 90 seconds (Shorts/Reels)"
+                    : "  Max 5 minutes (Widescreen)"}
                 </p>
               </label>
               {selectedFile ? (
@@ -2138,7 +2135,7 @@ export default function DashboardStudio({
 
               {mode === "compare" ? (
                 <>
-                {/* Live preview — sticky like the CapCut editor so it stays visible while you scroll controls */}
+                {/* Live preview  sticky like the CapCut editor so it stays visible while you scroll controls */}
                 <div className="sticky top-16 z-30 -mx-4 mb-1 border-b border-border bg-[#141020]/95 px-4 pb-4 pt-3 backdrop-blur-md sm:top-4 sm:mx-0 sm:rounded-lg sm:border sm:border-border sm:bg-black/25">
                   <div className="mb-2 flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-[0.16em] text-amber-200">
                     <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-amber-300" />
@@ -2167,7 +2164,6 @@ export default function DashboardStudio({
                   }}
                   onError={(message) => setJobStatus({state: "error", message})}
                 />
-                <StickerStylePicker value={stickerStyle} onChange={setStickerStyle} />
                 </>
               ) : null}
 
@@ -2197,9 +2193,9 @@ export default function DashboardStudio({
                     <div className="flex items-center gap-1.5 overflow-x-auto py-1">
                       <span className="text-[11px] font-bold text-zinc-400">Presets:</span>
                       {[
-                        { label: "📱 iPhone vs S25", left: "iPhone 16 Pro", right: "Galaxy S25 Ultra", tone: "versus", winner: "none", sticker: "3d-presenter-man" },
-                        { label: "💳 Debit vs Credit", left: "Debit Card", right: "Credit Card", tone: "goodBad", winner: "right", sticker: "2d-presenter-man" },
-                        { label: "📈 SIP vs Lump Sum", left: "SIP Investing", right: "Lump Sum", tone: "versus", winner: "left", sticker: "3d-presenter-man" },
+                        { label: " iPhone vs S25", left: "iPhone 16 Pro", right: "Galaxy S25 Ultra", tone: "versus", winner: "none", sticker: "3d-presenter-man" },
+                        { label: " Debit vs Credit", left: "Debit Card", right: "Credit Card", tone: "goodBad", winner: "right", sticker: "2d-presenter-man" },
+                        { label: " SIP vs Lump Sum", left: "SIP Investing", right: "Lump Sum", tone: "versus", winner: "left", sticker: "3d-presenter-man" },
                       ].map((preset) => (
                         <button
                           key={preset.label}
@@ -2290,8 +2286,8 @@ export default function DashboardStudio({
                     <div className="grid grid-cols-3 gap-2">
                       {[
                         { id: "none", label: "No Winner", badge: "Draw / Open" },
-                        { id: "left", label: "Left (A) Wins", badge: "👑 Crown Left" },
-                        { id: "right", label: "Right (B) Wins", badge: "👑 Crown Right" },
+                        { id: "left", label: "Left (A) Wins", badge: " Crown Left" },
+                        { id: "right", label: "Right (B) Wins", badge: " Crown Right" },
                       ].map((t) => {
                         const active = compareWinner === t.id;
                         return (
@@ -2319,11 +2315,11 @@ export default function DashboardStudio({
                     <label className="mb-2 block text-xs font-medium text-zinc-300">Image Frame Presentation</label>
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
                       {[
-                        { id: "rounded", label: "Rounded Card", icon: "▢" },
-                        { id: "circle", label: "Circle Avatar", icon: "◯" },
-                        { id: "phone", label: "Smartphone", icon: "📱" },
-                        { id: "tilted", label: "3D Perspective", icon: "⬡" },
-                        { id: "polaroid", label: "Polaroid Photo", icon: "📸" },
+                        { id: "rounded", label: "Rounded Card", icon: "" },
+                        { id: "circle", label: "Circle Avatar", icon: "" },
+                        { id: "phone", label: "Smartphone", icon: "" },
+                        { id: "tilted", label: "3D Perspective", icon: "" },
+                        { id: "polaroid", label: "Polaroid Photo", icon: "" },
                       ].map((t) => {
                         const active = compareImageStyle === t.id;
                         return (
@@ -2380,10 +2376,10 @@ export default function DashboardStudio({
                     <label className="mb-2 block text-xs font-medium text-zinc-300">Background Audio Beat</label>
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                       {[
-                        { id: "versus", label: "🥊 High Stakes", sub: "Tense electronic" },
-                        { id: "tech", label: "⚡ Tech Minimal", sub: "Clean modern" },
-                        { id: "corporate", label: "📈 Corporate", sub: "Upbeat positive" },
-                        { id: "none", label: "🔇 Mute Beat", sub: "Voiceover only" },
+                        { id: "versus", label: " High Stakes", sub: "Tense electronic" },
+                        { id: "tech", label: " Tech Minimal", sub: "Clean modern" },
+                        { id: "corporate", label: " Corporate", sub: "Upbeat positive" },
+                        { id: "none", label: " Mute Beat", sub: "Voiceover only" },
                       ].map((bgm) => {
                         const active = compareBgmTrack === bgm.id;
                         return (
@@ -2441,8 +2437,6 @@ export default function DashboardStudio({
 
               {mode === "typographyVideo" ? (
                 <>
-                  <TypographyStylePicker value={typographyStyle} onChange={setTypographyStyle} />
-
                   {/* Typography Kinetic Audio & Pacing Studio Controls - Glassmorphism Container */}
                   <div className="relative overflow-hidden mt-4 rounded-3xl border border-white/10 bg-[#0E1526]/60 p-5 shadow-2xl backdrop-blur-xl sm:p-6 space-y-5">
                     <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-40 pointer-events-none" />
@@ -2457,9 +2451,9 @@ export default function DashboardStudio({
                       <label className="mb-2 block text-xs font-medium text-zinc-300">Kinetic Sound Effects (SFX)</label>
                       <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                         {[
-                          { id: "full", label: "💥 Full Punch", sub: "Whoosh + Pop + Hit" },
-                          { id: "subtle", label: "🔉 Subtle Clicks", sub: "Soft kinetic ticks" },
-                          { id: "none", label: "🔇 Mute SFX", sub: "Clean voice only" },
+                          { id: "full", label: " Full Punch", sub: "Whoosh + Pop + Hit" },
+                          { id: "subtle", label: " Subtle Clicks", sub: "Soft kinetic ticks" },
+                          { id: "none", label: " Mute SFX", sub: "Clean voice only" },
                         ].map((sfx) => {
                           const active = typographySfxIntensity === sfx.id;
                           return (
@@ -2487,8 +2481,8 @@ export default function DashboardStudio({
                         <label className="mb-2 block text-xs font-medium text-zinc-300">Text Kinetic Pacing</label>
                         <div className="grid grid-cols-2 gap-2">
                           {[
-                            { id: "fast", label: "⚡ Viral Blitz", sub: "High retention" },
-                            { id: "smooth", label: "📖 Smooth Flow", sub: "Relaxed reading" },
+                            { id: "fast", label: " Viral Blitz", sub: "High retention" },
+                            { id: "smooth", label: " Smooth Flow", sub: "Relaxed reading" },
                           ].map((pace) => {
                             const active = typographyPacing === pace.id;
                             return (
@@ -2543,7 +2537,7 @@ export default function DashboardStudio({
 
               {(mode as string) === "longVideoPromo" ? (
                 <>
-                {/* Live preview — sticky like the CapCut editor so it stays visible while you scroll controls */}
+                {/* Live preview  sticky like the CapCut editor so it stays visible while you scroll controls */}
                 <div className="sticky top-16 z-30 -mx-4 mb-1 border-b border-border bg-[#141020]/95 px-4 pb-4 pt-3 backdrop-blur-md sm:top-4 sm:mx-0 sm:rounded-lg sm:border sm:border-border sm:bg-black/25">
                   <div className="mb-2 flex items-center justify-center gap-2 text-[11px] font-black uppercase tracking-[0.16em] text-emerald-200">
                     <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-300" />
@@ -2592,7 +2586,7 @@ export default function DashboardStudio({
                     {promoThumbnailFile ? (
                       <span className="mt-2 max-w-full truncate text-xs font-bold text-muted-foreground">{promoThumbnailFile.name}</span>
                     ) : (
-                      <span className="mt-1 text-xs text-muted-foreground">Recommended: 1280×720 or similar</span>
+                      <span className="mt-1 text-xs text-muted-foreground">Recommended: 1280720 or similar</span>
                     )}
                   </label>
 
@@ -2629,7 +2623,7 @@ export default function DashboardStudio({
                         type="text"
                         value={promoCtaText}
                       />
-                      <span className="text-[10px] text-muted-foreground">Shown on the button with an arrow pointing to the full video. Default: “Watch the full video · Link in bio”.</span>
+                      <span className="text-[10px] text-muted-foreground">Shown on the button with an arrow pointing to the full video. Default: Watch the full video  Link in bio.</span>
                     </label>
 
                     {/* Creator Channel Handle */}
@@ -2651,10 +2645,10 @@ export default function DashboardStudio({
                       <label className="mb-2 block text-xs font-medium text-zinc-300">CTA Button Styling</label>
                       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                         {[
-                          { id: "youtube-red", label: "🔴 YouTube Red", sub: "Classic YouTube" },
-                          { id: "emerald", label: "🟢 Emerald Pulse", sub: "High contrast" },
-                          { id: "glass", label: "⚡ Dark Glass", sub: "Minimalist SaaS" },
-                          { id: "tiktok-yellow", label: "🟡 Creator Yellow", sub: "Viral Shorts" },
+                          { id: "youtube-red", label: " YouTube Red", sub: "Classic YouTube" },
+                          { id: "emerald", label: " Emerald Pulse", sub: "High contrast" },
+                          { id: "glass", label: " Dark Glass", sub: "Minimalist SaaS" },
+                          { id: "tiktok-yellow", label: " Creator Yellow", sub: "Viral Shorts" },
                         ].map((cta) => {
                           const active = promoCtaStyle === cta.id;
                           return (
@@ -2709,7 +2703,7 @@ export default function DashboardStudio({
                       <label className="flex items-center justify-between cursor-pointer">
                         <div>
                           <p className="text-xs font-bold text-white flex items-center gap-1.5">
-                            <span>💬 Burn-in Speech Captions</span>
+                            <span> Burn-in Speech Captions</span>
                             <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-full border border-emerald-500/20">AI Subtitles</span>
                           </p>
                           <p className="text-[10px] text-muted-foreground mt-0.5">
@@ -2729,7 +2723,7 @@ export default function DashboardStudio({
                 </>
               ) : null}
 
-              {/* ── Whiteboard Style Studio ── */}
+              {/*  Whiteboard Style Studio  */}
               {mode === "whiteboardVideo" ? (
                 <>
                 <div className="sticky top-16 z-30 -mx-4 mb-1 border-b border-border bg-[#151E30]/95 px-4 pb-4 pt-3 backdrop-blur-md sm:top-4 sm:mx-0 sm:rounded-lg sm:border sm:border-border sm:bg-black/25">
@@ -2756,9 +2750,9 @@ export default function DashboardStudio({
                     <label className="mb-2 block text-xs font-medium text-zinc-300">Board Environment & Surface</label>
                     <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
                       {[
-                        { id: "classic", label: "Classic Whiteboard", sub: "Glossy white ceramic & aluminum frame", icon: "📋" },
-                        { id: "dark-glass", label: "Architect Dark Glass", sub: "Frosted dark slate with neon markers", icon: "💎" },
-                        { id: "blueprint", label: "Blueprint Grid", sub: "Matte navy technical grid with chalk", icon: "📐" },
+                        { id: "classic", label: "Classic Whiteboard", sub: "Glossy white ceramic & aluminum frame", icon: "" },
+                        { id: "dark-glass", label: "Architect Dark Glass", sub: "Frosted dark slate with neon markers", icon: "" },
+                        { id: "blueprint", label: "Blueprint Grid", sub: "Matte navy technical grid with chalk", icon: "" },
                       ].map((board) => {
                         const active = whiteboardTheme === board.id;
                         return (
@@ -2786,9 +2780,9 @@ export default function DashboardStudio({
                     <label className="mb-2 block text-xs font-medium text-zinc-300">Drawing Hand & Marker Presence</label>
                     <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                       {[
-                        { id: "right-hand", label: "Realistic Hand", sub: "Natural human drawing", icon: "✍️" },
-                        { id: "stylus", label: "Modern Stylus", sub: "Clean digital pen", icon: "🖊️" },
-                        { id: "direct-draw", label: "Direct Stroke", sub: "No hand · Pure line draw", icon: "✨" },
+                        { id: "right-hand", label: "Realistic Hand", sub: "Natural human drawing", icon: "" },
+                        { id: "stylus", label: "Modern Stylus", sub: "Clean digital pen", icon: "" },
+                        { id: "direct-draw", label: "Direct Stroke", sub: "No hand  Pure line draw", icon: "" },
                       ].map((hand) => {
                         const active = whiteboardHandStyle === hand.id;
                         return (
@@ -2967,14 +2961,14 @@ export default function DashboardStudio({
 
               {mode === "autoCaption" || (mode as string) === "youtubeSubtitleGenerator" ? (
                 <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-4 sm:p-6 shadow-2xl min-w-0 max-w-full overflow-hidden space-y-5">
-                  {/* ── Premium M3 Header (gradient + orange glow + quick stats) ── */}
+                  {/*  Premium M3 Header (gradient + orange glow + quick stats)  */}
                   <div className="relative overflow-hidden rounded-[22px] border border-white/10 bg-gradient-to-br from-[#0E1526] via-[#070B14] to-black p-5 sm:p-6">
                     <div className="absolute -right-14 -top-14 h-52 w-52 rounded-full bg-[#FF5722]/10 blur-3xl pointer-events-none" />
                     <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
                       <div className="space-y-2 max-w-xl">
                         <div className="inline-flex items-center gap-2 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#FF9100]">
                           <Sparkles size={14} className="text-[#FF9100]" />
-                          <span>{(mode as string) === "youtubeSubtitleGenerator" ? "16:9 Landscape • Up to 15 min" : "9:16 Reel • 30 FPS • Viral Captions"}</span>
+                          <span>{(mode as string) === "youtubeSubtitleGenerator" ? "16:9 Landscape  Up to 15 min" : "9:16 Reel  30 FPS  Viral Captions"}</span>
                         </div>
                         <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
                           {(mode as string) === "youtubeSubtitleGenerator" ? "YouTube Subtitle " : "Auto Caption "}
@@ -2996,7 +2990,7 @@ export default function DashboardStudio({
                             <span className="flex items-center gap-1.5">
                               <Clock3 size={13} className="text-amber-400" /> Format
                             </span>
-                            <span className="text-white font-extrabold">{(mode as string) === "youtubeSubtitleGenerator" ? "16:9 · 15 min" : "9:16 · 90s"}</span>
+                            <span className="text-white font-extrabold">{(mode as string) === "youtubeSubtitleGenerator" ? "16:9  15 min" : "9:16  90s"}</span>
                           </div>
                           <div className="flex items-center justify-between text-xs text-zinc-400 font-bold">
                             <span className="flex items-center gap-1.5">
@@ -3027,7 +3021,7 @@ export default function DashboardStudio({
                   {/* Landscape 16:9 warning if uploaded to 9:16 reel */}
                   {mode === "autoCaption" && promoClipMeta.mediaAspect === "landscape" ? (
                     <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-600 dark:text-amber-400 flex items-start gap-2">
-                      <span className="text-base leading-none">⚠️</span>
+                      <span className="text-base leading-none"></span>
                       <div>
                         <p className="font-bold">Auto Captions is designed for 9:16 Vertical Reels.</p>
                         <p className="mt-0.5 text-[11px] opacity-90">
@@ -3040,7 +3034,7 @@ export default function DashboardStudio({
                   {/* Portrait 9:16 notice if uploaded to YouTube Subtitle Generator */}
                   {(mode as string) === "youtubeSubtitleGenerator" && promoClipMeta.mediaAspect === "portrait" ? (
                     <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-600 dark:text-amber-400 flex items-start gap-2">
-                      <span className="text-base leading-none">💡</span>
+                      <span className="text-base leading-none"></span>
                       <div>
                         <p className="font-bold">YouTube Subtitle Generator is designed for 16:9 Landscape Videos.</p>
                         <p className="mt-0.5 text-[11px] opacity-90">
@@ -3053,13 +3047,13 @@ export default function DashboardStudio({
                   {/* Western Creator Guide Banner for YouTube Subtitle Generator */}
                   {(mode as string) === "youtubeSubtitleGenerator" ? (
                     <div className="rounded-xl border border-[#FF5722]/30 bg-[#FF5722]/10 p-3.5 text-xs text-zinc-300 flex items-start gap-2.5">
-                      <span className="text-lg leading-none">🇬🇧</span>
+                      <span className="text-lg leading-none"></span>
                       <div className="min-w-0 flex-1">
                         <p className="font-bold text-white">
                           16:9 Landscape Creator Styles (USA, UK, Canada & Australia)
                         </p>
                         <p className="mt-0.5 text-[11px] leading-relaxed text-zinc-400">
-                          Engineered for widescreen 16:9 viewing with natural sentence phrasing (5–9 words) and lower-third safe margins. Choose from iconic creator aesthetics like <strong>Ali Abdaal</strong>, <strong>Vox Documentary</strong>, <strong>Diary of a CEO</strong>, <strong>Huberman Lab</strong>, <strong>MrBeast</strong>, and <strong>BBC Closed Captions</strong>.
+                          Engineered for widescreen 16:9 viewing with natural sentence phrasing (59 words) and lower-third safe margins. Choose from iconic creator aesthetics like <strong>Ali Abdaal</strong>, <strong>Vox Documentary</strong>, <strong>Diary of a CEO</strong>, <strong>Huberman Lab</strong>, <strong>MrBeast</strong>, and <strong>BBC Closed Captions</strong>.
                         </p>
                       </div>
                     </div>
@@ -3294,7 +3288,7 @@ export default function DashboardStudio({
                                 !wordClickSound ? "bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black shadow-md shadow-[#FF5722]/20 font-black" : "text-zinc-400 hover:text-white"
                               }`}
                             >
-                              🔇 Mute Click Sound
+                               Mute Click Sound
                             </button>
                             <button
                               type="button"
@@ -3303,7 +3297,7 @@ export default function DashboardStudio({
                                 wordClickSound ? "bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-black shadow-md shadow-[#FF5722]/20 font-black" : "text-zinc-400 hover:text-white"
                               }`}
                             >
-                              🔊 Pop / Click SFX
+                               Pop / Click SFX
                             </button>
                           </div>
                         </div>
@@ -3340,7 +3334,7 @@ export default function DashboardStudio({
                 </div>
               ) : null}
 
-              {/* ── Long Video Clips controls ── */}
+              {/*  Long Video Clips controls  */}
               {mode === "longVideoClips" ? (
                 <div className="rounded-2xl border border-[#FF5722]/30 bg-[#0E1526] p-5 shadow-xs">
                   <div className="flex items-start justify-between gap-4">
@@ -3424,7 +3418,7 @@ export default function DashboardStudio({
                   <div className="mt-6 rounded-2xl bg-muted/30 border border-border p-4 space-y-3">
                     <div className="flex items-center justify-between text-[11px] font-bold text-muted-foreground">
                       <span>Start (0:00)</span>
-                      <span className="text-[#FF9100] uppercase tracking-widest text-[9px] font-black">AI Extraction ➔ Captioning Pipeline</span>
+                      <span className="text-[#FF9100] uppercase tracking-widest text-[9px] font-black">AI Extraction  Captioning Pipeline</span>
                       <span>End (Video)</span>
                     </div>
                     <div className="h-3 w-full rounded-full bg-muted relative overflow-hidden p-0.5 border border-border">
@@ -3440,7 +3434,7 @@ export default function DashboardStudio({
                     </div>
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-[10px] text-muted-foreground pt-1 border-t border-border/50">
                       <span className="font-bold text-foreground">
-                        ⚡ Step 1: Extract viral clips first ➔ Step 2: Add dynamic captions &amp; hook titles
+                         Step 1: Extract viral clips first  Step 2: Add dynamic captions &amp; hook titles
                       </span>
                       <span className="text-[#FF9100] font-black">
                         {clipCount === 0 ? "Smart Sizing (~5 Clips)" : `${clipCount} Clip${clipCount > 1 ? "s" : ""}`}
@@ -3457,9 +3451,9 @@ export default function DashboardStudio({
                       </span>
                       <div className="rounded-2xl border border-[#FF5722]/30 bg-[#FF5722]/10 p-3.5 flex items-center justify-between shadow-xs">
                         <div className="flex items-center gap-3">
-                          <span className="text-2xl">📱</span>
+                          <span className="text-2xl"></span>
                           <div>
-                            <p className="text-xs font-black text-foreground">16:9 Landscape Upload ➔ 9:16 Vertical Video (1080×1920)</p>
+                            <p className="text-xs font-black text-foreground">16:9 Landscape Upload  9:16 Vertical Video (10801920)</p>
                             <p className="text-[10px] font-bold text-muted-foreground mt-0.5">
                               Auto-reframed with punch-in zoom &amp; smooth speech tracking for YouTube Shorts, Reels &amp; TikTok
                             </p>
@@ -3478,9 +3472,9 @@ export default function DashboardStudio({
                       </span>
                       <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
                         {[
-                          { id: "high-energy", label: "🔥 High Energy & Debate", sub: "Loudest takes & conflict" },
-                          { id: "actionable", label: "💡 Actionable Advice", sub: "Step-by-step how-to tips" },
-                          { id: "story", label: "❤️ Story & Insights", sub: "Emotional & personal peaks" },
+                          { id: "high-energy", label: " High Energy & Debate", sub: "Loudest takes & conflict" },
+                          { id: "actionable", label: " Actionable Advice", sub: "Step-by-step how-to tips" },
+                          { id: "story", label: " Story & Insights", sub: "Emotional & personal peaks" },
                         ].map((strat) => {
                           const active = clipsHookStrategy === strat.id;
                           return (
@@ -3509,9 +3503,9 @@ export default function DashboardStudio({
                       </span>
                       <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                         {[
-                          { id: "glass-pill", label: "⚡ Glass Card", sub: "Modern frosted bumper" },
-                          { id: "yellow-ticker", label: "🟡 Yellow Ticker", sub: "High-contrast hook" },
-                          { id: "none", label: "🚫 No Banner", sub: "Clean video only" },
+                          { id: "glass-pill", label: " Glass Card", sub: "Modern frosted bumper" },
+                          { id: "yellow-ticker", label: " Yellow Ticker", sub: "High-contrast hook" },
+                          { id: "none", label: " No Banner", sub: "Clean video only" },
                         ].map((banner) => {
                           const active = clipsTopBanner === banner.id;
                           return (
@@ -3541,7 +3535,7 @@ export default function DashboardStudio({
                       <span className="font-bold text-foreground">2.0 credits</span>
                     </div>
                     <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 pb-1.5">
-                      <span>Harvesting Fee ({clipCount === 0 ? "Auto (~5 clips)" : `${clipCount} × 1.0`})</span>
+                      <span>Harvesting Fee ({clipCount === 0 ? "Auto (~5 clips)" : `${clipCount}  1.0`})</span>
                       <span className="font-bold text-foreground">{clipCount === 0 ? "5.0" : clipCount}.0 credits</span>
                     </div>
                     <div className="flex items-center justify-between text-foreground font-black pt-3 border-t border-border">
@@ -3703,8 +3697,8 @@ export default function DashboardStudio({
                       <label className="mb-2 block text-xs font-medium text-zinc-300">Visual Motion & Pan/Zoom Pacing</label>
                       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                         {[
-                          { id: "dynamic", label: "⚡ High-Retention Kinetic", sub: "Active pan, drift & subtle punch zoom" },
-                          { id: "ambient", label: "🌊 Subtle Ambient Drift", sub: "Slow relaxed documentary glide" },
+                          { id: "dynamic", label: " High-Retention Kinetic", sub: "Active pan, drift & subtle punch zoom" },
+                          { id: "ambient", label: " Subtle Ambient Drift", sub: "Slow relaxed documentary glide" },
                         ].map((mot) => {
                           const active = facelessMotionIntensity === mot.id;
                           return (
@@ -3731,11 +3725,11 @@ export default function DashboardStudio({
                       <label className="mb-2 block text-xs font-medium text-zinc-300">Background Soundtrack Vibe</label>
                       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-5">
                         {[
-                          { id: "lofi", label: "☕ Cozy Lo-Fi" },
-                          { id: "tech", label: "⚡ Deep Tech" },
-                          { id: "mystery", label: "🔍 Mystery" },
-                          { id: "acoustic", label: "🎸 Acoustic" },
-                          { id: "none", label: "🔇 Voice Only" },
+                          { id: "lofi", label: " Cozy Lo-Fi" },
+                          { id: "tech", label: " Deep Tech" },
+                          { id: "mystery", label: " Mystery" },
+                          { id: "acoustic", label: " Acoustic" },
+                          { id: "none", label: " Voice Only" },
                         ].map((sound) => {
                           const active = facelessBgmMood === sound.id;
                           return (
@@ -3800,7 +3794,7 @@ export default function DashboardStudio({
                           : "Your free trial is only for a watermarked Auto Caption Video. Buy credits to use this video type."
                       ) : (
                         <>
-                          This will use <span style={{ fontWeight: 600, color: 'var(--color-primary-hover)' }}>{plannedCreditLabel}</span> — {billingEntitlement?.usage?.remaining ?? billingEntitlement?.monthlyVideoLimit ?? '—'} remaining
+                          This will use <span style={{ fontWeight: 600, color: 'var(--color-primary-hover)' }}>{plannedCreditLabel}</span>  {billingEntitlement?.usage?.remaining ?? billingEntitlement?.monthlyVideoLimit ?? ''} remaining
                         </>
                       )}
                     </p>
@@ -3937,7 +3931,7 @@ export default function DashboardStudio({
                           onClick={() => setShowUpgradeModal(true)}
                           className="rounded-full bg-amber-400 text-slate-950 font-black px-3.5 py-1.5 text-xs hover:bg-amber-300 transition cursor-pointer"
                         >
-                          Upgrade Plan →
+                          Upgrade Plan 
                         </button>
                         <button type="button" onClick={() => chooseVideoTypeMode("autoCaption")} className="rounded-full bg-white/10 text-white font-bold px-3 py-1.5 text-xs hover:bg-white/20 transition cursor-pointer">
                           Try Free Auto Caption
@@ -3981,7 +3975,7 @@ export default function DashboardStudio({
           </div>
         )}
 
-        {/* ── M3 Projects Tab ── */}
+        {/*  M3 Projects Tab  */}
         {activeTab === "projects" && (
           <div className="space-y-6 animate-in fade-in duration-300">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-white/10">
@@ -4117,7 +4111,7 @@ export default function DashboardStudio({
           </div>
         )}
 
-        {/* ── M3 Credits & Subscription Plans Tab ── */}
+        {/*  M3 Credits & Subscription Plans Tab  */}
         {activeTab === "credits" && (
           <div className="space-y-6 animate-in fade-in duration-300">
             <div className="pb-4 border-b border-white/10">
@@ -4226,7 +4220,7 @@ export default function DashboardStudio({
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-black text-white">Upgrade or Recharge</h3>
                   <Link href="/pricing" className="text-xs font-bold text-amber-400 hover:underline">
-                    Compare All Features →
+                    Compare All Features 
                   </Link>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -4235,7 +4229,7 @@ export default function DashboardStudio({
                       <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-white/10 text-zinc-300">Starter</span>
                       <h4 className="text-lg font-black text-white mt-2">$29<span className="text-xs font-normal text-zinc-400">/mo</span></h4>
                       <p className="text-xs text-amber-400 font-mono font-bold mt-1">100 Video Credits</p>
-                      <p className="text-[11px] text-zinc-400 mt-2">Perfect for creators publishing 3–4 reels per week.</p>
+                      <p className="text-[11px] text-zinc-400 mt-2">Perfect for creators publishing 34 reels per week.</p>
                     </div>
                     <Link
                       href="/pricing"
@@ -4283,7 +4277,7 @@ export default function DashboardStudio({
           </div>
         )}
 
-        {/* ── M3 Account Profile Tab ── */}
+        {/*  M3 Account Profile Tab  */}
         {activeTab === "profile" && (
           <div className="space-y-6 animate-in fade-in duration-300">
             <div className="pb-4 border-b border-white/10">
@@ -4388,7 +4382,7 @@ export default function DashboardStudio({
               <div className="rounded-lg border border-border bg-card/[0.035] p-4">
                 <p className="truncate text-sm font-bold text-white">{deleteCandidate.title}</p>
                 <p className="mt-1 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
-                  {getModeLabel(deleteCandidate.mode)} · {formatTimeLeft(deleteCandidate.expiresAt)}
+                  {getModeLabel(deleteCandidate.mode)}  {formatTimeLeft(deleteCandidate.expiresAt)}
                 </p>
               </div>
               <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -4440,7 +4434,7 @@ export default function DashboardStudio({
                 "Your uploads are private and temporary.",
                 "Final MP4 links are automatically deleted after 48 hours.",
                 "Your reel is created in isolated cloud rendering sandboxes.",
-                "We only use your files to process your render — never sold or trained on.",
+                "We only use your files to process your render  never sold or trained on.",
               ].map((item) => (
                 <div key={item} className="flex items-start gap-2.5 text-xs font-medium leading-5 text-slate-300">
                   <ShieldCheck className="mt-0.5 shrink-0 text-emerald-400" size={15} />
@@ -4534,7 +4528,7 @@ export default function DashboardStudio({
                 className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 px-5 py-3 text-sm font-black text-white shadow-lg shadow-amber-500/25 hover:brightness-110 active:scale-[0.98] transition-all"
               >
                 <Zap size={16} className="fill-white" />
-                <span>Upgrade Plan / View Pricing →</span>
+                <span>Upgrade Plan / View Pricing </span>
               </Link>
 
               {isFreeSignupCredit && (
@@ -4614,7 +4608,7 @@ export default function DashboardStudio({
                   </div>
                   <div className="shrink-0 rounded-md bg-amber-400/10 border border-amber-400/25 px-2 py-0.5 text-[10px] font-bold text-amber-400">
                     {previewVideoType.mode === "longVideoClips"
-                      ? "3–12 credits"
+                      ? "312 credits"
                       : (previewVideoType.mode as string) === "youtubeSubtitleGenerator"
                         ? "1 credit / 2 min"
                         : getPlannedRenderCreditUnits(previewVideoType.mode)
@@ -4648,7 +4642,7 @@ export default function DashboardStudio({
                         rel="noreferrer"
                         className="text-[10px] text-amber-300 underline hover:text-amber-200"
                       >
-                        Explore Gallery →
+                        Explore Gallery 
                       </a>
                     </div>
                     <div className="flex items-center gap-1.5 overflow-x-auto py-1">
@@ -4677,7 +4671,7 @@ export default function DashboardStudio({
                   }}
                   type="button"
                 >
-                  {previewVideoType.mode === mode ? '✓ Already Selected' : 'Use This Video Type'}
+                  {previewVideoType.mode === mode ? ' Already Selected' : 'Use This Video Type'}
                 </button>
               </div>
             </div>
@@ -4905,7 +4899,7 @@ export default function DashboardStudio({
       // Preview step removed per user request: all modes render directly for speed
       const PREVIEW_SUPPORTED_MODES: Mode[] = [];
       if (PREVIEW_SUPPORTED_MODES.includes(mode)) {
-        setJobStatus({state: "starting", message: "Generating your preview…"});
+        setJobStatus({state: "starting", message: "Generating your preview"});
         try {
           const previewVideoTypeName = mode === "autoCaption"
             ? "AUTO_CAPTION_GENERATOR"
@@ -4957,16 +4951,16 @@ export default function DashboardStudio({
             setPreviewPlan(previewData.preview);
             setJobStatus({state: "idle", message: ""});
             renderRequestInFlightRef.current = false;
-            return; // Stop here — wait for user to confirm in PreviewEditor
+            return; // Stop here  wait for user to confirm in PreviewEditor
           }
-          // Preview failed — fall through to direct render
+          // Preview failed  fall through to direct render
           console.warn("[PREVIEW] Could not generate preview, falling back to direct render:", previewData.error);
         } catch (previewErr) {
           console.warn("[PREVIEW] Preview request failed, falling back to direct render:", previewErr);
         }
       }
 
-      // Direct render path (no preview) — used for all other video types
+      // Direct render path (no preview)  used for all other video types
       // and as fallback when preview fails
       await submitFinalRender({
         mediaKey: presign.key,
@@ -5684,10 +5678,10 @@ function validateFileForMode(file: File, mode: Mode) {
     return "Long Video Pro needs an audio or video file with clear speech.";
   }
   if ((mode === "facelessVideo" || mode === "aiVideoGenerator") && !isAudio) {
-    return "Faceless Video needs an audio voiceover file (MP3, WAV, M4A, AAC) up to 20 minutes.";
+    return "Faceless Video needs an audio voiceover file (MP3, WAV, M4A, AAC) up to 5 minutes.";
   }
   if (mode === "imageToVideoAi" && !isAudio) {
-    return "Image to Video AI needs an audio voiceover file (MP3, WAV, M4A, AAC) up to 10 minutes.";
+    return "Image to Video AI needs an audio voiceover file (MP3, WAV, M4A, AAC) up to 5 minutes.";
   }
   return "";
 }
@@ -5788,7 +5782,7 @@ function RenderWaitCarousel() {
     return () => clearInterval(t);
   }, []);
   const WAIT_IMAGES = ['/visuals/render-wait/wait-1.png', '/visuals/render-wait/wait-2.png', '/visuals/render-wait/wait-3.png'];
-  const WAIT_TEXTS = ['Almost there! Your video is getting ready ✨', 'AI is assembling your video...', 'Sit back, sip some chai ☕'];
+  const WAIT_TEXTS = ['Almost there! Your video is getting ready ', 'AI is assembling your video...', 'Sit back, sip some chai '];
   return (
     <div className="mt-4 flex flex-col items-center gap-3">
       <div className="relative h-40 w-full max-w-sm overflow-hidden rounded-xl border border-border bg-black/30 sm:h-48">
@@ -5999,7 +5993,7 @@ function RenderStatusStage({
                       />
                     ) : isClipFailed ? (
                       <div className="p-4 text-center">
-                        <span className="inline-grid w-10 h-10 place-items-center rounded-full bg-red-500/10 border border-red-500/20 text-red-400 mb-2">✕</span>
+                        <span className="inline-grid w-10 h-10 place-items-center rounded-full bg-red-500/10 border border-red-500/20 text-red-400 mb-2"></span>
                         <p className="text-xs font-black text-red-400">Failed to render</p>
                         <p className="text-[10px] text-muted-foreground mt-1 leading-normal">Our system will automatically retry. Failures are not billed.</p>
                       </div>
@@ -6138,7 +6132,7 @@ function RenderStatusStage({
               <div className="grid gap-3">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200">
                   <div className="flex items-center gap-2.5">
-                    <span className="text-xl">🔒</span>
+                    <span className="text-xl"></span>
                     <div>
                       <p className="font-extrabold text-sm text-white">Free Export Includes Watermark</p>
                       <p className="text-xs text-zinc-400">Upgrade to Pro to remove watermark &amp; unlock clean 4K/1080p downloads.</p>
@@ -6148,7 +6142,7 @@ function RenderStatusStage({
                     href="/pricing"
                     className="px-4 py-2 rounded-lg bg-amber-400 hover:bg-amber-300 text-zinc-950 font-black text-xs transition-colors shrink-0 flex items-center gap-1.5"
                   >
-                    👑 Upgrade to Remove
+                     Upgrade to Remove
                   </Link>
                 </div>
                 <a
@@ -6178,7 +6172,7 @@ function RenderStatusStage({
                   onClick={onReset}
                   className="inline-flex w-full items-center justify-center gap-2 rounded-[10px] border border-border px-4 py-3.5 text-[15px] font-semibold text-white transition hover:bg-card/10 sm:px-8"
                 >
-                  ↻ Close error
+                   Close error
                 </button>
               </div>
             ) : (

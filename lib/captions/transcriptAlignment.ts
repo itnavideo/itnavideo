@@ -218,7 +218,7 @@ export function alignEditedTranscript(
         isInserted: false,
       });
     } else {
-      // Inserted word — placeholder timing to be interpolated
+      // Inserted word  placeholder timing to be interpolated
       reconstructedWords.push({
         id: `ins-${pair.newIdx + 1}-${Date.now()}`,
         word: tokenText,

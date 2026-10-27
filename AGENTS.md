@@ -10,6 +10,17 @@ This is the **single source of truth** for all AI tools (Antigravity, Codex, Kir
 
 ---
 
+## 0.0 STRICT: Simple & Non-Technical Explanations (Founder Directive)
+
+> [!IMPORTANT]
+> **Communication Policy**:
+> - The founder is **not a technical coder** and does **not know Hindi**. 
+> - All replies, explanations, and updates MUST be written in an **easy, simple, and non-technical way in English**.
+> - Avoid overly complex jargon, deep architectural tangents, or confusing code-heavy explanations unless specifically asked.
+> - Explain *what* was done and *why* it matters in plain, simple English. Do not use Hindi.
+
+---
+
 ## 0. STRICT: Zero Local Heavy Compute Policy (4GB RAM / HDD Machine Rule)
 
 > [!CAUTION]
@@ -82,6 +93,47 @@ This is the **single source of truth** for all AI tools (Antigravity, Codex, Kir
 
 ---
 
+## 0.5 STRICT: Zero Public API Key & Database Secret Exposure Policy (Supabase & Cloud Security)
+
+> [!CAUTION]
+> **SECURITY DIRECTIVE: ZERO LEAKS & MANDATORY RLS**:
+> Kisi bhi circumstance mein koi bhi API Key, Database Secret, ya Private Credential public nahi hona chahiye. 
+> Supabase ke *"Data API access to new tables in the public schema"* notice aur cloud security breaches se bachne ke liye ye rules absolute aur non-negotiable hain.
+
+### 1. Zero Secret Exposure in Client Bundles & Git:
+- ❌ **No Hardcoding**: Kisi bhi code file (`.ts`, `.tsx`, `.dart`, `.js`, `.json`) mein API keys, tokens ya connection strings kabhi hardcode nahi karna.
+- ❌ **NO `NEXT_PUBLIC_` on Secrets**: Kisi bhi secret key ko `NEXT_PUBLIC_` prefix kabhi mat do. 
+  - `SUPABASE_SERVICE_ROLE_KEY`, `AWS_SECRET_ACCESS_KEY`, `GROQ_API_KEY`, `GEMINI_API_KEY`, `CLOUDINARY_API_SECRET`, `RAZORPAY_KEY_SECRET` strictly server-side par rahenge.
+  - Client side par sirf safe public identifiers ja sakte hain (e.g., `NEXT_PUBLIC_SUPABASE_URL`, public `anon` key guarded by RLS, `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`, `NEXT_PUBLIC_RAZORPAY_KEY_ID`).
+- ❌ **Git Safety**: Sabhi sensitive keys `.env.local` ya cloud secret manager mein rahenge. Git mein `.env*` files commit karna strictly banned hai (always guarded by `.gitignore`).
+
+### 2. Supabase Data API & Public Schema Defense (Mandatory RLS):
+- 🛡️ **Mandatory Row Level Security (RLS) on ALL Public Tables**:
+  - Supabase PostgREST default taur par `public` schema ki sabhi tables ko REST API (`/rest/v1/`) par expose kar deta hai.
+  - Jab bhi koi nayi table banayi jaye, **RLS enable karna mandatory hai**:
+    ```sql
+    ALTER TABLE public.<table_name> ENABLE ROW LEVEL SECURITY;
+    ```
+  - **Zero Unprotected Tables**: Bina RLS wali table se koi bhi hacker public `anon` key use karke pura data read, insert, update ya delete kar sakta hai.
+- 🛡️ **Strict Policy Enforcement**:
+  - User-facing tables (e.g., profiles, renders, user credits) par hamesha verified policies lagayein:
+    ```sql
+    CREATE POLICY "Users can only access own data" ON public.<table_name>
+      FOR ALL USING (auth.uid() = user_id);
+    ```
+  - Backend/Internal tables (e.g. render jobs, payment logs, system metrics) par `anon` aur `authenticated` roles ka access revoke karein ya service-role only policies lagayein:
+    ```sql
+    REVOKE ALL ON TABLE public.<backend_table> FROM anon, authenticated;
+    ```
+- 🛡️ **Service Role Key Isolation**:
+  - `SUPABASE_SERVICE_ROLE_KEY` saare RLS policies ko bypass kar deta hai. Isko sirf server API routes (`app/api/*`) ya serverless backend mein use karein, kabhi bhi client browser ya Flutter mobile app bundle mein include na karein.
+
+### 3. Server-Only Execution Boundary:
+- Sensitive operations (AI calls, render triggers, DB mutations, cloud storage signing) strictly Next.js Route Handlers (`app/api/reels/jobs/*`) ya Server Actions mein execute hongi.
+- Client components (`"use client"` ya Flutter client) sirf secure endpoints ko call karenge.
+
+---
+
 ## 0.6 STRICT: Dual-Project Workspace Routing Policy (Web vs Flutter App)
 
 > [!IMPORTANT]
@@ -119,10 +171,11 @@ Most daily work in Itnavideo focuses on **Existing Video Types** and **Dashboard
 ## 2. Documentation System & Video Types Registry
 
 Before working on any template or feature, check:
-1. `docs/video-types/README.md` — Master registry of all 10 active video types.
-2. `docs/video-types/{video-type}.md` — The single source of truth for that specific video type.
-3. `docs/ITNAVIDEO_PROJECT_CONTEXT.md` — Master project context (product, tech, rules, design system).
-4. `docs/ITNAVIDEO_WORK_TREE.md` — Fast execution framework.
+1. `docs/homepage.md` — Master specification for Homepage architecture, sections, copy, & conversion funnels.
+2. `docs/video-types/README.md` — Master registry of all 10 active video types.
+3. `docs/video-types/{video-type}.md` — The single source of truth for that specific video type.
+4. `docs/ITNAVIDEO_PROJECT_CONTEXT.md` — Master project context (product, tech, rules, design system).
+5. `docs/ITNAVIDEO_WORK_TREE.md` — Fast execution framework.
 
 ---
 
@@ -172,24 +225,25 @@ Multi-language translation is **paused**. Only English and Hinglish (Roman scrip
 
 > [!CRITICAL]
 > **STRICT ASPECT RATIO, DURATION & CREDIT SYSTEM**:
-> - **All 16:9 Long-Form Videos (Up to 10 Minutes / 600s)**: Strictly 16:9 Widescreen Only. Credit Rate: **1 Min = 1 Credit** (1 Min = 1 Cr, 5 Min = 5 Cr, 10 Min = 10 Cr).
+> - **All 16:9 Long-Form Videos (Up to 5 Minutes / 300s)**: Strictly 16:9 Widescreen Only. Credit Rate: **1 Min = 1 Credit** (1 Min = 1 Cr, 2 Min = 2 Cr, 3 Min = 3 Cr, 4 Min = 4 Cr, 5 Min = 5 Cr max).
 > - **All 9:16 Short-Form Videos (Up to 90 Seconds / 90s)**: Strictly 9:16 Vertical Only. Credit Rate: **1 Credit** per video (1080×1920 30 FPS MP4).
+> - **Viral Clips (`longVideoClips`)**: Strictly **1 Credit / Clip** (1 clip = 1 credit, 5 clips = 5 credits). Input up to 2 hours.
+> - **Regional & Hindi Audio Translation for Visuals**: Speech is transcribed via Groq Whisper. Regional/Hindi audio is semantically translated into English keywords to match the English stock B-roll asset library, while subtitles are rendered in clean Roman Hinglish.
 
 ### Master Category Matrix & Credit Pricing
 
 | Category | Video Type / Mode | Aspect Ratio | Max Video Duration | Credit Cost | Audio & Transcriber Pipeline |
 | :--- | :--- | :---: | :---: | :---: | :--- |
-| **16:9 Long-Form** | **Faceless Video** | **16:9 Only** | **Up to 10 Minutes (600s)** | **1 Min = 1 Credit** (1m=1, 5m=5, 10m=10 Cr) | Extracted 16kHz audio → Groq Whisper (Fallback: Gemini) |
-| **16:9 Long-Form** | **Book Summary** | **16:9 Only** | **Up to 10 Minutes (600s)** | **1 Min = 1 Credit** (1m=1, 5m=5, 10m=10 Cr) | Extracted 16kHz audio → Groq Whisper (Fallback: Gemini) |
-| **16:9 Long-Form** | **Image to Video AI** | **16:9 Only** | **Up to 10 Minutes (600s)** | **1 Min = 1 Credit** (1m=1, 5m=5, 10m=10 Cr) | Extracted 16kHz audio → Groq Whisper (Fallback: Gemini) |
-| **16:9 Long-Form** | **YouTube Subtitles Generator** | **16:9 Only** | **Up to 10 Minutes (600s)** | **1 Min = 1 Credit** (1m=1, 5m=5, 10m=10 Cr) | Extracted 16kHz audio → Groq Whisper (Fallback: Gemini) |
-| **16:9 Long-Form** | **Long Video to Shorts Clips** (`longVideoClips`) | **Source: 16:9 / 9:16**<br/>**Output: 9:16 Shorts** | **Input: Up to 2 Hours**<br/>**Output: 30s–60s Clips** | **2 Credits / Clip** | Extracted audio → Groq Whisper → AI Hook Detector → Render shorts |
+| **16:9 Long-Form** | **Faceless Video** | **16:9 Only** | **Up to 5 Minutes (300s)** | **1 Min = 1 Credit** (1m=1, 3m=3, 5m=5 Cr) | Extracted 16kHz audio → Groq Whisper (Fallback: Gemini) → Regional to English keywords for B-roll |
+| **16:9 Long-Form** | **Book Summary** | **16:9 Only** | **Up to 5 Minutes (300s)** | **1 Min = 1 Credit** (1m=1, 3m=3, 5m=5 Cr) | Extracted 16kHz audio → Groq Whisper (Fallback: Gemini) |
+| **16:9 Long-Form** | **Image to Video AI** | **16:9 Only** | **Up to 5 Minutes (300s)** | **1 Min = 1 Credit** (1m=1, 3m=3, 5m=5 Cr) | Extracted 16kHz audio → Groq Whisper (Fallback: Gemini) |
+| **16:9 Long-Form** | **YouTube Subtitles Generator** | **16:9 Only** | **Up to 5 Minutes (300s)** | **1 Min = 1 Credit** (1m=1, 3m=3, 5m=5 Cr) | Extracted 16kHz audio → Groq Whisper (Fallback: Gemini) |
+| **16:9 Long-Form** | **Long Video to Shorts Clips** (`longVideoClips`) | **Source: 16:9 / 9:16**<br/>**Output: 9:16 Shorts** | **Input: Up to 2 Hours**<br/>**Output: 30s–60s Clips** | **1 Credit / Clip** | Extracted audio → Groq Whisper → AI Hook Detector → Render shorts (1 Cr/Clip) |
 | **9:16 Short-Form** | **Auto Caption Reel** | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Extracted audio → Groq Whisper (Fallback: Gemini) |
 | **9:16 Short-Form** | **Compare Explainer** | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Extracted audio → Groq Whisper (Fallback: Gemini) |
-| **9:16 Short-Form** | **Typography Kinetic Video** | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Extracted audio → Groq Whisper (Fallback: Gemini) |
 | **9:16 Short-Form** | **Whiteboard / Stickman Explainer** | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Extracted audio → Groq Whisper (Fallback: Gemini) |
 | **9:16 Short-Form** | **Long Video Promo** | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Extracted audio → Groq Whisper (Fallback: Gemini) |
-| **Utility** | **AI Studio Audio Cleaner** | **Audio Utility** | **Up to 10 Minutes (600s)** | **1 Credit** | Groq Whisper + Retake Detection + Mastering |
+| **Utility** | **AI Studio Audio Cleaner** | **Audio Utility** | **Up to 5 Minutes (300s)** | **1 Credit** | Groq Whisper + Retake Detection + Mastering |
 
 - **Audio Extraction Rule**: Never pass raw heavy video files directly to Groq. Always extract lightweight 16kHz mono audio (MP3/WAV) before sending to Groq.
 - **Transcription Fallback**: **Primary: Groq Whisper Cloud API** (fast, cloud-based). **Fallback: Google Gemini 2.0 Flash** (`asia-south1`) if Groq encounters rate-limits or errors.
@@ -210,7 +264,7 @@ Keep reusable/render assets in one logical place only: `public/assets` for local
 - **Asset Indexing**: After adding/removing assets, run `npm run assets:index` so `public/assets/assets.json` stays current.
 - **Cloud Storage Separation**:
   - Production render asset binaries live in **AWS S3**.
-  - Website images, UI graphics, and demo videos MUST be hosted on **Cloudinary**.
+  - Website images, UI graphics, and demo videos MUST be hosted on **Cloudinary** in one single folder: `itnavideo12345` (no multiple folders).
 
 ---
 
@@ -258,7 +312,6 @@ A new Video Type is complete when all 5 are done:
 | `youtubeSubtitles` | Video / Audio | **16:9 Only** | ✅ Groq Whisper | ❌ None | ❌ None | 16:9 Widescreen MP4 | Project Prep → Transcribe Speech → Burnt-In Scrubber Subtitles → Render 1080p MP4 |
 | `autoCaption` | Video / Audio | **9:16 Only** | ✅ Groq Whisper | ❌ None | ❌ None | 9:16 Vertical MP4 | Project Prep → Transcribe Speech → Style Motion Captions → Render 1080p MP4 |
 | `compare` | Voiceover + 2 Images | **9:16 Only** | ✅ Groq Whisper | ❌ (User Images) | ❌ Local | 9:16 Vertical MP4 | Upload Received → Transcribe Audio → Build Comparison Beats → Render 1080p MP4 |
-| `typographyVideo` | Voiceover / Audio | **9:16 Only** | ✅ Groq Whisper | ❌ None | ❌ Local | 9:16 Vertical MP4 | Audio Prep → Transcribe → Kinetic Text Kinetics & Camera Pulses → Render 1080p MP4 |
 | `whiteboardVideo` | Script / Audio | **9:16 Only** | ✅ Groq Whisper | ✅ Stickman/Icons | ✅ Gemini | 9:16 Vertical MP4 | Upload Received → Transcribe → Whiteboard Strategy Scenes → Render 1080p MP4 |
 | `longVideoPromo` | Video + Thumbnail | **9:16 Only** | ❌ (Direct Promo) | ❌ (User Media) | ❌ Local | 9:16 Vertical MP4 | Media Prep → Teaser Hook Extraction → Aspect Conforming → Render 1080p MP4 |
 | `longVideoClips` | Long Video (Up to 2h) | Input 16:9/9:16 -> Output **9:16** | ✅ Groq Whisper | ❌ None | ✅ Hook Detector | 9:16 Vertical MP4 Clips | Upload Received → Chunk Audio → AI Hook Detector → Render 1080p Shorts |

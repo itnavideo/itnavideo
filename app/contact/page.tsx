@@ -16,6 +16,22 @@ import {
 
 const EMAIL_ADDRESS = "support@itnavideo.com";
 const INSTAGRAM_URL = "https://www.instagram.com/itnavideo/";
+const TWITTER_X_URL = "https://x.com/Itnavideo";
+
+function XIcon({ size = 16, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
 
 const INQUIRY_TOPICS = [
   "General Question",
@@ -163,6 +179,29 @@ export default function ContactPage() {
                   </div>
                   <span className="block text-sm font-bold text-slate-900 group-hover:text-[#FF5722] transition">
                     @itnavideo
+                  </span>
+                </div>
+              </a>
+
+              {/* X (Twitter) Official Card */}
+              <a
+                href={TWITTER_X_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center gap-4 rounded-2xl border border-slate-200 bg-[#FAFAFA] p-4 transition-all duration-300 hover:border-orange-500/40 hover:bg-white hover:shadow-lg hover:shadow-orange-500/10 shadow-xs"
+              >
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-white border border-slate-800 transition group-hover:scale-105 group-hover:bg-[#FF5722] group-hover:border-[#FF5722]">
+                  <XIcon size={18} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between">
+                    <span className="block text-[11px] font-mono font-bold uppercase tracking-wider text-[#FF5722]">
+                      X (Twitter) Official
+                    </span>
+                    <span className="text-[10px] text-slate-500">Updates &amp; News</span>
+                  </div>
+                  <span className="block text-sm font-bold text-slate-900 group-hover:text-[#FF5722] transition">
+                    @Itnavideo
                   </span>
                 </div>
               </a>

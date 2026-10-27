@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="Segment Extent Block Hierarchy">
+  <!-- Itnavideo Database Asset: Segment Extent Block Hierarchy -->
+  <rect x="10" y="14" width="100" height="92" rx="10" fill="#18181B" stroke="#A1A1AA" stroke-width="2" />
+      <text x="60" y="28" fill="#F4F4F5" font-size="8.5" font-family="sans-serif" font-weight="bold" text-anchor="middle">SEGMENT (Table / Index)</text>
+      <rect x="16" y="34" width="88" height="34" rx="6" fill="#27272A" stroke="#E4E4E7" stroke-width="1.5" />
+      <text x="60" y="46" fill="#FACC15" font-size="7.5" font-family="sans-serif" font-weight="bold" text-anchor="middle">EXTENT (Contiguous Blocks)</text>
+      <g transform="translate(20, 52)">
+        <rect x="0" y="0" width="16" height="12" fill="#3F3F46" stroke="#FFFFFF" stroke-width="1" />
+        <rect x="20" y="0" width="16" height="12" fill="#3F3F46" stroke="#FFFFFF" stroke-width="1" />
+        <rect x="40" y="0" width="16" height="12" fill="#3F3F46" stroke="#FFFFFF" stroke-width="1" />
+        <rect x="60" y="0" width="16" height="12" fill="#3F3F46" stroke="#FFFFFF" stroke-width="1" />
+      </g>
+      <text x="60" y="86" fill="#A1A1AA" font-size="7" font-family="sans-serif" text-anchor="middle">ORACLE DATA BLOCKS (8KB)</text>
+      <path d="M 60 88 v 12" stroke="#A1A1AA" stroke-width="1.5" />
+</svg>

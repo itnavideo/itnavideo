@@ -11,7 +11,6 @@
  */
 
 import { GoogleGenAI } from '@google/genai';
-import { resolveWhiteboardIcon } from '@/lib/whiteboard/icons';
 import { resolveVectorDrawing, WHITEBOARD_VECTOR_DRAWINGS } from '@/lib/whiteboard/vectorDrawings';
 import {
   WB_MAX_POINTS_PER_BOARD,
@@ -411,7 +410,6 @@ export function planDeterministicWhiteboard(input: WhiteboardPlanInput): Whitebo
       bulletType: (idx % 2 === 0 ? 'number' : 'check') as WhiteboardPoint['bulletType'],
       isHighlight: idx % 2 === 1,
       icon: iconName,
-      iconUrl: resolveWhiteboardIcon(iconName),
       drawingId: drawingDef.id,
       boardIndex,
       focusType: (idx % 2 === 0 ? 'highlight' : 'underline') as WhiteboardPoint['focusType'],
@@ -679,7 +677,6 @@ function parseAndValidatePlan(
       bulletType: ((p.bulletType as WhiteboardPoint['bulletType']) || (i % 2 === 0 ? 'number' : 'check')),
       isHighlight: Boolean(p.isHighlight || i % 2 === 1),
       icon: iconKey,
-      iconUrl: resolveWhiteboardIcon(iconKey),
       drawingId: drawingDef.id,
       boardIndex: Math.max(0, Number(p.boardIndex) || 0),
       focusType: ((p.focusType as WhiteboardPoint['focusType']) || 'highlight'),

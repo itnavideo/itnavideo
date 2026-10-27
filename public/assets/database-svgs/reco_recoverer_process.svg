@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="RECO (Distributed Recoverer)">
+  <!-- Itnavideo Database Asset: RECO (Distributed Recoverer) -->
+  <circle cx="60" cy="48" r="28" fill="#BE123C" stroke="#881337" stroke-width="3" />
+      <path d="M 44 48 a 16 16 0 1 1 32 0 a 16 16 0 0 1 -32 0" fill="none" stroke="#FDA4AF" stroke-width="3" stroke-dasharray="6 3" />
+      <polygon points="76,46 76,56 86,51" fill="#FFFFFF" />
+      <text x="60" y="32" fill="#FFE4E6" font-size="8.5" font-family="sans-serif" font-weight="900" text-anchor="middle">RECO</text>
+      <text x="60" y="98" fill="#FB7185" font-size="7" font-family="sans-serif" font-weight="bold" text-anchor="middle">RESOLVES 2-PHASE COMMIT</text>
+</svg>

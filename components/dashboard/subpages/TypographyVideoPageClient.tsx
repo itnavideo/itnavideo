@@ -77,7 +77,7 @@ export default function TypographyVideoPage() {
   const [narrationMode, setNarrationMode] = useState<"script" | "upload">("script");
   const [scriptText, setScriptText] = useState("");
   const [selectedVoice, setSelectedVoice] = useState("viral-energetic");
-  const [typographyStyle, setTypographyStyle] = useState("apple-keynote-punch");
+  const [typographyStyle, setTypographyStyle] = useState("creator-editorial");
   const [typographySfxIntensity, setTypographySfxIntensity] = useState<"full" | "subtle" | "none">("full");
   const [typographyPacing, setTypographyPacing] = useState<"fast" | "smooth">("fast");
   const [typographyTextCase, setTypographyTextCase] = useState<"uppercase" | "natural">("uppercase");
@@ -435,7 +435,7 @@ export default function TypographyVideoPage() {
             >
               <ArrowLeft size={16} />
             </Link>
-            <BrandLogo />
+            <BrandLogo size="sm" variant="dark" />
           </div>
 
           <div className="flex items-center gap-4">

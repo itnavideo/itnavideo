@@ -37,6 +37,7 @@ export const aiDiscoveryFacts = {
   ],
   pricingSummary: 'One free AI video is available on signup with a watermark. Paid plans start with Pro for regular creators, Business for teams, and a custom Enterprise plan for agencies.',
   socialProfiles: [
+    'https://x.com/Itnavideo',
     'https://www.instagram.com/itnavideo/',
     'https://www.youtube.com/@Itnavideo',
     'https://www.linkedin.com/company/itnavideo-ai/',

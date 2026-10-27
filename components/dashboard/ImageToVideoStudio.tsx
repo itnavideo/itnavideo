@@ -16,6 +16,8 @@ import {
   X,
   Music,
   ChevronRight,
+  ChevronLeft,
+  ArrowLeftRight,
   Plus,
   ArrowLeft,
   Captions,
@@ -30,7 +32,6 @@ import {
   Wand2,
 } from "lucide-react";
 import { BorderBeam } from "@/components/magicui/BorderBeam";
-import { ImageToVideoShowcaseCarousel } from "@/components/dashboard/ImageToVideoShowcaseCarousel";
 
 export type ImageToVideoAssetMode = "default_stock" | "custom_upload" | "library" | "upload" | "mix" | "ai-generate";
 
@@ -94,52 +95,42 @@ export const DEFAULT_AI_SAMPLE_ASSETS = [
 
 export const CINEMA_SUBTITLE_PRESETS = [
   {
-    id: "netflix-yellow",
-    title: "Netflix Yellow",
-    desc: "Classic bold yellow font with subtle outline",
+    id: "minimal-clean",
+    title: "Clean Translucent Pill",
+    desc: "Crisp white text on subtle dark pill backing for maximum readability",
     renderCaption: () => (
-      <span className="font-black text-xs sm:text-sm text-yellow-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] tracking-wide">
-        UNCOVERING THE <span className="bg-black/80 px-1 py-0.5 rounded text-yellow-400">LOST SECRET</span>
-      </span>
-    ),
-  },
-  {
-    id: "documentary-serif",
-    title: "Documentary Serif",
-    desc: "Editorial serif captions with elegant spacing",
-    renderCaption: () => (
-      <span className="font-serif font-bold text-xs sm:text-sm text-slate-100 drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] italic tracking-wider">
-        History holds answers to future mysteries.
+      <span className="font-semibold text-xs sm:text-sm text-white bg-black/70 px-3 py-1 rounded-full border border-white/10 tracking-wide">
+        Captions synchronized with narration
       </span>
     ),
   },
   {
     id: "parallax-modern",
-    title: "Parallax Modern",
-    desc: "Bold white kinetic word zoom with frosted backing",
+    title: "Modern Minimal",
+    desc: "Clean modern typography with balanced contrast and gentle presence",
     renderCaption: () => (
-      <span className="font-black text-xs sm:text-sm uppercase tracking-wider text-white bg-black/60 border border-white/20 backdrop-blur-md px-2.5 py-1 rounded-xl shadow-lg">
-        THIS CHANGED <span className="text-[#FF9100]">EVERYTHING</span>
+      <span className="font-bold text-xs sm:text-sm text-slate-100 bg-black/60 px-2.5 py-1 rounded-lg border border-white/10">
+        Every word clearly legible
       </span>
     ),
   },
   {
-    id: "minimal-clean",
-    title: "Minimal Clean",
-    desc: "Crisp white typography with subtle drop-shadow",
+    id: "documentary-serif",
+    title: "Documentary Clean",
+    desc: "Timeless editorial subtitles with soft contrast drop-shadow",
     renderCaption: () => (
-      <span className="font-semibold text-xs sm:text-sm text-slate-100 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-        Simple, powerful narrative storytelling.
+      <span className="font-medium text-xs sm:text-sm text-slate-100 drop-shadow-[0_2px_4px_rgba(0,0,0,0.85)] tracking-wide">
+        Clear, synchronized spoken narrative
       </span>
     ),
   },
   {
-    id: "gold-editorial",
-    title: "Gold Editorial",
-    desc: "Metallic warm gold gradient headlines",
+    id: "netflix-yellow",
+    title: "Classic High Contrast",
+    desc: "Subtle warm-white text with dark background for vivid scenes",
     renderCaption: () => (
-      <span className="font-black text-xs sm:text-sm uppercase bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
-        THE GOLDEN ERA
+      <span className="font-semibold text-xs sm:text-sm text-amber-50 bg-black/75 px-3 py-1 rounded-lg border border-white/10">
+        High contrast across any background
       </span>
     ),
   },
@@ -151,6 +142,7 @@ export interface ImageToVideoStudioProps {
   imageFiles: File[];
   onAddImages: (files: FileList | File[] | null) => void;
   onRemoveImage: (index: number) => void;
+  onReorderImages?: (fromIndex: number, toIndex: number) => void;
   imagePhrases?: string[];
   onChangeImagePhrase?: (index: number, val: string) => void;
   assetSourceMode?: ImageToVideoAssetMode;
@@ -201,6 +193,7 @@ export function ImageToVideoStudio({
   imageFiles,
   onAddImages,
   onRemoveImage,
+  onReorderImages,
   imagePhrases,
   onChangeImagePhrase,
   assetSourceMode = "library",
@@ -331,19 +324,17 @@ export function ImageToVideoStudio({
         <div className="flex items-center gap-2 shrink-0">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#161720] px-3.5 py-1.5 text-xs font-bold text-slate-200">
             <Clock3 size={13} className="text-[#FF7043]" />
-            <span>16:9 Widescreen • Up to 10m</span>
+            <span>16:9 Widescreen  Up to 10m</span>
           </span>
         </div>
       </div>
 
-      {/* ── Image to Video AI Cloud Demos Showcase (TOP OF DASHBOARD) ── */}
-      <ImageToVideoShowcaseCarousel />
 
       {/* 2-Column Responsive Layout (7 cols Form / 5 cols Sticky Live Cinema Stage) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Form Controls (7 cols) */}
         <div className="lg:col-span-7 space-y-6">
-          {/* ── 1. UPLOAD YOUR AUDIO ── */}
+          {/*  1. UPLOAD YOUR AUDIO  */}
           <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-white/5 pb-4">
               <div className="flex items-center gap-3">
@@ -356,7 +347,7 @@ export function ImageToVideoStudio({
                     <span>Upload Your Audio</span>
                   </h3>
                   <p className="text-xs text-zinc-400 mt-0.5">
-                    Select voiceover narration audio (MP3, WAV, M4A — up to 10 mins).
+                    Select voiceover narration audio (MP3, WAV, M4A  up to 5 mins).
                   </p>
                 </div>
               </div>
@@ -386,7 +377,7 @@ export function ImageToVideoStudio({
 
                   <div className="space-y-1">
                     <p className="text-sm font-bold text-white">Drop your audio file here or browse</p>
-                    <p className="text-xs text-zinc-400 font-mono">MP3, WAV or M4A • Max 10 minutes (600s)</p>
+                    <p className="text-xs text-zinc-400 font-mono">MP3, WAV or M4A  Max 5 minutes (300s)</p>
                   </div>
 
                   <span className="inline-flex items-center gap-1.5 rounded-xl border border-[#FF5722]/30 bg-gradient-to-r from-[#FF5722] to-[#FF7043] px-4 py-2 text-xs font-black text-black shadow-md shadow-[#FF5722]/20 hover:brightness-110 transition">
@@ -415,7 +406,7 @@ export function ImageToVideoStudio({
                         <p className="text-xs sm:text-sm font-bold text-white truncate">{selectedAudio.name}</p>
                         <p className="text-[11px] text-emerald-300 font-mono mt-0.5 flex items-center gap-2">
                           <span>{(selectedAudio.size / (1024 * 1024)).toFixed(1)} MB</span>
-                          <span>•</span>
+                          <span></span>
                           <span>{audioDurationSeconds > 0 ? `${formatAudioTime(audioCurrentTime)} / ${formatAudioTime(audioDurationSeconds)}` : "Loaded"}</span>
                         </p>
                       </div>
@@ -466,7 +457,7 @@ export function ImageToVideoStudio({
             </label>
           </div>
 
-          {/* ── 2. VISUAL STYLE & SOURCE ── */}
+          {/*  2. VISUAL STYLE & SOURCE  */}
           <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-2xl space-y-5">
             <div className="flex items-center justify-between border-b border-white/5 pb-4">
               <div className="flex items-center gap-3">
@@ -490,8 +481,8 @@ export function ImageToVideoStudio({
               <label className="block text-xs font-bold text-zinc-300">Built-in Asset Visual Style</label>
               <div className="grid grid-cols-2 gap-2.5">
                 {[
-                  { id: "realistic", label: "📷 Realistic Images", desc: "Approved cinematic real photos & stock" },
-                  { id: "2d", label: "🎨 2D Illustrations", desc: "Approved flat art & vector illustrations" },
+                  { id: "realistic", label: " Realistic Images", desc: "Approved cinematic real photos & stock" },
+                  { id: "2d", label: " 2D Illustrations", desc: "Approved flat art & vector illustrations" },
                 ].map((art) => {
                   const active = activeArtStyle === art.id;
                   return (
@@ -566,20 +557,103 @@ export function ImageToVideoStudio({
                 </div>
 
                 {imagePreviews.length > 0 && (
-                  <div className="grid grid-cols-4 gap-2">
-                    {imagePreviews.map((img, idx) => (
-                      <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-white/10 group">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={img.url} alt={img.name} className="w-full h-full object-cover" />
-                        <button
-                          type="button"
-                          onClick={() => onRemoveImage(idx)}
-                          className="absolute top-1 right-1 h-5 w-5 rounded-full bg-black/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition hover:bg-red-500 cursor-pointer"
-                        >
-                          <X size={10} />
-                        </button>
-                      </div>
-                    ))}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between text-xs text-zinc-400">
+                      <span className="font-bold text-white flex items-center gap-1.5">
+                        <ArrowLeftRight size={14} className="text-[#FF9100]" />
+                        <span>Story Image Sequence ({imagePreviews.length} images)</span>
+                      </span>
+                      <span className="text-[11px] text-zinc-400">
+                        Preserved in chronological order  Use   to reorder
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {imagePreviews.map((img, idx) => {
+                        const currentPhrase = imagePhrases?.[idx] || "";
+                        const hasPhrase = currentPhrase.trim().length > 0;
+
+                        return (
+                          <div
+                            key={idx}
+                            className="flex flex-col rounded-2xl border border-white/10 bg-[#161720] p-3 space-y-2.5 transition hover:border-white/20"
+                          >
+                            {/* Sequence Header & Reorder Controls */}
+                            <div className="flex items-center justify-between">
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-[#FF5722]/15 border border-[#FF5722]/30 text-[#FF9100] text-[11px] font-black uppercase tracking-wider">
+                                Image {idx + 1}
+                              </span>
+
+                              <div className="flex items-center gap-1">
+                                <button
+                                  type="button"
+                                  disabled={idx === 0}
+                                  onClick={() => onReorderImages?.(idx, idx - 1)}
+                                  title="Move earlier in story order"
+                                  className="h-6 w-6 rounded-md bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed text-zinc-300 hover:text-white flex items-center justify-center transition cursor-pointer"
+                                >
+                                  <ChevronLeft size={13} />
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={idx === imagePreviews.length - 1}
+                                  onClick={() => onReorderImages?.(idx, idx + 1)}
+                                  title="Move later in story order"
+                                  className="h-6 w-6 rounded-md bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed text-zinc-300 hover:text-white flex items-center justify-center transition cursor-pointer"
+                                >
+                                  <ChevronRight size={13} />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => onRemoveImage(idx)}
+                                  title="Remove image"
+                                  className="h-6 w-6 rounded-md bg-white/5 hover:bg-red-500/20 text-zinc-400 hover:text-red-400 flex items-center justify-center transition cursor-pointer ml-1"
+                                >
+                                  <X size={12} />
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Thumbnail Preview */}
+                            <div className="relative aspect-video w-full rounded-xl overflow-hidden border border-white/10 bg-black group">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={img.url} alt={img.name} className="w-full h-full object-cover" />
+                              <div className="absolute bottom-1 left-1 right-1 px-2 py-0.5 rounded bg-black/70 backdrop-blur-sm text-[10px] text-zinc-300 truncate font-mono">
+                                {img.name}
+                              </div>
+                            </div>
+
+                            {/* Optional Script Excerpt / Matcher Input */}
+                            <div className="space-y-1.5">
+                              <div className="flex items-center justify-between text-[10px]">
+                                <span className="font-bold text-zinc-300">Narration Excerpt (Optional)</span>
+                                {hasPhrase ? (
+                                  <span className="text-[#FFA000] font-bold flex items-center gap-1 bg-[#FF5722]/10 px-2 py-0.5 rounded-md border border-[#FF5722]/30" title="AI will match these spoken words during transcription">
+                                    <Sparkles size={10} className="text-[#FF9100]" /> Excerpt Attached
+                                  </span>
+                                ) : (
+                                  <span className="text-zinc-400 font-medium flex items-center gap-1 bg-white/5 px-2 py-0.5 rounded-md border border-white/5">
+                                    <Sparkles size={10} className="text-zinc-400" /> Auto AI Pacing
+                                  </span>
+                                )}
+                              </div>
+                              <input
+                                type="text"
+                                value={currentPhrase}
+                                onChange={(e) => onChangeImagePhrase?.(idx, e.target.value)}
+                                placeholder="Paste spoken line (Hindi / English) to time this image..."
+                                className="w-full rounded-xl border border-white/10 bg-[#111218] px-2.5 py-1.5 text-xs text-white placeholder-zinc-500 focus:border-[#FF5722] focus:outline-none focus:ring-1 focus:ring-[#FF5722]"
+                              />
+                              <p className="text-[10px] text-zinc-400 leading-tight">
+                                {hasPhrase
+                                  ? "AI aligns start & end times directly to these spoken words."
+                                  : "Optional: Leave empty for AI story-paced image timing."}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
 
@@ -598,7 +672,7 @@ export function ImageToVideoStudio({
             )}
           </div>
 
-          {/* ── 3. WIDESCREEN CINEMA CAPTIONS ── */}
+          {/*  3. WIDESCREEN CINEMA CAPTIONS  */}
           <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-white/5 pb-4">
               <div className="flex items-center gap-3">
@@ -608,10 +682,10 @@ export function ImageToVideoStudio({
                 <div>
                   <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
                     <Captions size={18} className="text-[#FF9100]" />
-                    <span>Kinetic Subtitles &amp; Captions</span>
+                    <span>Synchronized Speech Captions</span>
                   </h3>
                   <p className="text-xs text-zinc-400 mt-0.5">
-                    Select 2.5D frosted glass cinema subtitle presets.
+                    Clean, high-legibility captions synchronized directly with your audio narration.
                   </p>
                 </div>
               </div>
@@ -654,7 +728,7 @@ export function ImageToVideoStudio({
             </div>
           </div>
 
-          {/* ── 4. AUDIO SCORE & SOUND EFFECTS ── */}
+          {/*  4. AUDIO SCORE & SOUND EFFECTS  */}
           <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-white/5 pb-4">
               <div className="flex items-center gap-3">
@@ -691,7 +765,7 @@ export function ImageToVideoStudio({
                       }`}
                     >
                       <p className="text-xs font-bold text-white truncate">{track.name}</p>
-                      <p className="text-[10px] text-zinc-400 mt-0.5">{track.genre} • {track.mood}</p>
+                      <p className="text-[10px] text-zinc-400 mt-0.5">{track.genre}  {track.mood}</p>
                     </button>
                   );
                 })}
@@ -751,7 +825,7 @@ export function ImageToVideoStudio({
                 <span>16:9 Cinema Stage</span>
               </h3>
               <span className="rounded-full bg-[#FF5722]/15 border border-[#FF5722]/30 px-2.5 py-0.5 text-[10px] font-bold text-[#FF9100]">
-                1920×1080 Full HD
+                19201080 Full HD
               </span>
             </div>
 
@@ -781,7 +855,7 @@ export function ImageToVideoStudio({
 
               <div className="absolute bottom-2 left-2 z-10 flex items-center gap-1.5 rounded-full bg-black/70 backdrop-blur-md px-2.5 py-1 text-[9.5px] font-mono text-zinc-300 border border-white/10">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
-                <span>16:9 Cinema • Ken Burns FX</span>
+                <span>16:9 Cinema  Ken Burns FX</span>
               </div>
             </div>
 
@@ -812,7 +886,7 @@ export function ImageToVideoStudio({
             {/* Primary Generate Button CTA */}
             <button
               type="button"
-              onClick={onStartRender}
+              onClick={() => onStartRender?.()}
               disabled={isRendering}
               className={`w-full inline-flex items-center justify-center gap-2 rounded-2xl p-4 text-sm font-black text-black shadow-xl transition-all duration-200 ${
                 isRendering

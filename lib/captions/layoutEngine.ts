@@ -31,10 +31,10 @@ export function calculateCanvasBounds(dimensions: CanvasDimensions): {
     // 9:16 Vertical Reel/Short
     // TikTok/Reels UI: Top 15% header, Bottom 20% description/caption card, Right 16% action buttons
     return {
-      maxLineWidthPx: Math.round(width * 0.84),
+      maxLineWidthPx: Math.round(width * 0.68),
       safeMarginTopPx: Math.round(height * 0.14),
       safeMarginBottomPx: Math.round(height * 0.22),
-      safeMarginSidePx: Math.round(width * 0.08),
+      safeMarginSidePx: Math.round(width * 0.16),
     };
   }
 

@@ -2,8 +2,8 @@ import { createSupabaseServerClient, isSupabaseServerConfigured } from "@/lib/su
 import { getAppSettingFromServer, setAppSettingFromServer } from "@/services/supabase/siteStore";
 
 const FREE_SIGNUP_CREDIT_PREFIX = "free_signup_credit";
-const FREE_SIGNUP_CREDIT_AMOUNT = 1;        // Exactly 1 free credit for signup
-const FREE_DAILY_VIDEO_LIMIT = 1;           // Max 1 free video total
+const FREE_SIGNUP_CREDIT_AMOUNT = 0;        // Free trial discontinued - paid plans only
+const FREE_DAILY_VIDEO_LIMIT = 0;           // Free trial discontinued
 const FREE_SIGNUP_CREDIT_ROLLOUT_AT = "2026-07-04T00:00:00.000Z";
 const FREE_SIGNUP_CREDIT_EXPIRES_AT = "2099-12-31T23:59:59.000Z";
 
@@ -17,8 +17,8 @@ export type FreeSignupCreditGrant = {
   expiresAt: string;
   transaction: {
     type: "free_signup_credit";
-    amount: 1;
-    reason: "New user free trial — 1 free credit (9:16 Short up to 90s)";
+    amount: number;
+    reason: string;
     createdAt: string;
   };
 };

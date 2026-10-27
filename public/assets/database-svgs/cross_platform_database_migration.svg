@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="Cross-Platform Database Migration">
+  <!-- Itnavideo Database Asset: Cross-Platform Database Migration -->
+  <rect x="12" y="32" width="34" height="40" rx="6" fill="#1E293B" stroke="#64748B" stroke-width="2" />
+      <text x="29" y="54" fill="#E2E8F0" font-size="7" font-family="sans-serif" text-anchor="middle">AIX/Solaris</text>
+      <path d="M 50 52 h 20 l -4 -4 M 70 52 l -4 4" fill="none" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round" />
+      <rect x="74" y="32" width="34" height="40" rx="6" fill="#0F172A" stroke="#EF4444" stroke-width="2" />
+      <text x="91" y="54" fill="#FFFFFF" font-size="7" font-family="sans-serif" font-weight="bold" text-anchor="middle">OEL Linux</text>
+      <text x="60" y="94" fill="#FBBF24" font-size="8" font-family="sans-serif" font-weight="900" text-anchor="middle">ENDIAN CONVERSION</text>
+</svg>

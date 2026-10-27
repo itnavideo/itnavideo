@@ -2,7 +2,6 @@
 
 import React, { useRef, useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { ArrowRight, Sparkles, Play, Film, Volume2, VolumeX, Captions } from 'lucide-react';
 import { SUBTITLE_PRESETS } from '@/remotion/types/subtitles';
 import {
@@ -281,41 +280,25 @@ export default function DualShowcaseTabs() {
           onMouseLeave={() => setIsPaused(false)}
         >
           {activeTab === 'captions' ? (
-            <motion.div
+            <div
               key="captions-track"
-              className="flex gap-4 w-max"
-              animate={isPaused ? { x: undefined } : { x: ['0%', '-50%'] }}
-              transition={{
-                x: {
-                  repeat: Infinity,
-                  repeatType: 'loop',
-                  duration: 38,
-                  ease: 'linear',
-                },
-              }}
+              className={`flex gap-4 w-max ${isPaused ? '' : 'animate-m3-marquee'}`}
+              style={{ willChange: 'transform' }}
             >
               {captionItems.map((presetKey, idx) => (
                 <CaptionCard key={`${presetKey}-${idx}`} presetKey={presetKey} />
               ))}
-            </motion.div>
+            </div>
           ) : (
-            <motion.div
+            <div
               key="images-track"
-              className="flex gap-5 w-max"
-              animate={isPaused ? { x: undefined } : { x: ['0%', '-50%'] }}
-              transition={{
-                x: {
-                  repeat: Infinity,
-                  repeatType: 'loop',
-                  duration: 32,
-                  ease: 'linear',
-                },
-              }}
+              className={`flex gap-5 w-max ${isPaused ? '' : 'animate-m3-marquee'}`}
+              style={{ willChange: 'transform' }}
             >
               {imageItems.map((item, idx) => (
                 <ImageCard key={`${item.id}-${idx}`} item={item} />
               ))}
-            </motion.div>
+            </div>
           )}
         </div>
 

@@ -334,10 +334,10 @@ const AUDIO_SPOKEN_LANGUAGES = [
   { id: "auto", label: "Auto Detect (Recommended)" },
   { id: "hi", label: "Hindi / Hinglish (Spoken)" },
   { id: "en", label: "English (Global / US / UK)" },
-  { id: "es", label: "Spanish (Español)" },
-  { id: "fr", label: "French (Français)" },
+  { id: "es", label: "Spanish (Espaol)" },
+  { id: "fr", label: "French (Franais)" },
   { id: "de", label: "German (Deutsch)" },
-  { id: "pt", label: "Portuguese (Português)" },
+  { id: "pt", label: "Portuguese (Portugus)" },
   { id: "id", label: "Indonesian (Bahasa)" },
   { id: "ar", label: "Arabic" },
   { id: "ja", label: "Japanese" },
@@ -348,10 +348,10 @@ const SUBTITLE_OUTPUT_LANGUAGES = [
   { id: "same", label: "Same as Audio (Roman Hinglish / English)" },
   { id: "en", label: "English (Latin Script)" },
   { id: "hi", label: "Hinglish (Roman Hindi - No Devanagari)" },
-  { id: "es", label: "Spanish (Español)" },
-  { id: "fr", label: "French (Français)" },
+  { id: "es", label: "Spanish (Espaol)" },
+  { id: "fr", label: "French (Franais)" },
   { id: "de", label: "German (Deutsch)" },
-  { id: "pt", label: "Portuguese (Português)" },
+  { id: "pt", label: "Portuguese (Portugus)" },
   { id: "id", label: "Indonesian (Bahasa)" },
 ];
 
@@ -1039,7 +1039,7 @@ export default function YoutubeSubtitlesPage() {
 
   return (
     <div className="min-h-screen bg-[#070B14] text-white flex flex-col selection:bg-[#FF5722]/30 selection:text-[#FFA000]">
-      {/* ── Top Navigation Bar ── */}
+      {/*  Top Navigation Bar  */}
       <header className="sticky top-0 z-40 border-b border-white/10 bg-[#070B14]/90 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 sm:gap-4">
@@ -1057,7 +1057,7 @@ export default function YoutubeSubtitlesPage() {
 
             <span className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-3 py-1 text-[11px] font-black text-[#FFA000]">
               <Sparkles size={11} className="text-[#FF5722]" />
-              Studio #4 • 16:9 Widescreen
+              Studio #4  16:9 Widescreen
             </span>
           </div>
 
@@ -1080,14 +1080,14 @@ export default function YoutubeSubtitlesPage() {
         </div>
       </header>
 
-      {/* ── Main Canvas ── */}
+      {/*  Main Canvas  */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
         {/* Header Banner & Value Proposition */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-6">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#FFA000] mb-2">
               <Sparkles size={13} className="text-[#FF5722]" />
-              <span>Studio #4 • YouTube Subtitle Generator</span>
+              <span>Studio #4  YouTube Subtitle Generator</span>
             </div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight">
               YouTube Subtitle{" "}
@@ -1108,7 +1108,7 @@ export default function YoutubeSubtitlesPage() {
             </span>
             <span className="rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-3.5 py-1.5 text-xs font-bold text-[#FFA000] flex items-center gap-1.5">
               <Clock size={14} className="text-[#FF5722]" />
-              <span>Max 10 Min (600s)</span>
+              <span>Max 5 Min (300s)</span>
             </span>
             <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1.5 text-xs font-bold text-emerald-400 flex items-center gap-1.5">
               <ShieldCheck size={14} />
@@ -1117,7 +1117,7 @@ export default function YoutubeSubtitlesPage() {
           </div>
         </div>
 
-        {/* ── In-Progress / Ready Render State ── */}
+        {/*  In-Progress / Ready Render State  */}
         {(isWorking || isReady || isError) ? (
           <div className="max-w-4xl mx-auto py-4">
             <InteractiveRenderEngine
@@ -1143,7 +1143,7 @@ export default function YoutubeSubtitlesPage() {
             />
           </div>
         ) : (
-          /* ── Main Responsive Studio (7 cols Form & Styles / 5 cols Sticky Live Cinema Stage) ── */
+          /*  Main Responsive Studio (7 cols Form & Styles / 5 cols Sticky Live Cinema Stage)  */
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* Hidden File Input */}
             <input
@@ -1160,9 +1160,9 @@ export default function YoutubeSubtitlesPage() {
               type="file"
             />
 
-            {/* ── LEFT COLUMN (7 Cols): Upload + Cloudinary Switcher + Styles Gallery + Alignment ── */}
+            {/*  LEFT COLUMN (7 Cols): Upload + Cloudinary Switcher + Styles Gallery + Alignment  */}
             <div className="lg:col-span-7 space-y-6">
-              {/* ── 1. Video & Audio Upload Dropzone + Cloudinary Sample Selector ── */}
+              {/*  1. Video & Audio Upload Dropzone + Cloudinary Sample Selector  */}
               <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-5 sm:p-6 shadow-2xl space-y-4">
                 <div className="flex items-center justify-between pb-3 border-b border-white/10">
                   <div className="flex items-center gap-3">
@@ -1175,7 +1175,7 @@ export default function YoutubeSubtitlesPage() {
                         <span>Upload 16:9 Video or Audio</span>
                       </h3>
                       <p className="text-[11px] text-slate-400 mt-0.5">
-                        MP4, MOV, MP3, WAV — strictly up to 10 minutes (600s).
+                        MP4, MOV, MP3, WAV  strictly up to 5 minutes (300s).
                       </p>
                     </div>
                   </div>
@@ -1207,7 +1207,7 @@ export default function YoutubeSubtitlesPage() {
                 >
                   <div className="flex items-center gap-3.5 min-w-0">
                     <div
-                      className={`flex h-11 w-11 items-center justify-center rounded-xl border group-hover:scale-105 transition-transform shrink-0 ${
+                       className={`flex h-11 w-11 items-center justify-center rounded-xl border group-hover:scale-105 transition-transform shrink-0 ${
                         selectedFile
                           ? "border-emerald-500/30 bg-emerald-500/20 text-emerald-400"
                           : "border-[#FF5722]/30 bg-[#FF5722]/10 text-[#FFA000]"
@@ -1229,10 +1229,10 @@ export default function YoutubeSubtitlesPage() {
                       </div>
                       <p className="text-[11px] text-slate-400 truncate mt-0.5">
                         {selectedFile
-                          ? `${(selectedFile.size / (1024 * 1024)).toFixed(1)} MB • ${
+                          ? `${(selectedFile.size / (1024 * 1024)).toFixed(1)} MB  ${
                               mediaDurationSeconds > 0 ? `${mediaDurationSeconds}s` : "Ready"
                             }`
-                          : "Drag & drop MP4, MOV, MP3, WAV • Max 10 minutes (600s)"}
+                          : "Drag & drop MP4, MOV, MP3, WAV  Max 5 minutes (300s)"}
                       </p>
                     </div>
                   </div>
@@ -1274,7 +1274,7 @@ export default function YoutubeSubtitlesPage() {
                   </div>
                 )}
 
-                {/* ── Interactive Cloudinary Sample Videos (Instant Testing with Real Media) ── */}
+                {/*  Interactive Cloudinary Sample Videos (Instant Testing with Real Media)  */}
                 <div className="pt-2 border-t border-white/5 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-black uppercase text-slate-300 flex items-center gap-1.5">
@@ -1329,7 +1329,7 @@ export default function YoutubeSubtitlesPage() {
                 </div>
               </div>
 
-              {/* ── 2. Spacious 16:9 Broadcast Subtitle Gallery ── */}
+              {/*  2. Spacious 16:9 Broadcast Subtitle Gallery  */}
               <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-5 sm:p-6 shadow-2xl space-y-4 relative overflow-hidden">
                 <BorderBeam size={220} duration={14} colorFrom="#FF5722" colorTo="#FFA000" />
 
@@ -1369,11 +1369,11 @@ export default function YoutubeSubtitlesPage() {
                 <div className="flex flex-wrap items-center gap-2">
                   {[
                     { id: "all", label: "All Styles" },
-                    { id: "cinematic", label: "🎬 Cinematic" },
-                    { id: "viral", label: "🔥 Viral & Bold" },
-                    { id: "podcast", label: "🎙️ Podcast" },
-                    { id: "minimal", label: "✨ Minimal" },
-                    { id: "educational", label: "🧠 Educational" },
+                    { id: "cinematic", label: " Cinematic" },
+                    { id: "viral", label: " Viral & Bold" },
+                    { id: "podcast", label: " Podcast" },
+                    { id: "minimal", label: " Minimal" },
+                    { id: "educational", label: " Educational" },
                   ].map((cat) => {
                     const active = selectedCategory === cat.id;
                     return (
@@ -1457,7 +1457,7 @@ export default function YoutubeSubtitlesPage() {
                 </div>
               </div>
 
-              {/* ── 3. Alignment, Safe-Zone & Custom Typography ── */}
+              {/*  3. Alignment, Safe-Zone & Custom Typography  */}
               <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-5 sm:p-6 shadow-xl space-y-4">
                 <div className="flex items-center justify-between border-b border-white/10 pb-3">
                   <div className="flex items-center gap-3">
@@ -1547,7 +1547,7 @@ export default function YoutubeSubtitlesPage() {
                         >
                           <option value="small">Small (28px)</option>
                           <option value="medium">Medium (34px)</option>
-                          <option value="large">Large (42px — Recommended)</option>
+                          <option value="large">Large (42px  Recommended)</option>
                           <option value="xlarge">Extra Large (50px)</option>
                         </select>
                       </div>
@@ -1617,7 +1617,7 @@ export default function YoutubeSubtitlesPage() {
                         <option value="high">18% High Clearance (Large Scrubbers)</option>
                       </select>
                       <p className="text-[10px] text-slate-400">
-                        Prevents subtitles from being covered by YouTube’s bottom progress bar.
+                        Prevents subtitles from being covered by YouTubes bottom progress bar.
                       </p>
                     </div>
 
@@ -1675,7 +1675,7 @@ export default function YoutubeSubtitlesPage() {
               </div>
             </div>
 
-            {/* ── RIGHT COLUMN (5 Cols, Sticky Stage): Live 16:9 Cinema Player & Dual Export Hub ── */}
+            {/*  RIGHT COLUMN (5 Cols, Sticky Stage): Live 16:9 Cinema Player & Dual Export Hub  */}
             <div className="lg:col-span-5 lg:sticky lg:top-20 space-y-6">
               {/* 16:9 Broadcast Video Preview Stage */}
               <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-5 shadow-2xl space-y-4">
@@ -1689,7 +1689,7 @@ export default function YoutubeSubtitlesPage() {
                     <span className="text-xs font-black uppercase tracking-wider text-white truncate">
                       {selectedFile
                         ? selectedFile.name
-                        : `16:9 Preview • ${activePresetConfig.title}`}
+                        : `16:9 Preview  ${activePresetConfig.title}`}
                     </span>
                   </div>
 
@@ -1742,7 +1742,7 @@ export default function YoutubeSubtitlesPage() {
                     {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} className="text-emerald-400" />}
                   </button>
 
-                  {/* ── Real-Time 16:9 Burned-In Subtitle Overlay ── */}
+                  {/*  Real-Time 16:9 Burned-In Subtitle Overlay  */}
                   <div
                     className={`pointer-events-none absolute inset-x-4 ${safeMarginBottomClass} flex justify-center text-center z-10 transition-all duration-200`}
                   >
@@ -1767,7 +1767,7 @@ export default function YoutubeSubtitlesPage() {
                     </div>
                   </div>
 
-                  {/* ── 14% YouTube Scrubber Safe-Zone Overlay Indicator ── */}
+                  {/*  14% YouTube Scrubber Safe-Zone Overlay Indicator  */}
                   <div className="pointer-events-none absolute inset-x-0 bottom-[14%] border-b border-dashed border-red-500/40 z-10 flex justify-end pr-3">
                     <span className="rounded bg-black/80 border border-red-500/30 px-1.5 py-0.5 text-[8px] font-mono font-bold text-red-400 -translate-y-1/2">
                       14% YouTube Scrubber Safe Line
@@ -1835,7 +1835,7 @@ export default function YoutubeSubtitlesPage() {
                 </div>
               </div>
 
-              {/* ── Dual Export Hub & Cost Calculation ── */}
+              {/*  Dual Export Hub & Cost Calculation  */}
               <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-5 sm:p-6 shadow-2xl space-y-4">
                 <div className="flex items-center justify-between border-b border-white/10 pb-3">
                   <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-white">

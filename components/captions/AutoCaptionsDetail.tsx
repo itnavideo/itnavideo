@@ -29,6 +29,7 @@ import {
   Globe,
 } from 'lucide-react';
 import VideoBeforeAfterCard from './VideoBeforeAfterCard';
+import WhiteStairLiveDemoSection from './WhiteStairLiveDemoSection';
 
 export const CAPTION_PAIRS = [
   {
@@ -163,19 +164,19 @@ export default function AutoCaptionsDetail() {
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#070B14]/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-purple-600 via-fuchsia-500 to-pink-500 text-white font-black shadow-lg shadow-purple-500/20 group-hover:scale-105 transition-transform">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black font-black shadow-lg shadow-[#FF5722]/20 group-hover:scale-105 transition-transform">
               IV
             </div>
-            <span className="text-xl font-extrabold tracking-tight text-white">
-              Itnavideo<span className="text-purple-400">.</span>
+            <span className="text-xl font-extrabold tracking-tight text-white font-jakarta">
+              Itnavideo<span className="text-[#FF5722]">.</span>
             </span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-300">
-            <Link href="/video-types" className="hover:text-purple-400 transition">Video Types</Link>
-            <Link href="/faceless-video" className="hover:text-purple-400 transition">Faceless Video</Link>
-            <Link href="/use-cases" className="hover:text-purple-400 transition">Use Cases</Link>
-            <Link href="/pricing" className="hover:text-purple-400 transition">Pricing</Link>
+            <Link href="/video-types" className="hover:text-[#FF7043] transition">Video Types</Link>
+            <Link href="/faceless-video" className="hover:text-[#FF7043] transition">Faceless Video</Link>
+            <Link href="/use-cases" className="hover:text-[#FF7043] transition">Use Cases</Link>
+            <Link href="/pricing" className="hover:text-[#FF7043] transition">Pricing</Link>
           </nav>
 
           <div className="flex items-center gap-4">
@@ -186,8 +187,8 @@ export default function AutoCaptionsDetail() {
               Sign In
             </Link>
             <Link
-              href="/dashboard?videoType=auto-caption-generator"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 px-5 py-2.5 text-xs sm:text-sm font-extrabold text-white shadow-lg shadow-purple-500/25 transition hover:brightness-110 active:scale-95"
+              href="/dashboard/auto-caption"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-5 py-2.5 text-xs sm:text-sm font-black text-black shadow-lg shadow-[#FF5722]/25 transition hover:brightness-110 active:scale-95 font-jakarta"
             >
               <Sparkles size={16} />
               <span>Add Captions Free</span>
@@ -199,19 +200,19 @@ export default function AutoCaptionsDetail() {
       {/* HERO SECTION */}
       <section className="relative overflow-hidden pt-12 pb-16 lg:pt-20 lg:pb-24">
         {/* Glow ambient effects */}
-        <div className="pointer-events-none absolute -top-24 left-1/2 -z-10 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-emerald-600/15 via-purple-600/20 to-pink-500/15 blur-[120px]" />
+        <div className="pointer-events-none absolute -top-24 left-1/2 -z-10 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-[#FF5722]/15 via-[#FF7043]/10 to-[#FFA000]/15 blur-[120px]" />
 
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
           {/* Kicker Pill */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-emerald-300 mb-6">
-            <Sparkles size={14} className="text-emerald-400" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-black uppercase tracking-wider text-[#FFA000] mb-6">
+            <Sparkles size={14} className="text-[#FF7043]" />
             <span>AI Auto Caption Generator • Instagram Reels, Shorts &amp; Videos</span>
           </div>
 
           {/* Main Headline */}
-          <h1 className="text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl leading-[1.1] max-w-5xl mx-auto">
+          <h1 className="text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl leading-[1.1] max-w-5xl mx-auto font-jakarta">
             Add Animated Karaoke Subtitles{' '}
-            <span className="bg-gradient-to-r from-emerald-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
               In Seconds, Not Hours
             </span>
           </h1>
@@ -224,19 +225,49 @@ export default function AutoCaptionsDetail() {
           {/* CTAs */}
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/dashboard?videoType=auto-caption-generator"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-emerald-500 via-purple-600 to-pink-500 px-8 py-4 text-base font-black text-white shadow-xl shadow-emerald-500/20 transition hover:brightness-110 active:scale-95"
+              href="/dashboard/auto-caption"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-8 py-4 text-base font-black text-black shadow-xl shadow-[#FF5722]/25 transition hover:brightness-110 active:scale-95 font-jakarta"
             >
-              <Play size={18} className="fill-white" />
+              <Play size={18} className="fill-black" />
               <span>Add Captions to My Video Free</span>
             </Link>
             <a
               href="#gallery"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#0E1526] px-8 py-4 text-base font-bold text-slate-200 hover:bg-[#152038] hover:border-purple-500/30 transition"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#0E1526] px-8 py-4 text-base font-bold text-slate-200 hover:bg-[#152038] hover:border-[#FF5722]/30 transition"
             >
-              <Eye size={18} className="text-purple-400" />
+              <Eye size={18} className="text-[#FF7043]" />
               <span>See Before &amp; After Examples</span>
             </a>
+          </div>
+
+          {/* Flagship AI Caption Timeline & Subtitle Engine Visual */}
+          <div className="mt-12 max-w-4xl mx-auto w-full">
+            <div className="group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/10 bg-[#0E1526]/90 p-2.5 sm:p-4 shadow-[0_0_60px_rgba(168,85,247,0.15),0_25px_80px_rgba(0,0,0,0.6)] backdrop-blur-md transition-all duration-300 hover:border-purple-500/40">
+              {/* Dark SaaS Window Chrome */}
+              <div className="flex items-center justify-between px-3 py-1.5 text-[11px] font-bold text-slate-400 border-b border-white/10 mb-2.5">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-2.5 w-2.5 rounded-full bg-red-500/80" />
+                  <span className="flex h-2.5 w-2.5 rounded-full bg-amber-500/80" />
+                  <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500/80" />
+                  <span className="ml-2 font-mono text-[11px] text-purple-400 font-extrabold uppercase tracking-wider">
+                    Itnavideo AI Auto Caption &amp; Subtitle Timeline Engine
+                  </span>
+                </div>
+                <span className="text-slate-400 font-mono text-[10px] hidden sm:inline">
+                  Multi-Track Timeline • Millisecond Word Sync • 1080p Cloud Render
+                </span>
+              </div>
+
+              {/* Dark Glassmorphism Graphic Backdrop */}
+              <div className="relative overflow-hidden rounded-2xl bg-slate-800/80 border border-slate-700/60 shadow-lg shadow-purple-500/10 backdrop-blur-md p-2 sm:p-4">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://res.cloudinary.com/dhouh9idx/image/upload/v1792056190/3D_Faceless_Video_Creation_Canvas_HeroExplainer_Visual_qjndsg.png"
+                  alt="Itnavideo AI Auto Caption &amp; Subtitle Timeline Engine"
+                  className="w-full h-auto object-contain rounded-xl drop-shadow-[0_15px_35px_rgba(168,85,247,0.15)] transition-transform duration-500 group-hover:scale-[1.01]"
+                />
+              </div>
+            </div>
           </div>
 
           {/* Trust badges */}
@@ -260,6 +291,9 @@ export default function AutoCaptionsDetail() {
           </div>
         </div>
       </section>
+
+      {/* ── WhiteStair "See it in action" Interactive Live Demo Section ── */}
+      <WhiteStairLiveDemoSection />
 
       {/* INTERACTIVE BEFORE & AFTER GALLERY SHOWCASE */}
       <section id="gallery" className="py-16 sm:py-24 border-t border-white/10 bg-[#080C14] relative">

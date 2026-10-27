@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="Full Table Scan (FTS)">
+  <!-- Itnavideo Database Asset: Full Table Scan (FTS) -->
+  <rect x="20" y="20" width="80" height="60" rx="8" fill="#1E293B" stroke="#EF4444" stroke-width="2" />
+      <path d="M 28 34 h 64 M 28 46 h 64 M 28 58 h 64 M 28 70 h 64" stroke="#DC2626" stroke-width="2.5" />
+      <text x="60" y="96" fill="#EF4444" font-size="8.5" font-family="sans-serif" font-weight="900" text-anchor="middle">FULL TABLE SCAN</text>
+      <text x="60" y="106" fill="#FCA5A5" font-size="6.5" font-family="sans-serif" text-anchor="middle">High Disk I/O &amp; Slow Query</text>
+</svg>

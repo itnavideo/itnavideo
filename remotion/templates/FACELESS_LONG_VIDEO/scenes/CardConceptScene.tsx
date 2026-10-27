@@ -10,37 +10,27 @@ import {
 } from 'remotion';
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
 import { HandwritingHighlight } from '../../../components/library/HandwritingHighlight';
+import { HighlightText } from '../components/HighlightText';
+import { getBackgroundPalette } from '../../../components/backgrounds/BackgroundCatalog';
 
 export interface CardConceptSceneProps {
   scene: SceneBlueprintItem;
   mediaUrl?: string;
   headingFont?: string;
   bodyFont?: string;
+  backgroundTheme?: string;
+  sceneFrame?: number;
 }
 
-const resolveMediaSrc = (src?: string) => {
-  if (!src) return '';
-  return /^(https?:|data:|blob:)/i.test(src) ? src : staticFile(src.replace(/^\/+/, ''));
-};
+import { safeResolveMediaSrc, isVideoMedia, isValidMediaUrl } from '../../../utils/safeMedia';
+import { VectorDrawingIcon } from '../../../components/graphics/VectorDrawingIcon';
 
-const isVideo = (src?: string) => {
-  if (!src) return false;
-  return /\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(src) || src.includes('/video/');
-};
-
-function getContextualEmoji(text: string): string {
-  const t = text.toLowerCase();
-  if (/\b(money|cash|dollar|rupee|wealth|rich|income|profit|revenue|earning|salary|crore|lakh)\b/.test(t)) return '💰';
-  if (/\b(invest|investment|stock|market|crypto|bitcoin|compound|growth|portfolio|mutual\s*fund)\b/.test(t)) return '📈';
-  if (/\b(freedom|free|independent|escape|lifestyle|travel|peace)\b/.test(t)) return '🕊️';
-  if (/\b(focus|discipline|target|goal|habit|routine|consistency|mindset)\b/.test(t)) return '🎯';
-  if (/\b(idea|brain|knowledge|learn|smart|think|strategy|secret|tip)\b/.test(t)) return '💡';
-  if (/\b(power|energy|fast|speed|rapid|growth|rocket|viral)\b/.test(t)) return '⚡';
-  if (/\b(warning|danger|mistake|avoid|lose|loss|broke|debt|risk|trap)\b/.test(t)) return '⚠️';
-  if (/\b(time|future|year|hour|clock|patience|wait|schedule)\b/.test(t)) return '⏳';
-  if (/\b(success|win|winner|champion|trophy|achieve|unlock)\b/.test(t)) return '🏆';
-  if (/\b(book|read|study|summary|author|chapter)\b/.test(t)) return '📚';
-  return '✦';
+function getContextualEmoji(text: string): React.ReactNode {
+  return (
+    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+      <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" />
+    </svg>
+  );
 }
 
 export function CardConceptScene({
@@ -48,28 +38,38 @@ export function CardConceptScene({
   mediaUrl,
   headingFont = 'Montserrat, sans-serif',
   bodyFont = 'Plus Jakarta Sans, sans-serif',
+  backgroundTheme,
+  sceneFrame,
 }: CardConceptSceneProps) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
+  // Enforce Scene-Local Frame Law
+  const currentFrame = sceneFrame !== undefined ? sceneFrame : frame;
+  const sceneDurationFrames = Math.max(30, Math.round((scene.duration || 5) * fps));
+
+  const palette = React.useMemo(() => getBackgroundPalette(backgroundTheme), [backgroundTheme]);
+
   // Smooth Zoom-in & Slide-in Entrance
   const entrance = spring({
-    frame,
+    frame: currentFrame,
     fps,
     config: { damping: 15, mass: 0.8 },
   });
 
-  const scale = interpolate(entrance, [0, 1], [0.92, 1.0]);
-  const translateY = interpolate(entrance, [0, 1], [40, 0]);
+  const scale = interpolate(entrance, [0, 1], [0.94, 1.0]);
+  const translateY = interpolate(entrance, [0, 1], [35, 0]);
 
   const activeMediaUrl = mediaUrl || scene.visualAssetRequirement || '';
-  const resolvedSrc = resolveMediaSrc(activeMediaUrl);
-  const isVid = isVideo(activeMediaUrl);
+  const resolvedSrc = safeResolveMediaSrc(activeMediaUrl);
+  const isVid = isVideoMedia(activeMediaUrl);
 
   const headline = scene.heading || 'CORE PRINCIPLE';
   const highlightWord = (scene.highlightedWords && scene.highlightedWords[0]) || '';
   const supportingText = scene.supportingText && scene.supportingText.toLowerCase() !== headline.toLowerCase() ? scene.supportingText : '';
   const emoji = getContextualEmoji(`${headline} ${supportingText}`);
+
+  const imageKenBurns = interpolate(currentFrame, [0, sceneDurationFrames], [1.02, 1.14], { extrapolateRight: 'clamp' });
 
   return (
     <div
@@ -79,40 +79,37 @@ export function CardConceptScene({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '80px 120px',
+        padding: '0 120px',
         zIndex: 10,
         opacity: entrance,
         transform: `translateY(${translateY}px) scale(${scale})`,
+        backgroundColor: 'transparent',
       }}
     >
+      {/* ── Editorial Cinema Split (No Boxed Web Container) ── */}
       <div
         style={{
-          maxWidth: '1240px',
           width: '100%',
-          borderRadius: '36px',
-          border: '1px solid rgba(255, 255, 255, 0.16)',
-          backgroundColor: 'rgba(15, 23, 42, 0.90)',
-          boxShadow: '0 35px 90px rgba(0, 0, 0, 0.85), 0 0 50px rgba(255, 112, 67, 0.15)',
-          backdropFilter: 'blur(28px)',
-          padding: '48px 56px',
+          maxWidth: '1600px',
           display: 'flex',
           flexDirection: 'row',
           alignItems: 'center',
-          gap: '48px',
+          gap: '80px',
         }}
       >
-        {/* Left Visual Thumbnail (Rounded media card with Ken Burns or OffthreadVideo) */}
+        {/* Left Visual: 3D Tilted Sticker Cutout with Cinema Shadow */}
         <div
           style={{
-            width: '460px',
-            height: '350px',
-            borderRadius: '26px',
+            width: '540px',
+            height: '420px',
+            borderRadius: '28px',
             overflow: 'hidden',
-            border: '1px solid rgba(255, 255, 255, 0.15)',
-            backgroundColor: '#020617',
+            border: '6px solid #FFFFFF',
+            backgroundColor: palette.isDark ? '#070B14' : '#F1F5F9',
             flexShrink: 0,
             position: 'relative',
-            boxShadow: '0 20px 45px rgba(0, 0, 0, 0.7)',
+            boxShadow: '0 35px 80px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.15)',
+            transform: 'rotate(-2.5deg)',
           }}
         >
           {resolvedSrc ? (
@@ -136,8 +133,7 @@ export function CardConceptScene({
                   width: '100%',
                   height: '100%',
                   objectFit: 'cover',
-                  transform: `scale(${interpolate(frame, [0, 150], [1.0, 1.09], { extrapolateRight: 'clamp' })})`,
-                  transition: 'transform 0.1s ease-out',
+                  transform: `scale(${imageKenBurns})`,
                 }}
               />
             )
@@ -149,70 +145,73 @@ export function CardConceptScene({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                background: 'linear-gradient(135deg, #1E1B4B 0%, #0F172A 100%)',
-                fontSize: '72px',
+                background: palette.isDark
+                  ? 'radial-gradient(circle, #1E293B 0%, #0F172A 100%)'
+                  : 'radial-gradient(circle, #F8FAFC 0%, #E2E8F0 100%)',
               }}
             >
-              {emoji}
+              <VectorDrawingIcon
+                keyword={`${headline} ${supportingText}`}
+                size={380}
+                strokeWidth={4.5}
+                animated={true}
+                theme={palette.isDark ? 'dark' : 'light'}
+              />
             </div>
           )}
         </div>
 
-        {/* Right Content Panel */}
+        {/* Right Content: Direct Canvas Typography Hierarchy */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          {/* Concept Badge */}
+          {/* Concept Kicker Pill */}
           <div
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '8px',
-              backgroundColor: 'rgba(255, 255, 255, 0.08)',
-              border: '1px solid rgba(255, 255, 255, 0.14)',
-              borderRadius: '14px',
-              padding: '6px 16px',
+              backgroundColor: palette.isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 87, 34, 0.10)',
+              border: `1px solid ${palette.isDark ? 'rgba(255, 255, 255, 0.16)' : 'rgba(255, 87, 34, 0.25)'}`,
+              borderRadius: '9999px',
+              padding: '8px 20px',
               width: 'fit-content',
-              marginBottom: '18px',
+              marginBottom: '24px',
             }}
           >
-            <span style={{ fontSize: '20px' }}>{emoji}</span>
+            <span style={{ fontSize: '22px' }}>{emoji}</span>
             <span
               style={{
                 fontFamily: headingFont,
-                fontSize: '12px',
-                fontWeight: 800,
+                fontSize: '13px',
+                fontWeight: 900,
                 letterSpacing: '0.12em',
                 textTransform: 'uppercase',
-                color: '#FFA000',
+                color: palette.isDark ? palette.accentSecondary : '#EA580C',
               }}
             >
-              INSIGHT
+              KEY CONCEPT
             </span>
           </div>
 
           <h2
             style={{
               fontFamily: headingFont,
-              fontSize: '44px',
+              fontSize: '66px',
               fontWeight: 900,
-              color: '#FFFFFF',
-              letterSpacing: '-0.02em',
-              lineHeight: 1.2,
-              marginBottom: '16px',
+              color: palette.textPrimary,
+              letterSpacing: '-0.025em',
+              lineHeight: 1.18,
+              marginBottom: '20px',
             }}
           >
             {highlightWord && headline.toLowerCase().includes(highlightWord.toLowerCase()) ? (
-              <>
-                {headline.slice(0, headline.toLowerCase().indexOf(highlightWord.toLowerCase()))}
-                <HandwritingHighlight
-                  text={highlightWord.toUpperCase()}
-                  variant="underline"
-                  color="#FFA000"
-                  delayFrames={8}
-                />
-                {headline.slice(
-                  headline.toLowerCase().indexOf(highlightWord.toLowerCase()) + highlightWord.length
-                )}
-              </>
+              <HighlightText
+                text={headline}
+                highlightedWords={[highlightWord]}
+                accentColor={palette.accent}
+                markerColor={palette.highlightBg}
+                fontFamily={headingFont}
+                themeId={backgroundTheme}
+              />
             ) : (
               headline
             )}
@@ -222,11 +221,12 @@ export function CardConceptScene({
             <p
               style={{
                 fontFamily: bodyFont,
-                fontSize: '22px',
-                fontWeight: 500,
-                color: '#CBD5E1',
-                lineHeight: 1.55,
+                fontSize: '30px',
+                fontWeight: 600,
+                color: palette.textSecondary,
+                lineHeight: 1.5,
                 margin: 0,
+                maxWidth: '920px',
               }}
             >
               {supportingText}

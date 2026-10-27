@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%" aria-label="Shared SAN/NAS Storage">
+  <!-- Itnavideo Database Asset: Shared SAN/NAS Storage -->
+  <rect x="16" y="24" width="88" height="68" rx="8" fill="#0F172A" stroke="#0284C7" stroke-width="2.5" />
+      <line x1="28" y1="40" x2="92" y2="40" stroke="#38BDF8" stroke-width="2" />
+      <line x1="28" y1="58" x2="92" y2="58" stroke="#38BDF8" stroke-width="2" />
+      <line x1="28" y1="76" x2="92" y2="76" stroke="#38BDF8" stroke-width="2" />
+      <circle cx="24" cy="40" r="3" fill="#22C55E" />
+      <circle cx="24" cy="58" r="3" fill="#22C55E" />
+      <circle cx="24" cy="76" r="3" fill="#22C55E" />
+      <text x="60" y="106" fill="#38BDF8" font-size="8" font-family="sans-serif" font-weight="bold" text-anchor="middle">SAN FIBRE CHANNEL</text>
+</svg>
