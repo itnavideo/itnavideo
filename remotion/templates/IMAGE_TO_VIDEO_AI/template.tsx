@@ -37,6 +37,9 @@ export interface ImageToVideoScene {
   fitMode?: 'blur-fill' | 'cover';
   sceneType?: 'image';
   objectPosition?: string;
+  storyBeat?: 'hook' | 'buildup' | 'climax' | 'resolution';
+  storyBeatTitle?: string;
+  speechEnergy?: 'high-energy' | 'steady-story' | 'ambient-pause';
 }
 
 export interface ImageToVideoAiProps {
@@ -88,7 +91,8 @@ const SceneRenderer: React.FC<{
   fps: number;
   sceneIndex?: number;
   globalFitMode?: 'blur-fill' | 'cover';
-}> = ({ scene, fps, sceneIndex = 0, globalFitMode = 'cover' }) => {
+  visualStyle?: string;
+}> = ({ scene, fps, sceneIndex = 0, globalFitMode = 'cover', visualStyle }) => {
   const frame = useCurrentFrame();
 
   const parentStart = scene.parentStartSeconds ?? scene.startSeconds;
@@ -109,27 +113,52 @@ const SceneRenderer: React.FC<{
 
   switch (motion) {
     case 'zoom-in':
-      scale = interpolate(progress, [0, 1], [1.02, 1.08], {
-        extrapolateRight: 'clamp',
-        extrapolateLeft: 'clamp',
-      });
+    case 'push-in':
+      if (scene.storyBeat === 'climax' || scene.speechEnergy === 'high-energy') {
+        // High energy speech / climax: dramatic dynamic punch-in zoom
+        scale = interpolate(progress, [0, 1], [1.02, 1.15], {
+          extrapolateRight: 'clamp',
+          extrapolateLeft: 'clamp',
+        });
+      } else {
+        scale = interpolate(progress, [0, 1], [1.02, 1.07], {
+          extrapolateRight: 'clamp',
+          extrapolateLeft: 'clamp',
+        });
+      }
       break;
     case 'zoom-out':
-      scale = interpolate(progress, [0, 1], [1.08, 1.02], {
-        extrapolateRight: 'clamp',
-        extrapolateLeft: 'clamp',
-      });
+    case 'pull-back':
+      if (scene.storyBeat === 'hook') {
+        // Hook: energetic initial presence pulling out to reveal full scene
+        scale = interpolate(progress, [0, 1], [1.12, 1.03], {
+          extrapolateRight: 'clamp',
+          extrapolateLeft: 'clamp',
+        });
+      } else if (scene.storyBeat === 'resolution' || scene.speechEnergy === 'ambient-pause') {
+        // Resolution / ambient pause: gentle settling drift
+        scale = interpolate(progress, [0, 1], [1.05, 1.01], {
+          extrapolateRight: 'clamp',
+          extrapolateLeft: 'clamp',
+        });
+      } else {
+        scale = interpolate(progress, [0, 1], [1.08, 1.02], {
+          extrapolateRight: 'clamp',
+          extrapolateLeft: 'clamp',
+        });
+      }
       break;
     case 'pan-left':
-      scale = 1.07;
-      translateX = interpolate(progress, [0, 1], [1.5, -1.5], {
+      // Gentle, slow panoramic glide during narrative explanation
+      scale = scene.speechEnergy === 'high-energy' ? 1.09 : 1.06;
+      translateX = interpolate(progress, [0, 1], [1.6, -1.6], {
         extrapolateRight: 'clamp',
         extrapolateLeft: 'clamp',
       });
       break;
     case 'pan-right':
-      scale = 1.07;
-      translateX = interpolate(progress, [0, 1], [-1.5, 1.5], {
+      scale = scene.speechEnergy === 'high-energy' ? 1.09 : 1.06;
+      translateX = interpolate(progress, [0, 1], [-1.6, 1.6], {
         extrapolateRight: 'clamp',
         extrapolateLeft: 'clamp',
       });
@@ -209,12 +238,23 @@ const SceneRenderer: React.FC<{
   const resolvedImage = resolveUrl(scene.imageUrl);
   if (!resolvedImage) return null;
 
+  const visualStyleFilter = (() => {
+    if (!visualStyle) return 'none';
+    const v = visualStyle.toLowerCase();
+    if (v.includes('film') || v.includes('cinema')) return 'contrast(1.05) saturate(1.06)';
+    if (v.includes('dark') || v.includes('mystery')) return 'contrast(1.12) brightness(0.92) saturate(0.88)';
+    if (v.includes('3d')) return 'saturate(1.12) contrast(1.03)';
+    if (v.includes('anime') || v.includes('storybook')) return 'brightness(1.03) saturate(1.08)';
+    return 'none';
+  })();
+
   return (
     <AbsoluteFill
       style={{
         opacity,
         overflow: 'hidden',
         backgroundColor: 'transparent',
+        filter: visualStyleFilter,
       }}
     >
       {effectiveFitMode === 'blur-fill' ? (
@@ -377,6 +417,7 @@ export const ImageToVideoAiTemplate: React.FC<ImageToVideoAiProps> = ({
   renderWindowSeconds,
   sourceDurationSeconds,
   fitMode = 'cover',
+  visualStyle = 'cinematic-film',
 }) => {
   const { fps } = useVideoConfig();
 
@@ -410,6 +451,7 @@ export const ImageToVideoAiTemplate: React.FC<ImageToVideoAiProps> = ({
               fps={fps}
               sceneIndex={idx}
               globalFitMode={fitMode}
+              visualStyle={visualStyle}
             />
           </Sequence>
         );

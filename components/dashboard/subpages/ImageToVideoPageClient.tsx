@@ -76,12 +76,13 @@ export default function ImageToVideoDashboardPage() {
   const [selectedAudio, setSelectedAudio] = useState<File | null>(null);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePhrases, setImagePhrases] = useState<string[]>([]);
-  const [imageToVideoAssetMode, setImageToVideoAssetMode] = useState<ImageToVideoAssetMode>("library");
+  const [imageToVideoAssetMode, setImageToVideoAssetMode] = useState<ImageToVideoAssetMode>("ai-generate");
   const [imageToVideoStockUrls, setImageToVideoStockUrls] = useState<string[]>([]);
   const [imageToVideoAiImageUrls, setImageToVideoAiImageUrls] = useState<string[]>([]);
-  const [imageToVideoVisualStyle, setImageToVideoVisualStyle] = useState<"2d" | "realistic">("realistic");
+  const [imageToVideoVisualStyle, setImageToVideoVisualStyle] = useState<string>("cinematic-film");
   const [imageToVideoCharacterFile, setImageToVideoCharacterFile] = useState<File | null>(null);
   const [imageToVideoCharacterDnaHint, setImageToVideoCharacterDnaHint] = useState<string>("");
+  const [customAiPrompt, setCustomAiPrompt] = useState<string>("");
 
   const [imageToVideoBgmEnabled, setImageToVideoBgmEnabled] = useState<boolean>(true);
   const [imageToVideoLibraryBgmUrl, setImageToVideoLibraryBgmUrl] = useState<string>(
@@ -299,12 +300,24 @@ export default function ImageToVideoDashboardPage() {
     };
   }, [selectedAudio]);
 
-  // Handlers for image files
+  // Handlers for image files (Up to 100 images)
   const handleAddImages = (files: File[] | FileList | null) => {
     if (!files) return;
     const newFiles = Array.isArray(files) ? files : Array.from(files);
     if (newFiles.length === 0) return;
-    setImageFiles((prev) => [...prev, ...newFiles]);
+    setImageFiles((prev) => {
+      const combined = [...prev, ...newFiles];
+      if (combined.length > 100) {
+        alert("You can upload up to 100 images maximum. Keeping the first 100 images.");
+        return combined.slice(0, 100);
+      }
+      return combined;
+    });
+  };
+
+  const handleClearAllImages = () => {
+    setImageFiles([]);
+    setImagePhrases([]);
   };
 
   const handleRemoveImage = (indexToRemove: number) => {
@@ -367,6 +380,9 @@ export default function ImageToVideoDashboardPage() {
     const currentSignal = abortControllerRef.current.signal;
 
     try {
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
       setRenderStartedAt(Date.now());
       setElapsedSeconds(0);
       setJobStatus({
@@ -396,7 +412,18 @@ export default function ImageToVideoDashboardPage() {
         }));
       }
 
-      // 3. Upload BGM if provided and enabled
+      // 3. Upload character reference image if provided
+      let characterImageKey: string | undefined = undefined;
+      if (imageToVideoCharacterFile) {
+        setJobStatus({
+          state: "uploading",
+          message: "Uploading character reference image...",
+          progress: 0.16,
+        });
+        characterImageKey = await uploadFileViaPresign(imageToVideoCharacterFile, "imageToVideoAi", user.id);
+      }
+
+      // 4. Upload BGM if provided and enabled
       let bgmKey: string | undefined = undefined;
       if (imageToVideoBgmEnabled && bgmFile) {
         setJobStatus({
@@ -407,7 +434,7 @@ export default function ImageToVideoDashboardPage() {
         bgmKey = await uploadFileViaPresign(bgmFile, "imageToVideoAi", user.id);
       }
 
-      // 4. Submit Render Job to Backend
+      // 5. Submit Render Job to Backend
       setJobStatus({
         state: "starting",
         message: "Initializing Remotion 16:9 cinema render pipeline...",
@@ -450,7 +477,10 @@ export default function ImageToVideoDashboardPage() {
           blendStockAssets: imageToVideoAssetMode !== "upload",
           hasAiGeneratedImages: (Array.isArray(previewScenes) && previewScenes.length > 0) || (imageToVideoAssetMode === "ai-generate" && imageToVideoAiImageUrls.length > 0),
           visualStyle: imageToVideoVisualStyle,
-          characterDnaHint: imageToVideoCharacterDnaHint,
+          customAiPrompt: customAiPrompt.trim() || undefined,
+          userPrompt: customAiPrompt.trim() || undefined,
+          characterImageKey: characterImageKey || undefined,
+          characterDnaHint: imageToVideoCharacterDnaHint || undefined,
           enableBgm: imageToVideoBgmEnabled,
           bgmUrl: imageToVideoBgmEnabled ? (bgmFile ? undefined : imageToVideoLibraryBgmUrl) : undefined,
           bgmKey: imageToVideoBgmEnabled && bgmKey ? bgmKey : undefined,
@@ -620,6 +650,9 @@ export default function ImageToVideoDashboardPage() {
   };
 
   const handleReset = () => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
     setJobStatus({ state: "idle" });
     setSelectedAudio(null);
     setImageFiles([]);
@@ -707,6 +740,8 @@ export default function ImageToVideoDashboardPage() {
             imageFiles={imageFiles}
             onAddImages={handleAddImages}
             onRemoveImage={handleRemoveImage}
+            onClearAllImages={handleClearAllImages}
+            maxImages={100}
             onReorderImages={handleReorderImage}
             imagePhrases={imagePhrases}
             onChangeImagePhrase={(idx, val) => {
@@ -724,6 +759,8 @@ export default function ImageToVideoDashboardPage() {
             onChangeAiGeneratedImageUrls={setImageToVideoAiImageUrls}
             visualStyle={imageToVideoVisualStyle}
             onChangeVisualStyle={(val: string) => setImageToVideoVisualStyle(val as any)}
+            customAiPrompt={customAiPrompt}
+            onChangeCustomAiPrompt={setCustomAiPrompt}
             characterImageFile={imageToVideoCharacterFile}
             onSelectCharacterImage={setImageToVideoCharacterFile}
             characterDnaHint={imageToVideoCharacterDnaHint}

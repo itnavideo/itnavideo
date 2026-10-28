@@ -106,6 +106,17 @@ export default function BrandLogo({
     </span>
   );
 
+  if (!href) {
+    return (
+      <span
+        aria-label="ITNAVIDEO home"
+        className="group inline-flex items-center rounded-xl outline-none"
+      >
+        {content}
+      </span>
+    );
+  }
+
   return (
     <Link
       href={href}

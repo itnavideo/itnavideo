@@ -25,6 +25,8 @@ import {
   Zap,
   ShieldCheck,
   ArrowLeft,
+  Smartphone,
+  Tv,
 } from 'lucide-react';
 import {
   requestNotificationPermission,
@@ -224,6 +226,8 @@ export default function InteractiveRenderEngine({
     }
   };
 
+  const [copiedLink, setCopiedLink] = useState(false);
+
   const isFailed = status.state === 'error';
   const isReady = status.state === 'ready' || Boolean(status.outputFile);
 
@@ -358,6 +362,13 @@ export default function InteractiveRenderEngine({
 
   const hasNotifiedRef = React.useRef<string | null>(null);
 
+  // Smooth scroll to top when render engine mounts on mobile or desktop
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, []);
+
   // 1. Request Web Notification permission when render starts
   useEffect(() => {
     if (status.state === 'starting' || status.state === 'rendering') {
@@ -399,7 +410,7 @@ export default function InteractiveRenderEngine({
   const CurrentStepIcon = steps[activeStepIndex]?.icon || Sparkles;
 
   return (
-    <div className="relative w-full max-w-3xl mx-auto rounded-[28px] border border-white/10 bg-[#0E1526] p-6 sm:p-8 text-white shadow-2xl space-y-6 font-sans select-none backdrop-blur-xl overflow-hidden">
+    <div className="relative w-full max-w-3xl mx-auto rounded-[28px] border border-white/10 bg-[#0E1526] p-6 sm:p-8 text-white shadow-2xl space-y-6 font-sans select-none backdrop-blur-xl overflow-hidden min-h-[520px]">
       
       {/* ── AMBIENT BORDER BEAM (Active Glow During Render) ── */}
       {!isFailed && !isReady && (
@@ -781,6 +792,89 @@ export default function InteractiveRenderEngine({
               <span>Create Another Video</span>
             </button>
           </div>
+
+          {/* 📲 INSTANT 1-CLICK VIRAL EXPORT (Strictly 16:9 Widescreen Broadcast Spec) */}
+          {mode !== 'audioClean' && (
+            <div className="rounded-2xl border border-white/10 bg-gradient-to-b from-[#161824] to-[#0E1017] p-4 sm:p-5 shadow-2xl space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/5 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-8 w-8 rounded-xl bg-[#FF5722]/15 text-[#FF9100] border border-[#FF5722]/30 flex items-center justify-center">
+                    <Tv size={16} />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-black text-white flex items-center gap-2">
+                      <span>16:9 Cinema Widescreen Master</span>
+                      <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
+                        1080p Full HD
+                      </span>
+                    </h4>
+                    <p className="text-[11px] text-zinc-400">Strictly 16:9 Landscape for YouTube, TV, Course &amp; Broadcast</p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (status.outputFile) {
+                      navigator.clipboard.writeText(status.outputFile);
+                      setCopiedLink(true);
+                      setTimeout(() => setCopiedLink(false), 2500);
+                    }
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-bold text-zinc-300 hover:text-white transition cursor-pointer self-start sm:self-auto"
+                >
+                  {copiedLink ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
+                  <span>{copiedLink ? 'Link Copied!' : 'Copy Direct Link'}</span>
+                </button>
+              </div>
+
+              {/* Spec Checklist & Phone QR Code Scanner */}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                {/* Specs & Features (8 cols) */}
+                <div className="md:col-span-8 space-y-2.5 text-xs">
+                  <div className="grid grid-cols-2 gap-2 text-[11px]">
+                    <div className="rounded-xl bg-black/40 border border-white/5 p-2.5">
+                      <p className="text-zinc-400 text-[10px]">Aspect Ratio</p>
+                      <p className="font-bold text-white text-xs mt-0.5">16:9 Widescreen (1920×1080)</p>
+                    </div>
+                    <div className="rounded-xl bg-black/40 border border-white/5 p-2.5">
+                      <p className="text-zinc-400 text-[10px]">Pacing &amp; Camera</p>
+                      <p className="font-bold text-white text-xs mt-0.5">Speech-Paced Ken Burns</p>
+                    </div>
+                    <div className="rounded-xl bg-black/40 border border-white/5 p-2.5">
+                      <p className="text-zinc-400 text-[10px]">Subtitles</p>
+                      <p className="font-bold text-white text-xs mt-0.5">Burned-in Cinema Legibility</p>
+                    </div>
+                    <div className="rounded-xl bg-black/40 border border-white/5 p-2.5">
+                      <p className="text-zinc-400 text-[10px]">Audio Mastering</p>
+                      <p className="font-bold text-white text-xs mt-0.5">EBU R128 Loudness Balanced</p>
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-zinc-400 flex items-center gap-1.5">
+                    <ShieldCheck size={12} className="text-emerald-400 shrink-0" />
+                    <span>Permanent link hosted on AWS Cloud Storage (48-hour presigned direct access).</span>
+                  </p>
+                </div>
+
+                {/* QR Code Phone Transfer (4 cols) */}
+                <div className="md:col-span-4 flex flex-col items-center justify-center p-3 rounded-xl bg-black/50 border border-white/10 text-center">
+                  <div className="relative p-1.5 bg-white rounded-lg shadow-md mb-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=110x110&margin=0&data=${encodeURIComponent(status.outputFile)}`}
+                      alt="Scan to Download on Phone"
+                      className="w-24 h-24 object-contain"
+                    />
+                  </div>
+                  <p className="text-[11px] font-bold text-white flex items-center gap-1">
+                    <Smartphone size={12} className="text-[#FFA000]" />
+                    <span>Send to Phone</span>
+                  </p>
+                  <p className="text-[9.5px] text-zinc-400 mt-0.5">Scan camera to save directly</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* YouTube Viral Creator Launch Kit (Titles, Chapters Description, SEO Tags) */}
           <div className="rounded-2xl border border-white/10 bg-[#141722]/80 overflow-hidden shadow-xl">

@@ -237,7 +237,7 @@ Multi-language translation is **paused**. Only English and Hinglish (Roman scrip
 | **16:9 Long-Form** | **Faceless Video** | **16:9 Only** | **Up to 5 Minutes (300s)** | **1 Min = 1 Credit** (1m=1, 3m=3, 5m=5 Cr) | Extracted 16kHz audio → Groq Whisper (Fallback: Gemini) → Regional to English keywords for B-roll |
 | **16:9 Long-Form** | **Book Summary** | **16:9 Only** | **Up to 5 Minutes (300s)** | **1 Min = 1 Credit** (1m=1, 3m=3, 5m=5 Cr) | Extracted 16kHz audio → Groq Whisper (Fallback: Gemini) |
 | **16:9 Long-Form** | **Image to Video AI** | **16:9 Only** | **Up to 5 Minutes (300s)** | **1 Min = 1 Credit** (1m=1, 3m=3, 5m=5 Cr) | Extracted 16kHz audio → Groq Whisper (Fallback: Gemini) |
-| **16:9 Long-Form** | **YouTube Subtitles Generator** | **16:9 Only** | **Up to 5 Minutes (300s)** | **1 Min = 1 Credit** (1m=1, 3m=3, 5m=5 Cr) | Extracted 16kHz audio → Groq Whisper (Fallback: Gemini) |
+| **16:9 Long-Form** | **YouTube Subtitles Generator** | **16:9 Only** | **Up to 5 Minutes (300s)** | **Flat 2 Credits / Video** (regardless of 1m–5m) | Extracted 16kHz audio → Groq Whisper (Fallback: Gemini) |
 | **16:9 Long-Form** | **Long Video to Shorts Clips** (`longVideoClips`) | **Source: 16:9 / 9:16**<br/>**Output: 9:16 Shorts** | **Input: Up to 2 Hours**<br/>**Output: 30s–60s Clips** | **1 Credit / Clip** | Extracted audio → Groq Whisper → AI Hook Detector → Render shorts (1 Cr/Clip) |
 | **9:16 Short-Form** | **Auto Caption Reel** | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Extracted audio → Groq Whisper (Fallback: Gemini) |
 | **9:16 Short-Form** | **Compare Explainer** | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Extracted audio → Groq Whisper (Fallback: Gemini) |

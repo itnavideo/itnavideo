@@ -30,18 +30,34 @@
 
 1. **Step 1 — Your Audio / Story Narration (Required)**:
    - Upload voiceover narration audio (MP3, WAV, M4A, AAC — 12 min max). Raw video is never sent directly to Groq; lightweight 16kHz mono audio is extracted first.
-2. **Step 2 — Your Story Visuals & AI Character Consistency**:
-   - **`AI Generated (Consistent Characters)` (Primary for User Stories)**:
-     - **Main Character (Required)** + **Character 2 (Optional)** + **Character 3 (Optional)** image reference uploads for character consistency across story scenes.
-     - **Hard Constraint Visual Style**: `2D` or `Realistic` enforced strictly across all scenes.
-     - **Gemini 2.0 / Vertex AI Scene Planner**: Plans story beats dynamically (~5-6s fast / ~9-10s explanatory) with scene visual prompts.
-     - **Vertex AI Imagen 3 Customization Engine**: Generates character-consistent images passing subject/style references.
-     - **Direct Timeline Assignment**: Bypasses runtime external image search during rendering; each scene knows its exact generated image URL.
-     - **Individual Image Regeneration (`[ 🔄 Regenerate Image ]`)**: Regenerate any specific scene image on demand while preserving style, character references, and script context.
-     - **Resilient S3 Media Storage**: Saves generated images asynchronously to AWS S3; if S3 fails, falls back gracefully to Data URLs so render jobs never fail.
-   - **`Itnavideo Assets` (Default)**: Match narration to selected 2D or Realistic local image library.
-   - **`User Uploaded Images`**: Upload custom images/screenshots. Use only these images; do not add stock photos.
-   - **`Mix`**: Place uploaded images at key story beats and fill remaining scenes from local Itnavideo style library.
+2. **Step 2 — Your Story Visuals & AI Source**:
+   - **`✨ Generate with AI (Automated)` (Default Mode)**:
+     - 100% automated: Zero images needed from user.
+     - **Visual Direction & Story Prompt Box**: Allows users to enter custom aesthetic directions (e.g., "3D Pixar animation with vibrant colors" or "Moody 35mm cinema in rainy Tokyo") with 1-click quick style chips.
+     - **Consistent Character Reference Upload**: Users can optionally upload 1 character reference image (PNG, JPG) to lock face, hair, and clothing consistency across all scenes.
+     - Gemini 2.0 listens to narration audio, detects story beats, and generates 16:9 cinematic visual prompts.
+     - Vertex AI Imagen 3 produces custom high-definition scene visuals matching the selected art aesthetic (Cinema 35mm, 3D Pixar Animation, 2D Anime, Cyberpunk Sci-Fi).
+     - **⚡ 4 One-Click "Viral Style" Presets** (Automatically locks lighting, camera motion, and color grading in 1 click):
+       - `🎞️ Cinematic 35mm Movie`: Warm Kodak film grain, anamorphic lens flare & golden hour tone.
+       - `🧸 3D Pixar Animation`: Vibrant 3D CGI characters, soft global illumination & Octane depth.
+       - `🎨 Studio Anime / Storybook`: Hand-drawn painterly cloudscapes, clean ink lines & Ghibli aesthetic.
+       - `🌑 Dark Moody Mystery`: High-contrast chiaroscuro shadows, deep noir silhouettes & thriller suspense lighting.
+   - **`📁 Upload My Images (Up to 100 Images)`**:
+     - Bulk drag-and-drop up to 100 images in one action.
+     - **Zero manual typing**: The tedious per-image script typing fields are completely removed.
+     - **🎬 AI Story Arc Director**: Automatically organizes uploaded images into a true 4-Act cinematic structure:
+       - `🎣 1. Hook Intro` (First 3-5 seconds): High-energy visual presence with punchy entrance zoom to maximize viewer retention.
+       - `📖 2. Narrative Buildup` (15% to 65% of timeline): Steady cinematic pans and glides matching narrative progression.
+       - `💥 3. Peak Climax` (65% to 85% of timeline): Dramatic punch-in zoom on the emotional high point.
+       - `🎬 4. Final Resolution` (Final 15%): Smooth, elegant pull-back settling on the closing scene.
+     - **Strict 100% Gapless Timeline**: Zero black frames, zero image repeats, and natural speech pause snapping.
+     - Includes interactive visual story beat badges (`🎣 Hook`, `📖 Story`, `💥 Climax`, `🎬 Outro`) with "Add More" and "Clear All" controls.
+     - **🎵 Intelligent Speech-Paced Camera Motion**: Camera velocity and zoom direction respond organically to speech energy:
+       - `⚡ Excitement & Key Punch Phrases`: Rapid dynamic punch-in zoom (`1.02 ➔ 1.15`) that snaps viewer attention to the subject.
+       - `🌊 Narrative Background Context`: Gentle, slow panoramic horizontal glide (`1.06` scale with smooth drift) to maintain cinematic immersion.
+       - `🍃 Thoughtful Reflection & Pauses`: Slow settling pull-back (`1.05 ➔ 1.01`) that allows the scene to breathe naturally.
+   - **`🎬 Itnavideo Library`**:
+     - Match narration to our curated studio 16:9 cinematic photo and illustration library.
 3. **Step 3 — Captions & Subtitles**:
    - Clean neutral dark slate subtitle cards (`bg-gradient-to-br from-[#070B14] via-[#0E1526] to-[#070B14]`) showing high-contrast visual style previews without title clutter.
 4. **Step 4 — Interactive Timeline & Script Editor**:
@@ -51,6 +67,12 @@
    - **Map Unique Images 1:1**: 1-click button to distribute uploaded images across scenes sequentially without repeating images.
 5. **Unified Fixed Bottom Generate Bar**:
    - Single clean sticky bar showing status (`✓ Audio Ready  ✓ Visuals  12:00 Max  ~X credits`) + `[ Generate Video → ]`.
+6. **Step 6 — Instant 1-Click Viral Export (Strictly 16:9 Widescreen Broadcast)**:
+   - **Strictly 16:9 Cinema Widescreen Only** (1920×1080 Full HD, 30 FPS, H.264, AAC 320kbps) per Rule 4.1.
+   - **1-Click Master Video Download**: Direct instant download of the 1080p MP4 file.
+   - **📲 Mobile Transfer QR Code**: Direct QR scanner code enabling creators to scan with their phone camera and save the 16:9 video straight into their mobile camera roll for instant YouTube Studio publishing.
+   - **Cloud Link Copy**: 1-click button to copy the 48-hour secure AWS S3 presigned direct access URL.
+   - **YouTube Viral Creator Launch Kit**: Auto-generated 3 high-CTR viral titles, timestamped chapters, and SEO tags.
 
 ---
 
@@ -234,6 +256,26 @@ export interface ImageToVideoAiProps {
 | **5. Render Recovery** | `RENDER_CRASH_OR_TIMEOUT` | Lambda task failure or network disconnect | Status route triggers credit refund via `releaseReservedRenderUsageFromServer` | Instant credit restore with retry button |
 | **6. Output Delivery** | `DOWNLOAD_URL_EXPIRED` | Expired presigned S3 link | Polling `/api/reels/jobs/status` regenerates signed URL on demand | Direct MP4 download link available |
 
+---
 
+## 16. Viral Storytelling & Character Consistency Engine (Master Blueprint)
 
+Implemented directly from top-performing faceless YouTube storytelling channels:
 
+1. **Locked Character Anchor Profile**:
+   - The AI director establishes a single locked visual DNA for the protagonist (age, hair, facial features, skin tone, exact outfit, and signature prop).
+   - In every scene prompt where the character appears, this exact descriptive string is injected word-for-word so the image model maintains 100% facial and wardrobe consistency throughout the entire video.
+
+2. **Strict 5-Second Scene Pacing (Viewer Retention)**:
+   - Voiceover transcripts are segmented into rapid 3.5 to 5.5 second visual beats (~12 to 15 spoken words per scene).
+   - Images never linger longer than 6 seconds, preventing visual stagnation and maximizing viewer retention.
+
+3. **Visual Storytelling Devices**:
+   - `screen-or-document`: Automatically triggers when numbers, balances, contracts, or technology are spoken, displaying readable documents in the scene.
+   - `split-screen`: Compares the hero's modest habits on one side against flashy alternatives on the other.
+   - `time-path`: Displays a glowing winding road with year signposts when the narration covers years or compounding effort.
+   - `thought-bubble`: Shows past memories or future dreams with a warm sepia glow.
+   - `money-in-motion`: Visualizes wealth growth with flying coins or growing stacks.
+
+4. **14% Subtitle Safe Zone Clearance**:
+   - Prompts mandate that the bottom fifth (20%) of the 16:9 canvas is kept clear of text, faces, and key objects so burnt-in captions never obscure the artwork.

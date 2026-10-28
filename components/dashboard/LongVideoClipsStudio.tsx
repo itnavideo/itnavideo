@@ -606,15 +606,15 @@ export function LongVideoClipsStudio({
           <div className="rounded-2xl border border-white/5 bg-black/40 p-4 space-y-2.5 text-xs">
             <div className="flex items-center justify-between text-slate-400">
               <span>Output Format</span>
-              <span className="font-bold text-white">9:16 Vertical (10801920)</span>
+              <span className="font-bold text-white">9:16 Vertical (1080×1920)</span>
             </div>
             <div className="flex items-center justify-between text-slate-400">
               <span>Clip Target Length</span>
-              <span className="font-bold text-white">30s60s Viral Hooks</span>
+              <span className="font-bold text-white">30s–60s Viral Hooks</span>
             </div>
             <div className="flex items-center justify-between text-slate-400">
               <span>Estimated Cost</span>
-              <span className="font-bold text-[#FFA000]">{(clipCount === 0 ? 5 : clipCount) * 2} Credits (2 Cr/Clip)</span>
+              <span className="font-bold text-[#FFA000]">{(clipCount === 0 ? 5 : clipCount)} Credits (1 Cr/Clip)</span>
             </div>
           </div>
 
@@ -649,6 +649,29 @@ export function LongVideoClipsStudio({
           </button>
         </div>
       </div>
+
+      {/* Mobile Sticky Action Bar */}
+      {(selectedFile || (inputMode === "youtube" && youtubeUrl)) && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden border-t border-white/10 bg-[#0B0D13]/95 backdrop-blur-xl px-4 py-3 flex items-center justify-between gap-3 shadow-2xl">
+          <div className="min-w-0">
+            <p className="text-[11px] font-black uppercase text-[#FFA000] tracking-wider truncate">
+              {inputMode === "youtube" ? "YouTube Video" : selectedFile?.name}
+            </p>
+            <p className="text-[10px] text-zinc-400 font-bold">
+              {(clipCount === 0 ? 5 : clipCount)} Cr (1 Cr/Clip) • 9:16 Shorts
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onGenerate}
+            disabled={isGenerating}
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-4 py-2.5 text-xs font-black text-black shadow-lg shadow-[#FF5722]/30 active:scale-95 disabled:opacity-50"
+          >
+            <Sparkles size={14} className="text-black" />
+            <span>{isGenerating ? "Extracting..." : "Extract Clips"}</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }

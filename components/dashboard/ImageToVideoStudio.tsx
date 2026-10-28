@@ -30,6 +30,9 @@ import {
   Eye,
   CheckCircle,
   Wand2,
+  Trash2,
+  Image as ImageIcon,
+  User,
 } from "lucide-react";
 import { BorderBeam } from "@/components/magicui/BorderBeam";
 
@@ -145,6 +148,8 @@ export interface ImageToVideoStudioProps {
   onReorderImages?: (fromIndex: number, toIndex: number) => void;
   imagePhrases?: string[];
   onChangeImagePhrase?: (index: number, val: string) => void;
+  onClearAllImages?: () => void;
+  maxImages?: number;
   assetSourceMode?: ImageToVideoAssetMode;
   onChangeAssetSourceMode?: (mode: ImageToVideoAssetMode) => void;
   selectedStockAssetUrls?: string[];
@@ -153,6 +158,8 @@ export interface ImageToVideoStudioProps {
   onChangeAiGeneratedImageUrls?: (urls: string[]) => void;
   visualStyle?: string;
   onChangeVisualStyle?: (style: any) => void;
+  customAiPrompt?: string;
+  onChangeCustomAiPrompt?: (prompt: string) => void;
   characterImageFile?: File | null;
   onSelectCharacterImage?: (file: File | null) => void;
   characterDnaHint?: string;
@@ -196,12 +203,20 @@ export function ImageToVideoStudio({
   onReorderImages,
   imagePhrases,
   onChangeImagePhrase,
+  onClearAllImages,
+  maxImages = 100,
   assetSourceMode = "library",
   onChangeAssetSourceMode,
   selectedStockAssetUrls = [],
   onChangeSelectedStockAssetUrls,
   visualStyle = "realistic",
   onChangeVisualStyle,
+  customAiPrompt = "",
+  onChangeCustomAiPrompt,
+  characterImageFile = null,
+  onSelectCharacterImage,
+  characterDnaHint = "",
+  onChangeCharacterDnaHint,
   enableSubtitles = true,
   onToggleSubtitles,
   subtitleStyle = "parallax-modern",
@@ -215,10 +230,13 @@ export function ImageToVideoStudio({
   estimatedDurationSeconds = 60,
   onStartRender,
   isRendering = false,
-  userCredits = 10,
+  cameraMotionPreset = "slow-dolly",
+  onChangeCameraMotionPreset,
+  topicTitle,
 }: ImageToVideoStudioProps) {
   const router = useRouter();
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const characterInputRef = useRef<HTMLInputElement>(null);
 
   // Local state for image previews
   const imagePreviews = useMemo(() => {
@@ -227,6 +245,11 @@ export function ImageToVideoStudio({
       url: URL.createObjectURL(file),
     }));
   }, [imageFiles]);
+
+  const characterPreviewUrl = useMemo(() => {
+    if (!characterImageFile) return null;
+    return URL.createObjectURL(characterImageFile);
+  }, [characterImageFile]);
 
   // Audio playback state
   const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);
@@ -324,7 +347,7 @@ export function ImageToVideoStudio({
         <div className="flex items-center gap-2 shrink-0">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#161720] px-3.5 py-1.5 text-xs font-bold text-slate-200">
             <Clock3 size={13} className="text-[#FF7043]" />
-            <span>16:9 Widescreen  Up to 10m</span>
+            <span>16:9 Widescreen • Up to 5m (300s)</span>
           </span>
         </div>
       </div>
@@ -335,7 +358,7 @@ export function ImageToVideoStudio({
         {/* Left Column: Form Controls (7 cols) */}
         <div className="lg:col-span-7 space-y-6">
           {/*  1. UPLOAD YOUR AUDIO  */}
-          <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-2xl space-y-4">
+          <div className="rounded-2xl sm:rounded-[28px] border border-white/10 bg-[#111218] p-4 sm:p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-white/5 pb-4">
               <div className="flex items-center gap-3">
                 <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#FF5722]/15 text-[#FF9100] text-sm font-black border border-[#FF5722]/30">
@@ -444,6 +467,7 @@ export function ImageToVideoStudio({
 
               <input
                 type="file"
+                id="itna-audio-file-input"
                 accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac"
                 className="hidden"
                 onChange={(e) => {
@@ -458,7 +482,7 @@ export function ImageToVideoStudio({
           </div>
 
           {/*  2. VISUAL STYLE & SOURCE  */}
-          <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-2xl space-y-5">
+          <div className="rounded-2xl sm:rounded-[28px] border border-white/10 bg-[#111218] p-4 sm:p-6 shadow-2xl space-y-5">
             <div className="flex items-center justify-between border-b border-white/5 pb-4">
               <div className="flex items-center gap-3">
                 <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#FF5722]/15 text-[#FF9100] text-sm font-black border border-[#FF5722]/30">
@@ -476,204 +500,520 @@ export function ImageToVideoStudio({
               </div>
             </div>
 
-            {/* Visual Aesthetic Style (2 Cards: Realistic Images vs 2D Illustrations) */}
+            {/* ⚡ One-Click "Viral Style" Presets (4 Signature Curated Packs) */}
             <div className="space-y-2">
-              <label className="block text-xs font-bold text-zinc-300">Built-in Asset Visual Style</label>
-              <div className="grid grid-cols-2 gap-2.5">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-bold text-zinc-300 flex items-center gap-1.5">
+                  <Sparkles size={13} className="text-[#FFA000]" />
+                  <span>One-Click Viral Style Preset</span>
+                </label>
+                <span className="text-[10px] text-zinc-400 font-mono hidden sm:inline">1-Click Lighting, Motion &amp; Color Grade</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
                 {[
-                  { id: "realistic", label: " Realistic Images", desc: "Approved cinematic real photos & stock" },
-                  { id: "2d", label: " 2D Illustrations", desc: "Approved flat art & vector illustrations" },
-                ].map((art) => {
-                  const active = activeArtStyle === art.id;
+                  {
+                    id: "cinematic-film",
+                    label: "🎞️ Cinematic 35mm",
+                    badge: "Movie Look",
+                    desc: "Warm Kodak film grain, anamorphic flare & golden hour grade",
+                    glow: "hover:border-amber-500/50",
+                    activeRing: "border-amber-500 bg-amber-500/10 ring-amber-500",
+                    badgeColor: "bg-amber-500 text-black",
+                  },
+                  {
+                    id: "3d-animation",
+                    label: "🧸 3D Pixar Animation",
+                    badge: "Ultra CGI",
+                    desc: "Vibrant characters, soft global illumination & 3D depth",
+                    glow: "hover:border-purple-500/50",
+                    activeRing: "border-purple-500 bg-purple-500/10 ring-purple-500",
+                    badgeColor: "bg-purple-500 text-white",
+                  },
+                  {
+                    id: "anime-storybook",
+                    label: "🎨 Studio Anime",
+                    badge: "Ghibli 2D",
+                    desc: "Painterly cloudscapes, clean ink lines & storybook anime",
+                    glow: "hover:border-sky-500/50",
+                    activeRing: "border-sky-500 bg-sky-500/10 ring-sky-500",
+                    badgeColor: "bg-sky-500 text-white",
+                  },
+                  {
+                    id: "dark-mystery",
+                    label: "🌑 Dark Mystery",
+                    badge: "Noir Suspense",
+                    desc: "High-contrast shadows, deep silhouettes & thriller lighting",
+                    glow: "hover:border-zinc-400/50",
+                    activeRing: "border-zinc-300 bg-white/10 ring-zinc-300",
+                    badgeColor: "bg-zinc-200 text-black",
+                  },
+                ].map((preset) => {
+                  const active =
+                    activeArtStyle === preset.id ||
+                    (preset.id === "cinematic-film" && (activeArtStyle === "realistic" || activeArtStyle === "cinematic")) ||
+                    (preset.id === "anime-storybook" && activeArtStyle === "2d") ||
+                    (preset.id === "3d-animation" && activeArtStyle === "3d");
+
                   return (
                     <button
-                      key={art.id}
+                      key={preset.id}
                       type="button"
-                      onClick={() => onChangeVisualStyle?.(art.id)}
-                      className={`rounded-2xl border p-3.5 text-left transition cursor-pointer ${
+                      onClick={() => {
+                        onChangeVisualStyle?.(preset.id);
+                        if (preset.id === "cinematic-film") {
+                          onChangeCameraMotionPreset?.("slow-dolly");
+                          onChangeSubtitleStyle?.("documentary-serif");
+                        } else if (preset.id === "3d-animation") {
+                          onChangeCameraMotionPreset?.("dynamic-zoom");
+                          onChangeSubtitleStyle?.("minimal-clean");
+                        } else if (preset.id === "anime-storybook") {
+                          onChangeCameraMotionPreset?.("gentle-pan");
+                          onChangeSubtitleStyle?.("parallax-modern");
+                        } else if (preset.id === "dark-mystery") {
+                          onChangeCameraMotionPreset?.("slow-dolly");
+                          onChangeSubtitleStyle?.("netflix-yellow");
+                        }
+                      }}
+                      className={`relative rounded-2xl border p-3.5 text-left transition cursor-pointer flex flex-col justify-between overflow-hidden ${
                         active
-                          ? "border-[#FF5722] bg-[#FF5722]/10 text-white font-bold ring-1 ring-[#FF5722]"
-                          : "border-white/10 bg-[#161720] text-zinc-400 hover:text-white"
+                          ? `${preset.activeRing} text-white font-bold ring-1`
+                          : `border-white/10 bg-[#161720] text-zinc-400 hover:text-white ${preset.glow}`
                       }`}
                     >
-                      <p className="text-xs font-bold leading-tight text-white">{art.label}</p>
-                      <p className="text-[10px] text-zinc-400 mt-1 leading-tight">{art.desc}</p>
+                      <div className="flex items-center justify-between w-full mb-1.5">
+                        <span className="block text-xs font-black text-white">{preset.label}</span>
+                        <span className={`text-[8.5px] font-black uppercase px-2 py-0.5 rounded-full ${preset.badgeColor}`}>
+                          {preset.badge}
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-zinc-400 leading-snug">{preset.desc}</p>
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            {/* Asset Source Mode (3 Options: My Images Only, ItnaVideo Assets, My Images + ItnaVideo Assets) */}
+            {/* Asset Source Mode (3 Options: AI Generate, Upload up to 100, ItnaVideo Library) */}
             <div className="space-y-2 pt-2 border-t border-white/5">
               <label className="block text-xs font-bold text-zinc-300">Image Source Mode</label>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 {[
                   {
+                    id: "ai-generate",
+                    label: "✨ Generate with AI",
+                    badge: "Automated",
+                    detail: "AI creates custom cinematic visuals for every scene from your audio.",
+                  },
+                  {
                     id: "upload",
-                    label: "My Images Only",
-                    detail: "Use only the images you upload for this video."
+                    label: "📁 Upload My Images",
+                    badge: "Up to 100",
+                    detail: "Bulk upload your photos. AI auto-times and sequences them to voiceover.",
                   },
                   {
                     id: "library",
-                    label: "ItnaVideo Assets",
-                    detail: "Choose from our built-in image library."
-                  },
-                  {
-                    id: "mix",
-                    label: "My Images + ItnaVideo Assets",
-                    detail: "Use your images first and add matching ItnaVideo assets where needed."
+                    label: "🎬 ItnaVideo Library",
+                    badge: "Studio Assets",
+                    detail: "Match your story to our curated 16:9 cinematic archive.",
                   },
                 ].map((option) => {
-                  const active = activeAssetMode === option.id || (option.id === "library" && activeAssetMode === "default_stock") || (option.id === "upload" && activeAssetMode === "custom_upload");
+                  const active =
+                    activeAssetMode === option.id ||
+                    (option.id === "upload" && (activeAssetMode === "custom_upload" || activeAssetMode === "mix")) ||
+                    (option.id === "library" && activeAssetMode === "default_stock");
+
                   return (
                     <button
                       key={option.id}
                       type="button"
                       onClick={() => onChangeAssetSourceMode?.(option.id as any)}
-                      className={`rounded-2xl border p-3.5 text-left transition cursor-pointer flex flex-col justify-between ${
+                      className={`relative rounded-2xl border p-3.5 text-left transition cursor-pointer flex flex-col justify-between overflow-hidden ${
                         active
                           ? "border-[#FF5722] bg-[#FF5722]/10 text-white font-bold ring-1 ring-[#FF5722]"
-                          : "border-white/10 bg-[#161720] text-zinc-400 hover:text-white"
+                          : "border-white/10 bg-[#161720] text-zinc-400 hover:text-white hover:border-white/20"
                       }`}
                     >
-                      <span className="block text-xs font-bold text-white">{option.label}</span>
-                      <span className="mt-1 block text-[10px] text-zinc-400 leading-tight">{option.detail}</span>
+                      <div className="flex items-center justify-between w-full mb-1">
+                        <span className="block text-xs font-bold text-white">{option.label}</span>
+                        <span
+                          className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${
+                            active
+                              ? "bg-[#FF5722] text-black"
+                              : "bg-white/10 text-zinc-400"
+                          }`}
+                        >
+                          {option.badge}
+                        </span>
+                      </div>
+                      <span className="block text-[10px] text-zinc-400 leading-tight">{option.detail}</span>
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            {/* Uploaded Images List (If Custom or Mix selected) */}
-            {(activeAssetMode === "upload" || activeAssetMode === "mix" || activeAssetMode === "custom_upload") && (
-              <div className="space-y-3 pt-2 border-t border-white/5">
-                <div
-                  onClick={() => imageInputRef.current?.click()}
-                  className="flex items-center justify-center gap-2 rounded-2xl border border-dashed border-white/15 bg-[#161720] p-4 text-xs font-bold text-zinc-200 hover:border-[#FF5722]/50 transition cursor-pointer"
-                >
-                  <Plus size={16} className="text-[#FF9100]" />
-                  <span>Add Custom Images / Character References</span>
+            {/* AI Image Generation Active Banner with Prompt & Character Upload */}
+            {activeAssetMode === "ai-generate" && (
+              <div className="rounded-2xl border border-[#FF5722]/30 bg-gradient-to-br from-[#FF5722]/10 via-[#161720] to-[#111218] p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-black text-white">
+                    <Sparkles size={14} className="text-[#FF9100]" />
+                    <span>100% Automated AI Scene Generation</span>
+                  </span>
+                  <span className="text-[10px] font-mono text-[#FF9100] bg-[#FF5722]/15 px-2.5 py-0.5 rounded-full border border-[#FF5722]/30">
+                    Vertex AI Imagen 3 &amp; Gemini 2.0
+                  </span>
                 </div>
 
+                <p className="text-xs text-zinc-300 leading-relaxed">
+                  Zero manual images needed. Our AI analyzes your voiceover, locks a single consistent character profile, and generates cinematic 16:9 scenes timed every 5 seconds.
+                </p>
+
+                {/* Viral Story System Badges */}
+                <div className="flex flex-wrap items-center gap-1.5 pt-1 text-[10.5px]">
+                  <span className="inline-flex items-center gap-1 rounded-lg bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 text-amber-300 font-bold">
+                    🎭 Character Consistency Locked
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-lg bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 text-blue-300 font-bold">
+                    ⚡ Strict 5s Pacing
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-emerald-300 font-bold">
+                    📜 Story Devices Active
+                  </span>
+                </div>
+
+                {/* Active Style Indicator (Synced to Master One-Click Presets) */}
+                <div className="flex items-center justify-between text-xs py-2 px-3.5 rounded-xl bg-white/5 border border-white/10">
+                  <span className="text-zinc-400 flex items-center gap-1.5">
+                    <Sparkles size={13} className="text-[#FFA000]" />
+                    <span>Selected Visual Style:</span>
+                  </span>
+                  <span className="font-bold text-[#FFA000]">
+                    {activeArtStyle === "3d" || activeArtStyle === "3d-animation" ? "🧸 3D Pixar Animation" :
+                     activeArtStyle === "2d" || activeArtStyle === "anime-storybook" ? "🎨 Studio Anime" :
+                     activeArtStyle === "dark-mystery" ? "🌑 Dark Mystery" : "🎞️ Cinematic 35mm Movie"}
+                  </span>
+                </div>
+
+                {/* 2. Visual Direction & Prompt Box */}
+                <div className="space-y-2 pt-2 border-t border-white/5">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-bold text-zinc-300 flex items-center gap-1.5">
+                      <Wand2 size={13} className="text-[#FF9100]" />
+                      <span>Visual Direction &amp; Character Prompt (Optional)</span>
+                    </label>
+                    <span className="text-[10px] text-zinc-400 font-mono hidden sm:inline">Customizes AI Visuals</span>
+                  </div>
+
+                  <input
+                    type="text"
+                    value={customAiPrompt}
+                    onChange={(e) => onChangeCustomAiPrompt?.(e.target.value)}
+                    placeholder='e.g. "3D Pixar animation style with warm sunlight about a brave young astronaut" or "Moody 35mm cinema in rainy Tokyo"'
+                    className="w-full rounded-xl border border-white/15 bg-black/50 px-3.5 py-2.5 text-xs text-white placeholder-zinc-500 focus:border-[#FF5722] focus:outline-none focus:ring-1 focus:ring-[#FF5722]"
+                  />
+
+                  {/* 1-Click Quick Style Tags */}
+                  <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                    <span className="text-[10px] font-bold text-zinc-400 mr-1">Quick prompts:</span>
+                    {[
+                      "3D Pixar Animation Style",
+                      "Cinematic 35mm Film Lighting",
+                      "Studio Ghibli 2D Anime",
+                      "Cyberpunk Neon Cityscape",
+                      "Dark Moody Noir Aesthetic",
+                    ].map((tag) => (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={() => onChangeCustomAiPrompt?.(tag)}
+                        className="text-[10px] font-bold text-zinc-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 px-2 py-0.5 rounded-lg transition cursor-pointer"
+                      >
+                        +{tag}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 3. Character Reference Photo Upload (Consistent Character) */}
+                <div className="space-y-2 pt-2 border-t border-white/5">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-bold text-zinc-300 flex items-center gap-1.5">
+                      <User size={13} className="text-[#FF9100]" />
+                      <span>Consistent Character Reference Photo (Optional)</span>
+                    </label>
+                    <span className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                      Locks Character Face &amp; Outfit
+                    </span>
+                  </div>
+
+                  <p className="text-[11px] text-zinc-400 leading-tight">
+                    Already have a character image or avatar? Upload 1 photo and our AI will maintain the exact same person across all scenes.
+                  </p>
+
+                  {!characterImageFile ? (
+                    <div
+                      onClick={() => characterInputRef.current?.click()}
+                      className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-white/20 bg-black/40 p-3.5 text-xs font-bold text-zinc-300 hover:border-[#FF5722]/50 hover:text-white transition cursor-pointer"
+                    >
+                      <UploadCloud size={16} className="text-[#FF9100]" />
+                      <span>Upload 1 Character Reference Image (PNG, JPG)</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        {characterPreviewUrl && (
+                          <div className="h-12 w-12 rounded-lg overflow-hidden border border-emerald-500/30 shrink-0 bg-black">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={characterPreviewUrl} alt="Character" className="h-full w-full object-cover" />
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold text-white truncate flex items-center gap-1.5">
+                            <CheckCircle size={13} className="text-emerald-400 shrink-0" />
+                            <span>{characterImageFile.name}</span>
+                          </p>
+                          <p className="text-[10px] text-emerald-300 font-mono mt-0.5">
+                            Character locked for all story scenes
+                          </p>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onSelectCharacterImage?.(null);
+                          if (characterInputRef.current) characterInputRef.current.value = "";
+                        }}
+                        className="text-xs font-bold text-zinc-400 hover:text-red-400 bg-white/5 hover:bg-red-500/10 px-2.5 py-1.5 rounded-lg transition cursor-pointer"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
+
+                  <input
+                    ref={characterInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      if (file) onSelectCharacterImage?.(file);
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Uploaded Images List (Bulk Upload up to 100 images, ZERO manual text fields) */}
+            {(activeAssetMode === "upload" || activeAssetMode === "custom_upload" || activeAssetMode === "mix") && (
+              <div className="space-y-4 pt-2 border-t border-white/5">
+                {/* Multi-Image Drag & Dropzone */}
+                <label
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const files = Array.from(e.dataTransfer?.files || []).filter((f) =>
+                      f.type.startsWith("image/")
+                    );
+                    if (files.length > 0) onAddImages(files);
+                  }}
+                  className="group relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/15 bg-[#161720] p-6 text-center hover:border-[#FF5722]/50 transition cursor-pointer overflow-hidden"
+                >
+                  <div className="space-y-2 flex flex-col items-center">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#FF5722]/10 text-[#FF9100] border border-[#FF5722]/20 group-hover:scale-110 transition">
+                      <UploadCloud size={22} />
+                    </div>
+                    <div className="space-y-0.5">
+                      <p className="text-sm font-bold text-white">
+                        Drop story images here in bulk or browse
+                      </p>
+                      <p className="text-xs text-zinc-400 font-mono">
+                        Select multiple images at once • Up to {maxImages} images (PNG, JPG, WEBP)
+                      </p>
+                    </div>
+                    <span className="inline-flex items-center gap-1.5 rounded-xl border border-[#FF5722]/30 bg-gradient-to-r from-[#FF5722] to-[#FF7043] px-3.5 py-1.5 text-xs font-black text-black shadow-md hover:brightness-110 transition">
+                      <Upload size={13} />
+                      <span>Browse Files (Up to {maxImages})</span>
+                    </span>
+                  </div>
+
+                  <input
+                    ref={imageInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+                      if (files.length > 0) onAddImages(files);
+                      if (imageInputRef.current) imageInputRef.current.value = "";
+                    }}
+                  />
+                </label>
+
+                {/* Gallery of Uploaded Images */}
                 {imagePreviews.length > 0 && (
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between text-xs text-zinc-400">
-                      <span className="font-bold text-white flex items-center gap-1.5">
-                        <ArrowLeftRight size={14} className="text-[#FF9100]" />
-                        <span>Story Image Sequence ({imagePreviews.length} images)</span>
-                      </span>
-                      <span className="text-[11px] text-zinc-400">
-                        Preserved in chronological order  Use   to reorder
-                      </span>
+                    {/* Header Controls: Count & Clear All */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/5 pb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-black text-white flex items-center gap-1.5">
+                          <ImageIcon size={14} className="text-[#FF9100]" />
+                          <span>Uploaded Images ({imagePreviews.length} / {maxImages})</span>
+                        </span>
+                        <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md flex items-center gap-1">
+                          <Sparkles size={10} />
+                          <span>AI Story Arc Active</span>
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => imageInputRef.current?.click()}
+                          className="text-[11px] font-bold text-[#FF9100] hover:text-white bg-white/5 hover:bg-white/10 px-2.5 py-1 rounded-lg transition cursor-pointer flex items-center gap-1"
+                        >
+                          <Plus size={12} />
+                          <span>Add More</span>
+                        </button>
+                        {onClearAllImages && (
+                          <button
+                            type="button"
+                            onClick={onClearAllImages}
+                            className="text-[11px] font-bold text-zinc-400 hover:text-red-400 bg-white/5 hover:bg-red-500/10 px-2.5 py-1 rounded-lg transition cursor-pointer flex items-center gap-1"
+                          >
+                            <Trash2 size={12} />
+                            <span>Clear All</span>
+                          </button>
+                        )}
+                      </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* AI Story Arc Narrative Visual Flow Bar */}
+                    <div className="rounded-xl border border-white/10 bg-gradient-to-r from-amber-500/10 via-blue-500/10 to-red-500/10 p-3 space-y-1.5">
+                      <div className="flex items-center justify-between text-[11px] font-bold text-white">
+                        <span className="flex items-center gap-1.5 text-amber-400">
+                          <Sparkles size={12} />
+                          <span>AI Story Arc Director</span>
+                        </span>
+                        <span className="text-[10px] text-zinc-400 font-mono">100% Gapless • Dynamic Motion</span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-[10px] font-semibold text-center">
+                        <div className="bg-amber-500/20 border border-amber-500/30 text-amber-300 rounded-lg py-1 px-1.5">
+                          🎣 1. Hook Intro
+                        </div>
+                        <div className="bg-blue-500/20 border border-blue-500/30 text-blue-300 rounded-lg py-1 px-1.5">
+                          📖 2. Narrative
+                        </div>
+                        <div className="bg-red-500/20 border border-red-500/30 text-red-300 rounded-lg py-1 px-1.5">
+                          💥 3. Peak Climax
+                        </div>
+                        <div className="bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 rounded-lg py-1 px-1.5">
+                          🎬 4. Resolution
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Responsive Image Grid with Story Beat Badges */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2.5 max-h-[380px] overflow-y-auto pr-1">
                       {imagePreviews.map((img, idx) => {
-                        const currentPhrase = imagePhrases?.[idx] || "";
-                        const hasPhrase = currentPhrase.trim().length > 0;
+                        const total = imagePreviews.length;
+                        const ratio = idx / Math.max(1, total);
+                        let beatBadge = { label: '📖 Story', color: 'bg-blue-500/80 text-white' };
+                        if (idx === 0) {
+                          beatBadge = { label: '🎣 Hook', color: 'bg-amber-500 text-black font-black' };
+                        } else if (ratio >= 0.65 && ratio < 0.85) {
+                          beatBadge = { label: '💥 Climax', color: 'bg-red-500 text-white font-black' };
+                        } else if (ratio >= 0.85 || idx === total - 1) {
+                          beatBadge = { label: '🎬 Outro', color: 'bg-emerald-500 text-white font-bold' };
+                        }
 
                         return (
                           <div
                             key={idx}
-                            className="flex flex-col rounded-2xl border border-white/10 bg-[#161720] p-3 space-y-2.5 transition hover:border-white/20"
+                            className="group relative aspect-video rounded-xl overflow-hidden border border-white/10 bg-black/60 hover:border-[#FF5722]/50 transition shadow-md"
                           >
-                            {/* Sequence Header & Reorder Controls */}
-                            <div className="flex items-center justify-between">
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-[#FF5722]/15 border border-[#FF5722]/30 text-[#FF9100] text-[11px] font-black uppercase tracking-wider">
-                                Image {idx + 1}
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={img.url}
+                              alt={img.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                            />
+                            {/* Index & Story Beat Badge */}
+                            <div className="absolute top-1 left-1 flex items-center gap-1">
+                              <span className="px-1.5 py-0.5 rounded-md bg-black/80 backdrop-blur-sm text-[9.5px] font-mono font-bold text-[#FF9100] border border-white/10">
+                                #{idx + 1}
                               </span>
-
-                              <div className="flex items-center gap-1">
-                                <button
-                                  type="button"
-                                  disabled={idx === 0}
-                                  onClick={() => onReorderImages?.(idx, idx - 1)}
-                                  title="Move earlier in story order"
-                                  className="h-6 w-6 rounded-md bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed text-zinc-300 hover:text-white flex items-center justify-center transition cursor-pointer"
-                                >
-                                  <ChevronLeft size={13} />
-                                </button>
-                                <button
-                                  type="button"
-                                  disabled={idx === imagePreviews.length - 1}
-                                  onClick={() => onReorderImages?.(idx, idx + 1)}
-                                  title="Move later in story order"
-                                  className="h-6 w-6 rounded-md bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed text-zinc-300 hover:text-white flex items-center justify-center transition cursor-pointer"
-                                >
-                                  <ChevronRight size={13} />
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => onRemoveImage(idx)}
-                                  title="Remove image"
-                                  className="h-6 w-6 rounded-md bg-white/5 hover:bg-red-500/20 text-zinc-400 hover:text-red-400 flex items-center justify-center transition cursor-pointer ml-1"
-                                >
-                                  <X size={12} />
-                                </button>
-                              </div>
+                              <span className={`px-1.5 py-0.5 rounded-md text-[8.5px] font-bold backdrop-blur-sm shadow-sm ${beatBadge.color}`}>
+                                {beatBadge.label}
+                              </span>
                             </div>
 
-                            {/* Thumbnail Preview */}
-                            <div className="relative aspect-video w-full rounded-xl overflow-hidden border border-white/10 bg-black group">
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img src={img.url} alt={img.name} className="w-full h-full object-cover" />
-                              <div className="absolute bottom-1 left-1 right-1 px-2 py-0.5 rounded bg-black/70 backdrop-blur-sm text-[10px] text-zinc-300 truncate font-mono">
-                                {img.name}
-                              </div>
-                            </div>
+                          {/* Delete Button */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              onRemoveImage(idx);
+                            }}
+                            title="Remove image"
+                            className="absolute top-1 right-1 h-5 w-5 rounded-md bg-black/80 hover:bg-red-500 text-zinc-300 hover:text-white flex items-center justify-center transition cursor-pointer opacity-80 group-hover:opacity-100"
+                          >
+                            <X size={11} />
+                          </button>
 
-                            {/* Optional Script Excerpt / Matcher Input */}
-                            <div className="space-y-1.5">
-                              <div className="flex items-center justify-between text-[10px]">
-                                <span className="font-bold text-zinc-300">Narration Excerpt (Optional)</span>
-                                {hasPhrase ? (
-                                  <span className="text-[#FFA000] font-bold flex items-center gap-1 bg-[#FF5722]/10 px-2 py-0.5 rounded-md border border-[#FF5722]/30" title="AI will match these spoken words during transcription">
-                                    <Sparkles size={10} className="text-[#FF9100]" /> Excerpt Attached
-                                  </span>
-                                ) : (
-                                  <span className="text-zinc-400 font-medium flex items-center gap-1 bg-white/5 px-2 py-0.5 rounded-md border border-white/5">
-                                    <Sparkles size={10} className="text-zinc-400" /> Auto AI Pacing
-                                  </span>
-                                )}
-                              </div>
-                              <input
-                                type="text"
-                                value={currentPhrase}
-                                onChange={(e) => onChangeImagePhrase?.(idx, e.target.value)}
-                                placeholder="Paste spoken line (Hindi / English) to time this image..."
-                                className="w-full rounded-xl border border-white/10 bg-[#111218] px-2.5 py-1.5 text-xs text-white placeholder-zinc-500 focus:border-[#FF5722] focus:outline-none focus:ring-1 focus:ring-[#FF5722]"
-                              />
-                              <p className="text-[10px] text-zinc-400 leading-tight">
-                                {hasPhrase
-                                  ? "AI aligns start & end times directly to these spoken words."
-                                  : "Optional: Leave empty for AI story-paced image timing."}
-                              </p>
-                            </div>
+                          {/* Filename caption */}
+                          <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-1 pt-2">
+                            <p className="text-[9px] text-zinc-300 truncate font-mono">{img.name}</p>
                           </div>
-                        );
-                      })}
+                        </div>
+                      );
+                    })}
+                    </div>
+
+                    {/* Intelligent Speech-Paced Camera Motion Banner */}
+                    <div className="rounded-xl border border-white/10 bg-[#161720] p-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                          <Film size={13} className="text-[#FFA000]" />
+                          <span>Intelligent Speech-Paced Camera Motion</span>
+                        </span>
+                        <span className="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full font-bold">
+                          ⚡ Voice-Energy Synced
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px]">
+                        <div className="rounded-lg bg-black/40 border border-white/5 p-2 flex items-start gap-2">
+                          <span className="text-amber-400 text-sm leading-none">⚡</span>
+                          <div>
+                            <p className="font-bold text-white">Excitement &amp; Punch Phrases</p>
+                            <p className="text-zinc-400">Automatic dynamic punch-in zoom</p>
+                          </div>
+                        </div>
+                        <div className="rounded-lg bg-black/40 border border-white/5 p-2 flex items-start gap-2">
+                          <span className="text-blue-400 text-sm leading-none">🌊</span>
+                          <div>
+                            <p className="font-bold text-white">Narrative Background Context</p>
+                            <p className="text-zinc-400">Gentle, slow panoramic glide</p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
-
-                <input
-                  ref={imageInputRef}
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  className="hidden"
-                  onChange={(e) => {
-                    const files = Array.from(e.target.files || []);
-                    if (files.length > 0) onAddImages(files);
-                  }}
-                />
               </div>
             )}
           </div>
 
           {/*  3. WIDESCREEN CINEMA CAPTIONS  */}
-          <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-2xl space-y-4">
+          <div className="rounded-2xl sm:rounded-[28px] border border-white/10 bg-[#111218] p-4 sm:p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-white/5 pb-4">
               <div className="flex items-center gap-3">
                 <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#FF5722]/15 text-[#FF9100] text-sm font-black border border-[#FF5722]/30">
@@ -729,7 +1069,7 @@ export function ImageToVideoStudio({
           </div>
 
           {/*  4. AUDIO SCORE & SOUND EFFECTS  */}
-          <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-2xl space-y-4">
+          <div className="rounded-2xl sm:rounded-[28px] border border-white/10 bg-[#111218] p-4 sm:p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-white/5 pb-4">
               <div className="flex items-center gap-3">
                 <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#FF5722]/15 text-[#FF9100] text-sm font-black border border-[#FF5722]/30">
@@ -750,7 +1090,7 @@ export function ImageToVideoStudio({
             {/* BGM Track Selector */}
             <div className="space-y-2">
               <label className="block text-xs font-bold text-zinc-300">Background Music Track</label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {ITNAVIDEO_LIBRARY_BGM.map((track) => {
                   const active = selectedBgmTrack?.id === track.id || track.id === "wealth-building";
                   return (
@@ -902,6 +1242,40 @@ export function ImageToVideoStudio({
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Mobile Sticky Action Bar (Always Available on Phones) */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden border-t border-white/10 bg-[#09090B]/95 backdrop-blur-xl px-4 py-3 flex items-center justify-between gap-3 shadow-[0_-8px_30px_rgba(0,0,0,0.8)]">
+        <div className="min-w-0">
+          <p className="text-[11px] font-black uppercase text-[#FFA000] tracking-wider truncate">
+            {selectedAudio ? (topicTitle || selectedAudio.name) : "16:9 Cinema Story"}
+          </p>
+          <p className="text-[10px] text-zinc-400 font-bold flex items-center gap-1.5">
+            <span className="text-emerald-400 font-mono font-bold">{calculatedCredits} {calculatedCredits === 1 ? "Credit" : "Credits"}</span>
+            <span>•</span>
+            <span>{selectedAudio ? (audioDurationSeconds > 0 ? `${audioDurationSeconds}s` : "Audio Loaded") : "Up to 5m"}</span>
+          </p>
+        </div>
+        
+        {selectedAudio ? (
+          <button
+            type="button"
+            onClick={() => onStartRender?.()}
+            disabled={isRendering}
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-4 py-2.5 text-xs font-black text-black shadow-lg shadow-[#FF5722]/30 active:scale-95 disabled:opacity-50 cursor-pointer"
+          >
+            <Sparkles size={14} className="fill-black/20" />
+            <span>{isRendering ? "Rendering..." : "Generate Video"}</span>
+          </button>
+        ) : (
+          <label
+            htmlFor="itna-audio-file-input"
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-4 py-2.5 text-xs font-black text-black shadow-lg shadow-[#FF5722]/30 active:scale-95 cursor-pointer"
+          >
+            <Upload size={14} />
+            <span>Upload Audio</span>
+          </label>
+        )}
       </div>
     </div>
   );

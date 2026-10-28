@@ -41,15 +41,21 @@
    - `Clean` (📋 Professional whiteboard)
    - `Bold` (📢 High-impact presentation)
    - `Blueprint` (📐 Technical drafting style)
-5. **Script-Driven Dynamic Drawing & Text System (Zero Static Images)**:
-   - **No Static/Cutout Images**: Replaced with 100% dynamic, progressive **SVG Vector Stroke Drawings** that draw in real time alongside handwritten text.
+5. **2D Colored Vector Illustrations & Hand-Drawn Engine (Master Reference Standard)**:
+   - **Rich 2D Colored Vector Graphics (`Whiteboard2DIcon`)**: Clean black outer strokes with vibrant internal flat color fills (blue shirts, gold coins, translucent glass shading, red medical crosses, green growth plants, target bullseyes).
+   - **Authentic Drawing Hand with Marker Pen (`WhiteboardHand`)**: Real hand holding a dry-erase marker, tip calibrated at (0,0), actively tracing letters, arrows, and illustrations across the board with realistic drawing micro-vibrations, then resting naturally at the bottom-right corner.
+   - **Full Storyboard Infographic Layout (`layoutType: 'infographic'`)**:
+     - *Header*: Expressive handwriting font with action dashes and accent colors (`titlePrefix` + `titleAccent`).
+     - *Upper Split*: 2D thinking character with thought bubble connecting via curved arrow to a hand-drawn curly bracket list with 3 illustrated items.
+     - *Hero Centerpiece*: Main concept graphic (e.g., translucent savings jar with gold coins) accompanied by a side note callout and curved arrow.
+     - *Bottom Takeaway Grid*: Horizontal marker underline subhead branching down via 4 arrows into 4 illustrated benefit cards.
    - **Script Semantics Matching**: Drawings and handwritten text are selected automatically based on narration topic:
-     - 🩺 **Medical & Health**: Doctor character, ECG heart rhythm (`medical_ecg_pulse`), pill capsule (`medical_pill_capsule`), DNA helix (`medical_dna_helix`).
-     - 📈 **Corporate & Business**: Executive leader, rising bar chart (`business_growth_chart`), target bullseye (`business_target_bullseye`), partnership handshake (`business_handshake`).
-     - 🔬 **Science & Education**: Atom orbits (`science_atom_orbit`), chemistry flask (`science_beaker_flask`), lightbulb concept (`science_lightbulb_idea`).
-     - 🔄 **Process & Steps**: Curved step connector arrows (`process_step_curved_arrow`), conversion funnel (`process_funnel_filter`).
-     - ⚖️ **Comparison (Problem vs Solution)**: Mistake cross (`comparison_cross_error`) vs success checkmark (`comparison_checkmark_success`).
-     - 👤 **Story Characters**: Doctor, business executive, thinking/questioning person, victory celebration.
+     - 🩺 **Medical & Health**: Doctor character, ECG heart rhythm (`medical_ecg_pulse`), first aid kit (`medical_emergency`), pill capsule (`medical_pill_capsule`).
+     - 📈 **Corporate & Business**: Executive leader, rising bar chart (`growth_chart`), target bullseye (`target_bullseye`), partnership handshake (`handshake_deal`).
+     - 💰 **Finance & Wealth**: Savings jar with gold coins (`savings_jar`), sprout growing from coins (`wealth_plant`).
+     - 🔬 **Science & Education**: Atom orbits (`science_atom_orbit`), chemistry flask (`science_beaker_flask`), lightbulb concept (`lightbulb_idea`).
+     - 🔄 **Process & Steps**: Curved step connector arrows, conversion funnel, thought bubbles, curly brackets.
+     - 👤 **Story Characters**: 2D thinking boy, happy smiling person (`character_happy`), doctor, business executive.
 6. **AI Semantic Content Taxonomy (Automatic Layout Mapping)**:
    The Gemini Scene Planner automatically classifies speech beats into optimal visual layouts:
    - 📌 **Core Insight / Paragraph**: Punchy key statement + focal vector sketch.
@@ -177,6 +183,26 @@ export interface WhiteboardVideoProps {
 | **4. Icon & Doodle Sync** | `MISSING_ICON_ASSET` | Cloudinary stickman/doodle icon 404 | Auto-substitutes default universal icon (e.g. `lightbulb`, `checkmark`) | Board always renders complete illustrations |
 | **5. Stroke Animation** | `STROKE_POP_IN_BUG` | Vector path lengths miscalculated | 1.18x safety buffer (`strokeDasharray = ceil(len * 1.18)`) + progress clamping | Smooth, organic hand-drawing stroke animation |
 | **6. Remotion Lambda Render** | `LAMBDA_OOM_OR_TIMEOUT` | Heavy whiteboard SVG drawing timeout | Clamps frameRange to `[0, totalFrames - 1]` and optimizes Lambda concurrency | Fast Full HD 30 FPS MP4 export |
-| **6. Remotion Lambda Render** | `FATAL_RENDER_CRASH` | AWS Lambda instance crash | Status route catches error and refunds reserved credits via `releaseReservedRenderUsageFromServer` | Immediate credit refund + retry prompt |
-| **7. File Delivery** | `S3_DOWNLOAD_LINK_EXPIRED` | User returns to download link after 48h | Polling status route auto-renews S3 presigned URL on demand | Direct download link re-activated instantly |
+---
+
+## 9. 2D Storyboard Infographic Pipeline & AI Director Integration (Master Polish)
+
+### Architecture Upgrade: Why Whiteboard Output Was Previously Weak & How It Is Solved
+1. **Previous Bottleneck Identified via Groq Audit**:
+   - The Remotion engine possessed a rich 2D hand-drawn storyboard explainer component (`WhiteboardStoryInfographic.tsx`) with 2D character thinking, thought bubbles, curly brackets, hero illustrations, and 4-column benefit cards.
+   - However, the AI Planner (`whiteboardPlanner.ts`) defaulted strictly to `layoutType: 'cards'` with 3 plain bullet lines, and never generated `infographicData`.
+   - In `app/api/reels/jobs/route.ts`, `infographicData` and `showHand` props were omitted from the render payload, causing the output to render basic text lines every time.
+
+2. **Full Pipeline Solution Implemented**:
+   - **`services/ai/whiteboardPlanner.ts`**:
+     - Added `WhiteboardStoryInfographicProps` type matching the master 2D explainer standard.
+     - Added `planWhiteboardInfographicData()`: Intelligently identifies themes (Finance/Savings, Health/Fitness, Business/Growth, Learning/Discipline, General Motivation) and structures the complete visual scene (prefix, accent, character question, bracket items, center statement, hero icon, side note, and 4 benefit cards).
+     - Upgraded Groq Cloud LLM prompt (`qwen/qwen3.8-27b`, `openai/gpt-oss-120b`) and Gemini fallback to generate native `infographic` scene data and set `layoutType: 'infographic'`.
+     - In `parseAndValidatePlan()`, validated `infographic` data and assigned fallback generator to guarantee 100% complete visual scenes on every render.
+   - **`app/api/reels/jobs/route.ts`**:
+     - Passed `infographicData: wbPlan.infographicData` and `showHand: true` directly to Remotion Lambda props.
+   - **`components/dashboard/WhiteboardStudio.tsx`**:
+     - Upgraded the 9:16 Live Stage Preview mockup to display the full 2D Storyboard Infographic scene (Thinking character avatar, thought bubble, curly bracket, hero jar, 4 cards, and live marker tracing indicator).
+     - Polished mobile responsiveness with floating docked action bar for instant 1-tap generation.
+
 

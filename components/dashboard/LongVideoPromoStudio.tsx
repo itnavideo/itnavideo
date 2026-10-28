@@ -483,6 +483,38 @@ export function LongVideoPromoStudio({
           </div>
         </div>
       </div>
+
+      {/* Mobile Sticky Action Bar */}
+      {selectedFile && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden border-t border-white/10 bg-[#0B0D13]/95 backdrop-blur-xl px-4 py-3 flex items-center justify-between gap-3 shadow-2xl">
+          <div className="min-w-0">
+            <p className="text-[11px] font-black uppercase text-[#FFA000] tracking-wider truncate">
+              {promoTitle || selectedFile.name}
+            </p>
+            <p className="text-[10px] text-zinc-400 font-bold">
+              1 Credit • 9:16 Vertical
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onGenerate}
+            disabled={isGenerating || !isReadyToRender}
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-4 py-2.5 text-xs font-black text-black shadow-lg shadow-[#FF5722]/30 active:scale-95 disabled:opacity-50"
+          >
+            {isGenerating ? (
+              <>
+                <Loader2 size={14} className="animate-spin text-black" />
+                <span>Directing...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles size={14} className="text-black" />
+                <span>Generate (1 Cr)</span>
+              </>
+            )}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

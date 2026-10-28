@@ -70,17 +70,17 @@ export function FacelessGraphicScene({
 
   return (
     <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', color: ink, opacity: reveal }}>
-      <div style={{ position: 'absolute', top: 76, left: 112, right: 112, zIndex: 2 }}>
+      <div style={{ position: 'absolute', top: 100, left: 112, right: 112, zIndex: 2 }}>
         <div style={{ color: orange, fontFamily: bodyFont, fontWeight: 900, fontSize: 17, letterSpacing: '0.18em', textTransform: 'uppercase' }}>
           {kind === 'allocation' ? 'MONEY BREAKDOWN' : kind === 'comparison' ? 'SIDE BY SIDE' : kind === 'sequence' ? 'HOW IT WORKS' : kind === 'metric' ? 'KEY NUMBER' : kind === 'growth' ? 'GROWTH OVER TIME' : 'VISUAL EXPLANATION'}
         </div>
-        <div style={{ marginTop: 14, maxWidth: 1500, color: ink, fontFamily: headingFont, fontWeight: 900, fontSize: 58, lineHeight: 1.05, letterSpacing: '-0.035em' }}>
+        <div style={{ marginTop: 14, maxWidth: 1500, color: ink, fontFamily: headingFont, fontWeight: 900, fontSize: 50, lineHeight: 1.08, letterSpacing: '-0.035em' }}>
           {title}
         </div>
-        {scene.supportingText ? <div style={{ marginTop: 12, maxWidth: 1200, color: muted, fontFamily: bodyFont, fontSize: 25, fontWeight: 600 }}>{scene.supportingText}</div> : null}
+        {scene.supportingText ? <div style={{ marginTop: 12, maxWidth: 1200, color: muted, fontFamily: bodyFont, fontSize: 24, fontWeight: 600 }}>{scene.supportingText}</div> : null}
       </div>
 
-      <svg viewBox="0 0 1720 660" preserveAspectRatio="xMidYMid meet" style={{ position: 'absolute', width: 'calc(100% - 120px)', height: '64%', left: 60, bottom: 42, overflow: 'visible' }} role="img" aria-label={title}>
+      <svg viewBox="0 0 1720 700" preserveAspectRatio="xMidYMid meet" style={{ position: 'absolute', width: 'calc(100% - 120px)', height: '68%', left: 60, bottom: 36, overflow: 'visible' }} role="img" aria-label={title}>
         <defs>
           <linearGradient id={id + '-warm'} x1="0" y1="0" x2="1" y2="0">
             <stop offset="0" stopColor={orange} /><stop offset="1" stopColor={amber} />

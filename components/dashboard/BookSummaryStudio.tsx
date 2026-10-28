@@ -289,6 +289,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
         setDurationSeconds(data.durationSeconds);
         if (!audioDuration) setAudioDuration(Math.round(data.durationSeconds));
       }
+      if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
       setStudioStep('storyboard');
     } catch (err: any) {
       setInputError(err?.message || 'Error creating AI Storyboard plan. Please try again.');
@@ -354,6 +355,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
     if (!plan || !onStartRender || isSubmittingRender) return;
 
     setIsSubmittingRender(true);
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
     setStudioStep('rendering');
     onStartRender({
       mode: 'bookSummary',
@@ -1084,7 +1086,10 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-white/10">
             <button
               type="button"
-              onClick={() => setStudioStep('inputs')}
+              onClick={() => {
+                if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+                setStudioStep('inputs');
+              }}
               className="w-full sm:w-auto rounded-xl border border-white/10 bg-white/5 px-6 py-3.5 text-sm font-bold text-slate-300 hover:bg-white/10 transition cursor-pointer"
             >
                Back to Media Setup
@@ -1108,6 +1113,64 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
               </span>
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Mobile Sticky Action Bar */}
+      {studioStep === 'inputs' && audioUrl && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden border-t border-white/10 bg-[#0B0D13]/95 backdrop-blur-xl px-4 py-3 flex items-center justify-between gap-3 shadow-2xl">
+          <div className="min-w-0">
+            <p className="text-[11px] font-black uppercase text-[#FFA000] tracking-wider truncate">
+              {bookTitle || 'Book Summary'}
+            </p>
+            <p className="text-[10px] text-zinc-400 font-bold">
+              {calculatedCredits} Credit{calculatedCredits > 1 ? 's' : ''} • 16:9
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleAnalyzeAndBuildStoryboard}
+            disabled={isAnalyzing}
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-4 py-2.5 text-xs font-black text-black shadow-lg shadow-[#FF5722]/30 active:scale-95 disabled:opacity-50"
+          >
+            {isAnalyzing ? (
+              <>
+                <Sparkles size={14} className="animate-spin text-black" />
+                <span>Analyzing...</span>
+              </>
+            ) : (
+              <>
+                <span>Build Storyboard</span>
+                <ArrowRight size={14} className="stroke-[2.5]" />
+              </>
+            )}
+          </button>
+        </div>
+      )}
+
+      {studioStep === 'storyboard' && plan && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden border-t border-white/10 bg-[#0B0D13]/95 backdrop-blur-xl px-4 py-3 flex items-center justify-between gap-3 shadow-2xl">
+          <button
+            type="button"
+            onClick={() => {
+              if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+              setStudioStep('inputs');
+            }}
+            className="text-xs font-bold text-zinc-400 hover:text-white px-2 py-1"
+          >
+            Back
+          </button>
+          <button
+            type="button"
+            onClick={handleStartFinalRender}
+            disabled={isSubmittingRender}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-4 py-2.5 text-xs font-black text-black shadow-lg shadow-[#FF5722]/30 active:scale-95 disabled:opacity-50"
+          >
+            <Film size={14} className="stroke-[2.5]" />
+            <span>
+              {isSubmittingRender ? 'Submitting...' : `Render 1080p (${calculatedCredits} Cr)`}
+            </span>
+          </button>
         </div>
       )}
     </div>

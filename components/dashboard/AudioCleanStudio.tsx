@@ -1050,6 +1050,29 @@ export function AudioCleanStudio({
           </div>
         </div>
       )}
+
+      {/* Mobile Sticky Action Bar */}
+      {audioCleanAnalysis && !isCleaning && !audioCleanResult && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden border-t border-white/10 bg-[#0B0D13]/95 backdrop-blur-xl px-4 py-3 flex items-center justify-between gap-3 shadow-2xl">
+          <div className="min-w-0">
+            <p className="text-[11px] font-black uppercase text-[#FFA000] tracking-wider truncate">
+              {selectedFile?.name || "Audio Cleanup"}
+            </p>
+            <p className="text-[10px] text-zinc-400 font-bold">
+              1 Credit • {detectedPauses.length} Pauses Cut
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onCleanAudio}
+            disabled={isCleaning}
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-4 py-2.5 text-xs font-black text-black shadow-lg shadow-[#FF5722]/30 active:scale-95 disabled:opacity-50"
+          >
+            <Sparkles size={14} className="text-black" />
+            <span>Clean Audio</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }

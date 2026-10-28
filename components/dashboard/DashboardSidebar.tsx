@@ -99,7 +99,7 @@ export default function DashboardSidebar({
             className="flex items-center gap-3 group"
           >
             <div className="p-1.5 rounded-xl bg-[#181820] border border-white/10 group-hover:border-orange-500/50 transition-colors shadow-sm">
-              <BrandLogo size="sm" iconOnly={true} />
+              <BrandLogo size="sm" iconOnly={true} href="" />
             </div>
             <div className="flex flex-col">
               <span className="text-sm font-black tracking-wider uppercase select-none">

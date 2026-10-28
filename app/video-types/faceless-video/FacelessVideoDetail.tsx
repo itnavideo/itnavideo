@@ -137,10 +137,11 @@ export default function FacelessVideoDetail() {
             </Link>
             <Link
               href="/dashboard?videoType=faceless-video"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 px-5 py-2.5 text-xs sm:text-sm font-extrabold text-white shadow-lg shadow-purple-500/25 transition hover:brightness-110 active:scale-95"
+              className="inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-extrabold text-white shadow-lg shadow-purple-500/25 transition hover:brightness-110 active:scale-95"
             >
-              <Sparkles size={16} />
-              <span>Create Faceless Video</span>
+              <Sparkles size={15} />
+              <span className="hidden sm:inline">Create Faceless Video</span>
+              <span className="sm:hidden">Create Video</span>
             </Link>
           </div>
         </div>

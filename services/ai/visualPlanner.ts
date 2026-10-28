@@ -570,6 +570,9 @@ export interface ImageToVideoSceneOutput {
     | 'pull-back';
   transition: 'hard-cut' | 'dissolve' | 'push-left' | 'push-right';
   objectPosition?: string;
+  storyBeat?: 'hook' | 'buildup' | 'climax' | 'resolution';
+  storyBeatTitle?: string;
+  speechEnergy?: 'high-energy' | 'steady-story' | 'ambient-pause';
 }
 
 export interface SemanticImageTimelineInput {
@@ -1473,175 +1476,175 @@ export async function planVisualIntelligenceTimeline(
       });
     }
 
-    // 1. Check for script excerpt anchors (Unicode-aware, with diagnostics)
-    const anchorMatches = matchScriptExcerptsToTimeline(sortedUserImages, words, safeTotalDuration, diagnostics);
+    const totalImages = sortedUserImages.length;
 
-    // 2. Build natural story beats based on sentence boundaries and narration pacing
-    const beats: Array<{ startSeconds: number; endSeconds: number; text: string; englishText?: string }> = [];
+    // Compute strictly gapless split points for each unique uploaded image:
+    // 1. Zero random images: Strictly uses the user's uploaded images in sequence
+    // 2. Zero repetition: Each uploaded image gets exactly ONE dedicated scene
+    // 3. Zero empty space: 100% contiguous from 0.00s to safeTotalDuration
+    const splitPoints: number[] = [0];
 
-    if (words.length > 0) {
-      let currentStart = 0;
-      let currentWords: string[] = [];
+    if (totalImages > 1) {
+      const targetDurationPerImage = safeTotalDuration / totalImages;
+      // Allow minor speech-sync jitter (up to 1.5s or 35% of scene duration) to cut at natural word pauses
+      const maxJitter = Math.min(targetDurationPerImage * 0.35, 1.5);
 
-      for (let i = 0; i < words.length; i++) {
-        const w = words[i];
-        const wordText = String(w.word || '').trim();
-        const wordStart = Number(w.start) || 0;
-        const wordEnd = Number(w.end) || wordStart + 0.3;
+      for (let k = 1; k < totalImages; k++) {
+        const idealBoundary = k * targetDurationPerImage;
+        let chosenCut = idealBoundary;
+        let bestScore = Infinity;
 
-        if (currentWords.length === 0) currentStart = Math.min(currentStart, wordStart);
-        currentWords.push(wordText);
+        if (words.length > 0) {
+          for (let wIdx = 0; wIdx < words.length - 1; wIdx++) {
+            const w = words[wIdx];
+            const nextW = words[wIdx + 1];
+            const wEnd = Number(w.end) || 0;
+            const pauseDur = (Number(nextW.start) || wEnd) - wEnd;
+            const dist = Math.abs(wEnd - idealBoundary);
 
-        const durSoFar = wordEnd - currentStart;
-        const isLastWord = i === words.length - 1;
-        const isSentenceBreak = /[.!?।|]$/.test(wordText) || (i < words.length - 1 && (Number(words[i + 1].start) - wordEnd) > 0.4);
-
-        // Dynamic Duration Boundaries: 2.0s minimum, 6.5s maximum
-        if ((durSoFar >= 2.0 && isSentenceBreak) || durSoFar >= 6.5 || isLastWord) {
-          const beatEnd = isLastWord ? Math.max(wordEnd, safeTotalDuration) : wordEnd;
-          const beatOriginalText = currentWords.join(' ');
-
-          // Find overlapping English semantic translation if available
-          let beatEnglishText = beatOriginalText;
-          if (englishSegments.length > 0) {
-            const matchedSegments = englishSegments.filter(
-              (es) => es.end >= currentStart && es.start <= beatEnd
-            );
-            if (matchedSegments.length > 0) {
-              beatEnglishText = matchedSegments.map((es) => es.englishText).join(' ');
-            }
-          }
-
-          beats.push({
-            startSeconds: currentStart,
-            endSeconds: beatEnd,
-            text: beatOriginalText,
-            englishText: beatEnglishText,
-          });
-          currentStart = wordEnd;
-          currentWords = [];
-        }
-      }
-    } else {
-      // Fallback if no words provided
-      const targetBeatDuration = Math.max(3.0, Math.min(6.0, safeTotalDuration / sortedUserImages.length));
-      const beatCount = Math.max(1, Math.ceil(safeTotalDuration / targetBeatDuration));
-      const step = safeTotalDuration / beatCount;
-      for (let i = 0; i < beatCount; i++) {
-        beats.push({
-          startSeconds: i * step,
-          endSeconds: i === beatCount - 1 ? safeTotalDuration : (i + 1) * step,
-          text: `Scene Beat ${i + 1}`,
-          englishText: `Scene Beat ${i + 1}`,
-        });
-      }
-    }
-
-    // Ensure gapless tiling (0 to safeTotalDuration)
-    for (let i = 0; i < beats.length - 1; i++) {
-      beats[i + 1].startSeconds = beats[i].endSeconds;
-    }
-    if (beats.length > 0) {
-      beats[0].startSeconds = 0;
-      beats[beats.length - 1].endSeconds = safeTotalDuration;
-    }
-
-    // 3. Assign images following story order, script anchors, and recurring character continuity
-    const scenes: ImageToVideoSceneOutput[] = [];
-    let lastMotion: ImageToVideoSceneOutput['cameraMotion'] = 'zoom-in';
-
-    for (let idx = 0; idx < beats.length; idx++) {
-      const beat = beats[idx];
-      const semanticContext = beat.englishText || beat.text;
-      let chosenImg = sortedUserImages[idx % sortedUserImages.length];
-
-      // Check if an image was anchored via user script excerpt (prioritize maximum overlap)
-      let anchoredMatchFound = false;
-      let maxOverlap = 0;
-      for (const [imgIdx, timing] of anchorMatches.entries()) {
-        const img = sortedUserImages[imgIdx];
-        if (img && timing.startSeconds < beat.endSeconds && timing.endSeconds > beat.startSeconds) {
-          const overlap = Math.min(timing.endSeconds, beat.endSeconds) - Math.max(timing.startSeconds, beat.startSeconds);
-          if (overlap > maxOverlap) {
-            maxOverlap = overlap;
-            chosenImg = img;
-            anchoredMatchFound = true;
-          }
-        }
-      }
-
-      // If no explicit anchor, select image intelligently
-      if (!anchoredMatchFound) {
-        if (idx < sortedUserImages.length) {
-          // Strictly preserve user's initial sequence order (Image 1, Image 2, Image 3...)
-          chosenImg = sortedUserImages[idx];
-        } else {
-          // More beats than uploaded images: reuse images based on character/semantic continuity
-          let bestReuseImg = sortedUserImages[idx % sortedUserImages.length];
-          let bestReuseScore = -1;
-
-          for (const candImg of sortedUserImages) {
-            const aiData = analyzedMap.get(candImg.url);
-            if (aiData) {
-              const score = scoreScriptToAnalyzedImageMatch(semanticContext, aiData);
-              if (score > bestReuseScore && score >= 20) {
-                bestReuseScore = score;
-                bestReuseImg = candImg;
+            if (dist <= maxJitter) {
+              const hasPunctuation = /[.!?।,;|]/.test(String(w.word || ''));
+              // Lower score is better: prioritize punctuation breaks and natural breath pauses
+              const score = dist - (hasPunctuation ? 0.6 : 0) - (pauseDur > 0.2 ? 0.4 : 0);
+              if (score < bestScore) {
+                bestScore = score;
+                chosenCut = wEnd;
               }
             }
           }
-          chosenImg = bestReuseImg;
         }
+
+        // Guarantee minimum scene duration (at least 0.8s) and forward progression
+        const prevPoint = splitPoints[splitPoints.length - 1];
+        const minGap = Math.max(0.8, targetDurationPerImage * 0.4);
+        if (chosenCut - prevPoint < minGap) {
+          chosenCut = prevPoint + minGap;
+        }
+        // Don't overshoot the total duration
+        if (chosenCut >= safeTotalDuration - 0.5) {
+          chosenCut = safeTotalDuration - (totalImages - k) * 0.5;
+        }
+
+        splitPoints.push(Math.round(chosenCut * 100) / 100);
       }
+    }
+    splitPoints.push(Math.round(safeTotalDuration * 100) / 100);
 
-      // Inspect image metadata for subject-aware framing
-      const imgAi = analyzedMap.get(chosenImg.url);
-      const textLower = semanticContext.toLowerCase();
+    // Build exactly totalImages scenes with 1:1 image mapping
+    const scenes: ImageToVideoSceneOutput[] = [];
+    let lastMotion: ImageToVideoSceneOutput['cameraMotion'] = 'zoom-in';
 
-      // Subject-Aware Framing: anchor upper-third for people/faces, center for graphics/objects
+    for (let idx = 0; idx < totalImages; idx++) {
+      const startSec = splitPoints[idx];
+      const endSec = splitPoints[idx + 1];
+      const img = sortedUserImages[idx];
+
+      // Extract spoken narration text during this scene's window
+      const sceneWords = words.filter((w) => {
+        const ws = Number(w.start) || 0;
+        return ws >= startSec && ws < endSec;
+      });
+      const sceneText = sceneWords.map((w) => w.word).join(' ').trim() || `Scene ${idx + 1}`;
+      const textLower = sceneText.toLowerCase();
+
+      // Subject-aware positioning: Face/person upper 30%, Chart/graph centered
+      const imgAi = analyzedMap.get(img.url);
       let objectPosition = 'center 35%';
-      if (imgAi?.visualCategory === 'charts_data' || imgAi?.visualCategory === 'workspace_office' || /chart|data|graph|table|document|screenshot/i.test(textLower)) {
+      if (imgAi?.visualCategory === 'charts_data' || imgAi?.visualCategory === 'workspace_office' || /chart|data|graph|table/i.test(textLower)) {
         objectPosition = 'center center';
       } else if (imgAi?.subjects && imgAi.subjects.length > 0) {
         objectPosition = 'center 30%';
       }
 
-      // Contextual Camera Motion Selection
-      const isTensionOrCrisis = imgAi?.emotionalValence === 'crisis_negative' || /struggle|crisis|problem|danger|loss|debt|fail|fear|shock|hard/i.test(textLower);
-      const isSuccessOrPayoff = imgAi?.emotionalValence === 'triumphant_positive' || /success|win|growth|profit|million|trophy|wealth|celebrate|great/i.test(textLower);
+      // ── INTELLIGENT SPEECH-PACED ENERGY ANALYSIS ──
+      const sceneDuration = Math.max(0.5, endSec - startSec);
+      const wordCount = sceneWords.length;
+      const wordsPerSecond = wordCount / sceneDuration;
+      const hasExcitementWords = /(!|\b(secret|never|shocking|amazing|critical|massive|suddenly|huge|unbelievable|danger|crisis|insane|vital|boom|key|essential|listen|look)\b)/i.test(sceneText);
 
-      let selectedMotion: ImageToVideoSceneOutput['cameraMotion'] = 'zoom-in';
-      if (isTensionOrCrisis) {
-        selectedMotion = idx % 2 === 0 ? 'push-in' : 'zoom-in';
-      } else if (isSuccessOrPayoff) {
-        selectedMotion = idx % 2 === 0 ? 'zoom-out' : 'pull-back';
-      } else if (/journey|progress|future|road|path|walk|forward/i.test(textLower)) {
-        selectedMotion = idx % 2 === 0 ? 'pan-right' : 'diagonal-tl-br';
-      } else if (/history|past|background|skyline|landscape|view/i.test(textLower)) {
-        selectedMotion = idx % 2 === 0 ? 'pan-left' : 'pan-up';
-      } else {
-        selectedMotion = DIVERSE_MOTIONS[idx % DIVERSE_MOTIONS.length];
+      let speechEnergy: 'high-energy' | 'steady-story' | 'ambient-pause' = 'steady-story';
+      if (wordsPerSecond > 2.8 || hasExcitementWords || idx === 0) {
+        speechEnergy = 'high-energy';
+      } else if (wordsPerSecond < 1.4 && wordCount <= 2) {
+        speechEnergy = 'ambient-pause';
       }
 
-      // Prevent consecutive motion repetition
-      if (selectedMotion === lastMotion) {
-        const nextIdx: number = (DIVERSE_MOTIONS.indexOf(selectedMotion) + 1) % DIVERSE_MOTIONS.length;
-        selectedMotion = DIVERSE_MOTIONS[nextIdx];
+      // ── AI STORY ARC & SPEECH-PACED CAMERA ORCHESTRATION ──
+      const ratio = idx / Math.max(1, totalImages);
+      let storyBeat: 'hook' | 'buildup' | 'climax' | 'resolution' = 'buildup';
+      let storyBeatTitle = 'Story Buildup';
+      let selectedMotion: ImageToVideoSceneOutput['cameraMotion'] = DIVERSE_MOTIONS[idx % DIVERSE_MOTIONS.length];
+      let selectedTransition: ImageToVideoSceneOutput['transition'] = DIVERSE_TRANSITIONS[idx % DIVERSE_TRANSITIONS.length];
+
+      if (idx === 0 || (startSec < 4.5 && ratio < 0.2)) {
+        // 1. HOOK: High-energy punch-in to lock viewer retention
+        storyBeat = 'hook';
+        storyBeatTitle = 'Hook Intro';
+        selectedMotion = 'push-in';
+        selectedTransition = 'dissolve';
+      } else if (ratio >= 0.65 && ratio < 0.85) {
+        // 2. CLIMAX: Emotional peak and major revelation -> Dynamic punch-in
+        storyBeat = 'climax';
+        storyBeatTitle = 'Peak Climax';
+        selectedMotion = 'push-in';
+        selectedTransition = 'push-left';
+      } else if (ratio >= 0.85 || idx === totalImages - 1) {
+        // 3. RESOLUTION: Final takeaway -> Slow settling pull-back
+        storyBeat = 'resolution';
+        storyBeatTitle = 'Final Resolution';
+        selectedMotion = 'pull-back';
+        selectedTransition = 'dissolve';
+      } else {
+        // 4. BUILDUP: Responds organically to speech energy!
+        storyBeat = 'buildup';
+        storyBeatTitle = 'Story Buildup';
+        if (speechEnergy === 'high-energy') {
+          // Excitement or punch phrase -> Dynamic punch-in zoom
+          selectedMotion = 'zoom-in';
+          selectedTransition = 'push-left';
+        } else if (speechEnergy === 'ambient-pause') {
+          // Thoughtful pause or reflection -> Slow ambient pull-back
+          selectedMotion = 'zoom-out';
+          selectedTransition = 'dissolve';
+        } else {
+          // Explaining background & narrative context -> Gentle slow panoramic glide
+          selectedMotion = idx % 2 === 0 ? 'pan-left' : 'pan-right';
+          selectedTransition = 'dissolve';
+        }
+      }
+
+      if (selectedMotion === lastMotion && idx > 0) {
+        selectedMotion = selectedMotion === 'pan-left' ? 'pan-right' : 'zoom-in';
       }
       lastMotion = selectedMotion;
 
       scenes.push({
         id: `scene-${String(idx + 1).padStart(2, '0')}`,
-        startSeconds: Math.round(beat.startSeconds * 100) / 100,
-        endSeconds: Math.round(beat.endSeconds * 100) / 100,
-        imageUrl: chosenImg.url,
+        startSeconds: startSec,
+        endSeconds: endSec,
+        imageUrl: img.url,
         sceneType: 'image' as const,
-        text: beat.text,
-        title: chosenImg.title || `Scene ${idx + 1}`,
+        text: sceneText,
+        title: img.title || `${storyBeatTitle} (#${idx + 1})`,
         cameraMotion: selectedMotion,
-        transition: DIVERSE_TRANSITIONS[idx % DIVERSE_TRANSITIONS.length],
+        transition: selectedTransition,
         objectPosition,
+        storyBeat,
+        storyBeatTitle,
+        speechEnergy,
       });
+    }
+
+    // Strict 100% gapless timeline verification:
+    // 1. Scene 1 always starts at 0.0
+    // 2. Each scene starts exactly where previous scene ends (0 black gaps)
+    // 3. Final scene ends exactly at safeTotalDuration
+    if (scenes.length > 0) {
+      scenes[0].startSeconds = 0;
+      for (let i = 0; i < scenes.length - 1; i++) {
+        scenes[i + 1].startSeconds = scenes[i].endSeconds;
+      }
+      scenes[scenes.length - 1].endSeconds = safeTotalDuration;
     }
 
     return scenes;

@@ -525,21 +525,15 @@ export default function DashboardClient() {
             /* Default Studios Hub View */
             <div className="space-y-10 animate-fadeIn">
               
-              {/*  HERO SHOWCASE BANNER: PURE WHITE CENTERED CREATOR STUDIO HERO  */}
+              {/*  HERO SHOWCASE BANNER: FULL-WIDTH SEAMLESS PURE WHITE  */}
               {searchQuery === "" && activeCategory === "all" && (
-                <div className="relative group">
-                  {/* Subtle Vibrant Ambient Glow behind white card */}
-                  <div className="absolute -inset-1.5 bg-gradient-to-r from-[#FF5722]/25 via-amber-400/20 to-purple-600/20 rounded-[36px] blur-xl opacity-75 group-hover:opacity-100 transition duration-500 pointer-events-none" />
-
-                  {/* Pure White Container with Centered Big Hero Image */}
-                  <div className="relative overflow-hidden rounded-[32px] bg-white border border-slate-200/90 shadow-2xl p-3 sm:p-6 lg:p-8 flex items-center justify-center">
-                    <div className="w-full max-w-5xl mx-auto flex items-center justify-center">
-                      <img
-                        src="https://res.cloudinary.com/dhouh9idx/image/upload/v1793025671/AI-Powered_Creator_Studio_w7mncx.png"
-                        alt="Itnavideo AI-Powered Creator Studio"
-                        className="w-full h-auto max-h-[520px] object-contain rounded-2xl block"
-                      />
-                    </div>
+                <div className="-mx-4 sm:-mx-6 lg:-mx-8 -mt-8 md:-mt-10 mb-8 sm:mb-10 w-[calc(100%+2rem)] sm:w-[calc(100%+3rem)] lg:w-[calc(100%+4rem)] bg-white border-b border-slate-200/90 shadow-sm py-6 sm:py-10 px-4 sm:px-8 flex items-center justify-center overflow-hidden">
+                  <div className="w-full max-w-5xl mx-auto flex items-center justify-center">
+                    <img
+                      src="https://res.cloudinary.com/dhouh9idx/image/upload/v1793025671/AI-Powered_Creator_Studio_w7mncx.png"
+                      alt="Itnavideo AI-Powered Creator Studio"
+                      className="w-full h-auto max-h-[520px] object-contain block"
+                    />
                   </div>
                 </div>
               )}
@@ -645,17 +639,17 @@ export default function DashboardClient() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
                       <Link
                         href="/dashboard/faceless-video"
-                        className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] to-[#FFA000] px-3.5 py-1.5 text-xs font-bold text-white shadow-xs hover:brightness-105 transition"
+                        className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] to-[#FFA000] px-4 py-2 sm:py-1.5 text-xs font-bold text-white shadow-xs hover:brightness-105 transition"
                       >
                         <span>Faceless Video (16:9)</span>
-                        <ChevronRight size={12} />
+                        <ChevronRight size={13} />
                       </Link>
                       <Link
                         href="/dashboard/auto-caption"
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 px-3.5 py-1.5 text-xs font-bold text-zinc-300 hover:text-white transition"
+                        className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 px-4 py-2 sm:py-1.5 text-xs font-bold text-zinc-300 hover:text-white transition"
                       >
                         <span>Auto Caption (9:16)</span>
                       </Link>
@@ -752,7 +746,7 @@ export default function DashboardClient() {
               {/* SECTION 1: 16:9 VIDEO TYPES (FIRST ON DASHBOARD)              */}
               {/*  */}
               {show169Section && (
-                <div className="rounded-[32px] border border-white/10 bg-[#101014] p-6 sm:p-8 backdrop-blur-2xl shadow-2xl shadow-black/60 relative overflow-hidden space-y-6">
+                <div className="rounded-[24px] sm:rounded-[32px] border border-white/10 bg-[#101014] p-4 sm:p-8 backdrop-blur-2xl shadow-2xl shadow-black/60 relative overflow-hidden space-y-6">
                   
                   {/* Clean Spacious Header Banner */}
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/10 pb-5">
@@ -865,7 +859,7 @@ export default function DashboardClient() {
               {/* SECTION 2: 9:16 ALL VIDEO CLIPS / SHORTS (SECOND ON DASHBOARD) */}
               {/*  */}
               {show916Section && (
-                <div className="rounded-[32px] border border-white/10 bg-[#101014] p-6 sm:p-8 backdrop-blur-2xl shadow-2xl shadow-black/60 relative overflow-hidden space-y-6">
+                <div className="rounded-[24px] sm:rounded-[32px] border border-white/10 bg-[#101014] p-4 sm:p-8 backdrop-blur-2xl shadow-2xl shadow-black/60 relative overflow-hidden space-y-6">
                   
                   {/* Clean Spacious Header Banner */}
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/10 pb-5">
@@ -1008,45 +1002,85 @@ export default function DashboardClient() {
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-4">
+                  <div className="grid grid-cols-1 gap-6">
                     {filteredUtility.map((item) => {
                       const Icon = item.icon;
+                      const imageSrc = item.imageCard || "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946356/audio_cleaner_pipcxj.png";
+
                       return (
                         <Link
                           key={item.id}
                           href={item.slug}
-                          className="group relative flex flex-col md:flex-row md:items-center justify-between gap-5 rounded-2xl border border-white/10 bg-[#15151D] hover:bg-[#1C1C26] p-5 sm:p-6 hover:border-teal-500/50 transition-all duration-300 active:scale-[0.99] shadow-md hover:shadow-2xl hover:shadow-teal-500/15 cursor-pointer"
+                          className="group relative flex flex-col lg:flex-row lg:items-center justify-between gap-6 rounded-[28px] border border-white/10 bg-[#15151D] hover:bg-[#1C1C26] p-4 sm:p-6 hover:border-teal-500/60 transition-all duration-300 active:scale-[0.99] shadow-xl hover:shadow-2xl hover:shadow-teal-500/15 cursor-pointer overflow-hidden"
                         >
-                          <div className="flex items-center gap-4 min-w-0 flex-1">
-                            <div className={`flex h-13 w-13 shrink-0 items-center justify-center rounded-2xl ${item.iconBgClass} ${item.iconColorClass} group-hover:scale-105 transition-transform shadow-sm`}>
-                              <Icon size={24} />
+                          {/* Left: 16:9 Studio Preview Image */}
+                          <div className="relative aspect-[16/9] w-full lg:w-96 shrink-0 rounded-2xl bg-[#0B0B0E] border border-white/10 overflow-hidden shadow-inner group-hover:border-teal-500/50 transition-colors">
+                            <img
+                              src={imageSrc}
+                              alt={item.title}
+                              loading="eager"
+                              decoding="async"
+                              className="h-full w-full object-cover opacity-95 group-hover:scale-105 transition-transform duration-500"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
+
+                            {/* Badge Tag on Image */}
+                            {item.badge && (
+                              <div className="absolute top-2.5 right-2.5 z-10">
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-black/80 border border-teal-500/40 text-teal-300 backdrop-blur-md shadow-sm">
+                                  {item.badge}
+                                </span>
+                              </div>
+                            )}
+
+                            {/* Center Play / Audio Button on Hover */}
+                            <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40 backdrop-blur-[2px]">
+                              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-teal-500 to-emerald-400 text-black shadow-xl shadow-teal-500/40 scale-90 group-hover:scale-100 transition-transform">
+                                <Play size={20} className="fill-current text-black ml-0.5" />
+                              </div>
                             </div>
+                          </div>
+
+                          {/* Middle: Title, Description, & 3 Core Verified Feature Pills */}
+                          <div className="flex flex-col flex-1 justify-between gap-4">
                             <div>
-                              <div className="text-base font-black text-white tracking-tight group-hover:text-[#FFA000] transition-colors">
-                                {item.title}
+                              <div className="flex items-center gap-3 mb-2">
+                                <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${item.iconBgClass} ${item.iconColorClass}`}>
+                                  <Icon size={18} />
+                                </div>
+                                <h3 className="text-lg sm:text-xl font-black text-white tracking-tight group-hover:text-teal-300 transition-colors">
+                                  {item.title}
+                                </h3>
                               </div>
-                              <div className="text-xs text-zinc-400 mt-1 max-w-xl">
+
+                              <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed max-w-2xl">
                                 {item.description}
-                              </div>
+                              </p>
+                            </div>
+
+                            {/* Feature Badges */}
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="px-2.5 py-1 rounded-lg bg-teal-500/10 border border-teal-500/30 text-[11px] font-semibold text-teal-300">
+                                -14dB Noise Isolation
+                              </span>
+                              <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] font-semibold text-zinc-300">
+                                Auto Retake Cut
+                              </span>
+                              <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] font-semibold text-zinc-300">
+                                EBU R128 Loudness
+                              </span>
                             </div>
                           </div>
 
-                          {/* 3 Core Verified Feature Pills */}
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] font-semibold text-zinc-300">
-                              -14dB Noise Isolation
+                          {/* Right / Bottom: Price & Open CTA Button */}
+                          <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3 pt-4 lg:pt-0 border-t lg:border-t-0 border-white/10 shrink-0">
+                            <span className="text-[11px] font-mono font-bold text-teal-400 px-2.5 py-1 rounded-lg bg-teal-500/10 border border-teal-500/20">
+                              1 Credit / Video
                             </span>
-                            <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] font-semibold text-zinc-300">
-                              Auto Retake Cut
-                            </span>
-                            <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] font-semibold text-zinc-300">
-                              EBU R128 Loudness
-                            </span>
-                          </div>
-
-                          <div className="inline-flex items-center gap-1.5 font-bold text-white text-xs bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-4 py-2 rounded-xl shadow-md shadow-orange-500/20 group-hover:translate-x-0.5 transition-all shrink-0">
-                            <span>Open Audio Studio</span>
-                            <ChevronRight size={14} />
+                            <div className="inline-flex items-center gap-1.5 font-bold text-white text-xs bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-5 py-2.5 rounded-xl shadow-lg shadow-orange-500/25 group-hover:translate-x-0.5 transition-all">
+                              <span>Open Audio Studio</span>
+                              <ChevronRight size={14} />
+                            </div>
                           </div>
                         </Link>
                       );

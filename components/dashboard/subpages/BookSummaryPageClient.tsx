@@ -254,6 +254,9 @@ export default function BookSummaryPageClient() {
     const bookTitle = payload.bookTitle || "Book Summary";
 
     try {
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
       setRenderStartedAt(Date.now());
       setElapsedSeconds(0);
       setJobStatus({
@@ -452,6 +455,9 @@ export default function BookSummaryPageClient() {
 
   //  Reset 
   const handleReset = () => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
     setJobStatus({ state: "idle" });
     setRenderStartedAt(null);
     setElapsedSeconds(0);
@@ -633,7 +639,7 @@ export default function BookSummaryPageClient() {
         {activeTab === "history" && (
           <section className="space-y-5">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-black text-slate-900">Recent Book Summary Renders</h2>
+              <h2 className="text-lg font-black text-white">Recent Book Summary Renders</h2>
               <button
                 type="button"
                 onClick={() => setActiveTab("studio")}
@@ -644,16 +650,16 @@ export default function BookSummaryPageClient() {
             </div>
 
             {recentRenders.length === 0 ? (
-              <div className="rounded-[28px] border border-slate-200 bg-white py-16 text-center">
-                <BookOpen size={40} className="mx-auto text-slate-300 mb-4" />
-                <p className="text-sm font-bold text-slate-500">No renders yet.</p>
-                <p className="text-xs text-slate-400 mt-1">
+              <div className="rounded-[28px] border border-white/10 bg-[#111624] py-16 text-center">
+                <BookOpen size={40} className="mx-auto text-zinc-500 mb-4" />
+                <p className="text-sm font-bold text-zinc-300">No renders yet.</p>
+                <p className="text-xs text-zinc-500 mt-1">
                   Your completed Book Summary videos will appear here for 48 hours.
                 </p>
                 <button
                   type="button"
                   onClick={() => setActiveTab("studio")}
-                  className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] to-[#FF7043] px-5 py-2.5 text-sm font-black text-black shadow-lg shadow-[#FF5722]/25 transition hover:brightness-110 active:scale-95"
+                  className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-5 py-2.5 text-sm font-black text-black shadow-lg shadow-[#FF5722]/25 transition hover:brightness-110 active:scale-95"
                 >
                   <Sparkles size={14} />
                   Create Your First Book Summary
@@ -671,10 +677,10 @@ export default function BookSummaryPageClient() {
                   return (
                     <div
                       key={render.id}
-                      className="rounded-[28px] border border-slate-200 bg-white p-5 space-y-4 hover:border-[#FF5722]/40 hover:shadow-lg hover:shadow-[#FF5722]/10 transition-all duration-300"
+                      className="rounded-[28px] border border-white/10 bg-[#111624] p-5 space-y-4 hover:border-[#FF5722]/40 hover:shadow-lg hover:shadow-[#FF5722]/10 transition-all duration-300"
                     >
                       {/* Thumbnail placeholder */}
-                      <div className="aspect-video w-full rounded-2xl bg-slate-100 flex items-center justify-center overflow-hidden">
+                      <div className="aspect-video w-full rounded-2xl bg-[#090D16] flex items-center justify-center overflow-hidden border border-white/5">
                         {render.outputFile && !isExpired ? (
                           <video
                             src={render.outputFile}
@@ -689,13 +695,13 @@ export default function BookSummaryPageClient() {
                             }}
                           />
                         ) : (
-                          <BookOpen size={32} className="text-slate-300" />
+                          <BookOpen size={32} className="text-zinc-600" />
                         )}
                       </div>
 
                       <div>
-                        <p className="text-sm font-black text-slate-900 truncate">{render.title}</p>
-                        <p className="text-xs text-slate-400 mt-0.5">
+                        <p className="text-sm font-black text-white truncate">{render.title}</p>
+                        <p className="text-xs text-zinc-400 mt-0.5">
                           {new Date(render.createdAt).toLocaleDateString("en-US", {
                             month: "short",
                             day: "numeric",
@@ -711,7 +717,7 @@ export default function BookSummaryPageClient() {
                         </div>
                       ) : (
                         <div className="flex items-center justify-between">
-                          <span className="text-xs text-slate-400">
+                          <span className="text-xs text-zinc-400">
                             Expires in {expiresInHours}h
                           </span>
                           <button
@@ -723,7 +729,7 @@ export default function BookSummaryPageClient() {
                               )
                             }
                             disabled={downloadingUrl === render.outputFile}
-                            className="inline-flex items-center gap-1.5 rounded-2xl bg-gradient-to-r from-[#FF5722] to-[#FF7043] px-3.5 py-1.5 text-xs font-black text-black shadow-sm shadow-[#FF5722]/20 transition hover:brightness-110 active:scale-95 disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-3.5 py-1.5 text-xs font-black text-black shadow-sm shadow-[#FF5722]/20 transition hover:brightness-110 active:scale-95 disabled:opacity-50"
                           >
                             <Download size={12} />
                             {downloadingUrl === render.outputFile ? "Downloading..." : "Download"}

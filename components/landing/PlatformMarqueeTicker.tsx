@@ -132,8 +132,8 @@ export default function PlatformMarqueeTicker() {
   return (
     <div className="relative w-full overflow-hidden border-y border-slate-200/80 bg-white py-3.5">
       {/* Subtle edge fade masks */}
-      <div className="pointer-events-none absolute left-0 top-0 z-20 h-full w-28 bg-gradient-to-r from-white via-white/80 to-transparent" />
-      <div className="pointer-events-none absolute right-0 top-0 z-20 h-full w-28 bg-gradient-to-l from-white via-white/80 to-transparent" />
+      <div className="pointer-events-none absolute left-0 top-0 z-20 h-full w-8 sm:w-28 bg-gradient-to-r from-white via-white/80 to-transparent" />
+      <div className="pointer-events-none absolute right-0 top-0 z-20 h-full w-8 sm:w-28 bg-gradient-to-l from-white via-white/80 to-transparent" />
 
       <div 
         className="flex w-max animate-marquee hover:pause gap-3 whitespace-nowrap"

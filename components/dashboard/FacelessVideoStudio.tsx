@@ -544,9 +544,9 @@ export function FacelessVideoStudio({
         </div>
       </div>
 
-      {/* ── NOTIFICATION / ALERT BAR ── */}
+      {/* ── FLOATING NOTIFICATION / TOAST (Fixed position prevents layout jumps) ── */}
       {showReviewPopup && (
-        <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 flex items-start justify-between gap-3 text-emerald-200 text-xs shadow-md animate-in fade-in slide-in-from-top-2 duration-300">
+        <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50 max-w-sm rounded-2xl border border-emerald-500/40 bg-[#0E1526]/95 backdrop-blur-xl p-4 flex items-start justify-between gap-3 text-emerald-200 text-xs shadow-2xl animate-in fade-in slide-in-from-bottom-3 duration-300">
           <div className="flex items-start gap-3">
             <CheckCircle2 size={18} className="text-emerald-400 shrink-0 mt-0.5" />
             <div>
@@ -554,7 +554,7 @@ export function FacelessVideoStudio({
                 Transcription ready!
               </p>
               <p className="text-xs text-emerald-100/90 mt-0.5 leading-relaxed">
-                Review your script on the right and adjust any text if needed. Audio timestamps stay locked.
+                Review your script and adjust any text if needed. Audio timestamps stay locked.
               </p>
             </div>
           </div>
@@ -644,7 +644,7 @@ export function FacelessVideoStudio({
               </span>
             </label>
           ) : (
-            <div className="rounded-2xl border border-white/[0.08] bg-[#141519] p-5 space-y-4 flex-1 flex flex-col justify-between">
+            <div className="rounded-2xl border border-white/[0.08] bg-[#141519] p-5 space-y-4 flex-1 flex flex-col justify-between min-h-[220px]">
               <div>
                 <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
@@ -672,7 +672,7 @@ export function FacelessVideoStudio({
               </div>
 
               {/* Audio progress & playback controls */}
-              <div className="space-y-3 pt-2">
+              <div className="space-y-3 pt-2 min-h-[72px]">
                 {audioDurationSec > 0 && (
                   <div className="space-y-1.5">
                     <div className="h-1.5 rounded-full bg-white/[0.08] overflow-hidden">
@@ -1193,6 +1193,41 @@ export function FacelessVideoStudio({
             )}
           </button>
         </div>
+      </div>
+
+      {/* ── MOBILE-ONLY DOCKED GENERATE ACTION BAR (Fixed Bottom for Instant Access) ── */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden p-3 bg-[#0B0F19]/95 backdrop-blur-xl border-t border-white/10 shadow-2xl flex items-center justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-bold text-white truncate">
+            {selectedFile ? selectedFile.name : "Select Voiceover Audio"}
+          </p>
+          <p className="text-[10px] text-zinc-400 mt-0.5">
+            {audioDurationSec > 0 ? formattedDuration : "Up to 5 min"} • 1 Credit/Min
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={handleGenerateVideo}
+          disabled={!selectedFile || isPlanning || isGenerating || !transcriptText.trim()}
+          className="shrink-0 px-4 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-400 text-black font-black text-xs shadow-lg shadow-orange-500/20 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer inline-flex items-center gap-1.5"
+        >
+          {isGenerating ? (
+            <>
+              <RefreshCw size={12} className="animate-spin" />
+              <span>Rendering...</span>
+            </>
+          ) : isPlanning ? (
+            <>
+              <RefreshCw size={12} className="animate-spin" />
+              <span>Transcribing...</span>
+            </>
+          ) : (
+            <>
+              <Sparkles size={13} />
+              <span>Generate 1080p</span>
+            </>
+          )}
+        </button>
       </div>
     </div>
   );

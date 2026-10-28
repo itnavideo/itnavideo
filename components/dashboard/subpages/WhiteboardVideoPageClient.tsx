@@ -294,6 +294,10 @@ export default function WhiteboardVideoPage() {
     setIsSubmitting(true);
 
     try {
+      if (typeof window !== "undefined") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
       setJobStatus({
         state: "uploading",
         message: "Uploading script voiceover securely to secure cloud container...",
@@ -357,7 +361,7 @@ export default function WhiteboardVideoPage() {
       });
 
       let attempts = 0;
-      const MAX_ATTEMPTS = 150;
+      const MAX_ATTEMPTS = 400; // ~20 minutes polling window matching AWS Lambda duration
 
       const pollInterval = setInterval(async () => {
         attempts++;
@@ -479,55 +483,56 @@ export default function WhiteboardVideoPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#090A0F] px-4 py-8 sm:px-6 sm:py-10 text-white">
-      <div className="mx-auto max-w-6xl space-y-8">
+    <main className="min-h-screen bg-[#090A0F] px-3.5 py-4 sm:px-6 sm:py-8 text-white">
+      <div className="mx-auto max-w-6xl space-y-5 sm:space-y-8">
         {/* Navigation & Header */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/10 pb-4">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-white/10 pb-3 sm:pb-4">
+          <div className="flex items-center justify-between sm:justify-start gap-3 w-full sm:w-auto">
             <BrandLogo size="sm" variant="dark" />
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-zinc-400 hover:text-[#FFA000] transition border-l border-white/10 pl-4"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-zinc-400 hover:text-[#FFA000] transition sm:border-l sm:border-white/10 sm:pl-4"
             >
               <ArrowLeft size={14} />
-              <span>Back to Studio Dashboard</span>
+              <span className="sm:hidden">Dashboard</span>
+              <span className="hidden sm:inline">Back to Studio Dashboard</span>
             </Link>
           </div>
 
           {/* User Credits & Navigation Switcher */}
-          <div className="flex items-center gap-3 self-start sm:self-auto">
+          <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 w-full sm:w-auto">
             {billingEntitlement && (
-              <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-[#111218] px-4 py-2 text-xs shadow-sm">
-                <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              <div className="flex items-center gap-1.5 sm:gap-2 rounded-xl sm:rounded-2xl border border-white/10 bg-[#111218] px-2.5 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs shadow-sm">
+                <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span className="font-bold text-zinc-300">
-                  {billingEntitlement.usage ? ` Balance: ${billingEntitlement.usage.remaining} Credits` : "Active"}
+                  {billingEntitlement.usage ? `${billingEntitlement.usage.remaining} Credits` : "Active"}
                 </span>
               </div>
             )}
 
-            <div className="flex rounded-2xl border border-white/10 bg-[#111218] p-1 shadow-sm">
+            <div className="flex rounded-xl sm:rounded-2xl border border-white/10 bg-[#111218] p-1 shadow-sm">
               <button
                 type="button"
                 onClick={() => setActiveTab("studio")}
-                className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
+                className={`inline-flex items-center gap-1.5 rounded-lg sm:rounded-xl px-2.5 sm:px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
                   activeTab === "studio"
                     ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black font-black shadow-md shadow-[#FF5722]/20"
                     : "text-zinc-400 hover:text-white"
                 }`}
               >
-                <LayoutGrid size={14} />
+                <LayoutGrid size={13} />
                 <span>Studio</span>
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("history")}
-                className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
+                className={`inline-flex items-center gap-1.5 rounded-lg sm:rounded-xl px-2.5 sm:px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
                   activeTab === "history"
                     ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black font-black shadow-md shadow-[#FF5722]/20"
                     : "text-zinc-400 hover:text-white"
                 }`}
               >
-                <History size={14} />
+                <History size={13} />
                 <span>History ({recentRenders.length})</span>
               </button>
             </div>
@@ -535,18 +540,18 @@ export default function WhiteboardVideoPage() {
         </div>
 
         {/* Page Title ($H_1$) */}
-        <div className="flex items-center gap-3 pt-1 pb-2">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#FF5722]/10 text-[#FF9100] border border-[#FF5722]/20 shadow-sm">
-            <Sparkles size={22} />
+        <div className="flex items-center gap-3 pt-0.5 pb-1">
+          <div className="flex h-9 w-9 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl bg-[#FF5722]/10 text-[#FF9100] border border-[#FF5722]/20 shadow-sm">
+            <Sparkles size={18} className="sm:size-[22px]" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            <h1 className="text-lg sm:text-3xl font-black text-white tracking-tight">
               AI Whiteboard Explainer{" "}
               <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
                 Studio
               </span>
             </h1>
-            <p className="text-xs sm:text-sm text-zinc-400 mt-0.5">
+            <p className="text-[11px] sm:text-sm text-zinc-400 mt-0.5">
               Turn voiceover scripts into high-retention 9:16 whiteboard diagrams &amp; presentations.
             </p>
           </div>
@@ -568,6 +573,9 @@ export default function WhiteboardVideoPage() {
               fileName={selectedFile?.name}
               onRetry={handleStartRender}
               onReset={() => {
+                if (typeof window !== "undefined") {
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }
                 setSelectedFile(null);
                 setTranscript("");
                 setCachedMediaKey("");

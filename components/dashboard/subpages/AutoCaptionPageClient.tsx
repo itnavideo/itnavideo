@@ -387,6 +387,9 @@ export default function AutoCaptionPage() {
     renderRequestInFlightRef.current = true;
 
     try {
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
       setJobStatus({
         state: "uploading",
         message: "Uploading video/audio safely to cloud container...",
@@ -586,6 +589,9 @@ export default function AutoCaptionPage() {
   };
 
   const handleReset = () => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
     setJobStatus({ state: "idle" });
     setSelectedFile(null);
     setWorkflowStep("upload");
@@ -600,9 +606,9 @@ export default function AutoCaptionPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center text-slate-500 gap-3">
+      <div className="min-h-screen bg-[#0B0D13] flex flex-col items-center justify-center text-zinc-400 gap-3">
         <Loader2 className="h-8 w-8 animate-spin text-[#FF5722]" />
-        <p className="text-sm font-semibold tracking-wide text-slate-700">Loading Auto Caption Studio...</p>
+        <p className="text-sm font-semibold tracking-wide text-zinc-300">Loading Auto Caption Studio...</p>
       </div>
     );
   }
@@ -648,7 +654,7 @@ export default function AutoCaptionPage() {
           </div>
 
           {/* WhiteStair Editable Project Name Input */}
-          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 focus-within:border-[#FF5722] rounded-2xl px-3.5 py-1.5 transition shadow-2xs max-w-sm w-full mx-2">
+          <div className="hidden sm:flex items-center gap-2 bg-slate-50 border border-slate-200 focus-within:border-[#FF5722] rounded-2xl px-3.5 py-1.5 transition shadow-2xs max-w-sm w-full mx-2">
             <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 shrink-0 hidden md:inline">
               Project Name:
             </span>
@@ -678,11 +684,11 @@ export default function AutoCaptionPage() {
                 !selectedFile
                   ? "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed"
                   : isWorking
-                  ? "bg-[#FF5722] text-white cursor-wait animate-pulse"
-                  : "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white hover:brightness-105 shadow-md shadow-[#FF5722]/20 font-jakarta"
+                  ? "bg-[#FF5722] text-black cursor-wait animate-pulse"
+                  : "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black hover:brightness-105 shadow-md shadow-[#FF5722]/20 font-jakarta"
               }`}
             >
-              <Download size={13} className={!selectedFile ? "text-slate-400" : "text-white"} />
+              <Download size={13} className={!selectedFile ? "text-slate-400" : "text-black"} />
               <span>{isWorking ? "Rendering 1080p..." : "Download 1080p"}</span>
             </button>
           </div>
@@ -872,6 +878,29 @@ export default function AutoCaptionPage() {
           </div>
         )}
       </main>
+
+      {/* Mobile Sticky Action Bar */}
+      {selectedFile && workflowStep === "editor" && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden border-t border-slate-200 bg-white/95 backdrop-blur-xl px-4 py-3 flex items-center justify-between gap-3 shadow-2xl">
+          <div className="min-w-0">
+            <p className="text-[11px] font-black uppercase text-[#FF5722] tracking-wider truncate">
+              {projectName || selectedFile.name}
+            </p>
+            <p className="text-[10px] text-slate-500 font-bold">
+              1 Credit • 9:16 Vertical
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleStartRender}
+            disabled={!selectedFile || isWorking}
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-4 py-2.5 text-xs font-black text-black shadow-lg shadow-[#FF5722]/30 active:scale-95 disabled:opacity-50"
+          >
+            <Download size={14} className="text-black" />
+            <span>{isWorking ? "Rendering..." : "Download 1080p"}</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }

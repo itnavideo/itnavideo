@@ -440,6 +440,9 @@ export default function AudioCleanerPage() {
           segment.action === "cut" ? [segment] : segment.internalCuts || [],
         );
 
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
     setJobStatus({
       state: "rendering",
       message: "Compressing dead air pauses & non-destructive FFmpeg splicing...",
@@ -529,6 +532,9 @@ export default function AudioCleanerPage() {
   };
 
   const handleReset = () => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
     setJobStatus({ state: "idle" });
     setAudioCleanAnalysis(null);
     setAudioCleanResult(null);

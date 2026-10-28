@@ -116,9 +116,11 @@ export function AutoCaptionUploadStep({
             <div className="h-4 w-px bg-slate-200 hidden sm:block" />
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 px-3 py-1.5 text-xs font-bold text-slate-700 hover:text-slate-900 transition group"
+              aria-label="Back to Dashboard"
+              className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-slate-700 hover:text-slate-900 transition group"
             >
               <ArrowLeft size={13} className="group-hover:-translate-x-0.5 transition-transform text-[#FF5722]" />
+              <span className="sm:hidden text-xs">Back</span>
               <span className="hidden sm:inline">Back to Dashboard</span>
             </Link>
           </div>
@@ -345,7 +347,7 @@ export function AutoCaptionUploadStep({
               disabled={!selectedFile || isProcessing}
               className={`w-full min-h-[52px] rounded-2xl text-sm font-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm ${
                 !selectedFile
-                  ? "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed"
+                  ? "bg-slate-100 text-slate-500 font-bold border border-slate-200 cursor-not-allowed"
                   : isProcessing
                   ? "bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-white cursor-wait opacity-90"
                   : "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white hover:brightness-105 active:scale-98 shadow-lg shadow-[#FF5722]/25 font-jakarta"

@@ -312,17 +312,57 @@ export function HomepageFinalCta() {
             Instant Cloud Access • 1080p Full HD Export • 1 Min = 1 Credit
           </p>
 
-          {/* Interactive Floating Action Pill */}
-          <div className="mt-8 mx-auto max-w-xl">
-            <div className="rounded-full border border-stone-300/90 bg-stone-50/80 p-1.5 sm:p-2 shadow-md flex flex-col sm:flex-row items-center gap-2">
-              <div className="flex items-center gap-2 px-3 py-1 text-slate-500 text-xs sm:text-sm font-medium w-full sm:w-auto">
-                <span className="font-mono text-orange-600 font-black tracking-tight select-none">
+          {/* Interactive Action Hub */}
+          <div className="mt-8 mx-auto max-w-xl px-2 sm:px-0">
+            {/* Desktop Pill */}
+            <div className="hidden sm:flex rounded-full border border-stone-300/90 bg-stone-50/80 p-2 shadow-md items-center gap-2">
+              <div className="flex items-center gap-2 px-3 py-1 text-slate-500 text-sm font-medium w-auto">
+                <span className="font-mono text-orange-600 font-black tracking-tight select-none text-sm shrink-0">
                   itnavideo.com/
+                </span>
+                <div className="relative flex-1 min-w-0">
+                  <select
+                    value={selectedMode}
+                    onChange={(e) => setSelectedMode(e.target.value)}
+                    className="w-full bg-white border border-stone-200 text-slate-900 font-bold rounded-full px-3 py-1.5 text-sm cursor-pointer outline-none focus:ring-2 focus:ring-orange-500/30 transition-colors truncate"
+                  >
+                    <option value="facelessVideo">16:9 YouTube Faceless Video</option>
+                    <option value="autoCaption">9:16 Viral Auto Caption Reel</option>
+                    <option value="bookSummary">16:9 Book Summary Video</option>
+                    <option value="longVideoClips">9:16 Long Video to Clips</option>
+                    <option value="audioClean">AI Studio Audio Cleaner</option>
+                  </select>
+                </div>
+              </div>
+
+              <Link
+                href={`/dashboard?mode=${selectedMode}`}
+                className="ml-auto inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#FF5722] via-[#F4511E] to-[#E64A19] px-8 py-3 text-sm font-black text-white shadow-md hover:brightness-110 active:scale-95 transition-all duration-200 shrink-0 cursor-pointer"
+              >
+                <span>Start Creating Free</span>
+                <ArrowRight size={15} strokeWidth={2.5} />
+              </Link>
+            </div>
+
+            {/* Mobile Action Hub */}
+            <div className="block sm:hidden space-y-2.5">
+              <Link
+                href={`/dashboard?mode=${selectedMode}`}
+                className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#F4511E] to-[#E64A19] py-3.5 px-6 text-sm font-black text-white shadow-lg shadow-orange-500/25 active:scale-98 transition-all"
+              >
+                <Sparkles size={16} />
+                <span>Start Creating Free</span>
+                <ArrowRight size={16} strokeWidth={2.5} />
+              </Link>
+
+              <div className="flex items-center gap-1.5 rounded-xl border border-stone-200 bg-white p-1.5 shadow-2xs">
+                <span className="font-mono text-orange-600 font-extrabold text-[10px] pl-1.5 shrink-0">
+                  Studio:
                 </span>
                 <select
                   value={selectedMode}
                   onChange={(e) => setSelectedMode(e.target.value)}
-                  className="w-full bg-white border border-stone-200 text-slate-900 font-bold rounded-full px-3 py-1.5 text-xs sm:text-sm cursor-pointer outline-none focus:ring-2 focus:ring-orange-500/30 transition-colors"
+                  className="w-full bg-stone-100 border border-stone-200 text-slate-900 font-bold rounded-lg px-2 py-1 text-xs outline-none"
                 >
                   <option value="facelessVideo">16:9 YouTube Faceless Video</option>
                   <option value="autoCaption">9:16 Viral Auto Caption Reel</option>
@@ -331,14 +371,6 @@ export function HomepageFinalCta() {
                   <option value="audioClean">AI Studio Audio Cleaner</option>
                 </select>
               </div>
-
-              <Link
-                href={`/dashboard?mode=${selectedMode}`}
-                className="w-full sm:w-auto ml-auto inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#FF5722] via-[#F4511E] to-[#E64A19] px-6 sm:px-8 py-3 text-xs sm:text-sm font-black text-white shadow-md hover:brightness-110 active:scale-95 transition-all duration-200 shrink-0 cursor-pointer"
-              >
-                <span>Start Creating Free</span>
-                <ArrowRight size={15} strokeWidth={2.5} />
-              </Link>
             </div>
           </div>
         </div>

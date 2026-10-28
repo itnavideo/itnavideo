@@ -2089,6 +2089,8 @@ export async function POST(request: Request) {
               title: wbPlan.title,
               titleColor: wbPlan.titleColor,
               layoutType: wbPlan.layoutType,
+              infographicData: wbPlan.infographicData,
+              showHand: true,
               language: wbPlan.language,
               direction: wbPlan.direction,
               points: wbPlan.points,
@@ -2948,7 +2950,7 @@ async function startRenderWithCapacityRetry(request: LambdaRenderRequest) {
   const maxAccountConcurrency = Math.max(2, Math.min(5, Number(process.env.REMOTION_LAMBDA_CONCURRENCY) || 5));
   const safeConcurrency = Math.min(
     maxAccountConcurrency,
-    Math.max(2, Math.ceil(frameCount / 1800))
+    Math.max(2, Math.ceil(frameCount / 400))
   );
 
   const attempts: LambdaRenderRequest[] = [

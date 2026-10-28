@@ -232,6 +232,9 @@ export default function CompareExplainerPage() {
     setIsSubmitting(true);
 
     try {
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
       setJobStatus({
         state: "uploading",
         message: "Uploading speech voiceover and compare images to secure cloud container...",
@@ -478,6 +481,9 @@ export default function CompareExplainerPage() {
               fileName={selectedFile?.name}
               onRetry={handleStartRender}
               onReset={() => {
+                if (typeof window !== 'undefined') {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
                 setSelectedFile(null);
                 setComparisonFiles([]);
                 setIsSubmitting(false);

@@ -266,7 +266,7 @@ export function FacelessStoryboardTimeline({
             >
               <div className="p-4 sm:p-5 space-y-3.5">
                 {/* 1. Header Row: Scene Number, Time Range, Layout Badge */}
-                <div className="flex items-center justify-between gap-2 border-b border-white/[0.06] pb-2.5">
+                <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 border-b border-white/[0.06] pb-2.5">
                   <div className="flex items-center gap-2.5">
                     <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-500/10 text-orange-400 text-xs font-black border border-orange-500/25">
                       {scene.sceneNumber < 10 ? `0${scene.sceneNumber}` : scene.sceneNumber}
@@ -313,7 +313,7 @@ export function FacelessStoryboardTimeline({
                 </div>
 
                 {/* 3. Visual Asset Bar & Action Controls */}
-                <div className="flex items-center justify-between gap-3 pt-1">
+                <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 pt-1">
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="w-16 h-11 rounded-lg bg-black/60 border border-white/[0.08] relative overflow-hidden flex items-center justify-center shrink-0">
                       {hasAsset ? (

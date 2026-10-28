@@ -425,17 +425,29 @@ export function PricingComparisonTable({
       </div>
 
       {/* Comparison Matrix Table Container */}
-      <div className="overflow-x-auto rounded-[32px] border border-slate-200/90 bg-white shadow-xl shadow-slate-200/50">
-        <table className="w-full min-w-[760px] border-collapse text-left">
-          {/* Table Header: Sticky Plans Bar */}
-          <thead>
-            <tr className="border-b border-slate-200/80 bg-slate-50/80 backdrop-blur-sm">
-              <th className="w-[34%] p-5 sm:p-6 text-slate-900 align-bottom">
-                <span className="text-xs font-black uppercase tracking-wider text-slate-500">
-                  Feature / Capability
-                </span>
-                <p className="text-sm font-bold text-slate-900 mt-1">Select your production scale</p>
-              </th>
+      <div className="rounded-[28px] sm:rounded-[32px] border border-slate-200/90 bg-white shadow-xl shadow-slate-200/50 overflow-hidden">
+        {/* Mobile Horizontal Swipe Banner */}
+        <div className="sm:hidden flex items-center justify-between px-4 py-2.5 bg-orange-50/90 border-b border-orange-200/70 text-xs font-bold text-orange-950">
+          <span className="flex items-center gap-1.5">
+            <span className="text-base animate-pulse">👉</span>
+            <span>Swipe left to compare all plans</span>
+          </span>
+          <span className="text-[10px] font-mono text-orange-700 font-extrabold uppercase tracking-wide bg-orange-100 px-2 py-0.5 rounded-full">
+            3 Plans
+          </span>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[700px] sm:min-w-[760px] border-collapse text-left">
+            {/* Table Header: Sticky Plans Bar */}
+            <thead>
+              <tr className="border-b border-slate-200/80 bg-slate-50/80 backdrop-blur-sm">
+                <th className="w-[36%] sm:w-[34%] p-4 sm:p-6 text-slate-900 align-bottom sticky left-0 bg-slate-50 z-20 shadow-[3px_0_10px_-2px_rgba(0,0,0,0.08)] sm:shadow-none">
+                  <span className="text-xs font-black uppercase tracking-wider text-slate-500">
+                    Feature / Capability
+                  </span>
+                  <p className="text-sm font-bold text-slate-900 mt-1">Select your production scale</p>
+                </th>
 
               {planHeaders.map((plan) => (
                 <th
@@ -524,7 +536,7 @@ export function PricingComparisonTable({
                         }`}
                       >
                         {/* Feature Name & Tooltip */}
-                        <td className="p-4 sm:p-5 text-slate-900">
+                        <td className="p-3.5 sm:p-5 text-slate-900 sticky left-0 bg-white group-hover:bg-slate-50/90 z-10 shadow-[3px_0_10px_-2px_rgba(0,0,0,0.06)] sm:shadow-none">
                           <div className="flex items-center gap-1.5 group">
                             <span
                               className={`text-xs sm:text-sm font-bold ${
@@ -564,7 +576,7 @@ export function PricingComparisonTable({
           {/* Table Footer: Sticky Action Buttons */}
           <tfoot>
             <tr className="border-t-2 border-slate-200/90 bg-slate-50/90">
-              <td className="p-5 text-slate-700">
+              <td className="p-4 sm:p-5 text-slate-700 sticky left-0 bg-slate-50/95 z-10 shadow-[3px_0_10px_-2px_rgba(0,0,0,0.06)] sm:shadow-none">
                 <span className="text-xs font-black uppercase text-slate-500">Ready to begin?</span>
                 <p className="text-xs font-semibold text-slate-600 mt-0.5">Instant credit activation on signup</p>
               </td>
@@ -594,6 +606,7 @@ export function PricingComparisonTable({
             </tr>
           </tfoot>
         </table>
+        </div>
       </div>
 
       {/* Reassurance Footnote */}

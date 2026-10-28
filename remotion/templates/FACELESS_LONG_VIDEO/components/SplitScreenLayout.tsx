@@ -11,12 +11,15 @@ import {
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
 import { HandwritingHighlight } from '../../../components/library/HandwritingHighlight';
 
+import type { BackgroundColorPalette } from '../../../components/backgrounds/BackgroundCatalog';
+
 export interface SplitScreenLayoutProps {
   scene: SceneBlueprintItem;
   mediaUrl?: string;
   headingFont?: string;
   bodyFont?: string;
   sceneFrame?: number;
+  palette?: BackgroundColorPalette;
 }
 
 import { safeResolveMediaSrc, isVideoMedia, isValidMediaUrl } from '../../../utils/safeMedia';
@@ -35,7 +38,9 @@ export function SplitScreenLayout({
   headingFont = 'Montserrat, sans-serif',
   bodyFont = 'Inter, sans-serif',
   sceneFrame,
+  palette,
 }: SplitScreenLayoutProps) {
+  const isLight = palette?.isDark === false;
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -89,7 +94,7 @@ export function SplitScreenLayout({
         display: 'flex',
         flexDirection: 'row',
         overflow: 'hidden',
-        backgroundColor: '#070B14',
+        backgroundColor: isLight ? '#FFFFFF' : '#070B14',
         zIndex: 10,
       }}
     >
@@ -98,7 +103,7 @@ export function SplitScreenLayout({
         style={{
           width: '50%',
           height: '100%',
-          backgroundColor: '#070B14',
+          backgroundColor: isLight ? '#FFFFFF' : '#070B14',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
@@ -116,8 +121,8 @@ export function SplitScreenLayout({
             display: 'inline-flex',
             alignItems: 'center',
             gap: '10px',
-            backgroundColor: 'rgba(255, 255, 255, 0.08)',
-            border: '1px solid rgba(255, 255, 255, 0.16)',
+            backgroundColor: isLight ? 'rgba(255, 87, 34, 0.08)' : 'rgba(255, 255, 255, 0.08)',
+            border: isLight ? '1px solid rgba(255, 87, 34, 0.22)' : '1px solid rgba(255, 255, 255, 0.16)',
             borderRadius: '20px',
             padding: '7px 18px',
             width: 'fit-content',
@@ -144,7 +149,7 @@ export function SplitScreenLayout({
               fontWeight: 800,
               letterSpacing: '0.14em',
               textTransform: 'uppercase',
-              color: '#FFA000',
+              color: isLight ? '#FF5722' : '#FFA000',
             }}
           >
             CORE CONCEPT
@@ -155,14 +160,14 @@ export function SplitScreenLayout({
         <h1
           style={{
             fontFamily: headingFont,
-            fontSize: '64px',
+            fontSize: '52px',
             fontWeight: 900,
             lineHeight: 1.15,
-            color: '#FFFFFF',
-            marginBottom: '24px',
+            color: isLight ? '#0F172A' : '#FFFFFF',
             letterSpacing: '-0.025em',
             margin: '0 0 24px 0',
-            textShadow: '0 2px 14px rgba(0, 0, 0, 0.8)',
+            maxWidth: '680px',
+            textShadow: isLight ? 'none' : '0 2px 14px rgba(0, 0, 0, 0.8)',
           }}
         >
           {highlightWord && headline.toLowerCase().includes(highlightWord.toLowerCase()) ? (
@@ -189,12 +194,12 @@ export function SplitScreenLayout({
           <p
             style={{
               fontFamily: bodyFont,
-              fontSize: '30px',
+              fontSize: '26px',
               fontWeight: 600,
               lineHeight: 1.45,
-              color: '#E2E8F0',
+              color: isLight ? '#475569' : '#E2E8F0',
               margin: 0,
-              maxWidth: '680px',
+              maxWidth: '620px',
             }}
           >
             {scene.supportingText}
@@ -209,7 +214,7 @@ export function SplitScreenLayout({
           height: '100%',
           position: 'relative',
           overflow: 'hidden',
-          backgroundColor: '#020617',
+          backgroundColor: isLight ? '#F1F5F9' : '#020617',
         }}
       >
         <div
@@ -251,13 +256,15 @@ export function SplitScreenLayout({
               style={{
                 width: '100%',
                 height: '100%',
-                background: 'radial-gradient(ellipse at center, #1E293B 0%, #0F172A 50%, #020617 100%)',
+                background: isLight
+                  ? 'radial-gradient(ellipse at center, #F8FAFC 0%, #E2E8F0 50%, #CBD5E1 100%)'
+                  : 'radial-gradient(ellipse at center, #1E293B 0%, #0F172A 50%, #020617 100%)',
               }}
             />
           )}
         </div>
 
-        {/* Seamless edge blend between Left obsidian panel and Right visual */}
+        {/* Seamless edge blend between Left panel and Right visual */}
         <div
           style={{
             position: 'absolute',
@@ -265,7 +272,9 @@ export function SplitScreenLayout({
             left: 0,
             bottom: 0,
             width: '100px',
-            background: 'linear-gradient(90deg, #070B14 0%, rgba(7, 11, 20, 0.4) 50%, transparent 100%)',
+            background: isLight
+              ? 'linear-gradient(90deg, #FFFFFF 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%)'
+              : 'linear-gradient(90deg, #070B14 0%, rgba(7, 11, 20, 0.4) 50%, transparent 100%)',
             pointerEvents: 'none',
             zIndex: 1,
           }}
@@ -276,7 +285,9 @@ export function SplitScreenLayout({
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'linear-gradient(180deg, rgba(2, 6, 23, 0.4) 0%, transparent 40%, rgba(2, 6, 23, 0.6) 100%)',
+            background: isLight
+              ? 'linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, transparent 40%, rgba(255, 255, 255, 0.4) 100%)'
+              : 'linear-gradient(180deg, rgba(2, 6, 23, 0.4) 0%, transparent 40%, rgba(2, 6, 23, 0.6) 100%)',
             pointerEvents: 'none',
           }}
         />

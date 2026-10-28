@@ -64,10 +64,37 @@ export type WhiteboardQuiz = {
   revealStart: number;
 };
 
+export interface InfographicBracketItem {
+  label: string;
+  icon: 'medical_emergency' | 'car_repairs' | 'graduation_cap' | 'future_house' | 'growth_chart' | 'lightbulb_idea' | 'handshake_deal' | string;
+}
+
+export interface InfographicBottomCard {
+  label: string;
+  icon: 'emergency_siren' | 'wealth_plant' | 'target_bullseye' | 'character_happy' | 'lightbulb_idea' | 'growth_chart' | string;
+}
+
+export interface WhiteboardStoryInfographicProps {
+  titlePrefix?: string;
+  titleAccent?: string;
+  thoughtText?: string;
+  bracketHeader?: string;
+  bracketItems?: InfographicBracketItem[];
+  centerStatement?: string;
+  heroLabel?: string;
+  heroType?: string;
+  sideNote?: string;
+  bottomSubhead?: string;
+  bottomCards?: InfographicBottomCard[];
+  showHand?: boolean;
+}
+
 export type WhiteboardPlan = {
   title: string;
   titleColor: string;
-  layoutType: 'cards' | 'table' | 'quiz' | 'hook';
+  layoutType: 'cards' | 'table' | 'quiz' | 'hook' | 'infographic';
+  infographicData?: WhiteboardStoryInfographicProps;
+  showHand?: boolean;
   language: 'ur' | 'hi' | 'en';
   direction: 'rtl' | 'ltr';
   points: WhiteboardPoint[];
@@ -362,6 +389,176 @@ export function autoFixWhiteboardLayout(
   return { points: fixed, conclusionTime };
 }
 
+// ── Step 5.5: Rich 2D Storyboard Infographic Data Generator ─────────────────
+
+export function planWhiteboardInfographicData(
+  transcript: string,
+  topicTitle?: string,
+  durationSeconds: number = 30
+): WhiteboardStoryInfographicProps {
+  const cleanText = (transcript || '').toLowerCase();
+  const rawTitle = (topicTitle || '').trim();
+
+  // Helper to split a phrase or title into prefix + accent
+  const splitTitle = (text: string, defaultPrefix: string, defaultAccent: string) => {
+    if (!text) return { prefix: defaultPrefix, accent: defaultAccent };
+    const words = text.split(/\s+/).filter(Boolean);
+    if (words.length <= 2) return { prefix: words[0] || defaultPrefix, accent: words.slice(1).join(' ') || defaultAccent };
+    const midpoint = Math.max(1, Math.floor(words.length / 2));
+    return {
+      prefix: words.slice(0, midpoint).join(' '),
+      accent: words.slice(midpoint).join(' '),
+    };
+  };
+
+  // 1. Finance / Wealth / Savings / Money
+  if (/(money|save|saving|invest|wealth|finance|rupee|dollar|cash|paisa|budget|fund|debt)/i.test(cleanText)) {
+    const titles = splitTitle(rawTitle, 'Why You Should', 'Save Money?');
+    return {
+      titlePrefix: titles.prefix,
+      titleAccent: titles.accent,
+      thoughtText: 'What if an unexpected expense hits tomorrow?',
+      bracketHeader: 'Life has uncertainties...',
+      bracketItems: [
+        { label: 'Medical emergencies', icon: 'medical_emergency' },
+        { label: 'Car & home repairs', icon: 'car_repairs' },
+        { label: 'Future goals & family', icon: 'future_house' },
+      ],
+      centerStatement: 'Saving early gives you unstoppable security.',
+      heroLabel: 'SAVINGS',
+      heroType: 'savings_jar',
+      sideNote: 'It gives you freedom and peace of mind.',
+      bottomSubhead: 'Small steps today... Big wealth tomorrow.',
+      bottomCards: [
+        { label: 'Handle emergencies', icon: 'emergency_siren' },
+        { label: 'Grow your wealth', icon: 'wealth_plant' },
+        { label: 'Achieve your goals', icon: 'target_bullseye' },
+        { label: 'Less daily stress', icon: 'character_happy' },
+      ],
+      showHand: true,
+    };
+  }
+
+  // 2. Health / Fitness / Diet / Lifestyle
+  if (/(health|fitness|doctor|medicine|workout|hospital|body|diet|sleep|stress|mental|habit)/i.test(cleanText)) {
+    const titles = splitTitle(rawTitle, 'How To Protect', 'Your Health?');
+    return {
+      titlePrefix: titles.prefix,
+      titleAccent: titles.accent,
+      thoughtText: 'Why do small bad habits compound into sickness?',
+      bracketHeader: 'Daily hidden health risks...',
+      bracketItems: [
+        { label: 'Sudden emergencies', icon: 'medical_emergency' },
+        { label: 'Chronic burnout', icon: 'character_thinking' },
+        { label: 'Vital energy drops', icon: 'lightbulb_idea' },
+      ],
+      centerStatement: 'Prioritizing your daily health prevents costly breakdowns.',
+      heroLabel: 'HEALTH',
+      heroType: 'medical_emergency',
+      sideNote: 'Your health is your greatest compounding asset.',
+      bottomSubhead: 'Consistent care today... Vibrant energy tomorrow.',
+      bottomCards: [
+        { label: 'Prevent emergencies', icon: 'emergency_siren' },
+        { label: 'Boost daily vitality', icon: 'growth_chart' },
+        { label: 'Reach fitness goals', icon: 'target_bullseye' },
+        { label: 'Peace of mind', icon: 'character_happy' },
+      ],
+      showHand: true,
+    };
+  }
+
+  // 3. Business / Sales / Marketing / Growth / Scale
+  if (/(business|startup|client|sales|growth|marketing|scale|revenue|profit|team|product|customer)/i.test(cleanText)) {
+    const titles = splitTitle(rawTitle, 'How To Scale', 'Your Business?');
+    return {
+      titlePrefix: titles.prefix,
+      titleAccent: titles.accent,
+      thoughtText: 'What is the bottleneck keeping us from scaling?',
+      bracketHeader: 'Every founder faces hurdles...',
+      bracketItems: [
+        { label: 'Consistent client leads', icon: 'target_bullseye' },
+        { label: 'Predictable delivery', icon: 'growth_chart' },
+        { label: 'Strategic partnerships', icon: 'handshake_deal' },
+      ],
+      centerStatement: 'Automating the core workflow unlocks predictable scale.',
+      heroLabel: 'GROWTH',
+      heroType: 'growth_chart',
+      sideNote: 'Consistency compounds faster than sudden luck.',
+      bottomSubhead: 'Strategic systems today... Market leadership tomorrow.',
+      bottomCards: [
+        { label: 'Fix bottlenecks', icon: 'emergency_siren' },
+        { label: 'Compound revenue', icon: 'wealth_plant' },
+        { label: 'Hit annual targets', icon: 'target_bullseye' },
+        { label: 'Delighted clients', icon: 'character_happy' },
+      ],
+      showHand: true,
+    };
+  }
+
+  // 4. Learning / Education / Skills / Books / Discipline
+  if (/(study|learn|skill|student|exam|focus|discipline|time|book|reading|knowledge|college)/i.test(cleanText)) {
+    const titles = splitTitle(rawTitle, 'How To Master', 'Deep Focus?');
+    return {
+      titlePrefix: titles.prefix,
+      titleAccent: titles.accent,
+      thoughtText: 'Why is it so easy to get distracted and procrastinate?',
+      bracketHeader: 'Common focus traps to eliminate...',
+      bracketItems: [
+        { label: 'Notification friction', icon: 'lightbulb_idea' },
+        { label: 'Lack of daily routines', icon: 'target_bullseye' },
+        { label: 'Vague milestone tracking', icon: 'graduation_cap' },
+      ],
+      centerStatement: 'Daily focused repetition beats irregular motivation bursts.',
+      heroLabel: 'MASTERY',
+      heroType: 'graduation_cap',
+      sideNote: 'Deep focus is a superpower you build each morning.',
+      bottomSubhead: 'Clear routines today... Lifelong mastery tomorrow.',
+      bottomCards: [
+        { label: 'Beat distractions', icon: 'emergency_siren' },
+        { label: 'Grow your skills', icon: 'wealth_plant' },
+        { label: 'Hit your dreams', icon: 'target_bullseye' },
+        { label: 'True confidence', icon: 'character_happy' },
+      ],
+      showHand: true,
+    };
+  }
+
+  // 5. Universal Adaptive Fallback
+  const defaultTitle = splitTitle(rawTitle, 'The Power Of', 'Clear Action');
+  const sentences = (transcript || '')
+    .split(/[.!?]+/)
+    .map(s => s.trim())
+    .filter(s => s.length > 10);
+
+  const item1 = sentences[0] ? sentences[0].slice(0, 24) : 'First key principle';
+  const item2 = sentences[1] ? sentences[1].slice(0, 24) : 'Building momentum';
+  const item3 = sentences[2] ? sentences[2].slice(0, 24) : 'Long term impact';
+
+  return {
+    titlePrefix: defaultTitle.prefix,
+    titleAccent: defaultTitle.accent,
+    thoughtText: 'What is the most important step to take next?',
+    bracketHeader: 'Key principles to understand...',
+    bracketItems: [
+      { label: item1, icon: 'lightbulb_idea' },
+      { label: item2, icon: 'growth_chart' },
+      { label: item3, icon: 'target_bullseye' },
+    ],
+    centerStatement: sentences[3] ? sentences[3].slice(0, 48) : 'Clear intentional action unlocks massive results.',
+    heroLabel: 'STRATEGY',
+    heroType: 'lightbulb_idea',
+    sideNote: 'Simple systems executed consistently create real change.',
+    bottomSubhead: 'Small steps today... Extraordinary results tomorrow.',
+    bottomCards: [
+      { label: 'Overcome hurdles', icon: 'emergency_siren' },
+      { label: 'Compound progress', icon: 'wealth_plant' },
+      { label: 'Achieve the goal', icon: 'target_bullseye' },
+      { label: 'Fulfillment & joy', icon: 'character_happy' },
+    ],
+    showHand: true,
+  };
+}
+
 // ── Step 6: Semantic Deterministic Fallback Planner ───────────────────────────
 
 export function planDeterministicWhiteboard(input: WhiteboardPlanInput): WhiteboardPlan {
@@ -416,10 +613,14 @@ export function planDeterministicWhiteboard(input: WhiteboardPlanInput): Whitebo
     };
   });
 
+  const infographicData = planWhiteboardInfographicData(input.transcript, input.topicTitle, duration);
+
   const plan: WhiteboardPlan = {
     title,
     titleColor: COLORS.title,
-    layoutType: 'cards',
+    layoutType: 'infographic',
+    infographicData,
+    showHand: true,
     language: scriptLang.language,
     direction: scriptLang.direction,
     points,
@@ -521,17 +722,53 @@ DIRECTOR RULES:
    - "bulletType": 'number' | 'check' | 'arrow' | 'star'
 4. "title": A striking, professional 2 to 4 word whiteboard title.
 5. "conclusion": A memorable 3 to 5 word final takeaway.
-6. Language detection:
+6. "infographic": Rich 2D hand-drawn explainer storyboard scene:
+   - "titlePrefix": 2-3 words (e.g. "Why You Should")
+   - "titleAccent": 2-3 words (e.g. "Save Money?")
+   - "thoughtText": 1 curiosity question for 2D thinking character (e.g. "What if I need money later?")
+   - "bracketHeader": 1 setup line for the bracket list (e.g. "Life has uncertainties...")
+   - "bracketItems": 3 items with "label" (3-4 words) and "icon" ('medical_emergency' | 'car_repairs' | 'future_house' | 'growth_chart' | 'lightbulb_idea' | 'handshake_deal')
+   - "centerStatement": 1 central thesis (6-9 words)
+   - "heroLabel": 1-2 words in ALL CAPS (e.g. "SAVINGS", "GROWTH", "MASTERY", "HEALTH")
+   - "heroType": 'savings_jar' | 'growth_chart' | 'target_bullseye' | 'lightbulb_idea' | 'medical_emergency' | 'graduation_cap'
+   - "sideNote": 1 concise callout note (5-8 words)
+   - "bottomSubhead": 1 takeaway line (5-8 words, e.g. "Small steps today... Big benefits tomorrow.")
+   - "bottomCards": 4 action benefit cards, each with "label" (2-3 words) and "icon" ('emergency_siren' | 'wealth_plant' | 'target_bullseye' | 'character_happy')
+7. "layoutType": "infographic"
+8. Language detection:
    - Urdu script -> "language": "ur", "direction": "rtl"
    - Hindi script -> "language": "hi", "direction": "ltr"
    - Otherwise -> "language": "en", "direction": "ltr"
 
 OUTPUT ONLY VALID JSON:
 {
-  "title": "Master Your Money",
+  "title": "Why You Should Save Money?",
   "titleColor": "#0F172A",
+  "layoutType": "infographic",
   "language": "en",
   "direction": "ltr",
+  "infographic": {
+    "titlePrefix": "Why You Should",
+    "titleAccent": "Save Money?",
+    "thoughtText": "What if I need money later?",
+    "bracketHeader": "Life has uncertainties...",
+    "bracketItems": [
+      { "label": "Medical emergencies", "icon": "medical_emergency" },
+      { "label": "Car repairs", "icon": "car_repairs" },
+      { "label": "Future house & goals", "icon": "future_house" }
+    ],
+    "centerStatement": "Saving money helps you be prepared.",
+    "heroLabel": "SAVINGS",
+    "heroType": "savings_jar",
+    "sideNote": "It gives you freedom and peace of mind.",
+    "bottomSubhead": "Small steps today... Big benefits tomorrow.",
+    "bottomCards": [
+      { "label": "Handle emergencies", "icon": "emergency_siren" },
+      { "label": "Grow your wealth", "icon": "wealth_plant" },
+      { "label": "Achieve your goals", "icon": "target_bullseye" },
+      { "label": "Less stress", "icon": "character_happy" }
+    ]
+  },
   "points": [
     {
       "text": "Know What To Do",
@@ -683,10 +920,49 @@ function parseAndValidatePlan(
     };
   });
 
+  const rawInfo = result.infographic || result.infographicData;
+  let infographicData: WhiteboardStoryInfographicProps | undefined;
+
+  if (rawInfo && typeof rawInfo === 'object') {
+    infographicData = {
+      titlePrefix: String(rawInfo.titlePrefix || 'Why You Should'),
+      titleAccent: String(rawInfo.titleAccent || 'Save & Grow?'),
+      thoughtText: String(rawInfo.thoughtText || 'What if I need resources later?'),
+      bracketHeader: String(rawInfo.bracketHeader || 'Key factors to consider...'),
+      bracketItems: Array.isArray(rawInfo.bracketItems) && rawInfo.bracketItems.length > 0
+        ? rawInfo.bracketItems.map((item: any) => ({
+            label: String(item.label || 'Key Insight'),
+            icon: String(item.icon || 'lightbulb_idea'),
+          }))
+        : undefined,
+      centerStatement: String(rawInfo.centerStatement || 'Consistent actions create lasting results.'),
+      heroLabel: String(rawInfo.heroLabel || 'STRATEGY'),
+      heroType: String(rawInfo.heroType || 'growth_chart'),
+      sideNote: String(rawInfo.sideNote || 'It gives you freedom and clarity.'),
+      bottomSubhead: String(rawInfo.bottomSubhead || 'Small steps today... Big benefits tomorrow.'),
+      bottomCards: Array.isArray(rawInfo.bottomCards) && rawInfo.bottomCards.length > 0
+        ? rawInfo.bottomCards.map((c: any) => ({
+            label: String(c.label || 'Action Takeaway'),
+            icon: String(c.icon || 'target_bullseye'),
+          }))
+        : undefined,
+      showHand: true,
+    };
+  } else {
+    infographicData = planWhiteboardInfographicData(input.transcript, input.topicTitle, duration);
+  }
+
+  const chosenLayout: WhiteboardPlan['layoutType'] =
+    result.layoutType === 'cards' || result.layoutType === 'table' || result.layoutType === 'quiz'
+      ? result.layoutType
+      : 'infographic';
+
   const plan: WhiteboardPlan = {
     title: String(result.title || input.topicTitle || (detectedLang === 'ur' ? 'اہم معلومات' : 'Key Insights')),
     titleColor: COLORS.title,
-    layoutType: 'cards',
+    layoutType: chosenLayout,
+    infographicData,
+    showHand: true,
     language: detectedLang,
     direction: detectedDir,
     points: validatedPoints.length > 0 ? validatedPoints : planDeterministicWhiteboard(input).points,

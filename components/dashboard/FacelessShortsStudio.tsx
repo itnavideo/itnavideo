@@ -842,9 +842,9 @@ export function FacelessShortsStudio({
           </div>
         )}
 
-        {/*  2. AUTO-DISMISSING REVIEW POP-UP ALERT  */}
+        {/*  2. FLOATING REVIEW POP-UP ALERT (Fixed position eliminates layout shifts)  */}
         {showReviewPopup && (
-          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/15 p-4 flex items-start justify-between gap-3 text-emerald-200 text-xs shadow-lg animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50 max-w-sm rounded-2xl border border-emerald-500/40 bg-[#0E1526]/95 backdrop-blur-xl p-4 flex items-start justify-between gap-3 text-emerald-200 text-xs shadow-2xl animate-in fade-in slide-in-from-bottom-3 duration-300">
             <div className="flex items-start gap-3">
               <CheckCircle2 size={18} className="text-emerald-400 shrink-0 mt-0.5" />
               <div>
@@ -1467,16 +1467,16 @@ export function FacelessShortsStudio({
                 type="button"
                 onClick={handleGenerateVideo}
                 disabled={!selectedFile || isPlanning || isGenerating || !transcriptText.trim()}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] hover:brightness-110 p-4 text-xs sm:text-sm font-bold text-white shadow-xl shadow-orange-500/25 transition active:scale-98 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] hover:brightness-110 p-4 text-xs sm:text-sm font-black text-black shadow-xl shadow-orange-500/25 transition active:scale-98 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
               >
                 {isGenerating ? (
                   <>
-                    <RefreshCw size={15} className="animate-spin" />
+                    <RefreshCw size={15} className="animate-spin text-black" />
                     <span>Rendering Video on Cloud...</span>
                   </>
                 ) : isPlanning ? (
                   <>
-                    <RefreshCw size={15} className="animate-spin" />
+                    <RefreshCw size={15} className="animate-spin text-black" />
                     <span>Transcribing Speech...</span>
                   </>
                 ) : !selectedFile ? (
@@ -1485,8 +1485,8 @@ export function FacelessShortsStudio({
                   <span>Add Script Text to Generate</span>
                 ) : (
                   <>
-                    <Sparkles size={16} />
-                    <span>Generate Video</span>
+                    <Sparkles size={16} className="text-black" />
+                    <span>Generate Video (1 Credit)</span>
                   </>
                 )}
               </button>
@@ -1497,6 +1497,41 @@ export function FacelessShortsStudio({
             </div>
           </div>
         </div>
+      </div>
+
+      {/* ── MOBILE-ONLY DOCKED GENERATE ACTION BAR (Fixed Bottom for Instant Access) ── */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden p-3 bg-[#0B0F19]/95 backdrop-blur-xl border-t border-white/10 shadow-2xl flex items-center justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-bold text-white truncate">
+            {selectedFile ? selectedFile.name : "Select Voiceover Audio"}
+          </p>
+          <p className="text-[10px] text-zinc-400 mt-0.5">
+            Strictly 9:16 Vertical • 1 Credit
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={handleGenerateVideo}
+          disabled={!selectedFile || isPlanning || isGenerating || !transcriptText.trim()}
+          className="shrink-0 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-black font-black text-xs shadow-lg shadow-orange-500/20 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer inline-flex items-center gap-1.5"
+        >
+          {isGenerating ? (
+            <>
+              <RefreshCw size={12} className="animate-spin text-black" />
+              <span>Rendering...</span>
+            </>
+          ) : isPlanning ? (
+            <>
+              <RefreshCw size={12} className="animate-spin text-black" />
+              <span>Transcribing...</span>
+            </>
+          ) : (
+            <>
+              <Sparkles size={13} className="text-black" />
+              <span>Generate 9:16</span>
+            </>
+          )}
+        </button>
       </div>
     </div>
   );

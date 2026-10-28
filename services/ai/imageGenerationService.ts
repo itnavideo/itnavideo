@@ -87,6 +87,15 @@ export interface GenerateConsistentImagesResult {
 }
 
 const STYLE_DESCRIPTORS: Record<string, string> = {
+  'cinematic-film':
+    'cinematic 35mm film photography, anamorphic lens flare, Kodak Vision3 500T, high dynamic range, soft natural golden hour lighting, shallow depth of field, 8k movie still',
+  '3d-animation':
+    'polished 3D studio CGI animation, vibrant modern character render, soft global illumination, 3D Blender depth, Pixar Disney aesthetic, expressive facial features',
+  'anime-storybook':
+    'hand-drawn 2D digital anime illustration, Studio Ghibli aesthetic, painterly cloudscapes, artistic storybook anime style, clean crisp linework, vibrant anime color palette',
+  'dark-mystery':
+    'dark moody noir aesthetic, dramatic chiaroscuro shadow, high contrast, misty atmosphere, cinematic suspense lighting, desaturated color tones with sharp focal highlight',
+  // Backwards compatibility fallbacks
   realistic:
     'photorealistic, cinematic 8K documentary photography, natural lighting, shallow depth of field, film grain, realistic human features',
   '3d':
@@ -96,11 +105,13 @@ const STYLE_DESCRIPTORS: Record<string, string> = {
 };
 
 function resolveStyleDescriptor(style?: string): string {
-  if (!style) return STYLE_DESCRIPTORS.realistic;
+  if (!style) return STYLE_DESCRIPTORS['cinematic-film'];
   const lower = style.toLowerCase();
-  if (lower === '2d' || lower.includes('2d')) return STYLE_DESCRIPTORS['2d'];
-  if (lower === '3d' || lower.includes('3d')) return STYLE_DESCRIPTORS['3d'];
-  if (lower === 'realistic' || lower.includes('realistic')) return STYLE_DESCRIPTORS.realistic;
+  if (lower.includes('film') || lower.includes('cinema') || lower === 'cinematic-film') return STYLE_DESCRIPTORS['cinematic-film'];
+  if (lower.includes('3d') || lower === '3d-animation') return STYLE_DESCRIPTORS['3d-animation'];
+  if (lower.includes('anime') || lower.includes('storybook') || lower === 'anime-storybook' || lower === '2d') return STYLE_DESCRIPTORS['anime-storybook'];
+  if (lower.includes('dark') || lower.includes('mystery') || lower.includes('noir') || lower === 'dark-mystery') return STYLE_DESCRIPTORS['dark-mystery'];
+  if (lower.includes('realistic')) return STYLE_DESCRIPTORS.realistic;
   return STYLE_DESCRIPTORS[lower] || style;
 }
 
@@ -139,22 +150,37 @@ export async function planScriptSceneBeats(
     hasChar3 ? '- Character 3 is an optional supporting figure.' : '',
   ].filter(Boolean).join('\n');
 
-  const systemPrompt = `You are an expert AI video director and storyboard planner.
-Analyze the voiceover narration script and break it into sequential visual scene beats.
+  const systemPrompt = `You are an expert AI video director and storyboard planner specializing in viral, character-consistent story videos (like POV Finance & YouTube documentary channels).
+Analyze the voiceover narration script and break it into sequential, high-retention visual scene beats.
 
-Pacing & Timing Rules:
-- STRICT: Every visual scene duration MUST be between 3.5 and 5.5 seconds (maximum 6.0 seconds).
-- NEVER allow any single visual scene to exceed 6.0 seconds. If a narration segment is 10-12s long, split it into 2 visual cuts (e.g., Cut 1 at 5s, Cut 2 at 10s).
-- Align scene transitions to natural thought, period, or comma boundaries in the transcript.
+1. Pacing & Timing Rules (Strict 5-Second Rule):
+- STRICT: Every visual scene duration MUST be between 3.5 and 5.5 seconds (maximum 6.0 seconds, approximately 12-15 spoken words).
+- NEVER allow any single image to stay on screen for longer than 6.0 seconds to prevent viewer drop-off.
+- Align scene cuts to natural sentence, clause, or thought pauses in the transcript.
 - Sum of all scene durations MUST equal approximately ${totalSec.toFixed(1)} seconds.
-- Every visual prompt MUST strictly enforce this visual style: "${styleDescriptor}".
+
+2. Character Consistency & Visual DNA (Non-Negotiable):
+- If the story has a protagonist or human speaker, establish a SINGLE LOCKED CHARACTER ANCHOR (exact age, facial features, hair, skin tone, exact clothing, and signature prop).
+- Repeat this exact character description word-for-word across EVERY character scene so the model never alters their appearance or outfit.
 ${charGuidance}
-- Do NOT generate text, captions, logos, or watermarks in the images.
+
+3. Visual Storytelling Devices (Rotate at least one device every 2 scenes):
+- "screen-or-document": When money, balances, payments, contracts, or technology are mentioned, show a clear readable screen or paper in the scene displaying exact numbers (e.g., a phone screen with bank balance, paystub, or car loan document).
+- "split-screen": A diagonal split showing the hero's modest choice on one side and the flashy alternative on the other.
+- "time-path": A glowing winding path with year markers showing the passage of time and compounding effort.
+- "thought-bubble": A cloud bubble with warm sepia glow depicting memories, dreams, or future plans.
+- "money-in-motion": Gold coins or bills flying into a jar or onto growing stacks.
+
+4. Safe-Zone & Visual Style:
+- Composition: 16:9 widescreen format.
+- SUBTITLE SAFE ZONE: Keep the bottom fifth (20%) of the frame completely clear of text, faces, and key details so burned-in captions fit cleanly.
+- Enforce visual style: "${styleDescriptor}".
+- No subtitles, captions, watermarks, or fake UI overlays drawn onto the image.
 
 Classify each scene as:
-- "character": if the scene should clearly show the main character or a person.
-- "b-roll": if the scene focuses on an object, prop, closeup action, or specific metaphor without the main character.
-- "environment": if the scene is a wide establishing shot, landscape, or abstract concept.
+- "character": if the scene clearly depicts the recurring hero/person.
+- "b-roll": if the scene focuses on an object, prop, screen, or specific metaphor.
+- "environment": if the scene is a wide landscape, workplace, or establishing background.
 
 Return STRICT JSON object:
 {
@@ -165,7 +191,7 @@ Return STRICT JSON object:
       "duration": 5,
       "sceneType": "character",
       "scriptText": "Exact narration segment text...",
-      "visualPrompt": "Detailed image generation prompt ending with style: ${styleDescriptor}"
+      "visualPrompt": "Detailed image generation prompt ending with style: ${styleDescriptor}, 16:9 widescreen, bottom fifth clear for subtitles"
     }
   ]
 }`;

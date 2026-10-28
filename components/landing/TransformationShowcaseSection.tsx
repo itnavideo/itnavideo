@@ -46,9 +46,14 @@ export default function TransformationShowcaseSection() {
             </span>
           </h2>
 
-          <p className="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed font-sans font-medium">
-            No complex timelines, no bloated plugins, and zero video editing skills needed.
-            Just upload your voiceover audio or raw video recording—our AI handles all the scene planning, B-roll matching, kinetic subtitles, and sound.
+          <p className="mt-3 sm:mt-4 text-sm sm:text-lg text-slate-600 leading-relaxed font-sans font-medium">
+            <span className="hidden sm:inline">
+              No complex timelines, no bloated plugins, and zero video editing skills needed.
+              Just upload your voiceover audio or raw video recording—our AI handles all the scene planning, B-roll matching, kinetic subtitles, and sound.
+            </span>
+            <span className="sm:hidden text-xs leading-snug">
+              Zero complex timelines. Just upload audio or video—AI handles scene planning, B-roll visuals, and kinetic subtitles.
+            </span>
           </p>
         </div>
 
@@ -122,9 +127,10 @@ export default function TransformationShowcaseSection() {
         <div className="mt-10 text-center flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
           <a
             href="#video-types"
-            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-6 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md shadow-orange-500/20 hover:shadow-orange-500/30 hover:brightness-105 transition-all active:scale-95"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-5 sm:px-6 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md shadow-orange-500/20 hover:shadow-orange-500/30 hover:brightness-105 transition-all active:scale-95"
           >
-            <span>Explore All 10+ Purpose-Built AI Video Studios Below</span>
+            <span className="hidden sm:inline">Explore All 10+ Purpose-Built AI Video Studios Below</span>
+            <span className="sm:hidden">Explore All 10+ Video Studios</span>
             <ArrowRight size={14} />
           </a>
           <span className="text-slate-300 hidden sm:inline">•</span>
@@ -132,7 +138,8 @@ export default function TransformationShowcaseSection() {
             href="/video-types"
             className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors"
           >
-            <span>Or browse all dedicated pages &amp; specs</span>
+            <span className="hidden sm:inline">Or browse all dedicated pages &amp; specs</span>
+            <span className="sm:hidden">Browse all specs</span>
             <ArrowRight size={13} />
           </Link>
         </div>

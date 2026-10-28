@@ -151,7 +151,7 @@ export function FullBleedVisualScene({
             <div style={{ transform: 'scale(1.15)', marginTop: '20px' }}>
               <VectorDrawingIcon
                 keyword={`${headline} ${scene.supportingText || ''}`}
-                size={380}
+                size={440}
                 strokeWidth={3.8}
                 animated={true}
                 theme={isLight ? 'light' : 'dark'}
@@ -253,12 +253,12 @@ export function FullBleedVisualScene({
           style={{
             position: 'absolute',
             ...(isLight
-              ? { top: '35px', left: '100px', right: '400px', alignItems: 'flex-start' }
+              ? { top: '55px', left: '100px', right: '300px', alignItems: 'flex-start' }
               : placementMode === 2
               ? { bottom: '150px', left: '100px', right: '100px', alignItems: 'flex-start' }
               : placementMode === 1
-              ? { top: '85px', left: '100px', right: '100px', alignItems: 'flex-start' }
-              : { top: '85px', left: 0, right: 0, alignItems: 'center' }),
+              ? { top: '95px', left: '100px', right: '100px', alignItems: 'flex-start' }
+              : { top: '95px', left: 0, right: 0, alignItems: 'center' }),
             opacity: textOpacity,
             transform: `translateY(${textTranslateY}px)`,
             display: 'flex',
@@ -291,7 +291,7 @@ export function FullBleedVisualScene({
             <h1
               style={{
                 fontFamily: headingFont,
-                fontSize: isLight ? '48px' : placementMode === 0 ? '74px' : '68px',
+                fontSize: isLight ? '52px' : placementMode === 0 ? '68px' : '60px',
                 fontWeight: 900,
                 color: isLight ? '#0F172A' : '#FFFFFF',
                 letterSpacing: '-0.025em',
@@ -328,7 +328,7 @@ export function FullBleedVisualScene({
             <p
               style={{
                 fontFamily: bodyFont,
-                fontSize: isLight ? '20px' : '28px',
+                fontSize: isLight ? '24px' : '28px',
                 fontWeight: 600,
                 color: isLight ? '#334155' : 'rgba(255, 255, 255, 0.94)',
                 lineHeight: 1.4,

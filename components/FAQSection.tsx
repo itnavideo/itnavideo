@@ -112,7 +112,7 @@ export default function FAQSection() {
           </p>
 
           {/* Segmented Category Filter Chips */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-2 pt-2">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 px-1 pt-2">
             {FAQ_CATEGORIES.map((cat) => {
               const isActive = selectedCategory === cat.id;
               const count = cat.id === 'all' ? faqs.length : faqs.filter(f => f.category === cat.id).length;
@@ -123,7 +123,7 @@ export default function FAQSection() {
                     setSelectedCategory(cat.id);
                     setOpenIndex(null);
                   }}
-                  className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer ${
+                  className={`inline-flex items-center gap-1.5 sm:gap-2 rounded-full border px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold transition-all duration-200 cursor-pointer ${
                     isActive
                       ? 'bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white border-transparent shadow-xs font-bold'
                       : 'border-stone-200/80 bg-white text-slate-700 hover:border-orange-500/30 hover:bg-orange-50/20 shadow-xs'

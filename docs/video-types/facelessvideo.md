@@ -80,6 +80,7 @@ Every rendered Faceless Video must strictly adhere to the following quality rule
 
 ### D. Semantic Scene Selection & Context-Aware Subtitles
 - [ ] **Semantic Scene Roles**: AI routes scenes based on narration meaning:
+  - Roadmaps, 5-step frameworks & execution steps $\rightarrow$ `HorizontalProcessStepsScene` (Full-width 16:9 widescreen layout with 5 balanced glassmorphism cards, large 2D vector illustrations, connector arrows, gradient title accent, and category pill).
   - Chapter titles $\rightarrow$ `ChapterTitleScene` (Fraunces/Outfit, 56px, orange eyebrow pill).
   - Time-blocking & scheduling $\rightarrow$ `CalendarGridScene` (7-column pastel schedule blocks).
   - AI prompts & technical queries $\rightarrow$ `PromptWindowScene` (macOS header, mono text, `[...]` yellow brackets).

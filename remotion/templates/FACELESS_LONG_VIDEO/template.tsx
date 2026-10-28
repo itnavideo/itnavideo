@@ -47,6 +47,11 @@ import { CalendarGridScene } from './scenes/CalendarGridScene';
 import { MilestoneLadderScene } from './scenes/MilestoneLadderScene';
 import { ScriptBubbleScene } from './scenes/ScriptBubbleScene';
 import { DrawingStoryScene } from './scenes/DrawingStoryScene';
+import { HorizontalProcessStepsScene } from './scenes/HorizontalProcessStepsScene';
+import { StoryCharacterDeskScene } from './scenes/StoryCharacterDeskScene';
+import { ProductMockupFlowScene } from './scenes/ProductMockupFlowScene';
+import { BeforeAfterTransformationScene } from './scenes/BeforeAfterTransformationScene';
+import { CreatorCelebrationScene } from './scenes/CreatorCelebrationScene';
 import { FACELESS_DESIGN_TOKENS } from './facelessTokens';
 import { getFacelessFontAssetPath } from '../../../lib/fonts/facelessFontCatalog';
 import {
@@ -388,6 +393,72 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     const resolvedAssetUrl = matchedBrollUrl ? safeResolveMediaSrc(matchedBrollUrl) : undefined;
     const sceneKey = `scene-${scene.sceneNumber || 0}`;
 
+    // ── High-Impact 16:9 Widescreen Narrative Archetypes (Priority Dispatch) ──
+    if (layout === 'story_character_desk' || layout === 'creator_desk' || layout === 'character_desk') {
+      return (
+        <StoryCharacterDeskScene
+          key={sceneKey}
+          scene={scene}
+          headingFont={headingFont}
+          bodyFont={typographyFont}
+          sceneFrame={framesSinceSceneStart}
+          palette={palette}
+        />
+      );
+    }
+
+    if (layout === 'horizontal_process' || layout === 'process_steps' || layout === '5_step_process') {
+      return (
+        <HorizontalProcessStepsScene
+          key={sceneKey}
+          scene={scene}
+          headingFont={headingFont}
+          bodyFont={typographyFont}
+          sceneFrame={framesSinceSceneStart}
+          palette={palette}
+        />
+      );
+    }
+
+    if (layout === 'product_mockup_flow' || layout === 'interface_mockup' || layout === 'workflow_flow') {
+      return (
+        <ProductMockupFlowScene
+          key={sceneKey}
+          scene={scene}
+          headingFont={headingFont}
+          bodyFont={typographyFont}
+          sceneFrame={framesSinceSceneStart}
+          palette={palette}
+        />
+      );
+    }
+
+    if (layout === 'before_after_transformation' || layout === 'transformation' || layout === 'before_after') {
+      return (
+        <BeforeAfterTransformationScene
+          key={sceneKey}
+          scene={scene}
+          headingFont={headingFont}
+          bodyFont={typographyFont}
+          sceneFrame={framesSinceSceneStart}
+          palette={palette}
+        />
+      );
+    }
+
+    if (layout === 'creator_celebration' || layout === 'celebration' || layout === 'conclusion_celebration') {
+      return (
+        <CreatorCelebrationScene
+          key={sceneKey}
+          scene={scene}
+          headingFont={headingFont}
+          bodyFont={typographyFont}
+          sceneFrame={framesSinceSceneStart}
+          palette={palette}
+        />
+      );
+    }
+
     // 1. Context-Aware Vector Storytelling Engine (Human stories, struggles, journeys, startups, mindsets)
     const isDrawingStoryContext =
       layout === 'drawing_story' ||
@@ -618,6 +689,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
           headingFont={headingFont}
           bodyFont={typographyFont}
           sceneFrame={framesSinceSceneStart}
+          palette={palette}
         />
       );
     }
@@ -646,6 +718,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
           headingFont={headingFont}
           bodyFont={typographyFont}
           sceneFrame={framesSinceSceneStart}
+          palette={palette}
         />
       );
     }
@@ -661,6 +734,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
             headingFont={headingFont}
             bodyFont={typographyFont}
             sceneFrame={framesSinceSceneStart}
+            palette={palette}
           />
         );
       }
@@ -700,6 +774,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
           headingFont={headingFont}
           bodyFont={typographyFont}
           sceneFrame={framesSinceSceneStart}
+          palette={palette}
         />
       );
     }
@@ -715,6 +790,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
             headingFont={headingFont}
             bodyFont={typographyFont}
             sceneFrame={framesSinceSceneStart}
+            palette={palette}
           />
         );
       }
@@ -801,6 +877,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
           headingFont={headingFont}
           bodyFont={typographyFont}
           sceneFrame={framesSinceSceneStart}
+          palette={palette}
         />
       );
     }
@@ -864,6 +941,28 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     if (layout === 'ecosystem' || layout === 'framework' || (layout === 'checklist' && scene.sceneNumber % 3 === 0 && (scene.listItems?.length || 0) >= 3)) {
       return <EcosystemScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
     }
+    const isProcessStepsContext =
+      layout === 'horizontal_process' ||
+      layout === 'process_steps' ||
+      layout === '5_step_process' ||
+      layout === 'roadmap' ||
+      layout === 'numbered_steps' ||
+      /5 step|5-step|five step|process|step 1|steps to|roadmap|strategy steps|simple steps|how to start|turn your idea/i.test(
+        `${scene.heading || ''} ${scene.supportingText || ''} ${scene.narrationSegment?.text || ''}`
+      );
+    if (isProcessStepsContext) {
+      return (
+        <HorizontalProcessStepsScene
+          key={sceneKey}
+          scene={scene}
+          headingFont={headingFont}
+          bodyFont={typographyFont}
+          sceneFrame={framesSinceSceneStart}
+          palette={palette}
+        />
+      );
+    }
+
     const isRoadmapContext =
       layout === 'roadmap' ||
       layout === 'timeline' ||
@@ -1301,7 +1400,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
           top: 0,
           left: 0,
           width: `${Math.min(100, Math.max(0, (currentTimeSec / Math.max(1, durationSeconds)) * 100))}%`,
-          height: '4px',
+          height: '6px',
           background: 'linear-gradient(90deg, #FF5722, #FF7043, #FFA000)',
           zIndex: 40,
           boxShadow: '0 0 12px rgba(255, 87, 34, 0.85)',
@@ -1341,7 +1440,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
           <span
             style={{
               fontFamily: headingFont,
-              fontSize: '13px',
+              fontSize: '15px',
               fontWeight: 800,
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
@@ -1418,7 +1517,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
             emphasisWords={currentScene?.highlightedWords || []}
             backgroundTheme="solid-white"
             styleOverrides={{
-              fontSize: 32,
+              fontSize: 40,
             }}
           />
         );

@@ -120,7 +120,7 @@ export function HookScene({
             <div style={{ transform: 'scale(1.15)', marginTop: '40px' }}>
               <VectorDrawingIcon
                 keyword={`${headline} ${scene.supportingText || ''}`}
-                size={360}
+                size={460}
                 strokeWidth={3.8}
                 animated={true}
                 frameOverride={currentFrame}

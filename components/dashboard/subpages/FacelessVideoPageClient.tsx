@@ -337,6 +337,10 @@ export default function FacelessVideoPageClient() {
     const activeStoryboard = (isActualPayload ? storyboardPayload : lastStoryboardPayloadRef.current) || {};
 
     try {
+      if (typeof window !== "undefined") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
       setJobStatus({
         state: "uploading",
         message: "Staging confirmed storyboard for cloud rendering...",
@@ -716,6 +720,9 @@ export default function FacelessVideoPageClient() {
               fileName={selectedFile?.name}
               onRetry={() => handleStartRender()}
               onReset={() => {
+                if (typeof window !== "undefined") {
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }
                 setSelectedFile(null);
                 setFacelessImageFiles([]);
                 cachedAudioKeyRef.current = "";

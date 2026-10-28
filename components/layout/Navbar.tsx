@@ -577,171 +577,90 @@ export default function Navbar() {
       </header>
 
       {/* MOBILE FLYOUT DRAWER — CLEAN LIGHT BRAND PALETTE */}
+      {/* MOBILE FLYOUT DRAWER — CLEAN MINIMAL PREMIUM LAYOUT */}
       {isOpen && (
-        <div className="fixed inset-0 z-[120] flex flex-col justify-between bg-white/98 backdrop-blur-2xl text-slate-900 p-5 sm:p-6 lg:hidden animate-in fade-in slide-in-from-top-4 duration-200 overflow-y-auto">
-          <div className="space-y-5">
+        <div className="fixed inset-0 z-[120] flex flex-col justify-between bg-white text-slate-900 p-6 lg:hidden animate-in fade-in slide-in-from-top-4 duration-200">
+          <div>
             {/* Top Brand & Close Bar */}
-            <div className="flex items-center justify-between pb-3.5 border-b border-slate-200/80">
+            <div className="flex items-center justify-between pb-5 border-b border-stone-200/80">
               <BrandLogo size="sm" showBadge={false} variant="light" />
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-slate-700 hover:text-slate-900 hover:bg-slate-200 transition cursor-pointer"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-stone-200 bg-stone-100 text-slate-700 hover:text-slate-950 hover:bg-stone-200 transition cursor-pointer"
                 aria-label="Close menu"
               >
                 <X size={18} />
               </button>
             </div>
 
-            {/* Primary Action Hero Card */}
-            <div className="rounded-2xl border border-orange-500/30 bg-gradient-to-br from-orange-50 via-amber-50/40 to-white p-4 space-y-2.5 shadow-xs">
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-orange-800">
-                <Sparkles size={11} className="text-[#FF5722]" />
-                <span>1 Free Credit On Signup</span>
-              </div>
-              <h3 className="text-sm font-extrabold text-slate-900">
-                Create 1080p AI Videos
-              </h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Turn voiceovers or scripts into YouTube 16:9 &amp; vertical Shorts with automatic B-roll and subtitles.
-              </p>
+            {/* MINIMAL NAVIGATION LINKS (Pricing, About Us, Contact Us) */}
+            <nav className="mt-4 flex flex-col divide-y divide-stone-100">
               <Link
-                href="/dashboard"
+                href="/pricing"
                 onClick={() => setIsOpen(false)}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-4 py-2.5 text-xs font-black text-white shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:brightness-110 active:scale-95 transition-all duration-200"
+                className="flex items-center justify-between py-4 text-base font-bold text-slate-900 hover:text-[#FF5722] transition-colors"
               >
-                <span>Start Creating Free</span>
-                <ArrowRight size={14} />
+                <span>Pricing</span>
+                <ChevronRight size={17} className="text-stone-400" />
               </Link>
-            </div>
 
-            {/* SIMPLIFIED DIRECT NAVIGATION FOR NEW USERS */}
-            <div className="space-y-2 pt-1">
-              <p className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400 px-1">
-                Video Studios
-              </p>
+              <Link
+                href="/about"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center justify-between py-4 text-base font-bold text-slate-900 hover:text-[#FF5722] transition-colors"
+              >
+                <span>About Us</span>
+                <ChevronRight size={17} className="text-stone-400" />
+              </Link>
 
-              <div className="flex flex-col gap-1.5">
-                <Link
-                  href="/dashboard/faceless-video"
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-between rounded-xl border border-slate-200/90 bg-slate-50/80 px-3.5 py-2.5 text-xs font-bold text-slate-800 hover:border-orange-500/40 hover:bg-orange-50/40 hover:text-orange-950 transition"
-                >
-                  <span className="flex items-center gap-2.5">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-500/10 text-orange-600">
-                      <Tv size={14} />
-                    </span>
-                    <span>
-                      <span className="block text-slate-900 font-extrabold">16:9 Faceless Video</span>
-                      <span className="block text-[10px] text-slate-500 font-normal">YouTube long-form explainers</span>
-                    </span>
-                  </span>
-                  <ChevronRight size={15} className="text-slate-400" />
-                </Link>
-
-                <Link
-                  href="/dashboard/auto-caption"
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-between rounded-xl border border-slate-200/90 bg-slate-50/80 px-3.5 py-2.5 text-xs font-bold text-slate-800 hover:border-orange-500/40 hover:bg-orange-50/40 hover:text-orange-950 transition"
-                >
-                  <span className="flex items-center gap-2.5">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600">
-                      <Captions size={14} />
-                    </span>
-                    <span>
-                      <span className="block text-slate-900 font-extrabold">Auto Caption Generator</span>
-                      <span className="block text-[10px] text-slate-500 font-normal">Kinetic subtitles for Reels &amp; Shorts</span>
-                    </span>
-                  </span>
-                  <ChevronRight size={15} className="text-slate-400" />
-                </Link>
-
-                <Link
-                  href="/dashboard"
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-between rounded-xl border border-slate-200/90 bg-slate-50/80 px-3.5 py-2.5 text-xs font-bold text-slate-800 hover:border-orange-500/40 hover:bg-orange-50/40 hover:text-orange-950 transition"
-                >
-                  <span className="flex items-center gap-2.5">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-200/70 text-slate-700">
-                      <LayoutDashboard size={14} />
-                    </span>
-                    <span>
-                      <span className="block text-slate-900 font-extrabold">All 10 Studios Hub</span>
-                      <span className="block text-[10px] text-slate-500 font-normal">Explore full video studio suite</span>
-                    </span>
-                  </span>
-                  <ChevronRight size={15} className="text-slate-400" />
-                </Link>
-
-                <Link
-                  href="/video-types"
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-between rounded-xl border border-slate-200/90 bg-slate-50/80 px-3.5 py-2.5 text-xs font-bold text-slate-800 hover:border-orange-500/40 hover:bg-orange-50/40 hover:text-orange-950 transition"
-                >
-                  <span className="flex items-center gap-2.5">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-500/10 text-orange-600">
-                      <BookOpen size={14} />
-                    </span>
-                    <span>
-                      <span className="block text-slate-900 font-extrabold">Video Types &amp; Specs</span>
-                      <span className="block text-[10px] text-slate-500 font-normal">Dedicated pages for every video tool</span>
-                    </span>
-                  </span>
-                  <ChevronRight size={15} className="text-slate-400" />
-                </Link>
-
-                <Link
-                  href="/pricing"
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center justify-between rounded-xl border border-slate-200/90 bg-slate-50/80 px-3.5 py-2.5 text-xs font-bold text-slate-800 hover:border-orange-500/40 hover:bg-orange-50/40 hover:text-orange-950 transition"
-                >
-                  <span className="flex items-center gap-2.5">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600">
-                      <CreditCard size={14} />
-                    </span>
-                    <span>
-                      <span className="block text-slate-900 font-extrabold">Pricing &amp; Plans</span>
-                      <span className="block text-[10px] text-slate-500 font-normal">Free trial &amp; creator packs</span>
-                    </span>
-                  </span>
-                  <ChevronRight size={15} className="text-slate-400" />
-                </Link>
-              </div>
-            </div>
+              <Link
+                href="/contact"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center justify-between py-4 text-base font-bold text-slate-900 hover:text-[#FF5722] transition-colors"
+              >
+                <span>Contact Us</span>
+                <ChevronRight size={17} className="text-stone-400" />
+              </Link>
+            </nav>
           </div>
 
           {/* BOTTOM ACCOUNT / ACTION BAR */}
-          <div className="mt-6 pt-4 border-t border-slate-200">
+          <div className="pt-6 border-t border-stone-200/80 space-y-3">
             {user ? (
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2.5">
                 <Link
                   href="/dashboard"
                   onClick={() => setIsOpen(false)}
-                  className="w-full text-center rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] py-3 text-xs font-black text-white shadow-md shadow-orange-500/25 hover:brightness-110 transition"
+                  className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#F4511E] to-[#E64A19] py-3.5 text-sm font-black text-white shadow-lg shadow-orange-500/25 active:scale-98 transition-all"
                 >
-                  Open Studio Dashboard
+                  <Sparkles size={16} />
+                  <span>Dashboard</span>
+                  <ArrowRight size={16} />
                 </Link>
                 <button
                   type="button"
                   onClick={() => { setIsOpen(false); void logout(); }}
-                  className="w-full text-center text-xs font-semibold text-rose-600 py-1.5 hover:text-rose-700 transition cursor-pointer"
+                  className="w-full text-center text-xs font-semibold text-stone-500 py-1.5 hover:text-rose-600 transition cursor-pointer"
                 >
                   Log Out
                 </button>
               </div>
             ) : (
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2.5">
                 <Link
                   href="/dashboard"
                   onClick={() => setIsOpen(false)}
-                  className="w-full text-center rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] py-3 text-xs font-black text-white shadow-md shadow-orange-500/25 hover:brightness-110 transition"
+                  className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#F4511E] to-[#E64A19] py-3.5 text-sm font-black text-white shadow-lg shadow-orange-500/25 active:scale-98 transition-all"
                 >
-                  Get Started
+                  <Sparkles size={16} />
+                  <span>Get Started</span>
+                  <ArrowRight size={16} />
                 </Link>
                 <Link
                   href="/login"
                   onClick={() => setIsOpen(false)}
-                  className="w-full text-center rounded-xl border border-slate-200 bg-white py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-2xs"
+                  className="w-full text-center rounded-2xl border border-stone-200 bg-stone-50 py-3 text-xs font-bold text-slate-700 hover:bg-stone-100 transition shadow-2xs"
                 >
                   Log In
                 </Link>

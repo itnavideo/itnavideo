@@ -44,6 +44,12 @@ export type VisualLayoutType =
   | 'newspaper_headline'
   | 'stamp_badge'
   | 'supporting_note'
+  | 'horizontal_process'
+  | 'process_steps'
+  | 'story_character_desk'
+  | 'product_mockup_flow'
+  | 'before_after_transformation'
+  | 'creator_celebration'
   | 'drawing_story'
   | 'hook';
 
@@ -104,6 +110,7 @@ export type SceneBlueprintItem = {
   statTrend?: 'up' | 'down' | 'neutral';
   quoteAuthor?: string;
   numberBadge?: string | number;
+  categoryPill?: string;
   comparisonItems?: { left: string; right: string };
   timelineSteps?: string[];
   checklistItems?: string[];

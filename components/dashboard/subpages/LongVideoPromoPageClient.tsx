@@ -218,6 +218,9 @@ export default function LongVideoPromoPage() {
     setIsSubmitting(true);
 
     try {
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
       setJobStatus({
         state: "uploading",
         message: "Uploading video securely for AI analysis...",
@@ -467,6 +470,9 @@ export default function LongVideoPromoPage() {
               fileName={selectedFile?.name}
               onRetry={handleStartRender}
               onReset={() => {
+                if (typeof window !== 'undefined') {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
                 setSelectedFile(null);
                 setPromoThumbnailFile(null);
                 setIsSubmitting(false);

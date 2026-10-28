@@ -18,12 +18,14 @@ export function QuoteScene({
   headingFont = FACELESS_DESIGN_TOKENS.typography.editorialSerif,
   bodyFont = FACELESS_DESIGN_TOKENS.typography.interfaceSans,
   sceneFrame,
+  palette,
 }: QuoteSceneProps) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const currentFrame = sceneFrame ?? frame;
 
-  const textColor = FACELESS_DESIGN_TOKENS.colors.textPrimary;
+  const isDark = palette?.isDark ?? false;
+  const textColor = isDark ? '#F8FAFC' : FACELESS_DESIGN_TOKENS.colors.textPrimary;
   const quoteMarkColor = FACELESS_DESIGN_TOKENS.colors.accentCoral;
   const accentColor = FACELESS_DESIGN_TOKENS.colors.accentAmber;
 
@@ -41,7 +43,7 @@ export function QuoteScene({
         justifyContent: 'center',
         padding: '100px 140px', // Strict safe area
         zIndex: 10,
-        backgroundColor: FACELESS_DESIGN_TOKENS.colors.canvasWhite,
+        backgroundColor: 'transparent',
         ...anim,
       }}
     >

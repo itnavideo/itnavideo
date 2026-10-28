@@ -143,7 +143,7 @@ export function ChapterTitleScene({
             <div style={{ marginBottom: '32px' }}>
               <VectorDrawingIcon
                 keyword={headline}
-                size={340}
+                size={440}
                 strokeWidth={3.5}
                 animated={true}
                 theme={isLight ? 'light' : 'dark'}

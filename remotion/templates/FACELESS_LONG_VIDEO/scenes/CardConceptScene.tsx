@@ -195,12 +195,13 @@ export function CardConceptScene({
           <h2
             style={{
               fontFamily: headingFont,
-              fontSize: '66px',
+              fontSize: '52px',
               fontWeight: 900,
               color: palette.textPrimary,
               letterSpacing: '-0.025em',
               lineHeight: 1.18,
               marginBottom: '20px',
+              maxWidth: '800px',
             }}
           >
             {highlightWord && headline.toLowerCase().includes(highlightWord.toLowerCase()) ? (
@@ -221,12 +222,12 @@ export function CardConceptScene({
             <p
               style={{
                 fontFamily: bodyFont,
-                fontSize: '30px',
+                fontSize: '26px',
                 fontWeight: 600,
                 color: palette.textSecondary,
                 lineHeight: 1.5,
                 margin: 0,
-                maxWidth: '920px',
+                maxWidth: '760px',
               }}
             >
               {supportingText}

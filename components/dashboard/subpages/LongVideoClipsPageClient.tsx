@@ -280,6 +280,9 @@ export default function LongVideoClipsPage() {
     setIsSubmitting(true);
 
     try {
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
       let mediaKey = "";
       let fileName = "youtube-source.mp4";
       let contentType = "video/mp4";
@@ -569,6 +572,9 @@ export default function LongVideoClipsPage() {
               fileName={selectedFile?.name || (inputMode === "youtube" ? "youtube-video.mp4" : undefined)}
               onRetry={handleStartRender}
               onReset={() => {
+                if (typeof window !== 'undefined') {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
                 setSelectedFile(null);
                 setYoutubeUrl("");
                 setIsSubmitting(false);

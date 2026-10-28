@@ -138,7 +138,7 @@ export default function DualFormatEngineShowcase() {
         {/* ───────────────────────────────────────────────────────────── */}
         <div className="mb-12 sm:mb-16 rounded-3xl border border-stone-200/90 bg-white/95 p-5 sm:p-8 shadow-[0_12px_36px_-6px_rgba(0,0,0,0.06)] backdrop-blur-md">
           {/* Top Interactive Dock Switcher */}
-          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 p-1.5 bg-stone-100 rounded-2xl max-w-2xl mx-auto mb-8">
+          <div className="flex items-center justify-center gap-1.5 sm:gap-3 p-1.5 bg-stone-100 rounded-2xl max-w-2xl mx-auto mb-8">
             {DOCK_CONFIGS.map((dock) => {
               const isSelected = dock.id === activeDock;
               const Icon = dock.tabIcon;
@@ -146,14 +146,17 @@ export default function DualFormatEngineShowcase() {
                 <button
                   key={dock.id}
                   onClick={() => setActiveDock(dock.id)}
-                  className={`flex-1 min-w-[160px] py-2.5 px-4 rounded-xl text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                  className={`flex-1 min-w-0 py-2 sm:py-2.5 px-2 sm:px-4 rounded-xl text-[11px] sm:text-sm font-extrabold flex items-center justify-center gap-1 sm:gap-2 transition-all cursor-pointer ${
                     isSelected
-                      ? 'bg-white text-orange-600 shadow-md ring-1 ring-orange-500/20 scale-[1.02]'
+                      ? 'bg-white text-orange-600 shadow-md ring-1 ring-orange-500/20 scale-[1.01]'
                       : 'text-slate-600 hover:text-slate-950 hover:bg-stone-200/60'
                   }`}
                 >
-                  <Icon size={16} className={isSelected ? 'text-[#FF5722]' : 'text-slate-400'} />
-                  <span>{dock.tabLabel}</span>
+                  <Icon size={14} className={isSelected ? 'text-[#FF5722]' : 'text-slate-400'} />
+                  <span className="hidden sm:inline">{dock.tabLabel}</span>
+                  <span className="sm:hidden truncate">
+                    {dock.id === '16x9' ? '16:9 Cinema' : dock.id === '9x16' ? '9:16 Shorts' : 'Audio Tool'}
+                  </span>
                 </button>
               );
             })}

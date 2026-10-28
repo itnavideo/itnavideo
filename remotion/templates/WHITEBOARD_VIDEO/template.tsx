@@ -15,6 +15,9 @@ import { loadFont as loadJakarta } from '@remotion/google-fonts/PlusJakartaSans'
 import { loadFont as loadInter } from '@remotion/google-fonts/Inter';
 import { DEFAULT_FPS, secondsToFrames } from '../../constants';
 import { WHITEBOARD_VECTOR_DRAWINGS, resolveVectorDrawing } from '../../../lib/whiteboard/vectorDrawings';
+import { Whiteboard2DIcon } from '../../components/graphics/Whiteboard2DIcon';
+import { WhiteboardHand } from '../../components/graphics/WhiteboardHand';
+import { WhiteboardStoryInfographic, WhiteboardStoryInfographicProps } from './WhiteboardStoryInfographic';
 import {
   WB_CANVAS_WIDTH,
   WB_CANVAS_HEIGHT,
@@ -84,7 +87,9 @@ type WhiteboardVideoProps = {
   mediaTrimStartSeconds?: number;
   title?: string;
   titleColor?: string;
-  layoutType?: 'cards' | 'table' | 'quiz' | 'hook';
+  layoutType?: 'cards' | 'table' | 'quiz' | 'hook' | 'infographic';
+  infographicData?: WhiteboardStoryInfographicProps;
+  showHand?: boolean;
   language?: 'ur' | 'hi' | 'en';
   direction?: 'rtl' | 'ltr';
   points?: WhiteboardPoint[];
@@ -252,6 +257,34 @@ function WhiteboardDynamicSketch({
   size?: number;
 }) {
   const frame = useCurrentFrame();
+
+  // 1. Check if matches rich 2D illustration library
+  const combined = `${drawingId || ''} ${fallbackText || ''}`.toLowerCase();
+  let matched2D: string | null = null;
+  if (/savings|jar|coin|paisa|money/i.test(combined)) matched2D = 'savings_jar';
+  else if (/think|wonder|soch|question|why/i.test(combined)) matched2D = 'character_thinking';
+  else if (/happy|stress|calm|peace|relief/i.test(combined)) matched2D = 'character_happy';
+  else if (/medical|doctor|hospital|emergency|dawa/i.test(combined)) matched2D = 'medical_emergency';
+  else if (/car|repair|vehicle|auto/i.test(combined)) matched2D = 'car_repairs';
+  else if (/goal|future|degree|education|graduat/i.test(combined)) matched2D = 'graduation_cap';
+  else if (/house|home|makan|property|estate/i.test(combined)) matched2D = 'future_house';
+  else if (/siren|alarm|danger|alert/i.test(combined)) matched2D = 'emergency_siren';
+  else if (/plant|wealth|invest|grow|kamyabi/i.test(combined)) matched2D = 'wealth_plant';
+  else if (/target|aim|bullseye|focus|maqsad/i.test(combined)) matched2D = 'target_bullseye';
+  else if (/chart|trend|sales|revenue|profit/i.test(combined)) matched2D = 'growth_chart';
+  else if (/idea|lightbulb|solution|smart/i.test(combined)) matched2D = 'lightbulb_idea';
+
+  if (matched2D) {
+    return (
+      <Whiteboard2DIcon
+        type={matched2D}
+        size={size}
+        startFrame={startFrame}
+        durationFrames={Math.max(10, Math.floor((endFrame - startFrame) * 0.7))}
+        style={{ flexShrink: 0, marginRight: 16 }}
+      />
+    );
+  }
   const drawingDef = drawingId && WHITEBOARD_VECTOR_DRAWINGS[drawingId]
     ? WHITEBOARD_VECTOR_DRAWINGS[drawingId]
     : resolveVectorDrawing(fallbackText);
@@ -301,7 +334,7 @@ function WhiteboardDynamicSketch({
           <path
             key={index}
             d={stroke.d}
-            fill="none"
+            fill={stroke.fill || 'none'}
             stroke={strokeColor}
             strokeWidth={stroke.strokeWidth || 3.4}
             strokeLinecap="round"
@@ -542,7 +575,7 @@ function WritingLine({
           color={color}
           startFrame={startFrame}
           endFrame={endFrame}
-          size={isTitle ? Math.max(44, Math.round(fontSize * 0.72)) : Math.max(52, Math.round(fontSize * 1.25))}
+          size={isTitle ? 120 : Math.max(160, Math.round(fontSize * 3.2))}
         />
       ) : null}
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -585,8 +618,8 @@ function WritingLine({
             {text}
           </span>
 
-          {isTitle && <MarkerUnderline color={color} startFrame={startFrame + 4} variant={0} />}
-          {isHighlight && !isTitle && <MarkerUnderline color={color} startFrame={startFrame + 2} variant={pointIndex % 3} />}
+          {/* Underline removed */}
+          {/* Underline removed */}
 
           {/* Real-time spoken highlight or focus overlay */}
           {isFocusActive && (
@@ -870,6 +903,8 @@ function WhiteboardVideo({
   title = 'Executive Strategy',
   titleColor = COLORS.title,
   layoutType = 'cards',
+  infographicData,
+  showHand = true,
   language = 'en',
   direction = 'ltr',
   points = [],
@@ -932,6 +967,62 @@ function WhiteboardVideo({
     [16, 0],
     { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
   );
+
+  // Dynamic Hand tracking for standard cards layout
+  const activePointForHand = useMemo(() => {
+    for (let i = 0; i < activeBoardPoints.length; i++) {
+      const pt = activeBoardPoints[i];
+      const ptStart = pt.startTime;
+      const ptEnd = pt.startTime + 2.5;
+      if (currentTime >= ptStart - 0.2 && currentTime <= ptEnd) {
+        const progress = Math.max(0, Math.min(1, (currentTime - ptStart) / 2.0));
+        return {
+          x: 340 + progress * 420,
+          y: 360 + i * 220,
+          isDrawing: true,
+        };
+      }
+    }
+    if (currentTime < 1.5) {
+      const progress = Math.max(0, Math.min(1, currentTime / 1.2));
+      return {
+        x: 320 + progress * 420,
+        y: 190,
+        isDrawing: true,
+      };
+    }
+    return {
+      x: 870,
+      y: 1720,
+      isDrawing: false,
+    };
+  }, [activeBoardPoints, currentTime]);
+
+  // 1. Direct Infographic 2D Storyboard Scene View
+  if (layoutType === 'infographic') {
+    return (
+      <AbsoluteFill style={{ background: '#F1F5F9' }}>
+        <ProceduralWhiteboardCanvas />
+        <WhiteboardStoryInfographic {...infographicData} showHand={showHand} />
+
+        {resolvedSrc && mediaType === 'audio' && (
+          <Audio
+            src={resolvedSrc}
+            volume={sourceAudioVolume}
+            startFrom={Math.round(mediaTrimStartSeconds * fps)}
+          />
+        )}
+        {resolvedSrc && mediaType === 'video' && (
+          <OffthreadVideo
+            src={resolvedSrc}
+            volume={sourceAudioVolume}
+            startFrom={Math.round(mediaTrimStartSeconds * fps)}
+            style={{ position: 'absolute', width: 0, height: 0, opacity: 0 }}
+          />
+        )}
+      </AbsoluteFill>
+    );
+  }
 
   return (
     <AbsoluteFill style={{ background: '#F1F5F9' }}>
@@ -1055,6 +1146,15 @@ function WhiteboardVideo({
           style={{ position: 'absolute', width: 0, height: 0, opacity: 0 }}
         />
       )}
+      {/* 5. Authentic Drawing Hand tracking written items */}
+      {showHand && (
+        <WhiteboardHand
+          targetX={activePointForHand.x}
+          targetY={activePointForHand.y}
+          isDrawing={activePointForHand.isDrawing}
+          scale={0.92}
+        />
+      )}
     </AbsoluteFill>
   );
 }
@@ -1066,7 +1166,31 @@ const defaultProps: WhiteboardVideoProps = {
   mediaType: 'audio',
   sourceAudioVolume: 1,
   durationSeconds: 30,
-  title: 'Executive Strategy',
+  title: 'Why You Should Save Money?',
+  layoutType: 'infographic',
+  showHand: true,
+  infographicData: {
+    titlePrefix: 'Why You Should',
+    titleAccent: 'Save Money?',
+    thoughtText: 'What if I need money later?',
+    bracketHeader: 'Life has uncertainties...',
+    bracketItems: [
+      { label: 'Medical emergencies', icon: 'medical_emergency' },
+      { label: 'Car repairs', icon: 'car_repairs' },
+      { label: 'Future house & goals', icon: 'future_house' },
+    ],
+    centerStatement: 'Saving money helps you be prepared.',
+    heroLabel: 'SAVINGS',
+    heroType: 'savings_jar',
+    sideNote: 'It gives you freedom and peace of mind.',
+    bottomSubhead: 'Small steps today... Big benefits tomorrow.',
+    bottomCards: [
+      { label: 'Handle emergencies', icon: 'emergency_siren' },
+      { label: 'Grow your wealth', icon: 'wealth_plant' },
+      { label: 'Achieve your goals', icon: 'target_bullseye' },
+      { label: 'Less stress', icon: 'character_happy' },
+    ],
+  },
   titleColor: COLORS.title,
   points: [
     { text: 'Target core bottleneck', startTime: 1.0, endTime: 6.5, focusStartTime: 1.0, focusEndTime: 6.5, markerColor: COLORS.blue, bulletType: 'number', icon: 'lightbulb', boardIndex: 0, focusType: 'circle' },

@@ -412,7 +412,7 @@ export default function YoutubeSubtitlesPage() {
   const [youtubeSubtitleCase, setYoutubeSubtitleCase] = useState<"natural" | "uppercase">("natural");
 
   // Preset Filtering & Search States
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedCategory, setSelectedCategory] = useState<string>("essentials");
   const [presetSearch, setPresetSearch] = useState<string>("");
 
   // Sub-panel tabs in settings card
@@ -695,12 +695,9 @@ export default function YoutubeSubtitlesPage() {
     return activePresetConfig.specimen;
   }, [playbackTime, previewCaptions, activeSampleVideo, activePresetConfig]);
 
-  // Rule 4.1 Pricing: 1 Min = 1 Credit (1m=1, 5m=5, 10m=10 Cr)
+  // Founder Directive: Flat 2 Credits per video (regardless of duration, up to 5 mins)
   const currentDurationSeconds = mediaDurationSeconds || previewDuration || 60;
-  const calculatedCredits = Math.max(
-    1,
-    Math.min(10, Math.ceil(currentDurationSeconds / 60))
-  );
+  const calculatedCredits: number = 2;
 
   // Start Render Job
   async function handleStartRender() {
@@ -716,6 +713,9 @@ export default function YoutubeSubtitlesPage() {
     renderRequestInFlightRef.current = true;
 
     try {
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
       setJobStatus({
         state: "uploading",
         message: "Uploading horizontal 16:9 video securely to cloud...",
@@ -933,6 +933,9 @@ export default function YoutubeSubtitlesPage() {
   };
 
   const handleReset = () => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
     setJobStatus({ state: "idle" });
     setSelectedFile(null);
   };
@@ -1081,7 +1084,7 @@ export default function YoutubeSubtitlesPage() {
       </header>
 
       {/*  Main Canvas  */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 pb-28 sm:pb-8">
         {/* Header Banner & Value Proposition */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-6">
           <div>
@@ -1112,7 +1115,7 @@ export default function YoutubeSubtitlesPage() {
             </span>
             <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1.5 text-xs font-bold text-emerald-400 flex items-center gap-1.5">
               <ShieldCheck size={14} />
-              <span>1 Min = 1 Credit</span>
+              <span>Flat 2 Credits / Video</span>
             </span>
           </div>
         </div>
@@ -1163,7 +1166,7 @@ export default function YoutubeSubtitlesPage() {
             {/*  LEFT COLUMN (7 Cols): Upload + Cloudinary Switcher + Styles Gallery + Alignment  */}
             <div className="lg:col-span-7 space-y-6">
               {/*  1. Video & Audio Upload Dropzone + Cloudinary Sample Selector  */}
-              <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-5 sm:p-6 shadow-2xl space-y-4">
+              <div className="rounded-2xl sm:rounded-[28px] border border-white/10 bg-[#0E1526] p-4 sm:p-6 shadow-2xl space-y-4">
                 <div className="flex items-center justify-between pb-3 border-b border-white/10">
                   <div className="flex items-center gap-3">
                     <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-[#FF5722]/15 text-[#FFA000] text-xs font-black border border-[#FF5722]/30">
@@ -1199,7 +1202,7 @@ export default function YoutubeSubtitlesPage() {
                       setSelectedFile(e.dataTransfer.files[0]);
                     }
                   }}
-                  className={`w-full flex items-center justify-between gap-3 rounded-2xl border-2 border-dashed p-4 transition-all cursor-pointer group ${
+                  className={`w-full flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 rounded-2xl border-2 border-dashed p-4 transition-all cursor-pointer group ${
                     selectedFile
                       ? "border-emerald-500/50 bg-emerald-500/5"
                       : "border-white/15 hover:border-[#FF5722]/60 bg-[#070B14]"
@@ -1237,7 +1240,7 @@ export default function YoutubeSubtitlesPage() {
                     </div>
                   </div>
 
-                  <span className="rounded-xl border border-[#FF5722]/30 bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black font-black text-xs px-4 py-2 hover:brightness-110 shadow-md shadow-[#FF5722]/20 transition shrink-0 flex items-center gap-1.5 cursor-pointer">
+                  <span className="rounded-xl border border-[#FF5722]/30 bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black font-black text-xs px-4 py-2.5 hover:brightness-110 shadow-md shadow-[#FF5722]/20 transition shrink-0 flex items-center justify-center gap-1.5 cursor-pointer w-full sm:w-auto">
                     <Upload size={13} className="text-black" />
                     <span>{selectedFile ? "Change File" : "Browse Files"}</span>
                   </span>
@@ -1330,7 +1333,7 @@ export default function YoutubeSubtitlesPage() {
               </div>
 
               {/*  2. Spacious 16:9 Broadcast Subtitle Gallery  */}
-              <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-5 sm:p-6 shadow-2xl space-y-4 relative overflow-hidden">
+              <div className="rounded-2xl sm:rounded-[28px] border border-white/10 bg-[#0E1526] p-4 sm:p-6 shadow-2xl space-y-4 relative overflow-hidden">
                 <BorderBeam size={220} duration={14} colorFrom="#FF5722" colorTo="#FFA000" />
 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
@@ -1360,7 +1363,7 @@ export default function YoutubeSubtitlesPage() {
                       placeholder="Search presets..."
                       value={presetSearch}
                       onChange={(e) => setPresetSearch(e.target.value)}
-                      className="w-full bg-[#070B14] text-xs text-white placeholder-slate-500 rounded-xl border border-white/15 pl-8 pr-3 py-2 focus:border-[#FF5722] focus:outline-none"
+                      className="w-full bg-[#070B14] text-xs text-white placeholder-slate-400 rounded-xl border border-white/20 pl-8 pr-3 py-2 focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] focus:outline-none transition"
                     />
                   </div>
                 </div>
@@ -1458,7 +1461,7 @@ export default function YoutubeSubtitlesPage() {
               </div>
 
               {/*  3. Alignment, Safe-Zone & Custom Typography  */}
-              <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-5 sm:p-6 shadow-xl space-y-4">
+              <div className="rounded-2xl sm:rounded-[28px] border border-white/10 bg-[#0E1526] p-4 sm:p-6 shadow-xl space-y-4">
                 <div className="flex items-center justify-between border-b border-white/10 pb-3">
                   <div className="flex items-center gap-3">
                     <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-[#FF5722]/15 text-[#FFA000] text-xs font-black border border-[#FF5722]/30">
@@ -1836,14 +1839,14 @@ export default function YoutubeSubtitlesPage() {
               </div>
 
               {/*  Dual Export Hub & Cost Calculation  */}
-              <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-5 sm:p-6 shadow-2xl space-y-4">
+              <div className="rounded-2xl sm:rounded-[28px] border border-white/10 bg-[#0E1526] p-4 sm:p-6 shadow-2xl space-y-4">
                 <div className="flex items-center justify-between border-b border-white/10 pb-3">
                   <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-white">
                     <FileText size={15} className="text-[#FF7043]" />
                     <span>Dual Export Hub</span>
                   </div>
                   <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 font-bold">
-                    1 Min = 1 Cr
+                    Flat 2 Credits
                   </span>
                 </div>
 
@@ -1860,9 +1863,9 @@ export default function YoutubeSubtitlesPage() {
                     <span className="font-bold text-[#FFA000]">{activePresetConfig.title}</span>
                   </div>
                   <div className="flex items-center justify-between text-slate-400 border-b border-white/5 pb-2">
-                    <span>Credit Rate (Rule 4.1)</span>
+                    <span>Credit Rate</span>
                     <span className="font-mono text-emerald-400 font-bold">
-                      {calculatedCredits} {calculatedCredits === 1 ? "Credit" : "Credits"} ({calculatedCredits}m duration)
+                      2 Credits (Flat rate up to 5 min)
                     </span>
                   </div>
                 </div>
@@ -1880,7 +1883,7 @@ export default function YoutubeSubtitlesPage() {
                       <span>Render 16:9 Subtitled Video</span>
                     </span>
                     <span className="rounded-full bg-black/25 px-2.5 py-0.5 text-xs font-mono font-bold">
-                      {calculatedCredits} {calculatedCredits === 1 ? "Credit" : "Credits"}
+                      2 Credits
                     </span>
                   </button>
 
@@ -1926,6 +1929,45 @@ export default function YoutubeSubtitlesPage() {
           </div>
         )}
       </main>
+
+      {/* Mobile Sticky Action Bar (Always Available on Phones) */}
+      {jobStatus.state === "idle" && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden border-t border-white/10 bg-[#0B0D13]/95 backdrop-blur-xl px-4 py-3 flex items-center justify-between gap-3 shadow-[0_-8px_30px_rgba(0,0,0,0.8)]">
+          <div className="min-w-0">
+            <p className="text-[11px] font-black uppercase text-[#FFA000] tracking-wider truncate">
+              {selectedFile ? selectedFile.name : activePresetConfig.title}
+            </p>
+            <p className="text-[10px] text-zinc-400 font-bold flex items-center gap-1.5">
+              <span className="text-emerald-400 font-mono font-bold">2 Credits</span>
+              <span>•</span>
+              <span>{selectedFile ? (mediaDurationSeconds > 0 ? `${Math.round(mediaDurationSeconds)}s` : "Loaded") : "16:9 Subtitles"}</span>
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            {selectedFile ? (
+              <button
+                type="button"
+                onClick={handleStartRender}
+                disabled={isWorking}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-4 py-2.5 text-xs font-black text-black shadow-lg shadow-[#FF5722]/30 active:scale-95 disabled:opacity-50 cursor-pointer"
+              >
+                <Sparkles size={14} className="text-black" />
+                <span>{isWorking ? "Rendering..." : "Render 16:9"}</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-4 py-2.5 text-xs font-black text-black shadow-lg shadow-[#FF5722]/30 active:scale-95 cursor-pointer"
+              >
+                <Upload size={14} className="text-black" />
+                <span>Upload Video</span>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

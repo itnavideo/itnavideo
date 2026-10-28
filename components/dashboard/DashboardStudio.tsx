@@ -2990,13 +2990,13 @@ export default function DashboardStudio({
                             <span className="flex items-center gap-1.5">
                               <Clock3 size={13} className="text-amber-400" /> Format
                             </span>
-                            <span className="text-white font-extrabold">{(mode as string) === "youtubeSubtitleGenerator" ? "16:9  15 min" : "9:16  90s"}</span>
+                            <span className="text-white font-extrabold">{(mode as string) === "youtubeSubtitleGenerator" ? "16:9 • 5 min" : "9:16 • 90s"}</span>
                           </div>
                           <div className="flex items-center justify-between text-xs text-zinc-400 font-bold">
                             <span className="flex items-center gap-1.5">
                               <Zap size={13} className="text-[#FF9100]" /> Credit Rate
                             </span>
-                            <span className="text-[#FFA000] font-extrabold">{(mode as string) === "youtubeSubtitleGenerator" ? "1 / 2 Min" : "1 / Min"}</span>
+                            <span className="text-[#FFA000] font-extrabold">{(mode as string) === "youtubeSubtitleGenerator" ? "Flat 2 Credits" : "1 / Min"}</span>
                           </div>
                         </div>
                       </div>
@@ -3011,7 +3011,7 @@ export default function DashboardStudio({
                       </span>
                       <span className="font-bold text-[#FFA000]">
                         Cost: {(mode as string) === "youtubeSubtitleGenerator"
-                          ? `${Math.max(1, Math.ceil(promoClipMeta.durationSeconds / 120))} Credit${Math.ceil(promoClipMeta.durationSeconds / 120) > 1 ? 's' : ''} (1 credit per 2 minutes)`
+                          ? '2 Credits (Flat rate up to 5 minutes)'
                           : `${Math.max(1, Math.ceil(promoClipMeta.durationSeconds / 60))} Credit${Math.ceil(promoClipMeta.durationSeconds / 60) > 1 ? 's' : ''} (1 credit per minute)`
                         }
                       </span>
