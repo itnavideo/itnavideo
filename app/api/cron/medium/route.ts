@@ -55,7 +55,7 @@ By automating script-to-scene planning with Gemini and rendering through cloud L
     title: 'The Death of Boring Whiteboards: How AI Sketch Videos Transformed Education',
     featuredImage: `${SITE_URL}/preview/Whiteboard%20Video.png`,
     category: 'Educational Technology',
-    keywords: ['Whiteboard Video', 'EdTech', 'AI Animation', 'Explainer Videos', 'Teaching Tools'],
+    keywords: ['Whiteboard Animation', 'EdTech', 'AI Animation', 'Explainer Videos', 'Teaching Tools'],
     story: `
 Traditional whiteboard animation software required dragging static SVG icons, drawing fake hand paths, and manually aligning audio tracks for hours.
 

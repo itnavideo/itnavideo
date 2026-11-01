@@ -2,6 +2,7 @@
 
 import React, { useRef, useState, ChangeEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Upload,
   Globe,
@@ -58,6 +59,9 @@ export interface AutoCaptionUploadStepProps {
   processingError: string | null;
   onClearError: () => void;
   creditsRemaining?: number;
+  currentPreset?: string;
+  onSelectPreset?: (preset: string) => void;
+  onSelectSampleWithPreset?: (preset: string) => void;
 }
 
 export function AutoCaptionUploadStep({
@@ -74,9 +78,22 @@ export function AutoCaptionUploadStep({
   processingError,
   onClearError,
   creditsRemaining,
+  currentPreset = "Retro Shadow",
+  onSelectPreset,
+  onSelectSampleWithPreset,
 }: AutoCaptionUploadStepProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const router = useRouter();
   const [isDragging, setIsDragging] = useState(false);
+
+  const handleExploreStylesAndTemplates = async () => {
+    // Directly show dashboard (the studio that shows after upload)
+    if (onSelectSampleWithPreset) {
+      await onSelectSampleWithPreset(currentPreset || "Editorial Mix");
+    } else {
+      router.push("/dashboard/auto-caption");
+    }
+  };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -130,13 +147,15 @@ export function AutoCaptionUploadStep({
               <Zap size={13} className="text-[#FF5722] fill-[#FF5722]" />
               <span>{creditsRemaining !== undefined ? `${creditsRemaining} Credits` : "908 Credits"}</span>
             </div>
-            <Link
-              href="/auto-caption/templates"
-              className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 px-3.5 py-1.5 text-xs font-bold text-slate-700 hover:text-[#FF5722] transition"
+            <button
+              type="button"
+              onClick={handleExploreStylesAndTemplates}
+              className="inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-50/90 hover:bg-orange-100 hover:border-[#FF5722]/50 px-3 sm:px-3.5 py-1.5 text-xs font-bold text-[#FF5722] transition cursor-pointer shadow-2xs hover:scale-105 active:scale-95"
             >
               <Sparkles size={13} className="text-[#FF5722]" />
-              <span>Templates</span>
-            </Link>
+              <span className="hidden sm:inline">Explore Styles &amp; Templates</span>
+              <span className="sm:hidden">Templates</span>
+            </button>
           </div>
         </div>
       </header>
@@ -214,7 +233,7 @@ export function AutoCaptionUploadStep({
                   </p>
                 </div>
 
-                <div className="pt-2">
+                <div className="pt-2 flex flex-wrap items-center justify-center gap-2">
                   <button
                     type="button"
                     onClick={async (e) => {
@@ -232,6 +251,18 @@ export function AutoCaptionUploadStep({
                   >
                     <Sparkles size={13} className="text-[#FF5722]" />
                     <span>Try with sample clip</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleExploreStylesAndTemplates();
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white hover:bg-slate-50 hover:border-[#FF5722]/60 text-xs font-bold text-slate-800 px-3.5 py-1.5 transition cursor-pointer shadow-2xs hover:scale-105 active:scale-95"
+                  >
+                    <Layers size={13} className="text-[#FF5722]" />
+                    <span>Explore Styles &amp; Templates</span>
                   </button>
                 </div>
               </div>
@@ -369,6 +400,31 @@ export function AutoCaptionUploadStep({
             </button>
           </div>
 
+          {/* Quick Explore Styles & Templates Banner */}
+          <div className="rounded-2xl border border-orange-200/80 bg-gradient-to-r from-orange-50/80 via-amber-50/40 to-white p-3.5 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#FF5722] to-[#FFA000] text-white shrink-0 shadow-sm shadow-[#FF5722]/20">
+                <Sparkles size={18} />
+              </div>
+              <div className="min-w-0 text-left">
+                <p className="text-xs sm:text-sm font-black text-slate-900 font-jakarta">
+                  Want to explore styles before uploading?
+                </p>
+                <p className="text-[11px] text-slate-500 font-medium">
+                  Preview 50+ viral kinetic styles, animations, and video templates with live demo
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleExploreStylesAndTemplates}
+              className="w-full sm:w-auto shrink-0 inline-flex items-center justify-center gap-1.5 rounded-xl bg-white hover:bg-orange-50 border border-orange-200 px-4 py-2 text-xs font-black text-[#FF5722] hover:text-[#E64A19] transition shadow-2xs hover:scale-105 active:scale-95 cursor-pointer font-jakarta"
+            >
+              <Layers size={13} />
+              <span>Explore 50+ Styles →</span>
+            </button>
+          </div>
+
           {/* Clean Micro Features / Trust badges */}
           <div className="grid grid-cols-3 gap-2 text-center pt-2">
             <div className="p-2">
@@ -376,7 +432,7 @@ export function AutoCaptionUploadStep({
               <span className="text-[11px] text-slate-400">Groq Whisper Engine</span>
             </div>
             <div className="p-2">
-              <span className="text-xs font-black text-slate-800 block">40+ Styles</span>
+              <span className="text-xs font-black text-slate-800 block">50+ Kinetic Styles</span>
               <span className="text-[11px] text-slate-400">Viral Kinetic Motion</span>
             </div>
             <div className="p-2">

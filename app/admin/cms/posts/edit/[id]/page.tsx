@@ -334,7 +334,7 @@ export default function EditCmsPostPage() {
                   <option value="auto-caption-reel">Auto Caption Reel</option>
                   <option value="compare-explainer">Compare Explainer</option>
                   <option value="typography-video">Typography Video</option>
-                  <option value="whiteboard-video">Whiteboard Video</option>
+                  <option value="whiteboard-video">Whiteboard Animation</option>
                   <option value="long-video-promo">Long Video Promo</option>
                   <option value="long-video-clips">Long Video Clips</option>
                   <option value="general">General AI & Video</option>

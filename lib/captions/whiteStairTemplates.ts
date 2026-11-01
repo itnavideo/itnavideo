@@ -1,5 +1,6 @@
 // lib/captions/whiteStairTemplates.ts
 // Master registry of WhiteStair caption template cards, color styles, and single-line phrase definitions.
+import { getKineticStyle } from "./kineticStyles";
 
 export interface WhiteStairWordStyle {
   text?: string;
@@ -395,6 +396,78 @@ export const WHITESTAIR_TEMPLATES: WhiteStairCard[] = [
     layout: "single-line",
     maxWordsPerLine: 4,
   },
+
+  // 8 Kinetic Caption Styles (Claude AI Master System)
+  {
+    id: "pop-word",
+    name: "Pop Word",
+    presetKey: "Pop Word",
+    words: [{ text: "POP", color: "#FFE14D", bold: true }],
+    layout: "one-word",
+    maxWordsPerLine: 1,
+  },
+  {
+    id: "karaoke-line",
+    name: "Karaoke Line",
+    presetKey: "Karaoke Line",
+    words: [
+      { text: "Word", color: "#FFFFFF" },
+      { text: "Line", color: "#FFE14D", bold: true },
+    ],
+    layout: "single-line",
+    maxWordsPerLine: 4,
+  },
+  {
+    id: "box-highlight",
+    name: "Box Highlight",
+    presetKey: "Box Highlight",
+    words: [{ text: "BOX", color: "#000000", bg: "#FFE14D", pill: true, bold: true }],
+    layout: "box",
+    maxWordsPerLine: 3,
+  },
+  {
+    id: "neon-glow",
+    name: "Neon Glow",
+    presetKey: "Neon Glow",
+    words: [{ text: "glow", color: "#FFFFFF", glow: "#FFE14D", bold: true }],
+    layout: "single-line",
+    maxWordsPerLine: 3,
+  },
+  {
+    id: "typewriter-style",
+    name: "Typewriter",
+    presetKey: "Typewriter",
+    words: [{ text: "typewriter", color: "#FFFFFF", font: "monospace" }],
+    layout: "single-line",
+    maxWordsPerLine: 5,
+  },
+  {
+    id: "slam-headline",
+    name: "Slam Headline",
+    presetKey: "Slam Headline",
+    words: [{ text: "SLAM", color: "#FFE14D", bold: true }],
+    layout: "one-word",
+    maxWordsPerLine: 1,
+  },
+  {
+    id: "word-stack",
+    name: "Word Stack",
+    presetKey: "Word Stack",
+    words: [{ text: "STACK", color: "#FFE14D", bold: true }],
+    layout: "one-word",
+    maxWordsPerLine: 3,
+  },
+  {
+    id: "editorial-mix",
+    name: "Editorial Mix",
+    presetKey: "Editorial Mix",
+    words: [
+      { text: "EDITORIAL", color: "#FFE14D", bold: true },
+      { text: "subtitle words here", color: "#FFFFFF" },
+    ],
+    layout: "single-line",
+    maxWordsPerLine: 5,
+  },
 ];
 
 /**
@@ -416,6 +489,19 @@ export function getWhiteStairTemplate(idOrKey?: string): WhiteStairCard | undefi
   // 3. Match on presetKey
   const byKey = WHITESTAIR_TEMPLATES.find((t) => t.presetKey.toLowerCase() === clean);
   if (byKey) return byKey;
+
+  // 4. Match any of the 50 Kinetic Styles dynamically
+  const kinetic = getKineticStyle(clean);
+  if (kinetic) {
+    return {
+      id: kinetic.id,
+      name: kinetic.name,
+      presetKey: kinetic.name,
+      layout: kinetic.layout === "o" ? "one-word" : kinetic.layout === "l" ? "single-line" : "box",
+      maxWordsPerLine: kinetic.chunk,
+      words: [{ text: kinetic.name, color: "#FFE14D", bold: true }],
+    };
+  }
 
   return undefined;
 }

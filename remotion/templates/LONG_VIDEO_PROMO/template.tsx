@@ -19,7 +19,20 @@ const resolveFont = (fontFamily: string) => fontFamily;
 const TITLE_FONT = resolveFont('Montserrat');
 const DISPLAY_FONT = resolveFont('Anton');
 
+export type LongVideoPromoScene = {
+  sceneNumber: number;
+  id: string;
+  startSeconds: number;
+  endSeconds: number;
+  durationSeconds: number;
+  stage: 'teaser_hook' | 'core_highlight' | 'call_to_action';
+  headline: string;
+  subtitle?: string;
+  ctaText?: string;
+};
+
 export type LongVideoPromoProps = {
+  scenes?: LongVideoPromoScene[];
   // Core props
   thumbnailSrc?: string;
   title?: string;

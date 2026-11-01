@@ -40,7 +40,7 @@ const faqs: FAQItem[] = [
   },
   {
     question: "Which AI video types are available?",
-    answer: "Our 10+ video studios include Faceless Video, Book Summary Video, Image to Video AI, YouTube Subtitles (16:9 Widescreen), Auto Caption Generator, Kinetic Typography, Whiteboard Video, Compare Explainer, Long Video to Clips, and Long Video Promo (9:16 Shorts), plus our AI Audio Cleaner utility.",
+    answer: "Our 10+ video studios include Faceless Video, Book Summary Video, Image to Video AI, YouTube Subtitles (16:9 Widescreen), Auto Caption Generator, Kinetic Typography, Whiteboard Animation, Compare Explainer, Long Video to Clips, and Long Video Promo (9:16 Shorts), plus our AI Audio Cleaner utility.",
     category: 'workflows',
     categoryLabel: 'Video Workflows',
     action: { label: 'Explore All Dedicated Studio Pages & Specs', href: '/video-types' },

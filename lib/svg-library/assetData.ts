@@ -1,4 +1,4 @@
-import type { SvgCategory } from './registry';
+import type { SvgCategory } from './types';
 
 export interface SvgDataDef {
   id: string;

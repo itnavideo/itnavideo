@@ -43,7 +43,7 @@ const SLIDES: VideoSlide[] = [
     ],
   },
   {
-    label: 'WHITEBOARD VIDEOS',
+    label: 'WHITEBOARD ANIMATION',
     videos: [
       { src: '/videos/demo-captions/demo-2.mp4', alt: 'Whiteboard video 1' },
       { src: '/videos/demo-captions/demo-2.mp4', alt: 'Whiteboard video 2' },

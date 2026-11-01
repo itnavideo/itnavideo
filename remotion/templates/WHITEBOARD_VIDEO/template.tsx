@@ -18,6 +18,8 @@ import { WHITEBOARD_VECTOR_DRAWINGS, resolveVectorDrawing } from '../../../lib/w
 import { Whiteboard2DIcon } from '../../components/graphics/Whiteboard2DIcon';
 import { WhiteboardHand } from '../../components/graphics/WhiteboardHand';
 import { WhiteboardStoryInfographic, WhiteboardStoryInfographicProps } from './WhiteboardStoryInfographic';
+import { DynamicWhiteboardSceneDirector, getWhiteboardFont } from './DynamicWhiteboardSceneDirector';
+import type { WhiteboardScene } from '../../../services/ai/whiteboardPlanner';
 import {
   WB_CANVAS_WIDTH,
   WB_CANVAS_HEIGHT,
@@ -100,6 +102,8 @@ type WhiteboardVideoProps = {
   boardStyle?: string;
   aspectRatio?: '9:16';
   enableSfx?: boolean;
+  scenes?: WhiteboardScene[];
+  fontPersonality?: string;
 };
 
 // ── Whiteboard Marker Fonts & Colors ─────────────────────────────────────────
@@ -108,7 +112,7 @@ const { fontFamily: KALAM_FONT } = loadKalam();
 const { fontFamily: JAKARTA_FONT } = loadJakarta();
 const { fontFamily: INTER_FONT } = loadInter();
 
-const FONT_WHITEBOARD = `${KALAM_FONT}, 'Kalam', 'Caveat', cursive, sans-serif`;
+const FONT_WHITEBOARD = getWhiteboardFont('balsamiq');
 const FONT_HEADER = `${JAKARTA_FONT}, sans-serif`;
 const FONT_BODY = `${INTER_FONT}, sans-serif`;
 
@@ -497,6 +501,7 @@ function WritingLine({
   language = 'en',
   pointIndex = 0,
   focusType = 'highlight',
+  fontPersonality = 'balsamiq',
 }: {
   text: string;
   startFrame: number;
@@ -516,6 +521,7 @@ function WritingLine({
   language?: 'ur' | 'hi' | 'en';
   pointIndex?: number;
   focusType?: 'circle' | 'underline' | 'box' | 'arrow' | 'highlight';
+  fontPersonality?: string;
 }) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -544,7 +550,7 @@ function WritingLine({
                        currentTime >= focusStartTime && currentTime <= focusEndTime;
 
   const isUrdu = language === 'ur' || direction === 'rtl';
-  const activeFont = isUrdu ? "'Noto Nastaliq Urdu', 'Gulzar', serif" : FONT_WHITEBOARD;
+  const activeFont = isUrdu ? "'Noto Nastaliq Urdu', 'Gulzar', serif" : getWhiteboardFont(fontPersonality || 'balsamiq');
   const activeLineHeight = isUrdu ? 2.2 : isTitle ? 1.2 : 1.35;
 
   return (
@@ -905,6 +911,7 @@ function WhiteboardVideo({
   layoutType = 'cards',
   infographicData,
   showHand = true,
+  fontPersonality = 'marker',
   language = 'en',
   direction = 'ltr',
   points = [],
@@ -913,6 +920,7 @@ function WhiteboardVideo({
   conclusion = '',
   conclusionTime,
   enableSfx = true,
+  scenes = [],
 }: WhiteboardVideoProps) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -998,6 +1006,32 @@ function WhiteboardVideo({
     };
   }, [activeBoardPoints, currentTime]);
 
+  // 0. Dynamic Archetype Scene Director (Multi-scene speech-synced storytelling)
+  if (scenes && scenes.length > 0) {
+    return (
+      <AbsoluteFill style={{ background: '#F1F5F9' }}>
+        <ProceduralWhiteboardCanvas />
+        <DynamicWhiteboardSceneDirector scenes={scenes} showHand={showHand} fontPersonality={fontPersonality} />
+
+        {resolvedSrc && mediaType === 'audio' && (
+          <Audio
+            src={resolvedSrc}
+            volume={sourceAudioVolume}
+            startFrom={Math.round(mediaTrimStartSeconds * fps)}
+          />
+        )}
+        {resolvedSrc && mediaType === 'video' && (
+          <OffthreadVideo
+            src={resolvedSrc}
+            volume={sourceAudioVolume}
+            startFrom={Math.round(mediaTrimStartSeconds * fps)}
+            style={{ position: 'absolute', width: 0, height: 0, opacity: 0 }}
+          />
+        )}
+      </AbsoluteFill>
+    );
+  }
+
   // 1. Direct Infographic 2D Storyboard Scene View
   if (layoutType === 'infographic') {
     return (
@@ -1068,6 +1102,7 @@ function WhiteboardVideo({
               fontWeight={900}
               direction={direction}
               language={language}
+              fontPersonality={fontPersonality}
               isTitle
             />
 
@@ -1100,6 +1135,7 @@ function WhiteboardVideo({
                   language={language}
                   pointIndex={index}
                   focusType={point.focusType || 'highlight'}
+                  fontPersonality={fontPersonality}
                 />
               );
             })}
@@ -1116,6 +1152,7 @@ function WhiteboardVideo({
                 direction={direction}
                 language={language}
                 bulletPrefix="★"
+                fontPersonality={fontPersonality}
               />
             )}
           </>
@@ -1146,15 +1183,6 @@ function WhiteboardVideo({
           style={{ position: 'absolute', width: 0, height: 0, opacity: 0 }}
         />
       )}
-      {/* 5. Authentic Drawing Hand tracking written items */}
-      {showHand && (
-        <WhiteboardHand
-          targetX={activePointForHand.x}
-          targetY={activePointForHand.y}
-          isDrawing={activePointForHand.isDrawing}
-          scale={0.92}
-        />
-      )}
     </AbsoluteFill>
   );
 }
@@ -1169,6 +1197,7 @@ const defaultProps: WhiteboardVideoProps = {
   title: 'Why You Should Save Money?',
   layoutType: 'infographic',
   showHand: true,
+  fontPersonality: 'marker',
   infographicData: {
     titlePrefix: 'Why You Should',
     titleAccent: 'Save Money?',

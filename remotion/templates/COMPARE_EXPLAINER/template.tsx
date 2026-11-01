@@ -38,6 +38,21 @@ type CompareCaption = {
   lines?: string[];
 };
 
+export type CompareScene = {
+  sceneNumber: number;
+  id: string;
+  startSeconds: number;
+  endSeconds: number;
+  durationSeconds: number;
+  stage: 'hook_intro' | 'left_focus' | 'right_focus' | 'versus_battle' | 'analysis' | 'warning' | 'verdict';
+  heading: string;
+  narrationSnippet: string;
+  activeFocus: 'left' | 'right' | 'both';
+  stickerPose: string;
+  highlightSide?: 'left' | 'right';
+  reason?: string;
+};
+
 type CompareProps = {
   audioUrl?: string;
   mediaUrl?: string;
@@ -65,6 +80,7 @@ type CompareProps = {
   stickerOffsetX?: number;
   stickerOffsetY?: number;
 
+  scenes?: CompareScene[];
   overlayTimeline?: CompareOverlay[];
   captions?: CompareCaption[];
   transcriptSegments?: CompareCaption[];

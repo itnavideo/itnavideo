@@ -113,7 +113,7 @@ export default function RealDashboardPreview() {
                   {[
                     { name: 'Auto Caption Reel', active: true, badge: '1 Cr' },
                     { name: 'Compare Explainer', active: false, badge: '1 Cr' },
-                    { name: 'Whiteboard Video', active: false, badge: '1 Cr' },
+                    { name: 'Whiteboard Animation', active: false, badge: '1 Cr' },
                     { name: 'Typography Video', active: false, badge: '1 Cr' },
                     { name: 'AI Audio Cleaner', active: false, badge: '1 Cr' },
                     { name: 'Faceless Video', active: false, badge: '4 Cr' },

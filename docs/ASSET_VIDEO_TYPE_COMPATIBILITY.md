@@ -44,7 +44,7 @@ The table below outlines the suitability of each cloud and local asset category 
 - **COND** = **Conditional** (Permitted only under strict sub-conditions, e.g., audio-only uploads)
 - **NOT** = **Not Suitable** (Forbidden; contradicts the visual contract or pollutes layout)
 
-| Asset Category (Available Count) | Faceless Video (16:9) | Book Summary (16:9) | Image to Video (16:9) | YouTube Subtitles (16:9) | Long Video Clips (9:16) | Auto Caption Reel (9:16) | Compare Explainer (9:16) | Typography Video (9:16) | Whiteboard Video (9:16) | Long Video Promo (9:16) | Audio Cleaner (Utility) |
+| Asset Category (Available Count) | Faceless Video (16:9) | Book Summary (16:9) | Image to Video (16:9) | YouTube Subtitles (16:9) | Long Video Clips (9:16) | Auto Caption Reel (9:16) | Compare Explainer (9:16) | Typography Video (9:16) | Whiteboard Animation (9:16) | Long Video Promo (9:16) | Audio Cleaner (Utility) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **Icons & Symbols (275 SVG)** | **REC** | **REC** | **NOT** | **NOT** | **NOT** | **NOT** | **REC** | **OPT** | **REC** | **OPT** | **NOT** |
 | **Character Illustrations (100 SVG)** | **REC** | **OPT** | **NOT** | **NOT** | **NOT** | **NOT** | **OPT** | **NOT** | **NOT** | **NOT** | **NOT** |
@@ -86,7 +86,7 @@ The table below outlines the suitability of each cloud and local asset category 
 - **Incompatible Assets**:
   - Real stock video footage or noisy colorful cards that distract from quote typography.
 
-### 3. Whiteboard Video (`WHITEBOARD_VIDEO` — 9:16 Vertical)
+### 3. Whiteboard Animation (`WHITEBOARD_VIDEO` — 9:16 Vertical)
 - **Role in Platform**: Educational doodle and hand-drawn strategy explainers.
 - **Best Asset Categories**:
   - `Whiteboard Doodles & Stickman Graphics` (40 S3 + local stickman vectors) $\rightarrow$ Core primary subject matter.

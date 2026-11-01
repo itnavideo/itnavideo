@@ -63,8 +63,8 @@ export const HOMEPAGE_WORKFLOWS: readonly HomepageWorkflow[] = [
   },
   {
     id: 'whiteboard-video',
-    name: 'Whiteboard Video',
-    shortName: 'Whiteboard',
+    name: 'Whiteboard Animation',
+    shortName: 'Whiteboard Animation',
     category: 'shorts',
     description: 'Turn spoken explanations into structured whiteboard scenes synchronized to the narration.',
     inputs: 'Voiceover audio or video with speech',

@@ -42,7 +42,7 @@ const allVideoTypes = [
   "Auto Caption Video",
   "Compare Explainer Video",
   "Long Video Promo",
-  "Whiteboard Video",
+  "Whiteboard Animation",
   "Typography Video",
 ];
 
@@ -762,7 +762,7 @@ export const comparisonSeoPages: SeoContentPage[] = [
     faqs: [
       { question: "How does Itnavideo compare to Clipchamp?", answer: "Clipchamp is a manual web video editor. Itnavideo is an AI-powered automated video studio that generates complete videos from speech." },
     ],
-    internalLinks: [toolLink("whiteboard-video", "Whiteboard Video Maker"), compareLink("best-ai-video-tools-for-reels", "Best AI video tools")],
+    internalLinks: [toolLink("whiteboard-video", "Whiteboard Animation Maker"), compareLink("best-ai-video-tools-for-reels", "Best AI video tools")],
   }),
 ];
 

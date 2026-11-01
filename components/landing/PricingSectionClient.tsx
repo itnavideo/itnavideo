@@ -154,7 +154,7 @@ const COMPARISON_ROWS = [
     items: [
       { name: 'Auto Caption Generator (9:16)', free: '1 Trial', starter: true, growth: true, pro: true },
       { name: 'Compare Explainer (9:16)', free: '1 Trial', starter: true, growth: true, pro: true },
-      { name: 'Whiteboard Video (9:16)', free: '1 Trial', starter: true, growth: true, pro: true },
+      { name: 'Whiteboard Animation (9:16)', free: '1 Trial', starter: true, growth: true, pro: true },
       { name: 'Kinetic Motion Video (9:16)', free: '1 Trial', starter: true, growth: true, pro: true },
       { name: 'Long Video Promotion (9:16)', free: '1 Trial', starter: true, growth: true, pro: true },
       { name: 'Long Video Clips (9:16)', free: false, starter: true, growth: true, pro: true },

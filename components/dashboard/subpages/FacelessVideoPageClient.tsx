@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import BrandLogo from "@/components/brand/BrandLogo";
 import { FacelessVideoStudio } from "@/components/dashboard/FacelessVideoStudio";
+import FacelessPreviewModal from "@/components/dashboard/FacelessPreviewModal";
 import { useAuth } from "@/components/auth/AuthContext";
 import {
   ArrowLeft,
@@ -91,6 +92,9 @@ export default function FacelessVideoPageClient() {
 
   // Studio configuration states
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [plannedBlueprint, setPlannedBlueprint] = useState<any[]>([]);
+  const [plannedBrollUrls, setPlannedBrollUrls] = useState<Record<number, string>>({});
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [facelessImageFiles, setFacelessImageFiles] = useState<File[]>([]);
   const [assetSourceMode, setAssetSourceMode] = useState<"library" | "upload" | "mix">("library");
   const [topicTitle, setTopicTitle] = useState("");
@@ -702,6 +706,27 @@ export default function FacelessVideoPageClient() {
               Create professional 1080p Full HD widescreen YouTube videos from narration audio with automatic B-roll, subtitles, and music.
             </p>
           </div>
+
+          <div className="flex items-center gap-3 self-start sm:self-center">
+            <Link
+              href="/dashboard/faceless-video/preview"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 text-xs font-bold transition shadow-xs"
+            >
+              <Tv className="w-4 h-4" />
+              <span>Live 16:9 Studio Demo</span>
+            </Link>
+
+            {plannedBlueprint.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setIsPreviewModalOpen(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold shadow-md shadow-orange-500/25 transition cursor-pointer"
+              >
+                <Play className="w-3.5 h-3.5 fill-white" />
+                <span>Preview My Storyboard ({plannedBlueprint.length})</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* ── Dedicated Interactive Render Engine Stage ── */}
@@ -789,6 +814,8 @@ export default function FacelessVideoPageClient() {
             onGenerate={handleStartRender}
             isGenerating={false}
             renderedVideoUrl={jobStatus.outputFile}
+            onOpenPreview={() => setIsPreviewModalOpen(true)}
+            onSceneBlueprintChange={setPlannedBlueprint}
           />
         )}
 

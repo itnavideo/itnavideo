@@ -15,7 +15,7 @@ import {calculateRenderCreditUnits, formatCreditUnits, LONG_FORM_CAPTION_MAX_SEC
 import {createPlanningMediaClip} from '@/services/media/mediaClipper';
 import {buildEnergyTimeline, findBeatPeaks} from '@/lib/audio/energyTimeline';
 import {createPremiumSoundCues, createPremiumStyleLock} from '@/services/ai/premiumStylePlanner';
-import {planCompareStickers} from '@/services/ai/compareStickerPlanner';
+import {planCompareStickers, buildCompareScenes} from '@/services/ai/compareStickerPlanner';
 import {planScenes} from '@/services/ai/sceneDirector';
 import {matchAssetsToScenes, loadAssetLibrary} from '@/services/ai/assetMatcher';
 import {enhanceScenePlanWithIntelligence} from '@/services/ai/visualIntelligence';
@@ -331,6 +331,110 @@ function matchWordAnchorsToWhisper(
 
   return resultScenes;
 }
+
+function buildAutoCaptionScenes(captions: Array<{ start: number; end: number; text: string }>, durationSeconds: number) {
+  const totalDur = Math.max(1, durationSeconds);
+  if (!captions || captions.length === 0) {
+    return [{
+      sceneNumber: 1,
+      id: 'caption-scene-1',
+      startSeconds: 0,
+      endSeconds: totalDur,
+      durationSeconds: totalDur,
+      role: 'hook' as const,
+      headline: 'Narration Hook',
+      fullText: '',
+      captionsCount: 0,
+    }];
+  }
+
+  const scenes = [];
+  const targetSceneDuration = 6.0;
+  let currentSceneStart = 0;
+  let currentGroup: Array<{ start: number; end: number; text: string }> = [];
+  let sceneIndex = 1;
+
+  for (let i = 0; i < captions.length; i++) {
+    currentGroup.push(captions[i]);
+    const groupDur = captions[i].end - currentSceneStart;
+    const isLast = i === captions.length - 1;
+
+    if (groupDur >= targetSceneDuration || isLast) {
+      const endSec = isLast ? Math.max(captions[i].end, totalDur) : captions[i].end;
+      const role = sceneIndex === 1 ? ('hook' as const) : isLast ? ('cta' as const) : ('speech' as const);
+      const textConcat = currentGroup.map((c) => c.text).join(' ');
+      const headline = currentGroup[0]?.text?.slice(0, 30) || `Beat ${sceneIndex}`;
+
+      scenes.push({
+        sceneNumber: sceneIndex,
+        id: `caption-scene-${sceneIndex}`,
+        startSeconds: Number(currentSceneStart.toFixed(2)),
+        endSeconds: Number(endSec.toFixed(2)),
+        durationSeconds: Number((endSec - currentSceneStart).toFixed(2)),
+        role,
+        headline,
+        fullText: textConcat,
+        captionsCount: currentGroup.length,
+      });
+
+      sceneIndex++;
+      currentSceneStart = captions[i].end;
+      currentGroup = [];
+    }
+  }
+
+  return scenes.length > 0 ? scenes : [{
+    sceneNumber: 1,
+    id: 'caption-scene-1',
+    startSeconds: 0,
+    endSeconds: totalDur,
+    durationSeconds: totalDur,
+    role: 'hook' as const,
+    headline: 'Full Video',
+    fullText: captions.map((c) => c.text).join(' '),
+    captionsCount: captions.length,
+  }];
+}
+
+function buildLongVideoPromoScenes(params: { durationSeconds: number; title: string; ctaText?: string }) {
+  const dur = Math.max(5, params.durationSeconds);
+  const hookEnd = Math.min(2.5, dur * 0.25);
+  const ctaStart = Math.max(hookEnd + 1, dur - 3.0);
+
+  return [
+    {
+      sceneNumber: 1,
+      id: 'promo-scene-1',
+      startSeconds: 0,
+      endSeconds: Number(hookEnd.toFixed(2)),
+      durationSeconds: Number(hookEnd.toFixed(2)),
+      stage: 'teaser_hook' as const,
+      headline: params.title || 'Watch This Teaser',
+      subtitle: 'Preview Hook',
+    },
+    {
+      sceneNumber: 2,
+      id: 'promo-scene-2',
+      startSeconds: Number(hookEnd.toFixed(2)),
+      endSeconds: Number(ctaStart.toFixed(2)),
+      durationSeconds: Number((ctaStart - hookEnd).toFixed(2)),
+      stage: 'core_highlight' as const,
+      headline: params.title || 'Core Highlight',
+      subtitle: 'Main Content Teaser',
+    },
+    {
+      sceneNumber: 3,
+      id: 'promo-scene-3',
+      startSeconds: Number(ctaStart.toFixed(2)),
+      endSeconds: Number(dur.toFixed(2)),
+      durationSeconds: Number((dur - ctaStart).toFixed(2)),
+      stage: 'call_to_action' as const,
+      headline: params.ctaText || 'Watch Full Video',
+      ctaText: params.ctaText || 'Watch Full Video',
+    },
+  ];
+}
+
 
 const SUBTITLE_LANGUAGE_POLICY = 'General translation policy';
 const getSubtitlePolicy = (lang: string) => `Subtitle language policy: Generate subtitles strictly in ${lang}. If the script is non-Latin (like Kannada, Telugu, Urdu), use the native script. If it's a Latin-script language, use the appropriate alphabet. Ensure accurate synchronization with the audio timing.`;
@@ -1565,6 +1669,19 @@ export async function POST(request: Request) {
         const clipTitle = clip.title || titleFromTranscript(clip.text) || `Viral Clip ${clipPosition + 1}`;
         const clipDuration = clip.endSeconds - clip.startSeconds;
 
+        const clipScene = [
+          {
+            sceneNumber: 1,
+            id: `clip-scene-${clip.index + 1}`,
+            startSeconds: 0,
+            endSeconds: clipDuration,
+            durationSeconds: clipDuration,
+            hookHeadline: clip.headline || `Viral Clip ${clip.index + 1}`,
+            viralityScore: clip.viralityScore,
+            narrationSnippet: clipCaptions.slice(0, 3).map((c) => c.text).join(' '),
+          },
+        ];
+
         const clipInputProps: Record<string, unknown> = {
           mediaSrc: mediaUrl,
           mediaType: 'video',
@@ -1577,6 +1694,7 @@ export async function POST(request: Request) {
           durationSeconds: clipDuration,
           sourceDurationSeconds: clipDuration,
           renderWindowSeconds: clipDuration,
+          scenes: clipScene,
           captions: enableCaptions ? clipCaptions : [],
           captionStyle: clipCaptionStyle,
           captionPosition: readString(body.captionPosition) || 'bottom',
@@ -1986,6 +2104,21 @@ export async function POST(request: Request) {
               overlayCount: plannedOverlayTimeline.length,
             });
 
+            const compareWinnerValue = resolveCompareWinner(readString(body.compareWinner || body.winner));
+            const compareScenes = buildCompareScenes({
+              stickerPlan: plannedOverlayTimeline.map((item) => ({
+                start: Number(item.start ?? 0),
+                end: Number(item.end ?? 0),
+                pose: String(item.stickerPose || item.pose || 'sticker_comparing_both_sides_explainer'),
+                reason: String(item.title || item.text || item.body || ''),
+              })),
+              leftTitle: compareLeftTitleValue,
+              rightTitle: compareRightTitleValue,
+              durationSeconds: Math.min(90, renderWindow.durationSeconds || 90),
+              captions: finalCaptions,
+              winner: compareWinnerValue,
+            });
+
             return {
             audioUrl: planningMedia.mediaUrl,
             mediaUrl: planningMedia.mediaUrl,
@@ -2000,7 +2133,7 @@ export async function POST(request: Request) {
             creatorHandle: readString(body.creatorHandle || body.handle || body.channelName) || '@itnavideo',
             themeId: resolveCompareTheme(readString(body.compareTheme || body.themeId)),
             tone: resolveCompareTone(readString(body.compareTone || body.tone)),
-            winner: resolveCompareWinner(readString(body.compareWinner || body.winner)),
+            winner: compareWinnerValue,
             imageStyle: readString(body.compareImageStyle) || 'rounded',
             compareLeftTitle: readString(body.compareLeftTitle || body.leftTitle || body.leftLabel) || 'Left',
             compareRightTitle: readString(body.compareRightTitle || body.rightTitle || body.rightLabel) || 'Right',
@@ -2009,6 +2142,7 @@ export async function POST(request: Request) {
             imageSources: comparisonImageUrls,
             premiumEditing: false,
             soundCues: [],
+            scenes: compareScenes,
             captions: finalCaptions,
             transcriptSegments: finalCaptions,
             overlayTimeline: plannedOverlayTimeline,
@@ -2035,7 +2169,10 @@ export async function POST(request: Request) {
             const energyTimeline = buildEnergyTimeline(energyWords, durationSec, 30);
             const beatPeakFrames = findBeatPeaks(energyTimeline, 0.65, 8);
 
+            const captionScenes = buildAutoCaptionScenes(finalCaptions, durationSec);
+
             return {
+              scenes: captionScenes,
               captions: finalCaptions,
               subtitleChunks: finalCaptions,
               transcriptSegments: renderWindow.segments || [],
@@ -2062,6 +2199,7 @@ export async function POST(request: Request) {
 
             const wbBoard = resolveWhiteboardBoard(readString(body.whiteboardBoard));
             const activeTranscript = readString(body.editedTranscript) || readString(body.customTranscript) || renderWindow.transcript;
+            const fontPersonality = readString(body.fontPersonality) || 'marker';
             const wbAspectRatio = '9:16' as const;
 
             // Pass word-level timestamps so planner can compute real timing.
@@ -2098,6 +2236,8 @@ export async function POST(request: Request) {
               quiz: wbPlan.quiz,
               conclusion: wbPlan.conclusion,
               conclusionTime: wbPlan.conclusionTime,
+              scenes: wbPlan.scenes,
+              fontPersonality,
               boardStyle: wbBoard,
               aspectRatio: wbAspectRatio,
               captions: [],
@@ -2351,20 +2491,32 @@ export async function POST(request: Request) {
         : {}),
 
       ...(mode === 'longVideoPromo' || (templateName as string) === 'LONG_VIDEO_PROMO'
-        ? {
-            thumbnailSrc: promoThumbnailUrl || readString(body.promoThumbnailUrl) || readString(body.thumbnailUrl) || '',
-            thumbnailKey: promoThumbnailImageKey || undefined,
-            title: readString(body.promoTitle) || topicTitle || 'Watch Full Video',
-            promoGoal: readString(body.promoGoal) || 'watch-full-video',
-            ctaText: readString(body.promoCtaText) || undefined,
-            promoCtaStyle: readString(body.promoCtaStyle) || 'youtube-red',
-            promoCreatorHandle: readString(body.creatorHandle || body.promoCreatorHandle) || '@itnavideo',
-            promoBackgroundMode: readString(body.promoBackgroundMode) || 'blur',
-            aspectRatio: '9:16',
-            mediaAspect: 'portrait',
-            durationSeconds: Math.min(90, requestedDurationSeconds || renderWindow.durationSeconds || 90),
-            sourceDurationSeconds: Math.min(90, requestedDurationSeconds || renderWindow.durationSeconds || 90),
-          }
+        ? (() => {
+            const promoDur = Math.min(90, requestedDurationSeconds || renderWindow.durationSeconds || 90);
+            const promoTitle = readString(body.promoTitle) || topicTitle || 'Watch Full Video';
+            const promoCtaText = readString(body.promoCtaText) || undefined;
+            const promoScenes = buildLongVideoPromoScenes({
+              durationSeconds: promoDur,
+              title: promoTitle,
+              ctaText: promoCtaText,
+            });
+
+            return {
+              thumbnailSrc: promoThumbnailUrl || readString(body.promoThumbnailUrl) || readString(body.thumbnailUrl) || '',
+              thumbnailKey: promoThumbnailImageKey || undefined,
+              title: promoTitle,
+              promoGoal: readString(body.promoGoal) || 'watch-full-video',
+              ctaText: promoCtaText,
+              promoCtaStyle: readString(body.promoCtaStyle) || 'youtube-red',
+              promoCreatorHandle: readString(body.creatorHandle || body.promoCreatorHandle) || '@itnavideo',
+              promoBackgroundMode: readString(body.promoBackgroundMode) || 'blur',
+              aspectRatio: '9:16',
+              mediaAspect: 'portrait',
+              durationSeconds: promoDur,
+              sourceDurationSeconds: promoDur,
+              scenes: promoScenes,
+            };
+          })()
         : {}),
     };
     if ((mode as string) !== 'autoCaption' && (mode as string) !== 'compare' && (!Array.isArray(inputProps.soundCues) || !inputProps.soundCues.length)) {
@@ -4130,7 +4282,7 @@ function humanTemplateName(templateName: string) {
   if (templateName === 'LONG_VIDEO_PROMO') return 'Long Video Promo';
   if (templateName === 'LONG_VIDEO_PRO') return 'Long Video Pro';
   if (templateName === 'comparisonImages') return 'Compare Explainer Video';
-  if (templateName === 'WHITEBOARD_VIDEO') return 'Whiteboard Video';
+  if (templateName === 'WHITEBOARD_VIDEO') return 'Whiteboard Animation';
   // TYPOGRAPHY_VIDEO deprecated and routed to AUTO_CAPTION_GENERATOR
   if (templateName === 'LONG_VIDEO_CLIPS') return 'Long Video Clips';
   return 'Itnavideo Reel';

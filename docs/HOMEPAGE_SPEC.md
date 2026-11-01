@@ -23,7 +23,7 @@
 | Format / Studio | Aspect Ratio | Max Video Length | Credit Cost | Audio & Transcriber Pipeline |
 | :--- | :---: | :---: | :---: | :--- |
 | **16:9 Long-Form Studios**<br/>*(Faceless Video, Book Summary, Image to Video AI, YouTube Subtitles)* | **16:9 Only** | **Up to 5 Minutes (300s / 9,000 frames)** | **1 Min = 1 Credit**<br/>(1m=1, 2m=2, 3m=3, 4m=4, 5m=5 Cr max) | Groq Whisper (Fallback: Gemini Flash) &rarr; Regional/Hindi audio semantically translated to English keywords for B-roll matching &rarr; Rendered on AWS Lambda cluster. |
-| **9:16 Vertical Shorts Studios**<br/>*(Auto Caption Reel, Compare Explainer, Typography Kinetic, Whiteboard Video, Long Video Promo)* | **9:16 Only** | **Up to 90 Seconds (90s / 2,700 frames)** | **1 Credit / Video** | Groq Whisper word timestamps &rarr; Motion kinetic captions & overlays &rarr; Rendered on AWS Lambda. |
+| **9:16 Vertical Shorts Studios**<br/>*(Auto Caption Reel, Compare Explainer, Typography Kinetic, Whiteboard Animation, Long Video Promo)* | **9:16 Only** | **Up to 90 Seconds (90s / 2,700 frames)** | **1 Credit / Video** | Groq Whisper word timestamps &rarr; Motion kinetic captions & overlays &rarr; Rendered on AWS Lambda. |
 | **Viral Video Clips**<br/>*(`longVideoClips`)* | **Source: 16:9 / 9:16**<br/>**Output: 9:16 Shorts** | **Input: Up to 2 Hours**<br/>**Output: 30s–60s Clips** | **1 Credit / Clip**<br/>(1 clip = 1 Cr, 5 clips = 5 Cr) | Audio chunking &rarr; AI Hook Detector & Viral Scoring &rarr; Cuts 1080p vertical shorts. |
 | **AI Audio Cleaner**<br/>*(Studio Audio Utility)* | **Audio Utility** | **Up to 5 Minutes (300s)** | **1 Credit** | Groq Whisper + Retake & Mistake Detection + Podcast Warmth EQ Mastering &rarr; Studio WAV/MP3. |
 
@@ -118,7 +118,7 @@ app/page.tsx
 - Obsidian dark theme (`#070B14`, `#0C1222`) studio environment.
 - Filter chips: `All Studios (11)`, `🖥️ 16:9 Widescreen (4)`, `📱 9:16 Shorts & Reels (6)`, `🎙️ Audio Utility (1)`.
 - **16:9 Section**: Faceless Video, Book Summary Video, Image to Video AI, YouTube Subtitles Generator. *(Badge: 1 Min = 1 Cr • Max 5m)*.
-- **9:16 Section**: Auto Caption Generator, Kinetic Typography, Whiteboard Video, Compare Explainer, Long Video to Clips, Long Video Promo. *(Badge: 1 Credit / Video • Clips: 1 Cr/Clip)*.
+- **9:16 Section**: Auto Caption Generator, Kinetic Typography, Whiteboard Animation, Compare Explainer, Long Video to Clips, Long Video Promo. *(Badge: 1 Credit / Video • Clips: 1 Cr/Clip)*.
 - **Utility**: AI Studio Audio Cleaner. *(Badge: 1 Credit)*.
 
 #### 8. Pricing Section (`components/landing/PricingSection.tsx`)

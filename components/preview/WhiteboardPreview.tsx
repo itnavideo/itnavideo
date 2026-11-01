@@ -17,7 +17,7 @@ const BOARD_PREVIEW_IMAGE: Record<string, string> = {
 };
 
 /**
- * Live WYSIWYG preview for Whiteboard Video. Renders the same Remotion composition
+ * Live WYSIWYG preview for Whiteboard Animation. Renders the same Remotion composition
  * with sample points on the selected board so the writing animation, board scene,
  * and safe-zone fit are visible before render. Real points come from the transcript.
  */

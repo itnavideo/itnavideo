@@ -94,7 +94,7 @@ export default function AdminDashboardPage() {
     : [
         { mode: 'autoCaption', label: 'Auto Caption', count: 342, percent: 100 },
         { mode: 'imageToVideoAi', label: 'Image to Video', count: 198, percent: 58 },
-        { mode: 'whiteboardVideo', label: 'Whiteboard Video', count: 156, percent: 46 },
+        { mode: 'whiteboardVideo', label: 'Whiteboard Animation', count: 156, percent: 46 },
         { mode: 'facelessVideo', label: 'Faceless Video', count: 124, percent: 36 },
         { mode: 'longVideoPromo', label: 'Long Video Promo', count: 87, percent: 25 },
       ];
@@ -104,7 +104,7 @@ export default function AdminDashboardPage() {
     : [
         { mode: 'autoCaption', label: 'Auto Caption', count: 276, percent: 100 },
         { mode: 'imageToVideoAi', label: 'Image to Video', count: 152, percent: 55 },
-        { mode: 'whiteboardVideo', label: 'Whiteboard Video', count: 118, percent: 43 },
+        { mode: 'whiteboardVideo', label: 'Whiteboard Animation', count: 118, percent: 43 },
         { mode: 'facelessVideo', label: 'Faceless Video', count: 96, percent: 35 },
         { mode: 'longVideoPromo', label: 'Long Video Promo', count: 64, percent: 23 },
       ];

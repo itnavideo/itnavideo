@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/SubtitleStylePicker";
 import { getWhiteStairTemplate, type WhiteStairCard } from "@/lib/captions/whiteStairTemplates";
 import { WhiteStairCaptionRenderer } from "@/components/captions/WhiteStairCaptionRenderer";
+import { isKineticCaptionStyle, KINETIC_DEMO_WORDS } from "@/lib/captions/kineticStyles";
+import { KineticCaptionLiveRenderer } from "@/components/captions/KineticCaptionLiveRenderer";
 import { segmentTranscriptIntoPhrases } from "@/lib/captions/phraseSegmenter";
 import type { TranscriptWordItem } from "@/lib/captions/types";
 import {
@@ -345,7 +347,8 @@ export function AutoCaptionBeforeAfterPlayer({
 
   // Never show overlay if "No Caption" template is selected
   const isNoCaptionSelected = activeWhiteStairTemplate?.isCrossed || selectedPresetKey === "none";
-  const shouldShowCaptionOverlay = !isNoCaptionSelected && Boolean(activePhrase || currentChunk);
+  const isKinetic = isKineticCaptionStyle(selectedPresetKey);
+  const shouldShowCaptionOverlay = !isNoCaptionSelected && Boolean(activePhrase || currentChunk || isKinetic);
 
   const fileSizeText = uploadedFile ? `${(uploadedFile.size / (1024 * 1024)).toFixed(1)} MB` : "";
 
@@ -463,7 +466,14 @@ export function AutoCaptionBeforeAfterPlayer({
                     <div className="absolute -bottom-1 -left-1 w-2.5 h-2.5 rounded-full bg-white border-2 border-indigo-500 shadow-sm pointer-events-none" />
                     <div className="absolute -bottom-1 -right-1 w-2.5 h-2.5 rounded-full bg-white border-2 border-indigo-500 shadow-sm pointer-events-none" />
 
-                    {activeWhiteStairTemplate && activeWhiteStairTemplate.words && activeWhiteStairTemplate.words.length > 0 && activePhrase ? (
+                    {isKinetic ? (
+                      <KineticCaptionLiveRenderer
+                        styleName={selectedPresetKey}
+                        words={allWordItems.length > 0 ? allWordItems : KINETIC_DEMO_WORDS}
+                        playbackTime={playbackTime}
+                        isPlaying={isPlaying}
+                      />
+                    ) : activeWhiteStairTemplate && activeWhiteStairTemplate.words && activeWhiteStairTemplate.words.length > 0 && activePhrase ? (
                       <WhiteStairCaptionRenderer
                         template={activeWhiteStairTemplate}
                         phrase={activePhrase}

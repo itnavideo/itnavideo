@@ -67,7 +67,7 @@ const TEMPLATES: VideoTypeItem[] = [
   },
   {
     id: 'whiteboard-video',
-    title: 'Whiteboard Video',
+    title: 'Whiteboard Animation',
     badge: 'Educational',
     aspectRatio: '9:16',
     category: 'short',

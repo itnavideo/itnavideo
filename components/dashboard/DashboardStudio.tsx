@@ -321,8 +321,8 @@ const modeConfig = {
     surface: "bg-muted",
   },
   whiteboardVideo: {
-    label: "Whiteboard Video",
-    title: "Whiteboard Video",
+    label: "Whiteboard Animation",
+    title: "Whiteboard Animation",
     description: " Upload: Audio or video with speech\n AI writes key points on a whiteboard",
     accept: "audio/*,video/*",
     supported: "MP3, WAV, M4A, MP4, MOV",
@@ -542,7 +542,7 @@ export default function DashboardStudio({
   const [promoBackgroundMode, setPromoBackgroundMode] = useState<"blur" | "solid">("blur");
   const [promoEnableCaptions, setPromoEnableCaptions] = useState<boolean>(false);
 
-  // Whiteboard Video Additional Controls
+  // Whiteboard Animation Additional Controls
   const [whiteboardTheme, setWhiteboardTheme] = useState<"classic" | "dark-glass" | "blueprint">("classic");
   const [whiteboardHandStyle, setWhiteboardHandStyle] = useState<"right-hand" | "stylus" | "direct-draw">("right-hand");
   const [whiteboardMarkerColor, setWhiteboardMarkerColor] = useState<"navy" | "crimson" | "emerald" | "gold">("navy");
@@ -5222,7 +5222,7 @@ export default function DashboardStudio({
             pacing: typographyPacing,
             textCase: typographyTextCase,
           } : {}),
-          // Whiteboard Video fields
+          // Whiteboard Animation fields
           ...(mode === "whiteboardVideo" ? {
             whiteboardBoard,
             whiteboardTheme,

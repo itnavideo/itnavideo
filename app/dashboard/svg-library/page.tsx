@@ -1,7 +1,12 @@
-﻿import React from 'react';
-import { SvgAssetPicker } from '../../../components/ui/svg-library/SvgAssetPicker';
+'use client';
 
-export const dynamic = 'force-dynamic';
+import React from 'react';
+import dynamic from 'next/dynamic';
+
+const SvgAssetPicker = dynamic(
+  () => import('../../../components/ui/svg-library/SvgAssetPicker').then((m) => m.SvgAssetPicker),
+  { ssr: false }
+);
 
 export default function SvgLibraryPage() {
   return (

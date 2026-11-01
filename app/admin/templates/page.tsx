@@ -36,7 +36,7 @@ import {
 const ALL_TEMPLATES = [
   { slug: "AUTO_CAPTION_GENERATOR", name: "Auto Caption Generator" },
   { slug: "COMPARE_EXPLAINER", name: "Compare Explainer Video" },
-  { slug: "WHITEBOARD_VIDEO", name: "Whiteboard Video" },
+  { slug: "WHITEBOARD_VIDEO", name: "Whiteboard Animation" },
   { slug: "TYPOGRAPHY_VIDEO", name: "Typography Video" },
   { slug: "LONG_VIDEO_PROMO", name: "Long Video Promo" },
   { slug: "ai-audio-cleaner", name: "AI Audio Cleaner" },

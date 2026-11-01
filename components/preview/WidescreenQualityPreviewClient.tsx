@@ -16,7 +16,7 @@ import {
   Sliders,
   Check,
 } from "lucide-react";
-import { FacelessVideoTemplate } from "@/remotion/templates/FACELESS_VIDEO/template";
+import { FacelessLongVideoTemplate as FacelessVideoTemplate } from "@/remotion/templates/FACELESS_LONG_VIDEO/template";
 import type { SceneBlueprintItem } from "@/services/ai/sceneBlueprintTypes";
 
 // Curated 4-Scene Widescreen 16:9 Storyboard Blueprint

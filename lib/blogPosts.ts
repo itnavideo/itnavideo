@@ -107,7 +107,7 @@ const baseBlogPosts: BlogPost[] = [
       },
       {
         "question": "What video workflows are included in Itnavideo Pro?",
-        "answer": "Itnavideo includes 11 dedicated workflows, including Auto Caption Reels, Kinetic Typography, Image to Video AI, Compare Explainers, Faceless Videos, Whiteboard Videos, and Audio Enhancers."
+        "answer": "Itnavideo includes 11 dedicated workflows, including Auto Caption Reels, Kinetic Typography, Image to Video AI, Compare Explainers, Faceless Videos, Whiteboard Animations, and Audio Enhancers."
       },
       {
         "question": "What happens when my agency needs hundreds of renders per month?",
@@ -395,7 +395,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     "slug": "whiteboard-video-ai-agency-reseller-guide",
-    "title": "How Freelancers & Agencies in Australia & UK Charge $500 per Whiteboard Video Using Itnavideo",
+    "title": "How Freelancers & Agencies in Australia & UK Charge $500 per Whiteboard Animation Using Itnavideo",
     "excerpt": "The proven service arbitrage model: how creative freelancers turn $0.50 cloud renders into $500 corporate educational videos for clients in Sydney and London.",
     "date": "Sep 5, 2026",
     "readTime": "6 min read",
@@ -417,7 +417,7 @@ const baseBlogPosts: BlogPost[] = [
     ],
     "internalLinks": [
       {
-        "label": "Whiteboard Video Studio",
+        "label": "Whiteboard Animation Studio",
         "href": "/video-types/whiteboard-video"
       },
       {
@@ -425,7 +425,7 @@ const baseBlogPosts: BlogPost[] = [
         "href": "/pricing"
       }
     ],
-    "contentHtml": "\n<div class=\"space-y-8 font-sans text-slate-800 leading-relaxed\">\n  <div class=\"rounded-2xl border border-indigo-200 bg-indigo-50/70 p-6 shadow-sm\">\n    <div class=\"flex items-center gap-3 mb-2\">\n      <span class=\"inline-flex rounded-full bg-indigo-600 text-white p-1.5 text-xs font-bold\">💰 ARBITRAGE</span>\n      <span class=\"text-xs font-black uppercase tracking-wider text-indigo-900\">Freelancer Income Blueprint</span>\n    </div>\n    <p class=\"text-sm font-semibold text-indigo-950\">\n      Freelancers in the UK and Australia using Itnavideo’s Whiteboard Video engine report average client invoicing of <strong>$4,500/month</strong> for less than 4 hours of total monthly production work.\n    </p>\n  </div>\n\n  <h2 class=\"text-2xl font-black tracking-tight text-slate-900 sm:text-3xl\">Why Clients Eagerly Pay $500+ for Simple Explainers</h2>\n  <p class=\"text-base text-slate-700\">\n    Companies need to explain insurance policies, software onboarding, crypto protocols, and tax laws. Traditional animation studios charge $5,000 and take 6 weeks. When you offer 48-hour delivery for $500, you win the business every single time.\n  </p>\n\n  <div class=\"my-8 rounded-3xl bg-slate-900 p-8 text-white\">\n    <h3 class=\"text-2xl font-black\">Start Your High-Margin Video Reselling Business</h3>\n    <p class=\"mt-2 text-xs sm:text-sm text-slate-300\">Equip yourself with Itnavideo Pro and start shipping corporate explainers immediately.</p>\n    <a href=\"/pricing\" class=\"mt-5 inline-block rounded-full bg-indigo-500 px-6 py-3 text-xs font-bold text-white hover:bg-indigo-400 transition-all\">\n      View Pro Plans →\n    </a>\n  </div>\n</div>\n"
+    "contentHtml": "\n<div class=\"space-y-8 font-sans text-slate-800 leading-relaxed\">\n  <div class=\"rounded-2xl border border-indigo-200 bg-indigo-50/70 p-6 shadow-sm\">\n    <div class=\"flex items-center gap-3 mb-2\">\n      <span class=\"inline-flex rounded-full bg-indigo-600 text-white p-1.5 text-xs font-bold\">💰 ARBITRAGE</span>\n      <span class=\"text-xs font-black uppercase tracking-wider text-indigo-900\">Freelancer Income Blueprint</span>\n    </div>\n    <p class=\"text-sm font-semibold text-indigo-950\">\n      Freelancers in the UK and Australia using Itnavideo’s Whiteboard Animation engine report average client invoicing of <strong>$4,500/month</strong> for less than 4 hours of total monthly production work.\n    </p>\n  </div>\n\n  <h2 class=\"text-2xl font-black tracking-tight text-slate-900 sm:text-3xl\">Why Clients Eagerly Pay $500+ for Simple Explainers</h2>\n  <p class=\"text-base text-slate-700\">\n    Companies need to explain insurance policies, software onboarding, crypto protocols, and tax laws. Traditional animation studios charge $5,000 and take 6 weeks. When you offer 48-hour delivery for $500, you win the business every single time.\n  </p>\n\n  <div class=\"my-8 rounded-3xl bg-slate-900 p-8 text-white\">\n    <h3 class=\"text-2xl font-black\">Start Your High-Margin Video Reselling Business</h3>\n    <p class=\"mt-2 text-xs sm:text-sm text-slate-300\">Equip yourself with Itnavideo Pro and start shipping corporate explainers immediately.</p>\n    <a href=\"/pricing\" class=\"mt-5 inline-block rounded-full bg-indigo-500 px-6 py-3 text-xs font-bold text-white hover:bg-indigo-400 transition-all\">\n      View Pro Plans →\n    </a>\n  </div>\n</div>\n"
   },
   {
     "slug": "why-german-and-japanese-brands-choose-itnavideo-motion-precision",
@@ -810,7 +810,7 @@ const baseBlogPosts: BlogPost[] = [
         heading: 'Templates and Output Styles',
         body: [
           'VEED offers: Social media templates, Video resize presets, Brand kit templates, Marketing video templates. Traditional template approach where you swap content into fixed layouts.',
-          'Itnavideo offers: Auto Caption Video, Compare Explainer, Whiteboard Video, Typography Video, Long Video Promo. Each is an AI-driven video type with its own generation workflow — not a fixed layout.',
+          'Itnavideo offers: Auto Caption Video, Compare Explainer, Whiteboard Animation, Typography Video, Long Video Promo. Each is an AI-driven video type with its own generation workflow — not a fixed layout.',
         ],
       },
       {
@@ -3148,7 +3148,7 @@ const baseBlogPosts: BlogPost[] = [
         "body": [
           "One of the major shortcomings of traditional video editors is the tedious task of searching stock media libraries for relevant b-roll clips. A modern text to video generator automates visual asset selection based on semantic keyword analysis.",
           "In Itnavideo, the rendering engine analyzes each sentence of your script and pairs it with contextual visual components. For example, in the Compare Explainer template, the AI divides the screen into dual comparison cards, displaying side-by-side imagery while an animated stickman presenter gestures toward the key advantages.",
-          "In the Whiteboard Video template, the AI extracts the core conceptual terms from your narration and animates them as hand-drawn digital chalkboard notes in real time. This multisensory combination of voice, motion graphics, and typography dramatically boosts viewer information retention."
+          "In the Whiteboard Animation template, the AI extracts the core conceptual terms from your narration and animates them as hand-drawn digital chalkboard notes in real time. This multisensory combination of voice, motion graphics, and typography dramatically boosts viewer information retention."
         ]
       },
       {
@@ -3289,7 +3289,7 @@ const baseBlogPosts: BlogPost[] = [
         "body": [
           "What separates Itnavideo from generic editors is its programmatic motion design architecture. Instead of relying on static video templates that look identical, Itnavideo renders dynamic compositions using React-based Remotion technology and Google Cloud serverless computing.",
           "Key Advantages of Itnavideo for Social Creators:",
-          "• Specialized Creative Workflows: Choose from Auto Caption Reel, Compare Explainer, Whiteboard Video, Kinetic Typography, Long Video Promo, Long Video Clips, and Faceless Video.",
+          "• Specialized Creative Workflows: Choose from Auto Caption Reel, Compare Explainer, Whiteboard Animation, Kinetic Typography, Long Video Promo, Long Video Clips, and Faceless Video.",
           "• Groq Whisper Ultra-Low Latency Transcription: Speech is transcribed in under 2 seconds with sub-syllable millisecond timestamps, supporting clean English and Roman Hinglish.",
           "• Built-in AI Audio Cleaner: Cleans voiceovers by removing hiss, hum, room echo, and awkward long silences before rendering.",
           "• Zero Computer Slowdown: All video compilation happens on high-speed cloud clusters, allowing creators to render 1080p HD videos from low-spec laptops or mobile phones without draining device battery."
@@ -3323,7 +3323,7 @@ const baseBlogPosts: BlogPost[] = [
         "heading": "6. Choosing the Right Visual Style for Your Niche",
         "body": [
           "Different social media niches respond to different visual formats. Aligning your content with the right AI template is crucial for maximizing conversion and subscriber loyalty:",
-          "• Educational & Coaching Creators: Use Whiteboard Video or Compare Explainer. Writing out key lessons on a digital canvas builds trust and positions you as an expert educator.",
+          "• Educational & Coaching Creators: Use Whiteboard Animation or Compare Explainer. Writing out key lessons on a digital canvas builds trust and positions you as an expert educator.",
           "• Fitness & Lifestyle Influencers: Use Auto Caption Reel with bold active word highlighting over dynamic gym or travel b-roll.",
           "• Financial Analysts & Crypto Creators: Use Compare Explainer (e.g. Asset A vs Asset B) or Multi-Image News Slideshows with top headline badges.",
           "• Podcasters & Show Hosts: Use Long Video Clips or Long Video Promo to tease episode highlights with animated thumbnail frames and \"Watch Full Episode\" calls to action.",
@@ -3621,7 +3621,7 @@ const baseBlogPosts: BlogPost[] = [
           "A major reason creators abandon traditional video editors is \"blank canvas paralysis.\" When presented with an empty timeline with 20 tracks, creating an engaging video from scratch requires hundreds of manual decisions.",
           "Itnavideo replaces the blank canvas with 10 purpose-built video workflows:",
           "• Compare Explainer: Structures side-by-side product or concept comparisons with an animated stickman narrator pointing to key takeaways.",
-          "• Whiteboard Video: Converts voiceover explanations into live-rendered hand-drawn whiteboard notes and diagrams.",
+          "• Whiteboard Animation: Converts voiceover explanations into live-rendered hand-drawn whiteboard notes and diagrams.",
           "• Kinetic Typography: Turns bold audio statements into full-screen kinetic text animations with active syllable tracking.",
           "• Long Video Clips: Extracts viral highlight clips from long-form videos and automatically centers the speaker in a vertical 9:16 frame with styled captions.",
           "By selecting a specialized workflow, creators eliminate 95% of setup time and guarantee consistent visual quality."
@@ -3749,7 +3749,7 @@ const baseBlogPosts: BlogPost[] = [
         "heading": "2. Choosing a High-CPM, High-Retention Niche",
         "body": [
           "Your niche determines your revenue ceiling. To build a sustainable, highly profitable faceless channel, choose a niche that combines high advertiser demand (CPM) with evergreen viewer curiosity:",
-          "1. Personal Finance & Wealth Building (CPM: $15 - $35): Topics include index fund investing, tax strategies, side hustle breakdowns, and macroeconomic news. Formats that excel: Compare Explainer (e.g., Roth IRA vs 401k) and Whiteboard Video.",
+          "1. Personal Finance & Wealth Building (CPM: $15 - $35): Topics include index fund investing, tax strategies, side hustle breakdowns, and macroeconomic news. Formats that excel: Compare Explainer (e.g., Roth IRA vs 401k) and Whiteboard Animation.",
           "2. Software, AI & Tech Reviews (CPM: $12 - $25): Topics include AI tool roundups, software workflow tutorials, and tech company comparisons. Formats that excel: Long Video Promo and Kinetic Typography.",
           "3. Business Case Studies & History (CPM: $10 - $20): Topics include how iconic brands succeeded, billionaire biographies, and dramatic business rivalries. Formats that excel: Faceless Video and Kinetic Typography.",
           "4. Psychology, Stoicism & Self-Improvement (CPM: $8 - $16): Topics include daily habits of high performers, stoic philosophy quotes, and mental models. Formats that excel: Kinetic Typography with dark-mode minimalist styling.",
@@ -3910,7 +3910,7 @@ const baseBlogPosts: BlogPost[] = [
         "heading": "2. The Power of Digital Whiteboard Animations for Comprehension",
         "body": [
           "Educational psychology has long proven the efficacy of the \"dual-coding theory\"—the principle that information is best absorbed when verbal explanations are paired with simultaneous visual creation.",
-          "In Itnavideo's Whiteboard Video workflow, the AI analyzes the teacher's voiceover audio in real time, extracts the primary conceptual insights, and renders them onto a digital blackboard with crisp handwriting typography and clear structural diagrams.",
+          "In Itnavideo's Whiteboard Animation workflow, the AI analyzes the teacher's voiceover audio in real time, extracts the primary conceptual insights, and renders them onto a digital blackboard with crisp handwriting typography and clear structural diagrams.",
           "Benefits for Students:",
           "• Enhanced Cognitive Focus: Visuals appear progressively as the teacher explains each point, preventing students from reading ahead and losing track of the lecture.",
           "• Clear Information Hierarchy: Key definitions, formulas, and summary takeaways are formatted with distinct visual emphasis.",
@@ -5112,7 +5112,7 @@ const baseBlogPosts: BlogPost[] = [
     {
       "heading": "Step-by-Step: Creating a Whiteboard Reel on Itnavideo",
       "body": [
-        "1. **Select Whiteboard Video in Dashboard**: Open your Itnavideo dashboard and select the **Whiteboard Video (Auto Draw)** template.",
+        "1. **Select Whiteboard Animation in Dashboard**: Open your Itnavideo dashboard and select the **Whiteboard Animation (Auto Draw)** template.",
         "2. **Upload Audio or Enter Script**: Provide your educational voiceover or lesson breakdown. The AI scene planner automatically splits your speech into key visual concepts.",
         "3. **Choose Hand Style & Theme**: Select from realistic marker styles, sketch hands, or minimalistic vector drawing styles.",
         "4. **Render in Cloud**: Click render to generate your 1080p 60 FPS animation. Download and share directly to Reels, Shorts, and TikTok."

@@ -4,7 +4,7 @@
 import React from 'react';
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
 
-export type MotionType = 'slide-up' | 'zoom-in' | 'bounce' | 'glitch' | 'none';
+export type MotionType = 'slide-up' | 'zoom-in' | 'bounce' | 'glitch' | 'slam' | 'pulse' | 'none';
 
 export interface MotionWrapperProps {
   children: React.ReactNode;
@@ -49,6 +49,21 @@ export const MotionWrapper: React.FC<MotionWrapperProps> = ({
     });
     opacity = interpolate(localFrame, [0, 5], [0, 1], { extrapolateRight: 'clamp' });
     transform = `scale(${scale})`;
+  } else if (motionType === 'slam') {
+    const slamScale = spring({
+      frame: localFrame,
+      fps,
+      config: { damping: 14, stiffness: 340, mass: 0.5 },
+      from: 2.2,
+      to: 1,
+    });
+    const slamRot = interpolate(localFrame, [0, 6], [-6, 0], { extrapolateRight: 'clamp' });
+    opacity = interpolate(localFrame, [0, 3], [0, 1], { extrapolateRight: 'clamp' });
+    transform = `scale(${slamScale}) rotate(${slamRot}deg)`;
+  } else if (motionType === 'pulse') {
+    const pulseScale = interpolate(localFrame % 20, [0, 10, 20], [1, 1.06, 1]);
+    opacity = interpolate(localFrame, [0, 4], [0, 1], { extrapolateRight: 'clamp' });
+    transform = `scale(${pulseScale})`;
   } else if (motionType === 'glitch') {
     const glitchX = localFrame < 6 ? (localFrame % 2 === 0 ? 6 : -6) : 0;
     opacity = interpolate(localFrame, [0, 4], [0, 1], { extrapolateRight: 'clamp' });

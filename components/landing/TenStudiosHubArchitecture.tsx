@@ -129,7 +129,7 @@ export const VERTICAL_916_STUDIOS: VideoTypeItem[] = [
   },
   {
     id: 'whiteboard-video',
-    name: 'Whiteboard Video',
+    name: 'Whiteboard Animation',
     href: '/dashboard/whiteboard-video',
     publicHref: '/video-types/whiteboard-video',
     icon: PenTool,
@@ -239,11 +239,11 @@ const TAB_CONFIGS: TabDefinition[] = [
     count: 8,
     icon: Smartphone,
     color: '#FF5722',
-    activeBg: 'from-[#FF5722]/25 via-[#FF7043]/15 to-[#14100E]',
-    activeBorder: 'border-orange-500/80',
+    activeBg: 'from-[#FF5722] to-[#E64A19]',
+    activeBorder: 'border-orange-500/90',
     activeGlow: 'rgba(255, 87, 34, 0.45)',
-    accentText: 'text-orange-400',
-    iconBg: 'bg-orange-500/20 border-orange-500/40 text-orange-400',
+    accentText: 'text-white',
+    iconBg: 'bg-white/20 border-white/30 text-white',
   },
   {
     id: '169',
@@ -253,12 +253,12 @@ const TAB_CONFIGS: TabDefinition[] = [
     mobileBadge: '4 Studios',
     count: 4,
     icon: Tv,
-    color: '#38BDF8',
-    activeBg: 'from-sky-500/25 via-blue-500/15 to-[#14100E]',
-    activeBorder: 'border-sky-500/80',
-    activeGlow: 'rgba(56, 189, 248, 0.45)',
-    accentText: 'text-sky-400',
-    iconBg: 'bg-sky-500/20 border-sky-500/40 text-sky-400',
+    color: '#FF5722',
+    activeBg: 'from-[#FF5722] to-[#E64A19]',
+    activeBorder: 'border-orange-500/90',
+    activeGlow: 'rgba(255, 87, 34, 0.45)',
+    accentText: 'text-white',
+    iconBg: 'bg-white/20 border-white/30 text-white',
   },
   {
     id: 'utility',
@@ -268,12 +268,12 @@ const TAB_CONFIGS: TabDefinition[] = [
     mobileBadge: '1 Studio',
     count: 1,
     icon: Mic,
-    color: '#10B981',
-    activeBg: 'from-emerald-500/25 via-teal-500/15 to-[#14100E]',
-    activeBorder: 'border-emerald-500/80',
-    activeGlow: 'rgba(16, 185, 129, 0.45)',
-    accentText: 'text-emerald-400',
-    iconBg: 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400',
+    color: '#FF5722',
+    activeBg: 'from-[#FF5722] to-[#E64A19]',
+    activeBorder: 'border-orange-500/90',
+    activeGlow: 'rgba(255, 87, 34, 0.45)',
+    accentText: 'text-white',
+    iconBg: 'bg-white/20 border-white/30 text-white',
   },
   {
     id: 'all',
@@ -283,12 +283,12 @@ const TAB_CONFIGS: TabDefinition[] = [
     mobileBadge: '13 Total',
     count: 13,
     icon: Sparkles,
-    color: '#A855F7',
-    activeBg: 'from-purple-500/25 via-pink-500/15 to-[#14100E]',
-    activeBorder: 'border-purple-500/80',
-    activeGlow: 'rgba(168, 85, 247, 0.45)',
-    accentText: 'text-purple-400',
-    iconBg: 'bg-purple-500/20 border-purple-500/40 text-purple-400',
+    color: '#FF5722',
+    activeBg: 'from-[#FF5722] to-[#E64A19]',
+    activeBorder: 'border-orange-500/90',
+    activeGlow: 'rgba(255, 87, 34, 0.45)',
+    accentText: 'text-white',
+    iconBg: 'bg-white/20 border-white/30 text-white',
   },
 ];
 
@@ -315,11 +315,11 @@ export default function TenStudiosHubArchitecture() {
         className="pointer-events-none absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-black/50 to-transparent z-10"
       />
 
-      {/* Background Ambient Warm Coffee & Amber Glows */}
+      {/* Background Ambient Flame Orange & Sunset Amber Glows */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute left-1/2 top-1/4 h-[450px] w-[900px] -translate-x-1/2 -translate-y-1/2 opacity-35 blur-3xl"
-        style={{ background: 'radial-gradient(ellipse, rgba(217,119,6,0.18) 0%, rgba(120,53,15,0.12) 40%, transparent 70%)' }}
+        style={{ background: 'radial-gradient(ellipse, rgba(255,87,34,0.15) 0%, rgba(255,112,67,0.06) 40%, transparent 70%)' }}
       />
 
       <div className="relative z-10 mx-auto max-w-7xl px-3 sm:px-6 lg:px-8 w-full space-y-8 sm:space-y-10">
@@ -343,12 +343,10 @@ export default function TenStudiosHubArchitecture() {
           </p>
 
           {/* ───────────────────────────────────────────────────────────── */}
-          {/* HIGH-END MOBILE-FIRST FORMAT SWITCHER                         */}
+          {/* HIGH-END UNIFIED FORMAT CAPSULE BAR (Mobile & Desktop)         */}
           {/* ───────────────────────────────────────────────────────────── */}
-          <div className="pt-3 sm:pt-6" suppressHydrationWarning>
-            
-            {/* MOBILE: 2x2 Rich Visual Cards (Warm Roasted Espresso Glass) */}
-            <div className="grid grid-cols-2 gap-2 sm:hidden w-full max-w-md mx-auto text-left" suppressHydrationWarning>
+          <div className="pt-3 sm:pt-6 flex justify-center w-full px-1" suppressHydrationWarning>
+            <div className="inline-flex items-center gap-1 sm:gap-2 p-1.5 rounded-full bg-zinc-950/95 border border-white/10 backdrop-blur-2xl shadow-2xl max-w-full overflow-x-auto no-scrollbar">
               {TAB_CONFIGS.map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
@@ -358,101 +356,15 @@ export default function TenStudiosHubArchitecture() {
                     key={tab.id}
                     type="button"
                     onClick={() => setActiveTab(tab.id)}
-                    className={`group relative flex flex-col justify-between p-3 rounded-2xl border transition-all duration-300 cursor-pointer overflow-hidden text-left ${
+                    className={`group relative flex items-center gap-1.5 sm:gap-2.5 rounded-full px-3.5 sm:px-5 py-2 sm:py-2.5 text-xs font-bold transition-all duration-300 cursor-pointer border whitespace-nowrap shrink-0 ${
                       isActive
-                        ? `${tab.activeBorder} bg-gradient-to-br ${tab.activeBg} text-white shadow-xl`
-                        : 'border-[#2e231e] bg-[#16110f]/90 text-stone-300 hover:border-[#42322a] hover:bg-[#201916]'
+                        ? 'border-orange-500/90 bg-gradient-to-r from-[#FF5722] to-[#E64A19] text-white shadow-lg shadow-[#FF5722]/35'
+                        : 'border-transparent text-zinc-400 hover:text-white hover:bg-white/5'
                     }`}
                     style={
                       isActive
                         ? {
-                            boxShadow: `0 8px 24px -4px ${tab.activeGlow}, inset 0 1px 0 0 rgba(255, 255, 255, 0.25)`,
-                          }
-                        : undefined
-                    }
-                  >
-                    {/* Active Halo Light behind card */}
-                    {isActive && (
-                      <div
-                        className="pointer-events-none absolute -top-8 -right-8 h-20 w-20 rounded-full blur-xl opacity-60"
-                        style={{ backgroundColor: tab.color }}
-                      />
-                    )}
-
-                    {/* Top Row: Icon + Count Pill */}
-                    <div className="flex items-center justify-between w-full mb-2">
-                      <div
-                        className={`flex h-8 w-8 items-center justify-center rounded-xl border transition-transform duration-300 ${
-                          isActive
-                            ? tab.iconBg
-                            : 'bg-white/5 border-[#2e231e] text-stone-400'
-                        }`}
-                      >
-                        <Icon size={16} />
-                      </div>
-
-                      <span
-                        className={`text-[10px] font-mono font-black uppercase px-2 py-0.5 rounded-full border ${
-                          isActive
-                            ? 'bg-white text-slate-950 border-white shadow-xs'
-                            : 'bg-white/5 border-[#2e231e] text-stone-400'
-                        }`}
-                      >
-                        {tab.mobileBadge}
-                      </span>
-                    </div>
-
-                    {/* Bottom Row: Title + Context */}
-                    <div className="relative z-10 space-y-0.5">
-                      <div className="text-xs font-black tracking-tight text-white flex items-center justify-between">
-                        <span>{tab.mobileLabel}</span>
-                        {isActive && (
-                          <span
-                            className="inline-block h-1.5 w-1.5 rounded-full animate-pulse"
-                            style={{ backgroundColor: tab.color }}
-                          />
-                        )}
-                      </div>
-                      <div className="text-[10px] text-stone-400 font-medium truncate">
-                        {tab.mobileSub}
-                      </div>
-                    </div>
-
-                    {/* Bottom Accent Glow Line */}
-                    {isActive && (
-                      <div
-                        className="absolute bottom-0 left-0 right-0 h-[2.5px]"
-                        style={{
-                          background: `linear-gradient(90deg, transparent, ${tab.color}, transparent)`,
-                          boxShadow: `0 0 10px ${tab.color}`,
-                        }}
-                      />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* DESKTOP / TABLET: Sleek Centered Horizontal Coffee Capsule Bar */}
-            <div className="hidden sm:inline-flex items-center justify-center gap-2 p-1.5 rounded-full bg-[#16110f]/95 border border-[#2e231e] backdrop-blur-xl shadow-2xl">
-              {TAB_CONFIGS.map((tab) => {
-                const Icon = tab.icon;
-                const isActive = activeTab === tab.id;
-
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`group relative flex items-center gap-2.5 rounded-full px-5 py-2.5 text-xs font-bold transition-all duration-300 cursor-pointer border ${
-                      isActive
-                        ? `${tab.activeBorder} bg-gradient-to-b ${tab.activeBg} text-white shadow-xl`
-                        : 'border-transparent text-stone-300 hover:text-white hover:bg-white/5'
-                    }`}
-                    style={
-                      isActive
-                        ? {
-                            boxShadow: `0 8px 24px -4px ${tab.activeGlow}, inset 0 1px 0 0 rgba(255, 255, 255, 0.2)`,
+                            boxShadow: '0 8px 24px -4px rgba(255, 87, 34, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.3)',
                           }
                         : undefined
                     }
@@ -461,21 +373,24 @@ export default function TenStudiosHubArchitecture() {
                       className={`flex h-6 w-6 items-center justify-center rounded-lg transition-transform duration-300 group-hover:scale-110 ${
                         isActive
                           ? 'bg-white/20 text-white shadow-xs'
-                          : 'bg-white/5 text-stone-400 group-hover:text-white'
+                          : 'bg-white/5 text-zinc-400 group-hover:text-white'
                       }`}
                     >
-                      <Icon size={14} className={isActive ? tab.accentText : ''} />
+                      <Icon size={14} className={isActive ? 'text-white' : 'text-zinc-400'} />
                     </div>
 
-                    <span className="font-extrabold tracking-tight">
+                    <span className="font-extrabold tracking-tight hidden sm:inline">
                       {tab.title}
+                    </span>
+                    <span className="font-extrabold tracking-tight sm:hidden text-[11px]">
+                      {tab.mobileLabel}
                     </span>
 
                     <span
                       className={`flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-mono font-black ${
                         isActive
-                          ? 'bg-white text-slate-950 shadow-sm'
-                          : 'bg-white/10 text-stone-400 group-hover:bg-white/20 group-hover:text-white'
+                          ? 'bg-white text-zinc-950 shadow-xs'
+                          : 'bg-white/10 text-zinc-400 group-hover:bg-white/20 group-hover:text-white'
                       }`}
                     >
                       {tab.count}
@@ -484,7 +399,6 @@ export default function TenStudiosHubArchitecture() {
                 );
               })}
             </div>
-
           </div>
         </div>
 

@@ -18,7 +18,7 @@ const PRESET_INTERNAL_LINKS = [
   { label: 'Kinetic Motion Studio', url: '/dashboard/typography-video', category: 'Templates', icon: Sparkles },
   { label: 'Faceless Video Maker', url: '/dashboard?videoType=faceless-video', category: 'Templates', icon: Sparkles },
   { label: 'Compare & Versus Explainer', url: '/dashboard?videoType=compare-explainer', category: 'Templates', icon: Sparkles },
-  { label: 'Whiteboard Video Studio', url: '/dashboard?videoType=whiteboard-video', category: 'Templates', icon: Sparkles },
+  { label: 'Whiteboard Animation Studio', url: '/dashboard?videoType=whiteboard-video', category: 'Templates', icon: Sparkles },
   { label: 'Free AI Audio Cleaner Tool', url: '/tools/ai-audio-cleaner', category: 'Tools', icon: Wrench },
   { label: 'Documentation & Guides', url: '/docs', category: 'Core', icon: FileText },
   { label: 'All Blog Posts', url: '/blog', category: 'Blog', icon: FileText },

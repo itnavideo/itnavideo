@@ -1,4 +1,4 @@
-import { SvgCategory } from '../registry';
+import { SvgCategory } from '../types';
 import * as Icons from 'lucide-react';
 
 export const DATA_VIZ_ASSETS = [

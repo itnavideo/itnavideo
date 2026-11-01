@@ -61,7 +61,7 @@ const WORKFLOW_MODES: WorkflowMode[] = [
   },
   {
     id: 'whiteboard-video',
-    name: 'Whiteboard Video',
+    name: 'Whiteboard Animation',
     badge: 'Educational (9:16)',
     icon: PenTool,
     inputs: ['Voiceover / Audio', 'Topic Title'],

@@ -489,7 +489,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "ai-whiteboard-video-generator-for-online-educators-and-courses",
-    "title": "AI Whiteboard Video Generator for Online Educators, Teachers & Course Creators",
+    "title": "AI Whiteboard Animation Generator for Online Educators, Teachers & Course Creators",
     "excerpt": "How online instructors create engaging 9:16 whiteboard explainer reels that simplify complex concepts and boost course enrollments.",
     "date": "Sep 2026",
     "readTime": "6 min read",
@@ -508,11 +508,11 @@ export const newExpandedBlogPosts: BlogPost[] = [
     ],
     "internalLinks": [
       {
-        "label": "Whiteboard Video Studio",
+        "label": "Whiteboard Animation Studio",
         "href": "/whiteboard-video"
       }
     ],
-    "contentHtml": "\n<div class=\"space-y-6 text-zinc-300 font-sans leading-relaxed\">\n  <div class=\"rounded-2xl border border-[#FF6D00]/30 bg-[#FF6D00]/10 p-6 text-zinc-200\">\n    <h3 class=\"font-black text-white text-lg\">AI Whiteboard Video Generator for Online Educators, Teachers & Course Creators</h3>\n    <p class=\"mt-2 text-sm text-zinc-300\">How online instructors create engaging 9:16 whiteboard explainer reels that simplify complex concepts and boost course enrollments.</p>\n  </div>\n  <h2 class=\"text-2xl font-black text-white tracking-tight\">Key Creator Insights & Strategy</h2>\n  <p class=\"text-sm text-zinc-300\">Education channels on YouTube and Instagram obtain massive reach when presenting complex ideas as clean stickman whiteboard drawings.</p>\n  <div class=\"rounded-2xl border border-white/10 bg-[#0E1526] p-6\">\n    <h4 class=\"text-base font-black text-white mb-2\">How to Execute with Itnavideo AI</h4>\n    <p class=\"text-xs text-slate-400\">Turn educational voiceovers into animated whiteboard drawing scenes.</p>\n  </div>\n</div>\n"
+    "contentHtml": "\n<div class=\"space-y-6 text-zinc-300 font-sans leading-relaxed\">\n  <div class=\"rounded-2xl border border-[#FF6D00]/30 bg-[#FF6D00]/10 p-6 text-zinc-200\">\n    <h3 class=\"font-black text-white text-lg\">AI Whiteboard Animation Generator for Online Educators, Teachers & Course Creators</h3>\n    <p class=\"mt-2 text-sm text-zinc-300\">How online instructors create engaging 9:16 whiteboard explainer reels that simplify complex concepts and boost course enrollments.</p>\n  </div>\n  <h2 class=\"text-2xl font-black text-white tracking-tight\">Key Creator Insights & Strategy</h2>\n  <p class=\"text-sm text-zinc-300\">Education channels on YouTube and Instagram obtain massive reach when presenting complex ideas as clean stickman whiteboard drawings.</p>\n  <div class=\"rounded-2xl border border-white/10 bg-[#0E1526] p-6\">\n    <h4 class=\"text-base font-black text-white mb-2\">How to Execute with Itnavideo AI</h4>\n    <p class=\"text-xs text-slate-400\">Turn educational voiceovers into animated whiteboard drawing scenes.</p>\n  </div>\n</div>\n"
   },
   {
     "slug": "why-corporate-trainers-use-whiteboard-explainers-for-employee-onboarding",
@@ -535,7 +535,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
     ],
     "internalLinks": [
       {
-        "label": "Whiteboard Video Studio",
+        "label": "Whiteboard Animation Studio",
         "href": "/whiteboard-video"
       }
     ],
@@ -562,7 +562,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
     ],
     "internalLinks": [
       {
-        "label": "Whiteboard Video Studio",
+        "label": "Whiteboard Animation Studio",
         "href": "/whiteboard-video"
       }
     ],
@@ -589,7 +589,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
     ],
     "internalLinks": [
       {
-        "label": "Whiteboard Video Studio",
+        "label": "Whiteboard Animation Studio",
         "href": "/whiteboard-video"
       }
     ],
@@ -597,7 +597,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "turn-complex-medical-and-health-topics-into-simple-whiteboard-videos",
-    "title": "Turn Complex Medical & Health Topics into Simple Whiteboard Videos",
+    "title": "Turn Complex Medical & Health Topics into Simple Whiteboard Animations",
     "excerpt": "Doctors, dentists, and health educators use whiteboard explainers to visually demonstrate medical procedures and health tips.",
     "date": "Sep 2026",
     "readTime": "6 min read",
@@ -616,15 +616,15 @@ export const newExpandedBlogPosts: BlogPost[] = [
     ],
     "internalLinks": [
       {
-        "label": "Whiteboard Video Studio",
+        "label": "Whiteboard Animation Studio",
         "href": "/whiteboard-video"
       }
     ],
-    "contentHtml": "\n<div class=\"space-y-6 text-zinc-300 font-sans leading-relaxed\">\n  <div class=\"rounded-2xl border border-[#FF6D00]/30 bg-[#FF6D00]/10 p-6 text-zinc-200\">\n    <h3 class=\"font-black text-white text-lg\">Turn Complex Medical & Health Topics into Simple Whiteboard Videos</h3>\n    <p class=\"mt-2 text-sm text-zinc-300\">Doctors, dentists, and health educators use whiteboard explainers to visually demonstrate medical procedures and health tips.</p>\n  </div>\n  <h2 class=\"text-2xl font-black text-white tracking-tight\">Key Creator Insights & Strategy</h2>\n  <p class=\"text-sm text-zinc-300\">Medical explanations can overwhelm patients. Whiteboard illustrations break down biological processes and surgical steps simply.</p>\n  <div class=\"rounded-2xl border border-white/10 bg-[#0E1526] p-6\">\n    <h4 class=\"text-base font-black text-white mb-2\">How to Execute with Itnavideo AI</h4>\n    <p class=\"text-xs text-slate-400\">Translate medical and health concepts into friendly whiteboard animations.</p>\n  </div>\n</div>\n"
+    "contentHtml": "\n<div class=\"space-y-6 text-zinc-300 font-sans leading-relaxed\">\n  <div class=\"rounded-2xl border border-[#FF6D00]/30 bg-[#FF6D00]/10 p-6 text-zinc-200\">\n    <h3 class=\"font-black text-white text-lg\">Turn Complex Medical & Health Topics into Simple Whiteboard Animations</h3>\n    <p class=\"mt-2 text-sm text-zinc-300\">Doctors, dentists, and health educators use whiteboard explainers to visually demonstrate medical procedures and health tips.</p>\n  </div>\n  <h2 class=\"text-2xl font-black text-white tracking-tight\">Key Creator Insights & Strategy</h2>\n  <p class=\"text-sm text-zinc-300\">Medical explanations can overwhelm patients. Whiteboard illustrations break down biological processes and surgical steps simply.</p>\n  <div class=\"rounded-2xl border border-white/10 bg-[#0E1526] p-6\">\n    <h4 class=\"text-base font-black text-white mb-2\">How to Execute with Itnavideo AI</h4>\n    <p class=\"text-xs text-slate-400\">Translate medical and health concepts into friendly whiteboard animations.</p>\n  </div>\n</div>\n"
   },
   {
     "slug": "ai-whiteboard-video-maker-for-non-profits-and-charity-campaigns",
-    "title": "AI Whiteboard Video Maker for Non-Profits, NGOs & Charity Fundraising",
+    "title": "AI Whiteboard Animation Maker for Non-Profits, NGOs & Charity Fundraising",
     "excerpt": "How non-profit organizations use emotional whiteboard storytelling to raise awareness and drive donations for social causes.",
     "date": "Sep 2026",
     "readTime": "6 min read",
@@ -643,11 +643,11 @@ export const newExpandedBlogPosts: BlogPost[] = [
     ],
     "internalLinks": [
       {
-        "label": "Whiteboard Video Studio",
+        "label": "Whiteboard Animation Studio",
         "href": "/whiteboard-video"
       }
     ],
-    "contentHtml": "\n<div class=\"space-y-6 text-zinc-300 font-sans leading-relaxed\">\n  <div class=\"rounded-2xl border border-[#FF6D00]/30 bg-[#FF6D00]/10 p-6 text-zinc-200\">\n    <h3 class=\"font-black text-white text-lg\">AI Whiteboard Video Maker for Non-Profits, NGOs & Charity Fundraising</h3>\n    <p class=\"mt-2 text-sm text-zinc-300\">How non-profit organizations use emotional whiteboard storytelling to raise awareness and drive donations for social causes.</p>\n  </div>\n  <h2 class=\"text-2xl font-black text-white tracking-tight\">Key Creator Insights & Strategy</h2>\n  <p class=\"text-sm text-zinc-300\">Storytelling is the heart of fundraising. Whiteboard videos illustrate human impact stories and community initiatives effectively.</p>\n  <div class=\"rounded-2xl border border-white/10 bg-[#0E1526] p-6\">\n    <h4 class=\"text-base font-black text-white mb-2\">How to Execute with Itnavideo AI</h4>\n    <p class=\"text-xs text-slate-400\">Create impactful fundraising and awareness whiteboard videos.</p>\n  </div>\n</div>\n"
+    "contentHtml": "\n<div class=\"space-y-6 text-zinc-300 font-sans leading-relaxed\">\n  <div class=\"rounded-2xl border border-[#FF6D00]/30 bg-[#FF6D00]/10 p-6 text-zinc-200\">\n    <h3 class=\"font-black text-white text-lg\">AI Whiteboard Animation Maker for Non-Profits, NGOs & Charity Fundraising</h3>\n    <p class=\"mt-2 text-sm text-zinc-300\">How non-profit organizations use emotional whiteboard storytelling to raise awareness and drive donations for social causes.</p>\n  </div>\n  <h2 class=\"text-2xl font-black text-white tracking-tight\">Key Creator Insights & Strategy</h2>\n  <p class=\"text-sm text-zinc-300\">Storytelling is the heart of fundraising. Whiteboard videos illustrate human impact stories and community initiatives effectively.</p>\n  <div class=\"rounded-2xl border border-white/10 bg-[#0E1526] p-6\">\n    <h4 class=\"text-base font-black text-white mb-2\">How to Execute with Itnavideo AI</h4>\n    <p class=\"text-xs text-slate-400\">Create impactful fundraising and awareness whiteboard videos.</p>\n  </div>\n</div>\n"
   },
   {
     "slug": "how-to-add-accurate-subtitles-to-16-9-youtube-landscape-videos",

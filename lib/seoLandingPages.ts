@@ -99,7 +99,7 @@ export const seoLandingPages: SeoLandingPage[] = [
   page(
     'whiteboard-video-maker',
     'whiteboard video maker',
-    'Whiteboard Video Maker from Voiceover',
+    'Whiteboard Animation Maker from Voiceover',
     'Create whiteboard-style explainer reels from audio or video speech.',
     'Turn lessons and voice notes into clean educational short videos.',
     'Gemini-assisted planning creates simple drawn explainer scenes.',

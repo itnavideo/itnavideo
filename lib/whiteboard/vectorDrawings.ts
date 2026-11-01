@@ -564,13 +564,310 @@ export const WHITEBOARD_VECTOR_DRAWINGS: Record<string, VectorDrawingDef> = {
     ],
     keywords: ['dream', 'sapna', 'vision', 'big', 'bada', 'future', 'star', 'mountain', 'summit', 'aim', 'ambition', 'hope', 'goal', 'reach'],
   },
+
+  'college_building': {
+    id: 'college_building',
+    name: 'College / University Campus',
+    category: 'location',
+    viewBox: '0 0 100 100',
+    strokes: [
+      { d: 'M 16 90 L 16 48 L 84 48 L 84 90 M 10 90 L 90 90', len: 160, strokeWidth: 3, order: 0 },
+      { d: 'M 12 48 L 50 20 L 88 48 Z', len: 130, strokeWidth: 3, colorKey: 'accent', order: 1 },
+      { d: 'M 42 20 L 42 8 L 58 8 L 58 20 M 42 8 L 50 2 L 58 8', len: 65, strokeWidth: 2.5, order: 2 },
+      { d: 'M 50 11 A 3 3 0 1 0 50 17 A 3 3 0 1 0 50 11 M 50 14 L 52 14', len: 22, strokeWidth: 1.5, colorKey: 'highlight', order: 3 },
+      { d: 'M 42 90 L 42 66 C 42 60 58 60 58 66 L 58 90 M 50 62 L 50 90', len: 75, strokeWidth: 2.5, order: 4 },
+      { d: 'M 24 58 L 34 58 L 34 72 L 24 72 Z M 66 58 L 76 58 L 76 72 L 66 72 Z', len: 80, strokeWidth: 2, colorKey: 'accent', order: 5 },
+    ],
+    keywords: ['college', 'university', 'campus', 'school', 'institute', 'darsgah', 'padhai', 'education', 'degree', 'classes'],
+  },
+
+  'student_boy_walking': {
+    id: 'student_boy_walking',
+    name: 'Student Boy Walking with Backpack',
+    category: 'character',
+    viewBox: '0 0 100 100',
+    strokes: [
+      { d: 'M 48 16 A 8 8 0 1 0 48 32 A 8 8 0 1 0 48 16 M 42 18 C 45 13 54 13 56 19', len: 62, strokeWidth: 3, order: 0 },
+      { d: 'M 48 32 L 48 60 M 40 40 L 56 40', len: 44, strokeWidth: 3, order: 1 },
+      { d: 'M 38 34 C 32 34 30 40 30 50 C 30 58 34 60 38 60 Z M 38 38 L 44 48', len: 60, strokeWidth: 2.5, colorKey: 'accent', order: 2 },
+      { d: 'M 48 38 L 60 48 M 48 38 L 38 48', len: 35, strokeWidth: 3, order: 3 },
+      { d: 'M 48 60 L 62 76 L 68 90 M 48 60 L 36 74 L 28 88', len: 80, strokeWidth: 3, order: 4 },
+      { d: 'M 20 90 L 76 90', len: 56, strokeWidth: 2, colorKey: 'highlight', order: 5 },
+    ],
+    keywords: ['boy', 'student', 'ladka', 'walking', 'goes', 'commute', 'backpack', 'teen', 'youth', 'young', 'go to college'],
+  },
+
+  'house_home': {
+    id: 'house_home',
+    name: 'Home / Sweet House',
+    category: 'location',
+    viewBox: '0 0 100 100',
+    strokes: [
+      { d: 'M 22 88 L 22 52 L 78 52 L 78 88 M 16 88 L 84 88', len: 155, strokeWidth: 3, order: 0 },
+      { d: 'M 18 52 L 50 24 L 82 52 Z', len: 120, strokeWidth: 3, colorKey: 'accent', order: 1 },
+      { d: 'M 64 36 L 64 20 L 72 20 L 72 44 M 68 16 C 68 12 74 12 72 8', len: 45, strokeWidth: 2, order: 2 },
+      { d: 'M 44 88 L 44 66 L 56 66 L 56 88 M 53 77 A 1 1 0 1 0 53 79 A 1 1 0 1 0 53 77', len: 55, strokeWidth: 2.5, colorKey: 'danger', order: 3 },
+      { d: 'M 28 62 L 38 62 L 38 74 L 28 74 Z M 33 62 L 33 74 M 28 68 L 38 68', len: 52, strokeWidth: 2, colorKey: 'highlight', order: 4 },
+      { d: 'M 88 88 L 88 70 M 82 70 C 80 62 86 56 92 60 C 98 56 102 62 98 70 C 96 74 84 74 82 70 Z', len: 65, strokeWidth: 2, colorKey: 'success', order: 5 },
+    ],
+    keywords: ['home', 'house', 'ghar', 'makaan', 'room', 'at home', 'residence', 'family', 'homeward', 'peace'],
+  },
+
+  'evening_clock': {
+    id: 'evening_clock',
+    name: 'Evening Time & Sunset Clock',
+    category: 'process',
+    viewBox: '0 0 100 100',
+    strokes: [
+      { d: 'M 50 18 A 26 26 0 1 0 50 70 A 26 26 0 1 0 50 18', len: 163, strokeWidth: 3, order: 0 },
+      { d: 'M 50 44 L 50 28 M 50 44 L 50 58', len: 32, strokeWidth: 3.5, colorKey: 'danger', order: 1 },
+      { d: 'M 50 20 L 50 24 M 68 44 L 64 44 M 50 68 L 50 64 M 32 44 L 36 44', len: 24, strokeWidth: 2, order: 2 },
+      { d: 'M 50 10 L 50 4 M 76 22 L 82 18 M 84 44 L 92 44 M 24 22 L 18 18 M 16 44 L 8 44', len: 50, strokeWidth: 2.5, colorKey: 'highlight', order: 3 },
+      { d: 'M 34 82 L 66 82 M 38 88 L 62 88', len: 56, strokeWidth: 2, colorKey: 'accent', order: 4 },
+    ],
+    keywords: ['evening', 'shaam', 'clock', 'time', 'after college', 'sunset', 'pm', 'hour', '6pm', 'daily time', 'schedule'],
+  },
+
+  'boy_studying_desk': {
+    id: 'boy_studying_desk',
+    name: 'Student Studying at Desk with Lamp',
+    category: 'character',
+    viewBox: '0 0 100 100',
+    strokes: [
+      { d: 'M 50 28 A 8 8 0 1 0 50 44 A 8 8 0 1 0 50 28 M 44 29 C 48 24 54 24 56 30', len: 62, strokeWidth: 3, order: 0 },
+      { d: 'M 50 44 L 50 66 M 40 50 L 50 44 L 60 50', len: 44, strokeWidth: 3, order: 1 },
+      { d: 'M 36 68 L 50 66 L 64 68 L 62 76 L 50 74 L 38 76 Z M 50 66 L 50 74', len: 75, strokeWidth: 2.5, colorKey: 'accent', order: 2 },
+      { d: 'M 14 76 L 86 76 M 22 76 L 22 92 M 78 76 L 78 92', len: 104, strokeWidth: 3, order: 3 },
+      { d: 'M 24 76 L 24 54 L 32 46 M 28 42 L 36 50 M 24 74 L 28 76', len: 48, strokeWidth: 2.5, colorKey: 'highlight', order: 4 },
+      { d: 'M 70 20 L 88 20 L 88 40 L 70 40 Z M 78 24 C 76 28 80 32 84 30 C 82 34 76 34 74 30 Z', len: 72, strokeWidth: 2, colorKey: 'accent', order: 5 },
+      { d: 'M 72 76 L 84 76 L 84 72 L 72 72 Z M 73 72 L 83 72 L 83 68 L 73 68 Z', len: 48, strokeWidth: 2, order: 6 },
+    ],
+    keywords: ['study', 'studies', 'studying', 'padhai', 'book', 'desk', 'homework', 'exam', 'learning', 'revision', 'focused', 'knowledge'],
+  },
+
+  'calendar_everyday': {
+    id: 'calendar_everyday',
+    name: 'Weekly Calendar & Habit Loop (Every Day)',
+    category: 'process',
+    viewBox: '0 0 100 100',
+    strokes: [
+      { d: 'M 16 28 L 84 28 L 84 78 L 16 78 Z M 24 22 L 24 30 M 40 22 L 40 30 M 60 22 L 60 30 M 76 22 L 76 30', len: 210, strokeWidth: 3, order: 0 },
+      { d: 'M 16 42 L 84 42', len: 68, strokeWidth: 2.5, colorKey: 'accent', order: 1 },
+      { d: 'M 26 42 L 26 78 M 36 42 L 36 78 M 46 42 L 46 78 M 56 42 L 56 78 M 66 42 L 66 78 M 75 42 L 75 78', len: 216, strokeWidth: 1.5, order: 2 },
+      { d: 'M 18 58 L 22 64 L 25 52 M 28 58 L 32 64 L 35 52 M 38 58 L 42 64 L 45 52 M 48 58 L 52 64 L 55 52 M 58 58 L 62 64 L 65 52 M 68 58 L 72 64 L 74 52 M 77 58 L 80 64 L 83 52', len: 90, strokeWidth: 2.5, colorKey: 'success', order: 3 },
+      { d: 'M 50 14 C 74 14 88 24 88 50 C 88 74 74 88 50 88 C 26 88 12 74 12 50 M 54 10 L 50 14 L 54 18', len: 170, strokeWidth: 2.5, colorKey: 'danger', order: 4 },
+    ],
+    keywords: ['every day', 'daily', 'rozana', 'calendar', 'routine', 'habit', 'consistency', 'discipline', 'regular', 'week', 'schedule'],
+  },
+
+  'flow_arrow_transition': {
+    id: 'flow_arrow_transition',
+    name: 'Flow & Travel Arrow',
+    category: 'process',
+    viewBox: '0 0 100 100',
+    strokes: [
+      { d: 'M 14 50 L 76 50 M 64 36 L 80 50 L 64 64', len: 105, strokeWidth: 4, colorKey: 'danger', order: 0 },
+      { d: 'M 20 38 Q 48 30 72 38', len: 55, strokeWidth: 2, colorKey: 'accent', order: 1 },
+    ],
+    keywords: ['arrow', 'flow', 'then', 'after', 'next', 'direction', 'travel', 'commute', 'transition', 'sequence'],
+  },
+
+  // ── AI & MODERN TECHNOLOGY (From Master 9:16 Whiteboard Examples) ───────────
+  'ai_split_brain': {
+    id: 'ai_split_brain',
+    name: 'Split Brain (Human Intelligence & AI Circuits)',
+    category: 'science',
+    viewBox: '0 0 100 100',
+    strokes: [
+      // Left Human Hemisphere (Organic curves)
+      { d: 'M 48 18 C 34 18 24 28 24 42 C 24 50 28 56 26 64 C 24 72 32 82 48 82', len: 140, strokeWidth: 3, order: 0 },
+      { d: 'M 32 36 C 40 38 42 48 36 54 C 44 58 42 68 48 70', len: 85, strokeWidth: 2.5, colorKey: 'accent', order: 1 },
+      // Center dividing seam
+      { d: 'M 48 16 L 48 84', len: 68, strokeWidth: 2.5, order: 2 },
+      // Right AI Hemisphere (Circuit lines & nodes)
+      { d: 'M 52 18 C 66 18 76 28 76 42 C 76 50 72 56 74 64 C 76 72 68 82 52 82', len: 140, strokeWidth: 3, colorKey: 'accent', order: 3 },
+      { d: 'M 52 30 L 66 30 L 72 40 M 52 50 L 64 50 L 70 60 M 52 70 L 62 70', len: 80, strokeWidth: 2.5, colorKey: 'highlight', order: 4 },
+      // Circuit connection dots
+      { d: 'M 72 40 A 2 2 0 1 0 72 44 A 2 2 0 1 0 72 40 M 70 60 A 2 2 0 1 0 70 64 A 2 2 0 1 0 70 60', len: 25, strokeWidth: 2, colorKey: 'danger', order: 5 },
+    ],
+    keywords: ['ai', 'artificial intelligence', 'brain', 'intelligence', 'think', 'smart', 'machine learning', 'mind', 'deep learning'],
+  },
+
+  'database_cylinder': {
+    id: 'database_cylinder',
+    name: 'Database Storage Cylinder (More Data)',
+    category: 'business',
+    viewBox: '0 0 100 100',
+    strokes: [
+      // Top ellipse
+      { d: 'M 24 26 C 24 18 76 18 76 26 C 76 34 24 34 24 26 Z', len: 110, strokeWidth: 3, colorKey: 'accent', order: 0 },
+      // Tier 1 body
+      { d: 'M 24 26 L 24 44 C 24 52 76 52 76 44 L 76 26', len: 120, strokeWidth: 3, order: 1 },
+      // Tier 2 body
+      { d: 'M 24 44 L 24 62 C 24 70 76 70 76 62 L 76 44', len: 120, strokeWidth: 3, order: 2 },
+      // Tier 3 body (bottom)
+      { d: 'M 24 62 L 24 80 C 24 88 76 88 76 80 L 76 62', len: 120, strokeWidth: 3, colorKey: 'highlight', order: 3 },
+      // Data indicator dots on each ring
+      { d: 'M 36 38 A 2 2 0 1 0 36 40 M 36 56 A 2 2 0 1 0 36 58 M 36 74 A 2 2 0 1 0 36 76', len: 20, strokeWidth: 2.5, colorKey: 'success', order: 4 },
+    ],
+    keywords: ['data', 'more data', 'database', 'storage', 'server', 'information', 'cloud data', 'records', 'inputs', 'files'],
+  },
+
+  'microchip_processor': {
+    id: 'microchip_processor',
+    name: 'Microchip CPU Processor (Powerful Computers)',
+    category: 'science',
+    viewBox: '0 0 100 100',
+    strokes: [
+      // Square chip body
+      { d: 'M 28 28 L 72 28 L 72 72 L 28 72 Z', len: 176, strokeWidth: 3.5, colorKey: 'accent', order: 0 },
+      // Inner AI Core
+      { d: 'M 38 38 L 62 38 L 62 62 L 38 62 Z', len: 96, strokeWidth: 2, order: 1 },
+      // Top pins
+      { d: 'M 36 28 L 36 16 M 46 28 L 46 16 M 54 28 L 54 16 M 64 28 L 64 16', len: 48, strokeWidth: 2.5, order: 2 },
+      // Bottom pins
+      { d: 'M 36 72 L 36 84 M 46 72 L 46 84 M 54 72 L 54 84 M 64 72 L 64 84', len: 48, strokeWidth: 2.5, order: 3 },
+      // Left pins
+      { d: 'M 28 36 L 16 36 M 28 46 L 16 46 M 28 54 L 16 54 M 28 64 L 16 64', len: 48, strokeWidth: 2.5, order: 4 },
+      // Right pins
+      { d: 'M 72 36 L 84 36 M 72 46 L 84 46 M 72 54 L 84 54 M 72 64 L 84 64', len: 48, strokeWidth: 2.5, order: 5 },
+      // Spark core
+      { d: 'M 44 50 L 56 50 M 50 44 L 50 56', len: 24, strokeWidth: 2.5, colorKey: 'danger', order: 6 },
+    ],
+    keywords: ['computer', 'powerful', 'hardware', 'processor', 'cpu', 'chip', 'microchip', 'speed', 'computation', 'gpu', 'faster'],
+  },
+
+  'neural_network_nodes': {
+    id: 'neural_network_nodes',
+    name: 'Neural Network Graph (Better Algorithms)',
+    category: 'science',
+    viewBox: '0 0 100 100',
+    strokes: [
+      // 5 Interconnected Nodes
+      { d: 'M 20 50 A 5 5 0 1 0 20 60 A 5 5 0 1 0 20 50', len: 31, strokeWidth: 2.5, colorKey: 'accent', order: 0 },
+      { d: 'M 45 25 A 5 5 0 1 0 45 35 A 5 5 0 1 0 45 25', len: 31, strokeWidth: 2.5, colorKey: 'accent', order: 1 },
+      { d: 'M 45 75 A 5 5 0 1 0 45 85 A 5 5 0 1 0 45 75', len: 31, strokeWidth: 2.5, colorKey: 'accent', order: 2 },
+      { d: 'M 75 35 A 5 5 0 1 0 75 45 A 5 5 0 1 0 75 35', len: 31, strokeWidth: 2.5, colorKey: 'highlight', order: 3 },
+      { d: 'M 75 65 A 5 5 0 1 0 75 75 A 5 5 0 1 0 75 65', len: 31, strokeWidth: 2.5, colorKey: 'highlight', order: 4 },
+      // Synaptic connection lines
+      { d: 'M 25 53 L 45 32 M 25 57 L 45 78 M 50 32 L 75 38 M 50 32 L 75 68 M 50 78 L 75 42 M 50 78 L 75 72', len: 180, strokeWidth: 2, colorKey: 'danger', order: 5 },
+    ],
+    keywords: ['algorithm', 'algorithms', 'neural network', 'nodes', 'model', 'weights', 'deep learning', 'better algorithms', 'logic', 'code'],
+  },
+
+  'earth_globe_future': {
+    id: 'earth_globe_future',
+    name: 'Earth Globe (Changing Our World)',
+    category: 'general',
+    viewBox: '0 0 100 100',
+    strokes: [
+      // Globe circular boundary
+      { d: 'M 50 16 A 34 34 0 1 0 50 84 A 34 34 0 1 0 50 16', len: 213, strokeWidth: 3.5, colorKey: 'accent', order: 0 },
+      // Continents (Americas & Eurasia contours)
+      { d: 'M 28 32 C 34 36 40 32 38 44 C 36 52 44 58 40 68 C 36 76 30 74 34 70', len: 95, strokeWidth: 2.5, colorKey: 'success', order: 1 },
+      { d: 'M 54 26 C 62 24 74 30 76 40 C 72 44 66 42 62 48 C 66 58 78 62 72 74', len: 90, strokeWidth: 2.5, colorKey: 'success', order: 2 },
+      // Surrounding burst spark lines
+      { d: 'M 50 8 L 50 2 M 80 20 L 86 16 M 92 50 L 98 50 M 80 80 L 86 84 M 20 20 L 14 16 M 8 50 L 2 50 M 20 80 L 14 84', len: 75, strokeWidth: 2.5, colorKey: 'highlight', order: 3 },
+    ],
+    keywords: ['world', 'earth', 'global', 'future', 'duniya', 'planet', 'international', 'society', 'humanity', 'impact', 'changing our world'],
+  },
+
+  'growth_trend_chart': {
+    id: 'growth_trend_chart',
+    name: 'Growth Trend Bar Chart & Ascending Arrow',
+    category: 'business',
+    viewBox: '0 0 100 100',
+    strokes: [
+      // Axes (X and Y baseline)
+      { d: 'M 14 16 L 14 84 L 92 84', len: 146, strokeWidth: 3, order: 0 },
+      // Bar 1 (2020 small)
+      { d: 'M 24 84 L 24 64 L 38 64 L 38 84 Z', len: 68, strokeWidth: 2.5, order: 1 },
+      // Bar 2 (Medium)
+      { d: 'M 46 84 L 46 48 L 60 48 L 60 84 Z', len: 100, strokeWidth: 2.5, colorKey: 'accent', order: 2 },
+      // Bar 3 (2024 tall with diagonal hatch stripes)
+      { d: 'M 68 84 L 68 30 L 82 30 L 82 84 Z M 68 42 L 82 36 M 68 56 L 82 50 M 68 70 L 82 64', len: 160, strokeWidth: 2.5, colorKey: 'accent', order: 3 },
+      // Upward trend arrow surging to top right
+      { d: 'M 20 68 Q 50 44 86 22 M 74 22 L 86 22 L 86 34', len: 90, strokeWidth: 3.5, colorKey: 'danger', order: 4 },
+    ],
+    keywords: ['market size', 'growth in numbers', 'stats', 'numbers', 'chart', 'bars', 'uptrend', 'rapidly', 'billions', '3x growth', 'revenue'],
+  },
+
+  'automation_gears': {
+    id: 'automation_gears',
+    name: 'Automation Interlocking Gears',
+    category: 'process',
+    viewBox: '0 0 100 100',
+    strokes: [
+      // Main Gear 1
+      { d: 'M 35 25 L 45 25 L 43 32 L 51 35 L 57 29 L 64 36 L 58 42 L 61 50 L 68 48 L 68 58 L 61 56 L 58 64 L 64 70 L 57 77 L 51 71 L 43 74 L 45 81 L 35 81 Z', len: 210, strokeWidth: 2.5, colorKey: 'accent', order: 0 },
+      // Center hole Gear 1
+      { d: 'M 40 45 A 8 8 0 1 0 40 61 A 8 8 0 1 0 40 45', len: 50, strokeWidth: 2.5, order: 1 },
+      // Smaller Gear 2 (Interlocking)
+      { d: 'M 72 18 L 80 18 L 85 24 L 85 32 L 80 38 L 72 38 L 67 32 Z', len: 75, strokeWidth: 2, colorKey: 'highlight', order: 2 },
+    ],
+    keywords: ['automate', 'automation', 'automate work', 'gears', 'efficiency', 'system', 'engine', 'workflow', 'streamlined'],
+  },
+
+  'stickman_summary_pointer': {
+    id: 'stickman_summary_pointer',
+    name: 'Stickman Presenter Pointing to Summary',
+    category: 'character',
+    viewBox: '0 0 100 100',
+    strokes: [
+      // Smiling Head
+      { d: 'M 32 18 A 10 10 0 1 0 32 38 A 10 10 0 1 0 32 18', len: 63, strokeWidth: 3, order: 0 },
+      // Smile & Eyes
+      { d: 'M 28 26 L 28 28 M 36 26 L 36 28 M 28 32 Q 32 36 36 32', len: 20, strokeWidth: 2, order: 1 },
+      // Body
+      { d: 'M 32 38 L 32 70', len: 32, strokeWidth: 3, order: 2 },
+      // Right Arm Pointing eagerly to the right box
+      { d: 'M 32 46 L 56 42 L 68 38', len: 38, strokeWidth: 3.5, colorKey: 'danger', order: 3 },
+      // Left Arm on hip
+      { d: 'M 32 46 L 20 54 L 26 62', len: 26, strokeWidth: 2.5, order: 4 },
+      // Legs
+      { d: 'M 32 70 L 22 92 M 32 70 L 42 92', len: 48, strokeWidth: 3, order: 5 },
+      // Summary Card Outline on the right
+      { d: 'M 54 20 L 94 20 C 96 20 98 22 98 24 L 98 64 C 98 66 96 68 94 68 L 54 68 C 52 68 50 66 50 64 L 50 24 C 50 22 52 20 54 20 Z', len: 180, strokeWidth: 2.5, colorKey: 'accent', order: 6 },
+    ],
+    keywords: ['in short', 'summary', 'conclusion', 'takeaway', 'finally', 'message', 'result', 'remember', 'wrap up', 'stickman'],
+  },
 };
 
-// ── Smart Semantic Keyword Resolver ──────────────────────────────────────────
+// ── Smart Semantic Keyword Resolver (Zero Repetition Hash Fallback) ─────────
+const FALLBACK_POOL = [
+  'ai_split_brain',
+  'growth_trend_chart',
+  'college_building',
+  'student_boy_walking',
+  'boy_studying_desk',
+  'calendar_everyday',
+  'house_home',
+  'evening_clock',
+  'microchip_processor',
+  'database_cylinder',
+  'neural_network_nodes',
+  'earth_globe_future',
+  'automation_gears',
+  'stickman_summary_pointer',
+  'science_lightbulb_idea',
+  'business_growth_chart',
+  'concept_zero_to_one',
+  'character_burning_passion',
+  'business_target_bullseye',
+  'dream_big_vision',
+  'mindset_focus_lane',
+  'process_step_curved_arrow',
+  'character_celebration',
+  'money_growth_coins',
+  'business_handshake',
+  'character_thinking',
+];
+
 export function resolveVectorDrawing(keywordOrText?: string): VectorDrawingDef {
   if (!keywordOrText) return WHITEBOARD_VECTOR_DRAWINGS['science_lightbulb_idea'];
-  const text = keywordOrText.toLowerCase();
+  const text = keywordOrText.toLowerCase().trim();
 
+  // 1. Direct keyword match
   for (const def of Object.values(WHITEBOARD_VECTOR_DRAWINGS)) {
     for (const kw of def.keywords) {
       if (text.includes(kw)) {
@@ -579,5 +876,14 @@ export function resolveVectorDrawing(keywordOrText?: string): VectorDrawingDef {
     }
   }
 
-  return WHITEBOARD_VECTOR_DRAWINGS['science_lightbulb_idea'];
+  // 2. Hash-based diverse fallback rotation so consecutive scenes never repeat the same icon
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) {
+    hash = (hash << 5) - hash + text.charCodeAt(i);
+    hash |= 0;
+  }
+  const poolIndex = Math.abs(hash) % FALLBACK_POOL.length;
+  const pickedId = FALLBACK_POOL[poolIndex];
+
+  return WHITEBOARD_VECTOR_DRAWINGS[pickedId] || WHITEBOARD_VECTOR_DRAWINGS['science_lightbulb_idea'];
 }

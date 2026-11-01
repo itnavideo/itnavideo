@@ -250,3 +250,109 @@ export async function planCompareStickers(input: StickerPlanInput): Promise<Stic
     source: 'script-semantic',
   };
 }
+
+export type CompareScene = {
+  sceneNumber: number;
+  id: string;
+  startSeconds: number;
+  endSeconds: number;
+  durationSeconds: number;
+  stage: 'hook_intro' | 'left_focus' | 'right_focus' | 'versus_battle' | 'analysis' | 'warning' | 'verdict';
+  heading: string;
+  narrationSnippet: string;
+  activeFocus: 'left' | 'right' | 'both';
+  stickerPose: string;
+  highlightSide?: 'left' | 'right';
+  reason?: string;
+};
+
+export function buildCompareScenes(params: {
+  stickerPlan: StickerPlanSegment[];
+  leftTitle: string;
+  rightTitle: string;
+  durationSeconds: number;
+  captions?: Array<{ start: number; end: number; text: string }>;
+  winner?: 'left' | 'right' | 'none' | string;
+}): CompareScene[] {
+  const { stickerPlan, leftTitle, rightTitle, durationSeconds, captions = [], winner = 'none' } = params;
+  const totalDuration = Math.max(1, durationSeconds);
+
+  if (!stickerPlan || stickerPlan.length === 0) {
+    return [
+      {
+        sceneNumber: 1,
+        id: 'compare-scene-1',
+        startSeconds: 0,
+        endSeconds: totalDuration,
+        durationSeconds: totalDuration,
+        stage: 'versus_battle',
+        heading: `${leftTitle} vs ${rightTitle}`,
+        narrationSnippet: captions[0]?.text || 'Head-to-head showdown',
+        activeFocus: 'both',
+        stickerPose: POSES.comparing,
+        reason: 'Single comparison scene fallback',
+      },
+    ];
+  }
+
+  return stickerPlan.map((segment, idx) => {
+    const sceneNumber = idx + 1;
+    const dur = Math.max(0.1, Number((segment.end - segment.start).toFixed(2)));
+    
+    // Find matching captions within this segment window
+    const relevantCaptions = captions.filter(
+      (c) => c.start >= segment.start - 0.2 && c.end <= segment.end + 0.3
+    );
+    const narrationSnippet = relevantCaptions.map((c) => c.text).join(' ') || segment.reason || '';
+
+    let stage: CompareScene['stage'] = 'versus_battle';
+    let activeFocus: CompareScene['activeFocus'] = 'both';
+    let heading = `${leftTitle} vs ${rightTitle}`;
+    let highlightSide: 'left' | 'right' | undefined = undefined;
+
+    if (segment.pose === POSES.welcome || idx === 0) {
+      stage = 'hook_intro';
+      activeFocus = 'both';
+      heading = `${leftTitle} vs ${rightTitle}`;
+    } else if (segment.pose === POSES.left) {
+      stage = 'left_focus';
+      activeFocus = 'left';
+      heading = leftTitle;
+      highlightSide = 'left';
+    } else if (segment.pose === POSES.right) {
+      stage = 'right_focus';
+      activeFocus = 'right';
+      heading = rightTitle;
+      highlightSide = 'right';
+    } else if (segment.pose === POSES.warning) {
+      stage = 'warning';
+      activeFocus = 'both';
+      heading = 'Key Watchouts';
+    } else if (segment.pose === POSES.thinking) {
+      stage = 'analysis';
+      activeFocus = 'both';
+      heading = 'Deep Comparison';
+    } else if (segment.pose === POSES.success || idx === stickerPlan.length - 1) {
+      stage = 'verdict';
+      activeFocus = winner === 'left' ? 'left' : winner === 'right' ? 'right' : 'both';
+      heading = winner === 'left' ? `${leftTitle} Wins!` : winner === 'right' ? `${rightTitle} Wins!` : 'Final Verdict';
+      highlightSide = winner === 'left' ? 'left' : winner === 'right' ? 'right' : undefined;
+    }
+
+    return {
+      sceneNumber,
+      id: `compare-scene-${sceneNumber}`,
+      startSeconds: Number(segment.start.toFixed(2)),
+      endSeconds: Number(segment.end.toFixed(2)),
+      durationSeconds: dur,
+      stage,
+      heading,
+      narrationSnippet,
+      activeFocus,
+      stickerPose: segment.pose,
+      highlightSide,
+      reason: segment.reason,
+    };
+  });
+}
+

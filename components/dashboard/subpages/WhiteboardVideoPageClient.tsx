@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import BrandLogo from "@/components/brand/BrandLogo";
 import { WhiteboardStudio } from "@/components/dashboard/WhiteboardStudio";
+import WhiteboardPreviewModal from "@/components/dashboard/WhiteboardPreviewModal";
 import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine";
 
 type BillingEntitlement = {
@@ -75,6 +76,9 @@ export default function WhiteboardVideoPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [audioDurationSeconds, setAudioDurationSeconds] = useState<number>(0);
   const [markerColor, setMarkerColor] = useState<string>("auto");
+  const [fontPersonality, setFontPersonality] = useState<string>("balsamiq");
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [audioBlobUrl, setAudioBlobUrl] = useState<string>("");
 
   // Transcript states
   const [transcript, setTranscript] = useState<string>("");
@@ -109,28 +113,34 @@ export default function WhiteboardVideoPage() {
       setTranscript("");
       setTranscriptionError(null);
       setCachedMediaKey("");
+      setAudioBlobUrl("");
       return;
     }
 
     setTranscript("");
     setTranscriptionError(null);
 
+    const url = URL.createObjectURL(selectedFile);
+    setAudioBlobUrl(url);
+
     // Measure video or audio duration safely
     const isVideo = selectedFile.type?.startsWith("video/") || /\.(mp4|mov|webm|mkv)$/i.test(selectedFile.name);
     const mediaEl = isVideo ? document.createElement("video") : document.createElement("audio");
-    const url = URL.createObjectURL(selectedFile);
     mediaEl.src = url;
     mediaEl.onloadedmetadata = () => {
       if (Number.isFinite(mediaEl.duration) && mediaEl.duration > 0) {
         setAudioDurationSeconds(mediaEl.duration);
       }
-      URL.revokeObjectURL(url);
     };
     mediaEl.onerror = () => {
-      URL.revokeObjectURL(url);
+      console.warn("Could not load media metadata.");
     };
 
     performTranscription(selectedFile, user?.id || "guest_user");
+
+    return () => {
+      URL.revokeObjectURL(url);
+    };
   }, [selectedFile]);
 
   async function performTranscription(file: File, userId: string) {
@@ -243,6 +253,44 @@ export default function WhiteboardVideoPage() {
 
 
   
+
+  const handleOpenPreview = async () => {
+    if (!selectedFile) {
+      alert("Please upload a voiceover audio file first.");
+      return;
+    }
+    if (!transcript.trim()) {
+      alert("Please wait for audio transcription or write a script first.");
+      return;
+    }
+
+    if (!plan) {
+      setIsPlanning(true);
+      try {
+        const res = await fetch("/api/reels/plan-whiteboard", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            transcript: transcript.trim(),
+            words,
+            durationSeconds: audioDurationSeconds || 30,
+            topicTitle: selectedFile.name.replace(/\.[^/.]+$/, ""),
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (data.ok && data.plan) {
+          setPlan(data.plan);
+          if (data.words && data.words.length > 0) setWords(data.words);
+        }
+      } catch (err) {
+        console.warn("Could not plan live preview:", err);
+      } finally {
+        setIsPlanning(false);
+      }
+    }
+    setIsPreviewOpen(true);
+  };
+
   const handlePlanStoryboard = async () => {
     if (!selectedFile) return;
     setIsPlanning(true);
@@ -482,6 +530,61 @@ export default function WhiteboardVideoPage() {
     }
   };
 
+  // Render Interactive Studio directly matching Image 2
+  if (jobStatus.state === "idle" && activeTab === "studio") {
+    return (
+      <main className="min-h-screen bg-[#F8FAFC]">
+        <WhiteboardStudio
+          selectedFile={selectedFile}
+          onSelectFile={setSelectedFile}
+          transcript={transcript}
+          onTranscriptChange={setTranscript}
+          isTranscribing={isTranscribing}
+          transcriptionError={transcriptionError}
+          onReTranscribe={() => {
+            if (selectedFile) {
+              performTranscription(selectedFile, user?.id || "guest_user");
+            }
+          }}
+          markerColor={markerColor}
+          onMarkerColorChange={setMarkerColor}
+          fontPersonality={fontPersonality}
+          onFontPersonalityChange={setFontPersonality}
+          onOpenPreview={handleOpenPreview}
+          onGenerate={handleStartRender}
+          onPlanStoryboard={handlePlanStoryboard}
+          isPlanning={isPlanning}
+          plan={plan}
+          setPlan={setPlan}
+          studioStep={studioStep}
+          setStudioStep={setStudioStep}
+          isGenerating={isSubmitting || jobStatus.state !== "idle"}
+        />
+
+        {/* Interactive Live Preview Modal before cloud rendering */}
+        <WhiteboardPreviewModal
+          isOpen={isPreviewOpen}
+          onClose={() => setIsPreviewOpen(false)}
+          audioUrl={audioBlobUrl || "/whiteboard-preview.mp3"}
+          plan={plan || {
+            title: selectedFile?.name.replace(/\.[^/.]+$/, "") || "Whiteboard Animation",
+            durationSeconds: audioDurationSeconds || 30,
+            scenes: [],
+          }}
+          durationSeconds={audioDurationSeconds || 30}
+          title={selectedFile?.name.replace(/\.[^/.]+$/, "") || "Whiteboard Animation"}
+          fontPersonality={fontPersonality}
+          onFontPersonalityChange={setFontPersonality}
+          onConfirmRender={() => {
+            setIsPreviewOpen(false);
+            handleStartRender();
+          }}
+          isSubmitting={isSubmitting}
+        />
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-[#090A0F] px-3.5 py-4 sm:px-6 sm:py-8 text-white">
       <div className="mx-auto max-w-6xl space-y-5 sm:space-y-8">
@@ -539,24 +642,6 @@ export default function WhiteboardVideoPage() {
           </div>
         </div>
 
-        {/* Page Title ($H_1$) */}
-        <div className="flex items-center gap-3 pt-0.5 pb-1">
-          <div className="flex h-9 w-9 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl bg-[#FF5722]/10 text-[#FF9100] border border-[#FF5722]/20 shadow-sm">
-            <Sparkles size={18} className="sm:size-[22px]" />
-          </div>
-          <div>
-            <h1 className="text-lg sm:text-3xl font-black text-white tracking-tight">
-              AI Whiteboard Explainer{" "}
-              <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
-                Studio
-              </span>
-            </h1>
-            <p className="text-[11px] sm:text-sm text-zinc-400 mt-0.5">
-              Turn voiceover scripts into high-retention 9:16 whiteboard diagrams &amp; presentations.
-            </p>
-          </div>
-        </div>
-
         {/* Interactive Render Stage with BorderBeam, Neural Audio Visualizer, & 1080p Cloud Export */}
         {jobStatus.state !== "idle" && (
           <div className="max-w-3xl mx-auto py-4">
@@ -587,36 +672,8 @@ export default function WhiteboardVideoPage() {
         )}
 
         {/* Primary Views */}
-        {jobStatus.state === "idle" && (
-          <>
-            {activeTab === "studio" && (
-              <WhiteboardStudio
-                selectedFile={selectedFile}
-                onSelectFile={setSelectedFile}
-                transcript={transcript}
-                onTranscriptChange={setTranscript}
-                isTranscribing={isTranscribing}
-                transcriptionError={transcriptionError}
-                onReTranscribe={() => {
-                  if (selectedFile) {
-                    performTranscription(selectedFile, user?.id || "guest_user");
-                  }
-                }}
-                markerColor={markerColor}
-                onMarkerColorChange={setMarkerColor}
-                onGenerate={handleStartRender}
-                  onPlanStoryboard={handlePlanStoryboard}
-                  isPlanning={isPlanning}
-                  plan={plan}
-                  setPlan={setPlan}
-                  studioStep={studioStep}
-                  setStudioStep={setStudioStep}
-                isGenerating={isSubmitting || jobStatus.state !== "idle"}
-              />
-            )}
-
-            {activeTab === "history" && (
-              <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-lg">
+        {jobStatus.state === "idle" && activeTab === "history" && (
+          <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-lg">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FF5722]/10 text-[#FF9100]">
@@ -670,8 +727,6 @@ export default function WhiteboardVideoPage() {
                 )}
               </div>
             )}
-          </>
-        )}
       </div>
     </main>
   );

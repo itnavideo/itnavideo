@@ -39,7 +39,7 @@ const BLOG_TOPIC_POOL = [
     excerpt: 'Learn how AI whiteboard animation turns audio voiceovers into hand-drawn visual diagrams and educational explainer reels.',
     category: 'whiteboard-video',
     dashboardType: 'whiteboard-video',
-    previewImage: 'Whiteboard Video.png',
+    previewImage: 'Whiteboard Animation.png',
     keywords: ['ai whiteboard video generator', 'hand drawn sketch video', 'whiteboard explainer reels', 'audio to whiteboard'],
   },
   {

@@ -36,13 +36,29 @@
    - AI uses the user's verified transcript for scene planning and diagram layout.
 3. **Fixed Corporate Whiteboard Canvas (Default)**:
    - High-end boardroom eggshell whiteboard with brushed titanium border. Zero decision fatigue for users.
-4. **Writing Typography Personalities**:
-   - `Marker` (✍️ Natural handwritten look — Default)
-   - `Clean` (📋 Professional whiteboard)
-   - `Bold` (📢 High-impact presentation)
-   - `Blueprint` (📐 Technical drafting style)
-5. **2D Colored Vector Illustrations & Hand-Drawn Engine (Master Reference Standard)**:
-   - **Rich 2D Colored Vector Graphics (`Whiteboard2DIcon`)**: Clean black outer strokes with vibrant internal flat color fills (blue shirts, gold coins, translucent glass shading, red medical crosses, green growth plants, target bullseyes).
+4. **Writing Typography Personalities (12 Popular Whiteboard Fonts)**:
+   - `Balsamiq Sans` (`balsamiq` — Clean, authentic hand-drawn look — **Default**)
+   - `Permanent Marker` (`permanent-marker` — Bold and natural marker look)
+   - `Kids Hand` / `Gochi Hand` (`kids-hand` — Playful handwriting style)
+   - `Comic Neue` (`comic-neue` — Clean and friendly look)
+   - `Caveat` (`caveat` — Natural handwritten style)
+   - `Archivo Handwritten` (`archivo-handwritten` — Neat handwriting style)
+   - `Shadows Into Light` (`shadows-into-light` — Pencil sketch style)
+   - `Schoolbell` (`schoolbell` — School writing style)
+   - `Handlee` (`handlee` — Rounded handwritten style)
+   - `Noto Sans Handwriting` (`noto-sans-handwriting` — Google handwriting style)
+   - `Indie Flower` (`indie-flower` — Casual handwritten style)
+   - `Comic Relief` (`comic-relief` — Fun and playful style)
+   - Companion styles: `Architects Daughter` (`architect`), `Kalam Marker` (`marker`), `Plus Jakarta Sans` (`clean`)
+5. **Founder Master Storyboard Standard (Text + Dedicated Drawing for Every Scene)**:
+   - **Scene Structure (3s–6s beats)**: Every single scene consists of:
+     1. **Narration Text**: Clear, punchy sentence in **Balsamiq Sans** positioned on the left/corner.
+     2. **Selective Marker Underlines & Highlights**:
+        - Red marker underline on critical problem/action words (e.g. *losses every year*, *illness*, *very sad*, *no hope*, *success*).
+        - Green / colored highlights on key entity names and positive breakthroughs.
+     3. **Dedicated Hand-Drawn Vector Sketch**: A custom, expressive visual drawn for each specific beat (e.g. distressed character + declining loss chart, hospital bed, despair pose, prayer burst, divine blessing, rising growth chart, muscle flex with heartbeat, sacred dome architecture).
+     4. **Active Drawing Hand**: Realistic hand with marker pen tracing each line in sync with narration timing.
+   - **Rich 2D Colored Vector Graphics (`Whiteboard2DIcon`)**: Clean black outer strokes with vibrant internal flat color fills.
    - **Authentic Drawing Hand with Marker Pen (`WhiteboardHand`)**: Real hand holding a dry-erase marker, tip calibrated at (0,0), actively tracing letters, arrows, and illustrations across the board with realistic drawing micro-vibrations, then resting naturally at the bottom-right corner.
    - **Full Storyboard Infographic Layout (`layoutType: 'infographic'`)**:
      - *Header*: Expressive handwriting font with action dashes and accent colors (`titlePrefix` + `titleAccent`).

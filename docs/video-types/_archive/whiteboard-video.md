@@ -1,10 +1,10 @@
-# Whiteboard Video (`WHITEBOARD_VIDEO`)
+# Whiteboard Animation (`WHITEBOARD_VIDEO`)
 
 ## Master Specification
 
 | Field | Value |
 |---|---|
-| Video Type Name | Whiteboard Video |
+| Video Type Name | Whiteboard Animation |
 | Internal ID | `WHITEBOARD_VIDEO` |
 | Composition ID | `WHITEBOARD-VIDEO` |
 | Dashboard Mode | `whiteboardVideo` |

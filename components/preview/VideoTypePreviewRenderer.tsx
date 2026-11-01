@@ -6,7 +6,7 @@ import { Loader2 } from "lucide-react";
 
 import { AutoCaptionGenerator } from "@/remotion/templates/AUTO_CAPTION_GENERATOR/template";
 import { CompareExplainer } from "@/remotion/templates/COMPARE_EXPLAINER/template";
-import { FacelessVideoTemplate } from "@/remotion/templates/FACELESS_VIDEO/template";
+import { FacelessLongVideoTemplate as FacelessVideoTemplate } from "@/remotion/templates/FACELESS_LONG_VIDEO/template";
 import { DEFAULT_FPS, secondsToFrames } from "@/remotion/constants";
 
 type Props = {

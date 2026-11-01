@@ -240,7 +240,7 @@ export async function getAdminOverviewStats() {
   const VIDEO_TYPE_NAME_MAP: Record<string, string> = {
     'autoCaption': 'Auto Caption',
     'imageToVideoAi': 'Image to Video',
-    'whiteboardVideo': 'Whiteboard Video',
+    'whiteboardVideo': 'Whiteboard Animation',
     'facelessVideo': 'Faceless Video',
     'longVideoPromo': 'Long Video Promo',
     'compare': 'Compare Explainer',

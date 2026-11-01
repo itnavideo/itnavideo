@@ -1,6 +1,6 @@
 /**
  * whiteboardPlanner.ts
- * Whiteboard Video AI Planner — Groq Qwen 2.5/3.8 + Gemini Fallback + Semantic Rule Planner.
+ * Whiteboard Animation AI Planner — Groq Qwen 2.5/3.8 + Gemini Fallback + Semantic Rule Planner.
  *
  * KEY HIGHLIGHTS:
  *   - Strictly 9:16 vertical (1080×1920) reels up to 90 seconds.
@@ -12,6 +12,7 @@
 
 import { GoogleGenAI } from '@google/genai';
 import { resolveVectorDrawing, WHITEBOARD_VECTOR_DRAWINGS } from '@/lib/whiteboard/vectorDrawings';
+import { WhiteboardAssetLedger, METAPHOR_MAP, WHITEBOARD_PALETTES } from './whiteboardLedger';
 import {
   WB_MAX_POINTS_PER_BOARD,
   WB_MAX_WORDS_PER_POINT,
@@ -21,6 +22,7 @@ import {
   WB_MIN_DISPLAY_SECONDS,
 } from '@/lib/whiteboard/whiteboardConstants';
 import type { ReelWord } from './reelPlanner';
+import { buildWhiteboardPrompt } from '@/src/prompts/whiteboard.prompt';
 
 // ── Public types ──────────────────────────────────────────────────────────────
 
@@ -89,6 +91,91 @@ export interface WhiteboardStoryInfographicProps {
   showHand?: boolean;
 }
 
+export type WhiteboardArchetype =
+  | 'split_story'          // side-by-side: drawing left, bold colored text right (Master Explainer)
+  | 'hero_center'          // one big visual, title above, short label below
+  | 'stat_callout'         // huge number plus 1-2 side notes
+  | 'split_comparison'     // top vs bottom with VS marker
+  | 'step_ladder'          // 3-5 steps alternating left and right
+  | 'hub_spoke'            // center concept with 3-5 spokes
+  | 'keyword_slam'         // one huge kinetic word with small doodle
+  | 'before_after'         // two states with arrow between them
+  | 'checklist'            // ticks drawn one by one
+  | 'cycle_loop'           // 3-4 nodes with circular arrows
+  | 'funnel_pyramid'       // stages narrowing down
+  | 'character_bubble'     // character with speech/thought bubble
+  | 'chart_scene';         // hand-drawn bar or line chart
+
+export type HeroModality = 'kinetic_keyword' | 'illustrative_doodle' | 'structured_diagram' | 'hand_drawn_chart';
+
+export interface VisualIntent {
+  beatIndex: number;
+  role: 'hook' | 'problem' | 'explain' | 'example' | 'comparison' | 'stat' | 'steps' | 'cta';
+  takeaway: string;
+  type: 'concept' | 'process' | 'comparison' | 'stat' | 'story' | 'quote';
+  entities: string[];
+  action: string;
+  emotion: string;
+  metaphors: string[];
+  soundOffTest: string;
+}
+
+export interface WhiteboardExplanationLine {
+  text: string;
+  highlightWord?: string;
+  highlightColor?: string;
+}
+
+export interface WhiteboardScene {
+  id: string;
+  sceneIndex: number;
+  startTime: number;
+  endTime: number;
+  duration: number;
+  timeLabel?: string;
+  explanationLines?: WhiteboardExplanationLine[];
+  archetype: WhiteboardArchetype;
+  modality: HeroModality;
+  visualIntent: VisualIntent;
+  headline: string;
+  label?: string;
+  heroVisual: {
+    drawingId: string;
+    label?: string;
+    metaphor?: string;
+    scale?: number;
+  };
+  supportingItems?: Array<{
+    id: string;
+    text: string;
+    drawingId?: string;
+    subText?: string;
+    isHighlight?: boolean;
+  }>;
+  statData?: {
+    number: string;
+    metric: string;
+    trend?: 'up' | 'down' | 'neutral';
+    context: string;
+  };
+  comparisonData?: {
+    leftTitle: string;
+    leftItem: string;
+    leftIcon?: string;
+    rightTitle: string;
+    rightItem: string;
+    rightIcon?: string;
+  };
+  chartData?: {
+    type: 'bar' | 'line';
+    labels: string[];
+    values: number[];
+    unit?: string;
+  };
+  transition: 'erase_wipe' | 'element_exit' | 'camera_pan' | 'match_cut';
+  accentColor: string;
+}
+
 export type WhiteboardPlan = {
   title: string;
   titleColor: string;
@@ -104,6 +191,8 @@ export type WhiteboardPlan = {
   conclusionTime: number;
   source: 'groq-qwen' | 'gemini' | 'deterministic';
   aspectRatio: '9:16';
+  scenes?: WhiteboardScene[];
+  assetLedgerSummary?: any;
 };
 
 export type WhiteboardPlanInput = {
@@ -191,6 +280,316 @@ export function buildWhiteboardSegments(
 
   return result;
 }
+
+// ── Step 1.5: Segment script into beats (12-25 words, 5-10 seconds per beat) ──
+export function segmentScriptIntoBeats(
+  words: ReelWord[],
+  durationSeconds: number
+): Array<{ beatIndex: number; start: number; end: number; text: string; words: ReelWord[] }> {
+  if (!words || !words.length) return [];
+
+  const beats: Array<{ beatIndex: number; start: number; end: number; text: string; words: ReelWord[] }> = [];
+  const TARGET_WORDS_PER_BEAT = 18; // 12-25 words target (~6-8 seconds at 2.5 wps)
+  const MIN_WORDS_PER_BEAT = 10;
+
+  let currentWords: ReelWord[] = [];
+  let beatIndex = 0;
+
+  for (let i = 0; i < words.length; i++) {
+    const w = words[i];
+    currentWords.push(w);
+
+    const isLastWord = i === words.length - 1;
+    const hasEnoughWords = currentWords.length >= TARGET_WORDS_PER_BEAT;
+    const isPunctuationBreak = /[.!?]$/.test(w.word.trim()) && currentWords.length >= MIN_WORDS_PER_BEAT;
+    const nextWordPause = words[i + 1] ? Number(words[i + 1].start) - Number(w.end) > 0.4 : false;
+
+    if (isLastWord || isPunctuationBreak || (hasEnoughWords && nextWordPause) || currentWords.length >= 26) {
+      const bStart = Number(currentWords[0].start);
+      const bEnd = Number(currentWords[currentWords.length - 1].end);
+      beats.push({
+        beatIndex: beatIndex++,
+        start: +(bStart.toFixed(3)),
+        end: +(Math.max(bEnd, bStart + 1.2).toFixed(3)),
+        text: currentWords.map(cw => cw.word).join(' '),
+        words: [...currentWords],
+      });
+      currentWords = [];
+    }
+  }
+
+  return beats;
+}
+
+export function formatSecondsToTimer(sec: number): string {
+  const m = Math.floor(Math.max(0, sec) / 60);
+  const s = Math.floor(Math.max(0, sec) % 60);
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+export function extractExplanationLinesFromBeat(
+  text: string,
+  accentColor: string = '#2563EB'
+): WhiteboardExplanationLine[] {
+  if (!text || !text.trim()) return [];
+
+  const cleaned = text.replace(/\s+/g, ' ').trim();
+  const rawParts = cleaned
+    .split(/(?<=[.!?])\s+|(?<=[,;])\s+(?=[A-Za-z0-9])/i)
+    .map(p => p.trim())
+    .filter(p => p.length >= 4);
+
+  const lines: string[] = [];
+  if (rawParts.length >= 2) {
+    lines.push(rawParts[0]);
+    lines.push(rawParts[1]);
+    if (rawParts.length >= 3 && rawParts[2].length <= 40) {
+      lines.push(rawParts[2]);
+    }
+  } else {
+    const words = cleaned.split(/\s+/).filter(Boolean);
+    if (words.length <= 6) {
+      lines.push(words.join(' '));
+    } else {
+      const splitAt = Math.ceil(words.length / 2);
+      lines.push(words.slice(0, splitAt).join(' '));
+      lines.push(words.slice(splitAt).join(' '));
+    }
+  }
+
+  const highlightColors = ['#DC2626', '#059669', '#D97706', accentColor];
+
+  return lines.slice(0, 3).map((lineText, idx) => {
+    const candidates = lineText
+      .replace(/[^\w\s]/g, '')
+      .split(/\s+/)
+      .filter(w => w.length >= 4 && !/^(with|from|that|this|have|been|they|will|what|when|your|more|some|also)$/i.test(w));
+
+    candidates.sort((a, b) => b.length - a.length);
+    const highlightWord = candidates[0] || '';
+    const highlightColor = highlightColors[idx % highlightColors.length];
+
+    return {
+      text: lineText,
+      highlightWord,
+      highlightColor,
+    };
+  });
+}
+
+export interface WhiteboardConceptBreakdown {
+  character?: string;
+  place?: string;
+  timeContext?: string;
+  action?: string;
+  frequency?: string;
+}
+
+export function extractConceptBreakdown(text: string): WhiteboardConceptBreakdown {
+  const lower = text.toLowerCase();
+  const breakdown: WhiteboardConceptBreakdown = {};
+
+  if (/\b(boy|student|ladka|teen|kid|bacha|son|brother)\b/i.test(lower)) {
+    breakdown.character = 'Boy (Student)';
+  } else if (/\b(girl|ladki|daughter|sister|female|woman)\b/i.test(lower)) {
+    breakdown.character = 'Girl (Student)';
+  } else if (/\b(doctor|physician|surgeon|nurse|dr)\b/i.test(lower)) {
+    breakdown.character = 'Doctor';
+  } else if (/\b(ceo|founder|leader|businessman|manager|executive)\b/i.test(lower)) {
+    breakdown.character = 'Executive Leader';
+  }
+
+  if (/\b(college|university|campus|school|classes)\b/i.test(lower)) {
+    breakdown.place = 'College, Home';
+  } else if (/\b(office|company|workplace|desk)\b/i.test(lower)) {
+    breakdown.place = 'Office, Home';
+  } else if (/\b(hospital|clinic)\b/i.test(lower)) {
+    breakdown.place = 'Hospital, Clinic';
+  } else if (/\b(home|house|ghar)\b/i.test(lower)) {
+    breakdown.place = 'Home';
+  }
+
+  if (/\b(evening|shaam|after college|after work|sunset|pm|6pm)\b/i.test(lower)) {
+    breakdown.timeContext = 'After College, Evening';
+  } else if (/\b(morning|subah|early|sunrise|am)\b/i.test(lower)) {
+    breakdown.timeContext = 'Early Morning';
+  } else if (/\b(night|raat|late)\b/i.test(lower)) {
+    breakdown.timeContext = 'Night';
+  }
+
+  if (/\b(study|studies|studying|padhai|padhna|read|learn|exam)\b/i.test(lower)) {
+    breakdown.action = 'Study';
+  } else if (/\b(work|working|job|mehnat|code|build)\b/i.test(lower)) {
+    breakdown.action = 'Work / Build';
+  } else if (/\b(save|invest|budget|savings)\b/i.test(lower)) {
+    breakdown.action = 'Save / Invest';
+  }
+
+  if (/\b(every day|daily|rozana|har roz|har shaam|every evening|consistently)\b/i.test(lower)) {
+    breakdown.frequency = 'Every Day (Daily Consistency)';
+  }
+
+  return breakdown;
+}
+
+// ── Step 1.6: Dynamic 2-Pass Visual Intent & Archetype Scene Builder ─────────
+export function buildDynamicWhiteboardScenes(
+  words: ReelWord[],
+  transcript: string,
+  durationSeconds: number,
+  topicTitle?: string
+): { scenes: WhiteboardScene[]; ledgerSummary: any } {
+  const beats = segmentScriptIntoBeats(words, durationSeconds);
+  const ledger = new WhiteboardAssetLedger(words.length + Math.round(durationSeconds));
+  const scenes: WhiteboardScene[] = [];
+  const totalBeats = Math.max(1, beats.length);
+  const conceptBreakdown = extractConceptBreakdown(transcript);
+
+  beats.forEach((beat, bIdx) => {
+    const lower = beat.text.toLowerCase();
+    const duration = +(Math.max(3, beat.end - beat.start).toFixed(3));
+    const timeLabel = `STEP ${bIdx + 1} (${formatSecondsToTimer(beat.start)} - ${formatSecondsToTimer(beat.end)})`;
+    const explanationLines = extractExplanationLinesFromBeat(beat.text, ledger.selectedPalette.accent);
+
+    // 1. Role detection
+    let role: VisualIntent['role'] = 'explain';
+    if (bIdx === 0) role = 'hook';
+    else if (bIdx === 1) role = 'problem';
+    else if (bIdx === totalBeats - 1) role = 'cta';
+    else if (/\b(vs|versus|instead of|compared to|difference|better than)\b/.test(lower)) role = 'comparison';
+    else if (/\b(\d+|percent|%|million|billion|k|double|triple|rate)\b/.test(lower)) role = 'stat';
+    else if (/\b(first|second|third|step|then|finally|phase|method)\b/.test(lower)) role = 'steps';
+    else if (/\b(for example|like|instance|imagine|suppose|every day|after)\b/.test(lower)) role = 'example';
+
+    // 2. Concrete Metaphor Extraction
+    let matchedMetaphorKey = '';
+    let heroDrawingId = 'character_thinking';
+
+    for (const [key, variants] of Object.entries(METAPHOR_MAP)) {
+      if (lower.includes(key)) {
+        matchedMetaphorKey = key;
+        const candidateAssets = variants.map(v => ({ id: v, familyId: key, score: 90 }));
+        heroDrawingId = ledger.selectBestAsset(candidateAssets, bIdx);
+        break;
+      }
+    }
+
+    if (!matchedMetaphorKey) {
+      // Semantic fallback matching via vector drawings
+      const matchedDef = resolveVectorDrawing(beat.text);
+      heroDrawingId = ledger.selectBestAsset(
+        [{ id: matchedDef.id, familyId: matchedDef.category, score: 75 }],
+        bIdx
+      );
+    }
+
+    // 3. Archetype Selection with Pacing Rules
+    let candidateArchetypes: WhiteboardArchetype[] = ['hero_center', 'hub_spoke'];
+    let modality: HeroModality = 'illustrative_doodle';
+
+    if (role === 'hook') {
+      candidateArchetypes = ['keyword_slam', 'hero_center'];
+      modality = 'kinetic_keyword';
+    } else if (role === 'stat') {
+      candidateArchetypes = ['stat_callout', 'chart_scene'];
+      modality = 'hand_drawn_chart';
+    } else if (role === 'comparison') {
+      candidateArchetypes = ['split_comparison', 'before_after'];
+      modality = 'structured_diagram';
+    } else if (role === 'steps') {
+      candidateArchetypes = ['step_ladder', 'checklist'];
+      modality = 'structured_diagram';
+    } else if (role === 'problem') {
+      candidateArchetypes = ['character_bubble', 'hero_center'];
+      modality = 'illustrative_doodle';
+    } else if (role === 'cta') {
+      candidateArchetypes = ['keyword_slam', 'hero_center'];
+      modality = 'kinetic_keyword';
+    }
+
+    const archetype = ledger.pickDiverseArchetype(candidateArchetypes, totalBeats, bIdx);
+    ledger.recordUsage(heroDrawingId, matchedMetaphorKey || 'general', undefined, archetype);
+
+    // 4. Headline generation (max 4-5 punchy words, never repeating subtitle verbatim)
+    const headlineWords = beat.text.split(/\s+/).slice(0, 4).join(' ');
+    const headline = condenseToWhiteboardPhrase(headlineWords) || `Key Step ${bIdx + 1}`;
+
+    // 5. Stat data extraction if stat archetype
+    const numMatch = beat.text.match(/(\$?\d+[\d,.]*%?|\d+\s*(?:percent|x|k|m))/i);
+    const bigStat = numMatch ? numMatch[1] : '85%';
+
+    // 6. Transition selection (marker erase wipe every 3-4 scenes, element exit for internal steps)
+    const transition: WhiteboardScene['transition'] =
+      bIdx % 3 === 0 && bIdx > 0
+        ? 'erase_wipe'
+        : bIdx % 2 === 0
+        ? 'element_exit'
+        : 'camera_pan';
+
+    const visualIntent: VisualIntent = {
+      beatIndex: bIdx,
+      role,
+      takeaway: headline,
+      type: role === 'stat' ? 'stat' : role === 'comparison' ? 'comparison' : 'concept',
+      entities: [matchedMetaphorKey || 'concept'],
+      action: role === 'steps' ? 'progress' : role === 'comparison' ? 'contrast' : 'reveal',
+      emotion: role === 'problem' ? 'tension' : 'clarity',
+      metaphors: [matchedMetaphorKey || heroDrawingId],
+      soundOffTest: `${headline} represented by ${heroDrawingId}`,
+    };
+
+    scenes.push({
+      id: `wb-scene-${bIdx}`,
+      sceneIndex: bIdx,
+      startTime: beat.start,
+      endTime: beat.end,
+      duration,
+      timeLabel,
+      explanationLines,
+      archetype,
+      modality,
+      visualIntent,
+      headline,
+      heroVisual: {
+        drawingId: heroDrawingId,
+        label: headline,
+        metaphor: matchedMetaphorKey,
+        scale: 1,
+      },
+      supportingItems: explanationLines.slice(0, 2).map((line, li) => ({
+        id: `item-${li}`,
+        text: line.text,
+        drawingId: li === 0 ? heroDrawingId : 'process_step_curved_arrow',
+        isHighlight: li === 0,
+      })),
+      statData: archetype === 'stat_callout' || archetype === 'chart_scene' ? {
+        number: bigStat,
+        metric: beat.text.split(/\s+/).slice(0, 3).join(' '),
+        trend: 'up',
+        context: beat.text.slice(0, 40),
+      } : undefined,
+      comparisonData: archetype === 'split_comparison' || archetype === 'before_after' ? {
+        leftTitle: 'Traditional',
+        leftItem: beat.text.split(/\s+/).slice(0, 4).join(' '),
+        leftIcon: 'comparison_cross_error',
+        rightTitle: 'With AI',
+        rightItem: beat.text.split(/\s+/).slice(-4).join(' '),
+        rightIcon: 'comparison_checkmark_success',
+      } : undefined,
+      chartData: archetype === 'chart_scene' ? {
+        type: 'bar',
+        labels: ['Before', 'Now', 'After'],
+        values: [20, 55, 95],
+        unit: '%',
+      } : undefined,
+      transition,
+      accentColor: ledger.selectedPalette.accent,
+    });
+  });
+
+  return { scenes, ledgerSummary: ledger.getSummary() };
+}
+
 
 // ── Step 2: Compute timing from word indices ──────────────────────────────────
 
@@ -614,6 +1013,7 @@ export function planDeterministicWhiteboard(input: WhiteboardPlanInput): Whitebo
   });
 
   const infographicData = planWhiteboardInfographicData(input.transcript, input.topicTitle, duration);
+  const { scenes, ledgerSummary } = buildDynamicWhiteboardScenes(words, input.transcript, duration, input.topicTitle);
 
   const plan: WhiteboardPlan = {
     title,
@@ -628,6 +1028,8 @@ export function planDeterministicWhiteboard(input: WhiteboardPlanInput): Whitebo
     conclusionTime: +(Math.max(1, duration - 1.5).toFixed(3)),
     source: 'deterministic',
     aspectRatio: '9:16',
+    scenes,
+    assetLedgerSummary: ledgerSummary,
   };
 
   const diag = validateWhiteboardLayout(plan.title, plan.points, plan.conclusion);
@@ -693,97 +1095,13 @@ async function callGroqWhiteboardDirector(input: WhiteboardPlanInput, apiKey: st
 
   const targetBoards = duration <= 35 ? 2 : Math.min(3, Math.ceil(duration / 25));
 
-  const prompt = `You are an elite Whiteboard Video Director creating a high-retention 9:16 vertical (1080×1920) whiteboard video.
-
-AUDIO DURATION: ${duration}s
-TARGET BOARDS: ${targetBoards} sequential boards (scenes). Max 3 points per board.
-TRANSCRIPT:
-"${input.transcript}"
-
-WORD INDEX (anchor points to speech via wordStartIndex and wordEndIndex):
-${wordIndexSummary.slice(0, 3000)}
-
-DIRECTOR RULES:
-1. Understand the core educational/story message.
-2. Structure the video into ${targetBoards} sequential scenes (boardIndex 0 to ${targetBoards - 1}).
-3. For each point:
-   - "text": A punchy visual headline (3 to 6 words max). Clean, complete thoughts. NEVER cut-off or broken fragments.
-   - "wordStartIndex": index of first word where this concept is spoken.
-   - "wordEndIndex": index of last word where this concept is spoken.
-   - "boardIndex": 0 to ${targetBoards - 1}.
-   - "drawingId": Pick the best procedural vector drawing:
-     'science_lightbulb_idea' | 'business_growth_chart' | 'business_target_bullseye' |
-     'character_celebration' | 'comparison_cross_error' | 'comparison_checkmark_success' |
-     'character_thinking' | 'business_handshake' | 'process_step_curved_arrow' |
-     'medical_ecg_pulse' | 'science_atom_orbit' | 'character_business_leader'
-   - "icon": 'lightbulb' | 'chart' | 'target' | 'star' | 'checkmark' | 'rocket' | 'trophy' | 'brain' | 'fire'
-   - "focusType": 'highlight' | 'circle' | 'underline' | 'box'
-   - "markerColor": '#1E3A8A' (Navy) | '#0F766E' (Emerald) | '#B91C1C' (Crimson) | '#D97706' (Amber)
-   - "bulletType": 'number' | 'check' | 'arrow' | 'star'
-4. "title": A striking, professional 2 to 4 word whiteboard title.
-5. "conclusion": A memorable 3 to 5 word final takeaway.
-6. "infographic": Rich 2D hand-drawn explainer storyboard scene:
-   - "titlePrefix": 2-3 words (e.g. "Why You Should")
-   - "titleAccent": 2-3 words (e.g. "Save Money?")
-   - "thoughtText": 1 curiosity question for 2D thinking character (e.g. "What if I need money later?")
-   - "bracketHeader": 1 setup line for the bracket list (e.g. "Life has uncertainties...")
-   - "bracketItems": 3 items with "label" (3-4 words) and "icon" ('medical_emergency' | 'car_repairs' | 'future_house' | 'growth_chart' | 'lightbulb_idea' | 'handshake_deal')
-   - "centerStatement": 1 central thesis (6-9 words)
-   - "heroLabel": 1-2 words in ALL CAPS (e.g. "SAVINGS", "GROWTH", "MASTERY", "HEALTH")
-   - "heroType": 'savings_jar' | 'growth_chart' | 'target_bullseye' | 'lightbulb_idea' | 'medical_emergency' | 'graduation_cap'
-   - "sideNote": 1 concise callout note (5-8 words)
-   - "bottomSubhead": 1 takeaway line (5-8 words, e.g. "Small steps today... Big benefits tomorrow.")
-   - "bottomCards": 4 action benefit cards, each with "label" (2-3 words) and "icon" ('emergency_siren' | 'wealth_plant' | 'target_bullseye' | 'character_happy')
-7. "layoutType": "infographic"
-8. Language detection:
-   - Urdu script -> "language": "ur", "direction": "rtl"
-   - Hindi script -> "language": "hi", "direction": "ltr"
-   - Otherwise -> "language": "en", "direction": "ltr"
-
-OUTPUT ONLY VALID JSON:
-{
-  "title": "Why You Should Save Money?",
-  "titleColor": "#0F172A",
-  "layoutType": "infographic",
-  "language": "en",
-  "direction": "ltr",
-  "infographic": {
-    "titlePrefix": "Why You Should",
-    "titleAccent": "Save Money?",
-    "thoughtText": "What if I need money later?",
-    "bracketHeader": "Life has uncertainties...",
-    "bracketItems": [
-      { "label": "Medical emergencies", "icon": "medical_emergency" },
-      { "label": "Car repairs", "icon": "car_repairs" },
-      { "label": "Future house & goals", "icon": "future_house" }
-    ],
-    "centerStatement": "Saving money helps you be prepared.",
-    "heroLabel": "SAVINGS",
-    "heroType": "savings_jar",
-    "sideNote": "It gives you freedom and peace of mind.",
-    "bottomSubhead": "Small steps today... Big benefits tomorrow.",
-    "bottomCards": [
-      { "label": "Handle emergencies", "icon": "emergency_siren" },
-      { "label": "Grow your wealth", "icon": "wealth_plant" },
-      { "label": "Achieve your goals", "icon": "target_bullseye" },
-      { "label": "Less stress", "icon": "character_happy" }
-    ]
-  },
-  "points": [
-    {
-      "text": "Know What To Do",
-      "boardIndex": 0,
-      "wordStartIndex": 0,
-      "wordEndIndex": 16,
-      "drawingId": "science_lightbulb_idea",
-      "icon": "lightbulb",
-      "focusType": "highlight",
-      "markerColor": "#1E3A8A",
-      "bulletType": "number"
-    }
-  ],
-  "conclusion": "Freedom To Choose Life"
-}`;
+  const prompt = buildWhiteboardPrompt({
+    transcript: input.transcript,
+    durationSeconds: duration,
+    wordIndexSummary: wordIndexSummary.slice(0, 3000),
+    fontPersonality: input.boardStyle,
+    showHand: true,
+  });
 
   // Candidate models on Groq
   const models = ['qwen/qwen3.8-27b', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b'];
@@ -830,20 +1148,13 @@ async function callGeminiWhiteboardDirector(input: WhiteboardPlanInput, apiKey: 
     .map((w, i) => `[${i}]"${w.word}"(${Number(w.start).toFixed(2)}s)`)
     .join(' ');
 
-  const prompt = `You are an elite Whiteboard Video Director creating a 9:16 vertical (1080×1920) whiteboard video.
-Duration: ${duration}s.
-Transcript: "${input.transcript}"
-Word index: ${wordIndexSummary.slice(0, 2500)}
-
-Plan 2 to 3 boards. Max 3 points per board.
-Output strictly JSON matching:
-{
-  "title": "Title",
-  "points": [
-    { "text": "Punchy 3-5 word phrase", "boardIndex": 0, "wordStartIndex": 0, "wordEndIndex": 5, "drawingId": "science_lightbulb_idea", "icon": "lightbulb", "focusType": "highlight", "markerColor": "#1E3A8A", "bulletType": "number" }
-  ],
-  "conclusion": "Takeaway"
-}`;
+  const prompt = buildWhiteboardPrompt({
+    transcript: input.transcript,
+    durationSeconds: duration,
+    wordIndexSummary: wordIndexSummary.slice(0, 2500),
+    fontPersonality: input.boardStyle,
+    showHand: true,
+  });
 
   const candidateModels = ['gemini-flash-latest', 'gemini-3.8-flash', 'gemini-2.5-flash'];
   let jsonString = '';
@@ -979,5 +1290,78 @@ function parseAndValidatePlan(
     plan.conclusionTime = fixed.conclusionTime;
   }
 
+  // ── MANDATORY SCENE GUARANTEE ─────────────────────────────────────────────
+  // Rule: every single whiteboard video MUST have scenes. No exceptions.
+  if (Array.isArray(result.scenes) && result.scenes.length > 0) {
+    // LLM returned scenes — normalize and validate each one
+    plan.scenes = result.scenes.map((s: any, idx: number) => {
+      const stepDuration = duration / Math.max(1, result.scenes.length);
+      const startTime = +( (idx * stepDuration).toFixed(2) );
+      const endTime = +( Math.min(duration, (idx + 1) * stepDuration).toFixed(2) );
+      const timeLabel = s.timeLabel || `STEP ${idx + 1} (${formatSecondsToTimer(startTime)} - ${formatSecondsToTimer(endTime)})`;
+
+      // Resolve the drawingId — always fall back to semantic resolution if missing
+      const rawDrawingId = s.heroVisual?.drawingId || '';
+      const drawingDef = (rawDrawingId && WHITEBOARD_VECTOR_DRAWINGS[rawDrawingId])
+        ? WHITEBOARD_VECTOR_DRAWINGS[rawDrawingId]
+        : resolveVectorDrawing(`${s.headline || ''} ${s.heroVisual?.label || ''}`);
+
+      // Guarantee explanationLines are NEVER empty — extract from headline if needed
+      let explLines: WhiteboardExplanationLine[] = [];
+      if (Array.isArray(s.explanationLines) && s.explanationLines.length > 0) {
+        explLines = s.explanationLines.map((el: any) => ({
+          text: String(el.text || s.headline || ''),
+          highlightWord: el.highlightWord || undefined,
+          highlightColor: el.highlightColor || (idx % 2 === 0 ? '#1E40AF' : '#DC2626'),
+        }));
+      } else {
+        // Build from headline — always produce at least 1 line
+        explLines = extractExplanationLinesFromBeat(
+          s.headline || `Step ${idx + 1}`,
+          idx % 2 === 0 ? '#1E40AF' : '#DC2626'
+        );
+      }
+
+      return {
+        id: `wb-scene-${idx}`,
+        sceneIndex: idx,
+        startTime,
+        endTime,
+        duration: +( (endTime - startTime).toFixed(2) ),
+        timeLabel,
+        archetype: (s.archetype || 'split_story') as WhiteboardArchetype,
+        modality: 'illustrative_doodle' as const,
+        visualIntent: {
+          beatIndex: idx,
+          role: idx === 0 ? 'hook' : idx === result.scenes.length - 1 ? 'cta' : 'explain' as const,
+          takeaway: s.headline || 'Key Step',
+          type: 'concept' as const,
+          entities: [drawingDef.id],
+          action: 'explain',
+          emotion: 'clarity',
+          metaphors: [drawingDef.id],
+          soundOffTest: s.headline || 'Key Step',
+        },
+        headline: String(s.headline || `Step ${idx + 1}`).toUpperCase(),
+        explanationLines: explLines,
+        heroVisual: {
+          drawingId: drawingDef.id,
+          label: s.heroVisual?.label || s.headline || 'Step',
+          scale: 1,
+        },
+        transition: idx % 3 === 0 && idx > 0 ? 'erase_wipe' : 'camera_pan' as const,
+        accentColor: idx % 2 === 0 ? COLORS.blue : '#DC2626',
+      };
+    });
+  } else {
+    // LLM did NOT return scenes — build them deterministically from transcript beats
+    // This is the guaranteed fallback that always produces complete per-scene JSON
+    console.log('[WB_PLANNER] LLM returned no scenes — building scenes deterministically from transcript beats');
+    const { scenes: builtScenes, ledgerSummary } = buildDynamicWhiteboardScenes(words, input.transcript, duration, input.topicTitle);
+    plan.scenes = builtScenes;
+    plan.assetLedgerSummary = ledgerSummary;
+  }
+
   return plan;
 }
+

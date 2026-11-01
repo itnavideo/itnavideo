@@ -120,7 +120,7 @@ export default function WhiteboardVideoDetail() {
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 px-5 py-2.5 text-xs sm:text-sm font-extrabold text-white shadow-lg shadow-purple-500/25 transition hover:brightness-110 active:scale-95"
             >
               <Sparkles size={16} />
-              <span>Create Whiteboard Video</span>
+              <span>Create Whiteboard Animation</span>
             </Link>
           </div>
         </div>
@@ -203,7 +203,7 @@ export default function WhiteboardVideoDetail() {
                 Educational psychology studies demonstrate that whiteboard animations increase viewer comprehension and information recall by over 15% compared to static PowerPoint slides or traditional talking-head video lectures.
               </p>
               <p className="text-slate-300 text-base sm:text-lg leading-relaxed">
-                Whether you are explaining financial strategies, technical code architectures, medical research, or business frameworks, an <strong className="text-purple-300 font-semibold">AI Whiteboard Video Generator</strong> converts complex ideas into digestible visual stories.
+                Whether you are explaining financial strategies, technical code architectures, medical research, or business frameworks, an <strong className="text-purple-300 font-semibold">AI Whiteboard Animation Generator</strong> converts complex ideas into digestible visual stories.
               </p>
             </div>
 
@@ -457,7 +457,7 @@ export default function WhiteboardVideoDetail() {
       {/* BOTTOM CTA */}
       <section className="py-20 border-t border-white/10 bg-gradient-to-b from-[#0A0F1D] to-[#070B14] text-center">
         <div className="mx-auto max-w-4xl px-4">
-          <h2 className="text-3xl sm:text-5xl font-black text-white mb-6">Create Your First Whiteboard Video Free</h2>
+          <h2 className="text-3xl sm:text-5xl font-black text-white mb-6">Create Your First Whiteboard Animation Free</h2>
           <p className="text-slate-300 text-lg mb-8">Transform dry speeches into hand-drawn visual explainer reels in under 35 seconds.</p>
           <Link
             href="/dashboard?videoType=whiteboard-video"

@@ -22,7 +22,7 @@ const outputShowcase = [
     href: '/video-types/long-video-promo',
   },
   {
-    title: 'Whiteboard Video',
+    title: 'Whiteboard Animation',
     body: 'Best for educational content where key points need to appear clearly on a whiteboard.',
     src: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1789982713/km_20260916-3_1080p_30f_20260916_232040_qtcjtv.jpg',
     href: '/video-types/whiteboard-video',

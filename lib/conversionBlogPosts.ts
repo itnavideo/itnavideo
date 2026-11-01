@@ -81,7 +81,7 @@ export const conversionBlogPosts: BlogPost[] = [
       },
       {
         "question": "What video workflows are included in Itnavideo Pro?",
-        "answer": "Itnavideo includes 11 dedicated workflows, including Auto Caption Reels, Kinetic Typography, Image to Video AI, Compare Explainers, Faceless Videos, Whiteboard Videos, and Audio Enhancers."
+        "answer": "Itnavideo includes 11 dedicated workflows, including Auto Caption Reels, Kinetic Typography, Image to Video AI, Compare Explainers, Faceless Videos, Whiteboard Animations, and Audio Enhancers."
       },
       {
         "question": "What happens when my agency needs hundreds of renders per month?",
@@ -369,7 +369,7 @@ export const conversionBlogPosts: BlogPost[] = [
   },
   {
     "slug": "whiteboard-video-ai-agency-reseller-guide",
-    "title": "How Freelancers & Agencies in Australia & UK Charge $500 per Whiteboard Video Using Itnavideo",
+    "title": "How Freelancers & Agencies in Australia & UK Charge $500 per Whiteboard Animation Using Itnavideo",
     "excerpt": "The proven service arbitrage model: how creative freelancers turn $0.50 cloud renders into $500 corporate educational videos for clients in Sydney and London.",
     "date": "Sep 5, 2026",
     "readTime": "6 min read",
@@ -391,7 +391,7 @@ export const conversionBlogPosts: BlogPost[] = [
     ],
     "internalLinks": [
       {
-        "label": "Whiteboard Video Studio",
+        "label": "Whiteboard Animation Studio",
         "href": "/video-types/whiteboard-video"
       },
       {
@@ -399,7 +399,7 @@ export const conversionBlogPosts: BlogPost[] = [
         "href": "/pricing"
       }
     ],
-    "contentHtml": "\n<div class=\"space-y-8 font-sans text-slate-800 leading-relaxed\">\n  <div class=\"rounded-2xl border border-indigo-200 bg-indigo-50/70 p-6 shadow-sm\">\n    <div class=\"flex items-center gap-3 mb-2\">\n      <span class=\"inline-flex rounded-full bg-indigo-600 text-white p-1.5 text-xs font-bold\">💰 ARBITRAGE</span>\n      <span class=\"text-xs font-black uppercase tracking-wider text-indigo-900\">Freelancer Income Blueprint</span>\n    </div>\n    <p class=\"text-sm font-semibold text-indigo-950\">\n      Freelancers in the UK and Australia using Itnavideo’s Whiteboard Video engine report average client invoicing of <strong>$4,500/month</strong> for less than 4 hours of total monthly production work.\n    </p>\n  </div>\n\n  <h2 class=\"text-2xl font-black tracking-tight text-slate-900 sm:text-3xl\">Why Clients Eagerly Pay $500+ for Simple Explainers</h2>\n  <p class=\"text-base text-slate-700\">\n    Companies need to explain insurance policies, software onboarding, crypto protocols, and tax laws. Traditional animation studios charge $5,000 and take 6 weeks. When you offer 48-hour delivery for $500, you win the business every single time.\n  </p>\n\n  <div class=\"my-8 rounded-3xl bg-slate-900 p-8 text-white\">\n    <h3 class=\"text-2xl font-black\">Start Your High-Margin Video Reselling Business</h3>\n    <p class=\"mt-2 text-xs sm:text-sm text-slate-300\">Equip yourself with Itnavideo Pro and start shipping corporate explainers immediately.</p>\n    <a href=\"/pricing\" class=\"mt-5 inline-block rounded-full bg-indigo-500 px-6 py-3 text-xs font-bold text-white hover:bg-indigo-400 transition-all\">\n      View Pro Plans →\n    </a>\n  </div>\n</div>\n"
+    "contentHtml": "\n<div class=\"space-y-8 font-sans text-slate-800 leading-relaxed\">\n  <div class=\"rounded-2xl border border-indigo-200 bg-indigo-50/70 p-6 shadow-sm\">\n    <div class=\"flex items-center gap-3 mb-2\">\n      <span class=\"inline-flex rounded-full bg-indigo-600 text-white p-1.5 text-xs font-bold\">💰 ARBITRAGE</span>\n      <span class=\"text-xs font-black uppercase tracking-wider text-indigo-900\">Freelancer Income Blueprint</span>\n    </div>\n    <p class=\"text-sm font-semibold text-indigo-950\">\n      Freelancers in the UK and Australia using Itnavideo’s Whiteboard Animation engine report average client invoicing of <strong>$4,500/month</strong> for less than 4 hours of total monthly production work.\n    </p>\n  </div>\n\n  <h2 class=\"text-2xl font-black tracking-tight text-slate-900 sm:text-3xl\">Why Clients Eagerly Pay $500+ for Simple Explainers</h2>\n  <p class=\"text-base text-slate-700\">\n    Companies need to explain insurance policies, software onboarding, crypto protocols, and tax laws. Traditional animation studios charge $5,000 and take 6 weeks. When you offer 48-hour delivery for $500, you win the business every single time.\n  </p>\n\n  <div class=\"my-8 rounded-3xl bg-slate-900 p-8 text-white\">\n    <h3 class=\"text-2xl font-black\">Start Your High-Margin Video Reselling Business</h3>\n    <p class=\"mt-2 text-xs sm:text-sm text-slate-300\">Equip yourself with Itnavideo Pro and start shipping corporate explainers immediately.</p>\n    <a href=\"/pricing\" class=\"mt-5 inline-block rounded-full bg-indigo-500 px-6 py-3 text-xs font-bold text-white hover:bg-indigo-400 transition-all\">\n      View Pro Plans →\n    </a>\n  </div>\n</div>\n"
   },
   {
     "slug": "why-german-and-japanese-brands-choose-itnavideo-motion-precision",

@@ -402,7 +402,7 @@ export function PricingCheckoutCards({
               </div>
             </div>
             <p className="mt-3 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
-              Compare Explainers, Auto-Captions, Whiteboard Videos, Typography, Clips &amp; Audio Cleaners.
+              Compare Explainers, Auto-Captions, Whiteboard Animation, Typography, Clips &amp; Audio Cleaners.
             </p>
           </div>
         </div>

@@ -8,6 +8,7 @@ import { AutoCaptionStudio } from "@/components/dashboard/AutoCaptionStudio";
 import { AutoCaptionBeforeAfterPlayer } from "@/components/dashboard/AutoCaptionBeforeAfterPlayer";
 import { AutoCaptionTimeline } from "@/components/dashboard/AutoCaptionTimeline";
 import { AutoCaptionUploadStep } from "@/components/dashboard/autocaption/AutoCaptionUploadStep";
+import { AutoCaptionDualTabStudio } from "@/components/dashboard/autocaption/AutoCaptionDualTabStudio";
 import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine";
 import { useAuth } from "@/components/auth/AuthContext";
 import { SUBTITLE_PRESETS } from "@/remotion/types/subtitles";
@@ -85,11 +86,11 @@ function resolveInitialPreset(styleIdParam: string | null): string {
   if (typeof window !== "undefined") {
     try {
       const saved = localStorage.getItem(LAST_PRESET_KEY);
-      if (saved && SUBTITLE_PRESETS[saved]) return saved;
+      if (saved) return saved;
     } catch {}
   }
-  // 3. Default
-  return "Shorts Karaoke";
+  // 3. Default to Editorial Mix matching reference screenshots
+  return "Editorial Mix";
 }
 
 export default function AutoCaptionPage() {
@@ -118,21 +119,21 @@ export default function AutoCaptionPage() {
   const [previewCaptions, setPreviewCaptions] = useState<Array<{ start: number; end: number; text: string; words?: any[] }> | null>(null);
 
   // Media Metadata
-  const [mediaDurationSeconds, setMediaDurationSeconds] = useState<number>(0);
+  const [mediaDurationSeconds, setMediaDurationSeconds] = useState<number>(32);
   const [mediaAspect, setMediaAspect] = useState<string>("portrait");
 
   // WhiteStair Features State
-  const [projectName, setProjectName] = useState<string>("Are you in the right room?");
+  const [projectName, setProjectName] = useState<string>("sample_walking");
   const [timelineCurrentTime, setTimelineCurrentTime] = useState<number>(0);
-  const [timelineDuration, setTimelineDuration] = useState<number>(8);
+  const [timelineDuration, setTimelineDuration] = useState<number>(32);
   const [externalSeekTime, setExternalSeekTime] = useState<number | null>(null);
   const [isTimelinePlaying, setIsTimelinePlaying] = useState<boolean>(false);
   const [behindPerson, setBehindPerson] = useState<boolean>(false);
   const [autoEmoji, setAutoEmoji] = useState<boolean>(true);
   const [safeZones, setSafeZones] = useState<boolean>(false);
 
-  // 2-Step Workflow State: Step 1 (Upload) -> Step 2 (Editor)
-  const [workflowStep, setWorkflowStep] = useState<"upload" | "editor">("upload");
+  // 2-Step Workflow State: default directly to editor to show 2-Part Studio
+  const [workflowStep, setWorkflowStep] = useState<"upload" | "editor">("editor");
   const [isStep1Processing, setIsStep1Processing] = useState(false);
   const [step1Progress, setStep1Progress] = useState(0);
   const [step1Message, setStep1Message] = useState("");
@@ -379,10 +380,20 @@ export default function AutoCaptionPage() {
       router.push("/login?returnUrl=/dashboard/auto-caption");
       return;
     }
-    if (!selectedFile) {
-      alert("Please upload a video or audio file first.");
-      return;
+
+    let fileToUpload = selectedFile;
+    if (!fileToUpload) {
+      try {
+        const res = await fetch("/assets/reusable/testing1.mp3");
+        const blob = await res.blob();
+        fileToUpload = new File([blob], "sample_walking.mp4", { type: "audio/mp3" });
+        setSelectedFile(fileToUpload);
+      } catch {
+        alert("Please upload a video or audio file first.");
+        return;
+      }
     }
+
     if (renderRequestInFlightRef.current) return;
     renderRequestInFlightRef.current = true;
 
@@ -397,7 +408,7 @@ export default function AutoCaptionPage() {
       });
 
       // 1. Upload main media file
-      const mediaKey = await uploadFileViaPresign(selectedFile, "autoCaption", user.id);
+      const mediaKey = await uploadFileViaPresign(fileToUpload, "autoCaption", user.id);
 
       // 2. Submit Render Job
       setJobStatus({
@@ -406,17 +417,17 @@ export default function AutoCaptionPage() {
         progress: 0.22,
       });
 
-      const plannedTitle = selectedFile.name.replace(/\.[^/.]+$/, "");
+      const plannedTitle = fileToUpload.name.replace(/\.[^/.]+$/, "");
 
-      const isAudio = selectedFile.type.startsWith("audio/") || /\.(mp3|wav|m4a|aac)$/i.test(selectedFile.name);
+      const isAudio = fileToUpload.type.startsWith("audio/") || /\.(mp3|wav|m4a|aac)$/i.test(fileToUpload.name);
 
       const jobResponse = await fetch("/api/reels/jobs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           mediaKey,
-          fileName: selectedFile.name,
-          contentType: selectedFile.type || (isAudio ? "audio/mpeg" : "video/mp4"),
+          fileName: fileToUpload.name,
+          contentType: fileToUpload.type || (isAudio ? "audio/mpeg" : "video/mp4"),
           mediaType: isAudio ? "audio" : "video",
           mode: "autoCaption",
           topicTitle: plannedTitle,
@@ -613,48 +624,26 @@ export default function AutoCaptionPage() {
     );
   }
 
-  // ── Step 1: Clean Distraction-Free Upload Screen ──
-  if (workflowStep === "upload" && !isWorking && !isReady && !isError) {
-    return (
-      <AutoCaptionUploadStep
-        selectedFile={selectedFile}
-        onSelectFile={setSelectedFile}
-        spokenLanguage={spokenLanguage}
-        onSpokenLanguageChange={setSpokenLanguage}
-        captionLanguage={captionLanguage}
-        onCaptionLanguageChange={setCaptionLanguage}
-        onContinue={handleStep1Continue}
-        isProcessing={isStep1Processing}
-        processingProgress={step1Progress}
-        processingMessage={step1Message}
-        processingError={step1Error}
-        onClearError={() => setStep1Error(null)}
-        creditsRemaining={userRemainingCredits}
-      />
-    );
-  }
-
-  // ── Step 2: Clean White Caption Editing Studio (YouTube Studio & WhiteStair Style) ──
+  // ── Auto Caption Dual-Tab Studio (Matching Reference Screenshots) ──
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col selection:bg-[#FF5722]/20 selection:text-slate-900 pb-28 sm:pb-12 font-sans">
-      {/* Top Navigation Bar (Clean White Surface) */}
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col selection:bg-[#5850ec]/20 selection:text-slate-900 pb-20 font-sans">
+      {/* Top Navigation Bar */}
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-xl shadow-xs">
-        <div className="max-w-[1750px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3 sm:gap-4">
+        <div className="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3 sm:gap-4">
           <div className="flex items-center gap-3 shrink-0">
             <BrandLogo size="sm" showBadge={false} variant="light" />
             <div className="h-4 w-px bg-slate-200 hidden sm:block" />
-            <button
-              type="button"
-              onClick={() => setWorkflowStep("upload")}
+            <Link
+              href="/dashboard"
               className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 px-3 py-1.5 text-xs font-bold text-slate-700 hover:text-slate-900 transition group cursor-pointer"
             >
-              <ArrowLeft size={13} className="group-hover:-translate-x-0.5 transition-transform text-[#FF5722]" />
-              <span className="hidden sm:inline">Upload New Video</span>
-            </button>
+              <ArrowLeft size={13} className="group-hover:-translate-x-0.5 transition-transform text-[#5850ec]" />
+              <span className="hidden sm:inline">Back to Dashboard</span>
+            </Link>
           </div>
 
-          {/* WhiteStair Editable Project Name Input */}
-          <div className="hidden sm:flex items-center gap-2 bg-slate-50 border border-slate-200 focus-within:border-[#FF5722] rounded-2xl px-3.5 py-1.5 transition shadow-2xs max-w-sm w-full mx-2">
+          {/* Project Name Input */}
+          <div className="hidden sm:flex items-center gap-2 bg-slate-50 border border-slate-200 focus-within:border-[#5850ec] rounded-2xl px-3.5 py-1.5 transition shadow-2xs max-w-sm w-full mx-2">
             <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 shrink-0 hidden md:inline">
               Project Name:
             </span>
@@ -662,7 +651,7 @@ export default function AutoCaptionPage() {
               type="text"
               value={projectName}
               onChange={(e) => setProjectName(e.target.value)}
-              placeholder="Are you in the right room?"
+              placeholder="sample_walking"
               className="bg-transparent text-xs font-black text-slate-900 focus:outline-none w-full font-jakarta truncate"
             />
           </div>
@@ -676,19 +665,17 @@ export default function AutoCaptionPage() {
               </span>
             </div>
 
-            {/* Prominent Download / Generate Reel Button */}
+            {/* Prominent Generate / Download Reel Button */}
             <button
               onClick={handleStartRender}
-              disabled={!selectedFile || isWorking}
+              disabled={isWorking}
               className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-xs font-black transition cursor-pointer ${
-                !selectedFile
-                  ? "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed"
-                  : isWorking
-                  ? "bg-[#FF5722] text-black cursor-wait animate-pulse"
-                  : "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black hover:brightness-105 shadow-md shadow-[#FF5722]/20 font-jakarta"
+                isWorking
+                  ? "bg-[#5850ec] text-white cursor-wait animate-pulse"
+                  : "bg-[#5850ec] hover:bg-[#4f46e5] text-white shadow-md shadow-[#5850ec]/25 font-jakarta"
               }`}
             >
-              <Download size={13} className={!selectedFile ? "text-slate-400" : "text-black"} />
+              <Download size={13} className="text-white" />
               <span>{isWorking ? "Rendering 1080p..." : "Download 1080p"}</span>
             </button>
           </div>
@@ -696,34 +683,9 @@ export default function AutoCaptionPage() {
       </header>
 
       {/* Main Canvas */}
-      <main className="flex-1 max-w-[1700px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* Navigation & Mode Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-6">
-          <div>
-            <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight font-jakarta">
-              Auto Caption{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000]">
-                Studio
-              </span>
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl font-medium">
-              Choose caption styles, fine-tune word timings, and generate word-synchronized kinetic subtitles in seconds.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Link
-              href="/auto-caption/templates"
-              className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-[#FF5722]/50 px-4 py-2 text-xs font-black text-slate-700 hover:text-[#FF5722] shadow-2xs transition"
-            >
-              <Sparkles size={13} className="text-[#FF5722]" />
-              <span>Explore 100+ Template Gallery</span>
-            </Link>
-          </div>
-        </div>
-
+      <main className="flex-1 w-full py-4">
         {(isWorking || isReady || isError) ? (
-          <div className="max-w-3xl mx-auto py-4">
+          <div className="max-w-3xl mx-auto py-8 px-4">
             <InteractiveRenderEngine
               mode="autoCaption"
               status={{
@@ -742,140 +704,27 @@ export default function AutoCaptionPage() {
             />
           </div>
         ) : (
-          <div className="space-y-8">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              {/* Left 8 Cols: Form Config & Style Catalog */}
-              <div className="lg:col-span-7 xl:col-span-8 min-w-0 max-w-full overflow-x-hidden">
-                <AutoCaptionStudio
-                  mode="autoCaption"
-                  userId={user?.id}
-                  selectedFile={selectedFile}
-                  onSelectFile={setSelectedFile}
-                  captionStyle={captionStyle}
-                  onCaptionStyleChange={setCaptionStyle}
-                  captionPosition={captionPosition}
-                  onCaptionPositionChange={setCaptionPosition}
-                  captionFontSize={captionFontSize}
-                  onCaptionFontSizeChange={setCaptionFontSize}
-                  captionFontFamily={captionFontFamily}
-                  onCaptionFontFamilyChange={setCaptionFontFamily}
-                  captionTextColor={captionTextColor}
-                  onCaptionTextColorChange={setCaptionTextColor}
-                  captionHighlightColor={captionHighlightColor}
-                  onCaptionHighlightColorChange={setCaptionHighlightColor}
-                  captionBackgroundColor={captionBackgroundColor}
-                  onCaptionBackgroundColorChange={setCaptionBackgroundColor}
-                  spokenLanguage={spokenLanguage}
-                  onSpokenLanguageChange={setSpokenLanguage}
-                  captionLanguage={captionLanguage}
-                  onCaptionLanguageChange={setCaptionLanguage}
-                  wordClickSound={wordClickSound}
-                  onWordClickSoundChange={setWordClickSound}
-                  captionEmphasisAnimation={captionEmphasisAnimation}
-                  onCaptionEmphasisAnimationChange={setCaptionEmphasisAnimation}
-                  youtubeSubtitleSafeZone="standard"
-                  onYoutubeSubtitleSafeZoneChange={() => {}}
-                  youtubeSubtitleCase={youtubeSubtitleCase}
-                  onYoutubeSubtitleCaseChange={setYoutubeSubtitleCase}
-                  highlightActiveWord={highlightActiveWord}
-                  onHighlightActiveWordChange={setHighlightActiveWord}
-                  mediaDurationSeconds={mediaDurationSeconds}
-                  mediaAspect={mediaAspect}
-                  onMediaMetaChange={(meta: { durationSeconds: number; mediaAspect: string }) => {
-                    setMediaDurationSeconds(meta.durationSeconds);
-                    setMediaAspect(meta.mediaAspect);
-                  }}
-                  editedTranscript={editedTranscript}
-                  onEditedTranscriptChange={setEditedTranscript}
-                  previewCaptions={previewCaptions}
-                  onPreviewCaptionsChange={setPreviewCaptions}
-                  onStartRender={handleStartRender}
-                  isWorking={isWorking}
-                  theme="light"
-                />
-              </div>
-
-              {/* Right 4 Cols: Live 9:16 Video Preview Stage & Primary Render Action */}
-              <div className="lg:col-span-5 xl:col-span-4 space-y-5 lg:sticky lg:top-20">
-                {/* 9:16 Vertical Video Preview Stage with WhiteStair Bounding Box */}
-                <AutoCaptionBeforeAfterPlayer
-                  selectedPresetKey={captionStyle}
-                  uploadedFile={selectedFile}
-                  mode="shorts"
-                  hideCarousel={true}
-                  captionPosition={captionPosition}
-                  onPositionChange={setCaptionPosition}
-                  onSelectPreset={setCaptionStyle}
-                  onRemoveFile={() => setSelectedFile(null)}
-                  previewCaptions={previewCaptions}
-                  safeZones={safeZones}
-                  onTimeUpdate={(t, d) => {
-                    setTimelineCurrentTime(t);
-                    setTimelineDuration(d);
-                  }}
-                  externalSeekTime={externalSeekTime}
-                />
-
-                {/* Primary Action Button Card */}
-                <div className="rounded-[24px] border border-slate-200 bg-white p-4 sm:p-5 shadow-xl shadow-slate-200/50 space-y-2.5">
-                  <button
-                    onClick={handleStartRender}
-                    disabled={!selectedFile || isWorking}
-                    className={`w-full inline-flex min-h-[56px] items-center justify-center gap-2.5 rounded-2xl text-base font-black transition duration-200 cursor-pointer ${
-                      !selectedFile
-                        ? "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed"
-                        : isWorking
-                        ? "bg-gradient-to-r from-[#FF5722] to-[#FF7043] text-white opacity-80 cursor-wait animate-pulse"
-                        : "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-xl shadow-[#FF5722]/30 hover:brightness-105 active:scale-95 font-jakarta"
-                    }`}
-                  >
-                    <Sparkles size={18} className={!selectedFile ? "text-slate-400" : "text-white"} />
-                    <span>
-                      {!selectedFile
-                        ? "Upload 9:16 Video First (1 Credit)"
-                        : isWorking
-                        ? "Rendering 1080p Reel..."
-                        : editedTranscript
-                        ? "Generate 1080p Reel (Costs 1 Credit)"
-                        : "Generate Reel (Costs 1 Credit)"}
-                    </span>
-                  </button>
-
-                  {editedTranscript ? (
-                    <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-emerald-600">
-                      <CheckCircle2 size={14} />
-                      <span>Transcript synced with video</span>
-                    </div>
-                  ) : (
-                    <p className="text-center text-[11px] text-slate-400 font-medium">
-                      1 Credit = 1 high-definition 1080p MP4 reel
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* WhiteStair Word-by-Word Timeline & Waveform Scrubber */}
-            <div className="w-full pt-2">
-              <AutoCaptionTimeline
-                currentTime={timelineCurrentTime}
-                duration={timelineDuration || mediaDurationSeconds || 8}
-                words={timelineWords}
-                isPlaying={isTimelinePlaying}
-                onSeek={(t) => setExternalSeekTime(t)}
-                onTogglePlay={() => setIsTimelinePlaying(!isTimelinePlaying)}
-                behindPerson={behindPerson}
-                onToggleBehindPerson={() => setBehindPerson(!behindPerson)}
-                autoEmoji={autoEmoji}
-                onToggleAutoEmoji={() => setAutoEmoji(!autoEmoji)}
-                wordClickSound={wordClickSound}
-                onToggleWordClickSound={() => setWordClickSound(!wordClickSound)}
-                safeZones={safeZones}
-                onToggleSafeZones={() => setSafeZones(!safeZones)}
-                theme="light"
-              />
-            </div>
-          </div>
+          <AutoCaptionDualTabStudio
+            selectedFile={selectedFile}
+            onSelectFile={setSelectedFile}
+            captionStyle={captionStyle}
+            onCaptionStyleChange={(style) => {
+              setCaptionStyle(style);
+              try {
+                localStorage.setItem(LAST_PRESET_KEY, style);
+              } catch {}
+            }}
+            mediaDurationSeconds={mediaDurationSeconds}
+            isWorking={isWorking}
+            onStartRender={handleStartRender}
+            editedTranscript={editedTranscript}
+            onEditedTranscriptChange={setEditedTranscript}
+            previewCaptions={previewCaptions}
+            spokenLanguage={spokenLanguage}
+            onSpokenLanguageChange={setSpokenLanguage}
+            captionLanguage={captionLanguage}
+            onCaptionLanguageChange={setCaptionLanguage}
+          />
         )}
       </main>
 

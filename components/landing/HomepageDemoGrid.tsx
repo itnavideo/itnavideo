@@ -38,7 +38,7 @@ const SHORT_TEMPLATES: TemplateCard[] = [
   },
   {
     n: 3,
-    title: 'Whiteboard Video',
+    title: 'Whiteboard Animation',
     input: 'Audio or Video',
     desc: 'AI writes key points on a premium corporate board synced to your speech.',
     image: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1789982713/km_20260916-3_1080p_30f_20260916_232040_qtcjtv.jpg',

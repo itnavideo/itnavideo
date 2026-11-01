@@ -77,7 +77,7 @@ console.log('Rendering Whiteboard PNG still at frame 45...');
 execSync(`npx remotion still remotion/index.tsx WHITEBOARD-VIDEO "${stillPath}" --frame=45 --props="${propsPath}" --overwrite`, { stdio: 'pipe' });
 console.log('✅ Still rendered:', stillPath);
 
-console.log('Rendering 30s 1080x1920 MP4 Whiteboard Video...');
+console.log('Rendering 30s 1080x1920 MP4 Whiteboard Animation...');
 execSync(`npx remotion render remotion/index.tsx WHITEBOARD-VIDEO "${mp4Path}" --props="${propsPath}"`, { stdio: 'pipe' });
 console.log('✅ 30s MP4 rendered:', mp4Path);
 

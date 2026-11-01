@@ -1,7 +1,4 @@
 import { NextResponse } from 'next/server';
-import { createReadUrl } from '@/lib/aws/mediaStorage';
-import { transcribeMediaUrlWithGroq } from '@/services/ai/groqTranscription';
-import { transcribeMediaWithGeminiFallback } from '@/services/ai/geminiTranscription';
 import { planWhiteboardVideo, buildWhiteboardSegments } from '@/services/ai/whiteboardPlanner';
 
 export const runtime = 'nodejs';
@@ -9,104 +6,42 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const {
-      transcript: inputTranscript,
-      words: inputWords,
-      timestampSegments: inputSegments, // Not strictly required, planner uses words
-      durationSeconds: inputDuration,
-      topicTitle,
-      boardStyle = 'corporate-luxury',
-      aspectRatio = '9:16',
-    } = body;
+    const body = await req.json().catch(() => ({}));
+    const transcript = String(body.transcript || '').trim();
+    const durationSeconds = Number(body.durationSeconds) || 30;
+    const topicTitle = body.topicTitle ? String(body.topicTitle) : undefined;
+    const words = Array.isArray(body.words) ? body.words : [];
 
-    let audioUrl = String(body.audioUrl || body.mediaKey || '').trim();
-    if (audioUrl) {
-      if (!audioUrl.startsWith('http://') && !audioUrl.startsWith('https://')) {
-        try {
-          audioUrl = await createReadUrl(audioUrl);
-        } catch (e) {
-          console.warn('[PlanWhiteboard] Could not resolve audioUrl key:', audioUrl, e);
-        }
-      } else if (audioUrl.includes('.amazonaws.com/') && !audioUrl.includes('X-Amz-Signature')) {
-        try {
-          const key = audioUrl.split('.amazonaws.com/')[1];
-          if (key) audioUrl = await createReadUrl(decodeURIComponent(key));
-        } catch (e) {
-          console.warn('[PlanWhiteboard] Could not sign S3 URL:', audioUrl, e);
-        }
-      }
+    if (!transcript) {
+      return NextResponse.json({ ok: false, error: 'Transcript is required to plan whiteboard scenes.' }, { status: 400 });
     }
 
-    if (!audioUrl && !inputTranscript) {
-      return NextResponse.json(
-        { error: 'Either audioUrl or transcript is required' },
-        { status: 400 }
-      );
-    }
+    const wbWords = words.map((w: any) => ({
+      word: String(w.word || ''),
+      start: Number(w.start || 0),
+      end: Number(w.end || 0),
+    }));
 
-    let transcript = inputTranscript || '';
-    let words = inputWords || [];
-    let durationSeconds = Number(inputDuration) || 0;
-
-    // Transcribe audio if transcript not provided
-    if (!transcript && audioUrl) {
-      let result;
-      try {
-        result = await transcribeMediaUrlWithGroq({ mediaUrl: audioUrl, fileName: 'whiteboard-audio.mp3' });
-      } catch (err) {
-        console.warn('[PlanWhiteboard] Groq transcription fallback to Gemini:', err);
-        result = await transcribeMediaWithGeminiFallback({ mediaUrl: audioUrl, fileName: 'whiteboard-audio.mp3' });
-      }
-
-      if (result) {
-        transcript = result.transcript || '';
-        words = result.words || [];
-        if (!durationSeconds && result.durationSeconds) {
-          durationSeconds = result.durationSeconds;
-        }
-      }
-    }
-
-    if (!durationSeconds || durationSeconds <= 0) {
-      durationSeconds = 60; // Fallback safe estimate
-    }
-    // Limit to 90 seconds strictly per Rule 4.1 for 9:16 Short-Form
-    durationSeconds = Math.min(90, durationSeconds);
-    
-    // Ensure words array has finite numbers
-    const wbWords = (words || [])
-        .filter((w: any) => typeof w.word === 'string' && w.word && Number.isFinite(w.start) && Number.isFinite(w.end))
-        .map((w: any) => ({ word: w.word, start: Number(w.start), end: Number(w.end) }));
-    
-    // Build whiteboard segments
     const wbSegments = buildWhiteboardSegments(wbWords, durationSeconds);
 
-    const planRequest = {
+    const plan = await planWhiteboardVideo({
       transcript,
       segments: wbSegments.map((s) => ({ start: s.start, end: s.end, text: s.text })),
       words: wbWords,
       durationSeconds,
-      topicTitle: topicTitle || undefined,
-      boardStyle,
-      aspectRatio,
-    };
-
-    const plan = await planWhiteboardVideo(planRequest as any);
+      topicTitle,
+      boardStyle: 'classic_black_marker',
+      aspectRatio: '9:16',
+    });
 
     return NextResponse.json({
+      ok: true,
       success: true,
       plan,
-      transcript,
       words: wbWords,
-      timestampSegments: wbSegments,
-      durationSeconds,
     });
-  } catch (error: any) {
-    console.error('[PlanWhiteboard] Error generating plan:', error);
-    return NextResponse.json(
-      { error: error?.message || 'Failed to generate Whiteboard Plan' },
-      { status: 500 }
-    );
+  } catch (err: any) {
+    console.error('[PLAN_WHITEBOARD_ERROR]', err);
+    return NextResponse.json({ ok: false, error: err?.message || 'Failed to plan whiteboard storyboard.' }, { status: 500 });
   }
 }

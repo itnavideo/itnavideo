@@ -34,7 +34,7 @@ const SHOWCASE_ITEMS: ShowcaseVideo[] = [
     category: 'Explainers',
     aspectRatio: '9:16',
     videoSrc: '/videos/demo-captions/demo-2.mp4',
-    videoType: 'Whiteboard Video',
+    videoType: 'Whiteboard Animation',
     description: 'Corporate whiteboard canvas with progressive handwritten key points.',
     href: '/dashboard?videoType=whiteboard-video',
   },
@@ -205,7 +205,7 @@ export default function MadeWithItnavideoGallery() {
                       src={item.videoSrc}
                       poster={
                         item.videoType === 'Compare Explainer' ? '/preview/Compare Explainer.png' :
-                        item.videoType === 'Whiteboard Video' ? '/preview/file_0000000018cc82079ca3ca5c29058919.png' :
+                        item.videoType === 'Whiteboard Animation' ? '/preview/file_0000000018cc82079ca3ca5c29058919.png' :
                         item.videoType === 'Kinetic Motion' ? '/preview/Typography Video.png' :
                         item.videoType === 'YouTube Subtitle Generator' || item.videoType === 'Long Caption Pro' ? '/visuals/previews/long-caption-pro.png' :
                         item.videoType === 'Long Video Pro' ? '/visuals/previews/ai-director-reel-preview.png' :

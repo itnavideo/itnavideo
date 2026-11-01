@@ -17,7 +17,19 @@ import {BrandWatermark} from '../../components/BrandWatermark';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
+export type LongVideoClipScene = {
+  sceneNumber: number;
+  id: string;
+  startSeconds: number;
+  endSeconds: number;
+  durationSeconds: number;
+  hookHeadline: string;
+  viralityScore?: number;
+  narrationSnippet?: string;
+};
+
 type LongVideoClipsProps = {
+  scenes?: LongVideoClipScene[];
   mediaSrc?: string;
   mediaTrimStartSeconds?: number;
   sourceAudioVolume?: number;

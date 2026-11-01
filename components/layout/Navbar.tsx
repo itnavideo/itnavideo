@@ -39,7 +39,7 @@ const WIDESCREEN_PRODUCTS = [
 
 const VERTICAL_PRODUCTS = [
   { label: 'Auto Caption Generator', desc: 'Kinetic animated captions for Reels & Shorts', href: '/dashboard/auto-caption', icon: Smartphone },
-  { label: 'Whiteboard Video', desc: 'Whiteboard stickman animation explainers', href: '/dashboard/whiteboard-video', icon: PenTool },
+  { label: 'Whiteboard Animation', desc: 'Hand-drawn sketch & stickman explainers', href: '/dashboard/whiteboard-video', icon: PenTool },
   { label: 'Compare Explainer', desc: 'Side-by-side comparison video generator', href: '/dashboard/compare-explainer', icon: Columns },
   { label: 'Long Video to Clips', desc: 'Auto hook detector clips from long videos', href: '/dashboard/long-video-clips', icon: Scissors },
   { label: 'Long Video Promo', desc: 'Turn YouTube videos into viral promo Shorts', href: '/dashboard/long-video-promo', icon: Tv },
@@ -200,7 +200,7 @@ export default function Navbar() {
                             </span>
                             <div>
                               <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
-                                Whiteboard Video
+                                Whiteboard Animation
                               </h4>
                               <p className="text-xs text-gray-500 font-medium">Stickman &amp; doodle explainers</p>
                             </div>

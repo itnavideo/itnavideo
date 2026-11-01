@@ -30,7 +30,7 @@ export function planStrategicArticle(title: string, dashboardType: string = 'aut
     'whiteboard-video': {
       featureSolution: 'AI sketch whiteboard animations synced to speech narration',
       relevantVideoExample: { title: 'Corporate Finance Whiteboard Breakdown' },
-      ctaButtonText: 'Render Whiteboard Video',
+      ctaButtonText: 'Render Whiteboard Animation',
     },
   };
 

@@ -66,4 +66,8 @@ As per **Rule 8 of `AGENTS.md` (Video Type Independence)** and the **Founder Mas
    - Never send raw heavy video directly to Groq. Audio is extracted as 16kHz mono audio first.
    - **Primary**: Groq Whisper Cloud API (fast transcription).
    - **Mandatory Fallback**: Google Gemini 2.0 Flash (`asia-south1`) handles transcription if Groq fails or rate limits.
+4. **Compulsory Scene JSON Standard Across All Video Types**:
+   - Every active video type in Itnavideo enforces a structured `scenes` JSON array.
+   - Every beat of speech or timeline duration belongs to an explicit scene with exact start/end seconds, role/stage, layout elements, and narrative text.
+   - Eliminates video render crashes and guarantees predictable timeline rendering.
 

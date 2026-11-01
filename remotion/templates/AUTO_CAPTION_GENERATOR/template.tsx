@@ -30,7 +30,20 @@ import { mapCaptionStyle, getCaptionFont, CAPTION_STYLE_MAP } from '../../utils/
 import { BrandWatermark } from '../../components/BrandWatermark';
 import { DEFAULT_FPS, secondsToFrames } from '../../constants';
 
+export type AutoCaptionScene = {
+  sceneNumber: number;
+  id: string;
+  startSeconds: number;
+  endSeconds: number;
+  durationSeconds: number;
+  role: 'hook' | 'speech' | 'climax' | 'cta';
+  headline: string;
+  fullText: string;
+  captionsCount: number;
+};
+
 export type AutoCaptionGeneratorProps = {
+  scenes?: AutoCaptionScene[];
   mediaSrc?: string;
   mediaType?: 'video' | 'audio';
   mediaTrimStartSeconds?: number;

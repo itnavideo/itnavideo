@@ -99,7 +99,7 @@ function getModeSteps(mode: string): StepDef[] {
         { shortLabel: 'Audio', label: 'Reading your audio', detail: 'Extracting narration speech & timing', doneAt: 20, icon: Mic },
         { shortLabel: 'Story', label: 'Planning the story', detail: 'Organizing key concepts & layout', doneAt: 40, icon: Sparkles },
         { shortLabel: 'Visuals', label: 'Creating the visuals', detail: 'Syncing vector icons & illustrations', doneAt: 60, icon: Layers },
-        { shortLabel: 'Drawing', label: 'Drawing your whiteboard video', detail: 'Animating handwritten marker strokes', doneAt: 85, icon: Sparkles },
+        { shortLabel: 'Drawing', label: 'Drawing your whiteboard animation', detail: 'Animating handwritten marker strokes', doneAt: 85, icon: Sparkles },
         { shortLabel: 'Render', label: 'Rendering your final video', detail: 'Exporting crisp 1080p Full HD video', doneAt: 100, icon: Film },
       ];
     case 'compare':

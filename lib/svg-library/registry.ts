@@ -7,21 +7,8 @@ import { AnimatedLucideIcon } from './AnimatedLucideIcon';
 import { SVG_DATA_LIBRARY } from './assetData';
 import * as MegaData from './data'; // The generated 500 assets
 
-// Expand the category type to match the 15 categories + custom ones
-export type SvgCategory = 
-  | 'arrows' | 'shapes' | 'highlights' | 'diagrams' | 'infographics'
-  | 'general' | 'business' | 'finance' | 'technology' | 'education'
-  | 'health' | 'people' | 'marketing' | 'geography' | 'nature'
-  | 'transport' | 'conceptual' | 'all';
-
-export interface SvgAssetDef {
-  id: string;
-  name: string;
-  category: SvgCategory;
-  component: React.FC<any>;
-  defaultProps?: any;
-  keywords: string[];
-}
+import { SvgCategory, SvgAssetDef } from './types';
+export type { SvgCategory, SvgAssetDef };
 
 // 1. Hand-coded custom components with specialized logic
 const customAssets: SvgAssetDef[] = [
@@ -64,7 +51,7 @@ const generatedPathAssets: SvgAssetDef[] = (SVG_DATA_LIBRARY || [])
 }));
 
 // 3. Mega Catalog (500 Lucide-based Assets)
-const allMegaData = Object.values(MegaData).flat() as Array<{
+const allMegaData = Object.values(MegaData).filter(Array.isArray).flat() as Array<{
   id: string;
   name: string;
   category: SvgCategory;

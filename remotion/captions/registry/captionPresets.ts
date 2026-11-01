@@ -2,6 +2,7 @@
 // Master Config Registry for 9:16 Vertical Auto Caption Presets
 
 import { MotionType } from '../MotionWrapper';
+import { getKineticStyle } from '../../../lib/captions/kineticStyles';
 
 export interface CaptionStyleConfig {
   id: string;
@@ -410,16 +411,58 @@ export const CAPTION_PRESET_CONFIGS: Record<string, CaptionStyleConfig> = {
   'solo-pop': { id: 'solo-pop', name: 'Solo Pop', deprecated: true, mergedInto: 'mrbeast-shorts-impact', fontFamily: 'Impact', fontSizePx: 56, fontWeight: 900, textColor: '#FFFFFF', highlightColor: '#FFE500', showBackground: false, motionType: 'bounce' },
   'kinetic-multicolor': { id: 'kinetic-multicolor', name: 'Kinetic Multicolor', deprecated: true, mergedInto: 'mrbeast-shorts-impact', fontFamily: 'Impact', fontSizePx: 56, fontWeight: 900, textColor: '#FFFFFF', highlightColor: '#FFE500', showBackground: false, motionType: 'bounce' },
   'action': { id: 'action', name: 'Action Red', deprecated: true, mergedInto: 'screamer', fontFamily: 'Montserrat', fontSizePx: 50, fontWeight: 900, textColor: '#FFFFFF', highlightColor: '#EF4444', showBackground: false, motionType: 'bounce' },
+
+  // ── 8 KINETIC CAPTION PRESETS (Claude AI Master System) ──
+  'pop-word': { id: 'pop-word', name: 'Pop Word', fontFamily: 'Anton, Impact, sans-serif', fontSizePx: 58, fontWeight: 900, textColor: '#FFFFFF', highlightColor: '#FFE14D', showBackground: false, textStroke: '2px #000000', textShadow: '0 4px 16px rgba(0,0,0,0.95)', textTransform: 'uppercase', motionType: 'zoom-in', scaleOnActive: true, activeScaleMultiplier: 1.15 },
+  'pop word': { id: 'pop-word', name: 'Pop Word', fontFamily: 'Anton, Impact, sans-serif', fontSizePx: 58, fontWeight: 900, textColor: '#FFFFFF', highlightColor: '#FFE14D', showBackground: false, textStroke: '2px #000000', textShadow: '0 4px 16px rgba(0,0,0,0.95)', textTransform: 'uppercase', motionType: 'zoom-in', scaleOnActive: true, activeScaleMultiplier: 1.15 },
+
+  'karaoke-line': { id: 'karaoke-line', name: 'Karaoke Line', fontFamily: 'Montserrat, sans-serif', fontSizePx: 48, fontWeight: 800, textColor: '#FFFFFF', highlightColor: '#FFE14D', showBackground: false, textShadow: '0 3px 12px rgba(0,0,0,0.9)', motionType: 'slide-up', scaleOnActive: true, activeScaleMultiplier: 1.15 },
+  'karaoke line': { id: 'karaoke-line', name: 'Karaoke Line', fontFamily: 'Montserrat, sans-serif', fontSizePx: 48, fontWeight: 800, textColor: '#FFFFFF', highlightColor: '#FFE14D', showBackground: false, textShadow: '0 3px 12px rgba(0,0,0,0.9)', motionType: 'slide-up', scaleOnActive: true, activeScaleMultiplier: 1.15 },
+
+  'box-highlight': { id: 'box-highlight', name: 'Box Highlight', fontFamily: 'Montserrat, sans-serif', fontSizePx: 46, fontWeight: 800, textColor: '#000000', highlightColor: '#FFE14D', showBackground: true, backgroundColor: 'rgba(0,0,0,0.65)', borderRadius: 10, padding: '8px 18px', textTransform: 'uppercase', motionType: 'bounce', scaleOnActive: true, activeScaleMultiplier: 1.08 },
+  'box highlight': { id: 'box-highlight', name: 'Box Highlight', fontFamily: 'Montserrat, sans-serif', fontSizePx: 46, fontWeight: 800, textColor: '#000000', highlightColor: '#FFE14D', showBackground: true, backgroundColor: 'rgba(0,0,0,0.65)', borderRadius: 10, padding: '8px 18px', textTransform: 'uppercase', motionType: 'bounce', scaleOnActive: true, activeScaleMultiplier: 1.08 },
+
+  'neon-glow': { id: 'neon-glow', name: 'Neon Glow', fontFamily: 'Montserrat, sans-serif', fontSizePx: 48, fontWeight: 700, textColor: '#FFFFFF', highlightColor: '#FFE14D', showBackground: false, textShadow: '0 0 10px #FFFFFF, 0 0 25px #FFE14D, 0 0 45px #FFE14D', textTransform: 'lowercase', motionType: 'pulse', scaleOnActive: true, activeScaleMultiplier: 1.1 },
+  'neon glow': { id: 'neon-glow', name: 'Neon Glow', fontFamily: 'Montserrat, sans-serif', fontSizePx: 48, fontWeight: 700, textColor: '#FFFFFF', highlightColor: '#FFE14D', showBackground: false, textShadow: '0 0 10px #FFFFFF, 0 0 25px #FFE14D, 0 0 45px #FFE14D', textTransform: 'lowercase', motionType: 'pulse', scaleOnActive: true, activeScaleMultiplier: 1.1 },
+
+  'slam-headline': { id: 'slam-headline', name: 'Slam Headline', fontFamily: 'Anton, Impact, sans-serif', fontSizePx: 64, fontWeight: 900, textColor: '#FFFFFF', highlightColor: '#FFE14D', showBackground: false, textStroke: '2.5px #000000', textShadow: '0 6px 20px rgba(0,0,0,0.95)', textTransform: 'uppercase', motionType: 'slam', scaleOnActive: true, activeScaleMultiplier: 1.2 },
+  'slam headline': { id: 'slam-headline', name: 'Slam Headline', fontFamily: 'Anton, Impact, sans-serif', fontSizePx: 64, fontWeight: 900, textColor: '#FFFFFF', highlightColor: '#FFE14D', showBackground: false, textStroke: '2.5px #000000', textShadow: '0 6px 20px rgba(0,0,0,0.95)', textTransform: 'uppercase', motionType: 'slam', scaleOnActive: true, activeScaleMultiplier: 1.2 },
+
+  'word-stack': { id: 'word-stack', name: 'Word Stack', fontFamily: 'Montserrat, sans-serif', fontSizePx: 52, fontWeight: 900, textColor: '#FFE14D', highlightColor: '#FFE14D', showBackground: false, textShadow: '0 4px 14px rgba(0,0,0,0.9)', textTransform: 'uppercase', motionType: 'slide-up', scaleOnActive: true },
+  'word stack': { id: 'word-stack', name: 'Word Stack', fontFamily: 'Montserrat, sans-serif', fontSizePx: 52, fontWeight: 900, textColor: '#FFE14D', highlightColor: '#FFE14D', showBackground: false, textShadow: '0 4px 14px rgba(0,0,0,0.9)', textTransform: 'uppercase', motionType: 'slide-up', scaleOnActive: true },
+
+  'editorial-mix': { id: 'editorial-mix', name: 'Editorial Mix', fontFamily: 'Montserrat, sans-serif', fontSizePx: 44, fontWeight: 700, textColor: '#FFFFFF', highlightColor: '#FFE14D', showBackground: false, textShadow: '0 3px 10px rgba(0,0,0,0.85)', motionType: 'slide-up', scaleOnActive: true },
+  'editorial mix': { id: 'editorial-mix', name: 'Editorial Mix', fontFamily: 'Montserrat, sans-serif', fontSizePx: 44, fontWeight: 700, textColor: '#FFFFFF', highlightColor: '#FFE14D', showBackground: false, textShadow: '0 3px 10px rgba(0,0,0,0.85)', motionType: 'slide-up', scaleOnActive: true },
 };
 
 export function getCaptionPresetConfig(styleKey?: string): CaptionStyleConfig {
   if (!styleKey) return CAPTION_PRESET_CONFIGS['minimal-clean'];
   const normalizedKey = styleKey.toLowerCase().trim();
   const config = CAPTION_PRESET_CONFIGS[normalizedKey];
+  if (config) return config;
 
-  if (!config && process.env.NODE_ENV !== 'production') {
+  const kinetic = getKineticStyle(normalizedKey);
+  if (kinetic) {
+    return {
+      id: kinetic.id,
+      name: kinetic.name,
+      fontFamily: kinetic.flags.includes('u') ? 'Anton, Impact, sans-serif' : 'Montserrat, sans-serif',
+      fontSizePx: kinetic.layout === 'o' ? 56 : 48,
+      fontWeight: 900,
+      textColor: '#FFFFFF',
+      highlightColor: '#FFE14D',
+      showBackground: kinetic.layout === 't' || kinetic.id.includes('box'),
+      backgroundColor: 'rgba(0,0,0,0.65)',
+      textTransform: kinetic.flags.includes('u') ? 'uppercase' : kinetic.flags.includes('l') ? 'lowercase' : 'none',
+      motionType: (kinetic.animation as MotionType) || 'bounce',
+      scaleOnActive: true,
+      activeScaleMultiplier: 1.15,
+    };
+  }
+
+  if (process.env.NODE_ENV !== 'production') {
     throw new Error(`[AUTO CAPTION ENGINE] Unknown style key: "${styleKey}". Silent fallback is strictly forbidden.`);
   }
 
-  return config || CAPTION_PRESET_CONFIGS['minimal-clean'];
+  return CAPTION_PRESET_CONFIGS['minimal-clean'];
 }

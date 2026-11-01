@@ -36,7 +36,7 @@ const TEMPLATE_GALLERY: TemplateItem[] = [
   },
   {
     id: 't-3',
-    title: 'Whiteboard Video',
+    title: 'Whiteboard Animation',
     category: 'Business',
     image: 'https://res.cloudinary.com/dhouh9idx/video/upload/v1789982713/km_20260916-3_1080p_30f_20260916_232040_qtcjtv.jpg',
     aspect: '9:16',

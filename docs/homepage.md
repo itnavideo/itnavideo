@@ -47,7 +47,7 @@
 | **Auto Caption Generator** | **9:16 Vertical** | **Up to 90s (90s)** | **1 Credit / Video** | Word-by-word kinetic animated subtitles (Hormozi, MrBeast, Submagic styles). |
 | **Compare Explainer** | **9:16 Vertical** | **Up to 90s (90s)** | **1 Credit / Video** | Dual-column side-by-side comparison with animated stickman presenter. |
 | **Kinetic Typography** | **9:16 Vertical** | **Up to 90s (90s)** | **1 Credit / Video** | Kinetic speech-to-text text blitz motion popping to audio beats. |
-| **Whiteboard Video** | **9:16 Vertical** | **Up to 90s (90s)** | **1 Credit / Video** | Speech to hand-drawn marker whiteboard lesson animation. |
+| **Whiteboard Animation** | **9:16 Vertical** | **Up to 90s (90s)** | **1 Credit / Video** | Speech to hand-drawn marker whiteboard lesson animation. |
 | **Long Video Promo** | **9:16 Vertical** | **Up to 90s (90s)** | **1 Credit / Video** | YouTube video teaser with thumbnail card, channel handle, and watch CTA. |
 | **Long Video to Clips** (`longVideoClips`) | **Source: 16:9/9:16**<br/>**Output: 9:16** | **Input: Up to 2h**<br/>**Clips: 30s–60s** | **1 Credit / Clip** (1 clip = 1 Cr, 5 clips = 5 Cr) | Long audio chunking &rarr; AI Hook Detection & Viral Scoring &rarr; Cuts vertical shorts. |
 | **AI Audio Cleaner** | **Audio Utility** | **Up to 5 Min (300s)** | **1 Credit** | Voice audio &rarr; Retake detection, background denoise & podcast warmth EQ mastering. |
@@ -114,8 +114,11 @@ app/page.tsx
   - **Tab 2: Image to Video AI (16:9)**: Live playable cinematic parallax videos.
 
 #### 7. 12 Studios Hub Architecture (`components/landing/TenStudiosHubArchitecture.tsx`)
-- Obsidian dark theme (`#070B14`, `#0C1222`).
-- 4 Categorical filter tabs: `All Studios (12)`, `🖥️ 16:9 Widescreen (4)`, `📱 9:16 Shorts & Reels (6)`, `🎙️ Audio Utility (1)`.
+- Obsidian dark theme (`#0c0a09`, `#070B14`) with ambient Flame Orange & Sunset Amber glow.
+- **Unified Mobile & Desktop Format Capsule Bar**:
+  - Replaces clunky 2x2 mobile boxes with a sleek, horizontally-scrollable glass capsule pill bar (`bg-zinc-950/95`, `border-white/10`).
+  - Active Tab: Vibrant Flame Orange gradient (`from-[#FF5722] to-[#E64A19]`) with white typography, white icon, and high-contrast count badge.
+  - 4 Categorical filter tabs: `📱 9:16 Shorts & Reels (8)`, `📺 16:9 YouTube Cinema (4)`, `🎙️ Studio Audio Cleaner (1)`, `✨ All Studios (13)`.
 - Cards with live Cloudinary preview images and direct studio links.
 
 #### 8. Pricing Section (`components/landing/PricingSection.tsx`)

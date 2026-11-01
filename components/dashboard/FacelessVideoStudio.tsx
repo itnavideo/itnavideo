@@ -95,6 +95,8 @@ export interface FacelessVideoStudioProps {
   planningMessage?: string;
   planningError?: string | null;
   onClearPlanningError?: () => void;
+  onOpenPreview?: () => void;
+  onSceneBlueprintChange?: (blueprint: any[]) => void;
 }
 
 export function FacelessVideoStudio({
@@ -132,6 +134,8 @@ export function FacelessVideoStudio({
   planningMessage = "",
   planningError = null,
   onClearPlanningError,
+  onOpenPreview,
+  onSceneBlueprintChange,
 }: FacelessVideoStudioProps) {
   // Drag and drop audio state
   const [isDraggingAudio, setIsDraggingAudio] = useState(false);
@@ -318,6 +322,7 @@ export function FacelessVideoStudio({
         setTranscriptSegments(planRes.segments || []);
         setOriginalWords(planRes.words || []);
         setSceneBlueprint(planRes.sceneBlueprint || []);
+        onSceneBlueprintChange?.(planRes.sceneBlueprint || []);
         setBrollUrls(planRes.brollUrls || {});
         if (planRes.durationSeconds > 0) {
           setAudioDurationSec(planRes.durationSeconds);
@@ -535,11 +540,11 @@ export function FacelessVideoStudio({
 
         <div className="flex items-center gap-3">
           <Link
-            href="/dashboard/widescreen-preview"
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] text-zinc-300 hover:text-white text-xs font-semibold transition"
+            href="/dashboard/faceless-video/preview"
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/30 text-orange-400 text-xs font-semibold transition"
           >
             <Tv size={14} className="text-orange-400" />
-            <span>16:9 Canvas Preview</span>
+            <span>Live 16:9 Studio Demo</span>
           </Link>
         </div>
       </div>
@@ -1161,10 +1166,30 @@ export function FacelessVideoStudio({
             <span className="text-zinc-400 font-medium">Credit Rate:</span>
             <span className="font-semibold text-white">1 Min = 1 Credit</span>
           </div>
+
+          <span className="text-zinc-600 hidden sm:inline">•</span>
+
+          <Link
+            href="/dashboard/faceless-video/preview"
+            className="hidden sm:inline-flex items-center gap-1.5 text-xs text-orange-400 hover:text-orange-300 font-semibold underline decoration-orange-500/40 transition-colors"
+          >
+            <Tv size={13} />
+            <span>Open 16:9 Live Preview Studio</span>
+          </Link>
         </div>
 
         {/* Action Button */}
         <div className="flex items-center gap-3 shrink-0">
+          {onOpenPreview && (
+            <button
+              type="button"
+              onClick={onOpenPreview}
+              className="w-full md:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-orange-500/40 bg-orange-500/10 hover:bg-orange-500/20 px-5 py-3.5 text-xs sm:text-sm font-bold text-orange-400 transition cursor-pointer"
+            >
+              <Tv size={16} />
+              <span>Preview 16:9 Video</span>
+            </button>
+          )}
           <button
             type="button"
             onClick={handleGenerateVideo}

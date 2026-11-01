@@ -250,7 +250,7 @@ export const seoLandingPages: SeoLandingPage[] = [
   }),
   page({
     slug: "whiteboard-video-maker",
-    title: "Whiteboard Video Maker from Voiceover | Itnavideo",
+    title: "Whiteboard Animation Maker from Voiceover | Itnavideo",
     description: "Create whiteboard-style explainer reels from audio or video speech with AI-planned scenes and clean educational visuals.",
     h1: "Whiteboard video maker for voiceover explainers",
     eyebrow: "Auto Draw",
@@ -451,7 +451,7 @@ export const seoLandingPages: SeoLandingPage[] = [
       "Studio quality 1080x1920 MP4 outputs ready to share"
     ],
     faqs: [
-      { question: "Can I make videos without showing my face?", answer: "Yes! Our Faceless Video, Whiteboard Video, and Compare Explainer templates allow you to create complete videos using only voiceovers or scripts." },
+      { question: "Can I make videos without showing my face?", answer: "Yes! Our Faceless Video, Whiteboard Animation, and Compare Explainer templates allow you to create complete videos using only voiceovers or scripts." },
       { question: "Can I customize the caption fonts and colors?", answer: "Yes. You have full control over fonts, text color, highlight color, background boxes, and positioning." },
       { question: "Does it work on mobile phones?", answer: "Yes. The Itnavideo dashboard is fully responsive and works across mobile, tablet, and desktop browsers." }
     ]

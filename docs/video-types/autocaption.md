@@ -48,7 +48,14 @@ The dedicated studio dashboard (`/dashboard/auto-caption`) features a **Strictly
    - Resolution: 9:16 vertical (1080×1920 1080p Full HD) or 16:9 (1920×1080 1080p Full HD) for YouTube subtitles.
    - Audio quality: Clear spoken voice (English or Roman Hinglish).
    - Audio Extraction Rule: Heavy media is never sent directly to Groq. 16kHz mono audio is extracted first.
-2. **Caption Theme & Animation Style (100 Presets, including 19 Kids and Animation styles)**:
+2. **Top 50 Kinetic Caption Styles (Master 50-Style Engine at Top of Studio)**:
+   - **Single Word (1–20)**: `Pop Word`, `Slam Headline`, `Zoom Punch`, `Drop Bounce`, `Marker Tag`, `Glitch`, `Flip Card`, `Blur Reveal`, `Spin In`, `Outline Only`, `Gradient Word`, `Serif Italic`, `Retro Shadow`, `Sticker`, `3D Extrude`, `Terminal Tag`, `Wipe Reveal`, `Whisper`, `Heartbeat`, `Underline Swipe`.
+   - **Line Captions (21–43)**: `Karaoke Line`, `Box Highlight`, `Neon Glow`, `Pill Highlight`, `Underline Track`, `Color Fill`, `Bold Pop Caption`, `Subtitle Classic`, `Highlighter`, `Build Up`, `Slide Words`, `Rainbow`, `Shadow Lift`, `Blur Focus`, `Strike Past`, `Outline Fill`, `Bounce Active`, `Gold Luxe`, `Arcade`, `Handwritten`, `Cinema`, `Bubbles`, `Tilt Words`.
+   - **Stacks (44–46)**: `Word Stack`, `Stack Big Left`, `Stack Center`.
+   - **Typewriter (47–48)**: `Terminal Typewriter`, `Paper Typewriter`.
+   - **Editorial (49–50)**: `Editorial Mix`, `Editorial Dark Gold`.
+   - Features: Top stepper navigation (`◀ 13/50 · Retro Shadow ▶`), 1–50 Numbered Grid, Category filter tabs, auto-switch every 3.5s, and instant live video sync.
+3. **Caption Theme & Animation Style (Catalog Presets)**:
    - `Creator 3`: Hormozi-style lime pop with dark drop shadow and bold punch.
    - `Crazy Gradient`: Dynamic animated violet/fuchsia gradient fill with stroke.
    - `Spark Glow`: Radiant golden spark glow for motivational and luxury hooks.
