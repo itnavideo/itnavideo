@@ -1,6 +1,11 @@
 import React from 'react';
 import * as LucideIcons from 'lucide-react';
 import { interpolate, useCurrentFrame } from 'remotion';
+import {
+  WHITEBOARD_VECTOR_DRAWINGS,
+  resolveVectorDrawing,
+  VectorDrawingDef,
+} from '../../../lib/whiteboard/vectorDrawings';
 
 export type Whiteboard2DType =
   | 'character_thinking'
@@ -112,6 +117,61 @@ export const Whiteboard2DIcon: React.FC<Whiteboard2DIconProps> = ({
     transition: 'filter 0.08s ease-out',
     ...style,
   };
+
+  // ── Procedural Vector Drawings Registry Lookup ────────────────────────────
+  // Checks all 50+ procedural SVG vector drawings in lib/whiteboard/vectorDrawings.ts
+  const vectorDef: VectorDrawingDef | undefined = WHITEBOARD_VECTOR_DRAWINGS[type];
+  if (vectorDef && vectorDef.strokes) {
+    const strokePalette: Record<string, string> = {
+      primary: '#0F172A',
+      accent: '#2563EB',
+      highlight: '#F59E0B',
+      danger: '#DC2626',
+      success: '#10B981',
+      white: '#FFFFFF',
+    };
+
+    return (
+      <div style={containerStyle} className={className}>
+        <svg
+          viewBox={vectorDef.viewBox || '0 0 100 100'}
+          width="100%"
+          height="100%"
+          style={{ overflow: 'visible' }}
+        >
+          {vectorDef.strokes.map((stroke, sIdx) => {
+            const strokeColor = stroke.colorKey ? (strokePalette[stroke.colorKey] || '#0F172A') : '#0F172A';
+            const strokeLen = stroke.len || 100;
+            const width = stroke.strokeWidth || 3;
+            const strokeOrder = stroke.order ?? sIdx;
+            const strokeStart = Math.min(0.7, (strokeOrder * 0.10));
+            const strokeProgress = isProgressive
+              ? Math.min(1, Math.max(0, (progress - strokeStart) / 0.45))
+              : 1;
+            const dashOffset = isProgressive ? strokeLen * (1 - strokeProgress) : 0;
+
+            return (
+              <path
+                key={sIdx}
+                d={stroke.d}
+                fill={stroke.fill || 'none'}
+                stroke={strokeColor}
+                strokeWidth={width}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{
+                  strokeDasharray: isProgressive ? strokeLen : undefined,
+                  strokeDashoffset: isProgressive ? dashOffset : undefined,
+                  opacity: isProgressive ? (strokeProgress > 0.01 ? 1 : 0) : 1,
+                  transition: 'stroke 0.15s ease',
+                }}
+              />
+            );
+          })}
+        </svg>
+      </div>
+    );
+  }
 
   switch (type) {
     // ── 1. THINKING 2D BOY / PERSON ───────────────────────────────────────────
@@ -1029,6 +1089,60 @@ export const Whiteboard2DIcon: React.FC<Whiteboard2DIconProps> = ({
               />
               <LucideComp size={Math.round(Number(size) * 0.52)} strokeWidth={2.8} color="#0F172A" />
             </div>
+          </div>
+        );
+      }
+
+      // Semantic Vector Drawing Resolution (never show an empty or generic box)
+      const resolvedDef = resolveVectorDrawing(type);
+      if (resolvedDef && resolvedDef.strokes) {
+        const strokePalette: Record<string, string> = {
+          primary: '#0F172A',
+          accent: '#2563EB',
+          highlight: '#F59E0B',
+          danger: '#DC2626',
+          success: '#10B981',
+          white: '#FFFFFF',
+        };
+
+        return (
+          <div style={containerStyle} className={className}>
+            <svg
+              viewBox={resolvedDef.viewBox || '0 0 100 100'}
+              width="100%"
+              height="100%"
+              style={{ overflow: 'visible' }}
+            >
+              {resolvedDef.strokes.map((stroke, sIdx) => {
+                const strokeColor = stroke.colorKey ? (strokePalette[stroke.colorKey] || '#0F172A') : '#0F172A';
+                const strokeLen = stroke.len || 100;
+                const width = stroke.strokeWidth || 3;
+                const strokeOrder = stroke.order ?? sIdx;
+                const strokeStart = Math.min(0.7, (strokeOrder * 0.10));
+                const strokeProgress = isProgressive
+                  ? Math.min(1, Math.max(0, (progress - strokeStart) / 0.45))
+                  : 1;
+                const dashOffset = isProgressive ? strokeLen * (1 - strokeProgress) : 0;
+
+                return (
+                  <path
+                    key={sIdx}
+                    d={stroke.d}
+                    fill={stroke.fill || 'none'}
+                    stroke={strokeColor}
+                    strokeWidth={width}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    style={{
+                      strokeDasharray: isProgressive ? strokeLen : undefined,
+                      strokeDashoffset: isProgressive ? dashOffset : undefined,
+                      opacity: isProgressive ? (strokeProgress > 0.01 ? 1 : 0) : 1,
+                      transition: 'stroke 0.15s ease',
+                    }}
+                  />
+                );
+              })}
+            </svg>
           </div>
         );
       }

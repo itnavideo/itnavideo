@@ -1156,7 +1156,7 @@ async function callGeminiWhiteboardDirector(input: WhiteboardPlanInput, apiKey: 
     showHand: true,
   });
 
-  const candidateModels = ['gemini-flash-latest', 'gemini-3.8-flash', 'gemini-2.5-flash'];
+  const candidateModels = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-flash-latest'];
   let jsonString = '';
 
   for (const model of candidateModels) {

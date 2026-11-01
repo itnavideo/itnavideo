@@ -831,6 +831,150 @@ export const WHITEBOARD_VECTOR_DRAWINGS: Record<string, VectorDrawingDef> = {
     ],
     keywords: ['in short', 'summary', 'conclusion', 'takeaway', 'finally', 'message', 'result', 'remember', 'wrap up', 'stickman'],
   },
+
+  'road_fork': {
+    id: 'road_fork',
+    name: 'Fork in the Road / Decision Crossroads',
+    category: 'story',
+    viewBox: '0 0 100 100',
+    strokes: [
+      // Base road
+      { d: 'M 40 95 L 44 65 M 60 95 L 56 65', len: 65, strokeWidth: 3, order: 0 },
+      // Left fork road
+      { d: 'M 44 65 Q 35 45 15 35 M 48 60 Q 42 42 22 30', len: 80, strokeWidth: 3, colorKey: 'accent', order: 1 },
+      // Right fork road
+      { d: 'M 56 65 Q 65 45 85 35 M 52 60 Q 58 42 78 30', len: 80, strokeWidth: 3, colorKey: 'danger', order: 2 },
+      // Decision sign at fork
+      { d: 'M 50 62 L 50 40 M 38 40 L 62 40 L 58 32 L 38 32 Z', len: 70, strokeWidth: 2.5, colorKey: 'highlight', order: 3 },
+      // Question mark on sign
+      { d: 'M 48 35 Q 50 33 52 35 Q 52 37 50 38 L 50 39 M 50 40 L 50 41', len: 15, strokeWidth: 1.5, order: 4 },
+    ],
+    keywords: ['road_fork', 'crossroads', 'decision', 'choice', 'path', 'fork', 'options', 'which way', 'decide'],
+  },
+
+  'signpost_directions': {
+    id: 'signpost_directions',
+    name: 'Signpost Directions',
+    category: 'story',
+    viewBox: '0 0 100 100',
+    strokes: [
+      // Wooden Pole
+      { d: 'M 48 92 L 48 20 M 52 92 L 52 20 M 42 92 L 58 92', len: 160, strokeWidth: 3, order: 0 },
+      // Top Sign pointing Left
+      { d: 'M 20 32 L 52 32 L 52 44 L 20 44 L 12 38 Z', len: 85, strokeWidth: 2.5, colorKey: 'accent', order: 1 },
+      // Lower Sign pointing Right
+      { d: 'M 48 50 L 80 50 L 88 56 L 80 62 L 48 62 Z', len: 85, strokeWidth: 2.5, colorKey: 'danger', order: 2 },
+    ],
+    keywords: ['signpost', 'directions', 'sign', 'post', 'way', 'route', 'destination', 'guide'],
+  },
+
+  'compass_north': {
+    id: 'compass_north',
+    name: 'Navigation Compass',
+    category: 'general',
+    viewBox: '0 0 100 100',
+    strokes: [
+      // Outer ring
+      { d: 'M 50 15 A 35 35 0 1 0 50 85 A 35 35 0 1 0 50 15', len: 220, strokeWidth: 3, order: 0 },
+      // Compass Needle North (Red)
+      { d: 'M 50 50 L 46 50 L 50 25 L 54 50 Z', fill: '#DC2626', len: 55, strokeWidth: 2, colorKey: 'danger', order: 1 },
+      // Compass Needle South (Slate)
+      { d: 'M 50 50 L 46 50 L 50 75 L 54 50 Z', fill: '#64748B', len: 55, strokeWidth: 2, order: 2 },
+      // Center pin
+      { d: 'M 48 50 A 2 2 0 1 0 48 54 A 2 2 0 1 0 48 50', len: 12, strokeWidth: 2, colorKey: 'highlight', order: 3 },
+      // Cardinal marks
+      { d: 'M 50 18 L 50 22 M 50 82 L 50 78 M 18 50 L 22 50 M 82 50 L 78 50', len: 20, strokeWidth: 2, order: 4 },
+    ],
+    keywords: ['compass', 'direction', 'north', 'navigation', 'orient', 'moral compass', 'truenorth'],
+  },
+
+  'ladder_climb': {
+    id: 'ladder_climb',
+    name: 'Ladder to Success',
+    category: 'process',
+    viewBox: '0 0 100 100',
+    strokes: [
+      // Ladder rails
+      { d: 'M 35 95 L 42 12 M 65 95 L 58 12', len: 170, strokeWidth: 3, order: 0 },
+      // Rungs
+      { d: 'M 37 82 L 63 82 M 38 68 L 62 68 M 39 54 L 61 54 M 40 40 L 60 40 M 41 26 L 59 26', len: 110, strokeWidth: 2.5, colorKey: 'accent', order: 1 },
+      // Climbing stick figure
+      { d: 'M 48 44 A 4 4 0 1 0 48 52 A 4 4 0 1 0 48 44 M 48 52 L 48 64 M 48 56 L 41 54 M 48 56 L 57 52 M 48 64 L 42 68 M 48 64 L 56 68', len: 65, strokeWidth: 2.5, colorKey: 'danger', order: 2 },
+      // Star at top
+      { d: 'M 50 5 L 52 9 L 56 9 L 53 12 L 54 16 L 50 13 L 46 16 L 47 12 L 44 9 L 48 9 Z', len: 35, strokeWidth: 2, colorKey: 'highlight', order: 3 },
+    ],
+    keywords: ['ladder', 'climb', 'steps to success', 'promotion', 'level up', 'elevation', 'ascent'],
+  },
+
+  'tightrope_walk': {
+    id: 'tightrope_walk',
+    name: 'Tightrope Balance / High Wire',
+    category: 'character',
+    viewBox: '0 0 100 100',
+    strokes: [
+      // High wire rope
+      { d: 'M 5 70 Q 50 78 95 70', len: 92, strokeWidth: 3, order: 0 },
+      // Balancing Stickman
+      { d: 'M 50 32 A 6 6 0 1 0 50 44 A 6 6 0 1 0 50 32 M 50 44 L 50 68', len: 62, strokeWidth: 3, order: 1 },
+      // Long Balance Pole held across
+      { d: 'M 20 45 L 80 52', len: 62, strokeWidth: 2.5, colorKey: 'highlight', order: 2 },
+      // Legs balancing on single line
+      { d: 'M 50 68 L 46 75 M 50 68 L 54 75', len: 20, strokeWidth: 3, colorKey: 'danger', order: 3 },
+    ],
+    keywords: ['tightrope', 'balance', 'risk', 'precarious', 'danger', 'careful', 'narrow path'],
+  },
+
+  'fire_flame': {
+    id: 'fire_flame',
+    name: 'Burning Flame / Passion',
+    category: 'general',
+    viewBox: '0 0 100 100',
+    strokes: [
+      // Outer Flame
+      { d: 'M 50 10 Q 70 35 70 60 A 20 20 0 0 1 30 60 Q 30 35 50 10 Z', len: 145, strokeWidth: 3, colorKey: 'danger', order: 0 },
+      // Inner Flame Core
+      { d: 'M 50 38 Q 62 52 62 65 A 12 12 0 0 1 38 65 Q 38 52 50 38 Z', fill: '#F59E0B', len: 85, strokeWidth: 2.5, colorKey: 'highlight', order: 1 },
+      // Fire sparks
+      { d: 'M 42 16 L 40 12 M 58 18 L 62 14 M 68 32 L 74 30', len: 25, strokeWidth: 2, colorKey: 'highlight', order: 2 },
+    ],
+    keywords: ['fire', 'flame', 'passion', 'burning', 'urgency', 'blaze', 'spark', 'heat'],
+  },
+
+  'laptop_desk': {
+    id: 'laptop_desk',
+    name: 'Laptop Work Desk',
+    category: 'business',
+    viewBox: '0 0 100 100',
+    strokes: [
+      // Desk surface
+      { d: 'M 10 78 L 90 78 M 18 78 L 18 95 M 82 78 L 82 95', len: 115, strokeWidth: 3, order: 0 },
+      // Laptop Base
+      { d: 'M 28 78 L 32 72 L 68 72 L 72 78 Z', len: 90, strokeWidth: 2.5, order: 1 },
+      // Laptop Screen open
+      { d: 'M 34 72 L 36 40 L 64 40 L 66 72 Z', len: 90, strokeWidth: 2.5, colorKey: 'accent', order: 2 },
+      // Screen code lines
+      { d: 'M 40 48 L 56 48 M 40 54 L 60 54 M 40 60 L 52 60', len: 45, strokeWidth: 2, colorKey: 'highlight', order: 3 },
+      // Coffee Mug on side
+      { d: 'M 76 78 L 76 68 L 84 68 L 84 78 Z M 84 70 C 87 70 87 76 84 76', len: 40, strokeWidth: 2, colorKey: 'danger', order: 4 },
+    ],
+    keywords: ['laptop', 'computer', 'desk', 'work', 'code', 'coding', 'programming', 'developer'],
+  },
+
+  'lock_secure': {
+    id: 'lock_secure',
+    name: 'Secure Padlock',
+    category: 'business',
+    viewBox: '0 0 100 100',
+    strokes: [
+      // Shackle
+      { d: 'M 35 45 L 35 30 A 15 15 0 0 1 65 30 L 65 45', len: 75, strokeWidth: 3.5, order: 0 },
+      // Lock Body
+      { d: 'M 25 45 L 75 45 L 75 85 L 25 85 Z', fill: '#FBBF24', len: 140, strokeWidth: 3.5, colorKey: 'highlight', order: 1 },
+      // Keyhole
+      { d: 'M 50 56 A 4 4 0 1 0 50 64 A 4 4 0 1 0 50 56 M 50 64 L 50 74', len: 35, strokeWidth: 2.5, colorKey: 'primary', order: 2 },
+    ],
+    keywords: ['lock', 'security', 'secure', 'safe', 'protection', 'privacy', 'encrypted'],
+  },
 };
 
 // ── Smart Semantic Keyword Resolver (Zero Repetition Hash Fallback) ─────────

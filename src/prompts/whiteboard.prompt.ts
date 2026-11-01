@@ -68,12 +68,25 @@ CORE 7-STAGE STORYTELLING ENGINE:
    - 'business_handshake': Handshake — for partnerships.
    - 'character_celebration': Person with arms raised — for success/win.
    - 'dream_big_vision': Mountain with star — for dreams and goals.
+   - 'road_fork': Crossroads / two diverging paths — for tough decisions or pivotal choices.
+   - 'signpost_directions': Wooden signpost with directional arrows — for choices and guidance.
+   - 'compass_north': Navigation compass — for vision, true north, and direction.
+   - 'ladder_climb': Ladder with climbing stick figure — for upward progress, ascent, and steps.
+   - 'tightrope_walk': Figure balancing on wire — for high stakes, risk, and delicate balance.
+   - 'fire_flame': Blazing flame — for passion, urgency, burning desire, and energy.
+   - 'laptop_desk': Open laptop on work desk — for building, coding, computer work.
+   - 'lock_secure': Padlock with keyhole — for security, privacy, and guarantees.
 
-5. ARCHETYPE SELECTION (use "split_story" for most scenes):
-   - 'split_story': Drawing on left, bold text on right — USE THIS for 80% of scenes.
-   - 'keyword_slam': Huge single kinetic word only — use only for Hook scene.
-   - 'stat_callout': One big number with context — use when a stat is the main point.
-   - 'hero_center': Central drawing with title above — for summary or finale.
+5. DIVERSE ARCHETYPE PACING (CRITICAL — NEVER REPEAT THE SAME ARCHETYPE 2x IN A ROW):
+   Mix these distinct layout archetypes dynamically across the narration:
+   - 'split_story': Hand-drawn illustration with clear text points — great for explanations.
+   - 'hero_center': One focal hero illustration with top header and bottom takeaway badge.
+   - 'keyword_slam': High-impact kinetic statement with doodle — great for hook or emotional punch.
+   - 'step_ladder': Progressive ladder of 2-3 action steps.
+   - 'split_comparison': Contrast between two states or concepts.
+   - 'hub_spoke': Core idea in the center with connected peripheral insights.
+   - 'stat_callout': Large bold numeric metric callout — when numbers, %, or time are mentioned.
+   Ensure high visual variety so the viewer is constantly surprised and engaged by each new scene layout.
 
 6. CANVAS & PACING:
    - Clean white background (#FFFFFF).

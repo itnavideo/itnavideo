@@ -175,13 +175,13 @@ export const DynamicWhiteboardSceneDirector: React.FC<DynamicWhiteboardSceneDire
     if (sceneProgress < 0.18) {
       // Phase 1: Hand writes the title text from left to right directly on the letters
       const p = Math.min(1, sceneProgress / 0.16);
-      const x = interpolate(p, [0, 1], [isSplitStory ? 360 : 220, 880]);
+      const x = interpolate(p, [0, 1], [160, 780]);
       const y = titleY;
       return { x, y, isDrawing: true, opacity: 1 };
     } else if (sceneProgress < 0.25) {
       // Phase 1b: Hand draws the accent underline below the title
       const p = Math.min(1, (sceneProgress - 0.18) / 0.07);
-      const x = interpolate(p, [0, 1], [470, 610]);
+      const x = interpolate(p, [0, 1], [160, 380]);
       const y = titleY + 45;
       return { x, y, isDrawing: true, opacity: 1 };
     } else if (sceneProgress < 0.42 && scene.explanationLines?.length) {
@@ -189,7 +189,7 @@ export const DynamicWhiteboardSceneDirector: React.FC<DynamicWhiteboardSceneDire
       const p = Math.min(1, (sceneProgress - 0.25) / 0.17);
       const lineIdx = p < 0.5 ? 0 : 1;
       const lineP = (p - lineIdx * 0.5) / 0.5;
-      const x = interpolate(lineP, [0, 1], [230, 830]);
+      const x = interpolate(lineP, [0, 1], [180, 760]);
       const y = titleY + 95 + lineIdx * 52;
       return { x, y, isDrawing: true, opacity: 1 };
     } else if (sceneProgress < 0.78) {
@@ -574,22 +574,22 @@ function renderArchetypeContent(
             flex: 1,
             margin: '20px 0',
             backgroundColor: '#FFFFFF',
-            borderRadius: 32,
-            border: '4px solid #CBD5E1',
-            padding: '32px 28px',
+            borderRadius: 28,
+            border: '2.5px solid #E2E8F0',
+            padding: '28px 24px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            boxShadow: '0 14px 40px -10px rgba(15,23,42,0.08)',
+            boxShadow: '0 8px 30px -8px rgba(15,23,42,0.06)',
             position: 'relative',
           }}
         >
-          {/* Top/Right Header Text: Big, Short, Punchy with Underlines (Section 5 Note) */}
-          <div className="w-full flex flex-col items-end text-right">
+          {/* Top/Left Header Text: Big, Short, Punchy with Underlines (Natural Left-to-Right Writing) */}
+          <div className="w-full flex flex-col items-start text-left">
             <div
               style={{
                 fontFamily: activeHandwritingFont,
-                fontSize: 60,
+                fontSize: 56,
                 fontWeight: 900,
                 color: '#0F172A',
                 lineHeight: 1.15,
@@ -615,9 +615,9 @@ function renderArchetypeContent(
             <div
               style={{
                 height: 5,
-                width: 200 * underlineProgress,
+                width: 220 * underlineProgress,
                 backgroundColor: accentColor || '#1E40AF',
-                marginTop: 10,
+                margin: '10px 0 0 0',
                 borderRadius: 3,
                 opacity: underlineProgress > 0 ? 1 : 0,
               }}
