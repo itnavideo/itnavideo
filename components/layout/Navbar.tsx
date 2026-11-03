@@ -160,7 +160,7 @@ export default function Navbar() {
                           </span>
 
                           <Link
-                            href="/dashboard/faceless-video"
+                            href="/dashboard/faceless-shorts"
                             onClick={() => setActiveMenu(null)}
                             className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
                           >
@@ -169,10 +169,10 @@ export default function Navbar() {
                             </span>
                             <div>
                               <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
-                                Faceless Video AI
+                                Faceless Shorts
                               </h4>
                               <p className="text-xs text-gray-500 font-medium">Auto B-roll, voiceover &amp; captions</p>
-
+                            </div>
                           </Link>
 
                           <Link
@@ -188,12 +188,11 @@ export default function Navbar() {
                                 Auto Captions
                               </h4>
                               <p className="text-xs text-gray-500 font-medium">Kinetic captions for Reels &amp; Shorts</p>
-
+                            </div>
                           </Link>
 
-
                           <Link
-                            href="/dashboard/whiteboard-video"
+                            href="/dashboard/whiteboard"
                             onClick={() => setActiveMenu(null)}
                             className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
                           >
@@ -205,11 +204,11 @@ export default function Navbar() {
                                 Whiteboard Animation
                               </h4>
                               <p className="text-xs text-gray-500 font-medium">Stickman &amp; doodle explainers</p>
-
+                            </div>
                           </Link>
 
                           <Link
-                            href="/dashboard/compare-explainer"
+                            href="/dashboard/compare"
                             onClick={() => setActiveMenu(null)}
                             className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
                           >
@@ -221,7 +220,7 @@ export default function Navbar() {
                                 Compare Explainer
                               </h4>
                               <p className="text-xs text-gray-500 font-medium">Side-by-side comparison generator</p>
-
+                            </div>
                           </Link>
 
                           <Link
@@ -241,22 +240,19 @@ export default function Navbar() {
                           </Link>
 
                           <Link
-                            href="/dashboard/ai-shorts-polisher"
+                            href="/dashboard/split-screen-explainer"
                             onClick={() => setActiveMenu(null)}
                             className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
                           >
                             <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-lg flex items-center justify-center shrink-0">
-                              ⚡
+                              🌓
                             </span>
                             <div>
                               <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
-                                AI Shorts Polisher
+                                Split Screen Explainer
                               </h4>
-                              <p className="text-xs text-gray-500 font-medium">Auto jump-cuts &amp; dynamic zoom</p>
-
-                          </Link>
-
-
+                              <p className="text-xs text-gray-500 font-medium">50/50 dual zone video &amp; visuals</p>
+                            </div>
                           </Link>
                         </div>
 
@@ -265,6 +261,22 @@ export default function Navbar() {
                           <span className="text-[11px] font-extrabold text-amber-600 uppercase tracking-wider block px-1">
                             🖥️ 16:9 Long-Form
                           </span>
+
+                          <Link
+                            href="/dashboard/faceless-video"
+                            onClick={() => setActiveMenu(null)}
+                            className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
+                          >
+                            <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-lg flex items-center justify-center shrink-0">
+                              🎬
+                            </span>
+                            <div>
+                              <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
+                                Faceless Long Video
+                              </h4>
+                              <p className="text-xs text-gray-500 font-medium">AI documentary &amp; SVG explainers</p>
+                            </div>
+                          </Link>
 
                           <Link
                             href="/dashboard/long-video-clips"
@@ -279,7 +291,7 @@ export default function Navbar() {
                                 Long Video Clips
                               </h4>
                               <p className="text-xs text-gray-500 font-medium">Cut viral shorts from long videos</p>
-
+                            </div>
                           </Link>
 
                           <Link
@@ -295,7 +307,7 @@ export default function Navbar() {
                                 Book Summary Video
                               </h4>
                               <p className="text-xs text-gray-500 font-medium">Cinematic explainer lesson cards</p>
-
+                            </div>
                           </Link>
 
                           <Link
@@ -311,23 +323,23 @@ export default function Navbar() {
                                 Image to Video AI
                               </h4>
                               <p className="text-xs text-gray-500 font-medium">Animate photos into video beats</p>
-
+                            </div>
                           </Link>
 
                           <Link
-                            href="/dashboard/youtube-subtitles"
+                            href="/dashboard/ai-video-polisher"
                             onClick={() => setActiveMenu(null)}
                             className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
                           >
                             <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-lg flex items-center justify-center shrink-0">
-                              🎯
+                              📽️
                             </span>
                             <div>
                               <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
-                                YouTube Subtitles
+                                AI Video Polisher
                               </h4>
-                              <p className="text-xs text-gray-500 font-medium">1080p burned-in subtitles</p>
-
+                              <p className="text-xs text-gray-500 font-medium">Silence cuts &amp; 16:9 dynamic zoom</p>
+                            </div>
                           </Link>
 
                           <Link
@@ -343,7 +355,7 @@ export default function Navbar() {
                                 AI Audio Cleaner
                               </h4>
                               <p className="text-xs text-gray-500 font-medium">Studio voice cleanup &amp; retake fix</p>
-
+                            </div>
                           </Link>
                         </div>
                       </div>

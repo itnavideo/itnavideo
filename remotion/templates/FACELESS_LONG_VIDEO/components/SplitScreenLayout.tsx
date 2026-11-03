@@ -7,7 +7,7 @@ import {
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
 import type { BackgroundColorPalette } from '../../../components/backgrounds/BackgroundCatalog';
 import { safeResolveMediaSrc, isVideoMedia } from '../../../utils/safeMedia';
-import { getContextualIllustration } from '../../../components/illustrations/ConceptIllustrationLibrary';
+import { VectorDrawingIcon } from '../../../components/graphics/VectorDrawingIcon';
 import { useVideoDesignSystem } from '../designSystem';
 import { SceneCanvas, EyebrowPill, StudioCard } from './DesignSystemPrimitives';
 import { HandwritingHighlight } from '../../../components/library/HandwritingHighlight';
@@ -47,9 +47,15 @@ export function SplitScreenLayout({
   const supportingText = (scene.supportingText || '').trim();
   const bullets = (scene.listItems || []).filter(Boolean).slice(0, 3);
 
-  const illustrationNode = getContextualIllustration(
-    `${headline} ${supportingText} ${scene.visualPrompt || ''}`,
-    isVertical ? 280 : 340
+  const illustrationNode = (
+    <VectorDrawingIcon
+      keyword={scene.vectorDrawingId || `${headline} ${supportingText} ${scene.visualPrompt || ''}`}
+      size={isVertical ? 280 : 340}
+      strokeWidth={4}
+      animated={true}
+      frameOverride={ds.motion.localFrame}
+      theme={ds.surface.isDark ? 'dark' : 'light'}
+    />
   );
 
   // Subtle camera motion for media or vector showcase

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import AutoCaptionReelDetail from '../auto-caption-reel/AutoCaptionReelDetail';
+import AutoCaptionsDetail from '@/components/captions/AutoCaptionsDetail';
 
 export const metadata: Metadata = {
   title: 'Auto Caption Generator — Free Subtitles & Reels | Itnavideo',
@@ -17,5 +17,5 @@ export const metadata: Metadata = {
 };
 
 export default function AutoCaptionGeneratorVideoTypePage() {
-  return <AutoCaptionReelDetail />;
+  return <AutoCaptionsDetail />;
 }
