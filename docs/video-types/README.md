@@ -1,12 +1,12 @@
-# Itnavideo — Video Types Master Registry
+# Itnavideo — Video Types Master Registry (14 Active Studios)
 
-This directory contains the dedicated requirement, architecture, and pipeline specifications for all **active video types** in [Itnavideo](https://www.itnavideo.com).
+This directory contains the dedicated requirement, architecture, and pipeline specifications for all **14 active video studios** in [Itnavideo](https://www.itnavideo.com).
 
-As per **Rule 8 of `AGENTS.md` (Video Type Independence)** and the **Founder Master Directive**, video types are strictly split into **16:9 Widescreen Long-Form** and **9:16 Vertical Short-Form** workflows.
+As per **Rule 8 of `AGENTS.md` (Video Type Independence)** and the **Founder Master Directive**, video types are strictly categorized into **5 Studios for 16:9 Cinema Long-Form**, **8 Studios for 9:16 Vertical Shorts & Viral Clips**, and **1 Studio for Audio Utility**.
 
 ---
 
-## 1. 🎬 16:9 Widescreen Long-Form Category (Strictly 16:9 Only — Up to 5 Minutes)
+## 1. 🎬 16:9 Widescreen Long-Form Category (5 Studios — Strictly 16:9 Only — Up to 5 Minutes)
 
 | # | Video Type | Directory & Spec | Aspect Ratio | Max Duration | Credit Policy | Primary Pipeline Focus | Remotion Composition ID |
 |---|---|---|:---:|:---:|:---:|---|---|
@@ -14,12 +14,11 @@ As per **Rule 8 of `AGENTS.md` (Video Type Independence)** and the **Founder Mas
 | 2 | **Book Summary Video** | [`02-book-summary/`](./02-book-summary/README.md) · [`booksummary.md`](./booksummary.md) | **16:9 Only** | **Up to 5 Min (300s)** | **1 Min = 1 Credit** (1m=1, 5m=5) | Book Quotes/Audio → Cinematic Chapter Visuals | `BOOK_SUMMARY_VIDEO` |
 | 3 | **Image to Video AI** | [`03-image-to-video-ai/`](./03-image-to-video-ai/README.md) · [`imagetovideoai.md`](./imagetovideoai.md) | **16:9 Only** | **Up to 5 Min (300s)** | **1 Min = 1 Credit** (1m=1, 5m=5) | Audio + Scene Images → Parallax & Subtitles | `IMAGE_TO_VIDEO_AI` |
 | 4 | **YouTube Subtitles Generator** | [`04-youtube-subtitles/`](./04-youtube-subtitles/README.md) · [`youtubesubtitles.md`](./youtubesubtitles.md) | **16:9 Only** | **Up to 5 Min (300s)** | **1 Min = 1 Credit** (1m=1, 5m=5) | Video/Audio → High-Contrast Spoken Captions | `AUTO_CAPTION_GENERATOR` |
-| 5 | **Long Video to Shorts Clips** | [`05-long-video-to-shorts/`](./05-long-video-to-shorts/README.md) · [`longvideoclips.md`](./longvideoclips.md) | Input 16:9/9:16 -> Output 9:16 | **Input: Up to 2 Hours**<br/>**Output: 30s–60s Clips** | **1 Credit / Clip** | Long Video → Virality Hook Detection & 9:16 Reframe | `LONG_VIDEO_CLIPS` |
-| 6 | **AI YouTube Video Polisher** | [`12-ai-video-polisher/`](./12-ai-video-polisher/README.md) · [`ai-video-polisher.md`](./ai-video-polisher.md) | **16:9 Only** | **Up to 5 Min (300s)** | **1 Min = 1 Credit** (1m=1, 5m=5) | Video/Multi-Take Shoot → Silence Jump-Cuts, +12% Dynamic Punch-In & PIP Overlay | `AI_VIDEO_POLISHER` |
+| 5 | **AI YouTube Video Polisher** | [`12-ai-video-polisher/`](./12-ai-video-polisher/README.md) · [`ai-video-polisher.md`](./ai-video-polisher.md) | **16:9 Only** | **Up to 5 Min (300s)** | **1 Min = 1 Credit** (1m=1, 5m=5) | Video/Multi-Take Shoot → Silence Jump-Cuts, +12% Dynamic Punch-In & PIP Overlay | `AI_VIDEO_POLISHER` |
 
 ---
 
-## 2. 📱 9:16 Vertical Short-Form Category (Strictly 9:16 Only — Up to 90 Seconds)
+## 2. 📱 9:16 Vertical Short-Form Category (8 Studios — Strictly 9:16 Only — Up to 90 Seconds / Clips)
 
 | # | Video Type | Directory & Spec | Aspect Ratio | Max Duration | Credit Policy | Primary Pipeline Focus | Remotion Composition ID |
 |---|---|---|:---:|:---:|:---:|---|---|
@@ -30,10 +29,11 @@ As per **Rule 8 of `AGENTS.md` (Video Type Independence)** and the **Founder Mas
 | 5 | **Faceless Shorts** | [`faceless-shorts.md`](./faceless-shorts.md) | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Voiceover → Faceless Short Visuals | `FACELESS_SHORTS` |
 | 6 | **AI Shorts Polisher** | [`13-ai-shorts-polisher/`](./13-ai-shorts-polisher/README.md) · [`ai-shorts-polisher.md`](./ai-shorts-polisher.md) | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Smartphone Video/Shoot → Silence Jump-Cuts, +12% Dynamic Punch-In & PIP Overlay | `AI-SHORTS-POLISHER` |
 | 7 | **Split-Screen Explainer** | [`split-screen-explainer.md`](./split-screen-explainer.md) | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | 50/50 Dual Zone (Top: cycling visual assets, Bottom: creator talking head) → Dynamic zoom pulses & glowing captions | `SPLIT-SCREEN-EXPLAINER` |
+| 8 | **Long Video to Shorts Clips** | [`05-long-video-to-shorts/`](./05-long-video-to-shorts/README.md) · [`longvideoclips.md`](./longvideoclips.md) | Input 16:9/9:16 -> Output 9:16 | **Input: Up to 2 Hours**<br/>**Output: 30s–60s Clips** | **1 Credit / Clip** | Long Video → Virality Hook Detection & 9:16 Reframe | `LONG_VIDEO_CLIPS` |
 
 ---
 
-## 3. 🎙️ Utility Category
+## 3. 🎙️ Utility Category (1 Studio)
 
 | # | Video Type | Directory & Spec | Aspect Ratio | Max Duration | Credit Policy | Primary Pipeline Focus |
 |---|---|---|:---:|:---:|:---:|---|

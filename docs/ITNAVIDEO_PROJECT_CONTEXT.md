@@ -35,8 +35,8 @@ Turn raw creator content into publish-ready 9:16 reels or a preserved 16:9 long-
 ## Current Status
 
 - **1080p Full HD Quality Standard**: Every single video rendered across all modes is strictly exported in **1080p Full HD** (1080×1920 for 9:16 vertical shorts, 1920×1080 for 16:9 cinema widescreen) at 30 FPS.
-- **16:9 Long-Form Category (Up to 5 Minutes / 300s)**: Strictly 16:9 Widescreen Only for Faceless Video, Book Summary, Image to Video AI, and YouTube Subtitles Generator. Credit Policy: **1 Min = 1 Credit** (1 Min = 1 Cr, 2 Min = 2 Cr, 3 Min = 3 Cr, 4 Min = 4 Cr, 5 Min = 5 Cr).
-- **9:16 Short-Form Category (Up to 90 Seconds / 90s)**: Strictly 9:16 Vertical Only for Auto Caption Reel, Typography Kinetic, Whiteboard Explainer, Faceless Video Shorts, and Long Video Promo. Credit Policy: **1 Credit** per video.
+- **16:9 Long-Form Category (Up to 5 Minutes / 300s)**: Strictly 16:9 Widescreen Only for Faceless Video, Book Summary, Image to Video AI, YouTube Subtitles Generator, and AI YouTube Video Polisher. Credit Policy: **1 Min = 1 Credit** (1 Min = 1 Cr, 2 Min = 2 Cr, 3 Min = 3 Cr, 4 Min = 4 Cr, 5 Min = 5 Cr). All templates strictly clamped to 300s max.
+- **9:16 Short-Form Category (Up to 90 Seconds / 90s)**: Strictly 9:16 Vertical Only for Auto Caption Reel, Whiteboard Explainer, Faceless Shorts, Compare Explainer, Split-Screen Explainer, AI Shorts Polisher, and Long Video Promo. Credit Policy: **1 Credit** per video.
 - **Long Video to Clips (`longvideoclips`)**: Accepts input up to **2 Hours (7,200s)**; generates multiple **30s–60s** viral clips in 1080×1920. Credit Policy: **1 Credit / Clip**.
 - **AI Studio Audio Cleaner**: Accepts audio up to **5 Minutes (300s)**. Credit Policy: **1 Credit**.
 - **Faceless Video Storytelling Standard**: Stock photography capped to max 10% of video duration; remaining 90%+ executed via procedural 520px+ vector drawings (`DrawingStoryScene`), split-screen badges (`CardConceptScene`), and kinetic typography (`TypographyScene`).

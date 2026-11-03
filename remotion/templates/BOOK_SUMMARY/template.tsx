@@ -1087,8 +1087,8 @@ export const BookSummaryTemplate: React.FC<BookSummaryTemplateProps> = ({
           s.type === 'BOOK_COVER' || s.type === 'LESSON_TITLE'
             ? 'assets/reusable/sfx/chime.mp3'
             : s.type === 'KEY_IDEA' || s.type === 'STAT_INSIGHT'
-            ? 'assets/reusable/sfx/ding.mp3'
-            : 'assets/reusable/sfx/pop.mp3';
+              ? 'assets/reusable/sfx/ding.mp3'
+              : 'assets/reusable/sfx/pop.mp3';
 
         return (
           <Sequence key={`sfx-${s.id || idx}`} from={startFrame} durationInFrames={Math.round(fps * 1.5)}>

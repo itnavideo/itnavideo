@@ -18,17 +18,16 @@ Itnavideo is an enterprise-grade AI video creation suite for creators, agencies,
 | 2 | **Book Summary Video** | [`booksummary.md`](./docs/video-types/booksummary.md) | **16:9 Widescreen** | Up to 5 Min (300s) | 1 Min = 1 Credit | Book narration audio → Chapter timestamps → Kinetic chapter cards & B-roll |
 | 3 | **Image to Video AI** | [`imagetovideoai.md`](./docs/video-types/imagetovideoai.md) | **16:9 Widescreen** | Up to 5 Min (300s) | 1 Min = 1 Credit | User images/photos + audio → Smooth parallax motion & scene pacing |
 | 4 | **YouTube Subtitles Generator** | [`youtubesubtitles.md`](./docs/video-types/youtubesubtitles.md) | **16:9 Widescreen** | Up to 5 Min (300s) | 1 Min = 1 Credit | Video/Audio → Groq Whisper → Burnt-in scrubber captions + SRT/VTT download |
-| 5 | **Long Video to Viral Clips** | [`longvideoclips.md`](./docs/video-types/longvideoclips.md) | **Output 9:16** | Input: 2 Hours<br/>Output: 30–60s | 1 Credit / Clip | Long horizontal video → AI hook detector → Face center tracking → 9:16 Shorts |
-| 6 | **AI YouTube Video Polisher** | [`ai-video-polisher.md`](./docs/video-types/ai-video-polisher.md) | **16:9 Widescreen** | Up to 5 Min (300s) | 1 Min = 1 Credit | Video shoot → Silence Jump-Cuts, +12% Dynamic Punch-In & PIP Overlay |
-| 7 | **Auto Caption Reel Generator** | [`autocaption.md`](./docs/video-types/autocaption.md) | **9:16 Vertical** | Up to 90s | 1 Credit | Raw video → Groq Whisper → WhiteStair two-tone single-line captions (11 presets) |
-| 8 | **Compare Explainer Video** | [`compareexplainer.md`](./docs/video-types/compareexplainer.md) | **9:16 Vertical** | Up to 90s | 1 Credit | Audio + 2 comparison images → Split-screen versus battle + animated stickers |
-| 9 | **Kinetic Typography Video** | [`typographyvideo.md`](./docs/video-types/typographyvideo.md) | **9:16 Vertical** | Up to 90s | 1 Credit | Narration audio → Millisecond word kinetics + dynamic camera pulses |
-| 10 | **Whiteboard Animation Video** | [`whiteboardvideo.md`](./docs/video-types/whiteboardvideo.md) | **9:16 Vertical** | Up to 90s | 1 Credit | Narration → Gemini strategy planner → SVG stickman draw + hand gestures |
-| 11 | **Long Video Promo Teaser** | [`longvideopromo.md`](./docs/video-types/longvideopromo.md) | **9:16 Vertical** | Up to 90s | 1 Credit | YouTube video + thumbnail → High-converting viral teaser reel |
-| 12 | **Faceless Shorts** | [`faceless-shorts.md`](./docs/video-types/faceless-shorts.md) | **9:16 Vertical** | Up to 90s | 1 Credit | Voiceover → Faceless Short Visuals & Kinetics |
-| 13 | **AI Shorts Polisher** | [`ai-shorts-polisher.md`](./docs/video-types/ai-shorts-polisher.md) | **9:16 Vertical** | Up to 90s | 1 Credit | Smartphone shoot → Silence Jump-Cuts, Dynamic Punch-In & PIP Overlay |
-| 14 | **Split-Screen Explainer** | [`split-screen-explainer.md`](./docs/video-types/split-screen-explainer.md) | **9:16 Vertical** | Up to 90s | 1 Credit | 50/50 Dual Zone (Top: visual assets, Bottom: creator talking head) → Zoom pulses & glowing captions |
-| 15 | **AI Studio Audio Cleaner** | [`audiocleaner.md`](./docs/video-types/audiocleaner.md) | **Audio Utility** | Up to 5 Min (300s) | 1 Credit | Denoise (-14dB), auto retake removal, EBU R128 loudness mastering |
+| 5 | **AI YouTube Video Polisher** | [`ai-video-polisher.md`](./docs/video-types/ai-video-polisher.md) | **16:9 Widescreen** | Up to 5 Min (300s) | 1 Min = 1 Credit | Video shoot → Silence Jump-Cuts, +12% Dynamic Punch-In & PIP Overlay |
+| 6 | **Auto Caption Reel Generator** | [`autocaption.md`](./docs/video-types/autocaption.md) | **9:16 Vertical** | Up to 90s | 1 Credit | Raw video → Groq Whisper → WhiteStair two-tone single-line captions (11 presets) |
+| 7 | **Compare Explainer Video** | [`compareexplainer.md`](./docs/video-types/compareexplainer.md) | **9:16 Vertical** | Up to 90s | 1 Credit | Audio + 2 comparison images → Split-screen versus battle + animated stickers |
+| 8 | **Whiteboard Animation Video** | [`whiteboardvideo.md`](./docs/video-types/whiteboardvideo.md) | **9:16 Vertical** | Up to 90s | 1 Credit | Narration → Gemini strategy planner → SVG stickman draw + hand gestures |
+| 9 | **Long Video Promo Teaser** | [`longvideopromo.md`](./docs/video-types/longvideopromo.md) | **9:16 Vertical** | Up to 90s | 1 Credit | YouTube video + thumbnail → High-converting viral teaser reel |
+| 10 | **Faceless Shorts** | [`faceless-shorts.md`](./docs/video-types/faceless-shorts.md) | **9:16 Vertical** | Up to 90s | 1 Credit | Voiceover → Faceless Short Visuals & Kinetics |
+| 11 | **AI Shorts Polisher** | [`ai-shorts-polisher.md`](./docs/video-types/ai-shorts-polisher.md) | **9:16 Vertical** | Up to 90s | 1 Credit | Smartphone shoot → Silence Jump-Cuts, Dynamic Punch-In & PIP Overlay |
+| 12 | **Split-Screen Explainer** | [`split-screen-explainer.md`](./docs/video-types/split-screen-explainer.md) | **9:16 Vertical** | Up to 90s | 1 Credit | 50/50 Dual Zone (Top: visual assets, Bottom: creator talking head) → Zoom pulses & glowing captions |
+| 13 | **Long Video to Viral Clips** | [`longvideoclips.md`](./docs/video-types/longvideoclips.md) | **Output 9:16** | Input: 2 Hours<br/>Output: 30–60s | 1 Credit / Clip | Long horizontal video → AI hook detector → Face center tracking → 9:16 Shorts |
+| 14 | **AI Studio Audio Cleaner** | [`audiocleaner.md`](./docs/video-types/audiocleaner.md) | **Audio Utility** | Up to 5 Min (300s) | 1 Credit | Denoise (-14dB), auto retake removal, EBU R128 loudness mastering |
 
 ---
 
