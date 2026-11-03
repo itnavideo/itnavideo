@@ -126,7 +126,7 @@ export const DASHBOARD_169_TOOLS: VideoToolCard[] = [
     iconColorClass: "text-blue-600",
     description: "Auto silence jump-cuts, dynamic camera zoom punch-ins (+12%) & PIP overlay layers.",
     badge: "Auto YouTube Editor",
-    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946360/Professional_Presenter_in_Charcoal_Suit_ty6e33.png",
+    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1793737269/Movies_Money_and_Big_Growth_ucpt53.png",
   },
   {
     id: "youtube-subtitles",
@@ -155,7 +155,7 @@ export const DASHBOARD_916_TOOLS: VideoToolCard[] = [
     iconColorClass: "text-orange-600",
     description: "Auto silence jump-cuts, dynamic camera zoom punch-ins (+12%) & PIP overlay layers.",
     badge: "Reels & Shorts Co-Pilot",
-    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1788190063/file_0000000089c48211b67c16fe3c2636a2_prirg0.png",
+    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1793737273/Enthusiastic_Creator_Explaining_Ideas_nvg1do.png",
   },
   {
     id: "faceless-shorts",

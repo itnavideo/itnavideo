@@ -54,7 +54,7 @@ export const WIDESCREEN_169_STUDIOS: VideoTypeItem[] = [
     aspectRatio: '16:9',
     description: 'Auto silence jump-cuts, dynamic camera zoom punch-ins (+12%) & PIP overlay layers.',
     badgeLabel: 'Auto Editor',
-    imagePreview: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1792946360/Professional_Presenter_in_Charcoal_Suit_ty6e33.png',
+    imagePreview: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1793737269/Movies_Money_and_Big_Growth_ucpt53.png',
   },
   {
     id: 'faceless-video',
@@ -124,7 +124,7 @@ export const VERTICAL_916_STUDIOS: VideoTypeItem[] = [
     aspectRatio: '9:16',
     description: 'Auto silence jump-cuts, dynamic camera zoom punch-ins (+12%) & PIP overlay layers.',
     badgeLabel: 'Reels Co-Pilot',
-    imagePreview: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788190063/file_0000000089c48211b67c16fe3c2636a2_prirg0.png',
+    imagePreview: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1793737273/Enthusiastic_Creator_Explaining_Ideas_nvg1do.png',
   },
   {
     id: 'faceless-shorts',
