@@ -433,7 +433,7 @@ export default function Navbar() {
                             >
                               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-orange-200/80 bg-orange-50 text-orange-600 group-hover:bg-orange-500 group-hover:text-white group-hover:border-transparent transition">
                                 <Icon size={16} />
-  
+                              </div>
                               <div>
                                 <p className="text-xs font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
                                   {item.label}
@@ -441,7 +441,7 @@ export default function Navbar() {
                                 <p className="text-[11px] font-medium leading-snug mt-0.5 text-gray-500">
                                   {item.desc}
                                 </p>
-  
+                              </div>
                             </Link>
                           );
                         })}
