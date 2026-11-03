@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loop, OffthreadVideo, interpolate, useCurrentFrame, useVideoConfig } from 'remotion';
+import { Img, Loop, OffthreadVideo, interpolate, useCurrentFrame, useVideoConfig } from 'remotion';
 import { ResponsiveTypography } from '../components/ResponsiveTypography';
 import { HighlightText } from '../components/HighlightText';
 import { getSlideAnimation } from '../animations/Slide';
@@ -106,7 +106,7 @@ export function ImageTextScene({
                   />
                 </Loop>
               ) : (
-                <img
+                <Img
                   src={resolvedSrc}
                   alt={scene.heading || 'Scene Visual'}
                   style={{

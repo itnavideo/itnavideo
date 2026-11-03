@@ -41,6 +41,7 @@ export async function createUploadUrl({
   userId: string;
 }) {
   const bucket = requiredBucket();
+  void ensureTemporaryMediaLifecycleApplied();
   const safeFileName = sanitizeFileName(fileName);
   const key = `${TEMP_MEDIA_UPLOAD_PREFIX}${sanitizeSegment(userId)}/${Date.now()}-${mode}-${safeFileName}`;
   const command = new PutObjectCommand({
@@ -69,6 +70,7 @@ export async function uploadTemporaryMediaObject({
   purpose?: string;
 }) {
   const bucket = requiredBucket();
+  void ensureTemporaryMediaLifecycleApplied();
   const safeFileName = sanitizeFileName(fileName);
   const key = `${TEMP_MEDIA_UPLOAD_PREFIX}${sanitizeSegment(userId)}/${Date.now()}-${sanitizeSegment(purpose)}-${mode}-${safeFileName}`;
   await getS3Client().send(
@@ -88,12 +90,28 @@ export async function createReadUrl(key: string, expiresInSeconds = 48 * 60 * 60
     return key;
   }
   const bucket = requiredBucket();
+  void ensureTemporaryMediaLifecycleApplied();
   const command = new GetObjectCommand({Bucket: bucket, Key: key});
   return getSignedUrl(getS3Client(), command, {expiresIn: expiresInSeconds});
 }
 
+let lifecycleApplied = false;
+
+export async function ensureTemporaryMediaLifecycleApplied() {
+  if (lifecycleApplied) return;
+  try {
+    await applyTemporaryMediaLifecycle();
+    lifecycleApplied = true;
+    console.log('[S3_STORAGE] 48-hour temporary media lifecycle rules confirmed active.');
+  } catch (err) {
+    // Non-blocking: log warning if credentials lack PutBucketLifecycle permissions
+    console.warn('[S3_STORAGE] Lifecycle auto-apply skipped:', err instanceof Error ? err.message : err);
+  }
+}
+
 export async function applyTemporaryMediaLifecycle() {
   const bucket = requiredBucket();
+  void ensureTemporaryMediaLifecycleApplied();
   await getS3Client().send(
     new PutBucketLifecycleConfigurationCommand({
       Bucket: bucket,

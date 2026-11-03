@@ -1,5 +1,5 @@
 /**
- * src/prompts/whiteboard.prompt.ts
+ * services/ai/prompts/whiteboard.prompt.ts
  * Master System Prompt for Whiteboard Animation Video Director.
  *
  * Implements the Founder's Master Storyboard Standard (Learned from Whiteboard Example Scene 9:16):

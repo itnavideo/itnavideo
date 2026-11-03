@@ -258,8 +258,8 @@ async function fetchMediaBlob(mediaUrl: string, fallbackContentType?: string) {
   // Groq Whisper API has a strict 25MB request payload limit
   const GROQ_MAX_BYTES = 24 * 1024 * 1024; // 24MB
   if (blob.size > GROQ_MAX_BYTES) {
-    console.warn(`[GROQ_TRANSCRIPTION] Media blob size (${(blob.size / 1024 / 1024).toFixed(1)}MB) exceeds 24MB Groq limit. Slicing to first 24MB.`);
-    blob = blob.slice(0, GROQ_MAX_BYTES, blob.type || fallbackContentType || 'video/mp4');
+    console.warn(`[GROQ_TRANSCRIPTION] Media blob size (${(blob.size / 1024 / 1024).toFixed(1)}MB) exceeds 24MB Groq limit. Switching cleanly to Gemini fallback.`);
+    throw new Error(`Media payload (${(blob.size / 1024 / 1024).toFixed(1)}MB) exceeds Groq 24MB API limit. Switched to Gemini cloud transcriber.`);
   }
 
   const effectiveType = blob.type || fallbackContentType || 'video/mp4';

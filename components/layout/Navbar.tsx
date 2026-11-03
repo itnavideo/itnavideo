@@ -192,7 +192,7 @@ export default function Navbar() {
                           </Link>
 
                           <Link
-                            href="/dashboard/whiteboard"
+                            href="/dashboard/whiteboard-video"
                             onClick={() => setActiveMenu(null)}
                             className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
                           >
@@ -208,7 +208,7 @@ export default function Navbar() {
                           </Link>
 
                           <Link
-                            href="/dashboard/compare"
+                            href="/dashboard/compare-explainer"
                             onClick={() => setActiveMenu(null)}
                             className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
                           >

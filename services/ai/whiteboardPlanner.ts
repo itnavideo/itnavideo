@@ -22,7 +22,7 @@ import {
   WB_MIN_DISPLAY_SECONDS,
 } from '@/lib/whiteboard/whiteboardConstants';
 import type { ReelWord } from './reelPlanner';
-import { buildWhiteboardPrompt } from '@/src/prompts/whiteboard.prompt';
+import { buildWhiteboardPrompt } from './prompts/whiteboard.prompt';
 
 // ── Public types ──────────────────────────────────────────────────────────────
 

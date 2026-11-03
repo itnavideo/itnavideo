@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Img,
   Loop,
   OffthreadVideo,
   interpolate,
@@ -125,7 +126,7 @@ export function FullBleedVisualScene({
               />
             </Loop>
           ) : (
-            <img
+            <Img
               src={resolvedSrc}
               alt={headline || 'Scene Visual'}
               style={{

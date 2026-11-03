@@ -5,10 +5,10 @@ export async function POST(request) {
   try {
     const { apiKey } = await request.json();
     const cookieStore = await cookies();
-    const adminApiKey = process.env.ADMIN_API_KEY || process.env.ADMIN_API_SECRET || process.env.ADMIN_PASSWORD || '8151933347';
-    const founderEmails = (process.env.FOUNDER_TEST_EMAILS || 'itnavideo@gmail.com,rohi@itnavideo.com').split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
+    const adminApiKey = process.env.ADMIN_API_KEY || process.env.ADMIN_API_SECRET || process.env.ADMIN_PASSWORD;
 
-    if (!adminApiKey && !founderEmails.length) {
+
+    if (!adminApiKey) {
       return Response.json(
         { success: false, message: 'Admin API key is not configured' },
         { status: 503 }
@@ -18,9 +18,9 @@ export async function POST(request) {
     // Accept either the API key OR the founder email as valid credentials
     const inputTrimmed = (apiKey || '').trim();
     const isValidApiKey = adminApiKey && safeEqual(inputTrimmed, adminApiKey);
-    const isFounderEmail = founderEmails.includes(inputTrimmed.toLowerCase());
 
-    if (isValidApiKey || isFounderEmail) {
+
+    if (isValidApiKey) {
       cookieStore.set('admin_session', 'authenticated', {
         httpOnly: true,
         sameSite: 'lax',

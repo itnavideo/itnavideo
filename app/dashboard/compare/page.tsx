@@ -1,8 +1,6 @@
-export const dynamic = "force-dynamic";
-
-import CompareExplainerPageClient from "@/components/dashboard/subpages/CompareExplainerPageClient";
+import { redirect } from "next/navigation";
 
 export default function ComparePage() {
-  return <CompareExplainerPageClient />;
+  redirect("/dashboard/compare-explainer");
 }
 

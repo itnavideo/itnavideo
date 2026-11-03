@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Img,
   Loop,
   OffthreadVideo,
   interpolate,
@@ -236,7 +237,7 @@ export function SplitScreenLayout({
                 />
               </Loop>
             ) : (
-              <img
+              <Img
                 src={resolvedSrc}
                 alt={headline}
                 style={{

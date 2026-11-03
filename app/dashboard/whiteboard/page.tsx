@@ -1,8 +1,6 @@
-export const dynamic = "force-dynamic";
-
-import WhiteboardVideoPageClient from "@/components/dashboard/subpages/WhiteboardVideoPageClient";
+import { redirect } from "next/navigation";
 
 export default function WhiteboardPage() {
-  return <WhiteboardVideoPageClient />;
+  redirect("/dashboard/whiteboard-video");
 }
 

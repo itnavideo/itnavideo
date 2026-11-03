@@ -5,6 +5,7 @@ import {
   Composition,
   continueRender,
   delayRender,
+  Img,
   Loop,
   OffthreadVideo,
   Sequence,
@@ -1285,7 +1286,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
                 />
               </Loop>
             ) : (
-              <img
+              <Img
                 src={resolvedSceneBroll}
                 alt="Ambient underlay"
                 style={{

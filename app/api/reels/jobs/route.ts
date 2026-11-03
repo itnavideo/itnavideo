@@ -3337,7 +3337,8 @@ async function startRenderWithCapacityRetry(request: LambdaRenderRequest) {
   const cleanRequest = {...request};
   delete (cleanRequest as any).framesPerLambda;
 
-  const maxAccountConcurrency = Math.max(2, Math.min(5, Number(process.env.REMOTION_LAMBDA_CONCURRENCY) || 5));
+  const configuredConcurrency = Number(process.env.REMOTION_LAMBDA_CONCURRENCY) || 5;
+  const maxAccountConcurrency = Math.max(2, Math.min(20, configuredConcurrency));
   const safeConcurrency = Math.min(
     maxAccountConcurrency,
     Math.max(2, Math.ceil(frameCount / 400))
@@ -3347,7 +3348,7 @@ async function startRenderWithCapacityRetry(request: LambdaRenderRequest) {
     // Attempt 1: Optimal safe concurrency (2 to 5 workers max)
     {...cleanRequest, concurrency: safeConcurrency, maxRetries: 3},
     // Attempt 2: Conservative fallback (e.g. 3 workers)
-    {...cleanRequest, concurrency: Math.max(2, safeConcurrency - 1), maxRetries: 3},
+    {...cleanRequest, concurrency: Math.max(2, Math.floor(safeConcurrency / 2)), maxRetries: 3},
     // Attempt 3: Minimum parallel fail-safe (2 workers)
     {...cleanRequest, concurrency: 2, maxRetries: 3},
   ];
