@@ -60,7 +60,7 @@ export default function Hero() {
         {/* Kicker Pill - Flame Accent */}
         <div className="mb-3.5 sm:mb-5 inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 sm:px-4 py-1 sm:py-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-orange-700 shadow-2xs backdrop-blur-xs">
           <Sparkles size={13} className="text-[#FF5722]" />
-          <span>10+ Purpose-Built AI Video Studios</span>
+          <span>13+ Purpose-Built AI Video Studios</span>
         </div>
 
         {/* High-Impact Headline */}
@@ -99,7 +99,7 @@ export default function Hero() {
             href="#video-types"
             className="inline-flex items-center gap-1 text-xs sm:text-sm font-bold text-slate-600 hover:text-slate-950 py-1.5 px-3 transition-colors"
           >
-            <span>Explore All 10+ Studios</span>
+            <span>Explore All 13+ Studios</span>
             <ArrowRight size={13} />
           </a>
         </div>

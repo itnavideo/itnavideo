@@ -371,7 +371,7 @@ export default function Navbar() {
                             onClick={() => setActiveMenu(null)}
                             className="font-bold text-slate-700 hover:text-orange-600 flex items-center gap-1 text-xs transition-colors"
                           >
-                            <span>Browse All 10 Video Types &amp; Specs</span>
+                            <span>Browse All 13 Video Types &amp; Specs</span>
                             <ArrowRight size={13} />
                           </Link>
                           <span className="text-slate-300">|</span>

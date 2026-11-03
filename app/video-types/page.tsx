@@ -385,7 +385,7 @@ export default function VideoTypesPage() {
           {/* Quick Metrics Pill */}
           <div className="mx-auto max-w-3xl grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4">
             {[
-              ["10 Studios", "Audited & Live"],
+              ["13 Studios", "Audited & Live"],
               ["9 Styles", "Tier-1 Western Presets"],
               ["9:16, 16:9, 1:1", "Aspect Ratios"],
               ["24-Bit WAV", "Studio Master Audio"],
