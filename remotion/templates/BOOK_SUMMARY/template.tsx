@@ -1175,7 +1175,7 @@ export const BookSummaryComposition: React.FC = () => (
     calculateMetadata={({ props }) => {
       const p = props as BookSummaryTemplateProps;
       const rawDuration = Number(p.durationSeconds) || 60;
-      const maxDur = 600; // 10 minutes strictly per Rule 4.1
+      const maxDur = 300; // 5 minutes (300s) strictly per Rule 4.1
       const durationSeconds = Math.max(5, Math.min(maxDur, rawDuration));
       return {
         durationInFrames: Math.round(durationSeconds * 30),

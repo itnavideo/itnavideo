@@ -26,7 +26,7 @@ export const AiVideoGeneratorComposition = () => (
     }}
     calculateMetadata={({ props }) => {
       const p = props as AiVideoGeneratorProps;
-      const durationSeconds = Math.max(5, Math.min(1200, Number(p.durationSeconds) || 60));
+      const durationSeconds = Math.max(5, Math.min(300, Number(p.durationSeconds) || 60));
       return {
         durationInFrames: secondsToFrames(durationSeconds, DEFAULT_FPS),
         fps: DEFAULT_FPS,

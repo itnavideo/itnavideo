@@ -200,3 +200,4 @@ ${input.wordIndexSummary ? `WORD TIMINGS (for anchoring points to real speech):\
 4. Do NOT use the same drawingId twice in a row.
 5. Output strictly valid JSON only. No markdown, no explanation text.`;
 }
+

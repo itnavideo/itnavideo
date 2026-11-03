@@ -26,7 +26,7 @@ export const FacelessVideoComposition = () => (
     calculateMetadata={({ props }) => {
       const p = props as FacelessVideoProps;
       const rawDuration = Number(p.durationSeconds) || Number(p.renderWindowSeconds) || Number(p.sourceDurationSeconds) || 60;
-      const maxDur = 600; // Strictly up to 10 minutes (600s)
+      const maxDur = 300; // Strictly up to 5 minutes (300s) per Rule 4.1
       const durationSeconds = Math.max(5, Math.min(maxDur, rawDuration));
       return {
         durationInFrames: secondsToFrames(durationSeconds, DEFAULT_FPS),
