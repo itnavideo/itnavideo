@@ -202,7 +202,7 @@ export default function VideoTypeGuide() {
                   : 'border-white/10 bg-[#0E1526] text-zinc-400 hover:bg-[#151E30] hover:text-white'
               }`}
             >
-              All 11 Studios
+              All 14 Studios
             </button>
             <button
               onClick={() => setActiveTab('short')}

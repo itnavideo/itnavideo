@@ -39,7 +39,7 @@ export const pricingPlans: PricingPlan[] = [
       "1 free credit on signup",
       "1 × 9:16 Short Video (up to 90s)",
       "1080p Full HD export",
-      "All 11 video studios preview",
+      "All 14 video studios preview",
       "No credit card required",
     ],
     button: "Get Started Free",
@@ -123,7 +123,7 @@ export const pricingPlans: PricingPlan[] = [
     features: [
       "600 Credits / month (1 Cr = 1 Short / 1 Min Long)",
       "Up to 600 Shorts OR 120 × 5-Min Long Videos",
-      "All 11 dedicated studio engines unlocked",
+      "All 14 dedicated studio engines unlocked",
       "Max 5-Minute Video Length (9,000 frames @ 30 FPS)",
       "Turbo Fast-Lane Cloud Queue & Retake Detection",
       "Full Commercial & Client Rights + VIP Support",

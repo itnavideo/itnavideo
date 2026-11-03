@@ -17,7 +17,7 @@ const HomepagePricing = nextDynamic(() => import('@/components/landing/PricingSe
 const FAQSection = nextDynamic(() => import('@/components/FAQSection'), { ssr: true });
 
 export const metadata: Metadata = {
-  title: 'Free AI Video Generator & Maker | 13+ AI Video Studios',
+  title: 'Free AI Video Generator & Maker | 14 AI Video Studios',
   description: `The all-in-one AI Video Generator. Create 16:9 YouTube videos (up to 5 min) and 9:16 Shorts with automated B-roll visuals, voiceovers, kinetic captions, and clips.`,
   keywords: [
     'faceless video generator',

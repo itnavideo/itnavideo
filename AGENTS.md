@@ -402,7 +402,7 @@ A new Video Type is complete when all 5 are done:
 
 {/* Secondary CTA: Clean Surface with Orange Highlight */}
 <a href="#details" className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 py-3.5 text-sm font-bold text-slate-800 hover:border-orange-500/40 hover:bg-orange-50/50 transition">
-  <span>Browse all 11 Studios</span>
+  <span>Browse all 14 Studios</span>
   <ArrowRight size={14} className="text-[#FF5722]" />
 </a>
 ```

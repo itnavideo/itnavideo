@@ -274,7 +274,7 @@ const STUDIOS_DATA: StudioGuideItem[] = [
 ];
 
 const CATEGORY_TABS: { id: StudioCategory; label: string; count: number }[] = [
-  { id: 'all', label: 'All 11 Studios', count: 11 },
+  { id: 'all', label: 'All 14 Studios', count: 14 },
   { id: 'widescreen', label: '16:9 Landscape', count: 4 },
   { id: 'vertical', label: '9:16 Shorts & Reels', count: 4 },
   { id: 'audio', label: 'Audio & Cleaner', count: 1 },

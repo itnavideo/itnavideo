@@ -26,7 +26,7 @@ const FAQ_CATEGORIES = [
 const faqs: FAQItem[] = [
   {
     question: "What is Itnavideo AI Video Generator?",
-    answer: "Itnavideo is an all-in-one AI video generator with 10+ specialized video studios and 1 audio utility. Each studio has its own dedicated pipeline, controls, and 1080p Full HD output format instead of forcing every project through a complicated timeline editor.",
+    answer: "Itnavideo is an all-in-one AI video generator with 14 specialized video studios. Each studio has its own dedicated pipeline, controls, and 1080p Full HD output format instead of forcing every project through a complicated timeline editor.",
     category: 'product',
     categoryLabel: 'Product & AI',
     action: { label: 'Explore All Studios', href: '#video-types' },
@@ -40,7 +40,7 @@ const faqs: FAQItem[] = [
   },
   {
     question: "Which AI video types are available?",
-    answer: "Our 13+ video studios include Faceless Video, AI YouTube Video Polisher, Book Summary Video, Image to Video AI, YouTube Subtitles (16:9 Widescreen), Auto Caption Generator, AI Shorts Polisher, Split-Screen Explainer, Whiteboard Animation, Compare Explainer, Faceless Shorts, Long Video to Clips, and Long Video Promo (9:16 Shorts), plus our AI Audio Cleaner utility.",
+    answer: "Our 14 video studios include Faceless Video, AI YouTube Video Polisher, Book Summary Video, Image to Video AI, YouTube Subtitles (16:9 Widescreen), Auto Caption Generator, AI Shorts Polisher, Split-Screen Explainer, Whiteboard Animation, Compare Explainer, Faceless Shorts, Long Video to Clips, Long Video Promo (9:16 Shorts), and AI Audio Cleaner.",
     category: 'workflows',
     categoryLabel: 'Video Workflows',
     action: { label: 'Explore All Dedicated Studio Pages & Specs', href: '/video-types' },

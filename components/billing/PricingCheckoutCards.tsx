@@ -394,10 +394,10 @@ export function PricingCheckoutCards({
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900/80 sm:col-span-2 lg:col-span-1">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold">
-                11
+                14
               </div>
               <div>
-                <h4 className="text-sm font-bold text-slate-900 dark:text-white">All 13 Video Studios</h4>
+                <h4 className="text-sm font-bold text-slate-900 dark:text-white">All 14 Video Studios</h4>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">Full access on all paid plans</p>
               </div>
             </div>

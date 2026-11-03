@@ -309,7 +309,7 @@ export default function ProductAnalyticsPage() {
           }`}
         >
           <Film size={14} className={activeTab === 'studios' ? 'text-amber-400' : 'text-slate-400'} />
-          <span>10 Studios Traction</span>
+          <span>14 Studios Traction</span>
         </button>
 
         <button
@@ -468,12 +468,12 @@ export default function ProductAnalyticsPage() {
         </div>
       )}
 
-      {/* ─── Tab 3: 10 Studios Traction ─────────────────────────────── */}
+      {/* ─── Tab 3: 14 Studios Traction ─────────────────────────────── */}
       {activeTab === 'studios' && (
         <div className="rounded-3xl border border-slate-200/80 bg-white p-6 sm:p-7 space-y-4 shadow-xs">
           <div>
             <span className="text-[10px] font-bold uppercase tracking-wider text-[#FF5722]">Workflow Engagement</span>
-            <h3 className="text-lg font-black text-slate-900 tracking-tight">10 Studios Usage &amp; Render Distribution</h3>
+            <h3 className="text-lg font-black text-slate-900 tracking-tight">14 Studios Usage &amp; Render Distribution</h3>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 pt-2">

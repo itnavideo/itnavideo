@@ -140,7 +140,7 @@ export default function BeforeAfterComparison() {
                 </li>
                 <li className="flex items-start gap-3 min-h-[40px]">
                   <span className="mt-0.5 text-emerald-500 font-black shrink-0">✓</span>
-                  <span><strong>All 13 Video Types:</strong> 16:9 Faceless YouTube, 9:16 Shorts, Book Summaries &amp; Clips all in one platform.</span>
+                  <span><strong>All 14 Video Studios:</strong> 16:9 Faceless YouTube, 9:16 Shorts, Book Summaries &amp; Clips all in one platform.</span>
                 </li>
               </ul>
             </div>

@@ -48,7 +48,7 @@ const VERTICAL_PRODUCTS = [
 ];
 
 const RESOURCE_ITEMS = [
-  { label: 'Video Types & Specs', desc: 'Master documentation & directory for all 13+ studios', href: '/video-types', icon: BookOpen },
+  { label: 'Video Types & Specs', desc: 'Master documentation & directory for all 14 studios', href: '/video-types', icon: BookOpen },
   { label: 'Pricing & Packs', desc: 'Flexible video credit packages for creators', href: '/pricing', icon: CreditCard },
   { label: 'About Itnavideo', desc: 'Learn about our AI video rendering engine', href: '/about', icon: Sparkles },
 ];
@@ -371,7 +371,7 @@ export default function Navbar() {
                             onClick={() => setActiveMenu(null)}
                             className="font-bold text-slate-700 hover:text-orange-600 flex items-center gap-1 text-xs transition-colors"
                           >
-                            <span>Browse All 13 Video Types &amp; Specs</span>
+                            <span>Browse All 14 Video Types &amp; Specs</span>
                             <ArrowRight size={13} />
                           </Link>
                           <span className="text-slate-300">|</span>
