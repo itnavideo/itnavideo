@@ -80,7 +80,15 @@ export default function LongVideoPromoPage() {
   const [promoCreatorHandle, setPromoCreatorHandle] = useState("");
   const [promoCtaText, setPromoCtaText] = useState("");
   const [promoCtaStyle, setPromoCtaStyle] = useState<"youtube-red" | "emerald" | "glass" | "tiktok-yellow">("youtube-red");
-  const [promoBackgroundMode, setPromoBackgroundMode] = useState<"blur" | "solid">("blur");
+  const [promoBackgroundMode, setPromoBackgroundMode] = useState<"blur" | "solid" | "white">("blur");
+  const [youtubeUrl, setYoutubeUrl] = useState<string>("");
+  const [thumbnailMode, setThumbnailMode] = useState<"upload" | "youtube">("upload");
+  const [captionStyle, setCaptionStyle] = useState<string>("Pop Word");
+  const [bgmTrackId, setBgmTrackId] = useState<string>("parasail");
+  const [bgmVolume, setBgmVolume] = useState<number>(0.12);
+  const [customBgmFile, setCustomBgmFile] = useState<File | null>(null);
+  const [enableSfx, setEnableSfx] = useState<boolean>(true);
+  const [editorialTranscript, setEditorialTranscript] = useState<string>("");
 
   // Media metadata
   const [mediaDurationSeconds, setMediaDurationSeconds] = useState<number>(0);
@@ -232,13 +240,23 @@ export default function LongVideoPromoPage() {
 
       // 2. Upload thumbnail file (if provided)
       let promoThumbnailKey: string | undefined = undefined;
-      if (promoThumbnailFile) {
+      if (promoThumbnailFile && thumbnailMode === "upload") {
         setJobStatus({
           state: "uploading",
-          message: "Uploading YouTube video thumbnail image...",
+          message: "Uploading video thumbnail image...",
           progress: 0.25,
         });
         promoThumbnailKey = await uploadFileViaPresign(promoThumbnailFile, "longVideoPromo", user.id);
+      }
+
+      let customBgmKey: string | undefined = undefined;
+      if (customBgmFile) {
+        setJobStatus({
+          state: "uploading",
+          message: "Uploading custom background audio...",
+          progress: 0.30,
+        });
+        customBgmKey = await uploadFileViaPresign(customBgmFile, "longVideoPromo", user.id);
       }
 
       // 3. Submit Render Job
@@ -272,6 +290,13 @@ export default function LongVideoPromoPage() {
           creatorHandle: promoCreatorHandle.trim() || "@itnavideo",
           promoCtaStyle,
           promoBackgroundMode,
+          youtubeUrl: youtubeUrl.trim() || undefined,
+          captionStyle,
+          bgmTrackId,
+          bgmVolume,
+          customBgmUrl: customBgmKey || undefined,
+          enableSfx,
+          editorialTranscript: editorialTranscript.trim() || undefined,
           aspectRatio: "9:16",
           durationSeconds: effectiveDuration,
           sourceDurationSeconds: effectiveDuration,
@@ -426,18 +451,18 @@ export default function LongVideoPromoPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#0B0D13] text-white">
+    <main className="min-h-screen bg-slate-50 text-slate-900 selection:bg-orange-500 selection:text-white">
       {/* Premium Header */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0B0D13]/80 backdrop-blur-md">
+      <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur-md shadow-xs">
         <div className="mx-auto flex max-w-7xl h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-6">
             <Link
               href="/dashboard"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-zinc-300 hover:border-white/20 hover:text-white transition active:scale-90"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900 hover:shadow-xs transition active:scale-95"
             >
               <ArrowLeft size={16} />
             </Link>
-            <BrandLogo size="sm" variant="dark" />
+            <BrandLogo size="sm" variant="light" />
           </div>
 
           <div className="flex items-center gap-4">
@@ -491,6 +516,10 @@ export default function LongVideoPromoPage() {
                 onSelectFile={setSelectedFile}
                 promoThumbnailFile={promoThumbnailFile}
                 onPromoThumbnailFileChange={setPromoThumbnailFile}
+                youtubeUrl={youtubeUrl}
+                onYoutubeUrlChange={setYoutubeUrl}
+                thumbnailMode={thumbnailMode}
+                onThumbnailModeChange={setThumbnailMode}
                 promoTitle={promoTitle}
                 onPromoTitleChange={setPromoTitle}
                 promoGoal={promoGoal}
@@ -503,6 +532,18 @@ export default function LongVideoPromoPage() {
                 onPromoCtaStyleChange={setPromoCtaStyle}
                 promoBackgroundMode={promoBackgroundMode}
                 onPromoBackgroundModeChange={setPromoBackgroundMode}
+                captionStyle={captionStyle}
+                onCaptionStyleChange={setCaptionStyle}
+                bgmTrackId={bgmTrackId}
+                onBgmTrackIdChange={setBgmTrackId}
+                bgmVolume={bgmVolume}
+                onBgmVolumeChange={setBgmVolume}
+                customBgmFile={customBgmFile}
+                onCustomBgmFileSelect={setCustomBgmFile}
+                enableSfx={enableSfx}
+                onEnableSfxChange={setEnableSfx}
+                editorialTranscript={editorialTranscript}
+                onEditorialTranscriptChange={setEditorialTranscript}
                 onGenerate={handleStartRender}
                 isGenerating={isSubmitting || jobStatus.state !== "idle"}
               />

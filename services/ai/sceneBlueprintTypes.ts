@@ -39,6 +39,8 @@ export type VisualLayoutType =
   | 'roadmap'
   | 'vertical_roadmap'
   | 'workflow'
+  | 'goal_target'
+  | 'ecosystem'
   | 'vs_battle'
   | 'metric_pill'
   | 'newspaper_headline'

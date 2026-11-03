@@ -1,8 +1,14 @@
 import React from 'react';
-import { interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
+import { interpolate } from 'remotion';
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
 import { VectorDrawingIcon } from '../../../components/graphics/VectorDrawingIcon';
 import { HandwritingHighlight } from '../../../components/library/HandwritingHighlight';
+import { useVideoDesignSystem } from '../designSystem';
+import {
+  EyebrowPill,
+  SceneCanvas,
+  StudioCard,
+} from '../components/DesignSystemPrimitives';
 
 export interface DrawingStorySceneProps {
   scene: SceneBlueprintItem;
@@ -18,56 +24,36 @@ export interface DrawingStorySceneProps {
   };
 }
 
-/**
- * DrawingStoryScene — Cinematic Vector Visual Storytelling
- *
- * Full-screen broadcast composition for character narratives, real-world struggles,
- * journeys, environments, and activities (NO website cards or presentation boxes).
- * Inspired by Vox, Johnny Harris, and documentary motion graphics.
- */
+const FALLBACK_DRAWING_ROTATION = [
+  'dream_big_vision',
+  'story_home_workspace',
+  'character_journey_walking',
+  'mindset_focus_lane',
+  'concept_zero_to_one',
+  'character_business_leader',
+  'story_journey_road',
+  'character_burning_passion',
+  'business_target_bullseye',
+  'character_thinking',
+];
+
 export function DrawingStoryScene({
   scene,
-  headingFont = 'Montserrat, sans-serif',
-  bodyFont = 'Plus Jakarta Sans, sans-serif',
+  headingFont = 'Montserrat, "Plus Jakarta Sans", sans-serif',
+  bodyFont = 'Inter, "Plus Jakarta Sans", sans-serif',
   sceneFrame,
   palette,
 }: DrawingStorySceneProps) {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-
-  // Enforce scene-local frame timing
-  const currentFrame = sceneFrame !== undefined ? sceneFrame : frame;
-
-  // Spring entrance for visuals and typography
-  const entrance = spring({
-    frame: currentFrame,
-    fps,
-    config: { damping: 14, mass: 0.85, stiffness: 120 },
+  const ds = useVideoDesignSystem({
+    sceneFrame,
+    durationSec: scene.duration,
+    palette,
   });
 
-  const illustrationSpring = spring({
-    frame: Math.max(0, currentFrame - 2),
-    fps,
-    config: { damping: 13, mass: 0.9, stiffness: 110 },
-  });
-
-  const textSpring = spring({
-    frame: Math.max(0, currentFrame - 6),
-    fps,
-    config: { damping: 15, mass: 0.8, stiffness: 130 },
-  });
-
-  // Slow, cinematic camera drift across the scene
-  const cameraZoom = interpolate(currentFrame, [0, 180], [1.0, 1.04], {
-    extrapolateRight: 'clamp',
-  });
-  const cameraPan = interpolate(currentFrame, [0, 180], [0, -12], {
-    extrapolateRight: 'clamp',
-  });
-
-  // Resolve drawing keyword from scene metadata or text
   const rawText = `${scene.heading || ''} ${scene.supportingText || ''} ${scene.narrationSegment?.text || ''}`.toLowerCase();
-  const explicitKeyword = (scene as Record<string, unknown>).drawingKeyword as string | undefined;
+  const explicitKeyword =
+    scene.vectorDrawingId ||
+    ((scene as Record<string, unknown>).drawingKeyword as string | undefined);
 
   let resolvedKeyword = explicitKeyword;
   if (!resolvedKeyword) {
@@ -106,213 +92,139 @@ export function DrawingStoryScene({
     } else if (/deal|partner|agreement|trust|handshake/i.test(rawText)) {
       resolvedKeyword = 'business_handshake';
     } else {
-      resolvedKeyword = 'character_thinking';
+      const idx = Math.max(0, (scene.sceneNumber || 1) - 1);
+      resolvedKeyword = FALLBACK_DRAWING_ROTATION[idx % FALLBACK_DRAWING_ROTATION.length];
     }
   }
 
-  const isDark = palette?.isDark !== false;
   const headline = String(scene.heading || 'A PIVOTAL MOMENT').trim();
-  const rawHighlight = (scene.highlightedWords && typeof scene.highlightedWords[0] === 'string')
-    ? scene.highlightedWords[0].trim()
-    : '';
+  const categoryBadge = String(scene.categoryPill || 'INSIGHT BEAT').trim().toUpperCase();
+  const rawHighlight =
+    scene.highlightedWords && typeof scene.highlightedWords[0] === 'string'
+      ? scene.highlightedWords[0].trim()
+      : '';
   const highlightWord = rawHighlight.length >= 2 ? rawHighlight : '';
-  const supportingText = scene.supportingText && scene.supportingText !== headline ? scene.supportingText : '';
+  const highlightIndex = highlightWord
+    ? headline.toLowerCase().indexOf(highlightWord.toLowerCase())
+    : -1;
+  const supportingText =
+    scene.supportingText && scene.supportingText.trim().toLowerCase() !== headline.toLowerCase()
+      ? scene.supportingText.trim()
+      : '';
 
-  // Scene layout mode: alternating left/right layout based on scene number for visual variety
-  const isReversed = (scene.sceneNumber || 0) % 2 === 1;
+  const isReversed = !ds.layout.isVertical && (scene.sceneNumber || 0) % 2 === 1;
 
   return (
-    <div
-      style={{
-        position: 'absolute',
-        inset: 0,
-        width: '100%',
-        height: '100%',
-        overflow: 'hidden',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '80px 120px',
-        transform: `scale(${cameraZoom}) translateX(${cameraPan}px)`,
-        transformOrigin: 'center center',
-        zIndex: 10,
-      }}
+    <SceneCanvas
+      sceneFrame={sceneFrame}
+      durationSec={scene.duration}
+      palette={palette}
+      accentTone="coral"
+      fontFamily={bodyFont}
     >
-      {/* ── Background Editorial Blueprint Texture & Ambient Light ── */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          backgroundImage: isDark
-            ? 'radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px)'
-            : 'radial-gradient(circle, rgba(15, 23, 42, 0.04) 1px, transparent 1px)',
-          backgroundSize: '36px 36px',
-          opacity: 0.7,
-          pointerEvents: 'none',
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          width: '700px',
-          height: '700px',
-          borderRadius: '50%',
-          background: isDark
-            ? 'radial-gradient(circle, rgba(255, 87, 34, 0.12) 0%, rgba(255, 160, 0, 0.04) 45%, transparent 70%)'
-            : 'radial-gradient(circle, rgba(255, 87, 34, 0.08) 0%, transparent 65%)',
-          filter: 'blur(60px)',
-          pointerEvents: 'none',
-          left: isReversed ? '60%' : '10%',
-          top: '20%',
-        }}
-      />
-
-      {/* ── Main Two-Column Cinematic Visual Stage (Full 16:9 Canvas) ── */}
       <div
         style={{
           width: '100%',
-          maxWidth: '1680px',
+          maxWidth: ds.layout.isVertical ? '920px' : '1520px',
           display: 'flex',
-          flexDirection: isReversed ? 'row-reverse' : 'row',
+          flexDirection: ds.layout.isVertical
+            ? 'column'
+            : isReversed
+            ? 'row-reverse'
+            : 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: '80px',
-          zIndex: 2,
+          gap: ds.layout.isVertical ? '28px' : '56px',
         }}
       >
-        {/* Large Prominent Vector Illustration Canvas (520px - 580px wide) */}
-        <div
+        {/* Vector Illustration Stage Card */}
+        <StudioCard
+          tone="coral"
+          elevated
+          palette={palette}
+          progress={ds.motion.contentSpring}
           style={{
-            flex: '0 0 580px',
-            height: '580px',
+            flex: ds.layout.isVertical ? undefined : 1.05,
+            width: ds.layout.isVertical ? '100%' : 'auto',
+            maxWidth: ds.layout.isVertical ? '520px' : '640px',
+            minHeight: ds.layout.isVertical ? '360px' : '440px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            position: 'relative',
-            opacity: illustrationSpring,
-            transform: `scale(${interpolate(illustrationSpring, [0, 1], [0.86, 1])})`,
+            padding: '28px',
           }}
         >
-          {/* Subtle Ambient Halo behind the illustration */}
-          <div
-            style={{
-              position: 'absolute',
-              width: '460px',
-              height: '460px',
-              borderRadius: '50%',
-              background: isDark
-                ? 'radial-gradient(circle, rgba(255, 255, 255, 0.06) 0%, rgba(255, 87, 34, 0.08) 50%, transparent 75%)'
-                : 'radial-gradient(circle, rgba(15, 23, 42, 0.03) 0%, transparent 70%)',
-              filter: 'blur(30px)',
-              pointerEvents: 'none',
-            }}
-          />
-
           <VectorDrawingIcon
-            drawingId={resolvedKeyword}
             keyword={resolvedKeyword}
-            size={520}
-            strokeWidth={3.8}
+            size={ds.layout.isVertical ? 320 : 420}
+            strokeWidth={4}
             animated={true}
-            delayFrames={3}
-            drawDurationFrames={36}
-            theme={isDark ? 'dark' : 'light'}
-            color={isDark ? '#F8FAFC' : '#0F172A'}
+            frameOverride={ds.localFrame}
+            theme={ds.surface.isDark ? 'dark' : 'light'}
           />
-        </div>
+        </StudioCard>
 
-        {/* Narrative Editorial Typography Column */}
+        {/* Narrative Editorial Typography */}
         <div
           style={{
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'flex-start',
-            justifyContent: 'center',
-            opacity: textSpring,
-            transform: `translateY(${interpolate(textSpring, [0, 1], [30, 0])}px)`,
+            alignItems: ds.layout.isVertical ? 'center' : 'flex-start',
+            textAlign: ds.layout.isVertical ? 'center' : 'left',
+            opacity: ds.motion.headerSpring,
+            transform: `translateY(${interpolate(ds.motion.headerSpring, [0, 1], [22, 0])}px)`,
           }}
         >
-          {/* Subtle Section Marker */}
-          <div
-            style={{
-              marginBottom: '20px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '10px',
-            }}
-          >
-            <span
-              style={{
-                width: '32px',
-                height: '3px',
-                backgroundColor: '#FF5722',
-                borderRadius: '2px',
-                display: 'inline-block',
-              }}
+          <div style={{ marginBottom: '18px' }}>
+            <EyebrowPill
+              label={categoryBadge}
+              tone="coral"
+              palette={palette}
+              progress={ds.motion.eyebrowSpring}
             />
-            <span
-              style={{
-                fontFamily: headingFont,
-                fontSize: '15px',
-                fontWeight: 800,
-                letterSpacing: '0.22em',
-                textTransform: 'uppercase',
-                color: isDark ? '#FFA000' : '#FF5722',
-              }}
-            >
-              INSIGHT BEAT
-            </span>
           </div>
 
-          {/* Big Bold Headline */}
           <h2
             style={{
               fontFamily: headingFont,
-              fontSize: '56px',
-              fontWeight: 900,
-              lineHeight: 1.15,
-              color: isDark ? '#FFFFFF' : '#0F172A',
-              margin: 0,
-              letterSpacing: '-0.025em',
-              maxWidth: '920px',
-              textShadow: isDark
-                ? '0 4px 24px rgba(0, 0, 0, 0.9), 0 2px 8px rgba(0, 0, 0, 0.8)'
-                : 'none',
+              fontSize: `${ds.type.displayHero.fontSize}px`,
+              fontWeight: ds.type.displayHero.fontWeight,
+              letterSpacing: ds.type.displayHero.letterSpacing,
+              lineHeight: ds.type.displayHero.lineHeight,
+              color: ds.surface.textPrimary,
+              margin: supportingText ? '0 0 20px 0' : 0,
             }}
           >
-            {highlightWord && headline.toLowerCase().includes(highlightWord.toLowerCase()) ? (
+            {highlightIndex !== -1 ? (
               <>
-                {headline.slice(0, headline.toLowerCase().indexOf(highlightWord.toLowerCase()))}
+                {headline.slice(0, highlightIndex)}
                 <HandwritingHighlight
-                  text={highlightWord.toUpperCase()}
-                  variant="underline"
-                  color="#FF5722"
-                  delayFrames={12}
-                  drawDurationFrames={22}
-                />
-                {headline.slice(
-                  headline.toLowerCase().indexOf(highlightWord.toLowerCase()) + highlightWord.length
-                )}
+                  color="#FFE600"
+                  textColor="#0F172A"
+                  delayFrames={8}
+                  durationFrames={15}
+                  type="highlighter"
+                >
+                  {headline.slice(highlightIndex, highlightIndex + highlightWord.length)}
+                </HandwritingHighlight>
+                {headline.slice(highlightIndex + highlightWord.length)}
               </>
             ) : (
               headline
             )}
           </h2>
 
-          {/* Narrative Supporting Sentence (Direct text on canvas, no web card) */}
           {supportingText && (
             <p
               style={{
                 fontFamily: bodyFont,
-                fontSize: '26px',
-                lineHeight: 1.5,
-                color: isDark ? '#CBD5E1' : '#475569',
-                marginTop: '24px',
-                marginBottom: 0,
+                fontSize: `${ds.type.bodyLg.fontSize}px`,
                 fontWeight: 500,
-                maxWidth: '850px',
-                textShadow: isDark ? '0 2px 12px rgba(0, 0, 0, 0.85)' : 'none',
+                lineHeight: ds.type.bodyLg.lineHeight,
+                color: ds.surface.textSecondary,
+                margin: 0,
+                maxWidth: '680px',
               }}
             >
               {supportingText}
@@ -320,8 +232,6 @@ export function DrawingStoryScene({
           )}
         </div>
       </div>
-    </div>
+    </SceneCanvas>
   );
 }
-
-export default DrawingStoryScene;

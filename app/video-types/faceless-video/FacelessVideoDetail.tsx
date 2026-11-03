@@ -98,7 +98,7 @@ export default function FacelessVideoDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070B14] text-slate-100 font-sans selection:bg-purple-500/30 selection:text-purple-200">
+    <div className="min-h-screen bg-[#070B14] text-slate-100 font-sans selection:bg-orange-500/30 selection:text-purple-200">
       {/* Schema Injection */}
       <script
         type="application/ld+json"
@@ -110,60 +110,25 @@ export default function FacelessVideoDetail() {
       />
 
       {/* Top Header Banner */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#070B14]/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-purple-600 via-fuchsia-500 to-pink-500 text-white font-black shadow-lg shadow-purple-500/20 group-hover:scale-105 transition-transform">
-              IV
-            </div>
-            <span className="text-xl font-extrabold tracking-tight text-white">
-              Itnavideo<span className="text-purple-400">.</span>
-            </span>
-          </Link>
-
-          <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-300">
-            <Link href="/video-types" className="hover:text-purple-400 transition">Video Types</Link>
-            <Link href="/use-cases" className="hover:text-purple-400 transition">Use Cases</Link>
-            <Link href="/pricing" className="hover:text-purple-400 transition">Pricing</Link>
-            <Link href="/docs" className="hover:text-purple-400 transition">Documentation</Link>
-          </nav>
-
-          <div className="flex items-center gap-4">
-            <Link
-              href="/login"
-              className="hidden sm:inline-flex text-sm font-bold text-slate-300 hover:text-white transition"
-            >
-              Sign In
-            </Link>
-            <Link
-              href="/dashboard?videoType=faceless-video"
-              className="inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-extrabold text-white shadow-lg shadow-purple-500/25 transition hover:brightness-110 active:scale-95"
-            >
-              <Sparkles size={15} />
-              <span className="hidden sm:inline">Create Faceless Video</span>
-              <span className="sm:hidden">Create Video</span>
-            </Link>
-          </div>
-        </div>
-      </header>
+      
 
       {/* HERO SECTION */}
       <section className="relative overflow-hidden pt-12 pb-20 lg:pt-20 lg:pb-28">
         {/* Glow ambient effects */}
-        <div className="pointer-events-none absolute -top-24 left-1/2 -z-10 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-purple-600/20 via-fuchsia-500/15 to-pink-500/10 blur-[120px]" />
+        <div className="pointer-events-none absolute -top-24 left-1/2 -z-10 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-orange-600/20 via-amber-500/15 to-red-500/10 blur-[120px]" />
 
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
             {/* Kicker Pill */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-purple-300 mb-6">
-              <Sparkles size={14} className="text-purple-400" />
+            <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-orange-300 mb-6">
+              <Sparkles size={14} className="text-orange-400" />
               <span>AI Faceless Video Generator • 16:9 Widescreen &amp; 9:16 Shorts</span>
             </div>
 
             {/* Main Headline */}
             <h1 className="text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl leading-[1.1]">
               Create High-Yield YouTube Videos{' '}
-              <span className="bg-gradient-to-r from-purple-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-red-400 bg-clip-text text-transparent">
                 Without Showing Your Face
               </span>
             </h1>
@@ -177,16 +142,16 @@ export default function FacelessVideoDetail() {
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
                 href="/dashboard?videoType=faceless-video"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 px-8 py-4 text-base font-black text-white shadow-xl shadow-purple-500/25 transition hover:brightness-110 active:scale-95"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 px-8 py-4 text-base font-black text-white shadow-xl shadow-orange-500/25 transition hover:brightness-110 active:scale-95"
               >
                 <span>Start Generating Free</span>
                 <ArrowRight size={18} />
               </Link>
               <a
                 href="#how-it-works"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#0E1526] px-8 py-4 text-base font-bold text-slate-200 hover:bg-[#152038] hover:border-purple-500/30 transition"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#0E1526] px-8 py-4 text-base font-bold text-slate-200 hover:bg-[#152038] hover:border-orange-500/30 transition"
               >
-                <Play size={18} className="text-purple-400 fill-purple-400/20" />
+                <Play size={18} className="text-orange-400 fill-purple-400/20" />
                 <span>See How It Works</span>
               </a>
             </div>
@@ -223,7 +188,7 @@ export default function FacelessVideoDetail() {
                   <span className="h-3 w-3 rounded-full bg-emerald-500/80" />
                   <span className="ml-2 text-xs font-mono font-bold text-slate-300">1920x1080 • Vox Style Documentary Scene</span>
                 </div>
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-purple-500/20 px-3 py-1 text-[11px] font-bold text-purple-300 border border-purple-500/30">
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-orange-500/20 px-3 py-1 text-[11px] font-bold text-orange-300 border border-orange-500/30">
                   <Monitor size={12} />
                   <span>16:9 Widescreen</span>
                 </div>
@@ -243,7 +208,7 @@ export default function FacelessVideoDetail() {
               <div className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-[2px] group cursor-pointer">
                 <Link
                   href="/dashboard?videoType=faceless-video"
-                  className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-2xl shadow-purple-500/50 group-hover:scale-110 transition-transform"
+                  className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-2xl shadow-orange-500/50 group-hover:scale-110 transition-transform"
                 >
                   <Play size={32} className="ml-1 fill-white" />
                 </Link>
@@ -265,7 +230,7 @@ export default function FacelessVideoDetail() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-3.5 py-1 text-xs font-bold uppercase text-purple-300">
+              <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold uppercase text-orange-300">
                 <Flame size={14} />
                 <span>The Creator Economy Shift</span>
               </div>
@@ -276,7 +241,7 @@ export default function FacelessVideoDetail() {
                 Over the past three years, a quiet revolution has taken place across YouTube, TikTok, and social media platforms. Some of the fastest-growing channels in finance, history, technology, true crime, personal development, and business analysis have one thing in common: <strong className="text-white font-semibold">the creator never shows their face on camera.</strong>
               </p>
               <p className="text-slate-300 text-base sm:text-lg leading-relaxed">
-                Audiences today prioritize <strong className="text-purple-300 font-semibold">pacing, narrative clarity, engaging visual storytelling, and high-quality audio</strong> over watching someone sit behind a desk talking into a microphone. Channels like Vox, SunnyV2, MagnatesMedia, and ColdFusion have proven that cinematic B-roll, kinetic typography, and structured graphics hold viewer retention far better than traditional talking-head videos.
+                Audiences today prioritize <strong className="text-orange-300 font-semibold">pacing, narrative clarity, engaging visual storytelling, and high-quality audio</strong> over watching someone sit behind a desk talking into a microphone. Channels like Vox, SunnyV2, MagnatesMedia, and ColdFusion have proven that cinematic B-roll, kinetic typography, and structured graphics hold viewer retention far better than traditional talking-head videos.
               </p>
               <p className="text-slate-300 text-base sm:text-lg leading-relaxed">
                 With an <strong className="text-white font-semibold">AI Faceless Video Generator</strong>, you no longer need to spend thousands of dollars on cameras, ring lights, acoustics, or professional editing teams. You can turn your knowledge, voice recordings, or researched scripts into publishing-ready videos that compete directly with major media houses.
@@ -286,7 +251,7 @@ export default function FacelessVideoDetail() {
             <div className="lg:col-span-5 space-y-4">
               <div className="rounded-2xl border border-white/10 bg-[#0E1526] p-6 shadow-xl space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/10 text-orange-400 border border-orange-500/20">
                     <BarChart3 size={20} />
                   </div>
                   <h3 className="text-lg font-bold text-white">Higher Audience Retention</h3>
@@ -338,21 +303,21 @@ export default function FacelessVideoDetail() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Bottleneck 1 */}
-            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-500/10 text-purple-400 border border-purple-500/20 mb-6 group-hover:scale-110 transition-transform">
+            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-orange-500/40 transition group">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-500/10 text-orange-400 border border-orange-500/20 mb-6 group-hover:scale-110 transition-transform">
                 <Clock size={24} />
               </div>
               <h3 className="text-xl font-extrabold text-white mb-3">1. Exhausting Production Hours</h3>
               <p className="text-slate-300 text-sm leading-relaxed mb-4">
                 Manual video editing in Premiere Pro or Final Cut requires cutting clips, adjusting keyframes, matching audio waveforms, and designing lower thirds—consuming 10+ hours per video.
               </p>
-              <div className="rounded-xl bg-purple-500/10 border border-purple-500/20 p-3 text-xs font-semibold text-purple-300">
+              <div className="rounded-xl bg-orange-500/10 border border-orange-500/20 p-3 text-xs font-semibold text-orange-300">
                 <strong className="text-white">Itnavideo Solution:</strong> Upload audio and let AI assemble the full 16:9 widescreen video in under 2 minutes.
               </div>
             </div>
 
             {/* Bottleneck 2 */}
-            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
+            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-orange-500/40 transition group">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-fuchsia-500/10 text-fuchsia-400 border border-fuchsia-500/20 mb-6 group-hover:scale-110 transition-transform">
                 <Film size={24} />
               </div>
@@ -366,7 +331,7 @@ export default function FacelessVideoDetail() {
             </div>
 
             {/* Bottleneck 3 */}
-            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
+            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-orange-500/40 transition group">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-pink-500/10 text-pink-400 border border-pink-500/20 mb-6 group-hover:scale-110 transition-transform">
                 <Tv size={24} />
               </div>
@@ -380,7 +345,7 @@ export default function FacelessVideoDetail() {
             </div>
 
             {/* Bottleneck 4 */}
-            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
+            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-orange-500/40 transition group">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-6 group-hover:scale-110 transition-transform">
                 <FileText size={24} />
               </div>
@@ -394,7 +359,7 @@ export default function FacelessVideoDetail() {
             </div>
 
             {/* Bottleneck 5 */}
-            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
+            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-orange-500/40 transition group">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20 mb-6 group-hover:scale-110 transition-transform">
                 <Music size={24} />
               </div>
@@ -408,7 +373,7 @@ export default function FacelessVideoDetail() {
             </div>
 
             {/* Bottleneck 6 */}
-            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
+            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-orange-500/40 transition group">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 mb-6 group-hover:scale-110 transition-transform">
                 <Briefcase size={24} />
               </div>
@@ -429,7 +394,7 @@ export default function FacelessVideoDetail() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto space-y-8">
             <div className="text-center space-y-4">
-              <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 text-xs font-bold uppercase text-purple-300">
+              <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold uppercase text-orange-300">
                 <Users size={14} />
                 <span>Empowering Busy Professionals &amp; Content Entrepreneurs</span>
               </div>
@@ -503,8 +468,8 @@ export default function FacelessVideoDetail() {
             <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-8 relative flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-6">
-                  <span className="text-4xl font-black text-purple-400">01</span>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                  <span className="text-4xl font-black text-orange-400">01</span>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/10 text-orange-400 border border-orange-500/20">
                     <FileText size={20} />
                   </div>
                 </div>
@@ -513,7 +478,7 @@ export default function FacelessVideoDetail() {
                   Drop your recorded voiceover audio file (MP3, WAV, M4A up to 20 minutes) or type in your narration script.
                 </p>
               </div>
-              <div className="mt-6 pt-4 border-t border-white/10 text-xs text-purple-300 font-semibold">
+              <div className="mt-6 pt-4 border-t border-white/10 text-xs text-orange-300 font-semibold">
                 ✓ Ultra-fast Groq Whisper transcription
               </div>
             </div>
@@ -577,39 +542,39 @@ export default function FacelessVideoDetail() {
                 <tr className="border-b border-white/10 bg-black/40">
                   <th className="p-6 text-sm font-extrabold uppercase tracking-wider text-slate-400">Production Metric</th>
                   <th className="p-6 text-sm font-extrabold uppercase tracking-wider text-red-400">Traditional Editing Software</th>
-                  <th className="p-6 text-sm font-extrabold uppercase tracking-wider text-purple-400 bg-purple-500/10">Itnavideo AI Faceless Generator</th>
+                  <th className="p-6 text-sm font-extrabold uppercase tracking-wider text-orange-400 bg-orange-500/10">Itnavideo AI Faceless Generator</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/10 text-sm sm:text-base">
                 <tr>
                   <td className="p-6 font-bold text-white">Average Editing Time (10m Video)</td>
                   <td className="p-6 text-slate-300">8 to 15 hours of timeline work</td>
-                  <td className="p-6 font-bold text-emerald-400 bg-purple-500/5">Under 2 minutes total</td>
+                  <td className="p-6 font-bold text-emerald-400 bg-orange-500/5">Under 2 minutes total</td>
                 </tr>
                 <tr>
                   <td className="p-6 font-bold text-white">Technical Skill Required</td>
                   <td className="p-6 text-slate-300">High (Keyframing, timeline cuts, audio mixing)</td>
-                  <td className="p-6 font-bold text-emerald-400 bg-purple-500/5">Zero (Click &amp; generate)</td>
+                  <td className="p-6 font-bold text-emerald-400 bg-orange-500/5">Zero (Click &amp; generate)</td>
                 </tr>
                 <tr>
                   <td className="p-6 font-bold text-white">Stock Asset Sourcing</td>
                   <td className="p-6 text-slate-300">Manual search &amp; paid monthly subscriptions</td>
-                  <td className="p-6 font-bold text-emerald-400 bg-purple-500/5">Automated AI stock matching</td>
+                  <td className="p-6 font-bold text-emerald-400 bg-orange-500/5">Automated AI stock matching</td>
                 </tr>
                 <tr>
                   <td className="p-6 font-bold text-white">Subtitles &amp; Captions</td>
                   <td className="p-6 text-slate-300">Manual typing or paid transcription plugins</td>
-                  <td className="p-6 font-bold text-emerald-400 bg-purple-500/5">Word-synced karaoke highlights built-in</td>
+                  <td className="p-6 font-bold text-emerald-400 bg-orange-500/5">Word-synced karaoke highlights built-in</td>
                 </tr>
                 <tr>
                   <td className="p-6 font-bold text-white">Hardware Requirements</td>
                   <td className="p-6 text-slate-300">Expensive editing PC or Mac with dedicated GPU</td>
-                  <td className="p-6 font-bold text-emerald-400 bg-purple-500/5">100% Web-based (Runs in any browser)</td>
+                  <td className="p-6 font-bold text-emerald-400 bg-orange-500/5">100% Web-based (Runs in any browser)</td>
                 </tr>
                 <tr>
                   <td className="p-6 font-bold text-white">Camera &amp; Studio Lighting</td>
                   <td className="p-6 text-slate-300">Required for talking-head formats ($1,500+)</td>
-                  <td className="p-6 font-bold text-emerald-400 bg-purple-500/5">Not required ($0 gear cost)</td>
+                  <td className="p-6 font-bold text-emerald-400 bg-orange-500/5">Not required ($0 gear cost)</td>
                 </tr>
               </tbody>
             </table>
@@ -630,8 +595,8 @@ export default function FacelessVideoDetail() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="rounded-3xl border border-white/10 bg-[#0E1526] p-8 space-y-4 hover:border-purple-500/30 transition">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-500/10 text-purple-400 font-bold text-lg">
+            <div className="rounded-3xl border border-white/10 bg-[#0E1526] p-8 space-y-4 hover:border-orange-500/30 transition">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-500/10 text-orange-400 font-bold text-lg">
                 01
               </div>
               <h3 className="text-xl font-extrabold text-white">Documentary &amp; History</h3>
@@ -697,7 +662,7 @@ export default function FacelessVideoDetail() {
       <section className="py-16 sm:py-24 border-t border-white/10 bg-[#0A0F1D]">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 text-xs font-bold uppercase text-purple-300 mb-4">
+            <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold uppercase text-orange-300 mb-4">
               <HelpCircle size={14} />
               <span>Got Questions?</span>
             </div>
@@ -715,7 +680,7 @@ export default function FacelessVideoDetail() {
               return (
                 <div
                   key={idx}
-                  className="rounded-2xl border border-white/10 bg-[#0E1526] overflow-hidden transition-colors hover:border-purple-500/30"
+                  className="rounded-2xl border border-white/10 bg-[#0E1526] overflow-hidden transition-colors hover:border-orange-500/30"
                 >
                   <button
                     onClick={() => toggleFaq(idx)}
@@ -724,7 +689,7 @@ export default function FacelessVideoDetail() {
                     <span className="text-base sm:text-lg font-bold text-white pr-4">
                       {faq.q}
                     </span>
-                    <div className={`flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-purple-400 transition-transform ${isOpen ? 'rotate-180 bg-purple-500/20' : ''}`}>
+                    <div className={`flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-orange-400 transition-transform ${isOpen ? 'rotate-180 bg-orange-500/20' : ''}`}>
                       <ChevronDown size={18} />
                     </div>
                   </button>
@@ -746,8 +711,8 @@ export default function FacelessVideoDetail() {
         <div className="pointer-events-none absolute bottom-0 left-1/2 -z-10 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-gradient-to-r from-purple-600/20 to-pink-500/20 blur-[100px]" />
 
         <div className="mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
-          <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 text-xs font-bold uppercase text-purple-300 mb-6">
-            <Award size={14} className="text-purple-400" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold uppercase text-orange-300 mb-6">
+            <Award size={14} className="text-orange-400" />
             <span>Ready to Publish Your Next Faceless Video?</span>
           </div>
 
@@ -762,7 +727,7 @@ export default function FacelessVideoDetail() {
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/dashboard?videoType=faceless-video"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 px-8 py-4 text-base font-black text-white shadow-xl shadow-purple-500/25 transition hover:brightness-110 active:scale-95"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 px-8 py-4 text-base font-black text-white shadow-xl shadow-orange-500/25 transition hover:brightness-110 active:scale-95"
             >
               <Sparkles size={18} />
               <span>Create Your First Video Free</span>

@@ -58,7 +58,7 @@ export const dynamic = 'force-dynamic';
 
 type LambdaRenderRequest = Parameters<typeof renderMediaOnLambda>[0];
 type ReelMode =
-  | 'compare' | 'autoCaption' | 'whiteboardVideo' | 'typographyVideo' | 'longVideoClips' | 'facelessVideo' | 'facelessShorts' | 'aiVideoGenerator' | 'imageToVideoAi' | 'youtubeSubtitleGenerator' | 'bookSummary' | 'audioClean' | 'longVideoPromo';
+  | 'compare' | 'autoCaption' | 'whiteboardVideo' | 'typographyVideo' | 'longVideoClips' | 'facelessVideo' | 'facelessShorts' | 'aiVideoGenerator' | 'imageToVideoAi' | 'youtubeSubtitleGenerator' | 'bookSummary' | 'audioClean' | 'longVideoPromo' | 'splitScreenExplainer' | 'aiVideoPolisher' | 'aiShortsPolisher';
 
 const MODE_TO_TEMPLATE: Partial<Record<ReelMode, ReelTemplateName>> = {
   compare: 'comparisonImages',
@@ -73,6 +73,9 @@ const MODE_TO_TEMPLATE: Partial<Record<ReelMode, ReelTemplateName>> = {
   imageToVideoAi: 'IMAGE_TO_VIDEO_AI',
   bookSummary: 'BOOK_SUMMARY',
   longVideoPromo: 'LONG_VIDEO_PROMO',
+  splitScreenExplainer: 'SPLIT_SCREEN_EXPLAINER',
+  aiVideoPolisher: 'AI_VIDEO_POLISHER',
+  aiShortsPolisher: 'AI_SHORTS_POLISHER',
 };
 
 // All 9:16 short video types render up to 90 seconds.
@@ -83,6 +86,7 @@ const MAX_YOUTUBE_SUBTITLE_SECONDS = 5 * 60; // 300 seconds (5 minutes strictly 
 const MAX_IMAGE_TO_VIDEO_SECONDS = 5 * 60; // 300 seconds (5 minutes strictly per user standard)
 const MAX_FACELESS_VIDEO_SECONDS = 5 * 60; // 300 seconds (5 minutes strictly per user standard)
 const MAX_BOOK_SUMMARY_SECONDS = 5 * 60; // 300 seconds (5 minutes strictly per user standard)
+const MAX_AI_VIDEO_POLISHER_SECONDS = 5 * 60; // 300 seconds (5 minutes strictly per user standard)
 
 function getMaxRenderWindowSecondsForTemplate(templateName?: ReelTemplateName | null): number {
   if (templateName === 'AUTO_CAPTION_GENERATOR') {
@@ -97,6 +101,9 @@ function getMaxRenderWindowSecondsForTemplate(templateName?: ReelTemplateName | 
   if (templateName === 'BOOK_SUMMARY') {
     return MAX_BOOK_SUMMARY_SECONDS;
   }
+  if (templateName === 'AI_VIDEO_POLISHER') {
+    return MAX_AI_VIDEO_POLISHER_SECONDS;
+  }
   if (
     templateName === 'FACELESS_VIDEO' ||
     templateName === 'AI_VIDEO_GENERATOR' ||
@@ -110,7 +117,7 @@ function getMaxRenderWindowSecondsForTemplate(templateName?: ReelTemplateName | 
 
 // Curated whiteboard boards the dashboard can choose from. Unknown values fall back safely.
 // Compare Explainer visual options — validated against fixed allow-lists.
-const COMPARE_THEMES = new Set(['light', 'dark', 'bold']);
+const COMPARE_THEMES = new Set(['light', 'dark', 'bold', 'white']);
 const COMPARE_TONES = new Set(['versus', 'goodBad']);
 const COMPARE_WINNERS = new Set(['left', 'right', 'none']);
 function resolveCompareTheme(value: string): string {
@@ -1347,7 +1354,7 @@ export async function POST(request: Request) {
         mediaSrc: audioPrep.audioUrl || mediaUrl,
         audioUrl: audioPrep.audioUrl || mediaUrl,
         bgmUrl: finalBgmUrl,
-        bgmVolume,
+        bgmVolume: typeof bgmVolume === 'number' ? bgmVolume : 0.12,
         scenes,
         captions,
         subtitleChunks: captions,
@@ -1355,6 +1362,7 @@ export async function POST(request: Request) {
         durationSeconds: renderWindow.durationSeconds,
         title: topicTitle || 'Image to Video AI',
         subtitleStyle,
+        captionThemeId: subtitleStyle || readString(body.captionThemeId) || 'glow-viral',
         fitMode,
         aspectRatio: readString(body.aspectRatio) || '16:9',
         templateName,
@@ -1414,6 +1422,85 @@ export async function POST(request: Request) {
           conflictsResolved: plannerDiagnostics.conflictsResolved,
           translatedSegmentsCount: plannerDiagnostics.translatedSegmentsCount,
         },
+      });
+    }
+
+    // ── SPLIT SCREEN EXPLAINER (9:16 Vertical, 50% Top Explanation Visuals + 50% Bottom Creator Video) ──
+    if (mode === 'splitScreenExplainer') {
+      const audioPrep = await prepareAudioForTranscription(mediaKey, mediaUrl, fileName, contentType, mediaType);
+      const splitTranscription = await transcribeForPlanning({
+        mediaUrl: audioPrep.audioUrl,
+        fileName: audioPrep.audioFileName,
+        contentType: audioPrep.contentType,
+        mediaType: 'audio',
+        outputLanguage: normalizeSubtitleLanguage(readString(body.subtitleOutputLanguage)) || undefined,
+        maxSeconds: 90,
+      });
+
+      const renderWindow = selectRenderWindow(splitTranscription, 90);
+      const captions = buildCompareCaptionsFromGroq(renderWindow);
+
+      const splitTitle = topicTitle || readString(body.topicTitle) || 'Split Screen Explainer';
+      const subtitleStyle = readString(body.subtitleStyle) || readString(body.captionThemeId) || 'glow-viral';
+      const finalBgmUrl = customBgmUrl || readString(body.bgmUrl) || '';
+      const finalBgmVolume = typeof body.bgmVolume === 'number' ? body.bgmVolume : 0.12;
+
+      const inputProps: Record<string, unknown> = {
+        creatorVideoUrl: mediaUrl || audioPrep.audioUrl,
+        mediaSrc: mediaUrl || audioPrep.audioUrl,
+        audioUrl: audioPrep.audioUrl || mediaUrl,
+        explanationMediaUrls: uploadedImageUrls,
+        explanationImages: uploadedImageUrls,
+        captions,
+        subtitleChunks: captions,
+        captionThemeId: subtitleStyle,
+        subtitleStyle,
+        bgmUrl: finalBgmUrl,
+        bgmVolume: finalBgmVolume,
+        durationSeconds: Math.min(90, renderWindow.durationSeconds || 60),
+        title: splitTitle,
+        topicTitle: splitTitle,
+        aspectRatio: '9:16',
+        compositionId: 'SPLIT-SCREEN-EXPLAINER',
+      };
+
+      const totalFrames = Math.max(30, Math.ceil((Math.min(90, renderWindow.durationSeconds || 60)) * 30));
+      const outName = `${TEMP_MEDIA_RENDER_PREFIX}${sanitizeSegment(userId)}/${Date.now()}-split-screen-explainer.mp4`;
+      const render = await startRenderWithCapacityRetry({
+        region: config.region,
+        functionName: config.functionName,
+        serveUrl: config.serveUrl,
+        composition: 'SPLIT-SCREEN-EXPLAINER',
+        codec: 'h264',
+        audioCodec: 'aac',
+        inputProps,
+        frameRange: [0, totalFrames - 1],
+        framesPerLambda: 120,
+        outName,
+        privacy: 'private',
+        deleteAfter: '3-days',
+        overwrite: true,
+        concurrency: config.concurrency,
+        maxRetries: 3,
+        downloadBehavior: { type: 'download', fileName: 'itnavideo-split-screen-explainer.mp4' },
+        isProduction: true,
+        logLevel: 'info',
+      });
+
+      return NextResponse.json({
+        ok: true,
+        status: 'rendering',
+        renderId: render.renderId,
+        bucketName: render.bucketName,
+        outName,
+        mediaKey,
+        reelTitle: splitTitle,
+        design: 'Split Screen Explainer',
+        mode,
+        templateName: 'SPLIT-SCREEN-EXPLAINER',
+        transcriptSource: 'groq',
+        access,
+        retentionHours: 48,
       });
     }
 
@@ -1704,6 +1791,8 @@ export async function POST(request: Request) {
           fontSize: readString(body.captionFontSize) || clipCaptionPreset?.fontSize || 'large',
           fontFamily: readString(body.captionFontFamily) || clipCaptionPreset?.fontFamily || undefined,
           showBackground: true,
+          bgmUrl: customBgmUrl || readString(body.bgmUrl) || (body.bgmTrackId && body.bgmTrackId !== 'none' ? ('assets/reusable/music/' + (body.bgmTrackId === 'parasail' ? 'parasail-silent-partner.mp3' : body.bgmTrackId === '19th-floor' ? '19th-floor-bobby-richards.mp3' : body.bgmTrackId === 'dutty-vibe' ? 'dutty-vibe-tracks.mp3' : body.bgmTrackId === 'book-rental' ? 'book-the-rental-wit-it-rage.mp3' : body.bgmTrackId === 'crimson-fly' ? 'crimson-fly-huma-huma.mp3' : 'parasail-silent-partner.mp3')) : undefined),
+          bgmVolume: typeof body.bgmVolume === 'number' ? body.bgmVolume : 0.12,
           templateName,
           template: templateName,
           compositionId: composition,
@@ -2146,6 +2235,8 @@ export async function POST(request: Request) {
             captions: finalCaptions,
             transcriptSegments: finalCaptions,
             overlayTimeline: plannedOverlayTimeline,
+            bgmUrl: customBgmUrl || readString(body.bgmUrl) || (body.bgmTrackId && body.bgmTrackId !== 'none' ? ('assets/reusable/music/' + (body.bgmTrackId === 'parasail' ? 'parasail-silent-partner.mp3' : body.bgmTrackId === '19th-floor' ? '19th-floor-bobby-richards.mp3' : body.bgmTrackId === 'dutty-vibe' ? 'dutty-vibe-tracks.mp3' : body.bgmTrackId === 'book-rental' ? 'book-the-rental-wit-it-rage.mp3' : body.bgmTrackId === 'crimson-fly' ? 'crimson-fly-huma-huma.mp3' : 'parasail-silent-partner.mp3')) : undefined),
+            bgmVolume: typeof body.bgmVolume === 'number' ? body.bgmVolume : 0.12,
             aspectRatio: (readString(body.aspectRatio) === '16:9' ? '16:9' : '9:16') as '9:16' | '16:9',
             durationSeconds: Math.min(90, renderWindow.durationSeconds || 90),
             sourceDurationSeconds: Math.min(90, renderWindow.durationSeconds || 90),
@@ -2199,7 +2290,7 @@ export async function POST(request: Request) {
 
             const wbBoard = resolveWhiteboardBoard(readString(body.whiteboardBoard));
             const activeTranscript = readString(body.editedTranscript) || readString(body.customTranscript) || renderWindow.transcript;
-            const fontPersonality = readString(body.fontPersonality) || 'marker';
+            const fontPersonality = readString(body.fontPersonality) || 'balsamiq';
             const wbAspectRatio = '9:16' as const;
 
             // Pass word-level timestamps so planner can compute real timing.
@@ -2239,6 +2330,9 @@ export async function POST(request: Request) {
               scenes: wbPlan.scenes,
               fontPersonality,
               boardStyle: wbBoard,
+              bgmUrl: customBgmUrl || readString(body.bgmUrl) || (body.bgmTrackId && body.bgmTrackId !== 'none' ? ('assets/reusable/music/' + (body.bgmTrackId === 'parasail' ? 'parasail-silent-partner.mp3' : body.bgmTrackId === '19th-floor' ? '19th-floor-bobby-richards.mp3' : body.bgmTrackId === 'dutty-vibe' ? 'dutty-vibe-tracks.mp3' : body.bgmTrackId === 'book-rental' ? 'book-the-rental-wit-it-rage.mp3' : body.bgmTrackId === 'crimson-fly' ? 'crimson-fly-huma-huma.mp3' : 'parasail-silent-partner.mp3')) : undefined),
+              bgmVolume: typeof body.bgmVolume === 'number' ? body.bgmVolume : 0.12,
+              enableSfx: body.enableSfx !== false,
               aspectRatio: wbAspectRatio,
               captions: [],
               durationSeconds: renderWindow.durationSeconds,
@@ -2285,11 +2379,19 @@ export async function POST(request: Request) {
             const facelessCaptions = Array.isArray(body.approvedCaptions) && body.approvedCaptions.length > 0
               ? body.approvedCaptions
               : buildCompareCaptionsFromGroq(renderWindow);
-            const transcriptChunks = (renderWindow.segments || []).map((seg: any) => ({
-              text: String(seg.text || ''),
-              start: Number(seg.start || 0),
-              end: Number(seg.end || 0),
-            })).filter((c: any) => c.text && c.end > c.start);
+            const allWords = Array.isArray(renderWindow.words) ? renderWindow.words : [];
+            const transcriptChunks = (renderWindow.segments || []).map((seg: any) => {
+              const sStart = Number(seg.start || 0);
+              const sEnd = Number(seg.end || 0);
+              return {
+                text: String(seg.text || ''),
+                start: sStart,
+                end: sEnd,
+                words: allWords.length > 0
+                  ? allWords.filter((w: any) => Number(w.start || 0) >= sStart - 0.08 && Number(w.end || 0) <= sEnd + 0.08)
+                  : undefined,
+              };
+            }).filter((c: any) => c.text && c.end > c.start);
 
             const headingFont = readString(body.headingFont) || 'Montserrat';
             const subheadingFont = readString(body.subheadingFont) || 'Plus Jakarta Sans';
@@ -2306,6 +2408,9 @@ export async function POST(request: Request) {
               ? body.sceneBlueprint
               : null;
 
+            const targetAspectRatio: '16:9' | '9:16' = mode === 'facelessShorts' ? '9:16' : '16:9';
+            const targetVideoType: 'facelessVideo' | 'facelessShorts' = mode === 'facelessShorts' ? 'facelessShorts' : 'facelessVideo';
+
             const blueprint = userProvidedScenes
               ? {
                   title: videoTitle,
@@ -2315,11 +2420,9 @@ export async function POST(request: Request) {
                   scenes: userProvidedScenes,
                 }
               : await generateStructuredSceneBlueprint(
-                  transcriptChunks.length ? transcriptChunks : [{ text: renderWindow.transcript, start: 0, end: renderWindow.durationSeconds }],
-                  { title: videoTitle, headingFont, bodyFont, backgroundTheme }
+                  transcriptChunks.length ? transcriptChunks : [{ text: renderWindow.transcript, start: 0, end: renderWindow.durationSeconds, words: allWords.length > 0 ? allWords : undefined }],
+                  { title: videoTitle, headingFont, bodyFont, backgroundTheme, aspectRatio: targetAspectRatio, videoType: targetVideoType }
                 );
-
-            const targetAspectRatio: '16:9' | '9:16' = mode === 'facelessShorts' ? '9:16' : '16:9';
             const graphicScenes = planFacelessGraphics(blueprint.scenes);
             blueprint.scenes = graphicScenes;
 
@@ -2328,9 +2431,9 @@ export async function POST(request: Request) {
             // Remaining 90%+ is explained through animated text, large detailed SVG illustrations,
             // diagrams, shapes, infographics, and motion graphics.
             const totalDurationSec = renderWindow.durationSeconds || 60;
-            const maxImageDurationAllowed = totalDurationSec * 0.10; // strictly max 10% of timeline
+            const maxImageDurationAllowed = totalDurationSec * 0.35; // balanced 35% B-roll share
             const totalSceneCount = blueprint.scenes.length || 1;
-            const maxImageScenesAllowed = Math.max(0, Math.min(1, Math.floor(totalSceneCount * 0.10)));
+            const maxImageScenesAllowed = Math.max(1, Math.min(4, Math.floor(totalSceneCount * 0.35)));
 
             let mappedBrollUrls: Record<number, string> = {};
             const userProvidedBroll = (body.brollUrls && typeof body.brollUrls === 'object') ? body.brollUrls : {};
@@ -2402,8 +2505,14 @@ export async function POST(request: Request) {
               backgroundTheme,
               customBgUrl: '',
               subtitleStyle,
+              captionThemeId: subtitleStyle || 'glow-viral',
               captionAnimationStyle,
               captionPosition,
+              musicUrl: customBgmUrl || readString(body.bgmUrl) || readString(body.musicUrl) || (readString(body.facelessBgmMood) === 'none' ? 'none' : 'assets/reusable/music/parasail-silent-partner.mp3'),
+              musicSrc: customBgmUrl || readString(body.bgmUrl) || readString(body.musicUrl) || (readString(body.facelessBgmMood) === 'none' ? 'none' : 'assets/reusable/music/parasail-silent-partner.mp3'),
+              musicVolume: typeof body.facelessBgmVolume === 'number' ? body.facelessBgmVolume : (typeof body.bgmVolume === 'number' ? body.bgmVolume : 0.12),
+              bgmUrl: customBgmUrl || readString(body.bgmUrl) || readString(body.musicUrl) || (readString(body.facelessBgmMood) === 'none' ? 'none' : 'assets/reusable/music/parasail-silent-partner.mp3'),
+              bgmVolume: typeof body.facelessBgmVolume === 'number' ? body.facelessBgmVolume : (typeof body.bgmVolume === 'number' ? body.bgmVolume : 0.12),
               sceneBlueprint: blueprint.scenes,
               brollUrls: Object.fromEntries(
                 Object.entries(mappedBrollUrls).map(([k, v]) => [k, toAbsoluteS3AssetUrl(v)])
@@ -2490,6 +2599,116 @@ export async function POST(request: Request) {
           }
         : {}),
 
+                  ...(mode === 'aiShortsPolisher' || (templateName as string) === 'AI_SHORTS_POLISHER'
+        ? (() => {
+            const shortsDur = Math.min(90, requestedDurationSeconds || renderWindow.durationSeconds || 60);
+            const shortsTitle = readString(body.topicTitle) || topicTitle || 'AI Shorts Polisher';
+            const promoBgmTrackId = readString(body.bgmTrackId);
+            const shortsBgmUrl = customBgmUrl || readString(body.bgmUrl) || (promoBgmTrackId && promoBgmTrackId !== 'none'
+              ? ('assets/reusable/music/' + (promoBgmTrackId === 'parasail' ? 'parasail-silent-partner.mp3' : promoBgmTrackId === '19th-floor' ? '19th-floor-bobby-richards.mp3' : promoBgmTrackId === 'dutty-vibe' ? 'dutty-vibe-tracks.mp3' : promoBgmTrackId === 'book-rental' ? 'book-the-rental-wit-it-rage.mp3' : promoBgmTrackId === 'crimson-fly' ? 'crimson-fly-huma-huma.mp3' : promoBgmTrackId === 'crock-pot' ? 'crock-pot-diamond-ortiz.mp3' : promoBgmTrackId === 'illusions' ? 'illusions-anno-domini-beats.mp3' : promoBgmTrackId === 'not-for-nothing' ? 'not-for-nothing-otis-mcdonald.mp3' : promoBgmTrackId === 'something-going' ? 'something-is-going-on-godmode.mp3' : promoBgmTrackId === 'bar-scene' ? 'that-one-bar-scene-rkvc.mp3' : promoBgmTrackId === 'true-messiah' ? 'true-messiah-dj-freedem.mp3' : promoBgmTrackId === 'vishnu' ? 'vishnu-patrick-patrikios.mp3' : promoBgmTrackId === 'what-it-is' ? 'what-it-is-silent-partner.mp3' : 'parasail-silent-partner.mp3'))
+              : undefined);
+
+            const shortsCaptions = buildCompareCaptionsFromGroq(renderWindow);
+
+            return {
+              title: shortsTitle,
+              aspectRatio: '9:16',
+              durationSeconds: shortsDur,
+              sourceDurationSeconds: shortsDur,
+              smartPunchIns: body.smartPunchIns !== false,
+              silenceJumpCuts: body.silenceJumpCuts !== false,
+              captionStyle: readString(body.captionStyle) || 'Pop Word',
+              mediaSrc: mediaUrl,
+              captions: shortsCaptions,
+              subtitleChunks: shortsCaptions,
+              words: renderWindow.words,
+              segments: renderWindow.segments,
+              transcript: renderWindow.transcript,
+              bgmUrl: shortsBgmUrl,
+              bgmVolume: Number(body.bgmVolume ?? 0.12),
+              enableSfx: body.enableSfx !== false,
+              layerItems: Array.isArray(body.layerItems) ? body.layerItems : [],
+              mediaItems: Array.isArray(body.mediaItems) ? body.mediaItems : [],
+              curvedArrows: Array.isArray(body.curvedArrows) ? body.curvedArrows : undefined,
+              equationFormula: body.equationFormula || undefined,
+              comparisonBanner: body.comparisonBanner || undefined,
+            };
+          })()
+        : {}),
+      ...(mode === 'aiVideoPolisher' || (templateName as string) === 'AI_VIDEO_POLISHER'
+        ? (() => {
+            const polisherDur = Math.min(300, requestedDurationSeconds || renderWindow.durationSeconds || 60);
+            const polisherTitle = readString(body.topicTitle) || topicTitle || 'AI YouTube Video Polisher';
+            const promoBgmTrackId = readString(body.bgmTrackId);
+            const polisherBgmUrl = customBgmUrl || readString(body.bgmUrl) || (promoBgmTrackId && promoBgmTrackId !== 'none'
+              ? ('assets/reusable/music/' + (promoBgmTrackId === 'parasail' ? 'parasail-silent-partner.mp3' : promoBgmTrackId === '19th-floor' ? '19th-floor-bobby-richards.mp3' : promoBgmTrackId === 'dutty-vibe' ? 'dutty-vibe-tracks.mp3' : promoBgmTrackId === 'book-rental' ? 'book-the-rental-wit-it-rage.mp3' : promoBgmTrackId === 'crimson-fly' ? 'crimson-fly-huma-huma.mp3' : promoBgmTrackId === 'crock-pot' ? 'crock-pot-diamond-ortiz.mp3' : promoBgmTrackId === 'illusions' ? 'illusions-anno-domini-beats.mp3' : promoBgmTrackId === 'not-for-nothing' ? 'not-for-nothing-otis-mcdonald.mp3' : promoBgmTrackId === 'something-going' ? 'something-is-going-on-godmode.mp3' : promoBgmTrackId === 'bar-scene' ? 'that-one-bar-scene-rkvc.mp3' : promoBgmTrackId === 'true-messiah' ? 'true-messiah-dj-freedem.mp3' : promoBgmTrackId === 'vishnu' ? 'vishnu-patrick-patrikios.mp3' : promoBgmTrackId === 'what-it-is' ? 'what-it-is-silent-partner.mp3' : 'parasail-silent-partner.mp3'))
+              : undefined);
+
+            const polisherCaptions = buildCompareCaptionsFromGroq(renderWindow);
+
+            return {
+              title: polisherTitle,
+              aspectRatio: '16:9',
+              durationSeconds: polisherDur,
+              sourceDurationSeconds: polisherDur,
+              smartPunchIns: body.smartPunchIns !== false,
+              silenceJumpCuts: body.silenceJumpCuts !== false,
+              captionStyle: readString(body.captionStyle) || 'Pop Word',
+              mediaSrc: mediaUrl,
+              captions: polisherCaptions,
+              subtitleChunks: polisherCaptions,
+              words: renderWindow.words,
+              segments: renderWindow.segments,
+              transcript: renderWindow.transcript,
+              bgmUrl: polisherBgmUrl,
+              bgmVolume: Number(body.bgmVolume ?? 0.12),
+              enableSfx: body.enableSfx !== false,
+              layerItems: Array.isArray(body.layerItems) ? body.layerItems : [],
+              mediaItems: Array.isArray(body.mediaItems) ? body.mediaItems : [],
+              curvedArrows: Array.isArray(body.curvedArrows) ? body.curvedArrows : undefined,
+              equationFormula: body.equationFormula || undefined,
+              comparisonBanner: body.comparisonBanner || undefined,
+            };
+          })()
+        : {}),
+      ...(mode === 'splitScreenExplainer' || (templateName as string) === 'SPLIT_SCREEN_EXPLAINER'
+        ? (() => {
+            const splitDur = Math.min(90, requestedDurationSeconds || renderWindow.durationSeconds || 60);
+            const splitTitle = readString(body.topicTitle) || topicTitle || 'Split Screen Explainer';
+            const promoBgmTrackId = readString(body.bgmTrackId);
+            const splitBgmUrl = customBgmUrl || readString(body.bgmUrl) || (promoBgmTrackId && promoBgmTrackId !== 'none'
+              ? ('assets/reusable/music/' + (promoBgmTrackId === 'parasail' ? 'parasail-silent-partner.mp3' : promoBgmTrackId === '19th-floor' ? '19th-floor-bobby-richards.mp3' : promoBgmTrackId === 'dutty-vibe' ? 'dutty-vibe-tracks.mp3' : promoBgmTrackId === 'book-rental' ? 'book-the-rental-wit-it-rage.mp3' : promoBgmTrackId === 'crimson-fly' ? 'crimson-fly-huma-huma.mp3' : promoBgmTrackId === 'crock-pot' ? 'crock-pot-diamond-ortiz.mp3' : promoBgmTrackId === 'illusions' ? 'illusions-anno-domini-beats.mp3' : promoBgmTrackId === 'not-for-nothing' ? 'not-for-nothing-otis-mcdonald.mp3' : promoBgmTrackId === 'something-going' ? 'something-is-going-on-godmode.mp3' : promoBgmTrackId === 'bar-scene' ? 'that-one-bar-scene-rkvc.mp3' : promoBgmTrackId === 'true-messiah' ? 'true-messiah-dj-freedem.mp3' : promoBgmTrackId === 'vishnu' ? 'vishnu-patrick-patrikios.mp3' : promoBgmTrackId === 'what-it-is' ? 'what-it-is-silent-partner.mp3' : 'parasail-silent-partner.mp3'))
+              : undefined);
+
+            const expVisuals = Array.isArray(body.explanationVisualUrls) && body.explanationVisualUrls.length > 0
+              ? body.explanationVisualUrls
+              : Array.isArray(body.explanationMediaUrls) && body.explanationMediaUrls.length > 0
+                ? body.explanationMediaUrls
+                : uploadedImageUrls;
+
+            const splitCaptions = buildCompareCaptionsFromGroq(renderWindow);
+
+            return {
+              title: splitTitle,
+              topicTitle: splitTitle,
+              aspectRatio: '9:16',
+              durationSeconds: splitDur,
+              sourceDurationSeconds: splitDur,
+              creatorVideoUrl: mediaUrl,
+              mediaSrc: mediaUrl,
+              audioUrl: mediaUrl,
+              explanationMediaUrls: expVisuals,
+              explanationImages: expVisuals,
+              captions: splitCaptions,
+              subtitleChunks: splitCaptions,
+              captionThemeId: readString(body.subtitleStyle || body.captionThemeId) || 'glow-viral',
+              subtitleStyle: readString(body.subtitleStyle || body.captionThemeId) || 'glow-viral',
+              bgmUrl: splitBgmUrl,
+              bgmVolume: Number(body.bgmVolume ?? 0.12),
+              enableSfx: body.enableSfx !== false,
+            };
+          })()
+        : {}),
       ...(mode === 'longVideoPromo' || (templateName as string) === 'LONG_VIDEO_PROMO'
         ? (() => {
             const promoDur = Math.min(90, requestedDurationSeconds || renderWindow.durationSeconds || 90);
@@ -2501,8 +2720,22 @@ export async function POST(request: Request) {
               ctaText: promoCtaText,
             });
 
+            const ytUrl = readString(body.youtubeUrl);
+            let autoYtThumbnail = '';
+            if (ytUrl) {
+              const ytMatch = ytUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+              if (ytMatch && ytMatch[1]) {
+                autoYtThumbnail = `https://img.youtube.com/vi/${ytMatch[1]}/maxresdefault.jpg`;
+              }
+            }
+
+            const promoBgmTrackId = readString(body.bgmTrackId);
+            const promoBgmUrl = customBgmUrl || readString(body.bgmUrl) || (promoBgmTrackId && promoBgmTrackId !== 'none'
+              ? ('assets/reusable/music/' + (promoBgmTrackId === 'parasail' ? 'parasail-silent-partner.mp3' : promoBgmTrackId === '19th-floor' ? '19th-floor-bobby-richards.mp3' : promoBgmTrackId === 'dutty-vibe' ? 'dutty-vibe-tracks.mp3' : promoBgmTrackId === 'book-rental' ? 'book-the-rental-wit-it-rage.mp3' : promoBgmTrackId === 'crimson-fly' ? 'crimson-fly-huma-huma.mp3' : promoBgmTrackId === 'crock-pot' ? 'crock-pot-diamond-ortiz.mp3' : promoBgmTrackId === 'illusions' ? 'illusions-anno-domini-beats.mp3' : promoBgmTrackId === 'not-for-nothing' ? 'not-for-nothing-otis-mcdonald.mp3' : promoBgmTrackId === 'something-going' ? 'something-is-going-on-godmode.mp3' : promoBgmTrackId === 'bar-scene' ? 'that-one-bar-scene-rkvc.mp3' : promoBgmTrackId === 'true-messiah' ? 'true-messiah-dj-freedem.mp3' : promoBgmTrackId === 'vishnu' ? 'vishnu-patrick-patrikios.mp3' : promoBgmTrackId === 'what-it-is' ? 'what-it-is-silent-partner.mp3' : 'parasail-silent-partner.mp3'))
+              : undefined);
+
             return {
-              thumbnailSrc: promoThumbnailUrl || readString(body.promoThumbnailUrl) || readString(body.thumbnailUrl) || '',
+              thumbnailSrc: promoThumbnailUrl || readString(body.promoThumbnailUrl) || readString(body.thumbnailUrl) || autoYtThumbnail || '',
               thumbnailKey: promoThumbnailImageKey || undefined,
               title: promoTitle,
               promoGoal: readString(body.promoGoal) || 'watch-full-video',
@@ -2515,6 +2748,11 @@ export async function POST(request: Request) {
               durationSeconds: promoDur,
               sourceDurationSeconds: promoDur,
               scenes: promoScenes,
+              captionStyle: readString(body.captionStyle) || 'Pop Word',
+              bgmUrl: promoBgmUrl,
+              bgmVolume: Number(body.bgmVolume ?? 0.12),
+              enableSfx: body.enableSfx !== false,
+              editorialTranscript: readString(body.editorialTranscript) || undefined,
             };
           })()
         : {}),
@@ -4079,6 +4317,7 @@ function resolveTemplateNameFromRequest(value: string): ReelTemplateName | null 
 function toMode(value: string): ReelMode | null {
   const normalized = value.toLowerCase();
   if (normalized.includes('book-summary') || normalized.includes('booksummary') || normalized.includes('book_summary')) return 'bookSummary';
+  if (normalized.includes('split-screen') || normalized.includes('splitscreen') || normalized.includes('split_screen')) return 'splitScreenExplainer';
   if (normalized.includes('image-to-video') || normalized.includes('imagetovideo') || normalized.includes('image_to_video')) return 'imageToVideoAi';
   if (normalized.includes('ai-video-generator') || normalized.includes('aivideogenerator') || normalized.includes('aivideo') || normalized.includes('ai-video') || normalized.includes('text-to-video') || normalized.includes('script-to-video')) return 'facelessVideo';
   if (normalized.includes('faceless-shorts') || normalized.includes('facelessshorts') || normalized.includes('faceless_shorts')) return 'facelessShorts';
@@ -4250,7 +4489,7 @@ function validateBeforeRender({
     };
   }
 
-  if ((templateName === 'VIDEO_CAPTION' || templateName === 'YOUTUBE_SUBTITLE_GENERATOR') && mediaType !== 'video') {
+  if (templateName === 'VIDEO_CAPTION' && mediaType !== 'video') {
     return {
       reasonCode: 'VIDEO_CAPTION_REQUIRES_VIDEO',
       message: 'Video upload required for subtitles before render.',

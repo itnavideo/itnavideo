@@ -1,8 +1,10 @@
 import React from 'react';
 import {
+  Img,
   Loop,
   OffthreadVideo,
   interpolate,
+  spring,
   useCurrentFrame,
   useVideoConfig,
 } from 'remotion';
@@ -90,8 +92,9 @@ export function FullBleedVisualScene({
   }
 
   // Smooth Spring-like Entrance for Text Overlay
-  const textOpacity = interpolate(currentFrame, [0, 12], [0, 1], { extrapolateRight: 'clamp' });
-  const textTranslateY = interpolate(currentFrame, [0, 12], [28, 0], { extrapolateRight: 'clamp' });
+  const textSpring = spring({ frame: currentFrame, fps, config: { damping: 14, stiffness: 110 } });
+  const textOpacity = textSpring;
+  const textTranslateY = interpolate(textSpring, [0, 1], [30, 0]);
 
   const headline = String(scene.heading || '').trim();
   const rawHighlight = (scene.highlightedWords && typeof scene.highlightedWords[0] === 'string')
@@ -154,7 +157,7 @@ export function FullBleedVisualScene({
                   />
                 </Loop>
               ) : (
-                <img
+                <Img
                   src={resolvedSrc}
                   alt={headline || 'Scene Visual'}
                   style={{
@@ -229,7 +232,7 @@ export function FullBleedVisualScene({
                   />
                 </Loop>
               ) : (
-                <img
+                <Img
                   src={resolvedSrc}
                   alt={headline || 'Scene Visual'}
                   style={{

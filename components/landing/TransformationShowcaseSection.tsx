@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { getOptimizedCloudinaryUrl } from '@/lib/utils';
 import Link from 'next/link';
 import { Sparkles, CheckCircle2, ArrowRight, Zap, UploadCloud } from 'lucide-react';
 
@@ -61,11 +62,13 @@ export default function TransformationShowcaseSection() {
         <div className="relative mx-auto max-w-5xl w-full bg-white flex justify-center items-center py-2 sm:py-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="https://res.cloudinary.com/dhouh9idx/image/upload/v1792945906/file_00000000e0588211aef29aa7dc03025e_e09msx.png"
+            src={getOptimizedCloudinaryUrl('https://res.cloudinary.com/dhouh9idx/image/upload/v1792945906/file_00000000e0588211aef29aa7dc03025e_e09msx.png', 1100)}
             alt="ItnaVideo - Create stunning videos with AI. No editing needed."
             className="w-full h-auto object-contain max-h-[580px] mx-auto select-none"
             loading="lazy"
             decoding="async"
+            width={1100}
+            height={580}
           />
         </div>
 

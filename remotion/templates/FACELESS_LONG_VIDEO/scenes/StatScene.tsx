@@ -1,19 +1,13 @@
 import React from 'react';
-import {
-  Loop,
-  OffthreadVideo,
-  interpolate,
-  spring,
-  staticFile,
-  useCurrentFrame,
-  useVideoConfig,
-} from 'remotion';
-import { ResponsiveTypography } from '../components/ResponsiveTypography';
-import { FullBleedVisualScene } from './FullBleedVisualScene';
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
-
 import type { BackgroundColorPalette } from '../../../components/backgrounds/BackgroundCatalog';
-import { safeResolveMediaSrc, isVideoMedia, isValidMediaUrl } from '../../../utils/safeMedia';
+import { VectorDrawingIcon } from '../../../components/graphics/VectorDrawingIcon';
+import { useVideoDesignSystem } from '../designSystem';
+import {
+  EyebrowPill,
+  SceneCanvas,
+  StudioCard,
+} from '../components/DesignSystemPrimitives';
 
 export interface StatSceneProps {
   scene: SceneBlueprintItem;
@@ -24,191 +18,158 @@ export interface StatSceneProps {
   palette?: BackgroundColorPalette;
 }
 
-// resolveMediaSrc replaced by safeResolveMediaSrc
-
-// isVideo replaced by isVideoMedia
-
 export function StatScene({
   scene,
-  mediaUrl,
-  headingFont = 'Montserrat, sans-serif',
-  bodyFont = 'Inter, sans-serif',
+  headingFont = 'Montserrat, "Plus Jakarta Sans", sans-serif',
+  bodyFont = 'Inter, "Plus Jakarta Sans", sans-serif',
   sceneFrame,
   palette,
 }: StatSceneProps) {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-
-  const currentFrame = sceneFrame !== undefined ? sceneFrame : frame;
-  const sceneDurationFrames = Math.max(30, Math.round((scene.duration || 5) * fps));
-
-  const statVal = scene.statValue || scene.numberBadge?.toString();
-
-  // If there is NO real numeric statistic (e.g. no digits), fallback directly to FullBleedVisualScene
-  if (!statVal || !/\d/.test(statVal)) {
-    return (
-      <FullBleedVisualScene
-        scene={scene}
-        mediaUrl={mediaUrl}
-        headingFont={headingFont}
-        bodyFont={bodyFont}
-        sceneFrame={sceneFrame}
-        palette={palette}
-      />
-    );
-  }
-
-  const entrance = spring({
-    frame: currentFrame,
-    fps,
-    config: { damping: 14, mass: 0.8 },
+  const ds = useVideoDesignSystem({
+    sceneFrame,
+    durationSec: scene.duration,
+    palette,
   });
 
-  const isDummyLabel =
+  const statVal =
+    scene.statValue ||
+    (scene.numberBadge !== undefined ? String(scene.numberBadge) : '') ||
+    (scene.chartValuePercent !== undefined ? `${scene.chartValuePercent}%` : '10x');
+
+  const isGenericLabel =
     !scene.statLabel ||
     scene.statLabel.toUpperCase() === 'GROWTH METRIC' ||
     scene.statLabel.toUpperCase() === 'KEY METRIC';
-  const statLbl: string =
-    (isDummyLabel ? scene.heading || scene.narrationSegment?.text || '' : scene.statLabel) || '';
 
-  const activeMediaUrl = mediaUrl || scene.visualAssetRequirement || '';
-  const resolvedSrc = safeResolveMediaSrc(activeMediaUrl);
-  const isVid = isVideoMedia(activeMediaUrl);
-  const kenBurns = interpolate(currentFrame, [0, sceneDurationFrames], [1.02, 1.12], { extrapolateRight: 'clamp' });
+  const statTitle = isGenericLabel
+    ? scene.heading || 'Key Performance Indicator'
+    : scene.statLabel!;
 
-  const isDark = palette ? palette.isDark : true;
-  const textColor = isDark ? '#FFFFFF' : '#0F172A';
-  const labelColor = isDark ? 'rgba(255, 255, 255, 0.85)' : '#334155';
+  const supporting =
+    scene.supportingText && scene.supportingText !== statTitle
+      ? scene.supportingText
+      : scene.heading && scene.heading !== statTitle
+      ? scene.heading
+      : '';
+
+  const categoryPill = scene.categoryPill || 'KEY METRIC CALLOUT';
+  const trendTone =
+    scene.statTrend === 'down' ? 'rose' : scene.statTrend === 'neutral' ? 'sky' : 'emerald';
 
   return (
-    <div
-      style={{
-        position: 'absolute',
-        inset: 0,
-        width: '100%',
-        height: '100%',
-        overflow: 'hidden',
-        backgroundColor: 'transparent',
-      }}
+    <SceneCanvas
+      sceneFrame={sceneFrame}
+      durationSec={scene.duration}
+      palette={palette}
+      accentTone={trendTone}
+      fontFamily={bodyFont}
     >
-      {/* ── 1. Full-Bleed Media in Background (Edge-to-Edge 1920x1080) ── */}
-      {resolvedSrc && (
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            transform: `scale(${kenBurns})`,
-            transformOrigin: 'center center',
-          }}
-        >
-          {isVid ? (
-            <Loop durationInFrames={180}>
-              <OffthreadVideo
-                src={resolvedSrc}
-                volume={0}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-            </Loop>
-          ) : (
-            <img
-              src={resolvedSrc}
-              alt="Stat visual"
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
-          )}
-          {/* Subtle directional scrim over media for 100% legibility */}
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              background: 'radial-gradient(ellipse at center, rgba(7, 11, 20, 0.72) 0%, rgba(2, 6, 23, 0.92) 100%)',
-              backdropFilter: 'blur(12px)',
-            }}
-          />
-        </div>
-      )}
-
-      {/* ── 2. Cinematic Hero Metric Display in Center (Zero SaaS Card Box) ── */}
-      <div
+      <StudioCard
+        tone={trendTone}
+        topAccentBar
+        elevated
+        palette={palette}
+        progress={ds.motion.contentSpring}
         style={{
-          position: 'absolute',
-          inset: 0,
+          width: '100%',
+          maxWidth: ds.layout.isVertical ? '900px' : '1240px',
+          padding: ds.layout.isVertical ? '44px 36px' : '56px 64px',
           display: 'flex',
-          flexDirection: 'column',
+          flexDirection: ds.layout.splitDirection,
           alignItems: 'center',
-          justifyContent: 'center',
-          padding: '80px 140px',
-          zIndex: 10,
-          opacity: entrance,
-          transform: `scale(${interpolate(entrance, [0, 1], [0.92, 1.0])})`,
-          textAlign: 'center',
+          justifyContent: 'space-between',
+          gap: ds.layout.isVertical ? '32px' : '56px',
         }}
       >
-        {/* Metric Kicker Eyebrow */}
+        {/* Left / Top Metric Column */}
         <div
           style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            backgroundColor: isDark ? 'rgba(255, 87, 34, 0.15)' : 'rgba(255, 87, 34, 0.10)',
-            border: '1px solid rgba(255, 87, 34, 0.35)',
-            borderRadius: '9999px',
-            padding: '8px 24px',
-            marginBottom: '28px',
+            flex: 1.2,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: ds.layout.isVertical ? 'center' : 'flex-start',
+            textAlign: ds.layout.isVertical ? 'center' : 'left',
           }}
         >
-          <span style={{ fontSize: '18px' }}>📊</span>
-          <span
-            style={{
-              fontFamily: headingFont,
-              fontSize: '14px',
-              fontWeight: 900,
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              color: '#FF7043',
-            }}
-          >
-            KEY METRIC
-          </span>
-        </div>
+          <div style={{ marginBottom: '20px' }}>
+            <EyebrowPill
+              label={categoryPill}
+              tone={trendTone}
+              palette={palette}
+              progress={ds.motion.eyebrowSpring}
+            />
+          </div>
 
-        {/* Oversized Glowing Hero Statistic */}
-        <div
-          style={{
-            fontFamily: headingFont,
-            fontSize: '130px',
-            fontWeight: 900,
-            lineHeight: 1.0,
-            letterSpacing: '-0.03em',
-            background: 'linear-gradient(135deg, #FF5722 0%, #FF7043 50%, #FFA000 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            filter: 'drop-shadow(0 15px 35px rgba(255, 87, 34, 0.45))',
-            marginBottom: '24px',
-          }}
-        >
-          {statVal}
-        </div>
-
-        {/* High-Contrast Context Label */}
-        {statLbl && (
+          {/* Hero Stat Number */}
           <div
             style={{
-              fontFamily: bodyFont,
-              fontSize: '32px',
-              fontWeight: 700,
-              color: resolvedSrc ? '#F8FAFC' : textColor,
-              maxWidth: '1100px',
-              lineHeight: 1.4,
-              textShadow: resolvedSrc ? '0 4px 20px rgba(0, 0, 0, 0.9)' : undefined,
+              fontFamily: headingFont,
+              fontSize: `${ds.type.metricHero.fontSize}px`,
+              fontWeight: ds.type.metricHero.fontWeight,
+              letterSpacing: ds.type.metricHero.letterSpacing,
+              lineHeight: ds.type.metricHero.lineHeight,
+              color: ds.accents[trendTone].solid,
+              marginBottom: '18px',
             }}
           >
-            {statLbl}
+            {statVal}
           </div>
-        )}
-      </div>
-    </div>
+
+          {/* Primary Stat Headline */}
+          <h2
+            style={{
+              fontFamily: headingFont,
+              fontSize: `${ds.type.sceneTitle.fontSize}px`,
+              fontWeight: ds.type.sceneTitle.fontWeight,
+              letterSpacing: ds.type.sceneTitle.letterSpacing,
+              lineHeight: 1.15,
+              color: ds.surface.textPrimary,
+              margin: supporting ? '0 0 14px 0' : 0,
+            }}
+          >
+            {statTitle}
+          </h2>
+
+          {supporting && (
+            <p
+              style={{
+                fontSize: `${ds.type.bodyLg.fontSize}px`,
+                fontWeight: 500,
+                lineHeight: 1.48,
+                color: ds.surface.textSecondary,
+                margin: 0,
+                maxWidth: '680px',
+              }}
+            >
+              {supporting}
+            </p>
+          )}
+        </div>
+
+        {/* Right / Bottom Vector Visual Accent */}
+        <div
+          style={{
+            width: ds.layout.isVertical ? '260px' : '320px',
+            height: ds.layout.isVertical ? '260px' : '320px',
+            borderRadius: '28px',
+            backgroundColor: ds.surface.cardBgMuted,
+            border: ds.surface.borderSubtle,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}
+        >
+          <VectorDrawingIcon
+            keyword={scene.vectorDrawingId || `${statTitle} ${supporting} chart metric`}
+            size={ds.layout.isVertical ? 210 : 250}
+            strokeWidth={4}
+            animated={true}
+            frameOverride={ds.localFrame}
+            theme={ds.surface.isDark ? 'dark' : 'light'}
+          />
+        </div>
+      </StudioCard>
+    </SceneCanvas>
   );
 }

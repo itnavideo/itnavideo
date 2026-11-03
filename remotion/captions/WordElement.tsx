@@ -67,6 +67,65 @@ export const WordElement: React.FC<WordElementProps> = ({
     pulseScale = 0.9 + (activeScaleMultiplier - 0.9) * springVal;
   }
 
+  // ── Top Creator Extracted Motion & Visual DNA ──
+  if (presetId === 'luxury-editorial') {
+    const isCursiveWord = wordIndex % 2 === 0;
+    if (isCursiveWord) {
+      fontFamily = 'Playfair Display, Instrument Serif, Georgia, serif';
+      customStyle = {
+        fontStyle: 'italic',
+        color: isActive ? highlightColor : '#FDE68A',
+        textShadow: '0 2px 14px rgba(253, 230, 138, 0.45)',
+        ...customStyle,
+      };
+    } else {
+      fontFamily = 'Montserrat, sans-serif';
+      customStyle = {
+        textTransform: 'uppercase',
+        fontWeight: 900,
+        color: isActive ? highlightColor : '#FFFFFF',
+        textShadow: '0 4px 18px rgba(0,0,0,0.9)',
+        ...customStyle,
+      };
+    }
+  }
+
+  if (presetId === 'metallic-gloss') {
+    customStyle = {
+      background: isActive
+        ? 'linear-gradient(180deg, #FFFFFF 0%, #E9D5FF 40%, #A855F7 100%)'
+        : 'linear-gradient(180deg, #FFFFFF 0%, #F1F5F9 50%, #94A3B8 100%)',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+      filter: 'drop-shadow(0 6px 18px rgba(0,0,0,0.95))',
+      fontWeight: 900,
+      letterSpacing: '0.04em',
+      ...customStyle,
+    };
+  }
+
+  if (presetId === 'whisper-podcast') {
+    customStyle = {
+      fontFamily: 'Newsreader, Playfair Display, Georgia, serif',
+      letterSpacing: '0.08em',
+      textTransform: 'lowercase',
+      color: isActive ? '#FDE047' : '#F8FAFC',
+      textShadow: isActive ? '0 0 16px rgba(253, 224, 71, 0.6)' : 'none',
+      ...customStyle,
+    };
+  }
+
+  if (presetId === 'creator-punch-stack') {
+    customStyle = {
+      fontFamily: 'Montserrat, Anton, sans-serif',
+      textTransform: 'uppercase',
+      fontWeight: 900,
+      color: isActive ? '#FACC15' : '#FFFFFF',
+      textShadow: '0 4px 16px rgba(0,0,0,0.95), 0 0 8px rgba(250, 204, 21, 0.4)',
+      ...customStyle,
+    };
+  }
+
   // 1. MrBeast Shorts Impact: Alternating word colors (yellow, cyan, white) & tilt
   let finalColor = isActive ? highlightColor : textColor;
   let wordTilt = 0;

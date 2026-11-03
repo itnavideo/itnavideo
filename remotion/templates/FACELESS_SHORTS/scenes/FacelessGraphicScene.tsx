@@ -3,7 +3,7 @@ import { interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
 import type { FacelessGraphicItem, SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
 import type { BackgroundColorPalette } from '../../../components/backgrounds/BackgroundCatalog';
 
-type Props = {
+export type Props = {
   scene: SceneBlueprintItem;
   headingFont?: string;
   bodyFont?: string;
@@ -13,73 +13,196 @@ type Props = {
 
 /**
  * 9:16 Vertical Faceless Graphic Scene (1080×1920)
- * SVG viewBox = "0 0 540 960" — native 9:16 coordinate space
- * All chart variants fill the full vertical phone canvas.
+ * SVG viewBox = "0 0 540 960" — native 9:16 coordinate space.
+ * (The 16:9 variant lives in its own file with its own layout constants.)
  */
 
-// ── Color palette ──────────────────────────────────────────────
+// ── Canvas + safe zones ────────────────────────────────────────
+// Platform UI (captions, like/share rail, username) covers the top and bottom
+// of vertical video, so charts are centred inside a safe band.
+export const VB_W = 540;
+export const VB_H = 960;
+const SAFE_TOP = 150;
+const SAFE_BOTTOM = 800;
+const SAFE_CENTER_Y = (SAFE_TOP + SAFE_BOTTOM) / 2; // 475
+const SIDE_MARGIN = 60;
+const CONTENT_W = VB_W - SIDE_MARGIN * 2; // 420
+
+// ── Colors ─────────────────────────────────────────────────────
 const ORANGE = '#FF5722';
-const AMBER  = '#FFA000';
+const AMBER = '#FFA000';
 const EMERALD = '#10B981';
 const VIOLET = '#8B5CF6';
-const SKY    = '#38BDF8';
+const SKY = '#38BDF8';
+export const DEFAULT_ACCENTS = [ORANGE, EMERALD, VIOLET, SKY, AMBER];
 
-const ACCENT_RING = [ORANGE, EMERALD, VIOLET, SKY, AMBER];
+// ── Default theme: clean white ─────────────────────────────────
+// Used whenever no palette is supplied (or a palette field is missing),
+// so every faceless scene starts from a white canvas with dark ink.
+export const WHITE_THEME = {
+  background: '#FFFFFF',
+  surface: '#FFFFFF',
+  ink: '#0F172A',       // near-black, easier on the eye than pure #000
+  muted: '#64748B',
+  hairline: '#E5E7EB',  // bar tracks, card borders
+};
+export type SceneTheme = typeof WHITE_THEME;
 
-// ── Helpers ────────────────────────────────────────────────────
-function linesFor(label: string, charsPerLine = 22): string[] {
-  const words = String(label || '').split(/\s+/).filter(Boolean);
-  const lines: string[] = [];
-  let line = '';
-  words.forEach((w) => {
-    if (line && (line + ' ' + w).length > charsPerLine) { lines.push(line); line = w; }
-    else { line = line ? line + ' ' + w : w; }
-  });
-  if (line) lines.push(line);
-  return lines.slice(0, 3);
+/** Merge any (partial) overrides on top of the white defaults. */
+export function resolveTheme(overrides?: Partial<SceneTheme>): SceneTheme {
+  return { ...WHITE_THEME, ...(overrides ?? {}) };
 }
 
-function MultiLineText({ text, x, y, color, font, size = 28, weight = 750, anchor = 'middle', lineHeight = 36 }: {
+/** Full-canvas background rect — render this first inside the <svg>. */
+export function SceneBackground({ color = WHITE_THEME.background }: { color?: string }) {
+  return <rect x={0} y={0} width={VB_W} height={VB_H} fill={color} />;
+}
+
+// ── Motion ─────────────────────────────────────────────────────
+const SPRING_CONFIG = { damping: 18, mass: 0.75, stiffness: 115 };
+const STAGGER_FRAMES = 6;
+
+const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
+
+/** Per-item progress so each bar draws in sequence rather than all at once. */
+function staggered(draw: number, idx: number, count: number): number {
+  const span = 0.6; // portion of the timeline each item animates over
+  const step = count > 1 ? (1 - span) / (count - 1) : 0;
+  return clamp01((draw - idx * step) / span);
+}
+
+// ── Text helpers ───────────────────────────────────────────────
+const AVG_CHAR_WIDTH = 0.56; // avg glyph width as a fraction of font size (bold sans)
+
+function charsThatFit(maxWidth: number, size: number): number {
+  return Math.max(6, Math.floor(maxWidth / (size * AVG_CHAR_WIDTH)));
+}
+
+/** Word-wrap to `maxLines`, adding an ellipsis if the text is truncated. */
+export function wrapLabel(label: string, charsPerLine: number, maxLines = 3): string[] {
+  const words = String(label ?? '').split(/\s+/).filter(Boolean);
+  const lines: string[] = [];
+  let line = '';
+
+  for (const w of words) {
+    const next = line ? `${line} ${w}` : w;
+    if (line && next.length > charsPerLine) {
+      lines.push(line);
+      line = w;
+    } else {
+      line = next;
+    }
+  }
+  if (line) lines.push(line);
+
+  if (lines.length <= maxLines) return lines;
+
+  const kept = lines.slice(0, maxLines);
+  const last = kept[maxLines - 1];
+  kept[maxLines - 1] =
+    (last.length >= charsPerLine ? last.slice(0, Math.max(1, charsPerLine - 1)) : last).replace(/[.,;:\s]+$/, '') + '…';
+  return kept;
+}
+
+function MultiLineText({
+  text, x, y, color, font, size = 28, weight = 750, anchor = 'middle', lineHeight, maxWidth = CONTENT_W, maxLines = 3,
+}: {
   text: string; x: number; y: number; color: string; font: string;
-  size?: number; weight?: number; anchor?: 'start' | 'middle' | 'end'; lineHeight?: number;
+  size?: number; weight?: number; anchor?: 'start' | 'middle' | 'end';
+  lineHeight?: number; maxWidth?: number; maxLines?: number;
 }) {
-  const lines = linesFor(text, anchor === 'middle' ? 22 : 26);
+  const lh = lineHeight ?? Math.round(size * 1.28);
+  const lines = wrapLabel(text, charsThatFit(maxWidth, size), maxLines);
   return (
-    <text x={x} y={y} textAnchor={anchor} fill={color} fontFamily={font} fontSize={size} fontWeight={weight}>
-      {lines.map((ln, i) => <tspan key={i} x={x} dy={i === 0 ? 0 : lineHeight}>{ln}</tspan>)}
+    <text
+      x={x} y={y} textAnchor={anchor} fill={color}
+      fontFamily={font} fontSize={size} fontWeight={weight}
+    >
+      {lines.map((ln, i) => (
+        <tspan key={i} x={x} dy={i === 0 ? 0 : lh}>{ln}</tspan>
+      ))}
     </text>
   );
 }
 
-// ── Sub-renders for each graphic kind ─────────────────────────
+/** Height a wrapped block will occupy — used for layout so nothing overlaps. */
+function blockHeight(text: string, size: number, maxWidth: number, maxLines = 3): number {
+  const n = wrapLabel(text, charsThatFit(maxWidth, size), maxLines).length || 1;
+  return size + (n - 1) * Math.round(size * 1.28);
+}
 
-function AllocationChart({ items, maxValue, draw, localFrame, fps, ink, muted, hairline, headingFont, bodyFont, id }: {
+// ── Allocation (horizontal bars) ───────────────────────────────
+
+export function AllocationChart({
+  items, maxValue, draw, localFrame, fps, ink, hairline, headingFont, bodyFont, id, accents = DEFAULT_ACCENTS,
+}: {
   items: FacelessGraphicItem[]; maxValue: number; draw: number; localFrame: number; fps: number;
-  ink: string; muted: string; hairline: string; headingFont: string; bodyFont: string; id: string;
+  ink: string; hairline: string; headingFont: string; bodyFont: string; id: string;
+  accents?: string[];
 }) {
-  const barH = 36;
-  const gap = 26;
-  const totalH = items.length * (barH + gap + 44);
-  const startY = 480 - totalH / 2;
+  const barH = 30;
+  const labelToBar = 14;
+  const rowGap = 34;
+  const valueColW = 110;                        // reserved so long labels never hit the value
+  const labelW = CONTENT_W - valueColW;
+  const safeMax = maxValue > 0 ? maxValue : Math.max(1, ...items.map((i) => i.value || 0));
+
+  // Measure rows first, then centre the whole stack in the safe band.
+  const rows = items.map((item) => {
+    const labelH = blockHeight(item.label, 24, labelW, 2);
+    return { labelH, h: labelH + labelToBar + barH };
+  });
+  const totalH = rows.reduce((s, r) => s + r.h, 0) + rowGap * Math.max(0, items.length - 1);
+  let cursor = SAFE_CENTER_Y - totalH / 2;
+
   return (
     <g>
+      <defs>
+        {items.map((_, idx) => {
+          const c = accents[idx % accents.length];
+          return (
+            <linearGradient key={idx} id={`${id}-bar-${idx}`} x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor={c} stopOpacity={0.82} />
+              <stop offset="100%" stopColor={c} stopOpacity={1} />
+            </linearGradient>
+          );
+        })}
+      </defs>
+
       {items.map((item, idx) => {
-        const y = startY + idx * (barH + gap + 44);
-        const entered = spring({ frame: Math.max(0, localFrame - idx * 6), fps, config: { damping: 18, mass: 0.75, stiffness: 115 } });
-        const barW = Math.max(8, 400 * ((item.value || 0) / maxValue) * draw);
-        const accent = ACCENT_RING[idx % ACCENT_RING.length];
+        const row = rows[idx];
+        const top = cursor;
+        cursor += row.h + rowGap;
+
+        const accent = accents[idx % accents.length];
+        const entered = spring({ frame: Math.max(0, localFrame - idx * STAGGER_FRAMES), fps, config: SPRING_CONFIG });
+        const slideY = interpolate(entered, [0, 1], [18, 0]);
+        const rowDraw = staggered(draw, idx, items.length);
+
+        const ratio = clamp01((item.value || 0) / safeMax);
+        const fullW = CONTENT_W * ratio;
+        const barW = Math.max(barH, fullW * rowDraw);  // min width keeps the pill shape intact
+        const barY = top + row.labelH + labelToBar;
+        const valueText = item.displayValue || (item.value ? String(item.value) : '');
+
         return (
-          <g key={idx} opacity={entered}>
-            {/* Label */}
-            <MultiLineText text={item.label} x={70} y={y} color={ink} font={bodyFont} size={24} weight={700} anchor="start" />
-            {/* Value */}
-            <text x={470} y={y} textAnchor="end" fill={accent} fontFamily={headingFont} fontSize={28} fontWeight={900}>
-              {item.displayValue || (item.value ? String(item.value) : '')}
+          <g key={idx} opacity={entered} transform={`translate(0 ${slideY})`}>
+            <MultiLineText
+              text={item.label} x={SIDE_MARGIN} y={top + 20} color={ink} font={bodyFont}
+              size={24} weight={700} anchor="start" maxWidth={labelW} maxLines={2}
+            />
+            <text
+              x={VB_W - SIDE_MARGIN} y={top + 22} textAnchor="end" fill={accent}
+              fontFamily={headingFont} fontSize={30} fontWeight={900}
+              style={{ fontVariantNumeric: 'tabular-nums' }}
+            >
+              {valueText}
             </text>
-            {/* Track */}
-            <rect x={70} y={y + 14} width={400} height={barH} rx={barH / 2} fill={hairline} />
-            {/* Fill */}
-            <rect x={70} y={y + 14} width={barW} height={barH} rx={barH / 2} fill={accent} />
+
+            <rect x={SIDE_MARGIN} y={barY} width={CONTENT_W} height={barH} rx={barH / 2} fill={hairline} />
+            <rect x={SIDE_MARGIN} y={barY} width={barW} height={barH} rx={barH / 2} fill={`url(#${id}-bar-${idx})`} />
+            {/* Leading-edge dot gives the bar a polished "cap" while it draws */}
+            <circle cx={SIDE_MARGIN + barW - barH / 2} cy={barY + barH / 2} r={5} fill="#fff" fillOpacity={0.9 * rowDraw} />
           </g>
         );
       })}
@@ -87,51 +210,83 @@ function AllocationChart({ items, maxValue, draw, localFrame, fps, ink, muted, h
   );
 }
 
-function ComparisonCards({ items, draw, localFrame, fps, ink, muted, hairline, surface, headingFont, bodyFont }: {
+// ── Comparison (two cards + VS) ────────────────────────────────
+
+export function ComparisonCards({
+  items, draw, localFrame, fps, ink, hairline, surface, headingFont, bodyFont, colors = [ORANGE, EMERALD],
+}: {
   items: FacelessGraphicItem[]; draw: number; localFrame: number; fps: number;
-  ink: string; muted: string; hairline: string; surface: string; headingFont: string; bodyFont: string;
+  ink: string; hairline: string; surface: string; headingFont: string; bodyFont: string;
+  colors?: [string, string] | string[];
 }) {
-  const pair = [items[0] || { label: 'Option A' }, items[1] || { label: 'Option B' }];
-  const cardW = 210, cardH = 320, gapBetween = 28;
-  const totalW = cardW * 2 + gapBetween;
-  const startX = (540 - totalW) / 2;
-  const cardY = 310;
+  const pair = [items[0] ?? { label: 'Option A' }, items[1] ?? { label: 'Option B' }];
+  const gapBetween = 24;
+  const cardW = (CONTENT_W - gapBetween) / 2; // 198
+  const cardH = 340;
+  const cardY = SAFE_CENTER_Y - cardH / 2;
+  const innerW = cardW - 28;
+
   return (
     <g>
       {pair.map((item, idx) => {
-        const x = startX + idx * (cardW + gapBetween);
-        const color = idx === 0 ? ORANGE : EMERALD;
-        const entered = spring({ frame: Math.max(0, localFrame - idx * 8), fps, config: { damping: 18, mass: 0.75, stiffness: 115 } });
+        const x = SIDE_MARGIN + idx * (cardW + gapBetween);
+        const cx = x + cardW / 2;
+        const color = colors[idx % colors.length];
+        const entered = spring({ frame: Math.max(0, localFrame - idx * 8), fps, config: SPRING_CONFIG });
         const slideY = interpolate(entered, [0, 1], [40, 0]);
+        const iconPop = interpolate(entered, [0, 1], [0.7, 1], { extrapolateRight: 'clamp' });
+        const iconCy = cardY + 92;
+
         return (
           <g key={idx} opacity={entered} transform={`translate(0 ${slideY})`}>
-            {/* Card shadow + bg */}
-            <rect x={x} y={cardY} width={cardW} height={cardH} rx={22} fill={surface} stroke={hairline} strokeWidth={2} />
-            {/* Top accent stripe */}
-            <rect x={x} y={cardY} width={cardW} height={8} rx={4} fill={color} />
-            {/* Icon circle */}
-            <circle cx={x + cardW / 2} cy={cardY + 90} r={52} fill={color} fillOpacity={0.12} stroke={color} strokeWidth={3} />
-            {/* Plus / check icon */}
-            <path
-              d={idx === 0
-                ? `M ${x + cardW / 2 - 20} ${cardY + 90} h 40 M ${x + cardW / 2} ${cardY + 70} v 40`
-                : `M ${x + cardW / 2 - 18} ${cardY + 90} l 14 14 24 -28`}
-              stroke={color} strokeWidth={6} strokeLinecap="round" strokeLinejoin="round" fill="none"
+            {/* Soft drop shadow (offset rect, no filter = cheaper to render) */}
+            <rect x={x} y={cardY + 6} width={cardW} height={cardH} rx={24} fill="#000" fillOpacity={0.12} />
+            <rect x={x} y={cardY} width={cardW} height={cardH} rx={24} fill={surface} stroke={hairline} strokeWidth={2} />
+            <rect x={x + 20} y={cardY} width={cardW - 40} height={6} rx={3} fill={color} />
+
+            <g transform={`translate(${cx} ${iconCy}) scale(${iconPop}) translate(${-cx} ${-iconCy})`}>
+              <circle cx={cx} cy={iconCy} r={50} fill={color} fillOpacity={0.12} stroke={color} strokeWidth={3} />
+              <path
+                d={idx === 0
+                  ? `M ${cx - 20} ${iconCy} h 40 M ${cx} ${iconCy - 20} v 40`
+                  : `M ${cx - 18} ${iconCy} l 14 14 24 -28`}
+                stroke={color} strokeWidth={6} strokeLinecap="round" strokeLinejoin="round" fill="none"
+              />
+            </g>
+
+            <MultiLineText
+              text={item.label} x={cx} y={cardY + 190} color={ink} font={headingFont}
+              size={22} weight={900} maxWidth={innerW} maxLines={3}
             />
-            {/* Label */}
-            <MultiLineText text={item.label} x={x + cardW / 2} y={cardY + 175} color={ink} font={headingFont} size={22} weight={900} />
+
             {item.displayValue && (
-              <text x={x + cardW / 2} y={cardY + 280} textAnchor="middle" fill={color} fontFamily={headingFont} fontSize={34} fontWeight={900}>
-                {item.displayValue}
-              </text>
+              <>
+                <line x1={x + 28} x2={x + cardW - 28} y1={cardY + cardH - 82} y2={cardY + cardH - 82} stroke={hairline} strokeWidth={2} />
+                <text
+                  x={cx} y={cardY + cardH - 34} textAnchor="middle" fill={color}
+                  fontFamily={headingFont} fontSize={item.displayValue.length > 7 ? 28 : 36} fontWeight={900}
+                  style={{ fontVariantNumeric: 'tabular-nums' }}
+                >
+                  {item.displayValue}
+                </text>
+              </>
             )}
           </g>
         );
       })}
-      {/* VS badge in centre */}
-      <g opacity={draw}>
-        <circle cx={270} cy={cardY + 160} r={28} fill={ink} />
-        <text x={270} y={cardY + 168} textAnchor="middle" fill={surface} fontFamily={headingFont} fontWeight={900} fontSize={17}>VS</text>
+
+      {/* VS badge — pops in after the cards land */}
+      <g
+        opacity={draw}
+        transform={`translate(270 ${cardY + cardH / 2}) scale(${interpolate(draw, [0, 1], [0.6, 1], { extrapolateRight: 'clamp' })}) translate(-270 ${-(cardY + cardH / 2)})`}
+      >
+        <circle cx={270} cy={cardY + cardH / 2} r={27} fill={ink} stroke={surface} strokeWidth={5} />
+        <text
+          x={270} y={cardY + cardH / 2 + 6} textAnchor="middle" fill={surface}
+          fontFamily={headingFont} fontWeight={900} fontSize={17}
+        >
+          VS
+        </text>
       </g>
     </g>
   );
@@ -160,9 +315,8 @@ function SequenceTimeline({ items, draw, localFrame, fps, ink, muted, headingFon
       {items.map((item, idx) => {
         const cy = topY + idx * spacing;
         const entered = spring({ frame: Math.max(0, localFrame - idx * 6), fps, config: { damping: 18, mass: 0.75, stiffness: 115 } });
-        const accent = ACCENT_RING[idx % ACCENT_RING.length];
+        const accent = DEFAULT_ACCENTS[idx % DEFAULT_ACCENTS.length];
         const isLeft = idx % 2 === 0;
-        const textX = isLeft ? nodeX - 52 : nodeX + 52;
         return (
           <g key={idx} opacity={entered}>
             {/* Step label */}
@@ -266,7 +420,7 @@ function GrowthLineChart({ items, draw, localFrame, fps, ink, muted, hairline, h
       {/* Data points */}
       {coords.map(({ item, x, y }, idx) => {
         const entered = spring({ frame: Math.max(0, localFrame - 12 - idx * stagger), fps, config: { damping: 18, mass: 0.7, stiffness: 120 } });
-        const accent = ACCENT_RING[idx % ACCENT_RING.length];
+        const accent = DEFAULT_ACCENTS[idx % DEFAULT_ACCENTS.length];
         return (
           <g key={idx} opacity={entered} transform={`translate(0 ${interpolate(entered, [0, 1], [20, 0])})`}>
             <circle cx={x} cy={y} r={14} fill="none" stroke={accent} strokeWidth={6} />
@@ -301,7 +455,7 @@ function ConceptOrbit({ items, draw, localFrame, fps, ink, muted, hairline, surf
         const nx = cx + Math.cos(angle) * rx;
         const ny = cy + Math.sin(angle) * ry;
         const entered = spring({ frame: Math.max(0, localFrame - idx * 5), fps, config: { damping: 18, mass: 0.75, stiffness: 115 } });
-        const accent = ACCENT_RING[idx % ACCENT_RING.length];
+        const accent = DEFAULT_ACCENTS[idx % DEFAULT_ACCENTS.length];
         return (
           <g key={idx} opacity={entered}>
             <circle cx={nx} cy={ny} r={58} fill={surface} stroke={accent} strokeWidth={3} />
@@ -412,7 +566,7 @@ export function FacelessGraphicScene({
           {/* Main heading */}
           <text x={270} y={146} textAnchor="middle" fill={ink}
             fontFamily={headingFont} fontSize={44} fontWeight={900} letterSpacing="-0.02em">
-            {linesFor(title, 16).map((ln, i) => (
+            {wrapLabel(title, charsThatFit(VB_W - SIDE_MARGIN * 2, 44), 3).map((ln, i) => (
               <tspan key={i} x={270} dy={i === 0 ? 0 : 52}>{ln}</tspan>
             ))}
           </text>
@@ -421,7 +575,7 @@ export function FacelessGraphicScene({
           {scene.supportingText && (
             <text x={270} y={240} textAnchor="middle" fill={muted}
               fontFamily={bodyFont} fontSize={22} fontWeight={600}>
-              {linesFor(scene.supportingText, 26).map((ln, i) => (
+              {wrapLabel(scene.supportingText, charsThatFit(VB_W - SIDE_MARGIN * 2, 22), 3).map((ln, i) => (
                 <tspan key={i} x={270} dy={i === 0 ? 0 : 28}>{ln}</tspan>
               ))}
             </text>

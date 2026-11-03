@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import Link from "next/link";
 import {
   Sparkles,
   Upload,
+  UploadCloud,
   Volume2,
   Check,
   CheckCircle2,
@@ -20,16 +20,70 @@ import {
   BookOpen,
   Tag,
   Music,
-  Headphones,
   Sliders,
   ChevronDown,
   ChevronUp,
   Layers,
   Zap,
+  Film,
+  Eye,
+  EyeOff,
+  Video,
+  Image as ImageIcon,
+  CheckCheck,
+  Edit3,
+  Save,
+  Lock,
+  ShieldCheck,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
+import { BorderBeam } from "@/components/magicui/BorderBeam";
+import { StudioWorkflowRoadmap } from "@/components/dashboard/StudioWorkflowRoadmap";
 import { FacelessStoryboardTimeline } from "@/components/dashboard/FacelessStoryboardTimeline";
 import { diffBasedAlignTranscript } from "@/services/ai/transcriptAlignment";
-import { YOUTUBE_BGM_TRACKS, type BgmTrack } from "@/lib/music/youtubeBgmCatalog";
+
+// Master AWS S3 Production Music Library
+const AWS_FACELESS_BGM_TRACKS = [
+  { id: "parasail", label: "Calm Lofi (Recommended)", category: "Lo-Fi", path: "assets/reusable/music/parasail-silent-partner.mp3", desc: "Warm acoustic lofi guitar" },
+  { id: "19th-floor", label: "Deep Focus & Ambient", category: "Piano", path: "assets/reusable/music/19th-floor-bobby-richards.mp3", desc: "Inspiring subtle piano tone" },
+  { id: "dutty-vibe", label: "Optimistic Beat", category: "Upbeat", path: "assets/reusable/music/dutty-vibe-tracks.mp3", desc: "Gentle positive acoustic rhythm" },
+  { id: "book-rental", label: "Energetic Narrative", category: "Story", path: "assets/reusable/music/book-the-rental-wit-it-rage.mp3", desc: "Dynamic narrative flow" },
+  { id: "crimson-fly", label: "Cinematic Drama", category: "Cinematic", path: "assets/reusable/music/crimson-fly-huma-huma.mp3", desc: "Emotional documentary drive" },
+  { id: "crock-pot", label: "Funky Chill Groove", category: "Chill", path: "assets/reusable/music/crock-pot-diamond-ortiz.mp3", desc: "Playful lofi pulse" },
+  { id: "illusions", label: "Modern Swagger Beat", category: "Beats", path: "assets/reusable/music/illusions-anno-domini-beats.mp3", desc: "Modern high-production beat" },
+  { id: "not-for-nothing", label: "Lounge Instrumental", category: "Lounge", path: "assets/reusable/music/not-for-nothing-otis-mcdonald.mp3", desc: "Smooth brass & relaxed tempo" },
+  { id: "something-going", label: "Philosophical Mystery", category: "Deep", path: "assets/reusable/music/something-is-going-on-godmode.mp3", desc: "Pensive intrigue & discovery" },
+  { id: "bar-scene", label: "Acoustic Folk Narrative", category: "Acoustic", path: "assets/reusable/music/that-one-bar-scene-rkvc.mp3", desc: "Warm acoustic guitar storytelling" },
+  { id: "true-messiah", label: "Victorious Inspiration", category: "Epic", path: "assets/reusable/music/true-messiah-dj-freedem.mp3", desc: "Triumphant motivational melody" },
+  { id: "vishnu", label: "Zen Reflection", category: "Zen", path: "assets/reusable/music/vishnu-patrick-patrikios.mp3", desc: "Serene ambient meditation" },
+  { id: "what-it-is", label: "Smooth Motown", category: "Motown", path: "assets/reusable/music/what-it-is-silent-partner.mp3", desc: "Catchy positive baseline" },
+  { id: "none", label: "No Background Music", category: "Mute", path: "none", desc: "Pure spoken voiceover only" },
+];
+
+// 20 Master YouTube 16:9 Caption Styles
+const TWENTY_CAPTION_STYLES = [
+  { id: "glow-viral", name: "Flame Glow Yellow", category: "Viral", color: "#FFD700", badge: "Popular", desc: "High-energy glowing yellow active word highlight" },
+  { id: "mrbeast", name: "MrBeast Yellow Box", category: "Viral", color: "#FFEB3B", badge: "Creator", desc: "Punchy yellow bounding box with bold pop" },
+  { id: "netflix-yellow", name: "Cinema Gold Subtitle", category: "Cinema", color: "#FACC15", badge: "Clean", desc: "Classic yellow bold font with black outline" },
+  { id: "hormozi-bold", name: "Hormozi Lime Punch", category: "Viral", color: "#22C55E", badge: "Retention", desc: "High-contrast punchy green & yellow caps" },
+  { id: "neon-city", name: "Cyberpunk Electric Cyan", category: "Modern", color: "#00F0FF", badge: "Glow", desc: "Cyan and magenta neon electric pulse" },
+  { id: "daily-look", name: "Sunny Vlog Rounded", category: "Friendly", color: "#FDE047", badge: "Vlog", desc: "Friendly rounded stroke with sunny glow" },
+  { id: "blockbuster", name: "Blockbuster Flame", category: "News", color: "#FF5722", badge: "Bold", desc: "Heavyweight slab headlines with Flame Orange" },
+  { id: "handwriting-pop", name: "Organic Script Pop", category: "Creative", color: "#FB7185", badge: "Script", desc: "Authentic cursive handwriting with dynamic line" },
+  { id: "vox-docu", name: "Vox Documentary Serif", category: "Editorial", color: "#FFFFFF", badge: "Docu", desc: "Editorial serif with dark glass backdrop" },
+  { id: "minimal-clean", name: "Minimal Ice Blue", category: "Modern", color: "#38BDF8", badge: "Minimal", desc: "Ultra-crisp modern sans-serif with slate pill" },
+  { id: "cyber-ops", name: "Radar Military Green", category: "Tech", color: "#4ADE80", badge: "Tech", desc: "High-tech stencil with radar green glow" },
+  { id: "premium-gold", name: "Wealth Metallic Gold", category: "Finance", color: "#FBBF24", badge: "Wealth", desc: "Rich warm metallic gold for business & finance" },
+  { id: "word-highlight", name: "Flame Word Pop", category: "Kinetic", color: "#FF5722", badge: "Dynamic", desc: "Active word pops with vibrant flame orange" },
+  { id: "classic-clean", name: "Timeless White Cinema", category: "Cinema", color: "#FFFFFF", badge: "Classic", desc: "Crisp white typography with deep drop shadow" },
+  { id: "documentary-serif", name: "Classical Book Serif", category: "Book", color: "#E2E8F0", badge: "Book", desc: "Elegant serif captions for non-fiction literature" },
+  { id: "karaoke-glow", name: "Karaoke Amber Pulse", category: "Karaoke", color: "#FFA000", badge: "Karaoke", desc: "Golden amber electric glow following speech" },
+  { id: "box-pill", name: "Dark Slate Pill Box", category: "Modern", color: "#00FFCC", badge: "Pill", desc: "Solid dark badge background behind spoken words" },
+  { id: "neon-cyber", name: "Magenta Cyber Pulse", category: "Modern", color: "#FF007F", badge: "Neon", desc: "High-contrast cyan & magenta glowing text" },
+  { id: "minimal-lower-third", name: "Scrubber Lower Third", category: "Subtle", color: "#CBD5E1", badge: "Clean", desc: "Clean studio strip at the bottom of the frame" },
+  { id: "editorial-book", name: "Author Emerald Accent", category: "Book", color: "#10B981", badge: "Editorial", desc: "Distinguished emerald highlight on solid white" },
+];
 
 export interface FacelessVideoStudioProps {
   selectedFile: File | null;
@@ -99,12 +153,12 @@ export interface FacelessVideoStudioProps {
   onSceneBlueprintChange?: (blueprint: any[]) => void;
 }
 
-export function FacelessVideoStudio({
+export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
   selectedFile,
   onSelectFile,
   topicTitle = "",
   onTopicTitleChange,
-  subtitleStyle = "ali-editorial",
+  subtitleStyle = "glow-viral",
   onSubtitleStyleChange,
   captionAnimationStyle = "smooth",
   onCaptionAnimationStyleChange,
@@ -114,21 +168,26 @@ export function FacelessVideoStudio({
   onBgmMoodChange,
   selectedBgmTrackId,
   onBgmTrackSelect,
-  facelessBgmVolume = 0.14,
+  facelessBgmVolume = 0.12,
   onBgmVolumeChange,
-  facelessEnableSfx = true,
-  onEnableSfxChange,
   facelessPacingStyle = "cinematic",
   onPacingStyleChange,
+  facelessEnableSfx = true,
+  onEnableSfxChange,
   visualArtStyle = "realistic",
   onVisualArtStyleChange,
   backgroundTheme = "solid-white",
   onBackgroundThemeChange,
-  customBgUrl = "",
+  customBgUrl,
   onCustomBgUrlChange,
+  onCustomBgFileSelect,
   onGenerate,
-  isGenerating = false,
+  isGenerating,
+  renderedVideoUrl,
+  assetSourceMode = "library",
+  onAssetSourceModeChange,
   uploadedImageFiles = [],
+  onUploadedImageFilesChange,
   onTranscribeAndPlan,
   isPlanning = false,
   planningMessage = "",
@@ -136,189 +195,89 @@ export function FacelessVideoStudio({
   onClearPlanningError,
   onOpenPreview,
   onSceneBlueprintChange,
-}: FacelessVideoStudioProps) {
-  // Drag and drop audio state
-  const [isDraggingAudio, setIsDraggingAudio] = useState(false);
-
-  // YouTube BGM selection & live preview state
-  const [activeBgmTrackId, setActiveBgmTrackId] = useState<string>(
-    selectedBgmTrackId || "not-for-nothing-otis-mcdonald"
-  );
-  const [bgmMoodFilter, setBgmMoodFilter] = useState<string>("all");
-  const [playingBgmPreviewId, setPlayingBgmPreviewId] = useState<string | null>(null);
-  const bgmPreviewAudioRef = useRef<HTMLAudioElement | null>(null);
-
-  // Expandable dictionary section
-  const [showBrandDictionary, setShowBrandDictionary] = useState(false);
-
-  useEffect(() => {
-    if (selectedBgmTrackId) {
-      setActiveBgmTrackId(selectedBgmTrackId);
-    }
-  }, [selectedBgmTrackId]);
-
-  // Clean up BGM preview audio on unmount
-  useEffect(() => {
-    return () => {
-      if (bgmPreviewAudioRef.current) {
-        bgmPreviewAudioRef.current.pause();
-        bgmPreviewAudioRef.current = null;
-      }
-    };
-  }, []);
-
-  const handleTogglePreviewBgm = (e: React.MouseEvent, track: BgmTrack) => {
-    e.stopPropagation();
-    if (playingBgmPreviewId === track.id) {
-      bgmPreviewAudioRef.current?.pause();
-      setPlayingBgmPreviewId(null);
-    } else {
-      if (bgmPreviewAudioRef.current) {
-        bgmPreviewAudioRef.current.pause();
-      }
-      const audio = new Audio(track.s3Url);
-      audio.volume = Math.min(1.0, (facelessBgmVolume || 0.14) * 2.5);
-      audio.play().then(() => {
-        setPlayingBgmPreviewId(track.id);
-      }).catch(() => {
-        setPlayingBgmPreviewId(null);
-      });
-      audio.onended = () => setPlayingBgmPreviewId(null);
-      bgmPreviewAudioRef.current = audio;
-    }
-  };
-
-  const handleSelectTrack = (track: BgmTrack) => {
-    setActiveBgmTrackId(track.id);
-    onBgmMoodChange?.(track.mood as any);
-    onBgmTrackSelect?.(track.id, track.s3Url);
-  };
-
-  // Audio preview player state
-  const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
-  const [audioObjectUrl, setAudioObjectUrl] = useState<string>("");
-  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
-  const [audioCurrentTime, setAudioCurrentTime] = useState(0);
-  const [audioDurationSec, setAudioDurationSec] = useState(0);
-
-  // Transcript state
+}) => {
+  // Transcribed state
   const [transcriptText, setTranscriptText] = useState("");
-  const [originalTranscriptText, setOriginalTranscriptText] = useState("");
-  const [transcriptSegments, setTranscriptSegments] = useState<
-    Array<{ start: number; end: number; text: string }>
-  >([]);
-  const [originalWords, setOriginalWords] = useState<
-    Array<{ word: string; start: number; end: number }>
-  >([]);
+  const [editableTranscript, setEditableTranscript] = useState("");
+  const [transcriptSavedFeedback, setTranscriptSavedFeedback] = useState(false);
+  const [showTranscriptEditor, setShowTranscriptEditor] = useState(false);
+  const [transcriptSegments, setTranscriptSegments] = useState<any[]>([]);
+  const [originalWords, setOriginalWords] = useState<any[]>([]);
   const [sceneBlueprint, setSceneBlueprint] = useState<any[]>([]);
   const [brollUrls, setBrollUrls] = useState<Record<number, string>>({});
-  const [taggedUploadedAssets, setTaggedUploadedAssets] = useState<any[]>([]);
+  const [audioDurationSec, setAudioDurationSec] = useState<number>(0);
+  const [audioPreviewUrl, setAudioPreviewUrl] = useState<string>("");
 
-  // Brand and Names vocabulary bias prompt (saved in localStorage)
-  const [brandNamesHint, setBrandNamesHint] = useState("");
-  const [showWordReview, setShowWordReview] = useState(false);
+  // Compulsory Preview & Sync Player
+  const [previewConfirmed, setPreviewConfirmed] = useState(false);
+  const [activePreviewIndex, setActivePreviewIndex] = useState(0);
+  const [isPreviewAudioPlaying, setIsPreviewAudioPlaying] = useState(false);
 
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("itnavideo_brand_dict");
-      if (saved) setBrandNamesHint(saved);
-    } catch {}
-  }, []);
+  // Background Music State (Default 12%)
+  const [activeBgmVolume, setActiveBgmVolume] = useState<number>(Math.round(facelessBgmVolume * 100) || 12);
+  const [selectedBgmTrack, setSelectedBgmTrack] = useState<string>(AWS_FACELESS_BGM_TRACKS[0].path);
+  const [customBgmUrl, setCustomBgmUrl] = useState<string>("");
+  const [customBgmName, setCustomBgmName] = useState<string>("");
+  const [isUploadingBgm, setIsUploadingBgm] = useState(false);
+  const [playingBgmPreview, setPlayingBgmPreview] = useState<string | null>(null);
 
-  const handleBrandNamesChange = (val: string) => {
-    setBrandNamesHint(val);
-    try {
-      localStorage.setItem("itnavideo_brand_dict", val);
-    } catch {}
+  // Caption Filter
+  const [captionFilter, setCaptionFilter] = useState("all");
+
+  // User Uploaded Video Clips & Images
+  const [userMediaClips, setUserMediaClips] = useState<Array<{ file: File; type: "video" | "image"; url: string }>>([]);
+
+  const audioInputRef = useRef<HTMLInputElement>(null);
+  const bgmInputRef = useRef<HTMLInputElement>(null);
+  const multiMediaInputRef = useRef<HTMLInputElement>(null);
+  const previewAudioRef = useRef<HTMLAudioElement | null>(null);
+  const bgmPreviewAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Audio Duration & Calculation (1 Min = 1 Credit)
+  const calculatedCredits = Math.max(1, Math.min(10, Math.ceil((audioDurationSec || 60) / 60)));
+
+  // Load sample demo
+  const handleLoadSampleDemo = () => {
+    onTopicTitleChange?.("The Psychology of High Performance");
+    setAudioPreviewUrl("/assets/reusable/testing1.mp3");
+    setAudioDurationSec(60);
+    // Fake local file for test
+    const dummyFile = new File(["dummy audio"], "high-performance-narration-sample.mp3", { type: "audio/mpeg" });
+    onSelectFile(dummyFile);
   };
 
-  // Review pop-up alert state (auto-dismissing)
-  const [showReviewPopup, setShowReviewPopup] = useState(false);
-  const popupTimerRef = useRef<NodeJS.Timeout | null>(null);
+  // Handle narration audio file selection
+  const handleNarrationSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  // In-flight tracking to prevent duplicate auto-transcriptions
-  const transcribingTargetFileRef = useRef<File | null>(null);
+    onSelectFile(file);
+    const localUrl = URL.createObjectURL(file);
+    setAudioPreviewUrl(localUrl);
 
-  // Create & revoke audio object URL when selectedFile changes
-  useEffect(() => {
-    if (selectedFile) {
-      const url = URL.createObjectURL(selectedFile);
-      setAudioObjectUrl(url);
-      setIsPlayingAudio(false);
-      setAudioCurrentTime(0);
-
-      return () => {
-        URL.revokeObjectURL(url);
-      };
-    } else {
-      setAudioObjectUrl("");
-      setIsPlayingAudio(false);
-      setAudioCurrentTime(0);
-      setAudioDurationSec(0);
-      setTranscriptText("");
-      setOriginalTranscriptText("");
-      setTranscriptSegments([]);
-      setSceneBlueprint([]);
-      setBrollUrls({});
-      setTaggedUploadedAssets([]);
-      setShowReviewPopup(false);
-      transcribingTargetFileRef.current = null;
-    }
-  }, [selectedFile]);
-
-  const handleAudioLoadedMetadata = () => {
-    if (audioPlayerRef.current) {
-      const dur = audioPlayerRef.current.duration;
-      if (Number.isFinite(dur) && dur > 0) {
-        setAudioDurationSec(dur);
+    const audioEl = new Audio(localUrl);
+    audioEl.onloadedmetadata = () => {
+      if (audioEl.duration && Number.isFinite(audioEl.duration)) {
+        setAudioDurationSec(Math.round(audioEl.duration));
       }
-    }
+    };
+
+    setPreviewConfirmed(false);
+    triggerTranscription(file);
+    if (e.target) e.target.value = "";
   };
 
-  const togglePlayAudio = () => {
-    if (!audioPlayerRef.current) return;
-    if (isPlayingAudio) {
-      audioPlayerRef.current.pause();
-      setIsPlayingAudio(false);
-    } else {
-      audioPlayerRef.current
-        .play()
-        .then(() => setIsPlayingAudio(true))
-        .catch(() => setIsPlayingAudio(false));
-    }
-  };
-
-  const handleDeleteAudio = () => {
-    if (audioPlayerRef.current) {
-      audioPlayerRef.current.pause();
-    }
-    setIsPlayingAudio(false);
-    onClearPlanningError?.();
-    transcribingTargetFileRef.current = null;
-    setTranscriptText("");
-    setOriginalTranscriptText("");
-    setTranscriptSegments([]);
-    setSceneBlueprint([]);
-    setBrollUrls({});
-    setShowReviewPopup(false);
-    onSelectFile(null);
-  };
-
-  const triggerTranscription = (file: File, customHint?: string) => {
+  // Trigger transcription
+  const triggerTranscription = (file: File) => {
     if (!onTranscribeAndPlan) return;
-    transcribingTargetFileRef.current = file;
     onClearPlanningError?.();
 
-    const hint = customHint !== undefined ? customHint : brandNamesHint;
-
-    onTranscribeAndPlan(file, hint)
+    onTranscribeAndPlan(file, topicTitle)
       .then((planRes) => {
-        if (transcribingTargetFileRef.current !== file) return;
         if (!planRes) return;
-
         const text = planRes.transcript || "";
         setTranscriptText(text);
-        setOriginalTranscriptText(text);
+        setEditableTranscript(text);
         setTranscriptSegments(planRes.segments || []);
         setOriginalWords(planRes.words || []);
         setSceneBlueprint(planRes.sceneBlueprint || []);
@@ -327,935 +286,983 @@ export function FacelessVideoStudio({
         if (planRes.durationSeconds > 0) {
           setAudioDurationSec(planRes.durationSeconds);
         }
-        if (Array.isArray(planRes.uploadedAssets)) {
-          setTaggedUploadedAssets(planRes.uploadedAssets);
-        }
-
-        setShowReviewPopup(true);
-        if (popupTimerRef.current) clearTimeout(popupTimerRef.current);
-        popupTimerRef.current = setTimeout(() => {
-          setShowReviewPopup(false);
-        }, 6000);
+        setPreviewConfirmed(false);
       })
       .catch((err) => {
         console.error("[AUTO_TRANSCRIBE_ERROR]", err);
       });
   };
 
-  useEffect(() => {
-    if (!selectedFile) {
-      transcribingTargetFileRef.current = null;
-      return;
-    }
-    if (transcribingTargetFileRef.current !== selectedFile) {
-      triggerTranscription(selectedFile);
-    }
-  }, [selectedFile]);
-
-  const hasEditedTranscript =
-    originalTranscriptText.length > 0 &&
-    transcriptText.trim() !== originalTranscriptText.trim();
-
-  const handleResetTranscript = () => {
-    setTranscriptText(originalTranscriptText);
+  // Save edited transcript
+  const handleSaveEditedTranscript = () => {
+    setTranscriptText(editableTranscript);
+    setTranscriptSavedFeedback(true);
+    setTimeout(() => setTranscriptSavedFeedback(false), 2500);
   };
 
-  // Final Generate Video action
-  const handleGenerateVideo = () => {
-    if (!transcriptText.trim()) return;
+  // Handle multi-media (Images AND Video Clips)
+  const handleMultiMediaSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
-    let finalSegments = transcriptSegments;
-    if (hasEditedTranscript && transcriptSegments.length > 0) {
-      const { segments: alignedSegments } = diffBasedAlignTranscript(
-        originalWords,
-        transcriptText,
-        audioDurationSec || (transcriptSegments[transcriptSegments.length - 1]?.end ?? 60)
-      );
-      if (alignedSegments.length > 0) {
-        finalSegments = alignedSegments;
-      }
-    }
+    const newClips: Array<{ file: File; type: "video" | "image"; url: string }> = [];
+    const imageFilesList: File[] = [...uploadedImageFiles];
 
-    const updatedScenes =
-      sceneBlueprint.length > 0
-        ? sceneBlueprint.map((scene, i) => {
-            const matchingSeg = finalSegments[i] || finalSegments[0];
-            if (matchingSeg) {
-              return {
-                ...scene,
-                narrationSegment: {
-                  ...scene.narrationSegment,
-                  text: matchingSeg.text,
-                },
-                heading:
-                  scene.heading || matchingSeg.text.slice(0, 30).toUpperCase(),
-              };
-            }
-            return scene;
-          })
-        : [];
-
-    const validWords = (originalWords || []).filter(
-      (w) => w.word && Number.isFinite(w.start) && Number.isFinite(w.end)
-    );
-
-    let approvedCaptions: Array<{
-      start: number;
-      end: number;
-      text: string;
-      words: Array<{ word: string; start: number; end: number }>;
-    }> = [];
-
-    if (validWords.length > 0) {
-      let group: typeof validWords = [];
-      const MAX_WORDS = 4;
-      const MAX_DURATION = 1.8;
-
-      const flush = () => {
-        if (!group.length) return;
-        approvedCaptions.push({
-          start: group[0].start,
-          end: Math.max(group[group.length - 1].end, group[0].start + 0.45),
-          text: group.map((g) => g.word).join(" "),
-          words: group.map((g) => ({ word: g.word, start: g.start, end: g.end })),
+    Array.from(files).forEach(f => {
+      const isVid = f.type.startsWith("video/");
+      const isImg = f.type.startsWith("image/");
+      if (isVid || isImg) {
+        newClips.push({
+          file: f,
+          type: isVid ? "video" : "image",
+          url: URL.createObjectURL(f),
         });
-        group = [];
-      };
-
-      for (const w of validWords) {
-        if (group.length) {
-          const groupStart = group[0].start;
-          const lastWord = group[group.length - 1];
-          const endsSentence = /[.!?]$/.test(lastWord.word);
-          const pause = w.start - lastWord.end;
-          if (
-            group.length >= MAX_WORDS ||
-            w.end - groupStart > MAX_DURATION ||
-            pause > 0.4 ||
-            endsSentence
-          ) {
-            flush();
-          }
-        }
-        group.push(w);
+        if (isImg) imageFilesList.push(f);
       }
-      flush();
-    }
+    });
 
-    if (approvedCaptions.length === 0) {
-      approvedCaptions = finalSegments.map((s) => {
-        const wordsInText = (s.text || "").trim().split(/\s+/).filter(Boolean);
-        const dur = Math.max(0.4, s.end - s.start);
-        const timePerWord = dur / Math.max(1, wordsInText.length);
-        const words = wordsInText.map((word, idx) => ({
-          word,
-          start: s.start + idx * timePerWord,
-          end: s.start + (idx + 1) * timePerWord,
-        }));
-        return {
-          start: s.start,
-          end: s.end,
-          text: s.text,
-          words: (s as any).words && (s as any).words.length > 0 ? (s as any).words : words,
-        };
+    setUserMediaClips(prev => [...prev, ...newClips]);
+    onUploadedImageFilesChange(imageFilesList);
+    onAssetSourceModeChange("mix");
+    if (e.target) e.target.value = "";
+  };
+
+  // Handle custom BGM upload
+  const handleCustomBgmUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const localUrl = URL.createObjectURL(file);
+    setCustomBgmUrl(localUrl);
+    setCustomBgmName(file.name);
+    setSelectedBgmTrack(localUrl);
+    if (e.target) e.target.value = "";
+  };
+
+  // Preview music track
+  const togglePlayBgmTrack = (trackPath: string) => {
+    if (trackPath === "none") {
+      if (bgmPreviewAudioRef.current) bgmPreviewAudioRef.current.pause();
+      setPlayingBgmPreview(null);
+      return;
+    }
+    if (playingBgmPreview === trackPath) {
+      if (bgmPreviewAudioRef.current) bgmPreviewAudioRef.current.pause();
+      setPlayingBgmPreview(null);
+    } else {
+      if (bgmPreviewAudioRef.current) {
+        bgmPreviewAudioRef.current.pause();
+        bgmPreviewAudioRef.current.src = trackPath.startsWith("http") ? trackPath : `/${trackPath.replace(/^\/+/, "")}`;
+        bgmPreviewAudioRef.current.volume = Math.max(0.05, activeBgmVolume / 100);
+        bgmPreviewAudioRef.current.play().then(() => {
+          setPlayingBgmPreview(trackPath);
+        }).catch(() => setPlayingBgmPreview(null));
+      }
+    }
+  };
+
+  // Toggle narration preview audio sync
+  const togglePreviewAudio = () => {
+    if (!previewAudioRef.current) return;
+    if (isPreviewAudioPlaying) {
+      previewAudioRef.current.pause();
+      setIsPreviewAudioPlaying(false);
+    } else {
+      previewAudioRef.current.play().then(() => {
+        setIsPreviewAudioPlaying(true);
+      }).catch(err => {
+        console.warn("Playback error:", err);
       });
     }
+  };
+
+  // Active scene calculation
+  const currentPreviewScene = sceneBlueprint[activePreviewIndex] || sceneBlueprint[0];
+
+  // Final Generate Video Action (Guarded by Compulsory Preview)
+  const handleTriggerGenerate = () => {
+    if (!previewConfirmed) {
+      alert("Compulsory Preview: Please inspect the 16:9 preview and click 'Approve & Confirm Preview' before rendering.");
+      return;
+    }
+
+    const finalBgmUrl = customBgmUrl || (selectedBgmTrack === "none" ? "" : selectedBgmTrack);
 
     const payload = {
-      sceneBlueprint: updatedScenes,
+      sceneBlueprint,
       brollUrls,
-      transcript: transcriptText,
-      segments: finalSegments,
-      durationSeconds: audioDurationSec,
-      approvedCaptions,
-      topicTitle:
-        topicTitle.trim() ||
-        (selectedFile
-          ? selectedFile.name.replace(/\.[^/.]+$/, "")
-          : "Faceless Video"),
-      brandNamesHint,
-      backgroundTheme,
-      customBgUrl,
+      transcript: editableTranscript || transcriptText,
+      segments: transcriptSegments,
+      durationSeconds: audioDurationSec || 60,
+      topicTitle: topicTitle.trim() || (selectedFile ? selectedFile.name.replace(/\.[^/.]+$/, "") : "Faceless Video"),
+      backgroundTheme: "solid-white",
       subtitleStyle,
       captionAnimationStyle,
       captionPosition,
       facelessBgmMood,
-      facelessBgmVolume,
+      facelessBgmVolume: finalBgmUrl ? activeBgmVolume / 100 : 0,
       facelessEnableSfx,
       facelessPacingStyle,
-      assetSourceMode: "library",
+      assetSourceMode,
       visualArtStyle,
       aspectRatio: "16:9",
-      bgmUrl: facelessBgmMood === "none" ? "" : (YOUTUBE_BGM_TRACKS.find((t) => t.id === activeBgmTrackId)?.s3Url || ""),
-      bgmTrackId: facelessBgmMood === "none" ? "" : activeBgmTrackId,
+      bgmUrl: finalBgmUrl,
+      userMediaClips,
     };
 
     onGenerate(payload);
   };
 
-  const wordCount = transcriptText
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean).length;
-  const formattedDuration = audioDurationSec > 0
-    ? `${Math.floor(audioDurationSec / 60)}:${Math.floor(audioDurationSec % 60)
-        .toString()
-        .padStart(2, "0")}`
-    : "--:--";
+  const filteredCaptionStyles = TWENTY_CAPTION_STYLES.filter(s => {
+    if (captionFilter === "all") return true;
+    return s.category.toLowerCase() === captionFilter.toLowerCase();
+  });
 
   return (
-    <div className="rounded-3xl border border-white/[0.08] bg-[#0E0F13] p-5 sm:p-7 shadow-2xl text-white space-y-7">
-      {/* Hidden audio element for preview */}
-      {audioObjectUrl && (
-        <audio
-          ref={audioPlayerRef}
-          src={audioObjectUrl}
-          onLoadedMetadata={handleAudioLoadedMetadata}
-          onTimeUpdate={() =>
-            setAudioCurrentTime(audioPlayerRef.current?.currentTime || 0)
-          }
-          onEnded={() => setIsPlayingAudio(false)}
-        />
-      )}
+    <div className="relative rounded-[28px] border border-slate-200 bg-white p-5 sm:p-8 shadow-xl shadow-slate-200/40 min-w-0 max-w-full space-y-8 text-slate-900">
+      <BorderBeam size={320} duration={14} colorFrom="#FF5722" colorTo="#FFA000" />
 
-      {/* ── HEADER & META BAR ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-white/[0.07]">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-[#16171D] px-3 py-1 text-xs font-semibold text-zinc-300">
-              <Tv size={13} className="text-orange-400" />
-              <span>16:9 Widescreen • Up to 5 Min • 1080p Full HD</span>
-            </span>
-            <span className="rounded-full bg-white/[0.05] border border-white/[0.08] px-2.5 py-0.5 text-xs font-medium text-zinc-400">
-              1 Min = 1 Credit
-            </span>
+      {/* Hidden BGM preview audio */}
+      <audio ref={bgmPreviewAudioRef} onEnded={() => setPlayingBgmPreview(null)} />
+
+      {/* ── STUDIO HEADER STEPPER ── */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50/90 p-4 sm:p-5">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="shrink-0 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] p-2.5 text-white shadow-md shadow-[#FF5722]/20">
+            <Film size={22} className="stroke-[2.5]" />
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white mt-2">
-            Faceless Video Workspace
-          </h2>
-          <p className="text-xs sm:text-sm text-zinc-400 mt-0.5">
-            Convert voiceover narration into high-definition YouTube widescreen explainers with synchronized diagrams, scene beats, and background music.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Link
-            href="/dashboard/faceless-video/preview"
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/30 text-orange-400 text-xs font-semibold transition"
-          >
-            <Tv size={14} className="text-orange-400" />
-            <span>Live 16:9 Studio Demo</span>
-          </Link>
-        </div>
-      </div>
-
-      {/* ── FLOATING NOTIFICATION / TOAST (Fixed position prevents layout jumps) ── */}
-      {showReviewPopup && (
-        <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50 max-w-sm rounded-2xl border border-emerald-500/40 bg-[#0E1526]/95 backdrop-blur-xl p-4 flex items-start justify-between gap-3 text-emerald-200 text-xs shadow-2xl animate-in fade-in slide-in-from-bottom-3 duration-300">
-          <div className="flex items-start gap-3">
-            <CheckCircle2 size={18} className="text-emerald-400 shrink-0 mt-0.5" />
-            <div>
-              <p className="text-xs sm:text-sm font-bold text-emerald-300">
-                Transcription ready!
-              </p>
-              <p className="text-xs text-emerald-100/90 mt-0.5 leading-relaxed">
-                Review your script and adjust any text if needed. Audio timestamps stay locked.
-              </p>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <h2 className="text-base sm:text-lg font-black text-slate-900 truncate">16:9 Faceless Video Studio</h2>
+              <span className="inline-flex items-center gap-1 rounded-full border border-orange-200 bg-orange-50 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-[#FF5722]">
+                1080p Widescreen
+              </span>
             </div>
+            <p className="text-[11px] sm:text-xs text-slate-500 leading-tight mt-0.5">
+              Clean White Canvas • 20 Caption Styles • Multi-Clip Upload • {calculatedCredits} Credit{calculatedCredits > 1 ? "s" : ""} (1 Min = 1 Cr)
+            </p>
           </div>
+        </div>
+
+        {selectedFile && (
           <button
             type="button"
-            onClick={() => setShowReviewPopup(false)}
-            className="text-emerald-400/80 hover:text-white p-1 transition cursor-pointer"
-          >
-            <X size={15} />
-          </button>
-        </div>
-      )}
-
-      {planningError && !isPlanning && (
-        <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-xs text-red-300 flex items-start justify-between gap-3">
-          <div className="flex items-start gap-2.5">
-            <AlertCircle size={16} className="text-red-400 shrink-0 mt-0.5" />
-            <div className="space-y-0.5">
-              <p className="font-bold text-red-200">Transcription Alert</p>
-              <p className="text-zinc-300 leading-relaxed">{planningError}</p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => selectedFile && triggerTranscription(selectedFile)}
-            className="rounded-lg border border-red-500/40 bg-red-500/20 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-500/30 transition cursor-pointer shrink-0"
-          >
-            Retry Transcription
-          </button>
-        </div>
-      )}
-
-      {/* ── STAGE 1: BALANCED 2-COLUMN AUDIO & SCRIPT STUDIO ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        {/* Left Column (5 cols): Audio Ingest & Playback */}
-        <div className="lg:col-span-5 flex flex-col justify-between space-y-4">
-          <input
-            type="file"
-            accept="audio/*"
-            id="faceless-voiceover-input"
-            className="hidden"
-            onChange={(e) => {
-              const file = e.target.files?.[0] || null;
-              if (file) {
-                onClearPlanningError?.();
-                onSelectFile(file);
+            onClick={() => {
+              if (confirm("Reset current project?")) {
+                onSelectFile(null);
+                setTranscriptText("");
+                setSceneBlueprint([]);
+                setPreviewConfirmed(false);
               }
             }}
-          />
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition cursor-pointer"
+          >
+            <RotateCcw size={13} />
+            <span>Start Fresh</span>
+          </button>
+        )}
+      </div>
 
-          {!selectedFile ? (
-            <label
-              htmlFor="faceless-voiceover-input"
-              onDragOver={(e) => {
-                e.preventDefault();
-                setIsDraggingAudio(true);
-              }}
-              onDragLeave={() => setIsDraggingAudio(false)}
-              onDrop={(e) => {
-                e.preventDefault();
-                setIsDraggingAudio(false);
-                const file = e.dataTransfer.files?.[0] || null;
-                if (file) {
-                  onClearPlanningError?.();
-                  onSelectFile(file);
-                }
-              }}
-              className={`h-full min-h-[220px] rounded-2xl border-2 border-dashed p-7 text-center transition cursor-pointer flex flex-col items-center justify-center gap-3 ${
-                isDraggingAudio
-                  ? "border-orange-500 bg-orange-500/10"
-                  : "border-white/[0.12] bg-[#141519] hover:border-orange-500/40 hover:bg-[#181A20]"
-              }`}
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.05] border border-white/[0.08] text-orange-400 shadow-sm">
-                <Upload size={22} />
-              </div>
-              <div>
-                <p className="text-sm sm:text-base font-semibold text-white">
-                  Upload Voiceover Audio
-                </p>
-                <p className="text-xs text-zinc-400 mt-1">
-                  MP3, WAV, M4A • Up to 5 minutes (300s)
-                </p>
-              </div>
-              <span className="rounded-xl bg-orange-500 hover:bg-orange-600 px-4 py-2 text-xs font-bold text-white shadow-md shadow-orange-500/20 transition">
-                Select Audio File
-              </span>
-            </label>
-          ) : (
-            <div className="rounded-2xl border border-white/[0.08] bg-[#141519] p-5 space-y-4 flex-1 flex flex-col justify-between min-h-[220px]">
-              <div>
-                <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
-                    Narration Track
-                  </span>
-                  <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">
-                    Confirmed
-                  </span>
+      {/* Process Workflow Roadmap */}
+      <StudioWorkflowRoadmap mode="facelessVideo" />
+
+      {/* Planning or Error Banner */}
+      {isPlanning && (
+        <div className="rounded-2xl border border-orange-200 bg-orange-50/70 p-4 flex items-center gap-3 text-sm font-bold text-slate-800 shadow-xs animate-pulse">
+          <Sparkles size={18} className="animate-spin text-[#FF5722]" />
+          <span>{planningMessage || "Transcribing speech and structuring visual scene beats..."}</span>
+        </div>
+      )}
+
+      {planningError && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 flex items-center justify-between gap-3 text-red-800 text-sm font-bold shadow-xs">
+          <div className="flex items-center gap-2.5">
+            <AlertCircle size={18} className="text-red-500" />
+            <span>{planningError}</span>
+          </div>
+          <button
+            onClick={onClearPlanningError}
+            className="text-xs text-red-600 hover:text-red-800 underline font-semibold cursor-pointer"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {/* ── TWO COLUMN MAIN WORKSPACE ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Left 7 Columns: Media Ingest & Assets */}
+        <div className="lg:col-span-7 space-y-6">
+
+          {/* 1. Required Spoken Audio Narration */}
+          <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-7 space-y-4 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="rounded-xl bg-orange-500/10 p-2 text-[#FF5722] border border-orange-500/20">
+                  <Mic size={18} />
                 </div>
-
-                <div className="flex items-center gap-3.5 mt-3 min-w-0">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-500/10 border border-orange-500/25 text-orange-400 font-bold">
-                    <Headphones size={20} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-bold text-white truncate">
-                      {selectedFile.name}
-                    </p>
-                    <p className="text-xs text-zinc-400 mt-0.5">
-                      {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
-                      {audioDurationSec > 0 && ` • ${formattedDuration} duration`}
-                    </p>
-                  </div>
+                <div>
+                  <span className="text-sm font-black uppercase tracking-wider text-slate-900">Narration Voiceover Audio</span>
+                  <p className="text-[11px] text-slate-500">Spoken narration or script recording (Up to 5 min / 300s)</p>
                 </div>
               </div>
 
-              {/* Audio progress & playback controls */}
-              <div className="space-y-3 pt-2 min-h-[72px]">
-                {audioDurationSec > 0 && (
-                  <div className="space-y-1.5">
-                    <div className="h-1.5 rounded-full bg-white/[0.08] overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-orange-500 to-amber-400 rounded-full transition-all duration-100"
-                        style={{
-                          width: `${Math.min(
-                            100,
-                            (audioCurrentTime / audioDurationSec) * 100
-                          )}%`,
-                        }}
-                      />
-                    </div>
-                    <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400 px-0.5">
-                      <span>
-                        {Math.floor(audioCurrentTime / 60)}:
-                        {Math.floor(audioCurrentTime % 60)
-                          .toString()
-                          .padStart(2, "0")}
-                      </span>
-                      <span>{formattedDuration}</span>
-                    </div>
-                  </div>
+              <div className="flex items-center gap-2">
+                {!selectedFile && (
+                  <button
+                    type="button"
+                    onClick={handleLoadSampleDemo}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-orange-200 bg-orange-50 text-[11px] font-bold text-[#FF5722] hover:bg-orange-100 transition cursor-pointer shadow-xs"
+                  >
+                    <Sparkles size={12} />
+                    <span>Try Sample Demo</span>
+                  </button>
                 )}
-
-                <div className="flex items-center justify-between gap-2 pt-1 border-t border-white/[0.06]">
-                  <button
-                    type="button"
-                    onClick={togglePlayAudio}
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-white/[0.08] bg-[#1A1C24] px-3.5 py-2 text-xs font-semibold text-zinc-200 hover:text-white hover:border-white/20 transition cursor-pointer"
-                  >
-                    {isPlayingAudio ? (
-                      <>
-                        <Pause size={14} className="text-orange-400" />
-                        <span>Pause Preview</span>
-                      </>
-                    ) : (
-                      <>
-                        <Play size={14} className="text-orange-400 ml-0.5" />
-                        <span>Play Audio</span>
-                      </>
-                    )}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleDeleteAudio}
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-red-500/25 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-300 hover:bg-red-500/20 transition cursor-pointer"
-                    title="Remove audio and choose another file"
-                  >
-                    <Trash2 size={13} />
-                    <span>Replace Audio</span>
-                  </button>
-                </div>
+                <span className="text-[11px] font-extrabold uppercase bg-emerald-50 border border-emerald-200 text-emerald-700 px-3 py-1 rounded-full">
+                  Required
+                </span>
               </div>
             </div>
-          )}
 
-          {/* Collapsible Proper Names / Whisper Vocabulary Drawer */}
-          <div className="rounded-2xl border border-white/[0.07] bg-[#141519] p-4 space-y-2.5">
-            <button
-              type="button"
-              onClick={() => setShowBrandDictionary(!showBrandDictionary)}
-              className="w-full flex items-center justify-between text-left text-xs font-semibold text-zinc-300 hover:text-white transition cursor-pointer"
-            >
-              <div className="flex items-center gap-2">
-                <Tag size={13} className="text-orange-400" />
-                <span>Vocabulary &amp; Proper Names Hint</span>
-                {brandNamesHint && (
-                  <span className="text-[10px] text-emerald-400 font-mono bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
-                    Active
+            <input
+              ref={audioInputRef}
+              type="file"
+              accept="audio/*,video/mp4"
+              onChange={handleNarrationSelect}
+              className="hidden"
+            />
+
+            {!selectedFile ? (
+              <button
+                type="button"
+                onClick={() => audioInputRef.current?.click()}
+                className="w-full h-44 border-2 border-dashed border-slate-200 hover:border-[#FF5722]/60 rounded-2xl bg-slate-50/70 hover:bg-orange-50/30 transition-all flex flex-col items-center justify-center gap-3 text-slate-500 hover:text-slate-900 cursor-pointer group"
+              >
+                <div className="rounded-full bg-white p-3 group-hover:scale-110 shadow-xs group-hover:bg-orange-50 transition-transform">
+                  <UploadCloud size={32} className="text-[#FF5722]" />
+                </div>
+                <div className="text-center px-4">
+                  <p className="text-sm font-bold text-slate-800">Click to Upload Voiceover Audio</p>
+                  <p className="text-xs text-slate-500 mt-1">MP3, WAV, M4A, or MP4 • Max 5 Minutes (300s)</p>
+                  <span className="inline-block mt-2 font-mono text-[11px] text-[#FF5722] bg-orange-500/10 px-2.5 py-0.5 rounded-full border border-orange-500/20 font-bold">
+                    1 Min = 1 Credit
                   </span>
-                )}
-              </div>
-              {showBrandDictionary ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-            </button>
+                </div>
+              </button>
+            ) : (
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-5 space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="rounded-xl bg-emerald-100 p-2 text-emerald-600 shrink-0">
+                      <CheckCircle2 size={22} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-black text-slate-900 truncate">{selectedFile.name}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="font-mono text-xs font-bold text-emerald-700">
+                          {Math.floor(audioDurationSec / 60)}:{(audioDurationSec % 60).toString().padStart(2, "0")} / 05:00 Max
+                        </span>
+                        <span className="text-slate-300">•</span>
+                        <span className="text-xs font-bold text-amber-700">
+                          {calculatedCredits} Credit{calculatedCredits > 1 ? "s" : ""} Cost
+                        </span>
+                      </div>
+                    </div>
+                  </div>
 
-            {showBrandDictionary && (
-              <div className="space-y-2 pt-1 animate-in fade-in duration-200">
-                <input
-                  type="text"
-                  value={brandNamesHint}
-                  onChange={(e) => handleBrandNamesChange(e.target.value)}
-                  placeholder="e.g. NVIDIA, OpenAI, Jensen Huang, Remotion, ItnaVideo"
-                  className="w-full rounded-xl border border-white/[0.08] bg-[#0E0F13] px-3.5 py-2 text-xs text-white placeholder-zinc-500 focus:border-orange-500 focus:outline-none transition font-mono"
-                />
-                <p className="text-[11px] text-zinc-400 leading-relaxed">
-                  Provide custom spelling hints so Whisper captures technical terms, company names, and people accurately.
-                </p>
-                {selectedFile && !isPlanning && (
-                  <button
-                    type="button"
-                    onClick={() => triggerTranscription(selectedFile, brandNamesHint)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[11px] font-bold text-orange-300 transition cursor-pointer"
-                  >
-                    <RotateCcw size={12} />
-                    <span>Re-Transcribe with Vocabulary</span>
-                  </button>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => audioInputRef.current?.click()}
+                      className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-700 transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+                    >
+                      <RefreshCw size={13} />
+                      <span>Replace</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onSelectFile(null)}
+                      className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 transition cursor-pointer border border-red-200"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+
+                {audioPreviewUrl && (
+                  <div className="pt-2 border-t border-emerald-200/60 flex items-center gap-3">
+                    <Volume2 size={16} className="text-emerald-600 shrink-0" />
+                    <audio controls src={audioPreviewUrl} className="w-full h-8 accent-[#FF5722]" />
+                  </div>
                 )}
               </div>
             )}
           </div>
-        </div>
 
-        {/* Right Column (7 cols): Script Editor & Diff Alignment */}
-        <div className="lg:col-span-7 rounded-2xl border border-white/[0.08] bg-[#141519] p-5 sm:p-6 space-y-4 flex flex-col justify-between">
-          <div>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/[0.06] pb-3">
-              <div className="flex items-center gap-2">
-                <FileText size={15} className="text-orange-400" />
-                <h3 className="text-sm sm:text-base font-bold text-white">
-                  Voiceover Script &amp; Review
-                </h3>
-                {isPlanning && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-orange-500/10 border border-orange-500/30 px-2.5 py-0.5 text-[10px] font-bold text-orange-400 animate-pulse">
-                    <RefreshCw size={10} className="animate-spin" />
-                    <span>Transcribing...</span>
-                  </span>
-                )}
+          {/* 2. Multiple Images AND Video Clips Upload Zone */}
+          <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-7 space-y-5 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="rounded-xl bg-orange-500/10 p-2 text-[#FF5722] border border-orange-500/20">
+                  <Video size={18} />
+                </div>
+                <div>
+                  <span className="text-sm font-black uppercase tracking-wider text-slate-900">Custom B-Roll Images &amp; Video Clips</span>
+                  <p className="text-[11px] text-slate-500">Upload your own MP4 video clips &amp; images to blend into the scenes</p>
+                </div>
               </div>
+              <span className="text-[11px] font-extrabold uppercase bg-slate-100 border border-slate-200 text-slate-600 px-3 py-1 rounded-full">
+                Optional
+              </span>
+            </div>
 
-              <div className="flex items-center gap-2 text-xs">
-                {transcriptText ? (
-                  <>
-                    <span className="rounded-full bg-white/[0.05] border border-white/[0.08] px-2.5 py-0.5 font-mono text-[11px] text-zinc-300">
-                      {wordCount} words
+            <input
+              ref={multiMediaInputRef}
+              type="file"
+              accept="image/*,video/mp4,video/webm,video/quicktime"
+              multiple
+              onChange={handleMultiMediaSelect}
+              className="hidden"
+            />
+
+            <div className="rounded-2xl border-2 border-dashed border-slate-200 hover:border-[#FF5722]/50 bg-slate-50/60 p-5 flex flex-col items-center justify-center gap-3 text-center transition">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-white border border-slate-200 text-[#FF5722] shadow-xs">
+                  <Video size={20} />
+                </div>
+                <div className="p-2 rounded-xl bg-white border border-slate-200 text-amber-500 shadow-xs">
+                  <ImageIcon size={20} />
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-800">Drag &amp; Drop or Select Multiple Videos and Images</p>
+                <p className="text-[11px] text-slate-400 mt-0.5">MP4 video clips, B-roll footage, diagrams, PNG graphics</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => multiMediaInputRef.current?.click()}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 text-xs font-bold text-slate-800 transition cursor-pointer shadow-xs"
+              >
+                <Upload size={13} />
+                <span>Choose Media Clips ({userMediaClips.length} Added)</span>
+              </button>
+            </div>
+
+            {/* Display Media Clips Gallery */}
+            {userMediaClips.length > 0 && (
+              <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-thin pt-1">
+                {userMediaClips.map((item, idx) => (
+                  <div key={idx} className="relative w-24 h-20 rounded-xl overflow-hidden border border-slate-200 shrink-0 group shadow-xs bg-black">
+                    {item.type === "video" ? (
+                      <video src={item.url} className="w-full h-full object-cover opacity-80" muted />
+                    ) : (
+                      <img src={item.url} alt={`Media ${idx}`} className="w-full h-full object-cover" />
+                    )}
+                    <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-black uppercase bg-black/80 text-white">
+                      {item.type}
                     </span>
                     <button
                       type="button"
-                      onClick={() => setShowWordReview(!showWordReview)}
-                      className="text-[11px] font-semibold text-orange-400 hover:text-orange-300 transition cursor-pointer ml-1"
+                      onClick={() => setUserMediaClips(userMediaClips.filter((_, i) => i !== idx))}
+                      className="absolute top-1 right-1 p-1 rounded-md bg-black/80 text-white opacity-0 group-hover:opacity-100 transition hover:bg-red-600 cursor-pointer"
                     >
-                      {showWordReview ? "Hide Highlights" : "Diff Highlights"}
+                      <Trash2 size={11} />
                     </button>
-                    {hasEditedTranscript && (
-                      <button
-                        type="button"
-                        onClick={handleResetTranscript}
-                        className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 text-[11px] text-amber-300 hover:text-white transition cursor-pointer"
-                        title="Reset to original transcribed text"
-                      >
-                        <RotateCcw size={11} />
-                        <span>Reset</span>
-                      </button>
-                    )}
-                  </>
-                ) : selectedFile ? (
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* 3. Background Music (AWS S3 Tracks + Custom Upload + Volume Slider) */}
+          <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-7 space-y-6 shadow-sm">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2.5">
+                <div className="rounded-xl bg-orange-500/10 p-2 text-[#FF5722] border border-orange-500/20">
+                  <Music size={18} />
+                </div>
+                <div>
+                  <span className="text-sm font-black uppercase tracking-wider text-slate-900">Background Music &amp; Audio Level</span>
+                  <p className="text-[11px] text-slate-500">Pick from AWS S3 music catalog or upload your own background audio</p>
+                </div>
+              </div>
+
+              {/* Volume Pill Display */}
+              <div className="flex items-center gap-2 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-full">
+                <Volume2 size={14} className="text-[#FF5722]" />
+                <span className="text-xs font-black text-slate-800">Volume: {activeBgmVolume}%</span>
+              </div>
+            </div>
+
+            {/* Interactive Volume Slider (Default: 12%) */}
+            <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-2.5">
+              <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                <span className="flex items-center gap-1.5">
+                  <Sliders size={13} className="text-[#FF5722]" />
+                  <span>Background Music Volume (Default: 12%)</span>
+                </span>
+                <span className="font-mono text-xs font-black text-[#FF5722] bg-white px-2 py-0.5 rounded-md border border-slate-200">
+                  {activeBgmVolume}%
+                </span>
+              </div>
+
+              <input
+                type="range"
+                min="0"
+                max="100"
+                step="1"
+                value={activeBgmVolume}
+                onChange={e => {
+                  const val = Number(e.target.value);
+                  setActiveBgmVolume(val);
+                  onBgmVolumeChange?.(val / 100);
+                }}
+                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#FF5722]"
+              />
+
+              <div className="flex items-center gap-2 pt-1">
+                {[
+                  { label: "Mute (0%)", val: 0 },
+                  { label: "Subtle (12% - Recommended)", val: 12 },
+                  { label: "Moderate (20%)", val: 20 },
+                  { label: "Prominent (35%)", val: 35 },
+                ].map(p => (
+                  <button
+                    key={p.val}
+                    type="button"
+                    onClick={() => {
+                      setActiveBgmVolume(p.val);
+                      onBgmVolumeChange?.(p.val / 100);
+                    }}
+                    className={`text-[10px] font-bold px-2 py-1 rounded-md border transition cursor-pointer ${
+                      activeBgmVolume === p.val
+                        ? "bg-[#FF5722] text-white border-[#FF5722]"
+                        : "bg-white border-slate-200 text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Custom User BGM Upload Box */}
+            <input
+              ref={bgmInputRef}
+              type="file"
+              accept="audio/*"
+              onChange={handleCustomBgmUpload}
+              className="hidden"
+            />
+
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/60 p-4 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-orange-50 border border-orange-200 flex items-center justify-center text-[#FF5722] shrink-0">
+                  <Upload size={18} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-black text-slate-900 truncate">
+                    {customBgmName ? `Uploaded: ${customBgmName}` : "Upload Custom Background Audio"}
+                  </p>
+                  <p className="text-[11px] text-slate-500">
+                    {customBgmUrl ? "Custom music track active for render" : "Upload your own royalty-free background MP3"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                {customBgmUrl ? (
                   <button
                     type="button"
-                    onClick={() => triggerTranscription(selectedFile)}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-xs font-semibold text-orange-300 hover:text-white hover:bg-orange-500/20 transition cursor-pointer"
+                    onClick={() => {
+                      setCustomBgmUrl("");
+                      setCustomBgmName("");
+                      setSelectedBgmTrack(AWS_FACELESS_BGM_TRACKS[0].path);
+                    }}
+                    className="px-2.5 py-1.5 rounded-lg border border-red-200 bg-red-50 text-red-600 text-xs font-bold hover:bg-red-100 transition cursor-pointer"
                   >
-                    <RefreshCw size={11} />
-                    <span>Transcribe Speech</span>
+                    Remove
                   </button>
                 ) : (
-                  <span className="text-[11px] text-zinc-500">
-                    Pending audio upload
-                  </span>
+                  <button
+                    type="button"
+                    onClick={() => bgmInputRef.current?.click()}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-xs font-bold text-slate-800 transition cursor-pointer shadow-xs"
+                  >
+                    <Upload size={12} />
+                    <span>Upload Track</span>
+                  </button>
                 )}
               </div>
             </div>
 
-            {/* Word Review Visual Diff Highlighter */}
-            {showWordReview && transcriptText && (
-              <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-slate-200 leading-relaxed font-sans max-h-32 overflow-y-auto mt-3">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-amber-400 mb-1.5">
-                  Diff Sync • Yellow highlighted words modified locally
-                </p>
-                <div className="flex flex-wrap gap-1">
-                  {transcriptText.split(/\s+/).filter(Boolean).map((word, wIdx) => {
-                    const clean = word.toLowerCase().replace(/[^a-z0-9]/g, "");
-                    const isUnchanged = originalWords.some(
-                      (ow) => ow.word.toLowerCase().replace(/[^a-z0-9]/g, "") === clean
-                    );
-                    return (
-                      <span
-                        key={wIdx}
-                        className={`px-1.5 py-0.5 rounded ${
-                          isUnchanged
-                            ? "text-slate-300"
-                            : "bg-amber-400/20 text-amber-300 border border-amber-400/30 font-semibold"
-                        }`}
-                      >
-                        {word}
-                      </span>
-                    );
-                  })}
+            {/* AWS S3 Preset Music Tracks */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
+                <span>Or Pick from AWS S3 Production Music Library ({AWS_FACELESS_BGM_TRACKS.length} Tracks)</span>
+                <span className="text-[10px] text-slate-400">All royalty-free for YouTube monetization</span>
+              </label>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-60 overflow-y-auto pr-1 scrollbar-thin">
+                {AWS_FACELESS_BGM_TRACKS.map(track => {
+                  const isSelected = !customBgmUrl && selectedBgmTrack === track.path;
+                  const isPlaying = playingBgmPreview === track.path;
+
+                  return (
+                    <div
+                      key={track.id}
+                      onClick={() => {
+                        setCustomBgmUrl("");
+                        setSelectedBgmTrack(track.path);
+                      }}
+                      className={`p-3 rounded-xl border text-left transition cursor-pointer flex items-center justify-between gap-2.5 ${
+                        isSelected
+                          ? "border-orange-500 bg-orange-50/70 text-slate-900 shadow-xs ring-1 ring-orange-500"
+                          : "border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700"
+                      }`}
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-black truncate">{track.label}</span>
+                          <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-200 text-slate-700">
+                            {track.category}
+                          </span>
+                        </div>
+                        <span className="text-[10px] text-slate-500 truncate block mt-0.5">{track.desc}</span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {track.path !== "none" && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              togglePlayBgmTrack(track.path);
+                            }}
+                            title="Listen to Preview"
+                            className="p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 transition cursor-pointer shadow-xs"
+                          >
+                            {isPlaying ? <Pause size={12} className="text-[#FF5722]" /> : <Play size={12} className="text-slate-600" />}
+                          </button>
+                        )}
+
+                        {isSelected && <CheckCircle2 size={16} className="text-[#FF5722]" />}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* 4. 20 YouTube Subtitle & Caption Themes Selector */}
+          <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-7 space-y-5 shadow-sm">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2.5">
+                <div className="rounded-xl bg-orange-500/10 p-2 text-[#FF5722] border border-orange-500/20">
+                  <Type size={18} />
+                </div>
+                <div>
+                  <span className="text-sm font-black uppercase tracking-wider text-slate-900">20 Master YouTube 16:9 Caption Styles</span>
+                  <p className="text-[11px] text-slate-500">Kinetic typography and active word highlights</p>
                 </div>
               </div>
-            )}
 
-            <div className="mt-3">
-              <textarea
-                value={transcriptText}
-                onChange={(e) => setTranscriptText(e.target.value)}
-                rows={7}
-                disabled={isPlanning}
-                placeholder={
-                  isPlanning
-                    ? "Transcribing your voiceover speech in the background... Please wait 2-4 seconds."
-                    : "Your transcribed script will appear here. Edit any words or typos freely, or type your narration text manually..."
-                }
-                className="w-full rounded-xl border border-white/[0.08] bg-[#0E0F13] p-4 text-xs sm:text-sm text-slate-100 placeholder-zinc-500 focus:border-orange-500 focus:outline-none transition leading-relaxed resize-y min-h-[170px] font-sans disabled:opacity-60"
+              {/* Category Filter Pills */}
+              <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">
+                {["all", "viral", "cinema", "modern", "editorial", "book"].map(cat => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setCaptionFilter(cat)}
+                    className={`text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full border transition cursor-pointer ${
+                      captionFilter === cat
+                        ? "bg-[#FF5722] text-white border-[#FF5722]"
+                        : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 20 Caption Cards Gallery */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-72 overflow-y-auto pr-1 scrollbar-thin">
+              {filteredCaptionStyles.map(theme => {
+                const isSelected = subtitleStyle === theme.id;
+                return (
+                  <button
+                    key={theme.id}
+                    type="button"
+                    onClick={() => onSubtitleStyleChange?.(theme.id)}
+                    className={`p-3 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between ${
+                      isSelected
+                        ? "border-orange-500 bg-orange-50/70 text-slate-900 shadow-xs ring-1 ring-orange-500"
+                        : "border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full shadow-xs" style={{ backgroundColor: theme.color }} />
+                        <span className="text-xs font-black text-slate-900">{theme.name}</span>
+                      </div>
+                      <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-white border border-slate-200 text-slate-700">
+                        {theme.badge}
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-slate-500 mt-1.5">{theme.desc}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Right 5 Columns: Video Topic Title, Pacing & Render Actions */}
+        <div className="lg:col-span-5 space-y-6">
+          <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-7 space-y-5 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="rounded-xl bg-orange-500/10 p-2 text-[#FF5722] border border-orange-500/20">
+                  <Film size={18} />
+                </div>
+                <div>
+                  <span className="text-sm font-black uppercase tracking-wider text-slate-900">Project Title &amp; Topic</span>
+                  <p className="text-[11px] text-slate-500">Defines video theme and headline markers</p>
+                </div>
+              </div>
+              <span className="text-[11px] font-extrabold uppercase bg-slate-100 border border-slate-200 text-slate-600 px-3 py-1 rounded-full">
+                Recommended
+              </span>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-slate-700">Video Topic Title</label>
+              <input
+                type="text"
+                value={topicTitle}
+                onChange={e => onTopicTitleChange?.(e.target.value)}
+                placeholder="e.g. 5 Habits That Changed My Life"
+                className="w-full mt-1.5 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] focus:outline-none transition shadow-xs"
               />
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between text-[11px] text-zinc-400 gap-1 pt-1 border-t border-white/[0.05]">
-            <span>Diff-based synchronization preserves exact Whisper timestamps for unchanged words.</span>
-            {hasEditedTranscript ? (
-              <span className="text-amber-400 font-semibold">Custom edits applied</span>
-            ) : transcriptText ? (
-              <span className="text-emerald-400 font-semibold flex items-center gap-1">
-                <Check size={12} />
-                <span>Audio synced</span>
+          {/* Format Summary Card */}
+          <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-5 space-y-3">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-600">
+              <span>Aspect Ratio:</span>
+              <span className="font-black text-slate-900 flex items-center gap-1">
+                <Sparkles size={12} className="text-[#FF5722]" />
+                16:9 Landscape Full HD (1920×1080)
               </span>
-            ) : null}
+            </div>
+            <div className="flex items-center justify-between text-xs font-bold text-slate-600">
+              <span>Canvas Surface:</span>
+              <span className="font-bold text-slate-900">Clean White (#FFFFFF)</span>
+            </div>
+            <div className="flex items-center justify-between text-xs font-bold text-slate-600">
+              <span>Selected Caption Style:</span>
+              <span className="font-bold text-slate-900">
+                {TWENTY_CAPTION_STYLES.find(s => s.id === subtitleStyle)?.name || "Flame Glow"}
+              </span>
+            </div>
+            <div className="flex items-center justify-between text-xs font-bold text-slate-600">
+              <span>Audio BGM &amp; Volume:</span>
+              <span className="font-bold text-slate-900">
+                {customBgmUrl ? "Custom Upload" : (AWS_FACELESS_BGM_TRACKS.find(t => t.path === selectedBgmTrack)?.label || "None")} ({activeBgmVolume}%)
+              </span>
+            </div>
+            <div className="flex items-center justify-between text-xs font-bold text-slate-600 pt-2 border-t border-slate-200">
+              <span>Credit Cost:</span>
+              <span className="font-mono text-sm font-black text-[#FF5722]">
+                {calculatedCredits} Credit{calculatedCredits > 1 ? "s" : ""} (1 Min = 1 Cr)
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* ── STAGE 2: VISUAL CANVAS & YOUTUBE AUDIO LIBRARY ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column (5 cols): Canvas & Visual Storytelling Specs */}
-        <div className="lg:col-span-5 space-y-4">
-          <div className="rounded-2xl border border-white/[0.08] bg-[#141519] p-5 space-y-3.5">
-            <div className="flex items-center justify-between border-b border-white/[0.06] pb-2.5">
-              <div className="flex items-center gap-2">
-                <Layers size={15} className="text-orange-400" />
-                <h4 className="text-sm font-bold text-white">Widescreen Visual Direction</h4>
-              </div>
-              <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-bold text-emerald-400">
-                #FFFFFF Studio Standard
-              </span>
+      {/* ── STAGE 2: EDITORIAL TRANSCRIPT & COMPULSORY 16:9 LIVE PREVIEW ── */}
+      {sceneBlueprint.length > 0 && (
+        <div className="space-y-6 pt-4 border-t border-slate-200">
+
+          {/* Top Bar with Active Scene Count & Transcript Toggle */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50/80 p-5">
+            <div>
+              <h3 className="text-xl font-black text-slate-900 flex items-center gap-2">
+                <span>16:9 Scene Storyboard Timeline</span>
+                <span className="text-xs font-extrabold bg-orange-100 border border-orange-200 text-[#FF5722] px-2.5 py-0.5 rounded-full">
+                  {sceneBlueprint.length} Active Scenes
+                </span>
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Inspect live 16:9 canvas cards, fix any typos in the transcript, and confirm before cloud rendering
+              </p>
             </div>
 
-            <p className="text-xs text-zinc-300 leading-relaxed">
-              Every scene pairs structured visual diagrams, charts, and procedural vector storytelling directly with narrative cues on an editorial canvas.
-            </p>
-
-            <div className="space-y-2 pt-1">
-              <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-3 flex items-start gap-2.5">
-                <CheckCircle2 size={15} className="text-orange-400 shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-xs font-semibold text-white">Dynamic SVG Diagrams &amp; Comparisons</p>
-                  <p className="text-[11px] text-zinc-400 mt-0.5">Step workflows, metric charts, and battle cards reveal in sync with your speech.</p>
-                </div>
-              </div>
-
-              <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-3 flex items-start gap-2.5">
-                <CheckCircle2 size={15} className="text-emerald-400 shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-xs font-semibold text-white">Drawing-Based Storytelling</p>
-                  <p className="text-[11px] text-zinc-400 mt-0.5">Narrative scenes automatically render hand-drawn vector elements for natural visual flow.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column (7 cols): YouTube Royalty-Free BGM & Mix */}
-        <div className="lg:col-span-7 rounded-2xl border border-white/[0.08] bg-[#141519] p-5 sm:p-6 space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.06] pb-3">
-            <div className="flex items-center gap-2">
-              <Music className="w-4 h-4 text-orange-400" />
-              <h4 className="text-sm font-bold text-white">Background Music (YouTube Library)</h4>
-              <span className="rounded-full bg-orange-500/10 border border-orange-500/30 px-2 py-0.5 text-[10px] font-bold text-orange-400">
-                13 S3 Tracks
-              </span>
-            </div>
-            <p className="text-[11px] text-zinc-400">
-              Royalty-free tracks hosted on AWS S3 with live preview.
-            </p>
+            <button
+              type="button"
+              onClick={() => setShowTranscriptEditor(!showTranscriptEditor)}
+              className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-xs font-bold transition cursor-pointer ${
+                showTranscriptEditor
+                  ? "border-orange-500 bg-orange-50 text-[#FF5722]"
+                  : "border-slate-200 bg-white text-slate-700 hover:bg-slate-100 shadow-xs"
+              }`}
+            >
+              <Edit3 size={14} />
+              <span>{showTranscriptEditor ? "Hide Transcript Editor" : "Edit Spoken Transcript"}</span>
+            </button>
           </div>
 
-          {/* Mood category tabs */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-            {[
-              { id: "all", label: "All Tracks (13)" },
-              { id: "upbeat", label: "Upbeat & Creator (3)" },
-              { id: "chill", label: "Chill & Lo-Fi (3)" },
-              { id: "mystery", label: "Mystery & Tension (2)" },
-              { id: "tech", label: "Tech & Energy (2)" },
-              { id: "acoustic", label: "Acoustic (2)" },
-              { id: "dynamic", label: "Dynamic (1)" },
-              { id: "none", label: "No Music" },
-            ].map((filter) => {
-              const isSelected =
-                filter.id === "none"
-                  ? facelessBgmMood === "none"
-                  : bgmMoodFilter === filter.id && facelessBgmMood !== "none";
-              return (
-                <button
-                  key={filter.id}
-                  type="button"
-                  onClick={() => {
-                    if (filter.id === "none") {
-                      onBgmMoodChange?.("none");
-                    } else {
-                      if (facelessBgmMood === "none") {
-                        onBgmMoodChange?.("mystery");
-                      }
-                      setBgmMoodFilter(filter.id);
-                    }
-                  }}
-                  className={`px-3 py-1 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
-                    isSelected
-                      ? "bg-orange-500 text-white font-bold shadow-sm"
-                      : "bg-white/[0.04] border border-white/[0.08] text-zinc-400 hover:text-white hover:bg-white/[0.08]"
-                  }`}
-                >
-                  {filter.label}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Track selector grid */}
-          {facelessBgmMood !== "none" ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2.5 max-h-[220px] overflow-y-auto pr-1">
-              {YOUTUBE_BGM_TRACKS.filter(
-                (t) => bgmMoodFilter === "all" || t.mood === bgmMoodFilter
-              ).map((track) => {
-                const isSelected = activeBgmTrackId === track.id;
-                const isPlayingThis = playingBgmPreviewId === track.id;
-
-                return (
-                  <div
-                    key={track.id}
-                    onClick={() => handleSelectTrack(track)}
-                    className={`rounded-xl border p-2.5 flex items-center justify-between gap-2.5 transition cursor-pointer ${
-                      isSelected
-                        ? "border-orange-500 bg-orange-500/10 ring-1 ring-orange-500/40"
-                        : "border-white/[0.07] bg-[#17181E] hover:border-white/20 hover:bg-[#1B1D24]"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <button
-                        type="button"
-                        onClick={(e) => handleTogglePreviewBgm(e, track)}
-                        className={`w-7 h-7 rounded-lg flex items-center justify-center transition shrink-0 ${
-                          isPlayingThis
-                            ? "bg-orange-500 text-white animate-pulse"
-                            : isSelected
-                            ? "bg-orange-500/20 text-orange-400"
-                            : "bg-white/[0.06] text-zinc-300 hover:text-white"
-                        }`}
-                        title={isPlayingThis ? "Pause" : "Play preview"}
-                      >
-                        {isPlayingThis ? <Pause size={12} /> : <Play size={12} className="ml-0.5" />}
-                      </button>
-
-                      <div className="min-w-0">
-                        <p className="text-xs font-bold text-white truncate">
-                          {track.title}
-                        </p>
-                        <p className="text-[10px] text-zinc-400 truncate">
-                          {track.artist}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="shrink-0">
-                      {isSelected ? (
-                        <div className="w-5 h-5 rounded-full bg-orange-500 text-white flex items-center justify-center">
-                          <Check size={12} />
-                        </div>
-                      ) : (
-                        <div className="w-5 h-5 rounded-full border border-white/[0.15]" />
-                      )}
-                    </div>
+          {/* EDITORIAL TRANSCRIPT MARKDOWN EDITOR */}
+          {showTranscriptEditor && (
+            <div className="rounded-[28px] border-2 border-orange-200 bg-white p-6 space-y-4 shadow-md">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-orange-50 text-[#FF5722] border border-orange-200">
+                    <FileText size={18} />
                   </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="p-4 rounded-xl border border-white/[0.08] bg-white/[0.02] text-center text-xs text-zinc-400 italic">
-              Background music disabled. Video will render with narration audio and sound effects.
+                  <div>
+                    <h4 className="text-sm font-black uppercase tracking-wider text-slate-900">
+                      Editorial Transcript Editor (Correct Spelling &amp; Jargon)
+                    </h4>
+                    <p className="text-xs text-slate-500">
+                      Fix misheard brand names or typos before generating video subtitles
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleSaveEditedTranscript}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition cursor-pointer shadow-xs"
+                >
+                  {transcriptSavedFeedback ? (
+                    <>
+                      <CheckCheck size={14} />
+                      <span>Changes Saved!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save size={14} />
+                      <span>Save &amp; Update Subtitles</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <textarea
+                value={editableTranscript}
+                onChange={e => setEditableTranscript(e.target.value)}
+                rows={6}
+                placeholder="Spoken narration transcript..."
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50/70 p-4 text-sm font-medium text-slate-900 leading-relaxed focus:bg-white focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] focus:outline-none transition shadow-inner font-mono"
+              />
+
+              <div className="flex items-center justify-between text-[11px] text-slate-500">
+                <span>{editableTranscript.trim().split(/\s+/).filter(Boolean).length} Words</span>
+                <span>Clicking &ldquo;Save &amp; Update Subtitles&rdquo; updates the transcript for cloud render.</span>
+              </div>
             </div>
           )}
 
-          {/* Sound effects toggle & volume ducking */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-white/[0.06]">
-            <div className="flex items-center justify-between rounded-xl border border-white/[0.07] bg-[#16171D] p-3">
-              <div>
-                <p className="text-xs font-bold text-white flex items-center gap-1.5">
-                  <Volume2 size={13} className="text-orange-400" />
-                  <span>Beat Sound Effects (SFX)</span>
-                </p>
-                <p className="text-[10.5px] text-zinc-400">Pops &amp; transition cues</p>
+          {/* ── COMPULSORY INTERACTIVE 16:9 LIVE PREVIEW PLAYER ── */}
+          <div className="rounded-[28px] border-2 border-orange-200 bg-white p-6 sm:p-7 space-y-5 shadow-lg shadow-orange-500/5">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-orange-500/10 text-[#FF5722] border border-orange-500/20">
+                  <Eye size={18} />
+                </div>
+                <div>
+                  <h4 className="text-sm font-black uppercase tracking-wider text-slate-900">
+                    Live 16:9 Visual Preview (Compulsory Review)
+                  </h4>
+                  <p className="text-xs text-slate-500">
+                    High-contrast typography, kinetic cards, and audio sync on white canvas
+                  </p>
+                </div>
               </div>
-              <button
-                type="button"
-                onClick={() => onEnableSfxChange?.(!facelessEnableSfx)}
-                className={`relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
-                  facelessEnableSfx ? "bg-orange-500" : "bg-white/20"
-                }`}
-              >
-                <span
-                  className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                    facelessEnableSfx ? "translate-x-5" : "translate-x-0"
-                  }`}
-                />
-              </button>
+
+              <div className="flex items-center gap-2">
+                {audioPreviewUrl && (
+                  <button
+                    type="button"
+                    onClick={togglePreviewAudio}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition shadow-xs cursor-pointer"
+                  >
+                    {isPreviewAudioPlaying ? (
+                      <>
+                        <Pause size={13} className="text-[#FF5722]" />
+                        <span>Pause Audio Sync</span>
+                      </>
+                    ) : (
+                      <>
+                        <Play size={13} className="text-[#FF5722]" />
+                        <span>Play Audio Sync</span>
+                      </>
+                    )}
+                  </button>
+                )}
+
+                {previewConfirmed ? (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-black">
+                    <ShieldCheck size={14} className="text-emerald-600" />
+                    Preview Confirmed
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-300 text-amber-800 text-xs font-black animate-pulse">
+                    <AlertCircle size={14} className="text-amber-600" />
+                    Preview Required
+                  </span>
+                )}
+              </div>
             </div>
 
-            {facelessBgmMood !== "none" ? (
-              <div className="rounded-xl border border-white/[0.07] bg-[#16171D] p-3 space-y-1">
-                <div className="flex items-center justify-between text-xs font-semibold text-zinc-300">
-                  <span>Music Ducking Volume</span>
-                  <span className="font-mono text-white">{Math.round((facelessBgmVolume || 0.14) * 100)}%</span>
-                </div>
-                <input
-                  type="range"
-                  min="0.05"
-                  max="0.30"
-                  step="0.01"
-                  value={facelessBgmVolume ?? 0.14}
-                  onChange={(e) => onBgmVolumeChange?.(parseFloat(e.target.value))}
-                  className="w-full accent-orange-500 cursor-pointer"
-                />
-              </div>
-            ) : (
-              <div className="rounded-xl border border-white/[0.07] bg-[#16171D] p-3 flex items-center text-xs text-zinc-500 italic">
-                Background score muted
-              </div>
+            {/* Hidden audio element for preview sync */}
+            {audioPreviewUrl && (
+              <audio ref={previewAudioRef} src={audioPreviewUrl} preload="auto" onEnded={() => setIsPreviewAudioPlaying(false)} />
             )}
-          </div>
-        </div>
-      </div>
 
-      {/* ── STAGE 3: FULL-WIDTH SCENE STORYBOARD & TIMELINE ── */}
-      {sceneBlueprint && sceneBlueprint.length > 0 && (
-        <div className="pt-2">
+            {/* 16:9 Canvas Mockup */}
+            <div className="aspect-video w-full rounded-2xl border border-slate-200 bg-[#FFFFFF] relative overflow-hidden flex flex-col items-center justify-center p-8 sm:p-12 text-center shadow-inner">
+              {/* Dot Grid Pattern */}
+              <div
+                className="absolute inset-0 pointer-events-none opacity-40"
+                style={{
+                  backgroundImage: `radial-gradient(rgba(0, 0, 0, 0.08) 1.5px, transparent 1.5px)`,
+                  backgroundSize: "24px 24px",
+                }}
+              />
+
+              {/* Soft Ambient Glows */}
+              <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full bg-orange-500/10 blur-3xl pointer-events-none" />
+              <div className="absolute -bottom-12 -right-12 w-48 h-48 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
+
+              {/* Scene Content inside Canvas */}
+              {currentPreviewScene ? (
+                <div className="relative z-10 max-w-2xl mx-auto flex flex-col items-center justify-center space-y-4">
+                  <span className="inline-block px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-orange-100 text-[#FF5722] border border-orange-200">
+                    {currentPreviewScene.sceneType || "SCENE CARD"}
+                  </span>
+
+                  <h2 className="text-xl sm:text-3xl font-black text-slate-900 leading-tight">
+                    {currentPreviewScene.heading || currentPreviewScene.narrationSegment?.text || "Key Takeaway"}
+                  </h2>
+
+                  {currentPreviewScene.supportingPoints && currentPreviewScene.supportingPoints.length > 0 && (
+                    <div className="flex flex-wrap gap-2 justify-center max-w-lg mt-2">
+                      {currentPreviewScene.supportingPoints.map((pt: string, i: number) => (
+                        <span key={i} className="text-xs font-semibold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md border border-slate-200">
+                          {pt}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="pt-2 text-[11px] font-mono font-bold text-slate-500">
+                    Scene {activePreviewIndex + 1} of {sceneBlueprint.length}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-slate-400 text-sm">No scenes generated yet</p>
+              )}
+            </div>
+
+            {/* Scrubber Navigation and Confirmation */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-slate-100">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setActivePreviewIndex(prev => Math.max(0, prev - 1))}
+                  disabled={activePreviewIndex === 0}
+                  className="p-2 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-30 cursor-pointer shadow-xs"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                <span className="text-xs font-bold text-slate-700">
+                  Scene {activePreviewIndex + 1} of {sceneBlueprint.length}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setActivePreviewIndex(prev => Math.min(sceneBlueprint.length - 1, prev + 1))}
+                  disabled={activePreviewIndex >= sceneBlueprint.length - 1}
+                  className="p-2 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-30 cursor-pointer shadow-xs"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+
+              {/* Approval Button */}
+              <button
+                type="button"
+                onClick={() => setPreviewConfirmed(true)}
+                className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black transition cursor-pointer ${
+                  previewConfirmed
+                    ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20"
+                    : "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-md shadow-orange-500/20 hover:brightness-110 active:scale-95"
+                }`}
+              >
+                {previewConfirmed ? (
+                  <>
+                    <ShieldCheck size={16} />
+                    <span>✓ Preview Confirmed (Ready to Render)</span>
+                  </>
+                ) : (
+                  <>
+                    <Eye size={16} />
+                    <span>Approve &amp; Confirm Preview (Required)</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Timeline View */}
           <FacelessStoryboardTimeline
             scenes={sceneBlueprint}
             brollUrls={brollUrls}
-            onBrollUrlsChange={setBrollUrls}
-            uploadedAssets={taggedUploadedAssets}
-            uploadedImageFiles={uploadedImageFiles}
-            onSeekAudio={(time) => {
-              if (audioPlayerRef.current) {
-                audioPlayerRef.current.currentTime = time;
-                audioPlayerRef.current.play().catch(() => {});
-                setIsPlayingAudio(true);
-              }
+            onReorderScenes={setSceneBlueprint}
+            onUpdateSceneText={(sceneId, text) => {
+              setSceneBlueprint(prev => prev.map(s => s.id === sceneId ? { ...s, heading: text } : s));
             }}
           />
-        </div>
-      )}
 
-      {/* ── FINAL GENERATE ACTION BAR (FIXED BOTTOM / DOCKED SUMMARY) ── */}
-      <div className="rounded-2xl border border-white/[0.08] bg-[#141519] p-4 sm:p-5 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-        {/* Specs Overview */}
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-zinc-300">
-          <div className="flex items-center gap-1.5">
-            <span className="text-zinc-400 font-medium">Output:</span>
-            <span className="font-bold text-white">16:9 Widescreen (1080p 30 FPS)</span>
-          </div>
-
-          <span className="text-zinc-600 hidden sm:inline">•</span>
-
-          <div className="flex items-center gap-1.5">
-            <span className="text-zinc-400 font-medium">Duration:</span>
-            <span className="font-semibold text-white">
-              {audioDurationSec > 0 ? formattedDuration : "Upload audio"}
-            </span>
-          </div>
-
-          {sceneBlueprint.length > 0 && (
-            <>
-              <span className="text-zinc-600 hidden sm:inline">•</span>
-              <div className="flex items-center gap-1.5">
-                <span className="text-zinc-400 font-medium">Storyboard:</span>
-                <span className="font-semibold text-emerald-400">
-                  {sceneBlueprint.length} Scenes Ready
-                </span>
-              </div>
-            </>
-          )}
-
-          <span className="text-zinc-600 hidden sm:inline">•</span>
-
-          <div className="flex items-center gap-1.5">
-            <span className="text-zinc-400 font-medium">Credit Rate:</span>
-            <span className="font-semibold text-white">1 Min = 1 Credit</span>
-          </div>
-
-          <span className="text-zinc-600 hidden sm:inline">•</span>
-
-          <Link
-            href="/dashboard/faceless-video/preview"
-            className="hidden sm:inline-flex items-center gap-1.5 text-xs text-orange-400 hover:text-orange-300 font-semibold underline decoration-orange-500/40 transition-colors"
-          >
-            <Tv size={13} />
-            <span>Open 16:9 Live Preview Studio</span>
-          </Link>
-        </div>
-
-        {/* Action Button */}
-        <div className="flex items-center gap-3 shrink-0">
-          {onOpenPreview && (
+          {/* Final Action Bar (Guarded by Compulsory Preview) */}
+          <div className="flex flex-col sm:flex-row items-center justify-end gap-4 pt-6 border-t border-slate-200">
             <button
               type="button"
-              onClick={onOpenPreview}
-              className="w-full md:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-orange-500/40 bg-orange-500/10 hover:bg-orange-500/20 px-5 py-3.5 text-xs sm:text-sm font-bold text-orange-400 transition cursor-pointer"
+              onClick={handleTriggerGenerate}
+              disabled={isGenerating || !previewConfirmed}
+              className={`w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-2xl px-8 py-4 text-base font-black transition-all duration-200 ${
+                !previewConfirmed
+                  ? "bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300"
+                  : isGenerating
+                  ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white opacity-80 cursor-wait animate-pulse shadow-xl"
+                  : "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-xl shadow-[#FF5722]/30 hover:brightness-110 active:scale-95 cursor-pointer"
+              }`}
             >
-              <Tv size={16} />
-              <span>Preview 16:9 Video</span>
+              {!previewConfirmed ? (
+                <>
+                  <Lock size={18} className="text-slate-400" />
+                  <span>Preview Required to Unlock Render</span>
+                </>
+              ) : (
+                <>
+                  <Film size={18} className="stroke-[2.5]" />
+                  <span>
+                    {isGenerating
+                      ? "Submitting Cloud Render..."
+                      : `Generate 1080p Widescreen Video (${calculatedCredits} Credit${calculatedCredits > 1 ? "s" : ""})`}
+                  </span>
+                </>
+              )}
             </button>
-          )}
-          <button
-            type="button"
-            onClick={handleGenerateVideo}
-            disabled={!selectedFile || isPlanning || isGenerating || !transcriptText.trim()}
-            className="w-full md:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-orange-500 hover:bg-orange-600 px-6 py-3.5 text-xs sm:text-sm font-bold text-white shadow-lg shadow-orange-500/25 transition active:scale-98 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-          >
-            {isGenerating ? (
-              <>
-                <RefreshCw size={15} className="animate-spin" />
-                <span>Rendering Video on Cloud...</span>
-              </>
-            ) : isPlanning ? (
-              <>
-                <RefreshCw size={15} className="animate-spin" />
-                <span>Transcribing Speech...</span>
-              </>
-            ) : !selectedFile ? (
-              <span>Upload Audio to Begin</span>
-            ) : !transcriptText.trim() ? (
-              <span>Transcribing Narration...</span>
-            ) : (
-              <>
-                <Sparkles size={16} />
-                <span>Generate 1080p Video</span>
-              </>
-            )}
-          </button>
+          </div>
         </div>
-      </div>
-
-      {/* ── MOBILE-ONLY DOCKED GENERATE ACTION BAR (Fixed Bottom for Instant Access) ── */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden p-3 bg-[#0B0F19]/95 backdrop-blur-xl border-t border-white/10 shadow-2xl flex items-center justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <p className="text-xs font-bold text-white truncate">
-            {selectedFile ? selectedFile.name : "Select Voiceover Audio"}
-          </p>
-          <p className="text-[10px] text-zinc-400 mt-0.5">
-            {audioDurationSec > 0 ? formattedDuration : "Up to 5 min"} • 1 Credit/Min
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={handleGenerateVideo}
-          disabled={!selectedFile || isPlanning || isGenerating || !transcriptText.trim()}
-          className="shrink-0 px-4 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-400 text-black font-black text-xs shadow-lg shadow-orange-500/20 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer inline-flex items-center gap-1.5"
-        >
-          {isGenerating ? (
-            <>
-              <RefreshCw size={12} className="animate-spin" />
-              <span>Rendering...</span>
-            </>
-          ) : isPlanning ? (
-            <>
-              <RefreshCw size={12} className="animate-spin" />
-              <span>Transcribing...</span>
-            </>
-          ) : (
-            <>
-              <Sparkles size={13} />
-              <span>Generate 1080p</span>
-            </>
-          )}
-        </button>
-      </div>
+      )}
     </div>
   );
-}
+};
 
-export default FacelessVideoStudio;

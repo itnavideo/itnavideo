@@ -5,12 +5,13 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function getOptimizedCloudinaryUrl(url: string, width = 800): string {
+export function getOptimizedCloudinaryUrl(url: string, width = 800, quality: 'eco' | 'good' | 'auto' = 'eco'): string {
   if (!url || typeof url !== 'string') return url;
-  // Bypass optimization for Google Cloud Storage or other non-Cloudinary domains
+  // Bypass optimization for non-Cloudinary domains
   if (!url.includes('res.cloudinary.com')) return url;
   if (url.includes('/image/upload/f_auto') || url.includes('/image/upload/c_') || url.includes('/image/upload/w_')) return url;
-  return url.replace('/image/upload/', `/image/upload/f_auto,q_auto,w_${width}/`);
+  const q = quality === 'auto' ? 'q_auto' : `q_auto:${quality}`;
+  return url.replace('/image/upload/', `/image/upload/f_auto,${q},w_${width}/`);
 }
 
 export function getOptimizedAvatarUrl(url: string, size = 96): string {

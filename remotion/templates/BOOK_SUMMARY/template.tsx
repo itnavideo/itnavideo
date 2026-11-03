@@ -5,6 +5,7 @@ import {
   Composition,
   Img,
   interpolate,
+  Sequence,
   spring,
   staticFile,
   useCurrentFrame,
@@ -1069,8 +1070,32 @@ export const BookSummaryTemplate: React.FC<BookSummaryTemplateProps> = ({
       {/* 1. Main Spoken Audio Track */}
       {activeAudioUrl && <Audio src={resolveUrl(activeAudioUrl)} volume={1.0} />}
 
-      {/* 2. Background Music Track (if provided) */}
-      {activeBgmUrl && <Audio src={resolveUrl(activeBgmUrl)} volume={bgmVolume} loop />}
+      {/* 2. Background Music Track (User selectable with default 12% volume) */}
+      {activeBgmUrl !== 'none' && (
+        <Audio
+          src={resolveUrl(activeBgmUrl || 'assets/reusable/music/parasail-silent-partner.mp3')}
+          volume={typeof bgmVolume === 'number' ? bgmVolume : 0.12}
+          loop
+        />
+      )}
+
+      {/* 2.5 Sound Effects (SFX) Timed on Scene Transitions */}
+      {scenes.filter(s => !s.disabled).map((s, idx) => {
+        const startFrame = Math.round(s.startSeconds * fps);
+        if (startFrame < 0) return null;
+        const sfxFile =
+          s.type === 'BOOK_COVER' || s.type === 'LESSON_TITLE'
+            ? 'assets/reusable/sfx/chime.mp3'
+            : s.type === 'KEY_IDEA' || s.type === 'STAT_INSIGHT'
+            ? 'assets/reusable/sfx/ding.mp3'
+            : 'assets/reusable/sfx/pop.mp3';
+
+        return (
+          <Sequence key={`sfx-${s.id || idx}`} from={startFrame} durationInFrames={Math.round(fps * 1.5)}>
+            <Audio src={resolveUrl(sfxFile)} volume={0.22} />
+          </Sequence>
+        );
+      })}
 
       {/* 3. Ambient Dynamic Visual Background (Clean White Theme) */}
       <SubtleAmbientBackground frame={frame} fps={fps} />

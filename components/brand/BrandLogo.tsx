@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import Link from 'next/link';
 
 type BrandLogoProps = {
@@ -26,6 +26,10 @@ export default function BrandLogo({
   variant = 'dark',
   className = '',
 }: BrandLogoProps) {
+  const reactId = useId();
+  // Safe unique ID for SVG linearGradient defs to prevent ID collisions across responsive DOM elements
+  const gradId = `itnaBrandPlayGrad_${reactId.replace(/[^a-zA-Z0-9_-]/g, '')}`;
+
   const s = typeof size === 'number'
     ? { icon: size, word: 'text-lg sm:text-xl', tagline: 'text-[10px]', badge: 'px-2 py-0.5 text-[9px]' }
     : (sizeMap[String(size)] || sizeMap.md);
@@ -53,6 +57,8 @@ export default function BrandLogo({
         style={{
           width: s.icon,
           height: s.icon,
+          minWidth: s.icon,
+          minHeight: s.icon,
         }}
       >
         <svg
@@ -60,24 +66,24 @@ export default function BrandLogo({
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           className="w-full h-full drop-shadow-[0_2px_14px_rgba(255,87,34,0.35)]"
+          aria-hidden="true"
         >
           <defs>
-            {/* Signature Flame Orange & Warm Amber Gradient for Hollow Play Ribbon */}
-            <linearGradient id="itnaBrandPlayGrad" x1="15%" y1="0%" x2="85%" y2="100%">
-              <stop offset="0%" stopColor="#FF7A45" />
+            {/* Signature Flame Orange & Warm Amber Gradient */}
+            <linearGradient id={gradId} x1="10%" y1="0%" x2="90%" y2="100%">
+              <stop offset="0%" stopColor="#FF7043" />
               <stop offset="50%" stopColor="#FF5722" />
               <stop offset="100%" stopColor="#F4511E" />
             </linearGradient>
           </defs>
 
-          {/* Unified Hollow Rounded Play Triangle */}
+          {/* Unified Solid Rounded Play Triangle matching Official Brand Identity */}
           <path
             d="M 28 22 C 28 16 34 12.5 39 15.5 L 80 43.5 C 85 46.5 85 53.5 80 56.5 L 39 84.5 C 34 87.5 28 84 28 78 Z"
-            fill="none"
-            stroke="url(#itnaBrandPlayGrad)"
-            strokeWidth="15"
+            fill={`url(#${gradId})`}
+            stroke="#FF5722"
+            strokeWidth="2"
             strokeLinejoin="round"
-            strokeLinecap="round"
           />
         </svg>
       </span>

@@ -56,6 +56,10 @@ The dedicated studio dashboard (`/dashboard/auto-caption`) features a **Strictly
    - **Editorial (49–50)**: `Editorial Mix`, `Editorial Dark Gold`.
    - Features: Top stepper navigation (`◀ 13/50 · Retro Shadow ▶`), 1–50 Numbered Grid, Category filter tabs, auto-switch every 3.5s, and instant live video sync.
 3. **Caption Theme & Animation Style (Catalog Presets)**:
+   - `Luxury Dual-Script`: High-converting luxury real estate & fashion style pairing *Playfair Display Italic* in Champagne Gold (`#FDE68A`) with crisp *Montserrat 900* in white.
+   - `Metallic Gloss 3D`: 3D metallic chrome & violet gloss sheen (`#D8B4FE` / `#A855F7`) with deep ambient drop shadow (`0 8px 24px rgba(0,0,0,0.9)`).
+   - `Whisper Editorial`: Translucent frosted glass capsule (`rgba(0,0,0,0.45)`, `backdrop-blur: 16px`) with spaced lowercase *Newsreader Serif* in soft warm white.
+   - `Creator Punch Stack`: 2-line high-retention stacked punch in Canary Yellow (`#FACC15`) with high-contrast black border.
    - `Creator 3`: Hormozi-style lime pop with dark drop shadow and bold punch.
    - `Crazy Gradient`: Dynamic animated violet/fuchsia gradient fill with stroke.
    - `Spark Glow`: Radiant golden spark glow for motivational and luxury hooks.

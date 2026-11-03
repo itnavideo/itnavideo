@@ -8,7 +8,7 @@ export interface WhiteboardHandProps {
   targetY?: number;
   /** Whether the hand is currently actively drawing */
   isDrawing?: boolean;
-  /** Scale factor for the hand (default: 1.0 for standard vertical shorts) */
+  /** Scale factor for the hand (default: 1.25 for standard vertical shorts) */
   scale?: number;
   /** Opacity */
   opacity?: number;
@@ -19,10 +19,14 @@ export interface WhiteboardHandProps {
 /**
  * WhiteboardHand — Real Photorealistic Human Hand Holding Marker Pen.
  * 
- * Calibrated against public/assets/real-hand-marker.png:
- * Source: 1024 × 1536 PNG with transparent background.
+ * Sourced directly from production AWS S3 media asset:
+ * https://itnavideo-media-assets.s3.ap-south-1.amazonaws.com/assets/real-hand-marker.png
+ * 
  * Exact marker tip coordinates: x = 290, y = 149 (28.32% from left, 9.70% from top).
+ * Strictly a REAL HAND PNG — NEVER an SVG hand.
  */
+const AWS_REAL_HAND_PNG = 'https://itnavideo-media-assets.s3.ap-south-1.amazonaws.com/assets/real-hand-marker.png';
+
 export const WhiteboardHand: React.FC<WhiteboardHandProps> = ({
   targetX = 540,
   targetY = 960,
@@ -63,7 +67,13 @@ export const WhiteboardHand: React.FC<WhiteboardHandProps> = ({
       }}
     >
       <Img
-        src={staticFile('assets/real-hand-marker.png')}
+        src={AWS_REAL_HAND_PNG}
+        onError={(e) => {
+          // Safe fallback to local staticFile if offline
+          try {
+            (e.currentTarget as any).src = staticFile('assets/real-hand-marker.png');
+          } catch {}
+        }}
         style={{
           width: '100%',
           height: '100%',

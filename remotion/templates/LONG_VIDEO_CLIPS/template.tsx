@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   AbsoluteFill,
+  Audio,
   Composition,
   OffthreadVideo,
   interpolate,
@@ -50,6 +51,8 @@ type LongVideoClipsProps = {
   fontFamily?: string;
   showBackground?: boolean;
   watermark?: boolean;
+  bgmUrl?: string;
+  bgmVolume?: number;
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -204,6 +207,8 @@ function LongVideoClips({
   showBackground = true,
   layoutMode = 'auto-speaker',
   watermark = false,
+  bgmUrl,
+  bgmVolume = 0.12,
 }: LongVideoClipsProps) {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
@@ -387,6 +392,15 @@ function LongVideoClips({
 
       {/* Universal Anti-Crop Watermark for Free Plan */}
       <BrandWatermark watermark={watermark} isLandscape={aspectRatio === '16:9'} />
+
+      {/* Background Music Track (Default 12% Volume) */}
+      {bgmUrl && bgmUrl !== 'none' && (
+        <Audio
+          src={resolveAsset(bgmUrl)}
+          volume={bgmVolume ?? 0.12}
+          loop
+        />
+      )}
     </AbsoluteFill>
   );
 }

@@ -1,33 +1,103 @@
 import React from 'react';
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
+import type { BackgroundColorPalette } from '../../../components/backgrounds/BackgroundCatalog';
 
 export interface GoalTargetSceneProps {
   scene: SceneBlueprintItem;
   headingFont?: string;
   bodyFont?: string;
+  sceneFrame?: number;
+  palette?: BackgroundColorPalette;
+}
+
+/* ───────────────────────── SVG Icons ───────────────────────── */
+
+function TargetIcon({ size = 20, color = '#EA580C' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="6" />
+      <circle cx="12" cy="12" r="2" />
+    </svg>
+  );
+}
+
+function ShieldIcon({ size = 18, color = '#FFA000' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    </svg>
+  );
+}
+
+function HomeIcon({ size = 18, color = '#38BDF8' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+      <polyline points="9 22 9 12 15 12 15 22" />
+    </svg>
+  );
+}
+
+function ShoppingIcon({ size = 18, color = '#A855F7' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="9" cy="21" r="1" />
+      <circle cx="20" cy="21" r="1" />
+      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+    </svg>
+  );
+}
+
+function LightbulbIcon({ size = 16, color = '#94A3B8' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 18h6" />
+      <path d="M10 22h4" />
+      <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14" />
+    </svg>
+  );
 }
 
 export function GoalTargetScene({
   scene,
   headingFont = 'Montserrat, Inter, system-ui, sans-serif',
   bodyFont = 'Inter, system-ui, sans-serif',
+  sceneFrame,
+  palette,
 }: GoalTargetSceneProps) {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, width, height } = useVideoConfig();
+  const currentFrame = sceneFrame ?? frame;
+
+  const isPortrait = height > width;
+  const s = Math.min(width, height) / 1080;
+  const isDark = palette?.isDark ?? true;
+
+  const bg = isDark ? (palette?.background || '#090D16') : '#FFFFFF';
+  const textPrimary = isDark ? '#FFFFFF' : '#0F172A';
+  const textSecondary = isDark ? '#94A3B8' : '#64748B';
+  const cardBg = isDark ? 'rgba(15, 23, 42, 0.94)' : '#FFFFFF';
+  const cardBorder = isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)';
 
   // Entrances
-  const headerSpring = spring({ frame, fps, config: { damping: 14, stiffness: 110 } });
-  const leftCardSpring = spring({ frame: Math.max(0, frame - 6), fps, config: { damping: 13, stiffness: 95 } });
-  const rightCardSpring = spring({ frame: Math.max(0, frame - 12), fps, config: { damping: 13, stiffness: 95 } });
-  const progressSpring = spring({ frame: Math.max(0, frame - 18), fps, config: { damping: 18, stiffness: 80 } });
+  const headerSpring = spring({ frame: currentFrame, fps, config: { damping: 14, stiffness: 110 } });
+  const card1Spring = spring({ frame: Math.max(0, currentFrame - 6), fps, config: { damping: 13, stiffness: 95 } });
+  const card2Spring = spring({ frame: Math.max(0, currentFrame - 12), fps, config: { damping: 13, stiffness: 95 } });
 
-  const heading = scene.heading || '₹30,000 SALARY BLUEPRINT';
-  const supportingText = scene.supportingText || '₹1 LAKH EMERGENCY FUND TARGET';
-  const statVal = scene.statValue || '₹1,00,000';
+  // Staggered animated progress bars
+  const bar1Spring = spring({ frame: Math.max(0, currentFrame - 10), fps, config: { damping: 16, stiffness: 90 } });
+  const bar2Spring = spring({ frame: Math.max(0, currentFrame - 14), fps, config: { damping: 16, stiffness: 90 } });
+  const bar3Spring = spring({ frame: Math.max(0, currentFrame - 18), fps, config: { damping: 16, stiffness: 90 } });
+  const goalSpring = spring({ frame: Math.max(0, currentFrame - 22), fps, config: { damping: 18, stiffness: 80 } });
 
-  // Dynamic progress fill (0% -> 68%)
-  const fillPercent = interpolate(progressSpring, [0, 1], [0, 68]);
+  const heading = scene.heading || 'WEALTH CREATION BLUEPRINT';
+  const supportingText = scene.supportingText || 'Target Savings & Strategic Capital Allocation';
+  const statVal = scene.statValue || '$10,000 TARGET';
+
+  // Dynamic progress fill
+  const goalFill = interpolate(goalSpring, [0, 1], [0, 72]);
 
   return (
     <div
@@ -38,257 +108,249 @@ export function GoalTargetScene({
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '50px 80px',
-        zIndex: 15,
+        padding: isPortrait ? `${160 * s}px ${50 * s}px ${180 * s}px` : `${50 * s}px ${80 * s}px`,
+        backgroundColor: bg,
+        boxSizing: 'border-box',
+        overflow: 'hidden',
         fontFamily: bodyFont,
       }}
     >
-      {/* Top Header */}
+      {/* ── Top Header ── */}
       <div
         style={{
           textAlign: 'center',
-          marginBottom: '38px',
+          marginBottom: isPortrait ? `${24 * s}px` : `${32 * s}px`,
           opacity: headerSpring,
-          transform: `translateY(${interpolate(headerSpring, [0, 1], [-25, 0])}px)`,
+          transform: `translateY(${interpolate(headerSpring, [0, 1], [-20 * s, 0])}px)`,
         }}
       >
         <div
           style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '8px',
-            padding: '6px 18px',
-            borderRadius: '9999px',
-            backgroundColor: 'rgba(255, 230, 0, 0.15)',
-            border: '1px solid rgba(255, 230, 0, 0.4)',
-            color: '#FFE600',
-            fontSize: '12px',
+            gap: `${8 * s}px`,
+            padding: `${6 * s}px ${18 * s}px`,
+            borderRadius: `${999 * s}px`,
+            backgroundColor: isDark ? 'rgba(255, 160, 0, 0.14)' : 'rgba(255, 160, 0, 0.16)',
+            border: '1.5px solid rgba(255, 160, 0, 0.4)',
+            color: '#FFA000',
+            fontSize: `${13 * s}px`,
             fontWeight: 800,
             letterSpacing: '0.1em',
             textTransform: 'uppercase',
-            marginBottom: '14px',
+            marginBottom: `${10 * s}px`,
           }}
         >
-          <span>🇮🇳</span>
-          <span>WEALTH CREATION BLUEPRINT</span>
+          <TargetIcon size={16 * s} color="#FFA000" />
+          <span>GOAL & ALLOCATION BLUEPRINT</span>
         </div>
 
         <h1
           style={{
             fontFamily: headingFont,
-            fontSize: '44px',
+            fontSize: isPortrait ? `${40 * s}px` : `${46 * s}px`,
             fontWeight: 900,
-            color: '#FFFFFF',
+            color: textPrimary,
             margin: 0,
-            letterSpacing: '-0.02em',
-            textShadow: '0 4px 20px rgba(0,0,0,0.85)',
+            letterSpacing: '-0.025em',
+            lineHeight: 1.15,
           }}
         >
           {heading}
         </h1>
-        <p style={{ fontSize: '16px', color: '#CBD5E1', margin: '8px 0 0 0', fontWeight: 600 }}>
+        <p style={{ fontSize: `${18 * s}px`, color: textSecondary, margin: `${8 * s}px 0 0 0`, fontWeight: 600 }}>
           {supportingText}
         </p>
       </div>
 
-      {/* Main 2-Card Warikoo Allocation Display */}
+      {/* ── Main Cards Container: Column in 9:16 Portrait, Row in 16:9 Landscape ── */}
       <div
         style={{
           display: 'flex',
+          flexDirection: isPortrait ? 'column' : 'row',
           alignItems: 'stretch',
           justifyContent: 'center',
-          gap: '32px',
+          gap: isPortrait ? `${18 * s}px` : `${28 * s}px`,
           width: '100%',
-          maxWidth: '1200px',
+          maxWidth: isPortrait ? '540px' : '1160px',
         }}
       >
-        {/* LEFT CARD: Monthly Allocation (50/30/20) */}
+        {/* CARD 1: Allocation Breakdown */}
         <div
           style={{
             flex: 1,
-            borderRadius: '28px',
-            border: '2px solid rgba(255, 255, 255, 0.14)',
-            backgroundColor: 'rgba(15, 23, 42, 0.94)',
-            backdropFilter: 'blur(20px)',
-            padding: '36px 32px',
-            boxShadow: '0 25px 60px rgba(0,0,0,0.85)',
+            borderRadius: `${24 * s}px`,
+            border: `2px solid ${cardBorder}`,
+            backgroundColor: cardBg,
+            padding: `${24 * s}px ${28 * s}px`,
+            boxShadow: `0 ${15 * s}px ${40 * s}px rgba(0,0,0,0.2)`,
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            opacity: leftCardSpring,
-            transform: `scale(${interpolate(leftCardSpring, [0, 1], [0.9, 1])})`,
+            opacity: card1Spring,
+            transform: `scale(${interpolate(card1Spring, [0, 1], [0.92, 1])})`,
           }}
         >
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-              <span style={{ fontSize: '12px', fontWeight: 900, color: '#94A3B8', textTransform: 'uppercase' }}>
-                MONTHLY CASHFLOW
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: `${14 * s}px` }}>
+              <span style={{ fontSize: `${13 * s}px`, fontWeight: 900, color: textSecondary, textTransform: 'uppercase' }}>
+                STRATEGIC SPLIT
               </span>
               <span
                 style={{
                   backgroundColor: '#FFE600',
                   color: '#000000',
-                  fontSize: '11px',
+                  fontSize: `${12 * s}px`,
                   fontWeight: 900,
-                  padding: '3px 10px',
-                  borderRadius: '6px',
+                  padding: `${3 * s}px ${10 * s}px`,
+                  borderRadius: `${6 * s}px`,
                 }}
               >
-                50/30/20 RULE
+                50 / 30 / 20
               </span>
             </div>
 
-            <div style={{ fontSize: '38px', fontWeight: 900, color: '#FFFFFF', letterSpacing: '-0.02em', marginBottom: '24px' }}>
-              ₹30,000 <span style={{ fontSize: '16px', color: '#64748B', fontWeight: 600 }}>/ month</span>
-            </div>
-
-            {/* Stepped Buckets */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {/* Needs */}
+            {/* Stepped Buckets with Animated Bars */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: `${14 * s}px` }}>
+              {/* Bucket 1: Needs */}
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 700, color: '#CBD5E1', marginBottom: '6px' }}>
-                  <span>🏠 Needs (Rent, Food, EMI)</span>
-                  <span style={{ color: '#94A3B8' }}>₹15,000 (50%)</span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: `${15 * s}px`, fontWeight: 700, color: textPrimary, marginBottom: `${6 * s}px` }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: `${6 * s}px` }}>
+                    <HomeIcon size={16 * s} color="#38BDF8" /> Essential Needs
+                  </span>
+                  <span style={{ color: textSecondary }}>50%</span>
                 </div>
-                <div style={{ width: '100%', height: '8px', backgroundColor: '#334155', borderRadius: '4px', overflow: 'hidden' }}>
-                  <div style={{ width: '50%', height: '100%', backgroundColor: '#38BDF8', borderRadius: '4px' }} />
+                <div style={{ width: '100%', height: `${8 * s}px`, backgroundColor: isDark ? '#1E293B' : '#E2E8F0', borderRadius: `${4 * s}px`, overflow: 'hidden' }}>
+                  <div style={{ width: `${50 * bar1Spring}%`, height: '100%', backgroundColor: '#38BDF8', borderRadius: `${4 * s}px` }} />
                 </div>
               </div>
 
-              {/* Wants */}
+              {/* Bucket 2: Wants */}
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 700, color: '#CBD5E1', marginBottom: '6px' }}>
-                  <span>☕ Wants (Outing, Shopping)</span>
-                  <span style={{ color: '#94A3B8' }}>₹9,000 (30%)</span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: `${15 * s}px`, fontWeight: 700, color: textPrimary, marginBottom: `${6 * s}px` }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: `${6 * s}px` }}>
+                    <ShoppingIcon size={16 * s} color="#A855F7" /> Lifestyle & Growth
+                  </span>
+                  <span style={{ color: textSecondary }}>30%</span>
                 </div>
-                <div style={{ width: '100%', height: '8px', backgroundColor: '#334155', borderRadius: '4px', overflow: 'hidden' }}>
-                  <div style={{ width: '30%', height: '100%', backgroundColor: '#A855F7', borderRadius: '4px' }} />
+                <div style={{ width: '100%', height: `${8 * s}px`, backgroundColor: isDark ? '#1E293B' : '#E2E8F0', borderRadius: `${4 * s}px`, overflow: 'hidden' }}>
+                  <div style={{ width: `${30 * bar2Spring}%`, height: '100%', backgroundColor: '#A855F7', borderRadius: `${4 * s}px` }} />
                 </div>
               </div>
 
-              {/* Emergency Fund Savings (Key Focus) */}
+              {/* Bucket 3: Emergency / Investments */}
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 800, color: '#FFE600', marginBottom: '6px' }}>
-                  <span>🛡️ Emergency Savings</span>
-                  <span style={{ color: '#FFE600', fontWeight: 900 }}>₹6,000 (20%)</span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: `${15 * s}px`, fontWeight: 800, color: '#FFA000', marginBottom: `${6 * s}px` }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: `${6 * s}px` }}>
+                    <ShieldIcon size={16 * s} color="#FFA000" /> Capital Compounding
+                  </span>
+                  <span style={{ color: '#FFA000', fontWeight: 900 }}>20%</span>
                 </div>
-                <div style={{ width: '100%', height: '10px', backgroundColor: '#334155', borderRadius: '5px', overflow: 'hidden', boxShadow: '0 0 12px rgba(255, 230, 0, 0.4)' }}>
-                  <div style={{ width: '20%', height: '100%', backgroundColor: '#FFE600', borderRadius: '5px' }} />
+                <div style={{ width: '100%', height: `${10 * s}px`, backgroundColor: isDark ? '#1E293B' : '#E2E8F0', borderRadius: `${5 * s}px`, overflow: 'hidden' }}>
+                  <div style={{ width: `${20 * bar3Spring}%`, height: '100%', backgroundColor: '#FFA000', borderRadius: `${5 * s}px` }} />
                 </div>
               </div>
             </div>
           </div>
 
-          <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', fontSize: '12px', color: '#94A3B8' }}>
-            💡 Automated SIP deduction on salary day
+          <div style={{ marginTop: `${18 * s}px`, paddingTop: `${12 * s}px`, borderTop: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'}`, fontSize: `${13 * s}px`, color: textSecondary, display: 'flex', alignItems: 'center', gap: `${6 * s}px` }}>
+            <LightbulbIcon size={14 * s} /> Automated deduction on receipt
           </div>
         </div>
 
-        {/* RIGHT CARD: The Physical Target Easel Card */}
+        {/* CARD 2: Primary Goal Target Easel */}
         <div
           style={{
             flex: 1,
-            borderRadius: '28px',
-            border: '4px solid #FFFFFF',
-            backgroundColor: '#FAFAFA',
-            color: '#0F172A',
-            padding: '36px 36px',
-            boxShadow: '0 30px 80px rgba(0,0,0,0.9), 0 0 45px rgba(255, 230, 0, 0.25)',
+            borderRadius: `${24 * s}px`,
+            border: `3px solid ${isDark ? '#FFA000' : '#EA580C'}`,
+            backgroundColor: isDark ? '#1A2235' : '#FFFFFF',
+            padding: `${24 * s}px ${28 * s}px`,
+            boxShadow: `0 ${20 * s}px ${50 * s}px rgba(0,0,0,0.25)`,
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            opacity: rightCardSpring,
-            transform: `scale(${interpolate(rightCardSpring, [0, 1], [0.9, 1])}) rotate(1.5deg)`,
+            opacity: card2Spring,
+            transform: `scale(${interpolate(card2Spring, [0, 1], [0.92, 1])})`,
           }}
         >
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-              <span style={{ fontSize: '13px', fontWeight: 900, color: '#475569', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                SAVINGS GOAL
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: `${12 * s}px` }}>
+              <span style={{ fontSize: `${13 * s}px`, fontWeight: 900, color: textSecondary, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                PRIMARY TARGET
               </span>
               <span
                 style={{
-                  backgroundColor: '#DC2626',
+                  backgroundColor: '#EA580C',
                   color: '#FFFFFF',
-                  fontSize: '11px',
+                  fontSize: `${12 * s}px`,
                   fontWeight: 900,
-                  padding: '3px 10px',
-                  borderRadius: '6px',
+                  padding: `${3 * s}px ${10 * s}px`,
+                  borderRadius: `${6 * s}px`,
                 }}
               >
-                TARGET
+                MILESTONE
               </span>
             </div>
 
-            {/* Huge ₹1 LAKH Target with Red Underline */}
-            <div style={{ marginBottom: '24px' }}>
+            {/* Giant Stat Value */}
+            <div style={{ marginBottom: `${18 * s}px` }}>
               <div
                 style={{
-                  fontSize: '56px',
+                  fontSize: isPortrait ? `${44 * s}px` : `${50 * s}px`,
                   fontWeight: 900,
-                  color: '#070B14',
+                  color: textPrimary,
                   letterSpacing: '-0.03em',
                   lineHeight: 1.05,
                 }}
               >
                 {statVal}
               </div>
-              {/* Red Accent Underline Bar */}
               <div
                 style={{
-                  width: '180px',
-                  height: '6px',
-                  backgroundColor: '#DC2626',
-                  borderRadius: '3px',
-                  marginTop: '8px',
+                  width: `${120 * s}px`,
+                  height: `${5 * s}px`,
+                  backgroundColor: '#EA580C',
+                  borderRadius: `${3 * s}px`,
+                  marginTop: `${8 * s}px`,
                 }}
               />
             </div>
 
-            {/* Target Progress Bar */}
-            <div style={{ marginBottom: '16px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 800, color: '#334155', marginBottom: '8px' }}>
-                <span>Accumulated Fund</span>
-                <span style={{ color: '#16A34A', fontWeight: 900 }}>₹68,000 (68%)</span>
+            {/* Goal Progress Bar */}
+            <div style={{ marginBottom: `${14 * s}px` }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: `${14 * s}px`, fontWeight: 800, color: textPrimary, marginBottom: `${6 * s}px` }}>
+                <span>Milestone Progress</span>
+                <span style={{ color: '#10B981', fontWeight: 900 }}>72% Achieved</span>
               </div>
-              <div style={{ width: '100%', height: '14px', backgroundColor: '#E2E8F0', borderRadius: '7px', overflow: 'hidden' }}>
+              <div style={{ width: '100%', height: `${12 * s}px`, backgroundColor: isDark ? '#0F172A' : '#E2E8F0', borderRadius: `${6 * s}px`, overflow: 'hidden' }}>
                 <div
                   style={{
-                    width: `${fillPercent}%`,
+                    width: `${goalFill}%`,
                     height: '100%',
-                    background: 'linear-gradient(90deg, #16A34A 0%, #22C55E 100%)',
-                    borderRadius: '7px',
-                    boxShadow: '0 0 10px rgba(22, 163, 74, 0.5)',
+                    background: 'linear-gradient(90deg, #10B981 0%, #34D399 100%)',
+                    borderRadius: `${6 * s}px`,
                   }}
                 />
               </div>
-            </div>
-
-            {/* Milestones */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748B', fontWeight: 700 }}>
-              <span>₹0</span>
-              <span>₹25K</span>
-              <span>₹50K</span>
-              <span>₹75K</span>
-              <span style={{ color: '#070B14', fontWeight: 900 }}>₹1 Lakh 🎯</span>
             </div>
           </div>
 
           <div
             style={{
-              marginTop: '20px',
-              paddingTop: '16px',
-              borderTop: '2px dashed #CBD5E1',
+              marginTop: `${16 * s}px`,
+              paddingTop: `${12 * s}px`,
+              borderTop: `2px dashed ${isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)'}`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
             }}
           >
-            <span style={{ fontSize: '12px', fontWeight: 800, color: '#475569' }}>
-              ESTIMATED TIME TO FREEDOM
+            <span style={{ fontSize: `${13 * s}px`, fontWeight: 800, color: textSecondary }}>
+              TIMELINE TO TARGET
             </span>
-            <span style={{ fontSize: '13px', fontWeight: 900, color: '#16A34A' }}>
-              ~5 MONTHS REMAINING
+            <span style={{ fontSize: `${14 * s}px`, fontWeight: 900, color: '#10B981' }}>
+              ON TRACK
             </span>
           </div>
         </div>
@@ -296,3 +358,5 @@ export function GoalTargetScene({
     </div>
   );
 }
+
+export default GoalTargetScene;

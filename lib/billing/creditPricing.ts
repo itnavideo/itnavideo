@@ -27,7 +27,9 @@ export type BillableRenderMode =
   | "imageToVideoAi"
   | "bookSummary"
   | "longFormCaptionedVideo"
-  | "youtubeSubtitleGenerator";
+  | "youtubeSubtitleGenerator"
+  | "aiVideoPolisher"
+  | "aiShortsPolisher";
 
 type RenderCreditOptions = {
   durationSeconds?: number;
@@ -65,6 +67,7 @@ export function calculateRenderCreditUnits(mode: BillableRenderMode, options: Re
     case "compare":
     case "whiteboardVideo":
     case "facelessShorts":
+    case "aiShortsPolisher":
       return SHORT_FORM_VIDEO_UNITS * CREDIT_UNITS_PER_CREDIT;
 
     // AI Audio Cleaner: 1 Credit
@@ -91,6 +94,7 @@ export function calculateRenderCreditUnits(mode: BillableRenderMode, options: Re
 
     case "imageToVideoAi":
     case "bookSummary":
+    case "aiVideoPolisher":
       return calculateLongFormCaptionCreditUnits(duration);
 
     default: {

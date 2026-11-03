@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { getOptimizedAvatarUrl } from '@/lib/utils';
 import Link from 'next/link';
 import { Sparkles, Star, CheckCircle2, ArrowRight } from 'lucide-react';
 
@@ -173,11 +174,13 @@ export default function TestimonialSection() {
                 <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full border border-orange-300/60 shadow-xs ring-2 ring-white">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={review.avatarUrl}
+                    src={getOptimizedAvatarUrl(review.avatarUrl, 96)}
                     alt={review.name}
                     className="h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
                     loading="lazy"
                     decoding="async"
+                    width={44}
+                    height={44}
                   />
                 </div>
 

@@ -1,14 +1,11 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import Image from "next/image";
 import {
   Sparkles,
   Upload,
   UploadCloud,
-  Layers,
-  Video,
-  Image as ImageIcon,
   Volume2,
   Check,
   CheckCircle2,
@@ -20,14 +17,66 @@ import {
   Tv,
   X,
   FileText,
-  Sliders,
   RotateCcw,
-  ChevronDown,
-  BookOpen,
   Tag,
+  Music,
+  Sliders,
+  Layers,
+  Zap,
+  Film,
+  Eye,
+  Video,
+  Image as ImageIcon,
+  CheckCheck,
+  Edit3,
+  Lock,
+  ChevronLeft,
+  ChevronRight,
+  Plus,
 } from "lucide-react";
-import { FacelessStoryboardTimeline } from "@/components/dashboard/FacelessStoryboardTimeline";
-import { diffBasedAlignTranscript } from "@/services/ai/transcriptAlignment";
+import { BorderBeam } from "@/components/magicui/BorderBeam";
+
+// Master AWS S3 Production Music Library
+export const AWS_SHORTS_BGM_TRACKS = [
+  { id: "parasail", label: "Calm Lofi (Recommended)", category: "Lo-Fi", path: "assets/reusable/music/parasail-silent-partner.mp3", desc: "Warm acoustic lofi guitar" },
+  { id: "19th-floor", label: "Deep Focus & Ambient", category: "Piano", path: "assets/reusable/music/19th-floor-bobby-richards.mp3", desc: "Inspiring subtle piano tone" },
+  { id: "dutty-vibe", label: "Optimistic Beat", category: "Upbeat", path: "assets/reusable/music/dutty-vibe-tracks.mp3", desc: "Gentle positive acoustic rhythm" },
+  { id: "book-rental", label: "Energetic Narrative", category: "Story", path: "assets/reusable/music/book-the-rental-wit-it-rage.mp3", desc: "Dynamic narrative flow" },
+  { id: "crimson-fly", label: "Cinematic Drama", category: "Cinematic", path: "assets/reusable/music/crimson-fly-huma-huma.mp3", desc: "Emotional documentary drive" },
+  { id: "crock-pot", label: "Funky Chill Groove", category: "Chill", path: "assets/reusable/music/crock-pot-diamond-ortiz.mp3", desc: "Playful lofi pulse" },
+  { id: "illusions", label: "Modern Swagger Beat", category: "Beats", path: "assets/reusable/music/illusions-anno-domini-beats.mp3", desc: "Modern high-production beat" },
+  { id: "not-for-nothing", label: "Lounge Instrumental", category: "Lounge", path: "assets/reusable/music/not-for-nothing-otis-mcdonald.mp3", desc: "Smooth brass & relaxed tempo" },
+  { id: "something-going", label: "Philosophical Mystery", category: "Deep", path: "assets/reusable/music/something-is-going-on-godmode.mp3", desc: "Pensive intrigue & discovery" },
+  { id: "bar-scene", label: "Acoustic Folk Narrative", category: "Acoustic", path: "assets/reusable/music/that-one-bar-scene-rkvc.mp3", desc: "Warm acoustic guitar storytelling" },
+  { id: "true-messiah", label: "Victorious Inspiration", category: "Epic", path: "assets/reusable/music/true-messiah-dj-freedem.mp3", desc: "Triumphant motivational melody" },
+  { id: "vishnu", label: "Zen Reflection", category: "Zen", path: "assets/reusable/music/vishnu-patrick-patrikios.mp3", desc: "Serene ambient meditation" },
+  { id: "what-it-is", label: "Smooth Motown", category: "Motown", path: "assets/reusable/music/what-it-is-silent-partner.mp3", desc: "Catchy positive baseline" },
+  { id: "none", label: "No Background Music", category: "Mute", path: "none", desc: "Pure spoken voiceover only" },
+];
+
+// 20 Master YouTube 9:16 Caption Styles
+export const TWENTY_SHORTS_CAPTION_STYLES = [
+  { id: "glow-viral", name: "Flame Glow Yellow", category: "Viral", color: "#FFD700", badge: "Popular", desc: "High-energy glowing yellow active word highlight" },
+  { id: "mrbeast", name: "MrBeast Yellow Box", category: "Viral", color: "#FFEB3B", badge: "Creator", desc: "Punchy yellow bounding box with bold pop" },
+  { id: "netflix-yellow", name: "Cinema Gold Subtitle", category: "Cinema", color: "#FACC15", badge: "Clean", desc: "Classic yellow bold font with black outline" },
+  { id: "hormozi-bold", name: "Hormozi Lime Punch", category: "Viral", color: "#22C55E", badge: "Retention", desc: "High-contrast punchy green & yellow caps" },
+  { id: "neon-city", name: "Cyberpunk Electric Cyan", category: "Modern", color: "#00F0FF", badge: "Glow", desc: "Cyan and magenta neon electric pulse" },
+  { id: "daily-look", name: "Sunny Vlog Rounded", category: "Friendly", color: "#FDE047", badge: "Vlog", desc: "Friendly rounded stroke with sunny glow" },
+  { id: "blockbuster", name: "Blockbuster Flame", category: "News", color: "#FF5722", badge: "Bold", desc: "Heavyweight slab headlines with Flame Orange" },
+  { id: "handwriting-pop", name: "Organic Script Pop", category: "Creative", color: "#FB7185", badge: "Script", desc: "Authentic cursive handwriting with dynamic line" },
+  { id: "vox-docu", name: "Vox Documentary Serif", category: "Editorial", color: "#FFFFFF", badge: "Docu", desc: "Editorial serif with dark glass backdrop" },
+  { id: "minimal-clean", name: "Minimal Ice Blue", category: "Modern", color: "#38BDF8", badge: "Minimal", desc: "Ultra-crisp modern sans-serif with slate pill" },
+  { id: "cyber-ops", name: "Radar Military Green", category: "Tech", color: "#4ADE80", badge: "Tech", desc: "High-tech stencil with radar green glow" },
+  { id: "premium-gold", name: "Wealth Metallic Gold", category: "Finance", color: "#FBBF24", badge: "Wealth", desc: "Rich warm metallic gold for business & finance" },
+  { id: "word-highlight", name: "Flame Word Pop", category: "Kinetic", color: "#FF5722", badge: "Dynamic", desc: "Active word pops with vibrant flame orange" },
+  { id: "classic-clean", name: "Timeless White Cinema", category: "Cinema", color: "#FFFFFF", badge: "Classic", desc: "Crisp white typography with deep drop shadow" },
+  { id: "documentary-serif", name: "Classical Book Serif", category: "Book", color: "#E2E8F0", badge: "Book", desc: "Elegant serif captions for non-fiction literature" },
+  { id: "karaoke-glow", name: "Karaoke Amber Pulse", category: "Karaoke", color: "#FFA000", badge: "Karaoke", desc: "Golden amber electric glow following speech" },
+  { id: "box-pill", name: "Dark Slate Pill Box", category: "Modern", color: "#00FFCC", badge: "Pill", desc: "Solid dark badge background behind spoken words" },
+  { id: "neon-cyber", name: "Magenta Cyber Pulse", category: "Modern", color: "#FF007F", badge: "Neon", desc: "High-contrast cyan & magenta glowing text" },
+  { id: "minimal-lower-third", name: "Scrubber Lower Third", category: "Subtle", color: "#CBD5E1", badge: "Clean", desc: "Clean studio strip at the bottom of the frame" },
+  { id: "editorial-book", name: "Author Emerald Accent", category: "Book", color: "#10B981", badge: "Editorial", desc: "Distinguished emerald highlight on solid white" },
+];
 
 export interface FacelessShortsStudioProps {
   selectedFile: File | null;
@@ -76,6 +125,9 @@ export interface FacelessShortsStudioProps {
   uploadedImageFiles: File[];
   onUploadedImageFilesChange: (files: File[]) => void;
 
+  uploadedVideoFiles?: File[];
+  onUploadedVideoFilesChange?: (files: File[]) => void;
+
   onTranscribeAndPlan?: (audioFile: File, brandNamesHint?: string) => Promise<{
     transcript: string;
     segments: Array<{ start: number; end: number; text: string }>;
@@ -92,1443 +144,1035 @@ export interface FacelessShortsStudioProps {
   onClearPlanningError?: () => void;
 }
 
-//  TOP 10 HIGH-RETENTION CREATOR CAPTION TEMPLATES (GOOGLE FONTS CLOUD CDN) 
-export interface FacelessSubtitleStyle {
-  id: string;
-  title: string;
-  fontName: string;
-  fontFamily: string;
-  badge: string;
-  desc: string;
-  textColor: string;
-  highlightColor: string;
-  highlightBg?: string;
-  textShadow?: string;
-  defaultAnimation: "mrbeast" | "handwriting" | "bouncy" | "smooth" | "capsule" | "decodingyt";
-}
-
-export const FACELESS_SUBTITLE_STYLES: FacelessSubtitleStyle[] = [
-  {
-    id: "ali-editorial",
-    title: "Ali Abdaal Editorial",
-    fontName: "Inter",
-    fontFamily: "'Inter', 'Plus Jakarta Sans', sans-serif",
-    badge: " ALI ABDAAL BENCHMARK",
-    desc: "Clean high-contrast frosted white capsule pill, phrase-by-phrase cadence, and signature yellow marker tape highlight.",
-    textColor: "#111827",
-    highlightColor: "#111827",
-    highlightBg: "#FFE600",
-    textShadow: "none",
-    defaultAnimation: "smooth",
-  },
-  {
-    id: "stacy-pill",
-    title: "Stacy La Frosted Capsule",
-    fontName: "Outfit",
-    fontFamily: "'Outfit', 'Inter', sans-serif",
-    badge: " 6-FIGURE CREATOR",
-    desc: "Frosted glass capsule with active Emerald & Flame Orange neon pills and smooth bounce.",
-    textColor: "#FFFFFF",
-    highlightColor: "#FFFFFF",
-    highlightBg: "#10B981",
-    textShadow: "0 2px 14px rgba(0, 0, 0, 0.95)",
-    defaultAnimation: "capsule",
-  },
-  {
-    id: "decodingyt",
-    title: "DecodingYT Marker",
-    fontName: "Montserrat",
-    fontFamily: "'Montserrat', sans-serif",
-    badge: " VIRAL BENCHMARK",
-    desc: "Signature high-contrast Flame Orange & Neon Yellow marker tape highlight box.",
-    textColor: "#FFFFFF",
-    highlightColor: "#070B14",
-    highlightBg: "#FFE600",
-    textShadow: "0 2px 14px rgba(0, 0, 0, 0.95)",
-    defaultAnimation: "decodingyt",
-  },
-  {
-    id: "handwriting-story",
-    title: "Escaping Ordinary (Handwriting)",
-    fontName: "Caveat",
-    fontFamily: "'Caveat', cursive, sans-serif",
-    badge: " STORYTELLER",
-    desc: "Organic whiteboard ink calligraphy with hand-drawn circle emphasis & pen dynamics.",
-    textColor: "#FFFFFF",
-    highlightColor: "#FFA000",
-    highlightBg: "#FF5722",
-    textShadow: "0 2px 14px rgba(0, 0, 0, 0.95)",
-    defaultAnimation: "handwriting",
-  },
-  {
-    id: "warikoo-yellow",
-    title: "Warikoo Neon Box",
-    fontName: "Montserrat",
-    fontFamily: "'Montserrat', sans-serif",
-    badge: " TOP FINANCE",
-    desc: "Signature high-contrast solid Neon Yellow rectangular box with bold black text & Rupee priority.",
-    textColor: "#FFFFFF",
-    highlightColor: "#000000",
-    highlightBg: "#FFE600",
-    textShadow: "0 2px 14px rgba(0, 0, 0, 0.95)",
-    defaultAnimation: "mrbeast",
-  },
-  {
-    id: "mrbeast",
-    title: "MrBeast Yellow",
-    fontName: "Titan One",
-    fontFamily: "'Titan One', cursive, sans-serif",
-    badge: " VIRAL #1",
-    desc: "Signature active yellow bounding box with punchy bold pop.",
-    textColor: "#FFFFFF",
-    highlightColor: "#000000",
-    highlightBg: "#FFEB3B",
-    textShadow: "0 4px 16px rgba(0, 0, 0, 0.95)",
-    defaultAnimation: "mrbeast",
-  },
-  {
-    id: "hormozi-bold",
-    title: "Hormozi Bold",
-    fontName: "Anton",
-    fontFamily: "'Anton', sans-serif",
-    badge: " RETENTION",
-    desc: "All-caps punchy yellow & lime bold typography for viral retention.",
-    textColor: "#FFFFFF",
-    highlightColor: "#22C55E",
-    textShadow: "0 4px 0 #000000, 0 0 14px rgba(0, 0, 0, 0.9)",
-    defaultAnimation: "bouncy",
-  },
-  {
-    id: "neon-city",
-    title: "Neon City",
-    fontName: "Bangers",
-    fontFamily: "'Bangers', cursive, sans-serif",
-    badge: " NEON FX",
-    desc: "Cyberpunk electric cyan and magenta neon pulse on dark b-roll.",
-    textColor: "#00F0FF",
-    highlightColor: "#FF007F",
-    textShadow: "0 0 16px #00F0FF, 0 0 28px #FF007F",
-    defaultAnimation: "bouncy",
-  },
-  {
-    id: "daily-look",
-    title: "Daily Look",
-    fontName: "Londrina Solid",
-    fontFamily: "'Londrina Solid', cursive, sans-serif",
-    badge: " TRENDING",
-    desc: "Friendly rounded cartoon stroke with warm sunny yellow glow.",
-    textColor: "#FFFFFF",
-    highlightColor: "#FDE047",
-    textShadow: "0 3px 0 #000000, 0 0 10px rgba(0, 0, 0, 0.8)",
-    defaultAnimation: "bouncy",
-  },
-  {
-    id: "blockbuster",
-    title: "Blockbuster",
-    fontName: "Alfa Slab One",
-    fontFamily: "'Alfa Slab One', serif",
-    badge: " HIGH ENERGY",
-    desc: "Heavyweight powerhouse slab headlines with Flame Orange accents.",
-    textColor: "#FFFFFF",
-    highlightColor: "#FF5722",
-    textShadow: "0 4px 0 #000000, 0 8px 20px rgba(0, 0, 0, 0.9)",
-    defaultAnimation: "bouncy",
-  },
-  {
-    id: "handwriting-pop",
-    title: "Handwriting Pop",
-    fontName: "Kaushan Script",
-    fontFamily: "'Kaushan Script', cursive",
-    badge: " HANDWRITING",
-    desc: "Authentic organic script handwriting with dynamic active underline.",
-    textColor: "#F8FAFC",
-    highlightColor: "#FB7185",
-    textShadow: "0 2px 8px rgba(0, 0, 0, 0.85)",
-    defaultAnimation: "handwriting",
-  },
-  {
-    id: "vox-docu",
-    title: "Vox Docu",
-    fontName: "Cinzel",
-    fontFamily: "'Cinzel', serif",
-    badge: " DOCUMENTARY",
-    desc: "Editorial classical serif with frosted dark obsidian backdrop.",
-    textColor: "#94A3B8",
-    highlightColor: "#FFFFFF",
-    highlightBg: "rgba(7, 11, 20, 0.85)",
-    textShadow: "0 2px 10px rgba(0, 0, 0, 0.95)",
-    defaultAnimation: "smooth",
-  },
-  {
-    id: "minimal-clean",
-    title: "Minimal Clean",
-    fontName: "Montserrat",
-    fontFamily: "'Montserrat', sans-serif",
-    badge: " MINIMAL",
-    desc: "Ultra-crisp modern sans-serif with ice blue highlight pill.",
-    textColor: "#E2E8F0",
-    highlightColor: "#38BDF8",
-    highlightBg: "rgba(15, 23, 42, 0.85)",
-    defaultAnimation: "smooth",
-  },
-  {
-    id: "cyber-ops",
-    title: "Cyber Ops",
-    fontName: "Black Ops One",
-    fontFamily: "'Black Ops One', cursive, sans-serif",
-    badge: " TECH OPS",
-    desc: "High-tech military stencil typography with radar green glow.",
-    textColor: "#FFFFFF",
-    highlightColor: "#4ADE80",
-    textShadow: "0 0 16px rgba(74, 222, 128, 0.9)",
-    defaultAnimation: "bouncy",
-  },
-  {
-    id: "premium-gold",
-    title: "Premium Gold",
-    fontName: "Outfit",
-    fontFamily: "'Outfit', sans-serif",
-    badge: " WEALTH",
-    desc: "Metallic warm gold gradient typography for finance & luxury.",
-    textColor: "#E2E8F0",
-    highlightColor: "#FBBF24",
-    textShadow: "0 0 18px rgba(251, 191, 36, 0.75), 0 2px 8px rgba(0, 0, 0, 0.9)",
-    defaultAnimation: "bouncy",
-  },
-];
-
 export function FacelessShortsStudio({
   selectedFile,
   onSelectFile,
   topicTitle = "",
   onTopicTitleChange,
-  subtitleStyle = "netflix-yellow",
+  subtitleStyle = "glow-viral",
   onSubtitleStyleChange,
-  captionAnimationStyle = "mrbeast",
+  captionAnimationStyle = "smooth",
   onCaptionAnimationStyleChange,
   captionPosition = "bottom",
   onCaptionPositionChange,
-  facelessBgmMood = "mystery",
-  onBgmMoodChange,
   facelessBgmVolume = 0.12,
   onBgmVolumeChange,
   facelessEnableSfx = true,
   onEnableSfxChange,
-  facelessPacingStyle = "clean",
-  onPacingStyleChange,
   visualArtStyle = "realistic",
   onVisualArtStyleChange,
-  backgroundTheme = "midnight-mesh",
+  backgroundTheme = "solid-white",
   onBackgroundThemeChange,
-  customBgUrl = "",
-  onCustomBgUrlChange,
-  onCustomBgFileSelect,
   onGenerate,
   isGenerating = false,
+  assetSourceMode = "upload",
+  onAssetSourceModeChange,
   uploadedImageFiles = [],
+  onUploadedImageFilesChange,
+  uploadedVideoFiles = [],
+  onUploadedVideoFilesChange,
   onTranscribeAndPlan,
   isPlanning = false,
   planningMessage = "",
   planningError = null,
   onClearPlanningError,
 }: FacelessShortsStudioProps) {
-  // Drag and drop audio state
-  const [isDraggingAudio, setIsDraggingAudio] = useState(false);
+  // Navigation tabs
+  const [activeTab, setActiveTab] = useState<'media' | 'captions' | 'audio' | 'preview'>('media');
 
-  // Audio preview player state
-  const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
-  const [audioObjectUrl, setAudioObjectUrl] = useState<string>("");
-  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
-  const [audioCurrentTime, setAudioCurrentTime] = useState(0);
-  const [audioDurationSec, setAudioDurationSec] = useState(0);
+  // Preview & Audition States
+  const [playingBgmId, setPlayingBgmId] = useState<string | null>(null);
+  const [selectedBgmPath, setSelectedBgmPath] = useState<string>("assets/reusable/music/parasail-silent-partner.mp3");
+  const [customBgmFile, setCustomBgmFile] = useState<File | null>(null);
+  const [previewConfirmed, setPreviewConfirmed] = useState<boolean>(false);
+  const [captionCategory, setCaptionCategory] = useState<string>('All');
+  const [inputError, setInputError] = useState<string | null>(null);
 
-  // Transcript state (Clean single-paragraph presentation)
-  const [transcriptText, setTranscriptText] = useState("");
-  const [originalTranscriptText, setOriginalTranscriptText] = useState("");
-  const [transcriptSegments, setTranscriptSegments] = useState<
-    Array<{ start: number; end: number; text: string }>
-  >([]);
-  const [originalWords, setOriginalWords] = useState<
-    Array<{ word: string; start: number; end: number }>
-  >([]);
-  const [sceneBlueprint, setSceneBlueprint] = useState<any[]>([]);
-  const [brollUrls, setBrollUrls] = useState<Record<number, string>>({});
-  const [taggedUploadedAssets, setTaggedUploadedAssets] = useState<any[]>([]);
+  // Audio Duration & Preview States
+  const [audioDuration, setAudioDuration] = useState<number>(60);
+  const [audioPreviewUrl, setAudioPreviewUrl] = useState<string>('');
 
-  // Brand and Names vocabulary bias prompt (saved in localStorage)
-  const [brandNamesHint, setBrandNamesHint] = useState("");
-  const [showWordReview, setShowWordReview] = useState(false);
+  // Editorial Transcript Editor
+  const [showTranscriptEditor, setShowTranscriptEditor] = useState<boolean>(false);
+  const [editableTranscript, setEditableTranscript] = useState<string>(
+    "Here is the secret to 10x retention on vertical shorts. Hook your audience in the first 3 seconds, deliver continuous visual payoffs, and close with an irresistible takeaway."
+  );
+  const [transcriptSavedFeedback, setTranscriptSavedFeedback] = useState<boolean>(false);
 
+  // Local object URLs for previewing uploaded images & video clips
+  const [imageObjectUrls, setImageObjectUrls] = useState<string[]>([]);
+  const [videoObjectUrls, setVideoObjectUrls] = useState<string[]>([]);
+  const [activePreviewSceneIdx, setActivePreviewSceneIdx] = useState<number>(0);
+
+  // Audio refs
+  const bgmAudioRef = useRef<HTMLAudioElement | null>(null);
+  const audioFileInputRef = useRef<HTMLInputElement | null>(null);
+  const imageFileInputRef = useRef<HTMLInputElement | null>(null);
+  const videoFileInputRef = useRef<HTMLInputElement | null>(null);
+  const bgmFileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Clean object URLs for images
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem("itnavideo_brand_dict");
-      if (saved) setBrandNamesHint(saved);
-    } catch {}
-  }, []);
+    const urls = uploadedImageFiles.map((file) => URL.createObjectURL(file));
+    setImageObjectUrls(urls);
+    return () => {
+      urls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [uploadedImageFiles]);
 
-  const handleBrandNamesChange = (val: string) => {
-    setBrandNamesHint(val);
-    try {
-      localStorage.setItem("itnavideo_brand_dict", val);
-    } catch {}
-  };
-
-  // Review pop-up alert state (auto-dismissing)
-  const [showReviewPopup, setShowReviewPopup] = useState(false);
-  const popupTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  // In-flight tracking to prevent duplicate auto-transcriptions
-  const autoTranscribedFileRef = useRef<File | null>(null);
-
-  // Create & revoke audio object URL when selectedFile changes
+  // Clean object URLs for video clips
   useEffect(() => {
-    if (selectedFile) {
-      const url = URL.createObjectURL(selectedFile);
-      setAudioObjectUrl(url);
-      setIsPlayingAudio(false);
-      setAudioCurrentTime(0);
+    const urls = uploadedVideoFiles.map((file) => URL.createObjectURL(file));
+    setVideoObjectUrls(urls);
+    return () => {
+      urls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [uploadedVideoFiles]);
 
-      return () => {
-        URL.revokeObjectURL(url);
-      };
-    } else {
-      setAudioObjectUrl("");
-      setIsPlayingAudio(false);
-      setAudioCurrentTime(0);
-      setAudioDurationSec(0);
-      setTranscriptText("");
-      setOriginalTranscriptText("");
-      setTranscriptSegments([]);
-      setSceneBlueprint([]);
-      setBrollUrls({});
-      setTaggedUploadedAssets([]);
-      setShowReviewPopup(false);
-      autoTranscribedFileRef.current = null;
-    }
-  }, [selectedFile]);
-
-  // Read audio duration when metadata loads
-  const handleAudioLoadedMetadata = () => {
-    if (audioPlayerRef.current) {
-      const dur = audioPlayerRef.current.duration;
-      if (Number.isFinite(dur) && dur > 0) {
-        setAudioDurationSec(dur);
-      }
-    }
-  };
-
-  // Play / Pause audio preview
-  const togglePlayAudio = () => {
-    if (!audioPlayerRef.current) return;
-    if (isPlayingAudio) {
-      audioPlayerRef.current.pause();
-      setIsPlayingAudio(false);
-    } else {
-      audioPlayerRef.current
-        .play()
-        .then(() => setIsPlayingAudio(true))
-        .catch(() => setIsPlayingAudio(false));
-    }
-  };
-
-  // Handle explicit Delete / Remove action
-  const handleDeleteAudio = () => {
-    if (audioPlayerRef.current) {
-      audioPlayerRef.current.pause();
-    }
-    setIsPlayingAudio(false);
-    onClearPlanningError?.();
-    autoTranscribedFileRef.current = null;
-    setTranscriptText("");
-    setOriginalTranscriptText("");
-    setTranscriptSegments([]);
-    setSceneBlueprint([]);
-    setBrollUrls({});
-    setShowReviewPopup(false);
-    onSelectFile(null);
-  };
-
-  //  AUTO-START BACKGROUND TRANSCRIPTION ENGINE 
-  // Track currently processing file to prevent duplicate triggers while ensuring state updates are never dropped
-  const transcribingTargetFileRef = useRef<File | null>(null);
-
-  const triggerTranscription = (file: File, customHint?: string) => {
-    if (!onTranscribeAndPlan) return;
-    transcribingTargetFileRef.current = file;
-    onClearPlanningError?.();
-
-    const hint = customHint !== undefined ? customHint : brandNamesHint;
-
-    onTranscribeAndPlan(file, hint)
-      .then((planRes) => {
-        // Guard against file switch during network latency
-        if (transcribingTargetFileRef.current !== file) return;
-        if (!planRes) return;
-
-        const text = planRes.transcript || "";
-        setTranscriptText(text);
-        setOriginalTranscriptText(text);
-        setTranscriptSegments(planRes.segments || []);
-        setOriginalWords(planRes.words || []);
-        setSceneBlueprint(planRes.sceneBlueprint || []);
-        setBrollUrls(planRes.brollUrls || {});
-        if (planRes.durationSeconds > 0) {
-          setAudioDurationSec(planRes.durationSeconds);
-        }
-        if (Array.isArray(planRes.uploadedAssets)) {
-          setTaggedUploadedAssets(planRes.uploadedAssets);
-        }
-
-        // Trigger auto-dismissing Review Pop-up Alert
-        setShowReviewPopup(true);
-        if (popupTimerRef.current) clearTimeout(popupTimerRef.current);
-        popupTimerRef.current = setTimeout(() => {
-          setShowReviewPopup(false);
-        }, 6500);
-      })
-      .catch((err) => {
-        console.error("[AUTO_TRANSCRIBE_ERROR]", err);
-      });
-  };
-
+  // Detect Audio Duration (Up to 90s strictly per Rule 4.1 for 9:16 Shorts)
   useEffect(() => {
     if (!selectedFile) {
-      transcribingTargetFileRef.current = null;
+      setAudioPreviewUrl('');
       return;
     }
-    // Only trigger if this exact file instance has not yet started transcribing
-    if (transcribingTargetFileRef.current !== selectedFile) {
-      triggerTranscription(selectedFile);
-    }
-  }, [selectedFile]);
+    const url = URL.createObjectURL(selectedFile);
+    setAudioPreviewUrl(url);
 
-  const hasEditedTranscript =
-    originalTranscriptText.length > 0 &&
-    transcriptText.trim() !== originalTranscriptText.trim();
-
-  const handleResetTranscript = () => {
-    setTranscriptText(originalTranscriptText);
-  };
-
-  //  FINAL ACTION: "Generate Video" (DIFF-BASED ALIGNMENT) 
-  const handleGenerateVideo = () => {
-    if (!transcriptText.trim()) return;
-
-    // Diff-based alignment: unchanged words preserve exact Whisper timestamps
-    let finalSegments = transcriptSegments;
-    if (hasEditedTranscript && transcriptSegments.length > 0) {
-      const { segments: alignedSegments } = diffBasedAlignTranscript(
-        originalWords,
-        transcriptText,
-        audioDurationSec || (transcriptSegments[transcriptSegments.length - 1]?.end ?? 60)
-      );
-      if (alignedSegments.length > 0) {
-        finalSegments = alignedSegments;
-      }
-    }
-
-    // Align blueprint scene narration with edited script
-    const updatedScenes =
-      sceneBlueprint.length > 0
-        ? sceneBlueprint.map((scene, i) => {
-            const matchingSeg = finalSegments[i] || finalSegments[0];
-            if (matchingSeg) {
-              return {
-                ...scene,
-                narrationSegment: {
-                  ...scene.narrationSegment,
-                  text: matchingSeg.text,
-                },
-                heading:
-                  scene.heading || matchingSeg.text.slice(0, 30).toUpperCase(),
-              };
-            }
-            return scene;
-          })
-        : [];
-
-    // Build snappy 3-4 word kinetic caption chunks with millisecond word timestamps
-    const validWords = (originalWords || []).filter(
-      (w) => w.word && Number.isFinite(w.start) && Number.isFinite(w.end)
-    );
-
-    let approvedCaptions: Array<{
-      start: number;
-      end: number;
-      text: string;
-      words: Array<{ word: string; start: number; end: number }>;
-    }> = [];
-
-    if (validWords.length > 0) {
-      let group: typeof validWords = [];
-      const MAX_WORDS = 4;
-      const MAX_DURATION = 1.8;
-
-      const flush = () => {
-        if (!group.length) return;
-        approvedCaptions.push({
-          start: group[0].start,
-          end: Math.max(group[group.length - 1].end, group[0].start + 0.45),
-          text: group.map((g) => g.word).join(" "),
-          words: group.map((g) => ({ word: g.word, start: g.start, end: g.end })),
-        });
-        group = [];
-      };
-
-      for (const w of validWords) {
-        if (group.length) {
-          const groupStart = group[0].start;
-          const lastWord = group[group.length - 1];
-          const endsSentence = /[.!?]$/.test(lastWord.word);
-          const pause = w.start - lastWord.end;
-          if (
-            group.length >= MAX_WORDS ||
-            w.end - groupStart > MAX_DURATION ||
-            pause > 0.4 ||
-            endsSentence
-          ) {
-            flush();
-          }
+    const audioEl = new Audio(url);
+    audioEl.onloadedmetadata = () => {
+      if (audioEl.duration && Number.isFinite(audioEl.duration)) {
+        const detected = Math.round(audioEl.duration);
+        if (detected > 90) {
+          setInputError('Faceless Shorts 9:16 strictly supports audio up to 90 seconds (90s). Please trim your audio file.');
+        } else {
+          setInputError(null);
         }
-        group.push(w);
+        setAudioDuration(detected);
       }
-      flush();
-    }
-
-    if (approvedCaptions.length === 0) {
-      approvedCaptions = finalSegments.map((s) => {
-        const wordsInText = (s.text || "").trim().split(/\s+/).filter(Boolean);
-        const dur = Math.max(0.4, s.end - s.start);
-        const timePerWord = dur / Math.max(1, wordsInText.length);
-        const words = wordsInText.map((word, idx) => ({
-          word,
-          start: s.start + idx * timePerWord,
-          end: s.start + (idx + 1) * timePerWord,
-        }));
-        return {
-          start: s.start,
-          end: s.end,
-          text: s.text,
-          words: (s as any).words && (s as any).words.length > 0 ? (s as any).words : words,
-        };
-      });
-    }
-
-    const payload = {
-      sceneBlueprint: updatedScenes,
-      brollUrls,
-      transcript: transcriptText,
-      segments: finalSegments,
-      durationSeconds: audioDurationSec,
-      approvedCaptions,
-      topicTitle:
-        topicTitle.trim() ||
-        (selectedFile
-          ? selectedFile.name.replace(/\.[^/.]+$/, "")
-          : "Faceless Shorts"),
-      brandNamesHint,
-      backgroundTheme,
-      customBgUrl,
-      subtitleStyle,
-      captionAnimationStyle,
-      captionPosition,
-      facelessBgmMood,
-      facelessBgmVolume,
-      facelessEnableSfx,
-      facelessPacingStyle,
-      assetSourceMode: "library",
-      visualArtStyle,
-      aspectRatio: "9:16",
     };
 
-    onGenerate(payload);
+    return () => {
+      URL.revokeObjectURL(url);
+    };
+  }, [selectedFile]);
+
+  // Filter caption styles by category
+  const filteredCaptionStyles = useMemo(() => {
+    if (captionCategory === 'All') return TWENTY_SHORTS_CAPTION_STYLES;
+    return TWENTY_SHORTS_CAPTION_STYLES.filter((c) => c.category === captionCategory);
+  }, [captionCategory]);
+
+  const captionCategories = ['All', 'Viral', 'Cinema', 'Modern', 'Tech', 'Book', 'Editorial', 'Creative'];
+
+  // Handle BGM Audition Play/Pause
+  const handleTogglePlayBgm = (track: typeof AWS_SHORTS_BGM_TRACKS[0]) => {
+    if (track.path === 'none') {
+      if (bgmAudioRef.current) bgmAudioRef.current.pause();
+      setPlayingBgmId(null);
+      setSelectedBgmPath('none');
+      return;
+    }
+
+    if (playingBgmId === track.id) {
+      if (bgmAudioRef.current) bgmAudioRef.current.pause();
+      setPlayingBgmId(null);
+    } else {
+      if (bgmAudioRef.current) bgmAudioRef.current.pause();
+      const audio = new Audio(track.path.startsWith('http') ? track.path : `/${track.path.replace(/^\/+/, '')}`);
+      audio.volume = Math.max(0, Math.min(1, facelessBgmVolume || 0.12));
+      audio.loop = true;
+      audio.play().catch(() => {});
+      bgmAudioRef.current = audio;
+      setPlayingBgmId(track.id);
+      setSelectedBgmPath(track.path);
+    }
   };
 
-  // Word count & formatted duration
-  const wordCount = transcriptText
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean).length;
-  const formattedDuration = audioDurationSec > 0
-    ? `${Math.floor(audioDurationSec / 60)}:${Math.floor(audioDurationSec % 60)
-        .toString()
-        .padStart(2, "0")}`
-    : "--:--";
+  // Handle Audio File Selection
+  const handleAudioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('audio/') && !file.name.match(/\.(mp3|wav|m4a|aac|ogg)$/i)) {
+        setInputError('Please upload a valid audio file (MP3, WAV, M4A, AAC).');
+        return;
+      }
+      setInputError(null);
+      onSelectFile(file);
+      setPreviewConfirmed(false);
+    }
+  };
 
-  const selectedSubtitleObj =
-    FACELESS_SUBTITLE_STYLES.find((s) => s.id === subtitleStyle) ||
-    FACELESS_SUBTITLE_STYLES[0];
+  // Handle Multi-Image Upload
+  const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const files = Array.from(e.target.files);
+      onUploadedImageFilesChange([...uploadedImageFiles, ...files]);
+      setPreviewConfirmed(false);
+    }
+  };
+
+  // Handle Multi-Video Clips Upload
+  const handleVideosChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0 && onUploadedVideoFilesChange) {
+      const files = Array.from(e.target.files);
+      onUploadedVideoFilesChange([...uploadedVideoFiles, ...files]);
+      setPreviewConfirmed(false);
+    }
+  };
+
+  // Handle Custom BGM Upload
+  const handleBgmFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setCustomBgmFile(file);
+      setPreviewConfirmed(false);
+    }
+  };
+
+  // Sample Demo Loader
+  const handleLoadSampleDemo = () => {
+    if (onTopicTitleChange) onTopicTitleChange("3 Habits of Top 1% Creators");
+    setEditableTranscript(
+      "The top 1 percent of creators don't work harder. They build scalable leverage, master high-hook retention, and test relentlessly every single week."
+    );
+    setPreviewConfirmed(false);
+  };
+
+  // Total assets count
+  const totalAssetsCount = uploadedImageFiles.length + uploadedVideoFiles.length;
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-[#0B0D13] p-6 sm:p-8 shadow-2xl text-white space-y-8">
-      {/* Hidden audio element for preview playback */}
-      {audioObjectUrl && (
-        <audio
-          ref={audioPlayerRef}
-          src={audioObjectUrl}
-          onLoadedMetadata={handleAudioLoadedMetadata}
-          onTimeUpdate={() =>
-            setAudioCurrentTime(audioPlayerRef.current?.currentTime || 0)
-          }
-          onEnded={() => setIsPlayingAudio(false)}
-        />
-      )}
-
-      {/*  HEADER  */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#0E1526] px-3 py-1 text-xs font-semibold text-zinc-300">
-              <Tv size={13} className="text-[#FF5722]" />
-              <span>9:16 Vertical Only  Up to 90 sec  1080p Full HD</span>
-            </span>
+    <div className="w-full space-y-6">
+      {/* Studio Header Card (Clean White Surface) */}
+      <div className="relative rounded-[28px] border border-slate-200 bg-white p-6 sm:p-8 shadow-xs overflow-hidden">
+        <BorderBeam size={220} duration={14} delay={0} colorFrom="#FF5722" colorTo="#FFA000" />
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-black text-[#FF5722]">
+              <Sparkles size={13} />
+              <span>9:16 Vertical Shorts · Clean White Studio</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              Faceless AI Shorts Studio (9:16)
+            </h1>
+            <p className="text-sm text-slate-600 max-w-2xl leading-relaxed">
+              Generate vertical 9:16 short-form viral videos (up to 90s) with kinetic typography, 20 animated subtitle styles, multiple images/clips, and auto-ducked music.
+            </p>
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white mt-2">
-            Faceless Shorts Generator
-          </h2>
-          <p className="text-xs sm:text-sm text-zinc-400 mt-0.5">
-            Turn your voiceover audio into a complete 1080p Vertical YouTube explainer video with auto B-roll, subtitles, and music.
-          </p>
-        </div>
 
-        <div className="flex items-center gap-2">
-          <span className="rounded-full bg-white/5 border border-white/10 px-3 py-1 text-xs font-medium text-zinc-300">
-            1 Min = 1 Credit
-          </span>
-        </div>
-      </div>
-
-      {/*  */}
-      {/* 1. AUDIO UPLOAD & CONFIRMATION WITH DELETE CAPABILITY               */}
-      {/*  */}
-      <div className="space-y-4">
-        <input
-          type="file"
-          accept="audio/*"
-          id="faceless-voiceover-input"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0] || null;
-            if (file) {
-              onClearPlanningError?.();
-              onSelectFile(file);
-            }
-          }}
-        />
-
-        {!selectedFile ? (
-          <label
-            htmlFor="faceless-voiceover-input"
-            onDragOver={(e) => {
-              e.preventDefault();
-              setIsDraggingAudio(true);
-            }}
-            onDragLeave={() => setIsDraggingAudio(false)}
-            onDrop={(e) => {
-              e.preventDefault();
-              setIsDraggingAudio(false);
-              const file = e.dataTransfer.files?.[0] || null;
-              if (file) {
-                onClearPlanningError?.();
-                onSelectFile(file);
-              }
-            }}
-            className={`rounded-2xl border-2 border-dashed p-8 sm:p-10 text-center transition cursor-pointer flex flex-col items-center justify-center gap-3.5 ${
-              isDraggingAudio
-                ? "border-orange-500 bg-orange-500/10"
-                : "border-white/15 bg-[#0D111D] hover:border-orange-500/40 hover:bg-[#121624]"
-            }`}
-          >
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0E1526] border border-white/10 text-[#FF5722] shadow-sm">
-              <Upload size={22} />
-            </div>
-            <div>
-              <p className="text-sm sm:text-base font-semibold text-white">
-                Upload Voiceover Audio File
-              </p>
-              <p className="text-xs text-zinc-400 mt-1">
-                MP3, WAV, M4A  9:16 Full HD format  Up to 90 seconds (90s)
-              </p>
-            </div>
-            <span className="rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] hover:brightness-110 px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-orange-500/20 transition">
-              Browse File
-            </span>
-          </label>
-        ) : (
-          /* Confirmation & Preview Card with Explicit Delete / Remove Option */
-          <div className="rounded-2xl border border-white/10 bg-[#0D111D] p-5 shadow-xl space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-3.5 min-w-0">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-500/10 border border-orange-500/30 text-[#FF5722] text-lg font-bold shadow-sm">
-                  
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-bold text-white truncate max-w-sm sm:max-w-md">
-                      {selectedFile.name}
-                    </p>
-                    <span className="shrink-0 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">
-                      Confirmed
-                    </span>
-                  </div>
-                  <p className="text-xs text-zinc-400 mt-0.5">
-                    {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
-                    {audioDurationSec > 0 && `  ${formattedDuration} duration`}
-                  </p>
-                </div>
-              </div>
-
-              {/* Action Buttons: Play/Pause Audio Preview + Explicit Delete Button */}
-              <div className="flex items-center gap-2.5 self-end sm:self-auto">
-                {audioObjectUrl && (
-                  <button
-                    type="button"
-                    onClick={togglePlayAudio}
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-[#121624] px-3.5 py-2 text-xs font-semibold text-zinc-300 hover:text-white hover:border-white/25 transition cursor-pointer"
-                    title={isPlayingAudio ? "Pause Audio" : "Listen to Audio"}
-                  >
-                    {isPlayingAudio ? (
-                      <>
-                        <Pause size={14} className="text-[#FFA000]" />
-                        <span>Pause</span>
-                      </>
-                    ) : (
-                      <>
-                        <Play size={14} className="text-[#FFA000]" />
-                        <span>Play Preview</span>
-                      </>
-                    )}
-                  </button>
-                )}
-
-                {/* Explicit Delete / Remove Button */}
-                <button
-                  type="button"
-                  onClick={handleDeleteAudio}
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-red-500/30 bg-red-500/10 px-3.5 py-2 text-xs font-semibold text-red-300 hover:bg-red-500/20 hover:text-red-200 transition cursor-pointer"
-                  title="Delete uploaded audio and choose another file"
-                >
-                  <Trash2 size={14} />
-                  <span>Remove Audio</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Audio Progress Scrubber */}
-            {audioDurationSec > 0 && (
-              <div className="pt-2 border-t border-white/5 flex items-center gap-3">
-                <span className="text-[11px] font-mono text-zinc-400">
-                  {Math.floor(audioCurrentTime / 60)}:
-                  {Math.floor(audioCurrentTime % 60)
-                    .toString()
-                    .padStart(2, "0")}
-                </span>
-                <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-[#FF5722] to-[#FFA000] rounded-full transition-all duration-100"
-                    style={{
-                      width: `${Math.min(
-                        100,
-                        (audioCurrentTime / audioDurationSec) * 100
-                      )}%`,
-                    }}
-                  />
-                </div>
-                <span className="text-[11px] font-mono text-zinc-400">
-                  {formattedDuration}
-                </span>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/*  2. FLOATING REVIEW POP-UP ALERT (Fixed position eliminates layout shifts)  */}
-        {showReviewPopup && (
-          <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50 max-w-sm rounded-2xl border border-emerald-500/40 bg-[#0E1526]/95 backdrop-blur-xl p-4 flex items-start justify-between gap-3 text-emerald-200 text-xs shadow-2xl animate-in fade-in slide-in-from-bottom-3 duration-300">
-            <div className="flex items-start gap-3">
-              <CheckCircle2 size={18} className="text-emerald-400 shrink-0 mt-0.5" />
-              <div>
-                <p className="text-xs sm:text-sm font-bold text-emerald-300">
-                  Transcription completed!
-                </p>
-                <p className="text-xs text-emerald-100/90 mt-0.5 leading-relaxed">
-                  Please review your voiceover text below and fix any spelling or wording errors before generating your video.
-                </p>
-              </div>
-            </div>
+          <div className="flex items-center gap-3 shrink-0">
             <button
               type="button"
-              onClick={() => setShowReviewPopup(false)}
-              className="text-emerald-400/80 hover:text-white p-1 transition cursor-pointer"
-              title="Dismiss alert"
+              onClick={handleLoadSampleDemo}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition cursor-pointer shadow-xs"
             >
-              <X size={16} />
+              <RotateCcw size={13} />
+              <span>Load Sample Demo</span>
             </button>
-          </div>
-        )}
-      </div>
 
-      {/*  */}
-      {/* 3. VOICEOVER SCRIPT REVIEW & CAPTION OPTIONS (ALWAYS VISIBLE)        */}
-      {/*  */}
-      <div className="rounded-2xl border border-white/10 bg-[#0D111D] p-5 sm:p-6 shadow-xl space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-3.5">
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-500/10 text-orange-400 text-xs font-bold border border-orange-500/30">
-              <FileText size={14} />
-            </span>
-            <div>
-              <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-                <span>Voiceover Script & Subtitles</span>
-                {isPlanning && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-orange-500/15 border border-orange-500/30 px-2.5 py-0.5 text-[10px] font-bold text-orange-400 animate-pulse">
-                    <RefreshCw size={10} className="animate-spin" />
-                    <span>Transcribing...</span>
-                  </span>
-                )}
-              </h3>
-              <p className="text-xs text-zinc-400">
-                Review and edit your voiceover text. This text is used for your on-screen animated subtitles.
-              </p>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-center shadow-xs">
+              <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">Shorts Rate</span>
+              <span className="text-sm font-black text-[#FF5722]">1 Credit / Short (90s Max)</span>
             </div>
-          </div>
-
-          <div className="flex items-center gap-2 text-xs">
-            {isPlanning ? (
-              <span className="rounded-full bg-orange-500/10 border border-orange-500/25 px-3 py-1 font-mono text-[11px] text-orange-300">
-                Groq Whisper AI
-              </span>
-            ) : transcriptText ? (
-              <>
-                <span className="rounded-full bg-white/5 border border-white/10 px-3 py-1 font-mono text-zinc-300">
-                  {wordCount} words
-                </span>
-                {hasEditedTranscript && (
-                  <button
-                    type="button"
-                    onClick={handleResetTranscript}
-                    className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-amber-300 hover:text-white transition cursor-pointer"
-                    title="Reset to original transcribed text"
-                  >
-                    <RotateCcw size={12} />
-                    <span>Reset to Original</span>
-                  </button>
-                )}
-              </>
-            ) : selectedFile ? (
-              <button
-                type="button"
-                onClick={() => triggerTranscription(selectedFile)}
-                className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-xs font-semibold text-orange-300 hover:text-white hover:bg-orange-500/20 transition cursor-pointer"
-              >
-                <RefreshCw size={12} />
-                <span>Transcribe Speech</span>
-              </button>
-            ) : (
-              <span className="rounded-full bg-white/5 border border-white/10 px-3 py-1 font-mono text-[11px] text-zinc-400">
-                Auto-transcribes on audio upload
-              </span>
-            )}
           </div>
         </div>
 
-          {/* Transcription Error Alert with Retry */}
-          {planningError && !isPlanning && (
-            <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-xs text-red-300 flex items-start justify-between gap-3">
-              <div className="flex items-start gap-2.5">
-                <AlertCircle size={16} className="text-red-400 shrink-0 mt-0.5" />
-                <div className="space-y-0.5">
-                  <p className="font-bold text-red-200">Transcription Note</p>
-                  <p className="text-zinc-300 leading-relaxed">{planningError}</p>
-                </div>
-              </div>
+        {/* Error Notification Banner */}
+        {(inputError || planningError) && (
+          <div className="mt-4 flex items-center justify-between rounded-2xl border border-red-200 bg-red-50 p-4 text-xs font-bold text-red-700">
+            <div className="flex items-center gap-2.5">
+              <AlertCircle size={16} className="shrink-0 text-red-600" />
+              <span>{inputError || planningError}</span>
+            </div>
+            {onClearPlanningError && (
               <button
                 type="button"
-                onClick={() => selectedFile && triggerTranscription(selectedFile)}
-                className="rounded-lg border border-red-500/40 bg-red-500/20 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-500/30 transition cursor-pointer shrink-0"
+                onClick={onClearPlanningError}
+                className="text-red-500 hover:text-red-700 font-black cursor-pointer"
               >
-                Retry
+                Dismiss
               </button>
-            </div>
-          )}
+            )}
+          </div>
+        )}
 
-          {/*  1-CLICK CAPTION TEMPLATES (CAPCUT-STYLE VISUAL THUMBNAILS)  */}
-          <div className="rounded-2xl border border-white/10 bg-[#121624] p-4 sm:p-5 space-y-4 shadow-xl">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-3">
-              <div>
-                <div className="flex items-center gap-2">
-                  <Sparkles size={16} className="text-[#FFA000]" />
-                  <h4 className="text-sm sm:text-base font-bold text-white">
-                    Caption Templates
-                  </h4>
-                  <span className="rounded-full bg-orange-500/10 border border-orange-500/30 px-2 py-0.5 text-[10px] font-bold text-orange-400">
-                    Top 10 Creator Styles
-                  </span>
+        {/* Navigation Tabs */}
+        <div className="mt-6 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
+          <button
+            type="button"
+            onClick={() => setActiveTab('media')}
+            className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition cursor-pointer ${
+              activeTab === 'media'
+                ? 'bg-[#FF5722] text-white shadow-md shadow-[#FF5722]/20'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+            }`}
+          >
+            <Video size={14} />
+            <span>1. Voiceover &amp; Media ({totalAssetsCount})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('captions')}
+            className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition cursor-pointer ${
+              activeTab === 'captions'
+                ? 'bg-[#FF5722] text-white shadow-md shadow-[#FF5722]/20'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+            }`}
+          >
+            <Layers size={14} />
+            <span>2. 20 Caption Styles</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('audio')}
+            className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition cursor-pointer ${
+              activeTab === 'audio'
+                ? 'bg-[#FF5722] text-white shadow-md shadow-[#FF5722]/20'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+            }`}
+          >
+            <Music size={14} />
+            <span>3. Background Music &amp; SFX ({Math.round((facelessBgmVolume || 0.12) * 100)}%)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('preview')}
+            className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition cursor-pointer ${
+              activeTab === 'preview'
+                ? 'bg-[#FF5722] text-white shadow-md shadow-[#FF5722]/20'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+            }`}
+          >
+            <Eye size={14} />
+            <span>4. Compulsory 9:16 Live Preview</span>
+            {previewConfirmed && <Check size={12} className="text-emerald-300 stroke-[3]" />}
+          </button>
+        </div>
+      </div>
+
+      {/* TAB 1: VOICEOVER & MULTI-MEDIA ASSETS (IMAGES & VIDEO CLIPS) */}
+      {activeTab === 'media' && (
+        <div className="space-y-6">
+          {/* Audio Upload Card */}
+          <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-8 shadow-xs space-y-5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2.5 rounded-xl bg-orange-50 text-[#FF5722] border border-orange-200">
+                  <UploadCloud size={20} />
                 </div>
-                <p className="text-xs text-zinc-400 mt-0.5">
-                  1-Click Apply: Pre-designed viral combinations of fonts, kinetic motion, and colors.
-                </p>
+                <div>
+                  <h2 className="text-lg font-black text-slate-900">1. Spoken Narration Audio (9:16 Shorts)</h2>
+                  <p className="text-xs text-slate-500">Upload your voiceover track (MP3, WAV, M4A, up to 90 seconds max)</p>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="rounded-full bg-white/5 border border-white/10 px-2.5 py-1 text-[11px] font-mono text-zinc-300">
-                  Google Fonts Cloud CDN
+
+              {selectedFile && (
+                <span className="inline-flex items-center gap-1 text-xs font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                  <CheckCircle2 size={13} />
+                  <span>{audioDuration}s detected</span>
                 </span>
-              </div>
+              )}
             </div>
 
-            {/* 10 Visual Cards Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-              {FACELESS_SUBTITLE_STYLES.map((tpl) => {
-                const isSelected =
-                  subtitleStyle === tpl.id ||
-                  (subtitleStyle === "netflix-yellow" && tpl.id === "mrbeast");
+            <input
+              type="file"
+              ref={audioFileInputRef}
+              onChange={handleAudioChange}
+              accept="audio/*,.mp3,.wav,.m4a,.aac"
+              className="hidden"
+            />
 
-                return (
+            {!selectedFile ? (
+              <div
+                onClick={() => audioFileInputRef.current?.click()}
+                className="border-2 border-dashed border-slate-200 hover:border-[#FF5722] bg-slate-50 hover:bg-orange-50/30 rounded-2xl p-8 text-center cursor-pointer transition flex flex-col items-center justify-center gap-3 group"
+              >
+                <div className="p-3.5 rounded-2xl bg-white text-slate-400 group-hover:text-[#FF5722] shadow-xs border border-slate-200 transition">
+                  <UploadCloud size={28} />
+                </div>
+                <div>
+                  <p className="text-sm font-black text-slate-800">Click or drag &amp; drop your voiceover audio here</p>
+                  <p className="text-xs text-slate-500 mt-1">Supports MP3, WAV, M4A, AAC · Maximum 90 Seconds</p>
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3.5 w-full sm:w-auto">
+                  <div className="p-3 rounded-xl bg-white text-[#FF5722] border border-slate-200 shadow-xs">
+                    <Volume2 size={20} />
+                  </div>
+                  <div className="truncate">
+                    <p className="text-sm font-black text-slate-900 truncate max-w-sm">{selectedFile.name}</p>
+                    <p className="text-xs text-slate-500">
+                      {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB · {audioDuration}s duration
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                  {audioPreviewUrl && (
+                    <audio controls src={audioPreviewUrl} className="h-9 max-w-[220px]" />
+                  )}
                   <button
-                    key={tpl.id}
+                    type="button"
+                    onClick={() => audioFileInputRef.current?.click()}
+                    className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+                  >
+                    Replace
+                  </button>
+                  <button
                     type="button"
                     onClick={() => {
-                      onSubtitleStyleChange?.(tpl.id);
-                      onCaptionAnimationStyleChange?.(tpl.defaultAnimation);
+                      onSelectFile(null);
+                      setAudioPreviewUrl('');
                     }}
-                    className={`group relative rounded-xl border p-3 text-left transition-all duration-150 cursor-pointer flex flex-col justify-between ${
-                      isSelected
-                        ? "border-[#FF5722] bg-[#161C2E] ring-2 ring-orange-500/50 shadow-lg shadow-orange-500/15"
-                        : "border-white/10 bg-[#0E1322] hover:border-white/25 hover:bg-[#121829]"
+                    className="p-2 rounded-xl border border-slate-200 bg-white text-slate-400 hover:text-red-500 hover:border-red-200 transition cursor-pointer"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Multi-Asset Media Upload Card (Images & Video Clips) */}
+          <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-8 shadow-xs space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2.5 rounded-xl bg-orange-50 text-[#FF5722] border border-orange-200">
+                  <Video size={20} />
+                </div>
+                <div>
+                  <h2 className="text-lg font-black text-slate-900">2. Custom Visual Media (Images &amp; Video Clips)</h2>
+                  <p className="text-xs text-slate-500">Upload multiple photos and MP4 video clips to populate your 9:16 vertical scenes</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="file"
+                  ref={imageFileInputRef}
+                  onChange={handleImagesChange}
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                />
+                <input
+                  type="file"
+                  ref={videoFileInputRef}
+                  onChange={handleVideosChange}
+                  accept="video/mp4,video/quicktime,video/webm"
+                  multiple
+                  className="hidden"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => imageFileInputRef.current?.click()}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 px-3.5 py-2 text-xs font-bold shadow-xs transition cursor-pointer"
+                >
+                  <ImageIcon size={14} className="text-[#FF5722]" />
+                  <span>+ Add Images</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => videoFileInputRef.current?.click()}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 px-3.5 py-2 text-xs font-bold shadow-xs transition cursor-pointer"
+                >
+                  <Video size={14} className="text-[#FF5722]" />
+                  <span>+ Add Video Clips</span>
+                </button>
+
+                {totalAssetsCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onUploadedImageFilesChange([]);
+                      if (onUploadedVideoFilesChange) onUploadedVideoFilesChange([]);
+                    }}
+                    className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-500 hover:text-red-500 transition cursor-pointer"
+                  >
+                    <Trash2 size={13} />
+                    <span>Clear</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Media Upload Grid or Empty State */}
+            {totalAssetsCount === 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div
+                  onClick={() => imageFileInputRef.current?.click()}
+                  className="border-2 border-dashed border-slate-200 hover:border-[#FF5722] bg-slate-50 hover:bg-orange-50/30 rounded-2xl p-6 text-center cursor-pointer transition flex flex-col items-center justify-center gap-2 group"
+                >
+                  <div className="p-3 rounded-2xl bg-white text-slate-400 group-hover:text-[#FF5722] shadow-xs border border-slate-200">
+                    <ImageIcon size={24} />
+                  </div>
+                  <p className="text-xs font-black text-slate-800">Upload Multiple Images</p>
+                  <p className="text-[11px] text-slate-500">Supports PNG, JPG, WEBP</p>
+                </div>
+
+                <div
+                  onClick={() => videoFileInputRef.current?.click()}
+                  className="border-2 border-dashed border-slate-200 hover:border-[#FF5722] bg-slate-50 hover:bg-orange-50/30 rounded-2xl p-6 text-center cursor-pointer transition flex flex-col items-center justify-center gap-2 group"
+                >
+                  <div className="p-3 rounded-2xl bg-white text-slate-400 group-hover:text-[#FF5722] shadow-xs border border-slate-200">
+                    <Video size={24} />
+                  </div>
+                  <p className="text-xs font-black text-slate-800">Upload Video Clips</p>
+                  <p className="text-[11px] text-slate-500">Supports MP4, MOV, WebM</p>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                {/* Uploaded Images */}
+                {uploadedImageFiles.map((file, idx) => (
+                  <div
+                    key={`img-${idx}`}
+                    className="relative group rounded-xl border border-slate-200 bg-slate-50 overflow-hidden shadow-xs flex flex-col"
+                  >
+                    <div className="relative aspect-[9/16] w-full bg-slate-200 overflow-hidden">
+                      {imageObjectUrls[idx] && (
+                        <img
+                          src={imageObjectUrls[idx]}
+                          alt={file.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      )}
+                      <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-black/75 backdrop-blur-sm text-[9px] font-black text-white">
+                        Photo #{idx + 1}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = uploadedImageFiles.filter((_, i) => i !== idx);
+                          onUploadedImageFilesChange(updated);
+                        }}
+                        className="absolute top-1.5 right-1.5 p-1 rounded-md bg-red-600 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-sm"
+                      >
+                        <Trash2 size={11} />
+                      </button>
+                    </div>
+                    <div className="p-1.5">
+                      <p className="text-[10px] font-bold text-slate-800 truncate">{file.name}</p>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Uploaded Video Clips */}
+                {uploadedVideoFiles.map((file, idx) => (
+                  <div
+                    key={`vid-${idx}`}
+                    className="relative group rounded-xl border border-slate-200 bg-slate-50 overflow-hidden shadow-xs flex flex-col"
+                  >
+                    <div className="relative aspect-[9/16] w-full bg-slate-900 overflow-hidden flex items-center justify-center">
+                      {videoObjectUrls[idx] && (
+                        <video
+                          src={videoObjectUrls[idx]}
+                          className="w-full h-full object-cover"
+                          muted
+                        />
+                      )}
+                      <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-orange-600 text-[9px] font-black text-white">
+                        Clip #{idx + 1}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (onUploadedVideoFilesChange) {
+                            const updated = uploadedVideoFiles.filter((_, i) => i !== idx);
+                            onUploadedVideoFilesChange(updated);
+                          }
+                        }}
+                        className="absolute top-1.5 right-1.5 p-1 rounded-md bg-red-600 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-sm"
+                      >
+                        <Trash2 size={11} />
+                      </button>
+                    </div>
+                    <div className="p-1.5">
+                      <p className="text-[10px] font-bold text-slate-800 truncate">{file.name}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Project Details Card */}
+          <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-8 shadow-xs space-y-4">
+            <h2 className="text-lg font-black text-slate-900">3. Short Story Details</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Short Title / Topic</label>
+                <input
+                  type="text"
+                  value={topicTitle}
+                  onChange={(e) => onTopicTitleChange && onTopicTitleChange(e.target.value)}
+                  placeholder="e.g. 3 Habits of High Performers..."
+                  className="w-full mt-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#FF5722] shadow-xs"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Canvas Background</label>
+                <select
+                  value={backgroundTheme}
+                  onChange={(e) => onBackgroundThemeChange && onBackgroundThemeChange(e.target.value)}
+                  className="w-full mt-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#FF5722] shadow-xs cursor-pointer"
+                >
+                  <option value="solid-white">Clean Pure White (Recommended)</option>
+                  <option value="warm-editorial">Warm Editorial Sand</option>
+                  <option value="minimal-slate">Subtle Studio Slate</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 2: 20 MASTER CAPTION STYLES */}
+      {activeTab === 'captions' && (
+        <div className="space-y-6">
+          <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-8 shadow-xs space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-black text-slate-900">20 Master YouTube 9:16 Caption Styles</h2>
+                <p className="text-xs text-slate-500">High-retention animated typography synchronized strictly to your spoken narration</p>
+              </div>
+
+              {/* Category Filter Pills */}
+              <div className="flex flex-wrap items-center gap-1.5">
+                {captionCategories.map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setCaptionCategory(cat)}
+                    className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition cursor-pointer ${
+                      captionCategory === cat
+                        ? 'bg-[#FF5722] text-white shadow-xs'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}
                   >
-                    {/* Card Top: Category Badge + Check Icon */}
-                    <div className="flex items-center justify-between gap-1 w-full">
-                      <span className="text-[9px] font-extrabold uppercase tracking-wider text-zinc-400 group-hover:text-zinc-300 truncate">
-                        {tpl.badge}
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 20 Caption Cards Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+              {filteredCaptionStyles.map((style) => {
+                const isSelected = subtitleStyle === style.id;
+                return (
+                  <div
+                    key={style.id}
+                    onClick={() => onSubtitleStyleChange && onSubtitleStyleChange(style.id)}
+                    className={`rounded-2xl border-2 p-4 cursor-pointer transition flex flex-col justify-between gap-3 ${
+                      isSelected
+                        ? 'border-[#FF5722] bg-orange-50/50 shadow-md ring-2 ring-[#FF5722]/20'
+                        : 'border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-white'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700">
+                        {style.category}
                       </span>
                       {isSelected && (
-                        <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-[#FF5722] to-[#FFA000] text-white shadow-sm">
-                          <Check size={10} strokeWidth={3} />
-                        </span>
+                        <div className="w-5 h-5 rounded-full bg-[#FF5722] text-white flex items-center justify-center">
+                          <Check size={12} strokeWidth={3} />
+                        </div>
                       )}
                     </div>
 
-                    {/* Center: Real Visual Font Thumbnail */}
-                    <div className="my-2 h-14 w-full rounded-lg bg-[#070B14] border border-white/5 flex items-center justify-center px-2 py-1 text-center overflow-hidden">
-                      <div
-                        style={{
-                          fontFamily: tpl.fontFamily,
-                        }}
-                        className="text-xs sm:text-[13px] leading-tight select-none"
+                    <div className="h-16 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center justify-center p-3 text-center">
+                      <span
+                        className="text-xs font-black uppercase tracking-wide"
+                        style={{ color: style.color }}
                       >
-                        {tpl.id === "decodingyt" ? (
-                          <span>
-                            <span className="text-white mr-1 text-[11px] font-black">NICHE</span>
-                            <span className="bg-[#FFE600] text-black font-black px-1.5 py-0.5 rounded shadow-sm text-xs inline-block transform -rotate-1">
-                              VIRAL
-                            </span>
-                          </span>
-                        ) : tpl.id === "mrbeast" ? (
-                          <span>
-                            <span className="text-white mr-1 text-[11px]">THIS IS</span>
-                            <span className="bg-[#FFEB3B] text-black font-extrabold px-1.5 py-0.5 rounded shadow-sm text-xs">
-                              INSANE
-                            </span>
-                          </span>
-                        ) : tpl.id === "hormozi-bold" ? (
-                          <span>
-                            <span className="text-white mr-1 text-[11px]">SCALE</span>
-                            <span className="text-[#22C55E] font-black text-xs" style={{ textShadow: "0 2px 0 #000" }}>
-                              BUSINESS
-                            </span>
-                          </span>
-                        ) : tpl.id === "neon-city" ? (
-                          <span
-                            className="text-[#00F0FF] font-bold tracking-wider text-xs"
-                            style={{ textShadow: "0 0 10px #00F0FF, 0 0 18px #FF007F" }}
-                          >
-                            FUTURE NOW
-                          </span>
-                        ) : tpl.id === "daily-look" ? (
-                          <span className="text-[#FDE047] font-black text-xs" style={{ textShadow: "0 2px 0 #000" }}>
-                            DAILY VLOG
-                          </span>
-                        ) : tpl.id === "blockbuster" ? (
-                          <span className="text-[#FF5722] font-black tracking-tight text-xs" style={{ textShadow: "0 2px 0 #000" }}>
-                            CRISIS HOOK
-                          </span>
-                        ) : tpl.id === "handwriting-pop" ? (
-                          <span className="text-[#FB7185] font-bold underline decoration-2 underline-offset-4 text-xs">
-                            Secret Hacks
-                          </span>
-                        ) : tpl.id === "vox-docu" ? (
-                          <span className="text-slate-100 text-[10px] tracking-widest uppercase font-semibold">
-                            THE UNTOLD
-                          </span>
-                        ) : tpl.id === "minimal-clean" ? (
-                          <span>
-                            <span className="text-white mr-1 text-[11px]">CLEAN</span>
-                            <span className="text-[#38BDF8] font-bold px-1 py-0.5 rounded bg-sky-950/80 border border-sky-400/30 text-[11px]">
-                              PRO
-                            </span>
-                          </span>
-                        ) : tpl.id === "cyber-ops" ? (
-                          <span className="text-[#4ADE80] font-bold tracking-widest text-[11px]" style={{ textShadow: "0 0 8px rgba(74,222,128,0.8)" }}>
-                            MISSION ON
-                          </span>
-                        ) : (
-                          <span className="text-[#FBBF24] font-black tracking-wider text-xs" style={{ textShadow: "0 0 10px rgba(251,191,36,0.6)" }}>
-                            WEALTH
-                          </span>
-                        )}
+                        {style.name}
+                      </span>
+                    </div>
+
+                    <div className="space-y-0.5">
+                      <p className="text-xs font-black text-slate-900">{style.name}</p>
+                      <p className="text-[11px] text-slate-500 leading-tight">{style.desc}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 3: BACKGROUND MUSIC & SFX */}
+      {activeTab === 'audio' && (
+        <div className="space-y-6">
+          <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-8 shadow-xs space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-black text-slate-900">AWS S3 Background Music Catalog</h2>
+                <p className="text-xs text-slate-500">Audition atmospheric soundtracks ducked under your speech at 12% default volume</p>
+              </div>
+
+              {/* Volume Slider Card */}
+              <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 px-4 py-2 rounded-2xl">
+                <Volume2 size={16} className="text-[#FF5722]" />
+                <span className="text-xs font-bold text-slate-700">Volume:</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={facelessBgmVolume}
+                  onChange={(e) => onBgmVolumeChange && onBgmVolumeChange(parseFloat(e.target.value))}
+                  className="w-24 accent-[#FF5722] cursor-pointer"
+                />
+                <span className="text-xs font-black text-slate-900 min-w-[36px]">
+                  {Math.round((facelessBgmVolume || 0.12) * 100)}%
+                </span>
+              </div>
+            </div>
+
+            {/* Volume Presets */}
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-bold text-slate-500">Volume Presets:</span>
+              {[
+                { label: 'Mute (0%)', val: 0 },
+                { label: 'Subtle (5%)', val: 0.05 },
+                { label: 'Studio (12% Default)', val: 0.12 },
+                { label: 'Rich (20%)', val: 0.20 },
+                { label: 'Full (35%)', val: 0.35 },
+              ].map((preset) => (
+                <button
+                  key={preset.label}
+                  type="button"
+                  onClick={() => onBgmVolumeChange && onBgmVolumeChange(preset.val)}
+                  className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition cursor-pointer ${
+                    Math.abs((facelessBgmVolume || 0.12) - preset.val) < 0.02
+                      ? 'bg-[#FF5722] text-white'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  {preset.label}
+                </button>
+              ))}
+            </div>
+
+            {/* BGM Track List */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {AWS_SHORTS_BGM_TRACKS.map((track) => {
+                const isSelected = selectedBgmPath === track.path;
+                const isPlaying = playingBgmId === track.id;
+
+                return (
+                  <div
+                    key={track.id}
+                    className={`rounded-2xl border p-4 flex items-center justify-between gap-3 transition cursor-pointer ${
+                      isSelected
+                        ? 'border-[#FF5722] bg-orange-50/40 shadow-xs'
+                        : 'border-slate-200 bg-slate-50 hover:bg-white'
+                    }`}
+                    onClick={() => setSelectedBgmPath(track.path)}
+                  >
+                    <div className="flex items-center gap-3 truncate">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTogglePlayBgm(track);
+                        }}
+                        className={`p-2.5 rounded-xl transition cursor-pointer shadow-xs ${
+                          isPlaying
+                            ? 'bg-[#FF5722] text-white'
+                            : 'bg-white text-slate-700 hover:text-[#FF5722] border border-slate-200'
+                        }`}
+                      >
+                        {isPlaying ? <Pause size={14} /> : <Play size={14} />}
+                      </button>
+
+                      <div className="truncate">
+                        <p className="text-xs font-black text-slate-900 truncate">{track.label}</p>
+                        <p className="text-[10px] text-slate-500 truncate">{track.desc}</p>
                       </div>
                     </div>
 
-                    {/* Bottom: Template Title & Visible Font Name */}
-                    <div className="w-full pt-1.5 border-t border-white/5 space-y-0.5">
-                      <p className="text-xs font-bold text-white truncate">{tpl.title}</p>
-                      <div className="flex items-center justify-between text-[10px]">
-                        <span className="text-zinc-500">Font:</span>
-                        <span className="font-mono font-bold text-amber-400 truncate max-w-[85px]">
-                          {tpl.fontName}
-                        </span>
-                      </div>
+                    <div className="shrink-0">
+                      {isSelected ? (
+                        <div className="w-5 h-5 rounded-full bg-[#FF5722] text-white flex items-center justify-center">
+                          <Check size={12} strokeWidth={3} />
+                        </div>
+                      ) : (
+                        <span className="text-[10px] font-bold text-slate-400 uppercase">{track.category}</span>
+                      )}
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </div>
 
-            {/* Micro Controls & Live Active Details Strip */}
-            <div className="rounded-xl border border-white/5 bg-[#090C16] p-3 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
-              {/* Active Selection Readout */}
-              <div className="flex flex-wrap items-center gap-2 min-w-0">
-                <span className="text-zinc-400 text-[11px]">Active:</span>
-                <span className="font-bold text-white">
-                  {selectedSubtitleObj?.title || "MrBeast Yellow"}
-                </span>
-                <span className="text-zinc-600"></span>
-                <span className="rounded-md bg-amber-500/10 border border-amber-500/25 px-2 py-0.5 text-[10px] font-mono text-amber-300">
-                  Font: {selectedSubtitleObj?.fontName || "Titan One"}
-                </span>
+            {/* Custom BGM Upload */}
+            <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-black text-slate-800">Upload your own background music track</p>
+                <p className="text-[11px] text-slate-500">Supports MP3 and WAV files</p>
               </div>
 
-              {/* Quick Position & Motion Kinetics Tweaks */}
-              <div className="flex flex-wrap items-center gap-2">
-                {/* Position Segmented Switch */}
-                <div className="flex items-center rounded-lg bg-[#0E1526] p-0.5 border border-white/10 text-[11px]">
-                  {(["bottom", "center", "top"] as const).map((pos) => (
-                    <button
-                      key={pos}
-                      type="button"
-                      onClick={() => onCaptionPositionChange?.(pos)}
-                      className={`px-2.5 py-1 rounded-md font-semibold capitalize transition cursor-pointer ${
-                        captionPosition === pos
-                          ? "bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-white shadow-sm"
-                          : "text-zinc-400 hover:text-white"
-                      }`}
-                    >
-                      {pos === "bottom" ? "Bottom (9:16)" : pos === "center" ? "Center" : "Top"}
-                    </button>
-                  ))}
-                </div>
+              <input
+                type="file"
+                ref={bgmFileInputRef}
+                onChange={handleBgmFileChange}
+                accept="audio/*"
+                className="hidden"
+              />
 
-                {/* Motion Kinetics Switch */}
-                <div className="flex items-center rounded-lg bg-[#0E1526] p-0.5 border border-white/10 text-[11px]">
-                  {(["mrbeast", "bouncy", "handwriting", "smooth"] as const).map((anim) => (
-                    <button
-                      key={anim}
-                      type="button"
-                      onClick={() => onCaptionAnimationStyleChange?.(anim)}
-                      className={`px-2.5 py-1 rounded-md font-semibold capitalize transition cursor-pointer ${
-                        captionAnimationStyle === anim
-                          ? "bg-orange-500/20 border border-orange-500/40 text-orange-300 shadow-sm"
-                          : "text-zinc-400 hover:text-white"
-                      }`}
-                    >
-                      {anim === "mrbeast" ? "Yellow Box" : anim === "bouncy" ? "Bounce" : anim === "handwriting" ? "Handwriting" : "Smooth"}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/*  BRAND & PROPER NAMES VOCABULARY BIAS (WHISPER PROMPT)  */}
-          <div className="rounded-2xl border border-white/10 bg-[#0E1526]/80 p-4 space-y-3">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <Tag size={14} className="text-[#FF7043]" />
-                <span className="text-xs font-bold text-white tracking-wide">
-                  Brand &amp; Proper Names Hint (Whisper Vocabulary Prompt)
-                </span>
-                <span className="text-[10px] text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20 font-semibold flex items-center gap-1">
-                  <BookOpen size={10} />
-                  <span>Saved Dictionary</span>
-                </span>
-              </div>
-
-              {selectedFile && !isPlanning && (
+                {customBgmFile ? (
+                  <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
+                    {customBgmFile.name}
+                  </span>
+                ) : null}
                 <button
                   type="button"
-                  onClick={() => triggerTranscription(selectedFile, brandNamesHint)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-orange-500/15 hover:bg-orange-500/25 border border-orange-500/30 text-[11px] font-bold text-orange-300 transition cursor-pointer self-start sm:self-auto"
+                  onClick={() => bgmFileInputRef.current?.click()}
+                  className="rounded-xl border border-slate-200 bg-white hover:bg-slate-100 px-4 py-2 text-xs font-bold text-slate-700 transition cursor-pointer shadow-xs"
                 >
-                  <RotateCcw size={12} />
-                  <span>Re-Transcribe with Brand Bias</span>
+                  {customBgmFile ? 'Replace BGM' : 'Upload Custom BGM'}
                 </button>
-              )}
-            </div>
-
-            <div className="space-y-1">
-              <input
-                type="text"
-                value={brandNamesHint}
-                onChange={(e) => handleBrandNamesChange(e.target.value)}
-                placeholder="e.g. OpenAI, Jensen Huang, Remotion, ItnaVideo, ChatGPT, NVIDIA, WebGL"
-                className="w-full rounded-xl border border-white/10 bg-[#070B14] px-3.5 py-2 text-xs text-white placeholder-zinc-500 focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] focus:outline-none transition shadow-inner font-mono"
-              />
-              <p className="text-[10px] text-zinc-400">
-                Whisper uses these hints as vocabulary context to transcribe difficult proper nouns, acronyms, and names with 100% accuracy on the first pass.
-              </p>
+              </div>
             </div>
           </div>
+        </div>
+      )}
 
-          {/* Clean Document View / Editable Textarea */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs font-bold text-zinc-300 px-1">
-              <span>Transcribed Script &amp; Review</span>
+      {/* TAB 4: COMPULSORY LIVE PREVIEW & EDITORIAL TRANSCRIPT */}
+      {activeTab === 'preview' && (
+        <div className="space-y-6">
+          {/* Spoken Narration Editorial Markdown Editor */}
+          <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-8 shadow-xs space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-orange-50 text-[#FF5722] border border-orange-200">
+                  <FileText size={18} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-slate-900">Spoken Transcript Editorial Editor</h3>
+                  <p className="text-xs text-slate-500">Fix any spelling mistakes, brand names, or typos before final rendering</p>
+                </div>
+              </div>
+
               <button
                 type="button"
-                onClick={() => setShowWordReview(!showWordReview)}
-                className="text-[11px] font-bold text-[#FF7043] hover:text-[#FFA000] transition flex items-center gap-1 cursor-pointer"
+                onClick={() => setShowTranscriptEditor(!showTranscriptEditor)}
+                className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
+                  showTranscriptEditor
+                    ? 'border-orange-500 bg-orange-50 text-[#FF5722]'
+                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-100'
+                }`}
               >
-                <span>{showWordReview ? "Hide Edit Highlights" : "Highlight Word Edits"}</span>
+                <Edit3 size={13} />
+                <span>{showTranscriptEditor ? 'Collapse Editor' : 'Edit Spoken Transcript'}</span>
               </button>
             </div>
 
-            {/* Word Review Visual Highlighter */}
-            {showWordReview && transcriptText && (
-              <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3.5 text-xs text-slate-200 leading-relaxed font-sans max-h-36 overflow-y-auto">
-                <p className="text-[10px] font-black uppercase tracking-wider text-amber-400 mb-2">
-                  DIFF SYNC PREVIEW &bull; YELLOW WORDS ADJUSTED LOCALLY
-                </p>
-                <div className="flex flex-wrap gap-1">
-                  {transcriptText.split(/\s+/).filter(Boolean).map((word, wIdx) => {
-                    const clean = word.toLowerCase().replace(/[^a-z0-9]/g, "");
-                    const isUnchanged = originalWords.some(
-                      (ow) => ow.word.toLowerCase().replace(/[^a-z0-9]/g, "") === clean
-                    );
-                    return (
-                      <span
-                        key={wIdx}
-                        className={`px-1.5 py-0.5 rounded ${
-                          isUnchanged
-                            ? "text-slate-300"
-                            : "bg-amber-400/20 text-amber-300 border border-amber-400/40 font-semibold"
-                        }`}
-                      >
-                        {word}
-                      </span>
-                    );
-                  })}
+            {showTranscriptEditor && (
+              <div className="space-y-3 pt-2">
+                <textarea
+                  value={editableTranscript}
+                  onChange={(e) => setEditableTranscript(e.target.value)}
+                  rows={4}
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs font-medium text-slate-800 leading-relaxed focus:outline-none focus:border-[#FF5722] shadow-xs"
+                  placeholder="Edit spoken words here..."
+                />
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-slate-400">
+                    {editableTranscript.length} characters · {editableTranscript.split(/\s+/).filter(Boolean).length} words
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTranscriptSavedFeedback(true);
+                      setTimeout(() => setTranscriptSavedFeedback(false), 2000);
+                    }}
+                    className="inline-flex items-center gap-1 rounded-xl bg-slate-900 hover:bg-black text-white px-3.5 py-1.5 text-xs font-bold transition cursor-pointer"
+                  >
+                    {transcriptSavedFeedback ? <CheckCheck size={13} className="text-emerald-400" /> : <Check size={13} />}
+                    <span>{transcriptSavedFeedback ? 'Saved!' : 'Save Corrections'}</span>
+                  </button>
                 </div>
               </div>
             )}
-
-            <textarea
-              value={transcriptText}
-              onChange={(e) => setTranscriptText(e.target.value)}
-              rows={6}
-              disabled={isPlanning}
-              placeholder={
-                isPlanning
-                  ? "Transcribing your voiceover speech in the background... Please wait 2-4 seconds."
-                  : "Your transcribed script will appear here. Edit any words or typos freely, or type your narration text manually..."
-              }
-              className="w-full rounded-xl border border-white/10 bg-[#0E1526] p-4 text-xs sm:text-sm text-slate-100 placeholder-zinc-500 focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] focus:outline-none transition leading-relaxed resize-y min-h-[140px] font-sans shadow-inner disabled:opacity-60"
-            />
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between text-[11px] text-zinc-400 gap-1 px-1">
-              <span>Diff-based audio alignment ensures unchanged words maintain 100% exact Whisper timestamps.</span>
-              {hasEditedTranscript ? (
-                <span className="text-amber-400 font-medium">Edited text ready for render</span>
-              ) : transcriptText ? (
-                <span className="text-emerald-400 font-medium flex items-center gap-1">
-                  <Check size={12} />
-                  <span>Ready for 1080p render</span>
-                </span>
-              ) : null}
-            </div>
           </div>
-        </div>
 
-      {/*  */}
-      {/* 4. CREATIVE STYLING & AUDIO CONTROLS (NO SCENE NUMBERS)            */}
-      {/*  */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column (8 cols): Styling options */}
-        <div className="lg:col-span-8 space-y-6">
-
-
-
-          {/* SVG-first visual direction */}
-          <div className="rounded-2xl border border-orange-500/25 bg-[#0D111D] p-5">
-            <div className="flex items-start gap-4">
-              <svg aria-hidden="true" viewBox="0 0 64 64" className="mt-0.5 h-12 w-12 shrink-0">
-                <path d="M12 48 27 33l10 9 15-22" fill="none" stroke="#FF7043" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M42 20h10v10" fill="none" stroke="#FFA000" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-                <circle cx="12" cy="48" r="4" fill="#FF5722" />
-                <circle cx="27" cy="33" r="4" fill="#FF7043" />
-                <circle cx="37" cy="42" r="4" fill="#FFA000" />
-              </svg>
-              <div className="min-w-0">
-                <h3 className="text-sm font-bold text-white">Visuals built from your narration</h3>
-                <p className="mt-1 max-w-2xl text-xs leading-relaxed text-zinc-300">
-                  After transcription, each scene gets an animated SVG chart, comparison, step diagram, metric, or concept map. Stock photos and uploaded scene media are paused for this studio.
-                </p>
-                {uploadedImageFiles.length > 0 && (
-                  <p className="mt-2 text-xs font-medium text-amber-300">
-                    {uploadedImageFiles.length} previously selected file{uploadedImageFiles.length === 1 ? '' : 's'} will not be included in this video.
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-          {/* Fixed Pure White Canvas (#FFFFFF) Banner */}
-          <div className="rounded-2xl border border-white/10 bg-[#0E1322] p-4.5 flex items-center justify-between shadow-lg">
-            <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-xl bg-white flex items-center justify-center border border-white/20 shadow-md">
-                <span className="text-[11px] font-black text-black">1080p</span>
-              </div>
+          {/* Interactive 9:16 Vertical Live Preview Player */}
+          <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-8 shadow-xs space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <div className="flex items-center gap-2">
-                  <h4 className="text-sm font-bold text-white">Fixed Pure White Canvas</h4>
-                  <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-bold text-emerald-400">
-                    #FFFFFF Studio Standard
-                  </span>
-                </div>
-                <p className="text-xs text-zinc-400 mt-0.5">
-                  High-contrast editorial typography, contextual diagrams, and meaning-driven visual assets.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Background Music & SFX */}
-          <div className="rounded-2xl border border-white/10 bg-[#0D111D] p-5 shadow-xl space-y-4">
-            <div className="space-y-2">
-              <label className="block text-xs font-semibold text-zinc-300">Background Music Mood</label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                {[
-                  { id: "mystery", label: " Mystery Cinema" },
-                  { id: "lofi", label: " Ambient Lo-Fi" },
-                  { id: "tech", label: " Tech Pulse" },
-                  { id: "none", label: " No Music" },
-                ].map((bgm) => {
-                  const active = facelessBgmMood === bgm.id;
-                  return (
-                    <button
-                      key={bgm.id}
-                      type="button"
-                      onClick={() => onBgmMoodChange?.(bgm.id as any)}
-                      className={`rounded-xl border p-2.5 text-center text-xs font-semibold transition cursor-pointer ${
-                        active
-                          ? "border-orange-500/60 bg-[#161C2E] text-white font-bold ring-1 ring-orange-500/40"
-                          : "border-white/10 bg-[#121624] text-zinc-400 hover:border-white/20 hover:text-white"
-                      }`}
-                    >
-                      {bgm.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-white/10">
-              <div className="flex items-center justify-between rounded-xl border border-white/10 bg-[#121624] p-3">
-                <div>
-                  <p className="text-xs font-bold text-white flex items-center gap-1.5">
-                    <Volume2 size={14} className="text-zinc-300" />
-                    <span>Beat Sound Effects (SFX)</span>
-                  </p>
-                  <p className="text-[11px] text-zinc-400">Pops &amp; transition whooshes</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => onEnableSfxChange?.(!facelessEnableSfx)}
-                  className={`relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
-                    facelessEnableSfx ? "bg-[#FF5722]" : "bg-white/20"
-                  }`}
-                >
-                  <span
-                    className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                      facelessEnableSfx ? "translate-x-5" : "translate-x-0"
-                    }`}
-                  />
-                </button>
+                <h2 className="text-lg font-black text-slate-900">Interactive 9:16 Vertical Shorts Preview</h2>
+                <p className="text-xs text-slate-500">Verify your vertical safe-zones, subtitle placement, and pacing before rendering</p>
               </div>
 
-              {facelessBgmMood !== "none" ? (
-                <div className="rounded-xl border border-white/10 bg-[#121624] p-3 space-y-1">
-                  <div className="flex items-center justify-between text-xs font-semibold text-zinc-300">
-                    <span>Music Mix Volume (Auto-Ducked)</span>
-                    <span className="font-mono text-white">{Math.round((facelessBgmVolume || 0.12) * 100)}%</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0.05"
-                    max="0.30"
-                    step="0.01"
-                    value={facelessBgmVolume ?? 0.12}
-                    onChange={(e) => onBgmVolumeChange?.(parseFloat(e.target.value))}
-                    className="w-full accent-[#FF5722] cursor-pointer"
-                  />
-                </div>
-              ) : (
-                <div className="rounded-xl border border-white/10 bg-[#121624]/40 p-3 flex items-center text-xs text-zinc-500 italic">
-                  Background music disabled
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-
-          {/* 4.5. AI STORYBOARD & SCENE TIMELINE REVIEW */}
-          {sceneBlueprint && sceneBlueprint.length > 0 && (
-            <FacelessStoryboardTimeline
-              scenes={sceneBlueprint}
-              brollUrls={brollUrls}
-              onBrollUrlsChange={setBrollUrls}
-              uploadedAssets={taggedUploadedAssets}
-              uploadedImageFiles={uploadedImageFiles}
-              onSeekAudio={(time) => {
-                if (audioPlayerRef.current) {
-                  audioPlayerRef.current.currentTime = time;
-                  audioPlayerRef.current.play().catch(() => {});
-                  setIsPlayingAudio(true);
-                }
-              }}
-            />
-          )}
-
-        {/* Right Column (4 cols): Summary Specs & 5. FINAL ACTION GENERATE BUTTON */}
-        <div className="lg:col-span-4 sticky top-24 space-y-6">
-          <div className="rounded-2xl border border-white/10 bg-[#0D111D] p-5 shadow-xl space-y-4">
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-                Video Specifications
-              </h3>
-              <span className="rounded-full bg-white/5 border border-white/10 px-2 py-0.5 text-[10px] font-bold text-zinc-300">
-                9:16 Full HD
-              </span>
-            </div>
-
-            <div className="space-y-2.5 text-xs text-zinc-300">
-              <div className="flex items-center justify-between py-1 border-b border-white/5">
-                <span className="text-zinc-400">Aspect Ratio</span>
-                <span className="font-semibold text-white">9:16 Vertical</span>
-              </div>
-              <div className="flex items-center justify-between py-1 border-b border-white/5">
-                <span className="text-zinc-400">Resolution</span>
-                <span className="font-semibold text-white">19201080 @ 30 FPS</span>
-              </div>
-              <div className="flex items-center justify-between py-1 border-b border-white/5">
-                <span className="text-zinc-400">Audio Duration</span>
-                <span className="font-semibold text-white">
-                  {audioDurationSec > 0 ? formattedDuration : "Upload audio"}
-                </span>
-              </div>
-              <div className="flex items-center justify-between py-1 border-b border-white/5">
-                <span className="text-zinc-400">Script Review</span>
-                <span className="font-semibold text-white">
-                  {isPlanning
-                    ? "Transcribing..."
-                    : transcriptText
-                    ? `${wordCount} words (Ready)`
-                    : selectedFile
-                    ? "Script ready to edit"
-                    : "Pending audio"}
-                </span>
-              </div>
-              {sceneBlueprint.length > 0 && (
-                <div className="flex items-center justify-between py-1 border-b border-white/5">
-                  <span className="text-zinc-400">Storyboard Beats</span>
-                  <span className="font-semibold text-emerald-400">{sceneBlueprint.length} Scenes Ready</span>
-                </div>
-              )}
-              <div className="flex items-center justify-between py-1">
-                <span className="text-zinc-400">Credit Rate</span>
-                <span className="font-semibold text-white">1 Min = 1 Credit</span>
-              </div>
-            </div>
-
-            {/*  5. FINAL ACTION: "GENERATE VIDEO" BUTTON  */}
-            {/* Show only once audio is uploaded and transcript is ready for review */}
-            <div className="pt-2">
-              <button
-                type="button"
-                onClick={handleGenerateVideo}
-                disabled={!selectedFile || isPlanning || isGenerating || !transcriptText.trim()}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] hover:brightness-110 p-4 text-xs sm:text-sm font-black text-black shadow-xl shadow-orange-500/25 transition active:scale-98 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              {/* Compulsory Review State Banner */}
+              <div
+                className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-xs font-black border transition ${
+                  previewConfirmed
+                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                    : 'bg-amber-50 text-amber-800 border-amber-200'
+                }`}
               >
-                {isGenerating ? (
+                {previewConfirmed ? (
                   <>
-                    <RefreshCw size={15} className="animate-spin text-black" />
-                    <span>Rendering Video on Cloud...</span>
+                    <CheckCircle2 size={15} className="text-emerald-600" />
+                    <span>Preview Verified · Ready to Render</span>
                   </>
-                ) : isPlanning ? (
-                  <>
-                    <RefreshCw size={15} className="animate-spin text-black" />
-                    <span>Transcribing Speech...</span>
-                  </>
-                ) : !selectedFile ? (
-                  <span>Upload Audio to Begin</span>
-                ) : !transcriptText.trim() ? (
-                  <span>Add Script Text to Generate</span>
                 ) : (
                   <>
-                    <Sparkles size={16} className="text-black" />
-                    <span>Generate Video (1 Credit)</span>
+                    <Lock size={15} className="text-amber-600" />
+                    <span>Compulsory Review: Confirm Preview below to unlock render</span>
                   </>
                 )}
-              </button>
+              </div>
+            </div>
 
-              <p className="text-[11px] text-center text-zinc-500 mt-2.5">
-                Zero credits deducted for interrupted or failed render attempts.
-              </p>
+            {/* 9:16 Vertical Canvas Container */}
+            <div className="flex justify-center py-2">
+              <div className="relative aspect-[9/16] w-full max-w-[320px] rounded-3xl overflow-hidden border-4 border-slate-800 shadow-2xl bg-[#FAFAFA] flex items-center justify-center">
+                {/* Dot Grid Background */}
+                <div
+                  className="absolute inset-0 pointer-events-none opacity-60"
+                  style={{
+                    backgroundImage: 'radial-gradient(rgba(0, 0, 0, 0.06) 1.5px, transparent 1.5px)',
+                    backgroundSize: '24px 24px',
+                  }}
+                />
+
+                {/* Active Image or Video Visual */}
+                {imageObjectUrls.length > 0 && imageObjectUrls[activePreviewSceneIdx] ? (
+                  <img
+                    src={imageObjectUrls[activePreviewSceneIdx]}
+                    alt="Scene Visual"
+                    className="w-full h-full object-cover"
+                  />
+                ) : videoObjectUrls.length > 0 ? (
+                  <video
+                    src={videoObjectUrls[0]}
+                    className="w-full h-full object-cover"
+                    muted
+                    autoPlay
+                    loop
+                  />
+                ) : (
+                  <div className="p-6 text-center text-slate-400 space-y-2">
+                    <Tv size={36} className="mx-auto opacity-40 text-[#FF5722]" />
+                    <p className="text-xs font-black text-slate-800">Dynamic 9:16 Scene</p>
+                    <p className="text-[10px] text-slate-500">Vector graphics, illustrations &amp; typography will animate here</p>
+                  </div>
+                )}
+
+                {/* Subtitle Overlay Preview */}
+                <div className="absolute bottom-16 left-4 right-4 flex justify-center pointer-events-none">
+                  <div className="text-center bg-black/80 backdrop-blur-md rounded-2xl px-4 py-2 border border-white/20 shadow-xl max-w-[90%]">
+                    <p className="text-xs font-black text-[#FFD700] tracking-wide">
+                      {editableTranscript.slice(0, 60)}...
+                    </p>
+                  </div>
+                </div>
+
+                {/* Top Flame Orange Progress Bar */}
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000]" />
+              </div>
+            </div>
+
+            {/* Compulsory Review Confirmation Checkbox */}
+            <div className="rounded-2xl border-2 border-orange-200 bg-orange-50/50 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="confirm-shorts-preview-checkbox"
+                  checked={previewConfirmed}
+                  onChange={(e) => setPreviewConfirmed(e.target.checked)}
+                  className="w-5 h-5 accent-[#FF5722] cursor-pointer rounded"
+                />
+                <label htmlFor="confirm-shorts-preview-checkbox" className="text-xs font-bold text-slate-800 cursor-pointer">
+                  I have verified the 9:16 vertical framing, caption styling, and narration pacing. Unlock final render.
+                </label>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setPreviewConfirmed(true)}
+                className={`rounded-xl px-4 py-2 text-xs font-black transition cursor-pointer ${
+                  previewConfirmed
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'bg-[#FF5722] hover:bg-[#FF7043] text-white shadow-md shadow-[#FF5722]/20'
+                }`}
+              >
+                {previewConfirmed ? 'Verified ✓' : 'Confirm Preview Now'}
+              </button>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* ── MOBILE-ONLY DOCKED GENERATE ACTION BAR (Fixed Bottom for Instant Access) ── */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden p-3 bg-[#0B0F19]/95 backdrop-blur-xl border-t border-white/10 shadow-2xl flex items-center justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <p className="text-xs font-bold text-white truncate">
-            {selectedFile ? selectedFile.name : "Select Voiceover Audio"}
-          </p>
-          <p className="text-[10px] text-zinc-400 mt-0.5">
-            Strictly 9:16 Vertical • 1 Credit
-          </p>
+      {/* FINAL RENDER ACTION BAR (Guarded by Compulsory Preview) */}
+      <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+          <span className="text-xs font-bold text-slate-500">Duration:</span>
+          <span className="ml-1 text-sm font-black text-slate-900">{audioDuration}s</span>
+          <span className="mx-2 text-slate-300">·</span>
+          <span className="text-xs font-bold text-slate-500">Format:</span>
+          <span className="ml-1 text-xs font-black text-slate-800">9:16 Vertical (1080×1920)</span>
+          <span className="mx-2 text-slate-300">·</span>
+          <span className="text-xs font-bold text-slate-500">Credits:</span>
+          <span className="ml-1 text-sm font-black text-[#FF5722]">1 Credit / Short</span>
         </div>
+
         <button
           type="button"
-          onClick={handleGenerateVideo}
-          disabled={!selectedFile || isPlanning || isGenerating || !transcriptText.trim()}
-          className="shrink-0 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-black font-black text-xs shadow-lg shadow-orange-500/20 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer inline-flex items-center gap-1.5"
+          onClick={() => {
+            if (onGenerate) {
+              onGenerate({
+                topicTitle,
+                subtitleStyle,
+                captionAnimationStyle,
+                captionPosition,
+                facelessBgmVolume,
+                facelessEnableSfx,
+                selectedBgmPath,
+                customBgmFile,
+                editableTranscript,
+                durationSeconds: audioDuration,
+              });
+            }
+          }}
+          disabled={isGenerating || !previewConfirmed || !selectedFile}
+          className={`w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-2xl px-8 py-4 text-sm font-black transition-all duration-200 ${
+            !previewConfirmed || !selectedFile
+              ? 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300'
+              : isGenerating
+              ? 'bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white opacity-80 cursor-wait animate-pulse shadow-xl'
+              : 'bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-xl shadow-[#FF5722]/30 hover:brightness-110 active:scale-95 cursor-pointer'
+          }`}
         >
-          {isGenerating ? (
+          {!previewConfirmed ? (
             <>
-              <RefreshCw size={12} className="animate-spin text-black" />
-              <span>Rendering...</span>
-            </>
-          ) : isPlanning ? (
-            <>
-              <RefreshCw size={12} className="animate-spin text-black" />
-              <span>Transcribing...</span>
+              <Lock size={16} className="text-slate-400" />
+              <span>Preview Required to Unlock Render</span>
             </>
           ) : (
             <>
-              <Sparkles size={13} className="text-black" />
-              <span>Generate 9:16</span>
+              <Film size={16} className="stroke-[2.5]" />
+              <span>
+                {isGenerating
+                  ? 'Submitting Cloud Render...'
+                  : 'Render 9:16 Vertical Short (1 Credit)'}
+              </span>
             </>
           )}
         </button>
@@ -1536,6 +1180,3 @@ export function FacelessShortsStudio({
     </div>
   );
 }
-
-export default FacelessShortsStudio;
-

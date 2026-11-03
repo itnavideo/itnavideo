@@ -1,5 +1,6 @@
 import {
   AbsoluteFill,
+  Audio,
   Composition,
   Img,
   OffthreadVideo,
@@ -53,7 +54,10 @@ export type LongVideoPromoProps = {
   ctaSubtext?: string;
   promoCtaStyle?: 'youtube-red' | 'emerald' | 'glass' | 'tiktok-yellow';
   promoCreatorHandle?: string;
-  promoBackgroundMode?: 'blur' | 'solid';
+  promoBackgroundMode?: 'blur' | 'solid' | 'white';
+  captionStyle?: string;
+  bgmUrl?: string;
+  bgmVolume?: number;
   // Optional word-synced subtitles
   captions?: Array<{
     text: string;
@@ -195,6 +199,9 @@ export function LongVideoPromo({
   durationSeconds = 60,
   channelName,
   watermark = false,
+  bgmUrl = '',
+  bgmVolume = 0.12,
+  captionStyle = 'Pop Word',
 }: LongVideoPromoProps) {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
@@ -323,12 +330,31 @@ export function LongVideoPromo({
   };
   const activeCtaTheme = ctaThemeMap[promoCtaStyle] || ctaThemeMap['youtube-red'];
 
+  const isWhiteBg = promoBackgroundMode === 'white';
+
   return (
-    <AbsoluteFill style={{backgroundColor: '#090D16', overflow: 'hidden'}}>
+    <AbsoluteFill style={{backgroundColor: isWhiteBg ? '#FFFFFF' : '#090D16', overflow: 'hidden'}}>
       <PremiumAudioLayer enabled={premiumEditing} styleLock={styleLock} soundCues={soundCues} />
 
-      {/* === BACKGROUND: Cinematic Ambient Blur vs Deep Solid Charcoal === */}
-      {promoBackgroundMode === 'blur' && thumbnailSrc ? (
+      {/* Background Music Loop */}
+      {bgmUrl && bgmUrl !== 'none' && (
+        <Audio
+          src={resolveAsset(bgmUrl)}
+          volume={bgmVolume}
+          loop
+        />
+      )}
+
+      {/* === BACKGROUND: White Studio vs Cinematic Ambient Blur vs Deep Solid Charcoal === */}
+      {isWhiteBg ? (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 50%, #F1F5F9 100%)',
+          }}
+        />
+      ) : promoBackgroundMode === 'blur' && thumbnailSrc ? (
         <div style={{position: 'absolute', inset: -30, overflow: 'hidden'}}>
           <Img
             src={resolveAsset(thumbnailSrc)}
@@ -593,7 +619,7 @@ export function LongVideoPromo({
                 margin: 0,
                 fontSize: titleFontSize,
                 fontWeight: 900,
-                color: '#FFFFFF',
+                color: isWhiteBg ? '#0F172A' : '#FFFFFF',
                 lineHeight: 1.22,
                 fontFamily: TITLE_FONT,
                 textShadow: '0 3px 16px rgba(0, 0, 0, 0.85)',

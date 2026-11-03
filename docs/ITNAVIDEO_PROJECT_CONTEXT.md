@@ -26,6 +26,12 @@ Turn raw creator content into publish-ready 9:16 reels or a preserved 16:9 long-
 - Coaches, consultants, personal brands
 - Anyone who has content but no time/skill to edit
 
+## Recent Platform Enhancements (November 2026)
+- Login Presenter Image Performance Fix: Optimized high-resolution auth presenter image in AuthShell.tsx using Cloudinary auto-format (f_auto,q_auto,w_800,c_limit) with high priority link preload, reducing payload from 1.78 MB down to 68 KB WebP (96.1% size reduction) for instant loading.
+- Dedicated Studio Dashboard Polish: Standardized all 11 active video studios with clean studio white default background canvas (#FFFFFF) and consistent UI header badging matching DashboardClient.tsx.
+- Homepage Free Creator Utilities: Added dedicated FreeCreatorUtilitiesSection on the Homepage right before the footer.
+- Clean Route Architecture: Removed unused/legacy redirect routes to keep Next.js routing clean and lightweight.
+
 ## Current Status
 
 - **1080p Full HD Quality Standard**: Every single video rendered across all modes is strictly exported in **1080p Full HD** (1080×1920 for 9:16 vertical shorts, 1920×1080 for 16:9 cinema widescreen) at 30 FPS.

@@ -631,7 +631,9 @@ export async function cleanAudioWithAI({
     const ffmpegArgs: string[] = ['-y', '-i', inputAudioPath, '-vn'];
 
     if (filterParts.length > 0) {
-      ffmpegArgs.push('-filter_complex', filterParts.join('; '));
+      const filterScriptPath = path.join(workDir, 'filter_complex_script.txt');
+      await writeFile(filterScriptPath, filterParts.join(';\n'), 'utf8');
+      ffmpegArgs.push('-filter_complex_script', filterScriptPath);
       ffmpegArgs.push('-map', `[${audioOutLabel}]`);
     } else {
       ffmpegArgs.push('-map', '0:a');
@@ -640,7 +642,7 @@ export async function cleanAudioWithAI({
     if (exportFormat === 'wav') {
       ffmpegArgs.push('-c:a', 'pcm_s16le', outputAudioPath);
     } else if (exportFormat === 'm4a') {
-      ffmpegArgs.push('-c:a', 'aac', '-b:a', '256k', outputAudioPath);
+      ffmpegArgs.push('-c:a', 'aac', '-b:a', '320k', outputAudioPath);
     } else {
       let targetBitrate = '320k';
       if (options.preserveInputQuality !== false) {

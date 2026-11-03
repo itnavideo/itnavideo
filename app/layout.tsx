@@ -226,8 +226,9 @@ export default function RootLayout({
         <meta name="google-adsense-account" content="ca-pub-7016787089009547" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <script
-          async
+        {/* Google AdSense loaded lazily to preserve high FCP/LCP loading speed */}
+        <Script
+          strategy="lazyOnload"
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7016787089009547"
           crossOrigin="anonymous"
         />

@@ -37,6 +37,11 @@ The pipeline provides:
 | **Max Duration** | **Up to 5 Minutes (300s)** strictly per Rule 4.1 |
 | **Credit Rate** | **1 Min = 1 Credit** (1m=1, 5m=5 Cr) |
 | **Transcription** | Primary: Groq Whisper Cloud API · Fallback: Google Gemini 2.0 Flash (`asia-south1`) |
+| **Editorial Transcript** | In-place Markdown / Text Editor to review and fix typos or spelling mistakes before render |
+| **Subtitle Styling** | 20 Master YouTube 16:9 Caption Themes with active word highlights |
+| **Audio & BGM Level** | AWS S3 Music Catalog (13+ tracks) + Custom BGM Upload + Volume Slider (Default: 12%) |
+| **User Media Assets** | Multi-file Ingest for user-uploaded MP4 video clips & images alongside automated vector scenes |
+| **Preview Requirement** | Compulsory Interactive 16:9 Live Preview with Audio Sync before cloud render |
 | **Audio Ducking** | BGM volume dynamically interpolates to 0.12 during active speech, rising to 0.28 during speech pauses |
 | **Render Cloud** | AWS Lambda via Remotion |
 
@@ -251,6 +256,8 @@ Faceless Video executes a broadcast-grade 7-layer visual composition stack insid
 | **#52** | [`Connector.tsx`](file:///c:/Users/user/.gemini/antigravity/scratch/itnavideo/remotion/templates/FACELESS_LONG_VIDEO/components/Connector.tsx) | Flow Connector | Connecting SVG curves, dashed lines, and flow arrows between module nodes. |
 | **#53** | [`BrowserMockupFrame.tsx`](file:///c:/Users/user/.gemini/antigravity/scratch/itnavideo/remotion/templates/FACELESS_LONG_VIDEO/components/BrowserMockupFrame.tsx) | Browser Frame | Minimal browser mockup frame for website demonstrations and screenshots. |
 | **#54** | [`Background.tsx`](file:///c:/Users/user/.gemini/antigravity/scratch/itnavideo/remotion/templates/FACELESS_LONG_VIDEO/components/Background.tsx) | Pass-Through | Re-export forwarding to shared deterministic background renderer. |
+| **#64** | [`designSystem.ts`](file:///c:/Users/user/Downloads/itnavideo-project/remotion/templates/FACELESS_LONG_VIDEO/designSystem.ts) | Central Design System | Unified design tokens for 16:9 & 9:16 safe zones, optical typography scale, theme surfaces, and choreographed scene-local motion. |
+| **#65** | [`DesignSystemPrimitives.tsx`](file:///c:/Users/user/Downloads/itnavideo-project/remotion/templates/FACELESS_LONG_VIDEO/components/DesignSystemPrimitives.tsx) | Studio Primitives | Shared `<SceneCanvas>`, `<SceneHeader>`, `<EyebrowPill>`, `<StudioCard>`, and `<StepNumberBadge>` building blocks. |
 
 ### 🌐 7.9 Shared Visual Layers (Subtitles, Backgrounds, HUD) (#55 – #60)
 | # | File Path | Shared Layer | Description |

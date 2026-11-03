@@ -67,3 +67,16 @@ export const WB_MAX_CHARS_PER_LINE = 30;
 - **Opacity + TranslateY Reveal**: Point text reveals smoothly over `WB_REVEAL_FADE_FRAMES` (8 frames) with 12px `translateY` offset starting at spoken speech timestamp (`startTime`).
 - **No Container Scaling**: Container width and height are fixed to `WB_USABLE_WIDTH` (920px) × `WB_USABLE_HEIGHT` (1520px) without `transform: scale()`.
 - **Vector Strokes & SFX**: Vector sketch drawings (`WhiteboardDynamicSketch`) and doodle icons draw progressively via `strokeDashoffset` synced with speech and marker sound effects.
+
+
+---
+
+## 4. Visual Assets, Handwriting Fonts & Audio Ducking
+
+- **Real Human Hand PNG (AWS S3)**: Uses high-resolution photorealistic human hand holding a marker pen from AWS S3 (`https://itnavideo-media-assets.s3.ap-south-1.amazonaws.com/assets/real-hand-marker.png`). Strictly avoids vector/SVG hands.
+- **Default Handwriting Font**: **Balsamiq Sans** (`balsamiq`). Also provides 11 additional fonts (Permanent Marker, Gochi Hand, Comic Neue, Caveat, Kalam, Architects Daughter, Handlee, Shadows Into Light, Schoolbell, Indie Flower, Comic Relief).
+- **Pure White Background**: Canvas is styled with a crisp `#FFFFFF` / `#FAFAFA` whiteboard board.
+- **Background Music**: Curated AWS S3 catalog (13+ tracks) and custom MP3/WAV upload with default **12% volume ducking** (`bgmVolume: 0.12`).
+- **Marker SFX**: Realistic marker pen writing and board swipe sound effects.
+- **Editorial Transcript**: Spoken script editor for fixing speech typos before scene planning.
+- **Compulsory Live Preview Gate**: Users must verify the whiteboard layout and font before cloud rendering.

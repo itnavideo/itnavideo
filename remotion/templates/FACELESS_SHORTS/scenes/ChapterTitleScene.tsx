@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Img,
   Loop,
   OffthreadVideo,
   interpolate,
@@ -20,7 +21,104 @@ export interface ChapterTitleSceneProps {
   chapterNumber?: number;
   sceneFrame?: number;
   palette?: BackgroundColorPalette;
+  /** Optional fade-out at the end of the scene. 0 = off (parent handles transitions). */
+  exitFrames?: number;
+  /** Background for the light theme. Default white; pass 'transparent' to let the parent show through. */
+  backgroundColor?: string;
 }
+
+const ACCENT = '#FF5722';
+const WORD_STAGGER = 3; // frames between each headline word
+const HEADLINE_START = 8; // frames after badge begins
+
+/* ───────────────────────── helpers ───────────────────────── */
+
+interface Token {
+  text: string;
+  highlight?: boolean;
+  glueAfter?: boolean; // no space after this token (punctuation attached)
+}
+
+function tokenize(headline: string, highlightWord: string): Token[] {
+  const toWords = (s: string): Token[] =>
+    s
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((text) => ({ text }));
+
+  if (highlightWord) {
+    const idx = headline.toLowerCase().indexOf(highlightWord.toLowerCase());
+    if (idx >= 0) {
+      const before = headline.slice(0, idx);
+      const match = headline.slice(idx, idx + highlightWord.length);
+      const after = headline.slice(idx + highlightWord.length);
+
+      const beforeTokens = toWords(before);
+      const afterTokens = toWords(after);
+
+      if (beforeTokens.length && before && !/\s$/.test(before)) {
+        beforeTokens[beforeTokens.length - 1].glueAfter = true;
+      }
+      const highlightToken: Token = {
+        text: match, // keep the original casing from the headline
+        highlight: true,
+        glueAfter: after.length > 0 && !/^\s/.test(after),
+      };
+      return [...beforeTokens, highlightToken, ...afterTokens];
+    }
+  }
+  return toWords(headline);
+}
+
+/** Bigger type for short titles, smaller for long ones, so it always fits nicely. */
+function headlineSize(len: number): number {
+  if (len <= 24) return 112;
+  if (len <= 40) return 96;
+  if (len <= 60) return 82;
+  if (len <= 80) return 70;
+  return 60;
+}
+
+/* ───────────────────────── media layer ───────────────────────── */
+
+interface MediaLayerProps {
+  src: string;
+  isVideo: boolean;
+  alt: string;
+  scale: number;
+  panX: number;
+}
+
+const MediaLayer: React.FC<MediaLayerProps> = ({ src, isVideo, alt, scale, panX }) => (
+  <div
+    style={{
+      position: 'absolute',
+      inset: 0,
+      transform: `translate3d(${panX}px, 0, 0) scale(${scale})`,
+      transformOrigin: 'center center',
+      willChange: 'transform',
+    }}
+  >
+    {isVideo ? (
+      <Loop durationInFrames={180}>
+        <OffthreadVideo
+          src={src}
+          volume={0}
+          muted
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+      </Loop>
+    ) : (
+      <Img
+        src={src}
+        alt={alt}
+        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+      />
+    )}
+  </div>
+);
+
+/* ───────────────────────── scene ───────────────────────── */
 
 export function ChapterTitleScene({
   scene,
@@ -30,35 +128,81 @@ export function ChapterTitleScene({
   chapterNumber,
   sceneFrame,
   palette,
+  exitFrames = 0,
+  backgroundColor = '#FFFFFF',
 }: ChapterTitleSceneProps) {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, durationInFrames } = useVideoConfig();
   const currentFrame = sceneFrame ?? frame;
 
-  // Dramatic Riser Spring Entrance (frame-relative)
-  const entrance = spring({
-    frame: currentFrame,
-    fps,
-    config: { damping: 13, mass: 0.9, stiffness: 140 },
-  });
-
-  const scale = interpolate(entrance, [0, 1], [0.88, 1.0]);
-  const opacity = interpolate(entrance, [0, 1], [0, 1]);
-  const kenBurnsScale = interpolate(currentFrame, [0, 150], [1.02, 1.12], { extrapolateRight: 'clamp' });
-
+  /* ── content ── */
   const activeMediaUrl = mediaUrl || scene.visualAssetRequirement || '';
   const resolvedSrc = safeResolveMediaSrc(activeMediaUrl);
   const isVid = isVideoMedia(activeMediaUrl);
+  const hasMedia = Boolean(resolvedSrc);
 
   const rawBadge = chapterNumber ?? scene.numberBadge ?? 1;
-  const chNum = typeof rawBadge === 'number' ? rawBadge : (parseInt(String(rawBadge), 10) || 1);
+  const chNum =
+    typeof rawBadge === 'number' ? rawBadge : parseInt(String(rawBadge), 10) || 1;
+
   const headline = String(scene.heading || 'CORE CHAPTER TAKEAWAY').trim();
-  const rawHighlight = (scene.highlightedWords && typeof scene.highlightedWords[0] === 'string')
-    ? scene.highlightedWords[0].trim()
-    : '';
+  const rawHighlight =
+    scene.highlightedWords && typeof scene.highlightedWords[0] === 'string'
+      ? scene.highlightedWords[0].trim()
+      : '';
   const highlightWord = rawHighlight.length >= 2 ? rawHighlight : '';
-  const supportingText = scene.supportingText && scene.supportingText !== headline ? scene.supportingText : '';
-  const isLight = palette?.isDark === false;
+  const supportingText =
+    scene.supportingText && scene.supportingText !== headline ? scene.supportingText : '';
+
+  // White is the default. Only an explicit dark palette switches to the dark look.
+  const isLight = palette?.isDark !== true;
+  // Text sits on top of photo/video whenever media exists → always light text there.
+  // Dark text only when the scene is light AND there is no media behind it.
+  const textOnDark = hasMedia || !isLight;
+
+  const headlineColor = textOnDark ? '#FFFFFF' : '#0F172A';
+  const supportColor = textOnDark ? '#E2E8F0' : '#475569';
+  const textShadow = hasMedia ? '0 4px 40px rgba(2, 6, 23, 0.55)' : 'none';
+
+  /* ── motion ── */
+  const softSpring = { damping: 18, mass: 0.9, stiffness: 120 };
+
+  const badgeIn = spring({ frame: currentFrame, fps, config: softSpring });
+
+  const tokens = tokenize(headline, highlightWord);
+  const headlineEnd = HEADLINE_START + tokens.length * WORD_STAGGER;
+
+  const barIn = spring({
+    frame: currentFrame - headlineEnd,
+    fps,
+    config: { damping: 20, mass: 0.8, stiffness: 110 },
+  });
+  const supportIn = spring({
+    frame: currentFrame - (headlineEnd + 6),
+    fps,
+    config: softSpring,
+  });
+
+  // Ken Burns spans the real scene length instead of a hard-coded 150 frames
+  const drift = interpolate(currentFrame, [0, Math.max(durationInFrames, 1)], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+  const kenBurnsScale = 1.03 + drift * 0.09;
+  const panX = -drift * 24;
+
+  // Optional exit fade
+  const exitOpacity =
+    exitFrames > 0
+      ? interpolate(
+        currentFrame,
+        [durationInFrames - exitFrames, durationInFrames - 1],
+        [1, 0],
+        { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+      )
+      : 1;
+
+  const fontSize = headlineSize(headline.length);
 
   return (
     <div
@@ -68,12 +212,14 @@ export function ChapterTitleScene({
         width: '100%',
         height: '100%',
         overflow: 'hidden',
-        backgroundColor: 'transparent',
+        backgroundColor: isLight ? backgroundColor : 'transparent',
+        opacity: exitOpacity,
       }}
     >
-      {/* ── 1. Background Media with Ken Burns (Framed in card on light canvas, or full-bleed on dark) ── */}
-      {resolvedSrc && (
-        isLight ? (
+      {/* ── 1. Background media ── */}
+      {hasMedia &&
+        (isLight ? (
+          // Light theme: framed media card
           <div
             style={{
               position: 'absolute',
@@ -82,199 +228,208 @@ export function ChapterTitleScene({
               transform: 'translateX(-50%)',
               width: '1440px',
               height: '730px',
-              borderRadius: '24px',
+              borderRadius: '28px',
               overflow: 'hidden',
-              boxShadow: '0 30px 80px rgba(15, 23, 42, 0.16)',
+              boxShadow: '0 40px 100px rgba(15, 23, 42, 0.22)',
               border: '1px solid rgba(15, 23, 42, 0.08)',
-              backgroundColor: '#FFFFFF',
+              backgroundColor: '#0F172A',
               zIndex: 2,
             }}
           >
-            <div
-              style={{
-                width: '100%',
-                height: '100%',
-                transform: `scale(${kenBurnsScale})`,
-                transformOrigin: 'center center',
-              }}
-            >
-              {isVid ? (
-                <Loop durationInFrames={180}>
-                  <OffthreadVideo
-                    src={resolvedSrc}
-                    volume={0}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                </Loop>
-              ) : (
-                <img
-                  src={resolvedSrc}
-                  alt={headline}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-              )}
-            </div>
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.05) 0%, rgba(15, 23, 42, 0.45) 100%)',
-                pointerEvents: 'none',
-              }}
+            <MediaLayer
+              src={resolvedSrc}
+              isVideo={isVid}
+              alt={headline}
+              scale={kenBurnsScale}
+              panX={panX}
             />
-          </div>
-        ) : (
-          <>
-            <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                width: '100%',
-                height: '100%',
-                transform: `scale(${kenBurnsScale})`,
-                transformOrigin: 'center center',
-              }}
-            >
-              {isVid ? (
-                <Loop durationInFrames={180}>
-                  <OffthreadVideo
-                    src={resolvedSrc}
-                    volume={0}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                </Loop>
-              ) : (
-                <img
-                  src={resolvedSrc}
-                  alt={headline}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-              )}
-            </div>
+            {/* Stronger scrim so white text is always readable */}
             <div
               style={{
                 position: 'absolute',
                 inset: 0,
                 background:
-                  'linear-gradient(180deg, rgba(2, 6, 23, 0.78) 0%, rgba(2, 6, 23, 0.2) 40%, rgba(2, 6, 23, 0.88) 100%)',
+                  'linear-gradient(180deg, rgba(15,23,42,0.35) 0%, rgba(15,23,42,0.55) 50%, rgba(15,23,42,0.80) 100%)',
+                pointerEvents: 'none',
+              }}
+            />
+          </div>
+        ) : (
+          // Dark theme: full-bleed media
+          <>
+            <MediaLayer
+              src={resolvedSrc}
+              isVideo={isVid}
+              alt={headline}
+              scale={kenBurnsScale}
+              panX={panX}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background:
+                  'linear-gradient(180deg, rgba(2,6,23,0.80) 0%, rgba(2,6,23,0.35) 45%, rgba(2,6,23,0.92) 100%)',
+                pointerEvents: 'none',
+              }}
+            />
+            {/* Soft vignette for cinematic focus on the title */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background:
+                  'radial-gradient(ellipse at center, rgba(2,6,23,0) 40%, rgba(2,6,23,0.55) 100%)',
                 pointerEvents: 'none',
               }}
             />
           </>
-        )
-      )}
+        ))}
 
-      {/* ── 2. Chapter Content (Broadcast Typography) ── */}
+      {/* ── 2. Chapter title stage ── */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '80px 120px',
+          padding: '0 160px',
           zIndex: 10,
-          opacity,
-          transform: `scale(${scale})`,
           textAlign: 'center',
+          gap: '28px',
         }}
       >
+        {/* Chapter badge */}
         <div
           style={{
-            maxWidth: '1250px',
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
+            display: 'inline-flex',
             alignItems: 'center',
-            justifyContent: 'center',
+            gap: '14px',
+            backgroundColor: textOnDark ? 'rgba(255, 87, 34, 0.20)' : 'rgba(255, 87, 34, 0.12)',
+            border: '1.5px solid rgba(255, 87, 34, 0.55)',
+            borderRadius: '9999px',
+            padding: '12px 36px',
+            backdropFilter: hasMedia ? 'blur(10px)' : undefined,
+            opacity: badgeIn,
+            transform: `translateY(${interpolate(badgeIn, [0, 1], [-16, 0])}px) scale(${interpolate(
+              badgeIn,
+              [0, 1],
+              [0.9, 1]
+            )})`,
           }}
         >
-          {chNum > 1 && (
-            <div
-              style={{
-                marginBottom: '24px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '12px',
-                borderRadius: '9999px',
-                border: isLight ? '1px solid rgba(255, 87, 34, 0.35)' : '1px solid rgba(255, 87, 34, 0.45)',
-                backgroundColor: isLight ? '#FFFFFF' : 'rgba(255, 87, 34, 0.14)',
-                backdropFilter: 'blur(12px)',
-                padding: '8px 26px',
-                fontSize: '15px',
-                fontWeight: 900,
-                textTransform: 'uppercase',
-                letterSpacing: '0.2em',
-                color: isLight ? '#FF5722' : '#FFA000',
-                boxShadow: isLight
-                  ? '0 4px 16px rgba(255, 87, 34, 0.15)'
-                  : '0 0 24px rgba(255, 87, 34, 0.25)',
-              }}
-            >
-              <span>CHAPTER {chNum < 10 ? `0${chNum}` : chNum}</span>
-            </div>
-          )}
-
-          <h1
+          <span
+            style={{
+              width: 10,
+              height: 10,
+              borderRadius: '50%',
+              backgroundColor: ACCENT,
+              boxShadow: `0 0 16px ${ACCENT}`,
+            }}
+          />
+          <span
             style={{
               fontFamily: headingFont,
-              fontSize: '64px',
-              fontWeight: 900,
-              lineHeight: 1.15,
-              color: isLight && !resolvedSrc ? '#0F172A' : '#FFFFFF',
-              letterSpacing: '-0.025em',
-              maxWidth: '1200px',
-              marginBottom: supportingText ? '20px' : '0',
-              textShadow: isLight && !resolvedSrc
-                ? '0 2px 10px rgba(255, 255, 255, 0.8)'
-                : '0 4px 30px rgba(0, 0, 0, 0.98), 0 2px 12px rgba(0, 0, 0, 0.95), 0 0 50px rgba(0, 0, 0, 0.8)',
+              fontSize: '26px',
+              fontWeight: 800,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: ACCENT,
             }}
           >
-            {highlightWord && headline.toLowerCase().includes(highlightWord.toLowerCase()) ? (
-              <>
-                {headline.slice(0, headline.toLowerCase().indexOf(highlightWord.toLowerCase()))}
-                <HandwritingHighlight
-                  text={highlightWord.toUpperCase()}
-                  variant="underline"
-                  color="#FF5722"
-                  delayFrames={8}
-                  drawDurationFrames={20}
-                />
-                {headline.slice(
-                  headline.toLowerCase().indexOf(highlightWord.toLowerCase()) + highlightWord.length
-                )}
-              </>
-            ) : (
-              headline
-            )}
-          </h1>
-
-          {supportingText && (
-            <p
-              style={{
-                fontFamily: bodyFont,
-                fontSize: '24px',
-                fontWeight: 600,
-                color: isLight && !resolvedSrc ? '#475569' : '#CBD5E1',
-                maxWidth: '900px',
-                lineHeight: 1.5,
-                margin: 0,
-                textShadow: isLight && !resolvedSrc ? 'none' : '0 2px 10px rgba(0, 0, 0, 0.9)',
-                backgroundColor: isLight ? 'rgba(255, 255, 255, 0.92)' : 'rgba(7, 11, 20, 0.65)',
-                backdropFilter: 'blur(10px)',
-                padding: '8px 24px',
-                borderRadius: '12px',
-                border: isLight ? '1px solid rgba(15, 23, 42, 0.08)' : '1px solid rgba(255, 255, 255, 0.1)',
-                display: 'inline-block',
-              }}
-            >
-              {supportingText}
-            </p>
-          )}
+            Chapter {String(chNum).padStart(2, '0')}
+          </span>
         </div>
+
+        {/* Headline — word-by-word reveal */}
+        <h1
+          style={{
+            fontFamily: headingFont,
+            fontSize: `${fontSize}px`,
+            fontWeight: 900,
+            color: headlineColor,
+            lineHeight: 1.1,
+            letterSpacing: '-0.025em',
+            margin: 0,
+            maxWidth: '1500px',
+            textShadow,
+            // @ts-expect-error – supported in Chromium, not yet in all TS DOM typings
+            textWrap: 'balance',
+          }}
+        >
+          {tokens.map((token, i) => {
+            const start = HEADLINE_START + i * WORD_STAGGER;
+            const p = spring({
+              frame: currentFrame - start,
+              fps,
+              config: { damping: 16, mass: 0.8, stiffness: 150 },
+            });
+            const prev = tokens[i - 1];
+            const needsSpace = i > 0 && !prev.glueAfter;
+
+            return (
+              <React.Fragment key={`${token.text}-${i}`}>
+                {needsSpace ? ' ' : ''}
+                <span
+                  style={{
+                    display: 'inline-block',
+                    opacity: p,
+                    transform: `translateY(${interpolate(p, [0, 1], [36, 0])}px)`,
+                    filter: `blur(${interpolate(p, [0, 1], [10, 0])}px)`,
+                  }}
+                >
+                  {token.highlight ? (
+                    <HandwritingHighlight
+                      text={token.text}
+                      variant="underline"
+                      color={ACCENT}
+                      delayFrames={start + 6}
+                      drawDurationFrames={18}
+                    />
+                  ) : (
+                    token.text
+                  )}
+                </span>
+              </React.Fragment>
+            );
+          })}
+        </h1>
+
+        {/* Accent bar draws in after the headline lands */}
+        {!highlightWord && (
+          <div
+            style={{
+              width: `${interpolate(barIn, [0, 1], [0, 140])}px`,
+              height: '6px',
+              borderRadius: '9999px',
+              backgroundColor: ACCENT,
+              boxShadow: `0 0 24px rgba(255, 87, 34, 0.55)`,
+            }}
+          />
+        )}
+
+        {/* Supporting text */}
+        {supportingText && (
+          <p
+            style={{
+              fontFamily: bodyFont,
+              fontSize: '36px',
+              fontWeight: 600,
+              color: supportColor,
+              margin: 0,
+              maxWidth: '1200px',
+              lineHeight: 1.4,
+              textShadow,
+              opacity: supportIn,
+              transform: `translateY(${interpolate(supportIn, [0, 1], [20, 0])}px)`,
+            }}
+          >
+            {supportingText}
+          </p>
+        )}
       </div>
     </div>
   );
 }
-
-export default ChapterTitleScene;

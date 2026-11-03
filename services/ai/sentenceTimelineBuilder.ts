@@ -1,10 +1,10 @@
 /**
  * Sentence & Segment Timeline Engine (Deterministic Code, Zero AI for Timecodes)
- * 
+ *
  * Golden Rule: "Time code decide kare, AI nahi. AI se timestamps likhwaoge to drift aur galat cuts aate hain."
- * 
- * Converts words and transcript chunks into frame-accurate, sentence-boundary segments
- * (3.0s - 8.0s each) with natural cut points at pauses (>0.35s) and chapter marks every ~60-80s.
+ *
+ * Converts words and transcript chunks into frame-accurate, natural sentence-boundary segments
+ * with natural cut points at sentence endings (. ! ?) and speech pauses, without arbitrary 4s/7s forced chopping.
  */
 
 export interface TimelineWord {
@@ -32,21 +32,22 @@ export interface TimelineSegment {
 }
 
 export interface TimelineBuildOptions {
-  minDurationSeconds?: number; // default: 3.0
-  maxDurationSeconds?: number; // default: 8.0
+  minDurationSeconds?: number; // default: 2.2 (natural short sentence)
+  maxDurationSeconds?: number; // default: 5.5 (keeps pacing punchy and viral)
   chapterDurationSeconds?: number; // default: 70.0 (~60-90s)
   totalDurationSeconds?: number;
 }
 
 /**
- * Builds a frame-accurate, sentence-boundary timeline strictly in deterministic code.
+ * Builds a frame-accurate, natural sentence-by-sentence timeline strictly in deterministic code.
+ * Cuts happen at natural sentence boundaries (. ! ?) or natural speech pauses, NOT arbitrary fixed 4s/7s timers.
  */
 export function buildDeterministicSentenceTimeline(
   rawSegments: RawSegmentInput[],
   options: TimelineBuildOptions = {}
 ): TimelineSegment[] {
-  const minDur = options.minDurationSeconds ?? 3.0;
-  const maxDur = options.maxDurationSeconds ?? 8.0;
+  const minDur = options.minDurationSeconds ?? 2.2;
+  const maxDur = options.maxDurationSeconds ?? 5.5;
   const chapterDur = options.chapterDurationSeconds ?? 70.0;
 
   if (!rawSegments || rawSegments.length === 0) {
@@ -66,7 +67,7 @@ export function buildDeterministicSentenceTimeline(
   let lastChapterTime = 0;
 
   if (allWords.length > 5) {
-    // ── Word-Level High-Precision Timeline Construction ──
+    // ── Word-Level Natural Sentence-by-Sentence Timeline Construction ──
     let currentWords: TimelineWord[] = [];
     let currentStart = allWords[0].start;
 
@@ -77,19 +78,23 @@ export function buildDeterministicSentenceTimeline(
 
       const currentDuration = w.end - currentStart;
       const cleanWord = w.word.trim();
-      const hasSentenceEndPunctuation = /[.!?]$/.test(cleanWord);
+      const hasSentenceEndPunctuation = /[.!?।]$/.test(cleanWord);
+      const hasClausePunctuation = /[,;:—–-]$/.test(cleanWord);
       const pauseAfterWord = nextW ? nextW.start - w.end : 0;
-      const isNaturalPause = pauseAfterWord >= 0.35;
+      const isNaturalSentencePause = pauseAfterWord >= 0.45;
+      const isClausePause = pauseAfterWord >= 0.3;
 
       const shouldCut =
         // End of all words
         !nextW ||
-        // Must cut if approaching max duration limit (8s)
-        currentDuration >= maxDur ||
-        // Clean natural sentence end (. ! ? with at least 1.8s or 4 words)
+        // Clean natural sentence end (. ! ? ।) with a meaningful thought (at least 1.8s or 4 words)
         (hasSentenceEndPunctuation && (currentDuration >= 1.8 || currentWords.length >= 4)) ||
-        // Natural pause (at least 0.35s) if duration is above min threshold
-        (currentDuration >= minDur && isNaturalPause);
+        // Clear speaker breath/pause (>= 0.45s) after a complete phrase (at least minDur and 5 words)
+        (currentDuration >= minDur && currentWords.length >= 5 && isNaturalSentencePause) ||
+        // If a run-on unpunctuated sentence gets long (>= 8.5s), cut at the next clause/pause
+        (currentDuration >= 8.5 && (hasClausePunctuation || isClausePause)) ||
+        // Safety cap only for extreme unpunctuated marathon sentences
+        currentDuration >= maxDur;
 
       if (shouldCut && currentWords.length > 0) {
         const segText = currentWords.map((cw) => cw.word).join(' ').trim();
@@ -122,24 +127,28 @@ export function buildDeterministicSentenceTimeline(
       }
     }
   } else {
-    // ── Segment-Level Proportional Split Fallback (When word timestamps unavailable) ──
+    // ── Segment-Level Natural Sentence Split Fallback (When word timestamps unavailable) ──
     for (let i = 0; i < rawSegments.length; i++) {
       const seg = rawSegments[i];
-      const segDuration = seg.end - seg.start;
+      const segDuration = Math.max(0.5, seg.end - seg.start);
+      const rawText = (seg.text || '').trim();
 
-      if (segDuration > maxDur) {
-        // Split long segment into snappy 3-8s beats
-        const parts = Math.ceil(segDuration / maxDur);
-        const partDur = Math.round((segDuration / parts) * 100) / 100;
-        const words = seg.text.split(/\s+/).filter(Boolean);
-        const wordsPerPart = Math.ceil(words.length / parts);
+      // Split into natural sentences if a transcript segment contains multiple sentences and is long
+      const sentenceParts = rawText
+        .split(/(?<=[.!?।])\s+/)
+        .map((s) => s.trim())
+        .filter(Boolean);
 
+      if (sentenceParts.length > 1 && segDuration > 5.0) {
+        const totalChars = sentenceParts.reduce((acc, s) => acc + s.length, 0) || 1;
         let partStart = seg.start;
 
-        for (let p = 0; p < parts; p++) {
-          const partEnd = Math.min(seg.end, Math.round((partStart + partDur) * 100) / 100);
-          const partWords = words.slice(p * wordsPerPart, (p + 1) * wordsPerPart);
-          const partText = partWords.join(' ') || seg.text;
+        for (let p = 0; p < sentenceParts.length; p++) {
+          const partText = sentenceParts[p];
+          const proportionalDur = (partText.length / totalChars) * segDuration;
+          const partEnd = p === sentenceParts.length - 1
+            ? seg.end
+            : Math.min(seg.end, Math.round((partStart + proportionalDur) * 100) / 100);
 
           const isChapterStart =
             timelineSegments.length === 0 ||
@@ -156,7 +165,7 @@ export function buildDeterministicSentenceTimeline(
             isChapterStart,
             start: Math.round(partStart * 100) / 100,
             end: Math.round(partEnd * 100) / 100,
-            duration: Math.round((partEnd - partStart) * 100) / 100,
+            duration: Math.max(0.5, Math.round((partEnd - partStart) * 100) / 100),
             text: partText,
           });
 
@@ -179,7 +188,7 @@ export function buildDeterministicSentenceTimeline(
           start: Math.round(seg.start * 100) / 100,
           end: Math.round(seg.end * 100) / 100,
           duration: Math.round(segDuration * 100) / 100,
-          text: seg.text.trim(),
+          text: rawText,
         });
       }
     }

@@ -20,11 +20,10 @@ import {
   Loader2,
   Clock,
   History,
-  LayoutGrid,
+  PenTool,
 } from "lucide-react";
 import BrandLogo from "@/components/brand/BrandLogo";
 import { WhiteboardStudio } from "@/components/dashboard/WhiteboardStudio";
-import WhiteboardPreviewModal from "@/components/dashboard/WhiteboardPreviewModal";
 import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine";
 
 type BillingEntitlement = {
@@ -54,19 +53,10 @@ type RecentRender = {
   id: string;
   title: string;
   mode: string;
-  design?: string;
   outputFile: string;
   createdAt: number;
   expiresAt: number;
 };
-
-const WHITEBOARD_RENDER_STEPS = [
-  { label: "Transcribing Audio", detail: "Speech AI extracting word timestamps & speech pacing.", threshold: 0.12, icon: Upload },
-  { label: "Understanding Content", detail: "AI analyzing semantics to detect steps, stats, comparisons & key takeaways.", threshold: 0.35, icon: Layers3 },
-  { label: "Planning Visual Scenes", detail: "AI Director directing vector cards, stickman icons, arrows & layout geometry.", threshold: 0.60, icon: Columns },
-  { label: "Syncing Vector Drawings", detail: "Synchronizing progressive line reveals & karaoke highlighting with narration.", threshold: 0.82, icon: Film },
-  { label: "Rendering 1080p Video", detail: "Cloud Render Engine exporting crisp 10801920 Full HD MP4.", threshold: 0.98, icon: Clapperboard },
-];
 
 export default function WhiteboardVideoPage() {
   const router = useRouter();
@@ -74,28 +64,26 @@ export default function WhiteboardVideoPage() {
 
   // Studio Form Options
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [audioDurationSeconds, setAudioDurationSeconds] = useState<number>(0);
+  const [topicTitle, setTopicTitle] = useState("Why You Should Save Money?");
   const [markerColor, setMarkerColor] = useState<string>("auto");
   const [fontPersonality, setFontPersonality] = useState<string>("balsamiq");
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [audioBlobUrl, setAudioBlobUrl] = useState<string>("");
-
-  // Transcript states
-  const [transcript, setTranscript] = useState<string>("");
-  const [words, setWords] = useState<any[]>([]);
-  const [plan, setPlan] = useState<any | null>(null);
-  const [studioStep, setStudioStep] = useState<"inputs" | "storyboard">("inputs");
-  const [isPlanning, setIsPlanning] = useState(false);
-  const [isTranscribing, setIsTranscribing] = useState<boolean>(false);
-  const [transcriptionError, setTranscriptionError] = useState<string | null>(null);
-  const [cachedMediaKey, setCachedMediaKey] = useState<string>("");
+  const [bgmTrackId, setBgmTrackId] = useState("parasail");
+  const [bgmVolume, setBgmVolume] = useState(0.12);
+  const [customBgmFile, setCustomBgmFile] = useState<File | null>(null);
+  const [enableSfx, setEnableSfx] = useState<boolean>(true);
+  const [editorialTranscript, setEditorialTranscript] = useState(
+    "1. Start with daily 1% improvements. 2. Small habits compound over time. 3. Massive results after 365 days."
+  );
 
   // Job & render states
   const [jobStatus, setJobStatus] = useState<JobStatus>({ state: "idle" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [billingEntitlement, setBillingEntitlement] = useState<BillingEntitlement | null>(null);
   const [recentRenders, setRecentRenders] = useState<RecentRender[]>([]);
-  const [activeTab, setActiveTab] = useState<"studio" | "history">("studio");
+
+  // Cancel modal state
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   const renderRequestInFlightRef = useRef(false);
 
@@ -106,85 +94,7 @@ export default function WhiteboardVideoPage() {
     }
   }, [user, authLoading, router]);
 
-  // Track voiceover length & trigger initial transcription when file selected
-  useEffect(() => {
-    if (!selectedFile) {
-      setAudioDurationSeconds(0);
-      setTranscript("");
-      setTranscriptionError(null);
-      setCachedMediaKey("");
-      setAudioBlobUrl("");
-      return;
-    }
-
-    setTranscript("");
-    setTranscriptionError(null);
-
-    const url = URL.createObjectURL(selectedFile);
-    setAudioBlobUrl(url);
-
-    // Measure video or audio duration safely
-    const isVideo = selectedFile.type?.startsWith("video/") || /\.(mp4|mov|webm|mkv)$/i.test(selectedFile.name);
-    const mediaEl = isVideo ? document.createElement("video") : document.createElement("audio");
-    mediaEl.src = url;
-    mediaEl.onloadedmetadata = () => {
-      if (Number.isFinite(mediaEl.duration) && mediaEl.duration > 0) {
-        setAudioDurationSeconds(mediaEl.duration);
-      }
-    };
-    mediaEl.onerror = () => {
-      console.warn("Could not load media metadata.");
-    };
-
-    performTranscription(selectedFile, user?.id || "guest_user");
-
-    return () => {
-      URL.revokeObjectURL(url);
-    };
-  }, [selectedFile]);
-
-  async function performTranscription(file: File, userId: string) {
-    try {
-      setIsTranscribing(true);
-      setTranscriptionError(null);
-
-      // Trigger background presigned upload for cachedMediaKey (for render job)
-      if (!cachedMediaKey) {
-        uploadFileViaPresign(file, "whiteboardVideo", userId)
-          .then((key) => setCachedMediaKey(key))
-          .catch((err) => console.warn("Background upload presign warning:", err));
-      }
-
-      const formData = new FormData();
-      formData.append("file", file, file.name);
-      formData.append("fileName", file.name);
-      formData.append("spokenLanguage", "auto");
-
-      const res = await fetch("/api/reels/transcribe", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await res.json().catch(() => ({}));
-      if (res.ok && data.ok && data.transcript) {
-        setTranscript(data.transcript);
-        setWords(data.words || []);
-        setTranscriptionError(null);
-      } else {
-        const errorMsg = data.error || `Transcription failed (${res.status})`;
-        setTranscriptionError(errorMsg);
-        console.error("Auto-transcription error:", res.status, data);
-      }
-    } catch (err: any) {
-      const errorMsg = err?.message || "Network error during transcription.";
-      setTranscriptionError(errorMsg);
-      console.error("Auto-transcription network error:", err);
-    } finally {
-      setIsTranscribing(false);
-    }
-  }
-
-  // Billing entitlement fetch
+  // Billing entitlement
   useEffect(() => {
     if (!user) return;
     async function fetchBilling() {
@@ -211,122 +121,43 @@ export default function WhiteboardVideoPage() {
     fetchBilling();
   }, [user]);
 
-  // Local & Remote project render history
+  // Poll for render progress if rendering
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem("itnavideo_whiteboard_projects");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setRecentRenders(parsed);
-        }
-      }
-    } catch {}
-
-    if (!user) return;
-    async function fetchHistory() {
-      try {
-        const res = await fetch(`/api/reels/history?userId=${encodeURIComponent(user?.id || "")}`);
-        const payload = await res.json().catch(() => ({}));
-        if (res.ok && payload.ok && Array.isArray(payload.renders)) {
-          const whiteboardRenders = payload.renders.filter(
-            (r: RecentRender) => r.mode === "whiteboardVideo" || r.mode === "WHITEBOARD_VIDEO"
-          );
-          setRecentRenders((prev) => {
-            const map = new Map<string, RecentRender>();
-            prev.forEach((item: RecentRender) => { if (item?.id) map.set(item.id, item); });
-            whiteboardRenders.forEach((item: RecentRender) => { if (item?.id) map.set(item.id, item); });
-            const merged = Array.from(map.values()).sort((a, b) => b.createdAt - a.createdAt);
-            try {
-              localStorage.setItem("itnavideo_whiteboard_projects", JSON.stringify(merged.slice(0, 30)));
-            } catch {}
-            return merged;
-          });
-        }
-      } catch (err) {
-        console.warn("Could not load render history:", err);
-      }
+    let interval: NodeJS.Timeout | null = null;
+    if (jobStatus.state === "rendering" && jobStatus.renderId) {
+      interval = setInterval(async () => {
+        try {
+          const res = await fetch(`/api/reels/jobs/status?renderId=${jobStatus.renderId}`);
+          if (!res.ok) return;
+          const data = await res.json();
+          if (data.status === "completed" || data.status === "ready") {
+            setJobStatus((prev) => ({
+              ...prev,
+              state: "ready",
+              progress: 1,
+              outputFile: data.outputFile || data.url,
+              message: "Render complete! Your Whiteboard Animation is ready to download.",
+            }));
+          } else if (data.status === "failed" || data.status === "error") {
+            setJobStatus((prev) => ({
+              ...prev,
+              state: "error",
+              message: data.error || "Render encountered an error. Please try again.",
+            }));
+          } else if (data.progress !== undefined) {
+            setJobStatus((prev) => ({
+              ...prev,
+              progress: Math.max(0.4, data.progress),
+              message: data.stageMessage || "Drawing whiteboard animations on AWS Lambda...",
+            }));
+          }
+        } catch {}
+      }, 3000);
     }
-    fetchHistory();
-  }, [user]);
-
-
-
-  
-
-  const handleOpenPreview = async () => {
-    if (!selectedFile) {
-      alert("Please upload a voiceover audio file first.");
-      return;
-    }
-    if (!transcript.trim()) {
-      alert("Please wait for audio transcription or write a script first.");
-      return;
-    }
-
-    if (!plan) {
-      setIsPlanning(true);
-      try {
-        const res = await fetch("/api/reels/plan-whiteboard", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            transcript: transcript.trim(),
-            words,
-            durationSeconds: audioDurationSeconds || 30,
-            topicTitle: selectedFile.name.replace(/\.[^/.]+$/, ""),
-          }),
-        });
-        const data = await res.json().catch(() => ({}));
-        if (data.ok && data.plan) {
-          setPlan(data.plan);
-          if (data.words && data.words.length > 0) setWords(data.words);
-        }
-      } catch (err) {
-        console.warn("Could not plan live preview:", err);
-      } finally {
-        setIsPlanning(false);
-      }
-    }
-    setIsPreviewOpen(true);
-  };
-
-  const handlePlanStoryboard = async () => {
-    if (!selectedFile) return;
-    setIsPlanning(true);
-    setTranscriptionError(null);
-    try {
-      let mediaKey = cachedMediaKey;
-      if (!mediaKey) {
-        mediaKey = await uploadFileViaPresign(selectedFile, "whiteboardVideo", user?.id || "guest");
-        setCachedMediaKey(mediaKey);
-      }
-      
-      const res = await fetch("/api/reels/plan-whiteboard", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          audioUrl: mediaKey,
-          transcript,
-          words,
-          durationSeconds: audioDurationSeconds,
-        })
-      });
-      
-      const data = await res.json();
-      if (data.success && data.plan) {
-        setPlan(data.plan);
-        if (data.words && data.words.length > 0) setWords(data.words);
-        setStudioStep("storyboard");
-      } else {
-        setTranscriptionError(data.error || "Failed to plan storyboard");
-      }
-    } catch(err: any) {
-      setTranscriptionError(err?.message || "Network error planning storyboard.");
-    } finally {
-      setIsPlanning(false);
-    }
-  };
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [jobStatus.state, jobStatus.renderId]);
 
   const handleStartRender = async () => {
     if (!user) {
@@ -334,7 +165,7 @@ export default function WhiteboardVideoPage() {
       return;
     }
     if (!selectedFile) {
-      alert("Please upload a script voiceover file first.");
+      alert("Please upload a voiceover audio file first.");
       return;
     }
     if (renderRequestInFlightRef.current) return;
@@ -348,45 +179,62 @@ export default function WhiteboardVideoPage() {
 
       setJobStatus({
         state: "uploading",
-        message: "Uploading script voiceover securely to secure cloud container...",
+        message: "Uploading voiceover narration to secure cloud container...",
         progress: 0.10,
       });
 
-      // 1. Upload main media key if not already cached
-      let mediaKey = cachedMediaKey;
-      if (!mediaKey) {
-        mediaKey = await uploadFileViaPresign(selectedFile, "whiteboardVideo", user.id);
-        setCachedMediaKey(mediaKey);
-      }
-
-      // 2. Submit Render Job
-      setJobStatus({
-        state: "starting",
-        message: "Planning drawing outline layouts...",
-        progress: 0.22,
+      // 1. Upload voiceover narration
+      const mediaUpload = await uploadFileViaPresign(selectedFile, {
+        prefix: "whiteboard/audio",
       });
 
-      const plannedTitle = selectedFile.name.replace(/\.[^/.]+$/, "");
+      // 2. Upload Custom BGM if provided
+      let customBgmUrl: string | undefined = undefined;
+      if (customBgmFile) {
+        setJobStatus({
+          state: "uploading",
+          message: "Uploading custom background audio track...",
+          progress: 0.22,
+        });
+        const bgmUpload = await uploadFileViaPresign(customBgmFile, {
+          prefix: "whiteboard/bgm",
+        });
+        customBgmUrl = bgmUpload.url;
+      }
+
+      // 3. Submit Render Job
+      setJobStatus({
+        state: "starting",
+        message: "Directing whiteboard scenes and Groq speech alignment...",
+        progress: 0.35,
+      });
+
+      const plannedTitle = topicTitle.trim() || "Whiteboard Explainer";
 
       const jobResponse = await fetch("/api/reels/jobs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          mediaKey,
+          mediaKey: mediaUpload.url,
+          sourceAudioUrl: mediaUpload.url,
           fileName: selectedFile.name,
           contentType: selectedFile.type || "audio/mpeg",
           mediaType: "audio",
           mode: "whiteboardVideo",
+          templateName: "WHITEBOARD_VIDEO",
           topicTitle: plannedTitle,
           userId: user.id,
           userEmail: user.email || undefined,
-          whiteboardMarkerColor: markerColor,
+          fontPersonality,
+          markerColor,
           aspectRatio: "9:16",
-          editedTranscript: transcript.trim() || undefined,
-          durationSeconds: audioDurationSeconds,
-          sourceDurationSeconds: audioDurationSeconds,
           mediaAspect: "portrait",
-          frameRange: audioDurationSeconds > 0 ? [0, Math.min(2700, Math.round(audioDurationSeconds * 30)) - 1] : undefined,
+          bgmTrackId,
+          bgmVolume,
+          customBgmUrl,
+          enableSfx,
+          editorialTranscript,
+          editedTranscript: editorialTranscript,
         }),
       });
 
@@ -395,339 +243,158 @@ export default function WhiteboardVideoPage() {
         throw new Error(jobPayload.error || "Failed to start Whiteboard render job.");
       }
 
-      const renderId = jobPayload.renderId;
+      const renderId = jobPayload.renderId || jobPayload.jobId;
       const bucketName = jobPayload.bucketName;
 
-      // 3. Poll render status
+      // 4. Poll render status
       setJobStatus({
         state: "rendering",
-        message: "AI Director planning whiteboard scenes...",
-        progress: 0.38,
+        message: "Rendering 9:16 Whiteboard Animation on AWS Lambda...",
+        progress: 0.45,
         renderId,
         bucketName,
         title: plannedTitle,
       });
-
-      let attempts = 0;
-      const MAX_ATTEMPTS = 400; // ~20 minutes polling window matching AWS Lambda duration
-
-      const pollInterval = setInterval(async () => {
-        attempts++;
-        if (attempts > MAX_ATTEMPTS) {
-          clearInterval(pollInterval);
-          renderRequestInFlightRef.current = false;
-          setJobStatus({
-            state: "error",
-            message: "Whiteboard rendering timed out. Please check history later.",
-          });
-          return;
-        }
-
-        try {
-          const statusParams = new URLSearchParams({
-            renderId,
-            bucketName,
-            userId: user.id,
-            mode: "whiteboardVideo",
-            title: plannedTitle,
-            attempt: String(attempts),
-          });
-
-          const statusRes = await fetch(`/api/reels/jobs/status?${statusParams.toString()}`);
-          const statusPayload = await statusRes.json().catch(() => ({}));
-
-          if (!statusRes.ok || !statusPayload.ok) {
-            clearInterval(pollInterval);
-            renderRequestInFlightRef.current = false;
-            setJobStatus({
-              state: "error",
-              message: statusPayload.error || "Failed to fetch status.",
-            });
-            return;
-          }
-
-          const serverState = statusPayload.state;
-          const renderErrors = statusPayload.errors || [];
-          const hasFatalError = serverState === "error" || (renderErrors.length > 0 && !statusPayload.isRetrying);
-
-          if (hasFatalError) {
-            clearInterval(pollInterval);
-            renderRequestInFlightRef.current = false;
-            const errorMsg = renderErrors[0]?.message || statusPayload.error || "Render job failed.";
-            setJobStatus({
-              state: "error",
-              message: errorMsg,
-            });
-            return;
-          }
-
-          const isRenderComplete = (serverState === "ready" || serverState === "done" || Boolean(statusPayload.done)) && Boolean(statusPayload.outputFile);
-
-          if (isRenderComplete) {
-            clearInterval(pollInterval);
-            renderRequestInFlightRef.current = false;
-
-            const finishedRender: RecentRender = {
-              id: renderId,
-              title: plannedTitle,
-              mode: "whiteboardVideo",
-              outputFile: statusPayload.outputFile,
-              createdAt: Date.now(),
-              expiresAt: Date.now() + 48 * 60 * 60 * 1000,
-            };
-
-            setRecentRenders((prev) => {
-              const updated = [finishedRender, ...prev.filter((r) => r.id !== renderId)];
-              localStorage.setItem("itnavideo_whiteboard_projects", JSON.stringify(updated.slice(0, 30)));
-              return updated;
-            });
-
-            setJobStatus({
-              state: "ready",
-              message: "Whiteboard explainer is drawn and ready!",
-              progress: 1,
-              outputFile: statusPayload.outputFile,
-              title: plannedTitle,
-            });
-
-            // Refresh credit balance
-            fetch(`/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}`)
-              .then((r) => r.json())
-              .then((payload) => {
-                if (payload.ok && payload.entitlement) {
-                  setBillingEntitlement((curr) => curr ? {
-                    ...curr,
-                    usage: payload.usage ? {
-                      used: payload.usage.used,
-                      limit: payload.usage.limit,
-                      remaining: payload.usage.remaining
-                    } : curr.usage
-                  } : null);
-                }
-              })
-              .catch(() => {});
-            return;
-          }
-
-          // Handle in-progress
-          const rawProgress = typeof statusPayload.progress === "number" ? statusPayload.progress : (attempts / MAX_ATTEMPTS);
-          const progressVal = Math.min(0.98, Math.max(0.38, 0.38 + rawProgress * 0.60));
-          setJobStatus((prev) => ({
-            ...prev,
-            progress: progressVal,
-            message: "Generating whiteboard drawings and stickman illustrations...",
-          }));
-        } catch (err: any) {
-          console.warn("Polling error:", err);
-        }
-      }, 3000);
-    } catch (error: any) {
-      renderRequestInFlightRef.current = false;
+    } catch (err: any) {
       setJobStatus({
         state: "error",
-        message: error.message || "An unexpected error occurred during rendering.",
+        message: err.message || "Failed to process video render. Please retry.",
       });
+    } finally {
+      renderRequestInFlightRef.current = false;
+      setIsSubmitting(false);
     }
   };
 
-  // Render Interactive Studio directly matching Image 2
-  if (jobStatus.state === "idle" && activeTab === "studio") {
-    return (
-      <main className="min-h-screen bg-[#F8FAFC]">
-        <WhiteboardStudio
-          selectedFile={selectedFile}
-          onSelectFile={setSelectedFile}
-          transcript={transcript}
-          onTranscriptChange={setTranscript}
-          isTranscribing={isTranscribing}
-          transcriptionError={transcriptionError}
-          onReTranscribe={() => {
-            if (selectedFile) {
-              performTranscription(selectedFile, user?.id || "guest_user");
-            }
-          }}
-          markerColor={markerColor}
-          onMarkerColorChange={setMarkerColor}
-          fontPersonality={fontPersonality}
-          onFontPersonalityChange={setFontPersonality}
-          onOpenPreview={handleOpenPreview}
-          onGenerate={handleStartRender}
-          onPlanStoryboard={handlePlanStoryboard}
-          isPlanning={isPlanning}
-          plan={plan}
-          setPlan={setPlan}
-          studioStep={studioStep}
-          setStudioStep={setStudioStep}
-          isGenerating={isSubmitting || jobStatus.state !== "idle"}
-        />
-
-        {/* Interactive Live Preview Modal before cloud rendering */}
-        <WhiteboardPreviewModal
-          isOpen={isPreviewOpen}
-          onClose={() => setIsPreviewOpen(false)}
-          audioUrl={audioBlobUrl || "/whiteboard-preview.mp3"}
-          plan={plan || {
-            title: selectedFile?.name.replace(/\.[^/.]+$/, "") || "Whiteboard Animation",
-            durationSeconds: audioDurationSeconds || 30,
-            scenes: [],
-          }}
-          durationSeconds={audioDurationSeconds || 30}
-          title={selectedFile?.name.replace(/\.[^/.]+$/, "") || "Whiteboard Animation"}
-          fontPersonality={fontPersonality}
-          onFontPersonalityChange={setFontPersonality}
-          onConfirmRender={() => {
-            setIsPreviewOpen(false);
-            handleStartRender();
-          }}
-          isSubmitting={isSubmitting}
-        />
-      </main>
-    );
-  }
+  const handleCancelRender = async () => {
+    setIsCancelling(true);
+    try {
+      if (jobStatus.renderId) {
+        await fetch(`/api/reels/jobs/cancel?renderId=${jobStatus.renderId}`, {
+          method: "POST",
+        });
+      }
+    } catch {}
+    setJobStatus({ state: "idle" });
+    setIsCancelling(false);
+    setShowCancelModal(false);
+  };
 
   return (
-    <main className="min-h-screen bg-[#090A0F] px-3.5 py-4 sm:px-6 sm:py-8 text-white">
-      <div className="mx-auto max-w-6xl space-y-5 sm:space-y-8">
-        {/* Navigation & Header */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-white/10 pb-3 sm:pb-4">
-          <div className="flex items-center justify-between sm:justify-start gap-3 w-full sm:w-auto">
-            <BrandLogo size="sm" variant="dark" />
+    <div className="min-h-screen bg-slate-50 text-slate-900 pb-20">
+      {/* Top Header: Clean White */}
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-4">
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-zinc-400 hover:text-[#FFA000] transition sm:border-l sm:border-white/10 sm:pl-4"
+              className="p-2 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600 transition"
+              title="Back to Dashboard"
             >
-              <ArrowLeft size={14} />
-              <span className="sm:hidden">Dashboard</span>
-              <span className="hidden sm:inline">Back to Studio Dashboard</span>
+              <ArrowLeft className="w-4 h-4" />
             </Link>
+            <BrandLogo variant="light" />
+            <div className="hidden sm:flex items-center gap-2 pl-3 border-l border-slate-200">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                Whiteboard Animation
+              </span>
+              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-600 border border-orange-200">
+                Hand Marker Sketch
+              </span>
+            </div>
           </div>
 
-          {/* User Credits & Navigation Switcher */}
-          <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 w-full sm:w-auto">
+          <div className="flex items-center gap-3">
             {billingEntitlement && (
-              <div className="flex items-center gap-1.5 sm:gap-2 rounded-xl sm:rounded-2xl border border-white/10 bg-[#111218] px-2.5 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs shadow-sm">
-                <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="font-bold text-zinc-300">
-                  {billingEntitlement.usage ? `${billingEntitlement.usage.remaining} Credits` : "Active"}
+              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs">
+                <span className="font-semibold text-slate-700">
+                  {billingEntitlement.planName || "Creator"} Plan
+                </span>
+                <span className="w-1 h-1 rounded-full bg-slate-300" />
+                <span className="text-slate-500">
+                  {billingEntitlement.usage?.remaining ?? 10} Credits Left
                 </span>
               </div>
             )}
+            <Link
+              href="/dashboard"
+              className="text-xs font-semibold text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition"
+            >
+              Studio Hub
+            </Link>
+          </div>
+        </div>
+      </header>
 
-            <div className="flex rounded-xl sm:rounded-2xl border border-white/10 bg-[#111218] p-1 shadow-sm">
+      {/* Main Container */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-8">
+        {jobStatus.state !== "idle" && jobStatus.state !== "error" ? (
+          <div className="max-w-2xl mx-auto py-12">
+            <InteractiveRenderEngine
+              mode="whiteboardVideo"
+              status={jobStatus.state}
+              progress={jobStatus.progress || 0}
+              message={jobStatus.message}
+              outputUrl={jobStatus.outputFile}
+              onCancel={() => setShowCancelModal(true)}
+              onReset={() => setJobStatus({ state: "idle" })}
+            />
+          </div>
+        ) : (
+          <WhiteboardStudio
+            selectedFile={selectedFile}
+            onSelectFile={setSelectedFile}
+            topicTitle={topicTitle}
+            onTopicTitleChange={setTopicTitle}
+            fontPersonality={fontPersonality}
+            onFontPersonalityChange={setFontPersonality}
+            markerColor={markerColor}
+            onMarkerColorChange={setMarkerColor}
+            bgmTrackId={bgmTrackId}
+            onBgmTrackIdChange={setBgmTrackId}
+            bgmVolume={bgmVolume}
+            onBgmVolumeChange={setBgmVolume}
+            customBgmFile={customBgmFile}
+            onCustomBgmFileSelect={setCustomBgmFile}
+            enableSfx={enableSfx}
+            onEnableSfxChange={setEnableSfx}
+            editorialTranscript={editorialTranscript}
+            onEditorialTranscriptChange={setEditorialTranscript}
+            onGenerate={handleStartRender}
+            isGenerating={isSubmitting || (jobStatus.state !== "idle" && jobStatus.state !== "ready")}
+            renderedVideoUrl={jobStatus.outputFile}
+          />
+        )}
+      </main>
+
+      {/* Cancel Confirmation Modal */}
+      {showCancelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 max-w-sm w-full shadow-lg">
+            <h3 className="text-base font-bold text-slate-900 mb-2">
+              Cancel Active Render?
+            </h3>
+            <p className="text-xs text-slate-600 mb-5">
+              Are you sure you want to stop this rendering process? Progress will be lost.
+            </p>
+            <div className="flex items-center justify-end gap-3">
               <button
-                type="button"
-                onClick={() => setActiveTab("studio")}
-                className={`inline-flex items-center gap-1.5 rounded-lg sm:rounded-xl px-2.5 sm:px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
-                  activeTab === "studio"
-                    ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black font-black shadow-md shadow-[#FF5722]/20"
-                    : "text-zinc-400 hover:text-white"
-                }`}
+                onClick={() => setShowCancelModal(false)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition"
               >
-                <LayoutGrid size={13} />
-                <span>Studio</span>
+                Continue Rendering
               </button>
               <button
-                type="button"
-                onClick={() => setActiveTab("history")}
-                className={`inline-flex items-center gap-1.5 rounded-lg sm:rounded-xl px-2.5 sm:px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
-                  activeTab === "history"
-                    ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black font-black shadow-md shadow-[#FF5722]/20"
-                    : "text-zinc-400 hover:text-white"
-                }`}
+                onClick={handleCancelRender}
+                disabled={isCancelling}
+                className="px-4 py-2 rounded-xl text-xs font-semibold bg-rose-500 hover:bg-rose-600 text-white transition"
               >
-                <History size={13} />
-                <span>History ({recentRenders.length})</span>
+                {isCancelling ? "Cancelling..." : "Yes, Cancel"}
               </button>
             </div>
           </div>
         </div>
-
-        {/* Interactive Render Stage with BorderBeam, Neural Audio Visualizer, & 1080p Cloud Export */}
-        {jobStatus.state !== "idle" && (
-          <div className="max-w-3xl mx-auto py-4">
-            <InteractiveRenderEngine
-              mode="whiteboard"
-              status={{
-                state: jobStatus.state as any,
-                message: jobStatus.message || "Rendering 1080p whiteboard explainer...",
-                progress: jobStatus.progress,
-                outputFile: jobStatus.outputFile,
-                title: jobStatus.title || selectedFile?.name?.replace(/\.[^/.]+$/, "") || "Whiteboard Explainer Video",
-              }}
-              title={jobStatus.title || selectedFile?.name?.replace(/\.[^/.]+$/, "") || "Whiteboard Explainer Video"}
-              fileName={selectedFile?.name}
-              onRetry={handleStartRender}
-              onReset={() => {
-                if (typeof window !== "undefined") {
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                }
-                setSelectedFile(null);
-                setTranscript("");
-                setCachedMediaKey("");
-                setIsSubmitting(false);
-                setJobStatus({ state: "idle" });
-              }}
-            />
-          </div>
-        )}
-
-        {/* Primary Views */}
-        {jobStatus.state === "idle" && activeTab === "history" && (
-          <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-lg">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FF5722]/10 text-[#FF9100]">
-                      <History size={18} />
-                    </div>
-                    <div>
-                      <h2 className="text-base font-bold text-white">Whiteboard Render History</h2>
-                      <p className="text-xs text-zinc-400">Past whiteboard explainer exports (stored for 48 hours).</p>
-                    </div>
-                  </div>
-                </div>
-
-                {recentRenders.length === 0 ? (
-                  <div className="py-12 text-center text-zinc-400">
-                    <p className="text-xs">No rendered whiteboard explainers yet.</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {recentRenders.map((render) => (
-                      <div
-                        key={render.id}
-                        className="rounded-2xl border border-white/10 bg-[#161720] p-4 space-y-3"
-                      >
-                        <div className="flex items-center justify-between">
-                          <p className="text-xs font-bold text-white truncate max-w-[180px]">
-                            {render.title || "Whiteboard Explainer"}
-                          </p>
-                          <span className="text-[10px] text-zinc-500 flex items-center gap-1">
-                            <Clock size={10} />
-                            {new Date(render.createdAt).toLocaleDateString()}
-                          </span>
-                        </div>
-
-                        <video
-                          src={render.outputFile}
-                          className="h-32 w-full rounded-xl object-cover bg-black"
-                          controls
-                        />
-
-                        <a
-                          href={render.outputFile}
-                          download={`${render.title || "whiteboard-explainer"}.mp4`}
-                          className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#FF5722]/10 hover:bg-[#FF5722]/20 text-[#FF9100] border border-[#FF5722]/20 py-2 text-xs font-bold transition"
-                        >
-                          <Download size={13} />
-                          <span>Download MP4</span>
-                        </a>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-      </div>
-    </main>
+      )}
+    </div>
   );
 }

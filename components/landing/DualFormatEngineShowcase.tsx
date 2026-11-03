@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { getOptimizedCloudinaryUrl } from '@/lib/utils';
 import Link from 'next/link';
 import {
   Sparkles,
@@ -249,11 +250,13 @@ export default function DualFormatEngineShowcase() {
         <div className="relative mx-auto max-w-5xl w-full bg-white flex justify-center items-center py-2 sm:py-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="https://res.cloudinary.com/dhouh9idx/image/upload/v1792945594/file_000000001260821196142e822883f87d_zmpjdg.png"
+            src={getOptimizedCloudinaryUrl('https://res.cloudinary.com/dhouh9idx/image/upload/v1792945594/file_000000001260821196142e822883f87d_zmpjdg.png', 1100)}
             alt="ItnaVideo Dual-Format Engine - 16:9 Landscape and 9:16 Vertical Video Creation with Studio Audio Cleaner"
             className="w-full h-auto object-contain max-h-[600px] mx-auto select-none"
             loading="lazy"
             decoding="async"
+            width={1100}
+            height={600}
           />
         </div>
 

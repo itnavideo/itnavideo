@@ -459,44 +459,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       );
     }
 
-    // 1. Context-Aware Vector Storytelling Engine (Human stories, struggles, journeys, startups, mindsets)
-    const isDrawingStoryContext =
-      layout === 'drawing_story' ||
-      layout === 'sketch_story' ||
-      layout === 'vector_concept' ||
-      (scene as Record<string, unknown>).explanationMode === 'drawing_story' ||
-      Boolean((scene as Record<string, unknown>).drawingKeyword) ||
-      /village|cottage|skyline|skyscraper|city|road|highway|journey|safar|walk|travel|alone|struggle|burden|challenge|hardship|mushkil|obstacle|desk|laptop|study|late night|workspace|working hard|works hard|mistake|failure|give up|giving up|start today|first step|determination|patience|consistency|dream|founder|skills|decision|zero|shunya|start|shuruat|kadam|first step|scratch|zero se|beginning|paisa|paise|money|capital|resource|fund|salary|investment|kharcha|wealth|passion|junoon|fire|drive|energy|grit|mehnat|hard work|compare|comparison|tulna|focus|distraction|apni tulna|others|lane|sapna|vision|bada|reach|summit|mountain|star|hope|ambition|safalta|seekhna|soch|manzil|target|goal|future/i.test(
-        `${scene.heading || ''} ${scene.supportingText || ''} ${scene.narrationSegment?.text || ''}`
-      );
-
-    if (isDrawingStoryContext && !resolvedAssetUrl) {
-      return (
-        <DrawingStoryScene
-          key={sceneKey}
-          scene={scene}
-          headingFont={headingFont}
-          bodyFont={typographyFont}
-          sceneFrame={framesSinceSceneStart}
-          palette={palette}
-        />
-      );
-    }
-
-    if (scene.graphicPlan) {
-      return (
-        <FacelessGraphicScene
-          key={sceneKey}
-          scene={scene}
-          headingFont={headingFont}
-          bodyFont={typographyFont}
-          sceneFrame={framesSinceSceneStart}
-          palette={palette}
-        />
-      );
-    }
-
-    if (stype === 'hook' && scene.sceneNumber <= 1) {
+    if ((layout === 'hook' || stype === 'hook') && scene.sceneNumber <= 1) {
       return (
         <HookScene
           key={sceneKey}
@@ -522,8 +485,47 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
         />
       );
     }
-    // ── Dynamic Modular Layouts (Split Screen, Card Concept, Mockups, Stats, Charts) ──
-    if (layout === 'split_screen' || layout === 'card_concept') {
+
+    // Explicit drawing_story layout from Scene-by-Scene JSON
+    if (
+      (layout === 'drawing_story' ||
+        layout === 'sketch_story' ||
+        (scene as Record<string, unknown>).explanationMode === 'drawing_story' ||
+        Boolean((scene as Record<string, unknown>).drawingKeyword)) &&
+      !resolvedAssetUrl
+    ) {
+      return (
+        <DrawingStoryScene
+          key={sceneKey}
+          scene={scene}
+          headingFont={headingFont}
+          bodyFont={typographyFont}
+          sceneFrame={framesSinceSceneStart}
+          palette={palette}
+        />
+      );
+    }
+
+    // Use FacelessGraphicScene strictly for multi-point allocation / time-series growth plans
+    if (
+      scene.graphicPlan &&
+      (scene.graphicPlan.kind === 'allocation' || scene.graphicPlan.kind === 'growth') &&
+      scene.graphicPlan.items.length >= 2
+    ) {
+      return (
+        <FacelessGraphicScene
+          key={sceneKey}
+          scene={scene}
+          headingFont={headingFont}
+          bodyFont={typographyFont}
+          sceneFrame={framesSinceSceneStart}
+          palette={palette}
+        />
+      );
+    }
+
+    // ── Dynamic Modular Layouts (Card Concept, Split Screen, Mockups, Stats, Charts) ──
+    if (layout === 'card_concept') {
       return (
         <CardConceptScene
           key={sceneKey}
@@ -908,7 +910,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       );
     }
     if (layout === 'data_visualization' || (layout as string) === 'chart' || (layout as string) === 'diagram') {
-      return <ChartScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
+      return <ChartScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} sceneFrame={framesSinceSceneStart} palette={palette} />;
     }
     if (layout === 'screenshot_highlight' || (layout as string) === 'web_mockup') {
       return (
@@ -924,7 +926,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       );
     }
     if (layout === 'comparison') {
-      return <ComparisonScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
+      return <ComparisonScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} sceneFrame={framesSinceSceneStart} palette={palette} />;
     }
     if (layout === 'quote') {
       return (
@@ -939,7 +941,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       );
     }
     if (layout === 'ecosystem' || layout === 'framework' || (layout === 'checklist' && scene.sceneNumber % 3 === 0 && (scene.listItems?.length || 0) >= 3)) {
-      return <EcosystemScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
+      return <EcosystemScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} sceneFrame={framesSinceSceneStart} palette={palette} />;
     }
     const isProcessStepsContext =
       layout === 'horizontal_process' ||
@@ -970,7 +972,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
         `${scene.heading || ''} ${scene.supportingText || ''} ${scene.narrationSegment?.text || ''}`
       );
     if (isRoadmapContext) {
-      return <RoadmapScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
+      return <RoadmapScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} sceneFrame={framesSinceSceneStart} palette={palette} />;
     }
     const isWorkflowContext =
       layout === 'workflow' ||
@@ -978,7 +980,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
         `${scene.heading || ''} ${scene.supportingText || ''} ${scene.narrationSegment?.text || ''}`
       );
     if (isWorkflowContext) {
-      return <WorkflowScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
+      return <WorkflowScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} sceneFrame={framesSinceSceneStart} palette={palette} />;
     }
     const isGoalTargetContext =
       layout === 'goal_target' ||
@@ -986,7 +988,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
         `${scene.heading || ''} ${scene.supportingText || ''} ${scene.narrationSegment?.text || ''}`
       );
     if (isGoalTargetContext) {
-      return <GoalTargetScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
+      return <GoalTargetScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} sceneFrame={framesSinceSceneStart} palette={palette} />;
     }
     const isCalendarContext =
       layout === 'calendar_grid' ||

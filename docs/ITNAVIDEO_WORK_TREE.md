@@ -24,6 +24,7 @@ graph TD
 - **Rule 1 (Asset Storage)**: Template folders are strictly code-only. Reusable assets belong in `public/assets/reusable/*`. Run `npm run assets:index` if new assets are added.
 - **Rule 2 (No Breaking Props)**: Agar template mein koi naya prop add ho raha ho, toh uska default value hamesha define karein taake purane render jobs fail na hon.
 - **Rule 3 (Fresh Captions)**: Template hamesha current upload ke transcript par kaam karega, purane titles ya cached data ko carry over nahi karega.
+- **Rule 4 (Dedicated Internal Components)**: Har video type ke visual Remotion `.tsx` components (cards, title banners, scene transitions, lower-thirds) ko usi video type ke template folder (`remotion/templates/NAME/components/` ya template file) ke andar banana mandatory hai. Ek generic visual component ko har jagah share karna strictly forbidden hai taaki users ke videos repetitive aur boring na lagein.
 
 ---
 

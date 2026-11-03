@@ -13,6 +13,7 @@ import GeneratedVideosTab from "@/components/dashboard/GeneratedVideosTab";
 import AnnouncementsTab from "@/components/dashboard/AnnouncementsTab";
 import {
   Captions,
+  Smartphone,
   Columns,
   PenTool,
   Type,
@@ -48,6 +49,13 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+
+/** Dynamic Cloudinary compression & WebP/AVIF sizing for instant page loading */
+function optimizeCloudinary(url: string, width = 600): string {
+  if (!url || typeof url !== 'string' || !url.includes('res.cloudinary.com')) return url;
+  if (url.includes('/f_auto,q_auto')) return url;
+  return url.replace('/image/upload/', `/image/upload/f_auto,q_auto:eco,w_${width}/`);
+}
 
 export interface VideoToolCard {
   id: string;
@@ -108,6 +116,19 @@ export const DASHBOARD_169_TOOLS: VideoToolCard[] = [
     imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946349/imagetovideoai_w3hyci.jpg",
   },
   {
+    id: "ai-video-polisher",
+    title: "AI YouTube Video Polisher",
+    slug: "/dashboard/ai-video-polisher",
+    category: "long",
+    aspectRatio: "16:9",
+    icon: Sparkles,
+    iconBgClass: "bg-blue-500/15 border border-blue-500/30",
+    iconColorClass: "text-blue-600",
+    description: "Auto silence jump-cuts, dynamic camera zoom punch-ins (+12%) & PIP overlay layers.",
+    badge: "Auto YouTube Editor",
+    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946360/Professional_Presenter_in_Charcoal_Suit_ty6e33.png",
+  },
+  {
     id: "youtube-subtitles",
     title: "YouTube Subtitles Generator",
     slug: "/dashboard/youtube-subtitles",
@@ -123,6 +144,19 @@ export const DASHBOARD_169_TOOLS: VideoToolCard[] = [
 ];
 
 export const DASHBOARD_916_TOOLS: VideoToolCard[] = [
+  {
+    id: "ai-shorts-polisher",
+    title: "AI Shorts Polisher",
+    slug: "/dashboard/ai-shorts-polisher",
+    category: "social",
+    aspectRatio: "9:16",
+    icon: Smartphone,
+    iconBgClass: "bg-orange-500/15 border border-orange-500/30",
+    iconColorClass: "text-orange-600",
+    description: "Auto silence jump-cuts, dynamic camera zoom punch-ins (+12%) & PIP overlay layers.",
+    badge: "Reels & Shorts Co-Pilot",
+    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1788190063/file_0000000089c48211b67c16fe3c2636a2_prirg0.png",
+  },
   {
     id: "faceless-shorts",
     title: "Faceless Shorts",
@@ -263,6 +297,10 @@ const ROUTE_MAP: Record<string, string> = {
   "long-video-promo": "/dashboard/long-video-promo",
   "long-video-clips": "/dashboard/long-video-clips",
   "faceless-video": "/dashboard/faceless-video", "faceless-shorts": "/dashboard/faceless-shorts",
+  "ai-video-polisher": "/dashboard/ai-video-polisher",
+  "aiVideoPolisher": "/dashboard/ai-video-polisher",
+  "ai-shorts-polisher": "/dashboard/ai-shorts-polisher",
+  "aiShortsPolisher": "/dashboard/ai-shorts-polisher",
   "youtube-subtitles": "/dashboard/youtube-subtitles",
   "audio-cleaner": "/dashboard/audio-cleaner",
   "ai-audio-cleaner": "/dashboard/audio-cleaner",
@@ -530,7 +568,7 @@ export default function DashboardClient() {
                 <div className="-mx-4 sm:-mx-6 lg:-mx-8 -mt-8 md:-mt-10 mb-8 sm:mb-10 w-[calc(100%+2rem)] sm:w-[calc(100%+3rem)] lg:w-[calc(100%+4rem)] bg-white border-b border-slate-200/90 shadow-sm py-6 sm:py-10 px-4 sm:px-8 flex items-center justify-center overflow-hidden">
                   <div className="w-full max-w-5xl mx-auto flex items-center justify-center">
                     <img
-                      src="https://res.cloudinary.com/dhouh9idx/image/upload/v1793025671/AI-Powered_Creator_Studio_w7mncx.png"
+                      src={optimizeCloudinary("https://res.cloudinary.com/dhouh9idx/image/upload/v1793025671/AI-Powered_Creator_Studio_w7mncx.png", 1200)}
                       alt="Itnavideo AI-Powered Creator Studio"
                       className="w-full h-auto max-h-[520px] object-contain block"
                     />
@@ -794,7 +832,7 @@ export default function DashboardClient() {
                           {/* 16:9 Featured Widescreen Image Stage */}
                           <div className="relative aspect-[16/9] w-full rounded-2xl bg-[#0B0B0E] mb-4 border border-white/10 overflow-hidden shadow-inner flex items-center justify-center group-hover:border-orange-500/50 transition-colors">
                             <img
-                              src={item.imageCard || "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945592/file_000000004290821180a71f25ad75480e_nztpwe.png"}
+                              src={optimizeCloudinary(item.imageCard || "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945592/file_000000004290821180a71f25ad75480e_nztpwe.png", 600)}
                               alt={item.title}
                               loading="lazy"
                               decoding="async"
@@ -910,7 +948,7 @@ export default function DashboardClient() {
                           <div className="relative aspect-[9/16] w-full rounded-2xl bg-[#0B0B0E] mb-3.5 border border-white/10 overflow-hidden shadow-inner flex flex-col items-center justify-center group-hover:border-orange-500/50 transition-colors">
                             {/* Ambient Blurred Background Glow Layer */}
                             <img
-                              src={item.imageCard || "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png"}
+                              src={optimizeCloudinary(item.imageCard || "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png", 120)}
                               alt=""
                               aria-hidden="true"
                               className="absolute inset-0 h-full w-full object-cover scale-125 blur-xl opacity-25 pointer-events-none"
@@ -918,7 +956,7 @@ export default function DashboardClient() {
 
                             {/* Full Uncropped Foreground Image (Zero Cropping) */}
                             <img
-                              src={item.imageCard || "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png"}
+                              src={optimizeCloudinary(item.imageCard || "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png", 500)}
                               alt={item.title}
                               loading="lazy"
                               decoding="async"
@@ -1016,9 +1054,9 @@ export default function DashboardClient() {
                           {/* Left: 16:9 Studio Preview Image */}
                           <div className="relative aspect-[16/9] w-full lg:w-96 shrink-0 rounded-2xl bg-[#0B0B0E] border border-white/10 overflow-hidden shadow-inner group-hover:border-teal-500/50 transition-colors">
                             <img
-                              src={imageSrc}
+                              src={optimizeCloudinary(imageSrc, 600)}
                               alt={item.title}
-                              loading="eager"
+                              loading="lazy"
                               decoding="async"
                               className="h-full w-full object-cover opacity-95 group-hover:scale-105 transition-transform duration-500"
                             />

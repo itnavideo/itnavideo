@@ -295,6 +295,9 @@ export default function BookSummaryPageClient() {
           words: payload.words,
           timestampSegments: payload.timestampSegments,
           captionsTheme: payload.captionsTheme || "glow-viral",
+          bgmUrl: (payload as any).bgmUrl || undefined,
+          customBgmUrl: (payload as any).bgmUrl || undefined,
+          bgmVolume: typeof (payload as any).bgmVolume === 'number' ? (payload as any).bgmVolume : 0.12,
           aspectRatio: "16:9",
           mediaAspect: "landscape",
         }),
@@ -477,35 +480,35 @@ export default function BookSummaryPageClient() {
   //  Loading screen 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#0B0D13] flex flex-col items-center justify-center text-zinc-400 gap-3">
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-500 gap-3">
         <Loader2 className="h-8 w-8 animate-spin text-[#FF5722]" />
-        <p className="text-sm font-semibold text-zinc-200">Loading Book Summary Studio...</p>
+        <p className="text-sm font-semibold text-slate-800">Loading Book Summary Studio...</p>
       </div>
     );
   }
 
   // 
   return (
-    <div className="min-h-screen bg-[#0B0D13] text-white flex flex-col selection:bg-[#FF5722]/30 selection:text-white pb-12">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-[#FF5722]/20 selection:text-[#FF5722] pb-12">
 
-      {/*  Top Navigation Bar (Google Analytics Obsidian Surface)  */}
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0E1017]/90 backdrop-blur-xl shadow-md">
+      {/*  Top Navigation Bar (Clean White Surface)  */}
+      <header className="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur-xl shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-16 py-2 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
           {/* Left: back + logo */}
           <div className="flex items-center gap-2 sm:gap-4 shrink-0">
             <button
               type="button"
               onClick={handleBackClick}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-zinc-300 hover:text-white transition group cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-100 hover:bg-slate-200 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-slate-700 hover:text-slate-900 transition group cursor-pointer"
             >
               <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
               <span className="hidden sm:inline">All Tools</span>
             </button>
 
-            <div className="h-4 w-px bg-white/10 hidden sm:block" />
-            <BrandLogo size="sm" showBadge={false} variant="dark" />
+            <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+            <BrandLogo size="sm" showBadge={false} variant="light" />
 
-            <span className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-2.5 py-0.5 text-[11px] font-black text-[#FF9100]">
+            <span className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-2.5 py-0.5 text-[11px] font-black text-[#FF5722]">
               <BookOpen size={11} />
               Book Summary Studio
             </span>
@@ -515,22 +518,22 @@ export default function BookSummaryPageClient() {
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Timer badge while rendering */}
             {isWorking && (
-              <div className="flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-3 py-1.5 text-xs font-black text-[#FF9100]">
+              <div className="flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-3 py-1.5 text-xs font-black text-[#FF5722]">
                 <Clock size={13} className="animate-pulse" />
                 <span>{formatTimer(elapsedSeconds)}</span>
               </div>
             )}
 
             {/* Credits badge */}
-            <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-[#141722] px-2.5 sm:px-3.5 py-1.5 text-xs font-bold shadow-sm">
+            <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 sm:px-3.5 py-1.5 text-xs font-bold shadow-xs text-slate-800">
               <Zap size={14} className="text-[#FF5722] fill-[#FF5722]" />
-              <span className="text-zinc-400 hidden xs:inline">Balance:</span>
-              <span className="text-white font-black">
+              <span className="text-slate-500 hidden xs:inline">Balance:</span>
+              <span className="text-slate-900 font-black">
                 {billingEntitlement ? userRemainingCredits : "..."} Cr
               </span>
               <Link
                 href="/pricing"
-                className="ml-0.5 text-[11px] text-[#FF9100] hover:text-[#FFA000] underline font-black"
+                className="ml-0.5 text-[11px] text-[#FF5722] hover:text-[#FFA000] underline font-black"
               >
                 +Add
               </Link>
@@ -542,8 +545,8 @@ export default function BookSummaryPageClient() {
               onClick={() => setActiveTab(activeTab === "history" ? "studio" : "history")}
               className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
                 activeTab === "history"
-                  ? "border-[#FF5722]/40 bg-[#FF5722]/10 text-[#FF9100]"
-                  : "border-white/10 bg-[#151E30] text-zinc-300 hover:border-white/20 hover:text-white"
+                  ? "border-[#FF5722]/40 bg-[#FF5722]/10 text-[#FF5722]"
+                  : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:text-slate-900 shadow-xs"
               }`}
             >
               <History size={13} />
@@ -556,49 +559,49 @@ export default function BookSummaryPageClient() {
       {/*  Main Canvas  */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
-        {/* Hero banner: Expansive 16:9 Widescreen Book Summary Studio Header */}
-        <div className="relative rounded-[28px] border border-white/10 bg-gradient-to-r from-[#0E1526] via-[#111827] to-[#151E30] p-6 sm:p-8 overflow-hidden shadow-2xl">
+        {/* Hero banner: Clean White Widescreen Studio Header */}
+        <div className="relative rounded-[28px] border border-slate-200/90 bg-gradient-to-r from-white via-slate-50 to-orange-50/40 p-6 sm:p-8 overflow-hidden shadow-xs">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 z-10 relative">
             <div className="space-y-3 max-w-3xl">
-              <div className="flex items-center gap-2 text-xs font-bold text-zinc-400">
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
                 <button
                   type="button"
                   onClick={handleBackClick}
-                  className="inline-flex items-center gap-1.5 text-zinc-400 hover:text-[#FF9100] transition cursor-pointer"
+                  className="inline-flex items-center gap-1.5 text-slate-500 hover:text-[#FF5722] transition cursor-pointer"
                 >
                   <ArrowLeft size={14} />
                   <span>Back to Video Modes</span>
                 </button>
                 <span>/</span>
-                <span className="text-zinc-200">Book Summary Video</span>
+                <span className="text-slate-800">Book Summary Video</span>
               </div>
-              <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
+              <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
                 Book Summary{" "}
                 <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
                   Video Studio
                 </span>
               </h1>
-              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                 Transform your book narration into a cinematic 16:9 Full HD summary video. Features AI chapter markers, animated quote cards, 3D book cover intro, and synchronized captions for YouTube.
               </p>
             </div>
 
             {/* Spec Highlights Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 shrink-0 w-full lg:w-auto">
-              <div className="rounded-2xl border border-white/10 bg-white/5 px-3.5 py-2.5 backdrop-blur-sm">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Format</div>
-                <div className="text-xs font-black text-white flex items-center gap-1 mt-0.5">
-                  <Sparkles size={12} className="text-[#FF9100]" />
+              <div className="rounded-2xl border border-slate-200 bg-white px-3.5 py-2.5 shadow-xs">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Format</div>
+                <div className="text-xs font-black text-slate-900 flex items-center gap-1 mt-0.5">
+                  <Sparkles size={12} className="text-[#FF5722]" />
                   16:9 Widescreen
                 </div>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-white/5 px-3.5 py-2.5 backdrop-blur-sm">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Duration Limit</div>
-                <div className="text-xs font-black text-white mt-0.5">Up to 5 Min (300s)</div>
+              <div className="rounded-2xl border border-slate-200 bg-white px-3.5 py-2.5 shadow-xs">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Duration Limit</div>
+                <div className="text-xs font-black text-slate-900 mt-0.5">Up to 5 Min (300s)</div>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-white/5 px-3.5 py-2.5 backdrop-blur-sm">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Pricing</div>
-                <div className="text-xs font-black text-[#FFA000] mt-0.5">1 Min = 1 Credit</div>
+              <div className="rounded-2xl border border-slate-200 bg-white px-3.5 py-2.5 shadow-xs">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Pricing</div>
+                <div className="text-xs font-black text-[#FF5722] mt-0.5">1 Min = 1 Credit</div>
               </div>
             </div>
           </div>
@@ -639,27 +642,27 @@ export default function BookSummaryPageClient() {
         {activeTab === "history" && (
           <section className="space-y-5">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-black text-white">Recent Book Summary Renders</h2>
+              <h2 className="text-lg font-black text-slate-900">Recent Book Summary Renders</h2>
               <button
                 type="button"
                 onClick={() => setActiveTab("studio")}
                 className="text-xs font-bold text-[#FF5722] hover:text-[#FFA000] transition"
               >
-                 Back to Studio
+                ← Back to Studio
               </button>
             </div>
 
             {recentRenders.length === 0 ? (
-              <div className="rounded-[28px] border border-white/10 bg-[#111624] py-16 text-center">
-                <BookOpen size={40} className="mx-auto text-zinc-500 mb-4" />
-                <p className="text-sm font-bold text-zinc-300">No renders yet.</p>
-                <p className="text-xs text-zinc-500 mt-1">
+              <div className="rounded-[28px] border border-slate-200 bg-white py-16 text-center shadow-xs">
+                <BookOpen size={40} className="mx-auto text-slate-400 mb-4" />
+                <p className="text-sm font-bold text-slate-800">No renders yet.</p>
+                <p className="text-xs text-slate-500 mt-1">
                   Your completed Book Summary videos will appear here for 48 hours.
                 </p>
                 <button
                   type="button"
                   onClick={() => setActiveTab("studio")}
-                  className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-5 py-2.5 text-sm font-black text-black shadow-lg shadow-[#FF5722]/25 transition hover:brightness-110 active:scale-95"
+                  className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-5 py-2.5 text-sm font-black text-white shadow-md shadow-[#FF5722]/20 transition hover:brightness-110 active:scale-95"
                 >
                   <Sparkles size={14} />
                   Create Your First Book Summary
@@ -677,10 +680,10 @@ export default function BookSummaryPageClient() {
                   return (
                     <div
                       key={render.id}
-                      className="rounded-[28px] border border-white/10 bg-[#111624] p-5 space-y-4 hover:border-[#FF5722]/40 hover:shadow-lg hover:shadow-[#FF5722]/10 transition-all duration-300"
+                      className="rounded-[28px] border border-slate-200 bg-white p-5 space-y-4 hover:border-[#FF5722]/40 hover:shadow-md transition-all duration-300 shadow-xs"
                     >
                       {/* Thumbnail placeholder */}
-                      <div className="aspect-video w-full rounded-2xl bg-[#090D16] flex items-center justify-center overflow-hidden border border-white/5">
+                      <div className="aspect-video w-full rounded-2xl bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-200">
                         {render.outputFile && !isExpired ? (
                           <video
                             src={render.outputFile}
@@ -695,13 +698,13 @@ export default function BookSummaryPageClient() {
                             }}
                           />
                         ) : (
-                          <BookOpen size={32} className="text-zinc-600" />
+                          <BookOpen size={32} className="text-slate-400" />
                         )}
                       </div>
 
                       <div>
-                        <p className="text-sm font-black text-white truncate">{render.title}</p>
-                        <p className="text-xs text-zinc-400 mt-0.5">
+                        <p className="text-sm font-black text-slate-900 truncate">{render.title}</p>
+                        <p className="text-xs text-slate-500 mt-0.5">
                           {new Date(render.createdAt).toLocaleDateString("en-US", {
                             month: "short",
                             day: "numeric",
@@ -711,13 +714,13 @@ export default function BookSummaryPageClient() {
                       </div>
 
                       {isExpired ? (
-                        <div className="flex items-center gap-1.5 text-xs font-bold text-red-400">
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-red-500">
                           <Clock size={12} />
                           <span>Expired</span>
                         </div>
                       ) : (
                         <div className="flex items-center justify-between">
-                          <span className="text-xs text-zinc-400">
+                          <span className="text-xs text-slate-500">
                             Expires in {expiresInHours}h
                           </span>
                           <button
@@ -729,7 +732,7 @@ export default function BookSummaryPageClient() {
                               )
                             }
                             disabled={downloadingUrl === render.outputFile}
-                            className="inline-flex items-center gap-1.5 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-3.5 py-1.5 text-xs font-black text-black shadow-sm shadow-[#FF5722]/20 transition hover:brightness-110 active:scale-95 disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-3.5 py-1.5 text-xs font-black text-white shadow-xs shadow-[#FF5722]/20 transition hover:brightness-110 active:scale-95 disabled:opacity-50"
                           >
                             <Download size={12} />
                             {downloadingUrl === render.outputFile ? "Downloading..." : "Download"}
@@ -747,14 +750,14 @@ export default function BookSummaryPageClient() {
 
       {/*  Exit Confirmation Modal  */}
       {showExitConfirmModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="w-full max-w-sm mx-4 rounded-[28px] border border-white/10 bg-[#0E1526] p-8 space-y-5 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm">
+          <div className="w-full max-w-sm mx-4 rounded-[28px] border border-slate-200 bg-white p-8 space-y-5 shadow-2xl">
             <div className="text-center space-y-2">
-              <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-red-500/10 border border-red-500/20">
-                <ArrowLeft size={24} className="text-red-400" />
+              <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-red-50 border border-red-200">
+                <ArrowLeft size={24} className="text-red-500" />
               </div>
-              <h3 className="text-lg font-black text-white">Leave Studio?</h3>
-              <p className="text-sm text-slate-400">
+              <h3 className="text-lg font-black text-slate-900">Leave Studio?</h3>
+              <p className="text-sm text-slate-600">
                 A render is currently in progress. Leaving will cancel the render job and credits used will not be refunded.
               </p>
             </div>
@@ -762,14 +765,14 @@ export default function BookSummaryPageClient() {
               <button
                 type="button"
                 onClick={() => setShowExitConfirmModal(false)}
-                className="flex-1 rounded-2xl border border-white/10 bg-[#151E30] px-4 py-3 text-sm font-bold text-slate-300 hover:bg-[#1C2840] hover:text-white transition active:scale-95"
+                className="flex-1 rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-200 hover:text-slate-900 transition active:scale-95"
               >
                 Keep Rendering
               </button>
               <button
                 type="button"
                 onClick={handleConfirmExit}
-                className="flex-1 rounded-2xl bg-red-500/20 border border-red-500/30 px-4 py-3 text-sm font-bold text-red-400 hover:bg-red-500/30 hover:text-red-300 transition active:scale-95"
+                className="flex-1 rounded-2xl bg-red-500 px-4 py-3 text-sm font-bold text-white hover:bg-red-600 transition active:scale-95 shadow-xs"
               >
                 Exit Anyway
               </button>

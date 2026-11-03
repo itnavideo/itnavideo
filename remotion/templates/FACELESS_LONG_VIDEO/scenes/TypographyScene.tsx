@@ -1,10 +1,15 @@
 import React from 'react';
-import { interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
-import { ResponsiveTypography } from '../components/ResponsiveTypography';
+import { interpolate } from 'remotion';
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
 import { resolveFont } from '../../../utils/fonts';
-
 import type { BackgroundColorPalette } from '../../../components/backgrounds/BackgroundCatalog';
+import { HandwritingHighlight } from '../../../components/library/HandwritingHighlight';
+import { useVideoDesignSystem } from '../designSystem';
+import {
+  EyebrowPill,
+  SceneCanvas,
+  StudioCard,
+} from '../components/DesignSystemPrimitives';
 
 export interface TypographySceneProps {
   scene: SceneBlueprintItem;
@@ -21,113 +26,116 @@ export function TypographyScene({
   sceneFrame,
   palette,
 }: TypographySceneProps) {
+  const resolvedHeadingFont = resolveFont(headingFont);
   const resolvedBodyFont = resolveFont(bodyFont);
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const currentFrame = sceneFrame ?? frame;
 
-  const isDark = palette?.isDark ?? true;
-  const textColor = isDark ? '#FFFFFF' : '#0F172A';
-  const supportingTextColor = isDark ? '#CBD5E1' : '#475569';
-  const accentColor = '#FF5722';
-
-  // Smooth Spring Entrance & Ken Burns Motion (frame-relative)
-  const slideEntrance = spring({
-    frame: currentFrame,
-    fps,
-    config: { damping: 14, mass: 0.8 },
+  const ds = useVideoDesignSystem({
+    sceneFrame,
+    durationSec: scene.duration,
+    palette,
   });
 
-  const subtleZoom = interpolate(currentFrame, [0, 150], [1.0, 1.05], { extrapolateRight: 'clamp' });
-  const headline = scene.heading || scene.narrationSegment?.text || 'CORE TAKEAWAY';
+  const headline = String(scene.heading || scene.narrationSegment?.text || 'CORE TAKEAWAY').trim();
+  const categoryPill = String(scene.categoryPill || 'KEY STATEMENT').trim();
+  const supportingBullet =
+    scene.supportingText &&
+    scene.supportingText.trim().toLowerCase() !== headline.toLowerCase() &&
+    scene.supportingText !== scene.narrationSegment?.text
+      ? scene.supportingText.trim()
+      : '';
 
-  // Only render concise supporting text if explicitly distinct from headline
-  const supportingBullet = scene.supportingText && scene.supportingText !== headline && scene.supportingText !== scene.narrationSegment?.text
-    ? scene.supportingText
-    : '';
+  const rawHighlight =
+    scene.highlightedWords && typeof scene.highlightedWords[0] === 'string'
+      ? scene.highlightedWords[0].trim()
+      : '';
+  const highlightWord = rawHighlight.length >= 2 ? rawHighlight : '';
+  const highlightIndex = highlightWord
+    ? headline.toLowerCase().indexOf(highlightWord.toLowerCase())
+    : -1;
 
   return (
-    <div
-      style={{
-        position: 'absolute',
-        inset: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '100px 140px', // Strict 1920x1080 safe area
-        textAlign: 'center',
-        zIndex: 10,
-        overflow: 'hidden',
-      }}
+    <SceneCanvas
+      sceneFrame={sceneFrame}
+      durationSec={scene.duration}
+      palette={palette}
+      accentTone="coral"
+      fontFamily={resolvedBodyFont}
     >
-      {/* ── Ambient Motion Graphics Background ── */}
-      <div
+      <StudioCard
+        tone="coral"
+        topAccentBar
+        elevated
+        palette={palette}
+        progress={ds.motion.contentSpring}
         style={{
-          position: 'absolute',
-          inset: 0,
-          backgroundImage: isDark
-            ? 'radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px)'
-            : 'radial-gradient(circle, rgba(15, 23, 42, 0.04) 1px, transparent 1px)',
-          backgroundSize: '40px 40px',
-          opacity: 0.65,
-          pointerEvents: 'none',
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          width: '800px',
-          height: '500px',
-          borderRadius: '50%',
-          background: isDark
-            ? 'radial-gradient(circle, rgba(255, 87, 34, 0.12) 0%, rgba(255, 160, 0, 0.04) 50%, transparent 75%)'
-            : 'radial-gradient(circle, rgba(255, 87, 34, 0.06) 0%, transparent 65%)',
-          filter: 'blur(70px)',
-          pointerEvents: 'none',
-        }}
-      />
-
-      <div
-        style={{
-          opacity: slideEntrance,
-          transform: `translateY(${interpolate(slideEntrance, [0, 1], [30, 0])}px) scale(${subtleZoom})`,
-          maxWidth: '1380px',
           width: '100%',
+          maxWidth: ds.layout.isVertical ? '900px' : '1240px',
+          padding: ds.layout.isVertical ? '48px 36px' : '64px 72px',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 2,
+          textAlign: 'center',
         }}
       >
-        {/* Responsive Typography Engine handles dynamic font scale, balance & line wrap */}
-        <ResponsiveTypography
-          text={headline}
-          mode={scene.typographyTreatment}
-          fontFamily={headingFont}
-          color={textColor}
-          accentColor={accentColor}
-          availableWidth={1150}
-          availableHeight={520}
-        />
+        <div style={{ marginBottom: '22px' }}>
+          <EyebrowPill
+            label={categoryPill}
+            tone="coral"
+            palette={palette}
+            progress={ds.motion.eyebrowSpring}
+          />
+        </div>
+
+        <h1
+          style={{
+            fontFamily: resolvedHeadingFont,
+            fontSize: `${ds.type.displayHero.fontSize}px`,
+            fontWeight: ds.type.displayHero.fontWeight,
+            letterSpacing: ds.type.displayHero.letterSpacing,
+            lineHeight: ds.type.displayHero.lineHeight,
+            color: ds.surface.textPrimary,
+            margin: supportingBullet ? '0 0 22px 0' : 0,
+            maxWidth: '1040px',
+            opacity: ds.motion.headerSpring,
+            transform: `translateY(${interpolate(ds.motion.headerSpring, [0, 1], [18, 0])}px)`,
+          }}
+        >
+          {highlightIndex !== -1 ? (
+            <>
+              {headline.slice(0, highlightIndex)}
+              <HandwritingHighlight
+                color="#FFE600"
+                textColor="#0F172A"
+                delayFrames={8}
+                durationFrames={15}
+                type="highlighter"
+              >
+                {headline.slice(highlightIndex, highlightIndex + highlightWord.length)}
+              </HandwritingHighlight>
+              {headline.slice(highlightIndex + highlightWord.length)}
+            </>
+          ) : (
+            headline
+          )}
+        </h1>
 
         {supportingBullet && (
           <p
             style={{
               fontFamily: resolvedBodyFont,
-              fontSize: '24px',
-              fontWeight: 600,
-              color: supportingTextColor,
-              marginTop: '28px',
-              maxWidth: '920px',
-              lineHeight: 1.5,
-              textShadow: isDark ? '0 2px 14px rgba(0,0,0,0.85)' : 'none',
+              fontSize: `${ds.type.bodyLg.fontSize}px`,
+              fontWeight: 500,
+              color: ds.surface.textSecondary,
+              margin: 0,
+              maxWidth: '820px',
+              lineHeight: ds.type.bodyLg.lineHeight,
             }}
           >
             {supportingBullet}
           </p>
         )}
-      </div>
-    </div>
+      </StudioCard>
+    </SceneCanvas>
   );
 }

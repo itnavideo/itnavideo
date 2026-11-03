@@ -48,9 +48,13 @@ Creators have long videos but struggle to promote them on short-form platforms (
 
 | Input | Type | Required | Notes |
 |-------|------|----------|-------|
-| Thumbnail | Image (PNG/JPG/WebP) | Yes | 16:9 recommended (1280×720) |
+| Thumbnail | Image or YouTube URL | Yes | Upload 16:9 image (PNG/JPG/WebP) OR paste YouTube URL (auto-extracts MaxRes thumbnail) |
 | Title | Text | Yes | Single dashboard title field, max 80 characters displayed |
 | Promo Clip | Video | Yes | The actual video clip to promote (up to 90s) |
+| Caption Style | Selection | Optional | 20 Standalone Kinetic Caption Styles (Pop Word, Slam, Zoom Punch, etc.) |
+| Background Music | Audio | Optional | 13+ AWS S3 Tracks or Custom MP3/WAV, default ducked volume 12% |
+| Background Mode | Selection | Optional | White Studio, Ambient Blur, or Charcoal Solid |
+| Editorial Transcript | Text | Optional | Markdown/Text editor to correct speech typos before render |
 
 ## Optional User Inputs
 
@@ -82,7 +86,10 @@ These were previously in the form and are still not rendered:
 | Duration source | Browser-read uploaded media duration, strictly capped to 90s |
 | Export format | MP4 (H.264 + AAC) |
 | Audio handling | User's uploaded video audio plays at full volume |
-| Background music | Not used |
+| Background music | 13+ AWS S3 Curated Tracks or Custom Upload (Default 12% Volume) |
+| Captions | 20 Standalone Kinetic Caption Styles |
+| Preview Gate | Compulsory Interactive 9:16 Simulator with confirmation checkbox |
+| Dashboard UI | Clean, Crisp White Theme (bg-white, border-slate-200, text-slate-900) |
 | Premium style layer | Automatic promo/luxury `styleLock` and sparse reveal `soundCues` |
 
 ---

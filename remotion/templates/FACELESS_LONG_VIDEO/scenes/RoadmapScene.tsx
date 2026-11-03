@@ -1,285 +1,233 @@
 import React from 'react';
-import { interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
+import { type AccentTone, useVideoDesignSystem } from '../designSystem';
+import {
+  SceneCanvas,
+  SceneHeader,
+  StepNumberBadge,
+  StudioCard,
+} from '../components/DesignSystemPrimitives';
 
 export interface RoadmapSceneProps {
   scene: SceneBlueprintItem;
   headingFont?: string;
   bodyFont?: string;
+  sceneFrame?: number;
+  palette?: { isDark?: boolean } | null;
 }
 
 interface MilestoneStep {
   number: string;
   title: string;
   detail: string;
-  badge?: string;
-  accent?: string;
+  badge: string;
+  tone: AccentTone;
 }
+
+const STEP_TONES: AccentTone[] = ['sky', 'indigo', 'amber', 'emerald'];
 
 export function RoadmapScene({
   scene,
-  headingFont = 'Montserrat, Inter, system-ui, sans-serif',
-  bodyFont = 'Inter, system-ui, sans-serif',
+  headingFont = 'Montserrat, "Plus Jakarta Sans", sans-serif',
+  bodyFont = 'Inter, "Plus Jakarta Sans", sans-serif',
+  sceneFrame,
+  palette,
 }: RoadmapSceneProps) {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const ds = useVideoDesignSystem({
+    sceneFrame,
+    durationSec: scene.duration,
+    palette,
+  });
 
-  // Entrance spring
-  const headerSpring = spring({ frame, fps, config: { damping: 14, stiffness: 110 } });
-  const progressSpring = spring({ frame: Math.max(0, frame - 10), fps, config: { damping: 18, stiffness: 80 } });
+  const heading = scene.heading || 'STEP-BY-STEP PROGRESSION ROADMAP';
+  const categoryPill = scene.categoryPill || 'STRATEGIC ROADMAP';
 
-  const heading = scene.heading || 'THE 2026 ACCELERATED ROADMAP';
-  const supportingText = scene.supportingText || 'Step-by-step master progression';
-
-  // Extract or synthesize 4 milestone steps
-  const steps: MilestoneStep[] =
-    scene.listItems && scene.listItems.length >= 3
-      ? scene.listItems.slice(0, 4).map((item, i) => {
-          const parts = item.split(/[:•-]/);
-          return {
-            number: `0${i + 1}`,
-            title: (parts[0] || `STAGE ${i + 1}`).trim(),
-            detail: (parts[1] || parts[0] || 'Core milestone competency').trim(),
-            badge: i === 3 ? 'FINAL DESTINATION' : `PHASE ${i + 1}`,
-            accent: i === 3 ? '#10B981' : i === 0 ? '#38BDF8' : i === 1 ? '#FF5722' : '#FFA000',
-          };
-        })
-      : [
-          {
-            number: '01',
-            title: 'Foundations & Math',
-            detail: 'Python syntax, tensors, vectors & GPU compute',
-            badge: 'STEP 1',
-            accent: '#38BDF8',
-          },
-          {
-            number: '02',
-            title: 'RAG & Context',
-            detail: 'Embedding models, vector stores & chunk retrieval',
-            badge: 'STEP 2',
-            accent: '#FF5722',
-          },
-          {
-            number: '03',
-            title: 'Fine-Tuning',
-            detail: 'LoRA, Unsloth, Llama 3 & open weights',
-            badge: 'STEP 3',
-            accent: '#FFA000',
-          },
-          {
-            number: '04',
-            title: 'Autonomous Agents',
-            detail: 'Tool calling, Model Context Protocol & production swarms',
-            badge: 'MASTERY',
-            accent: '#10B981',
-          },
-        ];
+  const steps: MilestoneStep[] = React.useMemo(() => {
+    if (scene.timelineSteps && scene.timelineSteps.length >= 2) {
+      return scene.timelineSteps.slice(0, 4).map((step, i) => ({
+        number: String(i + 1).padStart(2, '0'),
+        title: step.title || `Phase ${i + 1}`,
+        detail: step.detail || step.title,
+        badge: i === scene.timelineSteps!.length - 1 ? 'FINAL GOAL' : `PHASE ${i + 1}`,
+        tone: STEP_TONES[i % STEP_TONES.length],
+      }));
+    }
+    if (scene.listItems && scene.listItems.length >= 2) {
+      return scene.listItems.slice(0, 4).map((item, i) => {
+        const parts = String(item).split(/[:•–-]/);
+        const title = (parts[0] || `Phase ${i + 1}`).trim();
+        const detail = (parts.slice(1).join(' ').trim() || title).trim();
+        return {
+          number: String(i + 1).padStart(2, '0'),
+          title: title.length > 34 ? `${title.slice(0, 31)}...` : title,
+          detail,
+          badge: i === Math.min(3, scene.listItems!.length - 1) ? 'OUTCOME' : `STEP ${i + 1}`,
+          tone: STEP_TONES[i % STEP_TONES.length],
+        };
+      });
+    }
+    return [
+      {
+        number: '01',
+        title: 'Foundation',
+        detail: 'Clarify core objective and baseline inputs',
+        badge: 'PHASE 1',
+        tone: 'sky',
+      },
+      {
+        number: '02',
+        title: 'Structure',
+        detail: 'Build repeatable workflow and key milestones',
+        badge: 'PHASE 2',
+        tone: 'indigo',
+      },
+      {
+        number: '03',
+        title: 'Execution',
+        detail: 'Focus daily actions on high-leverage priorities',
+        badge: 'PHASE 3',
+        tone: 'amber',
+      },
+      {
+        number: '04',
+        title: 'Compounding',
+        detail: 'Measure outcomes and scale proven results',
+        badge: 'MASTERY',
+        tone: 'emerald',
+      },
+    ];
+  }, [scene.listItems, scene.timelineSteps]);
 
   return (
-    <div
-      style={{
-        position: 'absolute',
-        inset: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '50px 80px',
-        zIndex: 15,
-        fontFamily: bodyFont,
-      }}
+    <SceneCanvas
+      sceneFrame={sceneFrame}
+      durationSec={scene.duration}
+      palette={palette}
+      accentTone="indigo"
+      fontFamily={bodyFont}
     >
-      {/* Top Header */}
+      <SceneHeader
+        categoryPill={categoryPill}
+        heading={heading}
+        supportingText={scene.supportingText}
+        highlightedWords={scene.highlightedWords}
+        headingFont={headingFont}
+        bodyFont={bodyFont}
+        tone="indigo"
+        sceneFrame={sceneFrame}
+        palette={palette}
+      />
+
       <div
         style={{
-          textAlign: 'center',
-          marginBottom: '50px',
-          opacity: headerSpring,
-          transform: `translateY(${interpolate(headerSpring, [0, 1], [-25, 0])}px)`,
-        }}
-      >
-        <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '6px 18px',
-            borderRadius: '9999px',
-            backgroundColor: 'rgba(255, 87, 34, 0.12)',
-            border: '1px solid rgba(255, 87, 34, 0.35)',
-            color: '#FFA000',
-            fontSize: '12px',
-            fontWeight: 800,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-            marginBottom: '14px',
-          }}
-        >
-          <span>🚀</span>
-          <span>STEP-BY-STEP PROGRESSION</span>
-        </div>
-
-        <h1
-          style={{
-            fontFamily: headingFont,
-            fontSize: '44px',
-            fontWeight: 900,
-            color: '#FFFFFF',
-            margin: 0,
-            letterSpacing: '-0.02em',
-            textShadow: '0 4px 20px rgba(0,0,0,0.85)',
-          }}
-        >
-          {heading}
-        </h1>
-        <p style={{ fontSize: '15px', color: '#94A3B8', margin: '8px 0 0 0', fontWeight: 600 }}>
-          {supportingText}
-        </p>
-      </div>
-
-      {/* Horizontal Roadmap Track */}
-      <div
-        style={{
-          position: 'relative',
           width: '100%',
-          maxWidth: '1240px',
-          display: 'flex',
+          maxWidth: ds.layout.isVertical ? '920px' : '1480px',
+          display: 'grid',
+          gridTemplateColumns: ds.layout.isVertical
+            ? '1fr'
+            : `repeat(${steps.length}, minmax(0, 1fr))`,
+          gap: ds.layout.isVertical ? '16px' : '22px',
           alignItems: 'stretch',
-          justifyContent: 'space-between',
-          gap: '20px',
         }}
       >
-        {/* Animated Connecting Beam Behind Cards */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '40px',
-            left: '60px',
-            right: '60px',
-            height: '4px',
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            zIndex: 1,
-            borderRadius: '2px',
-          }}
-        >
-          <div
-            style={{
-              height: '100%',
-              width: `${interpolate(progressSpring, [0, 1], [0, 100])}%`,
-              background: 'linear-gradient(90deg, #38BDF8 0%, #FF5722 50%, #10B981 100%)',
-              boxShadow: '0 0 16px rgba(255, 87, 34, 0.8)',
-              borderRadius: '2px',
-            }}
-          />
-        </div>
-
-        {/* 4 Step Milestone Cards */}
-        {steps.map((st, i) => {
-          const stepSpring = spring({
-            frame: Math.max(0, frame - 12 - i * 6),
-            fps,
-            config: { damping: 13, stiffness: 100 },
-          });
-
-          const scale = interpolate(stepSpring, [0, 1], [0.85, 1.0]);
-          const opacity = interpolate(stepSpring, [0, 0.5, 1], [0, 0.8, 1]);
-          const translateY = interpolate(stepSpring, [0, 1], [30, 0]);
+        {steps.map((step, idx) => {
+          const itemSpring = ds.motion.stagger(idx, 6, 5);
+          const isFinal = idx === steps.length - 1;
+          const accent = ds.accents[step.tone];
 
           return (
-            <div
-              key={i}
+            <StudioCard
+              key={idx}
+              tone={step.tone}
+              topAccentBar
+              elevated={isFinal}
+              palette={palette}
+              progress={itemSpring}
+              translateYFrom={24}
               style={{
-                position: 'relative',
-                flex: 1,
-                zIndex: 2,
-                borderRadius: '24px',
-                border: `2px solid ${i === 3 ? 'rgba(16, 185, 129, 0.5)' : 'rgba(255, 255, 255, 0.15)'}`,
-                backgroundColor: 'rgba(15, 23, 42, 0.94)',
-                backdropFilter: 'blur(20px)',
-                padding: '24px 20px',
-                boxShadow: '0 25px 60px rgba(0, 0, 0, 0.85), 0 0 30px rgba(0,0,0,0.5)',
                 display: 'flex',
-                flexDirection: 'column',
+                flexDirection: ds.layout.isVertical ? 'row' : 'column',
+                alignItems: ds.layout.isVertical ? 'center' : 'flex-start',
                 justifyContent: 'space-between',
-                transform: `scale(${scale}) translateY(${translateY}px)`,
-                opacity,
+                gap: ds.layout.isVertical ? '20px' : '18px',
+                padding: ds.layout.isVertical ? '22px 26px' : '28px 26px',
               }}
             >
-              {/* Top Node Pill */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                <div
-                  style={{
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '50%',
-                    backgroundColor: st.accent,
-                    color: '#070B14',
-                    fontWeight: 900,
-                    fontSize: '15px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    boxShadow: `0 0 16px ${st.accent}80`,
-                  }}
-                >
-                  {st.number}
-                </div>
-                <div
-                  style={{
-                    fontSize: '10px',
-                    fontWeight: 900,
-                    color: st.accent,
-                    backgroundColor: `${st.accent}15`,
-                    border: `1px solid ${st.accent}40`,
-                    padding: '3px 8px',
-                    borderRadius: '6px',
-                    letterSpacing: '0.06em',
-                  }}
-                >
-                  {st.badge}
-                </div>
-              </div>
-
-              {/* Title & Detail */}
-              <div style={{ flex: 1 }}>
-                <h3
-                  style={{
-                    fontFamily: headingFont,
-                    fontSize: '19px',
-                    fontWeight: 900,
-                    color: '#FFFFFF',
-                    margin: '0 0 8px 0',
-                    lineHeight: 1.25,
-                  }}
-                >
-                  {st.title}
-                </h3>
-                <p style={{ fontSize: '13px', color: '#94A3B8', margin: 0, lineHeight: 1.4, fontWeight: 500 }}>
-                  {st.detail}
-                </p>
-              </div>
-
-              {/* Bottom Progress Check */}
               <div
                 style={{
-                  marginTop: '18px',
-                  paddingTop: '12px',
-                  borderTop: '1px solid rgba(255, 255, 255, 0.08)',
                   display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  fontSize: '11px',
-                  fontWeight: 800,
-                  color: st.accent,
+                  flexDirection: ds.layout.isVertical ? 'row' : 'column',
+                  alignItems: ds.layout.isVertical ? 'center' : 'flex-start',
+                  gap: '16px',
+                  width: '100%',
                 }}
               >
-                <span>✓</span>
-                <span>MILESTONE {st.number}</span>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: ds.layout.isVertical ? 'auto' : '100%',
+                  }}
+                >
+                  <StepNumberBadge
+                    number={step.number}
+                    tone={step.tone}
+                    size={44}
+                    palette={palette}
+                  />
+                  {!ds.layout.isVertical && (
+                    <span
+                      style={{
+                        fontSize: '11px',
+                        fontWeight: 800,
+                        letterSpacing: '0.09em',
+                        textTransform: 'uppercase',
+                        padding: '4px 10px',
+                        borderRadius: '9999px',
+                        backgroundColor: accent.SoftBg,
+                        color: accent.textOnSoft,
+                        border: `1px solid ${accent.border}`,
+                      }}
+                    >
+                      {step.badge}
+                    </span>
+                  )}
+                </div>
+
+                <div style={{ flex: 1 }}>
+                  <h3
+                    style={{
+                      fontFamily: headingFont,
+                      fontSize: `${ds.type.cardTitle.fontSize}px`,
+                      fontWeight: ds.type.cardTitle.fontWeight,
+                      lineHeight: ds.type.cardTitle.lineHeight,
+                      letterSpacing: ds.type.cardTitle.letterSpacing,
+                      color: ds.surface.textPrimary,
+                      margin: '0 0 8px 0',
+                    }}
+                  >
+                    {step.title}
+                  </h3>
+                  {step.detail && step.detail !== step.title && (
+                    <p
+                      style={{
+                        fontSize: `${ds.type.bodyMd.fontSize}px`,
+                        fontWeight: 500,
+                        lineHeight: 1.45,
+                        color: ds.surface.textSecondary,
+                        margin: 0,
+                      }}
+                    >
+                      {step.detail}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
+            </StudioCard>
           );
         })}
       </div>
-    </div>
+    </SceneCanvas>
   );
 }

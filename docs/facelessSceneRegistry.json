@@ -1,0 +1,456 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Itnavideo Faceless Video Scene Registry",
+  "version": "2.0.0",
+  "description": "Comprehensive specification and JSON schemas for all 23 Remotion scene components in the FACELESS_SHORTS & FACELESS_VIDEO pipeline.",
+  "scenes": [
+    {
+      "id": "hook_scene",
+      "component": "HookScene.tsx",
+      "layoutType": "hook",
+      "sceneType": "hook",
+      "recommendedDurationSeconds": { "min": 2.5, "max": 4.5, "default": 3.5 },
+      "bestFor": "First 3-4 seconds of video. Grabs viewer attention with dramatic animated text, hand-drawn marker highlight, and optional background media cutout.",
+      "inputs": {
+        "heading": { "type": "string", "required": true, "example": "THE UNTOLD AI WEALTH GAP" },
+        "supportingText": { "type": "string", "required": false, "example": "Why 99% of creators are missing this shift" },
+        "highlightedWords": { "type": "array", "items": "string", "example": ["WEALTH GAP"] },
+        "mediaUrl": { "type": "string", "required": false, "example": "https://assets.itnavideo.com/broll/finance_graph.mp4" },
+        "sceneFrame": { "type": "number", "description": "Scene-local frame offset" }
+      },
+      "samplePayload": {
+        "sceneNumber": 1,
+        "sceneType": "hook",
+        "layoutType": "hook",
+        "duration": 3.5,
+        "heading": "THE UNTOLD AI WEALTH GAP",
+        "supportingText": "Why 99% of creators are missing this shift",
+        "highlightedWords": ["WEALTH GAP"],
+        "narrationSegment": {
+          "text": "There is a massive wealth gap forming right in front of us.",
+          "startSeconds": 0,
+          "endSeconds": 3.5
+        },
+        "background": "solid-white"
+      }
+    },
+    {
+      "id": "typography_scene",
+      "component": "TypographyScene.tsx",
+      "layoutType": "big_typography",
+      "sceneType": "emphasis",
+      "recommendedDurationSeconds": { "min": 2.5, "max": 4.5, "default": 3.2 },
+      "bestFor": "High-impact statements, key realizations, single punchy sentences with kinetic zoom and auto-wrap.",
+      "inputs": {
+        "heading": { "type": "string", "required": true, "example": "EXECUTION BEATS INTELLIGENCE EVERY TIME" },
+        "supportingText": { "type": "string", "required": false, "example": "Consistent daily output always wins" },
+        "typographyTreatment": { "type": "string", "enum": ["split", "highlight", "center", "minimal"] }
+      },
+      "samplePayload": {
+        "sceneNumber": 2,
+        "sceneType": "emphasis",
+        "layoutType": "big_typography",
+        "duration": 3.2,
+        "heading": "EXECUTION BEATS INTELLIGENCE EVERY TIME",
+        "supportingText": "Consistent daily output always wins",
+        "highlightedWords": ["EXECUTION"],
+        "narrationSegment": {
+          "text": "Execution beats intelligence every single time.",
+          "startSeconds": 3.5,
+          "endSeconds": 6.7
+        },
+        "background": "solid-white"
+      }
+    },
+    {
+      "id": "stat_scene",
+      "component": "StatScene.tsx",
+      "layoutType": "stat_card",
+      "sceneType": "example_stat",
+      "recommendedDurationSeconds": { "min": 3.0, "max": 5.0, "default": 3.8 },
+      "bestFor": "Showcasing a huge number, revenue metric, growth percentage, or conversion rate with a count-up animation and trend indicator.",
+      "inputs": {
+        "statValue": { "type": "string", "required": true, "example": "$12,450" },
+        "statLabel": { "type": "string", "required": true, "example": "MONTHLY RECURRING REVENUE" },
+        "statChange": { "type": "string", "required": false, "example": "+340% YoY" },
+        "heading": { "type": "string", "example": "The Compounding Curve" }
+      },
+      "samplePayload": {
+        "sceneNumber": 3,
+        "sceneType": "example_stat",
+        "layoutType": "stat_card",
+        "duration": 3.8,
+        "heading": "The Compounding Curve",
+        "statValue": "$12,450",
+        "statLabel": "MONTHLY RECURRING REVENUE",
+        "statChange": "+340% YoY",
+        "supportingText": "Validated through automated digital product sales",
+        "narrationSegment": {
+          "text": "Their monthly recurring revenue jumped straight to over twelve thousand dollars.",
+          "startSeconds": 6.7,
+          "endSeconds": 10.5
+        },
+        "background": "solid-white"
+      }
+    },
+    {
+      "id": "quote_scene",
+      "component": "QuoteScene.tsx",
+      "layoutType": "quote",
+      "sceneType": "emphasis",
+      "recommendedDurationSeconds": { "min": 3.0, "max": 5.0, "default": 4.0 },
+      "bestFor": "Philosophical principles, founder quotes, book citations with oversized SVG quotation mark and staggered word reveals.",
+      "inputs": {
+        "heading": { "type": "string", "required": true, "example": "Simplicity is the ultimate sophistication." },
+        "quoteAuthor": { "type": "string", "required": false, "example": "Leonardo da Vinci" }
+      },
+      "samplePayload": {
+        "sceneNumber": 4,
+        "sceneType": "emphasis",
+        "layoutType": "quote",
+        "duration": 4.0,
+        "heading": "Simplicity is the prerequisite for reliability.",
+        "quoteAuthor": "Edsger W. Dijkstra",
+        "narrationSegment": {
+          "text": "Simplicity is the prerequisite for reliability.",
+          "startSeconds": 10.5,
+          "endSeconds": 14.5
+        },
+        "background": "solid-white"
+      }
+    },
+    {
+      "id": "comparison_scene",
+      "component": "ComparisonScene.tsx",
+      "layoutType": "comparison",
+      "sceneType": "explanation",
+      "recommendedDurationSeconds": { "min": 3.5, "max": 5.5, "default": 4.2 },
+      "bestFor": "Side-by-side contrast (The Old Way vs The New Advantage, Option A vs Option B) with animated VS badge and trend icons.",
+      "inputs": {
+        "heading": { "type": "string", "required": true, "example": "TRADITIONAL VS MODERN SYSTEMS" },
+        "comparisonItems": {
+          "type": "object",
+          "properties": {
+            "left": { "type": "string", "example": "Manual 40-hour weekly grind" },
+            "right": { "type": "string", "example": "Automated 24/7 AI workflow" }
+          }
+        }
+      },
+      "samplePayload": {
+        "sceneNumber": 5,
+        "sceneType": "explanation",
+        "layoutType": "comparison",
+        "duration": 4.2,
+        "heading": "PARADIGM SHIFT",
+        "comparisonItems": {
+          "left": "Manual 40-hour grind",
+          "right": "Automated 24/7 leverage"
+        },
+        "supportingText": "Replacing low-leverage tasks with high-leverage assets",
+        "narrationSegment": {
+          "text": "Compare the old manual grind with modern automated leverage.",
+          "startSeconds": 14.5,
+          "endSeconds": 18.7
+        },
+        "background": "solid-white"
+      }
+    },
+    {
+      "id": "workflow_scene",
+      "component": "WorkflowScene.tsx",
+      "layoutType": "workflow",
+      "sceneType": "explanation",
+      "recommendedDurationSeconds": { "min": 3.5, "max": 5.5, "default": 4.5 },
+      "bestFor": "Autonomous multi-node systems (Trigger -> AI Brain -> Knowledge Base -> Instant Booking) with audio waveform and vector icons.",
+      "inputs": {
+        "heading": { "type": "string", "example": "AUTONOMOUS VOICE AGENT PIPELINE" },
+        "supportingText": { "type": "string", "example": "Solves customer queries and confirms bookings 24/7" },
+        "listItems": { "type": "array", "items": "string", "example": ["Inbound Call", "AI Cognition", "Live Knowledge", "Instant Booking"] }
+      },
+      "samplePayload": {
+        "sceneNumber": 6,
+        "sceneType": "explanation",
+        "layoutType": "workflow",
+        "duration": 4.5,
+        "heading": "AUTONOMOUS VOICE AGENT PIPELINE",
+        "supportingText": "Solves customer queries and confirms bookings 24/7",
+        "listItems": ["Inbound Call", "AI Cognition", "Live Knowledge", "Instant Booking"],
+        "narrationSegment": {
+          "text": "The entire pipeline runs without human intervention from the first call to the booking.",
+          "startSeconds": 18.7,
+          "endSeconds": 23.2
+        },
+        "background": "solid-white"
+      }
+    },
+    {
+      "id": "goal_target_scene",
+      "component": "GoalTargetScene.tsx",
+      "layoutType": "goal_target",
+      "sceneType": "example_stat",
+      "recommendedDurationSeconds": { "min": 3.5, "max": 5.5, "default": 4.2 },
+      "bestFor": "Financial targets, budgeting rules (50/30/20), milestones with animated progress bars and timeline projections.",
+      "inputs": {
+        "heading": { "type": "string", "example": "WEALTH TARGET BLUEPRINT" },
+        "statValue": { "type": "string", "example": "$100,000 GOAL" },
+        "supportingText": { "type": "string", "example": "Target Savings & Strategic Capital Allocation" }
+      },
+      "samplePayload": {
+        "sceneNumber": 7,
+        "sceneType": "example_stat",
+        "layoutType": "goal_target",
+        "duration": 4.2,
+        "heading": "WEALTH TARGET BLUEPRINT",
+        "statValue": "$100,000 GOAL",
+        "supportingText": "Target Savings & Strategic Capital Allocation",
+        "narrationSegment": {
+          "text": "Once you lock in your hundred thousand dollar milestone, everything compounds.",
+          "startSeconds": 23.2,
+          "endSeconds": 27.4
+        },
+        "background": "solid-white"
+      }
+    },
+    {
+      "id": "chart_scene",
+      "component": "ChartScene.tsx",
+      "layoutType": "data_visualization",
+      "sceneType": "example_stat",
+      "recommendedDurationSeconds": { "min": 3.0, "max": 5.0, "default": 4.0 },
+      "bestFor": "Creator studio analytics, exponential growth trajectories, and subscriber curves with an animated SVG line draw and metric counter.",
+      "inputs": {
+        "statLabel": { "type": "string", "example": "CHANNEL VELOCITY" },
+        "statValue": { "type": "string", "example": "+340%" },
+        "supportingText": { "type": "string", "example": "Performance scaling significantly above baseline metrics." },
+        "listItems": { "type": "array", "items": "string", "example": ["Total Views", "Watch Time", "Subscribers"] }
+      },
+      "samplePayload": {
+        "sceneNumber": 8,
+        "sceneType": "example_stat",
+        "layoutType": "data_visualization",
+        "duration": 4.0,
+        "heading": "CHANNEL VELOCITY",
+        "statLabel": "CHANNEL VELOCITY",
+        "statValue": "+340%",
+        "supportingText": "Performance scaling significantly above baseline metrics.",
+        "listItems": ["Total Views", "Watch Time", "Subscribers"],
+        "narrationSegment": {
+          "text": "Channel analytics started blowing past every single historic benchmark.",
+          "startSeconds": 27.4,
+          "endSeconds": 31.4
+        },
+        "background": "solid-white"
+      }
+    },
+    {
+      "id": "roadmap_scene",
+      "component": "RoadmapScene.tsx",
+      "layoutType": "roadmap",
+      "sceneType": "explanation",
+      "recommendedDurationSeconds": { "min": 3.5, "max": 5.5, "default": 4.5 },
+      "bestFor": "Sequential phase progressions (Phase 1 to Phase 4), career blueprints, and skill curricula with connecting beam and stage badges.",
+      "inputs": {
+        "heading": { "type": "string", "example": "THE 4-PHASE MASTER ROADMAP" },
+        "supportingText": { "type": "string", "example": "Step-by-step sequential blueprint" },
+        "listItems": { "type": "array", "items": "string", "example": ["Phase 1: Foundations", "Phase 2: Systems", "Phase 3: Execution", "Phase 4: Scale"] }
+      },
+      "samplePayload": {
+        "sceneNumber": 9,
+        "sceneType": "explanation",
+        "layoutType": "roadmap",
+        "duration": 4.5,
+        "heading": "THE 4-PHASE MASTER ROADMAP",
+        "supportingText": "Step-by-step sequential blueprint",
+        "listItems": [
+          "Foundation: Core principles and tooling",
+          "Architecture: Automated ingestion pipelines",
+          "Execution: High velocity content loop",
+          "Scale: Sustainable audience compounding"
+        ],
+        "narrationSegment": {
+          "text": "Follow this four-phase roadmap in exact sequence.",
+          "startSeconds": 31.4,
+          "endSeconds": 35.9
+        },
+        "background": "solid-white"
+      }
+    },
+    {
+      "id": "calendar_grid_scene",
+      "component": "CalendarGridScene.tsx",
+      "layoutType": "calendar_grid",
+      "sceneType": "explanation",
+      "recommendedDurationSeconds": { "min": 3.0, "max": 5.0, "default": 4.0 },
+      "bestFor": "Daily productivity blocks, weekly routines, habit tracking, and time architecture.",
+      "inputs": {
+        "heading": { "type": "string", "example": "TIME BLOCK ARCHITECTURE" },
+        "supportingText": { "type": "string", "example": "Daily High-Leverage Schedule Structure" },
+        "listItems": { "type": "array", "items": "string", "example": ["08:00 AM: Deep Work Focus", "10:30 AM: Active Recall", "02:00 PM: Distribution"] }
+      },
+      "samplePayload": {
+        "sceneNumber": 10,
+        "sceneType": "explanation",
+        "layoutType": "calendar_grid",
+        "duration": 4.0,
+        "heading": "TIME BLOCK ARCHITECTURE",
+        "supportingText": "Daily High-Leverage Schedule Structure",
+        "listItems": [
+          "08:00 AM: Deep Work Focus",
+          "10:30 AM: Active Synthesis",
+          "02:00 PM: Distribution Engine",
+          "05:30 PM: Health & Reset"
+        ],
+        "narrationSegment": {
+          "text": "Every morning starts with ninety uninterrupted minutes of deep work.",
+          "startSeconds": 35.9,
+          "endSeconds": 39.9
+        },
+        "background": "solid-white"
+      }
+    },
+    {
+      "id": "milestone_ladder_scene",
+      "component": "MilestoneLadderScene.tsx",
+      "layoutType": "milestone_ladder",
+      "sceneType": "explanation",
+      "recommendedDurationSeconds": { "min": 3.5, "max": 5.5, "default": 4.2 },
+      "bestFor": "Staircase progress ($1 -> $10 -> $100 -> $1,000), unlocking skills, compound habit levels.",
+      "inputs": {
+        "heading": { "type": "string", "example": "PROGRESSIVE MILESTONE LADDER" },
+        "supportingText": { "type": "string", "example": "Escalating micro-milestones to guarantee compound execution" },
+        "listItems": { "type": "array", "items": "string", "example": ["$1: First Sale Online", "$10: Digital Asset", "$100: Repeatable Offer", "$1,000: Full Engine"] }
+      },
+      "samplePayload": {
+        "sceneNumber": 11,
+        "sceneType": "explanation",
+        "layoutType": "milestone_ladder",
+        "duration": 4.2,
+        "heading": "PROGRESSIVE MILESTONE LADDER",
+        "supportingText": "Escalating micro-milestones to guarantee compound execution",
+        "listItems": [
+          "$1: First Sale Online: Overcoming mental barrier",
+          "$10: Mini Guide Template: Packaging expertise",
+          "$100: Repeatable Funnel: Selling to strangers",
+          "$1,000: Full Engine: Automated compounding"
+        ],
+        "narrationSegment": {
+          "text": "Do not try to jump to ten thousand dollars without climbing the first dollar rung.",
+          "startSeconds": 39.9,
+          "endSeconds": 44.1
+        },
+        "background": "solid-white"
+      }
+    },
+    {
+      "id": "script_bubble_scene",
+      "component": "ScriptBubbleScene.tsx",
+      "layoutType": "script_bubble",
+      "sceneType": "explanation",
+      "recommendedDurationSeconds": { "min": 3.0, "max": 5.0, "default": 3.8 },
+      "bestFor": "DM outreach templates, cold emails, chat dialogue scripts, copy-paste messaging playbooks.",
+      "inputs": {
+        "heading": { "type": "string", "example": "OUTREACH SCRIPT PLAYBOOK" },
+        "supportingText": { "type": "string", "example": "Hey, noticed your video on systems. Built you a 2-page cheat sheet here." }
+      },
+      "samplePayload": {
+        "sceneNumber": 12,
+        "sceneType": "explanation",
+        "layoutType": "script_bubble",
+        "duration": 3.8,
+        "heading": "OUTREACH SCRIPT PLAYBOOK",
+        "supportingText": "Hey, loved your video on retention systems. Built you a quick 2-page implementation checklist.",
+        "narrationSegment": {
+          "text": "Send this exact two-sentence script word for word.",
+          "startSeconds": 44.1,
+          "endSeconds": 47.9
+        },
+        "background": "solid-white"
+      }
+    },
+    {
+      "id": "card_concept_scene",
+      "component": "CardConceptScene.tsx",
+      "layoutType": "card_concept",
+      "sceneType": "explanation",
+      "recommendedDurationSeconds": { "min": 3.0, "max": 5.0, "default": 4.0 },
+      "bestFor": "Editorial cinema split with 3D tilted card visual, headline highlight tape, and punchy subtext.",
+      "inputs": {
+        "heading": { "type": "string", "example": "THE ASYMMETRIC BET" },
+        "supportingText": { "type": "string", "example": "Capped downside with unlimited exponential upside." },
+        "mediaUrl": { "type": "string", "example": "https://assets.itnavideo.com/broll/crypto_chart.mp4" }
+      },
+      "samplePayload": {
+        "sceneNumber": 13,
+        "sceneType": "explanation",
+        "layoutType": "card_concept",
+        "duration": 4.0,
+        "heading": "THE ASYMMETRIC BET",
+        "supportingText": "Capped downside with unlimited exponential upside.",
+        "highlightedWords": ["ASYMMETRIC BET"],
+        "narrationSegment": {
+          "text": "This creates what investors call an asymmetric bet.",
+          "startSeconds": 47.9,
+          "endSeconds": 51.9
+        },
+        "background": "solid-white"
+      }
+    },
+    {
+      "id": "full_bleed_visual_scene",
+      "component": "FullBleedVisualScene.tsx",
+      "layoutType": "full_bleed_visual",
+      "sceneType": "context",
+      "recommendedDurationSeconds": { "min": 2.5, "max": 4.5, "default": 3.5 },
+      "bestFor": "Cinematic B-roll video / high-resolution stock video with category badge and bold overlay title.",
+      "inputs": {
+        "heading": { "type": "string", "example": "THE COMPOUNDING EFFECT" },
+        "supportingText": { "type": "string", "example": "Small daily efforts produce monumental results over time." },
+        "mediaUrl": { "type": "string", "required": true, "example": "https://assets.itnavideo.com/broll/timelapse_sky.mp4" }
+      },
+      "samplePayload": {
+        "sceneNumber": 14,
+        "sceneType": "context",
+        "layoutType": "full_bleed_visual",
+        "duration": 3.5,
+        "heading": "THE COMPOUNDING EFFECT",
+        "supportingText": "Small daily efforts produce monumental results over time.",
+        "visualAssetRequirement": "https://assets.itnavideo.com/broll/timelapse_sky.mp4",
+        "narrationSegment": {
+          "text": "Over twelve months, this compounding effect completely alters your trajectory.",
+          "startSeconds": 51.9,
+          "endSeconds": 55.4
+        },
+        "background": "solid-white"
+      }
+    },
+    {
+      "id": "conclusion_scene",
+      "component": "ConclusionScene.tsx",
+      "layoutType": "creator_celebration",
+      "sceneType": "next_point",
+      "recommendedDurationSeconds": { "min": 3.0, "max": 5.0, "default": 3.8 },
+      "bestFor": "Video ending call to action, final takeaway, pulsing action badge.",
+      "inputs": {
+        "heading": { "type": "string", "example": "START WITH ONE EXPERIMENT TODAY" },
+        "supportingText": { "type": "string", "example": "Subscribe for the complete weekly blueprint breakdowns." },
+        "highlightedWords": { "type": "array", "items": "string", "example": ["ONE EXPERIMENT"] }
+      },
+      "samplePayload": {
+        "sceneNumber": 15,
+        "sceneType": "next_point",
+        "layoutType": "creator_celebration",
+        "duration": 3.8,
+        "heading": "START WITH ONE EXPERIMENT TODAY",
+        "supportingText": "Save this reel and take action before the day ends.",
+        "highlightedWords": ["ONE EXPERIMENT"],
+        "narrationSegment": {
+          "text": "Pick just one idea from this video and start today.",
+          "startSeconds": 55.4,
+          "endSeconds": 59.2
+        },
+        "background": "solid-white"
+      }
+    }
+  ]
+}
+

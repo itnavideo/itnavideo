@@ -332,6 +332,13 @@ A new Video Type is complete when all 5 are done:
 3. **Status & Error Stage Accuracy**:
    - Status messages, progress estimations, and failure stages must map directly to the specific video type's actual stages so users always know exactly what is happening in the background.
 
+### 4. Dedicated Internal Components Per Video Type (Anti-Repetition & Visual Diversity Policy):
+- **FOUNDER DIRECTIVE**: Every Video Type in Itnavideo serves a distinct creative purpose, audience format, and value proposition.
+- ❌ **FORBIDDEN: Generic Visual Components Across Modes**: Never build a single generic visual component and force multiple video types to use it. If every video type shares the exact same visual design, cards, and overlays, the resulting videos look identical, repetitive, and boring to users.
+- ✅ **Dedicated Sub-Components**: All visual Remotion components (`.tsx`), visual cards, title overlays, badge widgets, scene transitions, lower-thirds, and visual decorators MUST be created **inside each video type's dedicated template directory** (e.g., `remotion/templates/TEMPLATE_NAME/components/` or directly inside `remotion/templates/TEMPLATE_NAME/template.tsx`).
+- 🎨 **Visual Components Must Be Dedicated**: Any component that renders visual elements onto the screen (scenes, overlays, labels, animations, picture-in-picture frames, scoreboards, chapter cards) MUST be dedicated and customized for that specific video type.
+- ⚙️ **Technical Infrastructure vs. Visual Separation**: Shared non-visual technical logic (e.g. S3 upload clients, Groq Whisper transcription API, cloud render triggers, credit billing formulas, math/time helpers, audio ducking formulas) CAN live in shared `lib/` or `services/`, but visual rendering components MUST be unique per video type.
+
 ---
 
 ## 9. Visual Design System: The Primary Brand Colors (White, Black, Flame Orange & Sunset Amber) + Complementary Palette

@@ -86,13 +86,13 @@ export default function ImageToVideoDashboardPage() {
 
   const [imageToVideoBgmEnabled, setImageToVideoBgmEnabled] = useState<boolean>(true);
   const [imageToVideoLibraryBgmUrl, setImageToVideoLibraryBgmUrl] = useState<string>(
-    ITNAVIDEO_LIBRARY_BGM && ITNAVIDEO_LIBRARY_BGM.length > 0 ? ITNAVIDEO_LIBRARY_BGM[0].url : "/assets/reusable/sfx/chime.mp3"
+    ITNAVIDEO_LIBRARY_BGM && ITNAVIDEO_LIBRARY_BGM.length > 0 ? ITNAVIDEO_LIBRARY_BGM[0].path : "assets/reusable/music/parasail-silent-partner.mp3"
   );
   const [bgmFile, setBgmFile] = useState<File | null>(null);
-  const [bgmVolume, setBgmVolume] = useState<number>(0.15);
+  const [bgmVolume, setBgmVolume] = useState<number>(0.12);
 
   const [topicTitle, setTopicTitle] = useState<string>("");
-  const [subtitleStyle, setSubtitleStyle] = useState<string>("parallax-modern");
+  const [subtitleStyle, setSubtitleStyle] = useState<string>("glow-viral");
   const [cameraMotionPreset, setCameraMotionPreset] = useState<string>("ken-burns");
   const [fitMode, setFitMode] = useState<"blur-fill" | "cover">("cover");
   const [estimatedDurationSeconds, setEstimatedDurationSeconds] = useState<number>(60);
@@ -486,6 +486,7 @@ export default function ImageToVideoDashboardPage() {
           bgmKey: imageToVideoBgmEnabled && bgmKey ? bgmKey : undefined,
           bgmVolume: imageToVideoBgmEnabled ? bgmVolume : 0,
           subtitleStyle,
+          captionThemeId: subtitleStyle || "glow-viral",
           cameraMotionPreset,
           fitMode,
         }),
@@ -668,43 +669,51 @@ export default function ImageToVideoDashboardPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#070B14] flex flex-col items-center justify-center text-zinc-400 gap-3">
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-500 gap-3">
         <Loader2 className="h-8 w-8 animate-spin text-[#FF5722]" />
-        <p className="text-sm font-semibold tracking-wide text-zinc-300">Loading Image to Video AI Studio...</p>
+        <p className="text-sm font-semibold tracking-wide text-slate-800">Loading Image to Video AI Studio...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#09090B] text-zinc-100 flex flex-col selection:bg-[#FF5722]/20 selection:text-[#FF5722]">
-      {/*  Top Navigation Bar  */}
-      <header className="sticky top-0 z-40 border-b border-zinc-800/80 bg-[#09090B]/90 backdrop-blur-xl">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-[#FF5722]/20 selection:text-[#FF5722] pb-12">
+      {/* Top Navigation Bar (Clean White Surface) */}
+      <header className="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur-xl shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-16 py-2 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
           <div className="flex items-center gap-2 sm:gap-4 shrink-0">
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-1.5 rounded-full border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-zinc-300 hover:text-white transition group"
+              className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-100 hover:bg-slate-200 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-slate-700 hover:text-slate-900 transition group cursor-pointer"
             >
               <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
               <span className="hidden sm:inline">All Tools</span>
             </Link>
 
-            <div className="h-4 w-px bg-zinc-800 hidden sm:block" />
+            <div className="h-4 w-px bg-slate-200 hidden sm:block" />
 
-            <BrandLogo size="sm" showBadge={false} variant="dark" />
+            <BrandLogo size="sm" showBadge={false} variant="light" />
 
             <span className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-2.5 py-0.5 text-[11px] font-black text-[#FF5722]">
               <Sparkles size={11} className="text-[#FF5722]" />
-              Dedicated Studio
+              Image to Video Studio
             </span>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Timer badge while rendering */}
+            {isWorking && (
+              <div className="flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-3 py-1.5 text-xs font-black text-[#FF5722]">
+                <Clock size={13} className="animate-pulse" />
+                <span>{formatTimer(elapsedSeconds)}</span>
+              </div>
+            )}
+
             {/* Credits badge */}
-            <div className="flex items-center gap-1.5 rounded-full border border-zinc-800 bg-zinc-900 px-2.5 sm:px-3.5 py-1.5 text-xs font-bold shadow-sm text-zinc-200">
+            <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 sm:px-3.5 py-1.5 text-xs font-bold shadow-xs text-slate-800">
               <Zap size={14} className="text-[#FF5722] fill-[#FF5722]" />
-              <span className="text-zinc-400 hidden xs:inline">Balance:</span>
-              <span className="text-white font-black">{billingEntitlement ? userRemainingCredits : "..."} Cr</span>
+              <span className="text-slate-500 hidden xs:inline">Balance:</span>
+              <span className="text-slate-900 font-black">{billingEntitlement ? userRemainingCredits : "..."} Cr</span>
               <Link
                 href="/pricing"
                 className="ml-0.5 text-[11px] text-[#FF5722] hover:text-[#FFA000] underline font-black"
@@ -716,7 +725,7 @@ export default function ImageToVideoDashboardPage() {
         </div>
       </header>
 
-      {/*  Main Canvas  */}
+      {/* Main Canvas */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
         {(isWorking || isReady || isError) ? (
@@ -792,16 +801,16 @@ export default function ImageToVideoDashboardPage() {
         )}
       </main>
 
-      {/*  Exit Confirmation Modal  */}
+      {/* Exit Confirmation Modal */}
       {showExitConfirmModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-md rounded-[28px] border border-white/10 bg-[#0E1526] p-6 sm:p-8 shadow-2xl space-y-5 text-center">
-            <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 mx-auto flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-md rounded-[28px] border border-slate-200 bg-white p-6 sm:p-8 shadow-2xl space-y-5 text-center">
+            <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 mx-auto flex items-center justify-center">
               <AlertTriangle size={28} />
             </div>
             <div>
-              <h3 className="text-xl font-black text-white">Exit Studio?</h3>
-              <p className="text-xs text-zinc-400 mt-2 leading-relaxed">
+              <h3 className="text-xl font-black text-slate-900">Exit Studio?</h3>
+              <p className="text-xs text-slate-500 mt-2 leading-relaxed">
                 Are you sure you want to exit? Your current upload &amp; generation progress will be discarded.
               </p>
             </div>
@@ -809,7 +818,7 @@ export default function ImageToVideoDashboardPage() {
               <button
                 type="button"
                 onClick={() => setShowExitConfirmModal(false)}
-                className="flex-1 rounded-2xl border border-white/10 bg-white/5 py-3 text-xs font-bold text-zinc-300 hover:bg-white/10 transition cursor-pointer"
+                className="flex-1 rounded-2xl border border-slate-200 bg-slate-100 py-3 text-xs font-bold text-slate-700 hover:bg-slate-200 transition cursor-pointer"
               >
                 Stay in Studio
               </button>

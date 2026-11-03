@@ -2,40 +2,82 @@ import React from 'react';
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
 import { DualPhoneShowcase } from '../components/DualPhoneShowcase';
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
-import { FACELESS_DESIGN_TOKENS } from '../facelessTokens';
+import type { BackgroundColorPalette } from '../../../components/backgrounds/BackgroundCatalog';
 
 export interface ComparisonSceneProps {
   scene: SceneBlueprintItem;
   headingFont?: string;
   bodyFont?: string;
+  sceneFrame?: number;
+  palette?: BackgroundColorPalette;
+}
+
+/* ───────────────────────── SVG Icons ───────────────────────── */
+
+function ScaleIcon({ size = 18, color = '#EA580C' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3v18" />
+      <path d="M6 8l6-5 6 5" />
+      <path d="M3 13l3-5 3 5a3 3 0 0 1-6 0z" />
+      <path d="M15 13l3-5 3 5a3 3 0 0 1-6 0z" />
+    </svg>
+  );
+}
+
+function TrendDownIcon({ size = 16, color = '#EF4444' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
+      <polyline points="17 18 23 18 23 12" />
+    </svg>
+  );
+}
+
+function TrendUpIcon({ size = 16, color = '#10B981' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+      <polyline points="17 6 23 6 23 12" />
+    </svg>
+  );
 }
 
 export function ComparisonScene({
   scene,
-  headingFont = FACELESS_DESIGN_TOKENS.typography.interfaceSans,
-  bodyFont = FACELESS_DESIGN_TOKENS.typography.interfaceSans,
+  headingFont = 'Montserrat, Inter, system-ui, sans-serif',
+  bodyFont = 'Inter, system-ui, sans-serif',
+  sceneFrame,
+  palette,
 }: ComparisonSceneProps) {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, width, height } = useVideoConfig();
+  const currentFrame = sceneFrame ?? frame;
+
+  const isPortrait = height > width;
+  const s = Math.min(width, height) / 1080;
+  const isDark = palette?.isDark ?? false;
+
+  const bg = isDark ? (palette?.background || '#090D16') : '#FFFFFF';
+  const textPrimary = isDark ? '#FFFFFF' : '#0F172A';
+  const textSecondary = isDark ? '#94A3B8' : '#475569';
+  const cardBg = isDark ? 'rgba(15, 23, 42, 0.95)' : '#FFFFFF';
 
   // Staggered entrances
-  const headerSpring = spring({ frame, fps, config: { damping: 14, stiffness: 100 } });
-  const leftSpring = spring({ frame: Math.max(0, frame - 5), fps, config: { damping: 14, stiffness: 90 } });
-  const rightSpring = spring({ frame: Math.max(0, frame - 12), fps, config: { damping: 14, stiffness: 90 } });
-  const vsSpring = spring({ frame: Math.max(0, frame - 8), fps, config: { damping: 10, stiffness: 180 } });
+  const headerSpring = spring({ frame: currentFrame, fps, config: { damping: 14, stiffness: 100 } });
+  const leftSpring   = spring({ frame: Math.max(0, currentFrame - 5), fps, config: { damping: 14, stiffness: 90 } });
+  const rightSpring  = spring({ frame: Math.max(0, currentFrame - 12), fps, config: { damping: 14, stiffness: 90 } });
+  const vsSpring     = spring({ frame: Math.max(0, currentFrame - 8), fps, config: { damping: 10, stiffness: 180 } });
 
   const heading = scene.heading || 'PARADIGM SHIFT & COMPARISON';
-  const leftItem = scene.comparisonItems?.left || scene.heading || 'Traditional Search & SEO';
-  const rightItem = scene.comparisonItems?.right || scene.supportingText || 'AI Agent Recommendation';
+  const leftItem = scene.comparisonItems?.left || scene.heading || 'Traditional Manual Approach';
+  const rightItem = scene.comparisonItems?.right || scene.supportingText || 'Strategic Modern Blueprint';
 
   const contextString = `${heading} ${leftItem} ${rightItem} ${scene.narrationSegment?.text || ''}`;
-  const isDualDevice =
-    /phone|mobile|app|store|sales|revenue|digital product|earnings|\$96|\$356|planner|shop/i.test(
-      contextString
-    );
+  const isDualDevice = !isPortrait && /phone|mobile|app|store|sales|revenue|digital product|earnings|\$96|\$356|planner|shop/i.test(contextString);
 
-  const leftX = interpolate(leftSpring, [0, 1], [-80, 0]);
-  const rightX = interpolate(rightSpring, [0, 1], [80, 0]);
+  const leftOffset = interpolate(leftSpring, [0, 1], [isPortrait ? -30 * s : -60 * s, 0]);
+  const rightOffset = interpolate(rightSpring, [0, 1], [isPortrait ? 30 * s : 60 * s, 0]);
   const vsScale = interpolate(vsSpring, [0, 1], [0.3, 1.0]);
 
   return (
@@ -47,51 +89,54 @@ export function ComparisonScene({
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '60px 40px',
+        padding: isPortrait ? `${160 * s}px ${50 * s}px ${180 * s}px` : `${50 * s}px ${80 * s}px`,
         zIndex: 15,
-        backgroundColor: FACELESS_DESIGN_TOKENS.colors.canvasWhite,
+        backgroundColor: bg,
+        boxSizing: 'border-box',
+        overflow: 'hidden',
         fontFamily: bodyFont,
       }}
     >
-      {/* Eyebrow + Header */}
+      {/* ── Eyebrow + Header ── */}
       <div
         style={{
           textAlign: 'center',
-          marginBottom: '44px',
+          marginBottom: isPortrait ? `${24 * s}px` : `${36 * s}px`,
           opacity: headerSpring,
-          transform: `translateY(${interpolate(headerSpring, [0, 1], [-20, 0])}px)`,
+          transform: `translateY(${interpolate(headerSpring, [0, 1], [-20 * s, 0])}px)`,
         }}
       >
         <div
           style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '8px',
-            padding: '6px 16px',
-            borderRadius: '9999px',
-            backgroundColor: FACELESS_DESIGN_TOKENS.colors.accentCoralBg,
-            border: '1px solid rgba(234, 88, 12, 0.3)',
-            color: FACELESS_DESIGN_TOKENS.colors.accentCoral,
-            fontSize: '12px',
+            gap: `${8 * s}px`,
+            padding: `${6 * s}px ${16 * s}px`,
+            borderRadius: `${999 * s}px`,
+            backgroundColor: isDark ? 'rgba(234, 88, 12, 0.15)' : 'rgba(234, 88, 12, 0.12)',
+            border: '1px solid rgba(234, 88, 12, 0.35)',
+            color: '#EA580C',
+            fontSize: `${13 * s}px`,
             fontWeight: 800,
             textTransform: 'uppercase',
             letterSpacing: '0.1em',
-            marginBottom: '12px',
+            marginBottom: `${10 * s}px`,
           }}
         >
-          <span>⚖️</span>
-          <span>PARADIGM SHIFT</span>
+          <ScaleIcon size={16 * s} color="#EA580C" />
+          <span>PARADIGM COMPARISON</span>
         </div>
 
         <h2
           style={{
             fontFamily: headingFont,
-            fontSize: '44px',
+            fontSize: isPortrait ? `${38 * s}px` : `${44 * s}px`,
             fontWeight: 900,
-            color: FACELESS_DESIGN_TOKENS.colors.textPrimary,
+            color: textPrimary,
             lineHeight: 1.15,
-            letterSpacing: '-0.02em',
+            letterSpacing: '-0.025em',
             margin: 0,
+            maxWidth: isPortrait ? '800px' : '1000px',
           }}
         >
           {heading}
@@ -106,65 +151,67 @@ export function ComparisonScene({
           rightSubtitle="Automated AI Agent"
         />
       ) : (
-        /* Standard Side-by-Side Comparison Grid */
+        /* Adaptive Comparison Layout: Vertical Stack in 9:16, Side-by-Side in 16:9 */
         <div
           style={{
             display: 'flex',
+            flexDirection: isPortrait ? 'column' : 'row',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '32px',
+            gap: isPortrait ? `${14 * s}px` : `${28 * s}px`,
             width: '100%',
-            maxWidth: '1000px',
+            maxWidth: isPortrait ? '520px' : '1000px',
           }}
         >
-          {/* LEFT CARD: The Old / Passive Playbook */}
+          {/* LEFT CARD: The Old Way */}
           <div
             style={{
               flex: 1,
-              borderRadius: '24px',
-              border: '1.5px solid rgba(239, 68, 68, 0.35)',
-              backgroundColor: FACELESS_DESIGN_TOKENS.colors.surfaceWhite,
-              padding: '40px 36px',
-              boxShadow: FACELESS_DESIGN_TOKENS.colors.shadowElevated,
+              width: isPortrait ? '100%' : 'auto',
+              borderRadius: `${24 * s}px`,
+              border: `2px solid rgba(239, 68, 68, ${isDark ? '0.4' : '0.3'})`,
+              backgroundColor: cardBg,
+              padding: `${26 * s}px ${30 * s}px`,
+              boxShadow: `0 ${12 * s}px ${35 * s}px rgba(0, 0, 0, ${isDark ? '0.3' : '0.06'})`,
               opacity: leftSpring,
-              transform: `translateX(${leftX}px)`,
+              transform: isPortrait ? `translateY(${leftOffset}px)` : `translateX(${leftOffset}px)`,
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
-              minHeight: '280px',
+              minHeight: isPortrait ? `${130 * s}px` : `${240 * s}px`,
+              boxSizing: 'border-box',
             }}
           >
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: `${14 * s}px` }}>
                 <span
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '6px',
-                    backgroundColor: FACELESS_DESIGN_TOKENS.colors.accentRedBg,
+                    gap: `${6 * s}px`,
+                    backgroundColor: 'rgba(239, 68, 68, 0.12)',
                     border: '1px solid rgba(239, 68, 68, 0.3)',
-                    padding: '4px 12px',
-                    borderRadius: '9999px',
-                    fontSize: '12px',
+                    padding: `${4 * s}px ${12 * s}px`,
+                    borderRadius: `${999 * s}px`,
+                    fontSize: `${12 * s}px`,
                     fontWeight: 800,
-                    color: FACELESS_DESIGN_TOKENS.colors.accentRed,
+                    color: '#EF4444',
                     textTransform: 'uppercase',
                     letterSpacing: '0.06em',
                   }}
                 >
                   ✕ THE OLD WAY
                 </span>
-
-                <span style={{ fontSize: '12px', color: FACELESS_DESIGN_TOKENS.colors.textMuted, fontWeight: 600 }}>Legacy Model</span>
+                <span style={{ fontSize: `${12 * s}px`, color: textSecondary, fontWeight: 700 }}>Legacy Model</span>
               </div>
 
               <div
                 style={{
                   fontFamily: headingFont,
-                  fontSize: '28px',
+                  fontSize: isPortrait ? `${24 * s}px` : `${26 * s}px`,
                   fontWeight: 800,
-                  color: FACELESS_DESIGN_TOKENS.colors.textPrimary,
-                  lineHeight: 1.3,
+                  color: textPrimary,
+                  lineHeight: 1.25,
                   letterSpacing: '-0.01em',
                 }}
               >
@@ -174,33 +221,38 @@ export function ComparisonScene({
 
             <div
               style={{
-                paddingTop: '16px',
-                borderTop: FACELESS_DESIGN_TOKENS.colors.borderHairline,
-                fontSize: '14px',
-                color: FACELESS_DESIGN_TOKENS.colors.accentRed,
+                marginTop: `${14 * s}px`,
+                paddingTop: `${12 * s}px`,
+                borderTop: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'}`,
+                fontSize: `${13 * s}px`,
+                color: '#EF4444',
                 fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                gap: `${6 * s}px`,
               }}
             >
-              📉 Low retention & high cognitive friction
+              <TrendDownIcon size={16 * s} color="#EF4444" />
+              <span>Low retention & high friction</span>
             </div>
           </div>
 
-          {/* CENTER BADGE: Flame Orange Energy VS Node */}
+          {/* CENTER BADGE: VS Node */}
           <div
             style={{
               zIndex: 10,
-              width: '64px',
-              height: '64px',
+              width: `${56 * s}px`,
+              height: `${56 * s}px`,
               borderRadius: '50%',
               background: 'linear-gradient(135deg, #FF5722 0%, #FFA000 100%)',
-              border: '3px solid #FFFFFF',
-              boxShadow: '0 8px 24px rgba(255, 87, 34, 0.35)',
+              border: `3px solid ${isDark ? '#090D16' : '#FFFFFF'}`,
+              boxShadow: `0 ${8 * s}px ${24 * s}px rgba(255, 87, 34, 0.4)`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: '#FFFFFF',
               fontFamily: headingFont,
-              fontSize: '19px',
+              fontSize: `${18 * s}px`,
               fontWeight: 900,
               letterSpacing: '0.05em',
               transform: `scale(${vsScale})`,
@@ -210,54 +262,55 @@ export function ComparisonScene({
             VS
           </div>
 
-          {/* RIGHT CARD: The Active AI Advantage */}
+          {/* RIGHT CARD: The Advantage */}
           <div
             style={{
               flex: 1,
-              borderRadius: '24px',
-              border: '1.5px solid rgba(16, 185, 129, 0.45)',
-              backgroundColor: FACELESS_DESIGN_TOKENS.colors.surfaceWhite,
-              padding: '40px 36px',
-              boxShadow: FACELESS_DESIGN_TOKENS.colors.shadowElevated,
+              width: isPortrait ? '100%' : 'auto',
+              borderRadius: `${24 * s}px`,
+              border: `2px solid rgba(16, 185, 129, ${isDark ? '0.45' : '0.35'})`,
+              backgroundColor: cardBg,
+              padding: `${26 * s}px ${30 * s}px`,
+              boxShadow: `0 ${12 * s}px ${35 * s}px rgba(16, 185, 129, ${isDark ? '0.2' : '0.08'})`,
               opacity: rightSpring,
-              transform: `translateX(${rightX}px)`,
+              transform: isPortrait ? `translateY(${rightOffset}px)` : `translateX(${rightOffset}px)`,
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
-              minHeight: '280px',
+              minHeight: isPortrait ? `${130 * s}px` : `${240 * s}px`,
+              boxSizing: 'border-box',
             }}
           >
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: `${14 * s}px` }}>
                 <span
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '6px',
-                    backgroundColor: FACELESS_DESIGN_TOKENS.colors.accentGreenBg,
-                    border: '1px solid rgba(16, 185, 129, 0.4)',
-                    padding: '4px 12px',
-                    borderRadius: '9999px',
-                    fontSize: '12px',
+                    gap: `${6 * s}px`,
+                    backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                    border: '1px solid rgba(16, 185, 129, 0.35)',
+                    padding: `${4 * s}px ${12 * s}px`,
+                    borderRadius: `${999 * s}px`,
+                    fontSize: `${12 * s}px`,
                     fontWeight: 800,
-                    color: FACELESS_DESIGN_TOKENS.colors.accentGreen,
+                    color: '#10B981',
                     textTransform: 'uppercase',
                     letterSpacing: '0.06em',
                   }}
                 >
-                  ✓ THE AI ADVANTAGE
+                  ✓ THE NEW PARADIGM
                 </span>
-
-                <span style={{ fontSize: '12px', color: '#059669', fontWeight: 700 }}>Compound Mastery</span>
+                <span style={{ fontSize: `${12 * s}px`, color: '#10B981', fontWeight: 800 }}>High Leverage</span>
               </div>
 
               <div
                 style={{
                   fontFamily: headingFont,
-                  fontSize: '28px',
+                  fontSize: isPortrait ? `${24 * s}px` : `${26 * s}px`,
                   fontWeight: 800,
-                  color: FACELESS_DESIGN_TOKENS.colors.textPrimary,
-                  lineHeight: 1.3,
+                  color: textPrimary,
+                  lineHeight: 1.25,
                   letterSpacing: '-0.01em',
                 }}
               >
@@ -267,14 +320,19 @@ export function ComparisonScene({
 
             <div
               style={{
-                paddingTop: '16px',
-                borderTop: FACELESS_DESIGN_TOKENS.colors.borderHairline,
-                fontSize: '14px',
-                color: '#059669',
+                marginTop: `${14 * s}px`,
+                paddingTop: `${12 * s}px`,
+                borderTop: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'}`,
+                fontSize: `${13 * s}px`,
+                color: '#10B981',
                 fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                gap: `${6 * s}px`,
               }}
             >
-              🚀 Compounding retention & effortless recall
+              <TrendUpIcon size={16 * s} color="#10B981" />
+              <span>Effortless compounding advantage</span>
             </div>
           </div>
         </div>
@@ -282,3 +340,5 @@ export function ComparisonScene({
     </div>
   );
 }
+
+export default ComparisonScene;

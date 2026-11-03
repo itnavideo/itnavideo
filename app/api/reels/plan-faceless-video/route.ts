@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { createReadUrl } from '@/lib/aws/mediaStorage';
 import { transcribeMediaUrlWithGroq } from '@/services/ai/groqTranscription';
 import { transcribeMediaWithGeminiFallback } from '@/services/ai/geminiTranscription';
-import { generateStructuredSceneBlueprint, generateFacelessStickerEvents } from '@/services/ai/aiScenePlanner';
+import { generateStructuredSceneBlueprint } from '@/services/ai/aiScenePlanner';
 import { planFacelessGraphics } from '@/services/ai/facelessGraphicPlanner';
 import { generateSFXEvents } from '@/services/ai/sfxEngine';
 import { validateAndAlignTranscript, type TranscriptSegment } from '@/services/ai/transcriptAlignment';
@@ -10,7 +10,8 @@ import { validateAndAlignTranscript, type TranscriptSegment } from '@/services/a
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const MAX_FACELESS_DURATION_SECONDS = 300; // 300 seconds (5 minutes maximum strictly per user standard)
+const MAX_FACELESS_LONG_DURATION_SECONDS = 300; // 300 seconds (5 minutes maximum strictly for 16:9 Faceless Video)
+const MAX_FACELESS_SHORTS_DURATION_SECONDS = 90; // 90 seconds maximum strictly for 9:16 Faceless Shorts
 
 export async function POST(req: Request) {
   try {
@@ -21,9 +22,19 @@ export async function POST(req: Request) {
       language = 'en',
       existingTranscript = '',
       existingSegments = null,
-      backgroundTheme = 'midnight-mesh',
+      backgroundTheme = 'studio-white',
+      headingFont = 'Montserrat',
+      subheadingFont = 'Plus Jakarta Sans',
+      bodyFont = 'Plus Jakarta Sans',
       brandNamesHint = '',
+      aspectRatio: rawAspectRatio = '16:9',
+      videoType: rawVideoType = 'facelessVideo',
     } = body;
+
+    const isShorts = rawAspectRatio === '9:16' || rawVideoType === 'facelessShorts';
+    const targetAspectRatio: '16:9' | '9:16' = isShorts ? '9:16' : '16:9';
+    const targetVideoType: 'facelessVideo' | 'facelessShorts' = isShorts ? 'facelessShorts' : 'facelessVideo';
+    const maxDurationLimit = isShorts ? MAX_FACELESS_SHORTS_DURATION_SECONDS : MAX_FACELESS_LONG_DURATION_SECONDS;
 
     let audioUrl = String(body.audioUrl || '').trim();
     const mediaKey = String(body.mediaKey || '').trim();
@@ -57,7 +68,7 @@ export async function POST(req: Request) {
           mediaUrl: audioUrl,
           fileName: 'faceless-voiceover.mp3',
           language,
-          maxSeconds: MAX_FACELESS_DURATION_SECONDS,
+          maxSeconds: maxDurationLimit,
           prompt: brandNamesHint,
         });
       } catch (groqErr) {
@@ -66,7 +77,7 @@ export async function POST(req: Request) {
           transcriptionResult = await transcribeMediaWithGeminiFallback({
             mediaUrl: audioUrl,
             fileName: 'faceless-voiceover.mp3',
-            maxSeconds: MAX_FACELESS_DURATION_SECONDS,
+            maxSeconds: maxDurationLimit,
           });
         } catch (geminiErr) {
           console.error('[PLAN_FACELESS] Both Groq and Gemini transcription failed:', geminiErr);
@@ -86,7 +97,7 @@ export async function POST(req: Request) {
 
       transcript = transcriptionResult.transcript;
       durationSeconds = Math.min(
-        MAX_FACELESS_DURATION_SECONDS,
+        maxDurationLimit,
         Number(transcriptionResult.durationSeconds) || Number(inputDuration) || 60
       );
 
@@ -117,7 +128,7 @@ export async function POST(req: Request) {
     }
 
     if (durationSeconds <= 0) {
-      durationSeconds = Math.min(MAX_FACELESS_DURATION_SECONDS, segments.length > 0 ? segments[segments.length - 1].end : 60);
+      durationSeconds = Math.min(maxDurationLimit, segments.length > 0 ? segments[segments.length - 1].end : 60);
     }
 
     // 2. Validate transcript & timestamps
@@ -130,8 +141,8 @@ export async function POST(req: Request) {
     }
     warnings = [...warnings, ...validation.warnings];
 
-    // 3. Generate Structured Scene Blueprint
-    const videoTitle = String(topicTitle || '').trim() || 'Faceless Video';
+    // 3. Generate Structured Scene-by-Scene JSON Blueprint
+    const videoTitle = String(topicTitle || '').trim() || (isShorts ? 'Faceless Shorts' : 'Faceless Video');
     const transcriptChunks = segments.map((s) => ({
       text: s.text,
       start: s.start,
@@ -143,19 +154,21 @@ export async function POST(req: Request) {
 
     const blueprint = await generateStructuredSceneBlueprint(transcriptChunks, {
       title: videoTitle,
-      headingFont: 'Montserrat',
-      bodyFont: 'Plus Jakarta Sans',
+      headingFont,
+      bodyFont,
       backgroundTheme,
+      aspectRatio: targetAspectRatio,
+      videoType: targetVideoType,
     });
 
-    // Image visuals are paused; derive every scene graphic from the approved narration.
+    // Derive scene-by-scene graphics from the approved narration
     const sceneBlueprint = planFacelessGraphics(blueprint.scenes).map((scene) => ({
       ...scene,
-      visualAssetRequirement: "",
-      brollSearchQuery: "",
+      visualAssetRequirement: '',
+      brollSearchQuery: '',
     }));
 
-    // 5. Sound Effects (SFX) & High-Impact 3D Sticker Events
+    // 4. Sound Effects (SFX)
     const sfxEvents = generateSFXEvents(sceneBlueprint, 30, durationSeconds);
     const stickerEvents: any[] = []; // Faceless videos do NOT use 3D cartoon avatar presenters
 
@@ -163,7 +176,7 @@ export async function POST(req: Request) {
       ok: true,
       transcript,
       segments,
-      words: words,
+      words,
       durationSeconds,
       sceneBlueprint,
       brollUrls: {},
@@ -172,7 +185,8 @@ export async function POST(req: Request) {
       stickerEvents,
       warnings,
       videoTitle,
-      aspectRatio: '16:9',
+      aspectRatio: targetAspectRatio,
+      videoType: targetVideoType,
     });
   } catch (error: any) {
     console.error('[PLAN_FACELESS_API_ERROR]', error);

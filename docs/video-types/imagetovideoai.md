@@ -17,10 +17,10 @@
 | **Aspect Ratio** | 16:9 Cinema Widescreen |
 | **Resolution & Quality** | **1920×1080 (1080p Full HD)** |
 | **Frame Rate** | 30 FPS |
-| **Max Audio Duration** | Up to **10 minutes** (600 seconds) strictly per Rule 4.1 |
+| **Max Audio Duration** | Up to **5 minutes** (300 seconds) strictly per Rule 4.1 |
 | **Primary Category** | Cinema, Narrative Stories & Explainers |
-| **Credit Cost** | **1 Min = 1 Credit** (1m=1, 5m=5, 10m=10 Cr) per Rule 4.1 |
-| **Design System** | Google Analytics Obsidian Baseline (`#070B14`, `#0E1526`) + Intentional Color & Typography Variety Policy + M3. See [`COLOR_DESIGN_SYSTEM.md`](file:///c:/Users/user/.gemini/antigravity/scratch/itnavideo/COLOR_DESIGN_SYSTEM.md) |
+| **Credit Cost** | **1 Min = 1 Credit** (1m=1, 2m=2, 3m=3, 4m=4, 5m=5 Cr) per Rule 4.1 |
+| **Design System** | Clean White Studio Design (`bg-white`, `border-slate-200`, `text-slate-900`, `bg-slate-50`) + Pure White Canvas (`#FAFAFA` with delicate dot grid texture and warm ambient blooms). |
 | **Speech Transcription** | Extracted 16kHz audio → Groq Whisper Cloud API (Fallback: Gemini 2.0 Flash `asia-south1`) |
 | **Cloud Engine** | AWS Lambda (Remotion in `us-east-1` Mumbai) |
 
@@ -58,21 +58,24 @@
        - `🍃 Thoughtful Reflection & Pauses`: Slow settling pull-back (`1.05 ➔ 1.01`) that allows the scene to breathe naturally.
    - **`🎬 Itnavideo Library`**:
      - Match narration to our curated studio 16:9 cinematic photo and illustration library.
-3. **Step 3 — Captions & Subtitles**:
-   - Clean neutral dark slate subtitle cards (`bg-gradient-to-br from-[#070B14] via-[#0E1526] to-[#070B14]`) showing high-contrast visual style previews without title clutter.
-4. **Step 4 — Interactive Timeline & Script Editor**:
-   - Timestamped scene blocks mapping narration duration to sequential narration lines.
-   - **Editable Transcript**: Edit narration speech lines per scene directly on the timeline.
-   - **1-Click Image Swap**: Swap any scene's image with a local file upload trigger.
-   - **Map Unique Images 1:1**: 1-click button to distribute uploaded images across scenes sequentially without repeating images.
-5. **Unified Fixed Bottom Generate Bar**:
-   - Single clean sticky bar showing status (`✓ Audio Ready  ✓ Visuals  12:00 Max  ~X credits`) + `[ Generate Video → ]`.
-6. **Step 6 — Instant 1-Click Viral Export (Strictly 16:9 Widescreen Broadcast)**:
+3. **Step 3 — 20 Master YouTube Caption Styles**:
+   - 20 high-contrast animated caption styles (`TWENTY_CAPTION_STYLES`) organized across category tabs (Viral, Cinema, Modern, Tech, Book, Editorial, Creative).
+   - Rendered using `UniversalCaptionLayer` with `backgroundTheme="solid-white"` so text is crisp and legible on light canvases.
+4. **Step 4 — Background Music & SFX Catalog**:
+   - 13+ curated AWS S3 library background tracks (`AWS_BGM_TRACKS`) with instant play/pause audition.
+   - Custom background music file upload.
+   - Volume slider with default set strictly to 12% (`0.12`) and presets (0%, 5%, 12%, 20%, 35%).
+   - Timed scene transition sound effects (`pop.mp3`, `chime.mp3`).
+5. **Step 5 — Spoken Narration Editorial Transcript Editor**:
+   - Dedicated editorial panel where users can review and correct spoken speech-to-text words and fix any spelling mistakes or typos.
+6. **Step 6 — Compulsory 16:9 Live Preview & Verification**:
+   - Interactive 16:9 widescreen player previewing camera motion, subtitles, and scenes.
+   - Compulsory review gate: The final "Render 1080p Widescreen Video" button remains locked until the user verifies the preview (`previewConfirmed`).
+7. **Step 7 — Instant 1-Click Widescreen Export (Strictly 16:9 Cinema Widescreen)**:
    - **Strictly 16:9 Cinema Widescreen Only** (1920×1080 Full HD, 30 FPS, H.264, AAC 320kbps) per Rule 4.1.
    - **1-Click Master Video Download**: Direct instant download of the 1080p MP4 file.
-   - **📲 Mobile Transfer QR Code**: Direct QR scanner code enabling creators to scan with their phone camera and save the 16:9 video straight into their mobile camera roll for instant YouTube Studio publishing.
    - **Cloud Link Copy**: 1-click button to copy the 48-hour secure AWS S3 presigned direct access URL.
-   - **YouTube Viral Creator Launch Kit**: Auto-generated 3 high-CTR viral titles, timestamped chapters, and SEO tags.
+   - **YouTube Viral Creator Launch Kit**: Auto-generated viral titles, timestamped chapters, and SEO tags.
 
 ---
 

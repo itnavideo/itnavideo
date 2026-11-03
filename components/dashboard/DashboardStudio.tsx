@@ -109,7 +109,9 @@ type Mode =
   | "bookSummary"
   | "facelessVideo"
   | "imageToVideoAi"
-  | "aiVideoGenerator";
+  | "aiVideoGenerator"
+  | "aiVideoPolisher"
+  | "aiShortsPolisher";
 type CaptionStudioSettings = {
   fontFamily: string;
   fontSizePx: number;
@@ -6301,6 +6303,25 @@ function getRenderSteps(progress: number, status: JobStatus, mode: Mode) {
 }
 
 function getRenderStepDefinitions(mode: Mode) {
+  if ((mode as string) === "aiVideoPolisher") {
+    return [
+      {label: "Video & layers received", detail: "Widescreen video and graphic overlays are safely uploaded.", threshold: 0.08, icon: Upload},
+      {label: "Transcribing speech", detail: "AI detecting speech cadence, pauses, and word timestamps.", threshold: 0.24, icon: Layers3},
+      {label: "Applying cuts & zoom", detail: "Cutting silent dead-air and computing dynamic +12% camera punch-ins.", threshold: 0.45, icon: Sparkles},
+      {label: "Rendering 16:9 MP4", detail: "Building polished 1080p widescreen video with synced captions and BGM.", threshold: 0.85, icon: Film},
+      {label: "Ready to download", detail: "Your polished widescreen YouTube video appears here when ready.", threshold: 0.96, icon: Clapperboard},
+    ];
+  }
+  if ((mode as string) === "aiShortsPolisher") {
+    return [
+      {label: "Video & layers received", detail: "Smartphone vertical clips and overlay graphics are uploaded.", threshold: 0.08, icon: Upload},
+      {label: "Transcribing speech", detail: "AI Speech Engine detecting silence gaps and word timings.", threshold: 0.24, icon: Layers3},
+      {label: "Applying jump-cuts & zoom", detail: "Removing dead-air gaps and syncing dynamic camera zoom punch-ins.", threshold: 0.45, icon: Sparkles},
+      {label: "Rendering 9:16 Shorts", detail: "Building polished vertical 1080p reel with kinetic captions and BGM.", threshold: 0.85, icon: Film},
+      {label: "Ready to download", detail: "Your polished vertical short appears here when ready.", threshold: 0.96, icon: Clapperboard},
+    ];
+  }
+
   if (mode === "typographyVideo") {
     return [
       {label: "Media received", detail: "Your video or audio file is safely uploaded.", threshold: 0.08, icon: Upload},

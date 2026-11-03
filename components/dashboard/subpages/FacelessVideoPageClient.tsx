@@ -664,24 +664,24 @@ export default function FacelessVideoPageClient() {
   const etaSeconds = calculateEtaSeconds();
 
   return (
-    <main className="min-h-screen bg-[#0A0B0E] text-white selection:bg-[#FF5722]/30 selection:text-white">
+    <main className="min-h-screen bg-slate-50 text-slate-900 selection:bg-[#FF5722]/20 selection:text-[#FF5722]">
       {/* ── TOP NAVIGATION ── */}
-      <header className="sticky top-0 z-50 border-b border-white/[0.08] bg-[#0E0F14]/90 backdrop-blur-md">
+      <header className="sticky top-0 z-50 border-b border-slate-200/90 bg-white/95 backdrop-blur-md shadow-xs">
         <div className="mx-auto flex max-w-[1520px] h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-5">
             <Link
               href="/dashboard"
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.05] text-zinc-300 hover:bg-white/[0.1] hover:text-white transition active:scale-95 shadow-xs"
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 transition active:scale-95 shadow-xs"
               title="Return to Dashboard"
             >
               <ArrowLeft size={16} />
             </Link>
-            <BrandLogo size="sm" variant="dark" />
+            <BrandLogo size="sm" variant="light" />
           </div>
 
           <div className="flex items-center gap-3">
             {billingEntitlement && (
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-[#141519] px-3.5 py-1 text-xs font-semibold text-zinc-300 shadow-xs">
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-1 text-xs font-semibold text-slate-800 shadow-xs">
                 <Zap size={13} className="text-[#FF5722]" />
                 <span>{billingEntitlement.usage?.remaining ?? 0} Credits Left</span>
               </div>
@@ -693,16 +693,16 @@ export default function FacelessVideoPageClient() {
       {/* ── MAIN CONTENT CONTAINER (WIDENED TO 1520PX FOR STUDIO WORKSPACE) ── */}
       <div className="mx-auto max-w-[1520px] px-4 py-8 sm:px-6 lg:px-8 space-y-8">
         {/* Page Title & Badging */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-white/[0.07]">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-200">
           <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-[11px] font-semibold text-orange-400 shadow-xs mb-1.5">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-[11px] font-semibold text-[#FF5722] shadow-xs mb-1.5">
               <Sparkles size={12} className="text-[#FF5722]" />
-              <span>Flagship Widescreen Studio</span>
+              <span>Flagship 16:9 Widescreen Studio</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
               Faceless Video Generator
             </h1>
-            <p className="text-xs sm:text-sm text-zinc-400 mt-0.5">
+            <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
               Create professional 1080p Full HD widescreen YouTube videos from narration audio with automatic B-roll, subtitles, and music.
             </p>
           </div>
@@ -710,7 +710,7 @@ export default function FacelessVideoPageClient() {
           <div className="flex items-center gap-3 self-start sm:self-center">
             <Link
               href="/dashboard/faceless-video/preview"
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 text-xs font-bold transition shadow-xs"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-orange-200 bg-orange-50 hover:bg-orange-100 text-[#FF5722] text-xs font-bold transition shadow-xs"
             >
               <Tv className="w-4 h-4" />
               <span>Live 16:9 Studio Demo</span>
@@ -821,28 +821,28 @@ export default function FacelessVideoPageClient() {
 
         {/* ── RECENT RENDERS ARCHIVE ── */}
         {recentRenders.length > 0 && jobStatus.state === "idle" && (
-          <div className="rounded-3xl border border-white/[0.08] bg-[#141519] p-6 shadow-xl space-y-4">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-400">
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500">
               Recent Faceless Videos
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {recentRenders.map((render) => (
                 <div
                   key={render.id}
-                  className="rounded-2xl border border-white/[0.06] p-4 space-y-3 bg-[#181A20] hover:bg-[#1E2028] transition flex flex-col justify-between"
+                  className="rounded-2xl border border-slate-200 p-4 space-y-3 bg-slate-50/70 hover:bg-slate-100 transition flex flex-col justify-between shadow-xs"
                 >
                   <div>
-                    <p className="text-xs font-bold text-white truncate">{render.title}</p>
-                    <p className="text-[11px] text-zinc-400 mt-0.5">
+                    <p className="text-xs font-bold text-slate-900 truncate">{render.title}</p>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
                       {new Date(render.createdAt).toLocaleDateString()} • 16:9 1080p
                     </p>
                   </div>
-                  <div className="flex items-center justify-between pt-2 border-t border-white/[0.06]">
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-200">
                     <a
                       href={render.outputFile}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-zinc-300 hover:text-white"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-slate-900"
                     >
                       <Play size={12} />
                       <span>Preview</span>
@@ -850,7 +850,7 @@ export default function FacelessVideoPageClient() {
                     <a
                       href={render.outputFile}
                       download
-                      className="inline-flex items-center gap-1 text-xs font-bold text-orange-400 hover:text-orange-300"
+                      className="inline-flex items-center gap-1 text-xs font-bold text-[#FF5722] hover:text-orange-600"
                     >
                       <Download size={12} />
                       <span>Download</span>
@@ -865,17 +865,17 @@ export default function FacelessVideoPageClient() {
 
       {/* ── CANCEL CONFIRMATION MODAL ── */}
       {showCancelModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4">
-          <div className="rounded-3xl border border-white/[0.1] bg-[#141519] p-6 max-w-sm w-full space-y-4 shadow-2xl">
-            <h3 className="text-base font-bold text-white">Cancel Video Generation?</h3>
-            <p className="text-xs text-zinc-300 leading-relaxed">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 max-w-sm w-full space-y-4 shadow-2xl">
+            <h3 className="text-base font-bold text-slate-900">Cancel Video Generation?</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
               Are you sure you want to cancel? The render job will stop immediately and any reserved credits will be refunded to your account balance.
             </p>
             <div className="flex items-center justify-end gap-2 pt-2">
               <button
                 type="button"
                 onClick={() => setShowCancelModal(false)}
-                className="rounded-xl border border-white/[0.08] px-3.5 py-2 text-xs font-semibold text-zinc-300 hover:bg-white/5 transition cursor-pointer"
+                className="rounded-xl border border-slate-200 px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition cursor-pointer"
               >
                 Keep Rendering
               </button>
@@ -883,7 +883,7 @@ export default function FacelessVideoPageClient() {
                 type="button"
                 onClick={handleConfirmCancel}
                 disabled={isCancelling}
-                className="rounded-xl bg-red-600 hover:bg-red-700 px-3.5 py-2 text-xs font-bold text-white transition cursor-pointer"
+                className="rounded-xl bg-red-600 hover:bg-red-700 px-3.5 py-2 text-xs font-bold text-white transition cursor-pointer shadow-xs"
               >
                 {isCancelling ? "Cancelling..." : "Yes, Cancel"}
               </button>

@@ -1,181 +1,185 @@
 import React from 'react';
-import { interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
-import { BrowserMockupFrame } from '../components/BrowserMockupFrame';
-import { DecodingCardMockup } from '../components/DecodingCardMockup';
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
+import { VectorDrawingIcon } from '../../../components/graphics/VectorDrawingIcon';
+import { useVideoDesignSystem } from '../designSystem';
+import {
+  SceneCanvas,
+  SceneHeader,
+  StudioCard,
+} from '../components/DesignSystemPrimitives';
 
 export interface ScreenshotSceneProps {
   scene: SceneBlueprintItem;
   mediaUrl?: string;
   headingFont?: string;
   bodyFont?: string;
+  sceneFrame?: number;
+  palette?: { isDark?: boolean } | null;
 }
 
 export function ScreenshotScene({
   scene,
-  mediaUrl,
-  headingFont = 'Montserrat, Inter, system-ui, sans-serif',
-  bodyFont = 'Inter, system-ui, sans-serif',
+  headingFont = 'Montserrat, "Plus Jakarta Sans", sans-serif',
+  bodyFont = 'Inter, "Plus Jakarta Sans", sans-serif',
+  sceneFrame,
+  palette,
 }: ScreenshotSceneProps) {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-
-  const entrance = spring({
-    frame,
-    fps,
-    config: { damping: 14, mass: 0.8 },
+  const ds = useVideoDesignSystem({
+    sceneFrame,
+    durationSec: scene.duration,
+    palette,
   });
 
-  const scale = interpolate(entrance, [0, 1], [0.9, 1.0]);
-  const activeMediaUrl = mediaUrl || scene.visualAssetRequirement || '';
-
-  const headline = scene.heading || 'HIGH IMPACT NICHE BREAKTHROUGH';
-  const highlightWord = (scene.highlightedWords && scene.highlightedWords[0]) || '';
-
-  // Determine contextual mockup presentation
-  const contextString = `${headline} ${scene.supportingText || ''} ${scene.narrationSegment?.text || ''}`;
-  const isDigitalProductContext =
-    /ebook|book|pdf|guide|blueprint|digital product|course|stripe|gumroad|sales|\$506|\$|revenue|passive income/i.test(
-      contextString
-    );
-  const isAiPromptContext =
-    /prompt|claude|chatgpt|gpt|ai tool|generative|midjourney|prompting/i.test(
-      contextString
-    ) && !isDigitalProductContext;
-  const isYoutubeContext =
-    /youtube|channel|video|thumbnail|views|subscribers|creator|niche|faceless/i.test(
-      contextString
-    );
+  const headline = scene.heading || 'DIGITAL SYSTEM SHOWCASE';
+  const categoryPill = scene.categoryPill || 'SYSTEM SHOWCASE';
+  const supportingText =
+    scene.supportingText && scene.supportingText !== headline
+      ? scene.supportingText
+      : scene.narrationSegment?.text || '';
 
   return (
-    <div
-      style={{
-        position: 'absolute',
-        inset: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '50px 80px',
-        zIndex: 15,
-        opacity: entrance,
-        transform: `scale(${scale})`,
-        fontFamily: bodyFont,
-      }}
+    <SceneCanvas
+      sceneFrame={sceneFrame}
+      durationSec={scene.duration}
+      palette={palette}
+      accentTone="sky"
+      fontFamily={bodyFont}
     >
-      {isDigitalProductContext ? (
+      <SceneHeader
+        categoryPill={categoryPill}
+        heading={headline}
+        highlightedWords={scene.highlightedWords}
+        headingFont={headingFont}
+        bodyFont={bodyFont}
+        tone="sky"
+        sceneFrame={sceneFrame}
+        palette={palette}
+      />
+
+      {/* Editorial Browser Window Frame */}
+      <StudioCard
+        tone="sky"
+        elevated
+        palette={palette}
+        progress={ds.motion.contentSpring}
+        style={{
+          width: '100%',
+          maxWidth: ds.layout.isVertical ? '920px' : '1240px',
+          padding: 0,
+          overflow: 'hidden',
+        }}
+      >
+        {/* Browser Chrome Header */}
         <div
           style={{
+            height: '52px',
+            backgroundColor: ds.surface.cardBgMuted,
+            borderBottom: ds.surface.borderSubtle,
             display: 'flex',
-            flexDirection: 'row',
             alignItems: 'center',
-            justifyContent: 'center',
-            gap: '64px',
-            width: '100%',
-            maxWidth: '1100px',
+            justifyContent: 'space-between',
+            padding: '0 24px',
           }}
         >
-          {/* Left: 3D Ebook Mockup with Spine Depth */}
-          <DecodingCardMockup
-            type="ebook_mockup"
-            title={headline}
-            viewCount={scene.supportingText || '13-PAGE BLUEPRINT'}
-            channelName={scene.quoteAuthor || 'CREATOR ASSET'}
-            accentColor="#FF5722"
-            fontFamily={headingFont}
-          />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#EF4444' }} />
+            <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#F59E0B' }} />
+            <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#10B981' }} />
+          </div>
 
-          {/* Right: Revenue Proof Card & Live Stripe Toasts */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '22px', alignItems: 'flex-start' }}>
-            <DecodingCardMockup
-              type="stripe_toast"
-              title={`Payment Received: ${scene.statValue || '+$27.00'}`}
-              viewCount="Stripe • Customer purchased Ebook"
-              fontFamily={bodyFont}
-            />
+          <div
+            style={{
+              padding: '5px 20px',
+              borderRadius: '9999px',
+              backgroundColor: ds.surface.cardBg,
+              border: ds.surface.borderSubtle,
+              fontSize: '12px',
+              fontWeight: 700,
+              color: ds.surface.textMuted,
+              letterSpacing: '0.03em',
+            }}
+          >
+            {headline.slice(0, 42)}
+          </div>
 
-            {/* High-Impact Proof Metric Display */}
+          <div style={{ width: '48px' }} />
+        </div>
+
+        {/* Browser Body Content */}
+        <div
+          style={{
+            padding: ds.layout.isVertical ? '32px 28px' : '40px 48px',
+            display: 'flex',
+            flexDirection: ds.layout.splitDirection,
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '36px',
+          }}
+        >
+          <div style={{ flex: 1.2 }}>
             <div
               style={{
-                backgroundColor: 'rgba(15, 23, 42, 0.94)',
-                border: '2px solid rgba(255, 87, 34, 0.35)',
-                borderRadius: '24px',
-                padding: '28px 36px',
-                boxShadow: '0 25px 60px rgba(0,0,0,0.85), 0 0 35px rgba(255, 87, 34, 0.25)',
+                fontSize: '12px',
+                fontWeight: 800,
+                letterSpacing: '0.1em',
+                color: ds.accents.sky.solid,
+                textTransform: 'uppercase',
+                marginBottom: '10px',
               }}
             >
-              <div
-                style={{
-                  fontSize: '13px',
-                  fontWeight: 900,
-                  color: '#FF7043',
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                  marginBottom: '6px',
-                }}
-              >
-                VERIFIED DIGITAL SALES
-              </div>
-              <div
-                style={{
-                  fontSize: '52px',
-                  fontWeight: 900,
-                  color: '#FFFFFF',
-                  letterSpacing: '-0.02em',
-                  lineHeight: 1.05,
-                }}
-              >
-                {scene.statValue || '$506,000'}
-              </div>
-              <div style={{ fontSize: '15px', color: '#94A3B8', fontWeight: 600, marginTop: '8px' }}>
-                {scene.supportingText || 'Generated from a single 13-page digital product'}
-              </div>
+              LIVE INTERFACE VIEW
             </div>
+            <h3
+              style={{
+                fontFamily: headingFont,
+                fontSize: `${ds.type.cardTitle.fontSize}px`,
+                fontWeight: 800,
+                color: ds.surface.textPrimary,
+                margin: '0 0 14px 0',
+                lineHeight: 1.25,
+              }}
+            >
+              {headline}
+            </h3>
+            {supportingText && (
+              <p
+                style={{
+                  fontSize: `${ds.type.bodyLg.fontSize}px`,
+                  fontWeight: 500,
+                  color: ds.surface.textSecondary,
+                  lineHeight: 1.48,
+                  margin: 0,
+                }}
+              >
+                {supportingText}
+              </p>
+            )}
+          </div>
+
+          <div
+            style={{
+              width: ds.layout.isVertical ? '240px' : '280px',
+              height: ds.layout.isVertical ? '240px' : '260px',
+              borderRadius: '20px',
+              backgroundColor: ds.surface.cardBgMuted,
+              border: ds.surface.borderSubtle,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <VectorDrawingIcon
+              keyword={scene.vectorDrawingId || `${headline} ${supportingText}`}
+              size={ds.layout.isVertical ? 190 : 220}
+              strokeWidth={4}
+              animated={true}
+              frameOverride={ds.localFrame}
+              theme={ds.surface.isDark ? 'dark' : 'light'}
+            />
           </div>
         </div>
-      ) : isAiPromptContext ? (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px' }}>
-          <DecodingCardMockup
-            type="ai_prompt_box"
-            title={scene.supportingText || headline}
-            accentColor="#FF5722"
-            fontFamily={headingFont}
-          />
-        </div>
-      ) : isYoutubeContext ? (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px' }}>
-          {/* YouTube Search Bar typing above */}
-          <DecodingCardMockup
-            type="search_bar"
-            title={headline}
-            accentColor="#FF5722"
-            fontFamily={headingFont}
-          />
-
-          {/* YouTube Tilted Video Thumbnail Card */}
-          <DecodingCardMockup
-            type="thumbnail_mockup"
-            imageSrc={activeMediaUrl}
-            title={headline}
-            channelName={scene.supportingText ? scene.supportingText.slice(0, 24) : 'Decoding Niche'}
-            viewCount="1.4M views • 2 weeks ago"
-            duration="14:28"
-            tiltAngle={-2.8}
-            highlightWord={highlightWord}
-            accentColor="#FF5722"
-            fontFamily={headingFont}
-          />
-        </div>
-      ) : (
-        <div style={{ width: '100%', maxWidth: '1200px', height: '620px' }}>
-          <BrowserMockupFrame
-            src={activeMediaUrl}
-            title={headline}
-            urlAddress="https://www.itnavideo.com/dashboard"
-            zoomEffect="browser-scroll"
-          />
-        </div>
-      )}
-    </div>
+      </StudioCard>
+    </SceneCanvas>
   );
 }

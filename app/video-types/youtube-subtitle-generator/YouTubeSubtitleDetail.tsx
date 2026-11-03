@@ -83,7 +83,7 @@ export default function YouTubeSubtitleDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070B14] text-slate-100 font-sans selection:bg-purple-500/30 selection:text-purple-200">
+    <div className="min-h-screen bg-[#070B14] text-slate-100 font-sans selection:bg-orange-500/30 selection:text-purple-200">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
@@ -94,35 +94,7 @@ export default function YouTubeSubtitleDetail() {
       />
 
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#070B14]/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-purple-600 via-fuchsia-500 to-pink-500 text-white font-black shadow-lg shadow-purple-500/20 group-hover:scale-105 transition-transform">
-              IV
-            </div>
-            <span className="text-xl font-extrabold tracking-tight text-white">
-              Itnavideo<span className="text-purple-400">.</span>
-            </span>
-          </Link>
-
-          <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-300">
-            <Link href="/video-types" className="hover:text-purple-400 transition">Video Types</Link>
-            <Link href="/faceless-video" className="hover:text-purple-400 transition">Faceless Video</Link>
-            <Link href="/auto-caption-generator" className="hover:text-purple-400 transition">Auto Captions</Link>
-            <Link href="/pricing" className="hover:text-purple-400 transition">Pricing</Link>
-          </nav>
-
-          <div className="flex items-center gap-4">
-            <Link
-              href="/dashboard?videoType=youtube-subtitle-generator"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 px-5 py-2.5 text-xs sm:text-sm font-extrabold text-white shadow-lg shadow-purple-500/25 transition hover:brightness-110 active:scale-95"
-            >
-              <Sparkles size={16} />
-              <span>Add Subtitles to YouTube Video</span>
-            </Link>
-          </div>
-        </div>
-      </header>
+      
 
       {/* HERO SECTION */}
       <section className="relative overflow-hidden pt-12 pb-16 lg:pt-20 lg:pb-24">
@@ -155,7 +127,7 @@ export default function YouTubeSubtitleDetail() {
             </Link>
             <Link
               href="/pricing"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#0E1526] px-8 py-4 text-base font-bold text-slate-200 hover:bg-[#152038] hover:border-purple-500/30 transition"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#0E1526] px-8 py-4 text-base font-bold text-slate-200 hover:bg-[#152038] hover:border-orange-500/30 transition"
             >
               <span>View Pricing Plans</span>
             </Link>
@@ -220,7 +192,7 @@ export default function YouTubeSubtitleDetail() {
 
               <div className="rounded-2xl border border-white/10 bg-[#0E1526] p-6 shadow-xl space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/10 text-orange-400 border border-orange-500/20">
                     <ShieldCheck size={20} />
                   </div>
                   <h3 className="text-lg font-bold text-white">Player Control Protection</h3>
@@ -251,7 +223,7 @@ export default function YouTubeSubtitleDetail() {
                     className="w-full flex items-center justify-between p-6 text-left focus:outline-none"
                   >
                     <span className="text-base sm:text-lg font-bold text-white pr-4">{faq.q}</span>
-                    <div className={`flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-purple-400 transition-transform ${isOpen ? 'rotate-180 bg-purple-500/20' : ''}`}>
+                    <div className={`flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-orange-400 transition-transform ${isOpen ? 'rotate-180 bg-orange-500/20' : ''}`}>
                       <ChevronDown size={18} />
                     </div>
                   </button>
@@ -274,7 +246,7 @@ export default function YouTubeSubtitleDetail() {
           <p className="text-slate-300 text-lg mb-8">Join thousands of creators delivering broadcast-quality landscape captions in seconds.</p>
           <Link
             href="/dashboard?videoType=youtube-subtitle-generator"
-            className="inline-flex items-center gap-3 rounded-2xl bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 px-8 py-4 text-base font-black text-white shadow-xl shadow-purple-500/25 transition hover:brightness-110"
+            className="inline-flex items-center gap-3 rounded-2xl bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 px-8 py-4 text-base font-black text-white shadow-xl shadow-orange-500/25 transition hover:brightness-110"
           >
             <Sparkles size={18} />
             <span>Generate 16:9 Subtitles Free</span>

@@ -92,14 +92,15 @@ export default function FacelessShortsPageClient() {
   // Studio configuration states
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [facelessImageFiles, setFacelessImageFiles] = useState<File[]>([]);
-  const [assetSourceMode, setAssetSourceMode] = useState<"library" | "upload" | "mix">("library");
+  const [facelessVideoFiles, setFacelessVideoFiles] = useState<File[]>([]);
+  const [assetSourceMode, setAssetSourceMode] = useState<"library" | "upload" | "mix">("upload");
   const [topicTitle, setTopicTitle] = useState("");
-  const [facelessBgmMood, setFacelessBgmMood] = useState<"lofi" | "tech" | "mystery" | "acoustic" | "none">("mystery");
+  const [facelessBgmMood, setFacelessBgmMood] = useState<"lofi" | "tech" | "mystery" | "acoustic" | "none">("lofi");
   const [facelessBgmVolume, setFacelessBgmVolume] = useState(0.12);
   const [facelessPacingStyle, setFacelessPacingStyle] = useState<"clean" | "cinematic" | "documentary" | "dynamic">("cinematic");
   const [facelessEnableSfx, setFacelessEnableSfx] = useState<boolean>(true);
   const [visualArtStyle, setVisualArtStyle] = useState<"realistic" | "3d" | "2d">("realistic");
-  const [subtitleStyle, setSubtitleStyle] = useState<string>("ali-editorial");
+  const [subtitleStyle, setSubtitleStyle] = useState<string>("glow-viral");
   const [captionAnimationStyle, setCaptionAnimationStyle] = useState<"mrbeast" | "handwriting" | "bouncy" | "smooth" | "capsule" | "decodingyt">("smooth");
   const [captionPosition, setCaptionPosition] = useState<"bottom" | "center" | "top">("bottom");
   const [backgroundTheme, setBackgroundTheme] = useState<string>("solid-white");
@@ -347,19 +348,32 @@ export default function FacelessShortsPageClient() {
       cachedAudioKeyRef.current = mediaKey;
 
       const uploadedImageKeys: string[] = [];
-      if (facelessImageFiles.length > 0 && assetSourceMode !== "library") {
+      if (facelessImageFiles.length > 0) {
         for (const img of facelessImageFiles) {
           const key = await uploadFileViaPresign(img, "FacelessShorts", user.id);
           uploadedImageKeys.push(key);
         }
       }
+      if (facelessVideoFiles.length > 0) {
+        for (const vid of facelessVideoFiles) {
+          const key = await uploadFileViaPresign(vid, "FacelessShorts", user.id);
+          uploadedImageKeys.push(key);
+        }
+      }
+
+      // Upload custom BGM if provided
+      let customBgmKey: string | undefined = undefined;
+      if (activeStoryboard?.customBgmFile) {
+        customBgmKey = await uploadFileViaPresign(activeStoryboard.customBgmFile, "FacelessShorts", user.id);
+      }
 
       const plannedTitle =
         activeStoryboard?.topicTitle ||
         topicTitle.trim() ||
-        (selectedFile?.name ? selectedFile.name.replace(/\.[^/.]+$/, "") : "Faceless Video");
+        (selectedFile?.name ? selectedFile.name.replace(/\.[^/.]+$/, "") : "Faceless Short");
 
-      const audioDuration = activeStoryboard?.durationSeconds || 60;
+      // Strictly 90s max for 9:16 Shorts per Rule 4.1
+      const audioDuration = Math.min(90, Math.max(5, activeStoryboard?.durationSeconds || 60));
 
       // 2. Submit Render Job with Approved Storyboard Blueprint
       const jobResponse = await fetch("/api/reels/jobs", {
@@ -371,7 +385,8 @@ export default function FacelessShortsPageClient() {
           contentType: selectedFile.type || "audio/mpeg",
           mediaType: "audio",
           mode: "facelessShorts",
-          subtitleStyle: activeStoryboard?.subtitleStyle || subtitleStyle,
+          subtitleStyle: activeStoryboard?.subtitleStyle || subtitleStyle || "glow-viral",
+          captionThemeId: activeStoryboard?.subtitleStyle || subtitleStyle || "glow-viral",
           captionAnimationStyle: activeStoryboard?.captionAnimationStyle || captionAnimationStyle,
           captionPosition: activeStoryboard?.captionPosition || captionPosition,
           uploadedImageKeys,
@@ -380,13 +395,16 @@ export default function FacelessShortsPageClient() {
           userId: user.id,
           userEmail: user.email || undefined,
           facelessBgmMood: activeStoryboard?.facelessBgmMood || facelessBgmMood,
-          facelessBgmVolume: activeStoryboard?.facelessBgmVolume ?? facelessBgmVolume,
+          facelessBgmVolume: activeStoryboard?.facelessBgmVolume ?? facelessBgmVolume ?? 0.12,
+          bgmVolume: activeStoryboard?.facelessBgmVolume ?? facelessBgmVolume ?? 0.12,
+          bgmUrl: activeStoryboard?.selectedBgmPath || undefined,
+          bgmKey: customBgmKey,
           facelessPacingStyle,
           facelessEnableSfx: activeStoryboard?.facelessEnableSfx ?? facelessEnableSfx,
-          aspectRatio: "16:9",
+          aspectRatio: "9:16",
           durationSeconds: audioDuration,
           sourceDurationSeconds: audioDuration,
-          mediaAspect: "landscape",
+          mediaAspect: "portrait",
           backgroundTheme: "solid-white",
           customBgUrl: "",
           visualArtStyle: activeStoryboard?.visualArtStyle || visualArtStyle,
@@ -394,9 +412,9 @@ export default function FacelessShortsPageClient() {
           sceneBlueprint: activeStoryboard?.sceneBlueprint,
           brollUrls: activeStoryboard?.brollUrls,
           approvedCaptions: activeStoryboard?.approvedCaptions,
-          transcript: activeStoryboard?.transcript,
+          transcript: activeStoryboard?.editableTranscript || activeStoryboard?.transcript,
           brandNamesHint: activeStoryboard?.brandNamesHint,
-          frameRange: audioDuration > 0 ? [0, Math.min(18000, Math.round(audioDuration * 30)) - 1] : undefined,
+          frameRange: audioDuration > 0 ? [0, Math.min(2700, Math.round(audioDuration * 30)) - 1] : undefined,
         }),
       });
 
@@ -654,25 +672,25 @@ export default function FacelessShortsPageClient() {
   const etaSeconds = calculateEtaSeconds();
 
   return (
-    <main className="min-h-screen bg-[#070B14] text-white selection:bg-[#FF5722]/30 selection:text-white">
-      {/*  TOP NAVIGATION  */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0B0F19]/90 backdrop-blur-md">
+    <main className="min-h-screen bg-slate-50 text-slate-900 pb-12 selection:bg-[#FF5722]/20 selection:text-[#FF5722]">
+      {/* TOP NAVIGATION (Clean White Surface) */}
+      <header className="sticky top-0 z-50 border-b border-slate-200/90 bg-white/95 backdrop-blur-md shadow-xs">
         <div className="mx-auto flex max-w-7xl h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-5">
             <Link
               href="/dashboard"
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-[#0E1526] text-zinc-300 hover:bg-[#141B2D] hover:text-white transition active:scale-95 shadow-xs"
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 transition active:scale-95 shadow-xs"
               title="Return to Dashboard"
             >
               <ArrowLeft size={16} />
             </Link>
-            <BrandLogo size="sm" variant="dark" />
+            <BrandLogo size="sm" variant="light" />
           </div>
 
           <div className="flex items-center gap-3">
             {billingEntitlement && (
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#0E1526] px-3.5 py-1 text-xs font-semibold text-zinc-300 shadow-xs">
-                <Zap size={13} className="text-[#FF5722]" />
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-1 text-xs font-bold text-slate-800 shadow-xs">
+                <Zap size={13} className="text-[#FF5722] fill-[#FF5722]" />
                 <span>{billingEntitlement.usage?.remaining ?? 0} Credits Left</span>
               </div>
             )}
@@ -680,20 +698,20 @@ export default function FacelessShortsPageClient() {
         </div>
       </header>
 
-      {/*  MAIN CONTENT CONTAINER  */}
+      {/* MAIN CONTENT CONTAINER */}
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
         {/* Page Title & Badging */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-white/10">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-200">
           <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-[11px] font-semibold text-orange-400 shadow-xs mb-1.5">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-[11px] font-bold text-[#FF5722] shadow-xs mb-1.5">
               <Sparkles size={12} className="text-[#FF5722]" />
-              <span>Flagship Widescreen Studio</span>
+              <span>9:16 Vertical Shorts Studio</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-              Faceless Video Generator
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+              Faceless AI Shorts Studio (9:16)
             </h1>
-            <p className="text-xs sm:text-sm text-zinc-400 mt-0.5">
-              Create professional 1080p Full HD widescreen YouTube videos from narration audio with automatic B-roll, subtitles, and music.
+            <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
+              Generate vertical 9:16 short-form viral videos (up to 90s) with kinetic typography, 20 animated subtitle styles, multiple images/clips, and auto-ducked music.
             </p>
           </div>
         </div>
@@ -767,6 +785,8 @@ export default function FacelessShortsPageClient() {
             onAssetSourceModeChange={setAssetSourceMode}
             uploadedImageFiles={facelessImageFiles}
             onUploadedImageFilesChange={setFacelessImageFiles}
+            uploadedVideoFiles={facelessVideoFiles}
+            onUploadedVideoFilesChange={setFacelessVideoFiles}
             onTranscribeAndPlan={handleTranscribeAndPlan}
             isPlanning={isPlanningAudio}
             planningMessage={planningMessage}
@@ -781,30 +801,30 @@ export default function FacelessShortsPageClient() {
           />
         )}
 
-        {/*  RECENT RENDERS ARCHIVE  */}
+        {/* RECENT RENDERS ARCHIVE */}
         {recentRenders.length > 0 && jobStatus.state === "idle" && (
-          <div className="rounded-3xl border border-white/10 bg-[#0D111D] p-6 shadow-xl space-y-4">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-400">
-              Recent Faceless Videos
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-600">
+              Recent Faceless Shorts
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {recentRenders.map((render) => (
                 <div
                   key={render.id}
-                  className="rounded-2xl border border-white/10 p-4 space-y-3 bg-[#121624] hover:bg-[#161C2E] transition flex flex-col justify-between"
+                  className="rounded-2xl border border-slate-200 p-4 space-y-3 bg-slate-50 hover:bg-white transition flex flex-col justify-between"
                 >
                   <div>
-                    <p className="text-xs font-bold text-white truncate">{render.title}</p>
-                    <p className="text-[11px] text-zinc-400 mt-0.5">
-                      {new Date(render.createdAt).toLocaleDateString()}  9:16 1080p
+                    <p className="text-xs font-bold text-slate-900 truncate">{render.title}</p>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      {new Date(render.createdAt).toLocaleDateString()} · 9:16 Vertical
                     </p>
                   </div>
-                  <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-200">
                     <a
                       href={render.outputFile}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-zinc-300 hover:text-white"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 hover:text-black"
                     >
                       <Play size={12} />
                       <span>Preview</span>
@@ -812,7 +832,7 @@ export default function FacelessShortsPageClient() {
                     <a
                       href={render.outputFile}
                       download
-                      className="inline-flex items-center gap-1 text-xs font-bold text-[#FFA000] hover:text-[#FF7043]"
+                      className="inline-flex items-center gap-1 text-xs font-bold text-[#FF5722] hover:text-[#FFA000]"
                     >
                       <Download size={12} />
                       <span>Download</span>
@@ -825,19 +845,19 @@ export default function FacelessShortsPageClient() {
         )}
       </div>
 
-      {/*  CANCEL CONFIRMATION MODAL  */}
+      {/* CANCEL CONFIRMATION MODAL */}
       {showCancelModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4">
-          <div className="rounded-3xl border border-white/15 bg-[#0E1526] p-6 max-w-sm w-full space-y-4 shadow-2xl">
-            <h3 className="text-base font-bold text-white">Cancel Video Generation?</h3>
-            <p className="text-xs text-zinc-300 leading-relaxed">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 max-w-sm w-full space-y-4 shadow-2xl">
+            <h3 className="text-base font-bold text-slate-900">Cancel Video Generation?</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
               Are you sure you want to cancel? The render job will stop immediately and any reserved credits will be refunded to your account balance.
             </p>
             <div className="flex items-center justify-end gap-2 pt-2">
               <button
                 type="button"
                 onClick={() => setShowCancelModal(false)}
-                className="rounded-xl border border-white/10 px-3.5 py-2 text-xs font-semibold text-zinc-300 hover:bg-white/5 transition cursor-pointer"
+                className="rounded-xl border border-slate-200 px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition cursor-pointer"
               >
                 Keep Rendering
               </button>

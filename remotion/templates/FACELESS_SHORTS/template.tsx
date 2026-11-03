@@ -69,7 +69,7 @@ import {
 } from '../../components/graphics';
 
 // Temporary editorial setting: faceless videos use typography and native SVG graphics instead of stock or uploaded images.
-const FACELESS_IMAGE_VISUALS_ENABLED = false;
+const FACELESS_IMAGE_VISUALS_ENABLED = true;
 
 export interface FacelessShortsProps {
   mediaSrc?: string;
@@ -77,6 +77,8 @@ export interface FacelessShortsProps {
   musicUrl?: string;
   musicSrc?: string;
   musicVolume?: number;
+  bgmUrl?: string;
+  bgmVolume?: number;
   subjectCutoutSrc?: string;
   enable3DTextBehindSubject?: boolean;
   showCaptions?: boolean;
@@ -257,12 +259,15 @@ export function FacelessShortsTemplate(props: FacelessShortsProps) {
   const currentTimeSec = frame / fps;
 
   // ── Dynamic Background Music Auto-Ducking Engine ──
-  const musicTrackUrl = props.musicUrl || props.musicSrc || '';
-  const resolvedMusicSrc = safeResolveMediaSrc(musicTrackUrl);
+  const musicTrackUrl = props.musicUrl || props.musicSrc || props.bgmUrl || '';
+  const resolvedMusicSrc = musicTrackUrl === 'none'
+    ? ''
+    : safeResolveMediaSrc(musicTrackUrl || 'assets/reusable/music/parasail-silent-partner.mp3');
 
   const dynamicMusicVolume = React.useMemo(() => {
-    // Default BGM volume strictly locked at 12% (capped at 30% per standard)
-    const baseDuckedVolume = Math.min(0.30, Math.max(0.08, props.musicVolume ?? 0.12));
+    // Default BGM volume strictly locked at 12% (user configurable)
+    const configuredVol = props.bgmVolume ?? props.musicVolume ?? 0.12;
+    const baseDuckedVolume = Math.min(0.35, Math.max(0.0, configuredVol));
     if (!activeCaptions || activeCaptions.length === 0) return baseDuckedVolume;
 
     const isSpeaking = activeCaptions.some((c) => {
@@ -417,7 +422,11 @@ export function FacelessShortsTemplate(props: FacelessShortsProps) {
       );
     }
 
-    if (scene.graphicPlan && scene.graphicPlan.kind !== 'concept') {
+    if (
+      scene.graphicPlan &&
+      (scene.graphicPlan.kind === 'allocation' || scene.graphicPlan.kind === 'growth') &&
+      scene.graphicPlan.items.length >= 2
+    ) {
       return (
         <FacelessGraphicScene
           key={sceneKey}
@@ -509,13 +518,24 @@ export function FacelessShortsTemplate(props: FacelessShortsProps) {
       layout === 'drawing_story' ||
       layout === 'sketch_story' ||
       (scene as Record<string, unknown>).explanationMode === 'drawing_story' ||
-      Boolean((scene as Record<string, unknown>).drawingKeyword) ||
-      /village|cottage|skyline|skyscraper|city of|road to|journey of|walked alone|carrying the burden|struggling with|basti|gao|safar/i.test(
-        `${scene.heading || ''} ${scene.supportingText || ''} ${scene.narrationSegment?.text || ''}`
-      );
+      Boolean((scene as Record<string, unknown>).drawingKeyword);
     if (isDrawingStoryContext) {
-      const explicitKeyword = (scene as Record<string, unknown>).drawingKeyword as string | undefined;
+      const explicitKeyword =
+        scene.vectorDrawingId ||
+        ((scene as Record<string, unknown>).drawingKeyword as string | undefined);
       const rawText = `${scene.heading || ''} ${scene.supportingText || ''} ${scene.narrationSegment?.text || ''}`.toLowerCase();
+      const fallbackRotation = [
+        'dream_big_vision',
+        'story_home_workspace',
+        'character_journey_walking',
+        'mindset_focus_lane',
+        'concept_zero_to_one',
+        'character_business_leader',
+        'story_journey_road',
+        'character_burning_passion',
+        'business_target_bullseye',
+        'character_thinking',
+      ];
       let resolvedKeyword = explicitKeyword;
       if (!resolvedKeyword) {
         if (/village|cottage|roots|childhood|rural|basti|gao/i.test(rawText)) resolvedKeyword = 'story_village_house';
@@ -525,7 +545,7 @@ export function FacelessShortsTemplate(props: FacelessShortsProps) {
         else if (/walk|traveler|moving|alone|stride|chalna/i.test(rawText)) resolvedKeyword = 'character_journey_walking';
         else if (/desk|laptop|study|late night|workspace/i.test(rawText)) resolvedKeyword = 'story_home_workspace';
         else if (/win|celebrat|success|victory/i.test(rawText)) resolvedKeyword = 'character_celebration';
-        else resolvedKeyword = 'character_thinking';
+        else resolvedKeyword = fallbackRotation[Math.max(0, (scene.sceneNumber || 1) - 1) % fallbackRotation.length];
       }
 
       return (
@@ -811,7 +831,7 @@ export function FacelessShortsTemplate(props: FacelessShortsProps) {
       );
     }
     if (layout === 'data_visualization' || (layout as string) === 'chart' || (layout as string) === 'diagram') {
-      return <ChartScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
+      return <ChartScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} sceneFrame={framesSinceSceneStart} palette={palette} />;
     }
     if (layout === 'screenshot_highlight' || (layout as string) === 'web_mockup') {
       return (
@@ -827,7 +847,7 @@ export function FacelessShortsTemplate(props: FacelessShortsProps) {
       );
     }
     if (layout === 'comparison') {
-      return <ComparisonScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
+      return <ComparisonScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} sceneFrame={framesSinceSceneStart} palette={palette} />;
     }
     if (layout === 'quote') {
       return (
@@ -842,7 +862,7 @@ export function FacelessShortsTemplate(props: FacelessShortsProps) {
       );
     }
     if (layout === 'ecosystem' || layout === 'framework' || (layout === 'checklist' && scene.sceneNumber % 3 === 0 && (scene.listItems?.length || 0) >= 3)) {
-      return <EcosystemScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
+      return <EcosystemScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} sceneFrame={framesSinceSceneStart} palette={palette} />;
     }
     const isRoadmapContext =
       layout === 'roadmap' ||
@@ -874,7 +894,7 @@ export function FacelessShortsTemplate(props: FacelessShortsProps) {
           </div>
         );
       }
-      return <RoadmapScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
+      return <RoadmapScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} sceneFrame={framesSinceSceneStart} palette={palette} />;
     }
     const isWorkflowContext =
       layout === 'workflow' ||
@@ -882,7 +902,7 @@ export function FacelessShortsTemplate(props: FacelessShortsProps) {
         `${scene.heading || ''} ${scene.supportingText || ''} ${scene.narrationSegment?.text || ''}`
       );
     if (isWorkflowContext) {
-      return <WorkflowScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
+      return <WorkflowScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} sceneFrame={framesSinceSceneStart} palette={palette} />;
     }
     const isGoalTargetContext =
       layout === 'goal_target' ||
@@ -890,7 +910,7 @@ export function FacelessShortsTemplate(props: FacelessShortsProps) {
         `${scene.heading || ''} ${scene.supportingText || ''} ${scene.narrationSegment?.text || ''}`
       );
     if (isGoalTargetContext) {
-      return <GoalTargetScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} />;
+      return <GoalTargetScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} sceneFrame={framesSinceSceneStart} palette={palette} />;
     }
     const isCalendarContext =
       layout === 'calendar_grid' ||
@@ -1403,7 +1423,7 @@ export function FacelessShortsTemplate(props: FacelessShortsProps) {
         }
 
         // Suppress subtitle ONLY when on-screen text already conveys the spoken words
-        if (isAdequatelyRepresented) return null;
+        // Keep captions continuous for viewer retention
 
         return (
           <UniversalCaptionLayer
@@ -1464,7 +1484,7 @@ export const FacelessShortsComposition = () => (
     defaultProps={{
       durationSeconds: 60,
       title: 'FACELESS SHORTS',
-      backgroundTheme: 'purple-vignette',
+      backgroundTheme: 'solid-white',
       musicVolume: 0.12,
     }}
     calculateMetadata={({ props }) => {

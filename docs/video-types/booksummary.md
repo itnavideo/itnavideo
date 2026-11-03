@@ -22,7 +22,11 @@ Book Summary Video transforms raw book notes, chapter outlines, key takeaways, a
 | **Audio Extraction** | 16kHz mono audio extracted before transcription |
 | **Transcription** | Primary: Groq Whisper Cloud API (Fallback: Google Gemini 2.0 Flash) |
 | **Remotion Composition ID** | `BOOK-SUMMARY` (`1920×1080`) |
-| **Color Accents** | Flame Orange (`#FF5722`), Sunset Amber (`#FFA000`), Dark Slate (`#0B0F19`) |
+| **Color Accents & Canvas** | Clean White Surface (`#FFFFFF` / `#FAFAFA`), Flame Orange (`#FF5722`), Sunset Amber (`#FFA000`), Dark Slate Text (`#0F172A`) |
+| **Audio Enhancement** | AWS S3 Music Library (13+ tracks) + Custom User BGM Upload + Volume Slider (Default: 12%) + Scene SFX |
+| **Subtitle Styling** | 20 Master YouTube 16:9 Caption Themes with word-level kinetic highlight |
+| **Editorial Transcript** | Inline Markdown / Text Editor to correct transcription typos before rendering |
+| **Preview Requirement** | **Compulsory Interactive 16:9 Live Preview** — Must inspect and approve preview before cloud render |
 
 ---
 

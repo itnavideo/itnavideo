@@ -34,11 +34,13 @@ const WIDESCREEN_PRODUCTS = [
   { label: 'Book Summary Video', desc: 'Turn book narration into cinematic lesson cards', href: '/dashboard/book-summary', icon: BookOpen },
   { label: 'Image to Video AI', desc: 'Animate photos into cinematic video beats', href: '/dashboard/image-to-video-ai', icon: Film },
   { label: 'YouTube Subtitles', desc: '1080p Full HD burned subtitles for podcasts', href: '/dashboard/youtube-subtitles', icon: Captions },
+  { label: 'AI Video Polisher', desc: 'Auto jump-cuts, dynamic zoom & PIP overlay', href: '/dashboard/ai-video-polisher', icon: Sparkles },
   { label: 'AI Audio Cleaner', desc: 'Studio audio noise cleanup & retake detection', href: '/dashboard/audio-cleaner', icon: Mic },
 ];
 
 const VERTICAL_PRODUCTS = [
   { label: 'Auto Caption Generator', desc: 'Kinetic animated captions for Reels & Shorts', href: '/dashboard/auto-caption', icon: Smartphone },
+  { label: 'AI Shorts Polisher', desc: 'Auto jump-cuts, dynamic zoom & PIP overlay', href: '/dashboard/ai-shorts-polisher', icon: Smartphone },
   { label: 'Whiteboard Animation', desc: 'Hand-drawn sketch & stickman explainers', href: '/dashboard/whiteboard-video', icon: PenTool },
   { label: 'Compare Explainer', desc: 'Side-by-side comparison video generator', href: '/dashboard/compare-explainer', icon: Columns },
   { label: 'Long Video to Clips', desc: 'Auto hook detector clips from long videos', href: '/dashboard/long-video-clips', icon: Scissors },
@@ -170,7 +172,7 @@ export default function Navbar() {
                                 Faceless Video AI
                               </h4>
                               <p className="text-xs text-gray-500 font-medium">Auto B-roll, voiceover &amp; captions</p>
-                            </div>
+
                           </Link>
 
                           <Link
@@ -186,7 +188,7 @@ export default function Navbar() {
                                 Auto Captions
                               </h4>
                               <p className="text-xs text-gray-500 font-medium">Kinetic captions for Reels &amp; Shorts</p>
-                            </div>
+
                           </Link>
 
 
@@ -203,7 +205,7 @@ export default function Navbar() {
                                 Whiteboard Animation
                               </h4>
                               <p className="text-xs text-gray-500 font-medium">Stickman &amp; doodle explainers</p>
-                            </div>
+
                           </Link>
 
                           <Link
@@ -219,7 +221,42 @@ export default function Navbar() {
                                 Compare Explainer
                               </h4>
                               <p className="text-xs text-gray-500 font-medium">Side-by-side comparison generator</p>
+
+                          </Link>
+
+                          <Link
+                            href="/dashboard/ai-shorts-polisher"
+                            onClick={() => setActiveMenu(null)}
+                            className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
+                          >
+                            <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-lg flex items-center justify-center shrink-0">
+                              ⚡
+                            </span>
+                            <div>
+                              <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
+                                AI Shorts Polisher
+                              </h4>
+                              <p className="text-xs text-gray-500 font-medium">Auto jump-cuts &amp; dynamic zoom</p>
                             </div>
+                          </Link>
+
+                          <Link
+                            href="/dashboard/ai-shorts-polisher"
+                            onClick={() => setActiveMenu(null)}
+                            className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
+                          >
+                            <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-lg flex items-center justify-center shrink-0">
+                              ⚡
+                            </span>
+                            <div>
+                              <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
+                                AI Shorts Polisher
+                              </h4>
+                              <p className="text-xs text-gray-500 font-medium">Auto jump-cuts &amp; dynamic zoom</p>
+
+                          </Link>
+
+
                           </Link>
                         </div>
 
@@ -242,7 +279,7 @@ export default function Navbar() {
                                 Long Video Clips
                               </h4>
                               <p className="text-xs text-gray-500 font-medium">Cut viral shorts from long videos</p>
-                            </div>
+
                           </Link>
 
                           <Link
@@ -258,7 +295,7 @@ export default function Navbar() {
                                 Book Summary Video
                               </h4>
                               <p className="text-xs text-gray-500 font-medium">Cinematic explainer lesson cards</p>
-                            </div>
+
                           </Link>
 
                           <Link
@@ -274,7 +311,7 @@ export default function Navbar() {
                                 Image to Video AI
                               </h4>
                               <p className="text-xs text-gray-500 font-medium">Animate photos into video beats</p>
-                            </div>
+
                           </Link>
 
                           <Link
@@ -290,7 +327,7 @@ export default function Navbar() {
                                 YouTube Subtitles
                               </h4>
                               <p className="text-xs text-gray-500 font-medium">1080p burned-in subtitles</p>
-                            </div>
+
                           </Link>
 
                           <Link
@@ -306,7 +343,7 @@ export default function Navbar() {
                                 AI Audio Cleaner
                               </h4>
                               <p className="text-xs text-gray-500 font-medium">Studio voice cleanup &amp; retake fix</p>
-                            </div>
+
                           </Link>
                         </div>
                       </div>
@@ -384,7 +421,7 @@ export default function Navbar() {
                             >
                               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-orange-200/80 bg-orange-50 text-orange-600 group-hover:bg-orange-500 group-hover:text-white group-hover:border-transparent transition">
                                 <Icon size={16} />
-                              </div>
+  
                               <div>
                                 <p className="text-xs font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
                                   {item.label}
@@ -392,7 +429,7 @@ export default function Navbar() {
                                 <p className="text-[11px] font-medium leading-snug mt-0.5 text-gray-500">
                                   {item.desc}
                                 </p>
-                              </div>
+  
                             </Link>
                           );
                         })}

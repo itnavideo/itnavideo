@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { getOptimizedCloudinaryUrl } from '@/lib/utils';
 import Link from 'next/link';
 import {
   Captions,
@@ -42,6 +43,19 @@ export interface VideoTypeItem {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const WIDESCREEN_169_STUDIOS: VideoTypeItem[] = [
+  {
+    id: 'ai-video-polisher',
+    name: 'AI YouTube Video Polisher',
+    href: '/dashboard/ai-video-polisher',
+    publicHref: '/dashboard/ai-video-polisher',
+    icon: Sparkles,
+    iconBgClass: 'bg-blue-500/15 border border-blue-500/30',
+    iconColorClass: 'text-blue-500',
+    aspectRatio: '16:9',
+    description: 'Auto silence jump-cuts, dynamic camera zoom punch-ins (+12%) & PIP overlay layers.',
+    badgeLabel: 'Auto Editor',
+    imagePreview: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1792946360/Professional_Presenter_in_Charcoal_Suit_ty6e33.png',
+  },
   {
     id: 'faceless-video',
     name: 'Faceless Video',
@@ -99,6 +113,19 @@ export const WIDESCREEN_169_STUDIOS: VideoTypeItem[] = [
 ];
 
 export const VERTICAL_916_STUDIOS: VideoTypeItem[] = [
+  {
+    id: 'ai-shorts-polisher',
+    name: 'AI Shorts Polisher',
+    href: '/dashboard/ai-shorts-polisher',
+    publicHref: '/dashboard/ai-shorts-polisher',
+    icon: Smartphone,
+    iconBgClass: 'bg-orange-500/15 border border-orange-500/30',
+    iconColorClass: 'text-orange-500',
+    aspectRatio: '9:16',
+    description: 'Auto silence jump-cuts, dynamic camera zoom punch-ins (+12%) & PIP overlay layers.',
+    badgeLabel: 'Reels Co-Pilot',
+    imagePreview: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1788190063/file_0000000089c48211b67c16fe3c2636a2_prirg0.png',
+  },
   {
     id: 'faceless-shorts',
     name: 'Faceless Shorts',
@@ -474,7 +501,7 @@ export default function TenStudiosHubArchitecture() {
                           {/* Ambient Blurred Background Glow Layer */}
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
-                            src={item.imagePreview}
+                            src={getOptimizedCloudinaryUrl(item.imagePreview, 100)}
                             alt=""
                             aria-hidden="true"
                             className="absolute inset-0 h-full w-full object-cover scale-125 blur-xl opacity-20 pointer-events-none"
@@ -483,14 +510,14 @@ export default function TenStudiosHubArchitecture() {
                           {/* Full Uncropped Foreground Image */}
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
-                            src={item.imagePreview}
+                            src={getOptimizedCloudinaryUrl(item.imagePreview, 540)}
                             alt={item.name}
                             className="relative z-10 h-full w-full object-contain object-center transition-transform duration-500 group-hover:scale-105"
                             loading="lazy"
                             decoding="async"
                             onError={(e) => {
                               (e.target as HTMLImageElement).src =
-                                'https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png';
+                                getOptimizedCloudinaryUrl('https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png', 540);
                             }}
                           />
 
@@ -628,14 +655,14 @@ export default function TenStudiosHubArchitecture() {
                         >
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
-                            src={item.imagePreview}
+                            src={getOptimizedCloudinaryUrl(item.imagePreview, 640)}
                             alt={item.name}
                             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                             loading="lazy"
                             decoding="async"
                             onError={(e) => {
                               (e.target as HTMLImageElement).src =
-                                'https://res.cloudinary.com/dhouh9idx/image/upload/v1792945592/file_000000004290821180a71f25ad75480e_nztpwe.png';
+                                getOptimizedCloudinaryUrl('https://res.cloudinary.com/dhouh9idx/image/upload/v1792945592/file_000000004290821180a71f25ad75480e_nztpwe.png', 640);
                             }}
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-[#120F0D]/90 via-transparent to-transparent opacity-65 group-hover:opacity-30 transition-opacity" />
@@ -764,14 +791,14 @@ export default function TenStudiosHubArchitecture() {
                         >
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
-                            src={item.imagePreview}
+                            src={getOptimizedCloudinaryUrl(item.imagePreview, 640)}
                             alt={item.name}
                             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                             loading="lazy"
                             decoding="async"
                             onError={(e) => {
                               (e.target as HTMLImageElement).src =
-                                'https://res.cloudinary.com/dhouh9idx/image/upload/v1792946356/audio_cleaner_pipcxj.png';
+                                getOptimizedCloudinaryUrl('https://res.cloudinary.com/dhouh9idx/image/upload/v1792946356/audio_cleaner_pipcxj.png', 640);
                             }}
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-[#120F0D]/90 via-transparent to-transparent opacity-65 group-hover:opacity-30 transition-opacity" />

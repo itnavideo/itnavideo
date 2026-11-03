@@ -71,7 +71,12 @@ export function ScriptBubbleScene({
           opacity,
         }}
       >
-        <span>💬 OUTREACH PLAYBOOK</span>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+          OUTREACH PLAYBOOK
+        </span>
         <span>•</span>
         <span style={{ color: FACELESS_DESIGN_TOKENS.colors.textPrimary }}>{sceneTitle}</span>
       </div>
@@ -185,7 +190,13 @@ export function ScriptBubbleScene({
             color: FACELESS_DESIGN_TOKENS.colors.textSecondary,
           }}
         >
-          <span>🎯 Goal: 0% friction, 100% psychological validation</span>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            Goal: 0% friction, 100% psychological validation
+          </span>
           <span style={{ fontWeight: 700, color: FACELESS_DESIGN_TOKENS.colors.accentCoral }}>
             Copy Word-for-Word
           </span>

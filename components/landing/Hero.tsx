@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { getOptimizedCloudinaryUrl } from '@/lib/utils';
 import {
   Sparkles,
   Play,
@@ -154,13 +155,18 @@ export default function Hero() {
               {/* Background Video Mock Image */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={
+                src={getOptimizedCloudinaryUrl(
                   previewFormat === '16:9'
                     ? 'https://res.cloudinary.com/dhouh9idx/image/upload/v1792945592/file_000000004290821180a71f25ad75480e_nztpwe.png'
-                    : 'https://res.cloudinary.com/dhouh9idx/image/upload/v1792945593/file_00000000806482119547c1b937b7e386_zsrmkb.png'
-                }
+                    : 'https://res.cloudinary.com/dhouh9idx/image/upload/v1792945593/file_00000000806482119547c1b937b7e386_zsrmkb.png',
+                  960
+                )}
                 alt={previewFormat === '16:9' ? '16:9 YouTube Faceless Video' : '9:16 Auto Caption Reel'}
                 className="w-full h-full object-cover opacity-90 transition-all duration-500 select-none"
+                width={960}
+                height={540}
+                fetchPriority="high"
+                decoding="async"
               />
 
               {/* Dark Gradient Overlay for Contrast */}

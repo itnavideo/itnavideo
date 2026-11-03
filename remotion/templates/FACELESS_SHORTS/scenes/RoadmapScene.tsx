@@ -1,11 +1,14 @@
 import React from 'react';
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
+import type { BackgroundColorPalette } from '../../../components/backgrounds/BackgroundCatalog';
 
 export interface RoadmapSceneProps {
   scene: SceneBlueprintItem;
   headingFont?: string;
   bodyFont?: string;
+  sceneFrame?: number;
+  palette?: BackgroundColorPalette;
 }
 
 interface MilestoneStep {
@@ -16,20 +19,55 @@ interface MilestoneStep {
   accent?: string;
 }
 
+/* ───────────────────────── SVG Icons ───────────────────────── */
+
+function RocketIcon({ size = 16, color = '#FFA000' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+      <path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+      <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+      <path d="M12 9V4s3.03.55 4 2c1.08 1.62 0 5 0 5" />
+    </svg>
+  );
+}
+
+function FlagCheckIcon({ size = 18, color = '#10B981' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+      <line x1="4" y1="22" x2="4" y2="15" />
+    </svg>
+  );
+}
+
 export function RoadmapScene({
   scene,
   headingFont = 'Montserrat, Inter, system-ui, sans-serif',
   bodyFont = 'Inter, system-ui, sans-serif',
+  sceneFrame,
+  palette,
 }: RoadmapSceneProps) {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, width, height } = useVideoConfig();
+  const currentFrame = sceneFrame ?? frame;
 
-  // Entrance spring
-  const headerSpring = spring({ frame, fps, config: { damping: 14, stiffness: 110 } });
-  const progressSpring = spring({ frame: Math.max(0, frame - 10), fps, config: { damping: 18, stiffness: 80 } });
+  const isPortrait = height > width;
+  const s = Math.min(width, height) / 1080;
+  const isDark = palette?.isDark ?? true;
 
-  const heading = scene.heading || 'THE 2026 ACCELERATED ROADMAP';
-  const supportingText = scene.supportingText || 'Step-by-step master progression';
+  const bg = isDark ? (palette?.background || '#090D16') : '#FFFFFF';
+  const textPrimary = isDark ? '#FFFFFF' : '#0F172A';
+  const textSecondary = isDark ? '#94A3B8' : '#64748B';
+  const cardBg = isDark ? 'rgba(15, 23, 42, 0.94)' : '#FFFFFF';
+  const cardBorder = isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)';
+
+  // Entrance springs
+  const headerSpring = spring({ frame: currentFrame, fps, config: { damping: 14, stiffness: 110 } });
+  const progressSpring = spring({ frame: Math.max(0, currentFrame - 8), fps, config: { damping: 18, stiffness: 80 } });
+
+  const heading = scene.heading || 'STRATEGIC MASTER ROADMAP';
+  const supportingText = scene.supportingText || 'Step-by-step sequential blueprint';
 
   // Extract or synthesize 4 milestone steps
   const steps: MilestoneStep[] =
@@ -40,37 +78,37 @@ export function RoadmapScene({
             number: `0${i + 1}`,
             title: (parts[0] || `STAGE ${i + 1}`).trim(),
             detail: (parts[1] || parts[0] || 'Core milestone competency').trim(),
-            badge: i === 3 ? 'FINAL DESTINATION' : `PHASE ${i + 1}`,
+            badge: i === 3 ? 'DESTINATION' : `PHASE ${i + 1}`,
             accent: i === 3 ? '#10B981' : i === 0 ? '#38BDF8' : i === 1 ? '#FF5722' : '#FFA000',
           };
         })
       : [
           {
             number: '01',
-            title: 'Foundations & Math',
-            detail: 'Python syntax, tensors, vectors & GPU compute',
-            badge: 'STEP 1',
+            title: 'Foundation & Principles',
+            detail: 'Core fundamentals, leverage drivers & workflow setup',
+            badge: 'PHASE 1',
             accent: '#38BDF8',
           },
           {
             number: '02',
-            title: 'RAG & Context',
-            detail: 'Embedding models, vector stores & chunk retrieval',
-            badge: 'STEP 2',
+            title: 'Systems & Architecture',
+            detail: 'Automated ingestion, context design & scaling loop',
+            badge: 'PHASE 2',
             accent: '#FF5722',
           },
           {
             number: '03',
-            title: 'Fine-Tuning',
-            detail: 'LoRA, Unsloth, Llama 3 & open weights',
-            badge: 'STEP 3',
+            title: 'Execution & Velocity',
+            detail: 'Rapid iteration, distribution engine & optimization',
+            badge: 'PHASE 3',
             accent: '#FFA000',
           },
           {
             number: '04',
-            title: 'Autonomous Agents',
-            detail: 'Tool calling, Model Context Protocol & production swarms',
-            badge: 'MASTERY',
+            title: 'Autonomous Scale',
+            detail: 'Compounding assets, sustainable leverage & full mastery',
+            badge: 'DESTINATION',
             accent: '#10B981',
           },
         ];
@@ -84,106 +122,111 @@ export function RoadmapScene({
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '50px 80px',
+        padding: isPortrait ? `${160 * s}px ${45 * s}px ${180 * s}px` : `${50 * s}px ${80 * s}px`,
         zIndex: 15,
+        backgroundColor: bg,
+        boxSizing: 'border-box',
+        overflow: 'hidden',
         fontFamily: bodyFont,
       }}
     >
-      {/* Top Header */}
+      {/* ── Top Header ── */}
       <div
         style={{
           textAlign: 'center',
-          marginBottom: '50px',
+          marginBottom: isPortrait ? `${24 * s}px` : `${36 * s}px`,
           opacity: headerSpring,
-          transform: `translateY(${interpolate(headerSpring, [0, 1], [-25, 0])}px)`,
+          transform: `translateY(${interpolate(headerSpring, [0, 1], [-20 * s, 0])}px)`,
         }}
       >
         <div
           style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '8px',
-            padding: '6px 18px',
-            borderRadius: '9999px',
-            backgroundColor: 'rgba(255, 87, 34, 0.12)',
-            border: '1px solid rgba(255, 87, 34, 0.35)',
+            gap: `${8 * s}px`,
+            padding: `${6 * s}px ${18 * s}px`,
+            borderRadius: `${999 * s}px`,
+            backgroundColor: isDark ? 'rgba(255, 87, 34, 0.12)' : 'rgba(255, 87, 34, 0.15)',
+            border: '1.5px solid rgba(255, 87, 34, 0.35)',
             color: '#FFA000',
-            fontSize: '12px',
+            fontSize: `${13 * s}px`,
             fontWeight: 800,
             letterSpacing: '0.1em',
             textTransform: 'uppercase',
-            marginBottom: '14px',
+            marginBottom: `${10 * s}px`,
           }}
         >
-          <span>🚀</span>
-          <span>STEP-BY-STEP PROGRESSION</span>
+          <RocketIcon size={16 * s} color="#FFA000" />
+          <span>PROGRESSION ROADMAP</span>
         </div>
 
         <h1
           style={{
             fontFamily: headingFont,
-            fontSize: '44px',
+            fontSize: isPortrait ? `${38 * s}px` : `${44 * s}px`,
             fontWeight: 900,
-            color: '#FFFFFF',
+            color: textPrimary,
             margin: 0,
-            letterSpacing: '-0.02em',
-            textShadow: '0 4px 20px rgba(0,0,0,0.85)',
+            letterSpacing: '-0.025em',
+            lineHeight: 1.15,
           }}
         >
           {heading}
         </h1>
-        <p style={{ fontSize: '15px', color: '#94A3B8', margin: '8px 0 0 0', fontWeight: 600 }}>
+        <p style={{ fontSize: `${18 * s}px`, color: textSecondary, margin: `${8 * s}px 0 0 0`, fontWeight: 600 }}>
           {supportingText}
         </p>
       </div>
 
-      {/* Horizontal Roadmap Track */}
+      {/* ── Roadmap Track: Vertical Stack in 9:16 Portrait, Horizontal in 16:9 Landscape ── */}
       <div
         style={{
           position: 'relative',
           width: '100%',
-          maxWidth: '1240px',
+          maxWidth: isPortrait ? '520px' : '1160px',
           display: 'flex',
+          flexDirection: isPortrait ? 'column' : 'row',
           alignItems: 'stretch',
-          justifyContent: 'space-between',
-          gap: '20px',
+          gap: isPortrait ? `${14 * s}px` : `${18 * s}px`,
         }}
       >
-        {/* Animated Connecting Beam Behind Cards */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '40px',
-            left: '60px',
-            right: '60px',
-            height: '4px',
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            zIndex: 1,
-            borderRadius: '2px',
-          }}
-        >
+        {/* Animated Connecting Beam (Landscape only) */}
+        {!isPortrait && (
           <div
             style={{
-              height: '100%',
-              width: `${interpolate(progressSpring, [0, 1], [0, 100])}%`,
-              background: 'linear-gradient(90deg, #38BDF8 0%, #FF5722 50%, #10B981 100%)',
-              boxShadow: '0 0 16px rgba(255, 87, 34, 0.8)',
-              borderRadius: '2px',
+              position: 'absolute',
+              top: `${40 * s}px`,
+              left: `${60 * s}px`,
+              right: `${60 * s}px`,
+              height: `${4 * s}px`,
+              backgroundColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)',
+              zIndex: 1,
+              borderRadius: `${2 * s}px`,
             }}
-          />
-        </div>
+          >
+            <div
+              style={{
+                height: '100%',
+                width: `${interpolate(progressSpring, [0, 1], [0, 100])}%`,
+                background: 'linear-gradient(90deg, #38BDF8 0%, #FF5722 50%, #10B981 100%)',
+                boxShadow: '0 0 16px rgba(255, 87, 34, 0.8)',
+                borderRadius: `${2 * s}px`,
+              }}
+            />
+          </div>
+        )}
 
         {/* 4 Step Milestone Cards */}
         {steps.map((st, i) => {
           const stepSpring = spring({
-            frame: Math.max(0, frame - 12 - i * 6),
+            frame: Math.max(0, currentFrame - 10 - i * 5),
             fps,
             config: { damping: 13, stiffness: 100 },
           });
 
-          const scale = interpolate(stepSpring, [0, 1], [0.85, 1.0]);
-          const opacity = interpolate(stepSpring, [0, 0.5, 1], [0, 0.8, 1]);
-          const translateY = interpolate(stepSpring, [0, 1], [30, 0]);
+          const scale = interpolate(stepSpring, [0, 1], [0.9, 1.0]);
+          const opacity = stepSpring;
+          const offset = interpolate(stepSpring, [0, 1], [isPortrait ? 20 * s : 30 * s, 0]);
 
           return (
             <div
@@ -192,89 +235,80 @@ export function RoadmapScene({
                 position: 'relative',
                 flex: 1,
                 zIndex: 2,
-                borderRadius: '24px',
-                border: `2px solid ${i === 3 ? 'rgba(16, 185, 129, 0.5)' : 'rgba(255, 255, 255, 0.15)'}`,
-                backgroundColor: 'rgba(15, 23, 42, 0.94)',
-                backdropFilter: 'blur(20px)',
-                padding: '24px 20px',
-                boxShadow: '0 25px 60px rgba(0, 0, 0, 0.85), 0 0 30px rgba(0,0,0,0.5)',
+                borderRadius: `${20 * s}px`,
+                border: `2px solid ${i === 3 ? 'rgba(16, 185, 129, 0.5)' : cardBorder}`,
+                backgroundColor: cardBg,
+                padding: isPortrait ? `${16 * s}px ${20 * s}px` : `${24 * s}px ${20 * s}px`,
+                boxShadow: `0 ${15 * s}px ${40 * s}px rgba(0, 0, 0, ${isDark ? '0.35' : '0.06'})`,
                 display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                transform: `scale(${scale}) translateY(${translateY}px)`,
+                flexDirection: isPortrait ? 'row' : 'column',
+                alignItems: isPortrait ? 'center' : 'stretch',
+                gap: isPortrait ? `${16 * s}px` : '0',
                 opacity,
+                transform: isPortrait ? `translateY(${offset}px)` : `translateY(${offset}px) scale(${scale})`,
+                boxSizing: 'border-box',
               }}
             >
-              {/* Top Node Pill */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                <div
-                  style={{
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '50%',
-                    backgroundColor: st.accent,
-                    color: '#070B14',
-                    fontWeight: 900,
-                    fontSize: '15px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    boxShadow: `0 0 16px ${st.accent}80`,
-                  }}
-                >
-                  {st.number}
-                </div>
-                <div
-                  style={{
-                    fontSize: '10px',
-                    fontWeight: 900,
-                    color: st.accent,
-                    backgroundColor: `${st.accent}15`,
-                    border: `1px solid ${st.accent}40`,
-                    padding: '3px 8px',
-                    borderRadius: '6px',
-                    letterSpacing: '0.06em',
-                  }}
-                >
-                  {st.badge}
-                </div>
+              {/* Number Circle Badge */}
+              <div
+                style={{
+                  width: `${44 * s}px`,
+                  height: `${44 * s}px`,
+                  borderRadius: '50%',
+                  backgroundColor: `${st.accent}22`,
+                  border: `2px solid ${st.accent}`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: st.accent,
+                  fontSize: `${18 * s}px`,
+                  fontWeight: 900,
+                  flexShrink: 0,
+                  marginBottom: isPortrait ? '0' : `${14 * s}px`,
+                }}
+              >
+                {i === 3 ? <FlagCheckIcon size={20 * s} color={st.accent} /> : st.number}
               </div>
 
-              {/* Title & Detail */}
+              {/* Text Info */}
               <div style={{ flex: 1 }}>
-                <h3
+                <div style={{ display: 'flex', alignItems: 'center', gap: `${8 * s}px`, marginBottom: `${4 * s}px` }}>
+                  <span
+                    style={{
+                      fontSize: `${11 * s}px`,
+                      fontWeight: 800,
+                      color: st.accent,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.08em',
+                    }}
+                  >
+                    {st.badge}
+                  </span>
+                </div>
+
+                <div
                   style={{
                     fontFamily: headingFont,
-                    fontSize: '19px',
-                    fontWeight: 900,
-                    color: '#FFFFFF',
-                    margin: '0 0 8px 0',
+                    fontSize: isPortrait ? `${18 * s}px` : `${19 * s}px`,
+                    fontWeight: 800,
+                    color: textPrimary,
                     lineHeight: 1.25,
+                    marginBottom: `${4 * s}px`,
                   }}
                 >
                   {st.title}
-                </h3>
-                <p style={{ fontSize: '13px', color: '#94A3B8', margin: 0, lineHeight: 1.4, fontWeight: 500 }}>
-                  {st.detail}
-                </p>
-              </div>
+                </div>
 
-              {/* Bottom Progress Check */}
-              <div
-                style={{
-                  marginTop: '18px',
-                  paddingTop: '12px',
-                  borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  fontSize: '11px',
-                  fontWeight: 800,
-                  color: st.accent,
-                }}
-              >
-                <span>✓</span>
-                <span>MILESTONE {st.number}</span>
+                <div
+                  style={{
+                    fontSize: `${13 * s}px`,
+                    color: textSecondary,
+                    lineHeight: 1.35,
+                    fontWeight: 500,
+                  }}
+                >
+                  {st.detail}
+                </div>
               </div>
             </div>
           );
@@ -283,3 +317,5 @@ export function RoadmapScene({
     </div>
   );
 }
+
+export default RoadmapScene;

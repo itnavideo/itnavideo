@@ -1,13 +1,8 @@
-"use client";
+export const dynamic = "force-dynamic";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import CompareExplainerPageClient from "@/components/dashboard/subpages/CompareExplainerPageClient";
 
 export default function ComparePage() {
-  const router = useRouter();
-  useEffect(() => {
-    router.replace("/dashboard/compare-explainer");
-  }, [router]);
-
-  return null;
+  return <CompareExplainerPageClient />;
 }
+

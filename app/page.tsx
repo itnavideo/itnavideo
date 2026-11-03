@@ -7,6 +7,7 @@ import TenStudiosHubArchitecture from '@/components/landing/TenStudiosHubArchite
 import DualFormatEngineShowcase from '@/components/landing/DualFormatEngineShowcase';
 import TestimonialSection from '@/components/landing/TestimonialSection';
 import ComparisonSection from '@/components/landing/ComparisonSection';
+import { FreeCreatorUtilitiesSection } from '@/components/landing/FreeCreatorUtilitiesSection';
 import {
   HomepageFinalCta,
 } from '@/components/landing/HomepageValueSections';
@@ -126,6 +127,7 @@ export default function LandingPage() {
       <ComparisonSection />
       <HomepagePricing />
       <FAQSection />
+      <FreeCreatorUtilitiesSection />
       <HomepageFinalCta />
       <StickyMobileActionBar />
     </div>

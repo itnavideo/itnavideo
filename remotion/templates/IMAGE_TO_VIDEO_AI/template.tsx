@@ -11,7 +11,7 @@ import {
   useVideoConfig,
 } from 'remotion';
 import { DEFAULT_FPS, secondsToFrames } from '../../constants';
-import type { CaptionChunk } from '../../components/library/UniversalCaptionLayer';
+import { UniversalCaptionLayer, CaptionChunk } from '../../components/library/UniversalCaptionLayer';
 
 export interface ImageToVideoScene {
   id: string;
@@ -57,6 +57,8 @@ export interface ImageToVideoAiProps {
   title?: string;
   fitMode?: 'blur-fill' | 'cover';
   aspectRatio?: '16:9';
+  captionThemeId?: string;
+  subtitleStyle?: string;
   [key: string]: any;
 }
 
@@ -329,78 +331,56 @@ const SceneRenderer: React.FC<{
 };
 
 /**
- * Simple, Highly Readable Subtitle Layer
- * Pure white text on subtle translucent backing, synchronized strictly to spoken audio.
- * Zero kinetic bouncy animations, zero neon colors, zero oversized typography.
+ * Clean White Editorial Ambient Background for Image to Video AI
+ * Pure White (#FFFFFF / #FAFAFA) canvas with delicate grid texture and soft warm ambient blooms.
  */
-const SimpleReadableSubtitleLayer: React.FC<{
-  captions: CaptionChunk[];
-  fps: number;
-}> = ({ captions, fps }) => {
-  const frame = useCurrentFrame();
-  const currentTime = frame / fps;
-
-  const activeChunk = captions.find(
-    (chunk) => currentTime >= chunk.start && currentTime <= chunk.end
-  );
-
-  if (!activeChunk || !activeChunk.text?.trim()) return null;
-
-  // Gentle opacity fade on subtitle boundary (3 frames)
-  const chunkStartFrame = Math.floor(activeChunk.start * fps);
-  const chunkLocalFrame = Math.max(0, frame - chunkStartFrame);
-  const opacity = interpolate(chunkLocalFrame, [0, 3], [0, 1], {
-    extrapolateRight: 'clamp',
-  });
+const SubtleAmbientBackground: React.FC<{ frame: number; fps: number }> = ({ frame, fps }) => {
+  const t = frame / fps;
+  const pulseOpacity = interpolate(Math.sin(t * 0.8), [-1, 1], [0.03, 0.07]);
+  const gradientAngle = (t * 8) % 360;
 
   return (
-    <div
-      style={{
-        position: 'absolute',
-        bottom: '10%',
-        left: 0,
-        right: 0,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: '0 80px',
-        zIndex: 50,
-        pointerEvents: 'none',
-        opacity,
-      }}
-    >
+    <AbsoluteFill style={{ backgroundColor: '#FAFAFA', overflow: 'hidden' }}>
+      {/* 1. Delicate Light Grey Dot Grid Pattern */}
       <div
         style={{
-          maxWidth: '82%',
-          textAlign: 'center',
-          backgroundColor: 'rgba(0, 0, 0, 0.72)',
-          borderRadius: 12,
-          padding: '8px 24px',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
-          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.65)',
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: `radial-gradient(rgba(0, 0, 0, 0.05) 1.5px, transparent 1.5px)`,
+          backgroundSize: '36px 36px',
+          opacity: 0.85,
         }}
-      >
-        <p
-          style={{
-            margin: 0,
-            fontSize: 28,
-            fontWeight: 700,
-            lineHeight: 1.35,
-            color: '#FFFFFF',
-            fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-            letterSpacing: '0.01em',
-            textShadow: '0 2px 4px rgba(0, 0, 0, 0.9)',
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            wordBreak: 'break-word',
-          }}
-        >
-          {activeChunk.text.trim()}
-        </p>
-      </div>
-    </div>
+      />
+
+      {/* 2. Soft Warm Orange & Amber Ambient Bloom (Top-Left) */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '-15%',
+          left: '10%',
+          width: '55%',
+          height: '55%',
+          borderRadius: '50%',
+          background: `radial-gradient(circle, rgba(255, 87, 34, ${pulseOpacity}) 0%, rgba(255, 160, 0, 0.02) 60%, transparent 80%)`,
+          filter: 'blur(100px)',
+          transform: `rotate(${gradientAngle}deg) scale(${1 + Math.sin(t * 0.4) * 0.04})`,
+        }}
+      />
+
+      {/* 3. Soft Subtle Slate Warm Ambient Glow (Bottom-Right) */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '-15%',
+          right: '10%',
+          width: '50%',
+          height: '50%',
+          borderRadius: '50%',
+          background: `radial-gradient(circle, rgba(255, 143, 0, 0.04) 0%, rgba(241, 245, 249, 0.6) 50%, transparent 80%)`,
+          filter: 'blur(90px)',
+        }}
+      />
+    </AbsoluteFill>
   );
 };
 
@@ -409,7 +389,7 @@ export const ImageToVideoAiTemplate: React.FC<ImageToVideoAiProps> = ({
   audioSrc = '',
   audioUrl = '',
   bgmUrl = '',
-  bgmVolume = 0.15,
+  bgmVolume = 0.12,
   scenes = [],
   captions = [],
   subtitleChunks = [],
@@ -418,23 +398,25 @@ export const ImageToVideoAiTemplate: React.FC<ImageToVideoAiProps> = ({
   sourceDurationSeconds,
   fitMode = 'cover',
   visualStyle = 'cinematic-film',
+  captionThemeId = 'glow-viral',
+  subtitleStyle,
 }) => {
+  const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
   const finalAudioUrl = resolveUrl(audioUrl || audioSrc || mediaSrc);
   const finalBgmUrl = resolveUrl(bgmUrl);
   const activeCaptions = captions.length > 0 ? captions : subtitleChunks;
-
-  const totalDuration = Math.max(
-    3,
-    Number(durationSeconds) || Number(renderWindowSeconds) || Number(sourceDurationSeconds) || 60
-  );
+  const activeCaptionTheme = captionThemeId || subtitleStyle || 'glow-viral';
 
   const validScenes = scenes.filter((s) => s && s.imageUrl);
 
   return (
-    <AbsoluteFill style={{ backgroundColor: '#000000' }}>
-      {/* 1. SCENE SEQUENCE LAYER (100% User Uploaded Images Only) */}
+    <AbsoluteFill style={{ backgroundColor: '#FAFAFA' }}>
+      {/* 1. CLEAN WHITE AMBIENT BACKGROUND */}
+      <SubtleAmbientBackground frame={frame} fps={fps} />
+
+      {/* 2. SCENE SEQUENCE LAYER (100% User Uploaded Images Only) */}
       {validScenes.map((scene, idx) => {
         const startFrame = Math.max(0, Math.floor(scene.startSeconds * fps));
         const endFrame = Math.max(startFrame + 1, Math.floor(scene.endSeconds * fps));
@@ -457,15 +439,35 @@ export const ImageToVideoAiTemplate: React.FC<ImageToVideoAiProps> = ({
         );
       })}
 
-      {/* 2. SIMPLE, READABLE CAPTIONS SYNCHRONIZED WITH AUDIO */}
+      {/* 3. SCENE TRANSITION SFX EVENTS */}
+      {validScenes.map((s, idx) => {
+        const startFrame = Math.max(0, Math.floor(s.startSeconds * fps));
+        const sfxFile = idx === 0 ? 'assets/reusable/sfx/chime.mp3' : 'assets/reusable/sfx/pop.mp3';
+        return (
+          <Sequence key={`sfx-${s.id || idx}`} from={startFrame} durationInFrames={Math.round(fps * 1.5)}>
+            <Audio src={resolveUrl(sfxFile)} volume={0.22} />
+          </Sequence>
+        );
+      })}
+
+      {/* 4. UNIVERSAL 20 CAPTION STYLES SYNCHRONIZED WITH AUDIO */}
       {activeCaptions.length > 0 && (
-        <SimpleReadableSubtitleLayer
+        <UniversalCaptionLayer
           captions={activeCaptions}
-          fps={fps}
+          captionThemeId={activeCaptionTheme}
+          backgroundTheme="solid-white"
+          styleOverrides={{
+            backgroundColor: 'rgba(255, 255, 255, 0.96)',
+            border: '1.5px solid rgba(0, 0, 0, 0.1)',
+            boxShadow: '0 16px 36px -10px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04)',
+            color: '#0F172A',
+            textShadow: 'none',
+            filter: 'none',
+          }}
         />
       )}
 
-      {/* 3. ORIGINAL USER SPEECH AUDIO ONLY */}
+      {/* 5. ORIGINAL USER SPEECH AUDIO */}
       {isValidAudioUrl(finalAudioUrl) && (
         <Audio
           src={finalAudioUrl}
@@ -473,11 +475,19 @@ export const ImageToVideoAiTemplate: React.FC<ImageToVideoAiProps> = ({
         />
       )}
 
-      {/* 4. OPTIONAL BACKGROUND MUSIC (DUCKED UNDER SPEECH) */}
-      {isValidAudioUrl(finalBgmUrl) && (
+      {/* 6. BACKGROUND MUSIC (12% Default, user adjustable) */}
+      {isValidAudioUrl(finalBgmUrl) && finalBgmUrl !== 'none' && (
         <Audio
           src={finalBgmUrl}
-          volume={Math.max(0, Math.min(1, typeof bgmVolume === 'number' ? bgmVolume : 0.15))}
+          volume={Math.max(0, Math.min(1, typeof bgmVolume === 'number' ? bgmVolume : 0.12))}
+          loop
+        />
+      )}
+      {!finalBgmUrl && bgmUrl !== 'none' && (
+        <Audio
+          src={resolveUrl('assets/reusable/music/parasail-silent-partner.mp3')}
+          volume={Math.max(0, Math.min(1, typeof bgmVolume === 'number' ? bgmVolume : 0.12))}
+          loop
         />
       )}
     </AbsoluteFill>

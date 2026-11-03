@@ -92,6 +92,8 @@ type CompareProps = {
   premiumEditing?: boolean;
   styleLock?: PremiumStyleLock & PremiumVisualStyleLock;
   soundCues?: PremiumSoundCue[];
+  bgmUrl?: string;
+  bgmVolume?: number;
 };
 
 const STICKER_SETS = {
@@ -263,6 +265,21 @@ type CompareTheme = {
 };
 
 const COMPARE_THEMES: Record<string, CompareTheme> = {
+  white: {
+    background: '#FAFAFA',
+    dots: ['#CBD5E1', '#E2E8F0'],
+    dotsOpacity: 0.03,
+    glow: 'rgba(255,87,34,0.06)',
+    handle: '#64748b',
+    captionBg: 'rgba(255,255,255,0.96)',
+    captionText: '#0f172a',
+    captionBorder: 'rgba(226,232,240,0.9)',
+    bottomFade: '#FAFAFA',
+    boxBg: '#ffffff',
+    hookBg: 'linear-gradient(160deg, #ffffff 0%, #f8fafc 55%, #f1f5f9 100%)',
+    hookText: '#0f172a',
+    hookSub: '#475569',
+  },
   light: {
     background: 'linear-gradient(180deg, #f8faff 0%, #ffffff 30%, #f0f4ff 70%, #e8eeff 100%)',
     dots: ['#5B6FFF', '#9B82FF'],
@@ -1404,6 +1421,9 @@ export const CompareExplainer = (props: CompareProps) => {
       }} />
 
       {audioUrl ? <Audio src={resolveAsset(audioUrl)} volume={1} /> : null}
+      {props.bgmUrl && props.bgmUrl !== 'none' ? (
+        <Audio src={resolveAsset(props.bgmUrl)} volume={props.bgmVolume ?? 0.12} loop />
+      ) : null}
       <PremiumAudioLayer
         enabled={props.premiumEditing !== false}
         styleLock={props.styleLock}

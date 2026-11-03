@@ -85,7 +85,7 @@ export default function WhiteboardVideoDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070B14] text-slate-100 font-sans selection:bg-purple-500/30 selection:text-purple-200">
+    <div className="min-h-screen bg-[#070B14] text-slate-100 font-sans selection:bg-orange-500/30 selection:text-purple-200">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
@@ -96,35 +96,7 @@ export default function WhiteboardVideoDetail() {
       />
 
       {/* Header Navigation */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#070B14]/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-purple-600 via-fuchsia-500 to-pink-500 text-white font-black shadow-lg shadow-purple-500/20 group-hover:scale-105 transition-transform">
-              IV
-            </div>
-            <span className="text-xl font-extrabold tracking-tight text-white">
-              Itnavideo<span className="text-purple-400">.</span>
-            </span>
-          </Link>
-
-          <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-300">
-            <Link href="/video-types" className="hover:text-purple-400 transition">Video Types</Link>
-            <Link href="/faceless-video" className="hover:text-purple-400 transition">Faceless Video</Link>
-            <Link href="/auto-caption-generator" className="hover:text-purple-400 transition">Auto Captions</Link>
-            <Link href="/pricing" className="hover:text-purple-400 transition">Pricing</Link>
-          </nav>
-
-          <div className="flex items-center gap-4">
-            <Link
-              href="/dashboard?videoType=whiteboard-video"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 px-5 py-2.5 text-xs sm:text-sm font-extrabold text-white shadow-lg shadow-purple-500/25 transition hover:brightness-110 active:scale-95"
-            >
-              <Sparkles size={16} />
-              <span>Create Whiteboard Animation</span>
-            </Link>
-          </div>
-        </div>
-      </header>
+      
 
       {/* HERO SECTION */}
       <section className="relative overflow-hidden pt-12 pb-16 lg:pt-20 lg:pb-24">
@@ -150,14 +122,14 @@ export default function WhiteboardVideoDetail() {
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/dashboard?videoType=whiteboard-video"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-emerald-500 via-purple-600 to-pink-500 px-8 py-4 text-base font-black text-white shadow-xl shadow-purple-500/20 transition hover:brightness-110 active:scale-95"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-emerald-500 via-purple-600 to-pink-500 px-8 py-4 text-base font-black text-white shadow-xl shadow-orange-500/20 transition hover:brightness-110 active:scale-95"
             >
               <Play size={18} className="fill-white" />
               <span>Start Whiteboard Generator Free</span>
             </Link>
             <Link
               href="/pricing"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#0E1526] px-8 py-4 text-base font-bold text-slate-200 hover:bg-[#152038] hover:border-purple-500/30 transition"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#0E1526] px-8 py-4 text-base font-bold text-slate-200 hover:bg-[#152038] hover:border-orange-500/30 transition"
             >
               <span>View Pricing Plans</span>
             </Link>
@@ -189,7 +161,7 @@ export default function WhiteboardVideoDetail() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-3.5 py-1 text-xs font-bold uppercase text-purple-300">
+              <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold uppercase text-orange-300">
                 <Brain size={14} />
                 <span>Cognitive Learning Psychology</span>
               </div>
@@ -203,14 +175,14 @@ export default function WhiteboardVideoDetail() {
                 Educational psychology studies demonstrate that whiteboard animations increase viewer comprehension and information recall by over 15% compared to static PowerPoint slides or traditional talking-head video lectures.
               </p>
               <p className="text-slate-300 text-base sm:text-lg leading-relaxed">
-                Whether you are explaining financial strategies, technical code architectures, medical research, or business frameworks, an <strong className="text-purple-300 font-semibold">AI Whiteboard Animation Generator</strong> converts complex ideas into digestible visual stories.
+                Whether you are explaining financial strategies, technical code architectures, medical research, or business frameworks, an <strong className="text-orange-300 font-semibold">AI Whiteboard Animation Generator</strong> converts complex ideas into digestible visual stories.
               </p>
             </div>
 
             <div className="lg:col-span-5 space-y-4">
               <div className="rounded-2xl border border-white/10 bg-[#0E1526] p-6 shadow-xl space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/10 text-orange-400 border border-orange-500/20">
                     <BarChart3 size={20} />
                   </div>
                   <h3 className="text-lg font-bold text-white">15%+ Higher Concept Recall</h3>
@@ -261,20 +233,20 @@ export default function WhiteboardVideoDetail() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-500/10 text-purple-400 border border-purple-500/20 mb-6">
+            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-orange-500/40 transition group">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-500/10 text-orange-400 border border-orange-500/20 mb-6">
                 <Clock size={24} />
               </div>
               <h3 className="text-xl font-extrabold text-white mb-3">1. Manual SVG Path Creation</h3>
               <p className="text-slate-300 text-sm leading-relaxed mb-4">
                 Searching for vector graphics and manually defining SVG pen stroke paths in legacy desktop software takes 5+ hours per video.
               </p>
-              <div className="rounded-xl bg-purple-500/10 border border-purple-500/20 p-3 text-xs font-semibold text-purple-300">
+              <div className="rounded-xl bg-orange-500/10 border border-orange-500/20 p-3 text-xs font-semibold text-orange-300">
                 <strong className="text-white">Itnavideo Solution:</strong> Speech AI automatically generates stroke paths and text layout.
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
+            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-orange-500/40 transition group">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-6">
                 <Sliders size={24} />
               </div>
@@ -287,7 +259,7 @@ export default function WhiteboardVideoDetail() {
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
+            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-orange-500/40 transition group">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-pink-500/10 text-pink-400 border border-pink-500/20 mb-6">
                 <Palette size={24} />
               </div>
@@ -300,7 +272,7 @@ export default function WhiteboardVideoDetail() {
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
+            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-orange-500/40 transition group">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-fuchsia-500/10 text-fuchsia-400 border border-fuchsia-500/20 mb-6">
                 <ShieldCheck size={24} />
               </div>
@@ -313,7 +285,7 @@ export default function WhiteboardVideoDetail() {
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
+            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-orange-500/40 transition group">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 mb-6">
                 <Award size={24} />
               </div>
@@ -354,13 +326,13 @@ export default function WhiteboardVideoDetail() {
 
             <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-8 flex flex-col justify-between">
               <div>
-                <span className="text-4xl font-black text-purple-400 block mb-4">02</span>
+                <span className="text-4xl font-black text-orange-400 block mb-4">02</span>
                 <h3 className="text-2xl font-extrabold text-white mb-3">Pick Board Style &amp; Marker</h3>
                 <p className="text-slate-300 text-sm leading-relaxed">
                   Choose Executive Whiteboard, Dark Glass Studio, or Blueprint schematic with custom drawing hands or stylus.
                 </p>
               </div>
-              <div className="mt-6 pt-4 border-t border-white/10 text-xs text-purple-300 font-semibold">
+              <div className="mt-6 pt-4 border-t border-white/10 text-xs text-orange-300 font-semibold">
                 ✓ Customizable ink colors
               </div>
             </div>
@@ -438,7 +410,7 @@ export default function WhiteboardVideoDetail() {
                     className="w-full flex items-center justify-between p-6 text-left focus:outline-none"
                   >
                     <span className="text-base sm:text-lg font-bold text-white pr-4">{faq.q}</span>
-                    <div className={`flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-purple-400 transition-transform ${isOpen ? 'rotate-180 bg-purple-500/20' : ''}`}>
+                    <div className={`flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-orange-400 transition-transform ${isOpen ? 'rotate-180 bg-orange-500/20' : ''}`}>
                       <ChevronDown size={18} />
                     </div>
                   </button>
@@ -461,7 +433,7 @@ export default function WhiteboardVideoDetail() {
           <p className="text-slate-300 text-lg mb-8">Transform dry speeches into hand-drawn visual explainer reels in under 35 seconds.</p>
           <Link
             href="/dashboard?videoType=whiteboard-video"
-            className="inline-flex items-center gap-3 rounded-2xl bg-gradient-to-r from-emerald-500 via-purple-600 to-pink-500 px-8 py-4 text-base font-black text-white shadow-xl shadow-purple-500/25 transition hover:brightness-110"
+            className="inline-flex items-center gap-3 rounded-2xl bg-gradient-to-r from-emerald-500 via-purple-600 to-pink-500 px-8 py-4 text-base font-black text-white shadow-xl shadow-orange-500/25 transition hover:brightness-110"
           >
             <Sparkles size={18} />
             <span>Start Whiteboard Generator Free</span>

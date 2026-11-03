@@ -1,33 +1,68 @@
 import React from 'react';
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
+import type { BackgroundColorPalette } from '../../../components/backgrounds/BackgroundCatalog';
 
 export interface ChartSceneProps {
   scene: SceneBlueprintItem;
   headingFont?: string;
   bodyFont?: string;
+  sceneFrame?: number;
+  palette?: BackgroundColorPalette;
+}
+
+/* ───────────────────────── SVG Icons ───────────────────────── */
+
+function TrendUpSvg({ size = 18, color = '#34D399' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+      <polyline points="17 6 23 6 23 12" />
+    </svg>
+  );
+}
+
+function AnalyticsBarIcon({ size = 20, color = '#10B981' }: { size?: number; color?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
+      <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 16H7v-5h2v5zm4 0h-2v-9h2v9zm4 0h-2v-3h2v3z" />
+    </svg>
+  );
 }
 
 export function ChartScene({
   scene,
   headingFont = 'Montserrat, Inter, system-ui, sans-serif',
   bodyFont = 'Inter, system-ui, sans-serif',
+  sceneFrame,
+  palette,
 }: ChartSceneProps) {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, width, height } = useVideoConfig();
+  const currentFrame = sceneFrame ?? frame;
+
+  const isPortrait = height > width;
+  const s = Math.min(width, height) / 1080;
+  const isDark = palette?.isDark ?? true;
+
+  const bg = isDark ? (palette?.background || '#090D16') : '#FFFFFF';
+  const textPrimary = isDark ? '#FFFFFF' : '#0F172A';
+  const textSecondary = isDark ? '#94A3B8' : '#64748B';
+  const cardBg = isDark ? 'rgba(10, 14, 26, 0.94)' : '#FFFFFF';
+  const cardBorder = isDark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.08)';
 
   // Entrance spring
   const entrance = spring({
-    frame,
+    frame: currentFrame,
     fps,
     config: { damping: 14, mass: 0.8 },
   });
 
   // Animated metric counter
-  const targetPercent = Math.min(650, Math.max(120, scene.chartValuePercent ? scene.chartValuePercent * 4 : 340));
+  const targetPercent = Math.min(850, Math.max(120, scene.chartValuePercent ? scene.chartValuePercent * 4 : 340));
   const animatedGrowth = Math.round(
     interpolate(
-      spring({ frame: Math.max(0, frame - 6), fps, config: { damping: 16, stiffness: 85 } }),
+      spring({ frame: Math.max(0, currentFrame - 6), fps, config: { damping: 16, stiffness: 85 } }),
       [0, 1],
       [12, targetPercent]
     )
@@ -36,14 +71,22 @@ export function ChartScene({
   // SVG Chart Line Draw Animation
   const pathLength = 900;
   const drawSpring = spring({
-    frame: Math.max(0, frame - 10),
+    frame: Math.max(0, currentFrame - 10),
     fps,
     config: { damping: 18, stiffness: 60 },
   });
   const strokeDashoffset = interpolate(drawSpring, [0, 1], [pathLength, 0]);
 
-  const statLabel = scene.statLabel || scene.heading || 'CHANNEL GROWTH MOMENTUM';
-  const subtitle = scene.supportingText || 'Your channel is performing significantly above your typical viewer retention average.';
+  const statLabel = scene.statLabel || scene.heading || 'GROWTH TRAJECTORY';
+  const subtitle = scene.supportingText || 'Performance scaling significantly above baseline metrics.';
+  const statVal = scene.statValue || `+${animatedGrowth}%`;
+
+  // Parse custom items or use safe defaults
+  const customItems = scene.listItems && scene.listItems.length >= 2 ? scene.listItems : [
+    'Audience Reach',
+    'Engagement Depth',
+    'Compounding Return',
+  ];
 
   return (
     <div
@@ -53,68 +96,70 @@ export function ChartScene({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '60px 100px',
+        padding: isPortrait ? `${160 * s}px ${45 * s}px ${180 * s}px` : `${50 * s}px ${80 * s}px`,
         zIndex: 15,
+        backgroundColor: bg,
+        boxSizing: 'border-box',
+        overflow: 'hidden',
         opacity: entrance,
         transform: `scale(${interpolate(entrance, [0, 1], [0.93, 1.0])})`,
       }}
     >
-      {/* YouTube Creator Studio Analytics Glass Card */}
+      {/* Analytics Glass Card */}
       <div
         style={{
-          maxWidth: '1120px',
+          maxWidth: isPortrait ? '520px' : '1080px',
           width: '100%',
-          borderRadius: '32px',
-          border: '2px solid rgba(255, 255, 255, 0.16)',
-          backgroundColor: 'rgba(10, 14, 26, 0.94)',
-          padding: '40px 52px',
-          boxShadow: '0 30px 80px rgba(0, 0, 0, 0.9), 0 0 40px rgba(16, 185, 129, 0.12)',
-          backdropFilter: 'blur(30px)',
+          borderRadius: `${28 * s}px`,
+          border: `2px solid ${cardBorder}`,
+          backgroundColor: cardBg,
+          padding: isPortrait ? `${24 * s}px ${24 * s}px` : `${36 * s}px ${48 * s}px`,
+          boxShadow: isDark
+            ? '0 30px 80px rgba(0, 0, 0, 0.8), 0 0 40px rgba(16, 185, 129, 0.12)'
+            : '0 20px 60px rgba(0, 0, 0, 0.08), 0 0 30px rgba(16, 185, 129, 0.1)',
           display: 'flex',
           flexDirection: 'column',
           position: 'relative',
           overflow: 'hidden',
           fontFamily: bodyFont,
+          boxSizing: 'border-box',
         }}
       >
-        {/* Subtle Top Glow Accent */}
+        {/* Top Glow Accent Bar */}
         <div
           style={{
             position: 'absolute',
             top: 0,
             left: 0,
             right: 0,
-            height: '4px',
+            height: `${4 * s}px`,
             background: 'linear-gradient(90deg, #10B981 0%, #34D399 50%, #FF5722 100%)',
           }}
         />
 
         {/* Studio Card Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            {/* Analytics Play Icon */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: `${18 * s}px` }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: `${12 * s}px` }}>
             <div
               style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '12px',
-                backgroundColor: 'rgba(239, 68, 68, 0.15)',
-                border: '1px solid rgba(239, 68, 68, 0.4)',
+                width: `${40 * s}px`,
+                height: `${40 * s}px`,
+                borderRadius: `${10 * s}px`,
+                backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                border: '1.5px solid rgba(16, 185, 129, 0.35)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="#EF4444">
-                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 16H7v-5h2v5zm4 0h-2v-9h2v9zm4 0h-2v-3h2v3z"/>
-              </svg>
+              <AnalyticsBarIcon size={20 * s} color="#10B981" />
             </div>
 
             <div>
-              <div style={{ fontSize: '13px', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                YouTube Creator Studio Analytics
+              <div style={{ fontSize: `${12 * s}px`, fontWeight: 800, color: textSecondary, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                CREATOR PERFORMANCE ANALYTICS
               </div>
-              <div style={{ fontSize: '22px', fontWeight: 900, color: '#FFFFFF', fontFamily: headingFont }}>
+              <div style={{ fontSize: isPortrait ? `${20 * s}px` : `${24 * s}px`, fontWeight: 900, color: textPrimary, fontFamily: headingFont }}>
                 {statLabel}
               </div>
             </div>
@@ -125,65 +170,66 @@ export function ChartScene({
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '8px',
-              padding: '6px 14px',
-              borderRadius: '9999px',
-              backgroundColor: 'rgba(16, 185, 129, 0.12)',
-              border: '1px solid rgba(16, 185, 129, 0.35)',
-              fontSize: '13px',
+              gap: `${6 * s}px`,
+              padding: `${5 * s}px ${12 * s}px`,
+              borderRadius: `${999 * s}px`,
+              backgroundColor: 'rgba(16, 185, 129, 0.14)',
+              border: '1px solid rgba(16, 185, 129, 0.4)',
+              fontSize: `${12 * s}px`,
               fontWeight: 800,
-              color: '#34D399',
+              color: '#10B981',
             }}
           >
             <span
               style={{
-                width: '8px',
-                height: '8px',
+                width: `${7 * s}px`,
+                height: `${7 * s}px`,
                 borderRadius: '50%',
                 backgroundColor: '#10B981',
-                boxShadow: '0 0 10px #10B981',
+                boxShadow: '0 0 8px #10B981',
               }}
             />
-            REALTIME OVERVIEW
+            REALTIME
           </div>
         </div>
 
         {/* Hero Stat Row */}
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: '20px', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: `${16 * s}px`, marginBottom: `${12 * s}px` }}>
           <div
             style={{
               fontFamily: headingFont,
-              fontSize: '56px',
+              fontSize: isPortrait ? `${44 * s}px` : `${54 * s}px`,
               fontWeight: 900,
-              color: '#FFFFFF',
+              color: textPrimary,
               letterSpacing: '-0.03em',
             }}
           >
-            +{animatedGrowth}%
+            {statVal}
           </div>
 
           <div
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px',
-              padding: '6px 14px',
-              borderRadius: '9999px',
-              backgroundColor: 'rgba(16, 185, 129, 0.2)',
-              border: '1px solid rgba(16, 185, 129, 0.45)',
-              color: '#34D399',
-              fontSize: '15px',
+              gap: `${6 * s}px`,
+              padding: `${5 * s}px ${12 * s}px`,
+              borderRadius: `${999 * s}px`,
+              backgroundColor: 'rgba(16, 185, 129, 0.16)',
+              border: '1px solid rgba(16, 185, 129, 0.4)',
+              color: '#10B981',
+              fontSize: `${13 * s}px`,
               fontWeight: 900,
             }}
           >
-            <span>↗</span> MORE THAN USUAL
+            <TrendUpSvg size={14 * s} color="#10B981" />
+            <span>EXCEEDING BENCHMARK</span>
           </div>
         </div>
 
         {/* Dynamic SVG Growth Chart Curve */}
-        <div style={{ width: '100%', height: '160px', position: 'relative', margin: '10px 0 24px' }}>
+        <div style={{ width: '100%', height: isPortrait ? `${120 * s}px` : `${150 * s}px`, position: 'relative', margin: `${8 * s}px 0 ${18 * s}px` }}>
           <svg
-            viewBox="0 0 800 160"
+            viewBox="0 0 800 150"
             style={{ width: '100%', height: '100%', overflow: 'visible' }}
           >
             <defs>
@@ -198,95 +244,93 @@ export function ChartScene({
               </linearGradient>
             </defs>
 
-            {/* Dotted grid lines */}
-            <line x1="0" y1="40" x2="800" y2="40" stroke="rgba(255,255,255,0.06)" strokeDasharray="4 4" />
-            <line x1="0" y1="90" x2="800" y2="90" stroke="rgba(255,255,255,0.06)" strokeDasharray="4 4" />
-            <line x1="0" y1="140" x2="800" y2="140" stroke="rgba(255,255,255,0.06)" strokeDasharray="4 4" />
+            {/* Grid lines */}
+            <line x1="0" y1="35" x2="800" y2="35" stroke={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'} strokeDasharray="4 4" />
+            <line x1="0" y1="80" x2="800" y2="80" stroke={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'} strokeDasharray="4 4" />
+            <line x1="0" y1="130" x2="800" y2="130" stroke={isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'} strokeDasharray="4 4" />
 
             {/* Area Fill */}
             <path
-              d="M 0 140 C 120 135, 200 120, 320 85 C 440 50, 560 60, 680 25 C 740 10, 780 8, 800 5 L 800 150 L 0 150 Z"
+              d="M 0 130 C 120 125, 200 110, 320 75 C 440 40, 560 50, 680 20 C 740 8, 780 6, 800 4 L 800 145 L 0 145 Z"
               fill="url(#chartGradient)"
               opacity={interpolate(drawSpring, [0, 1], [0, 1])}
             />
 
             {/* Main Growth Curve Line */}
             <path
-              d="M 0 140 C 120 135, 200 120, 320 85 C 440 50, 560 60, 680 25 C 740 10, 780 8, 800 5"
+              d="M 0 130 C 120 125, 200 110, 320 75 C 440 40, 560 50, 680 20 C 740 8, 780 6, 800 4"
               fill="none"
               stroke="url(#lineGradient)"
               strokeWidth="5"
               strokeLinecap="round"
               strokeDasharray={pathLength}
               strokeDashoffset={strokeDashoffset}
-              style={{ filter: 'drop-shadow(0 0 12px rgba(16, 185, 129, 0.7))' }}
             />
 
             {/* Glowing endpoint indicator */}
             {drawSpring > 0.85 && (
               <circle
                 cx="800"
-                cy="5"
+                cy="4"
                 r="7"
                 fill="#34D399"
                 stroke="#FFFFFF"
                 strokeWidth="3"
-                style={{ filter: 'drop-shadow(0 0 10px #34D399)' }}
               />
             )}
           </svg>
         </div>
 
-        {/* 3 Analytics Metric Pills at bottom */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+        {/* 3 Metric Pills at bottom */}
+        <div style={{ display: 'grid', gridTemplateColumns: isPortrait ? 'repeat(3, 1fr)' : 'repeat(3, 1fr)', gap: `${10 * s}px` }}>
           <div
             style={{
-              padding: '16px 20px',
-              borderRadius: '16px',
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              padding: `${12 * s}px ${14 * s}px`,
+              borderRadius: `${14 * s}px`,
+              backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(15, 23, 42, 0.03)',
+              border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'}`,
             }}
           >
-            <div style={{ fontSize: '13px', color: '#94A3B8', fontWeight: 600 }}>Total Views</div>
-            <div style={{ fontSize: '24px', fontWeight: 900, color: '#FFFFFF', marginTop: '4px', fontFamily: headingFont }}>
-              1.48M
+            <div style={{ fontSize: `${11 * s}px`, color: textSecondary, fontWeight: 700 }}>{customItems[0]}</div>
+            <div style={{ fontSize: isPortrait ? `${18 * s}px` : `${20 * s}px`, fontWeight: 900, color: textPrimary, marginTop: `${2 * s}px`, fontFamily: headingFont }}>
+              +280%
             </div>
-            <div style={{ fontSize: '13px', color: '#34D399', fontWeight: 800, marginTop: '2px' }}>
-              ↗ +{animatedGrowth}%
+            <div style={{ fontSize: `${11 * s}px`, color: '#10B981', fontWeight: 800, marginTop: `${2 * s}px`, display: 'flex', alignItems: 'center', gap: '2px' }}>
+              <TrendUpSvg size={11 * s} color="#10B981" /> Active
             </div>
           </div>
 
           <div
             style={{
-              padding: '16px 20px',
-              borderRadius: '16px',
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              padding: `${12 * s}px ${14 * s}px`,
+              borderRadius: `${14 * s}px`,
+              backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(15, 23, 42, 0.03)',
+              border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'}`,
             }}
           >
-            <div style={{ fontSize: '13px', color: '#94A3B8', fontWeight: 600 }}>Watch Time (Hours)</div>
-            <div style={{ fontSize: '24px', fontWeight: 900, color: '#FFFFFF', marginTop: '4px', fontFamily: headingFont }}>
-              62.4K
+            <div style={{ fontSize: `${11 * s}px`, color: textSecondary, fontWeight: 700 }}>{customItems[1] || 'Retention'}</div>
+            <div style={{ fontSize: isPortrait ? `${18 * s}px` : `${20 * s}px`, fontWeight: 900, color: textPrimary, marginTop: `${2 * s}px`, fontFamily: headingFont }}>
+              +195%
             </div>
-            <div style={{ fontSize: '13px', color: '#34D399', fontWeight: 800, marginTop: '2px' }}>
-              ↗ +215%
+            <div style={{ fontSize: `${11 * s}px`, color: '#10B981', fontWeight: 800, marginTop: `${2 * s}px`, display: 'flex', alignItems: 'center', gap: '2px' }}>
+              <TrendUpSvg size={11 * s} color="#10B981" /> High
             </div>
           </div>
 
           <div
             style={{
-              padding: '16px 20px',
-              borderRadius: '16px',
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              padding: `${12 * s}px ${14 * s}px`,
+              borderRadius: `${14 * s}px`,
+              backgroundColor: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(15, 23, 42, 0.03)',
+              border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'}`,
             }}
           >
-            <div style={{ fontSize: '13px', color: '#94A3B8', fontWeight: 600 }}>Subscribers</div>
-            <div style={{ fontSize: '24px', fontWeight: 900, color: '#FFFFFF', marginTop: '4px', fontFamily: headingFont }}>
-              +48,600
+            <div style={{ fontSize: `${11 * s}px`, color: textSecondary, fontWeight: 700 }}>{customItems[2] || 'Output'}</div>
+            <div style={{ fontSize: isPortrait ? `${18 * s}px` : `${20 * s}px`, fontWeight: 900, color: textPrimary, marginTop: `${2 * s}px`, fontFamily: headingFont }}>
+              +340%
             </div>
-            <div style={{ fontSize: '13px', color: '#34D399', fontWeight: 800, marginTop: '2px' }}>
-              ↗ +490%
+            <div style={{ fontSize: `${11 * s}px`, color: '#10B981', fontWeight: 800, marginTop: `${2 * s}px`, display: 'flex', alignItems: 'center', gap: '2px' }}>
+              <TrendUpSvg size={11 * s} color="#10B981" /> Compounding
             </div>
           </div>
         </div>
@@ -294,9 +338,9 @@ export function ChartScene({
         {/* Supporting Subtitle */}
         <p
           style={{
-            fontSize: '15px',
-            color: '#94A3B8',
-            marginTop: '20px',
+            fontSize: `${15 * s}px`,
+            color: textSecondary,
+            marginTop: `${14 * s}px`,
             marginBottom: 0,
             lineHeight: 1.4,
             fontWeight: 500,
@@ -308,3 +352,5 @@ export function ChartScene({
     </div>
   );
 }
+
+export default ChartScene;

@@ -90,10 +90,10 @@ export default function CreatorRewardsSection() {
             </div>
           </div>
           <Link
-            href="/promote-and-earn"
+            href="/pricing"
             className="inline-flex shrink-0 items-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 px-6 py-3.5 text-xs font-black text-white hover:from-amber-600 hover:to-orange-700 transition duration-300 hover:-translate-y-0.5 shadow-md shadow-orange-500/20"
           >
-            See Creator Rewards
+            See Pricing & Plans
             <ArrowRight size={13} />
           </Link>
         </div>

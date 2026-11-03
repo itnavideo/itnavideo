@@ -104,6 +104,8 @@ type WhiteboardVideoProps = {
   enableSfx?: boolean;
   scenes?: WhiteboardScene[];
   fontPersonality?: string;
+  bgmUrl?: string;
+  bgmVolume?: number;
 };
 
 // ── Whiteboard Marker Fonts & Colors ─────────────────────────────────────────
@@ -911,7 +913,9 @@ function WhiteboardVideo({
   layoutType = 'cards',
   infographicData,
   showHand = true,
-  fontPersonality = 'marker',
+  fontPersonality = 'balsamiq',
+  bgmUrl,
+  bgmVolume = 0.12,
   language = 'en',
   direction = 'ltr',
   points = [],
@@ -1009,7 +1013,7 @@ function WhiteboardVideo({
   // 0. Dynamic Archetype Scene Director (Multi-scene speech-synced storytelling)
   if (scenes && scenes.length > 0) {
     return (
-      <AbsoluteFill style={{ background: '#F1F5F9' }}>
+      <AbsoluteFill style={{ background: '#FFFFFF' }}>
         <ProceduralWhiteboardCanvas />
         <DynamicWhiteboardSceneDirector scenes={scenes} showHand={showHand} fontPersonality={fontPersonality} />
 
@@ -1173,6 +1177,14 @@ function WhiteboardVideo({
           src={resolvedSrc}
           volume={sourceAudioVolume}
           startFrom={Math.round(mediaTrimStartSeconds * fps)}
+        />
+      )}
+      {/* Background Music Score (Default 12% Volume) */}
+      {bgmUrl && bgmUrl !== 'none' && (
+        <Audio
+          src={resolveAsset(bgmUrl)}
+          volume={bgmVolume ?? 0.12}
+          loop
         />
       )}
       {resolvedSrc && mediaType === 'video' && (

@@ -11,6 +11,9 @@ import { FacelessShortsComposition } from './templates/FACELESS_SHORTS/template'
 import { ImageToVideoAiComposition } from './templates/IMAGE_TO_VIDEO_AI/template';
 import { BookSummaryComposition } from './templates/BOOK_SUMMARY/template';
 import { SaasProductDemoComposition } from './templates/SAAS_PRODUCT_DEMO/template';
+import { SplitScreenExplainerComposition } from './templates/SPLIT_SCREEN_EXPLAINER/template';
+import { AiVideoPolisherComposition } from './templates/AI_VIDEO_POLISHER/template';
+import { AiShortsPolisherComposition } from './templates/AI_SHORTS_POLISHER/template';
 import { LibraryPreview } from './motion-graphics/previews/LibraryPreview';
 // Self-contained default sample blueprint for remotion studio preview
 const DEFAULT_PREVIEW_BLUEPRINT = [
@@ -48,6 +51,9 @@ const compositions = [
   ImageToVideoAiComposition,
   BookSummaryComposition,
   SaasProductDemoComposition,
+  SplitScreenExplainerComposition,
+  AiVideoPolisherComposition,
+  AiShortsPolisherComposition,
 ];
 
 const RemotionRoot = () => (

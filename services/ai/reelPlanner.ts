@@ -75,7 +75,10 @@ export type ReelVideoTypeName =
   | 'FACELESS_SHORTS'
   | 'AI_VIDEO_GENERATOR'
   | 'IMAGE_TO_VIDEO_AI'
-  | 'BOOK_SUMMARY';
+  | 'BOOK_SUMMARY'
+  | 'SPLIT_SCREEN_EXPLAINER'
+  | 'AI_VIDEO_POLISHER'
+  | 'AI_SHORTS_POLISHER';
 
 export type ReelVideoTypeConfig = {
   templateName: ReelVideoTypeName;
@@ -220,7 +223,7 @@ export const VIDEO_TYPE_REGISTRY: Partial<Record<ReelVideoTypeName, ReelVideoTyp
     templateName: 'BOOK_SUMMARY',
     compositionId: 'BOOK-SUMMARY',
     videoCategory: 'long-form',
-    allowedMedia: ['audio', 'image'],
+    allowedMedia: ['audio', 'video', 'image'],
     transcriptRequirement: 'required',
     plannerMode: 'bookSummary',
     mediaFit: 'bookSummary',
@@ -228,6 +231,45 @@ export const VIDEO_TYPE_REGISTRY: Partial<Record<ReelVideoTypeName, ReelVideoTyp
     needsTitle: true,
     needsCaptionStylePicker: true,
     skipPlanner: false,
+  },
+  SPLIT_SCREEN_EXPLAINER: {
+    templateName: 'SPLIT_SCREEN_EXPLAINER',
+    compositionId: 'SPLIT-SCREEN-EXPLAINER',
+    videoCategory: 'reel',
+    allowedMedia: ['video', 'audio', 'image'],
+    transcriptRequirement: 'audio-or-video',
+    plannerMode: 'videoExplainer',
+    mediaFit: 'videoExplainer',
+    needsImages: true,
+    needsTitle: true,
+    needsCaptionStylePicker: true,
+    skipPlanner: false,
+  },
+  AI_VIDEO_POLISHER: {
+    templateName: 'AI_VIDEO_POLISHER',
+    compositionId: 'AI-VIDEO-POLISHER',
+    videoCategory: 'long-form',
+    allowedMedia: ['video', 'audio', 'image'],
+    transcriptRequirement: 'required',
+    plannerMode: 'videoCaption',
+    mediaFit: 'videoCaption',
+    needsImages: true,
+    needsTitle: true,
+    needsCaptionStylePicker: true,
+    skipPlanner: true,
+  },
+  AI_SHORTS_POLISHER: {
+    templateName: 'AI_SHORTS_POLISHER',
+    compositionId: 'AI-SHORTS-POLISHER',
+    videoCategory: 'reel',
+    allowedMedia: ['video', 'audio', 'image'],
+    transcriptRequirement: 'required',
+    plannerMode: 'videoCaption',
+    mediaFit: 'videoCaption',
+    needsImages: true,
+    needsTitle: true,
+    needsCaptionStylePicker: true,
+    skipPlanner: true,
   },
 } as const satisfies Record<string, {
   templateName: ReelVideoTypeName;

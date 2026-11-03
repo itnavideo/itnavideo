@@ -225,6 +225,10 @@ export const PRESET_ORDER = [
   "Story",
 
   // ── Top Viral Creator Presets (TikTok, Reels, Shorts — USA, UK, Canada, Australia) ──
+  "Luxury Dual-Script",
+  "Metallic Gloss 3D",
+  "Whisper Editorial",
+  "Creator Punch Stack",
   "Hormozi Viral Pop",
   "MrBeast Shorts Impact",
   "Submagic Glow",

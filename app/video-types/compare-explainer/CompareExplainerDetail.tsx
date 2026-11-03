@@ -121,7 +121,7 @@ export default function CompareExplainerDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070B14] text-slate-100 font-sans selection:bg-purple-500/30 selection:text-purple-200">
+    <div className="min-h-screen bg-[#070B14] text-slate-100 font-sans selection:bg-orange-500/30 selection:text-purple-200">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
@@ -132,35 +132,7 @@ export default function CompareExplainerDetail() {
       />
 
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#070B14]/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-purple-600 via-fuchsia-500 to-pink-500 text-white font-black shadow-lg shadow-purple-500/20 group-hover:scale-105 transition-transform">
-              IV
-            </div>
-            <span className="text-xl font-extrabold tracking-tight text-white">
-              Itnavideo<span className="text-purple-400">.</span>
-            </span>
-          </Link>
-
-          <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-300">
-            <Link href="/video-types" className="hover:text-purple-400 transition">Video Types</Link>
-            <Link href="/faceless-video" className="hover:text-purple-400 transition">Faceless Video</Link>
-            <Link href="/auto-caption-generator" className="hover:text-purple-400 transition">Auto Captions</Link>
-            <Link href="/pricing" className="hover:text-purple-400 transition">Pricing</Link>
-          </nav>
-
-          <div className="flex items-center gap-4">
-            <Link
-              href="/dashboard?videoType=compare-explainer"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 px-5 py-2.5 text-xs sm:text-sm font-extrabold text-white shadow-lg shadow-purple-500/25 transition hover:brightness-110 active:scale-95"
-            >
-              <Sparkles size={16} />
-              <span>Create Compare Video</span>
-            </Link>
-          </div>
-        </div>
-      </header>
+      
 
       {/* HERO SECTION */}
       <section className="relative overflow-hidden pt-12 pb-16 lg:pt-20 lg:pb-24">
@@ -186,16 +158,16 @@ export default function CompareExplainerDetail() {
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/dashboard?videoType=compare-explainer"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-amber-500 via-purple-600 to-pink-500 px-8 py-4 text-base font-black text-white shadow-xl shadow-purple-500/20 transition hover:brightness-110 active:scale-95"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-amber-500 via-purple-600 to-pink-500 px-8 py-4 text-base font-black text-white shadow-xl shadow-orange-500/20 transition hover:brightness-110 active:scale-95"
             >
               <Play size={18} className="fill-white" />
               <span>Start Compare Explainer Free</span>
             </Link>
             <a
               href="#character-studio"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#0E1526] px-8 py-4 text-base font-bold text-slate-200 hover:bg-[#152038] hover:border-purple-500/30 transition"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#0E1526] px-8 py-4 text-base font-bold text-slate-200 hover:bg-[#152038] hover:border-orange-500/30 transition"
             >
-              <Users size={18} className="text-purple-400" />
+              <Users size={18} className="text-orange-400" />
               <span>Explore Animated Presenters</span>
             </a>
           </div>
@@ -226,7 +198,7 @@ export default function CompareExplainerDetail() {
       <section id="character-studio" className="py-16 sm:py-20 border-t border-white/10 bg-[#0A0F1D]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-12">
-            <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-3.5 py-1 text-xs font-bold uppercase text-purple-300 mb-3">
+            <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold uppercase text-orange-300 mb-3">
               <Users size={14} />
               <span>Interactive Character Studio</span>
             </div>
@@ -247,7 +219,7 @@ export default function CompareExplainerDetail() {
                   onClick={() => setSelectedChar(idx as 0 | 1)}
                   className={`px-6 py-3 rounded-xl font-bold text-sm transition ${
                     selectedChar === idx
-                      ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30'
+                      ? 'bg-purple-600 text-white shadow-lg shadow-orange-500/30'
                       : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
                   }`}
                 >
@@ -267,7 +239,7 @@ export default function CompareExplainerDetail() {
                     height={280}
                     className="object-contain max-h-full drop-shadow-2xl"
                   />
-                  <div className="absolute bottom-3 inset-x-3 rounded-lg bg-black/80 backdrop-blur-md px-3 py-1.5 text-center text-xs font-bold text-purple-300 border border-white/10">
+                  <div className="absolute bottom-3 inset-x-3 rounded-lg bg-black/80 backdrop-blur-md px-3 py-1.5 text-center text-xs font-bold text-orange-300 border border-white/10">
                     Pose: {selectedPose.toUpperCase()}
                   </div>
                 </div>
@@ -288,7 +260,7 @@ export default function CompareExplainerDetail() {
                       onClick={() => setSelectedPose(poseKey)}
                       className={`p-3 rounded-xl text-xs font-bold text-left border transition ${
                         selectedPose === poseKey
-                          ? 'border-purple-500 bg-purple-500/20 text-white'
+                          ? 'border-orange-500 bg-orange-500/20 text-white'
                           : 'border-white/10 bg-white/5 text-slate-300 hover:bg-white/10'
                       }`}
                     >
@@ -340,7 +312,7 @@ export default function CompareExplainerDetail() {
 
               <div className="rounded-2xl border border-white/10 bg-[#0E1526] p-6 shadow-xl space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/10 text-orange-400 border border-orange-500/20">
                     <Zap size={20} />
                   </div>
                   <h3 className="text-lg font-bold text-white">Curiosity Tension Arc</h3>
@@ -379,7 +351,7 @@ export default function CompareExplainerDetail() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
+            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-orange-500/40 transition group">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20 mb-6">
                 <Clock size={24} />
               </div>
@@ -392,20 +364,20 @@ export default function CompareExplainerDetail() {
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-500/10 text-purple-400 border border-purple-500/20 mb-6">
+            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-orange-500/40 transition group">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-500/10 text-orange-400 border border-orange-500/20 mb-6">
                 <Users size={24} />
               </div>
               <h3 className="text-xl font-extrabold text-white mb-3">2. Animating Character Host Poses</h3>
               <p className="text-slate-300 text-sm leading-relaxed mb-4">
                 Rigging and keyframing 3D avatar gestures to point left, point right, and celebrate winners requires advanced 3D animation skills.
               </p>
-              <div className="rounded-xl bg-purple-500/10 border border-purple-500/20 p-3 text-xs font-semibold text-purple-300">
+              <div className="rounded-xl bg-orange-500/10 border border-orange-500/20 p-3 text-xs font-semibold text-orange-300">
                 <strong className="text-white">Itnavideo Solution:</strong> AI analyzes speech timestamps to switch character poses automatically.
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
+            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-orange-500/40 transition group">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-pink-500/10 text-pink-400 border border-pink-500/20 mb-6">
                 <Zap size={24} />
               </div>
@@ -418,7 +390,7 @@ export default function CompareExplainerDetail() {
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
+            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-orange-500/40 transition group">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-6">
                 <Sliders size={24} />
               </div>
@@ -431,7 +403,7 @@ export default function CompareExplainerDetail() {
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
+            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-orange-500/40 transition group">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-fuchsia-500/10 text-fuchsia-400 border border-fuchsia-500/20 mb-6">
                 <Tv size={24} />
               </div>
@@ -444,7 +416,7 @@ export default function CompareExplainerDetail() {
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
+            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-orange-500/40 transition group">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 mb-6">
                 <Award size={24} />
               </div>
@@ -488,13 +460,13 @@ export default function CompareExplainerDetail() {
 
             <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-8 flex flex-col justify-between">
               <div>
-                <span className="text-4xl font-black text-purple-400 block mb-4">02</span>
+                <span className="text-4xl font-black text-orange-400 block mb-4">02</span>
                 <h3 className="text-2xl font-extrabold text-white mb-3">Upload Subject Images</h3>
                 <p className="text-slate-300 text-sm leading-relaxed">
                   Upload Left Subject Image (Card A) and Right Subject Image (Card B) along with labels and winner selection.
                 </p>
               </div>
-              <div className="mt-6 pt-4 border-t border-white/10 text-xs text-purple-300 font-semibold">
+              <div className="mt-6 pt-4 border-t border-white/10 text-xs text-orange-300 font-semibold">
                 ✓ Auto split-screen positioning
               </div>
             </div>
@@ -577,7 +549,7 @@ export default function CompareExplainerDetail() {
                     className="w-full flex items-center justify-between p-6 text-left focus:outline-none"
                   >
                     <span className="text-base sm:text-lg font-bold text-white pr-4">{faq.q}</span>
-                    <div className={`flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-purple-400 transition-transform ${isOpen ? 'rotate-180 bg-purple-500/20' : ''}`}>
+                    <div className={`flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-orange-400 transition-transform ${isOpen ? 'rotate-180 bg-orange-500/20' : ''}`}>
                       <ChevronDown size={18} />
                     </div>
                   </button>
@@ -600,7 +572,7 @@ export default function CompareExplainerDetail() {
           <p className="text-slate-300 text-lg mb-8">Join thousands of creators producing high-intent decision reels in seconds.</p>
           <Link
             href="/dashboard?videoType=compare-explainer"
-            className="inline-flex items-center gap-3 rounded-2xl bg-gradient-to-r from-amber-500 via-purple-600 to-pink-500 px-8 py-4 text-base font-black text-white shadow-xl shadow-purple-500/25 transition hover:brightness-110"
+            className="inline-flex items-center gap-3 rounded-2xl bg-gradient-to-r from-amber-500 via-purple-600 to-pink-500 px-8 py-4 text-base font-black text-white shadow-xl shadow-orange-500/25 transition hover:brightness-110"
           >
             <Sparkles size={18} />
             <span>Create Compare Video Free</span>

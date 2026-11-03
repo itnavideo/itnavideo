@@ -57,7 +57,11 @@ Making comparison videos requires editing software, finding layouts, adding anim
 |-------|------|-------|
 | Left Title | Text | Label for left item (e.g., "iPhone 15") |
 | Right Title | Text | Label for right item (e.g., "Galaxy S24") |
-| Theme | Selection | Visual theme: `light` (default), `dark`, `bold`. Controls background, caption glass, and handle color. |
+| Theme | Selection | Visual theme: `white` (default clean white), `light` (soft gradient), `dark` (slate), `bold` (purple). |
+| BGM Track | Selection / Upload | 13+ Curated AWS S3 tracks or custom audio upload (default volume: 12%). |
+| Motion SFX | Toggle | Versus whooshes, badge pop, and victory chime SFX. |
+| Editorial Transcript | Text | Spoken narration editor for fixing speech typos before rendering. |
+| Visual Review Gate | Checkbox | Compulsory live preview review required before cloud render button unlocks. |
 | Comparison tone | Selection | `versus` (neutral blue vs purple, default) or `goodBad` (green = recommended, red = avoid). Drives both sides' accent colors. |
 | Winner | Selection | `none` (default), `left`, or `right`. Adds a 👑 crown on the winning title pill and a winner announcement on the closing card. |
 | Image Frame Style | Selection | `rounded` (default), `circle`, `phone`, `tilted`, `polaroid`. Controls how the comparison images are displayed. |

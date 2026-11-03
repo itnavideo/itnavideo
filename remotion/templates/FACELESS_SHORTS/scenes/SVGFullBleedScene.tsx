@@ -451,9 +451,9 @@ function TokenGridDiagram({ draw, localFrame, fps, ink, muted, hairline, surface
 // ─────────────────────────────────────────────────────────────
 function NotificationStackDiagram({ draw, localFrame, fps, ink, muted, hairline, surface, headingFont, bodyFont, id, scene }: DrawProps) {
   const alerts = [
-    { sender: 'Client $$$', query: 'How much do I owe you?', time: 'now', icon: '💬' },
+    { sender: 'Client Inquiry', query: 'How much do I owe you?', time: 'now', icon: '?' },
     { sender: 'Invoice #1042', query: 'Payment confirmed & verified', time: '1m ago', icon: '✓' },
-    { sender: 'Financial Ledger', query: 'Updated monthly revenue balance', time: '3m ago', icon: '📊' },
+    { sender: 'Financial Ledger', query: 'Updated monthly revenue balance', time: '3m ago', icon: '↗' },
   ];
 
   return (

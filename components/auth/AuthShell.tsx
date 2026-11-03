@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, CheckCircle2, Sparkles, Zap } from 'lucide-react';
+import { ArrowLeft, Sparkles } from 'lucide-react';
 import BrandLogo from '@/components/brand/BrandLogo';
 
 export default function AuthShell({
@@ -15,8 +15,14 @@ export default function AuthShell({
   subtitle?: string;
   children: React.ReactNode;
 }) {
+  const optimizedImageUrl = "https://res.cloudinary.com/dhouh9idx/image/upload/f_auto,q_auto,w_800,c_limit/v1792946360/Professional_Presenter_in_Charcoal_Suit_ty6e33.png";
+
   return (
     <main className="relative min-h-screen bg-[#070B14] px-4 py-8 sm:px-6 sm:py-12 text-white overflow-x-hidden flex items-center justify-center">
+      {/* Preconnect & High-Priority Preload for Instant Image Render */}
+      <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
+      <link rel="preload" as="image" href={optimizedImageUrl} />
+
       {/* Background Ambient Glows */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-32 -left-32 h-[560px] w-[560px] rounded-full bg-[#FF5722]/10 blur-[160px]" />
@@ -63,8 +69,12 @@ export default function AuthShell({
             />
 
             <img
-              src="https://res.cloudinary.com/dhouh9idx/image/upload/v1792946360/Professional_Presenter_in_Charcoal_Suit_ty6e33.png"
+              src={optimizedImageUrl}
               alt="Executive Presenter in Charcoal Suit"
+              loading="eager"
+              decoding="async"
+              // @ts-ignore
+              fetchPriority="high"
               className="relative z-10 max-h-[580px] lg:max-h-[660px] w-auto object-contain drop-shadow-[0_25px_60px_rgba(0,0,0,0.95)] transition-transform duration-500 hover:scale-[1.01]"
               style={{
                 WebkitMaskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)',
@@ -85,11 +95,11 @@ export default function AuthShell({
 
         {/* Right Form Container Column */}
         <section className="mx-auto w-full max-w-md">
-          <div className="flex items-center justify-between mb-4 lg:hidden">
-            <BrandLogo size="sm" variant="dark" />
+          <div className="flex items-center justify-between mb-5 lg:hidden">
+            <BrandLogo size="md" variant="dark" />
             <Link 
               href="/" 
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-300 transition-all hover:bg-white/10 hover:text-white"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/5 px-3.5 py-1.5 text-xs font-semibold text-slate-300 transition-all hover:bg-white/10 hover:text-white"
             >
               <ArrowLeft size={13} />
               <span>Home</span>
@@ -101,4 +111,3 @@ export default function AuthShell({
     </main>
   );
 }
-

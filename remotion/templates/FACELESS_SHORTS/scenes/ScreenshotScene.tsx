@@ -3,12 +3,15 @@ import { interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
 import { BrowserMockupFrame } from '../components/BrowserMockupFrame';
 import { DecodingCardMockup } from '../components/DecodingCardMockup';
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
+import type { BackgroundColorPalette } from '../../../components/backgrounds/BackgroundCatalog';
 
 export interface ScreenshotSceneProps {
   scene: SceneBlueprintItem;
   mediaUrl?: string;
   headingFont?: string;
   bodyFont?: string;
+  sceneFrame?: number;
+  palette?: BackgroundColorPalette;
 }
 
 export function ScreenshotScene({
@@ -16,23 +19,34 @@ export function ScreenshotScene({
   mediaUrl,
   headingFont = 'Montserrat, Inter, system-ui, sans-serif',
   bodyFont = 'Inter, system-ui, sans-serif',
+  sceneFrame,
+  palette,
 }: ScreenshotSceneProps) {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, width, height } = useVideoConfig();
+  const currentFrame = sceneFrame !== undefined ? sceneFrame : frame;
+
+  const isPortrait = height > width;
+  const s = Math.min(width, height) / 1080;
+  const isDark = palette?.isDark ?? true;
+
+  const bg = isDark ? (palette?.background || '#090D16') : '#FFFFFF';
 
   const entrance = spring({
-    frame,
+    frame: currentFrame,
     fps,
     config: { damping: 14, mass: 0.8 },
   });
 
-  const scale = interpolate(entrance, [0, 1], [0.9, 1.0]);
+  // Subtle floating motion
+  const ambientFloat = Math.sin((currentFrame / fps) * 2) * (3 * s);
+
+  const scale = interpolate(entrance, [0, 1], [0.92, 1.0]);
   const activeMediaUrl = mediaUrl || scene.visualAssetRequirement || '';
 
   const headline = scene.heading || 'HIGH IMPACT NICHE BREAKTHROUGH';
   const highlightWord = (scene.highlightedWords && scene.highlightedWords[0]) || '';
 
-  // Determine contextual mockup presentation
   const contextString = `${headline} ${scene.supportingText || ''} ${scene.narrationSegment?.text || ''}`;
   const isDigitalProductContext =
     /ebook|book|pdf|guide|blueprint|digital product|course|stripe|gumroad|sales|\$506|\$|revenue|passive income/i.test(
@@ -56,26 +70,29 @@ export function ScreenshotScene({
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '50px 80px',
+        padding: isPortrait ? `${160 * s}px ${45 * s}px ${180 * s}px` : `${50 * s}px ${80 * s}px`,
         zIndex: 15,
+        backgroundColor: bg,
         opacity: entrance,
-        transform: `scale(${scale})`,
+        transform: `translateY(${ambientFloat}px) scale(${scale})`,
         fontFamily: bodyFont,
+        boxSizing: 'border-box',
+        overflow: 'hidden',
       }}
     >
       {isDigitalProductContext ? (
         <div
           style={{
             display: 'flex',
-            flexDirection: 'row',
+            flexDirection: isPortrait ? 'column' : 'row',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '64px',
+            gap: isPortrait ? `${24 * s}px` : `${48 * s}px`,
             width: '100%',
-            maxWidth: '1100px',
+            maxWidth: isPortrait ? '520px' : '1080px',
           }}
         >
-          {/* Left: 3D Ebook Mockup with Spine Depth */}
+          {/* Ebook Mockup */}
           <DecodingCardMockup
             type="ebook_mockup"
             title={headline}
@@ -85,56 +102,57 @@ export function ScreenshotScene({
             fontFamily={headingFont}
           />
 
-          {/* Right: Revenue Proof Card & Live Stripe Toasts */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '22px', alignItems: 'flex-start' }}>
+          {/* Revenue Proof Card */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: `${16 * s}px`, alignItems: isPortrait ? 'center' : 'flex-start', width: isPortrait ? '100%' : 'auto' }}>
             <DecodingCardMockup
               type="stripe_toast"
               title={`Payment Received: ${scene.statValue || '+$27.00'}`}
-              viewCount="Stripe • Customer purchased Ebook"
+              viewCount="Stripe • Verified Transaction"
               fontFamily={bodyFont}
             />
 
-            {/* High-Impact Proof Metric Display */}
             <div
               style={{
-                backgroundColor: 'rgba(15, 23, 42, 0.94)',
+                backgroundColor: isDark ? 'rgba(15, 23, 42, 0.94)' : '#FFFFFF',
                 border: '2px solid rgba(255, 87, 34, 0.35)',
-                borderRadius: '24px',
-                padding: '28px 36px',
-                boxShadow: '0 25px 60px rgba(0,0,0,0.85), 0 0 35px rgba(255, 87, 34, 0.25)',
+                borderRadius: `${20 * s}px`,
+                padding: `${20 * s}px ${28 * s}px`,
+                boxShadow: '0 20px 50px rgba(0,0,0,0.4), 0 0 30px rgba(255, 87, 34, 0.15)',
+                width: isPortrait ? '100%' : 'auto',
+                boxSizing: 'border-box',
               }}
             >
               <div
                 style={{
-                  fontSize: '13px',
+                  fontSize: `${12 * s}px`,
                   fontWeight: 900,
                   color: '#FF7043',
                   letterSpacing: '0.08em',
                   textTransform: 'uppercase',
-                  marginBottom: '6px',
+                  marginBottom: `${6 * s}px`,
                 }}
               >
                 VERIFIED DIGITAL SALES
               </div>
               <div
                 style={{
-                  fontSize: '52px',
+                  fontSize: isPortrait ? `${40 * s}px` : `${48 * s}px`,
                   fontWeight: 900,
-                  color: '#FFFFFF',
+                  color: isDark ? '#FFFFFF' : '#0F172A',
                   letterSpacing: '-0.02em',
                   lineHeight: 1.05,
                 }}
               >
                 {scene.statValue || '$506,000'}
               </div>
-              <div style={{ fontSize: '15px', color: '#94A3B8', fontWeight: 600, marginTop: '8px' }}>
-                {scene.supportingText || 'Generated from a single 13-page digital product'}
+              <div style={{ fontSize: `${14 * s}px`, color: isDark ? '#94A3B8' : '#64748B', fontWeight: 600, marginTop: `${6 * s}px` }}>
+                {scene.supportingText || 'Generated from single digital product'}
               </div>
             </div>
           </div>
         </div>
       ) : isAiPromptContext ? (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: `${20 * s}px`, width: '100%', maxWidth: '520px' }}>
           <DecodingCardMockup
             type="ai_prompt_box"
             title={scene.supportingText || headline}
@@ -143,8 +161,7 @@ export function ScreenshotScene({
           />
         </div>
       ) : isYoutubeContext ? (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px' }}>
-          {/* YouTube Search Bar typing above */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: `${20 * s}px`, width: '100%', maxWidth: '520px' }}>
           <DecodingCardMockup
             type="search_bar"
             title={headline}
@@ -152,22 +169,21 @@ export function ScreenshotScene({
             fontFamily={headingFont}
           />
 
-          {/* YouTube Tilted Video Thumbnail Card */}
           <DecodingCardMockup
             type="thumbnail_mockup"
             imageSrc={activeMediaUrl}
             title={headline}
-            channelName={scene.supportingText ? scene.supportingText.slice(0, 24) : 'Decoding Niche'}
-            viewCount="1.4M views • 2 weeks ago"
+            channelName={scene.supportingText ? scene.supportingText.slice(0, 24) : 'Strategic Blueprint'}
+            viewCount="1.4M views • High Velocity"
             duration="14:28"
-            tiltAngle={-2.8}
+            tiltAngle={-2.2}
             highlightWord={highlightWord}
             accentColor="#FF5722"
             fontFamily={headingFont}
           />
         </div>
       ) : (
-        <div style={{ width: '100%', maxWidth: '1200px', height: '620px' }}>
+        <div style={{ width: '100%', maxWidth: isPortrait ? '520px' : '1080px', height: isPortrait ? `${440 * s}px` : `${580 * s}px` }}>
           <BrowserMockupFrame
             src={activeMediaUrl}
             title={headline}
@@ -179,3 +195,5 @@ export function ScreenshotScene({
     </div>
   );
 }
+
+export default ScreenshotScene;

@@ -3,15 +3,18 @@ import {
   Loop,
   OffthreadVideo,
   interpolate,
-  spring,
-  staticFile,
-  useCurrentFrame,
-  useVideoConfig,
 } from 'remotion';
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
-import { HandwritingHighlight } from '../../../components/library/HandwritingHighlight';
-import { HighlightText } from '../components/HighlightText';
 import { getBackgroundPalette } from '../../../components/backgrounds/BackgroundCatalog';
+import { safeResolveMediaSrc, isVideoMedia } from '../../../utils/safeMedia';
+import { VectorDrawingIcon } from '../../../components/graphics/VectorDrawingIcon';
+import { useVideoDesignSystem } from '../designSystem';
+import {
+  EyebrowPill,
+  SceneCanvas,
+  StudioCard,
+} from '../components/DesignSystemPrimitives';
+import { HandwritingHighlight } from '../../../components/library/HandwritingHighlight';
 
 export interface CardConceptSceneProps {
   scene: SceneBlueprintItem;
@@ -20,96 +23,94 @@ export interface CardConceptSceneProps {
   bodyFont?: string;
   backgroundTheme?: string;
   sceneFrame?: number;
-}
-
-import { safeResolveMediaSrc, isVideoMedia, isValidMediaUrl } from '../../../utils/safeMedia';
-import { VectorDrawingIcon } from '../../../components/graphics/VectorDrawingIcon';
-
-function getContextualEmoji(text: string): React.ReactNode {
-  return (
-    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-      <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" />
-    </svg>
-  );
+  palette?: { isDark?: boolean } | null;
 }
 
 export function CardConceptScene({
   scene,
   mediaUrl,
-  headingFont = 'Montserrat, sans-serif',
-  bodyFont = 'Plus Jakarta Sans, sans-serif',
+  headingFont = 'Montserrat, "Plus Jakarta Sans", sans-serif',
+  bodyFont = 'Inter, "Plus Jakarta Sans", sans-serif',
   backgroundTheme,
   sceneFrame,
+  palette: explicitPalette,
 }: CardConceptSceneProps) {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const resolvedPalette = React.useMemo(
+    () => explicitPalette || getBackgroundPalette(backgroundTheme),
+    [explicitPalette, backgroundTheme]
+  );
 
-  // Enforce Scene-Local Frame Law
-  const currentFrame = sceneFrame !== undefined ? sceneFrame : frame;
-  const sceneDurationFrames = Math.max(30, Math.round((scene.duration || 5) * fps));
-
-  const palette = React.useMemo(() => getBackgroundPalette(backgroundTheme), [backgroundTheme]);
-
-  // Smooth Zoom-in & Slide-in Entrance
-  const entrance = spring({
-    frame: currentFrame,
-    fps,
-    config: { damping: 15, mass: 0.8 },
+  const ds = useVideoDesignSystem({
+    sceneFrame,
+    durationSec: scene.duration,
+    palette: resolvedPalette,
   });
-
-  const scale = interpolate(entrance, [0, 1], [0.94, 1.0]);
-  const translateY = interpolate(entrance, [0, 1], [35, 0]);
 
   const activeMediaUrl = mediaUrl || scene.visualAssetRequirement || '';
   const resolvedSrc = safeResolveMediaSrc(activeMediaUrl);
   const isVid = isVideoMedia(activeMediaUrl);
 
-  const headline = scene.heading || 'CORE PRINCIPLE';
-  const highlightWord = (scene.highlightedWords && scene.highlightedWords[0]) || '';
-  const supportingText = scene.supportingText && scene.supportingText.toLowerCase() !== headline.toLowerCase() ? scene.supportingText : '';
-  const emoji = getContextualEmoji(`${headline} ${supportingText}`);
+  const headline = String(scene.heading || 'CORE PRINCIPLE').trim();
+  const categoryPill = String(scene.categoryPill || 'CONCEPT BREAKDOWN').trim();
+  const supportingText =
+    scene.supportingText && scene.supportingText.trim().toLowerCase() !== headline.toLowerCase()
+      ? scene.supportingText.trim()
+      : '';
 
-  const imageKenBurns = interpolate(currentFrame, [0, sceneDurationFrames], [1.02, 1.14], { extrapolateRight: 'clamp' });
+  const rawHighlight =
+    scene.highlightedWords && typeof scene.highlightedWords[0] === 'string'
+      ? scene.highlightedWords[0].trim()
+      : '';
+  const highlightWord = rawHighlight.length >= 2 ? rawHighlight : '';
+  const highlightIndex = highlightWord
+    ? headline.toLowerCase().indexOf(highlightWord.toLowerCase())
+    : -1;
+
+  const imageKenBurns = interpolate(ds.localFrame, [0, ds.totalFrames], [1.02, 1.12], {
+    extrapolateRight: 'clamp',
+  });
+
+  const isReversed = !ds.layout.isVertical && (scene.sceneNumber || 0) % 2 === 1;
 
   return (
-    <div
-      style={{
-        position: 'absolute',
-        inset: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '0 120px',
-        zIndex: 10,
-        opacity: entrance,
-        transform: `translateY(${translateY}px) scale(${scale})`,
-        backgroundColor: 'transparent',
-      }}
+    <SceneCanvas
+      sceneFrame={sceneFrame}
+      durationSec={scene.duration}
+      palette={resolvedPalette}
+      accentTone="indigo"
+      fontFamily={bodyFont}
     >
-      {/* ── Editorial Cinema Split (No Boxed Web Container) ── */}
       <div
         style={{
           width: '100%',
-          maxWidth: '1600px',
+          maxWidth: ds.layout.isVertical ? '920px' : '1480px',
           display: 'flex',
-          flexDirection: 'row',
+          flexDirection: ds.layout.isVertical
+            ? 'column'
+            : isReversed
+            ? 'row-reverse'
+            : 'row',
           alignItems: 'center',
-          gap: '80px',
+          justifyContent: 'space-between',
+          gap: ds.layout.isVertical ? '28px' : '56px',
         }}
       >
-        {/* Left Visual: 3D Tilted Sticker Cutout with Cinema Shadow */}
-        <div
+        {/* Visual Showcase Frame */}
+        <StudioCard
+          tone="indigo"
+          elevated
+          palette={resolvedPalette}
+          progress={ds.motion.contentSpring}
           style={{
-            width: '540px',
-            height: '420px',
-            borderRadius: '28px',
-            overflow: 'hidden',
-            border: '6px solid #FFFFFF',
-            backgroundColor: palette.isDark ? '#070B14' : '#F1F5F9',
+            width: ds.layout.isVertical ? '100%' : '540px',
+            maxWidth: ds.layout.isVertical ? '520px' : '540px',
+            height: ds.layout.isVertical ? '360px' : '420px',
+            padding: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             flexShrink: 0,
-            position: 'relative',
-            boxShadow: '0 35px 80px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.15)',
-            transform: 'rotate(-2.5deg)',
+            backgroundColor: ds.surface.cardBgMuted,
           }}
         >
           {resolvedSrc ? (
@@ -118,11 +119,7 @@ export function CardConceptScene({
                 <OffthreadVideo
                   src={resolvedSrc}
                   volume={0}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                  }}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               </Loop>
             ) : (
@@ -138,81 +135,63 @@ export function CardConceptScene({
               />
             )
           ) : (
-            <div
-              style={{
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: palette.isDark
-                  ? 'radial-gradient(circle, #1E293B 0%, #0F172A 100%)'
-                  : 'radial-gradient(circle, #F8FAFC 0%, #E2E8F0 100%)',
-              }}
-            >
-              <VectorDrawingIcon
-                keyword={`${headline} ${supportingText}`}
-                size={380}
-                strokeWidth={4.5}
-                animated={true}
-                theme={palette.isDark ? 'dark' : 'light'}
-              />
-            </div>
+            <VectorDrawingIcon
+              keyword={scene.vectorDrawingId || `${headline} ${supportingText}`}
+              size={ds.layout.isVertical ? 300 : 350}
+              strokeWidth={4}
+              animated={true}
+              frameOverride={ds.localFrame}
+              theme={ds.surface.isDark ? 'dark' : 'light'}
+            />
           )}
-        </div>
+        </StudioCard>
 
-        {/* Right Content: Direct Canvas Typography Hierarchy */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          {/* Concept Kicker Pill */}
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              backgroundColor: palette.isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 87, 34, 0.10)',
-              border: `1px solid ${palette.isDark ? 'rgba(255, 255, 255, 0.16)' : 'rgba(255, 87, 34, 0.25)'}`,
-              borderRadius: '9999px',
-              padding: '8px 20px',
-              width: 'fit-content',
-              marginBottom: '24px',
-            }}
-          >
-            <span style={{ fontSize: '22px' }}>{emoji}</span>
-            <span
-              style={{
-                fontFamily: headingFont,
-                fontSize: '13px',
-                fontWeight: 900,
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                color: palette.isDark ? palette.accentSecondary : '#EA580C',
-              }}
-            >
-              KEY CONCEPT
-            </span>
+        {/* Editorial Typography Column */}
+        <div
+          style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: ds.layout.isVertical ? 'center' : 'flex-start',
+            textAlign: ds.layout.isVertical ? 'center' : 'left',
+            opacity: ds.motion.headerSpring,
+            transform: `translateY(${interpolate(ds.motion.headerSpring, [0, 1], [22, 0])}px)`,
+          }}
+        >
+          <div style={{ marginBottom: '16px' }}>
+            <EyebrowPill
+              label={categoryPill}
+              tone="indigo"
+              palette={resolvedPalette}
+              progress={ds.motion.eyebrowSpring}
+            />
           </div>
 
           <h2
             style={{
               fontFamily: headingFont,
-              fontSize: '52px',
-              fontWeight: 900,
-              color: palette.textPrimary,
-              letterSpacing: '-0.025em',
-              lineHeight: 1.18,
-              marginBottom: '20px',
-              maxWidth: '800px',
+              fontSize: `${ds.type.sceneTitle.fontSize}px`,
+              fontWeight: ds.type.sceneTitle.fontWeight,
+              letterSpacing: ds.type.sceneTitle.letterSpacing,
+              lineHeight: ds.type.sceneTitle.lineHeight,
+              color: ds.surface.textPrimary,
+              margin: supportingText ? '0 0 18px 0' : 0,
             }}
           >
-            {highlightWord && headline.toLowerCase().includes(highlightWord.toLowerCase()) ? (
-              <HighlightText
-                text={headline}
-                highlightedWords={[highlightWord]}
-                accentColor={palette.accent}
-                markerColor={palette.highlightBg}
-                fontFamily={headingFont}
-                themeId={backgroundTheme}
-              />
+            {highlightIndex !== -1 ? (
+              <>
+                {headline.slice(0, highlightIndex)}
+                <HandwritingHighlight
+                  color="#FFE600"
+                  textColor="#0F172A"
+                  delayFrames={8}
+                  durationFrames={14}
+                  type="highlighter"
+                >
+                  {headline.slice(highlightIndex, highlightIndex + highlightWord.length)}
+                </HandwritingHighlight>
+                {headline.slice(highlightIndex + highlightWord.length)}
+              </>
             ) : (
               headline
             )}
@@ -222,12 +201,12 @@ export function CardConceptScene({
             <p
               style={{
                 fontFamily: bodyFont,
-                fontSize: '26px',
-                fontWeight: 600,
-                color: palette.textSecondary,
-                lineHeight: 1.5,
+                fontSize: `${ds.type.bodyLg.fontSize}px`,
+                fontWeight: 500,
+                lineHeight: ds.type.bodyLg.lineHeight,
+                color: ds.surface.textSecondary,
                 margin: 0,
-                maxWidth: '760px',
+                maxWidth: '720px',
               }}
             >
               {supportingText}
@@ -235,8 +214,6 @@ export function CardConceptScene({
           )}
         </div>
       </div>
-    </div>
+    </SceneCanvas>
   );
 }
-
-export default CardConceptScene;

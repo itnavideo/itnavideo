@@ -87,7 +87,7 @@ export function TypographyScene({
           <p
             style={{
               fontFamily: resolvedBodyFont,
-              fontSize: '24px',
+              fontSize: '28px',
               fontWeight: 600,
               color: supportingTextColor,
               marginTop: '28px',

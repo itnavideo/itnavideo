@@ -1,284 +1,350 @@
 import React from 'react';
-import { interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
-import { DualPhoneShowcase } from '../components/DualPhoneShowcase';
+import { interpolate, spring } from 'remotion';
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
-import { FACELESS_DESIGN_TOKENS } from '../facelessTokens';
+import { useVideoDesignSystem } from '../designSystem';
+import {
+  EyebrowPill,
+  SceneCanvas,
+  SceneHeader,
+  StudioCard,
+} from '../components/DesignSystemPrimitives';
 
 export interface ComparisonSceneProps {
   scene: SceneBlueprintItem;
   headingFont?: string;
   bodyFont?: string;
+  sceneFrame?: number;
+  palette?: { isDark?: boolean } | null;
 }
 
 export function ComparisonScene({
   scene,
-  headingFont = FACELESS_DESIGN_TOKENS.typography.interfaceSans,
-  bodyFont = FACELESS_DESIGN_TOKENS.typography.interfaceSans,
+  headingFont = 'Montserrat, "Plus Jakarta Sans", sans-serif',
+  bodyFont = 'Inter, "Plus Jakarta Sans", sans-serif',
+  sceneFrame,
+  palette,
 }: ComparisonSceneProps) {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-
-  // Staggered entrances
-  const headerSpring = spring({ frame, fps, config: { damping: 14, stiffness: 100 } });
-  const leftSpring = spring({ frame: Math.max(0, frame - 5), fps, config: { damping: 14, stiffness: 90 } });
-  const rightSpring = spring({ frame: Math.max(0, frame - 12), fps, config: { damping: 14, stiffness: 90 } });
-  const vsSpring = spring({ frame: Math.max(0, frame - 8), fps, config: { damping: 10, stiffness: 180 } });
+  const ds = useVideoDesignSystem({
+    sceneFrame,
+    durationSec: scene.duration,
+    palette,
+  });
 
   const heading = scene.heading || 'PARADIGM SHIFT & COMPARISON';
-  const leftItem = scene.comparisonItems?.left || scene.heading || 'Traditional Search & SEO';
-  const rightItem = scene.comparisonItems?.right || scene.supportingText || 'AI Agent Recommendation';
+  const categoryPill = scene.categoryPill || 'SIDE-BY-SIDE COMPARISON';
 
-  const contextString = `${heading} ${leftItem} ${rightItem} ${scene.narrationSegment?.text || ''}`;
-  const isDualDevice =
-    /phone|mobile|app|store|sales|revenue|digital product|earnings|\$96|\$356|planner|shop/i.test(
-      contextString
-    );
+  const leftRaw = scene.comparisonItems?.left || 'Traditional Manual Approach';
+  const rightRaw = scene.comparisonItems?.right || scene.supportingText || 'Modern High-Leverage System';
 
-  const leftX = interpolate(leftSpring, [0, 1], [-80, 0]);
-  const rightX = interpolate(rightSpring, [0, 1], [80, 0]);
-  const vsScale = interpolate(vsSpring, [0, 1], [0.3, 1.0]);
+  const splitPoints = (raw: string, fallbackPoints: string[]) => {
+    const cleaned = String(raw || '').trim();
+    const parts = cleaned
+      .split(/[•;\n|]+/)
+      .map((s) => s.trim())
+      .filter((s) => s.length >= 2);
+    if (parts.length >= 2) {
+      return {
+        title: parts[0],
+        bullets: parts.slice(1, 4),
+      };
+    }
+    return {
+      title: cleaned || fallbackPoints[0],
+      bullets: fallbackPoints,
+    };
+  };
+
+  const leftParsed = splitPoints(leftRaw, [
+    'High manual effort & slow turnaround',
+    'Inconsistent output quality',
+    'Hard to scale sustainably',
+  ]);
+
+  const rightParsed = splitPoints(rightRaw, [
+    'Structured system with clear leverage',
+    'Consistent, repeatable execution',
+    'Compounds results over time',
+  ]);
+
+  const leftSpring = ds.motion.stagger(0, 6, 6);
+  const vsSpring = spring({
+    frame: Math.max(0, ds.localFrame - 10),
+    fps: ds.fps,
+    config: { damping: 12, mass: 0.75, stiffness: 170 },
+  });
+  const rightSpring = ds.motion.stagger(1, 8, 6);
 
   return (
-    <div
-      style={{
-        position: 'absolute',
-        inset: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '60px 100px',
-        zIndex: 15,
-        backgroundColor: FACELESS_DESIGN_TOKENS.colors.canvasWhite,
-        fontFamily: bodyFont,
-      }}
+    <SceneCanvas
+      sceneFrame={sceneFrame}
+      durationSec={scene.duration}
+      palette={palette}
+      accentTone="coral"
+      fontFamily={bodyFont}
     >
-      {/* Eyebrow + Header */}
+      <SceneHeader
+        categoryPill={categoryPill}
+        heading={heading}
+        supportingText={
+          scene.supportingText && scene.supportingText !== rightRaw
+            ? scene.supportingText
+            : undefined
+        }
+        highlightedWords={scene.highlightedWords}
+        headingFont={headingFont}
+        bodyFont={bodyFont}
+        tone="coral"
+        sceneFrame={sceneFrame}
+        palette={palette}
+      />
+
+      {/* Responsive Split Grid: Row on 16:9, Column on 9:16 */}
       <div
         style={{
-          textAlign: 'center',
-          marginBottom: '44px',
-          opacity: headerSpring,
-          transform: `translateY(${interpolate(headerSpring, [0, 1], [-20, 0])}px)`,
+          width: '100%',
+          maxWidth: ds.layout.isVertical ? '920px' : '1380px',
+          display: 'flex',
+          flexDirection: ds.layout.splitDirection,
+          alignItems: 'stretch',
+          justifyContent: 'center',
+          gap: ds.layout.isVertical ? '20px' : '28px',
+          position: 'relative',
         }}
       >
-        <div
+        {/* LEFT / TOP CARD: The Old or Contrast Way */}
+        <StudioCard
+          tone="rose"
+          topAccentBar
+          palette={palette}
+          progress={leftSpring}
+          translateXFrom={ds.layout.isVertical ? 0 : -44}
+          translateYFrom={ds.layout.isVertical ? 24 : 0}
           style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '6px 16px',
-            borderRadius: '9999px',
-            backgroundColor: FACELESS_DESIGN_TOKENS.colors.accentCoralBg,
-            border: '1px solid rgba(234, 88, 12, 0.3)',
-            color: FACELESS_DESIGN_TOKENS.colors.accentCoral,
-            fontSize: '12px',
-            fontWeight: 800,
-            textTransform: 'uppercase',
-            letterSpacing: '0.1em',
-            marginBottom: '12px',
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
           }}
         >
-          <span>⚖️</span>
-          <span>PARADIGM SHIFT</span>
-        </div>
+          <div>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: '18px',
+              }}
+            >
+              <EyebrowPill label="CONVENTIONAL WAY" tone="rose" palette={palette} />
+              <span
+                style={{
+                  fontSize: `${ds.type.captionMeta.fontSize}px`,
+                  fontWeight: 700,
+                  color: ds.surface.textMuted,
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                Low Leverage
+              </span>
+            </div>
 
-        <h2
-          style={{
-            fontFamily: headingFont,
-            fontSize: '44px',
-            fontWeight: 900,
-            color: FACELESS_DESIGN_TOKENS.colors.textPrimary,
-            lineHeight: 1.15,
-            letterSpacing: '-0.02em',
-            margin: 0,
-          }}
-        >
-          {heading}
-        </h2>
-      </div>
+            <h3
+              style={{
+                fontFamily: headingFont,
+                fontSize: `${ds.type.cardTitle.fontSize}px`,
+                fontWeight: ds.type.cardTitle.fontWeight,
+                lineHeight: ds.type.cardTitle.lineHeight,
+                letterSpacing: ds.type.cardTitle.letterSpacing,
+                color: ds.surface.textPrimary,
+                margin: '0 0 20px 0',
+              }}
+            >
+              {leftParsed.title}
+            </h3>
 
-      {isDualDevice ? (
-        <DualPhoneShowcase
-          leftRevenue="$96/day"
-          rightRevenue="$356/day"
-          leftSubtitle="Manual Workflow"
-          rightSubtitle="Automated AI Agent"
-        />
-      ) : (
-        /* Standard Side-by-Side Comparison Grid */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {leftParsed.bullets.map((point, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '10px 14px',
+                    borderRadius: '12px',
+                    backgroundColor: ds.accents.rose.SoftBg,
+                    border: `1px solid ${ds.accents.rose.border}`,
+                  }}
+                >
+                  <span
+                    style={{
+                      width: '22px',
+                      height: '22px',
+                      borderRadius: '50%',
+                      backgroundColor: ds.accents.rose.solid,
+                      color: '#FFFFFF',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '12px',
+                      fontWeight: 900,
+                      flexShrink: 0,
+                    }}
+                  >
+                    ✕
+                  </span>
+                  <span
+                    style={{
+                      fontSize: `${ds.type.bodyMd.fontSize}px`,
+                      fontWeight: 600,
+                      color: ds.surface.textPrimary,
+                      lineHeight: 1.35,
+                    }}
+                  >
+                    {point}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </StudioCard>
+
+        {/* CENTER VS BADGE */}
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '32px',
-            width: '100%',
-            maxWidth: '1200px',
+            alignSelf: 'center',
+            zIndex: 5,
+            margin: ds.layout.isVertical ? '-6px 0' : '0 -10px',
+            transform: `scale(${interpolate(vsSpring, [0, 1], [0.4, 1])})`,
+            opacity: vsSpring,
           }}
         >
-          {/* LEFT CARD: The Old / Passive Playbook */}
           <div
             style={{
-              flex: 1,
-              borderRadius: '24px',
-              border: '1.5px solid rgba(239, 68, 68, 0.35)',
-              backgroundColor: FACELESS_DESIGN_TOKENS.colors.surfaceWhite,
-              padding: '40px 36px',
-              boxShadow: FACELESS_DESIGN_TOKENS.colors.shadowElevated,
-              opacity: leftSpring,
-              transform: `translateX(${leftX}px)`,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              minHeight: '280px',
-            }}
-          >
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
-                <span
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    backgroundColor: FACELESS_DESIGN_TOKENS.colors.accentRedBg,
-                    border: '1px solid rgba(239, 68, 68, 0.3)',
-                    padding: '4px 12px',
-                    borderRadius: '9999px',
-                    fontSize: '12px',
-                    fontWeight: 800,
-                    color: FACELESS_DESIGN_TOKENS.colors.accentRed,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.06em',
-                  }}
-                >
-                  ✕ THE OLD WAY
-                </span>
-
-                <span style={{ fontSize: '12px', color: FACELESS_DESIGN_TOKENS.colors.textMuted, fontWeight: 600 }}>Legacy Model</span>
-              </div>
-
-              <div
-                style={{
-                  fontFamily: headingFont,
-                  fontSize: '28px',
-                  fontWeight: 800,
-                  color: FACELESS_DESIGN_TOKENS.colors.textPrimary,
-                  lineHeight: 1.3,
-                  letterSpacing: '-0.01em',
-                }}
-              >
-                {leftItem}
-              </div>
-            </div>
-
-            <div
-              style={{
-                paddingTop: '16px',
-                borderTop: FACELESS_DESIGN_TOKENS.colors.borderHairline,
-                fontSize: '14px',
-                color: FACELESS_DESIGN_TOKENS.colors.accentRed,
-                fontWeight: 700,
-              }}
-            >
-              📉 Low retention & high cognitive friction
-            </div>
-          </div>
-
-          {/* CENTER BADGE: Flame Orange Energy VS Node */}
-          <div
-            style={{
-              zIndex: 10,
-              width: '64px',
-              height: '64px',
+              width: '56px',
+              height: '56px',
               borderRadius: '50%',
-              background: 'linear-gradient(135deg, #FF5722 0%, #FFA000 100%)',
-              border: '3px solid #FFFFFF',
-              boxShadow: '0 8px 24px rgba(255, 87, 34, 0.35)',
+              backgroundColor: ds.surface.textPrimary,
+              color: ds.surface.textInverse,
+              border: `4px solid ${ds.surface.isDark ? '#0F172A' : '#FFFFFF'}`,
+              boxShadow: ds.surface.shadowElevated,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#FFFFFF',
               fontFamily: headingFont,
-              fontSize: '19px',
+              fontSize: '18px',
               fontWeight: 900,
-              letterSpacing: '0.05em',
-              transform: `scale(${vsScale})`,
-              flexShrink: 0,
+              letterSpacing: '0.04em',
             }}
           >
             VS
           </div>
+        </div>
 
-          {/* RIGHT CARD: The Active AI Advantage */}
-          <div
-            style={{
-              flex: 1,
-              borderRadius: '24px',
-              border: '1.5px solid rgba(16, 185, 129, 0.45)',
-              backgroundColor: FACELESS_DESIGN_TOKENS.colors.surfaceWhite,
-              padding: '40px 36px',
-              boxShadow: FACELESS_DESIGN_TOKENS.colors.shadowElevated,
-              opacity: rightSpring,
-              transform: `translateX(${rightX}px)`,
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              minHeight: '280px',
-            }}
-          >
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
-                <span
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    backgroundColor: FACELESS_DESIGN_TOKENS.colors.accentGreenBg,
-                    border: '1px solid rgba(16, 185, 129, 0.4)',
-                    padding: '4px 12px',
-                    borderRadius: '9999px',
-                    fontSize: '12px',
-                    fontWeight: 800,
-                    color: FACELESS_DESIGN_TOKENS.colors.accentGreen,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.06em',
-                  }}
-                >
-                  ✓ THE AI ADVANTAGE
-                </span>
-
-                <span style={{ fontSize: '12px', color: '#059669', fontWeight: 700 }}>Compound Mastery</span>
-              </div>
-
-              <div
-                style={{
-                  fontFamily: headingFont,
-                  fontSize: '28px',
-                  fontWeight: 800,
-                  color: FACELESS_DESIGN_TOKENS.colors.textPrimary,
-                  lineHeight: 1.3,
-                  letterSpacing: '-0.01em',
-                }}
-              >
-                {rightItem}
-              </div>
-            </div>
-
+        {/* RIGHT / BOTTOM CARD: The High-Impact / New Way */}
+        <StudioCard
+          tone="emerald"
+          topAccentBar
+          elevated
+          palette={palette}
+          progress={rightSpring}
+          translateXFrom={ds.layout.isVertical ? 0 : 44}
+          translateYFrom={ds.layout.isVertical ? 24 : 0}
+          style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+          }}
+        >
+          <div>
             <div
               style={{
-                paddingTop: '16px',
-                borderTop: FACELESS_DESIGN_TOKENS.colors.borderHairline,
-                fontSize: '14px',
-                color: '#059669',
-                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: '18px',
               }}
             >
-              🚀 Compounding retention & effortless recall
+              <EyebrowPill label="RECOMMENDED PATH" tone="emerald" palette={palette} />
+              <span
+                style={{
+                  fontSize: `${ds.type.captionMeta.fontSize}px`,
+                  fontWeight: 800,
+                  color: ds.accents.emerald.textOnSoft,
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                High Impact
+              </span>
+            </div>
+
+            <h3
+              style={{
+                fontFamily: headingFont,
+                fontSize: `${ds.type.cardTitle.fontSize}px`,
+                fontWeight: ds.type.cardTitle.fontWeight,
+                lineHeight: ds.type.cardTitle.lineHeight,
+                letterSpacing: ds.type.cardTitle.letterSpacing,
+                color: ds.surface.textPrimary,
+                margin: '0 0 20px 0',
+              }}
+            >
+              {rightParsed.title}
+            </h3>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {rightParsed.bullets.map((point, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '10px 14px',
+                    borderRadius: '12px',
+                    backgroundColor: ds.accents.emerald.SoftBg,
+                    border: `1px solid ${ds.accents.emerald.border}`,
+                  }}
+                >
+                  <span
+                    style={{
+                      width: '22px',
+                      height: '22px',
+                      borderRadius: '50%',
+                      backgroundColor: ds.accents.emerald.solid,
+                      color: '#FFFFFF',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '12px',
+                      fontWeight: 900,
+                      flexShrink: 0,
+                    }}
+                  >
+                    ✓
+                  </span>
+                  <span
+                    style={{
+                      fontSize: `${ds.type.bodyMd.fontSize}px`,
+                      fontWeight: 600,
+                      color: ds.surface.textPrimary,
+                      lineHeight: 1.35,
+                    }}
+                  >
+                    {point}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        </StudioCard>
+      </div>
+    </SceneCanvas>
   );
 }

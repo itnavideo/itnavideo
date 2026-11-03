@@ -84,6 +84,23 @@ interface StepDef {
 // ── MODE-SPECIFIC PIPELINE DEFINITIONS (Rule 8: Video Type Independence) ──
 function getModeSteps(mode: string): StepDef[] {
   switch (mode) {
+    case 'aiVideoPolisher':
+    case 'AI_VIDEO_POLISHER':
+      return [
+        { shortLabel: 'Media Sync', label: 'Ingesting 16:9 video & overlay layers', detail: 'Verifying widescreen 1080p canvas', doneAt: 20, icon: Film },
+        { shortLabel: 'Transcribe', label: 'Transcribing speech & detecting pauses', detail: 'Groq Whisper millisecond speech timestamps', doneAt: 45, icon: Mic },
+        { shortLabel: 'Jump-Cuts & Zoom', label: 'Auto silence cutting & +12% camera punch-in', detail: 'Smart speech cadence & dynamic zoom', doneAt: 75, icon: Sparkles },
+        { shortLabel: 'Cloud Render', label: 'Rendering 16:9 polished video', detail: 'AWS Lambda Remotion engine', doneAt: 100, icon: Zap },
+      ];
+    case 'aiShortsPolisher':
+    case 'AI_SHORTS_POLISHER':
+      return [
+        { shortLabel: 'Media Sync', label: 'Ingesting 9:16 vertical video & layers', detail: 'Verifying vertical 1080x1920 canvas', doneAt: 20, icon: Film },
+        { shortLabel: 'Transcribe', label: 'Transcribing speech & detecting gaps', detail: 'Groq Whisper millisecond speech timestamps', doneAt: 45, icon: Mic },
+        { shortLabel: 'Jump-Cuts & Zoom', label: 'Auto silence cutting & +12% camera punch-in', detail: 'Smart speech cadence & dynamic zoom', doneAt: 75, icon: Sparkles },
+        { shortLabel: 'Cloud Render', label: 'Rendering 9:16 polished shorts', detail: 'AWS Lambda Remotion engine', doneAt: 100, icon: Zap },
+      ];
+
     case 'audioClean':
     case 'AI_AUDIO_CLEANER':
       return [
@@ -165,6 +182,14 @@ function getModeSteps(mode: string): StepDef[] {
         { shortLabel: 'B-Roll Fit', label: 'Matching cinematic footage & SFX', detail: 'Contextual visual indexing', doneAt: 45, icon: Layers },
         { shortLabel: 'Captions', label: 'Applying kinetic typography overlays', detail: 'Bold animated subtitles', doneAt: 75, icon: Mic },
         { shortLabel: 'Render', label: 'Rendering 1080p faceless video', detail: 'AWS Lambda Remotion engine', doneAt: 100, icon: Film },
+      ];
+    case 'splitScreenExplainer':
+    case 'SPLIT_SCREEN_EXPLAINER':
+      return [
+        { shortLabel: 'Media Sync', label: 'Aligning creator video & explanation slides', detail: 'Verifying 50/50 dual canvas safe zones', doneAt: 20, icon: Film },
+        { shortLabel: 'Transcribe', label: 'Transcribing speech & aligning script', detail: 'Groq Whisper millisecond timestamps', doneAt: 45, icon: Mic },
+        { shortLabel: 'Captions & SFX', label: 'Styling animated captions & audio ducking', detail: '12% background music & subtle transition sound effects', doneAt: 75, icon: Sparkles },
+        { shortLabel: 'Cloud Render', label: 'Rendering 9:16 split-screen explainer', detail: 'AWS Lambda Remotion engine', doneAt: 100, icon: Film },
       ];
     case 'autoCaption':
     case 'AUTO_CAPTION_GENERATOR':
@@ -295,7 +320,7 @@ export default function InteractiveRenderEngine({
   }, [isReady, isFailed]);
 
   // Estimate remaining time accurately using elapsed and estimated duration
-  const isLongMode = mode === 'imageToVideoAi' || mode === 'youtubeSubtitles' || mode === 'facelessVideo' || mode === 'longVideoClips';
+  const isLongMode = mode === 'imageToVideoAi' || mode === 'youtubeSubtitles' || mode === 'facelessVideo' || mode === 'longVideoClips' || mode === 'aiVideoPolisher';
   const defaultEstimate = isLongMode ? 300 : 90;
   const totalEstimated = status.estimatedSeconds || defaultEstimate;
   const calculatedRemaining = Math.max(5, Math.round(totalEstimated - liveElapsed));
@@ -480,7 +505,7 @@ export default function InteractiveRenderEngine({
           ) : (
             <div className="p-4 sm:p-6 bg-gradient-to-b from-[#141722] to-[#0B0D13]">
               <div className={`relative w-full ${
-                !['youtubeSubtitles', 'YOUTUBE_SUBTITLES', 'imageToVideoAi', 'IMAGE_TO_VIDEO_AI', 'facelessVideo', 'FACELESS_VIDEO', 'bookSummary', 'BOOK_SUMMARY'].includes(mode)
+                !['youtubeSubtitles', 'YOUTUBE_SUBTITLES', 'imageToVideoAi', 'IMAGE_TO_VIDEO_AI', 'facelessVideo', 'FACELESS_VIDEO', 'bookSummary', 'BOOK_SUMMARY', 'aiVideoPolisher', 'AI_VIDEO_POLISHER'].includes(mode)
                   ? 'aspect-[9/16] max-h-[460px] max-w-[270px] mx-auto rounded-2xl border-2 border-white/15'
                   : 'aspect-video max-h-[360px] rounded-2xl border border-white/10'
               } bg-black overflow-hidden shadow-2xl flex items-center justify-center`}>
@@ -1009,7 +1034,7 @@ export default function InteractiveRenderEngine({
             <div className="flex items-center justify-between text-slate-400">
               <span>Resolution</span>
               <span className="font-mono text-white font-bold">
-                1080p Full HD ({['youtubeSubtitles', 'YOUTUBE_SUBTITLES', 'imageToVideoAi', 'IMAGE_TO_VIDEO_AI', 'facelessVideo', 'FACELESS_VIDEO', 'bookSummary', 'BOOK_SUMMARY'].includes(mode) ? '1920×1080 Widescreen' : '1080×1920 Vertical'})
+                1080p Full HD ({['youtubeSubtitles', 'YOUTUBE_SUBTITLES', 'imageToVideoAi', 'IMAGE_TO_VIDEO_AI', 'facelessVideo', 'FACELESS_VIDEO', 'bookSummary', 'BOOK_SUMMARY', 'aiVideoPolisher', 'AI_VIDEO_POLISHER'].includes(mode) ? '1920×1080 Widescreen' : '1080×1920 Vertical'})
               </span>
             </div>
             <div className="flex items-center justify-between text-slate-400">

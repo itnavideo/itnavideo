@@ -99,7 +99,14 @@ export default function LongVideoClipsPage() {
   const [clipsHookStrategy, setClipsHookStrategy] = useState<"auto" | "high-energy" | "actionable" | "story">("auto");
   const [clipsTopBanner, setClipsTopBanner] = useState<"none" | "glass-pill" | "yellow-ticker">("none");
   const [enableClipsCaptions, setEnableClipsCaptions] = useState(true);
-  const [captionStyle, setCaptionStyle] = useState<string>("impact-yellow");
+  const [captionStyle, setCaptionStyle] = useState<string>("Pop Word");
+
+  // BGM, SFX & Editorial states
+  const [bgmTrackId, setBgmTrackId] = useState<string>("parasail");
+  const [bgmVolume, setBgmVolume] = useState<number>(0.12);
+  const [customBgmFile, setCustomBgmFile] = useState<File | null>(null);
+  const [enableSfx, setEnableSfx] = useState<boolean>(true);
+  const [editorialTranscript, setEditorialTranscript] = useState<string>("");
 
   // Media metadata
   const [mediaDurationSeconds, setMediaDurationSeconds] = useState<number>(0);
@@ -284,6 +291,7 @@ export default function LongVideoClipsPage() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
       let mediaKey = "";
+      let customBgmKey = "";
       let fileName = "youtube-source.mp4";
       let contentType = "video/mp4";
 
@@ -308,6 +316,14 @@ export default function LongVideoClipsPage() {
         );
         fileName = selectedFile.name;
         contentType = selectedFile.type || "video/mp4";
+      }
+
+      if (customBgmFile) {
+        customBgmKey = await uploadFileViaPresign(
+          customBgmFile,
+          "longVideoClips",
+          user.id
+        );
       } else {
         setJobStatus({
           state: "starting",
@@ -342,7 +358,11 @@ export default function LongVideoClipsPage() {
           layoutMode,
           clipCount,
           clipDuration,
-          enableSfx: false,
+          enableSfx,
+          bgmTrackId,
+          bgmVolume,
+          customBgmUrl: customBgmKey || undefined,
+          editorialTranscript: editorialTranscript.trim() || undefined,
           enableCaptions: enableClipsCaptions,
           captionStyle,
           clipsAspectRatio: "9:16",
@@ -527,18 +547,18 @@ export default function LongVideoClipsPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#0B0D13] text-white">
+    <main className="min-h-screen bg-slate-50 text-slate-900 selection:bg-orange-500 selection:text-white">
       {/* Premium Header */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0B0D13]/80 backdrop-blur-md">
+      <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur-md shadow-xs">
         <div className="mx-auto flex max-w-7xl h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-6">
             <Link
               href="/dashboard"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-zinc-300 hover:border-white/20 hover:text-white transition active:scale-90"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900 hover:shadow-xs transition active:scale-95"
             >
               <ArrowLeft size={16} />
             </Link>
-            <BrandLogo size="sm" variant="dark" />
+            <BrandLogo size="sm" variant="light" />
           </div>
 
           <div className="flex items-center gap-4">
@@ -592,24 +612,28 @@ export default function LongVideoClipsPage() {
               <LongVideoClipsStudio
                 selectedFile={selectedFile}
                 onSelectFile={setSelectedFile}
-                inputMode={inputMode}
-                onInputModeChange={setInputMode}
-                youtubeUrl={youtubeUrl}
-                onYoutubeUrlChange={setYoutubeUrl}
-                layoutMode={layoutMode}
-                onLayoutModeChange={setLayoutMode}
                 clipCount={clipCount}
                 onClipCountChange={setClipCount}
                 clipDuration={clipDuration}
                 onClipDurationChange={setClipDuration}
                 clipsHookStrategy={clipsHookStrategy}
                 onClipsHookStrategyChange={setClipsHookStrategy}
-                clipsTopBanner={clipsTopBanner}
-                onClipsTopBannerChange={setClipsTopBanner}
-                enableClipsCaptions={enableClipsCaptions}
-                onEnableClipsCaptionsChange={setEnableClipsCaptions}
+                layoutMode={layoutMode}
+                onLayoutModeChange={setLayoutMode}
+                enableCaptions={enableClipsCaptions}
+                onEnableCaptionsChange={setEnableClipsCaptions}
                 captionStyle={captionStyle}
                 onCaptionStyleChange={setCaptionStyle}
+                bgmTrackId={bgmTrackId}
+                onBgmTrackIdChange={setBgmTrackId}
+                bgmVolume={bgmVolume}
+                onBgmVolumeChange={setBgmVolume}
+                customBgmFile={customBgmFile}
+                onCustomBgmFileSelect={setCustomBgmFile}
+                enableSfx={enableSfx}
+                onEnableSfxChange={setEnableSfx}
+                editorialTranscript={editorialTranscript}
+                onEditorialTranscriptChange={setEditorialTranscript}
                 onGenerate={handleStartRender}
                 isGenerating={isSubmitting || jobStatus.state !== "idle"}
               />

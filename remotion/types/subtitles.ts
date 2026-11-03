@@ -104,6 +104,11 @@ export interface SubtitlePreset {
 }
 
 export const SUBTITLE_PRESETS: Record<string, SubtitlePreset> = {
+  // Extracted Top Creator Motion Styles (from 17 Real Reference Reels)
+  "Luxury Dual-Script": { name: "Luxury Dual-Script", style: "luxury-editorial", fontFamily: "Playfair Display, Montserrat, serif", textColor: "#FFFFFF", highlightColor: "#FDE68A", fontSize: "large" },
+  "Metallic Gloss 3D": { name: "Metallic Gloss 3D", style: "metallic-gloss", fontFamily: "Montserrat, sans-serif", textColor: "#FFFFFF", highlightColor: "#D8B4FE", fontSize: "xlarge" },
+  "Whisper Editorial": { name: "Whisper Editorial", style: "whisper-podcast", fontFamily: "Newsreader, Playfair Display, serif", textColor: "#F8FAFC", highlightColor: "#FDE047", backgroundColor: "rgba(0,0,0,0.45)", fontSize: "medium" },
+  "Creator Punch Stack": { name: "Creator Punch Stack", style: "creator-punch-stack", fontFamily: "Montserrat, Anton, sans-serif", textColor: "#FFFFFF", highlightColor: "#FACC15", backgroundColor: "rgba(10,10,15,0.75)", fontSize: "large" },
   // Flagship Auto Caption Styles
   "Hormozi Viral Pop": { name: "Hormozi Viral Pop", style: "one-word", fontFamily: "Impact, sans-serif", textColor: "#FFFFFF", highlightColor: "#22C55E", fontSize: "xlarge" },
   "MrBeast Shorts Impact": { name: "MrBeast Shorts Impact", style: "mrbeast-16-9", fontFamily: "Impact, Montserrat, sans-serif", textColor: "#FFFFFF", highlightColor: "#FFE500", fontSize: "xlarge" },

@@ -1,16 +1,19 @@
 import React from 'react';
-import { useCurrentFrame, useVideoConfig } from 'remotion';
-import { ResponsiveTypography } from '../components/ResponsiveTypography';
-import { getFadeAnimation } from '../animations/Fade';
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
 import { FACELESS_DESIGN_TOKENS } from '../facelessTokens';
+import { useVideoDesignSystem } from '../designSystem';
+import {
+  EyebrowPill,
+  SceneCanvas,
+  StudioCard,
+} from '../components/DesignSystemPrimitives';
 
 export interface QuoteSceneProps {
   scene: SceneBlueprintItem;
   headingFont?: string;
   bodyFont?: string;
   sceneFrame?: number;
-  palette?: any;
+  palette?: { isDark?: boolean } | null;
 }
 
 export function QuoteScene({
@@ -20,37 +23,34 @@ export function QuoteScene({
   sceneFrame,
   palette,
 }: QuoteSceneProps) {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const currentFrame = sceneFrame ?? frame;
+  const ds = useVideoDesignSystem({
+    sceneFrame,
+    durationSec: scene.duration,
+    palette,
+  });
 
-  const isDark = palette?.isDark ?? false;
-  const textColor = isDark ? '#F8FAFC' : FACELESS_DESIGN_TOKENS.colors.textPrimary;
-  const quoteMarkColor = FACELESS_DESIGN_TOKENS.colors.accentCoral;
-  const accentColor = FACELESS_DESIGN_TOKENS.colors.accentAmber;
-
-  const anim = getFadeAnimation(currentFrame, fps);
-  const quoteText = scene.heading || scene.narrationSegment?.text || '';
-  const author = scene.quoteAuthor || undefined;
+  const quoteText = String(scene.heading || scene.narrationSegment?.text || '').trim();
+  const author = scene.quoteAuthor || scene.supportingText || undefined;
+  const categoryPill = scene.categoryPill || 'CORE PRINCIPLE';
 
   return (
-    <div
-      style={{
-        position: 'absolute',
-        inset: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '100px 140px', // Strict safe area
-        zIndex: 10,
-        backgroundColor: 'transparent',
-        ...anim,
-      }}
+    <SceneCanvas
+      sceneFrame={sceneFrame}
+      durationSec={scene.duration}
+      palette={palette}
+      accentTone="amber"
+      fontFamily={bodyFont}
     >
-      <div
+      <StudioCard
+        tone="amber"
+        topAccentBar
+        elevated
+        palette={palette}
+        progress={ds.motion.contentSpring}
         style={{
-          maxWidth: '1240px',
           width: '100%',
+          maxWidth: ds.layout.isVertical ? '900px' : '1180px',
+          padding: ds.layout.isVertical ? '48px 36px' : '60px 72px',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -58,30 +58,59 @@ export function QuoteScene({
           textAlign: 'center',
         }}
       >
+        <div style={{ marginBottom: '20px' }}>
+          <EyebrowPill
+            label={categoryPill}
+            tone="amber"
+            palette={palette}
+            progress={ds.motion.eyebrowSpring}
+          />
+        </div>
+
         <span
           style={{
             fontFamily: headingFont,
-            fontSize: '96px',
-            color: quoteMarkColor,
-            lineHeight: 0.6,
-            marginBottom: '20px',
+            fontSize: '76px',
+            color: ds.accents.amber.solid,
+            lineHeight: 0.65,
+            marginBottom: '16px',
             display: 'block',
-            filter: 'drop-shadow(0 4px 16px rgba(234, 88, 12, 0.25))',
           }}
         >
           &ldquo;
         </span>
 
-        <ResponsiveTypography
-          text={quoteText}
-          mode="quote"
-          quoteAuthor={author}
-          fontFamily={headingFont}
-          color={textColor}
-          accentColor={accentColor}
-          availableWidth={1100}
-        />
-      </div>
-    </div>
+        <blockquote
+          style={{
+            fontFamily: headingFont,
+            fontSize: `${ds.type.sceneTitle.fontSize}px`,
+            fontStyle: 'italic',
+            fontWeight: 700,
+            lineHeight: 1.24,
+            letterSpacing: '-0.015em',
+            color: ds.surface.textPrimary,
+            margin: '0 0 22px 0',
+            maxWidth: '960px',
+          }}
+        >
+          {quoteText}
+        </blockquote>
+
+        {author && author !== quoteText && (
+          <div
+            style={{
+              fontFamily: bodyFont,
+              fontSize: `${ds.type.bodyMd.fontSize}px`,
+              fontWeight: 700,
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+              color: ds.surface.textMuted,
+            }}
+          >
+            — {author}
+          </div>
+        )}
+      </StudioCard>
+    </SceneCanvas>
   );
 }

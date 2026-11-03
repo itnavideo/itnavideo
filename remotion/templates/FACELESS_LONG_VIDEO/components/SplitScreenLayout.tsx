@@ -3,15 +3,14 @@ import {
   Loop,
   OffthreadVideo,
   interpolate,
-  spring,
-  staticFile,
-  useCurrentFrame,
-  useVideoConfig,
 } from 'remotion';
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
-import { HandwritingHighlight } from '../../../components/library/HandwritingHighlight';
-
 import type { BackgroundColorPalette } from '../../../components/backgrounds/BackgroundCatalog';
+import { safeResolveMediaSrc, isVideoMedia } from '../../../utils/safeMedia';
+import { getContextualIllustration } from '../../../components/illustrations/ConceptIllustrationLibrary';
+import { useVideoDesignSystem } from '../designSystem';
+import { SceneCanvas, EyebrowPill, StudioCard } from './DesignSystemPrimitives';
+import { HandwritingHighlight } from '../../../components/library/HandwritingHighlight';
 
 export interface SplitScreenLayoutProps {
   scene: SceneBlueprintItem;
@@ -22,277 +21,234 @@ export interface SplitScreenLayoutProps {
   palette?: BackgroundColorPalette;
 }
 
-import { safeResolveMediaSrc, isVideoMedia, isValidMediaUrl } from '../../../utils/safeMedia';
-
-function getContextualEmoji(text: string): React.ReactNode {
-  return (
-    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-      <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" />
-    </svg>
-  );
-}
-
 export function SplitScreenLayout({
   scene,
   mediaUrl,
-  headingFont = 'Montserrat, sans-serif',
-  bodyFont = 'Inter, sans-serif',
+  headingFont = 'Montserrat, Inter, sans-serif',
+  bodyFont = 'Plus Jakarta Sans, Inter, sans-serif',
   sceneFrame,
   palette,
 }: SplitScreenLayoutProps) {
-  const isLight = palette?.isDark === false;
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-
-  // Enforce Scene-Local Frame Law: Measure motion from scene's own start frame
-  const currentFrame = sceneFrame !== undefined ? sceneFrame : frame;
-  const sceneDurationFrames = Math.max(30, Math.round((scene.duration || 4) * fps));
-
-  // Smooth Editorial Slide Entrance on Each Scene Transition
-  const leftEntrance = spring({
-    frame: currentFrame,
-    fps,
-    config: { damping: 14, mass: 0.8 },
+  const ds = useVideoDesignSystem({
+    sceneFrame,
+    durationSec: scene.duration || 4,
+    palette,
+    headingFont,
+    bodyFont,
   });
 
-  const leftTranslateX = interpolate(leftEntrance, [0, 1], [-50, 0]);
-  const leftOpacity = interpolate(leftEntrance, [0, 1], [0, 1]);
-
+  const { isVertical } = ds.layout;
   const activeMediaUrl = mediaUrl || scene.visualAssetRequirement || '';
   const resolvedSrc = safeResolveMediaSrc(activeMediaUrl);
   const isVid = isVideoMedia(activeMediaUrl);
 
-  const headline = scene.heading || 'KEY PRINCIPLE';
+  const headline = (scene.heading || 'Key Concept Breakdown').trim();
   const highlightWord = (scene.highlightedWords && scene.highlightedWords[0]) || '';
-  const emoji = getContextualEmoji(`${headline} ${scene.supportingText || ''}`);
+  const supportingText = (scene.supportingText || '').trim();
+  const bullets = (scene.listItems || []).filter(Boolean).slice(0, 3);
 
-  // Dynamic Camera Motion on the Media Panel (Snappy Zoom & Pan)
-  const motionMode = (scene.sceneNumber || 0) % 3;
-  let mediaTransform = 'scale(1.08)';
+  const illustrationNode = getContextualIllustration(
+    `${headline} ${supportingText} ${scene.visualPrompt || ''}`,
+    isVertical ? 280 : 340
+  );
 
-  if (motionMode === 0) {
-    // Dynamic Zoom In (1.05 -> 1.22)
-    const scale = interpolate(currentFrame, [0, sceneDurationFrames], [1.05, 1.22], { extrapolateRight: 'clamp' });
-    mediaTransform = `scale(${scale})`;
-  } else if (motionMode === 1) {
-    // Dynamic Zoom Out (1.22 -> 1.05)
-    const scale = interpolate(currentFrame, [0, sceneDurationFrames], [1.22, 1.05], { extrapolateRight: 'clamp' });
-    mediaTransform = `scale(${scale})`;
-  } else {
-    // Subtle Pan + Overscan
-    const panX = interpolate(currentFrame, [0, sceneDurationFrames], [20, -25], { extrapolateRight: 'clamp' });
-    mediaTransform = `scale(1.15) translateX(${panX}px)`;
-  }
+  // Subtle camera motion for media or vector showcase
+  const mediaScale = interpolate(
+    ds.motion.localFrame,
+    [0, ds.motion.durationFrames],
+    [1.02, 1.12],
+    { extrapolateRight: 'clamp' }
+  );
 
   return (
-    <div
-      style={{
-        position: 'absolute',
-        inset: 0,
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'row',
-        overflow: 'hidden',
-        backgroundColor: isLight ? '#FFFFFF' : '#070B14',
-        zIndex: 10,
-      }}
-    >
-      {/* ── LEFT PANEL: Full-Height Solid Obsidian Editorial Column (50% Width) ── */}
+    <SceneCanvas ds={ds}>
       <div
         style={{
-          width: '50%',
-          height: '100%',
-          backgroundColor: isLight ? '#FFFFFF' : '#070B14',
+          width: '100%',
+          maxWidth: ds.layout.maxContentWidth,
           display: 'flex',
-          flexDirection: 'column',
+          flexDirection: ds.layout.splitDirection,
+          alignItems: 'stretch',
           justifyContent: 'center',
-          padding: '100px 90px',
-          boxSizing: 'border-box',
-          transform: `translateX(${leftTranslateX}px)`,
-          opacity: leftOpacity,
-          position: 'relative',
-          zIndex: 2,
+          gap: ds.layout.panelGap,
         }}
       >
-        {/* Concept Pill with Guaranteed SVG Sparkle / Context Emoji */}
-        <div
+        {/* ── EDITORIAL COPY PANEL ── */}
+        <StudioCard
+          ds={ds}
+          entranceProgress={ds.motion.headerSpring}
+          topAccentBar={ds.accents.coral.solid}
+          padding={isVertical ? '36px 36px' : '48px 52px'}
           style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '10px',
-            backgroundColor: isLight ? 'rgba(255, 87, 34, 0.08)' : 'rgba(255, 255, 255, 0.08)',
-            border: isLight ? '1px solid rgba(255, 87, 34, 0.22)' : '1px solid rgba(255, 255, 255, 0.16)',
-            borderRadius: '20px',
-            padding: '7px 18px',
-            width: 'fit-content',
-            marginBottom: '28px',
+            flex: isVertical ? '0 0 auto' : '1.08 1 0%',
+            justifyContent: 'center',
           }}
         >
-          {emoji ? (
-            <span style={{ fontSize: '20px' }}>{emoji}</span>
-          ) : (
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="#FFA000"
-              style={{ flexShrink: 0 }}
+          <div style={{ marginBottom: 20 }}>
+            <EyebrowPill
+              ds={ds}
+              label="CORE INSIGHT"
+              tone="coral"
+              entranceProgress={ds.motion.eyebrowSpring}
+            />
+          </div>
+
+          <h1
+            style={{
+              fontFamily: ds.type.fontHeading,
+              fontSize: isVertical ? ds.type.sceneTitle.fontSize - 2 : ds.type.sceneTitle.fontSize,
+              fontWeight: ds.type.sceneTitle.fontWeight,
+              lineHeight: ds.type.sceneTitle.lineHeight,
+              letterSpacing: ds.type.sceneTitle.letterSpacing,
+              color: ds.surface.textPrimary,
+              margin: '0 0 18px 0',
+              textWrap: 'balance',
+            }}
+          >
+            {highlightWord && headline.toLowerCase().includes(highlightWord.toLowerCase()) ? (
+              <>
+                {headline.slice(0, headline.toLowerCase().indexOf(highlightWord.toLowerCase()))}
+                <HandwritingHighlight
+                  text={headline.slice(
+                    headline.toLowerCase().indexOf(highlightWord.toLowerCase()),
+                    headline.toLowerCase().indexOf(highlightWord.toLowerCase()) + highlightWord.length
+                  )}
+                  variant="highlight"
+                  color={ds.accents.yellow.solid}
+                  delayFrames={8}
+                  drawDurationFrames={18}
+                  textStyle={{ color: '#0F172A', fontWeight: 900 }}
+                />
+                {headline.slice(
+                  headline.toLowerCase().indexOf(highlightWord.toLowerCase()) + highlightWord.length
+                )}
+              </>
+            ) : (
+              headline
+            )}
+          </h1>
+
+          {supportingText && supportingText.toLowerCase() !== headline.toLowerCase() && (
+            <p
+              style={{
+                fontFamily: ds.type.fontBody,
+                fontSize: ds.type.bodyLg.fontSize,
+                fontWeight: ds.type.bodyLg.fontWeight,
+                lineHeight: ds.type.bodyLg.lineHeight,
+                color: ds.surface.textSecondary,
+                margin: bullets.length > 0 ? '0 0 22px 0' : 0,
+              }}
             >
-              <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" />
-            </svg>
+              {supportingText}
+            </p>
           )}
-          <span
-            style={{
-              fontFamily: headingFont,
-              fontSize: '13px',
-              fontWeight: 800,
-              letterSpacing: '0.14em',
-              textTransform: 'uppercase',
-              color: isLight ? '#FF5722' : '#FFA000',
-            }}
-          >
-            CORE CONCEPT
-          </span>
-        </div>
 
-        {/* Clean High-Contrast Headline */}
-        <h1
-          style={{
-            fontFamily: headingFont,
-            fontSize: '52px',
-            fontWeight: 900,
-            lineHeight: 1.15,
-            color: isLight ? '#0F172A' : '#FFFFFF',
-            letterSpacing: '-0.025em',
-            margin: '0 0 24px 0',
-            maxWidth: '680px',
-            textShadow: isLight ? 'none' : '0 2px 14px rgba(0, 0, 0, 0.8)',
-          }}
-        >
-          {highlightWord && headline.toLowerCase().includes(highlightWord.toLowerCase()) ? (
-            <>
-              {headline.slice(0, headline.toLowerCase().indexOf(highlightWord.toLowerCase()))}
-              <HandwritingHighlight
-                text={highlightWord.toUpperCase()}
-                variant="underline"
-                color="#FFA000"
-                delayFrames={8}
-                drawDurationFrames={18}
-              />
-              {headline.slice(
-                headline.toLowerCase().indexOf(highlightWord.toLowerCase()) + highlightWord.length
-              )}
-            </>
-          ) : (
-            headline
+          {bullets.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {bullets.map((item, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    padding: '10px 14px',
+                    borderRadius: ds.layout.cardRadiusSm,
+                    backgroundColor: ds.surface.cardBgSubtle,
+                    border: `1px solid ${ds.surface.cardBorder}`,
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: '50%',
+                      backgroundColor: ds.accents.coral.solid,
+                      flexShrink: 0,
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontFamily: ds.type.fontBody,
+                      fontSize: ds.type.bodyMd.fontSize,
+                      fontWeight: 600,
+                      color: ds.surface.textPrimary,
+                    }}
+                  >
+                    {item}
+                  </span>
+                </div>
+              ))}
+            </div>
           )}
-        </h1>
+        </StudioCard>
 
-        {/* Clean Concept Takeaway Subtext */}
-        {scene.supportingText && scene.supportingText.toLowerCase() !== headline.toLowerCase() && (
-          <p
-            style={{
-              fontFamily: bodyFont,
-              fontSize: '26px',
-              fontWeight: 600,
-              lineHeight: 1.45,
-              color: isLight ? '#475569' : '#E2E8F0',
-              margin: 0,
-              maxWidth: '620px',
-            }}
-          >
-            {scene.supportingText}
-          </p>
-        )}
-      </div>
-
-      {/* ── RIGHT PANEL: Edge-to-Edge Full-Height Cinema Visual (50% Width) ── */}
-      <div
-        style={{
-          width: '50%',
-          height: '100%',
-          position: 'relative',
-          overflow: 'hidden',
-          backgroundColor: isLight ? '#F1F5F9' : '#020617',
-        }}
-      >
-        <div
+        {/* ── VISUAL / ILLUSTRATION PANEL ── */}
+        <StudioCard
+          ds={ds}
+          entranceProgress={ds.motion.contentSpring}
+          variant="subtle"
+          padding={resolvedSrc ? '12px' : isVertical ? '32px' : '40px'}
           style={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            transform: mediaTransform,
-            transformOrigin: 'center center',
+            flex: isVertical ? '0 0 auto' : '0.92 1 0%',
+            minHeight: isVertical ? 380 : 440,
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
           }}
         >
           {resolvedSrc ? (
-            isVid ? (
-              <Loop durationInFrames={180}>
-                <OffthreadVideo
-                  src={resolvedSrc}
-                  volume={0}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                  }}
-                />
-              </Loop>
-            ) : (
-              <img
-                src={resolvedSrc}
-                alt={headline}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                }}
-              />
-            )
-          ) : (
             <div
               style={{
                 width: '100%',
                 height: '100%',
-                background: isLight
-                  ? 'radial-gradient(ellipse at center, #F8FAFC 0%, #E2E8F0 50%, #CBD5E1 100%)'
-                  : 'radial-gradient(ellipse at center, #1E293B 0%, #0F172A 50%, #020617 100%)',
+                minHeight: isVertical ? 350 : 410,
+                borderRadius: ds.layout.cardRadiusMd,
+                overflow: 'hidden',
+                position: 'relative',
               }}
-            />
+            >
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  transform: `scale(${mediaScale})`,
+                  transformOrigin: 'center center',
+                }}
+              >
+                {isVid ? (
+                  <Loop durationInFrames={180}>
+                    <OffthreadVideo
+                      src={resolvedSrc}
+                      volume={0}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  </Loop>
+                ) : (
+                  <img
+                    src={resolvedSrc}
+                    alt={headline}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                )}
+              </div>
+            </div>
+          ) : (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transform: `scale(${interpolate(ds.motion.contentSpring, [0, 1], [0.9, 1])})`,
+              }}
+            >
+              {illustrationNode}
+            </div>
           )}
-        </div>
-
-        {/* Seamless edge blend between Left panel and Right visual */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            bottom: 0,
-            width: '100px',
-            background: isLight
-              ? 'linear-gradient(90deg, #FFFFFF 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%)'
-              : 'linear-gradient(90deg, #070B14 0%, rgba(7, 11, 20, 0.4) 50%, transparent 100%)',
-            pointerEvents: 'none',
-            zIndex: 1,
-          }}
-        />
-
-        {/* Top & Bottom Broadcast Vignette */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: isLight
-              ? 'linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, transparent 40%, rgba(255, 255, 255, 0.4) 100%)'
-              : 'linear-gradient(180deg, rgba(2, 6, 23, 0.4) 0%, transparent 40%, rgba(2, 6, 23, 0.6) 100%)',
-            pointerEvents: 'none',
-          }}
-        />
+        </StudioCard>
       </div>
-    </div>
+    </SceneCanvas>
   );
 }
 
