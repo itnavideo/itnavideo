@@ -45,7 +45,7 @@ export default function StickyMobileActionBar() {
         <div className="flex flex-col min-w-0 pr-1">
           <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-orange-400">
             <Zap size={12} className="text-[#FF5722] fill-[#FF5722]" />
-            <span>10+ Studios</span>
+            <span>13+ Studios</span>
           </div>
           <span className="text-[11px] font-bold text-white truncate">
             Instant Studio Access • 1080p HD

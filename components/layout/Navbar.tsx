@@ -48,7 +48,7 @@ const VERTICAL_PRODUCTS = [
 ];
 
 const RESOURCE_ITEMS = [
-  { label: 'Video Types & Specs', desc: 'Master documentation & directory for all 10+ studios', href: '/video-types', icon: BookOpen },
+  { label: 'Video Types & Specs', desc: 'Master documentation & directory for all 13+ studios', href: '/video-types', icon: BookOpen },
   { label: 'Pricing & Packs', desc: 'Flexible video credit packages for creators', href: '/pricing', icon: CreditCard },
   { label: 'About Itnavideo', desc: 'Learn about our AI video rendering engine', href: '/about', icon: Sparkles },
 ];

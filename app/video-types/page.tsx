@@ -368,7 +368,7 @@ export default function VideoTypesPage() {
         <div className="relative mx-auto max-w-7xl text-center space-y-6">
           <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold text-orange-700">
             <Sparkles size={14} className="text-[#FF5722]" />
-            <span>AI Video Creation Suite • 10 Audited & Upgraded Studios</span>
+            <span>AI Video Creation Suite • 13 Audited & Upgraded Studios</span>
           </div>
 
           <h1 className="text-4xl font-black tracking-tight sm:text-5xl md:text-6xl text-slate-900 font-sans">

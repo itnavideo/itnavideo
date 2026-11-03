@@ -397,7 +397,7 @@ export function PricingCheckoutCards({
                 11
               </div>
               <div>
-                <h4 className="text-sm font-bold text-slate-900 dark:text-white">All 11 Video Templates</h4>
+                <h4 className="text-sm font-bold text-slate-900 dark:text-white">All 13 Video Studios</h4>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">Full access on all paid plans</p>
               </div>
             </div>
