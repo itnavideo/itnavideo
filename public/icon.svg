@@ -5,39 +5,12 @@
       <stop offset="0%" stop-color="#12151F"/>
       <stop offset="100%" stop-color="#080A10"/>
     </linearGradient>
-
-    <!-- Vibrant Flame Orange to Sunset Amber Gradient -->
-    <linearGradient id="iconStemGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FF5722"/>
-      <stop offset="100%" stop-color="#FF7043"/>
-    </linearGradient>
-
-    <linearGradient id="iconAmberGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FF5722"/>
-      <stop offset="55%" stop-color="#FF7043"/>
-      <stop offset="100%" stop-color="#FFA000"/>
-    </linearGradient>
-
-    <!-- High-Resolution Glowing Drop Shadow -->
-    <filter id="iconGlow" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="0" stdDeviation="20" flood-color="#FF5722" flood-opacity="0.45"/>
-      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#FFA000" flood-opacity="0.30"/>
-    </filter>
   </defs>
 
   <!-- High-Contrast Squircle Base for Mobile, PWA & Bookmarks -->
   <rect width="512" height="512" rx="128" fill="url(#iconBgGrad)"/>
   <rect width="504" height="504" x="4" y="4" rx="124" fill="none" stroke="rgba(255,87,34,0.30)" stroke-width="4"/>
 
-  <!-- Centered Kinetic AI Play Mark -->
-  <g transform="translate(64, 64) scale(3.84)" filter="url(#iconGlow)">
-    <!-- Left Vertical Ribbon Stem ('I' for ITNA) -->
-    <rect x="15" y="14" width="18" height="72" rx="9" fill="url(#iconStemGrad)"/>
-
-    <!-- Forward Kinetic Play Chevron ('▶' for VIDEO) -->
-    <path
-      d="M 39 18 C 39 14 43.5 11.5 47 13.8 L 84 45.8 C 87.2 48 87.2 52 84 54.2 L 47 86.2 C 43.5 88.5 39 86 39 82 Z"
-      fill="url(#iconAmberGrad)"
-    />
-  </g>
+  <!-- Official ItnaVideo Icon -->
+  <image href="/brand/icon-transparent.png" x="76" y="76" width="360" height="360" preserveAspectRatio="xMidYMid meet" />
 </svg>

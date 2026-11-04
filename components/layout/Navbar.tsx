@@ -363,7 +363,7 @@ export default function Navbar() {
                       {/* Bottom Banner */}
                       <div className="pt-3 border-t border-gray-100 flex items-center justify-between text-xs px-2 -mx-2 -mb-2 bg-slate-50/90 rounded-b-xl p-3">
                         <span className="text-[11px] font-semibold text-gray-600 hidden sm:inline">
-                          ⚡ 1080p Cloud Render • 1 Free Credit on Signup
+                          ⚡ 1080p Cloud Render • All 14 Video Studios
                         </span>
                         <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
                           <Link

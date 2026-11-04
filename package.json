@@ -31,8 +31,6 @@
     "assets:sfx:download": "node scripts/download-core-sfx.mjs",
     "assets:music:download": "node scripts/download-background-music.mjs",
     "visuals:index": "node scripts/index-visual-assets.mjs",
-    "typography:analyze": "node scripts/analyze-typography-styles.mjs",
-    "typography:replicate": "node scripts/run-replication-test.mjs",
     "images:validate": "node scripts/sync-ai-images.mjs",
     "verify": "node scripts/validate-all-video-types.mjs",
     "test:live": "node scripts/test-live-user-simulation.mjs",

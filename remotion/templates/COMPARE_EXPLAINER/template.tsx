@@ -452,7 +452,8 @@ const VisualBox = ({
 }) => {
   const src = resolveAsset(image);
   const frame = useCurrentFrame();
-  const imgZoom = 1 + Math.sin(frame / 120 + (side === 'right' ? 1.5 : 0)) * 0.015;
+  const baseZoom = 1 + Math.sin(frame / 120 + (side === 'right' ? 1.5 : 0)) * 0.015;
+  const imgZoom = (typeof removeAiWatermark !== 'undefined' && removeAiWatermark) ? baseZoom * 1.07 : baseZoom;
   const glowOpacity = isActive ? 0.22 + Math.sin(frame / 18) * 0.08 : 0;
   const activeScale = isActive ? 1.04 : isOppositeActive ? 0.98 : 1;
   const activeOpacity = isOppositeActive ? 0.74 : 1;

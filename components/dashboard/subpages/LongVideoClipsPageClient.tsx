@@ -1,3 +1,4 @@
+import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -352,6 +353,7 @@ export default function LongVideoClipsPage() {
           contentType,
           mediaType: "video",
           mode: "longVideoClips",
+          removeAiWatermark: Boolean(removeAiWatermark),
           topicTitle: plannedTitle,
           userId: user.id,
           userEmail: user.email || undefined,

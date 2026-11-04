@@ -104,6 +104,27 @@ export interface SubtitlePreset {
 }
 
 export const SUBTITLE_PRESETS: Record<string, SubtitlePreset> = {
+  // 16:9 Widescreen Broadcast Presets for YouTube
+  "BBC / Netflix Closed Captions": { name: "BBC / Netflix Closed Captions", style: "cinematic", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#FFFFFF", backgroundColor: "rgba(0, 0, 0, 0.88)", fontSize: "medium" },
+  "Sharp Yellow": { name: "Sharp Yellow", style: "mrbeast-16-9", fontFamily: "Impact, sans-serif", textColor: "#000000", highlightColor: "#FACC15", backgroundColor: "#FACC15", fontSize: "large" },
+  "Studio Podcast": { name: "Studio Podcast", style: "whisper-podcast", fontFamily: "Playfair Display, Georgia, serif", textColor: "#F8FAFC", highlightColor: "#38BDF8", backgroundColor: "rgba(10, 10, 10, 0.90)", fontSize: "medium" },
+  "MKBHD Tech Studio": { name: "MKBHD Tech Studio", style: "one-word", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#FF5722", backgroundColor: "rgba(24, 24, 27, 0.92)", fontSize: "large" },
+  "MrBeast 16:9 Punch": { name: "MrBeast 16:9 Punch", style: "mrbeast-16-9", fontFamily: "Impact, Montserrat, sans-serif", textColor: "#FFFFFF", highlightColor: "#FACC15", backgroundColor: "rgba(0, 0, 0, 0.70)", fontSize: "xlarge" },
+  "Huberman Lab Lecture": { name: "Huberman Lab Lecture", style: "box", fontFamily: "Inter, sans-serif", textColor: "#F8FAFC", highlightColor: "#38BDF8", backgroundColor: "rgba(10, 10, 10, 0.92)", fontSize: "medium" },
+  "Kurzgesagt Explainer": { name: "Kurzgesagt Explainer", style: "box", fontFamily: "Poppins, sans-serif", textColor: "#F8FAFC", highlightColor: "#67E8F9", backgroundColor: "rgba(30, 41, 59, 0.88)", fontSize: "medium" },
+  "Lex Fridman Minimalist": { name: "Lex Fridman Minimalist", style: "normal", fontFamily: "Inter, sans-serif", textColor: "#E2E8F0", highlightColor: "#FFFFFF", backgroundColor: "rgba(0, 0, 0, 0.80)", fontSize: "medium" },
+  "Blue Muse": { name: "Blue Muse", style: "floating-serif", fontFamily: "Playfair Display, serif", textColor: "#3B82F6", highlightColor: "#FFFFFF", backgroundColor: "rgba(0,0,0,0.85)", fontSize: "large" },
+  "Headliner": { name: "Headliner", style: "one-word", fontFamily: "Impact, sans-serif", textColor: "#FFFFFF", highlightColor: "#FF5722", backgroundColor: "rgba(0, 0, 0, 0.85)", fontSize: "xlarge" },
+  "Chalk": { name: "Chalk", style: "typewriter", fontFamily: "Courier New, monospace", textColor: "#FFFFFF", highlightColor: "#FACC15", backgroundColor: "rgba(0, 0, 0, 0.85)", fontSize: "medium" },
+  "Gold Centre": { name: "Gold Centre", style: "one-word", fontFamily: "Arial Black, sans-serif", textColor: "#FFD700", highlightColor: "#FFA000", backgroundColor: "rgba(0, 0, 0, 0.85)", fontSize: "large" },
+  "Cinema Gold": { name: "Cinema Gold", style: "cinematic", fontFamily: "Georgia, serif", textColor: "#FACC15", highlightColor: "#FDE047", backgroundColor: "rgba(0, 0, 0, 0.85)", fontSize: "medium" },
+  "Devane Luxury Serif": { name: "Devane Luxury Serif", style: "luxury-editorial", fontFamily: "Playfair Display, serif", textColor: "#FFFBEB", highlightColor: "#D4AF37", backgroundColor: "rgba(15, 15, 20, 0.88)", fontSize: "large" },
+  "Joe Rogan Studio": { name: "Joe Rogan Studio", style: "normal", fontFamily: "Montserrat, sans-serif", textColor: "#FFFFFF", highlightColor: "#EF4444", backgroundColor: "rgba(10, 10, 10, 0.85)", fontSize: "large" },
+  "Deep Discussion": { name: "Deep Discussion", style: "normal", fontFamily: "Inter, sans-serif", textColor: "#E2E8F0", highlightColor: "#38BDF8", backgroundColor: "rgba(15, 23, 42, 0.88)", fontSize: "medium" },
+  "Podcast Studio Master": { name: "Podcast Studio Master", style: "whisper-podcast", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#F59E0B", backgroundColor: "rgba(18, 18, 18, 0.90)", fontSize: "medium" },
+  "Bloomberg Financial": { name: "Bloomberg Financial", style: "box", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#60A5FA", backgroundColor: "rgba(10, 25, 47, 0.92)", fontSize: "medium" },
+  "Minimal Ice Blue": { name: "Minimal Ice Blue", style: "normal", fontFamily: "Inter, sans-serif", textColor: "#F0F9FF", highlightColor: "#38BDF8", backgroundColor: "rgba(15, 23, 42, 0.80)", fontSize: "medium" },
+
   // Extracted Top Creator Motion Styles (from 17 Real Reference Reels)
   "Luxury Dual-Script": { name: "Luxury Dual-Script", style: "luxury-editorial", fontFamily: "Playfair Display, Montserrat, serif", textColor: "#FFFFFF", highlightColor: "#FDE68A", fontSize: "large" },
   "Metallic Gloss 3D": { name: "Metallic Gloss 3D", style: "metallic-gloss", fontFamily: "Montserrat, sans-serif", textColor: "#FFFFFF", highlightColor: "#D8B4FE", fontSize: "xlarge" },

@@ -117,7 +117,6 @@ export default function AdminDashboardPage() {
       case 'facelessVideo': return User;
       case 'longVideoPromo': return LinkIcon;
       case 'compare': return Columns;
-      case 'typographyVideo': return Sparkles;
       case 'longVideoClips': return Scissors;
       case 'audioClean': return Mic;
       default: return Video;

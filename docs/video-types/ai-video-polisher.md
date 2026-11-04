@@ -10,14 +10,20 @@
 **AI YouTube Video Polisher** (`aiVideoPolisher`) takes raw recorded video footage and automatically produces a broadcast-quality 16:9 widescreen video (`1920×1080` @ 30 FPS MP4) up to 5 minutes long.
 
 It automates the tedious post-production steps that YouTubers spend hours doing manually:
-1. **Auto Silence & Gap Cutter (Jump Cuts)**: Detects awkward pauses, breath gaps, and silent dead-air, seamlessly cutting them to match snappy modern YouTube pacing.
-2. **Smart Camera Punch-Ins (Dynamic Zoom)**: Automatically alternates scale (+10% to +14% punch-in) at sentence boundaries using smooth spring physics, keeping viewer retention high.
-3. **Dual-Stream Media Management**:
-   - **Primary Full-Screen Media**: Main speaker camera footage, B-roll, or sequential multi-take video clips.
-   - **Overlay Graphic Layers (Picture-in-Picture)**: Floating callout images, product screenshots, or secondary reaction videos positioned in the upper-right corner with smooth entrance springs and subtle drop shadows.
-4. **50 Widescreen Phrase-Based Caption Styles**: Formats transcript lines into natural 4–8 word phrases positioned across the lower-third with keyword color highlights.
-5. **Ducked 12% Background Audio & SFX**: Integrates 13 curated AWS S3 audio tracks or custom user music, automatically ducked to 12% volume during active speech with transition sound effects.
-6. **Compulsory Visual Review Gate**: An interactive 16:9 live player simulation with a compulsory confirmation checkbox gating the final render button.
+1. **Auto Silence & Gap Cutter with Sensitivity**: Detects awkward pauses, breath gaps, and silent dead-air with 3 sensitivity levels: **Tight** (fast-paced), **Normal** (standard YouTube), or **Gentle** (relaxed podcasts).
+2. **Smart Camera Punch-Ins (Dynamic Zoom)**: Automatically alternates scale at sentence boundaries with customizable strength: **Subtle (+5%)**, **Standard (+12%)**, or **Dramatic (+18%)**.
+3. **Multi-Take Reordering & Trimming**:
+   - Creators can upload multiple video takes, reorder them up/down with 1 click, and set in/out trim seconds directly inside the dashboard.
+4. **Picture-in-Picture (PIP) with Flexible Positioning**:
+   - Floating callout images, product screenshots, or secondary reaction videos positioned in **Top-Right**, **Top-Left**, **Bottom-Right**, **Bottom-Left**, or **Center/Split**.
+5. **Word-Level Script & Misheard Name Corrector**:
+   - A dedicated quick-replacer allows creators to correct mistranscribed brand names or jargon while preserving audio timestamp synchronization.
+6. **40+ Broadcast & Kinetic Subtitle Presets**:
+   - Clean Netflix-style documentary, studio podcast, Huberman lecture, Vox, and kinetic motion styles with search and category filters.
+7. **Visual Retention Callouts**:
+   - Built-in UI controls for Animated Curved Arrows, Multi-Step Equation/Formula Cards, and Side-By-Side Comparison Banners.
+8. **Live Dynamic 16:9 Preview Simulator & Audio Spectrum**:
+   - An interactive dark preview player showing live punch-in scale, PIP position, and animated speech activity bars.
 
 ---
 
@@ -54,8 +60,8 @@ Per **Rule 8.B.4 of `AGENTS.md` (Anti-Repetition & Visual Diversity Policy)**, t
 - **Step-by-Step Equation & Formula Cards (`EquationFormulaCard.tsx`)**: 3-box calculation card (`[Views] × [RPM] = [Revenue]`) with staggered spring entrance for financial and tutorial breakdowns.
 - **Side-by-Side Comparison Banners (`SideBySideComparisonBanner.tsx`)**: Dual-column contrast banner comparing "Standard Method" (in subtle red) vs "Pro Winner" (in glowing emerald).
 - **Widescreen Lower-Third Captions**: Wide-format text containers designed for 1920×1080 resolution, avoiding vertical reel word flashes.
-- **Picture-in-Picture (PIP) Callout Window**: Corner-anchored floating container with spring-loaded scale-in and soft cinematic elevation.
-- **Dynamic Camera Punch-In Controller**: Spring-interpolated frame zoom (+15%) that alternates scale on sentence boundaries.
+- **Picture-in-Picture (PIP) Callout Window**: Multi-position container (top-right, top-left, bottom-right, bottom-left, center) with spring-loaded scale-in and soft cinematic elevation.
+- **Dynamic Camera Punch-In Controller**: Spring-interpolated frame zoom (+5%, +12%, +18%) that alternates scale on sentence boundaries.
 - **Jump-Cut Transition Blends**: Clean cuts on audio silence thresholds to maintain video pacing without visual warping.
 
 ---
@@ -65,18 +71,18 @@ Per **Rule 8.B.4 of `AGENTS.md` (Anti-Repetition & Visual Diversity Policy)**, t
 ```mermaid
 flowchart LR
     A["Direct S3 Upload<br/>(Presigned URL)"] --> B["16kHz Audio Extract<br/>& Groq Whisper"]
-    B --> C["Silence Gap Trimmer<br/>& Dynamic Zoom Planner"]
-    C --> D["Editorial Script Review<br/>(User Edits Allowed)"]
-    D --> E["Compulsory 16:9<br/>Preview Confirmation"]
+    B --> C["Silence Gap Trimmer<br/>(Tight/Normal/Gentle)"]
+    C --> D["Dynamic Zoom & PIP<br/>(Subtle/Medium/Dramatic)"]
+    D --> E["Word-Level Script Sync<br/>(Aligned Timestamps)"]
     E --> F["AWS Lambda Remotion<br/>1080p Cloud Render"]
     F --> G["AWS S3 Delivery<br/>(48-Hour Download)"]
 ```
 
 1. **Upload Staging**: Primary clips and overlay layers upload directly to AWS S3 via presigned multipart URLs, bypassing server payload bottlenecks.
 2. **Speech Transcription**: Groq Whisper extracts word-by-word millisecond timestamps from 16kHz mono audio. If rate limits occur, failover routes seamlessly to Google Gemini 2.0 Flash.
-3. **Editorial Markdown Editor**: Creators can edit any transcription typos or spelling mistakes directly in the dashboard prior to final rendering.
-4. **Pacing & Punch-In Synthesis**: The pipeline calculates silence gaps (< -35dB for > 400ms) and tags dynamic camera zoom punch-in frames (+12%) at sentence breaks.
-5. **Compulsory Preview Gate**: The creator views their draft in the 16:9 live preview simulator and checks the confirmation gate to unlock rendering.
+3. **Word-Level Script Alignment**: Creators can correct names or jargon, and the backend aligns token updates without losing millisecond timestamp alignment.
+4. **Pacing & Punch-In Synthesis**: The pipeline calculates silence gaps based on selected sensitivity (`tight`, `normal`, `gentle`) and tags camera zoom punch-in frames (+5%, +12%, +18%) at sentence breaks.
+5. **Interactive Preview**: The creator views their draft in the 16:9 live preview simulator with live zoom and PIP positioning.
 6. **Cloud Render & Delivery**: AWS Lambda renders 1080p frames across distributed cores. The completed MP4 is saved to AWS S3 and delivered via a signed download URL.
 
 ---
@@ -86,49 +92,40 @@ flowchart LR
 ```typescript
 export interface AiVideoPolisherProps {
   // Source Media
-  mediaUrl: string;                  // Primary video or image URL
-  mediaType?: "video" | "image";     // Media type indicator
-  additionalClips?: Array<{          // Multi-take sequential clips
+  mediaSrc: string;                  // Primary video or image URL
+  mediaItems?: Array<{               // Multi-take sequential clips
+    id: string;
     url: string;
-    durationInSeconds?: number;
+    type?: 'video' | 'image';
+    durationSeconds?: number;
   }>;
-  layerMediaUrl?: string;            // Picture-in-Picture overlay media
-  layerMediaType?: "video" | "image";
-  layerPosition?: "top-right" | "top-left" | "bottom-right";
+  layerItems?: Array<{               // Picture-in-Picture overlay media
+    id: string;
+    url: string;
+    type: 'video' | 'image';
+    title?: string;
+    startSeconds?: number;
+    durationSeconds?: number;
+    position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'center';
+  }>;
 
   // Editing Directives
-  autoJumpCuts?: boolean;            // Enable silence gap removal
-  dynamicZoom?: boolean;             // Enable +12% camera punch-in
-  zoomIntensity?: number;            // Default: 1.12 (12% punch-in)
+  silenceJumpCuts?: boolean;
+  silenceSensitivity?: 'tight' | 'normal' | 'gentle';
+  smartPunchIns?: boolean;
+  punchInIntensity?: 'subtle' | 'medium' | 'dramatic';
 
-  // Subtitles & Captions
-  transcript?: Array<{
-    text: string;
-    start: number;
-    end: number;
-    words?: Array<{ word: string; start: number; end: number }>;
-  }>;
-  captionStyleId?: string;           // One of 50 kinetic caption presets
-  captionFontSize?: number;          // Default: 44px for 16:9 lower-thirds
+  // Subtitles & Audio
+  captions?: CaptionSegment[];
+  captionStyle?: string;
+  bgmUrl?: string;
+  bgmVolume?: number;
+  enableSfx?: boolean;
+  durationSeconds?: number;
 
-  // Audio Controls
-  backgroundMusicUrl?: string;       // AWS S3 curated track or custom upload
-  backgroundMusicVolume?: number;    // Default: 0.12 (12% ducked volume)
-  sfxEnabled?: boolean;              // Enable zoom & callout SFX
-
-  // Timeline & Canvas
-  durationInFrames: number;          // Clamped up to 9,000 frames (5 minutes)
-  fps: number;                       // 30 FPS
-  width: number;                     // 1920
-  height: number;                    // 1080
+  // Visual Callouts
+  curvedArrows?: ArrowItem[];
+  equationFormula?: EquationFormulaData;
+  comparisonBanner?: ComparisonBannerData;
 }
 ```
-
----
-
-## 6. Error Handling & Credit Protection
-
-- **Silence / No Speech Detected**: Full credit refund triggered automatically; user is prompted to upload footage with clear speech.
-- **Upload Timeout**: Client-side chunk retries prevent dropped connections. Zero credits deducted if upload fails.
-- **Render Worker Failure**: AWS Lambda timeout automatically triggers `releaseReservedRenderUsageFromServer` to restore credits instantly.
-- **Expired Download Links**: The status API regenerates a fresh 48-hour presigned S3 download link on demand.

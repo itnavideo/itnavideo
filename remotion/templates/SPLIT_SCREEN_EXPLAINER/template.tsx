@@ -201,6 +201,7 @@ export const SplitScreenExplainerTemplate: React.FC<SplitScreenExplainerProps> =
               width: '100%',
               height: '100%',
               objectFit: 'cover',
+              transform: removeAiWatermark ? 'scale(1.07)' : undefined,
             }}
           />
         ) : (

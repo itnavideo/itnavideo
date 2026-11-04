@@ -147,7 +147,14 @@ export const DynamicWhiteboardSceneDirector: React.FC<DynamicWhiteboardSceneDire
     : 0;
 
 
-  const accentColor = scene.accentColor || '#3B82F6';
+  const resolvedMarkerColor = markerColor === 'charcoal' ? '#0F172A'
+    : markerColor === 'blue' ? '#2563EB'
+    : markerColor === 'crimson' ? '#DC2626'
+    : markerColor === 'emerald' ? '#059669'
+    : markerColor === 'amber' ? '#D97706'
+    : (markerColor && markerColor !== 'auto' ? markerColor : undefined);
+
+  const accentColor = resolvedMarkerColor || scene.accentColor || '#3B82F6';
 
   // ── Infinite Canvas Camera Panning & Zooming (SeeKen Canvas Glide) ─────────
   const prevWaypoint = CANVAS_WAYPOINTS[Math.max(0, activeSceneIndex - 1) % CANVAS_WAYPOINTS.length];

@@ -307,3 +307,6 @@ For every new Video Type, use these professional-editor principles unless the sp
 - Supported Video Types should use preview-first flow: generate preview plan â†’ user reviews/edits â†’ final render
 - Keep form fields minimal (only what the Video Type actually renders)
 - Remove fields the Video Type no longer uses
+
+### Phone QR Code Mobile Download
+- Users can scan a generated QR code from the render success screen or dashboard cards to instantly download videos on iOS/Android devices without needing to login.

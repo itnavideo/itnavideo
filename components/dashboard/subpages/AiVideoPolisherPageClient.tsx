@@ -1,3 +1,4 @@
+import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -8,6 +9,9 @@ import {
   AiVideoPolisherStudio,
   type UploadedMediaItem,
   type UploadedLayerItem,
+  type ArrowCalloutConfig,
+  type EquationFormulaConfig,
+  type ComparisonBannerConfig,
 } from "@/components/dashboard/AiVideoPolisherStudio";
 import { useAuth } from "@/components/auth/AuthContext";
 import { uploadFileViaPresign } from "@/lib/media/presignedUpload";
@@ -47,13 +51,45 @@ export default function AiVideoPolisherPageClient() {
   const [overlayLayerList, setOverlayLayerList] = useState<UploadedLayerItem[]>([]);
   const [videoTitle, setVideoTitle] = useState("");
   const [silenceJumpCuts, setSilenceJumpCuts] = useState(true);
+  const [silenceSensitivity, setSilenceSensitivity] = useState<"tight" | "normal" | "gentle">("normal");
   const [smartPunchIns, setSmartPunchIns] = useState(true);
+  const [punchInIntensity, setPunchInIntensity] = useState<"subtle" | "medium" | "dramatic">("medium");
   const [captionStyle, setCaptionStyle] = useState("Pop Word");
   const [bgmTrackId, setBgmTrackId] = useState("parasail");
   const [bgmVolume, setBgmVolume] = useState(0.12);
   const [customBgmFile, setCustomBgmFile] = useState<File | null>(null);
   const [enableSfx, setEnableSfx] = useState(true);
   const [editorialTranscript, setEditorialTranscript] = useState("");
+  const [removeAiWatermark, setRemoveAiWatermark] = useState<boolean>(true);
+
+  // Visual Callout States
+  const [curvedArrowConfig, setCurvedArrowConfig] = useState<ArrowCalloutConfig>({
+    enabled: false,
+    label: "KEY EVIDENCE",
+    direction: "down-left",
+    color: "#EF4444",
+    atSeconds: 4,
+    durationSeconds: 3.5,
+  });
+
+  const [equationFormulaConfig, setEquationFormulaConfig] = useState<EquationFormulaConfig>({
+    enabled: false,
+    step1: { value: "1,000 VIEWS", label: "TRAFFIC", accentColor: "#38BDF8" },
+    operator1: "×",
+    step2: { value: "$5 RPM", label: "MONETIZATION", accentColor: "#FACC15" },
+    operator2: "=",
+    result: { value: "$5,000", label: "TOTAL PROFIT", accentColor: "#22C55E" },
+    atSeconds: 6,
+    durationSeconds: 5,
+  });
+
+  const [comparisonBannerConfig, setComparisonBannerConfig] = useState<ComparisonBannerConfig>({
+    enabled: false,
+    left: { tag: "STANDARD", title: "Raw Takes", description: "Dead silence & shaky pacing", isWinner: false },
+    right: { tag: "PRO POLISHED", title: "Itnavideo AI", description: "Tight cuts, punch-ins & 1080p", isWinner: true },
+    atSeconds: 10,
+    durationSeconds: 5,
+  });
 
   // Job & render states
   const [jobStatus, setJobStatus] = useState<JobStatus>({ state: "idle" });
@@ -95,6 +131,25 @@ export default function AiVideoPolisherPageClient() {
     }
     fetchBilling();
   }, [user]);
+
+  // Duration detection for first primary video
+  useEffect(() => {
+    if (primaryMediaList.length > 0 && primaryMediaList[0].type === "video") {
+      const first = primaryMediaList[0];
+      if (!first.durationSeconds) {
+        const tempVideo = document.createElement("video");
+        tempVideo.preload = "metadata";
+        tempVideo.onloadedmetadata = () => {
+          if (tempVideo.duration && Number.isFinite(tempVideo.duration)) {
+            setPrimaryMediaList((prev) =>
+              prev.map((m) => (m.id === first.id ? { ...m, durationSeconds: Math.round(tempVideo.duration) } : m))
+            );
+          }
+        };
+        tempVideo.src = first.previewUrl;
+      }
+    }
+  }, [primaryMediaList]);
 
   const handleStartRender = async () => {
     if (!user) {
@@ -141,6 +196,9 @@ export default function AiVideoPolisherPageClient() {
           url: key,
           type: layer.type,
           title: layer.title,
+          position: layer.position || "top-right",
+          startSeconds: layer.startSeconds || 4,
+          durationSeconds: layer.durationSeconds || 4.5,
         });
       }
 
@@ -163,6 +221,7 @@ export default function AiVideoPolisherPageClient() {
       });
 
       const plannedTitle = videoTitle.trim() || firstMedia.name.replace(/\.[^/.]+$/, "");
+      const detectedDuration = Math.min(300, Math.max(10, firstMedia.durationSeconds || 120));
 
       const jobResponse = await fetch("/api/reels/jobs", {
         method: "POST",
@@ -173,11 +232,14 @@ export default function AiVideoPolisherPageClient() {
           contentType: firstMedia.file.type || "video/mp4",
           mediaType: firstMedia.type,
           mode: "aiVideoPolisher",
+          removeAiWatermark: Boolean(removeAiWatermark),
           topicTitle: plannedTitle,
           userId: user.id,
           userEmail: user.email || undefined,
           silenceJumpCuts,
+          silenceSensitivity,
           smartPunchIns,
+          punchInIntensity,
           captionStyle,
           bgmTrackId,
           bgmVolume,
@@ -187,7 +249,10 @@ export default function AiVideoPolisherPageClient() {
           mediaItems: uploadedMediaItems,
           layerItems: uploadedLayerItems,
           aspectRatio: "16:9",
-          durationSeconds: 120, // default 2m
+          durationSeconds: detectedDuration,
+          curvedArrows: curvedArrowConfig.enabled ? [curvedArrowConfig] : undefined,
+          equationFormula: equationFormulaConfig.enabled ? equationFormulaConfig : undefined,
+          comparisonBanner: comparisonBannerConfig.enabled ? comparisonBannerConfig : undefined,
         }),
       });
 
@@ -268,24 +333,24 @@ export default function AiVideoPolisherPageClient() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900 selection:bg-orange-500 selection:text-white">
+    <main className="min-h-screen bg-[#070A11] text-white selection:bg-orange-500 selection:text-white">
       {/* Premium Header */}
-      <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur-md shadow-xs">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0B0F19]/90 backdrop-blur-md shadow-lg">
         <div className="mx-auto flex max-w-7xl h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-6">
             <Link
               href="/dashboard"
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900 hover:shadow-xs transition active:scale-95"
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-zinc-900 text-zinc-300 hover:border-white/20 hover:text-white transition active:scale-95"
             >
               <ArrowLeft size={16} />
             </Link>
-            <BrandLogo size="sm" variant="light" />
+            <BrandLogo size="sm" variant="dark" />
           </div>
 
           <div className="flex items-center gap-4">
             {billingEntitlement && (
-              <div className="hidden sm:flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-4 py-1.5 text-xs font-bold text-orange-700 shadow-xs">
-                <Zap size={13} className="fill-orange-500 text-orange-500" />
+              <div className="hidden sm:flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold text-orange-400 shadow-xs">
+                <Zap size={13} className="fill-orange-400 text-orange-400" />
                 <span>{billingEntitlement.usage?.remaining ?? 0} Credits Left</span>
               </div>
             )}
@@ -332,8 +397,12 @@ export default function AiVideoPolisherPageClient() {
             onVideoTitleChange={setVideoTitle}
             silenceJumpCuts={silenceJumpCuts}
             onSilenceJumpCutsChange={setSilenceJumpCuts}
+            silenceSensitivity={silenceSensitivity}
+            onSilenceSensitivityChange={setSilenceSensitivity}
             smartPunchIns={smartPunchIns}
             onSmartPunchInsChange={setSmartPunchIns}
+            punchInIntensity={punchInIntensity}
+            onPunchInIntensityChange={setPunchInIntensity}
             captionStyle={captionStyle}
             onCaptionStyleChange={setCaptionStyle}
             bgmTrackId={bgmTrackId}
@@ -346,6 +415,12 @@ export default function AiVideoPolisherPageClient() {
             onEnableSfxChange={setEnableSfx}
             editorialTranscript={editorialTranscript}
             onEditorialTranscriptChange={setEditorialTranscript}
+            curvedArrowConfig={curvedArrowConfig}
+            onCurvedArrowConfigChange={setCurvedArrowConfig}
+            equationFormulaConfig={equationFormulaConfig}
+            onEquationFormulaConfigChange={setEquationFormulaConfig}
+            comparisonBannerConfig={comparisonBannerConfig}
+            onComparisonBannerConfigChange={setComparisonBannerConfig}
             onGenerate={handleStartRender}
             isGenerating={isSubmitting || jobStatus.state !== "idle"}
           />
@@ -354,4 +429,3 @@ export default function AiVideoPolisherPageClient() {
     </main>
   );
 }
-

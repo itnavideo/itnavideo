@@ -71,6 +71,7 @@ export type AutoCaptionGeneratorProps = {
   captionEmphasisAnimation?: 'bounce' | 'glow' | 'none';
   youtubeSubtitleSafeZone?: 'standard' | 'scrubber' | 'high';
   youtubeSubtitleCase?: 'natural' | 'uppercase';
+  removeAiWatermark?: boolean;
 };
 
 const resolveMediaSrc = (src?: string) => {
@@ -132,6 +133,7 @@ export function AutoCaptionGenerator({
   captionEmphasisAnimation = 'bounce',
   youtubeSubtitleSafeZone = 'scrubber',
   youtubeSubtitleCase = 'natural',
+  removeAiWatermark = false,
 }: AutoCaptionGeneratorProps) {
   const { width, height } = useVideoConfig();
   const resolvedSrc = resolveMediaSrc(mediaSrc);
@@ -258,16 +260,28 @@ export function AutoCaptionGenerator({
             />
           </>
         ) : (
-          <OffthreadVideo
-            src={resolvedSrc}
-            startFrom={Math.round(mediaTrimStartSeconds * DEFAULT_FPS)}
-            volume={sourceAudioVolume}
+          <div
             style={{
+              position: 'absolute',
+              inset: 0,
               width: '100%',
               height: '100%',
-              objectFit: 'cover',
+              overflow: 'hidden',
             }}
-          />
+          >
+            <OffthreadVideo
+              src={resolvedSrc}
+              startFrom={Math.round(mediaTrimStartSeconds * DEFAULT_FPS)}
+              volume={sourceAudioVolume}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                transform: removeAiWatermark ? 'scale(1.07)' : undefined,
+                transformOrigin: 'center center',
+              }}
+            />
+          </div>
         )
       ) : null}
 

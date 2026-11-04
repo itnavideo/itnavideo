@@ -1162,7 +1162,7 @@ export function FacelessShortsTemplate(props: FacelessShortsProps) {
             <OffthreadVideo
               src={resolvedMediaSrc}
               startFrom={Math.round(mediaTrimStartSeconds * fps)}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', transform: removeAiWatermark ? 'scale(1.07)' : undefined }}
               volume={audioSrc ? 0 : sourceAudioVolume}
             />
           </Loop>

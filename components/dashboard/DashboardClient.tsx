@@ -10,6 +10,7 @@ import DemoPreviewModal from "@/components/dashboard/DemoPreviewModal";
 import WelcomeModal from "@/components/auth/WelcomeModal";
 import DashboardSidebar, { DashboardTab } from "@/components/dashboard/DashboardSidebar";
 import GeneratedVideosTab from "@/components/dashboard/GeneratedVideosTab";
+import PhoneQrDownloadModal from "@/components/media/PhoneQrDownloadModal";
 import AnnouncementsTab from "@/components/dashboard/AnnouncementsTab";
 import {
   Captions,
@@ -293,7 +294,6 @@ const ROUTE_MAP: Record<string, string> = {
   "auto-caption-generator": "/dashboard/auto-caption",
   "compare-explainer": "/dashboard/compare-explainer",
   "whiteboard-video": "/dashboard/whiteboard-video",
-  "typography-video": "/dashboard/auto-caption",
   "long-video-promo": "/dashboard/long-video-promo",
   "long-video-clips": "/dashboard/long-video-clips",
   "faceless-video": "/dashboard/faceless-video", "faceless-shorts": "/dashboard/faceless-shorts",
@@ -307,7 +307,6 @@ const ROUTE_MAP: Record<string, string> = {
   "autoCaption": "/dashboard/auto-caption",
   "imageToVideoAi": "/dashboard/image-to-video",
   "compare": "/dashboard/compare-explainer",
-  "typographyVideo": "/dashboard/auto-caption",
   "autoDraw": "/dashboard/whiteboard-video",
   "longVideoPromo": "/dashboard/long-video-promo",
   "longVideoClips": "/dashboard/long-video-clips",
@@ -349,6 +348,7 @@ export default function DashboardClient() {
   const [cardAspect, setCardAspect] = useState<"916" | "169">("916");
   const [remainingCredits, setRemainingCredits] = useState<number | null>(null);
   const [recentRenders, setRecentRenders] = useState<RecentRender[]>([]);
+  const [qrModalVideo, setQrModalVideo] = useState<{ url: string; title: string } | null>(null);
   const [selectedDemoTool, setSelectedDemoTool] = useState<VideoToolCard | null>(null);
   const router = useRouter();
   const [isDragging, setIsDragging] = useState(false);
@@ -763,6 +763,14 @@ export default function DashboardClient() {
                               <Download size={13} />
                               <span>Download</span>
                             </a>
+                            <button
+                              type="button"
+                              onClick={() => setQrModalVideo({ url: videoUrl, title: displayTitle })}
+                              className="inline-flex items-center justify-center p-2 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 transition cursor-pointer"
+                              title="Scan QR to download on phone"
+                            >
+                              <Smartphone size={14} />
+                            </button>
                             <a
                               href={videoUrl}
                               target="_blank"

@@ -19,12 +19,10 @@ import {planCompareStickers, buildCompareScenes} from '@/services/ai/compareStic
 import {planScenes} from '@/services/ai/sceneDirector';
 import {matchAssetsToScenes, loadAssetLibrary} from '@/services/ai/assetMatcher';
 import {enhanceScenePlanWithIntelligence} from '@/services/ai/visualIntelligence';
-import {runTypographyPipeline} from '@/services/ai/typographyPipeline';
 import {makeDirectorDecision, buildVisualContinuity, checkConstraints, type VisualContinuity, type DirectorDecision} from '@/services/ai/directorBrain';
 import {getOptimalFramesPerLambda} from '@/lib/media/optimizeUpload';
 import {detectScenes} from '@/services/ai/sceneDetector';
 import {planWhiteboardVideo, buildWhiteboardSegments} from '@/services/ai/whiteboardPlanner';
-import {planTypographyVideo} from '@/services/ai/typographyPlanner';
 import {selectBestClips} from '@/services/ai/clipSelector';
 import {planLongVideoProBlueprint} from '@/services/ai/longVideoProPlanner';
 import {resolveBlueprintAssets} from '@/services/ai/assetResolver';
@@ -58,14 +56,13 @@ export const dynamic = 'force-dynamic';
 
 type LambdaRenderRequest = Parameters<typeof renderMediaOnLambda>[0];
 type ReelMode =
-  | 'compare' | 'autoCaption' | 'whiteboardVideo' | 'typographyVideo' | 'longVideoClips' | 'facelessVideo' | 'facelessShorts' | 'aiVideoGenerator' | 'imageToVideoAi' | 'youtubeSubtitleGenerator' | 'bookSummary' | 'audioClean' | 'longVideoPromo' | 'splitScreenExplainer' | 'aiVideoPolisher' | 'aiShortsPolisher';
+  | 'compare' | 'autoCaption' | 'whiteboardVideo' | 'longVideoClips' | 'facelessVideo' | 'facelessShorts' | 'aiVideoGenerator' | 'imageToVideoAi' | 'youtubeSubtitleGenerator' | 'bookSummary' | 'audioClean' | 'longVideoPromo' | 'splitScreenExplainer' | 'aiVideoPolisher' | 'aiShortsPolisher';
 
 const MODE_TO_TEMPLATE: Partial<Record<ReelMode, ReelTemplateName>> = {
   compare: 'comparisonImages',
   autoCaption: 'AUTO_CAPTION_GENERATOR',
   youtubeSubtitleGenerator: 'YOUTUBE_SUBTITLE_GENERATOR',
   whiteboardVideo: 'WHITEBOARD_VIDEO',
-  typographyVideo: 'AUTO_CAPTION_GENERATOR',
   longVideoClips: 'LONG_VIDEO_CLIPS',
   facelessVideo: 'FACELESS_VIDEO',
   facelessShorts: 'FACELESS_SHORTS',
@@ -853,6 +850,7 @@ export async function POST(request: Request) {
         showBackground: Boolean(userBackgroundColor),
         youtubeSubtitleSafeZone,
         youtubeSubtitleCase,
+        removeAiWatermark,
         watermark: !isFounder && (!access?.activePaidPlan || Boolean(access?.watermark)),
         templateName,
         template: templateName,
@@ -1363,6 +1361,7 @@ export async function POST(request: Request) {
         title: topicTitle || 'Image to Video AI',
         subtitleStyle,
         captionThemeId: subtitleStyle || readString(body.captionThemeId) || 'glow-viral',
+        removeAiWatermark,
         fitMode,
         aspectRatio: readString(body.aspectRatio) || '16:9',
         templateName,
@@ -1449,6 +1448,7 @@ export async function POST(request: Request) {
         creatorVideoUrl: mediaUrl || audioPrep.audioUrl,
         mediaSrc: mediaUrl || audioPrep.audioUrl,
         audioUrl: audioPrep.audioUrl || mediaUrl,
+        removeAiWatermark,
         explanationMediaUrls: uploadedImageUrls,
         explanationImages: uploadedImageUrls,
         captions,
@@ -1582,6 +1582,7 @@ export async function POST(request: Request) {
         captions: bsCaptions,
         subtitleChunks: bsCaptions,
         durationSeconds: bsDurationSeconds,
+        removeAiWatermark,
         bookTitle: bsBookTitle,
         authorName: bsAuthorName,
         bookCoverUrl: bsBookCoverUrl,
@@ -2028,7 +2029,6 @@ export async function POST(request: Request) {
     const hasSpecializedPlanner =
       Boolean(templateConfig.skipPlanner) ||
       mode === 'whiteboardVideo' ||
-      mode === 'typographyVideo' ||
       (mode === 'facelessVideo' || mode === 'facelessShorts') ||
       mode === 'aiVideoGenerator' ||
       mode === 'compare';
@@ -2291,6 +2291,9 @@ export async function POST(request: Request) {
             const wbBoard = resolveWhiteboardBoard(readString(body.whiteboardBoard));
             const activeTranscript = readString(body.editedTranscript) || readString(body.customTranscript) || renderWindow.transcript;
             const fontPersonality = readString(body.fontPersonality) || 'balsamiq';
+            const markerColor = readString(body.markerColor) || 'auto';
+            const handStyle = readString(body.handStyle) || 'right';
+            const showHand = body.showHand !== undefined ? Boolean(body.showHand) : (handStyle !== 'none');
             const wbAspectRatio = '9:16' as const;
 
             // Pass word-level timestamps so planner can compute real timing.
@@ -2319,7 +2322,9 @@ export async function POST(request: Request) {
               titleColor: wbPlan.titleColor,
               layoutType: wbPlan.layoutType,
               infographicData: wbPlan.infographicData,
-              showHand: true,
+              showHand,
+              handStyle,
+              markerColor,
               language: wbPlan.language,
               direction: wbPlan.direction,
               points: wbPlan.points,
@@ -2344,33 +2349,6 @@ export async function POST(request: Request) {
               })),
               overlayTimeline: [],
               assetTimeline: [],
-            };
-          })()
-        : {}),
-      ...(mode === 'typographyVideo'
-        ? (() => {
-            const selectedStyle = readString(body.typographyStyle) || 'dynamic-punch';
-            const typoAspectRatio = (readString(body.aspectRatio) === '16:9' ? '16:9' : '9:16') as '9:16' | '16:9';
-            const typoCaptions = buildCompareCaptionsFromGroq(renderWindow);
-            const typoPlan = planTypographyVideo({
-              transcript: renderWindow.transcript,
-              words: (renderWindow.words || []).map((w: any) => ({ word: String(w.word), start: Number(w.start), end: Number(w.end) })),
-              segments: typoCaptions.map((c) => ({ start: c.start, end: c.end, text: c.text })),
-              durationSeconds: renderWindow.durationSeconds,
-              typographyStyle: selectedStyle,
-            });
-            console.log('[TYPOGRAPHY_PLANNER]', { style: selectedStyle, keywordCount: typoPlan.keywords.length, soundCuesCount: typoPlan.soundCues.length, aspectRatio: typoAspectRatio });
-            return {
-              keywords: typoPlan.keywords,
-              soundCues: typoPlan.soundCues,
-              typographyStyle: selectedStyle,
-              aspectRatio: typoAspectRatio,
-              captions: typoCaptions,
-              showCaptions: body.typographyShowCaptions === true, // Kinetic text is hero
-              durationSeconds: renderWindow.durationSeconds,
-              transcriptText: renderWindow.transcript,
-              transcript: renderWindow.transcript,
-              premiumEditing: true,
             };
           })()
         : {}),
@@ -2573,31 +2551,6 @@ export async function POST(request: Request) {
       template: templateName,
       compositionId: composition,
       // Compare and Typography preserve the uploaded voiceover without generated background music.
-      ...(mode === 'typographyVideo' || mode === 'compare'
-        ? {backgroundMusic: false, backgroundMusicSrc: ''}
-        : {
-            backgroundMusic: (mode as string) === 'autoCaption' ? false : plan.renderProps?.backgroundMusic !== false,
-            backgroundMusicMood: readString(plan.renderProps?.backgroundMusicMood) || music.mood,
-            backgroundMusicSrc: readString(plan.renderProps?.backgroundMusicSrc) || music.src,
-            backgroundMusicVolume: Number.isFinite(Number(plan.renderProps?.backgroundMusicVolume))
-              ? Math.min(0.04, Math.max(0.012, Number(plan.renderProps?.backgroundMusicVolume)))
-              : music.volume,
-          }),
-      sourceAudioVolume: 1.35,
-      subtitleLanguagePolicy: SUBTITLE_LANGUAGE_POLICY,
-      backgroundMusicCategory: readString(plan.renderProps?.backgroundMusicCategory) || music.category,
-      premiumEditing: (mode as string) !== 'autoCaption',
-      styleLock: (mode as string) === 'autoCaption' ? undefined : (styleLock ? {
-        ...styleLock,
-        ambience: styleLock.ambience?.src?.startsWith('http') ? styleLock.ambience : undefined,
-      } : undefined),
-
-      ...(mode === 'compare'
-        ? {
-            transcript: renderWindow.transcript,
-            sourceScript: renderWindow.transcript,
-          }
-        : {}),
 
                   ...(mode === 'aiShortsPolisher' || (templateName as string) === 'AI_SHORTS_POLISHER'
         ? (() => {
@@ -2608,7 +2561,24 @@ export async function POST(request: Request) {
               ? ('assets/reusable/music/' + (promoBgmTrackId === 'parasail' ? 'parasail-silent-partner.mp3' : promoBgmTrackId === '19th-floor' ? '19th-floor-bobby-richards.mp3' : promoBgmTrackId === 'dutty-vibe' ? 'dutty-vibe-tracks.mp3' : promoBgmTrackId === 'book-rental' ? 'book-the-rental-wit-it-rage.mp3' : promoBgmTrackId === 'crimson-fly' ? 'crimson-fly-huma-huma.mp3' : promoBgmTrackId === 'crock-pot' ? 'crock-pot-diamond-ortiz.mp3' : promoBgmTrackId === 'illusions' ? 'illusions-anno-domini-beats.mp3' : promoBgmTrackId === 'not-for-nothing' ? 'not-for-nothing-otis-mcdonald.mp3' : promoBgmTrackId === 'something-going' ? 'something-is-going-on-godmode.mp3' : promoBgmTrackId === 'bar-scene' ? 'that-one-bar-scene-rkvc.mp3' : promoBgmTrackId === 'true-messiah' ? 'true-messiah-dj-freedem.mp3' : promoBgmTrackId === 'vishnu' ? 'vishnu-patrick-patrikios.mp3' : promoBgmTrackId === 'what-it-is' ? 'what-it-is-silent-partner.mp3' : 'parasail-silent-partner.mp3'))
               : undefined);
 
-            const shortsCaptions = buildCompareCaptionsFromGroq(renderWindow);
+            // Align word timestamps if creator provided edited transcript
+            let polisherWords = renderWindow.words || [];
+            const editedText = readString(body.editorialTranscript)?.trim();
+            if (editedText && polisherWords.length > 0) {
+              const editedTokens = editedText.split(/\s+/).filter(Boolean);
+              if (Math.abs(editedTokens.length - polisherWords.length) <= Math.max(4, polisherWords.length * 0.35)) {
+                polisherWords = editedTokens.map((w, idx) => {
+                  const orig = polisherWords[Math.min(idx, polisherWords.length - 1)];
+                  return {
+                    word: w,
+                    start: orig.start,
+                    end: orig.end,
+                  };
+                });
+              }
+            }
+
+            const shortsCaptions = buildCompareCaptionsFromGroq({ ...renderWindow, words: polisherWords });
 
             return {
               title: shortsTitle,
@@ -2616,14 +2586,18 @@ export async function POST(request: Request) {
               durationSeconds: shortsDur,
               sourceDurationSeconds: shortsDur,
               smartPunchIns: body.smartPunchIns !== false,
+              punchInIntensity: readString(body.punchInIntensity) || 'medium',
               silenceJumpCuts: body.silenceJumpCuts !== false,
+              silenceSensitivity: readString(body.silenceSensitivity) || 'tight',
               captionStyle: readString(body.captionStyle) || 'Pop Word',
+              captionPosition: readString(body.captionPosition) || 'bottom',
+              faceFraming: readString(body.faceFraming) || 'center',
               mediaSrc: mediaUrl,
               captions: shortsCaptions,
               subtitleChunks: shortsCaptions,
-              words: renderWindow.words,
+              words: polisherWords,
               segments: renderWindow.segments,
-              transcript: renderWindow.transcript,
+              transcript: editedText || renderWindow.transcript,
               bgmUrl: shortsBgmUrl,
               bgmVolume: Number(body.bgmVolume ?? 0.12),
               enableSfx: body.enableSfx !== false,
@@ -2644,7 +2618,24 @@ export async function POST(request: Request) {
               ? ('assets/reusable/music/' + (promoBgmTrackId === 'parasail' ? 'parasail-silent-partner.mp3' : promoBgmTrackId === '19th-floor' ? '19th-floor-bobby-richards.mp3' : promoBgmTrackId === 'dutty-vibe' ? 'dutty-vibe-tracks.mp3' : promoBgmTrackId === 'book-rental' ? 'book-the-rental-wit-it-rage.mp3' : promoBgmTrackId === 'crimson-fly' ? 'crimson-fly-huma-huma.mp3' : promoBgmTrackId === 'crock-pot' ? 'crock-pot-diamond-ortiz.mp3' : promoBgmTrackId === 'illusions' ? 'illusions-anno-domini-beats.mp3' : promoBgmTrackId === 'not-for-nothing' ? 'not-for-nothing-otis-mcdonald.mp3' : promoBgmTrackId === 'something-going' ? 'something-is-going-on-godmode.mp3' : promoBgmTrackId === 'bar-scene' ? 'that-one-bar-scene-rkvc.mp3' : promoBgmTrackId === 'true-messiah' ? 'true-messiah-dj-freedem.mp3' : promoBgmTrackId === 'vishnu' ? 'vishnu-patrick-patrikios.mp3' : promoBgmTrackId === 'what-it-is' ? 'what-it-is-silent-partner.mp3' : 'parasail-silent-partner.mp3'))
               : undefined);
 
-            const polisherCaptions = buildCompareCaptionsFromGroq(renderWindow);
+            // Align word timestamps if creator provided edited transcript
+            let polisherWords = renderWindow.words || [];
+            const editedText = readString(body.editorialTranscript)?.trim();
+            if (editedText && polisherWords.length > 0) {
+              const editedTokens = editedText.split(/\s+/).filter(Boolean);
+              if (Math.abs(editedTokens.length - polisherWords.length) <= Math.max(4, polisherWords.length * 0.35)) {
+                polisherWords = editedTokens.map((w, idx) => {
+                  const orig = polisherWords[Math.min(idx, polisherWords.length - 1)];
+                  return {
+                    word: w,
+                    start: orig.start,
+                    end: orig.end,
+                  };
+                });
+              }
+            }
+
+            const polisherCaptions = buildCompareCaptionsFromGroq({ ...renderWindow, words: polisherWords });
 
             return {
               title: polisherTitle,
@@ -2652,14 +2643,16 @@ export async function POST(request: Request) {
               durationSeconds: polisherDur,
               sourceDurationSeconds: polisherDur,
               smartPunchIns: body.smartPunchIns !== false,
+              punchInIntensity: readString(body.punchInIntensity) || 'medium',
               silenceJumpCuts: body.silenceJumpCuts !== false,
+              silenceSensitivity: readString(body.silenceSensitivity) || 'normal',
               captionStyle: readString(body.captionStyle) || 'Pop Word',
               mediaSrc: mediaUrl,
               captions: polisherCaptions,
               subtitleChunks: polisherCaptions,
-              words: renderWindow.words,
+              words: polisherWords,
               segments: renderWindow.segments,
-              transcript: renderWindow.transcript,
+              transcript: editedText || renderWindow.transcript,
               bgmUrl: polisherBgmUrl,
               bgmVolume: Number(body.bgmVolume ?? 0.12),
               enableSfx: body.enableSfx !== false,
@@ -2835,7 +2828,7 @@ export async function POST(request: Request) {
       maxRetries: 3,
       downloadBehavior: {
         type: 'download',
-        fileName: (mode as string) === 'autoCaption' ? 'itnavideo-auto-caption-reel.mp4' : mode === 'typographyVideo' ? 'itnavideo-typography-reel.mp4' : 'itnavideo-reel.mp4',
+        fileName: (mode as string) === 'autoCaption' ? 'itnavideo-auto-caption-reel.mp4' : 'itnavideo-reel.mp4',
       },
       isProduction: true,
       logLevel: 'info',
@@ -4327,7 +4320,6 @@ function toMode(value: string): ReelMode | null {
   if (normalized.includes('long-video-clip') || normalized.includes('longvideoclip') || normalized.includes('video-clips')) return 'longVideoClips';
   if (normalized.includes('long-video') || normalized.includes('longvideo') || normalized.includes('promo')) return 'longVideoPromo';
   if (normalized.includes('whiteboard') || normalized.includes('white-board')) return 'whiteboardVideo';
-  if (normalized.includes('typography') || normalized.includes('typo-video') || normalized.includes('bold-reel')) return 'typographyVideo';
   if (normalized.includes('youtube') || normalized.includes('youtubesubtitle') || normalized.includes('youtube-subtitle')) return 'youtubeSubtitleGenerator';
   if (normalized.includes('auto-caption') || normalized.includes('autocaption') || normalized.includes('caption') || normalized.includes('subtitle') || normalized.includes('captionstudio') || normalized.includes('long-form-captioned') || normalized.includes('longcaption')) return 'autoCaption';
   if (normalized.includes('audio-clean') || normalized.includes('audioclean') || normalized.includes('audio_clean') || normalized.includes('clean-audio')) return 'audioClean';
@@ -4341,8 +4333,7 @@ function getUploadedMediaType({mode, contentType}: {mode: ReelMode; contentType:
   if (mode === 'imageToVideoAi') return contentType.startsWith('video/') ? 'video' : 'audio';
   if (mode === 'bookSummary') return contentType.startsWith('video/') ? 'video' : 'audio';
   if (mode === 'whiteboardVideo') return contentType.startsWith('video/') ? 'video' : 'audio';
-  if (mode === 'typographyVideo') return contentType.startsWith('audio/') ? 'audio' : 'video';
-  if (mode === 'longVideoClips') return 'video';
+    if (mode === 'longVideoClips') return 'video';
   return contentType.startsWith('audio/') ? 'audio' : 'video';
 }
 
@@ -4523,7 +4514,6 @@ function humanTemplateName(templateName: string) {
   if (templateName === 'LONG_VIDEO_PRO') return 'Long Video Pro';
   if (templateName === 'comparisonImages') return 'Compare Explainer Video';
   if (templateName === 'WHITEBOARD_VIDEO') return 'Whiteboard Animation';
-  // TYPOGRAPHY_VIDEO deprecated and routed to AUTO_CAPTION_GENERATOR
   if (templateName === 'LONG_VIDEO_CLIPS') return 'Long Video Clips';
   return 'Itnavideo Reel';
 }

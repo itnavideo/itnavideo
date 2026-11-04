@@ -76,12 +76,15 @@ export interface ComparisonBannerData {
 }
 
 export interface AiVideoPolisherProps {
+  removeAiWatermark?: boolean;
   mediaSrc?: string;
   mediaItems?: PrimaryMediaItem[];
   layerItems?: OverlayLayerItem[];
   title?: string;
   smartPunchIns?: boolean;
+  punchInIntensity?: "subtle" | "medium" | "dramatic";
   silenceJumpCuts?: boolean;
+  silenceSensitivity?: "tight" | "normal" | "gentle";
   captions?: CaptionSegment[];
   captionStyle?: string;
   captionPosition?: 'bottom' | 'center' | 'top';
@@ -106,12 +109,15 @@ function resolveAsset(value: string): string {
 }
 
 export function AiVideoPolisher({
+  removeAiWatermark = false,
   mediaSrc = '',
   mediaItems = [],
   layerItems = [],
   title = 'AI YouTube Video Polisher',
   smartPunchIns = true,
+  punchInIntensity = "medium",
   silenceJumpCuts = true,
+  silenceSensitivity = "normal",
   captions = [],
   captionStyle = 'Pop Word',
   captionPosition = 'bottom',
@@ -145,9 +151,10 @@ export function AiVideoPolisher({
     fps,
     config: { damping: 14, mass: 0.6 },
   });
+  const maxZoom = punchInIntensity === 'subtle' ? 1.05 : punchInIntensity === 'dramatic' ? 1.18 : 1.12;
   const cameraScale = isPunchedIn
-    ? interpolate(zoomSpring, [0, 1], [1.0, 1.15])
-    : interpolate(zoomSpring, [0, 1], [1.15, 1.0]);
+    ? interpolate(zoomSpring, [0, 1], [1.0, maxZoom])
+    : interpolate(zoomSpring, [0, 1], [maxZoom, 1.0]);
 
   // 2. PRIMARY FULLSCREEN MEDIA RESOLUTION
   const activeMediaSrc = mediaSrc || (mediaItems.length > 0 ? mediaItems[0].url : '');
@@ -295,8 +302,15 @@ export function AiVideoPolisher({
           <div
             style={{
               position: 'absolute',
-              top: 48,
-              right: 56,
+              ...(activeOverlay.position === 'top-left'
+                ? { top: 48, left: 56 }
+                : activeOverlay.position === 'bottom-left'
+                ? { bottom: 100, left: 56 }
+                : activeOverlay.position === 'bottom-right'
+                ? { bottom: 100, right: 56 }
+                : activeOverlay.position === 'center'
+                ? { top: '50%', left: '50%', marginLeft: -220, marginTop: -125 }
+                : { top: 48, right: 56 }),
               width: 440,
               height: 250,
               borderRadius: 20,

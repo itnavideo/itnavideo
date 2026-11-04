@@ -3,6 +3,7 @@ import { BlogPost } from "./blogPosts";
 export const newExpandedBlogPosts: BlogPost[] = [
   {
     "slug": "image-to-video-ai-for-e-commerce-product-showcases",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807751/itnavideo12345/blog_batch_video_creator.png",
     "title": "Image to Video AI for E-Commerce: Turn Static Product Photos into High-Converting Video Ads",
     "excerpt": "Learn how e-commerce brands on Shopify and Amazon use Image to Video AI with smooth Ken Burns motion and background music to boost ROAS by 40%.",
     "date": "Sep 2026",
@@ -30,6 +31,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "turn-midjourney-and-dalle-images-into-viral-reels-with-ai",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808143/itnavideo12345/blog_tutorial_creator.png",
     "title": "Turn Midjourney & DALL-E AI Images into Cinematic Widescreen & Vertical Videos",
     "excerpt": "Step-by-step tutorial on taking AI generated art from Midjourney, DALL-E 3, and Stable Diffusion and breathing continuous motion into them.",
     "date": "Sep 2026",
@@ -57,6 +59,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "image-to-video-ai-for-architects-and-interior-designers",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807546/itnavideo12345/blog_commercial_real_estate.png",
     "title": "Image to Video AI for Architects & Interior Designers: Present 3D Renderings to Clients",
     "excerpt": "Architects and interior designers use Image to Video AI to transform CAD and 3D architectural renders into polished walkthrough videos.",
     "date": "Sep 2026",
@@ -84,6 +87,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "how-fashion-brands-use-image-to-video-ai-for-lookbook-reels",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808156/itnavideo12345/blog_mobile_creator_phone.png",
     "title": "How Fashion Brands Use Image to Video AI for Lookbook Videos & Runway Campaigns",
     "excerpt": "Discover how apparel brands turn static lookbook photos into elegant 1080p video campaigns for Instagram and TikTok.",
     "date": "Sep 2026",
@@ -111,6 +115,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "creating-documentary-history-reels-from-still-photos-with-ai",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807603/itnavideo12345/blog_youtube_creator_usa.png",
     "title": "Creating History & True Story Documentaries from Archival Photos using Image to Video AI",
     "excerpt": "How documentary creators convert historical black-and-white photos into compelling documentary scenes with Ken Burns camera movement.",
     "date": "Sep 2026",
@@ -138,6 +143,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "image-to-video-ai-vs-traditional-slideshow-makers-2026-guide",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808021/itnavideo12345/blog_ai_video_tools_comparison.png",
     "title": "Image to Video AI vs Traditional Slideshow Makers: The 2026 Creator Comparison",
     "excerpt": "Why traditional clunky slideshow makers fail on modern video algorithms, and how AI-driven image-to-video engines deliver 10x higher watch time.",
     "date": "Sep 2026",
@@ -165,6 +171,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "turn-food-photos-into-mouthwatering-restaurant-promo-videos",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807916/itnavideo12345/blog_instagram_creator_reels.png",
     "title": "Turn Food Photos into Mouthwatering Restaurant Promo Videos with Image to Video AI",
     "excerpt": "Restaurants and food bloggers use Image to Video AI to turn menu food photos into viral Instagram Reels and Google Maps promos.",
     "date": "Sep 2026",
@@ -192,6 +199,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "how-to-start-a-profitable-faceless-youtube-channel-in-2026",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807697/itnavideo12345/blog_faceless_channel_creator.png",
     "title": "How to Start a Profitable Faceless YouTube Channel in 2026: Blueprint & Automation Tools",
     "excerpt": "Complete guide to launching a 100% faceless YouTube channel that earns $3,000+ monthly using automated AI script-to-video workflows.",
     "date": "Sep 2026",
@@ -219,6 +227,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "faceless-video-generator-for-finance-and-crypto-explainers",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808113/itnavideo12345/blog_finance_creator.png",
     "title": "Faceless Video Generator for Finance, Stocks & Crypto Channels: High CPM Content Blueprint",
     "excerpt": "Finance YouTube channels command $20+ CPMs. Learn how to generate automated widescreen finance explainer videos with AI visual curation.",
     "date": "Sep 2026",
@@ -246,6 +255,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "top-10-faceless-video-niches-that-make-5000-a-month-on-youtube",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807578/itnavideo12345/blog_real_estate_agent_usa.png",
     "title": "Top 10 Faceless Video Niches Making $5,000/Month on YouTube (2026 Data)",
     "excerpt": "Data-backed breakdown of the top 10 highest-earning faceless niches from AI tech news to Stoicism philosophy and real estate analysis.",
     "date": "Sep 2026",
@@ -273,6 +283,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "ai-faceless-video-creation-for-true-crime-and-mystery-creators",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807697/itnavideo12345/blog_faceless_channel_creator.png",
     "title": "AI Faceless Video Generator for True Crime, Mystery & History Storytellers",
     "excerpt": "How true crime and history creators generate atmospheric 16:9 widescreen videos with suspenseful pacing and dramatic transitions.",
     "date": "Sep 2026",
@@ -300,6 +311,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "faceless-video-generator-vs-hiring-video-editors-cost-breakdown",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807864/itnavideo12345/blog_roi_business_analyst.png",
     "title": "Faceless Video Generator vs Hiring Video Editors: Cost & ROI Breakdown",
     "excerpt": "Compare spending $1,500/month on freelance video editors vs $49/month with automated AI Faceless Video creation.",
     "date": "Sep 2026",
@@ -327,6 +339,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "how-compare-explainer-videos-generate-3x-higher-affiliate-sales",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808021/itnavideo12345/blog_ai_video_tools_comparison.png",
     "title": "How Compare Explainer Videos Generate 3x Higher Affiliate Sales & Conversion",
     "excerpt": "Discover why side-by-side comparison reels and product battles convert hesitant buyers into high-ticket affiliate sales.",
     "date": "Sep 2026",
@@ -354,6 +367,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "create-product-versus-product-comparison-reels-in-60-seconds",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808021/itnavideo12345/blog_ai_video_tools_comparison.png",
     "title": "Create Product vs Product Comparison Reels in 60 Seconds with AI Narration",
     "excerpt": "Step-by-step guide to generating high-contrast 9:16 comparison reels comparing features, prices, and pros/cons automatically.",
     "date": "Sep 2026",
@@ -381,6 +395,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "compare-explainer-videos-for-saas-and-tech-software-battles",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807777/itnavideo12345/blog_marketing_agency_team.png",
     "title": "Compare Explainer Videos for B2B SaaS & Software Battles (Feature by Feature)",
     "excerpt": "How SaaS marketers create software feature comparison reels (e.g., Notion vs Obsidian, Figma vs Canva) to win competitive deals.",
     "date": "Sep 2026",
@@ -408,6 +423,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "why-versus-reels-go-viral-on-tiktok-and-instagram",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808021/itnavideo12345/blog_ai_video_tools_comparison.png",
     "title": "Why 'Versus' Reels Go Viral on TikTok & Instagram: The Psychology of Comparison Content",
     "excerpt": "Unpack the audience psychology behind high-engagement comparison videos and how comment section debate triggers organic algorithm surges.",
     "date": "Sep 2026",
@@ -435,6 +451,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "compare-explainer-video-maker-for-real-estate-neighborhood-guides",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807152/itnavideo12345/blog_luxury_real_estate.png",
     "title": "Compare Explainer Video Maker for Real Estate: Neighborhood & Investment Battles",
     "excerpt": "Realtors use Compare Explainer videos to compare living in Downtown vs Suburbs, or High-Rise Penthouse vs Waterfront Villa.",
     "date": "Sep 2026",
@@ -462,6 +479,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "before-and-after-fitness-transformation-reels-with-compare-explainer",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808021/itnavideo12345/blog_ai_video_tools_comparison.png",
     "title": "Before & After Fitness Transformation Reels with Compare Explainer AI",
     "excerpt": "Fitness coaches and personal trainers use Compare Explainer to showcase dramatic body transformations and diet plan comparisons.",
     "date": "Sep 2026",
@@ -489,6 +507,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "ai-whiteboard-video-generator-for-online-educators-and-courses",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807603/itnavideo12345/blog_youtube_creator_usa.png",
     "title": "AI Whiteboard Animation Generator for Online Educators, Teachers & Course Creators",
     "excerpt": "How online instructors create engaging 9:16 whiteboard explainer reels that simplify complex concepts and boost course enrollments.",
     "date": "Sep 2026",
@@ -516,6 +535,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "why-corporate-trainers-use-whiteboard-explainers-for-employee-onboarding",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
     "title": "Why Corporate Trainers Use Whiteboard Explainers for Employee Onboarding & Compliance",
     "excerpt": "Corporate L&D teams use whiteboard explainer videos to make policy training and compliance lessons memorable and easy to digest.",
     "date": "Sep 2026",
@@ -543,6 +563,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "how-to-create-doodle-whiteboard-explainers-for-finance-and-taxes",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808113/itnavideo12345/blog_finance_creator.png",
     "title": "How to Create Doodle Whiteboard Explainers for Finance, Taxes & Insurance",
     "excerpt": "Financial advisors and accountants use whiteboard videos to explain compound interest, tax strategies, and insurance coverage simply.",
     "date": "Sep 2026",
@@ -570,6 +591,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "whiteboard-explainer-videos-vs-slideshow-presentations-retention-test",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808021/itnavideo12345/blog_ai_video_tools_comparison.png",
     "title": "Whiteboard Explainer Videos vs Slideshow Presentations: 3x Higher Audience Retention",
     "excerpt": "Cognitive research shows drawn whiteboard animations hold viewer attention 3x longer than static PowerPoint slide decks.",
     "date": "Sep 2026",
@@ -597,6 +619,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "turn-complex-medical-and-health-topics-into-simple-whiteboard-videos",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808131/itnavideo12345/blog_educator_europe.png",
     "title": "Turn Complex Medical & Health Topics into Simple Whiteboard Animations",
     "excerpt": "Doctors, dentists, and health educators use whiteboard explainers to visually demonstrate medical procedures and health tips.",
     "date": "Sep 2026",
@@ -624,6 +647,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "ai-whiteboard-video-maker-for-non-profits-and-charity-campaigns",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808131/itnavideo12345/blog_educator_europe.png",
     "title": "AI Whiteboard Animation Maker for Non-Profits, NGOs & Charity Fundraising",
     "excerpt": "How non-profit organizations use emotional whiteboard storytelling to raise awareness and drive donations for social causes.",
     "date": "Sep 2026",
@@ -651,6 +675,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "how-to-add-accurate-subtitles-to-16-9-youtube-landscape-videos",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
     "title": "How to Add Accurate Subtitles to 16:9 YouTube Landscape Videos (Step-by-Step)",
     "excerpt": "Complete guide to generating and burning in 1080p widescreen subtitles on horizontal YouTube videos with Speech AI.",
     "date": "Sep 2026",
@@ -678,6 +703,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "why-93-percent-of-top-youtubers-burn-in-subtitles-on-horizontal-videos",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807603/itnavideo12345/blog_youtube_creator_usa.png",
     "title": "Why 93% of Top YouTubers Burn In Subtitles on Horizontal Widescreen Videos",
     "excerpt": "Discover how burned-in subtitles eliminate reliance on faulty auto-captions and increase Average View Duration (AVD) by 24%.",
     "date": "Sep 2026",
@@ -705,6 +731,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "youtube-subtitle-generator-with-western-creator-presets-guide",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807603/itnavideo12345/blog_youtube_creator_usa.png",
     "title": "YouTube Subtitle Generator with 9 Western Creator Presets: MrBeast, Hormozi & Cinematic",
     "excerpt": "Explore 9 curated Western creator subtitle styles designed specifically for 16:9 landscape videos.",
     "date": "Sep 2026",
@@ -732,6 +759,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "how-subtitles-increase-youtube-average-view-duration-and-rpm",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807603/itnavideo12345/blog_youtube_creator_usa.png",
     "title": "How Subtitles Increase YouTube Average View Duration (AVD) & Ad Revenue (RPM)",
     "excerpt": "Analytical study showing how hardcoded subtitles boost video watch time, leading to higher YouTube algorithm recommendation scores.",
     "date": "Sep 2026",
@@ -759,6 +787,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "youtube-subtitle-generator-for-podcasts-and-interview-shows",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807678/itnavideo12345/blog_podcaster_new_york.png",
     "title": "YouTube Subtitle Generator for Long-Form Podcasts & Interview Shows",
     "excerpt": "How podcast hosts automatically subtitle 1-hour interview videos with multi-speaker word-level synchronization.",
     "date": "Sep 2026",
@@ -786,6 +815,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "add-subtitles-to-long-form-educational-and-coding-tutorials",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807603/itnavideo12345/blog_youtube_creator_usa.png",
     "title": "Add Subtitles to Long-Form Educational & Coding Tutorials on YouTube",
     "excerpt": "Tech educators and coding channels use widescreen subtitle presets to make technical jargon crystal clear.",
     "date": "Sep 2026",
@@ -813,6 +843,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "custom-subtitle-margin-safe-zones-for-youtube-player-controls",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807603/itnavideo12345/blog_youtube_creator_usa.png",
     "title": "Custom Subtitle Margin Safe Zones for YouTube Player Controls & Progress Bars",
     "excerpt": "Learn why standard video editors place subtitles too low, causing them to get blocked by YouTube progress bars.",
     "date": "Sep 2026",
@@ -840,6 +871,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "youtube-subtitle-generator-for-gaming-and-esports-streamers",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
     "title": "YouTube Subtitle Generator for Gaming Highlights & Esports Streamers",
     "excerpt": "How gaming creators add high-energy kinetic subtitles to Twitch highlights and YouTube Let's Play videos.",
     "date": "Sep 2026",
@@ -867,6 +899,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "how-to-translate-and-subtitle-youtube-videos-for-global-audiences",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
     "title": "How Speech AI Transcribes & Subtitles YouTube Videos in English & Hinglish",
     "excerpt": "Reach broader audiences by accurately transcribing regional accents, English, and Roman Hinglish voice tracks.",
     "date": "Sep 2026",
@@ -894,6 +927,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "how-to-create-high-converting-youtube-teaser-reels-with-thumbnail-headers",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807603/itnavideo12345/blog_youtube_creator_usa.png",
     "title": "How to Create High-Converting YouTube Teaser Reels with Thumbnail Headers",
     "excerpt": "Learn how top YouTubers place their main 16:9 thumbnail at the top of vertical Reels to drive 10x link clicks back to full videos.",
     "date": "Sep 2026",
@@ -921,6 +955,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "long-video-promo-studio-the-ultimate-traffic-driver-for-youtubers",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807603/itnavideo12345/blog_youtube_creator_usa.png",
     "title": "Long Video Promo Studio: The Ultimate Traffic Driver for YouTubers & Creators",
     "excerpt": "Discover why standard clip reels fail to drive channel traffic, and how thumbnail-framed promo teasers achieve 10x higher CTRs.",
     "date": "Sep 2026",
@@ -948,6 +983,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "convert-youtube-documentaries-into-viral-30-second-promo-clips",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807603/itnavideo12345/blog_youtube_creator_usa.png",
     "title": "Convert YouTube Documentaries into Viral 30-Second Promo Teasers",
     "excerpt": "Documentary filmmakers use Long Video Promo layouts to feature intense documentary highlights and drive YouTube views.",
     "date": "Sep 2026",
@@ -975,6 +1011,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "why-top-podcasters-use-thumbnail-video-promo-layouts-on-instagram",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807678/itnavideo12345/blog_podcaster_new_york.png",
     "title": "Why Top Podcasters Use Thumbnail Video Promo Layouts on Instagram & Shorts",
     "excerpt": "See how podcast hosts combine guest thumbnail graphics with audio highlights to build brand authority and podcast downloads.",
     "date": "Sep 2026",
@@ -1002,6 +1039,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "long-video-promo-vs-standard-clip-reels-click-through-rate-study",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808021/itnavideo12345/blog_ai_video_tools_comparison.png",
     "title": "Long Video Promo vs Standard Clip Reels: 10x Higher Click-Through Rate Study",
     "excerpt": "A comparative analysis showing why viewers click 'Link in Bio' 10x more frequently when exposed to thumbnail promo layouts.",
     "date": "Sep 2026",
@@ -1029,6 +1067,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "how-course-creators-use-long-video-promos-to-sell-masterclasses",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807944/itnavideo12345/blog_captions_creator_usa.png",
     "title": "How Course Creators Use Long Video Promos to Sell Online Masterclasses",
     "excerpt": "Course creators use teaser promos featuring lesson thumbnails and preview clips to drive sales page traffic.",
     "date": "Sep 2026",
@@ -1056,6 +1095,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "long-video-promo-guide-for-news-commentary-and-politics-channels",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807864/itnavideo12345/blog_roi_business_analyst.png",
     "title": "Long Video Promo Guide for News Commentary & Political Analysts",
     "excerpt": "How political commentators and news channels generate urgent teaser reels for breaking story updates on YouTube.",
     "date": "Sep 2026",
@@ -1083,6 +1123,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "driving-10x-more-youtube-subscribers-from-tiktok-using-promo-reels",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807603/itnavideo12345/blog_youtube_creator_usa.png",
     "title": "Driving 10x More YouTube Subscribers from TikTok using Thumbnail Promo Reels",
     "excerpt": "Turn short-attention TikTok audiences into loyal long-form YouTube subscribers with strategic thumbnail placement.",
     "date": "Sep 2026",
@@ -1110,6 +1151,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "long-video-promo-templates-for-tech-reviews-and-unboxing-channels",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807603/itnavideo12345/blog_youtube_creator_usa.png",
     "title": "Long Video Promo Templates for Tech Reviews & Gadget Unboxing Channels",
     "excerpt": "Tech reviewers feature gadget photos and unboxing highlights in vertical promo reels to increase affiliate link clicks.",
     "date": "Sep 2026",
@@ -1137,6 +1179,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "how-ai-finds-viral-hooks-in-3-hour-podcast-recordings",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807678/itnavideo12345/blog_podcaster_new_york.png",
     "title": "How AI Finds Viral Hooks in 3-Hour Podcast Recordings Automatically",
     "excerpt": "Discover the AI algorithm that analyzes transcript semantics, vocal inflection, and emotional peaks to extract top 60-second shorts.",
     "date": "Sep 2026",
@@ -1164,6 +1207,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "repurpose-long-zoom-webinars-into-10-viral-shorts-in-minutes",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807974/itnavideo12345/blog_youtube_shorts_creator.png",
     "title": "Repurpose Long Zoom Webinars into 10 Viral Shorts in Minutes with AI",
     "excerpt": "Turn recorded Zoom meetings, webinars, and lectures into a month's worth of short-form social content effortlessly.",
     "date": "Sep 2026",
@@ -1191,6 +1235,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "long-video-to-clips-ai-vs-opus-clip-and-descript-comparison-2026",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
     "title": "Long Video to Clips AI vs Opus Clip & Descript: The 2026 Creator Benchmark",
     "excerpt": "Compare processing speed, transcription accuracy, and rendering quality between leading video clipping engines.",
     "date": "Sep 2026",
@@ -1218,6 +1263,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "how-agencies-scale-content-repurposing-with-automated-video-clipping",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807678/itnavideo12345/blog_podcaster_new_york.png",
     "title": "How Agencies Scale Content Repurposing with Automated AI Video Clipping",
     "excerpt": "Digital marketing agencies use automated clipping to deliver 30+ short reels per client every month without increasing overhead.",
     "date": "Sep 2026",
@@ -1245,6 +1291,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "turn-keynote-speeches-and-conference-talks-into-linkedin-reels",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
     "title": "Turn Keynote Speeches & Conference Talks into High-Impact LinkedIn Reels",
     "excerpt": "How keynote speakers and executives repurpose conference presentations into authoritative short-form LinkedIn videos.",
     "date": "Sep 2026",
@@ -1272,6 +1319,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "ai-hook-detector-guide-how-to-spot-golden-moments-in-interviews",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808143/itnavideo12345/blog_tutorial_creator.png",
     "title": "AI Hook Detector Guide: How to Spot Golden Story Moments in Long Interviews",
     "excerpt": "Learn how AI scoring evaluates narrative punchlines, controversial takes, and actionable advice within long video transcripts.",
     "date": "Sep 2026",
@@ -1299,6 +1347,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "long-video-to-clips-for-church-sermons-and-faith-based-content",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807974/itnavideo12345/blog_youtube_shorts_creator.png",
     "title": "Long Video to Clips for Church Sermons & Faith-Based Media Ministries",
     "excerpt": "Churches and ministries repurpose Sunday sermons into daily inspirational clips for Instagram, YouTube Shorts, and Facebook.",
     "date": "Sep 2026",
@@ -1326,6 +1375,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "how-gaming-streamers-clip-twitch-streams-into-tiktok-shorts",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
     "title": "How Gaming Streamers Clip 4-Hour Twitch Streams into Viral TikTok Shorts",
     "excerpt": "Twitch and YouTube Gaming streamers use AI clipping to isolate funny moments and clutch gameplay victories automatically.",
     "date": "Sep 2026",
@@ -1353,6 +1403,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "how-to-remove-background-noise-and-echo-from-podcast-audio-online",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807678/itnavideo12345/blog_podcaster_new_york.png",
     "title": "How to Remove Background Noise, Room Echo & Hiss from Podcast Audio Online",
     "excerpt": "Step-by-step guide to cleaning noisy mic recordings, removing fan hum, and eliminating room reverb with AI Audio Cleaner.",
     "date": "Sep 2026",
@@ -1380,6 +1431,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "ai-audio-cleaner-guide-auto-detect-and-trim-speech-retakes",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
     "title": "AI Audio Cleaner Guide: Auto-Detect & Trim Speech Retakes, Stutters & Mumbles",
     "excerpt": "Learn how AI transcribes your audio and automatically flags duplicate sentence takes and false starts for instant review.",
     "date": "Sep 2026",
@@ -1407,6 +1459,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "turn-noisy-phone-voice-memos-into-studio-quality-voiceovers",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807864/itnavideo12345/blog_roi_business_analyst.png",
     "title": "Turn Noisy Phone Voice Memos into Studio-Quality Voiceovers with AI",
     "excerpt": "How creators record narration on iPhones/Androids and transform phone audio into broadcast-grade voiceover tracks.",
     "date": "Sep 2026",
@@ -1434,6 +1487,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "why-clean-audio-is-50-percent-of-video-retention-on-reels-and-shorts",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
     "title": "Why Clean Audio Is 50% of Video Retention on Instagram Reels & YouTube Shorts",
     "excerpt": "Scientific audio studies prove viewers abandon videos with muffled or noisy audio within 3 seconds regardless of visual quality.",
     "date": "Sep 2026",
@@ -1461,6 +1515,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "ai-audio-cleaner-vs-adobe-podcast-enhance-sound-quality-test",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807678/itnavideo12345/blog_podcaster_new_york.png",
     "title": "AI Audio Cleaner vs Adobe Podcast Enhance: Sound Quality & Speed Test",
     "excerpt": "A detailed sound comparison testing noise suppression, voice clarity, and retake detection against Adobe Podcast Enhance.",
     "date": "Sep 2026",
@@ -1488,6 +1543,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "how-to-fix-muffled-microphone-audio-for-youtube-and-courses",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
     "title": "How to Fix Muffled Microphone Audio for YouTube Videos & Online Courses",
     "excerpt": "Learn how multi-band equalization and frequency enhancement restore muffled or low-quality microphone recordings.",
     "date": "Sep 2026",
@@ -1515,6 +1571,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "ai-audio-cleaner-for-remote-interview-and-zoom-podcast-recordings",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807678/itnavideo12345/blog_podcaster_new_york.png",
     "title": "AI Audio Cleaner for Remote Interviews & Zoom Podcast Recordings",
     "excerpt": "Fix compressed audio artifacts, robotic digital distortion, and internet glitch hums in remote Zoom and Riverside interviews.",
     "date": "Sep 2026",
@@ -1542,6 +1599,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "remove-wind-noise-and-traffic-hum-from-outdoor-realtor-voiceovers",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807578/itnavideo12345/blog_real_estate_agent_usa.png",
     "title": "Remove Wind Noise & Traffic Hum from Outdoor Realtor & Travel Vlog Voiceovers",
     "excerpt": "How outdoor vloggers and real estate agents remove wind gusts, traffic noise, and air conditioning hum from field recordings.",
     "date": "Sep 2026",
@@ -1569,6 +1627,7 @@ export const newExpandedBlogPosts: BlogPost[] = [
   },
   {
     "slug": "studio-mastering-for-creators-loudness-normalization-and-de-reverb",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807678/itnavideo12345/blog_podcaster_new_york.png",
     "title": "Studio Mastering for Creators: Loudness Normalization (-14 LUFS) & De-Reverb",
     "excerpt": "Understand standard podcast loudness targets (-14 LUFS) and how automated mastering prepares audio for Spotify and YouTube.",
     "date": "Sep 2026",

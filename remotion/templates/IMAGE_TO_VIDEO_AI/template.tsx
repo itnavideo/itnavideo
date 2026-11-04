@@ -59,6 +59,7 @@ export interface ImageToVideoAiProps {
   aspectRatio?: '16:9';
   captionThemeId?: string;
   subtitleStyle?: string;
+  removeAiWatermark?: boolean;
   [key: string]: any;
 }
 
@@ -94,7 +95,8 @@ const SceneRenderer: React.FC<{
   sceneIndex?: number;
   globalFitMode?: 'blur-fill' | 'cover';
   visualStyle?: string;
-}> = ({ scene, fps, sceneIndex = 0, globalFitMode = 'cover', visualStyle }) => {
+  removeAiWatermark?: boolean;
+}> = ({ scene, fps, sceneIndex = 0, globalFitMode = 'cover', visualStyle, removeAiWatermark = false }) => {
   const frame = useCurrentFrame();
 
   const parentStart = scene.parentStartSeconds ?? scene.startSeconds;
@@ -227,6 +229,9 @@ const SceneRenderer: React.FC<{
   }
 
   // Smooth cross-dissolve transition
+  if (removeAiWatermark) {
+    scale = scale * 1.07;
+  }
   const sceneDurationFrames = Math.max(1, Math.round((scene.endSeconds - scene.startSeconds) * fps));
   const transitionFrames = Math.min(12, Math.floor(sceneDurationFrames * 0.2));
 

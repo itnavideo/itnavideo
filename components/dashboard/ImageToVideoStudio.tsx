@@ -1,3 +1,4 @@
+import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
 'use client';
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
@@ -144,6 +145,8 @@ export interface ImageToVideoStudioProps {
   cameraMotionPreset?: string;
   onChangeCameraMotionPreset?: (preset: string) => void;
   fitMode?: "cover" | "contain" | "blur-fill" | string;
+  removeAiWatermark?: boolean;
+  onRemoveAiWatermarkChange?: (enabled: boolean) => void;
   onChangeFitMode?: (mode: any) => void;
   enableSoundEffects?: boolean;
   onToggleSoundEffects?: (enabled: boolean) => void;

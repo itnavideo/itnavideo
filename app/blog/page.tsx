@@ -23,7 +23,7 @@ export default async function BlogPage() {
             ItnaVideo Journal
           </div>
           <h1 className="font-sans text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-900 leading-tight">
-            Articles & Insights
+            Articles &amp; Insights
           </h1>
           <p className="mt-4 max-w-2xl font-editorial text-xl sm:text-[22px] leading-[1.6] text-slate-600 font-normal">
             Deep dives into AI video creation, automated captions, short-form retention mechanics, and modern media workflows.
@@ -50,6 +50,16 @@ export default async function BlogPage() {
               <h2 className="mt-3 font-sans text-2xl sm:text-[28px] font-bold leading-snug text-slate-900 group-hover:text-[#FF6D00] transition-colors">
                 {post.title}
               </h2>
+              {post.featuredImage && (
+                <div className="mt-4 mb-4 overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-100 aspect-[16/9] max-h-[380px] shadow-xs">
+                  <img
+                    src={post.featuredImage}
+                    alt={post.title}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                    loading="lazy"
+                  />
+                </div>
+              )}
               <p className="mt-3 font-editorial text-[18px] leading-[1.75] text-slate-600 line-clamp-3">
                 {post.excerpt}
               </p>

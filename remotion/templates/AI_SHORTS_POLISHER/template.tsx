@@ -13,6 +13,7 @@ import {
   useVideoConfig,
 } from 'remotion';
 import { BrandWatermark } from '../../components/BrandWatermark';
+import { SUBTITLE_PRESETS } from '../../types/subtitles';
 import { NeonStatCallout } from './components/NeonStatCallout';
 import { BlackoutRetentionCard } from './components/BlackoutRetentionCard';
 import { CurvedArrowCallout } from './components/CurvedArrowCallout';
@@ -77,15 +78,19 @@ export interface RetentionWordItem {
 }
 
 export interface AiShortsPolisherProps {
+  removeAiWatermark?: boolean;
   mediaSrc?: string;
   mediaItems?: PrimaryMediaItem[];
   layerItems?: OverlayLayerItem[];
   title?: string;
   smartPunchIns?: boolean;
+  punchInIntensity?: "subtle" | "medium" | "dramatic";
   silenceJumpCuts?: boolean;
+  silenceSensitivity?: "tight" | "normal" | "gentle";
   captions?: CaptionSegment[];
   captionStyle?: string;
   captionPosition?: 'bottom' | 'center' | 'top';
+  faceFraming?: 'center' | 'left' | 'right';
   bgmUrl?: string;
   bgmVolume?: number;
   enableSfx?: boolean;
@@ -107,15 +112,19 @@ function resolveAsset(value: string): string {
 }
 
 export function AiShortsPolisher({
+  removeAiWatermark = false,
   mediaSrc = '',
   mediaItems = [],
   layerItems = [],
   title = 'AI Shorts Polisher',
   smartPunchIns = true,
+  punchInIntensity = "medium",
   silenceJumpCuts = true,
+  silenceSensitivity = "tight",
   captions = [],
   captionStyle = 'Pop Word',
-  captionPosition = 'center',
+  captionPosition = 'bottom',
+  faceFraming = 'center',
   bgmUrl = '',
   bgmVolume = 0.12,
   enableSfx = true,
@@ -146,9 +155,10 @@ export function AiShortsPolisher({
     fps,
     config: { damping: 11, mass: 0.45, stiffness: 175 },
   });
+  const maxZoom = punchInIntensity === 'subtle' ? 1.05 : punchInIntensity === 'dramatic' ? 1.18 : 1.12;
   const cameraScale = isPunchedIn
-    ? interpolate(zoomSpring, [0, 1], [1.0, 1.15])
-    : interpolate(zoomSpring, [0, 1], [1.15, 1.0]);
+    ? interpolate(zoomSpring, [0, 1], [1.0, maxZoom])
+    : interpolate(zoomSpring, [0, 1], [maxZoom, 1.0]);
 
   // 2. PRIMARY FULLSCREEN 9:16 MEDIA RESOLUTION
   const activeMediaSrc = mediaSrc || (mediaItems.length > 0 ? mediaItems[0].url : '');
@@ -160,7 +170,7 @@ export function AiShortsPolisher({
     return currentSeconds >= start && currentSeconds <= start + dur;
   }) || (layerItems.length > 0 && currentSeconds >= 4 && currentSeconds <= 8 ? layerItems[0] : null);
 
-  const isFullCutaway = Boolean(activeOverlay && (activeOverlay.isCutaway || (currentSeconds >= 4 && currentSeconds <= 7.5)));
+  const isFullCutaway = Boolean(activeOverlay?.isCutaway);
 
   // Entrance spring for overlay PIP
   const pipSpring = spring({
@@ -321,8 +331,15 @@ export function AiShortsPolisher({
           <div
             style={{
               position: 'absolute',
-              top: 140,
-              right: 48,
+              ...(activeOverlay.position === 'top-left'
+                ? { top: 140, left: 48 }
+                : activeOverlay.position === 'bottom-left'
+                ? { bottom: 240, left: 48 }
+                : activeOverlay.position === 'bottom-right'
+                ? { bottom: 240, right: 48 }
+                : activeOverlay.position === 'center'
+                ? { top: '50%', left: '50%', marginLeft: -190, marginTop: -120 }
+                : { top: 140, right: 48 }),
               width: 380,
               height: 240,
               borderRadius: 24,
@@ -459,76 +476,88 @@ export function AiShortsPolisher({
       })()}
 
       {/* KINETIC VERTICAL 9:16 CAPTIONS (TikTok/Reels Safe-Zone & Active Word Glow) */}
-      {activeCaption && !hasStat && !activeRetention && (
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 360, // Above bottom 20% TikTok/Reels description & audio title
-            left: 48,
-            right: 104, // Clears vertical Like/Comment/Share buttons on right
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 40,
-            pointerEvents: 'none',
-          }}
-        >
+      {activeCaption && !hasStat && !activeRetention && (() => {
+        const matchedPreset = captionStyle ? SUBTITLE_PRESETS[captionStyle] : undefined;
+        const captionFontFamily = matchedPreset?.fontFamily || 'Montserrat, sans-serif';
+        const captionActiveColor = matchedPreset?.highlightColor || '#FACC15';
+        const captionTextColor = matchedPreset?.textColor || '#FFFFFF';
+        const captionBoxBg = matchedPreset?.backgroundColor || 'rgba(7, 11, 20, 0.88)';
+
+        return (
           <div
             style={{
-              padding: '16px 28px',
-              borderRadius: 22,
-              background: 'rgba(7, 11, 20, 0.88)',
-              backdropFilter: 'blur(20px)',
-              border: '1.5px solid rgba(255, 255, 255, 0.22)',
-              boxShadow: '0 20px 50px rgba(0, 0, 0, 0.85), 0 0 24px rgba(255, 87, 34, 0.35)',
-              maxWidth: '100%',
-              textAlign: 'center',
+              position: 'absolute',
+              ...(captionPosition === 'top'
+                ? { top: 220, bottom: 'auto' }
+                : captionPosition === 'center'
+                ? { top: '50%', transform: 'translateY(-50%)', bottom: 'auto' }
+                : { bottom: 360, top: 'auto' }),
+              left: 48,
+              right: 104,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 40,
+              pointerEvents: 'none',
             }}
           >
-            {Array.isArray(activeCaption.words) && activeCaption.words.length > 0 ? (
-              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px 12px' }}>
-                {activeCaption.words.map((w, wIdx) => {
-                  const isWordActive = currentSeconds >= (w.start ?? 0) && currentSeconds <= (w.end ?? (w.start ?? 0) + 0.35);
-                  return (
-                    <span
-                      key={wIdx}
-                      style={{
-                        fontFamily: 'Montserrat, sans-serif',
-                        fontSize: 42,
-                        fontWeight: 900,
-                        letterSpacing: '-0.02em',
-                        color: isWordActive ? '#FACC15' : '#FFFFFF',
-                        textShadow: isWordActive
-                          ? '0 0 16px rgba(250, 204, 21, 0.85), 0 2px 8px rgba(0,0,0,0.9)'
-                          : '0 3px 12px rgba(0, 0, 0, 0.9)',
-                        transform: isWordActive ? 'scale(1.08)' : 'scale(1)',
-                        display: 'inline-block',
-                        transition: 'transform 0.1s ease',
-                      }}
-                    >
-                      {w.word}
-                    </span>
-                  );
-                })}
-              </div>
-            ) : (
-              <span
-                style={{
-                  fontFamily: 'Montserrat, sans-serif',
-                  fontSize: 42,
-                  fontWeight: 900,
-                  letterSpacing: '-0.02em',
-                  color: '#FFFFFF',
-                  textShadow: '0 3px 12px rgba(0, 0, 0, 0.9)',
-                  lineHeight: 1.25,
-                }}
-              >
-                {activeCaption.text}
-              </span>
-            )}
+            <div
+              style={{
+                padding: '16px 28px',
+                borderRadius: 22,
+                background: captionBoxBg,
+                backdropFilter: 'blur(20px)',
+                border: '1.5px solid rgba(255, 255, 255, 0.22)',
+                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.85), 0 0 24px rgba(255, 87, 34, 0.35)',
+                maxWidth: '100%',
+                textAlign: 'center',
+              }}
+            >
+              {Array.isArray(activeCaption.words) && activeCaption.words.length > 0 ? (
+                <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px 12px' }}>
+                  {activeCaption.words.map((w, wIdx) => {
+                    const isWordActive = currentSeconds >= (w.start ?? 0) && currentSeconds <= (w.end ?? (w.start ?? 0) + 0.35);
+                    return (
+                      <span
+                        key={wIdx}
+                        style={{
+                          fontFamily: captionFontFamily,
+                          fontSize: 42,
+                          fontWeight: 900,
+                          letterSpacing: '-0.02em',
+                          color: isWordActive ? captionActiveColor : captionTextColor,
+                          textShadow: isWordActive
+                            ? `0 0 16px ${captionActiveColor}cc, 0 2px 8px rgba(0,0,0,0.9)`
+                            : '0 3px 12px rgba(0, 0, 0, 0.9)',
+                          transform: isWordActive ? 'scale(1.08)' : 'scale(1)',
+                          display: 'inline-block',
+                          transition: 'transform 0.1s ease',
+                        }}
+                      >
+                        {w.word}
+                      </span>
+                    );
+                  })}
+                </div>
+              ) : (
+                <span
+                  style={{
+                    fontFamily: captionFontFamily,
+                    fontSize: 42,
+                    fontWeight: 900,
+                    letterSpacing: '-0.02em',
+                    color: captionTextColor,
+                    textShadow: '0 3px 12px rgba(0, 0, 0, 0.9)',
+                    lineHeight: 1.25,
+                  }}
+                >
+                  {activeCaption.text}
+                </span>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* BRAND WATERMARK (OPTIONAL) */}
       {brandWatermark && <BrandWatermark />}

@@ -18,7 +18,6 @@ const TOOL_IMAGE_MAP: Record<string, string> = {
   "image-to-video": "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946349/imagetovideoai_w3hyci.jpg",
   "youtube-subtitles": "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946360/youtube_subtitles_generator_who62l.png",
   "auto-caption": "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png",
-  "typography-video": "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000a07482118a938d210f92e32c_lblzpy.png",
   "whiteboard-video": "https://res.cloudinary.com/dhouh9idx/image/upload/v1792950977/file_00000000a8388211b1207dad39960dc7_ahvk9g.png",
   "compare-explainer": "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946197/file_0000000035a48208ab4068beb2a66a7d_kctvo9.png",
   "long-video-promo": "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946358/longvideopromo_o0qheb.png",
@@ -31,7 +30,6 @@ const TOOL_IMAGE_MAP: Record<string, string> = {
 const VERTICAL_TOOLS = new Set([
   "faceless-shorts",
   "auto-caption",
-  "typography-video",
   "whiteboard-video",
   "compare-explainer",
   "long-video-promo",

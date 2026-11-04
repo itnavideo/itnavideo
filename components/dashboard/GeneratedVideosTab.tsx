@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import PhoneQrDownloadModal from "@/components/media/PhoneQrDownloadModal";
 import Link from "next/link";
 import {
   Video,
@@ -40,6 +41,7 @@ export default function GeneratedVideosTab({
 }: GeneratedVideosTabProps) {
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [qrModalData, setQrModalData] = useState<{ url: string; title: string } | null>(null);
 
   const handleCopyLink = (url: string, id: string) => {
     navigator.clipboard.writeText(url);
@@ -140,26 +142,38 @@ export default function GeneratedVideosTab({
                 </div>
 
                 {/* Actions */}
-                <div className="grid grid-cols-2 gap-2 pt-3 border-t border-white/10">
+                <div className="grid grid-cols-3 gap-2 pt-3 border-t border-white/10">
                   <a
                     href={downloadLink}
                     download
                     target="_blank"
                     rel="noreferrer"
-                    className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20 hover:brightness-110 transition cursor-pointer"
+                    className="py-2.5 px-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20 hover:brightness-110 transition cursor-pointer"
                   >
-                    <Download size={14} />
+                    <Download size={13} />
                     <span>Download</span>
                   </a>
 
-                  {render.videoUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setQrModalData({ url: downloadLink, title: render.title || "Cloud Video" })}
+                    className="py-2.5 px-2 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 hover:text-amber-200 font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+                    title="Scan QR to download directly on phone"
+                  >
+                    <Smartphone size={13} className="text-amber-400" />
+                    <span>Phone QR</span>
+                  </button>
+
+                  {render.videoUrl ? (
                     <button
                       onClick={() => handleCopyLink(render.videoUrl!, render.id)}
-                      className="py-2.5 px-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+                      className="py-2.5 px-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
                     >
                       <Share2 size={13} className="text-emerald-400" />
-                      <span>{copiedId === render.id ? "Copied!" : "Share Link"}</span>
+                      <span>{copiedId === render.id ? "Copied!" : "Share"}</span>
                     </button>
+                  ) : (
+                    <div />
                   )}
                 </div>
               </div>
@@ -193,14 +207,14 @@ export default function GeneratedVideosTab({
             </Link>
 
             <Link
-              href="/dashboard/typography-video"
+              href="/dashboard/ai-shorts-polisher"
               className="p-3.5 rounded-2xl bg-[#121624] hover:bg-[#161C2E] border border-white/10 hover:border-orange-500/40 transition group flex items-center justify-between"
             >
               <div>
                 <div className="text-xs font-black text-white group-hover:text-[#FFA000]">
-                   Kinetic Motion
+                   AI Shorts Polisher
                 </div>
-                <div className="text-[10px] text-zinc-400">11 motion animation presets</div>
+                <div className="text-[10px] text-zinc-400">Punch-in cuts & viral audio</div>
               </div>
               <ArrowRight size={14} className="text-zinc-500 group-hover:text-[#FFA000]" />
             </Link>

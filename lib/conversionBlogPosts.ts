@@ -3,6 +3,7 @@ import type { BlogPost } from './blogPosts';
 export const conversionBlogPosts: BlogPost[] = [
   {
     "slug": "best-ai-video-generator-luxury-real-estate",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807515/itnavideo12345/blog_dubai_real_estate.png",
     "title": "Best AI Video Generator for Luxury Real Estate: How Brokers in Miami, London & Dubai Close Multi-Million Deals",
     "excerpt": "Discover why top-producing real estate brokers in Miami, London, and Dubai are replacing $2,000 video production crews with AI kinetic typography and 3D behind-subject text.",
     "date": "Sep 8, 2026",
@@ -56,6 +57,7 @@ export const conversionBlogPosts: BlogPost[] = [
   },
   {
     "slug": "why-agencies-switch-from-video-editors-to-itnavideo",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807864/itnavideo12345/blog_roi_business_analyst.png",
     "title": "Why Top US & UK Marketing Agencies Are Replacing $3,000/Mo Freelance Video Editors with Itnavideo Pro",
     "excerpt": "How high-volume marketing agencies in New York, London, and Sydney eliminate editing bottlenecks, scale to 100+ client videos monthly, and expand margins with Itnavideo.",
     "date": "Sep 8, 2026",
@@ -109,6 +111,7 @@ export const conversionBlogPosts: BlogPost[] = [
   },
   {
     "slug": "image-to-video-ai-cost-roi-breakdown",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807864/itnavideo12345/blog_roi_business_analyst.png",
     "title": "Image to Video AI vs Manual Premiere Pro: Cost, Speed & ROI Analysis for YouTube Long-Form Channels",
     "excerpt": "Detailed financial and production analysis comparing manual 16:9 YouTube video creation in Premiere Pro against Itnavideo’s automated Image to Video AI engine.",
     "date": "Sep 7, 2026",
@@ -153,6 +156,7 @@ export const conversionBlogPosts: BlogPost[] = [
   },
   {
     "slug": "dubai-real-estate-video-marketing-ai-blueprint",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807515/itnavideo12345/blog_dubai_real_estate.png",
     "title": "Dubai Luxury Property Video Blueprint: The 3D Behind-Subject Typography Strategy Generating 7-Figure Leads",
     "excerpt": "How top brokers in Downtown Dubai, Palm Jumeirah, and Dubai Hills deploy 24k gold shimmer typography and 3D depth to sell off-plan and luxury resale listings.",
     "date": "Sep 7, 2026",
@@ -191,6 +195,7 @@ export const conversionBlogPosts: BlogPost[] = [
   },
   {
     "slug": "faceless-youtube-channel-automation-profit-guide",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808113/itnavideo12345/blog_finance_creator.png",
     "title": "Faceless YouTube Automation at Scale: How Creators in the US & Canada Build 5-Figure Passive Channels",
     "excerpt": "The exact step-by-step framework top creators in North America use to publish daily 16:9 faceless videos without showing their face or spending hours editing.",
     "date": "Sep 7, 2026",
@@ -228,7 +233,8 @@ export const conversionBlogPosts: BlogPost[] = [
     "contentHtml": "\n<div class=\"space-y-8 font-sans text-slate-800 leading-relaxed\">\n  <div class=\"rounded-2xl border border-indigo-200 bg-indigo-50/70 p-6 shadow-sm\">\n    <div class=\"flex items-center gap-3 mb-2\">\n      <span class=\"inline-flex rounded-full bg-indigo-600 text-white p-1.5 text-xs font-bold\">📈 SCALE</span>\n      <span class=\"text-xs font-black uppercase tracking-wider text-indigo-900\">YouTube Automation Benchmark</span>\n    </div>\n    <p class=\"text-sm font-semibold text-indigo-950\">\n      Channels utilizing Itnavideo’s cloud automation publish an average of <strong>28 videos per month</strong> versus 4 videos per month for manual creators, unlocking a <strong>7x faster monetization timeline</strong>.\n    </p>\n  </div>\n\n  <h2 class=\"text-2xl font-black tracking-tight text-slate-900 sm:text-3xl\">The 3 Pillars of Automated YouTube Channel Profitability</h2>\n  <div class=\"grid gap-4 sm:grid-cols-3\">\n    <div class=\"rounded-2xl border border-slate-200 bg-white p-5\">\n      <h4 class=\"font-bold text-indigo-600 text-sm\">1. Script &amp; Voiceover</h4>\n      <p class=\"mt-1 text-xs text-slate-600\">Generate compelling high-retention audio narratives using ElevenLabs or human voice talent.</p>\n    </div>\n    <div class=\"rounded-2xl border border-slate-200 bg-white p-5\">\n      <h4 class=\"font-bold text-indigo-600 text-sm\">2. AI Scene Slicing</h4>\n      <p class=\"mt-1 text-xs text-slate-600\">Itnavideo cuts your audio track into visual intervals per line of thought automatically.</p>\n    </div>\n    <div class=\"rounded-2xl border border-slate-200 bg-white p-5\">\n      <h4 class=\"font-bold text-indigo-600 text-sm\">3. 60 FPS Cloud Render</h4>\n      <p class=\"mt-1 text-xs text-slate-600\">Export clean, watermark-free 1080p MP4 files ready for direct YouTube upload.</p>\n    </div>\n  </div>\n\n  <div class=\"my-8 rounded-3xl bg-slate-900 p-8 text-white\">\n    <h3 class=\"text-2xl font-black\">Ready to Build Your Passive YouTube Empire?</h3>\n    <p class=\"mt-2 text-xs sm:text-sm text-slate-300\">Upgrade to Itnavideo Pro to unlock high-capacity rendering and priority cloud processing.</p>\n    <a href=\"/pricing\" class=\"mt-5 inline-block rounded-full bg-indigo-500 px-6 py-3 text-xs font-bold text-white hover:bg-indigo-400 transition-all\">\n      Upgrade to Pro Now →\n    </a>\n  </div>\n</div>\n"
   },
   {
-    "slug": "kinetic-typography-reel-maker-commercial-guide",
+    "slug": "ai-shorts-polisher-commercial-creation-guide",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807546/itnavideo12345/blog_commercial_real_estate.png",
     "title": "Kinetic Typography Reel Maker for B2B Brands: 5x Higher Attention Spans in London & Sydney Feeds",
     "excerpt": "Why corporate leaders, B2B founders, and consultants in the UK, Australia, and USA use kinetic text slams to dominate LinkedIn and Instagram feeds.",
     "date": "Sep 6, 2026",
@@ -263,6 +269,7 @@ export const conversionBlogPosts: BlogPost[] = [
   },
   {
     "slug": "capcut-pro-vs-itnavideo-pro-agency-comparison",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807546/itnavideo12345/blog_commercial_real_estate.png",
     "title": "CapCut Pro vs Itnavideo Pro for Monetized Channels: The Honest Agency Feature & Pricing Comparison",
     "excerpt": "An unvarnished, direct comparison between CapCut Pro and Itnavideo Pro for commercial video creators, agencies, and monetized channel operators in 2026.",
     "date": "Sep 6, 2026",
@@ -301,6 +308,7 @@ export const conversionBlogPosts: BlogPost[] = [
   },
   {
     "slug": "turn-audio-podcast-into-viral-video-reels-profit",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807678/itnavideo12345/blog_podcaster_new_york.png",
     "title": "How Podcasters in New York & Toronto Monetize Clips with 60 FPS Kinetic Typography Overlays",
     "excerpt": "Turn 60-minute podcast episodes into 15 high-converting video clips with automated word highlighting, speaker labels, and dynamic audio waveforms.",
     "date": "Sep 6, 2026",
@@ -335,6 +343,7 @@ export const conversionBlogPosts: BlogPost[] = [
   },
   {
     "slug": "compare-explainer-videos-ecommerce-conversion-rate",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807864/itnavideo12345/blog_roi_business_analyst.png",
     "title": "Compare Explainer Videos: The Highest-Converting Video Ad Format for US & German E-Commerce Brands in 2026",
     "excerpt": "Why direct-to-consumer (DTC) brands in Germany and the USA are generating record ROAS using side-by-side comparison explainer video ads.",
     "date": "Sep 5, 2026",
@@ -369,6 +378,7 @@ export const conversionBlogPosts: BlogPost[] = [
   },
   {
     "slug": "whiteboard-video-ai-agency-reseller-guide",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807864/itnavideo12345/blog_roi_business_analyst.png",
     "title": "How Freelancers & Agencies in Australia & UK Charge $500 per Whiteboard Animation Using Itnavideo",
     "excerpt": "The proven service arbitrage model: how creative freelancers turn $0.50 cloud renders into $500 corporate educational videos for clients in Sydney and London.",
     "date": "Sep 5, 2026",
@@ -403,6 +413,7 @@ export const conversionBlogPosts: BlogPost[] = [
   },
   {
     "slug": "why-german-and-japanese-brands-choose-itnavideo-motion-precision",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807713/itnavideo12345/blog_video_producer_studio.png",
     "title": "Precision Engineering in Video AI: Why German & Japanese Brands Demand 60 FPS Remotion Over AI Hallucinations",
     "excerpt": "Why enterprise engineering, automotive, and luxury brands in Germany and Japan refuse generic generative AI video and insist on deterministic Remotion Spring physics.",
     "date": "Sep 4, 2026",
@@ -436,7 +447,8 @@ export const conversionBlogPosts: BlogPost[] = [
     "contentHtml": "\n<div class=\"space-y-8 font-sans text-slate-800 leading-relaxed\">\n  <div class=\"rounded-2xl border border-slate-300 bg-slate-100 p-6 shadow-sm\">\n    <div class=\"flex items-center gap-3 mb-2\">\n      <span class=\"inline-flex rounded-full bg-slate-900 text-white p-1.5 text-xs font-bold\">⚙️ PRECISION</span>\n      <span class=\"text-xs font-black uppercase tracking-wider text-slate-800\">Enterprise Standards</span>\n    </div>\n    <p class=\"text-sm font-semibold text-slate-900\">\n      Enterprise marketing leaders in Tokyo, Munich, and Zurich choose Itnavideo for <strong>100% brand safety, exact font kerning, and zero visual artifacts</strong>.\n    </p>\n  </div>\n\n  <h2 class=\"text-2xl font-black tracking-tight text-slate-900 sm:text-3xl\">Deterministic Rendering vs. Generative Chaos</h2>\n  <p class=\"text-base text-slate-700\">\n    When marketing precision engineering or high-end luxury products, every frame must satisfy strict guidelines. Itnavideo renders videos using programmatic React and Remotion components, ensuring that your text, timing, and color palettes are 100% reproducible and glitch-free.\n  </p>\n\n  <div class=\"my-8 rounded-3xl bg-slate-900 p-8 text-white\">\n    <h3 class=\"text-2xl font-black\">Experience Enterprise-Grade Motion Precision</h3>\n    <p class=\"mt-2 text-xs sm:text-sm text-slate-300\">Upgrade to Itnavideo Pro to access 60 FPS uncapped cloud rendering.</p>\n    <a href=\"/pricing\" class=\"mt-5 inline-block rounded-full bg-slate-100 px-6 py-3 text-xs font-bold text-slate-950 hover:bg-white transition-all\">\n      Upgrade to Pro Today →\n    </a>\n  </div>\n</div>\n"
   },
   {
-    "slug": "commercial-real-estate-listing-stats-typography",
+    "slug": "luxury-real-estate-video-marketing-ai-guide",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807546/itnavideo12345/blog_commercial_real_estate.png",
     "title": "Selling $10M+ Commercial Properties: Why Listing Stats Need 3-Tier Architectural Typography",
     "excerpt": "How commercial real estate firms in Manhattan, London, and Singapore present CAP rates, square footage, and lease tenures to institutional investors with kinetic precision.",
     "date": "Sep 4, 2026",
@@ -471,6 +483,7 @@ export const conversionBlogPosts: BlogPost[] = [
   },
   {
     "slug": "how-australian-marketing-agencies-scale-50-client-reels",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807864/itnavideo12345/blog_roi_business_analyst.png",
     "title": "How Melbourne & Sydney Agencies Deliver 50+ Client Reels Monthly Without Burnout",
     "excerpt": "The operational blueprint Australian digital marketing agencies use to produce high-margin short-form video retainers using distributed cloud rendering.",
     "date": "Sep 3, 2026",
@@ -505,6 +518,7 @@ export const conversionBlogPosts: BlogPost[] = [
   },
   {
     "slug": "the-true-roi-of-ai-video-credits-vs-hourly-contractors",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807864/itnavideo12345/blog_roi_business_analyst.png",
     "title": "The Math Behind Video ROI: Why $99 in AI Credits Outperforms a $4,000 In-House Production Team",
     "excerpt": "A comprehensive line-by-line financial analysis examining in-house video teams versus pay-as-you-go cloud video credits for growth-stage businesses.",
     "date": "Sep 3, 2026",
@@ -539,6 +553,7 @@ export const conversionBlogPosts: BlogPost[] = [
   },
   {
     "slug": "from-free-tier-to-itnavideo-pro-what-you-unlock",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807603/itnavideo12345/blog_youtube_creator_usa.png",
     "title": "From Free Tier to Itnavideo Pro: Exactly What High-Volume Creators Unlock for $19/Month",
     "excerpt": "Ready to upgrade from your free account? Here is the exact feature, resolution, and render-queue breakdown unlocked when you activate Itnavideo Pro.",
     "date": "Sep 2, 2026",

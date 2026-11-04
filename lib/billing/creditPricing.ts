@@ -19,7 +19,6 @@ export type BillableRenderMode =
   | "facelessVideo"
   | "facelessShorts"
   | "whiteboardVideo"
-  | "typographyVideo"
   | "longVideoClips"
   | "aiAudioCleaner"
   | "audioClean"
@@ -63,7 +62,6 @@ export function calculateRenderCreditUnits(mode: BillableRenderMode, options: Re
     // All 9:16 Reels / Shorts (up to 90s): 1 Credit
     case "autoCaption":
     case "longVideoPromo":
-    case "typographyVideo":
     case "compare":
     case "whiteboardVideo":
     case "facelessShorts":

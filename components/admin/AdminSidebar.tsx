@@ -24,7 +24,7 @@ export default function AdminSidebar() {
       {/* Brand & Logo */}
       <div className="px-2 pt-1 pb-6 border-b border-slate-100 flex items-center justify-between">
         <Link href="/admin/dashboard">
-          <BrandLogo size="md" showTagline={false} variant="light" />
+          <BrandLogo size="md" showTagline={false} variant="light" href="" />
         </Link>
         <button
           onClick={() => setIsOpen(false)}

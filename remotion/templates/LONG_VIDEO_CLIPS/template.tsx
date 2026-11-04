@@ -51,6 +51,7 @@ type LongVideoClipsProps = {
   fontFamily?: string;
   showBackground?: boolean;
   watermark?: boolean;
+  removeAiWatermark?: boolean;
   bgmUrl?: string;
   bgmVolume?: number;
 };
@@ -207,6 +208,7 @@ function LongVideoClips({
   showBackground = true,
   layoutMode = 'auto-speaker',
   watermark = false,
+  removeAiWatermark = false,
   bgmUrl,
   bgmVolume = 0.12,
 }: LongVideoClipsProps) {
@@ -315,7 +317,7 @@ function LongVideoClips({
                 height: '100%',
                 objectFit: 'cover',
                 objectPosition: 'center 32%',
-                transform: `scale(${currentScale})`,
+                transform: `scale(${effectiveScale})`,
               }}
               volume={sourceAudioVolume}
             />
@@ -330,7 +332,7 @@ function LongVideoClips({
                 height: '100%',
                 objectFit: 'cover',
                 objectPosition: 'center 68%',
-                transform: `scale(${currentScale})`,
+                transform: `scale(${effectiveScale})`,
               }}
               volume={0}
             />
@@ -355,7 +357,7 @@ function LongVideoClips({
             <OffthreadVideo
               src={resolvedSrc}
               startFrom={videoStartFrom}
-              style={{ width: '100%', height: '100%', objectFit: 'cover', transform: `scale(${currentScale})` }}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', transform: `scale(${effectiveScale})` }}
               volume={sourceAudioVolume}
             />
           </div>
@@ -371,7 +373,7 @@ function LongVideoClips({
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            transform: `scale(${currentScale})`,
+            transform: `scale(${effectiveScale})`,
           }}
           volume={sourceAudioVolume}
         />

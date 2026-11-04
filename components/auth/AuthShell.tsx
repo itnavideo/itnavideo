@@ -56,7 +56,7 @@ export default function AuthShell({
             </h1>
 
             <p className="mt-3 max-w-lg text-sm sm:text-base font-normal leading-relaxed text-slate-400">
-              {subtitle || "Claim 45 free render credits on signup. No credit card required."}
+              {subtitle || "Create your creator account and access all 14 AI Video Studios."}
             </p>
           </div>
 

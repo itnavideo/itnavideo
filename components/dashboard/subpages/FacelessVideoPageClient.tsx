@@ -1,3 +1,4 @@
+import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -379,6 +380,7 @@ export default function FacelessVideoPageClient() {
           contentType: selectedFile.type || "audio/mpeg",
           mediaType: "audio",
           mode: "facelessVideo",
+          removeAiWatermark: Boolean(removeAiWatermark),
           subtitleStyle: activeStoryboard?.subtitleStyle || subtitleStyle,
           captionAnimationStyle: activeStoryboard?.captionAnimationStyle || captionAnimationStyle,
           captionPosition: activeStoryboard?.captionPosition || captionPosition,

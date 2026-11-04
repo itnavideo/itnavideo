@@ -1,3 +1,4 @@
+import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -115,6 +116,7 @@ export default function ImageToVideoDashboardPage() {
   const [billingEntitlement, setBillingEntitlement] = useState<BillingEntitlement | null>(null);
   const [recentRenders, setRecentRenders] = useState<RecentRender[]>([]);
   const [activeTab, setActiveTab] = useState<"studio" | "history">("studio");
+  const [removeAiWatermark, setRemoveAiWatermark] = useState<boolean>(true);
   const [showExitConfirmModal, setShowExitConfirmModal] = useState<boolean>(false);
 
   const renderRequestInFlightRef = useRef(false);
@@ -453,6 +455,7 @@ export default function ImageToVideoDashboardPage() {
           contentType: selectedAudio.type || "audio/mpeg",
           mediaType: "audio",
           mode: "imageToVideoAi",
+          removeAiWatermark: Boolean(removeAiWatermark),
           topicTitle: plannedTitle,
           userId: user.id,
           userEmail: user.email || undefined,
@@ -745,6 +748,8 @@ export default function ImageToVideoDashboardPage() {
           /* Main Studio Form */
           <ImageToVideoStudio
             selectedAudio={selectedAudio}
+            removeAiWatermark={removeAiWatermark}
+            onRemoveAiWatermarkChange={setRemoveAiWatermark}
             onSelectAudio={setSelectedAudio}
             imageFiles={imageFiles}
             onAddImages={handleAddImages}

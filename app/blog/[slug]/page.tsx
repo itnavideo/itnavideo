@@ -42,13 +42,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       type: "article",
       publishedTime: new Date(post.date).toISOString(),
       url: `${siteUrl}/blog/${post.slug}`,
-      images: [`${siteUrl}/preview/Auto Caption Reel.png`],
+      images: [post.featuredImage || `${siteUrl}/preview/Auto Caption Reel.png`],
     },
     twitter: {
       card: 'summary_large_image',
       title: post.title,
       description: post.excerpt,
-      images: [`${siteUrl}/preview/Auto Caption Reel.png`],
+      images: [post.featuredImage || `${siteUrl}/preview/Auto Caption Reel.png`],
     },
   };
 }

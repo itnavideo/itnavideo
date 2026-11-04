@@ -195,6 +195,7 @@ export function LongVideoPromo({
   promoCtaStyle = 'youtube-red',
   promoCreatorHandle = '',
   promoBackgroundMode = 'blur',
+  removeAiWatermark = false,
   captions = [],
   durationSeconds = 60,
   channelName,

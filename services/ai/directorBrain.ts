@@ -13,7 +13,13 @@
  */
 
 import type { DirectedScene, SceneIntent } from './sceneDirector';
-import type { KineticText } from './typographyPipeline';
+export interface KineticText {
+  text: string;
+  startTime: number;
+  endTime: number;
+  importance: number;
+  fontSize: number;
+}
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

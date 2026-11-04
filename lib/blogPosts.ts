@@ -29,6 +29,7 @@ export type BlogPost = {
 const baseBlogPosts: BlogPost[] = [
   {
     "slug": "best-ai-video-generator-luxury-real-estate",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807515/itnavideo12345/blog_dubai_real_estate.png",
     "title": "Best AI Video Generator for Luxury Real Estate: How Brokers in Miami, London & Dubai Close Multi-Million Deals",
     "excerpt": "Discover why top-producing real estate brokers in Miami, London, and Dubai are replacing $2,000 video production crews with AI kinetic typography and 3D behind-subject text.",
     "date": "Sep 8, 2026",
@@ -82,6 +83,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     "slug": "why-agencies-switch-from-video-editors-to-itnavideo",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807864/itnavideo12345/blog_roi_business_analyst.png",
     "title": "Why Top US & UK Marketing Agencies Are Replacing $3,000/Mo Freelance Video Editors with Itnavideo Pro",
     "excerpt": "How high-volume marketing agencies in New York, London, and Sydney eliminate editing bottlenecks, scale to 100+ client videos monthly, and expand margins with Itnavideo.",
     "date": "Sep 8, 2026",
@@ -135,6 +137,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     "slug": "image-to-video-ai-cost-roi-breakdown",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807864/itnavideo12345/blog_roi_business_analyst.png",
     "title": "Image to Video AI vs Manual Premiere Pro: Cost, Speed & ROI Analysis for YouTube Long-Form Channels",
     "excerpt": "Detailed financial and production analysis comparing manual 16:9 YouTube video creation in Premiere Pro against Itnavideo’s automated Image to Video AI engine.",
     "date": "Sep 7, 2026",
@@ -179,6 +182,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     "slug": "dubai-real-estate-video-marketing-ai-blueprint",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807515/itnavideo12345/blog_dubai_real_estate.png",
     "title": "Dubai Luxury Property Video Blueprint: The 3D Behind-Subject Typography Strategy Generating 7-Figure Leads",
     "excerpt": "How top brokers in Downtown Dubai, Palm Jumeirah, and Dubai Hills deploy 24k gold shimmer typography and 3D depth to sell off-plan and luxury resale listings.",
     "date": "Sep 7, 2026",
@@ -217,6 +221,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     "slug": "faceless-youtube-channel-automation-profit-guide",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808113/itnavideo12345/blog_finance_creator.png",
     "title": "Faceless YouTube Automation at Scale: How Creators in the US & Canada Build 5-Figure Passive Channels",
     "excerpt": "The exact step-by-step framework top creators in North America use to publish daily 16:9 faceless videos without showing their face or spending hours editing.",
     "date": "Sep 7, 2026",
@@ -254,7 +259,8 @@ const baseBlogPosts: BlogPost[] = [
     "contentHtml": "\n<div class=\"space-y-8 font-sans text-slate-800 leading-relaxed\">\n  <div class=\"rounded-2xl border border-indigo-200 bg-indigo-50/70 p-6 shadow-sm\">\n    <div class=\"flex items-center gap-3 mb-2\">\n      <span class=\"inline-flex rounded-full bg-indigo-600 text-white p-1.5 text-xs font-bold\">📈 SCALE</span>\n      <span class=\"text-xs font-black uppercase tracking-wider text-indigo-900\">YouTube Automation Benchmark</span>\n    </div>\n    <p class=\"text-sm font-semibold text-indigo-950\">\n      Channels utilizing Itnavideo’s cloud automation publish an average of <strong>28 videos per month</strong> versus 4 videos per month for manual creators, unlocking a <strong>7x faster monetization timeline</strong>.\n    </p>\n  </div>\n\n  <h2 class=\"text-2xl font-black tracking-tight text-slate-900 sm:text-3xl\">The 3 Pillars of Automated YouTube Channel Profitability</h2>\n  <div class=\"grid gap-4 sm:grid-cols-3\">\n    <div class=\"rounded-2xl border border-slate-200 bg-white p-5\">\n      <h4 class=\"font-bold text-indigo-600 text-sm\">1. Script &amp; Voiceover</h4>\n      <p class=\"mt-1 text-xs text-slate-600\">Generate compelling high-retention audio narratives using ElevenLabs or human voice talent.</p>\n    </div>\n    <div class=\"rounded-2xl border border-slate-200 bg-white p-5\">\n      <h4 class=\"font-bold text-indigo-600 text-sm\">2. AI Scene Slicing</h4>\n      <p class=\"mt-1 text-xs text-slate-600\">Itnavideo cuts your audio track into visual intervals per line of thought automatically.</p>\n    </div>\n    <div class=\"rounded-2xl border border-slate-200 bg-white p-5\">\n      <h4 class=\"font-bold text-indigo-600 text-sm\">3. 60 FPS Cloud Render</h4>\n      <p class=\"mt-1 text-xs text-slate-600\">Export clean, watermark-free 1080p MP4 files ready for direct YouTube upload.</p>\n    </div>\n  </div>\n\n  <div class=\"my-8 rounded-3xl bg-slate-900 p-8 text-white\">\n    <h3 class=\"text-2xl font-black\">Ready to Build Your Passive YouTube Empire?</h3>\n    <p class=\"mt-2 text-xs sm:text-sm text-slate-300\">Upgrade to Itnavideo Pro to unlock high-capacity rendering and priority cloud processing.</p>\n    <a href=\"/pricing\" class=\"mt-5 inline-block rounded-full bg-indigo-500 px-6 py-3 text-xs font-bold text-white hover:bg-indigo-400 transition-all\">\n      Upgrade to Pro Now →\n    </a>\n  </div>\n</div>\n"
   },
   {
-    "slug": "kinetic-typography-reel-maker-commercial-guide",
+    "slug": "ai-shorts-polisher-commercial-creation-guide",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807546/itnavideo12345/blog_commercial_real_estate.png",
     "title": "Kinetic Typography Reel Maker for B2B Brands: 5x Higher Attention Spans in London & Sydney Feeds",
     "excerpt": "Why corporate leaders, B2B founders, and consultants in the UK, Australia, and USA use kinetic text slams to dominate LinkedIn and Instagram feeds.",
     "date": "Sep 6, 2026",
@@ -289,6 +295,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     "slug": "capcut-pro-vs-itnavideo-pro-agency-comparison",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807546/itnavideo12345/blog_commercial_real_estate.png",
     "title": "CapCut Pro vs Itnavideo Pro for Monetized Channels: The Honest Agency Feature & Pricing Comparison",
     "excerpt": "An unvarnished, direct comparison between CapCut Pro and Itnavideo Pro for commercial video creators, agencies, and monetized channel operators in 2026.",
     "date": "Sep 6, 2026",
@@ -327,6 +334,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     "slug": "turn-audio-podcast-into-viral-video-reels-profit",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807678/itnavideo12345/blog_podcaster_new_york.png",
     "title": "How Podcasters in New York & Toronto Monetize Clips with 60 FPS Kinetic Typography Overlays",
     "excerpt": "Turn 60-minute podcast episodes into 15 high-converting video clips with automated word highlighting, speaker labels, and dynamic audio waveforms.",
     "date": "Sep 6, 2026",
@@ -361,6 +369,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     "slug": "compare-explainer-videos-ecommerce-conversion-rate",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807864/itnavideo12345/blog_roi_business_analyst.png",
     "title": "Compare Explainer Videos: The Highest-Converting Video Ad Format for US & German E-Commerce Brands in 2026",
     "excerpt": "Why direct-to-consumer (DTC) brands in Germany and the USA are generating record ROAS using side-by-side comparison explainer video ads.",
     "date": "Sep 5, 2026",
@@ -395,6 +404,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     "slug": "whiteboard-video-ai-agency-reseller-guide",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807864/itnavideo12345/blog_roi_business_analyst.png",
     "title": "How Freelancers & Agencies in Australia & UK Charge $500 per Whiteboard Animation Using Itnavideo",
     "excerpt": "The proven service arbitrage model: how creative freelancers turn $0.50 cloud renders into $500 corporate educational videos for clients in Sydney and London.",
     "date": "Sep 5, 2026",
@@ -429,6 +439,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     "slug": "why-german-and-japanese-brands-choose-itnavideo-motion-precision",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807713/itnavideo12345/blog_video_producer_studio.png",
     "title": "Precision Engineering in Video AI: Why German & Japanese Brands Demand 60 FPS Remotion Over AI Hallucinations",
     "excerpt": "Why enterprise engineering, automotive, and luxury brands in Germany and Japan refuse generic generative AI video and insist on deterministic Remotion Spring physics.",
     "date": "Sep 4, 2026",
@@ -462,7 +473,8 @@ const baseBlogPosts: BlogPost[] = [
     "contentHtml": "\n<div class=\"space-y-8 font-sans text-slate-800 leading-relaxed\">\n  <div class=\"rounded-2xl border border-slate-300 bg-slate-100 p-6 shadow-sm\">\n    <div class=\"flex items-center gap-3 mb-2\">\n      <span class=\"inline-flex rounded-full bg-slate-900 text-white p-1.5 text-xs font-bold\">⚙️ PRECISION</span>\n      <span class=\"text-xs font-black uppercase tracking-wider text-slate-800\">Enterprise Standards</span>\n    </div>\n    <p class=\"text-sm font-semibold text-slate-900\">\n      Enterprise marketing leaders in Tokyo, Munich, and Zurich choose Itnavideo for <strong>100% brand safety, exact font kerning, and zero visual artifacts</strong>.\n    </p>\n  </div>\n\n  <h2 class=\"text-2xl font-black tracking-tight text-slate-900 sm:text-3xl\">Deterministic Rendering vs. Generative Chaos</h2>\n  <p class=\"text-base text-slate-700\">\n    When marketing precision engineering or high-end luxury products, every frame must satisfy strict guidelines. Itnavideo renders videos using programmatic React and Remotion components, ensuring that your text, timing, and color palettes are 100% reproducible and glitch-free.\n  </p>\n\n  <div class=\"my-8 rounded-3xl bg-slate-900 p-8 text-white\">\n    <h3 class=\"text-2xl font-black\">Experience Enterprise-Grade Motion Precision</h3>\n    <p class=\"mt-2 text-xs sm:text-sm text-slate-300\">Upgrade to Itnavideo Pro to access 60 FPS uncapped cloud rendering.</p>\n    <a href=\"/pricing\" class=\"mt-5 inline-block rounded-full bg-slate-100 px-6 py-3 text-xs font-bold text-slate-950 hover:bg-white transition-all\">\n      Upgrade to Pro Today →\n    </a>\n  </div>\n</div>\n"
   },
   {
-    "slug": "commercial-real-estate-listing-stats-typography",
+    "slug": "luxury-real-estate-video-marketing-ai-guide",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807546/itnavideo12345/blog_commercial_real_estate.png",
     "title": "Selling $10M+ Commercial Properties: Why Listing Stats Need 3-Tier Architectural Typography",
     "excerpt": "How commercial real estate firms in Manhattan, London, and Singapore present CAP rates, square footage, and lease tenures to institutional investors with kinetic precision.",
     "date": "Sep 4, 2026",
@@ -497,6 +509,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     "slug": "how-australian-marketing-agencies-scale-50-client-reels",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807864/itnavideo12345/blog_roi_business_analyst.png",
     "title": "How Melbourne & Sydney Agencies Deliver 50+ Client Reels Monthly Without Burnout",
     "excerpt": "The operational blueprint Australian digital marketing agencies use to produce high-margin short-form video retainers using distributed cloud rendering.",
     "date": "Sep 3, 2026",
@@ -531,6 +544,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     "slug": "the-true-roi-of-ai-video-credits-vs-hourly-contractors",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807864/itnavideo12345/blog_roi_business_analyst.png",
     "title": "The Math Behind Video ROI: Why $99 in AI Credits Outperforms a $4,000 In-House Production Team",
     "excerpt": "A comprehensive line-by-line financial analysis examining in-house video teams versus pay-as-you-go cloud video credits for growth-stage businesses.",
     "date": "Sep 3, 2026",
@@ -565,6 +579,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     "slug": "from-free-tier-to-itnavideo-pro-what-you-unlock",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807603/itnavideo12345/blog_youtube_creator_usa.png",
     "title": "From Free Tier to Itnavideo Pro: Exactly What High-Volume Creators Unlock for $19/Month",
     "excerpt": "Ready to upgrade from your free account? Here is the exact feature, resolution, and render-queue breakdown unlocked when you activate Itnavideo Pro.",
     "date": "Sep 2, 2026",
@@ -599,6 +614,7 @@ const baseBlogPosts: BlogPost[] = [
   },
 {
     slug: 'itnavideo-vs-capcut',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807697/itnavideo12345/blog_faceless_channel_creator.png",
     title: 'Itnavideo vs CapCut: Which AI Video Editor Is Better for Creators in 2026?',
     excerpt: 'Compare Itnavideo vs CapCut in 2026. Discover differences in AI editing, auto captions, reels, templates, automation, pricing, and which tool is right for you.',
     date: 'Jul 11, 2026',
@@ -739,6 +755,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'itnavideo-vs-veed',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807697/itnavideo12345/blog_faceless_channel_creator.png",
     title: 'Itnavideo vs VEED: Best AI Video Editor Compared in 2026',
     excerpt: 'Compare Itnavideo and VEED across AI features, captions, templates, automation, pricing, and workflows. Find which AI video editor fits your content creation needs.',
     date: 'Jul 11, 2026',
@@ -841,6 +858,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'best-ai-caption-generator-2026',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807974/itnavideo12345/blog_youtube_shorts_creator.png",
     title: 'Best AI Caption Generator in 2026: Complete Guide for Creators',
     excerpt: 'Discover the best AI caption generators for Instagram Reels, YouTube Shorts, and TikTok. Compare features, accuracy, styles, and pricing to find the right tool.',
     date: 'Jul 11, 2026',
@@ -948,6 +966,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'itnavideo-vs-capcut-auto-captions-which-is-better-for-subtitles',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808021/itnavideo12345/blog_ai_video_tools_comparison.png",
     title: 'Itnavideo vs CapCut Auto Captions: Which Is Better for Subtitles and Captions?',
     excerpt: 'Comparing CapCut Auto Captions with Itnavideo for subtitle generation, visual storytelling, and short-form video creation.',
     date: 'Jul 10, 2026',
@@ -1028,6 +1047,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'how-to-add-captions-to-instagram-reels',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808143/itnavideo12345/blog_tutorial_creator.png",
     title: 'How to Add Captions to Instagram Reels with an Auto Caption Generator',
     excerpt: 'A practical guide to adding readable captions to Instagram Reels using an auto caption generator and video caption generator workflow.',
     date: 'Jul 2, 2026',
@@ -1079,6 +1099,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'how-to-add-captions-to-youtube-shorts',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807974/itnavideo12345/blog_youtube_shorts_creator.png",
     title: 'How to Add Captions to YouTube Shorts Without Manual Editing',
     excerpt: 'Learn how to use an auto caption generator to create captioned YouTube Shorts with readable, burned-in subtitles.',
     date: 'Jul 2, 2026',
@@ -1130,6 +1151,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'how-to-create-reels-from-audio',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807678/itnavideo12345/blog_podcaster_new_york.png",
     title: 'How to Create Reels from Audio with an AI Video Generator',
     excerpt: 'Turn voiceovers, lessons, podcast clips, and audio ideas into reels using Itnavideo Video Types built for speech-first content.',
     date: 'Jul 2, 2026',
@@ -1181,6 +1203,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'how-to-turn-long-videos-into-short-promos',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807678/itnavideo12345/blog_podcaster_new_york.png",
     title: 'How to Turn Long Videos into Short Promos for Reels and Shorts',
     excerpt: 'Use a thumbnail, title, and promo clip to create vertical teasers for YouTube videos, podcasts, lectures, courses, and webinars.',
     date: 'Jul 2, 2026',
@@ -1232,6 +1255,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'best-ai-reel-generators',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
     title: 'Best AI Reel Generators for Creators in 2026',
     excerpt: 'A practical guide to choosing an AI reel generator for Reels, YouTube Shorts, voiceovers, subtitles, and explainer videos.',
     date: 'Jun 8, 2026',
@@ -1271,6 +1295,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'itnavideo-vs-capcut-ai-reel-workflow',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
     title: 'Itnavideo vs CapCut: Which Workflow Is Better for AI Reels?',
     excerpt: 'CapCut is a flexible editor, while Itnavideo is a focused AI explainer reel generator. Here is how to choose the right workflow.',
     date: 'Jun 8, 2026',
@@ -1310,6 +1335,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'voice-to-video-ai-tools',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
     title: 'Voice to Video AI Tools: What Creators Should Look For',
     excerpt: 'Voice-to-video AI works best when it turns real speech into accurate subtitles, scene visuals, and a watchable vertical video.',
     date: 'Jun 8, 2026',
@@ -1349,6 +1375,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'best-ai-video-generator-for-youtube-shorts',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807974/itnavideo12345/blog_youtube_shorts_creator.png",
     title: 'Best AI Video Generator for YouTube Shorts: A Practical Checklist',
     excerpt: 'Before choosing an AI video generator for YouTube Shorts, check transcript accuracy, subtitle readability, visual relevance, and export quality.',
     date: 'Jun 8, 2026',
@@ -1388,6 +1415,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'how-to-make-explainer-videos-for-reels',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
     title: 'How to Make Explainer Videos for Reels Without Manual Editing',
     excerpt: 'A simple workflow for turning audio or video into Reels-style explainer videos with subtitles and matching visuals.',
     date: 'Jun 8, 2026',
@@ -1427,6 +1455,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'convert-any-text-to-realistic-video-with-ai',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
     title: 'How to Convert Any Text to Realistic Video with AI (Step-by-Step)',
     excerpt: 'The easiest way to turn text or a voice idea into a realistic short video is to use Itnavideo, an AI voice-to-video tool built for creators.',
     date: 'May 13, 2026',
@@ -1466,6 +1495,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'best-realistic-text-to-speech-ai-social-media-videos-2026',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
     title: 'Best Realistic Text-to-Speech AI for Social Media Videos in 2026',
     excerpt: 'For social media videos, realistic text-to-speech is only half the job. Itnavideo turns AI voiceovers into complete videos with captions and visuals.',
     date: 'May 13, 2026',
@@ -1505,6 +1535,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'use-your-own-photos-videos-audio-ai-shorts',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
     title: 'How to Use Your Own Photos, Videos, and Audio for AI Shorts',
     excerpt: 'Your audio is enough to begin, but adding your own photos, videos, screenshots, or tutorials can make each Itnavideo short feel more personal.',
     date: 'May 13, 2026',
@@ -1544,6 +1575,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'create-100-shorts-reels-in-minutes-batch-video-creation',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
     title: 'Create 100+ Shorts and Reels in Minutes: A Guide to Batch Video Creation',
     excerpt: 'Batch video creation is easier when you use Itnavideo to turn voiceovers and media into repeatable short-form videos.',
     date: 'May 13, 2026',
@@ -1583,6 +1615,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'add-ai-voiceovers-to-videos-without-editor',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
     title: 'How to Add AI Voiceovers to Your Videos Without an Editor',
     excerpt: 'Itnavideo makes it easy to add AI voiceovers, captions, and short-form video styling without opening a traditional editor.',
     date: 'May 13, 2026',
@@ -1625,6 +1658,7 @@ const baseBlogPosts: BlogPost[] = [
 
   {
     slug: 'what-is-auto-captioning',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
     title: 'What Is Auto Captioning and How Does It Work for Video Creators?',
     excerpt: 'Auto captioning uses AI speech recognition to generate timed subtitles from spoken audio automatically, without manual typing.',
     date: 'Jul 4, 2026',
@@ -1676,6 +1710,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'best-caption-styles-for-reels',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808143/itnavideo12345/blog_tutorial_creator.png",
     title: 'Best Caption Styles for Reels in 2026: A Visual Guide',
     excerpt: 'Choosing the right caption style changes how your reel looks and feels. Here are the best subtitle styles for short-form video in 2026.',
     date: 'Jul 4, 2026',
@@ -1727,6 +1762,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'why-captions-increase-video-retention',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807603/itnavideo12345/blog_youtube_creator_usa.png",
     title: 'Why Captions Increase Video Retention on Instagram and YouTube',
     excerpt: 'Captions help viewers follow along on mute, stay engaged longer, and understand your message faster — which directly improves retention.',
     date: 'Jul 4, 2026',
@@ -1778,6 +1814,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'hinglish-captions-for-indian-creators',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
     title: 'How to Add Hinglish Captions to Reels for Indian Creators',
     excerpt: 'Indian creators mixing Hindi and English speech can now generate clean Roman Hinglish captions automatically without Devanagari issues.',
     date: 'Jul 4, 2026',
@@ -1829,6 +1866,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'burned-in-captions-vs-soft-subtitles',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807974/itnavideo12345/blog_youtube_shorts_creator.png",
     title: 'Burned-In Captions vs Soft Subtitles: Which Is Better for Reels?',
     excerpt: 'Burned-in captions are permanent and always visible. Soft subtitles can be turned off. For Reels and Shorts, burned-in almost always wins.',
     date: 'Jul 4, 2026',
@@ -1881,6 +1919,7 @@ const baseBlogPosts: BlogPost[] = [
 
   {
     slug: 'caption-font-size-guide-reels',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808143/itnavideo12345/blog_tutorial_creator.png",
     title: 'Caption Font Size Guide for Reels: What Works on Mobile Screens',
     excerpt: 'Caption font size directly affects readability on mobile. Too small and viewers skip. Too large and the video looks amateurish.',
     date: 'Jul 4, 2026',
@@ -1932,6 +1971,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'how-to-add-captions-to-tiktok-videos',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808156/itnavideo12345/blog_mobile_creator_phone.png",
     title: 'How to Add Captions to TikTok Videos with an AI Caption Generator',
     excerpt: 'Adding burned-in captions to TikTok videos improves watch time, accessibility, and reach. Here is the fastest workflow.',
     date: 'Jul 4, 2026',
@@ -1983,6 +2023,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'auto-captions-for-educational-videos',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807603/itnavideo12345/blog_youtube_creator_usa.png",
     title: 'How to Use Auto Captions for Educational Videos on YouTube and Reels',
     excerpt: 'Educational video creators need captions that are accurate, readable, and timed to the lesson. Auto caption generators make this fast.',
     date: 'Jul 4, 2026',
@@ -2034,6 +2075,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'caption-placement-guide-instagram-reels',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808143/itnavideo12345/blog_tutorial_creator.png",
     title: 'Caption Placement Guide for Instagram Reels: Where to Put Subtitles',
     excerpt: 'Wrong caption placement gets covered by Instagram UI. Here is where to position captions so they are always visible on Instagram Reels.',
     date: 'Jul 4, 2026',
@@ -2085,6 +2127,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'ai-subtitle-generator-comparison-2026',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807974/itnavideo12345/blog_youtube_shorts_creator.png",
     title: 'AI Subtitle Generator Comparison 2026: What to Look For Before Choosing',
     excerpt: 'Not all AI subtitle generators are equal. Here is what to check before choosing one for your Reels, Shorts, and social video workflow.',
     date: 'Jul 4, 2026',
@@ -2137,6 +2180,7 @@ const baseBlogPosts: BlogPost[] = [
 
   {
     slug: 'how-to-caption-podcast-clips-for-social',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807678/itnavideo12345/blog_podcaster_new_york.png",
     title: 'How to Caption Podcast Clips for Instagram Reels and YouTube Shorts',
     excerpt: 'Turn podcast audio clips into captioned vertical videos using an AI auto caption generator. No editing skills required.',
     date: 'Jul 4, 2026',
@@ -2188,6 +2232,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'subtitle-color-guide-for-reels',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808143/itnavideo12345/blog_tutorial_creator.png",
     title: 'Subtitle Color Guide for Reels: How to Choose Text and Highlight Colors',
     excerpt: 'The right subtitle colors make captions readable and on-brand. The wrong colors make them invisible or distracting.',
     date: 'Jul 4, 2026',
@@ -2239,6 +2284,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'auto-captions-for-finance-creators',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808113/itnavideo12345/blog_finance_creator.png",
     title: 'How Finance Creators Can Use Auto Captions to Grow on Reels and Shorts',
     excerpt: 'Finance creators explaining loans, savings, investments, and banking concepts can reach more viewers by adding accurate auto captions to every video.',
     date: 'Jul 4, 2026',
@@ -2290,6 +2336,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'captions-for-instagram-reels-without-computer',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808156/itnavideo12345/blog_mobile_creator_phone.png",
     title: 'How to Add Captions to Instagram Reels Without a Computer or Desktop Editor',
     excerpt: 'You do not need a desktop editor to add captions to Instagram Reels. A browser-based AI caption generator is the fastest mobile-friendly option.',
     date: 'Jul 4, 2026',
@@ -2341,6 +2388,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'word-level-captions-vs-sentence-captions',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808021/itnavideo12345/blog_ai_video_tools_comparison.png",
     title: 'Word-Level Captions vs Sentence Captions: Which Is Better for Short Video?',
     excerpt: 'Word-level captions highlight each spoken word in real-time. Sentence captions show full lines. For short-form video, word-level almost always wins.',
     date: 'Jul 4, 2026',
@@ -2393,6 +2441,7 @@ const baseBlogPosts: BlogPost[] = [
 
   {
     slug: 'how-to-make-captions-accessible',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807999/itnavideo12345/blog_accessibility_creator.png",
     title: 'How to Make Video Captions Accessible for All Viewers',
     excerpt: 'Accessible captions are readable, accurate, and well-positioned. Here is how to make your auto-generated captions work for every viewer.',
     date: 'Jul 4, 2026',
@@ -2444,6 +2493,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'how-to-add-subtitles-to-video-without-premiere',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807713/itnavideo12345/blog_video_producer_studio.png",
     title: 'How to Add Subtitles to Video Without Adobe Premiere or Final Cut',
     excerpt: 'You do not need Premiere or Final Cut to add subtitles. AI-powered auto caption tools are faster and require no editing experience.',
     date: 'Jul 4, 2026',
@@ -2495,6 +2545,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'captions-for-linkedin-video',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807944/itnavideo12345/blog_captions_creator_usa.png",
     title: 'Why LinkedIn Videos Need Captions and How to Add Them Fast',
     excerpt: 'LinkedIn videos autoplay on mute in the feed. Without captions, most viewers scroll past before understanding your message.',
     date: 'Jul 4, 2026',
@@ -2546,6 +2597,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'how-subtitles-help-non-native-viewers',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
     title: 'How Subtitles Help Non-Native Speakers Watch Your Videos',
     excerpt: 'Subtitles are not just for mute viewers. Non-native English speakers rely heavily on captions to follow fast-paced speech in videos.',
     date: 'Jul 4, 2026',
@@ -2597,6 +2649,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'caption-mistakes-to-avoid-reels',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807916/itnavideo12345/blog_instagram_creator_reels.png",
     title: '7 Caption Mistakes Creators Make on Reels and How to Fix Them',
     excerpt: 'Bad caption timing, wrong placement, low contrast, and oversized text are common mistakes that make reels harder to watch.',
     date: 'Jul 4, 2026',
@@ -2648,6 +2701,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'auto-captions-for-coaching-videos',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807916/itnavideo12345/blog_instagram_creator_reels.png",
     title: 'How Coaches Can Use Auto Captions to Reach More Clients on Instagram',
     excerpt: 'Life coaches, fitness coaches, business coaches, and career coaches can grow faster on Instagram by adding auto captions to every video.',
     date: 'Jul 4, 2026',
@@ -2699,6 +2753,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'difference-between-subtitles-and-captions',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
     title: 'The Difference Between Subtitles and Captions Explained',
     excerpt: 'Subtitles translate speech into another language. Captions transcribe speech for viewers who cannot hear. Both matter for video creators.',
     date: 'Jul 4, 2026',
@@ -2750,6 +2805,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'how-to-improve-auto-caption-accuracy',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
     title: 'How to Improve Auto Caption Accuracy: 8 Tips for Clearer Transcription',
     excerpt: 'Better audio quality directly improves auto caption accuracy. These eight tips will help you get cleaner transcriptions every time.',
     date: 'Jul 4, 2026',
@@ -2791,6 +2847,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'auto-captions-for-business-videos',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807603/itnavideo12345/blog_youtube_creator_usa.png",
     title: 'How Businesses Can Use Auto Captions for Social Media Video Marketing',
     excerpt: 'Small businesses and brands posting video on Instagram and YouTube can reach more customers by adding auto captions to every video.',
     date: 'Jul 4, 2026',
@@ -2842,6 +2899,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     slug: 'karaoke-captions-vs-standard-captions',
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808021/itnavideo12345/blog_ai_video_tools_comparison.png",
     title: 'Karaoke Captions vs Standard Captions: Which Style Wins for Reels?',
     excerpt: 'Karaoke captions highlight each word as spoken. Standard captions show full lines. For short-form social video, karaoke style consistently performs better.',
     date: 'Jul 4, 2026',
@@ -2894,6 +2952,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     "slug": "free-ai-video-generator-tools-2026",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808021/itnavideo12345/blog_ai_video_tools_comparison.png",
     "title": "10 Best Free AI Video Generators in 2026: Complete Comparison & Guide",
     "excerpt": "Discover the 10 best free AI video generators in 2026. Compare features, export quality, watermarks, auto-captioning, and workflows to find the right AI video maker for your content.",
     "date": "Aug 24, 2026",
@@ -3048,6 +3107,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     "slug": "text-to-video-generator-complete-guide",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
     "title": "Text to Video Generator: How to Turn Scripts & Prompts into Viral Videos with AI",
     "excerpt": "Master text to video generator workflows in 2026. Learn how to transform written scripts and prompts into complete 1080p HD videos with AI B-roll, voiceover sync, and kinetic captions.",
     "date": "Aug 25, 2026",
@@ -3194,6 +3254,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     "slug": "best-ai-video-makers-for-social-media",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807974/itnavideo12345/blog_youtube_shorts_creator.png",
     "title": "Top 7 AI Video Makers for Instagram Reels, Shorts & TikTok in 2026",
     "excerpt": "Looking for the best AI video maker for Instagram Reels, YouTube Shorts, and TikTok? Compare the top 7 AI video creator tools for speed, captions, kinetic typography, and virality.",
     "date": "Aug 26, 2026",
@@ -3355,6 +3416,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     "slug": "how-to-generate-videos-with-ai-step-by-step",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
     "title": "How to Generate Video with AI: A Step-by-Step Creator Blueprint for 2026",
     "excerpt": "Learn how to generate professional videos with AI step-by-step. Discover scripting, audio cleaning, AI scene planning, kinetic captions, and cloud rendering workflows.",
     "date": "Aug 27, 2026",
@@ -3515,6 +3577,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     "slug": "best-ai-video-generation-platforms",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807546/itnavideo12345/blog_commercial_real_estate.png",
     "title": "The Best AI Video Generation Platforms Ranked for Content Creators in 2026",
     "excerpt": "Comprehensive comparison of the best AI video generation platforms in 2026. Review rendering architectures, caption engines, explainer templates, and enterprise scalability.",
     "date": "Aug 28, 2026",
@@ -3668,6 +3731,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     "slug": "faceless-ai-video-creator-strategy",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
     "title": "Faceless AI Video Creator Strategy: Build a 100K Channel with AI Generators",
     "excerpt": "Learn how to launch and scale a profitable faceless video channel in 2026. Discover high-CPM niches, text-to-video scripting, AI voiceover cleanup, and viral retention tactics.",
     "date": "Aug 29, 2026",
@@ -3823,7 +3887,8 @@ const baseBlogPosts: BlogPost[] = [
     ]
   },
   {
-    "slug": "ai-videogenerator-tools-for-educators",
+    "slug": "best-ai-video-generator-tools-for-educators",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
     "title": "AI Video Generator for Educators & Coaches: Create Course Videos in Minutes",
     "excerpt": "Discover how educators, online teachers, and course creators use AI video generators to turn lessons, audio notes, and lectures into engaging whiteboard and explainer videos.",
     "date": "Aug 30, 2026",
@@ -3982,7 +4047,8 @@ const baseBlogPosts: BlogPost[] = [
     ]
   },
   {
-    "slug": "best-ai-video-gen-tools-for-youtube-shorts",
+    "slug": "best-ai-video-generator-tools-for-youtube-shorts",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807678/itnavideo12345/blog_podcaster_new_york.png",
     "title": "Best AI Video Gen Tools to Produce Viral YouTube Shorts on Autopilot",
     "excerpt": "Discover the best AI video gen tools for YouTube Shorts in 2026. Learn how to repurpose long podcasts, auto-detect highlights, generate kinetic captions, and maximize watch time.",
     "date": "Aug 30, 2026",
@@ -4142,6 +4208,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     "slug": "ai-video-maker-vs-traditional-editing",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808021/itnavideo12345/blog_ai_video_tools_comparison.png",
     "title": "AI Video Maker vs Traditional Video Editing: Why Creators Are Switching in 2026",
     "excerpt": "Compare AI video makers vs traditional timeline video editing in 2026. Discover time savings, learning curves, cloud rendering speeds, and why modern creators are switching.",
     "date": "Aug 31, 2026",
@@ -4316,6 +4383,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
     "slug": "how-to-scale-content-production-with-ai-video-generation",
+    featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807777/itnavideo12345/blog_marketing_agency_team.png",
     "title": "How to Scale Content Production 10x Using AI Video Generation Platforms",
     "excerpt": "Learn the exact systems, batching frameworks, and AI video generation workflows top creators and agencies use to scale video production 10x without burning out.",
     "date": "Aug 31, 2026",
@@ -4483,6 +4551,7 @@ const baseBlogPosts: BlogPost[] = [
   },
   {
   "slug": "free-ai-audio-cleaner-background-noise-remover-online",
+  featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807678/itnavideo12345/blog_podcaster_new_york.png",
   "title": "Free AI Audio Cleaner & Background Noise Remover: Clean Voiceovers Online in Seconds",
   "excerpt": "Remove background noise, fan hum, awkward silences, and repeated recording mistakes from your voiceover with Itnavideo AI Audio Cleaner. Free online tool for podcasters and creators.",
   "date": "Sep 6, 2026",
@@ -4574,6 +4643,7 @@ const baseBlogPosts: BlogPost[] = [
 
   {
   "slug": "free-ai-faceless-video-generator",
+  featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
   "title": "Free AI Faceless Video Generator: Create Viral Shorts & Reels Without Showing Your Face",
   "excerpt": "Launch profitable faceless YouTube Shorts and Instagram Reels channels using Itnavideo. AI scene planning, kinetic captions, auto visuals, and voice synchronization in minutes.",
   "date": "Sep 6, 2026",
@@ -4657,6 +4727,7 @@ const baseBlogPosts: BlogPost[] = [
 
   {
   "slug": "whats-new-at-itnavideo-september-2026",
+  featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808047/itnavideo12345/blog_voice_to_video.png",
   "title": "What’s New at Itnavideo: September 2026 Product Update",
   "excerpt": "Explore the September 2026 release of Itnavideo: AI Audio Cleaner studio, protected script alignment, instant MP3 mastering, upgraded whiteboard engine, and faster cloud render queues.",
   "date": "Sep 6, 2026",
@@ -4725,7 +4796,8 @@ const baseBlogPosts: BlogPost[] = [
 },
 
   {
-  "slug": "what-to-do-when-itnavideo-video-takes-longer-to-generate",
+  "slug": "cloud-video-rendering-speed-and-optimization-guide",
+  featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807916/itnavideo12345/blog_instagram_creator_reels.png",
   "title": "What to Do When Your Itnavideo Video Takes Longer to Generate",
   "excerpt": "Experiencing longer render times on your Itnavideo reels? Learn how cloud rendering queues work, best practices for file formats, and simple steps to resolve delayed jobs.",
   "date": "Sep 6, 2026",
@@ -4790,7 +4862,8 @@ const baseBlogPosts: BlogPost[] = [
 },
 
   {
-  "slug": "does-itnavideo-have-a-monthly-video-duration-limit",
+  "slug": "ai-video-duration-limits-and-credit-usage-explained",
+  featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808143/itnavideo12345/blog_tutorial_creator.png",
   "title": "Does Itnavideo Have a Monthly Video Duration Limit? All Limits & Fair Usage Explained",
   "excerpt": "Detailed guide to video duration limits, monthly render credits, per-video length allowances, and rollover policies across all Itnavideo pricing tiers.",
   "date": "Sep 6, 2026",
@@ -4854,6 +4927,7 @@ const baseBlogPosts: BlogPost[] = [
 
   {
   "slug": "how-to-upgrade-or-downgrade-your-itnavideo-plan",
+  featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808080/itnavideo12345/blog_ai_tools_upgrade.png",
   "title": "How to Upgrade or Downgrade Your Itnavideo Plan: Complete Account Guide",
   "excerpt": "Step-by-step instructions to upgrade, downgrade, or manage your Itnavideo subscription. Learn how billing cycles, credit transitions, and refunds work seamlessly.",
   "date": "Sep 6, 2026",
@@ -4920,6 +4994,7 @@ const baseBlogPosts: BlogPost[] = [
 
   {
   "slug": "introducing-itnavideo-for-real-estate-agents-save-time",
+  featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807578/itnavideo12345/blog_real_estate_agent_usa.png",
   "title": "Introducing Itnavideo for Real Estate: Why Top Agents Use It & How It Saves 10+ Hours Every Week",
   "excerpt": "Discover how real estate professionals use Itnavideo to turn property photos and voice memos into luxury listing reels, neighborhood guides, and client explainer videos in minutes.",
   "date": "Sep 6, 2026",
@@ -4994,6 +5069,7 @@ const baseBlogPosts: BlogPost[] = [
 
   {
   "slug": "why-content-creators-using-itnavideo",
+  featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807678/itnavideo12345/blog_podcaster_new_york.png",
   "title": "Why Maximum Content Creators Are Using Itnavideo in 2026",
   "excerpt": "Discover why thousands of YouTubers, coaches, podcasters, and agency owners switched to Itnavideo to automate short-form video production and 10x their posting frequency.",
   "date": "Sep 6, 2026",
@@ -5058,7 +5134,8 @@ const baseBlogPosts: BlogPost[] = [
 },
 
   {
-  "slug": "how-to-make-whiteboard-reels-in-itnavideo",
+  "slug": "how-to-make-viral-whiteboard-animation-reels",
+  featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808131/itnavideo12345/blog_educator_europe.png",
   "title": "How to Make Whiteboard Reels in Itnavideo: Step-by-Step Guide for High-Retention Videos",
   "excerpt": "Step-by-step tutorial to create hand-drawn whiteboard animation reels in Itnavideo. Turn complex concepts, book summaries, and tutorials into engaging viral videos.",
   "date": "Sep 6, 2026",
@@ -5130,6 +5207,7 @@ const baseBlogPosts: BlogPost[] = [
 },
 {
   "slug": "where-to-put-subtitles-on-instagram-reels-safe-zone-guide",
+  featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807974/itnavideo12345/blog_youtube_shorts_creator.png",
   "title": "Where to Put Captions & Subtitles on Instagram Reels: The Ultimate 2026 Safe Zone & Placement Guide",
   "excerpt": "Learn the exact pixel dimensions, safe zones, and eye-tracking sweet spots to position captions and subtitles on Instagram Reels, TikTok, and YouTube Shorts without getting covered by UI elements.",
   "date": "Sep 26, 2026",
@@ -5183,6 +5261,7 @@ const baseBlogPosts: BlogPost[] = [
 },
 {
   "slug": "image-to-video-ai-online-turn-photos-into-cinematic-videos",
+  featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807546/itnavideo12345/blog_commercial_real_estate.png",
   "title": "Image to Video AI Online: How to Turn Static Photos into 1080p Cinematic Videos in Seconds",
   "excerpt": "Discover how to transform static photos, Midjourney AI art, architectural designs, and e-commerce images into high-retention 1080p cinematic videos with sound and dynamic camera motion.",
   "date": "Sep 26, 2026",
@@ -5232,6 +5311,7 @@ const baseBlogPosts: BlogPost[] = [
 },
 {
   "slug": "how-to-make-long-videos-without-editing",
+  featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807603/itnavideo12345/blog_youtube_creator_usa.png",
   "title": "How to Make 10+ Minute Long Videos Without Editing: The Creator's Guide to Automated Long-Form Content",
   "excerpt": "Learn how top creators produce 10 to 12 minute widescreen YouTube videos without spending 10+ hours in video editing software using automated AI workflows.",
   "date": "Sep 26, 2026",
@@ -5281,6 +5361,7 @@ const baseBlogPosts: BlogPost[] = [
 },
 {
   "slug": "how-to-make-long-videos-like-pov-finance",
+  featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793808113/itnavideo12345/blog_finance_creator.png",
   "title": "How to Make Long Videos Like POV Finance: Step-by-Step Blueprint for High-Retention Documentary Channels",
   "excerpt": "Deconstruct the visual style, pacing, dark aesthetic, comparison splits, and kinetic graphics that power documentary channels like POV Finance, MagnatesMedia, and James Jani.",
   "date": "Sep 26, 2026",
@@ -5330,6 +5411,7 @@ const baseBlogPosts: BlogPost[] = [
 },
 {
   "slug": "instagram-reels-caption-position-mistakes-to-avoid",
+  featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807864/itnavideo12345/blog_roi_business_analyst.png",
   "title": "Instagram Reels Caption Position: 5 Costly Mistakes Killing Your Views (And How to Fix Them)",
   "excerpt": "Avoid the critical subtitle positioning blunders that cause viewers to swipe away from your Instagram Reels, TikToks, and YouTube Shorts.",
   "date": "Sep 26, 2026",
@@ -5370,6 +5452,7 @@ const baseBlogPosts: BlogPost[] = [
 },
 {
   "slug": "long-video-to-viral-clips-repurposing-framework",
+  featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807678/itnavideo12345/blog_podcaster_new_york.png",
   "title": "The 1-Click Long Video to Viral Clips Framework: Turn 1 Hour of Footage into 10 High-Performing Shorts",
   "excerpt": "Master the step-by-step strategy for extracting high-retention 9:16 viral shorts from podcasts, interviews, and long YouTube videos using AI hook detection.",
   "date": "Sep 26, 2026",

@@ -10,14 +10,20 @@
 **AI Shorts Polisher** (`aiShortsPolisher`) transforms raw smartphone video clips and multi-take vertical shoots into high-retention, publication-ready vertical short videos (`1080×1920` @ 30 FPS MP4) up to 90 seconds long.
 
 It automates the essential mobile creator editing workflow:
-1. **Auto Silence & Gap Cutter (Jump Cuts)**: Identifies pauses, stuttered takes, and dead-air, instantly slicing them out to produce the fast, punchy pacing expected on TikTok and Reels.
-2. **Dynamic Camera Punch-Ins (+12% Zoom)**: Alternates scale between 1.0× and 1.12× on key phrases using smooth spring physics to break visual monotony on mobile screens.
-3. **Dual Media Handling**:
-   - **Primary Vertical Media**: Full-screen 9:16 smartphone clips or multi-take shoot footage.
-   - **Floating Layer Overlays (Picture-in-Picture)**: Floating graphics, product shots, tweets, or reaction videos positioned with subtle drop shadows and entrance spring animations.
-4. **50 Kinetic Word-Highlighting Caption Styles**: Word-by-word active highlighting with bright yellow and orange emphasis positioned cleanly within the mobile safe viewing zone (avoiding UI icons).
-5. **Ducked 12% Background Music & SFX**: 13 curated AWS S3 background tracks or custom uploads ducked to 12% volume during speech, with synchronized transition sound effects.
-6. **Compulsory Visual Review Gate**: Interactive 9:16 smartphone preview simulator with a mandatory confirmation checkbox gating the final render.
+1. **Auto Silence & Gap Cutter with Sensitivity**: Identifies pauses, stuttered takes, and dead-air with 3 sensitivity levels: **Tight** (fast-paced TikToks), **Normal** (balanced), or **Gentle** (conversational).
+2. **Dynamic Camera Punch-Ins (+5% to +18% Zoom)**: Alternates scale with customizable strength: **Subtle (+5%)**, **Standard (+12%)**, or **Dramatic (+18%)** to break visual monotony on mobile screens.
+3. **Multi-Take Reordering & Trimming**:
+   - Creators can upload multiple smartphone takes, reorder them up/down with 1 click, and set in/out trim seconds directly inside the dashboard.
+4. **Picture-in-Picture (PIP) with Flexible Positioning**:
+   - Floating graphics, product shots, tweets, or reaction videos positioned in **Top-Right**, **Top-Left**, **Bottom-Right**, **Bottom-Left**, or **Center/Split**.
+5. **Word-Level Script & Misheard Name Corrector**:
+   - Correct mistranscribed words, brand names, or slang while maintaining strict millisecond audio timing.
+6. **40+ Viral Subtitle Presets**:
+   - Hormozi viral pop, MrBeast impact, karaoke, documentary, and clean minimal presets with instant search and category filters.
+7. **Visual Retention Callouts**:
+   - Built-in UI controls for Animated Curved Arrows, Multi-Step Equation/Formula Cards, and Side-By-Side Comparison Banners.
+8. **Live Dynamic 9:16 Smartphone Preview Simulator & Audio Spectrum**:
+   - An interactive dark preview phone mockup showing live punch-in scale, PIP position, and animated speech activity bars.
 
 ---
 
@@ -65,19 +71,19 @@ Per **Rule 8.B.4 of `AGENTS.md` (Anti-Repetition & Visual Diversity Policy)**, t
 ```mermaid
 flowchart LR
     A["Direct S3 Upload<br/>(Presigned URL)"] --> B["16kHz Audio Extract<br/>& Groq Whisper"]
-    B --> C["Silence Gap Trimmer<br/>& Dynamic Zoom Planner"]
-    C --> D["Editorial Script Review<br/>(User Edits Allowed)"]
-    D --> E["Compulsory 9:16<br/>Preview Confirmation"]
-    E --> F["AWS Lambda Remotion<br/>1080p Cloud Render"]
+    B --> C["Silence Gap Trimmer<br/>(Tight/Normal/Gentle)"]
+    C --> D["Dynamic Zoom & PIP<br/>(Subtle/Medium/Dramatic)"]
+    D --> E["Word-Level Script Sync<br/>(Aligned Timestamps)"]
+    E --> F["AWS Lambda Remotion<br/>1080×1920 Cloud Render"]
     F --> G["AWS S3 Delivery<br/>(48-Hour Download)"]
 ```
 
-1. **Direct Cloud Upload**: Vertical video takes and overlay graphics upload directly to AWS S3 using presigned multipart URLs.
-2. **Neural Speech Transcription**: Groq Whisper transcribes speech audio into millisecond-accurate word timestamps (with automatic failover to Google Gemini 2.0 Flash).
-3. **Editorial Markdown Editor**: Creators can edit spelling or transcript typos directly in the dashboard before initiating render.
-4. **Pacing & Jump-Cut Processing**: Dead pauses and breath gaps are trimmed, and dynamic camera punch-ins (+12%) are computed at natural spoken sentence breaks.
-5. **Compulsory Preview Gate**: Creators review their draft inside a realistic 9:16 phone mockup and confirm their approval.
-6. **AWS Cloud Render**: AWS Lambda renders 1080×1920 frames at 30 FPS. The completed short is stored on AWS S3 with a 48-hour download link.
+1. **Upload Staging**: Primary vertical clips and overlay layers upload directly to AWS S3 via presigned multipart URLs, bypassing server payload bottlenecks.
+2. **Speech Transcription**: Groq Whisper extracts word-by-word millisecond timestamps from 16kHz mono audio. If rate limits occur, failover routes seamlessly to Google Gemini 2.0 Flash.
+3. **Word-Level Script Alignment**: Creators can correct names or jargon, and the backend aligns token updates without losing millisecond timestamp alignment.
+4. **Pacing & Punch-In Synthesis**: The pipeline calculates silence gaps based on selected sensitivity (`tight`, `normal`, `gentle`) and tags camera zoom punch-in frames (+5%, +12%, +18%) at sentence breaks.
+5. **Interactive Preview**: The creator views their draft in the 9:16 smartphone preview simulator with live zoom and PIP positioning.
+6. **Cloud Render & Delivery**: AWS Lambda renders 1080×1920 frames across distributed cores. The completed MP4 is saved to AWS S3 and delivered via a signed download URL.
 
 ---
 
@@ -86,49 +92,43 @@ flowchart LR
 ```typescript
 export interface AiShortsPolisherProps {
   // Source Media
-  mediaUrl: string;                  // Primary 9:16 video or image URL
-  mediaType?: "video" | "image";     // Media type indicator
-  additionalClips?: Array<{          // Multi-take sequential clips
+  mediaSrc: string;                  // Primary video or image URL
+  mediaItems?: Array<{               // Multi-take sequential clips
+    id: string;
     url: string;
-    durationInSeconds?: number;
+    type?: 'video' | 'image';
+    durationSeconds?: number;
   }>;
-  layerMediaUrl?: string;            // Picture-in-Picture overlay media
-  layerMediaType?: "video" | "image";
-  layerPosition?: "top-right" | "center" | "top-left";
+  layerItems?: Array<{               // Picture-in-Picture overlay media
+    id: string;
+    url: string;
+    type: 'video' | 'image';
+    title?: string;
+    startSeconds?: number;
+    durationSeconds?: number;
+    position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'center';
+    isCutaway?: boolean;             // Full-screen B-roll cutaway toggle
+  }>;
 
   // Editing Directives
-  autoJumpCuts?: boolean;            // Enable silence gap removal
-  dynamicZoom?: boolean;             // Enable +12% camera punch-in
-  zoomIntensity?: number;            // Default: 1.12 (12% punch-in)
+  silenceJumpCuts?: boolean;
+  silenceSensitivity?: 'tight' | 'normal' | 'gentle';
+  smartPunchIns?: boolean;
+  punchInIntensity?: 'subtle' | 'medium' | 'dramatic';
 
-  // Subtitles & Captions
-  transcript?: Array<{
-    text: string;
-    start: number;
-    end: number;
-    words?: Array<{ word: string; start: number; end: number }>;
-  }>;
-  captionStyleId?: string;           // One of 50 kinetic caption presets
-  captionFontSize?: number;          // Default: 52px for vertical readability
+  // Subtitles & Audio
+  captions?: CaptionSegment[];
+  captionStyle?: string;
+  captionPosition?: 'bottom' | 'center' | 'top';  // TikTok safe-zone caption placement
+  faceFraming?: 'center' | 'left' | 'right';      // Subject alignment for off-center clips
+  bgmUrl?: string;
+  bgmVolume?: number;
+  enableSfx?: boolean;
+  durationSeconds?: number;
 
-  // Audio Controls
-  backgroundMusicUrl?: string;       // AWS S3 curated track or custom upload
-  backgroundMusicVolume?: number;    // Default: 0.12 (12% ducked volume)
-  sfxEnabled?: boolean;              // Enable zoom & callout SFX
-
-  // Timeline & Canvas
-  durationInFrames: number;          // Clamped up to 2,700 frames (90 seconds)
-  fps: number;                       // 30 FPS
-  width: number;                     // 1080
-  height: number;                    // 1920
+  // Visual Callouts
+  curvedArrows?: ArrowItem[];
+  equationFormula?: EquationFormulaData;
+  comparisonBanner?: ComparisonBannerData;
 }
 ```
-
----
-
-## 6. Error Handling & Credit Protection
-
-- **Silence / No Speech Detected**: Automatically triggers a full credit refund; user is informed to upload footage with clear speech.
-- **Upload Interruption**: Client-side chunk retries ensure large phone video files upload reliably without server crashes. Zero credits deducted on upload failure.
-- **Render Worker Failure**: AWS Lambda timeout automatically invokes `releaseReservedRenderUsageFromServer` to restore credits immediately.
-- **Secure File Delivery**: Generated shorts remain available via signed AWS S3 links for 48 hours, automatically re-signed on demand.

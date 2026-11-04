@@ -53,12 +53,6 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
       priority: 0.9,
     },
     {
-      path: "/auto-caption-reel",
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.9,
-    },
-    {
       path: "/compare-explainer",
       lastModified: now,
       changeFrequency: "weekly",
@@ -71,19 +65,7 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
       priority: 0.9,
     },
     {
-      path: "/auto-captions",
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.85,
-    },
-    {
       path: "/whiteboard-video",
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.9,
-    },
-    {
-      path: "/typography-video",
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.9,
@@ -95,22 +77,10 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
       priority: 0.9,
     },
     {
-      path: "/long-caption-pro",
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.92,
-    },
-    {
       path: "/faceless-video",
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.95,
-    },
-    {
-      path: "/caption-studio",
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.92,
     },
     {
       path: "/auto-caption-generator",
@@ -123,18 +93,6 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.95,
-    },
-    {
-      path: "/custom-ai-reel",
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.9,
-    },
-    {
-      path: "/videos",
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.85,
     },
     {
       path: "/tools/ai-audio-cleaner",
@@ -203,18 +161,6 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
       priority: 0.88,
     },
     {
-      path: "/video-types/long-caption-pro",
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.88,
-    },
-    {
-      path: "/video-types/long-video-pro",
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.88,
-    },
-    {
       path: "/video-types/ai-video-generator",
       lastModified: now,
       changeFrequency: "weekly",
@@ -222,18 +168,6 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
     },
     {
       path: "/video-types/auto-caption-generator",
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.88,
-    },
-    {
-      path: "/video-types/auto-caption-reel",
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.88,
-    },
-    {
-      path: "/video-types/caption-studio",
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.88,
@@ -263,22 +197,10 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
       priority: 0.88,
     },
     {
-      path: "/video-types/typography-video",
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.88,
-    },
-    {
       path: "/video-types/whiteboard-video",
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.88,
-    },
-    {
-      path: "/create",
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.8,
     },
     {
       path: "/pricing",
@@ -333,12 +255,6 @@ export async function getPublicSitemapUrls(): Promise<PublicSitemapUrl[]> {
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.7,
-    },
-    {
-      path: "/promote-and-earn",
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.65,
     },
     {
       path: "/docs",

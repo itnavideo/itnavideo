@@ -1,3 +1,4 @@
+import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -256,6 +257,7 @@ export default function CompareExplainerPage() {
           contentType: selectedFile.type || "audio/mpeg",
           mediaType: "audio",
           mode: "compare",
+          removeAiWatermark: Boolean(removeAiWatermark),
           templateName: "comparisonImages",
           topicTitle: plannedTitle,
           userId: user.id,

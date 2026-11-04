@@ -1,20 +1,22 @@
-import React, { useId } from 'react';
+import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
-type BrandLogoProps = {
-  href?: string;
+export type BrandLogoProps = {
+  href?: string | null;
   size?: 'sm' | 'md' | 'lg' | number | string;
   iconOnly?: boolean;
   showTagline?: boolean;
   showBadge?: boolean;
   variant?: 'auto' | 'light' | 'dark';
   className?: string;
+  priority?: boolean;
 };
 
-const sizeMap: Record<string, { icon: number; word: string; tagline: string; badge: string }> = {
-  sm: { icon: 32, word: 'text-base sm:text-lg', tagline: 'text-[9px]', badge: 'px-1.5 py-0.5 text-[8px]' },
-  md: { icon: 38, word: 'text-lg sm:text-xl', tagline: 'text-[10px]', badge: 'px-2 py-0.5 text-[9px]' },
-  lg: { icon: 46, word: 'text-xl sm:text-2xl', tagline: 'text-[11px]', badge: 'px-2.5 py-1 text-[10px]' },
+const sizeMap: Record<string, { height: number; width: number; icon: number; tagline: string; badge: string }> = {
+  sm: { height: 28, width: 134, icon: 28, tagline: 'text-[9px]', badge: 'px-1.5 py-0.5 text-[8px]' },
+  md: { height: 34, width: 162, icon: 34, tagline: 'text-[10px]', badge: 'px-2 py-0.5 text-[9px]' },
+  lg: { height: 44, width: 210, icon: 44, tagline: 'text-[11px]', badge: 'px-2.5 py-1 text-[10px]' },
 };
 
 export default function BrandLogo({
@@ -25,99 +27,66 @@ export default function BrandLogo({
   showBadge = false,
   variant = 'dark',
   className = '',
+  priority = false,
 }: BrandLogoProps) {
-  const reactId = useId();
-  // Safe unique ID for SVG linearGradient defs to prevent ID collisions across responsive DOM elements
-  const gradId = `itnaBrandPlayGrad_${reactId.replace(/[^a-zA-Z0-9_-]/g, '')}`;
-
   const s = typeof size === 'number'
-    ? { icon: size, word: 'text-lg sm:text-xl', tagline: 'text-[10px]', badge: 'px-2 py-0.5 text-[9px]' }
+    ? { height: size, width: Math.round(size * 4.78), icon: size, tagline: 'text-[10px]', badge: 'px-2 py-0.5 text-[9px]' }
     : (sizeMap[String(size)] || sizeMap.md);
 
-  // Ensure ITNA is always high-contrast:
-  // variant === 'light' -> dark obsidian (text-slate-900) for white/light backgrounds
-  // variant === 'dark' or default ('auto') -> crisp white (text-white) for all dashboards and dark surfaces
   const isLight = variant === 'light';
-
-  const itnaTextColor = isLight ? 'text-slate-900' : 'text-white';
 
   const badgeStyle = isLight
     ? 'border-[#FF5722]/30 bg-[#FF5722]/10 text-[#FF5722]'
     : 'border-[#FFA000]/40 bg-[#FFA000]/15 text-[#FFA000] shadow-xs';
 
-  const taglineColor = isLight
-    ? 'text-slate-500'
-    : 'text-zinc-400';
+  const taglineColor = isLight ? 'text-slate-600' : 'text-zinc-400';
+
+  // Official Brand Logo Assets:
+  // - Light variant: Navy "Itna" + Orange "Video" (matches white background)
+  // - Dark variant: White "Itna" + Orange "Video" (matches dark background)
+  // - Icon only: Official Folded Play Ribbon (transparent)
+  const logoSrc = isLight ? '/brand/logo-transparent.png' : '/brand/logo-dark.png';
+  const iconSrc = '/brand/icon-transparent.png';
 
   const content = (
     <span className={`inline-flex items-center gap-2.5 ${className}`}>
-      {/* Kinetic AI Play Mark Icon - Flame Orange & Warm Amber */}
-      <span
-        className="relative inline-flex shrink-0 items-center justify-center transition-transform duration-300 group-hover:scale-105"
-        style={{
-          width: s.icon,
-          height: s.icon,
-          minWidth: s.icon,
-          minHeight: s.icon,
-        }}
-      >
-        <svg
-          viewBox="0 0 100 100"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-full drop-shadow-[0_2px_14px_rgba(255,87,34,0.35)]"
-          aria-hidden="true"
-        >
-          <defs>
-            {/* Signature Flame Orange & Warm Amber Gradient */}
-            <linearGradient id={gradId} x1="10%" y1="0%" x2="90%" y2="100%">
-              <stop offset="0%" stopColor="#FF7043" />
-              <stop offset="50%" stopColor="#FF5722" />
-              <stop offset="100%" stopColor="#F4511E" />
-            </linearGradient>
-          </defs>
-
-          {/* Unified Solid Rounded Play Triangle matching Official Brand Identity */}
-          <path
-            d="M 28 22 C 28 16 34 12.5 39 15.5 L 80 43.5 C 85 46.5 85 53.5 80 56.5 L 39 84.5 C 34 87.5 28 84 28 78 Z"
-            fill={`url(#${gradId})`}
-            stroke="#FF5722"
-            strokeWidth="2"
-            strokeLinejoin="round"
+      {iconOnly ? (
+        <Image
+          src={iconSrc}
+          alt="ItnaVideo Icon"
+          width={s.icon}
+          height={s.icon}
+          priority={priority}
+          className="shrink-0 object-contain select-none transition-transform duration-300 group-hover:scale-105"
+        />
+      ) : (
+        <span className="flex items-center gap-2">
+          <Image
+            src={logoSrc}
+            alt="ItnaVideo"
+            width={s.width}
+            height={s.height}
+            priority={priority}
+            className="h-auto w-auto object-contain select-none transition-transform duration-300 group-hover:scale-[1.02]"
           />
-        </svg>
-      </span>
-
-      {!iconOnly && (
-        <span className="min-w-0 leading-none">
-          <span className="flex items-center gap-2">
-            {/* High-Contrast Bold Typography matching Brand Image (ItnaVideo) */}
-            <span className={`block font-sans ${s.word} font-black tracking-tight select-none`}>
-              <span className={itnaTextColor}>Itna</span>
-              <span className="text-[#FF5722]">Video</span>
-            </span>
-            {showBadge && (
-              <span className={`rounded-md border ${badgeStyle} ${s.badge} font-black uppercase tracking-wider`}>
-                AI STUDIO
-              </span>
-            )}
-          </span>
-          {showTagline && (
-            <span className={`mt-1 block text-[9px] font-extrabold uppercase tracking-[0.2em] ${taglineColor}`}>
-              NEXT-GEN AI VIDEO ENGINE
+          {showBadge && (
+            <span className={`rounded-md border ${badgeStyle} ${s.badge} font-black uppercase tracking-wider shrink-0`}>
+              AI STUDIO
             </span>
           )}
+        </span>
+      )}
+      {showTagline && (
+        <span className={`mt-0.5 block ${s.tagline} font-medium leading-snug ${taglineColor}`}>
+          Create stunning videos with AI. No editing needed.
         </span>
       )}
     </span>
   );
 
-  if (!href) {
+  if (!href || href === '') {
     return (
-      <span
-        aria-label="ITNAVIDEO home"
-        className="group inline-flex items-center rounded-xl outline-none"
-      >
+      <span aria-label="ItnaVideo" className="group inline-flex items-center rounded-xl outline-none">
         {content}
       </span>
     );
@@ -126,8 +95,8 @@ export default function BrandLogo({
   return (
     <Link
       href={href}
-      aria-label="ITNAVIDEO home"
-      className="group inline-flex items-center rounded-xl outline-none transition-all duration-300 focus-visible:ring-2 focus-visible:ring-purple-400"
+      aria-label="ItnaVideo"
+      className="group inline-flex items-center rounded-xl outline-none transition-all duration-300 focus-visible:ring-2 focus-visible:ring-orange-400"
     >
       {content}
     </Link>

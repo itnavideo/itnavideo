@@ -481,3 +481,13 @@ Keep these mandatory UI quality checks and anti-pattern bans in mind for all fro
 
 
 
+
+---
+
+## 10. Universal Phone QR Code Mobile Download
+
+> [!IMPORTANT]
+> **Scan to Phone Direct Download**:
+> Every completed video render across all video types includes a high-contrast QR Code ("Scan to Phone") allowing users to directly scan and download the finalized 1080p MP4 straight to their mobile device (iOS / Android camera) without logging in on their phone.
+> - Available in: InteractiveRenderEngine, Recent Cloud Renders cards, and Generated Videos history tab.
+> - Modal component: `components/media/PhoneQrDownloadModal.tsx`.

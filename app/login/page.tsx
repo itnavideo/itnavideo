@@ -246,7 +246,7 @@ function LoginFormContent() {
   return (
     <AuthShell
       title="Start Creating Viral Videos with AI."
-      subtitle="Claim 45 free render credits on signup. No credit card required."
+      subtitle="Sign in to your creator account and access all 14 AI Video Studios."
     >
       {/* Surface Container Extra-Large Card */}
       <div className="rounded-[28px] border border-white/[0.08] bg-[#131722]/95 p-6 sm:p-8 shadow-2xl shadow-black/80 backdrop-blur-2xl ring-1 ring-white/5">

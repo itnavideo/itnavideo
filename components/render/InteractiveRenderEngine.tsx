@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import PhoneQrDownloadModal from '@/components/media/PhoneQrDownloadModal';
 import {
   AlertCircle,
   RotateCcw,
@@ -82,6 +83,7 @@ interface StepDef {
 }
 
 // ── MODE-SPECIFIC PIPELINE DEFINITIONS (Rule 8: Video Type Independence) ──
+export const getRenderStepDefinitions = getModeSteps;
 function getModeSteps(mode: string): StepDef[] {
   switch (mode) {
     case 'aiVideoPolisher':
@@ -229,6 +231,8 @@ export default function InteractiveRenderEngine({
   const [showSocialCopy, setShowSocialCopy] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [currentTipIdx, setCurrentTipIdx] = useState(0);
+  const [showQrModal, setShowQrModal] = useState(false);
+  const [selectedClipQrUrl, setSelectedClipQrUrl] = useState<string | null>(null);
 
 
   const downloadDirectly = async (url: string, filename: string) => {
@@ -255,6 +259,12 @@ export default function InteractiveRenderEngine({
 
   const isFailed = status.state === 'error';
   const isReady = status.state === 'ready' || Boolean(status.outputFile);
+  const isVerticalMode = [
+    'aiShortsPolisher', 'autoCaption', 'whiteboardVideo', 'longVideoClips', 'compare',
+    'longVideoPromo', 'splitScreenExplainer', 'facelessShorts', 'AI_SHORTS_POLISHER',
+    'AUTO_CAPTION_GENERATOR', 'WHITEBOARD_VIDEO', 'LONG_VIDEO_CLIPS', 'COMPARE_EXPLAINER',
+    'LONG_VIDEO_PROMO', 'SPLIT_SCREEN_EXPLAINER', 'FACELESS_SHORTS'
+  ].includes(mode);
 
   // Raw progress calculation (handles fractional progress 0.0-1.0 and whole numbers 0-100)
   const rawProgress = isReady
@@ -810,6 +820,18 @@ export default function InteractiveRenderEngine({
 
             <button
               type="button"
+              <button
+              type="button"
+              onClick={() => setShowQrModal(true)}
+              className="sm:w-auto px-5 py-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 font-bold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 whitespace-nowrap shadow-xs"
+              title="Scan QR code to download directly on mobile"
+            >
+              <Smartphone size={16} className="text-[#FFA000]" />
+              <span>Scan to Phone</span>
+            </button>
+
+            <button
+              type="button"
               onClick={onReset}
               className="sm:w-auto px-6 py-4 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 whitespace-nowrap"
             >
@@ -828,12 +850,12 @@ export default function InteractiveRenderEngine({
                   </div>
                   <div>
                     <h4 className="text-sm font-black text-white flex items-center gap-2">
-                      <span>16:9 Cinema Widescreen Master</span>
+                      <span>{isVerticalMode ? '9:16 Vertical Mobile Master' : '16:9 Cinema Widescreen Master'}</span>
                       <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
                         1080p Full HD
                       </span>
                     </h4>
-                    <p className="text-[11px] text-zinc-400">Strictly 16:9 Landscape for YouTube, TV, Course &amp; Broadcast</p>
+                    <p className="text-[11px] text-zinc-400">{isVerticalMode ? "Optimized 9:16 vertical for TikTok, Instagram Reels & YouTube Shorts" : "Strictly 16:9 Landscape for YouTube, TV, Course & Broadcast"}</p>
                   </div>
                 </div>
 
@@ -860,7 +882,7 @@ export default function InteractiveRenderEngine({
                   <div className="grid grid-cols-2 gap-2 text-[11px]">
                     <div className="rounded-xl bg-black/40 border border-white/5 p-2.5">
                       <p className="text-zinc-400 text-[10px]">Aspect Ratio</p>
-                      <p className="font-bold text-white text-xs mt-0.5">16:9 Widescreen (1920×1080)</p>
+                      <p className="font-bold text-white text-xs mt-0.5">{isVerticalMode ? "9:16 Vertical (1080×1920)" : "16:9 Widescreen (1920×1080)"}</p>
                     </div>
                     <div className="rounded-xl bg-black/40 border border-white/5 p-2.5">
                       <p className="text-zinc-400 text-[10px]">Pacing &amp; Camera</p>
@@ -882,7 +904,7 @@ export default function InteractiveRenderEngine({
                 </div>
 
                 {/* QR Code Phone Transfer (4 cols) */}
-                <div className="md:col-span-4 flex flex-col items-center justify-center p-3 rounded-xl bg-black/50 border border-white/10 text-center">
+                <div onClick={() => setShowQrModal(true)} className="md:col-span-4 flex flex-col items-center justify-center p-3 rounded-xl bg-black/50 hover:bg-black/70 border border-white/10 hover:border-amber-400/40 text-center transition cursor-pointer group" title="Click to enlarge QR code">
                   <div className="relative p-1.5 bg-white rounded-lg shadow-md mb-2">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
@@ -895,7 +917,7 @@ export default function InteractiveRenderEngine({
                     <Smartphone size={12} className="text-[#FFA000]" />
                     <span>Send to Phone</span>
                   </p>
-                  <p className="text-[9.5px] text-zinc-400 mt-0.5">Scan camera to save directly</p>
+                  <p className="text-[9.5px] text-zinc-400 mt-0.5">Click to enlarge or scan directly</p>
                 </div>
               </div>
             </div>
@@ -1053,6 +1075,17 @@ export default function InteractiveRenderEngine({
         )}
       </div>
 
+      {/* 📲 PHONE QR CODE DOWNLOAD MODAL */}
+      <PhoneQrDownloadModal
+        isOpen={showQrModal}
+        onClose={() => {
+          setShowQrModal(false);
+          setSelectedClipQrUrl(null);
+        }}
+        videoUrl={selectedClipQrUrl || status.outputFile || ''}
+        title={status.title || 'Itnavideo Render'}
+        aspectRatio={isVerticalMode ? '9:16' : '16:9'}
+      />
     </div>
   );
 }

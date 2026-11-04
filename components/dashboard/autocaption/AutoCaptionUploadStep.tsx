@@ -1,3 +1,4 @@
+import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
 "use client";
 
 import React, { useRef, useState, ChangeEvent } from "react";
@@ -62,6 +63,8 @@ export interface AutoCaptionUploadStepProps {
   currentPreset?: string;
   onSelectPreset?: (preset: string) => void;
   onSelectSampleWithPreset?: (preset: string) => void;
+  removeAiWatermark?: boolean;
+  onRemoveAiWatermarkChange?: (enabled: boolean) => void;
 }
 
 export function AutoCaptionUploadStep({
@@ -81,6 +84,8 @@ export function AutoCaptionUploadStep({
   currentPreset = "Retro Shadow",
   onSelectPreset,
   onSelectSampleWithPreset,
+  removeAiWatermark = true,
+  onRemoveAiWatermarkChange,
 }: AutoCaptionUploadStepProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const router = useRouter();
@@ -347,6 +352,13 @@ export function AutoCaptionUploadStep({
                 </div>
               </div>
             </div>
+
+            {/* Auto-Remove AI Watermark (Veo 3, Sora, Runway, Luma) */}
+            <WatermarkRemoverToggle
+              enabled={Boolean(removeAiWatermark)}
+              onChange={onRemoveAiWatermarkChange || (() => {})}
+              mediaType="video"
+            />
 
             {/* Processing Progress State (When Upload & Transcription is active) */}
             {isProcessing && (

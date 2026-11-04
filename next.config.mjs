@@ -97,6 +97,141 @@ const nextConfig = {
   async headers() {
     return [
       {
+        source: '/blog/kinetic-typography-reel-maker-commercial-guide',
+        destination: '/blog/ai-shorts-polisher-commercial-creation-guide',
+        permanent: true,
+      },
+      {
+        source: '/blog/commercial-real-estate-listing-stats-typography',
+        destination: '/blog/luxury-real-estate-video-marketing-ai-guide',
+        permanent: true,
+      },
+      {
+        source: '/blog/what-is-auto-captioning',
+        destination: '/blog/how-auto-captions-increase-reels-engagement-2026',
+        permanent: true,
+      },
+      {
+        source: '/blog/convert-any-text-to-realistic-video-with-ai',
+        destination: '/blog/how-to-convert-script-text-to-ai-video-online',
+        permanent: true,
+      },
+      {
+        source: '/blog/use-your-own-photos-videos-audio-ai-shorts',
+        destination: '/blog/how-to-make-ai-shorts-using-your-own-photos-and-voice',
+        permanent: true,
+      },
+      {
+        source: '/blog/add-ai-voiceovers-to-videos-without-editor',
+        destination: '/blog/how-to-add-ai-voiceovers-to-videos-without-editing',
+        permanent: true,
+      },
+      {
+        source: '/blog/best-caption-styles-for-reels',
+        destination: '/blog/viral-caption-styles-for-instagram-reels-and-shorts',
+        permanent: true,
+      },
+      {
+        source: '/blog/difference-between-subtitles-and-captions',
+        destination: '/blog/subtitles-vs-captions-which-to-use-for-social-video',
+        permanent: true,
+      },
+      {
+        source: '/blog/ai-videogenerator-tools-for-educators',
+        destination: '/blog/best-ai-video-generator-tools-for-educators',
+        permanent: true,
+      },
+      {
+        source: '/blog/best-ai-video-gen-tools-for-youtube-shorts',
+        destination: '/blog/best-ai-video-generator-tools-for-youtube-shorts',
+        permanent: true,
+      },
+      {
+        source: '/blog/what-to-do-when-itnavideo-video-takes-longer-to-generate',
+        destination: '/blog/cloud-video-rendering-speed-and-optimization-guide',
+        permanent: true,
+      },
+      {
+        source: '/blog/does-itnavideo-have-a-monthly-video-duration-limit',
+        destination: '/blog/ai-video-duration-limits-and-credit-usage-explained',
+        permanent: true,
+      },
+      {
+        source: '/blog/voice-to-video-ai-tools',
+        destination: '/blog/best-voice-to-video-ai-tools-for-social-content',
+        permanent: true,
+      },
+      {
+        source: '/blog/best-realistic-text-to-speech-ai-social-media-videos-2026',
+        destination: '/blog/realistic-text-to-speech-ai-voiceover-guide-2026',
+        permanent: true,
+      },
+      {
+        source: '/blog/how-to-make-whiteboard-reels-in-itnavideo',
+        destination: '/blog/how-to-make-viral-whiteboard-animation-reels',
+        permanent: true,
+      },
+      {
+        source: '/auto-caption-reel',
+        destination: '/auto-caption',
+        permanent: true,
+      },
+      {
+        source: '/auto-captions',
+        destination: '/auto-caption',
+        permanent: true,
+      },
+      {
+        source: '/typography-video',
+        destination: '/video-types/ai-shorts-polisher',
+        permanent: true,
+      },
+      {
+        source: '/video-types/typography-video',
+        destination: '/video-types/ai-shorts-polisher',
+        permanent: true,
+      },
+      {
+        source: '/long-caption-pro',
+        destination: '/video-types/youtube-subtitles',
+        permanent: true,
+      },
+      {
+        source: '/video-types/long-caption-pro',
+        destination: '/video-types/youtube-subtitles',
+        permanent: true,
+      },
+      {
+        source: '/video-types/long-video-pro',
+        destination: '/video-types/long-video-clips',
+        permanent: true,
+      },
+      {
+        source: '/caption-studio',
+        destination: '/auto-caption',
+        permanent: true,
+      },
+      {
+        source: '/video-types/caption-studio',
+        destination: '/auto-caption',
+        permanent: true,
+      },
+      {
+        source: '/create',
+        destination: '/dashboard',
+        permanent: true,
+      },
+      {
+        source: '/videos',
+        destination: '/dashboard',
+        permanent: true,
+      },
+      {
+        source: '/promote-and-earn',
+        destination: '/pricing',
+        permanent: true,
+      },
+      {
         source: '/_next/static/(.*)',
         headers: [
           {

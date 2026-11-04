@@ -1,3 +1,4 @@
+import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -66,6 +67,7 @@ export default function WhiteboardVideoPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [topicTitle, setTopicTitle] = useState("Why You Should Save Money?");
   const [markerColor, setMarkerColor] = useState<string>("auto");
+  const [handStyle, setHandStyle] = useState<string>("right");
   const [fontPersonality, setFontPersonality] = useState<string>("balsamiq");
   const [bgmTrackId, setBgmTrackId] = useState("parasail");
   const [bgmVolume, setBgmVolume] = useState(0.12);
@@ -221,6 +223,7 @@ export default function WhiteboardVideoPage() {
           contentType: selectedFile.type || "audio/mpeg",
           mediaType: "audio",
           mode: "whiteboardVideo",
+          removeAiWatermark: Boolean(removeAiWatermark),
           templateName: "WHITEBOARD_VIDEO",
           topicTitle: plannedTitle,
           userId: user.id,
@@ -233,8 +236,8 @@ export default function WhiteboardVideoPage() {
           bgmVolume,
           customBgmUrl,
           enableSfx,
-          editorialTranscript,
-          editedTranscript: editorialTranscript,
+          editorialTranscript: editorialTranscript.trim() || undefined,
+          editedTranscript: editorialTranscript.trim() || undefined,
         }),
       });
 
@@ -350,6 +353,8 @@ export default function WhiteboardVideoPage() {
             onFontPersonalityChange={setFontPersonality}
             markerColor={markerColor}
             onMarkerColorChange={setMarkerColor}
+            handStyle={handStyle}
+            onHandStyleChange={setHandStyle}
             bgmTrackId={bgmTrackId}
             onBgmTrackIdChange={setBgmTrackId}
             bgmVolume={bgmVolume}

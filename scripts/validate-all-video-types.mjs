@@ -160,7 +160,7 @@ for (const p of pathsToCheck) {
 
 if (stepperContent) {
   // Ensure that no single hardcoded step is shared by all video types
-  const hasMultipleStepsConfig = stepperContent.includes('getRenderStepDefinitions') || stepperContent.includes('renderSteps') || stepperContent.includes('stepConfigs');
+  const hasMultipleStepsConfig = stepperContent.includes('getRenderStepDefinitions') || stepperContent.includes('getModeSteps') || stepperContent.includes('renderSteps') || stepperContent.includes('stepConfigs');
   check('UI utilizes custom stepper sequence definition per video type', hasMultipleStepsConfig,
     'UI Stepper configuration could be hardcoded across all templates instead of using individual video-type steps.');
 } else {

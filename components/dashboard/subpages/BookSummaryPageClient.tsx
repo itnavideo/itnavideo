@@ -1,3 +1,4 @@
+import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -147,6 +148,7 @@ export default function BookSummaryPageClient() {
               id: r.renderId || r.id,
               title: r.title || "Book Summary Video",
               mode: "bookSummary",
+          removeAiWatermark: Boolean(removeAiWatermark),
               outputFile: r.outputFile || r.outputUrl || "",
               createdAt: r.createdAt ? new Date(r.createdAt).getTime() : Date.now(),
               expiresAt: r.expiresAt

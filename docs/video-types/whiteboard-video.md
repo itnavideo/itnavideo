@@ -78,5 +78,10 @@ export const WB_MAX_CHARS_PER_LINE = 30;
 - **Pure White Background**: Canvas is styled with a crisp `#FFFFFF` / `#FAFAFA` whiteboard board.
 - **Background Music**: Curated AWS S3 catalog (13+ tracks) and custom MP3/WAV upload with default **12% volume ducking** (`bgmVolume: 0.12`).
 - **Marker SFX**: Realistic marker pen writing and board swipe sound effects.
+- **Marker Ink Color Palette**: Allows creators to choose ink color: Dynamic Colorful (auto), Classic Charcoal (`#0F172A`), Executive Royal Blue (`#2563EB`), Crimson Red (`#DC2626`), Emerald Green (`#059669`), or Sunset Amber (`#D97706`).
+- **Hand Drawing Styles & Pure Draw**: Supports Right-Handed (photorealistic AWS S3 hand), Left-Handed (mirrored), and **No Hand (Pure Draw)** for fast direct stroke animation.
+- **Audio Waveform Preview**: Interactive waveform player in the studio with live playback, duration tracking, and scrub bar.
+- **Optional Script Text**: Narration text is now optional; Groq Whisper auto-transcribes voiceover speech on the cloud, or creators can enter custom text to fix names.
+- **Enhanced 9:16 Simulator**: Live draft preview features SVG stickman sketches, handwriting font rendering, and animated marker sketching tips.
 - **Editorial Transcript**: Spoken script editor for fixing speech typos before scene planning.
 - **Compulsory Live Preview Gate**: Users must verify the whiteboard layout and font before cloud rendering.

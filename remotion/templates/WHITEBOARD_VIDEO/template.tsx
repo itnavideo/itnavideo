@@ -92,6 +92,8 @@ type WhiteboardVideoProps = {
   layoutType?: 'cards' | 'table' | 'quiz' | 'hook' | 'infographic';
   infographicData?: WhiteboardStoryInfographicProps;
   showHand?: boolean;
+  handStyle?: string;
+  markerColor?: string;
   language?: 'ur' | 'hi' | 'en';
   direction?: 'rtl' | 'ltr';
   points?: WhiteboardPoint[];
@@ -913,6 +915,8 @@ function WhiteboardVideo({
   layoutType = 'cards',
   infographicData,
   showHand = true,
+  handStyle = 'right',
+  markerColor = 'auto',
   fontPersonality = 'balsamiq',
   bgmUrl,
   bgmVolume = 0.12,
@@ -1015,7 +1019,7 @@ function WhiteboardVideo({
     return (
       <AbsoluteFill style={{ background: '#FFFFFF' }}>
         <ProceduralWhiteboardCanvas />
-        <DynamicWhiteboardSceneDirector scenes={scenes} showHand={showHand} fontPersonality={fontPersonality} />
+        <DynamicWhiteboardSceneDirector scenes={scenes} showHand={showHand !== false && handStyle !== 'none'} handStyle={handStyle} markerColor={markerColor} fontPersonality={fontPersonality} />
 
         {resolvedSrc && mediaType === 'audio' && (
           <Audio

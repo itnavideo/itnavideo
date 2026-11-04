@@ -131,6 +131,7 @@ export default function AutoCaptionPage() {
   const [behindPerson, setBehindPerson] = useState<boolean>(false);
   const [autoEmoji, setAutoEmoji] = useState<boolean>(true);
   const [safeZones, setSafeZones] = useState<boolean>(false);
+  const [removeAiWatermark, setRemoveAiWatermark] = useState<boolean>(true);
 
   // 2-Step Workflow State: default directly to editor to show 2-Part Studio
   const [workflowStep, setWorkflowStep] = useState<"upload" | "editor">("editor");
@@ -451,6 +452,7 @@ export default function AutoCaptionPage() {
           durationSeconds: mediaDurationSeconds,
           sourceDurationSeconds: mediaDurationSeconds,
           mediaAspect: "portrait",
+          removeAiWatermark: Boolean(removeAiWatermark),
           frameRange: mediaDurationSeconds > 0 ? [0, Math.min(2700, Math.round(mediaDurationSeconds * 30)) - 1] : undefined,
         }),
       });
@@ -706,6 +708,8 @@ export default function AutoCaptionPage() {
         ) : (
           <AutoCaptionDualTabStudio
             selectedFile={selectedFile}
+            removeAiWatermark={removeAiWatermark}
+            onRemoveAiWatermarkChange={setRemoveAiWatermark}
             onSelectFile={setSelectedFile}
             captionStyle={captionStyle}
             onCaptionStyleChange={(style) => {

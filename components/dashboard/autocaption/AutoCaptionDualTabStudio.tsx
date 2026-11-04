@@ -1,3 +1,4 @@
+import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
 "use client";
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
@@ -135,6 +136,8 @@ export interface AutoCaptionDualTabStudioProps {
   onSpokenLanguageChange?: (lang: string) => void;
   captionLanguage?: string;
   onCaptionLanguageChange?: (lang: string) => void;
+  removeAiWatermark?: boolean;
+  onRemoveAiWatermarkChange?: (enabled: boolean) => void;
 }
 
 export function AutoCaptionDualTabStudio({
@@ -152,6 +155,8 @@ export function AutoCaptionDualTabStudio({
   onSpokenLanguageChange,
   captionLanguage,
   onCaptionLanguageChange,
+  removeAiWatermark = true,
+  onRemoveAiWatermarkChange,
 }: AutoCaptionDualTabStudioProps) {
   const [localSpokenLang, setLocalSpokenLang] = useState<string>("auto");
   const [localCaptionLang, setLocalCaptionLang] = useState<string>("same");

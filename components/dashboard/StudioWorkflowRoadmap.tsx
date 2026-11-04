@@ -139,15 +139,6 @@ function getWorkflowStepsForMode(mode?: string): WorkflowStep[] {
         { number: 4, label: 'Export Comparison', accentText: '1080p MP4', icon: Download },
       ];
 
-    case 'typographyVideo':
-    case 'TYPOGRAPHY_VIDEO':
-      return [
-        { number: 1, label: 'Upload Voiceover', accentText: 'Explainer Speech', icon: Upload },
-        { number: 2, label: 'Speech Cadence', accentText: 'Rhythm Sync', icon: Wand2 },
-        { number: 3, label: 'Kinetic Motion FX', accentText: 'Camera Pulses', icon: Zap },
-        { number: 4, label: 'Render Reel', accentText: '1080p MP4', icon: Download },
-      ];
-
     case 'whiteboard':
     case 'whiteboardVideo':
     case 'WHITEBOARD_VIDEO':

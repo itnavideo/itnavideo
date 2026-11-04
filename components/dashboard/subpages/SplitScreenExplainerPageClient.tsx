@@ -1,3 +1,4 @@
+import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -259,6 +260,7 @@ export default function SplitScreenExplainerPageClient() {
           contentType: creatorVideoFile.type || "video/mp4",
           mediaType: "video",
           mode: "splitScreenExplainer",
+          removeAiWatermark: Boolean(removeAiWatermark),
           templateName: "SPLIT_SCREEN_EXPLAINER",
           aspectRatio: "9:16",
           mediaAspect: "portrait",
