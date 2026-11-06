@@ -192,7 +192,7 @@ export default function WhiteboardLivePreviewPage() {
           </Link>
           <div className="h-4 w-px bg-white/10" />
           <h1 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
-            <span>Whiteboard Interactive Studio Workspace</span>
+            <span>Edit Video</span>
             <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
               Live Layer Editor
             </span>

@@ -110,7 +110,7 @@ export interface WhiteboardStudioProps {
   onEnableSfxChange: (val: boolean) => void;
 
   editorialTranscript: string;
-  onEditorialTranscriptChange: (text: string) => void;
+  onEditorialTranscriptChange: (text: string, isManual?: boolean) => void;
 
   onGenerate: (customScenes?: WhiteboardScene[]) => void;
   isGenerating: boolean;
@@ -202,14 +202,15 @@ export function WhiteboardStudio({
   // Direct Transcription with Real Status Progression
   const triggerDirectTranscription = async (file: File) => {
     setTranscribeState("uploading");
+    onEditorialTranscriptChange("", false);
 
     try {
       // Step 1: Uploading Audio
-      await new Promise((r) => setTimeout(r, 600));
+      await new Promise((r) => setTimeout(r, 400));
       setTranscribeState("processing");
 
       // Step 2: Processing Audio
-      await new Promise((r) => setTimeout(r, 600));
+      await new Promise((r) => setTimeout(r, 400));
       setTranscribeState("transcribing");
 
       // Step 3: Call /api/reels/transcribe
@@ -225,21 +226,17 @@ export function WhiteboardStudio({
       const payload = await res.json().catch(() => ({}));
 
       if (!res.ok || !payload.ok) {
-        throw new Error(payload.error || "Could not transcribe audio. You can type your script below.");
+        throw new Error(payload.error || "Could not transcribe audio.");
       }
 
       if (payload.transcript) {
-        onEditorialTranscriptChange(payload.transcript);
+        onEditorialTranscriptChange(payload.transcript, false);
       }
       setTranscribeState("ready");
     } catch (err: any) {
       console.warn("Transcription note:", err?.message);
-      setTranscribeState("ready"); // Still ready since user can edit the transcript
-      if (!editorialTranscript.trim()) {
-        onEditorialTranscriptChange(
-          "1. Start with daily 1% compounding actions.\n2. Small habits eliminate friction.\n3. Massive results after 365 days."
-        );
-      }
+      // Mark ready so user can either type their own script or proceed directly with cloud pipeline
+      setTranscribeState("ready");
     }
   };
 
@@ -281,20 +278,22 @@ export function WhiteboardStudio({
     return `${m}:${s < 10 ? "0" : ""}${s}`;
   };
 
-  // Sample scenes for editable workspace
+  // Dynamic scenes for editable workspace based on user transcript
   const generatedScenes: WhiteboardScene[] = useMemo(() => {
     const raw = editorialTranscript?.trim();
+    const fileNameBase = selectedFile?.name
+      ? selectedFile.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ")
+      : "Introduction";
+
     const lines = raw
-      ? raw.split(/[.\n]+/).map((s) => s.trim()).filter(Boolean)
+      ? raw.split(/[.\n!?]+/).map((s) => s.trim()).filter((s) => s.length > 2)
       : [
-          "The power of daily compounding",
-          "Imagine a young entrepreneur",
-          "Zero funding, solo builder",
-          "Consistency overcomes every obstacle",
-          "Breakthrough launch and ultimate victory",
+          `${fileNameBase}`,
+          "Core Idea & Breakdown",
+          "Summary & Key Takeaway",
         ];
 
-    const icons = ["lightning_bolt", "piggy_bank", "money_stack", "calendar_sheet", "trophy_gold"];
+    const icons = ["lightning_bolt", "piggy_bank", "money_stack", "calendar_sheet", "trophy_gold", "rocket_launch", "star_badge"];
     const colors = ["#2563EB", "#FF5722", "#059669", "#D97706", "#DC2626"];
     const archetypes: WhiteboardScene["archetype"][] = [
       "keyword_slam",
@@ -518,8 +517,8 @@ export function WhiteboardStudio({
                       <span className="text-xs font-bold text-slate-800">
                         {transcribeState === "uploading" && "Uploading Audio..."}
                         {transcribeState === "processing" && "Processing Audio..."}
-                        {transcribeState === "transcribing" && "Generating Transcription..."}
-                        {transcribeState === "ready" && "Transcription Ready"}
+                        {transcribeState === "transcribing" && "Generating Transcription from Audio..."}
+                        {transcribeState === "ready" && (editorialTranscript ? "Transcription Ready (from your audio)" : "Audio Ready")}
                       </span>
                     </div>
 
@@ -532,8 +531,8 @@ export function WhiteboardStudio({
                   <textarea
                     rows={3}
                     value={editorialTranscript}
-                    onChange={(e) => onEditorialTranscriptChange(e.target.value)}
-                    placeholder="Transcription text appears here. You can make corrections or fix any brand names..."
+                    onChange={(e) => onEditorialTranscriptChange(e.target.value, true)}
+                    placeholder={transcribeState === "transcribing" ? "Transcribing speech from your audio..." : "Transcription from your audio appears here. You can edit any sentence or fix names..."}
                     className="w-full p-3 rounded-xl border border-slate-200 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 leading-relaxed font-sans resize-none"
                   />
                   <div className="flex items-center justify-between text-[11px] text-slate-400">
@@ -619,9 +618,10 @@ export function WhiteboardStudio({
                 type="button"
                 onClick={() => setViewMode("workspace")}
                 className="px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                title="Edit video composition and layers"
               >
-                <Layers className="w-4 h-4 text-orange-500" />
-                <span>Open Layer Workspace</span>
+                <Edit3 className="w-4 h-4 text-orange-500" />
+                <span>Edit Video</span>
               </button>
 
               <button
@@ -637,12 +637,12 @@ export function WhiteboardStudio({
                 {isGenerating ? (
                   <>
                     <RefreshCw className="w-4 h-4 animate-spin text-slate-950" />
-                    <span>Creating Whiteboard Video...</span>
+                    <span>Creating Video...</span>
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4 fill-slate-950" />
-                    <span>Create Whiteboard Video (1 Credit)</span>
+                    <span>Create Video</span>
                   </>
                 )}
               </button>

@@ -27,6 +27,9 @@ import {
   Volume2,
   Clock,
   ArrowLeft,
+  RefreshCw,
+  AudioWaveform,
+  Hand,
 } from "lucide-react";
 import { WhiteboardDrawingPickerModal } from "./WhiteboardDrawingPickerModal";
 import { MARKER_COLOR_PALETTE } from "@/components/dashboard/WhiteboardStudio";
@@ -43,7 +46,7 @@ interface WhiteboardEditableWorkspaceProps {
   isExporting?: boolean;
 }
 
-export type SceneLayerType = "headline" | "hero_visual" | "accent_color" | "supporting_data";
+export type SceneLayerType = "headline" | "hero_visual" | "accent_color" | "supporting_data" | "audio_timing";
 
 export interface SceneLayerItem {
   id: string;
@@ -211,6 +214,13 @@ export function WhiteboardEditableWorkspace({
         subtitle: activeScene.accentColor || "#FF5722",
         visible: !hiddenLayers[`${activeScene.id}_accent_color`],
       },
+      {
+        id: "audio_timing",
+        type: "audio_timing",
+        label: "Voiceover Sync & Timing",
+        subtitle: `${activeScene.startTime.toFixed(1)}s – ${activeScene.endTime.toFixed(1)}s (${(activeScene.endTime - activeScene.startTime).toFixed(1)}s duration)`,
+        visible: true,
+      },
     ];
 
     if (activeScene.supportingItems?.length || activeScene.statData || activeScene.comparisonData) {
@@ -274,14 +284,14 @@ export function WhiteboardEditableWorkspace({
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-base sm:text-lg font-black text-white">
-                Interactive Whiteboard Workspace
+                Edit Video
               </h2>
               <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase tracking-wider">
-                Live Editable
+                Layers & Composition
               </span>
             </div>
             <p className="text-xs text-slate-400">
-              Select any scene below to inspect layers, edit text, replace drawings, or adjust colors
+              Customize text, swap illustrations, adjust marker colors, and preview live animation
             </p>
           </div>
         </div>
@@ -292,10 +302,19 @@ export function WhiteboardEditableWorkspace({
               type="button"
               onClick={() => onExportRender(scenes)}
               disabled={isExporting}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:brightness-110 active:scale-95 text-slate-950 font-black text-xs transition shadow-lg shadow-orange-500/20 disabled:opacity-50 cursor-pointer"
+              className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:brightness-110 active:scale-95 text-slate-950 font-black text-xs transition shadow-lg shadow-orange-500/20 disabled:opacity-50 cursor-pointer"
             >
-              <Sparkles className="w-4 h-4 fill-slate-950" />
-              <span>{isExporting ? "Rendering Video..." : "Export High-Res Video (1 Credit)"}</span>
+              {isExporting ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin text-slate-950" />
+                  <span>Creating Video...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 fill-slate-950" />
+                  <span>Create Video</span>
+                </>
+              )}
             </button>
           )}
         </div>
@@ -455,7 +474,8 @@ export function WhiteboardEditableWorkspace({
                             {layer.type === "headline" && <Type className="w-4 h-4 text-amber-400" />}
                             {layer.type === "hero_visual" && <ImageIcon className="w-4 h-4 text-blue-400" />}
                             {layer.type === "accent_color" && <Palette className="w-4 h-4 text-rose-400" />}
-                            {layer.type === "supporting_data" && <Layers className="w-4 h-4 text-emerald-400" />}
+                            {layer.type === "supporting_data" && <Layers className="w-4 h-4 text-purple-400" />}
+                            {layer.type === "audio_timing" && <AudioWaveform className="w-4 h-4 text-emerald-400" />}
                           </div>
                           <div className="min-w-0">
                             <span className="text-xs font-bold text-white block">
@@ -493,18 +513,20 @@ export function WhiteboardEditableWorkspace({
                             </button>
                           )}
 
-                          <button
-                            type="button"
-                            onClick={() => toggleLayerVisibility(layer.type)}
-                            className={`p-1.5 rounded-lg transition ${
-                              layer.visible
-                                ? "bg-slate-700 text-slate-300 hover:bg-slate-600"
-                                : "bg-rose-500/20 text-rose-400 border border-rose-500/40"
-                            }`}
-                            title={layer.visible ? "Hide layer" : "Show layer"}
-                          >
-                            {layer.visible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-                          </button>
+                          {layer.type !== "audio_timing" && (
+                            <button
+                              type="button"
+                              onClick={() => toggleLayerVisibility(layer.type)}
+                              className={`p-1.5 rounded-lg transition ${
+                                layer.visible
+                                  ? "bg-slate-700 text-slate-300 hover:bg-slate-600"
+                                  : "bg-rose-500/20 text-rose-400 border border-rose-500/40"
+                              }`}
+                              title={layer.visible ? "Hide layer" : "Show layer"}
+                            >
+                              {layer.visible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                            </button>
+                          )}
                         </div>
                       </div>
 

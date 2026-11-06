@@ -62,7 +62,47 @@ export async function transcribeMediaWithGeminiFallback({
     const safeContentType = typeof media.contentType === 'string' ? media.contentType : 'audio/mpeg';
     const mimeType = safeContentType.startsWith('audio/') ? safeContentType : 'audio/mpeg';
 
-    const systemPrompt = `You are a high-precision audio transcription engine.
+    return await executeGeminiTranscriptionInference(base64Audio, mimeType, apiKey);
+  } catch (outerErr) {
+    console.error('[GEMINI_TRANSCRIPTION] Fallback transcription pipeline failed:', outerErr);
+    return null;
+  }
+}
+
+export async function transcribeBlobWithGeminiFallback({
+  blob,
+  fileName,
+  contentType,
+}: {
+  blob: Blob;
+  fileName: string;
+  contentType?: string;
+}): Promise<GeminiTranscriptionResult | null> {
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY;
+  if (!apiKey) {
+    console.warn('[GEMINI_TRANSCRIPTION] No GEMINI_API_KEY available for blob transcription fallback.');
+    return null;
+  }
+
+  try {
+    const arrayBuffer = await blob.arrayBuffer();
+    const base64Audio = Buffer.from(arrayBuffer).toString('base64');
+    const safeContentType = typeof contentType === 'string' ? contentType : (blob.type || 'audio/mpeg');
+    const mimeType = safeContentType.startsWith('audio/') ? safeContentType : 'audio/mpeg';
+
+    return await executeGeminiTranscriptionInference(base64Audio, mimeType, apiKey);
+  } catch (outerErr) {
+    console.error('[GEMINI_TRANSCRIPTION] Blob fallback transcription failed:', outerErr);
+    return null;
+  }
+}
+
+async function executeGeminiTranscriptionInference(
+  base64Audio: string,
+  mimeType: string,
+  apiKey: string
+): Promise<GeminiTranscriptionResult | null> {
+  const systemPrompt = `You are a high-precision audio transcription engine.
 Transcribe the speech in this audio file with sub-second timestamps.
 Language Rules:
 - Transcribe in clean English or Roman Hinglish (Latin phonetic script).
@@ -83,102 +123,100 @@ Output STRICT JSON only matching this schema:
   ]
 }`;
 
-    for (const model of GEMINI_MODELS) {
-      try {
-        console.log(`[GEMINI_TRANSCRIPTION] Attempting audio transcription with model: ${model}`);
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [
-                {
-                  parts: [
-                    { inlineData: { mimeType, data: base64Audio } },
-                    { text: systemPrompt },
-                  ],
-                },
-              ],
-              generationConfig: {
-                responseMimeType: 'application/json',
-                temperature: 0.1,
+  for (const model of GEMINI_MODELS) {
+    try {
+      console.log(`[GEMINI_TRANSCRIPTION] Attempting audio transcription with model: ${model}`);
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  { inlineData: { mimeType, data: base64Audio } },
+                  { text: systemPrompt },
+                ],
               },
-            }),
-          }
-        );
-
-        if (!response.ok) {
-          const errText = await response.text();
-          console.warn(`[GEMINI_TRANSCRIPTION] Model ${model} returned error status ${response.status}: ${errText.slice(0, 200)}`);
-          continue;
+            ],
+            generationConfig: {
+              responseMimeType: 'application/json',
+              temperature: 0.1,
+            },
+          }),
         }
+      );
 
-        const data = await response.json();
-        const rawJsonText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!rawJsonText) {
-          console.warn(`[GEMINI_TRANSCRIPTION] Empty content parts returned from ${model}`);
-          continue;
-        }
-
-        const parsed = JSON.parse(rawJsonText);
-        const rawTranscript = String(parsed.transcript || '').trim();
-        if (!rawTranscript) {
-          console.warn(`[GEMINI_TRANSCRIPTION] Parsed JSON has empty transcript`);
-          continue;
-        }
-
-        const segments: ReelTranscriptSegment[] = Array.isArray(parsed.segments)
-          ? parsed.segments.map((seg: any, idx: number) => ({
-              id: seg.id ?? idx,
-              start: Math.max(0, Number(seg.start) || 0),
-              end: Math.max(0, Number(seg.end) || 0),
-              text: String(seg.text || '').trim(),
-            })).filter((s: ReelTranscriptSegment) => s.text && s.end > s.start)
-          : [];
-
-        let words: ReelWord[] = Array.isArray(parsed.words)
-          ? parsed.words.map((w: any) => ({
-              word: String(w.word || '').trim(),
-              start: Math.max(0, Number(w.start) || 0),
-              end: Math.max(0, Number(w.end) || 0),
-            })).filter((w: ReelWord) => w.word && w.end > w.start)
-          : [];
-
-        // Synthesize word timestamps if model omitted individual words
-        if (words.length === 0 && segments.length > 0) {
-          words = synthesizeWordsFromSegments(segments);
-        }
-
-        const cleaned = normalizeTranscriptForPlanner({
-          transcript: rawTranscript,
-          words: words.length ? words : undefined,
-          segments: segments.length ? segments : undefined,
-        });
-
-        const durationSeconds = Number(parsed.durationSeconds) > 0
-          ? Number(parsed.durationSeconds)
-          : (segments.length ? Math.max(...segments.map((s) => s.end)) : 60);
-
-        return {
-          transcript: cleaned.transcript || rawTranscript,
-          rawTranscript,
-          words: cleaned.words?.length ? cleaned.words : (words.length ? words : undefined),
-          segments: cleaned.segments?.length ? cleaned.segments : (segments.length ? segments : undefined),
-          durationSeconds: Math.round(durationSeconds * 1000) / 1000,
-          languageHint: cleaned.languageHint || (parsed.language === 'hinglish' ? 'hinglish' : 'english'),
-          model,
-          source: 'gemini',
-        };
-      } catch (modelErr) {
-        console.warn(`[GEMINI_TRANSCRIPTION] Error during inference with ${model}:`, modelErr);
+      if (!response.ok) {
+        const errText = await response.text();
+        console.warn(`[GEMINI_TRANSCRIPTION] Model ${model} returned error status ${response.status}: ${errText.slice(0, 200)}`);
+        continue;
       }
+
+      const data = await response.json();
+      const rawJsonText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!rawJsonText) {
+        console.warn(`[GEMINI_TRANSCRIPTION] Empty content parts returned from ${model}`);
+        continue;
+      }
+
+      const parsed = JSON.parse(rawJsonText);
+      const rawTranscript = String(parsed.transcript || '').trim();
+      if (!rawTranscript) {
+        console.warn(`[GEMINI_TRANSCRIPTION] Parsed JSON has empty transcript`);
+        continue;
+      }
+
+      const segments: ReelTranscriptSegment[] = Array.isArray(parsed.segments)
+        ? parsed.segments.map((seg: any, idx: number) => ({
+            id: seg.id ?? idx,
+            start: Math.max(0, Number(seg.start) || 0),
+            end: Math.max(0, Number(seg.end) || 0),
+            text: String(seg.text || '').trim(),
+          })).filter((s: ReelTranscriptSegment) => s.text && s.end > s.start)
+        : [];
+
+      let words: ReelWord[] = Array.isArray(parsed.words)
+        ? parsed.words.map((w: any) => ({
+            word: String(w.word || '').trim(),
+            start: Math.max(0, Number(w.start) || 0),
+            end: Math.max(0, Number(w.end) || 0),
+          })).filter((w: ReelWord) => w.word && w.end > w.start)
+        : [];
+
+      // Synthesize word timestamps if model omitted individual words
+      if (words.length === 0 && segments.length > 0) {
+        words = synthesizeWordsFromSegments(segments);
+      }
+
+      const cleaned = normalizeTranscriptForPlanner({
+        transcript: rawTranscript,
+        words: words.length ? words : undefined,
+        segments: segments.length ? segments : undefined,
+      });
+
+      const durationSeconds = Number(parsed.durationSeconds) > 0
+        ? Number(parsed.durationSeconds)
+        : (segments.length ? Math.max(...segments.map((s) => s.end)) : 60);
+
+      return {
+        transcript: cleaned.transcript || rawTranscript,
+        rawTranscript,
+        words: cleaned.words?.length ? cleaned.words : (words.length ? words : undefined),
+        segments: cleaned.segments?.length ? cleaned.segments : (segments.length ? segments : undefined),
+        durationSeconds: Math.round(durationSeconds * 1000) / 1000,
+        languageHint: cleaned.languageHint || (parsed.language === 'hinglish' ? 'hinglish' : 'english'),
+        model,
+        source: 'gemini',
+      };
+    } catch (modelErr) {
+      console.warn(`[GEMINI_TRANSCRIPTION] Error during inference with ${model}:`, modelErr);
     }
-  } catch (outerErr) {
-    console.error('[GEMINI_TRANSCRIPTION] Fallback transcription pipeline failed:', outerErr);
   }
 
   return null;
+}
 }
 
 function synthesizeWordsFromSegments(segments: ReelTranscriptSegment[]): ReelWord[] {

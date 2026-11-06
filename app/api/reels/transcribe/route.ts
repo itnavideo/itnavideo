@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createReadUrl } from "@/lib/aws/mediaStorage";
 import { transcribeMediaUrlWithGroq, transcribeMediaBlobWithGroq } from "@/services/ai/groqTranscription";
-import { transcribeMediaWithGeminiFallback } from "@/services/ai/geminiTranscription";
+import { transcribeMediaWithGeminiFallback, transcribeBlobWithGeminiFallback } from "@/services/ai/geminiTranscription";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -34,8 +34,16 @@ export async function POST(request: Request) {
           language: spokenLanguage,
         });
       } catch (groqErr: any) {
-        console.warn("[Transcribe API] Direct Groq transcription failed:", groqErr?.message);
-        throw new Error(groqErr?.message || "Groq Whisper transcription failed.");
+        console.warn("[Transcribe API] Direct Groq transcription failed, trying Gemini fallback:", groqErr?.message);
+        result = await transcribeBlobWithGeminiFallback({
+          blob: file,
+          fileName,
+          contentType: file.type || undefined,
+        });
+      }
+
+      if (!result) {
+        throw new Error("Both Groq Whisper and Gemini transcription failed.");
       }
 
       return NextResponse.json({

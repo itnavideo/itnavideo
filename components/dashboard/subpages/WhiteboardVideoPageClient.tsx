@@ -66,7 +66,7 @@ export default function WhiteboardVideoPage() {
 
   // Studio Form Options
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [topicTitle, setTopicTitle] = useState("Why You Should Save Money?");
+  const [topicTitle, setTopicTitle] = useState("");
   const [markerColor, setMarkerColor] = useState<string>("auto");
   const [handStyle, setHandStyle] = useState<string>("right");
   const [fontPersonality, setFontPersonality] = useState<string>("balsamiq");
@@ -74,9 +74,8 @@ export default function WhiteboardVideoPage() {
   const [bgmVolume, setBgmVolume] = useState(0.12);
   const [customBgmFile, setCustomBgmFile] = useState<File | null>(null);
   const [enableSfx, setEnableSfx] = useState<boolean>(true);
-  const [editorialTranscript, setEditorialTranscript] = useState(
-    "1. Start with daily 1% improvements. 2. Small habits compound over time. 3. Massive results after 365 days."
-  );
+  const [editorialTranscript, setEditorialTranscript] = useState("");
+  const [hasUserEditedTranscript, setHasUserEditedTranscript] = useState(false);
 
   // Job & render states
   const [jobStatus, setJobStatus] = useState<JobStatus>({ state: "idle" });
@@ -212,7 +211,10 @@ export default function WhiteboardVideoPage() {
         progress: 0.35,
       });
 
-      const plannedTitle = topicTitle.trim() || "Whiteboard Explainer";
+      const plannedTitle =
+        topicTitle.trim() ||
+        selectedFile.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ") ||
+        "Whiteboard Explainer";
 
       const jobResponse = await fetch("/api/reels/jobs", {
         method: "POST",
@@ -239,7 +241,7 @@ export default function WhiteboardVideoPage() {
           customBgmUrl,
           enableSfx,
           editorialTranscript: editorialTranscript.trim() || undefined,
-          editedTranscript: editorialTranscript.trim() || undefined,
+          editedTranscript: hasUserEditedTranscript && editorialTranscript.trim() ? editorialTranscript.trim() : undefined,
           plan: customScenes && Array.isArray(customScenes) && customScenes.length > 0 ? {
             title: plannedTitle,
             scenes: customScenes,
@@ -353,7 +355,13 @@ export default function WhiteboardVideoPage() {
         ) : (
           <WhiteboardStudio
             selectedFile={selectedFile}
-            onSelectFile={setSelectedFile}
+            onSelectFile={(file) => {
+              setSelectedFile(file);
+              if (!file) {
+                setEditorialTranscript("");
+                setHasUserEditedTranscript(false);
+              }
+            }}
             topicTitle={topicTitle}
             onTopicTitleChange={setTopicTitle}
             fontPersonality={fontPersonality}
@@ -371,7 +379,12 @@ export default function WhiteboardVideoPage() {
             enableSfx={enableSfx}
             onEnableSfxChange={setEnableSfx}
             editorialTranscript={editorialTranscript}
-            onEditorialTranscriptChange={setEditorialTranscript}
+            onEditorialTranscriptChange={(text, isManual = false) => {
+              setEditorialTranscript(text);
+              if (isManual) {
+                setHasUserEditedTranscript(true);
+              }
+            }}
             onGenerate={handleStartRender}
             isGenerating={isSubmitting || (jobStatus.state !== "idle" && jobStatus.state !== "ready")}
             renderedVideoUrl={jobStatus.outputFile}
