@@ -76,6 +76,8 @@ export const getWhiteboardFont = (personality: string = 'balsamiq') => {
 export interface DynamicWhiteboardSceneDirectorProps {
   scenes: WhiteboardScene[];
   showHand?: boolean;
+  handStyle?: string;
+  markerColor?: string;
   fontPersonality?: string;
 }
 
@@ -105,6 +107,8 @@ const CANVAS_WAYPOINTS = [
 export const DynamicWhiteboardSceneDirector: React.FC<DynamicWhiteboardSceneDirectorProps> = ({
   scenes = [],
   showHand = true,
+  handStyle = 'classic',
+  markerColor = 'auto',
   fontPersonality = 'marker',
 }) => {
   const frame = useCurrentFrame();
