@@ -820,8 +820,6 @@ export default function InteractiveRenderEngine({
 
             <button
               type="button"
-              <button
-              type="button"
               onClick={() => setShowQrModal(true)}
               className="sm:w-auto px-5 py-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 font-bold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 whitespace-nowrap shadow-xs"
               title="Scan QR code to download directly on mobile"
