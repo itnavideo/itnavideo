@@ -110,11 +110,7 @@ export function PlatformJourney() {
     <section className="relative border-b border-stone-200/80 bg-white px-4 py-16 sm:px-6 sm:py-24 overflow-hidden text-slate-900">
       <div className="relative z-10 mx-auto max-w-7xl">
         <div className="mx-auto max-w-3xl text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-orange-700 shadow-xs">
-            <Sparkles size={14} className="text-[#FF5722]" />
-            <span>How Itnavideo Works</span>
-          </div>
-          <h2 className="mt-4 text-3xl font-black tracking-tight text-slate-900 sm:text-5xl font-sans">
+          <h2 className="text-3xl font-black tracking-tight text-slate-900 sm:text-5xl font-sans">
             Simple 4-Step Creation.{' '}
             <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
               Zero Timeline Lag.
@@ -240,11 +236,7 @@ export function WhyItnavideo() {
     <section className="relative border-b border-stone-200/80 bg-stone-50/60 px-4 py-12 sm:px-6 sm:py-16 text-slate-900">
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-orange-700 shadow-xs">
-            <CheckCircle2 size={14} className="text-[#FF5722]" />
-            <span>Why Creators Choose Itnavideo</span>
-          </div>
-          <h2 className="mt-4 text-3xl font-black tracking-tight text-slate-900 sm:text-5xl">
+          <h2 className="text-3xl font-black tracking-tight text-slate-900 sm:text-5xl">
             Built for creators,<br className="hidden sm:block" /> not editors.
           </h2>
           <p className="mt-4 max-w-xl text-sm leading-relaxed text-slate-600 sm:text-base">
@@ -296,12 +288,7 @@ export function HomepageFinalCta() {
         />
 
         <div className="relative z-10 mx-auto max-w-3xl">
-          <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-orange-700 shadow-xs">
-            <Sparkles size={14} className="text-[#FF5722]" />
-            <span>Ready to Create?</span>
-          </div>
-
-          <h2 className="mt-5 text-3xl font-black tracking-tight text-slate-900 sm:text-5xl font-sans">
+          <h2 className="text-3xl font-black tracking-tight text-slate-900 sm:text-5xl font-sans">
             Ready to create your first{' '}
             <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
               AI video?

@@ -70,16 +70,18 @@ When creators upload Hindi, Hinglish, or regional Indian language voiceovers, ou
 app/page.tsx
  ├── 1. HeroSection (`components/landing/Hero.tsx`)
  ├── 2. PlatformMarqueeTicker (`components/landing/PlatformMarqueeTicker.tsx`)
- ├── 3. FacelessVideoFlagshipShowcase (`components/landing/FacelessVideoFlagshipShowcase.tsx`)
- ├── 4. PlatformJourney (`components/landing/HomepageValueSections.tsx`)
- ├── 5. BeforeAfterComparison (`components/landing/BeforeAfterComparison.tsx`)
- ├── 6. DualShowcaseTabs (`components/landing/DualShowcaseTabs.tsx`)
- ├── 7. TenStudiosHubArchitecture (`components/landing/TenStudiosHubArchitecture.tsx`)
- ├── 8. PricingSection (`components/landing/PricingSection.tsx`)
- ├── 9. FAQSection (`components/FAQSection.tsx`)
- ├── 10. HomepageFinalCta (`components/landing/HomepageValueSections.tsx`)
- └── 11. StickyMobileActionBar (`components/landing/StickyMobileActionBar.tsx`)
+ ├── 3. TransformationShowcaseSection (`components/landing/TransformationShowcaseSection.tsx`)
+ ├── 4. TenStudiosHubArchitecture (`components/landing/TenStudiosHubArchitecture.tsx`)
+ ├── 5. TestimonialSection (`components/landing/TestimonialSection.tsx`)
+ ├── 6. HomepagePricing (`components/landing/PricingSection.tsx`)
+ ├── 7. FAQSection (`components/FAQSection.tsx`)
+ ├── 8. FreeCreatorUtilitiesSection (`components/landing/FreeCreatorUtilitiesSection.tsx`)
+ ├── 9. HomepageFinalCta (`components/landing/HomepageValueSections.tsx`)
+ └── 10. StickyMobileActionBar (`components/landing/StickyMobileActionBar.tsx`)
 ```
+
+> [!NOTE]
+> Per Rule 0.7 of `AGENTS.md`, all eyebrow pill tags, kickers, and spark chips have been removed from section headings. Headlines remain bold, uncluttered, and direct. DualFormatEngineShowcase and ComparisonSection were cleanly removed to optimize reading flow and CRO.
 
 ### Component Details
 

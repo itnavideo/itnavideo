@@ -162,10 +162,6 @@ export default function CaptionStylesShowcase() {
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div>
-            <div className="mb-2 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-orange-600">
-              <Sparkles size={13} className="text-[#FF5722]" />
-              <span>Auto Caption Styles</span>
-            </div>
             <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl font-heading">
               Pick a style.{" "}
               <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">

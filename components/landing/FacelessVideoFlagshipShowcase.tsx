@@ -20,12 +20,7 @@ export default function FacelessVideoFlagshipShowcase() {
 
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-orange-700 shadow-xs">
-            <Sparkles size={14} className="text-[#FF5722]" />
-            <span>16:9 Cinema &amp; YouTube Explainer Studio</span>
-          </div>
-
-          <h2 className="mt-4 text-3xl font-black tracking-tight text-slate-900 sm:text-5xl md:text-6xl">
+          <h2 className="text-3xl font-black tracking-tight text-slate-900 sm:text-5xl md:text-6xl">
             16:9 Faceless &amp; YouTube AI
           </h2>
 

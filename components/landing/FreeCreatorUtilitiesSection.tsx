@@ -53,11 +53,7 @@ export function FreeCreatorUtilitiesSection() {
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/20 bg-orange-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-orange-600">
-            <Zap size={14} />
-            <span>Free Creator Utilities & Tools</span>
-          </div>
-          <h2 className="mt-4 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
+          <h2 className="text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
             Free Audio & Video Tools for Creators
           </h2>
           <p className="mt-3 text-base font-medium text-slate-600">

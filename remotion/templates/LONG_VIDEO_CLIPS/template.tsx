@@ -2,6 +2,7 @@ import React from 'react';
 import {
   AbsoluteFill,
   Audio,
+  Sequence,
   Composition,
   OffthreadVideo,
   interpolate,
@@ -394,6 +395,13 @@ function LongVideoClips({
 
       {/* Universal Anti-Crop Watermark for Free Plan */}
       <BrandWatermark watermark={watermark} isLandscape={aspectRatio === '16:9'} />
+
+      {/* ── AUDIO TRACK A2: Hook Transition Whoosh SFX ── */}
+      {frame <= 18 && (
+        <Sequence from={0} durationInFrames={18} layout="none">
+          <Audio src={resolveAsset('assets/reusable/sound-effects/swipe-right.wav')} volume={0.22} />
+        </Sequence>
+      )}
 
       {/* Background Music Track (Default 12% Volume) */}
       {bgmUrl && bgmUrl !== 'none' && (

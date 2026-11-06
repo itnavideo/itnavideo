@@ -3320,6 +3320,15 @@ function normalizeServeUrl(value: string) {
 }
 
 async function startRenderWithCapacityRetry(request: LambdaRenderRequest) {
+  // Bhide Composition Inspector: Strict audit & auto-fix before rendering
+  if (request.inputProps && typeof request.inputProps === 'object') {
+    const compositionId = String((request.inputProps as any).compositionId || request.composition || '');
+    const bhideResult = inspectAndAutoFixComposition(compositionId, request.inputProps as Record<string, any>);
+    if (bhideResult.appliedFixes.length > 0) {
+      console.log(`[BHIDE_INSPECTOR_AUTO_FIX] Video composition "${compositionId}" auto-fixed:`, bhideResult.appliedFixes);
+      request.inputProps = bhideResult.compositionProps;
+    }
+  }
   const frameRange = request.frameRange;
   const frameCount = frameRange && Array.isArray(frameRange) && typeof frameRange[0] === 'number' && typeof frameRange[1] === 'number' ? Math.max(30, frameRange[1] - frameRange[0] + 1) : 1800;
 

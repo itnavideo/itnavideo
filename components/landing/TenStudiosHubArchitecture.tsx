@@ -353,10 +353,7 @@ export default function TenStudiosHubArchitecture() {
         
         {/* Top Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3 px-1 sm:px-2">
-          <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/40 bg-orange-500/15 px-3.5 py-1 text-[11px] sm:text-xs font-bold text-orange-400 shadow-xs">
-            <Sparkles size={13} className="text-[#FF5722]" />
-            <span className="tracking-wide">STUDIO SUITE • ALL-IN-ONE VIDEO PLATFORM</span>
-          </div>
+          
           
           <h2 className="text-2xl font-normal tracking-tight text-white sm:text-5xl font-serif" style={{ color: '#ffffff' }}>
             AI Video Studios{' '}

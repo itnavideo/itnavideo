@@ -76,3 +76,6 @@ As per **Rule 8 of `AGENTS.md` (Video Type Independence)** and the **Founder Mas
 5. **Dedicated Internal Components (No Generic Visual Reuse)**:
    - Every video type must build its own dedicated Remotion visual `.tsx` components (cards, title banners, scene layouts, overlays) inside its own template folder (`remotion/templates/TEMPLATE_NAME/components/` or within its template file).
    - Reusing a single generic visual component across different video types is strictly forbidden to prevent visual fatigue and keep videos fresh and distinct for creators.
+6. **Bhide Composition Inspector ("Ekmev Secretary" for Lambda Renders)**:
+   - Before dispatching any render to AWS Lambda, `lib/inspector/bhideCompositionInspector.ts` audits and auto-fixes the composition props.
+   - Guarantees: Track A1 Voiceover, Track A2 Sound Effects (tactile pops/whooshes), Track A3 Background Music (auto-ducked to 0.12), safe-zone margins, and high-retention default styles so no video renders blank or silent.

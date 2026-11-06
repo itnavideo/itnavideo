@@ -18,11 +18,7 @@ export default function BeforeAfterShowcase() {
       <div className="relative z-10 mx-auto max-w-7xl">
         {/* Section Header */}
         <div className="mx-auto max-w-3xl text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#FF6D00]/30 bg-[#FF6D00]/10 px-4 py-1.5 text-xs font-black uppercase tracking-wider text-[#FF9100]">
-            <Sparkles size={14} className="text-[#FF8F00] animate-pulse" />
-            <span>Interactive Proof</span>
-          </div>
-          <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-5xl">
+          <h2 className="text-3xl font-black tracking-tight text-white sm:text-5xl">
             See the Transformation{' '}
             <span className="bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] bg-clip-text text-transparent">
               Before &amp; After

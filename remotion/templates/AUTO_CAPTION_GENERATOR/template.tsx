@@ -68,6 +68,8 @@ export type AutoCaptionGeneratorProps = {
   showBackground?: boolean;
   watermark?: boolean;
   wordClickSound?: boolean;
+  bgmUrl?: string;
+  bgmVolume?: number;
   captionEmphasisAnimation?: 'bounce' | 'glow' | 'none';
   youtubeSubtitleSafeZone?: 'standard' | 'scrubber' | 'high';
   youtubeSubtitleCase?: 'natural' | 'uppercase';
@@ -312,6 +314,15 @@ export function AutoCaptionGenerator({
             </Sequence>
           ))
         : null}
+
+      {/* ── AUDIO TRACK A3: Background Music Score (Looped, Ducked) ── */}
+      {bgmUrl && bgmUrl !== 'none' && (
+        <Audio
+          src={bgmUrl.startsWith('http') ? bgmUrl : staticFile(bgmUrl.replace(/^\/+/, ''))}
+          volume={Math.max(0, Math.min(1, typeof bgmVolume === 'number' ? bgmVolume : 0.12))}
+          loop
+        />
+      )}
 
       {/* Universal Anti-Crop Watermark for Free Plan */}
       <BrandWatermark watermark={watermark} isLandscape={isLandscape} />

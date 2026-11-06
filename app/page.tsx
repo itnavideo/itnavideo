@@ -4,9 +4,7 @@ import Hero from '@/components/landing/Hero';
 import PlatformMarqueeTicker from '@/components/landing/PlatformMarqueeTicker';
 import TransformationShowcaseSection from '@/components/landing/TransformationShowcaseSection';
 import TenStudiosHubArchitecture from '@/components/landing/TenStudiosHubArchitecture';
-import DualFormatEngineShowcase from '@/components/landing/DualFormatEngineShowcase';
 import TestimonialSection from '@/components/landing/TestimonialSection';
-import ComparisonSection from '@/components/landing/ComparisonSection';
 import { FreeCreatorUtilitiesSection } from '@/components/landing/FreeCreatorUtilitiesSection';
 import {
   HomepageFinalCta,
@@ -122,9 +120,7 @@ export default function LandingPage() {
       <PlatformMarqueeTicker />
       <TransformationShowcaseSection />
       <TenStudiosHubArchitecture />
-      <DualFormatEngineShowcase />
       <TestimonialSection />
-      <ComparisonSection />
       <HomepagePricing />
       <FAQSection />
       <FreeCreatorUtilitiesSection />

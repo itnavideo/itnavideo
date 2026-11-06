@@ -148,6 +148,15 @@ This is the **single source of truth** for all AI tools (Antigravity, Codex, Kir
 
 ---
 
+## 0.7 STRICT: Zero Eyebrow Badge & Kicker Pill Policy (Clean Enterprise Brand Directive)
+
+> [!IMPORTANT]
+> **NO EYEBROW PILL BADGES ACROSS THE ENTIRE WEBSITE**:
+> - **Forbidden Everywhere**: NEVER place small rounded-pill eyebrow tags, kicker chips, or spark badges (e.g. "✨ THE NO-CODE VIDEO TRANSFORMATION", "✨ 14 PURPOSE-BUILT STUDIOS", etc.) above H1, H2, or section headlines.
+> - **Brand Standard**: Follow the clean, confident, high-impact aesthetic of global tech leaders (Apple, Google, Stripe). Keep headlines bold, uncluttered, and direct. The visitor's eye must land immediately on the primary value proposition without competing pill clutter.
+
+---
+
 ## 1. Fast Work Tree (Execution Engine)
 
 Most daily work in Itnavideo focuses on **Existing Video Types** and **Dashboard UI/UX Design**. Follow these targeted workflows for fast, zero-delay completion:
@@ -491,3 +500,31 @@ Keep these mandatory UI quality checks and anti-pattern bans in mind for all fro
 > Every completed video render across all video types includes a high-contrast QR Code ("Scan to Phone") allowing users to directly scan and download the finalized 1080p MP4 straight to their mobile device (iOS / Android camera) without logging in on their phone.
 > - Available in: InteractiveRenderEngine, Recent Cloud Renders cards, and Generated Videos history tab.
 > - Modal component: `components/media/PhoneQrDownloadModal.tsx`.
+
+---
+
+## 11. STRICT: Professional Multi-Track Layer Architecture (No Layer Limits — Industry Standard Rule)
+
+> [!IMPORTANT]
+> **FOUNDER DIRECTIVE: ZERO LAYER CAPS & MANDATORY MULTI-TRACK SEPARATION**:
+> In professional video editing (Adobe Premiere Pro, DaVinci Resolve, After Effects), no project is ever built in a single flat layer. 
+> Every video type across Itnavideo MUST use a decoupled, multi-track layer architecture. There is **no fixed limit on layers** — use as many dedicated, specialized layers as needed to ensure zero collisions, independent volume control, and flawless visual hierarchy.
+> 
+> ### 1. Zero Monolithic Layering Anti-Pattern:
+> - ❌ **FORBIDDEN**: Never bundle voiceover, background music, and sound effects into a single audio tag or shared logic.
+> - ❌ **FORBIDDEN**: Never combine background canvas, drawings/b-roll, typography/text, and hands/overlays into a single monolithic JSX container.
+> - ❌ **FORBIDDEN**: Arbitrary layer limits. Add dedicated layers for every distinct visual or acoustic responsibility.
+> 
+> ### 2. Standard Visual Stacking Hierarchy (Video Tracks V1, V2, V3...):
+> - **Track V1: Canvas / Background Surface**: Spotless background, whiteboard board frames, canvas textures, or clean color fields.
+> - **Track V2: Primary Media / Vector Drawings / B-Roll**: Stickman vector sketches, stock video b-roll, product mockups, or user images.
+> - **Track V3: Visual Structure & Framing**: Layout cards, split-screen dividers, flow arrows, diagram nodes, and safe-zone containers.
+> - **Track V4: Typography & Text Layer**: **Strictly independent of drawings**. Headlines, bullet points, numbers, statistics callouts, and conclusion takeaways. Words must never be obstructed or clipped by illustrations.
+> - **Track V5: Focus & Highlight Overlays**: Spoken-word accent circles, marker underlines, and yellow highlighter strips.
+> - **Track V6: Foreground Actors & Physical Elements**: Realistic drawing hands, marker pens, interactive cursors, and watermarks.
+> - **Track V7: Scene Transitions & Camera Viewport**: Camera pan/zoom motions, dry-eraser wipes, and scene wipe transitions.
+> 
+> ### 3. Standard Audio Mixing Hierarchy (Audio Tracks A1, A2, A3...):
+> - **Track A1: Dialogue / Voiceover**: Primary spoken speech at 100% volume, normalized and pristine with start-trim offset.
+> - **Track A2: Foley & Tactile Sound Effects (SFX)**: Marker writing squeaks, eraser swipes, button clicks, pop hits, and whooshes (balanced at 25%–35% volume).
+> - **Track A3: Background Music Score (BGM)**: Looping mood soundtrack, ducked at 10%–12% volume so it never masks speech.

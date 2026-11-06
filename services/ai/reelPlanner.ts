@@ -78,7 +78,9 @@ export type ReelVideoTypeName =
   | 'BOOK_SUMMARY'
   | 'SPLIT_SCREEN_EXPLAINER'
   | 'AI_VIDEO_POLISHER'
-  | 'AI_SHORTS_POLISHER';
+  | 'AI_SHORTS_POLISHER'
+  | 'AUDIO_CLEAN'
+  | 'audioClean';
 
 export type ReelVideoTypeConfig = {
   templateName: ReelVideoTypeName;
@@ -269,6 +271,26 @@ export const VIDEO_TYPE_REGISTRY: Partial<Record<ReelVideoTypeName, ReelVideoTyp
     needsImages: true,
     needsTitle: true,
     needsCaptionStylePicker: true,
+    skipPlanner: true,
+  },
+  AUDIO_CLEAN: {
+    templateName: 'AUDIO_CLEAN',
+    compositionId: 'AUDIO-CLEAN-STUDIO',
+    videoCategory: 'reel',
+    allowedMedia: ['audio', 'video'],
+    transcriptRequirement: 'required',
+    plannerMode: 'videoCaption',
+    mediaFit: 'videoCaption',
+    skipPlanner: true,
+  },
+  audioClean: {
+    templateName: 'AUDIO_CLEAN',
+    compositionId: 'AUDIO-CLEAN-STUDIO',
+    videoCategory: 'reel',
+    allowedMedia: ['audio', 'video'],
+    transcriptRequirement: 'required',
+    plannerMode: 'videoCaption',
+    mediaFit: 'videoCaption',
     skipPlanner: true,
   },
 } as const satisfies Record<string, {

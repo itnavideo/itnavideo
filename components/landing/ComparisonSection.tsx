@@ -179,13 +179,8 @@ export default function ComparisonSection() {
       />
 
       <div className="relative z-10 mx-auto max-w-6xl">
-        {/* Section Header with Bold Font & Trophy Pill */}
+        {/* Section Header with Bold Font */}
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
-          <div className="mb-3.5 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-orange-700 shadow-xs">
-            <Trophy size={14} className="text-[#FF5722]" />
-            <span>Honest Creator Benchmark</span>
-          </div>
-
           <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-[1.15] font-sans">
             How Itnavideo Compares{' '}
             <br className="hidden sm:inline" />

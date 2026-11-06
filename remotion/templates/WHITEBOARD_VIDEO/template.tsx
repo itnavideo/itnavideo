@@ -1016,11 +1016,26 @@ function WhiteboardVideo({
 
   // 0. Dynamic Archetype Scene Director (Multi-scene speech-synced storytelling)
   if (scenes && scenes.length > 0) {
+    // Detect scene transition moments for tactile board-wipe sound effects
+    const isTransitioningScene = scenes.some((s, idx) => {
+      if (idx === 0) return false;
+      const diff = Math.abs(currentTime - s.startSeconds);
+      return diff <= 0.28;
+    });
+
     return (
       <AbsoluteFill style={{ background: '#FFFFFF' }}>
+        {/* Visual Multi-Layer Canvas Pipeline */}
         <ProceduralWhiteboardCanvas />
-        <DynamicWhiteboardSceneDirector scenes={scenes} showHand={showHand !== false && handStyle !== 'none'} handStyle={handStyle} markerColor={markerColor} fontPersonality={fontPersonality} />
+        <DynamicWhiteboardSceneDirector
+          scenes={scenes}
+          showHand={showHand !== false && handStyle !== 'none'}
+          handStyle={handStyle}
+          markerColor={markerColor}
+          fontPersonality={fontPersonality}
+        />
 
+        {/* ── AUDIO TRACK A1: Primary User Speech & Voiceover (100% Normalized) ── */}
         {resolvedSrc && mediaType === 'audio' && (
           <Audio
             src={resolvedSrc}
@@ -1034,6 +1049,23 @@ function WhiteboardVideo({
             volume={sourceAudioVolume}
             startFrom={Math.round(mediaTrimStartSeconds * fps)}
             style={{ position: 'absolute', width: 0, height: 0, opacity: 0 }}
+          />
+        )}
+
+        {/* ── AUDIO TRACK A2: Tactile Board Eraser & Marker Foley Sound Effects (32% Volume) ── */}
+        {enableSfx && isTransitioningScene && (
+          <Audio
+            src={resolveAsset('assets/reusable/sound-effects/swipe-right.wav')}
+            volume={0.32}
+          />
+        )}
+
+        {/* ── AUDIO TRACK A3: Ambient Presentation Background Music Score (Ducked at 12%) ── */}
+        {bgmUrl && bgmUrl !== 'none' && (
+          <Audio
+            src={resolveAsset(bgmUrl)}
+            volume={bgmVolume ?? 0.12}
+            loop
           />
         )}
       </AbsoluteFill>
@@ -1044,9 +1076,11 @@ function WhiteboardVideo({
   if (layoutType === 'infographic') {
     return (
       <AbsoluteFill style={{ background: '#F1F5F9' }}>
+        {/* Visual Multi-Layer Canvas Pipeline */}
         <ProceduralWhiteboardCanvas />
         <WhiteboardStoryInfographic {...infographicData} showHand={showHand} />
 
+        {/* ── AUDIO TRACK A1: Primary User Speech & Voiceover (100% Normalized) ── */}
         {resolvedSrc && mediaType === 'audio' && (
           <Audio
             src={resolvedSrc}
@@ -1060,6 +1094,15 @@ function WhiteboardVideo({
             volume={sourceAudioVolume}
             startFrom={Math.round(mediaTrimStartSeconds * fps)}
             style={{ position: 'absolute', width: 0, height: 0, opacity: 0 }}
+          />
+        )}
+
+        {/* ── AUDIO TRACK A3: Ambient Presentation Background Music Score (Ducked at 12%) ── */}
+        {bgmUrl && bgmUrl !== 'none' && (
+          <Audio
+            src={resolveAsset(bgmUrl)}
+            volume={bgmVolume ?? 0.12}
+            loop
           />
         )}
       </AbsoluteFill>

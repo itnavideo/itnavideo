@@ -302,9 +302,6 @@ export default function CaptionBeforeAfter() {
 
         {/* Header */}
         <div className="mb-14 text-center">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-green-400/25 bg-green-400/[0.07] px-4 py-1.5 text-xs font-bold text-green-400">
-            Before vs After
-          </div>
           <h2 className="text-3xl font-black leading-tight text-white sm:text-4xl md:text-5xl">
             Same video. Completely different result.
           </h2>

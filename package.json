@@ -38,13 +38,10 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@aws-sdk/client-bedrock": "^3.1158.0",
-    "@aws-sdk/client-bedrock-runtime": "^3.1158.0",
     "@aws-sdk/client-s3": "^3.1136.0",
     "@aws-sdk/s3-request-presigner": "^3.1136.0",
     "@distube/ytdl-core": "^4.15.9",
     "@google/genai": "0.9.0",
-    "@mediapipe/tasks-vision": "^0.10.35",
     "@remotion/bundler": "^4.0.467",
     "@remotion/google-fonts": "4.0.467",
     "@remotion/lambda": "^4.0.467",
@@ -69,7 +66,6 @@
     "googleapis": "^173.0.0",
     "lucide-react": "^0.511.0",
     "next": "^16.2.6",
-    "radix-ui": "^1.4.3",
     "razorpay": "^2.9.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

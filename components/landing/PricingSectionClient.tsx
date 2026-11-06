@@ -357,10 +357,6 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
         
         {/* Header */}
         <div className="mb-10 text-center max-w-3xl mx-auto space-y-3">
-          <p className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-black uppercase tracking-wider text-orange-400">
-            <Sparkles size={13} className="text-[#FF5722] animate-pulse" />
-            <span>Transparent Video Creation Pricing</span>
-          </p>
           <h2 className="text-3xl font-black text-white sm:text-5xl font-sans tracking-tight">
             Plans built for <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">video production.</span>
           </h2>

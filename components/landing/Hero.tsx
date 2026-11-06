@@ -56,13 +56,6 @@ export default function Hero() {
       {/* MAIN HERO CONTENT STACK                                       */}
       {/* ───────────────────────────────────────────────────────────── */}
       <div className="relative z-10 mx-auto max-w-5xl text-center">
-        
-        {/* Kicker Pill - Flame Accent */}
-        <div className="mb-3.5 sm:mb-5 inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 sm:px-4 py-1 sm:py-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-orange-700 shadow-2xs backdrop-blur-xs">
-          <Sparkles size={13} className="text-[#FF5722]" />
-          <span>14 Purpose-Built AI Video Studios</span>
-        </div>
-
         {/* High-Impact Headline */}
         <h1 className="text-3xl sm:text-6xl md:text-7xl lg:text-[76px] font-black tracking-tight sm:tracking-[-0.03em] text-slate-950 leading-[1.12] sm:leading-[1.08] max-w-4xl mx-auto font-sans">
           Automate Video Creation{' '}

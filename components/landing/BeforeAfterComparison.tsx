@@ -21,11 +21,6 @@ export default function BeforeAfterComparison() {
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-orange-700 shadow-xs">
-            <TrendingUp size={14} className="text-[#FF5722]" />
-            <span>EFFICIENCY BENCHMARK</span>
-          </div>
-
           <h2 className="text-3xl font-black tracking-tight text-slate-900 sm:text-5xl font-sans">
             Stop Spending 5 Hours on a Single Video.{' '}
             <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">

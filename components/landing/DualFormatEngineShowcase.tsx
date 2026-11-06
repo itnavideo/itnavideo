@@ -116,11 +116,6 @@ export default function DualFormatEngineShowcase() {
       <div className="relative z-10 mx-auto max-w-6xl">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
-          <div className="mb-3.5 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-orange-700 shadow-xs">
-            <Sparkles size={14} className="text-[#FF5722]" />
-            <span>Dual-Format AI Video &amp; Audio Engine</span>
-          </div>
-
           <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-[1.15] font-sans">
             One Single Upload.{' '}
             <br className="hidden sm:inline" />
