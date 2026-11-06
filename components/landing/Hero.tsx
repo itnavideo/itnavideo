@@ -58,21 +58,16 @@ export default function Hero() {
       <div className="relative z-10 mx-auto max-w-5xl text-center">
         {/* High-Impact Headline */}
         <h1 className="text-3xl sm:text-6xl md:text-7xl lg:text-[76px] font-black tracking-tight sm:tracking-[-0.03em] text-slate-950 leading-[1.12] sm:leading-[1.08] max-w-4xl mx-auto font-sans">
-          Automate Video Creation{' '}
+          Don&apos;t edit,{' '}
           <br className="hidden sm:inline" />
           <span className="bg-gradient-to-r from-[#D84315] via-[#FF5722] to-[#FFA000] bg-clip-text text-transparent">
-            with Pure AI
+            just speak.
           </span>
         </h1>
 
-        {/* Crisp, Readable Subtitle (Concise on Mobile) */}
+        {/* Crisp, Readable Subtitle */}
         <p className="mx-auto mt-3 sm:mt-5 max-w-2xl text-sm sm:text-lg md:text-xl font-medium leading-relaxed text-slate-700 font-sans px-2">
-          <span className="hidden sm:inline">
-            Turn your voiceovers, audio recordings, or raw video clips into broadcast-ready 16:9 YouTube explainers and viral 9:16 Shorts with automated B-roll, kinetic captions, and studio sound.
-          </span>
-          <span className="sm:hidden text-[13px] leading-snug">
-            Turn voiceovers into broadcast 16:9 YouTube explainers &amp; viral 9:16 Shorts with automated B-roll, kinetic subtitles, and studio audio.
-          </span>
+          Upload audio or video. Get a complete ready-to-publish video in minutes with AI.
         </p>
 
         {/* ───────────────────────────────────────────────────────────── */}
