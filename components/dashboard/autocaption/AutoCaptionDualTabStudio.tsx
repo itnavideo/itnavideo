@@ -1,6 +1,6 @@
-import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
 "use client";
 
+import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import {

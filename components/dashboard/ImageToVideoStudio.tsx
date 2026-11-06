@@ -1,6 +1,6 @@
-import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
 'use client';
 
+import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
   Mic,
