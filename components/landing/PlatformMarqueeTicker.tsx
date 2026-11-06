@@ -1,165 +1,192 @@
 'use client';
 
 import React from 'react';
-import { 
-  Cloud, 
-  ShieldCheck, 
-  Layers, 
-  Smartphone,
-} from 'lucide-react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { ArrowUpRight, Sparkles } from 'lucide-react';
 
-function InstagramIcon() {
-  return (
-    <svg className="h-4 w-4 shrink-0 drop-shadow-[0_0_6px_rgba(225,48,108,0.5)]" viewBox="0 0 24 24" fill="none">
-      <defs>
-        <linearGradient id="igTickerGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#FFDC80" />
-          <stop offset="25%" stopColor="#F77737" />
-          <stop offset="50%" stopColor="#F56040" />
-          <stop offset="75%" stopColor="#FD1D1D" />
-          <stop offset="100%" stopColor="#C13584" />
-        </linearGradient>
-      </defs>
-      <rect x="2" y="2" width="20" height="20" rx="6" stroke="url(#igTickerGrad)" strokeWidth="2.5" fill="none" />
-      <circle cx="12" cy="12" r="4.5" stroke="url(#igTickerGrad)" strokeWidth="2" fill="none" />
-      <circle cx="17.5" cy="6.5" r="1.2" fill="#FD1D1D" />
-    </svg>
-  );
+export interface StudioShowcaseItem {
+  id: string;
+  title: string;
+  category: string;
+  aspect: '16:9' | '9:16';
+  badge: string;
+  isFree?: boolean;
+  imageUrl: string;
+  slug: string;
 }
 
-function TikTokIcon() {
-  return (
-    <svg className="h-4 w-4 shrink-0 drop-shadow-[0_0_6px_rgba(0,242,254,0.6)]" viewBox="0 0 24 24" fill="currentColor">
-      <path
-        fill="#00F2FE"
-        d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.82.57-1.32 1.55-1.28 2.55.03.88.52 1.72 1.28 2.18.82.49 1.88.52 2.73.08.82-.41 1.39-1.26 1.43-2.18.06-3.83.02-7.66.03-11.49z"
-      />
-    </svg>
-  );
-}
-
-function YouTubeShortsIcon() {
-  return (
-    <svg className="h-4 w-4 shrink-0 text-red-500 fill-current drop-shadow-[0_0_6px_rgba(239,68,68,0.5)]" viewBox="0 0 24 24">
-      <path d="M17.77 10.32l-1.2-.5L18 8.71a4.34 4.34 0 0 0-5.83-5.83l-6.07 3.5A4.34 4.34 0 0 0 8.23 14l1.2.5L8 15.81a4.34 4.34 0 0 0 5.83 5.83l6.07-3.5a4.34 4.34 0 0 0-2.13-7.82zM9.54 15.568V8.432L15.818 12l-6.273 3.568z"/>
-    </svg>
-  );
-}
-
-function SubtitleCcIcon() {
-  return (
-    <div className="inline-flex h-4 px-1.5 items-center justify-center rounded bg-amber-500/20 border border-amber-400/50 font-mono text-[10px] font-black text-amber-300 shrink-0 shadow-[0_0_8px_rgba(245,158,11,0.3)]">
-      CC
-    </div>
-  );
-}
-
-function LanguageGlobeIcon() {
-  return (
-    <div className="inline-flex h-4 px-1.5 items-center justify-center rounded bg-sky-500/20 border border-sky-400/50 font-sans text-[10px] font-black text-sky-300 shrink-0 shadow-[0_0_8px_rgba(56,189,248,0.3)]">
-      EN / HI
-    </div>
-  );
-}
-
-function LightningIcon() {
-  return (
-    <svg className="h-4 w-4 shrink-0 text-amber-400 fill-amber-400/30 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-    </svg>
-  );
-}
-
-const TICKER_ITEMS = [
-  { 
-    label: '1920×1080 Widescreen YouTube (Up to 5 Min)', 
-    IconComponent: Layers, 
-    iconColor: 'text-[#FF5722] drop-shadow-[0_0_6px_rgba(255,87,34,0.4)]' 
+const STUDIO_SHOWCASE_ITEMS: StudioShowcaseItem[] = [
+  {
+    id: 'faceless-video',
+    title: 'Faceless Video',
+    category: '16:9 Cinema YouTube',
+    aspect: '16:9',
+    badge: 'AI B-Roll & Visuals',
+    imageUrl: 'https://res.cloudinary.com/dhouh9idx/image/upload/f_auto,q_auto:eco,w_500/v1792945593/file_00000000806482119547c1b937b7e386_zsrmkb.png',
+    slug: '/dashboard/faceless-video',
   },
-  { 
-    label: '1080×1920 Shorts & Reels (Up to 90s)', 
-    IconComponent: Smartphone, 
-    iconColor: 'text-cyan-500 drop-shadow-[0_0_6px_rgba(34,211,238,0.4)]' 
+  {
+    id: 'auto-caption',
+    title: 'Auto Caption Generator',
+    category: '9:16 Viral Shorts',
+    aspect: '9:16',
+    badge: 'FREE • 5 Daily',
+    isFree: true,
+    imageUrl: 'https://res.cloudinary.com/dhouh9idx/image/upload/f_auto,q_auto:eco,w_500/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png',
+    slug: '/dashboard/auto-caption',
   },
-  { 
-    label: 'YouTube Shorts Ready', 
-    IconComponent: YouTubeShortsIcon, 
-    isCustom: true 
+  {
+    id: 'whiteboard-video',
+    title: 'Whiteboard Explainer',
+    category: '9:16 Shorts',
+    aspect: '9:16',
+    badge: 'Hand-Drawn Doodle',
+    imageUrl: 'https://res.cloudinary.com/dhouh9idx/image/upload/f_auto,q_auto:eco,w_500/v1792950977/file_00000000a8388211b1207dad39960dc7_ahvk9g.png',
+    slug: '/dashboard/whiteboard-video',
   },
-  { 
-    label: 'Instagram Reels Optimized', 
-    IconComponent: InstagramIcon, 
-    isCustom: true 
+  {
+    id: 'compare-explainer',
+    title: 'Compare Explainer',
+    category: '9:16 Shorts',
+    aspect: '9:16',
+    badge: 'Versus Battle',
+    imageUrl: 'https://res.cloudinary.com/dhouh9idx/image/upload/f_auto,q_auto:eco,w_500/v1792946197/file_0000000035a48208ab4068beb2a66a7d_kctvo9.png',
+    slug: '/dashboard/compare-explainer',
   },
-  { 
-    label: 'TikTok High Retention', 
-    IconComponent: TikTokIcon, 
-    isCustom: true 
+  {
+    id: 'book-summary',
+    title: 'Book Summary Video',
+    category: '16:9 Cinema YouTube',
+    aspect: '16:9',
+    badge: 'Cinematic Chapters',
+    imageUrl: 'https://res.cloudinary.com/dhouh9idx/image/upload/f_auto,q_auto:eco,w_500/v1792946359/book_summary_video_cldhsu.png',
+    slug: '/dashboard/book-summary',
   },
-  { 
-    label: 'Global Accents to English B-Roll', 
-    IconComponent: LanguageGlobeIcon, 
-    isCustom: true 
+  {
+    id: 'youtube-subtitles',
+    title: 'YouTube Subtitles',
+    category: '16:9 YouTube Widescreen',
+    aspect: '16:9',
+    badge: 'FREE • 5 Daily',
+    isFree: true,
+    imageUrl: 'https://res.cloudinary.com/dhouh9idx/image/upload/f_auto,q_auto:eco,w_500/v1792946360/youtube_subtitles_generator_who62l.png',
+    slug: '/dashboard/youtube-subtitles',
   },
-  { 
-    label: 'Word-Synced Kinetic Subtitles', 
-    IconComponent: SubtitleCcIcon, 
-    isCustom: true 
+  {
+    id: 'image-to-video',
+    title: 'Image to Video AI',
+    category: '16:9 Cinema YouTube',
+    aspect: '16:9',
+    badge: 'Parallax Motion',
+    imageUrl: 'https://res.cloudinary.com/dhouh9idx/image/upload/f_auto,q_auto:eco,w_500/v1792946358/image_to_video_ai_tq4puk.png',
+    slug: '/dashboard/image-to-video',
   },
-  { 
-    label: 'Instant Cloud Rendering', 
-    IconComponent: LightningIcon, 
-    isCustom: true 
+  {
+    id: 'long-video-clips',
+    title: 'Viral Video Clips',
+    category: '9:16 Shorts',
+    aspect: '9:16',
+    badge: 'AI Hook Detector',
+    imageUrl: 'https://res.cloudinary.com/dhouh9idx/image/upload/f_auto,q_auto:eco,w_500/v1792946357/viral_video_clips_rllgec.png',
+    slug: '/dashboard/long-video-clips',
   },
-  { 
-    label: 'Global Dialects & English Subtitles', 
-    IconComponent: LanguageGlobeIcon, 
-    isCustom: true 
+  {
+    id: 'split-screen-explainer',
+    title: 'Split Screen Explainer',
+    category: '9:16 Shorts',
+    aspect: '9:16',
+    badge: '50/50 Dual Zone',
+    imageUrl: 'https://res.cloudinary.com/dhouh9idx/image/upload/f_auto,q_auto:eco,w_500/v1792954752/splitscreen_card_g3jpxl.png',
+    slug: '/dashboard/split-screen-explainer',
   },
-  { 
-    label: '10+ Dedicated Video Studios', 
-    IconComponent: Layers, 
-    iconColor: 'text-amber-500 drop-shadow-[0_0_6px_rgba(245,158,11,0.4)]' 
-  },
-  { 
-    label: 'Zero Local Hardware Lag', 
-    IconComponent: ShieldCheck, 
-    iconColor: 'text-emerald-500 drop-shadow-[0_0_6px_rgba(16,185,129,0.4)]' 
+  {
+    id: 'long-video-promo',
+    title: 'Long Video Promo',
+    category: '9:16 Shorts',
+    aspect: '9:16',
+    badge: 'Teaser Reel',
+    imageUrl: 'https://res.cloudinary.com/dhouh9idx/image/upload/f_auto,q_auto:eco,w_500/v1792946358/longvideopromo_o0qheb.png',
+    slug: '/dashboard/long-video-promo',
   },
 ];
 
 export default function PlatformMarqueeTicker() {
-  return (
-    <div className="relative w-full overflow-hidden border-y border-slate-200/80 bg-white py-3.5">
-      {/* Subtle edge fade masks */}
-      <div className="pointer-events-none absolute left-0 top-0 z-20 h-full w-8 sm:w-28 bg-gradient-to-r from-white via-white/80 to-transparent" />
-      <div className="pointer-events-none absolute right-0 top-0 z-20 h-full w-8 sm:w-28 bg-gradient-to-l from-white via-white/80 to-transparent" />
+  // Duplicate array once for seamless -50% CSS infinite translation
+  const marqueeItems = [...STUDIO_SHOWCASE_ITEMS, ...STUDIO_SHOWCASE_ITEMS];
 
-      <div 
-        className="flex w-max animate-marquee hover:pause gap-3 whitespace-nowrap"
-        style={{
-          willChange: 'transform',
-          WebkitMaskImage: 'linear-gradient(to right, transparent, black 6%, black 94%, transparent)',
-          maskImage: 'linear-gradient(to right, transparent, black 6%, black 94%, transparent)',
-        }}
-      >
-        {[...TICKER_ITEMS, ...TICKER_ITEMS, ...TICKER_ITEMS].map((item, idx) => {
-          const { IconComponent, isCustom, iconColor } = item;
-          return (
-            <div
-              key={idx}
-              className="inline-flex items-center gap-2.5 rounded-full border border-slate-200/80 bg-slate-50 px-4 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs transition-all duration-200 hover:border-orange-500/50 hover:bg-orange-50/60 hover:text-orange-900 hover:scale-[1.03] cursor-pointer"
-            >
-              {isCustom ? (
-                <IconComponent />
-              ) : (
-                <IconComponent size={15} className={`shrink-0 ${iconColor || 'text-orange-500'}`} />
-              )}
-              <span>{item.label}</span>
-            </div>
-          );
-        })}
+  return (
+    <section aria-label="Video Studios Showcase Ribbon" className="relative w-full overflow-hidden bg-gradient-to-b from-white via-[#FFFBF8] to-white py-6 sm:py-8 border-b border-stone-200/80">
+      {/* Subtle Top Label */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 mb-3 text-center">
+        <p className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-slate-500 flex items-center justify-center gap-1.5">
+          <Sparkles size={13} className="text-[#FF5722]" />
+          <span>Explore All 14 Purpose-Built Video Studios</span>
+        </p>
       </div>
-    </div>
+
+      {/* Edge Gradient Masks for Smooth Seamless Fade */}
+      <div className="pointer-events-none absolute left-0 top-0 z-20 h-full w-12 sm:w-32 bg-gradient-to-r from-white via-white/80 to-transparent" />
+      <div className="pointer-events-none absolute right-0 top-0 z-20 h-full w-12 sm:w-32 bg-gradient-to-l from-white via-white/80 to-transparent" />
+
+      {/* Infinite Moving Marquee Track */}
+      <div className="flex w-max animate-m3-marquee gap-3.5 sm:gap-4.5 px-4 select-none">
+        {marqueeItems.map((item, idx) => (
+          <Link
+            key={`${item.id}-${idx}`}
+            href={item.slug}
+            className="group relative w-[230px] sm:w-[260px] shrink-0 rounded-2xl border border-slate-200/90 bg-white p-2.5 shadow-xs hover:shadow-lg hover:border-[#FF5722]/50 hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
+          >
+            {/* Studio Thumbnail Container */}
+            <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-slate-950">
+              <Image
+                src={item.imageUrl}
+                alt={item.title}
+                width={500}
+                height={312}
+                loading="lazy"
+                className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+
+              {/* Floating Format Pill */}
+              <div className="absolute top-2 left-2 z-10">
+                <span className="rounded-md bg-black/75 backdrop-blur-md px-2 py-0.5 text-[10px] font-mono font-bold text-white border border-white/10 shadow-xs">
+                  {item.aspect}
+                </span>
+              </div>
+
+              {/* Floating Benefit / Free Badge */}
+              <div className="absolute top-2 right-2 z-10">
+                <span
+                  className={`rounded-md px-2 py-0.5 text-[10px] font-bold shadow-xs ${
+                    item.isFree
+                      ? 'bg-emerald-500 text-white font-black'
+                      : 'bg-black/75 backdrop-blur-md text-amber-300 border border-white/10'
+                  }`}
+                >
+                  {item.badge}
+                </span>
+              </div>
+            </div>
+
+            {/* Studio Card Meta */}
+            <div className="mt-2.5 flex items-center justify-between gap-1.5 px-0.5">
+              <div className="min-w-0">
+                <h3 className="text-xs font-black text-slate-900 group-hover:text-[#FF5722] transition-colors truncate font-jakarta">
+                  {item.title}
+                </h3>
+                <p className="text-[10px] text-slate-500 font-medium truncate mt-0.5">
+                  {item.category}
+                </p>
+              </div>
+
+              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 group-hover:bg-[#FF5722] group-hover:text-white transition-all">
+                <ArrowUpRight size={13} strokeWidth={2.5} />
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
   );
 }

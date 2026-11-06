@@ -92,6 +92,18 @@ export default function Hero() {
           </a>
         </div>
 
+        {/* Free Creator Trust Pill */}
+        <div className="mt-3.5 flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-xs text-slate-600 font-medium px-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200/90 px-3 py-1 font-bold text-emerald-800 shadow-2xs">
+            <CheckCircle2 size={13} className="text-emerald-600 shrink-0" />
+            <span>5 Free Videos Every Day (= 150 Free Videos/Month!)</span>
+          </span>
+          <span className="inline-flex items-center gap-1 text-slate-700 font-semibold">
+            <CheckCircle2 size={13} className="text-emerald-600 shrink-0" />
+            <span>No Credit Card Required</span>
+          </span>
+        </div>
+
         {/* ───────────────────────────────────────────────────────────── */}
         {/* INTERACTIVE AI VIDEO SHOWCASE PREVIEW CARD                    */}
         {/* ───────────────────────────────────────────────────────────── */}
