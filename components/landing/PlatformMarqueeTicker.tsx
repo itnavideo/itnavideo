@@ -116,7 +116,7 @@ export default function PlatformMarqueeTicker() {
   const marqueeItems = [...STUDIO_SHOWCASE_ITEMS, ...STUDIO_SHOWCASE_ITEMS];
 
   return (
-    <section aria-label="Video Studios Showcase Ribbon" className="relative w-full overflow-hidden bg-gradient-to-b from-white via-[#FFFBF8] to-white py-6 sm:py-8 border-b border-stone-200/80">
+    <section aria-label="Video Studios Showcase Ribbon" className="relative w-full overflow-hidden bg-white py-6 sm:py-8 border-b border-slate-100">
       {/* Subtle Top Label */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 mb-3 text-center">
         <p className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-slate-500 flex items-center justify-center gap-1.5">

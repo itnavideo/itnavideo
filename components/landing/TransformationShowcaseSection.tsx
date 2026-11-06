@@ -7,7 +7,7 @@ import { Sparkles, CheckCircle2, ArrowRight, Zap, UploadCloud } from 'lucide-rea
 
 export default function TransformationShowcaseSection() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-white via-[#FFFBF9] to-white pt-12 pb-16 sm:pt-16 sm:pb-24 px-4 sm:px-6 lg:px-8 border-b border-stone-200/80">
+    <section className="relative overflow-hidden bg-white pt-12 pb-16 sm:pt-16 sm:pb-24 px-4 sm:px-6 lg:px-8 border-b border-slate-100">
       {/* Soft Multi-Hue Ambient Mesh Auras (Liinks.co style living atmosphere) */}
       <div
         aria-hidden="true"

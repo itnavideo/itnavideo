@@ -91,14 +91,10 @@ export default function FAQSection() {
   };
 
   return (
-    <section id="faq" className="relative overflow-hidden px-4 pt-10 pb-16 sm:px-6 sm:pt-14 sm:pb-20 bg-white border-t border-stone-200/80 text-slate-900">
+    <section id="faq" className="relative overflow-hidden px-4 pt-10 pb-16 sm:px-6 sm:pt-14 sm:pb-20 bg-white border-t border-slate-100 text-slate-900">
       <div className="max-w-4xl mx-auto relative z-10">
         {/* Header */}
         <div className="text-center mb-10 sm:mb-12 space-y-3.5">
-          <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-orange-700 shadow-xs">
-            <HelpCircle size={14} className="text-[#FF5722]" />
-            <span>Help &amp; Answers</span>
-          </div>
 
           <h2 className="text-3xl sm:text-5xl font-black text-slate-900 font-sans tracking-tight">
             Frequently Asked{' '}

@@ -94,7 +94,7 @@ const CREATOR_REVIEWS: CreatorReview[] = [
 
 export default function TestimonialSection() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-white via-[#FFFBF9] to-white pt-14 pb-12 sm:pt-16 sm:pb-16 px-4 sm:px-6 lg:px-8 border-t border-stone-200/80">
+    <section className="relative overflow-hidden bg-white pt-14 pb-12 sm:pt-16 sm:pb-16 px-4 sm:px-6 lg:px-8 border-t border-slate-100">
       {/* ───────────────────────────────────────────────────────────── */}
       {/* SOFT AMBIENT MESH AURA (LIINKS-STYLE LIVING HALO)             */}
       {/* ───────────────────────────────────────────────────────────── */}

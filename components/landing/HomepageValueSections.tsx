@@ -233,7 +233,7 @@ export function WhyItnavideo() {
   ];
 
   return (
-    <section className="relative border-b border-stone-200/80 bg-stone-50/60 px-4 py-12 sm:px-6 sm:py-16 text-slate-900">
+    <section className="relative border-b border-slate-100 bg-white px-4 py-12 sm:px-6 sm:py-16 text-slate-900">
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
         <div>
           <h2 className="text-3xl font-black tracking-tight text-slate-900 sm:text-5xl">
@@ -276,7 +276,7 @@ export function HomepageFinalCta() {
   const [selectedMode, setSelectedMode] = React.useState<string>('facelessVideo');
 
   return (
-    <section className="relative border-t border-stone-200/80 bg-gradient-to-b from-stone-50/50 to-white px-4 py-14 sm:px-6 sm:py-20 overflow-hidden text-slate-900">
+    <section className="relative border-t border-slate-100 bg-white px-4 py-14 sm:px-6 sm:py-20 overflow-hidden text-slate-900">
       <div className="relative mx-auto max-w-5xl overflow-hidden rounded-3xl border border-stone-200/90 bg-white p-8 text-center shadow-[0_8px_30px_rgb(0,0,0,0.04)] sm:p-14">
         {/* Ambient Halo behind CTA */}
         <div

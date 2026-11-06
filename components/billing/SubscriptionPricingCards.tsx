@@ -167,7 +167,7 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
   };
 
   return (
-    <section id="pricing" className="border-t border-stone-200/80 bg-white text-slate-900 px-4 pt-10 pb-16 sm:px-6 sm:pt-14 sm:pb-20">
+    <section id="pricing" className="border-t border-slate-100 bg-white text-slate-900 px-4 pt-10 pb-16 sm:px-6 sm:pt-14 sm:pb-20">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center">

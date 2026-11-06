@@ -49,7 +49,7 @@ export function FreeCreatorUtilitiesSection() {
   ];
 
   return (
-    <section className="relative border-t border-stone-200/80 bg-stone-50/60 px-4 py-16 sm:px-6 sm:py-24">
+    <section className="relative border-t border-slate-100 bg-white px-4 py-16 sm:px-6 sm:py-24">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center">

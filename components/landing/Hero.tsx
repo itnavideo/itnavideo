@@ -16,7 +16,7 @@ export default function Hero() {
   const [previewFormat, setPreviewFormat] = useState<'16:9' | '9:16'>('16:9');
 
   return (
-    <section className="relative overflow-hidden border-b border-stone-200/80 bg-gradient-to-b from-[#FFFBF8] via-[#FFF9F5] to-white pt-8 pb-12 sm:pt-16 sm:pb-20 px-3.5 sm:px-6 lg:px-8 text-slate-900">
+    <section className="relative overflow-hidden border-b border-slate-100 bg-white pt-8 pb-12 sm:pt-16 sm:pb-20 px-3.5 sm:px-6 lg:px-8 text-slate-900">
       
       {/* ───────────────────────────────────────────────────────────── */}
       {/* ARCHITECTURAL GRID CANVAS WITH SOFT MESH AURAS                */}
