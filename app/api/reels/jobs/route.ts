@@ -828,6 +828,7 @@ export async function POST(request: Request) {
 
       const youtubeSubtitleSafeZone = readString(body.youtubeSubtitleSafeZone || 'scrubber');
       const youtubeSubtitleCase = readString(body.youtubeSubtitleCase || 'natural');
+      const canvasBackgroundColor = readString(body.canvasBackgroundColor) || '#070B14';
 
       const finalDuration = Math.max(3, Math.min(maxAllowedSeconds, detectedDuration));
       const inputProps: Record<string, unknown> = {
@@ -847,6 +848,7 @@ export async function POST(request: Request) {
         textColor: userTextColor,
         highlightColor: userHighlightColor,
         backgroundColor: userBackgroundColor,
+        canvasBackgroundColor,
         showBackground: Boolean(userBackgroundColor),
         youtubeSubtitleSafeZone,
         youtubeSubtitleCase,

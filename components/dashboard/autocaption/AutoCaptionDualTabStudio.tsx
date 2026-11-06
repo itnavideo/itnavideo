@@ -16,6 +16,7 @@ import {
   FileVideo,
   CheckCircle2,
   Globe,
+  Mic,
 } from "lucide-react";
 import {
   KINETIC_STYLES,
@@ -138,6 +139,8 @@ export interface AutoCaptionDualTabStudioProps {
   onCaptionLanguageChange?: (lang: string) => void;
   removeAiWatermark?: boolean;
   onRemoveAiWatermarkChange?: (enabled: boolean) => void;
+  canvasBackgroundColor?: string;
+  onCanvasBackgroundColorChange?: (color: string) => void;
 }
 
 export function AutoCaptionDualTabStudio({
@@ -157,6 +160,8 @@ export function AutoCaptionDualTabStudio({
   onCaptionLanguageChange,
   removeAiWatermark = true,
   onRemoveAiWatermarkChange,
+  canvasBackgroundColor = "#070B14",
+  onCanvasBackgroundColorChange,
 }: AutoCaptionDualTabStudioProps) {
   const [localSpokenLang, setLocalSpokenLang] = useState<string>("auto");
   const [localCaptionLang, setLocalCaptionLang] = useState<string>("same");
@@ -186,6 +191,11 @@ export function AutoCaptionDualTabStudio({
 
   // Hidden File Input for Replace Button
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const audioInputRef = useRef<HTMLInputElement | null>(null);
+  const [localCanvasBg, setLocalCanvasBg] = useState<string>(canvasBackgroundColor || "#070B14");
+  const canvasBg = canvasBackgroundColor || localCanvasBg;
+  const handleCanvasBgChange = onCanvasBackgroundColorChange || setLocalCanvasBg;
+  const isAudioFile = Boolean(selectedFile && (selectedFile.type.startsWith("audio/") || /\.(mp3|wav|m4a|aac|ogg|flac)$/i.test(selectedFile.name)));
 
   // Looping Playback Timer for Live Previews (0s -> 6s)
   const [playbackTime, setPlaybackTime] = useState<number>(1.2);
@@ -295,6 +305,20 @@ export function AutoCaptionDualTabStudio({
         }}
       />
 
+      {/* Hidden Audio File Input */}
+      <input
+        ref={audioInputRef}
+        type="file"
+        accept="audio/*,.mp3,.wav,.m4a,.aac"
+        className="hidden"
+        onChange={(e) => {
+          if (e.target.files?.[0]) {
+            onSelectFile(e.target.files[0]);
+          }
+          e.currentTarget.value = "";
+        }}
+      />
+
       {/* Top Header: Breadcrumbs + Title + Subtitle */}
       <div>
         <div className="text-xs text-slate-500 mb-0.5">
@@ -374,6 +398,30 @@ export function AutoCaptionDualTabStudio({
             <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
               <button
                 type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  fileInputRef.current?.click();
+                }}
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-xs font-bold text-white px-4 py-2.5 transition shadow-sm hover:brightness-105 active:scale-95 cursor-pointer"
+              >
+                <Film size={14} />
+                <span>Upload 9:16 Video</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  audioInputRef.current?.click();
+                }}
+                className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-xs font-bold text-slate-800 px-4 py-2.5 transition shadow-2xs hover:scale-105 active:scale-95 cursor-pointer"
+              >
+                <Mic size={14} className="text-[#FF5722]" />
+                <span>Upload Audio / Voiceover</span>
+              </button>
+
+              <button
+                type="button"
                 onClick={async (e) => {
                   e.stopPropagation();
                   try {
@@ -385,10 +433,10 @@ export function AutoCaptionDualTabStudio({
                     console.warn("Could not load sample audio:", err);
                   }
                 }}
-                className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 hover:bg-orange-100 text-xs font-bold text-[#FF5722] px-4 py-2 transition shadow-2xs hover:scale-105 active:scale-95 cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-orange-200 bg-orange-50 hover:bg-orange-100 text-xs font-bold text-[#FF5722] px-3.5 py-2.5 transition shadow-2xs hover:scale-105 active:scale-95 cursor-pointer"
               >
-                <Sparkles size={14} className="text-[#FF5722]" />
-                <span>Try with sample clip</span>
+                <Sparkles size={13} />
+                <span>Sample Clip</span>
               </button>
             </div>
           </div>
@@ -396,18 +444,27 @@ export function AutoCaptionDualTabStudio({
           <div className="relative rounded-2xl border border-slate-200 bg-slate-50/80 p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
             <div className="flex items-center gap-4 min-w-0">
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-100 text-[#FF5722] shrink-0 shadow-xs">
-                <FileVideo size={26} />
+                {isAudioFile ? <Mic size={26} /> : <FileVideo size={26} />}
               </div>
               <div className="min-w-0">
-                <p className="text-base font-black text-slate-900 truncate font-jakarta">
-                  {selectedFile.name}
-                </p>
+                <div className="flex items-center gap-2">
+                  <p className="text-base font-black text-slate-900 truncate font-jakarta">
+                    {selectedFile.name}
+                  </p>
+                  {isAudioFile && (
+                    <span className="rounded-md bg-orange-100 text-[#FF5722] font-black text-[10px] px-2 py-0.5 uppercase">
+                      Voiceover Audio
+                    </span>
+                  )}
+                </div>
                 <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 font-medium mt-1">
                   <span>{(selectedFile.size / (1024 * 1024)).toFixed(1)} MB</span>
                   <span>•</span>
                   <span>{videoDurationText} Duration</span>
                   <span>•</span>
-                  <span className="text-emerald-700 font-bold">9:16 Ready</span>
+                  <span className="text-emerald-700 font-bold">
+                    {isAudioFile ? "Canvas Ready" : "9:16 Video Ready"}
+                  </span>
                 </div>
               </div>
             </div>
@@ -483,6 +540,64 @@ export function AutoCaptionDualTabStudio({
                 ))}
               </select>
               <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+            </div>
+          </div>
+        </div>
+
+        {/* Canvas Background Color Section (Custom Color & Presets for Audio reels and Backing) */}
+        <div className="space-y-2 pt-2 border-t border-slate-100">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-orange-100 text-[#FF5722] text-[10px]">🎨</span>
+              <span>Canvas Background Color</span>
+              {isAudioFile && (
+                <span className="text-[10px] font-bold text-orange-600 bg-orange-50 border border-orange-200 px-2 py-0.5 rounded-full">
+                  Audio Reel Active
+                </span>
+              )}
+            </label>
+            <span className="text-[11px] font-mono text-slate-500 uppercase">{canvasBg}</span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {[
+              { label: "Obsidian", color: "#000000" },
+              { label: "Dark Obsidian", color: "#070B14" },
+              { label: "Studio Navy", color: "#0F172A" },
+              { label: "Slate", color: "#18181B" },
+              { label: "Emerald", color: "#064E3B" },
+              { label: "Crimson", color: "#4C0519" },
+              { label: "Amber", color: "#451A03" },
+              { label: "Violet", color: "#2E1065" },
+              { label: "White", color: "#FFFFFF" },
+            ].map((preset) => (
+              <button
+                key={preset.color}
+                type="button"
+                onClick={() => handleCanvasBgChange(preset.color)}
+                className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold transition shadow-2xs cursor-pointer ${
+                  canvasBg.toLowerCase() === preset.color.toLowerCase()
+                    ? "border-[#FF5722] ring-2 ring-[#FF5722]/30 scale-105"
+                    : "border-slate-200 bg-white hover:border-slate-300"
+                }`}
+              >
+                <span
+                  className="h-3.5 w-3.5 rounded-full border border-black/20 shrink-0"
+                  style={{ backgroundColor: preset.color }}
+                />
+                <span className="text-slate-700">{preset.label}</span>
+              </button>
+            ))}
+
+            <div className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-2.5 py-1 shadow-2xs">
+              <input
+                type="color"
+                value={canvasBg.startsWith("#") && canvasBg.length === 7 ? canvasBg : "#070B14"}
+                onChange={(e) => handleCanvasBgChange(e.target.value)}
+                className="h-5 w-5 rounded border-0 p-0 cursor-pointer bg-transparent"
+                title="Custom Color Picker"
+              />
+              <span className="text-[11px] font-bold text-slate-600">Custom</span>
             </div>
           </div>
         </div>
@@ -573,18 +688,50 @@ export function AutoCaptionDualTabStudio({
 
             {/* 9:16 Phone Mockup Canvas with Real Looping Video Background */}
             <div
-              className="relative aspect-[9/16] w-full max-w-[270px] mx-auto rounded-2xl overflow-hidden border border-slate-800 shadow-xl flex items-center justify-center bg-black"
+              className="relative aspect-[9/16] w-full max-w-[270px] mx-auto rounded-2xl overflow-hidden border border-slate-800 shadow-xl flex items-center justify-center"
+              style={{ backgroundColor: canvasBg }}
             >
-              {/* Real Looping Creator Video in Background */}
-              <video
-                src="/visuals/homepage/autocaption.mp4"
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/70 pointer-events-none" />
+              {/* If Video: Real Looping Creator Video in Background */}
+              {!isAudioFile ? (
+                <>
+                  <video
+                    src="/visuals/homepage/autocaption.mp4"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/70 pointer-events-none" />
+                </>
+              ) : (
+                /* If Audio: Rich Canvas Background with Sound Waves */
+                <div className="absolute inset-0 flex flex-col items-center justify-between p-6 pointer-events-none">
+                  <div className="flex items-center gap-1.5 rounded-full bg-white/10 backdrop-blur-md px-3 py-1 text-[10px] font-bold text-white border border-white/10 mt-2">
+                    <Mic size={12} className="text-[#FF5722]" />
+                    <span>Voiceover Audio Active</span>
+                  </div>
+
+                  {/* Pulsing sound wave bars */}
+                  <div className="flex items-center gap-1.5 opacity-50">
+                    {[24, 40, 16, 32, 48, 28, 36, 20, 44, 24].map((h, i) => (
+                      <div
+                        key={i}
+                        className="w-1 bg-[#FF5722] rounded-full animate-pulse"
+                        style={{
+                          height: `${h}px`,
+                          animationDelay: `${i * 120}ms`,
+                          animationDuration: "1s",
+                        }}
+                      />
+                    ))}
+                  </div>
+
+                  <div className="text-[10px] font-bold text-white/50 mb-2">
+                    Canvas: {canvasBg}
+                  </div>
+                </div>
+              )}
 
               {/* Dynamic Live Captions Rendering (Kinetic or Standard) */}
               <div className="relative z-10 w-full px-3 text-center pointer-events-none">
@@ -612,7 +759,10 @@ export function AutoCaptionDualTabStudio({
                 isWorking ? "opacity-80 cursor-wait animate-pulse" : ""
               }`}
             >
-              <span>{isWorking ? "Rendering Reel 1080p..." : `Generate video with ${captionStyle}`}</span>
+              <div className="flex flex-col items-center">
+                <span>{isWorking ? "Rendering Reel 1080p..." : "Generate Video • FREE (5 Daily)"}</span>
+                <span className="text-[10px] font-medium opacity-90">0 Credits Consumed • 5 Free 9:16 Videos Today</span>
+              </div>
             </button>
 
             {/* Collapsible Transcript Accordion */}

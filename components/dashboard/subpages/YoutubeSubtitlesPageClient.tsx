@@ -1009,9 +1009,9 @@ export default function YoutubeSubtitlesPage() {
     return activePresetConfig.specimen;
   }, [playbackTime, previewCaptions, activeSampleVideo, activePresetConfig]);
 
-  // Founder Directive: Flat 2 Credits per video (regardless of duration, up to 5 mins)
+  // Free with 5 Daily Allowance (Founder Directive)
   const currentDurationSeconds = mediaDurationSeconds || previewDuration || 60;
-  const calculatedCredits: number = 2;
+  const calculatedCredits: number = 0;
 
   // Start Render Job
   async function handleStartRender() {
@@ -1429,7 +1429,7 @@ export default function YoutubeSubtitlesPage() {
             </span>
             <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1.5 text-xs font-bold text-emerald-400 flex items-center gap-1.5">
               <ShieldCheck size={14} />
-              <span>Flat 2 Credits / Video</span>
+              <span>FREE • 5 Videos / Day</span>
             </span>
           </div>
         </div>
@@ -2160,7 +2160,7 @@ export default function YoutubeSubtitlesPage() {
                     <span>Dual Export Hub</span>
                   </div>
                   <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 font-bold">
-                    Flat 2 Credits
+                    FREE (5 Daily)
                   </span>
                 </div>
 
@@ -2179,7 +2179,7 @@ export default function YoutubeSubtitlesPage() {
                   <div className="flex items-center justify-between text-slate-400 border-b border-white/5 pb-2">
                     <span>Credit Rate</span>
                     <span className="font-mono text-emerald-400 font-bold">
-                      2 Credits (Flat rate up to 5 min)
+                      FREE (0 Credits • 5 Daily Limit)
                     </span>
                   </div>
                 </div>
@@ -2197,7 +2197,7 @@ export default function YoutubeSubtitlesPage() {
                       <span>Render 16:9 Subtitled Video</span>
                     </span>
                     <span className="rounded-full bg-black/25 px-2.5 py-0.5 text-xs font-mono font-bold">
-                      2 Credits
+                      FREE (5/Day)
                     </span>
                   </button>
 
@@ -2252,7 +2252,7 @@ export default function YoutubeSubtitlesPage() {
               {selectedFile ? selectedFile.name : activePresetConfig.title}
             </p>
             <p className="text-[10px] text-zinc-400 font-bold flex items-center gap-1.5">
-              <span className="text-emerald-400 font-mono font-bold">2 Credits</span>
+              <span className="text-emerald-400 font-mono font-bold">FREE (5/Day)</span>
               <span>•</span>
               <span>{selectedFile ? (mediaDurationSeconds > 0 ? `${Math.round(mediaDurationSeconds)}s` : "Loaded") : "16:9 Subtitles"}</span>
             </p>

@@ -50,8 +50,8 @@ export function calculateYouTubeSubtitleCreditUnits(durationSeconds: number) {
   if (!Number.isFinite(duration) || duration <= 0 || duration > LONG_FORM_CAPTION_MAX_SECONDS) {
     throw new Error("YouTube Subtitle Generator supports up to 5 minutes (300 seconds) duration.");
   }
-  // Rule 4.1: Flat 2 Credits / Video (regardless of 1m-5m)
-  return 2 * CREDIT_UNITS_PER_CREDIT;
+  // Free with 5 Daily Allowance (Founder Directive)
+  return 0;
 }
 
 export function calculateRenderCreditUnits(mode: BillableRenderMode, options: RenderCreditOptions = {}) {
@@ -59,7 +59,10 @@ export function calculateRenderCreditUnits(mode: BillableRenderMode, options: Re
 
   switch (mode) {
     // All 9:16 Reels / Shorts (up to 90s): 1 Credit
+    // Free with 5 Daily Allowance (Founder Directive)
     case "autoCaption":
+      return 0;
+
     case "longVideoPromo":
     case "compare":
     case "whiteboardVideo":
@@ -80,8 +83,9 @@ export function calculateRenderCreditUnits(mode: BillableRenderMode, options: Re
     }
 
     // YouTube Subtitle Generator (16:9 widescreen, up to 5 min): Flat 2 Credits
+    // YouTube Subtitle Generator (16:9 widescreen, up to 5 min): Free with 5 Daily Allowance
     case "youtubeSubtitleGenerator":
-      return calculateYouTubeSubtitleCreditUnits(duration);
+      return 0;
 
     // All 16:9 Long Videos & Cinema (up to 5 min): 1 Min = 1 Credit
     case "longFormCaptionedVideo":

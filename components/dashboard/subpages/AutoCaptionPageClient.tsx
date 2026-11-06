@@ -109,6 +109,7 @@ export default function AutoCaptionPage() {
   const [captionTextColor, setCaptionTextColor] = useState<string>("");
   const [captionHighlightColor, setCaptionHighlightColor] = useState<string>("");
   const [captionBackgroundColor, setCaptionBackgroundColor] = useState<string>("");
+  const [canvasBackgroundColor, setCanvasBackgroundColor] = useState<string>("#070B14");
   const [spokenLanguage, setSpokenLanguage] = useState<string>("auto");
   const [captionLanguage, setCaptionLanguage] = useState<string>("auto");
   const [wordClickSound, setWordClickSound] = useState<boolean>(true);
@@ -440,6 +441,7 @@ export default function AutoCaptionPage() {
           captionTextColor,
           captionHighlightColor,
           captionBackgroundColor,
+          canvasBackgroundColor,
           captionShowBackground: captionBackgroundColor !== "",
           spokenLanguage: spokenLanguage !== "auto" ? spokenLanguage : undefined,
           captionLanguage: captionLanguage !== "auto" ? captionLanguage : undefined,
@@ -728,6 +730,8 @@ export default function AutoCaptionPage() {
             onSpokenLanguageChange={setSpokenLanguage}
             captionLanguage={captionLanguage}
             onCaptionLanguageChange={setCaptionLanguage}
+            canvasBackgroundColor={canvasBackgroundColor}
+            onCanvasBackgroundColorChange={setCanvasBackgroundColor}
           />
         )}
       </main>

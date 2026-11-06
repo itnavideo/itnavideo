@@ -58,6 +58,51 @@ export async function getRenderAccessForUser(userId: string, request: RenderAcce
   } catch (error) {
     console.warn("[renderAccess] Entitlement read bypassed:", error);
   }
+
+  // ── FREE DAILY ALLOWANCE (Founder Directive: 5 Free 9:16 Auto Caption & 5 Free 16:9 YouTube Subtitle Renders / Day) ──
+  const isFreeDailyMode = request.mode === "autoCaption" || request.mode === "youtubeSubtitleGenerator" || (request.mode as string) === "youtubeSubtitles";
+  if (isFreeDailyMode) {
+    if (!cleanUserId || cleanUserId === "anonymous") {
+      return deniedAccess("none", "Account Required", "Please sign in with Google or Email to export your free video.");
+    }
+    const todayStart = new Date();
+    todayStart.setUTCHours(0, 0, 0, 0);
+    const todayEnd = new Date();
+    todayEnd.setUTCHours(23, 59, 59, 999);
+
+    const ledger = await readUsageLedger(cleanUserId);
+    const usedToday = ledger.renders.filter((r) => {
+      if (r.status === "released") return false;
+      const created = parseDate(r.createdAt);
+      if (!created || created < todayStart || created > todayEnd) return false;
+      return r.mode === request.mode || (request.mode === "youtubeSubtitleGenerator" && r.mode === "youtubeSubtitles");
+    }).length;
+
+    const DAILY_FREE_LIMIT = 5;
+    if (usedToday < DAILY_FREE_LIMIT) {
+      return {
+        allowed: true,
+        planId: "free-daily",
+        planName: "Free Daily Creator",
+        activePaidPlan: false,
+        used: usedToday,
+        limit: DAILY_FREE_LIMIT,
+        remaining: Math.max(0, DAILY_FREE_LIMIT - usedToday),
+        watermark: false,
+      };
+    }
+    // If user has reached 5 free renders today, check if they have a paid entitlement:
+    if (isEntitlementActive(entitlement) && entitlement) {
+      const creditWindow = getEntitlementCreditWindow(entitlement);
+      return accessForWindow(cleanUserId, entitlement.planId, entitlement.planName, true, creditWindow.startAt, creditWindow.endAt, entitlement.monthlyVideoLimit, requiredCreditUnits);
+    }
+    return deniedAccess(
+      "daily-limit-reached",
+      "Daily Limit Reached",
+      `You have reached your free daily limit of ${DAILY_FREE_LIMIT} videos for this studio today. Upgrade or return tomorrow for 5 fresh videos!`
+    );
+  }
+
   if (isEntitlementActive(entitlement) && entitlement) {
     const creditWindow = getEntitlementCreditWindow(entitlement);
     return accessForWindow(cleanUserId, entitlement.planId, entitlement.planName, true, creditWindow.startAt, creditWindow.endAt, entitlement.monthlyVideoLimit, requiredCreditUnits);

@@ -58,6 +58,7 @@ export type AutoCaptionGeneratorProps = {
   highlightColor?: string;
   activeWordColor?: string;
   backgroundColor?: string;
+  canvasBackgroundColor?: string;
   durationSeconds?: number;
   sourceDurationSeconds?: number;
   renderWindowSeconds?: number;
@@ -124,6 +125,7 @@ export function AutoCaptionGenerator({
   highlightColor,
   activeWordColor,
   backgroundColor,
+  canvasBackgroundColor,
   fontSize = 'medium',
   fontFamily,
   showBackground,
@@ -243,7 +245,7 @@ export function AutoCaptionGenerator({
   }, [wordClickSound, normalizedCaptions]);
 
   return (
-    <AbsoluteFill style={{ backgroundColor: '#000000' }}>
+    <AbsoluteFill style={{ backgroundColor: canvasBackgroundColor || backgroundColor || '#070B14' }}>
       {/* Background Media / Video or Audio Layer */}
       {resolvedSrc ? (
         isAudioOnly ? (
@@ -257,7 +259,8 @@ export function AutoCaptionGenerator({
               style={{
                 position: 'absolute',
                 inset: 0,
-                background: 'radial-gradient(circle at center, #1e1b4b 0%, #09090b 100%)',
+                backgroundColor: canvasBackgroundColor || backgroundColor || '#070B14',
+                backgroundImage: `radial-gradient(circle at center, ${canvasBackgroundColor || backgroundColor || '#070B14'}ee 0%, #000000 100%)`,
               }}
             />
           </>

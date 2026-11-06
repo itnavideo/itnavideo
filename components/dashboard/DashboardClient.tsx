@@ -138,7 +138,7 @@ export const DASHBOARD_169_TOOLS: VideoToolCard[] = [
     iconBgClass: "bg-red-500/15 border border-red-500/30",
     iconColorClass: "text-red-600",
     description: "Generate accurate, styled 16:9 subtitles and captions for YouTube widescreen videos.",
-    badge: "1080p Subtitles",
+    badge: "FREE · 5/Day",
     imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946360/youtube_subtitles_generator_who62l.png",
   },
 ];
@@ -180,7 +180,7 @@ export const DASHBOARD_916_TOOLS: VideoToolCard[] = [
     iconBgClass: "bg-orange-500/15 border border-orange-500/30",
     iconColorClass: "text-orange-500",
     description: "Add viral animated captions with word-by-word highlights and emoji accents.",
-    badge: "Word-Synced",
+    badge: "FREE · 5/Day",
     imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png",
   },
   {
@@ -822,8 +822,8 @@ export default function DashboardClient() {
 
                             {/* Card Footer CTA */}
                             <div className="pt-3 border-t border-white/10 flex items-center justify-between text-xs">
-                              <span className="text-[10px] font-mono font-bold text-zinc-400">
-                                1 Credit / Min
+                              <span className={`text-[10px] font-mono font-bold ${tool.id === "youtube-subtitles" ? "text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20" : "text-zinc-400"}`}>
+                                {tool.id === "youtube-subtitles" ? "FREE • 5/Day" : "1 Credit / Min"}
                               </span>
                               <span className="inline-flex items-center gap-1 font-bold text-white text-[11px] bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-3 py-1.5 rounded-xl shadow-md shadow-orange-500/20 group-hover:translate-x-0.5 transition-all">
                                 <span>Create</span>
@@ -945,8 +945,8 @@ export default function DashboardClient() {
 
                             {/* Card Footer CTA */}
                             <div className="pt-2.5 border-t border-white/10 flex items-center justify-between text-xs">
-                              <span className="text-[10px] font-mono font-bold text-zinc-400">
-                                {isClips ? "1 Credit / Clip" : "1 Credit / Video"}
+                              <span className={`text-[10px] font-mono font-bold ${item.id === "auto-caption" ? "text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20" : "text-zinc-400"}`}>
+                                {item.id === "auto-caption" ? "FREE • 5/Day" : (isClips ? "1 Credit / Clip" : "1 Credit / Video")}
                               </span>
                               <span className="inline-flex items-center gap-1 font-bold text-white text-[11px] bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-3 py-1.5 rounded-xl shadow-md shadow-orange-500/20 group-hover:translate-x-0.5 transition-all">
                                 <span>Create</span>
