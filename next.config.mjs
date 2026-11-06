@@ -97,6 +97,56 @@ const nextConfig = {
   async headers() {
     return [
       {
+        source: '/_next/static/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/assets/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, stale-while-revalidate=604800',
+          },
+        ],
+      },
+
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin',
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=31536000; includeSubDomains',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, s-maxage=86400, stale-while-revalidate=604800',
+          },
+        ],
+      },
+    ];
+  },
+
+  // Redirects for old grouped landing-page URLs. Direct video-type URLs are canonical.
+  async redirects() {
+    return [
+      {
         source: '/blog/kinetic-typography-reel-maker-commercial-guide',
         destination: '/blog/ai-shorts-polisher-commercial-creation-guide',
         permanent: true,
@@ -231,56 +281,7 @@ const nextConfig = {
         destination: '/pricing',
         permanent: true,
       },
-      {
-        source: '/_next/static/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
-      {
-        source: '/assets/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=86400, stale-while-revalidate=604800',
-          },
-        ],
-      },
 
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin',
-          },
-          {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=31536000; includeSubDomains',
-          },
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=0, s-maxage=86400, stale-while-revalidate=604800',
-          },
-        ],
-      },
-    ];
-  },
-
-  // Redirects for old grouped landing-page URLs. Direct video-type URLs are canonical.
-  async redirects() {
-    return [
       {
         source: '/:path*',
         has: [
