@@ -822,8 +822,8 @@ export default function DashboardClient() {
 
                             {/* Card Footer CTA */}
                             <div className="pt-3 border-t border-white/10 flex items-center justify-between text-xs">
-                              <span className={`text-[10px] font-mono font-bold ${tool.id === "youtube-subtitles" ? "text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20" : "text-zinc-400"}`}>
-                                {tool.id === "youtube-subtitles" ? "FREE • 5/Day" : "1 Credit / Min"}
+                              <span className={`text-[10px] font-mono font-bold ${item.id === "youtube-subtitles" ? "text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20" : "text-zinc-400"}`}>
+                                {item.id === "youtube-subtitles" ? "FREE • 5/Day" : "1 Credit / Min"}
                               </span>
                               <span className="inline-flex items-center gap-1 font-bold text-white text-[11px] bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-3 py-1.5 rounded-xl shadow-md shadow-orange-500/20 group-hover:translate-x-0.5 transition-all">
                                 <span>Create</span>
