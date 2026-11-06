@@ -89,6 +89,7 @@ const CLIPS_RENDER_STEPS = [
 export default function LongVideoClipsPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
+  const [removeAiWatermark, setRemoveAiWatermark] = useState<boolean>(false);
 
   // Clips form states
   const [selectedFile, setSelectedFile] = useState<File | null>(null);

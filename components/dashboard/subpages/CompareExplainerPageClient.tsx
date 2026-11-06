@@ -62,6 +62,7 @@ type RecentRender = {
 export default function CompareExplainerPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
+  const [removeAiWatermark, setRemoveAiWatermark] = useState<boolean>(false);
 
   // Compare Studio form states
   const [selectedFile, setSelectedFile] = useState<File | null>(null);

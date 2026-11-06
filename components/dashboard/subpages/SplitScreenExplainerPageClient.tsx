@@ -77,6 +77,7 @@ type RecentRender = {
 export default function SplitScreenExplainerPageClient() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
+  const [removeAiWatermark, setRemoveAiWatermark] = useState<boolean>(false);
 
   // Studio configuration states
   const [creatorVideoFile, setCreatorVideoFile] = useState<File | null>(null);

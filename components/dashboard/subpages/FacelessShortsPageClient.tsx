@@ -89,6 +89,7 @@ type RecentRender = {
 export default function FacelessShortsPageClient() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
+  const [removeAiWatermark, setRemoveAiWatermark] = useState<boolean>(false);
 
   // Studio configuration states
   const [selectedFile, setSelectedFile] = useState<File | null>(null);

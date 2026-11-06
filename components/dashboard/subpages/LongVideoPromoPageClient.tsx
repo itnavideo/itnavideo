@@ -72,6 +72,7 @@ export type LongVideoPromoGoal = "watch-full-video" | "subscribers" | "promote-e
 export default function LongVideoPromoPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
+  const [removeAiWatermark, setRemoveAiWatermark] = useState<boolean>(false);
 
   // Promo form states
   const [selectedFile, setSelectedFile] = useState<File | null>(null);

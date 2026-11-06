@@ -62,6 +62,7 @@ type RecentRender = {
 export default function WhiteboardVideoPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
+  const [removeAiWatermark, setRemoveAiWatermark] = useState<boolean>(false);
 
   // Studio Form Options
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -150,7 +151,7 @@ export default function WhiteboardVideoPage() {
             setJobStatus((prev) => ({
               ...prev,
               progress: Math.max(0.4, data.progress),
-              message: data.stageMessage || "Drawing whiteboard animations on AWS Lambda...",
+              message: data.stageMessage || "Drawing whiteboard animation...",
             }));
           }
         } catch {}
@@ -161,7 +162,7 @@ export default function WhiteboardVideoPage() {
     };
   }, [jobStatus.state, jobStatus.renderId]);
 
-  const handleStartRender = async () => {
+  const handleStartRender = async (customScenes?: any[]) => {
     if (!user) {
       router.push("/login?returnUrl=/dashboard/whiteboard-video");
       return;
@@ -181,7 +182,7 @@ export default function WhiteboardVideoPage() {
 
       setJobStatus({
         state: "uploading",
-        message: "Uploading voiceover narration to secure cloud container...",
+        message: "Uploading voiceover audio...",
         progress: 0.10,
       });
 
@@ -195,7 +196,7 @@ export default function WhiteboardVideoPage() {
       if (customBgmFile) {
         setJobStatus({
           state: "uploading",
-          message: "Uploading custom background audio track...",
+          message: "Uploading background audio...",
           progress: 0.22,
         });
         const bgmUpload = await uploadFileViaPresign(customBgmFile, {
@@ -207,7 +208,7 @@ export default function WhiteboardVideoPage() {
       // 3. Submit Render Job
       setJobStatus({
         state: "starting",
-        message: "Directing whiteboard scenes and Groq speech alignment...",
+        message: "Planning whiteboard scenes & speech sync...",
         progress: 0.35,
       });
 
@@ -230,6 +231,7 @@ export default function WhiteboardVideoPage() {
           userEmail: user.email || undefined,
           fontPersonality,
           markerColor,
+          handStyle,
           aspectRatio: "9:16",
           mediaAspect: "portrait",
           bgmTrackId,
@@ -238,6 +240,11 @@ export default function WhiteboardVideoPage() {
           enableSfx,
           editorialTranscript: editorialTranscript.trim() || undefined,
           editedTranscript: editorialTranscript.trim() || undefined,
+          plan: customScenes && Array.isArray(customScenes) && customScenes.length > 0 ? {
+            title: plannedTitle,
+            scenes: customScenes,
+            durationSeconds: Math.round(customScenes[customScenes.length - 1]?.endTime || 60),
+          } : undefined,
         }),
       });
 
@@ -252,7 +259,7 @@ export default function WhiteboardVideoPage() {
       // 4. Poll render status
       setJobStatus({
         state: "rendering",
-        message: "Rendering 9:16 Whiteboard Animation on AWS Lambda...",
+        message: "Creating your 9:16 whiteboard video...",
         progress: 0.45,
         renderId,
         bucketName,

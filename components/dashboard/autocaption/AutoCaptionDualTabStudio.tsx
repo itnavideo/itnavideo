@@ -625,7 +625,7 @@ export function AutoCaptionDualTabStudio({
                 <span className={`text-[10px] transition-transform ${showTranscript ? "rotate-90" : ""}`}>
                   ▶
                 </span>
-                <span>Transcript (dono tabs mein shared)</span>
+                <span>Transcript (Shared across tabs)</span>
               </button>
 
               {showTranscript && (

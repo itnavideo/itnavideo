@@ -58,6 +58,7 @@ type RecentRender = {
 export default function BookSummaryPageClient() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
+  const [removeAiWatermark, setRemoveAiWatermark] = useState<boolean>(false);
 
   // Job & render states
   const [jobStatus, setJobStatus] = useState<JobStatus>({ state: "idle" });

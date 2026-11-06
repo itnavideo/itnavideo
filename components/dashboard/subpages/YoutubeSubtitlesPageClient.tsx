@@ -703,6 +703,7 @@ const RENDER_STEPS = [
 export default function YoutubeSubtitlesPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
+  const [removeAiWatermark, setRemoveAiWatermark] = useState<boolean>(false);
 
   // Active Media & Sample State
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
