@@ -267,16 +267,18 @@ export function WhiteboardEditableWorkspace({
   const currentTimeSec = (currentFrame / 30).toFixed(1);
 
   return (
-    <div className="bg-slate-900 text-white rounded-3xl border border-slate-800 shadow-2xl overflow-hidden p-4 sm:p-6 lg:p-8 animate-fadeIn">
+    <div className="bg-[#0E1526]/95 text-white rounded-[28px] border border-white/10 shadow-2xl backdrop-blur-xl overflow-hidden p-5 sm:p-7 lg:p-8 animate-fadeIn relative">
+      <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-[#FF6D00]/10 blur-3xl" />
+
       {/* Top Workspace Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-white/10">
         <div className="flex items-center gap-3">
           {onBackToStudio && (
             <button
               type="button"
               onClick={onBackToStudio}
-              className="p-2 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300 transition"
-              title="Return to Audio Settings"
+              className="p-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition cursor-pointer"
+              title="Return to Studio"
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
@@ -286,7 +288,7 @@ export function WhiteboardEditableWorkspace({
               <h2 className="text-base sm:text-lg font-black text-white">
                 Edit Video
               </h2>
-              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 uppercase tracking-wider">
+              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#FF6D00]/15 text-[#FFA726] border border-[#FF6D00]/30 uppercase tracking-wider">
                 Layers & Composition
               </span>
             </div>
@@ -302,16 +304,16 @@ export function WhiteboardEditableWorkspace({
               type="button"
               onClick={() => onExportRender(scenes)}
               disabled={isExporting}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:brightness-110 active:scale-95 text-slate-950 font-black text-xs transition shadow-lg shadow-orange-500/20 disabled:opacity-50 cursor-pointer"
+              className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] hover:brightness-110 active:scale-95 text-black font-black text-xs transition shadow-lg shadow-[#FF6D00]/25 disabled:opacity-50 cursor-pointer"
             >
               {isExporting ? (
                 <>
-                  <RefreshCw className="w-4 h-4 animate-spin text-slate-950" />
+                  <RefreshCw className="w-4 h-4 animate-spin text-black" />
                   <span>Creating Video...</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4 fill-slate-950" />
+                  <Sparkles className="w-4 h-4 fill-black" />
                   <span>Create Video</span>
                 </>
               )}
@@ -324,7 +326,7 @@ export function WhiteboardEditableWorkspace({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pt-6 items-start">
         {/* Left: 9:16 Remotion Player (5 cols) */}
         <div className="lg:col-span-5 flex flex-col items-center">
-          <div className="relative w-full max-w-[320px] aspect-[9/16] rounded-3xl border-2 border-slate-700 bg-white shadow-2xl overflow-hidden">
+          <div className="relative w-full max-w-[320px] aspect-[9/16] rounded-3xl border border-white/15 bg-white shadow-2xl overflow-hidden ring-1 ring-white/10">
             <Player
               ref={playerRef}
               component={WhiteboardVideo}
@@ -344,20 +346,28 @@ export function WhiteboardEditableWorkspace({
           </div>
 
           {/* Player Controls Bar */}
-          <div className="w-full max-w-[320px] mt-4 flex items-center justify-between gap-3 bg-slate-800/80 border border-slate-700/80 rounded-2xl p-3">
+          <div className="w-full max-w-[320px] mt-4 flex items-center justify-between gap-3 bg-[#151E30] border border-white/10 rounded-2xl p-3 shadow-lg">
             <button
               type="button"
               onClick={togglePlay}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-black text-xs hover:brightness-110 active:scale-95 transition cursor-pointer"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black font-black text-xs hover:brightness-110 active:scale-95 transition cursor-pointer shadow-md shadow-[#FF6D00]/20"
             >
-              {isPlaying ? <Pause size={14} /> : <Play size={14} className="fill-slate-950" />}
+              {isPlaying ? <Pause size={14} className="fill-black" /> : <Play size={14} className="fill-black ml-0.5" />}
               <span>{isPlaying ? "Pause" : "Play"}</span>
             </button>
             <button
               type="button"
               onClick={handleRestart}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white font-bold text-xs transition cursor-pointer"
             >
+              <RotateCcw size={12} />
+              <span>Restart</span>
+            </button>
+            <span className="font-mono text-xs text-[#FFA726]">
+              {currentTimeSec}s / {durationSeconds}s
+            </span>
+          </div>
+        </div>
               <RotateCcw size={12} />
               <span>Restart</span>
             </button>
@@ -388,22 +398,22 @@ export function WhiteboardEditableWorkspace({
                     key={scene.id || idx}
                     type="button"
                     onClick={() => jumpToScene(idx)}
-                    className={`flex flex-col p-2.5 rounded-xl border text-left shrink-0 transition-all cursor-pointer ${
+                    className={`flex flex-col p-3 rounded-2xl border text-left shrink-0 transition-all cursor-pointer ${
                       isActive
-                        ? "bg-orange-500/20 border-orange-500 text-white ring-1 ring-orange-500/50"
-                        : "bg-slate-800/60 border-slate-700 text-slate-400 hover:text-white hover:bg-slate-800"
+                        ? "bg-[#FF6D00]/15 border-[#FF6D00] text-white ring-1 ring-[#FF6D00]/40 shadow-lg shadow-[#FF6D00]/10"
+                        : "bg-[#151E30] border-white/10 text-slate-400 hover:text-white hover:bg-[#1A253C]"
                     }`}
-                    style={{ minWidth: "120px" }}
+                    style={{ minWidth: "125px" }}
                   >
                     <div className="flex items-center justify-between gap-1 mb-1">
-                      <span className="text-[10px] font-black uppercase text-orange-400">
+                      <span className="text-[10px] font-black uppercase text-[#FFA726]">
                         Scene #{idx + 1}
                       </span>
                       <span className="text-[9px] font-mono text-slate-400">
                         {scene.startTime.toFixed(1)}s
                       </span>
                     </div>
-                    <span className="text-xs font-bold text-white truncate max-w-[110px]">
+                    <span className="text-xs font-bold text-white truncate max-w-[115px]">
                       {scene.headline || "Scene Beat"}
                     </span>
                   </button>
@@ -414,11 +424,11 @@ export function WhiteboardEditableWorkspace({
 
           {/* Active Scene Layer Inspector */}
           {activeScene && (
-            <div className="bg-slate-800/70 rounded-2xl border border-slate-700 p-5 space-y-5">
+            <div className="bg-[#151E30]/80 rounded-2xl border border-white/10 p-5 sm:p-6 space-y-5">
               {/* Scene Header */}
-              <div className="flex items-center justify-between pb-3 border-b border-slate-700/60">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-orange-500/20 border border-orange-500/40 text-orange-400 font-bold text-xs flex items-center justify-center">
+              <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-[#FF6D00]/20 border border-[#FF6D00]/30 text-[#FFA726] font-black text-xs flex items-center justify-center">
                     #{activeSceneIndex + 1}
                   </div>
                   <div>
@@ -461,8 +471,8 @@ export function WhiteboardEditableWorkspace({
                       key={layer.id}
                       className={`p-3 rounded-xl border transition-all ${
                         isSelected
-                          ? "bg-slate-750 border-orange-500/60 ring-1 ring-orange-500/30"
-                          : "bg-slate-800 border-slate-700 hover:border-slate-600"
+                          ? "bg-[#1A253C] border-[#FF6D00]/60 ring-1 ring-[#FF6D00]/30"
+                          : "bg-[#151E30] border-white/10 hover:border-white/20"
                       }`}
                     >
                       <div className="flex items-center justify-between gap-3">
@@ -517,9 +527,9 @@ export function WhiteboardEditableWorkspace({
                             <button
                               type="button"
                               onClick={() => toggleLayerVisibility(layer.type)}
-                              className={`p-1.5 rounded-lg transition ${
+                              className={`p-1.5 rounded-lg transition cursor-pointer ${
                                 layer.visible
-                                  ? "bg-slate-700 text-slate-300 hover:bg-slate-600"
+                                  ? "bg-white/10 text-slate-300 hover:bg-white/20 hover:text-white"
                                   : "bg-rose-500/20 text-rose-400 border border-rose-500/40"
                               }`}
                               title={layer.visible ? "Hide layer" : "Show layer"}
@@ -532,27 +542,27 @@ export function WhiteboardEditableWorkspace({
 
                       {/* Inline Headline Text Editor */}
                       {layer.type === "headline" && editingHeadline && (
-                        <div className="mt-3 pt-3 border-t border-slate-700 flex items-center gap-2">
+                        <div className="mt-3 pt-3 border-t border-white/10 flex items-center gap-2">
                           <input
                             type="text"
                             value={headlineDraft}
                             onChange={(e) => setHeadlineDraft(e.target.value)}
                             onKeyDown={(e) => e.key === "Enter" && handleSaveHeadline()}
                             placeholder="Type new headline text..."
-                            className="flex-1 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-600 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-orange-500"
+                            className="flex-1 px-3 py-1.5 rounded-lg bg-[#070B14] border border-white/20 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-[#FF6D00]"
                             autoFocus
                           />
                           <button
                             type="button"
                             onClick={handleSaveHeadline}
-                            className="px-3 py-1.5 rounded-lg bg-orange-500 text-slate-950 text-xs font-bold hover:brightness-110"
+                            className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black text-xs font-bold hover:brightness-110 cursor-pointer"
                           >
                             Save
                           </button>
                           <button
                             type="button"
                             onClick={() => setEditingHeadline(false)}
-                            className="px-2 py-1.5 text-xs text-slate-400 hover:text-white"
+                            className="px-2 py-1.5 text-xs text-slate-400 hover:text-white cursor-pointer"
                           >
                             Cancel
                           </button>

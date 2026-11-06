@@ -349,62 +349,72 @@ export function WhiteboardStudio({
         />
       )}
 
-      {/* Mode Switcher Bar */}
-      <div className="flex items-center justify-between pb-2">
-        <div className="flex items-center gap-2 p-1 bg-slate-200/60 rounded-xl">
+      {/* Studio Header & Mode Switcher Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            Whiteboard Video Studio
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+            Create high-retention 9:16 vertical hand-drawn whiteboard animations synced to your voiceover.
+          </p>
+        </div>
+
+        {/* Mode Switcher Tabs */}
+        <div className="flex items-center gap-1.5 p-1 bg-[#0E1526] border border-white/10 rounded-2xl self-start sm:self-center">
           <button
             type="button"
             onClick={() => setViewMode("studio")}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               viewMode === "studio"
-                ? "bg-white text-slate-900 shadow-xs"
-                : "text-slate-600 hover:text-slate-900"
+                ? "bg-white/10 text-white shadow-xs"
+                : "text-slate-400 hover:text-white"
             }`}
           >
-            Create Video
+            Studio
           </button>
           <button
             type="button"
             onClick={() => setViewMode("workspace")}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
               viewMode === "workspace"
-                ? "bg-white text-slate-900 shadow-xs"
-                : "text-slate-600 hover:text-slate-900"
+                ? "bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black font-black shadow-xs"
+                : "text-slate-400 hover:text-white"
             }`}
           >
-            <Layers className="w-3.5 h-3.5 text-orange-500" />
-            <span>Interactive Workspace</span>
-            <span className="px-1.5 py-0.2 rounded-full text-[9px] font-black bg-orange-100 text-orange-600">
+            <Edit3 className="w-3.5 h-3.5" />
+            <span>Edit Video</span>
+            <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-[#FF6D00]/20 text-[#FFA726] border border-[#FF6D00]/30">
               Live
             </span>
           </button>
         </div>
-
-        {renderedVideoUrl && (
-          <a
-            href={renderedVideoUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs font-bold text-orange-600 hover:text-orange-700 flex items-center gap-1"
-          >
-            <span>View Last Render</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </a>
-        )}
       </div>
 
       {/* VIEW MODE 1: STUDIO (Action-First, Single-Page Creation Workspace) */}
       {viewMode === "studio" && (
         <div className="space-y-6">
           {/* Audio Upload Hero Card */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 space-y-5">
-            <div>
-              <h2 className="text-sm sm:text-base font-bold text-slate-900">
-                Voiceover Narration
-              </h2>
-              <p className="text-xs text-slate-500">
-                Upload your speech audio to automatically plan and draw whiteboard scenes
-              </p>
+          <div className="group relative overflow-hidden rounded-[28px] border border-white/10 bg-[#0E1526]/90 p-6 sm:p-8 backdrop-blur-xl shadow-2xl transition-all duration-300 space-y-6">
+            <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-[#FF6D00]/10 blur-3xl transition-opacity group-hover:opacity-100" />
+
+            <div className="flex items-center justify-between pb-1">
+              <div>
+                <h2 className="text-base font-black text-white">
+                  Voiceover Audio
+                </h2>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Upload your voiceover to automatically transcribe speech and synchronize whiteboard scenes
+                </p>
+              </div>
+              <div className="hidden sm:flex items-center gap-2">
+                <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-white/5 border border-white/10 text-slate-300">
+                  9:16 Vertical
+                </span>
+                <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#FF6D00]/10 border border-[#FF6D00]/30 text-[#FFA726]">
+                  1 Credit
+                </span>
+              </div>
             </div>
 
             {!selectedFile ? (
@@ -417,10 +427,10 @@ export function WhiteboardStudio({
                 onDragLeave={() => setIsDraggingFile(false)}
                 onDrop={handleAudioDrop}
                 onClick={() => audioInputRef.current?.click()}
-                className={`border-2 border-dashed rounded-2xl p-8 sm:p-12 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-3 ${
+                className={`border-2 border-dashed rounded-2xl p-8 sm:p-12 text-center cursor-pointer transition-all duration-300 flex flex-col items-center justify-center gap-4 ${
                   isDraggingFile
-                    ? "border-orange-500 bg-orange-50/50 scale-[0.99]"
-                    : "border-slate-200 hover:border-orange-400 hover:bg-slate-50/60"
+                    ? "border-[#FF6D00] bg-[#FF6D00]/10 scale-[0.99]"
+                    : "border-white/15 bg-[#151E30]/50 hover:border-[#FF6D00]/50 hover:bg-[#151E30]/80"
                 }`}
               >
                 <input
@@ -431,20 +441,20 @@ export function WhiteboardStudio({
                   className="hidden"
                 />
 
-                <div className="w-14 h-14 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center shadow-xs">
-                  <UploadCloud className="w-7 h-7" />
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#FF6D00]/20 to-[#FFA726]/10 border border-[#FF6D00]/30 text-[#FFA726] flex items-center justify-center shadow-lg shadow-[#FF6D00]/10 group-hover:scale-105 transition-transform">
+                  <AudioWaveform className="w-8 h-8" />
                 </div>
 
                 <div>
-                  <div className="text-sm font-bold text-slate-800">
-                    Click to upload audio or drag and drop
+                  <div className="text-sm font-bold text-white">
+                    Drop your voiceover audio here, or click to browse
                   </div>
                   <div className="text-xs text-slate-400 mt-1">
-                    MP3, WAV, M4A or AAC (up to 90 seconds recommended)
+                    Supports MP3, WAV, M4A, AAC (up to 90 seconds recommended)
                   </div>
                 </div>
 
-                <span className="px-4 py-1.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition shadow-xs">
+                <span className="px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-white text-xs font-bold transition shadow-xs active:scale-95">
                   Select Audio File
                 </span>
               </div>
@@ -452,29 +462,35 @@ export function WhiteboardStudio({
               /* Uploaded Audio Loaded State */
               <div className="space-y-4">
                 {/* Audio Info & Playback Bar */}
-                <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 min-w-0">
+                <div className="p-4 sm:p-5 rounded-2xl border border-white/10 bg-[#151E30] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3.5 min-w-0">
                     <button
                       type="button"
                       onClick={togglePlayVoiceover}
-                      className="w-10 h-10 rounded-xl bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center shrink-0 shadow-xs active:scale-95 transition cursor-pointer"
+                      className="w-11 h-11 rounded-2xl bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black flex items-center justify-center shrink-0 shadow-lg shadow-[#FF6D00]/25 hover:brightness-110 active:scale-95 transition cursor-pointer"
                     >
                       {isVoiceoverPlaying ? (
-                        <Pause className="w-5 h-5" />
+                        <Pause className="w-5 h-5 fill-black" />
                       ) : (
-                        <Play className="w-5 h-5 ml-0.5 fill-white" />
+                        <Play className="w-5 h-5 ml-0.5 fill-black" />
                       )}
                     </button>
                     <div className="min-w-0">
-                      <div className="text-xs font-bold text-slate-900 truncate">
+                      <div className="text-xs sm:text-sm font-bold text-white truncate">
                         {selectedFile.name}
                       </div>
-                      <div className="text-[11px] text-slate-500 font-mono flex items-center gap-2 mt-0.5">
-                        <span>
+                      <div className="text-[11px] text-slate-400 font-mono flex items-center gap-2 mt-0.5">
+                        <span className="text-[#FFA726]">
                           {formatTime(voiceoverCurrentTime)} / {formatTime(voiceoverDuration)}
                         </span>
                         <span>•</span>
                         <span>{(selectedFile.size / 1024 / 1024).toFixed(1)} MB</span>
+                        {isVoiceoverPlaying && (
+                          <span className="flex items-center gap-1 ml-1 text-emerald-400 text-[10px] font-bold">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                            Playing
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -483,14 +499,14 @@ export function WhiteboardStudio({
                     <button
                       type="button"
                       onClick={() => audioInputRef.current?.click()}
-                      className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-xs font-semibold text-slate-700 transition cursor-pointer"
+                      className="px-3.5 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-bold text-slate-200 transition cursor-pointer"
                     >
                       Replace Audio
                     </button>
                     <button
                       type="button"
                       onClick={handleRemoveAudio}
-                      className="p-1.5 rounded-lg border border-slate-200 hover:bg-rose-50 hover:text-rose-600 text-slate-400 transition cursor-pointer"
+                      className="p-2 rounded-xl border border-white/10 bg-white/5 hover:bg-rose-500/20 hover:text-rose-400 hover:border-rose-500/30 text-slate-400 transition cursor-pointer"
                       title="Remove audio"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -506,15 +522,15 @@ export function WhiteboardStudio({
                 </div>
 
                 {/* Real-time Transcription Feedback Banner */}
-                <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-3">
+                <div className="p-4 sm:p-5 rounded-2xl border border-white/10 bg-[#070B14]/80 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       {transcribeState === "ready" ? (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                       ) : (
-                        <RefreshCw className="w-4 h-4 text-orange-500 animate-spin" />
+                        <RefreshCw className="w-4 h-4 text-[#FFA726] animate-spin" />
                       )}
-                      <span className="text-xs font-bold text-slate-800">
+                      <span className="text-xs font-bold text-white">
                         {transcribeState === "uploading" && "Uploading Audio..."}
                         {transcribeState === "processing" && "Processing Audio..."}
                         {transcribeState === "transcribing" && "Generating Transcription from Audio..."}
@@ -533,23 +549,26 @@ export function WhiteboardStudio({
                     value={editorialTranscript}
                     onChange={(e) => onEditorialTranscriptChange(e.target.value, true)}
                     placeholder={transcribeState === "transcribing" ? "Transcribing speech from your audio..." : "Transcription from your audio appears here. You can edit any sentence or fix names..."}
-                    className="w-full p-3 rounded-xl border border-slate-200 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 leading-relaxed font-sans resize-none"
+                    className="w-full p-3.5 rounded-xl border border-white/10 bg-[#0E1526] text-xs sm:text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-[#FF6D00] focus:ring-1 focus:ring-[#FF6D00] leading-relaxed font-sans resize-none"
                   />
                   <div className="flex items-center justify-between text-[11px] text-slate-400">
-                    <span>You can edit sentences to fine-tune the whiteboard scenes</span>
-                    <span>{editorialTranscript.trim().split(/\s+/).filter(Boolean).length} Words</span>
+                    <span>You can edit sentences to fine-tune each whiteboard scene</span>
+                    <span className="font-mono text-slate-300">{editorialTranscript.trim().split(/\s+/).filter(Boolean).length} Words</span>
                   </div>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Compact Customization Bar */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 space-y-4">
+          {/* Visual Style & Sound Engine Card */}
+          <div className="rounded-[28px] border border-white/10 bg-[#0E1526]/90 p-6 sm:p-8 backdrop-blur-xl shadow-2xl space-y-5">
             <div>
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                Style & Background Options
-              </h3>
+              <h2 className="text-base font-black text-white">
+                Visual Style & Background Audio
+              </h2>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Customize marker ink color, drawing hand, typography, and ambient soundtrack
+              </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -581,16 +600,16 @@ export function WhiteboardStudio({
             </div>
 
             {/* Sound Effects Toggle */}
-            <div className="pt-2 flex items-center justify-between border-t border-slate-100">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-slate-700">Drawing Sound Effects</span>
-                <span className="text-[11px] text-slate-400">Subtle dry-erase marker squeaks & eraser wipes</span>
+            <div className="pt-4 flex items-center justify-between border-t border-white/10">
+              <div>
+                <span className="text-xs font-bold text-white block">Drawing Sound Effects</span>
+                <span className="text-[11px] text-slate-400">Marker squeaks and wipes synchronized to drawing strokes</span>
               </div>
               <button
                 type="button"
                 onClick={() => onEnableSfxChange(!enableSfx)}
                 className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  enableSfx ? "bg-orange-500" : "bg-slate-200"
+                  enableSfx ? "bg-[#FF6D00]" : "bg-white/15"
                 }`}
               >
                 <span
@@ -602,13 +621,13 @@ export function WhiteboardStudio({
             </div>
           </div>
 
-          {/* Primary Action Button Bar */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          {/* Sticky Studio Action Bar */}
+          <div className="sticky bottom-4 z-30 bg-[#0E1526]/95 border border-white/15 rounded-2xl p-4 sm:p-5 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <div className="text-xs font-bold text-slate-900">
+              <div className="text-xs sm:text-sm font-black text-white">
                 Ready to create whiteboard explainer
               </div>
-              <div className="text-[11px] text-slate-500">
+              <div className="text-[11px] text-slate-400 mt-0.5">
                 Costs 1 Video Credit • 1080×1920 Full HD 30 FPS MP4
               </div>
             </div>
@@ -617,10 +636,10 @@ export function WhiteboardStudio({
               <button
                 type="button"
                 onClick={() => setViewMode("workspace")}
-                className="px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                className="px-5 py-3 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 text-white text-xs font-bold transition flex items-center gap-2 cursor-pointer active:scale-95"
                 title="Edit video composition and layers"
               >
-                <Edit3 className="w-4 h-4 text-orange-500" />
+                <Edit3 className="w-4 h-4 text-[#FFA726]" />
                 <span>Edit Video</span>
               </button>
 
@@ -628,20 +647,20 @@ export function WhiteboardStudio({
                 type="button"
                 onClick={onGenerate}
                 disabled={!isReadyToCreate}
-                className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-3 rounded-xl text-xs font-black transition-all shadow-md active:scale-95 cursor-pointer ${
+                className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-3 rounded-xl text-xs font-black transition-all shadow-lg active:scale-95 cursor-pointer ${
                   isReadyToCreate
-                    ? "bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 text-slate-950 hover:brightness-110 shadow-orange-500/20"
-                    : "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed opacity-60"
+                    ? "bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] text-black hover:brightness-110 shadow-[#FF6D00]/25"
+                    : "bg-white/5 text-slate-500 border border-white/10 cursor-not-allowed opacity-50"
                 }`}
               >
                 {isGenerating ? (
                   <>
-                    <RefreshCw className="w-4 h-4 animate-spin text-slate-950" />
+                    <RefreshCw className="w-4 h-4 animate-spin text-black" />
                     <span>Creating Video...</span>
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4 fill-slate-950" />
+                    <Sparkles className="w-4 h-4 fill-black" />
                     <span>Create Video</span>
                   </>
                 )}

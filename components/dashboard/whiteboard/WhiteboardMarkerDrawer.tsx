@@ -28,14 +28,14 @@ export function WhiteboardMarkerDrawer({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="group flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white hover:border-orange-400 hover:bg-orange-50/30 transition-all text-left shadow-xs w-full"
+        className="group flex items-center justify-between gap-3 px-3.5 py-3 rounded-2xl border border-white/10 bg-[#151E30] hover:border-[#FF6D00]/50 hover:bg-[#1A253C] transition-all text-left shadow-xs w-full cursor-pointer"
       >
         <div className="flex items-center gap-2.5 min-w-0">
           <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border shadow-xs group-hover:scale-105 transition-transform"
+            className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border shadow-xs group-hover:scale-105 transition-transform"
             style={{
               backgroundColor: selectedMarker.id === "auto" ? "#2563EB" : selectedMarker.hex,
-              borderColor: selectedMarker.ringHex || "#CBD5E1",
+              borderColor: selectedMarker.ringHex || "rgba(255,255,255,0.2)",
             }}
           >
             {selectedMarker.id === "auto" ? (
@@ -45,15 +45,15 @@ export function WhiteboardMarkerDrawer({
             )}
           </div>
           <div className="min-w-0">
-            <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
               Marker Color
             </div>
-            <div className="text-xs font-bold text-slate-800 truncate">
+            <div className="text-xs font-bold text-white truncate">
               {selectedMarker.name}
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 shrink-0 text-slate-400 group-hover:text-orange-500 transition-colors">
+        <div className="flex items-center gap-1.5 shrink-0 text-slate-400 group-hover:text-[#FFA726] transition-colors">
           <span className="text-[11px] font-semibold hidden sm:inline-block">
             {isOpen ? "Close" : "Change"}
           </span>
@@ -67,8 +67,8 @@ export function WhiteboardMarkerDrawer({
 
       {/* Expandable Palette Panel */}
       {isOpen && (
-        <div className="mt-2 p-3 bg-white rounded-2xl border border-slate-200 shadow-xl space-y-2 animate-fadeIn z-30">
-          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-1">
+        <div className="mt-2 p-3.5 bg-[#0E1526] rounded-2xl border border-white/10 shadow-2xl space-y-2.5 animate-fadeIn z-30">
+          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">
             Choose Marker Palette
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -85,8 +85,8 @@ export function WhiteboardMarkerDrawer({
                   }}
                   className={`flex items-center gap-2.5 p-2 rounded-xl border text-left transition-all cursor-pointer ${
                     isSelected
-                      ? "bg-slate-50 border-orange-500 ring-2 ring-orange-500/20"
-                      : "bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                      ? "bg-[#FF6D00]/15 border-[#FF6D00] ring-1 ring-[#FF6D00]/30 text-white"
+                      : "bg-[#151E30] border-white/10 hover:border-white/20 text-slate-300 hover:text-white"
                   }`}
                 >
                   <div
@@ -99,7 +99,7 @@ export function WhiteboardMarkerDrawer({
                     {isSelected && <Check className="w-3 h-3 text-white" />}
                   </div>
                   <div className="min-w-0">
-                    <span className="text-xs font-bold text-slate-800 block truncate">
+                    <span className="text-xs font-bold block truncate">
                       {marker.name}
                     </span>
                   </div>

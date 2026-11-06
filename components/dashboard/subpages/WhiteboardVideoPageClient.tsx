@@ -293,44 +293,47 @@ export default function WhiteboardVideoPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 pb-20">
-      {/* Top Header: Clean White */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200">
+    <div className="min-h-screen bg-[#070B14] text-white pb-20 relative selection:bg-[#FF6D00] selection:text-black">
+      {/* Ambient Radial Studio Glow */}
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(255,109,0,0.12),transparent_70%)]" />
+
+      {/* Top Header: Dark Glassmorphic Bar */}
+      <header className="sticky top-0 z-40 bg-[#070B14]/85 backdrop-blur-xl border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link
               href="/dashboard"
-              className="p-2 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600 transition"
+              className="p-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-slate-300 transition"
               title="Back to Dashboard"
             >
               <ArrowLeft className="w-4 h-4" />
             </Link>
-            <BrandLogo variant="light" />
-            <div className="hidden sm:flex items-center gap-2 pl-3 border-l border-slate-200">
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <BrandLogo variant="dark" />
+            <div className="hidden sm:flex items-center gap-2 pl-3 border-l border-white/10">
+              <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">
                 Whiteboard Animation
               </span>
-              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-600 border border-orange-200">
-                Hand Marker Sketch
+              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#FF6D00]/15 text-[#FFA726] border border-[#FF6D00]/30 uppercase tracking-wider">
+                9:16 Vertical
               </span>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             {billingEntitlement && (
-              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs">
-                <span className="font-semibold text-slate-700">
+              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-white/10 bg-[#0E1526] text-xs">
+                <span className="font-semibold text-slate-200">
                   {billingEntitlement.planName || "Creator"} Plan
                 </span>
-                <span className="w-1 h-1 rounded-full bg-slate-300" />
-                <span className="text-slate-500">
+                <span className="w-1 h-1 rounded-full bg-white/20" />
+                <span className="text-[#FFA726] font-mono">
                   {billingEntitlement.usage?.remaining ?? 10} Credits Left
                 </span>
               </div>
             )}
             <Link
               href="/dashboard"
-              className="text-xs font-semibold text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition"
+              className="text-xs font-semibold text-slate-300 hover:text-white px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition"
             >
               Studio Hub
             </Link>
@@ -339,7 +342,7 @@ export default function WhiteboardVideoPage() {
       </header>
 
       {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 relative z-10">
         {jobStatus.state !== "idle" && jobStatus.state !== "error" ? (
           <div className="max-w-2xl mx-auto py-12">
             <InteractiveRenderEngine
