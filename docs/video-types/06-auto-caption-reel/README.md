@@ -34,7 +34,7 @@ The dedicated studio dashboard (`/dashboard/auto-caption`) features a **Strictly
 | **Frame Rate** | 30 FPS |
 | **Max Video Duration** | **Up to 90 Seconds (90s)** |
 | **Primary Category** | 9:16 Vertical Short-Form |
-| **Credit Cost** | 1 Credit |
+| **Credit Cost** | **FREE • 5 Daily Renders** (0 Credits, account sign-in required) |
 | **Design System** | Google Analytics Obsidian Baseline (`#070B14`, `#0E1526`) + Intentional Color & Typography Variety Policy + Material Design 3 |
 | **Transcription Engine**| Extracted 16kHz audio → Groq Whisper Cloud API (Fallback: Gemini 2.0 Flash `asia-south1`) |
 | **Cloud Engine** | AWS Lambda (Remotion in `us-east-1` Mumbai) |

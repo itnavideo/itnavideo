@@ -6,7 +6,8 @@ This studio creates burned-in subtitles for widescreen 16:9 YouTube videos. Its 
 
 - Dashboard mode: youtubeSubtitleGenerator
 - Style picker: SubtitleStylePicker with variant=longForm
-- Output canvas: 16:9 landscape
+- Credit policy: **FREE • 5 Daily Allowance (0 Credits)** (Account sign-in required)
+- Output canvas: 16:9 landscape (up to 5 min / 300s)
 - Long-form style keys: LONG_FORM_PRESET_ORDER in components/ui/SubtitleStylePicker.tsx
 - Preview: dedicated landscape sample video and poster (PREVIEW_LONG_FORM_VIDEO_URL, PREVIEW_LONG_FORM_POSTER_URL)
 

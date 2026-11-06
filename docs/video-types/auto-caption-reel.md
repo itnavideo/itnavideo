@@ -33,7 +33,12 @@ The viewer sees the creator's original video with clean, animated captions that 
 
 Adding word-level animated captions manually takes 15-30 minutes per video using tools like CapCut or Premiere. This does it instantly with style options.
 
-## Why User Should Pay
+## Pricing & Credit Policy
+
+- **FREE Tier Active**: 0 Credits consumed. Each registered user receives **5 Free 9:16 renders per day**.
+- Account sign-in (Google or Email) required to prevent bot abuse.
+
+## Why Creators Love It
 
 - Saves 15-30 minutes of manual captioning per video
 - Word-level timing synced to speech (not sentence blocks)
