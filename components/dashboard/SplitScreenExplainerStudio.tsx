@@ -220,7 +220,7 @@ export const SplitScreenExplainerStudio: React.FC<SplitScreenExplainerStudioProp
       audioAuditionRef.current.pause();
     }
 
-    const audioUrl = `https://itnavideo-media-assets.s3.ap-south-1.amazonaws.com/${trackPath}`;
+    const audioUrl = `https://remotionlambda-useast1-2zq6twaok1.s3.us-east-1.amazonaws.com/${trackPath}`;
     const newAudio = new Audio(audioUrl);
     newAudio.volume = bgmVolume;
     newAudio.play().catch(() => {});

@@ -152,6 +152,7 @@ export function WhiteboardStudio({
 
   // Real-time Transcription State
   const [transcribeState, setTranscribeState] = useState<TranscribeState>("idle");
+  const [transcribeError, setTranscribeError] = useState<string | null>(null);
   const [isDraggingFile, setIsDraggingFile] = useState(false);
   const audioInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -202,15 +203,15 @@ export function WhiteboardStudio({
   // Direct Transcription with Real Status Progression
   const triggerDirectTranscription = async (file: File) => {
     setTranscribeState("uploading");
-    onEditorialTranscriptChange("", false);
+    setTranscribeError(null);
 
     try {
       // Step 1: Uploading Audio
-      await new Promise((r) => setTimeout(r, 400));
+      await new Promise((r) => setTimeout(r, 300));
       setTranscribeState("processing");
 
       // Step 2: Processing Audio
-      await new Promise((r) => setTimeout(r, 400));
+      await new Promise((r) => setTimeout(r, 300));
       setTranscribeState("transcribing");
 
       // Step 3: Call /api/reels/transcribe
@@ -235,8 +236,8 @@ export function WhiteboardStudio({
       setTranscribeState("ready");
     } catch (err: any) {
       console.warn("Transcription note:", err?.message);
-      // Mark ready so user can either type their own script or proceed directly with cloud pipeline
-      setTranscribeState("ready");
+      setTranscribeError(err?.message || "Speech transcription could not detect text.");
+      setTranscribeState("error");
     }
   };
 
@@ -523,32 +524,48 @@ export function WhiteboardStudio({
 
                 {/* Real-time Transcription Feedback Banner */}
                 <div className="p-4 sm:p-5 rounded-2xl border border-white/10 bg-[#070B14]/80 space-y-3">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
                     <div className="flex items-center gap-2">
                       {transcribeState === "ready" ? (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      ) : transcribeState === "error" ? (
+                        <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
                       ) : (
-                        <RefreshCw className="w-4 h-4 text-[#FFA726] animate-spin" />
+                        <RefreshCw className="w-4 h-4 text-[#FFA726] animate-spin shrink-0" />
                       )}
                       <span className="text-xs font-bold text-white">
                         {transcribeState === "uploading" && "Uploading Audio..."}
                         {transcribeState === "processing" && "Processing Audio..."}
-                        {transcribeState === "transcribing" && "Generating Transcription from Audio..."}
-                        {transcribeState === "ready" && (editorialTranscript ? "Transcription Ready (from your audio)" : "Audio Ready")}
+                        {transcribeState === "transcribing" && "Generating Transcription from Audio (Groq Whisper)..."}
+                        {transcribeState === "ready" && (editorialTranscript ? "Transcription Ready (from your audio)" : "Audio Ready — Type or paste your script below")}
+                        {transcribeState === "error" && (transcribeError || "Could not detect speech — You can retry or write script")}
                       </span>
                     </div>
 
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                      Editable Script
-                    </span>
+                    <div className="flex items-center gap-2">
+                      {selectedFile && (
+                        <button
+                          type="button"
+                          onClick={() => triggerDirectTranscription(selectedFile)}
+                          disabled={transcribeState === "transcribing" || transcribeState === "uploading" || transcribeState === "processing"}
+                          className="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-[11px] font-bold text-slate-300 hover:text-white transition disabled:opacity-50 cursor-pointer"
+                        >
+                          <RefreshCw className={`w-3 h-3 ${transcribeState === "transcribing" ? "animate-spin" : ""}`} />
+                          <span>Retry</span>
+                        </button>
+                      )}
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        Editable Script
+                      </span>
+                    </div>
                   </div>
 
                   {/* Real Transcript Review & Correction Box */}
                   <textarea
-                    rows={3}
+                    rows={4}
                     value={editorialTranscript}
                     onChange={(e) => onEditorialTranscriptChange(e.target.value, true)}
-                    placeholder={transcribeState === "transcribing" ? "Transcribing speech from your audio..." : "Transcription from your audio appears here. You can edit any sentence or fix names..."}
+                    placeholder={transcribeState === "transcribing" ? "Transcribing speech from your audio with Groq Whisper..." : "Transcription from your audio appears here. You can also type or edit any sentence to fine-tune each whiteboard scene..."}
                     className="w-full p-3.5 rounded-xl border border-white/10 bg-[#0E1526] text-xs sm:text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-[#FF6D00] focus:ring-1 focus:ring-[#FF6D00] leading-relaxed font-sans resize-none"
                   />
                   <div className="flex items-center justify-between text-[11px] text-slate-400">

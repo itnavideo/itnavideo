@@ -303,7 +303,7 @@ export function AiShortsPolisherStudio({
       if (audioAuditionRef.current) {
         audioAuditionRef.current.pause();
       }
-      const audio = new Audio(`https://itnavideo-media-assets.s3.ap-south-1.amazonaws.com/${track.path}`);
+      const audio = new Audio(`https://remotionlambda-useast1-2zq6twaok1.s3.us-east-1.amazonaws.com/${track.path}`);
       audio.volume = Math.max(0.05, Math.min(1, bgmVolume * 2));
       audio.play().catch(() => { });
       audio.onended = () => setAuditioningTrack(null);

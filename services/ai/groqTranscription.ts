@@ -144,8 +144,13 @@ export async function transcribeMediaBlobWithGroq({
   const responseFormat = cleanEnvValue(process.env.GROQ_TRANSCRIPTION_RESPONSE_FORMAT) || 'verbose_json';
   const translateToEnglish = shouldTranslateTranscriptionToEnglish();
 
+  const safeType = contentType || blob.type || (fileName.endsWith('.wav') ? 'audio/wav' : 'audio/mpeg');
+  const buffer = Buffer.from(await blob.arrayBuffer());
+  const resolvedFileName = safeFileName(fileName, safeType);
+  const filePart = new File([buffer], resolvedFileName, { type: safeType });
+
   const form = new FormData();
-  form.append('file', blob, safeFileName(fileName, contentType || blob.type));
+  form.append('file', filePart, resolvedFileName);
   form.append('model', model);
   form.append('response_format', responseFormat);
   form.append('temperature', '0');
