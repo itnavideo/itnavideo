@@ -217,7 +217,6 @@ Output STRICT JSON only matching this schema:
 
   return null;
 }
-}
 
 function synthesizeWordsFromSegments(segments: ReelTranscriptSegment[]): ReelWord[] {
   const words: ReelWord[] = [];

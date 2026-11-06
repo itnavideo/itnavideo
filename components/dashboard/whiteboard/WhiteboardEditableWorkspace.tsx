@@ -368,14 +368,6 @@ export function WhiteboardEditableWorkspace({
             </span>
           </div>
         </div>
-              <RotateCcw size={12} />
-              <span>Restart</span>
-            </button>
-            <span className="font-mono text-xs text-slate-400">
-              {currentTimeSec}s / {durationSeconds}s
-            </span>
-          </div>
-        </div>
 
         {/* Right: Scene Timeline & Layer Inspector (7 cols) */}
         <div className="lg:col-span-7 space-y-6">
