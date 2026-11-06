@@ -43,7 +43,6 @@ import {
   Building2,
   Target,
   Download,
-  UploadCloud,
   Clock3,
   CheckCircle2,
   ExternalLink,
@@ -351,7 +350,6 @@ export default function DashboardClient() {
   const [qrModalVideo, setQrModalVideo] = useState<{ url: string; title: string } | null>(null);
   const [selectedDemoTool, setSelectedDemoTool] = useState<VideoToolCard | null>(null);
   const router = useRouter();
-  const [isDragging, setIsDragging] = useState(false);
 
   // Fetch billing entitlement & credits with real-time refresh listeners
   useEffect(() => {
@@ -635,66 +633,6 @@ export default function DashboardClient() {
                 </div>
               </div>
 
-
-              {/*  FAST DRAG-AND-DROP STUDIO LAUNCHER  */}
-              {searchQuery === "" && (
-                <div
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    setIsDragging(true);
-                  }}
-                  onDragLeave={() => setIsDragging(false)}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    setIsDragging(false);
-                    const files = e.dataTransfer.files;
-                    if (!files || files.length === 0) return;
-                    const file = files[0];
-                    if (file.type.startsWith("audio/")) {
-                      router.push("/dashboard/faceless-video");
-                    } else {
-                      router.push("/dashboard/auto-caption");
-                    }
-                  }}
-                  className={`relative rounded-2xl border-2 border-dashed p-4 sm:p-5 text-center transition-all duration-200 ${
-                    isDragging
-                      ? "border-[#FF5722] bg-orange-500/10 scale-[1.01]"
-                      : "border-white/10 bg-gradient-to-r from-[#16161D] via-[#101014] to-[#16161D] hover:border-[#FF5722]/40"
-                  }`}
-                >
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-                    <div className="flex items-center gap-3 text-left">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-500/10 text-[#FF5722]">
-                        <UploadCloud size={20} />
-                      </div>
-                      <div>
-                        <p className="text-xs font-black text-white">
-                          Instant Studio Launcher
-                        </p>
-                        <p className="text-[11px] text-zinc-400">
-                          Drop voiceover audio to launch <strong className="text-white font-bold">16:9 Faceless Video</strong>, or video to launch <strong className="text-white font-bold">9:16 Auto Caption</strong>.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
-                      <Link
-                        href="/dashboard/faceless-video"
-                        className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] to-[#FFA000] px-4 py-2 sm:py-1.5 text-xs font-bold text-white shadow-xs hover:brightness-105 transition"
-                      >
-                        <span>Faceless Video (16:9)</span>
-                        <ChevronRight size={13} />
-                      </Link>
-                      <Link
-                        href="/dashboard/auto-caption"
-                        className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 px-4 py-2 sm:py-1.5 text-xs font-bold text-zinc-300 hover:text-white transition"
-                      >
-                        <span>Auto Caption (9:16)</span>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              )}
 
               {/*  2. RECENT CLOUD RENDERS (48h Retention Lifecycle, Only Completed Renders)  */}
               {recentRenders.filter((r) => Boolean(r.outputUrl || r.outputFile)).length > 0 && searchQuery === "" && activeCategory === "all" && (
