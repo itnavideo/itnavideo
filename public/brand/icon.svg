@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80">
+  <defs>
+    <linearGradient id="playIconGradOnly" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF6B2B"/>
+      <stop offset="100%" stop-color="#FF8C00"/>
+    </linearGradient>
+    <filter id="glowIconOnly" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#FF6B2B" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <g transform="translate(10, 9)" filter="url(#glowIconOnly)">
+    <path
+      d="M 10 4 C 10 1.5 12.8 0 15 1.4 L 56 28 C 58 29.3 58 32.7 56 34 L 15 60.6 C 12.8 62 10 60.5 10 58 Z"
+      fill="url(#playIconGradOnly)"
+    />
+  </g>
+</svg>

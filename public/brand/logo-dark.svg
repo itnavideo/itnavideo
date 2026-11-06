@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 120" width="500" height="120">
+  <defs>
+    <linearGradient id="playIconGradDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF6B2B"/>
+      <stop offset="100%" stop-color="#FF8C00"/>
+    </linearGradient>
+    <filter id="glowDark" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="#FF6B2B" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <!-- PLAY TRIANGLE ICON -->
+  <g transform="translate(10, 28)" filter="url(#glowDark)">
+    <path
+      d="M 10 4 C 10 1.5 12.8 0 15 1.4 L 56 28 C 58 29.3 58 32.7 56 34 L 15 60.6 C 12.8 62 10 60.5 10 58 Z"
+      fill="url(#playIconGradDark)"
+    />
+  </g>
+
+  <!-- WORDMARK: "Itna" white + "Video" orange (dark mode) -->
+  <text y="76"
+        font-family="'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif"
+        font-weight="800"
+        font-size="52"
+        letter-spacing="-1">
+    <tspan x="84" fill="#FFFFFF">Itna</tspan><tspan fill="#FF6B2B">Video</tspan>
+  </text>
+</svg>
