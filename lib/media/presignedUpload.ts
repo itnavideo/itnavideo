@@ -31,11 +31,15 @@ export function resolveSafeContentType(file: File): string {
 
 export async function uploadFileViaPresign(
   file: File,
-  workflowMode: string,
+  workflowMode: string | { prefix?: string } = "general",
   userId: string = "guest_user",
   userEmail?: string
-): Promise<string> {
+): Promise<string & { url: string; key: string }> {
   const contentType = resolveSafeContentType(file);
+
+  const cleanMode = typeof workflowMode === 'object' && workflowMode !== null
+    ? (workflowMode.prefix || 'general')
+    : String(workflowMode || 'general');
 
   const presignRes = await fetch("/api/media/presign", {
     method: "POST",
@@ -43,7 +47,7 @@ export async function uploadFileViaPresign(
     body: JSON.stringify({
       fileName: file.name,
       contentType,
-      mode: workflowMode,
+      mode: cleanMode,
       userId: userId || "guest_user",
       userEmail: userEmail || undefined,
       fileSize: file.size,
@@ -68,5 +72,12 @@ export async function uploadFileViaPresign(
     throw new Error(`Direct cloud upload failed (${uploadRes.status}). Please check network connectivity.`);
   }
 
-  return presign.key as string;
+  const key = String(presign.key);
+  // Return a string primitive wrapper that also allows .url and .key access
+  const result = Object.assign(new String(key), {
+    url: key,
+    key: key,
+  });
+
+  return result as any;
 }

@@ -186,9 +186,12 @@ export default function WhiteboardVideoPage() {
       });
 
       // 1. Upload voiceover narration
-      const mediaUpload = await uploadFileViaPresign(selectedFile, {
-        prefix: "whiteboard/audio",
-      });
+      const mediaKey = await uploadFileViaPresign(
+        selectedFile,
+        "whiteboardVideo",
+        user.id,
+        user.email || undefined
+      );
 
       // 2. Upload Custom BGM if provided
       let customBgmUrl: string | undefined = undefined;
@@ -198,10 +201,13 @@ export default function WhiteboardVideoPage() {
           message: "Uploading background audio...",
           progress: 0.22,
         });
-        const bgmUpload = await uploadFileViaPresign(customBgmFile, {
-          prefix: "whiteboard/bgm",
-        });
-        customBgmUrl = bgmUpload.url;
+        const bgmKey = await uploadFileViaPresign(
+          customBgmFile,
+          "whiteboardVideo",
+          user.id,
+          user.email || undefined
+        );
+        customBgmUrl = String(bgmKey);
       }
 
       // 3. Submit Render Job
@@ -220,8 +226,8 @@ export default function WhiteboardVideoPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          mediaKey: mediaUpload.url,
-          sourceAudioUrl: mediaUpload.url,
+          mediaKey: String(mediaKey),
+          sourceAudioUrl: String(mediaKey),
           fileName: selectedFile.name,
           contentType: selectedFile.type || "audio/mpeg",
           mediaType: "audio",
@@ -343,14 +349,14 @@ export default function WhiteboardVideoPage() {
 
       {/* Main Container */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 relative z-10">
-        {jobStatus.state !== "idle" && jobStatus.state !== "error" ? (
+        {jobStatus.state !== "idle" ? (
           <div className="max-w-2xl mx-auto py-12">
             <InteractiveRenderEngine
               mode="whiteboardVideo"
-              status={jobStatus.state}
-              progress={jobStatus.progress || 0}
-              message={jobStatus.message}
-              outputUrl={jobStatus.outputFile}
+              title={topicTitle || "Whiteboard Explainer"}
+              fileName={selectedFile?.name}
+              status={jobStatus}
+              onRetry={() => handleStartRender()}
               onCancel={() => setShowCancelModal(true)}
               onReset={() => setJobStatus({ state: "idle" })}
             />

@@ -364,14 +364,14 @@ export default function SplitScreenExplainerPageClient() {
 
       {/* Main Container */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-8">
-        {jobStatus.state !== "idle" && jobStatus.state !== "error" ? (
+        {jobStatus.state !== "idle" ? (
           <div className="max-w-2xl mx-auto py-12">
             <InteractiveRenderEngine
               mode="splitScreenExplainer"
-              status={jobStatus.state}
-              progress={jobStatus.progress || 0}
-              message={jobStatus.message}
-              outputUrl={jobStatus.outputFile}
+              title={topicTitle || "Split Screen Explainer"}
+              fileName={creatorVideoFile?.name}
+              status={jobStatus}
+              onRetry={() => handleStartRender()}
               onCancel={() => setShowCancelModal(true)}
               onReset={() => setJobStatus({ state: "idle" })}
             />
