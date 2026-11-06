@@ -539,18 +539,18 @@ export function AudioCleanStudio({
                 {[
                   {
                     id: "fast",
-                    label: " Fast Retention (Image to Video)",
-                    desc: "Compresses pauses >0.40s down to ~0.28s. Eliminates dead air so viewers stay engaged during visual transitions.",
+                    label: "⚡ Fast Retention (300ms Standard)",
+                    desc: "Cuts every pause >300ms across the audio down to a tight 100ms gap. Eliminates all awkward silences for high-retention video.",
                   },
                   {
                     id: "natural",
-                    label: " Natural Conversational",
-                    desc: "Compresses pauses >0.50s down to ~0.35s. Standard conversational breathing space.",
+                    label: "🎙️ Natural Conversational",
+                    desc: "Cuts pauses >300ms down to ~140ms. Maintains smooth natural speech flow without boring pauses.",
                   },
                   {
                     id: "relaxed",
-                    label: " Relaxed Flow",
-                    desc: "Compresses pauses >0.65s down to ~0.45s. Suitable for slow-paced educational podcasts.",
+                    label: "☕ Relaxed Flow",
+                    desc: "Cuts pauses >450ms down to ~200ms. Suitable for slower educational audio and podcasts.",
                   },
                 ].map((p) => {
                   const isSelected = (audioCleanOptions.pacing || "fast") === p.id;

@@ -1,8 +1,11 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, ArrowRight, Youtube } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+import React, { ReactNode } from 'react';
 import { blogPosts, getDbBlogPost } from '@/lib/blogPosts';
 import { getPublicTopicLink, BlogInternalLinks } from '@/components/blog/BlogInternalLinks';
+import { ReadingProgressBar } from '@/components/blog/ReadingProgressBar';
+import { BlogKeyTakeaways } from '@/components/blog/BlogKeyTakeaways';
 
 const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.itnavideo.com').replace(/\/$/, '');
 
@@ -13,6 +16,18 @@ function safeJson(value: unknown) {
 function sanitizeCmsHtml(html: string): string {
   if (!html) return '';
   return html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+}
+
+function applyEditorialHighlightSyntax(html: string): string {
+  if (!html) return '';
+  return html
+    .replace(/==yellow:([\s\S]+?)==/g, '<mark class="highlight-yellow">$1</mark>')
+    .replace(/==orange:([\s\S]+?)==/g, '<mark class="highlight-orange">$1</mark>')
+    .replace(/==mint:([\s\S]+?)==/g, '<mark class="highlight-mint">$1</mark>')
+    .replace(/==([\s\S]+?)==/g, '<mark class="highlight-yellow">$1</mark>')
+    .replace(/~~slate:([\s\S]+?)~~/g, '<span class="underline-wavy-slate">$1</span>')
+    .replace(/~~wavy:([\s\S]+?)~~/g, '<span class="underline-wavy-orange">$1</span>')
+    .replace(/~~([\s\S]+?)~~/g, '<span class="underline-wavy-orange">$1</span>');
 }
 
 export function generateStaticParams() {
@@ -53,7 +68,88 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-function renderRichParagraph(text: string, topicHref: string) {
+/**
+ * Parses explicit highlight/underline tags:
+ * - ==yellow:Text== or ==Text== -> 🟡 Soft Pastel Yellow
+ * - ==orange:Text== -> 🟠 Warm Sunset Orange
+ * - ==mint:Text== -> 🟢 Pale Mint Green
+ * - ~~wavy:Text== or ~~Text~~ -> 〰️ Orange Wavy Underline
+ * - ~~slate:Text~~ -> 〰️ Slate Wavy Underline
+ */
+function parseEditorialTokens(text: string): ReactNode[] | null {
+  const tokenRegex = /(==(?:(yellow|orange|mint):)?([\s\S]+?)==|~~(?:(wavy|slate):)?([\s\S]+?)~~)/g;
+  if (!tokenRegex.test(text)) return null;
+
+  tokenRegex.lastIndex = 0;
+  const parts: ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = tokenRegex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+    const full = match[0];
+    if (full.startsWith('==')) {
+      const color = match[2] || 'yellow';
+      const content = match[3];
+      const cls = color === 'orange' ? 'highlight-orange' : color === 'mint' ? 'highlight-mint' : 'highlight-yellow';
+      parts.push(
+        <mark key={`mark-${match.index}`} className={cls}>
+          {content}
+        </mark>
+      );
+    } else if (full.startsWith('~~')) {
+      const style = match[4] || 'wavy';
+      const content = match[5];
+      const cls = style === 'slate' ? 'underline-wavy-slate' : 'underline-wavy-orange';
+      parts.push(
+        <span key={`wavy-${match.index}`} className={cls}>
+          {content}
+        </span>
+      );
+    }
+    lastIndex = match.index + full.length;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+
+  return parts;
+}
+
+/**
+ * High-signal keywords for auto-highlighting existing articles without explicit tags.
+ * Strictly budgeted at ~5% (at most one accent every 2-3 paragraphs).
+ */
+const AUTO_ACCENT_PATTERNS: Array<{
+  regex: RegExp;
+  type: 'yellow' | 'orange' | 'mint' | 'wavy';
+}> = [
+  // 🟢 Positive results, view counts, and revenue wins
+  { regex: /\b(98% direct cost savings|340% increase|\$14M in direct property inquiries|over 98% direct cost savings|3x higher retention|10x faster)\b/i, type: 'mint' },
+  // 🟠 Itnavideo studio features and speed stats
+  { regex: /\b(60 FPS Ultra-Fluid|20 Seconds \(Instant Cloud\)|1 credit|instant cloud render|15-minute continuous video processing)\b/i, type: 'orange' },
+  // 🟡 Golden "Ah-Ha!" insight or retention punchline
+  { regex: /\b(hook high-net-worth buyers in the first 1\.2 seconds|hook in the first 3 seconds|voice-to-video|sound-off viewers|attention is the most expensive currency)\b/i, type: 'yellow' },
+  // 〰️ Handcrafted human emphasis
+  { regex: /\b(unfair operational advantage|voice alone is not enough|audio is enough to begin|social media needs captions)\b/i, type: 'wavy' },
+];
+
+function renderEditorialParagraph(
+  text: string,
+  topicHref: string,
+  sectionIndex: number,
+  pIndex: number
+): ReactNode {
+  // 1. Check for explicit editorial tokens (==color:text== or ~~style:text~~)
+  const explicitTokens = parseEditorialTokens(text);
+  if (explicitTokens) {
+    return <>{explicitTokens}</>;
+  }
+
+  // 2. Standard internal SEO link replacements
   const replacements: Array<{ phrase: string; href: string }> = [
     { phrase: 'Itnavideo AI Audio Cleaner', href: '/tools/ai-audio-cleaner' },
     { phrase: 'Itnavideo Studio Dashboard', href: topicHref },
@@ -81,6 +177,48 @@ function renderRichParagraph(text: string, topicHref: string) {
           {after}
         </>
       );
+    }
+  }
+
+  // 3. Strict 5% Budget: Only apply auto-accent to 1 in every 3 paragraphs
+  const isEligibleForAutoAccent = (sectionIndex * 2 + pIndex) % 3 === 1;
+  if (isEligibleForAutoAccent) {
+    for (const { regex, type } of AUTO_ACCENT_PATTERNS) {
+      const match = regex.exec(text);
+      if (match) {
+        const start = match.index;
+        const end = start + match[0].length;
+        const before = text.slice(0, start);
+        const highlighted = match[0];
+        const after = text.slice(end);
+
+        const accentEl =
+          type === 'mint' ? (
+            <mark key="accent" className="highlight-mint">
+              {highlighted}
+            </mark>
+          ) : type === 'orange' ? (
+            <mark key="accent" className="highlight-orange">
+              {highlighted}
+            </mark>
+          ) : type === 'yellow' ? (
+            <mark key="accent" className="highlight-yellow">
+              {highlighted}
+            </mark>
+          ) : (
+            <span key="accent" className="underline-wavy-orange">
+              {highlighted}
+            </span>
+          );
+
+        return (
+          <>
+            {before}
+            {accentEl}
+            {after}
+          </>
+        );
+      }
     }
   }
 
@@ -131,6 +269,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   return (
     <main className="min-h-screen bg-white text-slate-900 antialiased selection:bg-[#FF6D00]/20">
+      {/* 2px Reading Progress Line at Top of Screen */}
+      <ReadingProgressBar />
+
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJson(articleSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJson(breadcrumbSchema) }} />
       {faqSchema ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJson(faqSchema) }} /> : null}
@@ -193,12 +334,24 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           {post.excerpt}
         </p>
 
+        {/* TL;DR Key Takeaways Box */}
+        <BlogKeyTakeaways
+          takeaways={
+            post.keyTakeaways ||
+            post.takeaways ||
+            (post.sections && post.sections.length >= 2
+              ? post.sections.slice(0, 3).map((s: any) => s.heading)
+              : undefined)
+          }
+          summary={post.takeawaysSummary}
+        />
+
         {/* Article Body Content */}
         <div className="space-y-8">
           {post.contentHtml ? (
             <div
               className="prose-editorial"
-              dangerouslySetInnerHTML={{ __html: sanitizeCmsHtml(post.contentHtml) }}
+              dangerouslySetInnerHTML={{ __html: sanitizeCmsHtml(applyEditorialHighlightSyntax(post.contentHtml)) }}
             />
           ) : post.sections ? (
             post.sections.map((section: any, index: number) => (
@@ -207,12 +360,19 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                   {section.heading}
                 </h2>
                 <div className="space-y-6">
-                  {section.body.map((paragraph: string) => (
+                  {section.body.map((paragraph: string, pIndex: number) => (
                     <p key={paragraph} className="font-editorial text-[18px] sm:text-[19px] leading-[1.8] text-slate-800 tracking-[-0.003em]">
-                      {renderRichParagraph(paragraph, topicLink.href)}
+                      {renderEditorialParagraph(paragraph, topicLink.href, index, pIndex)}
                     </p>
                   ))}
                 </div>
+
+                {/* Big Magazine Editorial Pull-Quote after Section 1 */}
+                {index === 0 && (post.pullQuote || post.sections.length >= 3) && (
+                  <aside className="editorial-pull-quote">
+                    &ldquo;{post.pullQuote || post.sections[0]?.body?.[1] || post.sections[0]?.body?.[0]}&rdquo;
+                  </aside>
+                )}
 
                 {/* Optional Clean Video Embed */}
                 {index === 1 && post.youtubeId && (

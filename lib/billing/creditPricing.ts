@@ -40,9 +40,9 @@ export function calculateLongFormCaptionCreditUnits(durationSeconds: number) {
   if (!Number.isFinite(duration) || duration <= 0 || duration > LONG_FORM_CAPTION_MAX_SECONDS) {
     throw new Error("16:9 Widescreen video supports up to 5 minutes (300 seconds) duration.");
   }
-  // Rule 4.1: 1 Min = 1 Credit (1m=1, 2m=2, 3m=3, 4m=4, 5m=5 Cr)
-  // Founder Directive: Flat 2 Credits per video (regardless of 1m, 2m, or 5m)
-  return 2 * CREDIT_UNITS_PER_CREDIT;
+  // Rule 4.1: 1 Min = 1 Credit (1m=1, 2m=2, 3m=3, 4m=4, 5m=5 Cr max)
+  const minutes = Math.max(1, Math.min(5, Math.ceil(duration / 60)));
+  return minutes * CREDIT_UNITS_PER_CREDIT;
 }
 
 export function calculateYouTubeSubtitleCreditUnits(durationSeconds: number) {
@@ -50,9 +50,8 @@ export function calculateYouTubeSubtitleCreditUnits(durationSeconds: number) {
   if (!Number.isFinite(duration) || duration <= 0 || duration > LONG_FORM_CAPTION_MAX_SECONDS) {
     throw new Error("YouTube Subtitle Generator supports up to 5 minutes (300 seconds) duration.");
   }
-  // Rule 4.1: 1 Min = 1 Credit (up to 5 minutes)
-  const minutes = Math.max(1, Math.min(5, Math.ceil(duration / 60)));
-  return minutes * CREDIT_UNITS_PER_CREDIT;
+  // Rule 4.1: Flat 2 Credits / Video (regardless of 1m-5m)
+  return 2 * CREDIT_UNITS_PER_CREDIT;
 }
 
 export function calculateRenderCreditUnits(mode: BillableRenderMode, options: RenderCreditOptions = {}) {
@@ -80,16 +79,14 @@ export function calculateRenderCreditUnits(mode: BillableRenderMode, options: Re
       return clipCount * 1 * CREDIT_UNITS_PER_CREDIT;
     }
 
-    // YouTube Subtitle Generator (16:9 widescreen, up to 3 min): 2 Credits
+    // YouTube Subtitle Generator (16:9 widescreen, up to 5 min): Flat 2 Credits
     case "youtubeSubtitleGenerator":
       return calculateYouTubeSubtitleCreditUnits(duration);
 
-    // All 16:9 Long Videos & Cinema (up to 3 min): 2 Credits
+    // All 16:9 Long Videos & Cinema (up to 5 min): 1 Min = 1 Credit
     case "longFormCaptionedVideo":
     case "aiVideoGenerator":
     case "facelessVideo":
-
-
     case "imageToVideoAi":
     case "bookSummary":
     case "aiVideoPolisher":

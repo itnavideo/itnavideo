@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createReadUrl } from "@/lib/gcs/mediaStorage";
+import { createReadUrl } from "@/lib/aws/mediaStorage";
 import { transcribeMediaUrlWithGroq, transcribeMediaBlobWithGroq } from "@/services/ai/groqTranscription";
 import { transcribeMediaWithGeminiFallback } from "@/services/ai/geminiTranscription";
 

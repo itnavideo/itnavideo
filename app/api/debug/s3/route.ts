@@ -10,7 +10,14 @@ import {getSignedUrl} from '@aws-sdk/s3-request-presigner';
 
 const clean = (value?: string) => (value || '').trim();
 
-export async function GET() {
+export async function GET(request: Request) {
+  // Security: Protect debug endpoints from unauthenticated public access
+  const adminKey = request.headers.get('x-admin-key');
+  const expectedKey = clean(process.env.ADMIN_SECRET_KEY || process.env.CRON_SECRET);
+  if (process.env.NODE_ENV === 'production' && (!expectedKey || adminKey !== expectedKey)) {
+    return NextResponse.json({error: 'Unauthorized access'}, {status: 401});
+  }
+
   const region = clean(process.env.REMOTION_AWS_REGION || process.env.AWS_REGION) || 'us-east-1';
   const bucket = clean(process.env.REMOTION_LAMBDA_BUCKET_NAME || process.env.AWS_ASSET_BUCKET);
   const accessKeyId = clean(process.env.AWS_ACCESS_KEY_ID);

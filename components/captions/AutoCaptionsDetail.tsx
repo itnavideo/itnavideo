@@ -13,20 +13,16 @@ import {
   BarChart3,
   Users,
   FileText,
-  HelpCircle,
   Briefcase,
   Tv,
   ChevronDown,
   Monitor,
-  Wand2,
-  Film,
-  Award,
   Type,
-  VolumeX,
-  Eye,
   Sliders,
   Smartphone,
-  Globe,
+  Eye,
+  Check,
+  X,
 } from 'lucide-react';
 import VideoBeforeAfterCard from './VideoBeforeAfterCard';
 import WhiteStairLiveDemoSection from './WhiteStairLiveDemoSection';
@@ -38,7 +34,7 @@ export const CAPTION_PAIRS = [
     description: 'Medical explainer with technical terms — clean professional captions',
     beforeSrc: '/videos/auto-captions/doctor-before.mp4',
     afterSrc: '/videos/auto-captions/doctor-after.mp4',
-    accentColor: '#38BDF8',
+    accentColor: '#0284c7',
   },
   {
     id: 'content-creator',
@@ -46,23 +42,23 @@ export const CAPTION_PAIRS = [
     description: 'Talking-head creator reel with bold karaoke-style captions',
     beforeSrc: '/videos/auto-captions/content-creator-before.mp4',
     afterSrc: '/videos/auto-captions/content-creator-after.mp4',
-    accentColor: '#22C55E',
+    accentColor: '#16a34a',
   },
   {
     id: 'professional-creator',
-    label: 'Professional / Corporate',
+    label: 'Corporate Presenter',
     description: 'Polished business presenter with studio-clean subtitle style',
     beforeSrc: '/videos/auto-captions/professional-creator-before.mp4',
     afterSrc: '/videos/auto-captions/professional-creator-after.mp4',
-    accentColor: '#A78BFA',
+    accentColor: '#7c3aed',
   },
   {
     id: 'professional-creator-girl',
-    label: 'Coach / Educator',
-    description: 'Female presenter coaching content with highlight captions',
+    label: 'Coach & Educator',
+    description: 'Presenter coaching content with active word highlight captions',
     beforeSrc: '/videos/auto-captions/professional-creator-girl-before.mp4',
     afterSrc: '/videos/auto-captions/professional-creator-girl-after.mp4',
-    accentColor: '#F472B6',
+    accentColor: '#db2777',
   },
   {
     id: 'real-estate-advisor',
@@ -70,15 +66,15 @@ export const CAPTION_PAIRS = [
     description: 'Property consultant — bold captions that stay readable on busy backgrounds',
     beforeSrc: '/videos/auto-captions/real-estate-advisor-before.mp4',
     afterSrc: '/videos/auto-captions/real-estate-advisor-after.mp4',
-    accentColor: '#F59E0B',
+    accentColor: '#d97706',
   },
   {
     id: 'traveler',
-    label: 'Travel / Lifestyle',
+    label: 'Travel & Lifestyle',
     description: 'Outdoor creator with fast speech — accurate word-level sync',
     beforeSrc: '/videos/auto-captions/traveler-before.mp4',
     afterSrc: '/videos/auto-captions/traveler-after.mp4',
-    accentColor: '#34D399',
+    accentColor: '#059669',
   },
 ] as const;
 
@@ -91,20 +87,24 @@ export default function AutoCaptionsDetail() {
 
   const faqData = [
     {
-      q: "Why are video captions essential for Instagram Reels and YouTube Shorts?",
-      a: "Over 85% of social media videos are watched on mute or in noise-sensitive environments like public transit, open offices, and late-night scrolling. Adding auto captions ensures viewers immediately understand your hook and narrative without needing sound, increasing watch time and reducing swipe-away rates."
+      q: "Why are animated video captions essential for Instagram Reels and YouTube Shorts?",
+      a: "Over 85% of social media videos are watched with sound muted in public transit, offices, and late-night scrolling. Adding auto captions ensures viewers immediately understand your hook and narrative without needing sound, doubling average watch time and preventing swipe-away bounces."
     },
     {
       q: "How does the AI Auto Caption Generator transcribe speech with sub-second accuracy?",
-      a: "Our speech recognition engine transcribes audio with word-level timestamping. It calculates the exact start and end times for every spoken word, allowing our rendering engine to apply real-time karaoke active-word highlights as you speak."
+      a: "Groq Whisper cloud transcription timestamps every spoken word to the exact millisecond. It calculates the start and end frame for each syllable, allowing our rendering engine to apply real-time karaoke active-word highlights with zero lag."
+    },
+    {
+      q: "How many credits does an Auto Caption Reel cost?",
+      a: "Every 9:16 vertical caption reel (up to 90 seconds, 1080x1920 30 FPS MP4) costs strictly 1 credit. There are zero subscription lock-ins or watermark fees."
     },
     {
       q: "Can I customize the caption positions, font sizes, and highlight colors?",
-      a: "Yes! You can choose from over 15+ curated subtitle presets (including bold viral bounce, neon glow, minimal clean, and high-contrast backdrops), adjust active word highlight colors (yellow, green, cyan, pink), and set positioning to Top, Center, or Lower-Third."
+      a: "Yes. You can choose from over 15+ curated subtitle presets (including bold viral bounce, neon glow, minimal clean, and high-contrast backdrops), adjust active word highlight colors (yellow, green, cyan, pink), and set positioning to Top, Center, or Lower-Third."
     },
     {
-      q: "Does Itnavideo support Hinglish (Roman script Hindi) and fast dialogue?",
-      a: "Yes. Our transcription model is specifically trained on Indian accents, Hinglish (Roman script Hindi), and rapid conversational speech, ensuring technical jargon and conversational phrasing are transcribed clearly without awkward errors."
+      q: "Does Itnavideo support Hinglish (Roman script Hindi) and fast conversational dialogue?",
+      a: "Yes. Our transcription model is specifically trained on conversational accents, Hinglish (Roman script Hindi), and rapid speech, ensuring technical jargon and colloquial expressions are transcribed clearly without errors."
     },
     {
       q: "Do I need complex video editing software like Premiere Pro or CapCut?",
@@ -112,7 +112,7 @@ export default function AutoCaptionsDetail() {
     },
     {
       q: "What video formats and aspect ratios are supported?",
-      a: "Itnavideo supports MP4, MOV, WEBM, MP3, WAV, and M4A uploads across 9:16 Vertical (Reels, Shorts, TikTok) and 16:9 Widescreen (YouTube, LinkedIn, Web) aspect ratios."
+      a: "Itnavideo supports MP4, MOV, WEBM, MP3, WAV, and M4A uploads for 9:16 vertical short-form reels (Instagram Reels, YouTube Shorts, TikTok)."
     },
     {
       q: "Will adding captions increase my video's organic reach and engagement?",
@@ -120,7 +120,6 @@ export default function AutoCaptionsDetail() {
     }
   ];
 
-  // Structured Schema for Google Rich Snippets
   const faqSchema = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
@@ -149,8 +148,7 @@ export default function AutoCaptionsDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070B14] text-slate-100 font-sans selection:bg-purple-500/30 selection:text-purple-200">
-      {/* Schema Injection */}
+    <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-amber-100 selection:text-amber-900">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
@@ -160,517 +158,286 @@ export default function AutoCaptionsDetail() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
       />
 
-      {/* Top Header Navigation */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#070B14]/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black font-black shadow-lg shadow-[#FF5722]/20 group-hover:scale-105 transition-transform">
-              IV
-            </div>
-            <span className="text-xl font-extrabold tracking-tight text-white font-jakarta">
-              Itnavideo<span className="text-[#FF5722]">.</span>
-            </span>
-          </Link>
-
-          <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-300">
-            <Link href="/video-types" className="hover:text-[#FF7043] transition">Video Types</Link>
-            <Link href="/faceless-video" className="hover:text-[#FF7043] transition">Faceless Video</Link>
-            <Link href="/use-cases" className="hover:text-[#FF7043] transition">Use Cases</Link>
-            <Link href="/pricing" className="hover:text-[#FF7043] transition">Pricing</Link>
-          </nav>
-
-          <div className="flex items-center gap-4">
-            <Link
-              href="/login"
-              className="hidden sm:inline-flex text-sm font-bold text-slate-300 hover:text-white transition"
-            >
-              Sign In
-            </Link>
-            <Link
-              href="/dashboard/auto-caption"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-5 py-2.5 text-xs sm:text-sm font-black text-black shadow-lg shadow-[#FF5722]/25 transition hover:brightness-110 active:scale-95 font-jakarta"
-            >
-              <Sparkles size={16} />
-              <span>Add Captions Free</span>
-            </Link>
-          </div>
-        </div>
-      </header>
-
       {/* HERO SECTION */}
-      <section className="relative overflow-hidden pt-12 pb-16 lg:pt-20 lg:pb-24">
-        {/* Glow ambient effects */}
-        <div className="pointer-events-none absolute -top-24 left-1/2 -z-10 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-[#FF5722]/15 via-[#FF7043]/10 to-[#FFA000]/15 blur-[120px]" />
-
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-          {/* Kicker Pill */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-black uppercase tracking-wider text-[#FFA000] mb-6">
-            <Sparkles size={14} className="text-[#FF7043]" />
-            <span>AI Auto Caption Generator • Instagram Reels, Shorts &amp; Videos</span>
-          </div>
-
-          {/* Main Headline */}
-          <h1 className="text-4xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl leading-[1.1] max-w-5xl mx-auto font-jakarta">
-            Add Animated Karaoke Subtitles{' '}
-            <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
-              In Seconds, Not Hours
-            </span>
+      <section className="relative overflow-hidden pt-16 pb-20 lg:pt-24 lg:pb-28 border-b border-slate-100 bg-gradient-to-b from-slate-50/70 via-white to-white">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-6xl lg:text-7xl leading-[1.1] max-w-5xl mx-auto">
+            Add Animated Karaoke Subtitles In Seconds, Not Hours
           </h1>
 
-          {/* Sub-headline */}
-          <p className="mt-6 text-lg sm:text-xl text-slate-300 leading-relaxed font-medium max-w-3xl mx-auto">
+          <p className="mt-6 text-lg sm:text-xl text-slate-600 leading-relaxed font-normal max-w-3xl mx-auto">
             Stop typing video captions manually. Transform talking-head recordings, podcast clips, and social media reels with word-synced animated subtitles that double watch time and hold viewer attention.
           </p>
 
-          {/* CTAs */}
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/dashboard/auto-caption"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-8 py-4 text-base font-black text-black shadow-xl shadow-[#FF5722]/25 transition hover:brightness-110 active:scale-95 font-jakarta"
+              href="/dashboard?videoType=auto-caption-generator"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-xl bg-slate-900 px-8 py-4 text-base font-semibold text-white shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition active:scale-95"
             >
-              <Play size={18} className="fill-black" />
-              <span>Add Captions to My Video Free</span>
+              <Play size={18} className="fill-white" />
+              <span>Add Captions Free</span>
             </Link>
             <a
               href="#gallery"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#0E1526] px-8 py-4 text-base font-bold text-slate-200 hover:bg-[#152038] hover:border-[#FF5722]/30 transition"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-8 py-4 text-base font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition"
             >
-              <Eye size={18} className="text-[#FF7043]" />
+              <Eye size={18} className="text-amber-600" />
               <span>See Before &amp; After Examples</span>
             </a>
           </div>
 
-          {/* Flagship AI Caption Timeline & Subtitle Engine Visual */}
-          <div className="mt-12 max-w-4xl mx-auto w-full">
-            <div className="group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/10 bg-[#0E1526]/90 p-2.5 sm:p-4 shadow-[0_0_60px_rgba(168,85,247,0.15),0_25px_80px_rgba(0,0,0,0.6)] backdrop-blur-md transition-all duration-300 hover:border-purple-500/40">
-              {/* Dark SaaS Window Chrome */}
-              <div className="flex items-center justify-between px-3 py-1.5 text-[11px] font-bold text-slate-400 border-b border-white/10 mb-2.5">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-2.5 w-2.5 rounded-full bg-red-500/80" />
-                  <span className="flex h-2.5 w-2.5 rounded-full bg-amber-500/80" />
-                  <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500/80" />
-                  <span className="ml-2 font-mono text-[11px] text-purple-400 font-extrabold uppercase tracking-wider">
-                    Itnavideo AI Auto Caption &amp; Subtitle Timeline Engine
-                  </span>
-                </div>
-                <span className="text-slate-400 font-mono text-[10px] hidden sm:inline">
-                  Multi-Track Timeline • Millisecond Word Sync • 1080p Cloud Render
-                </span>
-              </div>
-
-              {/* Dark Glassmorphism Graphic Backdrop */}
-              <div className="relative overflow-hidden rounded-2xl bg-slate-800/80 border border-slate-700/60 shadow-lg shadow-purple-500/10 backdrop-blur-md p-2 sm:p-4">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="https://res.cloudinary.com/dhouh9idx/image/upload/v1792056190/3D_Faceless_Video_Creation_Canvas_HeroExplainer_Visual_qjndsg.png"
-                  alt="Itnavideo AI Auto Caption &amp; Subtitle Timeline Engine"
-                  className="w-full h-auto object-contain rounded-xl drop-shadow-[0_15px_35px_rgba(168,85,247,0.15)] transition-transform duration-500 group-hover:scale-[1.01]"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Trust badges */}
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-8 text-xs sm:text-sm font-semibold text-slate-400 border-t border-white/10 pt-8">
+          {/* Quick trust metrics */}
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-8 text-xs sm:text-sm font-medium text-slate-500 border-t border-slate-100 pt-8">
             <div className="flex items-center gap-2">
-              <CheckCircle2 size={16} className="text-emerald-400" />
-              <span>0% Manual Typing</span>
+              <CheckCircle2 size={16} className="text-emerald-600" />
+              <span>Sub-Second Word Sync</span>
             </div>
             <div className="flex items-center gap-2">
-              <CheckCircle2 size={16} className="text-emerald-400" />
-              <span>Word-Level Karaoke Sync</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 size={16} className="text-emerald-400" />
+              <CheckCircle2 size={16} className="text-emerald-600" />
               <span>15+ Viral Caption Styles</span>
             </div>
             <div className="flex items-center gap-2">
-              <CheckCircle2 size={16} className="text-emerald-400" />
-              <span>English &amp; Hinglish Accents</span>
+              <CheckCircle2 size={16} className="text-emerald-600" />
+              <span>Roman Hinglish &amp; Accent Trained</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 size={16} className="text-emerald-600" />
+              <span>Strictly 1 Credit (1080p 9:16)</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── WhiteStair "See it in action" Interactive Live Demo Section ── */}
-      <WhiteStairLiveDemoSection />
-
-      {/* INTERACTIVE BEFORE & AFTER GALLERY SHOWCASE */}
-      <section id="gallery" className="py-16 sm:py-24 border-t border-white/10 bg-[#080C14] relative">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-14">
-            <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 text-xs font-bold uppercase text-purple-300 mb-4">
-              <Film size={14} />
-              <span>Real Output Comparisons</span>
-            </div>
-            <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
-              See the Difference: Raw Video vs. Auto Captions
+      {/* LIVE INTERACTIVE DEMO STAIR SECTION */}
+      <section className="py-20 bg-slate-50/50 border-b border-slate-100">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900">
+              Interactive Subtitle Style Engine
             </h2>
-            <p className="mt-3 text-slate-300 text-base sm:text-lg">
-              Hover over any video pair to play synchronized audio and witness how word-synced subtitles elevate visual clarity.
+            <p className="mt-3 text-slate-600 text-base">
+              Test how karaoke highlights, backing boxes, and kinetic animations look across different creator formats.
+            </p>
+          </div>
+          <WhiteStairLiveDemoSection />
+        </div>
+      </section>
+
+      {/* BEFORE / AFTER COMPARISON GALLERY */}
+      <section id="gallery" className="py-20 border-b border-slate-100">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900">
+              Real-World Before &amp; After Showcase
+            </h2>
+            <p className="mt-3 text-slate-600 text-base">
+              Compare plain uncaptioned videos with Itnavideo animated karaoke captions across diverse creator niches.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {CAPTION_PAIRS.map((pair) => (
-              <VideoBeforeAfterCard
-                key={pair.id}
-                label={pair.label}
-                description={pair.description}
-                beforeSrc={pair.beforeSrc}
-                afterSrc={pair.afterSrc}
-                accentColor={pair.accentColor}
-              />
+              <VideoBeforeAfterCard key={pair.id} pair={pair} />
             ))}
           </div>
         </div>
       </section>
 
-      {/* SECTION 1: THE MUTE VIEWING PHENOMENON */}
-      <section className="py-16 sm:py-24 border-t border-white/10 bg-[#0A0F1D]">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-3.5 py-1 text-xs font-bold uppercase text-purple-300">
-                <VolumeX size={14} />
-                <span>The Silent Viewing Reality</span>
-              </div>
-              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
-                Why 85% of Social Media Videos Are Watched Without Sound
-              </h2>
-              <p className="text-slate-300 text-base sm:text-lg leading-relaxed">
-                Modern content consumption has changed fundamentally. Millions of users scroll through Instagram Reels, YouTube Shorts, and TikTok during commutes, open offices, classrooms, libraries, or while relaxing in bed next to a sleeping partner. In these silent environments, <strong className="text-white font-semibold">videos without captions are instantly swiped away.</strong>
-              </p>
-              <p className="text-slate-300 text-base sm:text-lg leading-relaxed">
-                When you add dynamic, high-contrast captions to your videos, you eliminate the barrier to entry. Viewers immediately grasp your opening hook, understand your story, and follow complex dialogue without needing to turn on their device audio.
-              </p>
-              <p className="text-slate-300 text-base sm:text-lg leading-relaxed">
-                Studies show that adding animated captions increases <strong className="text-emerald-400 font-semibold">video completion rates by up to 80%</strong>, drives higher engagement signals to social media algorithms, and expands your audience reach to deaf, hard-of-hearing, and non-native language viewers.
-              </p>
-            </div>
-
-            <div className="lg:col-span-5 space-y-4">
-              <div className="rounded-2xl border border-white/10 bg-[#0E1526] p-6 shadow-xl space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                    <BarChart3 size={20} />
-                  </div>
-                  <h3 className="text-lg font-bold text-white">80% Higher Watch Time</h3>
-                </div>
-                <p className="text-sm text-slate-300 leading-relaxed">
-                  Animated word highlights act as a visual visual anchor, locking eye movement to the screen and preventing scroll fatigue.
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-white/10 bg-[#0E1526] p-6 shadow-xl space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    <Globe size={20} />
-                  </div>
-                  <h3 className="text-lg font-bold text-white">Global Accessibility</h3>
-                </div>
-                <p className="text-sm text-slate-300 leading-relaxed">
-                  Clear subtitle overlays allow non-native English speakers to understand fast accents, technical terms, and rapid dialogue.
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-white/10 bg-[#0E1526] p-6 shadow-xl space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-pink-500/10 text-pink-400 border border-pink-500/20">
-                    <Zap size={20} />
-                  </div>
-                  <h3 className="text-lg font-bold text-white">Algorithm Reach Boost</h3>
-                </div>
-                <p className="text-sm text-slate-300 leading-relaxed">
-                  Higher watch completion rate is the #1 metric platforms use to push reels onto the Explore and Shorts feeds.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 2: THE 5 MAJOR SUBTITLE BOTTLENECK PROBLEMS SOLVED */}
-      <section className="py-16 sm:py-24 border-t border-white/10 bg-[#070B14]">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      {/* SECTION 1: 6 BOTTLENECKS SOLVED */}
+      <section className="py-20 bg-slate-50/50 border-b border-slate-100">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white">
-              Solved: The 5 Major Subtitle Bottlenecks
+            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900">
+              6 Video Captioning Bottlenecks Solved
             </h2>
-            <p className="mt-4 text-slate-300 text-base sm:text-lg">
-              Manual transcription in traditional video editors is painful and time-consuming. Here is how Itnavideo makes video captioning effortless.
+            <p className="mt-4 text-slate-600 text-base sm:text-lg">
+              Manual subtitle keyframing is agonizing. Here is how Itnavideo makes it effortless.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Bottleneck 1 */}
-            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-500/10 text-purple-400 border border-purple-500/20 mb-6 group-hover:scale-110 transition-transform">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 text-amber-600 border border-amber-100 mb-5">
                 <Clock size={24} />
               </div>
-              <h3 className="text-xl font-extrabold text-white mb-3">1. Manual Word-by-Word Typing</h3>
-              <p className="text-slate-300 text-sm leading-relaxed mb-4">
-                Listening to audio line-by-line, pausing every 3 seconds, typing out dialogue, and fixing typos takes 45 to 60 minutes for a single 1-minute video reel.
+              <h3 className="text-lg font-bold text-slate-900 mb-2">Zero Manual Typing</h3>
+              <p className="text-slate-600 text-sm leading-relaxed mb-4">
+                Listening line-by-line, pausing every 3 seconds, and fixing typos takes 45 to 60 minutes for a 1-minute reel in Premiere Pro.
               </p>
-              <div className="rounded-xl bg-purple-500/10 border border-purple-500/20 p-3 text-xs font-semibold text-purple-300">
-                <strong className="text-white">Itnavideo Solution:</strong> Speech AI transcribes the entire video automatically in under 10 seconds.
+              <div className="rounded-lg bg-slate-50 border border-slate-200 p-2.5 text-xs font-medium text-slate-700">
+                <strong className="text-slate-900">Itnavideo Engine:</strong> Groq Whisper transcribes speech in under 10 seconds.
               </div>
             </div>
 
-            {/* Bottleneck 2 */}
-            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-6 group-hover:scale-110 transition-transform">
+            <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 mb-5">
                 <Type size={24} />
               </div>
-              <h3 className="text-xl font-extrabold text-white mb-3">2. Word Alignment &amp; Syncing</h3>
-              <p className="text-slate-300 text-sm leading-relaxed mb-4">
-                Dragging text boundaries on a multi-track timeline to line up with speech waveforms creates awkward delays where text stays on screen too long or disappears early.
+              <h3 className="text-lg font-bold text-slate-900 mb-2">Millisecond Word Sync</h3>
+              <p className="text-slate-600 text-sm leading-relaxed mb-4">
+                Dragging text boundaries on timelines causes awkward delays where words stay on screen too long or vanish prematurely.
               </p>
-              <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs font-semibold text-emerald-300">
-                <strong className="text-white">Itnavideo Solution:</strong> Millisecond-accurate timestamping aligns active word highlights precisely with human speech.
+              <div className="rounded-lg bg-slate-50 border border-slate-200 p-2.5 text-xs font-medium text-slate-700">
+                <strong className="text-slate-900">Itnavideo Engine:</strong> Exact timestamping locks active word highlights to vocal audio.
               </div>
             </div>
 
-            {/* Bottleneck 3 */}
-            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-pink-500/10 text-pink-400 border border-pink-500/20 mb-6 group-hover:scale-110 transition-transform">
+            <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 border border-blue-100 mb-5">
                 <Smartphone size={24} />
               </div>
-              <h3 className="text-xl font-extrabold text-white mb-3">3. Poor Contrast &amp; Mobile Readability</h3>
-              <p className="text-slate-300 text-sm leading-relaxed mb-4">
-                Plain white captions blending into bright shirts, white walls, or busy background footage become invisible to viewers on mobile screens.
+              <h3 className="text-lg font-bold text-slate-900 mb-2">High Mobile Contrast</h3>
+              <p className="text-slate-600 text-sm leading-relaxed mb-4">
+                Plain white subtitles blend into bright shirts or white walls, becoming completely illegible to viewers on small phone screens.
               </p>
-              <div className="rounded-xl bg-pink-500/10 border border-pink-500/20 p-3 text-xs font-semibold text-pink-300">
-                <strong className="text-white">Itnavideo Solution:</strong> High-contrast backing boxes, drop shadows, and neon highlight colors guarantee maximum legibility.
+              <div className="rounded-lg bg-slate-50 border border-slate-200 p-2.5 text-xs font-medium text-slate-700">
+                <strong className="text-slate-900">Itnavideo Engine:</strong> High-contrast backing boxes and neon highlights ensure 100% legibility.
               </div>
             </div>
 
-            {/* Bottleneck 4 */}
-            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-fuchsia-500/10 text-fuchsia-400 border border-fuchsia-500/20 mb-6 group-hover:scale-110 transition-transform">
+            <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-50 text-purple-600 border border-purple-100 mb-5">
                 <Sliders size={24} />
               </div>
-              <h3 className="text-xl font-extrabold text-white mb-3">4. Awkward Line Breaks &amp; Safe Zones</h3>
-              <p className="text-slate-300 text-sm leading-relaxed mb-4">
-                Long blocks of text covering the speaker's mouth or sitting too low where Instagram UI buttons (like, share, comment) cover up the words.
+              <h3 className="text-lg font-bold text-slate-900 mb-2">Platform Safe Zones</h3>
+              <p className="text-slate-600 text-sm leading-relaxed mb-4">
+                Captions placed carelessly get covered by Instagram and TikTok buttons (Like, Share, Comment, Audio Disc).
               </p>
-              <div className="rounded-xl bg-fuchsia-500/10 border border-fuchsia-500/20 p-3 text-xs font-semibold text-fuchsia-300">
-                <strong className="text-white">Itnavideo Solution:</strong> Segmented positioning controls (Top, Center, Lower-Third) protect mobile UI safe zones.
+              <div className="rounded-lg bg-slate-50 border border-slate-200 p-2.5 text-xs font-medium text-slate-700">
+                <strong className="text-slate-900">Itnavideo Engine:</strong> Top, Center, and Lower-Third safe zone positioning protects readability.
               </div>
             </div>
 
-            {/* Bottleneck 5 */}
-            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20 mb-6 group-hover:scale-110 transition-transform">
+            <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-rose-50 text-rose-600 border border-rose-100 mb-5">
                 <ShieldCheck size={24} />
               </div>
-              <h3 className="text-xl font-extrabold text-white mb-3">5. Hinglish &amp; Accent Misinterpretation</h3>
-              <p className="text-slate-300 text-sm leading-relaxed mb-4">
-                Generic speech engines struggle with regional accents, conversational Hinglish (Roman script Hindi), and technical jargon, producing nonsensical errors.
+              <h3 className="text-lg font-bold text-slate-900 mb-2">Roman Hinglish Trained</h3>
+              <p className="text-slate-600 text-sm leading-relaxed mb-4">
+                Generic speech engines fail on regional Indian accents and conversational Hinglish, producing nonsensical spelling errors.
               </p>
-              <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 p-3 text-xs font-semibold text-amber-300">
-                <strong className="text-white">Itnavideo Solution:</strong> Speech AI optimized for conversational accents and Roman Hinglish phrasing.
+              <div className="rounded-lg bg-slate-50 border border-slate-200 p-2.5 text-xs font-medium text-slate-700">
+                <strong className="text-slate-900">Itnavideo Engine:</strong> Clean Roman script Hinglish and accent accuracy.
               </div>
             </div>
 
-            {/* Bottleneck 6 */}
-            <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-8 hover:border-purple-500/40 transition group">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 mb-6 group-hover:scale-110 transition-transform">
+            <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 mb-5">
                 <Zap size={24} />
               </div>
-              <h3 className="text-xl font-extrabold text-white mb-3">6. Expensive Plugin Subscriptions</h3>
-              <p className="text-slate-300 text-sm leading-relaxed mb-4">
-                Third-party captioning plugins charge $20 to $40 per month for basic text overlays while adding heavy watermarks to free renders.
+              <h3 className="text-lg font-bold text-slate-900 mb-2">Strictly 1 Credit</h3>
+              <p className="text-slate-600 text-sm leading-relaxed mb-4">
+                Third-party tools charge $30/month subscriptions and slap watermarks on free accounts.
               </p>
-              <div className="rounded-xl bg-cyan-500/10 border border-cyan-500/20 p-3 text-xs font-semibold text-cyan-300">
-                <strong className="text-white">Itnavideo Solution:</strong> Affordable, transparent pricing with 1080p MP4 exports and full style freedom.
+              <div className="rounded-lg bg-slate-50 border border-slate-200 p-2.5 text-xs font-medium text-slate-700">
+                <strong className="text-slate-900">Itnavideo Engine:</strong> Strictly 1 credit per 9:16 reel in 1080p full HD.
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* SECTION 3: CAPTION CUSTOMIZATION & STYLE CONTROL */}
-      <section className="py-16 sm:py-24 border-t border-white/10 bg-[#0A0F1D]">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto space-y-8">
-            <div className="text-center space-y-4">
-              <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 text-xs font-bold uppercase text-purple-300">
-                <Sliders size={14} />
-                <span>Full Creative Freedom</span>
-              </div>
-              <h2 className="text-3xl sm:text-5xl font-extrabold text-white">
-                Match Your Unique Brand Aesthetic
-              </h2>
-              <p className="text-slate-300 text-lg leading-relaxed">
-                One size does not fit all. Different video niches call for different visual styles—a doctor explaining medical research needs clean professional subtitles, while a viral creator reel needs bold, pop-in karaoke highlights.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6">
-              <div className="rounded-3xl border border-white/10 bg-[#0E1526] p-8 space-y-4">
-                <h3 className="text-2xl font-bold text-white flex items-center gap-3">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500 text-white text-sm font-black">1</span>
-                  Karaoke Word Highlights
-                </h3>
-                <p className="text-slate-300 text-sm leading-relaxed">
-                  Words bounce in real-time as they are spoken. Select active highlight colors like bright yellow, neon emerald, cyan glow, or hot pink to command visual attention.
-                </p>
-              </div>
-
-              <div className="rounded-3xl border border-white/10 bg-[#0E1526] p-8 space-y-4">
-                <h3 className="text-2xl font-bold text-white flex items-center gap-3">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-600 text-white text-sm font-black">2</span>
-                  15+ Subtitle Style Presets
-                </h3>
-                <p className="text-slate-300 text-sm leading-relaxed">
-                  Choose from bold impact headlines, sleek modern slate, glowing viral neon, classic black backdrop boxes, and minimal lower-third strips.
-                </p>
-              </div>
-
-              <div className="rounded-3xl border border-white/10 bg-[#0E1526] p-8 space-y-4">
-                <h3 className="text-2xl font-bold text-white flex items-center gap-3">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-pink-600 text-white text-sm font-black">3</span>
-                  Safe-Zone Positioning Controls
-                </h3>
-                <p className="text-slate-300 text-sm leading-relaxed">
-                  Easily toggle between Top, Center, and Lower-Third placement to ensure text never overlaps critical visual elements or social media UI buttons.
-                </p>
-              </div>
-
-              <div className="rounded-3xl border border-white/10 bg-[#0E1526] p-8 space-y-4">
-                <h3 className="text-2xl font-bold text-white flex items-center gap-3">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-fuchsia-600 text-white text-sm font-black">4</span>
-                  Custom Fonts &amp; Text Sizing
-                </h3>
-                <p className="text-slate-300 text-sm leading-relaxed">
-                  Pick from high-legibility Google Fonts (Montserrat, Inter, Plus Jakarta Sans) and scale font sizes from subtle Small to ultra-bold Extra Large.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 4: HOW IT WORKS STEP-BY-STEP */}
-      <section id="how-it-works" className="py-16 sm:py-24 border-t border-white/10 bg-[#070B14]">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      {/* SECTION 2: 3-STEP WORKFLOW */}
+      <section className="py-20 border-b border-slate-100">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white">
-              How It Works: 3 Simple Steps
+            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900">
+              How It Works in 3 Simple Steps
             </h2>
-            <p className="mt-4 text-slate-300 text-base sm:text-lg">
-              From raw video recording to polished captioned reel in seconds.
+            <p className="mt-4 text-slate-600 text-base sm:text-lg">
+              Add viral animated captions to your videos in under 30 seconds.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-            {/* Step 1 */}
-            <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-8 relative flex flex-col justify-between">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="rounded-2xl border border-slate-200 bg-white p-8 flex flex-col justify-between shadow-sm">
               <div>
-                <div className="flex items-center justify-between mb-6">
-                  <span className="text-4xl font-black text-emerald-400">01</span>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    <FileText size={20} />
-                  </div>
-                </div>
-                <h3 className="text-2xl font-extrabold text-white mb-3">Upload Video or Audio</h3>
-                <p className="text-slate-300 text-sm leading-relaxed">
-                  Drop your MP4, MOV, or WEBM video clip, talking-head recording, or audio file into the studio dashboard.
+                <span className="text-3xl font-extrabold text-amber-600 block mb-3">01</span>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">Upload Video or Audio</h3>
+                <p className="text-slate-600 text-sm leading-relaxed">
+                  Drop your talking-head reel, podcast clip, or voiceover recording (MP4, MOV, WAV, MP3).
                 </p>
               </div>
-              <div className="mt-6 pt-4 border-t border-white/10 text-xs text-emerald-300 font-semibold">
-                ✓ Ultra-fast cloud audio extraction
+              <div className="mt-6 pt-4 border-t border-slate-100 text-xs text-slate-500 font-medium">
+                ✓ Groq Whisper transcription
               </div>
             </div>
 
-            {/* Step 2 */}
-            <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-8 relative flex flex-col justify-between">
+            <div className="rounded-2xl border border-slate-200 bg-white p-8 flex flex-col justify-between shadow-sm">
               <div>
-                <div className="flex items-center justify-between mb-6">
-                  <span className="text-4xl font-black text-purple-400">02</span>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                    <Wand2 size={20} />
-                  </div>
-                </div>
-                <h3 className="text-2xl font-extrabold text-white mb-3">AI Auto Transcription</h3>
-                <p className="text-slate-300 text-sm leading-relaxed">
-                  Speech AI transcribes speech with word-level timing, generating accurate karaoke subtitle chunks automatically.
+                <span className="text-3xl font-extrabold text-indigo-600 block mb-3">02</span>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">Pick Caption Style</h3>
+                <p className="text-slate-600 text-sm leading-relaxed">
+                  Choose from 15+ viral presets, customize active word highlight colors, and set vertical positioning.
                 </p>
               </div>
-              <div className="mt-6 pt-4 border-t border-white/10 text-xs text-purple-300 font-semibold">
-                ✓ Sub-second word alignment
+              <div className="mt-6 pt-4 border-t border-slate-100 text-xs text-slate-500 font-medium">
+                ✓ 15+ animated presets
               </div>
             </div>
 
-            {/* Step 3 */}
-            <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-8 relative flex flex-col justify-between">
+            <div className="rounded-2xl border border-slate-200 bg-white p-8 flex flex-col justify-between shadow-sm">
               <div>
-                <div className="flex items-center justify-between mb-6">
-                  <span className="text-4xl font-black text-pink-400">03</span>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-pink-500/10 text-pink-400 border border-pink-500/20">
-                    <Smartphone size={20} />
-                  </div>
-                </div>
-                <h3 className="text-2xl font-extrabold text-white mb-3">Style &amp; Export 1080p</h3>
-                <p className="text-slate-300 text-sm leading-relaxed">
-                  Select your caption style preset, pick highlight colors, and render a pristine 1080p MP4 file ready to publish.
+                <span className="text-3xl font-extrabold text-emerald-600 block mb-3">03</span>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">Export 1080p Video</h3>
+                <p className="text-slate-600 text-sm leading-relaxed">
+                  Download a crisp 1080p 9:16 vertical MP4 with burned-in animated subtitles, ready to publish on Reels and Shorts.
                 </p>
               </div>
-              <div className="mt-6 pt-4 border-t border-white/10 text-xs text-pink-300 font-semibold">
-                ✓ Render completed in ~20 seconds
+              <div className="mt-6 pt-4 border-t border-slate-100 text-xs text-slate-500 font-medium">
+                ✓ Strictly 1 Credit • Cloud Render in ~25s
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* SECTION 5: COMPARISON TABLE */}
-      <section className="py-16 sm:py-24 border-t border-white/10 bg-[#0A0F1D]">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      {/* SECTION 3: COMPARISON TABLE */}
+      <section className="py-20 bg-slate-50/50 border-b border-slate-100">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white">
-              Traditional Editors vs. Itnavideo Auto Caption Generator
+            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900">
+              Manual Subtitling vs. Itnavideo Auto Caption Generator
             </h2>
-            <p className="mt-4 text-slate-300 text-base sm:text-lg">
-              Compare manual subtitle creation against automated AI captioning.
+            <p className="mt-3 text-slate-600 text-base">
+              Why top content creators automate their short-form subtitle workflow.
             </p>
           </div>
 
-          <div className="overflow-x-auto rounded-3xl border border-white/10 bg-[#0E1526] shadow-2xl">
+          <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-white/10 bg-black/40">
-                  <th className="p-6 text-sm font-extrabold uppercase tracking-wider text-slate-400">Feature / Metric</th>
-                  <th className="p-6 text-sm font-extrabold uppercase tracking-wider text-red-400">Manual Video Editors</th>
-                  <th className="p-6 text-sm font-extrabold uppercase tracking-wider text-emerald-400 bg-emerald-500/10">Itnavideo Auto Caption Generator</th>
+                <tr className="border-b border-slate-200 bg-slate-50">
+                  <th className="p-5 text-xs font-bold uppercase text-slate-600">Feature</th>
+                  <th className="p-5 text-xs font-bold uppercase text-rose-600">Manual Video Editing</th>
+                  <th className="p-5 text-xs font-bold uppercase text-emerald-700 bg-emerald-50/60">Itnavideo Auto Caption Generator</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/10 text-sm sm:text-base">
+              <tbody className="divide-y divide-slate-100 text-sm">
                 <tr>
-                  <td className="p-6 font-bold text-white">Time per 60s Video Reel</td>
-                  <td className="p-6 text-slate-300">45 to 60 minutes manual typing</td>
-                  <td className="p-6 font-bold text-emerald-400 bg-emerald-500/5">Under 20 seconds total</td>
+                  <td className="p-5 font-semibold text-slate-900">Captioning Time per Reel</td>
+                  <td className="p-5 text-slate-600">45 to 60 minutes</td>
+                  <td className="p-5 font-bold text-emerald-700 bg-emerald-50/30">Under 25 seconds</td>
                 </tr>
                 <tr>
-                  <td className="p-6 font-bold text-white">Word-Level Karaoke Syncing</td>
-                  <td className="p-6 text-slate-300">Requires keyframing individual word layers</td>
-                  <td className="p-6 font-bold text-emerald-400 bg-emerald-500/5">100% Automated active-word highlights</td>
+                  <td className="p-5 font-semibold text-slate-900">Word-Sync Accuracy</td>
+                  <td className="p-5 text-slate-600">Manual timeline razor slicing</td>
+                  <td className="p-5 font-bold text-emerald-700 bg-emerald-50/30">Sub-second speech timestamp synchronization</td>
                 </tr>
                 <tr>
-                  <td className="p-6 font-bold text-white">Hinglish &amp; Accent Support</td>
-                  <td className="p-6 text-slate-300">Frequent transcription errors</td>
-                  <td className="p-6 font-bold text-emerald-400 bg-emerald-500/5">Optimized for Roman Hinglish &amp; accents</td>
+                  <td className="p-5 font-semibold text-slate-900">Karaoke Word Highlights</td>
+                  <td className="p-5 text-slate-600">Requires tedious After Effects expressions</td>
+                  <td className="p-5 font-bold text-emerald-700 bg-emerald-50/30">15+ pre-built karaoke animations</td>
                 </tr>
                 <tr>
-                  <td className="p-6 font-bold text-white">Preset Variety</td>
-                  <td className="p-6 text-slate-300">Generic static text layers</td>
-                  <td className="p-6 font-bold text-emerald-400 bg-emerald-500/5">15+ Viral animated caption styles</td>
+                  <td className="p-5 font-semibold text-slate-900">Accent &amp; Hinglish Support</td>
+                  <td className="p-5 text-slate-600">Generic models make frequent spelling errors</td>
+                  <td className="p-5 font-bold text-emerald-700 bg-emerald-50/30">Optimized for conversational Roman Hinglish</td>
                 </tr>
                 <tr>
-                  <td className="p-6 font-bold text-white">Software Requirements</td>
-                  <td className="p-6 text-slate-300">Heavy timeline editor installation</td>
-                  <td className="p-6 font-bold text-emerald-400 bg-emerald-500/5">100% Web Browser-based</td>
+                  <td className="p-5 font-semibold text-slate-900">Cost per Reel</td>
+                  <td className="p-5 text-slate-600">$20 – $40 expensive plugin subscription</td>
+                  <td className="p-5 font-bold text-emerald-700 bg-emerald-50/30">Strictly 1 Credit per video</td>
                 </tr>
               </tbody>
             </table>
@@ -678,120 +445,30 @@ export default function AutoCaptionsDetail() {
         </div>
       </section>
 
-      {/* SECTION 6: MULTI-PLATFORM USE CASES */}
-      <section className="py-16 sm:py-24 border-t border-white/10 bg-[#070B14]">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white">
-              Essential for Every Content Format
-            </h2>
-            <p className="mt-4 text-slate-300 text-base sm:text-lg">
-              Drive higher retention across all short-form and long-form video platforms.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="rounded-3xl border border-white/10 bg-[#0E1526] p-8 space-y-4 hover:border-emerald-500/30 transition">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400 font-bold text-lg">
-                01
-              </div>
-              <h3 className="text-xl font-extrabold text-white">Instagram Reels &amp; Stories</h3>
-              <p className="text-slate-300 text-sm leading-relaxed">
-                Capture silent scrollers with bold karaoke highlights and high-contrast text boxes that pop against busy camera backgrounds.
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-white/10 bg-[#0E1526] p-8 space-y-4 hover:border-purple-500/30 transition">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-500/10 text-purple-400 font-bold text-lg">
-                02
-              </div>
-              <h3 className="text-xl font-extrabold text-white">YouTube Shorts &amp; Long Video Clips</h3>
-              <p className="text-slate-300 text-sm leading-relaxed">
-                Add lower-third captions to vertical clips to boost average watch duration signals and drive channel subscription growth.
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-white/10 bg-[#0E1526] p-8 space-y-4 hover:border-pink-500/30 transition">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-pink-500/10 text-pink-400 font-bold text-lg">
-                03
-              </div>
-              <h3 className="text-xl font-extrabold text-white">TikTok &amp; Viral Talking-Head Videos</h3>
-              <p className="text-slate-300 text-sm leading-relaxed">
-                Keep fast-paced conversational dialogue readable with bounce animations and dynamic active word highlights.
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-white/10 bg-[#0E1526] p-8 space-y-4 hover:border-fuchsia-500/30 transition">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-fuchsia-500/10 text-fuchsia-400 font-bold text-lg">
-                04
-              </div>
-              <h3 className="text-xl font-extrabold text-white">Podcasts &amp; Interview Highlights</h3>
-              <p className="text-slate-300 text-sm leading-relaxed">
-                Extract key insights from long audio recordings and publish captioned video snippets to promote full podcast episodes.
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-white/10 bg-[#0E1526] p-8 space-y-4 hover:border-amber-500/30 transition">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-400 font-bold text-lg">
-                05
-              </div>
-              <h3 className="text-xl font-extrabold text-white">Healthcare, Real Estate &amp; Legal</h3>
-              <p className="text-slate-300 text-sm leading-relaxed">
-                Ensure technical terminology, legal terms, and medical advice are presented with clean, professional subtitle typography.
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-white/10 bg-[#0E1526] p-8 space-y-4 hover:border-cyan-500/30 transition">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-400 font-bold text-lg">
-                06
-              </div>
-              <h3 className="text-xl font-extrabold text-white">Course Lessons &amp; Tutorials</h3>
-              <p className="text-slate-300 text-sm leading-relaxed">
-                Help students retain complex educational information with word-synced subtitles on desktop or mobile learning apps.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 7: FAQ ACCORDION SECTION */}
-      <section className="py-16 sm:py-24 border-t border-white/10 bg-[#0A0F1D]">
+      {/* SECTION 4: FAQ ACCORDION */}
+      <section className="py-20 border-b border-slate-100">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 text-xs font-bold uppercase text-purple-300 mb-4">
-              <HelpCircle size={14} />
-              <span>Got Questions?</span>
-            </div>
-            <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white">
-              Frequently Asked Questions
-            </h2>
-            <p className="mt-3 text-slate-300 text-base sm:text-lg">
-              Everything you need to know about AI Auto Captions with Itnavideo.
-            </p>
+            <h2 className="text-3xl sm:text-5xl font-extrabold text-slate-900">Frequently Asked Questions</h2>
+            <p className="mt-3 text-slate-600 text-base">Everything you need to know about AI Auto Captions.</p>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             {faqData.map((faq, idx) => {
               const isOpen = openFaqIndex === idx;
               return (
-                <div
-                  key={idx}
-                  className="rounded-2xl border border-white/10 bg-[#0E1526] overflow-hidden transition-colors hover:border-purple-500/30"
-                >
+                <div key={idx} className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm">
                   <button
                     onClick={() => toggleFaq(idx)}
-                    className="w-full flex items-center justify-between p-6 text-left focus:outline-none"
+                    className="w-full flex items-center justify-between p-5 text-left focus:outline-none"
                   >
-                    <span className="text-base sm:text-lg font-bold text-white pr-4">
-                      {faq.q}
-                    </span>
-                    <div className={`flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-purple-400 transition-transform ${isOpen ? 'rotate-180 bg-purple-500/20' : ''}`}>
-                      <ChevronDown size={18} />
+                    <span className="text-base font-bold text-slate-900 pr-4">{faq.q}</span>
+                    <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-transform ${isOpen ? 'rotate-180 bg-slate-900 text-white' : ''}`}>
+                      <ChevronDown size={16} />
                     </div>
                   </button>
-
                   {isOpen && (
-                    <div className="px-6 pb-6 text-slate-300 text-sm sm:text-base leading-relaxed border-t border-white/5 pt-4">
+                    <div className="px-5 pb-5 text-slate-600 text-sm leading-relaxed border-t border-slate-100 pt-3">
                       {faq.a}
                     </div>
                   )}
@@ -802,61 +479,27 @@ export default function AutoCaptionsDetail() {
         </div>
       </section>
 
-      {/* FINAL BOTTOM CTA BANNER */}
-      <section className="relative overflow-hidden py-20 lg:py-28 border-t border-white/10 bg-gradient-to-b from-[#0A0F1D] to-[#070B14]">
-        <div className="pointer-events-none absolute bottom-0 left-1/2 -z-10 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-gradient-to-r from-emerald-600/20 via-purple-600/20 to-pink-500/20 blur-[100px]" />
-
-        <div className="mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-bold uppercase text-emerald-300 mb-6">
-            <Award size={14} className="text-emerald-400" />
-            <span>Ready to Double Your Video Watch Time?</span>
-          </div>
-
-          <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
-            Add Animated Captions to Your Videos Free
+      {/* BOTTOM ACTION CTA */}
+      <section className="py-20 bg-slate-900 text-center text-white">
+        <div className="mx-auto max-w-4xl px-4">
+          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight mb-4">
+            Add Animated Captions to Your Videos Today
           </h2>
-
-          <p className="mt-6 text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            Join thousands of creators, educators, and brands publishing high-retention video reels with word-synced subtitles in seconds.
+          <p className="text-slate-300 text-base sm:text-lg mb-8 max-w-2xl mx-auto">
+            Join thousands of creators publishing high-retention video reels with word-synced subtitles in seconds.
           </p>
-
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href="/dashboard?videoType=auto-caption-generator"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-emerald-500 via-purple-600 to-pink-500 px-8 py-4 text-base font-black text-white shadow-xl shadow-emerald-500/20 transition hover:brightness-110 active:scale-95"
-            >
-              <Sparkles size={18} />
-              <span>Add Captions to My Video Free</span>
-            </Link>
-            <Link
-              href="/pricing"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#0E1526] px-8 py-4 text-base font-bold text-slate-200 hover:bg-[#152038] transition"
-            >
-              <span>View Pricing Plans</span>
-            </Link>
+          <Link
+            href="/dashboard?videoType=auto-caption-generator"
+            className="inline-flex items-center gap-2.5 rounded-xl bg-white px-8 py-4 text-base font-bold text-slate-900 shadow-xl hover:bg-slate-100 transition active:scale-95"
+          >
+            <Sparkles size={18} className="text-amber-600" />
+            <span>Add Captions to My Video Free</span>
+          </Link>
+          <div className="mt-4 text-xs text-slate-400">
+            Strictly 1 Credit per Video (1080p 9:16) • No Credit Card Required
           </div>
         </div>
       </section>
-
-      {/* FOOTER */}
-      <footer className="border-t border-white/10 bg-[#050810] py-12 text-xs text-slate-400">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-tr from-purple-600 to-pink-500 text-white font-black text-xs">
-              IV
-            </div>
-            <span className="text-sm font-bold text-white">Itnavideo</span>
-            <span className="text-slate-500">© {new Date().getFullYear()} Itnavideo. All rights reserved.</span>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-6 font-medium">
-            <Link href="/faceless-video" className="hover:text-slate-200 transition">Faceless Video</Link>
-            <Link href="/privacy" className="hover:text-slate-200 transition">Privacy Policy</Link>
-            <Link href="/terms" className="hover:text-slate-200 transition">Terms of Service</Link>
-            <Link href="/contact" className="hover:text-slate-200 transition">Contact Support</Link>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

@@ -76,7 +76,8 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const secretParam = url.searchParams.get('secret');
 
-  if (!isCloudScheduler && CRON_SECRET && authHeader !== `Bearer ${CRON_SECRET}` && secretParam !== CRON_SECRET) {
+  const isAuthorized = isCloudScheduler || (Boolean(CRON_SECRET) && (authHeader === `Bearer ${CRON_SECRET}` || secretParam === CRON_SECRET));
+  if (!isAuthorized) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

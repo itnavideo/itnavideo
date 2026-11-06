@@ -1777,22 +1777,40 @@ const getCompareDurationSeconds = (props: CompareProps) => {
 };
 
 export const CompareExplainerComposition = () => (
-  <Composition
-    id="comparisonImages"
-    component={CompareExplainer}
-    durationInFrames={secondsToFrames(180, DEFAULT_FPS)}
-    fps={DEFAULT_FPS}
-    width={1080}
-    height={1920}
-    calculateMetadata={({props}) => {
-      const p = props as CompareProps;
-      const isCinema = p.aspectRatio === '16:9';
-      const durationSeconds = getCompareDurationSeconds(p);
-      const width = isCinema ? 1920 : 1080;
-      const height = isCinema ? 1080 : 1920;
-      return {durationInFrames: secondsToFrames(durationSeconds, DEFAULT_FPS), fps: DEFAULT_FPS, width, height};
-    }}
-  />
+  <>
+    <Composition
+      id="comparisonImages"
+      component={CompareExplainer}
+      durationInFrames={secondsToFrames(180, DEFAULT_FPS)}
+      fps={DEFAULT_FPS}
+      width={1080}
+      height={1920}
+      calculateMetadata={({props}) => {
+        const p = props as CompareProps;
+        const isCinema = p.aspectRatio === '16:9';
+        const durationSeconds = getCompareDurationSeconds(p);
+        const width = isCinema ? 1920 : 1080;
+        const height = isCinema ? 1080 : 1920;
+        return {durationInFrames: secondsToFrames(durationSeconds, DEFAULT_FPS), fps: DEFAULT_FPS, width, height};
+      }}
+    />
+    <Composition
+      id="COMPARE-EXPLAINER"
+      component={CompareExplainer}
+      durationInFrames={secondsToFrames(180, DEFAULT_FPS)}
+      fps={DEFAULT_FPS}
+      width={1080}
+      height={1920}
+      calculateMetadata={({props}) => {
+        const p = props as CompareProps;
+        const isCinema = p.aspectRatio === '16:9';
+        const durationSeconds = getCompareDurationSeconds(p);
+        const width = isCinema ? 1920 : 1080;
+        const height = isCinema ? 1080 : 1920;
+        return {durationInFrames: secondsToFrames(durationSeconds, DEFAULT_FPS), fps: DEFAULT_FPS, width, height};
+      }}
+    />
+  </>
 );
 
 export const Compare2DPreviewComposition = () => (

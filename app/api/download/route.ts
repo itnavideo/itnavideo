@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { validateSafePublicUrl } from "@/lib/security/ssrfValidator";
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   try {
@@ -8,6 +12,12 @@ export async function GET(req: NextRequest) {
 
     if (!mediaUrl) {
       return NextResponse.json({ error: "Missing url parameter" }, { status: 400 });
+    }
+
+    // SSRF Protection: Ensure target media URL is safe and public
+    const validation = validateSafePublicUrl(mediaUrl);
+    if (!validation.isValid) {
+      return NextResponse.json({ error: validation.error || "Invalid or restricted media URL" }, { status: 403 });
     }
 
     // Ensure valid filename format

@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "generatedAt": "2026-11-06T12:54:26.035Z",
+  "root": "/visuals",
+  "rules": {
+    "needsLabel": "true means filename is too random/generic for reliable AI asset picking.",
+    "safeToUse": "false means planner should avoid this asset until metadata is manually labeled."
+  },
+  "counts": {
+    "total": 1,
+    "images": 1,
+    "videos": 0,
+    "needsLabel": 0
+  },
+  "assets": [
+    {
+      "id": "creative-studio-content-flow",
+      "file": "homepage/creative_studio_content_flow.png",
+      "src": "/visuals/homepage/creative_studio_content_flow.png",
+      "type": "image",
+      "category": "general",
+      "title": "Creative Studio Content Flow",
+      "semanticSlug": "creative-studio-content-flow",
+      "tags": [
+        "homepage",
+        "creative",
+        "studio",
+        "content",
+        "flow"
+      ],
+      "emotion": "neutral",
+      "useFor": [
+        "general explainer scenes"
+      ],
+      "avoidFor": [],
+      "orientation": "unknown",
+      "qualityScore": 82,
+      "usageCount": 0,
+      "needsLabel": false,
+      "safeToUse": true
+    }
+  ]
+}

@@ -5,7 +5,6 @@ import { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { 
   ChevronDown, 
-  Globe, 
   Sparkles, 
   LayoutDashboard, 
   LogOut, 
@@ -29,46 +28,46 @@ import {
 import { useAuth } from '@/components/auth/AuthContext';
 import BrandLogo from '@/components/brand/BrandLogo';
 
-const WIDESCREEN_PRODUCTS = [
-  { label: 'Faceless Video AI', desc: 'Auto B-roll, voiceovers & 16:9 YouTube story', href: '/dashboard/faceless-video', icon: MonitorPlay },
-  { label: 'Book Summary Video', desc: 'Turn book narration into cinematic lesson cards', href: '/dashboard/book-summary', icon: BookOpen },
-  { label: 'Image to Video AI', desc: 'Animate photos into cinematic video beats', href: '/dashboard/image-to-video-ai', icon: Film },
-  { label: 'YouTube Subtitles', desc: '1080p Full HD burned subtitles for podcasts', href: '/dashboard/youtube-subtitles', icon: Captions },
-  { label: 'AI Video Polisher', desc: 'Auto jump-cuts, dynamic zoom & PIP overlay', href: '/dashboard/ai-video-polisher', icon: Sparkles },
-  { label: 'AI Audio Cleaner', desc: 'Studio audio noise cleanup & retake detection', href: '/dashboard/audio-cleaner', icon: Mic },
+const SHORT_STUDIOS = [
+  { label: 'Auto Caption Generator', desc: 'Kinetic animated captions for Reels & Shorts', href: '/auto-caption-generator', icon: Smartphone, emoji: '💬' },
+  { label: 'Faceless Shorts', desc: 'Auto B-roll, voiceovers & captions', href: '/faceless-shorts', icon: Film, emoji: '🎬' },
+  { label: 'Whiteboard Animation', desc: 'Stickman & sketch doodle explainers', href: '/whiteboard-video', icon: PenTool, emoji: '✏️' },
+  { label: 'Compare Explainer', desc: 'Side-by-side comparison video generator', href: '/compare-explainer', icon: Columns, emoji: '⚖️' },
+  { label: 'Long Video to Clips', desc: 'Cut viral shorts from long YouTube videos', href: '/long-video-clips', icon: Scissors, emoji: '✂️' },
+  { label: 'Long Video Promo', desc: 'Turn YouTube videos into viral promo Shorts', href: '/long-video-promo', icon: Tv, emoji: '📺' },
 ];
 
-const VERTICAL_PRODUCTS = [
-  { label: 'Auto Caption Generator', desc: 'Kinetic animated captions for Reels & Shorts', href: '/dashboard/auto-caption', icon: Smartphone },
-  { label: 'AI Shorts Polisher', desc: 'Auto jump-cuts, dynamic zoom & PIP overlay', href: '/dashboard/ai-shorts-polisher', icon: Smartphone },
-  { label: 'Whiteboard Animation', desc: 'Hand-drawn sketch & stickman explainers', href: '/dashboard/whiteboard-video', icon: PenTool },
-  { label: 'Compare Explainer', desc: 'Side-by-side comparison video generator', href: '/dashboard/compare-explainer', icon: Columns },
-  { label: 'Long Video to Clips', desc: 'Auto hook detector clips from long videos', href: '/dashboard/long-video-clips', icon: Scissors },
-  { label: 'Long Video Promo', desc: 'Turn YouTube videos into viral promo Shorts', href: '/dashboard/long-video-promo', icon: Tv },
+const WIDESCREEN_STUDIOS = [
+  { label: 'Faceless Long Video', desc: 'AI documentary & cinematic stories', href: '/faceless-video', icon: MonitorPlay, emoji: '🎥' },
+  { label: 'Book Summary Video', desc: 'Turn book narration into cinematic lesson cards', href: '/book-summary', icon: BookOpen, emoji: '📚' },
+  { label: 'Image to Video AI', desc: 'Animate photos into cinematic video beats', href: '/image-to-video-ai', icon: Film, emoji: '🎞️' },
+  { label: 'YouTube Subtitles', desc: '1080p Full HD burnt-in subtitles for podcasts', href: '/video-types/youtube-subtitle-generator', icon: Captions, emoji: '📝' },
+  { label: 'AI Audio Cleaner', desc: 'Studio voice cleanup & mistake detection', href: '/ai-audio-cleaner', icon: Mic, emoji: '🎙️' },
 ];
 
 const RESOURCE_ITEMS = [
-  { label: 'Video Types & Specs', desc: 'Master documentation & directory for all 14 studios', href: '/video-types', icon: BookOpen },
-  { label: 'Pricing & Packs', desc: 'Flexible video credit packages for creators', href: '/pricing', icon: CreditCard },
-  { label: 'About Itnavideo', desc: 'Learn about our AI video rendering engine', href: '/about', icon: Sparkles },
-];
-
-const LANGUAGES = [
-  { code: 'EN', name: 'English (EN)' },
-  { code: 'HI', name: 'Hinglish (HI)' },
+  { label: 'Video Types & Specs', desc: 'Master directory & specs for all video studios', href: '/video-types', icon: BookOpen },
+  { label: 'Official Blog', desc: 'In-depth creator guides, strategies & growth breakdowns', href: '/blog', icon: FileText },
+  { label: 'Pricing & Credit Packs', desc: 'Flexible credit packages with zero monthly expiry', href: '/pricing', icon: CreditCard },
+  { label: 'About Itnavideo', desc: 'Our mission and cloud video rendering engine', href: '/about', icon: Sparkles },
 ];
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeMenu, setActiveMenu] = useState<'products' | 'resources' | 'lang' | null>(null);
+  const [mobileStudiosOpen, setMobileStudiosOpen] = useState(false);
+  const [activeMenu, setActiveMenu] = useState<'products' | 'resources' | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [selectedLang, setSelectedLang] = useState(LANGUAGES[0]);
   const { user, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const navRef = useRef<HTMLDivElement>(null);
   const isDashboard = pathname.startsWith('/dashboard');
   const isLightPage = !isDashboard;
+
+  const isActive = (href: string) => {
+    if (href === '/') return pathname === '/';
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -97,7 +96,7 @@ export default function Navbar() {
     }
   }, [isOpen]);
 
-  const toggleMenu = (menu: 'products' | 'resources' | 'lang') => {
+  const toggleMenu = (menu: 'products' | 'resources') => {
     setUserMenuOpen(false);
     setActiveMenu((prev) => (prev === menu ? null : menu));
   };
@@ -105,6 +104,11 @@ export default function Navbar() {
   const toggleUserMenu = () => {
     setActiveMenu(null);
     setUserMenuOpen((prev) => !prev);
+  };
+
+  const closeMobileMenu = () => {
+    setIsOpen(false);
+    setMobileStudiosOpen(false);
   };
 
   return (
@@ -135,15 +139,17 @@ export default function Navbar() {
                     type="button"
                     onClick={() => toggleMenu('products')}
                     className={`flex items-center gap-1 transition cursor-pointer py-1 font-semibold ${
-                      isLightPage
-                        ? activeMenu === 'products' ? 'text-orange-600 font-bold' : 'text-slate-800 hover:text-orange-600'
-                        : activeMenu === 'products' ? 'text-white font-semibold' : 'text-zinc-300 hover:text-white'
+                      activeMenu === 'products'
+                        ? 'text-[#FF5722] font-bold'
+                        : isLightPage
+                        ? 'text-slate-800 hover:text-[#FF5722]'
+                        : 'text-zinc-300 hover:text-white'
                     }`}
                   >
                     <span>Products</span>
                     <ChevronDown size={14} className={`transition-transform duration-200 ${
-                      isLightPage ? 'text-slate-500' : 'text-zinc-400'
-                    } ${activeMenu === 'products' ? 'rotate-180 text-orange-600' : ''}`} />
+                      activeMenu === 'products' ? 'rotate-180 text-[#FF5722]' : 'text-slate-400'
+                    }`} />
                   </button>
 
                   {activeMenu === 'products' && (
@@ -154,233 +160,79 @@ export default function Navbar() {
                       {/* 2 Column Layout for Studios */}
                       <div className="grid grid-cols-2 gap-4 pb-3">
                         {/* Column 1: Short Video Studios (9:16) */}
-                        <div className="space-y-2">
-                          <span className="text-[11px] font-extrabold text-orange-600 uppercase tracking-wider block px-1">
+                        <div className="space-y-1.5">
+                          <span className="text-[11px] font-extrabold text-[#FF5722] uppercase tracking-wider block px-1">
                             📱 9:16 Shorts &amp; Reels
                           </span>
 
-                          <Link
-                            href="/dashboard/faceless-shorts"
-                            onClick={() => setActiveMenu(null)}
-                            className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
-                          >
-                            <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-lg flex items-center justify-center shrink-0">
-                              🎬
-                            </span>
-                            <div>
-                              <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
-                                Faceless Shorts
-                              </h4>
-                              <p className="text-xs text-gray-500 font-medium">Auto B-roll, voiceover &amp; captions</p>
-                            </div>
-                          </Link>
-
-                          <Link
-                            href="/dashboard/auto-caption"
-                            onClick={() => setActiveMenu(null)}
-                            className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
-                          >
-                            <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-lg flex items-center justify-center shrink-0">
-                              💬
-                            </span>
-                            <div>
-                              <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
-                                Auto Captions
-                              </h4>
-                              <p className="text-xs text-gray-500 font-medium">Kinetic captions for Reels &amp; Shorts</p>
-                            </div>
-                          </Link>
-
-                          <Link
-                            href="/dashboard/whiteboard-video"
-                            onClick={() => setActiveMenu(null)}
-                            className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
-                          >
-                            <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-lg flex items-center justify-center shrink-0">
-                              ✏️
-                            </span>
-                            <div>
-                              <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
-                                Whiteboard Animation
-                              </h4>
-                              <p className="text-xs text-gray-500 font-medium">Stickman &amp; doodle explainers</p>
-                            </div>
-                          </Link>
-
-                          <Link
-                            href="/dashboard/compare-explainer"
-                            onClick={() => setActiveMenu(null)}
-                            className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
-                          >
-                            <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-lg flex items-center justify-center shrink-0">
-                              ⚖️
-                            </span>
-                            <div>
-                              <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
-                                Compare Explainer
-                              </h4>
-                              <p className="text-xs text-gray-500 font-medium">Side-by-side comparison generator</p>
-                            </div>
-                          </Link>
-
-                          <Link
-                            href="/dashboard/ai-shorts-polisher"
-                            onClick={() => setActiveMenu(null)}
-                            className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
-                          >
-                            <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-lg flex items-center justify-center shrink-0">
-                              ⚡
-                            </span>
-                            <div>
-                              <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
-                                AI Shorts Polisher
-                              </h4>
-                              <p className="text-xs text-gray-500 font-medium">Auto jump-cuts &amp; dynamic zoom</p>
-                            </div>
-                          </Link>
-
-                          <Link
-                            href="/dashboard/split-screen-explainer"
-                            onClick={() => setActiveMenu(null)}
-                            className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
-                          >
-                            <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-lg flex items-center justify-center shrink-0">
-                              🌓
-                            </span>
-                            <div>
-                              <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
-                                Split Screen Explainer
-                              </h4>
-                              <p className="text-xs text-gray-500 font-medium">50/50 dual zone video &amp; visuals</p>
-                            </div>
-                          </Link>
+                          {SHORT_STUDIOS.map((studio) => (
+                            <Link
+                              key={studio.label}
+                              href={studio.href}
+                              onClick={() => setActiveMenu(null)}
+                              className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
+                            >
+                              <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-base flex items-center justify-center shrink-0">
+                                {studio.emoji}
+                              </span>
+                              <div>
+                                <h4 className="text-xs sm:text-sm font-bold text-gray-900 group-hover:text-[#FF5722] transition-colors leading-snug">
+                                  {studio.label}
+                                </h4>
+                                <p className="text-[11px] text-gray-500 font-medium leading-tight mt-0.5">{studio.desc}</p>
+                              </div>
+                            </Link>
+                          ))}
                         </div>
 
                         {/* Column 2: Widescreen & Long Form (16:9) */}
-                        <div className="space-y-2">
+                        <div className="space-y-1.5">
                           <span className="text-[11px] font-extrabold text-amber-600 uppercase tracking-wider block px-1">
-                            🖥️ 16:9 Long-Form
+                            🖥️ 16:9 Cinema &amp; Long-Form
                           </span>
 
-                          <Link
-                            href="/dashboard/faceless-video"
-                            onClick={() => setActiveMenu(null)}
-                            className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
-                          >
-                            <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-lg flex items-center justify-center shrink-0">
-                              🎬
-                            </span>
-                            <div>
-                              <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
-                                Faceless Long Video
-                              </h4>
-                              <p className="text-xs text-gray-500 font-medium">AI documentary &amp; SVG explainers</p>
-                            </div>
-                          </Link>
-
-                          <Link
-                            href="/dashboard/long-video-clips"
-                            onClick={() => setActiveMenu(null)}
-                            className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
-                          >
-                            <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-lg flex items-center justify-center shrink-0">
-                              ✂️
-                            </span>
-                            <div>
-                              <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
-                                Long Video Clips
-                              </h4>
-                              <p className="text-xs text-gray-500 font-medium">Cut viral shorts from long videos</p>
-                            </div>
-                          </Link>
-
-                          <Link
-                            href="/dashboard/book-summary"
-                            onClick={() => setActiveMenu(null)}
-                            className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
-                          >
-                            <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-lg flex items-center justify-center shrink-0">
-                              📚
-                            </span>
-                            <div>
-                              <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
-                                Book Summary Video
-                              </h4>
-                              <p className="text-xs text-gray-500 font-medium">Cinematic explainer lesson cards</p>
-                            </div>
-                          </Link>
-
-                          <Link
-                            href="/dashboard/image-to-video-ai"
-                            onClick={() => setActiveMenu(null)}
-                            className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
-                          >
-                            <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-lg flex items-center justify-center shrink-0">
-                              🎞️
-                            </span>
-                            <div>
-                              <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
-                                Image to Video AI
-                              </h4>
-                              <p className="text-xs text-gray-500 font-medium">Animate photos into video beats</p>
-                            </div>
-                          </Link>
-
-                          <Link
-                            href="/dashboard/ai-video-polisher"
-                            onClick={() => setActiveMenu(null)}
-                            className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
-                          >
-                            <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-lg flex items-center justify-center shrink-0">
-                              📽️
-                            </span>
-                            <div>
-                              <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
-                                AI Video Polisher
-                              </h4>
-                              <p className="text-xs text-gray-500 font-medium">Silence cuts &amp; 16:9 dynamic zoom</p>
-                            </div>
-                          </Link>
-
-                          <Link
-                            href="/dashboard/audio-cleaner"
-                            onClick={() => setActiveMenu(null)}
-                            className="flex items-start gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
-                          >
-                            <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-lg flex items-center justify-center shrink-0">
-                              🎙️
-                            </span>
-                            <div>
-                              <h4 className="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
-                                AI Audio Cleaner
-                              </h4>
-                              <p className="text-xs text-gray-500 font-medium">Studio voice cleanup &amp; retake fix</p>
-                            </div>
-                          </Link>
+                          {WIDESCREEN_STUDIOS.map((studio) => (
+                            <Link
+                              key={studio.label}
+                              href={studio.href}
+                              onClick={() => setActiveMenu(null)}
+                              className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
+                            >
+                              <span className="p-2 bg-amber-100 text-amber-700 rounded-lg text-base flex items-center justify-center shrink-0">
+                                {studio.emoji}
+                              </span>
+                              <div>
+                                <h4 className="text-xs sm:text-sm font-bold text-gray-900 group-hover:text-[#FF5722] transition-colors leading-snug">
+                                  {studio.label}
+                                </h4>
+                                <p className="text-[11px] text-gray-500 font-medium leading-tight mt-0.5">{studio.desc}</p>
+                              </div>
+                            </Link>
+                          ))}
                         </div>
                       </div>
 
                       {/* Bottom Banner */}
                       <div className="pt-3 border-t border-gray-100 flex items-center justify-between text-xs px-2 -mx-2 -mb-2 bg-slate-50/90 rounded-b-xl p-3">
                         <span className="text-[11px] font-semibold text-gray-600 hidden sm:inline">
-                          ⚡ 1080p Cloud Render • All 14 Video Studios
+                          ⚡ 1080p Cloud Render • All 10 Video Studios
                         </span>
                         <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
                           <Link
                             href="/video-types"
                             onClick={() => setActiveMenu(null)}
-                            className="font-bold text-slate-700 hover:text-orange-600 flex items-center gap-1 text-xs transition-colors"
+                            className="font-bold text-slate-700 hover:text-[#FF5722] flex items-center gap-1 text-xs transition-colors"
                           >
-                            <span>Browse All 14 Video Types &amp; Specs</span>
+                            <span>Browse All Video Types &amp; Specs</span>
                             <ArrowRight size={13} />
                           </Link>
                           <span className="text-slate-300">|</span>
                           <Link
                             href="/dashboard"
                             onClick={() => setActiveMenu(null)}
-                            className="font-bold text-orange-600 hover:text-orange-700 flex items-center gap-1 text-xs"
+                            className="font-bold text-[#FF5722] hover:text-[#E64A19] flex items-center gap-1 text-xs"
                           >
-                            <span>Open All Studios</span>
+                            <span>Open Dashboard</span>
                             <ArrowRight size={13} />
                           </Link>
                         </div>
@@ -389,31 +241,65 @@ export default function Navbar() {
                   )}
                 </div>
 
-                {/* 2. Features / Specs */}
-                <Link href="/features" className={`transition font-semibold ${isLightPage ? 'text-slate-800 hover:text-orange-600' : 'text-zinc-300 hover:text-white'}`}>
+                {/* 2. Features */}
+                <Link 
+                  href="/features" 
+                  className={`transition font-semibold ${
+                    isActive('/features')
+                      ? 'text-[#FF5722] font-bold'
+                      : isLightPage 
+                      ? 'text-slate-800 hover:text-[#FF5722]' 
+                      : 'text-zinc-300 hover:text-white'
+                  }`}
+                >
                   Features
                 </Link>
 
                 {/* 3. Pricing */}
-                <Link href="/pricing" className={`transition font-semibold ${isLightPage ? 'text-slate-800 hover:text-orange-600' : 'text-zinc-300 hover:text-white'}`}>
+                <Link 
+                  href="/pricing" 
+                  className={`transition font-semibold ${
+                    isActive('/pricing')
+                      ? 'text-[#FF5722] font-bold'
+                      : isLightPage 
+                      ? 'text-slate-800 hover:text-[#FF5722]' 
+                      : 'text-zinc-300 hover:text-white'
+                  }`}
+                >
                   Pricing
                 </Link>
 
-                {/* 4. Resources Dropdown */}
+                {/* 4. Blog (Direct Top Level Link) */}
+                <Link 
+                  href="/blog" 
+                  className={`transition font-semibold ${
+                    isActive('/blog')
+                      ? 'text-[#FF5722] font-bold'
+                      : isLightPage 
+                      ? 'text-slate-800 hover:text-[#FF5722]' 
+                      : 'text-zinc-300 hover:text-white'
+                  }`}
+                >
+                  Blog
+                </Link>
+
+                {/* 5. Resources Dropdown */}
                 <div className="relative">
                   <button
                     type="button"
                     onClick={() => toggleMenu('resources')}
                     className={`flex items-center gap-1 transition cursor-pointer py-1 font-semibold ${
-                      isLightPage
-                        ? activeMenu === 'resources' ? 'text-orange-600 font-bold' : 'text-slate-800 hover:text-orange-600'
-                        : activeMenu === 'resources' ? 'text-white font-semibold' : 'text-zinc-300 hover:text-white'
+                      activeMenu === 'resources'
+                        ? 'text-[#FF5722] font-bold'
+                        : isLightPage
+                        ? 'text-slate-800 hover:text-[#FF5722]'
+                        : 'text-zinc-300 hover:text-white'
                     }`}
                   >
                     <span>Resources</span>
                     <ChevronDown size={14} className={`transition-transform duration-200 ${
-                      isLightPage ? 'text-slate-500' : 'text-zinc-400'
-                    } ${activeMenu === 'resources' ? 'rotate-180 text-orange-600' : ''}`} />
+                      activeMenu === 'resources' ? 'rotate-180 text-[#FF5722]' : 'text-slate-400'
+                    }`} />
                   </button>
 
                   {activeMenu === 'resources' && (
@@ -431,11 +317,11 @@ export default function Navbar() {
                               onClick={() => setActiveMenu(null)}
                               className="flex items-start gap-3 rounded-xl p-2.5 transition hover:bg-orange-50/70 group"
                             >
-                              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-orange-200/80 bg-orange-50 text-orange-600 group-hover:bg-orange-500 group-hover:text-white group-hover:border-transparent transition">
+                              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-orange-200/80 bg-orange-50 text-[#FF5722] group-hover:bg-[#FF5722] group-hover:text-white group-hover:border-transparent transition">
                                 <Icon size={16} />
                               </div>
                               <div>
-                                <p className="text-xs font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
+                                <p className="text-xs font-bold text-gray-900 group-hover:text-[#FF5722] transition-colors">
                                   {item.label}
                                 </p>
                                 <p className="text-[11px] font-medium leading-snug mt-0.5 text-gray-500">
@@ -454,57 +340,8 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* RIGHT SIDE: LANGUAGE + LOGIN + PRIMARY CTA */}
+          {/* RIGHT SIDE: AUTH & CTA */}
           <div className="hidden lg:flex items-center gap-3">
-            
-            {/* Language Selector Dropdown */}
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => toggleMenu('lang')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl transition cursor-pointer border ${
-                  isLightPage
-                    ? 'border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-800'
-                    : 'border-white/15 bg-white/[0.06] text-zinc-200 hover:bg-white/10'
-                }`}
-              >
-                <Globe size={14} className={isLightPage ? 'text-gray-600' : 'text-zinc-400'} />
-                <span>{selectedLang.code}</span>
-                <ChevronDown size={12} className={`transition-transform duration-200 ${
-                  isLightPage ? 'text-gray-500' : 'text-zinc-400'
-                } ${activeMenu === 'lang' ? 'rotate-180' : ''}`} />
-              </button>
-
-              {activeMenu === 'lang' && (
-                <div
-                  style={{ backgroundColor: '#ffffff', opacity: 1, boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', zIndex: 60 }}
-                  className="absolute right-0 top-full mt-2 w-44 rounded-2xl border border-gray-200/90 bg-white p-1.5 text-xs shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 text-gray-800"
-                >
-                  <div className="space-y-0.5">
-                    {LANGUAGES.map((lang) => {
-                      const isSelected = selectedLang.code === lang.code;
-                      return (
-                        <button
-                          key={lang.code}
-                          type="button"
-                          onClick={() => {
-                            setSelectedLang(lang);
-                            setActiveMenu(null);
-                          }}
-                          className={`w-full flex items-center justify-between rounded-xl px-3 py-2 text-left transition cursor-pointer font-bold ${
-                            isSelected ? 'bg-orange-50 text-orange-600' : 'hover:bg-gray-50 text-gray-700'
-                          }`}
-                        >
-                          <span>{lang.name}</span>
-                          {isSelected && <span className="h-2 w-2 rounded-full bg-orange-600" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
-
             {user ? (
               <div className="relative">
                 <button
@@ -522,7 +359,7 @@ export default function Navbar() {
                   <span className={`max-w-[110px] truncate text-xs font-bold capitalize ${
                     isLightPage ? 'text-slate-900' : 'text-white'
                   }`}>
-                    {user?.displayName || (user?.email?.split('@')[0] ? user.email.split('@')[0].charAt(0).toUpperCase() + user.email.split('@')[0].slice(1) : 'Dev Tester')}
+                    {user?.displayName || (user?.email?.split('@')[0] ? user.email.split('@')[0].charAt(0).toUpperCase() + user.email.split('@')[0].slice(1) : 'Creator')}
                   </span>
                   <ChevronDown size={12} className={`transition-transform duration-200 ${
                     isLightPage ? 'text-slate-500' : 'text-zinc-400'
@@ -592,7 +429,6 @@ export default function Navbar() {
           </div>
 
           {/* MOBILE HAMBURGER BUTTON */}
-          {/* MOBILE HAMBURGER BUTTON */}
           <button
             type="button"
             className={`relative flex h-10 w-10 items-center justify-center rounded-2xl border shadow-xs active:scale-95 transition-all duration-300 hover:border-orange-500/50 lg:hidden cursor-pointer ${
@@ -625,82 +461,208 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* MOBILE FLYOUT DRAWER — CLEAN LIGHT BRAND PALETTE */}
-      {/* MOBILE FLYOUT DRAWER — CLEAN MINIMAL PREMIUM LAYOUT */}
+      {/* MOBILE FLYOUT DRAWER — CLEAN FULL-HEIGHT ACCORDION LAYOUT */}
       {isOpen && (
-        <div className="fixed inset-0 z-[120] flex flex-col justify-between bg-white text-slate-900 p-6 lg:hidden animate-in fade-in slide-in-from-top-4 duration-200">
-          <div>
-            {/* Top Brand & Close Bar */}
-            <div className="flex items-center justify-between pb-5 border-b border-stone-200/80">
-              <BrandLogo size="sm" showBadge={false} variant="light" />
+        <div className="fixed inset-0 z-[120] flex flex-col bg-white text-slate-900 lg:hidden animate-in fade-in duration-200">
+          
+          {/* Top Brand & Close Bar */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
+            <BrandLogo size="sm" showBadge={false} variant="light" />
+            <button
+              type="button"
+              onClick={closeMobileMenu}
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-700 hover:text-slate-950 hover:bg-slate-100 transition cursor-pointer"
+              aria-label="Close menu"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          {/* Scrollable Navigation Body */}
+          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-2">
+            
+            {/* 1. Video Studios Accordion */}
+            <div className="border-b border-slate-100 pb-2">
               <button
                 type="button"
-                onClick={() => setIsOpen(false)}
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-stone-200 bg-stone-100 text-slate-700 hover:text-slate-950 hover:bg-stone-200 transition cursor-pointer"
-                aria-label="Close menu"
+                onClick={() => setMobileStudiosOpen((prev) => !prev)}
+                className="flex w-full items-center justify-between py-3 text-base font-bold text-slate-900 hover:text-[#FF5722] transition-colors cursor-pointer"
               >
-                <X size={18} />
+                <span className="flex items-center gap-2">
+                  <span>Video Studios</span>
+                  <span className="rounded-full bg-orange-100 px-2 py-0.5 text-[11px] font-bold text-[#FF5722]">
+                    10 Modes
+                  </span>
+                </span>
+                <ChevronDown
+                  size={18}
+                  className={`text-slate-400 transition-transform duration-200 ${
+                    mobileStudiosOpen ? 'rotate-180 text-[#FF5722]' : ''
+                  }`}
+                />
               </button>
+
+              {mobileStudiosOpen && (
+                <div className="space-y-4 pt-1 pb-3 animate-in fade-in slide-in-from-top-2 duration-150">
+                  {/* 9:16 Shorts */}
+                  <div>
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#FF5722] px-2 block mb-1.5">
+                      📱 9:16 Shorts &amp; Reels
+                    </span>
+                    <div className="space-y-1">
+                      {SHORT_STUDIOS.map((item) => (
+                        <Link
+                          key={item.label}
+                          href={item.href}
+                          onClick={closeMobileMenu}
+                          className="flex items-center gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition"
+                        >
+                          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-100 text-base shrink-0">
+                            {item.emoji}
+                          </span>
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold text-slate-900 truncate">{item.label}</p>
+                            <p className="text-[11px] text-slate-500 truncate">{item.desc}</p>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 16:9 Cinema & Long-Form */}
+                  <div>
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-amber-600 px-2 block mb-1.5">
+                      🖥️ 16:9 Cinema &amp; Long-Form
+                    </span>
+                    <div className="space-y-1">
+                      {WIDESCREEN_STUDIOS.map((item) => (
+                        <Link
+                          key={item.label}
+                          href={item.href}
+                          onClick={closeMobileMenu}
+                          className="flex items-center gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition"
+                        >
+                          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 text-base shrink-0">
+                            {item.emoji}
+                          </span>
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold text-slate-900 truncate">{item.label}</p>
+                            <p className="text-[11px] text-slate-500 truncate">{item.desc}</p>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Link
+                    href="/video-types"
+                    onClick={closeMobileMenu}
+                    className="flex items-center justify-between p-2.5 rounded-xl bg-orange-50/70 text-xs font-bold text-[#FF5722] hover:bg-orange-100 transition"
+                  >
+                    <span>Browse All 10 Video Types &amp; Specs</span>
+                    <ArrowRight size={14} />
+                  </Link>
+                </div>
+              )}
             </div>
 
-            {/* MINIMAL NAVIGATION LINKS (Pricing, About Us, Contact Us) */}
-            <nav className="mt-4 flex flex-col divide-y divide-stone-100">
+            {/* 2. Primary Navigation Links */}
+            <nav className="flex flex-col divide-y divide-slate-100">
+              <Link
+                href="/features"
+                onClick={closeMobileMenu}
+                className={`flex items-center justify-between py-3.5 text-base font-bold transition-colors ${
+                  isActive('/features') ? 'text-[#FF5722]' : 'text-slate-900 hover:text-[#FF5722]'
+                }`}
+              >
+                <span>Features</span>
+                <ChevronRight size={17} className="text-slate-300" />
+              </Link>
+
               <Link
                 href="/pricing"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center justify-between py-4 text-base font-bold text-slate-900 hover:text-[#FF5722] transition-colors"
+                onClick={closeMobileMenu}
+                className={`flex items-center justify-between py-3.5 text-base font-bold transition-colors ${
+                  isActive('/pricing') ? 'text-[#FF5722]' : 'text-slate-900 hover:text-[#FF5722]'
+                }`}
               >
                 <span>Pricing</span>
-                <ChevronRight size={17} className="text-stone-400" />
+                <ChevronRight size={17} className="text-slate-300" />
+              </Link>
+
+              <Link
+                href="/blog"
+                onClick={closeMobileMenu}
+                className={`flex items-center justify-between py-3.5 text-base font-bold transition-colors ${
+                  isActive('/blog') ? 'text-[#FF5722]' : 'text-slate-900 hover:text-[#FF5722]'
+                }`}
+              >
+                <span>Blog</span>
+                <ChevronRight size={17} className="text-slate-300" />
+              </Link>
+
+              <Link
+                href="/video-types"
+                onClick={closeMobileMenu}
+                className={`flex items-center justify-between py-3.5 text-base font-bold transition-colors ${
+                  isActive('/video-types') ? 'text-[#FF5722]' : 'text-slate-900 hover:text-[#FF5722]'
+                }`}
+              >
+                <span>Video Types &amp; Specs</span>
+                <ChevronRight size={17} className="text-slate-300" />
               </Link>
 
               <Link
                 href="/about"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center justify-between py-4 text-base font-bold text-slate-900 hover:text-[#FF5722] transition-colors"
+                onClick={closeMobileMenu}
+                className={`flex items-center justify-between py-3.5 text-base font-bold transition-colors ${
+                  isActive('/about') ? 'text-[#FF5722]' : 'text-slate-900 hover:text-[#FF5722]'
+                }`}
               >
                 <span>About Us</span>
-                <ChevronRight size={17} className="text-stone-400" />
+                <ChevronRight size={17} className="text-slate-300" />
               </Link>
 
               <Link
                 href="/contact"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center justify-between py-4 text-base font-bold text-slate-900 hover:text-[#FF5722] transition-colors"
+                onClick={closeMobileMenu}
+                className={`flex items-center justify-between py-3.5 text-base font-bold transition-colors ${
+                  isActive('/contact') ? 'text-[#FF5722]' : 'text-slate-900 hover:text-[#FF5722]'
+                }`}
               >
                 <span>Contact Us</span>
-                <ChevronRight size={17} className="text-stone-400" />
+                <ChevronRight size={17} className="text-slate-300" />
               </Link>
             </nav>
           </div>
 
-          {/* BOTTOM ACCOUNT / ACTION BAR */}
-          <div className="pt-6 border-t border-stone-200/80 space-y-3">
+          {/* Bottom Sticky Action Bar */}
+          <div className="p-6 border-t border-slate-100 bg-white shrink-0 space-y-2.5">
             {user ? (
-              <div className="flex flex-col gap-2.5">
+              <div className="flex flex-col gap-2">
                 <Link
                   href="/dashboard"
-                  onClick={() => setIsOpen(false)}
-                  className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#F4511E] to-[#E64A19] py-3.5 text-sm font-black text-white shadow-lg shadow-orange-500/25 active:scale-98 transition-all"
+                  onClick={closeMobileMenu}
+                  className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] py-3.5 text-sm font-black text-white shadow-lg shadow-orange-500/25 active:scale-98 transition-all"
                 >
                   <Sparkles size={16} />
-                  <span>Dashboard</span>
+                  <span>Open Dashboard</span>
                   <ArrowRight size={16} />
                 </Link>
                 <button
                   type="button"
-                  onClick={() => { setIsOpen(false); void logout(); }}
-                  className="w-full text-center text-xs font-semibold text-stone-500 py-1.5 hover:text-rose-600 transition cursor-pointer"
+                  onClick={() => { closeMobileMenu(); void logout(); }}
+                  className="w-full text-center text-xs font-semibold text-slate-500 py-1.5 hover:text-rose-600 transition cursor-pointer"
                 >
                   Log Out
                 </button>
               </div>
             ) : (
-              <div className="flex flex-col gap-2.5">
+              <div className="flex flex-col gap-2">
                 <Link
                   href="/dashboard"
-                  onClick={() => setIsOpen(false)}
-                  className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#F4511E] to-[#E64A19] py-3.5 text-sm font-black text-white shadow-lg shadow-orange-500/25 active:scale-98 transition-all"
+                  onClick={closeMobileMenu}
+                  className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] py-3.5 text-sm font-black text-white shadow-lg shadow-orange-500/25 active:scale-98 transition-all"
                 >
                   <Sparkles size={16} />
                   <span>Get Started</span>
@@ -708,8 +670,8 @@ export default function Navbar() {
                 </Link>
                 <Link
                   href="/login"
-                  onClick={() => setIsOpen(false)}
-                  className="w-full text-center rounded-2xl border border-stone-200 bg-stone-50 py-3 text-xs font-bold text-slate-700 hover:bg-stone-100 transition shadow-2xs"
+                  onClick={closeMobileMenu}
+                  className="w-full text-center rounded-2xl border border-slate-200 bg-slate-50 py-3 text-xs font-bold text-slate-700 hover:bg-slate-100 transition shadow-2xs"
                 >
                   Log In
                 </Link>

@@ -11,6 +11,9 @@ export type BlogPost = {
   youtubeId?: string;
   keywords?: string[];
   contentHtml?: string;
+  keyTakeaways?: string[];
+  pullQuote?: string;
+  takeawaysSummary?: string;
   faqs?: Array<{
     question: string;
     answer: string;
@@ -27,6 +30,429 @@ export type BlogPost = {
 };
 
 const baseBlogPosts: BlogPost[] = [
+  {
+    "slug": "how-to-add-hormozi-mrbeast-animated-captions-to-reels",
+    "featuredImage": "https://res.cloudinary.com/dhouh9idx/image/upload/v1793969249/itnavideo12345/blog_viral_animated_captions.png",
+    "title": "How to Add Hormozi & MrBeast-Style Animated Captions to Reels Automatically (Without After Effects)",
+    "excerpt": "Discover how top creators use kinetic word-by-word bounce captions to increase viewer retention by 64%, and how to generate them automatically in under 20 seconds.",
+    "date": "Nov 6, 2026",
+    "readTime": "6 min read",
+    "category": "Short-Form Video",
+    "intro": "Look at the most viral short-form videos on Instagram Reels, TikTok, and YouTube Shorts from Alex Hormozi, MrBeast, or Ryan Pineda. They almost never use static subtitle strips. Instead, they command viewer attention with vibrant, dynamic words that bounce onto the screen at the exact millisecond they are spoken. For years, this required tedious keyframing in Adobe Premiere Pro or After Effects. Today, AI-powered motion subtitle engines do the heavy lifting in seconds.",
+    "dashboardType": "auto-caption-reel",
+    "keywords": [
+      "hormozi captions generator",
+      "mrbeast animated subtitles",
+      "word by word bounce captions",
+      "instagram reels auto captions",
+      "kinetic typography reels"
+    ],
+    "keyTakeaways": [
+      "Kinetic word-by-word captions increase average Reel watch time by over 64% by keeping the viewer's eyes engaged.",
+      "Over 75% of mobile users browse social feeds with audio muted; animated text guarantees message delivery.",
+      "Manual subtitle editing in Premiere Pro takes 30-45 minutes per 60-second video; Itnavideo's cloud pipeline does it in 20 seconds.",
+      "Safe zone clamping ensures your captions never get obscured by Instagram or TikTok platform buttons and captions."
+    ],
+    "pullQuote": "In the algorithm era, attention is won or lost in the first 1.2 seconds. Animated captions turn passive scrollers into active viewers.",
+    "takeawaysSummary": "Modern creators cannot afford static captions. Switching to kinetic word animations directly improves viewer retention metrics and platform reach.",
+    "faqs": [
+      {
+        "question": "What makes Hormozi-style captions so effective?",
+        "answer": "They use active word color highlighting (such as electric yellow, lime green, and pure white) combined with subtle spring bounce animations. This forces the viewer's gaze to track every single spoken beat."
+      },
+      {
+        "question": "Does Itnavideo support Roman Hinglish and English?",
+        "answer": "Yes! Powered by high-speed Groq Whisper transcription, spoken Hindi, Hinglish, and English are accurately captured and rendered with crisp typography without awkward misspellings."
+      },
+      {
+        "question": "How do I ensure captions don't get covered by TikTok and Instagram buttons?",
+        "answer": "Itnavideo features optical safe zone clamping. Captions are positioned cleanly in the middle or lower-third sweet spot, well above the bottom navigation bar and away from side like/comment icons."
+      },
+      {
+        "question": "How long does it take to render a 60-second captioned reel?",
+        "answer": "Because rendering happens on AWS Lambda cloud infrastructure, a 60-second reel exports in 1080x1920 full HD in approximately 15 to 25 seconds."
+      }
+    ],
+    "internalLinks": [
+      {
+        "label": "Auto Caption Generator Studio",
+        "href": "/auto-caption-generator",
+        "description": "Apply 10 viral motion subtitle styles to your videos in one click"
+      },
+      {
+        "label": "Auto Caption Video Guide",
+        "href": "/video-types/auto-caption",
+        "description": "Learn safe zone rules and preset typography options"
+      },
+      {
+        "label": "View Creator Pricing",
+        "href": "/pricing",
+        "description": "Export unlimited watermark-free reels with Pro credit packs"
+      }
+    ],
+    "sections": [
+      {
+        "heading": "The Attention Economy: Why Static Subtitles No Longer Work",
+        "body": [
+          "Social media algorithms prioritize one metric above all others: ==mint:completion rate==. If a viewer swipes away before watching at least 50% of your Reel, the algorithm penalizes your reach.",
+          "Traditional open captions (long sentences sitting at the bottom of the screen) create cognitive fatigue. Viewers read ahead, lose curiosity, and swipe. Kinetic captions solve this by displaying words ==yellow:at the exact cadence of speech==, keeping the viewer hooked sentence by sentence."
+        ]
+      },
+      {
+        "heading": "The Anatomy of a High-Retention Motion Caption",
+        "body": [
+          "High-converting video subtitles consist of three core elements: high-contrast color switches, spring physics, and safe zone placement.",
+          "First, dynamic color coding: inactive words remain clean white or subtle grey, while the active word explodes in ~~wavy:neon yellow, mint, or cyan~~. This micro-visual trigger resets viewer attention every 0.3 seconds.",
+          "Second, parametric spring physics: instead of a linear slide, words pop with subtle overshoot and damping, mimicking the punchy energy of modern podcast snippets."
+        ]
+      },
+      {
+        "heading": "Automating the Workflow: From 45 Minutes to 20 Seconds",
+        "body": [
+          "Manual subtitle animation in After Effects requires creating text layers, applying keyframe graphs, color-coding keywords, and adjusting timeline offsets for every spoken word. For a daily creator, this editing bottleneck kills consistency.",
+          "With Itnavideo, you upload your raw video file. The Groq Whisper engine transcribes your voiceover with millisecond-level word timestamps, maps the words onto your chosen preset style (such as Studio Clean, Dynamic Punch, or Karaoke Pro), and renders a broadcast-quality 1080p MP4 in the cloud while your laptop stays completely cool."
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "why-versus-comparison-videos-go-viral-on-tiktok-and-shorts",
+    "featuredImage": "https://res.cloudinary.com/dhouh9idx/image/upload/v1793969263/itnavideo12345/blog_versus_comparison_videos.png",
+    "title": "Why 'Versus' Comparison Videos Go Viral on TikTok & Shorts (And How Brands 4x Their Conversions)",
+    "excerpt": "Side-by-side product comparisons and VS battle videos dominate short-form algorithms. Learn the 3 psychological triggers behind high-converting comparison videos.",
+    "date": "Nov 6, 2026",
+    "readTime": "7 min read",
+    "category": "Video Marketing",
+    "intro": "Whether it's iPhone vs. Samsung, Renting vs. Buying, Shopify vs. Amazon, or Organic vs. Paid Ads, comparison videos consistently generate millions of views and intense comment section debates. People are hardwired to compare choices before making decisions. For creators and e-commerce brands, mastering the side-by-side 'Versus' video format is one of the highest ROI content strategies available today.",
+    "dashboardType": "compare",
+    "keywords": [
+      "versus comparison video generator",
+      "vs battle tiktok shorts",
+      "product comparison video maker",
+      "side by side video editor",
+      "compare explainer video"
+    ],
+    "keyTakeaways": [
+      "Comparison videos spark immediate tribal debates in comments, signaling massive viral engagement to algorithms.",
+      "Side-by-side split screens give viewers instant visual comparison without forcing them to imagine the difference.",
+      "Clear winner verdict cards at the end of the video deliver closure, driving click-throughs to product links.",
+      "Automating comparison reels with dedicated 2D characters and directional stickers increases retention by over 45%."
+    ],
+    "pullQuote": "Comparison content works because viewers aren't looking for features; they are looking to validate their identity and make the superior choice.",
+    "takeawaysSummary": "Transforming standard product showcases into high-stakes comparison battles drives 4x higher watch time and dramatically lowers customer acquisition cost.",
+    "faqs": [
+      {
+        "question": "Why do comparison videos get so many comments?",
+        "answer": "Comparison videos inherently divide audiences into opposing camps (e.g. Brand A supporters vs. Brand B supporters). When viewers disagree with your assessment, they comment passionately, boosting viral reach."
+      },
+      {
+        "question": "What visual assets are required to make a Compare Explainer on Itnavideo?",
+        "answer": "All you need are two images (one for the left side and one for the right side) and your voiceover audio. The system automatically handles layout, split-screen transitions, and subtitle syncing."
+      },
+      {
+        "question": "Can I choose which side wins the comparison?",
+        "answer": "Yes! You can set the winner to left, right, or none. If a winner is selected, an animated verdict badge and celebratory micro-animation crown the winner in the final seconds."
+      },
+      {
+        "question": "What is the recommended video length for comparison shorts?",
+        "answer": "The optimal sweet spot is between 30 and 60 seconds. This allows enough time to present 2-3 key comparison beats followed by a punchy conclusion verdict."
+      }
+    ],
+    "internalLinks": [
+      {
+        "label": "Compare Explainer Video Studio",
+        "href": "/compare-explainer",
+        "description": "Create side-by-side versus battle videos in vertical 9:16 format"
+      },
+      {
+        "label": "Compare Explainer Blueprint",
+        "href": "/video-types/compare-explainer",
+        "description": "Review comparison beat architecture and sticker directions"
+      },
+      {
+        "label": "Pro Credit Packages",
+        "href": "/pricing",
+        "description": "Render high-converting marketing videos at under $0.40 per export"
+      }
+    ],
+    "sections": [
+      {
+        "heading": "The Psychology of Conflict: Why We Can't Look Away from 'VS'",
+        "body": [
+          "Human psychology is inherently comparative. We evaluate value relative to alternatives. When a video opens with a giant ==orange:glowing 'VS' emblem== and introduces two competing options, it creates an immediate open curiosity loop.",
+          "The viewer wants to know: 'Does my preferred choice win?' or 'Did I make a mistake buying the other one?' This emotional investment prevents early drop-off and keeps retention high through the final verdict card."
+        ]
+      },
+      {
+        "heading": "The 3-Beat Formula for High-Converting Comparison Reels",
+        "body": [
+          "A successful comparison video follows a proven three-act structure:",
+          "1. ==mint:The Hook Beat== (0-5s): Introduce the contenders clearly with split branding and an provocative question (e.g. 'Is the $500 jacket really 5x better than the $100 jacket?').",
+          "2. ~~wavy:The Tradeoff Beats~~ (5-45s): Alternate focus between Left and Right, highlighting specific advantages, flaws, or price points with directional animated stickers and stat cards.",
+          "3. ==yellow:The Final Verdict== (45-60s): Deliver a decisive winner stamp and an actionable call-to-action (e.g. 'Buy Option B if you value durability; link in bio')."
+        ]
+      },
+      {
+        "heading": "Streamlining Comparison Video Production with AI",
+        "body": [
+          "Traditionally, creating split-screen comparison videos involved juggling multiple video tracks, masking borders, and manually timing side-by-side transitions.",
+          "Itnavideo's dedicated Compare Explainer studio eliminates all manual compositing. Simply drop in your two product photos, record or upload your narration, and let the cloud engine assemble timed side-by-side beats with synchronized Roman Hinglish or English subtitles."
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "how-to-create-cinematic-youtube-book-summary-videos",
+    "featuredImage": "https://res.cloudinary.com/dhouh9idx/image/upload/v1793969284/itnavideo12345/blog_169_youtube_book_summaries.png",
+    "title": "How to Create Cinematic 16:9 Book Summary Videos in Under 2 Minutes (Complete Visual Blueprint)",
+    "excerpt": "Non-fiction book summaries are one of YouTube's most profitable evergreen niches. Learn how to transform key takeaways into chaptered 16:9 widescreen videos without manual keyframing.",
+    "date": "Nov 6, 2026",
+    "readTime": "8 min read",
+    "category": "YouTube Growth",
+    "intro": "Non-fiction book summaries represent one of the most lucrative evergreen niches on YouTube. Channels summarizing productivity, psychology, investing, and leadership books routinely generate hundreds of thousands of views per upload with exceptionally high audience CPMs ($8 to $22 per thousand views). However, turning a 300-page book into a compelling 16:9 video traditionally required days of scriptwriting, storyboarding, and custom motion graphics. Here is the modern visual blueprint to do it in minutes.",
+    "dashboardType": "book-summary",
+    "keywords": [
+      "ai book summary video generator",
+      "youtube book summary maker",
+      "16:9 animated book summary",
+      "chapter visual video generator",
+      "faceless book summary channel"
+    ],
+    "keyTakeaways": [
+      "Book summaries have long shelf lives and continuous search volume, making them ideal for evergreen passive ad revenue.",
+      "16:9 widescreen format is required to command high CPM desktop and TV viewers on YouTube.",
+      "Clean editorial white canvases with ambient glow outperform messy cartoon animations for professional non-fiction audiences.",
+      "Automatic chapter segmentation and kinetic quote cards keep educational viewers engaged throughout the entire video."
+    ],
+    "pullQuote": "High-value YouTube viewers don't want flashy distractions; they want crisp intellectual clarity presented with editorial elegance.",
+    "takeawaysSummary": "Automating visual chapters, book cover reveals, and key takeaway cards allows creators to publish 3 to 5 cinematic book summaries weekly, compounding YouTube channel growth.",
+    "faqs": [
+      {
+        "question": "Why should book summary videos be strictly 16:9 widescreen?",
+        "answer": "In-depth educational content is heavily consumed on laptops, tablets, and smart TVs where horizontal 16:9 widescreen provides the most immersive reading and viewing experience."
+      },
+      {
+        "question": "Do I need to show my face in book summary videos?",
+        "answer": "No. The vast majority of top book summary channels (like Productivity Game, FightMediocrity, and Escaping Ordinary) are 100% faceless, focusing entirely on chapter notes, diagrams, and voiceover."
+      },
+      {
+        "question": "What is the maximum duration supported for Book Summary videos on Itnavideo?",
+        "answer": "Under Itnavideo's master policy, Book Summary videos support voiceover narration up to 5 minutes (300 seconds) in 1080p full HD."
+      },
+      {
+        "question": "What visual elements does Itnavideo generate for book summaries?",
+        "answer": "It creates a floating 3D book cover intro, chaptered title cards, author profile spotlight, kinetic quote callouts, and clean white-backed universal subtitles."
+      }
+    ],
+    "internalLinks": [
+      {
+        "label": "Book Summary Video Studio",
+        "href": "/book-summary",
+        "description": "Turn book notes and audio scripts into 16:9 widescreen videos"
+      },
+      {
+        "label": "Book Summary Specifications",
+        "href": "/video-types/book-summary",
+        "description": "Review cinematic scene pacing and credit pricing"
+      },
+      {
+        "label": "Explore All Video Studios",
+        "href": "/products",
+        "description": "Discover all 10 purpose-built creator video studios"
+      }
+    ],
+    "sections": [
+      {
+        "heading": "The Lucrative Economics of Faceless Book Summary Channels",
+        "body": [
+          "Unlike entertainment or reaction videos that experience rapid view spikes followed by steep drop-offs, book summaries are ==mint:compounding digital assets==. A summary of 'Atomic Habits' or 'Thinking, Fast and Slow' uploaded in 2026 will continue accumulating views in 2030.",
+          "Furthermore, educational and finance niches command premium YouTube CPMs ($12–$25), allowing creators to earn significant revenue from modest subscriber counts while promoting affiliate book links and digital summary courses."
+        ]
+      },
+      {
+        "heading": "The Minimalist Editorial Aesthetic: Why Less is More",
+        "body": [
+          "Many beginners make the mistake of cluttering book summaries with unrelated stock video clips or chaotic meme overlays. This alienates mature, professional audiences.",
+          "The most successful channels employ an ==yellow:editorial magazine aesthetic==: a clean, pure white (#FAFAFA) canvas, subtle warm ambient lighting blooms, elegant serif typography (such as Cormorant Garamond), and structured numbered takeaway cards. It creates a calm, focused learning environment."
+        ]
+      },
+      {
+        "heading": "Automating Book Summaries from Script to 1080p Video",
+        "body": [
+          "With Itnavideo's Book Summary studio, you supply your summary script or audio recording. The AI breaks the narration into distinct chapters (Hook, Core Principles, Key Takeaways, Action Steps).",
+          "Each chapter automatically transitions with smooth spring animations, displays synchronized quotes, and renders burnt-in subtitle notes. In less than 2 minutes of setup, you have an export-ready 16:9 YouTube video ready to upload."
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "why-burnt-in-widescreen-subtitles-crush-closed-captions-on-youtube",
+    "featuredImage": "https://res.cloudinary.com/dhouh9idx/image/upload/v1793969317/itnavideo12345/blog_burnt_in_widescreen_subtitles.png",
+    "title": "Why Burnt-In Widescreen Subtitles Crush Standard YouTube CC for Audience Retention",
+    "excerpt": "Over 70% of YouTube mobile viewers watch with low or muted audio. Discover why burnt-in 16:9 subtitles with custom scrubber-safe padding boost average watch time by 38%.",
+    "date": "Nov 6, 2026",
+    "readTime": "6 min read",
+    "category": "YouTube SEO",
+    "intro": "Most creators rely on YouTube's default automated Closed Captions (CC). However, analytics reveal that YouTube CC is turned off by default for over 85% of viewers, frequently glitches on technical terminology or regional accents, and often gets blocked by mobile player controls. Burnt-in (open) subtitles permanently rendered onto your 16:9 video files offer a massive competitive advantage for watch time and audience retention.",
+    "dashboardType": "youtube-subtitles",
+    "keywords": [
+      "burnt in subtitles youtube",
+      "youtube hardcoded captions 16:9",
+      "youtube subtitle safe zone scrubber",
+      "widescreen subtitle generator",
+      "video retention subtitles"
+    ],
+    "keyTakeaways": [
+      "Over 70% of social and mobile video consumption happens in sound-sensitive environments where burnt-in subtitles guarantee message comprehension.",
+      "Standard YouTube CC frequently misinterprets Hinglish and regional terminology, leading to embarrassing subtitle typos.",
+      "Hardcoded subtitles with bottom scrubber padding prevent text from being blocked by the YouTube progress bar and UI controls.",
+      "Custom typographic styles (like Warikoo Black Card or Clean Minimal) elevate the perceived production quality of your entire channel."
+    ],
+    "pullQuote": "If your viewer cannot clearly read your core message with the sound turned off, you are losing more than half of your potential audience.",
+    "takeawaysSummary": "Burnt-in 16:9 subtitles ensure flawless subtitle delivery across all devices, eliminating transcription errors and protecting crucial retention seconds.",
+    "faqs": [
+      {
+        "question": "What is the difference between Closed Captions (CC) and Burnt-In Subtitles?",
+        "answer": "Closed Captions are optional text overlays toggled on/off by the viewer that depend on browser settings. Burnt-in subtitles are permanently baked into the video frames, ensuring 100% of viewers see them exactly as styled."
+      },
+      {
+        "question": "What is Scrubber Safe Zone padding?",
+        "answer": "On YouTube mobile and desktop, the red progress scrubber bar, play button, and timeline hover preview overlap the bottom 80 pixels of the video. Itnavideo automatically elevates subtitles above this zone so they remain fully readable."
+      },
+      {
+        "question": "Does Itnavideo support Roman Hinglish speech in subtitles?",
+        "answer": "Yes! The Groq Whisper transcription engine captures colloquial Hindi and Hinglish speech and renders it in clean, readable Roman alphabet script without confusing font glitches."
+      },
+      {
+        "question": "How many credits does the YouTube Subtitles Generator cost?",
+        "answer": "Under our master pricing matrix, YouTube Subtitles Generator costs a flat 2 credits per video for videos up to 5 minutes."
+      }
+    ],
+    "internalLinks": [
+      {
+        "label": "YouTube Subtitle Generator",
+        "href": "/youtube-subtitle-generator",
+        "description": "Generate hardcoded 16:9 subtitles with custom safe zone padding"
+      },
+      {
+        "label": "YouTube Subtitle Guide",
+        "href": "/video-types/youtube-subtitle-generator",
+        "description": "Explore font styles and aspect ratio specs"
+      },
+      {
+        "label": "Credit Pricing & Subscriptions",
+        "href": "/pricing",
+        "description": "Get started with flat-rate 2-credit exports"
+      }
+    ],
+    "sections": [
+      {
+        "heading": "The Hidden Retention Killer: Silent Mobile Viewing",
+        "body": [
+          "Data across global social platforms reveals that over ==mint:70% of viewers browse feeds in sound-off or low-volume environments==: commuting on public transit, in shared offices, late at night, or in noisy public spaces.",
+          "When a video relies on default YouTube CC, users must manually find the small 'CC' toggle button. If they don't, they simply scroll to the next video within 3 seconds. Burnt-in subtitles remove all friction by delivering the spoken message immediately."
+        ]
+      },
+      {
+        "heading": "The Scrubber Bar Problem & Safe Zone Engineering",
+        "body": [
+          "Traditional video editing software places subtitles at the very bottom center of the canvas. However, YouTube's desktop and mobile interfaces place a thick red scrubber bar, elapsed time stamp, and video title overlays right over that area.",
+          "Itnavideo engineered ~~wavy:Scrubber-Safe Zone Clamping~~ specifically for 16:9 YouTube videos. The subtitle strip is automatically elevated by 96 pixels from the bottom margin, ensuring that even when a viewer scrubs through the timeline, the captions remain 100% visible and unclipped."
+        ]
+      },
+      {
+        "heading": "Eliminating Embarrassing Translation & Transcription Errors",
+        "body": [
+          "Standard auto-captions often garble tech acronyms, creator names, and mixed language phrases (especially Hindi-English or colloquial expressions).",
+          "Itnavideo integrates millisecond-accurate Groq Whisper transcription, giving you clean word grouping and the ability to review your transcript before rendering. The result is a polished, television-grade subtitle presentation that builds channel authority."
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "how-to-remove-noise-dead-air-and-retakes-from-voiceover",
+    "featuredImage": "https://res.cloudinary.com/dhouh9idx/image/upload/v1793969358/itnavideo12345/blog_studio_grade_voiceover_audio_cleaner.png",
+    "title": "The Creator's Guide to Studio-Grade Voiceover: How to Remove Background Noise, Dead Air & Retakes Automatically",
+    "excerpt": "Eliminate room echo, air conditioner hum, 300ms awkward pauses, and spoken flubs from voiceovers in one click without complicated audio editing plugins.",
+    "date": "Nov 6, 2026",
+    "readTime": "7 min read",
+    "category": "Audio Production",
+    "intro": "Bad video quality will cost you a few viewers, but bad audio will destroy your retention immediately. Viewers will tolerate a 720p webcam video if the voiceover is crisp and clear, but they will click away from a 4K video within 5 seconds if the microphone has harsh room echo, air conditioning rumble, or endless silent pauses. Fortunately, creators no longer need an audio engineering degree or expensive acoustic treatment to sound like a professional studio.",
+    "dashboardType": "ai-audio-cleaner",
+    "keywords": [
+      "ai audio cleaner online",
+      "remove silence dead air voiceover",
+      "remove retakes podcast audio",
+      "background noise remover podcast",
+      "studio quality voiceover cleaner"
+    ],
+    "keyTakeaways": [
+      "Audio quality is the number one driver of viewer retention; clear speech commands trust and authority.",
+      "Dead air pauses over 300ms create pacing lulls that prompt viewers to swipe away on short-form feeds.",
+      "Automatic retake detection identifies repeated phrases and false starts, keeping only your best spoken take.",
+      "Cloud-based audio mastering levels your voice to broadcast standards (-14 LUFS) without clipping or distortion."
+    ],
+    "pullQuote": "Viewers listen to video content more than they watch it. Clean audio is the foundation of digital credibility.",
+    "takeawaysSummary": "One-click AI audio cleaning removes background noise, trims awkward pauses, and edits out retakes in seconds, saving hours of manual waveform editing.",
+    "faqs": [
+      {
+        "question": "Why is 300ms the standard threshold for removing silence?",
+        "answer": "A 300ms pause represents the natural boundary between a brief breath and dead air. Trimming pauses greater than 300ms tightens your voiceover pacing without sounding robotic or unnatural."
+      },
+      {
+        "question": "How does automatic retake detection work?",
+        "answer": "When recording a script, creators frequently repeat sentences when they stumble (e.g. 'Today we are... let me restart... Today we are going to explore...'). The AI transcribes the speech, identifies duplicated phrases, and automatically cuts the flawed attempt."
+      },
+      {
+        "question": "Can I use the AI Audio Cleaner on podcast recordings?",
+        "answer": "Yes! You can upload raw MP3 or WAV recordings up to 5 minutes long. It will remove hum, balance frequency levels, and output studio-mastered audio."
+      },
+      {
+        "question": "How much does the AI Audio Cleaner cost to use?",
+        "answer": "Audio cleaning costs just 1 credit per audio file (up to 5 minutes / 300s), saving hours of tedious manual scrubbing in Audacity or Audition."
+      }
+    ],
+    "internalLinks": [
+      {
+        "label": "AI Studio Audio Cleaner",
+        "href": "/tools/ai-audio-cleaner",
+        "description": "Clean voiceover audio and remove silences with one click"
+      },
+      {
+        "label": "Audio Cleaner Guide",
+        "href": "/video-types/ai-audio-cleaner",
+        "description": "Learn more about 300ms silence trimming and retake detection"
+      },
+      {
+        "label": "View All Credit Plans",
+        "href": "/pricing",
+        "description": "Unlock full studio mastering on Pro and Creator plans"
+      }
+    ],
+    "sections": [
+      {
+        "heading": "The Audio Paradox: Why Sound Matters More Than 4K Resolution",
+        "body": [
+          "Human biology is wired to tolerate visual imperfections, but harsh audio triggers an immediate subconscious urge to exit. Background hiss, computer fan whir, and hollow room echo signal low production value to the viewer.",
+          "When you remove background noise and apply ==mint:spectral voice enhancement==, your voiceover immediately feels authoritative, intimate, and professional."
+        ]
+      },
+      {
+        "heading": "The Power of Tight Pacing: Why 300ms Silence Trimming Matters",
+        "body": [
+          "In short-form content, silence is deadly. When a creator pauses for 0.8 seconds to think or inhale, the viewer senses a dip in momentum and swipes. Top creators like Ali Abdaal and Colin & Samir maintain relentless narrative momentum by eliminating dead air.",
+          "Setting an automatic ~~wavy:300ms pause threshold~~ trims awkward gaps while preserving natural speech rhythm. Your 60-second voiceover tightens to a punchy 52 seconds without speeding up your voice or distorting pitch."
+        ]
+      },
+      {
+        "heading": "Automatic Retake Detection: Never Re-Record a Flub Again",
+        "body": [
+          "Every creator knows the frustration of stumbling over a tongue-twister sentence halfway through a voiceover. Typically, you have to stop, rewind, re-record, and later spend 20 minutes in an audio editor locating the bad take.",
+          "Itnavideo's AI Audio Cleaner listens to your entire file, identifies when you repeated a sentence, and automatically removes the false start, stitching together your best performance into a seamless broadcast-ready track."
+        ]
+      }
+    ]
+  },
   {
     "slug": "best-ai-video-generator-luxury-real-estate",
     featuredImage: "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807515/itnavideo12345/blog_dubai_real_estate.png",

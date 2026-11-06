@@ -1533,7 +1533,7 @@ export async function POST(request: Request) {
           ok: false,
           status: 'failed',
           reasonCode: 'AUDIO_TOO_LONG',
-          error: 'Book Summary Video supports audio up to 10 minutes (600s). Please trim and try again.',
+          error: 'Book Summary Video supports audio up to 5 minutes (300s). Please trim and try again.',
         }, { status: 422 });
       }
 

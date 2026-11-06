@@ -31,6 +31,8 @@ Turn raw creator content into publish-ready 9:16 reels or a preserved 16:9 long-
 - Dedicated Studio Dashboard Polish: Standardized all 11 active video studios with clean studio white default background canvas (#FFFFFF) and consistent UI header badging matching DashboardClient.tsx.
 - Homepage Free Creator Utilities: Added dedicated FreeCreatorUtilitiesSection on the Homepage right before the footer.
 - Clean Route Architecture: Removed unused/legacy redirect routes to keep Next.js routing clean and lightweight.
+- Header & Navigation Menu Standard (Desktop & Mobile): Removed non-functional language switcher from navbar to prevent user confusion and preserve SEO rankings. Re-routed all 'Products' dropdown and mobile 'Video Studios' links directly to dedicated public landing pages (e.g. /auto-caption-generator, /faceless-video) while keeping direct app studio access in header CTAs. Enhanced mobile menu with 10-studio accordion, full primary navigation, and smooth scrolling.
+- Editorial Blog Polish: Introduced 5% budgeted highlights (yellow, orange, mint), hand-drawn wavy underlines, a 2px top reading progress bar, a Key Takeaways TL;DR card, and magazine pull-quotes across all blog posts.
 
 ## Current Status
 

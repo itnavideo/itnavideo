@@ -6,11 +6,13 @@ const CRON_SECRET = process.env.SEO_CRON_SECRET || '';
 
 export async function GET(request: Request) {
   // Verify cron secret (Cloud Scheduler or manual trigger)
+  const isCloudScheduler = request.headers.get('x-cloudscheduler') === 'true' || request.headers.get('x-vercel-cron') === '1';
   const authHeader = request.headers.get('authorization');
   const url = new URL(request.url);
   const secretParam = url.searchParams.get('secret');
 
-  if (CRON_SECRET && authHeader !== `Bearer ${CRON_SECRET}` && secretParam !== CRON_SECRET) {
+  const isAuthorized = isCloudScheduler || (Boolean(CRON_SECRET) && (authHeader === `Bearer ${CRON_SECRET}` || secretParam === CRON_SECRET));
+  if (!isAuthorized) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

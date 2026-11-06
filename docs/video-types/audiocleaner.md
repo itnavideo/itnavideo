@@ -98,9 +98,9 @@ $$\text{Timeline} = \text{Lead-In} \to \text{Word}_1 \to \text{Pause}_1 \to \tex
 
 | Pacing Mode | Trigger Threshold | Target Remaining Pause | Post/Pre Padding | Best For |
 | :--- | :---: | :---: | :---: | :--- |
-| **Fast Retention** *(Default)* | $> 0.25\text{s}$ (250ms) | **$\sim 0.18\text{s}$** | $0.06\text{s}$ (60ms) each | **AI TTS**, **Image to Video AI**, TikTok, Reels, Shorts (prevents boring visual dead time during 5–6s image changes) |
-| **Natural Conversational** | $> 0.35\text{s}$ (350ms) | **$\sim 0.22\text{s}$** | $0.06\text{s}$ (60ms) each | Podcasts, educational explainers, corporate briefings |
-| **Relaxed Flow** | $> 0.50\text{s}$ | **$\sim 0.30\text{s}$** | $0.08\text{s}$ (80ms) each | Cinematic narrations, storytelling, dramatic reading |
+| **Fast Retention (300ms Standard)** *(Default)* | $> 0.30\text{s}$ (300ms) | **$\sim 0.10\text{s}$ (100ms)** | $0.05\text{s}$ (50ms) each | **AI TTS**, **Image to Video AI**, TikTok, Reels, Shorts (snappy creator pacing, cuts all dead air > 300ms) |
+| **Natural Conversational** | $> 0.30\text{s}$ (300ms) | **$\sim 0.14\text{s}$ (140ms)** | $0.05\text{s}$ (50ms) each | Podcasts, educational explainers, corporate briefings |
+| **Relaxed Flow** | $> 0.45\text{s}$ (450ms) | **$\sim 0.20\text{s}$ (200ms)** | $0.06\text{s}$ (60ms) each | Cinematic narrations, storytelling, dramatic reading |
 
 ### C. Natural Speech Rules
 - **Short natural breathing pauses ($< 0.40\text{s}$)**: Kept 100% intact to preserve human vocal rhythm.

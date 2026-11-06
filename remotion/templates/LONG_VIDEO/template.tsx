@@ -463,14 +463,14 @@ export const LongVideoComposition = () => (
   <Composition
     id="LONG-VIDEO"
     component={LongVideo}
-    durationInFrames={secondsToFrames(600, DEFAULT_FPS)}
+    durationInFrames={secondsToFrames(300, DEFAULT_FPS)}
     fps={DEFAULT_FPS}
     width={1920}
     height={1080}
     defaultProps={{
       mediaSrc: '',
       mediaType: 'audio' as const,
-      durationSeconds: 720,
+      durationSeconds: 60,
       title: 'Faceless Video',
       scenes: [],
       captions: [],
@@ -479,7 +479,7 @@ export const LongVideoComposition = () => (
     }}
     calculateMetadata={({ props }) => {
       const p = props as LongVideoProps;
-      const dur = Math.max(8, Math.min(720, Number(p.durationSeconds) || 60));
+      const dur = Math.max(8, Math.min(300, Number(p.durationSeconds) || 60));
       return { durationInFrames: secondsToFrames(dur, DEFAULT_FPS), fps: DEFAULT_FPS, width: 1920, height: 1080 };
     }}
   />

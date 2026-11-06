@@ -512,5 +512,16 @@ export const AiVideoPolisherComposition = () => (
       bgmVolume: 0.12,
       captionStyle: 'Pop Word',
     }}
+    calculateMetadata={({ props }) => {
+      const p = props as AiVideoPolisherProps;
+      const rawDur = Number(p.durationSeconds) || Number(p.sourceDurationSeconds) || 60;
+      const durationSeconds = Math.max(5, Math.min(300, rawDur));
+      return {
+        durationInFrames: Math.round(durationSeconds * 30),
+        fps: 30,
+        width: 1920,
+        height: 1080,
+      };
+    }}
   />
 );

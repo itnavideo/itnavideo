@@ -157,6 +157,17 @@ This is the **single source of truth** for all AI tools (Antigravity, Codex, Kir
 
 ---
 
+## 0.8 STRICT: Navigation Architecture & Clean Header Policy (Founder Directive)
+
+> [!IMPORTANT]
+> **CLEAN HEADER & DEDICATED LANDING ROUTING**:
+> - **Zero Language Switcher on Header**: NEVER place a non-functional language toggle (EN/HI) in the navigation header. Multi-language website UI is paused, and Hinglish speech/captioning is handled strictly inside the video pipeline. A dummy switcher breaks user trust and harms SEO.
+> - **Dedicated Public Landing Pages in Navigation**: Links inside the 'Products' dropdown and mobile 'Video Studios' accordion must point directly to dedicated public marketing/landing pages (e.g. /auto-caption-generator, /faceless-video, /whiteboard-video), NOT directly to /dashboard/*. The main CTA buttons ('Get Started' / 'Dashboard') already handle direct app studio access.
+> - **Mobile Navigation Parity**: The mobile drawer must include the full 10-studio expandable accordion, Features, Pricing, Blog, Video Types, About Us, and Contact Us, with smooth overflow-y-auto scrolling.
+> - **5% Editorial Blog Accent Rule**: Highlights (yellow, orange, mint) and wavy underlines must follow the strict ~5% visual budget (at most 1 per 2-3 paragraphs) to maintain high-signal magazine-grade reading quality.
+
+---
+
 ## 1. Fast Work Tree (Execution Engine)
 
 Most daily work in Itnavideo focuses on **Existing Video Types** and **Dashboard UI/UX Design**. Follow these targeted workflows for fast, zero-delay completion:

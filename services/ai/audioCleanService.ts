@@ -21,7 +21,7 @@ import { findFfmpegPath, probeAudioDuration, readMediaInput, runFfmpeg, findFfpr
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 const execFileAsync = promisify(execFile);
-import { uploadTemporaryMediaObject, createReadUrl } from '@/lib/gcs/mediaStorage';
+import { uploadTemporaryMediaObject, createReadUrl } from '@/lib/aws/mediaStorage';
 
 async function probeAudioBitrate(filePath: string): Promise<string> {
   try {
@@ -177,25 +177,24 @@ export function detectSmartPauses(
   let pauseIndex = 1;
 
   // Pacing calibration
-  // "fast" (Default for AI TTS & Image to Video AI): Pauses > 0.25s (250ms) compressed to ~0.18s (180ms)
-  // "natural": Pauses > 0.35s (350ms) compressed to ~0.22s (220ms)
-  // "relaxed": Pauses > 0.50s compressed to ~0.30s
+  // Pacing calibration — STRICT FOUNDER STANDARD: 300ms (0.30s) Threshold
+  // Any pause or dead air > 0.30s (300ms) in the full audio is cut.
   const pacing = options.pacing || 'fast';
-  let minThreshold = 0.25;
-  let targetRemaining = 0.18;
-  let headPadding = 0.06; // 60ms keep after word release
-  let tailPadding = 0.06; // 60ms keep before next word attack
+  let minThreshold = 0.30; // 300ms strict cutoff
+  let targetRemaining = 0.10; // 100ms clean transition
+  let headPadding = 0.05; // 50ms keep after word release (preserves trailing consonants)
+  let tailPadding = 0.05; // 50ms keep before next word attack (preserves onset)
 
   if (pacing === 'natural') {
-    minThreshold = 0.35;
-    targetRemaining = 0.22;
+    minThreshold = 0.30;
+    targetRemaining = 0.14;
+    headPadding = 0.05;
+    tailPadding = 0.05;
+  } else if (pacing === 'relaxed') {
+    minThreshold = 0.45;
+    targetRemaining = 0.20;
     headPadding = 0.06;
     tailPadding = 0.06;
-  } else if (pacing === 'relaxed') {
-    minThreshold = 0.50;
-    targetRemaining = 0.30;
-    headPadding = 0.08;
-    tailPadding = 0.08;
   }
 
   const validWords = (words || [])
@@ -244,7 +243,7 @@ export function detectSmartPauses(
         const desiredCutEnd = Number((next.start - tailPadding).toFixed(3));
         const cutDuration = Number((desiredCutEnd - desiredCutStart).toFixed(3));
 
-        if (desiredCutEnd > desiredCutStart + 0.05) {
+        if (desiredCutEnd > desiredCutStart + 0.03) {
           cuts.push({
             start: desiredCutStart,
             end: desiredCutEnd,
@@ -283,7 +282,7 @@ export function detectSmartPauses(
         const desiredCutEnd = Number((next.start - tailPadding).toFixed(3));
         const cutDuration = Number((desiredCutEnd - desiredCutStart).toFixed(3));
 
-        if (desiredCutEnd > desiredCutStart + 0.05) {
+        if (desiredCutEnd > desiredCutStart + 0.03) {
           cuts.push({
             start: desiredCutStart,
             end: desiredCutEnd,
