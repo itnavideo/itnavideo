@@ -20,7 +20,7 @@ export function FreeCreatorUtilitiesSection() {
       badge: 'NO LOGIN REQUIRED',
       href: '/wav-to-mp3',
       Icon: FileAudio,
-      color: 'from-blue-600 to-indigo-600',
+      color: 'from-orange-500 to-amber-600',
     },
     {
       title: 'YouTube Subtitle Generator',
@@ -28,7 +28,7 @@ export function FreeCreatorUtilitiesSection() {
       badge: '16:9 WIDESCREEN',
       href: '/video-types/youtube-subtitle-generator',
       Icon: Subtitles,
-      color: 'from-blue-500 to-sky-500',
+      color: 'from-amber-500 to-orange-500',
     },
     {
       title: 'AI Studio Audio Cleaner',
@@ -53,10 +53,13 @@ export function FreeCreatorUtilitiesSection() {
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">
-            Free Audio & Video Tools for Creators
+          <h2 className="text-3xl font-black tracking-tight text-zinc-950 sm:text-4xl font-sans">
+            Free Audio &amp; Video{' '}
+            <span className="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 bg-clip-text text-transparent">
+              Tools for Creators
+            </span>
           </h2>
-          <p className="mt-3 text-base font-medium text-slate-600">
+          <p className="mt-3 text-base font-medium text-zinc-600">
             Need to convert audio, clean background noise, or generate YouTube subtitles? Use our quick creator utilities anytime.
           </p>
         </div>
@@ -69,28 +72,28 @@ export function FreeCreatorUtilitiesSection() {
               <Link
                 key={tool.title}
                 href={tool.href}
-                className="group relative flex flex-col justify-between rounded-2xl border border-stone-200 bg-white p-6 shadow-xs transition duration-300 hover:-translate-y-1 hover:border-blue-500/30 hover:shadow-lg hover:shadow-blue-500/5"
+                className="group relative flex flex-col justify-between rounded-2xl border border-zinc-200/90 bg-white p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] transition-all duration-300 hover:-translate-y-1.5 hover:border-zinc-400 hover:shadow-[0_16px_36px_-6px_rgba(0,0,0,0.1)]"
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${tool.color} text-white shadow-md shadow-blue-500/10`}>
+                    <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${tool.color} text-white shadow-md shadow-zinc-950/10 group-hover:scale-105 transition-transform`}>
                       <Icon size={22} />
                     </div>
-                    <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-600">
+                    <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-zinc-700">
                       {tool.badge}
                     </span>
                   </div>
 
-                  <h3 className="mt-5 text-lg font-bold text-slate-900 group-hover:text-blue-600 transition">
+                  <h3 className="mt-5 text-lg font-bold text-zinc-950 group-hover:text-orange-600 transition-colors">
                     {tool.title}
                   </h3>
 
-                  <p className="mt-2 text-xs font-medium leading-relaxed text-slate-600">
+                  <p className="mt-2 text-xs font-medium leading-relaxed text-zinc-600">
                     {tool.description}
                   </p>
                 </div>
 
-                <div className="mt-6 flex items-center gap-2 text-xs font-bold text-blue-600 group-hover:translate-x-1 transition duration-200">
+                <div className="mt-6 flex items-center gap-2 text-xs font-bold text-zinc-950 group-hover:text-orange-600 group-hover:translate-x-1 transition-all duration-200">
                   <span>Try Free Tool</span>
                   <ArrowRight size={14} />
                 </div>
@@ -103,7 +106,7 @@ export function FreeCreatorUtilitiesSection() {
         <div className="mt-10 text-center">
           <Link
             href="/tools"
-            className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-orange-600 transition"
+            className="inline-flex items-center gap-2 text-xs font-bold text-zinc-700 hover:text-zinc-950 transition"
           >
             <span>View All Creator Tools</span>
             <ArrowRight size={14} />

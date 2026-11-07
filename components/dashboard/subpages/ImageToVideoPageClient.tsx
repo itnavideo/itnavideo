@@ -90,10 +90,10 @@ export default function ImageToVideoDashboardPage() {
     ITNAVIDEO_LIBRARY_BGM && ITNAVIDEO_LIBRARY_BGM.length > 0 ? ITNAVIDEO_LIBRARY_BGM[0].path : "assets/reusable/music/parasail-silent-partner.mp3"
   );
   const [bgmFile, setBgmFile] = useState<File | null>(null);
-  const [bgmVolume, setBgmVolume] = useState<number>(0.12);
+  const [bgmVolume, setBgmVolume] = useState<number>(0.50);
 
   const [topicTitle, setTopicTitle] = useState<string>("");
-  const [subtitleStyle, setSubtitleStyle] = useState<string>("glow-viral");
+  const [subtitleStyle, setSubtitleStyle] = useState<string>("pop-word");
   const [cameraMotionPreset, setCameraMotionPreset] = useState<string>("ken-burns");
   const [fitMode, setFitMode] = useState<"blur-fill" | "cover">("cover");
   const [estimatedDurationSeconds, setEstimatedDurationSeconds] = useState<number>(60);
@@ -320,6 +320,14 @@ export default function ImageToVideoDashboardPage() {
   const handleClearAllImages = () => {
     setImageFiles([]);
     setImagePhrases([]);
+  };
+
+  const handleReplaceImage = (indexToReplace: number, newFile: File) => {
+    setImageFiles((prev) => {
+      const copy = [...prev];
+      copy[indexToReplace] = newFile;
+      return copy;
+    });
   };
 
   const handleRemoveImage = (indexToRemove: number) => {
@@ -672,41 +680,45 @@ export default function ImageToVideoDashboardPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-500 gap-3">
-        <Loader2 className="h-8 w-8 animate-spin text-[#0066FF]" />
-        <p className="text-sm font-semibold tracking-wide text-slate-800">Loading Image to Video AI Studio...</p>
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center text-slate-500 gap-3">
+        <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
+        <p className="text-sm font-semibold tracking-wide text-slate-700">Loading Image to Video AI Studio...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-[#0066FF]/20 selection:text-[#0066FF] pb-12">
-      {/* Top Navigation Bar (Clean White Surface) */}
+    <div className="min-h-screen bg-white text-slate-900 flex flex-col selection:bg-orange-500/20 selection:text-orange-600 pb-16">
+      {/* Top Navigation Bar (Clean White Surface - Full Bleed) */}
       <header className="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur-xl shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-16 py-2 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
-          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-100 hover:bg-slate-200 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-slate-700 hover:text-slate-900 transition group cursor-pointer"
+        <div className="w-full px-4 sm:px-8 lg:px-12 min-h-16 py-2 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+            {/* Sleek Modern Back Button */}
+            <button
+              type="button"
+              onClick={handleBackClick}
+              className="group flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-slate-700 hover:text-slate-900 transition-all cursor-pointer shadow-2xs active:scale-95"
+              title="Back to Studios"
             >
-              <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
-              <span className="hidden sm:inline">All Tools</span>
-            </Link>
-
-            <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+              <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
+            </button>
 
             <BrandLogo size="sm" showBadge={false} variant="light" />
 
-            <span className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[#0066FF]/30 bg-[#0066FF]/10 px-2.5 py-0.5 text-[11px] font-black text-[#0066FF]">
-              <Sparkles size={11} className="text-[#0066FF]" />
-              Image to Video Studio
-            </span>
+            <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+
+            {/* Clean Studio Breadcrumb */}
+            <div className="hidden sm:flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-500">Studios</span>
+              <span className="text-slate-300 text-xs">/</span>
+              <span className="text-xs font-black text-slate-900 tracking-tight">Image to Video AI</span>
+            </div>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Timer badge while rendering */}
             {isWorking && (
-              <div className="flex items-center gap-1.5 rounded-full border border-[#0066FF]/30 bg-[#0066FF]/10 px-3 py-1.5 text-xs font-black text-[#0066FF]">
+              <div className="flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1.5 text-xs font-black text-orange-600">
                 <Clock size={13} className="animate-pulse" />
                 <span>{formatTimer(elapsedSeconds)}</span>
               </div>
@@ -714,12 +726,12 @@ export default function ImageToVideoDashboardPage() {
 
             {/* Credits badge */}
             <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 sm:px-3.5 py-1.5 text-xs font-bold shadow-xs text-slate-800">
-              <Zap size={14} className="text-[#0066FF] fill-[#0066FF]" />
+              <Zap size={14} className="text-orange-500 fill-orange-500" />
               <span className="text-slate-500 hidden xs:inline">Balance:</span>
               <span className="text-slate-900 font-black">{billingEntitlement ? userRemainingCredits : "..."} Cr</span>
               <Link
                 href="/pricing"
-                className="ml-0.5 text-[11px] text-[#0066FF] hover:text-[#3B82F6] underline font-black"
+                className="ml-0.5 text-[11px] text-orange-600 hover:text-orange-500 underline font-black"
               >
                 +Add
               </Link>
@@ -728,8 +740,8 @@ export default function ImageToVideoDashboardPage() {
         </div>
       </header>
 
-      {/* Main Canvas */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      {/* Main Canvas - Full Screen Fluid Workspace */}
+      <main className="flex-1 w-full px-4 sm:px-8 lg:px-12 py-6 sm:py-8 space-y-8">
 
         {(isWorking || isReady || isError) ? (
           /* Render Monitor View (Unified InteractiveRenderEngine) */
@@ -755,6 +767,7 @@ export default function ImageToVideoDashboardPage() {
             onAddImages={handleAddImages}
             onRemoveImage={handleRemoveImage}
             onClearAllImages={handleClearAllImages}
+            onReplaceImage={handleReplaceImage}
             maxImages={100}
             onReorderImages={handleReorderImage}
             imagePhrases={imagePhrases}

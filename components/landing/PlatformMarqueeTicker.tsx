@@ -125,10 +125,10 @@ export default function PlatformMarqueeTicker() {
   const marqueeItems = [...STUDIO_SHOWCASE_ITEMS, ...STUDIO_SHOWCASE_ITEMS];
 
   return (
-    <section aria-label="Video Studios Showcase Ribbon" className="relative w-full overflow-hidden bg-white py-6 sm:py-10 border-b border-slate-100">
+    <section aria-label="Video Studios Showcase Ribbon" className="relative w-full overflow-hidden bg-[#FAFAFD] py-6 sm:py-10 border-b border-slate-200/60">
       {/* Edge Gradient Masks for Smooth Seamless Fade */}
-      <div className="pointer-events-none absolute left-0 top-0 z-20 h-full w-12 sm:w-32 bg-gradient-to-r from-white via-white/80 to-transparent" />
-      <div className="pointer-events-none absolute right-0 top-0 z-20 h-full w-12 sm:w-32 bg-gradient-to-l from-white via-white/80 to-transparent" />
+      <div className="pointer-events-none absolute left-0 top-0 z-20 h-full w-12 sm:w-36 bg-gradient-to-r from-[#FAFAFD] via-[#FAFAFD]/85 to-transparent" />
+      <div className="pointer-events-none absolute right-0 top-0 z-20 h-full w-12 sm:w-36 bg-gradient-to-l from-[#FAFAFD] via-[#FAFAFD]/85 to-transparent" />
 
       {/* Infinite Moving Marquee Track */}
       <div className="flex w-max animate-m3-marquee gap-4 sm:gap-6 px-4 select-none items-center">
@@ -139,13 +139,12 @@ export default function PlatformMarqueeTicker() {
               key={`${item.id}-${idx}`}
               href={item.slug}
               aria-label={item.title}
-              className={`group relative shrink-0 overflow-hidden rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 cursor-pointer block bg-slate-900 border border-slate-200/60 ${
-                is169
+              className={`group relative shrink-0 overflow-hidden rounded-2xl sm:rounded-3xl shadow-sm hover:shadow-[0_20px_45px_-12px_rgba(249,115,22,0.35)] hover:-translate-y-1.5 transition-all duration-300 cursor-pointer block bg-slate-950 border border-slate-800/80 hover:border-orange-500/60 ${is169
                   ? 'h-[280px] sm:h-[340px] md:h-[380px] aspect-[16/9]'
                   : 'h-[280px] sm:h-[340px] md:h-[380px] aspect-[9/16]'
-              }`}
+                }`}
             >
-              {/* Pure Studio Image Showcase: 16:9 in full 16:9, 9:16 in full 9:16 (Zero image cropping) */}
+              {/* Pure Studio Image Showcase: 16:9 in full 16:9, 9:16 in full 9:16 */}
               <div className="relative h-full w-full overflow-hidden bg-slate-950 flex items-center justify-center">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -163,15 +162,15 @@ export default function PlatformMarqueeTicker() {
                 />
 
                 {/* Subtle dark bottom gradient */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-80 group-hover:opacity-40 transition-opacity pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-85 group-hover:opacity-40 transition-opacity pointer-events-none" />
 
                 {/* Top Badge: Format & Label */}
                 <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 z-10 flex items-center gap-1.5 pointer-events-none">
-                  <span className="px-2 py-0.5 rounded-full bg-black/80 text-[10px] font-mono font-bold text-white border border-white/15 backdrop-blur-md shadow-sm">
+                  <span className="px-2.5 py-0.5 rounded-full bg-black/80 text-[10px] font-mono font-bold text-white border border-white/20 backdrop-blur-md shadow-xs">
                     {item.aspect}
                   </span>
                   {item.badgeLabel && (
-                    <span className="hidden sm:inline-block px-2 py-0.5 rounded-full bg-[#0066FF]/80 text-[9px] font-bold text-white backdrop-blur-md shadow-sm">
+                    <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-full bg-orange-600/90 text-[10px] font-bold text-white backdrop-blur-md shadow-xs border border-orange-400/30">
                       {item.badgeLabel}
                     </span>
                   )}
@@ -179,7 +178,7 @@ export default function PlatformMarqueeTicker() {
 
                 {/* Bottom Title Bar */}
                 <div className="absolute bottom-2.5 inset-x-2.5 sm:bottom-3 sm:inset-x-3 z-10 pointer-events-none">
-                  <span className="block text-xs sm:text-sm font-extrabold text-white truncate drop-shadow-md group-hover:text-blue-300 transition-colors">
+                  <span className="block text-xs sm:text-sm font-bold text-white truncate drop-shadow-md group-hover:text-orange-300 transition-colors">
                     {item.title}
                   </span>
                 </div>

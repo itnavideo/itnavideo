@@ -25,7 +25,7 @@ const CREATOR_REVIEWS: CreatorReview[] = [
     channelType: 'YouTube Explainer • 180k subs, USA',
     avatarUrl: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1793018755/USA_Male_YouTube_Creator_axj5rd.jpg',
     avatarInitials: 'AM',
-    avatarBg: 'bg-gradient-to-br from-orange-500 to-amber-600',
+    avatarBg: 'bg-gradient-to-br from-zinc-800 to-zinc-950',
     quote:
       'I record a 3-minute voiceover on my phone, upload it, and get a complete 16:9 YouTube explainer with relevant B-roll and kinetic subtitles. My production time dropped from 6 hours to 4 minutes.',
     highlightTag: '16:9 Faceless Video',
@@ -73,7 +73,7 @@ const CREATOR_REVIEWS: CreatorReview[] = [
     channelType: 'Tech Educator & Shorts Creator, USA',
     avatarUrl: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1793018756/USA_Female_Technology_Educator_rxlo0i.jpg',
     avatarInitials: 'EW',
-    avatarBg: 'bg-gradient-to-br from-blue-500 to-cyan-600',
+    avatarBg: 'bg-gradient-to-br from-orange-600 to-amber-600',
     quote:
       'The Long Video to Shorts tool extracted 5 high-hook vertical clips from our 45-minute workshop. One clip already crossed 350k views on Instagram Reels.',
     highlightTag: 'Viral Hook Clips',
@@ -124,15 +124,15 @@ export default function TestimonialSection() {
       <div className="relative z-10 mx-auto max-w-6xl">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
-          <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-[1.15] font-sans">
+          <h2 className="text-3xl sm:text-5xl font-black text-zinc-950 tracking-tight leading-[1.15] font-sans">
             Created in minutes,{' '}
             <br className="hidden sm:inline" />
-            <span className="bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#3B82F6] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 bg-clip-text text-transparent">
               loved for years
             </span>
           </h2>
 
-          <p className="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed font-sans font-medium">
+          <p className="mt-4 text-base sm:text-lg text-zinc-600 leading-relaxed font-sans font-medium">
             Real video creators, podcasters, and YouTube channels scaling their content effortlessly without timeline fatigue or hardware freezes.
           </p>
         </div>
@@ -142,7 +142,7 @@ export default function TestimonialSection() {
           {CREATOR_REVIEWS.map((review) => (
             <div
               key={review.id}
-              className="group relative flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:border-blue-500/40 hover:shadow-[0_20px_35px_-10px_rgba(0,102,255,0.12)] hover:-translate-y-1.5 transition-all duration-300 select-none"
+              className="group relative flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:border-orange-500/40 hover:shadow-[0_20px_35px_-10px_rgba(249,115,22,0.12)] hover:-translate-y-1.5 transition-all duration-300 select-none"
             >
               <div>
                 {/* 5 Glowing Gold Stars & Feature Tag */}
@@ -153,7 +153,7 @@ export default function TestimonialSection() {
                     ))}
                   </div>
 
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-blue-800 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-orange-800 bg-orange-50 border border-orange-200/80 px-2 py-0.5 rounded-full">
                     {review.highlightTag}
                   </span>
                 </div>
@@ -166,7 +166,7 @@ export default function TestimonialSection() {
 
               {/* Creator Attribution with Real Avatar Image */}
               <div className="mt-6 pt-4 border-t border-stone-100 flex items-center gap-3">
-                <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full border border-blue-300/60 shadow-xs ring-2 ring-white">
+                <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full border border-orange-300/60 shadow-xs ring-2 ring-white">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={getOptimizedAvatarUrl(review.avatarUrl, 96)}
@@ -221,7 +221,7 @@ export default function TestimonialSection() {
 
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-extrabold text-orange-600 hover:text-orange-700 transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-extrabold text-zinc-950 hover:text-zinc-700 transition-colors"
             >
               <span>Join them on Itnavideo</span>
               <ArrowRight size={14} strokeWidth={2.5} />

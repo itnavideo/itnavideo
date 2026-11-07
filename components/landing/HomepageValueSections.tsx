@@ -32,8 +32,8 @@ export function HomepageTrustStrip() {
     <section aria-label="Platform facts" className="border-b border-stone-200/80 bg-white px-4 py-5 sm:px-6">
       <div className="mx-auto grid max-w-7xl grid-cols-2 gap-3 lg:grid-cols-4">
         {facts.map(({ label, Icon }) => (
-          <div key={label} className="flex items-center justify-center gap-2.5 rounded-xl border border-stone-200/80 bg-white px-3.5 py-3 text-center text-xs font-bold text-slate-700 shadow-xs transition hover:border-blue-500/30 hover:text-blue-900 hover:bg-blue-50/30">
-            <Icon size={15} className="shrink-0 text-[#0066FF]" />
+          <div key={label} className="flex items-center justify-center gap-2.5 rounded-xl border border-stone-200/80 bg-white px-3.5 py-3 text-center text-xs font-bold text-slate-700 shadow-xs transition hover:border-orange-500/30 hover:text-zinc-950 hover:bg-orange-50/30">
+            <Icon size={15} className="shrink-0 text-orange-600" />
             <span>{label}</span>
           </div>
         ))}
@@ -44,7 +44,7 @@ export function HomepageTrustStrip() {
 
 function StepIcon1() {
   return (
-    <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-600 shrink-0">
+    <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-600 shrink-0">
       <Upload size={20} strokeWidth={2.2} />
     </div>
   );
@@ -52,7 +52,7 @@ function StepIcon1() {
 
 function StepIcon2() {
   return (
-    <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-600 shrink-0">
+    <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-600 shrink-0">
       <Sparkles size={20} strokeWidth={2.2} />
     </div>
   );
@@ -60,7 +60,7 @@ function StepIcon2() {
 
 function StepIcon3() {
   return (
-    <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-600 shrink-0">
+    <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-600 shrink-0">
       <Settings2 size={20} strokeWidth={2.2} />
     </div>
   );
@@ -68,7 +68,7 @@ function StepIcon3() {
 
 function StepIcon4() {
   return (
-    <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-600 shrink-0">
+    <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-600 shrink-0">
       <CheckCircle2 size={20} strokeWidth={2.2} />
     </div>
   );
@@ -112,7 +112,7 @@ export function PlatformJourney() {
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-3xl font-black tracking-tight text-slate-900 sm:text-5xl font-sans">
             Simple 4-Step Creation.{' '}
-            <span className="bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#3B82F6] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-orange-600 via-amber-500 to-orange-600 bg-clip-text text-transparent">
               Zero Timeline Lag.
             </span>
           </h2>
@@ -247,18 +247,18 @@ export function WhyItnavideo() {
             className="mt-7 inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white px-6 py-3.5 text-xs sm:text-sm font-bold text-slate-800 shadow-xs transition hover:bg-stone-50 active:scale-95"
           >
             <span>Compare all {HOMEPAGE_WORKFLOW_COUNT} video studios</span>
-            <ArrowRight size={15} className="text-[#0066FF]" />
+            <ArrowRight size={15} className="text-orange-600" />
           </Link>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           {stats.map(({ stat, title, subtext, Icon }) => (
-            <article key={title} className="group rounded-2xl border border-stone-200/80 bg-white p-5 sm:p-6 shadow-xs transition-all duration-200 hover:border-blue-500/30 hover:shadow-sm">
+            <article key={title} className="group rounded-2xl border border-stone-200/80 bg-white p-5 sm:p-6 shadow-xs transition-all duration-200 hover:border-orange-500/30 hover:shadow-sm">
               <div className="flex items-center justify-between">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-500/20 bg-blue-500/10 text-blue-600 transition shrink-0">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-orange-500/20 bg-orange-500/10 text-orange-600 transition shrink-0">
                   <Icon size={18} />
                 </span>
-                <span className="rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1 text-xs font-bold text-blue-700 transition">
+                <span className="rounded-full border border-orange-500/20 bg-orange-500/10 px-3 py-1 text-xs font-bold text-orange-700 transition">
                   {stat}
                 </span>
               </div>
@@ -273,8 +273,6 @@ export function WhyItnavideo() {
 }
 
 export function HomepageFinalCta() {
-  const [selectedMode, setSelectedMode] = React.useState<string>('facelessVideo');
-
   return (
     <section className="relative border-t border-slate-100 bg-white px-4 py-14 sm:px-6 sm:py-20 overflow-hidden text-slate-900">
       <div className="relative mx-auto max-w-5xl overflow-hidden rounded-3xl border border-stone-200/90 bg-white p-8 text-center shadow-[0_8px_30px_rgb(0,0,0,0.04)] sm:p-14">
@@ -283,83 +281,37 @@ export function HomepageFinalCta() {
           aria-hidden="true"
           className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[350px] w-[600px] max-w-full opacity-50 blur-3xl"
           style={{
-            backgroundImage: 'radial-gradient(circle, rgba(0, 102, 255, 0.12) 0%, rgba(59, 130, 246, 0.06) 50%, transparent 75%)',
+            backgroundImage: 'radial-gradient(circle, rgba(249, 115, 22, 0.12) 0%, rgba(234, 88, 12, 0.05) 50%, transparent 75%)',
           }}
         />
 
         <div className="relative z-10 mx-auto max-w-3xl">
-          <h2 className="text-3xl font-black tracking-tight text-slate-900 sm:text-5xl font-sans">
+          <h2 className="text-3xl font-black tracking-tight text-zinc-950 sm:text-5xl font-sans">
             Ready to create your first{' '}
-            <span className="bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#3B82F6] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 bg-clip-text text-transparent">
               AI video?
             </span>
           </h2>
 
-          <p className="mx-auto mt-4 max-w-2xl text-xs sm:text-sm font-semibold text-slate-600">
+          <p className="mx-auto mt-4 max-w-2xl text-xs sm:text-sm font-semibold text-zinc-600">
             Instant Cloud Access • 1080p Full HD Export • 1 Min = 1 Credit
           </p>
 
-          {/* Interactive Action Hub */}
-          <div className="mt-8 mx-auto max-w-xl px-2 sm:px-0">
-            {/* Desktop Pill */}
-            <div className="hidden sm:flex rounded-full border border-stone-300/90 bg-stone-50/80 p-2 shadow-md items-center gap-2">
-              <div className="flex items-center gap-2 px-3 py-1 text-slate-500 text-sm font-medium w-auto">
-                <span className="font-mono text-[#0066FF] font-black tracking-tight select-none text-sm shrink-0">
-                  itnavideo.com/
-                </span>
-                <div className="relative flex-1 min-w-0">
-                  <select
-                    value={selectedMode}
-                    onChange={(e) => setSelectedMode(e.target.value)}
-                    className="w-full bg-white border border-stone-200 text-slate-900 font-bold rounded-full px-3 py-1.5 text-sm cursor-pointer outline-none focus:ring-2 focus:ring-blue-500/30 transition-colors truncate"
-                  >
-                    <option value="facelessVideo">16:9 YouTube Faceless Video</option>
-                    <option value="autoCaption">9:16 Viral Auto Caption Reel</option>
-                    <option value="bookSummary">16:9 Book Summary Video</option>
-                    <option value="longVideoClips">9:16 Long Video to Clips</option>
-                    <option value="audioClean">AI Studio Audio Cleaner</option>
-                  </select>
-                </div>
-              </div>
-
-              <Link
-                href={`/dashboard?mode=${selectedMode}`}
-                className="ml-auto inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] px-8 py-3 text-sm font-black text-white shadow-md hover:brightness-110 active:scale-95 transition-all duration-200 shrink-0 cursor-pointer"
-              >
-                <span>Start Creating Free</span>
-                <ArrowRight size={15} strokeWidth={2.5} />
-              </Link>
-            </div>
-
-            {/* Mobile Action Hub */}
-            <div className="block sm:hidden space-y-2.5">
-              <Link
-                href={`/dashboard?mode=${selectedMode}`}
-                className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] py-3.5 px-6 text-sm font-black text-white shadow-lg shadow-blue-500/25 active:scale-98 transition-all"
-              >
-                <Sparkles size={16} />
-                <span>Start Creating Free</span>
-                <ArrowRight size={16} strokeWidth={2.5} />
-              </Link>
-
-              <div className="flex items-center gap-1.5 rounded-xl border border-stone-200 bg-white p-1.5 shadow-2xs">
-                <span className="font-mono text-[#0066FF] font-extrabold text-[10px] pl-1.5 shrink-0">
-                  Studio:
-                </span>
-                <select
-                  value={selectedMode}
-                  onChange={(e) => setSelectedMode(e.target.value)}
-                  className="w-full bg-stone-100 border border-stone-200 text-slate-900 font-bold rounded-lg px-2 py-1 text-xs outline-none"
-                >
-                  <option value="facelessVideo">16:9 YouTube Faceless Video</option>
-                  <option value="autoCaption">9:16 Viral Auto Caption Reel</option>
-                  <option value="bookSummary">16:9 Book Summary Video</option>
-                  <option value="longVideoClips">9:16 Long Video to Clips</option>
-                  <option value="audioClean">AI Studio Audio Cleaner</option>
-                </select>
-              </div>
-            </div>
+          {/* Clean Direct CTA */}
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-zinc-950 hover:bg-zinc-800 px-8 py-3.5 text-sm sm:text-base font-bold text-white shadow-lg shadow-zinc-950/20 active:scale-95 transition-all duration-200 shrink-0 cursor-pointer"
+            >
+              <Sparkles size={16} className="text-orange-400" />
+              <span>Start Creating Free</span>
+              <ArrowRight size={16} strokeWidth={2.5} />
+            </Link>
           </div>
+
+          <p className="mt-4 text-[11px] sm:text-xs text-zinc-400 font-medium">
+            5 Free Videos Daily • No Credit Card Required • Zero Watermark
+          </p>
         </div>
       </div>
     </section>

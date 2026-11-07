@@ -93,24 +93,9 @@ export default function DashboardSidebar({
       >
         {/* Top Header & Brand */}
         <div className="flex items-center justify-between p-5 border-b border-white/10 bg-[#101014]/90">
-          <Link
-            href="/dashboard"
-            onClick={() => onSelectTab("studios")}
-            className="flex items-center gap-3 group"
-          >
-            <div className="p-1.5 rounded-xl bg-[#181820] border border-white/10 group-hover:border-blue-500/50 transition-colors shadow-sm">
-              <BrandLogo size="sm" iconOnly={true} href="" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-black tracking-wider uppercase select-none">
-                <span className="text-white">ITNA</span>
-                <span className="bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#3B82F6] bg-clip-text text-transparent">VIDEO</span>
-              </span>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-[#0066FF]">
-                AI VIDEO STUDIO
-              </span>
-            </div>
-          </Link>
+          <div onClick={() => onSelectTab("studios")} className="cursor-pointer">
+            <BrandLogo size="md" href="/dashboard" />
+          </div>
 
           {/* Mobile Close Button */}
           {onCloseMobile && (
@@ -126,14 +111,14 @@ export default function DashboardSidebar({
 
         {/* Credit Balance Card (Solid Grounded SaaS Design) */}
         <div className="p-4">
-          <div className="rounded-2xl bg-gradient-to-b from-[#1A1A24] to-[#111116] border border-white/10 p-4 shadow-xl relative overflow-hidden group hover:border-[#0066FF]/40 transition-colors">
+          <div className="rounded-2xl bg-gradient-to-b from-[#1A1A24] to-[#111116] border border-white/10 p-4 shadow-xl relative overflow-hidden group hover:border-orange-500/40 transition-colors">
             {/* Ambient Warm Corner Glow */}
-            <div className="absolute -top-12 -right-12 w-24 h-24 bg-[#0066FF]/20 rounded-full blur-xl pointer-events-none group-hover:bg-[#0066FF]/30 transition-all" />
+            <div className="absolute -top-12 -right-12 w-24 h-24 bg-orange-500/15 rounded-full blur-xl pointer-events-none group-hover:bg-orange-500/25 transition-all" />
 
             {/* Header row */}
             <div className="flex items-center justify-between gap-2 mb-2 relative z-10">
               <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-300 uppercase tracking-wider">
-                <Zap size={14} className="text-[#0066FF] fill-[#0066FF] animate-pulse" />
+                <Zap size={14} className="text-orange-500 fill-orange-500 animate-pulse" />
                 <span>Credits</span>
               </div>
               <span className="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
@@ -155,7 +140,7 @@ export default function DashboardSidebar({
             <div className="space-y-2 relative z-10">
               <Link
                 href="/pricing"
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] text-white font-bold text-xs shadow-lg shadow-blue-500/25 hover:brightness-110 active:scale-98 transition-all"
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white font-bold text-xs shadow-lg shadow-orange-500/25 hover:brightness-110 active:scale-98 transition-all"
               >
                 <CreditCard size={14} />
                 <span>+ Add Credits</span>
@@ -167,7 +152,7 @@ export default function DashboardSidebar({
                 className="w-full text-center text-xs font-bold text-zinc-400 hover:text-white transition flex items-center justify-center gap-1.5 py-1"
               >
                 <span>View usage</span>
-                <ArrowRight size={12} className="text-[#0066FF]" />
+                <ArrowRight size={12} className="text-orange-400" />
               </button>
             </div>
           </div>
@@ -182,7 +167,7 @@ export default function DashboardSidebar({
             }}
             className={`w-full flex items-center justify-between p-3 rounded-xl text-left transition-all group ${
               activeTab === "history"
-                ? "bg-[#1C1C24] border border-blue-500/60 text-white font-bold shadow-md"
+                ? "bg-[#1C1C24] border border-orange-500/60 text-white font-bold shadow-md"
                 : "text-zinc-300 hover:text-white hover:bg-white/5 border border-transparent"
             }`}
           >
@@ -190,8 +175,8 @@ export default function DashboardSidebar({
               <div
                 className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors shrink-0 ${
                   activeTab === "history"
-                    ? "bg-gradient-to-r from-[#0052CC] to-[#0066FF] text-white shadow-md shadow-blue-500/30"
-                    : "bg-[#181820] text-zinc-300 group-hover:text-[#0066FF] border border-white/10"
+                    ? "bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-md shadow-orange-500/30"
+                    : "bg-[#181820] text-zinc-300 group-hover:text-orange-400 border border-white/10"
                 }`}
               >
                 <Video size={18} />
@@ -203,7 +188,7 @@ export default function DashboardSidebar({
             </div>
 
             {renderedVideosCount > 0 && (
-              <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-300 border border-blue-500/30 shrink-0">
+              <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-orange-500/15 text-orange-300 border border-orange-500/30 shrink-0">
                 {renderedVideosCount} Ready
               </span>
             )}
@@ -214,7 +199,7 @@ export default function DashboardSidebar({
         <div className="p-4 border-t border-white/10 bg-[#101014]/90">
           <div className="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-[#181820] border border-white/10 shadow-sm">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#0052CC] to-[#0066FF] text-white font-black text-xs flex items-center justify-center shrink-0 shadow-md shadow-blue-500/30">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-orange-600 to-amber-500 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-md shadow-orange-500/30">
                 {userEmail ? userEmail.charAt(0).toUpperCase() : "U"}
               </div>
               <div className="min-w-0">
@@ -252,7 +237,7 @@ export default function DashboardSidebar({
             {/* Modal Header */}
             <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
               <div className="flex items-center gap-2">
-                <div className="p-2 rounded-xl bg-blue-500/10 border border-blue-500/30 text-[#0066FF]">
+                <div className="p-2 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-400">
                   <History size={18} />
                 </div>
                 <div>
@@ -278,7 +263,7 @@ export default function DashboardSidebar({
               <Link
                 href="/pricing"
                 onClick={() => setShowUsageModal(false)}
-                className="py-1.5 px-3 rounded-lg bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] text-white font-bold text-xs shadow shadow-blue-500/20 hover:brightness-110 transition"
+                className="py-1.5 px-3 rounded-lg bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white font-bold text-xs shadow shadow-orange-500/20 hover:brightness-110 transition"
               >
                 + Add Credits
               </Link>
@@ -288,7 +273,7 @@ export default function DashboardSidebar({
             <div className="max-h-64 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
               {historyLoading ? (
                 <div className="py-8 text-center text-xs text-zinc-400 flex items-center justify-center gap-2">
-                  <Clock size={16} className="animate-spin text-[#0066FF]" />
+                  <Clock size={16} className="animate-spin text-orange-400" />
                   <span>Loading usage history...</span>
                 </div>
               ) : transactions.length === 0 ? (
@@ -324,7 +309,7 @@ export default function DashboardSidebar({
                     </div>
 
                     <div className="text-right shrink-0">
-                      <span className="text-xs font-black text-[#0066FF]">
+                      <span className="text-xs font-black text-orange-400">
                         -{item.creditsConsumed} Credits
                       </span>
                       <span className="block text-[9px] font-mono text-zinc-400 capitalize">

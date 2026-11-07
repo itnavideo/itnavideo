@@ -49,8 +49,8 @@ export const WIDESCREEN_169_STUDIOS: VideoTypeItem[] = [
     href: '/dashboard/ai-video-polisher',
     publicHref: '/dashboard/ai-video-polisher',
     icon: Sparkles,
-    iconBgClass: 'bg-blue-500/15 border border-blue-500/30',
-    iconColorClass: 'text-blue-500',
+    iconBgClass: 'bg-orange-500/15 border border-orange-500/30',
+    iconColorClass: 'text-orange-500',
     aspectRatio: '16:9',
     description: 'Auto silence jump-cuts, dynamic camera zoom punch-ins (+12%) & PIP overlay layers.',
     badgeLabel: 'Auto Editor',
@@ -62,8 +62,8 @@ export const WIDESCREEN_169_STUDIOS: VideoTypeItem[] = [
     href: '/dashboard/faceless-video',
     publicHref: '/faceless-video',
     icon: Tv,
-    iconBgClass: 'bg-blue-500/15 border border-blue-500/30',
-    iconColorClass: 'text-blue-500',
+    iconBgClass: 'bg-orange-500/15 border border-orange-500/30',
+    iconColorClass: 'text-orange-500',
     aspectRatio: '16:9',
     description: 'Turn voiceovers & audio recordings into 16:9 YouTube explainers with AI B-roll & visuals.',
     isPopular: true,
@@ -89,8 +89,8 @@ export const WIDESCREEN_169_STUDIOS: VideoTypeItem[] = [
     href: '/dashboard/image-to-video-ai',
     publicHref: '/tools/image-to-video-ai',
     icon: Film,
-    iconBgClass: 'bg-blue-500/15 border border-blue-500/30',
-    iconColorClass: 'text-blue-500',
+    iconBgClass: 'bg-orange-500/15 border border-orange-500/30',
+    iconColorClass: 'text-orange-500',
     aspectRatio: '16:9',
     description: 'Transform images & audio into 16:9 cinematic videos with Ken Burns camera motion.',
     isPopular: true,
@@ -119,8 +119,8 @@ export const VERTICAL_916_STUDIOS: VideoTypeItem[] = [
     href: '/dashboard/ai-shorts-polisher',
     publicHref: '/dashboard/ai-shorts-polisher',
     icon: Smartphone,
-    iconBgClass: 'bg-blue-500/15 border border-blue-500/30',
-    iconColorClass: 'text-blue-500',
+    iconBgClass: 'bg-orange-500/15 border border-orange-500/30',
+    iconColorClass: 'text-orange-500',
     aspectRatio: '9:16',
     description: 'Auto silence jump-cuts, dynamic camera zoom punch-ins (+12%) & PIP overlay layers.',
     badgeLabel: 'Reels Co-Pilot',
@@ -146,8 +146,8 @@ export const VERTICAL_916_STUDIOS: VideoTypeItem[] = [
     href: '/dashboard/auto-caption',
     publicHref: '/auto-caption-generator',
     icon: Captions,
-    iconBgClass: 'bg-blue-500/15 border border-blue-500/30',
-    iconColorClass: 'text-blue-500',
+    iconBgClass: 'bg-orange-500/15 border border-orange-500/30',
+    iconColorClass: 'text-orange-500',
     aspectRatio: '9:16',
     description: 'Kinetic word-synced subtitles for Reels, Shorts, TikTok & YouTube.',
     isPopular: true,
@@ -186,8 +186,8 @@ export const VERTICAL_916_STUDIOS: VideoTypeItem[] = [
     href: '/dashboard/long-video-clips',
     publicHref: '/video-types/long-video-clips',
     icon: Scissors,
-    iconBgClass: 'bg-blue-500/15 border border-blue-500/30',
-    iconColorClass: 'text-blue-500',
+    iconBgClass: 'bg-orange-500/15 border border-orange-500/30',
+    iconColorClass: 'text-orange-500',
     aspectRatio: '9:16',
     description: 'Detect viral high-retention moments from long videos into shorts (1 Credit / Clip).',
     isPopular: true,
@@ -265,10 +265,10 @@ const TAB_CONFIGS: TabDefinition[] = [
     mobileBadge: '8 Studios',
     count: 8,
     icon: Smartphone,
-    color: '#0066FF',
-    activeBg: 'from-[#0066FF] to-[#2563EB]',
-    activeBorder: 'border-blue-500/90',
-    activeGlow: 'rgba(0, 102, 255, 0.45)',
+    color: '#EA580C',
+    activeBg: 'from-orange-600 to-amber-500',
+    activeBorder: 'border-orange-500/90',
+    activeGlow: 'rgba(249, 115, 22, 0.45)',
     accentText: 'text-white',
     iconBg: 'bg-white/20 border-white/30 text-white',
   },
@@ -280,10 +280,10 @@ const TAB_CONFIGS: TabDefinition[] = [
     mobileBadge: '5 Studios',
     count: 5,
     icon: Tv,
-    color: '#0066FF',
-    activeBg: 'from-[#0066FF] to-[#2563EB]',
-    activeBorder: 'border-blue-500/90',
-    activeGlow: 'rgba(0, 102, 255, 0.45)',
+    color: '#EA580C',
+    activeBg: 'from-orange-600 to-amber-500',
+    activeBorder: 'border-orange-500/90',
+    activeGlow: 'rgba(249, 115, 22, 0.45)',
     accentText: 'text-white',
     iconBg: 'bg-white/20 border-white/30 text-white',
   },
@@ -295,10 +295,10 @@ const TAB_CONFIGS: TabDefinition[] = [
     mobileBadge: '1 Studio',
     count: 1,
     icon: Mic,
-    color: '#0066FF',
-    activeBg: 'from-[#0066FF] to-[#2563EB]',
-    activeBorder: 'border-blue-500/90',
-    activeGlow: 'rgba(0, 102, 255, 0.45)',
+    color: '#EA580C',
+    activeBg: 'from-orange-600 to-amber-500',
+    activeBorder: 'border-orange-500/90',
+    activeGlow: 'rgba(249, 115, 22, 0.45)',
     accentText: 'text-white',
     iconBg: 'bg-white/20 border-white/30 text-white',
   },
@@ -310,10 +310,10 @@ const TAB_CONFIGS: TabDefinition[] = [
     mobileBadge: '14 Total',
     count: 14,
     icon: Sparkles,
-    color: '#0066FF',
-    activeBg: 'from-[#0066FF] to-[#2563EB]',
-    activeBorder: 'border-blue-500/90',
-    activeGlow: 'rgba(0, 102, 255, 0.45)',
+    color: '#EA580C',
+    activeBg: 'from-orange-600 to-amber-500',
+    activeBorder: 'border-orange-500/90',
+    activeGlow: 'rgba(249, 115, 22, 0.45)',
     accentText: 'text-white',
     iconBg: 'bg-white/20 border-white/30 text-white',
   },
@@ -329,40 +329,20 @@ export default function TenStudiosHubArchitecture() {
   return (
     <section
       id="video-types"
-      className="relative w-full overflow-hidden bg-[#0c0a09] py-14 text-white sm:py-24 border-y border-[#2a211c] shadow-[0_0_60px_rgba(0,0,0,0.6)]"
-      style={{ backgroundColor: '#0c0a09', color: '#ffffff' }}
+      className="relative w-full overflow-hidden bg-white py-14 text-zinc-950 sm:py-24 border-y border-zinc-200/80"
     >
-      {/* Top and Bottom Cinema Transition Rims */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-black/50 to-transparent z-10"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-black/50 to-transparent z-10"
-      />
-
-      {/* Background Ambient Flame Orange & Sunset Amber Glows */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-1/4 h-[450px] w-[900px] -translate-x-1/2 -translate-y-1/2 opacity-35 blur-3xl"
-        style={{ background: 'radial-gradient(ellipse, rgba(0,102,255,0.12) 0%, rgba(59,130,246,0.05) 40%, transparent 70%)' }}
-      />
-
       <div className="relative z-10 mx-auto max-w-7xl px-3 sm:px-6 lg:px-8 w-full space-y-8 sm:space-y-10">
         
         {/* Top Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3 px-1 sm:px-2">
-          
-          
-          <h2 className="text-2xl font-normal tracking-tight text-white sm:text-5xl font-serif" style={{ color: '#ffffff' }}>
+          <h2 className="text-3xl font-black tracking-tight text-zinc-950 sm:text-5xl font-sans">
             AI Video Studios{' '}
-            <span className="italic bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#3B82F6] bg-clip-text text-transparent font-normal">
+            <span className="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 bg-clip-text text-transparent">
               &amp; Workflows
             </span>
           </h2>
 
-          <p className="text-xs sm:text-sm md:text-base text-stone-300 font-normal leading-relaxed max-w-2xl mx-auto px-2">
+          <p className="text-xs sm:text-sm md:text-base text-zinc-600 font-normal leading-relaxed max-w-2xl mx-auto px-2">
             Pick your format below. Each studio is purpose-built with dedicated AI planners, cloud rendering, and word-synced motion presets.
           </p>
 
@@ -370,7 +350,7 @@ export default function TenStudiosHubArchitecture() {
           {/* HIGH-END UNIFIED FORMAT CAPSULE BAR (Mobile & Desktop)         */}
           {/* ───────────────────────────────────────────────────────────── */}
           <div className="pt-3 sm:pt-6 flex justify-center w-full px-1" suppressHydrationWarning>
-            <div className="inline-flex items-center gap-1 sm:gap-2 p-1.5 rounded-full bg-zinc-950/95 border border-white/10 backdrop-blur-2xl shadow-2xl max-w-full overflow-x-auto no-scrollbar">
+            <div className="inline-flex items-center gap-1 sm:gap-2 p-1.5 rounded-full bg-zinc-100 border border-zinc-200/90 shadow-xs max-w-full overflow-x-auto no-scrollbar">
               {TAB_CONFIGS.map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
@@ -380,27 +360,20 @@ export default function TenStudiosHubArchitecture() {
                     key={tab.id}
                     type="button"
                     onClick={() => setActiveTab(tab.id)}
-                    className={`group relative flex items-center gap-1.5 sm:gap-2.5 rounded-full px-3.5 sm:px-5 py-2 sm:py-2.5 text-xs font-bold transition-all duration-300 cursor-pointer border whitespace-nowrap shrink-0 ${
+                    className={`group relative flex items-center gap-1.5 sm:gap-2.5 rounded-full px-3.5 sm:px-5 py-2 sm:py-2.5 text-xs font-bold transition-all duration-200 cursor-pointer border whitespace-nowrap shrink-0 ${
                       isActive
-                        ? 'border-blue-500/90 bg-gradient-to-r from-[#0052CC] to-[#0066FF] text-white shadow-lg shadow-[#0066FF]/35'
-                        : 'border-transparent text-zinc-400 hover:text-white hover:bg-white/5'
+                        ? 'border-zinc-950 bg-zinc-950 text-white shadow-md shadow-zinc-950/20'
+                        : 'border-transparent text-zinc-600 hover:text-zinc-950 hover:bg-zinc-200/60'
                     }`}
-                    style={
-                      isActive
-                        ? {
-                            boxShadow: '0 8px 24px -4px rgba(0, 102, 255, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.3)',
-                          }
-                        : undefined
-                    }
                   >
                     <div
-                      className={`flex h-6 w-6 items-center justify-center rounded-lg transition-transform duration-300 group-hover:scale-110 ${
+                      className={`flex h-6 w-6 items-center justify-center rounded-lg transition-transform duration-200 group-hover:scale-105 ${
                         isActive
-                          ? 'bg-white/20 text-white shadow-xs'
-                          : 'bg-white/5 text-zinc-400 group-hover:text-white'
+                          ? 'bg-white/20 text-white'
+                          : 'bg-zinc-200/70 text-zinc-600 group-hover:text-zinc-950'
                       }`}
                     >
-                      <Icon size={14} className={isActive ? 'text-white' : 'text-zinc-400'} />
+                      <Icon size={14} className={isActive ? 'text-white' : 'text-zinc-600'} />
                     </div>
 
                     <span className="font-extrabold tracking-tight hidden sm:inline">
@@ -414,7 +387,7 @@ export default function TenStudiosHubArchitecture() {
                       className={`flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-mono font-black ${
                         isActive
                           ? 'bg-white text-zinc-950 shadow-xs'
-                          : 'bg-white/10 text-zinc-400 group-hover:bg-white/20 group-hover:text-white'
+                          : 'bg-zinc-200 text-zinc-700'
                       }`}
                     >
                       {tab.count}
@@ -430,24 +403,18 @@ export default function TenStudiosHubArchitecture() {
         {/* 1. 9:16 VERTICAL SHORTS & REELS STUDIOS                       */}
         {/* ───────────────────────────────────────────────────────────── */}
         {show916 && (
-          <div
-            className="rounded-3xl sm:rounded-[32px] border border-stone-800/90 bg-[#120F0D] p-4 sm:p-6 md:p-8 shadow-2xl ring-1 ring-white/[0.04] transition-all duration-300"
-            style={{
-              backgroundColor: '#120F0D',
-              boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.08), 0 20px 40px -15px rgba(0, 0, 0, 0.7)',
-            }}
-          >
+          <div className="rounded-3xl sm:rounded-[32px] border border-zinc-200/80 bg-zinc-50/60 p-4 sm:p-6 md:p-8 shadow-xs transition-all duration-300">
             {/* Stage Header Banner */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-5 sm:pb-6 border-b border-stone-800/80">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-5 sm:pb-6 border-b border-zinc-200">
               <div>
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/15 border border-blue-500/30 px-3 py-1 text-[11px] font-mono font-bold text-blue-400 uppercase tracking-wider mb-2">
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-zinc-200/70 border border-zinc-300/80 px-3 py-1 text-[11px] font-mono font-bold text-zinc-900 uppercase tracking-wider mb-2">
                   <Smartphone size={12} />
                   <span>9:16 Vertical Smartphone Format</span>
                 </div>
-                <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                <h3 className="text-xl sm:text-2xl font-black text-zinc-950 tracking-tight">
                   9:16 Shorts, Reels &amp; TikTok Studios
                 </h3>
-                <p className="text-xs sm:text-sm text-stone-400 mt-0.5">
+                <p className="text-xs sm:text-sm text-zinc-600 mt-0.5">
                   High-retention mobile vertical video up to 90 seconds. Word-synced kinetic captions, AI hooks, whiteboard, and clips.
                 </p>
               </div>
@@ -456,17 +423,17 @@ export default function TenStudiosHubArchitecture() {
               <div className="flex flex-wrap items-center gap-2 text-xs font-mono font-bold shrink-0">
                 <Link
                   href="/video-types"
-                  className="inline-flex items-center gap-1 text-[11px] font-sans font-bold text-blue-400 hover:text-blue-300 transition-colors mr-1"
+                  className="inline-flex items-center gap-1 text-[11px] font-sans font-bold text-zinc-700 hover:text-zinc-950 transition-colors mr-1"
                 >
                   <BookOpen size={13} />
                   <span>View Dedicated Guides</span>
                   <ChevronRight size={13} />
                 </Link>
-                <span className="text-emerald-400 px-2.5 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/30">
+                <span className="text-emerald-700 px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-200">
                   1 Credit / Video (1 Cr / Clip)
                 </span>
-                <span className="text-stone-600 hidden sm:inline">•</span>
-                <span className="text-stone-300 px-2.5 py-1 rounded-md bg-white/5 border border-white/10">
+                <span className="text-zinc-400 hidden sm:inline">•</span>
+                <span className="text-zinc-700 px-2.5 py-1 rounded-md bg-white border border-zinc-200 shadow-2xs">
                   1080×1920 Full HD
                 </span>
               </div>
@@ -484,26 +451,16 @@ export default function TenStudiosHubArchitecture() {
                 return (
                   <div
                     key={item.id}
-                    className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-stone-800/90 bg-[#111827] hover:border-blue-500/50 hover:bg-[#1f2937] transition-all duration-300 hover:-translate-y-1.5 shadow-sm hover:shadow-xl hover:shadow-blue-500/10"
-                    style={{ backgroundColor: '#191412' }}
+                    className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-zinc-200/90 bg-white hover:border-orange-500/50 hover:shadow-[0_16px_36px_-10px_rgba(249,115,22,0.16)] transition-all duration-300 hover:-translate-y-1.5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]"
                   >
                     <div>
                       {/* Top 9:16 Vertical Image Preview Stage */}
                       {item.imagePreview && (
                         <Link
                           href={item.href}
-                          className="block relative aspect-[9/16] w-full overflow-hidden bg-[#0a0807] border-b border-stone-800/80 group/media"
+                          className="block relative aspect-[9/16] w-full overflow-hidden bg-zinc-100 border-b border-zinc-100 group/media"
                           title={`Open ${item.name} Studio`}
                         >
-                          {/* Ambient Blurred Background Glow Layer */}
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={getOptimizedCloudinaryUrl(item.imagePreview, 100)}
-                            alt=""
-                            aria-hidden="true"
-                            className="absolute inset-0 h-full w-full object-cover scale-125 blur-xl opacity-20 pointer-events-none"
-                          />
-
                           {/* Full Uncropped Foreground Image */}
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
@@ -521,7 +478,7 @@ export default function TenStudiosHubArchitecture() {
                           {/* Top Badges */}
                           <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-20 flex items-center gap-1.5">
                             {item.isPopular && (
-                              <span className="rounded-full bg-gradient-to-r from-[#0052CC] to-[#2563EB] px-2 py-0.5 text-[8px] font-black text-white uppercase tracking-wider shadow-sm ring-1 ring-white/20">
+                              <span className="rounded-full bg-gradient-to-r from-orange-600 to-amber-500 px-2.5 py-0.5 text-[8px] font-black text-white uppercase tracking-wider shadow-sm">
                                 Popular
                               </span>
                             )}
@@ -529,11 +486,11 @@ export default function TenStudiosHubArchitecture() {
 
                           {/* Floating 9:16 Format Tag Bottom Left */}
                           <div className="absolute bottom-2 left-2 sm:bottom-2.5 sm:left-2.5 z-20 flex items-center gap-1.5">
-                            <span className="px-2 py-0.5 rounded-full bg-black/80 text-[9px] font-mono font-bold text-stone-200 border border-white/10 backdrop-blur-md">
+                            <span className="px-2 py-0.5 rounded-full bg-zinc-950/80 text-[9px] font-mono font-bold text-white border border-white/10 backdrop-blur-md">
                               9:16
                             </span>
                             {item.badgeLabel && (
-                              <span className="hidden sm:inline px-1.5 py-0.5 rounded-full bg-blue-500/20 text-[8px] font-bold text-blue-300 border border-blue-500/30 backdrop-blur-md">
+                              <span className="hidden sm:inline px-1.5 py-0.5 rounded-full bg-zinc-800/80 text-[8px] font-bold text-zinc-200 border border-white/10 backdrop-blur-md">
                                 {item.badgeLabel}
                               </span>
                             )}
@@ -548,32 +505,32 @@ export default function TenStudiosHubArchitecture() {
                             <div className={`flex h-6 w-6 items-center justify-center rounded-md ${item.iconBgClass} ${item.iconColorClass} shrink-0`}>
                               <Icon size={13} />
                             </div>
-                            <h4 className="text-xs sm:text-sm font-extrabold text-white tracking-tight group-hover/title:text-blue-400 transition-colors line-clamp-1">
+                            <h4 className="text-xs sm:text-sm font-extrabold text-zinc-950 tracking-tight group-hover/title:text-zinc-700 transition-colors line-clamp-1">
                               {item.name}
                             </h4>
                           </div>
                         </Link>
 
-                        <p className="text-[11px] sm:text-xs text-stone-400 leading-relaxed line-clamp-2 min-h-[30px] sm:min-h-[32px]">
+                        <p className="text-[11px] sm:text-xs text-zinc-600 leading-relaxed line-clamp-2 min-h-[30px] sm:min-h-[32px]">
                           {item.description}
                         </p>
                       </div>
                     </div>
 
                     {/* Dual Action Links Footer */}
-                    <div className="px-2 pb-2.5 sm:px-3 sm:pb-3.5 pt-2.5 border-t border-stone-800/80 grid grid-cols-2 gap-1.5">
+                    <div className="px-2 pb-2.5 sm:px-3 sm:pb-3.5 pt-2.5 border-t border-zinc-100 grid grid-cols-2 gap-1.5">
                       <Link
                         href={item.publicHref}
                         title={`See what ${item.name} does`}
-                        className="inline-flex items-center justify-center gap-1 rounded-lg border border-white/10 bg-white/[0.04] px-1.5 py-1.5 text-[10px] sm:text-[11px] font-semibold text-stone-300 hover:border-white/25 hover:bg-white/[0.08] hover:text-white transition-all text-center"
+                        className="inline-flex items-center justify-center gap-1 rounded-lg border border-zinc-200 bg-zinc-50 px-1.5 py-1.5 text-[10px] sm:text-[11px] font-semibold text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 transition-all text-center"
                       >
-                        <BookOpen size={11} className="text-stone-400 shrink-0" />
+                        <BookOpen size={11} className="text-zinc-500 shrink-0" />
                         <span className="truncate">What It Does</span>
                       </Link>
                       <Link
                         href={item.href}
                         title={`Create video with ${item.name}`}
-                        className="inline-flex items-center justify-center gap-1 rounded-lg bg-gradient-to-r from-[#0052CC] to-[#0066FF] hover:from-[#004099] hover:to-[#0052CC] px-1.5 py-1.5 text-[10px] sm:text-[11px] font-bold text-white shadow-xs transition-all hover:brightness-110 active:scale-95 text-center"
+                        className="inline-flex items-center justify-center gap-1 rounded-lg bg-zinc-950 hover:bg-zinc-800 px-1.5 py-1.5 text-[10px] sm:text-[11px] font-bold text-white shadow-xs transition-all active:scale-95 text-center"
                       >
                         <span className="truncate">Create Video</span>
                         <ArrowRight size={11} className="shrink-0" />
@@ -590,24 +547,18 @@ export default function TenStudiosHubArchitecture() {
         {/* 2. 16:9 WIDESCREEN CINEMA & LONG-FORM STUDIOS                */}
         {/* ───────────────────────────────────────────────────────────── */}
         {show169 && (
-          <div
-            className="rounded-3xl sm:rounded-[32px] border border-stone-800/90 bg-[#120F0D] p-4 sm:p-6 md:p-8 shadow-2xl ring-1 ring-white/[0.04] transition-all duration-300"
-            style={{
-              backgroundColor: '#120F0D',
-              boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.08), 0 20px 40px -15px rgba(0, 0, 0, 0.7)',
-            }}
-          >
+          <div className="rounded-3xl sm:rounded-[32px] border border-zinc-200/80 bg-zinc-50/60 p-4 sm:p-6 md:p-8 shadow-xs transition-all duration-300">
             {/* Stage Header Banner */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-5 sm:pb-6 border-b border-stone-800/80">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-5 sm:pb-6 border-b border-zinc-200">
               <div>
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-sky-500/15 border border-sky-500/30 px-3 py-1 text-[11px] font-mono font-bold text-sky-400 uppercase tracking-wider mb-2">
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-zinc-200/70 border border-zinc-300/80 px-3 py-1 text-[11px] font-mono font-bold text-zinc-900 uppercase tracking-wider mb-2">
                   <Tv size={12} />
                   <span>16:9 Widescreen Cinema Format</span>
                 </div>
-                <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                <h3 className="text-xl sm:text-2xl font-black text-zinc-950 tracking-tight">
                   16:9 Long-Form &amp; Cinema Studios
                 </h3>
-                <p className="text-xs sm:text-sm text-stone-400 mt-0.5">
+                <p className="text-xs sm:text-sm text-zinc-600 mt-0.5">
                   Full 16:9 widescreen format for YouTube, presentations, summaries, and podcasts up to 5 minutes.
                 </p>
               </div>
@@ -616,17 +567,17 @@ export default function TenStudiosHubArchitecture() {
               <div className="flex flex-wrap items-center gap-2 text-xs font-mono font-bold shrink-0">
                 <Link
                   href="/video-types"
-                  className="inline-flex items-center gap-1 text-[11px] font-sans font-bold text-sky-400 hover:text-sky-300 transition-colors mr-1"
+                  className="inline-flex items-center gap-1 text-[11px] font-sans font-bold text-zinc-700 hover:text-zinc-950 transition-colors mr-1"
                 >
                   <BookOpen size={13} />
                   <span>View Dedicated Guides</span>
                   <ChevronRight size={13} />
                 </Link>
-                <span className="text-sky-400 px-2.5 py-1 rounded-md bg-sky-500/15 border border-sky-500/30">
+                <span className="text-zinc-950 px-2.5 py-1 rounded-md bg-zinc-200/80 border border-zinc-300/80">
                   1 Min = 1 Cr (Max 5m)
                 </span>
-                <span className="text-stone-600 hidden sm:inline">•</span>
-                <span className="text-stone-300 px-2.5 py-1 rounded-md bg-white/5 border border-white/10">
+                <span className="text-zinc-400 hidden sm:inline">•</span>
+                <span className="text-zinc-700 px-2.5 py-1 rounded-md bg-white border border-zinc-200 shadow-2xs">
                   1920×1080 Full HD
                 </span>
               </div>
@@ -639,15 +590,14 @@ export default function TenStudiosHubArchitecture() {
                 return (
                   <div
                     key={item.id}
-                    className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-stone-800/90 bg-[#191412] hover:border-sky-500/50 hover:bg-[#201916] transition-all duration-300 hover:-translate-y-1.5 shadow-sm hover:shadow-xl hover:shadow-sky-500/10"
-                    style={{ backgroundColor: '#191412' }}
+                    className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-zinc-200/90 bg-white hover:border-orange-500/50 hover:shadow-[0_16px_36px_-10px_rgba(249,115,22,0.16)] transition-all duration-300 hover:-translate-y-1.5 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]"
                   >
                     <div>
                       {/* Top 16:9 Image Preview Stage */}
                       {item.imagePreview && (
                         <Link
                           href={item.href}
-                          className="block relative aspect-[16/9] w-full overflow-hidden bg-[#0a0807] border-b border-stone-800/80 group/media"
+                          className="block relative aspect-[16/9] w-full overflow-hidden bg-zinc-100 border-b border-zinc-100 group/media"
                           title={`Open ${item.name} Cinema Studio`}
                         >
                           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -662,12 +612,11 @@ export default function TenStudiosHubArchitecture() {
                                 getOptimizedCloudinaryUrl('https://res.cloudinary.com/dhouh9idx/image/upload/v1792945592/file_000000004290821180a71f25ad75480e_nztpwe.png', 640);
                             }}
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#120F0D]/90 via-transparent to-transparent opacity-65 group-hover:opacity-30 transition-opacity" />
 
                           {/* Top Badges */}
                           <div className="absolute top-2.5 right-2.5 z-10 flex items-center gap-1.5">
                             {item.isPopular && (
-                              <span className="rounded-full bg-gradient-to-r from-sky-500 to-indigo-500 px-2.5 py-0.5 text-[8px] font-black text-white uppercase tracking-wider shadow-sm ring-1 ring-white/20">
+                              <span className="rounded-full bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 px-2.5 py-0.5 text-[8px] font-black text-white uppercase tracking-wider shadow-sm">
                                 Popular
                               </span>
                             )}
@@ -675,11 +624,11 @@ export default function TenStudiosHubArchitecture() {
 
                           {/* Format Pill Bottom Left */}
                           <div className="absolute bottom-2.5 left-2.5 z-10 flex items-center gap-2">
-                            <span className="px-2 py-0.5 rounded-full bg-black/80 text-[9px] font-mono font-bold text-stone-200 border border-white/10 backdrop-blur-md">
+                            <span className="px-2 py-0.5 rounded-full bg-zinc-950/80 text-[9px] font-mono font-bold text-white border border-white/10 backdrop-blur-md">
                               16:9
                             </span>
                             {item.badgeLabel && (
-                              <span className="px-2 py-0.5 rounded-full bg-sky-500/20 text-[9px] font-bold text-sky-300 border border-sky-500/30 backdrop-blur-md">
+                              <span className="px-2 py-0.5 rounded-full bg-zinc-800/80 text-[9px] font-bold text-zinc-200 border border-white/10 backdrop-blur-md">
                                 {item.badgeLabel}
                               </span>
                             )}
@@ -694,32 +643,32 @@ export default function TenStudiosHubArchitecture() {
                             <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${item.iconBgClass} ${item.iconColorClass}`}>
                               <Icon size={14} />
                             </div>
-                            <h4 className="text-sm sm:text-base font-extrabold text-white tracking-tight group-hover/title:text-sky-400 transition-colors line-clamp-1">
+                            <h4 className="text-sm sm:text-base font-extrabold text-zinc-950 tracking-tight group-hover/title:text-zinc-700 transition-colors line-clamp-1">
                               {item.name}
                             </h4>
                           </div>
                         </Link>
 
-                        <p className="text-xs text-stone-400 leading-relaxed line-clamp-2 min-h-[32px]">
+                        <p className="text-xs text-zinc-600 leading-relaxed line-clamp-2 min-h-[32px]">
                           {item.description}
                         </p>
                       </div>
                     </div>
 
                     {/* Dual Action Links Footer */}
-                    <div className="px-3 pb-3.5 sm:px-4 sm:pb-4 pt-3 border-t border-stone-800/80 grid grid-cols-2 gap-2">
+                    <div className="px-3 pb-3.5 sm:px-4 sm:pb-4 pt-3 border-t border-zinc-100 grid grid-cols-2 gap-2">
                       <Link
                         href={item.publicHref}
                         title={`See what ${item.name} does`}
-                        className="inline-flex items-center justify-center gap-1 rounded-lg border border-white/10 bg-white/[0.04] px-2 py-2 text-[11px] font-semibold text-stone-300 hover:border-white/25 hover:bg-white/[0.08] hover:text-white transition-all text-center"
+                        className="inline-flex items-center justify-center gap-1 rounded-lg border border-zinc-200 bg-zinc-50 px-2 py-2 text-[11px] font-semibold text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 transition-all text-center"
                       >
-                        <BookOpen size={12} className="text-stone-400 shrink-0" />
+                        <BookOpen size={12} className="text-zinc-500 shrink-0" />
                         <span className="truncate">What It Does</span>
                       </Link>
                       <Link
                         href={item.href}
                         title={`Create video with ${item.name}`}
-                        className="inline-flex items-center justify-center gap-1 rounded-lg bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 px-2 py-2 text-[11px] font-bold text-white shadow-xs transition-all hover:brightness-110 active:scale-95 text-center"
+                        className="inline-flex items-center justify-center gap-1 rounded-lg bg-zinc-950 hover:bg-zinc-800 px-2 py-2 text-[11px] font-bold text-white shadow-xs transition-all active:scale-95 text-center"
                       >
                         <span className="truncate">Create Video</span>
                         <ArrowRight size={12} className="shrink-0" />
@@ -736,35 +685,29 @@ export default function TenStudiosHubArchitecture() {
         {/* 3. STUDIO UTILITIES (AI AUDIO CLEANER)                       */}
         {/* ───────────────────────────────────────────────────────────── */}
         {showUtility && (
-          <div
-            className="rounded-3xl sm:rounded-[32px] border border-stone-800/90 bg-[#120F0D] p-4 sm:p-6 md:p-8 shadow-2xl ring-1 ring-white/[0.04] transition-all duration-300"
-            style={{
-              backgroundColor: '#120F0D',
-              boxShadow: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.08), 0 20px 40px -15px rgba(0, 0, 0, 0.7)',
-            }}
-          >
+          <div className="rounded-3xl sm:rounded-[32px] border border-zinc-200/80 bg-zinc-50/60 p-4 sm:p-6 md:p-8 shadow-xs transition-all duration-300">
             {/* Stage Header Banner */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-5 sm:pb-6 border-b border-stone-800/80">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-5 sm:pb-6 border-b border-zinc-200">
               <div>
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-3 py-1 text-[11px] font-mono font-bold text-emerald-400 uppercase tracking-wider mb-2">
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-zinc-200/70 border border-zinc-300/80 px-3 py-1 text-[11px] font-mono font-bold text-zinc-900 uppercase tracking-wider mb-2">
                   <Mic size={12} />
                   <span>Studio Audio Utility</span>
                 </div>
-                <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                <h3 className="text-xl sm:text-2xl font-black text-zinc-950 tracking-tight">
                   AI Studio Audio Cleaner &amp; Mastering
                 </h3>
-                <p className="text-xs sm:text-sm text-stone-400 mt-0.5">
+                <p className="text-xs sm:text-sm text-zinc-600 mt-0.5">
                   Clean voiceovers, detect retakes, remove background room noise, and export studio master audio.
                 </p>
               </div>
 
               {/* Format Metadata Pills */}
               <div className="flex flex-wrap items-center gap-2 text-xs font-mono font-bold shrink-0">
-                <span className="text-emerald-400 px-2.5 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/30">
+                <span className="text-emerald-700 px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-200">
                   1 Credit / File
                 </span>
-                <span className="text-stone-600 hidden sm:inline">•</span>
-                <span className="text-stone-300 px-2.5 py-1 rounded-md bg-white/5 border border-white/10">
+                <span className="text-zinc-400 hidden sm:inline">•</span>
+                <span className="text-zinc-700 px-2.5 py-1 rounded-md bg-white border border-zinc-200 shadow-2xs">
                   Studio MP3/WAV
                 </span>
               </div>
@@ -776,14 +719,13 @@ export default function TenStudiosHubArchitecture() {
                 return (
                   <div
                     key={item.id}
-                    className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-stone-800/90 bg-[#191412] hover:border-emerald-500/50 hover:bg-[#211a17] transition-all duration-300 hover:-translate-y-1.5 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10"
-                    style={{ backgroundColor: '#191412' }}
+                    className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-zinc-200/90 bg-white hover:border-zinc-400 hover:shadow-md transition-all duration-300 hover:-translate-y-1 shadow-xs"
                   >
                     <div>
                       {item.imagePreview && (
                         <Link
                           href={item.href}
-                          className="block relative aspect-[16/9] w-full overflow-hidden bg-[#0a0807] border-b border-stone-800/80 group/media"
+                          className="block relative aspect-[16/9] w-full overflow-hidden bg-zinc-100 border-b border-zinc-100 group/media"
                           title={`Open ${item.name}`}
                         >
                           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -798,9 +740,8 @@ export default function TenStudiosHubArchitecture() {
                                 getOptimizedCloudinaryUrl('https://res.cloudinary.com/dhouh9idx/image/upload/v1792946356/audio_cleaner_pipcxj.png', 640);
                             }}
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#120F0D]/90 via-transparent to-transparent opacity-65 group-hover:opacity-30 transition-opacity" />
                           <div className="absolute bottom-3 left-3 z-10 flex items-center gap-2">
-                            <span className="px-2.5 py-1 rounded-full bg-black/80 text-[10px] font-bold text-emerald-400 border border-emerald-400/30 backdrop-blur-md shadow-md">
+                            <span className="px-2.5 py-1 rounded-full bg-zinc-950/80 text-[10px] font-bold text-white border border-white/10 backdrop-blur-md shadow-md">
                               Master Audio
                             </span>
                           </div>
@@ -813,31 +754,31 @@ export default function TenStudiosHubArchitecture() {
                             <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${item.iconBgClass} ${item.iconColorClass}`}>
                               <Icon size={14} />
                             </div>
-                            <h4 className="text-base font-extrabold text-white tracking-tight group-hover/title:text-emerald-400 transition-colors line-clamp-1">
+                            <h4 className="text-base font-extrabold text-zinc-950 tracking-tight group-hover/title:text-zinc-700 transition-colors line-clamp-1">
                               {item.name}
                             </h4>
                           </div>
                         </Link>
-                        <p className="text-xs text-stone-400 leading-relaxed line-clamp-2 min-h-[32px]">
+                        <p className="text-xs text-zinc-600 leading-relaxed line-clamp-2 min-h-[32px]">
                           {item.description}
                         </p>
                       </div>
                     </div>
 
                     {/* Dual Action Links Footer */}
-                    <div className="px-3.5 pb-4 sm:px-4 sm:pb-4 pt-3 border-t border-stone-800/80 grid grid-cols-2 gap-2">
+                    <div className="px-3.5 pb-4 sm:px-4 sm:pb-4 pt-3 border-t border-zinc-100 grid grid-cols-2 gap-2">
                       <Link
                         href={item.publicHref}
                         title={`See what ${item.name} does`}
-                        className="inline-flex items-center justify-center gap-1 rounded-lg border border-white/10 bg-white/[0.04] px-2 py-2 text-[11px] font-semibold text-stone-300 hover:border-white/25 hover:bg-white/[0.08] hover:text-white transition-all text-center"
+                        className="inline-flex items-center justify-center gap-1 rounded-lg border border-zinc-200 bg-zinc-50 px-2 py-2 text-[11px] font-semibold text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 transition-all text-center"
                       >
-                        <BookOpen size={12} className="text-stone-400 shrink-0" />
+                        <BookOpen size={12} className="text-zinc-500 shrink-0" />
                         <span className="truncate">What It Does</span>
                       </Link>
                       <Link
                         href={item.href}
                         title={`Open ${item.name} Studio`}
-                        className="inline-flex items-center justify-center gap-1 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 px-2 py-2 text-[11px] font-bold text-white shadow-xs transition-all hover:brightness-110 active:scale-95 text-center"
+                        className="inline-flex items-center justify-center gap-1 rounded-lg bg-zinc-950 hover:bg-zinc-800 px-2 py-2 text-[11px] font-bold text-white shadow-xs transition-all active:scale-95 text-center"
                       >
                         <span className="truncate">Clean Audio</span>
                         <ArrowRight size={12} className="shrink-0" />
@@ -848,27 +789,27 @@ export default function TenStudiosHubArchitecture() {
               })}
 
               {/* Audio Cleaner Feature Highlights Card */}
-              <div className="rounded-2xl border border-stone-800/90 bg-[#15110F] p-5 sm:p-6 flex flex-col justify-between">
+              <div className="rounded-2xl border border-zinc-200/90 bg-white p-5 sm:p-6 flex flex-col justify-between shadow-xs">
                 <div>
-                  <h4 className="text-sm font-extrabold text-emerald-400 uppercase tracking-wider flex items-center gap-2">
-                    <CheckCircle2 size={16} />
+                  <h4 className="text-sm font-extrabold text-zinc-950 uppercase tracking-wider flex items-center gap-2">
+                    <CheckCircle2 size={16} className="text-emerald-600" />
                     <span>Instant Studio Mastering Features</span>
                   </h4>
-                  <ul className="mt-4 space-y-2.5 text-xs text-stone-300 font-medium">
+                  <ul className="mt-4 space-y-2.5 text-xs text-zinc-700 font-medium">
                     <li className="flex items-center gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
                       <span>Automatic retake and mistake removal via speech analysis</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
                       <span>De-reverb &amp; ambient room noise cancellation</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
                       <span>Broadcast loudness leveling (-14 LUFS standard)</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
                       <span>Export clean 48kHz WAV or 320kbps MP3</span>
                     </li>
                   </ul>
@@ -876,7 +817,7 @@ export default function TenStudiosHubArchitecture() {
 
                 <Link
                   href="/dashboard/audio-cleaner"
-                  className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 px-4 py-2.5 text-xs font-bold text-emerald-300 hover:bg-emerald-500/25 transition-all"
+                  className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-zinc-950 hover:bg-zinc-800 px-4 py-2.5 text-xs font-bold text-white shadow-xs transition-all"
                 >
                   <span>Clean Your Audio Now</span>
                   <ArrowRight size={14} />
@@ -886,29 +827,24 @@ export default function TenStudiosHubArchitecture() {
           </div>
         )}
 
-        {/* View All Studios Dashboard Button CTA with Ambient Glowing Halo */}
+        {/* View All Studios Dashboard Button CTA */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 pb-2">
-          <div className="relative group">
-            {/* Ambient Pulsing Glow Halo */}
-            <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#3B82F6] opacity-35 blur-lg transition duration-500 group-hover:opacity-70 group-hover:blur-xl" />
-            
-            <Link
-              href="/dashboard"
-              className="relative inline-flex items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] px-8 sm:px-9 py-3.5 sm:py-4 text-xs sm:text-sm font-bold text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-200 hover:brightness-110 active:scale-95"
-            >
-              <Sparkles size={16} className="text-white fill-white" />
-              <span>Launch Any Studio Now</span>
-              <ArrowRight size={16} />
-            </Link>
-          </div>
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center justify-center gap-2.5 rounded-full bg-zinc-950 hover:bg-zinc-800 px-8 sm:px-9 py-3.5 sm:py-4 text-xs sm:text-sm font-bold text-white shadow-md active:scale-95 transition-all duration-200"
+          >
+            <Sparkles size={16} className="text-zinc-300" />
+            <span>Launch Any Studio Now</span>
+            <ArrowRight size={16} />
+          </Link>
 
           <Link
             href="/video-types"
-            className="inline-flex items-center justify-center gap-2 rounded-full border border-stone-800 bg-[#171210] hover:bg-stone-800 hover:border-stone-700 px-7 sm:px-8 py-3.5 sm:py-4 text-xs sm:text-sm font-bold text-stone-200 hover:text-white transition-all duration-200 shadow-md active:scale-95"
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-zinc-300 bg-white hover:bg-zinc-50 px-7 sm:px-8 py-3.5 sm:py-4 text-xs sm:text-sm font-bold text-zinc-800 hover:text-zinc-950 transition-all duration-200 shadow-xs active:scale-95"
           >
-            <BookOpen size={15} className="text-blue-400" />
+            <BookOpen size={15} className="text-zinc-700" />
             <span>Explore All 10 Dedicated Pages &amp; Specs</span>
-            <ChevronRight size={15} className="text-stone-400" />
+            <ChevronRight size={15} className="text-zinc-400" />
           </Link>
         </div>
 

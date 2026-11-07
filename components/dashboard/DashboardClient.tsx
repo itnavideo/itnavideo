@@ -77,17 +77,17 @@ export interface VideoToolCard {
 
 export const DASHBOARD_169_TOOLS: VideoToolCard[] = [
   {
-    id: "faceless-video",
-    title: "Faceless Video",
-    slug: "/dashboard/faceless-video",
+    id: "youtube-subtitles",
+    title: "YouTube Subtitles Generator",
+    slug: "/dashboard/youtube-subtitles",
     category: "long",
     aspectRatio: "16:9",
-    icon: UserX,
-    iconBgClass: "bg-purple-500/15 border border-purple-500/30",
-    iconColorClass: "text-purple-600",
-    description: "Turn voiceovers & scripts into 16:9 YouTube explainers with AI B-roll & visuals.",
-    badge: " Most In-Demand",
-    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945592/file_000000004290821180a71f25ad75480e_nztpwe.png",
+    icon: Subtitles,
+    iconBgClass: "bg-red-500/15 border border-red-500/30",
+    iconColorClass: "text-red-600",
+    description: "Generate accurate, styled 16:9 subtitles and captions for YouTube widescreen videos.",
+    badge: "FREE · 5/Day",
+    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946360/youtube_subtitles_generator_who62l.png",
   },
   {
     id: "book-summary",
@@ -103,14 +103,27 @@ export const DASHBOARD_169_TOOLS: VideoToolCard[] = [
     imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946358/book_summary_video_zbs4em.png",
   },
   {
+    id: "faceless-video",
+    title: "Faceless Video",
+    slug: "/dashboard/faceless-video",
+    category: "long",
+    aspectRatio: "16:9",
+    icon: UserX,
+    iconBgClass: "bg-purple-500/15 border border-purple-500/30",
+    iconColorClass: "text-purple-600",
+    description: "Turn voiceovers & scripts into 16:9 YouTube explainers with AI B-roll & visuals.",
+    badge: "Most In-Demand",
+    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945592/file_000000004290821180a71f25ad75480e_nztpwe.png",
+  },
+  {
     id: "image-to-video",
     title: "Image to Video AI",
     slug: "/dashboard/image-to-video",
     category: "long",
     aspectRatio: "16:9",
     icon: Sparkles,
-    iconBgClass: "bg-blue-500/15 border border-blue-500/30",
-    iconColorClass: "text-[#0066FF]",
+    iconBgClass: "bg-orange-500/15 border border-orange-500/30",
+    iconColorClass: "text-orange-600",
     description: "Transform scripts and photos into cinematic 16:9 storytelling videos with motion pacing.",
     badge: "Parallax Motion",
     imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946349/imagetovideoai_w3hyci.jpg",
@@ -122,54 +135,15 @@ export const DASHBOARD_169_TOOLS: VideoToolCard[] = [
     category: "long",
     aspectRatio: "16:9",
     icon: Sparkles,
-    iconBgClass: "bg-blue-500/15 border border-blue-500/30",
-    iconColorClass: "text-blue-600",
+    iconBgClass: "bg-amber-500/15 border border-amber-500/30",
+    iconColorClass: "text-amber-600",
     description: "Auto silence jump-cuts, dynamic camera zoom punch-ins (+12%) & PIP overlay layers.",
     badge: "Auto YouTube Editor",
     imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1793737269/Movies_Money_and_Big_Growth_ucpt53.png",
   },
-  {
-    id: "youtube-subtitles",
-    title: "YouTube Subtitles Generator",
-    slug: "/dashboard/youtube-subtitles",
-    category: "long",
-    aspectRatio: "16:9",
-    icon: Subtitles,
-    iconBgClass: "bg-red-500/15 border border-red-500/30",
-    iconColorClass: "text-red-600",
-    description: "Generate accurate, styled 16:9 subtitles and captions for YouTube widescreen videos.",
-    badge: "FREE · 5/Day",
-    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946360/youtube_subtitles_generator_who62l.png",
-  },
 ];
 
 export const DASHBOARD_916_TOOLS: VideoToolCard[] = [
-  {
-    id: "ai-shorts-polisher",
-    title: "AI Shorts Polisher",
-    slug: "/dashboard/ai-shorts-polisher",
-    category: "social",
-    aspectRatio: "9:16",
-    icon: Smartphone,
-    iconBgClass: "bg-blue-500/15 border border-blue-500/30",
-    iconColorClass: "text-[#0066FF]",
-    description: "Auto silence jump-cuts, dynamic camera zoom punch-ins (+12%) & PIP overlay layers.",
-    badge: "Reels & Shorts Co-Pilot",
-    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1793737273/Enthusiastic_Creator_Explaining_Ideas_nvg1do.png",
-  },
-  {
-    id: "faceless-shorts",
-    title: "Faceless Shorts",
-    slug: "/dashboard/faceless-shorts",
-    category: "social",
-    aspectRatio: "9:16",
-    icon: UserX,
-    iconBgClass: "bg-purple-500/15 border border-purple-500/30",
-    iconColorClass: "text-purple-600",
-    description: "Generate automated faceless 9:16 shorts up to 90 seconds with AI B-roll and kinetic captions.",
-    badge: " Highly Monetizable",
-    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945593/file_00000000806482119547c1b937b7e386_zsrmkb.png",
-  },
   {
     id: "auto-caption",
     title: "Auto Caption Generator",
@@ -177,8 +151,8 @@ export const DASHBOARD_916_TOOLS: VideoToolCard[] = [
     category: "social",
     aspectRatio: "9:16",
     icon: Captions,
-    iconBgClass: "bg-blue-500/15 border border-blue-500/30",
-    iconColorClass: "text-[#0066FF]",
+    iconBgClass: "bg-orange-500/15 border border-orange-500/30",
+    iconColorClass: "text-orange-600",
     description: "Add viral animated captions with word-by-word highlights and emoji accents.",
     badge: "FREE · 5/Day",
     imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png",
@@ -197,6 +171,19 @@ export const DASHBOARD_916_TOOLS: VideoToolCard[] = [
     imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792950977/file_00000000a8388211b1207dad39960dc7_ahvk9g.png",
   },
   {
+    id: "faceless-shorts",
+    title: "Faceless Shorts",
+    slug: "/dashboard/faceless-shorts",
+    category: "social",
+    aspectRatio: "9:16",
+    icon: UserX,
+    iconBgClass: "bg-purple-500/15 border border-purple-500/30",
+    iconColorClass: "text-purple-600",
+    description: "Generate automated faceless 9:16 shorts up to 90 seconds with AI B-roll and kinetic captions.",
+    badge: "Highly Monetizable",
+    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945593/file_00000000806482119547c1b937b7e386_zsrmkb.png",
+  },
+  {
     id: "compare-explainer",
     title: "Compare Explainer Video",
     slug: "/dashboard/compare-explainer",
@@ -208,6 +195,19 @@ export const DASHBOARD_916_TOOLS: VideoToolCard[] = [
     description: "Side-by-side versus comparison videos with animated scorebars.",
     badge: "Versus Split",
     imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946197/file_0000000035a48208ab4068beb2a66a7d_kctvo9.png",
+  },
+  {
+    id: "long-video-clips",
+    title: "Viral Video Clips",
+    slug: "/dashboard/long-video-clips",
+    category: "social",
+    aspectRatio: "9:16",
+    icon: Scissors,
+    iconBgClass: "bg-amber-500/15 border border-amber-500/30",
+    iconColorClass: "text-amber-600",
+    description: "Turn long videos (up to 2 hours) into 60s viral Shorts in 1 click.",
+    badge: "AI Hook Detector",
+    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946357/viral_video_clips_rllgec.png",
   },
   {
     id: "long-video-promo",
@@ -223,19 +223,6 @@ export const DASHBOARD_916_TOOLS: VideoToolCard[] = [
     imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946358/longvideopromo_o0qheb.png",
   },
   {
-    id: "long-video-clips",
-    title: "Viral Video Clips",
-    slug: "/dashboard/long-video-clips",
-    category: "social",
-    aspectRatio: "9:16",
-    icon: Scissors,
-    iconBgClass: "bg-purple-500/15 border border-purple-500/30",
-    iconColorClass: "text-purple-600",
-    description: "Turn long videos (up to 2 hours) into 60s viral Shorts in 1 click.",
-    badge: "AI Hook Detector",
-    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946357/viral_video_clips_rllgec.png",
-  },
-  {
     id: "split-screen-explainer",
     title: "Split Screen Explainer",
     slug: "/dashboard/split-screen-explainer",
@@ -247,6 +234,19 @@ export const DASHBOARD_916_TOOLS: VideoToolCard[] = [
     description: "Creator facecam at bottom with kinetic explainer graphics & chapter tracker at top.",
     badge: "Creator Split",
     imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945581/file_0000000039948211a5955d513e5d104a_wzrget.png",
+  },
+  {
+    id: "ai-shorts-polisher",
+    title: "AI Shorts Polisher",
+    slug: "/dashboard/ai-shorts-polisher",
+    category: "social",
+    aspectRatio: "9:16",
+    icon: Smartphone,
+    iconBgClass: "bg-orange-500/15 border border-orange-500/30",
+    iconColorClass: "text-orange-600",
+    description: "Auto silence jump-cuts, dynamic camera zoom punch-ins (+12%) & PIP overlay layers.",
+    badge: "Reels & Shorts Co-Pilot",
+    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1793737273/Enthusiastic_Creator_Explaining_Ideas_nvg1do.png",
   },
 ];
 
@@ -431,7 +431,7 @@ export default function DashboardClient() {
   );
 
   return (
-    <div className="min-h-screen bg-[#08080A] text-white selection:bg-[#0066FF]/30 selection:text-white max-w-full overflow-x-hidden relative font-sans">
+    <div className="min-h-screen bg-[#08080A] text-white selection:bg-orange-500/30 selection:text-white max-w-full overflow-x-hidden relative font-sans">
       {/* Vibrant Multi-Color Ambient Mesh Glows (Warm Flame & Violet) */}
       <div
         aria-hidden="true"
@@ -501,10 +501,10 @@ export default function DashboardClient() {
             <div className="flex items-center gap-2 sm:gap-3">
               <Link
                 href="/pricing"
-                className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-gradient-to-r from-blue-500/20 via-indigo-500/15 to-blue-500/10 border border-blue-500/40 hover:border-blue-500/70 transition-all text-xs font-bold text-blue-200 shadow-xs group cursor-pointer"
+                className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-gradient-to-r from-orange-500/20 via-amber-500/15 to-orange-500/10 border border-orange-500/40 hover:border-orange-500/70 transition-all text-xs font-bold text-orange-200 shadow-xs group cursor-pointer"
               >
-                <Zap className="w-3.5 h-3.5 text-[#0066FF] fill-[#0066FF] animate-pulse group-hover:scale-110 transition-transform" />
-                <span className="text-blue-300 font-black">
+                <Zap className="w-3.5 h-3.5 text-orange-500 fill-orange-500 animate-pulse group-hover:scale-110 transition-transform" />
+                <span className="text-orange-300 font-black">
                   {remainingCredits !== null ? `${remainingCredits} Credits` : (isFounder ? "908 Credits" : "...")}
                 </span>
                 {isFounder ? (
@@ -512,7 +512,7 @@ export default function DashboardClient() {
                     Founder
                   </span>
                 ) : (
-                  <span className="hidden sm:inline-block rounded-full bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] text-white px-2 py-0.5 text-[9px] font-black uppercase tracking-wider shadow-sm">
+                  <span className="hidden sm:inline-block rounded-full bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white px-2 py-0.5 text-[9px] font-black uppercase tracking-wider shadow-sm">
                     +Add
                   </span>
                 )}
@@ -524,13 +524,13 @@ export default function DashboardClient() {
                   className="hidden md:inline-flex items-center gap-1.5 text-xs font-bold text-zinc-300 hover:text-white px-3.5 py-1.5 rounded-xl border border-white/10 bg-[#181820] hover:bg-[#20202A] transition shadow-xs"
                 >
                   <span>Upgrade Plan</span>
-                  <ArrowUpRight size={13} className="text-[#0066FF]" />
+                  <ArrowUpRight size={13} className="text-orange-400" />
                 </Link>
               )}
               {!user && (
                 <Link
                   href="/login"
-                  className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] text-white text-xs font-bold hover:brightness-110 transition shadow-md shadow-blue-500/20"
+                  className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white text-xs font-bold hover:brightness-110 transition shadow-md shadow-orange-500/20"
                 >
                   Sign In
                 </Link>
@@ -560,19 +560,6 @@ export default function DashboardClient() {
           ) : (
             /* Default Studios Hub View */
             <div className="space-y-10 animate-fadeIn">
-              
-              {/*  HERO SHOWCASE BANNER: FULL-WIDTH SEAMLESS PURE WHITE  */}
-              {searchQuery === "" && activeCategory === "all" && (
-                <div className="-mx-4 sm:-mx-6 lg:-mx-8 -mt-8 md:-mt-10 mb-8 sm:mb-10 w-[calc(100%+2rem)] sm:w-[calc(100%+3rem)] lg:w-[calc(100%+4rem)] bg-white border-b border-slate-200/90 shadow-sm py-6 sm:py-10 px-4 sm:px-8 flex items-center justify-center overflow-hidden">
-                  <div className="w-full max-w-5xl mx-auto flex items-center justify-center">
-                    <img
-                      src={optimizeCloudinary("https://res.cloudinary.com/dhouh9idx/image/upload/v1793025671/AI-Powered_Creator_Studio_w7mncx.png", 1200)}
-                      alt="Itnavideo AI-Powered Creator Studio"
-                      className="w-full h-auto max-h-[520px] object-contain block"
-                    />
-                  </div>
-                </div>
-              )}
 
               {/*  1. Top Controls Bar: Category Pills & Search  */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
@@ -582,7 +569,7 @@ export default function DashboardClient() {
                     onClick={() => setActiveCategory("all")}
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                       activeCategory === "all"
-                        ? "bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] text-white shadow-md shadow-blue-500/20"
+                        ? "bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white shadow-md shadow-orange-500/25"
                         : "text-zinc-400 hover:text-white hover:bg-white/5"
                     }`}
                   >
@@ -592,7 +579,7 @@ export default function DashboardClient() {
                     onClick={() => setActiveCategory("social")}
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                       activeCategory === "social"
-                        ? "bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] text-white shadow-md shadow-blue-500/20"
+                        ? "bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white shadow-md shadow-orange-500/25"
                         : "text-zinc-400 hover:text-white hover:bg-white/5"
                     }`}
                   >
@@ -602,7 +589,7 @@ export default function DashboardClient() {
                     onClick={() => setActiveCategory("long")}
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                       activeCategory === "long"
-                        ? "bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] text-white shadow-md shadow-blue-500/20"
+                        ? "bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white shadow-md shadow-orange-500/25"
                         : "text-zinc-400 hover:text-white hover:bg-white/5"
                     }`}
                   >
@@ -612,7 +599,7 @@ export default function DashboardClient() {
                     onClick={() => setActiveCategory("utility")}
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                       activeCategory === "utility"
-                        ? "bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] text-white shadow-md shadow-blue-500/20"
+                        ? "bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white shadow-md shadow-orange-500/25"
                         : "text-zinc-400 hover:text-white hover:bg-white/5"
                     }`}
                   >
@@ -628,7 +615,7 @@ export default function DashboardClient() {
                     placeholder="Search video studios..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#121217] border border-white/10 focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF]/20 focus:outline-none text-xs text-white placeholder:text-zinc-500 transition-all font-medium shadow-xs"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#121217] border border-white/10 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 focus:outline-none text-xs text-white placeholder:text-zinc-500 transition-all font-medium shadow-xs"
                   />
                 </div>
               </div>
@@ -655,7 +642,7 @@ export default function DashboardClient() {
 
                     <button
                       onClick={() => setDashboardTab("history")}
-                      className="self-start sm:self-auto inline-flex items-center gap-1 text-xs font-bold text-[#3B82F6] hover:text-[#60A5FA] transition cursor-pointer"
+                      className="self-start sm:self-auto inline-flex items-center gap-1 text-xs font-bold text-orange-400 hover:text-orange-300 transition cursor-pointer"
                     >
                       <span>View All in Export Library</span>
                       <ChevronRight size={14} />
@@ -671,7 +658,7 @@ export default function DashboardClient() {
                       return (
                         <div
                           key={render.renderId}
-                          className="group relative flex flex-col justify-between rounded-2xl border border-white/10 p-4 bg-[#121624] hover:bg-[#161C2E] hover:border-blue-500/40 transition-all shadow-md"
+                          className="group relative flex flex-col justify-between rounded-2xl border border-white/10 p-4 bg-[#15151D] hover:bg-[#1C1C26] hover:border-orange-500/40 transition-all shadow-md"
                         >
                           <div>
                             <div className="flex items-center justify-between gap-2 mb-2">
@@ -679,12 +666,12 @@ export default function DashboardClient() {
                                 {render.aspectRatio || (render.mode?.toLowerCase().includes("faceless") || render.mode?.toLowerCase().includes("summary") ? "16:9" : "9:16")}
                               </span>
                               <span className="inline-flex items-center gap-1 text-[10px] font-mono font-medium text-zinc-400">
-                                <Clock3 size={11} className="text-[#0066FF]" />
+                                <Clock3 size={11} className="text-orange-400" />
                                 <span>48h Cloud</span>
                               </span>
                             </div>
 
-                            <h3 className="text-xs font-bold text-white line-clamp-1 group-hover:text-[#3B82F6] transition-colors">
+                            <h3 className="text-xs font-bold text-white line-clamp-1 group-hover:text-orange-400 transition-colors">
                               {displayTitle}
                             </h3>
                             <p className="text-[11px] text-zinc-400 mt-0.5">
@@ -704,7 +691,7 @@ export default function DashboardClient() {
                             <button
                               type="button"
                               onClick={() => setQrModalVideo({ url: videoUrl, title: displayTitle })}
-                              className="inline-flex items-center justify-center p-2 rounded-xl border border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 transition cursor-pointer"
+                              className="inline-flex items-center justify-center p-2 rounded-xl border border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20 text-orange-300 transition cursor-pointer"
                               title="Scan QR to download on phone"
                             >
                               <Smartphone size={14} />
@@ -727,244 +714,11 @@ export default function DashboardClient() {
               )}
 
               {/*  */}
-              {/* SECTION 1: 16:9 VIDEO TYPES (FIRST ON DASHBOARD)              */}
+              {/* SECTION 2: 16:9 VIDEO TYPES (CINEMA STUDIOS)              */}
               {/*  */}
-              {show169Section && (
-                <div className="rounded-[24px] sm:rounded-[32px] border border-white/10 bg-[#101014] p-4 sm:p-8 backdrop-blur-2xl shadow-2xl shadow-black/60 relative overflow-hidden space-y-6">
-                  
-                  {/* Clean Spacious Header Banner */}
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/10 pb-5">
-                    <div>
-                      <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3.5 py-1 text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">
-                        <Sparkles size={13} className="text-[#0066FF]" />
-                        <span>16:9 Widescreen Cinema Studios</span>
-                      </div>
-                      <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-sans">
-                        YouTube &amp; Long-Form Video Studios
-                      </h2>
-                      <p className="mt-1 text-xs sm:text-sm text-zinc-400 max-w-2xl leading-relaxed">
-                        Full HD 1080p horizontal videos for YouTube channels, documentary explainers, presentations, and chapter book summaries.
-                      </p>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-2 self-start sm:self-center text-xs font-mono font-bold">
-                      <Link
-                        href="/video-types"
-                        className="inline-flex items-center gap-1 font-sans text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors mr-1"
-                      >
-                        <BookOpen size={13} />
-                        <span>Specs &amp; Guides</span>
-                        <ChevronRight size={13} />
-                      </Link>
-                      <span className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-zinc-300">
-                        1920×1080 Full HD
-                      </span>
-                      <span className="px-3 py-1.5 rounded-xl bg-blue-500/10 border border-blue-500/30 text-[#3B82F6]">
-                        1 Credit / Min • Max 5 min
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* 16:9 Cards Gallery Grid: Responsive 4-Columns */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
-                    {filtered169.map((item) => {
-                      const Icon = item.icon;
-                      return (
-                        <Link
-                          key={item.id}
-                          href={item.slug}
-                          className="group relative flex flex-col justify-between overflow-hidden rounded-[26px] border border-white/10 bg-[#15151D] p-4.5 transition-all duration-300 hover:-translate-y-2 hover:border-blue-500/60 hover:bg-[#1C1C26] hover:shadow-2xl hover:shadow-blue-500/20 active:scale-[0.98] cursor-pointer shadow-md"
-                        >
-                          {/* 16:9 Featured Widescreen Image Stage */}
-                          <div className="relative aspect-[16/9] w-full rounded-2xl bg-[#0B0B0E] mb-4 border border-white/10 overflow-hidden shadow-inner flex items-center justify-center group-hover:border-blue-500/50 transition-colors">
-                            <img
-                              src={optimizeCloudinary(item.imageCard || "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945592/file_000000004290821180a71f25ad75480e_nztpwe.png", 600)}
-                              alt={item.title}
-                              loading="lazy"
-                              decoding="async"
-                              className="h-full w-full object-cover opacity-95 group-hover:scale-105 transition-transform duration-500"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
-
-                            {/* Badge Tag on Image */}
-                            {item.badge && (
-                              <div className="absolute top-2.5 right-2.5 z-10">
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-black/80 border border-white/20 text-white backdrop-blur-md shadow-sm">
-                                  {item.badge}
-                                </span>
-                              </div>
-                            )}
-
-                            {/* Center Play Button on Hover */}
-                            <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40 backdrop-blur-[2px]">
-                              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] text-white shadow-xl shadow-blue-500/50 scale-90 group-hover:scale-100 transition-transform">
-                                <Play size={18} className="fill-current text-white ml-0.5" />
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Card Content Info */}
-                          <div className="flex flex-col flex-1 justify-between">
-                            <div>
-                              <div className="flex items-center gap-2.5 mb-1.5">
-                                <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${item.iconBgClass} ${item.iconColorClass}`}>
-                                  <Icon size={15} />
-                                </div>
-                                <h3 className="text-sm font-extrabold text-white tracking-tight group-hover:text-[#3B82F6] transition-colors line-clamp-2">
-                                  {item.title}
-                                </h3>
-                              </div>
-
-                              <p className="text-[11px] text-zinc-400 line-clamp-2 leading-relaxed mb-4">
-                                {item.description}
-                              </p>
-                            </div>
-
-                            {/* Card Footer CTA */}
-                            <div className="pt-3 border-t border-white/10 flex items-center justify-between text-xs">
-                              <span className={`text-[10px] font-mono font-bold ${item.id === "youtube-subtitles" ? "text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20" : "text-zinc-400"}`}>
-                                {item.id === "youtube-subtitles" ? "FREE • 5/Day" : "1 Credit / Min"}
-                              </span>
-                              <span className="inline-flex items-center gap-1 font-bold text-white text-[11px] bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] px-3 py-1.5 rounded-xl shadow-md shadow-blue-500/20 group-hover:translate-x-0.5 transition-all">
-                                <span>Create</span>
-                                <ChevronRight size={13} />
-                              </span>
-                            </div>
-                          </div>
-                        </Link>
-                      );
-                    })}
-                  </div>
-
-                </div>
-              )}
-
-              {/*  */}
-              {/* SECTION 2: 9:16 ALL VIDEO CLIPS / SHORTS (SECOND ON DASHBOARD) */}
-              {/*  */}
-              {show916Section && (
-                <div className="rounded-[24px] sm:rounded-[32px] border border-white/10 bg-[#101014] p-4 sm:p-8 backdrop-blur-2xl shadow-2xl shadow-black/60 relative overflow-hidden space-y-6">
-                  
-                  {/* Clean Spacious Header Banner */}
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/10 pb-5">
-                    <div>
-                      <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3.5 py-1 text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">
-                        <Sparkles size={13} className="text-[#0066FF]" />
-                        <span>9:16 Vertical Shorts &amp; Reels</span>
-                      </div>
-                      <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-sans">
-                        Shorts, Reels &amp; TikTok Studios
-                      </h2>
-                      <p className="mt-1 text-xs sm:text-sm text-zinc-400 max-w-2xl leading-relaxed">
-                        Create viral vertical videos with auto captions, kinetic motion text, whiteboard animations, and teaser promos up to 90 seconds.
-                      </p>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-2 self-start sm:self-center text-xs font-mono font-bold">
-                      <Link
-                        href="/video-types"
-                        className="inline-flex items-center gap-1 font-sans text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors mr-1"
-                      >
-                        <BookOpen size={13} />
-                        <span>Specs &amp; Guides</span>
-                        <ChevronRight size={13} />
-                      </Link>
-                      <span className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-zinc-300">
-                        1080×1920 Full HD
-                      </span>
-                      <span className="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
-                        1 Credit / Video • Max 90s
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* 9:16 Cards Gallery Grid: 4 Columns on Large Screens */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
-                    {filtered916.map((item) => {
-                      const Icon = item.icon;
-                      const isClips = item.id === "long-video-clips";
-
-                      return (
-                        <Link
-                          key={item.id}
-                          href={item.slug}
-                          className="group relative flex flex-col justify-between overflow-hidden rounded-[26px] border border-white/10 bg-[#15151D] p-4.5 transition-all duration-300 hover:-translate-y-2 hover:border-blue-500/60 hover:bg-[#1C1C26] hover:shadow-2xl hover:shadow-blue-500/20 active:scale-[0.98] cursor-pointer shadow-md"
-                        >
-                          {/* 9:16 Featured Vertical Smartphone Preview Stage (Full Uncropped Display) */}
-                          <div className="relative aspect-[9/16] w-full rounded-2xl bg-[#0B0B0E] mb-3.5 border border-white/10 overflow-hidden shadow-inner flex flex-col items-center justify-center group-hover:border-blue-500/50 transition-colors">
-                            {/* Ambient Blurred Background Glow Layer */}
-                            <img
-                              src={optimizeCloudinary(item.imageCard || "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png", 120)}
-                              alt=""
-                              aria-hidden="true"
-                              className="absolute inset-0 h-full w-full object-cover scale-125 blur-xl opacity-25 pointer-events-none"
-                            />
-
-                            {/* Full Uncropped Foreground Image (Zero Cropping) */}
-                            <img
-                              src={optimizeCloudinary(item.imageCard || "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png", 500)}
-                              alt={item.title}
-                              loading="lazy"
-                              decoding="async"
-                              className="relative z-10 h-full w-full object-contain object-center transition-transform duration-500 group-hover:scale-102"
-                            />
-
-                            {/* Badge Tag on Image */}
-                            {item.badge && (
-                              <div className="absolute top-2.5 right-2.5 z-20">
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-black/80 border border-white/20 text-white backdrop-blur-md shadow-sm">
-                                  {item.badge}
-                                </span>
-                              </div>
-                            )}
-
-                            {/* Center Play Button on Hover */}
-                            <div className="absolute inset-0 z-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/30 backdrop-blur-[2px]">
-                              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] text-white shadow-xl shadow-blue-500/50 scale-90 group-hover:scale-100 transition-transform">
-                                <Play size={18} className="fill-current text-white ml-0.5" />
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Card Content Info */}
-                          <div className="flex flex-col flex-1 justify-between">
-                            <div>
-                              <div className="flex items-center gap-2 mb-1.5">
-                                <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${item.iconBgClass} ${item.iconColorClass}`}>
-                                  <Icon size={14} />
-                                </div>
-                                <h3 className="text-sm font-extrabold text-white tracking-tight group-hover:text-[#3B82F6] transition-colors line-clamp-2">
-                                  {item.title}
-                                </h3>
-                              </div>
-
-                              <p className="text-[11px] text-zinc-400 line-clamp-2 leading-relaxed mb-3">
-                                {item.description}
-                              </p>
-                            </div>
-
-                            {/* Card Footer CTA */}
-                            <div className="pt-2.5 border-t border-white/10 flex items-center justify-between text-xs">
-                              <span className={`text-[10px] font-mono font-bold ${item.id === "auto-caption" ? "text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20" : "text-zinc-400"}`}>
-                                {item.id === "auto-caption" ? "FREE • 5/Day" : (isClips ? "1 Credit / Clip" : "1 Credit / Video")}
-                              </span>
-                              <span className="inline-flex items-center gap-1 font-bold text-white text-[11px] bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] px-3 py-1.5 rounded-xl shadow-md shadow-blue-500/20 group-hover:translate-x-0.5 transition-all">
-                                <span>Create</span>
-                                <ChevronRight size={13} />
-                              </span>
-                            </div>
-                          </div>
-                        </Link>
-                      );
-                    })}
-                  </div>
-
-                </div>
-              )}
-
-              {/*  */}
-              {/* SECTION 3: AUDIO STUDIO & UTILITIES (THIRD ON DASHBOARD)       */}
-              {/*  */}
+                            {/* ---------------------------------------------------- */}
+              {/* SECTION 1: AUDIO STUDIO & UTILITIES (TOP ON DASHBOARD)       */}
+              {/* ---------------------------------------------------- */}
               {showUtilitySection && (
                 <div className="rounded-[32px] border border-white/10 bg-[#101014] p-6 sm:p-8 backdrop-blur-2xl shadow-2xl shadow-black/60 relative overflow-hidden">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 border-b border-white/10 pb-5">
@@ -1061,7 +815,7 @@ export default function DashboardClient() {
                             <span className="text-[11px] font-mono font-bold text-teal-400 px-2.5 py-1 rounded-lg bg-teal-500/10 border border-teal-500/20">
                               1 Credit / Video
                             </span>
-                            <div className="inline-flex items-center gap-1.5 font-bold text-white text-xs bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] px-5 py-2.5 rounded-xl shadow-lg shadow-blue-500/25 group-hover:translate-x-0.5 transition-all">
+                            <div className="inline-flex items-center gap-1.5 font-bold text-white text-xs bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 px-5 py-2.5 rounded-xl shadow-lg shadow-orange-500/25 group-hover:translate-x-0.5 transition-all">
                               <span>Open Audio Studio</span>
                               <ChevronRight size={14} />
                             </div>
@@ -1073,7 +827,243 @@ export default function DashboardClient() {
                 </div>
               )}
 
+              {show169Section && (
+                <div className="rounded-[24px] sm:rounded-[32px] border border-white/10 bg-[#101014] p-4 sm:p-8 backdrop-blur-2xl shadow-2xl shadow-black/60 relative overflow-hidden space-y-6">
+                  
+                  {/* Clean Spacious Header Banner */}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/10 pb-5">
+                    <div>
+                      <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold text-orange-400 uppercase tracking-wider mb-2">
+                        <Sparkles size={13} className="text-orange-400" />
+                        <span>16:9 Widescreen Cinema Studios</span>
+                      </div>
+                      <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-sans">
+                        YouTube &amp; Long-Form Video Studios
+                      </h2>
+                      <p className="mt-1 text-xs sm:text-sm text-zinc-400 max-w-2xl leading-relaxed">
+                        Full HD 1080p horizontal videos for YouTube channels, documentary explainers, presentations, and chapter book summaries.
+                      </p>
+                    </div>
 
+                    <div className="flex flex-wrap items-center gap-2 self-start sm:self-center text-xs font-mono font-bold">
+                      <Link
+                        href="/video-types"
+                        className="inline-flex items-center gap-1 font-sans text-xs font-bold text-orange-400 hover:text-orange-300 transition-colors mr-1"
+                      >
+                        <BookOpen size={13} />
+                        <span>Specs &amp; Guides</span>
+                        <ChevronRight size={13} />
+                      </Link>
+                      <span className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-zinc-300">
+                        1920×1080 Full HD
+                      </span>
+                      <span className="px-3 py-1.5 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-400">
+                        1 Credit / Min • Max 5 min
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* 16:9 Cards Gallery Grid: Responsive 4-Columns */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+                    {filtered169.map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <Link
+                          key={item.id}
+                          href={item.slug}
+                          className="group relative flex flex-col justify-between overflow-hidden rounded-[26px] border border-white/10 bg-[#15151D] p-4.5 transition-all duration-300 hover:-translate-y-2 hover:border-orange-500/50 hover:bg-[#1C1C26] hover:shadow-2xl hover:shadow-orange-500/20 active:scale-[0.98] cursor-pointer shadow-md"
+                        >
+                          {/* 16:9 Featured Widescreen Image Stage */}
+                          <div className="relative aspect-[16/9] w-full rounded-2xl bg-[#0B0B0E] mb-4 border border-white/10 overflow-hidden shadow-inner flex items-center justify-center group-hover:border-orange-500/40 transition-colors">
+                            <img
+                              src={optimizeCloudinary(item.imageCard || "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945592/file_000000004290821180a71f25ad75480e_nztpwe.png", 600)}
+                              alt={item.title}
+                              loading="lazy"
+                              decoding="async"
+                              className="h-full w-full object-cover opacity-95 group-hover:scale-105 transition-transform duration-500"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
+
+                            {/* Badge Tag on Image */}
+                            {item.badge && (
+                              <div className="absolute top-2.5 right-2.5 z-10">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-black/80 border border-white/20 text-white backdrop-blur-md shadow-sm">
+                                  {item.badge}
+                                </span>
+                              </div>
+                            )}
+
+                            {/* Center Play Button on Hover */}
+                            <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40 backdrop-blur-[2px]">
+                              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white shadow-xl shadow-orange-500/40 scale-90 group-hover:scale-100 transition-transform">
+                                <Play size={18} className="fill-current text-white ml-0.5" />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Card Content Info */}
+                          <div className="flex flex-col flex-1 justify-between">
+                            <div>
+                              <div className="flex items-center gap-2.5 mb-1.5">
+                                <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${item.iconBgClass} ${item.iconColorClass}`}>
+                                  <Icon size={15} />
+                                </div>
+                                <h3 className="text-sm font-extrabold text-white tracking-tight group-hover:text-orange-400 transition-colors line-clamp-2">
+                                  {item.title}
+                                </h3>
+                              </div>
+
+                              <p className="text-[11px] text-zinc-400 line-clamp-2 leading-relaxed mb-4">
+                                {item.description}
+                              </p>
+                            </div>
+
+                            {/* Card Footer CTA */}
+                            <div className="pt-3 border-t border-white/10 flex items-center justify-between text-xs">
+                              <span className={`text-[10px] font-mono font-bold ${item.id === "youtube-subtitles" ? "text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20" : "text-zinc-400"}`}>
+                                {item.id === "youtube-subtitles" ? "FREE • 5/Day" : "1 Credit / Min"}
+                              </span>
+                              <span className="inline-flex items-center gap-1 font-bold text-white text-[11px] bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 px-3 py-1.5 rounded-xl shadow-md shadow-orange-500/25 group-hover:translate-x-0.5 transition-all">
+                                <span>Create</span>
+                                <ChevronRight size={13} />
+                              </span>
+                            </div>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+
+                </div>
+              )}
+
+              {/*  */}
+              {/* SECTION 3: 9:16 ALL VIDEO CLIPS / SHORTS */}
+              {/*  */}
+              {show916Section && (
+                <div className="rounded-[24px] sm:rounded-[32px] border border-white/10 bg-[#101014] p-4 sm:p-8 backdrop-blur-2xl shadow-2xl shadow-black/60 relative overflow-hidden space-y-6">
+                  
+                  {/* Clean Spacious Header Banner */}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/10 pb-5">
+                    <div>
+                      <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold text-orange-400 uppercase tracking-wider mb-2">
+                        <Sparkles size={13} className="text-orange-400" />
+                        <span>9:16 Vertical Shorts &amp; Reels</span>
+                      </div>
+                      <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-sans">
+                        Shorts, Reels &amp; TikTok Studios
+                      </h2>
+                      <p className="mt-1 text-xs sm:text-sm text-zinc-400 max-w-2xl leading-relaxed">
+                        Create viral vertical videos with auto captions, kinetic motion text, whiteboard animations, and teaser promos up to 90 seconds.
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2 self-start sm:self-center text-xs font-mono font-bold">
+                      <Link
+                        href="/video-types"
+                        className="inline-flex items-center gap-1 font-sans text-xs font-bold text-orange-400 hover:text-orange-300 transition-colors mr-1"
+                      >
+                        <BookOpen size={13} />
+                        <span>Specs &amp; Guides</span>
+                        <ChevronRight size={13} />
+                      </Link>
+                      <span className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-zinc-300">
+                        1080×1920 Full HD
+                      </span>
+                      <span className="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+                        1 Credit / Video • Max 90s
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* 9:16 Cards Gallery Grid: 4 Columns on Large Screens */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
+                    {filtered916.map((item) => {
+                      const Icon = item.icon;
+                      const isClips = item.id === "long-video-clips";
+
+                      return (
+                        <Link
+                          key={item.id}
+                          href={item.slug}
+                          className="group relative flex flex-col justify-between overflow-hidden rounded-[26px] border border-white/10 bg-[#15151D] p-4.5 transition-all duration-300 hover:-translate-y-2 hover:border-orange-500/50 hover:bg-[#1C1C26] hover:shadow-2xl hover:shadow-orange-500/20 active:scale-[0.98] cursor-pointer shadow-md"
+                        >
+                          {/* 9:16 Featured Vertical Smartphone Preview Stage (Full Uncropped Display) */}
+                          <div className="relative aspect-[9/16] w-full rounded-2xl bg-[#0B0B0E] mb-3.5 border border-white/10 overflow-hidden shadow-inner flex flex-col items-center justify-center group-hover:border-orange-500/40 transition-colors">
+                            {/* Ambient Blurred Background Glow Layer */}
+                            <img
+                              src={optimizeCloudinary(item.imageCard || "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png", 120)}
+                              alt=""
+                              aria-hidden="true"
+                              className="absolute inset-0 h-full w-full object-cover scale-125 blur-xl opacity-25 pointer-events-none"
+                            />
+
+                            {/* Full Uncropped Foreground Image (Zero Cropping) */}
+                            <img
+                              src={optimizeCloudinary(item.imageCard || "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png", 500)}
+                              alt={item.title}
+                              loading="lazy"
+                              decoding="async"
+                              className="relative z-10 h-full w-full object-contain object-center transition-transform duration-500 group-hover:scale-102"
+                            />
+
+                            {/* Badge Tag on Image */}
+                            {item.badge && (
+                              <div className="absolute top-2.5 right-2.5 z-20">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-black/80 border border-white/20 text-white backdrop-blur-md shadow-sm">
+                                  {item.badge}
+                                </span>
+                              </div>
+                            )}
+
+                            {/* Center Play Button on Hover */}
+                            <div className="absolute inset-0 z-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/30 backdrop-blur-[2px]">
+                              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white shadow-xl shadow-orange-500/40 scale-90 group-hover:scale-100 transition-transform">
+                                <Play size={18} className="fill-current text-white ml-0.5" />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Card Content Info */}
+                          <div className="flex flex-col flex-1 justify-between">
+                            <div>
+                              <div className="flex items-center gap-2 mb-1.5">
+                                <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${item.iconBgClass} ${item.iconColorClass}`}>
+                                  <Icon size={14} />
+                                </div>
+                                <h3 className="text-sm font-extrabold text-white tracking-tight group-hover:text-orange-400 transition-colors line-clamp-2">
+                                  {item.title}
+                                </h3>
+                              </div>
+
+                              <p className="text-[11px] text-zinc-400 line-clamp-2 leading-relaxed mb-3">
+                                {item.description}
+                              </p>
+                            </div>
+
+                            {/* Card Footer CTA */}
+                            <div className="pt-2.5 border-t border-white/10 flex items-center justify-between text-xs">
+                              <span className={`text-[10px] font-mono font-bold ${item.id === "auto-caption" ? "text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20" : "text-zinc-400"}`}>
+                                {item.id === "auto-caption" ? "FREE • 5/Day" : (isClips ? "1 Credit / Clip" : "1 Credit / Video")}
+                              </span>
+                              <span className="inline-flex items-center gap-1 font-bold text-white text-[11px] bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 px-3 py-1.5 rounded-xl shadow-md shadow-orange-500/25 group-hover:translate-x-0.5 transition-all">
+                                <span>Create</span>
+                                <ChevronRight size={13} />
+                              </span>
+                            </div>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+
+                </div>
+              )}
+
+              {/*  */}
+              {/* SECTION 3: AUDIO STUDIO & UTILITIES (THIRD ON DASHBOARD)       */}
+              {/*  */}
+              
               {/* Empty Search Result */}
               {!show916Section && !show169Section && !showUtilitySection && (
                 <div className="text-center py-16 border border-dashed border-white/15 rounded-[32px] bg-[#0E1526]/50 backdrop-blur-2xl">
@@ -1086,7 +1076,7 @@ export default function DashboardClient() {
                       setSearchQuery("");
                       setActiveCategory("all");
                     }}
-                    className="mt-3 text-xs text-[#3B82F6] font-bold hover:underline cursor-pointer"
+                    className="mt-3 text-xs text-orange-400 font-bold hover:underline cursor-pointer"
                   >
                     Clear filters
                   </button>

@@ -34,14 +34,14 @@ interface StudioWorkflowRoadmapProps {
 //  COLOR & ICON PALETTES FOR EACH STEP 
 const STEP_THEMES = [
   {
-    badgeBg: 'bg-gradient-to-br from-[#0052CC] to-[#0066FF]',
+    badgeBg: 'bg-gradient-to-br from-[#EA580C] to-[#F97316]',
     badgeText: 'text-white',
     cardBg: 'bg-[#151E30] hover:bg-[#1C2840]',
-    border: 'border-white/10 hover:border-[#0066FF]/40',
+    border: 'border-white/10 hover:border-[#F97316]/40',
     label: 'text-white',
-    accentText: 'text-[#3B82F6]',
-    shadow: 'shadow-sm shadow-black/40 hover:shadow-md hover:shadow-[#0066FF]/10',
-    iconBg: 'bg-blue-500/15 text-[#3B82F6]',
+    accentText: 'text-[#FB923C]',
+    shadow: 'shadow-sm shadow-black/40 hover:shadow-md hover:shadow-[#F97316]/10',
+    iconBg: 'bg-orange-500/15 text-[#FB923C]',
     icon: Upload,
   },
   {
@@ -67,14 +67,14 @@ const STEP_THEMES = [
     icon: Palette,
   },
   {
-    badgeBg: 'bg-gradient-to-br from-blue-600 to-indigo-600',
+    badgeBg: 'bg-gradient-to-br from-orange-600 to-indigo-600',
     badgeText: 'text-white',
     cardBg: 'bg-[#151E30] hover:bg-[#1C2840]',
-    border: 'border-white/10 hover:border-blue-500/40',
+    border: 'border-white/10 hover:border-orange-500/40',
     label: 'text-white',
-    accentText: 'text-blue-400',
-    shadow: 'shadow-sm shadow-black/40 hover:shadow-md hover:shadow-blue-500/10',
-    iconBg: 'bg-blue-500/15 text-blue-400',
+    accentText: 'text-orange-400',
+    shadow: 'shadow-sm shadow-black/40 hover:shadow-md hover:shadow-orange-500/10',
+    iconBg: 'bg-orange-500/15 text-orange-400',
     icon: Eye,
   },
   {
@@ -200,12 +200,12 @@ export function StudioWorkflowRoadmap({
       className={`relative w-full rounded-2xl border border-white/10 bg-[#0E1526]/95 p-3.5 sm:p-4 text-white shadow-xl shadow-black/40 backdrop-blur-xl overflow-hidden select-none transition-all duration-300 ${className}`}
     >
       {/* Subtle top animated color bar */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#0066FF] via-purple-500 via-emerald-500 via-blue-500 to-indigo-500 animate-pulse" />
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#F97316] via-purple-500 via-emerald-500 via-orange-500 to-indigo-500 animate-pulse" />
 
       {/* Top Header Section */}
       <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-white/10">
         <div className="flex items-center gap-2">
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#0066FF]/15 text-[#3B82F6] border border-[#0066FF]/30 shadow-xs">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#F97316]/15 text-[#FB923C] border border-[#F97316]/30 shadow-xs">
             <Sparkles size={13} className="animate-spin" style={{ animationDuration: '8s' }} />
           </span>
           <span className="text-xs font-black uppercase tracking-wider text-slate-200">
@@ -248,7 +248,7 @@ export function StudioWorkflowRoadmap({
               <div className="flex flex-col min-w-0 flex-1">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <StepIcon size={12} className={`${theme.accentText} shrink-0`} />
-                  <span className="text-[11.5px] sm:text-xs font-black text-white tracking-tight leading-none group-hover:text-[#3B82F6] transition-colors truncate">
+                  <span className="text-[11.5px] sm:text-xs font-black text-white tracking-tight leading-none group-hover:text-[#FB923C] transition-colors truncate">
                     {s.label}
                   </span>
                 </div>

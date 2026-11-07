@@ -96,14 +96,14 @@ export default function FAQSection() {
         {/* Header */}
         <div className="text-center mb-10 sm:mb-12 space-y-3.5">
 
-          <h2 className="text-3xl sm:text-5xl font-black text-slate-900 font-sans tracking-tight">
+          <h2 className="text-3xl sm:text-5xl font-black text-zinc-950 font-sans tracking-tight">
             Frequently Asked{' '}
-            <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 bg-clip-text text-transparent">
               Questions
             </span>
           </h2>
 
-          <p className="text-xs sm:text-sm max-w-lg mx-auto text-slate-600 font-normal">
+          <p className="text-xs sm:text-sm max-w-lg mx-auto text-zinc-600 font-normal">
             Everything you need to know about our AI video workflows, cloud rendering, and plans.
           </p>
 
@@ -121,14 +121,14 @@ export default function FAQSection() {
                   }}
                   className={`inline-flex items-center gap-1.5 sm:gap-2 rounded-full border px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold transition-all duration-200 cursor-pointer ${
                     isActive
-                      ? 'bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white border-transparent shadow-xs font-bold'
-                      : 'border-stone-200/80 bg-white text-slate-700 hover:border-orange-500/30 hover:bg-orange-50/20 shadow-xs'
+                      ? 'bg-[#EA580C] text-white border-[#EA580C] shadow-sm font-bold'
+                      : 'border-zinc-200 bg-white text-zinc-700 hover:border-zinc-400 hover:bg-zinc-50 shadow-xs'
                   }`}
                   type="button"
                 >
                   <span>{cat.label}</span>
                   <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-mono ${
-                    isActive ? 'bg-black/20 text-white font-bold' : 'bg-stone-100 text-slate-600'
+                    isActive ? 'bg-white/20 text-white font-bold' : 'bg-zinc-100 text-zinc-600'
                   }`}>
                     {count}
                   </span>
@@ -150,7 +150,7 @@ export default function FAQSection() {
                 className={`group rounded-2xl border transition-all duration-200 overflow-hidden ${
                   isOpen
                     ? 'border-orange-500/40 bg-white shadow-xs ring-1 ring-orange-500/20'
-                    : 'border-stone-200/80 bg-white shadow-xs hover:border-orange-500/30'
+                    : 'border-slate-200/90 bg-white shadow-xs hover:border-orange-500/30'
                 }`}
               >
                 <button
@@ -163,8 +163,8 @@ export default function FAQSection() {
                     {/* Index Badge */}
                     <span className={`flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-xl text-xs font-mono font-bold transition-colors ${
                       isOpen
-                        ? 'bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-white font-bold'
-                        : 'border border-stone-200/80 bg-stone-50 text-slate-600 group-hover:border-orange-500/30 group-hover:text-orange-600'
+                        ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white font-bold'
+                        : 'border border-slate-200/80 bg-slate-50 text-slate-600 group-hover:border-orange-500/30 group-hover:text-orange-600'
                     }`}>
                       {indexNumber}
                     </span>
@@ -178,7 +178,7 @@ export default function FAQSection() {
                   <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-all duration-200 ${
                     isOpen
                       ? 'border-orange-500/40 bg-orange-500/10 text-orange-600 rotate-180'
-                      : 'border-stone-200/80 bg-stone-50 text-slate-400 group-hover:border-orange-500/30 group-hover:text-slate-700'
+                      : 'border-slate-200/80 bg-slate-50 text-slate-400 group-hover:border-orange-500/30 group-hover:text-slate-700'
                   }`}>
                     <ChevronDown size={16} />
                   </div>
@@ -193,7 +193,7 @@ export default function FAQSection() {
                       transition={{ duration: 0.2, ease: "easeOut" }}
                     >
                       <div className="px-4 pb-5 pt-1 sm:px-6 sm:pb-6">
-                        <div className="rounded-2xl bg-stone-50/80 border border-stone-200/80 p-5 sm:p-6 space-y-3.5 shadow-xs">
+                        <div className="rounded-2xl bg-slate-50/80 border border-slate-200/80 p-5 sm:p-6 space-y-3.5 shadow-xs">
                           <p className="text-xs sm:text-sm leading-relaxed text-slate-600 font-medium">
                             {faq.answer}
                           </p>
@@ -220,7 +220,7 @@ export default function FAQSection() {
         </div>
 
         {/* Support Card CTA */}
-        <div className="mt-10 rounded-2xl border border-stone-200/80 bg-white p-6 text-center max-w-xl mx-auto shadow-xs">
+        <div className="mt-10 rounded-2xl border border-slate-200/80 bg-white p-6 text-center max-w-xl mx-auto shadow-xs">
           <div className="flex h-10 w-10 mx-auto items-center justify-center rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-600 mb-2">
             <MessageCircle size={18} />
           </div>
@@ -229,10 +229,10 @@ export default function FAQSection() {
           <div className="mt-4">
             <Link
               href="/contact"
-              className="inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white px-5 py-2.5 text-xs font-bold text-slate-800 transition hover:bg-stone-50 active:scale-95 shadow-xs"
+              className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-xs font-bold text-slate-800 transition hover:bg-slate-50 active:scale-95 shadow-xs"
             >
               <span>Contact Support</span>
-              <ArrowRight size={13} className="text-[#FF5722]" />
+              <ArrowRight size={13} className="text-orange-600" />
             </Link>
           </div>
         </div>

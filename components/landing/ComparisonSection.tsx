@@ -201,8 +201,8 @@ export default function ComparisonSection() {
               1 Min = 1 Credit
             </span>
             <span className="text-stone-300">•</span>
-            <span className="inline-flex items-center gap-1.5 bg-blue-500/10 text-blue-800 border border-blue-500/20 px-3 py-1 rounded-full">
-              <Languages size={13} className="text-blue-600" />
+            <span className="inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-800 border border-emerald-500/20 px-3 py-1 rounded-full">
+              <Languages size={13} className="text-emerald-600" />
               Global Accents & Dialects
             </span>
           </div>

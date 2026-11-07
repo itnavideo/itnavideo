@@ -171,19 +171,14 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-orange-700 shadow-xs">
-            <Sparkles size={14} className="text-[#0066FF]" />
-            <span>Transparent Creator Pricing</span>
-          </div>
-
-          <h2 className="mt-4 text-3xl sm:text-5xl font-black tracking-tight text-slate-900 leading-tight font-sans">
+          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-zinc-950 leading-tight font-sans">
             Simple, Powerful{" "}
-            <span className="bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#3B82F6] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 bg-clip-text text-transparent">
               AI Video Plans
             </span>
           </h2>
 
-          <p className="mt-3 text-sm sm:text-base text-slate-600 max-w-xl mx-auto">
+          <p className="mt-3 text-sm sm:text-base text-zinc-600 max-w-xl mx-auto">
             Create Faceless videos, YouTube long-form, Reels, subtitles, and viral clips with dedicated studios.
           </p>
 
@@ -242,7 +237,7 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
         </div>
 
         {message && (
-          <p className="mx-auto mt-6 max-w-xl rounded-2xl border border-blue-500/30 bg-blue-50 px-4 py-3 text-center text-sm font-semibold text-blue-950">
+          <p className="mx-auto mt-6 max-w-xl rounded-2xl border border-orange-500/30 bg-orange-50 px-4 py-3 text-center text-sm font-semibold text-orange-950">
             {message}
           </p>
         )}
@@ -259,13 +254,13 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
                 key={plan.id}
                 className={`relative flex flex-col rounded-3xl transition-all duration-300 p-6 sm:p-8 bg-white ${
                   isPopular
-                    ? "border-2 border-blue-600 ring-4 ring-blue-500/15 shadow-xl shadow-blue-500/10 lg:scale-[1.02] z-10"
+                    ? "border-2 border-orange-500 ring-4 ring-orange-500/15 shadow-xl shadow-orange-500/10 lg:scale-[1.02] z-10"
                     : "border border-stone-200/90 shadow-xs hover:border-stone-300 hover:shadow-md"
                 }`}
               >
                 {/* Most Popular Floating Pill Badge */}
                 {isPopular && (
-                  <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] px-4 py-0.5 text-[11px] font-bold text-white shadow-md">
+                  <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-orange-600 via-orange-500 to-amber-500 px-4 py-0.5 text-[11px] font-bold text-white shadow-md">
                     Most Popular
                   </span>
                 )}
@@ -311,11 +306,7 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
                   type="button"
                   disabled={loading || Boolean(loadingPlan)}
                   onClick={() => buyPlan(plan)}
-                  className={`mt-8 flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 px-5 text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-                    isPopular
-                      ? "bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] text-white shadow-md shadow-blue-500/25 hover:brightness-110 active:scale-98"
-                      : "bg-[#18181b] hover:bg-black text-white shadow-xs active:scale-98"
-                  }`}
+                  className="mt-8 flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 px-5 text-xs sm:text-sm font-bold bg-zinc-950 hover:bg-zinc-800 text-white shadow-sm active:scale-98 transition-all cursor-pointer"
                 >
                   {loadingPlan === plan.id && <Loader2 size={16} className="animate-spin" />}
                   {loadingPlan === plan.id ? "Preparing checkout..." : `Get Started with ${planShortName}`}
@@ -325,26 +316,113 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
           })}
         </div>
 
-        {/* Simple Credit Rate & Guarantee Trust Bar */}
-        <div className="mt-12 flex flex-col items-center justify-center gap-3">
-          <div className="inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-1.5 text-xs font-bold text-blue-800 shadow-xs">
-            <span>Simple Pricing Rule:</span>
-            <span className="font-extrabold text-blue-950">1 Credit = 1 Minute YouTube Video</span>
-            <span className="text-blue-400">•</span>
-            <span className="font-extrabold text-blue-950">1 Credit = 1 Vertical Short / Clip</span>
-            <span className="text-blue-400">•</span>
-            <span className="font-extrabold text-blue-950">1 Credit = 1 Audio Clean</span>
+        {/* Simple Credit Usage Table (Responsive for Desktop & Mobile) */}
+        <div className="mt-14 max-w-4xl mx-auto">
+          <div className="text-center mb-6">
+            <h3 className="text-xl sm:text-2xl font-black text-zinc-950 tracking-tight">
+              Simple Credit Usage Policy
+            </h3>
+            <p className="text-xs sm:text-sm text-zinc-600 mt-1">
+              Transparent, honest pricing with zero hidden calculations. 1 credit covers 1 minute.
+            </p>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-slate-600 mt-1">
-            <div className="flex items-center gap-2">
-              <ShieldCheck size={16} className="text-[#0066FF]" />
+          <div className="overflow-hidden rounded-2xl border border-zinc-200/90 bg-white shadow-xs">
+            {/* Table Header (Desktop) */}
+            <div className="hidden sm:grid grid-cols-12 bg-zinc-50 border-b border-zinc-200/80 px-5 py-3 text-xs font-bold text-zinc-500 uppercase tracking-wider">
+              <div className="col-span-5">Video Studio / Format</div>
+              <div className="col-span-4">Aspect Ratio &amp; Duration</div>
+              <div className="col-span-3 text-right">Credit Cost</div>
+            </div>
+
+            {/* Table Rows */}
+            <div className="divide-y divide-zinc-100 text-xs sm:text-sm">
+              {/* Row 1: 16:9 Long-Form */}
+              <div className="flex flex-col sm:grid sm:grid-cols-12 items-start sm:items-center px-4 sm:px-5 py-3.5 hover:bg-orange-50/30 transition-colors gap-1 sm:gap-0">
+                <div className="sm:col-span-5 font-bold text-zinc-950 flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-orange-500 shrink-0" />
+                  <span>16:9 YouTube Long-Form</span>
+                </div>
+                <div className="sm:col-span-4 text-zinc-600 text-xs">
+                  16:9 Widescreen • Up to 5 Minutes
+                </div>
+                <div className="sm:col-span-3 sm:text-right font-black text-orange-600 text-sm">
+                  1 Min = 1 Credit
+                </div>
+              </div>
+
+              {/* Row 2: 9:16 Shorts */}
+              <div className="flex flex-col sm:grid sm:grid-cols-12 items-start sm:items-center px-4 sm:px-5 py-3.5 hover:bg-orange-50/30 transition-colors gap-1 sm:gap-0">
+                <div className="sm:col-span-5 font-bold text-zinc-950 flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-orange-500 shrink-0" />
+                  <span>9:16 Vertical Shorts &amp; Reels</span>
+                </div>
+                <div className="sm:col-span-4 text-zinc-600 text-xs">
+                  9:16 Vertical • Up to 90 Seconds
+                </div>
+                <div className="sm:col-span-3 sm:text-right font-black text-orange-600 text-sm">
+                  1 Credit / Video
+                </div>
+              </div>
+
+              {/* Row 3: Viral Video Clips */}
+              <div className="flex flex-col sm:grid sm:grid-cols-12 items-start sm:items-center px-4 sm:px-5 py-3.5 hover:bg-orange-50/30 transition-colors gap-1 sm:gap-0">
+                <div className="sm:col-span-5 font-bold text-zinc-950 flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-orange-500 shrink-0" />
+                  <span>Long Video to Viral Clips</span>
+                </div>
+                <div className="sm:col-span-4 text-zinc-600 text-xs">
+                  Input up to 2h • 30s–60s Shorts
+                </div>
+                <div className="sm:col-span-3 sm:text-right font-black text-orange-600 text-sm">
+                  1 Credit / Clip
+                </div>
+              </div>
+
+              {/* Row 4: AI Audio Cleaner */}
+              <div className="flex flex-col sm:grid sm:grid-cols-12 items-start sm:items-center px-4 sm:px-5 py-3.5 hover:bg-orange-50/30 transition-colors gap-1 sm:gap-0">
+                <div className="sm:col-span-5 font-bold text-zinc-950 flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-orange-500 shrink-0" />
+                  <span>AI Studio Audio Cleaner</span>
+                </div>
+                <div className="sm:col-span-4 text-zinc-600 text-xs">
+                  Retake Detection • Up to 5 Minutes
+                </div>
+                <div className="sm:col-span-3 sm:text-right font-black text-orange-600 text-sm">
+                  1 Credit / Audio
+                </div>
+              </div>
+
+              {/* Row 5: Free Auto Captions */}
+              <div className="flex flex-col sm:grid sm:grid-cols-12 items-start sm:items-center px-4 sm:px-5 py-3.5 bg-emerald-50/50 hover:bg-emerald-50 transition-colors gap-1 sm:gap-0">
+                <div className="sm:col-span-5 font-bold text-zinc-950 flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+                  <span>Auto Caption &amp; YouTube Subtitles</span>
+                </div>
+                <div className="sm:col-span-4 text-emerald-800 text-xs font-medium">
+                  Word-Synced Captions • Daily Free Tier
+                </div>
+                <div className="sm:col-span-3 sm:text-right font-black text-emerald-600 text-sm">
+                  FREE (5 Daily)
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Trust Guarantees */}
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-y-2 gap-x-6 text-xs text-zinc-600 font-medium">
+            <div className="flex items-center gap-1.5">
+              <ShieldCheck size={15} className="text-orange-600 shrink-0" />
               <span>100% Secure Checkout via Razorpay</span>
             </div>
-            <span>•</span>
-            <span>Instant Credit Delivery</span>
-            <span>•</span>
-            <span>Top Up Credits Anytime</span>
+            <div className="flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-orange-500" />
+              <span>Instant Credit Delivery</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              <span>Credits Never Expire</span>
+            </div>
           </div>
         </div>
       </div>

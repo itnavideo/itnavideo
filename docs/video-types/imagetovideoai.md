@@ -58,24 +58,37 @@
        - `🍃 Thoughtful Reflection & Pauses`: Slow settling pull-back (`1.05 ➔ 1.01`) that allows the scene to breathe naturally.
    - **`🎬 Itnavideo Library`**:
      - Match narration to our curated studio 16:9 cinematic photo and illustration library.
-3. **Step 3 — 20 Master YouTube Caption Styles**:
-   - 20 high-contrast animated caption styles (`TWENTY_CAPTION_STYLES`) organized across category tabs (Viral, Cinema, Modern, Tech, Book, Editorial, Creative).
-   - Rendered using `UniversalCaptionLayer` with `backgroundTheme="solid-white"` so text is crisp and legible on light canvases.
-4. **Step 4 — Background Music & SFX Catalog**:
-   - 13+ curated AWS S3 library background tracks (`AWS_BGM_TRACKS`) with instant play/pause audition.
-   - Custom background music file upload.
-   - Volume slider with default set strictly to 12% (`0.12`) and presets (0%, 5%, 12%, 20%, 35%).
-   - Timed scene transition sound effects (`pop.mp3`, `chime.mp3`).
-5. **Step 5 — Spoken Narration Editorial Transcript Editor**:
-   - Dedicated editorial panel where users can review and correct spoken speech-to-text words and fix any spelling mistakes or typos.
-6. **Step 6 — Compulsory 16:9 Live Preview & Verification**:
-   - Interactive 16:9 widescreen player previewing camera motion, subtitles, and scenes.
-   - Compulsory review gate: The final "Render 1080p Widescreen Video" button remains locked until the user verifies the preview (`previewConfirmed`).
-7. **Step 7 — Instant 1-Click Widescreen Export (Strictly 16:9 Cinema Widescreen)**:
-   - **Strictly 16:9 Cinema Widescreen Only** (1920×1080 Full HD, 30 FPS, H.264, AAC 320kbps) per Rule 4.1.
-   - **1-Click Master Video Download**: Direct instant download of the 1080p MP4 file.
-   - **Cloud Link Copy**: 1-click button to copy the 48-hour secure AWS S3 presigned direct access URL.
-   - **YouTube Viral Creator Launch Kit**: Auto-generated viral titles, timestamped chapters, and SEO tags.
+3. **Step 3 — 32 Master YouTube Caption Styles**:
+   - 32 high-contrast animated caption styles (`THIRTY_TWO_CAPTION_STYLES`) matching industry-standard short/long-form styles (Pop Word, Karaoke Line, Box Highlight, Neon Glow, Typewriter, Slam Headline, Hormozi Viral Pop, MrBeast Shorts Impact, etc.).
+   - Clean, subtle rounded rectangular boxes (`rounded-lg`, 8px corner radius) with 1px border.
+   - Search bar to filter across all 32 styles instantly.
+   - Collapsible accordion (closed by default on initial page load to keep studio clean and uncluttered).
+   - Rendered using `UniversalCaptionLayer` with dynamic colors and fonts.
+
+4. **Step 4 — Background Music & Audio Engine**:
+   - AWS S3 curated library background tracks (`AWS_BGM_TRACKS`) with instant play/pause audition.
+   - Dynamic volume slider (normal initial volume, adjustable 0% to 100%).
+   - Waveform audio player with interactive visualizer bars and time scrub sync.
+
+5. **Step 5 — In-Player Cinema Stage & Direct Video Controls**:
+   - **Direct In-Canvas Editing**: Click directly on the video subtitle overlay to edit text on the fly.
+   - **In-Player Toolbar**: Play/pause, time scrubber, instant photo replacement, framing mode toggle (16:9 Cover vs. Blur-Fill Letterbox), in-player caption style picker popover, BGM volume popover, and camera motion toggle.
+   - **Interactive Scene Filmstrip**: Visual thumbnail timeline of all uploaded scene photos with click-to-preview, individual photo replacement, and deletion.
+
+6. **Step 6 — Studio Subtitle Engine & Timestamped Captions Track**:
+   - Sentence-by-sentence breakdown with millisecond-accurate timestamps (`startTime` → `endTime`).
+   - **Click to Jump (Timeline Sync)**: Clicking any sentence instantly seeks audio and video to that second.
+   - **Active Speech Follower**: Lights up the active sentence and auto-scrolls into view during playback.
+   - **In-Place Inline Editing**: Edit words and fine-tune start/end timing directly in the list.
+   - **Search Bar**: Real-time search across all subtitle segments.
+   - **1-Click .SRT Export**: Export industry-standard subtitle file for YouTube, Premiere, or Final Cut.
+
+7. **Step 7 — Full Responsive Support & Mobile Sticky Render Bar**:
+   - Clean responsive layout for Desktop, Laptop, Tablet, and Mobile.
+   - Touchscreen-friendly controls (edit & delete buttons visible on touchscreens).
+   - Mobile Sticky Render Bar: Floating 1-click render CTA on mobile/tablet so creators can trigger video export without scrolling.
+   - Desktop layout toggle: 1-click `[ Right Side | Left Side ]` preview orientation switch.
+   - Strictly conforms to Rule 0.7: Zero eyebrow pill badges above headlines for a clean enterprise brand aesthetic.
 
 ---
 

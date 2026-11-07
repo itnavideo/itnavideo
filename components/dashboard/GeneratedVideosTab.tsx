@@ -102,7 +102,7 @@ export default function GeneratedVideosTab({
                     />
                   ) : (
                     <div className="flex flex-col items-center gap-2 text-zinc-400">
-                      <Film size={32} className="text-[#0066FF]" />
+                      <Film size={32} className="text-orange-400" />
                       <span className="text-xs font-semibold">1080p Master Video</span>
                     </div>
                   )}
@@ -157,10 +157,10 @@ export default function GeneratedVideosTab({
                   <button
                     type="button"
                     onClick={() => setQrModalData({ url: downloadLink, title: render.title || "Cloud Video" })}
-                    className="py-2.5 px-2 rounded-xl border border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 hover:text-blue-200 font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+                    className="py-2.5 px-2 rounded-xl border border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20 text-orange-300 hover:text-orange-200 font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
                     title="Scan QR to download directly on phone"
                   >
-                    <Smartphone size={13} className="text-[#0066FF]" />
+                    <Smartphone size={13} className="text-orange-400" />
                     <span>Phone QR</span>
                   </button>
 
@@ -183,7 +183,7 @@ export default function GeneratedVideosTab({
       ) : (
         /* Empty State */
         <div className="relative overflow-hidden rounded-[28px] bg-[#0D111D] border border-white/10 p-10 text-center max-w-2xl mx-auto shadow-2xl">
-          <div className="w-16 h-16 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-[#0066FF] mx-auto mb-4 shadow-lg shadow-blue-500/10">
+          <div className="w-16 h-16 rounded-2xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-orange-400 mx-auto mb-4 shadow-lg shadow-orange-500/10">
             <Film size={32} />
           </div>
 
@@ -195,28 +195,28 @@ export default function GeneratedVideosTab({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6 text-left max-w-lg mx-auto">
             <Link
               href="/dashboard/auto-caption-reel"
-              className="p-3.5 rounded-2xl bg-[#121624] hover:bg-[#161C2E] border border-white/10 hover:border-blue-500/40 transition group flex items-center justify-between"
+              className="p-3.5 rounded-2xl bg-[#15151D] hover:bg-[#1C1C26] border border-white/10 hover:border-orange-500/40 transition group flex items-center justify-between"
             >
               <div>
-                <div className="text-xs font-black text-white group-hover:text-[#3B82F6]">
+                <div className="text-xs font-black text-white group-hover:text-orange-400">
                    Auto Caption Studio
                 </div>
                 <div className="text-[10px] text-zinc-400">Safe-zone word subtitles</div>
               </div>
-              <ArrowRight size={14} className="text-zinc-500 group-hover:text-[#3B82F6]" />
+              <ArrowRight size={14} className="text-zinc-500 group-hover:text-orange-400" />
             </Link>
 
             <Link
               href="/dashboard/ai-shorts-polisher"
-              className="p-3.5 rounded-2xl bg-[#121624] hover:bg-[#161C2E] border border-white/10 hover:border-blue-500/40 transition group flex items-center justify-between"
+              className="p-3.5 rounded-2xl bg-[#15151D] hover:bg-[#1C1C26] border border-white/10 hover:border-orange-500/40 transition group flex items-center justify-between"
             >
               <div>
-                <div className="text-xs font-black text-white group-hover:text-[#3B82F6]">
+                <div className="text-xs font-black text-white group-hover:text-orange-400">
                    AI Shorts Polisher
                 </div>
                 <div className="text-[10px] text-zinc-400">Punch-in cuts & viral audio</div>
               </div>
-              <ArrowRight size={14} className="text-zinc-500 group-hover:text-[#3B82F6]" />
+              <ArrowRight size={14} className="text-zinc-500 group-hover:text-orange-400" />
             </Link>
           </div>
         </div>

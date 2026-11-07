@@ -5,7 +5,16 @@ export const CAPTION_STYLE_MAP = SUBTITLE_PRESETS;
 export function mapCaptionStyle(styleName?: string): SubtitleConfig {
   if (!styleName) return DEFAULT_SUBTITLE_CONFIG;
 
-  const preset = SUBTITLE_PRESETS[styleName] || Object.values(SUBTITLE_PRESETS).find(p => p.style === styleName);
+  const normalized = styleName.toLowerCase().replace(/[-_]/g, ' ').trim();
+  const preset =
+    SUBTITLE_PRESETS[styleName] ||
+    Object.values(SUBTITLE_PRESETS).find(
+      (p) =>
+        p.name.toLowerCase() === styleName.toLowerCase() ||
+        p.name.toLowerCase().replace(/[-_]/g, ' ').trim() === normalized ||
+        p.style.toLowerCase() === styleName.toLowerCase()
+    );
+
   if (preset) {
     return {
       style: preset.style,

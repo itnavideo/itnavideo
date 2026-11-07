@@ -42,7 +42,7 @@ export default function DemoPreviewModal({ isOpen, onClose, tool }: DemoPreviewM
 
         {/* Modal Header */}
         <div className="flex items-center gap-2 mb-3">
-          <span className="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-[#FF5722] text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
+          <span className="px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/30 text-[#FF5722] text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-[#FF5722]" /> 1-Min Video Tutorial
           </span>
           <span className="px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 text-xs font-mono border border-slate-200 font-bold">
@@ -124,7 +124,7 @@ export default function DemoPreviewModal({ isOpen, onClose, tool }: DemoPreviewM
           <Link
             href={tool.slug}
             onClick={onClose}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white text-sm font-bold shadow-lg shadow-[#0066FF]/25 transition-all hover:brightness-110 active:scale-95"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white text-sm font-bold shadow-lg shadow-orange-500/25 transition-all hover:brightness-110 active:scale-95"
           >
             <span>Open Dedicated Studio</span>
             <ArrowRight className="w-4 h-4" />

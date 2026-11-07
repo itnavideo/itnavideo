@@ -34,15 +34,15 @@ export default function TransformationShowcaseSection() {
       <div className="relative z-10 mx-auto max-w-6xl">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
-          <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-[1.15] font-sans">
+          <h2 className="text-3xl sm:text-5xl font-black text-zinc-950 tracking-[-0.03em] leading-[1.12] font-sans">
             From Video Editing Frustration{' '}
             <br className="hidden sm:inline" />
-            <span className="bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#3B82F6] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 bg-clip-text text-transparent">
               to Instant AI Creation
             </span>
           </h2>
 
-          <p className="mt-3 sm:mt-4 text-sm sm:text-lg text-slate-600 leading-relaxed font-sans font-medium">
+          <p className="mt-3 sm:mt-5 text-sm sm:text-lg text-slate-600 leading-relaxed font-sans font-medium">
             <span className="hidden sm:inline">
               No complex timelines, no bloated plugins, and zero video editing skills needed.
               Just upload your voiceover audio or raw video recording—our AI handles all the scene planning, B-roll matching, kinetic subtitles, and sound.
@@ -69,63 +69,63 @@ export default function TransformationShowcaseSection() {
 
         {/* 3 Core Value Pillars */}
         <div className="mt-8 sm:mt-12 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-          <div className="group rounded-2xl border border-stone-200/90 bg-white p-5 sm:p-6 shadow-xs hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300 hover:-translate-y-1">
-            <div className="flex items-center justify-between mb-3.5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-600 shrink-0 group-hover:scale-105 transition-transform">
-                <UploadCloud size={18} />
+          <div className="group rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white/95 p-6 shadow-xs hover:border-orange-500/50 hover:shadow-[0_16px_36px_-10px_rgba(249,115,22,0.18)] transition-all duration-300 hover:-translate-y-1 backdrop-blur-sm">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-600 shrink-0 group-hover:scale-105 transition-transform shadow-xs">
+                <UploadCloud size={20} />
               </div>
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-blue-700 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-orange-700 bg-orange-500/10 border border-orange-500/20 px-2.5 py-1 rounded-full">
                 Step 1: Upload
               </span>
             </div>
-            <h3 className="text-sm sm:text-base font-extrabold text-slate-900 mb-1.5 group-hover:text-blue-600 transition-colors">
+            <h3 className="text-base font-bold text-slate-950 mb-2 group-hover:text-orange-600 transition-colors">
               Audio or Video Upload Only
             </h3>
-            <p className="text-xs text-slate-600 leading-relaxed font-medium">
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
               No manual script typing or timeline keyframing. Just upload any spoken voiceover, phone recording, or talking video file.
             </p>
           </div>
 
-          <div className="group rounded-2xl border border-stone-200/90 bg-white p-5 sm:p-6 shadow-xs hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300 hover:-translate-y-1">
-            <div className="flex items-center justify-between mb-3.5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-600 shrink-0 group-hover:scale-105 transition-transform">
-                <Sparkles size={18} />
+          <div className="group rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white/95 p-6 shadow-xs hover:border-orange-500/50 hover:shadow-[0_16px_36px_-10px_rgba(249,115,22,0.18)] transition-all duration-300 hover:-translate-y-1 backdrop-blur-sm">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 shrink-0 group-hover:scale-105 transition-transform shadow-xs">
+                <Sparkles size={20} />
               </div>
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-blue-700 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-700 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-full">
                 Step 2: AI Planning
               </span>
             </div>
-            <h3 className="text-sm sm:text-base font-extrabold text-slate-900 mb-1.5 group-hover:text-blue-600 transition-colors">
+            <h3 className="text-base font-bold text-slate-950 mb-2 group-hover:text-orange-600 transition-colors">
               Speech-Driven Scene Assembly
             </h3>
-            <p className="text-xs text-slate-600 leading-relaxed font-medium">
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
               AI transcribes speech with millisecond precision, pairing every phrase with matching B-roll footage, stickers, and kinetic captions.
             </p>
           </div>
 
-          <div className="group rounded-2xl border border-stone-200/90 bg-white p-5 sm:p-6 shadow-xs hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300 hover:-translate-y-1">
-            <div className="flex items-center justify-between mb-3.5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-600 shrink-0 group-hover:scale-105 transition-transform">
-                <CheckCircle2 size={18} />
+          <div className="group rounded-2xl sm:rounded-3xl border border-slate-200/90 bg-white/95 p-6 shadow-xs hover:border-orange-500/50 hover:shadow-[0_16px_36px_-10px_rgba(249,115,22,0.18)] transition-all duration-300 hover:-translate-y-1 backdrop-blur-sm">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 shrink-0 group-hover:scale-105 transition-transform shadow-xs">
+                <CheckCircle2 size={20} />
               </div>
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-700 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-700 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full">
                 Step 3: Instant Export
               </span>
             </div>
-            <h3 className="text-sm sm:text-base font-extrabold text-slate-900 mb-1.5 group-hover:text-blue-600 transition-colors">
+            <h3 className="text-base font-bold text-slate-950 mb-2 group-hover:text-orange-600 transition-colors">
               1080p Cloud Renders
             </h3>
-            <p className="text-xs text-slate-600 leading-relaxed font-medium">
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
               Render pristine 16:9 widescreen YouTube videos and 9:16 viral Shorts in under 60 seconds with zero watermarks on cloud servers.
             </p>
           </div>
         </div>
 
         {/* Section Action Bridge to Studios */}
-        <div className="mt-10 text-center flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+        <div className="mt-10 sm:mt-12 text-center flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
           <a
             href="#video-types"
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] px-5 sm:px-6 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md shadow-blue-500/20 hover:shadow-blue-500/30 hover:brightness-105 transition-all active:scale-95"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-zinc-950 hover:bg-zinc-800 px-6 sm:px-7 py-3 text-xs sm:text-sm font-bold text-white shadow-sm hover:scale-[1.02] active:scale-95 transition-all"
           >
             <span className="hidden sm:inline">Explore All 14 Purpose-Built AI Video Studios Below</span>
             <span className="sm:hidden">Explore All 14 Video Studios</span>
@@ -134,7 +134,7 @@ export default function TransformationShowcaseSection() {
           <span className="text-slate-300 hidden sm:inline">•</span>
           <Link
             href="/video-types"
-            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-950 transition-colors"
           >
             <span className="hidden sm:inline">Or browse all dedicated pages &amp; specs</span>
             <span className="sm:hidden">Browse all specs</span>

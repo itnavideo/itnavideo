@@ -251,7 +251,7 @@ export function PricingCheckoutCards({
               ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300"
               : message.type === "error"
                 ? "border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-300"
-                : "border-blue-500/30 bg-blue-500/10 text-blue-600 dark:text-blue-300"
+                : "border-orange-500/30 bg-orange-500/10 text-orange-600 dark:text-orange-300"
           }`}
         >
           {message.text}
@@ -269,12 +269,12 @@ export function PricingCheckoutCards({
               key={plan.id}
               className={`relative flex flex-col rounded-3xl border p-6 transition-all duration-300 backdrop-blur-md ${
                 isPopular
-                  ? "border-blue-500 bg-card text-card-foreground shadow-2xl shadow-blue-500/15 ring-2 ring-blue-500/40 lg:-translate-y-2 dark:bg-slate-900"
-                  : "border-slate-200 bg-card text-card-foreground shadow-md hover:border-blue-500/30 dark:border-slate-800 dark:bg-slate-900/60"
+                  ? "border-orange-500 bg-card text-card-foreground shadow-2xl shadow-orange-500/15 ring-2 ring-orange-500/40 lg:-translate-y-2 dark:bg-slate-900"
+                  : "border-slate-200 bg-card text-card-foreground shadow-md hover:border-orange-500/30 dark:border-slate-800 dark:bg-slate-900/60"
               }`}
             >
               {isPopular && (
-                <div className="absolute -top-3.5 left-1/2 flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 px-4 py-1 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-blue-500/30">
+                <div className="absolute -top-3.5 left-1/2 flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full bg-gradient-to-r from-orange-600 to-amber-500 px-4 py-1 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-orange-500/30">
                   <BadgeCheck size={13} />
                   Most Popular
                 </div>
@@ -283,7 +283,7 @@ export function PricingCheckoutCards({
               {/* Plan Header */}
               <div className="flex items-center justify-between">
                 <span className="text-sm font-extrabold text-slate-800 dark:text-slate-100">{plan.name}</span>
-                <span className="rounded-full bg-blue-500/10 px-2.5 py-1 text-[11px] font-bold text-blue-600 dark:text-cyan-400">
+                <span className="rounded-full bg-orange-500/10 px-2.5 py-1 text-[11px] font-bold text-orange-600 dark:text-orange-400">
                   {plan.credits} {plan.credits === 1 ? "credit" : "credits"}
                 </span>
               </div>
@@ -311,7 +311,7 @@ export function PricingCheckoutCards({
               <ul className="flex-1 space-y-3 text-xs">
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex items-start gap-2 text-slate-700 dark:text-slate-200">
-                    <Check size={15} className="mt-0.5 shrink-0 text-blue-600 dark:text-cyan-400" />
+                    <Check size={15} className="mt-0.5 shrink-0 text-orange-600 dark:text-orange-400" />
                     <span className="leading-tight">{feature}</span>
                   </li>
                 ))}
@@ -324,7 +324,7 @@ export function PricingCheckoutCards({
                 onClick={() => startCheckout(plan)}
                 className={`mt-8 flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-xs font-black transition-all duration-300 ${
                   isPopular
-                    ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30 hover:bg-blue-500"
+                    ? "bg-orange-600 text-white shadow-lg shadow-orange-600/30 hover:bg-orange-500"
                     : plan.id === "free"
                       ? "border border-slate-300 bg-slate-100 text-slate-800 hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                       : "bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
@@ -343,9 +343,9 @@ export function PricingCheckoutCards({
       </div>
 
       {/* Explainer Section: "What Do Credits Get You? (All Templates Included)" */}
-      <div className="mx-auto max-w-5xl rounded-3xl border border-slate-200 bg-gradient-to-b from-blue-50/50 to-card p-8 shadow-sm dark:border-slate-800 dark:from-slate-900/40 dark:to-slate-950">
+      <div className="mx-auto max-w-5xl rounded-3xl border border-slate-200 bg-gradient-to-b from-orange-50/40 to-card p-8 shadow-sm dark:border-slate-800 dark:from-slate-900/40 dark:to-slate-950">
         <div className="text-center space-y-2 mb-8">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/20 bg-blue-500/10 px-3.5 py-1 text-xs font-bold text-blue-600 dark:text-cyan-400">
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-orange-500/20 bg-orange-500/10 px-3.5 py-1 text-xs font-bold text-orange-600 dark:text-orange-400">
             <Coins size={14} />
             How Credits Work
           </div>
@@ -361,7 +361,7 @@ export function PricingCheckoutCards({
           {/* Credit Conversion 1 */}
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900/80">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-cyan-400 font-bold">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 font-bold">
                 1x
               </div>
               <div>
@@ -429,7 +429,7 @@ export function PricingCheckoutCards({
                 key={tmpl}
                 className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300"
               >
-                <Check size={12} className="text-blue-500" />
+                <Check size={12} className="text-orange-500" />
                 {tmpl}
               </span>
             ))}
